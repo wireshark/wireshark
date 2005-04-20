@@ -835,6 +835,8 @@ smb_trans_defragment(proto_tree *tree _U_, packet_info *pinfo, tvbuff_t *tvb,
 	more_frags=totlen>(pos+count);
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
+
 	if (si->sip == NULL) {
 		/*
 		 * We don't have the frame number of the request.
@@ -2007,6 +2009,8 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 	guint32 caps=0;
 	gint16 tz;
 
+	if (!si) THROW(DissectorError);
+
 	WORD_COUNT;
 
 	/* Dialect Index */
@@ -2308,6 +2312,8 @@ dissect_old_dir_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	guint8 wc;
 	guint16 bc;
 
+	if (!si) THROW(DissectorError);
+
 	WORD_COUNT;
 
 	BYTE_COUNT;
@@ -2410,6 +2416,8 @@ dissect_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	const char *an;
 	guint8 wc;
 	guint16 bc;
+
+	if (!si) THROW(DissectorError);
 
 	WORD_COUNT;
 
@@ -2627,6 +2635,8 @@ dissect_move_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	guint8 wc;
 	const char *fn;
 
+	if (!si) THROW(DissectorError);
+
 	WORD_COUNT;
 
 	/* tid */
@@ -2695,6 +2705,8 @@ dissect_copy_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	guint16 bc;
 	guint8 wc;
 	const char *fn;
+
+	if (!si) THROW(DissectorError);
 
 	WORD_COUNT;
 
@@ -2765,6 +2777,8 @@ dissect_move_copy_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	guint8 wc;
 	guint16 bc;
 
+	if (!si) THROW(DissectorError);
+
 	WORD_COUNT;
 
 	/* # of files moved */
@@ -2800,6 +2814,8 @@ dissect_open_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	const char *fn;
 	guint8 wc;
 	guint16 bc;
+
+	if (!si) THROW(DissectorError);
 
 	WORD_COUNT;
 
@@ -2908,6 +2924,8 @@ dissect_create_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint8 wc;
 	guint16 bc;
 
+	if (!si) THROW(DissectorError);
+
 	WORD_COUNT;
 
 	/* file attributes */
@@ -2974,6 +2992,8 @@ dissect_delete_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint8 wc;
 	guint16 bc;
 
+	if (!si) THROW(DissectorError);
+
 	WORD_COUNT;
 
 	/* search attributes */
@@ -3013,6 +3033,8 @@ dissect_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	const char *fn;
 	guint8 wc;
 	guint16 bc;
+
+	if (!si) THROW(DissectorError);
 
 	WORD_COUNT;
 
@@ -3072,6 +3094,8 @@ dissect_nt_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	const char *fn;
 	guint8 wc;
 	guint16 bc;
+
+	if (!si) THROW(DissectorError);
 
 	WORD_COUNT;
 
@@ -3139,6 +3163,8 @@ dissect_query_information_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	const char *fn;
 	int fn_len;
 
+	if (!si) THROW(DissectorError);
+
 	WORD_COUNT;
 
 	BYTE_COUNT;
@@ -3205,6 +3231,8 @@ dissect_set_information_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	guint8 wc;
 	guint16 bc;
 
+	if (!si) THROW(DissectorError);
+
 	WORD_COUNT;
 
 	/* file attributes */
@@ -3261,8 +3289,11 @@ dissect_read_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	if (!pinfo->fd->flags.visited) {
 		/* remember the FID for the processing of the response */
 		si = (smb_info_t *)pinfo->private_data;
-		si->sip->extra_info=GUINT_TO_POINTER(fid);
-		si->sip->extra_info_type=SMB_EI_FID;
+		if (!si) THROW(DissectorError);
+		if (si->sip) {
+			si->sip->extra_info=GUINT_TO_POINTER(fid);
+			si->sip->extra_info_type=SMB_EI_FID;
+		}
 	}
 
 	/* read count */
@@ -3355,6 +3386,8 @@ dissect_file_data_maybe_dcerpc(tvbuff_t *tvb, packet_info *pinfo,
 {
 	smb_info_t *si = (smb_info_t *)pinfo->private_data;
 
+	if (!si) THROW(DissectorError);
+
 	if( (si->sip && si->sip->flags&SMB_SIF_TID_IS_IPC) && (ofs==0) ){
 		/* dcerpc call */
 		return dissect_file_data_dcerpc(tvb, pinfo, tree,
@@ -3372,6 +3405,8 @@ dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	guint8 wc;
 	smb_info_t *si = (smb_info_t *)pinfo->private_data;
 	int fid=0;
+
+	if (!si) THROW(DissectorError);
 
 	WORD_COUNT;
 
@@ -3568,6 +3603,8 @@ dissect_create_temporary_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	guint8 wc;
 	guint16 bc;
 
+	if (!si) THROW(DissectorError);
+
 	WORD_COUNT;
 
 	/* 2 reserved bytes */
@@ -3611,6 +3648,8 @@ dissect_create_temporary_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	const char *fn;
 	guint8 wc;
 	guint16 bc, fid;
+
+	if (!si) THROW(DissectorError);
 
 	WORD_COUNT;
 
@@ -4258,6 +4297,8 @@ dissect_search_resume_key(tvbuff_t *tvb, packet_info *pinfo,
 	const char *fn;
 	char fname[11+1];
 
+	if (!si) THROW(DissectorError);
+
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, 21,
 			"Resume Key");
@@ -4318,6 +4359,8 @@ dissect_search_dir_info(tvbuff_t *tvb, packet_info *pinfo,
 	const char *fn;
 	char fname[13+1];
 
+	if (!si) THROW(DissectorError);
+
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, 46,
 			"Directory Information");
@@ -4377,6 +4420,8 @@ dissect_search_find_request(tvbuff_t *tvb, packet_info *pinfo,
 	guint8 wc;
 	guint16 bc;
 	gboolean trunc;
+
+	if (!si) THROW(DissectorError);
 
 	WORD_COUNT;
 
@@ -4955,6 +5000,8 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	int fn_len;
 	const char *fn;
 
+	if (!si) THROW(DissectorError);
+
 	WORD_COUNT;
 
 	/* next smb command */
@@ -5192,8 +5239,11 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	if (!pinfo->fd->flags.visited) {
 		/* remember the FID for the processing of the response */
 		si = (smb_info_t *)pinfo->private_data;
-		si->sip->extra_info=GUINT_TO_POINTER(fid);
-		si->sip->extra_info_type=SMB_EI_FID;
+		if (!si) THROW(DissectorError);
+		if (si->sip) {
+			si->sip->extra_info=GUINT_TO_POINTER(fid);
+			si->sip->extra_info_type=SMB_EI_FID;
+		}
 	}
 
 	/* offset */
@@ -5279,6 +5329,8 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	guint32 datalen=0, datalen_high;
 	smb_info_t *si = (smb_info_t *)pinfo->private_data;
 	int fid=0;
+
+	if (!si) THROW(DissectorError);
 
 	WORD_COUNT;
 
@@ -5381,6 +5433,8 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	unsigned int fid=0;
 	guint16 mode = 0;
 
+	if (!si) THROW(DissectorError);
+
 	WORD_COUNT;
 
 	/* next smb command */
@@ -5407,8 +5461,10 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 2;
 	if (!pinfo->fd->flags.visited) {
 		/* remember the FID for the processing of the response */
-		si->sip->extra_info=GUINT_TO_POINTER(fid);
-		si->sip->extra_info_type=SMB_EI_FID;
+		if (si->sip) {
+			si->sip->extra_info=GUINT_TO_POINTER(fid);
+			si->sip->extra_info_type=SMB_EI_FID;
+		}
 	}
 
 	/* offset */
@@ -5536,6 +5592,7 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* If we have seen the request, then print which FID this refers to */
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
 	/* first check if we have seen the request */
 	if(si->sip != NULL && si->sip->frame_req>0 && si->sip->extra_info_type==SMB_EI_FID){
 		add_fid(tvb, pinfo, tree, 0, 0, (guint16) GPOINTER_TO_UINT(si->sip->extra_info));
@@ -5622,6 +5679,8 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	guint16 sbloblen=0, sbloblen_short;
 	guint16 apwlen=0, upwlen=0;
 	gboolean unicodeflag;
+
+	if (!si) THROW(DissectorError);
 
 	WORD_COUNT;
 
@@ -5954,6 +6013,8 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	int an_len;
 	const char *an;
 
+	if (!si) THROW(DissectorError);
+
 	WORD_COUNT;
 
 	/* next smb command */
@@ -6175,6 +6236,8 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	int an_len;
 	const char *an;
 
+	if (!si) THROW(DissectorError);
+
 	WORD_COUNT;
 
 	/* next smb command */
@@ -6258,6 +6321,8 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	int an_len;
 	const char *an;
 	smb_info_t *si = pinfo->private_data;
+
+	if (!si) THROW(DissectorError);
 
 	WORD_COUNT;
 
@@ -7166,6 +7231,8 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 
 	si = (smb_info_t *)pinfo->private_data;
 
+	if (!si) THROW(DissectorError);
+
 	if(parent_tree){
 		tvb_ensure_bytes_exist(tvb, offset, bc);
 		item = proto_tree_add_text(parent_tree, tvb, offset, bc,
@@ -7244,6 +7311,8 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	const char *fn;
 
 	si = (smb_info_t *)pinfo->private_data;
+
+	if (!si) THROW(DissectorError);
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, len,
@@ -7378,6 +7447,8 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 
 	si = (smb_info_t *)pinfo->private_data;
 
+	if (!si) THROW(DissectorError);
+
 	if(parent_tree){
 		tvb_ensure_bytes_exist(tvb, offset, len);
 		item = proto_tree_add_text(parent_tree, tvb, offset, len,
@@ -7464,6 +7535,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	smb_nt_transact_info_t *nti;
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
 	sip = si->sip;
 
 	WORD_COUNT;
@@ -7568,7 +7640,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		}
 		ntd.subcmd = subcmd;
 		if (!si->unidir) {
-			if(!pinfo->fd->flags.visited){
+			if(!pinfo->fd->flags.visited && sip){
 				/*
 				 * Allocate a new smb_nt_transact_info_t
 				 * structure.
@@ -7654,6 +7726,8 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo,
 	guint16 bcp;
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
+
 	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_NTI)
 		nti = si->sip->extra_info;
 	else
@@ -7735,6 +7809,8 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 	int padcnt;
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
+
 	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_NTI)
 		nti = si->sip->extra_info;
 	else
@@ -7923,6 +7999,8 @@ dissect_nt_trans_setup_response(tvbuff_t *tvb, packet_info *pinfo,
 	smb_nt_transact_info_t *nti;
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
+
 	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_NTI)
 		nti = si->sip->extra_info;
 	else
@@ -7990,6 +8068,8 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	gboolean save_fragmented;
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
+
 	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_NTI)
 		nti = si->sip->extra_info;
 	else
@@ -8174,6 +8254,8 @@ dissect_open_print_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	guint8 wc;
 	guint16 bc;
 
+	if (!si) THROW(DissectorError);
+
 	WORD_COUNT;
 
 	/* setup len */
@@ -8283,6 +8365,8 @@ dissect_print_queue_element(tvbuff_t *tvb, packet_info *pinfo,
 	smb_info_t *si = pinfo->private_data;
 	int fn_len;
 	const char *fn;
+
+	if (!si) THROW(DissectorError);
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, 28,
@@ -8599,6 +8683,8 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	smb_info_t *si = pinfo->private_data;
 	int fn_len;
 	const char *fn;
+
+	if (!si) THROW(DissectorError);
 
 	WORD_COUNT;
 
@@ -9133,6 +9219,8 @@ dissect_ff2_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 	mask = tvb_get_letohs(tvb, offset);
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
+
 	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_T2I) {
 		t2i = si->sip->extra_info;
 		if (t2i != NULL) {
@@ -9202,6 +9290,8 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 	const char *fn;
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
+
 	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_T2I)
 		t2i = si->sip->extra_info;
 	else
@@ -9728,6 +9818,8 @@ dissect_dfs_inconsistency_data(tvbuff_t *tvb, packet_info *pinfo,
 	int fn_len;
 	const char *fn;
 
+	if (!si) THROW(DissectorError);
+
 	/*XXX shouldn this data hold version and size? unclear from doc*/
 	/* referral version */
 	CHECK_BYTE_COUNT_TRANS_SUBR(2);
@@ -9779,6 +9871,8 @@ dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
 	int unklen;
 	int ucstring_end;
 	int ucstring_len;
+
+	if (!si) THROW(DissectorError);
 
 	/* path consumed */
 	CHECK_BYTE_COUNT_TRANS_SUBR(2);
@@ -10167,6 +10261,8 @@ dissect_4_2_16_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int fn_len;
 	const char *fn;
 
+	if (!si) THROW(DissectorError);
+
 	/* file name */
 	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, FALSE, FALSE, bcp);
 	CHECK_STRING_SUBR(fn);
@@ -10265,6 +10361,8 @@ dissect_4_2_16_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int fn_len;
 	const char *fn;
 
+	if (!si) THROW(DissectorError);
+
 	/* file name len */
 	CHECK_BYTE_COUNT_SUBR(4);
 	proto_tree_add_item(tree, hf_smb_file_name_len, tvb, offset, 4, TRUE);
@@ -10352,6 +10450,8 @@ dissect_4_2_16_10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	int fn_len;
 	const char *fn;
 	int padcnt;
+
+	if (!si) THROW(DissectorError);
 
 	for (;;) {
 		old_offset = offset;
@@ -10559,6 +10659,8 @@ dissect_4_2_16_13(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	const char *fn;
 	int fn_len;
 
+	if (!si) THROW(DissectorError);
+
 	/* Link destination */
 
 	fn = get_unicode_or_ascii_string(
@@ -10674,6 +10776,8 @@ dissect_rename_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	guint32 target_name_len;
 	int fn_len;
 
+	if (!si) THROW(DissectorError);
+
 	/* Replace flag */
 	CHECK_BYTE_COUNT_SUBR(4);
 	proto_tree_add_item(tree, hf_smb_replace, tvb, offset, 4, TRUE);
@@ -10718,6 +10822,8 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	}
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
+
 	switch(si->info_level){
 	case 1:		/*Info Standard*/
 		offset = dissect_4_2_16_1(tvb, pinfo, tree, offset, bcp,
@@ -10811,6 +10917,8 @@ dissect_spi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	}
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
+
 	switch(si->info_level){
 	case 1:		/*Info Standard*/
 		offset = dissect_4_2_16_1(tvb, pinfo, tree, offset, bcp,
@@ -10967,6 +11075,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 	smb_info_t *si;
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
 
 	if(parent_tree){
 		tvb_ensure_bytes_exist(tvb, offset, dc);
@@ -11166,6 +11275,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	gboolean dissected_trans;
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
 
 	WORD_COUNT;
 
@@ -11327,7 +11437,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						"Unknown (0x%02x)"));
 				}
 				if (!si->unidir) {
-					if(!pinfo->fd->flags.visited){
+					if(!pinfo->fd->flags.visited && si->sip){
 						/*
 						 * Allocate a new
 						 * smb_transact2_info_t
@@ -11479,7 +11589,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 
 			if (!si->unidir) {
-				if(!pinfo->fd->flags.visited){
+				if(!pinfo->fd->flags.visited && si->sip){
 					/*
 					 * Allocate a new smb_transact_info_t
 					 * structure.
@@ -11585,6 +11695,8 @@ dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	gboolean resume_keys = FALSE;
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
+
 	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_T2I) {
 		t2i = si->sip->extra_info;
 		if (t2i != NULL)
@@ -11684,6 +11796,8 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	gboolean resume_keys = FALSE;
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
+
 	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_T2I) {
 		t2i = si->sip->extra_info;
 		if (t2i != NULL)
@@ -11788,6 +11902,7 @@ dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	int padcnt;
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
 
 	if(parent_tree){
 		tvb_ensure_bytes_exist(tvb, offset, *bcp);
@@ -11886,6 +12001,7 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	int padcnt;
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
 
 	if(parent_tree){
 		tvb_ensure_bytes_exist(tvb, offset, *bcp);
@@ -11990,6 +12106,7 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	int padcnt;
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
 
 	if(parent_tree){
 		tvb_ensure_bytes_exist(tvb, offset, *bcp);
@@ -12120,6 +12237,7 @@ dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	int padcnt;
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
 
 	if(parent_tree){
 		tvb_ensure_bytes_exist(tvb, offset, *bcp);
@@ -12194,6 +12312,8 @@ dissect_4_3_4_8(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 	smb_info_t *si = pinfo->private_data;
 	const char *fn;
 	int fn_len;
+
+	if (!si) THROW(DissectorError);
 
 	/* NextEntryOffset */
 	CHECK_BYTE_COUNT_SUBR(4);
@@ -12301,6 +12421,8 @@ dissect_ff2_response_data(tvbuff_t * tvb, packet_info * pinfo,
 	}
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
+
 	switch(si->info_level){
 	case 1:		/*Info Standard*/
 		offset = dissect_4_3_4_1(tvb, pinfo, tree, offset, bcp,
@@ -12488,6 +12610,8 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	}
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
+
 	switch(si->info_level){
 	case 1:		/* SMB_INFO_ALLOCATION */
 		/* filesystem id */
@@ -12841,6 +12965,8 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 	dc = tvb_reported_length(tvb);
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
+
 	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_T2I)
 		t2i = si->sip->extra_info;
 	else
@@ -13008,6 +13134,8 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 	pc = tvb_reported_length(tvb);
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
+
 	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_T2I)
 		t2i = si->sip->extra_info;
 	else
@@ -13267,6 +13395,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	gboolean save_fragmented;
 
 	si = (smb_info_t *)pinfo->private_data;
+	if (!si) THROW(DissectorError);
 
 	switch(si->cmd){
 	case SMB_COM_TRANSACTION2:
@@ -13908,6 +14037,8 @@ dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *s
 	smb_info_t *si;
 
 	si = pinfo->private_data;
+	if (!si) THROW(DissectorError);
+
 	if(cmd!=0xff){
 		proto_item *cmd_item;
 		proto_tree *cmd_tree;
