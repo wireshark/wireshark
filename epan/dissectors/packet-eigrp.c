@@ -144,8 +144,8 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_item *ti;
 
   guint opcode,opcode_tmp;
-  guint16 tlv,size, offset = EIGRP_HEADER_LENGTH;
-  guint32 ack;
+  guint16 tlv;
+  guint32 ack, size, offset = EIGRP_HEADER_LENGTH;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "EIGRP");
@@ -244,6 +244,7 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			break;
 	     }
 
+g_warning("size: %d  off: %d", size, offset);
 	     offset+=size;
      }
 
