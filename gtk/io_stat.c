@@ -1701,7 +1701,7 @@ static void
 create_advanced_field(io_stat_graph_t *gio, GtkWidget *box)
 {
 
-	gio->calc_field=gtk_entry_new_with_max_length(30);
+	gio->calc_field=gtk_entry_new_with_max_length(50);
 	gtk_box_pack_start(GTK_BOX(box), gio->calc_field, FALSE, FALSE, 0);
 	gtk_widget_show(gio->calc_field);
 	SIGNAL_CONNECT(gio->calc_field, "activate", filter_callback, gio);
