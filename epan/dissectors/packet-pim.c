@@ -378,6 +378,10 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    offset += 1;
 
 	    for (i = 0; i < ngroup; i++) {
+		/*
+		 * XXX - does the group address have the length "adr_len"
+		 * and the group mask the length "mask_len"?
+		 */
 		tigroup = proto_tree_add_text(pimopt_tree, tvb, offset, 4,
 		    "Group %d: %s", i,
 		    ip_to_str(tvb_get_ptr(tvb, offset, 4)));
