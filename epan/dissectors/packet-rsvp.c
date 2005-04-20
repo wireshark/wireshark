@@ -1346,9 +1346,9 @@ dissect_rsvp_ifid_tlv (proto_tree *ti, proto_tree *rsvp_object_tree,
 		       tvbuff_t *tvb, int offset, int obj_length, 
 		       int subtree_type)
 {
-    guint16   tlv_off;
+    guint     tlv_off;
     guint16   tlv_type;
-    guint16   tlv_len;
+    guint     tlv_len;
     char     *ifindex_name;
     proto_tree *rsvp_ifid_subtree, *ti2;
     int       offset2 = offset + 4;
@@ -1356,6 +1356,12 @@ dissect_rsvp_ifid_tlv (proto_tree *ti, proto_tree *rsvp_object_tree,
     for (tlv_off = 0; tlv_off < obj_length - 12; ) {
 	tlv_type = tvb_get_ntohs(tvb, offset+tlv_off);
 	tlv_len = tvb_get_ntohs(tvb, offset+tlv_off+2);
+
+	if (tlv_len == 0) {
+	    proto_tree_add_text(rsvp_object_tree, tvb, offset+tlv_off+2, 2,
+		"Invalid length (0)");
+	    return;
+	}
 	switch(tlv_type) {
 	case 1:
 	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
