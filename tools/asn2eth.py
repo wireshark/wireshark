@@ -1410,11 +1410,17 @@ class EthCnf:
         par = get_par(line, 2, 2, fn=fn, lineno=lineno)
         if not par: continue
         self.add_item('TYPE_RENAME', par[0], eth_name=par[1], fn=fn, lineno=lineno)
+        if not par[1][0].isupper():
+          warnings.warn_explicit("Type shoud be renamed to uppercase name (%s)" % (par[1]),
+                                  UserWarning, fn, lineno)
       elif ctx == 'FIELD_RENAME':
         if empty.match(line): continue
         par = get_par(line, 2, 2, fn=fn, lineno=lineno)
         if not par: continue
         self.add_item('FIELD_RENAME', par[0], eth_name=par[1], fn=fn, lineno=lineno)
+        if not par[1][0].islower():
+          warnings.warn_explicit("Field shoud be renamed to lowercase name (%s)" % (par[1]),
+                                  UserWarning, fn, lineno)
       elif ctx in ('TYPE_ATTR', 'ETYPE_ATTR', 'FIELD_ATTR', 'EFIELD_ATTR'):
         if empty.match(line): continue
         par = get_par_nm(line, 1, fn=fn, lineno=lineno)
@@ -1874,7 +1880,7 @@ class Type_Ref (Type):
     ectx.eth_dep_add(ident, self.val)
 
   def eth_tname(self):
-    return self.val
+    return asn2c(self.val)
 
   def GetTTag(self, ectx):
     if (ectx.type[self.val]['import']):
