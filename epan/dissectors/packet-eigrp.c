@@ -244,7 +244,6 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			break;
 	     }
 
-g_warning("size: %d  off: %d", size, offset);
 	     offset+=size;
      }
 
