@@ -430,6 +430,8 @@ static dissector_table_t media_type_dissector_table;
 /* Store the info needed by the SIP tap for one packet */
 static sip_info_value_t *stat_info;
 
+/* The buffer size for the cseq_method name */
+#define MAX_CSEQ_METHOD_SIZE 16
 
 /****************************************************************************
  * Conversation-type definitions
@@ -600,13 +602,14 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guchar contacts = 0, contact_is_star = 0, expires_is_0 = 0;
 	guint32 cseq_number = 0;
 	guchar  cseq_number_set = 0;
-	char    cseq_method[16] = "";
+	char    cseq_method[MAX_CSEQ_METHOD_SIZE] = "";
 	char	call_id[MAX_CALL_ID_SIZE] = "";
 	char *media_type_str = NULL;
 	char *media_type_str_lower_case = NULL;
 	char *content_type_parameter_str = NULL;
 	guint resend_for_packet = 0;
 	char  *string;
+    int   strlen_to_copy;
 
 	/* Initialise stat info for passing to tap */
 	stat_info = g_malloc(sizeof(sip_info_value_t));
@@ -1031,22 +1034,32 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					stat_info->tap_cseq_number=cseq_number;
 
 					/* Extract method name from value */
-					for (value_offset = 0; value_offset < (gint)strlen(value); value_offset++)
-					{
-						if (isalpha((guchar)value[value_offset]))
-						{
-							strcpy(cseq_method,value+value_offset);
-							break;
-						}
-					}
-					/* Add 'CSeq' string item to tree */
-					if(hdr_tree) {
-						proto_tree_add_string_format(hdr_tree,
-						    hf_header_array[hf_index], tvb,
-						    offset, next_offset - offset,
-						    value, "%s",
-						    tvb_format_text(tvb, offset, linelen));
-					}
+                    strlen_to_copy = strlen(value)+1;
+                    if (strlen_to_copy > MAX_CSEQ_METHOD_SIZE) {
+                        /* Note the error in the protocol tree */
+                        if(hdr_tree) {
+                            proto_tree_add_string_format(hdr_tree,
+                                hf_header_array[hf_index], tvb,
+                                offset, next_offset - offset,
+                                value, "%s String too big: %d bytes",
+                                sip_headers[POS_CSEQ].name,
+                                strlen_to_copy);
+                        }
+                        THROW(ReportedBoundsError);
+                        return TRUE;
+                    }
+                    else {
+                        strncpy(cseq_method, value, MIN(strlen(value)+1, MAX_CSEQ_METHOD_SIZE));
+
+                        /* Add 'CSeq' string item to tree */
+                        if(hdr_tree) {
+                            proto_tree_add_string_format(hdr_tree,
+                                hf_header_array[hf_index], tvb,
+                                offset, next_offset - offset,
+                                value, "%s",
+                                tvb_format_text(tvb, offset, linelen));
+                        }
+                    }
 					break;
 
 				case POS_CALL_ID :
