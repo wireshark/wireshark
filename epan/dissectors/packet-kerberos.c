@@ -700,7 +700,7 @@ g_warning("added key: %s", sk->origin);
 #define CONFOUNDER_PLUS_CHECKSUM 24
 
 static guint8 *
-decrypt_krb5_data(proto_tree _U_ *tree, packet_info *pinfo,
+decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int _U_ usage,
 			int length,
 			const char *cryptotext,
@@ -756,7 +756,7 @@ decrypt_krb5_data(proto_tree _U_ *tree, packet_info *pinfo,
 		 */
 		TRY {
 			id_offset = get_ber_identifier(encr_tvb, CONFOUNDER_PLUS_CHECKSUM, &cls, &pc, &tag);
-			offset = get_ber_length(encr_tvb, id_offset, &item_len, &ind);
+			offset = get_ber_length(tree, encr_tvb, id_offset, &item_len, &ind);
 		}
 		CATCH (BoundsError) {
 			tvb_free(encr_tvb);

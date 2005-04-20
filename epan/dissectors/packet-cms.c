@@ -342,7 +342,7 @@ dissect_cms_T_eContent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
   offset = dissect_cms_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_cms_eContent);
 
   pdu_offset = get_ber_identifier(tvb, pdu_offset, &class, &pc, &tag);
-  pdu_offset = get_ber_length(tvb, pdu_offset, &len, &ind);
+  pdu_offset = get_ber_length(tree, tvb, pdu_offset, &len, &ind);
   pdu_offset = call_ber_oid_callback(object_identifier_id, tvb, pdu_offset, pinfo, tree);
 
 

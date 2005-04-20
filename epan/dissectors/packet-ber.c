@@ -358,10 +358,11 @@ int dissect_ber_identifier(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *t
  */
 /* 8.1.3 Length octets */
 int
-get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind) {
+get_ber_length(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind) {
 	guint8 oct, len;
 	guint32 tmp_length;
 	gboolean tmp_ind;
+	int old_offset=offset;
 
 	tmp_length = 0;
 	tmp_ind = FALSE;
@@ -388,6 +389,13 @@ get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind) {
 		}
 	}
 
+	/* check that the length is sane */
+	if(tmp_length>(guint32)tvb_reported_length_remaining(tvb,offset)){
+		proto_tree_add_text(tree, tvb, old_offset, offset-old_offset, "BER: Error length:%d longer than tvb_reported_length_remaining:%d",tmp_length, tvb_reported_length_remaining(tvb, offset));
+		/* the ignorant mans way to generate [malformed packet] */
+		tvb_get_guint8(tvb, 99999999);
+	}
+
 	if (length)
 		*length = tmp_length;
 	if (ind)
@@ -406,7 +414,7 @@ dissect_ber_length(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int 
 	guint32 tmp_length;
 	gboolean tmp_ind;
 
-	offset = get_ber_length(tvb, offset, &tmp_length, &tmp_ind);
+	offset = get_ber_length(tree, tvb, offset, &tmp_length, &tmp_ind);
 	
 	if(show_internal_ber_fields){
 		if(tmp_ind){
@@ -740,7 +748,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
 		hoffset = offset;
 		/* read header and len for next field */
 		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-		offset = get_ber_length(tvb, offset, &len, &ind_field);
+		offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 		eoffset = offset + len;
 ber_sequence_try_again:
 		/* have we run out of known entries in the sequence ?*/
@@ -922,7 +930,7 @@ printf("CHOICE dissect_ber_choice(%s) entered len:%d\n",name,tvb_length_remainin
 
 	/* read header and len for choice field */
 	offset=get_ber_identifier(tvb, offset, &class, &pc, &tag);
-	offset=get_ber_length(tvb, offset, &len, &ind);
+	offset=get_ber_length(parent_tree, tvb, offset, &len, &ind);
 	if(ind){
 	  /* if the length is indefinite we dont really know (yet) where the
 	   * object ends so assume it spans the rest of the tvb for now.
@@ -1129,7 +1137,7 @@ printf("RESTRICTED STRING dissect_ber_octet_string(%s) entered\n",name);
 
 	if (!implicit_tag) {
 		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-		offset = get_ber_length(tvb, offset, &len, NULL);
+		offset = get_ber_length(tree, tvb, offset, &len, NULL);
 		eoffset = offset + len;
 
 		/* sanity check */
@@ -1328,7 +1336,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 
 		/* read header and len for next field */
 		offset = get_ber_identifier(tvb, offset, NULL, NULL, NULL);
-		offset = get_ber_length(tvb, offset, &len, NULL);
+		offset = get_ber_length(tree, tvb, offset, &len, NULL);
 		offset += len;
 		cnt++;
 	}
@@ -1369,7 +1377,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 		hoffset = offset;
 		/* read header and len for next field */
 		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-		offset = get_ber_length(tvb, offset, &len, &ind_field);
+		offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 		if(ind_field){
 			/* if the length is indefinite we dont really know (yet) where the
 			 * object ends so assume it spans the rest of the tvb for now.

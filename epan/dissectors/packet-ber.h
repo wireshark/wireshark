@@ -80,7 +80,7 @@ extern int dissect_ber_identifier(packet_info *pinfo, proto_tree *tree, tvbuff_t
 /* this function dissects the identifier octer of the BER TLV.
  * We only handle (TAGs and) LENGTHs that fit inside 32 bit integers.
  */
-extern int get_ber_length(tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind);
+extern int get_ber_length(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind);
 extern int dissect_ber_length(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 *length, gboolean *ind);
 
 extern int dissect_ber_octet_string(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **out_tvb);
