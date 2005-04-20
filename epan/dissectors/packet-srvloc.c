@@ -381,10 +381,13 @@ static int
 dissect_authblk_v2(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
     guint16 length;
+    nstime_t ts;
     
     proto_tree_add_item(tree, hf_srvloc_authblkv2_bsd, tvb, offset, 2, FALSE);
     proto_tree_add_item(tree, hf_srvloc_authblkv2_len, tvb, offset+2, 2, FALSE);
-    proto_tree_add_item(tree, hf_srvloc_authblkv2_timestamp, tvb, offset+4, 4, FALSE);
+    ts.nsecs = 0;
+    ts.secs = tvb_get_ntohl(tvb, offset + 4);
+    proto_tree_add_time(tree, hf_srvloc_authblkv2_timestamp, tvb, offset+4, 4, &ts);
     length = tvb_get_ntohs(tvb, offset + 8);
     proto_tree_add_uint(tree, hf_srvloc_authblkv2_slpspilen, tvb, offset + 8, 2, length);
     offset += 10;
