@@ -9,6 +9,11 @@
 # each fuzzed file and checks for errors.  The files are processed
 # repeatedly until an error is found.
 
+# Tweak the following to your liking.  Editcap must support "-E".
+TETHEREAL=./tethereal
+EDITCAP=./editcap
+CAPINFOS=./capinfos
+
 # This needs to point to a 'date' that supports %s.
 DATE=/bin/date
 
@@ -19,14 +24,16 @@ TETHEREAL_ARGS="-nVxr"
 
 # These may be set to your liking
 MAX_CPU_TIME=900
+MAX_VMEM=500000
 ERR_PROB=0.02
 
-ulimit -S -t $MAX_CPU_TIME
+ulimit -S -t $MAX_CPU_TIME -v $MAX_VMEM
 
 # Make sure we have a valid test set
 FOUND=0
 for CF in "$@" ; do
-    ./capinfos $CF > /dev/null 2>&1 && FOUND=1
+    $CAPINFOS $CF > /dev/null 2>&1 && FOUND=1
+    if [ $FOUND -eq 1 ] ; then break ; fi
 done
 
 if [ $FOUND -eq 0 ] ; then
@@ -38,7 +45,7 @@ FIN
     exit 1
 fi
 
-echo "Running tethereal with args:" $TETHEREAL_ARGS
+echo "Running $TETHEREAL with args: $TETHEREAL_ARGS"
 echo ""
 
 # Iterate over our capture files.
@@ -50,7 +57,7 @@ while [ 1 ] ; do
     for CF in "$@" ; do
 	echo -n "    $CF: "
 
-	./capinfos $CF > /dev/null 2>&1
+	$CAPINFOS $CF > /dev/null 2>&1
 	if [ $? -ne 0 ] ; then
 	    echo "Not a valid capture file"
 	    continue
@@ -58,13 +65,16 @@ while [ 1 ] ; do
 
 	DISSECTOR_BUG=0
 
-	./editcap -E $ERR_PROB "$CF" $TMP_DIR/editcap.out > /dev/null 2>&1
+	$EDITCAP -E $ERR_PROB "$CF" $TMP_DIR/editcap.out > /dev/null 2>&1
 	if [ $? -ne 0 ] ; then
-	    echo "Invalid format for editcap"
-	    continue
+	    $EDITCAP -E $ERR_PROB -T ether "$CF" $TMP_DIR/editcap.out > /dev/null 2>&1
+	    if [ $? -ne 0 ] ; then
+		echo "Invalid format for editcap"
+		continue
+	    fi
 	fi
 
-	./tethereal -nxVr $TMP_DIR/editcap.out \
+	$TETHEREAL $TETHEREAL_ARGS $TMP_DIR/editcap.out \
 		> /dev/null 2> $TMP_DIR/stderr.out
 	RETVAL=$?
 	grep -i "dissector bug" $TMP_DIR/stderr.out \
