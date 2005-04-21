@@ -230,6 +230,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
   }
 
   if (tree) {
+    tvb_ensure_bytes_exist(payload_tvb, 0, 6);
     /* This part looks sort of like a SNAP-encapsulated LLC header... */
     proto_tree_add_text(fh_tree, payload_tvb, 0, 1, "DSAP: 0x%X", tvb_get_guint8(tvb, 14));
     proto_tree_add_text(fh_tree, payload_tvb, 1, 1, "SSAP: 0x%X", tvb_get_guint8(tvb, 15));
