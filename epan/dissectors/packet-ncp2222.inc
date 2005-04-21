@@ -1487,8 +1487,7 @@ get_string(tvbuff_t* tvb, guint offset, guint str_length, char *dest_buf)
         length_remaining = tvb_length_remaining(tvb, offset);
         if(str_length > length_remaining || str_length > 1024)  
         {
-                strcpy(dest_buf, "String too long to process");
-                return;
+                THROW(ReportedBoundsError);
         }
         dest_buf[0] = '\0';        
         if(str_length == 0)
@@ -1826,6 +1825,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                {
                                        vvalues->vstring = "True";
                                }
+                               tvb_ensure_bytes_exist(tvb, voffset, value1);
                                proto_tree_add_string(nvtree, hf_value_string, tvb, voffset, 
                                            value1, vvalues->vstring);
                                voffset=voffset+8;
@@ -1839,6 +1839,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                         break;
                                }
                                voffset += 4;
+                               tvb_ensure_bytes_exist(tvb, voffset, value1);
                                proto_tree_add_bytes(nvtree, hf_value_bytes, tvb, voffset, value1, tvb_get_ptr(tvb, voffset, value1));
                                voffset += value1;
                                voffset += (value1%2);
@@ -1850,6 +1851,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                value1 = tvb_get_letohl(tvb, voffset); /* length of field */
                                voffset = voffset+4;
                                value2 = tvb_get_letohl(tvb, voffset); /* Value */
+                               tvb_ensure_bytes_exist(tvb, voffset, value1);
                                proto_tree_add_uint_format(nvtree, hf_nds_uint32value, tvb, voffset,
                                         value1, value2, "Value %d", value2);
                                voffset = voffset+4;
@@ -1872,6 +1874,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                { 
                                                valuestr="(Undefined Protocol)";
                                }
+                               tvb_ensure_bytes_exist(tvb, voffset, value1);
                                proto_tree_add_uint_format(nvtree, hf_nds_uint32value, tvb, voffset,
                                    value1, value2, valuestr, value2);
                                voffset = voffset+4;
@@ -2717,6 +2720,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                                 {
                                                         ioffset += 4;   /* Length = 4 */
                                                         value4 = tvb_get_letohl(tvb, ioffset);
+                                                        tvb_ensure_bytes_exist(tvb, ioffset, values->vlength);
                                                         proto_tree_add_uint(ntree, hf_nds_privileges, tvb, ioffset,
                                                         values->vlength, value4);
                                                         ioffset = ioffset+4;
@@ -2811,6 +2815,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                                                  break;
                                                         }
                                                         ioffset += 4;
+                                                        tvb_ensure_bytes_exist(tvb, ioffset, value5);
                                                         proto_tree_add_bytes(atree, hf_value_bytes, tvb, ioffset, value5, tvb_get_ptr(tvb, ioffset, value5));
                                                         ioffset += value5;
                                                         ioffset += (value5%2);
@@ -3111,6 +3116,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                { 
                                                valuestr="(Kind Change Not Found)";
                                }
+                               tvb_ensure_bytes_exist(tvb, ioffset, values->vlength);
                                proto_tree_add_uint_format(ntree, hf_nds_uint32value, tvb, ioffset,
                                values->vlength, value1, valuestr, value1);
                                ioffset = ioffset+4;
@@ -3141,6 +3147,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                { 
                                                valuestr="(Undefined Protocol)";
                                }
+                               tvb_ensure_bytes_exist(tvb, ioffset, values->vlength);
                                proto_tree_add_uint_format(ntree, hf_nds_uint32value, tvb, ioffset,
                                values->vlength, value1, valuestr, value1);
                                ioffset = ioffset+4;
@@ -3170,6 +3177,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                         { 
                                                valuestr="(Undefined Protocol)";
                                         }
+                                        tvb_ensure_bytes_exist(tvb, ioffset, values->vlength);
                                         proto_tree_add_uint_format(atree, hf_nds_uint32value, tvb, ioffset,
                                         values->vlength, value2, valuestr, value2);
                                         ioffset = ioffset+4;
@@ -3227,6 +3235,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                 { 
                                         valuestr="(Undefined Protocol)";
                                 }
+                                tvb_ensure_bytes_exist(tvb, ioffset, values->vlength);
                                 proto_tree_add_uint_format(atree, hf_nds_uint32value, tvb, ioffset,
                                 values->vlength, value2, valuestr, value2);
                                 ioffset = ioffset+4;
@@ -3577,7 +3586,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                                                 value1 = tvb_get_letohl(tvb, ioffset);
                                                                 ioffset = ioffset + 4;
                                                                 get_string(tvb, ioffset, value1, mval_buf.buffer);
-                                                                temp_values.vstring = mval_buf.buffer;                                
+                                                                temp_values.vstring = mval_buf.buffer;
                                                                 proto_tree_add_string(ntree, hf_nds_relative_dn, tvb, ioffset, 
                                                                         value1, temp_values.vstring);
                                                                 ioffset = ioffset + value1;        
@@ -3709,6 +3718,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                                          break;
                                                 }
                                                 ioffset += 4;
+                                                tvb_ensure_bytes_exist(tvb, ioffset, value1);
                                                 proto_tree_add_bytes(sub1tree, hf_nds_asn1, tvb, ioffset, value1, tvb_get_ptr(tvb, ioffset, value1));
                                                 ioffset += value1;
                                                 ioffset += (value1%2);
