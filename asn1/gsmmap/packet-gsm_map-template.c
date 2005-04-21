@@ -63,6 +63,7 @@ static int hf_gsm_map_local_errorCode = -1;
 static int hf_gsm_map_global_errorCode_oid = -1;
 static int hf_gsm_map_global_errorCode = -1;
 static int hf_gsm_map_SendAuthenticationInfoArg = -1;
+static int hf_gsm_map_SendAuthenticationInfoRes = -1;
 static int hf_gsm_mapSendEndSignal = -1;
 static int hf_gsm_map_getPassword = -1;  
 static int hf_gsm_map_currentPassword = -1;
@@ -710,15 +711,19 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
   case 55: /*sendIdentification*/
     offset=dissect_gsm_map_SendIdentificationRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
-  case 56:
-	  offset = dissect_gsm_map_SendAuthenticationInfoRes(FALSE, tvb, offset, pinfo, tree, -1);
+  case 56: /*sendAuthenticationInfo*/
+	  if (application_context_version < 3 ){
+		  offset=dissect_gsm_map_SendAuthenticationInfoRes(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoRes);
+	  }else{
+		  offset=dissect_gsm_map_SendAuthenticationInfoV3Res(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoRes);
+	  }
 	  break;
   case 57: /*restoreData*/
-	offset=dissect_gsm_map_RestoreDataRes(FALSE, tvb, offset, pinfo, tree, -1);
-	break;
+    offset=dissect_gsm_map_RestoreDataRes(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
   case 58: /*sendIMSI*/
-	offset=dissect_gsm_map_Imsi(FALSE, tvb, offset, pinfo, tree,hf_gsm_map_imsi);
-	break;
+    offset=dissect_gsm_map_Imsi(FALSE, tvb, offset, pinfo, tree,hf_gsm_map_imsi);
+    break;
   case 59: /*unstructuredSS-Request*/
     offset=dissect_gsm_map_Ussd_Res(FALSE, tvb, offset, pinfo, tree, -1);
     break;
@@ -1252,6 +1257,10 @@ void proto_register_gsm_map(void) {
       { "SendAuthenticationInfoArg", "gsm_map.SendAuthenticationInfoArg",
         FT_BYTES, BASE_NONE, NULL, 0,
         "SendAuthenticationInfoArg", HFILL }},
+	{ &hf_gsm_map_SendAuthenticationInfoRes,
+      { "SendAuthenticationInfoRes", "gsm_map.SendAuthenticationInfoRes",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "SendAuthenticationInfoRes", HFILL }},
     { &hf_gsm_map_currentPassword,
       { "currentPassword", "gsm_map.currentPassword",
         FT_STRING, BASE_NONE, NULL, 0,

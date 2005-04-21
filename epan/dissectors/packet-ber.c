@@ -869,12 +869,15 @@ printf("SEQUENCE dissect_ber_sequence(%s) subdissector ate %d bytes\n",name,coun
 }
 #endif
 		seq++;
-		offset = hoffset+count;
-		/* if it was optional  and no bytes were eaten,
-		   just try again.
-		*/
-		if((count==0)&&(seq->flags&BER_FLAGS_OPTIONAL)){
-				goto ber_sequence_try_again;
+		if (len==0) {
+			offset = eoffset;
+		} else {
+			offset = hoffset+count;
+		}
+		/* if it was optional and no bytes were eaten and it was */
+		/* supposed to (len<>0), just try again. */
+		if((len!=0)&&(count==0)&&(seq->flags&BER_FLAGS_OPTIONAL)){
+			goto ber_sequence_try_again;
 		}
 	}
 
