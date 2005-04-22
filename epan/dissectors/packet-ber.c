@@ -1272,7 +1272,7 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 
 static int dissect_ber_sq_of(gboolean implicit_tag, gint32 type, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id) {
 	gint8 class;
-	gboolean pc, ind, ind_field;
+	gboolean pc, ind = FALSE, ind_field;
 	gint32 tag;
 	guint32 len;
 	proto_tree *tree = parent_tree;
