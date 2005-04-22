@@ -76,8 +76,9 @@ static int
 dissect_getport_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree *tree)
 {
-	guint32 proto;
+	guint32 proto, version;
 	guint32 prog;
+	char *prog_name, *proto_name;
 
 	/* make sure we remember protocol type until the reply packet */
 	if(!pinfo->fd->flags.visited){
@@ -90,22 +91,43 @@ dissect_getport_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		}
 	}
 
-	if ( tree )
-	{
-		prog = tvb_get_ntohl(tvb, offset+0);
-		proto_tree_add_uint_format(tree, hf_portmap_prog, tvb,
-			offset, 4, prog, "Program: %s (%u)",
-			rpc_prog_name(prog), prog);
-		proto_tree_add_item(tree, hf_portmap_version, tvb,
-			offset+4, 4, FALSE);
+	/* program */
+	prog = tvb_get_ntohl(tvb, offset+0);
+	prog_name = rpc_prog_name(prog);
+	proto_tree_add_uint_format(tree, hf_portmap_prog, tvb,
+		offset, 4, prog, "Program: %s (%u)",
+		prog_name, prog);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,  " %s(%u)", prog_name, prog);
 
-		proto = tvb_get_ntohl(tvb, offset+8);
-		proto_tree_add_uint_format(tree, hf_portmap_proto, tvb,
-			offset+8, 4, proto, "Proto: %s (%u)", ipprotostr(proto), proto);
-
-		proto_tree_add_item(tree, hf_portmap_port, tvb,
-			offset+12, 4, FALSE);
 	}
+	proto_item_append_text(tree, " GETPORT Call %s(%u)", prog_name, prog);
+
+	/* version */
+	version = tvb_get_ntohl(tvb, offset+4);
+	proto_tree_add_item(tree, hf_portmap_version, tvb,
+		offset+4, 4, FALSE);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,  " V:%d", version);
+
+	}
+	proto_item_append_text(tree, " Version:%d", version);
+
+
+	/* protocol */
+	proto = tvb_get_ntohl(tvb, offset+8);
+	proto_name = (char *)ipprotostr(proto);
+	proto_tree_add_uint_format(tree, hf_portmap_proto, tvb,
+		offset+8, 4, proto, "Proto: %s (%u)", proto_name, proto);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,  " %s", proto_name);
+
+	}
+	proto_item_append_text(tree, " %s", proto_name);
+
+	/* port */
+	proto_tree_add_item(tree, hf_portmap_port, tvb,
+		offset+12, 4, FALSE);
 
 	return offset+16;
 }
@@ -114,6 +136,8 @@ static int
 dissect_getport_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree *tree)
 {
+	guint32 port;
+
 	/* we might have learnt a <ipaddr><protocol><port> mapping for ONC-RPC*/
 	if(!pinfo->fd->flags.visited){
 		rpc_call_info_value *rpc_call=pinfo->private_data;
@@ -132,8 +156,22 @@ dissect_getport_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		}
 	}
 
+	port = tvb_get_ntohl(tvb, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_portmap_port,
 	    offset);
+	proto_item_append_text(tree, " GETPORT Reply Port:%d", port);
+	if(port){
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_fstr(pinfo->cinfo, COL_INFO,  " Port:%d", port);
+		}
+		proto_item_append_text(tree, " Port:%d", port);
+	} else {
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_fstr(pinfo->cinfo, COL_INFO,  " PROGRAM_NOT_AVAILABLE");
+		}
+		proto_item_append_text(tree, " PROGRAM_NOT_AVAILABLE");
+	}
+
 	return offset;
 }
 
