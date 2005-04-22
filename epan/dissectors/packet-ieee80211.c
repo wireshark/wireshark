@@ -990,7 +990,7 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 	offset += 2;
 	tag_val_off += 2;
 
-	while ((field = val_to_str(tag_val_off, fields, NULL))) {
+	while ((field = val_to_str(tag_val_off, fields, "Unknown"))) {
 	  snprintf(out_buff, SHORT_STR, "WME TSPEC: %s %u", field, tvb_get_letohl(tvb, offset));
 	  proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
 	  offset += 4;

@@ -1715,7 +1715,7 @@ dissect_q933_party_subaddr_ie(tvbuff_t *tvb, int offset, int len,
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "Odd/even indicator: %s",
 	    val_to_str(octet & 0x10, q933_odd_even_indicator_vals,
-	      NULL));
+	      "Unknown (0x%02X)"));
 	offset += 1;
 	len -= 1;
 

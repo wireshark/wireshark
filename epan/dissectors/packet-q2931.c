@@ -589,7 +589,7 @@ dissect_q2931_atm_cell_rate_ie(tvbuff_t *tvb, int offset, int len,
 			proto_tree_add_text(tree, tvb, offset, 4,
 			    "%s: %u cell%s/s",
 			    val_to_str(identifier, q2931_atm_td_subfield_vals,
-			      NULL),
+			      "Unknown (0x%02X)"),
 			    value, plurality(value, "", "s"));
 			offset += 4;
 			len -= 4;
@@ -600,7 +600,7 @@ dissect_q2931_atm_cell_rate_ie(tvbuff_t *tvb, int offset, int len,
 			proto_tree_add_text(tree, tvb, offset, 1,
 			    "%s",
 			    val_to_str(identifier, q2931_atm_td_subfield_vals,
-			      NULL));
+			      "Unknown (0x%02X)"));
 			offset += 1;
 			len -= 1;
 			break;
@@ -612,7 +612,7 @@ dissect_q2931_atm_cell_rate_ie(tvbuff_t *tvb, int offset, int len,
 			proto_tree_add_text(tree, tvb, offset, 2,
 			    "%s",
 			    val_to_str(identifier, q2931_atm_td_subfield_vals,
-			      NULL));
+			      "Unknown (0x%02X)"));
 			proto_tree_add_text(tree, tvb, offset + 1, 1,
 			    "%s allowed in forward direction",
 			    (value & 0x80) ? "Frame discard" : "No frame discard");
@@ -1484,7 +1484,7 @@ dissect_q2931_party_subaddr_ie(tvbuff_t *tvb, int offset, int len,
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "Odd/even indicator: %s",
 	    val_to_str(octet & 0x10, q2931_odd_even_indicator_vals,
-	      NULL));
+	      "Unknown (0x%02X)"));
 	offset += 1;
 	len -= 1;
 

@@ -1464,7 +1464,7 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 		proto_tree_add_text(tree, tvb, offset, 1,
 		    "Channel selection: %s",
 		    val_to_str(octet & 0x03, q931_basic_channel_selection_vals,
-		      NULL));
+		      "Unknown (0x%02X)"));
 	}
 	offset += 1;
 	len -= 1;
@@ -1931,7 +1931,7 @@ dissect_q931_pl_binary_parameters_ie(tvbuff_t *tvb, int offset, int len,
 	octet = tvb_get_guint8(tvb, offset);
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "Fast select: %s",
-	    val_to_str(octet & 0x18, q931_fast_selected_vals, NULL));
+	    val_to_str(octet & 0x18, q931_fast_selected_vals, "Unknown (0x%02X)"));
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "%s",
 	    (octet & 0x04) ? "No request/request denied" :
@@ -2178,7 +2178,7 @@ dissect_q931_party_subaddr_ie(tvbuff_t *tvb, int offset, int len,
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "Odd/even indicator: %s",
 	    val_to_str(octet & 0x10, q931_odd_even_indicator_vals,
-	      NULL));
+	      "Unknown (0x%02X)"));
 	offset += 1;
 	len -= 1;
 
