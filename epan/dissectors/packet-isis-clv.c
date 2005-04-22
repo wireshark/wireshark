@@ -466,8 +466,7 @@ isis_dissect_te_router_id_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  * Description:
  *	Take apart a NLPID packet and display it.  The NLPID (for intergrated
  *	ISIS, contains n network layer protocol IDs that the box supports.
- *	Our display buffer we use is upto 255 entries, 6 bytes per (0x00, )
- *	plus 1 for zero termination.  We just just 256*6 for simplicity.
+ *	We max out at 256 entries.
  *
  * Input:
  *	tvbuff_t * : tvbuffer for packet data
@@ -478,32 +477,49 @@ isis_dissect_te_router_id_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  * Output:
  *	void, but we will add to proto tree if !NULL.
  */
+
+#define TRUNCATED_TEXT " [truncated]"
 void
 isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length)
 {
-	char sbuf[256*6];
-	char *s = sbuf;
-	int hlen = length;
-	int old_offset = offset;
+	GString *gstr;
+	int old_offset = offset, old_len = length;
 
 	if ( !tree ) return;		/* nothing to do! */
 
-	while ( length-- > 0 ) {
-		if (s != sbuf ) {
-			s += sprintf ( s, ", " );
+	gstr = g_string_new("NLPID(s): ");
+
+	/*
+	 * Free the GString if we throw an exception.
+	 */
+	CLEANUP_PUSH(free_g_string, gstr);
+
+	if (length <= 0) {
+		g_string_append(gstr, "--none--");
+	} else {
+		while (length-- > 0 && gstr->len < ITEM_LABEL_LENGTH) {
+			if (gstr->len > 10) {
+				g_string_append(gstr, ", ");
+			}
+			g_string_sprintfa(gstr, "%s (0x%02x)",
+				val_to_str(tvb_get_guint8(tvb, offset), nlpid_vals,
+				"Unknown"), tvb_get_guint8(tvb, offset));
+			offset++;
 		}
-		s += sprintf ( s, "%s (0x%02x)",
-		    val_to_str(tvb_get_guint8(tvb, offset), nlpid_vals,
-			"Unknown"), tvb_get_guint8(tvb, offset));
-		offset++;
 	}
 
-	if ( hlen == 0 ) {
-		sprintf ( sbuf, "--none--" );
+	if (gstr->len >= ITEM_LABEL_LENGTH) {
+		g_string_truncate(gstr, ITEM_LABEL_LENGTH - strlen(TRUNCATED_TEXT) - 1);
+		g_string_append(gstr, TRUNCATED_TEXT);
 	}
 
-	proto_tree_add_text ( tree, tvb, old_offset, hlen,
-			"NLPID(s): %s", sbuf );
+	proto_tree_add_text (tree, tvb, old_offset, old_len,
+			"%s", gstr->str);
+	/*
+	 * We're done with the GString, so delete it and get rid of
+	 * the cleanup handler.
+	 */
+	CLEANUP_CALL_AND_POP;
 }
 
 /*
