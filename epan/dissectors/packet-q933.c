@@ -1244,7 +1244,7 @@ dissect_q933_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 		proto_tree_add_text(tree, tvb, offset, 1,
 		    "Channel selection: %s",
 		    val_to_str(octet & 0x03, q933_basic_channel_selection_vals,
-		      NULL));
+		      "Unknown (0x%X)"));
 	}
 	offset += 1;
 	len -= 1;
