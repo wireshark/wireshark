@@ -54,10 +54,10 @@ static int hf_x509af_extension_id = -1;
 static gint ett_pkix_crl = -1;
 #include "packet-x509af-ett.c"
 
-static char algorithm_id[64]; /*64 chars should be long enough? */
+static char algorithm_id[BER_MAX_OID_STR_LEN];
 
 
-static char extension_id[64]; /*64 chars should be long enough? */
+static char extension_id[BER_MAX_OID_STR_LEN];
 
 
 #include "packet-x509af-fn.c"

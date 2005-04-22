@@ -55,7 +55,7 @@ static int hf_x509ce_IPAddress = -1;
 /* Initialize the subtree pointers */
 #include "packet-x509ce-ett.c"
 
-static char object_identifier_id[64]; /*64 chars should be long enough? */
+static char object_identifier_id[BER_MAX_OID_STR_LEN];
 
 #include "packet-x509ce-fn.c"
 

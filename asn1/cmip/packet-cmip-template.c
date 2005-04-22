@@ -69,14 +69,14 @@ static int opcode_type;
 static int attributeform;
 #define ATTRIBUTE_LOCAL_FORM  0
 #define ATTRIBUTE_GLOBAL_FORM 1
-static char attribute_identifier_id[64]; /*64 chars should be long enough? */
+static char attribute_identifier_id[BER_MAX_OID_STR_LEN];
 
-static char object_identifier_id[64]; /*64 chars should be long enough? */
+static char object_identifier_id[BER_MAX_OID_STR_LEN];
 
 static int objectclassform;
 #define OBJECTCLASS_LOCAL_FORM  0
 #define OBJECTCLASS_GLOBAL_FORM 1
-static char objectclass_identifier_id[64]; /*64 chars should be long enough? */
+static char objectclass_identifier_id[BER_MAX_OID_STR_LEN];
 
 #include "packet-cmip-fn.c"
 

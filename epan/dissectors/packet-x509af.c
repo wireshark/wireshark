@@ -170,10 +170,10 @@ static gint ett_x509af_SET_OF_AttributeType = -1;
 /*--- End of included file: packet-x509af-ett.c ---*/
 
 
-static char algorithm_id[64]; /*64 chars should be long enough? */
+static char algorithm_id[BER_MAX_OID_STR_LEN];
 
 
-static char extension_id[64]; /*64 chars should be long enough? */
+static char extension_id[BER_MAX_OID_STR_LEN];
 
 
 

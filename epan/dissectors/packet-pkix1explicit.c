@@ -98,7 +98,7 @@ static gint ett_pkix1explicit_TeletexDomainDefinedAttribute = -1;
 
 
 
-static char object_identifier_id[64]; /*64 chars should be long enough? */
+static char object_identifier_id[BER_MAX_OID_STR_LEN];
 
 int
 dissect_pkix1explicit_Certificate(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {

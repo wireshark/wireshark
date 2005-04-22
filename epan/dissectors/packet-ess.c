@@ -129,7 +129,7 @@ static gint ett_ess_IssuerSerial = -1;
 /*--- End of included file: packet-ess-ett.c ---*/
 
 
-static char object_identifier_id[64]; /*64 chars should be long enough? */
+static char object_identifier_id[BER_MAX_OID_STR_LEN];
 
 
 /*--- Included file: packet-ess-fn.c ---*/

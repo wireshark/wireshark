@@ -139,7 +139,7 @@ static gint ett_ocsp_CrlID = -1;
 /*--- End of included file: packet-ocsp-ett.c ---*/
 
 
-static char responseType_id[64]; /*64 chars should be long enough? */
+static char responseType_id[BER_MAX_OID_STR_LEN];
 
 
 

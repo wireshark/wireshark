@@ -1,4 +1,4 @@
-/*#define DEBUG_BER 1*/
+/* #define DEBUG_BER 1 */
 /* TODO: change #.REGISTER signature to new_dissector_t and
  * update call_ber_oid_callback() accordingly.
  */
@@ -1185,7 +1185,7 @@ int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, pro
 	int eoffset;
 	guint8 byte;
 	guint32 value;
-	char str[256],*strp, *name;
+	char str[BER_MAX_OID_STR_LEN],*strp, *name;
 	proto_item *item;
 
 #ifdef DEBUG_BER
@@ -1231,8 +1231,8 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 		byte = tvb_get_guint8(tvb, offset);
 		offset++;
 
-		if((strp-str)>200){
-    	    proto_tree_add_text(tree, tvb, offset, eoffset - offset, "BER Error: too long Object Identifier");
+		if((strp-str) > BER_MAX_OID_STR_LEN - 10) { /* 3 digits + '.' + 3 digits + '\0' + slop */
+    	    proto_tree_add_text(tree, tvb, offset, eoffset - offset, "BER Error: too long Object Identifier (%d bytes)", strp-str);
 			return offset;
 		}
 
