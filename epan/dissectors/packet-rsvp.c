@@ -3336,9 +3336,12 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 
 	}
 
-	if(tvb_get_guint8(tvb, offset+l+1) == 0)
-	    THROW(ReportedBoundsError);
 	l += tvb_get_guint8(tvb, offset+l+1);
+	if (l < 1) {
+	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+1, 1,
+		"Invalid length: %u", tvb_get_guint8(tvb, offset+l+1));
+	    return;
+	}
 	if (l < obj_length - 4) {
 	    if (i < 4)
 		proto_item_append_text(ti, ", ");
@@ -4028,6 +4031,11 @@ dissect_rsvp_gen_uni (proto_tree *ti, tvbuff_t *tvb,
 	    }
 
 	    l += tvb_get_guint8(tvb, offset2+l+1);
+	    if (l < 1) {
+		proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+1, 1,
+		    "Invalid length: %u", tvb_get_guint8(tvb, offset2+l+1));
+		return;
+	    }
 	    if (l < mylen) {
 		if (i < 4)
 		    proto_item_append_text(ti, ", ");
