@@ -361,6 +361,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 		offset += 2;
 		if (num_neighbors > 0)
 		{
+			tvb_ensure_bytes_exist(tvb, offset, num_neighbors*10);
 			if (tvb_reported_length_remaining(tvb, offset) >= (num_neighbors *10))
 			{
 				neighbors_ptr = tvb_get_ptr( tvb, offset, (num_neighbors*10) );
@@ -442,6 +443,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 				
 				if (tvb_reported_length_remaining(tvb, offset) >= tuple_length)
 				{
+					tvb_ensure_bytes_exist(tvb, offset, tuple_length);
 					switch (tuple_type)
 					{						
 						case EDP_TUPLE_HOLD:
