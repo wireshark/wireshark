@@ -1079,6 +1079,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 	      proto_tree *codec_tree;
 	      proto_item *codec_base;
 
+	      if (ies_len != 4) THROW(ReportedBoundsError);
 	      codec_base =
 		proto_tree_add_item (ies_tree, hf_IAX_IE_CAPABILITY,
 				     tvb, offset + 2, ies_len, FALSE);
@@ -1103,18 +1104,22 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 	      break;
 	    }
 	    case IAX_IE_FORMAT:
+	      if (ies_len != 4) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_FORMAT, tvb,
 				   offset + 2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_VERSION:
+	      if (ies_len != 2) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_VERSION, tvb,
 				   offset + 2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_ADSICPE:
+	      if (ies_len != 2) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_ADSICPE, tvb,
 				   offset + 2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_AUTHMETHODS:
+	      if (ies_len != 2) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_AUTHMETHODS, tvb,
 				   offset + 2, ies_len, FALSE);
 	      break;
@@ -1125,10 +1130,12 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 	      proto_tree_add_item(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINPORT, tvb, offset + 4, 2, FALSE);
 	      break;
 	    case IAX_IE_REFRESH:
+	      if (ies_len != 2) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_REFRESH, tvb,
 				   offset + 2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_DPSTATUS:
+	      if (ies_len != 2) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_DPSTATUS, tvb,
 				   offset + 2, ies_len, FALSE);
 	      break;
@@ -1145,6 +1152,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 				   offset + 2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_MSGCOUNT:
+	      if (ies_len != 2) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_MSGCOUNT, tvb,
 				   offset + 2, ies_len, FALSE);
 	      break;
@@ -1157,6 +1165,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 				   offset + 2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_TRANSFERID:
+	      if (ies_len != 4) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_TRANSFERID, tvb,
 				   offset + 2, ies_len, FALSE);
 	      break;
@@ -1169,6 +1178,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 				  offset +2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_DATETIME:
+	      if (ies_len != 2) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_DATETIME, tvb,
 				  offset +2, ies_len, FALSE);
 	      break;
@@ -1181,10 +1191,12 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 				  offset +2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_FIRMWAREVER:
+	      if (ies_len != 2) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_FIRMWAREVER, tvb,
 				  offset +2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_FWBLOCKDESC:
+	      if (ies_len != 4) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_FWBLOCKDESC, tvb,
 				  offset +2, ies_len, FALSE);
 	      break;
@@ -1193,30 +1205,37 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 				  offset +2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_PROVVER:
+	      if (ies_len != 4) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_PROVVER, tvb,
 				  offset +2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_CALLINGPRES:
+	      if (ies_len != 1) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_CALLINGPRES, tvb,
 				  offset +2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_CALLINGTON:
+	      if (ies_len != 1) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_CALLINGTON, tvb,
 				  offset +2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_CALLINGTNS:
+	      if (ies_len != 2) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_CALLINGTNS, tvb,
 				  offset +2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_SAMPLINGRATE:
+	      if (ies_len != 2) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_SAMPLINGRATE, tvb,
 				  offset +2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_CAUSECODE:
+	      if (ies_len != 1) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_CAUSECODE, tvb,
 				   offset +2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_ENCRYPTION:
+	      if (ies_len != 2) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_ENCRYPTION, tvb,
 				  offset +2, ies_len, FALSE);
 	      break;
@@ -1229,31 +1248,38 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 				  offset +2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_RR_JITTER:
+	      if (ies_len != 4) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_RR_JITTER, tvb,
 				  offset +2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_RR_LOSS:
+	      if (ies_len != 4) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_RR_LOSS, tvb,
 				  offset +2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_RR_PKTS:
+	      if (ies_len != 4) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_RR_PKTS, tvb,
 				  offset +2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_RR_DELAY:
+	      if (ies_len != 2) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_RR_DELAY, tvb,
 				  offset +2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_RR_DROPPED:
+	      if (ies_len != 4) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_RR_DROPPED, tvb,
 				  offset +2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_RR_OOO:
+	      if (ies_len != 4) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_RR_OOO, tvb,
 				  offset +2, ies_len, FALSE);
 	      break;
 	      
       case IAX_IE_DATAFORMAT:
+	if (ies_len != 4) THROW(ReportedBoundsError);
 	proto_tree_add_item (ies_tree, hf_IAX_IE_DATAFORMAT, tvb,
 			     offset + 2, ies_len, FALSE);
 
