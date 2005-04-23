@@ -2428,7 +2428,8 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		{       /* info for the tap */
 			call_ref[0] &= 0x7F;
 		}
-		g_memmove(&(q931_pi->crv), call_ref, call_ref_len);
+		/* XXX - Should crv be something besides a guint32? */
+		g_memmove(&(q931_pi->crv), call_ref, call_ref_len > sizeof(q931_pi->crv) ? sizeof(q931_pi->crv) : call_ref_len );
 		offset += call_ref_len;
 	}
 	message_type = tvb_get_guint8(tvb, offset);
@@ -3285,8 +3286,10 @@ static void reset_q931_packet_info(q931_packet_info *pi)
         return;
     }
 
-    g_free(pi->calling_number);
-    g_free(pi->called_number);
+    if (pi->calling_number)
+	    g_free(pi->calling_number);
+    if (pi->called_number)
+	    g_free(pi->called_number);
     pi->calling_number = NULL;
     pi->called_number = NULL;
     pi->cause_value = 0xFF;
