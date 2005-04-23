@@ -1424,6 +1424,7 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
          * but that's another matter; in any case, that would happen only
          * if we had an immensely large tvbuff....)
          */
+        tvb_ensure_bytes_exist(tvb, offset, buffer_len);
         s = tvb_get_string(tvb, offset, buffer_len);
         if (tree && buffer_len)
             proto_tree_add_item(string_tree, hfindex, tvb, offset,
@@ -1558,6 +1559,7 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
          * but that's another matter; in any case, that would happen only
          * if we had an immensely large tvbuff....)
          */
+        tvb_ensure_bytes_exist(tvb, offset, buffer_len);
         s = tvb_get_string(tvb, offset, buffer_len);
         if (tree && buffer_len)
             proto_tree_add_item(string_tree, hfindex, tvb, offset,
