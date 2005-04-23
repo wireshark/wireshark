@@ -190,6 +190,7 @@ epm_dissect_ept_entry_t(tvbuff_t *tvb, int offset,
     str=(const char *)tvb_get_ptr(tvb, offset, -1);
     strlen=len;
     strlen=MIN(strlen,tvb_length_remaining(tvb, offset));
+    tvb_ensure_bytes_exist(tvb, offset, len);
     proto_tree_add_item(tree, hf_epm_annotation, tvb, offset, len, TRUE);
     offset += len;
 
@@ -408,16 +409,19 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
 	    break;
 
         case PROTO_ID_NAMED_PIPES: /* \\PIPE\xxx   named pipe */
+	    tvb_ensure_bytes_exist(tvb, offset, len);
             proto_tree_add_item(tr, hf_epm_proto_named_pipes, tvb, offset, len, TRUE);
             proto_item_append_text(tr, "NamedPipe:%*s",MIN(len,tvb_length_remaining(tvb, offset)), tvb_get_ptr(tvb, offset, -1)); 
             break;
 
         case PROTO_ID_NAMED_PIPES_2: /* PIPENAME  named pipe */
+	    tvb_ensure_bytes_exist(tvb, offset, len);
             proto_tree_add_item(tr, hf_epm_proto_named_pipes, tvb, offset, len, TRUE);
             proto_item_append_text(tr, "PIPE:%*s",MIN(len,tvb_length_remaining(tvb, offset)), tvb_get_ptr(tvb, offset, -1)); 
             break;
 
         case PROTO_ID_NETBIOS: /* \\NETBIOS   netbios name */
+	    tvb_ensure_bytes_exist(tvb, offset, len);
             proto_tree_add_item(tr, hf_epm_proto_netbios_name, tvb, offset, len, TRUE);
             proto_item_append_text(tr, "NetBIOS:%*s",MIN(len,tvb_length_remaining(tvb, offset)), tvb_get_ptr(tvb, offset, -1)); 
             break;
@@ -428,6 +432,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
 			
         default:
             if(len){
+		tvb_ensure_bytes_exist(tvb, offset, len);
                 proto_tree_add_text(tr, tvb, offset, len, "not decoded yet");
             }
         }
