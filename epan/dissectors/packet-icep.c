@@ -741,6 +741,8 @@ static void dissect_icep_request_common(tvbuff_t *tvb, guint32 offset,
 			}
 			g_free(opstr);
 			g_free(namestr);
+			opstr = NULL;
+			namestr = NULL;
 		}
 	}
 	
@@ -794,8 +796,10 @@ static void dissect_icep_request_common(tvbuff_t *tvb, guint32 offset,
 	
 error:
 	(*total_consumed) = -1;
-	g_free(namestr);
-	g_free(opstr);
+	if (namestr)
+		g_free(namestr);
+	if (opstr)
+		g_free(opstr);
 }
 
 
