@@ -166,14 +166,18 @@ static int ett_sdp_media_attribute = -1;
 #define SDP_MAX_RTP_PAYLOAD_TYPES 20
 
 typedef struct {
+	gint32 pt[SDP_MAX_RTP_PAYLOAD_TYPES];
+	gint8 pt_count;
+	GHashTable *rtp_dyn_payload;
+} transport_media_pt_t;
+
+typedef struct {
 	char *connection_address;
 	char *connection_type;
 	char *media_port[SDP_MAX_RTP_CHANNELS];
 	char *media_proto[SDP_MAX_RTP_CHANNELS];
-	gint32 media_pt[SDP_MAX_RTP_PAYLOAD_TYPES];
+	transport_media_pt_t media[SDP_MAX_RTP_CHANNELS];
 	gint8 media_count;
-	gint8 media_pt_count;
-	GHashTable *rtp_dyn_payload;
 } transport_info_t;
 
 /* static functions */
@@ -222,7 +226,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean 	is_ipv4_addr=FALSE;
 	gboolean	is_ipv6_addr=FALSE;
     guint32 	ipaddr[4];
-	gint		n;
+	gint		n,i;
 
     /* Initialise packet info for passing to tap */
     sdp_pi = g_malloc(sizeof(sdp_packet_info));
@@ -235,15 +239,10 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 	    transport_info.media_port[n]=NULL;
 	    transport_info.media_proto[n]=NULL;
-	}
-	for (n=0; n < SDP_MAX_RTP_PAYLOAD_TYPES; n++)
-	{
-	    transport_info.media_pt[n]=-1;
+		transport_info.media[n].pt_count = 0;
+		transport_info.media[n].rtp_dyn_payload = g_hash_table_new( g_int_hash, g_int_equal);
 	}
 	transport_info.media_count = 0;
-	transport_info.media_pt_count = 0;
-
-	transport_info.rtp_dyn_payload = g_hash_table_new( g_int_hash, g_int_equal);
 
 	/*
 	 * As RFC 2327 says, "SDP is purely a format for session
@@ -420,12 +419,13 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 		    }
 	    }
+		set_rtp = FALSE;
 	    /* Add rtp and rtcp conversation, if available (overrides t38 if conversation already set) */
 	    if((!pinfo->fd->flags.visited) && port!=0 && is_rtp && (is_ipv4_addr || is_ipv6_addr)){
 		    src_addr.data=(char *)&ipaddr;
 		    if(rtp_handle){
 				rtp_add_address(pinfo, &src_addr, port, 0,
-	                "SDP", pinfo->fd->num, transport_info.rtp_dyn_payload);
+	                "SDP", pinfo->fd->num, transport_info.media[n].rtp_dyn_payload);
 				set_rtp = TRUE;
 		    }
 		    if(rtcp_handle){
@@ -442,6 +442,30 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 t38_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num);
                     }
 	    }
+
+		/* Create the summary str for the Voip Call analysis */
+		for (i = 0; i < transport_info.media[n].pt_count; i++)
+		{
+			/* if the payload type is dynamic (96 to 127), check the hash table to add the desc in the SDP summary */
+			if ( (transport_info.media[n].pt[i] >=96) && (transport_info.media[n].pt[i] <=127) ) {
+				gchar *str_dyn_pt = g_hash_table_lookup(transport_info.media[n].rtp_dyn_payload, &transport_info.media[n].pt[i]);
+				if (str_dyn_pt)
+					g_snprintf(sdp_pi->summary_str, 50, "%s %s", sdp_pi->summary_str, str_dyn_pt);
+				else
+					g_snprintf(sdp_pi->summary_str, 50, "%s %d", sdp_pi->summary_str, transport_info.media[n].pt[i]);
+			} else 
+				g_snprintf(sdp_pi->summary_str, 50, "%s %s", sdp_pi->summary_str, val_to_str(transport_info.media[n].pt[i], rtp_payload_type_short_vals, "%u"));
+		}
+
+		/* Free the hash table if we did't assigned it to a conv use it */
+		if (set_rtp == FALSE) 
+			rtp_free_hash_dyn_payload(transport_info.media[n].rtp_dyn_payload);
+	}
+
+	/* Free the remainded hash tables not used */
+	for (n = transport_info.media_count; n < SDP_MAX_RTP_CHANNELS; n++)
+	{
+		rtp_free_hash_dyn_payload(transport_info.media[n].rtp_dyn_payload);
 	}
 
 	/* Free up 'connection info' strings */
@@ -452,30 +476,11 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		g_free(transport_info.connection_type);
 	}
 
-
 	datalen = tvb_length_remaining(tvb, offset);
 	if (datalen > 0) {
 		proto_tree_add_text(sdp_tree, tvb, offset, datalen,
 		    "Data (%d bytes)", datalen);
 	}
-
-	/* Create the summary str for the Voip Call analysis */
-	for (n = 0; n < transport_info.media_pt_count; n++)
-	{
-		/* if the payload type is dynamic (96 to 127), check the hash table */
-		if ( (transport_info.media_pt[n] >=96) && (transport_info.media_pt[n] <=127) ) {
-			gchar *str_dyn_pt = g_hash_table_lookup(transport_info.rtp_dyn_payload, &transport_info.media_pt[n]);
-			if (str_dyn_pt)
-				g_snprintf(sdp_pi->summary_str, 50, "%s %s", sdp_pi->summary_str, str_dyn_pt);
-			else
-				g_snprintf(sdp_pi->summary_str, 50, "%s %d", sdp_pi->summary_str, transport_info.media_pt[n]);
-		} else 
-			g_snprintf(sdp_pi->summary_str, 50, "%s %s", sdp_pi->summary_str, val_to_str(transport_info.media_pt[n], rtp_payload_type_short_vals, "%u"));
-	}
-
-	/* Free the hash table if we don't use it */
-    if (set_rtp == FALSE) 
-		rtp_free_hash_dyn_payload(transport_info.rtp_dyn_payload);
 
     /* Report this packet to the tap */
     tap_queue_packet(sdp_tap, pinfo, sdp_pi);
@@ -840,7 +845,7 @@ static void
 dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 		  transport_info_t *transport_info){
   proto_tree *sdp_media_tree;
-  gint offset, next_offset, tokenlen;
+  gint offset, next_offset, tokenlen, index;
   guint8 *media_format;
 
   offset = 0;
@@ -927,9 +932,10 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
       media_format = tvb_get_string(tvb, offset, tokenlen);
       proto_tree_add_string(sdp_media_tree, hf_media_format, tvb, offset,
                              tokenlen, val_to_str(atol(media_format), rtp_payload_type_vals, "%u"));
-	  transport_info->media_pt[transport_info->media_pt_count] = atol(media_format);
-	  if (transport_info->media_pt_count < SDP_MAX_RTP_PAYLOAD_TYPES - 1)
-		  transport_info->media_pt_count++;
+	  index = transport_info->media[transport_info->media_count].pt_count;
+	  transport_info->media[transport_info->media_count].pt[index] = atol(media_format);
+	  if (index < (SDP_MAX_RTP_PAYLOAD_TYPES-1))
+		  transport_info->media[transport_info->media_count].pt_count++;
       g_free(media_format);
     } else {
       proto_tree_add_item(sdp_media_tree, hf_media_format, tvb,
@@ -954,7 +960,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 
 static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transport_info_t *transport_info){
   proto_tree *sdp_media_attribute_tree;
-  gint offset, next_offset, tokenlen;
+  gint offset, next_offset, tokenlen, n;
   guint8 *field_name;
   guint8 *payload_type;
   guint8 *encoding_name;
@@ -1013,7 +1019,39 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
 
 	key=g_malloc( sizeof(gint) );
 	*key=atol(payload_type);
-	g_hash_table_insert(transport_info->rtp_dyn_payload, key, encoding_name);
+
+	/* As per RFC2327 it is possible to have multiple Media Descriptions ("m=") For example:
+
+			a=rtpmap:101 G726-32/8000
+			m=audio 49170 RTP/AVP 0 97
+			a=rtpmap:97 telephone-event/8000
+			m=audio 49172 RTP/AVP 97 101
+			a=rtpmap:97 G726-24/8000
+
+	The Media attributes ("a="s) after the "m=" only apply for that "m=". 
+	If there is an "a=" before the first "m=", that attribute apply for all the session	(all the "m="s).
+	*/
+
+	/* so, if this "a=" appear before any "m=", we add it to all the dynamic hash tables */ 
+	if (transport_info->media_count == 0) {
+		for (n=0; n < SDP_MAX_RTP_CHANNELS; n++) {
+			if (n==0)
+				g_hash_table_insert(transport_info->media[n].rtp_dyn_payload, key, encoding_name);
+			else {	/* we create a new key and encoding_name to assign to the other hash tables */
+				gint *key2;
+				key2=g_malloc( sizeof(gint) );
+				*key2=atol(payload_type);
+				g_hash_table_insert(transport_info->media[n].rtp_dyn_payload, key2, g_strdup(encoding_name));
+			}
+		}
+
+	/* if the "a=" is after an "m=", only apply to this "m=" */
+	} else 
+		/* in case there is an overflow in SDP_MAX_RTP_CHANNELS, we keep always the last "m=" */
+		if (transport_info->media_count == SDP_MAX_RTP_CHANNELS-1)
+			g_hash_table_insert(transport_info->media[ transport_info->media_count ].rtp_dyn_payload, key, encoding_name);		
+		else
+			g_hash_table_insert(transport_info->media[ transport_info->media_count-1 ].rtp_dyn_payload, key, encoding_name);
 
     g_free(payload_type);
   } else g_free(field_name);
