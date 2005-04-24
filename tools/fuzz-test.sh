@@ -32,7 +32,7 @@ ulimit -S -t $MAX_CPU_TIME -v $MAX_VMEM
 # Make sure we have a valid test set
 FOUND=0
 for CF in "$@" ; do
-    $CAPINFOS $CF > /dev/null 2>&1 && FOUND=1
+    $CAPINFOS "$CF" > /dev/null 2>&1 && FOUND=1
     if [ $FOUND -eq 1 ] ; then break ; fi
 done
 
@@ -57,7 +57,7 @@ while [ 1 ] ; do
     for CF in "$@" ; do
 	echo -n "    $CF: "
 
-	$CAPINFOS $CF > /dev/null 2>&1
+	$CAPINFOS "$CF" > /dev/null 2>&1
 	if [ $? -ne 0 ] ; then
 	    echo "Not a valid capture file"
 	    continue
