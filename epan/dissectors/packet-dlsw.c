@@ -400,6 +400,7 @@ dissect_dlsw_capex(tvbuff_t *tvb, proto_tree *tree, proto_tree *ti2)
   case DLSW_GDSID_SEND:
     while (offset < mlen){
       vlen=tvb_get_guint8(tvb,offset);
+      if (vlen < 3) THROW(ReportedBoundsError);
       vtype=tvb_get_guint8(tvb,offset+1);
       ti=proto_tree_add_text (tree,tvb,offset,vlen,"%s",
          val_to_str(vtype,dlsw_vector_vals,"Unknown vector type"));
