@@ -1032,16 +1032,31 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					cseq_number = atoi(value);
 					cseq_number_set = 1;
 					stat_info->tap_cseq_number=cseq_number;
-
+					
+					/* Walk past number and spaces characters to get to start
+					   of method name */
+					for (value_offset=0; value_offset < (gint)strlen(value); value_offset++)
+					{
+						if (isalpha((guchar)value[value_offset]))
+						{
+							break;
+						}
+					}
+					if (value_offset == (gint)strlen(value))
+					{
+						THROW(ReportedBoundsError);
+						return TRUE; 
+					}
+                                        
 					/* Extract method name from value */
-                    strlen_to_copy = strlen(value)+1;
+                    strlen_to_copy = strlen(value)-value_offset+1;
                     if (strlen_to_copy > MAX_CSEQ_METHOD_SIZE) {
                         /* Note the error in the protocol tree */
                         if(hdr_tree) {
                             proto_tree_add_string_format(hdr_tree,
                                 hf_header_array[hf_index], tvb,
                                 offset, next_offset - offset,
-                                value, "%s String too big: %d bytes",
+                                value+value_offset, "%s String too big: %d bytes",
                                 sip_headers[POS_CSEQ].name,
                                 strlen_to_copy);
                         }
@@ -1049,7 +1064,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         return TRUE;
                     }
                     else {
-                        strncpy(cseq_method, value, MIN(strlen(value)+1, MAX_CSEQ_METHOD_SIZE));
+                        strncpy(cseq_method, value+value_offset, MIN(strlen_to_copy, MAX_CSEQ_METHOD_SIZE));
 
                         /* Add 'CSeq' string item to tree */
                         if(hdr_tree) {
