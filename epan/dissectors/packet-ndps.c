@@ -2543,7 +2543,7 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
                 proto_tree_add_item(ndps_tree, hf_ndps_ydimension_n64, tvb, foffset, 8, FALSE);
                 foffset += 8;
             }
-            proto_tree_add_item(ndps_tree, hf_ndps_dim_flag, tvb, foffset, 8, FALSE);
+            proto_tree_add_item(ndps_tree, hf_ndps_dim_flag, tvb, foffset, 4, FALSE);
             foffset += 4;
             proto_tree_add_item(ndps_tree, hf_ndps_n64, tvb, foffset, 8, FALSE);
             foffset += 8;
