@@ -430,7 +430,7 @@ static guint8*
 unicode_to_bytes(tvbuff_t *tvb, int offset, int length, gboolean endianness)
 {
   const char	*ascii_text = tvb_get_ptr(tvb, offset, length);
-  guint8	i, j=0;
+  int	i, j=0;
   guint8	c_char, c_char1;
   static guint8 byte_array[255];
 
