@@ -2795,8 +2795,8 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, rec_dissector_t dissector, gboolean is_heur,
     int proto, int ett, gboolean defragment, gboolean first_pdu)
 {
-	struct tcpinfo *tcpinfo = pinfo->private_data;
-	guint32 seq = tcpinfo->seq + offset;
+	struct tcpinfo *tcpinfo;
+	guint32 seq;
 	guint32 rpc_rm;
 	volatile gint32 len;
 	gint32 seglen;
@@ -2808,6 +2808,16 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	conversation_t *conversation;
 	fragment_data *ipfd_head;
 	tvbuff_t *rec_tvb;
+
+	if (pinfo == NULL || pinfo->private_data == NULL) {
+		return 0;
+	}
+	tcpinfo = pinfo->private_data;
+
+	if (tcpinfo == NULL) {
+		return 0;
+	}
+	seq = tcpinfo->seq + offset;
 
 	/*
 	 * Get the record mark.
