@@ -287,6 +287,7 @@ dissect_option_rfd( const guchar error, const guchar field, int offset,
              };
 
   error_class = error & OSI_OPT_RFD_MASK;
+  tvb_ensure_bytes_exist(tvb, offset + field, 1);
 
   if ( OSI_OPT_RFD_GENERAL == error_class ) {
     proto_tree_add_text( tree, tvb, offset + field, 1, format_string[0],
