@@ -170,9 +170,9 @@ esis_dissect_esh_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree) {
     esis_area_tree = proto_item_add_subtree( ti, ett_esis_area_addr );
     while ( no_sa-- > 0 ) {
        sal = (int) tvb_get_guint8(tvb, offset);
-       offset++;
        proto_tree_add_text(esis_area_tree, tvb, offset, 1, "SAL: %2u Octets", sal);
-       proto_tree_add_text(esis_area_tree, tvb, offset + 1, sal,
+       offset++;
+       proto_tree_add_text(esis_area_tree, tvb, offset, sal,
                            " SA: %s",
 			   print_nsap_net( tvb_get_ptr(tvb, offset, sal), sal ) );
        offset += sal;
