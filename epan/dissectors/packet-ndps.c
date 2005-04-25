@@ -2199,7 +2199,7 @@ cardinal_seq(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         atree = proto_item_add_subtree(aitem, ett_ndps);
         length = tvb_get_ntohl(tvb, foffset);
         foffset += 4;
-        if (length!=0)
+        if (length==4)
         {
             proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
         }
@@ -2406,7 +2406,7 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         case 14:         /* Cardinal Seq */
             length = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
-            if (length!=0)
+            if (length==4)
             {
                 proto_tree_add_item(ndps_tree, hf_info_int32, tvb, foffset, length, FALSE);
             }
@@ -2667,7 +2667,7 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset = qualifiedname(tvb, ndps_tree, foffset);
             length = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
-            if (length!=0)
+            if (length==4)
             {
                 proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
             }
@@ -2822,7 +2822,7 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                if (length!=0)
+                if (length==4)
                 {
                     proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
                 }
@@ -3154,7 +3154,7 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                if (length!=0)
+                if (length==4)
                 {
                     proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
                 }
@@ -3174,7 +3174,7 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                if (length!=0)
+                if (length==4)
                 {
                     proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
                 }
@@ -4184,7 +4184,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 aitem = proto_tree_add_text(ndps_tree, tvb, foffset, -1, "Security %u", i);
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
-                if (length!=0)
+                if (length==4)
                 {
                     proto_tree_add_uint(atree, hf_bind_security, tvb, foffset, 4, length);
                 }
@@ -4284,7 +4284,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                             proto_tree_add_item(btree, hf_ndps_data, tvb, foffset, -1, FALSE);
                             return;
                         }
-                        if (length!=0)
+                        if (length==4)
                         {
                             proto_tree_add_item(btree, hf_ndps_included_doc, tvb, foffset, length, FALSE);
                         }
@@ -5054,7 +5054,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                if (length!=0)
+                if (length==4)
                 {
                     proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
                 }
@@ -5352,7 +5352,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                if (length!=0)
+                if (length==4)
                 {
                     proto_tree_add_item(atree, hf_bind_security, tvb, foffset, length, FALSE);
                 }
@@ -5420,7 +5420,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                if (length!=0)
+                if (length==4)
                 {
                     proto_tree_add_item(atree, hf_bind_security, tvb, foffset, length, FALSE);
                 }
@@ -5535,7 +5535,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                if (length!=0)
+                if (length==4)
                 {
                     proto_tree_add_item(atree, hf_bind_security, tvb, foffset, length, FALSE);
                 }
@@ -5589,7 +5589,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             proto_item_set_end(aitem, tvb, foffset);
             length = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
-            if (length!=0)
+            if (length==4)
             {
                 proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
             }
@@ -5642,7 +5642,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                if (length!=0)
+                if (length==4)
                 {
                     proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
                 }
@@ -5976,7 +5976,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 atree = proto_item_add_subtree(aitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                if (length!=0)
+                if (length==4)
                 {
                     proto_tree_add_item(atree, hf_bind_security, tvb, foffset, length, FALSE);
                 }
@@ -6172,7 +6172,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                if (length!=0)
+                if (length==4)
                 {
                     proto_tree_add_item(btree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
                 }
@@ -6233,7 +6233,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 btree = proto_item_add_subtree(bitem, ett_ndps);
                 length = tvb_get_ntohl(tvb, foffset);
                 foffset += 4;
-                if (length!=0)
+                if (length==4)
                 {
                     proto_tree_add_item(btree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
                 }
@@ -6953,7 +6953,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
         case 0x0000001d:    /* List Event Profiles */
             length = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
-            if (length!=0)
+            if (length==4)
             {
                 proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
             }
@@ -6968,7 +6968,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset = qualifiedname(tvb, atree, foffset);
             length = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
-            if (length!=0)
+            if (length==4)
             {
                 proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
             }
@@ -7341,7 +7341,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             proto_item_set_end(aitem, tvb, foffset);
             length = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
-            if (length!=0)
+            if (length==4)
             {
                 proto_tree_add_item(ndps_tree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
             }
@@ -7387,7 +7387,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             /* Start of IntegerSeq */
             length = tvb_get_ntohl(tvb, foffset);
             foffset += 4;
-            if (length!=0)
+            if (length==4)
             {
                 proto_tree_add_item(ndps_tree, hf_ndps_language_id, tvb, foffset, length, FALSE);
             }
