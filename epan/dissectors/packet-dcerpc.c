@@ -4525,20 +4525,37 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (!tvb_bytes_exist (tvb, 0, sizeof (hdr))) {
         return FALSE;
     }
+
+    /* Version must be 4 */
     hdr.rpc_ver = tvb_get_guint8 (tvb, offset++);
     if (hdr.rpc_ver != 4)
         return FALSE;
+
+    /* Type must be <=19 or its not DCE/RPC */
     hdr.ptype = tvb_get_guint8 (tvb, offset++);
     if (hdr.ptype > 19)
         return FALSE;
+
+    /* flags1 has bit 1 and 8 as reserved so if any of them are set, it is 
+       probably not a DCE/RPC packet 
+     */
+    hdr.flags1 = tvb_get_guint8 (tvb, offset++);
+    if(hdr.flags1&0x81)
+        return FALSE;
+
+    /* flags2 has all bits except bit 2 as reserved so if any of them are set
+       it is probably not DCE/RPC.
+     */
+    hdr.flags2 = tvb_get_guint8 (tvb, offset++);
+    if(hdr.flags2&0xfd)
+        return FALSE;
+
 
     if (check_col (pinfo->cinfo, COL_PROTOCOL))
         col_set_str (pinfo->cinfo, COL_PROTOCOL, "DCERPC");
     if (check_col (pinfo->cinfo, COL_INFO))
         col_add_str (pinfo->cinfo, COL_INFO, pckt_vals[hdr.ptype].strptr);
 
-    hdr.flags1 = tvb_get_guint8 (tvb, offset++);
-    hdr.flags2 = tvb_get_guint8 (tvb, offset++);
     tvb_memcpy (tvb, (guint8 *)hdr.drep, offset, sizeof (hdr.drep));
     offset += sizeof (hdr.drep);
     hdr.serial_hi = tvb_get_guint8 (tvb, offset++);
