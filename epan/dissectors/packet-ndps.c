@@ -1807,6 +1807,7 @@ objectidentifier(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         foffset += 1;
         length = tvb_get_guint8(tvb, foffset);
         foffset += 1;
+        tvb_ensure_bytes_exist(tvb, foffset, length);
         proto_tree_add_item(atree, hf_ndps_oid, tvb, foffset, length, FALSE);
         foffset += length;
     }
@@ -2047,6 +2048,7 @@ credentials(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             if (length!=0)
             {
+                tvb_ensure_bytes_exist(tvb, foffset, length);
                 proto_tree_add_item(atree, hf_ndps_password, tvb, foffset, length, FALSE);
             }
             proto_item_set_end(aitem, tvb, foffset);
@@ -2058,6 +2060,7 @@ credentials(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         foffset += 4;
         if (length!=0)
         {
+            tvb_ensure_bytes_exist(tvb, foffset, length);
             proto_tree_add_item(ndps_tree, hf_ndps_certified, tvb, foffset, length, FALSE);
         }
         foffset += length;
@@ -2201,6 +2204,7 @@ cardinal_seq(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         foffset += 4;
         if (length==4)
         {
+            tvb_ensure_bytes_exist(tvb, foffset, length);
             proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
         }
         foffset += length;
@@ -2408,6 +2412,7 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             if (length==4)
             {
+                tvb_ensure_bytes_exist(tvb, foffset, length);
                 proto_tree_add_item(ndps_tree, hf_info_int32, tvb, foffset, length, FALSE);
             }
             foffset += length;
@@ -3402,6 +3407,7 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             if (length!=0)
             {
+                tvb_ensure_bytes_exist(tvb, foffset, length);
                 proto_tree_add_item(ndps_tree, hf_ndps_octet_string, tvb, foffset, length, FALSE);
             }
             foffset += length;
@@ -3410,6 +3416,7 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             if (length!=0)
             {
+                tvb_ensure_bytes_exist(tvb, foffset, length);
                 proto_tree_add_item(ndps_tree, hf_ndps_octet_string, tvb, foffset, length, FALSE);
             }
             foffset += length;
@@ -3420,6 +3427,7 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             if (length!=0)
             {
+                tvb_ensure_bytes_exist(tvb, foffset, length);
                 proto_tree_add_item(ndps_tree, hf_ndps_octet_string, tvb, foffset, length, FALSE);
             }
             foffset += length;
@@ -3439,6 +3447,7 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             if (length!=0)
             {
+                tvb_ensure_bytes_exist(tvb, foffset, length);
                 proto_tree_add_item(ndps_tree, hf_ndps_octet_string, tvb, foffset, length, FALSE);
             }
             foffset += length;
@@ -3461,6 +3470,7 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
                     foffset += 4;
                     if (length!=0)
                     {
+                        tvb_ensure_bytes_exist(tvb, foffset, length);
                         proto_tree_add_item(ndps_tree, hf_ndps_octet_string, tvb, foffset, length, FALSE);
                     }
                     foffset += length;
@@ -4505,6 +4515,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 foffset += 4;
                 if (length!=0)
                 {
+                    tvb_ensure_bytes_exist(tvb, foffset, length);
                     proto_tree_add_item(ndps_tree, hf_ndps_context, tvb, foffset, length, FALSE);
                 }
                 foffset += length;
@@ -5144,6 +5155,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 foffset += 4;
                 if (length!=0)
                 {
+                    tvb_ensure_bytes_exist(tvb, foffset, length);
                     proto_tree_add_item(ndps_tree, hf_ndps_context, tvb, foffset, length, FALSE);
                 }
                 foffset += length;
@@ -5190,6 +5202,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             if (length!=0)
             {
+                tvb_ensure_bytes_exist(tvb, foffset, length);
                 proto_tree_add_item(ndps_tree, hf_ndps_guid, tvb, foffset, length, FALSE);
             }
             foffset += length;
@@ -5320,6 +5333,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 foffset += 4;
                 if (length!=0)
                 {
+                    tvb_ensure_bytes_exist(tvb, foffset, length);
                     proto_tree_add_item(ndps_tree, hf_ndps_context, tvb, foffset, length, FALSE);
                 }
                 foffset += length;
@@ -5383,6 +5397,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 foffset += 4;
                 if (length!=0)
                 {
+                    tvb_ensure_bytes_exist(tvb, foffset, length);
                     proto_tree_add_item(atree, hf_ndps_item_bytes, tvb, foffset, length, FALSE);
                 }
                 foffset += length;
@@ -5504,6 +5519,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 foffset += 4;
                 if (length!=0)
                 {
+                    tvb_ensure_bytes_exist(tvb, foffset, length);
                     proto_tree_add_item(ndps_tree, hf_ndps_context, tvb, foffset, length, FALSE);
                 }
                 foffset += length;
@@ -5732,6 +5748,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 foffset += 4;
                 if (length!=0)
                 {
+                    tvb_ensure_bytes_exist(tvb, foffset, length);
                     proto_tree_add_item(ndps_tree, hf_ndps_context, tvb, foffset, length, FALSE);
                 }
                 foffset += length;
@@ -5931,6 +5948,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 foffset += 4;
                 if (length!=0)
                 {
+                    tvb_ensure_bytes_exist(tvb, foffset, length);
                     proto_tree_add_item(ndps_tree, hf_ndps_context, tvb, foffset, length, FALSE);
                 }
                 foffset += length;
@@ -7005,6 +7023,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             if (length!=0)
             {
+                tvb_ensure_bytes_exist(tvb, foffset, length);
                 proto_tree_add_item(ndps_tree, hf_ndps_continuation_option, tvb, foffset, length, FALSE);
             }
             foffset += length;
@@ -7118,6 +7137,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 foffset += 4;
                 if (length!=0)
                 {
+                    tvb_ensure_bytes_exist(tvb, foffset, length);
                     proto_tree_add_item(ndps_tree, hf_ndps_continuation_option, tvb, foffset, length, FALSE);
                 }
                 foffset += length;
@@ -7193,6 +7213,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 foffset += 4;
                 if (length!=0)
                 {
+                    tvb_ensure_bytes_exist(tvb, foffset, length);
                     proto_tree_add_item(atree, hf_ndps_attribute_set, tvb, foffset, length, FALSE);
                 }
                 proto_item_set_end(aitem, tvb, foffset);
@@ -7228,6 +7249,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             if (length!=0)
             {
+                tvb_ensure_bytes_exist(tvb, foffset, length);
                 proto_tree_add_item(ndps_tree, hf_ndps_continuation_option, tvb, foffset, length, FALSE);
             }
             foffset += length;
@@ -7253,6 +7275,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             if (length!=0)
             {
+                tvb_ensure_bytes_exist(tvb, foffset, length);
                 proto_tree_add_item(ndps_tree, hf_ndps_continuation_option, tvb, foffset, length, FALSE);
             }
             foffset += length;
@@ -7295,6 +7318,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
                 foffset += 4;
                 if (length!=0)
                 {
+                    tvb_ensure_bytes_exist(tvb, foffset, length);
                     proto_tree_add_item(atree, hf_ndps_attribute_set, tvb, foffset, length, FALSE);
                 }
                 proto_item_set_end(aitem, tvb, foffset);
@@ -7378,6 +7402,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             if (length!=0)
             {
+                tvb_ensure_bytes_exist(tvb, foffset, length);
                 proto_tree_add_item(ndps_tree, hf_ndps_continuation_option, tvb, foffset, length, FALSE);
             }
             foffset += length;
@@ -7496,6 +7521,7 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
             foffset += 4;
             if (length!=0)
             {
+                tvb_ensure_bytes_exist(tvb, foffset, length);
                 proto_tree_add_item(ndps_tree, hf_ndps_attribute_set, tvb, foffset, length, FALSE);
             }
             break;
