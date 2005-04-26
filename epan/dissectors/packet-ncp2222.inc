@@ -4933,6 +4933,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                 if (ping_version == 9) {
                                         nds_string_len = tvb_get_ntohl(tvb, 9);
                                         nds_offset = nds_string_len+16;
+                                        tvb_ensure_bytes_exist(tvb, 16, nds_string_len);
                 		        proto_tree_add_item(ncp_tree, hf_nds_tree_name, tvb, 16, nds_string_len, FALSE);
                                        	proto_tree_add_item(ncp_tree, hf_nds_reply_depth, tvb, nds_offset, 4, FALSE);
                                        	proto_tree_add_item(ncp_tree, hf_nds_reply_rev, tvb, (nds_offset+4), 4, FALSE);
@@ -5151,6 +5152,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                         nds_string_len = tvb_get_letohl(tvb, nds_offset);
                                                                         nds_offset += 4;
                                                                         get_string(tvb, nds_offset, nds_string_len, reply_buffer.buffer);
+                                                                        tvb_ensure_bytes_exist(tvb, nds_offset, nds_string_len);
                                                                         proto_tree_add_text(ncp_tree, tvb, nds_offset, nds_string_len, "SAP Name: %s", reply_buffer.buffer);
                                                                         nds_offset += nds_string_len;
                                                                         nds_offset += align_4(tvb, nds_offset);
@@ -5160,6 +5162,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                         nds_string_len = tvb_get_letohl(tvb, nds_offset);
                                                                         nds_offset += 4;
                                                                         get_string(tvb, nds_offset, nds_string_len, reply_buffer.buffer);
+                                                                        tvb_ensure_bytes_exist(tvb, nds_offset, nds_string_len);
                                                                         proto_tree_add_text(ncp_tree, tvb, nds_offset, nds_string_len, "NDS Tree Name: %s", reply_buffer.buffer);
                                                                         nds_offset += nds_string_len;
                                                                         nds_offset += align_4(tvb, nds_offset);
@@ -5168,6 +5171,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                         nds_string_len = tvb_get_letohl(tvb, nds_offset);
                                                                         nds_offset += 4;
                                                                         get_string(tvb, nds_offset, nds_string_len, reply_buffer.buffer);
+                                                                        tvb_ensure_bytes_exist(tvb, nds_offset, nds_string_len);
                                                                         proto_tree_add_text(ncp_tree, tvb, nds_offset, nds_string_len, "OS Name: %s", reply_buffer.buffer);
                                                                         nds_offset += nds_string_len;
                                                                         nds_offset += align_4(tvb, nds_offset);
@@ -5176,6 +5180,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                         nds_string_len = tvb_get_letohl(tvb, nds_offset);
                                                                         nds_offset += 4;
                                                                         get_string(tvb, nds_offset, nds_string_len, reply_buffer.buffer);
+                                                                        tvb_ensure_bytes_exist(tvb, nds_offset, nds_string_len);
                                                                         proto_tree_add_text(ncp_tree, tvb, nds_offset, nds_string_len, "Hardware Name: %s", reply_buffer.buffer);
                                                                         nds_offset += nds_string_len;
                                                                         nds_offset += align_4(tvb, nds_offset);
@@ -5184,6 +5189,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                         nds_string_len = tvb_get_letohl(tvb, nds_offset);
                                                                         nds_offset += 4;
                                                                         get_string(tvb, nds_offset, nds_string_len, reply_buffer.buffer);
+                                                                        tvb_ensure_bytes_exist(tvb, nds_offset, nds_string_len);
                                                                         proto_tree_add_text(ncp_tree, tvb, nds_offset, nds_string_len, "Vendor Name: %s", reply_buffer.buffer);
                                                                         nds_offset += nds_string_len;
                                                                         nds_offset += align_4(tvb, nds_offset);
