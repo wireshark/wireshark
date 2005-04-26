@@ -55,6 +55,7 @@
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
 #include "packet-tcp.h"
+#include "packet-sip.h"
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
@@ -87,8 +88,9 @@ typedef enum {
   DIAMETER_VENDOR_ID,          /* Integer32  */
   DIAMETER_APPLICATION_ID,     /* Integer32  */
   DIAMETER_URI,                /* OctetString */
-  DIAMETER_SESSION_ID          /* OctetString */
-
+  DIAMETER_SESSION_ID,          /* OctetString */
+  DIAMETER_PUBLIC_ID,			/* OctetString */
+  DIAMETER_PRIVATE_ID			/* OctetString */	
 } diameterDataType;
 
 
@@ -114,6 +116,8 @@ static const value_string TypeValues[]={
   {  DIAMETER_APPLICATION_ID,  "AppId"},
   {  DIAMETER_URI,             "DiameterURI"},
   {  DIAMETER_SESSION_ID,      "Session-Id"},
+  {	 DIAMETER_PUBLIC_ID,		"Public-Id"},
+  {	 DIAMETER_PRIVATE_ID,		"Private-Id"},
 	
   {0, (char *)NULL}
 };
@@ -217,10 +221,14 @@ static int hf_diameter_avp_data_int64 = -1;
 static int hf_diameter_avp_data_bytes = -1;
 static int hf_diameter_avp_data_string = -1;
 static int hf_diameter_avp_data_addrfamily = -1;
-static int hf_diameter_avp_data_v4addr = -1;
-static int hf_diameter_avp_data_v6addr = -1;
-static int hf_diameter_avp_data_time = -1;
+static int hf_diameter_avp_data_v4addr		= -1;
+static int hf_diameter_avp_data_v6addr		= -1;
+static int hf_diameter_avp_data_time		= -1;
+static int hf_diameter_avp_diameter_uri		= -1;
 static int hf_diameter_avp_session_id		= -1;
+static int hf_diameter_avp_public_id		= -1;
+static int hf_diameter_avp_private_id		= -1;
+
 static gint ett_diameter = -1;
 static gint ett_diameter_flags = -1;
 static gint ett_diameter_avp = -1;
@@ -300,7 +308,7 @@ typedef struct _e_avphdr {
 static Version_Type gbl_version = DIAMETER_RFC;
 
 static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
+static gchar *diameter_vendor_to_str(guint32 vendorId, gboolean longName);
 
 /*
  * This routine will do a push-parse of the passed in
@@ -402,7 +410,53 @@ addStaticAVP(int code, gchar *name, diameterDataType type, const value_string *v
   return (0);
 
 } /* addStaticAVP */
+/*
+ * This routine will add a Vendor avp to the avp list.  It is
+ * only called when the XML dictionary fails to load properly.
+ */
+static int
+addVendorAVP(int code, gchar *name, diameterDataType type, const value_string *values,int vendorId)
+{
+  avpInfo *entry;
+  ValueName *vEntry=NULL;
+  gchar *vendorName;
+  int i;
 
+  /* Parse our values array, if we have one */
+  if (values) {
+	for (i=0; values[i].strptr != NULL; i++) {
+	  ValueName *ve = NULL;
+
+	  ve = g_malloc(sizeof(ValueName));
+	  ve->name = strdup(values[i].strptr);
+	  ve->value = values[i].value;
+	  ve->next = vEntry;
+	  vEntry = ve;
+	}
+  } /* if values */
+
+	/* And, create the entry */
+  entry = (avpInfo *)g_malloc(sizeof(avpInfo));
+  entry->name = g_strdup(name);
+  entry->code = code;
+
+  vendorName = diameter_vendor_to_str(vendorId, FALSE);
+	
+  if (vendorName)
+	entry->vendorName = g_strdup(vendorName);
+  else
+	entry->vendorName = NULL;  entry->type = type;
+  entry->values = vEntry;
+  if (vEntry)
+	entry->type = DIAMETER_ENUMERATED;
+
+  /* And, add it to the list */
+  entry->next = avpListHead;
+  avpListHead = entry;
+
+  return (0);
+
+} /* addStaticAVP */
 /*
  * This routine will parse an XML avp entry, and add it to our
  * avp list.  If any values are present in the avp, it will
@@ -815,6 +869,14 @@ initializeDictionaryDefaults(void)
 				 old_diameter_avps[i].name,
 				 old_diameter_avps[i].type,
 				 old_diameter_avps[i].values);
+  }
+  /* Add 3GPP AVPs to list */
+  for (i=0; ThreeGPP_vendor_diameter_avps[i].name; i++) {
+	addVendorAVP(ThreeGPP_vendor_diameter_avps[i].code,
+				 ThreeGPP_vendor_diameter_avps[i].name,
+				 ThreeGPP_vendor_diameter_avps[i].type,
+				 ThreeGPP_vendor_diameter_avps[i].values,
+				 VENDOR_THE3GPP);
   }
 
 } /* initializeDictionaryDefaults */
@@ -1603,7 +1665,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 	if (avpi_tree !=NULL) {
 	  /* Command Code */
 	  proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_code,
-								 tvb, offset, 4, avph.avp_code, "AVP Code: %s", avpNameString);
+								 tvb, offset, 4, avph.avp_code, "AVP Code: %s (%u)", avpNameString,avph.avp_code);
 	  offset += 4;
 
 	  tf = proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_flags, tvb,
@@ -1871,10 +1933,31 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 		safe_dissect_mip(tvb, pinfo, avpi_tree, offset, avpDataLength);
 		break;
 
+	  case DIAMETER_URI:
+		proto_tree_add_item(avpi_tree, hf_diameter_avp_diameter_uri,
+				    tvb, offset, avpDataLength, FALSE);
+		  break;
+
 	  case DIAMETER_SESSION_ID:
 		proto_tree_add_item(avpi_tree, hf_diameter_avp_session_id,
 				    tvb, offset, avpDataLength, FALSE);
 		break;
+
+	  case DIAMETER_PUBLIC_ID:
+		  {
+		proto_tree_add_item(avpi_tree, hf_diameter_avp_public_id,
+				    tvb, offset, avpDataLength, FALSE);
+		  /* This is a SIP address, to be able to filter the SIP messages
+		   * belonging to this Diameter session add this to the SIP filter.
+		   */
+		dfilter_store_sip_from_addr(tvb, avpi_tree, offset, avpDataLength);
+		  }
+		break;
+	  case DIAMETER_PRIVATE_ID:
+		  {
+		proto_tree_add_item(avpi_tree, hf_diameter_avp_private_id,
+				    tvb, offset, avpDataLength, FALSE);
+		  }
 
 	  default:
 	  case DIAMETER_OCTET_STRING:
@@ -2047,8 +2130,17 @@ proto_register_diameter(void)
 		{ &hf_diameter_avp_data_time,
 		  { "Time","diameter.avp.data.time", FT_ABSOLUTE_TIME, BASE_NONE,
 		    NULL, 0x0, "", HFILL }},
+		{ &hf_diameter_avp_diameter_uri,
+		  { "Diameter URI","diameter.avp.diameter_uri", FT_STRING, BASE_NONE,
+		    NULL, 0x0, "", HFILL }},
 		{ &hf_diameter_avp_session_id,
 		  { "Session ID","diameter.avp.session_id", FT_STRING, BASE_NONE,
+		    NULL, 0x0, "", HFILL }},
+		{ &hf_diameter_avp_public_id,
+		  { "Public ID","diameter.avp.public_id", FT_STRING, BASE_NONE,
+		    NULL, 0x0, "", HFILL }},
+		{ &hf_diameter_avp_private_id,
+		  { "Private ID","diameter.avp.private_id", FT_STRING, BASE_NONE,
 		    NULL, 0x0, "", HFILL }},
 
 	};

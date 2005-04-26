@@ -7,6 +7,7 @@
  *
  * $Id$
  * Generated: Fri Feb 23 13:04:15 2001
+ * * Copyright (c) 2005 by Anders Broman <anders.broman@ericsson.com>
  * References:
  * http://www.ietf.org/rfc/rfc3588.txt
  * http://www.iana.org/assignments/radius-types updated 20 January 2005 (Not command codes)
@@ -536,22 +537,9 @@ static const value_string diameter_application_id_vals[] = {
 	{0, NULL}
 };
 
+
 /* Diameter Session Initiation Protocol (SIP) Application value strings */
 /* Remove comment when IANA assigned values are avalable 
-static const value_string SIP_user_data_request_type[] = {
-	{0, "COMPLETE_PROFILE"},
-	{1, "REGISTERED_PROFILE"},
-	{2, "UNREGISTERED_PROFILE"},
-	{0, NULL}
-
-};
-static const value_string SIP_user_authorization_type[] = {
-	{0, "REGISTRATION"},
-	{1, "DE_REGISTRATION"},
-	{2, "REGISTRATION_AND_CAPABILITIES"},
-	{0, NULL}
-
-};
 
 static const value_string SIP_reason_code_vals[] = {
 	{0, "PERMANENT_TERMINATION"},
@@ -561,14 +549,12 @@ static const value_string SIP_reason_code_vals[] = {
 	{0, NULL}
 
 };
-static const value_string SIP_user_data_already_available_vals[] = {
-	{0, "USER_DATA_NOT_AVAILABLE"},
-	{1, "USER_DATA_ALREADY_AVAILABLE"},
-	{0, NULL}
 
-};
+Remove comment when IANA assigned values are avalable */ 
 
-static const value_string SIP_server_assignment_type[] ={
+/* Used both in Diameter Session Initiation Protocol (SIP) Application and 3GPP Vendor
+ * Specific AVP:s TS 29 299 5.7.0 */
+static const value_string SIP_server_assignment_type_vals[] ={
 	{0, "NO_ASSIGNMENT"},
 	{1, "REGISTRATION"},
 	{2, "RE_REGISTRATION"},
@@ -582,10 +568,35 @@ static const value_string SIP_server_assignment_type[] ={
 	{10, "AUTHENTICATION_TIMEOUT"},
 	{11, "DEREGISTRATION_TOO_MUCH_DATA"},
 	{0, NULL}
+};
+static const value_string SIP_user_authorization_type[] = {
+	{0, "REGISTRATION"},
+	{1, "DE_REGISTRATION"},
+	{2, "REGISTRATION_AND_CAPABILITIES"},
+	{0, NULL}
 
 };
+static const value_string SIP_user_data_request_type[] = {
+	{0, "COMPLETE_PROFILE"},
+	{1, "REGISTERED_PROFILE"},
+	{2, "UNREGISTERED_PROFILE"},
+	{0, NULL}
 
- Remove comment when IANA assigned values are avalable */ 
+};
+static const value_string ThreeGPP_reason_code_vals[] = {
+	{0, "PERMANENT_TERMINATION"},
+	{1, "NEW_SIP_SERVER_ASSIGNED "},
+	{2, "SERVER_CHANGE"},
+	{3, "REMOVE_S-CSCF "},
+	{0, NULL}
+
+};
+static const value_string SIP_user_data_already_available_vals[] = {
+	{0, "USER_DATA_NOT_AVAILABLE"},
+	{1, "USER_DATA_ALREADY_AVAILABLE"},
+	{0, NULL}
+
+};
 
 /*
  * The Result-Code data field contains an IANA-managed 32-bit address
@@ -691,7 +702,7 @@ static const value_string diameter_result_code_vals[] = {
 	*/
 	{0, NULL}
 };
-
+/* TS 29.229 6.4.0 */
 static const value_string diameter_exp_result_code_vals[] = {
         {2001, "DIAMETER_FIRST_REGISTRATION"},
         {2002, "DIAMETER_SUBSEQUENT_REGISTRATION"},
@@ -702,12 +713,13 @@ static const value_string diameter_exp_result_code_vals[] = {
         {5002, "DIAMETER_ERROR_IDENTITIES_DONT_MATCH"},
         {5003, "DIAMETER_ERROR_IDENTITY_NOT_REGISTERED"},
         {5004, "DIAMETER_ERROR_ROAMING_NOT_ALLOWED"},
-        {5005, "DIAMETER_ERROR_ROAMING_IDENTITY_ALREADY_REGISTERED"},
+        {5005, "DIAMETER_ERROR_IDENTITY_ALREADY_REGISTERED "},
         {5006, "DIAMETER_ERROR_ROAMING_AUTH_SCHEME_NOT_SUPPORTED"},
         {5007, "DIAMETER_ERROR_IN_ASSIGNMENT_TYPE"},
         {5008, "DIAMETER_ERROR_TOO_MUCH_DATA"},
         {5009, "DIAMETER_ERROR_NOT_SUPPORTED_USER_DATA"},
-
+        {5010, "DIAMETER_MISSING_USER_ID"},
+        {5011, "DIAMETER_ERROR_FEATURE_UNSUPPORTED"},
 	{0, NULL}
 };
 	 
@@ -965,7 +977,7 @@ static struct old_avp_info old_diameter_avps[] = {
 	{ xx15, "SIP-Authentication-Context",		DIAMETER_GROUPED,			(value_string *)NULL},
 	{ xx16, "SIP-Confidentiality-Key",			DIAMETER_OCTET_STRING,		(value_string *)NULL},
 	{ xx17, "SIP-Integrity-Key",				DIAMETER_OCTET_STRING,		(value_string *)NULL},
-	{ xx18, "SIP-Server-Assignment-Type",		DIAMETER_ENUMERATED,		SIP_server_assignment_type},
+	{ xx18, "SIP-Server-Assignment-Type",		DIAMETER_ENUMERATED,		SIP_server_assignment_type_vals},
 	{ xx19, "SIP-Deregistration-Reason",		DIAMETER_GROUPED,			(value_string *)NULL},
 	{ xx20, "SIP-Reason-Code",					DIAMETER_ENUMERATED,		SIP_reason_code_vals},
 	{ xx21, "SIP-Reason-Info",					DIAMETER_UTF8STRING,		(value_string *)NULL},
@@ -981,30 +993,65 @@ static struct old_avp_info old_diameter_avps[] = {
 	{0, (char *)NULL, 0, (value_string*)NULL}
 };
 
-
-
+ /* The following table describes the Diameter AVPs defined for the Cx interface protocol.
+  * The Vendor-Id header of all AVPs defined in this specification shall be set to 
+  * 3GPP (10415).
+  * TS 29.299 5.7.0
+  */
+static struct old_avp_info ThreeGPP_vendor_diameter_avps[] = {
+	{ 1, "Visited-Network-Identifier",				DIAMETER_OCTET_STRING,		(value_string *)NULL},
+	{ 2, "Public-Identity",							DIAMETER_PUBLIC_ID,			(value_string *)NULL},
+	{ 3, "Server-Name",								DIAMETER_UTF8STRING,		(value_string *)NULL},
+	{ 4, "Server-Capabilities",						DIAMETER_GROUPED,			(value_string *)NULL},
+	{ 5, "Mandatory-Capability",					DIAMETER_UNSIGNED32,		(value_string *)NULL},
+	{ 6, "Optional-Capability",						DIAMETER_UNSIGNED32,		(value_string *)NULL},
+	{ 7, "User-Data",								DIAMETER_OCTET_STRING,		(value_string *)NULL},
+	{ 8, "SIP-Number-Auth-Items",					DIAMETER_UNSIGNED32,		(value_string *)NULL},
+	{ 9, "SIP-Authentication-Scheme",				DIAMETER_UTF8STRING,		(value_string *)NULL},
+	{ 10, "SIP-Authenticate",						DIAMETER_OCTET_STRING,		(value_string *)NULL},
+	{ 11, "SIP-Authorization",						DIAMETER_OCTET_STRING,		(value_string *)NULL},
+	{ 12, "SIP-Authentication-Context",				DIAMETER_UTF8STRING,		(value_string *)NULL},
+	{ 13, "SIP-Auth-Data-Item",						DIAMETER_GROUPED,			(value_string *)NULL},
+	{ 14, "SIP-Item-Number",						DIAMETER_UNSIGNED32,		(value_string *)NULL},
+	{ 15, "Server-Assignment-Type",					DIAMETER_ENUMERATED,		SIP_server_assignment_type_vals},
+	{ 16, "Deregistration-Reason",					DIAMETER_GROUPED,			(value_string *)NULL},
+	{ 17, "Reason-Code",							DIAMETER_ENUMERATED,		ThreeGPP_reason_code_vals},
+	{ 18, "Reason-Info",							DIAMETER_UTF8STRING,		(value_string *)NULL},
+	{ 19, "Charging-Information",					DIAMETER_GROUPED,			(value_string *)NULL},
+	{ 20, "Primary-Event-Charging-Function-Name",	DIAMETER_URI,				(value_string *)NULL},
+	{ 21, "Secondary-Event-Charging-Function-Name",	DIAMETER_URI,				(value_string *)NULL},
+	{ 22, "Primary-Charging-Collection-Function-Name",	 DIAMETER_URI,			(value_string *)NULL},
+	{ 23, "Secondary-Charging-Collection-Function-Name", DIAMETER_URI,			(value_string *)NULL},
+	{ 24, "User-Authorization-Type",				DIAMETER_ENUMERATED,		SIP_user_authorization_type},
+	{ 25, "User-Data-Request-Type",					DIAMETER_ENUMERATED,		SIP_user_data_request_type},
+	{ 26, "User-Data-Already-Available",			DIAMETER_ENUMERATED,		SIP_user_data_already_available_vals},
+	{ 27, "Confidentiality-Key",					DIAMETER_OCTET_STRING,		(value_string *)NULL},
+	{ 28, "Integrity-Key",							DIAMETER_OCTET_STRING,		(value_string *)NULL},
+	{0, (char *)NULL, 0, (value_string*)NULL}
+};
 static const value_string diameter_command_code_vals[] = {
 
 	/* Base Protocol */
 	{257, "Capabilities-Exchange"},
 	{258, "Re-Auth"},
+	{260, "AA-Mobile-Node"},			/* [RFC-ietf-aaa-diameter-mobileip-20.txt]  */
+	{262, "Home-Agent-MIP"},			/* [RFC-ietf-aaa-diameter-mobileip-20.txt]  */
+	{265, "AAR / AAA"},					/* [RFC-ietf-aaa-diameter-nasreq-17.txt]	*/
+	{265, "DER / DEA"},					/* [RFC-ietf-aaa-eap-10.txt]				*/
 	{271, "Accounting"},
+	{272, "Credit-Control"},					/* [RFC-ietf-aaa-diameter-cc-06.txt]		*/
 	{274, "Abort-Session"},
 	{275, "Session-Termination"},
 	{280, "Device-Watchdog"},
-	{282, "Disconnect-Peer"},
-	{300, "Test-Auth"},
-	/* Mip Protocol */
-	{260, "AA-Mobile-Node"},
-	{262, "Home-Agent-MIP"},
-	/* Nasreq Protocol */
-	{265, "AA"},
-	{268, "Diameter-EAP"},
-	/* Credit-Control Application */
-	{272, "Credit-Control"},
-	/* draft-ietf-aaa-diameter-cms-sec-04 */
-	{304,  "Diameter-Security-Association"},
-	{305,  "Proxy-Diameter-Security-Association"},
+	{282, "Disconnect-Peer"},			/* [RFC3588] */
+	/* 300-313   Allocated for 3GPP (TS 29.229 6.40)*/
+	{300, "User-Authorization"},
+	{301, "Server-Assignment"},
+	{302, "Location-Info"},
+	{303, "Multimedia-Auth"},
+	{304, "Registration-Termination"},
+	{305, "Push-Profile"},
+
 	/* Session Initiation Protocol (SIP) Application, numbers not yet assigned by IANA 
 	{aaa, "User-Authorization"},
 	{bbb, "Server-Assignment"},
