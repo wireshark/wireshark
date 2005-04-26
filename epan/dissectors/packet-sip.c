@@ -113,9 +113,9 @@ static const char *sip_methods[] = {
         "PUBLISH"
 };
 
-/* from RFC 3261 
- * Updated with info from http://www.iana.org/assignments/sip-parameters 
- * (last updated 2004-10-17) 
+/* from RFC 3261
+ * Updated with info from http://www.iana.org/assignments/sip-parameters
+ * (last updated 2004-10-17)
  * Updated with: http://www.ietf.org/internet-drafts/draft-ietf-sip-resource-priority-05.txt
  */
 typedef struct {
@@ -824,7 +824,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					if ( parameter_offset != -1){
 						len = parameter_offset - value_offset;
 						if ( len > 1){
-							/* Something in front, must be display info 
+							/* Something in front, must be display info
 							 * TODO: Get rid of trailing space(s)
 							 */
 							proto_tree_add_item(sip_element_tree, hf_sip_display, tvb, value_offset,
@@ -861,7 +861,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						stat_info->tap_to_addr=tvb_get_string(tvb, parameter_offset, parameter_len);
 
 						parameter_offset = parameter_end_offset + 1;
-						/*  
+						/*
 						 * URI parameters ?
 						 */
 						parameter_end_offset = tvb_find_guint8(tvb, parameter_offset,( line_end_offset - parameter_offset), ';');
@@ -879,7 +879,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						parameter_offset++;
 					len = parameter_offset - value_offset;
 					if ( len > 1){
-						/* Something in front, must be display info 
+						/* Something in front, must be display info
 						 * TODO: Get rid of trailing space(s)
 						 */
 						proto_tree_add_item(sip_element_tree, hf_sip_display, tvb, value_offset,
@@ -898,7 +898,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					}
 					/* Find parameter tag if present.
 					 * TODO make this generic to find any interesting parameter
-					 * use the same method as for SIP headers ? 
+					 * use the same method as for SIP headers ?
 					 */
 
 					parameter_offset = offset;
@@ -934,7 +934,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					if ( parameter_offset != -1){
 						len = parameter_offset - value_offset;
 						if ( len > 1){
-							/* Something in front, must be display info 
+							/* Something in front, must be display info
 							 * TODO: Get rid of trailing space(s)
 							 */
 							proto_tree_add_item(sip_element_tree, hf_sip_display, tvb, value_offset,
@@ -965,12 +965,12 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						}
 	separator_found2:
 						parameter_len = parameter_end_offset - parameter_offset;
-						dfilter_store_sip_from_addr(tvb, sip_element_tree, 
+						dfilter_store_sip_from_addr(tvb, sip_element_tree,
 							parameter_offset, parameter_len);
 						/*info for the tap for voip_calls.c*/
 						stat_info->tap_from_addr=tvb_get_string(tvb, parameter_offset, parameter_len);
 						parameter_offset = parameter_end_offset + 1;
-						/*  
+						/*
 						 * URI parameters ?
 						 */
 						parameter_end_offset = tvb_find_guint8(tvb, parameter_offset,( line_end_offset - parameter_offset), ';');
@@ -988,7 +988,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						parameter_offset++;
 					len = parameter_offset - value_offset;
 					if ( len > 1){
-						/* Something in front, must be display info 
+						/* Something in front, must be display info
 						 * TODO: Get rid of trailing space(s)
 						 */
 						proto_tree_add_item(sip_element_tree, hf_sip_display, tvb, value_offset,
@@ -1007,7 +1007,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					}
 					/* Find parameter tag if present.
 					 * TODO make this generic to find any interesting parameter
-					 * use the same method as for SIP headers ? 
+					 * use the same method as for SIP headers ?
 					 */
 
 					parameter_offset = offset;
@@ -1032,7 +1032,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					cseq_number = atoi(value);
 					cseq_number_set = 1;
 					stat_info->tap_cseq_number=cseq_number;
-					
+
 					/* Walk past number and spaces characters to get to start
 					   of method name */
 					for (value_offset=0; value_offset < (gint)strlen(value); value_offset++)
@@ -1045,36 +1045,36 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					if (value_offset == (gint)strlen(value))
 					{
 						THROW(ReportedBoundsError);
-						return TRUE; 
+						return TRUE;
 					}
-                                        
-					/* Extract method name from value */
-                    strlen_to_copy = strlen(value)-value_offset+1;
-                    if (strlen_to_copy > MAX_CSEQ_METHOD_SIZE) {
-                        /* Note the error in the protocol tree */
-                        if(hdr_tree) {
-                            proto_tree_add_string_format(hdr_tree,
-                                hf_header_array[hf_index], tvb,
-                                offset, next_offset - offset,
-                                value+value_offset, "%s String too big: %d bytes",
-                                sip_headers[POS_CSEQ].name,
-                                strlen_to_copy);
-                        }
-                        THROW(ReportedBoundsError);
-                        return TRUE;
-                    }
-                    else {
-                        strncpy(cseq_method, value+value_offset, MIN(strlen_to_copy, MAX_CSEQ_METHOD_SIZE));
 
-                        /* Add 'CSeq' string item to tree */
-                        if(hdr_tree) {
-                            proto_tree_add_string_format(hdr_tree,
-                                hf_header_array[hf_index], tvb,
-                                offset, next_offset - offset,
-                                value, "%s",
-                                tvb_format_text(tvb, offset, linelen));
-                        }
-                    }
+					/* Extract method name from value */
+					strlen_to_copy = strlen(value)-value_offset+1;
+					if (strlen_to_copy > MAX_CSEQ_METHOD_SIZE) {
+						/* Note the error in the protocol tree */
+						if(hdr_tree) {
+							proto_tree_add_string_format(hdr_tree,
+							    hf_header_array[hf_index], tvb,
+							    offset, next_offset - offset,
+							    value+value_offset, "%s String too big: %d bytes",
+							    sip_headers[POS_CSEQ].name,
+							    strlen_to_copy);
+						}
+						THROW(ReportedBoundsError);
+						return TRUE;
+					}
+					else {
+						strncpy(cseq_method, value+value_offset, MIN(strlen_to_copy, MAX_CSEQ_METHOD_SIZE));
+
+						/* Add 'CSeq' string item to tree */
+						if(hdr_tree) {
+							proto_tree_add_string_format(hdr_tree,
+							    hf_header_array[hf_index], tvb,
+							    offset, next_offset - offset,
+							    value, "%s",
+							    tvb_format_text(tvb, offset, linelen));
+						}
+					}
 					break;
 
 				case POS_CALL_ID :
@@ -1084,7 +1084,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 							strlen(value)+1 :
 							MAX_CALL_ID_SIZE);
 					stat_info->tap_call_id = g_strdup(call_id);
-					
+
 					/* Add 'Call-id' string item to tree */
 					if(hdr_tree) {
 						proto_tree_add_string_format(hdr_tree,
@@ -1192,110 +1192,110 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				g_free(value);
 			}/*if HF_index */
 		}/* if colon_offset */
-                offset = next_offset;
-        }/* End while */
+		offset = next_offset;
+		}/* End while */
 
-        if (tvb_offset_exists(tvb, next_offset)) {
+		if (tvb_offset_exists(tvb, next_offset)) {
 
-                /*
-                 * There's a message body starting at "next_offset".
-                 * Set the length of the header item.
-                 */
-                proto_item_set_end(th, tvb, next_offset);
-                next_tvb = tvb_new_subset(tvb, next_offset, -1, -1);
-                if(sip_tree) {
-               		ti = proto_tree_add_text(sip_tree, next_tvb, 0, -1,
-                	                         "Message body");
-               		message_body_tree = proto_item_add_subtree(ti, ett_sip_message_body);
-		}
-
-		/* give the content type parameters to sub dissectors */
-
-		if ( media_type_str_lower_case != NULL ) {
-			void *save_private_data = pinfo->private_data;
-			pinfo->private_data = content_type_parameter_str;
-			found_match = dissector_try_string(media_type_dissector_table,
-							   media_type_str_lower_case,
-							   next_tvb, pinfo,
-							   message_body_tree);
-			g_free(media_type_str_lower_case);
-			pinfo->private_data = save_private_data;
-			/* If no match dump as text */
-		}
-		g_free(content_type_parameter_str);
-		if ( found_match != TRUE )
-		{
-			offset = 0;
-	        	while (tvb_offset_exists(next_tvb, offset)) {
-	                	tvb_find_line_end(next_tvb, offset, -1, &next_offset, FALSE);
-	                	linelen = next_offset - offset;
-	                	if(message_body_tree) {
-	                		proto_tree_add_text(message_body_tree, next_tvb, offset, linelen,
-	                   			"%s", tvb_format_text(next_tvb, offset, linelen));
-	                   	}
- 	        		offset = next_offset;
- 	 		}/* end while */
-		}
-        }
-
-
-	/* Add to info column interesting things learned from header fields. */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		/* Registration requests */
-		if (strcmp(sip_methods[current_method_idx], "REGISTER") == 0)
-		{
-			if (contact_is_star && expires_is_0)
-			{
-				col_append_str(pinfo->cinfo, COL_INFO, "    (remove all bindings)");
+			/*
+			 * There's a message body starting at "next_offset".
+			 * Set the length of the header item.
+			 */
+			proto_item_set_end(th, tvb, next_offset);
+			next_tvb = tvb_new_subset(tvb, next_offset, -1, -1);
+			if(sip_tree) {
+				ti = proto_tree_add_text(sip_tree, next_tvb, 0, -1,
+				                         "Message body");
+				message_body_tree = proto_item_add_subtree(ti, ett_sip_message_body);
 			}
-			else
-			if (!contacts)
+
+			/* give the content type parameters to sub dissectors */
+
+			if ( media_type_str_lower_case != NULL ) {
+				void *save_private_data = pinfo->private_data;
+				pinfo->private_data = content_type_parameter_str;
+				found_match = dissector_try_string(media_type_dissector_table,
+				                                   media_type_str_lower_case,
+				                                   next_tvb, pinfo,
+				                                   message_body_tree);
+				g_free(media_type_str_lower_case);
+				pinfo->private_data = save_private_data;
+				/* If no match dump as text */
+			}
+			g_free(content_type_parameter_str);
+			if ( found_match != TRUE )
 			{
-				col_append_str(pinfo->cinfo, COL_INFO, "    (fetch bindings)");
+				offset = 0;
+				while (tvb_offset_exists(next_tvb, offset)) {
+					tvb_find_line_end(next_tvb, offset, -1, &next_offset, FALSE);
+					linelen = next_offset - offset;
+					if(message_body_tree) {
+						proto_tree_add_text(message_body_tree, next_tvb, offset, linelen,
+						                    "%s", tvb_format_text(next_tvb, offset, linelen));
+					}
+					offset = next_offset;
+				}/* end while */
 			}
 		}
 
-		/* Registration responses */
-		if (line_type == STATUS_LINE && (strcmp(cseq_method, "REGISTER") == 0))
+
+		/* Add to info column interesting things learned from header fields. */
+		if (check_col(pinfo->cinfo, COL_INFO))
 		{
-			col_append_fstr(pinfo->cinfo, COL_INFO, "    (%d bindings)", contacts);
+			/* Registration requests */
+			if (strcmp(sip_methods[current_method_idx], "REGISTER") == 0)
+			{
+				if (contact_is_star && expires_is_0)
+				{
+					col_append_str(pinfo->cinfo, COL_INFO, "    (remove all bindings)");
+				}
+				else
+					if (!contacts)
+				{
+					col_append_str(pinfo->cinfo, COL_INFO, "    (fetch bindings)");
+				}
+			}
+
+			/* Registration responses */
+			if (line_type == STATUS_LINE && (strcmp(cseq_method, "REGISTER") == 0))
+			{
+				col_append_fstr(pinfo->cinfo, COL_INFO, "    (%d bindings)", contacts);
+			}
 		}
-	}
 
-	/* Check if this packet is a resend. */
-	resend_for_packet = sip_is_packet_resend(pinfo, cseq_method, call_id,
-						cseq_number_set, cseq_number,
-						line_type);
-	/* Mark whether this is a resend for the tap */
-	stat_info->resend = (resend_for_packet > 0);
+		/* Check if this packet is a resend. */
+		resend_for_packet = sip_is_packet_resend(pinfo, cseq_method, call_id,
+		                    cseq_number_set, cseq_number,
+		                    line_type);
+		/* Mark whether this is a resend for the tap */
+		stat_info->resend = (resend_for_packet > 0);
 
-	/* And add the filterable field to the request/response line */
-	if (reqresp_tree)
-	{
-		proto_item *item;
-		item = proto_tree_add_boolean(reqresp_tree, hf_sip_resend, tvb, 0, 0,
-						resend_for_packet > 0);
-		PROTO_ITEM_SET_GENERATED(item);
-		if (resend_for_packet > 0)
+		/* And add the filterable field to the request/response line */
+		if (reqresp_tree)
 		{
-			item = proto_tree_add_uint(reqresp_tree, hf_sip_original_frame,
-						tvb, 0, 0, resend_for_packet);
+			proto_item *item;
+			item = proto_tree_add_boolean(reqresp_tree, hf_sip_resend, tvb, 0, 0,
+			                              resend_for_packet > 0);
 			PROTO_ITEM_SET_GENERATED(item);
+			if (resend_for_packet > 0)
+			{
+				item = proto_tree_add_uint(reqresp_tree, hf_sip_original_frame,
+				                           tvb, 0, 0, resend_for_packet);
+				PROTO_ITEM_SET_GENERATED(item);
+			}
 		}
-	}
 
 
-        if (global_sip_raw_text)
-                tvb_raw_text_add(tvb, tree);
+		if (global_sip_raw_text)
+			tvb_raw_text_add(tvb, tree);
 
-	/* Report this packet to the tap */
-	if (!pinfo->in_error_pkt)
-	{
-		tap_queue_packet(sip_tap, pinfo, stat_info);
-	}
+		/* Report this packet to the tap */
+		if (!pinfo->in_error_pkt)
+		{
+			tap_queue_packet(sip_tap, pinfo, stat_info);
+		}
 
-        return TRUE;
+		return TRUE;
 }
 
 /* Display filter for SIP Request-Line */
@@ -1304,20 +1304,20 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len)
 {
 	char	*string;
 
-        /*
-         * We know we have the entire method; otherwise, "sip_parse_line()"
-         * would have returned OTHER_LINE.
-         */
-        string = tvb_get_string(tvb, 0, meth_len);
-        if (tree) {
-        	proto_tree_add_string(tree, hf_Method, tvb, 0, meth_len, string);
+	/*
+	 * We know we have the entire method; otherwise, "sip_parse_line()"
+	 * would have returned OTHER_LINE.
+	 */
+	string = tvb_get_string(tvb, 0, meth_len);
+	if (tree) {
+		proto_tree_add_string(tree, hf_Method, tvb, 0, meth_len, string);
 	}
 	/* Copy request method for telling tap */
 	stat_info->request_method = g_malloc(meth_len+1);
 	strncpy(stat_info->request_method, string, meth_len+1);
 
-        /* String no longer needed */
-        g_free(string);
+	/* String no longer needed */
+	g_free(string);
 }
 
 /* Display filter for SIP Status-Line */
@@ -1327,27 +1327,27 @@ dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree)
 	char string[3+1];
 	gint response_code = 0;
 
-        /*
-         * We know we have the entire status code; otherwise,
-         * "sip_parse_line()" would have returned OTHER_LINE.
-         * We also know that we have a version string followed by a
-         * space at the beginning of the line, for the same reason.
-         */
-        tvb_memcpy(tvb, (guint8 *)string, SIP2_HDR_LEN + 1, 3);
-        string[3] = '\0';
+	/*
+	 * We know we have the entire status code; otherwise,
+	 * "sip_parse_line()" would have returned OTHER_LINE.
+	 * We also know that we have a version string followed by a
+	 * space at the beginning of the line, for the same reason.
+	 */
+	tvb_memcpy(tvb, (guint8 *)string, SIP2_HDR_LEN + 1, 3);
+	string[3] = '\0';
 	response_code = atoi(string);
 
 	/* Add numerical response code to tree */
-        if (tree) {
+	if (tree) {
 		proto_tree_add_uint(tree, hf_Status_Code, tvb, SIP2_HDR_LEN + 1,
-					3, response_code);
+		                    3, response_code);
 	}
 
-        /* Add response code for sending to tap */
-        stat_info->response_code = response_code;
+	/* Add response code for sending to tap */
+	stat_info->response_code = response_code;
 }
 
-void dfilter_store_sip_from_addr(tvbuff_t *tvb,proto_tree *tree,guint parameter_offset, 
+void dfilter_store_sip_from_addr(tvbuff_t *tvb,proto_tree *tree,guint parameter_offset,
 					  guint parameter_len)
 {
 	proto_tree_add_item(tree, hf_sip_from_addr, tvb, parameter_offset,
@@ -2150,7 +2150,7 @@ void proto_register_sip(void)
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: To Header", HFILL }
 		},
-					
+
 		{ &hf_header_array[POS_UNSUPPORTED],
 			{ "Unsupported", 		"sip.Unsupported",
 		       FT_STRING, BASE_NONE,NULL,0x0,
@@ -2171,7 +2171,7 @@ void proto_register_sip(void)
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: Warning Header", HFILL }
 		},
-		
+
 		{ &hf_header_array[POS_WWW_AUTHENTICATE],
 			{ "WWW-Authenticate", 		"sip.WWW-Authenticate",
 		       FT_STRING, BASE_NONE,NULL,0x0,
