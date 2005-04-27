@@ -342,11 +342,13 @@ proto_register_tftp(void)
   proto_register_field_array(proto_tftp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  tftp_handle = create_dissector_handle(dissect_tftp, proto_tftp);
+  register_dissector("tftp", dissect_tftp, proto_tftp);
 }
 
 void
 proto_reg_handoff_tftp(void)
 {
+  tftp_handle = find_dissector("tftp");
+
   dissector_add("udp.port", UDP_PORT_TFTP, tftp_handle);
 }
