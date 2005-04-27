@@ -3527,7 +3527,7 @@ void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	guint nfound;
 
 	/* Try to compile the filter. */
-	strcpy(filter_text,"rtp && (ip || ipv6)");
+	strcpy(filter_text,"rtp && rtp.version && rtp.ssrc && (ip || ipv6)");
 	if (!dfilter_compile(filter_text, &sfcode)) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, dfilter_error_msg);
 		return;
