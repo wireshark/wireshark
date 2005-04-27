@@ -3984,6 +3984,12 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Get request value data */
         request_value = p_get_proto_data(pinfo->fd, proto_ndps);
     }
+    if (!request_value)
+    {
+        /* Can't find the original request packet so this is not any fragment packet */
+        dissect_ndps(tvb, pinfo, tree);
+        return;
+    }
     /* Check to see of this is a fragment. If so then mark as a fragment. */
     if (!spx_info->eom) {
         request_value->ndps_frag = TRUE;
@@ -8150,6 +8156,11 @@ proto_register_ndps(void)
         { "Document Number",    "ndps.ndps_doc_num",
           FT_UINT32,    BASE_HEX,   NULL,   0x0,
           "Document Number", HFILL }},
+
+        { &hf_ndps_doc_content,
+        { "Document Content",    "ndps.ndps_doc_content",
+          FT_UINT32,    BASE_HEX,   NULL,   0x0,
+          "Document Content", HFILL }},
 
         { &hf_ndps_nameorid,
         { "Name or ID Type",    "ndps.ndps_nameorid",
