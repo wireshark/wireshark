@@ -131,6 +131,7 @@ dissect_ber_GeneralizedTime
 dissect_ber_identifier
 dissect_ber_integer
 dissect_ber_length
+dissect_ber_null
 dissect_ber_object_identifier
 dissect_ber_octet_string
 dissect_ber_restricted_string
@@ -152,6 +153,7 @@ dissect_per_constrained_set_of
 dissect_per_GeneralString
 dissect_per_IA5String
 dissect_per_integer
+dissect_per_null
 dissect_per_NumericString
 dissect_per_object_identifier
 dissect_per_octet_string
