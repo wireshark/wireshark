@@ -42,6 +42,8 @@
 #include "compat_macros.h"
 #include "file.h"
 #include "simple_dialog.h"
+#include "main.h"
+#include "capture.h"
 #include <epan/prefs.h>
 
 #include <string.h>
@@ -309,6 +311,29 @@ GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
     gpointer  dialog;
 
     if (info == DND_TARGET_URL) {
+        /* Usually we block incoming events by disabling the corresponding menu/toolbar items. 
+         * This is the only place where an incoming event won't be blocked in such a way, 
+         * so we have to take care of NOT loading a new file while a different process 
+         * (e.g. capture/load/...) is still in progress. */
+
+        /* if a capture is running, do nothing but warn the user */
+        if((capture_opts->state != CAPTURE_STOPPED)) {
+            dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
+                        ESD_BTN_OK,
+                        PRIMARY_TEXT_START "Drag and Drop currently not possible!" PRIMARY_TEXT_END "\n\n"
+                        "Dropping a file isn't possible while capture is in progress.");
+            return;
+        }
+
+        /* if another file read is still in progress, do nothing but warn the user */
+        if((cfile.state == FILE_READ_IN_PROGRESS)) {
+            dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
+                        ESD_BTN_OK,
+                        PRIMARY_TEXT_START "Drag and Drop currently not possible!" PRIMARY_TEXT_END "\n\n"
+                        "Dropping a file isn't possible while loading another capture file.");
+            return;
+        }
+
         /* ask the user to save it's current capture file first */
         if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
             /* user didn't saved his current file, ask him */
