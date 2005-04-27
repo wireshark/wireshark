@@ -312,7 +312,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	struct ncp_common_header	header;
 	guint16				nw_connection, ncp_burst_seqno, ncp_ack_seqno;
 	guint16				flags = 0;
-	char				flags_str[1+3+1+3+1+3+1+1];
+	char				flags_str[2+3+1+3+1+3+1+3+1+3+1+1];
 	char				*sep;
 	proto_tree			*flags_tree = NULL;
 	int				hdr_offset = 0;
