@@ -527,6 +527,31 @@ int dissect_ber_octet_string_wcb(gboolean implicit_tag, packet_info *pinfo, prot
 	return offset;
 }
 
+/* 8.8 Encoding of a null value */
+int 
+dissect_ber_null(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id) {
+  guint8 class;
+  gboolean pc;
+  guint32 tag, len;
+  int offset_old;
+
+  offset_old = offset;  
+  offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+  if ((pc) ||
+      (!implicit_tag && ((class != BER_CLASS_UNI) || (tag != BER_UNI_TAG_NULL)))) {
+    proto_tree_add_text(tree, tvb, offset_old, offset - offset_old, "BER Error: NULL expected but Class:%d(%s) PC:%d Tag:%d was unexpected", class,val_to_str(class,ber_class_codes,"Unknown"), pc, tag);
+  }
+
+  offset_old = offset;  
+  offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
+  if (len) {
+    proto_tree_add_text(tree, tvb, offset_old, offset - offset_old, "BER Error: NULL expect zero length but Length=%d", len);
+    proto_tree_add_text(tree, tvb, offset, len, "BER Error: unexpected data in NULL type");
+    offset += len;
+  }
+
+  return offset;
+}
 
 int
 dissect_ber_integer(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, guint32 *value)

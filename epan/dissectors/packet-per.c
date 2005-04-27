@@ -205,6 +205,17 @@ dissect_per_GeneralString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, pro
 	return offset;
 }
 
+/* 17 Encoding the null type */
+guint32
+dissect_per_null(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+  proto_item *ti_tmp;
+
+  ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>8, 0, FALSE);
+  proto_item_append_text(ti_tmp, ": NULL");
+
+  return offset;
+}
+
 /* 19 this function dissects a sequence of */
 static guint32
 dissect_per_sequence_of_helper(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int (*func)(tvbuff_t *, int , packet_info *, proto_tree *), guint32 length)
