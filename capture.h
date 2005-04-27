@@ -34,6 +34,15 @@
 /** Name we give to the child process when doing a "-S" capture. */
 #define	CHILD_NAME	"ethereal-capture"
 
+
+/* Current state of capture engine. XXX - differentiate states */
+typedef enum {
+	CAPTURE_STOPPED,		/**< stopped */
+    CAPTURE_PREPARING,      /**< preparing, but still no response from capture child */
+	CAPTURE_RUNNING		    /**< capture child signalled ok, capture is running now */
+} capture_state;
+
+
 /** Capture options coming from user interface */
 typedef struct capture_options_tag {
     /* general */
@@ -86,6 +95,7 @@ typedef struct capture_options_tag {
 #ifdef _WIN32
     int signal_pipe_fd;         /**< the pipe to signal the child */
 #endif
+    capture_state state;        /**< current state of the capture engine */
 } capture_options;
 
 

@@ -82,6 +82,9 @@ capture_start(capture_options *capture_opts)
   /* close the currently loaded capture file */
   cf_close(capture_opts->cf);
 
+  g_assert(capture_opts->state == CAPTURE_STOPPED);
+  capture_opts->state = CAPTURE_PREPARING;
+
   /* try to start the capture child process */
   ret = sync_pipe_start(capture_opts, capture_opts->save_file == NULL);
   if(!ret) {
@@ -89,6 +92,8 @@ capture_start(capture_options *capture_opts)
           g_free(capture_opts->save_file);
           capture_opts->save_file = NULL;
       }
+
+      capture_opts->state = CAPTURE_STOPPED;
   }
 
   return ret;
@@ -209,6 +214,7 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
   int  err;
 
 
+  g_assert(capture_opts->state == CAPTURE_PREPARING || capture_opts->state == CAPTURE_RUNNING);
   /*g_warning("New capture file: %s", new_file);*/
 
   /* free the old filename */
@@ -251,6 +257,7 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
     cf_callback_invoke(cf_cb_live_capture_fixed_started, capture_opts);
   }
 
+  capture_opts->state = CAPTURE_RUNNING;
 
   return TRUE;
 }
@@ -299,8 +306,10 @@ capture_input_closed(capture_options *capture_opts)
     int  err;
 
 
-    /* if we have no file (happens if an error occured), do a fake start */
-    if(capture_opts->save_file == NULL) {
+    g_assert(capture_opts->state == CAPTURE_PREPARING || capture_opts->state == CAPTURE_RUNNING);
+
+    /* if we didn't started the capture (happens if an error occured), do a fake start */
+    if(capture_opts->state == CAPTURE_PREPARING) {
         if(capture_opts->real_time_mode) {
             cf_callback_invoke(cf_cb_live_capture_update_started, capture_opts);
         } else {
@@ -348,6 +357,8 @@ capture_input_closed(capture_options *capture_opts)
                 cf_get_drops_known(capture_opts->cf), cf_get_drops(capture_opts->cf));
         }
     }
+
+    capture_opts->state = CAPTURE_STOPPED;
 
     /* if we couldn't open a capture file, there's nothing more for us to do */
     if(capture_opts->save_file == NULL) {

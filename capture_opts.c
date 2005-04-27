@@ -85,6 +85,7 @@ capture_opts_init(capture_options *capture_opts, void *cfile)
 #ifdef _WIN32
   capture_opts->signal_pipe_fd          = -1;
 #endif
+  capture_opts->state                   = CAPTURE_STOPPED;
 }
 
 
