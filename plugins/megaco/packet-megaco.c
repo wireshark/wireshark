@@ -889,6 +889,10 @@ nextcontext:
 					switch ( tempchar ){
 						
 					case 'E':
+						if (tokenlen+1 > (int) sizeof(TermID)) {
+							proto_tree_add_text(megaco_tree, tvb, 0, 0, "[ Parse error: Invalid TermID length (%d) ]", tokenlen+1);
+							return;
+						}
 						tvb_get_nstringz0(tvb,tvb_offset,tokenlen+1,TermID);
 						TermID[0] = 'e';
 						my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_termid, tvb,
