@@ -1210,6 +1210,16 @@ capture_start_confirmed(void) {
         gchar *if_device;
         gchar *if_name;
 
+        /* did the user ever selected a capture interface before? */
+        if(prefs.capture_device == NULL) {
+            simple_dialog(ESD_TYPE_CONFIRMATION,
+                        ESD_BTN_OK,
+                        PRIMARY_TEXT_START "No capture interface selected!" PRIMARY_TEXT_END "\n\n"
+                        "To select an interface use:\n\n"
+                        "Capture->Options (until Ethereal is stopped)\n"
+                        "Edit->Preferences/Capture (permanent, if saved)");
+            return;
+        }
         if_device = g_strdup(prefs.capture_device);
         if_name = get_if_name(if_device);
         capture_opts->iface = g_strdup(if_name);
