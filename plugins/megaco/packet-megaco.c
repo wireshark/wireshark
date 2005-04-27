@@ -598,8 +598,13 @@ nextcontext:
 		tvb_previous_offset = tvb_find_guint8(tvb, tvb_current_offset,
 			tvb_len, '=')+1;
 		tvb_previous_offset = tvb_skip_wsp(tvb, tvb_previous_offset);
-		tvb_current_offset = tvb_find_guint8(tvb, tvb_previous_offset,
+		tvb_next_offset = tvb_find_guint8(tvb, tvb_previous_offset,
 			tvb_len, '{');
+		if (tvb_current_offset >= tvb_next_offset) {
+			proto_tree_add_text(megaco_tree, tvb, 0, 0, "[ Parse error: Invalid offset ]");
+			return;
+		}
+		tvb_current_offset = tvb_next_offset;
 		
 		
 		tokenlen = tvb_current_offset - tvb_previous_offset;
