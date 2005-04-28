@@ -233,6 +233,7 @@ DISSECTOR_SRC =	\
 	packet-dns.c	\
 	packet-dsi.c	\
 	packet-dtp.c	\
+	packet-dua.c	\
 	packet-dvmrp.c	\
 	packet-e164.c	\
 	packet-eap.c	\
