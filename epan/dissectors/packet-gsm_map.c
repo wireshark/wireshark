@@ -11321,8 +11321,10 @@ dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
   application_context_version = 0;
   if (pinfo->private_data != NULL){
     version_ptr = strrchr(pinfo->private_data,'.');
-    version_str = g_strdup(version_ptr+1);
-    application_context_version = atoi(version_str);
+    if (version_ptr) {
+      version_str = g_strdup(version_ptr+1);
+      application_context_version = atoi(version_str);
+    }
   }
 
   gsmmap_pdu_type = tvb_get_guint8(tvb, offset)&0x0f;
