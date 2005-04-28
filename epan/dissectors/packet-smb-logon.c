@@ -769,7 +769,7 @@ dissect_smb_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 #define LOGON_SAM_AD_USER_UNKNOWN		0x17
 #define LOGON_SAM_UNKNOWN_18			0x18
 #define LOGON_SAM_AD_LOGON_RESPONSE		0x19
-#define LOGON_LAST_CMD				0x20
+#define LOGON_LAST_CMD				0x19
 
 static const value_string commands[] = {
 	{LOGON_LM10_LOGON_REQUEST,	"LM1.0/LM2.0 LOGON Request"},
