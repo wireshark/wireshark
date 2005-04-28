@@ -3780,6 +3780,8 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 					: "Unknown Type"),
 				vsa_avph->avp_type, vsa_avph->avp_length);
 			cont = &cont[strlen(cont)];
+                	if (!avp_length_check(cont, vsa_avph, 1))
+			  return;
 			rd_value_to_str(cont, vsabuffer, vsa_avph, tvb,
 					offset+vsa_len, next_attr_info,
 					tree);
