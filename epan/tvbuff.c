@@ -1713,8 +1713,7 @@ tvb_get_string(tvbuff_t *tvb, gint offset, gint length)
 	const guint8 *ptr;
 	guint8 *strbuf = NULL;
 
-	if (length < 0)
-		THROW(DissectorError);
+	tvb_ensure_bytes_exist(tvb, offset, length);
 
 	ptr = ensure_contiguous(tvb, offset, length);
 	strbuf = g_malloc(length + 1);
