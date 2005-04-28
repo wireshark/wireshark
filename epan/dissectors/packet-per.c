@@ -38,6 +38,7 @@ proper helper routines
 #include <stdio.h>
 #include <string.h>
 
+#include <epan/to_str.h>
 #include <epan/prefs.h>
 #include "packet-per.h"
 #include "packet-ber.h"
@@ -561,14 +562,12 @@ DEBUG_ENTRY("dissect_per_set_of");
 
 
 
-/* this function reads a OBJECT IDENTIFIER */
+/* 23 Encoding the object identifier type */
 guint32
 dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, char *value_string)
 {
-	int i,count;
-	char str[256],*strp,*name;
-	guint8 byte;
-	guint32 value;
+	gint length;
+	char str[MAX_OID_STR_LEN], *name;
 	proto_tree *etr=NULL;
 	proto_item *item;
 
@@ -578,48 +577,12 @@ DEBUG_ENTRY("dissect_per_object_identifier");
 		etr=tree;
 	}
 
-	/* first byte is the count and it is byte aligned */
-	BYTE_ALIGN_OFFSET(offset);
-	count=tvb_get_guint8(tvb, offset>>3);
+	offset = dissect_per_length_determinant(tvb, offset, pinfo, etr, hf_per_object_identifier_length, &length);
 
+	oid_to_str_buf(tvb_get_ptr(tvb, offset>>3, length), length, str);
+	item = proto_tree_add_string(tree, hf_index, tvb, offset>>3, length, str);
+	offset += 8 * length;
 
-	proto_tree_add_uint(etr, hf_per_object_identifier_length, tvb, offset>>3, 1, count);
-	offset+=8;
-
-	value=0;
-	for(i=0,strp=str;i<count;i++){
-		byte=tvb_get_guint8(tvb,offset>>3);
-		offset+=8;
-
-		if((strp-str)>200){
-PER_NOT_DECODED_YET("too long octet_string");
-			/*XXX assert here */
-			return offset;
-		}
-
-		if(i==0){
-			/* the first byte contains the first two object identifier components */
-			if(byte<40){
-				strp+=sprintf(strp,"0.%d",byte);
-			} else if (byte<80){
-				strp+=sprintf(strp,"1.%d",byte-40);
-			} else {
-				strp+=sprintf(strp,"2.%d",byte-80);
-			}
-			continue;
-		}
-
-		value=(value<<7)|(byte&0x7f);
-		if(byte&0x80){
-			continue;
-		}
-
-		strp+=sprintf(strp,".%d",value);
-		value=0;
-	}
-	*strp=0;
-
-	item=proto_tree_add_string(tree, hf_index, tvb, (offset>>3)-count, count, str);
 	/* see if we know the name of this oid */
 	if(item){
 		name = get_ber_oid_name(str);

@@ -26,6 +26,8 @@
 #ifndef __PACKET_BER_H__
 #define __PACKET_BER_H__
 
+#include <epan/to_str.h>
+
 #define BER_NOT_DECODED_YET(x) \
 proto_tree_add_text(tree, tvb, offset, 0, "something unknown here [%s]",x); \
 fprintf(stderr,"Not decoded yet in packet : %d  [%s]\n", pinfo->fd->num,x); \
@@ -71,7 +73,7 @@ typedef int (*ber_callback)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 #define BER_UNI_TAG_CHARACTERSTRING	    29
 #define BER_UNI_TAG_BMPString		    30
 
-#define BER_MAX_OID_STR_LEN 256
+#define BER_MAX_OID_STR_LEN MAX_OID_STR_LEN
 
 /* this function dissects the identifier octer of the BER TLV.
  * We only handle TAGs (and LENGTHs) that fit inside 32 bit integers.

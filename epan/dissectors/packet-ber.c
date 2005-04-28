@@ -47,6 +47,7 @@
 #include <epan/packet.h>
 
 #include <epan/strutil.h>
+#include <epan/to_str.h>
 #include <epan/prefs.h>
 #include "packet-ber.h"
 
@@ -1206,11 +1207,9 @@ int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, pro
 	gint8 class;
 	gboolean pc;
 	gint32 tag;
-	guint32 i, len;
+	guint32 len;
 	int eoffset;
-	guint8 byte;
-	guint32 value;
-	char str[BER_MAX_OID_STR_LEN],*strp, *name;
+	char str[MAX_OID_STR_LEN], *name;
 	proto_item *item;
 
 #ifdef DEBUG_BER
@@ -1251,31 +1250,8 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 		eoffset=offset+len;
 	}
 
-	value=0;
-	for (i=0,strp=str; i<len; i++){
-		byte = tvb_get_guint8(tvb, offset);
-		offset++;
-
-		if((strp-str) > BER_MAX_OID_STR_LEN - 10) { /* 3 digits + '.' + 3 digits + '\0' + slop */
-    	    proto_tree_add_text(tree, tvb, offset, eoffset - offset, "BER Error: too long Object Identifier (%d bytes)", strp-str);
-			return offset;
-		}
-
-		/* 8.19.4 */
-		if (i == 0) {
-			strp += sprintf(strp, "%d.%d", byte/40, byte%40);
-			continue;
-		}
-
-		value = (value << 7) | (byte & 0x7F);
-		if (byte & 0x80) {
-			continue;
-		}
-
-		strp += sprintf(strp, ".%d", value);
-		value = 0;
-	}
-	*strp = '\0';
+	oid_to_str_buf(tvb_get_ptr(tvb, offset, len), len, str);
+	offset += len;
 
 	if (hf_id != -1) {
 		item=proto_tree_add_string(tree, hf_id, tvb, offset - len, len, str);
