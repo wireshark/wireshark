@@ -2635,7 +2635,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 
 	if (!proto_is_protocol_enabled(find_protocol_by_id(proto_smb_lanman)))
 		return FALSE;
-	if (smb_info->request && p_tvb == NULL) {
+	if (p_tvb == NULL) {
 		/*
 		 * Requests must have parameters.
 		 */
