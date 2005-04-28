@@ -536,6 +536,12 @@ static void process_control_avps(tvbuff_t *tvb,
 			avp_vendor_id	= tvb_get_ntohs(tvb, index + 2);
 			avp_type	= tvb_get_ntohs(tvb, index + 4);
 
+			if (avp_len < 1) {
+				proto_tree_add_text(l2tp_avp_tree, tvb, index, 0,
+						    "AVP length must be >= 1");
+				return;
+			}
+
 			if (avp_vendor_id == VENDOR_IETF) {
 				tf =  proto_tree_add_text(l2tp_tree, tvb, index,
 							  avp_len, "%s AVP",
