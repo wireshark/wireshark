@@ -2134,9 +2134,7 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	 * additional routines that take no length argument and
 	 * add fields that run to the end of the tvbuff.
 	 */
-	if (*length < -1) {
-		THROW(ReportedBoundsError);
-	} else if (*length == -1) {
+	if (*length == -1) {
 		/*
 		 * For FT_NONE, FT_PROTOCOL, FT_BYTES, and FT_STRING fields,
 		 * a length of -1 means "set the length to what remains in
@@ -2237,11 +2235,7 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 				    item_length = length_remaining;
             }
 		}
-		if (item_length < 0) {
-			REPORT_DISSECTOR_BUG(g_strdup_printf("\"%s\" - \"%s\" invalid length: %d (%s:%u)",
-			    hfinfo->name, hfinfo->abbrev, item_length,
-			    __FILE__, __LINE__));
-		}
+		tvb_ensure_bytes_exist(tvb, start, item_length);
 	}
 
 	FIELD_INFO_NEW(fi);
