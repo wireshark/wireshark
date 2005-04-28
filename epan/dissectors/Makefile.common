@@ -152,6 +152,7 @@ DISSECTOR_SRC =	\
 	packet-dcerpc-dfs.c	\
 	packet-dcerpc-dnsserver.c	\
 	packet-dcerpc-drsuapi.c	\
+	packet-dcerpc-dssetup.c	\
 	packet-dcerpc-dtsprovider.c	\
 	packet-dcerpc-dtsstime_req.c	\
 	packet-dcerpc-efs.c	\
@@ -165,7 +166,6 @@ DISSECTOR_SRC =	\
 	packet-dcerpc-initshutdown.c	\
 	packet-dcerpc-krb5rpc.c	\
 	packet-dcerpc-llb.c	\
-	packet-dcerpc-lsa-ds.c	\
 	packet-dcerpc-lsa.c	\
 	packet-dcerpc-mapi.c	\
 	packet-dcerpc-messenger.c	\
