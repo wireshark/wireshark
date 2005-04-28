@@ -1140,6 +1140,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 				   offset + 2, ies_len, FALSE);
 	      break;
 	    case IAX_IE_CALLNO:
+	      if (ies_len != 2) THROW(ReportedBoundsError);
 	      proto_tree_add_item (ies_tree, hf_IAX_IE_CALLNO, tvb,
 				   offset + 2, ies_len, FALSE);
 	      break;
