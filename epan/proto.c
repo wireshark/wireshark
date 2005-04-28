@@ -2235,7 +2235,9 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 				    item_length = length_remaining;
             }
 		}
-		tvb_ensure_bytes_exist(tvb, start, item_length);
+		if (item_length < 0) {
+			THROW(ReportedBoundsError);
+		}
 	}
 
 	FIELD_INFO_NEW(fi);
