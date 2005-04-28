@@ -637,6 +637,7 @@ DISSECTOR_INCLUDES =	\
 	packet-dcerpc-dfs.h	\
 	packet-dcerpc-dnsserver.h	\
 	packet-dcerpc-drsuapi.h	\
+	packet-dcerpc-dssetup.h	\
 	packet-dcerpc-efs.h	\
 	packet-dcerpc-eventlog.h	\
 	packet-dcerpc-frsapi.h	\
