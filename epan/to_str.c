@@ -892,3 +892,41 @@ address_to_str_buf(const address *addr, gchar *buf)
     g_assert_not_reached();
   }
 }
+
+gchar* oid_to_str(guint8 *oid, gint oid_len) {
+  /* static buffer */
+  static int cnt = 0;
+  static gchar strbuf[8][MAX_OID_STR_LEN];
+
+  cnt = (cnt + 1) % 8;
+  return oid_to_str_buf(oid, oid_len, strbuf[cnt]);
+}
+
+gchar* oid_to_str_buf(guint8 *oid, gint oid_len, gchar *buf) {
+  gint i;
+  guint8 byte;
+  guint32 value;
+  gchar *bufp;
+
+  bufp = buf; value=0;
+  for (i=0; i<oid_len; i++){
+    byte = oid[i];
+    if ((bufp - buf) > (MAX_OID_STR_LEN - 12)) {
+      bufp += sprintf(bufp, ".>>>");
+      break;
+    }
+    if (i == 0) {
+      bufp += sprintf(bufp, "%d.%d", byte/40, byte%40);
+      continue;
+    }
+    value = (value << 7) | (byte & 0x7F);
+    if (byte & 0x80) {
+      continue;
+    }
+    bufp += sprintf(bufp, ".%d", value);
+    value = 0;
+  }
+  *bufp = '\0';
+
+  return buf;
+}
