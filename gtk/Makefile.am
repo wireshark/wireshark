@@ -51,6 +51,7 @@ noinst_HEADERS = \
 	dfilter_expr_dlg.h \
 	dlg_utils.h	\
 	file_dlg.h	\
+	fileset_dlg.h	\
 	filter_dlg.h	\
 	find_dlg.h	\
 	follow_dlg.h	\

@@ -98,6 +98,7 @@ ETHEREAL_COMMON_INCLUDES =	\
 	conditions.h	\
 	disabled_protos.h	\
 	file.h	\
+	fileset.h	\
 	packet-range.h	\
 	pcap-util.h	\
 	pcap-util-int.h	\
@@ -159,6 +160,7 @@ ethereal_SOURCES =	\
 	capture_loop.c	\
 	color_filters.c	\
 	file.c	\
+	fileset.c	\
 	filters.c	\
 	g711.c \
 	merge.c	\

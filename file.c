@@ -69,6 +69,7 @@
 #include "packet-range.h"
 #include "print.h"
 #include "file.h"
+#include "fileset.h"
 #include "util.h"
 #include "merge.h"
 #include "alert_box.h"
@@ -177,6 +178,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   int         fd;
   struct stat cf_stat;
 
+
   wth = wtap_open_offline(fname, err, &err_info, TRUE);
   if (wth == NULL)
     goto fail;
@@ -238,12 +240,15 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 	G_ALLOC_AND_FREE);
   g_assert(cf->plist_chunk);
 
+  fileset_file_opened(fname);
+
   return CF_OK;
 
 fail:
   cf_open_failure_alert_box(fname, *err, err_info, FALSE, 0);
   return CF_ERROR;
 }
+
 
 /*
  * Reset the state for the currently closed file, but don't do the
@@ -305,6 +310,8 @@ cf_reset_state(capture_file *cf)
 
   /* We have no file open. */
   cf->state = FILE_CLOSED;
+
+  fileset_file_closed();
 }
 
 /* Reset everything to a pristine state */

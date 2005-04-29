@@ -187,8 +187,15 @@ void help_dialog(void)
 gboolean topic_available(topic_action_e action) {
 
 #ifdef ETHEREAL_EUG_DIR
-    /* online: we have all pages available */
-    return TRUE;
+    /* online: we have almost all pages available */
+    switch(action) {
+    case(HELP_FILESET_DIALOG):
+        /* currently not available */
+        return FALSE;
+        break;
+    default:
+        return TRUE;
+    }
 #else
     /* offline: we have only some pages available */
     switch(action) {

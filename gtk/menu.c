@@ -46,6 +46,7 @@
 #include "filter_dlg.h"
 #include "dlg_utils.h"
 #include "file_dlg.h"
+#include "fileset_dlg.h"
 #include "find_dlg.h"
 #include "goto_dlg.h"
 #include "summary_dlg.h"
@@ -178,6 +179,11 @@ static GtkItemFactoryEntry menu_items[] =
                              0, GTK_STOCK_SAVE),
     ITEM_FACTORY_STOCK_ENTRY("/File/Save _As...", "<shift><control>S", file_save_as_cmd_cb,
                              0, GTK_STOCK_SAVE_AS),
+    ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_ENTRY("/File/File Set", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/File/File Set/List Files", NULL, fileset_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/File/File Set/Next File", NULL, fileset_next_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/File/File Set/Previous File", NULL, fileset_previous_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/File/_Export", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/File/Export/as \"Plain _Text\" file...", NULL, export_text_cmd_cb,
@@ -1974,3 +1980,10 @@ void set_menus_for_packet_history(gboolean back_history, gboolean forward_histor
   set_toolbar_for_packet_history(back_history, forward_history);
 }
 
+
+void set_menus_for_file_set(gboolean file_set, gboolean previous_file, gboolean next_file) {
+
+  set_menu_sensitivity(main_menu_factory, "/File/File Set/List Files", file_set);
+  set_menu_sensitivity(main_menu_factory, "/File/File Set/Previous File", previous_file);
+  set_menu_sensitivity(main_menu_factory, "/File/File Set/Next File", next_file);
+}
