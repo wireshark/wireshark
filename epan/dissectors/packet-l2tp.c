@@ -537,7 +537,7 @@ static void process_control_avps(tvbuff_t *tvb,
 			avp_type	= tvb_get_ntohs(tvb, index + 4);
 
 			if (avp_len < 1) {
-				proto_tree_add_text(l2tp_avp_tree, tvb, index, 0,
+				proto_tree_add_text(l2tp_tree, tvb, index, 0,
 						    "AVP length must be >= 1");
 				return;
 			}
