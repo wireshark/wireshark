@@ -42,6 +42,7 @@
 # include <sys/wait.h>
 #endif
 
+#include <string.h>
 
 #include <glib.h>
 
@@ -160,18 +161,18 @@ fileset_entry *
 fileset_add_file(const char *dirname, const char *fname, gboolean current)
 {
     int fh, result;
-    struct _stat buf;
+    struct stat buf;
     char *path;
     fileset_entry *entry = NULL;
 
 
     path = g_strdup_printf("%s%s", dirname, fname);
 
-    fh = open( path, _O_RDONLY );
+    fh = open( path, O_RDONLY );
     if(fh !=  -1) {
 
         /* Get statistics */
-        result = _fstat( fh, &buf );
+        result = fstat( fh, &buf );
 
         /* Show statistics if they are valid */
         if( result == 0 ) {
@@ -187,7 +188,7 @@ fileset_add_file(const char *dirname, const char *fname, gboolean current)
             set.entries = g_list_append(set.entries, entry);
         }
 
-        _close(fh);
+        close(fh);
     }
 
     g_free(path);
