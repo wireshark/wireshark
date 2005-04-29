@@ -133,6 +133,8 @@ dissect_mrdisc_mra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, i
 					tvb_get_ntohs(tvb, offset));
 			}
 
+			if (len != 2)
+				THROW(ReportedBoundsError);
 			proto_tree_add_item(tree, hf_qi, tvb, offset, len,
 				FALSE);
 			offset += len;
@@ -144,6 +146,8 @@ dissect_mrdisc_mra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, i
 					tvb_get_ntohs(tvb, offset));
 			}
 
+			if (len != 2)
+				THROW(ReportedBoundsError);
 			proto_tree_add_item(tree, hf_rv, tvb, offset, len,
 				FALSE);
 			offset += len;
