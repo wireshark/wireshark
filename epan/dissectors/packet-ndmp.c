@@ -1664,6 +1664,12 @@ dissect_mover_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* error */
 	offset=dissect_error(tvb, offset, pinfo, tree, seq);
 
+	/* mode is only present in version 4 and beyond */
+	if(ndmp_protocol_version>=NDMP_PROTOCOL_V4){
+		proto_tree_add_item(tree, hf_ndmp_mover_mode, tvb, offset, 4, FALSE);
+		offset += 4;
+	}
+
 	/* mover state */
 	proto_tree_add_item(tree, hf_ndmp_mover_state, tvb, offset, 4, FALSE);
 	offset += 4;
@@ -1716,11 +1722,13 @@ dissect_mover_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-#define NDMP_MOVER_MODE_READ	0
-#define NDMP_MOVER_MODE_WRITE	1
+#define NDMP_MOVER_MODE_READ		0
+#define NDMP_MOVER_MODE_WRITE		1
+#define NDMP_MOVER_MODE_NOACTION	2
 static const value_string mover_mode_vals[] = {
-	{NDMP_MOVER_MODE_READ,	"MODE_READ"},
-	{NDMP_MOVER_MODE_WRITE,	"MOVER_MODE_WRITE"},
+	{NDMP_MOVER_MODE_READ,		"MOVER_MODE_READ"},
+	{NDMP_MOVER_MODE_WRITE,		"MOVER_MODE_WRITE"},
+	{NDMP_MOVER_MODE_NOACTION,	"MOVER_MODE_NOACTION"},
 	{0, NULL}
 };
 
@@ -3329,7 +3337,7 @@ proto_register_ndmp(void)
 		NULL, 0, "Current seek position on device", HFILL }},
 
 	{ &hf_ndmp_bytes_left_to_read, {
-		"Bytes left to read", "ndmp.bytes_left_to_read", FT_UINT64, BASE_DEC,
+		"Bytes left to read", "ndmp.bytes_left_to_read", FT_INT64, BASE_DEC,
 		NULL, 0, "Number of bytes left to be read from the device", HFILL }},
 
 	{ &hf_ndmp_window_offset, {
