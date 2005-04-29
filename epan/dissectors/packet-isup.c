@@ -313,10 +313,6 @@ const value_string isup_parameter_type_value[] = {
 #define COMMON_HEADER_LENGTH                   (CIC_LENGTH + MESSAGE_TYPE_LENGTH)
 #define BICC_COMMON_HEADER_LENGTH              (BICC_CIC_LENGTH + MESSAGE_TYPE_LENGTH)
 
-#define MAXLENGTH                            0xFF /* since length field is 8 Bit long - used in number dissectors;
-						     max. number of address digits is 15 digits, but MAXLENGTH used
-						     to avoid runtime errors */
-
 #define PARAMETER_TYPE_LENGTH                  1
 #define PARAMETER_POINTER_LENGTH               1
 #define PARAMETER_LENGTH_IND_LENGTH            1
@@ -1323,12 +1319,18 @@ guint8 tap_cause_value = 0;
 /* ------------------------------------------------------------------
   Mapping number to ASCII-character
  ------------------------------------------------------------------ */
-char number_to_char(int number)
+static char number_to_char(int number)
 {
   if (number < 10)
     return ((char) number + ASCII_NUMBER_DELTA);
   else
     return ((char) number + ASCII_LETTER_DELTA);
+}
+
+static void
+free_g_string(void *arg)
+{
+  g_string_free(arg, TRUE);
 }
 
 
@@ -1416,11 +1418,15 @@ dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree *
   guint8 indicators1, indicators2;
   guint8 address_digit_pair=0;
   gint offset=0;
-  gint i=0;
   gint length;
-  char called_number[MAXLENGTH]="";
+  GString *called_number = g_string_new("");
   e164_info_t e164_info;
   gint number_plan;
+
+  /*
+   * Free the GString if we throw an exception.
+   */
+  CLEANUP_PUSH(free_g_string, called_number);
 
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
   proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
@@ -1439,34 +1445,38 @@ dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree *
   while((length = tvb_reported_length_remaining(parameter_tvb, offset)) > 0){
     address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(address_digits_tree, hf_isup_called_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-    called_number[i++] = number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+    g_string_append_c(called_number, number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK));
     if ((length - 1) > 0 ){
       proto_tree_add_uint(address_digits_tree, hf_isup_called_party_even_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-      called_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(called_number, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
     }
     offset++;
   }
 
   if  (((indicators1 & 0x80) == 0) && (tvb_length(parameter_tvb) > 0)){ /* Even Indicator set -> last even digit is valid & has be displayed */
       proto_tree_add_uint(address_digits_tree, hf_isup_called_party_even_address_signal_digit, parameter_tvb, offset - 1, 1, address_digit_pair);
-      called_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(called_number, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
   }
-  called_number[i++] = '\0';
-  proto_item_set_text(address_digits_item, "Called Party Number: %s", called_number);
-  proto_item_set_text(parameter_item, "Called Party Number: %s", called_number);
+  proto_item_set_text(address_digits_item, "Called Party Number: %s", called_number->str);
+  proto_item_set_text(parameter_item, "Called Party Number: %s", called_number->str);
   if ( number_plan == 1 ) {
     e164_info.e164_number_type = CALLED_PARTY_NUMBER;
     e164_info.nature_of_address = indicators1 & 0x7f;
-    e164_info.E164_number_str = called_number;
-    e164_info.E164_number_length = i - 1;
+    e164_info.E164_number_str = called_number->str;
+    e164_info.E164_number_length = called_number->len;
     dissect_e164_number(parameter_tvb, address_digits_tree, 2, (offset - 2), e164_info);
     proto_tree_add_string_hidden(address_digits_tree, hf_isup_called, parameter_tvb,
-	  offset - length, length, called_number);
+	  offset - length, length, called_number->str);
   } else {
     proto_tree_add_string(address_digits_tree, hf_isup_called, parameter_tvb, 
-	  offset - length, length, called_number);
+	  offset - length, length, called_number->str);
   }
-  tap_called_number = g_strdup(called_number);
+  tap_called_number = g_strdup(called_number->str);
+  /*
+   * We're done with the GString, so delete it and
+   * get rid of the cleanup handler.
+   */
+  CLEANUP_CALL_AND_POP;
 }
 /* ------------------------------------------------------------------
   Dissector Parameter  Subsequent number
@@ -1479,9 +1489,13 @@ dissect_isup_subsequent_number_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
   guint8 indicators1;
   guint8 address_digit_pair=0;
   gint offset=0;
-  gint i=0;
   gint length;
-  char called_number[MAXLENGTH]="";
+  GString *called_number = g_string_new("");
+
+  /*
+   * Free the GString if we throw an exception.
+   */
+  CLEANUP_PUSH(free_g_string, called_number);
 
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
   proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
@@ -1495,23 +1509,27 @@ dissect_isup_subsequent_number_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
   while((length = tvb_reported_length_remaining(parameter_tvb, offset)) > 0){
     address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(address_digits_tree, hf_isup_called_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-    called_number[i++] = number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+    g_string_append_c(called_number, number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK));
     if ((length - 1) > 0 ){
       proto_tree_add_uint(address_digits_tree, hf_isup_called_party_even_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-      called_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(called_number, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
     }
     offset++;
   }
 
   if (((indicators1 & 0x80) == 0) && (tvb_length(parameter_tvb) > 0)){ /* Even Indicator set -> last even digit is valid & has be displayed */
       proto_tree_add_uint(address_digits_tree, hf_isup_called_party_even_address_signal_digit, parameter_tvb, offset - 1, 1, address_digit_pair);
-      called_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(called_number, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
   }
-  called_number[i++] = '\0';
 
-  proto_item_set_text(address_digits_item, "Subsequent Number: %s", called_number);
-  proto_item_set_text(parameter_item, "Subsequent Number: %s", called_number);
+  proto_item_set_text(address_digits_item, "Subsequent Number: %s", called_number->str);
+  proto_item_set_text(parameter_item, "Subsequent Number: %s", called_number->str);
 
+  /*
+   * We're done with the GString, so delete it and
+   * get rid of the cleanup handler.
+   */
+  CLEANUP_CALL_AND_POP;
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Information Request Indicators
@@ -2821,11 +2839,15 @@ dissect_isup_calling_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree 
   guint8 indicators1, indicators2;
   guint8 address_digit_pair=0;
   gint offset=0;
-  gint i=0;
   gint length;
-  char calling_number[MAXLENGTH]="";
+  GString *calling_number = g_string_new("");
   e164_info_t e164_info;
   gint number_plan;
+
+  /*
+   * Free the GString if we throw an exception.
+   */
+  CLEANUP_PUSH(free_g_string, calling_number);
 
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
   proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
@@ -2847,10 +2869,10 @@ dissect_isup_calling_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree 
   while(length > 0){
     address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-    calling_number[i++] = number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+    g_string_append_c(calling_number, number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK));
     if ((length - 1) > 0 ){
       proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-      calling_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(calling_number, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
     }
     offset++;
     length = tvb_length_remaining(parameter_tvb, offset);
@@ -2858,25 +2880,30 @@ dissect_isup_calling_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree 
 
   if  (((indicators1 & 0x80) == 0) && (tvb_length(parameter_tvb) > 0)){ /* Even Indicator set -> last even digit is valid & has be displayed */
       proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset - 1, 1, address_digit_pair);
-      calling_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(calling_number, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
   }
-  calling_number[i++] = '\0';
 
-  proto_item_set_text(address_digits_item, "Calling Party Number: %s", calling_number);
-  proto_item_set_text(parameter_item, "Calling Party Number: %s", calling_number);
+  proto_item_set_text(address_digits_item, "Calling Party Number: %s", calling_number->str);
+  proto_item_set_text(parameter_item, "Calling Party Number: %s", calling_number->str);
   if ( number_plan == 1 ) {
     e164_info.e164_number_type = CALLING_PARTY_NUMBER;
     e164_info.nature_of_address = indicators1 & 0x7f;
-    e164_info.E164_number_str = calling_number;
-    e164_info.E164_number_length = i - 1;
+    e164_info.E164_number_str = calling_number->str;
+    e164_info.E164_number_length = calling_number->len;
     dissect_e164_number(parameter_tvb, address_digits_tree, 2, (offset - 2), e164_info);
     proto_tree_add_string_hidden(address_digits_tree, hf_isup_calling, parameter_tvb,
-	  offset - length, length, calling_number);
+	  offset - length, length, calling_number->str);
   } else {
     proto_tree_add_string(address_digits_tree, hf_isup_calling, parameter_tvb,
-	  offset - length, length, calling_number);
+	  offset - length, length, calling_number->str);
   }
-  tap_calling_number = g_strdup(calling_number);
+  tap_calling_number = g_strdup(calling_number->str);
+
+  /*
+   * We're done with the GString, so delete it and
+   * get rid of the cleanup handler.
+   */
+  CLEANUP_CALL_AND_POP;
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Original called  number
@@ -2889,9 +2916,13 @@ dissect_isup_original_called_number_parameter(tvbuff_t *parameter_tvb, proto_tre
   guint8 indicators1, indicators2;
   guint8 address_digit_pair=0;
   gint offset=0;
-  gint i=0;
   gint length;
-  char calling_number[MAXLENGTH]="";
+  GString *calling_number = g_string_new("");
+
+  /*
+   * Free the GString if we throw an exception.
+   */
+  CLEANUP_PUSH(free_g_string, calling_number);
 
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
   proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
@@ -2910,10 +2941,10 @@ dissect_isup_original_called_number_parameter(tvbuff_t *parameter_tvb, proto_tre
   while(length > 0){
     address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-    calling_number[i++] = number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+    g_string_append_c(calling_number, number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK));
     if ((length - 1) > 0 ){
       proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-      calling_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(calling_number, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
     }
     offset++;
     length = tvb_length_remaining(parameter_tvb, offset);
@@ -2921,13 +2952,17 @@ dissect_isup_original_called_number_parameter(tvbuff_t *parameter_tvb, proto_tre
 
   if  (((indicators1 & 0x80) == 0) && (tvb_length(parameter_tvb) > 0)){ /* Even Indicator set -> last even digit is valid & has be displayed */
       proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset - 1, 1, address_digit_pair);
-      calling_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(calling_number, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
   }
-  calling_number[i++] = '\0';
 
-  proto_item_set_text(address_digits_item, "Original Called Number: %s", calling_number);
-  proto_item_set_text(parameter_item, "Original Called Number: %s", calling_number);
+  proto_item_set_text(address_digits_item, "Original Called Number: %s", calling_number->str);
+  proto_item_set_text(parameter_item, "Original Called Number: %s", calling_number->str);
 
+  /*
+   * We're done with the GString, so delete it and
+   * get rid of the cleanup handler.
+   */
+  CLEANUP_CALL_AND_POP;
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Redirecting number
@@ -2940,9 +2975,13 @@ dissect_isup_redirecting_number_parameter(tvbuff_t *parameter_tvb, proto_tree *p
   guint8 indicators1, indicators2;
   guint8 address_digit_pair=0;
   gint offset=0;
-  gint i=0;
   gint length;
-  char calling_number[MAXLENGTH]="";
+  GString *calling_number = g_string_new("");
+
+  /*
+   * Free the GString if we throw an exception.
+   */
+  CLEANUP_PUSH(free_g_string, calling_number);
 
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
   proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
@@ -2961,10 +3000,10 @@ dissect_isup_redirecting_number_parameter(tvbuff_t *parameter_tvb, proto_tree *p
   while(length > 0){
     address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-    calling_number[i++] = number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+    g_string_append_c(calling_number, number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK));
     if ((length - 1) > 0 ){
       proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-      calling_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(calling_number, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
     }
     offset++;
     length = tvb_length_remaining(parameter_tvb, offset);
@@ -2972,13 +3011,17 @@ dissect_isup_redirecting_number_parameter(tvbuff_t *parameter_tvb, proto_tree *p
 
   if  (((indicators1 & 0x80) == 0) && (tvb_length(parameter_tvb) > 0)){ /* Even Indicator set -> last even digit is valid & has be displayed */
       proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset - 1, 1, address_digit_pair);
-      calling_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(calling_number, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
   }
-  calling_number[i++] = '\0';
 
-  proto_item_set_text(address_digits_item, "Redirecting Number: %s", calling_number);
-  proto_tree_add_string(address_digits_tree, hf_isup_redirecting, parameter_tvb, offset - length, length, calling_number);
-  proto_item_set_text(parameter_item, "Redirecting Number: %s", calling_number);
+  proto_item_set_text(address_digits_item, "Redirecting Number: %s", calling_number->str);
+  proto_tree_add_string(address_digits_tree, hf_isup_redirecting, parameter_tvb, offset - length, length, calling_number->str);
+  proto_item_set_text(parameter_item, "Redirecting Number: %s", calling_number->str);
+  /*
+   * We're done with the GString, so delete it and
+   * get rid of the cleanup handler.
+   */
+  CLEANUP_CALL_AND_POP;
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Redirection number
@@ -2991,9 +3034,13 @@ dissect_isup_redirection_number_parameter(tvbuff_t *parameter_tvb, proto_tree *p
   guint8 indicators1, indicators2;
   guint8 address_digit_pair=0;
   gint offset=0;
-  gint i=0;
   gint length;
-  char called_number[MAXLENGTH]="";
+  GString *called_number = g_string_new("");
+
+  /*
+   * Free the GString if we throw an exception.
+   */
+  CLEANUP_PUSH(free_g_string, called_number);
 
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
   proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
@@ -3012,10 +3059,10 @@ dissect_isup_redirection_number_parameter(tvbuff_t *parameter_tvb, proto_tree *p
   while(length > 0){
     address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(address_digits_tree, hf_isup_called_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-    called_number[i++] = number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+    g_string_append_c(called_number, number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK));
     if ((length - 1) > 0 ){
       proto_tree_add_uint(address_digits_tree, hf_isup_called_party_even_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-      called_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(called_number, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
     }
     offset++;
     length = tvb_length_remaining(parameter_tvb, offset);
@@ -3023,12 +3070,16 @@ dissect_isup_redirection_number_parameter(tvbuff_t *parameter_tvb, proto_tree *p
 
   if  (((indicators1 & 0x80) == 0) && (tvb_length(parameter_tvb) > 0)){ /* Even Indicator set -> last even digit is valid & has be displayed */
       proto_tree_add_uint(address_digits_tree, hf_isup_called_party_even_address_signal_digit, parameter_tvb, offset - 1, 1, address_digit_pair);
-      called_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(called_number, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
   }
-  called_number[i++] = '\0';
 
-  proto_item_set_text(address_digits_item, "Redirection Number: %s", called_number);
-  proto_item_set_text(parameter_item, "Redirection Number: %s", called_number);
+  proto_item_set_text(address_digits_item, "Redirection Number: %s", called_number->str);
+  proto_item_set_text(parameter_item, "Redirection Number: %s", called_number->str);
+  /*
+   * We're done with the GString, so delete it and
+   * get rid of the cleanup handler.
+   */
+  CLEANUP_CALL_AND_POP;
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Connection request
@@ -3138,9 +3189,13 @@ dissect_isup_connected_number_parameter(tvbuff_t *parameter_tvb, proto_tree *par
   guint8 indicators1, indicators2;
   guint8 address_digit_pair=0;
   gint offset=0;
-  gint i=0;
   gint length;
-  char calling_number[MAXLENGTH]="";
+  GString *calling_number = g_string_new("");
+
+  /*
+   * Free the GString if we throw an exception.
+   */
+  CLEANUP_PUSH(free_g_string, calling_number);
 
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
   proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
@@ -3162,10 +3217,10 @@ dissect_isup_connected_number_parameter(tvbuff_t *parameter_tvb, proto_tree *par
   while(length > 0){
     address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-    calling_number[i++] = number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+    g_string_append_c(calling_number, number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK));
     if ((length - 1) > 0 ){
       proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-      calling_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(calling_number, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
     }
     offset++;
     length = tvb_length_remaining(parameter_tvb, offset);
@@ -3173,13 +3228,17 @@ dissect_isup_connected_number_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 
   if  (((indicators1 & 0x80) == 0) && (tvb_length(parameter_tvb) > 0)){ /* Even Indicator set -> last even digit is valid & has be displayed */
       proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset - 1, 1, address_digit_pair);
-      calling_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(calling_number, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
   }
-  calling_number[i++] = '\0';
 
-  proto_item_set_text(address_digits_item, "Connected Number: %s", calling_number);
-  proto_item_set_text(parameter_item, "Connected Number: %s", calling_number);
+  proto_item_set_text(address_digits_item, "Connected Number: %s", calling_number->str);
+  proto_item_set_text(parameter_item, "Connected Number: %s", calling_number->str);
 
+  /*
+   * We're done with the GString, so delete it and
+   * get rid of the cleanup handler.
+   */
+  CLEANUP_CALL_AND_POP;
 }
 /* ------------------------------------------------------------------
   Dissector Transit network selection
@@ -3192,9 +3251,13 @@ dissect_isup_transit_network_selection_parameter(tvbuff_t *parameter_tvb, proto_
   guint8 indicators;
   guint8 address_digit_pair=0;
   gint offset=0;
-  gint i=0;
   gint length;
-  char network_id[MAXLENGTH]="";
+  GString *network_id = g_string_new("");
+
+  /*
+   * Free the GString if we throw an exception.
+   */
+  CLEANUP_PUSH(free_g_string, network_id);
 
   indicators = tvb_get_guint8(parameter_tvb, 0);
   proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators);
@@ -3211,10 +3274,10 @@ dissect_isup_transit_network_selection_parameter(tvbuff_t *parameter_tvb, proto_
   while(length > 0){
     address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-    network_id[i++] = number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+    g_string_append_c(network_id, number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK));
     if ((length - 1) > 0 ){
       proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-      network_id[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(network_id, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
     }
     offset++;
     length = tvb_length_remaining(parameter_tvb, offset);
@@ -3222,13 +3285,17 @@ dissect_isup_transit_network_selection_parameter(tvbuff_t *parameter_tvb, proto_
 
   if  (((indicators & 0x80) == 0) && (tvb_length(parameter_tvb) > 0)){ /* Even Indicator set -> last even digit is valid & has be displayed */
       proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset - 1, 1, address_digit_pair);
-      network_id[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(network_id, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
   }
-  network_id[i++] = '\0';
 
-  proto_item_set_text(address_digits_item, "Network identification: %s", network_id);
-  proto_item_set_text(parameter_item, "Transit network selection: %s", network_id);
+  proto_item_set_text(address_digits_item, "Network identification: %s", network_id->str);
+  proto_item_set_text(parameter_item, "Transit network selection: %s", network_id->str);
 
+  /*
+   * We're done with the GString, so delete it and
+   * get rid of the cleanup handler.
+   */
+  CLEANUP_CALL_AND_POP;
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Circuit assignment map
@@ -3746,9 +3813,13 @@ dissect_isup_location_number_parameter(tvbuff_t *parameter_tvb, proto_tree *para
   guint8 indicators1, indicators2;
   guint8 address_digit_pair=0;
   gint offset=0;
-  gint i=0;
   gint length;
-  char calling_number[MAXLENGTH]="";
+  GString *calling_number = g_string_new("");
+
+  /*
+   * Free the GString if we throw an exception.
+   */
+  CLEANUP_PUSH(free_g_string, calling_number);
 
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
   proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
@@ -3782,10 +3853,10 @@ dissect_isup_location_number_parameter(tvbuff_t *parameter_tvb, proto_tree *para
   while(length > 0){
     address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-    calling_number[i++] = number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+    g_string_append_c(calling_number, number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK));
     if ((length - 1) > 0 ){
       proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-      calling_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(calling_number, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
     }
     offset++;
     length = tvb_length_remaining(parameter_tvb, offset);
@@ -3793,13 +3864,17 @@ dissect_isup_location_number_parameter(tvbuff_t *parameter_tvb, proto_tree *para
 
   if  (((indicators1 & 0x80) == 0) && (tvb_length(parameter_tvb) > 0)){ /* Even Indicator set -> last even digit is valid & has be displayed */
       proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset - 1, 1, address_digit_pair);
-      calling_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(calling_number, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
   }
-  calling_number[i++] = '\0';
 
-  proto_item_set_text(address_digits_item, "Location number: %s", calling_number);
-  proto_item_set_text(parameter_item, "Location number: %s", calling_number);
+  proto_item_set_text(address_digits_item, "Location number: %s", calling_number->str);
+  proto_item_set_text(parameter_item, "Location number: %s", calling_number->str);
 
+  /*
+   * We're done with the GString, so delete it and
+   * get rid of the cleanup handler.
+   */
+  CLEANUP_CALL_AND_POP;
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Redirection number restiriction
@@ -3864,9 +3939,13 @@ dissect_isup_call_transfer_number_parameter(tvbuff_t *parameter_tvb, proto_tree 
   guint8 indicators1, indicators2;
   guint8 address_digit_pair=0;
   gint offset=0;
-  gint i=0;
   gint length;
-  char calling_number[MAXLENGTH]="";
+  GString *calling_number = g_string_new("");
+
+  /*
+   * Free the GString if we throw an exception.
+   */
+  CLEANUP_PUSH(free_g_string, calling_number);
 
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
   proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
@@ -3888,10 +3967,10 @@ dissect_isup_call_transfer_number_parameter(tvbuff_t *parameter_tvb, proto_tree 
   while(length > 0){
     address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-    calling_number[i++] = number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+    g_string_append_c(calling_number, number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK));
     if ((length - 1) > 0 ){
       proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-      calling_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(calling_number, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
     }
     offset++;
     length = tvb_length_remaining(parameter_tvb, offset);
@@ -3899,13 +3978,17 @@ dissect_isup_call_transfer_number_parameter(tvbuff_t *parameter_tvb, proto_tree 
 
   if  (((indicators1 & 0x80) == 0) && (tvb_length(parameter_tvb) > 0)){ /* Even Indicator set -> last even digit is valid & has be displayed */
       proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset - 1, 1, address_digit_pair);
-      calling_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(calling_number, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
   }
-  calling_number[i++] = '\0';
 
-  proto_item_set_text(address_digits_item, "Call transfer number: %s", calling_number);
-  proto_item_set_text(parameter_item, "Call transfer number: %s", calling_number);
+  proto_item_set_text(address_digits_item, "Call transfer number: %s", calling_number->str);
+  proto_item_set_text(parameter_item, "Call transfer number: %s", calling_number->str);
 
+  /*
+   * We're done with the GString, so delete it and
+   * get rid of the cleanup handler.
+   */
+  CLEANUP_CALL_AND_POP;
 }
 /* ------------------------------------------------------------------
   Dissector Parameter CCSS
@@ -4007,9 +4090,13 @@ dissect_isup_called_in_number_parameter(tvbuff_t *parameter_tvb, proto_tree *par
   guint8 indicators1, indicators2;
   guint8 address_digit_pair=0;
   gint offset=0;
-  gint i=0;
   gint length;
-  char calling_number[MAXLENGTH]="";
+  GString *calling_number = g_string_new("");
+
+  /*
+   * Free the GString if we throw an exception.
+   */
+  CLEANUP_PUSH(free_g_string, calling_number);
 
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
   proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
@@ -4028,10 +4115,10 @@ dissect_isup_called_in_number_parameter(tvbuff_t *parameter_tvb, proto_tree *par
   while(length > 0){
     address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-    calling_number[i++] = number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+    g_string_append_c(calling_number, number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK));
     if ((length - 1) > 0 ){
       proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-      calling_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(calling_number, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
     }
     offset++;
     length = tvb_length_remaining(parameter_tvb, offset);
@@ -4039,13 +4126,17 @@ dissect_isup_called_in_number_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 
   if  (((indicators1 & 0x80) == 0) && (tvb_length(parameter_tvb) > 0)){ /* Even Indicator set -> last even digit is valid & has be displayed */
       proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset - 1, 1, address_digit_pair);
-      calling_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(calling_number, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
   }
-  calling_number[i++] = '\0';
 
-  proto_item_set_text(address_digits_item, "Called IN Number: %s", calling_number);
-  proto_item_set_text(parameter_item, "Called IN Number: %s", calling_number);
+  proto_item_set_text(address_digits_item, "Called IN Number: %s", calling_number->str);
+  proto_item_set_text(parameter_item, "Called IN Number: %s", calling_number->str);
 
+  /*
+   * We're done with the GString, so delete it and
+   * get rid of the cleanup handler.
+   */
+  CLEANUP_CALL_AND_POP;
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Call offering treatment indicators
@@ -4163,9 +4254,13 @@ dissect_isup_generic_number_parameter(tvbuff_t *parameter_tvb, proto_tree *param
   guint8 indicators1, indicators2, nr_qualifier_ind;
   guint8 address_digit_pair=0;
   gint offset=0;
-  gint i=0;
   gint length;
-  char calling_number[MAXLENGTH]="";
+  GString *calling_number = g_string_new("");
+
+  /*
+   * Free the GString if we throw an exception.
+   */
+  CLEANUP_PUSH(free_g_string, calling_number);
 
   nr_qualifier_ind = tvb_get_guint8(parameter_tvb, 0);
   proto_tree_add_text(parameter_tree, parameter_tvb, 0, 1, "Number qualifier indicator: 0x%x (refer to 3.26/Q.763 for detailed decoding)", nr_qualifier_ind);
@@ -4190,10 +4285,10 @@ dissect_isup_generic_number_parameter(tvbuff_t *parameter_tvb, proto_tree *param
   while(length > 0){
     address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-    calling_number[i++] = number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+    g_string_append_c(calling_number, number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK));
     if ((length - 1) > 0 ){
       proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-      calling_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(calling_number, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
     }
     offset++;
     length = tvb_length_remaining(parameter_tvb, offset);
@@ -4201,13 +4296,17 @@ dissect_isup_generic_number_parameter(tvbuff_t *parameter_tvb, proto_tree *param
 
   if  (((indicators1 & 0x80) == 0) && (tvb_length(parameter_tvb) > 0)){ /* Even Indicator set -> last even digit is valid & has be displayed */
       proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset - 1, 1, address_digit_pair);
-      calling_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+      g_string_append_c(calling_number, number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10));
   }
-  calling_number[i++] = '\0';
 
-  proto_item_set_text(address_digits_item, "Generic number: %s", calling_number);
-  proto_item_set_text(parameter_item, "Generic number: %s", calling_number);
+  proto_item_set_text(address_digits_item, "Generic number: %s", calling_number->str);
+  proto_item_set_text(parameter_item, "Generic number: %s", calling_number->str);
 
+  /*
+   * We're done with the GString, so delete it and
+   * get rid of the cleanup handler.
+   */
+  CLEANUP_CALL_AND_POP;
 }
 /* ------------------------------------------------------------------
  Dissector Parameter Generic digits
