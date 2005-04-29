@@ -529,6 +529,8 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_item_append_text(oi, ", %s ",
 						assigned_ip_address_str);
 
+					if (helpliste->length != 4)
+						THROW(ReportedBoundsError);
 					proto_tree_add_item(option_tree,
 						hf_dhcpfo_assigned_ip_address, tvb,
 						helpliste->actualpoffset + 4, 
@@ -541,6 +543,8 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					
 					proto_item_append_text(oi, ", %s ",
 							sending_server_ip_address_str); 
+					if (helpliste->length != 4)
+						THROW(ReportedBoundsError);
 					proto_tree_add_item(option_tree,
 						hf_dhcpfo_sending_server_ip_address, tvb,
 						helpliste->actualpoffset + 4, 
@@ -553,6 +557,8 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								helpliste->actualpoffset+4);
 
 					proto_item_append_text(oi,", %d",addresses_transfered);	
+					if (helpliste->length != 1)
+						THROW(ReportedBoundsError);
 					proto_tree_add_item(option_tree,
 						hf_dhcpfo_addresses_transfered, tvb,
 						helpliste->actualpoffset + 4, 
@@ -616,6 +622,8 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							reject_reason_str, 
 							reject_reason);
 
+					if (helpliste->length != 1)
+						THROW(ReportedBoundsError);
 					proto_tree_add_item(option_tree,
 						hf_dhcpfo_reject_reason, tvb,
 						helpliste->actualpoffset +4,
@@ -634,6 +642,8 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 					mclt = tvb_get_ntohl(tvb, helpliste->actualpoffset+4);
 					proto_item_append_text(oi,", %d seconds",mclt);
+					if (helpliste->length != 4)
+						THROW(ReportedBoundsError);
 					proto_tree_add_item(option_tree,
 						hf_dhcpfo_mclt, tvb,
 						helpliste->actualpoffset +4,
@@ -812,6 +822,8 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						tvb_get_ntohl(tvb,helpliste->actualpoffset+4);
 					proto_item_append_text(oi,", %d", max_unacked_bndupd);
 
+					if (helpliste->length != 1)
+						THROW(ReportedBoundsError);
 					proto_tree_add_item(option_tree,
 						hf_dhcpfo_max_unacked_bndupd, tvb,
 						helpliste->actualpoffset + 4, 
@@ -824,6 +836,8 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						tvb_get_ntohl(tvb,helpliste->actualpoffset+4);
 					proto_item_append_text(oi,", %d seconds", receive_timer);
 
+					if (helpliste->length != 1)
+						THROW(ReportedBoundsError);
 					receive_timer_item = proto_tree_add_item(option_tree,
 						hf_dhcpfo_receive_timer, tvb,
 						helpliste->actualpoffset + 4, 
@@ -866,6 +880,8 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 					proto_item_append_text(oi, ", version: %d", 
 									protocol_version);
+					if (helpliste->length != 1)
+						THROW(ReportedBoundsError);
 					proto_tree_add_item(option_tree,
 						hf_dhcpfo_protocol_version, tvb,
 						helpliste->actualpoffset + 4, 
