@@ -1762,7 +1762,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
         guint32         value4 = 0;
         guint32         value5 = 0;
         guint32         value6 = 0;
-        guint32         voffset = 0;
+        guint32         voffset = 0, oldvoffset;
         guint32         icounter;
         guint32         number_of_values = 0;
         guint32         number_of_items = 0;
@@ -1791,10 +1791,16 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
         
         nvtree = proto_item_add_subtree(vitem, ett_nds);
         
+        oldvoffset = voffset;
         voffset = voffset + 4; 
         
         for (icounter = 1 ; icounter <= number_of_values; icounter++ )
         {                      
+                if (oldvoffset >= voffset) {
+                        proto_tree_add_text(nvtree, tvb, 0, 0, "[ Invalid offset: %u ]", voffset);
+                        return;
+                }
+                oldvoffset = voffset;
                 switch(syntax_type)
                 {       
                        case 0x00000006:        /* Case Insensitive List */
