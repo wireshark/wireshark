@@ -2594,7 +2594,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
 {
         guint32         i;
         guint32         r;
-        guint32         ioffset = 0;
+        guint32         ioffset = 0, oldioffset;
         guint32         value1 = 0;
         guint32         value2 = 0;
         guint8          value3 = 0;
@@ -2920,8 +2920,14 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                         break;
 
                 case MVTYPE_ATTR_REQUEST2:	/* Attribute Request */
+                        oldioffset = 0;
                         for (i = 1 ; i <= values->vvalue; i++ )
                         {
+                                if (oldioffset >= ioffset) {
+                                        proto_tree_add_text(ntree, tvb, 0, 0, "[ Invalid offset: %u ]", ioffset);
+                                        return;
+                                }
+                                oldioffset = ioffset;
                                 ioffset += align_4(tvb, ioffset);
                                 value1 = tvb_get_letohl(tvb, ioffset);
                                 proto_tree_add_uint_format(ntree, hf_nds_uint32value, tvb, ioffset,
