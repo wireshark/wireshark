@@ -1365,6 +1365,8 @@ static int dissect_mscldap_string(tvbuff_t *tvb, int offset, char *str, int maxl
       /* ops its a mscldap compressed string */
 
       new_offset=tvb_get_guint8(tvb, offset);
+      if (new_offset == offset - 1)
+        THROW(ReportedBoundsError);
       offset+=1;
 
       dissect_mscldap_string(tvb, new_offset, str, maxlen, FALSE);
