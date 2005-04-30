@@ -65,6 +65,8 @@ static enum_val_t iscsi_protocol_versions[] = {
     { NULL, NULL, 0 }
 };
 
+static dissector_handle_t iscsi_handle=NULL;
+
 static gint iscsi_protocol_version = ISCSI_PROTOCOL_DRAFT13;
 
 static gboolean iscsi_desegment = TRUE;
@@ -1846,6 +1848,12 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
                 iscsi_session->conv_idx=conversation->index;
                 iscsi_session->header_digest=ISCSI_HEADER_DIGEST_AUTO;
                 g_hash_table_insert(iscsi_session_table, iscsi_session, iscsi_session);
+		/* DataOut PDUs are often mistaken by DCERPC heuristics to be
+		   that protocol. Now that we know this is iscsi, set a 
+		   dissector for conversation to block other heuristic
+		   dissectors. 
+		*/
+		conversation_set_dissector(conversation, iscsi_handle);
             }
         }
         /* try to autodetect if header digest is used or not */
@@ -2598,8 +2606,6 @@ proto_register_iscsi(void)
 void
 proto_reg_handoff_iscsi(void)
 {
-    dissector_handle_t iscsi_handle;
-
     heur_dissector_add("tcp", dissect_iscsi_heur, proto_iscsi);
 
     iscsi_handle = create_dissector_handle(dissect_iscsi_handle, proto_iscsi);
