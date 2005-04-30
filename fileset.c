@@ -265,7 +265,7 @@ fileset_add_dir(const char *fname)
 
     /* go through the files in the directory and check if it's part of the current file set */
 #if GLIB_MAJOR_VERSION < 2
-    if ((dir = opendir(dirname)) != NULL) {
+    if ((dir = opendir(dirname->str)) != NULL) {
 	    while ((file = readdir(dir)) != NULL) {
 	        name = (gchar *)file->d_name;
 #else
@@ -281,7 +281,9 @@ fileset_add_dir(const char *fname)
         }
     }
 
+#if GLIB_MAJOR_VERSION >= 2
     g_free(dummy);
+#endif
     g_string_free(dirname, TRUE /* free_segment */);
 
     /* sort entries by creation time */
@@ -364,7 +366,7 @@ fileset_get_previous(void)
 
 
 /* delete a single entry */
-void fileset_entry_delete(gpointer data, gpointer user_data)
+void fileset_entry_delete(gpointer data, gpointer user_data _U_)
 {
     fileset_entry *entry = data;
 
