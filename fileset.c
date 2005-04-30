@@ -110,7 +110,7 @@ fileset_filename_match_pattern(const char *fname)
     while(minlen--) {
         baselen--;
 
-        if(!isdigit(filename[baselen])) {
+        if(!isdigit( (int) filename[baselen])) {
             g_free(filename);
             return FALSE;
         }
@@ -255,9 +255,6 @@ fileset_add_dir(const char *fname)
     
     dirname = g_string_append_c(dirname, G_DIR_SEPARATOR);
 
-    dummy = g_malloc(sizeof(GError *));
-    *dummy = NULL;
-
     /* if the current file can't be part of any fileset, do nothing */
     if(!fileset_filename_match_pattern(fname)) {
         entry = fileset_add_file(dirname->str, get_basename(fname), TRUE /* current */);
@@ -272,6 +269,9 @@ fileset_add_dir(const char *fname)
 	    while ((file = readdir(dir)) != NULL) {
 	        name = (gchar *)file->d_name;
 #else
+    dummy = g_malloc(sizeof(GError *));
+    *dummy = NULL;
+
     if ((dir = g_dir_open(dirname->str, 0, dummy)) != NULL) {
         while ((name = g_dir_read_name(dir)) != NULL) {
 #endif
