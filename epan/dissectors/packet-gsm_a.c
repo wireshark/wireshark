@@ -9307,7 +9307,7 @@ de_gmm_service_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     	case 0: str="Signalling"; break;
     	case 1: str="Data"; break;
     	case 2: str="Paging Response"; break;
-    	case 3: str="MBMS Notification Reponse"; break;
+    	case 3: str="MBMS Notification Response"; break;/* reponse->response*/
     	default: str="reserved";
     }
 
@@ -10221,11 +10221,11 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
     else if (( oct >= 0x40 ) && ( oct <= 0x7f ))
 	    proto_tree_add_text(tree,
     		tvb, curr_offset, 1,
-   	 	"Maximum bit rate for uplink: (%u) %ukbps",oct,(oct-0x40)*8);
+   	 	"Maximum bit rate for uplink: (%u) %ukbps",oct,(oct-0x40)*8+64); /* - was (oct-0x40)*8  */
     else if (( oct >= 0x80 ) && ( oct <= 0xfe ))
 	    proto_tree_add_text(tree,
     		tvb, curr_offset, 1,
-   	 	"Maximum bit rate for uplink: (%u) %ukbps",oct,(oct-0x80)*64);
+   	 	"Maximum bit rate for uplink: (%u) %ukbps",oct,(oct-0x80)*64+576); /* - was (oct-0x80)*64 */
     else
 	    proto_tree_add_text(tree,
     		tvb, curr_offset, 1,
@@ -10257,11 +10257,11 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
     else if (( oct >= 0x40 ) && ( oct <= 0x7f ))
 	    proto_tree_add_text(tree,
     		tvb, curr_offset, 1,
-   	 	"Maximum bit rate for downlink: (%u) %ukbps",oct,(oct-0x40)*8);
+   	 	"Maximum bit rate for downlink: (%u) %ukbps",oct,(oct-0x40)*8+64);/*same as above*/
     else if (( oct >= 0x80 ) && ( oct <= 0xfe ))
 	    proto_tree_add_text(tree,
     		tvb, curr_offset, 1,
-   	 	"Maximum bit rate for downlink: (%u) %ukbps",oct,(oct-0x80)*64);
+   	 	"Maximum bit rate for downlink: (%u) %ukbps",oct,(oct-0x80)*64+576);/*same as above*/
     else
 	    proto_tree_add_text(tree,
     		tvb, curr_offset, 1,
@@ -10392,11 +10392,11 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
     else if (( oct >= 0x40 ) && ( oct <= 0x7f ))
 	    proto_tree_add_text(tree,
     		tvb, curr_offset, 1,
-   	 	"Guaranteed bit rate for uplink: (%u) %ukbps",oct,(oct-0x40)*8);
+   	 	"Guaranteed bit rate for uplink: (%u) %ukbps",oct,(oct-0x40)*8+64);/*same as for max bit rate*/
     else if (( oct >= 0x80 ) && ( oct <= 0xfe ))
 	    proto_tree_add_text(tree,
     		tvb, curr_offset, 1,
-   	 	"Guaranteed bit rate for uplink: (%u) %ukbps",oct,(oct-0x80)*64);
+   	 	"Guaranteed bit rate for uplink: (%u) %ukbps",oct,(oct-0x80)*64+576);/*same as for max bit rate*/
     else
 	    proto_tree_add_text(tree,
     		tvb, curr_offset, 1,
@@ -10428,11 +10428,11 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
     else if (( oct >= 0x40 ) && ( oct <= 0x7f ))
 	    proto_tree_add_text(tree,
     		tvb, curr_offset, 1,
-   	 	"Guaranteed bit rate for downlink: (%u) %ukbps",oct,(oct-0x40)*8);
+   	 	"Guaranteed bit rate for downlink: (%u) %ukbps",oct,(oct-0x40)*8+64);/*same as above*/
     else if (( oct >= 0x80 ) && ( oct <= 0xfe ))
 	    proto_tree_add_text(tree,
     		tvb, curr_offset, 1,
-   	 	"Guaranteed bit rate for downlink: (%u) %ukbps",oct,(oct-0x80)*64);
+   	 	"Guaranteed bit rate for downlink: (%u) %ukbps",oct,(oct-0x80)*64+576);/*same as above*/
     else
 	    proto_tree_add_text(tree,
     		tvb, curr_offset, 1,
