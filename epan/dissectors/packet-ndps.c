@@ -3185,6 +3185,8 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
                 }
                 foffset += length;
                 foffset += (length%2);
+                if ((int) foffset <= 0)
+                    THROW(ReportedBoundsError);
                 proto_item_set_end(aitem, tvb, foffset);
             }
             break;
