@@ -1647,7 +1647,7 @@ dissect_tcap_dlg_application_context_name(ASN1_SCK *asn1, proto_tree *tcap_tree,
     guint name_len, len, len2;
     guint tag;
     subid_t *oid;
-	char oid_str[64]; /*64 chars should be long enough? */
+    char oid_str[BER_MAX_OID_STR_LEN];
     int ret;
     gboolean def_len;
 
@@ -1818,7 +1818,7 @@ dissect_tcap_dlg_user_info(ASN1_SCK *asn1, proto_tree *tree, packet_info *pinfo)
 	int ret;
 	proto_item *para_item;
 	proto_tree *sub_tree;
-	char oid_str[64]; /*64 chars should be long enough? */
+	char oid_str[BER_MAX_OID_STR_LEN];
 	tvbuff_t *next_tvb;
 
 #define TC_USR_INFO_TAG 0xbe
