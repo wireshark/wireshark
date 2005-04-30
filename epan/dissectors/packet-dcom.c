@@ -1334,6 +1334,8 @@ dissect_dcom_BSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	/* update subtree header */
 	proto_item_append_text(sub_item, "\"%s\"", pszEscaped);
+	if ((int) (u32RealOffset - u32SubStart) <= 0)
+	    THROW(ReportedBoundsError);
 	proto_item_set_len(sub_item, u32RealOffset - u32SubStart);
 
     u32Max = MIN(u32Max, strlen(pszEscaped) + 1);
