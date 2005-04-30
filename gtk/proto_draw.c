@@ -1644,7 +1644,7 @@ void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
 
 #if GTK_MAJOR_VERSION >= 2
 static int
-tree_view_key_pressed_cb(GtkCTree *ctree, GdkEventKey *event, gpointer user_data _U_)
+tree_view_key_pressed_cb(GtkCTree *ctree _U_, GdkEventKey *event, gpointer user_data _U_)
 {
     GtkTreeSelection* selection;
     GtkTreeIter iter;

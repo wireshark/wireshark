@@ -1402,7 +1402,7 @@ main_cf_cb_live_capture_fixed_started(capture_options *capture_opts)
 }
 
 static void
-main_cf_cb_live_capture_fixed_finished(capture_file *cf)
+main_cf_cb_live_capture_fixed_finished(capture_file *cf _U_)
 {
     /* Pop the "<live capture in progress>" message off the status bar. */
     statusbar_pop_file_msg();
