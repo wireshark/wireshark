@@ -58,7 +58,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "packet-dcerpc.h"
+#include <epan/dissectors/packet-dcerpc.h>
 
 
 

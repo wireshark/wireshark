@@ -143,6 +143,7 @@ dissect_dcerpc_uint16
 dissect_dcerpc_uint32
 dissect_dcerpc_uuid_t
 dissect_ndr_uint32
+dissect_ndr_uuid_t
 dissect_per_bit_string
 dissect_per_BMPString
 dissect_per_boolean

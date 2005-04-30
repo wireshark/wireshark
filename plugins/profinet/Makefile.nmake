@@ -1,0 +1,29 @@
+#
+# $Id: Makefile.nmake 12176 2004-10-01 19:50:03Z guy $
+#
+
+include ..\..\config.nmake
+
+############### no need to modify below this line #########
+
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
+	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+
+LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
+
+!IFDEF ENABLE_LIBETHEREAL
+LINK_PLUGIN_WITH=..\..\epan\libethereal.lib
+CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
+
+OBJECTS=profinet.obj packet-dcerpc-pn-io.obj
+
+profinet.dll profinet.exp profinet.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
+	link -dll /out:profinet.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
+	$(GLIB_LIBS)
+
+!ENDIF
+
+clean:
+	rm -f $(OBJECTS) profinet.dll profinet.exp profinet.lib *.pdb
+
+distclean: clean

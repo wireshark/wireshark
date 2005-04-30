@@ -1,0 +1,16 @@
+$Id: ChangeLog 11400 2004-07-18 00:24:25Z guy $
+
+Overview of changes in Art-Net Ethereal plugin:
+
+Version 0.0.0:
+
+* initial implementation
+
+Version 0.0.1:
+
+* some experiments
+
+Version 0.1.0:
+
+* first official plugin
+

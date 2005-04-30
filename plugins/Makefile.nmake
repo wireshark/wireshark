@@ -6,7 +6,7 @@ include ..\config.nmake
 
 ############### no need to modify below this line #########
 
-all: acn agentx artnet asn1 ciscosm docsis enttec giop gryphon irda lwres mate megaco mgcp opsi pcli rdm rlm rtnet rudp stats_tree v5ua xml
+all: acn agentx artnet asn1 ciscosm docsis enttec giop gryphon irda lwres mate megaco mgcp opsi pcli profinet rdm rlm rtnet rudp stats_tree v5ua xml
 
 acn:: 
 	cd acn
@@ -87,6 +87,11 @@ pcli::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
+profinet:: 
+	cd profinet
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
 rdm:: 
 	cd rdm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
@@ -155,6 +160,8 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../pcli
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../profinet
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../rdm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../rlm
@@ -203,6 +210,8 @@ distclean: clean
 	cd ../opsi
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../pcli
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../profinet
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../rdm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
