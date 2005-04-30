@@ -107,7 +107,6 @@ static char *sync_pipe_signame(int);
 #endif
 
 
-static gboolean sync_pipe_input_wait_for_start(capture_options *capture_opts, int sync_pipe_read);
 static gboolean sync_pipe_input_cb(gint source, gpointer user_data);
 static void sync_pipe_wait_for_child(capture_options *capture_opts, gboolean always_report);
 
@@ -315,7 +314,7 @@ sync_pipe_quote_encapsulate(const char *string)
 #define ARGV_NUMBER_LEN 24
 
 gboolean
-sync_pipe_start(capture_options *capture_opts, gboolean is_tempfile) {
+sync_pipe_start(capture_options *capture_opts) {
     char ssnap[ARGV_NUMBER_LEN];
     char scount[ARGV_NUMBER_LEN];
     char sfilesize[ARGV_NUMBER_LEN];

@@ -86,7 +86,7 @@ capture_start(capture_options *capture_opts)
   capture_opts->state = CAPTURE_PREPARING;
 
   /* try to start the capture child process */
-  ret = sync_pipe_start(capture_opts, capture_opts->save_file == NULL);
+  ret = sync_pipe_start(capture_opts);
   if(!ret) {
       if(capture_opts->save_file != NULL) {
           g_free(capture_opts->save_file);

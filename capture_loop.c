@@ -1499,7 +1499,7 @@ capture_loop_get_errmsg(char *errmsg, int errmsglen, const char *fname,
 }
 
 static void
-capture_loop_popup_errmsg(capture_options *capture_opts, const char *errmsg)
+capture_loop_popup_errmsg(capture_options *capture_opts _U_, const char *errmsg)
 {
     /* Send the error message to our parent, so they can display a
        dialog box containing it. */
