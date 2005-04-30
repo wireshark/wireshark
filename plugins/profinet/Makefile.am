@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/plugins/profinet
 #
-# $Id: Makefile.am 11400 2004-07-18 00:24:25Z guy $
+# $Id$
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
