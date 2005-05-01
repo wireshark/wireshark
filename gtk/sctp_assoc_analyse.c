@@ -46,7 +46,7 @@ static sctp_assoc_info_t static_assoc;
 void
 decrease_childcount(struct sctp_analyse *parent)
 {
-	if (parent->num_children>0)
+	if (parent->num_children > 0)
 		parent->num_children--;
 }
 
@@ -59,24 +59,24 @@ increase_childcount(struct sctp_analyse *parent)
 void
 set_child(struct sctp_udata *child, struct sctp_analyse *parent)
 {
-	parent->children=g_list_append(parent->children, child);
+	parent->children = g_list_append(parent->children, child);
 }
 
 void
 remove_child(struct sctp_udata *child, struct sctp_analyse *parent)
 {
-	parent->children=g_list_remove(parent->children, child);
+	parent->children = g_list_remove(parent->children, child);
 }
 
 static void
-on_destroy(GtkObject  *object _U_, gpointer user_data)
+on_destroy(GtkObject *object _U_, gpointer user_data)
 {
 	struct sctp_analyse *u_data;
 	guint16 i, j;
 	GList *list;
 	struct sctp_udata *child_data;
 
-	u_data=(struct sctp_analyse*)user_data;
+	u_data = (struct sctp_analyse*)user_data;
 
 	if (u_data->window)
 	{
@@ -85,14 +85,14 @@ on_destroy(GtkObject  *object _U_, gpointer user_data)
 	}
 	if (u_data->num_children>0)
 	{
-		j=u_data->num_children;
+		j = u_data->num_children;
 		for (i=0; i<j; i++)
 		{
-			list=g_list_last(u_data->children);
-			child_data=(struct sctp_udata *)list->data;
+			list = g_list_last(u_data->children);
+			child_data = (struct sctp_udata *)list->data;
 			gtk_grab_remove(GTK_WIDGET(child_data->io->window));
 			gtk_widget_destroy(GTK_WIDGET(child_data->io->window));
-			list=g_list_previous(list);
+			list = g_list_previous(list);
 		}
 		g_list_free(u_data->children);
 		u_data->children = NULL;
@@ -101,7 +101,7 @@ on_destroy(GtkObject  *object _U_, gpointer user_data)
 	g_free(u_data->analyse_nb->page2);
 	g_free(u_data->analyse_nb->page3);
 	g_free(u_data->analyse_nb);
-	if (sctp_stat_get_info()->children!=NULL)
+	if (sctp_stat_get_info()->children != NULL)
 	{
 		remove_analyse_child(u_data);
 		decrease_analyse_childcount();
@@ -116,19 +116,19 @@ on_notebook_switch_page()
 
 static void on_chunk_stat_bt(GtkWidget *widget _U_, struct sctp_analyse* u_data)
 {
-	sctp_assoc_info_t* assinfo=NULL;
+	sctp_assoc_info_t* assinfo = NULL;
 	int i;
 
 	assinfo = g_malloc(sizeof(sctp_assoc_info_t));
-	assinfo=&static_assoc;
-	assinfo->addr_chunk_count=(static_assoc.addr_chunk_count);
+	assinfo = &static_assoc;
+	assinfo->addr_chunk_count = (static_assoc.addr_chunk_count);
 	for (i=0; i<NUM_CHUNKS; i++)
 	{
-		assinfo->chunk_count[i]=static_assoc.chunk_count[i];
-		assinfo->ep1_chunk_count[i]=static_assoc.ep1_chunk_count[i];
-		assinfo->ep2_chunk_count[i]=static_assoc.ep2_chunk_count[i];
+		assinfo->chunk_count[i]     = static_assoc.chunk_count[i];
+		assinfo->ep1_chunk_count[i] = static_assoc.ep1_chunk_count[i];
+		assinfo->ep2_chunk_count[i] = static_assoc.ep2_chunk_count[i];
 	}
-	u_data->assoc=assinfo;
+	u_data->assoc = assinfo;
 	sctp_chunk_dlg_show(u_data);
 }
 
@@ -144,12 +144,12 @@ static void on_close_dlg(GtkWidget *widget _U_, struct sctp_analyse* u_data)
 
 static void on_chunk1_dlg(GtkWidget *widget _U_, struct sctp_analyse* u_data)
 {
-sctp_assoc_info_t* assinfo=NULL;
+sctp_assoc_info_t* assinfo = NULL;
 	
 	assinfo = g_malloc(sizeof(sctp_assoc_info_t));
-	assinfo=&static_assoc;
-	assinfo->addr_chunk_count=(static_assoc.addr_chunk_count);
-	u_data->assoc=assinfo;
+	assinfo = &static_assoc;
+	assinfo->addr_chunk_count = (static_assoc.addr_chunk_count);
+	u_data->assoc = assinfo;
 	sctp_chunk_stat_dlg_show(1, u_data);
 }
 
@@ -158,9 +158,9 @@ static void on_chunk2_dlg(GtkWidget *widget _U_, struct sctp_analyse* u_data)
 sctp_assoc_info_t* assinfo=NULL;
 
 	assinfo = g_malloc(sizeof(sctp_assoc_info_t));
-	assinfo=&static_assoc;
-	assinfo->addr_chunk_count=(static_assoc.addr_chunk_count);	
-	u_data->assoc=assinfo;
+	assinfo = &static_assoc;
+	assinfo->addr_chunk_count = (static_assoc.addr_chunk_count);	
+	u_data->assoc = assinfo;
 	sctp_chunk_stat_dlg_show(2, u_data);
 }
 
@@ -192,9 +192,9 @@ update_analyse_dlg(struct sctp_analyse* u_data)
 	gchar field[1][MAX_ADDRESS_LEN];
 	gint added_row;
 	GList *list;
-	address *store=NULL;
+	address *store = NULL;
 
-	if (u_data->assoc==NULL)
+	if (u_data->assoc == NULL)
 		return;
 
 	if (u_data->window != NULL)
@@ -225,27 +225,27 @@ update_analyse_dlg(struct sctp_analyse* u_data)
 	g_snprintf(label_txt, 50,"No of Data Bytes from EP2 to EP1: %u",u_data->assoc->n_data_bytes_ep2);
 	gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->bytes_ep2), label_txt);
 
-	if (u_data->assoc->init==TRUE)
+	if (u_data->assoc->init == TRUE)
 		gtk_frame_set_label(GTK_FRAME (u_data->analyse_nb->page2->addr_frame), "Complete list of IP-Addresses as provided in the INIT-Chunk");
-	else if (u_data->assoc->initack==TRUE && u_data->assoc->initack_dir==1)
+	else if (u_data->assoc->initack == TRUE && u_data->assoc->initack_dir == 1)
 		gtk_frame_set_label(GTK_FRAME (u_data->analyse_nb->page2->addr_frame), "Complete list of IP-Addresses as provided in the INITACK-Chunk");
 	else
 		gtk_frame_set_label(GTK_FRAME (u_data->analyse_nb->page2->addr_frame), "List of used IP-Addresses");
 
 
 
-	if (u_data->assoc->addr1!=NULL)
+	if (u_data->assoc->addr1 != NULL)
 	{
 		list = g_list_first(u_data->assoc->addr1);
 		while (list)
 		{
-			data[0]=&field[0][0];
+			data[0] = &field[0][0];
 			store = (address *) (list->data);
-			if (store->type==AT_IPv4)
+			if (store->type == AT_IPv4)
 			{
 				g_snprintf(field[0], 30, "%s", ip_to_str((const guint8 *)(store->data)));
 			}
-			else if (store->type==AT_IPv6)
+			else if (store->type == AT_IPv6)
 			{		
 				g_snprintf(field[0], 40, "%s", ip6_to_str((const struct e_in6_addr *)(store->data)));
 			}
@@ -263,7 +263,7 @@ update_analyse_dlg(struct sctp_analyse* u_data)
 	g_snprintf(label_txt, 50,"Sent Verification Tag: 0x%x",u_data->assoc->verification_tag1);
 	gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page2->veritag), label_txt);
 
-	if (u_data->assoc->init==TRUE || (u_data->assoc->initack==TRUE && u_data->assoc->initack_dir==1))
+	if (u_data->assoc->init == TRUE || (u_data->assoc->initack == TRUE && u_data->assoc->initack_dir == 1))
 	{
 		g_snprintf(label_txt, 50,"Requested Number of Inbound Streams: %u",u_data->assoc->instream1);
 		gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page2->max_in), label_txt);
@@ -283,26 +283,26 @@ update_analyse_dlg(struct sctp_analyse* u_data)
 		gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page2->max_out), label_txt);
 	}
 
-	if (u_data->assoc->initack==TRUE && u_data->assoc->initack_dir==2)
+	if (u_data->assoc->initack == TRUE && u_data->assoc->initack_dir == 2)
 		gtk_frame_set_label(GTK_FRAME (u_data->analyse_nb->page3->addr_frame), "Complete list of IP-Addresses as provided in the INITACK-Chunk");
 	else
 		gtk_frame_set_label(GTK_FRAME (u_data->analyse_nb->page3->addr_frame), "List of used IP-Addresses");
 
 
-	if (u_data->assoc->addr2!=NULL)
+	if (u_data->assoc->addr2 != NULL)
 	{
 
 		list = g_list_first(u_data->assoc->addr2);
 
 		while (list)
 		{
-			data[0]=&field[0][0];
+			data[0] = &field[0][0];
 			store = (address *) (list->data);
-			if (store->type==AT_IPv4)
+			if (store->type == AT_IPv4)
 			{
 				g_snprintf(field[0], 30, "%s", ip_to_str((const guint8 *)(store->data)));
 			}
-			else if (store->type==AT_IPv6)
+			else if (store->type == AT_IPv6)
 			{
 				g_snprintf(field[0], 40, "%s", ip6_to_str((const struct e_in6_addr *)(store->data)));
 			}
@@ -321,7 +321,7 @@ update_analyse_dlg(struct sctp_analyse* u_data)
 	g_snprintf(label_txt, 50,"Sent Verification Tag: 0x%x",u_data->assoc->verification_tag2);
 	gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page3->veritag), label_txt);
 
-	if (u_data->assoc->initack==TRUE)
+	if (u_data->assoc->initack == TRUE)
 	{
 		g_snprintf(label_txt, 50,"Requested Number of Inbound Streams: %u",u_data->assoc->instream2);
 		gtk_label_set_text(GTK_LABEL(u_data->analyse_nb->page3->max_in), label_txt);
@@ -349,8 +349,7 @@ static void analyse_window_set_title(struct sctp_analyse *u_data)
 	if(!u_data->window){
 		return;
 	}
-	title = g_strdup_printf("SCTP Analyse Association: %s Port1 %u  Port2 %u",
-	                        cf_get_display_name(&cfile), u_data->assoc->port1, u_data->assoc->port2);
+	title = g_strdup_printf("SCTP Analyse Association: %s Port1 %u  Port2 %u", cf_get_display_name(&cfile), u_data->assoc->port1, u_data->assoc->port2);
 	gtk_window_set_title(GTK_WINDOW(u_data->window), title);
 	g_free(title);
 }
@@ -468,8 +467,7 @@ void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_clist_set_column_width(GTK_CLIST(u_data->analyse_nb->page2->clist), 0, 200);
 	gtk_clist_set_column_justification(GTK_CLIST(u_data->analyse_nb->page2->clist), 0, GTK_JUSTIFY_LEFT);
 
-	gtk_container_add(GTK_CONTAINER(u_data->analyse_nb->page2->scrolled_window),
-		u_data->analyse_nb->page2->clist);
+	gtk_container_add(GTK_CONTAINER(u_data->analyse_nb->page2->scrolled_window), u_data->analyse_nb->page2->clist);
 
 	gtk_box_pack_start(GTK_BOX(addr_hb), u_data->analyse_nb->page2->scrolled_window, TRUE, TRUE, 0);
 	gtk_widget_show(u_data->analyse_nb->page2->scrolled_window);
@@ -481,19 +479,19 @@ void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_container_border_width(GTK_CONTAINER(hbox), 5);
 	gtk_container_add(GTK_CONTAINER(stat_fr), hbox);
 
-	vbox_l=gtk_vbox_new(FALSE, 3);
+	vbox_l = gtk_vbox_new(FALSE, 3);
 	gtk_box_pack_start(GTK_BOX(hbox), vbox_l, TRUE, TRUE, 0);
 
 
 
-	hbox_l1=gtk_hbox_new(FALSE,3);
+	hbox_l1 = gtk_hbox_new(FALSE,3);
 	gtk_box_pack_start(GTK_BOX(vbox_l), hbox_l1, TRUE, TRUE, 0);
 
 	u_data->analyse_nb->page2->port = gtk_label_new("");
 	gtk_box_pack_start(GTK_BOX(hbox_l1), u_data->analyse_nb->page2->port, TRUE, TRUE, 0);
 	gtk_misc_set_alignment (GTK_MISC(u_data->analyse_nb->page2->port),0,0);
 
-	hbox_l2=gtk_hbox_new(FALSE,3);
+	hbox_l2 = gtk_hbox_new(FALSE,3);
 	gtk_box_pack_start(GTK_BOX(vbox_l), hbox_l2, TRUE, TRUE, 0);
 
 
@@ -503,7 +501,7 @@ void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_misc_set_alignment (GTK_MISC(u_data->analyse_nb->page2->veritag),0,0);
 	gtk_widget_show(vbox_l);
 
-	vbox_r=gtk_vbox_new(FALSE, 3);
+	vbox_r = gtk_vbox_new(FALSE, 3);
 	gtk_box_pack_start(GTK_BOX(hbox), vbox_r, TRUE, TRUE, 0);
 
 	u_data->analyse_nb->page2->max_in = gtk_label_new("");
@@ -589,17 +587,17 @@ void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_container_border_width(GTK_CONTAINER(hbox), 5);
 	gtk_container_add(GTK_CONTAINER(stat_fr), hbox);
 
-	vbox_l=gtk_vbox_new(FALSE, 3);
+	vbox_l = gtk_vbox_new(FALSE, 3);
 	gtk_box_pack_start(GTK_BOX(hbox), vbox_l, TRUE, TRUE, 0);
 		
-	hbox_l1=gtk_hbox_new(FALSE,3);
+	hbox_l1 = gtk_hbox_new(FALSE,3);
 	gtk_box_pack_start(GTK_BOX(vbox_l), hbox_l1, TRUE, TRUE, 0);
 
 	u_data->analyse_nb->page3->port = gtk_label_new("");
 	gtk_box_pack_start(GTK_BOX(hbox_l1), u_data->analyse_nb->page3->port, TRUE, TRUE, 0);
 	gtk_misc_set_alignment (GTK_MISC(u_data->analyse_nb->page3->port),0,0);
 
-	hbox_l2=gtk_hbox_new(FALSE,3);
+	hbox_l2 = gtk_hbox_new(FALSE,3);
 	gtk_box_pack_start(GTK_BOX(vbox_l), hbox_l2, TRUE, TRUE, 0);
 
 
@@ -664,7 +662,7 @@ void create_analyse_window(struct sctp_analyse* u_data)
 
 	gtk_widget_show(window);
 
-	u_data->window=window;
+	u_data->window = window;
 	analyse_window_set_title(u_data);
 
 	update_analyse_dlg(u_data);
@@ -678,24 +676,24 @@ void assoc_analyse(sctp_assoc_info_t* assoc)
 	int i;
 
 	u_data = g_malloc(sizeof(struct sctp_analyse));
-	u_data->assoc=assoc;
-	u_data->assoc->addr_chunk_count=assoc->addr_chunk_count;
-	u_data->window=NULL;
-	u_data->analyse_nb=NULL;
-	u_data->children=NULL;
-	u_data->num_children=0;
-	static_assoc.addr_chunk_count=assoc->addr_chunk_count;
-	static_assoc.port1=assoc->port1;
-	static_assoc.port2=assoc->port2;
+	u_data->assoc = assoc;
+	u_data->assoc->addr_chunk_count = assoc->addr_chunk_count;
+	u_data->window = NULL;
+	u_data->analyse_nb = NULL;
+	u_data->children = NULL;
+	u_data->num_children = 0;
+	static_assoc.addr_chunk_count =assoc->addr_chunk_count;
+	static_assoc.port1 = assoc->port1;
+	static_assoc.port2 = assoc->port2;
 	for (i=0; i<NUM_CHUNKS; i++)
 	{
-		static_assoc.chunk_count[i]=assoc->chunk_count[i];
-		static_assoc.ep1_chunk_count[i]=assoc->ep1_chunk_count[i];
-		static_assoc.ep2_chunk_count[i]=assoc->ep2_chunk_count[i];
+		static_assoc.chunk_count[i]     = assoc->chunk_count[i];
+		static_assoc.ep1_chunk_count[i] = assoc->ep1_chunk_count[i];
+		static_assoc.ep2_chunk_count[i] = assoc->ep2_chunk_count[i];
 	}
 	set_analyse_child(u_data);
 	increase_analyse_childcount();
-	static_assoc.addr_chunk_count=assoc->addr_chunk_count;
+	static_assoc.addr_chunk_count = assoc->addr_chunk_count;
 	create_analyse_window(u_data);
 }
 
@@ -715,7 +713,7 @@ void sctp_analyse_cb(struct sctp_analyse* u_data)
 	gboolean frame_matched;
 	frame_data *fdata;
 	gchar filter_text[256];
-	sctp_assoc_info_t* assoc=NULL;
+	sctp_assoc_info_t* assoc = NULL;
 	address *src, *dst;
 	int i;
 
@@ -782,16 +780,16 @@ void sctp_analyse_cb(struct sctp_analyse* u_data)
 						dst = (address *)(dstlist->data);
 						if (*dst->data == *ip_dst)
 						{
-							u_data->assoc=assoc;
-							u_data->assoc->addr_chunk_count=assoc->addr_chunk_count;
-							static_assoc.addr_chunk_count=assoc->addr_chunk_count;
-							static_assoc.port1=assoc->port1;
-							static_assoc.port2=assoc->port2;
+							u_data->assoc = assoc;
+							u_data->assoc->addr_chunk_count = assoc->addr_chunk_count;
+							static_assoc.addr_chunk_count = assoc->addr_chunk_count;
+							static_assoc.port1 = assoc->port1;
+							static_assoc.port2 = assoc->port2;
 							for (i=0; i<NUM_CHUNKS; i++)
 							{
-								static_assoc.chunk_count[i]=assoc->chunk_count[i];
-								static_assoc.ep1_chunk_count[i]=assoc->ep1_chunk_count[i];
-								static_assoc.ep2_chunk_count[i]=assoc->ep2_chunk_count[i];
+								static_assoc.chunk_count[i]     = assoc->chunk_count[i];
+								static_assoc.ep1_chunk_count[i] = assoc->ep1_chunk_count[i];
+								static_assoc.ep2_chunk_count[i] = assoc->ep2_chunk_count[i];
 							}
 							create_analyse_window(u_data);
 							return;
@@ -820,16 +818,16 @@ void sctp_analyse_cb(struct sctp_analyse* u_data)
 						dst = (address *)(dstlist->data);
 						if (*dst->data == *ip_dst)
 						{
-							u_data->assoc=assoc;
-							u_data->assoc->addr_chunk_count=assoc->addr_chunk_count;
-							static_assoc.addr_chunk_count=assoc->addr_chunk_count;
-							static_assoc.port1=assoc->port1;
-							static_assoc.port2=assoc->port2;
+							u_data->assoc = assoc;
+							u_data->assoc->addr_chunk_count = assoc->addr_chunk_count;
+							static_assoc.addr_chunk_count = assoc->addr_chunk_count;
+							static_assoc.port1 = assoc->port1;
+							static_assoc.port2 = assoc->port2;
 							for (i=0; i<NUM_CHUNKS; i++)
 							{
-								static_assoc.chunk_count[i]=assoc->chunk_count[i];
-								static_assoc.ep1_chunk_count[i]=assoc->ep1_chunk_count[i];
-								static_assoc.ep2_chunk_count[i]=assoc->ep2_chunk_count[i];
+								static_assoc.chunk_count[i]     = assoc->chunk_count[i];
+								static_assoc.ep1_chunk_count[i] = assoc->ep1_chunk_count[i];
+								static_assoc.ep2_chunk_count[i] = assoc->ep2_chunk_count[i];
 							}
 							create_analyse_window(u_data);
 							return;
@@ -856,18 +854,18 @@ void sctp_analyse_start(GtkWidget *w _U_, gpointer data _U_)
 	struct sctp_analyse * u_data;
 
 	/* Register the tap listener */
-	if (sctp_stat_get_info()->is_registered==FALSE)
+	if (sctp_stat_get_info()->is_registered == FALSE)
 		register_tap_listener_sctp_stat();
 	/* (redissect all packets) */
 	
 	sctp_stat_scan();
 
 	u_data = g_malloc(sizeof(struct sctp_analyse));
-	u_data->assoc=NULL;
-	u_data->children=NULL;
-	u_data->analyse_nb=NULL;
-	u_data->window=NULL;
-	u_data->num_children=0;
+	u_data->assoc        = NULL;
+	u_data->children     = NULL;
+	u_data->analyse_nb   = NULL;
+	u_data->window       = NULL;
+	u_data->num_children = 0;
 
 	cf_retap_packets(&cfile);
 	sctp_analyse_cb(u_data);
