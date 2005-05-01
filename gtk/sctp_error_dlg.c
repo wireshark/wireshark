@@ -95,34 +95,24 @@ void sctp_error_dlg_update(GList *list)
 {
 	GList *ilist=NULL;
 
-printf("dlg_update\n");
-	if (sctp_error_dlg != NULL) {
+	if (sctp_error_dlg != NULL) 
+	{
 		gtk_clist_clear(GTK_CLIST(clist));
-printf("vor ilist\n");
 		ilist=list;
-if (ilist==NULL)
-	printf("=NULL\n");
-printf("nach ilist\n");
 
 		while (ilist)
 		{
-printf("while\n");
 			add_to_clist((sctp_error_info_t*)(ilist->data));
 			ilist = g_list_next(ilist);
 		}
 
 		sctp_error_on_unselect(NULL, NULL);
 	}
-printf("vor last_list\n");
 	last_list = ilist;
 }
 
 static void
-sctp_error_on_select_row(GtkCList *clist,
-                                            gint row,
-                                            gint column _U_,
-                                            GdkEventButton *event _U_,
-                                            gpointer user_data _U_)
+sctp_error_on_select_row(GtkCList *clist, gint row,gint column _U_, GdkEventButton *event _U_, gpointer user_data _U_)
 {
 	selected_packet = gtk_clist_get_row_data(GTK_CLIST(clist), row);
 }
@@ -142,7 +132,7 @@ sctp_error_on_frame (GtkButton *button _U_, gpointer user_data _U_)
 
 
 static void
-sctp_error_on_close (GtkButton *button _U_, gpointer         user_data _U_)
+sctp_error_on_close (GtkButton *button _U_, gpointer user_data _U_)
 {
 	gtk_grab_remove(sctp_error_dlg);
 	gtk_widget_destroy(sctp_error_dlg);
@@ -174,17 +164,6 @@ gtk_sctperror_dlg(void)
 	gtk_container_border_width(GTK_CONTAINER(vbox1), 8);
 	gtk_container_add(GTK_CONTAINER(sctp_error_dlg_w), vbox1);
 	gtk_widget_show(vbox1);
-
-/*	sctp_error_dlg_w = gtk_dialog_new();
-	gtk_window_set_title (GTK_WINDOW (sctp_error_dlg_w), "Ethereal: SCTP Malformed Packets");
-
-	dialog_vbox1 = GTK_DIALOG (sctp_error_dlg_w)->vbox;
-	gtk_widget_show (dialog_vbox1);
-
-	vbox1 = gtk_vbox_new (FALSE, 0);
-	gtk_widget_show (vbox1);
-	gtk_box_pack_start (GTK_BOX (dialog_vbox1), vbox1, TRUE, TRUE, 0);
-	gtk_container_set_border_width (GTK_CONTAINER (vbox1), 8);*/
 
 	scrolledwindow1 = scrolled_window_new (NULL, NULL);
 	gtk_widget_show (scrolledwindow1);
@@ -258,7 +237,6 @@ void sctp_error_dlg_show(sctp_assoc_info_t* assoc)
 {
 	GList *list;
 
-	/* selected_assoc=(sctp_assoc_info_t*)get_selected_assoc(); */
 	list =assoc->error_info_list;
 	if (list != NULL)
 	{
@@ -281,19 +259,3 @@ void sctp_error_dlg_show(sctp_assoc_info_t* assoc)
 		    "No errors found!");
 }
 
-
-/*void sctp_error_start(GtkWidget *w _U_, gpointer data _U_)
-{
-	if (sctp_stat_get_info()->is_registered==FALSE)
-	register_tap_listener_sctp_stat();
-	sctp_stat_scan();
-	sctp_error_dlg_show(sctp_stat_get_info()->error_info_list);
-}*/
-
-/****************************************************************************/
-/*void
-register_tap_listener_sctp_error_dlg(void)
-{
-	register_tap_menu_item("SCTP/Show All Malformed Packets...", REGISTER_TAP_GROUP_TELEPHONY,
-	    sctp_error_start, NULL, NULL, NULL);
-}*/
