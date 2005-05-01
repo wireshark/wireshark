@@ -1006,6 +1006,10 @@ dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_tree_command_line, 
 			tvb_current_offset = tvb_descriptors_end_offset;
 			
 		}
+		if (tvb_current_offset <= tvb_previous_offset) {
+			proto_tree_add_text(megaco_tree_command_line, tvb, 0, 0, "[ Parse error: Invalid offset ]");
+			return;
+		}
 		
 		
 		
