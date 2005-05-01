@@ -88,7 +88,6 @@ ethereal-filter.pod: ethereal-filter.pod.template  ../tethereal.exe
 	xcopy epan\libethereal.dll . /d /y
 !ENDIF
 	tethereal.exe -G | $(PERL) doc\dfilter2pod.pl doc\ethereal-filter.pod.template > doc\ethereal-filter.pod
-	rm -f libethereal.dll wiretap-$(WTAP_VERSION).dll
 	cd doc
 
 capinfos.1: capinfos.pod ../config.h

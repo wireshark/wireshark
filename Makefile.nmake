@@ -398,6 +398,10 @@ doxygen-run:
 
 doxygen: doxygen.cfg doxygen-run
 
+################################################################################
+# Prepare build environment by downloading and installing required libraries
+################################################################################
+
 REQUIRED_TOOLS=\
 	$(SH)	\
 	$(YACC)	\
@@ -506,4 +510,72 @@ clean_setup:
     rm -r -f $(ETHEREAL_LIBS)/zlib122-dll
     rm -r -f $(ETHEREAL_LIBS)/gtk2
     rm -r -f $(ETHEREAL_LIBS)/gtk-wimp
+
+################################################################################
+# Prepare the source tree for running (t)ethereal directly from there.
+################################################################################
+
+# "install-deps" will copy all dlls needed to run (t)ethereal
+# to the source tree, so you can run (t)ethereal directly from there.
+# Note that the gtk2 version of ethereal is called ethereal-gtk2.exe
+
+install-deps: clean_deps install-gtk1-deps install-gtk2-deps
+
+install-gtk2-deps: install-required-deps
+!IFDEF GTK2_DIR
+	xcopy $(GTK2_DIR)\bin\libgdk-win32-2.0-0.dll . /d /y
+	xcopy $(GTK2_DIR)\bin\libgdk_pixbuf-2.0-0.dll . /d /y
+	xcopy $(GTK2_DIR)\bin\libgtk-win32-2.0-0.dll . /d /y
+	xcopy $(GTK2_DIR)\bin\libatk-1.0-0.dll . /d /y
+	xcopy $(GTK2_DIR)\bin\libpango-1.0-0.dll . /d /y
+	xcopy $(GTK2_DIR)\bin\libpangowin32-1.0-0.dll . /d /y
+	mkdir etc
+	mkdir etc\gtk-2.0
+	mkdir etc\pango
+	mkdir lib
+	mkdir lib\gtk-2.0
+	mkdir lib\gtk-2.0\$(GTK2_INST_VERSION).0
+	mkdir lib\gtk-2.0\$(GTK2_INST_VERSION).0\loaders
+	mkdir lib\gtk-2.0\$(GTK2_INST_VERSION).0\immodules
+	mkdir lib\pango
+	mkdir lib\pango\$(PANGO_INST_VERSION).0
+	mkdir lib\pango\$(PANGO_INST_VERSION).0\modules
+	xcopy $(GTK2_DIR)\etc\gtk-2.0\*.* etc\gtk-2.0 /d /y
+	xcopy $(GTK2_DIR)\etc\pango\pango.* etc\pango /d /y
+	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_INST_VERSION).0\loaders\libpixbufloader-*.dll lib\gtk-2.0\$(GTK2_INST_VERSION).0\loaders /d /y
+	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_INST_VERSION).0\immodules\im-*.dll lib\gtk-2.0\$(GTK2_INST_VERSION).0\immodules /d /y
+	xcopy $(GTK2_DIR)\lib\pango\$(PANGO_INST_VERSION).0\modules\pango-*.dll lib\pango\$(PANGO_INST_VERSION).0\modules /d /y
+!ENDIF
+
+install-gtk1-deps: install-required-deps
+!IFDEF GTK1_DIR
+	xcopy $(GTK1_DIR)\lib\libgtk-0.dll . /d /y
+	xcopy $(GTK1_DIR)\lib\libgdk-0.dll . /d /y
+!ENDIF
+
+install-required-deps:
+	xcopy wiretap\wiretap-$(WTAP_VERSION).dll . /d /y
+!IFDEF ENABLE_LIBETHEREAL
+	xcopy epan\libethereal.dll . /d /y
+!ENDIF
+	xcopy $(GLIB_DIR)\bin\libglib-2.0-0.dll . /d /y
+	xcopy $(GLIB_DIR)\bin\libgmodule-2.0-0.dll . /d /y
+	xcopy $(GLIB_DIR)\bin\libgobject-2.0-0.dll . /d /y
+	xcopy $(ICONV_DIR)\bin\iconv.dll . /d /y
+	xcopy $(GETTEXT_DIR)\bin\intl.dll . /d /y
+!IFDEF ZLIB_DIR
+	xcopy $(ZLIB_DIR)\zlib1.dll . /d /y
+!ENDIF
+!IFDEF ADNS_DIR
+	xcopy $(ADNS_DIR)\adns_win32\LIB\adns_dll.dll . /d /y
+!ENDIF
+!IFDEF PCRE_DIR
+	xcopy $(PCRE_DIR)\bin\pcre.dll . /d /y
+!ENDIF
+
+clean_deps:
+	rm -f *.dll
+	rm -rf etc
+	rm -rf lib
+
 
