@@ -132,7 +132,8 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 	red_gc = gdk_gc_new(u_data->io->draw_area->window);
 #if GTK_MAJOR_VERSION < 2
 		colormap = gtk_widget_get_colormap (u_data->io->draw_area);
-		if (!gdk_color_alloc (colormap, &red_color)){
+		if (!gdk_color_alloc (colormap, &red_color))
+		{
 			g_warning ("Couldn't allocate color");
 		}
 
@@ -144,7 +145,8 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 	green_gc = gdk_gc_new(u_data->io->draw_area->window);
 #if GTK_MAJOR_VERSION < 2
 		colormap = gtk_widget_get_colormap (u_data->io->draw_area);
-		if (!gdk_color_alloc (colormap, &green_color)){
+		if (!gdk_color_alloc (colormap, &green_color))
+		{
 			g_warning ("Couldn't allocate color");
 		}
 
@@ -302,7 +304,6 @@ static void draw_tsn_graph(struct sctp_udata *u_data)
 		}
 		list = g_list_previous(list);
 	}
-
 }
 
 
