@@ -2041,6 +2041,7 @@ dissect_tcap_dialog_portion(ASN1_SCK *asn1, proto_tree *tcap_tree, proto_item *t
 
     if (portion_def_len)
     {
+	tvb_ensure_bytes_exist(tcap_tree, saved_offset, len);
 	proto_item_set_len(dlg_item, len);
     }
 
