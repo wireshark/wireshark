@@ -54,18 +54,18 @@ extern GtkWidget *main_display_filter_widget;
 #define FRAME_LIMIT 8
 
 enum chunk_types {
-DATA          = 0,
-INIT          = 1,
-INIT_ACK      = 2,
-SACK          = 3,
-HEARTBEAT     = 4,
-HEARTBEAT_ACK = 5,
-ABORT         = 6,
-SHUTDOWN      = 7,
-SHUTDOWN_ACK  = 8,
-SCTP_ERROR         =  9,
-COOKIE_ECHO   = 10,
-COOKIE_ACK    = 11
+	DATA          = 0,
+	INIT          = 1,
+	INIT_ACK      = 2,
+	SACK          = 3,
+	HEARTBEAT     = 4,
+	HEARTBEAT_ACK = 5,
+	ABORT         = 6,
+	SHUTDOWN      = 7,
+	SHUTDOWN_ACK  = 8,
+	SCTP_ERROR    = 9,
+	COOKIE_ECHO   = 10,
+	COOKIE_ACK    = 11
 };
 
 char *chunk_name(int type)
