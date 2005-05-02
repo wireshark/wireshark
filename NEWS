@@ -1,5 +1,184 @@
 $Id$
 
+== May 4, 2005
+
+Ethereal 0.10.11 has been released.
+
+An aggressive testing program as well as independent discovery has turned
+up a multitude of security issues:
+
+  The ANSI A dissector was susceptible to format string vulnerabilities.
+  Discovered by Bryan Fulton.
+  Versions affected: 0.9.15 to 0.10.10
+
+  The GSM MAP dissector could crash.
+  Versions affected: 0.10.0 to 0.10.10
+
+  The AIM dissector could cause a crash.
+  Versions affected: 0.9.14 to 0.10.10
+
+  The DISTCC dissector was susceptible to a buffer overflow.
+  Discovered by Ilja van Sprundel
+  Versions affected: 0.9.13 to 0.10.10
+
+  The FCELS dissector was susceptible to a buffer overflow.
+  Discovered by Neil Kettle
+  Versions affected: 0.9.9 to 0.10.10
+
+  The SIP dissector was susceptible to a buffer overflow.
+  Discovered by Ejovi Nuwere.
+  Versions affected: 0.10.0 to 0.10.10
+
+  The KINK dissector was susceptible to a null pointer exception,
+  endless looping, and other problems.
+  Versions affected: 0.10.10
+
+  The LMP dissector was susceptible to an endless loop.
+  Versions affected: 0.9.4 to 0.10.10
+
+  The Telnet dissector could abort.
+  Versions affected: 0.9.10 to 0.10.10
+
+  The TZSP dissector could cause a segmentation fault.
+  Versions affected: 0.10.10 to 0.10.10
+
+  The WSP dissector was susceptible to a null pointer exception and
+  assertions.
+  Versions affected: 0.10.0 to 0.10.10
+
+  The 802.3 Slow protocols dissector could throw an assertion.
+  Versions affected: 0.10.10
+
+  The BER dissector could throw assertions.
+  Versions affected: 0.10.2 to 0.10.10
+
+  The SMB Mailslot dissector was susceptible to a null pointer exception
+  and could throw assertions.
+  Versions affected: 0.9.0 to 0.10.10
+
+  The H.245 dissector was susceptible to a null pointer exception.
+  Versions affected: 0.10.10
+
+  The Bittorrent dissector could cause a segmentation fault.
+  Versions affected: 0.10.8 to 0.10.10
+
+  The SMB dissector could cause a segmentation fault and throw assertions.
+  Versions affected: 0.9.0 to 0.10.10
+
+  The Fibre Channel dissector could cause a crash.
+  Versions affected: 0.9.9 to 0.10.10
+
+  The DICOM dissector could attempt to allocate large amounts of memory.
+  Versions affected: 0.10.4 to 0.10.10
+
+  The MGCP dissector was susceptible to a null pointer exception, could
+  loop indefinitely, and segfault.
+  Versions affected: 0.8.14 to 0.10.10
+
+  The RSVP dissector could loop indefinitely.
+  Versions affected: 0.9.8 to 0.10.10
+
+  The DHCP dissector was susceptible to format string vulnerabilities, and
+  could abort.
+  Versions affected: 0.10.7 to 0.10.10
+
+  The SRVLOC dissector could crash unexpectedly or go into an infinite loop.
+  Versions affected: 0.9.8 to 0.10.10
+
+  The EIGRP dissector could loop indefinitely.
+  Versions affected: 0.8.18 to 0.10.10
+
+  The ISIS dissector could overflow a buffer.
+  Versions affected: 0.8.18 to 0.10.10
+
+  The CMIP, CMP, CMS, CRMF, ESS, OCSP, PKIX1Explitit, PKIX Qualified,
+  and X.509 dissectors could overflow buffers.
+  Versions affected: 0.10.4 to 0.10.10
+
+  The NDPS dissector could exhaust system memory or cause an assertion,
+  or crash.
+  Versions affected: 0.9.12 to 0.10.10
+
+  The Q.931 dissector could try to free a null pointer and overflow
+  a buffer.
+  Versions affected: 0.10.10
+
+  The IAX2 dissector could throw an assertion.
+  Versions affected: 0.10.1 to 0.10.10
+
+  The ICEP dissector could try to free the same memory twice.
+  Versions affected: 0.10.7 to 0.10.10
+
+  The MEGACO dissector was susceptible to an infinite loop and a buffer
+  overflow.
+  Versions affected: 0.9.14 to 0.10.10
+
+  The DLSw dissector was susceptible to an infinite loop.
+  Versions affected: 0.9.1 to 0.10.10
+
+  The RPC dissector was susceptible to a null pointer exception.
+  Versions affected: 0.9.2 to 0.10.10
+
+  The NCP dissector could overflow a buffer or loop for a large amount
+  of time.
+  Versions affected: 0.10.5 to 0.10.10
+
+  The RADIUS dissector could throw an assertion.
+  Versions affected: 0.10.3 to 0.10.10
+
+  The GSM dissector could access an invalid pointer.
+  Versions affected: 0.10.10
+
+  The SMB PIPE dissector could throw an assertion.
+  Versions affected: 0.9.0 to 0.10.10
+
+  The L2TP dissector was susceptible to an infinite loop.
+  Versions affected: 0.10.9 to 0.10.10
+
+  The SMB NETLOGON dissector could dereference a null pointer.
+  Versions affected: 0.9.12 to 0.10.10
+
+  The MRDISC dissector could throw an assertion.
+  Versions affected: 0.8.19 to 0.10.10
+
+  The ISUP dissector could overflow a buffer or cause a segmentation fault.
+  Versions affected: 0.8.19 to 0.10.10
+
+  The LDAP dissector could crash.
+  Versions affected: 0.10.1 to 0.10.10
+
+  The TCAP dissector could overflow a buffer or throw an assertion.
+  Versions affected: 0.10.8 to 0.10.10
+
+  Additionally, a number of dissectors could throw an assertion when
+  passing an invalid protocol tree item length.
+  Versions affected: 0.10.8 to 0.10.10
+
+
+Please see the following advisory for more information:
+  
+    http://www.ethereal.com/appnotes/enpa-sa-00019.html
+    
+Everyone is encouraged to upgrade.
+
+
+New and updated features
+
+
+
+New protocol support
+
+
+
+Updated protocol support
+
+
+
+New and updated capture file support
+
+
+
+
 == March 11, 2005
 
 Ethereal 0.10.10 has been released.
