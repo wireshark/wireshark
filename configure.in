@@ -1236,6 +1236,7 @@ AC_OUTPUT(
   plugins/mgcp/Makefile
   plugins/opsi/Makefile
   plugins/pcli/Makefile
+  plugins/profinet/Makefile
   plugins/rdm/Makefile
   plugins/rlm/Makefile
   plugins/rtnet/Makefile
