@@ -270,13 +270,6 @@ static const value_string diameter_error_cause_attribute_vals[]= {
 	{507,"Request Initiated"},
 	{0,NULL}
 };
-/* Auth-Request-Type AVP Values (code 247) */
-static const value_string diameter_auth_request_type_vals[]= {
-	{1, "Authenticate Only"},
-	{2, "Authorize Only"},
-	{3, "Authorize Authenticate"},
-	{0,NULL}
-};
 /* Redirect-Host-Usage AVP Values (code 261) */
 static const value_string diameter_redirect_host_usage_vals[]= {
 	{0, "Don't Cache"},
@@ -311,6 +304,13 @@ static const value_string diameter_disconnect_cause_vals[]= {
 	{0, "Rebooting"},
 	{1, "Busy"},
 	{2, "Do Not Want To Talk To You"},
+	{0,NULL}
+};
+/* Auth-Request-Type AVP Values (code 274) */
+static const value_string diameter_auth_request_type_vals[]= {
+	{1, "Authenticate Only"},
+	{2, "Authorize Only"},
+	{3, "Authorize Authenticate"},
 	{0,NULL}
 };
 /* Auth-Session-State AVP Values (code 277) */
@@ -521,7 +521,13 @@ static const value_string diameter_accounting_record_type_vals[]= {
 	{4, "Stop Record"},
 	{0,NULL}
 };
-
+/* Accounting-Realtime-Required AVP Values (code 483) */
+static const value_string diameter_accounting_realtime_required_vals[]= {
+	{1, "DELIVER_AND_GRANT"},
+	{2, "GRANT_AND_STORE"},
+	{3, "GRANT_AND_LOSE"},
+	{0,NULL}
+};
 static const value_string diameter_application_id_vals[] = {
 	{0, "Diameter Common Messages"},
 	{1, "Diameter NASREQ Application"},
@@ -531,7 +537,12 @@ static const value_string diameter_application_id_vals[] = {
 	{5, "Diameter EAP"},							/* [RFC-ietf-aaa-eap-10.txt] */
 	{16777216, "3GPP Cx"},						/* 3GPP TS 29.228 and 29.229 */
 	{16777217, "3GPP Sh"},						/* 3GPP TS 29.328 and 29.329 */
-	{16777218, "3GPP Rf/Ro"},					/* 3GPP TS 32.225 */
+	{16777218, "3GPP Re/Rf"},					/* 3GPP TS 32.225 */
+	{16777219, "3GPP Wx"},						/* 3GPP TS 29.234 */
+	{16777220, "3GPP Zn"},						/* 3GPP TS 29.109 */
+	{16777221, "3GPP Zh"},						/* 3GPP TS 29.109 */
+	{16777222, "3GPP Gq"},						/* 3GPP TS 29.209 */
+	{16777223, "3GPP Gmb"},						/* 3GPP TS 29.061 */
 	{4294967295U, "Relay Application"},
 	
 	{0, NULL}
@@ -686,7 +697,6 @@ static const value_string diameter_result_code_vals[] = {
 	/* draft-ietf-aaa-diameter-cc-03.txt */
 	{5030, "DIAMETER_USER_UNKNOWN"},
 	{5031, "DIAMETER_RATING_FAILED"},
-	{5032, "DIAMETER_CREDIT_LIMIT_REACHED"},
 
 	/* draft-ietf-aaa-diameter-sip-app-01.txt numbers not yet allocated by IANA 
 
@@ -835,46 +845,47 @@ static struct old_avp_info old_diameter_avps[] = {
    241-255	Reserved				 [RFC2058]   
 */
 	/* Diameter AVPs */
-    { 287, "Accounting-Sub-Session-Id",   DIAMETER_UNSIGNED64,  (value_string *)NULL},
-    { 259, "Acct-Application-Id",         DIAMETER_UNSIGNED32,  diameter_application_id_vals},
-    { 275, "Alternate-Peer",              DIAMETER_IDENTITY,    (value_string *)NULL},
-    { 258, "Auth-Application-Id",         DIAMETER_UNSIGNED32,  diameter_application_id_vals},
-    { 247, "Auth-Request-Type",           DIAMETER_ENUMERATED,  diameter_auth_request_type_vals},
-    { 291, "Authorization-Lifetime",      DIAMETER_INTEGER32,   (value_string *)NULL},
-    { 276, "Auth-Grace-Period",           DIAMETER_UNSIGNED32,  (value_string *)NULL},
-    { 277, "Auth-Session-State",          DIAMETER_ENUMERATED,  diameter_auth_session_state_vals},
-    { 285, "Re-Auth-Request-Type",        DIAMETER_ENUMERATED,  diameter_re_auth_request_type_vals},
-    { 293, "Destination-Host",            DIAMETER_IDENTITY,    (value_string *)NULL},
-    { 283, "Destination-Realm",           DIAMETER_UTF8STRING,  (value_string *)NULL},
-    { 273, "Disconnect-Cause",            DIAMETER_ENUMERATED,  diameter_disconnect_cause_vals},
-    { 281, "Error-Message",               DIAMETER_UTF8STRING,  (value_string *)NULL},
-    { 294, "Error-Reporting-Host",        DIAMETER_IDENTITY,    (value_string *)NULL},
-    { 279, "Failed-AVP",                  DIAMETER_OCTET_STRING,(value_string *)NULL},
-    { 267, "Firmware-Revision",           DIAMETER_UNSIGNED32,  (value_string *)NULL},
     { 257, "Host-IP-Address",             DIAMETER_IP_ADDRESS,  (value_string *)NULL},
-    { 272, "Multi-Round-Time-Out",        DIAMETER_UNSIGNED32,  (value_string *)NULL},
-    { 264, "Origin-Host",                 DIAMETER_IDENTITY,    (value_string *)NULL},
-    { 296, "Origin-Realm",                DIAMETER_UTF8STRING,  (value_string *)NULL},
-    { 278, "Origin-State-Id",             DIAMETER_UNSIGNED32,  (value_string *)NULL},
-    { 269, "Product-Name",                DIAMETER_UTF8STRING,  (value_string *)NULL},
-    { 280, "Proxy-Host",                  DIAMETER_IDENTITY,    (value_string *)NULL},
-    { 284, "Proxy-Info",                  DIAMETER_GROUPED,     (value_string *)NULL},
-    { 292, "Redirect-Host",               DIAMETER_IDENTITY,    (value_string *)NULL},
+    { 258, "Auth-Application-Id",         DIAMETER_UNSIGNED32,  diameter_application_id_vals},
+    { 259, "Acct-Application-Id",         DIAMETER_UNSIGNED32,  diameter_application_id_vals},
+    { 260, "Vendor-Specific-Application-Id", DIAMETER_GROUPED, (value_string *)NULL},
     { 261, "Redirect-Host-Usage",         DIAMETER_ENUMERATED,  diameter_redirect_host_usage_vals},
     { 262, "Redirect-Max-Cache-Time",     DIAMETER_UNSIGNED32,  (value_string *)NULL},
-    { 268, "Result-Code",                 DIAMETER_ENUMERATED,  diameter_result_code_vals},
-    { 282, "Route-Record",                DIAMETER_IDENTITY,    (value_string *)NULL},
     { 263, "Session-Id",                  DIAMETER_SESSION_ID,  (value_string *)NULL},
+    { 264, "Origin-Host",                 DIAMETER_IDENTITY,    (value_string *)NULL},
+    { 265, "Supported-Vendor-Id",         DIAMETER_UNSIGNED32,  (value_string *)NULL},
+    { 266, "Vendor-Id",                   DIAMETER_ENUMERATED,  sminmpec_values},
+    { 267, "Firmware-Revision",           DIAMETER_UNSIGNED32,  (value_string *)NULL},
+    { 268, "Result-Code",                 DIAMETER_ENUMERATED,  diameter_result_code_vals},
+    { 269, "Product-Name",                DIAMETER_UTF8STRING,  (value_string *)NULL},
     { 270, "Session-Binding",             DIAMETER_UNSIGNED32,  diameter_session_binding_vals},
     { 271, "Session-Server-Failover",     DIAMETER_ENUMERATED,  diameter_session_server_failover_vals},
+    { 272, "Multi-Round-Time-Out",        DIAMETER_UNSIGNED32,  (value_string *)NULL},
+    { 273, "Disconnect-Cause",            DIAMETER_ENUMERATED,  diameter_disconnect_cause_vals},
+    { 274, "Auth-Request-Type",           DIAMETER_ENUMERATED,  diameter_auth_request_type_vals},
+    { 275, "Alternate-Peer",              DIAMETER_IDENTITY,    (value_string *)NULL},
+    { 276, "Auth-Grace-Period",           DIAMETER_UNSIGNED32,  (value_string *)NULL},
+    { 277, "Auth-Session-State",          DIAMETER_ENUMERATED,  diameter_auth_session_state_vals},
+    { 278, "Origin-State-Id",             DIAMETER_UNSIGNED32,  (value_string *)NULL},
+    { 279, "Failed-AVP",                  DIAMETER_OCTET_STRING,(value_string *)NULL},
+    { 280, "Proxy-Host",                  DIAMETER_IDENTITY,    (value_string *)NULL},
+    { 281, "Error-Message",               DIAMETER_UTF8STRING,  (value_string *)NULL},
+    { 282, "Route-Record",                DIAMETER_IDENTITY,    (value_string *)NULL},
+    { 283, "Destination-Realm",           DIAMETER_UTF8STRING,  (value_string *)NULL},
+    { 284, "Proxy-Info",                  DIAMETER_GROUPED,     (value_string *)NULL},
+    { 285, "Re-Auth-Request-Type",        DIAMETER_ENUMERATED,  diameter_re_auth_request_type_vals},
     { 286, "Source-Route",                DIAMETER_IDENTITY,    (value_string *)NULL},
-    { 265, "Supported-Vendor-Id",         DIAMETER_UNSIGNED32,  (value_string *)NULL},
+    { 287, "Accounting-Sub-Session-Id",   DIAMETER_UNSIGNED64,  (value_string *)NULL},
+    { 291, "Authorization-Lifetime",      DIAMETER_INTEGER32,   (value_string *)NULL},
+    { 292, "Redirect-Host",               DIAMETER_IDENTITY,    (value_string *)NULL},
+    { 293, "Destination-Host",            DIAMETER_IDENTITY,    (value_string *)NULL},
+    { 294, "Error-Reporting-Host",        DIAMETER_IDENTITY,    (value_string *)NULL},
+    { 296, "Origin-Realm",                DIAMETER_UTF8STRING,  (value_string *)NULL},
     { 295, "Termination-Cause",           DIAMETER_ENUMERATED,  diameter_termination_cause_vals},
-    { 266, "Vendor-Id",                   DIAMETER_ENUMERATED,  sminmpec_values},
-    { 260, "Vendor-Specific-Application-Id", DIAMETER_GROUPED, (value_string *)NULL},
     { 297, "Experimental-Result",			DIAMETER_GROUPED,     (value_string *)NULL},
     { 298, "Experimental-Result-Code",		DIAMETER_ENUMERATED,	diameter_exp_result_code_vals},
     { 299, "Inband-Security-Id",			DIAMETER_ENUMERATED,	diameter_inband_security_id_vals},	/* [RFC3588] */
+    { 300, "E2E-Sequence",					DIAMETER_GROUPED,     (value_string *)NULL},				/* [RFC3588] */
 
 /* Diameter Mobile IP AVPs */
     { 318, "MIP-FA-to-HA-SPI",            DIAMETER_UNSIGNED32,     (value_string *)NULL},
@@ -882,6 +893,7 @@ static struct old_avp_info old_diameter_avps[] = {
     { 320, "MIP-Reg-Request",             DIAMETER_MIP_REG_REQ,    (value_string *)NULL},
     { 321, "MIP-Reg-Reply",               DIAMETER_OCTET_STRING,   (value_string *)NULL},
     { 322, "MIP-MN-AAA-Auth",             DIAMETER_GROUPED,        (value_string *)NULL},
+    { 323, "MIP-HA-to-FA-SPI",				DIAMETER_UNSIGNED32,	(value_string *)NULL},
     { 325, "MIP-MN-to-FA-MSA",            DIAMETER_GROUPED,        (value_string *)NULL},
     { 326, "MIP-FA-to-MN-MSA",            DIAMETER_GROUPED,        (value_string *)NULL},
     { 328, "MIP-FA-to-HA-MSA",            DIAMETER_GROUPED,        (value_string *)NULL},
@@ -944,19 +956,22 @@ static struct old_avp_info old_diameter_avps[] = {
 	{ 446, "Used-Service-Unit",                 DIAMETER_GROUPED    ,		(value_string *)NULL},
 	{ 447, "Value-Digits",                      DIAMETER_INTEGER64  ,		(value_string *)NULL},
 	{ 448, "Validity-Time",                     DIAMETER_UNSIGNED32 ,		(value_string *)NULL},
-	{ 449, "Final-Unit-Action",                 DIAMETER_ENUMERATED , diameter_final_unit_action_vals},
-	{ 450, "Subscription-Id-Type",              DIAMETER_ENUMERATED , diameter_subscription_id_type_vals},
+	{ 449, "Final-Unit-Action",                 DIAMETER_ENUMERATED ,		diameter_final_unit_action_vals},
+	{ 450, "Subscription-Id-Type",              DIAMETER_ENUMERATED ,		diameter_subscription_id_type_vals},
 	{ 451, "Tariff-Time-Change",                DIAMETER_TIME,				(value_string *)NULL},
-	{ 452, "Tariff-Change-Usage",               DIAMETER_ENUMERATED , diameter_tariff_change_usage_vals},
+	{ 452, "Tariff-Change-Usage",               DIAMETER_ENUMERATED ,		diameter_tariff_change_usage_vals},
 	{ 453, "G-S-U-Pool-Identifier",             DIAMETER_UNSIGNED32 ,		(value_string *)NULL},
-	{ 454, "CC-Unit-Type",                      DIAMETER_ENUMERATED , diameter_cc_Unit_type_vals},
-	{ 455, "Multiple-Services-Indicator",       DIAMETER_ENUMERATED , diameter_multiple_services_indicator_vals},
+	{ 454, "CC-Unit-Type",                      DIAMETER_ENUMERATED ,		diameter_cc_Unit_type_vals},
+	{ 455, "Multiple-Services-Indicator",       DIAMETER_ENUMERATED ,		diameter_multiple_services_indicator_vals},
 	{ 456, "Multiple-Services-Credit-Control",  DIAMETER_GROUPED    ,		(value_string *)NULL},
 	{ 457, "G-S-U-Pool-Reference",              DIAMETER_GROUPED    ,		(value_string *)NULL},
-    { 482, "Accounting-Interim-Interval", DIAMETER_UNSIGNED32,  (value_string *)NULL},
-    { 483, "Accounting-Realtime-Required",DIAMETER_UNSIGNED32,  (value_string *)NULL},
-    { 485, "Accounting-Record-Number",    DIAMETER_UNSIGNED32,  (value_string *)NULL},
-    { 480, "Accounting-Record-Type",      DIAMETER_ENUMERATED,  diameter_accounting_record_type_vals},
+    { 482, "Accounting-Interim-Interval",		DIAMETER_UNSIGNED32,		(value_string *)NULL},
+    { 483, "Accounting-Realtime-Required",		DIAMETER_UNSIGNED32,		(value_string *)NULL},
+    { 485, "Accounting-Record-Number",			DIAMETER_UNSIGNED32,		(value_string *)NULL},
+    { 480, "Accounting-Record-Type",			DIAMETER_ENUMERATED,		diameter_accounting_record_type_vals},
+    { 483, "Accounting-Realtime-Required",      DIAMETER_ENUMERATED,		diameter_accounting_realtime_required_vals},
+    { 485, "Accounting-Record-Number",			DIAMETER_UNSIGNED32,		(value_string *)NULL},
+    { 487, "Accounting-Sub-Session-Id",			DIAMETER_ENUMERATED,		(value_string *)NULL},
 
 
 /* draft-ietf-aaa-diameter-sip-app-01.txt AVP codes to be allocated
