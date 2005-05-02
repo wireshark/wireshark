@@ -21,7 +21,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-SUBDIRS = acn agentx artnet asn1 ciscosm docsis enttec giop gryphon irda lwres mate megaco mgcp opsi pcli rdm rlm rtnet rudp stats_tree v5ua xml
+SUBDIRS = acn agentx artnet asn1 ciscosm docsis enttec giop gryphon irda lwres mate megaco mgcp opsi pcli profinet rdm rlm rtnet rudp stats_tree v5ua xml
 
 plugindir = @plugindir@
 
