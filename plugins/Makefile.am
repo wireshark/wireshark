@@ -45,7 +45,7 @@ SUBDIRS = \
 	rudp \
 	stats_tree \
 	v5ua \
-	xml \
+	xml
 
 
 plugindir = @plugindir@
