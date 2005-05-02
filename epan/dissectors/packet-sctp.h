@@ -36,6 +36,7 @@ struct _sctp_info {
   gboolean crc32c_calculated;
   gboolean crc32c_correct;
   gboolean checksum_zero;
+  gboolean vtag_reflected;
   /* FIXME: do we need the ports and addresses to be here? */
   guint16 sport;
   guint16 dport;

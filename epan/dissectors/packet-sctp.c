@@ -1592,18 +1592,21 @@ dissect_heartbeat_ack_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_in
     dissect_parameter(parameter_tvb, pinfo, chunk_tree, NULL, FALSE);
   }
 }
+
 #define ABORT_CHUNK_FIRST_ERROR_CAUSE_OFFSET 4
+#define SCTP_ABORT_CHUNK_T_BIT               0x01
 
 static void
 dissect_abort_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo, proto_tree *chunk_tree, proto_item *flags_item)
 {
   tvbuff_t *causes_tvb;
   proto_tree *flags_tree;
-	
+  
+  sctp_info.vtag_reflected = (tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_ABORT_CHUNK_T_BIT != 0);
+
   if (chunk_tree) {
     flags_tree  = proto_item_add_subtree(flags_item, ett_sctp_abort_chunk_flags);
     proto_tree_add_item(flags_tree, hf_abort_chunk_t_bit, chunk_tvb, CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH, NETWORK_BYTE_ORDER);
-
     causes_tvb    = tvb_new_subset(chunk_tvb, CHUNK_VALUE_OFFSET, chunk_length - CHUNK_HEADER_LENGTH, chunk_length - CHUNK_HEADER_LENGTH);
     dissect_error_causes(causes_tvb, pinfo, chunk_tree);
   }
@@ -1690,7 +1693,9 @@ static void
 dissect_shutdown_complete_chunk(tvbuff_t *chunk_tvb, proto_tree *chunk_tree, proto_item *flags_item)
 {
   proto_tree *flags_tree;
-	
+
+  sctp_info.vtag_reflected = (tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_SHUTDOWN_COMPLETE_CHUNK_T_BIT != 0);
+
   if (chunk_tree) {
     flags_tree  = proto_item_add_subtree(flags_item, ett_sctp_shutdown_complete_chunk_flags);
     proto_tree_add_item(flags_tree, hf_shutdown_complete_chunk_t_bit, chunk_tvb, CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH, NETWORK_BYTE_ORDER);
@@ -2262,7 +2267,7 @@ proto_register_sctp(void)
     { &hf_ecne_chunk_lowest_tsn,                    { "Lowest TSN",                                  "sctp.ecne_lowest_tsn",                       FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_cwr_chunk_lowest_tsn,                     { "Lowest TSN",                                  "sctp.cwr_lowest_tsn",                        FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_shutdown_complete_chunk_t_bit,            { "T-Bit",                                       "sctp.shutdown_complete_t_bit",               FT_BOOLEAN, 8,         TFS(&sctp_shutdown_complete_chunk_t_bit_value), SCTP_SHUTDOWN_COMPLETE_CHUNK_T_BIT, "", HFILL } },
-    { &hf_abort_chunk_t_bit,                        { "T-Bit",                                       "sctp.abort_t_bit",                           FT_BOOLEAN, 8,         TFS(&sctp_shutdown_complete_chunk_t_bit_value), SCTP_SHUTDOWN_COMPLETE_CHUNK_T_BIT, "", HFILL } },
+    { &hf_abort_chunk_t_bit,                        { "T-Bit",                                       "sctp.abort_t_bit",                           FT_BOOLEAN, 8,         TFS(&sctp_shutdown_complete_chunk_t_bit_value), SCTP_ABORT_CHUNK_T_BIT,             "", HFILL } },
     { &hf_forward_tsn_chunk_tsn,                    { "New cumulative TSN",                          "sctp.forward_tsn_tsn",                       FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_forward_tsn_chunk_sid,                    { "Stream identifier",                           "sctp.forward_tsn_sid",                       FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_forward_tsn_chunk_ssn,                    { "Stream sequence number",                      "sctp.forward_tsn_ssn",                       FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
