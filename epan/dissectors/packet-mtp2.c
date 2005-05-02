@@ -61,7 +61,8 @@ static gint ett_mtp2       = -1;
 
 static dissector_handle_t mtp3_handle;
 static int mtp3_proto_id;
-static gboolean use_extended_sequence_numbers = FALSE;
+static gboolean use_extended_sequence_numbers_default = FALSE;
+static gboolean use_extended_sequence_numbers         = FALSE;
 
 #define BSN_BIB_LENGTH          1
 #define FSN_FIB_LENGTH          1
@@ -222,9 +223,14 @@ dissect_mtp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *mtp2_item = NULL;
   proto_tree *mtp2_tree = NULL;
 
+  if (pinfo->annex_a_used == MTP2_ANNEX_A_USED_UNKNOWN)
+    use_extended_sequence_numbers = use_extended_sequence_numbers_default;
+  else
+    use_extended_sequence_numbers = (pinfo->annex_a_used == MTP2_ANNEX_A_USED);
+    
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP2");
-
+  
   if (tree) {
     mtp2_item = proto_tree_add_item(tree, proto_mtp2, tvb, 0, -1, FALSE);
     mtp2_tree = proto_item_add_subtree(mtp2_item, ett_mtp2);
@@ -271,8 +277,8 @@ proto_register_mtp2(void)
   prefs_register_bool_preference(mtp2_module, 
                                  "use_extended_sequence_numbers",
                                  "Use extended sequence numbers",
-                                 "Whether the MTP2 dissector should use extended sequence numbers as described in Q.703, Annex A",
-                                 &use_extended_sequence_numbers);
+                                 "Whether the MTP2 dissector should use extended sequence numbers as described in Q.703, Annex A as a default.",
+                                 &use_extended_sequence_numbers_default);
 
 
 }
@@ -285,6 +291,7 @@ proto_reg_handoff_mtp2(void)
   mtp2_handle = create_dissector_handle(dissect_mtp2, proto_mtp2);
 
   dissector_add("wtap_encap", WTAP_ENCAP_MTP2, mtp2_handle);
+  dissector_add("wtap_encap", WTAP_ENCAP_MTP2_WITH_PHDR, mtp2_handle);
 
   mtp3_handle   = find_dissector("mtp3");
   mtp3_proto_id = proto_get_id_by_filter_name("mtp3");

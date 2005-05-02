@@ -72,6 +72,15 @@ struct irda_sll_hdr {
     guint16 sll_protocol;   /* protocol, should be 0x0017 */
 };
 
+/*
+ * A header containing additional MTP information.
+ */
+struct mtp2_hdr {
+	guint8  sent;
+	guint8  annex_a_used;
+	guint16 link_number;
+};
+
 /* See source to the "libpcap" library for information on the "libpcap"
    file format. */
 
@@ -105,6 +114,10 @@ static gboolean libpcap_read_nokiaatm_pseudoheader(FILE_T fh,
 static gboolean libpcap_get_irda_pseudoheader(const struct irda_sll_hdr *irda_phdr,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 static gboolean libpcap_read_irda_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
+static gboolean libpcap_get_mtp2_pseudoheader(const struct mtp2_hdr *mtp2_hdr,
+    union wtap_pseudo_header *pseudo_header);
+static gboolean libpcap_read_mtp2_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 static gboolean libpcap_read_rec_data(FILE_T fh, guchar *pd, int length,
     int *err);
@@ -305,8 +318,7 @@ static const struct {
 	{ 138,		WTAP_ENCAP_APPLE_IP_OVER_IEEE1394 },
 						/* Apple IP-over-IEEE 1394 */
 
-	/* 139 is reserved for SS7 */
-
+	{ 139,		WTAP_ENCAP_MTP2_WITH_PHDR },
 	{ 140,		WTAP_ENCAP_MTP2 },
 	{ 141,		WTAP_ENCAP_MTP3 },
 	{ 143,		WTAP_ENCAP_DOCSIS },
@@ -1214,6 +1226,28 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		packet_size -= sizeof (struct irda_sll_hdr);
 		wth->data_offset += sizeof (struct irda_sll_hdr);
 		break;
+	case WTAP_ENCAP_MTP2_WITH_PHDR:
+		if (packet_size < sizeof (struct mtp2_hdr)) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("libpcap: MTP2 file has a %u-byte packet, too small to have even an MTP2 pseudo-header\n",
+			    packet_size);
+			return FALSE;
+		}
+		if (!libpcap_read_mtp2_pseudoheader(wth->fh, &wth->pseudo_header,
+		    err, err_info))
+			return FALSE;	/* Read error */
+
+		/*
+		 * Don't count the pseudo-header as part of the packet.
+		 */
+		orig_size -= sizeof (struct mtp2_hdr);
+		packet_size -= sizeof (struct mtp2_hdr);
+		wth->data_offset += sizeof (struct mtp2_hdr);
+		break;
 	}
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
@@ -1308,6 +1342,13 @@ libpcap_seek_read(wtap *wth, long seek_off,
 
 	case WTAP_ENCAP_IRDA:
 		if (!libpcap_read_irda_pseudoheader(wth->random_fh, pseudo_header,
+		    err, err_info)) {
+			/* Read error */
+			return FALSE;
+		}
+		break;
+	case WTAP_ENCAP_MTP2_WITH_PHDR:
+		if (!libpcap_read_mtp2_pseudoheader(wth->random_fh, pseudo_header,
 		    err, err_info)) {
 			/* Read error */
 			return FALSE;
@@ -1637,6 +1678,35 @@ libpcap_read_irda_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_heade
 }
 
 static gboolean
+libpcap_get_mtp2_pseudoheader(const struct mtp2_hdr *mtp2_hdr, union wtap_pseudo_header *pseudo_header)
+{
+	pseudo_header->mtp2.sent         = mtp2_hdr->sent;
+	pseudo_header->mtp2.annex_a_used = mtp2_hdr->annex_a_used;
+	pseudo_header->mtp2.link_number  = pntohs(&mtp2_hdr->link_number);
+
+	return TRUE;
+}
+
+static gboolean
+libpcap_read_mtp2_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info _U_)
+{
+	struct mtp2_hdr mtp2_hdr;
+	int    bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(&mtp2_hdr, 1, sizeof (struct mtp2_hdr), fh);
+	if (bytes_read != sizeof (struct mtp2_hdr)) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	return libpcap_get_mtp2_pseudoheader(&mtp2_hdr, pseudo_header);
+	     
+}
+
+static gboolean
 libpcap_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 {
 	int	bytes_read;
@@ -1800,6 +1870,27 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 		whdr->caplen -= sizeof (struct irda_sll_hdr);
 		pd += sizeof (struct irda_sll_hdr);
 	}
+	else if (linktype == WTAP_ENCAP_MTP2_WITH_PHDR) {
+		if (whdr->caplen < sizeof (struct mtp2_hdr)) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			g_message("libpcap: MTP2 capture has a %u-byte packet, too small to have even an MTP2 pseudo-header\n",
+			    whdr->caplen);
+			*err = WTAP_ERR_BAD_RECORD;
+			return NULL;
+		}
+		if (!libpcap_get_mtp2_pseudoheader((const struct mtp2_hdr *)pd,	pseudo_header))
+			return NULL;
+
+		/*
+		 * Don't count the pseudo-header as part of the packet.
+		 */
+		whdr->len -= sizeof (struct mtp2_hdr);
+		whdr->caplen -= sizeof (struct mtp2_hdr);
+		pd += sizeof (struct mtp2_hdr);
+	}
 	return pd;
 }
 #endif
@@ -1905,6 +1996,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 	size_t nwritten;
 	struct sunatm_hdr atm_hdr;
 	struct irda_sll_hdr irda_hdr;
+	struct mtp2_hdr mtp2_hdr;
 	int hdrsize;
 
 	if (wdh->encap == WTAP_ENCAP_ATM_PDUS)
@@ -2048,6 +2140,24 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 			return FALSE;
 		}
 		wdh->bytes_dumped += sizeof(irda_hdr);
+	}
+	else if (wdh->encap == WTAP_ENCAP_MTP2_WITH_PHDR) {
+		/*
+		 * Write the MTP2 header.
+		 */
+		memset(&mtp2_hdr, 0, sizeof(mtp2_hdr));
+		mtp2_hdr.sent         = pseudo_header->mtp2.sent;
+		mtp2_hdr.annex_a_used = pseudo_header->mtp2.annex_a_used;
+		mtp2_hdr.link_number  = phtons(&pseudo_header->mtp2.link_number);
+		nwritten = fwrite(&mtp2_hdr, 1, sizeof(mtp2_hdr), wdh->fh);
+		if (nwritten != sizeof(mtp2_hdr)) {
+			if (nwritten == 0 && ferror(wdh->fh))
+				*err = errno;
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+			return FALSE;
+		}
+		wdh->bytes_dumped += sizeof(mtp2_hdr);
 	}
 
 	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);

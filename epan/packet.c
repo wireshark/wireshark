@@ -305,19 +305,21 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	edt->pi.want_pdu_tracking = 0;
 	edt->pi.p2p_dir = P2P_DIR_UNKNOWN;
 	edt->pi.private_data = NULL;
-        edt->pi.oxid = 0;
-        edt->pi.rxid = 0;
-        edt->pi.r_ctl = 0;
-        edt->pi.src_idx = 0;
-        edt->pi.dst_idx = 0;
-        edt->pi.vsan = 0;
-        edt->pi.dcectxid = 0;
-        edt->pi.dcetransporttype = -1;
+	edt->pi.oxid = 0;
+	edt->pi.rxid = 0;
+	edt->pi.r_ctl = 0;
+	edt->pi.src_idx = 0;
+	edt->pi.dst_idx = 0;
+	edt->pi.vsan = 0;
+	edt->pi.dcectxid = 0;
+	edt->pi.dcetransporttype = -1;
 	edt->pi.decrypt_gssapi_tvb = 0;
 	edt->pi.gssapi_wrap_tvb = NULL;
 	edt->pi.gssapi_encrypted_tvb = NULL;
 	edt->pi.gssapi_decrypted_tvb = NULL;
-        edt->pi.layer_names = NULL;
+	edt->pi.layer_names = NULL;
+	edt->pi.link_number = 0;
+	edt->pi.annex_a_used = MTP2_ANNEX_A_USED_UNKNOWN;
 
 	TRY {
 		edt->tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len);
@@ -336,13 +338,12 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 		g_assert_not_reached();
 	}
 	CATCH(ReportedBoundsError) {
-	  if(proto_malformed != -1){
-		proto_tree_add_protocol_format(edt->tree, proto_malformed, edt->tvb, 0, 0,
-				"[Malformed Frame: Packet Length]" );
-	  }
-	  else {
-	    g_assert_not_reached();
-	  }
+		if(proto_malformed != -1){
+			proto_tree_add_protocol_format(edt->tree, proto_malformed, edt->tvb, 0, 0,
+			                               "[Malformed Frame: Packet Length]" );
+		} else {
+			g_assert_not_reached();
+		}
 	}
 	ENDTRY;
 

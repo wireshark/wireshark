@@ -46,6 +46,7 @@ static int hf_frame_p2p_dir = -1;
 static int hf_frame_file_off = -1;
 static int hf_frame_marked = -1;
 static int hf_frame_ref_time = -1;
+static int hf_link_number = -1;
 static int hf_frame_protocols = -1;
 
 static int proto_short = -1;
@@ -107,6 +108,14 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			pinfo->p2p_dir = pinfo->pseudo_header->isdn.uton ?
 			    P2P_DIR_SENT : P2P_DIR_RECV;
 			break;
+		case WTAP_ENCAP_MTP2_WITH_PHDR:
+			pinfo->p2p_dir = pinfo->pseudo_header->mtp2.sent ?
+			    P2P_DIR_SENT : P2P_DIR_RECV;
+			pinfo->link_number  = pinfo->pseudo_header->mtp2.link_number;
+			pinfo->annex_a_used = pinfo->pseudo_header->mtp2.annex_a_used ?
+			    MTP2_ANNEX_A_USED : MTP2_ANNEX_A_NOT_USED;
+			break;
+		
 		}
 	}
 
@@ -189,6 +198,12 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  if (pinfo->p2p_dir != P2P_DIR_UNKNOWN) {
 		  proto_tree_add_uint(fh_tree, hf_frame_p2p_dir, tvb,
 				  0, 0, pinfo->p2p_dir);
+	  }
+
+	  /* Check for existences of MTP2 link number */
+	  if ((pinfo->pseudo_header != NULL ) && (pinfo->fd->lnk_t == WTAP_ENCAP_MTP2_WITH_PHDR)) {
+		  proto_tree_add_uint(fh_tree, hf_link_number, tvb,
+				  0, 0, pinfo->link_number);
 	  }
 
 	  if (show_file_off) {
@@ -324,6 +339,10 @@ proto_register_frame(void)
 
 		{ &hf_frame_p2p_dir,
 		{ "Point-to-Point Direction",	"frame.p2p_dir", FT_UINT8, BASE_DEC, VALS(p2p_dirs), 0x0,
+			"", HFILL }},
+
+		{ &hf_link_number,
+		{ "Link Number",		"frame.link_nr", FT_UINT16, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 
 		{ &hf_frame_file_off,

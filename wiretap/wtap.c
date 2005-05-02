@@ -284,6 +284,9 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_NETTL_UNKNOWN */
 	{ "Unknown link-layer type with nettl headers", "unknown-nettl" },
+
+	/* WTAP_ENCAP_MTP2_WITH_PHDR */
+	{ "MTP2 with pseudoheader", "mtp2-with-phdr" },
 };
 
 /* Name that should be somewhat descriptive. */
