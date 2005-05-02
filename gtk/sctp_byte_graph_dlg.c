@@ -1200,7 +1200,7 @@ void create_byte_graph(guint16 dir, struct sctp_analyse* userdata)
 	u_data->io=NULL;
 	u_data->dir = dir;
 	u_data->parent = userdata;
-	if ((u_data->dir==1 && (u_data->assoc->n_array_tsn1==0 || u_data->assoc->n_sack_chunks_ep1==0))|| (u_data->dir==2 && (u_data->assoc->n_array_tsn2==0 || u_data->assoc->n_sack_chunks_ep2==0)))
+	if ((u_data->dir==1 && (u_data->assoc->n_array_tsn1==0))|| (u_data->dir==2 && (u_data->assoc->n_array_tsn2==0)))
 		simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, "No Data Chunks sent");
 	else
 	{
