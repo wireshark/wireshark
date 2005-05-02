@@ -820,7 +820,7 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 	isup_calls_info_t *tmp_isupinfo;
 	gboolean found = FALSE;
 	gboolean forward = FALSE;
-	gboolean right_pair = TRUE;
+	gboolean right_pair;
 	GList* list;
 	gchar *frame_label = NULL;
 	gchar *comment = NULL;
@@ -837,6 +837,7 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 	list = g_list_first(tapinfo->strinfo_list);
 	while (list)
 	{
+		right_pair = TRUE;
 		tmp_listinfo=list->data;
 		if ((tmp_listinfo->protocol == VOIP_ISUP)&&(tmp_listinfo->call_active_state==VOIP_ACTIVE)){
 			tmp_isupinfo = tmp_listinfo->prot_info;
