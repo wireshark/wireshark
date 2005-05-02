@@ -77,6 +77,7 @@ static dissector_handle_t data_handle = NULL;
 static dissector_table_t bssap_pdu_type_table=NULL;
 static dissector_handle_t rtp_handle = NULL;
 static dissector_handle_t rtcp_handle = NULL;
+static dissector_handle_t llc_handle = NULL;
 
 /* Initialize the protocol and registered fields */
 static int proto_uma					= -1;
@@ -85,6 +86,8 @@ static int hf_uma_pd					= -1;
 static int hf_uma_skip_ind				= -1;
 static int hf_uma_urr_msg_type			= -1;
 static int hf_uma_urlc_msg_type			= -1;
+static int hf_uma_urlc_TLLI				= -1;
+static int hf_uma_urlc_seq_nr			= -1;
 static int hf_uma_urr_IE				= -1;
 static int hf_uma_urr_IE_len			= -1;
 static int hf_uma_urr_mobile_identity_type	= -1; 
@@ -1036,9 +1039,10 @@ dissect_mcc_mnc(tvbuff_t *tvb, proto_tree *urr_ie_tree, int offset){
 	return offset;
 }
 static int
-dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 	tvbuff_t	*l3_tvb;
+	tvbuff_t	*llc_tvb;
 	int			ie_offset;
 	guint8		ie_value;
 	guint8		ie_len;
@@ -1565,8 +1569,19 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * The rest of the IE is coded as in [TS 48.018], not including IEI and length, if present
 		 */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_LLC_PDU, tvb, ie_offset, ie_len, FALSE);
-		break;
+		llc_tvb = tvb_new_subset(tvb, ie_offset,ie_len, ie_len );
+		  if (llc_handle) {
+			  if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+					col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
+					col_set_fence(pinfo->cinfo, COL_PROTOCOL);
+			  }
 
+			  call_dissector(llc_handle, llc_tvb, pinfo, urr_ie_tree);
+		  }else{
+			  if (data_handle)
+				  call_dissector(data_handle, llc_tvb, pinfo, urr_ie_tree);
+		  }
+		break;
 	case 58:		/* Location Black List indicator */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_LBLI, tvb, ie_offset, 1, FALSE);
 		break;
@@ -1820,7 +1835,7 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				col_add_fstr(pinfo->cinfo, COL_INFO, "%s",val_to_str(octet, uma_urr_msg_type_vals, "Unknown URR (%u)"));
 			while ((msg_len + 1) > offset ){
 				offset++;
-				offset = dissect_urr_IE(tvb, pinfo, uma_tree, offset);
+				offset = dissect_uma_IE(tvb, pinfo, uma_tree, offset);
 			}
 			return offset;
 			break;
@@ -1828,9 +1843,18 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset++;
 			octet = tvb_get_guint8(tvb,offset);
 			proto_tree_add_item(uma_tree, hf_uma_urlc_msg_type, tvb, offset, 1, FALSE);
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_add_fstr(pinfo->cinfo, COL_INFO, "%s",val_to_str(octet, uma_urlc_msg_type_vals, "Unknown URLC (%u)"));
-			return tvb_length(tvb);
+			if (check_col(pinfo->cinfo, COL_INFO)){
+				col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",val_to_str(octet, uma_urlc_msg_type_vals, "Unknown URLC (%u)"));
+				col_set_fence(pinfo->cinfo,COL_INFO);
+			}
+			offset++;
+			proto_tree_add_item(uma_tree, hf_uma_urlc_TLLI, tvb, offset, 4, FALSE);
+			offset = offset + 3;
+			while ((msg_len + 1) > offset ){
+				offset++;
+				offset = dissect_uma_IE(tvb, pinfo, uma_tree, offset);
+			}
+			return offset;
 			break;
 		default:
 			proto_tree_add_text(uma_tree, tvb,offset,-1,"Unknown protocol %u",pd);
@@ -1873,6 +1897,7 @@ proto_reg_handoff_uma(void)
 	data_handle = find_dissector("data");
 	rtp_handle = find_dissector("rtp");
 	rtcp_handle = find_dissector("rtcp");
+	llc_handle = find_dissector("llcgprs");
 
 
 }
@@ -1911,8 +1936,18 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urlc_msg_type,
 			{ "URLC Message Type", "uma.urlc.msg.type",
-			FT_UINT8, BASE_DEC, VALS(uma_urr_msg_type_vals), 0x0,          
+			FT_UINT8, BASE_DEC, VALS(uma_urlc_msg_type_vals), 0x0,          
 			"URLC Message Type", HFILL }
+		},
+		{ &hf_uma_urlc_TLLI,
+			{ "Temporary Logical Link Identifier","uma.urlc.tlli",
+			FT_BYTES,BASE_DEC,  NULL, 0x0,          
+			"Temporary Logical Link Identifier", HFILL }
+		},
+		{ &hf_uma_urlc_seq_nr,
+			{ "Sequence Number","uma.urlc.seq.nr",
+			FT_BYTES,BASE_DEC,  NULL, 0x0,          
+			"Sequence Number", HFILL }
 		},
 		{ &hf_uma_urr_IE,
 			{ "URR Information Element","uma.urr.ie.type",
