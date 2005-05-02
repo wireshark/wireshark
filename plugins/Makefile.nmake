@@ -6,7 +6,31 @@ include ..\config.nmake
 
 ############### no need to modify below this line #########
 
-all: acn agentx artnet asn1 ciscosm docsis enttec giop gryphon irda lwres mate megaco mgcp opsi pcli profinet rdm rlm rtnet rudp stats_tree v5ua xml
+all: \
+	acn \
+	agentx \
+	artnet \
+	asn1 \
+	ciscosm \
+	docsis \
+	enttec \
+	giop \
+	gryphon \
+	irda \
+	lwres \
+	mate \
+	megaco \
+	mgcp \
+	opsi \
+	pcli \
+	profinet \
+	rdm \
+	rlm \
+	rtnet \
+	rudp \
+	stats_tree \
+	v5ua xml \
+
 
 acn:: 
 	cd acn
