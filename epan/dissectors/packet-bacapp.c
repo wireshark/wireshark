@@ -1162,10 +1162,10 @@ fTagHeader (tvbuff_t *tvb, guint offset, guint8 *tag_no, guint8* class_tag, guin
 static guint
 fUnsignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 {
-	guint8 tmp, i;
+	guint8 tmp;
 	guint64 val = 0;
 	guint8 tag_no, class_tag;
-	guint32 lvt;
+	guint32 lvt, i;
     guint offs;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -1180,10 +1180,10 @@ fUnsignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 static guint
 fSignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 {
-	guint8 tmp, i;
+	guint8 tmp;
 	guint64 val = 0;
 	guint8 tag_no, class_tag;
-	guint32 lvt;
+	guint32 lvt, i;
     guint offs;
 
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
@@ -1198,8 +1198,8 @@ fSignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 static guint
 fProcessId (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-	guint8 tmp, i;
-	guint32 val = 0, lvt;
+	guint8 tmp;
+	guint32 val = 0, lvt, i;
 	guint8 tag_no, class_tag;
     guint offs;
 
@@ -1217,9 +1217,9 @@ fProcessId (tvbuff_t *tvb, proto_tree *tree, guint offset)
 static guint
 fTimeSpan (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 {
-	guint8 tmp, i;
+	guint8 tmp;
 	guint val = 0;
-	guint32 lvt;
+	guint32 lvt, i;
 	guint8 tag_no, class_tag;
     guint offs;
 
@@ -1604,8 +1604,8 @@ fActionList (tvbuff_t *tvb, proto_tree *tree, guint offset)
 static guint
 fPropertyIdentifier (tvbuff_t *tvb, proto_tree *tree, guint offset, proto_item **tt)
 {
-	guint8 tag_no, class_tag, tmp, i;
-	guint32 lvt;
+	guint8 tag_no, class_tag, tmp;
+	guint32 lvt, i;
     guint offs;
 	propertyIdentifier = 0;	/* global Variable */
 
@@ -1688,9 +1688,10 @@ fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 static guint
 fApplicationTypes   (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label, const value_string *src)
 {
-	guint8 tag_no, class_tag, tmp, i, j, unused;
+	guint8 tag_no, class_tag, tmp;
+	gint j, unused;
 	guint64 val = 0;
-    guint32 lvt;
+    guint32 lvt, i;
     guint offs;
 	gfloat f_val = 0.0;
 	gdouble d_val = 0.0;
@@ -1756,7 +1757,7 @@ fApplicationTypes   (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *labe
 					bf_arr[min(255,((lvt-2)*8)+j)] = '\0';
 					proto_tree_add_text(tree, tvb, offset, lvt, "%sB'%s'", LABEL(label), bf_arr);
 				} else {
-					for (j = 0; j < (8 - unused); j++) {
+					for (j = 0; j < (int) (8 - unused); j++) {
 						if (tmp & (1 << (7 - j)))
 							proto_tree_add_text(tree, tvb, offset+i+1, 1, "%s%s = TRUE", LABEL(label), val_to_str((guint) (i*8 +j), src, "Reserved by ASHRAE"));
 						else
@@ -4496,8 +4497,8 @@ fConfirmedServiceAck (tvbuff_t *tvb, proto_tree *tree, guint offset, gint servic
 static guint
 fIAmRequest  (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-	guint8 tmp, tag_no, class_tag, i;
-	guint32 lvt, val = 0;
+	guint8 tmp, tag_no, class_tag;
+	guint32 lvt, val = 0, i;
 
 	/* BACnetObjectIdentifier */
 	offset = fApplicationTypes   (tvb, tree, offset, "BACnet Object Identifier: ", NULL);
