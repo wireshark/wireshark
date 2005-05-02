@@ -5119,9 +5119,25 @@ dissect_camel_FurnishChargingInformationArg(gboolean implicit_tag _U_, tvbuff_t 
 
 
 static int
+dissect_camel_Q850Cause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+ 
+	tvbuff_t *camel_tvb;
+	guint8 Cause_value;
+	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &camel_tvb);
+
+	dissect_q931_cause_ie(camel_tvb, 0, tvb_length_remaining(camel_tvb,0),
+		tree, hf_camel_cause_indicator, &Cause_value);
+
+
+	return offset;
+
+  return offset;
+}
+
+
+static int
 dissect_camel_ReleaseCallArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+  offset = dissect_camel_Q850Cause(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
 }
@@ -6116,7 +6132,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_camel_ConnectArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 22: /*releaseCall*/
-    offset=dissect_camel_ReleaseCallArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_ReleaseCallArg(FALSE, tvb, offset, pinfo, tree, hf_camel_cause);
     break;
   case 23: /*RequestReportBCSMEvent*/
     offset=dissect_camel_RequestReportBCSMEventArg(FALSE, tvb, offset, pinfo, tree, -1);
