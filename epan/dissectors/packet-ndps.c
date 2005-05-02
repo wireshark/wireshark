@@ -2209,6 +2209,8 @@ cardinal_seq(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         }
         foffset += length;
         foffset += (length%2);
+        if ((int) foffset <= 0)
+            THROW(ReportedBoundsError);
         proto_item_set_end(aitem, tvb, foffset);
     }
     return foffset;
@@ -2833,6 +2835,8 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
                 }
                 foffset += length;
                 foffset += (length%2);
+                if ((int) foffset <= 0)
+                    THROW(ReportedBoundsError);
                 proto_item_set_end(aitem, tvb, foffset);
             }
             break;
@@ -3021,6 +3025,8 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
                 }
                 foffset += length;
                 foffset += (length%2);
+                if ((int) foffset <= 0)
+                    THROW(ReportedBoundsError);
             }
             else
             {
@@ -3165,6 +3171,8 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
                 }
                 foffset += length;
                 foffset += (length%2);
+                if ((int) foffset <= 0)
+                    THROW(ReportedBoundsError);
             }
             number_of_items = tvb_get_ntohl(tvb, foffset);
             proto_tree_add_uint(ndps_tree, hf_ndps_num_values, tvb, foffset, 4, number_of_items);
@@ -3423,6 +3431,8 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             }
             foffset += length;
             foffset += (length%2);
+            if ((int) foffset <= 0)
+                THROW(ReportedBoundsError);
             break;
         case 107:         /* Octet String Integer Pair */
             length = tvb_get_ntohl(tvb, foffset);
@@ -3477,6 +3487,8 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
                     }
                     foffset += length;
                     foffset += (length%2);
+                    if ((int) foffset <= 0)
+                        THROW(ReportedBoundsError);
                     break;
                 case 4:     /*DIST_NAME_STRING*/
                     foffset = ndps_string(tvb, hf_object_name, ndps_tree, foffset, NULL, 0);
@@ -4308,6 +4320,8 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                         }
                         foffset += length;
                         foffset += (length%2);
+                        if ((int) foffset <= 0)
+                            THROW(ReportedBoundsError);
                     }
                     else
                     {
