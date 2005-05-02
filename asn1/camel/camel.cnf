@@ -84,4 +84,17 @@
 
  proto_tree_add_string(tree, hf_camel_addr_digits, parameter_tvb, 1, -1, digit_str);
 #.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY Q850Cause
+ 
+	tvbuff_t *camel_tvb;
+	guint8 Cause_value;
+	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &camel_tvb);
+
+	dissect_q931_cause_ie(camel_tvb, 0, tvb_length_remaining(camel_tvb,0),
+		tree, hf_camel_cause_indicator, &Cause_value);
+
+
+	return offset;
+#.END
 

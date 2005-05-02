@@ -218,7 +218,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_camel_ConnectArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 22: /*releaseCall*/
-    offset=dissect_camel_ReleaseCallArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_ReleaseCallArg(FALSE, tvb, offset, pinfo, tree, hf_camel_cause);
     break;
   case 23: /*RequestReportBCSMEvent*/
     offset=dissect_camel_RequestReportBCSMEventArg(FALSE, tvb, offset, pinfo, tree, -1);
