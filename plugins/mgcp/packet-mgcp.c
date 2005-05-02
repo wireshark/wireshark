@@ -1340,6 +1340,8 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			}
 			if (tokennum == 0)
 			{
+				if (tokenlen > 4)
+					THROW(ReportedBoundsError);
 				code = tvb_format_text(tvb,tvb_previous_offset,tokenlen);
 				strncpy(mi->code,code,4);
 				mi->code[4] = '\0';
