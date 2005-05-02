@@ -64,6 +64,32 @@
  * 9 Nov 2004
  * - Fixed the heuristic code -- sometimes a conversation already exists
  * - Fixed the dissect code to display all the tags in the pdu
+ *
+ * 28 Apr 2005
+ * - fix memory leak when Assoc packet is processed repeatedly in ethereal
+ *
+ * - removed unused partial packet flag
+ *
+ * - added better support for DICOM VR
+ *	- sequences
+ *	- report actual VR in packet display, if supplied by xfer syntax 
+ *	- show that we are not displaying entire tag string with '[...]',
+ *	  some tags can hold up to 2^32-1 chars
+ *
+ * - remove my goofy attempt at trying to get access to the fragmented packets
+ *   (anyone have an idea on how to fix this ???)
+ *
+ * - process all the data in the Assoc packet even if display is off
+ *
+ * - limit display of data in Assoc packet to defined size of the data even
+ *   if reported size is larger
+ *
+ * - show the last tag in a packet as [incomplete] if we don't have all the data
+ *
+ * - added framework for reporting DICOM async negotiation (not finished)
+ *   (I'm not aware of an implementation which currently supports this)
+ *
+ * - still need to fix display of continuation packets
  */
 
 #include <stdio.h>
@@ -98,6 +124,7 @@ static int hf_dcm_pdu = -1,
     hf_dcm_pdu_maxlen = -1,
     hf_dcm_impl = -1,
     hf_dcm_vers = -1,
+    hf_dcm_async = -1,
     hf_dcm_data_len = -1,
     hf_dcm_data_ctx = -1,
     hf_dcm_data_flags = -1,
@@ -145,12 +172,12 @@ struct dcmItem {
 #define DCM_UNK  0xf0
 };
 typedef struct dcmItem dcmItem_t;
+static char *dcm_xfer_unk = "not found - click on ASSOC Request";
 
 struct dcmState {
     dcmItem_t *first, *last;
     guint8 pdu;		/* protocol data unit */
     guint32 tlen, clen, rlen;    /* length: total, current, remaining */
-    int partial;	/* is a partial packet */
     int coff;		/* current offset */
     int valid;		/* this conversation is a dicom conversation */
     /* enum { DCM_NONE, DCM_ASSOC, DCM_ }; */
@@ -171,6 +198,8 @@ struct dcmTag {
 #define DCM_TSTAT 6  /* call dcm_rsp2str() on TINT2 */
 #define DCM_TRET  7
 #define DCM_TCMD  8
+#define DCM_SQ    9 	/* sequence */
+#define DCM_OTH   10    /* other */
 };
 typedef struct dcmTag dcmTag_t;
 
@@ -243,6 +272,7 @@ static dcmTag_t tagData[] = {
     {  0x200011, DCM_TSTR, "Series Num" },
     {  0x200012, DCM_TSTR, "Acq Num" },
     {  0x200013, DCM_TSTR, "Image Num" },
+    {  0x7fe00010, DCM_OTH, "Pixels" },
     {  0xfffee000, DCM_TRET, "Item Begin" },
     {  0xfffee00d, DCM_TRET, "Item End" },
     {  0xfffee0dd, DCM_TRET, "Sequence End" },
@@ -278,7 +308,6 @@ mkds(void)
     }
     ds->pdu = 0;
     ds->tlen = ds->rlen = 0;
-    ds->partial = 0;
     ds->valid = TRUE;
     memset(ds->orig, 0, sizeof(ds->orig));
     memset(ds->targ, 0, sizeof(ds->targ));
@@ -460,6 +489,8 @@ void
 dcm_setSyntax(dcmItem_t *di, char *name)
 {
     if (NULL == di) return;
+    if (di->xfer != dcm_xfer_unk)
+	g_free(di->xfer);	/* free prev allocated xfer */
     di->syntax = 0;
     di->xfer = name;
     if (0 == *name) return;
@@ -483,7 +514,7 @@ dcm_setSyntax(dcmItem_t *di, char *name)
 }
 
 char *
-dcm_tag2str(guint16 grp, guint16 elm, guint8 syntax, tvbuff_t *tvb, int offset, guint32 len)
+dcm_tag2str(guint16 grp, guint16 elm, guint8 syntax, tvbuff_t *tvb, int offset, guint32 len, int vr, int tr)
 {
     static char buf[512+1];	/* bad form ??? */
     const guint8 *vval;
@@ -511,16 +542,32 @@ dcm_tag2str(guint16 grp, guint16 elm, guint8 syntax, tvbuff_t *tvb, int offset, 
     g_assert(sizeof(buf) >= strlen(buf));
     pl = sizeof(buf) - strlen(buf);
     p = buf + strlen(buf);
+    if (vr > 0) {
+	vval = tvb_format_text(tvb, vr, 2);
+	*p++ = ' ';
+	*p++ = '[';
+	strcpy(p, vval);
+	p += strlen(vval);
+	*p++ = ']';
+	*p = 0;
+	pl -= 5;
+    }
 
-    switch (dtag->dtype) {
+    switch (tr > 0 ? tr : dtag->dtype) {
     case DCM_TSTR:
     default:		/* try ascii */
 	*p++ = ' ';
 	vval = tvb_format_text(tvb, offset, len);
 	vval_len = strlen(vval);
-	strncpy(p, vval, vval_len > pl ? pl : vval_len);
-	p += len;
-	*p = 0;
+	if (vval_len > pl) {
+	    strncpy(p, vval, pl - 6);
+	    p += pl - 6;
+	    strcpy(p, "[...]");
+	} else {
+	    strncpy(p, vval, vval_len);
+	    p += vval_len;
+	    *p = 0;
+	}
 	break;
     case DCM_TINT2:
 	if (DCM_ILE & syntax) 
@@ -560,7 +607,9 @@ dcm_tag2str(guint16 grp, guint16 elm, guint8 syntax, tvbuff_t *tvb, int offset, 
 	else val16 = tvb_get_ntohs(tvb, offset);
 	sprintf(p, " 0x%x '%s'", val16, dcm_cmd2str(val16));
 	break;
-    case DCM_TRET:   /* Retired */
+    case DCM_SQ:	/* Sequence */
+    case DCM_OTH:	/* Other BYTE, WORD, ... */
+    case DCM_TRET:	/* Retired */
 	break;
     }
     return buf;
@@ -570,43 +619,8 @@ static guint
 dcm_get_pdu_len(tvbuff_t *tvb, int offset)
 {
     guint32 len;
-#if 0
-    guint8 pdu_type;
-    guint len_rem;
-#endif
 
     len = tvb_get_ntohl(tvb, 2 + offset);
-#if 0
-    pdu_type = tvb_get_guint8(tvb, offset);
-    len_rem = tvb_ensure_length_remaining(tvb, offset);
-    /*
-     * XXX - a get_pdu_len() routine *CANNOT* scan forward arbitrarily
-     * long into a packet, as it might run past the end of the tvbuff
-     * and cause an exception.  It *must* be able to compute the PDU
-     * length from the first N bytes of the PDU, for some value of N.
-     *
-     * If there's fragmentation in DICOM, the TCP reassembly should be
-     * done at the *fragment* level - i.e., do reassembly of a *fragment*
-     * at the TCP layer - and reassembly of the fragments should be done
-     * in the DICOM dissector.
-     */
-    if (4 == pdu_type) {
-	guint8 frag;
-	/* old swamp */
-  	frag = tvb_get_guint8(tvb, 11 + offset);
-	while (0 == (0x2 & frag)) { /* there are more fragments */ 
-	    guint32 nlen;
-	    if (len_rem < len + 6 + 12) {
-		len += 12;	    /* fixed part of next pdu */
-		break;
-	    }
-	    len += 6;
-	    nlen = tvb_get_ntohl(tvb, 2 + offset + len);
-	    frag = tvb_get_guint8(tvb, 11 + offset + len);
-	    len += nlen;
-	}
-    }
-#endif
     return len + 6;		/* add in fixed header part */
 }
 
@@ -618,28 +632,32 @@ dissect_dcm_assoc(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb, int offse
     guint8 id, *name, result;
     int reply = 0;
 
-    dcm_tree = proto_item_add_subtree(ti, ett_assoc);
+    if (ti) dcm_tree = proto_item_add_subtree(ti, ett_assoc);
     while (-1 < offset && offset < (int) dcm_data->clen) {
 	guint16 len;
 	guint32 mlen;
 	id = tvb_get_guint8(tvb, offset);
 	len = tvb_get_ntohs(tvb, 2 + offset);
+	if (ti)
 	proto_tree_add_uint_format(dcm_tree, hf_dcm_pdi, tvb,
 	    offset, 4+len, id, "Item 0x%x (%s)", id, dcm_pdu2str(id));
 	offset += 4;
 	switch (id) {
 	case 0x10:		/* App context */
-	    proto_tree_add_item(dcm_tree, hf_dcm_pdi_name, tvb, offset, len, FALSE);
+	    if (ti)
+	    proto_tree_add_item(dcm_tree, hf_dcm_pdi_name, tvb, offset, len > 65 ? 65 : len, FALSE);
 	    offset += len;
 	    break;
 	case 0x30:		/* Abstract syntax */
-	    proto_tree_add_item(dcm_tree, hf_dcm_pdi_syntax, tvb, offset, len, FALSE);
+	    if (ti)
+	    proto_tree_add_item(dcm_tree, hf_dcm_pdi_syntax, tvb, offset, len > 65 ? 65 : len, FALSE);
 	    offset += len;
 	    break;
 	case 0x40:		/* Transfer syntax */
-	    proto_tree_add_item(dcm_tree, hf_dcm_pdi_syntax, tvb, offset, len, FALSE);
+	    if (ti)
+	    proto_tree_add_item(dcm_tree, hf_dcm_pdi_syntax, tvb, offset, len > 65 ? 65 : len, FALSE);
 	    if (reply && di && di->valid) {
-		/* XXX - This is a memory leak. */
+		/* setSyntax now free's existing name, if being reset */
 		name = tvb_get_string(tvb, offset, len);
 		dcm_setSyntax(di, name);
 	    }
@@ -653,6 +671,8 @@ dissect_dcm_assoc(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb, int offse
 		di = g_chunk_new(dcmItem_t, dcm_pdus);
 		di->id = id;
 		di->valid = 1;
+		di->xfer = dcm_xfer_unk;
+		di->syntax = DCM_UNK;
 		di->next = di->prev = NULL;
 		if (dcm_data->last) {
 		    dcm_data->last->next = di;
@@ -661,16 +681,19 @@ dissect_dcm_assoc(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb, int offse
 		} else 
 		    dcm_data->first = dcm_data->last = di;
 	    }
+	    if (ti)
 	    proto_tree_add_item(dcm_tree, hf_dcm_pctxt, tvb, offset, 1, FALSE);
 	    offset += 4;
 	    break;
 	case 0x21:		/* Presentation context reply */
 	    id = tvb_get_guint8(tvb, offset);
 	    result = tvb_get_guint8(tvb, 2 + offset);
+	    if (ti) {
 	    proto_tree_add_item(dcm_tree, hf_dcm_pctxt, tvb, offset, 1, FALSE);
 	    proto_tree_add_uint_format(dcm_tree, hf_dcm_pcres, tvb, 
 		2 + offset, 1, result, 
 		"Result 0x%x (%s)", result, dcm_PCresult2str(result));
+	    }
 	    if (0 == result) {
 		reply = 1;
 		di = lookupCtx(dcm_data, id);
@@ -682,15 +705,22 @@ dissect_dcm_assoc(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb, int offse
 	    break;
 	case 0x51:		/* Max length */
 	    mlen = tvb_get_ntohl(tvb, offset);
+	    if (ti)
 	    proto_tree_add_item(dcm_tree, hf_dcm_pdu_maxlen, tvb, offset, 4, FALSE);
 	    offset += len;
 	    break;
-	case 0x52:		/* UID? */
-	    proto_tree_add_item(dcm_tree, hf_dcm_impl, tvb, offset, len, FALSE);
+	case 0x52:		/* UID */
+	    if (ti)
+	    proto_tree_add_item(dcm_tree, hf_dcm_impl, tvb, offset, len > 65 ? 65 : len, FALSE);
 	    offset += len;
 	    break;
-	case 0x55:		/* version? */
-	    proto_tree_add_item(dcm_tree, hf_dcm_vers, tvb, offset, len, FALSE);
+	case 0x55:		/* version */
+	    if (ti)
+	    proto_tree_add_item(dcm_tree, hf_dcm_vers, tvb, offset, len > 17 ? 17 : len, FALSE);
+	    offset += len;
+	    break;
+	case 0x53:		/* async negotion */
+	    /* hf_dcm_async */
 	    offset += len;
 	    break;
 	default:
@@ -737,7 +767,7 @@ lookupCtx(dcmState_t *dd, guint8 ctx)
 void 
 dissect_dcm_data(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb)
 {
-    int len, offset, toffset, state;
+    int len, offset, toffset, state, vr, tr;
     proto_tree *dcm_tree;
     dcmItem_t *di;
     guint8 ctx, syntax = DCM_UNK;
@@ -748,13 +778,14 @@ dissect_dcm_data(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb)
     proto_tree_add_item(dcm_tree, hf_dcm_data_len, tvb, 6, 4, FALSE);
     ctx = tvb_get_guint8(tvb, 10);
     di = lookupCtx(dcm_data, ctx);
-    /* proto_tree_add_item(dcm_tree, hf_dcm_data_ctx, tvb, 10, 1, FALSE); */
     proto_tree_add_uint_format(dcm_tree, hf_dcm_data_ctx, tvb, 10, 1, 
 	ctx, "Context 0x%x (%s)", ctx, di->xfer);
+    if (DCM_UNK == di->syntax)
+	return;
     len = offset = toffset = 11;
     state = D_HEADER;
     nlen = 1;
-    while (len + nlen <= dcm_data->clen) {
+    while (len + nlen <= dcm_data->tlen && len + nlen <= dcm_data->clen) {
     switch (state) {
     case D_HEADER: {
 	guint8 flags;
@@ -779,6 +810,7 @@ dissect_dcm_data(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb)
 	nlen = 4;
 	} break;		/* don't fall through -- check length */
     case D_TAG: {
+	vr = tr = 0;
 	if (DCM_ILE & syntax) {
 	    grp = tvb_get_letohs(tvb, offset);
 	    elm = tvb_get_letohs(tvb, offset+2);
@@ -797,20 +829,44 @@ dissect_dcm_data(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb)
 	} break;		/* don't fall through -- check length */
     case D_VR:  {
 	guint8 V, R;
+	vr = offset;
 	V = tvb_get_guint8(tvb, offset); offset++;
 	R = tvb_get_guint8(tvb, offset); offset++;
 	len += 2;
 	/* 4byte lengths OB, OW, OF, SQ, UN, UT */
 	state = D_LEN2;
 	nlen = 2;
-	if ((('O' == V) && ('B' == R || 'W' == R || 'F' == R))
-	    || (('U' == V) && ('N' == R || 'T' == R))
-	    || ('S' == V && 'Q' == R)) {
+	if ((('O' == V) && ('B' == R || 'W' == R || 'F' == R) && (tr = DCM_OTH))
+	    || (('U' == V) && ('N' == R || (('T' == R) && (tr = DCM_TSTR))))
+	    || ('S' == V && 'Q' == R && (tr = DCM_SQ))) {
 	    state = D_LEN4;
 	    offset += 2;	/* skip 00 (2 bytes) */
 	    len += 2;
 	    nlen = 4;
-	}
+	} else if ('F' == V && 'L' == R) {
+	    tr = DCM_TFLT;
+	} else if ('F' == V && 'D' == R) {
+	    tr = DCM_TDBL;
+	} else if (('S' == V && 'L' == R) || ('U' == V && 'L' == R)) {
+	    tr = DCM_TINT4;
+	} else if (('S' == V && 'S' == R) || ('U' == V && 'S' == R)) {
+	    tr = DCM_TINT2;
+	} else if ('A' == V && 'T' == R) {
+	    tr = DCM_OTH;
+	} else
+	    tr = DCM_TSTR;
+/* 
+	else if (('A' == V && ('E' == R || 'S' == R))
+	    || ('C' == V && 'S' == R)
+	    || ('D' == V && ('A' == R || 'S' == R || 'T' == R))
+	    || ('I' == V && 'S' == R)
+	    || ('L' == V && ('O' == R || 'T' == R))
+	    || ('P' == V && 'N' == R)
+	    || ('S' == V && ('H' == R ||| 'T' == R))
+	    || ('T' == V && 'M' == R)
+	    || ('U' == V && ('I' == R || 'T' == R)))
+	    tr = DCM_TSTR;
+ */
 	} break;		/* don't fall through -- check length */
     case D_LEN2: {
 	if (DCM_ILE & syntax)	/* is it LE */
@@ -840,7 +896,7 @@ dissect_dcm_data(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb)
 	    proto_tree_add_bytes_format(dcm_tree, hf_dcm_data_tag, tvb, 
 		toffset, totlen, val, 
 		"(%04x,%04x) %-8x %s", grp, elm, tlen, 
-		    dcm_tag2str(grp, elm, syntax, tvb, offset, 0));
+		    dcm_tag2str(grp, elm, syntax, tvb, offset, 0, vr, tr));
 	    tlen = 0;
 	/* } else if (0xfffe == grp) { */ /* need to make a sub-tree here */
 	} else {
@@ -849,7 +905,7 @@ dissect_dcm_data(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb)
 	    proto_tree_add_bytes_format(dcm_tree, hf_dcm_data_tag, tvb, 
 		toffset, totlen, val, 
 		"(%04x,%04x) %-8x %s", grp, elm, tlen, 
-		    dcm_tag2str(grp, elm, syntax, tvb, offset, tlen));
+		    dcm_tag2str(grp, elm, syntax, tvb, offset, tlen, vr, tr));
 	}
 	len += tlen;
 	offset += tlen;
@@ -857,6 +913,15 @@ dissect_dcm_data(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb)
 	nlen = 4;
 	} break;
     }
+    }
+    if (D_VALUE == state) {
+	const guint8 *val;
+	int totlen = (offset - toffset);
+	val = tvb_get_ptr(tvb, toffset, totlen);
+	proto_tree_add_bytes_format(dcm_tree, hf_dcm_data_tag, tvb,
+	    toffset, totlen, val,
+	    "(%04x,%04x) %-8x %s [incomplete]", grp, elm, tlen, 
+		dcm_tag2str(grp, elm, syntax, tvb, offset, tlen, vr, tr));
     }
 }
 
@@ -957,7 +1022,6 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dcm_data->pdu = tvb_get_guint8(tvb, 0);
     dcm_data->tlen = tvb_get_ntohl(tvb, 2) + 6;
     dcm_data->clen = tvb_reported_length(tvb);
-    /* if (dcm_data->clen < dcm_data->tlen) dcm_data->partial = 1; */
 
     switch (dcm_data->pdu) {
     case 1:					/* ASSOC Request */
@@ -1052,6 +1116,8 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
 /* Continue adding tree items to process the packet here */
+    } else if (1 == dcm_data->pdu || 2 == dcm_data->pdu) {
+	dissect_dcm_assoc(dcm_data, NULL, tvb, offset);
     }
 
 /* If this protocol has a sub-dissector call it here, see section 1.8 */
@@ -1090,6 +1156,8 @@ static hf_register_info hf[] = {
     { &hf_dcm_impl, { "Implementation", "dcm.pdi.impl",
 	FT_STRING, BASE_NONE, NULL, 0, "", HFILL } },
     { &hf_dcm_vers, { "Version", "dcm.pdi.version",
+	FT_STRING, BASE_NONE, NULL, 0, "", HFILL } },
+    { &hf_dcm_async, { "Asynch", "dcm.pdi.async",
 	FT_STRING, BASE_NONE, NULL, 0, "", HFILL } },
     { &hf_dcm_data_len, { "DATA LENGTH", "dcm.data.len",
 	FT_UINT32, BASE_HEX, NULL, 0, "", HFILL } },
