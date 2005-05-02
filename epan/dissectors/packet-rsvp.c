@@ -1970,6 +1970,8 @@ dissect_rsvp_tspec (proto_tree *ti, tvbuff_t *tvb,
 	    while (param_len_processed < length) {
 		param_id = tvb_get_guint8(tvb, offset2);
 		param_len = tvb_get_ntohs(tvb, offset2+2) + 1;
+		if (param_len < 1)
+		    THROW(ReportedBoundsError);
 		switch(param_id) {
 		case 127:
 		    /* Token Bucket */
