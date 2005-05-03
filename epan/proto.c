@@ -1496,7 +1496,10 @@ static void
 proto_tree_set_string(field_info *fi, const char* value,
 		gboolean already_allocated)
 {
-	fvalue_set(&fi->value, (gpointer) value, already_allocated);
+	if (value)
+		fvalue_set(&fi->value, (gpointer) value, already_allocated);
+	else
+		fvalue_set(&fi->value, (gpointer) "[ Null ]", already_allocated);
 }
 
 static void
