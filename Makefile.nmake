@@ -520,6 +520,9 @@ clean_setup:
 # Note that the gtk2 version of ethereal is called ethereal-gtk2.exe
 
 install-deps: clean_deps install-gtk1-deps install-gtk2-deps
+	cd plugins
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-plugins
+	cd ..
 
 install-gtk2-deps: install-required-deps
 !IFDEF GTK2_DIR
@@ -577,5 +580,8 @@ clean_deps:
 	rm -f *.dll
 	rm -rf etc
 	rm -rf lib
+	cd plugins
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean_deps
+	cd ..
 
 
