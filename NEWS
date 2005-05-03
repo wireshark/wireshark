@@ -150,6 +150,10 @@ up a multitude of security issues:
   The TCAP dissector could overflow a buffer or throw an assertion.
   Versions affected: 0.10.8 to 0.10.10
 
+  The NTLMSSP dissector could crash.
+  Versions affected: 0.9.7 to 0.10.10
+
+
   Additionally, a number of dissectors could throw an assertion when
   passing an invalid protocol tree item length.
   Versions affected: 0.10.8 to 0.10.10
