@@ -431,7 +431,6 @@ DISSECTOR_SRC =	\
 	packet-pflog.c	\
 	packet-pgm.c	\
 	packet-pim.c	\
-	packet-pn-dcp.c   \
 	packet-pn-rt.c   \
 	packet-pkcs1.c	\
 	packet-pkix1explicit.c	\
