@@ -86,6 +86,9 @@ ethereal-filter.pod: ethereal-filter.pod.template  ../tethereal.exe
 	xcopy wiretap\wiretap-$(WTAP_VERSION).dll . /d /y
 !IFDEF ENABLE_LIBETHEREAL
 	xcopy epan\libethereal.dll . /d /y
+	cd plugins
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-plugins
+	cd ..
 !ENDIF
 	tethereal.exe -G | $(PERL) doc\dfilter2pod.pl doc\ethereal-filter.pod.template > doc\ethereal-filter.pod
 	cd doc

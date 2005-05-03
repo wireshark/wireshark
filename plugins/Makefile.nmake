@@ -301,3 +301,43 @@ maintainer-clean: distclean
 	cd ../xml
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
+
+################################################################################
+# copy all plugins to /plugins/$(VERSION), so Ethereal will load them, when
+# started from within the source tree.
+################################################################################
+
+install-plugins:
+!IFDEF ENABLE_LIBETHEREAL
+	rm -rf $(VERSION)
+	mkdir $(VERSION)
+	xcopy acn\*.dll $(VERSION) /d /y
+	xcopy agentx\*.dll $(VERSION) /d /y
+	xcopy artnet\*.dll $(VERSION) /d /y
+	xcopy asn1\*.dll $(VERSION) /d /y
+	xcopy ciscosm\*.dll $(VERSION) /d /y
+	xcopy docsis\*.dll $(VERSION) /d /y
+	xcopy enttec\*.dll $(VERSION) /d /y
+	xcopy giop\*.dll $(VERSION) /d /y
+	xcopy gryphon\*.dll $(VERSION) /d /y
+	xcopy irda\*.dll $(VERSION) /d /y
+	xcopy lwres\*.dll $(VERSION) /d /y
+	xcopy mate\*.dll $(VERSION) /d /y
+	xcopy megaco\*.dll $(VERSION) /d /y
+	xcopy mgcp\*.dll $(VERSION) /d /y
+	xcopy opsi\*.dll $(VERSION) /d /y
+	xcopy pcli\*.dll $(VERSION) /d /y
+	xcopy profinet\*.dll $(VERSION) /d /y
+	xcopy rdm\*.dll $(VERSION) /d /y
+	xcopy rlm\*.dll $(VERSION) /d /y
+	xcopy rtnet\*.dll $(VERSION) /d /y
+	xcopy rudp\*.dll $(VERSION) /d /y
+	xcopy stats_tree\*.dll $(VERSION) /d /y
+	xcopy v5ua\*.dll $(VERSION) /d /y
+	xcopy xml\*.dll $(VERSION) /d /y
+!ENDIF
+
+clean_deps:
+	rm -rf $(VERSION)
+
+
