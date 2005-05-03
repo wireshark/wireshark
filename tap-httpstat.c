@@ -313,7 +313,7 @@ gtk_httpstat_init(char *optarg)
 		/* error, we failed to attach to the tap. clean up */
 		g_free(sp->filter);
 		g_free(sp);
-		fprintf (stderr, "tethereal: Coulnd't register http,stat tap: %s\n",
+		fprintf (stderr, "tethereal: Couldn't register http,stat tap: %s\n",
 				error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
