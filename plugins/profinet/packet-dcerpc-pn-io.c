@@ -77,7 +77,54 @@ static int hf_pn_io_array_act_count = -1;
 
 static int hf_pn_io_data = -1;
 
+static int hf_pn_io_ar_type = -1;
+static int hf_pn_io_cminitiator_macadd = -1;
+static int hf_pn_io_cminitiator_objectuuid = -1;
+static int hf_pn_io_ar_properties = -1;
+static int hf_pn_io_cminitiator_activitytimeoutfactor = -1;
+static int hf_pn_io_cminitiator_udprtport = -1;
+static int hf_pn_io_station_name_length = -1;
+static int hf_pn_io_cminitiator_station_name = -1;
+
+static int hf_pn_io_cmresponder_macadd = -1;
+static int hf_pn_io_cmresponder_udprtport = -1;
+
+static int hf_pn_io_iocr_type = -1;
+static int hf_pn_io_iocr_reference = -1;
+static int hf_pn_io_lt = -1;
+static int hf_pn_io_iocr_properties = -1;
+static int hf_pn_io_data_length = -1;
+static int hf_pn_io_frame_id = -1;
+static int hf_pn_io_send_clock_factor = -1;
+static int hf_pn_io_reduction_ratio = -1;
+static int hf_pn_io_phase = -1;
+static int hf_pn_io_sequence = -1;
+static int hf_pn_io_frame_send_offset = -1;
+static int hf_pn_io_watchdog_factor = -1;
+static int hf_pn_io_data_hold_factor = -1;
+static int hf_pn_io_iocr_tag_header = -1;
+static int hf_pn_io_iocr_multicast_mac_add = -1;
+static int hf_pn_io_number_of_apis = -1;
+static int hf_pn_io_number_of_io_data_objects = -1;
+static int hf_pn_io_io_data_object_frame_offset = -1;
+static int hf_pn_io_number_of_iocs = -1;
+static int hf_pn_io_iocs_frame_offset = -1;
+
+static int hf_pn_io_alarmcr_type = -1;
+static int hf_pn_io_alarmcr_properties = -1;
+static int hf_pn_io_rta_timeoutfactor = -1;
+static int hf_pn_io_rta_retries = -1;
+static int hf_pn_io_localalarmref = -1;
+static int hf_pn_io_maxalarmdatalength = -1;
+static int hf_pn_io_alarmcr_tagheaderhigh = -1;
+static int hf_pn_io_alarmcr_tagheaderlow = -1;
+
 static int hf_pn_io_ar_uuid = -1;
+static int hf_pn_io_api_tree = -1;
+static int hf_pn_io_module_tree = -1;
+static int hf_pn_io_submodule_tree = -1;
+static int hf_pn_io_io_data_object = -1;
+static int hf_pn_io_io_cs = -1;
 static int hf_pn_io_api = -1;
 static int hf_pn_io_slot_nr = -1;
 static int hf_pn_io_subslot_nr = -1;
@@ -89,6 +136,7 @@ static int hf_pn_io_add_val1 = -1;
 static int hf_pn_io_add_val2 = -1;
 
 static int hf_pn_io_block = -1;
+static int hf_pn_io_block_header = -1;
 static int hf_pn_io_block_type = -1;
 static int hf_pn_io_block_length = -1;
 static int hf_pn_io_block_version_high = -1;
@@ -129,8 +177,19 @@ static int hf_pn_io_send_seq_num = -1;
 static int hf_pn_io_ack_seq_num = -1;
 static int hf_pn_io_var_part_len = -1;
 
+static int hf_pn_io_number_of_modules = -1;
 static int hf_pn_io_module_ident_number = -1;
+static int hf_pn_io_module_properties = -1;
+static int hf_pn_io_module_state = -1;
+static int hf_pn_io_number_of_submodules = -1;
 static int hf_pn_io_submodule_ident_number = -1;
+static int hf_pn_io_submodule_properties = -1;
+static int hf_pn_io_submodule_state = -1;
+static int hf_pn_io_data_description_tree = -1;
+static int hf_pn_io_data_description = -1;
+static int hf_pn_io_submodule_data_length = -1;
+static int hf_pn_io_length_iocs = -1;
+static int hf_pn_io_length_iops = -1;
 
 static int hf_pn_io_ioxs = -1;
 static int hf_pn_io_ioxs_extension = -1;
@@ -138,9 +197,14 @@ static int hf_pn_io_ioxs_res14 = -1;
 static int hf_pn_io_ioxs_instance = -1;
 static int hf_pn_io_ioxs_datastate = -1;
 
+static int hf_pn_io_address_resolution_properties = -1;
+static int hf_pn_io_mci_timeout_factor = -1;
+static int hf_pn_io_provider_station_name = -1;
+
 
 static gint ett_pn_io = -1;
 static gint ett_pn_io_block = -1;
+static gint ett_pn_io_block_header = -1;
 static gint ett_pn_io_status = -1;
 static gint ett_pn_io_rtc = -1;
 static gint ett_pn_io_rta = -1;
@@ -148,7 +212,12 @@ static gint ett_pn_io_pdu_type = -1;
 static gint ett_pn_io_add_flags = -1;
 static gint ett_pn_io_control_command = -1;
 static gint ett_pn_io_ioxs = -1;
-
+static gint ett_pn_io_api = -1;
+static gint ett_pn_io_data_description = -1;
+static gint ett_pn_io_module = -1;
+static gint ett_pn_io_submodule = -1;
+static gint ett_pn_io_io_data_object = -1;
+static gint ett_pn_io_io_cs = -1;
 
 static e_uuid_t uuid_pn_io_device = { 0xDEA00001, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
 static guint16  ver_pn_io_device = 1;
@@ -198,6 +267,7 @@ static const value_string pn_io_block_type[] = {
 	{ 0x8104, "ModuleDiffBlock"},
 	{ 0x0105, "PrmServerBlockReq"},
 	{ 0x8105, "PrmServerBlockRes"},
+	{ 0x0106, "MCRBlockReq"},
 	{ 0x0110, "IODBlockReq"},
 	{ 0x8110, "IODBlockRes"},
 	{ 0x0111, "IODBlockReq"},
@@ -342,7 +412,77 @@ static const value_string pn_io_ioxs[] = {
 	{ 0x01 /*  1*/, "detected by slot" },
 	{ 0x02 /*  2*/, "detected by IO device" },
 	{ 0x03 /*  3*/, "detected by IO controller" },
+    { 0, NULL }
 };
+
+
+static const value_string pn_io_ar_type[] = {
+	{ 0x0000, "reserved" },
+	{ 0x0001, "IOCARSingle" },
+	{ 0x0002, "reserved" },
+	{ 0x0003, "IOCARCIR" },
+	{ 0x0004, "IOCAR_IOControllerRedundant" },
+	{ 0x0005, "IOCAR_IODeviceRedundant" },
+	{ 0x0006, "IOSAR" },
+    /*0x0007 - 0xFFFF reserved */
+    { 0, NULL }
+};
+
+static const value_string pn_io_iocr_type[] = {
+	{ 0x0000, "reserved" },
+	{ 0x0001, "Input CR" },
+	{ 0x0002, "Output CR" },
+	{ 0x0003, "Multicast Provider CR" },
+	{ 0x0004, "Multicast Consumer CR" },
+    /*0x0005 - 0xFFFF reserved */
+    { 0, NULL }
+};
+
+
+static const value_string pn_io_data_description[] = {
+	{ 0x0000, "reserved" },
+	{ 0x0001, "Input" },
+	{ 0x0002, "Output" },
+	{ 0x0003, "reserved" },
+    /*0x0004 - 0xFFFF reserved */
+    { 0, NULL }
+};
+
+
+
+static const value_string pn_io_module_state[] = {
+	{ 0x0000, "no module" },
+	{ 0x0001, "wrong module" },
+	{ 0x0002, "proper module" },
+	{ 0x0003, "substitute" },
+    /*0x0004 - 0xFFFF reserved */
+    { 0, NULL }
+};
+
+
+
+
+
+
+/* dissect a 6 byte MAC address */
+int 
+dissect_MAC(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+                    proto_tree *tree, int hfindex, guint8 *pdata)
+{
+    guint8 data[6];
+
+    tvb_memcpy(tvb, data, offset, 6);
+    if(tree)
+        proto_tree_add_ether(tree, hfindex, tvb, offset, 6, data);
+
+    if (pdata)
+        memcpy(pdata, data, 6);
+
+    return offset + 6;
+}
+
+
+
 
 
 /* dissect the four status (error) fields */
@@ -486,7 +626,7 @@ dissect_Alarm_header(tvbuff_t *tvb, int offset,
                         hf_pn_io_subslot_nr, &u16SubslotNr);
 
     if (check_col(pinfo->cinfo, COL_INFO))
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s, Slot: %u/%u", 
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s, Slot: 0x%x/0x%x", 
         val_to_str(u16AlarmType, pn_io_alarm_type, "Unknown"),
         u16SlotNr, u16SubslotNr);
 
@@ -545,13 +685,12 @@ dissect_Alarm_ack_block(tvbuff_t *tvb, int offset,
 /* dissect the read/write header */
 static int
 dissect_ReadWrite_header(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 *u16Index)
 {
     e_uuid_t uuid;
     guint32 u32Api;
     guint16 u16SlotNr;
     guint16 u16SubslotNr;
-    guint16 u16Index;
     guint16 u16SeqNr;
 
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
@@ -569,10 +708,10 @@ dissect_ReadWrite_header(tvbuff_t *tvb, int offset,
     proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
     offset += 2;
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
-                        hf_pn_io_index, &u16Index);
+                        hf_pn_io_index, u16Index);
 
     if (check_col(pinfo->cinfo, COL_INFO))
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Api: %u, Slot: %u/%u",
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Api: 0x%x, Slot: 0x%x/0x%x",
             u32Api, u16SlotNr, u16SubslotNr);
 
     return offset;
@@ -582,15 +721,13 @@ dissect_ReadWrite_header(tvbuff_t *tvb, int offset,
 /* dissect the read/write request block */
 static int
 dissect_ReadWrite_rqst_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen)
 {
-    guint32 u32RecDataLen;
 
-
-    offset = dissect_ReadWrite_header(tvb, offset, pinfo, tree, drep);
+    offset = dissect_ReadWrite_header(tvb, offset, pinfo, tree, drep, u16Index);
 
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
-                        hf_pn_io_record_data_length, &u32RecDataLen);
+                        hf_pn_io_record_data_length, u32RecDataLen);
     /* XXX: don't know how to handle the optional TargetARUUID */
 
     if (check_col(pinfo->cinfo, COL_INFO))
@@ -604,14 +741,14 @@ dissect_ReadWrite_rqst_block(tvbuff_t *tvb, int offset,
 /* dissect the read/write response block */
 static int
 dissect_ReadWrite_resp_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 *u16Index)
 {
     guint32 u32RecDataLen;
     guint16 u16AddVal1;
     guint16 u16AddVal2;
 
 
-    offset = dissect_ReadWrite_header(tvb, offset, pinfo, tree, drep);
+    offset = dissect_ReadWrite_header(tvb, offset, pinfo, tree, drep, u16Index);
 
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_record_data_length, &u32RecDataLen);
@@ -695,10 +832,576 @@ dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
 }
 
 
+/* dissect the ARBlockReq */
+static int
+dissect_ARBlockReq(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint16 u16ARType;
+    e_uuid_t uuid;
+    guint16 u16SessionKey;
+    guint8 mac[6];
+    guint32 u32ARProperties;
+    guint16 u16TimeoutFactor;
+    guint16 u16UDPRTPort;
+    guint16 u16NameLength;
+    guint8 *pu8StationName;
+
+
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_ar_type, &u16ARType);
+    offset = dissect_ndr_uuid_t(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_ar_uuid, &uuid);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_sessionkey, &u16SessionKey);
+    offset = dissect_MAC(tvb, offset, pinfo, tree, 
+                        hf_pn_io_cminitiator_macadd, mac);
+    offset = dissect_ndr_uuid_t(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_cminitiator_objectuuid, &uuid);
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_ar_properties, &u32ARProperties);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_cminitiator_activitytimeoutfactor, &u16TimeoutFactor);   /* XXX - special values */
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_cminitiator_udprtport, &u16UDPRTPort);   /* XXX - special values */
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_station_name_length, &u16NameLength);
+
+    pu8StationName = g_malloc(u16NameLength+1);
+    tvb_memcpy(tvb, pu8StationName, offset, u16NameLength);
+    pu8StationName[u16NameLength] = '\0';
+    proto_tree_add_string (tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, pu8StationName);
+    g_free(pu8StationName);
+    offset += u16NameLength;
+
+    /*if (check_col(pinfo->cinfo, COL_INFO))
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Api: %u, Slot: %u/%u",
+            u32Api, u16SlotNr, u16SubslotNr);*/
+
+    return offset;
+}
+
+
+/* dissect the ARBlockRes */
+static int
+dissect_ARBlockRes(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint16 u16ARType;
+    e_uuid_t uuid;
+    guint16 u16SessionKey;
+    guint8 mac[6];
+    guint16 u16UDPRTPort;
+
+
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_ar_type, &u16ARType);
+    offset = dissect_ndr_uuid_t(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_ar_uuid, &uuid);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_sessionkey, &u16SessionKey);
+    offset = dissect_MAC(tvb, offset, pinfo, tree, 
+                        hf_pn_io_cmresponder_macadd, mac);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_cmresponder_udprtport, &u16UDPRTPort);   /* XXX - special values */
+
+    /*if (check_col(pinfo->cinfo, COL_INFO))
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Api: %u, Slot: %u/%u",
+            u32Api, u16SlotNr, u16SubslotNr);*/
+
+    return offset;
+}
+
+
+/* dissect the IOCRBlockReq */
+static int
+dissect_IOCRBlockReq(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint16 u16IOCRType;
+    guint16 u16IOCRReference;
+    guint16 u16LT;
+    guint32 u32IOCRProperties;
+    guint16 u16DataLength;
+    guint16 u16FrameID;
+    guint16 u16SendClockFactor;
+    guint16 u16ReductionRatio;
+    guint16 u16Phase;
+    guint16 u16Sequence;
+    guint32 u32FrameSendOffset;
+    guint16 u16WatchdogFactor;
+    guint16 u16DataHoldFactor;
+    guint16 u16IOCRTagHeader;
+    guint8 mac[6];
+    guint16 u16NumberOfAPIs;
+    guint32 u32Api;
+    guint16 u16NumberOfIODataObjects;
+    guint16 u16SlotNr;
+    guint16 u16SubslotNr;
+    guint16 u16IODataObjectFrameOffset;
+    guint16 u16NumberOfIOCS;
+    guint16 u16IOCSFrameOffset;
+    proto_item *api_item;
+	proto_tree *api_tree;
+	guint32 u32ApiStart;
+    guint16 u16Tmp;
+    proto_item *sub_item;
+	proto_tree *sub_tree;
+	guint32 u32SubStart;
+
+
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_iocr_type, &u16IOCRType);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_iocr_reference, &u16IOCRReference);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_lt, &u16LT);
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_iocr_properties, &u32IOCRProperties);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_data_length, &u16DataLength);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_frame_id, &u16FrameID);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_send_clock_factor, &u16SendClockFactor);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_reduction_ratio, &u16ReductionRatio);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_phase, &u16Phase);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_sequence, &u16Sequence);
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_frame_send_offset, &u32FrameSendOffset);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_watchdog_factor, &u16WatchdogFactor);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_data_hold_factor, &u16DataHoldFactor);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_iocr_tag_header, &u16IOCRTagHeader);
+    offset = dissect_MAC(tvb, offset, pinfo, tree, 
+                        hf_pn_io_iocr_multicast_mac_add, mac);
+
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_number_of_apis, &u16NumberOfAPIs);
+    while(u16NumberOfAPIs--) {
+        api_item = proto_tree_add_item(tree, hf_pn_io_api_tree, tvb, offset, 0, FALSE);
+	    api_tree = proto_item_add_subtree(api_item, ett_pn_io_api);
+        u32ApiStart = offset;
+
+        /* API */
+	    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, api_tree, drep, 
+                            hf_pn_io_api, &u32Api);
+        /* NumberOfIODataObjects */
+	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, api_tree, drep, 
+                            hf_pn_io_number_of_io_data_objects, &u16NumberOfIODataObjects);
+
+        u16Tmp = u16NumberOfIODataObjects;
+        while(u16Tmp--) {
+            sub_item = proto_tree_add_item(api_tree, hf_pn_io_io_data_object, tvb, offset, 0, FALSE);
+	        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_io_data_object);
+            u32SubStart = offset;
+
+            /* SlotNumber */
+	        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep, 
+                                hf_pn_io_slot_nr, &u16SlotNr);
+            /* Subslotnumber */
+	        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep, 
+                                hf_pn_io_subslot_nr, &u16SubslotNr);
+            /* IODataObjectFrameOffset */
+	        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep, 
+                                hf_pn_io_io_data_object_frame_offset, &u16IODataObjectFrameOffset);
+
+            proto_item_append_text(sub_item, ": Slot: 0x%x, Subslot: 0x%x FrameOffset: %u", 
+                u16SlotNr, u16SubslotNr, u16IODataObjectFrameOffset);
+
+	        proto_item_set_len(sub_item, offset - u32SubStart);
+        }
+        /* NumberOfIOCS */
+	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, api_tree, drep, 
+                            hf_pn_io_number_of_iocs, &u16NumberOfIOCS);
+
+        u16Tmp = u16NumberOfIOCS;
+        while(u16Tmp--) {
+            sub_item = proto_tree_add_item(api_tree, hf_pn_io_io_cs, tvb, offset, 0, FALSE);
+	        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_io_cs);
+            u32SubStart = offset;
+
+            /* SlotNumber */
+	        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep, 
+                                hf_pn_io_slot_nr, &u16SlotNr);
+            /* Subslotnumber */
+	        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep, 
+                                hf_pn_io_subslot_nr, &u16SubslotNr);
+            /* IOCSFrameOffset */
+	        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep, 
+                                hf_pn_io_iocs_frame_offset, &u16IOCSFrameOffset);
+
+            proto_item_append_text(sub_item, ": Slot: 0x%x, Subslot: 0x%x FrameOffset: %u", 
+                u16SlotNr, u16SubslotNr, u16IOCSFrameOffset);
+
+	        proto_item_set_len(sub_item, offset - u32SubStart);
+        }
+
+        proto_item_append_text(api_item, ": %u, NumberOfIODataObjects: %u NumberOfIOCS: %u", 
+            u32Api, u16NumberOfIODataObjects, u16NumberOfIOCS);
+
+	    proto_item_set_len(api_item, offset - u32ApiStart);
+    }
+
+    return offset;
+}
+
+
+/* dissect the AlarmCRBlockReq */
+static int
+dissect_AlarmCRBlockReq(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint16 u16AlarmCRType;
+    guint16 u16LT;
+    guint32 u32AlarmCRProperties;
+    guint16 u16RTATimeoutFactor;
+    guint16 u16RTARetries;
+    guint16 u16LocalAlarmReference;
+    guint16 u16MaxAlarmDataLength;
+    guint16 u16AlarmCRTagHeaderHigh;
+    guint16 u16AlarmCRTagHeaderLow;
+
+
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_alarmcr_type, &u16AlarmCRType);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_lt, &u16LT);
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_alarmcr_properties, &u32AlarmCRProperties);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_rta_timeoutfactor, &u16RTATimeoutFactor);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_rta_retries, &u16RTARetries);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_localalarmref, &u16LocalAlarmReference);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_maxalarmdatalength, &u16MaxAlarmDataLength);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_alarmcr_tagheaderhigh, &u16AlarmCRTagHeaderHigh);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_alarmcr_tagheaderlow, &u16AlarmCRTagHeaderLow);
+
+    return offset;
+}
+
+
+/* dissect the AlarmCRBlockRes */
+static int
+dissect_AlarmCRBlockRes(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint16 u16AlarmCRType;
+    guint16 u16LocalAlarmReference;
+    guint16 u16MaxAlarmDataLength;
+
+
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_alarmcr_type, &u16AlarmCRType);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_localalarmref, &u16LocalAlarmReference);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_maxalarmdatalength, &u16MaxAlarmDataLength);
+
+    return offset;
+}
+
+
+
+/* dissect the IOCRBlockRes */
+static int
+dissect_IOCRBlockRes(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint16 u16IOCRType;
+    guint16 u16IOCRReference;
+    guint16 u16FrameID;
+
+
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_iocr_type, &u16IOCRType);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_iocr_reference, &u16IOCRReference);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_frame_id, &u16FrameID);
+
+    return offset;
+}
+
+
+
+/* dissect the MCRBlockReq */
+static int
+dissect_MCRBlockReq(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint16 u16IOCRReference;
+    guint32 u32AddressResolutionProperties;
+    guint16 u16MCITimeoutFactor;
+    guint16 u16NameLength;
+    guint8 *pu8StationName;
+
+
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_iocr_reference, &u16IOCRReference);
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_address_resolution_properties, &u32AddressResolutionProperties);
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_mci_timeout_factor, &u16MCITimeoutFactor);
+
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_station_name_length, &u16NameLength);
+
+    pu8StationName = g_malloc(u16NameLength+1);
+    tvb_memcpy(tvb, pu8StationName, offset, u16NameLength);
+    pu8StationName[u16NameLength] = '\0';
+    proto_tree_add_string (tree, hf_pn_io_provider_station_name, tvb, offset, u16NameLength, pu8StationName);
+    g_free(pu8StationName);
+    offset += u16NameLength;    
+
+    return offset;
+}
+
+
+
+/* dissect the DataDescription */
+static int
+dissect_DataDescription(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint16 u16DataDescription;
+    guint16 u16SubmoduleDataLength;
+    guint8  u8LengthIOCS;
+    guint8  u8LengthIOPS;
+    proto_item *sub_item;
+	proto_tree *sub_tree;
+	guint32 u32SubStart;
+
+
+    sub_item = proto_tree_add_item(tree, hf_pn_io_data_description_tree, tvb, offset, 0, FALSE);
+	sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_data_description);
+    u32SubStart = offset;
+
+    /* DataDescription */
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep, 
+                    hf_pn_io_data_description, &u16DataDescription);
+    /* SubmoduleDataLength */
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep, 
+                    hf_pn_io_submodule_data_length, &u16SubmoduleDataLength);
+    /* LengthIOCS */
+	offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep, 
+                    hf_pn_io_length_iocs, &u8LengthIOCS);
+    /* LengthIOPS */
+	offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep, 
+                    hf_pn_io_length_iops, &u8LengthIOPS);
+
+    proto_item_append_text(sub_item, ": %s, SubmoduleDataLength: %u, LengthIOCS: %u, u8LengthIOPS: %u", 
+        val_to_str(u16DataDescription, pn_io_data_description, "(0x%x)"), 
+        u16SubmoduleDataLength, u8LengthIOCS, u8LengthIOPS);
+	proto_item_set_len(sub_item, offset - u32SubStart);
+
+    return offset;
+}
+
+
+/* dissect the ExpectedSubmoduleBlockReq */
+static int
+dissect_ExpectedSubmoduleBlockReq(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint16 u16NumberOfAPIs;
+    guint32 u32Api;
+    guint16 u16SlotNr;
+    guint32 u32ModuleIdentNumber;
+    guint16 u16ModuleProperties;
+    guint16 u16NumberOfSubmodules;
+    guint16 u16SubslotNr;
+    guint32 u32SubmoduleIdentNumber;
+    guint16 u16SubmoduleProperties;
+    proto_item *api_item;
+	proto_tree *api_tree;
+	guint32 u32ApiStart;
+    proto_item *sub_item;
+	proto_tree *sub_tree;
+	guint32 u32SubStart;
+
+
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_number_of_apis, &u16NumberOfAPIs);
+    while(u16NumberOfAPIs--) {
+        api_item = proto_tree_add_item(tree, hf_pn_io_api_tree, tvb, offset, 0, FALSE);
+	    api_tree = proto_item_add_subtree(api_item, ett_pn_io_api);
+        u32ApiStart = offset;
+
+        /* API */
+	    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, api_tree, drep, 
+                            hf_pn_io_api, &u32Api);
+        /* SlotNumber */
+	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, api_tree, drep, 
+                            hf_pn_io_slot_nr, &u16SlotNr);
+        /* ModuleIdentNumber */
+	    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, api_tree, drep, 
+                            hf_pn_io_module_ident_number, &u32ModuleIdentNumber);
+        /* ModuleProperties */
+	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, api_tree, drep, 
+                            hf_pn_io_module_properties, &u16ModuleProperties);
+        /* NumberOfSubmodules */
+	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, api_tree, drep, 
+                            hf_pn_io_number_of_submodules, &u16NumberOfSubmodules);
+
+        proto_item_append_text(api_item, ": %u, Slot: 0x%x, ModuleIdentNumber: 0x%x ModuleProperties: 0x%x NumberOfSubmodules: %u", 
+            u32Api, u16SlotNr, u32ModuleIdentNumber, u16ModuleProperties, u16NumberOfSubmodules);
+
+        while(u16NumberOfSubmodules--) {
+            sub_item = proto_tree_add_item(api_tree, hf_pn_io_submodule_tree, tvb, offset, 0, FALSE);
+	        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_submodule);
+            u32SubStart = offset;
+
+            /* Subslotnumber */
+	        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep, 
+                                hf_pn_io_subslot_nr, &u16SubslotNr);
+            /* SubmoduleIdentNumber */
+	        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, 
+                            hf_pn_io_submodule_ident_number, &u32SubmoduleIdentNumber);
+            /* SubmoduleProperties */
+	        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep, 
+                            hf_pn_io_submodule_properties, &u16SubmoduleProperties);
+
+            switch(u16SubmoduleProperties & 0x03) {
+            case(0x00): /* no input and no output data (one Input DataDescription Block follows) */
+                offset = dissect_DataDescription(tvb, offset, pinfo, sub_tree, drep);
+                break;
+            case(0x01): /* input data (one Input DataDescription Block follows) */
+                offset = dissect_DataDescription(tvb, offset, pinfo, sub_tree, drep);
+                break;
+            case(0x02): /* output data (one Output DataDescription Block follows) */
+                offset = dissect_DataDescription(tvb, offset, pinfo, sub_tree, drep);
+                break;
+            case(0x03): /* input and output data (one Input and one Output DataDescription Block follows) */
+                offset = dissect_DataDescription(tvb, offset, pinfo, sub_tree, drep);
+                offset = dissect_DataDescription(tvb, offset, pinfo, sub_tree, drep);
+                break;
+            }
+
+            proto_item_append_text(sub_item, ": Subslot: 0x%x, SubmoduleIdent: 0x%x SubmoduleProperties: 0x%x", 
+                u16SubslotNr, u32SubmoduleIdentNumber, u16SubmoduleProperties);
+	        proto_item_set_len(sub_item, offset - u32SubStart);
+        }
+
+	    proto_item_set_len(api_item, offset - u32ApiStart);
+    }
+
+    return offset;
+}
+
+
+/* dissect the ModuleDiffBlock */
+static int
+dissect_ModuleDiffBlock(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint16 u16NumberOfAPIs;
+    guint32 u32Api;
+    guint16 u16NumberOfModules;
+    guint16 u16SlotNr;
+    guint32 u32ModuleIdentNumber;
+    guint16 u16ModuleState;
+    guint16 u16NumberOfSubmodules;
+    guint16 u16SubslotNr;
+    guint32 u32SubmoduleIdentNumber;
+    guint16 u16SubmoduleState;
+    proto_item *api_item;
+	proto_tree *api_tree;
+	guint32 u32ApiStart;
+    proto_item *module_item;
+	proto_tree *module_tree;
+	guint32 u32ModuleStart;
+    proto_item *sub_item;
+	proto_tree *sub_tree;
+	guint32 u32SubStart;
+
+
+    /* NumberOfAPIs */
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_number_of_apis, &u16NumberOfAPIs);
+    while(u16NumberOfAPIs--) {
+        api_item = proto_tree_add_item(tree, hf_pn_io_api_tree, tvb, offset, 0, FALSE);
+	    api_tree = proto_item_add_subtree(api_item, ett_pn_io_api);
+        u32ApiStart = offset;
+
+        /* API */
+	    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, api_tree, drep, 
+                            hf_pn_io_api, &u32Api);
+        /* NumberOfModules */
+	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, api_tree, drep, 
+                            hf_pn_io_number_of_modules, &u16NumberOfModules);
+
+        proto_item_append_text(api_item, ": %u, NumberOfModules: %u", 
+            u32Api, u16NumberOfModules);
+
+        while(u16NumberOfModules--) {
+            module_item = proto_tree_add_item(api_tree, hf_pn_io_module_tree, tvb, offset, 0, FALSE);
+	        module_tree = proto_item_add_subtree(module_item, ett_pn_io_module);
+            u32ModuleStart = offset;
+
+            /* SlotNumber */
+	        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, module_tree, drep, 
+                                hf_pn_io_slot_nr, &u16SlotNr);
+            /* ModuleIdentNumber */
+	        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, module_tree, drep, 
+                                hf_pn_io_module_ident_number, &u32ModuleIdentNumber);
+            /* ModuleState */
+	        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, module_tree, drep, 
+                                hf_pn_io_module_state, &u16ModuleState);
+            /* NumberOfSubmodules */
+	        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, module_tree, drep, 
+                                hf_pn_io_number_of_submodules, &u16NumberOfSubmodules);
+
+            proto_item_append_text(module_item, ": Slot 0x%x, ModuleIdent: 0x%x ModuleState: %s NumberOfSubmodules: %u", 
+                u16SlotNr, u32ModuleIdentNumber, 
+                val_to_str(u16ModuleState, pn_io_module_state, "(0x%x)"), 
+                u16NumberOfSubmodules);
+
+            while(u16NumberOfSubmodules--) {
+                sub_item = proto_tree_add_item(module_tree, hf_pn_io_submodule_tree, tvb, offset, 0, FALSE);
+	            sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_submodule);
+                u32SubStart = offset;
+
+                /* Subslotnumber */
+	            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep, 
+                                    hf_pn_io_subslot_nr, &u16SubslotNr);
+                /* SubmoduleIdentNumber */
+	            offset = dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, 
+                                hf_pn_io_submodule_ident_number, &u32SubmoduleIdentNumber);
+                /* SubmoduleState */
+	            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep, 
+                                hf_pn_io_submodule_state, &u16SubmoduleState);
+
+                proto_item_append_text(sub_item, ": Subslot 0x%x, SubmoduleIdentNumber: 0x%x, SubmoduleState: 0x%x", 
+                    u16SubslotNr, u32SubmoduleIdentNumber, u16SubmoduleState);
+
+	            proto_item_set_len(sub_item, offset - u32SubStart);
+            } /* NumberOfSubmodules */
+
+	        proto_item_set_len(module_item, offset - u32ModuleStart);
+        }
+
+	    proto_item_set_len(api_item, offset - u32ApiStart);
+    }
+
+    return offset;
+}
+
+
 /* dissect one PN-IO block (depending on the block type) */
 static int
 dissect_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint32 u32Idx)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen)
 {
     guint16 u16BlockType;
     guint16 u16BlockLength;
@@ -708,23 +1411,30 @@ dissect_block(tvbuff_t *tvb, int offset,
 	proto_tree *sub_tree;
 	guint32 u32SubStart;
     guint16 u16BodyLength;
+	proto_item *header_item;
+	proto_tree *header_tree;
 
 
-    /* from here, we only have big endian (network byte ordering) */
+    /* from here, we only have big endian (network byte ordering)!!! */
     drep[0] &= ~0x10;
 
     sub_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, FALSE);
 	sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_block);
     u32SubStart = offset;
 
-	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep, 
+    header_item = proto_tree_add_item(sub_tree, hf_pn_io_block_header, tvb, offset, 6, FALSE);
+	header_tree = proto_item_add_subtree(header_item, ett_pn_io_block_header);
+
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, header_tree, drep, 
                         hf_pn_io_block_type, &u16BlockType);
-	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep, 
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, header_tree, drep, 
                         hf_pn_io_block_length, &u16BlockLength);
-	offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep, 
+	offset = dissect_dcerpc_uint8(tvb, offset, pinfo, header_tree, drep, 
                         hf_pn_io_block_version_high, &u8BlockVersionHigh);
-	offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep, 
+	offset = dissect_dcerpc_uint8(tvb, offset, pinfo, header_tree, drep, 
                         hf_pn_io_block_version_low, &u8BlockVersionLow);
+
+    /* XXX - append block_header data to header_item */
 
     /* block length is without type and length fields, but with version field */
     /* as it's already dissected, remove it */
@@ -734,6 +1444,21 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0001):
     case(0x0002):
         dissect_Alarm_note_block(tvb, offset, pinfo, sub_tree, drep, u16BodyLength);
+        break;
+    case(0x0101):
+        dissect_ARBlockReq(tvb, offset, pinfo, sub_tree, drep);
+        break;
+    case(0x0102):
+        dissect_IOCRBlockReq(tvb, offset, pinfo, sub_tree, drep);
+        break;
+    case(0x0103):
+        dissect_AlarmCRBlockReq(tvb, offset, pinfo, sub_tree, drep);
+        break;
+    case(0x0104):
+        dissect_ExpectedSubmoduleBlockReq(tvb, offset, pinfo, sub_tree, drep);
+        break;
+    case(0x0106):
+        dissect_MCRBlockReq(tvb, offset, pinfo, sub_tree, drep);
         break;
     case(0x0110):
     case(0x0112):
@@ -745,7 +1470,7 @@ dissect_block(tvbuff_t *tvb, int offset,
         break;
     case(0x0008):
     case(0x0009):
-        dissect_ReadWrite_rqst_block(tvb, offset, pinfo, sub_tree, drep);
+        dissect_ReadWrite_rqst_block(tvb, offset, pinfo, sub_tree, drep, u16Index, u32RecDataLen);
         break;
     case(0x8001):
     case(0x8002):
@@ -753,7 +1478,19 @@ dissect_block(tvbuff_t *tvb, int offset,
         break;
     case(0x8008):
     case(0x8009):
-        dissect_ReadWrite_resp_block(tvb, offset, pinfo, sub_tree, drep);
+        dissect_ReadWrite_resp_block(tvb, offset, pinfo, sub_tree, drep, u16Index);
+        break;
+    case(0x8101):
+        dissect_ARBlockRes(tvb, offset, pinfo, sub_tree, drep);
+        break;
+    case(0x8102):
+        dissect_IOCRBlockRes(tvb, offset, pinfo, sub_tree, drep);
+        break;
+    case(0x8103):
+        dissect_AlarmCRBlockRes(tvb, offset, pinfo, sub_tree, drep);
+        break;
+    case(0x8104):
+        dissect_ModuleDiffBlock(tvb, offset, pinfo, sub_tree, drep);
         break;
     case(0x8110):
     case(0x8112):
@@ -764,7 +1501,7 @@ dissect_block(tvbuff_t *tvb, int offset,
         dissect_ControlConnect_block(tvb, offset, pinfo, sub_tree, drep);
         break;
     default:
-        if (check_col(pinfo->cinfo, COL_INFO) && u32Idx < 3)
+        if (check_col(pinfo->cinfo, COL_INFO) && *u16Index < 3)
 	        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
             val_to_str(u16BlockType, pn_io_block_type, "Unknown"));
     	proto_tree_add_string_format(sub_tree, hf_pn_io_data, tvb, offset, u16BodyLength, "undecoded", "Undecoded Data: %d bytes", u16BodyLength);
@@ -772,7 +1509,7 @@ dissect_block(tvbuff_t *tvb, int offset,
     offset += u16BodyLength;
 
 	proto_item_append_text(sub_item, "[%u]: Type=\"%s\" (0x%04x), Length=%u(+4), Version=%u.%u", 
-		u32Idx, val_to_str(u16BlockType, pn_io_block_type, "Unknown"), u16BlockType,
+		*u16Index, val_to_str(u16BlockType, pn_io_block_type, "Unknown"), u16BlockType,
         u16BlockLength, u8BlockVersionHigh, u8BlockVersionLow);
 	proto_item_set_len(sub_item, offset - u32SubStart);
 
@@ -785,18 +1522,20 @@ static int
 dissect_blocks(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 u32Idx = 0;
+    guint16 u16Index = 0;
+    guint32 u32RecDataLen;
     
 
     while(tvb_length(tvb) > (guint) offset) {
-        offset = dissect_block(tvb, offset, pinfo, tree, drep, u32Idx);
-        u32Idx++;
+        offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
+        u16Index++;
     }
 
-    if(u32Idx > 3) {
+    /* we don't want to have too many blocks in the info column */
+    if(u16Index > 3) {
         if (check_col(pinfo->cinfo, COL_INFO))
 	        col_append_fstr(pinfo->cinfo, COL_INFO, ", ... (%u blocks)",
-            u32Idx);
+            u16Index);
     }
 	return offset;
 }
@@ -900,6 +1639,7 @@ dissect_IPNIO_Connect_rqst(tvbuff_t *tvb, int offset,
     
     offset = dissect_IPNIO_rqst_header(tvb, offset, pinfo, tree, drep);
 
+    /* IODConnectReq */
     offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
 
 	return offset;
@@ -914,6 +1654,7 @@ dissect_IPNIO_Connect_resp(tvbuff_t *tvb, int offset,
 
     offset = dissect_IPNIO_resp_header(tvb, offset, pinfo, tree, drep);
 
+    /* IODConnectRes */
     offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
 
 	return offset;
@@ -928,6 +1669,7 @@ dissect_IPNIO_Release_rqst(tvbuff_t *tvb, int offset,
     
     offset = dissect_IPNIO_rqst_header(tvb, offset, pinfo, tree, drep);
 
+    /* IODReleaseReq */
     offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
 
 	return offset;
@@ -942,6 +1684,7 @@ dissect_IPNIO_Release_resp(tvbuff_t *tvb, int offset,
 
     offset = dissect_IPNIO_resp_header(tvb, offset, pinfo, tree, drep);
 
+    /* IODReleaseRes */
     offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
 
 	return offset;
@@ -956,6 +1699,7 @@ dissect_IPNIO_Control_rqst(tvbuff_t *tvb, int offset,
     
     offset = dissect_IPNIO_rqst_header(tvb, offset, pinfo, tree, drep);
 
+    /* IODControlReq */
     offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
 
     return offset;
@@ -970,6 +1714,7 @@ dissect_IPNIO_Control_resp(tvbuff_t *tvb, int offset,
 
     offset = dissect_IPNIO_resp_header(tvb, offset, pinfo, tree, drep);
 
+    /* IODControlRes */
     offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
 
     return offset;
@@ -981,10 +1726,13 @@ static int
 dissect_IPNIO_Read_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    
+    guint16 u16Index = 0;
+    guint32 u32RecDataLen;
+
     offset = dissect_IPNIO_rqst_header(tvb, offset, pinfo, tree, drep);
 
-    offset = dissect_block(tvb, offset, pinfo, tree, drep, 0);
+    /* IODReadReq */
+    offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
 
 	return offset;
 }
@@ -996,12 +1744,15 @@ dissect_IPNIO_Read_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
     gint remain;
+    guint16 u16Index = 0;
+    guint32 u32RecDataLen;
 
     offset = dissect_IPNIO_resp_header(tvb, offset, pinfo, tree, drep);
 
-    offset = dissect_block(tvb, offset, pinfo, tree, drep, 0);
+    /* IODReadHeader */
+    offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
 
-    /* XXX - remaining bytes: dissection not yet implemented */
+    /* XXX - RecordDataRead: dissection not yet implemented */
     remain = tvb_length_remaining(tvb, offset);
     proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, remain, "data", "User Data: %d bytes", remain);
     offset += remain;
@@ -1010,23 +1761,81 @@ dissect_IPNIO_Read_resp(tvbuff_t *tvb, int offset,
 }
 
 
+static int
+dissect_IODWriteReq(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    gint remain;
+    guint16 u16Index = 0;
+    guint32 u32RecDataLen;
+
+
+    /* IODWriteHeader */
+    offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
+
+
+    /* IODWriteMultipleReq? */
+    if(u16Index == 0xe040) {
+        while((remain = tvb_length_remaining(tvb, offset)) > 0) {
+            offset = dissect_IODWriteReq(tvb, offset, pinfo, tree, drep);
+        }
+    } else {
+        /* RecordDataWrite */
+        /* XXX - dissection not yet implemented */
+        proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, u32RecDataLen, "data", "RecordDataWrite: %d bytes", u32RecDataLen);
+        offset += u32RecDataLen;
+
+        /* XXX - add padding (required with IODWriteMultipleReq) */
+        switch(offset % 4) {
+        case(3):
+            offset += 1;
+            break;
+        case(2):
+            offset += 2;
+            break;
+        case(1):
+            offset += 3;
+            break;
+        }
+    }
+
+    return offset;
+}
+
 /* dissect a PN-IO write request */
 static int
 dissect_IPNIO_Write_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    gint remain;
-
     offset = dissect_IPNIO_rqst_header(tvb, offset, pinfo, tree, drep);
 
-    offset = dissect_block(tvb, offset, pinfo, tree, drep, 0);
-
-    /* XXX - remaining bytes: dissection not yet implemented */
-    remain = tvb_length_remaining(tvb, offset);
-    proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, remain, "data", "User Data: %d bytes", remain);
-    offset += remain;
+    offset = dissect_IODWriteReq(tvb, offset, pinfo, tree, drep);
 
 	return offset;
+}
+
+
+
+static int
+dissect_IODWriteRes(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    gint remain;
+    guint16 u16Index = 0;
+    guint32 u32RecDataLen;
+
+
+    /* IODWriteResHeader */
+    offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
+
+    /* IODWriteMultipleRes? */
+    if(u16Index == 0xe040) {
+        while((remain = tvb_length_remaining(tvb, offset)) > 0) {
+            offset = dissect_IODWriteRes(tvb, offset, pinfo, tree, drep);
+        }
+    }
+
+    return offset;
 }
 
 
@@ -1035,10 +1844,11 @@ static int
 dissect_IPNIO_Write_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
+    guint16 u16Index = 0;
 
     offset = dissect_IPNIO_resp_header(tvb, offset, pinfo, tree, drep);
 
-    offset = dissect_block(tvb, offset, pinfo, tree, drep, 0);
+    offset = dissect_IODWriteRes(tvb, offset, pinfo, tree, drep);
 
 	return offset;
 }
@@ -1119,6 +1929,9 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
     guint16 u16AckSeqNum;
     guint16 u16VarPartLen;
     int     start_offset = offset;
+    guint16 u16Index = 0;
+    guint32 u32RecDataLen;
+
 
     proto_item *rta_item;
 	proto_tree *rta_tree;
@@ -1179,7 +1992,7 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
     case(1):    /* Data-RTA */
     	if (check_col(pinfo->cinfo, COL_INFO))
 	        col_append_str(pinfo->cinfo, COL_INFO, ", Data-RTA");
-        offset = dissect_block(tvb, offset, pinfo, rta_tree, drep, 0);
+        offset = dissect_block(tvb, offset, pinfo, rta_tree, drep, &u16Index, &u32RecDataLen);
         break;
     case(2):    /* NACK-RTA */
     	if (check_col(pinfo->cinfo, COL_INFO))
@@ -1294,16 +2107,108 @@ proto_register_pn_io (void)
 		{ "Offset", "pn_io.array_offset", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 	{ &hf_pn_io_array_act_count,
 		{ "ActualCount", "pn_io.array_act_count", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+    { &hf_pn_io_ar_type,
+    { "ARType", "pn_io.ar_type", FT_UINT16, BASE_HEX, VALS(pn_io_ar_type), 0x0, "", HFILL }},
+	{ &hf_pn_io_cminitiator_macadd,
+      { "CMInitiatorMacAdd", "pn_io.cminitiator_mac_add", FT_ETHER, BASE_HEX, 0x0, 0x0, "", HFILL }},
+	{ &hf_pn_io_cminitiator_objectuuid,
+      { "CMInitiatorObjectUUID", "pn_io.cminitiator_uuid", FT_STRING, BASE_DEC, 0x0, 0x0, "", HFILL }},
+	{ &hf_pn_io_ar_properties,
+		{ "ARProperties", "pn_io.ar_properties", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},  /* XXX - 32 bitfield! */
+	{ &hf_pn_io_cminitiator_activitytimeoutfactor,
+		{ "CMInitiatorActivityTimeoutFactor", "pn_io.cminitiator_activitytimeoutfactor", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},  /* XXX - special values */
+	{ &hf_pn_io_cminitiator_udprtport,
+		{ "CMInitiatorUDPRTPort", "pn_io.cminitiator_udprtport", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},  /* XXX - special values */
+	{ &hf_pn_io_station_name_length,
+		{ "StationNameLength", "pn_io.station_name_length", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ &hf_pn_io_cminitiator_station_name,
+		{ "CMInitiatorStationName", "pn_io.cminitiator_station_name", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+
+	{ &hf_pn_io_cmresponder_macadd,
+      { "CMResponderMacAdd", "pn_io.cmresponder_macadd", FT_ETHER, BASE_HEX, 0x0, 0x0, "", HFILL }},
+	{ &hf_pn_io_cmresponder_udprtport,
+		{ "CMResponderUDPRTPort", "pn_io.cmresponder_udprtport", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},  /* XXX - special values */
+
+    { &hf_pn_io_iocr_type,
+    { "IOCRType", "pn_io.iocr_type", FT_UINT16, BASE_HEX, VALS(pn_io_iocr_type), 0x0, "", HFILL }},
+    { &hf_pn_io_iocr_reference,
+    { "IOCRReference", "pn_io.iocr_reference", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_lt,
+    { "LT", "pn_io.lt", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ &hf_pn_io_iocr_properties,
+    { "IOCRProperties", "pn_io.iocr_properties", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},  /* XXX - 32 bitfield! */
+    { &hf_pn_io_data_length,
+      { "DataLength", "pn_io.data_length", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_frame_id,
+      { "FrameID", "pn_io.frame_id", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_send_clock_factor,
+      { "SendClockFactor", "pn_io.send_clock_factor", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }}, /* XXX - special values */
+    { &hf_pn_io_reduction_ratio,
+      { "ReductionRatio", "pn_io.reduction_ratio", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }}, /* XXX - special values */
+    { &hf_pn_io_phase,
+      { "Phase", "pn_io.phase", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_sequence,
+      { "Sequence", "pn_io.sequence", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_frame_send_offset,
+      { "FrameSendOffset", "pn_io.frame_send_offset", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_watchdog_factor,
+      { "WatchdogFactor", "pn_io.watchdog_factor", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_data_hold_factor,
+      { "DataHoldFactor", "pn_io.data_hold_factor", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_iocr_tag_header,
+      { "IOCRTagHeader", "pn_io.iocr_tag_header", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_iocr_multicast_mac_add,
+      { "IOCRMulticastMACAdd", "pn_io.iocr_multicast_mac_add", FT_ETHER, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_number_of_apis,
+      { "NumberOfAPIs", "pn_io.number_of_apis", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_number_of_io_data_objects,
+      { "NumberOfIODataObjects", "pn_io.number_of_io_data_objects", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_io_data_object_frame_offset,
+      { "IODataObjectFrameOffset", "pn_io.io_data_object_frame_offset", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_number_of_iocs,
+      { "NumberOfIOCS", "pn_io.number_of_iocs", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_iocs_frame_offset,
+      { "IOCSFrameOffset", "pn_io.iocs_frame_offset", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+    { &hf_pn_io_alarmcr_type,
+    { "AlarmCRType", "pn_io.alarmcr_type", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+	{ &hf_pn_io_alarmcr_properties,
+    { "AlarmCRProperties", "pn_io.alarmcr_properties", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},  /* XXX - 32 bitfield! */
+	{ &hf_pn_io_rta_timeoutfactor,
+		{ "RTATimeoutFactor", "pn_io.rta_timeoutfactor", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},  /* XXX - special values */
+	{ &hf_pn_io_rta_retries,
+		{ "RTARetries", "pn_io.rta_retries", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},  /* XXX - only values 3 - 15 allowed */
+	{ &hf_pn_io_localalarmref,
+		{ "LocalAlarmReference", "pn_io.localalarmref", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},  /* XXX - special values */
+	{ &hf_pn_io_maxalarmdatalength,
+		{ "MaxAlarmDataLength", "pn_io.maxalarmdatalength", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},  /* XXX - only values 200 - 1432 allowed */
+	{ &hf_pn_io_alarmcr_tagheaderhigh,
+		{ "AlarmCRTagHeaderHigh", "pn_io.alarmcr_tagheaderhigh", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},  /* XXX - 16 bitfield! */
+	{ &hf_pn_io_alarmcr_tagheaderlow,
+		{ "AlarmCRTagHeaderLow", "pn_io.alarmcr_tagheaderlow", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},  /* XXX - 16 bitfield!*/
+
+    { &hf_pn_io_api_tree,
+      { "API", "pn_io.api", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_module_tree,
+      { "Module", "pn_io.module", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_submodule_tree,
+      { "Submodule", "pn_io.submodule", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_io_data_object,
+      { "IODataObject", "pn_io.io_data_object", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_io_cs,
+      { "IOCS", "pn_io.io_cs", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
+
     { &hf_pn_io_ar_uuid,
       { "ARUUID", "pn_io.ar_uuid", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_api,
       { "API", "pn_io.api", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_slot_nr,
-      { "SlotNumber", "pn_io.slot_nr", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "SlotNumber", "pn_io.slot_nr", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_subslot_nr,
-      { "SubslotNumber", "pn_io.subslot_nr", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "SubslotNumber", "pn_io.subslot_nr", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_index,
-      { "Index", "pn_io.index", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "Index", "pn_io.index", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_seq_number,
       { "SeqNumber", "pn_io.seq_number", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_record_data_length,
@@ -1314,6 +2219,8 @@ proto_register_pn_io (void)
       { "AdditionalValue1", "pn_io.add_val1", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_add_val2,
       { "AdditionalValue2", "pn_io.add_val2", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_block_header,
+      { "BlockHeader", "pn_io.block_header", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_block_type,
       { "BlockType", "pn_io.block_type", FT_UINT16, BASE_HEX, VALS(pn_io_block_type), 0x0, "", HFILL }},
     { &hf_pn_io_block_length,
@@ -1397,6 +2304,30 @@ proto_register_pn_io (void)
     { &hf_pn_io_submodule_ident_number,
       { "SubmoduleIdentNumber", "pn_io.submodule_ident_number", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
 
+    { &hf_pn_io_number_of_modules,
+      { "NumberOfModules", "pn_io.number_of_modules", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_module_properties,
+      { "ModuleProperties", "pn_io.module_properties", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_module_state,
+      { "ModuleState", "pn_io.module_state", FT_UINT16, BASE_HEX, VALS(pn_io_module_state), 0x0, "", HFILL }},
+    { &hf_pn_io_number_of_submodules,
+      { "NumberOfSubmodules", "pn_io.number_of_submodules", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_submodule_properties,
+      { "SubmoduleProperties", "pn_io.submodule_properties", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_submodule_state,
+      { "SubmoduleState", "pn_io.submodule_state", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+    { &hf_pn_io_data_description_tree,
+      { "DataDescription", "pn_io.data_description", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_data_description,
+      { "DataDescription", "pn_io.data_description", FT_UINT16, BASE_HEX, VALS(pn_io_data_description), 0x0, "", HFILL }},
+    { &hf_pn_io_submodule_data_length,
+      { "SubmoduleDataLength", "pn_io.submodule_data_length", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_length_iocs,
+      { "LengthIOCS", "pn_io.length_iocs", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_length_iops,
+      { "LengthIOPS", "pn_io.length_iops", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+
     { &hf_pn_io_ioxs,
       { "IOxS", "pn_io.ioxs", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_ioxs_extension,
@@ -1406,19 +2337,34 @@ proto_register_pn_io (void)
     { &hf_pn_io_ioxs_instance,
       { "Instance (only valid, if DataState is bad)", "pn_io.ioxs.instance", FT_UINT8, BASE_HEX, VALS(pn_io_ioxs), 0x60, "", HFILL }},
     { &hf_pn_io_ioxs_datastate,
-      { "DataState (1:good/0:bad)", "pn_io.ioxs.datastate", FT_UINT8, BASE_HEX, NULL, 0x80, "", HFILL }}
+      { "DataState (1:good/0:bad)", "pn_io.ioxs.datastate", FT_UINT8, BASE_HEX, NULL, 0x80, "", HFILL }},
+
+    { &hf_pn_io_address_resolution_properties,
+      { "AddressResolutionProperties", "pn_io.address_resolution_properties", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_mci_timeout_factor,
+      { "MCITimeoutFactor", "pn_io.mci_timeout_factor", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+	{ &hf_pn_io_provider_station_name,
+		{ "ProviderStationName", "pn_io.provider_station_name", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }}
+
     };
 
 	static gint *ett[] = {
 		&ett_pn_io,
         &ett_pn_io_block,
+        &ett_pn_io_block_header,
         &ett_pn_io_status,
         &ett_pn_io_rtc,
         &ett_pn_io_rta,
 		&ett_pn_io_pdu_type,
         &ett_pn_io_add_flags,
         &ett_pn_io_control_command,
-        &ett_pn_io_ioxs
+        &ett_pn_io_ioxs,
+        &ett_pn_io_api,
+        &ett_pn_io_data_description,
+        &ett_pn_io_module,
+        &ett_pn_io_submodule,
+        &ett_pn_io_io_data_object,
+        &ett_pn_io_io_cs
 	};
 
 	proto_pn_io = proto_register_protocol ("PROFINET IO", "PNIO", "pn_io");
