@@ -108,6 +108,7 @@ plugin_libs = \
 	plugins/mgcp/mgcp.la \
 	plugins/opsi/opsi.la \
 	plugins/pcli/pcli.la \
+	plugins/profinet/profinet.la \
 	plugins/rdm/rdm.la \
 	plugins/rlm/rlm.la \
 	plugins/rtnet/rtnet.la \
@@ -183,6 +184,7 @@ plugin_ldadd = \
 	"-dlopen" plugins/mgcp/mgcp.la \
 	"-dlopen" plugins/opsi/opsi.la \
 	"-dlopen" plugins/pcli/pcli.la \
+	"-dlopen" plugins/profinet/profinet.la \
 	"-dlopen" plugins/rdm/rdm.la \
 	"-dlopen" plugins/rlm/rlm.la \
 	"-dlopen" plugins/rtnet/rtnet.la \
