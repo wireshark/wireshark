@@ -44,6 +44,8 @@ gboolean plugin_registered = FALSE;
 /* XXX */
 extern void proto_register_pn_io (void);
 extern void proto_reg_handoff_pn_io (void);
+extern void proto_register_pn_dcp (void);
+extern void proto_reg_handoff_pn_dcp (void);
 
 
 
@@ -57,6 +59,7 @@ plugin_register(void)
   /* register the new protocol, protocol fields, and subtrees */
   if (plugin_registered == FALSE) { /* execute protocol initialization only once */
     proto_register_pn_io();
+    proto_register_pn_dcp();
 	  
 	plugin_registered = TRUE;
   }
@@ -65,6 +68,7 @@ plugin_register(void)
 G_MODULE_EXPORT void
 plugin_reg_handoff(void){
   proto_reg_handoff_pn_io();
+  proto_reg_handoff_pn_dcp();
 }
 
 #endif
