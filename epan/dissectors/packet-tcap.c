@@ -196,6 +196,7 @@ int
 tcap_find_eoc(ASN1_SCK *asn1)
 {
     guint	saved_offset;
+    gint        prev_offset;
     guint	tag;
     guint	len;
     gboolean	def_len;
@@ -204,6 +205,7 @@ tcap_find_eoc(ASN1_SCK *asn1)
 
     while (!asn1_eoc(asn1, -1))
     {
+	prev_offset = asn1->offset;
 	asn1_id_decode1(asn1, &tag);
 	asn1_length_decode(asn1, &def_len, &len);
 
@@ -216,6 +218,8 @@ tcap_find_eoc(ASN1_SCK *asn1)
 	    asn1->offset += tcap_find_eoc(asn1);
 	    asn1_eoc_decode(asn1, -1);
 	}
+	if (prev_offset >= asn1->offset)
+	    THROW(ReportedBoundsError);
     }
 
     len = asn1->offset - saved_offset;
@@ -501,7 +505,7 @@ dissect_tcap_opr_code(ASN1_SCK *asn1, proto_tree *tree)
 static int
 dissect_tcap_param(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 {
-    guint orig_offset, saved_offset, len_offset;
+    gint orig_offset, saved_offset, len_offset;
     guint tag, len;
     gboolean def_len;
     proto_item *item;
@@ -592,6 +596,8 @@ dissect_tcap_param(ASN1_SCK *asn1, proto_tree *tree, guint exp_len)
 	    asn1->offset, len, "Parameter Data");
 
 	asn1->offset += len;
+	if (saved_offset >= asn1->offset)
+	    THROW(ReportedBoundsError);
     }
 
     return TC_DS_OK;
@@ -1496,7 +1502,7 @@ dissect_tcap_components(ASN1_SCK *asn1, proto_tree *tcap_tree)
 {
     proto_tree	*subtree;
     proto_item	*comps_item;
-    guint	saved_offset, comps_start;
+    gint	saved_offset, comps_start;
     guint	len, comp_len;
     gint	keep_len;
     gboolean	comps_def_len, def_len;
@@ -1598,6 +1604,8 @@ dissect_tcap_components(ASN1_SCK *asn1, proto_tree *tcap_tree)
 		break;
 	    }
 	}
+	if (saved_offset >= asn1->offset)
+	    THROW(ReportedBoundsError);
     }
 
     if (!comps_def_len)
