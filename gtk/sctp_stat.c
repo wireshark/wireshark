@@ -316,6 +316,11 @@ gint sctp_assoc_vtag_cmp(gconstpointer aa, gconstpointer bb)
 	    (a->port2 == b->port1) &&
 	    (a->verification_tag1 == b->verification_tag2))
 		return(BACKWARD_STREAM);
+		
+	if ((a->port1 == b->port2) &&
+	    (a->port2 == b->port1) &&
+	    (a->verification_tag2 == b->verification_tag1))
+		return(BACKWARD_STREAM);
 
 	/*forward stream verifivation tag can be added*/
 	if ((a->port1 == b->port1) &&
@@ -585,10 +590,10 @@ sctp_assoc_info_t * find_assoc(sctp_tmp_info_t * needle)
 		while (list)
 		{
 			cmp=sctp_assoc_vtag_cmp(needle, (sctp_assoc_info_t*)(list->data));
-			if (cmp==ASSOC_NOT_FOUND)
+			/*if (cmp==ASSOC_NOT_FOUND)
 			{
 				cmp=sctp_assoc_address_cmp(needle, (sctp_assoc_info_t*)(list->data));
-			}
+			}*/
 			switch (cmp)
 			{
 			case FORWARD_STREAM:
@@ -809,8 +814,17 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 
 	tmp_info.port1 = sctp_info->sport;
 	tmp_info.port2 = sctp_info->dport;
-	tmp_info.verification_tag1 = sctp_info->verification_tag;
-	tmp_info.verification_tag2 = 0;
+
+	if (sctp_info->vtag_reflected)
+	{
+		tmp_info.verification_tag2 = sctp_info->verification_tag;
+		tmp_info.verification_tag1 = 0;
+	}
+	else
+	{
+		tmp_info.verification_tag1 = sctp_info->verification_tag;
+		tmp_info.verification_tag2 = 0;
+	}
 	tmp_info.n_tvbs = 0;
 
 	info = find_assoc(&tmp_info);
