@@ -73,6 +73,7 @@
 #include "packet-rtcp.h"
 
 static dissector_handle_t uma_tcp_handle = NULL;
+static dissector_handle_t uma_udp_handle = NULL;
 static dissector_handle_t data_handle = NULL;
 static dissector_table_t bssap_pdu_type_table=NULL;
 static dissector_handle_t rtp_handle = NULL;
@@ -90,6 +91,7 @@ static int hf_uma_urlc_TLLI				= -1;
 static int hf_uma_urlc_seq_nr			= -1;
 static int hf_uma_urr_IE				= -1;
 static int hf_uma_urr_IE_len			= -1;
+static int hf_uma_urr_IE_len2			= -1;
 static int hf_uma_urr_mobile_identity_type	= -1; 
 static int hf_uma_urr_odde_even_ind		= -1;
 static int hf_uma_urr_imsi				= -1;
@@ -295,7 +297,10 @@ static const value_string uma_urr_msg_type_vals[] = {
  */
 static const value_string uma_urlc_msg_type_vals[] = {
 	{ 1,		"URLC-DATA"},
+	{ 2,		"URLC UNITDATA"},
 	{ 3,		"URLC-PS-PAGE"},
+	{ 6,		"URLC-UFC-REQ"},
+	{ 7,		"URLC-DFC-REQ"},
 	{ 8,		"URLC-ACTIVATE-UTC-REQ"},
 	{ 9,		"URLC-ACTIVATE-UTC-ACK"},
 	{ 10,		"URLC-DEACTIVATE-UTC-REQ"},
@@ -1045,7 +1050,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	tvbuff_t	*llc_tvb;
 	int			ie_offset;
 	guint8		ie_value;
-	guint8		ie_len;
+	guint16		ie_len = 0;
 	guint8		octet;
 	guint8		mobile_identity_type;
 	proto_item	*urr_ie_item;
@@ -1069,10 +1074,29 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 
 	proto_tree_add_item(urr_ie_tree, hf_uma_urr_IE, tvb, offset, 1, FALSE);
 	offset++;
+	/* Some IE:s might have a lengt field of 2 octets */
 	ie_len = tvb_get_guint8(tvb,offset);
-	proto_item_set_len(urr_ie_item, ie_len + 2);
-	proto_tree_add_item(urr_ie_tree, hf_uma_urr_IE_len, tvb, offset, 1, FALSE);
-	ie_offset = offset +1;
+	switch(ie_value){
+	case 57:
+		if ( (ie_len & 0x80) == 0x80 ){
+			offset++;
+			ie_len = (ie_len & 0x7f) << 8;
+			ie_len = ie_len | (tvb_get_guint8(tvb,offset));
+			proto_item_set_len(urr_ie_item, ie_len + 3);
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_IE_len2, tvb, offset-1, 2, FALSE);
+			ie_offset = offset +1;
+		}else{
+		proto_item_set_len(urr_ie_item, ie_len + 2);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_IE_len, tvb, offset, 1, FALSE);
+		ie_offset = offset +1;
+		}
+		break;
+	default:
+		proto_item_set_len(urr_ie_item, ie_len + 2);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_IE_len, tvb, offset, 1, FALSE);
+		ie_offset = offset +1;
+		break;
+	}
 
 	switch(ie_value){
 	case 1:			/* Mobile Identity */
@@ -1714,6 +1738,35 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	case 100:		/* UDP Port for GPRS user data transport */
 		GPRS_user_data_transport_UDP_port = tvb_get_ntohs(tvb,ie_offset);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_GPRS_port, tvb, ie_offset, 2, FALSE);
+		/*
+		 * If this isn't the first time this packet has been processed,
+		 * we've already done this work, so we don't need to do it
+		 * again.
+		 */
+		if (pinfo->fd->flags.visited)
+		{
+			break;
+		}
+		SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
+
+		dst_addr.type=AT_IPv4;
+		dst_addr.len=4;
+		dst_addr.data=(char *)&GPRS_user_data_ipv4_address;
+
+		conversation = find_conversation(pinfo->fd->num,&dst_addr,
+			&null_addr, PT_UDP, GPRS_user_data_transport_UDP_port,
+			0, NO_ADDR_B|NO_PORT_B);
+
+		if (conversation == NULL) {
+			/* It's not part of any conversation - create a new one. */
+			conversation = conversation_new(pinfo->fd->num, &dst_addr,
+			    &null_addr, PT_UDP,GPRS_user_data_transport_UDP_port ,
+			    0, NO_ADDR2|NO_PORT2);
+
+		/* Set dissector */
+		conversation_set_dissector(conversation, uma_udp_handle);
+		}
+
 		break;
 	case 103:		/* UNC TCP port */
 		UNC_tcp_port = tvb_get_ntohs(tvb,ie_offset);
@@ -1861,15 +1914,61 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			return tvb_length(tvb);
 
 		}
-		offset++;
-
-
-/* Continue adding tree items to process the packet here */
-
 
 	return offset;
+}
 
-/* If this protocol has a sub-dissector call it here, see section 1.8 */
+static int
+dissect_uma_urlc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+
+	int		offset = 0;
+	guint8	octet;
+	guint16 msg_len;
+
+/* Set up structures needed to add the protocol subtree and manage it */
+	proto_item *ti;
+	proto_tree *uma_tree;
+
+/* Make entries in Protocol column and Info column on summary display */
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "UMA");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
+
+	ti = proto_tree_add_item(tree, proto_uma, tvb, 0, -1, FALSE);
+	uma_tree = proto_item_add_subtree(ti, ett_uma);
+
+	octet = tvb_get_guint8(tvb,offset);
+	proto_tree_add_item(uma_tree, hf_uma_urlc_msg_type, tvb, offset, 1, FALSE);
+	if (check_col(pinfo->cinfo, COL_INFO)){
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",val_to_str(octet, uma_urlc_msg_type_vals, "Unknown URLC (%u)"));
+		col_set_fence(pinfo->cinfo,COL_INFO);
+	}
+	msg_len = tvb_length_remaining(tvb,offset) - 1;
+
+	switch  ( octet ){
+
+	case 2:	/* RLC UNITDATA */
+	case 6: /* URLC-UFC-REQ */
+	case 7: /* URLC-DFC-REQ only allowed message types*/
+		offset++;
+		proto_tree_add_item(uma_tree, hf_uma_urlc_TLLI, tvb, offset, 4, FALSE);
+		offset = offset + 4;
+		proto_tree_add_item(uma_tree, hf_uma_urlc_seq_nr, tvb, offset, 2, FALSE);
+		offset++;
+		while (msg_len > offset){
+			offset++;
+			offset = dissect_uma_IE(tvb, pinfo, uma_tree, offset);
+		}
+		return offset;
+		break;
+	default:
+		proto_tree_add_text(uma_tree, tvb,offset,-1,"Wrong message type %u",octet);
+		return tvb_length(tvb);
+
+	}
+
 }
 
 
@@ -1886,6 +1985,8 @@ proto_reg_handoff_uma(void)
 	
 	if (!Initialized) {
 		uma_tcp_handle = new_create_dissector_handle(dissect_uma, proto_uma);
+		uma_udp_handle = new_create_dissector_handle(dissect_uma_urlc_udp, proto_uma);
+		dissector_add("tcp.port", 0, uma_udp_handle);
 		Initialized=TRUE;
 	} else {
 		dissector_delete("tcp.port", TcpPort1, uma_tcp_handle);
@@ -1957,6 +2058,11 @@ proto_register_uma(void)
 		{ &hf_uma_urr_IE_len,
 			{ "URR Information Element length","uma.urr.ie.len",
 			FT_UINT8, BASE_DEC, NULL, 0x0,          
+			"URR Information Element length", HFILL }
+		},
+		{ &hf_uma_urr_IE_len2,
+			{ "URR Information Element length","uma.urr.ie.len2",
+			FT_UINT16, BASE_DEC, NULL, 0x7fff,          
 			"URR Information Element length", HFILL }
 		},
 		{ &hf_uma_urr_mobile_identity_type,
