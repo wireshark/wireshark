@@ -48,6 +48,7 @@
 #define PROG_MISMATCH 2
 #define PROC_UNAVAIL 3
 #define GARBAGE_ARGS 4
+#define SYSTEM_ERROR 5
 
 #define RPC_MISMATCH 0
 #define AUTH_ERROR 1

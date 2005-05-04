@@ -129,6 +129,7 @@ static const value_string rpc_accept_state[] = {
 	{ PROG_MISMATCH, "remote can't support version #" },
 	{ PROC_UNAVAIL, "program can't support procedure" },
 	{ GARBAGE_ARGS, "procedure can't decode params" },
+	{ SYSTEM_ERROR, "system errors like memory allocation failure" },
 	{ 0, NULL }
 };
 
