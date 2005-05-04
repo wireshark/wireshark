@@ -11623,6 +11623,8 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				tri = NULL;
 			}
 			dissected_trans = FALSE;
+			if (an == NULL)
+				goto endofcommand;
 			if(strncmp("\\PIPE\\", an, 6) == 0){
 				if (tri != NULL)
 					tri->subcmd=TRANSACTION_PIPE;
