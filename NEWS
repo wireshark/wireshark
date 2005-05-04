@@ -150,6 +150,13 @@ up a multitude of security issues:
   The TCAP dissector could overflow a buffer or throw an assertion.
   Versions affected: 0.10.8 to 0.10.10
 
+  The NTLMSSP dissector could crash.
+  Versions affected: 0.9.7 to 0.10.10
+
+  The Presentation dissector could overflow a buffer.
+  Versions affected: 0.10.1 to 0.10.10
+
+
   Additionally, a number of dissectors could throw an assertion when
   passing an invalid protocol tree item length.
   Versions affected: 0.10.8 to 0.10.10
@@ -164,19 +171,50 @@ Everyone is encouraged to upgrade.
 
 New and updated features
 
+  Many user interface improvements have been made:
+
+    The toolbar has been updated.
+
+    Packet detail tree items can be expanded and collapsed with the right
+    and left arrow keys.
+
+    The status bar display has been improved.
+
+    Live captures can now be restarted from the toolbar.
+
+  More improvements have been made to the ring buffer feature.
+
+  Display filters are now faster.
+
+  The capture engine has received major updates.
 
 
 New protocol support
 
+  9P, Aruba ADP, Camel, DRSUAPI, DUA, HPSW, Monotone Netsync, nettl,
+  UMA, VNC (RFB),
 
 
 Updated protocol support
 
+  ACSE, AgentX, AIM, AMR, ANSI A, ASN.1 BER/PER, ATM, ATSVC, BACapp,
+  BOOTP/DHCP, CDP, CMIP, CMP, CMS, CRMF, DCERPC, DHCPFO, DIAMETER, DICOM,
+  DISTCC, DLSw, EFS, EIGRP, EPM, ESIS, ESS, ETHERIC, Ethernet, FC, FCELS,
+  FCP, FTAM, G.723, GIOP, GRE, GSM, GSS-API, GTP, H.225, H.245, H.263,
+  HTTP, IAX2, ICEP, IEEE 802.11, IEEE 802.3 Slow protocols, INAP, IP,
+  IPsec, ISAKMP, iSCSI, ISIS, ISL, ISMP, ISUP, JXTA, Kerberos, KINK,
+  Kpasswd, L2TP, LDAP, LMP, M3UA, MANOLITO, MEGACO, MGCP, MIP6, MMSE,
+  MQ, MRDISC, MTP2, NCP, NDMP, NDPS, NFS, NLM, OCSP, OSI options, PIM,
+  PKIX1Explitit, PKIX Qualified, PKTC, Portmap, PPP, PRES, PROFINET DCP,
+  Q.2931, Q.931, Q.933, RADIUS, RDM, RPC, RSVP, RTP, RTSP, RX, SCCP, SCSI,
+  SCTP, SDP, sFlow, SIP, SKINNY, SM, SMB (SMB, PIPE, LOGON, Mailslot),
+  SNA, SPNEGO, SRVLOC, SUA, TCAP, TCP, Telnet, TFTP, TZSP, Vines, WSP,
+  X11, X.509, XML,
 
 
 New and updated capture file support
 
-
+  5Views, HP nettl
 
 
 == March 11, 2005
