@@ -226,7 +226,6 @@ call_acse_dissector(tvbuff_t *tvb, gint offset, gint param_len,
 		/* No - display as data */
 		if (tree)
 		{
-			tvb_ensure_bytes_exist(tvb, offset, param_len);
 			proto_tree_add_text(param_tree, tvb, offset, param_len,
 			    "No ACSE dissector available");
 		}
@@ -248,33 +247,6 @@ call_acse_dissector(tvbuff_t *tvb, gint offset, gint param_len,
 		ENDTRY;
 	}
 }
-static char*
-string_to_hex(const unsigned char * in,char * out,int len)
-{
-	char ascii[MAXSTRING];
-	int  i;
-	memset(&ascii,0x00,sizeof(ascii));
-for(i=0;i<len;i++)
-			{
-	unsigned char o_out = *(in+i);
-    sprintf(out+(i<<1),"%.2x",*  (in+i));
-	if(  ( (o_out) >= 'a') & ( (o_out) <='z')  ||
-		 ( (o_out) >= 'A') & ( (o_out) <='Z')  ||
-		 ( (o_out) >= '0') & ( (o_out) <='9')
-	   )
-					{
-					ascii[i] = o_out;
-					}
-				else
-					{
-					ascii[i] = '.';
-					}
-
-			}
-		strcat(out," ");
-		strcat(out,ascii);
-    return out;
-}
 
 static int read_length(ASN1_SCK *a, proto_tree *tree, int hf_id, guint *len)
 {
@@ -288,7 +260,6 @@ static int read_length(ASN1_SCK *a, proto_tree *tree, int hf_id, guint *len)
   {
     if (tree)
 	{
-      tvb_ensure_bytes_exist(a->tvb, start, 0);
       proto_tree_add_text(tree, a->tvb, start, 0,
         "%s: ERROR: Couldn't parse length: %s",
         proto_registrar_get_name(hf_id), asn1_err_to_str(ret));
@@ -299,11 +270,9 @@ static int read_length(ASN1_SCK *a, proto_tree *tree, int hf_id, guint *len)
   if (len)
     *len = length;
 
-  if (hf_id) {
-    tvb_ensure_bytes_exist(a->tvb, start, a->offset-start);
+  if (hf_id)
     proto_tree_add_uint(tree, hf_id, a->tvb, start, a->offset-start, 
 length);
-  }
 
   return ASN1_ERR_NOERROR;
 }
@@ -319,7 +288,6 @@ static int read_integer_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
   {
     if (tree)
 	{
-      tvb_ensure_bytes_exist(a->tvb, start, 0);
       proto_tree_add_text(tree, a->tvb, start, 0,
        "%s: ERROR: Couldn't parse value: %s",
         proto_registrar_get_name(hf_id), asn1_err_to_str(ret));
@@ -330,11 +298,9 @@ static int read_integer_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
   if (i)
     *i = integer;
 
-  if (hf_id) {
-    tvb_ensure_bytes_exist(a->tvb, start, a->offset-start);
+  if (hf_id)
     temp_item = proto_tree_add_uint(tree, hf_id, a->tvb, start, 
 a->offset-start, integer);
-  }
 
   if (new_item)
     *new_item = temp_item;
@@ -356,7 +322,6 @@ static int read_integer(ASN1_SCK *a, proto_tree *tree, int hf_id,
   {
     if (tree)
 	{
-      tvb_ensure_bytes_exist(a->tvb, start, 0);
       proto_tree_add_text(tree, a->tvb, start, 0,
         "%s: ERROR: Couldn't parse header: %s",
         (hf_id != -1) ? proto_registrar_get_name(hf_id) : "LDAP message",
@@ -377,8 +342,6 @@ show_integer(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t *tvb,int
 	  int       ret;
 	  int		save_len = item_len;
 	  int		off      = *offset;
-
-	  tvb_ensure_bytes_exist(tvb, *offset, item_len);
 	  itm = proto_tree_add_text(pres_tree, tvb, *offset, item_len,
 										"Integer");
 	  pres_tree_itm = proto_item_add_subtree(itm, ett_pres_itm);
@@ -386,7 +349,6 @@ show_integer(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t *tvb,int
 	  if (ret == ASN1_ERR_NOERROR )
 			{
 				*offset = asn->offset;
-				tvb_ensure_bytes_exist(tvb, (*offset)-item_len, item_len);
 				itm = proto_tree_add_text(pres_tree_itm, tvb, (*offset)-item_len, 
 item_len,
 											"Integer value: %u",item_len);
@@ -410,13 +372,11 @@ show_presentation_requirements(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t
 			if( ( length = tvb_reported_length_remaining(tvb, *offset))  < 
 (asn->offset -*offset)+ item_len )
 			{
-					tvb_ensure_bytes_exist(tvb, *offset, item_len);
 					proto_tree_add_text(pres_tree, tvb, *offset, item_len,
 							"Wrong Item.Need %u bytes but have %u", item_len,length);
 					return;
 			}
 
-	  tvb_ensure_bytes_exist(tvb, *offset,(asn->offset -*offset)+item_len);
 	  itm = proto_tree_add_text(pres_tree, tvb, *offset,(asn->offset -*offset)+ 
 item_len,
 											val_to_str(tag, sequence_top_vals,"Unknown item (0x%02x)"));
@@ -443,13 +403,11 @@ show_protocol_version(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t *tvb,int
 			if( ( length = tvb_reported_length_remaining(tvb, *offset))  < 
 (asn->offset -*offset)+ item_len )
 			{
-					tvb_ensure_bytes_exist(tvb, *offset, item_len);
 					proto_tree_add_text(pres_tree, tvb, *offset, item_len,
 							"Wrong Item.Need %u bytes but have %u", item_len,length);
 					return;
 			}
 
-	  tvb_ensure_bytes_exist(tvb, *offset,(asn->offset -*offset)+item_len);
 	  itm = proto_tree_add_text(pres_tree, tvb, *offset,(asn->offset -*offset)+ 
 item_len,
 											val_to_str(tag, sequence_top_vals,"Unknown item (0x%02x)"));
@@ -479,7 +437,6 @@ print_oid_value(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t *tvb,int
 		}
 		length = asn->offset - start;
 		display_string = format_oid(oid, len);
-		tvb_ensure_bytes_exist(tvb, *offset,length);
 		proto_tree_add_text(pres_tree, tvb, *offset,length,"Value:%s", 
 display_string);
 		g_free(display_string);
@@ -506,7 +463,6 @@ item_len)
 		}
 		length = asn->offset - start;
 		display_string = format_oid(oid, len);
-		tvb_ensure_bytes_exist(tvb, *offset,length);
 		proto_tree_add_text(pres_tree, tvb, *offset,length,"Value:%s", 
 display_string);
 		g_free(display_string);
@@ -515,18 +471,18 @@ display_string);
 }
 
 static void
-print_value(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t *tvb,int 
-*offset,int item_len)
+print_value(ASN1_SCK *asn,proto_tree *pres_tree, tvbuff_t *tvb, int *offset, int item_len)
 {
-	  gint    start = *offset;
-	  char    tmp[MAXSTRING];
-		*offset = asn->offset;  /* align to data*/
-		string_to_hex(tvb_get_ptr(tvb,*offset,item_len),tmp,item_len);
-		tvb_ensure_bytes_exist(tvb, *offset, item_len);
-		proto_tree_add_text(pres_tree, tvb, *offset, item_len, tmp);
-		(*offset)=start+item_len;
-		asn->offset = (*offset);
+    gint    start = *offset;
+    gchar  *tmp;
+
+    *offset = asn->offset;  /* align to data*/
+    tmp = tvb_bytes_to_str(tvb, *offset, item_len);
+    proto_tree_add_text(pres_tree, tvb, *offset, item_len, tmp);
+    (*offset) = start+item_len;
+    asn->offset = (*offset);
 }
+
 static int
 get_integer_value(ASN1_SCK *asn,int length,int *offset)
 {
@@ -585,7 +541,6 @@ show_presentation_context_definition_result_seq(ASN1_SCK *asn,proto_tree
 			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < 
 new_item_len )
 			{
-					tvb_ensure_bytes_exist(tvb, *offset, new_item_len);
 					proto_tree_add_text(pres_tree, tvb, *offset, new_item_len,
 							"Wrong item.Need %u bytes but have %u", new_item_len,length);
 					(*offset)=start+item_len;
@@ -593,7 +548,6 @@ new_item_len )
 				    return ;
 			}
 				header_len = asn->offset - (*offset) +1;
-				tvb_ensure_bytes_exist(tvb, *offset-1, new_item_len+(asn->offset-*offset)+1);
 				ms = proto_tree_add_text(pres_tree, tvb, *offset-1, 
 new_item_len+(asn->offset-*offset)+1,
 										val_to_str(type, sequence_list_result_vals,
@@ -609,7 +563,6 @@ new_item_len+(asn->offset-*offset)+1,
 					proto_tree *pres_tree_pr = NULL;
 					proto_item *pr;
 					int        value	=	get_integer_value(asn,new_item_len,offset);
-				tvb_ensure_bytes_exist(tvb, *offset, new_item_len+(asn->offset-*offset));
 				pr = proto_tree_add_text(pres_tree_ms, tvb, *offset, 
 new_item_len+(asn->offset-*offset),
 								val_to_str(value ,sequence_list_result_values_vals,
@@ -627,7 +580,6 @@ new_item_len+(asn->offset-*offset),
 					break;
 
 			default:
-					tvb_ensure_bytes_exist(tvb, *offset, new_item_len+(asn->offset-*offset));
 					proto_tree_add_text(pres_tree, tvb, *offset, 
 new_item_len+(asn->offset-*offset),
 					"Unknown asn.1 parameter: (0x%02x)", type);
@@ -674,7 +626,6 @@ show_presentation_context_definition_seq(ASN1_SCK *asn,proto_tree
 			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < 
 new_item_len )
 			{
-					tvb_ensure_bytes_exist(tvb, *offset, new_item_len);
 					proto_tree_add_text(pres_tree, tvb, *offset, new_item_len,
 							"Wrong item.Need %u bytes but have %u", new_item_len,length);
 					(*offset)=start+item_len;
@@ -682,7 +633,6 @@ new_item_len )
 				    return ;
 			}
 				header_len = asn->offset - (*offset) +1;
-				tvb_ensure_bytes_exist(tvb, *offset-1, new_item_len+(asn->offset-*offset)+1);
 				ms = proto_tree_add_text(pres_tree, tvb, *offset-1, 
 new_item_len+(asn->offset-*offset)+1,
 										val_to_str(type, sequence_list_vals,
@@ -703,7 +653,6 @@ new_item_len+(asn->offset-*offset)+1,
 				print_oid(asn,pres_tree_ms,tvb,offset,new_item_len);
 					break;
 			default:
-					tvb_ensure_bytes_exist(tvb, *offset, new_item_len+(asn->offset-*offset));
 					proto_tree_add_text(pres_tree, tvb, *offset, 
 new_item_len+(asn->offset-*offset),
 					"Unknown asn.1 parameter: (0x%02x)", type);
@@ -748,7 +697,6 @@ show_fully_encoded_seq(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t *tvb,int
 			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < 
 new_item_len )
 			{
-					tvb_ensure_bytes_exist(tvb, *offset, new_item_len);
 					proto_tree_add_text(pres_tree, tvb, *offset, new_item_len,
 							"Wrong item.Need %u bytes but have %u", new_item_len,length);
 					(*offset)=start+item_len;
@@ -760,7 +708,6 @@ new_item_len )
 					new_item_len = length-1;  /* can't get length from asn1 tag. Use rest of the pdu len. */
 			}
 				header_len = asn->offset - (*offset) +1;
-				tvb_ensure_bytes_exist(tvb, *offset-1, new_item_len+(asn->offset-*offset)+1);
 				ms = proto_tree_add_text(pres_tree, tvb, *offset-1, 
 new_item_len+(asn->offset-*offset)+1,
 										val_to_str(type, presentation_data_values,
@@ -782,7 +729,6 @@ new_item_len+(asn->offset-*offset)+1,
 				{
 						proto_item *acse_ms;
 					/*  yes, we have to call ACSE dissector    */
-				tvb_ensure_bytes_exist(tvb, *offset,new_item_len+(asn->offset-*offset));
 				acse_ms = proto_tree_add_text(pres_tree_ms, tvb, *offset,new_item_len+(asn->offset-*offset),
 										"User data");
 
@@ -796,7 +742,6 @@ new_item_len+(asn->offset-*offset)+1,
 				{
 						proto_item *acse_ms;
 					/*  yes, we have to call ACSE dissector    */
-				tvb_ensure_bytes_exist(tvb, *offset, new_item_len+(asn->offset-*offset));
 				acse_ms = proto_tree_add_text(pres_tree_ms, tvb, *offset, 
 new_item_len+(asn->offset-*offset),
 										"User data");
@@ -809,7 +754,6 @@ new_item_len+(asn->offset-*offset),
 				print_value(asn,pres_tree_ms,tvb,offset,new_item_len);
 					break;
 			default:
-					tvb_ensure_bytes_exist(tvb, *offset, new_item_len+(asn->offset-*offset));
 					proto_tree_add_text(pres_tree, tvb, *offset, 
 new_item_len+(asn->offset-*offset),
 					"Unknown asn.1 parameter: (0x%02x)", type);
@@ -840,7 +784,6 @@ show_fully_encoded_data(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t
 /* do we have enough bytes to dissect ? */
 			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < item_len )
 			{
-					tvb_ensure_bytes_exist(tvb, *offset, item_len);
 					proto_tree_add_text(pres_tree_pc, tvb, *offset, item_len,
 							"Wrong item.Need %u bytes but have %u", item_len,length);
 					/*   align the pointer */
@@ -873,7 +816,6 @@ ASN1_ERR_NOERROR)
 			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < 
 new_item_len )
 			{
-					tvb_ensure_bytes_exist(tvb, *offset, new_item_len);
 					proto_tree_add_text(pres_tree_pc, tvb, *offset, new_item_len,
 							"Wrong item.Need %u bytes but have %u", new_item_len,length);
 					/*   align the pointer */
@@ -886,7 +828,6 @@ new_item_len )
 				/* check if really do have what to dissect */
 				new_item_len = length-1;
 			}
-				tvb_ensure_bytes_exist(tvb, *offset-1, new_item_len+(asn->offset-*offset)+1);
 				ms = proto_tree_add_text(pres_tree_pc, tvb, *offset-1, 
 new_item_len+(asn->offset-*offset)+1,
 										val_to_str(type, presentation_context_definition_vals,
@@ -904,7 +845,6 @@ new_item_len+(asn->offset-*offset)+1,
 					break;
 
 			default:
-					tvb_ensure_bytes_exist(tvb, *offset, new_item_len+(asn->offset-*offset));
 					proto_tree_add_text(pres_tree_ms, tvb, *offset, 
 new_item_len+(asn->offset-*offset),
 					"Unknown asn.1 parameter: (0x%02x)", type);
@@ -932,7 +872,6 @@ show_session_provider_abort(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t
 
 
 /* do we have enough bytes to dissect this item ? */
-			tvb_ensure_bytes_exist(tvb, *offset, item_len);
 			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < item_len )
 			{
 					proto_tree_add_text(pres_tree, tvb, *offset, item_len,
@@ -951,7 +890,6 @@ show_session_provider_abort(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t
 							*offset = asn->offset;
 							return;
 			}
-			tvb_ensure_bytes_exist(tvb, *offset,ABORT_REASON_LEN);
 			itu = proto_tree_add_text(pres_tree_pp, tvb, *offset,ABORT_REASON_LEN,
 					"Abort reason");
 			pres_tree_pc = proto_item_add_subtree(itu, ett_pres_ms);
@@ -969,7 +907,6 @@ ASN1_ERR_NOERROR)
 			value	=	get_integer_value(asn,new_item_len,offset);
 
 
-			tvb_ensure_bytes_exist(tvb, *offset+1,new_item_len);
 			proto_tree_add_text(pres_tree_pc, tvb, *offset+1,new_item_len,
 					val_to_str(value, provider_abort_values_vals,"Unknown item (0x%02x)"));
 			item_len-=(asn->offset-*offset)+new_item_len;
@@ -978,7 +915,6 @@ ASN1_ERR_NOERROR)
 			/*  do we have Event identifier  ?  */
 			if(item_len > 0)
 			{
-			tvb_ensure_bytes_exist(tvb, *offset,item_len);
 			itu = proto_tree_add_text(pres_tree_pp, tvb, *offset,item_len,
 					"Event identifier");
 			pres_tree_pc = proto_item_add_subtree(itu, ett_pres_ms);
@@ -996,7 +932,6 @@ ASN1_ERR_NOERROR)
 			/*  try to get Event identifier  */
 			value	=	get_integer_value(asn,new_item_len,offset);
 
-			tvb_ensure_bytes_exist(tvb, *offset+1,new_item_len);
 			proto_tree_add_text(pres_tree_pc, tvb, *offset+1,new_item_len,
 					val_to_str(value, event_identifier_values_vals,"Unknown item (0x%02x)"));
 			item_len-=(asn->offset-*offset)+new_item_len;
@@ -1015,11 +950,9 @@ show_user_data(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t *tvb,int
 	  guint   start = asn->offset;
 	  guint	  item_length = item_len;
 
-			tvb_ensure_bytes_exist(tvb, *offset,(asn->offset -*offset)+item_len);
 			itm = proto_tree_add_text(pres_tree, tvb, *offset,(asn->offset -*offset)+ 
 item_len,	"User data");
 			pres_tree_ud = proto_item_add_subtree(itm, ett_pres_ms);
-			tvb_ensure_bytes_exist(tvb, *offset,item_len+(asn->offset-*offset));
 			itu = proto_tree_add_text(pres_tree_ud, tvb, 
 *offset,item_len+(asn->offset-*offset),
 					val_to_str(tag, user_data_values_vals,"Unknown item (0x%02x)"));
@@ -1057,7 +990,6 @@ show_presentation_context_definition(ASN1_SCK *asn,proto_tree
 	  guint   start = asn->offset;
 	  guint	  item_length = item_len;
 
-			tvb_ensure_bytes_exist(tvb, *offset,item_len+(asn->offset-*offset));
 			itm = proto_tree_add_text(pres_tree, tvb, 
 *offset,item_len+(asn->offset-*offset),
 					val_to_str(tag, sequence_top_vals,"Unknown item (0x%02x)"));
@@ -1066,7 +998,6 @@ show_presentation_context_definition(ASN1_SCK *asn,proto_tree
 /* do we have enough bytes to dissect ? */
 			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < item_len )
 			{
-					tvb_ensure_bytes_exist(tvb, *offset, item_len);
 					proto_tree_add_text(pres_tree_pc, tvb, *offset, item_len,
 							"Wrong item.Need %u bytes but have %u", item_len,length);
 					/*   align the pointer */
@@ -1099,7 +1030,6 @@ ASN1_ERR_NOERROR)
 			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < 
 new_item_len )
 			{
-					tvb_ensure_bytes_exist(tvb, *offset, new_item_len);
 					proto_tree_add_text(pres_tree_pc, tvb, *offset, new_item_len,
 							"Wrong item.Need %u bytes but have %u", new_item_len,length);
 					/*   align the pointer */
@@ -1107,7 +1037,6 @@ new_item_len )
 					asn->offset = (*offset);
 					return ;
 			}
-				tvb_ensure_bytes_exist(tvb, *offset-1, new_item_len+(asn->offset-*offset)+1);
 				ms = proto_tree_add_text(pres_tree_pc, tvb, *offset-1, 
 new_item_len+(asn->offset-*offset)+1,
 										val_to_str(type, presentation_context_definition_vals,
@@ -1133,7 +1062,6 @@ new_item_len+(asn->offset-*offset)+1,
 					break;
 
 			default:
-					tvb_ensure_bytes_exist(tvb, *offset, new_item_len+(asn->offset-*offset));
 					proto_tree_add_text(pres_tree_ms, tvb, *offset, 
 new_item_len+(asn->offset-*offset),
 					"Unknown asn.1 parameter: (0x%02x)", type);
@@ -1191,11 +1119,9 @@ static int read_string_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
   else
     string = "(null)";
 
-  if (hf_id) {
-    tvb_ensure_bytes_exist(a->tvb, start, a->offset);
+  if (hf_id)
     temp_item = proto_tree_add_string(tree, hf_id, a->tvb, start, a->offset 
 - start, string);
-  }
   if (new_item)
     *new_item = temp_item;
 
@@ -1218,13 +1144,11 @@ show_provider_reason(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t *tvb,int
 	  int		value=0;
 	  int		new_item_len = item_len+(asn->offset-*offset);
 
-				tvb_ensure_bytes_exist(tvb, *offset, new_item_len);
 				ms = proto_tree_add_text(pres_tree, tvb, *offset, new_item_len,
 										val_to_str(type, sequence_top_vals,
 										"Unknown item (0x%02x)"));
 				pres_tree_ms = proto_item_add_subtree(ms, ett_pres_ms);
 				value	=	get_integer_value(asn,item_len,offset);
-				tvb_ensure_bytes_exist(tvb, *offset, new_item_len);
 				pr = proto_tree_add_text(pres_tree_ms, tvb, *offset, new_item_len,
 										val_to_str(value, provider_reason_values_vals,
 										"Unknown item (0x%02x)"));
@@ -1241,7 +1165,6 @@ show_presentation_selector (ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t
 	  int ret;
 	  char *s;
 
-				tvb_ensure_bytes_exist(tvb, *offset, item_len+(asn->offset-*offset));
 				ms = proto_tree_add_text(pres_tree, tvb, *offset, 
 item_len+(asn->offset-*offset),
 										val_to_str(type, sequence_top_vals,
@@ -1254,7 +1177,6 @@ item_len+(asn->offset-*offset),
 *offset+(asn->offset-*offset), item_len);
 				if(ret == ASN1_ERR_NOERROR)
 				{
-					tvb_ensure_bytes_exist(tvb, *offset+2, item_len);
 					if( item_len)
 					{
 							proto_tree_add_text(pres_tree_ms, tvb, *offset+2, item_len,
@@ -1288,7 +1210,6 @@ show_sequence_top(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t
 /* do we have enough bytes to dissect this item ? */
 			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < item_len )
 			{
-					tvb_ensure_bytes_exist(tvb, *offset, item_len);
 					proto_tree_add_text(pres_tree, tvb, *offset, item_len,
 							"Wrong Item.Need %u bytes but have %u", item_len,length);
 					break;
@@ -1363,7 +1284,6 @@ show_sequence_top(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t
 
 								case USER_SESSION_REQUIREMENTS:
 
-									tvb_ensure_bytes_exist(tvb, *offset,(asn->offset-*offset)+ len1);
 									itm = proto_tree_add_text(pres_tree, tvb, *offset,(asn->offset 
 -*offset)+ len1,
 											val_to_str(tag, sequence_top_vals,"Unknown item (0x%02x)"));
@@ -1371,7 +1291,6 @@ show_sequence_top(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t
 									break;
 
 								default:
-									tvb_ensure_bytes_exist(tvb, *offset,(asn->offset-*offset)+ len1);
 									itm = proto_tree_add_text(pres_tree, tvb, *offset,(asn->offset 
 -*offset)+ len1,
 											"Unknown tag: %x",tag);
@@ -1410,12 +1329,10 @@ show_connection_request_confirm(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t
 			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < 
 (guint)*item_len )
 			{
-					tvb_ensure_bytes_exist(tvb, *offset, -1);
 					proto_tree_add_text(pres_tree, tvb, *offset, -1,
 							"Wrong item.Need %u bytes but have %u", *item_len,length);
 				return;
 			}
-				tvb_ensure_bytes_exist(tvb, *offset-1, *item_len+(asn->offset-*offset)+1);
 				ms = proto_tree_add_text(pres_tree, tvb, *offset-1, 
 *item_len+(asn->offset-*offset)+1,
 										val_to_str(asn1_tag, cr_vals,
@@ -1425,10 +1342,8 @@ show_connection_request_confirm(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t
 			switch(asn1_tag)
 				{
 			case MODE_SELECTOR:
-				tvb_ensure_bytes_exist(tvb, (*offset)-1, 1);
 				proto_tree_add_uint(pres_tree_ms, hf_pres_ms_type, tvb, (*offset)-1, 1, 
 type);
-				tvb_ensure_bytes_exist(tvb, *offset, (asn->offset-*offset));
 				proto_tree_add_text(pres_tree_ms, tvb, *offset, (asn->offset-*offset),
 										"Length:%u",*item_len);
 				*offset=asn->offset;
@@ -1436,17 +1351,14 @@ type);
 					break;
 			case SET_TOP:
 			case SEQUENCE_TOP:
-				tvb_ensure_bytes_exist(tvb, (*offset)-1, 1);
 				proto_tree_add_uint(pres_tree_ms, hf_pres_seq_type, tvb, (*offset)-1, 1, 
 type);
-				tvb_ensure_bytes_exist(tvb, *offset, (asn->offset-*offset));
 				proto_tree_add_text(pres_tree_ms, tvb, *offset, (asn->offset-*offset),
 										"Length:%u",*item_len);
 				*offset=asn->offset;
 				show_sequence_top(asn,pres_tree_ms,tvb,pinfo,offset,*item_len);
 					break;
 			default:
-					tvb_ensure_bytes_exist(tvb, (*offset)-1, *item_len+(asn->offset-*offset)+1);
 					proto_tree_add_text(pres_tree, tvb, (*offset)-1, 
 *item_len+(asn->offset-*offset)+1,
 					"Unknown asn.1 parameter: (0x%02x).Tag :(0x%02x)", type,asn1_tag);
@@ -1477,7 +1389,6 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 				{
 				if(tree)
 						{
-					tvb_ensure_bytes_exist(tvb, offset, -1);
 					proto_tree_add_text(tree, tvb, offset, -1,
 							"Internal error:can't get spdu type from session dissector.");
 					return  FALSE;
@@ -1490,7 +1401,6 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 					{
 						if(tree)
 						{
-					tvb_ensure_bytes_exist(tvb, offset, -1);
 					proto_tree_add_text(tree, tvb, offset, -1,
 							"Internal error:wrong spdu type %x from session dissector.",session->spdu_type);
 					return  FALSE;
@@ -1505,7 +1415,6 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 						val_to_str(session->spdu_type, ses_vals, "Unknown Ppdu type (0x%02x)"));
   if (tree)
 	{
-		tvb_ensure_bytes_exist(tvb, offset, -1);
 		ti = proto_tree_add_item(tree, proto_pres, tvb, offset, -1,
 		    FALSE);
 		pres_tree = proto_item_add_subtree(ti, ett_pres);
@@ -1517,7 +1426,6 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	switch(session->spdu_type)
 	{
 		case SES_REFUSE:
-			tvb_ensure_bytes_exist(tvb, offset-1, 1);
 			proto_tree_add_uint(pres_tree, hf_pres_type, tvb, offset-1, 1, s_type);
 		if (read_length(&asn, pres_tree, hf_cp_type_message_length, &cp_type_len) 
 != ASN1_ERR_NOERROR)
@@ -1532,7 +1440,6 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 			{
 				if(tree)
 				{
-					tvb_ensure_bytes_exist(tvb, offset, -1);
 					proto_tree_add_text(pres_tree, tvb, offset, -1,
 							"Wrong Ppdu.Need %u bytes but have %u", cp_type_len,length);
 				}
@@ -1546,7 +1453,6 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 			break;
 		case SES_CONNECTION_REQUEST:
 		case SES_CONNECTION_ACCEPT:
-			tvb_ensure_bytes_exist(tvb, offset-1, 1);
 			proto_tree_add_uint(pres_tree, hf_pres_type, tvb, offset-1, 1, s_type);
 
 			if (read_length(&asn, pres_tree, hf_cp_type_message_length, &cp_type_len) 
@@ -1562,7 +1468,6 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 			{
 				if(tree)
 				{
-					tvb_ensure_bytes_exist(tvb, offset, -1);
 					proto_tree_add_text(pres_tree, tvb, offset, -1,
 							"Wrong Ppdu.Need %u bytes but have %u", cp_type_len,length);
 				}
@@ -1585,7 +1490,6 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 				{
 					if(tree)
 					{
-					tvb_ensure_bytes_exist(tvb, offset, -1);
 					proto_tree_add_text(pres_tree, tvb, offset, -1,
 							"Wrong Ppdu.Need %u bytes but have %u", rest_len,length);
 					}
@@ -1648,7 +1552,6 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 					}
 				}
                 if( ((gint)rest_len) > 0) {
-				tvb_ensure_bytes_exist(tvb, offset, rest_len);
 				ms = proto_tree_add_text(pres_tree, tvb, offset, rest_len,
 										val_to_str(session->spdu_type, ses_vals, "Unknown Ppdu type (0x%02x)"));
 				pres_tree_ms = proto_item_add_subtree(ms, ett_pres_ms);
@@ -1695,7 +1598,6 @@ offset),
 		offset = dissect_ppdu(tvb, offset, pinfo, tree);
 		if(offset == FALSE )
 							{
-									tvb_ensure_bytes_exist(tvb, offset, -1);
 									proto_tree_add_text(tree, tvb, offset, -1,"Internal error");
 									offset = tvb_length(tvb);
 									break;
