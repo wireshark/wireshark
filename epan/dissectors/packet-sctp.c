@@ -1602,7 +1602,8 @@ dissect_abort_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinf
   tvbuff_t *causes_tvb;
   proto_tree *flags_tree;
   
-  sctp_info.vtag_reflected = (tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_ABORT_CHUNK_T_BIT != 0);
+  sctp_info.vtag_reflected =
+      (tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_ABORT_CHUNK_T_BIT) != 0;
 
   if (chunk_tree) {
     flags_tree  = proto_item_add_subtree(flags_item, ett_sctp_abort_chunk_flags);
@@ -1694,7 +1695,8 @@ dissect_shutdown_complete_chunk(tvbuff_t *chunk_tvb, proto_tree *chunk_tree, pro
 {
   proto_tree *flags_tree;
 
-  sctp_info.vtag_reflected = (tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_SHUTDOWN_COMPLETE_CHUNK_T_BIT != 0);
+  sctp_info.vtag_reflected =
+      (tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_SHUTDOWN_COMPLETE_CHUNK_T_BIT) != 0;
 
   if (chunk_tree) {
     flags_tree  = proto_item_add_subtree(flags_item, ett_sctp_shutdown_complete_chunk_flags);
