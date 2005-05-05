@@ -2244,7 +2244,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 						tvb_memcpy (tvb, asc_val, off + 4, 2);
 						raw_val = strtoul(asc_val, NULL, 16);
 						if (raw_val & 0x01)
-							g_string_append(tlv_str, "802.1P filtering");
+							g_string_append(tlv_str, "802.1p filtering");
 						if (raw_val & 0x02) {
 							if (raw_val & 0x01)
 								g_string_append(tlv_str, ", ");

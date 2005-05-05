@@ -41,8 +41,8 @@ static const value_string diameter_service_type_vals[]={
    {12,"Voice"},					/*[Chiba]				*/
    {13,"Fax"},						/*[Chiba]				*/
    {14,"Modem Relay"},				/*[Chiba]				*/
-   {15,"IAPP-Register"},			/*[IEEE 802.11f][Kerry]	*/
-   {16,"IAPP-AP-Check"},			/*[IEEE 802.11f][Kerry]	*/
+   {15,"IAPP-Register"},			/*[IEEE 802.11F][Kerry]	*/
+   {16,"IAPP-AP-Check"},			/*[IEEE 802.11F][Kerry]	*/
    {17,"Authorize Only"},			/*[RFC3576]				*/
    {0, (char *)NULL}
 };

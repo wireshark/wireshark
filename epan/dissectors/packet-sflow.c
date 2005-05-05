@@ -281,8 +281,8 @@ static int hf_sflow_sampletype = -1;
 static int hf_sflow_header = -1;
 static int hf_sflow_packet_information_type = -1;
 static int hf_sflow_extended_information_type = -1;
-static int hf_sflow_vlan_in = -1;   /* incoming 802.1q VLAN ID */
-static int hf_sflow_vlan_out = -1;   /* outgoing 802.1q VLAN ID */
+static int hf_sflow_vlan_in = -1;   /* incoming 802.1Q VLAN ID */
+static int hf_sflow_vlan_out = -1;   /* outgoing 802.1Q VLAN ID */
 static int hf_sflow_pri_in = -1;   /* incominging 802.1p priority */
 static int hf_sflow_pri_out = -1;   /* outgoing 802.1p priority */
 static int hf_sflow_nexthop_v4 = -1;   /* nexthop address */
@@ -937,12 +937,12 @@ proto_register_sflow(void)
 			"Type of extended information", HFILL }
 		},
 		{ &hf_sflow_vlan_in,
-			{ "Incoming 802.1q VLAN", "sflow.vlan.in",
+			{ "Incoming 802.1Q VLAN", "sflow.vlan.in",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"Incoming VLAN ID", HFILL }
 		},
 		{ &hf_sflow_vlan_out,
-			{ "Outgoing 802.1q VLAN", "sflow.vlan.out",
+			{ "Outgoing 802.1Q VLAN", "sflow.vlan.out",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"Outgoing VLAN ID", HFILL }
 		},

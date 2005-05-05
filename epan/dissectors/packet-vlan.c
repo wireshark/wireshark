@@ -150,7 +150,7 @@ proto_register_vlan(void)
 	&ett_vlan,
   };
 
-  proto_vlan = proto_register_protocol("802.1q Virtual LAN", "VLAN", "vlan");
+  proto_vlan = proto_register_protocol("802.1Q Virtual LAN", "VLAN", "vlan");
   proto_register_field_array(proto_vlan, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }

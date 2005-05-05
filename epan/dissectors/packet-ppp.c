@@ -245,7 +245,7 @@ const value_string ppp_vals[] = {
 	{PPP_NTCITS_IPI,"NTCITS IPI" },
 	{PPP_ML_SLCOMP,	"single link compression in multilink" },
 	{PPP_COMP,	"compressed packet" },
-	{PPP_STP_HELLO,	"802.1d Hello Packet" },
+	{PPP_STP_HELLO,	"802.1D Hello Packet" },
 	{PPP_IBM_SR,	"IBM Source Routing BPDU" },
 	{PPP_DEC_LB,	"DEC LANBridge100 Spanning Tree"},
 	{PPP_CDP,       "Cisco Discovery Protocol" },

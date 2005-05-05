@@ -409,7 +409,7 @@ proto_register_eapol(void)
 	&ett_eapol_key_index
   };
 
-  proto_eapol = proto_register_protocol("802.1x Authentication", "EAPOL", "eapol");
+  proto_eapol = proto_register_protocol("802.1X Authentication", "EAPOL", "eapol");
   proto_register_field_array(proto_eapol, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
