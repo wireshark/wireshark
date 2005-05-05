@@ -893,7 +893,7 @@ address_to_str_buf(const address *addr, gchar *buf)
   }
 }
 
-gchar* oid_to_str(guint8 *oid, gint oid_len) {
+gchar* oid_to_str(const guint8 *oid, gint oid_len) {
   /* static buffer */
   static int cnt = 0;
   static gchar strbuf[8][MAX_OID_STR_LEN];
@@ -902,7 +902,7 @@ gchar* oid_to_str(guint8 *oid, gint oid_len) {
   return oid_to_str_buf(oid, oid_len, strbuf[cnt]);
 }
 
-gchar* oid_to_str_buf(guint8 *oid, gint oid_len, gchar *buf) {
+gchar* oid_to_str_buf(const guint8 *oid, gint oid_len, gchar *buf) {
   gint i;
   guint8 byte;
   guint32 value;
