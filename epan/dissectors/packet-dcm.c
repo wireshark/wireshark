@@ -164,7 +164,7 @@ struct dcmItem {
     int valid;
     guint8 id;		/* 0x20 Presentation Context */
     guint8 *abs;	/* 0x30 Abstract syntax */
-    guint8 *xfer;	/* 0x40 Transfer syntax */
+    char *xfer;		/* 0x40 Transfer syntax */
     guint8 syntax;
 #define DCM_ILE  0x01		/* implicit, little endian */
 #define DCM_EBE  0x02           /* explicit, big endian */
@@ -627,7 +627,7 @@ dcm_get_pdu_len(tvbuff_t *tvb, int offset)
 void 
 dissect_dcm_assoc(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb, int offset)
 { 
-    proto_tree *dcm_tree;
+    proto_tree *dcm_tree = NULL;
     dcmItem_t *di = NULL;
     guint8 id, *name, result;
     int reply = 0;
@@ -639,23 +639,23 @@ dissect_dcm_assoc(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb, int offse
 	id = tvb_get_guint8(tvb, offset);
 	len = tvb_get_ntohs(tvb, 2 + offset);
 	if (ti)
-	proto_tree_add_uint_format(dcm_tree, hf_dcm_pdi, tvb,
-	    offset, 4+len, id, "Item 0x%x (%s)", id, dcm_pdu2str(id));
+	    proto_tree_add_uint_format(dcm_tree, hf_dcm_pdi, tvb,
+	        offset, 4+len, id, "Item 0x%x (%s)", id, dcm_pdu2str(id));
 	offset += 4;
 	switch (id) {
 	case 0x10:		/* App context */
 	    if (ti)
-	    proto_tree_add_item(dcm_tree, hf_dcm_pdi_name, tvb, offset, len > 65 ? 65 : len, FALSE);
+		proto_tree_add_item(dcm_tree, hf_dcm_pdi_name, tvb, offset, len > 65 ? 65 : len, FALSE);
 	    offset += len;
 	    break;
 	case 0x30:		/* Abstract syntax */
 	    if (ti)
-	    proto_tree_add_item(dcm_tree, hf_dcm_pdi_syntax, tvb, offset, len > 65 ? 65 : len, FALSE);
+		proto_tree_add_item(dcm_tree, hf_dcm_pdi_syntax, tvb, offset, len > 65 ? 65 : len, FALSE);
 	    offset += len;
 	    break;
 	case 0x40:		/* Transfer syntax */
 	    if (ti)
-	    proto_tree_add_item(dcm_tree, hf_dcm_pdi_syntax, tvb, offset, len > 65 ? 65 : len, FALSE);
+		proto_tree_add_item(dcm_tree, hf_dcm_pdi_syntax, tvb, offset, len > 65 ? 65 : len, FALSE);
 	    if (reply && di && di->valid) {
 		/* setSyntax now free's existing name, if being reset */
 		name = tvb_get_string(tvb, offset, len);
@@ -682,17 +682,17 @@ dissect_dcm_assoc(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb, int offse
 		    dcm_data->first = dcm_data->last = di;
 	    }
 	    if (ti)
-	    proto_tree_add_item(dcm_tree, hf_dcm_pctxt, tvb, offset, 1, FALSE);
+		proto_tree_add_item(dcm_tree, hf_dcm_pctxt, tvb, offset, 1, FALSE);
 	    offset += 4;
 	    break;
 	case 0x21:		/* Presentation context reply */
 	    id = tvb_get_guint8(tvb, offset);
 	    result = tvb_get_guint8(tvb, 2 + offset);
 	    if (ti) {
-	    proto_tree_add_item(dcm_tree, hf_dcm_pctxt, tvb, offset, 1, FALSE);
-	    proto_tree_add_uint_format(dcm_tree, hf_dcm_pcres, tvb, 
-		2 + offset, 1, result, 
-		"Result 0x%x (%s)", result, dcm_PCresult2str(result));
+		proto_tree_add_item(dcm_tree, hf_dcm_pctxt, tvb, offset, 1, FALSE);
+		proto_tree_add_uint_format(dcm_tree, hf_dcm_pcres, tvb, 
+		    2 + offset, 1, result, 
+		    "Result 0x%x (%s)", result, dcm_PCresult2str(result));
 	    }
 	    if (0 == result) {
 		reply = 1;
@@ -706,17 +706,17 @@ dissect_dcm_assoc(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb, int offse
 	case 0x51:		/* Max length */
 	    mlen = tvb_get_ntohl(tvb, offset);
 	    if (ti)
-	    proto_tree_add_item(dcm_tree, hf_dcm_pdu_maxlen, tvb, offset, 4, FALSE);
+		proto_tree_add_item(dcm_tree, hf_dcm_pdu_maxlen, tvb, offset, 4, FALSE);
 	    offset += len;
 	    break;
 	case 0x52:		/* UID */
 	    if (ti)
-	    proto_tree_add_item(dcm_tree, hf_dcm_impl, tvb, offset, len > 65 ? 65 : len, FALSE);
+		proto_tree_add_item(dcm_tree, hf_dcm_impl, tvb, offset, len > 65 ? 65 : len, FALSE);
 	    offset += len;
 	    break;
 	case 0x55:		/* version */
 	    if (ti)
-	    proto_tree_add_item(dcm_tree, hf_dcm_vers, tvb, offset, len > 17 ? 17 : len, FALSE);
+		proto_tree_add_item(dcm_tree, hf_dcm_vers, tvb, offset, len > 17 ? 17 : len, FALSE);
 	    offset += len;
 	    break;
 	case 0x53:		/* async negotion */
