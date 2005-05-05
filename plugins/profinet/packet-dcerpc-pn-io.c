@@ -732,7 +732,7 @@ dissect_ReadWrite_rqst_block(tvbuff_t *tvb, int offset,
 
     if (check_col(pinfo->cinfo, COL_INFO))
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %u bytes",
-            u32RecDataLen);
+            *u32RecDataLen);
 
     return offset;
 }
