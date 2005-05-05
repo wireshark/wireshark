@@ -170,7 +170,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
   const char		*src_addr, *dst_addr;
   static eth_hdr 	ehdrs[4];
   static int		ehdr_num=0;
-  proto_tree		*tree;
+  proto_tree		*volatile tree;
 
   ehdr_num++;
   if(ehdr_num>=4){
