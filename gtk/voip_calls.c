@@ -93,7 +93,7 @@ typedef struct {
 	graph_str labels[H245_MAX];
 } h245_labels_t;
 
-static h245_labels_t h245_labels = {0, 0};
+static h245_labels_t h245_labels;
 
 /****************************************************************************/
 /* the one and only global voip_calls_tapinfo_t structure */
@@ -1150,6 +1150,7 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 
 	/* add staff to H323 calls */
 	if (h225_frame_num == q931_frame_num) {
+		tmp_h323info = NULL;
 		list = g_list_first(tapinfo->strinfo_list);
 		while (list)
 		{
