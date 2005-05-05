@@ -2042,7 +2042,7 @@ proto_reg_handoff_bacapp(void);
  * @return count of modified characters of returned string, -1 for errors
  */
 guint32
-fConvertXXXtoUTF8(guint8 *in, guint32 *inbytesleft,guint8 *out, guint32 *outbytesleft, guint8 *fromcoding);
+fConvertXXXtoUTF8(const guint8 *in, size_t *inbytesleft,guint8 *out, size_t *outbytesleft, guint8 *fromcoding);
 
 #endif /* __BACAPP_H__ */
 

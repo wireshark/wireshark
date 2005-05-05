@@ -1624,8 +1624,9 @@ static guint
 fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 {
 	guint8 tag_no, class_tag, tmp;
-    guint32 lvt, outbytesleft = 512, inbytesleft, l;
-    guint offs;
+	guint32 lvt, l;
+	size_t inbytesleft, outbytesleft = 512;
+	guint offs;
 	guint8 *str_val;
 	guint8 bf_arr[512], *out = &bf_arr[0];
 
@@ -1651,6 +1652,22 @@ fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 		}
 		do {
 			l = inbytesleft = min(lvt, 255);
+			/*
+			 * XXX - are we guaranteed that these encoding
+			 * names correspond, on *all* platforms with
+			 * iconv(), to the encodings we want?
+			 * If not (and perhaps even if so), we should
+			 * perhaps have our own iconv() implementation,
+			 * with a different name, so that we control the
+			 * encodings it supports and the names of those
+			 * encodings.
+			 *
+			 * We should also handle that in the general
+			 * string handling code, rather than making it
+			 * specific to the BACAPP dissector, as many
+			 * other dissectors need to handle various
+			 * character encodings.
+			 */
 			str_val = tvb_get_string(tvb, offset, l);
 			/** this decoding may be not correct for multi-byte characters, Lka */
 			switch (tmp) {
@@ -5230,19 +5247,21 @@ proto_reg_handoff_bacapp(void)
 }
 
 guint32
-fConvertXXXtoUTF8 (guint8 *in, guint32 *inbytesleft, guint8 *out, guint32 *outbytesleft, guint8 *fromcoding)
+fConvertXXXtoUTF8 (const guint8 *in, size_t *inbytesleft, guint8 *out, size_t *outbytesleft, guint8 *fromcoding)
 {  /* I don't want to let in and out be modified */
 #ifdef HAVE_CONFIG_H
 #if HAVE_ICONV_H
 	guint32 i; 
-    iconv_t icd;
-	guint8 *inp = in, *outp = out;
-	guint8 **inpp = &inp, **outpp = &outp;
+	iconv_t icd;
+	const guint8 *inp = in;
+	guint8 *outp = out;
+	const guint8 **inpp = &inp;
+	guint8 **outpp = &outp;
      
     if ((icd = iconv_open ("UTF-8", fromcoding)) != (iconv_t) -1) {
 
-        i = iconv (icd, (char**) inpp, inbytesleft, (char**) outpp, outbytesleft);
-		*outpp[0] = '\0';
+        i = iconv (icd, (const char**) inpp, inbytesleft, (char**) outpp, outbytesleft);
+	*outpp[0] = '\0';
         iconv_close (icd);
         return i;
     }
