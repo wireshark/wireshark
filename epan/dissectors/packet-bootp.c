@@ -2728,7 +2728,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const char	*dhcp_type = NULL;
 	const guint8	*vendor_class_id = NULL;
 	guint16		flags;
-	int		offset_delta = 0;
+	int		offset_delta;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BOOTP");
@@ -2890,7 +2890,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tmpvoff = voff;
 	at_end = FALSE;
 	while (tmpvoff < eoff && !at_end) {
-		offset_delta += bootp_option(tvb, 0, tmpvoff, eoff, TRUE, &at_end,
+		offset_delta = bootp_option(tvb, 0, tmpvoff, eoff, TRUE, &at_end,
 		    &dhcp_type, &vendor_class_id);
 		if (offset_delta <= 0) {
 			THROW(ReportedBoundsError);
@@ -2930,7 +2930,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	at_end = FALSE;
 	while (voff < eoff && !at_end) {
-		offset_delta += bootp_option(tvb, bp_tree, voff, eoff, FALSE, &at_end,
+		offset_delta = bootp_option(tvb, bp_tree, voff, eoff, FALSE, &at_end,
 		    &dhcp_type, &vendor_class_id);
 		if (offset_delta <= 0) {
 			THROW(ReportedBoundsError);
