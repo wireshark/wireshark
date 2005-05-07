@@ -217,7 +217,7 @@ dissect_option_route( guchar parm_type, int offset, guchar parm_len,
                       tvbuff_t *tvb, proto_tree *tree ) {
 
   guchar      next_hop = 0;
-  guchar      this_hop = 0;
+  guint16     this_hop = 0;
   guchar      netl     = 0;
   guchar      last_hop = 0;
   guchar      cnt_hops = 0;
