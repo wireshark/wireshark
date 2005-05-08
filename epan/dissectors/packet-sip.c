@@ -604,7 +604,7 @@ typedef struct _uri_offset_info
  * Returns Offset end off parsing or -1 for unsuccessful parsing
  */
 static gint
-dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo, gint start_offset,
+dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
                 gint line_end_offset, uri_offset_info *uri_offsets)
 {
 	gchar c;
