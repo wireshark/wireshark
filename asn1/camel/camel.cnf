@@ -1,5 +1,5 @@
-# inap.cnf
-# inap conformation file
+# camel.cnf
+# camel conformation file
 
 # $Id$
 
@@ -41,11 +41,14 @@
  proto_item* parameter_item;
  proto_item* parameter_tree;
  tvbuff_t *isup_tvb;
+ guint32 len;
 
+ len=tvb_length_remaining(tvb,offset);
  parameter_item = proto_tree_add_item(tree, hf_index, tvb, offset, -1, FALSE);
  parameter_tree = proto_item_add_subtree(parameter_item, ett_camelisup_parameter);
  isup_tvb = tvb_new_subset(tvb, offset,-1 , -1 );
  dissect_isup_called_party_number_parameter(isup_tvb, parameter_tree, parameter_item);
+ offset += len;
  
 #.END
 
@@ -78,23 +81,132 @@
 	return offset;
   
  proto_tree_add_item(tree, hf_camel_addr_extension, parameter_tvb, 0,1,FALSE);
+ 
  proto_tree_add_item(tree, hf_camel_addr_natureOfAddressIndicator, parameter_tvb, 0,1,FALSE);
  proto_tree_add_item(tree, hf_camel_addr_numberingPlanInd, parameter_tvb, 0,1,FALSE);
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_camel_addr_digits, parameter_tvb, 1, -1, digit_str);
 #.END
+
+#----------------------------------------------------------------------------------------
+#.FN_BODY CallresultoctetPDU
+tvbuff_t	*parameter_tvb;
+ offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                    &parameter_tvb);
+
+ if (!parameter_tvb)
+	return offset;
+ dissect_camel_CamelCallResult(implicit_tag, parameter_tvb, 0, pinfo, tree, -1);
+ 
+#.END
+
 #----------------------------------------------------------------------------------------
 #.FN_BODY Q850Cause
- 
-	tvbuff_t *camel_tvb;
-	guint8 Cause_value;
-	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &camel_tvb);
 
-	dissect_q931_cause_ie(camel_tvb, 0, tvb_length_remaining(camel_tvb,0),
-		tree, hf_camel_cause_indicator, &Cause_value);
+       tvbuff_t *camel_tvb;
+       guint8 Cause_value;
+       offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &camel_tvb);
+
+       dissect_q931_cause_ie(camel_tvb, 0, tvb_length_remaining(camel_tvb,0), tree, hf_camel_cause_indicator, &Cause_value);
 
 
-	return offset;
+       return offset;
 #.END
+
+#----------------------------------------------------------------------------------------
+#.FN_BODY DateAndTime
+
+
+/* 
+* date_option = 1 european dd:mm:yyyy
+* date_option = 2 american mm:dd:yyyy
+*/
+
+/*
+* Output should be HH:MM:SS;dd/mm/yyyy
+* if european is selected, and HH:MM:SS;mm/dd/yyyy
+* otherwise.
+*/
+
+  guint8 digit_pair;
+  guint8 i = 0, curr_offset; 
+  char *time = (char *)(calloc (2*7 + 5 + 1, sizeof(char))); 
+  
+  char c[ 2*7 + 5] = ""; /*temporary container*/
+  time[ 2*7 + 5 +1 ] = '\0';
+  /* 2 digits per octet, 7 octets total + 5 delimiters */
+    
+  for (curr_offset = 0; curr_offset < 7 ; curr_offset++)    
+  /*Loop to extract date*/
+  {
+      digit_pair = tvb_get_guint8(tvb, curr_offset);
+      
+      proto_tree_add_uint(tree,
+                          hf_digit,
+                          tvb,
+                          curr_offset,
+                          1,
+                          digit_pair & 0x0F);
+
+      proto_tree_add_uint(tree,
+                          hf_digit,
+                          tvb,
+                          curr_offset,
+                          1,
+                          digit_pair & 0xF0);
+			  
+      
+      c[i] = camel_number_to_char( digit_pair & 0x0F);
+      i++;
+      c[i] = camel_number_to_char( digit_pair & 0xF0);
+      i++;
+  }
+  
+  /* Pretty print date */
+  
+  time[0] = c[9];
+  time[1] = c[8];
+  time[2] = ':';
+  time[3] = c[10];
+  time[4] = c[11];
+  time[5] = ':';
+  time[6] = c[12];
+  time[7] = c[13];
+  time[8] = ';';
+  if ( EUROPEAN_DATE == date_format) /*european*/
+  {
+    time[9] = c[6]; /*day*/
+    time[10] = c[7];
+    time[11] = '/'; 
+    time[12] = c[4]; /*month*/
+    time[13] = c[5];
+  }
+  else /*american*/
+  {
+    time[9] = c[4]; /*month*/
+    time[10] = c[5];
+    time[11] = '/'; 
+    time[12] = c[6]; /*day*/
+    time[13] = c[7];
+  }
+  time[14] = '/';
+  time[15] = c[0];
+  time[16] = c[1];
+  time[17] = c[2];
+  time[18] = c[3];
+ 
+/*start = 0, length = 7*/
+ 
+  proto_tree_add_string(tree, 
+		      hf_index, 
+		      tvb,
+		      0, 
+		      7, 
+		      time);
+  free (time); 
+  return 7; /* 7  octetes eaten*/
+
+#.END
+
 

@@ -516,12 +516,7 @@ Carrier ::=
 
 OCTET STRING (SIZE (cAPSpecificBoundSetminCarrierLength ..cAPSpecificBoundSetmaxCarrierLength ))
 
--- Cause notes: not recursive, exported,
--- locally refd 10 times, import refd 0 times
-Cause ::=
-    
-    
-    OCTET STRING (SIZE (minCauseLength..cAPSpecificBoundSetmaxCauseLength))
+
 
 -- CGEncountered notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
@@ -1648,10 +1643,16 @@ OCTET STRING (SIZE (1..160))
 
 -- ApplyChargingReportArg notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
-ApplyChargingReportArg ::=
+CallresultoctetPDU ::= OCTET STRING (SIZE (cAPSpecificBoundSetminCallResultLength..cAPSpecificBoundSetmaxCallResultLength))
 
-
-OCTET STRING (SIZE (cAPSpecificBoundSetminCallResultLength..cAPSpecificBoundSetmaxCallResultLength))
+ApplyChargingReportArg ::= SEQUENCE {
+		callresultOctet CallresultoctetPDU
+		}
+--	(
+--	CONTAINING CamelCallResult
+--	ENCODED BY enc-BER
+--	)
+	 
 -- CallResult type
 
 
@@ -1673,10 +1674,16 @@ FurnishChargingInformationArg ::= CamelFCIBillingChargingCharacteristics
 
 -- ReleaseCallArg notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
+-- ReleaseCallArg ::= OCTET STRING (SIZE (minCauseLength..32))
 ReleaseCallArg ::= Q850Cause
 
-Q850Cause ::=OCTET STRING (SIZE (minCauseLength..32)) 
+Q850Cause ::=OCTET STRING (SIZE (minCauseLength..32))
 
+-- Cause notes: not recursive, exported,
+-- locally refd 10 times, import refd 0 times
+Cause ::= OCTET STRING (SIZE (minCauseLength..cAPSpecificBoundSetmaxCauseLength))
+
+--    
 -- ReceivedInformationArg notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
 ReceivedInformationArg ::=
@@ -1819,9 +1826,6 @@ InitialDPArgExtension ::=   SEQUENCE
 {
     gmscAddress [0] ISDN-AddressString OPTIONAL
 }
-
-
-
 
 CellGlobalIdOrServiceAreaIdOrLAI ::=
 

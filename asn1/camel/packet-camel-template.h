@@ -32,6 +32,8 @@
 #ifndef PACKET_camel_H
 #define PACKET_camel_H
 
+char camel_number_to_char(int );
+  
 /* Defines for the camel taps */
 #define	camel_MAX_NUM_OPR_CODES	256
 

@@ -2,6 +2,7 @@
  * Routines for Camel
  * Copyright 2004, Tim Endean <endeant@hotmail.com>
  * Copyright 2005, Olivier Jacques <olivier.jacques@hp.com>
+ * Copyright 2005, Javier Acu«Òa <javier.acuna@sixbell.com>
  * Built from the gsm-map dissector Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
  * Ethereal - Network traffic analyzer
@@ -53,6 +54,8 @@
 
 /* Initialize the protocol and registered fields */
 int proto_camel = -1;
+int date_format = 1; /*assume european date format */
+static int hf_digit = -1; 
 static int hf_camel_invokeCmd = -1;             /* Opcode */
 static int hf_camel_invokeid = -1;              /* INTEGER */
 static int hf_camel_absent = -1;                /* NULL */
@@ -102,6 +105,33 @@ static const true_false_string camel_extension_value = {
   "No Extension",
   "Extension"
 };
+#define EUROPEAN_DATE 1
+#define AMERICAN_DATE 2
+
+static enum_val_t date_options[] = {
+  { "european",         "DD/MM/YYYY",       EUROPEAN_DATE },
+  { "american",        "MM/DD/YYYY",        AMERICAN_DATE },
+  { NULL, NULL, 0 }
+};
+
+static const value_string digit_value[] = {
+    { 0,  "0"},
+    { 1,  "1"},
+    { 2,  "2"},
+    { 3,  "3"},
+    { 4,  "4"},
+    { 5,  "5"},
+    { 6,  "6"},
+    { 7,  "7"},
+    { 8,  "8"},
+    { 9,  "9"},
+    { 10, "spare"},
+    { 11, "spare"},
+    { 12, "spare"},
+    { 13, "spare"},
+    { 0,  NULL}};
+  
+  
 static const value_string camel_nature_of_addr_indicator_values[] = {
   {   0x00,  "unknown" },
   {   0x01,  "International Number" },
@@ -182,6 +212,13 @@ const value_string camel_opr_code_strings[] = {
   {83, "SendChargingInformationGPRS"}
 };
 
+char camel_number_to_char(int number)
+{
+   if (number < 10)
+   return (char) (number + 48 ); /* this is ASCII specific */
+   else
+   return (char) (number + 55 );
+}
 
 static guint32 opcode=0;
 
@@ -595,6 +632,11 @@ void proto_register_camel(void) {
       { "Address digits", "camel.address_digits",
         FT_STRING, BASE_NONE, NULL, 0,
         "Address digits", HFILL }},
+   { &hf_digit,
+      { "Digit Value",  "camel.digit_value",
+      FT_UINT8, BASE_DEC, 
+      VALS(digit_value), 
+      0, "", HFILL }},
 #ifdef REMOVED
 #endif
 #include "packet-camel-hfarr.c"
@@ -629,6 +671,11 @@ void proto_register_camel(void) {
 
   camel_module = prefs_register_protocol(proto_camel, proto_reg_handoff_camel);
 
+  prefs_register_enum_preference(camel_module, "date format", "Date Format",
+                                  "The date format: (DD/MM) or (MM/DD)",
+                                  &date_format, date_options, FALSE);
+  
+  
   prefs_register_range_preference(camel_module, "tcap.ssn",
     "TCAP SSNs",
     "TCAP Subsystem numbers used for Camel",
