@@ -9,6 +9,7 @@
  * Routines for Camel
  * Copyright 2004, Tim Endean <endeant@hotmail.com>
  * Copyright 2005, Olivier Jacques <olivier.jacques@hp.com>
+ * Copyright 2005, Javier Acu«Òa <javier.acuna@sixbell.com>
  * Built from the gsm-map dissector Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
  * Ethereal - Network traffic analyzer
@@ -60,6 +61,8 @@
 
 /* Initialize the protocol and registered fields */
 int proto_camel = -1;
+int date_format = 1; /*assume european date format */
+static int hf_digit = -1; 
 static int hf_camel_invokeCmd = -1;             /* Opcode */
 static int hf_camel_invokeid = -1;              /* INTEGER */
 static int hf_camel_absent = -1;                /* NULL */
@@ -322,6 +325,7 @@ static int hf_camel_global = -1;                  /* OBJECT_IDENTIFIER */
 static int hf_camel_messageType = -1;             /* T_messageType */
 static int hf_camel_firstExtensionExtensionType = -1;  /* NULL */
 static int hf_camel_extId = -1;                   /* ExtensionSetextensionId */
+static int hf_camel_callresultOctet = -1;         /* CallresultoctetPDU */
 static int hf_camel_invokeID = -1;                /* InvokeID */
 static int hf_camel_allRequests = -1;             /* NULL */
 static int hf_camel_digitsResponse = -1;          /* Digits */
@@ -569,6 +573,7 @@ static gint ett_camel_PCS_Extensions = -1;
 static gint ett_camel_MiscCallInfo = -1;
 static gint ett_camel_SupportedExtensionsExtensionType = -1;
 static gint ett_camel_PrivateExtension = -1;
+static gint ett_camel_ApplyChargingReportArg = -1;
 static gint ett_camel_CancelArg = -1;
 static gint ett_camel_ReceivedInformationArg = -1;
 static gint ett_camel_ConnectGPRSArg = -1;
@@ -642,6 +647,33 @@ static const true_false_string camel_extension_value = {
   "No Extension",
   "Extension"
 };
+#define EUROPEAN_DATE 1
+#define AMERICAN_DATE 2
+
+static enum_val_t date_options[] = {
+  { "european",         "DD/MM/YYYY",       EUROPEAN_DATE },
+  { "american",        "MM/DD/YYYY",        AMERICAN_DATE },
+  { NULL, NULL, 0 }
+};
+
+static const value_string digit_value[] = {
+    { 0,  "0"},
+    { 1,  "1"},
+    { 2,  "2"},
+    { 3,  "3"},
+    { 4,  "4"},
+    { 5,  "5"},
+    { 6,  "6"},
+    { 7,  "7"},
+    { 8,  "8"},
+    { 9,  "9"},
+    { 10, "spare"},
+    { 11, "spare"},
+    { 12, "spare"},
+    { 13, "spare"},
+    { 0,  NULL}};
+  
+  
 static const value_string camel_nature_of_addr_indicator_values[] = {
   {   0x00,  "unknown" },
   {   0x01,  "International Number" },
@@ -2021,6 +2053,7 @@ dissect_camel_ISDN_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 	return offset;
   
  proto_tree_add_item(tree, hf_camel_addr_extension, parameter_tvb, 0,1,FALSE);
+ 
  proto_tree_add_item(tree, hf_camel_addr_natureOfAddressIndicator, parameter_tvb, 0,1,FALSE);
  proto_tree_add_item(tree, hf_camel_addr_numberingPlanInd, parameter_tvb, 0,1,FALSE);
  digit_str = unpack_digits(parameter_tvb, 1);
@@ -2082,11 +2115,14 @@ dissect_camel_CalledPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
  proto_item* parameter_item;
  proto_item* parameter_tree;
  tvbuff_t *isup_tvb;
+ guint32 len;
 
+ len=tvb_length_remaining(tvb,offset);
  parameter_item = proto_tree_add_item(tree, hf_index, tvb, offset, -1, FALSE);
  parameter_tree = proto_item_add_subtree(parameter_item, ett_camelisup_parameter);
  isup_tvb = tvb_new_subset(tvb, offset,-1 , -1 );
  dissect_isup_called_party_number_parameter(isup_tvb, parameter_tree, parameter_item);
+ offset += len;
  
 
   return offset;
@@ -2501,30 +2537,6 @@ dissect_camel_Carrier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
 }
 static int dissect_carrier_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_camel_Carrier(TRUE, tvb, offset, pinfo, tree, hf_camel_carrier);
-}
-
-
-static int
-dissect_camel_Cause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
-
-  return offset;
-}
-static int dissect_failureCause_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_Cause(TRUE, tvb, offset, pinfo, tree, hf_camel_failureCause);
-}
-static int dissect_busyCause_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_Cause(TRUE, tvb, offset, pinfo, tree, hf_camel_busyCause);
-}
-static int dissect_releaseCause_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_Cause(TRUE, tvb, offset, pinfo, tree, hf_camel_releaseCause);
-}
-static int dissect_releaseCauseValue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_Cause(TRUE, tvb, offset, pinfo, tree, hf_camel_releaseCauseValue);
-}
-static int dissect_cause_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_Cause(TRUE, tvb, offset, pinfo, tree, hf_camel_cause);
 }
 
 
@@ -3082,8 +3094,97 @@ static int dissect_correlationID_impl(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_camel_DateAndTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+
+
+/* 
+* date_option = 1 european dd:mm:yyyy
+* date_option = 2 american mm:dd:yyyy
+*/
+
+/*
+* Output should be HH:MM:SS;dd/mm/yyyy
+* if european is selected, and HH:MM:SS;mm/dd/yyyy
+* otherwise.
+*/
+
+  guint8 digit_pair;
+  guint8 i = 0, curr_offset; 
+  char *time = (char *)(calloc (2*7 + 5 + 1, sizeof(char))); 
+  
+  char c[ 2*7 + 5] = ""; /*temporary container*/
+  time[ 2*7 + 5 +1 ] = '\0';
+  /* 2 digits per octet, 7 octets total + 5 delimiters */
+    
+  for (curr_offset = 0; curr_offset < 7 ; curr_offset++)    
+  /*Loop to extract date*/
+  {
+      digit_pair = tvb_get_guint8(tvb, curr_offset);
+      
+      proto_tree_add_uint(tree,
+                          hf_digit,
+                          tvb,
+                          curr_offset,
+                          1,
+                          digit_pair & 0x0F);
+
+      proto_tree_add_uint(tree,
+                          hf_digit,
+                          tvb,
+                          curr_offset,
+                          1,
+                          digit_pair & 0xF0);
+			  
+      
+      c[i] = camel_number_to_char( digit_pair & 0x0F);
+      i++;
+      c[i] = camel_number_to_char( digit_pair & 0xF0);
+      i++;
+  }
+  
+  /* Pretty print date */
+  
+  time[0] = c[9];
+  time[1] = c[8];
+  time[2] = ':';
+  time[3] = c[10];
+  time[4] = c[11];
+  time[5] = ':';
+  time[6] = c[12];
+  time[7] = c[13];
+  time[8] = ';';
+  if ( EUROPEAN_DATE == date_format) /*european*/
+  {
+    time[9] = c[6]; /*day*/
+    time[10] = c[7];
+    time[11] = '/'; 
+    time[12] = c[4]; /*month*/
+    time[13] = c[5];
+  }
+  else /*american*/
+  {
+    time[9] = c[4]; /*month*/
+    time[10] = c[5];
+    time[11] = '/'; 
+    time[12] = c[6]; /*day*/
+    time[13] = c[7];
+  }
+  time[14] = '/';
+  time[15] = c[0];
+  time[16] = c[1];
+  time[17] = c[2];
+  time[18] = c[3];
+ 
+/*start = 0, length = 7*/
+ 
+  proto_tree_add_string(tree, 
+		      hf_index, 
+		      tvb,
+		      0, 
+		      7, 
+		      time);
+  free (time); 
+  return 7; /* 7  octetes eaten*/
+
 
   return offset;
 }
@@ -3131,6 +3232,30 @@ dissect_camel_EndUserAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
                                 EndUserAddress_sequence, hf_index, ett_camel_EndUserAddress);
 
   return offset;
+}
+
+
+static int
+dissect_camel_Cause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                    NULL);
+
+  return offset;
+}
+static int dissect_failureCause_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_Cause(TRUE, tvb, offset, pinfo, tree, hf_camel_failureCause);
+}
+static int dissect_busyCause_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_Cause(TRUE, tvb, offset, pinfo, tree, hf_camel_busyCause);
+}
+static int dissect_releaseCause_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_Cause(TRUE, tvb, offset, pinfo, tree, hf_camel_releaseCause);
+}
+static int dissect_releaseCauseValue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_Cause(TRUE, tvb, offset, pinfo, tree, hf_camel_releaseCauseValue);
+}
+static int dissect_cause_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_Cause(TRUE, tvb, offset, pinfo, tree, hf_camel_cause);
 }
 
 static const ber_sequence_t T_routeSelectFailureSpecificInfo_sequence[] = {
@@ -5081,9 +5206,31 @@ static int dissect_miscCallInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 
 static int
+dissect_camel_CallresultoctetPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+tvbuff_t	*parameter_tvb;
+ offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                    &parameter_tvb);
+
+ if (!parameter_tvb)
+	return offset;
+ dissect_camel_CamelCallResult(implicit_tag, parameter_tvb, 0, pinfo, tree, -1);
+ 
+
+  return offset;
+}
+static int dissect_callresultOctet(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_camel_CallresultoctetPDU(FALSE, tvb, offset, pinfo, tree, hf_camel_callresultOctet);
+}
+
+static const ber_sequence_t ApplyChargingReportArg_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_callresultOctet },
+  { 0, 0, 0, NULL }
+};
+
+static int
 dissect_camel_ApplyChargingReportArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                ApplyChargingReportArg_sequence, hf_index, ett_camel_ApplyChargingReportArg);
 
   return offset;
 }
@@ -5120,16 +5267,15 @@ dissect_camel_FurnishChargingInformationArg(gboolean implicit_tag _U_, tvbuff_t 
 
 static int
 dissect_camel_Q850Cause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
- 
-	tvbuff_t *camel_tvb;
-	guint8 Cause_value;
-	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &camel_tvb);
 
-	dissect_q931_cause_ie(camel_tvb, 0, tvb_length_remaining(camel_tvb,0),
-		tree, hf_camel_cause_indicator, &Cause_value);
+       tvbuff_t *camel_tvb;
+       guint8 Cause_value;
+       offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &camel_tvb);
+
+       dissect_q931_cause_ie(camel_tvb, 0, tvb_length_remaining(camel_tvb,0), tree, hf_camel_cause_indicator, &Cause_value);
 
 
-	return offset;
+       return offset;
 
   return offset;
 }
@@ -6096,6 +6242,13 @@ const value_string camel_opr_code_strings[] = {
   {83, "SendChargingInformationGPRS"}
 };
 
+char camel_number_to_char(int number)
+{
+   if (number < 10)
+   return (char) (number + 48 ); /* this is ASCII specific */
+   else
+   return (char) (number + 55 );
+}
 
 static guint32 opcode=0;
 
@@ -6509,6 +6662,11 @@ void proto_register_camel(void) {
       { "Address digits", "camel.address_digits",
         FT_STRING, BASE_NONE, NULL, 0,
         "Address digits", HFILL }},
+   { &hf_digit,
+      { "Digit Value",  "camel.digit_value",
+      FT_UINT8, BASE_DEC, 
+      VALS(digit_value), 
+      0, "", HFILL }},
 #ifdef REMOVED
 #endif
 
@@ -7478,6 +7636,10 @@ void proto_register_camel(void) {
       { "extId", "camel.extId",
         FT_STRING, BASE_NONE, NULL, 0,
         "PrivateExtension/extId", HFILL }},
+    { &hf_camel_callresultOctet,
+      { "callresultOctet", "camel.callresultOctet",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ApplyChargingReportArg/callresultOctet", HFILL }},
     { &hf_camel_invokeID,
       { "invokeID", "camel.invokeID",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -8083,6 +8245,7 @@ void proto_register_camel(void) {
     &ett_camel_MiscCallInfo,
     &ett_camel_SupportedExtensionsExtensionType,
     &ett_camel_PrivateExtension,
+    &ett_camel_ApplyChargingReportArg,
     &ett_camel_CancelArg,
     &ett_camel_ReceivedInformationArg,
     &ett_camel_ConnectGPRSArg,
@@ -8156,6 +8319,11 @@ void proto_register_camel(void) {
 
   camel_module = prefs_register_protocol(proto_camel, proto_reg_handoff_camel);
 
+  prefs_register_enum_preference(camel_module, "date format", "Date Format",
+                                  "The date format: (DD/MM) or (MM/DD)",
+                                  &date_format, date_options, FALSE);
+  
+  
   prefs_register_range_preference(camel_module, "tcap.ssn",
     "TCAP SSNs",
     "TCAP Subsystem numbers used for Camel",
