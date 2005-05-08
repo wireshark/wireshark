@@ -80,6 +80,9 @@ static gint hf_sip_display			= -1;
 static gint hf_sip_to_addr			= -1;
 static gint hf_sip_from_addr		= -1;
 static gint hf_sip_tag				= -1;
+static gint hf_sip_uri				= -1;
+static gint hf_sip_contact_addr		= -1;
+static gint hf_sip_contact_item		= -1;
 static gint hf_sip_resend			= -1;
 static gint hf_sip_original_frame	= -1;
 
@@ -89,6 +92,8 @@ static gint ett_sip_reqresp 		= -1;
 static gint ett_sip_hdr 			= -1;
 static gint ett_raw_text 			= -1;
 static gint ett_sip_element 		= -1;
+static gint ett_sip_uri				= -1;
+static gint ett_sip_contact_item	= -1;
 static gint ett_sip_message_body	= -1;
 
 /* PUBLISH method added as per http://www.ietf.org/internet-drafts/draft-ietf-sip-publish-01.txt */
@@ -544,7 +549,395 @@ sip_init_protocol(void)
 					G_ALLOC_ONLY);
 }
 
+/*
+ * Copied from the mgcp dissector. (This function should be moved to /epan )
+ * tvb_skip_wsp - Returns the position in tvb of the first non-whitespace
+ *                character following offset or offset + maxlength -1 whichever
+ *                is smaller.
+ *
+ * Parameters:
+ * tvb - The tvbuff in which we are skipping whitespace.
+ * offset - The offset in tvb from which we begin trying to skip whitespace.
+ * maxlength - The maximum distance from offset that we may try to skip
+ * whitespace.
+ *
+ * Returns: The position in tvb of the first non-whitespace
+ *          character following offset or offset + maxlength -1 whichever
+ *          is smaller.
+ */
+static gint tvb_skip_wsp(tvbuff_t* tvb, gint offset, gint maxlength)
+{
+	gint counter = offset;
+	gint end = offset + maxlength,tvb_len;
+	guint8 tempchar;
 
+	/* Get the length remaining */
+	tvb_len = tvb_length(tvb);
+	end = offset + maxlength;
+	if (end >= tvb_len)
+	{
+		end = tvb_len;
+	}
+
+	/* Skip past spaces and tabs until run out or meet something else */
+	for (counter = offset;
+	     counter < end &&
+	      ((tempchar = tvb_get_guint8(tvb,counter)) == ' ' ||
+	      tempchar == '\t');
+	     counter++);
+
+	return (counter);
+}
+
+/* Structure to collect info about a sip uri */
+typedef struct _uri_offset_info
+{
+	gint display_name_start;
+	gint display_name_end;
+	gint uri_start;
+	gint uri_end;
+	gint uri_parameters_start;
+	gint uri_parameters_end;
+} uri_offset_info;
+
+/* Code to parse a sip uri.
+ * Returns Offset end off parsing or -1 for unsuccessful parsing
+ */
+static gint
+dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo, gint start_offset,
+                gint line_end_offset, uri_offset_info *uri_offsets)
+{
+	gchar c;
+	gint current_offset;
+	gint queried_offset;
+	gint colon_offset;
+	gint comma_offset;
+	gint semicolon_offset;
+	gint question_mark_offset;
+	gboolean uri_without_angle_quotes = FALSE;
+	
+	/* skip Spaces and Tabs */
+	current_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
+	
+	if(current_offset >= line_end_offset) {
+		/* Nothing to parse */
+		return -1;
+	}
+	
+	/* First look, if we have a display name */
+	c=tvb_get_guint8(tvb, current_offset);	
+	switch(c)
+	{
+		case '"':
+			/* We have a display name, look for the next unescaped '"' */
+			uri_offsets->display_name_start = current_offset;
+			do
+			{
+				queried_offset = tvb_find_guint8(tvb, current_offset + 1, line_end_offset - (current_offset + 1), '"');
+				if(queried_offset == -1)
+				{
+					/* malformed URI */
+					return -1;
+				}
+				current_offset = queried_offset;
+				
+				/* Is it escaped? */
+			} while (tvb_get_guint8(tvb, queried_offset - 1) == '\\');		
+			uri_offsets->display_name_end = current_offset;
+			
+			/* find start of the URI */
+			queried_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, '<');
+			if(queried_offset == -1)
+			{
+				/* malformed Uri */
+				return -1;
+			}
+			current_offset = queried_offset + 1;
+			break;
+		
+		case '<':
+			/* We don't have a display name */
+			current_offset++;
+			break;
+			
+		default:
+			/* We have either an URI without angles or a display name with a limited character set */
+			/* Look for the right angle quote or colon */
+			queried_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, '<');
+			colon_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ':');
+			if(queried_offset != -1 && colon_offset != -1)
+			{
+				if(queried_offset < colon_offset)
+				{
+					/* we have an URI with angle quotes */
+					uri_offsets->display_name_start = current_offset;
+					uri_offsets->display_name_end = queried_offset - 1;
+					current_offset = queried_offset + 1;
+				}
+				else
+				{
+					/* we have an URI without angle quotes */
+					uri_without_angle_quotes = TRUE;
+				}
+			}
+			else
+			{
+				if(queried_offset != -1)
+				{
+					/* we have an URI with angle quotes */
+					uri_offsets->display_name_start = current_offset;
+					uri_offsets->display_name_end = queried_offset - 1;
+					current_offset = queried_offset + 1;
+					break;
+				}
+				if(colon_offset != -1)
+				{
+					/* we have an URI without angle quotes */
+					uri_without_angle_quotes = TRUE;
+					break;
+				}
+				/* If this point is reached, we can't parse the URI */
+				return -1;
+			}
+			break;
+	}
+
+	/* Start parsing of URI */
+	uri_offsets->uri_start = current_offset;
+	if(uri_without_angle_quotes == TRUE)
+	{
+		/* look for the first ',' or ';' which will mark the end of this URI 
+		 * In this case a semicolon indicates a header field parameter, and not an uri parameter.
+		 */
+		comma_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ',');
+		semicolon_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ';');
+		
+		if (semicolon_offset != -1 && comma_offset != -1)
+		{
+			if(semicolon_offset < comma_offset)
+			{
+				uri_offsets->uri_end = semicolon_offset - 1;
+			}
+			else
+			{
+				uri_offsets->uri_end = comma_offset - 1;
+			}
+		}
+		else
+		{
+			if (semicolon_offset != -1)
+			{
+				uri_offsets->uri_end = semicolon_offset - 1;
+			}
+			if (comma_offset != -1)
+			{
+				uri_offsets->uri_end = comma_offset - 1;
+			}
+			/* If both offsets are equal to -1, we don't have a semicolon or a comma.
+			 * In that case, we assume that the end of the URI is at the line end
+			 */
+			uri_offsets->uri_end = line_end_offset - 2;
+		}
+		current_offset = uri_offsets->uri_end + 1; /* Now save current_offset, as it is the value to be returned now */
+	}
+	else
+	{
+		/* look for closing angle quote */
+		queried_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, '>');
+		if(queried_offset == -1)
+		{
+			/* malformed Uri */
+			return -1;
+		}
+		uri_offsets->uri_end = queried_offset - 1;
+		current_offset = queried_offset; /* Now save current_offset, as it is the value to be returned now */
+		
+		/* Look for '@' within URI */
+		queried_offset = tvb_find_guint8(tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start, '@');
+		if(queried_offset == -1)
+		{
+			/* no '@': look for the first ';' or '?' in the URI */
+			question_mark_offset = tvb_find_guint8(tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start, '?');
+			semicolon_offset = tvb_find_guint8(tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start, ';');
+		}
+		else
+		{
+			/* with '@': look for the first ';' or '?' behind the '@' */
+			question_mark_offset = tvb_find_guint8(tvb, queried_offset, uri_offsets->uri_end - queried_offset, '?');
+			semicolon_offset = tvb_find_guint8(tvb, queried_offset, uri_offsets->uri_end - queried_offset, ';');
+		}
+		
+		/* Set Parameter*/
+		if (semicolon_offset != -1 && question_mark_offset != -1)
+		{
+			if(semicolon_offset < question_mark_offset)
+			{
+				uri_offsets->uri_parameters_start = semicolon_offset;
+			}
+			else
+			{
+				uri_offsets->uri_parameters_start = question_mark_offset;
+			}
+			uri_offsets->uri_parameters_end = uri_offsets->uri_end;
+			uri_offsets->uri_end = uri_offsets->uri_parameters_start - 1;
+		}
+		else
+		{
+			if (semicolon_offset != -1)
+			{
+				uri_offsets->uri_parameters_start = semicolon_offset;
+				uri_offsets->uri_parameters_end = uri_offsets->uri_end;
+				uri_offsets->uri_end = uri_offsets->uri_parameters_start - 1;
+			}
+			if (question_mark_offset != -1)
+			{
+				uri_offsets->uri_parameters_start = question_mark_offset;
+				uri_offsets->uri_parameters_end = uri_offsets->uri_end;
+				uri_offsets->uri_end = uri_offsets->uri_parameters_start - 1;
+			}
+			/* If both offsets are equal to -1, we don't have a semicolon or a question mark.
+			 * In that case, we don't have to save any offsets.
+			 */
+		}
+
+	}
+	
+	return current_offset;
+}
+
+
+/* Code to parse a contact header item 
+ * Returns Offset end off parsing or -1 for unsuccessful parsing
+ */
+static gint
+dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint start_offset, gint line_end_offset)
+{
+	gchar c;
+	proto_item *ti = NULL;
+	proto_tree *contact_item_tree = NULL, *uri_tree = NULL;
+	
+	gint current_offset;
+	gint queried_offset;
+	gint contact_params_start_offset = -1;
+	gint contact_item_end_offset = -1;
+	gint name_addr_start_offset;
+	gint name_addr_end_offset;
+	uri_offset_info uri_offsets;
+	
+	uri_offsets.display_name_start = -1;
+	uri_offsets.display_name_end = -1;
+	uri_offsets.uri_start = -1;
+	uri_offsets.uri_end = -1;
+	uri_offsets.uri_parameters_start = -1;
+	uri_offsets.uri_parameters_end = -1;
+	
+	/* skip Spaces and Tabs */
+	start_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
+	
+	if(start_offset >= line_end_offset) {
+		/* Nothing to parse */
+		return -1;
+	}
+	
+	current_offset = dissect_sip_uri(tvb, pinfo, start_offset, line_end_offset, &uri_offsets);
+	if(current_offset == -1)
+	{
+		/* Parsing failed */
+		return -1;
+	}	
+	
+	/* Now look for the end of the contact item */
+	while (current_offset < line_end_offset)
+	{
+		c=tvb_get_guint8(tvb, current_offset);
+		
+		if(c == ';' && contact_params_start_offset == -1)
+		{
+			/* here we start with contact parameters */
+			contact_params_start_offset = current_offset;
+		}
+		
+		if(c == '"')
+		{
+			/* look for the next unescaped '"' */
+			do
+			{
+				queried_offset = tvb_find_guint8(tvb, current_offset + 1, line_end_offset - (current_offset + 1), '"');
+				if(queried_offset == -1)
+				{
+					/* malformed URI */
+					return -1;
+				}
+				current_offset = queried_offset;
+				
+				/* Is it escaped? */
+			} while (tvb_get_guint8(tvb, queried_offset - 1) == '\\');
+		}
+		
+		if(c == ',')
+		{
+			/* end of contact item found. */
+			contact_item_end_offset = current_offset - 1; /* remove ',' */
+			break;
+		}
+		
+		current_offset++;
+	} 
+	
+	if(contact_item_end_offset == -1)
+		contact_item_end_offset = line_end_offset - 3;  /* remove '\r\n' */
+		
+	if(uri_offsets.display_name_start == -1)
+	{
+		name_addr_start_offset = uri_offsets.uri_start;
+	}
+	else
+	{
+		name_addr_start_offset = uri_offsets.display_name_start;
+	}
+	
+	if(uri_offsets.uri_parameters_end == -1)
+	{
+		name_addr_end_offset = uri_offsets.uri_end;
+	}
+	else
+	{
+		name_addr_end_offset = uri_offsets.uri_parameters_end;
+	}
+
+	/* Build the tree, now */
+	if(tree) 
+	{
+		ti = proto_tree_add_string(tree, hf_sip_contact_item, tvb, start_offset, contact_item_end_offset - start_offset + 1,
+		                           tvb_format_text(tvb, start_offset, contact_item_end_offset - start_offset + 1));
+		contact_item_tree = proto_item_add_subtree(ti, ett_sip_contact_item);
+
+		ti = proto_tree_add_string(contact_item_tree, hf_sip_uri, tvb, name_addr_start_offset, name_addr_end_offset - name_addr_start_offset + 1,
+		                           tvb_format_text(tvb, name_addr_start_offset, name_addr_end_offset - name_addr_start_offset + 1));
+		uri_tree = proto_item_add_subtree(ti, ett_sip_uri);
+
+		if(uri_offsets.display_name_start != -1 && uri_offsets.display_name_end != -1)
+		{
+			proto_tree_add_string(uri_tree, hf_sip_display, tvb, uri_offsets.display_name_start, 
+			                      uri_offsets.display_name_end - uri_offsets.display_name_start + 1,
+			                      tvb_format_text(tvb, uri_offsets.display_name_start, 
+			                                      uri_offsets.display_name_end - uri_offsets.display_name_start + 1));
+		}
+		
+		if(uri_offsets.uri_start != -1 && uri_offsets.uri_end != -1)
+		{
+			proto_tree_add_string(uri_tree, hf_sip_contact_addr, tvb, uri_offsets.uri_start, 
+			                      uri_offsets.uri_end - uri_offsets.uri_start + 1,
+			                      tvb_format_text(tvb, uri_offsets.uri_start, 
+			                                      uri_offsets.uri_end - uri_offsets.uri_start + 1));
+		}
+		
+		/* Parse URI and Contact header Parameters now */
+		/* TODO */
+	}
+	
+	return current_offset;
+}
 
 /* Code to actually dissect the packets */
 static int
@@ -746,9 +1139,6 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		gint hf_index;
 		gint value_offset;
 		gint comma_offset;
-		gint comma_next_offset;
-		gint sip_offset;
-		gint con_offset;
 		guchar c;
 		size_t value_len;
 		char *value;
@@ -1148,32 +1538,39 @@ separator_found2:
 					break;
 
 					case POS_CONTACT :
-						comma_offset = tvb_find_guint8(tvb, value_offset,value_len, ',');
-						if (comma_offset != -1) {
-							con_offset = value_offset + 1;
-							while (comma_offset != -1) {
-								sip_offset = tvb_find_guint8(tvb, con_offset, (comma_offset - con_offset), 's');
-								if (sip_offset != -1 && tvb_get_guint8(tvb, sip_offset+1) == 'i' && tvb_get_guint8(tvb, sip_offset+2) == 'p')
-									contacts++;
-								comma_next_offset = tvb_find_guint8(tvb, comma_offset + 1, value_len - (comma_offset - value_offset), ',');
-								if (comma_next_offset == -1)
-									con_offset = comma_offset + 1;
-								else
-									con_offset = comma_next_offset + 1;
-								comma_offset = comma_next_offset;
-							}
-							sip_offset = tvb_find_guint8(tvb, con_offset, value_len - (con_offset - value_offset), 's');
-							if (sip_offset != -1 && tvb_get_guint8(tvb, sip_offset+1) == 'i' && tvb_get_guint8(tvb, sip_offset+2) == 'p')
-								contacts++;
+						if(hdr_tree) {
+							sip_element_item = proto_tree_add_string_format(hdr_tree,
+							                   hf_header_array[hf_index], tvb,
+							                   offset, next_offset - offset,
+							                   value, "%s",
+							                   tvb_format_text(tvb, offset, linelen));
+							sip_element_tree = proto_item_add_subtree( sip_element_item,
+							                   ett_sip_element);
 						}
-						else {
+						if (strcmp(value, "*") == 0)
+						{
+							contact_is_star = 1;
+							break;
+						}
+						
+						comma_offset = value_offset;
+						while((comma_offset = dissect_sip_contact_item(tvb, pinfo, sip_element_tree, comma_offset, next_offset)) != -1)
+						{
 							contacts++;
-							if (strcmp(value, "*") == 0)
+							if(comma_offset == next_offset)
 							{
-								contact_is_star = 1;
+								/* Line End reached: Stop Parsing */
+								break;
 							}
+							
+							if(tvb_get_guint8(tvb, comma_offset) != ',')
+							{
+								/* Undefined value reached: Stop Parsing */
+								break;
+							}
+							comma_offset++; /* skip comma */
 						}
-					/* Fall through to default case to add string to tree */
+					break;
 
 					default :
 						if(hdr_tree) {
@@ -1739,6 +2136,21 @@ void proto_register_sip(void)
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: from addr", HFILL }
 		},
+		{ &hf_sip_contact_addr,
+		       { "SIP contact address", 	"sip.contact.addr",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3261: contact addr", HFILL }
+		},
+		{ &hf_sip_uri,
+				{ "URI", 		"sip.uri",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3261: SIP Uri", HFILL }
+		},
+		{ &hf_sip_contact_item,
+		       { "Contact Binding", 		"sip.contact.binding",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3261: one contact binding", HFILL }
+		},
 		{ &hf_sip_tag,
 		       { "SIP tag", 		"sip.tag",
 		       FT_STRING, BASE_NONE,NULL,0x0,
@@ -2195,6 +2607,8 @@ void proto_register_sip(void)
                 &ett_sip_reqresp,
                 &ett_sip_hdr,
 		&ett_sip_element,
+			&ett_sip_uri,
+			&ett_sip_contact_item,
 		&ett_sip_message_body,
         };
         static gint *ett_raw[] = {
