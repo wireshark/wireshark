@@ -615,17 +615,17 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo, gint start_offset,
 	gint semicolon_offset;
 	gint question_mark_offset;
 	gboolean uri_without_angle_quotes = FALSE;
-	
+
 	/* skip Spaces and Tabs */
 	current_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
-	
+
 	if(current_offset >= line_end_offset) {
 		/* Nothing to parse */
 		return -1;
 	}
-	
+
 	/* First look, if we have a display name */
-	c=tvb_get_guint8(tvb, current_offset);	
+	c=tvb_get_guint8(tvb, current_offset);
 	switch(c)
 	{
 		case '"':
@@ -640,11 +640,11 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo, gint start_offset,
 					return -1;
 				}
 				current_offset = queried_offset;
-				
+
 				/* Is it escaped? */
-			} while (tvb_get_guint8(tvb, queried_offset - 1) == '\\');		
+			} while (tvb_get_guint8(tvb, queried_offset - 1) == '\\');
 			uri_offsets->display_name_end = current_offset;
-			
+
 			/* find start of the URI */
 			queried_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, '<');
 			if(queried_offset == -1)
@@ -654,12 +654,12 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo, gint start_offset,
 			}
 			current_offset = queried_offset + 1;
 			break;
-		
+
 		case '<':
 			/* We don't have a display name */
 			current_offset++;
 			break;
-			
+
 		default:
 			/* We have either an URI without angles or a display name with a limited character set */
 			/* Look for the right angle quote or colon */
@@ -706,12 +706,12 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo, gint start_offset,
 	uri_offsets->uri_start = current_offset;
 	if(uri_without_angle_quotes == TRUE)
 	{
-		/* look for the first ',' or ';' which will mark the end of this URI 
+		/* look for the first ',' or ';' which will mark the end of this URI
 		 * In this case a semicolon indicates a header field parameter, and not an uri parameter.
 		 */
 		comma_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ',');
 		semicolon_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ';');
-		
+
 		if (semicolon_offset != -1 && comma_offset != -1)
 		{
 			if(semicolon_offset < comma_offset)
@@ -751,7 +751,7 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo, gint start_offset,
 		}
 		uri_offsets->uri_end = queried_offset - 1;
 		current_offset = queried_offset; /* Now save current_offset, as it is the value to be returned now */
-		
+
 		/* Look for '@' within URI */
 		queried_offset = tvb_find_guint8(tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start, '@');
 		if(queried_offset == -1)
@@ -766,7 +766,7 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo, gint start_offset,
 			question_mark_offset = tvb_find_guint8(tvb, queried_offset, uri_offsets->uri_end - queried_offset, '?');
 			semicolon_offset = tvb_find_guint8(tvb, queried_offset, uri_offsets->uri_end - queried_offset, ';');
 		}
-		
+
 		/* Set Parameter*/
 		if (semicolon_offset != -1 && question_mark_offset != -1)
 		{
@@ -801,12 +801,12 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo, gint start_offset,
 		}
 
 	}
-	
+
 	return current_offset;
 }
 
 
-/* Code to parse a contact header item 
+/* Code to parse a contact header item
  * Returns Offset end off parsing or -1 for unsuccessful parsing
  */
 static gint
@@ -815,7 +815,7 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 	gchar c;
 	proto_item *ti = NULL;
 	proto_tree *contact_item_tree = NULL, *uri_tree = NULL;
-	
+
 	gint current_offset;
 	gint queried_offset;
 	gint contact_params_start_offset = -1;
@@ -823,40 +823,40 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 	gint name_addr_start_offset;
 	gint name_addr_end_offset;
 	uri_offset_info uri_offsets;
-	
+
 	uri_offsets.display_name_start = -1;
 	uri_offsets.display_name_end = -1;
 	uri_offsets.uri_start = -1;
 	uri_offsets.uri_end = -1;
 	uri_offsets.uri_parameters_start = -1;
 	uri_offsets.uri_parameters_end = -1;
-	
+
 	/* skip Spaces and Tabs */
 	start_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
-	
+
 	if(start_offset >= line_end_offset) {
 		/* Nothing to parse */
 		return -1;
 	}
-	
+
 	current_offset = dissect_sip_uri(tvb, pinfo, start_offset, line_end_offset, &uri_offsets);
 	if(current_offset == -1)
 	{
 		/* Parsing failed */
 		return -1;
-	}	
-	
+	}
+
 	/* Now look for the end of the contact item */
 	while (current_offset < line_end_offset)
 	{
 		c=tvb_get_guint8(tvb, current_offset);
-		
+
 		if(c == ';' && contact_params_start_offset == -1)
 		{
 			/* here we start with contact parameters */
 			contact_params_start_offset = current_offset;
 		}
-		
+
 		if(c == '"')
 		{
 			/* look for the next unescaped '"' */
@@ -869,24 +869,24 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 					return -1;
 				}
 				current_offset = queried_offset;
-				
+
 				/* Is it escaped? */
 			} while (tvb_get_guint8(tvb, queried_offset - 1) == '\\');
 		}
-		
+
 		if(c == ',')
 		{
 			/* end of contact item found. */
 			contact_item_end_offset = current_offset - 1; /* remove ',' */
 			break;
 		}
-		
+
 		current_offset++;
-	} 
-	
+	}
+
 	if(contact_item_end_offset == -1)
 		contact_item_end_offset = line_end_offset - 3;  /* remove '\r\n' */
-		
+
 	if(uri_offsets.display_name_start == -1)
 	{
 		name_addr_start_offset = uri_offsets.uri_start;
@@ -895,7 +895,7 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 	{
 		name_addr_start_offset = uri_offsets.display_name_start;
 	}
-	
+
 	if(uri_offsets.uri_parameters_end == -1)
 	{
 		name_addr_end_offset = uri_offsets.uri_end;
@@ -906,7 +906,7 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 	}
 
 	/* Build the tree, now */
-	if(tree) 
+	if(tree)
 	{
 		ti = proto_tree_add_string(tree, hf_sip_contact_item, tvb, start_offset, contact_item_end_offset - start_offset + 1,
 		                           tvb_format_text(tvb, start_offset, contact_item_end_offset - start_offset + 1));
@@ -918,24 +918,24 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 
 		if(uri_offsets.display_name_start != -1 && uri_offsets.display_name_end != -1)
 		{
-			proto_tree_add_string(uri_tree, hf_sip_display, tvb, uri_offsets.display_name_start, 
+			proto_tree_add_string(uri_tree, hf_sip_display, tvb, uri_offsets.display_name_start,
 			                      uri_offsets.display_name_end - uri_offsets.display_name_start + 1,
-			                      tvb_format_text(tvb, uri_offsets.display_name_start, 
+			                      tvb_format_text(tvb, uri_offsets.display_name_start,
 			                                      uri_offsets.display_name_end - uri_offsets.display_name_start + 1));
 		}
-		
+
 		if(uri_offsets.uri_start != -1 && uri_offsets.uri_end != -1)
 		{
-			proto_tree_add_string(uri_tree, hf_sip_contact_addr, tvb, uri_offsets.uri_start, 
+			proto_tree_add_string(uri_tree, hf_sip_contact_addr, tvb, uri_offsets.uri_start,
 			                      uri_offsets.uri_end - uri_offsets.uri_start + 1,
-			                      tvb_format_text(tvb, uri_offsets.uri_start, 
+			                      tvb_format_text(tvb, uri_offsets.uri_start,
 			                                      uri_offsets.uri_end - uri_offsets.uri_start + 1));
 		}
-		
+
 		/* Parse URI and Contact header Parameters now */
 		/* TODO */
 	}
-	
+
 	return current_offset;
 }
 
@@ -1013,7 +1013,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	stat_info->tap_call_id = NULL;
 	stat_info->tap_from_addr = NULL;
 	stat_info->tap_to_addr = NULL;
-	
+
 	/*
 	 * Note that "tvb_find_line_end()" will return a value that
 	 * is not longer than what's in the buffer, so the
@@ -1043,7 +1043,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIP");
-	
+
 	switch (line_type) {
 
         case REQUEST_LINE:
@@ -1165,7 +1165,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		} else {
 			header_len = colon_offset - offset;
 			hf_index = sip_is_known_sip_header(tvb, offset, header_len);
-			
+
 			if (hf_index == -1) {
 				if(hdr_tree) {
 					proto_tree_add_text(hdr_tree, tvb,
@@ -1177,8 +1177,8 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				 * Skip whitespace after the colon.
 				 */
 				value_offset = colon_offset + 1;
-				while (value_offset < line_end_offset && 
-				       ((c = tvb_get_guint8(tvb, value_offset)) == ' ' || 
+				while (value_offset < line_end_offset &&
+				       ((c = tvb_get_guint8(tvb, value_offset)) == ' ' ||
 				         c == '\t'))
 					value_offset++;
 				/*
@@ -1254,7 +1254,7 @@ separator_found:
 							parameter_end_offset = tvb_find_guint8(tvb, parameter_offset,( line_end_offset - parameter_offset), ';');
 							if ( parameter_end_offset == -1)
 								parameter_end_offset = line_end_offset;
-							
+
 							offset = parameter_end_offset;
 						}
 						else
@@ -1287,7 +1287,7 @@ separator_found:
 						 * TODO make this generic to find any interesting parameter
 						 * use the same method as for SIP headers ?
 						 */
-						
+
 						parameter_offset = offset;
 						while (parameter_offset < line_end_offset
 						       && (tvb_strneql(tvb, parameter_offset, "tag=", 4) != 0))
@@ -1301,7 +1301,7 @@ separator_found:
 							parameter_len = parameter_end_offset - parameter_offset;
 							proto_tree_add_item(sip_element_tree, hf_sip_tag, tvb, parameter_offset,
 							                    parameter_len, FALSE);
-							
+
 						}
 					break;
 
@@ -1363,7 +1363,7 @@ separator_found2:
 							parameter_end_offset = tvb_find_guint8(tvb, parameter_offset,( line_end_offset - parameter_offset), ';');
 							if ( parameter_end_offset == -1)
 								parameter_end_offset = line_end_offset;
-							
+
 							offset = parameter_end_offset;
 						}
 						else
@@ -1396,7 +1396,7 @@ separator_found2:
 						 * TODO make this generic to find any interesting parameter
 						 * use the same method as for SIP headers ?
 						 */
-						
+
 						parameter_offset = offset;
 						while (parameter_offset < line_end_offset
 						       && (tvb_strneql(tvb, parameter_offset, "tag=", 4) != 0))
@@ -1410,7 +1410,7 @@ separator_found2:
 							parameter_len = parameter_end_offset - parameter_offset;
 							proto_tree_add_item(sip_element_tree, hf_sip_tag, tvb, parameter_offset,
 							                    parameter_len, FALSE);
-							
+
 						}
 					break;
 
@@ -1452,7 +1452,7 @@ separator_found2:
 						}
 						else {
 							strncpy(cseq_method, value+value_offset, MIN(strlen_to_copy, MAX_CSEQ_METHOD_SIZE));
-							
+
 							/* Add 'CSeq' string item to tree */
 							if(hdr_tree) {
 								proto_tree_add_string_format(hdr_tree,
@@ -1552,7 +1552,7 @@ separator_found2:
 							contact_is_star = 1;
 							break;
 						}
-						
+
 						comma_offset = value_offset;
 						while((comma_offset = dissect_sip_contact_item(tvb, pinfo, sip_element_tree, comma_offset, next_offset)) != -1)
 						{
@@ -1562,7 +1562,7 @@ separator_found2:
 								/* Line End reached: Stop Parsing */
 								break;
 							}
-							
+
 							if(tvb_get_guint8(tvb, comma_offset) != ',')
 							{
 								/* Undefined value reached: Stop Parsing */
@@ -1587,7 +1587,7 @@ separator_found2:
 		}/* if colon_offset */
 		offset = next_offset;
 	}/* End while */
-	
+
 	if (tvb_offset_exists(tvb, next_offset)) {
 
 		/*
@@ -1603,7 +1603,7 @@ separator_found2:
 		}
 
 		/* give the content type parameters to sub dissectors */
-		
+
 		if ( media_type_str_lower_case != NULL ) {
 			void *save_private_data = pinfo->private_data;
 			pinfo->private_data = content_type_parameter_str;
@@ -1681,13 +1681,13 @@ separator_found2:
 
 	if (global_sip_raw_text)
 		tvb_raw_text_add(tvb, tree);
-	
+
 	/* Report this packet to the tap */
 	if (!pinfo->in_error_pkt)
 	{
 		tap_queue_packet(sip_tap, pinfo, stat_info);
 	}
-	
+
 	return TRUE;
 }
 
@@ -2599,40 +2599,40 @@ void proto_register_sip(void)
 			{ "Suspected resend of frame",  "sip.resend-original",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		    	"Original transmission of frame", HFILL}}
-        };
+		};
 
-        /* Setup protocol subtree array */
-        static gint *ett[] = {
-                &ett_sip,
-                &ett_sip_reqresp,
-                &ett_sip_hdr,
+	/* Setup protocol subtree array */
+	static gint *ett[] = {
+		&ett_sip,
+		&ett_sip_reqresp,
+		&ett_sip_hdr,
 		&ett_sip_element,
-			&ett_sip_uri,
-			&ett_sip_contact_item,
+		&ett_sip_uri,
+		&ett_sip_contact_item,
 		&ett_sip_message_body,
-        };
-        static gint *ett_raw[] = {
-                &ett_raw_text,
-        };
+	};
+	static gint *ett_raw[] = {
+		&ett_raw_text,
+	};
 
 	module_t *sip_module;
 
-        /* Register the protocol name and description */
-        proto_sip = proto_register_protocol("Session Initiation Protocol",
-            "SIP", "sip");
-        proto_raw_sip = proto_register_protocol("Session Initiation Protocol (SIP as raw text)",
-            "Raw_SIP", "raw_sip");
-        new_register_dissector("sip", dissect_sip, proto_sip);
+	/* Register the protocol name and description */
+	proto_sip = proto_register_protocol("Session Initiation Protocol",
+	                                    "SIP", "sip");
+	proto_raw_sip = proto_register_protocol("Session Initiation Protocol (SIP as raw text)",
+	                                        "Raw_SIP", "raw_sip");
+	new_register_dissector("sip", dissect_sip, proto_sip);
 
-        /* Required function calls to register the header fields and subtrees used */
-        proto_register_field_array(proto_sip, hf, array_length(hf));
-        proto_register_subtree_array(ett, array_length(ett));
-        proto_register_subtree_array(ett_raw, array_length(ett_raw));
+	/* Required function calls to register the header fields and subtrees used */
+	proto_register_field_array(proto_sip, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+	proto_register_subtree_array(ett_raw, array_length(ett_raw));
 
 	/* SIP content type and internet media type used by other dissectors are the same */
 	media_type_dissector_table = find_dissector_table("media_type");
 
-        sip_module = prefs_register_protocol(proto_sip, NULL);
+	sip_module = prefs_register_protocol(proto_sip, NULL);
 
 	prefs_register_bool_preference(sip_module, "display_raw_text",
 		"Display raw text for SIP message",
