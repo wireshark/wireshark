@@ -598,6 +598,8 @@ typedef struct _uri_offset_info
 	gint uri_end;
 	gint uri_parameters_start;
 	gint uri_parameters_end;
+	gint name_addr_start;
+	gint name_addr_end;
 } uri_offset_info;
 
 /* Code to parse a sip uri.
@@ -608,6 +610,7 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
                 gint line_end_offset, uri_offset_info *uri_offsets)
 {
 	gchar c;
+	gint i;
 	gint current_offset;
 	gint queried_offset;
 	gint colon_offset;
@@ -624,6 +627,8 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
 		return -1;
 	}
 
+	uri_offsets->name_addr_start = current_offset;
+	
 	/* First look, if we have a display name */
 	c=tvb_get_guint8(tvb, current_offset);
 	switch(c)
@@ -642,7 +647,16 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
 				current_offset = queried_offset;
 
 				/* Is it escaped? */
-			} while (tvb_get_guint8(tvb, queried_offset - 1) == '\\');
+				/* count back slashes before '"' */
+				for(i=1;tvb_get_guint8(tvb, queried_offset - i) == '\\';i++);
+				i--;
+				
+				if(i % 2 == 0)
+				{
+					/* not escaped */
+					break;
+				}
+			} while (current_offset < line_end_offset);
 			uri_offsets->display_name_end = current_offset;
 
 			/* find start of the URI */
@@ -738,6 +752,7 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
 			 */
 			uri_offsets->uri_end = line_end_offset - 2;
 		}
+		uri_offsets->name_addr_end = uri_offsets->uri_end;
 		current_offset = uri_offsets->uri_end + 1; /* Now save current_offset, as it is the value to be returned now */
 	}
 	else
@@ -749,8 +764,9 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
 			/* malformed Uri */
 			return -1;
 		}
+		uri_offsets->name_addr_end = queried_offset;
 		uri_offsets->uri_end = queried_offset - 1;
-		current_offset = queried_offset; /* Now save current_offset, as it is the value to be returned now */
+		current_offset = queried_offset; /* Now save current_offset. It contains the value we have to return */
 
 		/* Look for '@' within URI */
 		queried_offset = tvb_find_guint8(tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start, '@');
@@ -820,8 +836,6 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 	gint queried_offset;
 	gint contact_params_start_offset = -1;
 	gint contact_item_end_offset = -1;
-	gint name_addr_start_offset;
-	gint name_addr_end_offset;
 	uri_offset_info uri_offsets;
 
 	uri_offsets.display_name_start = -1;
@@ -830,6 +844,8 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 	uri_offsets.uri_end = -1;
 	uri_offsets.uri_parameters_start = -1;
 	uri_offsets.uri_parameters_end = -1;
+	uri_offsets.name_addr_start = -1;
+	uri_offsets.name_addr_end = -1;
 
 	/* skip Spaces and Tabs */
 	start_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
@@ -887,24 +903,6 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 	if(contact_item_end_offset == -1)
 		contact_item_end_offset = line_end_offset - 3;  /* remove '\r\n' */
 
-	if(uri_offsets.display_name_start == -1)
-	{
-		name_addr_start_offset = uri_offsets.uri_start;
-	}
-	else
-	{
-		name_addr_start_offset = uri_offsets.display_name_start;
-	}
-
-	if(uri_offsets.uri_parameters_end == -1)
-	{
-		name_addr_end_offset = uri_offsets.uri_end;
-	}
-	else
-	{
-		name_addr_end_offset = uri_offsets.uri_parameters_end;
-	}
-
 	/* Build the tree, now */
 	if(tree)
 	{
@@ -912,8 +910,8 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 		                           tvb_format_text(tvb, start_offset, contact_item_end_offset - start_offset + 1));
 		contact_item_tree = proto_item_add_subtree(ti, ett_sip_contact_item);
 
-		ti = proto_tree_add_string(contact_item_tree, hf_sip_uri, tvb, name_addr_start_offset, name_addr_end_offset - name_addr_start_offset + 1,
-		                           tvb_format_text(tvb, name_addr_start_offset, name_addr_end_offset - name_addr_start_offset + 1));
+		ti = proto_tree_add_string(contact_item_tree, hf_sip_uri, tvb, uri_offsets.name_addr_start, uri_offsets.name_addr_end - uri_offsets.name_addr_start + 1,
+		                           tvb_format_text(tvb, uri_offsets.name_addr_start, uri_offsets.name_addr_end - uri_offsets.name_addr_start + 1));
 		uri_tree = proto_item_add_subtree(ti, ett_sip_uri);
 
 		if(uri_offsets.display_name_start != -1 && uri_offsets.display_name_end != -1)
