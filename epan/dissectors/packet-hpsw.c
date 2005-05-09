@@ -57,6 +57,7 @@ static gint ett_hpsw_tlv = -1;
 #define HPFOO_FIELD_8 0x8
 #define HPFOO_FIELD_9 0x9
 #define HPFOO_FIELD_10 0xa
+#define HPFOO_MAC_ADDR 0xe
 
 static const value_string hpsw_tlv_type_vals[] = {
 	{ HPFOO_DEVICE_NAME,       "Device Name" },
@@ -67,6 +68,7 @@ static const value_string hpsw_tlv_type_vals[] = {
 	{ HPFOO_FIELD_8,     "Field 8" },
 	{ HPFOO_FIELD_9,     "Field 9" },
 	{ HPFOO_FIELD_10,     "Field 10" },
+	{ HPFOO_MAC_ADDR,     "MAC Addr" },
 	{ 0x00,               NULL }
 };
 
@@ -217,6 +219,17 @@ dissect_hpsw_tlv(tvbuff_t *tvb, int offset, int length,
         } else {
             proto_item_set_text(ti, "Field 10: Bad length %u", length);
             proto_tree_add_text(tree, tvb, offset, length, "Field 10: Bad length %u", length);
+        }
+        break;
+
+    case HPFOO_MAC_ADDR:
+        if (length == 6) {
+            const guint8 *macptr=tvb_get_ptr(tvb,offset,length);
+            proto_item_set_text(ti, "MAC Addr: %s", ether_to_str(macptr));
+            proto_tree_add_text(tree, tvb, offset, length, "MAC Addr: %s", ether_to_str(macptr));
+        } else {
+            proto_item_set_text(ti, "MAC Addr: Bad length %u", length);
+            proto_tree_add_text(tree, tvb, offset, length, "MAC Addr: Bad length %u", length);
         }
         break;
 
