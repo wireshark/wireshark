@@ -8319,7 +8319,7 @@ void proto_register_camel(void) {
 
   camel_module = prefs_register_protocol(proto_camel, proto_reg_handoff_camel);
 
-  prefs_register_enum_preference(camel_module, "date format", "Date Format",
+  prefs_register_enum_preference(camel_module, "date.format", "Date Format",
                                   "The date format: (DD/MM) or (MM/DD)",
                                   &date_format, date_options, FALSE);
   
