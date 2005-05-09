@@ -628,7 +628,7 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
 	}
 
 	uri_offsets->name_addr_start = current_offset;
-	
+
 	/* First look, if we have a display name */
 	c=tvb_get_guint8(tvb, current_offset);
 	switch(c)
@@ -650,13 +650,19 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
 				/* count back slashes before '"' */
 				for(i=1;tvb_get_guint8(tvb, queried_offset - i) == '\\';i++);
 				i--;
-				
+
 				if(i % 2 == 0)
 				{
 					/* not escaped */
 					break;
 				}
 			} while (current_offset < line_end_offset);
+			if(current_offset >= line_end_offset)
+			{
+				/* malformed URI */
+				return -1;
+			}
+
 			uri_offsets->display_name_end = current_offset;
 
 			/* find start of the URI */
