@@ -75,6 +75,8 @@ static int hf_h248_package_3GUP_initdir = -1;
 static gint ett_h248 = -1;
 static gint ett_mtpaddress = -1;
 static gint ett_packagename = -1;
+static gint ett_codec = -1;
+
 #include "packet-h248-ett.c"
 
 
@@ -284,14 +286,17 @@ static void
 dissect_h248_annex_C_PDU(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 name_minor) {
 	int offset = 0;
 	tvbuff_t *new_tvb;
-
+	
 	switch ( name_minor ){
 
 	case 0x1001: /* Media */
 		proto_tree_add_text(tree, tvb, offset, -1,"Media");
 		break;
 	case 0x1006: /* ACodec Ref.: ITU-T Rec. Q.765.5 */
-		offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_h248_package_annex_C_ACodec, &new_tvb);
+		dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_h248_package_annex_C_ACodec, &new_tvb);
+		tree = proto_item_add_subtree(get_ber_last_created_item(),ett_codec);
+		len = tvb_get_guint8(tvb,0);
+		dissect_codec_mode(tree,tvb,1,len);
 		break;
 	case 0x3001: /* Mediatx */
 		offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_h248_package_annex_C_Mediatx, NULL);
@@ -694,6 +699,7 @@ void proto_register_h248(void) {
     &ett_h248,
     &ett_mtpaddress,
     &ett_packagename,
+	&ett_codec,
 #include "packet-h248-ettarr.c"
   };
 

@@ -133,6 +133,7 @@ ETH_VAR_IMPORT const value_string q850_cause_code_vals[];
 
 extern const value_string isup_parameter_type_value[]; 
 extern const value_string isup_transmission_medium_requirement_value[];
+
 /*
  * Export dissection of some parameters
  */
@@ -141,3 +142,4 @@ void dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_t
 void dissect_isup_calling_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item);
 void dissect_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item);
 
+extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int len);

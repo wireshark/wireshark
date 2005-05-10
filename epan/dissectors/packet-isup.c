@@ -1264,6 +1264,7 @@ static int hf_length_indicator						= -1;
 static int hf_afi									= -1;
 static int hf_bicc_nsap_dsp							= -1;
 static int hf_bat_ase_identifier					= -1;
+	
 static int hf_Action_Indicator						= -1;
 
 static int hf_Instruction_ind_for_general_action			= -1;	
@@ -1284,6 +1285,26 @@ static int hf_characteristics						= -1;
 static int hf_Organization_Identifier					= -1;
 static int hf_codec_type						= -1;
 static int hf_etsi_codec_type						= -1;
+static int hf_active_code_set  = -1;
+static int hf_active_code_set_12_2  = -1;
+static int hf_active_code_set_10_2  = -1;
+static int hf_active_code_set_7_95  = -1;
+static int hf_active_code_set_7_40  = -1;
+static int hf_active_code_set_6_70  = -1;
+static int hf_active_code_set_5_90  = -1;
+static int hf_active_code_set_5_15  = -1;
+static int hf_active_code_set_4_75  = -1;
+static int hf_supported_code_set  = -1;
+static int hf_supported_code_set_12_2  = -1;
+static int hf_supported_code_set_10_2  = -1;
+static int hf_supported_code_set_7_95  = -1;
+static int hf_supported_code_set_7_40  = -1;
+static int hf_supported_code_set_6_70  = -1;
+static int hf_supported_code_set_5_90  = -1;
+static int hf_supported_code_set_5_15  = -1;
+static int hf_supported_code_set_4_75  = -1;
+static int hf_initial_codec_mode  = -1;
+static int hf_max_codec_modes  = -1;
 static int hf_bearer_control_tunneling					= -1;
 static int hf_Local_BCU_ID						= -1;
 static int hf_late_cut_trough_cap_ind					= -1;
@@ -1307,6 +1328,8 @@ static gint ett_bat_ase							= -1;
 static gint ett_bicc 							= -1;
 static gint ett_bat_ase_element						= -1;
 static gint ett_bat_ase_iwfa						= -1;
+static gint ett_acs						= -1;
+static gint ett_scs						= -1;
 
 
 
@@ -2212,6 +2235,7 @@ static const true_false_string BCTP_TPEI_value  = {
   "No indication"
 };
 
+
 #define  ITU_T                          	0x01	
 #define  ETSI	                          	0x02	
 
@@ -2222,7 +2246,6 @@ static const value_string bat_ase_organization_identifier_subfield_vals[] = {
 	{ 0x02,	"ETSI (refer to TS 26.103)"},
 	{ 0,	NULL }
 };
-
 
 #define	G_711_64_A						0x01
 #define	G_711_64_U						0x02
@@ -2274,6 +2297,18 @@ static const value_string ETSI_codec_type_subfield_vals[] = {
 	{ 0xfe, "Reserved for future use."},
 	{ 0xff, "Reserved for MuMe dummy Codec Type ( MuMe )"},
 	{ 0,	NULL }
+};
+
+static const value_string bat_initial_codec_mode_vals[] = {
+	{0x7, "12.2 kbps"},
+	{0x6, "10.2 kbps"},
+	{0x5, "7.95 kbps"},
+	{0x4, "7.40 kbps"},
+	{0x3, "6.70 kbps"},
+	{0x2, "5.90 kbps"},
+	{0x1, "5.15 kbps"},
+	{0x0, "4.75 kbps"},
+	{0, NULL}
 };
 
 static const value_string bearer_network_connection_characteristics_vals[] = {
@@ -2360,12 +2395,116 @@ static const value_string BAT_ASE_Report_Reason_vals[] = {
 	{ 0x02,	"BICC data with unrecognized information element, discarded"},
 	{ 0,	NULL }
 };
+
+extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int len) {
+	guint8 tempdata;
+	proto_tree *scs_item, *acs_item;
+	proto_tree *scs_tree, *acs_tree;
+	
+	
+	offset = offset + 1;
+	tempdata = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(tree, hf_Organization_Identifier , tvb, offset, 1, tempdata );
+	switch ( tempdata ){
+		case ITU_T :
+			offset = offset + 1;
+			tempdata = tvb_get_guint8(tvb, offset);
+			proto_tree_add_uint(tree, hf_codec_type , tvb, offset, 1, tempdata );
+			offset = offset + 1;
+			switch ( tempdata ) {
+				case G_711_64_A :
+				case G_711_64_U	:		
+				case G_711_56_A	:		
+				case G_711_56_U	: 		
+				case G_722_SB_ADPCM :	
+				case G_723_1 :				
+				case G_723_1_Annex_A :
+					/* These codecs have no configuration data */	
+					break;
+				case G_726_ADPCM :					
+				case G_727_Embedded_ADPCM :
+					/* four bit config data, TODO decode config */
+					if ( len > 2 ) {	
+						tempdata = tvb_get_guint8(tvb, offset);
+						proto_tree_add_text(tree, tvb, offset, 1, "Configuration data : 0x%x", tempdata);
+						offset = offset + 1;
+					}
+					break;	
+				case G_728 :							
+				case G_729_CS_ACELP :		
+				case G_729_Annex_B :
+					/* three bit config data, TODO decode config */
+					if ( len > 2 ) {	
+						tempdata = tvb_get_guint8(tvb, offset);
+						proto_tree_add_text(tree, tvb, offset, 1 , "Configuration data : 0x%x", tempdata);
+						offset = offset + 1;
+					}
+					break;
+				default:
+					break;
+					
+			}
+				break;	
+		case ETSI:
+			offset = offset + 1;
+			tempdata = tvb_get_guint8(tvb, offset);
+			proto_tree_add_uint(tree, hf_etsi_codec_type , tvb, offset, 1, tempdata );
+			if ( len > 1 )	{
+				offset = offset + 1;
+				tempdata = tvb_get_guint8(tvb, offset);
+
+				acs_item = proto_tree_add_item(tree, hf_active_code_set, tvb, offset, 1, TRUE);
+				acs_tree = proto_item_add_subtree(acs_item,ett_acs);
+				proto_tree_add_item(acs_tree, hf_active_code_set_12_2, tvb, offset, 1, TRUE);
+				proto_tree_add_item(acs_tree, hf_active_code_set_10_2, tvb, offset, 1, TRUE);
+				proto_tree_add_item(acs_tree, hf_active_code_set_7_95, tvb, offset, 1, TRUE);
+				proto_tree_add_item(acs_tree, hf_active_code_set_7_40, tvb, offset, 1, TRUE);
+				proto_tree_add_item(acs_tree, hf_active_code_set_6_70, tvb, offset, 1, TRUE);
+				proto_tree_add_item(acs_tree, hf_active_code_set_5_90, tvb, offset, 1, TRUE);
+				proto_tree_add_item(acs_tree, hf_active_code_set_5_15, tvb, offset, 1, TRUE);
+				proto_tree_add_item(acs_tree, hf_active_code_set_4_75, tvb, offset, 1, TRUE);
+				
+			}
+			if ( len > 2 )	{
+				offset = offset + 1;
+				tempdata = tvb_get_guint8(tvb, offset);
+				
+				scs_item = proto_tree_add_item(tree, hf_supported_code_set, tvb, offset, 1, TRUE);
+				scs_tree = proto_item_add_subtree(scs_item,ett_scs);
+				proto_tree_add_item(scs_tree, hf_supported_code_set_12_2, tvb, offset, 1, TRUE);
+				proto_tree_add_item(scs_tree, hf_supported_code_set_10_2, tvb, offset, 1, TRUE);
+				proto_tree_add_item(scs_tree, hf_supported_code_set_7_95, tvb, offset, 1, TRUE);
+				proto_tree_add_item(scs_tree, hf_supported_code_set_7_40, tvb, offset, 1, TRUE);
+				proto_tree_add_item(scs_tree, hf_supported_code_set_6_70, tvb, offset, 1, TRUE);
+				proto_tree_add_item(scs_tree, hf_supported_code_set_5_90, tvb, offset, 1, TRUE);
+				proto_tree_add_item(scs_tree, hf_supported_code_set_5_15, tvb, offset, 1, TRUE);
+				proto_tree_add_item(scs_tree, hf_supported_code_set_4_75, tvb, offset, 1, TRUE);
+			}
+			if ( len > 3 )	{
+				offset = offset + 1;
+				proto_tree_add_item(tree, hf_initial_codec_mode, tvb, offset, 1, TRUE);
+				proto_tree_add_item(tree, hf_max_codec_modes, tvb, offset, 1, TRUE);
+			}
+			offset = offset + 1;
+			break;
+		default:
+			offset = offset + 1;
+			tempdata = tvb_get_guint8(tvb, offset);
+			proto_tree_add_text(tree, tvb, offset, len ,
+								"Unknown organisation Identifier ( Non ITU-T/ETSI codec ) %u", tempdata);
+			offset = offset + len - 1;
+			break;
+	}
+	/* switch OID */
+	
+	return offset;
+}
+
 static int
 dissect_codec(tvbuff_t *parameter_tvb, proto_tree *bat_ase_element_tree, gint length_indicator, gint offset,gint identifier)
 {
 /* offset is at length indicator e.g 1 step past identifier */
-guint content_len;
-guint8 tempdata, compatibility_info;
+guint8 compatibility_info;
 
 	proto_tree_add_uint(bat_ase_element_tree , hf_bat_ase_identifier , parameter_tvb, offset - 1, 1, identifier );
 	proto_tree_add_uint(bat_ase_element_tree , hf_length_indicator  , parameter_tvb, offset, 1, length_indicator );
@@ -2377,76 +2516,7 @@ guint8 tempdata, compatibility_info;
 	proto_tree_add_boolean(bat_ase_element_tree, hf_Send_notification_ind_for_pass_on_not_possible , parameter_tvb, offset, 1, compatibility_info );
 	proto_tree_add_boolean(bat_ase_element_tree, hf_isup_extension_ind , parameter_tvb, offset, 1, compatibility_info );
 
-	content_len = length_indicator - 1 ; /* exclude the treated Compatibility information */
-	offset = offset + 1;
-	tempdata = tvb_get_guint8(parameter_tvb, offset);
-	proto_tree_add_uint(bat_ase_element_tree, hf_Organization_Identifier , parameter_tvb, offset, 1, tempdata );
-		switch ( tempdata ){
-			case ITU_T :
-					offset = offset + 1;
-					tempdata = tvb_get_guint8(parameter_tvb, offset);
-					proto_tree_add_uint(bat_ase_element_tree, hf_codec_type , parameter_tvb, offset, 1, tempdata );
-					offset = offset + 1;
-					switch ( tempdata ) {
-						case G_711_64_A :
-  						case G_711_64_U	:		
-						case G_711_56_A	:		
-        			     		case G_711_56_U	: 		
-        					case G_722_SB_ADPCM :	
-        					case G_723_1 :				
-        					case G_723_1_Annex_A :	/* These codecs have no configuration data */	
-						break;
-			            		case G_726_ADPCM :					
-        		        		case G_727_Embedded_ADPCM : /* four bit config data, TODO decode config */
-						if ( content_len > 2 ) {	
-							tempdata = tvb_get_guint8(parameter_tvb, offset);
-							proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, 1, "Configuration data : 0x%x", tempdata);
-							offset = offset + 1;
-						}
-						break;	
-        		            		case G_728 :							
-        		         		case G_729_CS_ACELP :		
-        			     		case G_729_Annex_B :	 /* three bit config data, TODO decode config */
-						if ( content_len > 2 ) {	
-							tempdata = tvb_get_guint8(parameter_tvb, offset);
-							proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, 1 , "Configuration data : 0x%x", tempdata);
-							offset = offset + 1;
-						}
-						break;
-						default:
-						break;
-
-					}/* switch ITU codec type*/
-			break;	
-			case ETSI:
-					offset = offset + 1;
-					tempdata = tvb_get_guint8(parameter_tvb, offset);
-					proto_tree_add_uint(bat_ase_element_tree, hf_etsi_codec_type , parameter_tvb, offset, 1, tempdata );
-					if ( content_len > 2 )	{
-						offset = offset + 1;
-						tempdata = tvb_get_guint8(parameter_tvb, offset);
-						proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, 1 , "ACS : 0x%x", tempdata);
-					}
-					if ( content_len > 3 )	{
-						offset = offset + 1;
-						tempdata = tvb_get_guint8(parameter_tvb, offset);
-						proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, 1 , "SCS : 0x%x", tempdata);
-					}
-					if ( content_len > 4 )	{
-						offset = offset + 1;
-						tempdata = tvb_get_guint8(parameter_tvb, offset);
-						proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, 1 , "OM MACS : 0x%x", tempdata);
-					}
-					offset = offset + 1;
-			break;
-			default:
-					offset = offset + 1;
-					tempdata = tvb_get_guint8(parameter_tvb, offset);
-					proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset, content_len ,
-						 "Unknown organisation Identifier ( Non ITU-T/ETSI codec ) %u", tempdata);
-					offset = offset + content_len - 1;
-			break;
-			}/* switch OID */
+	offset = dissect_codec_mode(bat_ase_element_tree, parameter_tvb, offset,length_indicator-1);
 return offset;
 }
 
@@ -6133,6 +6203,7 @@ proto_register_isup(void)
 			{ "Sequence indicator (SI)",  "isup.APM_Sequence_ind",
 			FT_BOOLEAN, 8, TFS(&isup_Sequence_ind_value), G_8BIT_MASK,
 			"", HFILL }},
+		
 		{ &hf_bat_ase_identifier,
 			{ "BAT ASE Identifiers",  "bicc.bat_ase_identifier",
 			FT_UINT8, BASE_HEX, VALS(bat_ase_list_of_Identifiers_vals),0x0,	
@@ -6227,7 +6298,107 @@ proto_register_isup(void)
 			FT_UINT8, BASE_HEX, VALS(ETSI_codec_type_subfield_vals),0x0,
 			"", HFILL }},
 
+		{ &hf_active_code_set,
+			{ "Active Code Set",  "bat_ase.acs",
+			FT_UINT8, BASE_HEX, NULL,0x0,
+			"", HFILL }},
 
+		{ &hf_active_code_set_12_2,
+			{ "12.2 kbps rate",  "bat_ase.acs.12_2",
+			FT_UINT8, BASE_HEX, NULL,0x80,
+			"", HFILL }},
+
+		{ &hf_active_code_set_10_2,
+			{ "10.2 kbps rate",  "bat_ase.acs.10_2",
+			FT_UINT8, BASE_HEX, NULL,0x40,
+			"", HFILL }},
+		
+		{ &hf_active_code_set_7_95,
+			{ "7.95 kbps rate",  "bat_ase.acs.7_95",
+			FT_UINT8, BASE_HEX, NULL,0x20,
+			"", HFILL }},
+		
+		{ &hf_active_code_set_7_40,
+			{ "7.40 kbps rate",  "bat_ase.acs.7_40",
+			FT_UINT8, BASE_HEX, NULL,0x10,
+			"", HFILL }},
+	
+		{ &hf_active_code_set_6_70,
+			{ "6.70 kbps rate",  "bat_ase.acs.6_70",
+			FT_UINT8, BASE_HEX, NULL,0x08,
+			"", HFILL }},
+		
+		{ &hf_active_code_set_5_90,
+			{ "5.90 kbps rate",  "bat_ase.acs.5_90",
+			FT_UINT8, BASE_HEX, NULL,0x04,
+			"", HFILL }},
+
+		{ &hf_active_code_set_5_15,
+			{ "5.15 kbps rate",  "bat_ase.acs.5_15",
+			FT_UINT8, BASE_HEX, NULL,0x02,
+			"", HFILL }},
+		
+		{ &hf_active_code_set_4_75,
+			{ "4.75 kbps rate",  "bat_ase.acs.4_75",
+			FT_UINT8, BASE_HEX, NULL,0x01,
+			"", HFILL }},
+
+		{ &hf_supported_code_set,
+			{ "Supported Code Set",  "bat_ase.scs",
+			FT_UINT8, BASE_HEX, NULL,0x0,
+			"", HFILL }},
+		
+		{ &hf_supported_code_set_12_2,
+			{ "12.2 kbps rate",  "bat_ase.scs.12_2",
+			FT_UINT8, BASE_HEX, NULL,0x80,
+			"", HFILL }},
+	
+		{ &hf_supported_code_set_10_2,
+			{ "10.2 kbps rate",  "bat_ase.scs.10_2",
+			FT_UINT8, BASE_HEX, NULL,0x40,
+			"", HFILL }},
+		
+		{ &hf_supported_code_set_7_95,
+			{ "7.95 kbps rate",  "bat_ase.scs.7_95",
+			FT_UINT8, BASE_HEX, NULL,0x20,
+			"", HFILL }},
+		
+		{ &hf_supported_code_set_7_40,
+			{ "7.40 kbps rate",  "bat_ase.scs.7_40",
+			FT_UINT8, BASE_HEX, NULL,0x10,
+			"", HFILL }},
+		
+		{ &hf_supported_code_set_6_70,
+			{ "6.70 kbps rate",  "bat_ase.scs.6_70",
+			FT_UINT8, BASE_HEX, NULL,0x08,
+			"", HFILL }},
+		
+		{ &hf_supported_code_set_5_90,
+			{ "5.90 kbps rate",  "bat_ase.scs.5_90",
+			FT_UINT8, BASE_HEX, NULL,0x04,
+			"", HFILL }},
+		
+		{ &hf_supported_code_set_5_15,
+			{ "5.15 kbps rate",  "bat_ase.scs.5_15",
+			FT_UINT8, BASE_HEX, NULL,0x02,
+			"", HFILL }},
+		
+		{ &hf_supported_code_set_4_75,
+			{ "4.75 kbps rate",  "bat_ase.scs.4_75",
+			FT_UINT8, BASE_HEX, NULL,0x01,
+			"", HFILL }},
+		
+		{ &hf_initial_codec_mode,
+			{ "Initial Codec Mode",  "bat_ase.icm",
+			FT_UINT8, BASE_HEX, VALS(bat_initial_codec_mode_vals),0x38,
+			"", HFILL }},
+		
+		{ &hf_max_codec_modes,
+			{ "Maximal number of Codec Modes",  "bat_ase.macs",
+			FT_UINT8, BASE_DEC, NULL,0x07,
+			"", HFILL }},
+		
+		
 		{ &hf_bearer_control_tunneling,
 			{ "Bearer control tunneling",  "bat_ase.bearer_control_tunneling",
 			FT_BOOLEAN, 8, TFS(&Bearer_Control_Tunnelling_ind_value),0x01,
@@ -6315,7 +6486,9 @@ proto_register_isup(void)
 		&ett_isup_circuit_state_ind,
 		&ett_bat_ase,
 		&ett_bat_ase_element,
-		&ett_bat_ase_iwfa
+		&ett_bat_ase_iwfa,
+		&ett_scs,
+		&ett_acs
 	};
 
 /* Register the protocol name and description */

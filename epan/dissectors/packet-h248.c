@@ -347,6 +347,7 @@ static int hf_h248_NotifyCompletion_otherReason = -1;
 static gint ett_h248 = -1;
 static gint ett_mtpaddress = -1;
 static gint ett_packagename = -1;
+static gint ett_codec = -1;
 
 /*--- Included file: packet-h248-ett.c ---*/
 
@@ -685,18 +686,23 @@ static const true_false_string h248_tdmc_ec_vals = {
 	"On",
 	"Off"
 };
+
 static void 
 dissect_h248_annex_C_PDU(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 name_minor) {
 	int offset = 0;
+	int len;
 	tvbuff_t *new_tvb;
 
-	switch ( name_minor ){
+	switch ( name_minor ) {
 
 	case 0x1001: /* Media */
 		proto_tree_add_text(tree, tvb, offset, -1,"Media");
 		break;
 	case 0x1006: /* ACodec Ref.: ITU-T Rec. Q.765.5 */
-		offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_h248_package_annex_C_ACodec, &new_tvb);
+		dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_h248_package_annex_C_ACodec, &new_tvb);
+		tree = proto_item_add_subtree(get_ber_last_created_item(),ett_codec);
+		len = tvb_get_guint8(tvb,0);
+		dissect_codec_mode(tree,tvb,1,len);
 		break;
 	case 0x3001: /* Mediatx */
 		offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_h248_package_annex_C_Mediatx, NULL);
@@ -767,7 +773,7 @@ static const value_string h248_3GUP_initdir_vals[] = {
 };
 
 static void
-dissect_3G_User_Plane_PDU(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 name_minor){
+dissect_3G_User_Plane_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 name_minor){
 	int offset = 0;
 
 	switch ( name_minor ){
@@ -922,9 +928,9 @@ dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int offset, packe
 static int
 dissect_h248_PropertyID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_) {
 
-	guint8 class;
+	gchar class;
 	gboolean pc, ind;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
 	guint16 name_major;
 	guint16 name_minor;
@@ -5314,6 +5320,7 @@ void proto_register_h248(void) {
     &ett_h248,
     &ett_mtpaddress,
     &ett_packagename,
+	&ett_codec,
 
 /*--- Included file: packet-h248-ettarr.c ---*/
 
