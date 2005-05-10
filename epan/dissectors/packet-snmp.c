@@ -1,3 +1,4 @@
+/* TODO: this dissector should be upgraded to use packet-ber */
 /* packet-snmp.c
  * Routines for SNMP (simple network management protocol)
  * Copyright (C) 1998 Didier Jorand
@@ -57,6 +58,7 @@
 #include "packet-ipx.h"
 #include "packet-hpext.h"
 #include "packet-frame.h"
+#include "packet-ber.h"
 
 #ifdef HAVE_SOME_SNMP
 
@@ -2300,10 +2302,43 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dissect_common_pdu(tvb, offset, pinfo, smux_tree, tree, &asn1, pdu_type, start);
 }
 
-static void
+static gint
 dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	conversation_t  *conversation;
+	int offset;
+	gint8 tmp_class;
+	gboolean tmp_pc;
+	gint32 tmp_tag;
+	guint32 tmp_length;
+	gboolean tmp_ind;
+
+	/* 
+	 * See if this looks like SNMP or not. if not, return 0 so 
+	 * ethereal can try som other dissector instead.
+	 */
+	/* All SNMP packets are BER encoded and consist of a SEQUENCE
+	 * that spans the entire PDU. The first item is an INTEGER that
+	 * has the values 0-2 (version 1-3).
+	 * if not it is not snmp.
+	 */
+	/* SNMP starts with a SEQUENCE */
+	offset = get_ber_identifier(tvb, 0, &tmp_class, &tmp_pc, &tmp_tag);
+	if((tmp_class!=BER_CLASS_UNI)||(tmp_tag!=BER_UNI_TAG_SEQUENCE)){
+		return 0;
+	}
+	/* then comes a length which spans the rest of the tvb */
+	offset = get_ber_length(NULL, tvb, offset, &tmp_length, &tmp_ind);
+	if(tmp_length!=(guint32)tvb_reported_length_remaining(tvb, offset)){
+		return 0;
+	}
+	/* then comes an INTEGER (version)*/
+	offset = get_ber_identifier(tvb, offset, &tmp_class, &tmp_pc, &tmp_tag);
+	if((tmp_class!=BER_CLASS_UNI)||(tmp_tag!=BER_UNI_TAG_INTEGER)){
+		return 0;
+	}
+	/* do we need to test that version is 0 - 2 (version1-3) ? */
+
 
 	/*
 	 * The first SNMP packet goes to the SNMP port; the second one
@@ -2333,7 +2368,7 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  }
 	}
 
-	dissect_snmp_pdu(tvb, 0, pinfo, tree, proto_snmp, ett_snmp, FALSE);
+	return dissect_snmp_pdu(tvb, 0, pinfo, tree, proto_snmp, ett_snmp, FALSE);
 }
 
 static void
@@ -2509,7 +2544,7 @@ proto_register_snmp(void)
 	    "SNMP", "snmp");
 	proto_register_field_array(proto_snmp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	register_dissector("snmp", dissect_snmp, proto_snmp);
+	new_register_dissector("snmp", dissect_snmp, proto_snmp);
 
 	/* Register configuration preferences */
 	snmp_module = prefs_register_protocol(proto_snmp, process_prefs);
