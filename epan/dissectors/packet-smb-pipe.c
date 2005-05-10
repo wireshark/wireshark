@@ -283,8 +283,9 @@ add_byte_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
 
 	if (hf_index != -1) {
 		hfinfo = proto_registrar_get_nth(hf_index);
-		if (hfinfo && count != 1 && 
-				(hfinfo->type == FT_INT8 || hfinfo->type == FT_UINT8)) {
+		if (hfinfo && count != 1 &&
+				(hfinfo->type == FT_INT8 || hfinfo->type == FT_UINT8)
+				&& count != 1) {
 			THROW(ReportedBoundsError);
 		}
 		proto_tree_add_item(tree, hf_index, tvb, offset, count, TRUE);
@@ -1720,10 +1721,6 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				offset += count;
 				items++;
 			} else {
-				if (items->type == PARAM_WORD && count != 2 ||
-						items->type == PARAM_DWORD && count != 4) {
-					THROW(ReportedBoundsError);
-				}
 				offset = (*items->func)(tvb, offset, count,
 				    pinfo, tree, 0, *items->hf_index);
 				items++;
@@ -1880,10 +1877,6 @@ dissect_response_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				offset += count;
 				items++;
 			} else {
-				if (items->type == PARAM_WORD && count != 2 ||
-						items->type == PARAM_DWORD && count != 4) {
-					THROW(ReportedBoundsError);
-				}
 				offset = (*items->func)(tvb, offset, count,
 				    pinfo, tree, 0, *items->hf_index);
 				items++;
@@ -2086,10 +2079,6 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				offset += count;
 				items++;
 			} else {
-				if (items->type == PARAM_WORD && count != 2 ||
-						items->type == PARAM_DWORD && count != 4) {
-					THROW(ReportedBoundsError);
-				}
 				offset = (*items->func)(tvb, offset, count,
 				    pinfo, tree, convert, *items->hf_index);
 				items++;
@@ -2183,10 +2172,6 @@ dissect_transact_data(tvbuff_t *tvb, int offset, int convert,
 				    tvb_bytes_to_str(tvb, cptr, count));
 				items++;
 			} else {
-				if (items->type == PARAM_WORD && count != 2 ||
-						items->type == PARAM_DWORD && count != 4) {
-					THROW(ReportedBoundsError);
-				}
 				offset = (*items->func)(tvb, offset, count,
 				    pinfo, tree, convert, *items->hf_index);
 				items++;
