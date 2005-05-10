@@ -519,7 +519,7 @@ static int read_string_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
     string[length] = '\0';
   }
   else
-    string = "(null)";
+    string = g_strdup("(null)");
 
   if (tree)
     temp_item = proto_tree_add_string(tree, hf_id, a->tvb, start, a->offset - start, string);
@@ -1612,7 +1612,7 @@ static void dissect_ldap_response_search_entry(ASN1_SCK *a, proto_tree *tree,
 
     mscldap_rpc=0;
     if(is_mscldap){
-	if(!strncmp(str, "netlogon", 8)){
+	if(str && !strncmp(str, "netlogon", 8)){
 		mscldap_rpc=MSCLDAP_RPC_NETLOGON;
 	}
     }
@@ -1799,6 +1799,7 @@ static void dissect_ldap_request_compare(ASN1_SCK *a, proto_tree *tree)
       proto_tree_add_text(tree, a->tvb, start, 0,
         "ERROR: Couldn't parse compare value: %s", asn1_err_to_str(ret));
     }
+    g_free(string1);
     return;
   }
 
