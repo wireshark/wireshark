@@ -303,6 +303,7 @@ static const value_string resp_errors[] = {
 		tvb_get_ntohs(tvb, offset) : \
 		tvb_get_letohs(tvb, offset)
 
+/* XXX - Is there a particular reason we're not using oid_to_str() here? */
 static int dissect_octet_string(tvbuff_t *tvb, proto_tree *tree, int offset, char flags)
 {
 	guint32 n_oct, p_noct;
@@ -311,6 +312,8 @@ static int dissect_octet_string(tvbuff_t *tvb, proto_tree *tree, int offset, cha
 	NORLEL(flags, n_oct, tvb, offset);
 	
 	p_noct = PADDING(n_oct);
+	if (n_oct >= 1024)
+		THROW(ReportedBoundsError);
 	tvb_get_nstringz(tvb, offset + 4, n_oct, context);
 	context[n_oct]='\0';
 
