@@ -380,8 +380,8 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   guint8 octet;
 
   switch(opcode){
-  case  2: /*updateLocation*/
-    offset=dissect_gsm_map_UpdateLocationArg(FALSE, tvb, offset, pinfo, tree, -1);
+  case  2: /*updateLocation*/	
+	  offset=dissect_gsm_map_UpdateLocationArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case  3: /*cancelLocation*/
  	octet = tvb_get_guint8(tvb,0) & 0xf;
@@ -489,7 +489,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 	  }
     break;
   case 44: /*mt-forwardSM*/
-    offset=dissect_gsm_map_CheckIMEIArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_Mt_forwardSM_Arg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 45: /*sendRoutingInfoForSM*/
     offset=dissect_gsm_map_RoutingInfoForSMArg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -510,10 +510,10 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_Tmsi(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 56: /*sendAuthenticationInfo*/
-	  if (application_context_version < 3 ){
+	  if (application_context_version < 2 ){
 		  offset=dissect_gsm_map_SendAuthenticationInfoArg(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_imsi);
 	  }else{
-		  offset=dissect_gsm_map_SendAuthenticationInfoArgV3(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoArg);
+		  offset=dissect_gsm_map_SendAuthenticationInfoArgV2(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoArg);
 	  }
 	break;
   case 57: /*restoreData*/
@@ -692,6 +692,9 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     break;
   case 43: /*checkIMEI*/
     offset=dissect_gsm_map_EquipmentStatus(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_equipmentStatus);
+    break;
+  case 44: /*mt-forwardSM*/
+    offset=dissect_gsm_map_Mt_forwardSM_Res(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 45: /*sendRoutingInfoForSM*/
     offset=dissect_gsm_map_RoutingInfoForSMRes(FALSE, tvb, offset, pinfo, tree, -1);
@@ -1425,6 +1428,7 @@ void proto_register_gsm_map(void) {
   register_ber_oid_name("0.4.0.0.1.0.18.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkFunctionalSs(18) version2(2)" );
   register_ber_oid_name("0.4.0.0.1.0.18.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkFunctionalSs(18) version1(1)" );
   register_ber_oid_name("0.4.0.0.1.0.19.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkUnstructuredSs(19) version2(2)" );
+  register_ber_oid_name("0.4.0.0.1.0.20.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) shortMsgGateway(20) version3(3)" );
   register_ber_oid_name("0.4.0.0.1.0.20.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) shortMsgGateway(20) version2(2)" );
   register_ber_oid_name("0.4.0.0.1.0.20.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) shortMsgGateway(20) version1(1)" );
   register_ber_oid_name("0.4.0.0.1.0.21.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) shortMsgMO-Relay(21) version2(2)" );
@@ -1433,6 +1437,7 @@ void proto_register_gsm_map(void) {
   register_ber_oid_name("0.4.0.0.1.0.23.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) shortMsgAlert(23) version1(1)" );
   register_ber_oid_name("0.4.0.0.1.0.24.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) mwdMngt(24) version2(2)" );
   register_ber_oid_name("0.4.0.0.1.0.24.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) mwdMngt(24) version1(1)" );
+  register_ber_oid_name("0.4.0.0.1.0.25.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) shortMsgMT-Relay(25) version3(3)" );
   register_ber_oid_name("0.4.0.0.1.0.25.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) shortMsgMT-Relay(25) version2(2)" );
   register_ber_oid_name("0.4.0.0.1.0.25.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) msPurging(27) version2(2)" );
 

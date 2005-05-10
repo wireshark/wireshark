@@ -359,7 +359,7 @@ PrepareSubsequentHO-Arg ::= SEQUENCE {
 --   ARGUMENT
  SendAuthenticationInfoArg ::= Imsi
 -- Is this V9 ?
- SendAuthenticationInfoArgV3 ::=  SEQUENCE {
+ SendAuthenticationInfoArgV2 ::=  SEQUENCE {
       imsi                         [0]  IMPLICIT Imsi, 
       numberOfRequestedVectors     INTEGER ( 1 .. 5 ), 
       segmentationProhibited       NULL OPTIONAL, 
