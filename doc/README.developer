@@ -2462,6 +2462,13 @@ packet-msproxy.c, a conversation can install a dissector to handle
 the secondary protocol dissection.  After the conversation is created
 for the negotiated ports use the conversation_set_dissector to define
 the dissection routine.
+Before we create these conversations or assign a dissector to them we should
+first check that the conversation does not already exist and if it exists
+whether it is registered to our protocol or not.
+We should do this because is uncommon but it does happen that multiple 
+different protocols can use the same socketpair during different stages of 
+an application cycle. By keeping track of the frame number a conversation
+was started in ethereal can still tell these different protocols apart.
 
 The second argument to conversation_set_dissector is a dissector handle,
 which is created with a call to create_dissector_handle or
@@ -2489,16 +2496,30 @@ static void sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 
 /* if conversation has a data field, create it and load structure */
 
-        new_conv_info = g_mem_chunk_alloc( new_conv_vals);
-        new_conv_info->data1 = value1;
+/* First check if a conversation already exists for this 
+	socketpair
+*/
+	conversation = find_conversation(pinfo->fd->num, 
+				&pinfo->src, &pinfo->dst, protocol, 
+				src_port, dst_port, new_conv_info, 0);
+
+/* If there is no such conversation, or if there is one but for 
+   someone elses protocol then we just create a new conversation
+   and assign our protocol to it.
+*/
+        if( (conversation==NULL) 
+	  || (conversation->dissector_handle!=sub_dissector_handle) ){
+            new_conv_info = g_mem_chunk_alloc( new_conv_vals);
+            new_conv_info->data1 = value1;
 
 /* create the conversation for the dynamic port */
-        conversation = conversation_new( &pinfo->src, &pinfo->dst, protocol,
-                src_port, dst_port, new_conv_info, 0);
+            conversation = conversation_new(pinfo->fd->num, 
+		    &pinfo->src, &pinfo->dst, protocol,
+                    src_port, dst_port, new_conv_info, 0);
 
 /* set the dissector for the new conversation */
-        conversation_set_dissector(conversation, sub_dissector_handle);
-
+            conversation_set_dissector(conversation, sub_dissector_handle);
+        }
 		...
 
 void
@@ -2524,6 +2545,19 @@ protocol, a conversation can be used to link a protocol dissector to
 the server port and address.  The key is to create the new 
 conversation with the second address and port set to the "accept
 any" values.  
+
+Some server applications can use the same port for different protocols during 
+different stages of a transaction. For example it might initially use SNMP
+to perform some discovery and later switch to use TFTP using the same port.
+In order to handle this properly we must first check whether such a 
+conversation already exists or not and if it exists we also check whether the
+registered dissector_handle for that conversation is "our" dissector or not.
+If not we create a new conversation ontop of the previous one and set this new 
+conversation to use our protocol.
+Since ethereal keeps track of the frame number where a conversation started
+ethereal will still be able to keep the packets apart eventhough they do use
+the same socketpair.
+		(See packet-tftp.c and packet-snmp.c for examples of this)
 
 There are two support routines that will allow the second port and/or
 address to be set latter.  
@@ -2556,12 +2590,25 @@ static dissector_handle_t sub_dissector_handle;
 /* NOTE: The second address and port values don't matter because the	*/
 /* NO_ADDR2 and NO_PORT2 options are set. 				*/
 
-        conversation = conversation_new( &server_src_addr, 0, protocol,
+/* First check if a conversation already exists for this 
+	IP/protocol/port
+*/
+	conversation = find_conversation(pinfo->fd->num, 
+				&server_src_addr, 0, protocol, 
+				server_src_port, 0, NO_ADDR2 | NO_PORT_B);
+/* If there is no such conversation, or if there is one but for 
+   someone elses protocol then we just create a new conversation
+   and assign our protocol to it.
+*/
+        if( (conversation==NULL) 
+	  || (conversation->dissector_handle!=sub_dissector_handle) ){
+            conversation = conversation_new(pinfo->fd->num,  
+		&server_src_addr, 0, protocol,
                 server_src_port, 0, new_conv_info, NO_ADDR2 | NO_PORT2);
 
 /* set the dissector for the new conversation */
-        conversation_set_dissector(conversation, sub_dissector_handle);
-
+            conversation_set_dissector(conversation, sub_dissector_handle);
+	}
 
 2.5 Per packet information
 

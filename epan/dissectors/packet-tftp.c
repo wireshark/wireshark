@@ -117,10 +117,10 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (pinfo->destport == UDP_PORT_TFTP) {
 	  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
 					   pinfo->srcport, 0, NO_PORT_B);
-	  if (conversation == NULL) {
+	  if( (conversation == NULL) || (conversation->dissector_handle!=tftp_handle) ){
 	    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
 					    pinfo->srcport, 0, NO_PORT2);
-	    conversation_set_dissector(conversation, tftp_handle);
+            conversation_set_dissector(conversation, tftp_handle);
 	  }
 	}
 

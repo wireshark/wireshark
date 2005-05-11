@@ -1119,8 +1119,7 @@ conversation_delete_proto_data(conversation_t *conv, int proto)
 }
 
 void
-conversation_set_dissector(conversation_t *conversation,
-    dissector_handle_t handle)
+conversation_set_dissector(conversation_t *conversation, dissector_handle_t handle)
 {
 	conversation->dissector_handle = handle;
 }
@@ -1129,6 +1128,11 @@ conversation_set_dissector(conversation_t *conversation,
  * Given two address/port pairs for a packet, search for a matching
  * conversation and, if found and it has a conversation dissector,
  * call that dissector and return TRUE, otherwise return FALSE.
+ *
+ * This helper uses call_dissector_only which will NOT call the default
+ * "data" dissector if the packet was rejected.
+ * Our caller is responsible to call the data dissector explicitely in case 
+ * this function returns FALSE.
  */
 gboolean
 try_conversation_dissector(address *addr_a, address *addr_b, port_type ptype,
@@ -1141,10 +1145,18 @@ try_conversation_dissector(address *addr_a, address *addr_b, port_type ptype,
 	    port_b, 0);
 
 	if (conversation != NULL) {
+		int ret;
 		if (conversation->dissector_handle == NULL)
 			return FALSE;
-		call_dissector(conversation->dissector_handle, tvb, pinfo,
+		ret=call_dissector_only(conversation->dissector_handle, tvb, pinfo,
 		    tree);
+		if(!ret) {
+			/* this packet was rejected by the dissector
+			 * so return FALSE in case our caller wants
+			 * to do some cleaning up.
+			 */
+			return FALSE;
+		}
 		return TRUE;
 	}
 	return FALSE;

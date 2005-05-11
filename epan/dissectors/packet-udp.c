@@ -98,8 +98,9 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* for the conversation if available */
 
   if (try_conversation_dissector(&pinfo->src, &pinfo->dst, PT_UDP,
-		uh_sport, uh_dport, next_tvb, pinfo, tree))
+		uh_sport, uh_dport, next_tvb, pinfo, tree)){
     return;
+  }
 
   if (try_heuristic_first) {
     /* do lookup with the heuristic subdissector table */

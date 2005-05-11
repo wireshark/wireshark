@@ -298,8 +298,15 @@ extern dissector_handle_t create_dissector_handle(dissector_t dissector,
 extern dissector_handle_t new_create_dissector_handle(new_dissector_t dissector,
     int proto);
 
-/* Call a dissector through a handle. */
+/* Call a dissector through a handle and if no dissector was found
+ * pass if over to the "data" dissector instead.
+ */
 extern int call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
+    packet_info *pinfo, proto_tree *tree);
+/* Call a dissector through a handle but if no dissector was found
+ * just return 0 and do not call the "data" dissector instead.
+ */
+extern int call_dissector_only(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree);
 
 /* Do all one-time initialization. */

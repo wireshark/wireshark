@@ -365,6 +365,16 @@ struct dissector_handle {
 	protocol_t	*protocol;
 };
 
+/* This function will return
+ * old style dissector :
+ *   length of the payload or 1 of the payload is empty
+ * new dissector :
+ *   >0  this protocol was successfully dissected and this was this protocol.
+ *   0   this packet did not match this protocol.
+ *
+ * The only time this function will return 0 is if it is a new style dissector
+ * and if the dissector rejected the packet.
+ */ 
 static int
 call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree)
@@ -379,9 +389,9 @@ call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
 		    proto_get_protocol_short_name(handle->protocol);
 	}
 
-	if (handle->is_new)
+	if (handle->is_new) {
 		ret = (*handle->dissector.new)(tvb, pinfo, tree);
-	else {
+	} else {
 		(*handle->dissector.old)(tvb, pinfo, tree);
 		ret = tvb_length(tvb);
 		if (ret == 0) {
@@ -1691,7 +1701,9 @@ new_register_dissector(const char *name, new_dissector_t dissector, int proto)
 	    (gpointer) handle);
 }
 
-/* Call a dissector through a handle. */
+/* Call a dissector through a handle and if this fails call the "data"
+ * dissector.
+ */
 int
 call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree)
@@ -1709,6 +1721,19 @@ call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
 		call_dissector(data_handle, tvb, pinfo, tree);
 		return tvb_length(tvb);
 	}
+	return ret;
+}
+
+/* Call a dissector through a handle but if the dissector rejected it
+ * return 0 instead of using the default "data" dissector.
+ */
+int
+call_dissector_only(dissector_handle_t handle, tvbuff_t *tvb,
+    packet_info *pinfo, proto_tree *tree)
+{
+	int ret;
+
+	ret = call_dissector_work(handle, tvb, pinfo, tree);
 	return ret;
 }
 
