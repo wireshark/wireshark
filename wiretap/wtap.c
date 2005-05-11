@@ -287,6 +287,9 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_MTP2_WITH_PHDR */
 	{ "MTP2 with pseudoheader", "mtp2-with-phdr" },
+
+	/* WTAP_ENCAP_JUNIPER_PPPOE */
+	{ "Juniper PPPoE", "juniper-pppoe" },
 };
 
 /* Name that should be somewhat descriptive. */

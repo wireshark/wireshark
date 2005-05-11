@@ -356,8 +356,13 @@ static const struct {
 	 * of the 0xff03 header, the 0xff, is replaced by a direction
 	 * byte.  I don't know whether any captures look like that,
 	 * but it is used for some Linux IP filtering (ipfilter?).
-	 *
-	 * 167 and 168 are reserved for more Juniper private-chassis-
+	 */
+
+        /* Ethernet PPPoE frames captured on a service PIC */
+        { 167,          WTAP_ENCAP_JUNIPER_PPPOE },
+
+        /*
+	 * 168 is reserved for more Juniper private-chassis-
 	 * internal meta-information.
 	 */
 
