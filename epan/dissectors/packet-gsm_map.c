@@ -3720,6 +3720,8 @@ dissect_gsm_map_Msisdn(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
  if (digit_str)
 	g_free(digit_str);
 
+ pinfo->p2p_dir = P2P_DIR_RECV;
+
 
   return offset;
 }
@@ -7180,6 +7182,7 @@ dissect_gsm_map_ServiceCentreAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, i
  proto_tree_add_string(tree, hf_gsm_map_servicecentreaddress_digits, parameter_tvb, 1, -1, digit_str);
  if (digit_str)
 	g_free(digit_str);
+ pinfo->p2p_dir = P2P_DIR_SENT;
 
 
   return offset;
