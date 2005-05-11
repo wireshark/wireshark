@@ -376,7 +376,12 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 	gdk_draw_line(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset, u_data->io->pixmap_height-BOTTOM_BORDER, u_data->io->pixmap_width-RIGHT_BORDER+u_data->io->offset-5, u_data->io->pixmap_height-BOTTOM_BORDER+5);
 	u_data->io->axis_width=u_data->io->pixmap_width-LEFT_BORDER-RIGHT_BORDER-u_data->io->offset;
 
-	u_data->io->x_interval = (float)((u_data->io->axis_width*1.0)/u_data->io->tmp_width);
+	/* try to avoid dividing by zero */
+	if(u_data->io->tmp_width>0){
+		u_data->io->x_interval = (float)((u_data->io->axis_width*1.0)/u_data->io->tmp_width);
+	} else {
+		u_data->io->x_interval = u_data->io->axis_width;
+	}
 
 	e=0;
 	if (u_data->io->x_interval<1)
