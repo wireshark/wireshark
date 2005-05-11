@@ -243,7 +243,6 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, gchar *title)
     guint32		length;
     guint32		i, j;
 
-
     offset = *offset_p;
 
     oct = tvb_get_guint8(tvb, offset);
@@ -331,15 +330,24 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, gchar *title)
     offset++;
 
     j = 0;
-    for (i = 0; i < numdigocts; i++)
+    switch ((oct & 0x70) >> 4)
     {
-	oct = tvb_get_guint8(tvb, offset + i);
+    case 0x05: /* "Alphanumeric (coded according to 3GPP TS 23.038 GSM 7-bit default alphabet)" */
+	i = gsm_sms_char_7bit_unpack(0, numdigocts, sizeof(bigbuf), tvb_get_ptr(tvb, offset, numdigocts), bigbuf);
+	bigbuf[i] = '\0';
+	gsm_sms_char_ascii_decode(bigbuf, bigbuf, i);
+	break;
+    default:
+	for (i = 0; i < numdigocts; i++)
+	{
+	    oct = tvb_get_guint8(tvb, offset + i);
 
-        bigbuf[j++] = digit_table[oct & 0x0f];
-        bigbuf[j++] = digit_table[(oct & 0xf0) >> 4];
+	    bigbuf[j++] = digit_table[oct & 0x0f];
+	    bigbuf[j++] = digit_table[(oct & 0xf0) >> 4];
+	}
+	bigbuf[j++] = '\0';
+	break;
     }
-
-    bigbuf[j++] = '\0';
 
     proto_tree_add_text(subtree,
 	tvb, offset, numdigocts,
@@ -348,7 +356,7 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, gchar *title)
 
     proto_item_append_text(item, " - (%s)", bigbuf);
 
-    *offset_p = offset + i;
+    *offset_p = offset + numdigocts;
 }
 
 /* 9.2.3.7 */
@@ -2035,7 +2043,8 @@ dis_msg_deliver_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
     DIS_FIELD_UDHI(tree, 0x40, offset, udhi);
 
-    DIS_FIELD_MTI(tree, 0x03, offset);
+	DIS_FIELD_MMS(tree, 0x04, offset); /* Bit 2			*/
+    DIS_FIELD_MTI(tree, 0x03, offset); /* Bit 0 and 1	*/
 
     if (length < 2)
     {
@@ -2493,13 +2502,13 @@ static gint ett_msgs[NUM_MSGS];
 static void (*gsm_sms_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset) = {
     dis_msg_deliver,		/* SMS-DELIVER */
     dis_msg_deliver_report,	/* SMS-DELIVER REPORT */
-    dis_msg_submit,		/* SMS-SUBMIT */
+    dis_msg_submit,			/* SMS-SUBMIT */
     dis_msg_submit_report,	/* SMS-SUBMIT REPORT */
     dis_msg_status_report,	/* SMS-STATUS REPORT */
     dis_msg_command,		/* SMS-COMMAND */
-    NULL,			/* Reserved */
-    NULL,			/* Reserved */
-    NULL,	/* NONE */
+    NULL,					/* Reserved */
+    NULL,					/* Reserved */
+    NULL,					/* NONE */
 };
 
 /* GENERIC DISSECTOR FUNCTIONS */
