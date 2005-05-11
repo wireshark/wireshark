@@ -106,6 +106,7 @@ O-BcsmCamelTDP-CriteriaList/_item/o-BcsmTriggerDetectionPoint o-BcsmTriggerDetec
  proto_tree_add_string(tree, hf_gsm_map_servicecentreaddress_digits, parameter_tvb, 1, -1, digit_str);
  if (digit_str)
 	g_free(digit_str);
+ pinfo->p2p_dir = P2P_DIR_SENT;
 
 #.END
 #----------------------------------------------------------------------------------------
@@ -129,6 +130,8 @@ O-BcsmCamelTDP-CriteriaList/_item/o-BcsmTriggerDetectionPoint o-BcsmTriggerDetec
  proto_tree_add_string(tree, hf_gsm_map_misdn_digits, parameter_tvb, 1, -1, digit_str);
  if (digit_str)
 	g_free(digit_str);
+
+ pinfo->p2p_dir = P2P_DIR_RECV;
 
 #.END
 #----------------------------------------------------------------------------------------
