@@ -992,7 +992,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	gboolean is_known_request;
 	gboolean found_match = FALSE;
 	char *descr;
-	guint token_1_len;
+	guint token_1_len = 0;
 	guint current_method_idx = 0;
 	proto_item *ts = NULL, *ti = NULL, *th = NULL, *sip_element_item = NULL;
 	proto_tree *sip_tree = NULL, *reqresp_tree = NULL , *hdr_tree = NULL, *sip_element_tree = NULL, *message_body_tree = NULL;
