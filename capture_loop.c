@@ -671,7 +671,13 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
   }
 
 #ifdef MUST_DO_SELECT
-  if (!ld->from_cap_pipe) ld->pcap_fd = pcap_fileno(ld->pcap_h);
+  if (!ld->from_cap_pipe) {
+#ifdef HAVE_PCAP_GET_SELECTABLE_FD
+    ld->pcap_fd = pcap_get_selectable_fd(ld->pcap_h);
+#else
+    ld->pcap_fd = pcap_fileno(ld->pcap_h);
+#endif
+  }
 #endif
 
   /* Does "open_err_str" contain a non-empty string?  If so, "pcap_open_live()"
@@ -864,8 +870,8 @@ capture_loop_dispatch(capture_options *capture_opts, loop_data *ld,
 #endif
 
 #ifndef _WIN32
-    /* dispatch from capture pipe */
     if (ld->from_cap_pipe) {
+      /* dispatch from capture pipe */
       FD_ZERO(&set1);
       FD_SET(ld->cap_pipe_fd, &set1);
       timeout.tv_sec = 0;
@@ -893,7 +899,7 @@ capture_loop_dispatch(capture_options *capture_opts, loop_data *ld,
     else
 #endif /* _WIN32 */
     {
-    /* dispatch from pcap using select */
+      /* dispatch from pcap */
 #ifdef MUST_DO_SELECT
       /*
        * Sigh.  The semantics of the read timeout argument to
@@ -921,39 +927,53 @@ capture_loop_dispatch(capture_options *capture_opts, loop_data *ld,
        * at least on some versions of some flavors of BSD, the timer
        * doesn't start until a read is done, so it won't expire if
        * only a "select()" or "poll()" is posted.
+       *
+       * If we have "pcap_get_selectable_fd()", we use it to get the
+       * descriptor on which to select; if that's -1, it means there
+       * is no descriptor on which you can do a "select()" (perhaps
+       * because you're capturing on a special device, and that device's
+       * driver unfortunately doesn't support "select()", in which case
+       * we don't do the select - which means Ethereal might block,
+       * unable to accept user input, until a packet arrives.  If
+       * that's unacceptable, plead with whoever supplies the software
+       * for that device to add "select()" support.
        */
-      FD_ZERO(&set1);
-      FD_SET(ld->pcap_fd, &set1);
-      timeout.tv_sec = 0;
-      timeout.tv_usec = CAP_READ_TIMEOUT*1000;
-      sel_ret = select(ld->pcap_fd+1, &set1, NULL, NULL, &timeout);
-      if (sel_ret > 0) {
-	/*
-	 * "select()" says we can read from it without blocking; go for
-	 * it.
-	 */
-	inpkts = pcap_dispatch(ld->pcap_h, 1, capture_loop_packet_cb, (gchar *)ld);
-	if (inpkts < 0) {
-	  ld->pcap_err = TRUE;
-	  ld->go = FALSE;
-	}
-      } else {
-        inpkts = 0;
-        if (sel_ret < 0 && errno != EINTR) {
-          g_snprintf(errmsg, errmsg_len,
-            "Unexpected error from select: %s", strerror(errno));
-          capture_loop_popup_errmsg(capture_opts, errmsg);
+      if (ld->pcap_fd != -1) {
+        FD_ZERO(&set1);
+        FD_SET(ld->pcap_fd, &set1);
+        timeout.tv_sec = 0;
+        timeout.tv_usec = CAP_READ_TIMEOUT*1000;
+        sel_ret = select(ld->pcap_fd+1, &set1, NULL, NULL, &timeout);
+        if (sel_ret > 0) {
+          /*
+           * "select()" says we can read from it without blocking; go for
+           * it.
+           */
+          inpkts = pcap_dispatch(ld->pcap_h, 1, capture_loop_packet_cb, (gchar *)ld);
+          if (inpkts < 0) {
+            ld->pcap_err = TRUE;
+            ld->go = FALSE;
+          }
+        } else {
+          inpkts = 0;
+          if (sel_ret < 0 && errno != EINTR) {
+            g_snprintf(errmsg, errmsg_len,
+              "Unexpected error from select: %s", strerror(errno));
+            capture_loop_popup_errmsg(capture_opts, errmsg);
+            ld->go = FALSE;
+          }
+        }
+      }
+      else
+#endif /* MUST_DO_SELECT */
+      {
+        /* dispatch from pcap without select */
+        inpkts = pcap_dispatch(ld->pcap_h, 1, capture_loop_packet_cb, (gchar *) ld);
+        if (inpkts < 0) {
+          ld->pcap_err = TRUE;
           ld->go = FALSE;
         }
       }
-#else
-      /* dispatch from pcap without select */
-      inpkts = pcap_dispatch(ld->pcap_h, 1, capture_loop_packet_cb, (gchar *) ld);
-      if (inpkts < 0) {
-        ld->pcap_err = TRUE;
-        ld->go = FALSE;
-      }
-#endif /* MUST_DO_SELECT */
     }
 
     return inpkts;
