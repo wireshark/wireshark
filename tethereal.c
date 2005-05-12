@@ -47,11 +47,6 @@
 
 #include <signal.h>
 
-#ifdef HAVE_LIBPCAP
-#include <pcap.h>
-#include <setjmp.h>
-#endif
-
 #ifdef HAVE_SYS_STAT_H
 # include <sys/stat.h>
 #endif
@@ -99,14 +94,15 @@
 
 #ifdef HAVE_LIBPCAP
 #include <pcap.h>
+#include <setjmp.h>
 #include "pcap-util.h"
 #include <wiretap/wtap-capture.h>
 #include <wiretap/libpcap.h>
 #ifdef _WIN32
 #include "capture-wpcap.h"
-#endif
+#endif /* _WIN32 */
 #include "capture.h"
-#endif
+#endif /* HAVE_LIBPCAP */
 
 
 /*
