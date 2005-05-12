@@ -30,6 +30,9 @@
 #include <io.h> /* open/close on win32 */
 #endif
 
+#ifdef HAVE_LIBPCAP
+#include <pcap.h>
+#endif
 
 #include <gtk/gtk.h>
 
@@ -43,7 +46,9 @@
 #include "file.h"
 #include "simple_dialog.h"
 #include "main.h"
+#ifdef HAVE_LIBPCAP
 #include "capture.h"
+#endif
 #include <epan/prefs.h>
 
 #include <string.h>
@@ -316,14 +321,16 @@ GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
          * so we have to take care of NOT loading a new file while a different process 
          * (e.g. capture/load/...) is still in progress. */
 
+#ifdef HAVE_LIBPCAP
         /* if a capture is running, do nothing but warn the user */
         if((capture_opts->state != CAPTURE_STOPPED)) {
             dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
                         ESD_BTN_OK,
                         PRIMARY_TEXT_START "Drag and Drop currently not possible!" PRIMARY_TEXT_END "\n\n"
-                        "Dropping a file isn't possible while capture is in progress.");
+                        "Dropping a file isn't possible while a capture is in progress.");
             return;
         }
+#endif
 
         /* if another file read is still in progress, do nothing but warn the user */
         if((cfile.state == FILE_READ_IN_PROGRESS)) {
