@@ -1513,8 +1513,10 @@ static guint ipxnet_addr_lookup(const gchar *name, gboolean *success)
   for (i = 0; i < HASHIPXNETSIZE; i++) {
     tp = table[i];
     while (tp) {
-      if (strcmp(tp->name, name) == 0)
+      if (strcmp(tp->name, name) == 0) {
+        *success = TRUE;
 	return tp->addr;
+      }
       tp = tp->next;
     }
   }
@@ -1522,8 +1524,8 @@ static guint ipxnet_addr_lookup(const gchar *name, gboolean *success)
   /* not in hash table : performs a file lookup */
 
   if ((ipxnet = get_ipxnetbyname(name)) == NULL) {
-	  *success = FALSE;
-	  return 0;
+    *success = FALSE;
+    return 0;
   }
 
   /* add new entry in hash table */
