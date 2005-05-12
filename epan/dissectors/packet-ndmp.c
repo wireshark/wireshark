@@ -1654,6 +1654,7 @@ dissect_data_connect_msg(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	/* ndmp addr */
 	offset=dissect_ndmp_addr(tvb, offset, pinfo, tree);
+	return offset;
 }
 
 
