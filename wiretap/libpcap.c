@@ -373,6 +373,10 @@ static const struct {
 	 * Framing Procedure.
 	 */
 
+	/* Registered by Gcom, Inc. */
+	{ 172,		WTAP_GCOM_TIE1 },
+	{ 173,		WTAP_GCOM_SERIAL },
+
 	/*
 	 * To repeat:
 	 *

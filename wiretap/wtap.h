@@ -166,8 +166,10 @@
 #define WTAP_ENCAP_NETTL_UNKNOWN		75
 #define WTAP_ENCAP_MTP2_WITH_PHDR               76
 #define WTAP_ENCAP_JUNIPER_PPPOE       		77
+#define WTAP_GCOM_TIE1				78
+#define WTAP_GCOM_SERIAL			79
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			78
+#define WTAP_NUM_ENCAP_TYPES			80
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we
