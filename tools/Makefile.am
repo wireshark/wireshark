@@ -24,6 +24,7 @@
 SUBDIRS = lemon
 
 EXTRA_DIST = \
+	asn2eth.py		\
 	EtherealXML.py		\
 	Makefile.nmake		\
 	cvsdiff-fix.py		\
@@ -33,4 +34,5 @@ EXTRA_DIST = \
 	netscreen2dump.py	\
 	pkt-from-core.py	\
 	unix2dos.pl		\
-	win32-setup.sh
+	win32-setup.sh		\
+	yacc.py
