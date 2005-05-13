@@ -31,6 +31,7 @@ EXTRA_DIST = \
 	dfilter-test.py 	\
 	fuzz-test.sh		\
 	msnchat			\
+	lex.py			\
 	netscreen2dump.py	\
 	pkt-from-core.py	\
 	unix2dos.pl		\
