@@ -30,6 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/strutil.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -38,8 +39,8 @@
 #include "packet-h248.h"
 #include "packet-isup.h"
 #include "packet-q931.h"
-#include "sctpppids.h"
 
+#include "sctpppids.h"
 #define PNAME  "H.248 MEGACO"
 #define PSNAME "H248"
 #define PFNAME "h248"
@@ -68,6 +69,8 @@ static int hf_h248_package_3GUP_UPversions = -1;
 static int hf_h248_package_3GUP_delerrsdu = -1;
 static int hf_h248_package_3GUP_interface = -1;
 static int hf_h248_package_3GUP_initdir = -1;
+static int hf_h248_contextId_64			= -1;
+static int hf_h248_transactionId_64		= -1;
 
 #include "packet-h248-hf.c"
 
@@ -78,6 +81,9 @@ static gint ett_packagename = -1;
 static gint ett_codec = -1;
 
 #include "packet-h248-ett.c"
+
+static gchar* command_string;
+static gboolean it_is_wildcard;
 
 
 static dissector_table_t h248_package_bin_dissector_table=NULL;
@@ -282,10 +288,121 @@ static const true_false_string h248_tdmc_ec_vals = {
 	"On",
 	"Off"
 };
+
+
+#if 0
+static const value_string context_id_type[] = {
+	{0x00000000,"0 (Null Context)"},
+	{0xFFFFFFFE,"$ (Choose Context)"},
+	{0xFFFFFFFF,"* (All Contexts)"},
+	{0,NULL}
+};
+#endif
+
+static int dissect_h248_trx_id(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+	guint64 trx_id = 0;
+  	gint8 class;
+	gboolean pc;
+	gint32 tag;
+	guint32 len;
+	guint32 i;
+	
+	if(!implicit_tag){
+		offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+		offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
+	} else {
+		len=tvb_length_remaining(tvb, offset);
+	}
+	
+	
+	if (len > 8 || len < 1) {
+		THROW(BoundsError);
+	} else {
+		for(i=1;i<=len;i++){
+			trx_id=(trx_id<<8)|tvb_get_guint8(tvb, offset);
+			offset++;
+		}
+		if (trx_id > 0xffffffff) {
+			proto_tree_add_uint64_format(tree, hf_h248_transactionId_64, tvb, offset-len, len,
+									 trx_id,"transactionId %" PRIu64, trx_id);
+		} else {
+			proto_tree_add_uint(tree, hf_h248_transactionId, tvb, offset-len, len, (guint32)trx_id);			
+		}
+	}	
+	
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_clear(pinfo->cinfo, COL_INFO);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Trx %" PRIu64 " { ", trx_id);
+	}
+	
+	return offset;	
+}
+
+static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+	gint8 class;
+	gboolean pc;
+	gint32 tag;
+	guint32 len;
+	guint64 context_id = 0;
+	guint32 i;
+	static gchar context_string[64];
+	static gchar context_string_long[64];
+	
+	if(!implicit_tag){
+		offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+		offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
+	} else {
+		len=tvb_length_remaining(tvb, offset);
+	}
+	
+	
+	if (len > 8 || len < 1) {
+		THROW(BoundsError);
+	} else {
+		for(i=1;i<=len;i++){
+			context_id=(context_id<<8)|tvb_get_guint8(tvb, offset);
+			offset++;
+		}
+		
+		switch(context_id) {
+			case 0x0000000:
+				strncpy(context_string,"Ctx 0",sizeof(context_string));
+				strncpy(context_string,"contextId: 0 (Null Context)",sizeof(context_string));
+				break;
+			case 0xFFFFFFFF:
+				strncpy(context_string,"Ctx *",sizeof(context_string));
+				strncpy(context_string_long,"contextId: * (All Contexts)",sizeof(context_string));
+				break;
+			case 0xFFFFFFFE:
+				strncpy(context_string,"Ctx $",sizeof(context_string));
+				strncpy(context_string_long,"contextId: $ (Choose One)",sizeof(context_string));
+				break;
+			default:
+				g_snprintf(context_string,sizeof(context_string),"Ctx 0x%" PRIx64, context_id);
+				g_snprintf(context_string_long,sizeof(context_string),"contextId: 0x%" PRIx64, context_id);
+				break;
+		}
+		if (context_id > 0xffffffff) {
+			proto_tree_add_uint64_format(tree, hf_h248_contextId_64,
+										  tvb, offset-len, len,
+										  context_id, "%s", context_string_long);
+		} else {
+			proto_tree_add_uint(tree, hf_h248_contextId, tvb, offset-len, len, (guint32)context_id);			
+		}
+	}	
+	
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s { ", context_string);
+	}
+	
+	return offset;
+}
+
 static void 
 dissect_h248_annex_C_PDU(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 name_minor) {
 	int offset = 0;
 	tvbuff_t *new_tvb;
+	int len;
 	
 	switch ( name_minor ){
 
@@ -367,7 +484,7 @@ static const value_string h248_3GUP_initdir_vals[] = {
 };
 
 static void
-dissect_3G_User_Plane_PDU(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 name_minor){
+dissect_3G_User_Plane_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 name_minor){
 	int offset = 0;
 
 	switch ( name_minor ){
@@ -522,9 +639,9 @@ dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int offset, packe
 static int
 dissect_h248_PropertyID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_) {
 
-	guint8 class;
+	gint8 class;
 	gboolean pc, ind;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
 	guint16 name_major;
 	guint16 name_minor;
@@ -554,6 +671,7 @@ dissect_h248_PropertyID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet
 	}
 */
 	dissect_h248_package_data(implicit_tag, next_tvb, pinfo, tree, name_major, name_minor);
+	
 	return end_offset;
 }
 
@@ -589,7 +707,6 @@ dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet
   return offset;
 }
 
-
 #include "packet-h248-fn.c"
 
 
@@ -610,6 +727,8 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   dissect_h248_MegacoMessage(FALSE, tvb, 0, pinfo, h248_tree, -1);
   
+  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, " }");
+
 }
 
 
@@ -625,6 +744,12 @@ void proto_register_h248(void) {
     { &hf_h248_mtpaddress_pc, {
       "PC", "h248.mtpaddress.pc", FT_UINT32, BASE_DEC,
       NULL, 0, "PC", HFILL }},
+    { &hf_h248_transactionId_64, {
+	  "transactionId", "h248.transactionId",
+	  FT_UINT64, BASE_HEX, NULL, 0,"", HFILL }}, 
+    { &hf_h248_contextId_64, {
+	  "contextId", "h248.contextId",
+	  FT_UINT64, BASE_HEX, NULL, 0,"", HFILL }}, 
     { &hf_h248_package_name, {
       "Package", "h248.package_name", FT_UINT16, BASE_HEX,
       VALS(package_name_vals), 0, "Package", HFILL }},
@@ -724,6 +849,7 @@ void proto_reg_handoff_h248(void) {
   h248_handle = find_dissector("h248");
 
   dissector_add("m3ua.protocol_data_si", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);
+  dissector_add("mtp3.service_indicator", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);
   dissector_add("sctp.ppi", H248_PAYLOAD_PROTOCOL_ID, h248_handle);
 }
 

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h248.c                                                            */
+/* ./packet-h248.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p h248 -c h248.cnf -s packet-h248-template MEGACO.asn */
 
 /* Input file: packet-h248-template.c */
@@ -37,6 +37,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/strutil.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -45,8 +46,8 @@
 #include "packet-h248.h"
 #include "packet-isup.h"
 #include "packet-q931.h"
-#include "sctpppids.h"
 
+#include "sctpppids.h"
 #define PNAME  "H.248 MEGACO"
 #define PSNAME "H248"
 #define PFNAME "h248"
@@ -75,6 +76,8 @@ static int hf_h248_package_3GUP_UPversions = -1;
 static int hf_h248_package_3GUP_delerrsdu = -1;
 static int hf_h248_package_3GUP_interface = -1;
 static int hf_h248_package_3GUP_initdir = -1;
+static int hf_h248_contextId_64			= -1;
+static int hf_h248_transactionId_64		= -1;
 
 
 /*--- Included file: packet-h248-hf.c ---*/
@@ -103,9 +106,9 @@ static int hf_h248_transactionRequest = -1;       /* TransactionRequest */
 static int hf_h248_transactionPending = -1;       /* TransactionPending */
 static int hf_h248_transactionReply = -1;         /* TransactionReply */
 static int hf_h248_transactionResponseAck = -1;   /* TransactionResponseAck */
-static int hf_h248_transactionId = -1;            /* TransactionId */
-static int hf_h248_actions = -1;                  /* SEQUENCE_OF_ActionRequest */
-static int hf_h248_actions_item = -1;             /* ActionRequest */
+static int hf_h248_transactionId = -1;            /* transactionId */
+static int hf_h248_actionRequests = -1;           /* SEQUENCE_OF_ActionRequest */
+static int hf_h248_actionRequests_item = -1;      /* ActionRequest */
 static int hf_h248_immAckRequired = -1;           /* NULL */
 static int hf_h248_transactionResult = -1;        /* T_transactionResult */
 static int hf_h248_transactionError = -1;         /* ErrorDescriptor */
@@ -116,7 +119,7 @@ static int hf_h248_firstAck = -1;                 /* TransactionId */
 static int hf_h248_lastAck = -1;                  /* TransactionId */
 static int hf_h248_errorCode = -1;                /* ErrorCode */
 static int hf_h248_errorText = -1;                /* ErrorText */
-static int hf_h248_contextId = -1;                /* ContextID */
+static int hf_h248_contextId = -1;                /* contextId */
 static int hf_h248_contextRequest = -1;           /* ContextRequest */
 static int hf_h248_contextAttrAuditReq = -1;      /* ContextAttrAuditRequest */
 static int hf_h248_commandRequests = -1;          /* SEQUENCE_OF_CommandRequest */
@@ -135,21 +138,21 @@ static int hf_h248_cAARPriority = -1;             /* NULL */
 static int hf_h248_command = -1;                  /* Command */
 static int hf_h248_optional = -1;                 /* NULL */
 static int hf_h248_wildcardReturn = -1;           /* NULL */
-static int hf_h248_addReq = -1;                   /* AmmRequest */
-static int hf_h248_moveReq = -1;                  /* AmmRequest */
-static int hf_h248_modReq = -1;                   /* AmmRequest */
-static int hf_h248_subtractReq = -1;              /* SubtractRequest */
-static int hf_h248_auditCapRequest = -1;          /* AuditRequest */
+static int hf_h248_addReq = -1;                   /* T_addReq */
+static int hf_h248_moveReq = -1;                  /* T_moveReq */
+static int hf_h248_modReq = -1;                   /* T_modReq */
+static int hf_h248_subtractReq = -1;              /* T_subtractReq */
+static int hf_h248_auditCapRequest = -1;          /* T_auditCapRequest */
 static int hf_h248_auditValueRequest = -1;        /* AuditRequest */
-static int hf_h248_notifyReq = -1;                /* NotifyRequest */
+static int hf_h248_notifyReq = -1;                /* T_notifyReq */
 static int hf_h248_serviceChangeReq = -1;         /* ServiceChangeRequest */
-static int hf_h248_addReply = -1;                 /* AmmsReply */
-static int hf_h248_moveReply = -1;                /* AmmsReply */
-static int hf_h248_modReply = -1;                 /* AmmsReply */
-static int hf_h248_subtractReply = -1;            /* AmmsReply */
-static int hf_h248_auditCapReply = -1;            /* AuditReply */
-static int hf_h248_auditValueReply = -1;          /* AuditReply */
-static int hf_h248_notifyReply = -1;              /* NotifyReply */
+static int hf_h248_addReply = -1;                 /* T_addReply */
+static int hf_h248_moveReply = -1;                /* T_moveReply */
+static int hf_h248_modReply = -1;                 /* T_modReply */
+static int hf_h248_subtractReply = -1;            /* T_subtractReply */
+static int hf_h248_auditCapReply = -1;            /* T_auditCapReply */
+static int hf_h248_auditValueReply = -1;          /* T_auditValueReply */
+static int hf_h248_notifyReply = -1;              /* T_notifyReply */
 static int hf_h248_serviceChangeReply = -1;       /* ServiceChangeReply */
 static int hf_h248_terminationFrom = -1;          /* TerminationID */
 static int hf_h248_terminationTo = -1;            /* TerminationID */
@@ -237,7 +240,7 @@ static int hf_h248_serviceChangeResult = -1;      /* ServiceChangeResult */
 static int hf_h248_serviceChangeResParms = -1;    /* ServiceChangeResParm */
 static int hf_h248_wildcard = -1;                 /* SEQUENCE_OF_WildcardField */
 static int hf_h248_wildcard_item = -1;            /* WildcardField */
-static int hf_h248_terminationId = -1;            /* OCTET_STRING_SIZE_1_8 */
+static int hf_h248_terminationId = -1;            /* T_id */
 static int hf_h248_TerminationIDList_item = -1;   /* TerminationID */
 static int hf_h248_termStateDescr = -1;           /* TerminationStateDescriptor */
 static int hf_h248_streams = -1;                  /* T_streams */
@@ -348,6 +351,7 @@ static gint ett_h248 = -1;
 static gint ett_mtpaddress = -1;
 static gint ett_packagename = -1;
 static gint ett_codec = -1;
+
 
 /*--- Included file: packet-h248-ett.c ---*/
 
@@ -482,6 +486,9 @@ static gint ett_h248_Value = -1;
 
 /*--- End of included file: packet-h248-ett.c ---*/
 
+
+static gchar* command_string;
+static gboolean it_is_wildcard;
 
 
 static dissector_table_t h248_package_bin_dissector_table=NULL;
@@ -687,13 +694,122 @@ static const true_false_string h248_tdmc_ec_vals = {
 	"Off"
 };
 
+
+#if 0
+static const value_string context_id_type[] = {
+	{0x00000000,"0 (Null Context)"},
+	{0xFFFFFFFE,"$ (Choose Context)"},
+	{0xFFFFFFFF,"* (All Contexts)"},
+	{0,NULL}
+};
+#endif
+
+static int dissect_h248_trx_id(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+	guint64 trx_id = 0;
+  	gint8 class;
+	gboolean pc;
+	gint32 tag;
+	guint32 len;
+	guint32 i;
+	
+	if(!implicit_tag){
+		offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+		offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
+	} else {
+		len=tvb_length_remaining(tvb, offset);
+	}
+	
+	
+	if (len > 8 || len < 1) {
+		THROW(BoundsError);
+	} else {
+		for(i=1;i<=len;i++){
+			trx_id=(trx_id<<8)|tvb_get_guint8(tvb, offset);
+			offset++;
+		}
+		if (trx_id > 0xffffffff) {
+			proto_tree_add_uint64_format(tree, hf_h248_transactionId_64, tvb, offset-len, len,
+									 trx_id,"transactionId %" PRIu64, trx_id);
+		} else {
+			proto_tree_add_uint(tree, hf_h248_transactionId, tvb, offset-len, len, (guint32)trx_id);			
+		}
+	}	
+	
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_clear(pinfo->cinfo, COL_INFO);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Trx %" PRIu64 " { ", trx_id);
+	}
+	
+	return offset;	
+}
+
+static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+	gint8 class;
+	gboolean pc;
+	gint32 tag;
+	guint32 len;
+	guint64 context_id = 0;
+	guint32 i;
+	static gchar context_string[64];
+	static gchar context_string_long[64];
+	
+	if(!implicit_tag){
+		offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+		offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
+	} else {
+		len=tvb_length_remaining(tvb, offset);
+	}
+	
+	
+	if (len > 8 || len < 1) {
+		THROW(BoundsError);
+	} else {
+		for(i=1;i<=len;i++){
+			context_id=(context_id<<8)|tvb_get_guint8(tvb, offset);
+			offset++;
+		}
+		
+		switch(context_id) {
+			case 0x0000000:
+				strncpy(context_string,"Ctx 0",sizeof(context_string));
+				strncpy(context_string,"contextId: 0 (Null Context)",sizeof(context_string));
+				break;
+			case 0xFFFFFFFF:
+				strncpy(context_string,"Ctx *",sizeof(context_string));
+				strncpy(context_string_long,"contextId: * (All Contexts)",sizeof(context_string));
+				break;
+			case 0xFFFFFFFE:
+				strncpy(context_string,"Ctx $",sizeof(context_string));
+				strncpy(context_string_long,"contextId: $ (Choose One)",sizeof(context_string));
+				break;
+			default:
+				g_snprintf(context_string,sizeof(context_string),"Ctx 0x%" PRIx64, context_id);
+				g_snprintf(context_string_long,sizeof(context_string),"contextId: 0x%" PRIx64, context_id);
+				break;
+		}
+		if (context_id > 0xffffffff) {
+			proto_tree_add_uint64_format(tree, hf_h248_contextId_64,
+										  tvb, offset-len, len,
+										  context_id, "%s", context_string_long);
+		} else {
+			proto_tree_add_uint(tree, hf_h248_contextId, tvb, offset-len, len, (guint32)context_id);			
+		}
+	}	
+	
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s { ", context_string);
+	}
+	
+	return offset;
+}
+
 static void 
 dissect_h248_annex_C_PDU(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 name_minor) {
 	int offset = 0;
-	int len;
 	tvbuff_t *new_tvb;
-
-	switch ( name_minor ) {
+	int len;
+	
+	switch ( name_minor ){
 
 	case 0x1001: /* Media */
 		proto_tree_add_text(tree, tvb, offset, -1,"Media");
@@ -928,7 +1044,7 @@ dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int offset, packe
 static int
 dissect_h248_PropertyID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_) {
 
-	gchar class;
+	gint8 class;
 	gboolean pc, ind;
 	gint32 tag;
 	guint32 len;
@@ -952,14 +1068,11 @@ dissect_h248_PropertyID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet
 	next_tvb = tvb_new_subset(tvb, offset , len , len );
 	name_major = packageandid >> 16;
 	name_minor = packageandid & 0xffff;
-/*
-	if(!dissector_try_port(h248_package_bin_dissector_table, name_major, next_tvb, pinfo, tree)){
-		proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "H.248: Dissector for Package/ID:0x%08x not implemented (yet).", packageandid);
 
-		offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, old_offset, hf_index, NULL);
+	if(!dissector_try_port(h248_package_bin_dissector_table, name_major, next_tvb, pinfo, tree)){
+		dissect_h248_package_data(implicit_tag, next_tvb, pinfo, tree, name_major, name_minor);
 	}
-*/
-	dissect_h248_package_data(implicit_tag, next_tvb, pinfo, tree, name_major, name_minor);
+
 	return end_offset;
 }
 
@@ -994,7 +1107,6 @@ dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet
 
   return offset;
 }
-
 
 
 /*--- Included file: packet-h248-fn.c ---*/
@@ -1310,9 +1422,6 @@ dissect_h248_TransactionId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
   return offset;
 }
-static int dissect_transactionId_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_TransactionId(TRUE, tvb, offset, pinfo, tree, hf_h248_transactionId);
-}
 static int dissect_firstAck_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_h248_TransactionId(TRUE, tvb, offset, pinfo, tree, hf_h248_firstAck);
 }
@@ -1321,15 +1430,26 @@ static int dissect_lastAck_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 }
 
 
+static int
+dissect_h248_transactionId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset);
+
+  return offset;
+}
+static int dissect_transactionId_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_h248_transactionId(TRUE, tvb, offset, pinfo, tree, hf_h248_transactionId);
+}
+
+
 
 static int
-dissect_h248_ContextID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+dissect_h248_contextId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	offset = dissect_h248_ctx_id(implicit_tag, pinfo, tree, tvb, offset);
 
   return offset;
 }
 static int dissect_contextId_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_ContextID(TRUE, tvb, offset, pinfo, tree, hf_h248_contextId);
+  return dissect_h248_contextId(TRUE, tvb, offset, pinfo, tree, hf_h248_contextId);
 }
 
 
@@ -1373,6 +1493,8 @@ static int dissect_keepActive_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static int
 dissect_h248_WildcardField(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "*");
+	  it_is_wildcard = TRUE;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     NULL);
 
@@ -1399,14 +1521,18 @@ static int dissect_wildcard_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 
 static int
-dissect_h248_OCTET_STRING_SIZE_1_8(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+dissect_h248_T_id(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	tvbuff_t* new_tvb;
+	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
+	
+	  if (! it_is_wildcard && check_col(pinfo->cinfo, COL_INFO))
+		col_append_str(pinfo->cinfo, COL_INFO, bytes_to_str(tvb_get_ptr(tvb,0,tvb->length),tvb->length));
+	
 
   return offset;
 }
 static int dissect_terminationId_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_OCTET_STRING_SIZE_1_8(TRUE, tvb, offset, pinfo, tree, hf_h248_terminationId);
+  return dissect_h248_T_id(TRUE, tvb, offset, pinfo, tree, hf_h248_terminationId);
 }
 
 static const ber_sequence_t TerminationID_sequence[] = {
@@ -1417,9 +1543,13 @@ static const ber_sequence_t TerminationID_sequence[] = {
 
 static int
 dissect_h248_TerminationID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, command_string);
+	  it_is_wildcard = FALSE;
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 TerminationID_sequence, hf_index, ett_h248_TerminationID);
 
+	if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "}");
+	it_is_wildcard = FALSE;
   return offset;
 }
 static int dissect_terminationFrom_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -3222,14 +3352,41 @@ dissect_h248_AmmRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 
   return offset;
 }
+
+
+static int
+dissect_h248_T_addReq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	  command_string = "addReq {";
+  offset = dissect_h248_AmmRequest(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
 static int dissect_addReq_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_AmmRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_addReq);
+  return dissect_h248_T_addReq(TRUE, tvb, offset, pinfo, tree, hf_h248_addReq);
+}
+
+
+static int
+dissect_h248_T_moveReq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	  command_string =  "moveReq {";
+  offset = dissect_h248_AmmRequest(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
 }
 static int dissect_moveReq_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_AmmRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_moveReq);
+  return dissect_h248_T_moveReq(TRUE, tvb, offset, pinfo, tree, hf_h248_moveReq);
+}
+
+
+static int
+dissect_h248_T_modReq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	  command_string =  "modReq {";
+  offset = dissect_h248_AmmRequest(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
 }
 static int dissect_modReq_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_AmmRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_modReq);
+  return dissect_h248_T_modReq(TRUE, tvb, offset, pinfo, tree, hf_h248_modReq);
 }
 
 static const ber_sequence_t SubtractRequest_sequence[] = {
@@ -3245,8 +3402,17 @@ dissect_h248_SubtractRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
   return offset;
 }
+
+
+static int
+dissect_h248_T_subtractReq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	  command_string =  "subtractReq {";
+  offset = dissect_h248_SubtractRequest(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
 static int dissect_subtractReq_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_SubtractRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_subtractReq);
+  return dissect_h248_T_subtractReq(TRUE, tvb, offset, pinfo, tree, hf_h248_subtractReq);
 }
 
 static const ber_sequence_t AuditRequest_sequence[] = {
@@ -3262,11 +3428,20 @@ dissect_h248_AuditRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
   return offset;
 }
-static int dissect_auditCapRequest_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_AuditRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_auditCapRequest);
-}
 static int dissect_auditValueRequest_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_h248_AuditRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_auditValueRequest);
+}
+
+
+static int
+dissect_h248_T_auditCapRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	  command_string =  "auditCapRequest {";
+  offset = dissect_h248_AuditRequest(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_auditCapRequest_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_h248_T_auditCapRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_auditCapRequest);
 }
 
 static const ber_sequence_t TimeNotation_sequence[] = {
@@ -3357,8 +3532,17 @@ dissect_h248_NotifyRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
   return offset;
 }
+
+
+static int
+dissect_h248_T_notifyReq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	  command_string =  "notifyReq {";
+  offset = dissect_h248_NotifyRequest(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
 static int dissect_notifyReq_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_NotifyRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_notifyReq);
+  return dissect_h248_T_notifyReq(TRUE, tvb, offset, pinfo, tree, hf_h248_notifyReq);
 }
 
 
@@ -3582,12 +3766,12 @@ dissect_h248_ActionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
   return offset;
 }
-static int dissect_actions_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_ActionRequest(FALSE, tvb, offset, pinfo, tree, hf_h248_actions_item);
+static int dissect_actionRequests_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_h248_ActionRequest(FALSE, tvb, offset, pinfo, tree, hf_h248_actionRequests_item);
 }
 
 static const ber_sequence_t SEQUENCE_OF_ActionRequest_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_actions_item },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_actionRequests_item },
 };
 
 static int
@@ -3597,13 +3781,13 @@ dissect_h248_SEQUENCE_OF_ActionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb,
 
   return offset;
 }
-static int dissect_actions_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_SEQUENCE_OF_ActionRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_actions);
+static int dissect_actionRequests_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_h248_SEQUENCE_OF_ActionRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_actionRequests);
 }
 
 static const ber_sequence_t TransactionRequest_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_transactionId_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_actions_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_actionRequests_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -3612,6 +3796,7 @@ dissect_h248_TransactionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 TransactionRequest_sequence, hf_index, ett_h248_TransactionRequest);
 
+	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "}");
   return offset;
 }
 static int dissect_transactionRequest_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -3628,6 +3813,7 @@ dissect_h248_TransactionPending(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 TransactionPending_sequence, hf_index, ett_h248_TransactionPending);
 
+	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "}");
   return offset;
 }
 static int dissect_transactionPending_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -3773,17 +3959,54 @@ dissect_h248_AmmsReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 
   return offset;
 }
+
+
+static int
+dissect_h248_T_addReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	  command_string =  "addReply {";
+	  command_string =  "addReply {";
+  offset = dissect_h248_AmmsReply(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
 static int dissect_addReply_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_AmmsReply(TRUE, tvb, offset, pinfo, tree, hf_h248_addReply);
+  return dissect_h248_T_addReply(TRUE, tvb, offset, pinfo, tree, hf_h248_addReply);
+}
+
+
+static int
+dissect_h248_T_moveReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	  command_string =  "moveReply {";
+  offset = dissect_h248_AmmsReply(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
 }
 static int dissect_moveReply_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_AmmsReply(TRUE, tvb, offset, pinfo, tree, hf_h248_moveReply);
+  return dissect_h248_T_moveReply(TRUE, tvb, offset, pinfo, tree, hf_h248_moveReply);
+}
+
+
+static int
+dissect_h248_T_modReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	  command_string =  "modReply {";
+  offset = dissect_h248_AmmsReply(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
 }
 static int dissect_modReply_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_AmmsReply(TRUE, tvb, offset, pinfo, tree, hf_h248_modReply);
+  return dissect_h248_T_modReply(TRUE, tvb, offset, pinfo, tree, hf_h248_modReply);
+}
+
+
+static int
+dissect_h248_T_subtractReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	  command_string =  "subtractReply {";
+  offset = dissect_h248_AmmsReply(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
 }
 static int dissect_subtractReply_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_AmmsReply(TRUE, tvb, offset, pinfo, tree, hf_h248_subtractReply);
+  return dissect_h248_T_subtractReply(TRUE, tvb, offset, pinfo, tree, hf_h248_subtractReply);
 }
 
 static const ber_sequence_t AuditResult_sequence[] = {
@@ -3825,11 +4048,29 @@ dissect_h248_AuditReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 
   return offset;
 }
+
+
+static int
+dissect_h248_T_auditCapReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	  command_string =  "auditCapReply {";
+  offset = dissect_h248_AuditReply(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
 static int dissect_auditCapReply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_AuditReply(FALSE, tvb, offset, pinfo, tree, hf_h248_auditCapReply);
+  return dissect_h248_T_auditCapReply(FALSE, tvb, offset, pinfo, tree, hf_h248_auditCapReply);
+}
+
+
+static int
+dissect_h248_T_auditValueReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	  command_string =  "auditValueReply {";
+  offset = dissect_h248_AuditReply(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
 }
 static int dissect_auditValueReply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_AuditReply(FALSE, tvb, offset, pinfo, tree, hf_h248_auditValueReply);
+  return dissect_h248_T_auditValueReply(FALSE, tvb, offset, pinfo, tree, hf_h248_auditValueReply);
 }
 
 static const ber_sequence_t NotifyReply_sequence[] = {
@@ -3845,8 +4086,17 @@ dissect_h248_NotifyReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 
   return offset;
 }
+
+
+static int
+dissect_h248_T_notifyReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	  command_string =  "notifyReply {";
+  offset = dissect_h248_NotifyReply(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
 static int dissect_notifyReply_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_NotifyReply(TRUE, tvb, offset, pinfo, tree, hf_h248_notifyReply);
+  return dissect_h248_T_notifyReply(TRUE, tvb, offset, pinfo, tree, hf_h248_notifyReply);
 }
 
 static const ber_sequence_t ServiceChangeResParm_sequence[] = {
@@ -4048,6 +4298,7 @@ dissect_h248_TransactionAck(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 TransactionAck_sequence, hf_index, ett_h248_TransactionAck);
 
+	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "}");
   return offset;
 }
 static int dissect_TransactionResponseAck_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -4190,6 +4441,8 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   dissect_h248_MegacoMessage(FALSE, tvb, 0, pinfo, h248_tree, -1);
   
+  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, " }");
+
 }
 
 
@@ -4205,6 +4458,12 @@ void proto_register_h248(void) {
     { &hf_h248_mtpaddress_pc, {
       "PC", "h248.mtpaddress.pc", FT_UINT32, BASE_DEC,
       NULL, 0, "PC", HFILL }},
+    { &hf_h248_transactionId_64, {
+	  "transactionId", "h248.transactionId",
+	  FT_UINT64, BASE_HEX, NULL, 0,"", HFILL }}, 
+    { &hf_h248_contextId_64, {
+	  "contextId", "h248.contextId",
+	  FT_UINT64, BASE_HEX, NULL, 0,"", HFILL }}, 
     { &hf_h248_package_name, {
       "Package", "h248.package_name", FT_UINT16, BASE_HEX,
       VALS(package_name_vals), 0, "Package", HFILL }},
@@ -4374,14 +4633,14 @@ void proto_register_h248(void) {
       { "transactionId", "h248.transactionId",
         FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
-    { &hf_h248_actions,
-      { "actions", "h248.actions",
+    { &hf_h248_actionRequests,
+      { "actionRequests", "h248.actionRequests",
         FT_NONE, BASE_NONE, NULL, 0,
-        "TransactionRequest/actions", HFILL }},
-    { &hf_h248_actions_item,
-      { "Item", "h248.actions_item",
+        "TransactionRequest/actionRequests", HFILL }},
+    { &hf_h248_actionRequests_item,
+      { "Item", "h248.actionRequests_item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "TransactionRequest/actions/_item", HFILL }},
+        "TransactionRequest/actionRequests/_item", HFILL }},
     { &hf_h248_immAckRequired,
       { "immAckRequired", "h248.immAckRequired",
         FT_NONE, BASE_NONE, NULL, 0,

@@ -15,9 +15,15 @@ PkgdName
 PropertyID
 SignalName
 EventName
+ContextID
 
 #.TYPE_RENAME
 IndAudMediaDescriptor/streams			indAudMediaDescriptorStreams
+ActionRequest/contextId					contextId
+ActionReply/contextId					contextId
+TransactionRequest/transactionId		transactionId
+TransactionPending/transactionId		transactionId
+TransactionReply/transactionId			transactionId
 
 #.FIELD_RENAME
 IP4Address/address		iP4Address
@@ -60,7 +66,123 @@ NotifyReply/terminationID			terminationIDList
 ServiceChangeRequest/terminationID			terminationIDList
 ServiceChangeReply/terminationID			terminationIDList
 
+
+#.FN_BODY TransactionRequest/transactionId
+	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset);
 #.END
+
+#.FN_BODY TransactionPending/transactionId
+	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset);
+#.END
+
+#.FN_BODY transactionReply/transactionId
+	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset);
+#.END
+
+#.FN_FTR TransactionRequest
+	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "}");
+#.END
+
+#.FN_FTR TransactionPending
+	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "}");
+#.END
+
+#.FN_FTR TransactionAck
+	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "}");
+#.END
+
+#.FN_BODY ActionRequest/contextId
+	offset = dissect_h248_ctx_id(implicit_tag, pinfo, tree, tvb, offset);
+#.END
+
+#.FN_BODY ActionReply/contextId
+	offset = dissect_h248_ctx_id(implicit_tag, pinfo, tree, tvb, offset);
+#.END
+
+#.FN_HDR Command/addReq
+	  command_string = "addReq {";
+#.END
+
+#.FN_HDR Command/moveReq
+	  command_string =  "moveReq {";
+#.END
+
+#.FN_HDR Command/modReq
+	  command_string =  "modReq {";
+#.END
+
+#.FN_HDR Command/subtractReq
+	  command_string =  "subtractReq {";
+#.END
+
+#.FN_HDR Command/auditCapRequest
+	  command_string =  "auditCapRequest {";
+#.END
+
+#.FN_HDR Command/notifyReq
+	  command_string =  "notifyReq {";
+#.END
+
+#.FN_HDR Command/ServiceChangeRequest
+	  command_string =  "serviceChangeReq {";
+#.END
+
+#.FN_HDR CommandReply/addReply
+	  command_string =  "addReply {";
+#.END
+
+#.FN_HDR CommandReply/moveReply
+	  command_string =  "moveReply {";
+#.END
+
+#.FN_HDR CommandReply/addReply
+	  command_string =  "addReply {";
+#.END
+
+#.FN_HDR CommandReply/modReply
+	  command_string =  "modReply {";
+#.END
+
+#.FN_HDR CommandReply/notifyReply
+	  command_string =  "notifyReply {";
+#.END
+
+#.FN_HDR CommandReply/subtractReply
+	  command_string =  "subtractReply {";
+#.END
+
+#.FN_HDR CommandReply/auditCapReply
+	  command_string =  "auditCapReply {";
+#.END
+
+#.FN_HDR CommandReply/auditValueReply
+	  command_string =  "auditValueReply {";
+#.END
+
+#.FN_HDR TerminationID
+	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, command_string);
+	  it_is_wildcard = FALSE;
+#.END
+
+#.FN_FTR TerminationID
+	if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "}");
+	it_is_wildcard = FALSE;
+#.END
+
+#.FN_HDR WildcardField
+	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "*");
+	  it_is_wildcard = TRUE;
+#.END
+
+#.FN_BODY TerminationID/id
+	tvbuff_t* new_tvb;
+	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
+	
+	  if (! it_is_wildcard && check_col(pinfo->cinfo, COL_INFO))
+		col_append_str(pinfo->cinfo, COL_INFO, bytes_to_str(tvb_get_ptr(tvb,0,tvb->length),tvb->length));
+	
+#.END
+
 #.TYPE_ATTR
 IP4Address/address  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
 IP6Address/address  TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
