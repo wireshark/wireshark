@@ -121,6 +121,7 @@ static int hf_scsi_persresv_type         = -1;
 static int hf_scsi_release_flags         = -1;
 static int hf_scsi_release_thirdpartyid  = -1;
 static int hf_scsi_alloclen32            = -1;
+static int hf_scsi_select_report         = -1;
 static int hf_scsi_formatunit_flags      = -1;
 static int hf_scsi_formatunit_interleave = -1;
 static int hf_scsi_formatunit_vendor     = -1;
@@ -441,6 +442,13 @@ static const value_string scsi_smc2_val[] = {
     {SCSI_SMC2_REQUEST_VOLUME_ELEMENT_ADDRESS , "Request Volume Element Address"},
     {SCSI_SMC2_SEND_VOLUME_TAG                , "Send Volume Tag"},
     {SCSI_SMC2_WRITE_ATTRIBUTE                , "Write Attribute"},
+    {0, NULL},
+};
+
+static const value_string scsi_select_report_val[] = {
+    {0,	"Select All LUNs" },
+    {1, "Select Well-Known LUNs" },
+    {2, "Select All LUNs accessible to this I_T nexus" },
     {0, NULL},
 };
 
@@ -3047,6 +3055,8 @@ dissect_scsi_reportluns (tvbuff_t *tvb, packet_info *pinfo _U_,
         return;
 
     if (isreq && iscdb) {
+	proto_tree_add_item (tree, hf_scsi_select_report, tvb, offset+1, 1, 0);
+ 
         proto_tree_add_item (tree, hf_scsi_alloclen32, tvb, offset+5, 4, 0);
 
         flags = tvb_get_guint8 (tvb, offset+10);
@@ -5455,6 +5465,9 @@ proto_register_scsi (void)
         { &hf_scsi_senddiag_st_code,
           {"Self-Test Code", "scsi.spc2.senddiag.code", FT_UINT8, BASE_HEX,
            VALS (scsi_senddiag_st_code_val), 0xE0, "", HFILL}},
+        { &hf_scsi_select_report,
+          {"Select Report", "scsi.spc2.select_report", FT_UINT8, BASE_HEX,
+           VALS (scsi_select_report_val), 0x00, "", HFILL}},
         { &hf_scsi_senddiag_pf,
           {"PF", "scsi.spc2.senddiag.pf", FT_BOOLEAN, BASE_HEX,
            TFS (&scsi_senddiag_pf_val), 0x10, "", HFILL}},
