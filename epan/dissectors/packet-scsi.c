@@ -140,6 +140,7 @@ static int hf_scsi_cdb_defectfmt         = -1;
 static int hf_scsi_reassignblks_flags    = -1;
 static int hf_scsi_inq_qualifier         = -1;
 static int hf_scsi_inq_devtype           = -1;
+static int hf_scsi_inq_rmb		 = -1;
 static int hf_scsi_inq_version           = -1;
 static int hf_scsi_rluns_lun             = -1;
 static int hf_scsi_rluns_multilun        = -1;
@@ -801,6 +802,11 @@ static const value_string scsi_modesns_qmod_val[] = {
 static const true_false_string scsi_modesns_qerr_val = {
     "All blocked tasks shall be aborted on CHECK CONDITION",
     "Blocked tasks shall resume after ACA/CA is cleared",
+};
+
+static const true_false_string scsi_removable_val = {
+    "This is a REMOVABLE device",
+    "This device is NOT removable",
 };
 
 static const true_false_string scsi_modesns_tas_val = {
@@ -1706,6 +1712,7 @@ dissect_scsi_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item (tree, hf_scsi_inq_qualifier, tvb, offset,
                              1, 0);
         proto_tree_add_item (tree, hf_scsi_inq_devtype, tvb, offset, 1, 0);
+	proto_tree_add_item (tree, hf_scsi_inq_rmb,  tvb, offset+1, 1, 0);
         proto_tree_add_item (tree, hf_scsi_inq_version, tvb, offset+2, 1, 0);
 
         flags = tvb_get_guint8 (tvb, offset+3);
@@ -5366,6 +5373,9 @@ proto_register_scsi (void)
         { &hf_scsi_inq_devtype,
           {"Peripheral Device Type", "scsi.inquiry.devtype", FT_UINT8, BASE_HEX,
            VALS (scsi_devtype_val), SCSI_DEV_BITS, "", HFILL}},
+        { &hf_scsi_inq_rmb,
+          {"Removable", "scsi.inquiry.removable", FT_BOOLEAN, 8,
+           TFS (&scsi_removable_val), 0x80, "", HFILL}},
         { & hf_scsi_inq_version,
           {"Version", "scsi.inquiry.version", FT_UINT8, BASE_HEX,
            VALS (scsi_inquiry_vers_val), 0x0, "", HFILL}},
