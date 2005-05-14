@@ -4848,6 +4848,9 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		proto_item_set_len(it, offset-old_offset);
 	}
 
+	if (andxoffset != 0 && andxoffset < offset)
+		THROW(ReportedBoundsError);
+
 	/* call AndXCommand (if there are any) */
 	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
@@ -4884,6 +4887,9 @@ dissect_locking_andx_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 	BYTE_COUNT;
 
 	END_OF_SMB
+
+	if (andxoffset != 0 && andxoffset < offset)
+		THROW(ReportedBoundsError);
 
 	/* call AndXCommand (if there are any) */
 	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
@@ -5066,6 +5072,9 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	END_OF_SMB
 
+	if (andxoffset != 0 && andxoffset < offset)
+		THROW(ReportedBoundsError);
+
 	/* call AndXCommand (if there are any) */
 	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
@@ -5195,6 +5204,9 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	END_OF_SMB
 
+	if (andxoffset != 0 && andxoffset < offset)
+		THROW(ReportedBoundsError);
+
 	/* call AndXCommand (if there are any) */
 	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
@@ -5315,6 +5327,9 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	END_OF_SMB
 
+	if (andxoffset != 0 && andxoffset < offset)
+		THROW(ReportedBoundsError);
+
 	/* call AndXCommand (if there are any) */
 	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
@@ -5415,6 +5430,9 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	}
 
 	END_OF_SMB
+
+	if (andxoffset != 0 && andxoffset < offset)
+		THROW(ReportedBoundsError);
 
 	/* call AndXCommand (if there are any) */
 	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
@@ -5556,6 +5574,9 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	END_OF_SMB
 
+	if (andxoffset != 0 && andxoffset < offset)
+		THROW(ReportedBoundsError);
+
 	/* call AndXCommand (if there are any) */
 	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
@@ -5628,6 +5649,9 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	BYTE_COUNT;
 
 	END_OF_SMB
+
+	if (andxoffset != 0 && andxoffset < offset)
+		THROW(ReportedBoundsError);
 
 	/* call AndXCommand (if there are any) */
 	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
@@ -5997,6 +6021,9 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	END_OF_SMB
 
+	if (andxoffset != 0 && andxoffset < offset)
+		THROW(ReportedBoundsError);
+
 	/* call AndXCommand (if there are any) */
 	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
@@ -6119,6 +6146,9 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	END_OF_SMB
 
+	if (andxoffset != 0 && andxoffset < offset)
+		THROW(ReportedBoundsError);
+
 	/* call AndXCommand (if there are any) */
 	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
@@ -6156,6 +6186,9 @@ dissect_empty_andx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
 	BYTE_COUNT;
 
 	END_OF_SMB
+
+	if (andxoffset != 0 && andxoffset < offset)
+		THROW(ReportedBoundsError);
 
 	/* call AndXCommand (if there are any) */
 	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
@@ -6305,6 +6338,9 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	END_OF_SMB
 
+	if (andxoffset != 0 && andxoffset < offset)
+		THROW(ReportedBoundsError);
+
 	/* call AndXCommand (if there are any) */
 	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
@@ -6434,6 +6470,9 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	}
 
 	END_OF_SMB
+
+	if (andxoffset != 0 && andxoffset < offset)
+		THROW(ReportedBoundsError);
 
 	/* call AndXCommand (if there are any) */
 	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
@@ -8766,6 +8805,9 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	END_OF_SMB
 
+	if (andxoffset != 0 && andxoffset < offset)
+		THROW(ReportedBoundsError);
+
 	/* call AndXCommand (if there are any) */
 	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
@@ -8854,6 +8896,9 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	BYTE_COUNT;
 
 	END_OF_SMB
+
+	if (andxoffset != 0 && andxoffset < offset)
+		THROW(ReportedBoundsError);
 
 	/* call AndXCommand (if there are any) */
 	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
