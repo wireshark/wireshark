@@ -91,6 +91,7 @@ DISSECTOR_SRC =	\
 	packet-ap1394.c	\
 	packet-app-pkix-cert.c	\
 	packet-arcnet.c	\
+	packet-armagetronad.c \
 	packet-arp.c	\
 	packet-aruba-adp.c	\
 	packet-asap.c	\

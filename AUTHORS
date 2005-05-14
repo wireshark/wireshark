@@ -2333,11 +2333,13 @@ Francisco Alcoba	<francisco.alcoba [AT] ericsson.com> {
 	ASCII art version of VOIP call analysis
 }
 
-Nils O. SelÃ¥sdal	<noselasd@asgaard.homelinux.org> {
+Nils O. SelÃ¥sdal	<noselasd [AT] asgaard.homelinux.org> {
 	9P support
 }
 
-
+Guillaume Chazarain 	<guichaz [AT] yahoo.fr> {
+	Armagetronad support
+}
 
 And assorted fixes and enhancements by the people listed above
 and by:
