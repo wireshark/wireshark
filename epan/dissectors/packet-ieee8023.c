@@ -70,12 +70,22 @@ dissect_802_3(int length, gboolean is_802_2, tvbuff_t *tvb,
 	  creating "trailer_tvb" threw an exception.
 
        In either case, this means that all the data in the frame
-       is within the length value, so we give all the data to the
-       next protocol and have no trailer. */
-    next_tvb = tvb_new_subset(tvb, offset_after_length, -1, length);
+       is within the length value (assuming our offset isn't past
+       the end of the tvb), so we give all the data to the next
+       protocol and have no trailer. */
+
+    if (tvb_length_remaining(tvb, offset_after_length) > 0) {
+      next_tvb = tvb_new_subset(tvb, offset_after_length, -1, length);
+    } else {
+      next_tvb = NULL;
+    }
     trailer_tvb = NULL;
   }
   ENDTRY;
+
+  if (next_tvb == NULL) {
+    THROW(ReportedBoundsError);
+  }
 
   /* Dissect the payload either as IPX or as an LLC frame.
      Catch BoundsError and ReportedBoundsError, so that if the
