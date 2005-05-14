@@ -1866,6 +1866,8 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		    dcerpc_callback_fnct_t *callback, void *callback_args)
 {
 	dcerpc_info *di;
+	proto_tree *tr = NULL;
+	gint start_offset = offset;
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
@@ -1880,7 +1882,6 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	if( pointers_are_top_level
 	&&(type==NDR_POINTER_REF) ){
 		proto_item *item;
-		proto_tree *tr;
 
 		/* we must find out a nice way to do the length here */
 		item=proto_tree_add_text(tree, tvb, offset, 0,
@@ -1898,7 +1899,6 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		int idx;
 		guint32 id;
 		proto_item *item;
-		proto_tree *tr;
 
 		/* get the referent id */
 		offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &id);
@@ -1935,7 +1935,6 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	&& (type==NDR_POINTER_UNIQUE) ){
 		guint32 id;
 		proto_item *item;
-		proto_tree *tr;
 
 		/* get the referent id */
 		offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &id);
@@ -1963,7 +1962,6 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	&& (type==NDR_POINTER_REF) ){
 		guint32 id;
 		proto_item *item;
-		proto_tree *tr;
 
 		/* get the referent id */
 		offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &id);
@@ -1984,7 +1982,6 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	&& (type==NDR_POINTER_UNIQUE) ){
 		guint32 id;
 		proto_item *item;
-		proto_tree *tr;
 
 		/* get the referent id */
 		offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &id);
@@ -2013,7 +2010,6 @@ dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		int idx;
 		guint32 id;
 		proto_item *item;
-		proto_tree *tr;
 
 		/* get the referent id */
 		offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &id);
@@ -2057,6 +2053,10 @@ after_ref_id:
 		pointers_are_top_level=TRUE;
 	}
 
+	/* Set the length for the new subtree */
+	if (tr){
+		proto_item_set_len(tr, offset-start_offset);
+	}
 	return offset;
 }
 
