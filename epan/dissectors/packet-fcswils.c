@@ -479,7 +479,7 @@ get_zoneobj_len (tvbuff_t *tvb, gint offset)
                 len += 4 + tvb_get_guint8 (tvb, offset+3+len);
             }
         }
-        else if (objtype == FC_SWILS_ZONEOBJ_ZONE) {
+        else {
             len += 4 + tvb_get_guint8 (tvb, offset+3+len);
         }
     }
