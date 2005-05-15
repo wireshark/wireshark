@@ -766,7 +766,7 @@ DestinationNumberCriteria ::= SEQUENCE {
                         INTEGER ( 1 .. 15 ) OPTIONAL, 
           ... }
 ForwardingInfo ::= SEQUENCE {
-                  ss-Code                 Ss-Code, 
+                  ss-Code                 Ss-Code OPTIONAL, 
                   forwardingFeatureList   SEQUENCE  ( SIZE( 1 .. 32 ) ) OF ForwardingFeatureList, 
                   extensionContainer      [0] IMPLICIT ExtensionContainer OPTIONAL, 
                   ... }
