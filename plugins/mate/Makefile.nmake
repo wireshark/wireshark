@@ -7,7 +7,9 @@ include <win32.mak>
 
 ############### no need to modify below this line #########
 
-CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
+LEMON=..\..\tools\lemon
+
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) /I$(LEMON)\
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 	
 .c.obj::
@@ -19,7 +21,13 @@ LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 LINK_PLUGIN_WITH=..\..\epan\libethereal.lib
 CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
 
-OBJECTS=packet-mate.obj mate_setup.obj mate_runtime.obj mate_util.obj mate_plugin.obj
+OBJECTS=packet-mate.obj\
+		mate_setup.obj\
+		mate_runtime.obj\
+		mate_util.obj\
+		mate_plugin.obj\
+		mate_grammar.obj\
+		mate_parser.obj
 
 mate.dll mate.exp mate.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
 	link -dll /out:mate.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
@@ -31,5 +39,18 @@ clean:
 	rm -f $(OBJECTS) mate.dll mate.exp mate.lib *.pdb
 
 distclean: clean
+	rm -f mate_parser.c mate_grammar.c mate_grammar.h mate_grammar.out
 
 maintainer-clean: distclean
+
+mate_parser.c : mate_parser.l
+	$(LEX) -Pdf_ -omate_parser.c mate_parser.l
+
+mate_grammar.h : mate_grammar.c
+mate_grammar.c : mate_grammar.lemon $(LEMON)\lemon.exe
+	$(LEMON)\lemon.exe t=$(LEMON)\lempar.c mate_grammar.lemon 
+
+$(LEMON)\lemon.exe:
+	cd ../../tools/lemon
+	$(MAKE) -f makefile.nmake
+	cd ../../epan/dfilter
