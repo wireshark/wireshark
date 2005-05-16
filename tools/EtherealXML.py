@@ -96,6 +96,7 @@ class ProtoTreeItem(PacketList):
         self.size = xmlattrs.get("size", "")
         self.value = xmlattrs.get("value", "")
         self.show = xmlattrs.get("show", "")
+        self.hide = xmlattrs.get("hide", "")
 
     def add_child(self, child):
         self.children.append(child)
@@ -118,6 +119,9 @@ class ProtoTreeItem(PacketList):
     def get_show(self):
         return self.show
 
+    def get_hide(self):
+        return self.hide
+
     def dump(self, fh):
         if self.name:
             print >> fh, " name=%s" % (saxutils.quoteattr(self.name),),
@@ -136,6 +140,9 @@ class ProtoTreeItem(PacketList):
 
         if self.show:
             print >> fh, "show=%s" % (saxutils.quoteattr(self.show),),
+
+        if self.hide:
+            print >> fh, "hide=%s" % (saxutils.quoteattr(self.hide),),
 
 class Packet(ProtoTreeItem, PacketList):
     def dump(self, fh, indent=0):
