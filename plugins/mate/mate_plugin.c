@@ -49,8 +49,6 @@ G_MODULE_EXPORT const gchar version[] = VERSION;
 
 G_MODULE_EXPORT void plugin_register(void) {
 	
-	g_message("---");
-
 	if (! initialized ) {
 		proto_register_mate();
 		initialized = 1;

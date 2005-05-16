@@ -38,7 +38,7 @@
 
 /******* dbg_print *********/
 #define DEBUG_BUFFER_SIZE 4096
-extern void dbg_print(const gint* which, gint how, FILE* where, gchar* fmt, ... );
+extern void dbg_print(const gint* which, gint how, FILE* where, const gchar* fmt, ... );
 
 
 /******* single copy strings *********/

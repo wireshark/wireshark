@@ -40,7 +40,7 @@
  * fmt, ...: what to print
  */
 
-void dbg_print(const gint* which, gint how, FILE* where, gchar* fmt, ... ) {
+void dbg_print(const gint* which, gint how, FILE* where, const gchar* fmt, ... ) {
 	static gchar debug_buffer[DEBUG_BUFFER_SIZE];
 	va_list list;
 
@@ -63,7 +63,7 @@ void dbg_print(const gint* which, gint how, FILE* where, gchar* fmt, ... ) {
 /***************************************************************************
  *  single copy strings
  ***************************************************************************
- * In order to save memory and since strings repeat more often than don't,
+ * Strings repeat more often than don't. In order to save memory
  * we'll keep only one copy of each as key to a hash with a count of
  * subscribers as value.
  ***************************************************************************/

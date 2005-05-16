@@ -216,135 +216,6 @@ extern gchar* add_ranges(gchar* range,GPtrArray* range_ptr_arr) {
 	return NULL;
 }
 
-
-#if 0
-#define true_false_str(v) ((v) ? "TRUE" : "FALSE")
-
-
-static void print_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
-	mate_cfg_gop* cfg = (mate_cfg_gop*) v;
-	guint8* avplstr = NULL;
-	void* cookie = NULL;
-	AVPL* avpl;
-
-	dbg_print (dbg_cfg,0,dbg_facility,"Action=GogDef; Name=%s; Expiration=%f;",cfg->name,cfg->expiration);
-
-	if (cfg->keys) {
-		while (( avpl = get_next_avpl(cfg->keys,&cookie) )) {
-			avplstr = avpl_to_str(avpl);
-			dbg_print (dbg_cfg,0,dbg_facility,"Action=GogKey; For=%s; On=%s; %s",cfg->name,avpl->name,avplstr);
-			g_free(avplstr);
-		}
-	}
-
-	if (cfg->extra) {
-		avplstr = avpl_to_str(cfg->extra);
-		dbg_print (dbg_cfg,0,dbg_facility,"Action=GogExtra; For=%s; %s",cfg->name,avplstr);
-		g_free(avplstr);
-	}
-
-	print_xxx_transforms(cfg);
-
-}
-
-
-
-static void print_gop_config(gpointer k _U_ , gpointer v, gpointer p _U_) {
-	mate_cfg_gop* cfg = (mate_cfg_gop*) v;
-	guint8* avplstr = NULL;
-	guint8* show_pdu_tree;
-	GString* gopdef;
-
-	gopdef = g_string_new("Action=GopDef; ");
-
-	show_pdu_tree = cfg->show_pdu_tree ? "TRUE" : "FALSE";
-	g_string_sprintfa(gopdef,"Name=%s; ShowPduTree=%s; ShowGopTimes=%s; "
-					  "GopExpiration=%f; GopIdleTimeout=%f GopLifetime=%f;",
-					  cfg->name,show_pdu_tree,true_false_str(cfg->show_times),
-					  cfg->expiration,cfg->idle_timeout,cfg->lifetime);
-
-	if (cfg->key) {
-		avplstr = avpl_to_str(cfg->key);
-		g_string_sprintfa(gopdef," %s",avplstr);
-		g_free(avplstr);
-	}
-
-	dbg_print (dbg_cfg,0,dbg_facility,"%s",gopdef->str);
-
-
-	if (cfg->start) {
-		avplstr = avpl_to_str(cfg->start);
-		dbg_print (dbg_cfg,0,dbg_facility,"Action=GopStart; For=%s; %s",cfg->name,avplstr);
-		g_free(avplstr);
-	}
-
-	if (cfg->stop) {
-		avplstr = avpl_to_str(cfg->stop);
-		dbg_print (dbg_cfg,0,dbg_facility,"Action=GopStop; For=%s; %s",cfg->name,avplstr);
-		g_free(avplstr);
-	}
-
-	if (cfg->extra) {
-		avplstr = avpl_to_str(cfg->extra);
-		dbg_print (dbg_cfg,0,dbg_facility,"Action=GopExtra; For=%s;  %s",cfg->name,avplstr);
-		g_free(avplstr);
-	}
-
-	print_xxx_transforms(cfg);
-
-	g_string_free(gopdef,TRUE);
-
-}
-
-
-static void print_gogs_by_gopname(gpointer k, gpointer v, gpointer p _U_) {
-	void* cookie = NULL;
-	guint8* str = NULL;
-	AVPL* avpl;
-
-	while(( avpl = get_next_avpl((LoAL*)v,&cookie) )) {
-		str = avpl_to_str(avpl);
-		dbg_print(dbg_cfg,0,dbg_facility,"Gop=%s; Gog=%s; --> %s",(guint8*)k,avpl->name,str);
-		g_free(str);
-	}
-
-}
-
-static void print_gops_by_pduname(gpointer k, gpointer v, gpointer p _U_) {
-	dbg_print(dbg_cfg,0,dbg_facility,
-			  "PduName=%s; GopName=%s;", (guint8*)k,((mate_cfg_gop*)v)->name);
-}
-
-static void print_config(void) {
-	guint i;
-
-	/* FIXME: print the settings */
-
-	dbg_print(dbg_cfg,0,dbg_facility,"###########################"
-			  " CURRENT CONFIGURATION " "###########################");
-
-	g_hash_table_foreach(matecfg->transfs,print_transforms,NULL);
-
-	for (i=0; i<matecfg->pducfglist->len; i++) {
-		print_pdu_config((mate_cfg_pdu*) g_ptr_array_index(matecfg->pducfglist,i));
-	}
-
-	g_hash_table_foreach(matecfg->gopcfgs,print_gop_config,NULL);
-	g_hash_table_foreach(matecfg->gogcfgs,print_gog_config,NULL);
-
-	dbg_print(dbg_cfg,0,dbg_facility,"###########################"
-			  " END OF CURRENT CONFIGURATION " "###########################");
-
-	if (*dbg_cfg > 1) {
-		dbg_print(dbg_cfg,0,dbg_facility,"******* Config Hashes");
-		dbg_print(dbg_cfg,0,dbg_facility,"*** Gops by PduName");
-		g_hash_table_foreach(matecfg->gops_by_pduname,print_gops_by_pduname,NULL);
-		dbg_print(dbg_cfg,0,dbg_facility,"*** GogKeys by GopName");
-		g_hash_table_foreach(matecfg->gogs_by_gopname,print_gogs_by_gopname,NULL);
-	}
-}
-#endif
-
 static void new_attr_hfri(gchar* item_name, GHashTable* hfids, gchar* name) {
 	int* p_id = g_malloc(sizeof(int));
 
@@ -548,6 +419,7 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	ett = &cfg->ett_children;
 	g_array_append_val(matecfg->ett,ett);
 
+	g_hash_table_insert(matecfg->gops_by_pduname,cfg->name,cfg);
 }
 
 
@@ -1022,7 +894,7 @@ extern mate_config* mate_make_config(gchar* filename, int mate_hfid) {
 			g_hash_table_foreach(matecfg->gopcfgs,(GHFunc)print_gop_config,config_text);
 			g_hash_table_foreach(matecfg->gogcfgs,(GHFunc)print_gog_config,config_text);
 			
-			g_message("Current configuration\n%s\nDone;\n",config_text->str);
+			g_message("Current configuration:\n%s\nDone;\n",config_text->str);
 		/* } */
 		
 		analyze_config();

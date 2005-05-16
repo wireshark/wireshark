@@ -50,7 +50,7 @@ typedef struct _gogkey {
 static mate_runtime_data* rd = NULL;
 static mate_config* mc = NULL;
 
-static int zero = 0;
+static int zero = 5;
 
 static int* dbg = &zero;
 static int* dbg_pdu = &zero;
@@ -155,6 +155,7 @@ extern void initialize_mate_runtime(void) {
 		rd->frames = g_hash_table_new(g_direct_hash,g_direct_equal);
 		
 
+		mc->dbg_gop_lvl = 5;
 		dbg_pdu = &(mc->dbg_pdu_lvl);
 		dbg_gop = &(mc->dbg_gop_lvl);
 		dbg_gog = &(mc->dbg_gog_lvl);
@@ -171,8 +172,8 @@ static mate_gop* new_gop(mate_cfg_gop* cfg, mate_pdu* pdu, gchar* key) {
 	gop->id = ++(cfg->last_id);
 	gop->cfg = cfg;
 
-	dbg_print (dbg_gop,1,dbg_facility,"new_gop: %s: ``%s:%d''",gop->cfg->name,gop->id,key);
-
+	dbg_print(dbg_gop, 1, dbg_facility, "new_gop: %s: ``%s:%d''", key, gop->cfg->name, gop->id);
+	
 	gop->gop_key = key;
 	gop->avpl = new_avpl(cfg->name);
 	gop->last_n = 0;
@@ -180,26 +181,28 @@ static mate_gop* new_gop(mate_cfg_gop* cfg, mate_pdu* pdu, gchar* key) {
 	gop->gog = NULL;
 	gop->next = NULL;
 	
-	gop->expiration = 0.0;
-	gop->idle_expiration = 0.0;
+	gop->expiration = cfg->expiration > 0.0 ? cfg->expiration + rd->now : (float) -1.0 ;
+	gop->idle_expiration = cfg->idle_timeout > 0.0 ? cfg->idle_timeout + rd->now : (float) -1.0 ;
 	gop->time_to_die = cfg->lifetime > 0.0 ? cfg->lifetime + rd->now : (float) -1.0 ;
 	gop->time_to_timeout = 0.0;
 
 	gop->last_time = gop->start_time = rd->now;
 	gop->release_time = 0.0;
 	
-	gop->num_of_pdus = 1;
+	gop->num_of_pdus = 0;
 	gop->num_of_after_release_pdus = 0;
 	
 	gop->pdus = pdu;
 	gop->last_pdu = pdu;
 	
+	gop->released = FALSE;
 	
 	pdu->gop = gop;
 	pdu->next = NULL;
 	pdu->is_start = TRUE;
 	pdu->time_in_gop = 0.0;
 	
+	g_hash_table_insert(cfg->gop_index,gop->gop_key,gop);
 	return gop;
 }
 
@@ -484,7 +487,7 @@ static void analize_pdu(mate_pdu* pdu) {
 		
 	if ((gopkey_match = new_avpl_exact_match("gop_key_match",pdu->avpl,cfg->key, TRUE))) {
 		gop_key = avpl_to_str(gopkey_match);
-			
+		
 		g_hash_table_lookup_extended(cfg->gop_index,(gconstpointer)gop_key,(gpointer*)&orig_gop_key,(gpointer*)&gop);
 		
 		if ( gop ) {
@@ -494,6 +497,7 @@ static void analize_pdu(mate_pdu* pdu) {
 			if ( ! gop->released &&
 				 ( ( gop->cfg->lifetime > 0.0 && gop->time_to_die >= rd->now) || 
 				   ( gop->cfg->idle_timeout > 0.0 && gop->time_to_timeout >= rd->now) ) ) {
+				dbg_print (dbg_gop,4,dbg_facility,"analize_pdu: expiring released gop");
 				gop->released = TRUE;
 				
 				if (gop->gog && gop->cfg->start) gop->gog->num_of_released_gops++;
@@ -576,17 +580,26 @@ static void analize_pdu(mate_pdu* pdu) {
 					return;
 				}
 				
-			} else {
-				dbg_print (dbg_gop,6,dbg_facility,"analize_pdu: an unassigned pdu");
+			} else {				
+				candidate_start = cfg->start;
 				
-				pdu->gop = NULL;
-				pdu->next = NULL;
+				if (( is_start = new_avpl_exact_match("",pdu->avpl, candidate_start, FALSE) )) {
+					delete_avpl(is_start,FALSE);
+					gop = new_gop(cfg,pdu,gop_key);
+				} else {
+					g_free(gop_key);
+					return;
+				}
 				
-				g_free(gop_key);
-				delete_avpl(gopkey_match,TRUE);
-				return;
+				pdu->gop = gop;
 			}
 		}
+		
+		if (gop->last_pdu) gop->last_pdu->next = pdu;
+		gop->last_pdu = pdu;
+		pdu->next = NULL;
+		
+		pdu->time_in_gop = rd->now - gop->start_time;
 		
 		gop->num_of_pdus++;
 		gop->time_to_timeout = cfg->idle_timeout > 0.0 ? cfg->idle_timeout + rd->now : (float) -1.0 ;

@@ -308,7 +308,7 @@ struct _mate_gop {
 	guint32 id;
 	mate_cfg_gop* cfg; 
 	
-	guint8* gop_key;
+	gchar* gop_key;
 	AVPL* avpl; /* the attributes of the pdu/gop/gog */
 	guint last_n;
 	
