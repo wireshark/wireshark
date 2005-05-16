@@ -132,6 +132,7 @@ static gboolean http_decompress_body = FALSE;
 #define TCP_PORT_PROXY_HTTP		3128
 #define TCP_PORT_PROXY_ADMIN_HTTP	3132
 #define TCP_ALT_PORT_HTTP		8080
+#define TCP_RADAN_HTTP			8088
 #define TCP_PORT_HKP			11371
 #define TCP_PORT_DAAP			3689
 /*
@@ -1969,6 +1970,7 @@ proto_reg_handoff_http(void)
 	dissector_add("tcp.port", TCP_PORT_HTTP, http_handle);
 	dissector_add("tcp.port", TCP_PORT_PROXY_HTTP, http_handle);
 	dissector_add("tcp.port", TCP_ALT_PORT_HTTP, http_handle);
+	dissector_add("tcp.port", TCP_RADAN_HTTP, http_handle);
 	dissector_add("tcp.port", TCP_PORT_PROXY_ADMIN_HTTP, http_handle);
 	dissector_add("tcp.port", TCP_PORT_HKP, http_handle);
 
