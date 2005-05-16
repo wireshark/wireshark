@@ -53,4 +53,4 @@ mate_grammar.c : mate_grammar.lemon $(LEMON)\lemon.exe
 $(LEMON)\lemon.exe:
 	cd ../../tools/lemon
 	$(MAKE) -f makefile.nmake
-	cd ../../epan/dfilter
+	cd ../../plugins/mate
