@@ -37,27 +37,69 @@ static mate_config* mc = NULL;
 
 static int proto_mate = -1;
 
-static char* pref_mate_config_filename = "";
-static char* current_mate_config_filename = NULL;
+static gchar* pref_mate_config_filename = "";
+static gchar* current_mate_config_filename = NULL;
 
 static proto_item *mate_i = NULL;
 
-void attrs_tree(proto_tree* tree, tvbuff_t *tvb, mate_item* item) {
+void pdu_attrs_tree(proto_tree* tree, tvbuff_t *tvb, mate_pdu* pdu) {
 	AVPN* c;
 	proto_item *avpl_i;
 	proto_tree *avpl_t;
 	int* hfi_p;
 	
-	avpl_i = proto_tree_add_text(tree,tvb,0,0,"%s Attributes",item->cfg->name);
-	avpl_t = proto_item_add_subtree(avpl_i, item->cfg->ett_attr);
-
-	for ( c = item->avpl->null.next; c->avp; c = c->next) {
-		hfi_p = g_hash_table_lookup(item->cfg->my_hfids,(char*)c->avp->n);
-
+	avpl_i = proto_tree_add_text(tree,tvb,0,0,"%s Attributes",pdu->cfg->name);
+	avpl_t = proto_item_add_subtree(avpl_i, pdu->cfg->ett_attr);
+	
+	for ( c = pdu->avpl->null.next; c->avp; c = c->next) {
+		hfi_p = g_hash_table_lookup(pdu->cfg->my_hfids,(char*)c->avp->n);
+		
 		if (hfi_p) {
 			proto_tree_add_string(avpl_t,*hfi_p,tvb,0,0,c->avp->v);
 		} else {
-			g_warning("MATE: error: undefined attribute: mate.%s.%s",item->cfg->name,c->avp->n);
+			g_warning("MATE: error: undefined attribute: mate.%s.%s",pdu->cfg->name,c->avp->n);
+			proto_tree_add_text(avpl_t,tvb,0,0,"Undefined attribute: %s=%s",c->avp->n, c->avp->v);
+		}
+	}
+}
+
+void gop_attrs_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
+	AVPN* c;
+	proto_item *avpl_i;
+	proto_tree *avpl_t;
+	int* hfi_p;
+	
+	avpl_i = proto_tree_add_text(tree,tvb,0,0,"%s Attributes",gop->cfg->name);
+	avpl_t = proto_item_add_subtree(avpl_i, gop->cfg->ett_attr);
+	
+	for ( c = gop->avpl->null.next; c->avp; c = c->next) {
+		hfi_p = g_hash_table_lookup(gop->cfg->my_hfids,(char*)c->avp->n);
+		
+		if (hfi_p) {
+			proto_tree_add_string(avpl_t,*hfi_p,tvb,0,0,c->avp->v);
+		} else {
+			g_warning("MATE: error: undefined attribute: mate.%s.%s",gop->cfg->name,c->avp->n);
+			proto_tree_add_text(avpl_t,tvb,0,0,"Undefined attribute: %s=%s",c->avp->n, c->avp->v);
+		}
+	}
+}
+
+void gog_attrs_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog) {
+	AVPN* c;
+	proto_item *avpl_i;
+	proto_tree *avpl_t;
+	int* hfi_p;
+	
+	avpl_i = proto_tree_add_text(tree,tvb,0,0,"%s Attributes",gog->cfg->name);
+	avpl_t = proto_item_add_subtree(avpl_i, gog->cfg->ett_attr);
+	
+	for ( c = gog->avpl->null.next; c->avp; c = c->next) {
+		hfi_p = g_hash_table_lookup(gog->cfg->my_hfids,(char*)c->avp->n);
+		
+		if (hfi_p) {
+			proto_tree_add_string(avpl_t,*hfi_p,tvb,0,0,c->avp->v);
+		} else {
+			g_warning("MATE: error: undefined attribute: mate.%s.%s",gog->cfg->name,c->avp->n);
 			proto_tree_add_text(avpl_t,tvb,0,0,"Undefined attribute: %s=%s",c->avp->n, c->avp->v);
 		}
 	}
@@ -86,7 +128,7 @@ void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop
 	gog_item = proto_tree_add_uint(tree,gog->cfg->hfid,tvb,0,0,gog->id);
 	gog_tree = proto_item_add_subtree(gog_item,gog->cfg->ett);
 			
-	attrs_tree(gog_tree,tvb,gog);
+	gog_attrs_tree(gog_tree,tvb,gog);
 	
 	if (gog->cfg->show_times) {
 		gog_time_item = proto_tree_add_text(gog_tree,tvb,0,0,"%s Times",gog->cfg->name);
@@ -104,12 +146,12 @@ void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop
 	for (gog_gops = gog->gops; gog_gops; gog_gops = gog_gops->next) {
 		
 		if (gop != gog_gops) {
-			if (gog->cfg->gop_as_subtree == mc->full_tree) {
+			if (gog->cfg->gop_tree_mode == GOP_FULL_TREE) {
 				mate_gop_tree(gog_gops_tree, tvb, gog_gops);
 			} else {
 				gog_gop_item = proto_tree_add_uint(gog_gops_tree,gog_gops->cfg->hfid,tvb,0,0,gog_gops->id);
 				
-				if (gog->cfg->gop_as_subtree == mc->basic_tree) {
+				if (gog->cfg->gop_tree_mode == GOP_BASIC_TREE) {
 					gog_gop_tree = proto_item_add_subtree(gog_gop_item, gog->cfg->ett_gog_gop);
 					
 					proto_tree_add_text(gog_gop_tree, tvb,0,0, "Started at: %f", gog_gops->start_time);
@@ -124,7 +166,7 @@ void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop
 					
 					proto_tree_add_text(gog_gop_tree, tvb,0,0, "Number of Pdus: %u",gog_gops->num_of_pdus);
 					
-					if (gop->pdus && gop->cfg->show_pdu_tree == mc->frame_tree) {
+					if (gop->pdus && gop->cfg->pdu_tree_mode != GOP_NO_TREE) {
 						proto_tree_add_uint(gog_gop_tree,gog->cfg->hfid_gog_gopstart,tvb,0,0,gog_gops->pdus->frame);
 						
 						for (pdu = gog_gops->pdus->next ; pdu; pdu = pdu->next) {
@@ -163,7 +205,7 @@ void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 	
 	if (gop->gop_key) proto_tree_add_text(gop_tree,tvb,0,0,"GOP Key: %s",gop->gop_key);
 	
-	attrs_tree(gop_tree,tvb,gop);
+	gop_attrs_tree(gop_tree,tvb,gop);
 	
 	if (gop->cfg->show_times) {
 		gop_time_item = proto_tree_add_text(gop_tree,tvb,0,0,"%s Times",gop->cfg->name);
@@ -181,17 +223,17 @@ void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 	
 	gop_pdu_item = proto_tree_add_uint(gop_tree, gop->cfg->hfid_gop_num_pdus, tvb, 0, 0,gop->num_of_pdus);
 
-	if (gop->cfg->show_pdu_tree != mc->no_tree) {
+	if (gop->cfg->pdu_tree_mode != GOP_NO_TREE) {
 		
 		gop_pdu_tree = proto_item_add_subtree(gop_pdu_item, gop->cfg->ett_children);
 
 		rel_time = gop_time = gop->start_time;
 
-		type_str = (gop->cfg->show_pdu_tree == mc->frame_tree ) ? "in frame:" : "id:";
+		type_str = (gop->cfg->pdu_tree_mode == GOP_FRAME_TREE ) ? "in frame:" : "id:";
 		
 		for (gop_pdus = gop->pdus; gop_pdus; gop_pdus = gop_pdus->next) {
 
-			pdu_item = (gop->cfg->show_pdu_tree == mc->frame_tree ) ? gop_pdus->frame : gop_pdus->id;
+			pdu_item = (gop->cfg->pdu_tree_mode == GOP_FRAME_TREE ) ? gop_pdus->frame : gop_pdus->id;
 
 			if (gop_pdus->is_start) {
 				pdu_str = "Start ";
@@ -249,7 +291,7 @@ void mate_pdu_tree(mate_pdu *pdu, tvbuff_t *tvb, proto_tree* tree) {
 	}
 	
 	if (pdu->avpl) {
-		attrs_tree(pdu_tree,tvb,pdu);
+		pdu_attrs_tree(pdu_tree,tvb,pdu);
 	}
 }
 
@@ -275,52 +317,47 @@ static int mate_packet(void *prs _U_,  packet_info* tree _U_, epan_dissect_t *ed
 	return 0;
 }
 
-static void init_mate(void) {
-	GString* tap_error = NULL;
-
-	if ( ! mate_tap_data ) {
-		tap_error = register_tap_listener("frame", &mate_tap_data,
-										  (char*) mc->tap_filter,
-										  (tap_reset_cb) NULL,
-										  mate_packet,
-										  (tap_draw_cb) NULL);
-	}
-	
-	if ( tap_error ) {
-		g_warning("mate: couldn't (re)register tap: %s",tap_error->str);
-		g_string_free(tap_error, TRUE);
-		mate_tap_data = 0;
-		return;
-	} else {
-		mate_tap_data = 1;
-	}
-	
-	initialize_mate_runtime();
-}
-
 extern
 void
 proto_reg_handoff_mate(void)
 {
+	GString* tap_error = NULL;
+	
 	if ( *pref_mate_config_filename != '\0' ) {
 		
 		if (current_mate_config_filename) {
 			report_failure("Mate cannot reconfigure itself.\n"
-						   "for changes to be applied you have to save the preferences and restart ethereal\n");
+						   "for changes to be applied you have to restart ethereal\n");
 			return;
 		} 
 		
 		if (!mc) { 
-			mc = mate_make_config((char*)pref_mate_config_filename,proto_mate);
+			mc = mate_make_config(pref_mate_config_filename,proto_mate);
 			
 			if (mc) {
 				/* XXX: alignment warnings, what do they mean? */
 				proto_register_field_array(proto_mate, (hf_register_info*) mc->hfrs->data, mc->hfrs->len );
 				proto_register_subtree_array((gint**) mc->ett->data, mc->ett->len);
-				register_init_routine(init_mate);
-				if (current_mate_config_filename == NULL) initialize_mate_runtime();
+				register_init_routine(initialize_mate_runtime);
+				
+				g_warning("filter: %s",mc->tap_filter);
+				
+				tap_error = register_tap_listener("frame", &mate_tap_data,
+												  (char*) mc->tap_filter,
+												  (tap_reset_cb) NULL,
+												  mate_packet,
+												  (tap_draw_cb) NULL);
+				
+				if ( tap_error ) {
+					g_warning("mate: couldn't (re)register tap: %s",tap_error->str);
+					g_string_free(tap_error, TRUE);
+					mate_tap_data = 0;
+					return;
+				} 					
+				
+				initialize_mate_runtime();
 			}
-			
+
 			current_mate_config_filename = pref_mate_config_filename;
 
 		}

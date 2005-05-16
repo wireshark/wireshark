@@ -40,8 +40,8 @@
  * fmt, ...: what to print
  */
 
-void dbg_print(const guint* which, guint how, FILE* where, guint8* fmt, ... ) {
-	static guint8 debug_buffer[DEBUG_BUFFER_SIZE];
+void dbg_print(const gint* which, gint how, FILE* where, gchar* fmt, ... ) {
+	static gchar debug_buffer[DEBUG_BUFFER_SIZE];
 	va_list list;
 
 	if ( ! which || *which < how ) return;
@@ -130,8 +130,8 @@ extern SCS_collection* scs_init(void) {
  *
  * Return value: a pointer to the subscribed string.
  **/
-guint8* scs_subscribe(SCS_collection* c, guint8* s) {
-	guint8* orig = NULL;
+gchar* scs_subscribe(SCS_collection* c, gchar* s) {
+	gchar* orig = NULL;
 	guint* ip = NULL;
 	size_t len = 0;
 	GMemChunk* chunk = NULL;
@@ -181,8 +181,8 @@ guint8* scs_subscribe(SCS_collection* c, guint8* s) {
  * decreases the count of subscribers, if zero frees the internal copy of
  * the string.
  **/
-void scs_unsubscribe(SCS_collection* c, guint8* s) {
-	guint8* orig = NULL;
+void scs_unsubscribe(SCS_collection* c, gchar* s) {
+	gchar* orig = NULL;
 	guint* ip = NULL;
 	size_t len = 0xffff;
 	GMemChunk* chunk = NULL;
@@ -225,9 +225,9 @@ void scs_unsubscribe(SCS_collection* c, guint8* s) {
  * Return value: the stored copy of the formated string.
  *
  **/
-extern guint8* scs_subscribe_printf(SCS_collection* c, guint8* fmt, ...) {
+extern gchar* scs_subscribe_printf(SCS_collection* c, gchar* fmt, ...) {
 	va_list list;
-	static guint8 buf[SCS_HUGE_SIZE];
+	static gchar buf[SCS_HUGE_SIZE];
 	
 	va_start( list, fmt );
 	g_vsnprintf(buf, SCS_HUGE_SIZE-1 ,fmt, list);
@@ -236,16 +236,16 @@ extern guint8* scs_subscribe_printf(SCS_collection* c, guint8* fmt, ...) {
 	return scs_subscribe(c,buf);
 }
 
-extern guint8* scs_subscribe_int(SCS_collection* c, int i) {
-	static guint8 buf[SCS_SMALL_SIZE];
+extern gchar* scs_subscribe_int(SCS_collection* c, int i) {
+	static gchar buf[SCS_SMALL_SIZE];
 	
 	g_snprintf(buf, SCS_SMALL_SIZE-1 ,"%i", i);
 	
 	return scs_subscribe(c,buf);
 }
 
-extern guint8* scs_subscribe_float(SCS_collection* c, float f) {
-	static guint8 buf[SCS_SMALL_SIZE];
+extern gchar* scs_subscribe_float(SCS_collection* c, float f) {
+	static gchar buf[SCS_SMALL_SIZE];
 	
 	g_snprintf(buf, SCS_SMALL_SIZE-1 ,"%f", f);
 	
@@ -346,9 +346,9 @@ extern void avp_init(void) {
  * Return value: a pointer to the newly created avp.
  *
  **/
-extern AVP* new_avp_from_finfo(guint8* name, field_info* finfo) {
+extern AVP* new_avp_from_finfo(gchar* name, field_info* finfo) {
 	AVP* new = g_mem_chunk_alloc(avp_chunk);
-	guint8* value;
+	gchar* value;
 	
 	new->n = scs_subscribe(avp_strings, name);
 
@@ -397,7 +397,7 @@ extern AVP* new_avp_from_finfo(guint8* name, field_info* finfo) {
  * Return value: a pointer to the newly created avp.
  *
  **/
-extern AVP* new_avp(guint8* name, guint8* value, guint8 o) {
+extern AVP* new_avp(gchar* name, gchar* value, gchar o) {
 	AVP* new = g_mem_chunk_alloc(avp_chunk);
 
 	new->n = scs_subscribe(avp_strings, name);
@@ -453,8 +453,8 @@ extern AVP* avp_copy(AVP* from) {
 }
 
 
-extern void rename_avp(AVP* avp, guint8* name) {
-	guint8* s = avp->n;
+extern void rename_avp(AVP* avp, gchar* name) {
+	gchar* s = avp->n;
 	avp->n = scs_subscribe(avp_strings,name);
 	scs_unsubscribe(avp_strings,s);
 }
@@ -468,14 +468,14 @@ extern void rename_avp(AVP* avp, guint8* name) {
  * Return value: a pointer to the newly created avpl.
  *
  **/
-extern AVPL* new_avpl(guint8* name) {
+extern AVPL* new_avpl(gchar* name) {
 	AVPL* new_avpl = g_mem_chunk_alloc(avp_chunk);
 
 #ifdef _AVP_DEBUGGING
 	dbg_print(dbg_avpl_op,7,dbg_fp,"new_avpl: %X name=%s",new_avpl,name);
 #endif
 
-	new_avpl->name = scs_subscribe(avp_strings, name);
+	new_avpl->name = name ? scs_subscribe(avp_strings, name) : scs_subscribe(avp_strings, "");
 	new_avpl->len = 0;
 	new_avpl->null.avp = NULL;
 	new_avpl->null.next = &new_avpl->null;
@@ -485,7 +485,7 @@ extern AVPL* new_avpl(guint8* name) {
 	return new_avpl;
 }
 
-extern void rename_avpl(AVPL* avpl, guint8* name) {
+extern void rename_avpl(AVPL* avpl, gchar* name) {
 	scs_unsubscribe(avp_strings,avpl->name);
 	avpl->name = scs_subscribe(avp_strings,name);
 }
@@ -568,7 +568,7 @@ extern gboolean insert_avp(AVPL* avpl, AVP* avp) {
  * Return value: a pointer to the next matching avp if there's one, else NULL.
  *
  **/
-extern AVP* get_avp_by_name(AVPL* avpl, guint8* name, void** cookie) {
+extern AVP* get_avp_by_name(AVPL* avpl, gchar* name, void** cookie) {
 	AVPN* curr;
 	AVPN* start = (AVPN*) *cookie;
 
@@ -607,7 +607,7 @@ extern AVP* get_avp_by_name(AVPL* avpl, guint8* name, void** cookie) {
  * Return value: a pointer to extracted avp if there's one, else NULL.
  *
  **/
-extern AVP* extract_avp_by_name(AVPL* avpl, guint8* name) {
+extern AVP* extract_avp_by_name(AVPL* avpl, gchar* name) {
 	AVPN* curr;
 	AVP* avp = NULL;
 
@@ -794,11 +794,11 @@ extern AVP* get_next_avp(AVPL* avpl, void** cookie) {
  * Return value: a pointer to the newly allocated string.
  *
  **/
-guint8* avpl_to_str(AVPL* avpl) {
+gchar* avpl_to_str(AVPL* avpl) {
 	AVPN* c;
 	GString* s = g_string_new("");
-	guint8* avp_s;
-	guint8* r;
+	gchar* avp_s;
+	gchar* r;
 
 	for(c=avpl->null.next; c->avp; c = c->next) {
 		avp_s = avp_to_str(c->avp);
@@ -813,11 +813,11 @@ guint8* avpl_to_str(AVPL* avpl) {
 	return r;
 }
 
-extern guint8* avpl_to_dotstr(AVPL* avpl) {
+extern gchar* avpl_to_dotstr(AVPL* avpl) {
 	AVPN* c;
 	GString* s = g_string_new("");
-	guint8* avp_s;
-	guint8* r;
+	gchar* avp_s;
+	gchar* r;
 
 	for(c=avpl->null.next; c->avp; c = c->next) {
 		avp_s = avp_to_str(c->avp);
@@ -913,7 +913,7 @@ extern void merge_avpl(AVPL* dst, AVPL* src, gboolean copy_avps) {
  * Return value: a pointer to the newly allocated string.
  *
  **/
-extern AVPL* new_avpl_from_avpl(guint8* name, AVPL* avpl, gboolean copy_avps) {
+extern AVPL* new_avpl_from_avpl(gchar* name, AVPL* avpl, gboolean copy_avps) {
 	AVPL* newavpl = new_avpl(name);
 	void* cookie = NULL;
 	AVP* avp;
@@ -1043,7 +1043,7 @@ extern AVP* match_avp(AVP* src, AVP* op) {
  * Return value: a pointer to the newly created avpl containing the
  *				 matching avps.
  **/
-extern AVPL* new_avpl_loose_match(guint8* name,
+extern AVPL* new_avpl_loose_match(gchar* name,
 								  AVPL* src,
 								  AVPL* op,
 								  gboolean copy_avps) {
@@ -1121,19 +1121,26 @@ extern AVPL* new_avpl_loose_match(guint8* name,
  * Return value: a pointer to the newly created avpl containing the
  *				 matching avps.
  **/
-extern AVPL* new_avpl_every_match(guint8* name, AVPL* src, AVPL* op, gboolean copy_avps) {
-	AVPL* newavpl = new_avpl(scs_subscribe(avp_strings, name));
+extern AVPL* new_avpl_every_match(gchar* name, AVPL* src, AVPL* op, gboolean copy_avps) {
+	AVPL* newavpl;
 	AVPN* co = NULL;
 	AVPN* cs = NULL;
 	gint c;
 	AVP* m;
 	AVP* copy;
-
+	gboolean matches;
+	
 #ifdef _AVP_DEBUGGING
 	dbg_print(dbg_avpl_op,3,dbg_fp,"new_avpl_every_match: %X src=%X op=%X name='%s'",newavpl,src,op,name);
 #endif
-
-	gboolean matches = TRUE;
+	if (src->len == 0) return NULL;
+	
+	newavpl = new_avpl(scs_subscribe(avp_strings, name));
+	
+	if (op->len == 0)
+		return newavpl;
+	
+	matches = TRUE;
 
 	cs = src->null.next;
 	co = op->null.next;
@@ -1205,7 +1212,7 @@ extern AVPL* new_avpl_every_match(guint8* name, AVPL* src, AVPL* op, gboolean co
  * Return value: a pointer to the newly created avpl containing the
  *				 matching avps.
  **/
-extern AVPL* new_avpl_exact_match(guint8* name,AVPL* src, AVPL* op, gboolean copy_avps) {
+extern AVPL* new_avpl_exact_match(gchar* name,AVPL* src, AVPL* op, gboolean copy_avps) {
 	AVPL* newavpl = new_avpl(name);
 	AVPN* co = NULL;
 	AVPN* cs = NULL;
@@ -1219,7 +1226,12 @@ extern AVPL* new_avpl_exact_match(guint8* name,AVPL* src, AVPL* op, gboolean cop
 
 	if (op->len == 0)
 		return newavpl;
-		
+	
+	if (src->len == 0) {
+		delete_avpl(newavpl,FALSE);
+		return NULL;
+	}
+
 	cs = src->null.next;
 	co = op->null.next;
 	while(1) {
@@ -1271,7 +1283,7 @@ extern AVPL* new_avpl_exact_match(guint8* name,AVPL* src, AVPL* op, gboolean cop
 	return NULL;
 }
 
-extern AVPL* new_avpl_from_match(avpl_match_mode mode, guint8* name,AVPL* src, AVPL* op, gboolean copy_avps) {
+extern AVPL* new_avpl_from_match(avpl_match_mode mode, gchar* name,AVPL* src, AVPL* op, gboolean copy_avps) {
 	AVPL* avpl = NULL;
 	
 	switch (mode) {
@@ -1300,7 +1312,7 @@ extern AVPL* new_avpl_from_match(avpl_match_mode mode, guint8* name,AVPL* src, A
  *
  * Return value: a pointer to the newly created avpl transformation
  **/
-extern AVPL_Transf* new_avpl_transform(guint8* name, AVPL* mixed, avpl_match_mode match_mode, avpl_replace_mode replace_mode) {
+extern AVPL_Transf* new_avpl_transform(gchar* name, AVPL* mixed, avpl_match_mode match_mode, avpl_replace_mode replace_mode) {
 	AVPL_Transf* t = g_malloc(sizeof(AVPL_Transf));
 	AVP* avp;
 
@@ -1423,7 +1435,7 @@ extern void avpl_transform(AVPL* src, AVPL_Transf* op) {
  *
  * Return value: a pointer to the newly created loal.
  **/
-extern LoAL* new_loal(guint8* name) {
+extern LoAL* new_loal(gchar* name) {
 	LoAL* new_loal = g_mem_chunk_alloc(avp_chunk);
 
 	if (! name) {
@@ -1602,11 +1614,11 @@ extern void delete_loal(LoAL* loal, gboolean avpls_too, gboolean avps_too) {
  * load_loal_error:
  * Used by loal_from_file to handle errors while loading.
  **/
-LoAL* load_loal_error(FILE* fp, LoAL* loal, AVPL* curr, int linenum, guint8* fmt, ...) {
+LoAL* load_loal_error(FILE* fp, LoAL* loal, AVPL* curr, int linenum, gchar* fmt, ...) {
 	va_list list;
-	guint8* desc;
+	gchar* desc;
 	LoAL* ret = NULL;
-	guint8* err;
+	gchar* err;
 	
 	va_start( list, fmt );
 	desc = g_strdup_vprintf(fmt, list);
@@ -1652,15 +1664,15 @@ case '7': case '8': case '9': case '.'
  * Return value: if successful a pointer to the new populated loal, else NULL.
  *
  **/
-extern LoAL* loal_from_file(guint8* filename) {
+extern LoAL* loal_from_file(gchar* filename) {
 	FILE *fp = NULL;
-	guint8 c;
+	gchar c;
 	int i = 0;
 	guint32 linenum = 1;
-	guint8 linenum_buf[MAX_ITEM_LEN];
-	guint8 name[MAX_ITEM_LEN];
-	guint8 value[MAX_ITEM_LEN];
-	guint8 op = '?';
+	gchar linenum_buf[MAX_ITEM_LEN];
+	gchar name[MAX_ITEM_LEN];
+	gchar value[MAX_ITEM_LEN];
+	gchar op = '?';
 	LoAL *loal = new_loal(filename);
 	AVPL* curr = NULL;
 	AVP* avp;
@@ -1682,7 +1694,7 @@ extern LoAL* loal_from_file(guint8* filename) {
 	state = START;
 
 	if (( fp = fopen(filename,"r") )) {
-		while(( c = (guint8) fgetc(fp) )){
+		while(( c = (gchar) fgetc(fp) )){
 
 			if ( feof(fp) ) {
 				if ( ferror(fp) ) {

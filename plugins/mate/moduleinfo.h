@@ -12,5 +12,5 @@
 #endif
 
 /* Version number of package */
-#define VERSION "0.0.4"
+#define VERSION "1.0.0a"
 

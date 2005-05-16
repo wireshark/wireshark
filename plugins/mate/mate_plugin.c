@@ -24,7 +24,7 @@
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-/* this file is used temporarily to buid it as a plugin */
+/* this file is used temporarily to buid MATE as a plugin */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -40,6 +40,8 @@
 /* these two are in packet-mate.c */
 void proto_register_mate(void);
 void proto_reg_handoff_mate(void);
+
+
 static gboolean initialized = FALSE;
 
 #ifndef ENABLE_STATIC
@@ -47,8 +49,9 @@ G_MODULE_EXPORT const gchar version[] = VERSION;
 
 G_MODULE_EXPORT void plugin_register(void) {
 	
-	/* register the new protocol, protocol fields, and subtrees */
-	if (! initialized ) { /* execute protocol initialization only once */
+	g_message("---");
+
+	if (! initialized ) {
 		proto_register_mate();
 		initialized = 1;
 	}

@@ -27,7 +27,8 @@ INCLUDES = -I$(top_srcdir)
 plugindir = @plugindir@
 
 plugin_LTLIBRARIES = mate.la
-mate_la_SOURCES = moduleinfo.h mate.h  mate_util.h packet-mate.c mate_runtime.c mate_setup.c mate_util.c mate_plugin.c
+mate_la_SOURCES = moduleinfo.h mate.h  mate_util.h mate_grammar.h \
+                  packet-mate.c mate_runtime.c mate_setup.c mate_util.c mate_plugin.c mate_grammar.c mate_parser.c
 mate_la_LDFLAGS = -module -avoid-version
 mate_la_LIBADD = @PLUGIN_LIBS@
 
@@ -41,4 +42,17 @@ CLEANFILES = \
 	*~
 
 EXTRA_DIST = \
+	mate_grammar.lemon \
+	mate_parser.l \
 	Makefile.nmake
+
+mate_parser.c : mate_parser.l
+	$(LEX) -Pdf_ -omate_parser.c $(srcdir)/mate_parser.l
+
+LEMON = ../../tools/lemon
+
+mate_grammar.h : mate_grammar.c
+mate_grammar.c : mate_grammar.lemon mate.h mate_util.h
+	$(LEMON)/lemon t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/mate_grammar.lemon || \
+		(rm -f grammar.c grammar.h ; false)
+

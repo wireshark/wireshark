@@ -26,30 +26,12 @@
 
 #include "mate.h"
 
-static int* dbg;
-
-static int dbg_cfg_lvl = 0;
-static int* dbg_cfg = &dbg_cfg_lvl;
-
-FILE* dbg_facility;
-
-typedef gboolean config_action(AVPL* avpl);
-
 /* the current mate_config */
 static mate_config* matecfg = NULL;
 
-/* key: the name of the action
-value: a pointer to an config_action */
-static GHashTable* actions = NULL;
-
-/* aestetics: I like keywords separated from user attributes */
-static AVPL* all_keywords = NULL;
-
-/* configuration error */
-GString* config_error;
-
-static void report_error(guint8* fmt, ...) {
-	static guint8 error_buffer[DEBUG_BUFFER_SIZE];
+/* appends the formatted string to the current error log */
+static void report_error(gchar* fmt, ...) {
+	static gchar error_buffer[DEBUG_BUFFER_SIZE];
 
 	va_list list;
 	
@@ -57,282 +39,119 @@ static void report_error(guint8* fmt, ...) {
 	g_vsnprintf(error_buffer,DEBUG_BUFFER_SIZE,fmt,list);
 	va_end( list );
 	
-	g_string_append(config_error,error_buffer);
-	g_string_append_c(config_error,'\n');
+	g_string_append(matecfg->config_error,error_buffer);
+	g_string_append_c(matecfg->config_error,'\n');
 	
 }
 
-/* use as:  setting = extract_named_xxx(avpl,keyword,default_value); */
-static int extract_named_int(AVPL* avpl, guint8* keyword, int value) {
-	AVP* avp = NULL;
+/* creates a blank pdu config
+     is going to be called only by the grammar
+	 which will set all those elements that aren't set here */
+extern mate_cfg_pdu* new_pducfg(gchar* name) {
+	mate_cfg_pdu* cfg = g_malloc(sizeof(mate_cfg_pdu));
 
-	if(( avp = extract_avp_by_name(avpl,keyword) )) {
-		value = strtol(avp->v,NULL,10);
-	}
+	cfg->name = g_strdup(name);
+	cfg->last_id = 0;
 
-	return value;
-}
+	cfg->items = g_hash_table_new(g_direct_hash,g_direct_equal);
+	cfg->transforms = NULL;
 
-static float extract_named_float(AVPL* avpl, guint8* keyword, float value) {
-	AVP* avp = NULL;
-
-	if(( avp = extract_avp_by_name(avpl,keyword) )) {
-		value = (float) strtod(avp->v,NULL);
-	}
-
-	return value;
-}
-
-static gboolean extract_named_bool(AVPL* avpl, guint8* keyword, gboolean value) {
-	AVP* avp = NULL;
-	if(( avp = extract_avp_by_name(avpl,keyword) )) {
-		value = ((g_strcasecmp(avp->v,"TRUE") == 0) ? TRUE : FALSE);
-	}
-
-	return value;
-}
-
-static guint8* extract_named_str(AVPL* avpl, guint8* keyword, guint8* value) {
-	AVP* avp = NULL;
-
-	if(( avp = extract_avp_by_name(avpl,keyword) )) {
-		value = avp->v;
-	}
-
-	return value;
-}
-
-/* lookups for the string value of the given named attribute from a given hash  */
-static gpointer lookup_using_index_avp(AVPL* avpl, guint8* keyword, GHashTable* table, guint8** avp_value) {
-	AVP* avp = extract_avp_by_name(avpl,keyword);
-
-	if (avp) {
-		*avp_value = avp->v;
-		return g_hash_table_lookup(table,avp->v);
-	} else {
-		*avp_value = NULL;
-		return NULL;
-	}
-}
-
-
-/* creates and initializes a mate_cfg_item */
-static mate_cfg_item* new_mate_cfg_item(guint8* name) {
-	mate_cfg_pdu* new = g_malloc(sizeof(mate_cfg_item));
-
-	new->name = g_strdup(name);
-	new->type = MATE_UNK_TYPE;
-	new->transforms = g_ptr_array_new();
-	new->extra = new_avpl(name);
-	new->last_id = 0;
-	new->hfid = -1;
-	new->my_hfids = g_hash_table_new(g_str_hash,g_str_equal);
-	new->items = g_hash_table_new(g_direct_hash,g_direct_equal);
-	new->ett = -1;
-	new->ett_attr = -1;
-	new->ett_times = -1;
-	new->ett_children = -1;
+	cfg->hfid = -1;
 	
-	new->discard_pdu_attributes = matecfg->discard_pdu_attributes;
-	new->last_to_be_created = matecfg->last_to_be_created;
-	new->hfid_proto = -1;
-	new->transport_ranges = NULL;
-	new->payload_ranges = NULL;
-	new->hfids_attr = NULL;
-	new->drop_pdu = matecfg->drop_pdu;
-	new->criterium_match_mode = AVPL_NO_MATCH;
-	new->criterium = NULL;
-	new->hfid_pdu_rel_time = -1;
-	new->hfid_pdu_time_in_gop = -1;
+	cfg->hfid_pdu_rel_time = -1;
+	cfg->hfid_pdu_time_in_gop = -1;
+	
+	cfg->my_hfids = g_hash_table_new(g_str_hash,g_str_equal);
 
-	new->expiration = -1.0;
-	new->hfid_start_time = -1;
-	new->hfid_stop_time = -1;
-	new->hfid_last_time = -1;
-	
-	new->start = NULL;
-	new->stop = NULL;
-	new->key = NULL;
-	new->show_pdu_tree = matecfg->show_pdu_tree;
-	new->show_times = matecfg->show_times;
-	new->drop_gop = matecfg->drop_gop;
-	new->idle_timeout = -1.0;
-	new->lifetime = -1.0;
-	new->hfid_gop_pdu = -1;
-	new->hfid_gop_num_pdus = -1;
-	new->ett_gog_gop = -1;
-	new->hfid_gog_gopstart = -1;
-	
-	new->gop_index = NULL;
-	new->gog_index = NULL;
+	cfg->ett = -1;
+	cfg->ett_attr = -1;	
 
-	new->gop_as_subtree = NULL;
-	new->keys = NULL;
-	new->hfid_gog_num_of_gops = -1;
-	new->hfid_gog_gop = -1;
+	cfg->criterium = NULL;
+	cfg->criterium_match_mode = AVPL_NO_MATCH;
+	cfg->criterium_accept_mode = ACCEPT_MODE;
 	
-	return new;
+	g_ptr_array_add(matecfg->pducfglist,(gpointer) cfg);
+	g_hash_table_insert(matecfg->pducfgs,(gpointer) cfg->name,(gpointer) cfg);
+
+	cfg->hfids_attr = g_hash_table_new(g_int_hash,g_int_equal);
+
+	return cfg;
 }
 
-/* for cleaning hashes */
-static gboolean free_both(gpointer k, gpointer v, gpointer p) {
-	g_free(k);
-	if (p) g_free(v);
-	return TRUE;
-}
-
-static void delete_mate_cfg_item(mate_cfg_item* cfg, gboolean avp_items_too) {
-
-	g_free(cfg->name);
-
-	if (avp_items_too) {
-		if (cfg->extra) delete_avpl(cfg->extra,TRUE);
-		if (cfg->start) delete_avpl(cfg->start,TRUE);
-		if (cfg->stop)  delete_avpl(cfg->stop,TRUE);
-		if (cfg->key)  delete_avpl(cfg->key,TRUE);
-		if (cfg->criterium)  delete_avpl(cfg->criterium,TRUE);
-		if (cfg->keys) delete_loal(cfg->keys,TRUE,TRUE);
-	}
-
-	if (cfg->transforms) g_ptr_array_free(cfg->transforms,TRUE);
-
-	if (cfg->transport_ranges)
-		g_ptr_array_free(cfg->transport_ranges,TRUE);
+extern mate_cfg_gop* new_gopcfg(gchar* name) {
+	mate_cfg_gop* cfg = g_malloc(sizeof(mate_cfg_gop));
 	
-	if (cfg->payload_ranges)
-		g_ptr_array_free(cfg->payload_ranges,TRUE);
-
-	if (cfg->hfids_attr)
-		g_hash_table_foreach_remove(cfg->hfids_attr,free_both, VALUE_TOO );
-
-}
-
-static mate_cfg_pdu* new_pducfg(guint8* name) {
-	mate_cfg_pdu* new = new_mate_cfg_item(name);
-
-	new->type = MATE_PDU_TYPE;
-	new->transport_ranges = g_ptr_array_new();
+	cfg->name = g_strdup(name);
+	cfg->last_id = 0;
 	
-	new->hfids_attr = g_hash_table_new(g_int_hash,g_int_equal);
-
-	g_ptr_array_add(matecfg->pducfglist,(gpointer) new);
-
-	g_hash_table_insert(matecfg->pducfgs,(gpointer) new->name,(gpointer) new);
-
-	return new;
-}
-
-static mate_cfg_gop* new_gopcfg(guint8* name) {
-	mate_cfg_gop* new = new_mate_cfg_item(name);
+	cfg->items = g_hash_table_new(g_direct_hash,g_direct_equal);
+	cfg->transforms = NULL;
 	
-	new->type = MATE_GOP_TYPE;
-	new->expiration = matecfg->gop_expiration;
-	new->idle_timeout = matecfg->gop_idle_timeout;
-	new->lifetime = matecfg->gop_lifetime;
-	new->show_pdu_tree = matecfg->show_pdu_tree;
-	new->show_times = matecfg->show_times;
-	new->drop_gop = matecfg->drop_gop;
+	cfg->extra = new_avpl("extra");
 	
-	g_hash_table_insert(matecfg->gopcfgs,(gpointer) new->name, (gpointer) new);
-
-	new->gop_index = g_hash_table_new(g_str_hash,g_str_equal);
-	new->gog_index = g_hash_table_new(g_str_hash,g_str_equal);
+	cfg->hfid = -1;
 	
-	return new;
+	cfg->ett = -1;
+	cfg->ett_attr = -1;
+	cfg->ett_times = -1;
+	cfg->ett_children = -1;
+
+	cfg->hfid_start_time = -1;
+	cfg->hfid_stop_time = -1;
+	cfg->hfid_last_time = -1;
+
+	cfg->hfid_gop_pdu = -1;
+	cfg->hfid_gop_num_pdus = -1;
+
+	cfg->my_hfids = g_hash_table_new(g_str_hash,g_str_equal);
+
+	cfg->gop_index = g_hash_table_new(g_str_hash,g_str_equal);
+	cfg->gog_index = g_hash_table_new(g_str_hash,g_str_equal);
+
+	g_hash_table_insert(matecfg->gopcfgs,(gpointer) cfg->name, (gpointer) cfg);
+
+	return cfg;
 }
 
-static mate_cfg_gog* new_gogcfg(guint8* name) {
-	mate_cfg_gog* new = new_mate_cfg_item(name);
-	new->type = MATE_GOG_TYPE;
-
-	new->keys = new_loal(name);
-	new->expiration = matecfg->gog_expiration;
+extern mate_cfg_gog* new_gogcfg(gchar* name) {
+	mate_cfg_gog* cfg = g_malloc(sizeof(mate_cfg_gop));
 	
-	g_hash_table_insert(matecfg->gogcfgs,new->name,new);
-
-	return new;
-}
-
-static gboolean free_cfgs(gpointer k _U_, gpointer v, gpointer p) {
-	delete_mate_cfg_item((mate_cfg_item*)v,(gboolean) p);
-	return TRUE;
-}
-
-extern void destroy_mate_config(mate_config* mc , gboolean avplib_too) {
-	if (mc->dbg_facility) fclose(mc->dbg_facility);
-	if (mc->mate_lib_path) g_free(mc->mate_lib_path);
-	if (mc->mate_config_file) g_free(mc->mate_config_file);
-	if (mc->mate_attrs_filter) g_string_free(mc->mate_attrs_filter,TRUE);
-	if (mc->mate_protos_filter) g_string_free(mc->mate_protos_filter,TRUE);
-	if (mc->pducfglist) g_ptr_array_free(mc->pducfglist,FALSE);
-
-	if (mc->gogs_by_gopname) {
-		g_hash_table_destroy(mc->gogs_by_gopname);
-	}
-
-	if (mc->pducfgs) {
-		g_hash_table_foreach_remove(mc->pducfgs,free_cfgs,(gpointer) avplib_too);
-		g_hash_table_destroy(mc->pducfgs);
-	}
-
-	if (mc->gopcfgs) {
-		g_hash_table_foreach_remove(mc->gopcfgs,free_cfgs,(gpointer) avplib_too);
-		g_hash_table_destroy(mc->gopcfgs);
-	}
-
-	if (mc->gogcfgs) {
-		g_hash_table_foreach_remove(mc->gogcfgs,free_cfgs,(gpointer) avplib_too);
-		g_hash_table_destroy(mc->gogcfgs);
-	}
-
-	if (mc->tap_filter)	g_free(mc->tap_filter);
-
-	if (mc->hfrs) g_array_free(mc->hfrs,TRUE);
-	g_free(mc);
-
-}
-
-static gboolean mate_load_config(guint8* filename) {
-	LoAL* loal = loal_from_file(filename);
-	AVPL* avpl;
-	config_action* action;
-	guint8* name;
+	cfg->name = g_strdup(name);
+	cfg->last_id = 0;
 	
-	/* FIXME: we are leaking the config avpls to avoid unsubscribed strings left arround */ 
+	cfg->items = g_hash_table_new(g_direct_hash,g_direct_equal);
+	cfg->transforms = NULL;
+	
+	cfg->extra = new_avpl("extra");
+	
+	cfg->my_hfids = g_hash_table_new(g_str_hash,g_str_equal);
+	cfg->hfid = -1;
+	
+	cfg->ett = -1;
+	cfg->ett_attr = -1;
+	cfg->ett_times = -1;
+	cfg->ett_children = -1;
+	cfg->ett_gog_gop = -1;
+	
+	cfg->hfid_gog_num_of_gops = -1;
+	cfg->hfid_gog_gop = -1;
+	cfg->hfid_gog_gopstart = -1;
+	
+	cfg->hfid_start_time = -1;
+	cfg->hfid_stop_time = -1;
+	cfg->hfid_last_time = -1;
+	
+	g_hash_table_insert(matecfg->gogcfgs,(gpointer) cfg->name, (gpointer) cfg);
 
-	if (loal->len) {
-		while(( avpl = extract_first_avpl(loal) )) {
-			dbg_print (dbg_cfg,3,dbg_facility,"mate_make_config: current line: %s",avpl->name);
-			
-			action = lookup_using_index_avp(avpl, KEYWORD_ACTION, actions,&name);
-			
-			if (action) {
-				if ( ! action(avpl) ) {
-					report_error("MATE: Error on: %s",avpl->name);
-					return FALSE;
-				}
-			} else {
-				report_error("MATE: action '%s' unknown in: %s",name,avpl->name);
-				return FALSE;
-			}
-		}
-		
-		return TRUE;
-	} else {
-		report_error("MATE: error reading config file: %s",loal->name);
-		return FALSE;
-	}
+	return cfg;
 }
 
-static gboolean add_hfid(guint8* what, guint8* how, GHashTable* where) {
-	header_field_info*  hfi = NULL;
+extern gboolean add_hfid(header_field_info*  hfi, gchar* how, GHashTable* where) {
 	header_field_info*  first_hfi = NULL;
 	gboolean exists = FALSE;
-	guint8* as;
-	guint8* h;
+	gchar* as;
+	gchar* h;
 	int* ip;
-
-	hfi = proto_registrar_get_byname(what);
 
 	while(hfi) {
 		first_hfi = hfi;
@@ -351,15 +170,12 @@ static gboolean add_hfid(guint8* what, guint8* how, GHashTable* where) {
 			g_free(ip);
 			if (! g_str_equal(as,how)) {
 				report_error("MATE Error: add field to Pdu: attempt to add %s(%i) as %s"
-						  " failed: field already added as '%s'",what,hfi->id,how,as);
+						  " failed: field already added as '%s'",hfi->abbrev,hfi->id,how,as);
 				return FALSE;
 			}
 		} else {
 			h = g_strdup(how);
 			g_hash_table_insert(where,ip,h);
-
-
-			dbg_print (dbg,5,dbg_facility,"add_hfid: added hfid %s(%i) as %s",what,*ip,how);
 		}
 
 		hfi = hfi->same_name_next;
@@ -367,13 +183,12 @@ static gboolean add_hfid(guint8* what, guint8* how, GHashTable* where) {
 	}
 
 	if (! exists) {
-		report_error("MATE Error: cannot find field %s",what);
-	}
-
+		report_error("MATE Error: cannot find field %s",hfi->abbrev);
+	}	
 	return exists;
 }
 
-static guint8* add_ranges(guint8* range,GPtrArray* range_ptr_arr) {
+extern gchar* add_ranges(gchar* range,GPtrArray* range_ptr_arr) {
 	gchar**  ranges;
 	guint i;
 	header_field_info* hfi;
@@ -388,7 +203,7 @@ static guint8* add_ranges(guint8* range,GPtrArray* range_ptr_arr) {
 				hfidp = g_malloc(sizeof(int));
 				*hfidp = hfi->id;
 				g_ptr_array_add(range_ptr_arr,(gpointer)hfidp);
-				g_string_sprintfa(matecfg->mate_attrs_filter, "||%s",ranges[i]);
+				g_string_sprintfa(matecfg->fields_filter, "||%s",ranges[i]);
 			} else {
 				g_strfreev(ranges);
 				return g_strdup_printf("no such proto: '%s'",ranges[i]);;
@@ -402,581 +217,9 @@ static guint8* add_ranges(guint8* range,GPtrArray* range_ptr_arr) {
 }
 
 
-static gboolean config_pdu(AVPL* avpl) {
-	guint8* name = NULL;
-	guint8* transport = extract_named_str(avpl,KEYWORD_TRANSPORT,NULL);
-	guint8* payload = extract_named_str(avpl,KEYWORD_PAYLOAD,NULL);
-	guint8* proto = extract_named_str(avpl,KEYWORD_PROTO,"no_protocol");
-	mate_cfg_pdu* cfg = lookup_using_index_avp(avpl,KEYWORD_NAME,matecfg->pducfgs,&name);
-	header_field_info* hfi;
-	guint8* range_err;
-	AVP* attr_avp;
-
-	if (! name ) {
-		report_error("MATE: PduDef: No Name in: %s",avpl->name);
-		return FALSE;		
-	}
-	
-	if (! cfg) {
-		cfg = new_pducfg(name);
-	} else {
-		report_error("MATE: PduDef: No such PDU: '%s' in: %s",cfg->name,avpl->name);
-		return FALSE;
-	}
-
-	cfg->last_to_be_created = extract_named_bool(avpl,KEYWORD_STOP,matecfg->last_to_be_created);
-	cfg->discard_pdu_attributes = extract_named_bool(avpl,KEYWORD_DISCARDPDU,matecfg->discard_pdu_attributes);
-	cfg->drop_pdu = extract_named_bool(avpl,KEYWORD_DROPPDU,matecfg->drop_pdu);
-
-	hfi = proto_registrar_get_byname(proto);
-
-	if (hfi) {
-		cfg->hfid_proto = hfi->id;
-	} else {
-		report_error("MATE: PduDef: no such proto: '%s' in: %s",proto,avpl->name);
-		return FALSE;
-	}
-
-	g_string_sprintfa(matecfg->mate_protos_filter,"||%s",proto);
-
-	if ( transport ) {
-		if (( range_err = add_ranges(transport,cfg->transport_ranges) )) {
-			report_error("MATE: PduDef: %s in Transport for '%s' in: %s",range_err, cfg->name,avpl->name);
-			g_free(range_err);
-			return FALSE;			
-		}
-	} else {
-		report_error("MATE: PduDef: no Transport for '%s' in: %s",cfg->name,avpl->name);
-		return FALSE;
-	}
-
-	if ( payload ) {
-		cfg->payload_ranges = g_ptr_array_new();
-		if (( range_err = add_ranges(payload,cfg->payload_ranges) )) {
-			report_error("MATE: PduDef: %s in Payload for '%s' in: %s",range_err, cfg->name,avpl->name);
-			g_free(range_err);
-			return FALSE;			
-		}
-	}
-	
-	while (( attr_avp = extract_first_avp(avpl) )) {
-		if ( ! add_hfid(attr_avp->v,attr_avp->n,cfg->hfids_attr) ) {
-			report_error("MATE: PduDef: failed to set PDU attribute '%s' in: %s",attr_avp->n,avpl->name);
-			return FALSE;
-		}
-		g_string_sprintfa(matecfg->mate_attrs_filter, "||%s",attr_avp->v);
-	}
-
-	return TRUE;
-}
-
-static gboolean config_pduextra(AVPL* avpl) {
-	guint8* name;
-	AVP* attr_avp;
-	mate_cfg_pdu* cfg = lookup_using_index_avp(avpl,KEYWORD_FOR,matecfg->pducfgs,&name);
-
-	if (! name ) {
-		report_error("MATE: PduExtra: No For in: %s",avpl->name);
-		return FALSE;		
-	}
-
-	if (! cfg) {
-		report_error("MATE: PduExtra: no such Pdu '%s' in: %s",name,avpl->name);
-		return FALSE;
-	}
-
-	cfg->last_to_be_created = extract_named_bool(avpl,KEYWORD_STOP,cfg->last_to_be_created);
-	cfg->discard_pdu_attributes = extract_named_bool(avpl,KEYWORD_DISCARDPDU,cfg->discard_pdu_attributes);
-	cfg->drop_pdu = extract_named_bool(avpl,KEYWORD_DROPPDU,cfg->drop_pdu);
-
-	while (( attr_avp = extract_first_avp(avpl) )) {
-		if ( ! add_hfid(attr_avp->v,attr_avp->n,cfg->hfids_attr) ) {
-			report_error("MATE: PduExtra: failed to set attr '%s' in: %s",attr_avp->n,avpl->name);
-			delete_avp(attr_avp);
-			return FALSE;
-		}
-		g_string_sprintfa(matecfg->mate_attrs_filter, "||%s",attr_avp->v);
-	}
-
-	delete_avpl(avpl,TRUE);
-	return TRUE;
-
-}
-
-
-static gboolean config_pducriteria(AVPL* avpl) {
-	guint8* name;
-	mate_cfg_gop* cfg = lookup_using_index_avp(avpl, KEYWORD_FOR,matecfg->pducfgs,&name);
-	guint8* match = extract_named_str(avpl, KEYWORD_MATCH, NULL);
-	avpl_match_mode match_mode = AVPL_STRICT;
-	guint8* mode = extract_named_str(avpl, KEYWORD_MODE, NULL);
-
-	if (! name ) {
-		report_error("MATE: PduCriteria: No For in: %s",avpl->name);
-		return FALSE;		
-	}
-	
-	if (!cfg) {
-		report_error("MATE: PduCriteria: Pdu '%s' does not exist in: %s",name,avpl->name);
-		return FALSE;
-	}
-
-	if ( mode ) {
-		if ( g_strcasecmp(mode,KEYWORD_ACCEPT) == 0 ) {
-			mode = matecfg->accept;
-		} else if ( g_strcasecmp(mode,KEYWORD_REJECT) == 0 ) {
-			mode = matecfg->reject;
-		} else {
-			report_error("MATE: PduCriteria: no such criteria mode: '%s' in %s",mode,avpl->name);
-			return FALSE;
-		}
-	} else {
-		mode = matecfg->accept;
-	}
-
-	rename_avpl(avpl,mode);
-
-	if ( match ) {
-		if ( g_strcasecmp(match,KEYWORD_LOOSE) == 0 ) {
-			match_mode = AVPL_LOOSE;
-		} else if ( g_strcasecmp(match,KEYWORD_EVERY) == 0 ) {
-			match_mode = AVPL_EVERY;
-		} else if ( g_strcasecmp(match,KEYWORD_STRICT) == 0 ) {
-			match_mode = AVPL_STRICT;
-		} else {
-			report_error("MATE: PduCriteria: Config error: no such match mode '%s' in: %s",match,avpl->name);
-			return FALSE;
-		}
-	}
-
-	cfg->criterium_match_mode = match_mode;
-
-	if (cfg->criterium) {
-		/* FEATURE: more criteria */
-		report_error("MATE: PduCriteria: PduCriteria alredy exists for '%s' in: %s",name,avpl->name);
-		return FALSE;
-	}
-
-
-	cfg->criterium = avpl;
-
-	return TRUE;
-}
-
-
-static gboolean config_include(AVPL* avpl) {
-	guint8* filename = extract_named_str(avpl,KEYWORD_FILENAME,NULL);
-	guint8* lib = extract_named_str(avpl,KEYWORD_LIB,NULL);
-
-	if ( ! filename && ! lib ) {
-		report_error("MATE: Include: no Filename or Lib given in: %s",avpl->name);
-		return FALSE;
-	}
-
-	if ( filename && lib ) {
-		report_error("MATE: Include: use either Filename or Lib, not both. in: %s",avpl->name);
-		return FALSE;
-	}
-
-	if (lib) {
-		filename = g_strdup_printf("%s%s.mate",matecfg->mate_lib_path,lib);
-	}
-
-	/* FIXME: stop recursion */
-	if ( ! mate_load_config(filename) ) {
-		report_error("MATE: Include: Error Loading '%s' in: %s",filename,avpl->name);
-		if (lib) g_free(filename);
-		return FALSE;
-	}
-
-	if (lib) g_free(filename);
-
-	return TRUE;
-}
-
-
-static gboolean config_settings(AVPL*avpl) {
-	AVP* avp;
-
-#ifdef _AVP_DEBUGGING
-	int debug_avp = 0;
-	int dbg_avp = 0;
-	int dbg_avp_op = 0;
-	int dbg_avpl = 0;
-	int dbg_avpl_op = 0;
-#endif
-
-
-	matecfg->gog_expiration = extract_named_float(avpl, KEYWORD_GOGEXPIRE,matecfg->gog_expiration);
-	matecfg->gop_expiration = extract_named_float(avpl, KEYWORD_GOPEXPIRATION,matecfg->gop_expiration);
-	matecfg->gop_idle_timeout = extract_named_float(avpl, KEYWORD_GOPIDLETIMEOUT,matecfg->gop_idle_timeout);
-	matecfg->gop_lifetime = extract_named_float(avpl, KEYWORD_GOPLIFETIME,matecfg->gop_lifetime);
-	matecfg->discard_pdu_attributes = extract_named_bool(avpl, KEYWORD_DISCARDPDU,matecfg->discard_pdu_attributes);
-	matecfg->drop_pdu = extract_named_bool(avpl, KEYWORD_DROPPDU,matecfg->drop_pdu);
-	matecfg->drop_gop = extract_named_bool(avpl, KEYWORD_DROPGOP,matecfg->drop_gop);
-	matecfg->show_pdu_tree = extract_named_str(avpl, KEYWORD_SHOWPDUTREE,matecfg->show_pdu_tree);
-	matecfg->show_times = extract_named_bool(avpl, KEYWORD_SHOWGOPTIMES,matecfg->show_times);
-
-	if(( avp = extract_avp_by_name(avpl,KEYWORD_DEBUGFILENAME) )) {
-		matecfg->dbg_facility = dbg_facility = fopen(avp->v,"w");
-		delete_avp(avp);
-		avp = NULL;
-	}
-
-	matecfg->dbg_lvl = extract_named_int(avpl, KEYWORD_DBG_GENERAL,0);
-	matecfg->dbg_cfg_lvl = extract_named_int(avpl, KEYWORD_DBG_CFG,0);
-	matecfg->dbg_pdu_lvl = extract_named_int(avpl, KEYWORD_DBG_PDU,0);
-	matecfg->dbg_gop_lvl = extract_named_int(avpl, KEYWORD_DBG_GOP,0);
-	matecfg->dbg_gog_lvl = extract_named_int(avpl, KEYWORD_DBG_GOG,0);
-
-#ifdef _AVP_DEBUGGING
-	 setup_avp_debug(dbg_facility,
-					 extract_named_int(avpl, KEYWORD_DBG_AVPLIB,0),
-					 extract_named_int(avpl, KEYWORD_DBG_AVP,0),
-					 extract_named_int(avpl, KEYWORD_DBG_AVP_OP,0),
-					 extract_named_int(avpl, KEYWORD_DBG_AVPL,0),
-					 extract_named_int(avpl, KEYWORD_DBG_AVPL_OP,0));
-#endif
-
-	dbg_cfg_lvl = matecfg->dbg_cfg_lvl;
-
-	return TRUE;
-}
-
-static gboolean config_transform(AVPL* avpl) {
-	guint8* name = extract_named_str(avpl, KEYWORD_NAME, NULL);
-	guint8* match = extract_named_str(avpl, KEYWORD_MATCH, NULL);
-	guint8* mode = extract_named_str(avpl, KEYWORD_MODE, NULL);
-	avpl_match_mode match_mode;
-	avpl_replace_mode replace_mode;
-	AVPL_Transf* t;
-	AVPL_Transf* last;
-
-	if ( match ) {
-		if ( g_strcasecmp(match,KEYWORD_LOOSE) == 0 ) {
-			match_mode = AVPL_LOOSE;
-		} else if ( g_strcasecmp(match,KEYWORD_EVERY) == 0 ) {
-			match_mode = AVPL_EVERY;
-		} else if ( g_strcasecmp(match,KEYWORD_STRICT) == 0 ) {
-			match_mode = AVPL_STRICT;
-		} else {
-			report_error("MATE: Transform: no such match mode: '%s' in: %s",match,avpl->name);
-			return FALSE;
-		}
-	} else {
-		match_mode = matecfg->match_mode;
-	}
-
-	if ( mode ) {
-		if ( g_strcasecmp(mode,KEYWORD_INSERT) == 0 ) {
-			replace_mode = AVPL_INSERT;
-		} else if ( g_strcasecmp(mode,KEYWORD_REPLACE) == 0 ) {
-			replace_mode = AVPL_REPLACE;
-		} else {
-			report_error("MATE: Transform: no such replace mode: '%s' in: %s",mode,avpl->name);
-			return FALSE;
-		}
-
-	} else {
-		replace_mode = matecfg->replace_mode;
-	}
-
-	if (! name) {
-		report_error("MATE: Transform: no Name in: %s",avpl->name);
-		return FALSE;
-	}
-
-	t = new_avpl_transform(name,avpl, match_mode, replace_mode);
-
-	if (( last = g_hash_table_lookup(matecfg->transfs,name) )) {
-		while (last->next) last = last->next;
-		last->next = t;
-	} else {
-		g_hash_table_insert(matecfg->transfs,t->name,t);
-	}
-
-	return TRUE;
-}
-
-static gboolean config_xxx_transform(AVPL* avpl, GHashTable* hash, guint8* keyword) {
-	guint8* cfg_name;
-	guint8* name;
-	AVPL_Transf* transf = lookup_using_index_avp(avpl,KEYWORD_NAME,matecfg->transfs,&name);
-	mate_cfg_pdu* cfg = lookup_using_index_avp(avpl,KEYWORD_FOR,hash,&cfg_name);;
-	
-	if (! name ) {
-		report_error("MATE: %s: no Name in: %s",keyword,avpl->name);
-		return FALSE;
-	}
-
-	if (! cfg_name ) {
-		report_error("MATE: %s: no For in: %s",keyword,avpl->name);
-		return FALSE;
-	}
-
-	if (! cfg ) {
-		report_error("MATE: %s: '%s' doesn't exist in: %s",keyword,cfg_name,avpl->name);
-		return FALSE;
-	}
-
-	if (!transf) {
-		report_error("MATE: %s: Transform '%s' doesn't exist in: %s",keyword,name,avpl->name);
-		return FALSE;
-	}
-
-	g_ptr_array_add(cfg->transforms,transf);
-
-	return TRUE;
-}
-
-static gboolean config_pdu_transform(AVPL* avpl) {
-	return config_xxx_transform(avpl, matecfg->pducfgs, KEYWORD_PDUTRANSFORM);
-}
-
-static gboolean config_gop_transform(AVPL* avpl) {
-	return config_xxx_transform(avpl, matecfg->gopcfgs, KEYWORD_GOPTRANSFORM);
-}
-
-static gboolean config_gog_transform(AVPL* avpl) {
-	return config_xxx_transform(avpl, matecfg->gogcfgs, KEYWORD_GOPTRANSFORM);
-}
-
-static gboolean config_gop(AVPL* avpl) {
-	guint8* name = NULL;
-	mate_cfg_gop* cfg = lookup_using_index_avp(avpl, KEYWORD_NAME,matecfg->gopcfgs,&name);
-	guint8* on = extract_named_str(avpl,KEYWORD_ON,NULL);
-
-	if (! name ) {
-		report_error("MATE: GopDef: no Name in: %s",avpl->name);
-		return FALSE;
-	}
-	
-	if (!cfg) {
-		cfg = new_gopcfg(name);
-	} else {
-		report_error("MATE: GopDef: Gop '%s' exists already in: %s",name,avpl->name);
-		return FALSE;
-	}
-
-	if (! on ) {
-		report_error("MATE: GopDef: no On in: %s",avpl->name);
-		return FALSE;
-	}
-	
-	if (g_hash_table_lookup(matecfg->pducfgs,on) == NULL ) {
-		report_error("MATE: GopDef: Pdu '%s' does not exist in: %s",on,avpl->name);
-		return FALSE;		
-	}
-
-	if (g_hash_table_lookup(matecfg->gops_by_pduname,on) ) {
-		report_error("MATE: GopDef: Gop for Pdu '%s' exists already in: %s",on,avpl->name);
-		return FALSE;
-	} else {
-		g_hash_table_insert(matecfg->gops_by_pduname,on,cfg);
-	}
-
-	cfg->drop_gop = extract_named_bool(avpl, KEYWORD_DROPGOP,matecfg->drop_gop);
-	cfg->show_pdu_tree = extract_named_str(avpl, KEYWORD_SHOWPDUTREE, matecfg->show_pdu_tree);
-	cfg->show_times = extract_named_bool(avpl, KEYWORD_SHOWGOPTIMES,matecfg->show_times);
-	cfg->expiration = extract_named_float(avpl, KEYWORD_GOPEXPIRATION,matecfg->gop_expiration);
-	cfg->idle_timeout = extract_named_float(avpl, KEYWORD_GOPIDLETIMEOUT,matecfg->gop_idle_timeout);
-	cfg->lifetime = extract_named_float(avpl, KEYWORD_GOPLIFETIME,matecfg->gop_lifetime);
-	
-	cfg->key = avpl;
-
-	return TRUE;
-}
-
-static gboolean config_start(AVPL* avpl) {
-	guint8* name;
-	mate_cfg_gop* cfg = lookup_using_index_avp(avpl, KEYWORD_FOR,matecfg->gopcfgs,&name);;
-
-	if (! name ) {
-		report_error("MATE: GopStart: no For in: %s",avpl->name);
-		return FALSE;
-	}
-	
-	if (!cfg) {
-		report_error("MATE: GopStart: Gop '%s' doesn't exist in: %s",name,avpl->name);
-		return FALSE;
-	}
-
-	if (cfg->start) {
-		/* FEATURE: more start conditions */
-		report_error("MATE: GopStart: GopStart for '%s' exists already in: %s",name,avpl->name);
-		return FALSE;
-	}
-
-	cfg->start = avpl;
-
-	return TRUE;
-}
-
-static gboolean config_stop(AVPL* avpl) {
-	guint8* name;
-	mate_cfg_gop* cfg = lookup_using_index_avp(avpl, KEYWORD_FOR,matecfg->gopcfgs,&name);;
-	
-	if (! name ) {
-		report_error("MATE: GopStop: no For in: %s",avpl->name);
-		return FALSE;
-	}
-	
-	if (!cfg) {
-		report_error("MATE: GopStop: Gop '%s' doesn't exist in: %s",name,avpl->name);
-		return FALSE;
-	}
-
-	if (cfg->stop) {
-		report_error("MATE: GopStop: GopStop alredy exists for '%s' in: %s",name,avpl->name);
-		return FALSE;
-	}
-
-	cfg->stop = avpl;
-
-	return TRUE;
-}
-
-static gboolean config_gopextra(AVPL* avpl) {
-	guint8* name;
-	mate_cfg_gop* cfg = lookup_using_index_avp(avpl, KEYWORD_FOR,matecfg->gopcfgs,&name);;
-
-	if (! name ) {
-		report_error("MATE: GopExtra: no For in: %s",avpl->name);
-		return FALSE;
-	}
-	
-	if (!cfg) {
-		report_error("MATE: GopExtra: Gop '%s' does not exist in: %s",name,avpl->name);
-		return FALSE;
-	}
-
-	cfg->drop_gop = extract_named_bool(avpl, KEYWORD_DROPGOP,cfg->drop_gop);
-	cfg->show_pdu_tree = extract_named_str(avpl, KEYWORD_SHOWPDUTREE, cfg->show_pdu_tree);
-	cfg->show_times = extract_named_bool(avpl, KEYWORD_SHOWGOPTIMES,cfg->show_times);
-	cfg->expiration = extract_named_float(avpl, KEYWORD_GOPEXPIRATION,cfg->expiration);
-	cfg->idle_timeout = extract_named_float(avpl, KEYWORD_GOPIDLETIMEOUT,cfg->idle_timeout);
-	cfg->lifetime = extract_named_float(avpl, KEYWORD_GOPLIFETIME,cfg->lifetime);
-	
-	merge_avpl(cfg->extra,avpl,TRUE);
-
-	return TRUE;
-}
-
-static gboolean config_gog(AVPL* avpl) {
-	guint8* name = extract_named_str(avpl, KEYWORD_NAME,NULL);
-	mate_cfg_gog* cfg = NULL;
-
-	if (! name ) {
-		report_error("MATE: GogDef: no Name in: %s",avpl->name);
-		return FALSE;
-	}
-	
-	if ( g_hash_table_lookup(matecfg->gogcfgs,name) ) {
-		report_error("MATE: GogDef: Gog '%s' exists already in: %s",name,avpl->name);
-		return FALSE;
-	}
-
-	cfg = new_gogcfg(name);
-
-	cfg->expiration = extract_named_float(avpl, KEYWORD_GOGEXPIRE,matecfg->gog_expiration);
-	cfg->gop_as_subtree = extract_named_str(avpl, KEYWORD_GOPTREE,matecfg->gop_as_subtree);
-	
-	return TRUE;
-}
-
-static gboolean config_gogkey(AVPL* avpl) {
-	guint8* name;
-	mate_cfg_gog* cfg = lookup_using_index_avp(avpl, KEYWORD_FOR,matecfg->gogcfgs,&name);
-	AVPL* reverse_avpl;
-	LoAL* gogkeys;
-	guint8* on = extract_named_str(avpl,KEYWORD_ON,NULL);
-
-	if ( ! name || ! cfg ) {
-		if ( ! name )
-			report_error("MATE: GogKey: no For in %s",avpl->name);
-		else
-			report_error("MATE: GogKey: no such Gop '%s' in %s",name,avpl->name);
-
-		return FALSE;
-	}
-
-	if (! on ) {
-		report_error("MATE: GogKey: no On in %s",avpl->name);
-		return FALSE;
-	}
-
-	if (! g_hash_table_lookup(matecfg->gopcfgs,on) ) {
-		report_error("MATE: GogKey: no such Gop %s in On",on);
-		return FALSE;
-	}
-	
-	rename_avpl(avpl,name);
-
-	gogkeys = (LoAL*) g_hash_table_lookup(matecfg->gogs_by_gopname,on);
-
-	if (! gogkeys) {
-		gogkeys = new_loal("straight");
-		g_hash_table_insert(matecfg->gogs_by_gopname,g_strdup(on),gogkeys);
-	}
-
-	loal_append(gogkeys,avpl);
-
-	reverse_avpl = new_avpl_from_avpl(on,avpl,TRUE);
-
-	loal_append(cfg->keys,reverse_avpl);
-
-	return TRUE;
-}
-
-static gboolean config_gogextra(AVPL* avpl) {
-	guint8* name;
-	mate_cfg_gop* cfg = lookup_using_index_avp(avpl, KEYWORD_FOR,matecfg->gogcfgs,&name);
-
-	if ( ! name || ! cfg ) {
-		if ( ! name )
-			report_error("MATE: GogExtra: no Name in %s",avpl->name);
-		else
-			report_error("MATE: GogExtra: no such Gop '%s' in %s",name,avpl->name);
-
-		return FALSE;
-	}
-
-	cfg->expiration = extract_named_float(avpl, KEYWORD_GOGEXPIRE,cfg->expiration);
-	cfg->gop_as_subtree = extract_named_str(avpl, KEYWORD_GOPTREE,cfg->gop_as_subtree);
-
-	merge_avpl(cfg->extra,avpl,TRUE);
-
-	return TRUE;
-}
-
+#if 0
 #define true_false_str(v) ((v) ? "TRUE" : "FALSE")
 
-static void print_xxx_transforms(mate_cfg_item* cfg) {
-	guint8* tr_name;
-	guint8* cfg_name;
-	guint i;
-
-	switch (cfg->type) {
-		case MATE_PDU_TYPE:
-			cfg_name = "PduTransform";
-			break;
-		case MATE_GOP_TYPE:
-			cfg_name = "GopTransform";
-			break;
-		case MATE_GOG_TYPE:
-			cfg_name = "GogTransform";
-			break;
-		default:
-			cfg_name = "UnknownTransform";
-			break;
-	}
-
-	for (i=0; i < cfg->transforms->len; i++) {
-		tr_name = ((AVPL_Transf*) g_ptr_array_index(cfg->transforms,i))->name;
-		dbg_print (dbg_cfg,0,dbg_facility,"Action=%s; For=%s; Name=%s;",cfg_name,cfg->name,tr_name);
-	}
-
-}
 
 static void print_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	mate_cfg_gop* cfg = (mate_cfg_gop*) v;
@@ -1053,133 +296,6 @@ static void print_gop_config(gpointer k _U_ , gpointer v, gpointer p _U_) {
 
 }
 
-static guint8* my_protoname(int proto_id) {
-	if (proto_id) {
-		return proto_registrar_get_abbrev(proto_id);
-	} else {
-		return "*";
-	}
-}
-
-static void print_hfid_hash(gpointer k, gpointer v, gpointer p _U_) {
-	g_string_sprintfa((GString*)p," %s=%s;",(guint8*)v,my_protoname(*(int*)k));
-}
-
-
-static void print_transforms(gpointer k, gpointer v, gpointer p _U_) {
-	AVPL_Transf* t = NULL;
-	guint8* match;
-	guint8* mode;
-	guint8* match_s;
-	guint8* replace_s;
-
-	for (t = v; t; t = t->next) {
-		match_s =  avpl_to_str(t->match);
-		replace_s = avpl_to_dotstr(t->replace);
-
-		switch (t->match_mode) {
-			case AVPL_STRICT:
-				match = "Strict";
-				break;
-			case AVPL_LOOSE:
-				match = "Loose";
-				break;
-			case AVPL_EVERY:
-				match = "Every";
-				break;
-			default:
-				match = "None";
-				break;
-		}
-
-		switch (t->replace_mode) {
-			case AVPL_INSERT:
-				mode = "Insert";
-				break;
-			case AVPL_REPLACE:
-				mode = "Replace";
-				break;
-			default:
-				mode = "None";
-				break;
-		}
-
-		dbg_print (dbg,0,dbg_facility,"\tAction=Transform; Name=%s; Match=%s; Mode=%s; %s %s",(guint8*) k,match,mode,match_s,replace_s);
-
-		g_free(match_s);
-		g_free(replace_s);
-	}
-}
-
-static void print_pdu_config(mate_cfg_pdu* cfg) {
-	guint i;
-	int hfid;
-	guint8* discard;
-	guint8* stop;
-	guint8* criterium_match = NULL;
-	guint8* criterium;
-	GString* s = g_string_new("Action=PduDef; ");
-
-	discard = cfg->discard_pdu_attributes ? "TRUE": "FALSE";
-	stop = cfg->last_to_be_created ? "TRUE" : "FALSE";
-
-	g_string_sprintfa(s, "Name=%s; Proto=%s; DiscartAttribs=%s; Stop=%s;  Transport=",
-					  cfg->name,my_protoname(cfg->hfid_proto),discard,stop);
-
-	for (i = 0; i < cfg->transport_ranges->len; i++) {
-		hfid = *((int*) g_ptr_array_index(cfg->transport_ranges,i));
-		g_string_sprintfa(s,"%s/",my_protoname(hfid));
-	}
-
-	*(s->str + s->len - 1) = ';';
-
-	if (cfg->payload_ranges) {
-		g_string_sprintfa(s, " Payload=");
-		
-		for (i = 0; i < cfg->payload_ranges->len; i++) {
-			hfid = *((int*) g_ptr_array_index(cfg->payload_ranges,i));
-			g_string_sprintfa(s,"%s/",my_protoname(hfid));
-		}
-		
-		*(s->str + s->len - 1) = ';';
-
-	}
-	
-	g_hash_table_foreach(cfg->hfids_attr,print_hfid_hash,s);
-
-	dbg_print(dbg_cfg,0,dbg_facility,"%s",s->str);
-
-	if (cfg->criterium) {
-		switch(cfg->criterium_match_mode) {
-			case AVPL_NO_MATCH:
-				criterium_match = "None";
-				break;
-			case AVPL_STRICT:
-				criterium_match = "Strict";
-				break;
-			case AVPL_LOOSE:
-				criterium_match = "Loose";
-				break;
-			case AVPL_EVERY:
-				criterium_match = "Every";
-				break;
-		}
-
-		criterium = avpl_to_str(cfg->criterium);
-
-		dbg_print(dbg_cfg,0,dbg_facility,
-				  "Action=PduCriteria; For=%s; Match=%s; Mode=%s;  %s",
-				  cfg->name,criterium_match,cfg->criterium->name,criterium);
-
-		g_free(criterium);
-	}
-
-	print_xxx_transforms(cfg);
-
-	g_string_free(s,TRUE);
-}
-
-
 
 static void print_gogs_by_gopname(gpointer k, gpointer v, gpointer p _U_) {
 	void* cookie = NULL;
@@ -1227,9 +343,9 @@ static void print_config(void) {
 		g_hash_table_foreach(matecfg->gogs_by_gopname,print_gogs_by_gopname,NULL);
 	}
 }
+#endif
 
-
-static void new_attr_hfri(mate_cfg_item* cfg, guint8* name) {
+static void new_attr_hfri(gchar* item_name, GHashTable* hfids, gchar* name) {
 	int* p_id = g_malloc(sizeof(int));
 
 	hf_register_info hfri;
@@ -1237,35 +353,46 @@ static void new_attr_hfri(mate_cfg_item* cfg, guint8* name) {
 	memset(&hfri, 0, sizeof hfri);
 	hfri.p_id = p_id;
 	hfri.hfinfo.name = g_strdup_printf("%s",name);
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.%s",cfg->name,name);
+	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.%s",item_name,name);
 	hfri.hfinfo.type = FT_STRING;
 	hfri.hfinfo.display = BASE_NONE;
 	hfri.hfinfo.strings = NULL;
 	hfri.hfinfo.bitmask = 0;
-	hfri.hfinfo.blurb = g_strdup_printf("%s attribute of %s",name,cfg->name);
+	hfri.hfinfo.blurb = g_strdup_printf("%s attribute of %s",name,item_name);
 
 	*p_id = -1;
-	g_hash_table_insert(cfg->my_hfids,name,p_id);
+	g_hash_table_insert(hfids,name,p_id);
 	g_array_append_val(matecfg->hfrs,hfri);
 
 }
 
-static void analyze_pdu_hfids(gpointer k _U_, gpointer v, gpointer p) {
-	new_attr_hfri((mate_cfg_pdu*) p,(guint8*) v);
+static gchar* my_protoname(int proto_id) {
+	if (proto_id) {
+		return proto_registrar_get_abbrev(proto_id);
+	} else {
+		return "*";
+	}
 }
 
-static void analyze_transform_hfrs(mate_cfg_item* cfg) {
+static void analyze_pdu_hfids(gpointer k, gpointer v, gpointer p) {
+	mate_cfg_pdu* cfg = p;
+	new_attr_hfri(cfg->name,cfg->my_hfids,(gchar*) v);
+
+	g_string_sprintfa(matecfg->fields_filter,"||%s",my_protoname(*(int*)k));
+}
+
+static void analyze_transform_hfrs(gchar* name, GPtrArray* transforms, GHashTable* hfids) {
 	guint i;
 	void* cookie = NULL;
 	AVPL_Transf* t;
 	AVP* avp;
 
-	for (i=0; i < cfg->transforms->len;i++) {
-		for (t = g_ptr_array_index(cfg->transforms,i); t; t=t->next ) {
+	for (i=0; i < transforms->len;i++) {
+		for (t = g_ptr_array_index(transforms,i); t; t=t->next ) {
 			cookie = NULL;
 			while(( avp = get_next_avp(t->replace,&cookie) )) {
-				if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
-					new_attr_hfri(cfg,avp->n);
+				if (! g_hash_table_lookup(hfids,avp->n))  {
+					new_attr_hfri(name,hfids,avp->n);
 				}
 			}
 		}
@@ -1311,7 +438,7 @@ static void analyze_pdu_config(mate_cfg_pdu* cfg) {
 	ett = &cfg->ett_attr;
 	g_array_append_val(matecfg->ett,ett);
 
-	analyze_transform_hfrs(cfg);
+	analyze_transform_hfrs(cfg->name,cfg->transforms,cfg->my_hfids);
 }
 
 static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
@@ -1366,19 +493,19 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.Pdu",cfg->name);
 	hfri.hfinfo.blurb = g_strdup_printf("A PDU assigned to this %s",cfg->name);
 
-	if (cfg->show_pdu_tree == matecfg->frame_tree) {
+	if (cfg->pdu_tree_mode == GOP_FRAME_TREE) {
 		hfri.hfinfo.type = FT_FRAMENUM;
 		g_array_append_val(matecfg->hfrs,hfri);
-	} else 	if (cfg->show_pdu_tree == matecfg->pdu_tree) {
+	} else 	if (cfg->pdu_tree_mode == GOP_PDU_TREE) {
 		hfri.hfinfo.type = FT_UINT32;
 		g_array_append_val(matecfg->hfrs,hfri);
 	} else {
-		cfg->show_pdu_tree = matecfg->no_tree;
+		cfg->pdu_tree_mode = GOP_NO_TREE;
 	}
 
 	while(( avp = get_next_avp(cfg->key,&cookie) )) {
 		if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
-			new_attr_hfri(cfg,avp->n);
+			new_attr_hfri(cfg->name,cfg->my_hfids,avp->n);
 		}
 	}
 
@@ -1386,7 +513,7 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 		cookie = NULL;
 		while(( avp = get_next_avp(cfg->start,&cookie) )) {
 			if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
-				new_attr_hfri(cfg,avp->n);
+				new_attr_hfri(cfg->name,cfg->my_hfids,avp->n);
 			}
 		}
 	}
@@ -1395,7 +522,7 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 		cookie = NULL;
 		while(( avp = get_next_avp(cfg->stop,&cookie) )) {
 			if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
-				new_attr_hfri(cfg,avp->n);
+				new_attr_hfri(cfg->name,cfg->my_hfids,avp->n);
 			}
 		}
 	}
@@ -1403,11 +530,11 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	cookie = NULL;
 	while(( avp = get_next_avp(cfg->extra,&cookie) )) {
 		if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
-			new_attr_hfri(cfg,avp->n);
+			new_attr_hfri(cfg->name,cfg->my_hfids,avp->n);
 		}
 	}
 
-	analyze_transform_hfrs(cfg);
+	analyze_transform_hfrs(cfg->name,cfg->transforms,cfg->my_hfids);
 
 	ett = &cfg->ett;
 	g_array_append_val(matecfg->ett,ett);
@@ -1425,7 +552,7 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 
 
 static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
-	mate_cfg_gop* cfg = v;
+	mate_cfg_gog* cfg = v;
 	void* avp_cookie;
 	void* avpl_cookie;
 	AVP* avp;
@@ -1502,7 +629,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 		avp_cookie = NULL;
 		while (( avp = get_next_avp(avpl,&avp_cookie) )) {
 			if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
-				new_attr_hfri(cfg,avp->n);
+				new_attr_hfri(cfg->name,cfg->my_hfids,avp->n);
 				insert_avp(key_avps,avp);
 			}
 		}
@@ -1511,13 +638,13 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	avp_cookie = NULL;
 	while (( avp = get_next_avp(cfg->extra,&avp_cookie) )) {
 		if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
-			new_attr_hfri(cfg,avp->n);
+			new_attr_hfri(cfg->name,cfg->my_hfids,avp->n);
 		}
 	}
 	
 	merge_avpl(cfg->extra,key_avps,TRUE);
 	
-	analyze_transform_hfrs(cfg);
+	analyze_transform_hfrs(cfg->name,cfg->transforms,cfg->my_hfids);
 
 	ett = &cfg->ett;
 	g_array_append_val(matecfg->ett,ett);
@@ -1539,7 +666,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 static void analyze_config(void) {
 	guint i;
 
-	for (i=0; i<matecfg->pducfglist->len; i++) {
+	for (i=0; i < matecfg->pducfglist->len; i++) {
 		analyze_pdu_config((mate_cfg_pdu*) g_ptr_array_index(matecfg->pducfglist,i));
 	}
 
@@ -1548,204 +675,378 @@ static void analyze_config(void) {
 
 }
 
-static void new_action(guint8* name, config_action* action) {
-	g_hash_table_insert(actions,name,action);
-
-}
-
-static void init_actions(void) {
-	AVP* avp;
-
-	all_keywords = new_avpl("all_keywords");
-
-	insert_avp(all_keywords,new_avp(KEYWORD_ACTION,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_SETTINGS,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_INCLUDE,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_TRANSFORM,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_PDU,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_PDUCRITERIA,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_PDUEXTRA,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_PDUTRANSFORM,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_GOP,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_GOPSTART,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_GOPSTOP,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_GOPEXTRA,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_GOPTRANSFORM,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_GOGDEF,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_GOGKEY,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_GOGEXTRA,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_GOGTRANSFORM,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_NAME,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_ON,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_FOR,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_FROM,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_TO,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_MATCH,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_MODE,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_FILENAME,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_PROTO,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_METHOD,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_TRANSPORT,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_METHOD,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_STRICT,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_LOOSE,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_EVERY,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_REPLACE,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_INSERT,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_MAP,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_GOGEXPIRE,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_DISCARDPDU,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_LIBPATH,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_SHOWPDUTREE,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_SHOWGOPTIMES,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_STOP,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_DROPPDU,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_DROPGOP,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_LIB,"",'='));
-
-	insert_avp(all_keywords,new_avp(KEYWORD_DBG_GENERAL,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_DBG_CFG,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_DBG_PDU,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_DBG_GOP,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_DBG_GOG,"",'='));
-
-#ifdef _AVP_DEBUGGING
-	insert_avp(all_keywords,new_avp(KEYWORD_DBG_AVPLIB,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_DBG_AVP,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_DBG_AVP_OP,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_DBG_AVPL,"",'='));
-	insert_avp(all_keywords,new_avp(KEYWORD_DBG_AVPL_OP,"",'='));
-#endif
-
-	avp = new_avp(KEYWORD_ACCEPT,"",'=');
-	matecfg->accept = avp->n;
-	insert_avp(all_keywords,avp);
-
-	avp = new_avp(KEYWORD_REJECT,"",'=');
-	matecfg->reject = avp->n;
-	insert_avp(all_keywords,avp);
-
-	avp = new_avp(KEYWORD_NOTREE,"",'=');
-	matecfg->no_tree = avp->n;
-	insert_avp(all_keywords,avp);
-
-	avp = new_avp(KEYWORD_FRAMETREE,"",'=');
-	matecfg->frame_tree = avp->n;
-	insert_avp(all_keywords,avp);
-
-	avp = new_avp(KEYWORD_PDUTREE,"",'=');
-	matecfg->pdu_tree = avp->n;
-	insert_avp(all_keywords,avp);
-	
-	avp = new_avp(KEYWORD_BASICTREE,"",'=');
-	matecfg->basic_tree = avp->n;
-	insert_avp(all_keywords,avp);
-
-	avp = new_avp(KEYWORD_FULLTREE,"",'=');
-	matecfg->full_tree = avp->n;
-	insert_avp(all_keywords,avp);
-	
-	if (actions) {
-		g_hash_table_destroy(actions);
-	}
-
-	actions = g_hash_table_new(g_str_hash,g_str_equal);
-
-	new_action(KEYWORD_SETTINGS,config_settings);
-	new_action(KEYWORD_PDU,config_pdu);
-	new_action(KEYWORD_PDUEXTRA,config_pduextra);
-	new_action(KEYWORD_PDUCRITERIA,config_pducriteria);
-	new_action(KEYWORD_GOP,config_gop);
-	new_action(KEYWORD_GOGDEF,config_gog);
-	new_action(KEYWORD_GOGKEY,config_gogkey);
-	new_action(KEYWORD_GOPSTART,config_start);
-	new_action(KEYWORD_GOPSTOP,config_stop);
-	new_action(KEYWORD_GOPEXTRA,config_gopextra);
-	new_action(KEYWORD_GOGEXTRA,config_gogextra);
-	new_action(KEYWORD_INCLUDE,config_include);
-	new_action(KEYWORD_TRANSFORM,config_transform);
-	new_action(KEYWORD_PDUTRANSFORM,config_pdu_transform);
-	new_action(KEYWORD_GOPTRANSFORM,config_gop_transform);
-	new_action(KEYWORD_GOGTRANSFORM,config_gog_transform);
-
-}
-
 extern mate_config* mate_cfg() {
 	return matecfg;
 }
 
-extern mate_config* mate_make_config(guint8* filename, int mate_hfid) {
-	gint* ett;
+static void append_avpl(GString* str, AVPL* avpl) {
+	void* cookie = NULL;
+	AVP* avp;
+	gchar** vec;
+	guint i;
+	
+	g_string_sprintfa(str,"( ");
+	
+	while(( avp = get_next_avp(avpl,&cookie) )) {
+		switch (avp->o) {
+			case '|' :
+				g_string_sprintfa(str," %s {",avp->n);
+				
+				vec = g_strsplit(avp->v,"|",0);
+				
+				for (i = 0; vec[i]; i++) {
+					g_string_sprintfa(str," \"%s\" |",vec[i]);					
+				}
+					
+				g_strfreev(vec);
+				
+				g_string_erase(str,str->len-1,1);
+				g_string_sprintfa(str,"}, ");
+				break;
+			case '?':
+				g_string_sprintfa(str,"%s, ",avp->n);
+				break;
+			default:
+				g_string_sprintfa(str,"%s %c \"%s\", ",avp->n,avp->o,avp->v);
+				break;				
+		}
+	}
+	
+	g_string_erase(str,str->len-2,1);
+	g_string_sprintfa(str,")");
+}
 
+static void print_transforms(gpointer k, gpointer v, gpointer p) {
+	AVPL_Transf* t;
+	GString* str = p;
+	
+	g_string_sprintfa(str,"Transform %s {\n",(gchar*)k);
+	
+	for (t = v; t; t = t->next) {
+
+		if (t->match->len) {
+			g_string_sprintfa(str,"\tMatch ");
+			
+			switch (t->match_mode) {
+				case AVPL_STRICT:
+					g_string_sprintfa(str,"Strict ");
+					break;
+				case AVPL_LOOSE:
+					g_string_sprintfa(str,"Loose ");
+					break;
+				case AVPL_EVERY:
+					g_string_sprintfa(str,"Every ");
+					break;
+				default:
+					g_string_sprintfa(str,"None ");
+					break;
+			}
+			
+			append_avpl(str,t->match);
+		}
+		
+		if (t->replace->len) {
+			switch (t->replace_mode) {
+				case AVPL_INSERT:
+					g_string_sprintfa(str," Insert ");
+					break;
+				case AVPL_REPLACE:
+					g_string_sprintfa(str," Replace ");
+					break;
+				default:
+					g_string_sprintfa(str," None ");
+					break;
+			}
+			
+			append_avpl(str,t->replace);
+		}
+		
+		g_string_sprintfa(str,";\n");
+	}
+
+	g_string_sprintfa(str,"};\n\n");
+}
+
+static void append_transforms(GString* s, GPtrArray* ts) {
+	guint i;
+	
+	if ( !ts || !ts->len ) return;
+	
+	g_string_sprintfa(s,"\tTransform ");
+
+	for (i=0; i < ts->len; i++) {
+		g_string_sprintfa(s,"%s, ",((AVPL_Transf*) g_ptr_array_index(ts,i))->name);
+	}
+
+	if (i>0) g_string_erase(s, s->len-2, 2);
+	g_string_sprintfa(s,";\n");
+
+}
+
+static void print_hfid_hash(gpointer k, gpointer v, gpointer p _U_) {
+	g_string_sprintfa((GString*)p,"\tExtract %s From %s;\n",(guint8*)v,my_protoname(*(int*)k));
+}
+
+static void print_pdu_config(mate_cfg_pdu* cfg, GString* s) {
+	guint i;
+	int hfid;
+	gchar* discard;
+	gchar* stop;
+	
+	discard = cfg->discard ? "TRUE": "FALSE";
+	stop = cfg->last_extracted ? "TRUE" : "FALSE";
+	
+	g_string_sprintfa(s, "Pdu %s Proto %s Transport ",
+					  cfg->name,my_protoname(cfg->hfid_proto));
+	
+	for (i = 0; i < cfg->transport_ranges->len; i++) {
+		hfid = *((int*) g_ptr_array_index(cfg->transport_ranges,i));
+		g_string_sprintfa(s,"%s/",my_protoname(hfid));
+	}
+	
+	g_string_erase(s, s->len-1, 1);
+	g_string_sprintfa(s," {\n");
+	
+	if (cfg->payload_ranges) {
+		g_string_sprintfa(s, "\tPayload ");
+		
+		for (i = 0; i < cfg->payload_ranges->len; i++) {
+			hfid = *((int*) g_ptr_array_index(cfg->payload_ranges,i));
+			g_string_sprintfa(s,"%s/",my_protoname(hfid));
+		}
+		
+		if (i > 0) g_string_erase(s, s->len-1, 1);
+		
+		g_string_sprintfa(s,";\n");
+		
+	}
+	
+	g_hash_table_foreach(cfg->hfids_attr,print_hfid_hash,s);
+		
+	if (cfg->criterium) {
+
+		g_string_sprintfa(s,"Criteria ");
+
+		switch (cfg->criterium_accept_mode) {
+			case ACCEPT_MODE:
+				g_string_sprintfa(s,"Accept ");
+				break;
+			case REJECT_MODE:
+				g_string_sprintfa(s,"Reject ");
+				break;
+		}
+		
+		switch(cfg->criterium_match_mode) {
+			case AVPL_NO_MATCH:
+				g_string_sprintfa(s,"None ");
+				break;
+			case AVPL_STRICT:
+				g_string_sprintfa(s,"Strict ");
+				break;
+			case AVPL_LOOSE:
+				g_string_sprintfa(s,"Loose ");
+				break;
+			case AVPL_EVERY:
+				g_string_sprintfa(s,"Every ");
+				break;
+		}
+		
+		append_avpl(s, cfg->criterium);
+	}
+	
+	append_transforms(s,cfg->transforms);
+	
+	g_string_sprintfa(s,"};\n\n");
+}
+
+static void print_gop_config(gchar* name _U_,mate_cfg_gop* cfg, GString* s) {
+
+	g_string_sprintfa(s, "Gop %s On %s Match ",
+					  cfg->name,cfg->on_pdu);
+	
+	append_avpl(s, cfg->key);
+	
+	g_string_sprintfa(s," {\n");
+
+	if (cfg->start) {
+		g_string_sprintfa(s,"\tStart ");
+		append_avpl(s, cfg->start);		
+		g_string_sprintfa(s,";\n");
+	}
+		
+	if (cfg->stop) {
+		g_string_sprintfa(s,"\tStop ");
+		append_avpl(s, cfg->stop);		
+		g_string_sprintfa(s,";\n");
+	}
+
+	if (cfg->extra) {
+		g_string_sprintfa(s,"\tExtra ");
+		append_avpl(s, cfg->extra);		
+		g_string_sprintfa(s,";\n");
+	}
+
+	g_string_sprintfa(s,"\tDropUnassigned %s;\n",cfg->drop_unassigned ? "TRUE" : "FALSE");
+	g_string_sprintfa(s,"\tShowTimes %s;\n",cfg->show_times ? "TRUE" : "FALSE");
+	
+	switch (cfg->pdu_tree_mode) {
+		case GOP_NO_TREE:
+			g_string_sprintfa(s,"\tShowTree NoTree;\n");
+			break;
+		case GOP_PDU_TREE:
+			g_string_sprintfa(s,"\tShowTree PduTree;\n");
+			break;
+		case GOP_FRAME_TREE:
+			g_string_sprintfa(s,"\tShowTree FrameTree;\n");
+			break;
+		case GOP_BASIC_PDU_TREE:
+			break;
+	}
+	
+	if (cfg->lifetime > 0) g_string_sprintfa(s,"\tLifetime %f;\n",cfg->lifetime);
+	if (cfg->idle_timeout > 0) g_string_sprintfa(s,"\tIdleTimeout %f;\n",cfg->idle_timeout);
+	if (cfg->expiration > 0) g_string_sprintfa(s,"\tExpiration %f;\n",cfg->expiration);
+	
+	append_transforms(s,cfg->transforms);
+
+	g_string_sprintfa(s,"};\n\n");
+}
+
+static void print_gog_config(gchar* name _U_,mate_cfg_gog* cfg, GString* s) {
+	void* cookie = NULL;
+	AVPL* avpl;
+	
+	g_string_sprintfa(s, "Gog %s  {\n",cfg->name);
+	
+	if (cfg->extra) {
+		g_string_sprintfa(s,"\tExtra ");
+		append_avpl(s, cfg->extra);		
+		g_string_sprintfa(s,";\n");
+	}
+	
+	g_string_sprintfa(s,"\tShowTimes %s;\n",cfg->show_times ? "TRUE" : "FALSE");
+	
+	while (( avpl = get_next_avpl(cfg->keys,&cookie) )) {
+		g_string_sprintfa(s,"\tMember %s ",avpl->name);
+		append_avpl(s, avpl);		
+		g_string_sprintfa(s,";\n");
+	}
+	
+	switch (cfg->gop_tree_mode) {
+		case GOP_NULL_TREE:
+			g_string_sprintfa(s,"\tGopTree NullTree;\n");
+			break;
+		case GOP_BASIC_TREE:
+			break;
+		case GOP_FULL_TREE:
+			g_string_sprintfa(s,"\tGopTree FullTree;\n");
+			break;
+	}
+	
+	if (cfg->expiration > 0) g_string_sprintfa(s,"\tExpiration %f;\n",cfg->expiration);
+	
+	append_transforms(s,cfg->transforms);
+	
+	g_string_sprintfa(s,"};\n\n");
+}
+
+extern mate_config* mate_make_config(gchar* filename, int mate_hfid) {
+	gint* ett;
+	GString* config_text;
 	avp_init();
 
 	matecfg = g_malloc(sizeof(mate_config));
 
-	matecfg->gog_expiration = DEFAULT_GOG_EXPIRATION;
-	matecfg->discard_pdu_attributes = FALSE;
-	matecfg->drop_pdu = FALSE;
-	matecfg->drop_gop = FALSE;
-	matecfg->show_times = TRUE;
-	matecfg->last_to_be_created = FALSE;
-	matecfg->match_mode = AVPL_STRICT;
-	matecfg->replace_mode = AVPL_INSERT;
-	matecfg->mate_lib_path = g_strdup_printf("%s%c%s%c",get_datafile_dir(),DIR_SEP,DEFAULT_MATE_LIB_PATH,DIR_SEP);
-	matecfg->mate_config_file = g_strdup(filename);
-	matecfg->mate_attrs_filter = g_string_new("");
-	matecfg->mate_protos_filter = g_string_new("");
+	matecfg->hfid_mate = mate_hfid;
+	
+	matecfg->fields_filter = g_string_new("");
+	matecfg->protos_filter = g_string_new(""); 
+	
 	matecfg->dbg_facility = NULL;
-	matecfg->dbg_lvl = 0;
-	matecfg->dbg_cfg_lvl = 0;
-	matecfg->dbg_pdu_lvl = 0;
-	matecfg->dbg_gop_lvl = 0;
-	matecfg->dbg_gog_lvl = 0;
-	matecfg->pducfglist = g_ptr_array_new();
+	
+	matecfg->mate_lib_path = g_strdup_printf("%s%c%s%c",get_datafile_dir(),DIR_SEP,DEFAULT_MATE_LIB_PATH,DIR_SEP);;
+	
 	matecfg->pducfgs = g_hash_table_new(g_str_hash,g_str_equal);
 	matecfg->gopcfgs = g_hash_table_new(g_str_hash,g_str_equal);
 	matecfg->gogcfgs = g_hash_table_new(g_str_hash,g_str_equal);
 	matecfg->transfs = g_hash_table_new(g_str_hash,g_str_equal);
+	
+	matecfg->pducfglist = g_ptr_array_new();
 	matecfg->gops_by_pduname = g_hash_table_new(g_str_hash,g_str_equal);
 	matecfg->gogs_by_gopname = g_hash_table_new(g_str_hash,g_str_equal);
-
-	matecfg->hfrs = g_array_new(FALSE,TRUE,sizeof(hf_register_info));
-	matecfg->ett = g_array_new(FALSE,TRUE,sizeof(gint*));
+	
 	matecfg->ett_root = -1;
-	matecfg->hfid_mate = mate_hfid;
+
+	matecfg->hfrs = g_array_new(FALSE,FALSE,sizeof(hf_register_info));
+	matecfg->ett  = g_array_new(FALSE,FALSE,sizeof(gint*));
+	
+	matecfg->defaults.pdu.drop_unassigned = FALSE;
+	matecfg->defaults.pdu.discard = FALSE;
+	matecfg->defaults.pdu.last_extracted = FALSE;
+	matecfg->defaults.pdu.match_mode = AVPL_STRICT;
+	matecfg->defaults.pdu.replace_mode = AVPL_INSERT;
+	
+	matecfg->defaults.gop.expiration = -1.0;
+	matecfg->defaults.gop.idle_timeout = -1.0;
+	matecfg->defaults.gop.lifetime = -1.0;
+	matecfg->defaults.gop.pdu_tree_mode = GOP_FRAME_TREE;
+	matecfg->defaults.gop.show_times = TRUE;
+	matecfg->defaults.gop.drop_unassigned = FALSE;
+	
+		/* gop prefs */
+	matecfg->defaults.gog.expiration = 5.0;
+	matecfg->defaults.gog.gop_tree_mode = GOP_BASIC_TREE;
+
+	/* what to dbgprint */
+	matecfg->dbg_lvl = 0;	
+	matecfg->dbg_pdu_lvl = 0;
+	matecfg->dbg_gop_lvl = 0;
+	matecfg->dbg_gog_lvl = 0;
+	
+	matecfg->config_error = g_string_new("");
 	
 	ett = &matecfg->ett_root;
 	g_array_append_val(matecfg->ett,ett);
-
-	dbg = &matecfg->dbg_lvl;
-
-	init_actions();
-
-	matecfg->show_pdu_tree = matecfg->frame_tree;
-	matecfg->gop_as_subtree = matecfg->basic_tree;
 	
-	config_error = g_string_new("");
-	
-	if ( mate_load_config(filename) ) {
+	if ( mate_load_config(filename,matecfg) ) {
+		guint i;
+
+		/* if (dbg_cfg_lvl > 0) { */
+			config_text = g_string_new("\n");
+			g_hash_table_foreach(matecfg->transfs,print_transforms,config_text);
+			
+			for (i=0; i < matecfg->pducfglist->len; i++) {
+				print_pdu_config((mate_cfg_pdu*) g_ptr_array_index(matecfg->pducfglist,i),config_text);
+			}
+			
+			g_hash_table_foreach(matecfg->gopcfgs,(GHFunc)print_gop_config,config_text);
+			g_hash_table_foreach(matecfg->gogcfgs,(GHFunc)print_gog_config,config_text);
+			
+			g_message("Current configuration\n%s\nDone;\n",config_text->str);
+		/* } */
+		
 		analyze_config();
-		dbg_print (dbg_cfg,3,dbg_facility,"mate_make_config: OK");
-		if (dbg_cfg_lvl > 0) print_config();
+		/* dbg_print (dbg_cfg,3,dbg_facility,"mate_make_config: OK"); */
 	} else {
-		report_failure("%s",config_error->str);
-		g_string_free(config_error,TRUE);
-		if (matecfg) destroy_mate_config(matecfg,FALSE);
+		report_failure("MATE failed to configue!\n"
+					   "it is recomended that you fix your config and restart ethereal.\n"
+					   "The reported error is:\n%s\n",matecfg->config_error->str);
+		
+		/* if (matecfg) destroy_mate_config(matecfg,FALSE); */
 		matecfg = NULL;
 		return NULL;
 	}
 
-	if (matecfg->mate_attrs_filter->len > 1) {
-		g_string_erase(matecfg->mate_attrs_filter,0,2);
-		g_string_erase(matecfg->mate_protos_filter,0,2);
+	if (matecfg->fields_filter->len > 1) {
+		g_string_erase(matecfg->fields_filter,0,2);
+		g_string_erase(matecfg->protos_filter,0,2);
 	} else {
-		destroy_mate_config(matecfg,FALSE);
+		/*destroy_mate_config(matecfg,FALSE);*/
 		matecfg = NULL;
 		return NULL;
 	}
 
-	matecfg->tap_filter = g_strdup_printf("(%s) && (%s)",matecfg->mate_protos_filter->str,matecfg->mate_attrs_filter->str);
+	matecfg->tap_filter = g_strdup_printf("(%s) && (%s)",matecfg->protos_filter->str,matecfg->fields_filter->str);
 
 	return matecfg;
 }

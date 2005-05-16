@@ -38,7 +38,7 @@
 
 /******* dbg_print *********/
 #define DEBUG_BUFFER_SIZE 4096
-extern void dbg_print(const guint* which, guint how, FILE* where, guint8* fmt, ... );
+extern void dbg_print(const gint* which, gint how, FILE* where, gchar* fmt, ... );
 
 
 /******* single copy strings *********/
@@ -56,9 +56,9 @@ typedef struct _scs_collection SCS_collection;
 
 extern void destroy_scs_collection(SCS_collection* c);
 extern SCS_collection* scs_init(void);
-extern guint8* scs_subscribe(SCS_collection* collection, guint8* s);
-extern void scs_unsubscribe(SCS_collection* collection, guint8* s);
-extern guint8* scs_subscribe_printf(SCS_collection* collection, guint8* fmt, ...);
+extern gchar* scs_subscribe(SCS_collection* collection, gchar* s);
+extern void scs_unsubscribe(SCS_collection* collection, gchar* s);
+extern gchar* scs_subscribe_printf(SCS_collection* collection, gchar* fmt, ...);
 
 /******* AVPs & Co. *********/
 #define AVP_CHUNK_SIZE 4096
@@ -78,9 +78,9 @@ extern guint8* scs_subscribe_printf(SCS_collection* collection, guint8* fmt, ...
 
 /* an avp is an object made of a name a value and an operator */
 typedef struct _avp {
-	guint8* n;
-	guint8* v;
-	guint8 o;
+	gchar* n;
+	gchar* v;
+	gchar o;
 } AVP;
 
 /* avp nodes are used in avp lists */
@@ -92,7 +92,7 @@ typedef struct _avp_node {
 
 /* an avp list is a sorted set of avps */
 typedef struct _avp_list {
-	guint8* name;
+	gchar* name;
 	guint32 len;
 	AVPN null;
 } AVPL;
@@ -116,7 +116,7 @@ typedef enum _avpl_replace_mode {
 typedef struct _avpl_transf AVPL_Transf;
 
 struct _avpl_transf {
-	guint8* name;
+	gchar* name;
 
 	AVPL* match;
 	AVPL* replace;
@@ -138,7 +138,7 @@ typedef struct _loal_node {
 
 /* a loal is a list of avp lists */
 typedef struct _loal {
-	guint8* name;
+	gchar* name;
 	guint len;
 	LoALnode null;
 } LoAL;
@@ -157,13 +157,13 @@ extern void setup_avp_debug(FILE* fp, int* general, int* avp, int* avp_op, int* 
  */
 
 /* creates a new avp */
-extern AVP* new_avp(guint8* name, guint8* value, guint8 op);
+extern AVP* new_avp(gchar* name, gchar* value, gchar op);
 
 /* creates a copy od an avp */
 extern AVP* avp_copy(AVP* from);
 
 /* creates an avp from a field_info record */
-extern AVP* new_avp_from_finfo(guint8* name, field_info* finfo);
+extern AVP* new_avp_from_finfo(gchar* name, field_info* finfo);
 
 /*
  * avp destructor
@@ -185,26 +185,26 @@ extern AVP* match_avp(AVP* src, AVP* op);
  */
 
 /* creates an empty avp list */
-extern AVPL* new_avpl(guint8* name);
+extern AVPL* new_avpl(gchar* name);
 
 
 /* creates a copy of an avp list */
-extern AVPL* new_avpl_from_avpl(guint8* name, AVPL* avpl, gboolean copy_avps);
+extern AVPL* new_avpl_from_avpl(gchar* name, AVPL* avpl, gboolean copy_avps);
 
 /* creates an avp list containing any avps in src matching any avps in op
    it will eventually create an empty list in none match */
-extern AVPL* new_avpl_loose_match(guint8* name,AVPL* src, AVPL* op, gboolean copy_avps);
+extern AVPL* new_avpl_loose_match(gchar* name,AVPL* src, AVPL* op, gboolean copy_avps);
 
 /* creates an avp list containing any avps in src matching every avp in op
   it will not create a list if there is not a match for every attribute in op */
-extern AVPL* new_avpl_every_match(guint8* name,AVPL* src, AVPL* op, gboolean copy_avps);
+extern AVPL* new_avpl_every_match(gchar* name,AVPL* src, AVPL* op, gboolean copy_avps);
 
 /* creates an avp list containing every avp in src matching every avp in op
    it will not create a list unless every avp in op is matched only once to avery avp in op */
-extern AVPL* new_avpl_exact_match(guint8* name,AVPL* src, AVPL* op, gboolean copy_avps);
+extern AVPL* new_avpl_exact_match(gchar* name,AVPL* src, AVPL* op, gboolean copy_avps);
 
 /* uses mode to call one of the former matches. NO_MATCH = merge(merge(copy(src),op)) */
-extern AVPL* new_avpl_from_match(avpl_match_mode mode, guint8* name,AVPL* src, AVPL* op, gboolean copy_avps);
+extern AVPL* new_avpl_from_match(avpl_match_mode mode, gchar* name,AVPL* src, AVPL* op, gboolean copy_avps);
 
 
 
@@ -221,14 +221,14 @@ extern void delete_avpl(AVPL* avpl, gboolean avps_too);
 extern gboolean insert_avp(AVPL* avpl, AVP* avp);
 
 /* renames an avpl */
-extern void rename_avpl(AVPL* avpl, guint8* name);
+extern void rename_avpl(AVPL* avpl, gchar* name);
 
 /* it will add all the avps in src which don't match(*) any attribute in dest */
 extern void merge_avpl(AVPL* dest, AVPL* src, gboolean copy);
 
 /* it will return the first avp in an avpl whose name matches the given name.
   will return NULL if there is not anyone matching */
-extern AVP* get_avp_by_name(AVPL* avpl, guint8* name, void** cookie);
+extern AVP* get_avp_by_name(AVPL* avpl, gchar* name, void** cookie);
 
 /* it will get the next avp from an avpl, using cookie to keep state */
 extern AVP* get_next_avp(AVPL* avpl, void** cookie);
@@ -241,11 +241,11 @@ extern AVP* extract_last_avp(AVPL* avpl);
 
 /* it will extract the first avp in an avpl whose name matches the given name.
    it will not extract any and  return NULL if there is not anyone matching */
-extern AVP* extract_avp_by_name(AVPL* avpl, guint8* name);
+extern AVP* extract_avp_by_name(AVPL* avpl, gchar* name);
 
 /* returns a newly allocated string containing a representation of the avp list */
-extern guint8* avpl_to_str(AVPL* avpl);
-extern guint8* avpl_to_dotstr(AVPL*);
+extern gchar* avpl_to_str(AVPL* avpl);
+extern gchar* avpl_to_dotstr(AVPL*);
 
 /* deletes an avp list  and eventually it's contents */
 extern void delete_avpl(AVPL* avpl, gboolean avps_too);
@@ -253,7 +253,6 @@ extern void delete_avpl(AVPL* avpl, gboolean avps_too);
 /*
  *  AVPL transformations
  */
-extern AVPL_Transf* new_avpl_transform(guint8* name, AVPL* mixed, avpl_match_mode match_mode, avpl_replace_mode replace_mode);
 extern void delete_avpl_transform(AVPL_Transf* it);
 extern void avpl_transform(AVPL* src, AVPL_Transf* op);
 
@@ -263,11 +262,11 @@ extern void avpl_transform(AVPL* src, AVPL_Transf* op);
  */
 
 /* creates an empty list of avp lists */
-extern LoAL* new_loal(guint8* name);
+extern LoAL* new_loal(gchar* name);
 
 /* given a file loads all the avpls contained in it
    every line is formatted as it is the output of avplist_to_string */
-extern LoAL* loal_from_file(guint8* filename);
+extern LoAL* loal_from_file(gchar* filename);
 
 /* inserts an avplist into a LoAL */
 extern void loal_append(LoAL* loal, AVPL* avpl);
