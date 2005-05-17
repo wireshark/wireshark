@@ -290,6 +290,16 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_JUNIPER_PPPOE */
 	{ "Juniper PPPoE", "juniper-pppoe" },
+
+	/* WTAP_ENCAP_GCOM_TIE1 */
+	{ "GCOM TIE1", "gcom-tie1" },
+
+	/* WTAP_ENCAP_GCOM_SERIAL */
+	{ "GCOM Serial", "gcom-serial" },
+
+	/* WTAP_ENCAP_NETTL_X25 */
+	{ "X25 with nettl headers", "x25-nettl" },
+
 };
 
 /* Name that should be somewhat descriptive. */
