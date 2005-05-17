@@ -36,6 +36,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/ipproto.h>
+#include <wiretap/nettl.h>
 
 /* Initialise the protocol and registered fields */
 
@@ -49,6 +50,8 @@ static int hf_nettl_uid = -1;
 
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t tr_handle;
+static dissector_handle_t lapb_handle;
+static dissector_handle_t x25_handle;
 static dissector_handle_t data_handle;
 static dissector_table_t wtap_dissector_table;
 static dissector_table_t ip_proto_dissector_table;
@@ -241,6 +244,12 @@ dissect_nettl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	                IP_PROTO_ICMPV6, tvb, pinfo, tree))
 	            call_dissector(data_handle, tvb, pinfo, tree);
             break;
+         case WTAP_ENCAP_NETTL_X25:
+	    if (pinfo->pseudo_header->nettl.subsys == NETTL_SUBSYS_SX25L2)
+            	call_dissector(lapb_handle, tvb, pinfo, tree);
+	    else
+            	call_dissector(x25_handle, tvb, pinfo, tree);
+            break;
          default:
             if (check_col(pinfo->cinfo, COL_PROTOCOL))
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
@@ -314,6 +323,8 @@ proto_reg_handoff_nettl(void)
   */
   eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
   tr_handle = find_dissector("tr");
+  lapb_handle = find_dissector("lapb");
+  x25_handle = find_dissector("x.25");
   data_handle = find_dissector("data");
   wtap_dissector_table = find_dissector_table("wtap_encap");
   ip_proto_dissector_table = find_dissector_table("ip.proto");
@@ -325,5 +336,6 @@ proto_reg_handoff_nettl(void)
   dissector_add("wtap_encap", WTAP_ENCAP_NETTL_RAW_IP, nettl_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_NETTL_RAW_ICMP, nettl_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_NETTL_RAW_ICMPV6, nettl_handle);
+  dissector_add("wtap_encap", WTAP_ENCAP_NETTL_X25, nettl_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_NETTL_UNKNOWN, nettl_handle);
 }
