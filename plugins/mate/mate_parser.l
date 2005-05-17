@@ -126,13 +126,13 @@ blk_cmnt_start  "/*"
 cmnt_char		.
 blk_cmnt_stop  "*/"
  
-%START OUT QUOTED INCLUDING COMMENT
+%START OUTSIDE QUOTED INCLUDING COMMENT
 %%
 
 {newline}						current_frame->linenum++; 
 {whitespace}					;
 
-<OUT>{include}					BEGIN INCLUDING;
+<OUTSIDE>{include}					BEGIN INCLUDING;
 
 <INCLUDING>{filename}			{
 	if ( include_stack_ptr >= MAX_INCLUDE_DEPTH )
@@ -160,7 +160,7 @@ blk_cmnt_stop  "*/"
 		yy_switch_to_buffer(yy_create_buffer( yyin, YY_BUF_SIZE ) );
 	}
 	
-	BEGIN OUT;
+	BEGIN OUTSIDE;
 }
 
 <<EOF>>	{	
@@ -176,72 +176,72 @@ blk_cmnt_stop  "*/"
 	}
 }				
 
-<OUT>{comment}					;
+<OUTSIDE>{comment}					;
 
-<OUT>{blk_cmnt_start}			BEGIN COMMENT;
+<OUTSIDE>{blk_cmnt_start}			BEGIN COMMENT;
 <COMMENT>{cmnt_char}			;
-<COMMENT>{blk_cmnt_stop}		BEGIN OUT;
+<COMMENT>{blk_cmnt_stop}		BEGIN OUTSIDE;
 
-<OUT>{pdu_kw}					MATE_PARSE(TOKEN_PDU_KW);
-<OUT>{gop_kw}					MATE_PARSE(TOKEN_GOP_KW);
-<OUT>{gog_kw}					MATE_PARSE(TOKEN_GOG_KW);
-<OUT>{transform_kw}				MATE_PARSE(TOKEN_TRANSFORM_KW);
-<OUT>{match_kw}					MATE_PARSE(TOKEN_MATCH_KW);
-<OUT>{strict_kw}				MATE_PARSE(TOKEN_STRICT_KW);
-<OUT>{every_kw}					MATE_PARSE(TOKEN_EVERY_KW);
-<OUT>{loose_kw}					MATE_PARSE(TOKEN_LOOSE_KW);
-<OUT>{replace_kw}				MATE_PARSE(TOKEN_REPLACE_KW);
-<OUT>{insert_kw}				MATE_PARSE(TOKEN_INSERT_KW);
-<OUT>{gop_tree_kw}				MATE_PARSE(TOKEN_GOP_TREE_KW);
-<OUT>{member_kw}				MATE_PARSE(TOKEN_MEMBER_KW);
-<OUT>{on_kw}					MATE_PARSE(TOKEN_ON_KW);
-<OUT>{start_kw}					MATE_PARSE(TOKEN_START_KW);
-<OUT>{stop_kw}					MATE_PARSE(TOKEN_STOP_KW);
-<OUT>{extra_kw}					MATE_PARSE(TOKEN_EXTRA_KW);
-<OUT>{show_tree_kw}				MATE_PARSE(TOKEN_SHOW_TREE_KW);
-<OUT>{show_times_kw}			MATE_PARSE(TOKEN_SHOW_TIMES_KW);
-<OUT>{expiration_kw}			MATE_PARSE(TOKEN_EXPIRATION_KW);
-<OUT>{idle_timeout_kw}			MATE_PARSE(TOKEN_IDLE_TIMEOUT_KW);
-<OUT>{lifetime_kw}				MATE_PARSE(TOKEN_LIFETIME_KW);
-<OUT>{no_tree_kw}				MATE_PARSE(TOKEN_NO_TREE_KW);
-<OUT>{pdu_tree_kw}				MATE_PARSE(TOKEN_PDU_TREE_KW);
-<OUT>{frame_tree_kw}			MATE_PARSE(TOKEN_FRAME_TREE_KW);
-<OUT>{basic_tree_kw}			MATE_PARSE(TOKEN_BASIC_TREE_KW);
-<OUT>{true_kw}					MATE_PARSE(TOKEN_TRUE_KW);
-<OUT>{false_kw}					MATE_PARSE(TOKEN_FALSE_KW);
-<OUT>{proto_kw}					MATE_PARSE(TOKEN_PROTO_KW);
-<OUT>{payload_kw}				MATE_PARSE(TOKEN_PAYLOAD_KW);
-<OUT>{transport_kw}				MATE_PARSE(TOKEN_TRANSPORT_KW);
-<OUT>{criteria_kw}				MATE_PARSE(TOKEN_CRITERIA_KW);
-<OUT>{accept_kw}				MATE_PARSE(TOKEN_ACCEPT_KW);
-<OUT>{reject_kw}				MATE_PARSE(TOKEN_REJECT_KW);
-<OUT>{extract_kw}				MATE_PARSE(TOKEN_EXTRACT_KW);
-<OUT>{from_kw}					MATE_PARSE(TOKEN_FROM_KW);
-<OUT>{drop_unassigned_kw}		MATE_PARSE(TOKEN_DROP_UNASSIGNED_KW);
-<OUT>{discard_pdu_data_kw}		MATE_PARSE(TOKEN_DISCARD_PDU_DATA_KW);
-<OUT>{last_pdu_kw}				MATE_PARSE(TOKEN_LAST_PDU_KW);
-<OUT>{done_kw}					MATE_PARSE(TOKEN_DONE_KW);
+<OUTSIDE>{pdu_kw}					MATE_PARSE(TOKEN_PDU_KW);
+<OUTSIDE>{gop_kw}					MATE_PARSE(TOKEN_GOP_KW);
+<OUTSIDE>{gog_kw}					MATE_PARSE(TOKEN_GOG_KW);
+<OUTSIDE>{transform_kw}				MATE_PARSE(TOKEN_TRANSFORM_KW);
+<OUTSIDE>{match_kw}					MATE_PARSE(TOKEN_MATCH_KW);
+<OUTSIDE>{strict_kw}				MATE_PARSE(TOKEN_STRICT_KW);
+<OUTSIDE>{every_kw}					MATE_PARSE(TOKEN_EVERY_KW);
+<OUTSIDE>{loose_kw}					MATE_PARSE(TOKEN_LOOSE_KW);
+<OUTSIDE>{replace_kw}				MATE_PARSE(TOKEN_REPLACE_KW);
+<OUTSIDE>{insert_kw}				MATE_PARSE(TOKEN_INSERT_KW);
+<OUTSIDE>{gop_tree_kw}				MATE_PARSE(TOKEN_GOP_TREE_KW);
+<OUTSIDE>{member_kw}				MATE_PARSE(TOKEN_MEMBER_KW);
+<OUTSIDE>{on_kw}					MATE_PARSE(TOKEN_ON_KW);
+<OUTSIDE>{start_kw}					MATE_PARSE(TOKEN_START_KW);
+<OUTSIDE>{stop_kw}					MATE_PARSE(TOKEN_STOP_KW);
+<OUTSIDE>{extra_kw}					MATE_PARSE(TOKEN_EXTRA_KW);
+<OUTSIDE>{show_tree_kw}				MATE_PARSE(TOKEN_SHOW_TREE_KW);
+<OUTSIDE>{show_times_kw}			MATE_PARSE(TOKEN_SHOW_TIMES_KW);
+<OUTSIDE>{expiration_kw}			MATE_PARSE(TOKEN_EXPIRATION_KW);
+<OUTSIDE>{idle_timeout_kw}			MATE_PARSE(TOKEN_IDLE_TIMEOUT_KW);
+<OUTSIDE>{lifetime_kw}				MATE_PARSE(TOKEN_LIFETIME_KW);
+<OUTSIDE>{no_tree_kw}				MATE_PARSE(TOKEN_NO_TREE_KW);
+<OUTSIDE>{pdu_tree_kw}				MATE_PARSE(TOKEN_PDU_TREE_KW);
+<OUTSIDE>{frame_tree_kw}			MATE_PARSE(TOKEN_FRAME_TREE_KW);
+<OUTSIDE>{basic_tree_kw}			MATE_PARSE(TOKEN_BASIC_TREE_KW);
+<OUTSIDE>{true_kw}					MATE_PARSE(TOKEN_TRUE_KW);
+<OUTSIDE>{false_kw}					MATE_PARSE(TOKEN_FALSE_KW);
+<OUTSIDE>{proto_kw}					MATE_PARSE(TOKEN_PROTO_KW);
+<OUTSIDE>{payload_kw}				MATE_PARSE(TOKEN_PAYLOAD_KW);
+<OUTSIDE>{transport_kw}				MATE_PARSE(TOKEN_TRANSPORT_KW);
+<OUTSIDE>{criteria_kw}				MATE_PARSE(TOKEN_CRITERIA_KW);
+<OUTSIDE>{accept_kw}				MATE_PARSE(TOKEN_ACCEPT_KW);
+<OUTSIDE>{reject_kw}				MATE_PARSE(TOKEN_REJECT_KW);
+<OUTSIDE>{extract_kw}				MATE_PARSE(TOKEN_EXTRACT_KW);
+<OUTSIDE>{from_kw}					MATE_PARSE(TOKEN_FROM_KW);
+<OUTSIDE>{drop_unassigned_kw}		MATE_PARSE(TOKEN_DROP_UNASSIGNED_KW);
+<OUTSIDE>{discard_pdu_data_kw}		MATE_PARSE(TOKEN_DISCARD_PDU_DATA_KW);
+<OUTSIDE>{last_pdu_kw}				MATE_PARSE(TOKEN_LAST_PDU_KW);
+<OUTSIDE>{done_kw}					MATE_PARSE(TOKEN_DONE_KW);
 
-<OUT>{open_parens}				MATE_PARSE(TOKEN_OPEN_PARENS);
-<OUT>{close_parens}				MATE_PARSE(TOKEN_CLOSE_PARENS);
-<OUT>{open_brace}				MATE_PARSE(TOKEN_OPEN_BRACE);
-<OUT>{close_brace}				MATE_PARSE(TOKEN_CLOSE_BRACE);
-<OUT>{comma}					MATE_PARSE(TOKEN_COMMA);
-<OUT>{semicolon}				MATE_PARSE(TOKEN_SEMICOLON);
-<OUT>{slash}					MATE_PARSE(TOKEN_SLASH);
-<OUT>{pipe}						MATE_PARSE(TOKEN_PIPE);
+<OUTSIDE>{open_parens}				MATE_PARSE(TOKEN_OPEN_PARENS);
+<OUTSIDE>{close_parens}				MATE_PARSE(TOKEN_CLOSE_PARENS);
+<OUTSIDE>{open_brace}				MATE_PARSE(TOKEN_OPEN_BRACE);
+<OUTSIDE>{close_brace}				MATE_PARSE(TOKEN_CLOSE_BRACE);
+<OUTSIDE>{comma}					MATE_PARSE(TOKEN_COMMA);
+<OUTSIDE>{semicolon}				MATE_PARSE(TOKEN_SEMICOLON);
+<OUTSIDE>{slash}					MATE_PARSE(TOKEN_SLASH);
+<OUTSIDE>{pipe}						MATE_PARSE(TOKEN_PIPE);
 
-<OUT>{integer}					MATE_PARSE(TOKEN_INTEGER);
-<OUT>{floating}					MATE_PARSE(TOKEN_FLOATING);
-<OUT>{doted_ip}					MATE_PARSE(TOKEN_DOTED_IP);
-<OUT>{colonized}				MATE_PARSE(TOKEN_COLONIZED);
-<OUT>{name}						MATE_PARSE(TOKEN_NAME);
-<OUT>{avp_operator}				MATE_PARSE(TOKEN_AVP_OPERATOR);
+<OUTSIDE>{integer}					MATE_PARSE(TOKEN_INTEGER);
+<OUTSIDE>{floating}					MATE_PARSE(TOKEN_FLOATING);
+<OUTSIDE>{doted_ip}					MATE_PARSE(TOKEN_DOTED_IP);
+<OUTSIDE>{colonized}				MATE_PARSE(TOKEN_COLONIZED);
+<OUTSIDE>{name}						MATE_PARSE(TOKEN_NAME);
+<OUTSIDE>{avp_operator}				MATE_PARSE(TOKEN_AVP_OPERATOR);
 
 
-<OUT>{quote}					BEGIN QUOTED;
+<OUTSIDE>{quote}					BEGIN QUOTED;
 <QUOTED>{not_quoted}			MATE_PARSE(TOKEN_QUOTED);
-<QUOTED>{quote}					BEGIN OUT;
+<QUOTED>{quote}					BEGIN OUTSIDE;
 
 %%
 
@@ -269,7 +269,7 @@ extern gboolean mate_load_config(gchar* filename, mate_config* matecfg) {
 	/* MateParserTrace(stdout,""); */
 	
 	TRY {
-		BEGIN OUT;
+		BEGIN OUTSIDE;
 
 		yylex();
 
