@@ -84,6 +84,31 @@ class PacketList:
         if top_level:
             return PacketList(items)
 
+    def get_items_before(self, name, before_item, items=None):
+        """Return all items that match the name 'name' that
+        exist before the before_item. The before_item is an object.
+        They results are returned in order of a depth-first-search.
+        This function allows you to find fields from protocols that occur
+        before other protocols. For example, if you have an HTTP
+        protocol, you can find all tcp.dstport fields *before* that HTTP
+        protocol. This helps analyze in the presence of tunneled protocols."""
+        if items == None:
+            top_level = 1
+            items = []
+        else:
+            top_level = 0
+
+        for child in self.children:
+            if top_level == 1 and child == before_item:
+                break
+            if child.name == name:
+                items.append(child)
+            # Call get_items because the 'before_item' applies
+            # only to the top level search.
+            child.get_items(name, items)
+
+        if top_level:
+            return PacketList(items)
 
 
 class ProtoTreeItem(PacketList):
