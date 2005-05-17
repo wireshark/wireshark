@@ -233,34 +233,6 @@ call_app_dissector(tvbuff_t *tvb, gint offset, gint param_len,
 			ENDTRY;
 	}
 }
-static char*
-string_to_hex(const unsigned char * in,char * out,int len)
-{
-	char ascii[MAXSTRING];
-	int  i;
-	memset(&ascii,0x00,sizeof(ascii));
-for(i=0;i<len;i++)
-			{
-	unsigned char o_out = *(in+i);
-    sprintf(out+(i<<1),"%.2x",*  (in+i));
-	if(  ( (o_out) >= 'a') & ( (o_out) <='z')  ||
-		 ( (o_out) >= 'A') & ( (o_out) <='Z')  ||
-		 ( (o_out) >= '0') & ( (o_out) <='9')
-	   )
-					{
-					ascii[i] = o_out;
-					}
-				else
-					{
-					ascii[i] = '.';
-					}
-
-			}
-		strcat(out," ");
-		strcat(out,ascii);
-    return out;
-}
-
 static int read_length(ASN1_SCK *a, proto_tree *tree, int hf_id, guint *len)
 {
   guint length = 0;
@@ -461,8 +433,8 @@ static void
 print_value(proto_tree *acse_tree,tvbuff_t *tvb,int
 *offset,int item_len)
 {
-	  char    tmp[MAXSTRING];
-		string_to_hex(tvb_get_ptr(tvb,*offset,item_len),tmp,item_len);
+	  gchar  *tmp;
+		tmp = tvb_bytes_to_str(tvb, *offset, item_len);
 		proto_tree_add_text(acse_tree, tvb, *offset, item_len, tmp);
 }
 static int
