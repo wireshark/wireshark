@@ -119,6 +119,15 @@ proto_reg_handoff_xml(void)
 	dissector_add_string("media_type", "text/vnd.wap.co", xml_handle);
 	dissector_add_string("media_type", "text/vnd.wap.emn", xml_handle);
 	dissector_add_string("media_type", "application/vnd.wv.csp+xml", xml_handle);
+	/* The Extensible Markup Language (XML) Configuration Access Protocol (XCAP)
+	 * draft-ietf-simple-xcap-06
+	 */
+	dissector_add_string("media_type", "application/xcap-el+xml", xml_handle);
+	dissector_add_string("media_type", "application/xcap-att+xml", xml_handle);
+	dissector_add_string("media_type", "application/xcap-error+xml", xml_handle);
+	dissector_add_string("media_type", "application/xcap-caps+xml", xml_handle);
+	/* draft-ietf-simple-presence-rules-02 */
+	dissector_add_string("media_type", "application/auth-policy+xml", xml_handle);
 	/* Other */
 	dissector_add_string("media_type", "application/smil", xml_handle);
 	dissector_add_string("media_type", "application/cpim-pidf+xml", xml_handle);
