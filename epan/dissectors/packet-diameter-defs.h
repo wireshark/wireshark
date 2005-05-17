@@ -270,6 +270,13 @@ static const value_string diameter_error_cause_attribute_vals[]= {
 	{507,"Request Initiated"},
 	{0,NULL}
 };
+/* Auth-Request-Type AVP Values (code 247) */
+static const value_string diameter_auth_request_type_vals[]= {
+	{1, "Authenticate Only"},
+	{2, "Authorize Only"},
+	{3, "Authorize Authenticate"},
+	{0,NULL}
+};
 /* Redirect-Host-Usage AVP Values (code 261) */
 static const value_string diameter_redirect_host_usage_vals[]= {
 	{0, "Don't Cache"},
@@ -306,13 +313,7 @@ static const value_string diameter_disconnect_cause_vals[]= {
 	{2, "Do Not Want To Talk To You"},
 	{0,NULL}
 };
-/* Auth-Request-Type AVP Values (code 274) */
-static const value_string diameter_auth_request_type_vals[]= {
-	{1, "Authenticate Only"},
-	{2, "Authorize Only"},
-	{3, "Authorize Authenticate"},
-	{0,NULL}
-};
+
 /* Auth-Session-State AVP Values (code 277) */
 static const value_string diameter_auth_session_state_vals[]= {
 	{0, "State Maintained"},
@@ -965,10 +966,18 @@ static struct old_avp_info old_diameter_avps[] = {
 	{ 455, "Multiple-Services-Indicator",       DIAMETER_ENUMERATED ,		diameter_multiple_services_indicator_vals},
 	{ 456, "Multiple-Services-Credit-Control",  DIAMETER_GROUPED    ,		(value_string *)NULL},
 	{ 457, "G-S-U-Pool-Reference",              DIAMETER_GROUPED    ,		(value_string *)NULL},
+	{ 458, "User-Equipment-Info",				DIAMETER_GROUPED    ,		(value_string *)NULL},
+	{ 459, "User-Equipment-Info-Type",			DIAMETER_ENUMERATED ,		diameter_user_equipment_info_type_vals},
+	{ 460, "User-Equipment-Info-Value",			DIAMETER_OCTET_STRING,		(value_string *)NULL},
+	{ 461, "Service-Context-Id",				DIAMETER_UTF8STRING,		(value_string *)NULL},
+	{ 462, "EAP-Payload",						DIAMETER_OCTET_STRING,		(value_string *)NULL},
+	{ 463, "EAP-Reissued-Payload",				DIAMETER_OCTET_STRING,		(value_string *)NULL},
+	{ 464, "EAP-Master-Session-Key",			DIAMETER_OCTET_STRING,		(value_string *)NULL},
+	{ 465, "Accounting-EAP-Auth-Method",		DIAMETER_UNSIGNED64,		(value_string *)NULL},
+    { 480, "Accounting-Record-Type",			DIAMETER_ENUMERATED,		diameter_accounting_record_type_vals},
     { 482, "Accounting-Interim-Interval",		DIAMETER_UNSIGNED32,		(value_string *)NULL},
     { 483, "Accounting-Realtime-Required",		DIAMETER_UNSIGNED32,		(value_string *)NULL},
     { 485, "Accounting-Record-Number",			DIAMETER_UNSIGNED32,		(value_string *)NULL},
-    { 480, "Accounting-Record-Type",			DIAMETER_ENUMERATED,		diameter_accounting_record_type_vals},
     { 483, "Accounting-Realtime-Required",      DIAMETER_ENUMERATED,		diameter_accounting_realtime_required_vals},
     { 485, "Accounting-Record-Number",			DIAMETER_UNSIGNED32,		(value_string *)NULL},
     { 487, "Accounting-Sub-Session-Id",			DIAMETER_ENUMERATED,		(value_string *)NULL},
@@ -1066,6 +1075,9 @@ static const value_string diameter_command_code_vals[] = {
 	{303, "Multimedia-Auth"},
 	{304, "Registration-Termination"},
 	{305, "Push-Profile"},
+	/* 314-16,777,213   Unallocated (IETF Consensus) */
+	{16777214, "Experimental code"},
+	{16777215, "Experimental code"},
 
 	/* Session Initiation Protocol (SIP) Application, numbers not yet assigned by IANA 
 	{aaa, "User-Authorization"},
