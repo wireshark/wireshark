@@ -274,11 +274,11 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_STOCK_ENTRY("/View/Resize All Columns", NULL, packet_list_resize_columns_cb,
                        0, ETHEREAL_STOCK_RESIZE_COLUMNS),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Collapse _All", NULL, collapse_all_cb,
-                       0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/View/E_xpand Subtrees", NULL, expand_tree_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/View/_Expand All", NULL, expand_all_cb,
                        0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/View/Expand Tree", NULL, expand_tree_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/View/Collapse _All", NULL, collapse_all_cb,
+                       0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/View/_Coloring Rules...", NULL, color_display_cb,
                        0, GTK_STOCK_SELECT_COLOR),
@@ -1946,7 +1946,8 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Preferences...",
 	  properties);
-	set_menu_sensitivity(main_menu_factory, "/View/Expand Tree", cf->finfo_selected->tree_type != -1);
+	set_menu_sensitivity(main_menu_factory, "/View/Expand Subtrees", cf->finfo_selected->tree_type != -1);
+	set_menu_sensitivity(tree_view_menu_factory, "/Expand Subtrees", cf->finfo_selected->tree_type != -1);
 	set_menu_sensitivity(tree_view_menu_factory, "/Wiki Protocol Page",
 	  TRUE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Filter Field Reference",
@@ -1962,7 +1963,8 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	set_menu_sensitivity(tree_view_menu_factory, "/Prepare a Filter", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Preferences...",
 	  FALSE);
-	set_menu_sensitivity(main_menu_factory, "/View/Expand Tree", FALSE);
+	set_menu_sensitivity(main_menu_factory, "/View/Expand Subtrees", FALSE);
+	set_menu_sensitivity(tree_view_menu_factory, "/Expand Subtrees", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Wiki Protocol Page",
 	  FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Filter Field Reference",

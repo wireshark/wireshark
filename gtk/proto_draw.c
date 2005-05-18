@@ -361,6 +361,8 @@ GtkTreePath *tree_find_by_field_info(GtkTreeView *tree_view, field_info *finfo) 
   GtkTreeModel *model;
   struct field_lookup_info fli;
 
+  g_assert(finfo != NULL);
+
   model = gtk_tree_view_get_model(tree_view);
   fli.fi = finfo;
   gtk_tree_model_foreach(model, lookup_finfo, &fli);
