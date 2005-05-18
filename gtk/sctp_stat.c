@@ -1103,7 +1103,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 				info->error_info_list = g_list_append(info->error_info_list, error);
 			}
 		}
-	} // endif (!info)
+	} /* endif (!info) */
 	else
 	{
 		if (((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_INIT_CHUNK_ID) ||
@@ -1194,7 +1194,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					info->max_tsn2 = tsnumber;
 				info->instream2 = tvb_get_ntohs(sctp_info->tvb[0],INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET);
 				info->outstream2 = tvb_get_ntohs(sctp_info->tvb[0],INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET);
-				//info->initack_dir=2;
+				/*info->initack_dir=2;*/
 				info->tsn2 = g_list_prepend(info->tsn2, tsn);
 			}
 			else if (info->direction == 1)
@@ -1205,7 +1205,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					info->max_tsn1 = tsnumber;
 				info->instream1 = tvb_get_ntohs(sctp_info->tvb[0],INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET);
 				info->outstream1 = tvb_get_ntohs(sctp_info->tvb[0],INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET);
-				//info->initack_dir=1;
+				/*info->initack_dir=1;*/
 				info->tsn1 = g_list_prepend(info->tsn1, tsn);
 			}
 			info->chunk_count[tvb_get_guint8(sctp_info->tvb[0],0)]++;
