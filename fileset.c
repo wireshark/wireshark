@@ -128,6 +128,7 @@ fileset_filename_match_pattern(const char *fname)
 
 
 /* test, if both files could be in the same file set */
+/* (the filenames must already be in correct shape) */
 gboolean
 fileset_is_file_in_set(const char *fname1, const char *fname2)
 {
@@ -138,13 +139,18 @@ fileset_is_file_in_set(const char *fname1, const char *fname2)
     int         minlen = strlen("_00001_20050418010750");
 
 
+    /* just to be sure ... */
+    g_assert(fileset_filename_match_pattern(fname1));
+    g_assert(fileset_filename_match_pattern(fname2));
+
     dup_f1 = g_strdup(fname1);
     dup_f2 = g_strdup(fname2);
 
     pfx1 = strrchr(dup_f1, '.');
     pfx2 = strrchr(dup_f2, '.');
 
-    if(pfx1 == NULL || pfx2 == NULL || strcmp(pfx1, pfx2) != 0) {
+    /* the optional suffix (file extension) must be equal */
+    if(strcmp(pfx1, pfx2) != 0) {
         g_free(dup_f1);
         g_free(dup_f2);
         return FALSE;
@@ -259,35 +265,42 @@ fileset_add_dir(const char *fname)
     
     dirname = g_string_append_c(dirname, G_DIR_SEPARATOR);
 
-    /* if the current file can't be part of any fileset, do nothing */
-    if(!fileset_filename_match_pattern(fname)) {
+    /* is the current file probably a part of any fileset? */
+    if(fileset_filename_match_pattern(fname)) {
+        /* yes, go through the files in the directory and check if the file in question is part of the current file set */
+#if GLIB_MAJOR_VERSION < 2
+        if ((dir = opendir(dirname->str)) != NULL) {
+	        while ((file = readdir(dir)) != NULL) {
+	            name = (gchar *)file->d_name;
+#else
+        dummy = g_malloc(sizeof(GError *));
+        *dummy = NULL;
+
+        if ((dir = g_dir_open(dirname->str, 0, dummy)) != NULL) {
+            while ((name = g_dir_read_name(dir)) != NULL) {
+#endif
+                if(fileset_filename_match_pattern(name) && fileset_is_file_in_set(name, get_basename(fname))) {
+                    fileset_add_file(dirname->str, name, strcmp(name, get_basename(fname))== 0 /* current */);
+                }
+            } /* while */
+
+#if GLIB_MAJOR_VERSION < 2
+            closedir(dir);
+#else
+            g_dir_close(dir);
+#endif
+        } /* if */
+#if GLIB_MAJOR_VERSION >= 2
+        g_free(dummy);
+#endif
+    } else {
+        /* no, this is a "standalone file", just add this one */
         entry = fileset_add_file(dirname->str, get_basename(fname), TRUE /* current */);
         if(entry) {
             fileset_dlg_add_file(entry);
         }
     }
 
-    /* go through the files in the directory and check if it's part of the current file set */
-#if GLIB_MAJOR_VERSION < 2
-    if ((dir = opendir(dirname->str)) != NULL) {
-	    while ((file = readdir(dir)) != NULL) {
-	        name = (gchar *)file->d_name;
-#else
-    dummy = g_malloc(sizeof(GError *));
-    *dummy = NULL;
-
-    if ((dir = g_dir_open(dirname->str, 0, dummy)) != NULL) {
-        while ((name = g_dir_read_name(dir)) != NULL) {
-#endif
-            if(fileset_filename_match_pattern(name) && fileset_is_file_in_set(name, get_basename(fname))) {
-                fileset_add_file(dirname->str, name, strcmp(name, get_basename(fname))== 0 /* current */);
-            }
-        }
-    }
-
-#if GLIB_MAJOR_VERSION >= 2
-    g_free(dummy);
-#endif
     g_string_free(dirname, TRUE /* free_segment */);
 
     /* sort entries by creation time */
