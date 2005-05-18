@@ -770,13 +770,17 @@ void expand_tree_cb(GtkWidget *widget _U_, gpointer data _U_) {
 
 #if GTK_MAJOR_VERSION < 2
   node = gtk_ctree_find_by_row_data(GTK_CTREE(tree_view), NULL, cfile.finfo_selected);
-  g_assert(node);
-  gtk_ctree_expand_recursive(GTK_CTREE(tree_view), node);
+  if(node) {
+    /* the mouse position is at an entry, expand that one */
+    gtk_ctree_expand_recursive(GTK_CTREE(tree_view), node);
+  }
 #else
   path = tree_find_by_field_info(GTK_TREE_VIEW(tree_view), cfile.finfo_selected);
-  g_assert(path);
-  gtk_tree_view_expand_row(GTK_TREE_VIEW(tree_view), path, TRUE);
-  gtk_tree_path_free(path);
+  if(path) {
+    /* the mouse position is at an entry, expand that one */
+    gtk_tree_view_expand_row(GTK_TREE_VIEW(tree_view), path, TRUE);
+    gtk_tree_path_free(path);
+  }
 #endif
 }
 
