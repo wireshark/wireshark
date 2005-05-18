@@ -48,7 +48,7 @@
 
 #include <epan/packet.h>
 #include <epan/ipv6-utils.h>
-#include <tap.h>
+#include <epan/stats_tree.h>
 #include <prefs.h>
 #include "packet-q931.h"
 #include "packet-isup.h"
@@ -5637,6 +5637,37 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	message_tvb = tvb_new_subset(tvb, 0, -1, -1);
 	dissect_isup_message(message_tvb, pinfo, isup_tree);
 }
+/* ---------------------------------------------------- stats tree
+*/
+static int st_node_msg = -1;
+static int st_node_dir = -1;
+
+static void msg_stats_tree_init(stats_tree* st) {
+	st_node_msg = stats_tree_create_node(st, "Messages by Type", 0, TRUE);	
+	st_node_dir = stats_tree_create_node(st, "Messages by Direction", 0, TRUE);	
+}
+
+static int msg_stats_tree_packet(stats_tree *st  , packet_info *pinfo, epan_dissect_t *edt _U_, const void *p ) {
+	const gchar* msg = match_strval(((isup_tap_rec_t*)p)->message_type, isup_message_type_value_acro);
+	gchar src[32];
+	gchar dst[32];
+	gchar dir[64];
+	int msg_node;
+	int dir_node;
+	
+	address_to_str_buf(&(pinfo->net_src), src);
+	address_to_str_buf(&(pinfo->net_dst), dst);
+	g_snprintf(dir,sizeof(dir),"%s->%s",src,dst);
+	
+	msg_node = tick_stat_node(st, msg, st_node_msg, TRUE);
+	tick_stat_node(st, dir, msg_node, FALSE);
+	
+	dir_node = tick_stat_node(st, dir, st_node_dir, TRUE);
+	tick_stat_node(st, msg, dir_node, FALSE);
+	
+	return 1;
+}
+
 /*---------------------------------------------------------------------*/
 /* Register the protocol with Ethereal */
 void
@@ -6506,6 +6537,9 @@ proto_register_isup(void)
 	prefs_register_bool_preference(isup_module, "show_cic_in_info", "Show CIC in Info column",
 				 "Show the CIC value (in addition to the message type) in the Info column",
 				 (gint *)&isup_show_cic_in_info);
+	
+/* Register the stats_tree */
+	stats_tree_register("isup","isup_msg","ISUP Messages", msg_stats_tree_packet, msg_stats_tree_init, NULL );
 }
 
 
