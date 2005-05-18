@@ -144,7 +144,7 @@ fileset_is_file_in_set(const char *fname1, const char *fname2)
     pfx1 = strrchr(dup_f1, '.');
     pfx2 = strrchr(dup_f2, '.');
 
-    if(strcmp(pfx1, pfx2) != 0) {
+    if(pfx1 == NULL || pfx2 == NULL || strcmp(pfx1, pfx2) != 0) {
         g_free(dup_f1);
         g_free(dup_f2);
         return FALSE;
