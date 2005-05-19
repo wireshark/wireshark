@@ -44,6 +44,18 @@ static int proto_nonstd = -1;
  */
 static int ett_nonstd = -1;
 
+const value_string ms_codec_vals[] = {
+	{  0x0111, "L&H CELP 4.8k" },
+	{  0x0200, "MS-ADPCM" },
+	{  0x0211, "L&H CELP 8k" },
+	{  0x0311, "L&H CELP 12k" },
+	{  0x0411, "L&H CELP 16k" },
+	{  0x1100, "IMA-ADPCM" },
+	{  0x3100, "MS-GSM" },
+	{  0xfeff, "E-AMR" },
+	{  0, NULL }
+};
+
 static void
 dissect_ms_nonstd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
@@ -52,7 +64,6 @@ dissect_ms_nonstd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     guint32 offset=0;
     gint tvb_len;
     guint16 codec_value, codec_extra;
-    char codec_string[200];
 
       it=proto_tree_add_protocol_format(tree, proto_nonstd, tvb, 0, tvb_length(tvb), "Microsoft NonStd");
       tr=proto_item_add_subtree(it, ett_nonstd);
@@ -78,51 +89,12 @@ dissect_ms_nonstd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
         codec_value = tvb_get_ntohs(tvb,offset+20);
         codec_extra = tvb_get_ntohs(tvb,offset+22);
 
+        
         if(codec_extra == 0x0100)
         {
 
-           /*
-            * XXX - should this be done with a value_string table?
-            */
-           if(codec_value == 0x0111)
-           {
-              strcpy(codec_string,"L&H CELP 4.8k");
-           }
-           else if(codec_value == 0x0200)
-           {
-              strcpy(codec_string,"MS-ADPCM");
-           } 
-           else if(codec_value == 0x0211)
-           {
-              strcpy(codec_string,"L&H CELP 8k");
-           }
-           else if(codec_value == 0x0311)
-           {
-              strcpy(codec_string,"L&H CELP 12k");
-           }
-           else if(codec_value == 0x0411)
-           {
-              strcpy(codec_string,"L&H CELP 16k");
-           }
-           else if(codec_value == 0x1100)
-           {
-              strcpy(codec_string,"IMA-ADPCM");
-           }
-           else if(codec_value == 0x3100)
-           {
-              strcpy(codec_string,"MS-GSM");
-           }
-           else if(codec_value == 0xFEFF)
-           {
-              strcpy(codec_string,"E-AMR");
-           }
-           else
-           {
-              strcpy(codec_string,"Unknown");
-           }
-
-
-           proto_tree_add_text(tree, tvb, offset+20,2, "Microsoft NetMeeting Codec=0x%04X %s",codec_value,codec_string);
+           proto_tree_add_text(tree, tvb, offset+20,2, "Microsoft NetMeeting Codec=0x%04X %s",
+			   codec_value,val_to_str(codec_value, ms_codec_vals,"Unknown (%u)"));
 
         }
         else
