@@ -236,6 +236,7 @@ const value_string T35Extension_vals[] = {
 };
 
 const value_string H221ManufacturerCode_vals[] = {
+	{  0x000b2d00, "Sony"}					,                           /* From captures */
 	{  0x04000042, "Deutsche Telekom AG" },                             /* From Ref. 3 */
 	{  0x04000043, "Deutsche Telekom AG" },                             /* From Ref. 3 */
 	{  0x04000082, "Siemens AG" },                                      /* From Ref. 3 */
@@ -251,6 +252,7 @@ const value_string H221ManufacturerCode_vals[] = {
 	{  0x04000082, "SITK Institut für Telekommunikation GmbH & Co KG" },/* From Ref. 3 */
 	{  0x0900003D, "Equivalence (OpenH323)" },                          /* From captures */
 	{  0x20000081, "Mediatrix Telecom" },                               /* From Ref. 1 */
+	{  0x3c000000, "Nokia" },											/* From captures */
 	{  0x3d000310, "Swissvoice" },
 	{  0x3d000311, "Swissvoice" },
 	{  0x3d000312, "Swissvoice" },
