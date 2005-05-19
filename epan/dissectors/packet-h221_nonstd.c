@@ -45,21 +45,33 @@ static int proto_nonstd = -1;
 static int ett_nonstd = -1;
 
 static void
-dissect_ms_nonstd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ms_nonstd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	proto_item *it;
-	proto_tree *tr;
-	guint32 offset=0;
+    proto_item *it;
+    proto_tree *tr;
+    guint32 offset=0;
     gint tvb_len;
     guint16 codec_value, codec_extra;
     char codec_string[200];
 
-	it=proto_tree_add_protocol_format(tree, proto_nonstd, tvb, 0, tvb_length(tvb), "Microsoft NonStd");
-	tr=proto_item_add_subtree(it, ett_nonstd);
+      it=proto_tree_add_protocol_format(tree, proto_nonstd, tvb, 0, tvb_length(tvb), "Microsoft NonStd");
+      tr=proto_item_add_subtree(it, ett_nonstd);
 
 
       tvb_len = tvb_length(tvb);
 
+      /*
+       * XXX - why do this test?  Are there any cases where throwing
+       * an exception if the tvbuff is too short causes subsequent stuff
+       * in the packet not to be dissected (e.g., if the octet string
+       * containing the non-standard data is too short for the data
+       * supposedly contained in it, and is followed by more items)?
+       *
+       * If so, the right fix might be to catch ReportedBoundsError in
+       * the dissector calling this dissector, and report a malformed
+       * nonStandardData item, and rethrow other exceptions (as a
+       * BoundsError means you really *have* run out of packet data).
+       */
       if(tvb_len >= 23)
       {
 
@@ -69,6 +81,9 @@ dissect_ms_nonstd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if(codec_extra == 0x0100)
         {
 
+           /*
+            * XXX - should this be done with a value_string table?
+            */
            if(codec_value == 0x0111)
            {
               strcpy(codec_string,"L&H CELP 4.8k");
@@ -140,7 +155,6 @@ proto_register_nonstd(void)
 void
 proto_reg_handoff_nonstd(void)
 {
-  static dissector_handle_t nonstd_handle;
   static dissector_handle_t ms_nonstd_handle;
 
 
