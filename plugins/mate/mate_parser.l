@@ -10,7 +10,7 @@
 	*
 	* Copyright 2004, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
 	*
-	* $Id: packet-xml.c 13427 2005-02-18 22:33:16Z lego $
+	* $Id$
 	*
 	* Ethereal - Network traffic analyzer
 	* By Gerald Combs <gerald@ethereal.com>
