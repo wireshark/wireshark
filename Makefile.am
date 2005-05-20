@@ -432,6 +432,8 @@ EXTRA_DIST = \
 	capinfos.c		\
 	capture-wpcap.c		\
 	capture-wpcap.h		\
+    capture_wpcap_packet.c  \
+    capture_wpcap_packet.h  \
 	cleanbld.bat		\
 	config.h.win32		\
 	config.nmake		\
