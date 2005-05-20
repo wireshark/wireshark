@@ -40,6 +40,7 @@ noinst_HEADERS = \
 	about_dlg.h	\
 	capture_dlg.h	\
 	capture_prefs.h	\
+	capture_if_details_dlg.h	\
 	cfilter_combo_utils.h \
 	color_dlg.h	\
 	colors.h	\
@@ -116,6 +117,7 @@ endif
 libui_a_DEPENDENCIES = 
 
 EXTRA_DIST = \
+	capture_if_details_dlg.c	\
 	doxygen.cfg.in \
 	ethclist.c	\
 	ethclist.h	\

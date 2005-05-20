@@ -97,6 +97,7 @@
 
 #ifdef _WIN32
 #include "capture-wpcap.h"
+#include "capture_wpcap_packet.h"
 #endif
 
 #if GTK_MAJOR_VERSION < 2 && GTK_MINOR_VERSION < 3
@@ -772,14 +773,14 @@ void expand_tree_cb(GtkWidget *widget _U_, gpointer data _U_) {
   node = gtk_ctree_find_by_row_data(GTK_CTREE(tree_view), NULL, cfile.finfo_selected);
   if(node) {
     /* the mouse position is at an entry, expand that one */
-    gtk_ctree_expand_recursive(GTK_CTREE(tree_view), node);
+  gtk_ctree_expand_recursive(GTK_CTREE(tree_view), node);
   }
 #else
   path = tree_find_by_field_info(GTK_TREE_VIEW(tree_view), cfile.finfo_selected);
   if(path) {
     /* the mouse position is at an entry, expand that one */
-    gtk_tree_view_expand_row(GTK_TREE_VIEW(tree_view), path, TRUE);
-    gtk_tree_path_free(path);
+  gtk_tree_view_expand_row(GTK_TREE_VIEW(tree_view), path, TRUE);
+  gtk_tree_path_free(path);
   }
 #endif
 }
@@ -1875,6 +1876,9 @@ main(int argc, char *argv[])
 #ifdef _WIN32
   /* Load wpcap if possible. Do this before collecting the run-time version information */
   load_wpcap();
+
+  /* ... and also load the packet.dll from wpcap */
+  wpcap_packet_load();
 
   /* Start windows sockets */
   WSAStartup( MAKEWORD( 1, 1 ), &wsaData );

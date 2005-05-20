@@ -52,6 +52,7 @@
 #include "simple_dialog.h"
 #include "capture.h"
 #include "capture_dlg.h"
+#include "capture_if_details_dlg.h"
 
 #include "ui_util.h"
 #include "dlg_utils.h"
@@ -95,6 +96,9 @@ typedef struct if_dlg_data_s {
     GtkWidget   *last_lb;
     GtkWidget   *capture_bt;
     GtkWidget   *prepare_bt;
+#ifdef _WIN32
+    GtkWidget   *details_bt;
+#endif
     guint32     last_packets;
     gchar       *device;
 } if_dlg_data_t;
@@ -136,6 +140,19 @@ capture_prepare_cb(GtkWidget *prepare_bt _U_, gpointer if_data)
 
   capture_prep_cb(NULL, NULL);
 }
+
+
+#ifdef _WIN32
+/* capture details button was pressed */
+static void
+capture_details_cb(GtkWidget *details_bt _U_, gpointer if_data)
+{
+  if_dlg_data_t *if_dlg_data = if_data;
+
+
+  capture_if_details_open(if_dlg_data->device);
+}
+#endif
 
 
 /* open a single interface */
@@ -410,7 +427,11 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   stop_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_STOP);
   gtk_tooltips_set_tip(tooltips, stop_bt, 
           "Stop a running capture.", NULL);
+#ifdef _WIN32
+  gtk_table_attach_defaults(GTK_TABLE(if_tb), stop_bt, 5, 8, row, row+1);
+#else
   gtk_table_attach_defaults(GTK_TABLE(if_tb), stop_bt, 5, 7, row, row+1);
+#endif
   SIGNAL_CONNECT(stop_bt, "clicked", capture_stop_cb, NULL);
 
   row++;
@@ -499,6 +520,15 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       gtk_tooltips_set_tip(tooltips, if_dlg_data->prepare_bt, 
           "Open the capture options dialog with this interface selected.", NULL);
       gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->prepare_bt, 6, 7, row, row+1);
+
+      /* details button */
+#ifdef _WIN32
+      if_dlg_data->details_bt = gtk_button_new_with_label("Details");
+      SIGNAL_CONNECT(if_dlg_data->details_bt, "clicked", capture_details_cb, if_dlg_data);
+      gtk_tooltips_set_tip(tooltips, if_dlg_data->details_bt, 
+          "Open the capture details dialog of this interface.", NULL);
+      gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->details_bt, 7, 8, row, row+1);
+#endif
 
       open_if(if_info->name, if_dlg_data);
 
