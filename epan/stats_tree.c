@@ -281,7 +281,7 @@ extern stats_tree* stats_tree_new(stats_tree_cfg* cfg, tree_pres* pr,char* filte
 
 	st->names = g_hash_table_new(g_str_hash,g_str_equal);
 	st->parents = g_ptr_array_new();
-	st->filter = filter;
+	st->filter = g_strdup(filter);
 	
 	st->start = -1.0;
 	st->elapsed = 0.0;
@@ -486,11 +486,9 @@ extern int stats_tree_manip_node(manip_node_mode mode, stats_tree* st, const gui
 	stat_node* node = NULL;
 	stat_node* parent = NULL;
 	
-	if (parent_id >= 0 && parent_id < (int) st->parents->len ) {
-		parent = g_ptr_array_index(st->parents,parent_id);
-	} else {
-		g_assert_not_reached();
-	}
+	g_assert( parent_id >= 0 && parent_id < (int) st->parents->len );
+	
+	parent = g_ptr_array_index(st->parents,parent_id);
 	
 	if( parent->hash ) {
 		node = g_hash_table_lookup(parent->hash,name);
