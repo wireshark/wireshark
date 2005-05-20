@@ -135,6 +135,9 @@ extern gchar *get_ether_name_if_known(const guint8 *addr);
 /* get_manuf_name returns the vendor name or "%02x:%02x:%02x" if not known */
 extern const gchar *get_manuf_name(const guint8 *addr);
 
+/* get_manuf_name returns the vendor name or NULL if not known */
+extern const gchar *get_manuf_name_if_known(const guint8 *addr);
+
 /* get_ipxnet_name returns the logical name if found in an ipxnets file,
  * or a string formatted with "%X" if not */
 extern const gchar *get_ipxnet_name(const guint32 addr);

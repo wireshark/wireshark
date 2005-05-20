@@ -2130,6 +2130,23 @@ extern const gchar *get_manuf_name(const guint8 *addr)
 } /* get_manuf_name */
 
 
+const gchar *get_manuf_name_if_known(const guint8 *addr)
+{
+  hashmanuf_t  *manufp;
+
+  if (!eth_resolution_initialized) {
+    initialize_ethers();
+    eth_resolution_initialized = 1;
+  }
+
+  if ((manufp = manuf_name_lookup(addr)) == NULL) {
+    return NULL;
+  }
+
+  return manufp->name;
+
+} /* get_manuf_name_if_known */
+
 
 /* Translate a string, assumed either to be a dotted-quad IP address or
  * a host name, to a numeric IP address.  Return TRUE if we succeed and

@@ -285,6 +285,7 @@ get_dissector_table_ui_name
 get_ether_name
 get_hostname
 get_hostname6
+get_manuf_name_if_known
 get_persconffile_path
 get_plugins_global_dir
 get_plugins_pers_dir
