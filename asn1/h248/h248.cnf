@@ -80,15 +80,15 @@ ServiceChangeReply/terminationID			terminationIDList
 #.END
 
 #.FN_FTR TransactionRequest
-	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "}");
+	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "} }");
 #.END
 
 #.FN_FTR TransactionPending
-	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "}");
+	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "} }");
 #.END
 
 #.FN_FTR TransactionAck
-	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "}");
+	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "} }");
 #.END
 
 #.FN_BODY ActionRequest/contextId
@@ -186,3 +186,5 @@ ServiceChangeReply/terminationID			terminationIDList
 #.TYPE_ATTR
 IP4Address/address  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
 IP6Address/address  TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
+ActionRequest/contextId TYPE = FT_UINT32 DISPLAY = BASE_HEX STRINGS = NULL
+ActionReply/contextId TYPE = FT_UINT32 DISPLAY = BASE_HEX STRINGS = NULL

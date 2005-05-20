@@ -107,8 +107,8 @@ static int hf_h248_transactionPending = -1;       /* TransactionPending */
 static int hf_h248_transactionReply = -1;         /* TransactionReply */
 static int hf_h248_transactionResponseAck = -1;   /* TransactionResponseAck */
 static int hf_h248_transactionId = -1;            /* transactionId */
-static int hf_h248_actionRequests = -1;           /* SEQUENCE_OF_ActionRequest */
-static int hf_h248_actionRequests_item = -1;      /* ActionRequest */
+static int hf_h248_actions = -1;                  /* SEQUENCE_OF_ActionRequest */
+static int hf_h248_actions_item = -1;             /* ActionRequest */
 static int hf_h248_immAckRequired = -1;           /* NULL */
 static int hf_h248_transactionResult = -1;        /* T_transactionResult */
 static int hf_h248_transactionError = -1;         /* ErrorDescriptor */
@@ -734,7 +734,6 @@ static int dissect_h248_trx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 			proto_tree_add_uint(tree, hf_h248_transactionId, tvb, offset-len, len, (guint32)trx_id);			
 		}
 	}	
-	
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Trx %" PRIu64 " { ", trx_id);
@@ -772,27 +771,29 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 		switch(context_id) {
 			case 0x0000000:
 				strncpy(context_string,"Ctx 0",sizeof(context_string));
-				strncpy(context_string,"contextId: 0 (Null Context)",sizeof(context_string));
+				strncpy(context_string,"0 (Null Context)",sizeof(context_string));
 				break;
 			case 0xFFFFFFFF:
 				strncpy(context_string,"Ctx *",sizeof(context_string));
-				strncpy(context_string_long,"contextId: * (All Contexts)",sizeof(context_string));
+				strncpy(context_string_long,"* (All Contexts)",sizeof(context_string));
 				break;
 			case 0xFFFFFFFE:
 				strncpy(context_string,"Ctx $",sizeof(context_string));
-				strncpy(context_string_long,"contextId: $ (Choose One)",sizeof(context_string));
+				strncpy(context_string_long,"$ (Choose One)",sizeof(context_string));
 				break;
 			default:
 				g_snprintf(context_string,sizeof(context_string),"Ctx 0x%" PRIx64, context_id);
-				g_snprintf(context_string_long,sizeof(context_string),"contextId: 0x%" PRIx64, context_id);
+				g_snprintf(context_string_long,sizeof(context_string),"0x%" PRIx64, context_id);
 				break;
 		}
+		
 		if (context_id > 0xffffffff) {
 			proto_tree_add_uint64_format(tree, hf_h248_contextId_64,
 										  tvb, offset-len, len,
-										  context_id, "%s", context_string_long);
+										  context_id, "contextId: %s", context_string_long);
 		} else {
-			proto_tree_add_uint(tree, hf_h248_contextId, tvb, offset-len, len, (guint32)context_id);			
+			proto_tree_add_uint_format(tree, hf_h248_contextId, tvb, offset-len, len,
+									   (guint32)context_id, "contextId: %s", context_string_long);
 		}
 	}	
 	
@@ -1068,11 +1069,15 @@ dissect_h248_PropertyID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet
 	next_tvb = tvb_new_subset(tvb, offset , len , len );
 	name_major = packageandid >> 16;
 	name_minor = packageandid & 0xffff;
-
+/*
 	if(!dissector_try_port(h248_package_bin_dissector_table, name_major, next_tvb, pinfo, tree)){
-		dissect_h248_package_data(implicit_tag, next_tvb, pinfo, tree, name_major, name_minor);
-	}
+		proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "H.248: Dissector for Package/ID:0x%08x not implemented (yet).", packageandid);
 
+		offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, old_offset, hf_index, NULL);
+	}
+*/
+	dissect_h248_package_data(implicit_tag, next_tvb, pinfo, tree, name_major, name_minor);
+	
 	return end_offset;
 }
 
@@ -3766,12 +3771,12 @@ dissect_h248_ActionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
   return offset;
 }
-static int dissect_actionRequests_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_ActionRequest(FALSE, tvb, offset, pinfo, tree, hf_h248_actionRequests_item);
+static int dissect_actions_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_h248_ActionRequest(FALSE, tvb, offset, pinfo, tree, hf_h248_actions_item);
 }
 
 static const ber_sequence_t SEQUENCE_OF_ActionRequest_sequence_of[1] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_actionRequests_item },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_actions_item },
 };
 
 static int
@@ -3781,13 +3786,13 @@ dissect_h248_SEQUENCE_OF_ActionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb,
 
   return offset;
 }
-static int dissect_actionRequests_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_SEQUENCE_OF_ActionRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_actionRequests);
+static int dissect_actions_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_h248_SEQUENCE_OF_ActionRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_actions);
 }
 
 static const ber_sequence_t TransactionRequest_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_transactionId_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_actionRequests_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_actions_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -3796,7 +3801,7 @@ dissect_h248_TransactionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 TransactionRequest_sequence, hf_index, ett_h248_TransactionRequest);
 
-	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "}");
+	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "} }");
   return offset;
 }
 static int dissect_transactionRequest_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -3813,7 +3818,7 @@ dissect_h248_TransactionPending(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 TransactionPending_sequence, hf_index, ett_h248_TransactionPending);
 
-	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "}");
+	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "} }");
   return offset;
 }
 static int dissect_transactionPending_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -4298,7 +4303,7 @@ dissect_h248_TransactionAck(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 TransactionAck_sequence, hf_index, ett_h248_TransactionAck);
 
-	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "}");
+	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "} }");
   return offset;
 }
 static int dissect_TransactionResponseAck_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -4440,8 +4445,6 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   dissect_h248_MegacoMessage(FALSE, tvb, 0, pinfo, h248_tree, -1);
-  
-  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, " }");
 
 }
 
@@ -4633,14 +4636,14 @@ void proto_register_h248(void) {
       { "transactionId", "h248.transactionId",
         FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
-    { &hf_h248_actionRequests,
-      { "actionRequests", "h248.actionRequests",
+    { &hf_h248_actions,
+      { "actions", "h248.actions",
         FT_NONE, BASE_NONE, NULL, 0,
-        "TransactionRequest/actionRequests", HFILL }},
-    { &hf_h248_actionRequests_item,
-      { "Item", "h248.actionRequests_item",
+        "TransactionRequest/actions", HFILL }},
+    { &hf_h248_actions_item,
+      { "Item", "h248.actions_item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "TransactionRequest/actionRequests/_item", HFILL }},
+        "TransactionRequest/actions/_item", HFILL }},
     { &hf_h248_immAckRequired,
       { "immAckRequired", "h248.immAckRequired",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4683,7 +4686,7 @@ void proto_register_h248(void) {
         "ErrorDescriptor/errorText", HFILL }},
     { &hf_h248_contextId,
       { "contextId", "h248.contextId",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_HEX, NULL, 0,
         "", HFILL }},
     { &hf_h248_contextRequest,
       { "contextRequest", "h248.contextRequest",

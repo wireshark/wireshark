@@ -329,7 +329,6 @@ static int dissect_h248_trx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 			proto_tree_add_uint(tree, hf_h248_transactionId, tvb, offset-len, len, (guint32)trx_id);			
 		}
 	}	
-	
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Trx %" PRIu64 " { ", trx_id);
@@ -367,27 +366,29 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 		switch(context_id) {
 			case 0x0000000:
 				strncpy(context_string,"Ctx 0",sizeof(context_string));
-				strncpy(context_string,"contextId: 0 (Null Context)",sizeof(context_string));
+				strncpy(context_string,"0 (Null Context)",sizeof(context_string));
 				break;
 			case 0xFFFFFFFF:
 				strncpy(context_string,"Ctx *",sizeof(context_string));
-				strncpy(context_string_long,"contextId: * (All Contexts)",sizeof(context_string));
+				strncpy(context_string_long,"* (All Contexts)",sizeof(context_string));
 				break;
 			case 0xFFFFFFFE:
 				strncpy(context_string,"Ctx $",sizeof(context_string));
-				strncpy(context_string_long,"contextId: $ (Choose One)",sizeof(context_string));
+				strncpy(context_string_long,"$ (Choose One)",sizeof(context_string));
 				break;
 			default:
 				g_snprintf(context_string,sizeof(context_string),"Ctx 0x%" PRIx64, context_id);
-				g_snprintf(context_string_long,sizeof(context_string),"contextId: 0x%" PRIx64, context_id);
+				g_snprintf(context_string_long,sizeof(context_string),"0x%" PRIx64, context_id);
 				break;
 		}
+		
 		if (context_id > 0xffffffff) {
 			proto_tree_add_uint64_format(tree, hf_h248_contextId_64,
 										  tvb, offset-len, len,
-										  context_id, "%s", context_string_long);
+										  context_id, "contextId: %s", context_string_long);
 		} else {
-			proto_tree_add_uint(tree, hf_h248_contextId, tvb, offset-len, len, (guint32)context_id);			
+			proto_tree_add_uint_format(tree, hf_h248_contextId, tvb, offset-len, len,
+									   (guint32)context_id, "contextId: %s", context_string_long);
 		}
 	}	
 	
@@ -726,8 +727,6 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   dissect_h248_MegacoMessage(FALSE, tvb, 0, pinfo, h248_tree, -1);
-  
-  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, " }");
 
 }
 
