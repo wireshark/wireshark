@@ -14,6 +14,8 @@
  * By Alejandro Vaquero, alejandro.vaquero@verso.com
  * Copyright 2005, Verso Technologies Inc.
  *
+ * Copyright 2005 Javier Acuña <javier.acuna@sixbell.cl>
+ * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
@@ -81,7 +83,7 @@ static GtkWidget *label_fwd = NULL;
 /*static GtkWidet *bt_unselect = NULL;*/
 static GtkWidget *bt_filter = NULL;
 static GtkWidget *bt_graph = NULL;
-
+static GtkWidget *bt_help = NULL;
 
 static voip_calls_info_t* selected_call_fwd = NULL;  /* current selection */
 static GList *last_list = NULL;
@@ -125,8 +127,10 @@ static void add_to_clist(voip_calls_info_t* strinfo)
 	switch(strinfo->protocol){
 		case VOIP_ISUP:
 			tmp_isupinfo = strinfo->prot_info;
-			g_snprintf(field[8],30, "%i-%i -> %i-%i", tmp_isupinfo->ni, tmp_isupinfo->opc,
-				tmp_isupinfo->ni, tmp_isupinfo->dpc);
+			g_snprintf(field[8],30, "%i-%i -> %i-%i, CIC: %i", 
+			    tmp_isupinfo->ni, tmp_isupinfo->opc,
+				tmp_isupinfo->ni, tmp_isupinfo->dpc,
+				tmp_isupinfo->cic);
 			break;
 		case VOIP_H323:
 			tmp_h323info = strinfo->prot_info;
@@ -214,6 +218,7 @@ voip_calls_on_unselect                  (GtkButton       *button _U_,
 
 	/*gtk_widget_set_sensitive(bt_unselect, FALSE);*/
 	gtk_widget_set_sensitive(bt_filter, FALSE);
+	gtk_widget_set_sensitive(bt_help, TRUE);
 	gtk_widget_set_sensitive(bt_graph, FALSE);
 }
 
@@ -330,6 +335,62 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 	g_string_free(filter_string_fwd, TRUE);
 }
 
+static void spa_bt_clicked( GtkButton *button _U_)
+{
+    browser_open_url("http://wiki.ethereal.com/VoIP_20calls_20spanish");
+}
+
+static void en_bt_clicked( GtkButton *button _U_)
+{
+    browser_open_url("http://wiki.ethereal.com/VoIP_20calls");
+} 
+
+/****************************************************************************/
+static void
+on_help_bt_clicked                    (GtkButton       *button _U_)
+{
+/*-- Declare the GTK Widgets used in the program --*/
+  GtkWidget *window;
+  GtkWidget *spa_button;
+  GtkWidget *en_button;
+  GtkWidget *hbox;
+
+  /*-- Create the hbox --*/
+  hbox = gtk_hbox_new(FALSE, 0);
+  
+
+
+  /*-- Create the new window --*/
+  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+
+  /*-- Create a button --*/
+  spa_button = gtk_button_new_with_label("Go to spanish help page");
+  en_button = gtk_button_new_with_label("Go to english help page");
+  
+  /*-- Pack all the radio buttons into the hbox --*/
+  gtk_box_pack_start(GTK_BOX(hbox), spa_button, TRUE, TRUE, 2);
+  gtk_box_pack_start(GTK_BOX(hbox), en_button, TRUE, TRUE, 2);
+
+  /*-- Add the hbox to the window --*/
+  gtk_container_add(GTK_CONTAINER(window), hbox);
+    
+  /*-- Add the button to the window --*/
+/*  gtk_container_add(GTK_CONTAINER (window), spa_button);*/
+
+  /*-- Add the button to the window --*/
+/*  gtk_container_add(GTK_CONTAINER (window), en_button);*/
+
+  SIGNAL_CONNECT(spa_button, "clicked", spa_bt_clicked, NULL);
+  SIGNAL_CONNECT(en_button, "clicked", en_bt_clicked, NULL);
+
+  /*-- Display the widgets --*/
+  gtk_widget_show(en_button);
+  gtk_widget_show(spa_button);
+  gtk_widget_show(hbox);
+  gtk_widget_show(window);
+
+}
+
 
 
 
@@ -424,6 +485,7 @@ voip_calls_on_select_row(GtkCList *clist,
 	
 	/*gtk_widget_set_sensitive(bt_unselect, TRUE);*/
 	gtk_widget_set_sensitive(bt_filter, TRUE);
+	gtk_widget_set_sensitive(bt_help, TRUE);
 	gtk_widget_set_sensitive(bt_graph, TRUE);
 
 	/* TODO: activate other buttons when implemented */
@@ -622,6 +684,11 @@ static void voip_calls_dlg_create (void)
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_filter);
 	gtk_tooltips_set_tip (tooltips, bt_filter, "Prepare a display filter of the selected conversation", NULL);
 
+        /*Help window that sends to Wiki Page on VoIP*/
+        bt_help = gtk_button_new_with_label ("Help");
+        gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_help);
+        SIGNAL_CONNECT(bt_help, "clicked", on_help_bt_clicked, NULL);
+        gtk_tooltips_set_tip (tooltips, bt_help, "Send me to wiki help page", NULL);
 	bt_graph = gtk_button_new_with_label("Graph");
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_graph);
 	gtk_widget_show(bt_graph);
