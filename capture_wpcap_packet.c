@@ -146,7 +146,9 @@ wpcap_packet_load(void)
 char *
 wpcap_packet_get_version(void)
 {
-	g_assert(has_wpacket);
+    if(!has_wpacket) {
+        return NULL;
+    }
     return p_PacketGetVersion();
 }
 

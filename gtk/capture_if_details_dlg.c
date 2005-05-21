@@ -1252,15 +1252,30 @@ capture_if_details_open(char *iface)
     /* check packet.dll version */
     version = wpcap_packet_get_version();
 
-    /* XXX - we have to add more known DLL versions here */
+    if(version == NULL) {
+        /* couldn't even get the packet.dll version, must be a very old one or just not existing -> give up */
+        /* (this seems to be the case for 2.3 beta and all previous releases) */
+        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, 
+            PRIMARY_TEXT_START "Couldn't optain WinPcap packet.dll version!" PRIMARY_TEXT_END
+            "\n\nThe WinPcap packet.dll is not installed or the version you use seems to be very old!"
+            "\n\nPlease update/install WinPcap.");
+        return;
+    }
+
+    /* XXX - add more known DLL versions here */
+    /* (all versions since the 2.3 release seems to be working (although the 2.3 beta did not) */
     if( strcmp(version, "3, 1, 0, 24") == 0 ||       /* 3.1 beta 4 */
-        strcmp(version, "3.0 alpha3" ) == 0          /* 3.0 release */
+        strcmp(version, "3, 1, 0, 23") == 0 ||       /* 3.1 beta 3 */
+        strcmp(version, "3, 1, 0, 22") == 0 ||       /* 3.1 beta 2 */
+        strcmp(version, "3, 1, 0, 20") == 0 ||       /* 3.1 beta */
+        strcmp(version, "3.0 alpha3" ) == 0 ||       /* 3.0 release or 3.0 beta (yes, both versions report alpha3!) */
+        strcmp(version, "2.3"        ) == 0          /* 2.3 release */
         ) {   
 	    version_ok = TRUE;
     }
 
     if(!version_ok) {
-        /* dll version unknown, warn user */
+        /* packet.dll version not known to us, warn user but try to continue */
         dialog = simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK | ESD_BTN_CANCEL, 
             PRIMARY_TEXT_START "Unknown WinPcap version might crash or fail!" PRIMARY_TEXT_END
             "\n\nThe WinPcap packet.dll version \"%s\" is unknown if it supports required functions!"
