@@ -78,6 +78,7 @@ static const char *(*p_pcap_datalink_val_to_name) (int);
 #endif
 static const char *(*p_pcap_lib_version) (void);
 static int     (*p_pcap_setbuff) (pcap_t *, int dim);
+static int     (*p_pcap_next_ex) (pcap_t *, struct pcap_pkthdr **pkt_header, u_char **pkt_data);
 
 typedef struct {
 	const char	*name;
@@ -105,7 +106,7 @@ load_wpcap(void)
 		SYM(pcap_lookupnet, FALSE),
 		SYM(pcap_open_live, FALSE),
 		SYM(pcap_loop, FALSE),
-		SYM(pcap_freecode, FALSE),
+		SYM(pcap_freecode, TRUE),
 #ifdef HAVE_PCAP_FINDALLDEVS
 		SYM(pcap_findalldevs, TRUE),
 		SYM(pcap_freealldevs, TRUE),
@@ -118,6 +119,7 @@ load_wpcap(void)
 #endif
 		SYM(pcap_lib_version, TRUE),
 		SYM(pcap_setbuff, TRUE),
+		SYM(pcap_next_ex, TRUE),
 		{ NULL, NULL, FALSE }
 	};
 
@@ -250,7 +252,9 @@ void
 pcap_freecode(struct bpf_program *a)
 {
 	g_assert(has_wpcap);
-	p_pcap_freecode(a);
+    if(p_pcap_freecode) {
+	    p_pcap_freecode(a);
+    }
 }
 
 #ifdef HAVE_PCAP_FINDALLDEVS
@@ -416,6 +420,13 @@ int pcap_setbuff(pcap_t *a, int b)
 {
 	g_assert(has_wpcap);
 	return p_pcap_setbuff(a, b);
+}
+
+/* next_ex is win32 specific! */
+int pcap_next_ex (pcap_t *a, struct pcap_pkthdr **b, u_char **c)
+{
+	g_assert(has_wpcap);
+	return p_pcap_next_ex(a, b, c);
 }
 
 /*
