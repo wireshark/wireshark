@@ -659,7 +659,9 @@ get_runtime_pcap_version(GString *str)
 						blankp = strchr(packetVer, ' ');
 						if (blankp != NULL)
 							*blankp = '\0';
-					}
+                    } else {
+				        packetVer = "version unknown";
+                    }
 					g_module_close(handle);
 				}
 			}
