@@ -57,6 +57,7 @@
 #include "capture_wpcap_packet.h"
 #include "capture_if_details_dlg.h"
 
+#include "simple_dialog.h"
 
 #define DETAILS_STR_MAX     1024
 
@@ -1141,8 +1142,8 @@ capture_if_details_page_new(GtkWidget **table)
 }
 
 
-void
-capture_if_details_open(char *iface)
+static void
+capture_if_details_open_win(char *iface)
 {
     GtkWidget   *details_open_w,
                 *main_vb, *bbox, *close_bt, *help_bt;
@@ -1154,6 +1155,10 @@ capture_if_details_open(char *iface)
     int         entries;
 
 
+    /* open the network adapter */
+    adapter = wpcap_packet_open(iface);
+
+    /* open a new window */
     details_open_w = window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: Interface Details");
 
     /* Container for the window contents */
@@ -1164,9 +1169,6 @@ capture_if_details_open(char *iface)
     /* notebook */
     notebook = gtk_notebook_new();
     gtk_container_add(GTK_CONTAINER(main_vb), notebook);
-
-    /* open the network adapter */
-    adapter = wpcap_packet_open(iface);
 
     /* General page */
     page_general = capture_if_details_page_new(&table);
@@ -1223,5 +1225,54 @@ capture_if_details_open(char *iface)
     gtk_widget_show_all(details_open_w);
     window_present(details_open_w);
 }
+
+
+static void capture_if_details_open_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
+{
+    switch(btn) {
+    case(ESD_BTN_OK):
+        capture_if_details_open_win(data);
+        break;
+    case(ESD_BTN_CANCEL):
+        break;
+    default:
+        g_assert_not_reached();
+    }
+}
+
+
+void
+capture_if_details_open(char *iface)
+{
+    char        *version;
+    gboolean    version_ok = FALSE;
+    gpointer    dialog;
+
+
+    /* check packet.dll version */
+    version = wpcap_packet_get_version();
+
+    /* XXX - we have to add more known DLL versions here */
+    if( strcmp(version, "3, 1, 0, 24") == 0 ||       /* 3.1 beta 4 */
+        strcmp(version, "3.0 alpha3" ) == 0          /* 3.0 release */
+        ) {   
+	    version_ok = TRUE;
+    }
+
+    if(!version_ok) {
+        /* dll version unknown, warn user */
+        dialog = simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK | ESD_BTN_CANCEL, 
+            PRIMARY_TEXT_START "Unknown WinPcap version might crash or fail!" PRIMARY_TEXT_END
+            "\n\nThe WinPcap packet.dll version \"%s\" is unknown if it supports required functions!"
+            "\n\nOnly WinPcap versions 3.0 and 3.1 are known to work with this feature."
+            "\n\nCrashes or unexpected behaviour might occur, you have been warned!"
+            "\n\nContinue anyway?",
+            version);
+        simple_dialog_set_cb(dialog, capture_if_details_open_answered_cb, iface);
+    } else {
+        capture_if_details_open_win(iface);
+    }
+}
+
 
 #endif /* HAVE_LIBPCAP && _WIN32 */

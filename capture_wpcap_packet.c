@@ -79,6 +79,7 @@ gboolean has_wpacket = FALSE;
 /******************************************************************************************************************************/
 /* stuff to load WinPcap's packet.dll and the functions required from it */
 
+static PCHAR     (*p_PacketGetVersion) (void);
 static LPADAPTER (*p_PacketOpenAdapter) (char *adaptername);
 static void      (*p_PacketCloseAdapter) (LPADAPTER);
 static int       (*p_PacketRequest) (LPADAPTER, int, void *);
@@ -97,9 +98,10 @@ wpcap_packet_load(void)
 
 	/* These are the symbols I need or want from packet.dll */
 	static const symbol_table_t	symbols[] = {
+		SYM(PacketGetVersion, FALSE),
 		SYM(PacketOpenAdapter, FALSE),
 		SYM(PacketCloseAdapter, FALSE),
-		SYM(PacketRequest, TRUE),
+		SYM(PacketRequest, FALSE),
 		{ NULL, NULL, FALSE }
 	};
 
@@ -131,7 +133,6 @@ wpcap_packet_load(void)
 		sym++;
 	}
 
-
 	has_wpacket = TRUE;
 }
 
@@ -141,12 +142,22 @@ wpcap_packet_load(void)
 /* functions to access the NDIS driver values */
 
 
+/* get dll version */
+char *
+wpcap_packet_get_version(void)
+{
+	g_assert(has_wpacket);
+    return p_PacketGetVersion();
+}
+
+
 /* open the interface */
 void *
 wpcap_packet_open(char *if_name)
 {
-    LPADAPTER adapter;
+    LPADAPTER   adapter;
 
+	g_assert(has_wpacket);
     adapter = p_PacketOpenAdapter(if_name);
 
     return adapter;
@@ -158,6 +169,7 @@ void
 wpcap_packet_close(void *adapter)
 {
 
+	g_assert(has_wpacket);
     p_PacketCloseAdapter(adapter);
 }
 

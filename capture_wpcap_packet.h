@@ -28,6 +28,9 @@
 
 extern void wpcap_packet_load(void);
 
+/* get the packet.dll version info */
+extern char *wpcap_packet_get_version(void);
+
 /* open the interface */
 extern void * wpcap_packet_open(char *if_name);
 
