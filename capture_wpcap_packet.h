@@ -29,16 +29,16 @@
 extern void wpcap_packet_load(void);
 
 /* open the interface */
-extern LPADAPTER wpcap_packet_open(char *if_name);
+extern void * wpcap_packet_open(char *if_name);
 
 /* close the interface */
-extern void wpcap_packet_close(LPADAPTER adapter);
+extern void wpcap_packet_close(void * adapter);
 
-extern int wpcap_packet_request(LPADAPTER a, ULONG Oid, int set, char *value, unsigned int *length);
+extern int wpcap_packet_request(void *a, ULONG Oid, int set, char *value, unsigned int *length);
 
-extern int wpcap_packet_request_uint(LPADAPTER a, ULONG Oid, UINT *value);
+extern int wpcap_packet_request_uint(void *a, ULONG Oid, UINT *value);
 
-extern int wpcap_packet_request_ulong(LPADAPTER a, ULONG Oid, ULONG *value);
+extern int wpcap_packet_request_ulong(void *a, ULONG Oid, ULONG *value);
 
 
 #endif  /* CAPTURE_WPCAP_PACKET_H */

@@ -142,7 +142,7 @@ wpcap_packet_load(void)
 
 
 /* open the interface */
-LPADAPTER
+void *
 wpcap_packet_open(char *if_name)
 {
     LPADAPTER adapter;
@@ -155,7 +155,7 @@ wpcap_packet_open(char *if_name)
 
 /* close the interface */
 void
-wpcap_packet_close(LPADAPTER adapter)
+wpcap_packet_close(void *adapter)
 {
 
     p_PacketCloseAdapter(adapter);
@@ -164,7 +164,7 @@ wpcap_packet_close(LPADAPTER adapter)
 
 /* do a packet request call */
 int 
-wpcap_packet_request(LPADAPTER a, ULONG Oid, int set, char *value, unsigned int *length)
+wpcap_packet_request(void *adapter, ULONG Oid, int set, char *value, unsigned int *length)
 {
     BOOLEAN    Status;
     ULONG      IoCtlBufferLength=(sizeof(PACKET_OID_DATA) + (*length) - 1);
@@ -187,7 +187,7 @@ wpcap_packet_request(LPADAPTER a, ULONG Oid, int set, char *value, unsigned int 
     OidData->Oid = Oid;
     OidData->Length = *length;
 
-    Status = p_PacketRequest(a, set, OidData);
+    Status = p_PacketRequest(adapter, set, OidData);
 
     if(Status) {
         g_assert(OidData->Length <= *length);
@@ -207,13 +207,13 @@ wpcap_packet_request(LPADAPTER a, ULONG Oid, int set, char *value, unsigned int 
 
 /* get an UINT value using the packet request call */
 int
-wpcap_packet_request_uint(LPADAPTER a, ULONG Oid, UINT *value)
+wpcap_packet_request_uint(void *adapter, ULONG Oid, UINT *value)
 {
     BOOLEAN     Status;
     int         length = sizeof(UINT);
 
 
-    Status = wpcap_packet_request(a, Oid, FALSE /* !set */, (char *) value, &length);
+    Status = wpcap_packet_request(adapter, Oid, FALSE /* !set */, (char *) value, &length);
     if(Status) {
         g_assert(length == sizeof(UINT));
         return 1;
@@ -225,13 +225,13 @@ wpcap_packet_request_uint(LPADAPTER a, ULONG Oid, UINT *value)
 
 /* get an ULONG value using the NDIS packet request call */
 int
-wpcap_packet_request_ulong(LPADAPTER a, ULONG Oid, ULONG *value)
+wpcap_packet_request_ulong(void *adapter, ULONG Oid, ULONG *value)
 {
     BOOLEAN     Status;
     int         length = sizeof(ULONG);
 
 
-    Status = wpcap_packet_request(a, Oid, FALSE /* !set */, (char *) value, &length);
+    Status = wpcap_packet_request(adapter, Oid, FALSE /* !set */, (char *) value, &length);
     if(Status) {
         g_assert(length == sizeof(ULONG));
         return 1;
