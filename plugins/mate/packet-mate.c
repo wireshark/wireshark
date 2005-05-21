@@ -284,10 +284,10 @@ void mate_pdu_tree(mate_pdu *pdu, tvbuff_t *tvb, proto_tree* tree) {
 
 	if (pdu->gop) {
 		proto_tree_add_float(pdu_tree,pdu->cfg->hfid_pdu_time_in_gop, tvb, 0, 0, pdu->time_in_gop);		
-		mate_gop_tree(pdu_tree,tvb,pdu->gop);
+		mate_gop_tree(tree,tvb,pdu->gop);
 
 		if (pdu->gop->gog)
-			mate_gog_tree(pdu_tree,tvb,pdu->gop->gog,pdu->gop);
+			mate_gog_tree(tree,tvb,pdu->gop->gog,pdu->gop);
 	}
 	
 	if (pdu->avpl) {
