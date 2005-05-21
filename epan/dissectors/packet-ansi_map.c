@@ -646,6 +646,7 @@ static int hf_ansi_map_opr_code = -1;
 static int hf_ansi_map_param_id = -1;
 static int hf_ansi_map_ios401_elem_id = -1;
 
+static int hf_ansi_map_billing_id = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_ansi_map = -1;
@@ -2693,9 +2694,9 @@ param_bill_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     saved_offset = asn1->offset;
     asn1_int32_value_decode(asn1, 3, &id);
 
-    proto_tree_add_text(tree, asn1->tvb,
-	saved_offset, asn1->offset - saved_offset,
-	"ID Number %u",
+    proto_tree_add_int_format(tree, hf_ansi_map_billing_id, asn1->tvb,
+	saved_offset, asn1->offset - saved_offset,id,
+	"ID Number %d",
 	id);
 
     saved_offset = asn1->offset;
@@ -13144,6 +13145,11 @@ proto_register_ansi_map(void)
 	{ &hf_ansi_map_param_id,
 	    { "Param ID",	"ansi_map.param_id",
 	    FT_UINT32, BASE_HEX, NULL, 0,
+	    "", HFILL }
+	},
+	{ &hf_ansi_map_billing_id,
+	    { "Billing ID",	"ansi_map.billing_id",
+	    FT_INT32, BASE_DEC, NULL, 0,
 	    "", HFILL }
 	},
 	{ &hf_ansi_map_ios401_elem_id,
