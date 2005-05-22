@@ -422,17 +422,19 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	g_hash_table_insert(matecfg->gops_by_pduname,cfg->name,cfg);
 }
 
-
 static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 	mate_cfg_gog* cfg = v;
 	void* avp_cookie;
 	void* avpl_cookie;
 	AVP* avp;
 	AVPL* avpl;
+	AVPL* gopkey_avpl;
 	AVPL* key_avps;
+	LoAL* gog_keys = NULL;
 	hf_register_info hfri = { NULL, {NULL, NULL, FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL}};
 	gint* ett;
 
+	/* create the hf array for this gog */
 	hfri.p_id = &(cfg->hfid);
 	hfri.hfinfo.name = g_strdup_printf("%s",cfg->name);
 	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s",cfg->name);
@@ -494,10 +496,21 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 
 	g_array_append_val(matecfg->hfrs,hfri);
 
+	/*  index the keys of gog for every gop
+		and insert the avps of the keys to the hfarray */
 	key_avps = new_avpl("");
 	
 	avpl_cookie = NULL;
 	while (( avpl = get_next_avpl(cfg->keys,&avpl_cookie) )) {
+		
+		if (! ( gog_keys = g_hash_table_lookup(matecfg->gogs_by_gopname,avpl->name))) {
+			gog_keys = new_loal(avpl->name);
+			g_hash_table_insert(matecfg->gogs_by_gopname,gog_keys->name,gog_keys);
+		}
+		
+		gopkey_avpl = new_avpl_from_avpl(cfg->name, avpl, TRUE);
+		loal_append(gog_keys,gopkey_avpl);
+
 		avp_cookie = NULL;
 		while (( avp = get_next_avp(avpl,&avp_cookie) )) {
 			if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
@@ -507,6 +520,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 		}
 	}
 
+	/* insert the extra avps to the hfarray */
 	avp_cookie = NULL;
 	while (( avp = get_next_avp(cfg->extra,&avp_cookie) )) {
 		if (! g_hash_table_lookup(cfg->my_hfids,avp->n))  {
@@ -514,7 +528,10 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p _U_) {
 		}
 	}
 	
+	/* every key_avp ios an extra as well.
+		one day every Member will have its own extras */
 	merge_avpl(cfg->extra,key_avps,TRUE);
+	
 	
 	analyze_transform_hfrs(cfg->name,cfg->transforms,cfg->my_hfids);
 
@@ -584,7 +601,7 @@ static void append_avpl(GString* str, AVPL* avpl) {
 		}
 	}
 	
-	g_string_erase(str,str->len-2,1);
+	if (str->len > 2) g_string_erase(str,str->len-2,1);
 	g_string_sprintfa(str,")");
 }
 
@@ -790,12 +807,6 @@ static void print_gog_config(gchar* name _U_,mate_cfg_gog* cfg, GString* s) {
 	
 	g_string_sprintfa(s, "Gog %s  {\n",cfg->name);
 	
-	if (cfg->extra) {
-		g_string_sprintfa(s,"\tExtra ");
-		append_avpl(s, cfg->extra);		
-		g_string_sprintfa(s,";\n");
-	}
-	
 	g_string_sprintfa(s,"\tShowTimes %s;\n",cfg->show_times ? "TRUE" : "FALSE");
 	
 	while (( avpl = get_next_avpl(cfg->keys,&cookie) )) {
@@ -819,12 +830,36 @@ static void print_gog_config(gchar* name _U_,mate_cfg_gog* cfg, GString* s) {
 	
 	append_transforms(s,cfg->transforms);
 	
+	if (cfg->extra && cfg->extra->len) {
+		g_string_sprintfa(s,"\tExtra ");
+		append_avpl(s, cfg->extra);		
+		g_string_sprintfa(s,";\n");
+	}
+	
+	
 	g_string_sprintfa(s,"};\n\n");
+}
+
+static void print_config(void) {
+	GString* config_text = g_string_new("\n");
+	guint i;
+	
+	g_hash_table_foreach(matecfg->transfs,print_transforms,config_text);
+	
+	for (i=0; i < matecfg->pducfglist->len; i++) {
+		print_pdu_config((mate_cfg_pdu*) g_ptr_array_index(matecfg->pducfglist,i),config_text);
+	}
+	
+	g_hash_table_foreach(matecfg->gopcfgs,(GHFunc)print_gop_config,config_text);
+	g_hash_table_foreach(matecfg->gogcfgs,(GHFunc)print_gog_config,config_text);
+	
+	g_message("Current configuration:\n%s\nDone;\n",config_text->str);
+	
+	g_string_free(config_text,TRUE);
 }
 
 extern mate_config* mate_make_config(gchar* filename, int mate_hfid) {
 	gint* ett;
-	GString* config_text;
 	avp_init();
 
 	matecfg = g_malloc(sizeof(mate_config));
@@ -881,27 +916,15 @@ extern mate_config* mate_make_config(gchar* filename, int mate_hfid) {
 	g_array_append_val(matecfg->ett,ett);
 	
 	if ( mate_load_config(filename,matecfg) ) {
-		guint i;
+		analyze_config();
 
 		/* if (dbg_cfg_lvl > 0) { */
-			config_text = g_string_new("\n");
-			g_hash_table_foreach(matecfg->transfs,print_transforms,config_text);
-			
-			for (i=0; i < matecfg->pducfglist->len; i++) {
-				print_pdu_config((mate_cfg_pdu*) g_ptr_array_index(matecfg->pducfglist,i),config_text);
-			}
-			
-			g_hash_table_foreach(matecfg->gopcfgs,(GHFunc)print_gop_config,config_text);
-			g_hash_table_foreach(matecfg->gogcfgs,(GHFunc)print_gog_config,config_text);
-			
-			g_message("Current configuration:\n%s\nDone;\n",config_text->str);
+			print_config();
 		/* } */
 		
-		analyze_config();
-		/* dbg_print (dbg_cfg,3,dbg_facility,"mate_make_config: OK"); */
 	} else {
 		report_failure("MATE failed to configue!\n"
-					   "it is recomended that you fix your config and restart ethereal.\n"
+					   "It is recomended that you fix your config and restart ethereal.\n"
 					   "The reported error is:\n%s\n",matecfg->config_error->str);
 		
 		/* if (matecfg) destroy_mate_config(matecfg,FALSE); */

@@ -155,7 +155,9 @@ extern void initialize_mate_runtime(void) {
 		rd->frames = g_hash_table_new(g_direct_hash,g_direct_equal);
 		
 
-		mc->dbg_gop_lvl = 5;
+		/*mc->dbg_gop_lvl = 5;
+		mc->dbg_gog_lvl = 5;
+		*/
 		dbg_pdu = &(mc->dbg_pdu_lvl);
 		dbg_gop = &(mc->dbg_gop_lvl);
 		dbg_gog = &(mc->dbg_gog_lvl);

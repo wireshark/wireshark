@@ -357,6 +357,8 @@ action_mode(A) ::= INSERT_KW. { A = AVPL_INSERT; }
 pdu_decl ::= PDU_KW NAME(NAME) PROTO_KW field(FIELD) TRANSPORT_KW proto_stack(STACK) pdu_setup(SETUP) SEMICOLON. {
 	mate_cfg_pdu* cfg  = new_pducfg(NAME);
 	extraction_t *extraction, *next_extraction;
+	GPtrArray* transport_stack = g_ptr_array_new();
+	int i;
 	
 	if (! cfg ) configuration_error(mc,"could not create Pdu %s.",NAME);
 
@@ -367,8 +369,15 @@ pdu_decl ::= PDU_KW NAME(NAME) PROTO_KW field(FIELD) TRANSPORT_KW proto_stack(ST
 	cfg->drop_unassigned = (SETUP->flags) ? SETUP->flags->drop_unassigned : mc->defaults.pdu.drop_unassigned;
 	
 	g_string_sprintfa(mc->protos_filter,"||%s",FIELD->abbrev);
+
+	/* flip the transport_stack */
+	for (i = STACK->len - 1; STACK->len; i--) {
+		g_ptr_array_add(transport_stack,g_ptr_array_remove_index(STACK,i));
+	}
 	
-	cfg->transport_ranges = STACK;
+	g_ptr_array_free(STACK,FALSE);
+	
+	cfg->transport_ranges = transport_stack;
 	cfg->payload_ranges = SETUP->payload;
 	
 	if (SETUP->criteria) {
