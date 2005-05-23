@@ -1263,8 +1263,8 @@ val_to_split_str(guint32 val, guint32 split_val, const value_string *vs,
 		return val_to_str(val, vs, split_fmt);
 };
 
-// from clause 20.2.1.3.2 Constructed Data
-// returns true if the extended value is used
+/* from clause 20.2.1.3.2 Constructed Data */
+/* returns true if the extended value is used */
 static gboolean tag_is_extended_value(guint8 octet)
 {
 	return ((octet & 0x07) == 5);
