@@ -107,6 +107,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 bvlc_length;
 	guint16 packet_length;
 	guint npdu_length;
+	guint length_remaining;
 	guint16 bvlc_result;
 	tvbuff_t *next_tvb;
 
@@ -121,6 +122,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	bvlc_type =  tvb_get_guint8(tvb, offset);
 	bvlc_function = tvb_get_guint8(tvb, offset+1);
 	packet_length = tvb_get_ntohs(tvb, offset+2);
+	length_remaining = tvb_length_remaining(tvb, offset);
 	if (bvlc_function > 0x08) {
 		/*  We have a constant header length of BVLC of 4 in every
 		 *  BVLC-packet forewarding an NPDU. Beware: Changes in the
@@ -159,9 +161,15 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			bvlc_function, val_to_str (bvlc_function,
 				bvlc_function_names, "Unknown"));
 		offset ++;
-		proto_tree_add_uint_format(bvlc_tree, hf_bvlc_length, tvb, offset,
-			2, bvlc_length, "BVLC-Length: %d of %d bytes BACnet packet length",
-			bvlc_length, packet_length);
+		if (length_remaining != packet_length)
+			proto_tree_add_uint_format(bvlc_tree, hf_bvlc_length, tvb, offset,
+				2, bvlc_length, 
+				"BVLC-Length: %d of %d bytes (invalid length - expected %d bytes)",
+				bvlc_length, packet_length, length_remaining);
+		else		
+			proto_tree_add_uint_format(bvlc_tree, hf_bvlc_length, tvb, offset,
+				2, bvlc_length, "BVLC-Length: %d of %d bytes BACnet packet length",
+				bvlc_length, packet_length);
 		offset += 2;
 		switch (bvlc_function) {
 		case 0x00: /* BVLC-Result */

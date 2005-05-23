@@ -1286,11 +1286,10 @@ fVTCloseError(tvbuff_t *tvb, proto_tree *tree, guint offset);
  * @param tree 
  * @param offset 
  * @param label 
- * @param src
  * @return modified offset
  */
 static guint
-fApplicationTypes   (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label, const value_string *src);
+fApplicationTypes   (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label);
 
 /**
  * BACnetActionCommand ::= SEQUENCE {
@@ -1376,31 +1375,6 @@ fCalendaryEntry (tvbuff_t *tvb, proto_tree *tree, guint offset);
 static guint
 fClientCOV (tvbuff_t *tvb, proto_tree *tree, guint offset);
 
-/**
- * BACnetCOVSubscription ::= SEQUENCE {
- *  Recipient                   [0] BACnetRecipientProcess,
- *  MOnitoredPropertyReference  [1] BACnetObjectPropertyReference,
- *  IssueConfirmedNotifications [2] BOOLEAN,
- *  TimeRemaining               [3] Unsigned,
- * 	COVIncrement                [4] REAL,
- * }
- * @param tvb 
- * @param tree 
- * @param offset 
- * @return modified offset
- */
-static guint
-fCOVSubscription (tvbuff_t *tvb, proto_tree *tree, guint offset);
-
-/**
- * BACnetDailySchedule ::= SEQUENCE {
- *  day-schedule    [0] SENQUENCE OF BACnetTimeValue
- * }
- * @param tvb 
- * @param tree 
- * @param offset 
- * @return modified offset
- */
 static guint
 fDailySchedule (tvbuff_t *tvb, proto_tree *tree, guint offset);
 
@@ -1933,7 +1907,7 @@ fTimeSpan (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label);
  * @return modified offset
  */
 static guint
-fPropertyIdentifier (tvbuff_t *tvb, proto_tree *tree, guint offset, proto_item **tt);
+fPropertyIdentifier (tvbuff_t *tvb, proto_tree *tree, guint offset);
 
 /**
  * listOfEventSummaries ::= SEQUENCE OF SEQUENCE {
