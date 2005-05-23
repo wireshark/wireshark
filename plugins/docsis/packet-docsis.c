@@ -194,7 +194,7 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, gboolean isfrag)
 {
   proto_tree *ehdr_tree;
   proto_item *it;
-  guint8 ehdrlen;
+  gint ehdrlen;
   int pos;
   guint8 type;
   guint8 len;
@@ -207,7 +207,7 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, gboolean isfrag)
 
   it = proto_tree_add_text (tree, tvb, pos, ehdrlen, "Extended Header");
   ehdr_tree = proto_item_add_subtree (it, ett_ehdr);
-  while (pos < (int)(ehdrlen + 4))
+  while (pos < ehdrlen + 4)
     {
       type = (tvb_get_guint8 (tvb, pos) & 0xF0);
       len = (tvb_get_guint8 (tvb, pos) & 0x0F);
@@ -322,13 +322,14 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   guint8 fctype;
   guint8 fcparm;
   guint8 ehdron;
-  guint8 mac_parm;
-  guint8 hdrlen;
+  gint mac_parm;
+  gint hdrlen;
   guint16 len_sid;
   tvbuff_t *next_tvb, *mgt_tvb;
   gint pdulen, captured_length;
-  guint16 framelen;
+  gint framelen;
   gboolean isfrag = FALSE;
+  gint oldconcatlen;
 
 /* Set up structures needed to add the protocol subtree and manage it */
   proto_item *ti;
@@ -336,8 +337,8 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 /* concatlen and concatpos are declared static to allow for recursive calls to
  * the dissect_docsis routine when dissecting Concatenated frames
  */
-  static guint16 concatlen;
-  static guint16 concatpos;
+  static gint concatlen;
+  static gint concatpos;
 
 /* Extract important fields */
   fc = tvb_get_guint8 (tvb, 0);	/* Frame Control Byte */
@@ -563,8 +564,11 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	   * docsis frames are dissected. */
 	  while (concatlen > 0)
 	    {
+	      oldconcatlen = concatlen;
 	      next_tvb = tvb_new_subset (tvb, concatpos, -1, concatlen);
 	      call_dissector (docsis_handle, next_tvb, pinfo, tree);
+	      if (oldconcatlen <= concatlen)
+		THROW(ReportedBoundsError);
 	    }
 	  concatlen = 0;
 	  concatpos = 0;
