@@ -39,7 +39,6 @@ char camel_number_to_char(int );
 
 
 ETH_VAR_IMPORT const value_string camel_opr_code_strings[];
-static int dissect_camel_DestinationAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_);
 /* #include "packet-camel-exp.h"*/
 
 #endif  /* PACKET_camel_H */
