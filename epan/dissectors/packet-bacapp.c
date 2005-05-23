@@ -1261,7 +1261,7 @@ val_to_split_str(guint32 val, guint32 split_val, const value_string *vs,
 		return val_to_str(val, vs, fmt);
 	else
 		return val_to_str(val, vs, split_fmt);
-};
+}
 
 /* from clause 20.2.1.3.2 Constructed Data */
 /* returns true if the extended value is used */
