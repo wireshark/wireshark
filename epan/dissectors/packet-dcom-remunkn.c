@@ -68,10 +68,10 @@ static int proto_remunk = -1;
 /* DCOM documentation tells us: 0x00000142 (7 methods) */
 /* win2000 registry tells us: 0x00000142 IRemoteQI (4 methods) */
 /* win2000 registry tells us: 0x00000143 IRemUnknown2 (7 methods) */
-/* who do we want to trust? */
+/* There is some evidence, that the DCOM documentation is wrong, so using 143 for IRemUnknown2 now. */
 
 static gint ett_remunk2 = -1;
-static e_uuid_t uuid_remunk2 = { 0x00000142, 0x0000, 0x0000, { 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
+static e_uuid_t uuid_remunk2 = { 0x00000143, 0x0000, 0x0000, { 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
 static guint16  ver_remunk2 = 0;
 static int proto_remunk2 = -1;
 
