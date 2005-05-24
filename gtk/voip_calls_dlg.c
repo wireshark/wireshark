@@ -57,6 +57,7 @@
 #include "ui_util.h"
 #include "compat_macros.h"
 #include "gtkglobals.h"
+#include "webbrowser.h"
 
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
