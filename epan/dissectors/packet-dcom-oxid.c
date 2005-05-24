@@ -93,6 +93,24 @@ dissect_oxid_simple_ping_resp(tvbuff_t *tvb, int offset,
 }
 
 
+static int
+dissect_oxid_server_alive_resp(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+	guint32 u32HResult;
+
+
+	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, 
+						&u32HResult);
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
+	}
+
+	return offset;
+}
+
 
 static int
 dissect_oxid_complex_ping_rqst(tvbuff_t *tvb, int offset,
@@ -271,7 +289,7 @@ static dcerpc_sub_dissector oxid_dissectors[] = {
     { 0, "ResolveOxid", NULL, NULL },
     { 1, "SimplePing", dissect_oxid_simple_ping_rqst, dissect_oxid_simple_ping_resp },
     { 2, "ComplexPing", dissect_oxid_complex_ping_rqst, dissect_oxid_complex_ping_resp },
-    { 3, "ServerAlive", NULL, NULL },
+    { 3, "ServerAlive", NULL /* no input parameters */, dissect_oxid_server_alive_resp },
     { 4, "ResolveOxid2", dissect_oxid_resolve_oxid2_rqst, dissect_oxid_resolve_oxid2_resp },
     { 5, "ServerAlive2", NULL, dissect_oxid_server_alive2_resp },
     { 0, NULL, NULL, NULL },
