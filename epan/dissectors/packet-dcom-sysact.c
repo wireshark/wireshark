@@ -32,8 +32,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
-#include "packet-dcerpc-dcom.h"
-#include "packet-smb-common.h"
+#include "packet-dcom.h"
+
 
 static int proto_ISystemActivator = -1;
 
@@ -44,12 +44,43 @@ static gint ett_ISystemActivator = -1;
 static e_uuid_t uuid_ISystemActivator = { 0x000001a0, 0x0000, 0x0000, { 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
 static guint16  ver_ISystemActivator = 0;
 
+
+static int
+dissect_remsysact_remotecreateinstance_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+
+    offset = dissect_dcom_this(tvb, offset, pinfo, tree, drep);
+
+    offset = dissect_dcom_tobedone_data(tvb, offset, pinfo, tree, drep, 
+        tvb_ensure_length_remaining(tvb, offset));
+
+	return offset;
+}
+
+
+static int
+dissect_remsysact_remotecreateinstance_resp(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+
+    offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
+
+    offset = dissect_dcom_tobedone_data(tvb, offset, pinfo, tree, drep, 
+        tvb_ensure_length_remaining(tvb, offset));
+
+	return offset;
+}
+
+
+
+
 static dcerpc_sub_dissector ISystemActivator_dissectors[] = {
     { 0, "QueryInterfaceIRemoteSCMActivator", NULL, NULL },
     { 1, "AddRefIRemoteISCMActivator", NULL, NULL },
     { 2, "ReleaseIRemoteISCMActivator", NULL, NULL },
     { 3, "RemoteGetClassObject", NULL, NULL },
-    { 4, "RemoteCreateInstance", NULL, NULL },
+    { 4, "RemoteCreateInstance", dissect_remsysact_remotecreateinstance_rqst, dissect_remsysact_remotecreateinstance_resp },
     { 0, NULL, NULL, NULL },
 };
 
