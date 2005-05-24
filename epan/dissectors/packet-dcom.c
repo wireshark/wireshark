@@ -406,6 +406,21 @@ static const value_string dcom_objref_signature_vals[] = {
 	{ 0,          NULL }
 };
 
+/* although flags, they doesn't seem to be used as such */
+static const value_string dcom_stdobjref_flag_vals[] = {
+	{ 0x0000, "SORF_NULL" },
+	{ 0x0001, "SORF_OXRES1" },
+	{ 0x0020, "SORF_OXRES2" },
+	{ 0x0040, "SORF_OXRES3" },
+	{ 0x0080, "SORF_OXRES4" },
+	{ 0x0100, "SORF_OXRES5" },
+	{ 0x0200, "SORF_OXRES6" },
+	{ 0x0400, "SORF_OXRES7" },
+	{ 0x0800, "SORF_OXRES8" },
+	{ 0x1000, "SORF_NOPING" },
+	{ 0,          NULL }
+};
+
 static const value_string dcom_dcerpc_pointer_vals[] = {
 	{ 0x72657355, "User" },
 	{ 0x42535452, "BSTR" },
@@ -1697,7 +1712,7 @@ proto_register_dcom (void)
 		{ &hf_dcom_stdobjref,
 		{ "STDOBJREF", "dcom.stdobjref", FT_NONE, BASE_HEX, NULL, 0x0, "", HFILL }},
 		{ &hf_dcom_stdobjref_flags,
-		{ "Flags", "dcom.stdobjref.flags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ "Flags", "dcom.stdobjref.flags", FT_UINT32, BASE_HEX, VALS(dcom_stdobjref_flag_vals), 0x0, "", HFILL }},
 		{ &hf_dcom_stdobjref_public_refs,
 		{ "PublicRefs", "dcom.stdobjref.public_refs", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
 		{ &hf_dcom_stdobjref_oxid,
