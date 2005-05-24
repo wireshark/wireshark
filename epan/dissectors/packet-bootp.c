@@ -2032,8 +2032,8 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 {
 	guint16 raw_val;
 	unsigned long flow_val = 0;
-	guint off = PKT_MDC_TLV_OFF + voff;
-	guint tlv_len, i;
+	int off = PKT_MDC_TLV_OFF + voff;
+	int tlv_len, i;
 	guint8 asc_val[3] = "  ", flow_val_str[5];
 	static GString *tlv_str = NULL;
 	char bit_fld[64];
@@ -2044,7 +2044,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 		tlv_str = g_string_new("");
 
 	tvb_memcpy (tvb, asc_val, off, 2);
-	if (sscanf(asc_val, "%x", &tlv_len) != 1) {
+	if (sscanf(asc_val, "%x", &tlv_len) != 1 || tlv_len < 1) {
 		proto_tree_add_text(v_tree, tvb, off, len - off,
 			"Bogus length: %s", asc_val);
 		return;
@@ -2053,7 +2053,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 				tlv_len, "MTA DC Length: %d", tlv_len);
 		off += 2;
 
-		while ((int) off - voff < len) {
+		while (off - voff < len) {
 			/* Type */
 			raw_val = tvb_get_ntohs (tvb, off);
 			g_string_sprintf(tlv_str, "0x%.2s: %s = ",
@@ -2062,7 +2062,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 
 			/* Length */
 			tvb_memcpy(tvb, asc_val, off + 2, 2);
-			if (sscanf(asc_val, "%x", &tlv_len) != 1) {
+			if (sscanf(asc_val, "%x", &tlv_len) != 1 || tlv_len < 1) {
 				proto_tree_add_text(v_tree, tvb, off, len - off,
 							"[Bogus length: %s]", asc_val);
 				return;
@@ -2167,8 +2167,8 @@ static void
 dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 {
 	unsigned long raw_val;
-	guint off = PKT_CM_TLV_OFF + voff;
-	guint tlv_len, i;
+	int off = PKT_CM_TLV_OFF + voff;
+	int tlv_len, i;
 	guint8 asc_val[3] = "  ";
 	static GString *tlv_str = NULL;
 
@@ -2176,7 +2176,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 		tlv_str = g_string_new("");
 
 	tvb_memcpy (tvb, asc_val, off, 2);
-	if (sscanf(asc_val, "%x", &tlv_len) != 1) {
+	if (sscanf(asc_val, "%x", &tlv_len) != 1 || tlv_len < 1) {
 		proto_tree_add_text(v_tree, tvb, off, len - off,
 				    "Bogus length: %s", asc_val);
 		return;
@@ -2185,7 +2185,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 				tlv_len, "CM DC Length: %d", tlv_len);
 		off += 2;
 
-		while ((int) off - voff < len) {
+		while (off - voff < len) {
 			/* Type */
 			raw_val = tvb_get_ntohs (tvb, off);
 			g_string_sprintf(tlv_str, "0x%.2s: %s = ",
@@ -2194,7 +2194,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 
 			/* Length */
 			tvb_memcpy(tvb, asc_val, off + 2, 2);
-			if (sscanf(asc_val, "%x", &tlv_len) != 1) {
+			if (sscanf(asc_val, "%x", &tlv_len) != 1 || tlv_len < 1) {
 				proto_tree_add_text(v_tree, tvb, off, len - off,
 							"[Bogus length: %s]", asc_val);
 				return;
