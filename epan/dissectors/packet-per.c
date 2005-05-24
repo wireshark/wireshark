@@ -873,7 +873,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	} else if (IS_FT_TIME(hfi->type)) {
 		it = proto_tree_add_time(tree, hf_index, tvb, val_start, val_length, &timeval);
 	} else {
-		g_assert_not_reached();
+		THROW(ReportedBoundsError);
 	}
 	if (item) *item = it;
 	if (value) *value = val;
@@ -1028,7 +1028,7 @@ DEBUG_ENTRY("dissect_per_choice");
 
 			if((new_offset>(offset+(length*8)))||((new_offset+8)<(offset+length*8))){
 printf("new_offset:%d  offset:%d  length*8:%d\n",new_offset,offset,length*8);
-/*				g_assert_not_reached();*/
+/*				THROW(ReportedBoundsError)*/
 			}
 
 			offset+=length*8;
@@ -1457,7 +1457,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 				} else if (hfi->type==FT_BYTES) {
 					proto_tree_add_bytes(tree, hf_index, tvb, val_start, val_length, pbytes);
 				} else {
-					g_assert_not_reached();
+					THROW(ReportedBoundsError);
 				}
 			} else {
 				proto_tree_add_item(tree, hf_index, tvb, val_start, val_length, FALSE);
