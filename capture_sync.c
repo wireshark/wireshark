@@ -328,6 +328,7 @@ sync_pipe_start(capture_options *capture_opts) {
     char signal_pipe_fd[ARGV_NUMBER_LEN];
     char *fontstring;
     char *filterstring;
+    char *savefilestring;
     int signal_pipe[2];                     /* pipe used to send messages from parent to child (currently only stop) */
 #else
     char errmsg[1024+1];
@@ -354,11 +355,6 @@ sync_pipe_start(capture_options *capture_opts) {
 
     argv = sync_pipe_add_arg(argv, &argc, "-i");
     argv = sync_pipe_add_arg(argv, &argc, capture_opts->iface);
-
-    if(capture_opts->save_file) {
-      argv = sync_pipe_add_arg(argv, &argc, "-w");
-      argv = sync_pipe_add_arg(argv, &argc, capture_opts->save_file);
-    }
 
     if (capture_opts->has_snaplen) {
       argv = sync_pipe_add_arg(argv, &argc, "-s");
@@ -475,11 +471,21 @@ sync_pipe_start(capture_options *capture_opts) {
       argv = sync_pipe_add_arg(argv, &argc, filterstring);
     }
 
+    /* Convert save file name to a quote delimited string and pass to child */
+    if(capture_opts->save_file) {
+      argv = sync_pipe_add_arg(argv, &argc, "-w");
+      savefilestring = sync_pipe_quote_encapsulate(capture_opts->save_file);
+      argv = sync_pipe_add_arg(argv, &argc, savefilestring);
+    }
+
     /* Spawn process */
     capture_opts->fork_child = spawnvp(_P_NOWAIT, ethereal_path, argv);
     g_free(fontstring);
     if (filterstring) {
       g_free(filterstring);
+    }
+    if(savefilestring) {
+      g_free(savefilestring);
     }
 
     /* child own's the read side now, close our handle */
@@ -499,6 +505,11 @@ sync_pipe_start(capture_options *capture_opts) {
     if (capture_opts->cfilter != NULL && capture_opts->cfilter != 0) {
       argv = sync_pipe_add_arg(argv, &argc, "-f");
       argv = sync_pipe_add_arg(argv, &argc, capture_opts->cfilter);
+    }
+
+    if(capture_opts->save_file) {
+      argv = sync_pipe_add_arg(argv, &argc, "-w");
+      argv = sync_pipe_add_arg(argv, &argc, capture_opts->save_file);
     }
 
     if ((capture_opts->fork_child = fork()) == 0) {
