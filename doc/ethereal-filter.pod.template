@@ -373,8 +373,8 @@ the Perl-Compatible Regular Expressions library: see B<http://www.pcre.org/>.
 This manpage does not describe the capture filter syntax, which is
 different. See the tcpdump(8) manpage for a description of capture
 filters. Microsoft Windows versions use WinPcap from
-B<http://winpcap.polito.it/> for which the capture filter syntax is described
-in B<http://winpcap.polito.it/docs/man/html/group__language.html>.
+B<http://www.winpcap.org/> for which the capture filter syntax is described
+in B<http://www.winpcap.org/docs/man/html/group__language.html>.
 
 =head1 SEE ALSO
 
