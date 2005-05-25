@@ -218,6 +218,8 @@ find_val_for_string
 follow_tcp_stats
 format_text
 fragment_add
+fragment_add_check
+fragment_add_multiple_ok
 fragment_add_seq
 fragment_add_seq_check
 fragment_add_seq_next
@@ -354,6 +356,7 @@ prefs_register_range_preference
 prefs_register_string_preference
 prefs_register_uint_preference
 prefs_set_pref
+process_reassembled_data
 process_tap_cmd_arg
 protocols_module                DATA
 proto_can_match_selected
