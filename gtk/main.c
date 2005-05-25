@@ -1289,9 +1289,8 @@ main_cf_cb_file_read_finished(capture_file *cf)
 
 #ifdef HAVE_LIBPCAP
 static void
-main_cf_cb_live_capture_update_started(capture_options *capture_opts)
+main_cf_cb_live_capture_prepared(capture_options *capture_opts)
 {
-    gchar *capture_msg;
     gchar *title;
 
 
@@ -1308,9 +1307,24 @@ main_cf_cb_live_capture_update_started(capture_options *capture_opts)
        a capture. */
     set_menus_for_capture_in_progress(TRUE);
 
+    /* update statusbar */
+    statusbar_push_file_msg("Waiting for capture input data ...");
+
+    /* Don't set up main window for a capture file. */
+    main_set_for_capture_file(FALSE);
+}
+
+static void
+main_cf_cb_live_capture_update_started(capture_options *capture_opts)
+{
+    gchar *capture_msg;
+
+
     /* Enable menu items that make sense if you have some captured
        packets (yes, I know, we don't have any *yet*). */
     set_menus_for_captured_packets(TRUE);
+
+    statusbar_pop_file_msg();
 
     capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s", 
         get_interface_descriptive_name(capture_opts->iface), 
@@ -1377,21 +1391,13 @@ static void
 main_cf_cb_live_capture_fixed_started(capture_options *capture_opts)
 {
     gchar *capture_msg;
-    gchar *title;
 
-
-    title = g_strdup_printf("%s: Capturing - Ethereal",
-                            get_interface_descriptive_name(capture_opts->iface));
-    set_main_window_name(title);
-    g_free(title);
-
-    /* Disable menu items that make no sense if you're currently running
-       a capture. */
-    set_menus_for_capture_in_progress(TRUE);
 
     /* Enable menu items that make sense if you have some captured
        packets (yes, I know, we don't have any *yet*). */
     /*set_menus_for_captured_packets(TRUE);*/
+
+    statusbar_pop_file_msg();
 
     capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s", 
         get_interface_descriptive_name(capture_opts->iface), 
@@ -1505,6 +1511,9 @@ void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         main_cf_cb_file_read_finished(data);
         break;
 #ifdef HAVE_LIBPCAP
+    case(cf_cb_live_capture_prepared):
+        main_cf_cb_live_capture_prepared(data);
+        break;
     case(cf_cb_live_capture_update_started):
         main_cf_cb_live_capture_update_started(data);
         break;

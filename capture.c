@@ -98,6 +98,13 @@ capture_start(capture_options *capture_opts)
       }
 
       capture_opts->state = CAPTURE_STOPPED;
+  } else {
+      /* the capture child might not respond shortly after bringing it up */
+      /* (especially it will block, if no input coming from an input capture pipe (e.g. mkfifo) is coming in) */
+
+      /* to prevent problems, bring the main GUI into "capture mode" right after successfully */
+      /* spawn/exec the capture child, without waiting for any response from it */
+      cf_callback_invoke(cf_cb_live_capture_prepared, capture_opts);
   }
 
   return ret;
