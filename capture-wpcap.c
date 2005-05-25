@@ -78,7 +78,7 @@ static const char *(*p_pcap_datalink_val_to_name) (int);
 #endif
 static const char *(*p_pcap_lib_version) (void);
 static int     (*p_pcap_setbuff) (pcap_t *, int dim);
-static int     (*p_pcap_next_ex) (pcap_t *, struct pcap_pkthdr **pkt_header, u_char **pkt_data);
+static int     (*p_pcap_next_ex) (pcap_t *, struct pcap_pkthdr **pkt_header, const u_char **pkt_data);
 
 typedef struct {
 	const char	*name;
@@ -422,8 +422,9 @@ int pcap_setbuff(pcap_t *a, int b)
 	return p_pcap_setbuff(a, b);
 }
 
-/* next_ex is win32 specific! */
-int pcap_next_ex (pcap_t *a, struct pcap_pkthdr **b, u_char **c)
+/* pcap_next_ex is available since libpcap 0.8 / WinPcap 3.0! */
+/* (if you get a declaration warning here, try to update to at least WinPcap 3.1b4 develpack) */
+int pcap_next_ex (pcap_t *a, struct pcap_pkthdr **b, const u_char **c)
 {
 	g_assert(has_wpcap);
 	return p_pcap_next_ex(a, b, c);
