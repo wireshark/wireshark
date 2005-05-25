@@ -472,6 +472,7 @@ sync_pipe_start(capture_options *capture_opts) {
     }
 
     /* Convert save file name to a quote delimited string and pass to child */
+    savefilestring = NULL;
     if(capture_opts->save_file) {
       argv = sync_pipe_add_arg(argv, &argc, "-w");
       savefilestring = sync_pipe_quote_encapsulate(capture_opts->save_file);
