@@ -1651,20 +1651,13 @@ main(int argc, char *argv[])
      and then calls the default handler. */
 
   /* We might want to have component specific log levels later ... */
-
-  /* XXX - BEWARE: GLib is buggy (at least 2.4.7 on Win32) and */
-  /* will show very odd behaviour and might even crash, if NO handler for a */
-  /* specific combination of domain and level is registered :-( */ 
-
-  /* so register all possible combinations and filter levels inside the */
-  /* console_log_handler */
   log_flags = 
 		    G_LOG_LEVEL_ERROR|
 		    G_LOG_LEVEL_CRITICAL|
 		    G_LOG_LEVEL_WARNING|
-		    G_LOG_LEVEL_MESSAGE|
+		    /*G_LOG_LEVEL_MESSAGE|
 		    G_LOG_LEVEL_INFO|
-		    G_LOG_LEVEL_DEBUG|
+		    G_LOG_LEVEL_DEBUG|*/
 		    G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION;
 
   g_log_set_handler(NULL,
@@ -2600,12 +2593,6 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
   const char *level;
 
 
-  /* only display warning and more critical messages */
-  /* change this, if you need more verbose output (e.g. for debugging) */
-  if(log_level > G_LOG_LEVEL_WARNING) {
-    return;
-  }
-
   /* create a "timestamp" */
   time(&curr);
   today = localtime(&curr);    
@@ -2617,7 +2604,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
        anything to be sent to the standard output, so we'll just splat the
        message out directly, just to make sure it gets out. */
 #endif
-    switch(log_level) {
+    switch(log_level & G_LOG_LEVEL_MASK) {
     case G_LOG_LEVEL_ERROR:
         level = "Err ";
         break;
@@ -2637,11 +2624,12 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
         level = "Dbg ";
         break;
     default:
-        printf("unkown log_level %u\n", log_level);
+        fprintf(stderr, "unkown log_level %u\n", log_level);
         g_assert_not_reached();
     }
 
-    printf("%02u:%02u:%02u %s %s %s\n", today->tm_hour, today->tm_min, today->tm_sec, log_domain, level, message);
+    /* don't use printf (stdout), as the capture child uses stdout for it's sync_pipe */
+    fprintf(stderr, "%02u:%02u:%02u %s %s %s\n", today->tm_hour, today->tm_min, today->tm_sec, log_domain, level, message);
 #ifdef _WIN32
   } else {
     g_log_default_handler(log_domain, log_level, message, user_data);
