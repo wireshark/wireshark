@@ -137,7 +137,7 @@ capture_restart(capture_options *capture_opts)
 void
 capture_kill_child(capture_options *capture_opts)
 {
-  g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Kill");
+  g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_INFO, "Capture Kill");
 
   /* kill the capture child */
   sync_pipe_kill(capture_opts);
