@@ -62,6 +62,7 @@ static int hf_rtsp_X_Vig_Msisdn	= -1;
 static dissector_handle_t sdp_handle;
 static dissector_handle_t rtp_handle;
 static dissector_handle_t rtcp_handle;
+static dissector_handle_t rdt_handle;
 
 void proto_reg_handoff_rtsp(void);
 
@@ -343,6 +344,7 @@ static const char rtsp_sps[] = "server_port=";
 static const char rtsp_cps[] = "client_port=";
 static const char rtsp_rtp[] = "rtp/";
 static const char rtsp_real_rdt[] = "x-real-rdt/";
+static const char rtsp_real_tng[] = "x-pn-tng/"; /* synonym for x-real-rdt */
 static const char rtsp_inter[] = "interleaved=";
 
 static void
@@ -370,12 +372,13 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 	tmp = buf + STRLEN_CONST(rtsp_transport);
 	while (*tmp && isspace(*tmp))
 		tmp++;
-	
+
 	/* Work out which transport type is here */
 	if (strncasecmp(tmp, rtsp_rtp, strlen(rtsp_rtp)) == 0)
 		rtp_transport = TRUE;
 	else
-	if (strncasecmp(tmp, rtsp_real_rdt, strlen(rtsp_real_rdt)) == 0)
+	if (strncasecmp(tmp, rtsp_real_rdt, strlen(rtsp_real_rdt)) == 0 ||
+	    strncasecmp(tmp, rtsp_real_tng, strlen(rtsp_real_tng)) == 0)
 		rdt_transport = TRUE;
 	else
 	{
@@ -437,7 +440,7 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 			data = g_mem_chunk_alloc(rtsp_vals);
 			conversation_add_proto_data(conv, proto_rtsp, data);
 		}
-		
+
 		if (rtp_transport)
 		{
 			if (s_data_chan < RTSP_MAX_INTERLEAVED) {
@@ -447,6 +450,13 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 			if (i > 1 && s_mon_chan < RTSP_MAX_INTERLEAVED) {
 				data->interleaved[s_mon_chan].dissector =
 					rtcp_handle;
+			}
+		}
+		else if (rdt_transport)
+		{
+			if (s_data_chan < RTSP_MAX_INTERLEAVED) {
+				data->interleaved[s_data_chan].dissector =
+					rdt_handle;
 			}
 		}
 		return;
@@ -1242,4 +1252,5 @@ proto_reg_handoff_rtsp(void)
 	sdp_handle = find_dissector("sdp");
 	rtp_handle = find_dissector("rtp");
 	rtcp_handle = find_dissector("rtcp");
+	rdt_handle = find_dissector("rdt");
 }
