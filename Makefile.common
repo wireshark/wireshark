@@ -176,6 +176,7 @@ ethereal_INCLUDES =	\
 	filters.h	\
 	g711.h	\
 	globals.h	\
+	log.h	\
 	main_window.h	\
 	menu.h	\
 	merge.h	\
