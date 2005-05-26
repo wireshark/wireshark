@@ -1053,27 +1053,32 @@ static gint button_press_event(GtkWidget *widget, GdkEventButton *event _U_)
 }
 
 /****************************************************************************/
-static gint scroll_event(GtkWidget *widget, GdkEventButton *event _U_)
+static gint scroll_event(GtkWidget *widget, GdkEventScroll *event)
 {
 	graph_analysis_data_t *user_data;
 	
 	user_data=(graph_analysis_data_t *)OBJECT_GET_DATA(widget, "graph_analysis_data_t");
 	
 	/* Up scroll */
-	if (event->state == 0){
+    switch(event->direction) {
+    case(GDK_SCROLL_UP):
 		if (user_data->dlg.first_item == 0) return TRUE;
 		if (user_data->dlg.first_item < 3) 
 			user_data->dlg.first_item = 0;
 		else
 			user_data->dlg.first_item -= 3;
-		
-	/* Down scroll */
-	} else {
+        break;
+    case(GDK_SCROLL_DOWN):
 		if ((user_data->dlg.first_item+user_data->dlg.v_scrollbar_adjustment->page_size+1 == user_data->num_items)) return TRUE;
 		if ((user_data->dlg.first_item+user_data->dlg.v_scrollbar_adjustment->page_size+1) > (user_data->num_items-3)) 
 			user_data->dlg.first_item = user_data->num_items-(guint32)user_data->dlg.v_scrollbar_adjustment->page_size-1;
 		else
 			user_data->dlg.first_item += 3;
+        break;
+    case(GDK_SCROLL_LEFT):
+    case(GDK_SCROLL_RIGHT):
+        /* nothing to do */
+        break;
 	}
 	dialog_graph_redraw(user_data);
 	
