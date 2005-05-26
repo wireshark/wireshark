@@ -157,6 +157,7 @@ typedef struct _loop_data {
   gboolean       from_cap_pipe;         /* TRUE if we are capturing data from a capture pipe */
 #ifndef _WIN32
   struct pcap_hdr cap_pipe_hdr;
+  struct pcaprec_modified_hdr cap_pipe_rechdr;
   int            cap_pipe_fd;           /* the file descriptor of the capture pipe */
   gboolean       cap_pipe_modified;     /* TRUE if data in the pipe uses modified pcap headers */
   gboolean       cap_pipe_byte_swapped; /* TRUE if data in the pipe is byte swapped */
@@ -889,7 +890,6 @@ capture_loop_dispatch(capture_options *capture_opts, loop_data *ld,
   fd_set    set1;
   struct timeval timeout;
   int         sel_ret;
-  struct pcaprec_modified_hdr rechdr;
   guchar pcap_data[WTAP_MAX_PACKET_SIZE];
 #endif
 
@@ -916,7 +916,7 @@ capture_loop_dispatch(capture_options *capture_opts, loop_data *ld,
 	/*
 	 * "select()" says we can read from the pipe without blocking
 	 */
-	inpkts = cap_pipe_dispatch(ld->cap_pipe_fd, ld, &ld->cap_pipe_hdr, &rechdr, pcap_data,
+	inpkts = cap_pipe_dispatch(ld->cap_pipe_fd, ld, &ld->cap_pipe_hdr, &ld->cap_pipe_rechdr, pcap_data,
           errmsg, errmsg_len);
 	if (inpkts < 0) {
 	  ld->go = FALSE;
