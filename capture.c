@@ -69,6 +69,7 @@
 #include "capture-wpcap.h"
 #endif
 #include "ui_util.h"
+#include "log.h"
 
 
 
@@ -88,6 +89,8 @@ capture_start(capture_options *capture_opts)
 
   g_assert(capture_opts->state == CAPTURE_STOPPED);
   capture_opts->state = CAPTURE_PREPARING;
+
+  g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Start ...");
 
   /* try to start the capture child process */
   ret = sync_pipe_start(capture_opts);
@@ -114,6 +117,8 @@ capture_start(capture_options *capture_opts)
 void
 capture_stop(capture_options *capture_opts)
 {
+  g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Stop ...");
+
   /* stop the capture child gracefully */
   sync_pipe_stop(capture_opts);
 }
@@ -122,6 +127,8 @@ capture_stop(capture_options *capture_opts)
 void
 capture_restart(capture_options *capture_opts)
 {
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Restart");
+
     capture_opts->restart = TRUE;
     capture_stop(capture_opts);
 }
@@ -130,6 +137,8 @@ capture_restart(capture_options *capture_opts)
 void
 capture_kill_child(capture_options *capture_opts)
 {
+  g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Kill");
+
   /* kill the capture child */
   sync_pipe_kill(capture_opts);
 }
@@ -225,8 +234,12 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
   int  err;
 
 
+  if(capture_opts->state == CAPTURE_PREPARING) {
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture started!");
+  }
+  g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "File: \"%s\"", new_file);
+
   g_assert(capture_opts->state == CAPTURE_PREPARING || capture_opts->state == CAPTURE_RUNNING);
-  /*g_warning("New capture file: %s", new_file);*/
 
   /* free the old filename */
   if(capture_opts->save_file != NULL) {
@@ -317,6 +330,7 @@ capture_input_closed(capture_options *capture_opts)
     int  err;
 
 
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture stopped!");
     g_assert(capture_opts->state == CAPTURE_PREPARING || capture_opts->state == CAPTURE_RUNNING);
 
     /* if we didn't started the capture (happens if an error occured), do a fake start */

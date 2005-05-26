@@ -137,6 +137,7 @@
 #include "../image/eicon3d64.xpm"
 #endif
 #include "capture_ui_utils.h"
+#include "log.h"
 
 
 
@@ -173,9 +174,9 @@ gboolean have_capture_file = FALSE; /* XXX - is there an aquivalent in cfile? */
 static gboolean has_console;	/* TRUE if app has console */
 /*static void create_console(void);*/
 static void destroy_console(void);
+#endif
 static void console_log_handler(const char *log_domain,
     GLogLevelFlags log_level, const char *message, gpointer user_data);
-#endif
 
 #ifdef HAVE_LIBPCAP
 static gboolean list_link_layer_types;
@@ -1606,6 +1607,7 @@ main(int argc, char *argv[])
   char                 badopt;
   GtkWidget           *splash_win = NULL;
   gboolean             capture_child; /* True if this is the child for "-S" */
+  GLogLevelFlags       log_flags;
 
 #define OPTSTRING_INIT "a:b:B:c:f:Hhi:klLm:nN:o:pP:Qr:R:Ss:t:T:w:vy:z:"
 
@@ -1641,25 +1643,42 @@ main(int argc, char *argv[])
 
   ethereal_path = argv[0];
 
-#ifdef _WIN32
   /* Arrange that if we have no console window, and a GLib message logging
      routine is called to log a message, we pop up a console window.
 
      We do that by inserting our own handler for all messages logged
      to the default domain; that handler pops up a console if necessary,
      and then calls the default handler. */
-  g_log_set_handler(NULL,
+
+  /* We might want to have component specific log levels later ... */
+
+  /* XXX - BEWARE: GLib is buggy (at least 2.4.7 on Win32) and 
+  /* will show very odd behaviour and might even crash, if NO handler for a */
+  /* specific combination of domain and level is registered :-( */ 
+
+  /* so register all possible combinations and filter levels inside the */
+  /* console_log_handler */
+  log_flags = 
 		    G_LOG_LEVEL_ERROR|
 		    G_LOG_LEVEL_CRITICAL|
 		    G_LOG_LEVEL_WARNING|
 		    G_LOG_LEVEL_MESSAGE|
 		    G_LOG_LEVEL_INFO|
 		    G_LOG_LEVEL_DEBUG|
-		    G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION,
-		    console_log_handler, NULL);
-#endif
+		    G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION;
+
+  g_log_set_handler(NULL,
+		    log_flags,
+		    console_log_handler, NULL /* user_data */);
 
 #ifdef HAVE_LIBPCAP
+  g_log_set_handler(LOG_DOMAIN_CAPTURE,
+		    log_flags,
+            console_log_handler, NULL /* user_data */);
+  g_log_set_handler(LOG_DOMAIN_CAPTURE_CHILD,
+		    log_flags,
+            console_log_handler, NULL /* user_data */);
+
   /* Set the initial values in the capture_opts. This might be overwritten 
      by preference settings and then again by the command line parameters. */
   capture_opts_init(capture_opts, &cfile);
@@ -2559,6 +2578,8 @@ destroy_console(void)
     FreeConsole();
   }
 }
+#endif /* _WIN32 */
+
 
 /* This routine should not be necessary, at least as I read the GLib
    source code, as it looks as if GLib is, on Win32, *supposed* to
@@ -2574,16 +2595,58 @@ static void
 console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 		    const char *message, gpointer user_data)
 {
+  time_t curr;
+  struct tm *today;
+  const char *level;
+
+
+  /* only display warning and more critical messages */
+  /* change this, if you need more verbose output (e.g. for debugging) */
+  if(log_level > G_LOG_LEVEL_WARNING) {
+    return;
+  }
+
+  /* create a "timestamp" */
+  time(&curr);
+  today = localtime(&curr);    
+
+#ifdef _WIN32
   create_console();
   if (has_console) {
     /* For some unknown reason, the above doesn't appear to actually cause
        anything to be sent to the standard output, so we'll just splat the
        message out directly, just to make sure it gets out. */
-    printf("%s\n", message);
-  } else
-    g_log_default_handler(log_domain, log_level, message, user_data);
-}
 #endif
+    switch(log_level) {
+    case G_LOG_LEVEL_ERROR:
+        level = "Err ";
+        break;
+    case G_LOG_LEVEL_CRITICAL:
+        level = "Crit";
+        break;
+    case G_LOG_LEVEL_WARNING:
+        level = "Warn";
+        break;
+    case G_LOG_LEVEL_MESSAGE:
+        level = "Msg ";
+        break;
+    case G_LOG_LEVEL_INFO:
+        level = "Info";
+        break;
+    case G_LOG_LEVEL_DEBUG:
+        level = "Dbg ";
+        break;
+    default:
+        g_assert_not_reached();
+    }
+
+    printf("%02u:%02u:%02u %s %s %s\n", today->tm_hour, today->tm_min, today->tm_sec, log_domain, level, message);
+#ifdef _WIN32
+  } else {
+    g_log_default_handler(log_domain, log_level, message, user_data);
+  }
+#endif
+}
 
 
 GtkWidget *info_bar_new(void)

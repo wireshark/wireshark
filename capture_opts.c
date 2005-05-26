@@ -89,36 +89,36 @@ capture_opts_init(capture_options *capture_opts, void *cfile)
 }
 
 
-/* debug only: print content of capture_opts to console */
+/* log content of capture_opts */
 void
-capture_opts_info(capture_options *capture_opts) {
-    g_warning("CAPTURE OPTIONS    :");
-    g_warning("File               : %p", capture_opts->cf);
-    g_warning("Filter             : %s", capture_opts->cfilter);
-    g_warning("Interface          : %s", capture_opts->iface);
+capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_options *capture_opts) {
+    g_log(log_domain, log_level, "CAPTURE OPTIONS    :");
+    g_log(log_domain, log_level, "CFile              : 0x%p", capture_opts->cf);
+    g_log(log_domain, log_level, "Filter             : %s", capture_opts->cfilter);
+    g_log(log_domain, log_level, "Interface          : %s", capture_opts->iface);
 #ifdef _WIN32
-    g_warning("BufferSize         : %u (MB)", capture_opts->buffer_size);
+    g_log(log_domain, log_level, "BufferSize         : %u (MB)", capture_opts->buffer_size);
 #endif
-    g_warning("SnapLen         (%u): %u", capture_opts->has_snaplen, capture_opts->snaplen);
-    g_warning("Promisc            : %u", capture_opts->promisc_mode);
-    g_warning("LinkType           : %d", capture_opts->linktype);
-    g_warning("SaveFile           : %s", (capture_opts->save_file) ? capture_opts->save_file : "");
-    g_warning("RealTimeMode       : %u", capture_opts->real_time_mode);
-    g_warning("ShowInfo           : %u", capture_opts->show_info);
-    g_warning("QuitAfterCap       : %u", capture_opts->quit_after_cap);
+    g_log(log_domain, log_level, "SnapLen         (%u): %u", capture_opts->has_snaplen, capture_opts->snaplen);
+    g_log(log_domain, log_level, "Promisc            : %u", capture_opts->promisc_mode);
+    g_log(log_domain, log_level, "LinkType           : %d", capture_opts->linktype);
+    g_log(log_domain, log_level, "SaveFile           : %s", (capture_opts->save_file) ? capture_opts->save_file : "");
+    g_log(log_domain, log_level, "RealTimeMode       : %u", capture_opts->real_time_mode);
+    g_log(log_domain, log_level, "ShowInfo           : %u", capture_opts->show_info);
+    g_log(log_domain, log_level, "QuitAfterCap       : %u", capture_opts->quit_after_cap);
 
-    g_warning("MultiFilesOn       : %u", capture_opts->multi_files_on);
-    g_warning("FileDuration    (%u): %u", capture_opts->has_file_duration, capture_opts->file_duration);
-    g_warning("RingNumFiles    (%u): %u", capture_opts->has_ring_num_files, capture_opts->ring_num_files);
+    g_log(log_domain, log_level, "MultiFilesOn       : %u", capture_opts->multi_files_on);
+    g_log(log_domain, log_level, "FileDuration    (%u): %u", capture_opts->has_file_duration, capture_opts->file_duration);
+    g_log(log_domain, log_level, "RingNumFiles    (%u): %u", capture_opts->has_ring_num_files, capture_opts->ring_num_files);
 
-    g_warning("AutostopFiles   (%u): %u", capture_opts->has_autostop_files, capture_opts->autostop_files);
-    g_warning("AutostopPackets (%u): %u", capture_opts->has_autostop_packets, capture_opts->autostop_packets);
-    g_warning("AutostopFilesize(%u): %u", capture_opts->has_autostop_filesize, capture_opts->autostop_filesize);
-    g_warning("AutostopDuration(%u): %u", capture_opts->has_autostop_duration, capture_opts->autostop_duration);
+    g_log(log_domain, log_level, "AutostopFiles   (%u): %u", capture_opts->has_autostop_files, capture_opts->autostop_files);
+    g_log(log_domain, log_level, "AutostopPackets (%u): %u", capture_opts->has_autostop_packets, capture_opts->autostop_packets);
+    g_log(log_domain, log_level, "AutostopFilesize(%u): %u", capture_opts->has_autostop_filesize, capture_opts->autostop_filesize);
+    g_log(log_domain, log_level, "AutostopDuration(%u): %u", capture_opts->has_autostop_duration, capture_opts->autostop_duration);
 
-    g_warning("ForkChild          : %d", capture_opts->fork_child);
+    g_log(log_domain, log_level, "ForkChild          : %d", capture_opts->fork_child);
 #ifdef _WIN32
-    g_warning("SignalPipeFd       : %d", capture_opts->signal_pipe_fd);
+    g_log(log_domain, log_level, "SignalPipeFd       : %d", capture_opts->signal_pipe_fd);
 #endif
 }
 

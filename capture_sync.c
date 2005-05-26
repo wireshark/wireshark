@@ -87,6 +87,7 @@
 #include "capture-wpcap.h"
 #endif
 #include "ui_util.h"
+#include "log.h"
 
 #ifdef HAVE_IO_H
 # include <io.h>
@@ -228,8 +229,9 @@ sync_pipe_packet_count_to_parent(int packet_count)
 {
     char tmp[SP_DECISIZE+1+1];
 
-
     g_snprintf(tmp, sizeof(tmp), "%d", packet_count);
+
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "sync_pipe_packet_count_to_parent: %s", tmp);
 
     pipe_write_block(1, SP_PACKET_COUNT, strlen(tmp)+1, tmp);
 }
@@ -237,12 +239,16 @@ sync_pipe_packet_count_to_parent(int packet_count)
 void
 sync_pipe_filename_to_parent(const char *filename)
 {
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "sync_pipe_filename_to_parent: %s", filename);
+
     pipe_write_block(1, SP_FILE, strlen(filename)+1, filename);
 }
 
 void
 sync_pipe_errmsg_to_parent(const char *errmsg)
 {
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "sync_pipe_errmsg_to_parent: %s", errmsg);
+
     pipe_write_block(1, SP_ERROR_MSG, strlen(errmsg)+1, errmsg);
 }
 
@@ -254,6 +260,8 @@ sync_pipe_drops_to_parent(int drops)
 
     g_snprintf(tmp, sizeof(tmp), "%d", drops);
 
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "sync_pipe_drops_to_parent: %s", tmp);
+
     pipe_write_block(1, SP_DROPS, strlen(tmp)+1, tmp);
 }
 
@@ -264,6 +272,7 @@ static void
 signal_pipe_capquit_to_child(capture_options *capture_opts)
 {
 
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "signal_pipe_capquit_to_child");
 
     pipe_write_block(capture_opts->signal_pipe_fd, SP_QUIT, 0, NULL);
 }
@@ -339,8 +348,10 @@ sync_pipe_start(capture_options *capture_opts) {
     int sync_pipe[2];                       /* pipe used to send messages from child to parent */
 
 
-    /*g_warning("sync_pipe_start");
-    capture_opts_info(capture_opts);*/
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_start");
+#ifdef LOG_CAPTURE_VERBOSE
+    capture_opts_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, capture_opts);
+#endif
 
     capture_opts->fork_child = -1;
 
@@ -579,7 +590,6 @@ sync_pipe_start(capture_options *capture_opts) {
     return TRUE;
 }
 
-
 /* There's stuff to read from the sync pipe, meaning the child has sent
    us a message, or the sync pipe has closed, meaning the child has
    closed it (perhaps because it exited). */
@@ -595,10 +605,13 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 
   nread = pipe_read_block(source, &indicator, BUFSIZE, buffer);
   if(nread <= 0) {
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: child has closed sync_pipe");
+
     /* The child has closed the sync pipe, meaning it's not going to be
        capturing any more packets.  Pick up its exit status, and
        complain if it did anything other than exit with status 0. */
     sync_pipe_wait_for_child(capture_opts, FALSE);
+
 #ifdef _WIN32
     close(capture_opts->signal_pipe_fd);
 #endif
@@ -609,6 +622,8 @@ sync_pipe_input_cb(gint source, gpointer user_data)
   switch(indicator) {
   case SP_FILE:
       if(!capture_input_new_file(capture_opts, buffer)) {
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: file failed, closing capture");
+
         /* We weren't able to open the new capture file; user has been
            alerted. Close the sync pipe. */
         /* XXX - is it safe to close the pipe inside this callback? */
@@ -624,12 +639,16 @@ sync_pipe_input_cb(gint source, gpointer user_data)
       break;
   case SP_PACKET_COUNT:
     nread = atoi(buffer);
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: new packets %u", nread);
     capture_input_new_packets(capture_opts, nread);
     break;
   case SP_ERROR_MSG:
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Error message from child: \"%s\"", buffer);
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, buffer);
+    /* the capture child will close the sync_pipe, nothing to do for now */
     break;
   case SP_DROPS:
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_INFO, "%d packet%s dropped", atoi(buffer), plurality(atoi(buffer), "", "s"));
     cf_set_drops_known(capture_opts->cf, TRUE);
     cf_set_drops(capture_opts->cf, atoi(buffer));
     break;
@@ -649,6 +668,7 @@ sync_pipe_wait_for_child(capture_options *capture_opts, gboolean always_report)
   int  wstatus;
 
 
+  g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_wait_for_child: wait till child closed");
   g_assert(capture_opts->fork_child != -1);
 
 #ifdef _WIN32
@@ -691,6 +711,8 @@ sync_pipe_wait_for_child(capture_options *capture_opts, gboolean always_report)
   /* No more child process. */
   capture_opts->fork_child = -1;
 #endif
+
+  g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_wait_for_child: capture child closed");
 }
 
 

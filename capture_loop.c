@@ -86,6 +86,7 @@
 /* XXX - try to remove this later */
 #include "util.h"
 #include "alert_box.h"
+#include "log.h"
 
 
 #include <epan/dissectors/packet-ap1394.h>
@@ -240,6 +241,9 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
   fd_set      rfds;
   struct timeval timeout;
 
+
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "cap_pipe_open_live: %s", pipename);
+
   /*
    * XXX Ethereal blocks until we return
    */
@@ -387,6 +391,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
   return fd;
 
 error:
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "cap_pipe_open_live: error %s", errmsg);
   ld->cap_pipe_err = PIPERR;
   close(fd);
   return -1;
@@ -405,6 +410,11 @@ cap_pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
   int b;
   enum { PD_REC_HDR_READ, PD_DATA_READ, PD_PIPE_EOF, PD_PIPE_ERR,
           PD_ERR } result;
+
+
+#ifdef LOG_CAPTURE_VERBOSE
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "cap_pipe_dispatch");
+#endif
 
   switch (ld->cap_pipe_state) {
 
@@ -514,6 +524,9 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
   static const char ppamsg[] = "can't find PPA for ";
   char       *libpcap_warn;
 #endif
+
+
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_open_input : %s", capture_opts->iface);
 
   /* Initialize Windows Socket if we are in a WIN32 OS
      This needs to be done before querying the interface for network/netmask */
@@ -691,6 +704,9 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 
 /* open the capture input file (pcap or capture pipe) */
 static void capture_loop_close_input(loop_data *ld) {
+
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_close_input");
+
 #ifndef _WIN32
   /* if open, close the capture pipe "input file" */
   if (ld->cap_pipe_fd >= 0) {
@@ -717,6 +733,9 @@ static int capture_loop_init_filter(loop_data *ld, const gchar * iface, gchar * 
   bpf_u_int32 netnum, netmask;
   gchar       lookup_net_err_str[PCAP_ERRBUF_SIZE];
   struct bpf_program fcode;
+
+
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_init_filter: %s", cfilter);
 
   /* capture filters only work on real interfaces */
   if (cfilter && !ld->from_cap_pipe) {
@@ -779,11 +798,13 @@ static int capture_loop_init_filter(loop_data *ld, const gchar * iface, gchar * 
 
 
 /* open the wiretap part of the capture output file */
-static int capture_loop_open_wiretap_output(capture_options *capture_opts, int save_file_fd, loop_data *ld, char *errmsg, int errmsg_len) {
+static int capture_loop_init_wiretap_output(capture_options *capture_opts, int save_file_fd, loop_data *ld, char *errmsg, int errmsg_len) {
   int         pcap_encap;
   int         file_snaplen;
   int         err;
 
+
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_init_wiretap_output");
 
   /* get packet encapsulation type and snaplen */
 #ifndef _WIN32
@@ -849,6 +870,9 @@ static int capture_loop_open_wiretap_output(capture_options *capture_opts, int s
 }
 
 static gboolean capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err_close) {
+
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_close_output");
+
   if (capture_opts->multi_files_on) {
     return ringbuf_wtap_dump_close(&capture_opts->save_file, err_close);
   } else {
@@ -872,6 +896,9 @@ capture_loop_dispatch(capture_options *capture_opts, loop_data *ld,
 #ifndef _WIN32
     if (ld->from_cap_pipe) {
       /* dispatch from capture pipe */
+#ifdef LOG_CAPTURE_VERBOSE
+      g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from capture pipe");
+#endif
       FD_ZERO(&set1);
       FD_SET(ld->cap_pipe_fd, &set1);
       timeout.tv_sec = 0;
@@ -938,6 +965,9 @@ capture_loop_dispatch(capture_options *capture_opts, loop_data *ld,
        * that's unacceptable, plead with whoever supplies the software
        * for that device to add "select()" support.
        */
+#ifdef LOG_CAPTURE_VERBOSE
+      g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from pcap_dispatch with select");
+#endif
       if (ld->pcap_fd != -1) {
         FD_ZERO(&set1);
         FD_SET(ld->pcap_fd, &set1);
@@ -968,13 +998,49 @@ capture_loop_dispatch(capture_options *capture_opts, loop_data *ld,
 #endif /* MUST_DO_SELECT */
       {
         /* dispatch from pcap without select */
+#if 1
+#ifdef LOG_CAPTURE_VERBOSE
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from pcap_dispatch");
+#endif
         inpkts = pcap_dispatch(ld->pcap_h, 1, capture_loop_packet_cb, (gchar *) ld);
         if (inpkts < 0) {
           ld->pcap_err = TRUE;
           ld->go = FALSE;
         }
+#else
+        {
+#ifdef LOG_CAPTURE_VERBOSE
+            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from pcap_next_ex");
+#endif
+            /* XXX - this is currently unused, as there is some confusion with pcap_next_ex() vs. pcap_dispatch() */
+
+            /* WinPcap's remote capturing feature doesn't work, see http://wiki.ethereal.com/CaptureSetup_2fWinPcapRemote */
+            /* for reference, an example remote interface: rpcap://[1.2.3.4]/\Device\NPF_{39993D68-7C9B-4439-A329-F2D888DA7C5C} */
+
+            /* emulate dispatch from pcap */
+            int in;
+            struct pcap_pkthdr *pkt_header;
+		    u_char *pkt_data;
+
+            inpkts = 0;
+            while( (in = pcap_next_ex(ld->pcap_h, &pkt_header, &pkt_data)) == 1) {
+                capture_loop_packet_cb( (gchar *) ld, pkt_header, pkt_data);
+                inpkts++;
+            }
+
+            if(in < 0) {
+              ld->pcap_err = TRUE;
+              ld->go = FALSE;
+              inpkts = in;
+            }
+        }
+#endif
       }
     }
+
+#ifdef LOG_CAPTURE_VERBOSE
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: %d new packet%s", inpkts, plurality(inpkts, "", "s"));
+#endif
 
     return inpkts;
 }
@@ -990,6 +1056,9 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
   gchar *capfile_name;
   gboolean is_tempfile;
 
+
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_open_output: %s", 
+      (capture_opts->save_file) ? capture_opts->save_file : "");
 
   if (capture_opts->save_file != NULL) {
     /* We return to the caller while the capture is in progress.  
@@ -1023,7 +1092,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
   /* did we fail to open the output file? */
   if (*save_file_fd == -1) {
     if (is_tempfile) {
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      g_snprintf(errmsg, errmsg_len,
 	"The temporary file to which the capture would be saved (\"%s\") "
 	"could not be opened: %s.", capfile_name, strerror(errno));
     } else {
@@ -1135,9 +1204,10 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   /* We haven't yet gotten the capture statistics. */
   *stats_known      = FALSE;
 
-  /*g_warning("capture_loop_start");
-  capture_opts_info(capture_opts);*/
-
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture child starting ...");
+#ifdef LOG_CAPTURE_VERBOSE
+  capture_opts_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, capture_opts);
+#endif
 
   /* open the output file (temporary/specified name/ringbuffer) */
   if (!capture_loop_open_output(capture_opts, &save_file_fd, errmsg, sizeof(errmsg))) {
@@ -1155,7 +1225,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   }
 
   /* open the wiretap part of the output file (the output file is already open) */
-  if (!capture_loop_open_wiretap_output(capture_opts, save_file_fd, &ld, errmsg, sizeof(errmsg))) {
+  if (!capture_loop_init_wiretap_output(capture_opts, save_file_fd, &ld, errmsg, sizeof(errmsg))) {
     goto error;
   }
 
@@ -1205,6 +1275,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   /* init the time values */
   start_time = TIME_GET();
   upd_time = TIME_GET();
+
+
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture child running!");
 
   /* WOW, everything is prepared! */
   /* please fasten your seat belts, we will enter now the actual capture loop */
@@ -1347,6 +1420,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
   } /* while (ld.go) */
 
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture child stopping ...");
+
   /* close capture info dialog */
   if(capture_opts->show_info) {
     capture_info_destroy(&capture_ui);
@@ -1423,7 +1498,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   /* close the input file (pcap or capture pipe) */
   capture_loop_close_input(&ld);
 
-  /*g_warning("loop closed");*/
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture child stopped!");
 
   /* ok, if the write and the close were successful. */
   return write_ok && close_ok;
@@ -1448,7 +1523,7 @@ error:
   /* close the input file (pcap or cap_pipe) */
   capture_loop_close_input(&ld);
 
-  /*g_warning("loop error");*/
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture child stopped with error: %s", errmsg);
 
   return FALSE;
 }
