@@ -677,7 +677,7 @@ get_uint_value(tvbuff_t *tvb, gint offset, gint length, gboolean little_endian)
 		break;
 
 	default:
-		DISSECTOR_ASSERT_NOT_REACHED();
+		THROW(ReportedBoundsError);
 		value = 0;
 		break;
 	}
@@ -715,7 +715,7 @@ get_int_value(tvbuff_t *tvb, gint offset, gint length, gboolean little_endian)
 		break;
 
 	default:
-		DISSECTOR_ASSERT_NOT_REACHED();
+		THROW(ReportedBoundsError);
 		value = 0;
 		break;
 	}
