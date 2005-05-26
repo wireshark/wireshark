@@ -1191,12 +1191,9 @@ static void
 set_display_filename(capture_file *cf)
 {
   const gchar *name_ptr;
-  size_t       msg_len;
-  static const gchar done_fmt[] = " File: %s %s %02u:%02u:%02u";
-  gchar       *done_msg;
-  gchar       *win_name_fmt = "%s - Ethereal";
-  gchar       *win_name;
+  gchar       *status_msg;
   gchar       *size_str;
+  gchar       *win_name;
 
   name_ptr = cf_get_display_name(cf);
 	
@@ -1205,6 +1202,7 @@ set_display_filename(capture_file *cf)
     add_menu_recent_capture_file(cf->filename);
   }
 
+  /* convert file size */
   if (cf->f_len/1024/1024 > 10) {
     size_str = g_strdup_printf("%ld MB", cf->f_len/1024/1024);
   } else if (cf->f_len/1024 > 10) {
@@ -1213,15 +1211,16 @@ set_display_filename(capture_file *cf)
     size_str = g_strdup_printf("%ld Bytes", cf->f_len);
   }
 
-  done_msg = g_strdup_printf(done_fmt, name_ptr, size_str,
+  /* statusbar */
+  status_msg = g_strdup_printf(" File: \"%s\" %s %02u:%02u:%02u", 
+    cf->filename, size_str,
     cf->esec/3600, cf->esec%3600/60, cf->esec%60);
   g_free(size_str);
-  statusbar_push_file_msg(done_msg);
-  g_free(done_msg);
+  statusbar_push_file_msg(status_msg);
+  g_free(status_msg);
 
-  msg_len = strlen(name_ptr) + strlen(win_name_fmt) + 1;
-  win_name = g_malloc(msg_len);
-  snprintf(win_name, msg_len, win_name_fmt, name_ptr);
+  /* window title */
+  win_name = g_strdup_printf("%s - Ethereal", name_ptr);
   set_main_window_name(win_name);
   g_free(win_name);
 }
@@ -1651,13 +1650,17 @@ main(int argc, char *argv[])
      and then calls the default handler. */
 
   /* We might want to have component specific log levels later ... */
+
+  /* the default_log_handler will use stdout, which makes trouble with the */
+  /* capture child, as it uses stdout for it's sync_pipe */
+  /* so do the filtering in the console_log_handler and not here */
   log_flags = 
 		    G_LOG_LEVEL_ERROR|
 		    G_LOG_LEVEL_CRITICAL|
 		    G_LOG_LEVEL_WARNING|
-		    /*G_LOG_LEVEL_MESSAGE|
+		    G_LOG_LEVEL_MESSAGE|
 		    G_LOG_LEVEL_INFO|
-		    G_LOG_LEVEL_DEBUG|*/
+		    G_LOG_LEVEL_DEBUG|
 		    G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION;
 
   g_log_set_handler(NULL,
@@ -2495,6 +2498,9 @@ main(int argc, char *argv[])
   g_free(rc_file);
 
 #ifdef _WIN32
+  /* hide the (unresponsive) main window, while asking the user to close the console window */
+  gtk_widget_hide(top_level);
+
   /* Shutdown windows sockets */
   WSACleanup();
 
@@ -2593,6 +2599,12 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
   const char *level;
 
 
+  /* change this, if you want to see more verbose log output */
+  /* XXX - make this a pref value */
+  if( (log_level & G_LOG_LEVEL_MASK) > G_LOG_LEVEL_WARNING) {
+    return;
+  }
+
   /* create a "timestamp" */
   time(&curr);
   today = localtime(&curr);    
@@ -2629,7 +2641,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
     }
 
     /* don't use printf (stdout), as the capture child uses stdout for it's sync_pipe */
-    fprintf(stderr, "%02u:%02u:%02u %s %s %s\n", today->tm_hour, today->tm_min, today->tm_sec, log_domain, level, message);
+    fprintf(stderr, "%02u:%02u:%02u %8s %s %s\n", today->tm_hour, today->tm_min, today->tm_sec, log_domain, level, message);
 #ifdef _WIN32
   } else {
     g_log_default_handler(log_domain, log_level, message, user_data);
