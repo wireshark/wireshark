@@ -1652,7 +1652,7 @@ main(int argc, char *argv[])
 
   /* We might want to have component specific log levels later ... */
 
-  /* XXX - BEWARE: GLib is buggy (at least 2.4.7 on Win32) and 
+  /* XXX - BEWARE: GLib is buggy (at least 2.4.7 on Win32) and */
   /* will show very odd behaviour and might even crash, if NO handler for a */
   /* specific combination of domain and level is registered :-( */ 
 
@@ -2593,7 +2593,7 @@ destroy_console(void)
    console window creation). */
 static void
 console_log_handler(const char *log_domain, GLogLevelFlags log_level,
-		    const char *message, gpointer user_data)
+		    const char *message, gpointer user_data _U_)
 {
   time_t curr;
   struct tm *today;
@@ -2637,6 +2637,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
         level = "Dbg ";
         break;
     default:
+        printf("unkown log_level %u\n", log_level);
         g_assert_not_reached();
     }
 
