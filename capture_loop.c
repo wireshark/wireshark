@@ -1523,7 +1523,7 @@ error:
   /* close the input file (pcap or cap_pipe) */
   capture_loop_close_input(&ld);
 
-  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture child stopped with error: %s", errmsg);
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture child stopped with error");
 
   return FALSE;
 }

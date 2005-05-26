@@ -109,7 +109,7 @@ static char *sync_pipe_signame(int);
 
 
 static gboolean sync_pipe_input_cb(gint source, gpointer user_data);
-static void sync_pipe_wait_for_child(capture_options *capture_opts, gboolean always_report);
+static void sync_pipe_wait_for_child(capture_options *capture_opts);
 
 /* Size of buffer to hold decimal representation of
    signed/unsigned 64-bit int */
@@ -610,7 +610,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     /* The child has closed the sync pipe, meaning it's not going to be
        capturing any more packets.  Pick up its exit status, and
        complain if it did anything other than exit with status 0. */
-    sync_pipe_wait_for_child(capture_opts, FALSE);
+    sync_pipe_wait_for_child(capture_opts);
 
 #ifdef _WIN32
     close(capture_opts->signal_pipe_fd);
@@ -663,7 +663,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 
 /* the child process is going down, wait until it's completely terminated */
 static void
-sync_pipe_wait_for_child(capture_options *capture_opts, gboolean always_report)
+sync_pipe_wait_for_child(capture_options *capture_opts)
 {
   int  wstatus;
 
@@ -682,9 +682,13 @@ sync_pipe_wait_for_child(capture_options *capture_opts, gboolean always_report)
 #else
   if (wait(&wstatus) != -1) {
     if (WIFEXITED(wstatus)) {
-      /* The child exited; display its exit status, if it's not zero,
-         and even if it's zero if "always_report" is true. */
-      if (always_report || WEXITSTATUS(wstatus) != 0) {
+      /* The child exited; display its exit status, if it seems uncommon (0=ok, 1=error) */
+      /* the child will inform us about errors through the sync_pipe, which will popup */
+      /* an error message, so don't popup another one */
+
+      /* XXX - if there are situations where the child won't send us such an error message, */
+      /* this should be fixed in the child and not here! */
+      if (WEXITSTATUS(wstatus) != 0 && WEXITSTATUS(wstatus) != 1) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		      "Child capture process exited: exit status %d",
 		      WEXITSTATUS(wstatus));
