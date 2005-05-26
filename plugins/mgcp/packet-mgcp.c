@@ -967,6 +967,7 @@ static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength, gchar *
 		    ((strncasecmp(word, "AUEP", 4) == 0) && (*verb_name = "AuditEndpoint")) ||
 		    ((strncasecmp(word, "AUCX", 4) == 0) && (*verb_name = "AuditConnection")) ||
 		    ((strncasecmp(word, "RSIP", 4) == 0) && (*verb_name = "RestartInProgress")) ||
+		    ((strncasecmp(word, "MESG", 4) == 0) && (*verb_name = "Message")) ||
 		    (word[0] == 'X' && is_rfc2234_alpha(word[1]) && is_rfc2234_alpha(word[2]) &&
 		                       is_rfc2234_alpha(word[3]) && (*verb_name = "*Experimental*")))
 		{
@@ -1878,7 +1879,7 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint
 
 	if (parent_tree)
 	{
-		item = proto_tree_add_item(parent_tree, hf_mgcp_param_connectionparam, tvb, offset, param_type_len+param_val_len, FALSE);
+		item = proto_tree_add_item(parent_tree, hf_mgcp_param_localconnoptions, tvb, offset, param_type_len+param_val_len, FALSE);
 		tree = proto_item_add_subtree(item, ett_mgcp_param_localconnectionoptions);
 	}
 
