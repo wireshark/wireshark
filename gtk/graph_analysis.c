@@ -1052,6 +1052,8 @@ static gint button_press_event(GtkWidget *widget, GdkEventButton *event _U_)
         return TRUE;
 }
 
+#if GTK_MAJOR_VERSION >= 2
+/* scroll events are not available in gtk-1.2 */
 /****************************************************************************/
 static gint scroll_event(GtkWidget *widget, GdkEventScroll *event)
 {
@@ -1084,6 +1086,7 @@ static gint scroll_event(GtkWidget *widget, GdkEventScroll *event)
 	
 	return TRUE;
 }
+#endif
 
 /****************************************************************************/
 static gint key_press_event(GtkWidget *widget, GdkEventKey *event _U_)
@@ -1337,8 +1340,9 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 		gtk_viewport_set_shadow_type(GTK_VIEWPORT(viewport), GTK_SHADOW_NONE);
         OBJECT_SET_DATA(user_data->dlg.draw_area_comments, "graph_analysis_data_t", user_data);
 		gtk_widget_add_events (user_data->dlg.draw_area_comments, GDK_BUTTON_PRESS_MASK);
+#if GTK_MAJOR_VERSION >= 2
 		SIGNAL_CONNECT(user_data->dlg.draw_area_comments, "scroll_event",  scroll_event, user_data);
-
+#endif
 		/* create main Graph draw area */
         user_data->dlg.draw_area=gtk_drawing_area_new();
 		GTK_WIDGET_SET_FLAGS(user_data->dlg.draw_area, GTK_CAN_FOCUS);
@@ -1355,7 +1359,9 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 
 		gtk_widget_add_events (user_data->dlg.draw_area, GDK_BUTTON_PRESS_MASK);
 		SIGNAL_CONNECT(user_data->dlg.draw_area, "button_press_event", button_press_event, user_data);
+#if GTK_MAJOR_VERSION >= 2
 		SIGNAL_CONNECT(user_data->dlg.draw_area, "scroll_event",  scroll_event, user_data);
+#endif
 		SIGNAL_CONNECT(user_data->dlg.draw_area, "key_press_event",  key_press_event, user_data);
 
         gtk_widget_show(user_data->dlg.draw_area);
