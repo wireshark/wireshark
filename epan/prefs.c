@@ -162,7 +162,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
     const char *title, gboolean is_subtree, void (*apply_cb)(void))
 {
 	module_t *module;
-	const guchar *p;
+	const char *p;
 
 	module = g_malloc(sizeof (module_t));
 	module->name = name;
@@ -895,8 +895,6 @@ print.file: /a/very/long/path/
  *
  */
 
-#define MAX_VAR_LEN    100
-
 #define DEF_NUM_COLS    6
 
 
@@ -1170,29 +1168,39 @@ int
 read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fct)
 {
   enum { START, IN_VAR, PRE_VAL, IN_VAL, IN_SKIP };
-  gchar     cur_var[MAX_VAR_LEN], cur_val[MAX_VAL_LEN];
   int       got_c, state = START;
+  static guint  cur_pref_val_size;
+  static gchar* cur_val = NULL;
+  static guint  cur_pref_var_size;
+  static gchar* cur_var = NULL;
   gboolean  got_val = FALSE;
   gint      var_len = 0, val_len = 0, fline = 1, pline = 1;
   gchar     hint[] = "(saving your preferences once should remove this warning)";
 
-
+  if (! cur_val) {
+	  cur_pref_val_size = 128;
+	  cur_val = g_malloc(cur_pref_val_size);
+  }
+  
+  if (! cur_var) {
+	  cur_pref_var_size = 128;
+	  cur_var = g_malloc(cur_pref_var_size);
+  }
+  
   while ((got_c = getc(pf)) != EOF) {
     if (got_c == '\n') {
       state = START;
       fline++;
       continue;
     }
-    if (var_len >= MAX_VAR_LEN) {
-      g_warning ("%s line %d: Variable too long %s", pf_path, fline, hint);
-      state = IN_SKIP;
-      var_len = 0;
+    if (var_len >= cur_pref_var_size) {
+		cur_pref_var_size *= 2;
+		cur_var = g_realloc(cur_var,cur_pref_val_size);
       continue;
     }
-    if (val_len >= MAX_VAL_LEN) {
-      g_warning ("%s line %d: Value too long %s", pf_path, fline, hint);
-      state = IN_SKIP;
-      var_len = 0;
+    if (val_len >= cur_pref_val_size) {
+		cur_pref_val_size *= 2;
+		cur_val = g_realloc(cur_val,cur_pref_val_size);
       continue;
     }
 
