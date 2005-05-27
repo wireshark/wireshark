@@ -1470,6 +1470,18 @@ proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
  * field info update instead of only updating the representation as does
  * proto_item_append_text()
  */
+/* NOTE: this function will break with the TRY_TO_FAKE_THIS_ITEM() 
+ * speed optimization.
+ * Currently only WSP use this function so it is not that bad but try to 
+ * avoid using this one if possible.
+ * IF you must use this function you MUST also disable the 
+ * TRY_TO_FAKE_THIS_ITEM() optimization for your dissector/function
+ * using proto_item_append_string().
+ * Do that by faking that the tree is visible by setting :
+ *   PTREE_DATA(tree)->visible=1;  (see packet-wsp.c)
+ * BEFORE you create the item you are later going to use
+ * proto_item_append_string() on.
+ */
 void
 proto_item_append_string(proto_item *pi, const char *str)
 {

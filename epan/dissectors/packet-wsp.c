@@ -2115,6 +2115,14 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
 	proto_item *ti = NULL;
 	proto_tree *parameter_tree = NULL;
 
+	/* this function will call proto_item_append_string() which
+	   doesnt work with the TRY_TO_FAKE_THIS_ITEM
+	   speed optimization.
+	   So we have to disable that one and become "slow" by pretending that
+	   the tree is "visible".
+	*/
+	PTREE_DATA(tree)->visible=1;
+
 	*textual_content = NULL;
 	*well_known_content = 0;
 
