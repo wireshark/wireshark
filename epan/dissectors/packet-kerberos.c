@@ -409,7 +409,7 @@ read_keytab_file(char *filename, krb5_context *context)
 }
 
 
-static guint8 *
+guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int usage,
 			int length,
@@ -528,7 +528,7 @@ read_keytab_file(char *filename, krb5_context *context)
 }
 
 
-static guint8 *
+guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int usage,
 			int length,
@@ -699,7 +699,7 @@ g_warning("added key: %s", sk->origin);
 
 #define CONFOUNDER_PLUS_CHECKSUM 24
 
-static guint8 *
+guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int _U_ usage,
 			int length,
@@ -3704,6 +3704,12 @@ gint
 dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int do_col_info, kerberos_callbacks *cb)
 {
     return (dissect_kerberos_common(tvb, pinfo, tree, do_col_info, FALSE, cb));
+}
+
+guint32 
+kerberos_output_keytype()
+{
+  return keytype;
 }
 
 static gint

@@ -133,6 +133,14 @@ static void dissect_enc(tvbuff_t *, int, int, proto_tree *,
     packet_info *, int);
 static void dissect_eap(tvbuff_t *, int, int, proto_tree *,
     packet_info *, int);
+void isakmp_set_version();
+
+void isakmp_dissect_payloads(tvbuff_t *tvb, proto_tree *tree, guint8 initial_payload,
+			     int offset, int length, packet_info *pinfo);
+static void
+dissect_payloads(tvbuff_t *tvb, proto_tree *tree, guint8 initial_payload,
+		 int offset, int length, packet_info *pinfo);
+
 
 static const char *payloadtype2str(guint8);
 static const char *exchtype2str(guint8);
@@ -322,6 +330,19 @@ static const guint8 VID_draft_ietf_ipsec_heartbeats_00[VID_LEN_8]= {0x8D, 0xB7, 
 static const guint8 VID_HeartBeat_Notify[VID_LEN] = {0x48, 0x65, 0x61, 0x72, 0x74, 0x42, 0x65, 0x61, 0x74, 0x5f, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x79}; 
 
 static int hf_ike_certificate_authority = -1;
+
+void
+isakmp_set_version()
+{
+  isakmp_version=1;
+}
+
+void
+isakmp_dissect_payloads(tvbuff_t *tvb, proto_tree *tree, guint8 initial_payload,
+		 int offset, int length, packet_info *pinfo)
+{
+  dissect_payloads(tvb, tree, initial_payload, offset, length, pinfo);
+}
 
 static void
 dissect_payloads(tvbuff_t *tvb, proto_tree *tree, guint8 initial_payload,

@@ -66,6 +66,7 @@ static gint ett_payload_kink_isakmp = -1;
 static gint ett_payload_kink_encrypt = -1;
 static gint ett_payload_kink_error = -1;
 static gint ett_payload_not_defined = -1;
+static gint ett_decrypt_kink_encrypt = -1;
 
 /* Define the kink type value */
 #define KINK_TYPE_RESERVED 0
@@ -160,6 +161,9 @@ static const value_string kink_next_payload[]={
 #define FRONT_ONE_BIT          0x80
 #define SECOND_FIFTEEN_BIT   0x7fff
 
+/* decrypt element */
+static guint32 keytype;
+
 static void control_payload(packet_info *pinfo, tvbuff_t *tvb, int offset, guint8 next_payload, proto_tree *kink_payload_tree);
 static void dissect_payload_kink_ap_req(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree);
 static void dissect_payload_kink_ap_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree);
@@ -170,7 +174,8 @@ static void dissect_payload_kink_isakmp(packet_info *pinfo, tvbuff_t *tvb, int o
 static void dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree);
 static void dissect_payload_kink_error(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree);
 static void dissect_payload_kink_not_defined(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree);
-
+static void dissect_decrypt_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int payload_length);
+ 
 /* This function is dissecting the kink header. */
 static void 
 dissect_kink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
@@ -361,7 +366,7 @@ dissect_payload_kink_ap_req(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
 
     krb_ap_req_length = payload_length - PAYLOAD_HEADER;
     krb_tvb=tvb_new_subset(tvb, offset, (krb_ap_req_length>tvb_length_remaining(tvb, offset))?tvb_length_remaining(tvb, offset):krb_ap_req_length, krb_ap_req_length);
-
+    keytype=kerberos_output_keytype();
     dissect_kerberos_main(krb_tvb, pinfo, payload_kink_ap_req_tree, FALSE, NULL);
     offset += krb_ap_req_length;
   }
@@ -429,7 +434,7 @@ dissect_payload_kink_ap_rep(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
 
     krb_ap_rep_length = payload_length - PAYLOAD_HEADER;
     krb_tvb=tvb_new_subset(tvb, offset, (krb_ap_rep_length>tvb_length_remaining(tvb, offset))?tvb_length_remaining(tvb, offset):krb_ap_rep_length, krb_ap_rep_length);
-
+    keytype=kerberos_output_keytype();
     dissect_kerberos_main(krb_tvb, pinfo, payload_kink_ap_rep_tree, FALSE, NULL);
 
     offset += krb_ap_rep_length;
@@ -615,12 +620,13 @@ dissect_payload_kink_isakmp(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   proto_item *ti;
   guint8 next_payload;
   guint8 reserved;
-  guint payload_length;
+  guint payload_length,isakmp_length;
   guint8 inner_next_pload;
   guint8 qm, qmmaj, qmmin;
   guint16 reserved2;
   guint16 quick_mode_payloads_length;
   int start_payload_offset = 0;      /* Keep the begining of the payload offset */
+  tvbuff_t *isakmp_tvb;
   
   payload_length = tvb_get_ntohs(tvb, offset + TO_PAYLOAD_LENGTH);
   start_payload_offset = offset;
@@ -666,9 +672,12 @@ dissect_payload_kink_isakmp(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   offset += 2;
   
   if(payload_length > PAYLOAD_HEADER){
-    quick_mode_payloads_length = payload_length - PAYLOAD_HEADER;
-    proto_tree_add_text(payload_kink_isakmp_tree, tvb, offset, quick_mode_payloads_length, "Quick Mode Payloads");
-    offset += quick_mode_payloads_length;
+    isakmp_length = payload_length - 8;
+    isakmp_tvb = tvb_new_subset(tvb, offset, (isakmp_length>tvb_length_remaining(tvb, offset))?tvb_length_remaining(tvb, offset):isakmp_length, isakmp_length);
+    if(qmmaj == 1){
+      isakmp_set_version();
+    }
+    isakmp_dissect_payloads(isakmp_tvb, payload_kink_isakmp_tree, inner_next_pload, 0, isakmp_length, pinfo);
   }
   
   /* This part consider the padding. Payload_length don't contain the padding. */
@@ -688,14 +697,19 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   proto_item *ti;
   guint8 next_payload;
   guint8 reserved;
-  guint payload_length;
+  guint payload_length,encrypt_length;
   guint8 inner_next_pload;
   guint32 reserved2;
   guint16 inner_payload_length;
   int start_payload_offset = 0;    /* Keep the begining of the payload offset */
-  
+  const char *data_value;
+  tvbuff_t *next_tvb;
+  guint8 *plaintext=NULL;
+
   payload_length = tvb_get_ntohs(tvb,offset + TO_PAYLOAD_LENGTH);
   start_payload_offset = offset;
+
+  encrypt_length = payload_length - FROM_NP_TO_PL;
 
   /* Make the subtree */
   ti = proto_tree_add_text(tree, tvb, offset, payload_length,"KINK_ENCRYPT");
@@ -717,18 +731,33 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   }
   offset += 2;
 
-  inner_next_pload = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(payload_kink_encrypt_tree, tvb, offset, 1, "InnerNextPload: %u", inner_next_pload);
-  offset += 1;
+  data_value = tvb_get_ptr(tvb, offset, encrypt_length);
 
-  reserved2 = 65536*tvb_get_guint8(tvb, offset) + 256*tvb_get_guint8(tvb, offset+1) + tvb_get_guint8(tvb, offset+2);
-  proto_tree_add_text(payload_kink_encrypt_tree, tvb, offset, 3, "RESERVED: %u", reserved2);
-  offset += 3;
+  /* decrypt kink encrypt */
+
+  if(keytype != 0){
+    plaintext=decrypt_krb5_data(tree, pinfo, 0, encrypt_length, data_value, keytype);    
+    if(plaintext){
+      next_tvb=tvb_new_real_data(plaintext, encrypt_length, encrypt_length);
+      tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+      add_new_data_source(pinfo, next_tvb, "decrypted kink encrypt");
+      dissect_decrypt_kink_encrypt(pinfo, next_tvb, tree, encrypt_length);
+    }
+  }
+  else{
+    inner_next_pload = tvb_get_guint8(tvb, offset);
+    proto_tree_add_text(payload_kink_encrypt_tree, tvb, offset, 1, "InnerNextPload: %u", inner_next_pload);
+    offset += 1;
+    
+    reserved2 = 65536*tvb_get_guint8(tvb, offset) + 256*tvb_get_guint8(tvb, offset+1) + tvb_get_guint8(tvb, offset+2);
+    proto_tree_add_text(payload_kink_encrypt_tree, tvb, offset, 3, "RESERVED: %u", reserved2);
+    offset += 3;
   
-  if(payload_length > PAYLOAD_HEADER){
-    inner_payload_length = payload_length - PAYLOAD_HEADER;
-    proto_tree_add_text(payload_kink_encrypt_tree, tvb, offset, inner_payload_length, "Payload");
-    offset += inner_payload_length;
+    if(payload_length > PAYLOAD_HEADER){
+      inner_payload_length = payload_length - PAYLOAD_HEADER;
+      proto_tree_add_text(payload_kink_encrypt_tree, tvb, offset, inner_payload_length, "Payload");
+      offset += inner_payload_length;
+    }
   }
   /* This part consider the padding. Payload_length don't contain the padding. */
   if(payload_length % PADDING !=0){
@@ -739,6 +768,30 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   if(payload_length > 0) {
     control_payload(pinfo, tvb, offset, next_payload, tree);  /* Recur control_payload() */
   }
+}
+
+static void
+dissect_decrypt_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int payload_length){
+  
+  proto_tree *decrypt_kink_encrypt_tree;
+  proto_item *ti;
+  int offset=0;
+  guint8 next_payload;
+  guint32 reserved;
+
+  ti = proto_tree_add_text(tree, tvb, offset, payload_length, "decrypted data");
+  decrypt_kink_encrypt_tree = proto_item_add_subtree(ti, ett_decrypt_kink_encrypt);
+
+  next_payload = tvb_get_guint8(tvb, offset);
+
+  proto_tree_add_uint(decrypt_kink_encrypt_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
+  offset ++;
+
+  reserved = 65536*tvb_get_guint8(tvb, offset) + 256*tvb_get_guint8(tvb, offset+1) + tvb_get_guint8(tvb, offset+2);
+  proto_tree_add_text(decrypt_kink_encrypt_tree, tvb, offset, 3, "RESERVED: %u", reserved);
+  offset += 3;
+
+  control_payload(pinfo, tvb, offset, next_payload, decrypt_kink_encrypt_tree);
 }
 
 static void
@@ -907,6 +960,7 @@ proto_register_kink(void) {
     &ett_payload_kink_encrypt,
     &ett_payload_kink_error,
     &ett_payload_not_defined,
+    &ett_decrypt_kink_encrypt,
     
   };
   
