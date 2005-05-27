@@ -3940,10 +3940,27 @@ proto_registrar_dump_values(void)
  * Field 3 = field abbreviation
  * Field 4 = type ( textual representation of the the ftenum type )
  * Field 5 = parent protocol abbreviation
+ * Field 6 = blurb describing field
  *
- * (format 2 adds these fields:)
- * Field 6 = base for display (for integer types)
- * Field 7 = blurb describing field
+ * (format 2)
+ * Field 1 = 'F'
+ * Field 2 = descriptive field name
+ * Field 3 = field abbreviation
+ * Field 4 = type ( textual representation of the the ftenum type )
+ * Field 5 = parent protocol abbreviation
+ * Field 6 = blurb describing field
+ * Field 7 = base for display (for integer types)
+ * Field 8 = blurb describing field (yes, apparently we repeated this accidentally)
+ *
+ * (format 3)
+ * Field 1 = 'F'
+ * Field 2 = descriptive field name
+ * Field 3 = field abbreviation
+ * Field 4 = type ( textual representation of the the ftenum type )
+ * Field 5 = parent protocol abbreviation
+ * Field 6 = blurb describing field
+ * Field 7 = base for display (for integer types)
+ * Field 8 = bitmask
  */
 void
 proto_registrar_dump_fields(int format)
@@ -4045,6 +4062,15 @@ proto_registrar_dump_fields(int format)
 					hfinfo->name, hfinfo->abbrev,
 					enum_name,parent_hfinfo->abbrev, hfinfo->blurb,
 					base_name, hfinfo->blurb);
+			}
+			else if (format == 3) {
+				printf("F\t%s\t%s\t%s\t%s\t%s\t%s\t%u\n",
+					hfinfo->name, hfinfo->abbrev,
+					enum_name,parent_hfinfo->abbrev, hfinfo->blurb,
+					base_name, hfinfo->bitmask);
+			}
+			else {
+				g_assert_not_reached();
 			}
 		}
 	}
