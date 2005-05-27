@@ -5557,8 +5557,8 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, guint8 pdu_type)
 		 */
 		capaValueLen = tvb_get_guintvar(tvb, offset, &len);
 		capaLen = capaValueLen + len;
-		offset += len;
 		tvb_ensure_bytes_exist(tvb, offset, capaLen);
+		offset += len;
 		/*
 		 * Now offset points to the 1st byte of the capability type.
 		 * Get the capability identifier.
