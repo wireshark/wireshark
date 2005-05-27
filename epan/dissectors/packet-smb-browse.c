@@ -290,20 +290,10 @@ static const true_false_string tfs_domainenum = {
 #define DESIRE_WINS			5
 #define DESIRE_NT			7
 
-static const value_string desire_flags[] = {
-	{DESIRE_BACKUP,		"Backup Browse Server"},
-	{DESIRE_STANDBY,	"Standby Browse Server"},
-	{DESIRE_MASTER,		"Master Browser"},
-	{DESIRE_DOMAIN_MASTER,	"Domain Master Browse Server"},
-	{DESIRE_WINS,		"WINS Client"},
-	{DESIRE_NT,		"Windows NT Advanced Server"},
-	{0,			NULL}
-};
-
 static const true_false_string tfs_desire_backup = {
 	"Backup Browse Server",
 	"NOT Backup Browse Server"
- };
+};
 static const true_false_string tfs_desire_standby = {
 	"Standby Browse Server",
 	"NOT Standby Browse Server"
@@ -353,13 +343,6 @@ static const value_string commands[] = {
 #define OS_WFW				0
 #define OS_NTW				4
 #define OS_NTS				5
-
-static const value_string os_flags[] = {
-	{OS_WFW,		"Windows for Workgroups"},
-	{OS_NTW,		"Windows NT Workstation"},
-	{OS_NTS,		"Windows NT Server"},
-	{0,			NULL}
-};
 
 static const true_false_string tfs_os_wfw = {
 	"Windows for Workgroups",
