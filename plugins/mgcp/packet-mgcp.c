@@ -1067,8 +1067,11 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 {
 	gint returnvalue = -1, tvb_current_offset,counter;
 	guint8 tempchar, plus_minus;
+	gchar **buf;
+
 	tvb_current_offset = offset;
 	*hf = NULL;
+	buf=NULL;
 
 	if (len > 0)
 	{
@@ -1184,6 +1187,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 				break;
 			case 'S':
 				*hf = &hf_mgcp_param_signalreq;
+				buf = &(mi->signalReq);
 				break;
 			case 'D':
 				*hf = &hf_mgcp_param_digitmap;
@@ -1191,6 +1195,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 				break;
 			case 'O':
 				*hf = &hf_mgcp_param_observedevent;
+				buf = &(mi->observedEvents);
 				break;
 			case 'P':
 				tvb_current_offset++;
@@ -1262,6 +1267,11 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 			tvb_current_offset++;
 			tvb_current_offset = tvb_skip_wsp(tvb,tvb_current_offset, (len - tvb_current_offset + offset));
 			returnvalue = tvb_current_offset;
+
+                       /* set the observedEvents or signalReq used in Voip Calls analysis */
+                       if (buf != NULL) {
+                               *buf = tvb_get_string(tvb, tvb_current_offset, (len - tvb_current_offset + offset));
+                       }
 		}
 	}
 	else
