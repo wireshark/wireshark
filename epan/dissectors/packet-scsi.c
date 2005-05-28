@@ -245,6 +245,12 @@ static int hf_scsi_track_start_address = -1;
 static int hf_scsi_track_start_time = -1;
 static int hf_scsi_synccache_immed = -1;
 static int hf_scsi_synccache_reladr = -1;
+static int hf_scsi_rbc_block = -1;
+static int hf_scsi_rbc_data_len = -1;
+static int hf_scsi_rbc_lob_blocks = -1;
+static int hf_scsi_rbc_alob_blocks = -1;
+static int hf_scsi_rbc_lob_bytes = -1;
+static int hf_scsi_rbc_alob_bytes = -1;
 
 static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
@@ -435,6 +441,7 @@ static const value_string scsi_sbc2_val[] = {
 #define SCSI_MMC_SYNCHRONIZECACHE       0x35
 #define SCSI_MMC_READTOCPMAATIP         0x43
 #define SCSI_MMC_GETCONFIGURATION       0x46
+#define SCSI_MMC_READBUFFERCAPACITY     0x5c
 #define SCSI_MMC_REPORTKEY		0xa4
 #define SCSI_MMC_READ12                 0xa8
 #define SCSI_MMC_WRITE12                0xaa
@@ -445,6 +452,7 @@ static const value_string scsi_mmc_val[] = {
     {SCSI_MMC_SYNCHRONIZECACHE,	"Synchronize Cache"},
     {SCSI_MMC_READTOCPMAATIP,	"Read TOC/PMA/ATIP"},
     {SCSI_MMC_GETCONFIGURATION,	"Get Configuraion"},
+    {SCSI_MMC_READBUFFERCAPACITY,"Read Buffer Capacity"},
     {SCSI_MMC_REPORTKEY,	"Report Key"},
     {SCSI_MMC_READ12,		"Read(12)"},
     {SCSI_MMC_WRITE12,		"Write(12)"},
@@ -3856,6 +3864,43 @@ dissect_mmc4_synchronizecache (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
     }
 }
+static void
+dissect_mmc4_readbuffercapacity (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags;
+    gint16 len;
+
+    if (tree && isreq && iscdb) {
+        cdata->flags=0;
+        proto_tree_add_item (tree, hf_scsi_rbc_block, tvb, offset, 1, 0);
+        if(tvb_get_guint8(tvb, offset)&0x01){
+            cdata->flags=1;
+        }
+
+        proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, 0);
+
+        flags = tvb_get_guint8 (tvb, offset+8);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+
+    }
+    if(tree && (!isreq)) {
+        len=tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item (tree, hf_scsi_rbc_data_len, tvb, offset, 2, 0);
+        if(cdata->flags){
+            proto_tree_add_item (tree, hf_scsi_rbc_lob_blocks, tvb, offset+4, 4, 0);
+            proto_tree_add_item (tree, hf_scsi_rbc_alob_blocks, tvb, offset+8, 4, 0);
+        } else {
+            proto_tree_add_item (tree, hf_scsi_rbc_lob_bytes, tvb, offset+4, 4, 0);
+            proto_tree_add_item (tree, hf_scsi_rbc_alob_bytes, tvb, offset+8, 4, 0);
+        }
+    }
+}
 
 static void
 dissect_sbc2_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
@@ -6090,7 +6135,7 @@ static scsi_cdb_table_t mmc[256] = {
 /*MMC 0x59*/{NULL},
 /*MMC 0x5a*/{NULL},
 /*MMC 0x5b*/{NULL},
-/*MMC 0x5c*/{NULL},
+/*MMC 0x5c*/{dissect_mmc4_readbuffercapacity},
 /*MMC 0x5d*/{NULL},
 /*MMC 0x5e*/{NULL},
 /*MMC 0x5f*/{NULL},
@@ -6965,6 +7010,24 @@ proto_register_scsi (void)
         { &hf_scsi_synccache_reladr,
           {"RelAdr", "scsi.synccache.reladr", FT_BOOLEAN, 8,
            NULL, 0x01, "", HFILL}},
+        { &hf_scsi_rbc_block,
+          {"BLOCK", "scsi.rbc.block", FT_BOOLEAN, 8,
+           NULL, 0x01, "", HFILL}},
+        { &hf_scsi_rbc_data_len,
+          {"Data Len", "scsi.rbc.data_len", FT_UINT16, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_rbc_lob_blocks,
+          {"Buffer Len (blocks)", "scsi.rbc.lob_blocks", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_rbc_alob_blocks,
+          {"Available Buffer Len (blocks)", "scsi.rbc.alob_blocks", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_rbc_lob_bytes,
+          {"Buffer Len (bytes)", "scsi.rbc.lob_bytes", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_rbc_alob_bytes,
+          {"Available Buffer Len (bytes)", "scsi.rbc.alob_bytes", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
 
     };
 
