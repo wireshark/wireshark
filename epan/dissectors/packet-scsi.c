@@ -91,6 +91,7 @@ static int proto_scsi                    = -1;
 static int hf_scsi_lun                   = -1;
 static int hf_scsi_status                = -1;
 static int hf_scsi_spcopcode             = -1;
+static int hf_scsi_mmcopcode             = -1;
 static int hf_scsi_sbcopcode             = -1;
 static int hf_scsi_sscopcode             = -1;
 static int hf_scsi_smcopcode             = -1;
@@ -178,6 +179,9 @@ static int hf_scsi_senddiag_pf = -1;
 static int hf_scsi_senddiag_st = -1;
 static int hf_scsi_senddiag_devoff = -1;
 static int hf_scsi_senddiag_unitoff = -1;
+static int hf_scsi_key_class = -1;
+static int hf_scsi_key_format = -1;
+static int hf_scsi_agid = -1;
 
 static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
@@ -190,6 +194,7 @@ typedef guint32 scsi_device_type;
 #define SCSI_CMND_SBC2                   2
 #define SCSI_CMND_SSC2                   3
 #define SCSI_CMND_SMC2                   4
+#define SCSI_CMND_MMC                    5
 
 /* SPC and SPC-2 Commands */
 
@@ -357,6 +362,15 @@ static const value_string scsi_sbc2_val[] = {
     {SCSI_SBC2_XDWRITEEXTD32, "XdWrite Extended(32)"},
     {SCSI_SBC2_XPWRITE10, "XpWrite(10)"},
     {SCSI_SBC2_XPWRITE32, "XpWrite(32)"},
+    {0, NULL},
+};
+
+/* MMC Commands */
+#define SCSI_MMC_READCAPACITY10         0x25
+#define SCSI_MMC_REPORTKEY		0xa4
+static const value_string scsi_mmc_val[] = {
+    {SCSI_MMC_READCAPACITY10,	"Read Capacity(10)"},
+    {SCSI_MMC_REPORTKEY,	"Report Key"},
     {0, NULL},
 };
 
@@ -1262,6 +1276,7 @@ typedef struct _scsi_task_data {
     scsi_device_type devtype;
     guint8 flags;
     struct _scsi_cdb_table_t *cdb_table;
+    const value_string *cdb_vals;
 } scsi_task_data_t;
 
 /*
@@ -3352,6 +3367,60 @@ dissect_sbc2_readwrite16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
     }
 }
+
+static const value_string scsi_key_class_val[] = {
+    {0x00, "DVD CSS/CPPM or CPRM"},
+    {0x01, "ReWriteable Security Service - A"},
+    {0,NULL}
+};
+static const value_string scsi_key_format_val[] = {
+    {0x00,	"AGID for CSS/CPPM"},
+    {0x01,	"Challenge Key"},
+    {0x02,	"Key 1"},
+    {0x04,	"Title Key"},
+    {0x05,	"Authentication Success Flag"},
+    {0x08,	"RPC State"},
+    {0x11,	"AGID for CPRM"},
+    {0x3f,	"None"},
+    {0,NULL}
+};
+static void
+dissect_mmc4_reportkey (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags, agid, format;
+
+    if (tree && isreq && iscdb) {
+        proto_tree_add_item (tree, hf_scsi_key_class, tvb, offset+6,
+                             1, 0);
+        proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+7, 2, 0);
+
+	agid=tvb_get_guint8(tvb, offset+9)&0xc0;
+	format=tvb_get_guint8(tvb, offset+9)&0x3f;
+	switch(format){
+        case 0x01:
+        case 0x02:
+        case 0x04:
+        case 0x3f:
+            /* agid is only valid for some formats */
+            proto_tree_add_uint (tree, hf_scsi_agid, tvb, offset+9, 1, agid);
+            break;
+        }
+        proto_tree_add_uint (tree, hf_scsi_key_format, tvb, offset+9, 1, format);
+	
+        flags = tvb_get_guint8 (tvb, offset+14);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+14, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+    if(tree && (!isreq)) {
+        /* to be filled in */
+    }
+}
+
 
 static void
 dissect_sbc2_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
@@ -5493,6 +5562,264 @@ static scsi_cdb_table_t smc[256] = {
 /*SMC 0xff*/{NULL}
 };
 
+static scsi_cdb_table_t mmc[256] = {
+/*MMC 0x00*/{NULL},
+/*MMC 0x01*/{NULL},
+/*MMC 0x02*/{NULL},
+/*MMC 0x03*/{NULL},
+/*MMC 0x04*/{NULL},
+/*MMC 0x05*/{NULL},
+/*MMC 0x06*/{NULL},
+/*MMC 0x07*/{NULL},
+/*MMC 0x08*/{NULL},
+/*MMC 0x09*/{NULL},
+/*MMC 0x0a*/{NULL},
+/*MMC 0x0b*/{NULL},
+/*MMC 0x0c*/{NULL},
+/*MMC 0x0d*/{NULL},
+/*MMC 0x0e*/{NULL},
+/*MMC 0x0f*/{NULL},
+/*MMC 0x10*/{NULL},
+/*MMC 0x11*/{NULL},
+/*MMC 0x12*/{NULL},
+/*MMC 0x13*/{NULL},
+/*MMC 0x14*/{NULL},
+/*MMC 0x15*/{NULL},
+/*MMC 0x16*/{NULL},
+/*MMC 0x17*/{NULL},
+/*MMC 0x18*/{NULL},
+/*MMC 0x19*/{NULL},
+/*MMC 0x1a*/{NULL},
+/*MMC 0x1b*/{NULL},
+/*MMC 0x1c*/{NULL},
+/*MMC 0x1d*/{NULL},
+/*MMC 0x1e*/{NULL},
+/*MMC 0x1f*/{NULL},
+/*MMC 0x20*/{NULL},
+/*MMC 0x21*/{NULL},
+/*MMC 0x22*/{NULL},
+/*MMC 0x23*/{NULL},
+/*MMC 0x24*/{NULL},
+/*MMC 0x25*/{dissect_sbc2_readcapacity10},
+/*MMC 0x26*/{NULL},
+/*MMC 0x27*/{NULL},
+/*MMC 0x28*/{NULL},
+/*MMC 0x29*/{NULL},
+/*MMC 0x2a*/{NULL},
+/*MMC 0x2b*/{NULL},
+/*MMC 0x2c*/{NULL},
+/*MMC 0x2d*/{NULL},
+/*MMC 0x2e*/{NULL},
+/*MMC 0x2f*/{NULL},
+/*MMC 0x30*/{NULL},
+/*MMC 0x31*/{NULL},
+/*MMC 0x32*/{NULL},
+/*MMC 0x33*/{NULL},
+/*MMC 0x34*/{NULL},
+/*MMC 0x35*/{NULL},
+/*MMC 0x36*/{NULL},
+/*MMC 0x37*/{NULL},
+/*MMC 0x38*/{NULL},
+/*MMC 0x39*/{NULL},
+/*MMC 0x3a*/{NULL},
+/*MMC 0x3b*/{NULL},
+/*MMC 0x3c*/{NULL},
+/*MMC 0x3d*/{NULL},
+/*MMC 0x3e*/{NULL},
+/*MMC 0x3f*/{NULL},
+/*MMC 0x40*/{NULL},
+/*MMC 0x41*/{NULL},
+/*MMC 0x42*/{NULL},
+/*MMC 0x43*/{NULL},
+/*MMC 0x44*/{NULL},
+/*MMC 0x45*/{NULL},
+/*MMC 0x46*/{NULL},
+/*MMC 0x47*/{NULL},
+/*MMC 0x48*/{NULL},
+/*MMC 0x49*/{NULL},
+/*MMC 0x4a*/{NULL},
+/*MMC 0x4b*/{NULL},
+/*MMC 0x4c*/{NULL},
+/*MMC 0x4d*/{NULL},
+/*MMC 0x4e*/{NULL},
+/*MMC 0x4f*/{NULL},
+/*MMC 0x50*/{NULL},
+/*MMC 0x51*/{NULL},
+/*MMC 0x52*/{NULL},
+/*MMC 0x53*/{NULL},
+/*MMC 0x54*/{NULL},
+/*MMC 0x55*/{NULL},
+/*MMC 0x56*/{NULL},
+/*MMC 0x57*/{NULL},
+/*MMC 0x58*/{NULL},
+/*MMC 0x59*/{NULL},
+/*MMC 0x5a*/{NULL},
+/*MMC 0x5b*/{NULL},
+/*MMC 0x5c*/{NULL},
+/*MMC 0x5d*/{NULL},
+/*MMC 0x5e*/{NULL},
+/*MMC 0x5f*/{NULL},
+/*MMC 0x60*/{NULL},
+/*MMC 0x61*/{NULL},
+/*MMC 0x62*/{NULL},
+/*MMC 0x63*/{NULL},
+/*MMC 0x64*/{NULL},
+/*MMC 0x65*/{NULL},
+/*MMC 0x66*/{NULL},
+/*MMC 0x67*/{NULL},
+/*MMC 0x68*/{NULL},
+/*MMC 0x69*/{NULL},
+/*MMC 0x6a*/{NULL},
+/*MMC 0x6b*/{NULL},
+/*MMC 0x6c*/{NULL},
+/*MMC 0x6d*/{NULL},
+/*MMC 0x6e*/{NULL},
+/*MMC 0x6f*/{NULL},
+/*MMC 0x70*/{NULL},
+/*MMC 0x71*/{NULL},
+/*MMC 0x72*/{NULL},
+/*MMC 0x73*/{NULL},
+/*MMC 0x74*/{NULL},
+/*MMC 0x75*/{NULL},
+/*MMC 0x76*/{NULL},
+/*MMC 0x77*/{NULL},
+/*MMC 0x78*/{NULL},
+/*MMC 0x79*/{NULL},
+/*MMC 0x7a*/{NULL},
+/*MMC 0x7b*/{NULL},
+/*MMC 0x7c*/{NULL},
+/*MMC 0x7d*/{NULL},
+/*MMC 0x7e*/{NULL},
+/*MMC 0x7f*/{NULL},
+/*MMC 0x80*/{NULL},
+/*MMC 0x81*/{NULL},
+/*MMC 0x82*/{NULL},
+/*MMC 0x83*/{NULL},
+/*MMC 0x84*/{NULL},
+/*MMC 0x85*/{NULL},
+/*MMC 0x86*/{NULL},
+/*MMC 0x87*/{NULL},
+/*MMC 0x88*/{NULL},
+/*MMC 0x89*/{NULL},
+/*MMC 0x8a*/{NULL},
+/*MMC 0x8b*/{NULL},
+/*MMC 0x8c*/{NULL},
+/*MMC 0x8d*/{NULL},
+/*MMC 0x8e*/{NULL},
+/*MMC 0x8f*/{NULL},
+/*MMC 0x90*/{NULL},
+/*MMC 0x91*/{NULL},
+/*MMC 0x92*/{NULL},
+/*MMC 0x93*/{NULL},
+/*MMC 0x94*/{NULL},
+/*MMC 0x95*/{NULL},
+/*MMC 0x96*/{NULL},
+/*MMC 0x97*/{NULL},
+/*MMC 0x98*/{NULL},
+/*MMC 0x99*/{NULL},
+/*MMC 0x9a*/{NULL},
+/*MMC 0x9b*/{NULL},
+/*MMC 0x9c*/{NULL},
+/*MMC 0x9d*/{NULL},
+/*MMC 0x9e*/{NULL},
+/*MMC 0x9f*/{NULL},
+/*MMC 0xa0*/{NULL},
+/*MMC 0xa1*/{NULL},
+/*MMC 0xa2*/{NULL},
+/*MMC 0xa3*/{NULL},
+/*MMC 0xa4*/{dissect_mmc4_reportkey},
+/*MMC 0xa5*/{NULL},
+/*MMC 0xa6*/{NULL},
+/*MMC 0xa7*/{NULL},
+/*MMC 0xa8*/{NULL},
+/*MMC 0xa9*/{NULL},
+/*MMC 0xaa*/{NULL},
+/*MMC 0xab*/{NULL},
+/*MMC 0xac*/{NULL},
+/*MMC 0xad*/{NULL},
+/*MMC 0xae*/{NULL},
+/*MMC 0xaf*/{NULL},
+/*MMC 0xb0*/{NULL},
+/*MMC 0xb1*/{NULL},
+/*MMC 0xb2*/{NULL},
+/*MMC 0xb3*/{NULL},
+/*MMC 0xb4*/{NULL},
+/*MMC 0xb5*/{NULL},
+/*MMC 0xb6*/{NULL},
+/*MMC 0xb7*/{NULL},
+/*MMC 0xb8*/{NULL},
+/*MMC 0xb9*/{NULL},
+/*MMC 0xba*/{NULL},
+/*MMC 0xbb*/{NULL},
+/*MMC 0xbc*/{NULL},
+/*MMC 0xbd*/{NULL},
+/*MMC 0xbe*/{NULL},
+/*MMC 0xbf*/{NULL},
+/*MMC 0xc0*/{NULL},
+/*MMC 0xc1*/{NULL},
+/*MMC 0xc2*/{NULL},
+/*MMC 0xc3*/{NULL},
+/*MMC 0xc4*/{NULL},
+/*MMC 0xc5*/{NULL},
+/*MMC 0xc6*/{NULL},
+/*MMC 0xc7*/{NULL},
+/*MMC 0xc8*/{NULL},
+/*MMC 0xc9*/{NULL},
+/*MMC 0xca*/{NULL},
+/*MMC 0xcb*/{NULL},
+/*MMC 0xcc*/{NULL},
+/*MMC 0xcd*/{NULL},
+/*MMC 0xce*/{NULL},
+/*MMC 0xcf*/{NULL},
+/*MMC 0xd0*/{NULL},
+/*MMC 0xd1*/{NULL},
+/*MMC 0xd2*/{NULL},
+/*MMC 0xd3*/{NULL},
+/*MMC 0xd4*/{NULL},
+/*MMC 0xd5*/{NULL},
+/*MMC 0xd6*/{NULL},
+/*MMC 0xd7*/{NULL},
+/*MMC 0xd8*/{NULL},
+/*MMC 0xd9*/{NULL},
+/*MMC 0xda*/{NULL},
+/*MMC 0xdb*/{NULL},
+/*MMC 0xdc*/{NULL},
+/*MMC 0xdd*/{NULL},
+/*MMC 0xde*/{NULL},
+/*MMC 0xdf*/{NULL},
+/*MMC 0xe0*/{NULL},
+/*MMC 0xe1*/{NULL},
+/*MMC 0xe2*/{NULL},
+/*MMC 0xe3*/{NULL},
+/*MMC 0xe4*/{NULL},
+/*MMC 0xe5*/{NULL},
+/*MMC 0xe6*/{NULL},
+/*MMC 0xe7*/{NULL},
+/*MMC 0xe8*/{NULL},
+/*MMC 0xe9*/{NULL},
+/*MMC 0xea*/{NULL},
+/*MMC 0xeb*/{NULL},
+/*MMC 0xec*/{NULL},
+/*MMC 0xed*/{NULL},
+/*MMC 0xee*/{NULL},
+/*MMC 0xef*/{NULL},
+/*MMC 0xf0*/{NULL},
+/*MMC 0xf1*/{NULL},
+/*MMC 0xf2*/{NULL},
+/*MMC 0xf3*/{NULL},
+/*MMC 0xf4*/{NULL},
+/*MMC 0xf5*/{NULL},
+/*MMC 0xf6*/{NULL},
+/*MMC 0xf7*/{NULL},
+/*MMC 0xf8*/{NULL},
+/*MMC 0xf9*/{NULL},
+/*MMC 0xfa*/{NULL},
+/*MMC 0xfb*/{NULL},
+/*MMC 0xfc*/{NULL},
+/*MMC 0xfd*/{NULL},
+/*MMC 0xfe*/{NULL},
+/*MMC 0xff*/{NULL}
+};
 
 void
 dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -5509,12 +5836,14 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     scsi_devtype_key_t dkey;
     scsi_devtype_data_t *devdata;
     scsi_cdb_table_t *cdb_table=NULL;
+    const value_string *cdb_vals = NULL;
+    int hf_opcode=-1;
 
     opcode = tvb_get_guint8 (tvb, offset);
 
-    if (devtype_arg != SCSI_DEV_UNKNOWN)
+    if (devtype_arg != SCSI_DEV_UNKNOWN) {
         devtype = devtype_arg;
-    else {
+    } else {
         /*
          * Try to look up the device data for this device.
          *
@@ -5529,8 +5858,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                               &dkey);
         if (devdata != NULL) {
             devtype = devdata->devtype;
-        }
-        else {
+        } else {
             devtype = (scsi_device_type)scsi_def_devtype;
         }
     }
@@ -5547,41 +5875,56 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          */
         switch (devtype) {
         case SCSI_DEV_SBC:
-        case SCSI_DEV_CDROM:	/* XXX - is this right? no it is not*/
             valstr = match_strval (opcode, scsi_sbc2_val);
             cmd = SCSI_CMND_SBC2;
             cdb_table=sbc;
+            cdb_vals=scsi_sbc2_val;
+            hf_opcode=hf_scsi_sbcopcode;
+            break;
+
+        case SCSI_DEV_CDROM:
+            valstr = match_strval (opcode, scsi_mmc_val);
+            cmd = SCSI_CMND_MMC;
+            cdb_table=mmc;
+            cdb_vals=scsi_mmc_val;
+            hf_opcode=hf_scsi_mmcopcode;
             break;
 
         case SCSI_DEV_SSC:
             valstr = match_strval (opcode, scsi_ssc2_val);
             cmd = SCSI_CMND_SSC2;
             cdb_table=ssc;
+            cdb_vals=scsi_ssc2_val;
+            hf_opcode=hf_scsi_sscopcode;
             break;
 
         case SCSI_DEV_SMC:
             valstr = match_strval (opcode, scsi_smc2_val);
             cmd = SCSI_CMND_SMC2;
             cdb_table=smc;
+            cdb_vals=scsi_smc2_val;
+            hf_opcode=hf_scsi_smcopcode;
             break;
 
         default:
             cmd = SCSI_CMND_SPC2;
             cdb_table=spc;
+            cdb_vals=scsi_spc2_val;
+            hf_opcode=hf_scsi_spcopcode;
             break;
         }
-    }
-    else {
+    } else {
         cmd = SCSI_CMND_SPC2;
         cdb_table=spc;
+        cdb_vals=scsi_spc2_val;
+        hf_opcode=hf_scsi_spcopcode;
     }
 
     if (valstr != NULL) {
         if (check_col (pinfo->cinfo, COL_INFO)) {
             col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI: %s LUN: 0x%02x ", valstr, lun);
         }
-    }
-    else {
+    } else {
         if (check_col (pinfo->cinfo, COL_INFO)) {
             col_add_fstr (pinfo->cinfo, COL_INFO, "SCSI Command: 0x%02x LUN:0x%02x ", opcode, lun);
         }
@@ -5594,6 +5937,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         cdata->cmd = cmd;
         cdata->devtype = devtype;
 	cdata->cdb_table = cdb_table;
+	cdata->cdb_vals = cdb_vals;
     }
 
     if (tree) {
@@ -5606,40 +5950,12 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	
 
         if (valstr != NULL) {
-            if (cmd == SCSI_CMND_SPC2) {
-                proto_tree_add_uint_format (scsi_tree, hf_scsi_spcopcode, tvb,
-                                            offset, 1,
-                                            tvb_get_guint8 (tvb, offset),
-                                            "Opcode: %s (0x%02x)", valstr,
-                                            opcode);
-            }
-            else if (cmd == SCSI_CMND_SBC2) {
-                proto_tree_add_uint_format (scsi_tree, hf_scsi_sbcopcode, tvb,
-                                            offset, 1,
-                                            tvb_get_guint8 (tvb, offset),
-                                            "Opcode: %s (0x%02x)", valstr,
-                                            opcode);
-            }
-            else if (cmd == SCSI_CMND_SSC2) {
-                proto_tree_add_uint_format (scsi_tree, hf_scsi_sscopcode, tvb,
-                                            offset, 1,
-                                            tvb_get_guint8 (tvb, offset),
-                                            "Opcode: %s (0x%02x)", valstr,
-                                            opcode);
-            }
-            else if (cmd == SCSI_CMND_SMC2) {
-                proto_tree_add_uint_format (scsi_tree, hf_scsi_smcopcode, tvb,
-                                            offset, 1,
-                                            tvb_get_guint8 (tvb, offset),
-                                            "Opcode: %s (0x%02x)", valstr,
-                                            opcode);
-            }
-            else {
-                /* "Can't happen" */
-                g_assert_not_reached();
-            }
-        }
-        else {
+            proto_tree_add_uint_format (scsi_tree, hf_opcode, tvb,
+                                        offset, 1,
+                                        tvb_get_guint8 (tvb, offset),
+                                        "Opcode: %s (0x%02x)", valstr,
+                                        opcode);
+        } else {
             proto_tree_add_item (scsi_tree, hf_scsi_spcopcode, tvb, offset, 1, 0);
         }
     }
@@ -5666,7 +5982,6 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
     proto_tree *scsi_tree = NULL;
     guint8 opcode = 0xFF;
-    scsi_cmnd_type cmd = 0;     /* 0 is undefined type */
     scsi_device_type devtype;
     scsi_task_data_t *cdata = NULL;
 
@@ -5680,92 +5995,24 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     opcode = cdata->opcode;
-    cmd = cdata->cmd;
     devtype = cdata->devtype;
 
     if (tree) {
-        switch (cmd) {
-        case SCSI_CMND_SPC2:
-            ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, offset,
-                                                 payload_len,
-                                                 "SCSI Payload (%s %s)",
-                                                 val_to_str (opcode,
-                                                             scsi_spc2_val,
-                                                             "0x%02x"),
-                                                 isreq ? "Request" : "Response");
-	    if (check_col (pinfo->cinfo, COL_INFO)) {
-	      col_add_fstr (pinfo->cinfo, COL_INFO, 
-			    "SCSI: Data %s LUN: 0x%02x (%s %s) ", 
-			    isreq ? "Out" : "In", 
-			    lun, 
-			    val_to_str (opcode, scsi_spc2_val, "0x%02x"),
-			    isreq ? "Request" : "Response");
-	    }
-            break;
-
-        case SCSI_CMND_SBC2:
-            ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, offset,
-                                                 payload_len,
-                                                 "SCSI Payload (%s %s)",
-                                                 val_to_str (opcode,
-                                                             scsi_sbc2_val,
-                                                             "0x%02x"),
-                                                 isreq ? "Request" : "Response");
-	    if (check_col (pinfo->cinfo, COL_INFO)) {
-	      col_add_fstr (pinfo->cinfo, COL_INFO, 
-			    "SCSI: Data %s LUN: 0x%02x (%s %s) ", 
-			    isreq ? "Out" : "In", 
-			    lun, 
-			    val_to_str (opcode, scsi_sbc2_val, "0x%02x"),
-			    isreq ? "Request" : "Response");
-	    }
-            break;
-
-        case SCSI_CMND_SSC2:
-            ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, offset,
-                                                 payload_len,
-                                                 "SCSI Payload (%s %s)",
-                                                 val_to_str (opcode,
-                                                             scsi_ssc2_val,
-                                                             "0x%02x"),
-                                                 isreq ? "Request" : "Response");
-	    if (check_col (pinfo->cinfo, COL_INFO)) {
-	      col_add_fstr (pinfo->cinfo, COL_INFO, 
-			    "SCSI: Data %s LUN: 0x%02x (%s %s) ", 
-			    isreq ? "Out" : "In", 
-			    lun, 
-			    val_to_str (opcode, scsi_ssc2_val, "0x%02x"),
-			    isreq ? "Request" : "Response");
-	    }
-            break;
-
-        case SCSI_CMND_SMC2:
-            ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, offset,
-                                                 payload_len,
-                                                 "SCSI Payload (%s %s)",
-                                                 val_to_str (opcode,
-                                                             scsi_smc2_val,
-                                                             "0x%02x"),
-                                                 isreq ? "Request" : "Response");
-	    if (check_col (pinfo->cinfo, COL_INFO)) {
-	      col_add_fstr (pinfo->cinfo, COL_INFO, 
-			    "SCSI: Data %s LUN: 0x%02x (%s %s) ", 
-			    isreq ? "Out" : "In", 
-			    lun, 
-			    val_to_str (opcode, scsi_smc2_val, "0x%02x"),
-			    isreq ? "Request" : "Response");
-	    }
-            break;
-
-        default:
-            ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, offset,
-                                                 payload_len,
-                                                 "SCSI Payload (0x%02x %s)",
-                                                 opcode,
-                                                 isreq ? "Request" : "Response");
-            break;
-        }
-
+        ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, offset,
+                                             payload_len,
+                                             "SCSI Payload (%s %s)",
+                                             val_to_str (opcode,
+                                                         cdata->cdb_vals,
+                                                         "0x%02x"),
+                                             isreq ? "Request" : "Response");
+	if (check_col (pinfo->cinfo, COL_INFO)) {
+	    col_add_fstr (pinfo->cinfo, COL_INFO, 
+			"SCSI: Data %s LUN: 0x%02x (%s %s) ", 
+			isreq ? "Out" : "In", 
+			lun, 
+			val_to_str (opcode, cdata->cdb_vals, "0x%02x"),
+			isreq ? "Request" : "Response");
+	}
         scsi_tree = proto_item_add_subtree (ti, ett_scsi);
     }
 
@@ -5781,8 +6028,11 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          *
          * We don't bother dissecting other payload if we're not buildng
          * a protocol tree.
-         */
-        if (cmd == SCSI_CMND_SPC2 && opcode == SCSI_SPC2_INQUIRY) {
+         *
+	 * We assume opcode 0x12 is always INQUIRY regardless of the
+	 * commandset used.
+	 */
+        if (opcode == SCSI_SPC2_INQUIRY) {
             dissect_spc3_inquiry (tvb, pinfo, scsi_tree, offset, isreq,
                                   FALSE, payload_len, cdata);
         }
@@ -5818,6 +6068,9 @@ proto_register_scsi (void)
         { &hf_scsi_spcopcode,
           {"SPC-2 Opcode", "scsi.spc.opcode", FT_UINT8, BASE_HEX,
            VALS (scsi_spc2_val), 0x0, "", HFILL}},
+        { &hf_scsi_mmcopcode,
+          {"MMC Opcode", "scsi.mmc.opcode", FT_UINT8, BASE_HEX,
+           VALS (scsi_mmc_val), 0x0, "", HFILL}},
         { &hf_scsi_sbcopcode,
           {"SBC-2 Opcode", "scsi.sbc.opcode", FT_UINT8, BASE_HEX,
            VALS (scsi_sbc2_val), 0x0, "", HFILL}},
@@ -6079,6 +6332,15 @@ proto_register_scsi (void)
         { &hf_scsi_senddiag_unitoff,
           {"Unit Offline", "scsi.spc2.senddiag.unitoff", FT_BOOLEAN, BASE_HEX,
            NULL, 0x1, "", HFILL}},
+        { &hf_scsi_key_class,
+          {"Key Class", "scsi.mmc4.key_class", FT_UINT8, BASE_HEX,
+           VALS (scsi_key_class_val), 0x00, "", HFILL}},
+        { &hf_scsi_agid,
+          {"AGID", "scsi.mmc4.agid", FT_UINT8, BASE_HEX,
+           NULL, 0xc0, "", HFILL}},
+        { &hf_scsi_key_format,
+          {"Key Format", "scsi.mmc4.key_format", FT_UINT8, BASE_HEX,
+           VALS (scsi_key_format_val), 0x3f, "", HFILL}},
         
     };
 
