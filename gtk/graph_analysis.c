@@ -156,6 +156,7 @@ static void on_destroy(GtkWidget *win _U_, graph_analysis_data_t *user_data _U_)
 
 
 /****************************************************************************/
+#if 0
 static void dialog_graph_set_title(graph_analysis_data_t* user_data)
 {
 	char            *title;
@@ -167,6 +168,7 @@ static void dialog_graph_set_title(graph_analysis_data_t* user_data)
 	gtk_window_set_title(GTK_WINDOW(user_data->dlg.window), title);
 	g_free(title);	
 }
+#endif
 
 #define RIGHT_ARROW 1
 #define LEFT_ARROW 0
