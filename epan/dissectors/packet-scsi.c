@@ -1261,6 +1261,7 @@ typedef struct _scsi_task_data {
     scsi_cmnd_type cmd;
     scsi_device_type devtype;
     guint8 flags;
+    struct _scsi_cdb_table_t *cdb_table;
 } scsi_task_data_t;
 
 /*
@@ -1417,6 +1418,8 @@ free_devtype_key_dev_info(gpointer key_arg, gpointer value_arg _U_,
 		key->devid.data = NULL;
 	}
 }
+
+
 
 static void
 scsi_init_protocol(void)
@@ -1626,7 +1629,7 @@ dissect_scsi_cmddt (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_scsi_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       guint offset, gboolean isreq, gboolean iscdb,
                       guint32 payload_len, scsi_task_data_t *cdata)
 {
@@ -1760,16 +1763,18 @@ dissect_scsi_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-dissect_scsi_extcopy (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+dissect_spc3_extcopy (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 		      proto_tree *tree _U_, guint offset _U_,
-		      gboolean isreq _U_, gboolean iscdb _U_)
+		      gboolean isreq _U_, gboolean iscdb _U_,
+                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
 
 }
 
 static void
-dissect_scsi_logselect (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                        guint offset, gboolean isreq, gboolean iscdb)
+dissect_spc3_logselect (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                        guint offset, gboolean isreq, gboolean iscdb,
+                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -1798,8 +1803,9 @@ dissect_scsi_logselect (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_scsi_logsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                       guint offset, gboolean isreq, gboolean iscdb)
+dissect_spc3_logsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                       guint offset, gboolean isreq, gboolean iscdb,
+                       guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -2477,9 +2483,9 @@ dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void
-dissect_scsi_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_spc3_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           guint offset, gboolean isreq, gboolean iscdb,
-                          scsi_device_type devtype, guint payload_len)
+                          guint payload_len, scsi_task_data_t *cdata)
 {
     guint8 flags;
     guint tot_len, desclen, plen;
@@ -2523,7 +2529,7 @@ dissect_scsi_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if (payload_len < 1)
             return;
-        switch (devtype) {
+        switch (cdata->devtype) {
 
         case SCSI_DEV_SBC:
             proto_tree_add_text (tree, tvb, offset, 1, "Medium Type: %s",
@@ -2557,14 +2563,14 @@ dissect_scsi_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         payload_len -= 1;
 
         if (!dissect_scsi_blockdescs (tvb, pinfo, tree, offset, payload_len,
-                                     desclen, devtype, FALSE))
+                                     desclen, cdata->devtype, FALSE))
             return;
         offset += desclen;
         payload_len -= desclen;
 
         /* offset points to the start of the mode page */
         while ((payload_len > 0) && tvb_bytes_exist (tvb, offset, 2)) {
-            plen = dissect_scsi_modepage (tvb, pinfo, tree, offset, devtype);
+            plen = dissect_scsi_modepage (tvb, pinfo, tree, offset, cdata->devtype);
             offset += plen;
             payload_len -= plen;
         }
@@ -2572,9 +2578,9 @@ dissect_scsi_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-dissect_scsi_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_spc3_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            guint offset, gboolean isreq, gboolean iscdb,
-                           scsi_device_type devtype, guint payload_len)
+                           guint payload_len, scsi_task_data_t *cdata)
 {
     guint8 flags;
     gboolean longlba;
@@ -2619,7 +2625,7 @@ dissect_scsi_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if (payload_len < 1)
             return;
-        switch (devtype) {
+        switch (cdata->devtype) {
 
         case SCSI_DEV_SBC:
             proto_tree_add_text (tree, tvb, offset, 1, "Medium Type: %s",
@@ -2660,14 +2666,14 @@ dissect_scsi_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         payload_len -= 2;
 
         if (!dissect_scsi_blockdescs (tvb, pinfo, tree, offset, payload_len,
-                                     desclen, devtype, longlba))
+                                     desclen, cdata->devtype, longlba))
             return;
         offset += desclen;
         payload_len -= desclen;
 
         /* offset points to the start of the mode page */
         while ((payload_len > 0) && tvb_bytes_exist (tvb, offset, 2)) {
-            plen = dissect_scsi_modepage (tvb, pinfo, tree, offset, devtype);
+            plen = dissect_scsi_modepage (tvb, pinfo, tree, offset, cdata->devtype);
             offset += plen;
             payload_len -= plen;
         }
@@ -2715,9 +2721,9 @@ dissect_scsi_pagecode (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static void
-dissect_scsi_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_spc3_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                          guint offset, gboolean isreq, gboolean iscdb,
-                         scsi_device_type devtype, guint payload_len)
+                         guint payload_len, scsi_task_data_t *cdata)
 {
     guint8 flags;
     guint tot_len, desclen, plen;
@@ -2731,7 +2737,7 @@ dissect_scsi_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_uint_format (tree, hf_scsi_modesns_flags, tvb, offset, 1,
                                     flags, "DBD = %u", flags & 0x8);
         proto_tree_add_item (tree, hf_scsi_modesns_pc, tvb, offset+1, 1, 0);
-        dissect_scsi_pagecode (tvb, pinfo, tree, offset+1, devtype);
+        dissect_scsi_pagecode (tvb, pinfo, tree, offset+1, cdata->devtype);
         proto_tree_add_item (tree, hf_scsi_alloclen, tvb, offset+3, 1, 0);
 
         flags = tvb_get_guint8 (tvb, offset+4);
@@ -2789,14 +2795,14 @@ dissect_scsi_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         tot_len -= 1;
 
         if (!dissect_scsi_blockdescs (tvb, pinfo, tree, offset, tot_len,
-                                     desclen, devtype, FALSE))
+                                     desclen, cdata->devtype, FALSE))
             return;
         offset += desclen;
         tot_len -= desclen;
 
         /* offset points to the start of the mode page */
         while ((tot_len > 0) && tvb_bytes_exist (tvb, offset, 2)) {
-            plen = dissect_scsi_modepage (tvb, pinfo, tree, offset, devtype);
+            plen = dissect_scsi_modepage (tvb, pinfo, tree, offset, cdata->devtype);
             offset += plen;
             tot_len -= plen;
         }
@@ -2804,9 +2810,9 @@ dissect_scsi_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-dissect_scsi_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_spc3_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           guint offset, gboolean isreq, gboolean iscdb,
-                          scsi_device_type devtype, guint payload_len)
+                          guint payload_len, scsi_task_data_t *cdata)
 {
     guint8 flags;
     gboolean longlba;
@@ -2822,7 +2828,7 @@ dissect_scsi_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                     flags, "LLBAA = %u, DBD = %u", flags & 0x10,
                                     flags & 0x8);
         proto_tree_add_item (tree, hf_scsi_modesns_pc, tvb, offset+1, 1, 0);
-        dissect_scsi_pagecode (tvb, pinfo, tree, offset+1, devtype);
+        dissect_scsi_pagecode (tvb, pinfo, tree, offset+1, cdata->devtype);
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, 0);
 
         flags = tvb_get_guint8 (tvb, offset+8);
@@ -2886,14 +2892,14 @@ dissect_scsi_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         tot_len -= 2;
 
         if (!dissect_scsi_blockdescs (tvb, pinfo, tree, offset, tot_len,
-                                     desclen, devtype, longlba))
+                                     desclen, cdata->devtype, longlba))
             return;
         offset += desclen;
         tot_len -= desclen;
 
         /* offset points to the start of the mode page */
         while ((tot_len > 0) && tvb_bytes_exist (tvb, offset, 2)) {
-            plen = dissect_scsi_modepage (tvb, pinfo, tree, offset, devtype);
+            plen = dissect_scsi_modepage (tvb, pinfo, tree, offset, cdata->devtype);
             offset += plen;
             tot_len -= plen;
         }
@@ -2901,10 +2907,9 @@ dissect_scsi_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-dissect_scsi_persresvin (tvbuff_t *tvb, packet_info *pinfo _U_,
-                         proto_tree *tree, guint offset, gboolean isreq,
-                         gboolean iscdb, scsi_task_data_t *cdata,
-                         guint payload_len)
+dissect_spc3_persistentreservein (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
+                         guint offset, gboolean isreq, gboolean iscdb,
+                         guint payload_len, scsi_task_data_t *cdata)
 {
     guint8 flags;
     int numrec, i;
@@ -2966,10 +2971,9 @@ dissect_scsi_persresvin (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static void
-dissect_scsi_persresvout (tvbuff_t *tvb, packet_info *pinfo _U_,
-                          proto_tree *tree, guint offset, gboolean isreq,
-                          gboolean iscdb, scsi_task_data_t *cdata _U_,
-                          guint payload_len _U_)
+dissect_spc3_persistentreserveout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
+                          guint offset, gboolean isreq, gboolean iscdb, 
+                          guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -2994,9 +2998,9 @@ dissect_scsi_persresvout (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static void
-dissect_scsi_release6 (tvbuff_t *tvb, packet_info *pinfo _U_,
-                       proto_tree *tree, guint offset, gboolean isreq,
-                       gboolean iscdb)
+dissect_spc2_release6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
+                       guint offset, gboolean isreq, gboolean iscdb,
+                       guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -3013,8 +3017,9 @@ dissect_scsi_release6 (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static void
-dissect_scsi_release10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                        guint offset, gboolean isreq, gboolean iscdb)
+dissect_spc2_release10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                        guint offset, gboolean isreq, gboolean iscdb,
+                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -3043,17 +3048,18 @@ dissect_scsi_release10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_scsi_reportdeviceid (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
-                             proto_tree *tree _U_, guint offset _U_,
-                             gboolean isreq _U_, gboolean iscdb _U_)
+dissect_spc3_reportdeviceidentifier (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+proto_tree *tree _U_, 
+                  guint offset _U_, gboolean isreq _U_, gboolean iscdb _U_,
+                  guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
 
 }
 
 static void
-dissect_scsi_reportluns (tvbuff_t *tvb, packet_info *pinfo _U_,
-                         proto_tree *tree, guint offset, gboolean isreq,
-                         gboolean iscdb, guint payload_len)
+dissect_spc3_reportluns (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
+                         guint offset, gboolean isreq, gboolean iscdb, 
+                         guint payload_len, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
     guint listlen, i;
@@ -3095,8 +3101,9 @@ dissect_scsi_reportluns (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static void
-dissect_scsi_reqsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                       guint offset, gboolean isreq, gboolean iscdb)
+dissect_spc3_requestsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                       guint offset, gboolean isreq, gboolean iscdb,
+                       guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -3115,8 +3122,9 @@ dissect_scsi_reqsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_scsi_reserve6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                       guint offset, gboolean isreq, gboolean iscdb)
+dissect_spc2_reserve6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                       guint offset, gboolean isreq, gboolean iscdb,
+                       guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -3133,8 +3141,9 @@ dissect_scsi_reserve6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_scsi_reserve10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                        guint offset, gboolean isreq, gboolean iscdb)
+dissect_spc2_reserve10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                        guint offset, gboolean isreq, gboolean iscdb,
+                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -3163,9 +3172,9 @@ dissect_scsi_reserve10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_scsi_startstopunit (tvbuff_t *tvb, packet_info *pinfo _U_,
-                            proto_tree *tree, guint offset, gboolean isreq _U_,
-                            gboolean iscdb)
+dissect_sbc2_startstopunit (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
+                            guint offset, gboolean isreq _U_, gboolean iscdb,
+                            guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
     
@@ -3185,9 +3194,9 @@ dissect_scsi_startstopunit (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static void
-dissect_scsi_testunitrdy (tvbuff_t *tvb, packet_info *pinfo _U_,
-                          proto_tree *tree, guint offset, gboolean isreq,
-                          gboolean iscdb)
+dissect_spc3_testunitready (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
+                          guint offset, gboolean isreq, gboolean iscdb,
+                          guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -3204,9 +3213,9 @@ dissect_scsi_testunitrdy (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static void
-dissect_scsi_formatunit (tvbuff_t *tvb, packet_info *pinfo _U_,
-                         proto_tree *tree, guint offset, gboolean isreq,
-                         gboolean iscdb)
+dissect_sbc2_formatunit (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
+                         guint offset, gboolean isreq, gboolean iscdb,
+                         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -3233,8 +3242,9 @@ dissect_scsi_formatunit (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static void
-dissect_scsi_sbc2_rdwr6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    guint offset, gboolean isreq, gboolean iscdb)
+dissect_sbc2_readwrite6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -3257,8 +3267,10 @@ dissect_scsi_sbc2_rdwr6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 }
 
 static void
-dissect_scsi_rdwr10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb)
+dissect_sbc2_readwrite10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
 {
     guint8 flags;
 
@@ -3287,8 +3299,9 @@ dissect_scsi_rdwr10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_scsi_rdwr12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb)
+dissect_sbc2_readwrite12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -3317,8 +3330,9 @@ dissect_scsi_rdwr12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_scsi_rdwr16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb)
+dissect_sbc2_readwrite16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -3340,9 +3354,9 @@ dissect_scsi_rdwr16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_scsi_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_,
-                           proto_tree *tree, guint offset, gboolean isreq,
-                           gboolean iscdb)
+dissect_sbc2_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
+                           guint offset, gboolean isreq, gboolean iscdb,
+                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
     guint32 len, block_len, tot_len;
@@ -3407,9 +3421,10 @@ static const value_string service_action_vals[] = {
    action is set to.   for now we only implement readcapacity16
 */
 static void
-dissect_scsi_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_sbc2_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
                            proto_tree *tree, guint offset, gboolean isreq,
-                           gboolean iscdb)
+                           gboolean iscdb,
+                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 service_action, flags;
     guint32 block_len;
@@ -3469,9 +3484,10 @@ dissect_scsi_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static void
-dissect_scsi_readdefdata10 (tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_sbc2_readdefectdata10 (tvbuff_t *tvb, packet_info *pinfo _U_,
                             proto_tree *tree, guint offset, gboolean isreq,
-                            gboolean iscdb)
+                            gboolean iscdb,
+                            guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -3495,9 +3511,10 @@ dissect_scsi_readdefdata10 (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static void
-dissect_scsi_readdefdata12 (tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_sbc2_readdefectdata12 (tvbuff_t *tvb, packet_info *pinfo _U_,
                             proto_tree *tree, guint offset, gboolean isreq,
-                            gboolean iscdb)
+                            gboolean iscdb,
+                            guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -3521,9 +3538,10 @@ dissect_scsi_readdefdata12 (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static void
-dissect_scsi_reassignblks (tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_sbc2_reassignblocks (tvbuff_t *tvb, packet_info *pinfo _U_,
                            proto_tree *tree, guint offset, gboolean isreq,
-                           gboolean iscdb)
+                           gboolean iscdb,
+                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -3546,8 +3564,9 @@ dissect_scsi_reassignblks (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static void
-dissect_scsi_senddiag (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                          guint offset, gboolean isreq, gboolean iscdb _U_)
+dissect_spc3_senddiagnostic (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                          guint offset, gboolean isreq, gboolean iscdb _U_,
+                          guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
     
@@ -3569,8 +3588,9 @@ dissect_scsi_senddiag (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_scsi_writebuffer (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                          guint offset, gboolean isreq, gboolean iscdb _U_)
+dissect_spc3_writebuffer (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                          guint offset, gboolean isreq, gboolean iscdb _U_,
+                          guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
     
@@ -3591,7 +3611,8 @@ dissect_scsi_writebuffer (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 static void
 dissect_scsi_varlencdb (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                        guint offset, gboolean isreq, gboolean iscdb)
+                        guint offset, gboolean isreq, gboolean iscdb,
+                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     if (!tree)
         return;
@@ -3605,8 +3626,9 @@ dissect_scsi_varlencdb (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_scsi_ssc2_read6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    guint offset, gboolean isreq, gboolean iscdb)
+dissect_ssc2_read6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -3631,8 +3653,9 @@ dissect_scsi_ssc2_read6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 }
 
 static void
-dissect_scsi_ssc2_write6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    guint offset, gboolean isreq, gboolean iscdb)
+dissect_ssc2_write6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -3657,8 +3680,9 @@ dissect_scsi_ssc2_write6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 }
 
 static void
-dissect_scsi_ssc2_writefilemarks6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    guint offset, gboolean isreq, gboolean iscdb)
+dissect_ssc2_writefilemarks6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -3684,8 +3708,9 @@ dissect_scsi_ssc2_writefilemarks6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 }
 
 static void
-dissect_scsi_ssc2_loadunload (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    guint offset, gboolean isreq, gboolean iscdb)
+dissect_ssc2_loadunload (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -3713,8 +3738,9 @@ dissect_scsi_ssc2_loadunload (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 }
 
 static void
-dissect_scsi_ssc2_readblocklimits (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    guint offset, gboolean isreq, gboolean iscdb)
+dissect_ssc2_readblocklimits (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags, granularity;
 
@@ -3746,9 +3772,9 @@ dissect_scsi_ssc2_readblocklimits (tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 #define BPU  0x04
 
 static void
-dissect_scsi_ssc2_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_ssc2_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
-                    scsi_task_data_t *cdata)
+                    guint payload_len _U_, scsi_task_data_t *cdata)
 {
     gint service_action;
     guint8 flags;
@@ -3925,8 +3951,9 @@ dissect_scsi_ssc2_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 }
 
 static void
-dissect_scsi_ssc2_rewind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    guint offset, gboolean isreq, gboolean iscdb)
+dissect_ssc2_rewind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -3949,8 +3976,9 @@ dissect_scsi_ssc2_rewind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 }
 
 static void
-dissect_scsi_smc2_movemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    guint offset, gboolean isreq, gboolean iscdb)
+dissect_smc2_movemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
 
@@ -4233,9 +4261,10 @@ dissect_scsi_smc2_elements (tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void
-dissect_scsi_smc2_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
+dissect_smc2_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
                          proto_tree *tree, guint offset, gboolean isreq,
-                         gboolean iscdb)
+                         gboolean iscdb,
+                         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
     guint numelem, bytecnt, desc_bytecnt;
@@ -4417,6 +4446,1054 @@ dissect_scsi_snsinfo (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                              tvb_bytes_to_str (tvb, offset+15, 3));
 }
 
+
+/* list of commands for each commandset */
+typedef void (*scsi_dissector_t)(tvbuff_t *tvb, packet_info *pinfo, 
+		proto_tree *tree, guint offset, 
+		gboolean isreq, gboolean iscdb,
+                guint32 payload_len, scsi_task_data_t *cdata);
+
+typedef struct _scsi_cdb_table_t {
+	scsi_dissector_t	func;
+} scsi_cdb_table_t;
+
+static scsi_cdb_table_t spc[256] = {
+/*SPC 0x00*/{dissect_spc3_testunitready},
+/*SPC 0x01*/{NULL},
+/*SPC 0x02*/{NULL},
+/*SPC 0x03*/{dissect_spc3_requestsense},
+/*SPC 0x04*/{NULL},
+/*SPC 0x05*/{NULL},
+/*SPC 0x06*/{NULL},
+/*SPC 0x07*/{NULL},
+/*SPC 0x08*/{NULL},
+/*SPC 0x09*/{NULL},
+/*SPC 0x0a*/{NULL},
+/*SPC 0x0b*/{NULL},
+/*SPC 0x0c*/{NULL},
+/*SPC 0x0d*/{NULL},
+/*SPC 0x0e*/{NULL},
+/*SPC 0x0f*/{NULL},
+/*SPC 0x10*/{NULL},
+/*SPC 0x11*/{NULL},
+/*SPC 0x12*/{dissect_spc3_inquiry},
+/*SPC 0x13*/{NULL},
+/*SPC 0x14*/{NULL},
+/*SPC 0x15*/{dissect_spc3_modeselect6},
+/*SPC 0x16*/{dissect_spc2_reserve6},
+/*SPC 0x17*/{dissect_spc2_release6},
+/*SPC 0x18*/{NULL},
+/*SPC 0x19*/{NULL},
+/*SPC 0x1a*/{dissect_spc3_modesense6},
+/*SPC 0x1b*/{NULL},
+/*SPC 0x1c*/{NULL},
+/*SPC 0x1d*/{dissect_spc3_senddiagnostic},
+/*SPC 0x1e*/{NULL},
+/*SPC 0x1f*/{NULL},
+/*SPC 0x20*/{NULL},
+/*SPC 0x21*/{NULL},
+/*SPC 0x22*/{NULL},
+/*SPC 0x23*/{NULL},
+/*SPC 0x24*/{NULL},
+/*SPC 0x25*/{NULL},
+/*SPC 0x26*/{NULL},
+/*SPC 0x27*/{NULL},
+/*SPC 0x28*/{NULL},
+/*SPC 0x29*/{NULL},
+/*SPC 0x2a*/{NULL},
+/*SPC 0x2b*/{NULL},
+/*SPC 0x2c*/{NULL},
+/*SPC 0x2d*/{NULL},
+/*SPC 0x2e*/{NULL},
+/*SPC 0x2f*/{NULL},
+/*SPC 0x30*/{NULL},
+/*SPC 0x31*/{NULL},
+/*SPC 0x32*/{NULL},
+/*SPC 0x33*/{NULL},
+/*SPC 0x34*/{NULL},
+/*SPC 0x35*/{NULL},
+/*SPC 0x36*/{NULL},
+/*SPC 0x37*/{NULL},
+/*SPC 0x38*/{NULL},
+/*SPC 0x39*/{NULL},
+/*SPC 0x3a*/{NULL},
+/*SPC 0x3b*/{dissect_spc3_writebuffer},
+/*SPC 0x3c*/{NULL},
+/*SPC 0x3d*/{NULL},
+/*SPC 0x3e*/{NULL},
+/*SPC 0x3f*/{NULL},
+/*SPC 0x40*/{NULL},
+/*SPC 0x41*/{NULL},
+/*SPC 0x42*/{NULL},
+/*SPC 0x43*/{NULL},
+/*SPC 0x44*/{NULL},
+/*SPC 0x45*/{NULL},
+/*SPC 0x46*/{NULL},
+/*SPC 0x47*/{NULL},
+/*SPC 0x48*/{NULL},
+/*SPC 0x49*/{NULL},
+/*SPC 0x4a*/{NULL},
+/*SPC 0x4b*/{NULL},
+/*SPC 0x4c*/{dissect_spc3_logselect},
+/*SPC 0x4d*/{dissect_spc3_logsense},
+/*SPC 0x4e*/{NULL},
+/*SPC 0x4f*/{NULL},
+/*SPC 0x50*/{NULL},
+/*SPC 0x51*/{NULL},
+/*SPC 0x52*/{NULL},
+/*SPC 0x53*/{NULL},
+/*SPC 0x54*/{NULL},
+/*SPC 0x55*/{dissect_spc3_modeselect10},
+/*SPC 0x56*/{dissect_spc2_reserve10},
+/*SPC 0x57*/{dissect_spc2_release10},
+/*SPC 0x58*/{NULL},
+/*SPC 0x59*/{NULL},
+/*SPC 0x5a*/{dissect_spc3_modesense10},
+/*SPC 0x5b*/{NULL},
+/*SPC 0x5c*/{NULL},
+/*SPC 0x5d*/{NULL},
+/*SPC 0x5e*/{dissect_spc3_persistentreservein},
+/*SPC 0x5f*/{dissect_spc3_persistentreserveout},
+/*SPC 0x60*/{NULL},
+/*SPC 0x61*/{NULL},
+/*SPC 0x62*/{NULL},
+/*SPC 0x63*/{NULL},
+/*SPC 0x64*/{NULL},
+/*SPC 0x65*/{NULL},
+/*SPC 0x66*/{NULL},
+/*SPC 0x67*/{NULL},
+/*SPC 0x68*/{NULL},
+/*SPC 0x69*/{NULL},
+/*SPC 0x6a*/{NULL},
+/*SPC 0x6b*/{NULL},
+/*SPC 0x6c*/{NULL},
+/*SPC 0x6d*/{NULL},
+/*SPC 0x6e*/{NULL},
+/*SPC 0x6f*/{NULL},
+/*SPC 0x70*/{NULL},
+/*SPC 0x71*/{NULL},
+/*SPC 0x72*/{NULL},
+/*SPC 0x73*/{NULL},
+/*SPC 0x74*/{NULL},
+/*SPC 0x75*/{NULL},
+/*SPC 0x76*/{NULL},
+/*SPC 0x77*/{NULL},
+/*SPC 0x78*/{NULL},
+/*SPC 0x79*/{NULL},
+/*SPC 0x7a*/{NULL},
+/*SPC 0x7b*/{NULL},
+/*SPC 0x7c*/{NULL},
+/*SPC 0x7d*/{NULL},
+/*SPC 0x7e*/{NULL},
+/*SPC 0x7f*/{dissect_scsi_varlencdb},
+/*SPC 0x80*/{NULL},
+/*SPC 0x81*/{NULL},
+/*SPC 0x82*/{NULL},
+/*SPC 0x83*/{dissect_spc3_extcopy},
+/*SPC 0x84*/{NULL},
+/*SPC 0x85*/{NULL},
+/*SPC 0x86*/{NULL},
+/*SPC 0x87*/{NULL},
+/*SPC 0x88*/{NULL},
+/*SPC 0x89*/{NULL},
+/*SPC 0x8a*/{NULL},
+/*SPC 0x8b*/{NULL},
+/*SPC 0x8c*/{NULL},
+/*SPC 0x8d*/{NULL},
+/*SPC 0x8e*/{NULL},
+/*SPC 0x8f*/{NULL},
+/*SPC 0x90*/{NULL},
+/*SPC 0x91*/{NULL},
+/*SPC 0x92*/{NULL},
+/*SPC 0x93*/{NULL},
+/*SPC 0x94*/{NULL},
+/*SPC 0x95*/{NULL},
+/*SPC 0x96*/{NULL},
+/*SPC 0x97*/{NULL},
+/*SPC 0x98*/{NULL},
+/*SPC 0x99*/{NULL},
+/*SPC 0x9a*/{NULL},
+/*SPC 0x9b*/{NULL},
+/*SPC 0x9c*/{NULL},
+/*SPC 0x9d*/{NULL},
+/*SPC 0x9e*/{NULL},
+/*SPC 0x9f*/{NULL},
+/*SPC 0xa0*/{dissect_spc3_reportluns},
+/*SPC 0xa1*/{NULL},
+/*SPC 0xa2*/{NULL},
+/*SPC 0xa3*/{dissect_spc3_reportdeviceidentifier},
+/*SPC 0xa4*/{NULL},
+/*SPC 0xa5*/{NULL},
+/*SPC 0xa6*/{NULL},
+/*SPC 0xa7*/{NULL},
+/*SPC 0xa8*/{NULL},
+/*SPC 0xa9*/{NULL},
+/*SPC 0xaa*/{NULL},
+/*SPC 0xab*/{NULL},
+/*SPC 0xac*/{NULL},
+/*SPC 0xad*/{NULL},
+/*SPC 0xae*/{NULL},
+/*SPC 0xaf*/{NULL},
+/*SPC 0xb0*/{NULL},
+/*SPC 0xb1*/{NULL},
+/*SPC 0xb2*/{NULL},
+/*SPC 0xb3*/{NULL},
+/*SPC 0xb4*/{NULL},
+/*SPC 0xb5*/{NULL},
+/*SPC 0xb6*/{NULL},
+/*SPC 0xb7*/{NULL},
+/*SPC 0xb8*/{NULL},
+/*SPC 0xb9*/{NULL},
+/*SPC 0xba*/{NULL},
+/*SPC 0xbb*/{NULL},
+/*SPC 0xbc*/{NULL},
+/*SPC 0xbd*/{NULL},
+/*SPC 0xbe*/{NULL},
+/*SPC 0xbf*/{NULL},
+/*SPC 0xc0*/{NULL},
+/*SPC 0xc1*/{NULL},
+/*SPC 0xc2*/{NULL},
+/*SPC 0xc3*/{NULL},
+/*SPC 0xc4*/{NULL},
+/*SPC 0xc5*/{NULL},
+/*SPC 0xc6*/{NULL},
+/*SPC 0xc7*/{NULL},
+/*SPC 0xc8*/{NULL},
+/*SPC 0xc9*/{NULL},
+/*SPC 0xca*/{NULL},
+/*SPC 0xcb*/{NULL},
+/*SPC 0xcc*/{NULL},
+/*SPC 0xcd*/{NULL},
+/*SPC 0xce*/{NULL},
+/*SPC 0xcf*/{NULL},
+/*SPC 0xd0*/{NULL},
+/*SPC 0xd1*/{NULL},
+/*SPC 0xd2*/{NULL},
+/*SPC 0xd3*/{NULL},
+/*SPC 0xd4*/{NULL},
+/*SPC 0xd5*/{NULL},
+/*SPC 0xd6*/{NULL},
+/*SPC 0xd7*/{NULL},
+/*SPC 0xd8*/{NULL},
+/*SPC 0xd9*/{NULL},
+/*SPC 0xda*/{NULL},
+/*SPC 0xdb*/{NULL},
+/*SPC 0xdc*/{NULL},
+/*SPC 0xdd*/{NULL},
+/*SPC 0xde*/{NULL},
+/*SPC 0xdf*/{NULL},
+/*SPC 0xe0*/{NULL},
+/*SPC 0xe1*/{NULL},
+/*SPC 0xe2*/{NULL},
+/*SPC 0xe3*/{NULL},
+/*SPC 0xe4*/{NULL},
+/*SPC 0xe5*/{NULL},
+/*SPC 0xe6*/{NULL},
+/*SPC 0xe7*/{NULL},
+/*SPC 0xe8*/{NULL},
+/*SPC 0xe9*/{NULL},
+/*SPC 0xea*/{NULL},
+/*SPC 0xeb*/{NULL},
+/*SPC 0xec*/{NULL},
+/*SPC 0xed*/{NULL},
+/*SPC 0xee*/{NULL},
+/*SPC 0xef*/{NULL},
+/*SPC 0xf0*/{NULL},
+/*SPC 0xf1*/{NULL},
+/*SPC 0xf2*/{NULL},
+/*SPC 0xf3*/{NULL},
+/*SPC 0xf4*/{NULL},
+/*SPC 0xf5*/{NULL},
+/*SPC 0xf6*/{NULL},
+/*SPC 0xf7*/{NULL},
+/*SPC 0xf8*/{NULL},
+/*SPC 0xf9*/{NULL},
+/*SPC 0xfa*/{NULL},
+/*SPC 0xfb*/{NULL},
+/*SPC 0xfc*/{NULL},
+/*SPC 0xfd*/{NULL},
+/*SPC 0xfe*/{NULL},
+/*SPC 0xff*/{NULL}
+};
+
+static scsi_cdb_table_t sbc[256] = {
+/*SBC 0x00*/{NULL},
+/*SBC 0x01*/{NULL},
+/*SBC 0x02*/{NULL},
+/*SBC 0x03*/{NULL},
+/*SBC 0x04*/{dissect_sbc2_formatunit},
+/*SBC 0x05*/{NULL},
+/*SBC 0x06*/{NULL},
+/*SBC 0x07*/{dissect_sbc2_reassignblocks},
+/*SBC 0x08*/{dissect_sbc2_readwrite6},
+/*SBC 0x09*/{NULL},
+/*SBC 0x0a*/{dissect_sbc2_readwrite6},
+/*SBC 0x0b*/{NULL},
+/*SBC 0x0c*/{NULL},
+/*SBC 0x0d*/{NULL},
+/*SBC 0x0e*/{NULL},
+/*SBC 0x0f*/{NULL},
+/*SBC 0x10*/{NULL},
+/*SBC 0x11*/{NULL},
+/*SBC 0x12*/{NULL},
+/*SBC 0x13*/{NULL},
+/*SBC 0x14*/{NULL},
+/*SBC 0x15*/{NULL},
+/*SBC 0x16*/{NULL},
+/*SBC 0x17*/{NULL},
+/*SBC 0x18*/{NULL},
+/*SBC 0x19*/{NULL},
+/*SBC 0x1a*/{NULL},
+/*SBC 0x1b*/{dissect_sbc2_startstopunit},
+/*SBC 0x1c*/{NULL},
+/*SBC 0x1d*/{NULL},
+/*SBC 0x1e*/{NULL},
+/*SBC 0x1f*/{NULL},
+/*SBC 0x20*/{NULL},
+/*SBC 0x21*/{NULL},
+/*SBC 0x22*/{NULL},
+/*SBC 0x23*/{NULL},
+/*SBC 0x24*/{NULL},
+/*SBC 0x25*/{dissect_sbc2_readcapacity10},
+/*SBC 0x26*/{NULL},
+/*SBC 0x27*/{NULL},
+/*SBC 0x28*/{dissect_sbc2_readwrite10},
+/*SBC 0x29*/{NULL},
+/*SBC 0x2a*/{dissect_sbc2_readwrite10},
+/*SBC 0x2b*/{NULL},
+/*SBC 0x2c*/{NULL},
+/*SBC 0x2d*/{NULL},
+/*SBC 0x2e*/{NULL},
+/*SBC 0x2f*/{NULL},
+/*SBC 0x30*/{NULL},
+/*SBC 0x31*/{NULL},
+/*SBC 0x32*/{NULL},
+/*SBC 0x33*/{NULL},
+/*SBC 0x34*/{NULL},
+/*SBC 0x35*/{NULL},
+/*SBC 0x36*/{NULL},
+/*SBC 0x37*/{dissect_sbc2_readdefectdata10},
+/*SBC 0x38*/{NULL},
+/*SBC 0x39*/{NULL},
+/*SBC 0x3a*/{NULL},
+/*SBC 0x3b*/{NULL},
+/*SBC 0x3c*/{NULL},
+/*SBC 0x3d*/{NULL},
+/*SBC 0x3e*/{NULL},
+/*SBC 0x3f*/{NULL},
+/*SBC 0x40*/{NULL},
+/*SBC 0x41*/{NULL},
+/*SBC 0x42*/{NULL},
+/*SBC 0x43*/{NULL},
+/*SBC 0x44*/{NULL},
+/*SBC 0x45*/{NULL},
+/*SBC 0x46*/{NULL},
+/*SBC 0x47*/{NULL},
+/*SBC 0x48*/{NULL},
+/*SBC 0x49*/{NULL},
+/*SBC 0x4a*/{NULL},
+/*SBC 0x4b*/{NULL},
+/*SBC 0x4c*/{NULL},
+/*SBC 0x4d*/{NULL},
+/*SBC 0x4e*/{NULL},
+/*SBC 0x4f*/{NULL},
+/*SBC 0x50*/{NULL},
+/*SBC 0x51*/{NULL},
+/*SBC 0x52*/{NULL},
+/*SBC 0x53*/{NULL},
+/*SBC 0x54*/{NULL},
+/*SBC 0x55*/{NULL},
+/*SBC 0x56*/{NULL},
+/*SBC 0x57*/{NULL},
+/*SBC 0x58*/{NULL},
+/*SBC 0x59*/{NULL},
+/*SBC 0x5a*/{NULL},
+/*SBC 0x5b*/{NULL},
+/*SBC 0x5c*/{NULL},
+/*SBC 0x5d*/{NULL},
+/*SBC 0x5e*/{NULL},
+/*SBC 0x5f*/{NULL},
+/*SBC 0x60*/{NULL},
+/*SBC 0x61*/{NULL},
+/*SBC 0x62*/{NULL},
+/*SBC 0x63*/{NULL},
+/*SBC 0x64*/{NULL},
+/*SBC 0x65*/{NULL},
+/*SBC 0x66*/{NULL},
+/*SBC 0x67*/{NULL},
+/*SBC 0x68*/{NULL},
+/*SBC 0x69*/{NULL},
+/*SBC 0x6a*/{NULL},
+/*SBC 0x6b*/{NULL},
+/*SBC 0x6c*/{NULL},
+/*SBC 0x6d*/{NULL},
+/*SBC 0x6e*/{NULL},
+/*SBC 0x6f*/{NULL},
+/*SBC 0x70*/{NULL},
+/*SBC 0x71*/{NULL},
+/*SBC 0x72*/{NULL},
+/*SBC 0x73*/{NULL},
+/*SBC 0x74*/{NULL},
+/*SBC 0x75*/{NULL},
+/*SBC 0x76*/{NULL},
+/*SBC 0x77*/{NULL},
+/*SBC 0x78*/{NULL},
+/*SBC 0x79*/{NULL},
+/*SBC 0x7a*/{NULL},
+/*SBC 0x7b*/{NULL},
+/*SBC 0x7c*/{NULL},
+/*SBC 0x7d*/{NULL},
+/*SBC 0x7e*/{NULL},
+/*SBC 0x7f*/{NULL},
+/*SBC 0x80*/{NULL},
+/*SBC 0x81*/{NULL},
+/*SBC 0x82*/{NULL},
+/*SBC 0x83*/{NULL},
+/*SBC 0x84*/{NULL},
+/*SBC 0x85*/{NULL},
+/*SBC 0x86*/{NULL},
+/*SBC 0x87*/{NULL},
+/*SBC 0x88*/{dissect_sbc2_readwrite16},
+/*SBC 0x89*/{NULL},
+/*SBC 0x8a*/{dissect_sbc2_readwrite16},
+/*SBC 0x8b*/{NULL},
+/*SBC 0x8c*/{NULL},
+/*SBC 0x8d*/{NULL},
+/*SBC 0x8e*/{NULL},
+/*SBC 0x8f*/{NULL},
+/*SBC 0x90*/{NULL},
+/*SBC 0x91*/{NULL},
+/*SBC 0x92*/{NULL},
+/*SBC 0x93*/{NULL},
+/*SBC 0x94*/{NULL},
+/*SBC 0x95*/{NULL},
+/*SBC 0x96*/{NULL},
+/*SBC 0x97*/{NULL},
+/*SBC 0x98*/{NULL},
+/*SBC 0x99*/{NULL},
+/*SBC 0x9a*/{NULL},
+/*SBC 0x9b*/{NULL},
+/*SBC 0x9c*/{NULL},
+/*SBC 0x9d*/{NULL},
+/*SBC 0x9e*/{dissect_sbc2_serviceactionin16},
+/*SBC 0x9f*/{NULL},
+/*SBC 0xa0*/{NULL},
+/*SBC 0xa1*/{NULL},
+/*SBC 0xa2*/{NULL},
+/*SBC 0xa3*/{NULL},
+/*SBC 0xa4*/{NULL},
+/*SBC 0xa5*/{NULL},
+/*SBC 0xa6*/{NULL},
+/*SBC 0xa7*/{NULL},
+/*SBC 0xa8*/{dissect_sbc2_readwrite12},
+/*SBC 0xa9*/{NULL},
+/*SBC 0xaa*/{dissect_sbc2_readwrite12},
+/*SBC 0xab*/{NULL},
+/*SBC 0xac*/{NULL},
+/*SBC 0xad*/{NULL},
+/*SBC 0xae*/{NULL},
+/*SBC 0xaf*/{NULL},
+/*SBC 0xb0*/{NULL},
+/*SBC 0xb1*/{NULL},
+/*SBC 0xb2*/{NULL},
+/*SBC 0xb3*/{NULL},
+/*SBC 0xb4*/{NULL},
+/*SBC 0xb5*/{NULL},
+/*SBC 0xb6*/{NULL},
+/*SBC 0xb7*/{dissect_sbc2_readdefectdata12},
+/*SBC 0xb8*/{NULL},
+/*SBC 0xb9*/{NULL},
+/*SBC 0xba*/{NULL},
+/*SBC 0xbb*/{NULL},
+/*SBC 0xbc*/{NULL},
+/*SBC 0xbd*/{NULL},
+/*SBC 0xbe*/{NULL},
+/*SBC 0xbf*/{NULL},
+/*SBC 0xc0*/{NULL},
+/*SBC 0xc1*/{NULL},
+/*SBC 0xc2*/{NULL},
+/*SBC 0xc3*/{NULL},
+/*SBC 0xc4*/{NULL},
+/*SBC 0xc5*/{NULL},
+/*SBC 0xc6*/{NULL},
+/*SBC 0xc7*/{NULL},
+/*SBC 0xc8*/{NULL},
+/*SBC 0xc9*/{NULL},
+/*SBC 0xca*/{NULL},
+/*SBC 0xcb*/{NULL},
+/*SBC 0xcc*/{NULL},
+/*SBC 0xcd*/{NULL},
+/*SBC 0xce*/{NULL},
+/*SBC 0xcf*/{NULL},
+/*SBC 0xd0*/{NULL},
+/*SBC 0xd1*/{NULL},
+/*SBC 0xd2*/{NULL},
+/*SBC 0xd3*/{NULL},
+/*SBC 0xd4*/{NULL},
+/*SBC 0xd5*/{NULL},
+/*SBC 0xd6*/{NULL},
+/*SBC 0xd7*/{NULL},
+/*SBC 0xd8*/{NULL},
+/*SBC 0xd9*/{NULL},
+/*SBC 0xda*/{NULL},
+/*SBC 0xdb*/{NULL},
+/*SBC 0xdc*/{NULL},
+/*SBC 0xdd*/{NULL},
+/*SBC 0xde*/{NULL},
+/*SBC 0xdf*/{NULL},
+/*SBC 0xe0*/{NULL},
+/*SBC 0xe1*/{NULL},
+/*SBC 0xe2*/{NULL},
+/*SBC 0xe3*/{NULL},
+/*SBC 0xe4*/{NULL},
+/*SBC 0xe5*/{NULL},
+/*SBC 0xe6*/{NULL},
+/*SBC 0xe7*/{NULL},
+/*SBC 0xe8*/{NULL},
+/*SBC 0xe9*/{NULL},
+/*SBC 0xea*/{NULL},
+/*SBC 0xeb*/{NULL},
+/*SBC 0xec*/{NULL},
+/*SBC 0xed*/{NULL},
+/*SBC 0xee*/{NULL},
+/*SBC 0xef*/{NULL},
+/*SBC 0xf0*/{NULL},
+/*SBC 0xf1*/{NULL},
+/*SBC 0xf2*/{NULL},
+/*SBC 0xf3*/{NULL},
+/*SBC 0xf4*/{NULL},
+/*SBC 0xf5*/{NULL},
+/*SBC 0xf6*/{NULL},
+/*SBC 0xf7*/{NULL},
+/*SBC 0xf8*/{NULL},
+/*SBC 0xf9*/{NULL},
+/*SBC 0xfa*/{NULL},
+/*SBC 0xfb*/{NULL},
+/*SBC 0xfc*/{NULL},
+/*SBC 0xfd*/{NULL},
+/*SBC 0xfe*/{NULL},
+/*SBC 0xff*/{NULL}
+};
+
+static scsi_cdb_table_t ssc[256] = {
+/*SSC 0x00*/{NULL},
+/*SSC 0x01*/{dissect_ssc2_rewind},
+/*SSC 0x02*/{NULL},
+/*SSC 0x03*/{NULL},
+/*SSC 0x04*/{NULL},
+/*SSC 0x05*/{dissect_ssc2_readblocklimits},
+/*SSC 0x06*/{NULL},
+/*SSC 0x07*/{NULL},
+/*SSC 0x08*/{dissect_ssc2_read6},
+/*SSC 0x09*/{NULL},
+/*SSC 0x0a*/{dissect_ssc2_write6},
+/*SSC 0x0b*/{NULL},
+/*SSC 0x0c*/{NULL},
+/*SSC 0x0d*/{NULL},
+/*SSC 0x0e*/{NULL},
+/*SSC 0x0f*/{NULL},
+/*SSC 0x10*/{NULL},
+/*SSC 0x11*/{NULL},
+/*SSC 0x12*/{NULL},
+/*SSC 0x13*/{NULL},
+/*SSC 0x14*/{NULL},
+/*SSC 0x15*/{NULL},
+/*SSC 0x16*/{NULL},
+/*SSC 0x17*/{NULL},
+/*SSC 0x18*/{NULL},
+/*SSC 0x19*/{NULL},
+/*SSC 0x1a*/{NULL},
+/*SSC 0x1b*/{dissect_ssc2_loadunload},
+/*SSC 0x1c*/{NULL},
+/*SSC 0x1d*/{NULL},
+/*SSC 0x1e*/{NULL},
+/*SSC 0x1f*/{NULL},
+/*SSC 0x20*/{NULL},
+/*SSC 0x21*/{NULL},
+/*SSC 0x22*/{NULL},
+/*SSC 0x23*/{NULL},
+/*SSC 0x24*/{NULL},
+/*SSC 0x25*/{NULL},
+/*SSC 0x26*/{NULL},
+/*SSC 0x27*/{NULL},
+/*SSC 0x28*/{NULL},
+/*SSC 0x29*/{NULL},
+/*SSC 0x2a*/{NULL},
+/*SSC 0x2b*/{NULL},
+/*SSC 0x2c*/{NULL},
+/*SSC 0x2d*/{NULL},
+/*SSC 0x2e*/{NULL},
+/*SSC 0x2f*/{NULL},
+/*SSC 0x30*/{NULL},
+/*SSC 0x31*/{NULL},
+/*SSC 0x32*/{NULL},
+/*SSC 0x33*/{NULL},
+/*SSC 0x34*/{dissect_ssc2_readposition},
+/*SSC 0x35*/{NULL},
+/*SSC 0x36*/{NULL},
+/*SSC 0x37*/{NULL},
+/*SSC 0x38*/{NULL},
+/*SSC 0x39*/{NULL},
+/*SSC 0x3a*/{NULL},
+/*SSC 0x3b*/{NULL},
+/*SSC 0x3c*/{NULL},
+/*SSC 0x3d*/{NULL},
+/*SSC 0x3e*/{NULL},
+/*SSC 0x3f*/{NULL},
+/*SSC 0x40*/{NULL},
+/*SSC 0x41*/{NULL},
+/*SSC 0x42*/{NULL},
+/*SSC 0x43*/{NULL},
+/*SSC 0x44*/{NULL},
+/*SSC 0x45*/{NULL},
+/*SSC 0x46*/{NULL},
+/*SSC 0x47*/{NULL},
+/*SSC 0x48*/{NULL},
+/*SSC 0x49*/{NULL},
+/*SSC 0x4a*/{NULL},
+/*SSC 0x4b*/{NULL},
+/*SSC 0x4c*/{NULL},
+/*SSC 0x4d*/{NULL},
+/*SSC 0x4e*/{NULL},
+/*SSC 0x4f*/{NULL},
+/*SSC 0x50*/{NULL},
+/*SSC 0x51*/{NULL},
+/*SSC 0x52*/{NULL},
+/*SSC 0x53*/{NULL},
+/*SSC 0x54*/{NULL},
+/*SSC 0x55*/{NULL},
+/*SSC 0x56*/{NULL},
+/*SSC 0x57*/{NULL},
+/*SSC 0x58*/{NULL},
+/*SSC 0x59*/{NULL},
+/*SSC 0x5a*/{NULL},
+/*SSC 0x5b*/{NULL},
+/*SSC 0x5c*/{NULL},
+/*SSC 0x5d*/{NULL},
+/*SSC 0x5e*/{NULL},
+/*SSC 0x5f*/{NULL},
+/*SSC 0x60*/{NULL},
+/*SSC 0x61*/{NULL},
+/*SSC 0x62*/{NULL},
+/*SSC 0x63*/{NULL},
+/*SSC 0x64*/{NULL},
+/*SSC 0x65*/{NULL},
+/*SSC 0x66*/{NULL},
+/*SSC 0x67*/{NULL},
+/*SSC 0x68*/{NULL},
+/*SSC 0x69*/{NULL},
+/*SSC 0x6a*/{NULL},
+/*SSC 0x6b*/{NULL},
+/*SSC 0x6c*/{NULL},
+/*SSC 0x6d*/{NULL},
+/*SSC 0x6e*/{NULL},
+/*SSC 0x6f*/{NULL},
+/*SSC 0x70*/{NULL},
+/*SSC 0x71*/{NULL},
+/*SSC 0x72*/{NULL},
+/*SSC 0x73*/{NULL},
+/*SSC 0x74*/{NULL},
+/*SSC 0x75*/{NULL},
+/*SSC 0x76*/{NULL},
+/*SSC 0x77*/{NULL},
+/*SSC 0x78*/{NULL},
+/*SSC 0x79*/{NULL},
+/*SSC 0x7a*/{NULL},
+/*SSC 0x7b*/{NULL},
+/*SSC 0x7c*/{NULL},
+/*SSC 0x7d*/{NULL},
+/*SSC 0x7e*/{NULL},
+/*SSC 0x7f*/{NULL},
+/*SSC 0x80*/{NULL},
+/*SSC 0x81*/{NULL},
+/*SSC 0x82*/{NULL},
+/*SSC 0x83*/{NULL},
+/*SSC 0x84*/{NULL},
+/*SSC 0x85*/{NULL},
+/*SSC 0x86*/{NULL},
+/*SSC 0x87*/{NULL},
+/*SSC 0x88*/{NULL},
+/*SSC 0x89*/{NULL},
+/*SSC 0x8a*/{NULL},
+/*SSC 0x8b*/{NULL},
+/*SSC 0x8c*/{NULL},
+/*SSC 0x8d*/{NULL},
+/*SSC 0x8e*/{NULL},
+/*SSC 0x8f*/{NULL},
+/*SSC 0x90*/{NULL},
+/*SSC 0x91*/{NULL},
+/*SSC 0x92*/{NULL},
+/*SSC 0x93*/{NULL},
+/*SSC 0x94*/{NULL},
+/*SSC 0x95*/{NULL},
+/*SSC 0x96*/{NULL},
+/*SSC 0x97*/{NULL},
+/*SSC 0x98*/{NULL},
+/*SSC 0x99*/{NULL},
+/*SSC 0x9a*/{NULL},
+/*SSC 0x9b*/{NULL},
+/*SSC 0x9c*/{NULL},
+/*SSC 0x9d*/{NULL},
+/*SSC 0x9e*/{NULL},
+/*SSC 0x9f*/{NULL},
+/*SSC 0xa0*/{NULL},
+/*SSC 0xa1*/{NULL},
+/*SSC 0xa2*/{NULL},
+/*SSC 0xa3*/{NULL},
+/*SSC 0xa4*/{NULL},
+/*SSC 0xa5*/{NULL},
+/*SSC 0xa6*/{NULL},
+/*SSC 0xa7*/{NULL},
+/*SSC 0xa8*/{NULL},
+/*SSC 0xa9*/{NULL},
+/*SSC 0xaa*/{NULL},
+/*SSC 0xab*/{NULL},
+/*SSC 0xac*/{NULL},
+/*SSC 0xad*/{NULL},
+/*SSC 0xae*/{NULL},
+/*SSC 0xaf*/{NULL},
+/*SSC 0xb0*/{NULL},
+/*SSC 0xb1*/{NULL},
+/*SSC 0xb2*/{NULL},
+/*SSC 0xb3*/{NULL},
+/*SSC 0xb4*/{NULL},
+/*SSC 0xb5*/{NULL},
+/*SSC 0xb6*/{NULL},
+/*SSC 0xb7*/{NULL},
+/*SSC 0xb8*/{NULL},
+/*SSC 0xb9*/{NULL},
+/*SSC 0xba*/{NULL},
+/*SSC 0xbb*/{NULL},
+/*SSC 0xbc*/{NULL},
+/*SSC 0xbd*/{NULL},
+/*SSC 0xbe*/{NULL},
+/*SSC 0xbf*/{NULL},
+/*SSC 0xc0*/{NULL},
+/*SSC 0xc1*/{NULL},
+/*SSC 0xc2*/{NULL},
+/*SSC 0xc3*/{NULL},
+/*SSC 0xc4*/{NULL},
+/*SSC 0xc5*/{NULL},
+/*SSC 0xc6*/{NULL},
+/*SSC 0xc7*/{NULL},
+/*SSC 0xc8*/{NULL},
+/*SSC 0xc9*/{NULL},
+/*SSC 0xca*/{NULL},
+/*SSC 0xcb*/{NULL},
+/*SSC 0xcc*/{NULL},
+/*SSC 0xcd*/{NULL},
+/*SSC 0xce*/{NULL},
+/*SSC 0xcf*/{NULL},
+/*SSC 0xd0*/{NULL},
+/*SSC 0xd1*/{NULL},
+/*SSC 0xd2*/{NULL},
+/*SSC 0xd3*/{NULL},
+/*SSC 0xd4*/{NULL},
+/*SSC 0xd5*/{NULL},
+/*SSC 0xd6*/{NULL},
+/*SSC 0xd7*/{NULL},
+/*SSC 0xd8*/{NULL},
+/*SSC 0xd9*/{NULL},
+/*SSC 0xda*/{NULL},
+/*SSC 0xdb*/{NULL},
+/*SSC 0xdc*/{NULL},
+/*SSC 0xdd*/{NULL},
+/*SSC 0xde*/{NULL},
+/*SSC 0xdf*/{NULL},
+/*SSC 0xe0*/{NULL},
+/*SSC 0xe1*/{NULL},
+/*SSC 0xe2*/{NULL},
+/*SSC 0xe3*/{NULL},
+/*SSC 0xe4*/{NULL},
+/*SSC 0xe5*/{NULL},
+/*SSC 0xe6*/{NULL},
+/*SSC 0xe7*/{NULL},
+/*SSC 0xe8*/{NULL},
+/*SSC 0xe9*/{NULL},
+/*SSC 0xea*/{NULL},
+/*SSC 0xeb*/{NULL},
+/*SSC 0xec*/{NULL},
+/*SSC 0xed*/{NULL},
+/*SSC 0xee*/{NULL},
+/*SSC 0xef*/{NULL},
+/*SSC 0xf0*/{NULL},
+/*SSC 0xf1*/{NULL},
+/*SSC 0xf2*/{NULL},
+/*SSC 0xf3*/{NULL},
+/*SSC 0xf4*/{NULL},
+/*SSC 0xf5*/{NULL},
+/*SSC 0xf6*/{NULL},
+/*SSC 0xf7*/{NULL},
+/*SSC 0xf8*/{NULL},
+/*SSC 0xf9*/{NULL},
+/*SSC 0xfa*/{NULL},
+/*SSC 0xfb*/{NULL},
+/*SSC 0xfc*/{NULL},
+/*SSC 0xfd*/{NULL},
+/*SSC 0xfe*/{NULL},
+/*SSC 0xff*/{NULL}
+};
+
+static scsi_cdb_table_t smc[256] = {
+/*SMC 0x00*/{NULL},
+/*SMC 0x01*/{NULL},
+/*SMC 0x02*/{NULL},
+/*SMC 0x03*/{NULL},
+/*SMC 0x04*/{NULL},
+/*SMC 0x05*/{NULL},
+/*SMC 0x06*/{NULL},
+/*SMC 0x07*/{NULL},
+/*SMC 0x08*/{NULL},
+/*SMC 0x09*/{NULL},
+/*SMC 0x0a*/{NULL},
+/*SMC 0x0b*/{NULL},
+/*SMC 0x0c*/{NULL},
+/*SMC 0x0d*/{NULL},
+/*SMC 0x0e*/{NULL},
+/*SMC 0x0f*/{NULL},
+/*SMC 0x10*/{NULL},
+/*SMC 0x11*/{NULL},
+/*SMC 0x12*/{NULL},
+/*SMC 0x13*/{NULL},
+/*SMC 0x14*/{NULL},
+/*SMC 0x15*/{NULL},
+/*SMC 0x16*/{NULL},
+/*SMC 0x17*/{NULL},
+/*SMC 0x18*/{NULL},
+/*SMC 0x19*/{NULL},
+/*SMC 0x1a*/{NULL},
+/*SMC 0x1b*/{NULL},
+/*SMC 0x1c*/{NULL},
+/*SMC 0x1d*/{NULL},
+/*SMC 0x1e*/{NULL},
+/*SMC 0x1f*/{NULL},
+/*SMC 0x20*/{NULL},
+/*SMC 0x21*/{NULL},
+/*SMC 0x22*/{NULL},
+/*SMC 0x23*/{NULL},
+/*SMC 0x24*/{NULL},
+/*SMC 0x25*/{NULL},
+/*SMC 0x26*/{NULL},
+/*SMC 0x27*/{NULL},
+/*SMC 0x28*/{NULL},
+/*SMC 0x29*/{NULL},
+/*SMC 0x2a*/{NULL},
+/*SMC 0x2b*/{NULL},
+/*SMC 0x2c*/{NULL},
+/*SMC 0x2d*/{NULL},
+/*SMC 0x2e*/{NULL},
+/*SMC 0x2f*/{NULL},
+/*SMC 0x30*/{NULL},
+/*SMC 0x31*/{NULL},
+/*SMC 0x32*/{NULL},
+/*SMC 0x33*/{NULL},
+/*SMC 0x34*/{NULL},
+/*SMC 0x35*/{NULL},
+/*SMC 0x36*/{NULL},
+/*SMC 0x37*/{NULL},
+/*SMC 0x38*/{NULL},
+/*SMC 0x39*/{NULL},
+/*SMC 0x3a*/{NULL},
+/*SMC 0x3b*/{NULL},
+/*SMC 0x3c*/{NULL},
+/*SMC 0x3d*/{NULL},
+/*SMC 0x3e*/{NULL},
+/*SMC 0x3f*/{NULL},
+/*SMC 0x40*/{NULL},
+/*SMC 0x41*/{NULL},
+/*SMC 0x42*/{NULL},
+/*SMC 0x43*/{NULL},
+/*SMC 0x44*/{NULL},
+/*SMC 0x45*/{NULL},
+/*SMC 0x46*/{NULL},
+/*SMC 0x47*/{NULL},
+/*SMC 0x48*/{NULL},
+/*SMC 0x49*/{NULL},
+/*SMC 0x4a*/{NULL},
+/*SMC 0x4b*/{NULL},
+/*SMC 0x4c*/{NULL},
+/*SMC 0x4d*/{NULL},
+/*SMC 0x4e*/{NULL},
+/*SMC 0x4f*/{NULL},
+/*SMC 0x50*/{NULL},
+/*SMC 0x51*/{NULL},
+/*SMC 0x52*/{NULL},
+/*SMC 0x53*/{NULL},
+/*SMC 0x54*/{NULL},
+/*SMC 0x55*/{NULL},
+/*SMC 0x56*/{NULL},
+/*SMC 0x57*/{NULL},
+/*SMC 0x58*/{NULL},
+/*SMC 0x59*/{NULL},
+/*SMC 0x5a*/{NULL},
+/*SMC 0x5b*/{NULL},
+/*SMC 0x5c*/{NULL},
+/*SMC 0x5d*/{NULL},
+/*SMC 0x5e*/{NULL},
+/*SMC 0x5f*/{NULL},
+/*SMC 0x60*/{NULL},
+/*SMC 0x61*/{NULL},
+/*SMC 0x62*/{NULL},
+/*SMC 0x63*/{NULL},
+/*SMC 0x64*/{NULL},
+/*SMC 0x65*/{NULL},
+/*SMC 0x66*/{NULL},
+/*SMC 0x67*/{NULL},
+/*SMC 0x68*/{NULL},
+/*SMC 0x69*/{NULL},
+/*SMC 0x6a*/{NULL},
+/*SMC 0x6b*/{NULL},
+/*SMC 0x6c*/{NULL},
+/*SMC 0x6d*/{NULL},
+/*SMC 0x6e*/{NULL},
+/*SMC 0x6f*/{NULL},
+/*SMC 0x70*/{NULL},
+/*SMC 0x71*/{NULL},
+/*SMC 0x72*/{NULL},
+/*SMC 0x73*/{NULL},
+/*SMC 0x74*/{NULL},
+/*SMC 0x75*/{NULL},
+/*SMC 0x76*/{NULL},
+/*SMC 0x77*/{NULL},
+/*SMC 0x78*/{NULL},
+/*SMC 0x79*/{NULL},
+/*SMC 0x7a*/{NULL},
+/*SMC 0x7b*/{NULL},
+/*SMC 0x7c*/{NULL},
+/*SMC 0x7d*/{NULL},
+/*SMC 0x7e*/{NULL},
+/*SMC 0x7f*/{NULL},
+/*SMC 0x80*/{NULL},
+/*SMC 0x81*/{NULL},
+/*SMC 0x82*/{NULL},
+/*SMC 0x83*/{NULL},
+/*SMC 0x84*/{NULL},
+/*SMC 0x85*/{NULL},
+/*SMC 0x86*/{NULL},
+/*SMC 0x87*/{NULL},
+/*SMC 0x88*/{NULL},
+/*SMC 0x89*/{NULL},
+/*SMC 0x8a*/{NULL},
+/*SMC 0x8b*/{NULL},
+/*SMC 0x8c*/{NULL},
+/*SMC 0x8d*/{NULL},
+/*SMC 0x8e*/{NULL},
+/*SMC 0x8f*/{NULL},
+/*SMC 0x90*/{NULL},
+/*SMC 0x91*/{NULL},
+/*SMC 0x92*/{NULL},
+/*SMC 0x93*/{NULL},
+/*SMC 0x94*/{NULL},
+/*SMC 0x95*/{NULL},
+/*SMC 0x96*/{NULL},
+/*SMC 0x97*/{NULL},
+/*SMC 0x98*/{NULL},
+/*SMC 0x99*/{NULL},
+/*SMC 0x9a*/{NULL},
+/*SMC 0x9b*/{NULL},
+/*SMC 0x9c*/{NULL},
+/*SMC 0x9d*/{NULL},
+/*SMC 0x9e*/{NULL},
+/*SMC 0x9f*/{NULL},
+/*SMC 0xa0*/{NULL},
+/*SMC 0xa1*/{NULL},
+/*SMC 0xa2*/{NULL},
+/*SMC 0xa3*/{NULL},
+/*SMC 0xa4*/{NULL},
+/*SMC 0xa5*/{dissect_smc2_movemedium},
+/*SMC 0xa6*/{NULL},
+/*SMC 0xa7*/{dissect_smc2_movemedium},
+/*SMC 0xa8*/{NULL},
+/*SMC 0xa9*/{NULL},
+/*SMC 0xaa*/{NULL},
+/*SMC 0xab*/{NULL},
+/*SMC 0xac*/{NULL},
+/*SMC 0xad*/{NULL},
+/*SMC 0xae*/{NULL},
+/*SMC 0xaf*/{NULL},
+/*SMC 0xb0*/{NULL},
+/*SMC 0xb1*/{NULL},
+/*SMC 0xb2*/{NULL},
+/*SMC 0xb3*/{NULL},
+/*SMC 0xb4*/{dissect_smc2_readelementstatus},
+/*SMC 0xb5*/{NULL},
+/*SMC 0xb6*/{NULL},
+/*SMC 0xb7*/{NULL},
+/*SMC 0xb8*/{dissect_smc2_readelementstatus},
+/*SMC 0xb9*/{NULL},
+/*SMC 0xba*/{NULL},
+/*SMC 0xbb*/{NULL},
+/*SMC 0xbc*/{NULL},
+/*SMC 0xbd*/{NULL},
+/*SMC 0xbe*/{NULL},
+/*SMC 0xbf*/{NULL},
+/*SMC 0xc0*/{NULL},
+/*SMC 0xc1*/{NULL},
+/*SMC 0xc2*/{NULL},
+/*SMC 0xc3*/{NULL},
+/*SMC 0xc4*/{NULL},
+/*SMC 0xc5*/{NULL},
+/*SMC 0xc6*/{NULL},
+/*SMC 0xc7*/{NULL},
+/*SMC 0xc8*/{NULL},
+/*SMC 0xc9*/{NULL},
+/*SMC 0xca*/{NULL},
+/*SMC 0xcb*/{NULL},
+/*SMC 0xcc*/{NULL},
+/*SMC 0xcd*/{NULL},
+/*SMC 0xce*/{NULL},
+/*SMC 0xcf*/{NULL},
+/*SMC 0xd0*/{NULL},
+/*SMC 0xd1*/{NULL},
+/*SMC 0xd2*/{NULL},
+/*SMC 0xd3*/{NULL},
+/*SMC 0xd4*/{NULL},
+/*SMC 0xd5*/{NULL},
+/*SMC 0xd6*/{NULL},
+/*SMC 0xd7*/{NULL},
+/*SMC 0xd8*/{NULL},
+/*SMC 0xd9*/{NULL},
+/*SMC 0xda*/{NULL},
+/*SMC 0xdb*/{NULL},
+/*SMC 0xdc*/{NULL},
+/*SMC 0xdd*/{NULL},
+/*SMC 0xde*/{NULL},
+/*SMC 0xdf*/{NULL},
+/*SMC 0xe0*/{NULL},
+/*SMC 0xe1*/{NULL},
+/*SMC 0xe2*/{NULL},
+/*SMC 0xe3*/{NULL},
+/*SMC 0xe4*/{NULL},
+/*SMC 0xe5*/{NULL},
+/*SMC 0xe6*/{NULL},
+/*SMC 0xe7*/{NULL},
+/*SMC 0xe8*/{NULL},
+/*SMC 0xe9*/{NULL},
+/*SMC 0xea*/{NULL},
+/*SMC 0xeb*/{NULL},
+/*SMC 0xec*/{NULL},
+/*SMC 0xed*/{NULL},
+/*SMC 0xee*/{NULL},
+/*SMC 0xef*/{NULL},
+/*SMC 0xf0*/{NULL},
+/*SMC 0xf1*/{NULL},
+/*SMC 0xf2*/{NULL},
+/*SMC 0xf3*/{NULL},
+/*SMC 0xf4*/{NULL},
+/*SMC 0xf5*/{NULL},
+/*SMC 0xf6*/{NULL},
+/*SMC 0xf7*/{NULL},
+/*SMC 0xf8*/{NULL},
+/*SMC 0xf9*/{NULL},
+/*SMC 0xfa*/{NULL},
+/*SMC 0xfb*/{NULL},
+/*SMC 0xfc*/{NULL},
+/*SMC 0xfd*/{NULL},
+/*SMC 0xfe*/{NULL},
+/*SMC 0xff*/{NULL}
+};
+
+
 void
 dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                   guint start, guint cdblen, gint devtype_arg, guint16 lun)
@@ -4431,6 +5508,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     scsi_task_data_t *cdata;
     scsi_devtype_key_t dkey;
     scsi_devtype_data_t *devdata;
+    scsi_cdb_table_t *cdb_table=NULL;
 
     opcode = tvb_get_guint8 (tvb, offset);
 
@@ -4469,28 +5547,33 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          */
         switch (devtype) {
         case SCSI_DEV_SBC:
-        case SCSI_DEV_CDROM:	/* XXX - is this right? */
+        case SCSI_DEV_CDROM:	/* XXX - is this right? no it is not*/
             valstr = match_strval (opcode, scsi_sbc2_val);
             cmd = SCSI_CMND_SBC2;
+            cdb_table=sbc;
             break;
 
         case SCSI_DEV_SSC:
             valstr = match_strval (opcode, scsi_ssc2_val);
             cmd = SCSI_CMND_SSC2;
+            cdb_table=ssc;
             break;
 
         case SCSI_DEV_SMC:
             valstr = match_strval (opcode, scsi_smc2_val);
             cmd = SCSI_CMND_SMC2;
+            cdb_table=smc;
             break;
 
         default:
             cmd = SCSI_CMND_SPC2;
+            cdb_table=spc;
             break;
         }
     }
     else {
         cmd = SCSI_CMND_SPC2;
+        cdb_table=spc;
     }
 
     if (valstr != NULL) {
@@ -4510,6 +5593,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         cdata->opcode = opcode;
         cdata->cmd = cmd;
         cdata->devtype = devtype;
+	cdata->cdb_table = cdb_table;
     }
 
     if (tree) {
@@ -4560,272 +5644,17 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     }
 
-    switch (cmd) {
-    case SCSI_CMND_SPC2:
-        switch (opcode) {
-        case SCSI_SPC2_INQUIRY:
-            dissect_scsi_inquiry (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                  TRUE, 0, cdata);
-            break;
-
-        case SCSI_SPC2_EXTCOPY:
-            dissect_scsi_extcopy (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                  TRUE);
-            break;
-
-        case SCSI_SPC2_LOGSELECT:
-            dissect_scsi_logselect (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                    TRUE);
-            break;
-
-        case SCSI_SPC2_LOGSENSE:
-            dissect_scsi_logsense (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                   TRUE);
-            break;
-
-        case SCSI_SPC2_MODESELECT6:
-            dissect_scsi_modeselect6 (tvb, pinfo, scsi_tree, offset+1,
-                                      TRUE, TRUE, devtype, 0);
-            break;
-
-        case SCSI_SPC2_MODESELECT10:
-            dissect_scsi_modeselect10 (tvb, pinfo, scsi_tree, offset+1,
-                                       TRUE, TRUE, devtype, 0);
-            break;
-
-        case SCSI_SPC2_MODESENSE6:
-            dissect_scsi_modesense6 (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                     TRUE, devtype, 0);
-            break;
-
-        case SCSI_SPC2_MODESENSE10:
-            dissect_scsi_modesense10 (tvb, pinfo, scsi_tree, offset+1,
-                                      TRUE, TRUE, devtype, 0);
-            break;
-
-        case SCSI_SPC2_PERSRESVIN:
-            dissect_scsi_persresvin (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                     TRUE, cdata, 0);
-            break;
-
-        case SCSI_SPC2_PERSRESVOUT:
-            dissect_scsi_persresvout (tvb, pinfo, scsi_tree, offset+1,
-                                      TRUE, TRUE, cdata, 0);
-            break;
-
-        case SCSI_SPC2_RELEASE6:
-            dissect_scsi_release6 (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                   TRUE);
-            break;
-
-        case SCSI_SPC2_RELEASE10:
-            dissect_scsi_release10 (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                    TRUE);
-            break;
-
-        case SCSI_SPC2_REPORTDEVICEID:
-            dissect_scsi_reportdeviceid (tvb, pinfo, scsi_tree, offset+1,
-                                         TRUE, TRUE);
-            break;
-
-        case SCSI_SPC2_REPORTLUNS:
-            dissect_scsi_reportluns (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                     TRUE, 0);
-            break;
-
-        case SCSI_SPC2_REQSENSE:
-            dissect_scsi_reqsense (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                   TRUE);
-            break;
-
-        case SCSI_SPC2_RESERVE6:
-            dissect_scsi_reserve6 (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                   TRUE);
-            break;
-
-        case SCSI_SPC2_RESERVE10:
-            dissect_scsi_reserve10 (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                    TRUE);
-            break;
-
-        case SCSI_SPC2_SENDDIAG:
-            dissect_scsi_senddiag (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                   TRUE);
-            break;
-
-        case SCSI_SPC2_TESTUNITRDY:
-            dissect_scsi_testunitrdy (tvb, pinfo, scsi_tree, offset+1,
-                                      TRUE, TRUE);
-            break;
-
-        case SCSI_SPC2_WRITEBUFFER:
-            dissect_scsi_writebuffer (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                      TRUE);
-            break;
-                
-        case SCSI_SPC2_VARLENCDB:
-            dissect_scsi_varlencdb (tvb, pinfo, scsi_tree, offset+1,
-                                    TRUE, TRUE);
-            break;
-
-        default:
-            call_dissector (data_handle, tvb, pinfo, scsi_tree);
-            break;
-        }
-        break;
-
-    case SCSI_CMND_SBC2:
-        switch (opcode) {
-
-        case SCSI_SBC2_FORMATUNIT:
-            dissect_scsi_formatunit (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                     TRUE);
-            break;
-
-        case SCSI_SBC2_STARTSTOPUNIT:
-            dissect_scsi_startstopunit (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                        TRUE);
-            break;
-
-        case SCSI_SBC2_READ6:
-            dissect_scsi_sbc2_rdwr6 (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                TRUE);
-            break;
-
-        case SCSI_SBC2_READ10:
-            dissect_scsi_rdwr10 (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                 TRUE);
-            break;
-
-        case SCSI_SBC2_READ12:
-            dissect_scsi_rdwr12 (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                 TRUE);
-            break;
-
-        case SCSI_SBC2_READ16:
-            dissect_scsi_rdwr16 (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                 TRUE);
-            break;
-
-        case SCSI_SBC2_READCAPACITY10:
-            dissect_scsi_readcapacity10 (tvb, pinfo, scsi_tree, offset+1,
-                                       TRUE, TRUE);
-            break;
-
-        case SCSI_SBC2_SERVICEACTIONIN16:
-            dissect_scsi_serviceactionin16 (tvb, pinfo, scsi_tree, offset+1,
-                                       TRUE, TRUE);
-            break;
-
-        case SCSI_SBC2_READDEFDATA10:
-            dissect_scsi_readdefdata10 (tvb, pinfo, scsi_tree, offset+1,
-                                        TRUE, TRUE);
-            break;
-
-        case SCSI_SBC2_READDEFDATA12:
-            dissect_scsi_readdefdata12 (tvb, pinfo, scsi_tree, offset+1,
-                                        TRUE, TRUE);
-            break;
-
-        case SCSI_SBC2_REASSIGNBLKS:
-            dissect_scsi_reassignblks (tvb, pinfo, scsi_tree, offset+1,
-                                       TRUE, TRUE);
-            break;
-
-        case SCSI_SBC2_WRITE6:
-            dissect_scsi_sbc2_rdwr6 (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                TRUE);
-            break;
-
-        case SCSI_SBC2_WRITE10:
-            dissect_scsi_rdwr10 (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                 TRUE);
-            break;
-
-        case SCSI_SBC2_WRITE12:
-            dissect_scsi_rdwr12 (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                 TRUE);
-            break;
-
-        case SCSI_SBC2_WRITE16:
-            dissect_scsi_rdwr16 (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                 TRUE);
-            break;
-
-        default:
-            call_dissector (data_handle, tvb, pinfo, scsi_tree);
-            break;
-        }
-        break;
-
-    case SCSI_CMND_SSC2:
-        switch (opcode) {
-
-        case SCSI_SSC2_READ6:
-            dissect_scsi_ssc2_read6 (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                TRUE);
-            break;
-
-        case SCSI_SSC2_WRITE6:
-            dissect_scsi_ssc2_write6 (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                TRUE);
-            break;
-
-        case SCSI_SSC2_WRITE_FILEMARKS_6:
-            dissect_scsi_ssc2_writefilemarks6 (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                                TRUE);
-            break;
-
-        case SCSI_SSC2_LOAD_UNLOAD:
-            dissect_scsi_ssc2_loadunload (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                            TRUE);
-            break;
-
-        case SCSI_SSC2_READ_BLOCK_LIMITS:
-            dissect_scsi_ssc2_readblocklimits (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                            TRUE);
-            break;
-
-        case SCSI_SSC2_READ_POSITION:
-            dissect_scsi_ssc2_readposition (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                            TRUE, cdata);
-            break;
-
-        case SCSI_SSC2_REWIND:
-            dissect_scsi_ssc2_rewind (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                            TRUE);
-            break;
-
-        default:
-            call_dissector (data_handle, tvb, pinfo, scsi_tree);
-            break;
-        }
-        break;
-
-    case SCSI_CMND_SMC2:
-        switch (opcode) {
-
-        case SCSI_SMC2_MOVE_MEDIUM:
-        case SCSI_SMC2_MOVE_MEDIUM_ATTACHED:
-            dissect_scsi_smc2_movemedium (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                            TRUE);
-            break;
-
-        case SCSI_SMC2_READ_ELEMENT_STATUS:
-        case SCSI_SMC2_READ_ELEMENT_STATUS_ATTACHED:
-            dissect_scsi_smc2_readelementstatus (tvb, pinfo, scsi_tree, offset+1, TRUE,
-                            TRUE);
-            break;
-
-        default:
-            call_dissector (data_handle, tvb, pinfo, scsi_tree);
-            break;
-        }
-        break;
-
-    default:
+    /*
+       All commandsets support SPC?
+    */
+    if(cdb_table && cdb_table[opcode].func){
+        cdb_table[opcode].func(tvb, pinfo, scsi_tree, offset+1, 
+                               TRUE, TRUE, 0, cdata);
+    } else if(spc[opcode].func){
+        spc[opcode].func(tvb, pinfo, scsi_tree, offset+1, 
+                               TRUE, TRUE, 0, cdata);
+    } else {
         call_dissector (data_handle, tvb, pinfo, scsi_tree);
-        break;
     }
 }
 
@@ -4954,261 +5783,21 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * a protocol tree.
          */
         if (cmd == SCSI_CMND_SPC2 && opcode == SCSI_SPC2_INQUIRY) {
-            dissect_scsi_inquiry (tvb, pinfo, scsi_tree, offset, isreq,
+            dissect_spc3_inquiry (tvb, pinfo, scsi_tree, offset, isreq,
                                   FALSE, payload_len, cdata);
         }
       } else {
-        switch (cmd) {
-        case SCSI_CMND_SPC2:
-            switch (opcode) {
-            case SCSI_SPC2_INQUIRY:
-                dissect_scsi_inquiry (tvb, pinfo, scsi_tree, offset, isreq,
-                                      FALSE, payload_len, cdata);
-                break;
-
-            case SCSI_SPC2_EXTCOPY:
-                dissect_scsi_extcopy (tvb, pinfo, scsi_tree, offset, isreq,
-                                      FALSE);
-                break;
-
-            case SCSI_SPC2_LOGSELECT:
-                dissect_scsi_logselect (tvb, pinfo, scsi_tree, offset, isreq,
-                                        FALSE);
-                break;
-
-            case SCSI_SPC2_LOGSENSE:
-                dissect_scsi_logsense (tvb, pinfo, scsi_tree, offset, isreq,
-                                       FALSE);
-                break;
-
-            case SCSI_SPC2_MODESELECT6:
-                dissect_scsi_modeselect6 (tvb, pinfo, scsi_tree, offset,
-                                          isreq, FALSE, devtype, payload_len);
-                break;
-
-            case SCSI_SPC2_MODESELECT10:
-                dissect_scsi_modeselect10 (tvb, pinfo, scsi_tree, offset,
-                                           isreq, FALSE, devtype, payload_len);
-                break;
-
-            case SCSI_SPC2_MODESENSE6:
-                dissect_scsi_modesense6 (tvb, pinfo, scsi_tree, offset, isreq,
-                                         FALSE, devtype, payload_len);
-                break;
-
-            case SCSI_SPC2_MODESENSE10:
-                dissect_scsi_modesense10 (tvb, pinfo, scsi_tree, offset,
-                                          isreq, FALSE, devtype, payload_len);
-                break;
-
-            case SCSI_SPC2_PERSRESVIN:
-                dissect_scsi_persresvin (tvb, pinfo, scsi_tree, offset, isreq,
-                                         FALSE, cdata, payload_len);
-                break;
-
-            case SCSI_SPC2_PERSRESVOUT:
-                dissect_scsi_persresvout (tvb, pinfo, scsi_tree, offset,
-                                          isreq, FALSE, cdata, payload_len);
-                break;
-
-            case SCSI_SPC2_RELEASE6:
-                dissect_scsi_release6 (tvb, pinfo, scsi_tree, offset, isreq,
-                                       FALSE);
-                break;
-
-            case SCSI_SPC2_RELEASE10:
-                dissect_scsi_release10 (tvb, pinfo, scsi_tree, offset, isreq,
-                                        FALSE);
-                break;
-
-            case SCSI_SPC2_REPORTDEVICEID:
-                dissect_scsi_reportdeviceid (tvb, pinfo, scsi_tree, offset,
-                                             isreq, FALSE);
-                break;
-
-            case SCSI_SPC2_REPORTLUNS:
-                dissect_scsi_reportluns (tvb, pinfo, scsi_tree, offset, isreq,
-                                         FALSE, payload_len);
-                break;
-
-            case SCSI_SPC2_REQSENSE:
-                dissect_scsi_reqsense (tvb, pinfo, scsi_tree, offset, isreq,
-                                       FALSE);
-                break;
-
-            case SCSI_SPC2_RESERVE6:
-                dissect_scsi_reserve6 (tvb, pinfo, scsi_tree, offset, isreq,
-                                       FALSE);
-                break;
-
-            case SCSI_SPC2_RESERVE10:
-                dissect_scsi_reserve10 (tvb, pinfo, scsi_tree, offset, isreq,
-                                        FALSE);
-                break;
-
-            case SCSI_SPC2_TESTUNITRDY:
-                dissect_scsi_testunitrdy (tvb, pinfo, scsi_tree, offset,
-                                          isreq, FALSE);
-                break;
-
-            default:
-                call_dissector (data_handle, tvb, pinfo, scsi_tree);
-                break;
-            }
-            break;
-
-        case SCSI_CMND_SBC2:
-            switch (opcode) {
-
-            case SCSI_SBC2_FORMATUNIT:
-                dissect_scsi_formatunit (tvb, pinfo, scsi_tree, offset, isreq,
-                                         FALSE);
-                break;
-
-            case SCSI_SBC2_STARTSTOPUNIT:
-                dissect_scsi_startstopunit (tvb, pinfo, scsi_tree, offset, isreq,
-                                            FALSE);
-                break;
-
-            case SCSI_SBC2_READ6:
-                dissect_scsi_sbc2_rdwr6 (tvb, pinfo, scsi_tree, offset, isreq,
-                                    FALSE);
-                break;
-
-            case SCSI_SBC2_READ10:
-                dissect_scsi_rdwr10 (tvb, pinfo, scsi_tree, offset, isreq,
-                                     FALSE);
-                break;
-
-            case SCSI_SBC2_READ12:
-                dissect_scsi_rdwr12 (tvb, pinfo, scsi_tree, offset, isreq,
-                                     FALSE);
-                break;
-
-            case SCSI_SBC2_READ16:
-                dissect_scsi_rdwr16 (tvb, pinfo, scsi_tree, offset, isreq,
-                                     FALSE);
-                break;
-
-            case SCSI_SBC2_READCAPACITY10:
-                dissect_scsi_readcapacity10 (tvb, pinfo, scsi_tree, offset,
-                                           isreq, FALSE);
-                break;
-
-            case SCSI_SBC2_SERVICEACTIONIN16:
-                dissect_scsi_serviceactionin16 (tvb, pinfo, scsi_tree, offset,
-                                           isreq, FALSE);
-                break;
-
-            case SCSI_SBC2_READDEFDATA10:
-                dissect_scsi_readdefdata10 (tvb, pinfo, scsi_tree, offset,
-                                            isreq, FALSE);
-                break;
-
-            case SCSI_SBC2_READDEFDATA12:
-                dissect_scsi_readdefdata12 (tvb, pinfo, scsi_tree, offset,
-                                            isreq, FALSE);
-                break;
-
-            case SCSI_SBC2_REASSIGNBLKS:
-                dissect_scsi_reassignblks (tvb, pinfo, scsi_tree, offset,
-                                           isreq, FALSE);
-                break;
-
-            case SCSI_SBC2_WRITE6:
-                dissect_scsi_sbc2_rdwr6 (tvb, pinfo, scsi_tree, offset, isreq,
-                                    FALSE);
-                break;
-
-            case SCSI_SBC2_WRITE10:
-                dissect_scsi_rdwr10 (tvb, pinfo, scsi_tree, offset, isreq,
-                                     FALSE);
-                break;
-
-            case SCSI_SBC2_WRITE12:
-                dissect_scsi_rdwr12 (tvb, pinfo, scsi_tree, offset, isreq,
-                                     FALSE);
-                break;
-
-            case SCSI_SBC2_WRITE16:
-                dissect_scsi_rdwr16 (tvb, pinfo, scsi_tree, offset, isreq,
-                                     FALSE);
-                break;
-
-            default:
-                call_dissector (data_handle, tvb, pinfo, scsi_tree);
-                break;
-            }
-            break;
-
-        case SCSI_CMND_SSC2:
-            switch (opcode) {
-
-            case SCSI_SSC2_READ6:
-                dissect_scsi_ssc2_read6 (tvb, pinfo, scsi_tree, offset, isreq,
-                                    FALSE);
-                break;
-
-            case SCSI_SSC2_WRITE6:
-                dissect_scsi_ssc2_write6 (tvb, pinfo, scsi_tree, offset, isreq,
-                                FALSE);
-                break;
-
-            case SCSI_SSC2_WRITE_FILEMARKS_6:
-                dissect_scsi_ssc2_writefilemarks6 (tvb, pinfo, scsi_tree, offset, isreq,
-                                FALSE);
-                break;
-
-            case SCSI_SSC2_LOAD_UNLOAD:
-                dissect_scsi_ssc2_loadunload (tvb, pinfo, scsi_tree, offset, isreq,
-                                FALSE);
-                break;
-
-            case SCSI_SSC2_READ_BLOCK_LIMITS:
-                dissect_scsi_ssc2_readblocklimits (tvb, pinfo, scsi_tree, offset, isreq,
-                                FALSE);
-                break;
-
-            case SCSI_SSC2_READ_POSITION:
-                dissect_scsi_ssc2_readposition (tvb, pinfo, scsi_tree, offset, isreq,
-                                FALSE, cdata);
-                break;
-
-            case SCSI_SSC2_REWIND:
-                dissect_scsi_ssc2_rewind (tvb, pinfo, scsi_tree, offset, isreq,
-                                FALSE);
-                break;
-
-            default:
-                call_dissector (data_handle, tvb, pinfo, scsi_tree);
-                break;
-            }
-            break;
-
-        case SCSI_CMND_SMC2:
-            switch (opcode) {
-
-            case SCSI_SMC2_MOVE_MEDIUM:
-            case SCSI_SMC2_MOVE_MEDIUM_ATTACHED:
-                dissect_scsi_smc2_movemedium (tvb, pinfo, scsi_tree, offset, isreq,
-                                FALSE);
-                break;
-
-            case SCSI_SMC2_READ_ELEMENT_STATUS:
-            case SCSI_SMC2_READ_ELEMENT_STATUS_ATTACHED:
-                dissect_scsi_smc2_readelementstatus (tvb, pinfo, scsi_tree, offset, isreq,
-                                FALSE);
-                break;
-
-            default:
-                call_dissector (data_handle, tvb, pinfo, scsi_tree);
-                break;
-            }
-            break;
-
-        default:
+        /*
+           All commandsets support SPC?
+        */
+        if(cdata->cdb_table && (cdata->cdb_table)[opcode].func){
+            (cdata->cdb_table)[opcode].func(tvb, pinfo, scsi_tree, offset, 
+                               isreq, FALSE, payload_len, cdata);
+        } else if(spc[opcode].func){
+            spc[opcode].func(tvb, pinfo, scsi_tree, offset, 
+                               isreq, FALSE, payload_len, cdata);
+        } else { /* dont know this CDB */
             call_dissector (data_handle, tvb, pinfo, scsi_tree);
-            break;
         }
     }
 }
