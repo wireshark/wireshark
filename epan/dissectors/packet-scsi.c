@@ -182,6 +182,13 @@ static int hf_scsi_senddiag_unitoff = -1;
 static int hf_scsi_key_class = -1;
 static int hf_scsi_key_format = -1;
 static int hf_scsi_agid = -1;
+static int hf_scsi_lba             = -1;
+static int hf_scsi_report_key_data_length = -1;
+static int hf_scsi_report_key_type_code = -1;
+static int hf_scsi_report_key_vendor_resets = -1;
+static int hf_scsi_report_key_user_changes = -1;
+static int hf_scsi_report_key_region_mask = -1;
+static int hf_scsi_report_key_rpc_scheme = -1;
 
 static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
@@ -367,10 +374,20 @@ static const value_string scsi_sbc2_val[] = {
 
 /* MMC Commands */
 #define SCSI_MMC_READCAPACITY10         0x25
+#define SCSI_MMC_READ10                 0x28
+#define SCSI_MMC_WRITE10                0x2a
+#define SCSI_MMC_GETCONFIGURATION       0x46
 #define SCSI_MMC_REPORTKEY		0xa4
+#define SCSI_MMC_READ12                 0xa8
+#define SCSI_MMC_WRITE12                0xaa
 static const value_string scsi_mmc_val[] = {
     {SCSI_MMC_READCAPACITY10,	"Read Capacity(10)"},
+    {SCSI_MMC_READ10,		"Read(10)"},
+    {SCSI_MMC_WRITE10,		"Write(10)"},
+    {SCSI_MMC_GETCONFIGURATION,	"Get Configuraion"},
     {SCSI_MMC_REPORTKEY,	"Report Key"},
+    {SCSI_MMC_READ12,		"Read(12)"},
+    {SCSI_MMC_WRITE12,		"Write(12)"},
     {0, NULL},
 };
 
@@ -1274,7 +1291,7 @@ typedef struct _scsi_task_data {
     guint32 opcode;
     scsi_cmnd_type cmd;
     scsi_device_type devtype;
-    guint8 flags;
+    guint16 flags;
     struct _scsi_cdb_table_t *cdb_table;
     const value_string *cdb_vals;
 } scsi_task_data_t;
@@ -3384,22 +3401,39 @@ static const value_string scsi_key_format_val[] = {
     {0x3f,	"None"},
     {0,NULL}
 };
+static const value_string scsi_report_key_type_code_val[] = {
+    {0x00,	"NONE"},
+    {0x01,	"SET"},
+    {0x02,	"LAST CHANCE"},
+    {0x03,	"PERM"},
+    {0,NULL}
+};
+static const value_string scsi_report_key_rpc_scheme_val[] = {
+    {0x00,	"Unknown (RPC not enforced)"},
+    {0x01,	"RPC Phase II"},
+    {0,NULL}
+};
+
 static void
 dissect_mmc4_reportkey (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
-    guint8 flags, agid, format;
+    guint8 flags, agid, key_format, key_class;
+    char *str;
 
     if (tree && isreq && iscdb) {
+        proto_tree_add_item (tree, hf_scsi_lba, tvb, offset+1,
+                             4, 0);
+        key_class=tvb_get_guint8(tvb, offset+6);
         proto_tree_add_item (tree, hf_scsi_key_class, tvb, offset+6,
                              1, 0);
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+7, 2, 0);
 
 	agid=tvb_get_guint8(tvb, offset+9)&0xc0;
-	format=tvb_get_guint8(tvb, offset+9)&0x3f;
-	switch(format){
+	key_format=tvb_get_guint8(tvb, offset+9)&0x3f;
+	switch(key_format){
         case 0x01:
         case 0x02:
         case 0x04:
@@ -3408,8 +3442,10 @@ dissect_mmc4_reportkey (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             proto_tree_add_uint (tree, hf_scsi_agid, tvb, offset+9, 1, agid);
             break;
         }
-        proto_tree_add_uint (tree, hf_scsi_key_format, tvb, offset+9, 1, format);
-	
+        proto_tree_add_uint (tree, hf_scsi_key_format, tvb, offset+9, 1, key_format);
+	/* save key_class/key_format so we can decode the response */
+	cdata->flags=(key_format<<8)|key_class;
+
         flags = tvb_get_guint8 (tvb, offset+14);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+14, 1,
                                     flags,
@@ -3417,7 +3453,33 @@ dissect_mmc4_reportkey (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
     }
     if(tree && (!isreq)) {
-        /* to be filled in */
+        switch(cdata->flags){
+        case 0x0800: /* format:RPC State  class:00 */
+            proto_tree_add_item (tree, hf_scsi_report_key_data_length, tvb, offset, 2, 0);
+            proto_tree_add_item (tree, hf_scsi_report_key_type_code, tvb, offset+4, 1, 0);
+            proto_tree_add_item (tree, hf_scsi_report_key_vendor_resets, tvb, offset+4, 1, 0);
+            proto_tree_add_item (tree, hf_scsi_report_key_user_changes, tvb, offset+4, 1, 0);
+            proto_tree_add_item (tree, hf_scsi_report_key_region_mask, tvb, offset+5, 1, 0);
+            proto_tree_add_item (tree, hf_scsi_report_key_rpc_scheme, tvb, offset+6, 1, 0);
+            break;
+        default:
+            str=g_strdup_printf("SCSI/MMC Unknown Format:0x%02x/Class:0x%02x combination",cdata->flags>>8,cdata->flags&0xff);
+            REPORT_DISSECTOR_BUG(str);
+        }
+    }
+}
+static void
+dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags;
+    char *str;
+
+    if (tree && isreq && iscdb) {
+    }
+    if(tree && (!isreq)) {
     }
 }
 
@@ -5603,9 +5665,9 @@ static scsi_cdb_table_t mmc[256] = {
 /*MMC 0x25*/{dissect_sbc2_readcapacity10},
 /*MMC 0x26*/{NULL},
 /*MMC 0x27*/{NULL},
-/*MMC 0x28*/{NULL},
+/*MMC 0x28*/{dissect_sbc2_readwrite10},
 /*MMC 0x29*/{NULL},
-/*MMC 0x2a*/{NULL},
+/*MMC 0x2a*/{dissect_sbc2_readwrite10},
 /*MMC 0x2b*/{NULL},
 /*MMC 0x2c*/{NULL},
 /*MMC 0x2d*/{NULL},
@@ -5633,7 +5695,7 @@ static scsi_cdb_table_t mmc[256] = {
 /*MMC 0x43*/{NULL},
 /*MMC 0x44*/{NULL},
 /*MMC 0x45*/{NULL},
-/*MMC 0x46*/{NULL},
+/*MMC 0x46*/{dissect_mmc4_getconfiguration},
 /*MMC 0x47*/{NULL},
 /*MMC 0x48*/{NULL},
 /*MMC 0x49*/{NULL},
@@ -5731,9 +5793,9 @@ static scsi_cdb_table_t mmc[256] = {
 /*MMC 0xa5*/{NULL},
 /*MMC 0xa6*/{NULL},
 /*MMC 0xa7*/{NULL},
-/*MMC 0xa8*/{NULL},
+/*MMC 0xa8*/{dissect_sbc2_readwrite12},
 /*MMC 0xa9*/{NULL},
-/*MMC 0xaa*/{NULL},
+/*MMC 0xaa*/{dissect_sbc2_readwrite12},
 /*MMC 0xab*/{NULL},
 /*MMC 0xac*/{NULL},
 /*MMC 0xad*/{NULL},
@@ -6341,7 +6403,28 @@ proto_register_scsi (void)
         { &hf_scsi_key_format,
           {"Key Format", "scsi.mmc4.key_format", FT_UINT8, BASE_HEX,
            VALS (scsi_key_format_val), 0x3f, "", HFILL}},
-        
+        { &hf_scsi_lba,
+          {"Logical Block Address", "scsi.lba", FT_UINT32, BASE_DEC,
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_report_key_data_length,
+          {"Data Length", "scsi.report_key.data_length", FT_UINT16, BASE_DEC,
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_report_key_type_code,
+          {"Type Code", "scsi.report_key.type_code", FT_UINT8, BASE_HEX,
+           VALS(scsi_report_key_type_code_val), 0xc0, "", HFILL}},
+        { &hf_scsi_report_key_vendor_resets,
+          {"Vendor Resets", "scsi.report_key.vendor_resets", FT_UINT8, BASE_HEX,
+           NULL, 0x38, "", HFILL}},
+        { &hf_scsi_report_key_user_changes,
+          {"User Changes", "scsi.report_key.user_changes", FT_UINT8, BASE_HEX,
+           NULL, 0x07, "", HFILL}},
+        { &hf_scsi_report_key_region_mask,
+          {"Region Mask", "scsi.report_key.region_mask", FT_UINT8, BASE_HEX,
+           NULL, 0xff, "", HFILL}},
+        { &hf_scsi_report_key_rpc_scheme,
+          {"RPC Scheme", "scsi.report_key.rpc_scheme", FT_UINT8, BASE_HEX,
+           VALS(scsi_report_key_rpc_scheme_val), 0, "", HFILL}},
+      
     };
 
     /* Setup protocol subtree array */
