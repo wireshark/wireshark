@@ -616,7 +616,7 @@ proto_register_gif(void)
 		{ &hf_image,
 			{	"Image",
 				IMG_GIF ".image",
-				FT_NONE, BASE_NONE, NULL, 0x80,
+				FT_NONE, BASE_NONE, NULL, 0x00,
 				"Image.",
 				HFILL
 			}
