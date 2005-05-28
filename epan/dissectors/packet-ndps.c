@@ -1954,15 +1954,18 @@ print_address(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             proto_tree_add_item(ndps_tree, hf_ndps_net, tvb, foffset, 4, FALSE);
             proto_tree_add_item(ndps_tree, hf_ndps_node, tvb, foffset+4, 6, FALSE);
             proto_tree_add_item(ndps_tree, hf_ndps_socket, tvb, foffset+10, 2, FALSE);
+            tvb_ensure_bytes_exist(tvb, foffset, address_len);
             foffset += address_len;
             break;
     case 0x00000001:
             proto_tree_add_item(ndps_tree, hf_ndps_port, tvb, foffset, 2, FALSE);
             address = tvb_get_letohl(tvb, foffset+2);
             proto_tree_add_ipv4(ndps_tree, hf_ndps_ip, tvb, foffset+2, 4, address);
+            tvb_ensure_bytes_exist(tvb, foffset, address_len);
             foffset += address_len;
             break;
     default:
+        tvb_ensure_bytes_exist(tvb, foffset, tvb_get_ntohl(tvb, foffset -4));
         foffset += tvb_get_ntohl(tvb, foffset -4);
         break;
     }
@@ -5091,6 +5094,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 {
                     proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
                 }
+                tvb_ensure_bytes_exist(tvb, foffset, length);
                 foffset += length;
                 proto_item_set_end(aitem, tvb, foffset);
             }
