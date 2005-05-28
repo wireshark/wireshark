@@ -183,6 +183,7 @@ static int hf_scsi_key_class = -1;
 static int hf_scsi_key_format = -1;
 static int hf_scsi_agid = -1;
 static int hf_scsi_lba             = -1;
+static int hf_scsi_num_blocks      = -1;
 static int hf_scsi_report_key_data_length = -1;
 static int hf_scsi_report_key_type_code = -1;
 static int hf_scsi_report_key_vendor_resets = -1;
@@ -242,6 +243,8 @@ static int hf_scsi_q_subchannel_adr = -1;
 static int hf_scsi_q_subchannel_control = -1;
 static int hf_scsi_track_start_address = -1;
 static int hf_scsi_track_start_time = -1;
+static int hf_scsi_synccache_immed = -1;
+static int hf_scsi_synccache_reladr = -1;
 
 static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
@@ -429,6 +432,7 @@ static const value_string scsi_sbc2_val[] = {
 #define SCSI_MMC_READCAPACITY10         0x25
 #define SCSI_MMC_READ10                 0x28
 #define SCSI_MMC_WRITE10                0x2a
+#define SCSI_MMC_SYNCHRONIZECACHE       0x35
 #define SCSI_MMC_READTOCPMAATIP         0x43
 #define SCSI_MMC_GETCONFIGURATION       0x46
 #define SCSI_MMC_REPORTKEY		0xa4
@@ -438,6 +442,7 @@ static const value_string scsi_mmc_val[] = {
     {SCSI_MMC_READCAPACITY10,	"Read Capacity(10)"},
     {SCSI_MMC_READ10,		"Read(10)"},
     {SCSI_MMC_WRITE10,		"Write(10)"},
+    {SCSI_MMC_SYNCHRONIZECACHE,	"Synchronize Cache"},
     {SCSI_MMC_READTOCPMAATIP,	"Read TOC/PMA/ATIP"},
     {SCSI_MMC_GETCONFIGURATION,	"Get Configuraion"},
     {SCSI_MMC_REPORTKEY,	"Report Key"},
@@ -3830,6 +3835,29 @@ dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 
 static void
+dissect_mmc4_synchronizecache (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags;
+
+    if (tree && isreq && iscdb) {
+        proto_tree_add_item (tree, hf_scsi_synccache_immed, tvb, offset, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_synccache_reladr, tvb, offset, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_lba, tvb, offset+1, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_num_blocks, tvb, offset+6, 2, 0);
+
+        flags = tvb_get_guint8 (tvb, offset+8);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+
+    }
+}
+
+static void
 dissect_sbc2_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
                            guint offset, gboolean isreq, gboolean iscdb,
                            guint payload_len _U_, scsi_task_data_t *cdata _U_)
@@ -6023,7 +6051,7 @@ static scsi_cdb_table_t mmc[256] = {
 /*MMC 0x32*/{NULL},
 /*MMC 0x33*/{NULL},
 /*MMC 0x34*/{NULL},
-/*MMC 0x35*/{NULL},
+/*MMC 0x35*/{dissect_mmc4_synchronizecache},
 /*MMC 0x36*/{NULL},
 /*MMC 0x37*/{NULL},
 /*MMC 0x38*/{NULL},
@@ -6751,6 +6779,9 @@ proto_register_scsi (void)
         { &hf_scsi_lba,
           {"Logical Block Address", "scsi.lba", FT_UINT32, BASE_DEC,
            NULL, 0x0, "", HFILL}},
+        { &hf_scsi_num_blocks,
+          {"Number of Blocks", "scsi.num_blocks", FT_UINT32, BASE_DEC,
+           NULL, 0x0, "", HFILL}},
         { &hf_scsi_report_key_data_length,
           {"Data Length", "scsi.report_key.data_length", FT_UINT16, BASE_DEC,
            NULL, 0x0, "", HFILL}},
@@ -6928,6 +6959,12 @@ proto_register_scsi (void)
         { &hf_scsi_track_start_time,
           {"Track Start Time", "scsi.track_start_time", FT_UINT32, BASE_DEC,
            NULL, 0, "", HFILL}},
+        { &hf_scsi_synccache_immed,
+          {"IMMED", "scsi.synccache.immed", FT_BOOLEAN, 8,
+           NULL, 0x02, "", HFILL}},
+        { &hf_scsi_synccache_reladr,
+          {"RelAdr", "scsi.synccache.reladr", FT_BOOLEAN, 8,
+           NULL, 0x01, "", HFILL}},
 
     };
 
