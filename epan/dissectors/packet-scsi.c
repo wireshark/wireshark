@@ -189,6 +189,59 @@ static int hf_scsi_report_key_vendor_resets = -1;
 static int hf_scsi_report_key_user_changes = -1;
 static int hf_scsi_report_key_region_mask = -1;
 static int hf_scsi_report_key_rpc_scheme = -1;
+static int hf_scsi_getconf_rt = -1;
+static int hf_scsi_getconf_starting_feature = -1;
+static int hf_scsi_getconf_data_length = -1;
+static int hf_scsi_getconf_current_profile = -1;
+static int hf_scsi_feature = -1;
+static int hf_scsi_feature_version = -1;
+static int hf_scsi_feature_persistent = -1;
+static int hf_scsi_feature_current = -1;
+static int hf_scsi_feature_additional_length = -1;
+static int hf_scsi_feature_lun_sn = -1;
+static int hf_scsi_feature_cdread_dap = -1;
+static int hf_scsi_feature_cdread_c2flag = -1;
+static int hf_scsi_feature_cdread_cdtext = -1;
+static int hf_scsi_feature_dvdrw_write = -1;
+static int hf_scsi_feature_dvdrw_quickstart = -1;
+static int hf_scsi_feature_dvdrw_closeonly = -1;
+static int hf_scsi_feature_dvdr_write = -1;
+static int hf_scsi_feature_tao_buf = -1;
+static int hf_scsi_feature_tao_rwraw = -1;
+static int hf_scsi_feature_tao_rwpack = -1;
+static int hf_scsi_feature_tao_testwrite = -1;
+static int hf_scsi_feature_tao_cdrw = -1;
+static int hf_scsi_feature_tao_rwsubcode = -1;
+static int hf_scsi_feature_dts = -1;
+static int hf_scsi_feature_sao_buf = -1;
+static int hf_scsi_feature_sao_sao = -1;
+static int hf_scsi_feature_sao_rawms = -1;
+static int hf_scsi_feature_sao_raw = -1;
+static int hf_scsi_feature_sao_testwrite = -1;
+static int hf_scsi_feature_sao_cdrw = -1;
+static int hf_scsi_feature_sao_rw = -1;
+static int hf_scsi_feature_sao_mcsl = -1;
+static int hf_scsi_feature_dvdr_buf = -1;
+static int hf_scsi_feature_dvdr_testwrite = -1;
+static int hf_scsi_feature_dvdr_dvdrw = -1;
+static int hf_scsi_feature_profile = -1;
+static int hf_scsi_feature_profile_current = -1;
+static int hf_scsi_feature_isw_buf = -1;
+static int hf_scsi_feature_isw_num_linksize = -1;
+static int hf_scsi_feature_isw_linksize = -1;
+static int hf_scsi_readtoc_time = -1;
+static int hf_scsi_readtoc_format = -1;
+static int hf_scsi_readtoc_track = -1;
+static int hf_scsi_readtoc_session = -1;
+static int hf_scsi_readtoc_data_len = -1;
+static int hf_scsi_readtoc_first_track = -1;
+static int hf_scsi_readtoc_first_session = -1;
+static int hf_scsi_readtoc_last_track = -1;
+static int hf_scsi_readtoc_last_session = -1;
+static int hf_scsi_q_subchannel_adr = -1;
+static int hf_scsi_q_subchannel_control = -1;
+static int hf_scsi_track_start_address = -1;
+static int hf_scsi_track_start_time = -1;
 
 static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
@@ -376,6 +429,7 @@ static const value_string scsi_sbc2_val[] = {
 #define SCSI_MMC_READCAPACITY10         0x25
 #define SCSI_MMC_READ10                 0x28
 #define SCSI_MMC_WRITE10                0x2a
+#define SCSI_MMC_READTOCPMAATIP         0x43
 #define SCSI_MMC_GETCONFIGURATION       0x46
 #define SCSI_MMC_REPORTKEY		0xa4
 #define SCSI_MMC_READ12                 0xa8
@@ -384,6 +438,7 @@ static const value_string scsi_mmc_val[] = {
     {SCSI_MMC_READCAPACITY10,	"Read Capacity(10)"},
     {SCSI_MMC_READ10,		"Read(10)"},
     {SCSI_MMC_WRITE10,		"Write(10)"},
+    {SCSI_MMC_READTOCPMAATIP,	"Read TOC/PMA/ATIP"},
     {SCSI_MMC_GETCONFIGURATION,	"Get Configuraion"},
     {SCSI_MMC_REPORTKEY,	"Report Key"},
     {SCSI_MMC_READ12,		"Read(12)"},
@@ -3468,6 +3523,82 @@ dissect_mmc4_reportkey (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         }
     }
 }
+
+static const value_string scsi_getconf_rt_val[] = {
+    {0x00,	"Return all features"},
+    {0x01,	"Return all current features"},
+    {0x02,	"Return all identified by Starting Feature"},
+    {0,NULL}
+};
+static const value_string scsi_getconf_current_profile_val[] = {
+    {0x0000,	"Reserved"},
+    {0x0001,	"Non-removable disk"},
+    {0x0002,	"Removable disk"},
+    {0x0003,	"MO Erasable"},
+    {0x0004,	"Optical Write Once"},
+    {0x0005,	"AS-MO"},
+    {0x0008,	"CD-ROM"},
+    {0x0009,	"CD-R"},
+    {0x000a,	"CD-RW"},
+    {0x0010,	"DVD-ROM"},
+    {0x0011,	"DVD-R"},
+    {0x0012,	"DVD-RAM"},
+    {0x0013,	"DVD-RW Restricted Overwrite"},
+    {0x0014,	"DVD-RW Sequential recording"},
+    {0x001a,	"DVD+RW"},
+    {0x001b,	"DVD+R"},
+    {0x0020,	"DDCD-ROM"},
+    {0x0021,	"DDCD-R"},
+    {0x0022,	"DDCD-RW"},
+    {0xffff,	"Logical unit not conforming to a standard profile"},
+    {0,NULL}
+};
+
+static const value_string scsi_feature_val[] = {
+    {0x0000,	"Profile List"},
+    {0x0001,	"Core"},
+    {0x0002,	"Morphing"},
+    {0x0003,	"Removable Medium"},
+    {0x0004,	"Write Protect"},
+    {0x0010,	"Random Readable"},
+    {0x001d,	"Multi-read"},
+    {0x001e,	"CD Read"},
+    {0x001f,	"DVD Read"},
+    {0x0020,	"Random Writeable"},
+    {0x0021,	"Incremental Streaming Writeable"},
+    {0x0022,	"Sector Erasable"},
+    {0x0023,	"Formattable"},
+    {0x0024,	"Defect Management"},
+    {0x0025,	"Write Once"},
+    {0x0026,	"Restricted Overwrite"},
+    {0x0027,	"CD-RW CAV Write"},
+    {0x0028,	"MRW"},
+    {0x0029,	"Enhanced Defect Reporting"},
+    {0x002a,	"DVD+RW"},
+    {0x002b,	"DVD+R"},
+    {0x002c,	"Rigid Restricted Overwrite"},
+    {0x002d,	"CD Track At Once"},
+    {0x002e,	"CD Mastering"},
+    {0x002f,	"DVD-R/-RW Write"},
+    {0x0030,	"DDCD Read"},
+    {0x0031,	"DDCD-R Write"},
+    {0x0032,	"DDCD-RW Write"},
+    {0x0037,	"CD-RW Media Write Support"},
+    {0x0100,	"Power Management"},
+    {0x0101,	"SMART"},
+    {0x0102,	"Embedded Changer"},
+    {0x0103,	"CD Audio analog play"},
+    {0x0104,	"Microcode Upgrade"},
+    {0x0105,	"Timeout"},
+    {0x0106,	"DVD-CSS"},
+    {0x0107,	"Real Time Streaming"},
+    {0x0108,	"Logical Unit serial number"},
+    {0x010a,	"Disc control Block"},
+    {0x010b,	"DVD CPRM"},
+    {0x010c,	"Firmware Information"},
+    {0,NULL}
+};
+
 static void
 dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
@@ -3475,11 +3606,225 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 {
     guint8 flags;
+    gint32 len;
+    char *str;
+    guint old_offset;
+
+    if (tree && isreq && iscdb) {
+        proto_tree_add_item (tree, hf_scsi_getconf_rt, tvb, offset+0, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_getconf_starting_feature, tvb, offset+1, 2, 0);
+
+        proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, 0);
+
+        flags = tvb_get_guint8 (tvb, offset+8);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+    if(tree && (!isreq)) {
+        len=tvb_get_ntohl(tvb, offset+0);
+        proto_tree_add_item (tree, hf_scsi_getconf_data_length, tvb, offset+0, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_getconf_current_profile, tvb, offset+6, 2, 0);
+	offset+=8;
+        len-=4;
+        while(len>0){
+                guint16 feature;
+                guint8 additional_length;
+		guint8 num_linksize;
+
+                feature=tvb_get_ntohs(tvb, offset);
+	        proto_tree_add_item (tree, hf_scsi_feature, tvb, offset, 2, 0);
+                offset+=2;
+	        proto_tree_add_item (tree, hf_scsi_feature_version, tvb, offset, 1, 0);
+	        proto_tree_add_item (tree, hf_scsi_feature_persistent, tvb, offset, 1, 0);
+	        proto_tree_add_item (tree, hf_scsi_feature_current, tvb, offset, 1, 0);
+                offset+=1;
+                additional_length=tvb_get_guint8(tvb, offset);
+	        proto_tree_add_item (tree, hf_scsi_feature_additional_length, tvb, offset, 1, 0);
+                offset+=1;
+                old_offset=offset;
+                switch(feature){
+                case 0x0000: /* profile list */
+                    while(offset<(old_offset+additional_length)){
+                        proto_tree_add_item (tree, hf_scsi_feature_profile, tvb, offset, 2, 0);
+                        proto_tree_add_item (tree, hf_scsi_feature_profile_current, tvb, offset+2, 1, 0);
+                        offset+=4;
+                    }
+                    break;
+                case 0x001d: /* multi-read */
+                case 0x001f: /* dvd read feature */
+                    /* no data for this one */
+                    break;
+                case 0x001e: /* cd read */
+                    proto_tree_add_item (tree, hf_scsi_feature_cdread_dap, tvb, offset, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_feature_cdread_c2flag, tvb, offset, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_feature_cdread_cdtext, tvb, offset, 1, 0);
+                    break;
+                case 0x0021: /* incremental streaming writeable */
+                    proto_tree_add_item (tree, hf_scsi_feature_dts, tvb, offset, 2, 0);
+                    offset+=2;
+                    proto_tree_add_item (tree, hf_scsi_feature_isw_buf, tvb, offset, 1, 0);
+                    offset+=1;
+                    num_linksize=tvb_get_guint8(tvb, offset);
+                    proto_tree_add_item (tree, hf_scsi_feature_isw_num_linksize, tvb, offset, 1, 0);
+                    offset+=1;
+                    while(num_linksize--){
+                        proto_tree_add_item (tree, hf_scsi_feature_isw_linksize, tvb, offset, 1, 0);
+                        offset+=1;
+                    }
+                    break;
+                case 0x002a: /* dvd-rw */
+                    proto_tree_add_item (tree, hf_scsi_feature_dvdrw_write, tvb, offset, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_feature_dvdrw_quickstart, tvb, offset, 2, 0);
+                    proto_tree_add_item (tree, hf_scsi_feature_dvdrw_closeonly, tvb, offset, 2, 0);
+                    break;
+                case 0x002b: /* dvd-r */
+                    proto_tree_add_item (tree, hf_scsi_feature_dvdr_write, tvb, offset, 1, 0);
+                    break;
+                case 0x002d: /* track at once */
+                    proto_tree_add_item (tree, hf_scsi_feature_tao_buf, tvb, offset, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_feature_tao_rwraw, tvb, offset, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_feature_tao_rwpack, tvb, offset, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_feature_tao_testwrite, tvb, offset, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_feature_tao_cdrw, tvb, offset, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_feature_tao_rwsubcode, tvb, offset, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_feature_dts, tvb, offset+2, 2, 0);
+                    break;
+                case 0x002e: /* session at once */
+                    proto_tree_add_item (tree, hf_scsi_feature_sao_buf, tvb, offset, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_feature_sao_sao, tvb, offset, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_feature_sao_rawms, tvb, offset, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_feature_sao_raw, tvb, offset, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_feature_sao_testwrite, tvb, offset, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_feature_sao_cdrw, tvb, offset, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_feature_sao_rw, tvb, offset, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_feature_sao_mcsl, tvb, offset+1, 3, 0);
+                    break;
+                case 0x002f: /* dvd-r/-rw*/
+                    proto_tree_add_item (tree, hf_scsi_feature_dvdr_buf, tvb, offset, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_feature_dvdr_testwrite, tvb, offset, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_feature_dvdr_dvdrw, tvb, offset, 1, 0);
+                    break;
+                case 0x0108: /* logical unit serial number */
+                    proto_tree_add_item (tree, hf_scsi_feature_lun_sn, tvb, offset, additional_length, 0);
+                    break;
+                default:
+                    str=g_strdup_printf("SCSI/MMC Unknown Feature:0x%04x",feature);
+                    REPORT_DISSECTOR_BUG(str);
+                }
+                old_offset+=additional_length;
+                len-=4+additional_length;
+        }
+    }
+}
+
+static const value_string scsi_q_subchannel_adr_val[] = {
+    {0x0,	"Q-Subchannel mode info not supplied"},
+    {0x1,	"Q-Subchannel encodes current position data"},
+    {0x2,	"Q-Subchannel encodes media catalog number"},
+    {0x3,	"Q-Subchannel encodes ISRC"},
+    {0,NULL}
+};
+static const value_string scsi_q_subchannel_control_val[] = {
+    {0x0,	"2 Audio channels without pre-emphasis (digital copy prohibited)"},
+    {0x2,	"2 Audio channels without pre-emphasis (digital copy permitted)"},
+    {0x1,	"2 Audio channels with pre-emphasis of 50/15us (digital copy prohibited)"},
+    {0x3,	"2 Audio channels with pre-emphasis of 50/15us (digital copy permitted)"},
+    {0x8,	"audio channels without pre-emphasis (digital copy prohibited)"},
+    {0xa,	"audio channels without pre-emphasis (digital copy permitted)"},
+    {0x9,	"2 Audio channels with pre-emphasis of 50/15us (digital copy prohibited)"},
+    {0xb,	"2 Audio channels with pre-emphasis of 50/15us (digital copy permitted)"},
+    {0x4,	"Data track, recorded uninterrupted (digital copy prohibited)"},
+    {0x6,	"Data track, recorded uninterrupted (digital copy permitted)"},
+    {0x5,	"Data track, recorded incremental (digital copy prohibited)"},
+    {0x7,	"Data track, recorded incremental (digital copy permitted)"},
+    {0,NULL}
+};
+
+static void
+dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags, format;
+    gint16 len;
     char *str;
 
     if (tree && isreq && iscdb) {
+	cdata->flags=0;
+
+        format=tvb_get_guint8(tvb, offset+1)&0x0f;
+	/* save format so we can decode the response */
+        cdata->flags|=format;
+
+        switch(format){
+        case 0x00:
+        case 0x01:
+            proto_tree_add_item (tree, hf_scsi_readtoc_time, tvb, offset, 1, 0);
+            /* save time so we can pick it up in the response */
+            if(tvb_get_guint8(tvb, offset)&0x02){
+                cdata->flags|=0x0100;
+            }
+            break;
+        }
+        proto_tree_add_item (tree, hf_scsi_readtoc_format, tvb, offset+1, 1, 0);
+
+        switch(format){
+        case 0x00:
+            proto_tree_add_item (tree, hf_scsi_readtoc_track, tvb, offset+5, 1, 0);
+            /* save track so we can pick it up in the response */
+            cdata->flags|=0x0200;
+            break;
+        case 0x02:
+            proto_tree_add_item (tree, hf_scsi_readtoc_session, tvb, offset+5, 1, 0);
+            /* save session so we can pick it up in the response */
+            cdata->flags|=0x0400;
+            break;
+        }
+
+        proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, 0);
+
+        flags = tvb_get_guint8 (tvb, offset+8);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+
     }
     if(tree && (!isreq)) {
+        len=tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item (tree, hf_scsi_readtoc_data_len, tvb, offset, 2, 0);
+        if(cdata->flags&0x0200){
+            proto_tree_add_item (tree, hf_scsi_readtoc_first_track, tvb, offset+2, 1, 0);
+            proto_tree_add_item (tree, hf_scsi_readtoc_last_track, tvb, offset+3, 1, 0);
+        }
+        if(cdata->flags&0x0400){
+            proto_tree_add_item (tree, hf_scsi_readtoc_first_session, tvb, offset+2, 1, 0);
+            proto_tree_add_item (tree, hf_scsi_readtoc_last_session, tvb, offset+3, 1, 0);
+        }
+        offset+=4;
+        len-=2;
+        switch(cdata->flags&0x000f){
+        case 0x0:
+            while(len>0){
+                proto_tree_add_item (tree, hf_scsi_q_subchannel_adr, tvb, offset+1, 1, 0);
+                proto_tree_add_item (tree, hf_scsi_q_subchannel_control, tvb, offset+1, 1, 0);
+                proto_tree_add_item (tree, hf_scsi_readtoc_track, tvb, offset+2, 1, 0);
+                if(cdata->flags&0x0100){
+                    proto_tree_add_item (tree, hf_scsi_track_start_time, tvb, offset+4, 4, 0);
+                } else {
+                    proto_tree_add_item (tree, hf_scsi_track_start_address, tvb, offset+4, 4, 0);
+                }
+                offset+=8;
+                len-=8;
+            }
+            break;
+        default:
+            str=g_strdup_printf("SCSI/MMC Unknown READ TOC Format:0x%04x",cdata->flags&0x000f);
+            REPORT_DISSECTOR_BUG(str);
+        }
     }
 }
 
@@ -5692,7 +6037,7 @@ static scsi_cdb_table_t mmc[256] = {
 /*MMC 0x40*/{NULL},
 /*MMC 0x41*/{NULL},
 /*MMC 0x42*/{NULL},
-/*MMC 0x43*/{NULL},
+/*MMC 0x43*/{dissect_mmc4_readtocpmaatip},
 /*MMC 0x44*/{NULL},
 /*MMC 0x45*/{NULL},
 /*MMC 0x46*/{dissect_mmc4_getconfiguration},
@@ -6424,7 +6769,166 @@ proto_register_scsi (void)
         { &hf_scsi_report_key_rpc_scheme,
           {"RPC Scheme", "scsi.report_key.rpc_scheme", FT_UINT8, BASE_HEX,
            VALS(scsi_report_key_rpc_scheme_val), 0, "", HFILL}},
-      
+        { &hf_scsi_getconf_rt,
+          {"RT", "scsi.getconf.rt", FT_UINT8, BASE_HEX,
+           VALS(scsi_getconf_rt_val), 0x03, "", HFILL}},
+        { &hf_scsi_getconf_data_length,
+          {"Data Length", "scsi.getconf.data_length", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_getconf_current_profile,
+          {"Current Profile", "scsi.getconf.current_profile", FT_UINT16, BASE_HEX,
+           VALS(scsi_getconf_current_profile_val), 0, "", HFILL}},
+        { &hf_scsi_getconf_starting_feature,
+          {"Starting Feature", "scsi.getconf.starting_feature", FT_UINT16, BASE_HEX,
+           VALS(scsi_feature_val), 0, "", HFILL}},
+        { &hf_scsi_feature,
+          {"Feature", "scsi.feature", FT_UINT16, BASE_HEX,
+           VALS(scsi_feature_val), 0, "", HFILL}},
+        { &hf_scsi_feature_version,
+          {"Version", "scsi.feature.version", FT_UINT8, BASE_DEC,
+           NULL, 0x3c, "", HFILL}},
+        { &hf_scsi_feature_persistent,
+          {"Persistent", "scsi.feature.persistent", FT_UINT8, BASE_HEX,
+           NULL, 0x02, "", HFILL}},
+        { &hf_scsi_feature_current,
+          {"Current", "scsi.feature.current", FT_UINT8, BASE_HEX,
+           NULL, 001, "", HFILL}},
+        { &hf_scsi_feature_additional_length,
+          {"Additional Length", "scsi.feature.additional_length", FT_UINT8, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_feature_lun_sn,
+          {"LUN Serial Number", "scsi.feature.lun_sn", FT_STRING, BASE_NONE,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_feature_cdread_dap,
+          {"DAP", "scsi.feature.cdread.dap", FT_BOOLEAN, 8,
+           NULL, 0x80, "", HFILL}},
+        { &hf_scsi_feature_cdread_c2flag,
+          {"C2 Flag", "scsi.feature.cdread.c2flag", FT_BOOLEAN, 8,
+           NULL, 0x02, "", HFILL}},
+        { &hf_scsi_feature_cdread_cdtext,
+          {"CD-Text", "scsi.feature.cdread.cdtext", FT_BOOLEAN, 8,
+           NULL, 0x01, "", HFILL}},
+        { &hf_scsi_feature_dvdrw_write,
+          {"Write", "scsi.feature.dvdrw.write", FT_BOOLEAN, 8,
+           NULL, 0x01, "", HFILL}},
+        { &hf_scsi_feature_dvdrw_quickstart,
+          {"Quick Start", "scsi.feature.dvdrw.quickstart", FT_BOOLEAN, 8,
+           NULL, 0x02, "", HFILL}},
+        { &hf_scsi_feature_dvdrw_closeonly,
+          {"Close Only", "scsi.feature.dvdrw.closeonly", FT_BOOLEAN, 8,
+           NULL, 0x01, "", HFILL}},
+        { &hf_scsi_feature_dvdr_write,
+          {"Write", "scsi.feature.dvdr.write", FT_BOOLEAN, 8,
+           NULL, 0x01, "", HFILL}},
+        { &hf_scsi_feature_tao_buf,
+          {"BUF", "scsi.feature.tao.buf", FT_BOOLEAN, 8,
+           NULL, 0x40, "", HFILL}},
+        { &hf_scsi_feature_tao_rwraw,
+          {"R-W Raw", "scsi.feature.tao.rwraw", FT_BOOLEAN, 8,
+           NULL, 0x10, "", HFILL}},
+        { &hf_scsi_feature_tao_rwpack,
+          {"R-W Pack", "scsi.feature.tao.rwpack", FT_BOOLEAN, 8,
+           NULL, 0x08, "", HFILL}},
+        { &hf_scsi_feature_tao_testwrite,
+          {"Test Write", "scsi.feature.tao.testwrite", FT_BOOLEAN, 8,
+           NULL, 0x04, "", HFILL}},
+        { &hf_scsi_feature_tao_cdrw,
+          {"CD-RW", "scsi.feature.tao.cdrw", FT_BOOLEAN, 8,
+           NULL, 0x02, "", HFILL}},
+        { &hf_scsi_feature_tao_rwsubcode,
+          {"R-W Subcode", "scsi.feature.tao.rwsubcode", FT_BOOLEAN, 8,
+           NULL, 0x01, "", HFILL}},
+        { &hf_scsi_feature_dts,
+          {"Data Type Supported", "scsi.feature.dts", FT_UINT16, BASE_HEX,
+           NULL, 0xffff, "", HFILL}},
+        { &hf_scsi_feature_sao_buf,
+          {"BUF", "scsi.feature.sao.buf", FT_BOOLEAN, 8,
+           NULL, 0x40, "", HFILL}},
+        { &hf_scsi_feature_sao_sao,
+          {"SAO", "scsi.feature.sao.sao", FT_BOOLEAN, 8,
+           NULL, 0x20, "", HFILL}},
+        { &hf_scsi_feature_sao_rawms,
+          {"Raw MS", "scsi.feature.sao.rawms", FT_BOOLEAN, 8,
+           NULL, 0x10, "", HFILL}},
+        { &hf_scsi_feature_sao_raw,
+          {"Raw", "scsi.feature.sao.raw", FT_BOOLEAN, 8,
+           NULL, 0x08, "", HFILL}},
+        { &hf_scsi_feature_sao_testwrite,
+          {"Test Write", "scsi.feature.sao.testwrite", FT_BOOLEAN, 8,
+           NULL, 0x04, "", HFILL}},
+        { &hf_scsi_feature_sao_cdrw,
+          {"CD-RW", "scsi.feature.sao.cdrw", FT_BOOLEAN, 8,
+           NULL, 0x02, "", HFILL}},
+        { &hf_scsi_feature_sao_rw,
+          {"R-W", "scsi.feature.sao.rw", FT_BOOLEAN, 8,
+           NULL, 0x01, "", HFILL}},
+        { &hf_scsi_feature_sao_mcsl,
+          {"Maximum Cue Sheet Length", "scsi.feature.sao.mcsl", FT_UINT24, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_feature_dvdr_buf,
+          {"BUF", "scsi.feature.dvdr.buf", FT_BOOLEAN, 8,
+           NULL, 0x40, "", HFILL}},
+        { &hf_scsi_feature_dvdr_testwrite,
+          {"Test Write", "scsi.feature.dvdr.testwrite", FT_BOOLEAN, 8,
+           NULL, 0x04, "", HFILL}},
+        { &hf_scsi_feature_dvdr_dvdrw,
+          {"DVD-RW", "scsi.feature.dvdr.dvdrw", FT_BOOLEAN, 8,
+           NULL, 0x02, "", HFILL}},
+        { &hf_scsi_feature_profile,
+          {"Profile", "scsi.feature.profile", FT_UINT16, BASE_HEX,
+           VALS(scsi_getconf_current_profile_val), 0, "", HFILL}},
+        { &hf_scsi_feature_profile_current,
+          {"Current", "scsi.feature.profile.current", FT_BOOLEAN, 8,
+           NULL, 0x01, "", HFILL}},
+        { &hf_scsi_feature_isw_buf,
+          {"BUF", "scsi.feature.isw.buf", FT_BOOLEAN, 8,
+           NULL, 0x01, "", HFILL}},
+        { &hf_scsi_feature_isw_num_linksize,
+          {"Number of Link Sizes", "scsi.feature.isw.num_linksize", FT_UINT8, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_feature_isw_linksize,
+          {"Link Size", "scsi.feature.isw.linksize", FT_UINT8, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_readtoc_time,
+          {"Time", "scsi.readtoc.time", FT_BOOLEAN, 8,
+           NULL, 0x02, "", HFILL}},
+        { &hf_scsi_readtoc_format,
+          {"Format", "scsi.readtoc.format", FT_UINT8, BASE_HEX,
+           NULL, 0x0f, "", HFILL}},
+        { &hf_scsi_readtoc_track,
+          {"Track", "scsi.readtoc.track", FT_UINT8, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_readtoc_session,
+          {"Session", "scsi.readtoc.session", FT_UINT8, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_readtoc_data_len,
+          {"Data Length", "scsi.readtoc.data_len", FT_UINT16, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_readtoc_first_track,
+          {"First Track", "scsi.readtoc.first_track", FT_UINT8, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_readtoc_first_session,
+          {"First Session", "scsi.readtoc.first_session", FT_UINT8, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_readtoc_last_track,
+          {"Last Track", "scsi.readtoc.last_track", FT_UINT8, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_readtoc_last_session,
+          {"Last Session", "scsi.readtoc.last_session", FT_UINT8, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_q_subchannel_adr,
+          {"Q Subchannel ADR", "scsi.q.subchannel.adr", FT_UINT8, BASE_HEX,
+           VALS(scsi_q_subchannel_adr_val), 0xf0, "", HFILL}},
+        { &hf_scsi_q_subchannel_control,
+          {"Q Subchannel Control", "scsi.q.subchannel.control", FT_UINT8, BASE_HEX,
+           VALS(scsi_q_subchannel_control_val), 0x0f, "", HFILL}},
+        { &hf_scsi_track_start_address,
+          {"Track Start Address", "scsi.track_start_address", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_track_start_time,
+          {"Track Start Time", "scsi.track_start_time", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+
     };
 
     /* Setup protocol subtree array */
@@ -6449,4 +6953,5 @@ proto_register_scsi (void)
                                     "Decode SCSI Messages As",
                                     "When Target Cannot Be Identified, Decode SCSI Messages As",
                                     &scsi_def_devtype, scsi_devtype_options, TRUE);
+
 }
