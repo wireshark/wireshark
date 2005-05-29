@@ -6422,7 +6422,11 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (tree) {
         ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, start,
-                                             cdblen, "SCSI CDB");
+                                             cdblen, "SCSI CDB %s",
+                                             val_to_str (opcode,
+                                                         cdb_vals,
+                                                         "0x%02x")
+                                             );
         scsi_tree = proto_item_add_subtree (ti, ett_scsi);
 
 	ti=proto_tree_add_uint(scsi_tree, hf_scsi_lun, tvb, 0, 0, lun);
