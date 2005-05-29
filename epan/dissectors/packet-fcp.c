@@ -240,6 +240,8 @@ dissect_fcp_cmnd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fcp_conv_key_t ckey, *req_key;
     scsi_task_id_t task_key;
     guint16 lun=0xffff;
+    tvbuff_t *cdb_tvb;
+    int tvb_len, tvb_rlen;
 
     /* Determine the length of the FCP part of the packet */
     flags = tvb_get_guint8 (tvb, offset+10);
@@ -348,8 +350,16 @@ dissect_fcp_cmnd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item (fcp_tree, hf_fcp_addlcdblen, tvb, offset+11, 1, 0);
     proto_tree_add_item (fcp_tree, hf_fcp_rddata, tvb, offset+11, 1, 0);
     proto_tree_add_item (fcp_tree, hf_fcp_wrdata, tvb, offset+11, 1, 0);
-    dissect_scsi_cdb (tvb, pinfo, tree, offset+12, 16+add_len,
-		      SCSI_DEV_UNKNOWN, lun);
+
+    tvb_len=tvb_length_remaining(tvb, offset+12);
+    if(tvb_len>(16+add_len))
+      tvb_len=16+add_len;
+    tvb_rlen=tvb_reported_length_remaining(tvb, offset+12);
+    if(tvb_rlen>(16+add_len))
+      tvb_rlen=16+add_len;
+    cdb_tvb=tvb_new_subset(tvb, offset+12, tvb_len, tvb_rlen);
+    dissect_scsi_cdb (cdb_tvb, pinfo, tree, SCSI_DEV_UNKNOWN, lun);
+
     proto_tree_add_item (fcp_tree, hf_fcp_dl, tvb, offset+12+16+add_len,
 			 4, 0);
 }

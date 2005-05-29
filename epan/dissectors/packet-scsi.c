@@ -37,7 +37,7 @@
  *
  * There are four main routines that are provided:
  * o dissect_scsi_cdb - invoked on receiving a SCSI Command
- *   void dissect_scsi_cdb (tvbuff_t *, packet_info *, proto_tree *, guint,
+ *   void dissect_scsi_cdb (tvbuff_t *, packet_info *, proto_tree *,
  *   guint, guint16);
  * o dissect_scsi_payload - invoked to decode SCSI responses
  *   void dissect_scsi_payload (tvbuff_t *, packet_info *, proto_tree *, guint,
@@ -6303,9 +6303,9 @@ static scsi_cdb_table_t mmc[256] = {
 
 void
 dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                  guint start, guint cdblen, gint devtype_arg, guint16 lun)
+                  gint devtype_arg, guint16 lun)
 {
-    int offset = start;
+    int offset = 0;
     proto_item *ti;
     proto_tree *scsi_tree = NULL;
     guint8 opcode;
@@ -6421,8 +6421,8 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     if (tree) {
-        ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, start,
-                                             cdblen, "SCSI CDB %s",
+        ti = proto_tree_add_protocol_format (tree, proto_scsi, tvb, 0,
+                                             -1, "SCSI CDB %s",
                                              val_to_str (opcode,
                                                          cdb_vals,
                                                          "0x%02x")
