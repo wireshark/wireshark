@@ -99,6 +99,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gchar				auth_string[10];
     guint				buff_length;
     gchar				magic_string[14];
+    gchar				*version_out;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RSYNC");
@@ -145,9 +146,11 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 4;
 
         if (check_col(pinfo->cinfo, COL_INFO)) {
+            /* XXX - is this really a string? */
+            version_out = format_text(version, 4);
             col_append_fstr(pinfo->cinfo, COL_INFO,
 			    "Client Initialisation (Version %s)",
-			    version);
+			    version_out);
 	}
 
 	conversation_data->state = RSYNC_SERV_INIT;
@@ -162,9 +165,11 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 4;
 
         if (check_col(pinfo->cinfo, COL_INFO)) {
+            /* XXX - is this really a string? */
+            version_out = format_text(version, 4);
             col_append_fstr(pinfo->cinfo, COL_INFO,
 			    "Server Initialisation (Version %s)",
-			    version);
+			    version_out);
 	}
 
 	conversation_data->state = RSYNC_CLIENT_QUERY;
