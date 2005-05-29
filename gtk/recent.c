@@ -196,7 +196,7 @@ write_recent(void)
 		  recent.gui_zoom_level);
 
   fprintf(rf, "\n# Main window geometry.\n");
-  fprintf(rf, "# Decimal integers.\n");
+  fprintf(rf, "# Decimal numbers.\n");
   fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_X ": %d\n", recent.gui_geometry_main_x);
   fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_Y ": %d\n", recent.gui_geometry_main_y);
   fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_WIDTH ": %d\n",
@@ -209,16 +209,20 @@ write_recent(void)
   fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED ": %s\n",
 		  recent.gui_geometry_main_maximized == TRUE ? "TRUE" : "FALSE");
 
-  fprintf(rf, "\n# Main window panes (GTK2 only).\n");
-  fprintf(rf, "# Decimal numbers.\n");
+  fprintf(rf, "\n# Main window upper (or leftmost) pane size (GTK2 only).\n");
+  fprintf(rf, "# Decimal number.\n");
   if (recent.gui_geometry_main_upper_pane != 0) {
     fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_UPPER_PANE ": %d\n",
 		  recent.gui_geometry_main_upper_pane);
   }
+  fprintf(rf, "\n# Main window middle pane size (GTK2 only).\n");
+  fprintf(rf, "# Decimal number.\n");
   if (recent.gui_geometry_main_lower_pane != 0) {
     fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE ": %d\n",
 		  recent.gui_geometry_main_lower_pane);
   }
+  fprintf(rf, "\n# Statusbar left pane size (GTK2 only).\n");
+  fprintf(rf, "# Decimal number.\n");
   if (recent.gui_geometry_status_pane != 0) {
     fprintf(rf, RECENT_GUI_GEOMETRY_STATUS_PANE ": %d\n",
 		  recent.gui_geometry_status_pane);
