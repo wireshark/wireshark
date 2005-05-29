@@ -3109,9 +3109,15 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
 			bytes = fvalue_get(&fi->value);
-			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: %s", hfinfo->name,
-				format_text(bytes, strlen(bytes)));
+            if(strlen(bytes) > ITEM_LABEL_LENGTH) {
+			    ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+				    "%s [truncated]: %s", hfinfo->name,
+				    format_text(bytes, strlen(bytes)));
+            } else {
+			    ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+				    "%s: %s", hfinfo->name,
+				    format_text(bytes, strlen(bytes)));
+            }
 			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
