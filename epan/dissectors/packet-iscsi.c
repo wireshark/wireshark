@@ -862,6 +862,8 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     scsi_task_id_t task_key;
     int paddedDataSegmentLength = data_segment_len;
     guint16 lun=0xffff;
+    guint immediate_data_length=0;
+    guint immediate_data_offset=0;
 
     if(paddedDataSegmentLength & 3)
 	paddedDataSegmentLength += 4 - (paddedDataSegmentLength & 3);
@@ -1149,7 +1151,9 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		}
 		offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48 + ahsLen);
 	    }
+            immediate_data_offset=offset;
 	    offset = handleDataSegment(ti, tvb, offset, data_segment_len, end_offset, hf_iscsi_immediate_data);
+	    immediate_data_length=offset-immediate_data_offset;
     } else if(opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
 	    /* SCSI Response */
 	    {
@@ -1681,6 +1685,17 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         /* SCSI Command */
         dissect_scsi_cdb (tvb, pinfo, tree, cdb_offset, 16, SCSI_DEV_UNKNOWN, 
 		lun);
+	/* we dont want the immediata below to overwrite our CDB info */
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+	    col_set_fence(pinfo->cinfo, COL_INFO);
+	}
+	/* where there any ImmediateData ? */
+	if(immediate_data_length){
+            dissect_scsi_payload (tvb, pinfo, tree, immediate_data_offset, 
+		  	          TRUE,
+                                  immediate_data_length,
+			          lun );
+	}
     }
     else if (opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
         if (scsi_status == 0x2) {
