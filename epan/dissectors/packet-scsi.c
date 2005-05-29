@@ -251,6 +251,18 @@ static int hf_scsi_rbc_lob_blocks = -1;
 static int hf_scsi_rbc_alob_blocks = -1;
 static int hf_scsi_rbc_lob_bytes = -1;
 static int hf_scsi_rbc_alob_bytes = -1;
+static int hf_scsi_setstreaming_type = -1;
+static int hf_scsi_setstreaming_param_len = -1;
+static int hf_scsi_setstreaming_wrc = -1;
+static int hf_scsi_setstreaming_rdd = -1;
+static int hf_scsi_setstreaming_exact = -1;
+static int hf_scsi_setstreaming_ra = -1;
+static int hf_scsi_setstreaming_start_lba = -1;
+static int hf_scsi_setstreaming_end_lba = -1;
+static int hf_scsi_setstreaming_read_size = -1;
+static int hf_scsi_setstreaming_read_time = -1;
+static int hf_scsi_setstreaming_write_size = -1;
+static int hf_scsi_setstreaming_write_time = -1;
 
 static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
@@ -445,6 +457,7 @@ static const value_string scsi_sbc2_val[] = {
 #define SCSI_MMC_REPORTKEY		0xa4
 #define SCSI_MMC_READ12                 0xa8
 #define SCSI_MMC_WRITE12                0xaa
+#define SCSI_MMC_SETSTREAMING           0xb6
 static const value_string scsi_mmc_val[] = {
     {SCSI_MMC_READCAPACITY10,	"Read Capacity(10)"},
     {SCSI_MMC_READ10,		"Read(10)"},
@@ -456,6 +469,7 @@ static const value_string scsi_mmc_val[] = {
     {SCSI_MMC_REPORTKEY,	"Report Key"},
     {SCSI_MMC_READ12,		"Read(12)"},
     {SCSI_MMC_WRITE12,		"Write(12)"},
+    {SCSI_MMC_SETSTREAMING,	"Set Streaming"},
     {0, NULL},
 };
 
@@ -3537,6 +3551,53 @@ dissect_mmc4_reportkey (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 }
 
+static const value_string scsi_setstreaming_type_val[] = {
+    {0x00,	"Performance Descriptor"},
+    {0x05,	"DBI cache zone descriptor"},
+    {0,NULL}
+};
+static void
+dissect_mmc4_setstreaming (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags, type;
+    char *str;
+
+    if (tree && isreq && iscdb) {
+        type=tvb_get_guint8(tvb, offset+7);
+	cdata->flags=type;
+        proto_tree_add_item (tree, hf_scsi_setstreaming_type, tvb, offset+7, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_setstreaming_param_len, tvb, offset+8, 2, 0);
+
+        flags = tvb_get_guint8 (tvb, offset+10);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+    if(tree && isreq && (!iscdb)) {
+        switch(cdata->flags){
+        case 0x00: /* performance descriptor */
+            proto_tree_add_item (tree, hf_scsi_setstreaming_wrc, tvb, offset+0, 1, 0);
+            proto_tree_add_item (tree, hf_scsi_setstreaming_rdd, tvb, offset+0, 1, 0);
+            proto_tree_add_item (tree, hf_scsi_setstreaming_exact, tvb, offset+0, 1, 0);
+            proto_tree_add_item (tree, hf_scsi_setstreaming_ra, tvb, offset+0, 1, 0);
+            proto_tree_add_item (tree, hf_scsi_setstreaming_start_lba, tvb, offset+4, 4, 0);
+            proto_tree_add_item (tree, hf_scsi_setstreaming_end_lba, tvb, offset+8, 4, 0);
+            proto_tree_add_item (tree, hf_scsi_setstreaming_read_size, tvb, offset+12, 4, 0);
+            proto_tree_add_item (tree, hf_scsi_setstreaming_read_time, tvb, offset+16, 4, 0);
+            proto_tree_add_item (tree, hf_scsi_setstreaming_write_size, tvb, offset+20, 4, 0);
+            proto_tree_add_item (tree, hf_scsi_setstreaming_write_time, tvb, offset+24, 4, 0);
+            break;
+        default:
+            str=g_strdup_printf("SCSI/MMC Unknown SetStreaming Type:0x%02x",cdata->flags);
+            REPORT_DISSECTOR_BUG(str);
+        }
+    }
+}
+
 static const value_string scsi_getconf_rt_val[] = {
     {0x00,	"Return all features"},
     {0x01,	"Return all current features"},
@@ -6225,7 +6286,7 @@ static scsi_cdb_table_t mmc[256] = {
 /*MMC 0xb3*/{NULL},
 /*MMC 0xb4*/{NULL},
 /*MMC 0xb5*/{NULL},
-/*MMC 0xb6*/{NULL},
+/*MMC 0xb6*/{dissect_mmc4_setstreaming},
 /*MMC 0xb7*/{NULL},
 /*MMC 0xb8*/{NULL},
 /*MMC 0xb9*/{NULL},
@@ -6522,7 +6583,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             dissect_spc3_inquiry (tvb, pinfo, scsi_tree, offset, isreq,
                                   FALSE, payload_len, cdata);
         }
-      } else {
+    } else {
         /*
            All commandsets support SPC?
         */
@@ -7033,6 +7094,42 @@ proto_register_scsi (void)
            NULL, 0, "", HFILL}},
         { &hf_scsi_rbc_alob_bytes,
           {"Available Buffer Len (bytes)", "scsi.rbc.alob_bytes", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_setstreaming_type,
+          {"Type", "scsi.setstreaming.type", FT_UINT8, BASE_DEC,
+           VALS(scsi_setstreaming_type_val), 0, "", HFILL}},
+        { &hf_scsi_setstreaming_param_len,
+          {"Parameter Length", "scsi.setstreaming.param_len", FT_UINT16, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_setstreaming_wrc,
+          {"WRC", "scsi.setstreaming.wrc", FT_UINT8, BASE_HEX,
+           NULL, 0x18, "", HFILL}},
+        { &hf_scsi_setstreaming_rdd,
+          {"RDD", "scsi.setstreaming.rdd", FT_BOOLEAN, 8,
+           NULL, 0x04, "", HFILL}},
+        { &hf_scsi_setstreaming_exact,
+          {"Exact", "scsi.setstreaming.exact", FT_BOOLEAN, 8,
+           NULL, 0x02, "", HFILL}},
+        { &hf_scsi_setstreaming_ra,
+          {"RA", "scsi.setstreaming.ra", FT_BOOLEAN, 8,
+           NULL, 0x01, "", HFILL}},
+        { &hf_scsi_setstreaming_start_lba,
+          {"Start LBA", "scsi.setstreaming.start_lbs", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_setstreaming_end_lba,
+          {"End LBA", "scsi.setstreaming.end_lba", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_setstreaming_read_size,
+          {"Read Size", "scsi.setstreaming.read_size", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_setstreaming_read_time,
+          {"Read Time", "scsi.setstreaming.read_time", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_setstreaming_write_size,
+          {"Write Size", "scsi.setstreaming.write_size", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_setstreaming_write_time,
+          {"Write Time", "scsi.setstreaming.write_time", FT_UINT32, BASE_DEC,
            NULL, 0, "", HFILL}},
 
     };
