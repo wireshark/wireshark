@@ -1413,7 +1413,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       proto_item_append_text(ti, ": %s", out_buff);
       break;
 
-    case TAG_COUNTRY_INFO:
+    case TAG_COUNTRY_INFO: /* IEEE 802.11d-2001 and IEEE 802.11j-2004 */
       {
         char ccode[2+1];
 
@@ -1434,11 +1434,20 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
         for (i = 3; (i + 3) <= tag_len; i += 3)
         { 
-          proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 2+i,3, out_buff,
+	  guint8 val1, val2, val3;
+	  val1 = tvb_get_guint8(tvb, offset + 2 + i);
+	  val2 = tvb_get_guint8(tvb, offset + 3 + i);
+	  val3 = tvb_get_guint8(tvb, offset + 4 + i);
+
+	  if (val1 <= 200) {  /* 802.11d */
+            proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 2+i,3, out_buff,
                                        "  Start Channel: %u, Channels: %u, Max TX Power: %d dBm",
-                                       tvb_get_guint8(tvb, offset + 2 + i),
-                                       tvb_get_guint8(tvb, offset + 3 + i),
-                                       (gint)tvb_get_guint8(tvb, offset + 4 + i));
+                                       val1, val2, (gint) val3);
+	  } else {  /* 802.11j */
+            proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 2+i,3, out_buff,
+                                       "  Reg Extension Id: %u, Regulatory Class: %u, Coverage Class: %u",
+                                       val1, val2, val3);
+	  }
         }
       }
       break;
