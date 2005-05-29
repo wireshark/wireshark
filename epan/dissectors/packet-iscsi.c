@@ -1708,9 +1708,8 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     	    if(tvb_rlen>(int)immediate_data_length)
 	        tvb_rlen=immediate_data_length;
 	    data_tvb=tvb_new_subset(tvb, immediate_data_offset, tvb_len, tvb_rlen);
-            dissect_scsi_payload (data_tvb, pinfo, tree, 0, 
+            dissect_scsi_payload (data_tvb, pinfo, tree,
 		  	          TRUE,
-                                  immediate_data_length,
 			          lun );
 	}
     }
@@ -1758,9 +1757,8 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	if(tvb_rlen>(int)data_segment_len)
 	    tvb_rlen=data_segment_len;
 	data_tvb=tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
-        dissect_scsi_payload (data_tvb, pinfo, tree, 0, 
+        dissect_scsi_payload (data_tvb, pinfo, tree,
 			      (opcode==ISCSI_OPCODE_SCSI_DATA_OUT),
-                              tvb_len,
 			      (guint16) (cdata?cdata->lun:0xffff) );
     }
 }

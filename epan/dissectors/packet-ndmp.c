@@ -1147,8 +1147,19 @@ dissect_execute_cdb_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 	offset += 4;
 
 	if (payload_len != 0) {
-		dissect_scsi_payload(tvb, pinfo, tree, offset, isreq,
-		    payload_len, 0xffff);
+		tvbuff_t *data_tvb;
+		int tvb_len, tvb_rlen;
+
+		tvb_len=tvb_length_remaining(tvb, offset);
+		if(tvb_len>(int)payload_len)
+	    		tvb_len=payload_len;
+		tvb_rlen=tvb_reported_length_remaining(tvb, offset);
+		if(tvb_rlen>(int)payload_len)
+	    		tvb_rlen=payload_len;
+		data_tvb=tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
+
+		dissect_scsi_payload(data_tvb, pinfo, tree, isreq,
+		    0xffff);
 		offset += payload_len_full;
 	}
 

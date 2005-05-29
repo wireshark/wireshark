@@ -399,10 +399,10 @@ dissect_fcp_data (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint_hidden (fcp_tree, hf_fcp_singlelun, tvb,
                                         0, 0, cdata->fcp_lun);
 
-        dissect_scsi_payload (tvb, pinfo, tree, 0, FALSE, cdata->fcp_dl, (guint16) cdata->fcp_lun);
+        dissect_scsi_payload (tvb, pinfo, tree, FALSE, (guint16) cdata->fcp_lun);
     }
     else {
-        dissect_scsi_payload (tvb, pinfo, tree, 0, FALSE, 0, 0xffff);
+        dissect_scsi_payload (tvb, pinfo, tree, FALSE, 0xffff);
     }
 }
 

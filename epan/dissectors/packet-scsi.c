@@ -6460,15 +6460,17 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 void
 dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                      guint offset, gboolean isreq, guint32 payload_len,
-		      guint16 lun)
+                      gboolean isreq, guint16 lun)
 {
+    int offset=0;
     proto_item *ti;
     proto_tree *scsi_tree = NULL;
     guint8 opcode = 0xFF;
     scsi_device_type devtype;
     scsi_task_data_t *cdata = NULL;
+    int payload_len;
 
+    payload_len=tvb_length(tvb);
     cdata = scsi_find_task (pinfo);
 
     if (!cdata) {
