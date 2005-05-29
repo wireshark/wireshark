@@ -263,6 +263,7 @@ static int hf_scsi_setstreaming_read_size = -1;
 static int hf_scsi_setstreaming_read_time = -1;
 static int hf_scsi_setstreaming_write_size = -1;
 static int hf_scsi_setstreaming_write_time = -1;
+static int hf_scsi_reservation_size = -1;
 
 static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
@@ -453,6 +454,7 @@ static const value_string scsi_sbc2_val[] = {
 #define SCSI_MMC_SYNCHRONIZECACHE       0x35
 #define SCSI_MMC_READTOCPMAATIP         0x43
 #define SCSI_MMC_GETCONFIGURATION       0x46
+#define SCSI_MMC_RESERVETRACK           0x53
 #define SCSI_MMC_READBUFFERCAPACITY     0x5c
 #define SCSI_MMC_REPORTKEY		0xa4
 #define SCSI_MMC_READ12                 0xa8
@@ -465,6 +467,7 @@ static const value_string scsi_mmc_val[] = {
     {SCSI_MMC_SYNCHRONIZECACHE,	"Synchronize Cache"},
     {SCSI_MMC_READTOCPMAATIP,	"Read TOC/PMA/ATIP"},
     {SCSI_MMC_GETCONFIGURATION,	"Get Configuraion"},
+    {SCSI_MMC_RESERVETRACK,	"Reserve Track"},
     {SCSI_MMC_READBUFFERCAPACITY,"Read Buffer Capacity"},
     {SCSI_MMC_REPORTKEY,	"Report Key"},
     {SCSI_MMC_READ12,		"Read(12)"},
@@ -3962,6 +3965,25 @@ dissect_mmc4_readbuffercapacity (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         }
     }
 }
+static void
+dissect_mmc4_reservetrack (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags;
+
+    if (tree && isreq && iscdb) {
+        proto_tree_add_item (tree, hf_scsi_reservation_size, tvb, offset+4, 4, 0);
+
+        flags = tvb_get_guint8 (tvb, offset+8);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+
+    }
+}
 
 static void
 dissect_sbc2_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
@@ -6187,7 +6209,7 @@ static scsi_cdb_table_t mmc[256] = {
 /*MMC 0x50*/{NULL},
 /*MMC 0x51*/{NULL},
 /*MMC 0x52*/{NULL},
-/*MMC 0x53*/{NULL},
+/*MMC 0x53*/{dissect_mmc4_reservetrack},
 /*MMC 0x54*/{NULL},
 /*MMC 0x55*/{NULL},
 /*MMC 0x56*/{NULL},
@@ -7130,6 +7152,9 @@ proto_register_scsi (void)
            NULL, 0, "", HFILL}},
         { &hf_scsi_setstreaming_write_time,
           {"Write Time", "scsi.setstreaming.write_time", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_reservation_size,
+          {"Reservation Size", "scsi.reservation_size", FT_UINT32, BASE_DEC,
            NULL, 0, "", HFILL}},
 
     };
