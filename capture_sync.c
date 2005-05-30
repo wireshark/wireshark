@@ -333,6 +333,7 @@ sync_pipe_start(capture_options *capture_opts) {
     char sautostop_filesize[ARGV_NUMBER_LEN];
     char sautostop_duration[ARGV_NUMBER_LEN];
 #ifdef _WIN32
+    char buffer_size[ARGV_NUMBER_LEN];
     char sync_pipe_fd[ARGV_NUMBER_LEN];
     char signal_pipe_fd[ARGV_NUMBER_LEN];
     char *fontstring;
@@ -458,6 +459,10 @@ sync_pipe_start(capture_options *capture_opts) {
     }
 
     capture_opts->signal_pipe_fd = signal_pipe[PIPE_WRITE];
+
+    argv = sync_pipe_add_arg(argv, &argc, "-B");
+    sprintf(buffer_size,"%d",capture_opts->buffer_size);
+    argv = sync_pipe_add_arg(argv, &argc, buffer_size);
 
     /* Convert font name to a quote-encapsulated string and pass to child */
     argv = sync_pipe_add_arg(argv, &argc, "-m");

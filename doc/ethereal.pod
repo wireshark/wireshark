@@ -8,6 +8,7 @@ ethereal - Interactively browse network traffic
 B<ethereal>
 S<[ B<-a> capture autostop condition ] ...>
 S<[ B<-b> ring buffer options] ...>
+S<[ B<-B> capture buffer size (Win32 only) ] ...>
 S<[ B<-c> count ]>
 S<[ B<-f> capture filter expression ]>
 S<[ B<-h> ]>
@@ -206,6 +207,12 @@ I<value> kilobytes (where a kilobyte is 1000 bytes, not 1024 bytes).
 
 B<files>:I<value> begin again with the first file after I<value> number of 
 files were written (form a ring buffer).
+
+=item -B
+
+Win32 only: set capture buffer size (in MB, default is 1MB). This is used by the
+the capture driver to buffer packet data until that data can be written to 
+disk. If you encounter packet drops while capturing, try to increase this size.
 
 =item -c
 

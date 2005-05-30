@@ -1610,15 +1610,18 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
 #define OPTSTRING_CHILD "W:Z:"
+#define OPTSTRING_WIN32 "B:"
 #else
 #define OPTSTRING_CHILD "W:"
+#define OPTSTRING_WIN32 ""
 #endif  /* _WIN32 */
 #else
 #define OPTSTRING_CHILD ""
+#define OPTSTRING_WIN32 ""
 #endif  /* HAVE_LIBPCAP */
 
-  char optstring[sizeof(OPTSTRING_INIT) + sizeof(OPTSTRING_CHILD) - 1] =
-    OPTSTRING_INIT;
+  char optstring[sizeof(OPTSTRING_INIT) + sizeof(OPTSTRING_CHILD) + sizeof(OPTSTRING_WIN32) - 2] =
+    OPTSTRING_INIT OPTSTRING_WIN32;
 
 
   /* Set the current locale according to the program environment.
@@ -1946,6 +1949,7 @@ main(int argc, char *argv[])
       case 'w':        /* Write to capture file xxx */
       case 'y':        /* Set the pcap data link type */
 #ifdef _WIN32
+      case 'B':        /* Buffer size */
       /* Hidden option supporting Sync mode */
       case 'Z':        /* Write to pipe FD XXX */
 #endif /* _WIN32 */

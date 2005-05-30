@@ -301,6 +301,11 @@ capture_opts_add_opt(capture_options *capture_opts, const char *appname, int opt
           exit(1);
         }
         break;
+#ifdef _WIN32
+    case 'B':        /* Buffer size */
+        capture_opts->buffer_size = get_positive_int(appname, optarg, "buffer size");
+        break;
+#endif
     case 'c':        /* Capture xxx packets */
         capture_opts->has_autostop_packets = TRUE;
         capture_opts->autostop_packets = get_positive_int(appname, optarg, "packet count");
