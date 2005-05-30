@@ -55,7 +55,7 @@ col_format_to_string(gint fmt) {
                      "%i", "%L", "%B", "%XO", "%XR", "%I", "%c", "%Xs", 
                      "%Xd", "%V", "%x", "%e", "%H", "%P" };
                      
-  if (fmt < 0 || fmt > NUM_COL_FMTS)
+  if (fmt < 0 || fmt >= NUM_COL_FMTS)
     return NULL;
 
   return(slist[fmt]);
