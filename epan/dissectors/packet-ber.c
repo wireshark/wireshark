@@ -695,7 +695,7 @@ dissect_ber_boolean(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree,
  */
 int dissect_ber_sequence(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id) {
 	gint8 class;
-	gboolean pc, ind, ind_field;
+	gboolean pc, ind = 0, ind_field;
 	gint32 tag;
 	guint32 len;
 	proto_tree *tree = parent_tree;
