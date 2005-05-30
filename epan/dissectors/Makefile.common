@@ -391,6 +391,7 @@ DISSECTOR_SRC =	\
 	packet-msn-messenger.c	\
 	packet-msnip.c	\
 	packet-msproxy.c	\
+	packet-msrp.c	\
 	packet-mtp2.c	\
 	packet-mtp3.c	\
 	packet-mtp3mg.c	\
