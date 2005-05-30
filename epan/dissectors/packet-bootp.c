@@ -1423,7 +1423,7 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 			"Suboption %d: %s (%d byte%s)" ,
 	 		subopt, "PXE boot item",
 			subopt_len, plurality(subopt_len, "", "s"));
-	} else if ((subopt < 1) || (subopt > array_length(o43pxeclient_opt))) {
+	} else if ((subopt < 1) || (subopt >= array_length(o43pxeclient_opt))) {
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 			"Unknown suboption %d (%d byte%s)", subopt, subopt_len,
 			plurality(subopt_len, "", "s"));
@@ -1589,7 +1589,7 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	 		subopt);
 	 	return (optend);
 	}
-	if ( (subopt < 1 ) || (subopt > array_length(o43cablelabs_opt)) ) {
+	if ( (subopt < 1 ) || (subopt >= array_length(o43cablelabs_opt)) ) {
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 			"Suboption %d: Unassigned (%d byte%s)", subopt, subopt_len,
 			plurality(subopt_len, "", "s"));
@@ -1712,7 +1712,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
 	suboptoff++;
 
-	if (subopt > array_length(o63_opt)) {
+	if (subopt >= array_length(o63_opt)) {
 		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "Unknown suboption %d", subopt);
 	} else {
 		switch (o63_opt[subopt].ftype) {
