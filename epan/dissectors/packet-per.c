@@ -412,7 +412,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	}
 	str[char_pos]=0;
 	proto_tree_add_string(tree, hf_index, tvb, (old_offset>>3), (offset>>3)-(old_offset>>3), str);
-	if (info_str != NULL) {
+	if (info_str != NULL && info_str_len > 0) {
 		if (info_str_len<length) str[info_str_len-1] = '\0';	
 		strcpy(info_str, str);
 	}

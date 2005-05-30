@@ -4241,7 +4241,7 @@ dissect_attribute_value_pairs(tvbuff_t *tvb, int offset,proto_tree *tree,
         rd_value_to_str(textbuffer, &vsabuffer, &avph, tvb, offset,
 			attr_info, vsa_tree);
         proto_item_append_text(ti, ", %s", textbuffer);
-	for (i = 0; vsabuffer[i].str && i < VSABUFFER; i++) {
+	for (i = 0; i < VSABUFFER && vsabuffer[i].str; i++) {
 	    proto_tree_add_text(vsa_tree, tvb, vsabuffer[i].offset,
 				vsabuffer[i].length, "%s", vsabuffer[i].str);
 	}
