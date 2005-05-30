@@ -345,6 +345,7 @@ static int hf_dcerpc_cn_protocol_ver_major = -1;
 static int hf_dcerpc_cn_protocol_ver_minor = -1;
 static int hf_dcerpc_cn_cancel_count = -1;
 static int hf_dcerpc_cn_status = -1;
+static int hf_dcerpc_cn_deseg_req = -1;
 static int hf_dcerpc_auth_type = -1;
 static int hf_dcerpc_auth_level = -1;
 static int hf_dcerpc_auth_pad_len = -1;
@@ -2177,6 +2178,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 #ifdef _WIN32
     char UUID_NAME[MAX_PATH];
 #endif
+    proto_item *sub_item;
 
     key.uuid = info->call_data->uuid;
     key.ver = info->call_data->ver;
@@ -2236,7 +2238,6 @@ else
     }
 
     if (tree) {
-        proto_item *sub_item;
         sub_item = proto_tree_add_item (tree, sub_proto->proto_id, tvb, 0,
                                         -1, FALSE);
 
@@ -2336,16 +2337,19 @@ else
                 TRY {
                     offset = sub_dissect (decrypted_tvb, 0, pinfo, sub_tree,
                                           drep);
+                    if(tree) {
+                        proto_item_set_len(sub_item, offset);
+                    }
 
                     /* If we have a subdissector and it didn't dissect all
                        data in the tvb, make a note of it. */
-
-                    if (tvb_reported_length_remaining(stub_tvb, offset) > 0) {
+                    /* XXX - don't do this, as this could be just another RPC Req./Resp. in this PDU */
+                    /*if (tvb_reported_length_remaining(stub_tvb, offset) > 0) {
                         if (check_col(pinfo->cinfo, COL_INFO))
                             col_append_fstr(pinfo->cinfo, COL_INFO,
                                             "[Long frame (%d bytes)]",
                                             tvb_reported_length_remaining(stub_tvb, offset));
-                    }
+                    }*/
                 } CATCH(BoundsError) {
                     RETHROW;
                 } CATCH_ALL {
@@ -3232,12 +3236,17 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     char uuid_str[DCERPC_UUID_STR_LEN]; 
     int uuid_str_len;
     proto_item *pi;
+    proto_item *parent_pi;
 
     offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_alloc_hint, &alloc_hint);
 
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_ctx_id, &ctx_id);
+    parent_pi = proto_tree_get_parent(dcerpc_tree);
+    if(parent_pi != NULL) {
+        proto_item_append_text(parent_pi, " Ctx: %u", ctx_id);
+    }
 
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_opnum, &opnum);
@@ -3373,6 +3382,9 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_response_in,
 				    tvb, 0, 0, value->rep_frame);
         PROTO_ITEM_SET_GENERATED(pi);
+        if(parent_pi != NULL) {
+            proto_item_append_text(parent_pi, " [Response in: %u]", value->rep_frame);
+        }
 	    }
 
 	    dissect_dcerpc_cn_stub (tvb, offset, pinfo, dcerpc_tree, tree,
@@ -3398,12 +3410,17 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     dcerpc_auth_info auth_info;
     guint32 alloc_hint;
     proto_item *pi;
+    proto_item *parent_pi;
 
     offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_alloc_hint, &alloc_hint);
 
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_ctx_id, &ctx_id);
+    parent_pi = proto_tree_get_parent(dcerpc_tree);
+    if(parent_pi != NULL) {
+        proto_item_append_text(parent_pi, " Ctx: %u", ctx_id);
+    }
 
     /* save context ID for use with dcerpc_add_conv_to_bind_table() */
     pinfo->dcectxid = ctx_id;
@@ -3480,6 +3497,9 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in,
 				    tvb, 0, 0, value->req_frame);
         PROTO_ITEM_SET_GENERATED(pi);
+        if(parent_pi != NULL) {
+            proto_item_append_text(parent_pi, " [Request in: %u]", value->req_frame);
+        }
 		ns.secs= pinfo->fd->abs_secs-value->req_time.secs;
 		ns.nsecs=pinfo->fd->abs_usecs*1000-value->req_time.nsecs;
 		if(ns.nsecs<0){
@@ -3859,6 +3879,8 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_ver, tvb, offset++, 1, hdr.rpc_ver);
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_ver_minor, tvb, offset++, 1, hdr.rpc_ver_minor);
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_packet_type, tvb, offset++, 1, hdr.ptype);
+		proto_item_append_text(ti, " %s, Fragment:", val_to_str(hdr.ptype, pckt_vals, "Unknown (0x%02x)"));
+
         tf = proto_tree_add_uint (dcerpc_tree, hf_dcerpc_cn_flags, tvb, offset, 1, hdr.flags);
         cn_flags_tree = proto_item_add_subtree (tf, ett_dcerpc_cn_flags);
         if (cn_flags_tree) {
@@ -3870,6 +3892,19 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_cancel_pending, tvb, offset, 1, hdr.flags);
             proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_last_frag, tvb, offset, 1, hdr.flags);
             proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_first_frag, tvb, offset, 1, hdr.flags);
+            if( (hdr.flags & PFC_FIRST_FRAG) && (hdr.flags & PFC_LAST_FRAG) ) {
+		            proto_item_append_text(ti, " Single");
+            } else {
+                if(hdr.flags & PFC_FIRST_FRAG) {
+		            proto_item_append_text(ti, " 1st");
+                }
+                if(hdr.flags & PFC_LAST_FRAG) {
+		            proto_item_append_text(ti, " Last");
+                }
+                if( !(hdr.flags & PFC_FIRST_FRAG) && !(hdr.flags & PFC_LAST_FRAG) ) {
+		            proto_item_append_text(ti, " Mid");
+                }
+            }
         }
         offset++;
 
@@ -3890,6 +3925,8 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_cn_call_id, tvb, offset, 4, hdr.call_id);
         offset += 4;
+
+		proto_item_append_text(ti, ", FragLen: %u, Call: %u", hdr.frag_len, hdr.call_id);
     }
 
     /*
@@ -4009,7 +4046,7 @@ dissect_dcerpc_cn_bs_body (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     volatile int offset = 0;
     int pdu_len;
-    volatile gboolean is_dcerpc_pdu;
+    volatile gboolean dcerpc_pdus = 0;
     volatile gboolean ret = FALSE;
 
     /*
@@ -4026,17 +4063,19 @@ dissect_dcerpc_cn_bs_body (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * snapshot length, so there's nothing more to dissect; just
          * re-throw that exception.
          */
-        is_dcerpc_pdu = FALSE;
         TRY {
-            is_dcerpc_pdu = dissect_dcerpc_cn (tvb, offset, pinfo, tree,
-                                               dcerpc_cn_desegment, &pdu_len);
+            pdu_len = 0;
+            if(dissect_dcerpc_cn (tvb, offset, pinfo, tree,
+                dcerpc_cn_desegment, &pdu_len)) {
+                dcerpc_pdus++;
+            }
         } CATCH(BoundsError) {
             RETHROW;
         } CATCH(ReportedBoundsError) {
             show_reported_bounds_error(tvb, pinfo, tree);
         } ENDTRY;
 
-        if (!is_dcerpc_pdu) {
+        if (!dcerpc_pdus) {
             /*
              * Not a DCERPC PDU.
              */
@@ -4048,10 +4087,21 @@ dissect_dcerpc_cn_bs_body (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          */
         ret = TRUE;
 
+        /* if we had more than one Req/Resp in this PDU change the protocol column */
+        /* this will formerly contain the last interface name, which may not be the same for all Req/Resp */
+        if (dcerpc_pdus >= 2 && check_col (pinfo->cinfo, COL_PROTOCOL))
+            col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "%u*DCERPC", dcerpc_pdus);
+
         if (pdu_len == 0) {
             /*
-             * Desegmentation required - bail now.
+             * Desegmentation required - bail now, but give the user a hint that desegmentation might be done later.
              */
+            proto_tree_add_uint_format(tree, hf_dcerpc_cn_deseg_req, tvb, offset, 
+                tvb_reported_length_remaining(tvb, offset), 
+                tvb_reported_length_remaining(tvb, offset), 
+                "[DCE RPC: %u byte%s left, desegmentation might follow]", 
+                tvb_reported_length_remaining(tvb, offset), 
+                plurality(tvb_reported_length_remaining(tvb, offset), "", "s"));
             break;
 	}
 
@@ -5039,6 +5089,8 @@ proto_register_dcerpc (void)
           { "Cancel count", "dcerpc.cn_cancel_count", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_cn_status,
           { "Status", "dcerpc.cn_status", FT_UINT32, BASE_HEX, VALS(reject_status_vals), 0x0, "", HFILL }},
+        { &hf_dcerpc_cn_deseg_req,
+          { "Desegmentation Required", "dcerpc.cn_deseg_req", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_dcerpc_auth_type,
           { "Auth type", "dcerpc.auth_type", FT_UINT8, BASE_DEC, VALS (authn_protocol_vals), 0x0, "", HFILL }},
         { &hf_dcerpc_auth_level,
