@@ -941,6 +941,7 @@ dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, sub_tree, drep, &u32ArraySize);
 
+    tvb_ensure_bytes_exist(tvb, offset, u32ArraySize * u32ElementSize);
 	u32VariableOffset = offset + u32ArraySize * u32ElementSize;
 
 	u32Tmp = u32ArraySize;
