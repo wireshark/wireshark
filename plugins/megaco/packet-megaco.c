@@ -1172,7 +1172,7 @@ dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_tree_command_line, 
 	tvb_LBRKT = tvb_previous_offset;	
 	tvb_RBRKT = tvb_previous_offset;
 	
-	
+
 	} while ( tvb_current_offset < tvb_descriptors_end_offset );
 	
 }
@@ -1719,15 +1719,15 @@ dissect_megaco_signaldescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 			tvb_current_offset  = tvb_find_guint8(tvb, tvb_RBRKT,
 				tvb_signals_end_offset, ',');
 			
-			if (tvb_current_offset == -1 || tvb_current_offset > tvb_signals_end_offset ){
+			if (tvb_current_offset == -1 || tvb_current_offset > tvb_signals_end_offset || tvb_current_offset < tvb_previous_offset){
 				tvb_current_offset = tvb_signals_end_offset;
 			}
-			
+
 			tvb_previous_offset = tvb_skip_wsp(tvb, tvb_current_offset+1);
-			
+
 			tvb_LBRKT = tvb_previous_offset;	
 			tvb_RBRKT = tvb_previous_offset;
-			
+
 		} while ( tvb_current_offset < tvb_signals_end_offset );
 	}
 	
