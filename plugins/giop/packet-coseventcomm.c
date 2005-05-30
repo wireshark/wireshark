@@ -704,6 +704,8 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     case Request:
     case Reply:
 
+        if (!operation)
+            THROW(ReportedBoundsError);
 
         if (!strcmp(operation, CosEventComm_PushConsumer_push_op )) {
            decode_CosEventComm_PushConsumer_push(tvb, pinfo, tree, offset, header, operation);

@@ -288,6 +288,8 @@ static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     /*gboolean be _U_;*/                        /* big endianess */
 
 
+    if (!header->exception_id)
+        THROW(ReportedBoundsError);
 
     if (!strcmp(header->exception_id, user_exception_CosNaming_NamingContext_NotFound )) {
        decode_ex_CosNaming_NamingContext_NotFound(tvb, pinfo, tree, offset, header, operation);   /*  IDL:omg.org/CosNaming/NamingContext/NotFound:1.0  */
@@ -1572,6 +1574,8 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     case Request:
     case Reply:
 
+        if (!operation)
+	    THROW(ReportedBoundsError);
 
         if (!strcmp(operation, CosNaming_NamingContext_bind_op )) {
            decode_CosNaming_NamingContext_bind(tvb, pinfo, tree, offset, header, operation);
