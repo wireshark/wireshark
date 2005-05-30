@@ -48,11 +48,12 @@ struct select_item {
 /* Weights of different errors we can introduce */
 /* We should probably make these command-line arguments */
 /* XXX - Should we add a bit-level error? */
+#define ERR_WT_BIT   5  /* Flip a random bit */
 #define ERR_WT_BYTE  5  /* Substitute a random byte */
 #define ERR_WT_ALNUM 5  /* Substitute a random character in [A-Za-z0-9] */
 #define ERR_WT_FMT   2  /* Substitute "%s" */
 #define ERR_WT_AA    1  /* Fill the remainder of the buffer with 0xAA */
-#define ERR_WT_TOTAL (ERR_WT_BYTE + ERR_WT_ALNUM + ERR_WT_FMT + ERR_WT_AA)
+#define ERR_WT_TOTAL (ERR_WT_BIT + ERR_WT_BYTE + ERR_WT_ALNUM + ERR_WT_FMT + ERR_WT_AA)
 
 #define ALNUM_CHARS "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 #define ALNUM_LEN (sizeof(ALNUM_CHARS) - 1)
@@ -437,6 +438,13 @@ int main(int argc, char *argv[])
           for (i = 0; i < (int) phdr->caplen; i++) {
             if (rand() <= err_prob * RAND_MAX) {
               err_type = rand() / (RAND_MAX / ERR_WT_TOTAL + 1);
+
+              if (err_type < ERR_WT_BIT) {
+                buf[i] ^= 1 << (rand() / (RAND_MAX / 8 + 1));
+                err_type = ERR_WT_TOTAL;
+              } else {
+                err_type -= ERR_WT_BYTE;
+              }
 
               if (err_type < ERR_WT_BYTE) {
                 buf[i] = rand() / (RAND_MAX / 255 + 1);
