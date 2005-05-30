@@ -152,9 +152,9 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
   guint8 type;
   volatile guint16 length;
   gint captured_length;
-  tvbuff_t *volatile payload_tvb;
+  tvbuff_t *volatile payload_tvb = NULL;
   tvbuff_t *volatile next_tvb;
-  tvbuff_t *volatile trailer_tvb;
+  tvbuff_t *volatile trailer_tvb = NULL;
   const char *saved_proto;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))

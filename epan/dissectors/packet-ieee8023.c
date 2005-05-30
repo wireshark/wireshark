@@ -41,8 +41,8 @@ dissect_802_3(int length, gboolean is_802_2, tvbuff_t *tvb,
 	      proto_tree *fh_tree, int length_id, int trailer_id,
 	      int fcs_len)
 {
-  tvbuff_t		*volatile next_tvb;
-  tvbuff_t		*volatile trailer_tvb;
+  tvbuff_t		*volatile next_tvb = NULL;
+  tvbuff_t		*volatile trailer_tvb = NULL;
   const char		*saved_proto;
 
   if (fh_tree)
