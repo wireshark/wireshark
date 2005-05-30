@@ -16823,7 +16823,7 @@ proto_register_smb(void)
 		NULL, 0, "Number of bytes in spool file", HFILL }},
 
 	{ &hf_smb_print_spool_file_name,
-		{ "Name", "smb.print.spool.name", FT_BYTES, BASE_HEX,
+		{ "Name", "smb.print.spool.name", FT_STRINGZ, BASE_NONE,
 		NULL, 0, "Name of client that submitted this job", HFILL }},
 
 	{ &hf_smb_start_index,
