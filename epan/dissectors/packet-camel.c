@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-camel.c                                                           */
+/* ./packet-camel.c                                                           */
 /* ../../tools/asn2eth.py -X -b -e -p camel -c camel.cnf -s packet-camel-template camel.asn */
 
 /* Input file: packet-camel-template.c */
@@ -6538,8 +6538,11 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
   application_context_version = 0;
   if (pinfo->private_data != NULL){
     version_ptr = strrchr(pinfo->private_data,'.');
-    version_str = g_strdup(version_ptr+1);
-    application_context_version = atoi(version_str);
+    if (version_ptr) {
+      version_str = g_strdup(version_ptr+1);
+      application_context_version = atoi(version_str);
+      g_free(version_str);
+    }
   }
 
   camel_pdu_type = tvb_get_guint8(tvb, offset)&0x0f;
