@@ -13044,6 +13044,9 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		/* returned data */
 		count = si->info_count;
 
+        if(count == -1) {
+            break;
+        }
 		if (count && check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 			", Files:");
@@ -13060,6 +13063,9 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		/* returned data */
 		count = si->info_count;
 
+        if(count == -1) {
+            break;
+        }
 		if (count && check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 			", Files:");
