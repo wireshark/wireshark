@@ -79,7 +79,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree	*fh_tree=NULL;
 	proto_item	*volatile ti = NULL;
 	nstime_t	ts;
-	int		cap_len, pkt_len;
+	int		cap_len = 0, pkt_len = 0;
 	proto_tree	*tree;
 
 	tree=parent_tree;

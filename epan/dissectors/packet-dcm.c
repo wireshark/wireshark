@@ -632,7 +632,10 @@ dissect_dcm_assoc(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb, int offse
     guint8 id, *name, result;
     int reply = 0;
 
-    if (ti) dcm_tree = proto_item_add_subtree(ti, ett_assoc);
+    if (!ti)
+	return;
+
+    dcm_tree = proto_item_add_subtree(ti, ett_assoc);
     while (-1 < offset && offset < (int) dcm_data->clen) {
 	guint16 len;
 	guint32 mlen;

@@ -157,13 +157,13 @@ dissect_cpfi_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint32 tda;
   guint32 src;
-  guint8 src_instance;
-  guint8 src_board;
-  guint8 src_port;
+  guint8 src_instance = 0;
+  guint8 src_board = 0;
+  guint8 src_port = 0;
   guint32 dst;
-  guint8 dst_instance;
-  guint8 dst_board;
-  guint8 dst_port;
+  guint8 dst_instance = 0;
+  guint8 dst_board = 0;
+  guint8 dst_port = 0;
   proto_item *extra_item = NULL;
   proto_tree *extra_tree = NULL;
 

@@ -748,7 +748,7 @@ dissect_ICBAAccoServerSRT_ConnectCR_resp(tvbuff_t *tvb, int offset,
 {
 	guint8 u8FirstConnect;
 	guint8 u8ProvMac[6];
-	guint32	u32ProvCRID;
+	guint32	u32ProvCRID = 0;
 	guint32 u32HResult;
 	guint32 u32ArraySize;
 	guint32 u32Idx;
@@ -1579,10 +1579,10 @@ dissect_ICBAAccoMgt_AddConnections_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	guint32 u32Pointer;
-	guint32 u32ArraySize;
+	guint32 u32ArraySize = 0;
 	guint32 u32ConsID;
 	guint16 u16ConnVersion;
-	guint32 u32HResult;
+	guint32 u32HResult = 0;
 	guint32 u32Count = 0;
 	guint32 u32Idx;
 	proto_item *sub_item;

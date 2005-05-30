@@ -158,7 +158,7 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 	char			*description;
 	tvbuff_t		*next_tvb;
 	guint			length_before;
-	volatile gboolean	dissector_found;
+	volatile gboolean	dissector_found = FALSE;
 	const char		*saved_proto;
 
 	/* Add the Ethernet type to the protocol tree */
