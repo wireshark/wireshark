@@ -58,9 +58,12 @@ typedef struct recent_settings_tag {
 
     gboolean    gui_geometry_main_maximized;    /* this is valid in GTK2 only */
 
-    gint        gui_geometry_main_upper_pane;   /* this is valid in GTK2 only */
-    gint        gui_geometry_main_lower_pane;   /* this is valid in GTK2 only */
-    gint        gui_geometry_status_pane;       /* this is valid in GTK2 only */
+    gboolean    has_gui_geometry_main_upper_pane;   /* gui_geometry_main_upper_pane is valid */
+    gint        gui_geometry_main_upper_pane;       /* this is autodetected in GTK2 only */
+    gboolean    has_gui_geometry_main_lower_pane;   /* gui_geometry_main_lower_pane is valid */
+    gint        gui_geometry_main_lower_pane;       /* this is autodetected in GTK2 only */
+    gboolean    has_gui_geometry_status_pane;       /* gui_geometry_status_pane is valid */
+    gint        gui_geometry_status_pane;           /* this is autodetected in GTK2 only */
 } recent_settings_t;
 
 /** Global recent settings. */
@@ -72,12 +75,19 @@ extern recent_settings_t recent;
  */
 extern gboolean write_recent(void);
 
-/** Read recent settings file.
+/** Read recent settings file (static part).
  *
  * @param rf_path_return path to recent file if function failed
  * @param rf_errno_return if failed
  */
-extern void read_recent(char **rf_path_return, int *rf_errno_return);
+extern void recent_read_static(char **rf_path_return, int *rf_errno_return);
+
+/** Read recent settings file (dynamic part).
+ *
+ * @param rf_path_return path to recent file if function failed
+ * @param rf_errno_return if failed
+ */
+extern void recent_read_dynamic(char **rf_path_return, int *rf_errno_return);
 
 /** Write the geometry values of a single window to the recent file.
  *
@@ -86,5 +96,16 @@ extern void read_recent(char **rf_path_return, int *rf_errno_return);
  * @param rf recent file handle (FILE)
  */
 extern void write_recent_geom(gpointer key, gpointer value, gpointer rf);
+
+/**
+ * Given a -o command line string, parse it and set the recent value in
+ * question.  Return an indication of whether it succeeded or failed
+ * in some fashion.
+ *
+ * @param a string of the form "<recent name>:<recent value>", as might appear
+ * as an argument to a "-o" command line option
+ * @return PREFS_SET_OK or PREFS_SET_SYNTAX_ERR
+ */
+extern int recent_set_arg(char *prefarg);
 
 #endif /* recent.h */

@@ -133,19 +133,19 @@ write_recent(void)
     "# This file is regenerated each time Ethereal is quit.\n"
     "# So be careful, if you want to make manual changes here.\n"
     "\n"
-    "######## Recent capture files (latest last) ########\n"
+    "######## Recent capture files (latest last), cannot be altered through command line ########\n"
     "\n", rf);
 
   menu_recent_file_write_all(rf);
 
   fputs("\n"
-    "######## Recent capture filters (latest last) ########\n"
+    "######## Recent capture filters (latest last), cannot be altered through command line ########\n"
     "\n", rf);
 
   cfilter_combo_recent_write_all(rf);
 
   fputs("\n"
-    "######## Recent display filters (latest last) ########\n"
+    "######## Recent display filters (latest last), cannot be altered through command line ########\n"
     "\n", rf);
 
   dfilter_recent_combo_write_all(rf);
@@ -204,24 +204,27 @@ write_recent(void)
   fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_HEIGHT ": %d\n",
   		  recent.gui_geometry_main_height);
   
-  fprintf(rf, "\n# Main window maximized (GTK2 only).\n");
+  fprintf(rf, "\n# Main window maximized (GTK2 only!).\n");
   fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED ": %s\n",
 		  recent.gui_geometry_main_maximized == TRUE ? "TRUE" : "FALSE");
 
-  fprintf(rf, "\n# Main window upper (or leftmost) pane size (GTK2 only).\n");
+  fprintf(rf, "\n# Main window upper (or leftmost) pane size.\n");
+  fprintf(rf, "# (GTK1: has no effect here, command line -o usage only).\n");
   fprintf(rf, "# Decimal number.\n");
   if (recent.gui_geometry_main_upper_pane != 0) {
     fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_UPPER_PANE ": %d\n",
 		  recent.gui_geometry_main_upper_pane);
   }
-  fprintf(rf, "\n# Main window middle pane size (GTK2 only).\n");
+  fprintf(rf, "\n# Main window middle pane size.\n");
+  fprintf(rf, "# (GTK1: has no effect here, command line -o usage only).\n");
   fprintf(rf, "# Decimal number.\n");
   if (recent.gui_geometry_main_lower_pane != 0) {
     fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE ": %d\n",
 		  recent.gui_geometry_main_lower_pane);
   }
-  fprintf(rf, "\n# Statusbar left pane size (GTK2 only).\n");
+  fprintf(rf, "\n# Statusbar left pane size.\n");
+  fprintf(rf, "# (GTK1: has no effect here, command line -o usage only).\n");
   fprintf(rf, "# Decimal number.\n");
   if (recent.gui_geometry_status_pane != 0) {
     fprintf(rf, RECENT_GUI_GEOMETRY_STATUS_PANE ": %d\n",
@@ -269,18 +272,12 @@ write_recent_geom(gpointer key _U_, gpointer value, gpointer rf)
 
 /* set one user's recent file key/value pair */
 static int
-read_set_recent_pair(gchar *key, gchar *value)
+read_set_recent_pair_static(gchar *key, gchar *value)
 {
   long num;
   char *p;
 
-  if (strcmp(key, RECENT_KEY_CAPTURE_FILE) == 0) {
-	add_menu_recent_capture_file(value);
-  } else if (strcmp(key, RECENT_KEY_DISPLAY_FILTER) == 0) {
-	dfilter_combo_add_recent(value);
-  } else if (strcmp(key, RECENT_KEY_CAPTURE_FILTER) == 0) {
-	cfilter_combo_add_recent(value);
-  } else if (strcmp(key, RECENT_KEY_MAIN_TOOLBAR_SHOW) == 0) {
+  if (strcmp(key, RECENT_KEY_MAIN_TOOLBAR_SHOW) == 0) {
     if (strcasecmp(value, "true") == 0) {
         recent.main_toolbar_show = TRUE;
     }
@@ -376,6 +373,7 @@ read_set_recent_pair(gchar *key, gchar *value)
     if (num <= 0)
       return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
     recent.gui_geometry_main_upper_pane = num;
+    recent.has_gui_geometry_main_upper_pane = TRUE;
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE) == 0) {
     num = strtol(value, &p, 0);
     if (p == value || *p != '\0')
@@ -383,6 +381,7 @@ read_set_recent_pair(gchar *key, gchar *value)
     if (num <= 0)
       return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
     recent.gui_geometry_main_lower_pane = num;
+    recent.has_gui_geometry_main_lower_pane = TRUE;
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_STATUS_PANE) == 0) {
     num = strtol(value, &p, 0);
     if (p == value || *p != '\0')
@@ -390,6 +389,7 @@ read_set_recent_pair(gchar *key, gchar *value)
     if (num <= 0)
       return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
     recent.gui_geometry_status_pane = num;
+    recent.has_gui_geometry_status_pane = TRUE;
   } else if (strcmp(key, RECENT_GUI_FILEOPEN_REMEMBERED_DIR) == 0) {
     set_last_open_dir(value);
   } else if (strncmp(key, RECENT_GUI_GEOMETRY, sizeof(RECENT_GUI_GEOMETRY)-1) == 0) {
@@ -407,9 +407,67 @@ read_set_recent_pair(gchar *key, gchar *value)
 }
 
 
-/* opens the user's recent file and read it out */
+/* set one user's recent file key/value pair */
+static int
+read_set_recent_pair_dynamic(gchar *key, gchar *value)
+{
+  if (strcmp(key, RECENT_KEY_CAPTURE_FILE) == 0) {
+	add_menu_recent_capture_file(value);
+  } else if (strcmp(key, RECENT_KEY_DISPLAY_FILTER) == 0) {
+	dfilter_combo_add_recent(value);
+  } else if (strcmp(key, RECENT_KEY_CAPTURE_FILTER) == 0) {
+	cfilter_combo_add_recent(value);
+  }
+
+  return PREFS_SET_OK;
+}
+
+
+/*
+ * Given a string of the form "<recent name>:<recent value>", as might appear
+ * as an argument to a "-o" option, parse it and set the recent value in
+ * question.  Return an indication of whether it succeeded or failed
+ * in some fashion.
+ */
+int
+recent_set_arg(char *prefarg)
+{
+	guchar *p, *colonp;
+	int ret;
+
+	colonp = strchr(prefarg, ':');
+	if (colonp == NULL)
+		return PREFS_SET_SYNTAX_ERR;
+
+	p = colonp;
+	*p++ = '\0';
+
+	/*
+	 * Skip over any white space (there probably won't be any, but
+	 * as we allow it in the preferences file, we might as well
+	 * allow it here).
+	 */
+	while (isspace(*p))
+		p++;
+	if (*p == '\0') {
+		/*
+		 * Put the colon back, so if our caller uses, in an
+		 * error message, the string they passed us, the message
+		 * looks correct.
+		 */
+		*colonp = ':';
+		return PREFS_SET_SYNTAX_ERR;
+	}
+
+	ret = read_set_recent_pair_static(prefarg, p);
+	*colonp = ':';	/* put the colon back */
+	return ret;
+}
+
+
+/* opens the user's recent file and read the first part */
 void
-read_recent(char **rf_path_return, int *rf_errno_return)
+recent_read_static(char **rf_path_return, int *rf_errno_return)
 {
   char       *rf_path;
   FILE       *rf;
@@ -437,6 +495,18 @@ read_recent(char **rf_path_return, int *rf_errno_return)
   recent.gui_geometry_main_lower_pane   = 0;
   recent.gui_geometry_status_pane       = 0;
 
+  /* the following are only used if GTK2 is used (as GTK1 cannot read these geometry values) */
+  /* or if set through command line */
+#if GTK_MAJOR_VERSION >= 2
+  recent.has_gui_geometry_main_upper_pane = TRUE;
+  recent.has_gui_geometry_main_lower_pane = TRUE;
+  recent.has_gui_geometry_status_pane = TRUE;
+#else
+  recent.has_gui_geometry_main_upper_pane = FALSE;
+  recent.has_gui_geometry_main_lower_pane = FALSE;
+  recent.has_gui_geometry_status_pane = FALSE;
+#endif
+
   /* Construct the pathname of the user's recent file. */
   rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE);
 
@@ -444,7 +514,39 @@ read_recent(char **rf_path_return, int *rf_errno_return)
   *rf_path_return = NULL;
   if ((rf = fopen(rf_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
-    read_prefs_file(rf_path, rf, read_set_recent_pair);
+    read_prefs_file(rf_path, rf, read_set_recent_pair_static);
+    fclose(rf);
+    g_free(rf_path);
+    rf_path = NULL;
+  } else {
+    /* We failed to open it.  If we failed for some reason other than
+       "it doesn't exist", return the errno and the pathname, so our
+       caller can report the error. */
+    if (errno != ENOENT) {
+      *rf_errno_return = errno;
+      *rf_path_return = rf_path;
+    }
+  }
+}
+
+
+
+/* opens the user's recent file and read it out */
+void
+recent_read_dynamic(char **rf_path_return, int *rf_errno_return)
+{
+  char       *rf_path;
+  FILE       *rf;
+
+
+  /* Construct the pathname of the user's recent file. */
+  rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE);
+
+  /* Read the user's recent file, if it exists. */
+  *rf_path_return = NULL;
+  if ((rf = fopen(rf_path, "r")) != NULL) {
+    /* We succeeded in opening it; read it. */
+    read_prefs_file(rf_path, rf, read_set_recent_pair_dynamic);
 	/* set dfilter combobox to have an empty line */
     dfilter_combo_add_empty();
     fclose(rf);

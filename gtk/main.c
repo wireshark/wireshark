@@ -1000,15 +1000,12 @@ main_load_window_geometry(GtkWidget *widget)
 
     window_set_geometry(widget, &geom);
 
-#if GTK_MAJOR_VERSION >= 2
-    /* XXX - rename recent settings? */
-    if (recent.gui_geometry_main_upper_pane)
+    if (recent.has_gui_geometry_main_upper_pane && recent.gui_geometry_main_upper_pane)
         gtk_paned_set_position(GTK_PANED(main_first_pane),  recent.gui_geometry_main_upper_pane);
-    if (recent.gui_geometry_main_lower_pane)
+    if (recent.has_gui_geometry_main_lower_pane && recent.gui_geometry_main_lower_pane)
         gtk_paned_set_position(GTK_PANED(main_second_pane), recent.gui_geometry_main_lower_pane);
-    if (recent.gui_geometry_status_pane)
+    if (recent.has_gui_geometry_main_lower_pane && recent.gui_geometry_status_pane)
         gtk_paned_set_position(GTK_PANED(status_pane),      recent.gui_geometry_status_pane);
-#endif
 }
 
 
@@ -1608,7 +1605,7 @@ main(int argc, char *argv[])
   gboolean             capture_child; /* True if this is the child for "-S" */
   GLogLevelFlags       log_flags;
 
-#define OPTSTRING_INIT "a:b:B:c:f:Hhi:klLm:nN:o:pP:Qr:R:Ss:t:T:w:vy:z:"
+#define OPTSTRING_INIT "a:b:c:f:Hhi:klLm:nN:o:pQr:R:Ss:t:w:vy:z:"
 
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
@@ -1895,6 +1892,11 @@ main(int argc, char *argv[])
     g_free(dp_path);
   }
 
+  /* Read the (static part) of the recent file. Only the static part of it will be read, */
+  /* as we don't have the gui now to fill the recent lists which is done in the dynamic part. */
+  /* We have to do this already here, so command line parameters can overwrite these values. */
+  recent_read_static(&rf_path, &rf_open_errno);
+
   init_cap_file(&cfile);
 
 #ifdef _WIN32
@@ -1964,9 +1966,6 @@ main(int argc, char *argv[])
 #endif
 
       /*** all non capture option specific ***/
-      case 'B':        /* Byte view pane height */
-        bv_size = get_positive_int("ethereal", optarg, "byte view pane height");
-        break;
       case 'h':        /* Print help and exit */
 	print_usage(TRUE);
 	exit(0);
@@ -2007,22 +2006,40 @@ main(int argc, char *argv[])
         break;
       case 'o':        /* Override preference from command line */
         switch (prefs_set_pref(optarg)) {
-
-	case PREFS_SET_SYNTAX_ERR:
+        case PREFS_SET_OK:
+          break;
+        case PREFS_SET_SYNTAX_ERR:
           fprintf(stderr, "ethereal: Invalid -o flag \"%s\"\n", optarg);
           exit(1);
           break;
-
         case PREFS_SET_NO_SUCH_PREF:
+          /* not a preference, might be a recent setting */
+          switch (recent_set_arg(optarg)) {
+            case PREFS_SET_OK:
+              break;
+            case PREFS_SET_SYNTAX_ERR:
+              /* shouldn't happen, checked already above */
+              fprintf(stderr, "ethereal: Invalid -o flag \"%s\"\n", optarg);
+              exit(1);
+              break;
+            case PREFS_SET_NO_SUCH_PREF:
+            case PREFS_SET_OBSOLETE:
+              fprintf(stderr, "ethereal: -o flag \"%s\" specifies unknown preference/recent value\n",
+	            optarg);
+              exit(1);
+              break;
+            default:
+              g_assert_not_reached();
+            }
+          break;
         case PREFS_SET_OBSOLETE:
-          fprintf(stderr, "ethereal: -o flag \"%s\" specifies unknown preference\n",
+          fprintf(stderr, "ethereal: -o flag \"%s\" specifies obsolete preference\n",
 			optarg);
           exit(1);
           break;
+        default:
+          g_assert_not_reached();
         }
-        break;
-      case 'P':        /* Packet list pane height */
-        pl_size = get_positive_int("ethereal", optarg, "packet list pane height");
         break;
       case 'r':        /* Read capture file xxx */
 	/* We may set "last_open_dir" to "cf_name", and if we change
@@ -2049,9 +2066,6 @@ main(int argc, char *argv[])
           fprintf(stderr, "\"ad\" for absolute with date, or \"d\" for delta.\n");
           exit(1);
         }
-        break;
-      case 'T':        /* Tree view pane height */
-        tv_size = get_positive_int("ethereal", optarg, "tree view pane height");
         break;
       case 'v':        /* Show version and exit */
         show_version();
@@ -2342,15 +2356,14 @@ main(int argc, char *argv[])
   /* Everything is prepared now, preferences and command line was read in,
        we are NOT a child window for a synced capture. */
 
-  /* Pop up the main window, and read in a capture file if
-     we were told to. */
+  /* Pop up the main window. */
   create_main_window(pl_size, tv_size, bv_size, prefs);
 
-  /* Read the recent file, as we have the gui now ready for it. */
-  read_recent(&rf_path, &rf_open_errno);
+  /* Read the dynamic part of the recent file, as we have the gui now ready for it. */
+  recent_read_dynamic(&rf_path, &rf_open_errno);
   color_filters_enable(recent.packet_list_colorize);
 
-  /* rearrange all the widgets as we now have the recent settings for this */
+  /* rearrange all the widgets as we now have all recent settings ready for this */
   main_widgets_rearrange();
 
   /* Fill in column titles.  This must be done after the top level window
