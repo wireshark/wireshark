@@ -1224,37 +1224,39 @@ telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, in
   subneg_len -= 3;
 
   if (subneg_len > 0) {
-    switch (options[opt_byte].len_type) {
-
-    case NO_LENGTH:
-      /* There isn't supposed to *be* sub-option negotiation for this. */
-      proto_tree_add_text(option_tree, tvb, start_offset, subneg_len,
-                          "Bogus suboption data");
-      return offset;
-
-    case FIXED_LENGTH:
-      /* Make sure the length is what it's supposed to be. */
-      if (subneg_len != options[opt_byte].optlen) {
-        proto_tree_add_text(option_tree, tvb, start_offset, subneg_len,
-                          "Suboption parameter length is %d, should be %d",
-                          subneg_len, options[opt_byte].optlen);
-        return offset;
-      }
-      break;
-
-    case VARIABLE_LENGTH:
-      /* Make sure the length is greater than the minimum. */
-      if (subneg_len < options[opt_byte].optlen) {
-        proto_tree_add_text(option_tree, tvb, start_offset, subneg_len,
-                            "Suboption parameter length is %d, should be at least %d",
-                            subneg_len, options[opt_byte].optlen);
-        return offset;
-      }
-      break;
-    }
 
     /* Now dissect the suboption parameters. */
     if (dissect != NULL) {
+
+      switch (options[opt_byte].len_type) {
+
+      case NO_LENGTH:
+	/* There isn't supposed to *be* sub-option negotiation for this. */
+	proto_tree_add_text(option_tree, tvb, start_offset, subneg_len,
+			    "Bogus suboption data");
+	return offset;
+
+      case FIXED_LENGTH:
+	/* Make sure the length is what it's supposed to be. */
+	if (subneg_len != options[opt_byte].optlen) {
+	  proto_tree_add_text(option_tree, tvb, start_offset, subneg_len,
+			    "Suboption parameter length is %d, should be %d",
+			    subneg_len, options[opt_byte].optlen);
+	  return offset;
+	}
+	break;
+
+      case VARIABLE_LENGTH:
+	/* Make sure the length is greater than the minimum. */
+	if (subneg_len < options[opt_byte].optlen) {
+	  proto_tree_add_text(option_tree, tvb, start_offset, subneg_len,
+			      "Suboption parameter length is %d, should be at least %d",
+			      subneg_len, options[opt_byte].optlen);
+	  return offset;
+	}
+	break;
+      }
+
       /* We have a dissector for this suboption's parameters; call it. */
       (*dissect)(pinfo, opt, tvb, start_offset, subneg_len, option_tree);
     } else {
