@@ -235,7 +235,7 @@ static int hf_scsi_readtoc_format = -1;
 static int hf_scsi_track = -1;
 static int hf_scsi_track_size = -1;
 static int hf_scsi_session = -1;
-static int hf_scsi_readtoc_first_track = -1;
+static int hf_scsi_first_track = -1;
 static int hf_scsi_readtoc_first_session = -1;
 static int hf_scsi_readtoc_last_track = -1;
 static int hf_scsi_readtoc_last_session = -1;
@@ -278,6 +278,23 @@ static int hf_scsi_rti_nwa_v = -1;
 static int hf_scsi_free_blocks = -1;
 static int hf_scsi_fixed_packet_size = -1;
 static int hf_scsi_last_recorded_address = -1;
+static int hf_scsi_disc_info_erasable = -1;
+static int hf_scsi_disc_info_state_of_last_session = -1;
+static int hf_scsi_disc_info_disk_status = -1;
+static int hf_scsi_disc_info_number_of_sessions = -1;
+static int hf_scsi_disc_info_first_track_in_last_session = -1;
+static int hf_scsi_disc_info_last_track_in_last_session = -1;
+static int hf_scsi_disc_info_did_v = -1;
+static int hf_scsi_disc_info_dbc_v = -1;
+static int hf_scsi_disc_info_uru = -1;
+static int hf_scsi_disc_info_dac_v = -1;
+static int hf_scsi_disc_info_dbit = -1;
+static int hf_scsi_disc_info_bgfs = -1;
+static int hf_scsi_disc_info_disc_type = -1;
+static int hf_scsi_disc_info_disc_identification = -1;
+static int hf_scsi_disc_info_last_session_lead_in_start_address = -1;
+static int hf_scsi_disc_info_last_possible_lead_out_start_address = -1;
+static int hf_scsi_disc_info_disc_bar_code = -1;
 
 static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
@@ -468,6 +485,7 @@ static const value_string scsi_sbc2_val[] = {
 #define SCSI_MMC_SYNCHRONIZECACHE       0x35
 #define SCSI_MMC_READTOCPMAATIP         0x43
 #define SCSI_MMC_GETCONFIGURATION       0x46
+#define SCSI_MMC_READDISCINFORMATION    0x51
 #define SCSI_MMC_READTRACKINFORMATION   0x52
 #define SCSI_MMC_RESERVETRACK           0x53
 #define SCSI_MMC_READBUFFERCAPACITY     0x5c
@@ -482,6 +500,7 @@ static const value_string scsi_mmc_val[] = {
     {SCSI_MMC_SYNCHRONIZECACHE,	"Synchronize Cache"},
     {SCSI_MMC_READTOCPMAATIP,	"Read TOC/PMA/ATIP"},
     {SCSI_MMC_GETCONFIGURATION,	"Get Configuraion"},
+    {SCSI_MMC_READDISCINFORMATION, "Read Disc Information"},
     {SCSI_MMC_READTRACKINFORMATION, "Read Track Information"},
     {SCSI_MMC_RESERVETRACK,	"Reserve Track"},
     {SCSI_MMC_READBUFFERCAPACITY,"Read Buffer Capacity"},
@@ -3890,7 +3909,7 @@ dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         len=tvb_get_ntohs(tvb, offset);
         proto_tree_add_item (tree, hf_scsi_data_length, tvb, offset, 2, 0);
         if(cdata->flags&0x0200){
-            proto_tree_add_item (tree, hf_scsi_readtoc_first_track, tvb, offset+2, 1, 0);
+            proto_tree_add_item (tree, hf_scsi_first_track, tvb, offset+2, 1, 0);
             proto_tree_add_item (tree, hf_scsi_readtoc_last_track, tvb, offset+3, 1, 0);
         }
         if(cdata->flags&0x0400){
@@ -4065,6 +4084,80 @@ dissect_mmc4_readtrackinformation (tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         proto_tree_add_item (tree, hf_scsi_track_size, tvb, offset+24, 4, 0);
         proto_tree_add_item (tree, hf_scsi_last_recorded_address, tvb, offset+28, 4, 0);
         proto_tree_add_item (tree, hf_scsi_read_compatibility_lba, tvb, offset+36, 4, 0);
+    }
+}
+
+static const value_string scsi_disc_info_sols_val[] = {
+    {0x00,	"Empty Session"},
+    {0x01,	"Incomplete Session"},
+    {0x02,	"Reserved/Damaged Session"},
+    {0x03,	"Complete Session"},
+    {0,NULL}
+};
+static const value_string scsi_disc_info_disc_status_val[] = {
+    {0x00,	"Empty Disc"},
+    {0x01,	"Incomplete Disc"},
+    {0x02,	"Finalized Disc"},
+    {0x03,	"Others"},
+    {0,NULL}
+};
+static const value_string scsi_disc_info_bgfs_val[] = {
+    {0x00,	"Blank or not CD-RW/DVD-RW"},
+    {0x01,	"Background Format started but is not running nor complete"},
+    {0x02,	"Backgroung Format in progress"},
+    {0x03,	"Backgroung Format has completed"},
+    {0,NULL}
+};
+static const value_string scsi_disc_info_disc_type_val[] = {
+    {0x00,	"CD-DA or CD-ROM Disc"},
+    {0x10,	"CD-I Disc"},
+    {0x20,	"CD-ROM XA Disc or DDCD"},
+    {0xff,	"Undefined"},
+    {0,NULL}
+};
+
+static void
+dissect_mmc4_readdiscinformation (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags;
+
+    if (tree && isreq && iscdb) {
+        proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, 0);
+
+        flags = tvb_get_guint8 (tvb, offset+8);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+
+    }
+    if(tree && (!isreq)) {
+        proto_tree_add_item (tree, hf_scsi_data_length, tvb, 0, 2, 0);
+        proto_tree_add_item (tree, hf_scsi_disc_info_erasable, tvb, 2, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_disc_info_state_of_last_session, tvb, 2, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_disc_info_disk_status, tvb, 2, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_first_track, tvb, offset+3, 1, 0);
+        /* number of session  offset+4 and offset+9 */
+        proto_tree_add_uint (tree, hf_scsi_disc_info_number_of_sessions, tvb, 4, 1, (tvb_get_guint8(tvb, offset+9)<<8)|tvb_get_guint8(tvb, offset+4));
+        /* first track in last session  offset+5 and offset+10 */
+        proto_tree_add_uint (tree, hf_scsi_disc_info_first_track_in_last_session, tvb, 5, 1, (tvb_get_guint8(tvb, offset+10)<<8)|tvb_get_guint8(tvb, offset+5));
+        /*  last track in last session  offset+6 and offset+11 */
+        proto_tree_add_uint (tree, hf_scsi_disc_info_last_track_in_last_session, tvb, 6, 1, (tvb_get_guint8(tvb, offset+11)<<8)|tvb_get_guint8(tvb, offset+6));
+        proto_tree_add_item (tree, hf_scsi_disc_info_did_v, tvb, offset+7, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_disc_info_dbc_v, tvb, offset+7, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_disc_info_uru, tvb, offset+7, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_disc_info_dac_v, tvb, offset+7, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_disc_info_dbit, tvb, offset+7, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_disc_info_bgfs, tvb, offset+7, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_disc_info_disc_type, tvb, offset+8, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_disc_info_disc_identification, tvb, offset+12, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_disc_info_last_session_lead_in_start_address, tvb, offset+16, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_disc_info_last_possible_lead_out_start_address, tvb, offset+20, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_disc_info_disc_bar_code, tvb, offset+24, 8, 0);
+	/* XXX should add OPC table decoding here ... */
     }
 }
 
@@ -6290,7 +6383,7 @@ static scsi_cdb_table_t mmc[256] = {
 /*MMC 0x4e*/{NULL},
 /*MMC 0x4f*/{NULL},
 /*MMC 0x50*/{NULL},
-/*MMC 0x51*/{NULL},
+/*MMC 0x51*/{dissect_mmc4_readdiscinformation},
 /*MMC 0x52*/{dissect_mmc4_readtrackinformation},
 /*MMC 0x53*/{dissect_mmc4_reservetrack},
 /*MMC 0x54*/{NULL},
@@ -7149,8 +7242,8 @@ proto_register_scsi (void)
         { &hf_scsi_session,
           {"Session", "scsi.session", FT_UINT32, BASE_DEC,
            NULL, 0, "", HFILL}},
-        { &hf_scsi_readtoc_first_track,
-          {"First Track", "scsi.readtoc.first_track", FT_UINT8, BASE_DEC,
+        { &hf_scsi_first_track,
+          {"First Track", "scsi.first_track", FT_UINT8, BASE_DEC,
            NULL, 0, "", HFILL}},
         { &hf_scsi_readtoc_first_session,
           {"First Session", "scsi.readtoc.first_session", FT_UINT8, BASE_DEC,
@@ -7280,6 +7373,57 @@ proto_register_scsi (void)
            NULL, 0, "", HFILL}},
         { &hf_scsi_read_compatibility_lba,
           {"Read Compatibility LBA", "scsi.read_compatibility_lba", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_disc_info_erasable,
+          {"Erasable", "scsi.disc_info.erasable", FT_BOOLEAN, 8,
+           NULL, 0x10, "", HFILL}},
+        { &hf_scsi_disc_info_state_of_last_session,
+          {"State Of Last Session", "scsi.disc_info.state_of_last_session", FT_UINT8, BASE_HEX,
+           VALS(scsi_disc_info_sols_val), 0x0c, "", HFILL}},
+        { &hf_scsi_disc_info_disk_status,
+          {"Disk Status", "scsi.disc_info.disk_status", FT_UINT8, BASE_HEX,
+           VALS(scsi_disc_info_disc_status_val), 0x03, "", HFILL}},
+        { &hf_scsi_disc_info_number_of_sessions,
+          {"Number Of Sessions", "scsi.disc_info.number_of_sessions", FT_UINT16, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_disc_info_first_track_in_last_session,
+          {"First Track In Last Session", "scsi.disc_info.first_track_in_last_session", FT_UINT16, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_disc_info_last_track_in_last_session,
+          {"Last Track In Last Session", "scsi.disc_info.last_track_in_last_session", FT_UINT16, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_disc_info_did_v,
+          {"DID_V", "scsi.disc_info.did_v", FT_BOOLEAN, 8,
+           NULL, 0x80, "", HFILL}},
+        { &hf_scsi_disc_info_dbc_v,
+          {"DBC_V", "scsi.disc_info.dbc_v", FT_BOOLEAN, 8,
+           NULL, 0x40, "", HFILL}},
+        { &hf_scsi_disc_info_uru,
+          {"URU", "scsi.disc_info.uru", FT_BOOLEAN, 8,
+           NULL, 0x20, "", HFILL}},
+        { &hf_scsi_disc_info_dac_v,
+          {"DAC_V", "scsi.disc_info.dac_v", FT_BOOLEAN, 8,
+           NULL, 0x10, "", HFILL}},
+        { &hf_scsi_disc_info_dbit,
+          {"Dbit", "scsi.disc_info.dbit", FT_BOOLEAN, 8,
+           NULL, 0x04, "", HFILL}},
+        { &hf_scsi_disc_info_bgfs,
+          {"BG Format Status", "scsi.disc_info.bgfs", FT_UINT8, BASE_HEX,
+           VALS(scsi_disc_info_bgfs_val), 0x03, "", HFILL}},
+        { &hf_scsi_disc_info_disc_type,
+          {"Disc Type", "scsi.disc_info.disc_type", FT_UINT8, BASE_HEX,
+           VALS(scsi_disc_info_disc_type_val), 0, "", HFILL}},
+        { &hf_scsi_disc_info_disc_identification,
+          {"Disc Identification", "scsi.disc_info.disc_identification", FT_UINT32, BASE_HEX,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_disc_info_last_session_lead_in_start_address,
+          {"Last Session Lead-In Start Address", "scsi.disc_info.last_session_lead_in_start_address", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_disc_info_last_possible_lead_out_start_address,
+          {"Last Possible Lead-Out Start Address", "scsi.disc_info.last_possible_lead_out_start_address", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_disc_info_disc_bar_code,
+          {"Disc Bar Code", "scsi.disc_info.disc_bar_code", FT_UINT64, BASE_HEX,
            NULL, 0, "", HFILL}},
 
     };
