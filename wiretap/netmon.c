@@ -280,6 +280,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 		*err = file_error(wth->fh);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
+		g_free(frame_table);
 		return -1;
 	}
 	wth->capture.netmon->frame_table_size = frame_table_size;
