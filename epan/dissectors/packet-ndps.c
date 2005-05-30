@@ -1815,6 +1815,7 @@ objectidentifier(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     {
         if (!found) 
         {
+            tvb_ensure_bytes_exist(tvb, foffset, length);
             foffset += length;
         }
         else
@@ -1822,6 +1823,7 @@ objectidentifier(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 1;
             length = tvb_get_guint8(tvb, foffset);
             foffset += 1;
+            tvb_ensure_bytes_exist(tvb, foffset, length);
             foffset += length;
         }
     }
