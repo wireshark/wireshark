@@ -183,8 +183,9 @@ static int hf_scsi_key_class = -1;
 static int hf_scsi_key_format = -1;
 static int hf_scsi_agid = -1;
 static int hf_scsi_lba             = -1;
+static int hf_scsi_read_compatibility_lba             = -1;
 static int hf_scsi_num_blocks      = -1;
-static int hf_scsi_report_key_data_length = -1;
+static int hf_scsi_data_length = -1;
 static int hf_scsi_report_key_type_code = -1;
 static int hf_scsi_report_key_vendor_resets = -1;
 static int hf_scsi_report_key_user_changes = -1;
@@ -192,7 +193,6 @@ static int hf_scsi_report_key_region_mask = -1;
 static int hf_scsi_report_key_rpc_scheme = -1;
 static int hf_scsi_getconf_rt = -1;
 static int hf_scsi_getconf_starting_feature = -1;
-static int hf_scsi_getconf_data_length = -1;
 static int hf_scsi_getconf_current_profile = -1;
 static int hf_scsi_feature = -1;
 static int hf_scsi_feature_version = -1;
@@ -232,9 +232,9 @@ static int hf_scsi_feature_isw_num_linksize = -1;
 static int hf_scsi_feature_isw_linksize = -1;
 static int hf_scsi_readtoc_time = -1;
 static int hf_scsi_readtoc_format = -1;
-static int hf_scsi_readtoc_track = -1;
-static int hf_scsi_readtoc_session = -1;
-static int hf_scsi_readtoc_data_len = -1;
+static int hf_scsi_track = -1;
+static int hf_scsi_track_size = -1;
+static int hf_scsi_session = -1;
 static int hf_scsi_readtoc_first_track = -1;
 static int hf_scsi_readtoc_first_session = -1;
 static int hf_scsi_readtoc_last_track = -1;
@@ -242,11 +242,11 @@ static int hf_scsi_readtoc_last_session = -1;
 static int hf_scsi_q_subchannel_adr = -1;
 static int hf_scsi_q_subchannel_control = -1;
 static int hf_scsi_track_start_address = -1;
+static int hf_scsi_next_writable_address = -1;
 static int hf_scsi_track_start_time = -1;
 static int hf_scsi_synccache_immed = -1;
 static int hf_scsi_synccache_reladr = -1;
 static int hf_scsi_rbc_block = -1;
-static int hf_scsi_rbc_data_len = -1;
 static int hf_scsi_rbc_lob_blocks = -1;
 static int hf_scsi_rbc_alob_blocks = -1;
 static int hf_scsi_rbc_lob_bytes = -1;
@@ -264,6 +264,20 @@ static int hf_scsi_setstreaming_read_time = -1;
 static int hf_scsi_setstreaming_write_size = -1;
 static int hf_scsi_setstreaming_write_time = -1;
 static int hf_scsi_reservation_size = -1;
+static int hf_scsi_rti_address_type = -1;
+static int hf_scsi_rti_damage = -1;
+static int hf_scsi_rti_copy = -1;
+static int hf_scsi_rti_track_mode = -1;
+static int hf_scsi_rti_rt = -1;
+static int hf_scsi_rti_blank = -1;
+static int hf_scsi_rti_packet = -1;
+static int hf_scsi_rti_fp = -1;
+static int hf_scsi_rti_data_mode = -1;
+static int hf_scsi_rti_lra_v = -1;
+static int hf_scsi_rti_nwa_v = -1;
+static int hf_scsi_free_blocks = -1;
+static int hf_scsi_fixed_packet_size = -1;
+static int hf_scsi_last_recorded_address = -1;
 
 static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
@@ -454,6 +468,7 @@ static const value_string scsi_sbc2_val[] = {
 #define SCSI_MMC_SYNCHRONIZECACHE       0x35
 #define SCSI_MMC_READTOCPMAATIP         0x43
 #define SCSI_MMC_GETCONFIGURATION       0x46
+#define SCSI_MMC_READTRACKINFORMATION   0x52
 #define SCSI_MMC_RESERVETRACK           0x53
 #define SCSI_MMC_READBUFFERCAPACITY     0x5c
 #define SCSI_MMC_REPORTKEY		0xa4
@@ -467,6 +482,7 @@ static const value_string scsi_mmc_val[] = {
     {SCSI_MMC_SYNCHRONIZECACHE,	"Synchronize Cache"},
     {SCSI_MMC_READTOCPMAATIP,	"Read TOC/PMA/ATIP"},
     {SCSI_MMC_GETCONFIGURATION,	"Get Configuraion"},
+    {SCSI_MMC_READTRACKINFORMATION, "Read Track Information"},
     {SCSI_MMC_RESERVETRACK,	"Reserve Track"},
     {SCSI_MMC_READBUFFERCAPACITY,"Read Buffer Capacity"},
     {SCSI_MMC_REPORTKEY,	"Report Key"},
@@ -3540,7 +3556,7 @@ dissect_mmc4_reportkey (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if(tree && (!isreq)) {
         switch(cdata->flags){
         case 0x0800: /* format:RPC State  class:00 */
-            proto_tree_add_item (tree, hf_scsi_report_key_data_length, tvb, offset, 2, 0);
+            proto_tree_add_item (tree, hf_scsi_data_length, tvb, offset, 2, 0);
             proto_tree_add_item (tree, hf_scsi_report_key_type_code, tvb, offset+4, 1, 0);
             proto_tree_add_item (tree, hf_scsi_report_key_vendor_resets, tvb, offset+4, 1, 0);
             proto_tree_add_item (tree, hf_scsi_report_key_user_changes, tvb, offset+4, 1, 0);
@@ -3701,7 +3717,7 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     }
     if(tree && (!isreq)) {
         len=tvb_get_ntohl(tvb, offset+0);
-        proto_tree_add_item (tree, hf_scsi_getconf_data_length, tvb, offset+0, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_data_length, tvb, offset+0, 4, 0);
         proto_tree_add_item (tree, hf_scsi_getconf_current_profile, tvb, offset+6, 2, 0);
 	offset+=8;
         len-=4;
@@ -3850,12 +3866,12 @@ dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
         switch(format){
         case 0x00:
-            proto_tree_add_item (tree, hf_scsi_readtoc_track, tvb, offset+5, 1, 0);
+            proto_tree_add_item (tree, hf_scsi_track, tvb, offset+5, 1, 0);
             /* save track so we can pick it up in the response */
             cdata->flags|=0x0200;
             break;
         case 0x02:
-            proto_tree_add_item (tree, hf_scsi_readtoc_session, tvb, offset+5, 1, 0);
+            proto_tree_add_item (tree, hf_scsi_session, tvb, offset+5, 1, 0);
             /* save session so we can pick it up in the response */
             cdata->flags|=0x0400;
             break;
@@ -3872,7 +3888,7 @@ dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     }
     if(tree && (!isreq)) {
         len=tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item (tree, hf_scsi_readtoc_data_len, tvb, offset, 2, 0);
+        proto_tree_add_item (tree, hf_scsi_data_length, tvb, offset, 2, 0);
         if(cdata->flags&0x0200){
             proto_tree_add_item (tree, hf_scsi_readtoc_first_track, tvb, offset+2, 1, 0);
             proto_tree_add_item (tree, hf_scsi_readtoc_last_track, tvb, offset+3, 1, 0);
@@ -3888,7 +3904,7 @@ dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
             while(len>0){
                 proto_tree_add_item (tree, hf_scsi_q_subchannel_adr, tvb, offset+1, 1, 0);
                 proto_tree_add_item (tree, hf_scsi_q_subchannel_control, tvb, offset+1, 1, 0);
-                proto_tree_add_item (tree, hf_scsi_readtoc_track, tvb, offset+2, 1, 0);
+                proto_tree_add_item (tree, hf_scsi_track, tvb, offset+2, 4, 0);
                 if(cdata->flags&0x0100){
                     proto_tree_add_item (tree, hf_scsi_track_start_time, tvb, offset+4, 4, 0);
                 } else {
@@ -3955,7 +3971,7 @@ dissect_mmc4_readbuffercapacity (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     }
     if(tree && (!isreq)) {
         len=tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item (tree, hf_scsi_rbc_data_len, tvb, offset, 2, 0);
+        proto_tree_add_item (tree, hf_scsi_data_length, tvb, offset, 2, 0);
         if(cdata->flags){
             proto_tree_add_item (tree, hf_scsi_rbc_lob_blocks, tvb, offset+4, 4, 0);
             proto_tree_add_item (tree, hf_scsi_rbc_alob_blocks, tvb, offset+8, 4, 0);
@@ -3982,6 +3998,73 @@ dissect_mmc4_reservetrack (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
                                     "Vendor Unique = %u, NACA = %u, Link = %u",
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
 
+    }
+}
+
+static const value_string scsi_rti_address_type_val[] = {
+    {0x00,	"Logical Block Address"},
+    {0x01,	"Logical Track Number"},
+    {0x02,	"Session Number"},
+    {0,NULL}
+};
+static void
+dissect_mmc4_readtrackinformation (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags, addresstype;
+
+    if (tree && isreq && iscdb) {
+        addresstype=tvb_get_guint8(tvb, offset)&0x03;
+        proto_tree_add_item (tree, hf_scsi_rti_address_type, tvb, offset+0, 1, 0);
+        switch(addresstype){
+        case 0x00: /* logical block address */
+            proto_tree_add_item (tree, hf_scsi_lba, tvb, offset+1,
+                             4, 0);
+            break;
+        case 0x01: /* logical track number */
+            proto_tree_add_item (tree, hf_scsi_track, tvb, offset+1,
+                             4, 0);
+            break;
+        case 0x02: /* logical session number */
+            proto_tree_add_item (tree, hf_scsi_session, tvb, offset+1,
+                             4, 0);
+            break;
+        }        
+
+        proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, 0);
+
+        flags = tvb_get_guint8 (tvb, offset+8);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+
+    }
+    if(tree && (!isreq)) {
+        proto_tree_add_item (tree, hf_scsi_data_length, tvb, 0, 2, 0);
+        /* track  offset+2 and offset+32 */
+        proto_tree_add_uint (tree, hf_scsi_track, tvb, 2, 1, (tvb_get_guint8(tvb, offset+32)<<8)|tvb_get_guint8(tvb, offset+2));
+        /* session  offset+3 and offset+33 */
+        proto_tree_add_uint (tree, hf_scsi_session, tvb, 3, 1, (tvb_get_guint8(tvb, offset+33)<<8)|tvb_get_guint8(tvb, offset+3));
+        proto_tree_add_item (tree, hf_scsi_rti_damage, tvb, 5, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_rti_copy, tvb, 5, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_rti_track_mode, tvb, 5, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_rti_rt, tvb, 6, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_rti_blank, tvb, 6, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_rti_packet, tvb, 6, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_rti_fp, tvb, 6, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_rti_data_mode, tvb, 6, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_rti_lra_v, tvb, 7, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_rti_nwa_v, tvb, 7, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_track_start_address, tvb, offset+8, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_next_writable_address, tvb, offset+12, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_free_blocks, tvb, offset+16, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_fixed_packet_size, tvb, offset+20, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_track_size, tvb, offset+24, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_last_recorded_address, tvb, offset+28, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_read_compatibility_lba, tvb, offset+36, 4, 0);
     }
 }
 
@@ -6208,7 +6291,7 @@ static scsi_cdb_table_t mmc[256] = {
 /*MMC 0x4f*/{NULL},
 /*MMC 0x50*/{NULL},
 /*MMC 0x51*/{NULL},
-/*MMC 0x52*/{NULL},
+/*MMC 0x52*/{dissect_mmc4_readtrackinformation},
 /*MMC 0x53*/{dissect_mmc4_reservetrack},
 /*MMC 0x54*/{NULL},
 /*MMC 0x55*/{NULL},
@@ -6916,8 +6999,8 @@ proto_register_scsi (void)
         { &hf_scsi_num_blocks,
           {"Number of Blocks", "scsi.num_blocks", FT_UINT32, BASE_DEC,
            NULL, 0x0, "", HFILL}},
-        { &hf_scsi_report_key_data_length,
-          {"Data Length", "scsi.report_key.data_length", FT_UINT16, BASE_DEC,
+        { &hf_scsi_data_length,
+          {"Data Length", "scsi.data_length", FT_UINT32, BASE_DEC,
            NULL, 0x0, "", HFILL}},
         { &hf_scsi_report_key_type_code,
           {"Type Code", "scsi.report_key.type_code", FT_UINT8, BASE_HEX,
@@ -6937,9 +7020,6 @@ proto_register_scsi (void)
         { &hf_scsi_getconf_rt,
           {"RT", "scsi.getconf.rt", FT_UINT8, BASE_HEX,
            VALS(scsi_getconf_rt_val), 0x03, "", HFILL}},
-        { &hf_scsi_getconf_data_length,
-          {"Data Length", "scsi.getconf.data_length", FT_UINT32, BASE_DEC,
-           NULL, 0, "", HFILL}},
         { &hf_scsi_getconf_current_profile,
           {"Current Profile", "scsi.getconf.current_profile", FT_UINT16, BASE_HEX,
            VALS(scsi_getconf_current_profile_val), 0, "", HFILL}},
@@ -7060,14 +7140,14 @@ proto_register_scsi (void)
         { &hf_scsi_readtoc_format,
           {"Format", "scsi.readtoc.format", FT_UINT8, BASE_HEX,
            NULL, 0x0f, "", HFILL}},
-        { &hf_scsi_readtoc_track,
-          {"Track", "scsi.readtoc.track", FT_UINT8, BASE_DEC,
+        { &hf_scsi_track,
+          {"Track", "scsi.track", FT_UINT32, BASE_DEC,
            NULL, 0, "", HFILL}},
-        { &hf_scsi_readtoc_session,
-          {"Session", "scsi.readtoc.session", FT_UINT8, BASE_DEC,
+        { &hf_scsi_track_size,
+          {"Track Size", "scsi.track_size", FT_UINT32, BASE_DEC,
            NULL, 0, "", HFILL}},
-        { &hf_scsi_readtoc_data_len,
-          {"Data Length", "scsi.readtoc.data_len", FT_UINT16, BASE_DEC,
+        { &hf_scsi_session,
+          {"Session", "scsi.session", FT_UINT32, BASE_DEC,
            NULL, 0, "", HFILL}},
         { &hf_scsi_readtoc_first_track,
           {"First Track", "scsi.readtoc.first_track", FT_UINT8, BASE_DEC,
@@ -7090,6 +7170,9 @@ proto_register_scsi (void)
         { &hf_scsi_track_start_address,
           {"Track Start Address", "scsi.track_start_address", FT_UINT32, BASE_DEC,
            NULL, 0, "", HFILL}},
+        { &hf_scsi_next_writable_address,
+          {"Next Writable Address", "scsi.next_writable_address", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
         { &hf_scsi_track_start_time,
           {"Track Start Time", "scsi.track_start_time", FT_UINT32, BASE_DEC,
            NULL, 0, "", HFILL}},
@@ -7102,9 +7185,6 @@ proto_register_scsi (void)
         { &hf_scsi_rbc_block,
           {"BLOCK", "scsi.rbc.block", FT_BOOLEAN, 8,
            NULL, 0x01, "", HFILL}},
-        { &hf_scsi_rbc_data_len,
-          {"Data Len", "scsi.rbc.data_len", FT_UINT16, BASE_DEC,
-           NULL, 0, "", HFILL}},
         { &hf_scsi_rbc_lob_blocks,
           {"Buffer Len (blocks)", "scsi.rbc.lob_blocks", FT_UINT32, BASE_DEC,
            NULL, 0, "", HFILL}},
@@ -7155,6 +7235,51 @@ proto_register_scsi (void)
            NULL, 0, "", HFILL}},
         { &hf_scsi_reservation_size,
           {"Reservation Size", "scsi.reservation_size", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_rti_address_type,
+          {"Address Type", "scsi.rti.address_type", FT_UINT8, BASE_HEX,
+           VALS(scsi_rti_address_type_val), 0x03, "", HFILL}},
+        { &hf_scsi_rti_damage,
+          {"Damage", "scsi.rti.damage", FT_BOOLEAN, 8,
+           NULL, 0x20, "", HFILL}},
+        { &hf_scsi_rti_copy,
+          {"Copy", "scsi.rti.copy", FT_BOOLEAN, 8,
+           NULL, 0x10, "", HFILL}},
+        { &hf_scsi_rti_track_mode,
+          {"Track Mode", "scsi.rti.track_mode", FT_UINT8, BASE_HEX,
+           NULL, 0x0f, "", HFILL}},
+        { &hf_scsi_rti_rt,
+          {"RT", "scsi.rti.rt", FT_BOOLEAN, 8,
+           NULL, 0x80, "", HFILL}},
+        { &hf_scsi_rti_blank,
+          {"Blank", "scsi.rti.blank", FT_BOOLEAN, 8,
+           NULL, 0x40, "", HFILL}},
+        { &hf_scsi_rti_packet,
+          {"Packet/Inc", "scsi.rti.packet", FT_BOOLEAN, 8,
+           NULL, 0x20, "", HFILL}},
+        { &hf_scsi_rti_fp,
+          {"FP", "scsi.rti.fp", FT_BOOLEAN, 8,
+           NULL, 0x10, "", HFILL}},
+        { &hf_scsi_rti_data_mode,
+          {"Data Mode", "scsi.rti.data_mode", FT_UINT8, BASE_HEX,
+           NULL, 0x0f, "", HFILL}},
+        { &hf_scsi_rti_lra_v,
+          {"LRA_V", "scsi.rti.lra_v", FT_BOOLEAN, 8,
+           NULL, 0x02, "", HFILL}},
+        { &hf_scsi_rti_nwa_v,
+          {"NWA_V", "scsi.rti.nwa_v", FT_BOOLEAN, 8,
+           NULL, 0x01, "", HFILL}},
+        { &hf_scsi_free_blocks,
+          {"Free Blocks", "scsi.free_blocks", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_fixed_packet_size,
+          {"Fixed Packet Size", "scsi.fixed_packet_size", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_last_recorded_address,
+          {"Last Recorded Address", "scsi.last_recorded_address", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_read_compatibility_lba,
+          {"Read Compatibility LBA", "scsi.read_compatibility_lba", FT_UINT32, BASE_DEC,
            NULL, 0, "", HFILL}},
 
     };
