@@ -2821,14 +2821,14 @@ cf_goto_frame(capture_file *cf, guint fnumber)
   if (fdata == NULL) {
     /* we didn't find a packet with that packet number */
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-	 	  "There is no packet with that packet number.");
+	 	  "There is no packet with the packet number %u.", fnumber);
     return FALSE;	/* we failed to go to that packet */
   }
   if (!fdata->flags.passed_dfilter) {
     /* that packet currently isn't displayed */
     /* XXX - add it to the set of displayed packets? */
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		  "That packet isn't currently being displayed.");
+		  "The packet number %u isn't currently being displayed.", fnumber);
     return FALSE;	/* we failed to go to that packet */
   }
 
