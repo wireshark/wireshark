@@ -696,7 +696,7 @@ dissect_ReadWrite_header(tvbuff_t *tvb, int offset,
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_seq_number, &u16SeqNr);
 
-    offset = dissect_ndr_uuid_t(tvb, offset, pinfo, tree, drep, 
+    offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_ar_uuid, &uuid);
 
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
@@ -784,7 +784,7 @@ dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_reserved16, NULL);
 
-    offset = dissect_ndr_uuid_t(tvb, offset, pinfo, tree, drep, 
+    offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_ar_uuid, &ar_uuid);
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
@@ -850,13 +850,13 @@ dissect_ARBlockReq(tvbuff_t *tvb, int offset,
 
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_ar_type, &u16ARType);
-    offset = dissect_ndr_uuid_t(tvb, offset, pinfo, tree, drep, 
+    offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_ar_uuid, &uuid);
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_sessionkey, &u16SessionKey);
     offset = dissect_MAC(tvb, offset, pinfo, tree, 
                         hf_pn_io_cminitiator_macadd, mac);
-    offset = dissect_ndr_uuid_t(tvb, offset, pinfo, tree, drep, 
+    offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_cminitiator_objectuuid, &uuid);
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_ar_properties, &u32ARProperties);
@@ -896,7 +896,7 @@ dissect_ARBlockRes(tvbuff_t *tvb, int offset,
 
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_ar_type, &u16ARType);
-    offset = dissect_ndr_uuid_t(tvb, offset, pinfo, tree, drep, 
+    offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_ar_uuid, &uuid);
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_sessionkey, &u16SessionKey);
@@ -1439,6 +1439,7 @@ dissect_block(tvbuff_t *tvb, int offset,
     /* block length is without type and length fields, but with version field */
     /* as it's already dissected, remove it */
     u16BodyLength = u16BlockLength - 2;
+    tvb_ensure_bytes_exist(tvb, offset, u16BodyLength);
 
     switch(u16BlockType) {
     case(0x0001):
