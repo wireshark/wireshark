@@ -1756,22 +1756,22 @@ void proto_register_cops(void)
     },
     { &hf_cops_in_int_ipv4,
       { "IPv4 address",           "cops.in-int.ipv4",
-      FT_IPv4, 0, NULL, 0xFFFF,
+      FT_IPv4, 0, NULL, 0,
       "IPv4 address in COPS IN-Int object", HFILL }
     },
     { &hf_cops_in_int_ipv6,
       { "IPv6 address",           "cops.in-int.ipv6",
-      FT_IPv6, 0, NULL, 0xFFFF,
+      FT_IPv6, 0, NULL, 0,
       "IPv6 address in COPS IN-Int object", HFILL }
     },
     { &hf_cops_out_int_ipv4,
       { "IPv4 address",           "cops.out-int.ipv4",
-      FT_IPv4, 0, NULL, 0xFFFF,
+      FT_IPv4, 0, NULL, 0,
       "IPv4 address in COPS OUT-Int object", HFILL }
     },
     { &hf_cops_out_int_ipv6,
       { "IPv6 address",           "cops.out-int.ipv6",
-      FT_IPv6, 0, NULL, 0xFFFF,
+      FT_IPv6, 0, NULL, 0,
       "IPv6 address in COPS OUT-Int", HFILL }
     },
     { &hf_cops_int_ifindex,
@@ -1826,22 +1826,22 @@ void proto_register_cops(void)
     },
     { &hf_cops_pdprediraddr_ipv4,
       { "IPv4 address",           "cops.pdprediraddr.ipv4",
-      FT_IPv4, 0, NULL, 0xFFFF,
+      FT_IPv4, 0, NULL, 0,
       "IPv4 address in COPS PDPRedirAddr object", HFILL }
     },
     { &hf_cops_pdprediraddr_ipv6,
       { "IPv6 address",           "cops.pdprediraddr.ipv6",
-      FT_IPv6, 0, NULL, 0xFFFF,
+      FT_IPv6, 0, NULL, 0,
       "IPv6 address in COPS PDPRedirAddr object", HFILL }
     },
     { &hf_cops_lastpdpaddr_ipv4,
       { "IPv4 address",           "cops.lastpdpaddr.ipv4",
-      FT_IPv4, 0, NULL, 0xFFFF,
+      FT_IPv4, 0, NULL, 0,
       "IPv4 address in COPS LastPDPAddr object", HFILL }
     },
     { &hf_cops_lastpdpaddr_ipv6,
       { "IPv6 address",           "cops.lastpdpaddr.ipv6",
-      FT_IPv6, 0, NULL, 0xFFFF,
+      FT_IPv6, 0, NULL, 0,
       "IPv6 address in COPS LastPDPAddr object", HFILL }
     },
     { &hf_cops_pdp_tcp_port,
@@ -2217,12 +2217,12 @@ void proto_register_cops(void)
     },
     { &hf_cops_pcmm_classifier_src_addr,
 	    { "Source address", "cops.pc_mm_classifier_src_addr",
-	    FT_IPv4, 0, NULL, 0xFFFF,
+	    FT_IPv4, 0, NULL, 0,
 	    "PacketCable Multimedia Classifier Source IP Address", HFILL }
     },
     { &hf_cops_pcmm_classifier_dst_addr,
 	    { "Destination address", "cops.pc_mm_classifier_dst_addr",
-	    FT_IPv4, 0, NULL, 0xFFFF,
+	    FT_IPv4, 0, NULL, 0,
 	    "PacketCable Multimedia Classifier Destination IP Address", HFILL }
     },
     { &hf_cops_pcmm_classifier_src_port,
