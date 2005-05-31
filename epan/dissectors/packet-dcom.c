@@ -1181,6 +1181,7 @@ dissect_dcom_append_UUID(tvbuff_t *tvb, int offset,
 
 
 /* get a zero terminated wide character string from tvb */
+/* maxlength is including zero termination */
 /* XXX: is there a function existing somewhere, already implementing this? */
 int
 dcom_tvb_get_nwstringz0(tvbuff_t *tvb, gint offset, guint32 maxlength, gchar *pszStr)
@@ -1190,7 +1191,7 @@ dcom_tvb_get_nwstringz0(tvbuff_t *tvb, gint offset, guint32 maxlength, gchar *ps
 
 
 	/* get LPWSTR to ascii */
-	g_assert(maxlength > 0);
+	DISSECTOR_ASSERT(maxlength > 0);
 	u32Idx = 0;
 	pszStr[0] = 0;
 	while (u32Idx < maxlength-1) {
@@ -1333,13 +1334,18 @@ dissect_dcom_BSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	u32RealOffset = offset + u32ArraySize*2;
 
+    DISSECTOR_ASSERT(u32MaxStr != 0);
 	u32ArraySize++;	/* u32MaxStr is including zero termination */
 	if (u32ArraySize < u32MaxStr) {
 		u32MaxStr = u32ArraySize;
 	}
 
 	u32StrStart = offset;
-	offset = dcom_tvb_get_nwstringz0(tvb, offset, u32MaxStr, pszStr);
+    if(u32MaxStr != 0) {
+	    offset = dcom_tvb_get_nwstringz0(tvb, offset, u32MaxStr, pszStr);
+    } else {
+        strcpy(pszStr, "");
+    }
 
 #if GLIB_MAJOR_VERSION < 2
     pszEscaped = g_strescape(pszStr);
