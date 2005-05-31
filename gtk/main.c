@@ -1604,8 +1604,9 @@ main(int argc, char *argv[])
   GtkWidget           *splash_win = NULL;
   gboolean             capture_child; /* True if this is the child for "-S" */
   GLogLevelFlags       log_flags;
+  guint                go_to_packet = 0;
 
-#define OPTSTRING_INIT "a:b:c:f:Hhi:klLm:nN:o:pQr:R:Ss:t:w:vy:z:"
+#define OPTSTRING_INIT "a:b:c:f:g:Hhi:klLm:nN:o:pQr:R:Ss:t:w:vy:z:"
 
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
@@ -1970,6 +1971,9 @@ main(int argc, char *argv[])
 #endif
 
       /*** all non capture option specific ***/
+      case 'g':        /* Go to packet */
+        go_to_packet = get_positive_int("Ethereal", optarg, "go to packet");
+        break;
       case 'h':        /* Print help and exit */
 	print_usage(TRUE);
 	exit(0);
@@ -2444,6 +2448,10 @@ main(int argc, char *argv[])
           /* Just because we got an error, that doesn't mean we were unable
              to read any of the file; we handle what we could get from the
              file. */
+          /* if the user told us to jump to a specific packet, do it now */
+          if(go_to_packet != 0) {
+            cf_goto_frame(&cfile, go_to_packet);
+          }
           break;
 
         case CF_READ_ABORTED:

@@ -11,6 +11,7 @@ S<[ B<-b> ring buffer options] ...>
 S<[ B<-B> capture buffer size (Win32 only) ] ...>
 S<[ B<-c> count ]>
 S<[ B<-f> capture filter expression ]>
+S<[ B<-g> packet number ]>
 S<[ B<-h> ]>
 S<[ B<-i> interface ]> 
 S<[ B<-k> ]>
@@ -222,6 +223,10 @@ data.
 =item -f
 
 Set the capture filter expression.
+
+=item -g
+
+After reading in a capture file using B<-r>, go to the given I<packet number>.
 
 =item -h
 
