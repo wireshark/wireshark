@@ -548,8 +548,6 @@ dissect_get_Producer_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 
-    offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
-
 	return dissect_get_BSTR_resp(tvb, offset, pinfo, tree, drep, hf_cba_producer);
 }
 
@@ -558,8 +556,6 @@ static int
 dissect_get_Product_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-
-    offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
 	return dissect_get_BSTR_resp(tvb, offset, pinfo, tree, drep, hf_cba_product);
 }
@@ -736,8 +732,6 @@ static int
 dissect_get_Name_resp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-
-    offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
 
 	return dissect_get_BSTR_resp(tvb, offset, pinfo, tree, drep, hf_cba_name);
 }
