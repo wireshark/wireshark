@@ -29,7 +29,8 @@ all: \
 	rtnet \
 	rudp \
 	stats_tree \
-	v5ua xml \
+	v5ua \
+	xml
 
 
 acn:: 
@@ -152,6 +153,7 @@ xml::
 	cd ..
 
 clean:
+	rm -rf $(VERSION)
 	cd acn
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../agentx
