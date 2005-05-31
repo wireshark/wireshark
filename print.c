@@ -346,7 +346,15 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 			}
 			if (fi->length > 0) {
 				fputs("\" value=\"", pdata->fh);
-				write_pdml_field_hex_value(pdata, fi);
+
+				if (fi->hfinfo->bitmask!=0) {
+					fprintf(pdata->fh, "%X", fvalue_get_integer(&fi->value));
+					fputs("\" unmaskedvalue=\"", pdata->fh);
+					write_pdml_field_hex_value(pdata, fi);
+				}
+				else {
+                    write_pdml_field_hex_value(pdata, fi);
+                }
 			}
 		}
 
