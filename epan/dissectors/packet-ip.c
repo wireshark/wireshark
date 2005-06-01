@@ -1779,7 +1779,7 @@ proto_register_ip(void)
 	ip_module = prefs_register_protocol(proto_ip, NULL);
 	prefs_register_bool_preference(ip_module, "decode_tos_as_diffserv",
 	    "Decode IPv4 TOS field as DiffServ field",
-	    "Whether the IPv4 type-of-service field should be decoded as a Differentiated Services field",
+	    "Whether the IPv4 type-of-service field should be decoded as a Differentiated Services field (see RFC2474/RFC2475)",
 	    &g_ip_dscp_actif);
 	prefs_register_bool_preference(ip_module, "defragment",
 		"Reassemble fragmented IP datagrams",
