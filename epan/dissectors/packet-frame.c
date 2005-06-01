@@ -81,6 +81,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	nstime_t	ts;
 	int		cap_len = 0, pkt_len = 0;
 	proto_tree	*tree;
+    proto_item  *item;
 
 	tree=parent_tree;
 
@@ -170,14 +171,16 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  ts.secs = pinfo->fd->del_secs;
 	  ts.nsecs = pinfo->fd->del_usecs*1000;
 
-	  proto_tree_add_time(fh_tree, hf_frame_time_delta, tvb,
+	  item = proto_tree_add_time(fh_tree, hf_frame_time_delta, tvb,
 		0, 0, &ts);
+      PROTO_ITEM_SET_GENERATED(item);
 
 	  ts.secs = pinfo->fd->rel_secs;
 	  ts.nsecs = pinfo->fd->rel_usecs*1000;
 
-	  proto_tree_add_time(fh_tree, hf_frame_time_relative, tvb,
+	  item = proto_tree_add_time(fh_tree, hf_frame_time_relative, tvb,
 		0, 0, &ts);
+      PROTO_ITEM_SET_GENERATED(item);
 
 	  proto_tree_add_uint(fh_tree, hf_frame_number, tvb,
 		0, 0, pinfo->fd->num);
@@ -192,6 +195,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	  ti = proto_tree_add_string(fh_tree, hf_frame_protocols, tvb,
 	  	0, 0, "");
+      PROTO_ITEM_SET_GENERATED(ti);
 	  pinfo->layer_names = g_string_new("");
 
 	  /* Check for existences of P2P pseudo header */
@@ -318,23 +322,23 @@ proto_register_frame(void)
 		{ &hf_frame_time_delta,
 		{ "Time delta from previous packet",	"frame.time_delta", FT_RELATIVE_TIME, BASE_NONE, NULL,
 			0x0,
-			"Time delta since previous diplayed frame", HFILL }},
+			"Time delta since previous displayed frame", HFILL }},
 
 		{ &hf_frame_time_relative,
 		{ "Time since reference or first frame",	"frame.time_relative", FT_RELATIVE_TIME, BASE_NONE, NULL,
 			0x0,
-			"Time relative reference or first frame", HFILL }},
+			"Time relative to time reference or first frame", HFILL }},
 
 		{ &hf_frame_number,
 		{ "Frame Number",		"frame.number", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 
 		{ &hf_frame_packet_len,
-		{ "Total Frame Length",		"frame.pkt_len", FT_UINT32, BASE_DEC, NULL, 0x0,
+		{ "Frame length on the wire",		"frame.pkt_len", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 
 		{ &hf_frame_capture_len,
-		{ "Capture Frame Length",	"frame.cap_len", FT_UINT32, BASE_DEC, NULL, 0x0,
+		{ "Frame length stored into the capture file",	"frame.cap_len", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 
 		{ &hf_frame_p2p_dir,
