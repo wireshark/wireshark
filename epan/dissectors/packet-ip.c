@@ -56,7 +56,7 @@ static int ip_tap = -1;
 
 static void dissect_icmp(tvbuff_t *, packet_info *, proto_tree *);
 
-/* Decode the old IPv4 TOS field as the DiffServ DS Field */
+/* Decode the old IPv4 TOS field as the DiffServ DS Field (RFC2474/2475) */
 static gboolean g_ip_dscp_actif = TRUE;
 
 /* Defragment fragmented IP datagrams */
@@ -81,8 +81,11 @@ static int hf_ip_tos_cost = -1;
 static int hf_ip_len = -1;
 static int hf_ip_id = -1;
 static int hf_ip_dst = -1;
+static int hf_ip_dst_host = -1;
 static int hf_ip_src = -1;
+static int hf_ip_src_host = -1;
 static int hf_ip_addr = -1;
+static int hf_ip_host = -1;
 static int hf_ip_flags = -1;
 static int hf_ip_flags_rf = -1;
 static int hf_ip_flags_df = -1;
@@ -834,6 +837,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   const guchar		*src_addr, *dst_addr;
   guint32 		src32, dst32;
   proto_tree *tree;
+  proto_item *item;
 
   tree=parent_tree;
 
@@ -973,12 +977,13 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     if (tree) {
       if (ipsum == 0) {
 	proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum,
-              "Header checksum: 0x%04x (correct)", iph->ip_sum);
+              "Header checksum: 0x%04x [correct]", iph->ip_sum);
       }
       else {
-	proto_tree_add_boolean_hidden(ip_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, TRUE);
+	item = proto_tree_add_boolean_hidden(ip_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, TRUE);
+	PROTO_ITEM_SET_HIDDEN(item);
 	proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum,
-          "Header checksum: 0x%04x (incorrect, should be 0x%04x)", iph->ip_sum,
+          "Header checksum: 0x%04x [incorrect, should be 0x%04x]", iph->ip_sum,
 	  in_cksum_shouldbe(iph->ip_sum, ipsum));
       }
     }
@@ -995,11 +1000,18 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   if (tree) {
     memcpy(&addr, iph->ip_src.data, 4);
     if (ip_summary_in_tree) {
-      proto_item_append_text(ti, ", Src Addr: %s (%s)",
+      proto_item_append_text(ti, ", Src: %s (%s)",
 		get_hostname(addr), ip_to_str(iph->ip_src.data));
     }
     proto_tree_add_ipv4(ip_tree, hf_ip_src, tvb, offset + 12, 4, addr);
-    proto_tree_add_ipv4_hidden(ip_tree, hf_ip_addr, tvb, offset + 12, 4, addr);
+    item = proto_tree_add_ipv4(ip_tree, hf_ip_addr, tvb, offset + 12, 4, addr);
+    PROTO_ITEM_SET_HIDDEN(item);
+    item = proto_tree_add_string(ip_tree, hf_ip_src_host, tvb, offset + 12, 4, get_hostname(addr));
+    PROTO_ITEM_SET_GENERATED(item);
+    PROTO_ITEM_SET_HIDDEN(item);
+    item = proto_tree_add_string(ip_tree, hf_ip_host, tvb, offset + 12, 4, get_hostname(addr));
+    PROTO_ITEM_SET_GENERATED(item);
+    PROTO_ITEM_SET_HIDDEN(item);
   }
   dst_addr = tvb_get_ptr(tvb, offset + IPH_DST, 4);
   dst32 = tvb_get_ntohl(tvb, offset + IPH_DST);
@@ -1010,11 +1022,18 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   if (tree) {
     memcpy(&addr, iph->ip_dst.data, 4);
     if (ip_summary_in_tree) {
-      proto_item_append_text(ti, ", Dst Addr: %s (%s)",
+      proto_item_append_text(ti, ", Dst: %s (%s)",
 		get_hostname(addr), ip_to_str(iph->ip_dst.data));
     }
     proto_tree_add_ipv4(ip_tree, hf_ip_dst, tvb, offset + 16, 4, addr);
-    proto_tree_add_ipv4_hidden(ip_tree, hf_ip_addr, tvb, offset + 16, 4, addr);
+    item = proto_tree_add_ipv4(ip_tree, hf_ip_addr, tvb, offset + 16, 4, addr);
+    PROTO_ITEM_SET_HIDDEN(item);
+    item = proto_tree_add_string(ip_tree, hf_ip_dst_host, tvb, offset + 16, 4, get_hostname(addr));
+    PROTO_ITEM_SET_GENERATED(item);
+    PROTO_ITEM_SET_HIDDEN(item);
+    item = proto_tree_add_string(ip_tree, hf_ip_host, tvb, offset + 16, 4, get_hostname(addr));
+    PROTO_ITEM_SET_GENERATED(item);
+    PROTO_ITEM_SET_HIDDEN(item);
   }
 
   if (tree) {
@@ -1331,6 +1350,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int        i;
   gboolean   save_in_error_pkt;
   tvbuff_t   *next_tvb;
+  proto_item *item;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICMP");
@@ -1451,8 +1471,9 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  			  cksum,
 			  "Checksum: 0x%04x (correct)", cksum);
       } else {
-        proto_tree_add_boolean_hidden(icmp_tree, hf_icmp_checksum_bad,
+        item = proto_tree_add_boolean(icmp_tree, hf_icmp_checksum_bad,
 			  tvb, 2, 2, TRUE);
+        PROTO_ITEM_SET_HIDDEN(item);
         proto_tree_add_uint_format(icmp_tree, hf_icmp_checksum, tvb, 2, 2,
 		  cksum,
 		  "Checksum: 0x%04x (incorrect, should be 0x%04x)",
@@ -1644,12 +1665,24 @@ proto_register_ip(void)
 		{ "Destination",	"ip.dst", FT_IPv4, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
 
+		{ &hf_ip_dst_host,
+		{ "Destination Host",		"ip.dst_host", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+
 		{ &hf_ip_src,
 		{ "Source",		"ip.src", FT_IPv4, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
 
+		{ &hf_ip_src_host,
+		{ "Source Host",		"ip.src_host", FT_STRING, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+
 		{ &hf_ip_addr,
 		{ "Source or Destination Address", "ip.addr", FT_IPv4, BASE_NONE, NULL, 0x0,
+			"", HFILL }},
+
+		{ &hf_ip_host,
+		{ "Source or Destination Host", "ip.host", FT_STRING, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
 
 		{ &hf_ip_flags,
