@@ -1249,13 +1249,18 @@ dissect_dcom_indexed_LPWSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, sub_tree, drep, 
                         &u32ArraySize);
 
+    DISSECTOR_ASSERT(u32MaxStr != 0);
 	u32ArraySize++;	/* u32MaxStr is including zero termination */
 	if (u32ArraySize < u32MaxStr) {
 		u32MaxStr = u32ArraySize;
 	}
 
 	u32StrStart = offset;
-	offset = dcom_tvb_get_nwstringz0(tvb, offset, u32MaxStr, pszStr);
+    if(u32MaxStr != 0) {
+	    offset = dcom_tvb_get_nwstringz0(tvb, offset, u32MaxStr, pszStr);
+    } else {
+        strcpy(pszStr, "");
+    }
 
 #if GLIB_MAJOR_VERSION < 2
     pszEscaped = g_strescape(pszStr);
