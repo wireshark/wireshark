@@ -2188,7 +2188,7 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/proto.h>
-#include "packet-giop.h"
+#include <epan/dissectors/packet-giop.h>
 
 #ifndef ENABLE_STATIC
 G_MODULE_EXPORT const gchar version[] = "0.0.1";
