@@ -29,7 +29,7 @@ INCLUDES = -I$(top_srcdir)
 
 plugindir = @plugindir@
 
-plugin_LTLIBRARIES = cosnaming.la coseventcomm.la
+plugin_LTLIBRARIES = cosnaming.la coseventcomm.la tango.la
 cosnaming_la_SOURCES = packet-cosnaming.c moduleinfo.h
 cosnaming_la_LDFLAGS = -module -avoid-version
 cosnaming_la_LIBADD = @PLUGIN_LIBS@
@@ -37,6 +37,9 @@ cosnaming_la_LIBADD = @PLUGIN_LIBS@
 coseventcomm_la_SOURCES = packet-coseventcomm.c moduleinfo.h
 coseventcomm_la_LDFLAGS = -module -avoid-version
 coseventcomm_la_LIBADD = @PLUGIN_LIBS@
+tango_la_SOURCES = packet-tango.c moduleinfo.h
+tango_la_LDFLAGS = -module -avoid-version
+tango_la_LIBADD = @PLUGIN_LIBS@
 
 # Libs must be cleared, or else libtool won't create a shared module.
 # If your module needs to be linked against any particular libraries,
@@ -46,6 +49,7 @@ LIBS =
 CLEANFILES = \
 	cosnaming \
 	coseventcomm \
+       tango \
 	*~
 
 EXTRA_DIST = \
