@@ -1313,10 +1313,10 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, char *name,
             rid_present=TRUE;
             rid_offset=offset;
 	    offset+=4;
-            sprintf(sid_string, "S-1-%u-%s-%u", auth, gstr->str, rid);
+            g_snprintf(sid_string, sizeof(sid_string), "S-1-%u-%s-%u", auth, gstr->str, rid);
 	  } else {
             rid_present=FALSE;
-            sprintf(sid_string, "S-1-%u-%s", auth, gstr->str);
+            g_snprintf(sid_string, sizeof(sid_string), "S-1-%u-%s", auth, gstr->str);
           }
 
           sid_name=NULL;
