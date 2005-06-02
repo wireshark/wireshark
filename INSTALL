@@ -1,3 +1,9 @@
+NOTE: this document applies to the Ethereal source releases.  It also
+applies to buildbot source tarballs, but it does not apply to source
+code checked out directly from Subversion, as files such as the
+configuration script are not checked into Subversion, but need to be
+generated from the autoconf and automake files.
+
 Installation
 ============
 
