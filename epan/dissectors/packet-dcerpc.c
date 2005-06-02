@@ -3091,6 +3091,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     if(!(hdr->flags&PFC_LAST_FRAG)){
 	tot_len = fragment_get_tot_len(pinfo, frame,
 		 dcerpc_co_reassemble_table);
+    tvb_ensure_bytes_exist(tvb, tot_len-alloc_hint, tvb_length(decrypted_tvb));
 	fragment_add(decrypted_tvb, 0, pinfo, frame,
 		 dcerpc_co_reassemble_table,
 		 tot_len-alloc_hint, tvb_length(decrypted_tvb),
@@ -3107,6 +3108,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     */
     tot_len = fragment_get_tot_len(pinfo, frame,
 		dcerpc_co_reassemble_table);
+    tvb_ensure_bytes_exist(tvb, tot_len-alloc_hint, tvb_length(decrypted_tvb));
     fd_head = fragment_add(decrypted_tvb, 0, pinfo,
 		frame,
 		dcerpc_co_reassemble_table,
