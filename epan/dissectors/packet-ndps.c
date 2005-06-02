@@ -5690,6 +5690,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 {
                     proto_tree_add_item(atree, hf_ndps_attribute_value, tvb, foffset, length, FALSE);
                 }
+                tvb_ensure_bytes_exist(tvb, foffset, length);
                 foffset += length;
                 proto_item_set_end(aitem, tvb, foffset);
             }
