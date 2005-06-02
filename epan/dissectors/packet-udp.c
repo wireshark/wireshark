@@ -257,13 +257,13 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       computed_cksum = in_cksum(&cksum_vec[0], 4);
       if (computed_cksum == 0) {
         proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
-          offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x (correct)", udph->uh_sum);
+          offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x [correct]", udph->uh_sum);
       } else {
 	proto_tree_add_boolean_hidden(udp_tree, hf_udp_checksum_bad, tvb,
 	   offset + 6, 2, TRUE);
         proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
           offset + 6, 2, udph->uh_sum,
-	  "Checksum: 0x%04x (incorrect, should be 0x%04x)", udph->uh_sum,
+	  "Checksum: 0x%04x [incorrect, should be 0x%04x]", udph->uh_sum,
 	   in_cksum_shouldbe(udph->uh_sum, computed_cksum));
       }
     } else {
