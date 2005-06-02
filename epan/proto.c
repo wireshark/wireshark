@@ -3068,8 +3068,8 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_IPXNET:
 			integer = fvalue_get_integer(&fi->value);
 			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
-				"%s: 0x%08X (%s)", hfinfo->name,
-				integer, get_ipxnet_name(integer));
+				"%s: %s (0x%08X)", hfinfo->name,
+				get_ipxnet_name(integer), integer);
 			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
@@ -3078,8 +3078,8 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			bytes = fvalue_get(&fi->value);
 			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s (%s)", hfinfo->name,
-				ether_to_str(bytes),
-				get_ether_name(bytes));
+				get_ether_name(bytes),
+				ether_to_str(bytes));
 			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
