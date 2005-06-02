@@ -821,8 +821,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 */
 			e_ti = proto_tree_add_text(http_tree, next_tvb,
 					0, tvb_length(next_tvb),
-					"Content-encoded entity body (%s)",
-					headers.content_encoding);
+					"Content-encoded entity body (%s): %u bytes",
+					headers.content_encoding,
+                    tvb_length(next_tvb));
 			e_tree = proto_item_add_subtree(e_ti,
 					ett_http_encoded_entity);
 
@@ -838,6 +839,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 *
  				tvb_free(next_tvb);
 				*/
+                proto_item_append_text(e_ti, " -> %u bytes", tvb_length(uncomp_tvb));
 				next_tvb = uncomp_tvb;
 				tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 				add_new_data_source(pinfo, next_tvb,
