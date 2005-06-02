@@ -2497,6 +2497,45 @@ proto_tree_get_parent(proto_tree *tree) {
 }
 
 
+void
+proto_tree_move_item(proto_tree *tree, proto_item *fixed_item, proto_item *item_to_move)
+{
+    proto_item *curr_item;
+
+
+    /*** cut item_to_move out ***/
+
+    /* is item_to_move the first? */
+    if(tree->first_child == item_to_move) {
+        /* simply change first child to next */
+        tree->first_child = item_to_move->next;
+    } else {
+        /* find previous and change it's next */
+        for(curr_item = tree->first_child; curr_item != NULL; curr_item = curr_item->next) {
+            if(curr_item->next == item_to_move) {
+                break;
+            }
+        }
+
+        DISSECTOR_ASSERT(curr_item);
+
+        curr_item->next = item_to_move->next;
+
+        /* fix last_child if required */
+        if(tree->last_child == item_to_move) {
+            tree->last_child = curr_item;
+        } 
+    }
+
+    /*** insert to_move after fixed ***/
+    item_to_move->next = fixed_item->next;
+    fixed_item->next = item_to_move;
+    if(tree->last_child == fixed_item) {
+        tree->last_child = item_to_move;
+    }
+}
+
+
 int
 proto_register_protocol(char *name, char *short_name, char *filter_name)
 {
