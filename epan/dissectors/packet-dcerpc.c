@@ -3127,12 +3127,13 @@ end_cn_stub:
 
 	if(pinfo->fd->num==fd_head->reassembled_in){
 	    tvbuff_t *next_tvb;
+        proto_item *frag_tree_item;
 
 	    next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen, fd_head->datalen);
 	    tvb_set_child_real_data_tvbuff(decrypted_tvb, next_tvb);
 	    add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
 	    show_fragment_tree(fd_head, &dcerpc_frag_items,
-		dcerpc_tree, pinfo, next_tvb);
+		dcerpc_tree, pinfo, next_tvb, &frag_tree_item);
 
 	    pinfo->fragmented = FALSE;
 
@@ -3727,12 +3728,13 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			if(fd_head){
 			    /* We completed reassembly */
 			    tvbuff_t *next_tvb;
+                proto_item *frag_tree_item;
 
 			    next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen, fd_head->datalen);
 			    tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 			    add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
 			    show_fragment_tree(fd_head, &dcerpc_frag_items,
-				dcerpc_tree, pinfo, next_tvb);
+				dcerpc_tree, pinfo, next_tvb, &frag_tree_item);
 
 			    /*
 			     * XXX - should there be a third routine for each

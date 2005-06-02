@@ -1612,6 +1612,7 @@ process_reassembled_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	tvbuff_t *next_tvb;
 	gboolean update_col_info;
+    proto_item *frag_tree_item;
 
 	if (fd_head != NULL && pinfo->fd->num == fd_head->reassembled_in) {
 		/*
@@ -1649,7 +1650,7 @@ process_reassembled_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    fd_head, fit,  tree, pinfo, next_tvb);
 			} else {
 				update_col_info = !show_fragment_tree(fd_head,
-				    fit, tree, pinfo, next_tvb);
+				    fit, tree, pinfo, next_tvb, &frag_tree_item);
 			}
 		} else {
 			/*
@@ -1780,22 +1781,30 @@ show_fragment_errs_in_col(fragment_data *fd_head, const fragment_items *fit,
 */
 gboolean
 show_fragment_tree(fragment_data *fd_head, const fragment_items *fit,
-    proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
+    proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, proto_item **fi)
 {
 	fragment_data *fd;
 	proto_tree *ft;
-	proto_item *fi;
+    int i = 0;
 
 	/* It's not fragmented. */
 	pinfo->fragmented = FALSE;
 
-	fi = proto_tree_add_item(tree, *(fit->hf_fragments),
+	*fi = proto_tree_add_item(tree, *(fit->hf_fragments),
 	    tvb, 0, -1, FALSE);
-	PROTO_ITEM_SET_GENERATED(fi);
+	PROTO_ITEM_SET_GENERATED(*fi);
 
-	ft = proto_item_add_subtree(fi, *(fit->ett_fragments));
-	for (fd = fd_head->next; fd != NULL; fd = fd->next)
+	ft = proto_item_add_subtree(*fi, *(fit->ett_fragments));
+    for (fd = fd_head->next; fd != NULL; fd = fd->next) {
 		show_fragment(fd, fd->offset, fit, ft, tvb);
+        if(i == 0) {
+            proto_item_append_text(*fi, " (%u bytes): ", tvb_length(tvb));
+        } else {
+            proto_item_append_text(*fi, ", ");
+        }
+        proto_item_append_text(*fi, "#%u(%u)", fd->frame, fd->len);
+        i++;
+    }
 
 	return show_fragment_errs_in_col(fd_head, fit, pinfo);
 }

@@ -237,7 +237,7 @@ process_reassembled_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 extern gboolean
 show_fragment_tree(fragment_data *ipfd_head, const fragment_items *fit,
-    proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb);
+    proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, proto_item **fi);
 
 extern gboolean
 show_fragment_seq_tree(fragment_data *ipfd_head, const fragment_items *fit,

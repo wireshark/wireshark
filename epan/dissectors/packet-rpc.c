@@ -2722,6 +2722,8 @@ void
 show_rpc_fraginfo(tvbuff_t *tvb, tvbuff_t *frag_tvb, proto_tree *tree,
     guint32 rpc_rm, fragment_data *ipfd_head, packet_info *pinfo)
 {
+    proto_item *frag_tree_item;
+
 	if (tree == NULL)
 		return;		/* don't do any work */
 
@@ -2737,7 +2739,7 @@ show_rpc_fraginfo(tvbuff_t *tvb, tvbuff_t *frag_tvb, proto_tree *tree,
 		/*
 		 * Show a tree with information about all fragments.
 		 */
-		show_fragment_tree(ipfd_head, &rpc_frag_items, tree, pinfo, tvb);
+		show_fragment_tree(ipfd_head, &rpc_frag_items, tree, pinfo, tvb, &frag_tree_item);
 	} else {
 		/*
 		 * This message was all in one fragment, so just show

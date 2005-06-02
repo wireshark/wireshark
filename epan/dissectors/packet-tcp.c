@@ -1678,6 +1678,9 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	guint32 deseg_seq;
 	gint nbytes;
     proto_item *item;
+    proto_item *frag_tree_item;
+    proto_item *tcp_tree_item;
+
 
 	/*
 	 * Initialize these to assume no desegmentation.
@@ -1872,7 +1875,13 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				 * so we show a tree with all segments.
 				 */
 				show_fragment_tree(ipfd_head, &tcp_segment_items,
-					tcp_tree, pinfo, next_tvb);
+					tree, pinfo, next_tvb, &frag_tree_item);
+                /* the toplevel fragment subtree is now behind all desegmented data,
+                 * move it right behind the TCP tree */
+                tcp_tree_item = proto_tree_get_parent(tcp_tree);
+                if(frag_tree_item && tcp_tree_item) {
+                    proto_tree_move_item(tree, tcp_tree_item, frag_tree_item);
+                }
 
 				/* Did the subdissector ask us to desegment
 				   some more data?  This means that the data
@@ -3278,7 +3287,7 @@ proto_register_tcp(void)
 			"TCP Segment", HFILL }},
 
 		{ &hf_tcp_segments,
-		{ "TCP Segments", "tcp.segments", FT_NONE, BASE_NONE, NULL, 0x0,
+		{ "Reassembled TCP Segments", "tcp.segments", FT_NONE, BASE_NONE, NULL, 0x0,
 			"TCP Segments", HFILL }},
 
 		{ &hf_tcp_reassembled_in,

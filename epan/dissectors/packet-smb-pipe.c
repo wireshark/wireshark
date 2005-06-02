@@ -3263,6 +3263,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 	guint32 hash_key;
 	fragment_data *fd_head;
 	tvbuff_t *new_tvb;
+    proto_item *frag_tree_item;
 
 	pinfo->dcetransportsalt = fid;
 
@@ -3398,7 +3399,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 
 			/* list what segments we have */
 			show_fragment_tree(fd_head, &smb_pipe_frag_items,
-			    tree, pinfo, d_tvb);
+			    tree, pinfo, d_tvb, &frag_tree_item);
 
 			/* dissect the full PDU */
 			result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree);
@@ -3449,7 +3450,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 
 	/* list what segments we have */
 	show_fragment_tree(fd_head, &smb_pipe_frag_items,
-		    tree, pinfo, d_tvb);
+		    tree, pinfo, d_tvb, &frag_tree_item);
 
 	/* dissect the full PDU */
 	result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree);

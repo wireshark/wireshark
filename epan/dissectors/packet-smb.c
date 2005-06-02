@@ -8217,12 +8217,14 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	   must create pd_tvb from it
 	*/
 	if(r_fd){
+        proto_item *frag_tree_item;
+
 		pd_tvb = tvb_new_real_data(r_fd->data, r_fd->datalen,
 					     r_fd->datalen);
 		tvb_set_child_real_data_tvbuff(tvb, pd_tvb);
 		add_new_data_source(pinfo, pd_tvb, "Reassembled SMB");
 
-		show_fragment_tree(r_fd, &smb_frag_items, tree, pinfo, pd_tvb);
+		show_fragment_tree(r_fd, &smb_frag_items, tree, pinfo, pd_tvb, &frag_tree_item);
 	}
 
 
@@ -13597,11 +13599,13 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	   create pd_tvb from it
 	*/
 	if(r_fd){
+        proto_item *frag_tree_item;
+
 		pd_tvb = tvb_new_real_data(r_fd->data, r_fd->datalen,
 					     r_fd->datalen);
 		tvb_set_child_real_data_tvbuff(tvb, pd_tvb);
 		add_new_data_source(pinfo, pd_tvb, "Reassembled SMB");
-		show_fragment_tree(r_fd, &smb_frag_items, tree, pinfo, pd_tvb);
+		show_fragment_tree(r_fd, &smb_frag_items, tree, pinfo, pd_tvb, &frag_tree_item);
 	}
 
 
