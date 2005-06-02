@@ -1027,7 +1027,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 	show_fragment_seq_tree(fd_head,
 			       &cotp_frag_items,
 			       cotp_tree,
-			       pinfo, reassembled_tvb);
+			       pinfo, reassembled_tvb, &ti);
 	pinfo->fragmented = fragment;
 	next_tvb = reassembled_tvb;
       }

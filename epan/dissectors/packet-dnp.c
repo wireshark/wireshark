@@ -390,7 +390,7 @@ dissect_dnp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item   *ti = NULL, *tdl, *tc, *al_chunks;
-    proto_tree   *dnp3_tree = NULL, *dl_tree = NULL, *tr_tree = NULL, *field_tree = NULL, *al_tree = NULL;
+    proto_tree   *dnp3_tree = NULL, *dl_tree = NULL, *tr_tree = NULL, *field_tree = NULL, *al_tree = NULL, *frag_tree_item;
     int           offset = 0;
     gboolean      dl_prm, tr_fir, tr_fin;
     guint8        dl_len, dl_ctl, dl_func, tr_ctl, tr_seq;
@@ -609,7 +609,7 @@ dissect_dnp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (tree)
           /* Show all fragments. */
-          show_fragment_seq_tree(fd_head, &frag_items, tr_tree, pinfo, al_tvb);
+          show_fragment_seq_tree(fd_head, &frag_items, tr_tree, pinfo, al_tvb, &frag_tree_item);
       }
       else {
         /* We don't have the complete reassembled payload. */

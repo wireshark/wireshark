@@ -1647,7 +1647,7 @@ process_reassembled_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			/* show all fragments */
 			if (fd_head->flags & FD_BLOCKSEQUENCE) {
 				update_col_info = !show_fragment_seq_tree(
-				    fd_head, fit,  tree, pinfo, next_tvb);
+				    fd_head, fit,  tree, pinfo, next_tvb, &frag_tree_item);
 			} else {
 				update_col_info = !show_fragment_tree(fd_head,
 				    fit, tree, pinfo, next_tvb, &frag_tree_item);
@@ -1817,20 +1817,21 @@ show_fragment_tree(fragment_data *fd_head, const fragment_items *fit,
 */
 gboolean
 show_fragment_seq_tree(fragment_data *fd_head, const fragment_items *fit,
-    proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
+    proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, proto_item **fi)
 {
 	guint32 offset, next_offset;
 	fragment_data *fd, *last_fd;
 	proto_tree *ft;
-	proto_item *fi;
+    int i = 0;
 
 	/* It's not fragmented. */
 	pinfo->fragmented = FALSE;
 
-	fi = proto_tree_add_item(tree, *(fit->hf_fragments),
+	*fi = proto_tree_add_item(tree, *(fit->hf_fragments),
 	    tvb, 0, -1, FALSE);
-	PROTO_ITEM_SET_GENERATED(fi);
-	ft = proto_item_add_subtree(fi, *(fit->ett_fragments));
+	PROTO_ITEM_SET_GENERATED(*fi);
+
+	ft = proto_item_add_subtree(*fi, *(fit->ett_fragments));
 	offset = 0;
 	next_offset = 0;
 	last_fd = NULL;
@@ -1841,6 +1842,13 @@ show_fragment_seq_tree(fragment_data *fd_head, const fragment_items *fit,
 		}
 		last_fd = fd;
 		show_fragment(fd, offset, fit, ft, tvb);
+        if(i == 0) {
+            proto_item_append_text(*fi, " (%u bytes): ", tvb_length(tvb));
+        } else {
+            proto_item_append_text(*fi, ", ");
+        }
+        proto_item_append_text(*fi, "#%u(%u)", fd->frame, fd->len);
+        i++;
 	}
 
 	return show_fragment_errs_in_col(fd_head, fit, pinfo);

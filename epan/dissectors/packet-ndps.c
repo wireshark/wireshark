@@ -4029,6 +4029,8 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* Is this the last fragment? EOM will indicate */
                 if (fd_head->next != NULL && spx_info->eom) 
                 {
+                    proto_item *frag_tree_item;
+
                     next_tvb = tvb_new_real_data(fd_head->data,
                         fd_head->len, fd_head->len);
                     tvb_set_child_real_data_tvbuff(tvb,
@@ -4042,7 +4044,7 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         show_fragment_seq_tree(fd_head,
                             &ndps_frag_items,
                             tree, pinfo,
-                            next_tvb);
+                            next_tvb, &frag_tree_item);
                         tid++;
                     }
                     /* Remember this fragment number so we can dissect again */

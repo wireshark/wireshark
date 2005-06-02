@@ -2483,7 +2483,10 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 				add_new_data_source(pinfo, next_tvb, "Reassembled Q.931 IEs");
 				/* Show all fragments. */
-				if (tree) show_fragment_seq_tree(fd_head, &q931_frag_items, q931_tree, pinfo, next_tvb);
+                if (tree) {
+                    proto_item *frag_tree_item;
+                    show_fragment_seq_tree(fd_head, &q931_frag_items, q931_tree, pinfo, next_tvb, &frag_tree_item);
+                }
 			} else {  /* only 1 segment */
 				next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 			}

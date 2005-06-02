@@ -2175,6 +2175,8 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	      
 		if (fd_head) {
 		    if (fd_head->next) {
+		        proto_item *frag_tree_item;
+
 		        /* This is the last packet */
 			next_tvb = tvb_new_real_data(fd_head->data, 
 						     fd_head->len,
@@ -2184,7 +2186,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			show_fragment_seq_tree(fd_head, 
 					       &x25_frag_items, 
 					       x25_tree, 
-					       pinfo, next_tvb);
+					       pinfo, next_tvb, &frag_tree_item);
 		    }
 	        }
 

@@ -241,4 +241,4 @@ show_fragment_tree(fragment_data *ipfd_head, const fragment_items *fit,
 
 extern gboolean
 show_fragment_seq_tree(fragment_data *ipfd_head, const fragment_items *fit,
-    proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb);
+    proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, proto_item **fi);

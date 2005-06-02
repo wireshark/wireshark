@@ -4392,7 +4392,7 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    	tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 	    	add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
 	    	show_fragment_seq_tree(fd_head, &dcerpc_frag_items,
-					   dcerpc_tree, pinfo, next_tvb);
+					   tree, pinfo, next_tvb, &pi);
 
 	    	/*
 	     	 * XXX - authentication info?
@@ -5225,7 +5225,7 @@ proto_register_dcerpc (void)
           { "Operation", "dcerpc.op", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 
 	{ &hf_dcerpc_fragments,
-	  { "DCE/RPC Fragments", "dcerpc.fragments", FT_NONE, BASE_NONE,
+	  { "Reassembled DCE/RPC Fragments", "dcerpc.fragments", FT_NONE, BASE_NONE,
 	  NULL, 0x0, "DCE/RPC Fragments", HFILL }},
 
 	{ &hf_dcerpc_fragment,
