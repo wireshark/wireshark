@@ -4304,10 +4304,11 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequ
                     /* Show all fragments. */
                     if (tree) 
                     {
+                        proto_item *frag_tree_item;
                         show_fragment_seq_tree(fd_head,
                             &nds_frag_items,
                             tree, pinfo,
-                            frag_tvb);
+                            frag_tvb, &frag_tree_item);
                         tid++;
                     }
                     
