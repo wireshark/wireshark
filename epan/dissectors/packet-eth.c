@@ -296,8 +296,8 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
       col_set_str(pinfo->cinfo, COL_INFO, "Ethernet II");
     if (parent_tree) {
       ti = proto_tree_add_protocol_format(parent_tree, proto_eth, tvb, 0, ETH_HEADER_SIZE,
-		"Ethernet II, Src: %s, Dst: %s",
-		ether_to_str(src_addr), ether_to_str(dst_addr));
+		"Ethernet II, Src: %s (%s), Dst: %s (%s)",
+		get_ether_name(src_addr), ether_to_str(src_addr), get_ether_name(dst_addr), ether_to_str(dst_addr));
 
       fh_tree = proto_item_add_subtree(ti, ett_ether2);
     }
