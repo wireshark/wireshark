@@ -5109,13 +5109,13 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* Compose the summary line */
 	if ( publicid ) {
 		summary = g_strdup_printf("%s, Public ID: \"%s\"",
-				match_strval (version, vals_wbxml_versions),
-				match_strval (publicid, vals_wbxml_public_ids));
+				val_to_str (version, vals_wbxml_versions, "(unknown 0x%x)"),
+				val_to_str (publicid, vals_wbxml_public_ids, "(unknown 0x%x)"));
 	} else {
 		/* Read length of Public ID from string table */
 		len = tvb_strsize (tvb, str_tbl + publicid_index);
 		summary = g_strdup_printf("%s, Public ID: \"%s\"",
-				match_strval (version, vals_wbxml_versions),
+				val_to_str (version, vals_wbxml_versions, "(unknown 0x%x)"),
 				tvb_format_text (tvb, str_tbl + publicid_index, len - 1));
 	}
 
@@ -6351,7 +6351,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 						"| %-10s     (Invalid Token!) "
 						"| WBXML parsing stops here.",
 						level, *codepage_attr,
-						match_strval (peek, vals_wbxml1x_global_tokens));
+						val_to_str (peek, vals_wbxml1x_global_tokens, "(unknown 0x%x)"));
 				/* Move to end of buffer */
 				off = tvb_len;
 				break;
@@ -6538,7 +6538,7 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 						"| %-10s     (Invalid Token!) "
 						"| WBXML parsing stops here.",
 						level, *codepage_attr,
-						match_strval (peek, vals_wbxml1x_global_tokens));
+						val_to_str (peek, vals_wbxml1x_global_tokens, "(unknown 0x%x)"));
 				/* Move to end of buffer */
 				off = tvb_len;
 				break;
