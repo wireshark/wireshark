@@ -9427,7 +9427,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* Find First2 information level */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if (!pinfo->fd->flags.visited)
+		if (t2i != NULL && !pinfo->fd->flags.visited)
 			t2i->info_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
@@ -9464,7 +9464,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* Find First2 information level */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if (!pinfo->fd->flags.visited)
+		if (t2i != NULL && !pinfo->fd->flags.visited)
 			t2i->info_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
@@ -9496,7 +9496,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if (!pinfo->fd->flags.visited)
+		if (t2i != NULL && !pinfo->fd->flags.visited)
 			t2i->info_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_qfsi_information_level, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
@@ -9511,7 +9511,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if (!pinfo->fd->flags.visited)
+		if (t2i != NULL && !pinfo->fd->flags.visited)
 			t2i->info_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
@@ -9545,7 +9545,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if (!pinfo->fd->flags.visited)
+		if (t2i != NULL && !pinfo->fd->flags.visited)
 			t2i->info_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_spi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
@@ -9580,7 +9580,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if (!pinfo->fd->flags.visited)
+		if (t2i != NULL && !pinfo->fd->flags.visited)
 			t2i->info_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
@@ -9606,7 +9606,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if (!pinfo->fd->flags.visited)
+		if (t2i != NULL && !pinfo->fd->flags.visited)
 			t2i->info_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_spi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
@@ -9675,7 +9675,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* Find Notify information level */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if (!pinfo->fd->flags.visited)
+		if (t2i != NULL && !pinfo->fd->flags.visited)
 			t2i->info_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_fn_information_level, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
