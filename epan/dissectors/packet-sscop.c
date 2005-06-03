@@ -167,7 +167,7 @@ static const value_string sscop_type_vals[] = {
 #define	SSCOP_SS_N_R	(reported_length - 4)	/* lower 3 bytes thereof */
 
 extern void dissect_stat_list(proto_tree *tree, tvbuff_t *tvb) {
-	gint n = tvb_reported_length(tvb)/4 -3;
+	gint n = (tvb_reported_length(tvb)-3)/4 ;
 	proto_item* pi = proto_tree_add_text(tree,tvb,0,n*4,"SD List");
 	gint i;
 	
@@ -276,14 +276,13 @@ dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, d
       break;
 
     case SSCOP_STAT:
-		dissect_stat_list(sscop_tree,tvb);
 		proto_tree_add_item(sscop_tree, hf_sscop_ps, tvb, SSCOP_N_PS + 1, 3,FALSE);
 		proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_N_MR + 1, 3, FALSE);
 		proto_tree_add_item(sscop_tree, hf_sscop_r, tvb, SSCOP_SS_N_R + 1, 3,FALSE);
+		dissect_stat_list(sscop_tree,tvb);
       break;
 
     case SSCOP_USTAT:
-		dissect_stat_list(sscop_tree,tvb);
 		proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_N_MR + 1, 3, FALSE);
 		proto_tree_add_item(sscop_tree, hf_sscop_r, tvb, SSCOP_SS_N_R + 1, 3,FALSE);
 		dissect_stat_list(sscop_tree,tvb);
