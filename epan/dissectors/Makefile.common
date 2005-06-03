@@ -801,6 +801,7 @@ DISSECTOR_INCLUDES =	\
 	packet-sna.h	\
 	packet-snmp.h	\
 	packet-spray.h	\
+	packet-sscop.h \
 	packet-stat-notify.h	\
 	packet-stat.h	\
 	packet-t38.h	\

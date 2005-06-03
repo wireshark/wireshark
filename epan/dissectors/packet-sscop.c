@@ -33,10 +33,20 @@
 #include <string.h>
 #include <epan/packet.h>
 #include <prefs.h>
+#include "packet-sscop.h"
 
 static int proto_sscop = -1;
 
+static int hf_sscop_type = -1;
+static int hf_sscop_sq = -1;
+static int hf_sscop_mr = -1;
+static int hf_sscop_s = -1;
+static int hf_sscop_ps = -1;
+static int hf_sscop_r = -1;
+static int hf_sscop_stat_s = -1;
+
 static gint ett_sscop = -1;
+static gint ett_stat = -1;
 
 static dissector_handle_t q2931_handle;
 static dissector_handle_t data_handle;
@@ -64,6 +74,7 @@ static enum_val_t sscop_payload_dissector_options[] = {
 };
 
 static guint sscop_payload_dissector = Q2931_DISSECTOR;
+static dissector_handle_t default_handle;
 
 /*
  * See
@@ -155,8 +166,20 @@ static const value_string sscop_type_vals[] = {
 #define	SSCOP_SS_N_MR	(reported_length - 8)	/* lower 3 bytes thereof */
 #define	SSCOP_SS_N_R	(reported_length - 4)	/* lower 3 bytes thereof */
 
-static void
-dissect_sscop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+extern void dissect_stat_list(proto_tree *tree, tvbuff_t *tvb) {
+	gint n = tvb_reported_length(tvb)/4 -3;
+	proto_item* pi = proto_tree_add_text(tree,tvb,0,n*4,"SD List");
+	gint i;
+	
+	tree = proto_item_add_subtree(pi,ett_stat);
+
+	for (i = 0; i < n; i++) {
+		proto_tree_add_item(tree, hf_sscop_stat_s, tvb, i*4 + 1,3,FALSE);
+	}
+}
+
+extern void
+dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dissector_handle_t payload_handle)
 {
   guint reported_length;
   proto_item *ti;
@@ -215,20 +238,15 @@ dissect_sscop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     					pdu_len, "SSCOP");
     sscop_tree = proto_item_add_subtree(ti, ett_sscop);
 
-    proto_tree_add_text(sscop_tree, tvb, SSCOP_PDU_TYPE, 1,
-			"PDU Type: %s",
-			val_to_str(pdu_type, sscop_type_vals,
-				"Unknown (0x%02x)"));
+    proto_tree_add_item(sscop_tree, hf_sscop_type, tvb, SSCOP_PDU_TYPE, 1,FALSE);
 
     switch (pdu_type) {
 
     case SSCOP_BGN:
     case SSCOP_RS:
     case SSCOP_ER:
-      proto_tree_add_text(sscop_tree, tvb, SSCOP_N_SQ, 1,
-          "N(SQ): %u", tvb_get_guint8(tvb, SSCOP_N_SQ));
-      proto_tree_add_text(sscop_tree, tvb, SSCOP_N_MR + 1, 3,
-          "N(MR): %u", tvb_get_ntohl(tvb, SSCOP_N_MR) & 0xFFFFFF);
+      proto_tree_add_item(sscop_tree, hf_sscop_sq, tvb, SSCOP_N_SQ, 1,FALSE);
+      proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_N_MR + 1, 3, FALSE);
       break;
 
     case SSCOP_END:
@@ -238,50 +256,37 @@ dissect_sscop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case SSCOP_BGAK:
     case SSCOP_RSAK:
-      proto_tree_add_text(sscop_tree, tvb, SSCOP_N_MR + 1, 3,
-          "N(MR): %u", tvb_get_ntohl(tvb, SSCOP_N_MR) & 0xFFFFFF);
+		proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_N_MR + 1, 3, FALSE);
       break;
 
     case SSCOP_ERAK:
-      proto_tree_add_text(sscop_tree, tvb, SSCOP_N_MR + 3, 3,
-          "N(MR): %u", tvb_get_ntohl(tvb, SSCOP_N_MR) & 0xFFFFFF);
+		proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_N_MR + 3, 3, FALSE);
       break;
 
     case SSCOP_SD:
-      proto_tree_add_text(sscop_tree, tvb, SSCOP_N_S + 1, 3,
-          "N(S): %u", tvb_get_ntohl(tvb, SSCOP_N_S) & 0xFFFFFF);
+		proto_tree_add_item(sscop_tree, hf_sscop_s, tvb, SSCOP_N_S + 1, 3, FALSE);
       break;
 
 #if 0
     case SSCOP_SDP:
 #endif
     case SSCOP_POLL:
-      proto_tree_add_text(sscop_tree, tvb, SSCOP_N_PS + 1, 3,
-          "N(PS): %u", tvb_get_ntohl(tvb, SSCOP_N_PS) & 0xFFFFFF);
-      proto_tree_add_text(sscop_tree, tvb, SSCOP_N_S + 1, 3,
-          "N(S): %u", tvb_get_ntohl(tvb, SSCOP_N_S) & 0xFFFFFF);
+      proto_tree_add_item(sscop_tree, hf_sscop_ps, tvb, SSCOP_N_PS + 1, 3,FALSE);
+	  proto_tree_add_item(sscop_tree, hf_sscop_s, tvb, SSCOP_N_S + 1, 3,FALSE);
       break;
 
     case SSCOP_STAT:
-      /*
-       * XXX - dissect the list elements....
-       */
-      proto_tree_add_text(sscop_tree, tvb, SSCOP_SS_N_PS + 1, 3,
-          "N(PS): %u", tvb_get_ntohl(tvb, SSCOP_SS_N_PS) & 0xFFFFFF);
-      proto_tree_add_text(sscop_tree, tvb, SSCOP_SS_N_MR + 1, 3,
-          "N(MR): %u", tvb_get_ntohl(tvb, SSCOP_SS_N_MR) & 0xFFFFFF);
-      proto_tree_add_text(sscop_tree, tvb, SSCOP_SS_N_R + 1, 3,
-          "N(R): %u", tvb_get_ntohl(tvb, SSCOP_SS_N_R) & 0xFFFFFF);
+		dissect_stat_list(sscop_tree,tvb);
+		proto_tree_add_item(sscop_tree, hf_sscop_ps, tvb, SSCOP_N_PS + 1, 3,FALSE);
+		proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_N_MR + 1, 3, FALSE);
+		proto_tree_add_item(sscop_tree, hf_sscop_r, tvb, SSCOP_SS_N_R + 1, 3,FALSE);
       break;
 
     case SSCOP_USTAT:
-      /*
-       * XXX - dissect the list elements....
-       */
-      proto_tree_add_text(sscop_tree, tvb, SSCOP_SS_N_MR + 1, 3,
-          "N(MR): %u", tvb_get_ntohl(tvb, SSCOP_SS_N_MR) & 0xFFFFFF);
-      proto_tree_add_text(sscop_tree, tvb, SSCOP_SS_N_R + 1, 3,
-          "N(R): %u", tvb_get_ntohl(tvb, SSCOP_SS_N_R) & 0xFFFFFF);
+		dissect_stat_list(sscop_tree,tvb);
+		proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_N_MR + 1, 3, FALSE);
+		proto_tree_add_item(sscop_tree, hf_sscop_r, tvb, SSCOP_SS_N_R + 1, 3,FALSE);
+		dissect_stat_list(sscop_tree,tvb);
       break;
     }
   }
@@ -324,19 +329,18 @@ dissect_sscop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       next_tvb = tvb_new_subset(tvb, 0, reported_length, reported_length);
       if (pdu_type == SSCOP_SD)
       {
-	if (sscop_payload_dissector == Q2931_DISSECTOR)
-	  call_dissector(q2931_handle, next_tvb, pinfo, tree);
-	else if (sscop_payload_dissector == DATA_DISSECTOR)
-	  call_dissector(data_handle, next_tvb, pinfo, tree);
-	else if (sscop_payload_dissector == SSCF_NNI_DISSECTOR)
-	  call_dissector(sscf_nni_handle, next_tvb, pinfo, tree);
-
-      } else
-        call_dissector(data_handle, next_tvb, pinfo, tree);
-    }
+		  call_dissector(payload_handle, next_tvb, pinfo, tree);		  
+      }
     break;
   }
 }
+}
+
+extern void dissect_sscop(tvbuff_t* tvb, packet_info* pinfo,proto_tree* tree)
+{
+	dissect_sscop_and_payload(tvb,pinfo,tree,default_handle);
+}
+
 
 static void range_delete_callback(guint32 port)
 {
@@ -377,15 +381,33 @@ proto_reg_handoff_sscop(void)
 
   range_foreach(udp_port_range, range_add_callback);
 
+  switch(sscop_payload_dissector) {
+	  case DATA_DISSECTOR: default_handle = data_handle; break;
+	  case Q2931_DISSECTOR: default_handle = q2931_handle; break;
+	  case SSCF_NNI_DISSECTOR: default_handle = sscf_nni_handle; break;
+	}
+  
 }
 
 void
 proto_register_sscop(void)
 {
+	static hf_register_info hf[] = {
+		{ &hf_sscop_type, { "PDU Type", "sscop.type", FT_UINT8, BASE_HEX,	VALS(sscop_type_vals), SSCOP_TYPE_MASK, "", HFILL }},
+		{ &hf_sscop_sq, { "N(SQ)", "sscop.sq", FT_UINT8, BASE_DEC,	NULL, 0x0, "", HFILL }},
+		{ &hf_sscop_mr, { "N(MR)", "sscop.mr", FT_UINT24, BASE_DEC,	NULL, 0x0, "", HFILL }},
+		{ &hf_sscop_s, { "N(S)", "sscop.s", FT_UINT24, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_sscop_ps, { "N(PS)", "sscop.ps", FT_UINT24, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_sscop_stat_s, { "N(S)", "sscop.stat.s", FT_UINT24, BASE_DEC, NULL, 0x0,"", HFILL }}
+	};
+	
   static gint *ett[] = {
     &ett_sscop,
+	&ett_stat
   };
+	
   proto_sscop = proto_register_protocol("SSCOP", "SSCOP", "sscop");
+  proto_register_field_array(proto_sscop, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   register_dissector("sscop", dissect_sscop, proto_sscop);
 
