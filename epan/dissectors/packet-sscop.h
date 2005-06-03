@@ -1,7 +1,7 @@
 /* packet-sscop.h
  * definitions for SSCOP (Q.2110, Q.SAAL) frame disassembly
  *
- * $Id:  $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
