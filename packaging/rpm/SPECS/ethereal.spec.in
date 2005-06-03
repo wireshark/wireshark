@@ -7,7 +7,7 @@ Summary:	Network traffic analyzer
 Name:		ethereal
 Version:	%ver
 Release:	%rel
-Copyright:	GPL
+License:	GPL
 Group:		Networking/Utilities
 Source:		ethereal-%{PACKAGE_VERSION}.tar.gz
 URL:		http://www.ethereal.com/
