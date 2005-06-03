@@ -6526,6 +6526,8 @@ proto_register_isup(void)
 	proto_isup = proto_register_protocol("ISDN User Part",
 	    "ISUP", "isup");
 
+	register_dissector("isup", dissect_isup, proto_isup);
+
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_isup, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
