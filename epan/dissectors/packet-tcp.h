@@ -84,7 +84,7 @@ extern void
 tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 gboolean proto_desegment, guint fixed_len,
 		 guint (*get_pdu_len)(tvbuff_t *, int),
-		 void (*dissect_pdu)(tvbuff_t *, packet_info *, proto_tree *));
+		 dissector_t dissect_pdu);
 
 extern gboolean decode_tcp_ports(tvbuff_t *, int, packet_info *,
 	proto_tree *, int, int);
