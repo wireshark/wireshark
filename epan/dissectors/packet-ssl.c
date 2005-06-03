@@ -525,7 +525,7 @@ static const value_string ssl_31_client_certificate_type[] = {
 };
 
 #if 0
-/* XXX - would be used if we dissected exchnage keys, as would be
+/* XXX - would be used if we dissected exchange keys, as would be
    seen in a client key exchange message. */
 static const value_string ssl_31_public_value_encoding[] = {
     { 0, "Implicit" },
