@@ -568,7 +568,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 		  "to capture packets.\n\n"
 		  "In order to capture packets, WinPcap must be installed; see\n"
 		  "\n"
-		  "        http://winpcap.polito.it/\n"
+		  "        http://www.winpcap.org/\n"
 		  "\n"
 		  "or the mirror at\n"
 		  "\n"

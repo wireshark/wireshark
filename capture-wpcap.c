@@ -454,7 +454,7 @@ get_interface_list(int *err, char *err_str)
 	 * PacketGetAdapterNames.  According to the documentation
 	 * I could find:
 	 *
-	 *	http://winpcap.polito.it/docs/man/html/Packet32_8c.html#a43
+	 *	http://www.winpcap.org/docs/man/html/Packet32_8c.html#a43
 	 *
 	 * this means that:
 	 *
@@ -600,7 +600,7 @@ cant_get_if_list_error_message(const char *err_str)
 	    strstr(err_str, "The operation completed successfully") != NULL) {
 		return g_strdup_printf("Can't get list of interfaces: %s\n"
 "This might be a problem with WinPcap 3.0; you should try updating to\n"
-"a later version of WinPcap - see the WinPcap site at winpcap.polito.it",
+"a later version of WinPcap - see the WinPcap site at www.winpcap.org",
 		    err_str);
 	}
 	return g_strdup_printf("Can't get list of interfaces: %s", err_str);
