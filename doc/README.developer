@@ -310,10 +310,10 @@ be written portably without #ifdefs.
 
 1.1.2 Robustness.
 
-Ethereal is not guaranteed to read only network traces that contain
-correctly-formed packets; in fact, one of the reasons why Ethereal is
-used is to track down networking problems, and the problems might be due
-to a buggy protocol implementation sending out bad packets.
+Ethereal is not guaranteed to read only network traces that contain correctly-
+formed packets. Ethereal is commonly used is to track down networking problems, 
+and the problems might be due to a buggy protocol implementation sending out 
+bad packets.
 
 Therefore, protocol dissectors not only have to be able to handle
 correctly-formed packets without, for example, crashing or looping
@@ -457,7 +457,9 @@ the files in Ethereal tend to use 2-space or 4-space indentation. You are
 encouraged to write a short comment on the indentation logic at the beginning
 of this new file.
 
-When editing an existing file, try following the existing indentation logic.
+When editing an existing file, try following the existing indentation logic and
+even if it very tempting, never ever use a restyler/reindenter utility on an
+existing file.
 
 1.2 Skeleton code.
 
@@ -2737,6 +2739,8 @@ fixed amount of data that includes enough information to determine the PDU
 length, possibly followed by additional data.  The second method is more 
 generic but requires more code and is less efficient.
 
+2.7.1 Using tcp_dissect_pdus()
+
 For the first method, you register two different dissection methods, one
 for the TCP case, and one for the other cases.  It is a good idea to
 also have a dissect_PROTO_common function which will parse the generic
@@ -2798,23 +2802,91 @@ The arguments to tcp_dissect_pdus are:
 	and proto_tree pointer, with the tvbuff containing a
 	possibly-reassembled PDU, and that should dissect that PDU.
 
-The second method is to return a modified pinfo structure when
-dissect_PROTO is called.  In this case, you have to check if you have
-collected enough bytes: if you have enough, you parse the PDU, and if
-don't have enough bytes, you return from the dissector supplying
-information to the caller on how many bytes you need to proceed.  This
-is done by indicating the offset where you would like to start again and
-the number of bytes that you need in pinfo->desegment_*:
+2.7.2 Modifying the pinfo struct
 
-	if (i_miss_five_bytes) {
-		pinfo->desegment_offset = offset;
-		pinfo->desegment_len = 5;
-	}
+The second reassembly mode is prefered when the dissector cannot determine 
+how many bytes it will need to read in order to determine the size of a PDU. 
+For this mode it is reccommended that your dissector be the newer dissector 
+type which returns "int" rather than the older type which returned "void".
 
-You can repeat this procedure until you've got enough bytes; for
-example, you can request one byte more until you've got the byte you're
-searching for if the data to be dissected consists of a sequence of
-bytes ending with a particular byte value.
+This reassembly mode relies on Ethereal's mechanism for processing multiple PDUs
+per frame. When a dissector processes a PDU from a tvbuff the PDU may not be
+aligned to a frame of the underlying protocol. Ethereal allows dissectors to
+process PDUs in an idempotent way--dissectors only need to consider one PDU at a 
+time. If your dissector discovers that it can not process a complete PDU from 
+the current tvbuff the dissector should halt processing and request additional 
+bytes from the lower level dissector.
+
+Your dissect_PROTO will be called by the lower level dissector whenever 
+sufficient new bytes become available. Each time your dissector is called it is 
+provided a different tvbuff, though the tvbuffs may contain data that your 
+dissector declined to process during a previous call. When called a dissector 
+should examine the tvbuff provided and determine if an entire PDU is available. 
+If sufficient bytes are available the dissector processes the PDU and returns 
+the length of the PDU from your dissect_PROTO.
+
+Completion of a PDU is signified by dissect_PROTO returning a positive value. 
+The value is the number of bytes which were processed from the tvbuff. If there 
+were insufficient bytes in the tvbuff to complete a PDU then the dissect_PROTO 
+returns a negative value requesting additional bytes. The negative return value 
+indicates how many additional bytes are required. Additionally dissect_PROTO 
+must update the pinfo structure to indicate that more bytes are required. The 
+desegment_offset field is the offset in the tvbuff at which the dissector will 
+continue processing when next called. The desegment_len field should contain the 
+estimated number of additional bytes required for completing the PDU. The 
+dissect_PROTO will not be called again until the specified number of bytes are
+available. pinfo->desegment_len may be set to -1 if dissect_PROTO cannot 
+determine how many additional bytes are required. Dissectors should set the
+desegment_len to a reasonable value when possible rather than always setting
+-1 as it will generally be more efficient.
+
+static hf_register_info hf[] = {
+    {&hf_cstring,
+     {"C String", "c.string", FT_STRING, BASE_NONE, NULL, 0x0,
+      "C String", HFILL}
+     }
+   };
+
+/**
+*   Dissect a buffer containing a C string.
+*
+*   @param  tvb     The buffer to dissect.
+*   @param  pinfo   Packet Info.
+*   @param  tree    The protocol tree.
+*   @return Number of bytes from the tvbuff_t which were processed or a negative
+*           value indicating more bytes are needed.
+**/
+static int dissect_cstr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+{
+    guint offset = 0;
+    gint available = tvb_reported_length_remaining(tvb, offset);
+    gint len = tvb_strnlen( tvb, offset, available );
+
+    if( -1 == len ) {
+        /* No '\0' found, ask for another byte. */
+        pinfo->desegment_offset = offset;
+        pinfo->desegment_len = 1;
+        return -1;
+    }
+    
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_set_str(pinfo->cinfo, COL_INFO, "C String");
+    }
+
+    len += 1; /* Add one for the '\0' */
+    
+    if (tree) {
+        proto_tree_add_item(tree, hf_cstring, tvb, offset, len, FALSE);
+    }
+
+    return len;
+}
+
+This simple dissector will repeatedly return -1 requesting one more byte until 
+the tvbuff contains a complete C string. The C string will then be added to the 
+protocol tree. Unfortunately since there is no way to guess the size of C String 
+without seeing the entire string this dissector can never request more than one
+additional byte.
 
 3. Plugins
 
