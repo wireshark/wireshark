@@ -114,7 +114,10 @@ typedef struct _packet_info {
 
   int     iplen;
   int     iphdrlen;
-  int	  p2p_dir;
+  int	  p2p_dir;              /* Packet was captured as an 
+                                       outbound (P2P_DIR_SENT) 
+                                       inbound (P2P_DIR_RECV) 
+                                       unknown (P2P_DIR_UNKNOWN) */
   guint16 oxid;                 /* next 2 fields reqd to identify fibre */
   guint16 rxid;                 /* channel conversations */
   guint8  r_ctl;                /* R_CTL field in Fibre Channel Protocol */

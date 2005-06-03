@@ -117,16 +117,26 @@ typedef void (*dissector_t)(tvbuff_t *, packet_info *, proto_tree *);
 /*
  * Dissector that returns:
  *
- *	the amount of data in the protocol's PDU, if it was able to
+ *	The amount of data in the protocol's PDU, if it was able to
  *	dissect all the data;
  *
  *	0, if the tvbuff doesn't contain a PDU for that protocol;
  *
- *	the negative of the amount of additional data needed, if
+ *	The negative of the amount of additional data needed, if
  *	we need more data (e.g., from subsequent TCP segments) to
  *	dissect the entire PDU.
  */
 typedef int (*new_dissector_t)(tvbuff_t *, packet_info *, proto_tree *);
+
+/** Type of a heuristic dissector, used in heur_dissector_add().
+ *
+ * @param tvb the tv_buff with the (remaining) packet data
+ * @param pinfo the packet info of this packet (additional info)
+ * @param tree the protocol tree to be build or NULL
+ * @return TRUE if the packet was recognized by the sub-dissector (stop dissection here)
+ */
+typedef gboolean (*heur_dissector_t)(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree);
 
 typedef void (*DATFunc) (gchar *table_name, ftenum_t selector_type,
     gpointer key, gpointer value, gpointer user_data);
@@ -257,16 +267,6 @@ extern void register_heur_dissector_list(const char *name,
 extern gboolean dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-/** Type of a heuristic dissector, used in heur_dissector_add().
- *
- * @param tvb the tv_buff with the (remaining) packet data
- * @param pinfo the packet info of this packet (additional info)
- * @param tree the protocol tree to be build or NULL
- * @return TRUE if the packet was recognized by the sub-dissector (stop dissection here)
- */
-typedef gboolean (*heur_dissector_t)(tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *tree);
-
 /** Add a sub-dissector to a heuristic dissector list.
  *  Call this in the proto_handoff function of the sub-dissector.
  *
@@ -300,11 +300,30 @@ extern dissector_handle_t new_create_dissector_handle(new_dissector_t dissector,
 
 /* Call a dissector through a handle and if no dissector was found
  * pass if over to the "data" dissector instead.
+ *
+ *   @param handle The dissector to call.
+ *   @param  tvb The buffer to dissect.
+ *   @param  pinfo Packet Info.
+ *   @param  tree The protocol tree.
+ *   @return  If the protocol for that handle isn't enabled call the data 
+ *   dissector. Otherwise, if the handle refers to a new-style 
+ *   dissector, call the dissector and return its return value, otherwise call 
+ *   it and return the length of the tvbuff pointed to by the argument.
  */
 extern int call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree);
+    
 /* Call a dissector through a handle but if no dissector was found
  * just return 0 and do not call the "data" dissector instead.
+ *
+ *   @param handle The dissector to call.
+ *   @param  tvb The buffer to dissect.
+ *   @param  pinfo Packet Info.
+ *   @param  tree The protocol tree.
+ *   @return  If the protocol for that handle isn't enabled, return 0 without
+ *   calling the dissector. Otherwise, if the handle refers to a new-style 
+ *   dissector, call the dissector and return its return value, otherwise call 
+ *   it and return the length of the tvbuff pointed to by the argument.
  */
 extern int call_dissector_only(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree);

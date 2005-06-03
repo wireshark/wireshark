@@ -119,7 +119,7 @@ typedef enum {
 
 /* Types of circuit IDs Ethereal knows about. */
 typedef enum {
-  CT_NONE,		/* no port number */
+  CT_NONE,		/* no circuit type */
   CT_DLCI,		/* Frame Relay DLCI */
   CT_ISDN,		/* ISDN channel number */
   CT_X25,		/* X.25 logical channel number */
