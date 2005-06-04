@@ -621,6 +621,20 @@ a list of file formats in which at particular capture, or the packets
 currently displayed from that capture, can be saved), a file format in 
 which to save it.
 
+=item File:File Set:List Files
+
+Show a dialog box that list all files of the file set matching the currently 
+loaded file. A file set is a compound of files resulting from a capture using 
+the "multiple files" / "ringbuffer" mode, recognizable by the filename pattern, 
+e.g.: Filename_00001_20050604101530.pcap.
+
+=item File:File Set:Next File
+
+=item File:File Set:Previous File
+
+If the currently loaded file is part of a file set (see above), open the 
+next / previous file in that set.
+
 =item File:Export
 
 Export captured data into an external format. Note: the data cannot be 
@@ -721,18 +735,21 @@ Show or hide the main window controls.
 
 Show or hide the main window panes.
 
+=item View:Time Display Format
+
+Set the format of the packet timestamp displayed in the packet list window.
+
+=item View:Name Resolution:Resolve Name
+
+Try to resolve a name for the currently seleted item.
+
+=item View:Name Resolution:Enable for ... Layer
+
+Enable or disable translation of addresses to names in the display.
+
 =item View:Colorize Packet List
 
 Enable or disable the coloring rules. Disabling will improve performance.
-
-=item View:Time Display Format
-
-Set the format of the packet timestamp displayed in the packet list window 
-to relative, absolute, absolute date and time, or delta.
-
-=item View:Name Resolution
-
-Enable or disable translation of addresses to names in the display.
 
 =item View:Auto Scroll in Live Capture
 
@@ -749,19 +766,19 @@ Zoom into / out of the main window data (by changing the font size).
 
 Reset the zoom factor of zoom in / zoom out back to normal font size.
 
-=item View:Resize Columns
+=item View:Resize All Columns
 
-Resize the columns to best fit the current packet display.
+Resize all columns to best fit the current packet display.
 
-=item View:Collapse All
+=item View:Expand Subtrees
+
+Expands the currently selected item and it's subtrees in the packet details.
 
 =item View:Expand All
 
-Collapse / Expand all branches of the packet details.
+=item View:Collapse All
 
-=item View:Expand Tree
-
-Expands the currently selected item in the packet details.
+Expand / Collapse all branches of the packet details.
 
 =item View:Coloring Rules
 
@@ -836,25 +853,36 @@ that packet number has been put into the packet details.
 
 Go to the first / last packet in the capture.
 
+=item Capture:Interfaces
+
+Shows a dialog box with all currently known interfaces and displaying the
+current network traffic amount. Capture sessions can be started from here.
+Beware: keeping this box open results in high system load!
+
+=item Capture:Options
+
+Initiate a live packet capture (see L<Capture Options|/item_capture_options> 
+dialog below). If no filename is specified, a temporary file will be created 
+to hold the capture. The location of the file can be chosen by setting your 
+TMPDIR environment variable before starting B<Ethereal>. Otherwise, the 
+default TMPDIR location is system-dependent, but is likely either F</var/tmp> 
+or F</tmp>.
+
 =item Capture:Start
 
-Initiate a live packet capture (see L<Capture Options|/item_capture_options> dialog below).  A
-temporary file will be created to hold the capture.  The location of the
-file can be chosen by setting your TMPDIR environment variable before
-starting B<Ethereal>.  Otherwise, the default TMPDIR location is
-system-dependent, but is likely either F</var/tmp> or F</tmp>.
+Start a live packet capture with the previously seleted options. This won't 
+open the options dialog box, and can be convenient for repeatingly capturing
+with the same options.
 
 =item Capture:Stop
 
-In a capture that updates the packet display as packets arrive (so that
-Ethereal responds to user input other than pressing the "Stop" button in
-the capture packet statistics dialog box), stop the capture.
+Stop a running live capture.
 
-=item Capture:Interfaces
+=item Capture:Restart
 
-Shows a dialogs box with all currently known interfaces and displaying the
-current network traffic amount. Capture sessions can be started from here.
-Beware: keeping this box open results in high system load!
+While a live capture is running, stop it and restart with the same options 
+again. This can be convenient to remove unrelevant packets, if no valuable 
+packets were captured so far.
 
 =item Capture:Capture Filters
 
