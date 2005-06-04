@@ -1025,7 +1025,10 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    offset+3, 1, message_type);
 	proto_tree_add_text(lmp_header_tree, tvb, offset+4, 2, "Length: %d bytes",
 			    msg_length);
-	if (LMPF_MSG + message_type < LMPF_MSG_MAX && message_type > 0) {
+/*	if (LMPF_MSG + message_type < LMPF_MSG_MAX && message_type > 0) {*/
+    /* this "if" is still a hack, but compared to the former one at least correct */
+    if ((message_type >= LMPF_MSG_CONFIG && message_type <= LMPF_MSG_CHANNEL_STATUS_RESP) ||
+        (message_type >= LMPF_MSG_SERVICE_CONFIG && message_type <= LMPF_MSG_SERVICE_CONFIG_NACK) ) {
 	    proto_tree_add_boolean_hidden(lmp_header_tree, lmp_filter[LMPF_MSG + message_type], tvb,
 					  offset+3, 1, 1);
 	} else {
