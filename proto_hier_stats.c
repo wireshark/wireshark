@@ -92,10 +92,16 @@ process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps, gu
 	finfo = PITEM_FINFO(ptree_node);
 	g_assert(finfo);
 
-	stat_node = find_stat_node(parent_stat_node, finfo->hfinfo);
+	/* if the field info isn't related to a protocol but to a field, don't count them,
+     * as they don't belong to any protocol.
+     * (happens e.g. for toplevel tree item of desegmentation "[Reassembled TCP Segments]") */
+    if(finfo->hfinfo->parent != -1) {
+        /* this should only happen for generated items */
+        g_assert(PROTO_ITEM_IS_GENERATED(ptree_node));
+        return;
+    }
 
-	/* Assert that the finfo is related to a protocol, not a field. */
-	g_assert(finfo->hfinfo->parent == -1);
+	stat_node = find_stat_node(parent_stat_node, finfo->hfinfo);
 
 	stats = STAT_NODE_STATS(stat_node);
 	stats->num_pkts_total++;
