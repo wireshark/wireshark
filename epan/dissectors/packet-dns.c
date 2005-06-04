@@ -750,6 +750,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   int len;
   char name[MAXDNAME];
   char *name_out;
+  int name_out_len;
   int name_len;
   int type;
   int class;
@@ -767,12 +768,16 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
 
   type_name = dns_type_name(type);
 
+  /* the name might contain non-printable characters, format it first */
+  /* the actual name to display will be smaller than the name_len */
+  /* XXX - is the name guaranteed to be a valid string or might strlen() fail? */
+  name_out_len = (name_len <= (int) strlen(name)) ? name_len : strlen(name);
+  name_out = format_text(name, name_out_len);
+
   if (cinfo != NULL) {
-    name_out = format_text(name, name_len);
     col_append_fstr(cinfo, COL_INFO, " %s %s", type_name, name_out);
   }
   if (dns_tree != NULL) {
-    name_out = format_text(name, name_len);
     tq = proto_tree_add_text(dns_tree, tvb, offset, len, "%s: type %s, class %s",
 		   name_out, type_name, dns_class_name(class));
     q_tree = proto_item_add_subtree(tq, ett_dns_qd);
