@@ -497,6 +497,14 @@ packet_list_new(e_prefs *prefs)
 
     /* Packet list */
     pkt_scrollw = scrolled_window_new(NULL, NULL);
+    /* The usual policy for scrolled windows is to set both scrollbars to automatic,
+     * meaning they'll only appear if the content doesn't fit into the window.
+     *
+     * As this doesn't seem to work in some cases for the vertical scrollbar
+     * (see http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=220),
+     * we show that scrollbar always. */
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(pkt_scrollw),
+                                   GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
 #if GTK_MAJOR_VERSION >= 2
     /* the eth_clist will have it's own GTK_SHADOW_IN, so don't use a shadow 
      * for both widgets */
