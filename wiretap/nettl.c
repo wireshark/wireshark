@@ -35,16 +35,22 @@
 #include "buffer.h"
 #include "nettl.h"
 
-static guchar nettl_magic_hpux9[12] = {
+/* HP nettl file header */
+
+/* Magic number size */
+#define MAGIC_SIZE	12
+
+static guchar nettl_magic_hpux9[MAGIC_SIZE] = {
     0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0xD0, 0x00
 };
-static guchar nettl_magic_hpux10[12] = {
+static guchar nettl_magic_hpux10[MAGIC_SIZE] = {
     0x54, 0x52, 0x00, 0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80
 };
 
-/* HP nettl file header */
+#define FILE_HDR_SIZE	128
+
 struct nettl_file_hdr {
-    guchar	magic[12];
+    guchar	magic[MAGIC_SIZE];
     guchar	file_name[56];
     guchar	tz[20];
     guchar	host_name[9];
@@ -52,7 +58,7 @@ struct nettl_file_hdr {
     guchar	os_v;
     guint8	xxa[8];
     guchar	model[11];
-    guint16	unknown;
+    guint16	unknown;	/* just padding to 128 bytes? */
 };
 
 /* HP nettl record header for the SX25L2 subsystem - The FCS is not included in the file. */
@@ -168,23 +174,23 @@ static gboolean nettl_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
 int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
 {
-    char magic[12], os_vers[2];
+    char magic[MAGIC_SIZE], os_vers[2];
     guint16 dummy[2];
     int subsys;
     int bytes_read;
 
     /* Read in the string that should be at the start of a HP file */
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(magic, 1, 12, wth->fh);
-    if (bytes_read != 12) {
+    bytes_read = file_read(magic, 1, MAGIC_SIZE, wth->fh);
+    if (bytes_read != MAGIC_SIZE) {
     	*err = file_error(wth->fh);
 	if (*err != 0)
 	    return -1;
 	return 0;
     }
 
-    if (memcmp(magic, nettl_magic_hpux9, 12) &&
-        memcmp(magic, nettl_magic_hpux10, 12)) {
+    if (memcmp(magic, nettl_magic_hpux9, MAGIC_SIZE) &&
+        memcmp(magic, nettl_magic_hpux10, MAGIC_SIZE)) {
 	return 0;
     }
 
@@ -199,9 +205,9 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
 	return 0;
     }
 
-    if (file_seek(wth->fh, 0x80, SEEK_SET, err) == -1)
+    if (file_seek(wth->fh, FILE_HDR_SIZE, SEEK_SET, err) == -1)
 	return -1;
-    wth->data_offset = 0x80;
+    wth->data_offset = FILE_HDR_SIZE;
 
     /* This is an nettl file */
     wth->file_type = WTAP_FILE_NETTL;
@@ -222,6 +228,7 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
             return -1;
         if (bytes_read != 0) {
             *err = WTAP_ERR_SHORT_READ;
+            g_free(wth->capture.nettl);
             return -1;
         }
         return 0;
@@ -251,9 +258,11 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
 		wth->file_encap = WTAP_ENCAP_NETTL_ETHERNET;
     }
 
-    if (file_seek(wth->fh, 0x80, SEEK_SET, err) == -1)
+    if (file_seek(wth->fh, FILE_HDR_SIZE, SEEK_SET, err) == -1) {
+        g_free(wth->capture.nettl);
 	return -1;
-    wth->data_offset = 0x80;
+    }
+    wth->data_offset = FILE_HDR_SIZE;
 
     return 1;
 }
