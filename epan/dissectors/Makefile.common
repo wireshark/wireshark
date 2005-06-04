@@ -562,6 +562,7 @@ DISSECTOR_SRC =	\
 	packet-ucp.c	\
 	packet-uma.c	\
 	packet-udp.c	\
+	packet-user_encap.c \
 	packet-v120.c	\
 	packet-vines.c	\
 	packet-vj.c	\
