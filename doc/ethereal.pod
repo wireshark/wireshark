@@ -7,31 +7,31 @@ ethereal - Interactively browse network traffic
 
 B<ethereal>
 S<[ B<-a> capture autostop condition ] ...>
-S<[ B<-b> ring buffer options] ...>
-S<[ B<-B> capture buffer size (Win32 only) ] ...>
-S<[ B<-c> count ]>
-S<[ B<-f> capture filter expression ]>
+S<[ B<-b> capture ring buffer option ] ...>
+S<[ B<-B> capture buffer size (Win32 only) ] >
+S<[ B<-c> capture packet count ]>
+S<[ B<-f> capture filter ]>
 S<[ B<-g> packet number ]>
 S<[ B<-h> ]>
-S<[ B<-i> interface ]> 
+S<[ B<-i> capture interface ]> 
 S<[ B<-k> ]>
 S<[ B<-l> ]>
 S<[ B<-L> ]>
 S<[ B<-m> font ]>
 S<[ B<-n> ]>
-S<[ B<-N> resolving flags ] >
+S<[ B<-N> name resolving flags ] >
 S<[ B<-o> preference/recent setting ] ...>
 S<[ B<-p> ]>
 S<[ B<-Q> ]>
 S<[ B<-r> infile ]>
-S<[ B<-R> display filter expression ]>
+S<[ B<-R> read (display) filter ]>
 S<[ B<-S> ]>
-S<[ B<-s> snaplen ]>
+S<[ B<-s> capture snaplen ]>
 S<[ B<-t> time stamp format ]>
 S<[ B<-v> ]>
 S<[ B<-w> savefile]>
-S<[ B<-y> link type ]>
-S<[ B<-z> statistics-string ]>
+S<[ B<-y> capture link type ]>
+S<[ B<-z> statistics ]>
 S<[ infile ]>
 
 =head1 DESCRIPTION
@@ -184,24 +184,24 @@ B<files>:I<value> Stop writing to capture files after I<value> number of files w
 
 Cause B<Ethereal> to run in "multiple files" mode.  In "multiple files" mode, 
 B<Ethereal> will write to several capture files. When the first capture file 
-fills up, B<Ethereal> will switch writing to the next file.
-Their name is based on the number of the file and on the creation date 
-and time.
+fills up, B<Ethereal> will switch writing to the next file and so on.
 
-If the I<files> option is set, B<Ethereal> will fill up files until the last 
-file, at which point it'll discard the data in the first file and start 
-writing to that file and so on. If the I<files> option is not set, B<Ethereal> 
-will fill up new files until one of the capture stop conditions match.
+The created filenames are based on the filename given with the B<-w> flag, the number of 
+the file and on the creation date and time, 
+e.g. savefile_00001_20050604120117.pcap, savefile_00001_20050604120523.pcap, ...
 
-If the optional I<duration> is specified, B<Ethereal> will switch also 
-to the next file when the specified number of seconds has elapsed even
-if the current file is not completely filled up.
+With the I<files> option it's also possible to form a "ring buffer". 
+This will fill up new files until the number of files specified, 
+at which point B<Ethereal> will discard the data in the first file and start 
+writing to that file and so on. If the I<files> option is not set,
+new files filled up until one of the capture stop conditions match (or 
+until the disk if full).
 
 The criterion is of the form I<key>B<:>I<value>,
 where I<key> is one of:
 
 B<duration>:I<value> switch to the next file after I<value> seconds have 
-elapsed.
+elapsed, even if the current file is not completely filled up.
 
 B<filesize>:I<value> switch to the next file after it reaches a size of 
 I<value> kilobytes (where a kilobyte is 1000 bytes, not 1024 bytes). 
@@ -217,7 +217,7 @@ disk. If you encounter packet drops while capturing, try to increase this size.
 
 =item -c
 
-Set the default number of packets to read when capturing live
+Set the maximum number of packets to read when capturing live
 data.
 
 =item -f
@@ -226,7 +226,7 @@ Set the capture filter expression.
 
 =item -g
 
-After reading in a capture file using B<-r>, go to the given I<packet number>.
+After reading in a capture file using the B<-r> flag, go to the given I<packet number>.
 
 =item -h
 
@@ -276,17 +276,25 @@ pane from the name of the main text font.
 =item -n
 
 Disable network object name resolution (such as hostname, TCP and UDP port
-names).
+names), the B<-N> flag might override this one.
 
 =item -N
 
-Turn on name resolving for particular types of addresses and port
+Turn on name resolving only for particular types of addresses and port
 numbers, with name resolving for other types of addresses and port
-numbers turned off; the argument is a string that may contain the
-letters B<m> to enable MAC address resolution, B<n> to enable network
-address resolution, and B<t> to enable transport-layer port number
-resolution.  This overrides B<-n> if both B<-N> and B<-n> are present.
-The letter B<C> enables concurrent (asynchronous) DNS lookups.
+numbers turned off. This flag overrides B<-n> if both B<-N> and B<-n> are 
+present. If both B<-N> and B<-n> flags are not present, all name resolutions are 
+turned on.
+
+The argument is a string that may contain the letters:
+
+B<m> to enable MAC address resolution
+
+B<n> to enable network address resolution
+
+B<t> to enable transport-layer port number resolution
+
+B<C> to enable concurrent (asynchronous) DNS lookups
 
 =item -o
 
@@ -295,8 +303,8 @@ read from a preference/recent file. The argument to the flag is a string of
 the form I<prefname>B<:>I<value>, where I<prefname> is the name of the
 preference/recent value (which is the same name that would appear in the 
 preference/recent file), and I<value> is the value to which it should be set. 
-Using the recent settings now replaces the formerly used -B, -P and -T 
-parameters to manipulate the GUI dimensions.
+Since B<Ethereal> 0.10.12, the recent settings replaces the formerly used 
+-B, -P and -T flags to manipulate the GUI dimensions.
 
 =item -p
 
@@ -326,8 +334,7 @@ capture file; packets not matching the filter are discarded.
 
 =item -S
 
-Perform the live packet capture in a separate process, and automatically
-update the packet display as packets are seen.
+Automatically update the packet display as packets are coming in.
 
 =item -s
 
@@ -338,13 +345,19 @@ memory, or saved to disk.
 =item -t
 
 Set the format of the packet timestamp displayed in the packet list
-window.  The format can be one of 'r' (relative), 'a' (absolute), 'ad'
-(absolute with date), or 'd' (delta).  The relative time is the time
-elapsed between the first packet and the current packet.  The absolute
-time is the actual time the packet was captured, with no date displayed;
-the absolute date and time is the actual time and date the packet was
-captured.  The delta time is the time since the previous packet was
-captured.  The default is relative.
+window, the default is relative. The format can be one of:
+
+B<r> relative: The relative time is the time elapsed between the first packet 
+and the current packet
+
+B<a> absolute: The absolute time is the actual time the packet was captured, 
+with no date displayed
+
+B<ad> absolute with date: The absolute date and time is the actual time and 
+date the packet was captured
+
+B<d> delta: The delta time is the time since the previous packet was
+captured
 
 =item -v
 
@@ -1843,12 +1856,12 @@ protocols built into Ethereal are.
 
 =head1 CAPTURE FILTER SYNTAX
 
-See the tcpdump(8) manual page.
+See the manual page of I<tcpdump(8)>.
 
 =head1 DISPLAY FILTER SYNTAX
 
 For a complete table of protocol and protocol fields that are filterable
-in B<Ethereal> see ethereal-filter(4).
+in B<Ethereal> see the I<ethereal-filter(4)> manual page.
 
 =head1 FILES
 

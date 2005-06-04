@@ -228,7 +228,7 @@ print_usage(gboolean print_ver)
 #ifdef SVNVERSION
 	" (" SVNVERSION ")"
 #endif
-        "\n (C) 1998-2004 Gerald Combs <gerald@ethereal.com>"
+        "\n (C) 1998-2005 Gerald Combs <gerald@ethereal.com>"
 	"\n%s\n%s\n",
 
 	comp_info_str->str, runtime_info_str->str);
@@ -238,20 +238,20 @@ print_usage(gboolean print_ver)
 #ifdef HAVE_LIBPCAP
   fprintf(output, "\nt%s [ -vh ] [ -DlLnpqSVx ] [ -a <capture autostop condition> ] ...\n",
 	  PACKAGE);
-  fprintf(output, "\t[ -b <number of ring buffer files>[:<duration>] ] [ -c <count> ]\n");
+  fprintf(output, "\t[ -b <capture ring buffer option> ] ... [ -c <capture packet count> ]\n");
   fprintf(output, "\t[ -d %s ] ...\n", decode_as_arg_template);
-  fprintf(output, "\t[ -f <capture filter> ] [ -F <output file type> ] [ -i <interface> ]\n");
-  fprintf(output, "\t[ -N <resolving> ] [ -o <preference setting> ] ... [ -r <infile> ]\n");
-  fprintf(output, "\t[ -R <read filter> ] [ -s <snaplen> ] [ -t <time stamp format> ]\n");
-  fprintf(output, "\t[ -T pdml|ps|psml|text ] [ -w <savefile> ] [ -y <link type> ]\n");
-  fprintf(output, "\t[ -z <statistics string> ]\n");
+  fprintf(output, "\t[ -f <capture filter> ] [ -F <output file type> ] [ -i <capture interface> ]\n");
+  fprintf(output, "\t[ -N <name resolving flags> ] [ -o <preference setting> ] ... [ -r <infile> ]\n");
+  fprintf(output, "\t[ -R <read (display) filter> ] [ -s <capture snaplen> ] [ -t <time stamp format> ]\n");
+  fprintf(output, "\t[ -T pdml|ps|psml|text ] [ -w <savefile> ] [ -y <capture link type> ]\n");
+  fprintf(output, "\t[ -z <statistics ]\n");
 #else
   fprintf(output, "\nt%s [ -vh ] [ -lnVx ]\n", PACKAGE);
   fprintf(output, "\t[ -d %s ] ...\n", decode_as_arg_template);
-  fprintf(output, "\t[ -F <output file type> ] [ -N <resolving> ]\n");
-  fprintf(output, "\t[ -o <preference setting> ] ... [ -r <infile> ] [ -R <read filter> ]\n");
+  fprintf(output, "\t[ -F <output file type> ] [ -N <name resolving flags> ]\n");
+  fprintf(output, "\t[ -o <preference setting> ] ... [ -r <infile> ] [ -R <read (display) filter> ]\n");
   fprintf(output, "\t[ -t <time stamp format> ] [ -T pdml|ps|psml|text ] [ -w <savefile> ]\n");
-  fprintf(output, "\t[ -z <statistics string> ]\n");
+  fprintf(output, "\t[ -z <statistics ]\n");
 #endif
   fprintf(output, "Valid file type arguments to the \"-F\" flag:\n");
   for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {

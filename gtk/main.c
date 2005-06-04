@@ -1082,29 +1082,29 @@ print_usage(gboolean print_ver) {
 #ifdef SVNVERSION
 	" (" SVNVERSION ")"
 #endif
+        "\n (C) 1998-2005 Gerald Combs <gerald@ethereal.com>"
 	"\n%s\n\n%s\n",
 	comp_info_str->str, runtime_info_str->str);
   } else {
     output = stderr;
   }
 #ifdef HAVE_LIBPCAP
-  fprintf(output, "\n%s [ -vh ] [ -klLnpQS ] [ -a <capture autostop condition> ] ...\n",
-	  PACKAGE);
-  fprintf(output, "\t[ -b <ringbuffer files options> ] ...]\n");
-  fprintf(output, "\t[ -B <byte view height> ] [ -c <count> ] [ -f <capture filter> ]\n");
-  fprintf(output, "\t[ -i <interface> ] [ -m <medium font> ] [ -N <resolving> ]\n");
-  fprintf(output, "\t[ -o <preference setting> ] ... [ -P <packet list height> ]\n");
-  fprintf(output, "\t[ -r <infile> ] [ -R <read filter> ] [ -s <snaplen> ] \n");
-  fprintf(output, "\t[ -t <time stamp format> ] [ -T <tree view height> ]\n");
-  fprintf(output, "\t[ -w <savefile> ] [ -y <link type> ] [ -z <statistics string> ]\n");
+  fprintf(output, "\n%s [ -vh ] [ -klLnpQS ] [ -a <capture autostop condition> ] ...\n", PACKAGE);	  
+  fprintf(output, "\t[ -b <capture ring buffer option> ] ...] [ -B capture buffer size (Win32 only) ]\n"); 
+  fprintf(output, "\t[ -c <capture packet count> ] [ -f <capture filter> ]\n");
+  fprintf(output, "\t[ -g <packet number> ]\n");
+  fprintf(output, "\t[ -i <capture interface> ] [ -m <font> ] [ -N <name resolving flags> ]\n");
+  fprintf(output, "\t[ -o <preference/recent setting> ] ... \n");
+  fprintf(output, "\t[ -r <infile> ] [ -R <read (display) filter> ] [ -s <capture snaplen> ] \n");
+  fprintf(output, "\t[ -t <time stamp format> ]\n");
+  fprintf(output, "\t[ -w <savefile> ] [ -y <capture link type> ] [ -z <statistics ]\n");
   fprintf(output, "\t[ <infile> ]\n");
 #else
-  fprintf(output, "\n%s [ -vh ] [ -n ] [ -B <byte view height> ] [ -m <medium font> ]\n",
-	  PACKAGE);
-  fprintf(output, "\t[ -N <resolving> ] [ -o <preference setting> ...\n");
-  fprintf(output, "\t[ -P <packet list height> ] [ -r <infile> ] [ -R <read filter> ]\n");
-  fprintf(output, "\t[ -t <time stamp format> ] [ -T <tree view height> ]\n");
-  fprintf(output, "\t[ -z <statistics string> ] [ <infile> ]\n");
+  fprintf(output, "\n%s [ -vh ] [ -n ] [ -g <packet number> ] [ -m <font> ]\n", PACKAGE);
+  fprintf(output, "\t[ -N <resolving flags> ] [ -o <preference/recent setting> ...\n");
+  fprintf(output, "\t[ -r <infile> ] [ -R <read (display) filter> ]\n");
+  fprintf(output, "\t[ -t <time stamp format> ]\n");
+  fprintf(output, "\t[ -z <statistics ] [ <infile> ]\n");
 #endif
 }
 
