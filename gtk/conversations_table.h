@@ -22,7 +22,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
+#ifndef __CONVERSATIONS_TABLE_H__
+#define __CONVERSATIONS_TABLE_H__
 #include "sat.h"
 
 /** @file
@@ -101,3 +102,5 @@ extern void init_conversation_notebook_cb(GtkWidget *widget, gpointer data);
  */
 extern void add_conversation_table_data(conversations_table *ct, const address *src, const address *dst, 
                         guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, SAT_E sat, int port_type);
+#endif /* __CONVERSATIONS_TABLE_H__ */
+
