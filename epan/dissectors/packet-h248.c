@@ -143,7 +143,7 @@ static int hf_h248_moveReq = -1;                  /* T_moveReq */
 static int hf_h248_modReq = -1;                   /* T_modReq */
 static int hf_h248_subtractReq = -1;              /* T_subtractReq */
 static int hf_h248_auditCapRequest = -1;          /* T_auditCapRequest */
-static int hf_h248_auditValueRequest = -1;        /* AuditRequest */
+static int hf_h248_auditValueRequest = -1;        /* T_auditValueRequest */
 static int hf_h248_notifyReq = -1;                /* T_notifyReq */
 static int hf_h248_serviceChangeReq = -1;         /* ServiceChangeRequest */
 static int hf_h248_addReply = -1;                 /* T_addReply */
@@ -1498,7 +1498,7 @@ static int dissect_keepActive_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static int
 dissect_h248_WildcardField(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "*");
+	  if (check_col(pinfo->cinfo, COL_INFO) && command_string != NULL ) col_append_str(pinfo->cinfo, COL_INFO, "*");
 	  it_is_wildcard = TRUE;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     NULL);
@@ -1530,7 +1530,7 @@ dissect_h248_T_id(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_i
 	tvbuff_t* new_tvb;
 	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
 	
-	  if (! it_is_wildcard && check_col(pinfo->cinfo, COL_INFO))
+	  if (command_string != NULL  && ! it_is_wildcard && check_col(pinfo->cinfo, COL_INFO))
 		col_append_str(pinfo->cinfo, COL_INFO, bytes_to_str(tvb_get_ptr(tvb,0,tvb->length),tvb->length));
 	
 
@@ -1548,12 +1548,12 @@ static const ber_sequence_t TerminationID_sequence[] = {
 
 static int
 dissect_h248_TerminationID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	  if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, command_string);
+	  if (check_col(pinfo->cinfo, COL_INFO) && command_string != NULL ) col_append_str(pinfo->cinfo, COL_INFO, command_string);
 	  it_is_wildcard = FALSE;
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 TerminationID_sequence, hf_index, ett_h248_TerminationID);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) col_append_str(pinfo->cinfo, COL_INFO, "}");
+	if (check_col(pinfo->cinfo, COL_INFO) && command_string != NULL ) col_append_str(pinfo->cinfo, COL_INFO, "}");
 	it_is_wildcard = FALSE;
   return offset;
 }
@@ -3433,9 +3433,6 @@ dissect_h248_AuditRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
   return offset;
 }
-static int dissect_auditValueRequest_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_AuditRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_auditValueRequest);
-}
 
 
 static int
@@ -3447,6 +3444,18 @@ dissect_h248_T_auditCapRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 }
 static int dissect_auditCapRequest_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_h248_T_auditCapRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_auditCapRequest);
+}
+
+
+static int
+dissect_h248_T_auditValueRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+	  command_string =  "auditValueRequest {";
+  offset = dissect_h248_AuditRequest(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_auditValueRequest_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_h248_T_auditValueRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_auditValueRequest);
 }
 
 static const ber_sequence_t TimeNotation_sequence[] = {
