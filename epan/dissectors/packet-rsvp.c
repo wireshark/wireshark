@@ -44,6 +44,11 @@
  * May 6, 2004: Modified some UNI objects, as defined in
  * <OIF2003.249.09>   (Roberto Morro)
  * <roberto.morro[AT]tilab.com>
+ *
+ * June 2, 2005: Modified more UNI objects to show correct TNA
+ * addresses; Fixed LSP interface ID subobject (Richard Rabbat)
+ * <richard[AT]us.fujitsu.com>
+ *
  */
 
 
@@ -243,13 +248,13 @@ enum rsvp_classes {
     RSVP_CLASS_ACCEPTABLE_LABEL_SET,
     RSVP_CLASS_RESTART_CAP,
 
+    RSVP_CLASS_LSP_TUNNEL_IF_ID = 193,
     RSVP_CLASS_NOTIFY_REQUEST = 195,
     RSVP_CLASS_ADMIN_STATUS,
 
     RSVP_CLASS_FAST_REROUTE = 205,
     RSVP_CLASS_SESSION_ATTRIBUTE = 207,
     RSVP_CLASS_DCLASS = 225,
-    RSVP_CLASS_LSP_TUNNEL_IF_ID = 227,
     RSVP_CLASS_GENERALIZED_UNI = 229,
     RSVP_CLASS_CALL_ID
 
@@ -1346,7 +1351,7 @@ dissect_rsvp_ifid_tlv (proto_tree *ti, proto_tree *rsvp_object_tree,
 		       tvbuff_t *tvb, int offset, int obj_length, 
 		       int subtree_type)
 {
-    guint     tlv_off;
+    int     tlv_off;
     guint16   tlv_type;
     guint     tlv_len;
     char     *ifindex_name;
@@ -2859,7 +2864,7 @@ dissect_rsvp_label (proto_tree *ti, tvbuff_t *tvb,
 				"Generalized Label: %u",
 				tvb_get_ntohl(tvb, offset2+i));
 	    if (i < 16) {
-		proto_item_append_text(ti, "%d%s",
+		proto_item_append_text(ti, "0x%x%s",
 				       tvb_get_ntohl(tvb, offset2+i),
 				       i+4<mylen?", ":"");
 	    } else if (i == 16) {
@@ -3810,7 +3815,7 @@ dissect_rsvp_gen_uni (proto_tree *ti, tvbuff_t *tvb,
 		case 1:
 		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
 					      offset2+l, 8,
-					      "%s IPv4 TNA - %s", c,
+					      "%s IPv4 TNA: %s", c,
 					      ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)));
 		    rsvp_gen_uni_subtree =
 			proto_item_add_subtree(ti2, TREE(TT_GEN_UNI_SUBOBJ));
@@ -3825,8 +3830,8 @@ dissect_rsvp_gen_uni (proto_tree *ti, tvbuff_t *tvb,
 					"IPv4 hop: %s",
 					ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)));
 		    if (i < 4) {
-			proto_item_append_text(ti, "%s IPv4 %s", c,
-					       ip_to_str(tvb_get_ptr(tvb, offset2+l+2, 4)));
+			proto_item_append_text(ti, "%s IPv4 TNA: %s", c,
+					       ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)));
 		    }
 		    break;
 
@@ -4164,7 +4169,7 @@ dissect_rsvp_call_id (proto_tree *ti, tvbuff_t *tvb,
 
 	default:
 	  offset4 = offset3 + len;
-	  proto_tree_add_text(rsvp_object_tree, tvb, offset3, len, "Unknow Transport Network type: %d",
+	  proto_tree_add_text(rsvp_object_tree, tvb, offset3, len, "Unknown Transport Network type: %d",
 			      type);
 	}
 
