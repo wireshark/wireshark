@@ -1755,6 +1755,8 @@ proto_register_alcap(void)
     proto_alcap =
 	proto_register_protocol(alcap_proto_name, alcap_proto_name_short, "alcap");
 
+	register_dissector("alcap", dissect_alcap, proto_alcap);
+	
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_alcap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
