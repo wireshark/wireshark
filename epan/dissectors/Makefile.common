@@ -724,6 +724,7 @@ DISSECTOR_INCLUDES =	\
 	packet-isis.h	\
 	packet-isl.h	\
 	packet-isup.h	\
+	packey-jxta.h	\
 	packet-kerberos.h	\
 	packet-klm.h	\
 	packet-ldap.h	\
