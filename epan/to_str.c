@@ -883,6 +883,9 @@ address_to_str_buf(const address *addr, gchar *buf)
   case AT_SS7PC:
     mtp3_addr_to_str_buf(addr->data, buf);
     break;
+  case AT_STRINGZ:
+    strcpy(buf, addr->data);
+    break;
   case AT_EUI64:
     sprintf(buf, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x",
             addr->data[0], addr->data[1], addr->data[2], addr->data[3],
