@@ -113,6 +113,7 @@ ETHEREAL_TAP_SRC = \
 	conversations_fddi.c	\
 	conversations_ip.c	\
 	conversations_ipx.c	\
+	conversations_jxta.c		\
 	conversations_sctp.c	\
 	conversations_tcpip.c	\
 	conversations_tr.c	\
@@ -130,6 +131,7 @@ ETHEREAL_TAP_SRC = \
 	hostlist_fddi.c \
 	hostlist_ip.c \
 	hostlist_ipx.c \
+	hostlist_jxta.c	\
 	hostlist_tcpip.c \
 	hostlist_tr.c \
 	hostlist_udpip.c \
