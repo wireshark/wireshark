@@ -83,16 +83,17 @@ typedef struct _dialog_data_t {
 	GtkWidget *window;
 	gboolean needs_redraw;
 	gint selected_row;
+    GtkWidget *draw_area_time;
     GtkWidget *draw_area;
 	GtkWidget *draw_area_comments;
+    GdkPixmap *pixmap_time;
     GdkPixmap *pixmap;
     GdkPixmap *pixmap_comments;
-    GtkAdjustment *h_scrollbar_adjustment;
-    GtkWidget *h_scrollbar;
 	GtkWidget *v_scrollbar;
 	GtkAdjustment *v_scrollbar_adjustment;
-	GdkGC *div_line_gc;
-	GdkGC *bg_gc[MAX_NUM_COL_CONV];
+	GtkWidget *hpane;
+	GdkGC *div_line_gc[2];
+	GdkGC *bg_gc[MAX_NUM_COL_CONV+1];
     int pixmap_width;
     int pixmap_height;
 	guint16 first_node;			/* the first node on the left to show in the screen */
