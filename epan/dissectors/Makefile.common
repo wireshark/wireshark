@@ -343,6 +343,7 @@ DISSECTOR_SRC =	\
 	packet-ismp.c	\
 	packet-isns.c	\
 	packet-isup.c	\
+	packet-isup_thin.c	\
 	packet-iua.c	\
 	packet-jabber.c	\
 	packet-juniper.c \
@@ -724,7 +725,7 @@ DISSECTOR_INCLUDES =	\
 	packet-isis.h	\
 	packet-isl.h	\
 	packet-isup.h	\
-	packey-jxta.h	\
+	packet-jxta.h	\
 	packet-kerberos.h	\
 	packet-klm.h	\
 	packet-ldap.h	\

@@ -29,7 +29,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
+#ifndef __PACKET_JXTA_H__
+#define __PACKET_JXTA_H__
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -37,10 +38,10 @@
 /**
 *   Stream Conversation data
 **/
-struct jxta_tap_header {
+typedef struct jxta_tap_header{
     address src_address;
     address dest_address;
     guint32 size;
-};
+}jxta_tap_header;
+#endif
 
-typedef struct jxta_tap_header jxta_tap_header;
