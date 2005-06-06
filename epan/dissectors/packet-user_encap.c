@@ -133,7 +133,7 @@ static void dissect_user(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree,guint
 	call_dissector(encap->payload_handle, payload_tvb, pinfo, tree);
 
 	if (encap->trailer_size) {
-		tvbuff_t* trailer_tvb = tvb_new_subset(tvb, 0, encap->trailer_size, encap->trailer_size);
+		tvbuff_t* trailer_tvb = tvb_new_subset(tvb, encap->header_size + len, encap->trailer_size, encap->trailer_size);
 		call_dissector(encap->trailer_handle, trailer_tvb, pinfo, tree);
 		offset = encap->trailer_size;
 	}
@@ -141,12 +141,12 @@ static void dissect_user(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree,guint
 
 void proto_reg_handoff_user_encap(void)
 {
-	int i = 0;
+	int i;
 	static dissector_handle_t data_handle;
 	
 	data_handle = find_dissector("data");
 
-	do {
+	for (i = 0; i < 16; i++) {
 		encaps[i].handle =  find_dissector(encaps[i].abbr);
 		dissector_add("wtap_encap", WTAP_ENCAP_USER0 + i, encaps[i].handle);
 
@@ -184,10 +184,7 @@ void proto_reg_handoff_user_encap(void)
 		}
 		
 		encaps[i].encap_dissector = encap_dissectors[encaps[i].encap];
-		
-		i++;
-	} while(i<16);
-	
+	}
 }
 
 void proto_register_user_encap(void)
