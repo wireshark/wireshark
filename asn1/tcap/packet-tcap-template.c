@@ -39,8 +39,8 @@
 #include "packet-ber.h"
 #include "packet-tcap.h"
 
-#define PNAME  "tcap"
-#define PSNAME "tcap"
+#define PNAME  "Transfer Capabillities Part"
+#define PSNAME "TCAP"
 #define PFNAME "tcap"
 
 /* Initialize the protocol and registered fields */
@@ -72,6 +72,7 @@ dissector_handle_t	tcap_handle;
 static dissector_table_t ber_oid_dissector_table=NULL;
 static char * cur_oid;
 static char * tcapext_oid;
+static proto_tree	*tcap_top_tree=NULL;
 static dissector_handle_t data_handle;
 static dissector_table_t tcap_itu_ssn_dissector_table; /* map use ssn in sccp */
 static dissector_table_t tcap_ansi_ssn_dissector_table; /* map use ssn in sccp */
@@ -87,7 +88,7 @@ static int dissect_tcap_UserInformation(gboolean implicit_tag _U_, tvbuff_t *tvb
 const value_string tcap_component_type_str[] = {
     { TCAP_COMP_INVOKE,		"Invoke" },
     { TCAP_COMP_RRL,		"Return Result(L)" },
-    { TCAP_COMP_RE,		"Return Error" },
+    { TCAP_COMP_RE,			"Return Error" },
     { TCAP_COMP_REJECT,		"Reject" },
     { TCAP_COMP_RRN,		"Return Result(NL)" },
     { 0,			NULL } };
@@ -99,10 +100,10 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     proto_item		*item=NULL;
     proto_tree		*tree=NULL;
 
-
+	tcap_top_tree = parent_tree;
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "tcap");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCAP");
     }
 
     /* create display subtree for the protocol */
