@@ -1,0 +1,531 @@
+
+DialoguePDUs { ccitt recommendation q 773 modules (2) dialoguePDUs(2) version1 (1) }
+
+DEFINITIONS ::=
+
+BEGIN
+
+EXPORTS		dialogue-as-id, DialoguePDU;
+
+-- abstract syntax name for structured dialogue APDUs
+
+
+
+dialogue-as-id OBJECT IDENTIFIER		::=	{ ccitt recommendation q 773 as (1)
+								  dialogue-as (1) version1 (1) }
+
+DialoguePDU ::= 	CHOICE {
+							dialogueRequest	    AARQ-apdu,
+							dialogueResponse	AARE-apdu,
+							dialogueAbort		ABRT-apdu }
+
+
+ExternalPDU ::= [UNIVERSAL 8] SEQUENCE
+					{
+					oid OBJECT IDENTIFIER,
+					dialog [0] IMPLICIT Dialog1 
+					}
+					
+UserInformation ::= [UNIVERSAL 8] IMPLICIT SEQUENCE
+					{
+					useroid UserInfoOID,
+					externuserinfo [0] IMPLICIT ExternUserInfo 
+					}
+					
+ExternUserInfo  ::= OCTET STRING					
+				
+Dialog1 ::= OCTET STRING
+UserInfoOID ::= OBJECT IDENTIFIER
+Applicationcontext ::= OBJECT IDENTIFIER
+AARQ-apdu ::= [APPLICATION 0]		IMPLICIT SEQUENCE { 
+	protocol-versionrq				[0] IMPLICIT BIT STRING { version1 (0) }
+								DEFAULT { version1 },
+	application-context-name			[1] Applicationcontext,
+	user-information				[30] IMPLICIT User-information
+								OPTIONAL }
+
+AARE-apdu ::= [APPLICATION 1]		IMPLICIT SEQUENCE {
+	protocol-versionre				[0] IMPLICIT BIT STRING { version1 (0) }
+								DEFAULT { version1 },
+	application-context-name			[1] Applicationcontext,
+	result						[2] Associate-result,
+	result-source-diagnostic			[3] Associate-source-diagnostic,
+	user-information				[30] IMPLICIT  User-information
+								OPTIONAL }
+
+-- RLRQ PDU is currently not used.
+-- It is included for completeness only.
+
+RLRQ-apdu ::= [APPLICATION 2]		IMPLICIT SEQUENCE {
+	reasonrq					[0] IMPLICIT Release-request-reason OPTIONAL,
+	user-information				[30] IMPLICIT  User-information
+								OPTIONAL }
+
+-- RLRE PDU is currently not used.
+-- It is included for completeness only
+
+RLRE-apdu ::= [APPLICATION 3]		IMPLICIT SEQUENCE {
+	reasonre					[0] IMPLICIT Release-response-reason OPTIONAL,
+	user-information				[30] IMPLICIT  User-information
+								OPTIONAL }
+
+ABRT-apdu ::= [APPLICATION 4]		IMPLICIT SEQUENCE {
+	abort-source					[0] IMPLICIT ABRT-source,
+	user-information				[30] IMPLICIT  User-information
+								OPTIONAL }
+
+User-information ::= OCTET STRING
+
+ABRT-source ::= INTEGER {			dialogue-service-user (0),
+							dialogue-service-provider (1) }
+
+Associate-result ::= INTEGER {			accepted (0),
+							reject-permanent (1) }
+
+ 
+Associate-source-diagnostic ::= CHOICE {
+	dialogue-service-user	[1]	INTEGER {
+						null (0),
+						no-reason-given (1),
+						application-context-name-not-supported (2) },
+	dialogue-service-provider	[2]	INTEGER {
+						null (0),
+						no-reason-given (1),
+						no-common-dialogue-portion (2) }
+						}
+
+-- Release-request-reason is currently not used.
+-- It is included for completeness only.
+
+Release-request-reason ::= INTEGER {	normal (0),
+						urgent (1),
+						user-defined (30)
+						}
+
+-- Release-response-reason is currently not used. 
+-- It is included for completeness only.
+
+Release-response-reason ::= INTEGER { normal (0),
+						not-finished (1),
+						user-defined (30) }
+--END 
+
+
+--UnidialoguePDUs { ccitt recommendation q 773 modules (2) unidialoguePDUs (3) version1 (1) }
+
+--DEFINITIONS ::=
+
+--BEGIN
+
+--EXPORTS							uniDialogue-as-id, UniDialoguePDU;
+
+-- Abstract syntax name for unstructured dialogue APDUs
+
+uniDialogue-as-id OBJECT IDENTIFIER	::=	{ ccitt recommendation q 773 as (1)
+										   unidialogue-as (2) version1 (1) }
+
+UniDialoguePDU ::= CHOICE { unidialoguePDU		AUDT-apdu }
+
+AUDT-apdu ::= [APPLICATION 0]		IMPLICIT SEQUENCE {
+	protocol-version3					[0] IMPLICIT BIT STRING {version1 (0) }
+										DEFAULT { version1 },
+	application-context-name				[1] Applicationcontext,
+	user-information					[30] IMPLICIT User-information
+										OPTIONAL }
+
+END 
+
+
+
+TCAPMessages { ccitt recommendation q 773 modules (2) messages (1) version2 (2) }
+
+DEFINITIONS  ::=
+
+BEGIN 
+
+--EXPORTS		     OPERATION, ERROR, Component, InvokeId Type;
+
+-- Transaction Portion fields
+
+MessageType ::=	  CHOICE {
+				unidirectional	[APPLICATION 1]		IMPLICIT Unidirectional,
+				begin			[APPLICATION 2]		IMPLICIT Begin,
+				end			[APPLICATION 4]		IMPLICIT End,
+				continue		[APPLICATION 5]		IMPLICIT Continue,
+				abort			[APPLICATION 7]		IMPLICIT Abort ,
+				-- and we now get clever making this ansi and itu!
+				ansiunidirectional [ PRIVATE 1 ] IMPLICIT UniTransactionPDU ,
+				ansiqueryWithPerm [ PRIVATE 2 ] IMPLICIT TransactionPDU ,
+				ansiqueryWithoutPerm [ PRIVATE 3 ] IMPLICIT TransactionPDU ,
+				ansiresponse [ PRIVATE 4 ] IMPLICIT TransactionPDU ,
+				ansiconversationWithPerm [ PRIVATE 5 ] IMPLICIT TransactionPDU ,
+				ansiconversationWithoutPerm [ PRIVATE 6 ] IMPLICIT TransactionPDU , 
+				ansiabort [ PRIVATE 22 ] IMPLICIT AbortPDU
+}
+
+Unidirectional ::=	SEQUENCE		      { dialoguePortion	DialoguePortion OPTIONAL,
+						         components		ComponentPortion }
+
+Begin ::=	 SEQUENCE		      { otid			OrigTransactionID,
+						        dialoguePortion	DialoguePortion OPTIONAL,
+						        components		ComponentPortion OPTIONAL }
+
+End ::=		SEQUENCE		      { dtid			DestTransactionID,
+						        dialoguePortion	DialoguePortion OPTIONAL,
+						        components		ComponentPortion OPTIONAL }
+ 
+
+Continue ::=		SEQUENCE		      { otid			OrigTransactionID,
+						        dtid			DestTransactionID,
+						        dialoguePortion	DialoguePortion OPTIONAL,
+						        components		ComponentPortion OPTIONAL }
+Abort ::=		SEQUENCE		      {
+						        dtid			DestTransactionID,
+						      reason			Reason OPTIONAL
+						      }
+Reason ::= CHOICE
+						      { p-abortCause		P-AbortCause,
+						      u-abortCause	 DialoguePortion }						     
+-- NOTE – When the Abort Message is generated by the Transaction sublayer, a p-Abort Cause must be
+-- present.The u-abortCause may be generated by the component sublayer in which case it is an ABRT
+-- APDU, or by the TC-User in which case it could be either an ABRT APDU or data in some user-defined
+-- abstract syntax.
+
+DialoguePortion ::= [APPLICATION  11] IMPLICIT DialogueOC
+					--[UNIVERSAL 11] DialoguePDU
+DialogueOC ::= OCTET STRING						
+
+-- The dialogue portion carries the dialogue control PDUs as value of the external data type.
+-- The direct reference should be set to { ccitt recommendation q 773 as (1) dialogue-as (1) version (1) }
+-- if structured dialogue is used and to { ccitt recommendation q 773 as (1) unidialogue-as (2) version (1) }
+-- if unstructured dialogue is used or any user defined abstract syntax name when only user information
+-- is carried (e.g. when user information is sent in a 1988 Abort message).
+
+OrigTransactionID ::=	[APPLICATION 8]		IMPLICIT OCTET STRING (SIZE (1..4) )
+
+DestTransactionID ::=	[APPLICATION 9]		IMPLICIT OCTET STRING (SIZE (1..4) )
+
+P-AbortCause ::=		[APPLICATION 10]	IMPLICIT INTEGER {
+					unrecognizedMessageType (0),
+					unrecognizedTransactionID (1),
+					badlyFormattedTransactionPortion (2),
+					incorrectTransactionPortion (3),
+					resourceLimitation (4) }
+
+-- COMPONENT PORTION. The last field in the transaction portion of the TCAP message is the Component Portion.
+-- The Component Portion may be absent.
+
+ComponentPortion ::=	--[APPLICATION 12]	IMPLICIT SEQUENCE SIZE (1..MAX) OF Component
+					[APPLICATION 12] IMPLICIT SEQUENCE SIZE (1..MAX) OF Component
+-- Component Portion fields
+
+-- COMPONENT TYPE. Recommendation X.229 defines four Application Protocol Data Units (APDUs).
+-- TCAP adds returnResultNotLast to allow for the segmentation of a result.
+
+Component ::=	CHOICE {
+				invoke				[1] IMPLICIT Invoke,
+				returnResultLast			[2] IMPLICIT ReturnResult,
+				returnError				[3] IMPLICIT ReturnError,
+				reject					[4] IMPLICIT Reject,
+				returnResultNotLast		[7] IMPLICIT ReturnResult }
+
+-- The Components are sequences of data elements.
+
+Invoke ::=		SEQUENCE {
+				invokeID				InvokeIdType,
+				linkedID				[0] IMPLICIT InvokeIdType OPTIONAL,
+				operationCode			OperationCode,
+				parameter				Parameter OPTIONAL }
+
+Parameter ::=  OCTET STRING
+ 
+-- ANY is filled by the single ASN.1 data type following the keyword PARAMETER or the keyword ARGUMENT
+-- in the type definition of a particular operation.
+
+ReturnResult ::=	SEQUENCE {
+				invokeID				InvokeIdType,
+				resultretres					SEQUENCE {
+					  operationCode		OperationCode,
+					  parameter			Parameter OPTIONAL
+				} OPTIONAL
+			}
+
+-- ANY is filled by the single ASN.1 data type following the keyword RESULT in the type definition
+-- of a particular operation.
+
+ReturnError ::=	SEQUENCE {
+				invokeID				InvokeIdType,
+				errorCode				ErrorCode,
+				parameter				Parameter  OPTIONAL }
+ 
+-- ANY is filled by the single ASN.1 data type following the keyword PARAMETER in the type definition
+-- of a particular error.
+
+Reject ::=		SEQUENCE {
+				invokeIDRej CHOICE {
+					derivable			InvokeIdType,
+					not-derivable		NULL },
+				problem CHOICE {
+					generalProblem		[0] IMPLICIT GeneralProblem,
+					invokeProblem		[1] IMPLICIT InvokeProblem,
+					returnResultProblem	[2] IMPLICIT ReturnResultProblem,
+					returnErrorProblem	[3] IMPLICIT ReturnErrorProblem } }
+
+InvokeIdType ::=	INTEGER (-128..127)
+
+
+OPERATION	::=	CHOICE {
+							localValue INTEGER,
+							globalValue OBJECT IDENTIFIER } 
+
+ERROR	::=	CHOICE {
+			localValue INTEGER,
+			globalValue OBJECT IDENTIFIER } 
+
+-- OPERATIONS
+
+-- Operations are specified with the OPERATION MACRO.
+-- When an operation is specified, the valid parameter set, results, and errors for that operation are indicated.
+-- Default values and optional parameters are permitted.
+
+--OPERATION MACRO		::=
+
+--BEGIN
+--	TYPE NOTATION		::=	Parameter Result Errors LinkedOperations
+--	VALUE NOTATION	::=	value (VALUE CHOICE {
+--							localValue INTEGER,
+--							globalValue OBJECT IDENTIFIER } )
+--	Parameter			::=	ArgKeyword NamedType | empty
+--	ArgKeyword			::=	"ARGUMENT" | "PARAMETER"
+--	Result				::=	"RESULT" ResultType | empty
+--	Errors			::=	"ERRORS" "{"ErrorNames"}" | empty
+--	LinkedOperations		::=	"LINKED" "{"LinkedOperationNames"}" | empty
+--	ResultType			::=	NamedType | empty
+--	ErrorNames			::=	ErrorList | empty
+--	ErrorList			::=	Error | ErrorList "," Error
+--	Error				::=	value (ERROR)
+							-- shall reference an error value
+						--| type	 shall reference an error type
+							-- if no error value is specified
+ 
+--	LinkedOperationNames	::=	OperationList | empty
+--	OperationList		::=	Operation | OperationList "," Operation
+--	Operation			::=	value (OPERATION)
+							-- shall reference an operation value
+--						| type	 shall reference an operation type if
+							-- no operation value is specified
+--	NamedType			::=	identifier type | type
+--END
+
+-- ERRORS
+
+-- Errors are specified with the ERROR MACRO.
+-- When an error is specified, the valid parameters for that error are indicated.
+-- Default values and optional parameters are permitted.
+
+--ERROR MACRO			::=
+--
+--BEGIN
+--	TYPE NOTATION		::=	Parameter
+--	VALUE NOTATION	::=	value (VALUE CHOICE {
+--							localValue INTEGER,
+--							globalValue OBJECT IDENTIFIER } )
+--	Parameter	::=	"PARAMETER" NamedType | empty
+--	NamedType	::=	identifier type | type
+--END
+
+-- PROBLEMS
+
+GeneralProblem		::=	INTEGER {		unrecognizedComponent (0),
+								mistypedComponent (1),
+								badlyStructuredComponent (2) }
+
+InvokeProblem		::=	INTEGER {		duplicateInvokeID (0),
+								unrecognizedOperation (1),
+								mistypedParameter (2),
+								resourceLimitation (3),
+								initiatingRelease (4),
+								unrecognizedLinkedID (5),
+								linkedResponseUnexpected (6),
+								unexpectedLinkedOperation (7) }
+
+ReturnResultProblem	::=	INTEGER {		unrecognizedInvokeID (0),
+								returnResultUnexpected (1),
+								mistypedParameter (2) }
+
+ReturnErrorProblem	::=	INTEGER {		unrecognizedInvokeID (0),
+								returnErrorUnexpected (1),
+								unrecognizedError (2),
+								unexpectedError (3),
+								mistypedParameter (4) }
+
+
+
+UniTransactionPDU ::= SEQUENCE
+
+	{
+		identifier TransactionID ,
+		dialoguePortionansi DialoguePortionANSI OPTIONAL ,
+		componentPortion ComponentSequence OPTIONAL 
+	}
+
+TransactionPDU ::= SEQUENCE
+	{
+
+		identifier TransactionID ,
+		dialoguePortionansi DialoguePortionANSI OPTIONAL ,
+		componentPortion ComponentSequence OPTIONAL
+	}
+
+--TransactionPDU should include either a Dialogue Portion , a Component Sequence or both
+
+TransactionID ::= [PRIVATE 7 ] IMPLICIT OCTET STRING
+
+-- 0 (zero) Octet for Unidirectional,4 Octet for Query , Response And Abort
+
+-- 8 Octet for Conversation in the order Originating then Responding TID
+
+AbortPDU ::= SEQUENCE
+	{
+		identifier TransactionID ,
+		dialoguePortionansi DialoguePortionANSI OPTIONAL ,
+		causeInformation CHOICE {
+				abortCause P-Abort-cause ,
+				userInformation UserInformation   -- UserAbortInformation
+				} OPTIONAL
+}
+
+--when the Abort package is generated by the Transaction sublayer,
+
+--the P-Abort-cause must be present
+
+P-Abort-cause ::= [ PRIVATE 23 ] IMPLICIT INTEGER {
+			unrecognizedPackageType ( 1 ) ,
+			incorrestTransactionPortion ( 2 ) ,
+			badlyStructuredTransactionPortion ( 3 ) ,
+			unassignedRespondingTransactionID ( 4 ) ,
+			permissionToReleaseProblem ( 5 ) ,
+			resourceUnavilable ( 6 ) ,		
+			unrecognizedDialoguePortionID ( 7 ) ,
+			badlyStructuredDialoguePortion ( 8 ) ,
+			missingDialoguePortion ( 9 ) ,
+			inconsistentDialoguePortion ( 10 ) }
+
+DialoguePortionANSI ::= [ PRIVATE 25 ] IMPLICIT SEQUENCE {
+			version ProtocolVersion OPTIONAL ,
+			applicationContext [0] CHOICE {
+					integerApplicationId IntegerApplicationContext ,
+					objectApplicationId ObjectIDApplicationContext
+					} OPTIONAL ,
+		userInformation UserInformation OPTIONAL ,
+		securityContext CHOICE {
+			 integerSecurityId [ 0 ] IMPLICIT INTEGER ,
+			objectSecurityId [ 1 ] IMPLICIT OBJECT IDENTIFIER 
+		} OPTIONAL ,
+		confidentiality [ 2 ] IMPLICIT Confidentiality OPTIONAL ,
+ ... }
+ 
+ 
+ProtocolVersion ::= [ PRIVATE 26 ] IMPLICIT OCTET STRING ( SIZE(1) )
+
+IntegerApplicationContext ::= [ PRIVATE 27 ] IMPLICIT INTEGER
+
+ObjectIDApplicationContext ::= [ PRIVATE 28 ] IMPLICIT OBJECT IDENTIFIER
+
+--UserInformation ::= [ PRIVATE 29 ] IMPLICIT SEQUENCE OF EXTERNAL
+
+Confidentiality ::= SEQUENCE {
+		 confidentialityId CHOICE {
+			integerConfidentialityId [ 0 ] IMPLICIT INTEGER ,
+			objectConfidentialityId [ 1 ] IMPLICIT OBJECT IDENTIFIER
+ 						} OPTIONAL ,
+		 ... }
+
+--UserAbortInformation ::= [ PRIVATE 24 ] EXTERNAL
+
+ComponentSequence ::= [ PRIVATE 8 ] IMPLICIT SEQUENCE OF ComponentPDU
+
+ComponentPDU ::=
+		CHOICE {
+			invokeLastansi [ PRIVATE 9 ] IMPLICIT InvokePDU ,
+			returnResultLastansi [ PRIVATE 10 ] IMPLICIT ReturnResultPDU,
+			returnErroransi [ PRIVATE 11 ] IMPLICIT ReturnErrorPDU ,
+			rejectansi [ PRIVATE 12 ] IMPLICIT RejectPDU ,	
+			invokeNotLastansi [ PRIVATE 13 ] IMPLICIT InvokePDU ,
+			returnResultNotLastansi [ PRIVATE 14 ] IMPLICIT ReturnResultPDU
+				}
+
+InvokePDU ::= SEQUENCE {
+			componentIDs [ PRIVATE 15 ] IMPLICIT OCTET STRING (SIZE(0..2)) OPTIONAL ,
+			operationCode OperationCode OPTIONAL,
+			parameterinv  ANSIparamch
+				}
+ANSIParameters ::=   ANY
+
+ANSIparamch ::=  SEQUENCE {
+			 ansiparams  ANSIParameters OPTIONAL,
+			 ansiparams1  ANSIParameters  OPTIONAL,
+			 ansiparams2  ANSIParameters OPTIONAL,
+			 ansiparams3  ANSIParameters OPTIONAL,
+			 ansiparams4  ANSIParameters OPTIONAL,
+			 ansiparams5  ANSIParameters OPTIONAL,
+			 ansiparams6  ANSIParameters OPTIONAL,
+			 ansiparams7  ANSIParameters OPTIONAL,
+			 ansiparams8  ANSIParameters OPTIONAL,
+			 ansiparams9  ANSIParameters OPTIONAL,
+			 ansiparams10  ANSIParameters OPTIONAL,
+			 ansiparams11  ANSIParameters OPTIONAL,
+			 ansiparams12  ANSIParameters OPTIONAL,
+			 ansiparams13  ANSIParameters OPTIONAL,
+			 ansiparams14  ANSIParameters OPTIONAL,
+			 ansiparams15  ANSIParameters OPTIONAL,
+			 ansiparams16  ANSIParameters OPTIONAL,
+			 ansiparams17  ANSIParameters OPTIONAL,
+			 ansiparams18  ANSIParameters OPTIONAL,
+			 ansiparams19  ANSIParameters OPTIONAL,
+			 ansiparams20 ANSIParameters OPTIONAL,
+			 ansiparams21  ANSIParameters OPTIONAL
+				}
+
+ReturnResultPDU  ::= SEQUENCE {
+			componentID  ComponentID,
+		parameterrr  ANSIparamch
+	}
+
+
+ComponentID ::= [ PRIVATE 15 ] IMPLICIT OCTET STRING ( SIZE(1) )
+
+ReturnErrorPDU ::= SEQUENCE {
+			componentID ComponentID ,
+			errorCode ErrorCode ,
+		parameterre ANSIparamch
+   			}
+
+RejectPDU ::= SEQUENCE {
+	componentID ComponentID ,
+	rejectProblem [PRIVATE 21 ] IMPLICIT ProblemPDU,
+		parameterrj ANSIparamch
+}
+
+
+ProblemPDU ::= INTEGER {
+			general-unrecognisedComponentType (257) ,
+			general-incorrectComponentPortion ( 258 ) ,
+			general-badlyStructuredCompPortion ( 259 ) 
+			
+		}
+
+
+OperationCode ::= CHOICE
+			{
+				national 		[PRIVATE 16] IMPLICIT INTEGER (-32768..32767),
+				private 		[PRIVATE 17] IMPLICIT INTEGER
+			}
+			
+ErrorCode ::= CHOICE
+			{
+				nationaler 		[PRIVATE 19] IMPLICIT INTEGER (-32768..32767),
+				privateer 		[PRIVATE 20] IMPLICIT INTEGER
+			}
+
+END -- end of the TCAP Package Module 
