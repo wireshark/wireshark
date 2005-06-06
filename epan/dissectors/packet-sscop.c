@@ -166,11 +166,13 @@ static const value_string sscop_type_vals[] = {
 #define	SSCOP_SS_N_MR	(reported_length - 8)	/* lower 3 bytes thereof */
 #define	SSCOP_SS_N_R	(reported_length - 4)	/* lower 3 bytes thereof */
 
-extern void dissect_stat_list(proto_tree *tree, tvbuff_t *tvb) {
-	gint n = (tvb_reported_length(tvb)-3)/4 ;
-	proto_item* pi = proto_tree_add_text(tree,tvb,0,n*4,"SD List");
-	gint i;
+extern void dissect_stat_list(proto_tree *tree, tvbuff_t *tvb,guint h) {
+	gint n,i;
+	proto_item* pi;
+
+	n = (tvb_reported_length(tvb))/4 - h ;
 	
+	pi = proto_tree_add_text(tree,tvb,0,n*4,"SD List");
 	tree = proto_item_add_subtree(pi,ett_stat);
 
 	for (i = 0; i < n; i++) {
@@ -279,13 +281,13 @@ dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, d
 		proto_tree_add_item(sscop_tree, hf_sscop_ps, tvb, SSCOP_N_PS + 1, 3,FALSE);
 		proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_N_MR + 1, 3, FALSE);
 		proto_tree_add_item(sscop_tree, hf_sscop_r, tvb, SSCOP_SS_N_R + 1, 3,FALSE);
-		dissect_stat_list(sscop_tree,tvb);
+		dissect_stat_list(sscop_tree,tvb,3);
       break;
 
     case SSCOP_USTAT:
 		proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_N_MR + 1, 3, FALSE);
 		proto_tree_add_item(sscop_tree, hf_sscop_r, tvb, SSCOP_SS_N_R + 1, 3,FALSE);
-		dissect_stat_list(sscop_tree,tvb);
+		dissect_stat_list(sscop_tree,tvb,2);
       break;
     }
   }
@@ -397,6 +399,7 @@ proto_register_sscop(void)
 		{ &hf_sscop_mr, { "N(MR)", "sscop.mr", FT_UINT24, BASE_DEC,	NULL, 0x0, "", HFILL }},
 		{ &hf_sscop_s, { "N(S)", "sscop.s", FT_UINT24, BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_sscop_ps, { "N(PS)", "sscop.ps", FT_UINT24, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_sscop_r, { "N(R)", "sscop.r", FT_UINT24, BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_sscop_stat_s, { "N(S)", "sscop.stat.s", FT_UINT24, BASE_DEC, NULL, 0x0,"", HFILL }}
 	};
 	
