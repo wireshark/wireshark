@@ -1383,7 +1383,7 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree *rtcp_setup_tree;
 		proto_item *ti =  proto_tree_add_string_format(tree, hf_rtcp_setup, tvb, 0, 0,
 		                                               "",
-		                                               "Stream setup by %s (frame %d)",
+		                                               "Stream setup by %s (frame %u)",
 		                                               p_conv_data->setup_method,
 		                                               p_conv_data->setup_frame_number);
 		PROTO_ITEM_SET_GENERATED(ti);
@@ -1621,7 +1621,7 @@ static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo,
 	/* Add labelled subtree for roundtrip delay info */
 	ti =  proto_tree_add_string_format(tree, hf_rtcp_roundtrip_delay, tvb, 0, 0,
 	                                   "",
-	                                   "Calculated Roundtrip delay <-> %s = %dms, using frame %d",
+	                                   "Calculated Roundtrip delay <-> %s = %ums, using frame %u",
 	                                   address_to_str(&pinfo->net_src), delay,
 	                                   frame);
 
@@ -1643,7 +1643,7 @@ static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		col_append_fstr(pinfo->cinfo, COL_INFO,
-		                " (roundtrip delay <-> %s = %dms, using frame %d)",
+		                " (roundtrip delay <-> %s = %ums, using frame %u)",
 						address_to_str(&pinfo->net_src), delay, frame);
 	}
 }

@@ -805,7 +805,7 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Create setup info subtree with summary info. */
 	ti =  proto_tree_add_string_format(tree, hf_rtp_setup, tvb, 0, 0,
 		                                               "",
-		                                               "Stream setup by %s (frame %d)",
+		                                               "Stream setup by %s (frame %u)",
 		                                               p_conv_data->method,
 		                                               p_conv_data->frame_number);
 		PROTO_ITEM_SET_GENERATED(ti);
