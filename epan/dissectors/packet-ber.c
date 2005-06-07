@@ -136,6 +136,14 @@ dissect_ber_oid_NULL_callback(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 	return;
 }
 
+
+void
+register_ber_oid_dissector_handle(char *oid, dissector_handle_t dissector, int proto, char *name)
+{
+	dissector_add_string("ber.oid", oid, dissector);
+	g_hash_table_insert(oid_table, oid, name);
+}
+
 void
 register_ber_oid_dissector(char *oid, dissector_t dissector, int proto, char *name)
 {
@@ -145,6 +153,7 @@ register_ber_oid_dissector(char *oid, dissector_t dissector, int proto, char *na
 	dissector_add_string("ber.oid", oid, dissector_handle);
 	g_hash_table_insert(oid_table, oid, name);
 }
+
 /* Register the oid name to get translation in proto dissection */
 void
 register_ber_oid_name(char *oid, char *name)
@@ -167,8 +176,7 @@ get_ber_oid_name(char *oid)
  * when it is called it is a BAD thing  not a good thing.
  * It can not handle IMPLICIT tags nor indefinite length.
  */
-static int
-dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree)
+int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	int start_offset;
 	guint8 class;
@@ -467,6 +475,8 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 		end_offset=offset+len;
 	
 		/* sanity check: we only handle Constructed Universal Sequences */
+		if ((class!=BER_CLASS_APP)&&(class!=BER_CLASS_PRI))
+
 		if( (class!=BER_CLASS_UNI) 
 		  ||((tag<BER_UNI_TAG_NumericString)&&(tag!=BER_UNI_TAG_OCTETSTRING)&&(tag!=BER_UNI_TAG_UTF8String)) ){
 		    tvb_ensure_bytes_exist(tvb, offset-2, 2);
@@ -578,7 +588,7 @@ name="unnamed";
 if(tvb_length_remaining(tvb,offset)>3){
 printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d offset:%d len:%d %02x:%02x:%02x\n",name,implicit_tag,offset,tvb_length_remaining(tvb,offset),tvb_get_guint8(tvb,offset),tvb_get_guint8(tvb,offset+1),tvb_get_guint8(tvb,offset+2));
 }else{
-printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d len:%d\n",name,implicit_tag,len);
+printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n",name,implicit_tag);
 }
 }
 #endif
@@ -734,6 +744,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
 		}
 
 		/* sanity check: we only handle Constructed Universal Sequences */
+		if ((class!=BER_CLASS_APP)&&(class!=BER_CLASS_PRI))
 		if ((!pc)
 		||(!implicit_tag&&((class!=BER_CLASS_UNI)
 							||(tag!=BER_UNI_TAG_SEQUENCE)))) {
@@ -795,7 +806,7 @@ ber_sequence_try_again:
  *   { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_scope },
  * and there should not be a NOTCHKTAG here
  */
-		if( (seq->class==BER_CLASS_CON) && (!(seq->flags&BER_FLAGS_NOOWNTAG)) ){
+		if( ((seq->class==BER_CLASS_CON)||(seq->class==BER_CLASS_APP)||(seq->class==BER_CLASS_PRI)) && (!(seq->flags&BER_FLAGS_NOOWNTAG)) ){
 		  if( (seq->class!=BER_CLASS_ANY) 
 		  &&  (seq->tag!=-1)  
 		  &&( (seq->class!=class)
@@ -1313,6 +1324,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 		}
 
 		/* sanity check: we only handle Constructed Universal Sequences */
+		if ((class!=BER_CLASS_APP)&&(class!=BER_CLASS_PRI))
 		if (!pc
 			||(!implicit_tag&&((class!=BER_CLASS_UNI)
 							||(tag!=type)))) {

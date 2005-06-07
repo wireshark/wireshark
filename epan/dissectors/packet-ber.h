@@ -80,7 +80,7 @@ typedef int (*ber_callback)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
  */
 extern int get_ber_identifier(tvbuff_t *tvb, int offset, gint8 *class, gboolean *pc, gint32 *tag);
 extern int dissect_ber_identifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint8 *class, gboolean *pc, gint32 *tag);
-
+extern int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree);
 /* this function dissects the identifier octer of the BER TLV.
  * We only handle (TAGs and) LENGTHs that fit inside 32 bit integers.
  */
@@ -164,6 +164,7 @@ extern proto_item *ber_last_created_item;
 extern proto_item *get_ber_last_created_item(void);
 
 int call_ber_oid_callback(char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+void register_ber_oid_dissector_handle(char *oid, dissector_handle_t dissector, int proto, char *name);
 void register_ber_oid_dissector(char *oid, dissector_t dissector, int proto, char *name);
 void register_ber_oid_name(char *oid, char *name);
 void dissect_ber_oid_NULL_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
