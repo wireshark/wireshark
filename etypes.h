@@ -240,6 +240,10 @@
 #define ETHERTYPE_HYPERSCSI     0x889A  /* HyperSCSI */
 #endif
 
+#ifndef ETHERTYPE_CSM_ENCAPS
+#define ETHERTYPE_CSM_ENCAPS	0x889B /* Mindspeed Technologies www.mindspeed.com */
+#endif
+
 #ifndef ETHERTYPE_AOE
 #define ETHERTYPE_AOE           0x88A2
 #endif
@@ -259,6 +263,11 @@
 #ifndef ETHERTYPE_LLDP
 #define ETHERTYPE_LLDP	        0x88cc  /* IEEE 802.1 Link Layer Discovery Protocol (LLDP) */
 #endif
+
+#ifndef ETHERTYPE_3GPP2
+#define ETHERTYPE_3GPP2	        0x88d2  /* This will be used in a revision of the Interoperabi */
+#endif									/* Specification (IOS) for cdma2000 Access Network Interfaces (document numbers A.S0011-B */
+										/* through A.S0017-B v1.0). This document already uses the Ether type 8881 */
 
 #ifndef ETHERTYPE_LOOP
 #define ETHERTYPE_LOOP		0x9000 	/* used for layer 2 testing (do i see my own frames on the wire) */
