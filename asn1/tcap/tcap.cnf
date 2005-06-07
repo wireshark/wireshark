@@ -150,16 +150,17 @@ tvbuff_t	*next_tvb;
 guint8 class;
 	gboolean pc;
 	guint32 tag;
-	guint32 len;
+	guint32 len, start_offset;
 	guint32 ind_field;
 /* 
  * ok lets look at the oid and ssn and try and find a dissector, otherwise lets decode it.
  */
 ber_oid_dissector_table = find_dissector_table("ber.oid");
+start_offset = offset;
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 /* Use the recived length, XXX What if it was indefenet? */
-next_tvb = tvb_new_subset(tvb, offset, len, len);		
+next_tvb = tvb_new_subset(tvb, start_offset, len +(offset - start_offset), len+(offset - start_offset));		
 if (ber_oid_dissector_table && tcapext_oid){
 if(!dissector_try_string(ber_oid_dissector_table, tcapext_oid, next_tvb, pinfo, tree))	
 	{
@@ -196,7 +197,7 @@ tvbuff_t *parameter_tvb;
 guint8 len, i;
 offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     &parameter_tvb);
-len = tvb_length_remaining(parameter_tvb, offset);
+len = tvb_length_remaining(parameter_tvb, 0);
 if ((len)&&(check_col(pinfo->cinfo, COL_INFO)))
 	   {
 	   	
@@ -211,7 +212,7 @@ tvbuff_t *parameter_tvb;
 guint8 len , i;
 offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     &parameter_tvb);
-len = tvb_length_remaining(parameter_tvb, offset);
+len = tvb_length_remaining(parameter_tvb, 0);
 if ((len)&&(check_col(pinfo->cinfo, COL_INFO)))
 	   {
 	   	col_append_fstr(pinfo->cinfo, COL_INFO, "dtid(");

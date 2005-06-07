@@ -1,7 +1,7 @@
 /* packet-tcap-template.c
- * Routines for ITU TCAP
- * Copyright 2004, Tim Endean <endeant@hotmail.com>
- * Built from the gsm-map dissector Copyright 2004, Anders Broman <anders.broman@ericsson.com>
+ * Routines for  TCAP
+ * Copyright 2004 - 2005, Tim Endean <endeant@hotmail.com>
+ * Built from the gsm-map dissector Copyright 2004 - 2005, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  * Ethereal - Network traffic analyzer
@@ -39,7 +39,7 @@
 #include "packet-ber.h"
 #include "packet-tcap.h"
 
-#define PNAME  "Transfer Capabillities Part"
+#define PNAME  "Transaction Capabilities Application Part"
 #define PSNAME "TCAP"
 #define PFNAME "tcap"
 
@@ -168,8 +168,7 @@ proto_register_tcap(void)
     module_t *tcap_module;
 
 /* Register the protocol name and description */
-    proto_tcap = proto_register_protocol("ITU Transaction Capabilities Application Part",
-	"tcap", "tcap");
+    proto_tcap = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_tcap, hf, array_length(hf));
@@ -190,7 +189,7 @@ proto_register_tcap(void)
     ssn_range = range_empty();
 
     prefs_register_range_preference(tcap_module, "ssn", "SCCP SSNs",
-	"SCCP (and SUA) SSNs to decode as ITU TCAP",
+	"SCCP (and SUA) SSNs to decode as TCAP",
 	&global_ssn_range, MAX_SSN);
 
     /* we will fake a ssn subfield which has the same value obtained from sccp */
