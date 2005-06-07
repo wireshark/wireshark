@@ -340,11 +340,14 @@ dis_field_signalling_assoc_id(tvbuff_t *tvb, proto_tree *tree, guint *len, guint
 
     value = tvb_get_ntohl(tvb, curr_offset);
 
-    if (destination)
+	if (value && check_col(g_pinfo->cinfo, COL_INFO))
+		col_append_fstr(g_pinfo->cinfo, COL_INFO, " SA: %u", value);
+
+	if (destination)
     {
 	proto_tree_add_uint_format(tree, hf_alcap_dsaid, tvb,
 	    curr_offset, FIELD_SIGNALLING_ASSOC_ID_LEN, value,
-	    "Destination signalling association identifier: %d%s",
+	    "Destination signalling association identifier: %u%s",
 	    value,
 	    value ? "" : " (unknown)");
     }
@@ -378,6 +381,9 @@ dis_field_aal2_path_id(tvbuff_t *tvb, proto_tree *tree, guint *len, guint32 *off
 
     value = tvb_get_ntohl(tvb, curr_offset);
 
+	if (value && check_col(g_pinfo->cinfo, COL_INFO))
+		col_append_fstr(g_pinfo->cinfo, COL_INFO, " PathId: %u", value);
+
     proto_tree_add_uint_format(tree, hf_alcap_aal2_path_id, tvb,
 	curr_offset, FIELD_AAL2_PATH_ID_LEN, value,
 	"AAL2 path identifier: %d%s",
@@ -405,6 +411,9 @@ dis_field_channel_id(tvbuff_t *tvb, proto_tree *tree, guint *len, guint32 *offse
     SHORT_DATA_CHECK(*len, 1);
 
     oct = tvb_get_guint8(tvb, curr_offset);
+
+	if (oct && check_col(g_pinfo->cinfo, COL_INFO))
+		col_append_fstr(g_pinfo->cinfo, COL_INFO, " CID: %u", oct);
 
     proto_tree_add_uint_format(tree, hf_alcap_channel_id, tvb,
 	curr_offset, 1, oct,
@@ -803,6 +812,9 @@ dis_field_served_user_gen_ref(tvbuff_t *tvb, proto_tree *tree, guint *len, guint
 
     value = tvb_get_ntohl(tvb, curr_offset);
 
+	if (value && check_col(g_pinfo->cinfo, COL_INFO))
+		col_append_fstr(g_pinfo->cinfo, COL_INFO, " SUGR: %u", value);
+
     proto_tree_add_uint(tree, hf_alcap_served_user_gen_ref, tvb,
 	curr_offset, FIELD_SERVED_USER_GEN_REF_LEN, value);
 
@@ -1029,6 +1041,9 @@ dis_field_e164_address(tvbuff_t *tvb, proto_tree *tree, guint *len, guint32 *off
 
 	bigbuf2[i] = '\0';
 
+	if (check_col(g_pinfo->cinfo, COL_INFO))
+		col_append_fstr(g_pinfo->cinfo, COL_INFO, " E164: %s", bigbuf2);
+
 	proto_item_append_text(item, " (%s)", bigbuf2);
     }
 
@@ -1044,7 +1059,7 @@ static void
 dis_field_nsap_address(tvbuff_t *tvb, proto_tree *tree, guint *len, guint32 *offset)
 {
     guint32	curr_offset;
-
+	
     curr_offset = *offset;
 
 #define	FIELD_NSAP_ADDRESS_LEN	20
@@ -1052,7 +1067,7 @@ dis_field_nsap_address(tvbuff_t *tvb, proto_tree *tree, guint *len, guint32 *off
     SHORT_DATA_CHECK(*len, FIELD_NSAP_ADDRESS_LEN);
 
     proto_tree_add_item(tree, hf_alcap_nsap_address, tvb,
-	curr_offset, FIELD_NSAP_ADDRESS_LEN, FALSE);
+						curr_offset, FIELD_NSAP_ADDRESS_LEN,FALSE);
 
     curr_offset += FIELD_NSAP_ADDRESS_LEN;
 
@@ -1506,59 +1521,59 @@ dissect_alcap_parms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 len
 
     while (len >= ALCAP_PARM_HEADER_LEN)
     {
-	saved_offset = curr_offset;
-
-	parm = tvb_get_guint8(tvb, curr_offset);
-
-	str = my_match_strval(parm, msg_parm_strings, &idx);
-
-	if (str == NULL)
-	{
-	    ett_parm_idx = ett_parm;
-	    parm_fcn = NULL;
-	}
-	else
-	{
-	    ett_parm_idx = ett_parms[idx];
-	    parm_fcn = alcap_parm_fcn[idx];
-	}
-
-	item =
-	    proto_tree_add_none_format(tree, hf_alcap_none, tvb,
-		curr_offset, -1, (str == NULL) ? "Unknown parameter" : str);
-
-	subtree = proto_item_add_subtree(item, ett_parm_idx);
-
-	proto_tree_add_uint(subtree, hf_alcap_parm_id, tvb,
-	    curr_offset, 1, parm);
-
-	curr_offset++;
-
-	dis_field_compatibility(tvb, subtree, &curr_offset, FALSE);
-
-	parm_len = tvb_get_guint8(tvb, curr_offset);
-
-	proto_tree_add_uint(subtree, hf_alcap_length, tvb, curr_offset, 1, parm_len);
-
-	curr_offset++;
-
-	proto_item_set_len(item, (curr_offset - saved_offset) + parm_len);
-
-	if (parm_len > 0)
-	{
-	    if (parm_fcn == NULL)
-	    {
-		proto_tree_add_none_format(subtree, hf_alcap_none,
-		    tvb, curr_offset, parm_len, "Parameter data");
-	    }
-	    else
-	    {
-		(*parm_fcn)(tvb, subtree, parm_len, curr_offset);
-	    }
-	}
-
-	len -= (ALCAP_PARM_HEADER_LEN + parm_len);
-	curr_offset += parm_len;
+		saved_offset = curr_offset;
+		
+		parm = tvb_get_guint8(tvb, curr_offset);
+		
+		str = my_match_strval(parm, msg_parm_strings, &idx);
+		
+		if (str == NULL)
+		{
+			ett_parm_idx = ett_parm;
+			parm_fcn = NULL;
+		}
+		else
+		{
+			ett_parm_idx = ett_parms[idx];
+			parm_fcn = alcap_parm_fcn[idx];
+		}
+		
+		item = proto_tree_add_none_format(tree, hf_alcap_none, tvb,
+										  curr_offset, -1,
+										  (str == NULL) ? "Unknown parameter" : str);
+		
+		subtree = proto_item_add_subtree(item, ett_parm_idx);
+		
+		proto_tree_add_uint(subtree, hf_alcap_parm_id, tvb,
+							curr_offset, 1, parm);
+		
+		curr_offset++;
+		
+		dis_field_compatibility(tvb, subtree, &curr_offset, FALSE);
+		
+		parm_len = tvb_get_guint8(tvb, curr_offset);
+		
+		proto_tree_add_uint(subtree, hf_alcap_length, tvb, curr_offset, 1, parm_len);
+		
+		curr_offset++;
+		
+		proto_item_set_len(item, (curr_offset - saved_offset) + parm_len);
+		
+		if (parm_len > 0)
+		{
+			if (parm_fcn == NULL)
+			{
+				proto_tree_add_none_format(subtree, hf_alcap_none,
+										   tvb, curr_offset, parm_len, "Parameter data");
+			}
+			else
+			{
+				(*parm_fcn)(tvb, subtree, parm_len, curr_offset);
+			}
+		}
+		
+		len -= (ALCAP_PARM_HEADER_LEN + parm_len);
+		curr_offset += parm_len;
     }
 
     EXTRANEOUS_DATA_CHECK(len, 0);
@@ -1652,8 +1667,10 @@ dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	alcap_tree =
 	    proto_item_add_subtree(alcap_item, ett_alcap);
 
-	dissect_alcap_message(tvb, pinfo, alcap_tree);
     }
+	
+	dissect_alcap_message(tvb, pinfo, alcap_tree);
+
 }
 
 
@@ -1685,31 +1702,31 @@ proto_register_alcap(void)
 	},
 	{ &hf_alcap_aal2_path_id,
 	  { "AAL2 path identifier",
-	    "alcap.aal2_path_id",
+	    "alcap.path_id",
 	    FT_UINT32, BASE_DEC, NULL, 0,
 	    "", HFILL }
 	},
 	{ &hf_alcap_channel_id,
 	  { "Channel identifier (CID)",
-	    "alcap.channel_id",
+	    "alcap.cid",
 	    FT_UINT32, BASE_DEC, NULL, 0,
 	    "", HFILL }
 	},
 	{ &hf_alcap_organizational_unique_id,
 	  { "Organizational unique identifier (OUI)",
-	    "alcap.organizational_unique_id",
+	    "alcap.oui",
 	    FT_UINT24, BASE_DEC, NULL, 0,
 	    "", HFILL }
 	},
 	{ &hf_alcap_served_user_gen_ref,
 	  { "Served user generated reference",
-	    "alcap.served_user_gen_ref",
+	    "alcap.sugr",
 	    FT_UINT32, BASE_DEC, NULL, 0,
 	    "", HFILL }
 	},
 	{ &hf_alcap_nsap_address,
 	  { "NSAP address",
-	    "alcap.nsap_address",
+	    "alcap.nsap",
 	    FT_BYTES, BASE_NONE, NULL, 0,
 	    "", HFILL }
 	},
