@@ -234,10 +234,10 @@ Component ::=	CHOICE {
 Invoke ::=		SEQUENCE {
 				invokeID				InvokeIdType,
 				linkedID				[0] IMPLICIT InvokeIdType OPTIONAL,
-				operationCode			OperationCode,
-				parameter				Parameter OPTIONAL }
+				opCode			OPERATION,
+				parameter	 Parameter OPTIONAL }
 
-Parameter ::=  OCTET STRING
+Parameter ::= ANY
  
 -- ANY is filled by the single ASN.1 data type following the keyword PARAMETER or the keyword ARGUMENT
 -- in the type definition of a particular operation.
@@ -245,7 +245,7 @@ Parameter ::=  OCTET STRING
 ReturnResult ::=	SEQUENCE {
 				invokeID				InvokeIdType,
 				resultretres					SEQUENCE {
-					  operationCode		OperationCode,
+					  opCode			OPERATION,
 					  parameter			Parameter OPTIONAL
 				} OPTIONAL
 			}
