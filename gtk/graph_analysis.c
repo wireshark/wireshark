@@ -44,7 +44,9 @@
 
 /* in /gtk ... */
 #include <gtk/gtk.h>
+#if GTK_MAJOR_VERSION >= 2
 #include <glib-object.h>
+#endif
 
 #include <gdk/gdkkeysyms.h>
 #include "gtkglobals.h"
@@ -267,7 +269,7 @@ static void overwrite (char *string, char *text_to_insert, guint32 p1, guint32 p
 /****************************************************************************/
 gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 {
-        guint32 i, first_item, first_node, display_items, display_nodes;
+        guint32 i, first_node, display_items, display_nodes;
 		guint32 start_position, end_position, item_width;
         guint32 current_item;
 		graph_analysis_item_t *gai;
@@ -286,8 +288,6 @@ gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 			return FALSE;
 		}
 
-		first_item = user_data->dlg.first_item;
-
 		/* get the items to display and fill the matrix array */
 		list = g_list_first(user_data->graph_info->list);
 		current_item = 0;
@@ -296,18 +296,16 @@ gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 		{
 			gai = list->data;
 			if (gai->display){
-				if (i>=first_item){
-					user_data->dlg.items[current_item].frame_num = gai->frame_num;
-					user_data->dlg.items[current_item].time = gai->time;
-					user_data->dlg.items[current_item].port_src = gai->port_src;
-					user_data->dlg.items[current_item].port_dst = gai->port_dst;
-					user_data->dlg.items[current_item].frame_label = gai->frame_label;
-					user_data->dlg.items[current_item].comment = gai->comment;
-					user_data->dlg.items[current_item].conv_num = gai->conv_num;
-					user_data->dlg.items[current_item].src_node = gai->src_node;
-					user_data->dlg.items[current_item].dst_node = gai->dst_node;
-					current_item++;
-				}
+				user_data->dlg.items[current_item].frame_num = gai->frame_num;
+				user_data->dlg.items[current_item].time = gai->time;
+				user_data->dlg.items[current_item].port_src = gai->port_src;
+				user_data->dlg.items[current_item].port_dst = gai->port_dst;
+				user_data->dlg.items[current_item].frame_label = gai->frame_label;
+				user_data->dlg.items[current_item].comment = gai->comment;
+				user_data->dlg.items[current_item].conv_num = gai->conv_num;
+				user_data->dlg.items[current_item].src_node = gai->src_node;
+				user_data->dlg.items[current_item].dst_node = gai->dst_node;
+				current_item++;
 				i++;
 			}
 
@@ -1373,6 +1371,7 @@ static gint configure_event_time(GtkWidget *widget, GdkEventConfigure *event _U_
 		dialog_graph_redraw(user_data);
         return TRUE;
 }
+#if GTK_MAJOR_VERSION >= 2
 /****************************************************************************/
 static gint pane_callback(GtkWidget *widget, GParamSpec *pspec, gpointer data)
 {
@@ -1381,12 +1380,10 @@ static gint pane_callback(GtkWidget *widget, GParamSpec *pspec, gpointer data)
         if(!user_data){
                 exit(10);
         }
-#if GTK_MAJOR_VERSION >= 2
 		if (gtk_paned_get_position(GTK_PANED(user_data->dlg.hpane)) > user_data->dlg.pixmap_width) 
 			gtk_paned_set_position(GTK_PANED(user_data->dlg.hpane), user_data->dlg.pixmap_width);
 		else if (gtk_paned_get_position(GTK_PANED(user_data->dlg.hpane)) < NODE_WIDTH*2) 
 			gtk_paned_set_position(GTK_PANED(user_data->dlg.hpane), NODE_WIDTH*2);
-#endif
 		/* repaint the comment area because when moving the pane position thre are times that the expose_event_comments is not called */
         gdk_draw_pixmap(user_data->dlg.draw_area_comments->window,
                         user_data->dlg.draw_area_comments->style->fg_gc[GTK_WIDGET_STATE(widget)],
@@ -1397,6 +1394,7 @@ static gint pane_callback(GtkWidget *widget, GParamSpec *pspec, gpointer data)
                         user_data->dlg.draw_area_comments->allocation.height);
         return TRUE;
 }
+#endif
 
 /****************************************************************************/
 static gint v_scrollbar_changed(GtkWidget *widget _U_, gpointer data)
@@ -1424,7 +1422,6 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 		GtkWidget *viewport;
 		GtkWidget *scroll_window_comments;
 		GtkWidget *viewport_comments;
-		GValue value = { 0, };
 
         hbox=gtk_hbox_new(FALSE, 0);
         gtk_widget_show(hbox);
@@ -1501,16 +1498,12 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 		user_data->dlg.hpane = gtk_hpaned_new();
 		gtk_paned_pack1(GTK_PANED (user_data->dlg.hpane), scroll_window, TRUE, TRUE);
 		gtk_paned_pack2(GTK_PANED (user_data->dlg.hpane), scroll_window_comments, FALSE, TRUE);
-
+#if GTK_MAJOR_VERSION >= 2
 		SIGNAL_CONNECT(user_data->dlg.hpane, "notify::position",  pane_callback, user_data);
-
+#endif
 		gtk_widget_show(user_data->dlg.hpane);
 
         gtk_box_pack_start(GTK_BOX(hbox), user_data->dlg.hpane, TRUE, TRUE, 0);
-
-#if GTK_MAJOR_VERSION >= 2
-		gtk_container_child_get_property(GTK_CONTAINER(user_data->dlg.hpane), scroll_window, "resize", &value);
-#endif
 
        /* create the associated v_scrollbar */
          user_data->dlg.v_scrollbar_adjustment=(GtkAdjustment *)gtk_adjustment_new(0,0,0,0,0,0);
