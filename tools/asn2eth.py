@@ -531,7 +531,9 @@ class EthCtx:
     for t in self.type_ord:
       nm = self.type[t]['tname']
       if ((nm.find('#') >= 0) or 
-          ((len(t.split('/'))>1) and self.conform.get_fn_presence(t) and not self.conform.check_item('TYPE_RENAME', t))):
+          ((len(t.split('/'))>1) and 
+           (self.conform.get_fn_presence(t) or self.conform.check_item('FN_PARS', t)) and 
+           not self.conform.check_item('TYPE_RENAME', t))):
         if len(t.split('/')) == 2 and t.split('/')[1] == '_item':  # Sequnce of type at the 1st level
           nm = t.split('/')[0] + t.split('/')[1]
         elif t.split('/')[-1] == '_item':  # Sequnce of type at next levels
@@ -765,7 +767,7 @@ class EthCtx:
     out += "static const "
     out += "asn_namedbit %s_bits[] = {\n" % (tname)
     for (val, id) in bits:
-      out += '  { %2d, &hf_%s_%s_%s, -1, -1, NULL, NULL },\n' % (val, self.eproto, tname, asn2c(id))
+      out += '  { %2d, &hf_%s_%s_%s, -1, -1, "%s", NULL },\n' % (val, self.eproto, tname, asn2c(id), id)
     out += "  { 0, NULL, 0, 0, NULL, NULL }\n};\n"
     return out
 
@@ -987,9 +989,13 @@ class EthCtx:
     #end out_field()
     def out_pdu(f):
       t = self.eth_hf[f]['ethtype']
+      if self.field[self.eth_hf[f]['ref'][0]]['impl']:
+        impl = 'TRUE'
+      else:
+        impl = 'FALSE'
       out = 'static void dissect_'+f+'(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {\n'
       if (self.Ber()):
-        par=(('FALSE', 'tvb', '0', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
+        par=((impl, 'tvb', '0', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
       else:
         par=(('tvb', '0', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
       out += self.eth_fn_call('dissect_%s_%s' % (self.eth_type[t]['proto'], t), par=par)
@@ -1265,7 +1271,7 @@ class EthCnf:
 
     def get_par_nm(line, pnum, fn, lineno):
       if pnum:
-        par = line.split(None, 1)
+        par = line.split(None, pnum)
       else:
         par = [line,]
       for i in range(len(par)):
@@ -1296,7 +1302,8 @@ class EthCnf:
           p2 = nmpar_end.search(nmpar, pos).start()
         v = nmpar[p1:p2]
         nmpars[k] = v
-      par[pnum] = nmpars
+      if len(par) > pnum:
+        par[pnum] = nmpars
       return par
 
     f = open(fn, "r")
@@ -1426,6 +1433,17 @@ class EthCnf:
         par = get_par_nm(line, 1, fn=fn, lineno=lineno)
         if not par: continue
         self.add_item(ctx, par[0], attr=par[1], fn=fn, lineno=lineno)
+      elif ctx == 'FN_PARS':
+        if empty.match(line): continue
+        if name:
+          par = get_par_nm(line, 0, fn=fn, lineno=lineno)
+        else:
+          par = get_par_nm(line, 1, fn=fn, lineno=lineno)
+        if not par: continue
+        if name:
+          self.add_item(ctx, name, pars=par[0], fn=fn, lineno=lineno)
+        else:
+          self.add_item(ctx, par[0], pars=par[1], fn=fn, lineno=lineno)
       elif ctx in ('FN_HDR', 'FN_FTR', 'FN_BODY'):
         self.add_fn_line(name, ctx, line, fn=fn, lineno=lineno)
 
@@ -1640,6 +1658,7 @@ class Type (Node):
     self.tag = tag
 
   def GetTag(self, ectx):
+    #print "GetTag(%s)\n" % self.name;
     if (self.HasOwnTag()):
       return self.tag.GetTag(ectx)
     else:
@@ -1737,10 +1756,41 @@ class Type (Node):
       print self.str_depth(1)
     return ''
 
-  def eth_type_fn(self, proto, tname, ectx):
-    print "#Unhandled  eth_type_fn('%s', '%s') in %s" % (proto, tname, self.type)
+  def eth_type_default_table(self, ectx):
+    return ''
+
+  def eth_type_default_body(self, ectx):
+    print "#Unhandled  eth_type_default_body() in %s" % (self.type)
     print self.str_depth(1)
     return ''
+
+  def eth_type_default_pars(self, ectx):
+    pars = {
+      'ER' : ectx.encp(),
+      'PINFO' : 'pinfo', 
+      'TREE' : 'tree', 
+      'TVB' : 'tvb', 
+      'OFFSET' : 'offset', 
+      'HF_INDEX' : 'hf_index',
+      'VAL_PTR' : 'NULL',
+      'IMPLICIT_TAG' : 'implicit_tag',
+      'CREATED_ITEM_PTR' : 'NULL',
+    }
+    return pars
+
+  def eth_type_fn(self, proto, tname, ectx):
+    out = '\n'
+    out += self.eth_type_default_table(ectx)
+    out += ectx.eth_type_fn_hdr(tname)
+    body = self.eth_type_default_body(ectx, tname)
+    pars = self.eth_type_default_pars(ectx)
+    if ectx.conform.check_item('FN_PARS', tname):
+      pars.update(ectx.conform.use_item('FN_PARS', tname))
+    elif ectx.conform.check_item('FN_PARS', ectx.eth_type[tname]['ref'][0]):
+      pars.update(ectx.conform.use_item('FN_PARS', ectx.eth_type[tname]['ref'][0]))
+    out += ectx.eth_type_fn_body(tname, body, pars=pars)
+    out += ectx.eth_type_fn_ftr(tname)
+    return out
 
 #--- Value --------------------------------------------------------------------
 class Value (Node):
@@ -1883,6 +1933,7 @@ class Type_Ref (Type):
     return asn2c(self.val)
 
   def GetTTag(self, ectx):
+    #print "GetTTag(%s)\n" % self.val;
     if (ectx.type[self.val]['import']):
       if not ectx.type[self.val].has_key('ttag'):
         if not ectx.conform.check_item('IMPORT_TAG', self.val):
@@ -2585,13 +2636,9 @@ class AnyType (Type):
   def GetTTag(self, ectx):
     return ('BER_CLASS_ANY', '0')
 
-  def eth_type_fn(self, proto, tname, ectx):
-    out = '\n'
-    out += ectx.eth_type_fn_hdr(tname)
+  def eth_type_default_body(self, ectx, tname):
     body = '#error Can not decode %s' % (tname)
-    out += ectx.eth_type_fn_body(tname, body)
-    out += ectx.eth_type_fn_ftr(tname)
-    return out
+    return body
 
 class Literal (Node):
     def to_python (self, ctx):
@@ -2608,22 +2655,19 @@ class NullType (Type):
   def GetTTag(self, ectx):
     return ('BER_CLASS_UNI', 'BER_UNI_TAG_NULL')
 
-  def eth_type_fn(self, proto, tname, ectx):
-    out = ectx.eth_type_fn_hdr(tname)
-    if (ectx.new):
-      body = ectx.eth_fn_call('dissect_pern_null', ret='offset',
-                              par=(('tvb', 'offset', 'pinfo', 'tree'),
-                                   ('hf_index', 'item', 'NULL')))
+  def eth_type_default_body(self, ectx, tname):
+    if (ectx.Ber()):
+      body = ectx.eth_fn_call('dissect_%(ER)s_null', ret='offset',
+                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),))
+    elif (ectx.NPer()):
+      body = ectx.eth_fn_call('dissect_%(ER)s_null', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s', 'item', 'NULL'),))
+    elif (ectx.OPer()):
+      body = ectx.eth_fn_call('dissect_%(ER)s_null', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s'),))
     else:
-      body = '  { proto_item *ti_tmp;\n';
-      body += ectx.eth_fn_call('proto_tree_add_item', 'ti_tmp',
-                              par=(('tree', 'hf_index', 'tvb', 'offset>>8', '0', 'FALSE'),))
-      body += ectx.eth_fn_call('proto_item_append_text',
-                              par=(('ti_tmp', '": NULL"'),))
-      body += '  }\n';
-    out += ectx.eth_type_fn_body(tname, body)
-    out += ectx.eth_type_fn_ftr(tname)
-    return out
+      body = '#error Can not decode %s' % (tname)
+    return body
 
 #--- RealType -----------------------------------------------------------------
 class RealType (Type):
@@ -2884,25 +2928,21 @@ class ObjectIdentifierType (Type):
   def GetTTag(self, ectx):
     return ('BER_CLASS_UNI', 'BER_UNI_TAG_OID')
 
-  def eth_type_fn(self, proto, tname, ectx):
-    out = ectx.eth_type_fn_hdr(tname)
+  def eth_type_default_body(self, ectx, tname):
     if (ectx.OBer()):
-      body = ectx.eth_fn_call('dissect_ber_object_identifier', ret='offset',
-                              par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset'),
-                                   ('hf_index', 'NULL')))
+      body = ectx.eth_fn_call('dissect_%(ER)s_object_identifier', ret='offset',
+                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
+                                   ('%(VAL_PTR)s',),))
     elif (ectx.NPer()):
-      body = ectx.eth_fn_call('dissect_pern_object_identifier', ret='offset',
-                              par=(('tvb', 'offset', 'pinfo', 'tree'),
-                                   ('hf_index', 'item', 'NULL')))
+      body = ectx.eth_fn_call('dissect_%(ER)s_object_identifier', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s', 'item', '%(VAL_PTR)s'),))
     elif (ectx.OPer()):
-      body = ectx.eth_fn_call('dissect_per_object_identifier', ret='offset',
-                              par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
-                                   ('NULL',)))
+      body = ectx.eth_fn_call('dissect_%(ER)s_object_identifier', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s'),
+                                   ('%(VAL_PTR)s',),))
     else:
       body = '#error Can not decode %s' % (tname)
-    out += ectx.eth_type_fn_body(tname, body)
-    out += ectx.eth_type_fn_ftr(tname)
-    return out
+    return body
 
 #--- ObjectIdentifierValue ----------------------------------------------------
 class ObjectIdentifierValue (Value):
@@ -3006,23 +3046,9 @@ class IntegerType (Type):
     out += ectx.eth_vals(tname, vals)
     return out
 
-  def eth_type_fn(self, proto, tname, ectx):
-    out = '\n'
-    out += ectx.eth_type_fn_hdr(tname)
-    if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_ber_integer', ret='offset',
-                              par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset', 'hf_index', 'NULL'),))
-    elif (not self.HasConstraint()):
-      if (ectx.NAPI()):
-        body = ectx.eth_fn_call('dissect_pern_integer', ret='offset',
-                                par=(('tvb', 'offset', 'pinfo', 'tree'),
-                                     ('hf_index', 'item', 'private_data'),
-                                     ('NULL',)))
-      else:
-        body = ectx.eth_fn_call('dissect_per_integer', ret='offset',
-                                par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
-                                     ('NULL', 'NULL')))
-    elif ((self.constr.type == 'SingleValue') or (self.constr.type == 'ValueRange')):
+  def eth_type_default_pars(self, ectx):
+    pars = Type.eth_type_default_pars(self, ectx)
+    if self.HasConstraint() and ((self.constr.type == 'SingleValue') or (self.constr.type == 'ValueRange')):
       if self.constr.type == 'SingleValue':
         minv = self.constr.subtype
         maxv = self.constr.subtype
@@ -3035,19 +3061,37 @@ class IntegerType (Type):
         ext = 'TRUE'
       else:
         ext = 'FALSE'
+      pars['MIN_VAL'] = minv
+      pars['MAX_VAL'] = maxv
+      pars['EXT'] = ext
+    return pars
+
+  def eth_type_default_body(self, ectx, tname):
+    if (ectx.Ber()):
+      body = ectx.eth_fn_call('dissect_%(ER)s_integer', ret='offset',
+                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
+                                   ('%(VAL_PTR)s',),))
+    elif (not self.HasConstraint()):
       if (ectx.NAPI()):
-        body = ectx.eth_fn_call('dissect_pern_constrained_integer', ret='offset',
-                                par=(('tvb', 'offset', 'pinfo', 'tree'),
-                                     ('hf_index', 'item', 'private_data'),
-                                     (minv, maxv, ext),
-                                     ('NULL',)))
+        body = ectx.eth_fn_call('dissect_%(ER)s_integer', ret='offset',
+                                par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s', 'item', 'private_data'),
+                                     ('%(VAL_PTR)s',),))
       else:
-        body = ectx.eth_fn_call('dissect_per_constrained_integer', ret='offset',
-                                par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
-                                     (minv, maxv, 'NULL', 'NULL', ext)))
-    out += ectx.eth_type_fn_body(tname, body)
-    out += ectx.eth_type_fn_ftr(tname)
-    return out
+        body = ectx.eth_fn_call('dissect_%(ER)s_integer', ret='offset',
+                                par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s'),
+                                     ('%(VAL_PTR)s', '%(CREATED_ITEM_PTR)s'),))
+    elif ((self.constr.type == 'SingleValue') or (self.constr.type == 'ValueRange')):
+      if (ectx.NAPI()):
+        body = ectx.eth_fn_call('dissect_%(ER)s_constrained_integer', ret='offset',
+                                par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s', 'item', 'private_data'),
+                                     ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s', '%(VAL_PTR)s',),))
+      else:
+        body = ectx.eth_fn_call('dissect_%(ER)s_constrained_integer', ret='offset',
+                                par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s'),
+                                     ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(VAL_PTR)s', '%(CREATED_ITEM_PTR)s', '%(EXT)s'),))
+    else:
+      body = '#error Can not decode %s' % (tname)
+    return body
 
 #--- BitStringType ------------------------------------------------------------
 class BitStringType (Type):
