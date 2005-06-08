@@ -45,7 +45,7 @@ TETHEREAL_ARGS="-nVxr"
 # Make sure we have a valid test set
 FOUND=0
 for CF in "$@" ; do
-    $CAPINFOS "$CF" > /dev/null 2>&1 && FOUND=1
+    "$CAPINFOS" "$CF" > /dev/null 2>&1 && FOUND=1
     if [ $FOUND -eq 1 ] ; then break ; fi
 done
 
@@ -70,7 +70,7 @@ while [ 1 ] ; do
     for CF in "$@" ; do
 	echo -n "    $CF: "
 
-	$CAPINFOS "$CF" > /dev/null 2>&1
+	"$CAPINFOS" "$CF" > /dev/null 2>&1
 	if [ $? -ne 0 ] ; then
 	    echo "Not a valid capture file"
 	    continue
@@ -78,16 +78,16 @@ while [ 1 ] ; do
 
 	DISSECTOR_BUG=0
 
-	$EDITCAP -E $ERR_PROB "$CF" $TMP_DIR/editcap.out > /dev/null 2>&1
+	"$EDITCAP" -E $ERR_PROB "$CF" $TMP_DIR/editcap.out > /dev/null 2>&1
 	if [ $? -ne 0 ] ; then
-	    $EDITCAP -E $ERR_PROB -T ether "$CF" $TMP_DIR/editcap.out > /dev/null 2>&1
+	    "$EDITCAP" -E $ERR_PROB -T ether "$CF" $TMP_DIR/editcap.out > /dev/null 2>&1
 	    if [ $? -ne 0 ] ; then
 		echo "Invalid format for editcap"
 		continue
 	    fi
 	fi
 
-	$TETHEREAL $TETHEREAL_ARGS $TMP_DIR/editcap.out \
+	"$TETHEREAL" $TETHEREAL_ARGS $TMP_DIR/editcap.out \
 		> /dev/null 2> $TMP_DIR/stderr.out
 	RETVAL=$?
 	grep -i "dissector bug" $TMP_DIR/stderr.out \
