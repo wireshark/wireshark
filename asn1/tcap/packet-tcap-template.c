@@ -341,7 +341,7 @@ tlen = tvb_length_remaining(tvb, offset);
 	if (pc)
 	{
 	    pi =
-		proto_tree_add_text(tree, tvb, saved_offset, -1, "CONSTRUCTOR");
+		proto_tree_add_text(tree, tvb, saved_offset, len + (len_offset - saved_offset), "CONSTRUCTOR");
 	    subtree = proto_item_add_subtree(pi, ett_param);
 	    proto_tree_add_uint_format(subtree, hf_tcap_tag, tvb,
 		saved_offset, tag_offset-saved_offset, tag, "CONSTRUCTOR Tag");
@@ -361,7 +361,7 @@ tlen = tvb_length_remaining(tvb, offset);
 
 	pi =
 	    proto_tree_add_text(tree, tvb,
-		saved_offset, len + (len_offset - saved_offset), "Parameter");
+		saved_offset, len + (len_offset - saved_offset), "Parameter (0x%.2x)", tag);
 
 	subtree = proto_item_add_subtree(pi, ett_param);
 

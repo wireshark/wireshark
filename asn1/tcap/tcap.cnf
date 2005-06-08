@@ -197,30 +197,31 @@ tvbuff_t *parameter_tvb;
 guint8 len, i;
 offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     &parameter_tvb);
-len = tvb_length_remaining(parameter_tvb, 0);
-if ((len)&&(check_col(pinfo->cinfo, COL_INFO)))
-	   {
-	   	
-	   	col_append_fstr(pinfo->cinfo, COL_INFO, "otid(");
-	   	for(i=0;i<len;i++)
-          col_append_fstr(pinfo->cinfo, COL_INFO, "%02x",tvb_get_guint8(parameter_tvb,i));
-        col_append_fstr(pinfo->cinfo, COL_INFO, ") ");
-		}
 
+if (parameter_tvb){
+	len = tvb_length_remaining(parameter_tvb, 0);
+	if ((len)&&(check_col(pinfo->cinfo, COL_INFO))){
+		col_append_fstr(pinfo->cinfo, COL_INFO, "otid(");
+	   	for(i=0;i<len;i++)
+        		  col_append_fstr(pinfo->cinfo, COL_INFO, "%02x",tvb_get_guint8(parameter_tvb,i));
+        	col_append_fstr(pinfo->cinfo, COL_INFO, ") ");
+	}
+
+}
 #.FN_BODY DestTransactionID
 tvbuff_t *parameter_tvb;
 guint8 len , i;
 offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     &parameter_tvb);
-len = tvb_length_remaining(parameter_tvb, 0);
-if ((len)&&(check_col(pinfo->cinfo, COL_INFO)))
-	   {
-	   	col_append_fstr(pinfo->cinfo, COL_INFO, "dtid(");
-	   	for(i=0;i<len;i++)
-          col_append_fstr(pinfo->cinfo, COL_INFO, "%02x",tvb_get_guint8(parameter_tvb,i));
-        col_append_fstr(pinfo->cinfo, COL_INFO, ") ");
-		}
-
+if (parameter_tvb){
+	len = tvb_length_remaining(parameter_tvb, 0);
+	if ((len)&&(check_col(pinfo->cinfo, COL_INFO))){
+		col_append_fstr(pinfo->cinfo, COL_INFO, "dtid(");
+		for(i=0;i<len;i++)
+          		col_append_fstr(pinfo->cinfo, COL_INFO, "%02x",tvb_get_guint8(parameter_tvb,i));
+        	col_append_fstr(pinfo->cinfo, COL_INFO, ") ");
+	   }
+}
 #.FN_BODY Begin
 if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Begin ");
