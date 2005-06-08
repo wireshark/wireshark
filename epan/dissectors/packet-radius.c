@@ -484,7 +484,7 @@ static const value_string radius_tunnel_type_vals[] =
   {10,	"GRE"},
   {11,	"DVS"},
   {12,	"IP-IP"},
-  {12,	"VLAN"},								/*[RFC3580]*/
+  {13,	"VLAN"},								/*[RFC3580]*/
   {0, NULL}
 };
 
