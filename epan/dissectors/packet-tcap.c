@@ -1311,16 +1311,17 @@ tvbuff_t *parameter_tvb;
 guint8 len, i;
 offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     &parameter_tvb);
-len = tvb_length_remaining(parameter_tvb, 0);
-if ((len)&&(check_col(pinfo->cinfo, COL_INFO)))
-	   {
-	   	
-	   	col_append_fstr(pinfo->cinfo, COL_INFO, "otid(");
-	   	for(i=0;i<len;i++)
-          col_append_fstr(pinfo->cinfo, COL_INFO, "%02x",tvb_get_guint8(parameter_tvb,i));
-        col_append_fstr(pinfo->cinfo, COL_INFO, ") ");
-		}
 
+if (parameter_tvb){
+	len = tvb_length_remaining(parameter_tvb, 0);
+	if ((len)&&(check_col(pinfo->cinfo, COL_INFO))){
+		col_append_fstr(pinfo->cinfo, COL_INFO, "otid(");
+	   	for(i=0;i<len;i++)
+        		  col_append_fstr(pinfo->cinfo, COL_INFO, "%02x",tvb_get_guint8(parameter_tvb,i));
+        	col_append_fstr(pinfo->cinfo, COL_INFO, ") ");
+	}
+
+}
 
   return offset;
 }
@@ -1355,15 +1356,15 @@ tvbuff_t *parameter_tvb;
 guint8 len , i;
 offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     &parameter_tvb);
-len = tvb_length_remaining(parameter_tvb, 0);
-if ((len)&&(check_col(pinfo->cinfo, COL_INFO)))
-	   {
-	   	col_append_fstr(pinfo->cinfo, COL_INFO, "dtid(");
-	   	for(i=0;i<len;i++)
-          col_append_fstr(pinfo->cinfo, COL_INFO, "%02x",tvb_get_guint8(parameter_tvb,i));
-        col_append_fstr(pinfo->cinfo, COL_INFO, ") ");
-		}
-
+if (parameter_tvb){
+	len = tvb_length_remaining(parameter_tvb, 0);
+	if ((len)&&(check_col(pinfo->cinfo, COL_INFO))){
+		col_append_fstr(pinfo->cinfo, COL_INFO, "dtid(");
+		for(i=0;i<len;i++)
+          		col_append_fstr(pinfo->cinfo, COL_INFO, "%02x",tvb_get_guint8(parameter_tvb,i));
+        	col_append_fstr(pinfo->cinfo, COL_INFO, ") ");
+	   }
+}
 
   return offset;
 }
@@ -2973,7 +2974,7 @@ tlen = tvb_length_remaining(tvb, offset);
 	if (pc)
 	{
 	    pi =
-		proto_tree_add_text(tree, tvb, saved_offset, -1, "CONSTRUCTOR");
+		proto_tree_add_text(tree, tvb, saved_offset, len + (len_offset - saved_offset), "CONSTRUCTOR");
 	    subtree = proto_item_add_subtree(pi, ett_param);
 	    proto_tree_add_uint_format(subtree, hf_tcap_tag, tvb,
 		saved_offset, tag_offset-saved_offset, tag, "CONSTRUCTOR Tag");
@@ -2993,7 +2994,7 @@ tlen = tvb_length_remaining(tvb, offset);
 
 	pi =
 	    proto_tree_add_text(tree, tvb,
-		saved_offset, len + (len_offset - saved_offset), "Parameter");
+		saved_offset, len + (len_offset - saved_offset), "Parameter (0x%.2x)", tag);
 
 	subtree = proto_item_add_subtree(pi, ett_param);
 
