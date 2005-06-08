@@ -18,16 +18,29 @@ CAPINFOS=./capinfos
 DATE=/bin/date
 
 # Where our temp files are saved (editcap.out and stderr.out)
+# (had problems with this on cygwin, tried TMP_DIR=./ which worked)
 TMP_DIR=/tmp
 
-TETHEREAL_ARGS="-nVxr"
-
 # These may be set to your liking
+# Stop the child process, if it's running longer than x seconds
 MAX_CPU_TIME=900
+# Stop the child process, if it's using more than y * 1024 bytes
 MAX_VMEM=500000
+# Insert z times an error into the capture file (0.02 seems to be a good value to find errors)
 ERR_PROB=0.02
 
+# set some limits to the child processes, e.g. stop it if it's running longer then MAX_CPU_TIME seconds
+# (ulimit is not supported well on cygwin and probably other platforms, e.g. cygwin shows some warnings)
 ulimit -S -t $MAX_CPU_TIME -v $MAX_VMEM
+
+### usually you won't have to change anything below this line ###
+
+# Tethereal arguments (you won't have to change these)
+# n Disable network object name resolution
+# V Print a view of the details of the packet rather than a one-line summary of the packet
+# x Cause Tethereal to print a hex and ASCII dump of the packet data after printing the summary or details
+# r Read packet data from the following infile
+TETHEREAL_ARGS="-nVxr"
 
 # Make sure we have a valid test set
 FOUND=0
