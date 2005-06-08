@@ -185,7 +185,7 @@ proto_register_tcap(void)
 	&lock_info_col);
 */
     /* Set default SSNs */
-    range_convert_str(&global_ssn_range, "1-255", MAX_SSN);
+    range_convert_str(&global_ssn_range, "2-255", MAX_SSN);
     ssn_range = range_empty();
 
     prefs_register_range_preference(tcap_module, "ssn", "SCCP SSNs",
