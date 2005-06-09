@@ -1893,7 +1893,7 @@ in B<Ethereal> see the I<ethereal-filter(4)> manual page.
 
 =head1 FILES
 
-These files contains various B<Ethereal> configuration values.
+These files contains various B<Ethereal> configuration settings.
 
 =over 4
 
@@ -1912,7 +1912,11 @@ that would appear in the preference file), and I<value> is the value to
 which it should be set; white space is allowed between B<:> and
 I<value>.  A preference setting can be continued on subsequent lines by
 indenting the continuation lines with white space.  A B<#> character
-starts a comment that runs to the end of the line.
+starts a comment that runs to the end of the line:
+
+  # Vertical scrollbars should be on right side?
+  # TRUE or FALSE (case-insensitive).
+  gui.scrollbar_on_right: TRUE
 
 The global preferences file is searched in the
 F<ethereal> directory under the F<share> subdirectory of the main
@@ -1927,20 +1931,23 @@ Data\Ethereal\preferences>) on Windows systems.
 
 Note: Whenever the preferences are saved by using the I<Save> button
 in the I<Edit:Preferences> dialog box, your personal preferences file
-will be overwritten with the new settings, destroying any comments that
-were in the file.
+will be overwritten with the new settings, destroying any comments and 
+unknown/obsolete settings that were in the file.
 
 =item Recent
 
 The I<recent> file will store personal settings (mostly GUI related) like 
 the current B<Ethereal> window size. The file is saved at program exit and 
-read in at program start automatically (comments in this file are therefore 
-automatically destroyed). Note: If the command line flag B<-o> is used, it 
-will override these values.
+read in at program start automatically. Note: If the command line flag B<-o> 
+is used, it will override the settings from this file.
 
 The settings in this file have the same format as 
 in the I<Preferences> files, and the same directory as for the personal preferences
 file is used.
+
+Note: Whenever Ethereal is closed, your recent file
+will be overwritten with the new settings, destroying any comments and 
+unknown/obsolete settings that were in the file.
 
 =item Disabled (Enabled) Protocols
 
@@ -1948,8 +1955,12 @@ The I<disabled_protos> file contains a list of
 protocols that have been disabled, so that their dissectors are never
 called.  The file contains protocol names, one per line, where the
 protocol name is the same name that would be used in a display filter
-for the protocol.  A B<#> character starts a comment that runs to the
-end of the line. The same directory as for the personal preferences file is used.
+for the protocol:
+
+  http
+  tcp     # a comment
+
+The same directory as for the personal preferences file is used.
 
 Note: Whenever the disabled protocols list is saved by using the
 I<Save> button in the I<Analyze:Enabled Protocols> dialog box, your disabled
@@ -2037,7 +2048,12 @@ preferences file.
 
 =item Capture Filters
 
-The F<cfilters> file, contains personal capture filters.
+The F<cfilters> files contain system-wide and personal capture filters. 
+Each line contains one filter, starting with the string displayed in the 
+dialog box in quotation marks, followed by the filter string itself:
+
+  "HTTP" port 80
+  "DCERPC" port 135
 
 The global F<cfilters> file uses the same directory as the 
 global preferences file.
@@ -2047,7 +2063,12 @@ preferences file.
 
 =item Display Filters
 
-The F<dfilters> file, contains personal display filters.
+The F<dfilters> files contain system-wide and personal display filters. 
+Each line contains one filter, starting with the string displayed in the 
+dialog box in quotation marks, followed by the filter string itself:
+
+  "HTTP" http
+  "DCERPC" dcerpc
 
 The global F<dfilters> file uses the same directory as the 
 global preferences file.
@@ -2058,6 +2079,13 @@ personal preferences file.
 =item Color Filters (Coloring Rules)
 
 The F<colorfilters> files contain system-wide and personal color filters.
+Each line contains one filter, starting with the string displayed in the
+dialog box, followed by the corresponding display filter. Then the 
+background and foreground colors are appended:
+
+  # a comment
+  @tcp@tcp@[59345,58980,65534][0,0,0]
+  @udp@udp@[28834,57427,65533][0,0,0]
 
 The global F<colorfilters> file uses the same directory as the 
 global preferences file.
