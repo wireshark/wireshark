@@ -144,7 +144,7 @@ then just make ethereal call register_tap_listener() when you want to tap
 and call remove_tap_listener() when you are finished.
 
 
-WHEN DOES TAP LISTENERS GET CALLED?
+WHEN DO TAP LISTENERS GET CALLED?
 ===================================
 Tap listeners are only called when ethereal reads a new capture for
 the first time or whenever ethereal needs to rescan/redissect

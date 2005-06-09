@@ -798,7 +798,7 @@ FIELDTYPE	FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
 		FT_INT64, FT_FLOAT, FT_DOUBLE, FT_ABSOLUTE_TIME,
 		FT_RELATIVE_TIME, FT_STRING, FT_STRINGZ, FT_UINT_STRING,
 		FT_ETHER, FT_BYTES, FT_IPv4, FT_IPv6, FT_IPXNET,
-		FT_FRAMENUM
+		FT_FRAMENUM, FT_PROTOCOL
 FIELDBASE	BASE_NONE, BASE_DEC, BASE_HEX, BASE_OCT
 FIELDCONVERT	VALS(x), TFS(x), NULL
 BITMASK		Usually 0x0 unless using the TFS(x) field conversion.
@@ -1219,6 +1219,9 @@ The type of value this field holds. The current field types are:
 				subtree below it containing fields for
 				the members of the array, might be an
 				FT_NONE field.
+        FT_PROTOCOL             Used for protocols which will be placing
+				themselves as top-level items in the
+                                "Packet Details" pane of the UI.
 	FT_BOOLEAN		0 means "false", any other value means
 				"true".
 	FT_FRAMENUM		A frame number; if this is used, the "Go
@@ -2328,7 +2331,7 @@ else {
 
     /* new conversation create local data structure */
 
-    data_ptr = g_mem_chunk_alloc(my_protocol_vals);
+    data_ptr = g_mem_chunk_alloc(my_vals);
 
     /*** add your code here to setup the new data structure ***/
 
