@@ -111,11 +111,11 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
     return;
   }
 
-  /* To do: generalize this */
+  /* try to open personal "cfilters"/"dfilters" file */
   ff_path = get_persconffile_path(ff_name, FALSE);
   if ((ff = fopen(ff_path, "r")) == NULL) {
     /*
-     * Did that fail because we the file didn't exist?
+     * Did that fail because the file didn't exist?
      */
     if (errno != ENOENT) {
       /*
@@ -127,7 +127,7 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
     }
 
     /*
-     * Yes.  See if there's a "filters" file; if so, read it.
+     * Yes.  See if there's an "old style" personal "filters" file; if so, read it.
      * This means that a user will start out with their capture and
      * display filter lists being identical; each list may contain
      * filters that don't belong in that list.  The user can edit
@@ -137,6 +137,23 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
     g_free(ff_path);
     ff_path = get_persconffile_path(FILTER_FILE_NAME, FALSE);
     if ((ff = fopen(ff_path, "r")) == NULL) {
+    /*
+     * Did that fail because the file didn't exist?
+     */
+      if (errno != ENOENT) {
+      /*
+       * No.  Just give up.
+       */
+	*pref_path_return = ff_path;
+	*errno_return = errno;
+    return;
+      }
+
+    /*
+     * Try to open the global "cfilters/dfilters" file */
+    ff_path = get_datafile_path(ff_name);
+    if ((ff = fopen(ff_path, "r")) == NULL) {
+
       /*
        * Well, that didn't work, either.  Just give up.
        * Return an error if the file existed but we couldn't open it.
@@ -144,8 +161,9 @@ read_filter_list(filter_list_type_t list, char **pref_path_return,
       if (errno != ENOENT) {
 	*pref_path_return = ff_path;
 	*errno_return = errno;
-      }
-      return;
+    }
+    return;
+    }
     }
   }
 
