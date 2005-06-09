@@ -3,7 +3,7 @@
 
 <chapter id="ChapterDissection">
   <title>Packet dissection</title>
-  
+  <!-- Julian Onions additions -->
   <section id="ChDissectWorks">
 	<title>How it works</title>
 	<para>
@@ -116,7 +116,7 @@ plugin_reg_handoff(void){
 	<para>
 	Next we have an int that is initialised to -1 that records our protocol.
 	This will get updated when we register this plugin with the main program.
-	We can use this as a handy way to detect if we've been initalised yet.
+	We can use this as a handy way to detect if we've been initialised yet.
 	Its good practice to make all variables and functions that aren't exported
 	static to keep name space pollution. Normally this isn't a problem unless your
 	dissector gets so big it has to span multiple files.
@@ -135,7 +135,7 @@ plugin_reg_handoff(void){
 	</para>
 	<para>
 	The plugin_reg_handoff routine is used when dissecting sub protocols. As our
-	hyperthetical protocol will be hyperthetically carried over UDP then we will
+	hypothetical protocol will be hypothetically carried over UDP then we will
 	need to do this.
 	</para>
 	<para>
@@ -187,7 +187,7 @@ proto_reg_handoff_foo(void)
 }]]>	
    </programlisting></example>
 	<para>
-	Whats happening here? We are initialising the dissector if it hasn't
+	What's happening here? We are initialising the dissector if it hasn't
 	been initialised yet. 
 	First we create the dissector. This registers a routine 
 	to be called to do the actual dissecting.
@@ -195,7 +195,7 @@ proto_reg_handoff_foo(void)
 	so that the main program will know to call us when it gets UDP traffic on that port.
 	</para>
 	<para>
-	Now at last we finaly get to write some dissecting code. For the moment we'll
+	Now at last we finally get to write some dissecting code. For the moment we'll
 	leave it as a basic placeholder.
 	</para>
 	   <example><title>Plugin Dissection.</title>
@@ -232,7 +232,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	</para>
 	<para>
 	At this point we should have a basic dissector ready to compile and install.
-	It doesn't do much at present, than identify the protcol and label it.
+	It doesn't do much at present, than identify the protocol and label it.
 	Compile the dissector to a dll or shared library, and copy it into the plugin
 	directory of the installation. To finish this off a Makefile of some sort will be 
 	required. A Makefile.nmake for Windows platforms and a Makefile.am for unix/linux
@@ -305,7 +305,7 @@ EXTRA_DIST = \
 	   This will allow us to set up some of the parts we will need.
 	   </para>
 	   <para>
-	   The first thig we will do is to build a subtree to decode our results into.
+	   The first thing we will do is to build a subtree to decode our results into.
 	   This helps to keep things looking nice in the detailed display.
 	   Now the dissector is called in two different cases. In one case
 	   it is called to get a summary of the packet, in the other case it is
@@ -353,7 +353,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	and selecting this will highlight the remaining contents of the packet.
 	</para>
 	<para>
-	Now lets go to the next step and add some protocol disection.
+	Now lets go to the next step and add some protocol dissection.
 	For this step we'll need to construct a couple of tables that help with dissection.
 	This needs some changes to proto_register_foo. First a couple of statically
 	declare arrays.
@@ -510,7 +510,7 @@ static int hf_foo_initialip = -1;
    </section>
    <section><title>Improving the dissection information</title>
    <para>
-   We can certainly improve the display of the protcol with a bit of extra data.
+   We can certainly improve the display of the proto with a bit of extra data.
    The first step is to add some text labels. Lets start by labelling the packet types.
    There is some useful support for this sort of thing by adding a couple of extra things.
    First we add a simple table of type to name.
@@ -590,7 +590,7 @@ static int hf_foo_priorityflag = -1;
    <para>
    This is starting to look fairly full featured now, but there are a couple of other
    things we can do to make things look even more pretty. At the moment our dissection
-   shows the packets as "Foo Protocol" which whislt correct is a little uninformative.
+   shows the packets as "Foo Protocol" which whilst correct is a little uninformative.
    We can enhance this by adding a little more detail.
    First, lets get hold of the actual value of the protocol type. We can use the handy
    function tvb_get_guint8 to do this.
@@ -601,6 +601,7 @@ static int hf_foo_priorityflag = -1;
    </para>
 	   <example><title>Enhancing the display.</title>
    <programlisting>
+   <![CDATA[
 static void
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -628,6 +629,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		foo_tree = proto_item_add_subtree(ti, ett_foo);
 		proto_tree_add_item(foo_tree, hf_foo_pdu_type, tvb, offset, 1, FALSE); offset += 1;
 ...
+]]>
    </programlisting></example>
    <para>
    So here, after grabbing the value of the first 8 bits, we use it with one of the
@@ -639,19 +641,486 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    </section>
   </section>
+
+  <section id="ChDissectTransformed">
+	<title>How to handle transformed data</title>
+	<para>
+	Some protocols do clever things with data. They might possibly 
+	encrypt the data, or compress data, or part of it. If you know
+	how these steps are taken it is possible to reverse them within the
+	dissector. 
+	</para>
+	<para> 
+	As encryption can be tricky, lets consider the case of compression.
+	These techniques can also work for other transformations of data,
+	where some step is required before the data can be examined.
+	</para>
+	<para> 
+	What basically needs to happen here, is to identify the data that
+	needs conversion, take that data and transform it into a new stream,
+	and then call a dissector on it.
+	Often this needs to be done "on-the-fly" based on clues in the packet.
+	Sometimes this needs to be used in conjunction with other techniques,
+	such as packet reassembly. The following shows a technique to
+	achieve this effect.
+	</para>
+	   <example><title>Decompressing data packets for dissection.</title>
+   <programlisting>
+   <![CDATA[
+   	guint8 flags = tvb_get_guint8(tvb, offset); offset ++;
+	if (flags & FLAG_COMPRESSED) { /* the remainder of the packet is compressed */
+	 	guint16 orig_size = tvb_get_ntohs(tvb, offset); offset += 2;
+		guchar *decompressed_buffer; /* Buffers for decompression */
+		decompressed_buffer = (guchar*) malloc (orig_size);
+		decompress_packet (tvb_get_ptr(tvb, offset, -1), tvb_length_remaining(tvb, offset),
+				decompressed_buffer, orig_size);
+		/* Now re-setup the tvb buffer to have the new data */
+		next_tvb = tvb_new_real_data(decompressed_buffer, orig_size, orig_size);
+		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+		add_new_data_source(pinfo, next_tvb, "Decompressed Data");
+		tvb_set_free_cb(next_tvb, free);
+	} else {
+		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	}
+	offset = 0;
+	/* process next_tvb from here on */
+]]>
+   </programlisting></example>
+   	<para>
+   	The first steps here are to recognise the compression. In this case
+   	a flag byte alerts us to the fact the remainder of the packet is compressed.
+   	Next we retrieve the original size of the packet, which in this case
+   	is conveniently within the protocol. If its not, it may be part of the 
+   	compression routine to work it out for you, in which case the logic would
+   	be different.
+   	</para>
+   	<para>
+   	So armed with the size, a buffer is allocated to receive the uncompressed
+   	data using malloc, and the packet is decompressed into it.
+   	The tvb_get_ptr function is useful to get a pointer to the raw data of 
+   	the packet from the offset onwards. In this case the 
+   	decompression routine also needs to know the length, which is
+   	given by the tvb_length_remaining function.
+   	</para>
+   	<para>
+   	Next we build a new tvb buffer from this data, using the tvb_new_real_data
+   	call. This data is a child of our original data, so we acknowledge that
+   	in the next call to tvb_set_child_real_data_tvbuff. 
+   	Finally we add this data as a new data source, so that
+   	the detailed display can show the decompressed bytes as well as the original.
+   	One procedural step is to add a handler to free the data when its no longer needed.
+   	In this case as malloc was used to allocate the memory, free is the appropriate
+   	function.
+   	</para>
+	<para> 
+	After this has been set up the remainder of the dissector can dissect the
+	buffer next_tvb, as its a new buffer the offset needs to be 0 as we start
+	again from the beginning of this buffer. To make the rest of the dissector
+	work regardless of whether compression was involved or not, in the case that
+	compression was not signaled, we use the tvb_new_subset to deliver us
+	a new buffer based on the old one but starting at the current offset, and
+	extending to the end. This makes dissecting the packet from this point on
+	exactly the same regardless of compression.
+	</para>
+  </section>
+  <section id="ChDissectReassemble">
+	<title>How to reassemble split packets</title>
+	<para>
+	Some protocols have times when they have to split a large packet across
+	multiple other packets. In this case the dissection can't be carried out correctly
+	until you have all the data. The first packet doesn't have enough data,
+	and the subsequent packets don't have the expect format.
+	To dissect these packets you need to wait until all the parts have
+	arrived and then start the dissection.
+	</para>
+	  <section id="ChDissectReassembleUdp">
+		<title>How to reassemble split UDP packets</title>
+		<para>
+		As an example, lets examine a protocol that is layered on
+		top of UDP that splits up its own data stream.
+		If a packet is bigger than some given size, it will be split into
+		chunks, and somehow signaled within its protocol.
+		</para>
+		<para>
+		To deal with such streams, we need several things to trigger
+		from. We need to know that this is packet is part of a multi-packet 
+		sequence. We need to know how many packets are in the sequence.
+		We need to also know when we have all the packets.
+		</para>
+		<para>
+		For this example we'll assume there is a simple in-protocol
+		signaling mechanism to give details. A flag byte that signals
+		the presence of a multi-packet and also the last packet, 
+		followed by an ID of the sequence,
+		a packet sequence number.
+		</para>
+	   <example><title>Reassembling fragments - Part 1</title>
+   <programlisting>
+   <![CDATA[
+#include <epan/reassemble.h>
+   ...
+save_fragmented = pinfo->fragmented;
+flags = tvb_get_guint8(tvb, offset); offset++;
+if (flags & FL_FRAGMENT) { // fragmented
+	tvbuff_t* new_tvb = NULL;
+	fragment_data *frag_msg = NULL;
+	guint16 msg_seqid = tvb_get_ntohs(tvb, offset); offset += 2;
+	guint16 msg_num = tvb_get_ntohs(tvb, offset); offset += 2;
+
+	pinfo->fragmented = TRUE;
+	frag_msg = fragment_add_seq_check (tvb, offset, pinfo,
+		msg_seqid, /* guint32 ID for fragments belonging together */
+		msg_fragment_table, /* list of message fragments */
+		msg_reassembled_table, /* list of reassembled messages */
+		msg_num, /* guint32 fragment sequence number */
+		-1, /* guint32 fragment length - to the end */
+		flags & FL_FRAG_LAST); /* More fragments? */
+]]>
+   </programlisting></example>
+	<para>
+	We start by saving the fragmented state of this packet, so we can restore it later.
+	Next comes some protocol specific stuff, to dig the fragment data
+	out of the stream if it's present. Having decided it is present, we 
+	let the function fragment_add_seq_check do its work.
+	We need to provide this with a certain amount of data.
+	</para>
+	<itemizedlist>
+	<listitem><para>
+	The tvb buffer we are dissecting.
+	</para></listitem>
+	<listitem><para>
+	The offset where the partial packet starts.
+	</para></listitem>
+	<listitem><para>
+	The provided packet info.
+	</para></listitem>
+	<listitem><para>
+	The sequence number of the fragment stream. There may be several 
+	streams of fragments in flight, and this is used to key the 
+	relevant one to be used for reassembly.
+	</para></listitem>
+	<listitem><para>
+	The msg_fragment_table and the msg_reassembled_table are variables
+	we need to declare. We'll consider these in detail later.
+	</para></listitem>
+	<listitem><para>
+	msg_num is the packet number within the sequence. 
+	</para></listitem>
+	<listitem><para>
+	The length here is specified as -1, as we want the rest of the packet data. 
+	</para></listitem>
+	<listitem><para>
+	Finally a parameter that signals if this is the last fragment or not.
+	This might be a flag as in this case, or there may be a counter in the
+	protocol.
+	</para></listitem>
+	</itemizedlist>
+	   <example><title>Reassembling fragments part 2</title>
+	   <programlisting>
+	   <![CDATA[
+	if (msg_tree)
+		new_tvb = process_reassembled_data(tvb, offset, pinfo,
+		"Reassembled Message", frag_msg, &msg_frag_items,
+		NULL, msg_tree);
+
+	if (frag_msg) { /* Reassembled */
+		if (check_col (pinfo->cinfo, COL_INFO))
+			col_append_str (pinfo->cinfo, COL_INFO, 
+			" (Message Reassembled)");
+	} else {
+		/* Not last packet of reassembled Short Message */
+		if (check_col (pinfo->cinfo, COL_INFO))
+			col_append_fstr (pinfo->cinfo, COL_INFO,
+			" (Message fragment %u)", msg_num);
+	}
+	if (new_tvb) { // take it all
+		next_tvb = new_tvb;
+	}
+	else  // make a new subset
+		next_tvb = tvb_new_subset(next_tvb, offset, -1, -1);
+}
+else {
+	next_tvb = tvb_new_subset(next_tvb, offset, -1, -1);
+}
+
+offset = 0;
+pinfo->fragmented = save_fragmented;
+	]]>
+   </programlisting></example>
+	   <para>
+	   Having passed the fragment data to the reassembly handler, we can
+	   now check if we have the whole message. We can only do this if were
+	   in the display mode, as we need to pass the display tree parameter into this 
+	   routine. If there is enough information, this routine will return the 
+	   newly reassembled data buffer. 
+	   </para>
+	   <para>
+	   After that, we add a couple of informative messages to the display
+	   to show that this is part of a sequence. Then a bit of manipulation
+	   of the buffers and the dissection can proceed.
+	   Normally you will probably not bother dissecting further unless the 
+	   fragments have been reassembled as there won't be much to find. Sometimes
+	   the first packet in the sequence can be partially decoded though if you wish.
+	   </para>
+	   <para>
+	   Now the mysterious data we passed into the fragment_add_seq_check.
+	   </para>
+	   <example><title>Reassembling fragments - Initialisation</title>
+	   <programlisting>
+	   <![CDATA[
+static GHashTable *msg_fragment_table = NULL;
+static GHashTable *msg_reassembled_table = NULL;
+
+
+static void
+msg_init_protocol(void)
+{
+	fragment_table_init (&msg_fragment_table);
+	reassembled_table_init(&msg_reassembled_table);
+}
+]]>
+   </programlisting></example>
+   	<para>
+   	First a couple of hash tables are declared, and these are initialised
+   	in the protocol initialisation routine.
+   	Following that, a fragment_items structure is allocated and filled 
+   	in with a series of ett items, hf data items, and a string tag.
+   	The ett and hf values should be included in the relevant tables like
+   	all the other variables your protocol may use. The hf variables
+   	need to be placed in the structure something like the following.
+   	Of course the names may need to be adjusted.
+   	</para>
+	   <example><title>Reassembling fragments - Data</title>
+	   <programlisting>
+	   <![CDATA[
+static const fragment_items msg_frag_items = {
+	/* Fragment subtrees */
+	&ett_msg_fragment,
+	&ett_msg_fragments,
+	/* Fragment fields */
+	&hf_msg_fragments,
+	&hf_msg_fragment,
+	&hf_msg_fragment_overlap,
+	&hf_msg_fragment_overlap_conflicts,
+	&hf_msg_fragment_multiple_tails,
+	&hf_msg_fragment_too_long_fragment,
+	&hf_msg_fragment_error,
+	/* Reassembled in field */
+	&hf_msg_reassembled_in,
+	/* Tag */
+	"Message fragments"
+};
+...
+{&hf_msg_fragments,
+	{"Message fragments", "msg.fragments",
+	FT_NONE, BASE_NONE, NULL, 0x00,	NULL, HFILL } },
+{&hf_msg_fragment,
+	{"Message fragment", "msg.fragment",
+	FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+{&hf_msg_fragment_overlap,
+	{"Message fragment overlap", "msg.fragment.overlap",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+{&hf_msg_fragment_overlap_conflicts,
+	{"Message fragment overlapping with conflicting data",
+	"msg.fragment.overlap.conflicts",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+{&hf_msg_fragment_multiple_tails,
+	{"Message has multiple tail fragments",
+	"msg.fragment.multiple_tails", 
+	FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+{&hf_msg_fragment_too_long_fragment,
+	{"Message fragment too long", "msg.fragment.too_long_fragment",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+{&hf_msg_fragment_error,
+	{"Message defragmentation error", "msg.fragment.error",
+	FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+{&hf_msg_reassembled_in,
+	{"Reassembled in", "msg.reassembled.in",
+	FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+]]>
+   </programlisting></example>
+   <para>
+   These hf variables are used internally within the reassembly routines
+   to make useful links, and to add data to the dissection. It produces 
+   links from one packet to another - such as a partial packet having 
+   a link to the fully reassembled packet. Likewise there are back pointers
+   to the individual packets from the reassembled one.
+   The other variables are used for flagging up errors.
+   </para>
+	</section>
+  </section>
   <section id="ChDissectTap">
 	<title>How to tap protocols</title>
 	<para>
-	Some info about how to use conversations in a dissector can be 
-	found in the file doc/README.tapping.
+	Adding a Tap interface to a protocol allows it to do some useful things.
+	In particular you can produce protocol statistics from teh tap interface.
+	</para>
+	<para>
+	A tap is basically a way of allowing other items to see whats happening as
+	a protocol is dissected. A tap is registered with the main program, and
+	then called on each dissection. Some arbritary protocol specific data
+	is provided with the routine that can be used.
+	</para>
+	<para>
+	To create a tap, you first need to register a tap. 
+	A tap is registered with an integer handle, and registered 
+	with the routine register_tap. This takes a string name
+	with which to find it again.
+	</para>
+	   <example><title>Initialising a tap</title>
+	   <programlisting>
+	   <![CDATA[
+#include <epan/tap.h>
+
+static int foo_tap = -1;
+
+struct FooTap {
+	gint packet_type;
+	gint priorty;
+	...
+};
+...
+	foo_tap = register_tap("foo");
+]]>
+   </programlisting></example>
+	<para>
+	Whilst you can program a tap without protocol specific data, it
+	is generally not very useful. Therefore its a good idea
+	to declare a structure that can be passed through the tap.
+	This needs to be a static structure as it will be used after the
+	dissection routine has returned. Its generally best to pick out some
+	generic parts of the protocol you are dissecting into the tap data.
+	A packet type, a priority, a status code maybe.
+	The structure really needs to be included in a header file so
+	that it can be included by other components that want to listen in
+	to the tap.
+	</para>
+	<para>
+	Once you have these defined, its simply a case of populating the
+	protocol specific structure and then calling tap_queue_packet probably
+	as the last part of the dissector.
+	</para>
+	   <example><title>Calling a protocol tap</title>
+	   <programlisting>
+	   <![CDATA[
+	static struct FooTap pinfo;
+	
+	pinfo.packet_type = tvb_get_guint8(tvb, 0);
+	pinfo.priority = tvb_get_ntohs(tvb, 8);
+	   ...
+	tap_queue_packet(foo_tap, pinfo, &pinfo);
+]]>
+   </programlisting></example>
+	<para>	
+	This now enables those interested parties to listen in on the details
+	of this protocol conversation.
 	</para>
   </section>
   <section id="ChDissectStats">
 	<title>How to produce protocol stats</title>
 	<para>
-	Some info about how to use conversations in a dissector can be 
-	found in the file doc/README.stats_tree.
+	Given that you have a tap interface for the protocol, you can use this
+	to produce some interesting statistics (well presumably interesting!) from
+	protocol traces.
 	</para>
+	<para>
+	This can be done in a separate plugin, or in the same plugin that is 
+	doing the dissection. The latter scheme is better, as the tap and stats
+	module typically rely on sharing protocol specific data, which might get out
+	of step between two different plugins.
+	</para>
+	<para> 
+	Here is a mechanism to produce statistics from the above TAP interface.
+	</para>
+	   <example><title>Initialising a stats interface</title>
+	   <programlisting>
+	   <![CDATA[
+/* register all http trees */
+static void register_foo_stat_trees(void) {
+	stats_tree_register("foo","foo","Foo/Packet Types", 
+		foo_stats_tree_packet, foo_stats_tree_init, NULL );
+}
+#ifndef ENABLE_STATIC
+//G_MODULE_EXPORT const gchar version[] = "0.0";
+
+G_MODULE_EXPORT void plugin_register_tap_listener(void)
+{
+	register_foo_stat_trees();
+}
+
+#endif
+]]>
+   </programlisting></example>
+   	<para>
+   	Working from the bottom up, first the plugin interface entry point is defined,
+   	plugin_register_tap_listener. This simply calls the initialisation function
+   	register_foo_stat_trees.
+   	</para>
+	<para>
+	This in turn calls the stats_tree_register function, which takes
+	three strings, and three functions.
+	</para>
+	<orderedlist>
+	<listitem><para>
+	This is the tap name that is registered.
+	</para></listitem>
+	<listitem><para>
+	An abbreviation of the stats name.
+	</para></listitem>
+	<listitem><para>
+	The name of the stats module. A '/' character can be used to make sub menus.
+	</para></listitem>
+	<listitem><para>
+	The function that will called to generate the stats.
+	</para></listitem>
+	<listitem><para>
+	A function that can be called to initialise the stats data.
+	</para></listitem>
+	<listitem><para>
+	A function that will be called to clean up the stats data.
+	</para></listitem>
+	</orderedlist>
+	<para>
+	In this case we only need the first two functions, as there is nothing specific to clean up.
+	</para>
+	   <example><title>Initialising a stats session</title>
+	   <programlisting>
+	   <![CDATA[
+static const guint8* st_str_packets = "Total Packets";
+static const guint8* st_str_packet_types = "FOO Packet Types";
+static int st_node_packets = -1;
+static int st_node_packet_types = -1;
+
+static void foo_stats_tree_init(stats_tree* st) {
+	st_node_packets = stats_tree_create_node(st, st_str_packets, 0, TRUE);	
+		st_node_packet_types = stats_tree_create_pivot(st, st_str_packet_types, st_node_packets);
+}
+]]>
+   </programlisting></example>
+   	<para>
+   	In this case we create a new tree node, to handle the total packets,
+   	and as a child of that we create a pivot table to handle the stats about 
+   	different packet types.
+   	</para>
+	   <example><title>Generating the stats</title>
+	   <programlisting>
+	   <![CDATA[
+static int foo_stats_tree_packet(stats_tree* st, packet_info* pinfo , epan_dissect_t* edt , const void* p) {
+	struct FooTap *pi = (struct FooTap *)p;
+	tick_stat_node(st, st_str_packets, 0, FALSE);
+	stats_tree_tick_pivot(st, st_node_packet_types, 
+			val_to_str(pi->packet_type, msgtypevalues, "Unknown packet type (%d)"));
+	return 1;
+}	
+]]>
+   </programlisting></example>
+   	<para>
+   	In this case the processing of the stats is quite simple.
+   	First we call the tick_stat_node for the st_str_packets packet node, to count
+   	packets.
+   	Then a call to stats_tree_tick_pivot on the st_node_packet_types subtree
+   	allows us to record statistics by packet type.
+   	</para>
   </section>
 
   <section id="ChDissectConversation">
