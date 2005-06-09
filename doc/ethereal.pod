@@ -2039,6 +2039,9 @@ preferences file.
 
 The F<cfilters> file, contains personal capture filters.
 
+The global F<cfilters> file uses the same directory as the 
+global preferences file.
+
 The personal F<cfilters> file uses the same directory as the personal 
 preferences file.
 
@@ -2046,18 +2049,18 @@ preferences file.
 
 The F<dfilters> file, contains personal display filters.
 
-The personal F<dfilters> file uses the same directory as the personal 
-preferences file.
+The global F<dfilters> file uses the same directory as the 
+global preferences file.
+
+The personal F<dfilters> file uses the same directory as the 
+personal preferences file.
 
 =item Color Filters (Coloring Rules)
 
 The F<colorfilters> files contain system-wide and personal color filters.
 
-The global F<colorfilters> files is installed in
-the F<ethereal> directory under the F<share> subdirectory of the main
-installation directory (for example, F</usr/local/share/ethereal>) on
-UNIX-compatible systems, and in the main installation directory (for
-example, F<C:\Program Files\Ethereal>) on Windows systems, 
+The global F<colorfilters> file uses the same directory as the 
+global preferences file.
 
 The personal F<colorfilters> file uses the same directory as the 
 personal preferences file.
