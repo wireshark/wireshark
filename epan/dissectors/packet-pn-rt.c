@@ -138,11 +138,23 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* build some "raw" data */
 	u16FrameID = tvb_get_ntohs(tvb, 0);
-    if (u16FrameID < 0x0100) {
+    if (u16FrameID < 0x0040) {
+        pszProtShort 	= "PN-PTCP";
+        pszProtAddInfo  = "Synchronization, ";
+        pszProtSummary  = "acyclic Real-Time";
+        pszProtComment	= "0x0000-0x003F: Acyclic Real-Time: Sync";
+        bCyclic         = FALSE;
+    } else if (u16FrameID < 0x0080) {
+        pszProtShort 	= "PN-RT";
+        pszProtAddInfo  = "reserved, ";
+        pszProtSummary  = "Real-Time";
+        pszProtComment	= "0x0040-0x007F: Reserved ID";
+        bCyclic         = FALSE;
+    } else if (u16FrameID < 0x0100) {
         pszProtShort 	= "PN-RTC0";
         pszProtAddInfo  = "Synchronization, ";
         pszProtSummary  = "Isochronous-Real-Time";
-        pszProtComment	= "0x0000-0x00FF: Isochronous-Real-Time: Time-sync";
+        pszProtComment	= "0x0080-0x00FF: Isochronous-Real-Time: Clock-sync";
         bCyclic         = TRUE;
     } else if (u16FrameID < 0x8000){
         pszProtShort 	= "PN-RTC3";
@@ -216,11 +228,29 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	        pszProtSummary	= "acyclic Real-Time";
 	        pszProtComment	= "Real-Time: DCP (Dynamic Configuration Protocol) multicast";
         }
+    } else if (u16FrameID < 0xff20){
+		pszProtShort 	= "PN-PTCP";
+        pszProtAddInfo  = "RTA Sync, ";
+        pszProtSummary	= "acyclic Real-Time";
+        pszProtComment	= "0xFF00-0xFF1F: Acyclic Real-Time: RTA sync";
+        bCyclic         = FALSE;
+    } else if (u16FrameID < 0xff40){
+		pszProtShort 	= "PN-PTCP";
+        pszProtAddInfo  = "Follow Up, ";
+        pszProtSummary	= "acyclic Real-Time";
+        pszProtComment	= "0xFF20-0xFF3F: Acyclic Real-Time: Follow Up";
+        bCyclic         = FALSE;
+    } else if (u16FrameID < 0xff43){
+		pszProtShort 	= "PN-PTCP";
+        pszProtAddInfo  = "Delay, ";
+        pszProtSummary	= "acyclic Real-Time";
+        pszProtComment	= "0xFF40-0xFF42: Acyclic Real-Time: Delay";
+        bCyclic         = FALSE;
     } else {
 		pszProtShort 	= "PN-RT";
-        pszProtAddInfo  = "Reserved";
+        pszProtAddInfo  = "Reserved, ";
         pszProtSummary	= "Real-Time";
-        pszProtComment	= "0xFF00-0xFFFF: reserved ID";
+        pszProtComment	= "0xFF43-0xFFFF: reserved ID";
         bCyclic         = FALSE;
 	}
 
