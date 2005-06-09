@@ -71,12 +71,12 @@ EXTRA_PROGRAMS = ethereal tethereal capinfos editcap mergecap dftest \
 EXTRA_SCRIPTS = idl2eth
 
 #
-# Ethereal configuration files are put in $(pkgdatadir).  It currently
-# contains the "AUTHORS-SHORT" and "manuf" files and a "diameter" directory.
+# Ethereal configuration files are put in $(pkgdatadir).
 #
 pkgdata_DATA = AUTHORS-SHORT manuf ethereal.html tethereal.html \
 	ethereal-filter.html capinfos.html editcap.html \
-	idl2eth.html mergecap.html text2pcap.html
+	idl2eth.html mergecap.html text2pcap.html \
+    cfilters colorfilter dfilters
 
 #
 # Install the Diameter DTD and XML files in the "diameter" subdirectory
@@ -434,7 +434,9 @@ EXTRA_DIST = \
 	capture-wpcap.h		\
     capture_wpcap_packet.c  \
     capture_wpcap_packet.h  \
+    cfilters 			\
 	cleanbld.bat		\
+    colorfilters 		\
 	config.h.win32		\
 	config.nmake		\
 	debian/README.debian	\
@@ -447,6 +449,7 @@ EXTRA_DIST = \
 	debian/postinst		\
 	debian/prerm		\
 	debian/rules		\
+    dfilters 			\
 	dictionary.dtd		\
 	dictionary.xml		\
 	doc/Makefile.am         \

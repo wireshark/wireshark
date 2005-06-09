@@ -271,6 +271,18 @@ File "..\..\manuf"
 File "..\..\doc\ethereal.html"
 File "..\..\doc\ethereal-filter.html"
 
+; global config files - don't overwrite if already existing 
+IfFileExists cfilters dont_overwrite_cfilters
+File "..\..\cfilters"
+dont_overwrite_cfilters:
+IfFileExists colorfilters dont_overwrite_colorfilters
+File "..\..\colorfilters"
+dont_overwrite_colorfilters:
+IfFileExists dfilters dont_overwrite_dfilters
+File "..\..\dfilters"
+dont_overwrite_dfilters:
+
+
 ;
 ; Install the Diameter DTD and XML files in the "diameter" subdirectory
 ; of the installation directory.
