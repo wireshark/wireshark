@@ -15,9 +15,9 @@ LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 LINK_PLUGIN_WITH=..\..\epan\libethereal.lib
 CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
 
-OBJECTS=packet-cosnaming.obj  packet-coseventcomm.obj packet-tango.obj
+OBJECTS=packet-cosnaming.obj  packet-coseventcomm.obj packet-tango.obj packet-parlay.obj 
 
-all : cosnaming.dll coseventcomm.dll tango.dll
+all : cosnaming.dll coseventcomm.dll tango.dll parlay.dll 
 
 cosnaming.dll cosnaming.exp cosnaming.lib : packet-cosnaming.obj $(LINK_PLUGIN_WITH)
 	link -dll /out:cosnaming.dll $(LDFLAGS) packet-cosnaming.obj $(LINK_PLUGIN_WITH) \
@@ -31,12 +31,17 @@ tango.dll tango.exp coseventcomm.lib : packet-tango.obj $(LINK_PLUGIN_WITH)
 	link -dll /out:tango.dll $(LDFLAGS) packet-tango.obj $(LINK_PLUGIN_WITH) \
 	$(GLIB_LIBS)
 
+parlay.dll parlay.exp coseventcomm.lib : packet-parlay.obj $(LINK_PLUGIN_WITH)
+	link -dll /out:parlay.dll $(LDFLAGS) packet-parlay.obj $(LINK_PLUGIN_WITH) \
+	$(GLIB_LIBS)
+
 !ENDIF
 
 clean:
 	rm -f $(OBJECTS) cosnaming.dll cosnaming.exp cosnaming.lib \
 		coseventcomm.dll coseventcomm.exp coseventcomm.lib \
-		 tango.dll tango.exp tango.lib *.pdb
+		 tango.dll tango.exp tango.lib \
+		 parlay.dll parlay.exp parlay.lib *.pdb 
 
 distclean: clean
 
