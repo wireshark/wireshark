@@ -1076,6 +1076,10 @@ print_usage(gboolean print_ver) {
 
   FILE *output;
 
+#ifdef _WIN32
+  create_console();
+#endif
+
   if (print_ver) {
     output = stdout;
     fprintf(output, "This is GNU " PACKAGE " " VERSION
@@ -1106,6 +1110,10 @@ print_usage(gboolean print_ver) {
   fprintf(output, "\t[ -t <time stamp format> ]\n");
   fprintf(output, "\t[ -z <statistics ] [ <infile> ]\n");
 #endif
+
+#ifdef _WIN32
+  destroy_console();
+#endif
 }
 
 static void
@@ -1121,6 +1129,10 @@ show_version(void)
 #endif
       "\n%s\n\n%s\n",
       comp_info_str->str, runtime_info_str->str);
+
+#ifdef _WIN32
+  destroy_console();
+#endif
 }
 
 #if defined(_WIN32) || GTK_MAJOR_VERSION < 2 || ! defined USE_THREADS
@@ -2077,9 +2089,6 @@ main(int argc, char *argv[])
         break;
       case 'v':        /* Show version and exit */
         show_version();
-#ifdef _WIN32
-        destroy_console();
-#endif
         exit(0);
         break;
       case 'z':
