@@ -328,7 +328,8 @@ offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 next_tvb = tvb_new_subset(tvb, offset, len, len);		
 dissect_ber_octet_string(TRUE, pinfo, tree, next_tvb, 0, hf_index,
                                     &parameter_tvb);
- 
+if (!parameter_tvb)
+	return offset+len; 
 dissect_tcap_UserInformation(TRUE, parameter_tvb, 0, pinfo, tree, -1);
  
  
@@ -640,6 +641,8 @@ offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 /* Use the recived length, XXX What if it was indefenet? */
 next_tvb = tvb_new_subset(tvb, start_offset, len +(offset - start_offset), len+(offset - start_offset));		
+if (!next_tvb)
+	return offset;
 if (ber_oid_dissector_table && tcapext_oid){
 if(!dissector_try_string(ber_oid_dissector_table, tcapext_oid, next_tvb, pinfo, tcap_top_tree))	
 	{
@@ -921,7 +924,8 @@ guint8 class;
  offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
  offset = dissect_ber_octet_string(TRUE, pinfo, tree, tvb, 0, hf_index,
                                     &next_tvb);
- 
+if (!next_tvb)
+	return offset; 
   dissect_tcap_param(pinfo,tree,next_tvb,0);
   return offset;
 
@@ -1250,6 +1254,8 @@ tcap_itu_ssn_dissector_table = find_dissector_table("tcap.itu_ssn");
 next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));		
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
+if (!next_tvb)
+	return offset+len;
 if (ber_oid_dissector_table && cur_oid){
 if(!dissector_try_string(ber_oid_dissector_table, cur_oid, next_tvb, pinfo, tcap_top_tree))	
 	{

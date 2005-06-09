@@ -496,6 +496,8 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 	if (pc) {
 		/* constructed */
 		/* TO DO */
+		if(out_tvb)
+			*out_tvb=NULL;
     printf("TODO: handle constructed type in packet-ber.c, dissect_ber_octet_string\n");
 	} else {
 		/* primitive */
