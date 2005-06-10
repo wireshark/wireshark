@@ -60,9 +60,6 @@ typedef struct {
 	guint32 port_id;
 } k12_record_hdr_t;
 
-typedef struct {
-} k12_scrdsc_hdr_t;
-
 typedef struct  {
 	gchar* name;
 	guint32 encap;
@@ -96,23 +93,25 @@ static const k12_stack_encap_t virgin_stack_encap[] = {
 	{NULL,WTAP_ENCAP_USER12},
 	{NULL,WTAP_ENCAP_USER13},
 	{NULL,WTAP_ENCAP_USER14},
-/*	{NULL,WTAP_ENCAP_USER15},  used for unnknown sources */
+	/*	{NULL,WTAP_ENCAP_USER15},  used for unnknown sources */
 	{NULL,0}	
 };
+
+
 static guint32 choose_encap(k12_t* file_data, guint32 port_id, gchar* stack_name) {
 	guint32 encap = 0;
 	k12_port_encap_t* pe;
 	guint i;
 	
 	for (i =0; i < file_data->stack_encap_p; i++) {
-
+		
 		if (strcmp(stack_name,file_data->stack_encap[i].name) == 0) {
 			encap = file_data->stack_encap[i].encap;
 			g_free(stack_name);
 			break;
 		}
 	}
-
+	
 	if (file_data->stack_encap_p > 14) {
 		/* g_warning("k12_choose_encap: Cannot handle more than 15 stack types"); */
 		return WTAP_ENCAP_USER15;
@@ -122,11 +121,11 @@ static guint32 choose_encap(k12_t* file_data, guint32 port_id, gchar* stack_name
 		file_data->stack_encap[file_data->stack_encap_p].name = stack_name;
 		encap = file_data->stack_encap[file_data->stack_encap_p].encap;
 	}
-
+	
 	pe = g_malloc(sizeof(k12_port_encap_t));
 	pe->port_id = port_id;
 	pe->encap = encap;
-
+	
 	g_ptr_array_add(file_data->port_encaps,pe);
 	return encap;
 }
@@ -134,7 +133,7 @@ static guint32 choose_encap(k12_t* file_data, guint32 port_id, gchar* stack_name
 static guint32 get_encap(k12_t* file_data, guint32 port_id) {
 	guint i;
 	k12_port_encap_t* pe;
-
+	
 	for (i = 0; i < file_data->port_encaps->len; i++) {
 		pe = g_ptr_array_index(file_data->port_encaps,i);
 		
@@ -143,7 +142,7 @@ static guint32 get_encap(k12_t* file_data, guint32 port_id) {
 	}
 	
 	/*g_warning("k12_get_encap: BUG: found no encapsulation for source 0x%.8x\n"
-			  "please report this to ethereal-dev@ethereal.com", port_id);*/
+		"please report this to ethereal-dev@ethereal.com", port_id);*/
 	
 	return WTAP_ENCAP_USER15;
 }
@@ -213,9 +212,9 @@ gboolean get_k12_hdr(k12_record_hdr_t* hdr, wtap* wth, int* err, gchar **err_inf
 		 */
 		if ( len > 0x20) {
 			/*
-			g_warning("get_k12_hdr: found more than 4 words of stuffing, this should not happen!\n"
-					  "please report this issue to ethereal-dev@ethereal.com");
-			*/
+			 g_warning("get_k12_hdr: found more than 4 words of stuffing, this should not happen!\n"
+					   "please report this issue to ethereal-dev@ethereal.com");
+			 */
 			return -2;
 		}
 		
@@ -232,7 +231,7 @@ gboolean get_k12_hdr(k12_record_hdr_t* hdr, wtap* wth, int* err, gchar **err_inf
 		/* XXX: working with words this would be faster */
 		for ( i = 0 ; i < 16 ; i++ )
 			hdr_buf[i] = hdr_buf[i + 0x4]; 
-
+		
 		/* we'll be done if the second word is a magic number */
 		magic = pntohl( hdr_buf + 0x4 );
 		
@@ -314,7 +313,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, long *data_offse
 	}
 	
 	wth->data_offset += 8;
-
+	
 	
 	/* the next 8 bytes are the timestamp */
 	if ( file_read(b,1,8,wth->fh) != 8 ) {
@@ -336,7 +335,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, long *data_offse
 	buffer_assure_space(wth->frame_buffer, hdr.frame_len);
 	wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer), hdr.frame_len, wth->fh, err);
 	wth->data_offset += hdr.frame_len;
-
+	
 	/* XXX: should we read to a junk buffer instead of seeking? */
 	/* XXX: is there useful stuff in the trailer? */
 	if ( file_read(junk,1, hdr.len - ( hdr.frame_len + 0x20) , wth->fh) != (gint) ( hdr.len - ( hdr.frame_len + 0x20)) ) {
@@ -351,7 +350,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, long *data_offse
 }
 
 static gboolean k12_seek_read(wtap *wth, long seek_off, union wtap_pseudo_header *pseudo_header _U_, guchar *pd, int length, int *err _U_, gchar **err_info _U_) {
-
+	
 	if ( file_seek(wth->random_fh, seek_off+0x20, SEEK_SET, err) == -1)
 		return FALSE;
 	
@@ -399,10 +398,12 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
 	long offset = 0;
 	gchar* stack_file;
 	gchar* port_name;
-	guint port_name_len;
+	guint32 name_len;
+	guint32 stack_len;
+	gint read_len;
 	guint stuffing;
 	k12_t* file_data;
-
+	
 	/*
 	 *  let's check the magic number.
 	 */
@@ -412,7 +413,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
 		if ( memcmp(read_buffer,k12_file_magic,8) != 0 )
 			return 0;
 	}
-
+	
 	/* the lenght of the file is in the next 4byte word */
 	if ( file_read(read_buffer,1,4,wth->fh) != 4 ) {
 		return -1;
@@ -432,7 +433,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
 		destroy_k12_file_data(file_data);
 		return -1;
 	}
-		
+	
 	wth->data_offset = offset = 0x210;
 	
 	/*
@@ -448,7 +449,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
 		stuffing = get_k12_hdr(&hdr, wth, err, err_info);
 		
 		offset += stuffing;
-				
+		
 		if ( hdr.type == K12_REC_PACKET) {
 			/*
 			 * we are at the first packet record, rewind and leave.
@@ -457,12 +458,9 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
 				destroy_k12_file_data(file_data);
 				return -1;
 			}
-
+			
 			break;
 		} else if (hdr.type == K12_REC_SRCDSC) {
-			guint32 name_len;
-			guint32 stack_len;
-			gint read_len;
 			
 			if ( file_read( read_buffer, 1, 0x14, wth->fh) != 0x14 ) {
 				*err = WTAP_ERR_SHORT_READ;
@@ -472,7 +470,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
 			name_len = pntohs( read_buffer + 0x10 );
 			stack_len = pntohs( read_buffer + 0x12 );
 			
-
+			
 			read_len = hdr.len - (0x10 + 0x14 + name_len + stack_len);
 			
 			if (read_len > 0) {
@@ -498,7 +496,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
 			}
 			
 			port_name = g_strndup(read_buffer,stack_len);
-
+			
 			if ( file_read(read_buffer, 1, stack_len, wth->fh) != (int)stack_len ) {
 				destroy_k12_file_data(file_data);
 				*err = WTAP_ERR_SHORT_READ;
@@ -507,7 +505,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
 			}
 			
 			stack_file =g_strndup(read_buffer,stack_len);
-						
+			
 			if (choose_encap(file_data,hdr.port_id,stack_file) == WTAP_NUM_ENCAP_TYPES ) {
 				destroy_k12_file_data(file_data);
 				/* more encapsulation types than we can handle */
