@@ -43,11 +43,8 @@ static const gchar* port_type_to_str (port_type type) {
 		case PT_DDP:	return "DDP";
 		case PT_SBCCS:	return "FICON SBCCS";
 		case PT_IDP:	return "IDP";
+        default:        return "[Unknown]";
 	}
-	
-	g_assert_not_reached();
-	
-	return NULL;
 }
 
 /* ip host stats_tree -- basic test */
