@@ -1584,7 +1584,7 @@ decode_fcs(tvbuff_t *tvb, proto_tree *fh_tree, int fcs_decode, int proto_offset)
     break;
 
   default:
-   g_assert_not_reached();
+   DISSECTOR_ASSERT_NOT_REACHED();
    next_tvb = NULL;
   }
 

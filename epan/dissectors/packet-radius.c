@@ -3433,7 +3433,7 @@ rdconvertbufftostr(gchar *dest, tvbuff_t *tvb, int offset, int length)
 	int totlen=0;
 	const guint8 *pd;
 
-        g_assert(length >= 0);
+        DISSECTOR_ASSERT(length >= 0);
         pd = tvb_get_ptr(tvb, offset, length);
         dest[0]='"';
         dest[1]=0;
@@ -3464,7 +3464,7 @@ rdconvertbufftobinstr(gchar *dest, tvbuff_t *tvb, int offset, int length)
 	static const char hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
 				      '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
-        g_assert(length >= 0);
+        DISSECTOR_ASSERT(length >= 0);
         pd = tvb_get_ptr(tvb, offset, length);
         for (i=0; i < length; i++)
         {
@@ -4039,7 +4039,7 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 		break;
 
         default:
-        	g_assert_not_reached();
+        	DISSECTOR_ASSERT_NOT_REACHED();
   }
   cont=&cont[strlen(cont)];
   if (cont == dest) {

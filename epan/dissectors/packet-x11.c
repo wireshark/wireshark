@@ -1826,8 +1826,8 @@ static void listOfKeysyms(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       proto_tree *ttt;
       int i, keycode;
 
-      g_assert(keycode_first >= 0);
-      g_assert(keycode_count >= 0);
+      DISSECTOR_ASSERT(keycode_first >= 0);
+      DISSECTOR_ASSERT(keycode_count >= 0);
 
       for (keycode = keycode_first; keycode_count > 0;
            ++keycode, --keycode_count) {

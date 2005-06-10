@@ -248,8 +248,8 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
       default:
-        /* TCP runs only atop IPv4 and IPv6.... */
-        g_assert_not_reached();
+        /* UDP runs only atop IPv4 and IPv6.... */
+        DISSECTOR_ASSERT_NOT_REACHED();
         break;
       }
       cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, udph->uh_ulen);

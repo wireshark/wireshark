@@ -538,8 +538,8 @@ dcm_tag2str(guint16 grp, guint16 elm, guint8 syntax, tvbuff_t *tvb, int offset, 
     if (NULL == (dtag = g_hash_table_lookup(dcm_tagTable, GUINT_TO_POINTER(tag))))
 	dtag = &utag;
 
+    DISSECTOR_ASSERT(sizeof(buf) > strlen(dtag->desc));
     strcpy(buf, dtag->desc);
-    g_assert(sizeof(buf) >= strlen(buf));
     pl = sizeof(buf) - strlen(buf);
     p = buf + strlen(buf);
     if (vr > 0) {

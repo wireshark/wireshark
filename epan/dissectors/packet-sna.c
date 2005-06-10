@@ -1688,7 +1688,7 @@ defragment_by_sequence(packet_info *pinfo, tvbuff_t *tvb, int offset, int mpf,
 			more_frags = FALSE;
 			break;
 		default:
-			g_assert_not_reached();
+			DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
 	/* If sna_defragment is on, and this is a fragment.. */

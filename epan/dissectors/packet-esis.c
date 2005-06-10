@@ -352,7 +352,7 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
      default:
 	cksum_status = NULL;
-	g_assert_not_reached();
+	DISSECTOR_ASSERT_NOT_REACHED();
      }
      proto_tree_add_uint_format( esis_tree, hf_esis_checksum, tvb, 7, 2,
                                  tmp_uint, "Checksum      : 0x%x ( %s )",

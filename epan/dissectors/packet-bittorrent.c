@@ -223,7 +223,7 @@ static gboolean test_bittorrent_packet (tvbuff_t *tvb, packet_info *pinfo,
 
 	conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
-	g_assert(find_dissector("bittorrent"));
+	DISSECTOR_ASSERT(find_dissector("bittorrent"));
 
 	conversation_set_dissector(conversation, find_dissector("bittorrent"));
 	

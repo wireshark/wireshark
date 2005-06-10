@@ -206,7 +206,7 @@ static void msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 	conversation = find_conversation( pinfo->fd->num, &pinfo->src, &pinfo->dst,
 		pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
-	g_assert( conversation);	/* should always find a conversation */
+	DISSECTOR_ASSERT( conversation);	/* should always find a conversation */
 
 	redirect_info = conversation_get_proto_data(conversation,
 		proto_msproxy);

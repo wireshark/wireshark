@@ -379,7 +379,7 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	conversation = find_conversation( pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
 		pinfo->srcport, pinfo->destport, 0);
 
-	g_assert( conversation);	/* should always find a conversation */
+	DISSECTOR_ASSERT( conversation);	/* should always find a conversation */
 
 	hash_info = conversation_get_proto_data(conversation, proto_socks);
 
@@ -438,7 +438,7 @@ new_udp_conversation( socks_hash_entry_t *hash_info, packet_info *pinfo){
 	conversation_t *conversation = conversation_new( pinfo->fd->num, &pinfo->src, &pinfo->dst,  PT_UDP,
 			hash_info->udp_port, hash_info->port, 0);
 
-	g_assert( conversation);
+	DISSECTOR_ASSERT( conversation);
 
 	conversation_add_proto_data(conversation, proto_socks, hash_info);
 	conversation_set_dissector(conversation, socks_udp_handle);

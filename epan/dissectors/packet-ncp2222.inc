@@ -1225,7 +1225,7 @@ process_bitfield_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 		/* Use it */
 		sub_rec = rec->sub_ptvc_rec->ptvc_rec;
 		while(sub_rec->hf_ptr != NULL) {
-			g_assert(!sub_rec->sub_ptvc_rec);
+			DISSECTOR_ASSERT(!sub_rec->sub_ptvc_rec);
 			ptvcursor_add_no_advance(sub_ptvc, *sub_rec->hf_ptr,
 					sub_rec->length, sub_rec->endianness);
 			sub_rec++;
@@ -1334,7 +1334,7 @@ _process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
                                                 func = padd_uni;
                                                 break;        
 					default:
-						g_assert_not_reached();
+						DISSECTOR_ASSERT_NOT_REACHED();
 				}
 				item = func(ptvc, rec);
 
@@ -1349,7 +1349,7 @@ _process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 				 * Actually, we could, as long as we don't
 				 * *use* that var; for now keep this assert in
 				 * place. */
-				g_assert(rec->var_index == NO_VAR);
+				DISSECTOR_ASSERT(rec->var_index == NO_VAR);
 				ptvcursor_advance(ptvc, rec->length);
 			}
 		}
@@ -1372,7 +1372,7 @@ _process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
                                                 func = padd_uni;
                                                 break;        
 					default:
-						g_assert_not_reached();
+						DISSECTOR_ASSERT_NOT_REACHED();
 				}
 				for (i = 0; i < repeat_count; i++ ) {
 					func(ptvc, rec);
@@ -4327,7 +4327,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequ
                          if (frags[i].nds_frag == 0xffffffff)
                          {
                                  /* Error can't find fragment */
-                                 /*g_assert(0);*/
+                                 /*DISSECTOR_ASSERT(0);*/
                          }
                          frag_count = i;
                         /* Remember this fragment information so we can dissect.

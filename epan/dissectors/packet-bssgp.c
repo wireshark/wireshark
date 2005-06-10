@@ -467,7 +467,7 @@ get_bit_field_label(guint16 value, guint16 value_mask, guint16 num_bits) {
   guint16 i, bit_mask;
   static char label[MAX_NUM_BITS + 1];
 
-  g_assert(num_bits <= MAX_NUM_BITS);
+  DISSECTOR_ASSERT(num_bits <= MAX_NUM_BITS);
   for (i = 0; i < num_bits; i++) {
     bit_mask = (guint16)pow(2, i);
     if (value_mask & bit_mask) {
@@ -563,7 +563,7 @@ make_mask(guint8 num_bits, guint8 shift_value) {
   case 6: mask = 0xfc00; break;
   case 7: mask = 0xfe00; break;
   case 8: mask = 0xff00; break;
-  default: g_assert_not_reached(); mask = 0; break;
+  default: DISSECTOR_ASSERT_NOT_REACHED(); mask = 0; break;
   }
   return mask >> shift_value;
 }
@@ -599,7 +599,7 @@ bit_proto_tree_add_bit_field8(proto_tree *tree, tvbuff_t *tvb,
   int i;
   proto_item *pi;
 
-  g_assert(bl < 9);
+  DISSECTOR_ASSERT(bl < 9);
   
   if (get_num_octets_spanned(bo, bl) == 1) {
     end_i = 7;
@@ -1096,7 +1096,7 @@ translate_msrac_extended_dtm_gprs_multislot_class(guint8 value, guint8 dgmsc) {
       return "Unused, interpreted as Multislot class 5 supported";
     }
   }
-  g_assert_not_reached();
+  DISSECTOR_ASSERT_NOT_REACHED();
   return "Error"; /* Dummy */
 }
 
@@ -1193,7 +1193,7 @@ translate_msrac_high_multislot_capability(guint8 capability, guint8 class) {
       return class;
     }
   }
-  g_assert_not_reached();
+  DISSECTOR_ASSERT_NOT_REACHED();
   return 0;
 }
 #endif
@@ -1206,7 +1206,7 @@ translate_channel_needed(guint8 value) {
   case 2: return "TCH/F (Full rate)";
   case 3: return "TCH/H or TCH/F (Dual rate)";
   }
-  g_assert_not_reached();
+  DISSECTOR_ASSERT_NOT_REACHED();
   return NULL;
 }
 
@@ -1345,7 +1345,7 @@ decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
         hf_id = hf_bssgp_imeisv;
         break;
       default:
-        g_assert_not_reached();
+        DISSECTOR_ASSERT_NOT_REACHED();
         hf_id = -1;
         break;
       }

@@ -624,7 +624,7 @@ static iax_call_data *iax_lookup_circuit_details_from_dest( guint src_circuit_id
 
   /* there's no way we can create a CT_IAX2 circuit without adding
      iax call data to it; assert this */
-  g_assert(iax_call);
+  DISSECTOR_ASSERT(iax_call);
   
   if( dst_circuit_id == iax_call -> forward_circuit_id ) {
 #ifdef DEBUG_HASHING
@@ -691,7 +691,7 @@ static iax_call_data *iax_lookup_circuit_details_from_dest( guint src_circuit_id
       return NULL;
     }
   } else {
-    g_assert_not_reached();
+    DISSECTOR_ASSERT_NOT_REACHED();
   }
 
 
@@ -702,7 +702,7 @@ static iax_call_data *iax_lookup_circuit_details_from_dest( guint src_circuit_id
     *circuit_p = find_circuit( CT_IAX2, 
 			       src_circuit_id,
 			       framenum );
-    g_assert(*circuit_p);
+    DISSECTOR_ASSERT(*circuit_p);
   }
 
   if( reversed_p )
@@ -764,7 +764,7 @@ static iax_call_data *iax_lookup_circuit_details( packet_info *pinfo,
 
       /* there's no way we can create a CT_IAX2 circuit without adding
 	 iax call data to it; assert this */
-      g_assert(iax_call);
+      DISSECTOR_ASSERT(iax_call);
 
       if( src_circuit_id == iax_call -> forward_circuit_id )
 	reversed = FALSE;
@@ -775,7 +775,7 @@ static iax_call_data *iax_lookup_circuit_details( packet_info *pinfo,
 	   without the circuit being either the forward or reverse circuit
 	   for that call; assert this too.
 	*/
-	g_assert_not_reached();
+	DISSECTOR_ASSERT_NOT_REACHED();
       }
     }
   }

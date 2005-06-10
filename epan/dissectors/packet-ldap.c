@@ -1122,8 +1122,8 @@ static void dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree,
         }
         available_length = tvb_length_remaining(tvb, token_offset);
         reported_length = tvb_reported_length_remaining(tvb, token_offset);
-        g_assert(available_length >= 0);
-        g_assert(reported_length >= 0);
+        DISSECTOR_ASSERT(available_length >= 0);
+        DISSECTOR_ASSERT(reported_length >= 0);
         if (available_length > reported_length)
           available_length = reported_length;
         if ((guint)available_length > length)
@@ -1154,8 +1154,8 @@ static void dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree,
         }
         available_length = tvb_length_remaining(tvb, token_offset);
         reported_length = tvb_reported_length_remaining(tvb, token_offset);
-        g_assert(available_length >= 0);
-        g_assert(reported_length >= 0);
+        DISSECTOR_ASSERT(available_length >= 0);
+        DISSECTOR_ASSERT(reported_length >= 0);
         if (available_length > reported_length)
           available_length = reported_length;
         if ((guint)available_length > length)
@@ -1241,8 +1241,8 @@ static void dissect_ldap_response_bind(ASN1_SCK *a, proto_tree *tree,
         }
         available_length = tvb_length_remaining(tvb, token_offset);
         reported_length = tvb_reported_length_remaining(tvb, token_offset);
-        g_assert(available_length >= 0);
-        g_assert(reported_length >= 0);
+        DISSECTOR_ASSERT(available_length >= 0);
+        DISSECTOR_ASSERT(reported_length >= 0);
         if (available_length > reported_length)
           available_length = reported_length;
         if ((guint)available_length > cred_length)
@@ -1270,8 +1270,8 @@ static void dissect_ldap_response_bind(ASN1_SCK *a, proto_tree *tree,
         }
         available_length = tvb_length_remaining(tvb, token_offset);
         reported_length = tvb_reported_length_remaining(tvb, token_offset);
-        g_assert(available_length >= 0);
-        g_assert(reported_length >= 0);
+        DISSECTOR_ASSERT(available_length >= 0);
+        DISSECTOR_ASSERT(reported_length >= 0);
         if (available_length > reported_length)
           available_length = reported_length;
         if ((guint)available_length > cred_length)

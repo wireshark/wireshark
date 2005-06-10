@@ -307,7 +307,7 @@ rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table,
 	 */
 	rpc_prog_key.prog = prog;
 	rpc_prog = g_hash_table_lookup(rpc_progs, &rpc_prog_key);
-	g_assert(rpc_prog != NULL);
+	DISSECTOR_ASSERT(rpc_prog != NULL);
 	rpc_prog->procedure_hfs = g_array_set_size(rpc_prog->procedure_hfs,
 	    vers);
 	g_array_insert_val(rpc_prog->procedure_hfs, vers, procedure_hf);
@@ -514,7 +514,7 @@ int hfindex, int offset)
 	header_field_info	*hfinfo;
 
 	hfinfo = proto_registrar_get_nth(hfindex);
-	g_assert(hfinfo->type == FT_UINT64);
+	DISSECTOR_ASSERT(hfinfo->type == FT_UINT64);
 	if (tree)
 		proto_tree_add_item(tree, hfindex, tvb, offset, 8, FALSE);
 
@@ -1069,8 +1069,8 @@ dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, int offset,
 	offset += 4;
 	length = tvb_length_remaining(tvb, offset);
 	reported_length = tvb_reported_length_remaining(tvb, offset);
-	g_assert(length >= 0);
-	g_assert(reported_length >= 0);
+	DISSECTOR_ASSERT(length >= 0);
+	DISSECTOR_ASSERT(reported_length >= 0);
 	if (length > reported_length)
 		length = reported_length;
 	if ((guint32)length > opaque_length)
@@ -2378,7 +2378,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * The switch statement at the top returned if
 		 * this was neither an RPC call nor a reply.
 		 */
-		g_assert_not_reached();
+		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
 	/* now we know, that RPC was shorter */
@@ -3002,7 +3002,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * we've seen, and the "last fragment" bit wasn't
 			 * set on it.
 			 */
-			g_assert(ipfd_head == NULL);
+			DISSECTOR_ASSERT(ipfd_head == NULL);
 
 			new_rfk = g_mem_chunk_alloc(rpc_fragment_key_chunk);
 			new_rfk->conv_id = rfk->conv_id;
@@ -3231,7 +3231,7 @@ dissect_rpc_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	default:
 		/* "Can't happen" */
-		g_assert_not_reached();
+		DISSECTOR_ASSERT_NOT_REACHED();
 		return FALSE;
 	}
 }

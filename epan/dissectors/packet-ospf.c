@@ -568,7 +568,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 
 	    default:
-		g_assert_not_reached();
+		DISSECTOR_ASSERT_NOT_REACHED();
 		cksum_vec_len = 0;
 		break;
 	    }

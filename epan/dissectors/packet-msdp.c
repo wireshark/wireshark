@@ -313,8 +313,8 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
 
                 available_length = tvb_length_remaining(tvb, *offset);
                 reported_length = tvb_reported_length_remaining(tvb, *offset);
-                g_assert(available_length >= 0);
-                g_assert(reported_length >= 0);
+                DISSECTOR_ASSERT(available_length >= 0);
+                DISSECTOR_ASSERT(reported_length >= 0);
                 if (available_length > reported_length)
                         available_length = reported_length;
                 if (available_length > length)

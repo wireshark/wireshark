@@ -1078,7 +1078,7 @@ process_rtsp_request(tvbuff_t *tvb, int offset, const guchar *data,
 		 * RTSP_REQUEST, so we know one of the request methods
 		 * matched, so we "can't get here".
 		 */
-		g_assert_not_reached();
+		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
 	/* Method name */

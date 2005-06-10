@@ -904,7 +904,7 @@ compute_key_id(tvbuff_t *tvb, int offset, int size, guint8 algo)
   guint32 ac;
   guint8 c1, c2;
 
-  g_assert(size >= 4);
+  DISSECTOR_ASSERT(size >= 4);
   
   switch( algo ) {
      case DNS_ALGO_RSAMD5:

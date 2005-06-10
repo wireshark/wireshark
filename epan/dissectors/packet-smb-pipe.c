@@ -2693,7 +2693,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			/*
 			 * Save the parameter descriptor for future use.
 			 */
-			g_assert(trp->param_descrip == NULL);
+			DISSECTOR_ASSERT(trp->param_descrip == NULL);
 			trp->param_descrip = g_strdup(param_descrip);
 		}
 		offset += descriptor_len;
@@ -2707,7 +2707,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			/*
 			 * Save the return descriptor for future use.
 			 */
-			g_assert(trp->data_descrip == NULL);
+			DISSECTOR_ASSERT(trp->data_descrip == NULL);
 			trp->data_descrip = g_strdup(data_descrip);
 		}
 		offset += descriptor_len;
@@ -2734,7 +2734,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 				 * Save the auxiliary data descriptor for
 				 * future use.
 				 */
-				g_assert(trp->aux_data_descrip == NULL);
+				DISSECTOR_ASSERT(trp->aux_data_descrip == NULL);
 				trp->aux_data_descrip =
 				    g_strdup(aux_data_descrip);
 			}

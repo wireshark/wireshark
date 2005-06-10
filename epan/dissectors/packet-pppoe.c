@@ -276,8 +276,8 @@ dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	 */
 	length = tvb_length_remaining(tvb, 6);
 	reported_length = tvb_reported_length_remaining(tvb, 6);
-	g_assert(length >= 0);
-	g_assert(reported_length >= 0);
+	DISSECTOR_ASSERT(length >= 0);
+	DISSECTOR_ASSERT(reported_length >= 0);
 	if (length > reported_length)
 		length = reported_length;
 	if ((guint)length > pppoe_length)

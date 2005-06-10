@@ -576,7 +576,7 @@ vjc_tvb_setup(tvbuff_t *src_tvb,
   gint         buf_len;
   guint8      *pbuf;
 
-  g_assert(src_tvb);
+  DISSECTOR_ASSERT(src_tvb);
 
   /* Get decompressed header stored in fd protocol area */
   hdr_buf = p_get_proto_data(pinfo->fd, proto_vj);

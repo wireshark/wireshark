@@ -390,7 +390,7 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
             conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
     }
 
-    g_assert(find_dissector("jxta.udp"));
+    DISSECTOR_ASSERT(find_dissector("jxta.udp"));
 
     conversation_set_dissector(conversation, find_dissector("jxta.udp"));
 
@@ -486,7 +486,7 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
 
         proto_item_set_end(jxta_udp_tree_item, tvb, tree_offset);
 
-        g_assert(offset == tree_offset);
+        DISSECTOR_ASSERT(offset == tree_offset);
     }
     
     /* FIXME Could be a partially filled in jxta_stream_conversation_data object */     
@@ -959,7 +959,7 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
 
         proto_item_set_end(framing_tree_item, tvb, tree_offset);
 
-        g_assert(offset == tree_offset);
+        DISSECTOR_ASSERT(offset == tree_offset);
     }
 
     /* return how many bytes we used up. */
@@ -1150,7 +1150,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
         proto_item_set_end(jxta_msg_tree_item, tvb, tree_offset);
 
-        g_assert(tree_offset == offset);              
+        DISSECTOR_ASSERT(tree_offset == offset);              
     }
 
     if ((offset > 0) && (AT_STRINGZ == pinfo->src.type) && (AT_STRINGZ == pinfo->dst.type)) {
@@ -1440,7 +1440,7 @@ static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, pro
 
         proto_item_set_end(jxta_elem_tree_item, tvb, tree_offset);
 
-        g_assert(tree_offset == offset);
+        DISSECTOR_ASSERT(tree_offset == offset);
     }
 
     return offset;

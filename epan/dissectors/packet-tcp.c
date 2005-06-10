@@ -2933,7 +2933,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       default:
         /* TCP runs only atop IPv4 and IPv6.... */
-        g_assert_not_reached();
+        DISSECTOR_ASSERT_NOT_REACHED();
         break;
       }
       cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, reported_len);

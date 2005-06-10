@@ -2762,5 +2762,5 @@ proto_reg_handoff_smpp(void)
 	/* Required for call_dissector() */
 	DebugLog(("Finding gsm-sms-ud subdissector\n"));
 	gsm_sms_handle = find_dissector("gsm-sms-ud");
-	g_assert (gsm_sms_handle);
+	DISSECTOR_ASSERT(gsm_sms_handle);
 }

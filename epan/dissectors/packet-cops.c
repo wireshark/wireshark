@@ -1573,7 +1573,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
       break;
 
     default:
-      g_assert_not_reached();
+      DISSECTOR_ASSERT_NOT_REACHED();
       return ASN1_ERR_WRONG_TYPE;
     }
 

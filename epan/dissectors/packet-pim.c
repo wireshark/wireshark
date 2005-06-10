@@ -709,7 +709,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    default:
 	    	/* PIM is available for IPv4 and IPv6 right now */
 	    	computed_cksum = 0;	/* squelch GCC complaints */
-		g_assert_not_reached();
+		DISSECTOR_ASSERT_NOT_REACHED();
 		break;
 	    }
 

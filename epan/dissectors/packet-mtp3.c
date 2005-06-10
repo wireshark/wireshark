@@ -212,7 +212,7 @@ mtp3_pc_to_str_buf(const guint32 pc, gchar *buf)
           sprintf(buf, "%u-%u-%u-%u", (pc & 0x3c00) >>10, (pc & 0x0380) >> 7, (pc & 0x0078) >> 3, (pc & 0x0007) >> 0);
           break;
         default:
-          g_assert_not_reached();
+          DISSECTOR_ASSERT_NOT_REACHED();
       }
       break;
     case ANSI_STANDARD:
@@ -220,7 +220,7 @@ mtp3_pc_to_str_buf(const guint32 pc, gchar *buf)
       sprintf(buf, "%u-%u-%u", (pc & ANSI_NETWORK_MASK), (pc & ANSI_CLUSTER_MASK) >> 8, (pc & ANSI_MEMBER_MASK) >> 16);
       break;
     default:
-      g_assert_not_reached();
+      DISSECTOR_ASSERT_NOT_REACHED();
   }
 }
 

@@ -632,7 +632,7 @@ proto_reg_handoff_gsm_sms_ud(void)
 			proto_gsm_sms_ud);
 			
 	wsp_handle = find_dissector("wsp-cl");
-	g_assert(wsp_handle);
+	DISSECTOR_ASSERT(wsp_handle);
 }
 
 

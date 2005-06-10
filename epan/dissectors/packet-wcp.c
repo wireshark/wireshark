@@ -598,7 +598,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 
         }
         CATCH(BoundsError) {
-		g_assert_not_reached();
+		DISSECTOR_ASSERT_NOT_REACHED();
 		g_free(buf);
 		return NULL;
         }

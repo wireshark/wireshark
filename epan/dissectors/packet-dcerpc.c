@@ -1709,7 +1709,7 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, guint8 
 				old_offset = offset;
 				offset = (*(fnct))(tvb, offset, pinfo, NULL, drep);
 
-				g_assert((offset-old_offset)==di->conformant_eaten);
+				DISSECTOR_ASSERT((offset-old_offset)==di->conformant_eaten);
 				/* This is to check for any bugs in the dissectors.
 				 *
 				 * Basically, the NDR representation will store all
@@ -3152,7 +3152,6 @@ end_cn_stub:
     } else {
 	/* Reassembly not complete - some fragments
 	   are missing.  Just show the stub data. */
-
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_append_fstr(pinfo->cinfo, COL_INFO,
 			" [DCE/RPC %s fragment]", fragment_type(hdr->flags));

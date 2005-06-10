@@ -1016,7 +1016,7 @@ snmp_variable_decode(proto_tree *snmp_tree,
 		break;
 
 	default:
-		g_assert_not_reached();
+		DISSECTOR_ASSERT_NOT_REACHED();
 		return ASN1_ERR_WRONG_TYPE;
 	}
 	*lengthp = length;
