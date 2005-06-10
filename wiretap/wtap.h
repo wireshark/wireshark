@@ -215,9 +215,10 @@
 #define WTAP_FILE_NETWORK_INSTRUMENTS_V9	37
 #define WTAP_FILE_AIROPEEK_V9			38
 #define WTAP_FILE_EYESDN			39
+#define WTAP_FILE_K12				40
 
 /* last WTAP_FILE_ value + 1 */
-#define WTAP_NUM_FILE_TYPES			40
+#define WTAP_NUM_FILE_TYPES			41
 
 /*
  * Maximum packet size we'll support.

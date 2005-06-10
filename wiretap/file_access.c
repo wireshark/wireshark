@@ -74,6 +74,7 @@
 #include "erf.h"
 #include "hcidump.h"
 #include "network_instruments.h"
+#include "k12.h"
 
 /* The open_file_* routines should return:
  *
@@ -110,7 +111,8 @@ static int (*const open_routines[])(wtap *, int *, char **) = {
 	network_instruments_open,
 	airopeek9_open,
 	dbs_etherwatch_open,
-
+	k12_open,
+	
 	/* Files that don't have magic bytes at a fixed location,
 	 * but that instead require a heuristic of some sort to
 	 * identify them.  This includes the ASCII trace files that
@@ -296,6 +298,7 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 			return NULL;
 		}
 		wth->data_offset = 0;
+		
 		switch ((*open_routines[i])(wth, err, err_info)) {
 
 		case -1:
@@ -495,7 +498,11 @@ static const struct file_type_info {
     
 	/* WTAP_FILE_EYESDN */
 	{ "EyeSDN USB S0/E1 ISDN trace format", NULL,
-	  NULL, NULL },
+		NULL, NULL },
+    
+	/* WTAP_FILE_K12 */
+	{ "Tektronix K12xx 32-bit .rf5 format", "rf5",
+		NULL, NULL },
 };
 
 /* Name that should be somewhat descriptive. */

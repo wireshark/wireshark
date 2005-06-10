@@ -134,6 +134,8 @@ typedef struct {
 	gboolean	is_ppp;
 } erf_t;
 
+typedef struct _k12_t k12_t;
+
 typedef gboolean (*subtype_read_func)(struct wtap*, int*, char**, long*);
 typedef gboolean (*subtype_seek_read_func)(struct wtap*, long, union wtap_pseudo_header*,
 					guint8*, int, int *, char **);
@@ -162,6 +164,7 @@ struct wtap {
 		etherpeek_t		*etherpeek;
 		airopeek9_t		*airopeek9;
 		erf_t			*erf;
+		k12_t			*k12;
 		void			*generic;
 	} capture;
 

@@ -45,6 +45,7 @@ NONGENERATED_C_FILES = \
 	hcidump.c		\
 	i4btrace.c		\
 	iptrace.c		\
+	k12.c			\
 	lanalyzer.c		\
 	libpcap.c		\
 	netmon.c		\
@@ -79,6 +80,7 @@ NONGENERATED_HEADER_FILES = \
 	i4btrace.h		\
 	i4b_trace.h		\
 	iptrace.h		\
+	k12.h			\
 	lanalyzer.h		\
 	libpcap.h		\
 	netmon.h		\
