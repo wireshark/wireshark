@@ -1617,6 +1617,8 @@ main(int argc, char *argv[])
   gboolean             capture_child; /* True if this is the child for "-S" */
   GLogLevelFlags       log_flags;
   guint                go_to_packet = 0;
+  gboolean             show_splash = TRUE;
+  int                  optind_initial;
 
 #define OPTSTRING_INIT "a:b:c:f:g:Hhi:klLm:nN:o:pQr:R:Ss:t:w:vy:z:"
 
@@ -1704,6 +1706,22 @@ main(int argc, char *argv[])
   }
 #endif
 
+  /* "pre-scan" the command line parameters, if we should show a splash screen */
+  /* (e.g. don't show a splash screen, if we only show the command line help) */
+  optind_initial = optind;
+  while ((opt = getopt(argc, argv, optstring)) != -1) {
+    switch (opt) {
+      case 'h':        /* help */
+      case 'v':        /* version */
+      case 'G':        /* dump various field or other infos, see handle_dashG_option() */
+          show_splash = FALSE;
+    }
+  }
+
+  /* set getopt index back to initial value, so it will start with the first command line parameter again */
+  /* (XXX - this seems to be portable, but time will tell) */
+  optind = optind_initial;
+
   /* We want a splash screen only if we're not a child process */
     /* We also want it only if we're not being run with "-G".
        XXX - we also don't want it if we're being run with
@@ -1720,7 +1738,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
       && !capture_child
 #endif
-      ) {
+      && show_splash) {
     splash_win = splash_new("Loading Ethereal ...");
   }
 
