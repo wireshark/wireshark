@@ -367,7 +367,7 @@ utilities."
 	<title>Win32 MSVC: WinPcap</title>
 	<para>
 	You can get the "Windows packet capture library" at:
-	<ulink url="http://winpcap.polito.it/install/default.htm"/>
+	<ulink url="http://www.winpcap.org/install/default.htm"/>
 	</para>
 	</section>
 
