@@ -96,8 +96,8 @@ Ethereal Info
 <!--
 Winpcap Info
 -->
-  <!ENTITY WinPcapWebsite "http://winpcap.polito.it">
-  <!ENTITY WinPcapDownloadWebsite "http://winpcap.polito.it/install/Default.htm">
+  <!ENTITY WinPcapWebsite "http://www.winpcap.org">
+  <!ENTITY WinPcapDownloadWebsite "http://www.winpcap.org/install/default.htm">
 
 <!--
 Gnu info
