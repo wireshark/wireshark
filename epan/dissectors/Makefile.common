@@ -135,6 +135,7 @@ DISSECTOR_SRC =	\
 	packet-cpfi.c	\
 	packet-cpha.c	\
 	packet-crmf.c	\
+	packet-csm-encaps.c	\
 	packet-cups.c	\
 	packet-daap.c	\
 	packet-data.c	\
