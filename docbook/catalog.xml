@@ -20,15 +20,19 @@ Please note that if you shift any files in the directory structure you MUST adju
     <rewriteSystem
         systemIdStartString="http://www.oasis-open.org/docbook/xml/4.2/"
         rewritePrefix="/usr/share/xml/docbook/4.2/" />
+        <!-- Debian: rewritePrefix="/usr/share/xml/docbook/schema/dtd/4.2/" /> -->
+    
     <!-- Resolve stylesheet URL to local file -->
     <!-- if you need to change this, don't forget to change it in the Makefile too -->
     <rewriteURI
         uriStartString="http://docbook.sourceforge.net/release/xsl/current/"
         rewritePrefix="/usr/share/docbook-xsl/" />
+        <!-- Debian: rewritePrefix="/usr/share/xml/docbook/stylesheet/nwalsh/" /> -->
         <!-- rewritePrefix="/usr/share/xml/docbook/stylesheet/nwalsh/1.64.1/" /> -->
 
     <!-- Resolve DTD PUBLIC identifiers -->
     <nextCatalog  catalog="docbook42/catalog.xml" />
+    <!-- Debian: <nextCatalog  catalog="catalog.xml" /> -->
 
     <!-- To resolve simple DTD SYSTEM identifiers. -->
     <!-- Note: this does not work with Java resolver -->
@@ -36,6 +40,7 @@ Please note that if you shift any files in the directory structure you MUST adju
     <system
          systemId="docbook.dtd"
          uri="docbook42/docbookx.dtd" />
+         <!-- Debian: uri="docbookx.dtd" /> -->
 
     <!-- To resolve short stylesheet references -->
 	<!--
