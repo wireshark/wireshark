@@ -29,7 +29,7 @@ INCLUDES = -I$(top_srcdir)
 
 plugindir = @plugindir@
 
-plugin_LTLIBRARIES = cosnaming.la coseventcomm.la tango.la
+plugin_LTLIBRARIES = cosnaming.la coseventcomm.la tango.la parlay.la
 cosnaming_la_SOURCES = packet-cosnaming.c moduleinfo.h
 cosnaming_la_LDFLAGS = -module -avoid-version
 cosnaming_la_LIBADD = @PLUGIN_LIBS@
