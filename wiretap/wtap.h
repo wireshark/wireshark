@@ -169,8 +169,9 @@
 #define WTAP_GCOM_TIE1				78
 #define WTAP_GCOM_SERIAL			79
 #define WTAP_ENCAP_NETTL_X25			80
+#define WTAP_ENCAP_K12					81
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			81
+#define WTAP_NUM_ENCAP_TYPES			82
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we
@@ -450,6 +451,14 @@ struct mtp2_phdr {
 	guint16 link_number;  
 };
 
+/* Packet "pseudo-header" for K12 files. */
+
+struct k12_phdr {
+	guint32 src_id;
+	gchar* src_name;
+	gchar* stack_file;
+};
+
 union wtap_pseudo_header {
 	struct eth_phdr		eth;
 	struct x25_phdr		x25;
@@ -462,6 +471,7 @@ union wtap_pseudo_header {
 	struct irda_phdr	irda;
 	struct nettl_phdr	nettl;
 	struct mtp2_phdr        mtp2;
+	struct k12_phdr		k12;
 };
 
 struct wtap_pkthdr {

@@ -36,116 +36,78 @@
 #include "file_wrappers.h"
 #include "buffer.h"
 
+/*
+ * the 32 bits .rf5 file contains:
+ *  an 8 byte magic number
+ *  32bit lenght
+ *  32bit number of records
+ *  other 0x200 bytes bytes of uncharted territory
+ *     1 or more copies of the num_of_records in there
+ *  the records whose first 32bits word is the length
+ *     they are stuffed by one to four words every 0x2000 bytes
+ *  and a 2 byte terminator FFFF
+ */
 
 static const guint8 k12_file_magic[] = { 0x00, 0x00, 0x02, 0x00 ,0x12, 0x05, 0x00, 0x10 };
 
-#define K12_REC_PACKET  0x00010020
-#define K12_REC_SRCDSC	0x00070041
-
-/* XXX: we don't know what is in these type of records */
-#define K12_REC_UNK001	0x00070040
-#define K12_REC_UNK002	0x00070042
-#define K12_REC_UNK003	0x00070044
-
-/* So far we've seen the following appear only at the end of the file */
-#define K12_REC_UNK004	0x00020030
-#define K12_REC_UNK005	0x00020031
+struct _k12_t {
+	guint32 file_len;
+	guint32 num_of_records; /* XXX: not sure about this */
+	
+	GHashTable* src_by_id; /* k12_srcdsc_recs by src_id */
+	GHashTable* src_by_name; /* k12_srcdsc_recs by stack_name */
+};
 
 #define K12_HDR_LEN 0x10
 
-typedef struct {
+typedef struct _k12_record_hdr_t {
 	guint32 len;
 	guint32 type;
 	guint32 frame_len;
-	guint32 port_id;
+	guint32 input;
 } k12_record_hdr_t;
 
-typedef struct  {
-	gchar* name;
-	guint32 encap;
-} k12_stack_encap_t;
+/* so far we've seen only 7 types of records */
+#define K12_REC_PACKET		0x00010020
+#define K12_REC_SRCDSC		0x00070041 /* port-stack mapping + more, the key of the whole thing */
+#define K12_REC_SCENARIO	0x00070040 /* what appears as the window's title */
+#define K12_REC_70042		0x00070042 /* XXX: ??? */ 
+#define K12_REC_70044		0x00070044 /* text with a grammar (conditions/responses) */
+#define K12_REC_20030		0x00020030 /* human readable start time  */ 
+#define K12_REC_20032		0x00020031 /* human readable stop time */
 
-typedef struct  {
-	guint32 port_id;
-	guint32 encap;
-} k12_port_encap_t;
+typedef struct _k12_src_desc_t {
+	k12_record_hdr_t hdr;
 
-struct _k12_t {
-	k12_stack_encap_t* stack_encap;
-	guint stack_encap_p;
-	GPtrArray *port_encaps;
-	guint32 file_len;
-};
+	struct _record {
+		guint32 unk_10;
+		guint32 unk_14;
+		guint16 unk_18;
+		guint16 extra_len;
+		guint16 name_len;
+		guint16 stack_len;
+	} record;
+	
+	struct _variable {
+		guint8* extra_blob;
+		gchar* port_name;
+		gchar* stack_file;
+	} variable;
+} k12_src_desc_t;
 
-static const k12_stack_encap_t virgin_stack_encap[] = {
-	{NULL,WTAP_ENCAP_USER0},
-	{NULL,WTAP_ENCAP_USER1},
-	{NULL,WTAP_ENCAP_USER2},
-	{NULL,WTAP_ENCAP_USER3},
-	{NULL,WTAP_ENCAP_USER4},
-	{NULL,WTAP_ENCAP_USER5},
-	{NULL,WTAP_ENCAP_USER6},
-	{NULL,WTAP_ENCAP_USER7},
-	{NULL,WTAP_ENCAP_USER8},
-	{NULL,WTAP_ENCAP_USER9},
-	{NULL,WTAP_ENCAP_USER10},
-	{NULL,WTAP_ENCAP_USER11},
-	{NULL,WTAP_ENCAP_USER12},
-	{NULL,WTAP_ENCAP_USER13},
-	{NULL,WTAP_ENCAP_USER14},
-	/*	{NULL,WTAP_ENCAP_USER15},  used for unnknown sources */
-	{NULL,0}	
-};
+typedef struct {
+	k12_record_hdr_t hdr;
 
-
-static guint32 choose_encap(k12_t* file_data, guint32 port_id, gchar* stack_name) {
-	guint32 encap = 0;
-	k12_port_encap_t* pe;
-	guint i;
+	struct {
+		guint32 unk_10; /* some bit of the second nibble is set in some frames */
+		guint32 unk_14; /* made of several fields, it increases always, 
+							in consecutive packets from the same port it increases by one.
+						*/
+		guint64 ts;
+	} record;	
 	
-	for (i =0; i < file_data->stack_encap_p; i++) {
-		
-		if (strcmp(stack_name,file_data->stack_encap[i].name) == 0) {
-			encap = file_data->stack_encap[i].encap;
-			g_free(stack_name);
-			break;
-		}
-	}
-	
-	if (file_data->stack_encap_p > 14) {
-		/* g_warning("k12_choose_encap: Cannot handle more than 15 stack types"); */
-		return WTAP_ENCAP_USER15;
-	}
-	
-	if ( encap == 0 ) {
-		file_data->stack_encap[file_data->stack_encap_p].name = stack_name;
-		encap = file_data->stack_encap[file_data->stack_encap_p].encap;
-	}
-	
-	pe = g_malloc(sizeof(k12_port_encap_t));
-	pe->port_id = port_id;
-	pe->encap = encap;
-	
-	g_ptr_array_add(file_data->port_encaps,pe);
-	return encap;
-}
-
-static guint32 get_encap(k12_t* file_data, guint32 port_id) {
-	guint i;
-	k12_port_encap_t* pe;
-	
-	for (i = 0; i < file_data->port_encaps->len; i++) {
-		pe = g_ptr_array_index(file_data->port_encaps,i);
-		
-		if (pe->port_id == port_id)
-			return pe->encap;
-	}
-	
-	/*g_warning("k12_get_encap: BUG: found no encapsulation for source 0x%.8x\n"
-		"please report this to ethereal-dev@ethereal.com", port_id);*/
-	
-	return WTAP_ENCAP_USER15;
-}
+	guint8* variable;
+} k12_packet_t;
 
 
 
@@ -156,48 +118,66 @@ static guint32 get_encap(k12_t* file_data, guint32 port_id) {
  *		-1 at EOF
  *       the lenght of the preamble (0 if none) if OK.
  *
- *   Record headers are 4 4byte words long,
- *       - the first is the lenght of the record
- *       - the second is the type of the record
- *       - the third is the lenght of the frame in packet records
- *		 - the last is the source id to which it refers
- *
  *   Every about 0x2000 bytes up to 4 words are inserted in the file,
  *   not being able yet to understand *exactly* how and where these
  *   are inserted we need to scan the file for the next valid header.
  *
  */
-gboolean get_k12_hdr(k12_record_hdr_t* hdr, wtap* wth, int* err, gchar **err_info) {
-	guint8 hdr_buf[0x14]; /* five 32bit "slots" */
+gboolean get_k12_hdr(k12_record_hdr_t* hdr, wtap* wth, int* err) {
+	guint32 hdr_buf[5];
 	guint32 magic;
 	guint i;
 	guint len;
-	
+#if 0
 	/*
 	 * XXX: as most records are contiguous we could
 	 * avoid hunting when not in the "risky zones".
-	 *
-	 * gboolean risky = ( (file_offset-0x210) % 0x2000) > 0x1f00 || 
-	 *                    (file_offset-0x210) % 0x2000) < 0x0100   );
-	 *
+	 */
+	
+	gboolean risky = (  (wth->data_offset-0x210) % 0x2000 > 0x1e00 || 
+						(wth->data_offset-0x210) % 0x2000 < 0x0200   );
+	if (! risky) {
+		if ( file_read(hdr, 1, sizeof(*hdr), wth->fh) != sizeof(*hdr) ) {
+			if (! (*err = file_error(wth->fh) ) ) 
+				*err = WTAP_ERR_SHORT_READ;
+			return -1;
+		} else {
+			hdr->len = 0x0000FFFF & pntohl(hdr->len);
+			hdr->type = pntohl(hdr->type);
+			hdr->frame_len = 0x0000FFFF & pntohl(hdr->frame_len);
+			hdr->input = pntohl( hdr->input );
+			return 0;
+		}
+	}
+	
+	/*
 	 * We'll take the conservative approach and avoid trouble altogether.
+	 */
+#endif
+	
+	/*
+	 *  we'll hunt for valid headers by loading the candidate header
+	 *  in a buffer one word longer, and checking it.
+	 *  If it is ok we'll copy it and return ok.
+	 *  If it doesn't we'll load the next word shinfting and trying again
 	 */
 	
 	/* read the first three words inserting them from the second slot on */
-	
-	if ((len = file_read(hdr_buf + 0x4, 1, 0xC, wth->fh)) != 0xC) {
+	if ((len = file_read(hdr_buf + 1, 1, 0xC, wth->fh)) != 0xC) {
 		if (len == 2) {
-			if (hdr_buf[0x4] == 0xff && hdr_buf[0x5] == 0xff) {
+			if ( hdr_buf[1] >> 16 == 0xffff ) {
+				/* EOF */
+				*err = 0;
 				return -1;
 			}
 		}
 		
-		*err = file_error(wth->fh);
-		if (*err == 0)
+		if (! (*err = file_error(wth->fh) ) ) 
 			*err = WTAP_ERR_SHORT_READ;
+		
 		return -2;
 	}
-	
+
 	do {
 		
 		/*
@@ -205,58 +185,53 @@ gboolean get_k12_hdr(k12_record_hdr_t* hdr, wtap* wth, int* err, gchar **err_inf
 		 *
 		 * We do not know if the record types we know are all of them.
 		 *
-		 * Instead of failing we could  try to skip a record whose type we do
+		 * Instead of failing we could try to skip a record whose type we do
 		 * not know yet. In that case however it is possible that a "magic"
 		 * number appears in the record and unpredictable things would happen.
 		 * We won't try, we'll fail and ask for feedback.
 		 */
 		if ( len > 0x20) {
-			/*
 			 g_warning("get_k12_hdr: found more than 4 words of stuffing, this should not happen!\n"
 					   "please report this issue to ethereal-dev@ethereal.com");
-			 */
 			return -2;
 		}
 		
 		/* read the next word into the last slot */
-		if ( file_read( hdr_buf + K12_HDR_LEN, 1, 0x4, wth->fh) != 0x4 ) {
+		if ( file_read( hdr_buf + 4 , 1, 0x4, wth->fh) != 0x4 ) {
 			*err = WTAP_ERR_SHORT_READ;
-			*err_info = "record too short while reading .rf5 file";
 			return -2;
 		}
 		
 		len += 0x4;
 		
-		/* shift the buffer one word left */
-		/* XXX: working with words this would be faster */
-		for ( i = 0 ; i < 16 ; i++ )
-			hdr_buf[i] = hdr_buf[i + 0x4]; 
+		for ( i = 0 ; i < 4 ; i++ )
+			hdr_buf[i] = hdr_buf[i + 1]; 
 		
 		/* we'll be done if the second word is a magic number */
-		magic = pntohl( hdr_buf + 0x4 );
+		magic = pntohl( hdr_buf + 1 );
 		
 	} while (magic != K12_REC_PACKET &&
 			 magic != K12_REC_SRCDSC &&
-			 magic != K12_REC_UNK001 &&
-			 magic != K12_REC_UNK002 &&
-			 magic != K12_REC_UNK003 &&
-			 magic != K12_REC_UNK004 &&
-			 magic != K12_REC_UNK005 );
+			 magic != K12_REC_SCENARIO &&
+			 magic != K12_REC_70042 &&
+			 magic != K12_REC_70044 &&
+			 magic != K12_REC_20030 &&
+			 magic != K12_REC_20032 );
 	
-	hdr->len = 0x0000FFFF & pntohl( hdr_buf ); 	/* the first two bytes off the record len may contain junk */
+	hdr->len = 0x0000FFFF & hdr_buf[0]; 	/* the first two bytes off the record len may be altered */
 	hdr->type = magic;
-	hdr->frame_len = 0x0000FFFF & pntohl( hdr_buf + 0x8 );
-	hdr->port_id = pntohl( hdr_buf + 0xC );
-	
+	hdr->frame_len = 0x0000FFFF & pntohl( hdr_buf + 2 ); /* play defensive */
+	hdr->input = pntohl( hdr_buf + 3 );
+		
 	return len - K12_HDR_LEN;
 }
 
 static gboolean k12_read(wtap *wth, int *err, gchar **err_info, long *data_offset) {
-	guint64 ts;
-	guint8 b[8];
-	guint8* junk[0x1000];
-	k12_record_hdr_t hdr;
+	guint8* b[0x1000];
+	k12_packet_t pkt;
 	gint stuffing = -1;
+	gint read_len;
+	k12_src_desc_t* src_desc;
 	
 	*data_offset = wth->data_offset;
 	
@@ -265,11 +240,11 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, long *data_offse
 		gint s;
 		
 		if (stuffing >= 0) {
-			stuffing += hdr.len;
+			stuffing += pkt.hdr.len;
 			
 			/* skip the whole record */
 			
-			if ( file_read(junk,1, hdr.len - K12_HDR_LEN , wth->fh) != (gint) (hdr.len - K12_HDR_LEN) ) {
+			if ( file_read(b,1, pkt.hdr.len - K12_HDR_LEN , wth->fh) != (gint) (pkt.hdr.len - K12_HDR_LEN) ) {
 				*err = WTAP_ERR_SHORT_READ;
 				*err_info = "record too short while reading .rf5 file";
 				return FALSE; 		
@@ -279,7 +254,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, long *data_offse
 			stuffing = 0;
 		}
 		
-		switch ( s = get_k12_hdr(&hdr, wth, err, err_info) ) {
+		switch ( s = get_k12_hdr(&pkt.hdr, wth, err) ) {
 			case -1:
 				/* eof */
 				*err = 0;
@@ -294,65 +269,68 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, long *data_offse
 		
 		stuffing += s;
 		
-	} while ( hdr.type != K12_REC_PACKET
-			  || hdr.len < hdr.frame_len + 0x20 );
-	
+	} while ( pkt.hdr.type != K12_REC_PACKET
+			  || pkt.hdr.len < pkt.hdr.frame_len + 0x20 );
 	wth->data_offset += stuffing + 0x10;
+
 	
-	if ( wth->file_encap == WTAP_ENCAP_PER_PACKET) {
-		wth->phdr.pkt_encap = get_encap(wth->capture.k12,hdr.port_id);
-	} else {
-		wth->phdr.pkt_encap = WTAP_ENCAP_USER0;
-	}
-	
-	/* XXX: is in there something useful in these 8 bytes ? */
-	if ( file_read(b,1,8,wth->fh) != 8 ) {
+	if ( file_read(&pkt.record,1,sizeof(pkt.record),wth->fh) != sizeof(pkt.record) ) {
 		*err = WTAP_ERR_SHORT_READ;
-		*err_info = "record too short while reading .rf5 file";
 		return FALSE; 
 	}
 	
-	wth->data_offset += 8;
+	wth->data_offset += sizeof(pkt.record);
+		
+	pkt.record.ts = pntohll(&pkt.record.ts);
 	
+	wth->phdr.ts.tv_usec = (guint32) ( (pkt.record.ts % 2000000) / 2);
+	wth->phdr.ts.tv_sec = (guint32) ((pkt.record.ts / 2000000) + 631152000);
 	
-	/* the next 8 bytes are the timestamp */
-	if ( file_read(b,1,8,wth->fh) != 8 ) {
-		*err = WTAP_ERR_SHORT_READ;
-		*err_info = "record too short while reading .rf5 file";
-		return FALSE; 
-	}
-	
-	wth->data_offset += 8;
-	
-	ts = pntohll(b);
-	
-	wth->phdr.ts.tv_usec = (guint32) ( (ts % 2000000) / 2);
-	wth->phdr.ts.tv_sec = (guint32) ((ts / 2000000) + 631152000);
-	
-	wth->phdr.caplen = wth->phdr.len = hdr.frame_len;
+	wth->phdr.caplen = wth->phdr.len = pkt.hdr.frame_len;
 	
 	/* the frame */
-	buffer_assure_space(wth->frame_buffer, hdr.frame_len);
-	wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer), hdr.frame_len, wth->fh, err);
-	wth->data_offset += hdr.frame_len;
+	buffer_assure_space(wth->frame_buffer, pkt.hdr.frame_len);
+	wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer), pkt.hdr.frame_len, wth->fh, err);
+	wth->data_offset += pkt.hdr.frame_len;
 	
-	/* XXX: should we read to a junk buffer instead of seeking? */
-	/* XXX: is there useful stuff in the trailer? */
-	if ( file_read(junk,1, hdr.len - ( hdr.frame_len + 0x20) , wth->fh) != (gint) ( hdr.len - ( hdr.frame_len + 0x20)) ) {
+	/*  (undef,$vp,$vc) = unpack "C12SS";  */
+	
+	read_len = pkt.hdr.len - ( pkt.hdr.frame_len + 0x20);
+	
+	if ( file_read(b,1, read_len , wth->fh) != read_len ) {
 		*err = WTAP_ERR_SHORT_READ;
-		*err_info = "record too short while reading .rf5 file";
 		return FALSE; 		
 	}
 	
-	wth->data_offset += hdr.len - ( hdr.frame_len + 0x20);
+	wth->data_offset += read_len;
+	
+	src_desc = g_hash_table_lookup(wth->capture.k12->src_by_id,GUINT_TO_POINTER(pkt.hdr.input));
+	
+	wth->pseudo_header.k12.src_id = pkt.hdr.input;
+	wth->pseudo_header.k12.src_name = src_desc ? src_desc->variable.port_name : "unknown port";
+	wth->pseudo_header.k12.stack_file = src_desc ? src_desc->variable.stack_file : "unknown port";
 	
 	return TRUE;
 }
 
-static gboolean k12_seek_read(wtap *wth, long seek_off, union wtap_pseudo_header *pseudo_header _U_, guchar *pd, int length, int *err _U_, gchar **err_info _U_) {
+static gboolean k12_seek_read(wtap *wth, long seek_off, union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err _U_, gchar **err_info _U_) {
+	guint8 read_buffer[0x20];
+	k12_src_desc_t* src_desc;
+	guint32 input;
 	
-	if ( file_seek(wth->random_fh, seek_off+0x20, SEEK_SET, err) == -1)
+	if ( file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
+	
+	if( file_read(read_buffer,1,0x20,wth->random_fh) != 0x20 )
+		return FALSE;
+	
+	input = pntohl(read_buffer + 0xC);
+	
+	src_desc = g_hash_table_lookup(wth->capture.k12->src_by_id,GUINT_TO_POINTER(input));
+	
+	pseudo_header->k12.src_id = input;
+	pseudo_header->k12.src_name = src_desc ? src_desc->variable.port_name : "unknown port";
+	pseudo_header->k12.stack_file = src_desc ? src_desc->variable.stack_file : "unknown stack_file";
 	
 	if ( file_read(pd, 1, length, wth->random_fh) != length) {
 		*err = file_error(wth->random_fh);
@@ -364,23 +342,77 @@ static gboolean k12_seek_read(wtap *wth, long seek_off, union wtap_pseudo_header
 	return TRUE;
 }
 
-static void destroy_k12_file_data(k12_t* file_data) {
-	guint i;
-	for (i =0; i<=file_data->stack_encap_p; i++) {
-		if (file_data->stack_encap[i].name) {
-			g_free(file_data->stack_encap[i].name);
-			file_data->stack_encap[i].name = NULL;
-		}
-	}
+static k12_t* new_k12_file_data() {
+	k12_t* fd = g_malloc(sizeof(k12_t));
 	
-	if (file_data->port_encaps) {
-		g_ptr_array_free(file_data->port_encaps,TRUE);
-	}
+	fd->file_len = 0;
+	fd->num_of_records = 0;
+	fd->src_by_name = g_hash_table_new(g_str_hash,g_str_equal);
+	fd->src_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
 	
+	return fd;
+}
+
+static gboolean destroy_srcdsc(gpointer k _U_, gpointer v, gpointer p _U_) {
+	k12_src_desc_t* rec = v;
+	
+	if(rec->variable.extra_blob)
+		g_free(rec->variable.extra_blob);
+	
+	if(rec->variable.port_name)
+		g_free(rec->variable.port_name);
+	
+	if(rec->variable.stack_file)
+		g_free(rec->variable.stack_file);
+	
+	g_free(rec);
+	
+	return TRUE;
+}
+
+static void destroy_k12_file_data(k12_t* fd) {
+	g_hash_table_destroy(fd->src_by_id);
+	g_hash_table_foreach_remove(fd->src_by_name,destroy_srcdsc,NULL);	
+	g_hash_table_destroy(fd->src_by_name);
+	g_free(fd);
 }
 
 static void k12_close(wtap *wth) {
 	destroy_k12_file_data(wth->capture.k12);
+}
+
+static void add_k12_src(k12_t* fd, k12_src_desc_t* rec) {
+	k12_src_desc_t* r = g_memdup(rec,sizeof(k12_src_desc_t));
+	
+	g_hash_table_insert(fd->src_by_id,GUINT_TO_POINTER(r->hdr.input),r);
+	g_hash_table_insert(fd->src_by_name,r->variable.stack_file,r);
+}
+
+
+
+static int get_srcdsc_record(k12_src_desc_t* rec, FILE* fp, int *err) {
+	gchar read_buffer[0x1000];
+	
+	if ( file_read( read_buffer, 1, 0x14, fp) != 0x14 ) {
+		*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+	
+	/*	XXX missing some  */
+	rec->record.extra_len = pntohs( read_buffer + 0xE );
+	rec->record.name_len = pntohs( read_buffer + 0x10 );
+	rec->record.stack_len = pntohs( read_buffer + 0x12 );
+	
+	if (file_read(read_buffer,1, rec->hdr.len - 0x24,fp) != (gint)rec->hdr.len - 0x24 ) {
+		*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+	
+	rec->variable.extra_blob = g_memdup(read_buffer, rec->record.extra_len);
+	rec->variable.port_name = g_memdup(read_buffer + rec->record.extra_len,rec->record.name_len);
+	rec->variable.stack_file = g_memdup(read_buffer + rec->record.extra_len + rec->record.name_len,rec->record.stack_len);
+	
+	return TRUE;
 }
 
 /*
@@ -392,17 +424,12 @@ static void k12_close(wtap *wth) {
  * some other (summary?) records.
  */
 
-int k12_open(wtap *wth, int *err, gchar **err_info) {
+int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
 	gchar read_buffer[0x1000];
-	k12_record_hdr_t hdr;
 	long offset = 0;
-	gchar* stack_file;
-	gchar* port_name;
-	guint32 name_len;
-	guint32 stack_len;
-	gint read_len;
-	guint stuffing;
 	k12_t* file_data;
+	k12_src_desc_t rec;
+	gint stuffing;
 	
 	/*
 	 *  let's check the magic number.
@@ -415,21 +442,18 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
 	}
 	
 	/* the lenght of the file is in the next 4byte word */
-	if ( file_read(read_buffer,1,4,wth->fh) != 4 ) {
+	if ( file_read(read_buffer,1,8,wth->fh) != 8 ) {
 		return -1;
 	} 
-	
-	file_data = g_malloc(sizeof(k12_t));
-	
-	file_data->stack_encap_p = 0;
-	file_data->port_encaps = g_ptr_array_new();
-	file_data->stack_encap = g_memdup(virgin_stack_encap,sizeof(virgin_stack_encap));
+	file_data = new_k12_file_data();
+
 	file_data->file_len = pntohl( read_buffer );
+	file_data->num_of_records = pntohl( read_buffer + 4 );
 	
 	/*
 	 * we don't know yet what's in the file header
 	 */
-	if (file_read(read_buffer,1,0x204,wth->fh) != 0x204 ) {
+	if (file_read(read_buffer,1,0x200,wth->fh) != 0x200 ) {
 		destroy_k12_file_data(file_data);
 		return -1;
 	}
@@ -441,16 +465,22 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
 	 */
 	
 	do {
+		memset(&rec,0,sizeof(k12_src_desc_t));
+
 		if (offset > 0x10000) {
 			/* too much to be ok. */
 			return 0;
 		}
 		
-		stuffing = get_k12_hdr(&hdr, wth, err, err_info);
+		stuffing = get_k12_hdr(&(rec.hdr), wth, err);
+		
+		if ( stuffing < 0) {
+			return 0;
+		}
 		
 		offset += stuffing;
 		
-		if ( hdr.type == K12_REC_PACKET) {
+		if ( rec.hdr.type == K12_REC_PACKET) {
 			/*
 			 * we are at the first packet record, rewind and leave.
 			 */
@@ -460,69 +490,25 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
 			}
 			
 			break;
-		} else if (hdr.type == K12_REC_SRCDSC) {
+		} else if (rec.hdr.type == K12_REC_SRCDSC) {
 			
-			if ( file_read( read_buffer, 1, 0x14, wth->fh) != 0x14 ) {
-				*err = WTAP_ERR_SHORT_READ;
-				return FALSE;
-			}
-			
-			name_len = pntohs( read_buffer + 0x10 );
-			stack_len = pntohs( read_buffer + 0x12 );
-			
-			
-			read_len = hdr.len - (0x10 + 0x14 + name_len + stack_len);
-			
-			if (read_len > 0) {
-				/* skip the still unknown part */
-				if (file_read(read_buffer,1, read_len,wth->fh) != read_len ) {
-					destroy_k12_file_data(file_data);
-					*err = WTAP_ERR_SHORT_READ;
-					return -1;
-				}
-			} else if (read_len < 0) {
+			if(!get_srcdsc_record(&rec, wth->fh, err)) {
 				destroy_k12_file_data(file_data);
-				*err = WTAP_ERR_BAD_RECORD;
 				return -1;
 			}
+
+			offset += rec.hdr.len;
 			
-			/* the rest of the record contains two null terminated strings:
-				the source label and the "stack" filename */
-			if ( file_read(read_buffer, 1, name_len, wth->fh) != (int)name_len ) {
-				destroy_k12_file_data(file_data);
-				*err = WTAP_ERR_SHORT_READ;
-				*err_info = "record too short while reading .rf5 file";
-				return -1;
-			}
+			add_k12_src(file_data,&rec);
 			
-			port_name = g_strndup(read_buffer,stack_len);
-			
-			if ( file_read(read_buffer, 1, stack_len, wth->fh) != (int)stack_len ) {
-				destroy_k12_file_data(file_data);
-				*err = WTAP_ERR_SHORT_READ;
-				*err_info = "record too short while reading .rf5 file";
-				return -1;
-			}
-			
-			stack_file =g_strndup(read_buffer,stack_len);
-			
-			if (choose_encap(file_data,hdr.port_id,stack_file) == WTAP_NUM_ENCAP_TYPES ) {
-				destroy_k12_file_data(file_data);
-				/* more encapsulation types than we can handle */
-				return 0;
-			}
-			
-			offset += hdr.len;
 			continue;
 		} else {
-			/* we don't need these other fellows */
-			
-			if (file_read(read_buffer,1, hdr.len - K12_HDR_LEN, wth->fh) != (int) hdr.len - K12_HDR_LEN ) {
+			if (file_read(read_buffer,1, rec.hdr.len - K12_HDR_LEN, wth->fh) != (int) rec.hdr.len - K12_HDR_LEN ) {
 				destroy_k12_file_data(file_data);
 				return -1;
 			}
 			
-			offset += hdr.len;
+			offset += rec.hdr.len;
 			
 			continue;
 		}
@@ -530,6 +516,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
 	
 	wth->data_offset = offset;
 	wth->file_type = WTAP_FILE_K12;
+	wth->file_encap = WTAP_ENCAP_K12;
 	wth->snapshot_length = 0;
 	wth->subtype_read = k12_read;
 	wth->subtype_seek_read = k12_seek_read;
@@ -540,11 +527,6 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
 		we will use that for the whole file so we can
 		use more formats to save to */
 	
-	if (file_data->port_encaps->len == 1) {
-		wth->file_encap = ((k12_stack_encap_t*)g_ptr_array_index(file_data->port_encaps,0))->encap;
-	} else {
-		wth->file_encap = WTAP_ENCAP_PER_PACKET;
-	}
 	
 	return 1;
 }
