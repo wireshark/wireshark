@@ -54,6 +54,7 @@ use strict;
 
 use Time::Local;
 use POSIX qw(strftime);
+use Getopt::Long;
 
 my $version_file = 'svnversion.h';
 my $version_string = "";
@@ -67,6 +68,7 @@ my %version_pref = (
 	"format"     => "SVN %Y%m%d%H%M%S",
 	"pkg_format" => "-SVN-%#",
 	);
+my $srcdir = ".";
 
 
 # Run "svn info".  Parse out the most recent modification time and the
@@ -75,39 +77,42 @@ sub read_svn_info {
 	my $line;
 	my $version_format = $version_pref{"format"};
 	my $package_format = $version_pref{"pkg_format"};
-	# If any other odd paths pop up, put them here.
-	my @svn_paths = ("", "c:/cygwin/lib/subversion/bin/");
-	my $svn_cmd;
-	my $svn_pid;
+	my $in_entries = 0;
+	my $svn_name;
 
-	foreach $svn_cmd (@svn_paths) {
-		$svn_cmd .= "svn info";
-		if ($svn_pid = open(SVNINFO, $svn_cmd . " |")) {
-			print ("Fetching version with command \"$svn_cmd\".\n");
-			last;
-		}
-	}
-	if (! defined($svn_pid)) {
+	if (! open (ENTRIES, "< $srcdir/.svn/entries")) {
 		print ("Unable to get SVN info.\n");
 		return;
 	}
-	while ($line = <SVNINFO>) {
-		if ($line =~ /^Last Changed Date: (\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
-			$last = timegm($6, $5, $4, $3, $2 - 1, $1);
+
+	# The entries schema is flat, so we can use regexes to parse its contents.
+	while ($line = <ENTRIES>) {
+		if ($line =~ /<entry$/ || $line =~ /<entry\s/) {
+			$in_entries = 1;
+			$svn_name = "";
 		}
-		if ($line =~ /^Revision: (\d+)/) {
-			$revision = $1;
+		if ($in_entries) {
+			if ($line =~ /name="(.*)"/) { $svn_name = $1; }
+			if ($line =~ /committed-date="(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/) {
+				$last = timegm($6, $5, $4, $3, $2 - 1, $1);
+			}
+			if ($line =~ /revision="(\d+)"/) { $revision = $1; }
+		}
+		if ($line =~ /\/>/) {
+			if (($svn_name eq "" || $svn_name eq "svn:this_dir") &&
+					$last && $revision) {
+				$in_entries = 0;
+				$version_format =~ s/%#/$revision/;
+				$version_string = strftime($version_format, gmtime($last));
+
+				$package_format =~ s/%#/$revision/;
+				$package_string = strftime($package_format, gmtime($last));
+
+				last;
+			}
 		}
 	}
-	close SVNINFO;
-
-	if ($last && $revision) {
-		$version_format =~ s/%#/$revision/;
-		$version_string = strftime($version_format, gmtime($last));
-
-		$package_format =~ s/%#/$revision/;
-		$package_string = strftime($package_format, gmtime($last));
-	}
+	close ENTRIES;
 }
 
 
@@ -198,10 +203,10 @@ sub get_config {
 	my $arg;
 
 	# Get our command-line args
-	foreach $arg (@ARGV) {
-		if ($arg eq "-p" || $arg eq "--package-version") {
-			$pkg_version = 1;
-		}
+	GetOptions("package-version", \$pkg_version);
+
+	if ($#ARGV >= 0) {
+		$srcdir = $ARGV[0]
 	}
 
 

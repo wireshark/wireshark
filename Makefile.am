@@ -304,7 +304,7 @@ AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap
 FORCE:
 
 svnversion.h: FORCE
-	$(PERL) $(srcdir)/make-version.pl
+	$(PERL) $(srcdir)/make-version.pl $(srcdir)
 
 #
 # Build the short version of the authors file for the about dialog
