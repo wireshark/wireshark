@@ -1169,22 +1169,18 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
 {
   enum { START, IN_VAR, PRE_VAL, IN_VAL, IN_SKIP };
   int       got_c, state = START;
-  static guint  cur_pref_val_size;
-  static gchar* cur_val = NULL;
-  static guint  cur_pref_var_size;
-  static gchar* cur_var = NULL;
+  static GString *cur_val = NULL;
+  static GString *cur_var = NULL;
   gboolean  got_val = FALSE;
-  gint      var_len = 0, val_len = 0, fline = 1, pline = 1;
+  gint      fline = 1, pline = 1;
   gchar     hint[] = "(saving your preferences once should remove this warning)";
 
   if (! cur_val) {
-	  cur_pref_val_size = 128;
-	  cur_val = g_malloc(cur_pref_val_size);
+	  cur_val = g_string_new("");
   }
   
   if (! cur_var) {
-	  cur_pref_var_size = 128;
-	  cur_var = g_malloc(cur_pref_var_size);
+	  cur_var = g_string_new("");
   }
   
   while ((got_c = getc(pf)) != EOF) {
@@ -1193,25 +1189,13 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
       fline++;
       continue;
     }
-    if (var_len >= cur_pref_var_size) {
-		cur_pref_var_size *= 2;
-		cur_var = g_realloc(cur_var,cur_pref_val_size);
-      continue;
-    }
-    if (val_len >= cur_pref_val_size) {
-		cur_pref_val_size *= 2;
-		cur_val = g_realloc(cur_val,cur_pref_val_size);
-      continue;
-    }
 
     switch (state) {
       case START:
         if (isalnum(got_c)) {
-          if (var_len > 0) {
+          if (cur_var->len > 0) {
             if (got_val) {
-              cur_var[var_len] = '\0';
-              cur_val[val_len] = '\0';
-              switch (pref_set_pair_fct(cur_var, cur_val)) {
+              switch (pref_set_pair_fct(cur_var->str, cur_val->str)) {
 
 	      case PREFS_SET_SYNTAX_ERR:
                 g_warning ("%s line %d: Syntax error %s", pf_path, pline, hint);
@@ -1219,7 +1203,7 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
 
 	      case PREFS_SET_NO_SUCH_PREF:
                 g_warning ("%s line %d: No such preference \"%s\" %s", pf_path,
-				pline, cur_var, hint);
+				pline, cur_var->str, hint);
                 break;
 
 	      case PREFS_SET_OBSOLETE:
@@ -1235,10 +1219,10 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
           }
           state      = IN_VAR;
           got_val    = FALSE;
-          cur_var[0] = got_c;
-          var_len    = 1;
+          g_string_truncate(cur_var, 0);
+          g_string_append_c(cur_var, got_c);
           pline = fline;
-        } else if (isspace(got_c) && var_len > 0 && got_val) {
+        } else if (isspace(got_c) && cur_var->len > 0 && got_val) {
           state = PRE_VAL;
         } else if (got_c == '#') {
           state = IN_SKIP;
@@ -1248,38 +1232,33 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
         break;
       case IN_VAR:
         if (got_c != ':') {
-          cur_var[var_len] = got_c;
-          var_len++;
+          g_string_append_c(cur_var, got_c);
         } else {
           state   = PRE_VAL;
-          val_len = 0;
+          g_string_truncate(cur_val, 0);
           got_val = TRUE;
         }
         break;
       case PRE_VAL:
         if (!isspace(got_c)) {
           state = IN_VAL;
-          cur_val[val_len] = got_c;
-          val_len++;
+          g_string_append_c(cur_val, got_c);
         }
         break;
       case IN_VAL:
         if (got_c != '#')  {
-          cur_val[val_len] = got_c;
-          val_len++;
+          g_string_append_c(cur_val, got_c);
         } else {
-          while (isspace((guchar)cur_val[val_len]) && val_len > 0)
-            val_len--;
+          while (isspace((guchar)cur_val->str[cur_val->len]) && cur_val->len > 0)
+            g_string_truncate(cur_val, cur_val->len - 1);
           state = IN_SKIP;
         }
         break;
     }
   }
-  if (var_len > 0) {
+  if (cur_var->len > 0) {
     if (got_val) {
-      cur_var[var_len] = '\0';
-      cur_val[val_len] = '\0';
-      switch (pref_set_pair_fct(cur_var, cur_val)) {
+      switch (pref_set_pair_fct(cur_var->str, cur_val->str)) {
 
       case PREFS_SET_SYNTAX_ERR:
         g_warning ("%s line %d: Syntax error %s", pf_path, pline, hint);
@@ -1287,7 +1266,7 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
 
       case PREFS_SET_NO_SUCH_PREF:
         g_warning ("%s line %d: No such preference \"%s\" %s", pf_path,
-			pline, cur_var, hint);
+			pline, cur_var->str, hint);
         break;
 
       case PREFS_SET_OBSOLETE:
@@ -2221,6 +2200,8 @@ write_module_prefs(gpointer data, gpointer user_data)
 
 /* Write out "prefs" to the user's preferences file, and return 0.
 
+   If the preferences file path is NULL, write to stdout.
+
    If we got an error, stuff a pointer to the path of the preferences file
    into "*pf_path_return", and return the errno. */
 int
@@ -2237,10 +2218,14 @@ write_prefs(char **pf_path_return)
    *   so that duplication can be avoided with filter.c
    */
 
-  pf_path = get_persconffile_path(PF_NAME, TRUE);
-  if ((pf = fopen(pf_path, "w")) == NULL) {
-    *pf_path_return = pf_path;
-    return errno;
+  if (pf_path_return != NULL) {
+    pf_path = get_persconffile_path(PF_NAME, TRUE);
+    if ((pf = fopen(pf_path, "w")) == NULL) {
+      *pf_path_return = pf_path;
+      return errno;
+    }
+  } else {
+    pf = stdout;
   }
 
   fputs("# Configuration file for Ethereal " VERSION ".\n"

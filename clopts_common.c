@@ -31,6 +31,7 @@
 
 #include <epan/proto.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
 
 #include "clopts_common.h"
 
@@ -41,6 +42,10 @@
 void
 handle_dashG_option(int argc, char **argv, char *progname)
 {
+  char *gpf_path, *pf_path;
+  int   gpf_open_errno, gpf_read_errno;
+  int   pf_open_errno, pf_read_errno;
+
   if (argc >= 2 && strcmp(argv[1], "-G") == 0) {
     if (argc == 2)
       proto_registrar_dump_fields(1);
@@ -57,7 +62,13 @@ handle_dashG_option(int argc, char **argv, char *progname)
         proto_registrar_dump_values();
       else if (strcmp(argv[2], "decodes") == 0)
         dissector_dump_decodes();
-      else {
+      else if (strcmp(argv[2], "defaultprefs") == 0)
+        write_prefs(NULL);
+      else if (strcmp(argv[2], "currentprefs") == 0) {
+        read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
+            &pf_open_errno, &pf_read_errno, &pf_path);
+        write_prefs(NULL);
+      } else {
         fprintf(stderr, "%s: Invalid \"%s\" option for -G flag\n", progname,
                 argv[2]);
         exit(1);
