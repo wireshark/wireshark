@@ -525,12 +525,12 @@
 	can help you.
 	</para>
 	</note>
-	<note><title>Don't send confidential information!</title>
+	<warning><title>Don't send confidential information!</title>
 	<para>
 	If you send captured data to the mailing lists, be sure they don't contain 
 	any sensitive or confidential information like passwords or such.
 	</para>
-	</note>
+	</warning>
   </section>
   
 	<section><title>Reporting Crashes on UNIX/Linux platforms</title>
