@@ -64,6 +64,7 @@ const value_string sminmpec_values[] = {
   {VENDOR_NETSCREEN,           "Netscreen"},
   {VENDOR_SHASTA,		"Shasta"},
   {VENDOR_NOMADIX,		"Nomadix"},
+  {VENDOR_T_MOBILE,		"T-Mobile"},
   {VENDOR_SIEMENS,		"SIEMENS"},
   {VENDOR_CABLELABS,		"CableLabs"},
   {VENDOR_UNISPHERE,		"Unisphere Networks"},
@@ -78,5 +79,6 @@ const value_string sminmpec_values[] = {
   {VENDOR_THE3GPP,		"3GPP"},
   {VENDOR_GEMTEK_SYSTEMS,	"Gemtek-Systems"},
   {VENDOR_WIFI_ALLIANCE,	"Wi-Fi Alliance"},
+  {VENDOR_T_SYSTEMS_NOVA,	"T-Systems Nova International GmbH"},
   {0, NULL}
 };

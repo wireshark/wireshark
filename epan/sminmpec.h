@@ -57,6 +57,7 @@
 #define VENDOR_SHASTA			3199
 #define VENDOR_NETSCREEN		3224
 #define VENDOR_NOMADIX			3309
+#define VENDOR_T_MOBILE			3414 /* Former VoiceStream Wireless, Inc. */
 #define VENDOR_SIEMENS			4329
 #define VENDOR_CABLELABS		4491
 #define VENDOR_UNISPHERE		4874
@@ -71,6 +72,8 @@
 #define VENDOR_THE3GPP			10415
 #define VENDOR_GEMTEK_SYSTEMS		10529
 #define VENDOR_WIFI_ALLIANCE		14122
+#define VENDOR_T_SYSTEMS_NOVA	16787
+
 
 extern const value_string sminmpec_values[];
 
