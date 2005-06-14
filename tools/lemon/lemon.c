@@ -2628,8 +2628,8 @@ PRIVATE void tplt_xfer(char *name, FILE *in, FILE *out, int *lineno)
     (*lineno)++;
     iStart = 0;
     if( name ){
-      for(i=0; line[i]; i++){
-        if( line[i]=='P' && strncmp(&line[i],"Parse",5)==0
+      for(i=0; line[i] && i<LINESIZE; i++){
+        if( line[i]=='P' && i<(LINESIZE-5) && strncmp(&line[i],"Parse",5)==0
           && (i==0 || !safe_isalpha(line[i-1]))
         ){
           if( i>iStart ) fprintf(out,"%.*s",i-iStart,&line[iStart]);

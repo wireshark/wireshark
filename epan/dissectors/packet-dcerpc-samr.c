@@ -1158,17 +1158,17 @@ samr_dissect_connect2_3_4_reply(tvbuff_t *tvb, int offset,
                 if (server) {
                         if (dcv->opnum == SAMR_CONNECT2)
                                 pol_name = g_strdup_printf("Connect2(%s)", server);
-                        if (dcv->opnum == SAMR_CONNECT3)
+                        else if (dcv->opnum == SAMR_CONNECT3)
                                 pol_name = g_strdup_printf("Connect3(%s)", server);
-                        if (dcv->opnum == SAMR_CONNECT4)
+                        else if (dcv->opnum == SAMR_CONNECT4)
                                 pol_name = g_strdup_printf("Connect4(%s)", server);
                 }
                 else {
                         if (dcv->opnum == SAMR_CONNECT2)
                                 pol_name = g_strdup("Connect2 handle");
-                        if (dcv->opnum == SAMR_CONNECT3)
+                        else if (dcv->opnum == SAMR_CONNECT3)
                                 pol_name = g_strdup("Connect3 handle");
-                        if (dcv->opnum == SAMR_CONNECT4)
+                        else if (dcv->opnum == SAMR_CONNECT4)
                                 pol_name = g_strdup("Connect4 handle");
                 }
 

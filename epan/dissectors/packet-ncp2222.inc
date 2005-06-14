@@ -4241,6 +4241,9 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequ
                 break;
         }
     }
+    if (i > 99)
+        return;
+
     frag_count = i;
     
     /* is this the end of an existing fragment or just another reply */
@@ -4324,6 +4327,8 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequ
                                      break;
                              }
                          }
+                         if (i > 99)
+                             return;
                          if (frags[i].nds_frag == 0xffffffff)
                          {
                                  /* Error can't find fragment */

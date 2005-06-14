@@ -528,20 +528,9 @@ dissect_lsp_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 {
 	proto_item 	*ti;
 	proto_tree	*ntree = NULL;
-	guint32		src, mask, prefix_len;
-
-        guint32 bitmasks[33] = {
-	  0x00000000,
-	  0x00000008, 0x0000000c, 0x0000000e, 0x0000000f,
-	  0x000000f8, 0x000000fc, 0x000000fe, 0x000000ff,
-	  0x000008ff, 0x00000cff, 0x00000eff, 0x00000fff,
-	  0x0000f8ff, 0x0000fcff, 0x0000feff, 0x0000ffff,
-	  0x0008ffff, 0x000cffff, 0x000effff, 0x000fffff,
-	  0x00f8ffff, 0x00fcffff, 0x00feffff, 0x00ffffff,
-	  0x08ffffff, 0x0cffffff, 0x0effffff, 0x0fffffff,
-	  0xf8ffffff, 0xfcffffff, 0xfeffffff, 0xffffffff
-	};
-
+	guint32		src, mask, bitmask;
+	int		prefix_len;
+	gboolean	found_mask = FALSE;
 
 	while ( length > 0 ) {
 		if (length<12) {
@@ -554,32 +543,31 @@ dissect_lsp_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		 */
 		if ( tree ) {
 			tvb_memcpy(tvb, (guint8 *)&src, offset+4, 4);
-			tvb_memcpy(tvb, (guint8 *)&mask, offset+8, 4);
+			mask = tvb_get_ntohl(tvb, offset+8);
 
 			/* find out if the mask matches one of 33 possible prefix lengths */
-
-			prefix_len=0;
-
-			while(prefix_len<=33) {
-			  if (bitmasks[prefix_len++]==mask) {
-			    prefix_len--;
+			bitmask = 0xffffffff;
+			for(prefix_len = 32; prefix_len >= 0; prefix_len--) {
+			  if (bitmask==mask) {
+			    found_mask = TRUE;
 			    break;
 			  }
+			  bitmask = bitmask << 1;
 			}
 
-			/* 34 indicates no match -> must be a discontiguous netmask
-			   lets dump the mask, otherwise print the prefix_len */
+			/* If we have a discontiguous netmask, dump the mask, otherwise print the prefix_len */
+			/* XXX - We should probably have some sort of netmask_to_str() routine in to_str.c that does this. */
 
-			if(prefix_len==34) {
-			  ti = proto_tree_add_text ( tree, tvb, offset, 12,
-				"IPv4 prefix: %s mask %s",
-				ip_to_str((guint8*)&src),
-				ip_to_str((guint8*)&mask));
-			} else {
+			if(found_mask) {
 			  ti = proto_tree_add_text ( tree, tvb, offset, 12,
 				"IPv4 prefix: %s/%d",
 				ip_to_str((guint8*)&src),
 				prefix_len );
+			} else {
+			  ti = proto_tree_add_text ( tree, tvb, offset, 12,
+				"IPv4 prefix: %s mask %s",
+				ip_to_str((guint8*)&src),
+				ip_to_str(tvb_get_ptr(tvb, offset+8, 4)));
 			};
 
 			ntree = proto_item_add_subtree(ti,
