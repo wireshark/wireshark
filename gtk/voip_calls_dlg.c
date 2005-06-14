@@ -126,8 +126,8 @@ static void add_to_clist(voip_calls_info_t* strinfo)
 	switch(strinfo->protocol){
 		case VOIP_ISUP:
 			tmp_isupinfo = strinfo->prot_info;
-			g_snprintf(field[8],30, "%i-%i -> %i-%i", tmp_isupinfo->ni, tmp_isupinfo->opc,
-				tmp_isupinfo->ni, tmp_isupinfo->dpc);
+			g_snprintf(field[8],30, "%i-%i -> %i-%i. CIC: %i", tmp_isupinfo->ni, tmp_isupinfo->opc,
+				tmp_isupinfo->ni, tmp_isupinfo->dpc, tmp_isupinfo->cic);
 			break;
 		case VOIP_H323:
 			tmp_h323info = strinfo->prot_info;
