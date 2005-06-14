@@ -2519,6 +2519,14 @@ static const radius_attr_info radius_vendor_nomadix_attrib[] =
   {0, 0, NULL, NULL, NULL},
 };
 
+static const radius_attr_info radius_vendor_t_mobile_attrib[] =
+{
+  {41,	RADIUS_INTEGER4,	"Venue-UTC-Offset", NULL, NULL},
+  {42,	RADIUS_INTEGER4,	"Venue-DST-Flag", NULL, NULL},
+  {43,	RADIUS_INTEGER4,	"Venue-EOD", NULL, NULL},
+  {0, 0, NULL, NULL, NULL},
+};
+
 /*
 reference:
 	PKT-SP-EM-I09-040402 - PacketCable(tm) Event Message Specification
@@ -3321,6 +3329,24 @@ static const radius_attr_info radius_vendor_3gpp2_attrib[] =
    {0, 0, NULL, NULL, NULL},
 };
 
+static const radius_attr_info radius_vendor_t_systems_nova_attrib[] = {
+  {1,	RADIUS_STRING,		"Location-ID",					NULL, NULL},
+  {2,	RADIUS_STRING,		"Location-Name",				NULL, NULL},
+  {3,	RADIUS_STRING,		"Logoff-URL",					NULL, NULL},
+  {4,	RADIUS_STRING,		"Redirection URL",				NULL, NULL},
+  {5,	RADIUS_INTEGER4,	"Bandwidth-Min-Up",				NULL, NULL},
+  {6,	RADIUS_INTEGER4,	"Bandwidth-Min-Down",			NULL, NULL},
+  {7,	RADIUS_INTEGER4,	"Bandwidth-Max-Up",				NULL, NULL},
+  {8,	RADIUS_INTEGER4,	"Bandwidth-Max-Down",			NULL, NULL},
+  {9,	RADIUS_INTEGER4,	"Session-Terminate-Time",		NULL, NULL},
+  {10,	RADIUS_INTEGER4,	"Session-Terminate-End-Of-Day",	NULL, NULL},
+  {11,	RADIUS_STRING,		"Billing-Class-Of-Service",		NULL, NULL},
+  {12,	RADIUS_STRING,		"Service-Name",					NULL, NULL},
+  {13,	RADIUS_INTEGER4,	"Price-Of-Service",				NULL, NULL},
+  {14,	RADIUS_INTEGER4,	"Visiting-Provider-Code",		NULL, NULL},
+   {0, 0, NULL, NULL, NULL},
+};
+
 static const value_string netscreen_admin_priv_vals[] = {
 	{1,  "Root Admin"},
 	{2,  "All VSys Root Admin"},
@@ -3370,35 +3396,37 @@ static const radius_attr_info radius_vendor_wifi_alliance_attrib[] =
 
 static rd_vsa_table radius_vsa_table[] =
 {
-  {VENDOR_ACC,			radius_vendor_acc_attrib},
-  {VENDOR_CISCO,		radius_vendor_cisco_attrib},
-  {VENDOR_SHIVA,		radius_vendor_shiva_attrib},
-  {VENDOR_CISCO_VPN5000,	radius_vendor_cisco_vpn5000_attrib},
-  {VENDOR_LIVINGSTON,		radius_vendor_livingston_attrib},
-  {VENDOR_MICROSOFT,		radius_vendor_microsoft_attrib},
-  {VENDOR_ASCEND,		radius_vendor_ascend_attrib},
-  {VENDOR_BAY,			radius_vendor_bay_attrib},
-  {VENDOR_FOUNDRY,		radius_vendor_foundry_attrib},
-  {VENDOR_VERSANET,		radius_vendor_versanet_attrib},
-  {VENDOR_REDBACK,		radius_vendor_redback_attrib},
-  {VENDOR_JUNIPER,		radius_vendor_juniper_attrib},
-  {VENDOR_CISCO_VPN3000,	radius_vendor_cisco_vpn3000_attrib},
-  {VENDOR_APTIS,		radius_vendor_aptis_attrib},
-  {VENDOR_COSINE,		radius_vendor_cosine_attrib},
-  {VENDOR_SHASTA,		radius_vendor_shasta_attrib},
-  {VENDOR_NOMADIX,		radius_vendor_nomadix_attrib},
-  {VENDOR_CABLELABS,		radius_vendor_cablelabs_attrib},
-  {VENDOR_UNISPHERE,		radius_vendor_unisphere_attrib},
-  {VENDOR_CISCO_BBSM,		radius_vendor_cisco_bbsm_attrib},
-  {VENDOR_ISSANNI,		radius_vendor_issanni_attrib},
-  {VENDOR_QUINTUM,		radius_vendor_quintum_attrib},
-  {VENDOR_COLUBRIS,		radius_vendor_colubris_attrib},
+  {VENDOR_ACC,					radius_vendor_acc_attrib},
+  {VENDOR_CISCO,				radius_vendor_cisco_attrib},
+  {VENDOR_SHIVA,				radius_vendor_shiva_attrib},
+  {VENDOR_CISCO_VPN5000,		radius_vendor_cisco_vpn5000_attrib},
+  {VENDOR_LIVINGSTON,			radius_vendor_livingston_attrib},
+  {VENDOR_MICROSOFT,			radius_vendor_microsoft_attrib},
+  {VENDOR_ASCEND,				radius_vendor_ascend_attrib},
+  {VENDOR_BAY,					radius_vendor_bay_attrib},
+  {VENDOR_FOUNDRY,				radius_vendor_foundry_attrib},
+  {VENDOR_VERSANET,				radius_vendor_versanet_attrib},
+  {VENDOR_REDBACK,				radius_vendor_redback_attrib},
+  {VENDOR_JUNIPER,				radius_vendor_juniper_attrib},
+  {VENDOR_CISCO_VPN3000,		radius_vendor_cisco_vpn3000_attrib},
+  {VENDOR_APTIS,				radius_vendor_aptis_attrib},
+  {VENDOR_COSINE,				radius_vendor_cosine_attrib},
+  {VENDOR_SHASTA,				radius_vendor_shasta_attrib},
+  {VENDOR_NOMADIX,				radius_vendor_nomadix_attrib},
+  {VENDOR_T_MOBILE,				radius_vendor_t_mobile_attrib},
+  {VENDOR_CABLELABS,			radius_vendor_cablelabs_attrib},
+  {VENDOR_UNISPHERE,			radius_vendor_unisphere_attrib},
+  {VENDOR_CISCO_BBSM,			radius_vendor_cisco_bbsm_attrib},
+  {VENDOR_ISSANNI,				radius_vendor_issanni_attrib},
+  {VENDOR_QUINTUM,				radius_vendor_quintum_attrib},
+  {VENDOR_COLUBRIS,				radius_vendor_colubris_attrib},
   {VENDOR_COLUMBIA_UNIVERSITY,	radius_vendor_columbia_university_attrib},
-  {VENDOR_THE3GPP,		radius_vendor_3gpp_attrib},
-  {VENDOR_GEMTEK_SYSTEMS,	radius_vendor_gemtek_systems_attrib},
-  {VENDOR_WIFI_ALLIANCE,	radius_vendor_wifi_alliance_attrib},
-  {VENDOR_THE3GPP2,			 radius_vendor_3gpp2_attrib},
-  {VENDOR_NETSCREEN,           radius_vendor_netscreen_attrib},
+  {VENDOR_THE3GPP,				radius_vendor_3gpp_attrib},
+  {VENDOR_GEMTEK_SYSTEMS,		radius_vendor_gemtek_systems_attrib},
+  {VENDOR_WIFI_ALLIANCE,		radius_vendor_wifi_alliance_attrib},
+  {VENDOR_THE3GPP2,				radius_vendor_3gpp2_attrib},
+  {VENDOR_T_SYSTEMS_NOVA,		radius_vendor_t_systems_nova_attrib},
+  {VENDOR_NETSCREEN,			radius_vendor_netscreen_attrib},
   {0, NULL},
 };
 
