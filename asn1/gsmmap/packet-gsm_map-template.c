@@ -1443,10 +1443,11 @@ void proto_register_gsm_map(void) {
 						 BASE_DEC);
 
   gsm_map_tap = register_tap("gsm_map");
-  //register_ber_oid_name("0.4.0.0.1.0.1.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkLocUp(1) version3(3)" );
-  /*
-  /* Register our configuration options, particularly our ssn:s */
-  /* Set default SSNs */
+  /*register_ber_oid_name("0.4.0.0.1.0.1.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkLocUp(1) version3(3)" );
+   *
+   * Register our configuration options, particularly our ssn:s
+   * Set default SSNs
+   */
   range_convert_str(&global_ssn_range, "6-9", MAX_SSN);
   ssn_range = range_empty();
 
