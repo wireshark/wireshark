@@ -284,8 +284,7 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset+=4;
     }
 
-    if (offset == 0)
-      offset = length;
+    offset = length;
 
     /* dissect the 802.11 header next */
     next_tvb = tvb_new_subset(tvb, offset, -1, -1);
