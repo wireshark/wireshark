@@ -42,7 +42,7 @@ tango_la_SOURCES = packet-tango.c moduleinfo.h
 tango_la_LDFLAGS = -module -avoid-version
 tango_la_LIBADD = @PLUGIN_LIBS@
 
-parlay_la_SOURCES = packet-tango.c moduleinfo.h
+parlay_la_SOURCES = packet-parlay.c moduleinfo.h
 parlay_la_LDFLAGS = -module -avoid-version
 parlay_la_LIBADD = @PLUGIN_LIBS@
 
