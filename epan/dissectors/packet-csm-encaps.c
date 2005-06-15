@@ -958,9 +958,9 @@ dissect_csm_encaps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree  *csm_encaps_control_tree = NULL;
 	guint16      function_code, channel, class_type;
 	guint8       control, type, sequence, length;
-	guint8       i;
-	gboolean	show_error_param= FALSE;
-	gchar *col_str;
+	gint         i;
+	gboolean     show_error_param= FALSE;
+	gchar       *col_str;
 
 
 	function_code = tvb_get_letohs(tvb, 10);
