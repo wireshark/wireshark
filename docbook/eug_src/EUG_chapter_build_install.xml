@@ -437,12 +437,13 @@ apt-get install ethereal
     <title>Building from source under Windows</title>
     <para>
 	  It is recommended to use the binary installer for Windows, 
-	  until you want to start developing Ethereal on this platform.
+	  until you want to start developing Ethereal on the Windows platform.
     </para>
     <para>
 	  For further information how to build Ethereal for Windows from the 
-	  sources, have a look at the file Readme.win32, which
-	  can be found in the doc directory of the sources.
+	  sources, have a look at the file 
+	  <ulink url="http://anonsvn.ethereal.com/ethereal/trunk/README.win32">Readme.win32</ulink>, 
+	  which can be found in the doc directory of the Ethereal sources.
     </para>
   </section>
   
@@ -479,11 +480,15 @@ apt-get install ethereal
     <title>Installable Components</title>
     <para>
 	Beside the usual installer options like where to install the program, 
-	there are several optional components (if you are unsure, just keep the 
-	default settings).
+	there are several optional components.
     </para>
+    <tip><title>Tip!</title>
+	<para>
+	If you are unsure which components to select, just keep the default settings.
+    </para>
+	</tip>
     <para>
-	The programs being installed 
+	The components being installed 
 	(both Ethereal GTK1 and 2 cannot be installed at the same time):
 	<itemizedlist>
 	<listitem><para>
@@ -492,11 +497,11 @@ apt-get install ethereal
 	</para></listitem>
 	<listitem><para>
 	<command>Etheral GTK2</command> - Ethereal is a GUI network protocol 
-	analyzer (using the modern GTK2 GUI toolkit).
+	analyzer (using the modern GTK2 GUI toolkit, recommended).
 	</para></listitem>
 	<listitem><para>
 	<command>GTK-Wimp</command> - GTKWimp is the GTK2 windows impersonator 
-	(native Win32 look and feel).
+	(native Win32 look and feel, recommended).
 	</para></listitem>
 	<listitem><para>
 	<command>Tethereal</command> - Tethereal is a command-line based network 
