@@ -188,7 +188,7 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 #ifdef HAVE_LIBPCAP
 #define ETHEREAL_STOCK_CAPTURE_INTERFACES       "Interfaces"
 #define ETHEREAL_STOCK_CAPTURE_OPTIONS          "Options"
-#define ETHEREAL_STOCK_CAPTURE_START            "Capture"
+#define ETHEREAL_STOCK_CAPTURE_START            "Start"
 #define ETHEREAL_STOCK_CAPTURE_STOP             "Stop"
 #define ETHEREAL_STOCK_CAPTURE_RESTART          "Restart"
 #define ETHEREAL_STOCK_CAPTURE_FILTER           "CFilter"
@@ -321,8 +321,8 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 #ifdef HAVE_LIBPCAP
 #define ETHEREAL_STOCK_LABEL_CAPTURE_INTERFACES       "_Interfaces"
 #define ETHEREAL_STOCK_LABEL_CAPTURE_OPTIONS          "_Options"
-#define ETHEREAL_STOCK_LABEL_CAPTURE_START            "_Capture"
-#define ETHEREAL_STOCK_LABEL_CAPTURE_STOP             "_Stop"
+#define ETHEREAL_STOCK_LABEL_CAPTURE_START            "_Start"
+#define ETHEREAL_STOCK_LABEL_CAPTURE_STOP             "S_top"
 #define ETHEREAL_STOCK_LABEL_CAPTURE_RESTART          "_Restart"
 #define ETHEREAL_STOCK_LABEL_CAPTURE_FILTER           "_CFilter"
 #define ETHEREAL_STOCK_LABEL_CAPTURE_FILTER_ENTRY     "_Capture Filter:"
