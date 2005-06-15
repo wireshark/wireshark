@@ -1590,6 +1590,8 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					  "Data (%d bytes)", tvb_get_guint8(tvb, offset2+l+1));
 		      break;
 		  }
+		  if (tvb_get_guint8(tvb, offset2+l+1) < 1)
+		      THROW(ReportedBoundsError);
 		  l += tvb_get_guint8(tvb, offset2+l+1);
 	      }
 	      
@@ -2031,6 +2033,8 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      break;
 	  }
 	  
+	  if (obj_length < 1)
+	      THROW(ReportedBoundsError);
 	  offset += obj_length;
 	  len += obj_length;
 	  
