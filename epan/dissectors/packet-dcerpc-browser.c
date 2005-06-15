@@ -94,6 +94,7 @@ dissect_browser_TYPE_4_data(tvbuff_t *tvb, int offset,
 {
 	guint32 len;
 	dcerpc_info *di;
+	int old_offset = offset;
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
@@ -108,6 +109,8 @@ dissect_browser_TYPE_4_data(tvbuff_t *tvb, int offset,
 	proto_tree_add_item(tree, hf_browser_unknown_bytes, tvb, offset, len,
 		FALSE);
 	offset += len;
+	if (offset < old_offset)
+		THROW(ReportedBoundsError);
 
 	return len;
 }
@@ -140,6 +143,7 @@ dissect_browser_TYPE_3_data(tvbuff_t *tvb, int offset,
 {
 	guint32 len;
 	dcerpc_info *di;
+	int old_offset = offset;
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
@@ -155,6 +159,8 @@ dissect_browser_TYPE_3_data(tvbuff_t *tvb, int offset,
 	proto_tree_add_item(tree, hf_browser_unknown_bytes, tvb, offset, len,
 		FALSE);
 	offset += len;
+	if (offset < old_offset)
+		THROW(ReportedBoundsError);
 
 	return len;
 }
@@ -743,6 +749,7 @@ dissect_browser_TYPE_9_data(tvbuff_t *tvb, int offset,
 {
 	guint32 len;
 	dcerpc_info *di;
+	int old_offset = offset;
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
@@ -759,6 +766,8 @@ dissect_browser_TYPE_9_data(tvbuff_t *tvb, int offset,
 	proto_tree_add_item(tree, hf_browser_unknown_bytes, tvb, offset, len,
 		FALSE);
 	offset += len;
+	if (offset < old_offset)
+		THROW(ReportedBoundsError);
 
 	return len;
 }
@@ -932,6 +941,7 @@ dissect_browser_TYPE_12_data(tvbuff_t *tvb, int offset,
 {
 	guint32 len;
 	dcerpc_info *di;
+	int old_offset = offset;
 
 	di=pinfo->private_data;
 	if(di->conformant_run){
@@ -948,8 +958,10 @@ dissect_browser_TYPE_12_data(tvbuff_t *tvb, int offset,
 	proto_tree_add_item(tree, hf_browser_unknown_bytes, tvb, offset, len,
 		FALSE);
 	offset += len;
+	if (offset < old_offset)
+		THROW(ReportedBoundsError);
 
-	return len;
+	return offset;
 }
 static int
 dissect_browser_TYPE_12(tvbuff_t *tvb, int offset,
