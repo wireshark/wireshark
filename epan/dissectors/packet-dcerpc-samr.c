@@ -250,6 +250,7 @@ sam_dissect_SAM_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset,
 {
        guint32 len;
        dcerpc_info *di;
+       int old_offset = offset;
 
        di=pinfo->private_data;
        if(di->conformant_run){
@@ -264,6 +265,8 @@ sam_dissect_SAM_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset,
                tvb, offset, pinfo, tree, drep, len, &samr_connect_access_mask_info);
 
        offset += len;
+       if (offset < old_offset)
+               THROW(ReportedBoundsError);
 
        return offset;
 }
