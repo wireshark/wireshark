@@ -542,6 +542,16 @@ proto_register_pagp(void)
 	FT_ETHER,	BASE_NONE,	NULL,	0x0,
       	"Source MAC on frames for this aggregate", HFILL }},
 
+    { &hf_pagp_flush_local_device_id,
+      { "Flush Local Device ID",	"pagp.flushlocaldevid",
+	FT_ETHER,	BASE_NONE,	NULL,	0x0,
+      	"Flush local device ID", HFILL }},
+
+    { &hf_pagp_flush_partner_device_id,
+      { "Flush Partner Device ID",	"pagp.flushpartnerdevid",
+	FT_ETHER,	BASE_NONE,	NULL,	0x0,
+      	"Flush remote device ID", HFILL }},
+
     { &hf_pagp_flush_transaction_id,
       { "Transaction ID",		"pagp.transid",
 	FT_UINT32,	BASE_HEX,	NULL,	0x0,
