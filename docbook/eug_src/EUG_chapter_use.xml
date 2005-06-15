@@ -54,7 +54,7 @@
 	versions of the underlying GUI toolkit (GTK 1.x / 2.x) used, your 
 	screen might look different from the provided screenshots. But as there 
 	are no real differences in functionality, these screenshots should still 
-	be understandable.
+	be well understandable.
 	</para>
 	</note>
 	</para>
@@ -338,6 +338,38 @@
 		<entry></entry>
 	      </row>
 	      <row>
+		<entry><command>File Set > List Files</command></entry>
+		<entry></entry>
+		<entry><para>
+			This menu item allows you to show a list of files in a file set. 
+			It pops up the Ethereal List File Set dialog box (which is 
+			discussed further in <xref linkend="ChIOFileSetListDialog"/>).
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>File Set > Next File</command></entry>
+		<entry></entry>
+		<entry><para>
+			If the currently loaded file is part of a file set, jump to the 
+			next file in the set. If it isn't part of a file set or just the 
+			last file in that set, this item is greyed out.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>File Set > Previous File</command></entry>
+		<entry></entry>
+		<entry><para>
+			If the currently loaded file is part of a file set, jump to the 
+			previous file in the set. If it isn't part of a file set or just 
+			the first file in that set, this item is greyed out.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
 		<entry><command>Export > as "Plain Text" file...</command></entry>
 		<entry></entry>
 		<entry><para>
@@ -355,6 +387,16 @@
 		    the capture file to a PostScript file. 
 			It pops up the Ethereal Export dialog box (which is discussed further in 
 		    <xref linkend="ChIOExportPSDialog"/>).
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Export > as "CSV" (Comma Separated Values packet summary) file...</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item allows you to export the (or some) of the packet summaries in 
+		    the capture file to a .csv file (e.g. used by spreadsheet programs). 
+			It pops up the Ethereal Export dialog box (which is discussed further in 
+		    <xref linkend="ChIOExportCSVDialog"/>).
 		  </para></entry>
 	      </row>
 	      <row>
@@ -475,7 +517,7 @@
 		<entry></entry>
 	      </row>
 	      <row>
-		<entry><command>Time Reference > Set Time Reference</command></entry>
+		<entry><command>Time Reference > Set Time Reference (toggle)</command></entry>
 		<entry>Ctrl+T</entry>
 		<entry><para>
 		    This menu item set a time reference on the currently selected 
@@ -498,7 +540,7 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><command>Mark Packet</command></entry>
+		<entry><command>Mark Packet (toggle)</command></entry>
 		<entry>Ctrl+M</entry>
 		<entry><para>
 		    This menu item "marks" the currently selected packet. See
@@ -698,6 +740,17 @@
 		  </para></entry>
 	      </row>
 	      <row>
+		<entry><command>Colorize Packet List</command></entry>
+		<entry></entry>
+		<entry><para>
+		This item allows you to control wether or not Ethereal should colorize 
+		the packet list.</para>
+		<note><title>Note!</title><para>
+		Enabling colorization will slow down the display 
+		of new packets while capturing / loading capture files.
+		  </para></note></entry>
+	      </row>
+	      <row>
 		<entry><command>Auto Scroll in Live Capture</command></entry>
 		<entry></entry>
 		<entry><para>
@@ -736,35 +789,47 @@
 		  </para></entry>
 	      </row>
 	      <row>
+		<entry><command>Resize All Columns</command></entry>
+		<entry></entry>
+		<entry><para>
+		  Resize all column widths so the content will fit into it.
+		  </para>
+		  <note><title>Note!</title><para>
+		  Resizing may take a significant amount of time, especially if a 
+		  large capture file is loaded.
+		  </para></note>
+		  </entry>
+	      </row>
+	      <row>
 		<entry><command>------</command></entry>
 		<entry></entry>
 		<entry></entry>
 	      </row>
 	      <row>
-		<entry><command>Collapse All</command></entry>
+		<entry><command>Expand Subtrees</command></entry>
 		<entry></entry>
 		<entry><para>
-		    Ethereal keeps a list of all the protocol subtrees 
-		    that are expanded, and uses it to ensure that the 
-		    correct subtrees are expanded when you display a packet. 
-		    This menu item collapses the tree view of all packets 
-		    in the capture list.  
+		    This menu item expands the currently selected subtree in the 
+			packet details tree. 
 		  </para></entry>
 	      </row>
 	      <row>
 		<entry><command>Expand All</command></entry>
 		<entry></entry>
 		<entry><para>
+		    Ethereal keeps a list of all the protocol subtrees 
+		    that are expanded, and uses it to ensure that the 
+		    correct subtrees are expanded when you display a packet. 
 		    This menu item expands all subtrees in all packets in 
 		    the capture. 
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><command>Expand Tree</command></entry>
+		<entry><command>Collapse All</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item expands the currently selected subtree in the 
-			packet details tree. 
+		    This menu item collapses the tree view of all packets 
+		    in the capture list.  
 		  </para></entry>
 	      </row>
 	      <row>
@@ -833,10 +898,26 @@
 	    </thead>
 	    <tbody>
 	      <row>
+		<entry><command>Back</command></entry>
+		<entry>Alt+Left</entry>
+		<entry><para>
+		    Jump to the recently visited packet in the packet 
+			history, much like the page history in a web browser.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Forward</command></entry>
+		<entry>Alt+Right</entry>
+		<entry><para>
+		    Jump to the next visited packet in the packet 
+			history, much like the page history in a web browser.
+		  </para></entry>
+	      </row>
+	      <row>
 		<entry><command>Go to Packet...</command></entry>
 		<entry>Ctrl-G</entry>
 		<entry><para>
-		    This menu item brings up a dialog box that allows you 
+		    Bring up a dialog box that allows you 
 		    to specify a packet number, and then goes to that packet. See
 			<xref linkend="ChWorkGoToPacketSection"/> for details.
 		  </para></entry>
@@ -845,7 +926,7 @@
 		<entry><command>Go to Corresponding Packet</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item goes to the corresponding packet of the currently 
+		    Go to the corresponding packet of the currently 
 			selected protocol field. If the selected field doesn't correspond 
 			to a packet, this item is greyed out.
 		  </para></entry>
@@ -859,14 +940,14 @@
 		<entry><command>First Packet</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item jumps to the first packet of the capture file.
+		    Jump to the first packet of the capture file.
 		  </para></entry>
 	      </row>
 	      <row>
 		<entry><command>Last Packet</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item jumps to the last packet of the capture file.
+		    Jump to the last packet of the capture file.
 		  </para></entry>
 	      </row>
 	    </tbody>
@@ -897,13 +978,30 @@
 	    </thead>
 	    <tbody>
 	      <row>
-		<entry><command>Start...</command></entry>
+		<entry><command>Interfaces...</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item brings up a dialog box that shows what's going on 
+			at the network interfaces Ethereal knows of, see
+			<xref linkend="ChCapInterfaceSection"/>) .
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Options...</command></entry>
 		<entry>Ctrl+K</entry>
 		<entry><para>
 		    This menu item brings up the Capture Options 
 		    dialog box (discussed further in 
 		    <xref linkend="ChCapCaptureOptions"/>) and allows you to 
 		      start capturing packets.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Start</command></entry>
+		<entry></entry>
+		<entry><para>
+		    Immediately start capturing packets with the same settings than 
+			the last time.
 		  </para></entry>
 	      </row>
 	      <row>
@@ -915,12 +1013,11 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><command>Interfaces ...</command></entry>
+		<entry><command>Restart</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item brings up a dialog box that shows what's going on 
-			at the network interfaces Ethereal knows of, see
-			<xref linkend="ChCapInterfaceSection"/>) .
+		    This menu item stops the currently running capture and starts 
+			again with the same options, this is just for convenience.
 		  </para></entry>
 	      </row>
 	      <row>
@@ -1150,27 +1247,17 @@
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
 	      <row>
-		<entry><command>BOOTP-DHCP</command></entry>
-		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
-	      </row>
-	      <row>
 		<entry><command>GSM</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
 	      <row>
-		<entry><command>HTTP</command></entry>
-		<entry></entry>
-		<entry><para>HTTP request/response statistics, see <xref linkend="ChStatXXX"/></para></entry>
-	      </row>
-	      <row>
-		<entry><command>ISUP Message Types</command></entry>
+		<entry><command>H.225...</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
 	      <row>
-		<entry><command>ITU-T H.225</command></entry>
+		<entry><command>ISUP Message Types</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
@@ -1180,12 +1267,12 @@
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
 	      <row>
-		<entry><command>ONC-RPC Programs</command></entry>
+		<entry><command>RTP</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
 	      <row>
-		<entry><command>RTP</command></entry>
+		<entry><command>SCTP</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
@@ -1195,12 +1282,42 @@
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
 	      <row>
-		<entry><command>TCP Stream Graph</command></entry>
+		<entry><command>VoIP Calls...</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
 	      <row>
-		<entry><command>WAP-WSP</command></entry>
+		<entry><command>WAP-WSP...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>BOOTP-DHCP</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>HTTP</command></entry>
+		<entry></entry>
+		<entry><para>HTTP request/response statistics, see <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>ISUP Messages</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>ONC-RPC Programs</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>TCP Stream Graph</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
