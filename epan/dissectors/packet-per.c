@@ -656,6 +656,7 @@ dissect_per_integer(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tre
 	guint32 i, length;
 	gint32 val;
 	proto_item *it=NULL;
+	header_field_info *hfi;
 
 	/* 12.2.6 b */
 	offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, -1, &length);
@@ -679,7 +680,19 @@ PER_NOT_DECODED_YET("too long integer");
 		val=(val<<8)|tvb_get_guint8(tvb,offset>>3);
 		offset+=8;
 	}
-	it=proto_tree_add_int(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, val);
+
+	hfi = proto_registrar_get_nth(hf_index);
+	if (! hfi)
+		THROW(ReportedBoundsError);
+        if (IS_FT_INT(hfi->type)) {
+		it=proto_tree_add_int(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, val);
+        } else if (IS_FT_UINT(hfi->type)) {
+		it=proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, val);
+	} else {
+		proto_tree_add_text(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, "Field is not an integer: %s", hfi->abbrev);
+		THROW(ReportedBoundsError);
+	}
+
 
 	if(item){
 		*item=it;
