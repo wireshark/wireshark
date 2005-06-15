@@ -130,9 +130,16 @@ EUG_GRAPHICS =	\
 	graphics/note.png				\
 	graphics/tip.png				\
 	graphics/warning.png				\
-	graphics/toolbar/capture_24.png 		\
-	graphics/toolbar/cfilter_24.png			\
-	graphics/toolbar/dfilter_24.png			\
+	graphics/toolbar/autoscroll_24.png		\
+	graphics/toolbar/capture_filter_24.png		\
+	graphics/toolbar/capture_interfaces_24.png 	\
+	graphics/toolbar/capture_options_24.png 	\
+	graphics/toolbar/capture_restart_24.png 	\
+	graphics/toolbar/capture_start_24.png 		\
+	graphics/toolbar/capture_stop_24.png 		\
+	graphics/toolbar/colorize_24.png		\
+	graphics/toolbar/display_filter_24.png		\
+	graphics/toolbar/resize_columns_24.png		\
 	graphics/toolbar/stock_add_24.png		\
 	graphics/toolbar/stock_bottom_24.png		\
 	graphics/toolbar/stock_close_24.png		\

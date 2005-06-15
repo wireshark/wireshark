@@ -181,22 +181,26 @@ FILE SECTION
   <!ENTITY EtherealDecodeAsShow SYSTEM "./graphics/ethereal-decode-as-show.png" NDATA PNG>
 
   <!-- Third Chapter Toolbar-->
-  <!ENTITY EtherealToolbarCapture SYSTEM "./graphics/toolbar/capture_24.png" NDATA PNG>
-  <!ENTITY EtherealToolbarCaptureFilters SYSTEM "./graphics/toolbar/cfilter_24.png" NDATA PNG>
-  <!ENTITY EtherealToolbarDisplayFilters SYSTEM "./graphics/toolbar/dfilter_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarCaptureInterfaces SYSTEM "./graphics/toolbar/capture_interfaces_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarCaptureOptions SYSTEM "./graphics/toolbar/capture_options_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarCaptureStart SYSTEM "./graphics/toolbar/capture_start_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarCaptureStop SYSTEM "./graphics/toolbar/capture_stop_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarCaptureRestart SYSTEM "./graphics/toolbar/capture_restart_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarCaptureFilters SYSTEM "./graphics/toolbar/capture_filter_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarDisplayFilters SYSTEM "./graphics/toolbar/display_filter_24.png" NDATA PNG>
   <!ENTITY EtherealToolbarAdd SYSTEM "./graphics/toolbar/stock_add_24.png" NDATA PNG>
   <!ENTITY EtherealToolbarGoLast SYSTEM "./graphics/toolbar/stock_bottom_24.png" NDATA PNG>
   <!ENTITY EtherealToolbarClose SYSTEM "./graphics/toolbar/stock_close_24.png" NDATA PNG>
   <!ENTITY EtherealToolbarColoringRules SYSTEM "./graphics/toolbar/stock_colorselector_24.png" NDATA PNG>
   <!ENTITY EtherealToolbarHelp SYSTEM "./graphics/toolbar/stock_help_24.png" NDATA PNG>
   <!ENTITY EtherealToolbarGoTo SYSTEM "./graphics/toolbar/stock_jump_to_24.png" NDATA PNG>
-  <!ENTITY EtherealToolbarFindPrevious SYSTEM "./graphics/toolbar/stock_left_arrow_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarGoBack SYSTEM "./graphics/toolbar/stock_left_arrow_24.png" NDATA PNG>
   <!ENTITY EtherealToolbarOpen SYSTEM "./graphics/toolbar/stock_open_24.png" NDATA PNG>
   <!ENTITY EtherealToolbarPreferences SYSTEM "./graphics/toolbar/stock_preferences_24.png" NDATA PNG>
   <!ENTITY EtherealToolbarPrint SYSTEM "./graphics/toolbar/stock_print_24.png" NDATA PNG>
   <!ENTITY EtherealToolbarProperties SYSTEM "./graphics/toolbar/stock_properties_24.png" NDATA PNG>
   <!ENTITY EtherealToolbarReload SYSTEM "./graphics/toolbar/stock_refresh_24.png" NDATA PNG>
-  <!ENTITY EtherealToolbarFindNext SYSTEM "./graphics/toolbar/stock_right_arrow_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarGoForward SYSTEM "./graphics/toolbar/stock_right_arrow_24.png" NDATA PNG>
   <!ENTITY EtherealToolbarSave SYSTEM "./graphics/toolbar/stock_save_24.png" NDATA PNG>
   <!ENTITY EtherealToolbarSaveAs SYSTEM "./graphics/toolbar/stock_save_as_24.png" NDATA PNG>
   <!ENTITY EtherealToolbarFind SYSTEM "./graphics/toolbar/stock_search_24.png" NDATA PNG>
@@ -205,6 +209,9 @@ FILE SECTION
   <!ENTITY EtherealToolbarZoom100 SYSTEM "./graphics/toolbar/stock_zoom_1_24.png" NDATA PNG>
   <!ENTITY EtherealToolbarZoomIn SYSTEM "./graphics/toolbar/stock_zoom_in_24.png" NDATA PNG>
   <!ENTITY EtherealToolbarZoomOut SYSTEM "./graphics/toolbar/stock_zoom_out_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarColorize SYSTEM "./graphics/toolbar/colorize_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarAutoScroll SYSTEM "./graphics/toolbar/autoscroll_24.png" NDATA PNG>
+  <!ENTITY EtherealToolbarResizeColumns SYSTEM "./graphics/toolbar/resize_columns_24.png" NDATA PNG>
 
   <!-- Third Chapter Statistics -->
   <!ENTITY EtherealStatsSummary SYSTEM "./graphics/ethereal-stats-summary.png" NDATA PNG>

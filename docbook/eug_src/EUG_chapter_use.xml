@@ -1444,40 +1444,56 @@
 	    </thead>
 	    <tbody>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarCapture" format="PNG"/></entry>
-		<entry><command>Start Capture...</command></entry>
-		<entry>Capture/Start...</entry>
+		<entry><graphic entityref="EtherealToolbarCaptureInterfaces" format="PNG"/></entry>
+		<entry><command>Interfaces...</command></entry>
+		<entry>Capture/Interfaces...</entry>
+		<entry><para>
+		    This item brings up the Capture Interfaces List 
+		    dialog box (discussed further in 
+		    <xref linkend="ChCapCapturingSection"/>).
+		  </para>
+		  </entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarCaptureOptions" format="PNG"/></entry>
+		<entry><command>Options...</command></entry>
+		<entry>Capture/Options...</entry>
 		<entry><para>
 		    This item brings up the Capture Options 
 		    dialog box (discussed further in 
 		    <xref linkend="ChCapCapturingSection"/>) and allows you to 
 		      start capturing packets.
 		  </para>
-			<note><title>Note!</title>
-			<para>
-			If a live capture is in progress, and you are using "Update List 
-			of Packets in Realtime", this icon will be replaced by the Stop 
-			Capture icon 
-			<inlinegraphic entityref="EtherealToolbarStop" format="PNG"/>.
-		  </para></note>
 		  </entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarStop" format="PNG"/></entry>
-		<entry><command>Stop Capture</command></entry>
+		<entry><graphic entityref="EtherealToolbarCaptureStart" format="PNG"/></entry>
+		<entry><command>Start</command></entry>
+		<entry>Capture/Start</entry>
+		<entry><para>
+		    This item starts capturing packets with the options form 
+			the last time.
+		  </para>
+		  </entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarCaptureStop" format="PNG"/></entry>
+		<entry><command>Stop</command></entry>
 		<entry>Capture/Stop</entry>
 		<entry><para>
 		    This item stops the currently running live capture process 
 			<xref linkend="ChCapCapturingSection"/>).
 		  </para>
-			<note><title>Note!</title>
-			<para>
-			This icon is shown if a live capture is in progress, and you are 
-			using "Update List of Packets in Realtime", otherwise the Start 
-			Capture icon 
-			<inlinegraphic entityref="EtherealToolbarCapture" format="PNG"/>
-			is shown.
-		  </para></note>
+		  </entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarCaptureRestart" format="PNG"/></entry>
+		<entry><command>Restart</command></entry>
+		<entry>Capture/Restart</entry>
+		<entry><para>
+		    This item stops the currently running live capture process 
+			and restarts it again, for convenience.
+		  </para>
 		  </entry>
 	      </row>
 	      <row>
@@ -1556,27 +1572,20 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarFindPrevious" format="PNG"/></entry>
-		<entry><command>Find Previous</command></entry>
-		<entry>Edit/Find Previous</entry>
+		<entry><graphic entityref="EtherealToolbarGoBack" format="PNG"/></entry>
+		<entry><command>Go Back</command></entry>
+		<entry>Go/Go Back</entry>
 		<entry><para>
-		    This item tries to find the previous packet, matching the 
-			settings from "Find Packet...".
+		    This item jumps back in the packet history.
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><graphic entityref="EtherealToolbarFindNext" format="PNG"/></entry>
-		<entry><command>Find Next</command></entry>
-		<entry>Edit/Find Next</entry>
+		<entry><graphic entityref="EtherealToolbarGoForward" format="PNG"/></entry>
+		<entry><command>Go Forward</command></entry>
+		<entry>Go/Go Forward</entry>
 		<entry><para>
-		    This item tries to find the next packet, matching the 
-			settings from "Find Packet...".
+		    This item jumps forward in the packet history.
 		  </para></entry>
-	      </row>
-	      <row>
-		<entry><command>------</command></entry>
-		<entry></entry>
-		<entry></entry>
 	      </row>
 	      <row>
 		<entry><graphic entityref="EtherealToolbarGoTo" format="PNG"/></entry>
@@ -1609,6 +1618,27 @@
 		<entry></entry>
 	      </row>
 	      <row>
+		<entry><graphic entityref="EtherealToolbarColorize" format="PNG"/></entry>
+		<entry><command>Colorize</command></entry>
+		<entry>View/Colorize</entry>
+		<entry><para>
+		  Colorize the packet list (or not).
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarAutoScroll" format="PNG"/></entry>
+		<entry><command>Auto Scroll in Live Capture</command></entry>
+		<entry>View/Auto Scroll in Live Capture</entry>
+		<entry><para>
+		  Auto scroll packet list while doing a live capture (or not).
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
 		<entry><graphic entityref="EtherealToolbarZoomIn" format="PNG"/></entry>
 		<entry><command>Zoom In</command></entry>
 		<entry>View/Zoom In</entry>
@@ -1630,6 +1660,14 @@
 		<entry>View/Normal Size</entry>
 		<entry><para>
 		  Set zoom level back to 100%.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarResizeColumns" format="PNG"/></entry>
+		<entry><command>Resize Columns</command></entry>
+		<entry>View/Resize Columns</entry>
+		<entry><para>
+		  Resize columns, so the content fits into them.
 		  </para></entry>
 	      </row>
 	      <row>
@@ -1684,6 +1722,19 @@
 		    Ethereal.  You can also save your preferences so Ethereal 
 		    will use them the next time you start it. More detail 
 		    is provided in <xref linkend="ChCustPreferencesSection"/>
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><graphic entityref="EtherealToolbarHelp" format="PNG"/></entry>
+		<entry><command>Help</command></entry>
+		<entry>Help/Contents</entry>
+		<entry><para>
+		    This item brings up help dialog box.
 		  </para></entry>
 	      </row>
 	    </tbody>
