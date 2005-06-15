@@ -866,68 +866,67 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			break;
 
 		case FT_STRINGZ:
-			if (length != 0) {  /* XXX - Should we throw an exception instead? */
-				/* Instead of calling proto_item_set_len(),
-				 * since we don't yet have a proto_item, we
-				 * set the field_info's length ourselves.
+			DISSECTOR_ASSERT(length >= -1);
+			/* Instead of calling proto_item_set_len(),
+			 * since we don't yet have a proto_item, we
+			 * set the field_info's length ourselves.
+			 *
+			 * XXX - our caller can't use that length to
+			 * advance an offset unless they arrange that
+			 * there always be a protocol tree into which
+			 * we're putting this item.
+			 */
+			if (length == -1) {
+				/* This can throw an exception */
+				length = tvb_strsize(tvb, start);
+
+				/* This g_malloc'ed memory is freed
+				   in proto_tree_free_node() */
+				string = g_malloc(length);
+
+				tvb_memcpy(tvb, string, start, length);
+			} else if (length == 0) {
+				string = g_strdup("[Empty]");
+			} else {
+				/* In this case, length signifies
+				 * the length of the string.
 				 *
-				 * XXX - our caller can't use that length to
-				 * advance an offset unless they arrange that
-				 * there always be a protocol tree into which
-				 * we're putting this item.
+				 * This could either be a null-padded
+				 * string, which doesn't necessarily
+				 * have a '\0' at the end, or a
+				 * null-terminated string, with a
+				 * trailing '\0'.  (Yes, there are
+				 * cases where you have a string
+				 * that's both counted and null-
+				 * terminated.)
+				 *
+				 * In the first case, we must
+				 * allocate a buffer of length
+				 * "length+1", to make room for
+				 * a trailing '\0'.
+				 *
+				 * In the second case, we don't
+				 * assume that there is a trailing
+				 * '\0' there, as the packet might
+				 * be malformed.  (XXX - should we
+				 * throw an exception if there's no
+				 * trailing '\0'?)  Therefore, we
+				 * allocate a buffer of length
+				 * "length+1", and put in a trailing
+				 * '\0', just to be safe.
+				 *
+				 * (XXX - this would change if
+				 * we made string values counted
+				 * rather than null-terminated.)
 				 */
-				if (length == -1) {
-					/* This can throw an exception */
-					length = tvb_strsize(tvb, start);
 
-					/* This g_malloc'ed memory is freed
-					   in proto_tree_free_node() */
-					string = g_malloc(length);
-
-					tvb_memcpy(tvb, string, start, length);
-					new_fi->length = length;
-				}
-				else {
-					/* In this case, length signifies
-					 * the length of the string.
-					 *
-					 * This could either be a null-padded
-					 * string, which doesn't necessarily
-					 * have a '\0' at the end, or a
-					 * null-terminated string, with a
-					 * trailing '\0'.  (Yes, there are
-					 * cases where you have a string
-					 * that's both counted and null-
-					 * terminated.)
-					 *
-					 * In the first case, we must
-					 * allocate a buffer of length
-					 * "length+1", to make room for
-					 * a trailing '\0'.
-					 *
-					 * In the second case, we don't
-					 * assume that there is a trailing
-					 * '\0' there, as the packet might
-					 * be malformed.  (XXX - should we
-					 * throw an exception if there's no
-					 * trailing '\0'?)  Therefore, we
-					 * allocate a buffer of length
-					 * "length+1", and put in a trailing
-					 * '\0', just to be safe.
-					 *
-					 * (XXX - this would change if
-					 * we made string values counted
-					 * rather than null-terminated.)
-					 */
-
-					/* This g_malloc'ed memory is freed
-					 * in proto_tree_free_node() */
-					string = tvb_get_string(tvb, start,
-					    length);
-					new_fi->length = length;
-				}
-				proto_tree_set_string(new_fi, string, TRUE);
+				/* This g_malloc'ed memory is freed
+				 * in proto_tree_free_node() */
+				string = tvb_get_string(tvb, start,
+					length);
 			}
+			new_fi->length = length;
+			proto_tree_set_string(new_fi, string, TRUE);
 			break;
 
 		case FT_UINT_STRING:
