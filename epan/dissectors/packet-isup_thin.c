@@ -314,11 +314,9 @@ proto_register_isup_thin(void)
 		
   /*
    * Register the dissector by name, so other dissectors can
-   * grab it by name rather than just referring to it directly
-   * (you can't refer to it directly from a plugin dissector
-   * on Windows without stuffing it into the Big Transfer Vector).
+   * grab it by name rather than just referring to it directly.
    */
-  register_dissector("isup_thin", dissect_isup_thin, proto_isup_thin);
+  new_register_dissector("isup_thin", dissect_isup_thin, proto_isup_thin);
 
 }
 
