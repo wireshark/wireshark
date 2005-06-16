@@ -30,13 +30,13 @@ guint8 class;
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 next_tvb = tvb_new_subset(tvb, offset, len, len);		
- offset = dissect_ber_octet_string(TRUE, pinfo, tree, next_tvb, 0, hf_index,
-                                    &parameter_tvb);
+offset = dissect_ber_octet_string(TRUE, pinfo, tree, next_tvb, 0, hf_index,
+                                  &parameter_tvb);
                                     
  
- if (!parameter_tvb)
-	return offset;
- dissect_tcap_ExternalPDU(TRUE, parameter_tvb, 2, pinfo, tree, -1);
+if (!parameter_tvb)
+ return offset;
+dissect_tcap_ExternalPDU(TRUE, parameter_tvb, 2, pinfo, tree, -1);
 
 return offset+2;
 
@@ -53,15 +53,15 @@ guint8 class;
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 next_tvb = tvb_new_subset(tvb, offset, len, len);		
- offset = dissect_ber_octet_string(TRUE, pinfo, tree, tvb, 0, hf_index,
-                                    &parameter_tvb);
+offset = dissect_ber_octet_string(TRUE, pinfo, tree, tvb, 0, hf_index,
+                                  &parameter_tvb);
                                     
  /*offset = dissect_ber_octet_string(TRUE, pinfo, tree, tvb, offset, hf_index,
   *                                 &parameter_tvb);
   */
- if (!parameter_tvb)
-	return offset;
- dissect_tcap_DialoguePDU(TRUE, parameter_tvb, 0, pinfo, tree, -1);
+if (!parameter_tvb)
+ return offset;
+dissect_tcap_DialoguePDU(TRUE, parameter_tvb, 0, pinfo, tree, -1);
 
 #.FN_BODY Parameter
 tvbuff_t	*next_tvb;
@@ -72,13 +72,14 @@ guint8 class;
 	guint32 ind_field;
 
 
- offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
- offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
- offset = dissect_ber_octet_string(TRUE, pinfo, tree, tvb, 0, hf_index,
+  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+  offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
+  offset = dissect_ber_octet_string(TRUE, pinfo, tree, tvb, 0, hf_index,
                                     &next_tvb);
  
+  if (!next_tvb)
+    return offset;
   dissect_tcap_param(pinfo,tree,next_tvb,0);
-  return offset;
 
 #.FN_BODY User_information
 tvbuff_t	*parameter_tvb;
@@ -96,7 +97,8 @@ next_tvb = tvb_new_subset(tvb, offset, len, len);
 dissect_ber_octet_string(TRUE, pinfo, tree, next_tvb, 0, hf_index,
                                     &parameter_tvb);
  
-dissect_tcap_UserInformation(TRUE, parameter_tvb, 0, pinfo, tree, -1);
+if (parameter_tvb)
+    dissect_tcap_UserInformation(TRUE, parameter_tvb, 0, pinfo, tree, -1);
  
  
 return offset+len;
@@ -113,7 +115,7 @@ guint8 class;
 ber_oid_dissector_table = find_dissector_table("ber.oid");
 tcap_itu_ssn_dissector_table = find_dissector_table("tcap.itu_ssn");
 
-next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));		
+next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 if (ber_oid_dissector_table && cur_oid){
@@ -183,7 +185,7 @@ offset = dissect_ber_octet_string(TRUE, pinfo, tree, tvb, 0, hf_index,
 #.FN_BODY ComponentPDU 	
 tvbuff_t *next_tvb;
 
-next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));		
+next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
 if (!dissector_try_port(tcap_ansi_ssn_dissector_table, pinfo->match_port, next_tvb, pinfo, tcap_top_tree))
     {

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-tcap.c                                                            */
+/* ./packet-tcap.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p tcap -c tcap.cnf -s packet-tcap-template tcap.asn */
 
 /* Input file: packet-tcap-template.c */
@@ -52,8 +52,8 @@
 
 /* Initialize the protocol and registered fields */
 int proto_tcap = -1;
-static int hf_tcap_tag = -1;         
-static int hf_tcap_length = -1;         
+static int hf_tcap_tag = -1; 
+static int hf_tcap_length = -1; 
 static int hf_tcap_data = -1;
 
 /*--- Included file: packet-tcap-hf.c ---*/
@@ -328,9 +328,9 @@ offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 next_tvb = tvb_new_subset(tvb, offset, len, len);		
 dissect_ber_octet_string(TRUE, pinfo, tree, next_tvb, 0, hf_index,
                                     &parameter_tvb);
-if (!parameter_tvb)
-	return offset+len; 
-dissect_tcap_UserInformation(TRUE, parameter_tvb, 0, pinfo, tree, -1);
+ 
+if (parameter_tvb)
+    dissect_tcap_UserInformation(TRUE, parameter_tvb, 0, pinfo, tree, -1);
  
  
 return offset+len;
@@ -575,15 +575,15 @@ guint8 class;
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 next_tvb = tvb_new_subset(tvb, offset, len, len);		
- offset = dissect_ber_octet_string(TRUE, pinfo, tree, tvb, 0, hf_index,
-                                    &parameter_tvb);
+offset = dissect_ber_octet_string(TRUE, pinfo, tree, tvb, 0, hf_index,
+                                  &parameter_tvb);
                                     
  /*offset = dissect_ber_octet_string(TRUE, pinfo, tree, tvb, offset, hf_index,
   *                                 &parameter_tvb);
   */
- if (!parameter_tvb)
-	return offset;
- dissect_tcap_DialoguePDU(TRUE, parameter_tvb, 0, pinfo, tree, -1);
+if (!parameter_tvb)
+ return offset;
+dissect_tcap_DialoguePDU(TRUE, parameter_tvb, 0, pinfo, tree, -1);
 
 
   return offset;
@@ -641,8 +641,6 @@ offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 /* Use the recived length, XXX What if it was indefenet? */
 next_tvb = tvb_new_subset(tvb, start_offset, len +(offset - start_offset), len+(offset - start_offset));		
-if (!next_tvb)
-	return offset;
 if (ber_oid_dissector_table && tcapext_oid){
 if(!dissector_try_string(ber_oid_dissector_table, tcapext_oid, next_tvb, pinfo, tcap_top_tree))	
 	{
@@ -812,13 +810,13 @@ guint8 class;
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 next_tvb = tvb_new_subset(tvb, offset, len, len);		
- offset = dissect_ber_octet_string(TRUE, pinfo, tree, next_tvb, 0, hf_index,
-                                    &parameter_tvb);
+offset = dissect_ber_octet_string(TRUE, pinfo, tree, next_tvb, 0, hf_index,
+                                  &parameter_tvb);
                                     
  
- if (!parameter_tvb)
-	return offset;
- dissect_tcap_ExternalPDU(TRUE, parameter_tvb, 2, pinfo, tree, -1);
+if (!parameter_tvb)
+ return offset;
+dissect_tcap_ExternalPDU(TRUE, parameter_tvb, 2, pinfo, tree, -1);
 
 return offset+2;
 
@@ -920,14 +918,14 @@ guint8 class;
 	guint32 ind_field;
 
 
- offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
- offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
- offset = dissect_ber_octet_string(TRUE, pinfo, tree, tvb, 0, hf_index,
+  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+  offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
+  offset = dissect_ber_octet_string(TRUE, pinfo, tree, tvb, 0, hf_index,
                                     &next_tvb);
-if (!next_tvb)
-	return offset; 
+ 
+  if (!next_tvb)
+    return offset;
   dissect_tcap_param(pinfo,tree,next_tvb,0);
-  return offset;
 
 
   return offset;
@@ -1251,11 +1249,9 @@ guint8 class;
 ber_oid_dissector_table = find_dissector_table("ber.oid");
 tcap_itu_ssn_dissector_table = find_dissector_table("tcap.itu_ssn");
 
-next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));		
+next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
-if (!next_tvb)
-	return offset+len;
 if (ber_oid_dissector_table && cur_oid){
 if(!dissector_try_string(ber_oid_dissector_table, cur_oid, next_tvb, pinfo, tcap_top_tree))	
 	{
@@ -1942,7 +1938,7 @@ static int
 dissect_tcap_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 tvbuff_t *next_tvb;
 
-next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));		
+next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
 if (!dissector_try_port(tcap_ansi_ssn_dissector_table, pinfo->match_port, next_tvb, pinfo, tcap_top_tree))
     {
@@ -2191,7 +2187,7 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     proto_item		*item=NULL;
     proto_tree		*tree=NULL;
 
-	tcap_top_tree = parent_tree;
+    tcap_top_tree = parent_tree;
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCAP");
@@ -2202,9 +2198,9 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
        item = proto_tree_add_item(parent_tree, proto_tcap, tvb, 0, -1, FALSE);
        tree = proto_item_add_subtree(item, ett_tcap);
     }
-	cur_oid = NULL;
-	tcapext_oid = NULL;
-	pinfo->private_data = NULL;
+    cur_oid = NULL;
+    tcapext_oid = NULL;
+    pinfo->private_data = NULL;
     dissect_tcap_MessageType(FALSE, tvb, 0, pinfo, tree, -1);
 
 
@@ -2815,14 +2811,22 @@ proto_register_tcap(void)
 
     tcap_module = prefs_register_protocol(proto_tcap, proto_reg_handoff_tcap);
 
-    /*prefs_register_enum_preference(tcap_module, "standard", "ITU TCAP standard",
+#if 0
+    prefs_register_enum_preference(tcap_module, "standard", "ITU TCAP standard",
 	"The SS7 standard used in ITU TCAP packets",
-	&tcap_standard, tcap_options, FALSE);*/
+	&tcap_standard, tcap_options, FALSE);
+#else
+    prefs_register_obsolete_preference(tcap_module, "standard");
+#endif
 
-/*    prefs_register_bool_preference(tcap_module, "lock_info_col", "Lock Info column",
+#if 0
+    prefs_register_bool_preference(tcap_module, "lock_info_col", "Lock Info column",
 	"Always show TCAP in Info column",
 	&lock_info_col);
-*/
+#else
+    prefs_register_obsolete_preference(tcap_module, "lock_info_col");
+#endif
+
     /* Set default SSNs */
     range_convert_str(&global_ssn_range, "2-255", MAX_SSN);
     ssn_range = range_empty();
@@ -2834,8 +2838,6 @@ proto_register_tcap(void)
     /* we will fake a ssn subfield which has the same value obtained from sccp */
     tcap_itu_ssn_dissector_table = register_dissector_table("tcap.itu_ssn", "ITU TCAP SSN", FT_UINT8, BASE_DEC);
     tcap_ansi_ssn_dissector_table = register_dissector_table("tcap.ansi_ssn", "ANSI TCAP SSN", FT_UINT8, BASE_DEC);
-
-	
 }
 
 
@@ -2882,7 +2884,7 @@ proto_reg_handoff_tcap(void)
     ssn_range = range_copy(global_ssn_range);
 
     range_foreach(ssn_range, range_add_callback);
-	register_ber_oid_name("0.0.17.773.1.1.1",
+    register_ber_oid_name("0.0.17.773.1.1.1",
 		"itu-t(0) recommendation(0) q(17) 773 as(1) dialogue-as(1) version1(1)");
 
 }
@@ -2952,31 +2954,25 @@ tcap_check_tag(ASN1_SCK *asn1, guint tag)
 static int
 dissect_tcap_param(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-    gint orig_offset, tag_offset, saved_offset, len_offset;
+    gint tag_offset, saved_offset, len_offset;
     tvbuff_t	*next_tvb;
     proto_tree *subtree;
-	proto_item *pi;
-	gint32 tlen;
-	guint8 class;
-	gboolean pc;
-	guint32 tag;
-	guint32 len;
-	guint32 ind_field;
-	guint32 soffset = offset;
-	
-orig_offset = offset;
-tlen = tvb_length_remaining(tvb, offset);      
-	while (tlen > (offset-orig_offset))
+    proto_item *pi;
+    guint8 class;
+    gboolean pc;
+    guint32 tag;
+    guint32 len;
+    guint32 ind_field;
+    
+    while (tvb_reported_length_remaining(tvb, offset) > 0)
     {
-    saved_offset = offset;
-	
-    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-    tag_offset = offset;
+	saved_offset = offset;
+    
+	offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+	tag_offset = offset;
 	offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 	len_offset = offset;
-	
 
-	
 	if (pc)
 	{
 	    pi =
@@ -2987,33 +2983,30 @@ tlen = tvb_length_remaining(tvb, offset);
 	    proto_tree_add_uint(subtree, hf_tcap_tag, tvb,
 		saved_offset, tag_offset-saved_offset, class);
 
-		proto_tree_add_uint(subtree, hf_tcap_length, tvb,
-		    tag_offset, len_offset-tag_offset, len);
-	/* need to handle indefinite length */
-		next_tvb = tvb_new_subset(tvb, offset, len, len);		
-	     dissect_tcap_param(pinfo, subtree,next_tvb,0);
-	     offset += len;
+	    proto_tree_add_uint(subtree, hf_tcap_length, tvb,
+		tag_offset, len_offset-tag_offset, len);
+	    /* need to handle indefinite length */
+	    next_tvb = tvb_new_subset(tvb, offset, len, len);		
+	    dissect_tcap_param(pinfo, subtree,next_tvb,0);
+	    offset += len;
 	}
 	else
 	{
-
-
-	pi =
-	    proto_tree_add_text(tree, tvb,
+	    pi = proto_tree_add_text(tree, tvb,
 		saved_offset, len + (len_offset - saved_offset), "Parameter (0x%.2x)", tag);
 
-	subtree = proto_item_add_subtree(pi, ett_param);
+	    subtree = proto_item_add_subtree(pi, ett_param);
 
-	proto_tree_add_uint(subtree, hf_tcap_tag, tvb,
-	    saved_offset, 1, tag);
+	    proto_tree_add_uint(subtree, hf_tcap_tag, tvb,
+		saved_offset, 1, tag);
 
-	proto_tree_add_uint(subtree, hf_tcap_length, tvb,
-	    saved_offset+1, 1, len);
-	next_tvb = tvb_new_subset(tvb, offset, len, len);		
-	dissect_ber_octet_string(TRUE, pinfo, tree, next_tvb, 0, hf_tcap_data,
+	    proto_tree_add_uint(subtree, hf_tcap_length, tvb,
+		saved_offset+1, 1, len);
+	    next_tvb = tvb_new_subset(tvb, offset, len, len);		
+	    dissect_ber_octet_string(TRUE, pinfo, tree, next_tvb, 0, hf_tcap_data,
                                     NULL);
-	     offset += len;
+	    offset += len;
 	}
     }
-return offset;
+    return offset;
 }
