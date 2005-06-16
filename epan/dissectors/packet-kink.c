@@ -35,7 +35,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-kerberos.h"
-
+#include "packet-isakmp.h"
 
 #define KINK_PORT	57203
 
@@ -674,10 +674,7 @@ dissect_payload_kink_isakmp(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   if(payload_length > PAYLOAD_HEADER){
     isakmp_length = payload_length - 8;
     isakmp_tvb = tvb_new_subset(tvb, offset, (isakmp_length>tvb_length_remaining(tvb, offset))?tvb_length_remaining(tvb, offset):isakmp_length, isakmp_length);
-    if(qmmaj == 1){
-      isakmp_set_version();
-    }
-    isakmp_dissect_payloads(isakmp_tvb, payload_kink_isakmp_tree, inner_next_pload, 0, isakmp_length, pinfo);
+    isakmp_dissect_payloads(isakmp_tvb, payload_kink_isakmp_tree, 1, inner_next_pload, 0, isakmp_length, pinfo);
   }
   
   /* This part consider the padding. Payload_length don't contain the padding. */

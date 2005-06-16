@@ -720,6 +720,7 @@ DISSECTOR_INCLUDES =	\
 	packet-ipsec.h	\
 	packet-ipv6.h	\
 	packet-ipx.h	\
+	packet-isakmp.h	\
 	packet-isis-clv.h	\
 	packet-isis-hello.h	\
 	packet-isis-lsp.h	\
