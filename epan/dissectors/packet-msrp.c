@@ -33,6 +33,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include <glib.h>
 #include <epan/conversation.h>
@@ -298,7 +299,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint token_2_len;
 	gint token_3_start;
 	guint token_3_len;
-	gint token_4_start;
+	gint token_4_start = 0;
 	guint token_4_len = 0;
 	gboolean is_msrp_response;
 	gint end_line_offset;
@@ -728,14 +729,11 @@ proto_register_msrp(void)
 		"in addition to the dissection tree",
 		&global_msrp_raw_text);
 		
-  /*
-   * Register the dissector by name, so other dissectors can
-   * grab it by name rather than just referring to it directly
-   * (you can't refer to it directly from a plugin dissector
-   * on Windows without stuffing it into the Big Transfer Vector).
-   */
-  register_dissector("msrp", dissect_msrp, proto_msrp);
-
+	/*
+	 * Register the dissector by name, so other dissectors can
+	 * grab it by name rather than just referring to it directly.
+	 */
+	new_register_dissector("msrp", dissect_msrp, proto_msrp);
 }
 
 
