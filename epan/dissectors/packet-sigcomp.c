@@ -392,10 +392,10 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * +---+---+---+---+---+---+---+---+   +---+---+---+---+---+---+---+---+
 			 * | 0 |  returned_feedback_field  |   | 1 | returned_feedback_length  |
 			 * +---+---+---+---+---+---+---+---+   +---+---+---+---+---+---+---+---+
-             *				                       |                               |
-             *									   :    returned_feedback_field    :
-             *									   |                               |
-             *									   +---+---+---+---+---+---+---+---+
+			 *				       |                               |
+			 *				       :    returned_feedback_field    :
+			 *				       |                               |
+			 *				       +---+---+---+---+---+---+---+---+
 			 * Figure 4: Format of returned feedback item
 			 */
 
@@ -434,7 +434,12 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * state_instruction	=
 			 * TRUE					= Indicates that state_* is in the stored state 
 			 */
-			buff = g_malloc(UDVM_MEMORY_SIZE);
+			/* 
+			 * Note: The allocate buffer must be zeroed or some strange effects might occur.
+			 */
+			buff = g_malloc0(UDVM_MEMORY_SIZE);
+
+
 			p_id_start = 0;
 			state_begin = 0;
 			/* These values will be loaded from the buffered state in sigcomp_state_hdlr 
@@ -450,7 +455,7 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 
 			result_code = udvm_state_access(tvb, sigcomp_tree, buff, p_id_start, partial_state_len, state_begin, &state_length, 
-				&state_address, state_instruction, FALSE, hf_sigcomp_partial_state);
+				&state_address, &state_instruction, hf_sigcomp_partial_state);
 
 
 			if ( result_code != 0 ){
@@ -479,7 +484,9 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			sigcomp_udvm_exe_tree = proto_item_add_subtree( udvm_exe_item, ett_sigcomp_udvm_exe);
 
 			decomp_tvb = decompress_sigcomp_message(udvm2_tvb, msg_tvb, pinfo,
-						   sigcomp_udvm_exe_tree, state_address, udvm_print_detail_level, hf_sigcomp_partial_state);
+						   sigcomp_udvm_exe_tree, state_address, 
+						   udvm_print_detail_level, hf_sigcomp_partial_state,
+						   offset, state_length, partial_state_len);
 		
 
 			if ( decomp_tvb ){
@@ -550,7 +557,9 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				"UDVM execution trace");
 			sigcomp_udvm_exe_tree = proto_item_add_subtree( udvm_exe_item, ett_sigcomp_udvm_exe);
 			decomp_tvb = decompress_sigcomp_message(udvm_tvb, msg_tvb, pinfo,
-						   sigcomp_udvm_exe_tree, destination, udvm_print_detail_level, hf_sigcomp_partial_state);
+						   sigcomp_udvm_exe_tree, destination, 
+						   udvm_print_detail_level, hf_sigcomp_partial_state,
+						   offset, 0, 0);
 			if ( decomp_tvb ){
 				proto_tree_add_text(sigcomp_tree, decomp_tvb, 0, -1,"SigComp message Decompressed WOHO!!");
 				if ( display_raw_txt )
@@ -1860,26 +1869,26 @@ dissect_udvm_multitype_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree
 static void
 tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
 {
-        proto_tree *raw_tree = NULL;
-        proto_item *ti = NULL;
-        int offset, next_offset, linelen;
+	proto_tree *raw_tree = NULL;
+	proto_item *ti = NULL;
+	int offset, next_offset, linelen;
 
 	if(tree) {
 		ti = proto_tree_add_item(tree, proto_raw_sigcomp, tvb, 0, -1, FALSE);
 		raw_tree = proto_item_add_subtree(ti, ett_raw_text);
 	}
 
-        offset = 0;
+	offset = 0;
 
-        while (tvb_offset_exists(tvb, offset)) {
-                tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
-                linelen = next_offset - offset;
-                if(raw_tree) {
+	while (tvb_offset_exists(tvb, offset)) {
+		tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+		linelen = next_offset - offset;
+		if(raw_tree) {
 			proto_tree_add_text(raw_tree, tvb, offset, linelen,
 			    "%s", tvb_format_text(tvb, offset, linelen));
 		}
-                offset = next_offset;
-        }
+		offset = next_offset;
+	}
 }
 
 /* Register the protocol with Ethereal */
