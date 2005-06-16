@@ -143,13 +143,13 @@ typedef struct _header_field_info header_field_info;
 /** information describing a header field */
 struct _header_field_info {
 	/* ---------- set by dissector --------- */
-	char				*name;      /**< full name of this field */
-	char				*abbrev;    /**< abbreviated name of this field */
+	const char				*name;      /**< full name of this field */
+	const char				*abbrev;    /**< abbreviated name of this field */
 	enum ftenum			type;       /**< field type, one of FT_ (from ftypes.h) */
 	int					display;	/**< one of BASE_, or number of field bits for FT_BOOLEAN */
 	const void			*strings;	/**< _value_string (or true_false_string for FT_BOOLEAN), typically converted by VALS() or TFS() If this is an FT_PROTOCOL then it points to the associated protocol_t structure*/
 	guint32				bitmask;    /**< FT_BOOLEAN only: bitmask of interesting bits */
-	char				*blurb;		/**< Brief description of field. */
+	const char				*blurb;		/**< Brief description of field. */
 
 	/* ------- set by proto routines (prefilled by HFILL macro, see below) ------ */
 	int				id;		/**< Field ID */

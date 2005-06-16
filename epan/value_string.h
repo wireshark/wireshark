@@ -32,7 +32,7 @@
 
 typedef struct _value_string {
   guint32  value;
-  gchar   *strptr;
+  const gchar   *strptr;
 } value_string;
 
 /* #define VS_DEF(x) { x, #x } */
