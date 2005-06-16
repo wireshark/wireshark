@@ -621,6 +621,7 @@ dissect_payload_kink_isakmp(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   guint8 next_payload;
   guint8 reserved;
   guint payload_length,isakmp_length;
+  int length, reported_length;
   guint8 inner_next_pload;
   guint8 qm, qmmaj, qmmin;
   guint16 reserved2;
@@ -672,8 +673,14 @@ dissect_payload_kink_isakmp(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   offset += 2;
   
   if(payload_length > PAYLOAD_HEADER){
-    isakmp_length = payload_length - 8;
-    isakmp_tvb = tvb_new_subset(tvb, offset, (isakmp_length>tvb_length_remaining(tvb, offset))?tvb_length_remaining(tvb, offset):isakmp_length, isakmp_length);
+    isakmp_length = payload_length - PAYLOAD_HEADER;
+    length = tvb_length_remaining(tvb, offset);
+    if (length > (int)isakmp_length)
+      length = isakmp_length;
+    reported_length = tvb_reported_length_remaining(tvb, offset);
+    if (reported_length > (int)isakmp_length)
+      reported_length = isakmp_length;
+    isakmp_tvb = tvb_new_subset(tvb, offset, length, reported_length);
     isakmp_dissect_payloads(isakmp_tvb, payload_kink_isakmp_tree, 1, inner_next_pload, 0, isakmp_length, pinfo);
   }
   
@@ -700,8 +707,10 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   guint16 inner_payload_length;
   int start_payload_offset = 0;    /* Keep the begining of the payload offset */
   const char *data_value;
+#ifdef HAVE_KERBEROS
   tvbuff_t *next_tvb;
   guint8 *plaintext=NULL;
+#endif
 
   payload_length = tvb_get_ntohs(tvb,offset + TO_PAYLOAD_LENGTH);
   start_payload_offset = offset;
