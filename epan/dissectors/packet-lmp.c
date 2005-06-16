@@ -2063,6 +2063,8 @@ register_lmp_prefs (void)
     prefs_register_uint_preference(
 	lmp_module, "udp_port", "LMP UDP Port",
 	"UDP port number to use for LMP", 10, &lmp_udp_port_config);
+    prefs_register_obsolete_preference(
+        lmp_module, "version");
 }
 
 void
