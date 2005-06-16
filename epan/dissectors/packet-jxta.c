@@ -584,7 +584,7 @@ static int dissect_jxta_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
         guint32 saved_src_port = 0;
         address saved_dst_addr;
         guint32 saved_dst_port = 0;
-        port_type saved_port_type = NULL;
+        port_type saved_port_type = PT_NONE;
 
         if( (AT_NONE != tpt_conv_data->initiator_address.type) && (AT_NONE != tpt_conv_data->receiver_address.type) ) {
             peer_conversation =
