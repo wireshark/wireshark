@@ -1689,10 +1689,11 @@ dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 offset = 0;
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
     	    guint16 pdu_len = tvb_get_ntohl(tvb, offset);
-            if (pdu_len < 1)
-                THROW(ReportedBoundsError);
 	    gint pdu_real_len = tvb_length_remaining(tvb, offset);
     	    tvbuff_t *pdu_tvb;
+
+            if (pdu_len < 1)
+                THROW(ReportedBoundsError);
 
 	    if (pdu_real_len <= 0)
 		return;
