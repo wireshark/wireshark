@@ -453,11 +453,27 @@ struct mtp2_phdr {
 
 /* Packet "pseudo-header" for K12 files. */
 
+typedef union {
+	struct {
+		guint16 vp;
+		guint16 vc;
+	} atm;
+	
+	guint32 ds0mask;
+} k12_input_info_t;
+
 struct k12_phdr {
-	guint32 src_id;
-	gchar* src_name;
+	guint32 input;
+	gchar* input_name;
 	gchar* stack_file;
+	guint32 input_type;
+	k12_input_info_t input_info;
+	void* stuff;
 };
+
+#define K12_PORT_DS0S      0x00010008
+#define K12_PORT_DS1       0x00100008
+#define K12_PORT_ATMPVC    0x01020000
 
 union wtap_pseudo_header {
 	struct eth_phdr		eth;

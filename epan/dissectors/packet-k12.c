@@ -39,8 +39,14 @@ static int proto_k12 = -1;
 static int hf_k12_port_id = -1;
 static int hf_k12_port_name = -1;
 static int hf_k12_stack_file = -1;
+static int hf_k12_port_type = -1;
+static int hf_k12_atm_vp = -1;
+static int hf_k12_atm_vc = -1;
+
+static int hf_k12_ts = -1;
 
 static gint ett_k12 = -1;
+static gint ett_port = -1;
 
 static dissector_handle_t k12_handle;
 static dissector_handle_t data_handle;
@@ -51,21 +57,47 @@ static char* k12_config_filename = "";
 
 static GHashTable* k12_cfg = NULL;
 
+
+static const value_string  k12_port_types[] = {
+	{	K12_PORT_DS1, "Ds1" },
+	{	K12_PORT_DS0S, "Ds0 Range" },
+	{	K12_PORT_ATMPVC, "ATM PVC" },
+	{ 0,NULL}
+};
+
+
 static void dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) {
 	proto_item* k12_item;
 	proto_tree* k12_tree;
 	dissector_handle_t sub_handle;
-
+	guint i;
+	
 	k12_item = proto_tree_add_protocol_format(tree, proto_k12, tvb, 0, 0, "Packet from: '%s' (0x%.8x)",
-											  pinfo->pseudo_header->k12.src_name,
-											  pinfo->pseudo_header->k12.src_id);
+											  pinfo->pseudo_header->k12.input_name,
+											  pinfo->pseudo_header->k12.input);
 	
     k12_tree = proto_item_add_subtree(k12_item, ett_k12);
 
-	proto_tree_add_uint(k12_tree, hf_k12_port_id, tvb, 0,0,pinfo->pseudo_header->k12.src_id);
-	proto_tree_add_string(k12_tree, hf_k12_port_name, tvb, 0,0,pinfo->pseudo_header->k12.src_name);
+	proto_tree_add_uint(k12_tree, hf_k12_port_id, tvb, 0,0,pinfo->pseudo_header->k12.input);
+	proto_tree_add_string(k12_tree, hf_k12_port_name, tvb, 0,0,pinfo->pseudo_header->k12.input_name);
 	proto_tree_add_string(k12_tree, hf_k12_stack_file, tvb, 0,0,pinfo->pseudo_header->k12.stack_file);
 
+	k12_item = proto_tree_add_uint(k12_tree, hf_k12_port_type, tvb, 0, 0,
+								   pinfo->pseudo_header->k12.input_type);
+	
+    k12_tree = proto_item_add_subtree(k12_item, ett_port);
+	
+	switch ( pinfo->pseudo_header->k12.input_type ) {
+		case K12_PORT_DS0S:
+			proto_tree_add_uint(k12_tree, hf_k12_ts, tvb, 0,0,pinfo->pseudo_header->k12.input_info.ds0mask);
+			break;
+		case K12_PORT_ATMPVC:
+			proto_tree_add_uint(k12_tree, hf_k12_atm_vp, tvb, 0,0,pinfo->pseudo_header->k12.input_info.atm.vp);
+			proto_tree_add_uint(k12_tree, hf_k12_atm_vc, tvb, 0,0,pinfo->pseudo_header->k12.input_info.atm.vc);
+			break;
+		default:
+			break;
+	}
 	
 	if (! k12_cfg ) {
 		sub_handle = data_handle;
@@ -103,8 +135,8 @@ static GHashTable* k12_load_config(FILE* fp) {
 		for (i = 0 ; lines[i]; i++) {
 			g_strstrip(lines[i]);
 			
-			if(*(lines[i]) == '#') continue;
-			if(*(lines[i]) == '\0') break;
+			if(*(lines[i]) == '#' || *(lines[i]) == '\0')
+				continue;
 			
 			curr = g_strsplit(lines[i]," ",0);
 			
@@ -177,11 +209,16 @@ proto_register_k12(void)
 	static hf_register_info hf[] = {
 		{ &hf_k12_port_id, { "Port Id", "k12.port_id", FT_UINT32, BASE_HEX,	NULL, 0x0, "", HFILL }},
 		{ &hf_k12_port_name, { "Port Name", "k12.port_name", FT_STRING, BASE_NONE, NULL, 0x0,"", HFILL }},
-		{ &hf_k12_stack_file, { "Stack file used", "k12.stack_file", FT_STRING, BASE_NONE, NULL, 0x0,"", HFILL }}
+		{ &hf_k12_stack_file, { "Stack file used", "k12.stack_file", FT_STRING, BASE_NONE, NULL, 0x0,"", HFILL }},
+		{ &hf_k12_port_type, { "Port type", "k12.input_type", FT_UINT32, BASE_HEX, VALS(k12_port_types), 0x0,"", HFILL }},
+		{ &hf_k12_ts, { "Timeslot mask", "k12.ds0.ts", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ &hf_k12_atm_vp, { "ATM VPI", "k12.atm.vp", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_k12_atm_vc, { "ATM VCI", "k12.atm.vc", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }}
 	};
 	
   static gint *ett[] = {
-    &ett_k12,
+	  &ett_k12,
+	  &ett_port
   };
 	
   proto_k12 = proto_register_protocol("K12xx", "K12xx", "k12");
