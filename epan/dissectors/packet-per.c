@@ -689,8 +689,8 @@ PER_NOT_DECODED_YET("too long integer");
         } else if (IS_FT_UINT(hfi->type)) {
 		it=proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, val);
 	} else {
-		proto_tree_add_text(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, "Field is not an integer: %s", hfi->abbrev);
-		THROW(ReportedBoundsError);
+		proto_tree_add_text(tree, tvb, (offset>>3)-(length+1), length+1, "Field is not an integer: %s", hfi->abbrev);
+		REPORT_DISSECTOR_BUG("PER integer field that's not an FT_INT* or FT_UINT*");
 	}
 
 
