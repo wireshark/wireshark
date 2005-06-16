@@ -30,6 +30,7 @@
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "recent.h"
 #include <epan/epan.h>
