@@ -70,13 +70,12 @@ static void dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) {
 	proto_item* k12_item;
 	proto_tree* k12_tree;
 	dissector_handle_t sub_handle;
-	guint i;
 	
 	k12_item = proto_tree_add_protocol_format(tree, proto_k12, tvb, 0, 0, "Packet from: '%s' (0x%.8x)",
 											  pinfo->pseudo_header->k12.input_name,
 											  pinfo->pseudo_header->k12.input);
 	
-    k12_tree = proto_item_add_subtree(k12_item, ett_k12);
+	k12_tree = proto_item_add_subtree(k12_item, ett_k12);
 
 	proto_tree_add_uint(k12_tree, hf_k12_port_id, tvb, 0,0,pinfo->pseudo_header->k12.input);
 	proto_tree_add_string(k12_tree, hf_k12_port_name, tvb, 0,0,pinfo->pseudo_header->k12.input_name);
@@ -85,7 +84,7 @@ static void dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) {
 	k12_item = proto_tree_add_uint(k12_tree, hf_k12_port_type, tvb, 0, 0,
 								   pinfo->pseudo_header->k12.input_type);
 	
-    k12_tree = proto_item_add_subtree(k12_item, ett_port);
+	k12_tree = proto_item_add_subtree(k12_item, ett_port);
 	
 	switch ( pinfo->pseudo_header->k12.input_type ) {
 		case K12_PORT_DS0S:
