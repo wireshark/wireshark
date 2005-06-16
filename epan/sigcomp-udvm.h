@@ -36,7 +36,9 @@
 #define UDVM_MEMORY_SIZE						65536
 
 extern tvbuff_t* decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet_info *pinfo,
-						   proto_tree *tree, gint destination, gint print_flags, gint hf_id);
+						   proto_tree *tree, gint destination, 
+						   gint print_flags, gint hf_id, gint header_len,
+						   gint byte_code_state_len, gint byte_code_id_len);
 
 
 

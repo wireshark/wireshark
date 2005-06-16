@@ -431,9 +431,10 @@ sigcomp_init_udvm(void){
 
 }
 
-                          
+			  
 int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint16 p_id_start, guint16 p_id_length, guint16 state_begin, guint16 *state_length, 
-					   guint16 *state_address, guint16 state_instruction, gboolean state_vars_valid, gint hf_id)
+					   guint16 *state_address, guint16 *state_instruction, 
+					   gint hf_id)
 {
 	int			result_code = 0;
 	guint16		n;
@@ -515,28 +516,35 @@ int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint16 p_id_
 	 * The value of
 	 * state_length MUST be taken from the returned item of state in the
 	 * case that the state_length operand is set to 0.
+	 *
+	 * The same is true of state_address, state_instruction.
 	 */
 	if ( *state_length == 0 ){
 		*state_length = state_buff[0] << 8;
-		*state_length = *state_length ^ state_buff[1];
+		*state_length = *state_length | state_buff[1];
 	}
-	if ( state_vars_valid == FALSE ){
-		*state_length = state_buff[0] << 8;
-		*state_length = *state_length ^ state_buff[1];
-
+	if ( *state_address == 0 ){
 		*state_address = state_buff[2] << 8;
-		*state_address = *state_address ^ state_buff[3];
-
-		state_instruction = state_buff[4] << 8;
-		state_instruction = state_instruction ^ state_buff[5];
+		*state_address = *state_address | state_buff[3];
+	}
+	if ( *state_instruction == 0 ){
+		*state_instruction = state_buff[4] << 8;
+		*state_instruction = *state_instruction | state_buff[5];
 	}
 
 	n = state_begin + 8;
 	k = *state_address; 
+
+	/*
+	 * NOTE: Strictly speaking, byte_copy_left and byte_copy_right should
+	 *       not be used if this has been called for bytecode referenced in
+	 *       the message header. However, since the memory is initialised
+	 *       to zero, the code works OK.
+	 */
 	byte_copy_right = buff[66] << 8;
-	byte_copy_right = byte_copy_right ^ buff[67];
+	byte_copy_right = byte_copy_right | buff[67];
 	byte_copy_left = buff[64] << 8;
-	byte_copy_left = byte_copy_left ^ buff[65];
+	byte_copy_left = byte_copy_left | buff[65];
 	/* debug 
 	 *g_warning(" state_begin %u state_address %u",state_begin , *state_address);
 	 */
@@ -547,60 +555,10 @@ int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint16 p_id_
 		 */
 		k = ( k + 1 ) & 0xffff;
 		if ( k == byte_copy_right ){
-			byte_copy_left = buff[64] << 8;
-			byte_copy_left = byte_copy_left ^ buff[65];
 			k = byte_copy_left;
 		}
 		n++;
 	}
-	/* 
-	 * If a state item is successfully accessed then the state_value byte
-	 * string is copied into the UDVM memory beginning at state_address.
-	 * 
-	 * The first 32 bytes of UDVM memory are then initialized to special
-	 * values as illustrated in Figure 5.
-	 * 
- 	 *                      0             7 8            15
-	 *               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	 *               |       UDVM_memory_size        |  0 - 1
-	 *               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	 *               |        cycles_per_bit         |  2 - 3
-	 *               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	 *               |        SigComp_version        |  4 - 5
-	 *               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	 *               |    partial_state_ID_length    |  6 - 7
-	 *               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	 *               |         state_length          |  8 - 9
- 	 *               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	 *               |                               |
-	 *               :           reserved            :  10 - 31
-	 *               |                               |
-	 *               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	 *
-	 *      Figure 5: Initializing Useful Values in UDVM memory
-	 *
-	 * The first five 2-byte words are initialized to contain some values
-	 * that might be useful to the UDVM bytecode (Useful Values).  Note that
-	 * these values are for information only and can be overwritten when
-	 * executing the UDVM bytecode without any effect on the endpoint.  The
-	 * MSBs of each 2-byte word are stored preceding the LSBs.
-	 */
-
-	/* state_length  */
-	buff[8] = state_buff[0];
-	buff[9] = state_buff[1];
-	/* UDVM_memory_size  */
-	buff[0] = 0;
-	buff[1] = 0;
-	/* cycles_per_bit */
-	buff[2] = 0;
-	buff[3] = 16;
-	/* SigComp_version */
-	buff[4] = 0;
-	buff[5] = 1;
-	/* partial_state_ID_length */
-	buff[6] = p_id_length >> 8;
-	buff[7] = p_id_length & 0xff;
 	return 0;
 	/*
 	 * End SIP
