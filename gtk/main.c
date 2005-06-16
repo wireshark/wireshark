@@ -2694,7 +2694,10 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
     }
 
     /* don't use printf (stdout), as the capture child uses stdout for it's sync_pipe */
-    fprintf(stderr, "%02u:%02u:%02u %8s %s %s\n", today->tm_hour, today->tm_min, today->tm_sec, log_domain, level, message);
+    fprintf(stderr, "%02u:%02u:%02u %8s %s %s\n",
+            today->tm_hour, today->tm_min, today->tm_sec,
+            log_domain != NULL ? log_domain : "",
+            level, message);
 #ifdef _WIN32
   } else {
     g_log_default_handler(log_domain, log_level, message, user_data);
