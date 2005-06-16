@@ -2688,7 +2688,8 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
         level = "Dbg ";
         break;
     default:
-        fprintf(stderr, "unkown log_level %u\n", log_level);
+        fprintf(stderr, "unknown log_level %u\n", log_level);
+        level = NULL;
         g_assert_not_reached();
     }
 
