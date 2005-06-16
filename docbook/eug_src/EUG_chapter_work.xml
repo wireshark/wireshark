@@ -8,7 +8,7 @@
     <para>
       Once you have captured some packets, or you have opened a previously 
       saved capture file, you can view the packets that are displayed in 
-      the packet list pane by simply clicking on that packet in the 
+      the packet list pane by simply clicking on a packet in the 
       packet list pane, which will bring up the selected packet in the 
       tree view and byte view panes.
     </para>
@@ -34,9 +34,9 @@
     <para>
       In addition, you can view individual packets in a separate window as 
       shown in <xref linkend="ChWorkPacketSepView"/>. Do this by selecting the 
-	packet you are interested in in the packet list pane, and then 
+	packet you are interested in the packet list pane, and then 
 	select "Show Packet in New Windows" from the Display menu. This 
-	allows you to easily compare two or more packets.
+	allows you to easily compare two or even more packets.
 	<figure id="ChWorkPacketSepView">
 	  <title>Viewing a packet in a separate window</title>
 	  <graphic entityref="EtherealPacketSepView" format="PNG"/>
@@ -47,7 +47,7 @@
       "Packet Details" or "Packet Bytes" pane by clicking your right mouse button.
     </para>
 	  <para>
-	  The following table gives an overview of which functions are available 
+	  The following table gives an overview which functions are available 
 	  in the panes, where to find the corresponding function in the menu, and 
 	  a short description of each item.
 	  </para>
@@ -71,37 +71,7 @@
 	    </thead>
 	    <tbody>
 	      <row>
-		<entry><command>Follow TCP stream</command></entry>
-		<entry>X</entry>
-		<entry>X</entry>
-		<entry>X</entry>
-		<entry>Analyze</entry>
-		<entry>
-	    <para>View all the data on a TCP stream between a pair of nodes.</para>
-		</entry>
-	      </row>
-	      <row>
-		<entry><command>Decode As...</command></entry>
-		<entry>X</entry>
-		<entry>X</entry>
-		<entry>X</entry>
-		<entry>Analyze</entry>
-		<entry>
-	    <para>.</para>
-		</entry>
-	      </row>
-	      <row>
-		<entry><command>Display Filters...</command></entry>
-		<entry>X</entry>
-		<entry>X</entry>
-		<entry>X</entry>
-		<entry>Analyze</entry>
-		<entry>
-	    <para>Specify and manage filters.</para>
-		</entry>
-	      </row>
-	      <row>
-		<entry><command>Mark Packet</command></entry>
+		<entry><command>Mark Packet (toggle)</command></entry>
 		<entry>X</entry>
 		<entry>-</entry>
 		<entry>-</entry>
@@ -118,6 +88,43 @@
 		<entry>Edit</entry>
 		<entry>
 	    <para>Set/reset and find time references.</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Expand Subtrees</command></entry>
+		<entry>-</entry>
+		<entry>X</entry>
+		<entry>-</entry>
+		<entry>View</entry>
+		<entry>
+	    <para>Expand the currently selected subtree.
+		</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Expand All</command></entry>
+		<entry>-</entry>
+		<entry>X</entry>
+		<entry>-</entry>
+		<entry>View</entry>
+		<entry>
+	    <para>Expand all subtrees in all packets in the capture.
+		</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Collapse All</command></entry>
+		<entry>-</entry>
+		<entry>X</entry>
+		<entry>-</entry>
+		<entry>View</entry>
+		<entry>
+	    <para>
+	      Ethereal keeps a list of all the protocol subtrees that are 
+	      expanded, and uses it to ensure that the correct subtrees 
+	      are expanded when you display a packet. This menu item 
+	      collapses the tree view of all packets in the capture list.  
+		</para>
 		</entry>
 	      </row>
 	      <row>
@@ -141,15 +148,64 @@
 		</entry>
 	      </row>
 	      <row>
-		<entry><command>Coloring Rules...</command></entry>
+		<entry><command>Follow TCP stream</command></entry>
+		<entry>X</entry>
+		<entry>X</entry>
+		<entry>-</entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>View all the data on a TCP stream between a pair of nodes.</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Wiki Protocol Page</command></entry>
+		<entry>-</entry>
 		<entry>X</entry>
 		<entry>-</entry>
 		<entry>-</entry>
-		<entry>View</entry>
 		<entry>
-	    <para>Colorize packets in the "Packet List" pane.</para>
+	    <para>Show the wiki page corresponding to the currently selected protocol in your web browser.
+		</para>
 		</entry>
 	      </row>
+	      <row>
+		<entry><command>Filter Field Reference</command></entry>
+		<entry>-</entry>
+		<entry>X</entry>
+		<entry>-</entry>
+		<entry>-</entry>
+		<entry>
+	    <para>Show the filter field reference web page corresponding to the currently selected protocol in your web browser.
+		</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Protocol Preferences...</command></entry>
+		<entry>-</entry>
+		<entry>X</entry>
+		<entry>-</entry>
+		<entry>-</entry>
+		<entry>
+	    <para>The menu item takes you to the preferences dialog and selects 
+		the page corresponding to the protocol if there are settings 
+		associated with the highlighted field. More information on preferences 
+		can be found in <xref linkend="ChCustPreferencesSection"/>.
+		</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Decode As...</command></entry>
+		<entry>X</entry>
+		<entry>X</entry>
+		<entry>-</entry>
+		<entry>Analyze</entry>
+		<entry>
+	    <para>.</para>
+		</entry>
+	      </row>
+		  
+		  
+		  
 	      <row>
 		<entry><command>Print...</command></entry>
 		<entry>X</entry>
@@ -157,7 +213,7 @@
 		<entry>-</entry>
 		<entry>File</entry>
 		<entry>
-	    <para>Print packets.</para>
+	    <para>Print (the selected) packet(s).</para>
 		</entry>
 	      </row>
 	      <row>
@@ -175,7 +231,7 @@
 		<entry>-</entry>
 		<entry>X</entry>
 		<entry>-</entry>
-		<entry>-</entry>
+		<entry>View/Name Resolution</entry>
 		<entry>
 	    <para>Cause a name resolution to be performed for the selected packet, 
 		but NOT for every packet in the capture.</para>
@@ -195,64 +251,24 @@
 		</entry>
 	      </row>
 	      <row>
-		<entry><command>Export Selected Packet Bytes...</command></entry>
+		<entry><command>Copy</command></entry>
+		<entry>-</entry>
 		<entry>-</entry>
 		<entry>X</entry>
+		<entry>-</entry>
+		<entry>
+	    <para>Copy the selected packet data to the clipboard (XXX - in which format).
+		</para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Export Selected Packet Bytes...</command></entry>
+		<entry>-</entry>
+		<entry>-</entry>
 		<entry>X</entry>
 		<entry>File->Export</entry>
 		<entry>
 	    <para>Export raw packet bytes to a binary file.</para>
-		</entry>
-	      </row>
-	      <row>
-		<entry><command>Protocol Preferences...</command></entry>
-		<entry>-</entry>
-		<entry>X</entry>
-		<entry>-</entry>
-		<entry>Edit</entry>
-		<entry>
-	    <para>The menu item takes you to the preferences dialog and selects 
-		the page corresponding to the protocol if there are settings 
-		associated with the highlighted field. More information on preferences 
-		can be found in <xref linkend="ChCustPreferencesSection"/>.
-		</para>
-		</entry>
-	      </row>
-	      <row>
-		<entry><command>Collapse All</command></entry>
-		<entry>-</entry>
-		<entry>X</entry>
-		<entry>-</entry>
-		<entry>View</entry>
-		<entry>
-	    <para>
-	      Ethereal keeps a list of all the protocol subtrees that are 
-	      expanded, and uses it to ensure that the correct subtrees 
-	      are expanded when you display a packet. This menu item 
-	      collapses the tree view of all packets in the capture list.  
-		</para>
-		</entry>
-	      </row>
-	      <row>
-		<entry><command>Expand All</command></entry>
-		<entry>-</entry>
-		<entry>X</entry>
-		<entry>-</entry>
-		<entry>View</entry>
-		<entry>
-	    <para>Expand all subtrees in all packets in the capture.
-		</para>
-		</entry>
-	      </row>
-	      <row>
-		<entry><command>Expand Tree</command></entry>
-		<entry>-</entry>
-		<entry>X</entry>
-		<entry>-</entry>
-		<entry>View</entry>
-		<entry>
-	    <para>Expand the currently selected subtree.
-		</para>
 		</entry>
 	      </row>
 		</tbody>
@@ -264,32 +280,7 @@
 	<graphic entityref="EtherealPacketPanePopupMenu" format="PNG"/>
       </figure>
       <variablelist>
-	<varlistentry><term><command>Follow TCP Stream</command></term>
-	  <listitem>
-	    <para>
-	      This menu item is the same as the Analyze menu item of 
-	      the same name. It allows you to view all the data on a TCP 
-	      stream between a pair of nodes.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Decode As...</command></term>
-	  <listitem>
-	    <para>
-	      This menu item is the same as the Analyze menu item of the 
-	      same name.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Display Filters...</command></term>
-	  <listitem>
-	    <para>
-	      This menu item is the same as the Analyze menu item of the same 
-	      name. It allows you to specify and manage display filters.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Mark Packet</command></term>
+	<varlistentry><term><command>Mark Packet (toggle)</command></term>
 	  <listitem>
 	    <para>
 	      This menu item is the same as the Edit menu item of the same 
@@ -321,13 +312,20 @@
 	    </para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry>
-	  <term><command>Coloring Rules...</command></term>
+	<varlistentry><term><command>Follow TCP Stream</command></term>
 	  <listitem>
 	    <para>
-	      This menu item is the same as the View menu item of the 
-	      same name. It allows you to colorize packets in the packet 
-	      list pane.
+	      This menu item is the same as the Analyze menu item of 
+	      the same name. It allows you to view all the data on a TCP 
+	      stream between a pair of nodes.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Decode As...</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the Analyze menu item of the 
+	      same name.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -357,6 +355,47 @@
 	<graphic entityref="EtherealDetailsPanePopupMenu" format="PNG"/>
       </figure>
       <variablelist>
+	<varlistentry><term><command>Expand Subtrees</command></term>
+	  <listitem>
+	    <para>
+	      This menu item expands the currently selected subtree. 
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Expand All</command></term>
+	  <listitem>
+	    <para>
+	      This menu item expands all subtrees in all packets in the 
+	      capture. 
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Collapse All</command></term>
+	  <listitem>
+	    <para>
+	      Ethereal keeps a list of all the protocol subtrees that are 
+	      expanded, and uses it to ensure that the correct subtrees 
+	      are expanded when you display a packet. This menu item 
+	      collapses the tree view of all packets in the capture list.  
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Apply as Filter</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the Analyze menu items of the same 
+	      name.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Prepare a Filter</command></term>
+	  <listitem>
+	    <para>
+	      This menu item is the same as the Analyze menu items of the same 
+	      name.
+	    </para>
+	  </listitem>
+	</varlistentry>
 	<varlistentry><term><command>Follow TCP Stream</command></term>
 	  <listitem>
 	    <para>
@@ -366,19 +405,38 @@
 	    </para>
 	  </listitem>
 	</varlistentry>
+	<varlistentry><term><command>Wiki Protocol Page</command></term>
+	  <listitem>
+	    <para>
+	      Show the wiki page corresponding to the currently selected protocol 
+		  in your web browser.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Filter Field Reference</command></term>
+	  <listitem>
+	    <para>
+		  Show the filter field reference web page corresponding to the 
+		  currently selected protocol in your web browser.
+		</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>Protocol Properties...</command></term>
+	  <listitem>
+	    <para>
+	      The menu item takes you to the properties dialog and selects the 
+		  page corresponding to the protocol if there are properties 
+		  associated with the highlighted field.  
+	      More information on preferences can be found in 
+	      <xref linkend="ChCustGUIPrefPage"/>.
+	      </para>
+	  </listitem>
+	</varlistentry>
 	<varlistentry><term><command>Decode As...</command></term>
 	  <listitem>
 	    <para>
 	      This menu item is the same as the Analyze menu item of the 
 	      same name.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Display Filters...</command></term>
-	  <listitem>
-	    <para>
-	      This menu item is the same as the Analyze menu item of the same 
-	      name.  It allows you to specify and manage filters.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -399,66 +457,6 @@
 	    </para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry><term><command>Export Selected Packet Bytes...</command></term>
-	  <listitem>
-	    <para>
-	      This menu item is the same as the File menu item of the same 
-	      name. It allows you to export raw packet bytes to a binary file.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Protocol Properties...</command></term>
-	  <listitem>
-	    <para>
-	      The menu item takes you to the properties dialog and selects the 
-		  page corresponding to the protocol if there are properties 
-		  associated with the highlighted field.  
-	      More information on preferences can be found in 
-	      <xref linkend="ChCustGUIPrefPage"/>.
-	      </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Apply as Filter</command></term>
-	  <listitem>
-	    <para>
-	      This menu item is the same as the Analyze menu items of the same 
-	      name.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Prepare a Filter</command></term>
-	  <listitem>
-	    <para>
-	      This menu item is the same as the Analyze menu items of the same 
-	      name.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Collapse All</command></term>
-	  <listitem>
-	    <para>
-	      Ethereal keeps a list of all the protocol subtrees that are 
-	      expanded, and uses it to ensure that the correct subtrees 
-	      are expanded when you display a packet. This menu item 
-	      collapses the tree view of all packets in the capture list.  
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Expand All</command></term>
-	  <listitem>
-	    <para>
-	      This menu item expands all subtrees in all packets in the 
-	      capture. 
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Expand Tree</command></term>
-	  <listitem>
-	    <para>
-	      This menu item expands the currently selected subtree. 
-	    </para>
-	  </listitem>
-	</varlistentry>
       </variablelist>
     </para>
     <para>
@@ -467,28 +465,10 @@
 	<graphic entityref="EtherealBytesPanePopupMenu" format="PNG"/>
       </figure>
       <variablelist>
-	<varlistentry><term><command>Follow TCP Stream</command></term>
+	<varlistentry><term><command>Copy</command></term>
 	  <listitem>
 	    <para>
-	      This menu item is the same as the Analyze menu item of the 
-	      same name. It allows you to view all the data on a TCP stream 
-	      between a pair of nodes.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Decode As...</command></term>
-	  <listitem>
-	    <para>
-	      This menu item is the same as the Analyze menu item of the 
-	      same name.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>Display Filters...</command></term>
-	  <listitem>
-	    <para>
-	      This menu item is the same as the Analyze menu item of the same 
-	      name.  It allows you to specify and manage filters.
+	      Copy the selected packet data to the clipboard (XXX - in which format).
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -513,7 +493,8 @@
     </para>
     <para>
       Display filters allow you to concentrate on the packets you are 
-      interested in.  They allow you to select packets by:
+      interested in while hiding the currently uninteresting ones. They allow 
+	  you to select packets by:
 	<itemizedlist>
 	  <listitem><para>Protocol</para></listitem>
 	  <listitem><para>The presence of a field</para></listitem>
@@ -548,7 +529,7 @@
       <title>Note!</title>
       <para>
 	  When using a display filter, all packets remain in the capture file.
-	  The display filter only changes the display of the capture file and
+	  The display filter only changes the display of the capture file but
 	  not its content!	  
       </para>
     </note>
@@ -584,14 +565,14 @@
 	specific expressions.  The following sections provide more 
 	information on doing this.
       </para>
-    <note>
-      <title>Note!</title>
+    <tip>
+      <title>Tip!</title>
       <para>
 	  You will find a lot of Display Filter examples at the <command>Ethereal 
 	  Wiki Display Filter page</command> at <ulink 
 	  url="&EtherealWikiDisplayFiltersPage;">&EtherealWikiDisplayFiltersPage;</ulink>.
       </para>
-    </note>
+    </tip>
       <section>
 	<title>Display filter fields</title>
 	<para>
@@ -617,7 +598,7 @@
 	  of different comparison operators.  They are shown in 
 	  <xref linkend="DispCompOps"/>.
 	</para>
-	<tip><title></title>
+	<tip><title>Tip!</title>
 	<para>
 	You can use English and C-like terms in the same way, they can even be 
 	mixed in a filter string!
@@ -865,6 +846,12 @@ eth.src[1-2] == 00:83
 	</table>
       </section>
       <section><title>A common mistake</title>
+	  <warning><title>Warning!</title>
+	  <para>
+	  Using the != operator on combined expressions like: eth.addr, ip.addr, 
+	  tcp.port, udp.port and alike will probably not work as expected!
+	  </para>
+	  </warning>
 	  <para>
 	  Often people use a filter string to display something like 
 	  <command>ip.addr == 1.2.3.4</command> which will display all packets
@@ -968,7 +955,7 @@ eth.src[1-2] == 00:83
 	  <para>
 	  Some of the protocol fields have predefined values available, much like
 	  enum's in C. If the selected protocol field has such values defined, you
-	  can choose it here.
+	  can choose one of them here.
 	  </para>
 	</listitem>
       </varlistentry>
@@ -1006,7 +993,7 @@ eth.src[1-2] == 00:83
       the more complex filters you use.
     </para>
     <para>
-      To define a new filter or edit an existing filter, select the 
+      To define a new filter or edit an existing one, select the 
       <command>Capture Filters...</command> menu item from the Capture menu 
 	  or the <command>Display Filters...</command> menu item from the Analyze 
 	  menu. Ethereal will then pop up the Filters dialog as shown in 
@@ -1220,6 +1207,18 @@ eth.src[1-2] == 00:83
   You can easily jump to specific packets with one of the menu items in the 
   Go menu.  
   </para>
+  <section><title>The "Go Back" command</title>
+  <para>
+  Go back in the packet history, works much like the page history in current 
+  web browsers.
+  </para>
+  </section>
+  <section><title>The "Go Forward" command</title>
+  <para>
+  Go forward in the packet history, works much like the page history in 
+  current web browsers.
+  </para>
+  </section>
   <section><title>The "Go to Packet" dialog box</title>
     <figure id="ChWorkGoToPacketDialog">
       <title>The "Go To Packet" dialog box</title>
@@ -1232,13 +1231,13 @@ eth.src[1-2] == 00:83
   </section>
   <section><title>The "Go to Corresponding Packet" command</title>
     <para>
-	If a protocol field is selected, which points to another packet in the 
+	If a protocol field is selected which points to another packet in the 
 	capture file, this command will jump to that packet.
 	</para>
     <note><title>Note!</title>
     <para>
 	As these protocol fields now work like links (just as in your 
-	Web browser), it's easier simply to double-click on the field to jump
+	Web browser), it's easier to simply double-click on the field to jump
 	to the corresponding field.
     </para>
     </note>
@@ -1278,22 +1277,26 @@ eth.src[1-2] == 00:83
 	<itemizedlist>
 		<listitem>
     		<para>
-			<command>Mark packet</command> toggle the marked state of a single packet.
+			<command>Mark packet (toggle)</command> toggles the marked state 
+			of a single packet.
     		</para>
 		</listitem>
 		<listitem>
     		<para>
-			<command>Mark all packets</command> set the mark state of all packets.
+			<command>Mark all packets</command> set the mark state of all 
+			packets.
     		</para>
 		</listitem>
 		<listitem>
     		<para>
-			<command>Unmark all packets</command> reset the mark state of all packets.
+			<command>Unmark all packets</command> reset the mark state of all 
+			packets.
     		</para>
 		</listitem>
 	</itemizedlist>
-	These mark function are available from the "Edit" menu, and the "Mark packet" 
-	function is also available from the pop-up menu of the "Packet List" pane.
+	These mark function are available from the "Edit" menu, and the 
+	"Mark packet (toggle)" function is also available from the pop-up menu of 
+	the "Packet List" pane.
     </para>
   </section>
 	

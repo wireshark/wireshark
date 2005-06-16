@@ -54,13 +54,13 @@
 	</itemizedlist>
 	</listitem>
 	</itemizedlist>
-	<tip><title>Tip!</title>
+	<note><title>Note!</title>
 	<para>
 	The protocol specific statistics requires detailed knowledge about the 
 	specific protocol. Unless you are familiar with that protocol, statistics 
 	about it will be pretty hard to understand.
 	</para>
-	</tip>
+	</note>
     </para>
   </section>
   
@@ -163,6 +163,13 @@
 	will be counted for each packet.
 	Example: In the screenshot IP has 99,17% and TCP 85,83% (which is together 
 	much more than 100%).
+	</para>
+	</note>
+	<note><title>Note!</title>
+	<para>
+	A single packet can contain the same protocol more than once. In this case, 
+	the protocol is counted more than once. For example: in some tunneling 
+	configurations the IP layer can appear twice.
 	</para>
 	</note>
   </section>
@@ -432,7 +439,7 @@
 	<para><command>Fibre Channel</command></para>
 	</listitem>
 	<listitem>
-	<para><command>ITU-T H.225 RAS</command></para>
+	<para><command>H.225 RAS</command></para>
 	</listitem>
 	<listitem>
 	<para><command>LDAP</command></para>
@@ -489,6 +496,10 @@
 	The protocol specific statistics windows display detailed information 
 	of specific protocols and might be described in a later 
 	version of this document.
+    </para>
+    <para>
+	Some of these statistics are described at the 
+	<ulink url="http://wiki.ethereal.com/Statistics"/> pages.
     </para>
   </section>
   
