@@ -41,18 +41,16 @@
 
 
 static int
-jxta_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+jxta_hostlist_packet(void *pit, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip)
 {
 	hostlist_table *hosts = (hostlist_table *) pit;
-	volatile const jxta_tap_header *jxtahdr = vip;
+	const jxta_tap_header *jxtahdr = vip;
 
 	/* Take two "add" passes per packet, adding for each direction, ensures that all
 	packets are counted properly (even if address is sending to itself) 
 	XXX - this could probably be done more efficiently inside hostlist_table */
 	add_hostlist_table_data(hosts, &jxtahdr->src_address, 0, TRUE, 1, jxtahdr->size, SAT_NONE, PT_NONE);
 	add_hostlist_table_data(hosts, &jxtahdr->dest_address, 0, FALSE, 1, jxtahdr->size, SAT_NONE, PT_NONE);
-
-        hosts = jxtahdr;
 	return 1;
 }
 
