@@ -401,6 +401,74 @@
 	</section>
   </section>
   
+  <section id="ChIOFileSetSection"><title>File Sets</title>
+    <para>
+      When using the "Multiple Files" option while doing a capture,
+	  the capture data is spreaded over several capture files, called a file 
+	  set. Ethereal tries to find the files matching the same filename pattern 
+	  than the currently loaded file. This will only work, if all the files 
+	  of the file set are located in the same directory.
+    </para>
+    <para>
+	  As it can become tedious to work with a file set by hand, Ethereal 
+	  provides some features in the "File" menu to handle these file sets in 
+	  a more convenient way:
+    </para>
+	<itemizedlist>
+		<listitem><para>
+		The <command>List Files</command> dialog box will list the files 
+		Ethereal has recognized as being part of the current file set.
+		</para></listitem>
+		<listitem><para>
+		<command>Next File</command> opens the next file in the file set.
+		</para></listitem>
+		<listitem><para>
+		<command>Previous File</command> opens the previous file in 
+		the file set.
+		</para></listitem>
+	</itemizedlist>
+    <para>
+	XXX - add icons from the menu
+    </para>
+	<section id="ChIOFileSetListDialog">
+	<title>The "List Files" dialog box</title>
+    <figure>
+      <title>The "List Files" dialog box</title>
+      <!--<graphic entityref="EtherealExportPlainDialog" format="PNG"/>-->
+    </figure>
+	  <para>
+	  XXX - add screenshot
+	  </para>
+	  <para>
+	  Each line contains information about a file of the file set:
+	<itemizedlist>
+		<listitem><para>
+		<command>Filename</command> the name of the file
+		</para></listitem>
+		<listitem><para>
+		<command>Created</command> the creation time of the file
+		</para></listitem>
+		<listitem><para>
+		<command>Last Modified</command> the last time the file was modified
+		</para></listitem>
+		<listitem><para>
+		<command>Size</command> the size of the file
+		</para></listitem>
+	</itemizedlist>
+	  The last line will contain info about the currently used directory where
+	  all of the files in the file set can be found.
+	  </para>
+	  <para>
+	  The content of this dialog box is updated each time a capture file is 
+	  opened/closed.
+	  </para>
+	  <para>
+	  If you click on the radio button to the left of the line, the 
+	  corresponding capture file will be opened. The Close button will, well, 
+	  close the dialog box.
+	  </para>
+	</section>
+  </section>
   <section id="ChIOExportSection"><title>Exporting data</title>
     <para>
       Ethereal provides several ways and formats to export packet data. This 

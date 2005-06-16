@@ -343,7 +343,7 @@
 		<entry><para>
 			This menu item allows you to show a list of files in a file set. 
 			It pops up the Ethereal List File Set dialog box (which is 
-			discussed further in <xref linkend="ChIOFileSetListDialog"/>).
+			discussed further in <xref linkend="ChIOFileSetSection"/>).
 		  </para></entry>
 	      </row>
 	      <row>
