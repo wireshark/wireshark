@@ -35,8 +35,9 @@
   <section id="ChIOOpenSection"><title>Open capture files</title>
     <para>
       Ethereal can read in previously saved capture files. 
-	  To read them, simply select the <command>Open</command> 
-      menu item from the <command>File</command> menu.  
+	  To read them, simply select the menu or toolbar item: "File/
+	  <inlinegraphic entityref="EtherealToolbarOpen" format="PNG"/>
+	  <command>Open</command>".  
       Ethereal will then pop up the File 
       Open dialog box, which is discussed in more detail in 
       <xref linkend="ChIOOpen"/>. 
@@ -143,10 +144,10 @@
 	    </para>
 	  </listitem>
 	</orderedlist>
-	You can change the display filter and name resolution settings later while 
+	You can also change the display filter and name resolution settings later while 
 	viewing the packets. However, for very large capture files it can take a 
-	significant amount of time changing these settings, so it might be 
-	a good idea to set them in advance here.
+	significant amount of extra time changing these settings later, so it 
+	might be a good idea to set at least the filter in advance here.
       </para>
     </section>
 
@@ -250,7 +251,7 @@
 	    <para>
 	      Specify the format of the saved capture file by clicking on 
 	      the File type drop down box. You can choose from the 
-	      types, described in <xref linkend="ChIOInputFormatsSection"/>.
+	      types, described in <xref linkend="ChIOOutputFormatsSection"/>.
 		</para>
 	    <note>
 	      <title>Note!</title>
@@ -305,6 +306,7 @@
 	      <listitem><para>Visual Networks Visual UpTime traffic</para></listitem>
 	      <listitem><para>Accellent 5Views</para></listitem>
 	      <listitem><para>Networks Instruments Observer version 9</para></listitem>
+	      <listitem><para>HP-UX's nettl</para></listitem>
 	</itemizedlist>
     </para>
 	<note><title></title>
@@ -651,7 +653,7 @@ lpr -Pmypostscript
   <section id="ChIOPacketRangeSection"><title>The Packet Range frame</title>
 	<para>
 	The packet range frame is a part of various output related dialog boxes. 
-	It provides options to select which packets should be processed for the 
+	It provides options to select which packets should be processed by the 
 	output function.
     <figure id="ChIOPacketRangeFrame">
       <title>The "Packet Range" frame</title>

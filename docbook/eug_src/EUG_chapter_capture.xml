@@ -49,24 +49,78 @@
 	</itemizedlist>
 	</para>
   </section>
-  
-  <section id="ChCapCapturingSection"><title>Start Capturing</title>
+
+  <section id="ChCapPrerequisitesSection"><title>Prerequisites</title>
     <para>
-      There are three methods you can use to start capturing packets with 
-	  Ethereal:
-      <orderedlist>
+	Setting up Ethereal to capture packets for the first time can be tricky. 
+	</para>
+	<tip><title>Tip!</title><para>
+	A comprehensive guide "How To setup a Capture" is available at:
+	<ulink url="http://wiki.ethereal.com/CaptureSetup">http://wiki.ethereal.com/CaptureSetup</ulink>.
+	</para></tip>
+	<para>
+	Here are some common pitfalls:
+      <itemizedlist>
 	<listitem>
 	  <para>
-	    You can get an overview of the available local interfaces using the 
-		"Capture interfaces" dialog box, see 
-		<xref linkend="ChCapCaptureInterfacesDialog"/>. You can also start a 
-		capture from this dialog box, using (one of) the "Capture" button.
+		You need to have root / Administrator privileges to start a live 
+		capture.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    You can start capturing using the "Capture Options" dialog box, see 
+		You need to choose the right network interface to capture packet data 
+		from.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+		You need to capture at the right place in the network to see the 
+		traffic you want to see.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+		... and a lot more!.
+	  </para>
+	</listitem>
+      </itemizedlist>
+	</para>
+	<para>
+	If you have any problems setting up your capture environment, you should 
+	have a look at the guide mentioned above.
+	</para>
+  </section>
+
+  <section id="ChCapCapturingSection"><title>Start Capturing</title>
+    <para>
+      One of the following methods can be used to start capturing packets with 
+	  Ethereal:
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    You can get an overview of the available local interfaces using the 
+		"<inlinegraphic entityref="EtherealToolbarCaptureInterfaces" format="PNG"/>
+		Capture Interfaces" dialog box, see 
+		<xref linkend="ChCapCaptureInterfacesDialog"/>. You can start a 
+		capture from this dialog box, using (one of) the "Capture" button(s).
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    You can start capturing using the 
+		"<inlinegraphic entityref="EtherealToolbarCaptureOptions" format="PNG"/>
+		Capture Options" dialog box, see 
 		<xref linkend="ChCapCaptureOptionsDialog"/>.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    If you have selected the right capture options before, you can 
+		immediately start a capture using the 
+		"<inlinegraphic entityref="EtherealToolbarCaptureStart" format="PNG"/>
+		Capture Start" menu / toolbar item. The capture
+		process will start immediately.
 	  </para>
 	</listitem>
 	<listitem>
@@ -76,10 +130,11 @@
 	    <programlisting>
 ethereal -i eth0 -k
 	    </programlisting>
-		This will start Ethereal capturing on interface eth0.
+		This will start Ethereal capturing on interface eth0, more details 
+		can be found at: <xref linkend="ChCustCommandLine"/>.
 	  </para>
 	</listitem>
-      </orderedlist>
+      </itemizedlist>
     </para>
     </section>
 
@@ -443,13 +498,6 @@ ethereal -i eth0 -k
 		Ethereal captures in a separate process 
 		and feeds the captures to the display process.
 	      </para>
-	      <note>
-		<title>Note</title>
-		<para>
-		If this option is checked, it will disable the "Use multiple files" 
-		option.
-		</para>
-	      </note>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
@@ -475,8 +523,7 @@ ethereal -i eth0 -k
 	    <listitem>
 	      <para>
 		If this option is checked, the following capture info dialog will be 
-		hidden. This option is greyed out, if "Update list of packets in real 
-		time" is disabled. 
+		hidden.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -523,9 +570,8 @@ ethereal -i eth0 -k
 	capture, or <command>Cancel</command> to cancel the capture.
       </para>
       <para>
-	If you start a capture, Ethereal pops up a dialog box that shows you 
-	the progress of the capture and allows you to stop capturing when 
-	you have enough packets captured, see
+	If you start a capture, Ethereal allows you to stop capturing when 
+	you have enough packets captured, for details see
 		<xref linkend="ChCapRunningSection"/>.
       </para>
     </section>
@@ -561,7 +607,7 @@ ethereal -i eth0 -k
 	about context related protocols (e.g. where data is exchanged at the 
 	establishing phase and only referred to in later packets). 
 	As it keeps this information only for the loaded file, using one of 
-	the multiple file modes may cut these contexts, If the establishing phase 
+	the multiple file modes may cut these contexts. If the establishing phase 
 	is saved in one file and the things you would like to see is in another, 
 	you might not see some of the valuable context related information.
 	</para>
@@ -574,46 +620,47 @@ ethereal -i eth0 -k
 	</tip>
 	
     <table id="ChCapTabCaptureFiles"><title>Capture file mode selected by capture options</title>
-      <tgroup cols="4">
+      <tgroup cols="5">
 	<colspec colnum="1" colwidth="72pt"/>
 	  <colspec colnum="2" colwidth="80pt"/>
 	  <colspec colnum="3" colwidth="80pt"/>
+	  <colspec colnum="4" colwidth="80pt"/>
 	    <thead>
 	      <row>
-		<entry>Mode</entry>
 		<entry>"File" option</entry>
 		<entry>"Use multiple files" option</entry>
 		<entry>"Ring buffer with n files" option</entry>
+		<entry>Mode</entry>
 		<entry>Resulting filename(s) used</entry>
 	      </row>
 	    </thead>
 	    <tbody>
 	      <row>
+		<entry>-</entry>
+		<entry>-</entry>
+		<entry>-</entry>
 		<entry><command>Single temporary file</command></entry>
-		<entry>-</entry>
-		<entry>-</entry>
-		<entry>-</entry>
 		<entry>etherXXXXXX (where XXXXXX is a unique number)</entry>
 	      </row>
 	      <row>
-		<entry><command>Single named file</command></entry>
 		<entry>foo.cap</entry>
 		<entry>-</entry>
 		<entry>-</entry>
+		<entry><command>Single named file</command></entry>
 		<entry>foo.cap</entry>
 	      </row>
 	      <row>
-		<entry><command>Multiple files, continuous</command></entry>
 		<entry>foo.cap</entry>
 		<entry>x</entry>
 		<entry>-</entry>
+		<entry><command>Multiple files, continuous</command></entry>
 		<entry>foo_00001_20040205110102.cap, foo_00002_20040205110102.cap, ...</entry>
 	      </row>
 	      <row>
-		<entry><command>Multiple files, ring buffer</command></entry>
 		<entry>foo.cap</entry>
 		<entry>x</entry>
 		<entry>x</entry>
+		<entry><command>Multiple files, ring buffer</command></entry>
 		<entry>foo_00001_20040205110102.cap, foo_00002_20040205110102.cap, ...</entry>
 	      </row>
 	    </tbody>
@@ -710,14 +757,13 @@ ethereal -i eth0 -k
       This is explained in the tcpdump man page, which can be hard to 
 	  understand, so it's explained here to some extent.
     </para>
-    <note>
-      <title>Note!</title>
+    <tip>
+      <title>Tip!</title>
       <para>
-	  You will find a lot of Capture Filter examples at the <command>Ethereal 
-	  Wiki Capture Filters page</command> at <ulink 
+	  You will find a lot of Capture Filter examples at <ulink 
 	  url="&EtherealWikiCaptureFiltersPage;">&EtherealWikiCaptureFiltersPage;</ulink>.
       </para>
-    </note>
+    </tip>
     <para>
       You enter the capture filter into the Filter field of the Ethereal 
       Capture Options dialog box, as shown in 
@@ -916,7 +962,9 @@ tcp port 23 and not host 10.0.0.5
       A running capture session will be stopped in one of the following ways:
       <orderedlist>
 	<listitem>
-	  <para>Using the Stop button from the <command>Capture Info dialog box
+	  <para>Using the 
+	  "<inlinegraphic entityref="EtherealToolbarStop" format="PNG"/>
+	  Stop" button from the <command>Capture Info dialog box
 	  </command>.
 	  </para>
 	  <note><title>Note!</title>
@@ -927,16 +975,16 @@ tcp port 23 and not host 10.0.0.5
 	  </note>
 	</listitem>
 	<listitem>
-	  <para>Using the <command>menu item</command> "Capture/Stop Capture" or 
-	  the corresponding Stop Capture <command>toolbar icon</command> 
-	  <inlinegraphic entityref="EtherealToolbarStop" format="PNG"/>. 
+	  <para>Using the <command>menu item</command>
+	  "Capture/<inlinegraphic entityref="EtherealToolbarCaptureStop" format="PNG"/>
+	  Stop". 
 	  </para>
-	  <note><title>Note!</title>
-	  <para>
-	  These are only available, if the option "Update list of packets in real 
-	  time" is used.
+	</listitem>
+	<listitem>
+	  <para>Using the <command>toolbar item</command>
+	  "<inlinegraphic entityref="EtherealToolbarCaptureStop" format="PNG"/>
+	  Stop". 
 	  </para>
-	  </note>
 	</listitem>
 	<listitem>
 	  <para>Pressing the accelerator keys: <command>Ctrl+E</command>. 
@@ -946,6 +994,33 @@ tcp port 23 and not host 10.0.0.5
 	  <para>The capture will be automatically stopped, if one of the 
 	  <command>Stop Conditions</command> is exceeded, e.g. the maximum amount 
 	  of data was captured.
+	  </para>
+	</listitem>
+      </orderedlist>
+    </para>
+    </section>
+	<section id="ChCapRestartSection"><title>Restart a running capture</title>
+    <para>
+      A running capture session can be restarted with the same capture options 
+	  than the last time, this will remove all packets previously captured.
+	  This can be useful, if some uninteresting packets are captured and 
+	  there's no need to keep them.
+    </para>
+    <para>	  
+	  Restart is a convenience function and 
+	  equivalent to a capture stop following by an immediate capture start. 
+	  A restart can be triggered in one of the following ways:
+      <orderedlist>
+	<listitem>
+	  <para>Using the <command>menu item</command>
+	  "Capture/<inlinegraphic entityref="EtherealToolbarCaptureRestart" format="PNG"/>
+	  Restart". 
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>Using the <command>toolbar item</command> 
+	  "<inlinegraphic entityref="EtherealToolbarCaptureRestart" format="PNG"/>
+	  Restart". 
 	  </para>
 	</listitem>
       </orderedlist>
