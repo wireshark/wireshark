@@ -863,6 +863,27 @@ static const value_string radius_vendor_acc_role_vals[] =
   {2,	"Terminating"},
   {0, NULL}
 };
+static const value_string radius_vendor_acc_service_type_vals[] =
+{
+	{1,		"Audio Conference"},
+	{2,		"Video Conference"},
+	{3,		"EIT"},
+	{4,		"Reserved"},  
+	{5,		"Alternate Calling Line Identity, service data modification"},
+	{6,		"Alternate Calling Line Identity, invocation"},
+	{7,		"Reserved"},
+	{8,		"Reserved"},
+	{9,		"Reserved"},
+	{10,	"Session Forwarding, service data modification"},
+	{11,	"Session Forwarding Busy, invocation"},
+	{12,	"Session Forwarding Unconditional, invocation"},
+	{13,	"Reserved"},
+	{14,	"Reserved"},
+	{15,	"Interactive Session Forwarding, service data"},
+	{16,	"Interactive Session Forwarding, invocation"},
+	{0, NULL}
+};
+
 static const radius_attr_info radius_vendor_acc_attrib[] =
 {
   {1,	RADIUS_INTEGER4,	"Acc Reason Code", radius_vendor_acc_reason_code_vals, NULL},
@@ -913,10 +934,22 @@ static const radius_attr_info radius_vendor_acc_attrib[] =
   {47,	RADIUS_INTEGER4,	"Acc Igmp Admin State", NULL, NULL},
   {48,	RADIUS_INTEGER4,	"Acc Igmp Version", NULL, NULL},
   {49,	RADIUS_INTEGER4,	"Acct-Terminate-Cause", radius_vendor_acct_terminate_cause, NULL},
-  {72,	RADIUS_INTEGER4,	"Acc-Time-For-Start-Of-Charging", NULL, NULL},
+  {72,	RADIUS_TIMESTAMP,	"Acc-Time-For-Start-Of-Charging", NULL, NULL},
+  {108, RADIUS_STRING,		"Acc-Feature-Tags",NULL, NULL},
+  {109, RADIUS_STRING,		"Acc-Sdp-Body",NULL, NULL},
   {133, RADIUS_INTEGER4,	"Acc-Role",radius_vendor_acc_role_vals, NULL},
-
-
+  {134, RADIUS_INTEGER4,	"Acc-Conference-Max-Size", NULL,NULL},
+  {135, RADIUS_INTEGER4,	"Acc-Received-Octets", NULL,NULL},
+  {136, RADIUS_INTEGER4,	"Acc-Received-Packets", NULL,NULL},
+  {137, RADIUS_INTEGER4,	"Acc-Received-Duration", NULL,NULL},
+  {138, RADIUS_INTEGER4,	"Acc-Received-Bursts", NULL,NULL},
+  {139, RADIUS_INTEGER4,	"Acc-Sent-Octets",NULL, NULL},
+  {140, RADIUS_INTEGER4,	"Acc-Sent-Packets",NULL, NULL},
+  {141, RADIUS_INTEGER4,	"Acc-Sent-Duration",NULL, NULL},
+  {142, RADIUS_INTEGER4,	"Acc-Sent-Bursts",NULL, NULL},
+  {143, RADIUS_INTEGER4,	"Acc-Reported-Octets",NULL, NULL},
+  {144, RADIUS_INTEGER4,	"Acc-Reported-Packets",NULL, NULL},
+  {145, RADIUS_INTEGER4,	"Acc-Receiver-Reports",NULL, NULL},
   {0, 0, NULL, NULL, NULL},
 };
 
@@ -1140,6 +1173,12 @@ static const radius_attr_info radius_vendor_shiva_attrib[] =
   {104,	RADIUS_INTEGER4,	"Shiva Connect Reason", radius_vendor_shiva_connect_reason_vals, NULL},
   {0, 0, NULL, NULL, NULL},
 };
+
+static const radius_attr_info radius_vendor_ericsson_attrib[] =
+{
+  {11,	RADIUS_IP_ADDRESS,	"Access-Agent-IP-Address", NULL, NULL},
+   {0, 0, NULL, NULL, NULL},
+ };
 
 /*
 reference:
@@ -2521,7 +2560,7 @@ static const radius_attr_info radius_vendor_nomadix_attrib[] =
 
 static const radius_attr_info radius_vendor_t_mobile_attrib[] =
 {
-  {41,	RADIUS_INTEGER4,	"Venue-UTC-Offset", NULL, NULL},
+  {41,	RADIUS_STRING,		"Venue-UTC-Offset", NULL, NULL},
   {42,	RADIUS_INTEGER4,	"Venue-DST-Flag", NULL, NULL},
   {43,	RADIUS_INTEGER4,	"Venue-EOD", NULL, NULL},
   {0, 0, NULL, NULL, NULL},
@@ -3343,7 +3382,8 @@ static const radius_attr_info radius_vendor_t_systems_nova_attrib[] = {
   {11,	RADIUS_STRING,		"Billing-Class-Of-Service",		NULL, NULL},
   {12,	RADIUS_STRING,		"Service-Name",					NULL, NULL},
   {13,	RADIUS_INTEGER4,	"Price-Of-Service",				NULL, NULL},
-  {14,	RADIUS_INTEGER4,	"Visiting-Provider-Code",		NULL, NULL},
+  {14,	RADIUS_STRING,		"Visiting-Provider-Code",		NULL, NULL},
+  {15,	RADIUS_STRING,		"Unknown name - type derived",	NULL, NULL},
    {0, 0, NULL, NULL, NULL},
 };
 
@@ -3388,7 +3428,7 @@ static const radius_attr_info radius_vendor_wifi_alliance_attrib[] =
    {6,  RADIUS_INTEGER4,	"Bandwidth-Min-Down", NULL, NULL},
    {7,  RADIUS_INTEGER4,	"Bandwidth-Max-Up", NULL, NULL},
    {8,  RADIUS_INTEGER4,	"Bandwidth-Max-Down", NULL, NULL},
-   {9,  RADIUS_STRING,		"Session-Terminate-Time", NULL, NULL},
+   {9,  RADIUS_TIMESTAMP,	"Session-Terminate-Time", NULL, NULL},
    {10, RADIUS_INTEGER4,	"Session-Terminate-End-Of-Day", NULL, NULL},
    {11, RADIUS_STRING,		"Billing-Class-Of-Service", NULL, NULL},
    {0, 0, NULL, NULL, NULL},
@@ -3399,6 +3439,7 @@ static rd_vsa_table radius_vsa_table[] =
   {VENDOR_ACC,					radius_vendor_acc_attrib},
   {VENDOR_CISCO,				radius_vendor_cisco_attrib},
   {VENDOR_SHIVA,				radius_vendor_shiva_attrib},
+  {VENDOR_ERICSSON,				radius_vendor_ericsson_attrib},
   {VENDOR_CISCO_VPN5000,		radius_vendor_cisco_vpn5000_attrib},
   {VENDOR_LIVINGSTON,			radius_vendor_livingston_attrib},
   {VENDOR_MICROSOFT,			radius_vendor_microsoft_attrib},
