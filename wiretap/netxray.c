@@ -440,6 +440,20 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 			case WAN_CAPTYPE_FRELAY:
 				/*
 				 * Frame Relay.
+				 *
+				 * XXX - in at least one capture, this
+				 * is Cisco HDLC, not Frame Relay, but
+				 * in another capture, it's Frame Relay.
+				 *
+				 * In the Cisco HDLC capture, hdr.xxc[22:26]
+				 * is 0x02 0x00 0x01 0x00 0x06, but it's
+				 * 0x00 0x00 0x00 0x00 0x00 in the Frame
+				 * Relay capture.  Also, hdr.xxc[30:31]
+				 * is 0xff 0xff in the Cisco HDLC capture
+				 * and 0x00 0x00 in the Frame Relay capture,
+				 * and hdr.xxc[46:47] is 0xff 0xff in the
+				 * Cisco HDLC capture and 0x05 0x00 in the
+				 * Frame Relay capture.
 				 */
 				file_encap = WTAP_ENCAP_FRELAY_WITH_PHDR;
 				break;
