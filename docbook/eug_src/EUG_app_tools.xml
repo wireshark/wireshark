@@ -15,7 +15,8 @@
   </section>
   
   <section id="AppToolstcpdump">
-    <title>tcpdump: Capturing with tcpdump for viewing with Ethereal</title>
+    <title><command>tcpdump</command>: Capturing with tcpdump for viewing 
+	with Ethereal</title>
     <para>
       There are occasions when you want to capture packets using 
       <command>tcpdump</command> rather than <command>ethereal</command>, 
@@ -49,7 +50,7 @@ tcpdump -i &lt;interface> -s 1500 -w &lt;some-file>
   </section>
   
   <section id="AppToolstethereal">
-    <title>tethereal: Terminal-based Ethereal</title>
+    <title><command>tethereal</command>: Terminal-based Ethereal</title>
     <para>
       <application>Tethereal</application> is a terminal oriented version 
       of ethereal designed for capturing and displaying packets when an 
@@ -61,7 +62,8 @@ tcpdump -i &lt;interface> -s 1500 -w &lt;some-file>
   </section>
 
   <section id="AppToolscapinfos">
-    <title>capinfos: Print information about capture files</title>
+    <title><command>capinfos</command>: Print information about capture files
+	</title>
     <para>
       Included with Ethereal is a small utility called 
       <command>capinfos</command>, which is a command-line utility to
@@ -94,7 +96,7 @@ Usage: capinfos [-t] [-c] [-s] [-d] [-u] [-a] [-e] [-y]
   </section>
 
   <section id="AppToolseditcap">
-    <title>editcap: Edit capture files</title>
+    <title><command>editcap</command>: Edit capture files</title>
     <para>
       Included with Ethereal is a small utility called 
       <command>editcap</command>, which is a command-line utility for 
@@ -109,14 +111,38 @@ Usage: capinfos [-t] [-c] [-s] [-d] [-u] [-a] [-e] [-y]
       <title>Help information available from editcap</title>
       <programlisting>	
 $ editcap.exe -h
-Usage: editcap [-r] [-h] [-v] [-T &lt;encap type&gt;] [-F &lt;capture type&gt;]
-               [-s &lt;snaplen&gt;] [-t &lt;time adjustment&gt;]
-               &lt;infile&gt; &lt;outfile&gt; [ &lt;record#&gt;[-&lt;record#&gt;] ... ]
-  where -r specifies that the records specified should be kept, not deleted,
-                           default is to delete
-        -v specifies verbose operation, default is silent
+Usage: editcap [-r] [-h] [-v] [-T &lt;encap type>] [-E &lt;probability>]
+               [-F &lt;capture type>]> [-s &lt;snaplen>] [-t &lt;time adjustment>]
+               &lt;infile> &lt;outfile> [ &lt;record#>[-&lt;record#>] ... ]
+  where
+        -E &lt;probability> specifies the probability (between 0 and 1)
+            that a particular byte will will have an error.
+        -F &lt;capture type> specifies the capture file type to write:
+            libpcap - libpcap (tcpdump, Ethereal, etc.)
+            rh6_1libpcap - RedHat Linux 6.1 libpcap (tcpdump)
+            suse6_3libpcap - SuSE Linux 6.3 libpcap (tcpdump)
+            modlibpcap - modified libpcap (tcpdump)
+            nokialibpcap - Nokia libpcap (tcpdump)
+            lanalyzer - Novell LANalyzer
+            ngsniffer - Network Associates Sniffer (DOS-based)
+            snoop - Sun snoop
+            netmon1 - Microsoft Network Monitor 1.x
+            netmon2 - Microsoft Network Monitor 2.x
+            ngwsniffer_1_1 - Network Associates Sniffer (Windows-based) 1.1
+            ngwsniffer_2_0 - Network Associates Sniffer (Windows-based) 2.00x
+            nettl - HP-UX nettl trace
+            visual - Visual Networks traffic capture
+            5views - Accellent 5Views capture
+            niobserverv9 - Network Instruments Observer version 9
+            default is libpcap
         -h produces this help listing.
-        -T &lt;encap type&gt; specifies the encapsulation type to use:
+        -r specifies that the records specified should be kept, not deleted,
+                           default is to delete
+        -s &lt;snaplen> specifies that packets should be truncated to
+           &lt;snaplen> bytes of data
+        -t &lt;time adjustment> specifies the time adjustment
+           to be applied to selected packets
+        -T &lt;encap type> specifies the encapsulation type to use:
             ether - Ethernet
             tr - Token Ring
             slip - SLIP
@@ -139,7 +165,7 @@ Usage: editcap [-r] [-h] [-v] [-T &lt;encap type&gt;] [-F &lt;capture type&gt;]
             ieee-802-11 - IEEE 802.11 Wireless LAN
             prism - IEEE 802.11 plus Prism II monitor mode header
             ieee-802-11-radio - IEEE 802.11 Wireless LAN with radio information
-            ieee-802-11-bsd - IEEE 802.11 plus BSD WLAN header
+            ieee-802-11-radiotap - IEEE 802.11 plus radiotap WLAN header
             ieee-802-11-avs - IEEE 802.11 plus AVS WLAN header
             linux-sll - Linux cooked-mode capture
             frelay - Frame Relay
@@ -180,28 +206,24 @@ Usage: editcap [-r] [-h] [-v] [-T &lt;encap type&gt;] [-F &lt;capture type&gt;]
             symantec - Symantec Enterprise Firewall
             ap1394 - Apple IP-over-IEEE 1394
             bacnet-ms-tp - BACnet MS/TP
+            raw-icmp-nettl - Raw ICMP with nettl headers
+            raw-icmpv6-nettl - Raw ICMPv6 with nettl headers
+            gprs-llc - GPRS LLC
+            juniper-atm1 - Juniper ATM1
+            juniper-atm2 - Juniper ATM2
+            redback - Redback SmartEdge
+            rawip-nettl - Raw IP with nettl headers
+            ether-nettl - Ethernet with nettl headers
+            tr-nettl - Token Ring with nettl headers
+            fddi-nettl - FDDI with nettl headers
+            unknown-nettl - Unknown link-layer type with nettl headers
+            mtp2-with-phdr - MTP2 with pseudoheader
+            juniper-pppoe - Juniper PPPoE
+            gcom-tie1 - GCOM TIE1
+            gcom-serial - GCOM Serial
+            x25-nettl - X25 with nettl headers
             default is the same as the input file
-        -F &lt;capture type&gt; specifies the capture file type to write:
-            libpcap - libpcap (tcpdump, Ethereal, etc.)
-            rh6_1libpcap - RedHat Linux 6.1 libpcap (tcpdump)
-            suse6_3libpcap - SuSE Linux 6.3 libpcap (tcpdump)
-            modlibpcap - modified libpcap (tcpdump)
-            nokialibpcap - Nokia libpcap (tcpdump)
-            lanalyzer - Novell LANalyzer
-            ngsniffer - Network Associates Sniffer (DOS-based)
-            snoop - Sun snoop
-            netmon1 - Microsoft Network Monitor 1.x
-            netmon2 - Microsoft Network Monitor 2.x
-            ngwsniffer_1_1 - Network Associates Sniffer (Windows-based) 1.1
-            ngwsniffer_2_0 - Network Associates Sniffer (Windows-based) 2.00x
-            visual - Visual Networks traffic capture
-            5views - Accellent 5Views capture
-            niobserverv9 - Network Instruments Observer version 9
-            default is libpcap
-        -s &lt;snaplen&gt; specifies that packets should be truncated to
-           &lt;snaplen&gt; bytes of data
-        -t &lt;time adjustment&gt; specifies the time adjustment
-           to be applied to selected packets
+        -v specifies verbose operation, default is silent
 
             A range of records can be specified as well
       </programlisting>	
@@ -300,9 +322,8 @@ Usage: editcap [-r] [-h] [-v] [-T &lt;encap type&gt;] [-F &lt;capture type&gt;]
   </section>
   
   <section id="AppToolsmergecap">
-    <title>mergecap: 
-      Merging multiple capture files into one with 
-      <command>mergecap</command>
+    <title><command>mergecap</command>: 
+      Merging multiple capture files into one
     </title>
     <para>
       Mergecap is a program that combines multiple saved capture files 
@@ -524,8 +545,8 @@ Usage: mergecap [-hva] [-s &lt;snaplen&gt;] [-T &lt;encap type&gt;]
   </section>
   
   <section id="AppToolstext2pcap" >
-    <title>text2pcap: Converting ASCII hexdumps to network captures with 
-      <command>text2pcap</command>
+    <title><command>text2pcap</command>: Converting ASCII hexdumps to network 
+	captures
     </title>
     <para>
       There may be some occasions when you wish to convert a hex dump of some
@@ -726,9 +747,8 @@ where &lt;input-filename&gt; specifies input filename (use - for standard input)
   </section>
   
   <section id="AppToolsidl2eth" >
-    <title>idl2eth: 
-      Creating dissectors from Corba IDL files with 
-      <command>idl2eth</command>
+    <title><command>idl2eth</command>: 
+      Creating dissectors from Corba IDL files
     </title>
     <para>
       In an ideal world idl2eth would be mentioned in the users guide 
