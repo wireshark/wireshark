@@ -4,12 +4,12 @@
  * - RFC 2960
  * - RFC 3309
  * - RFC 3758
- * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctpimpguide-11.txt
- * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-addip-sctp-09.txt
+ * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctpimpguide-14.txt
+ * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-addip-sctp-12.txt
  * - http://www.ietf.org/internet-drafts/draft-stewart-sctp-pktdrprep-02.txt
- * - http://www.ietf.org/internet-drafts/draft-tuexen-sctp-auth-chunk-01.txt
+ * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctp-auth-00.txt
  *
- * Copyright 2000, 2001, 2002, 2003, 2004 Michael Tuexen <tuexen [AT] fh-muenster.de>
+ * Copyright 2000-2005 Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Still to do (so stay tuned)
  * - support for reassembly
  * - error checking mode
@@ -126,6 +126,10 @@ static int hf_state_cookie = -1;
 static int hf_cookie_preservative_increment = -1;
 static int hf_hostname = -1;
 static int hf_supported_address_type = -1;
+static int hf_random_number = -1;
+static int hf_chunks_to_auth = -1;
+static int hf_hmac_id = -1;
+static int hf_hmac = -1;
 
 static int hf_cause_code = -1;
 static int hf_cause_length = -1;
@@ -198,9 +202,9 @@ static dissector_handle_t data_handle;
 #define SCTP_ECNE_CHUNK_ID              12
 #define SCTP_CWR_CHUNK_ID               13
 #define SCTP_SHUTDOWN_COMPLETE_CHUNK_ID 14
-#define SCTP_AUTH_CHUNK_ID            0x16
 #define SCTP_ASCONF_ACK_CHUNK_ID      0x80
 #define SCTP_PKTDROP_CHUNK_ID         0x81
+#define SCTP_AUTH_CHUNK_ID            0x83
 #define SCTP_FORWARD_TSN_CHUNK_ID     0xC0
 #define SCTP_ASCONF_CHUNK_ID          0xC1
 #define SCTP_IETF_EXT                 0xFF
@@ -636,6 +640,48 @@ dissect_ecn_parameter(tvbuff_t *parameter_tvb _U_)
 {
 }
 
+#define RANDOM_NUMBER_OFFSET PARAMETER_VALUE_OFFSET
+
+static void
+dissect_random_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+{
+  gint32 number_length;
+
+  number_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
+  if (number_length > 0)
+    proto_tree_add_item(parameter_tree, hf_random_number, parameter_tvb, RANDOM_NUMBER_OFFSET, number_length, NETWORK_BYTE_ORDER);
+}
+
+static void
+dissect_chunks_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+{
+  gint32 number_of_chunks;
+  guint16 chunk_number, offset;
+  
+  number_of_chunks = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
+  for(chunk_number = 1, offset = PARAMETER_VALUE_OFFSET; chunk_number <= number_of_chunks; chunk_number++, offset +=  CHUNK_TYPE_LENGTH)
+    proto_tree_add_item(parameter_tree, hf_chunks_to_auth, parameter_tvb, offset, CHUNK_TYPE_LENGTH, NETWORK_BYTE_ORDER);
+}
+
+static const value_string hmac_id_values[] = {
+  { 0,              "Reserved" },
+  { 1,              "SHA-1"    },
+  { 2,              "MD-5"     },
+  { 0,              NULL       } };
+
+#define HMAC_ID_LENGTH 4
+
+static void
+dissect_hmac_algo_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+{
+  gint32 number_of_ids;
+  guint16 id_number, offset;
+  
+  number_of_ids = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / HMAC_ID_LENGTH;
+  for(id_number = 1, offset = PARAMETER_VALUE_OFFSET; id_number <= number_of_ids; id_number++, offset +=  HMAC_ID_LENGTH)
+    proto_tree_add_item(parameter_tree, hf_hmac_id, parameter_tvb, offset, HMAC_ID_LENGTH, NETWORK_BYTE_ORDER);
+}
+
 static void
 dissect_forward_tsn_supported_parameter(tvbuff_t *parameter_tvb _U_)
 {
@@ -744,6 +790,9 @@ dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, p
 #define HOSTNAME_ADDRESS_PARAMETER_ID        0x000b
 #define SUPPORTED_ADDRESS_TYPES_PARAMETER_ID 0x000c
 #define ECN_PARAMETER_ID                     0x8000
+#define RANDOM_PARAMETER_ID                  0x8002
+#define CHUNKS_PARAMETER_ID                  0x8003
+#define HMAC_ALGO_PARAMETER_ID               0x8004
 #define FORWARD_TSN_SUPPORTED_PARAMETER_ID   0xC000
 #define ADD_IP_ADDRESS_PARAMETER_ID          0xC001
 #define DEL_IP_ADDRESS_PARAMETER_ID          0xC002
@@ -762,6 +811,9 @@ static const value_string parameter_identifier_values[] = {
   { HOSTNAME_ADDRESS_PARAMETER_ID,        "Hostname address"            },
   { SUPPORTED_ADDRESS_TYPES_PARAMETER_ID, "Supported address types"     },
   { ECN_PARAMETER_ID,                     "ECN"                         },
+  { RANDOM_PARAMETER_ID,                  "Random"                      },
+  { CHUNKS_PARAMETER_ID,                  "Chunk list"                  },
+  { HMAC_ALGO_PARAMETER_ID,               "Requested HMAC Algorithm"    },
   { FORWARD_TSN_SUPPORTED_PARAMETER_ID,   "Forward TSN supported"       },
   { ADD_IP_ADDRESS_PARAMETER_ID,          "Add IP address"              },
   { DEL_IP_ADDRESS_PARAMETER_ID,          "Delete IP address"           },
@@ -841,6 +893,15 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *chunk
     break;
   case ECN_PARAMETER_ID:
     dissect_ecn_parameter(parameter_tvb);
+    break;
+  case RANDOM_PARAMETER_ID:
+    dissect_random_parameter(parameter_tvb, parameter_tree);
+    break;
+  case CHUNKS_PARAMETER_ID:
+    dissect_chunks_parameter(parameter_tvb, parameter_tree);
+    break;
+  case HMAC_ALGO_PARAMETER_ID:
+    dissect_hmac_algo_parameter(parameter_tvb, parameter_tree);
     break;
   case FORWARD_TSN_SUPPORTED_PARAMETER_ID:
     dissect_forward_tsn_supported_parameter(parameter_tvb);
@@ -1101,6 +1162,12 @@ dissect_request_refused_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tre
 }
 
 static void
+dissect_unsupported_hmac_id_cause(tvbuff_t *cause_tvb, packet_info *pinfo _U_, proto_tree *cause_tree)
+{
+  proto_tree_add_item(cause_tree, hf_hmac_id, cause_tvb, CAUSE_INFO_OFFSET, HMAC_ID_LENGTH, NETWORK_BYTE_ORDER);
+}
+
+static void
 dissect_unknown_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *cause_item)
 {
   guint16 cause_info_length;
@@ -1108,7 +1175,7 @@ dissect_unknown_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *c
   cause_info_length = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET) - CAUSE_HEADER_LENGTH;
   if (cause_info_length > 0)
     proto_tree_add_item(cause_tree, hf_cause_info, cause_tvb, CAUSE_INFO_OFFSET, cause_info_length, NETWORK_BYTE_ORDER);
-  proto_item_append_text(cause_item, "Code: %u, information length: %u byte%s)", tvb_get_ntohs(cause_tvb, CAUSE_CODE_OFFSET), cause_info_length, plurality(cause_info_length, "", "s"));
+  proto_item_append_text(cause_item, " (Code: %u, information length: %u byte%s)", tvb_get_ntohs(cause_tvb, CAUSE_CODE_OFFSET), cause_info_length, plurality(cause_info_length, "", "s"));
 }
 
 #define INVALID_STREAM_IDENTIFIER                  0x01
@@ -1128,7 +1195,8 @@ dissect_unknown_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *c
 #define OPERATION_REFUSED_DUE_TO_RESOURCE_SHORTAGE 0X0101
 #define REQUEST_TO_DELETE_SOURCE_ADDRESS           0x0102
 #define ABORT_DUE_TO_ILLEGAL_ASCONF                0x0103
-#define REQUESTION_REFUSED                         0x0104
+#define REQUEST_REFUSED                            0x0104
+#define UNSUPPORTED_HMAC_ID                        0x0105
 
 static const value_string cause_code_values[] = {
   { INVALID_STREAM_IDENTIFIER,                  "Invalid stream identifier" },
@@ -1148,7 +1216,8 @@ static const value_string cause_code_values[] = {
   { OPERATION_REFUSED_DUE_TO_RESOURCE_SHORTAGE, "Operation refused due to resource shortage" },
   { REQUEST_TO_DELETE_SOURCE_ADDRESS,           "Request to delete source address" },
   { ABORT_DUE_TO_ILLEGAL_ASCONF,                "Association Aborted due to illegal ASCONF-ACK" },
-  { REQUESTION_REFUSED,                         "Request refused - no authorization" },
+  { REQUEST_REFUSED,                            "Request refused - no authorization" },
+  { UNSUPPORTED_HMAC_ID,                        "Unsupported HMAC identifier" },
   { 0,                                          NULL } };
 
 
@@ -1218,8 +1287,11 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
   case REQUEST_TO_DELETE_SOURCE_ADDRESS:
     dissect_delete_source_address_cause(cause_tvb, pinfo, cause_tree, cause_item);
     break;
-  case REQUESTION_REFUSED:
+  case REQUEST_REFUSED:
   	dissect_request_refused_cause(cause_tvb, pinfo, cause_tree);
+  	break;
+  case UNSUPPORTED_HMAC_ID:
+  	dissect_unsupported_hmac_id_cause(cause_tvb, pinfo, cause_tree);
   	break;
   default:
     dissect_unknown_cause(cause_tvb, cause_tree, cause_item);
@@ -1739,6 +1811,20 @@ dissect_forward_tsn_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, proto_tree 
   }
 }
 
+#define HMAC_ID_OFFSET PARAMETER_VALUE_OFFSET
+#define HMAC_OFFSET    (HMAC_ID_OFFSET + HMAC_ID_LENGTH)
+
+static void
+dissect_auth_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, proto_tree *chunk_tree, proto_item *chunk_item _U_)
+{
+  guint hmac_length;
+  
+  hmac_length = chunk_length - CHUNK_HEADER_LENGTH - HMAC_ID_LENGTH;
+  proto_tree_add_item(chunk_tree, hf_hmac_id, chunk_tvb, HMAC_ID_OFFSET, HMAC_ID_LENGTH, NETWORK_BYTE_ORDER);
+  if (hmac_length > 0)
+    proto_tree_add_item(chunk_tree, hf_hmac,    chunk_tvb, HMAC_OFFSET,    hmac_length,    NETWORK_BYTE_ORDER);
+}
+
 #define SERIAL_NUMBER_LENGTH    4
 #define SERIAL_NUMBER_OFFSET    CHUNK_VALUE_OFFSET
 #define ASCONF_CHUNK_PARAMETERS_OFFSET (SERIAL_NUMBER_OFFSET + SERIAL_NUMBER_LENGTH)
@@ -1987,6 +2073,9 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
     break;
   case SCTP_FORWARD_TSN_CHUNK_ID:
     dissect_forward_tsn_chunk(chunk_tvb, length, chunk_tree, chunk_item);
+    break;
+  case SCTP_AUTH_CHUNK_ID:
+    dissect_auth_chunk(chunk_tvb, length, chunk_tree, chunk_item);
     break;
   case SCTP_ASCONF_ACK_CHUNK_ID:
     dissect_asconf_ack_chunk(chunk_tvb, length, pinfo, chunk_tree, chunk_item);
@@ -2286,10 +2375,14 @@ proto_register_sctp(void)
     { &hf_cookie_preservative_increment,            { "Suggested Cookie life-span increment (msec)", "sctp.parameter_cookie_preservative_incr",    FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_hostname,                                 { "Hostname",                                    "sctp.parameter_hostname",                    FT_STRING,  BASE_NONE, NULL,                                           0x0,                                "", HFILL } },
     { &hf_supported_address_type,                   { "Supported address type",                      "sctp.parameter_supported_addres_type",       FT_UINT16,  BASE_DEC,  VALS(address_types_values),                     0x0,                                "", HFILL } },
-    { &hf_asconf_serial,                            { "Serial Number",                               "sctp.asconf_serial_number",                  FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                "", HFILL } },
-    { &hf_asconf_ack_serial,                        { "Serial Number",                               "sctp.asconf_ack_serial_number",              FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                "", HFILL } },
+    { &hf_asconf_serial,                            { "Serial number",                               "sctp.asconf_serial_number",                  FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                "", HFILL } },
+    { &hf_asconf_ack_serial,                        { "Serial number",                               "sctp.asconf_ack_serial_number",              FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_correlation_id,                           { "Correlation_id",                              "sctp.correlation_id",                        FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_adap_indication,                          { "Indication",                                  "sctp.adapation_layer_indication",            FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                "", HFILL } },
+    { &hf_random_number,                            { "Random number",                               "sctp.random_number",                         FT_BYTES,   BASE_NONE, NULL,                                           0x0,                                "", HFILL } },
+    { &hf_chunks_to_auth,                           { "Chunk type",                                  "sctp.chunk_type_to_auth",                    FT_UINT8,   BASE_DEC,  VALS(chunk_type_values),                        0x0,                                "", HFILL } },
+    { &hf_hmac_id,                                  { "HMAC identifier",                             "sctp.hmac_id",                               FT_UINT32,  BASE_DEC,  VALS(hmac_id_values),                           0x0,                                "", HFILL } },
+    { &hf_hmac,                                     { "HMAC",                                        "sctp.hmac",                                  FT_BYTES,   BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_cause_code,                               { "Cause code",                                  "sctp.cause_code",                            FT_UINT16,  BASE_HEX,  VALS(cause_code_values),                        0x0,                                "", HFILL } },
     { &hf_cause_length,                             { "Cause length",                                "sctp.cause_length",                          FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_cause_info,                               { "Cause information",                           "sctp.cause_information",                     FT_BYTES,   BASE_NONE, NULL,                                           0x0,                                "", HFILL } },
