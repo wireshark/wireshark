@@ -23,5 +23,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+typedef struct _sscop_info_t {
+	guint8 type;
+	guint32 payload_len;
+} sscop_info_t;
 
 extern void dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dissector_handle_t handle);

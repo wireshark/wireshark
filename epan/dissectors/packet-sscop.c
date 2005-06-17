@@ -44,6 +44,7 @@ static int hf_sscop_s = -1;
 static int hf_sscop_ps = -1;
 static int hf_sscop_r = -1;
 static int hf_sscop_stat_s = -1;
+static int hf_sscop_stat_count = -1;
 
 static gint ett_sscop = -1;
 static gint ett_stat = -1;
@@ -76,6 +77,7 @@ static enum_val_t sscop_payload_dissector_options[] = {
 static guint sscop_payload_dissector = Q2931_DISSECTOR;
 static dissector_handle_t default_handle;
 
+static sscop_info_t sscop_info;
 /*
  * See
  *
@@ -170,13 +172,13 @@ extern void dissect_stat_list(proto_tree *tree, tvbuff_t *tvb,guint h) {
 	gint n,i;
 	proto_item* pi;
 
-	n = (tvb_reported_length(tvb))/4 - h ;
-	
-	pi = proto_tree_add_text(tree,tvb,0,n*4,"SD List");
-	tree = proto_item_add_subtree(pi,ett_stat);
+	if ((n = (tvb_reported_length(tvb))/4 - h)) {
+		pi = proto_tree_add_text(tree,tvb,0,n*4,"SD List");
+		tree = proto_item_add_subtree(pi,ett_stat);
 
-	for (i = 0; i < n; i++) {
-		proto_tree_add_item(tree, hf_sscop_stat_s, tvb, i*4 + 1,3,FALSE);
+		for (i = 0; i < n; i++) {
+			proto_tree_add_item(tree, hf_sscop_stat_s, tvb, i*4 + 1,3,FALSE);
+		}
 	}
 }
 
@@ -187,25 +189,25 @@ dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, d
   proto_item *ti;
   proto_tree *sscop_tree = NULL;
   guint8 sscop_pdu_type;
-  guint8 pdu_type;
   int pdu_len;
   int pad_len;
   tvbuff_t *next_tvb;
 
   reported_length = tvb_reported_length(tvb);	/* frame length */
   sscop_pdu_type = tvb_get_guint8(tvb, SSCOP_PDU_TYPE);
-  pdu_type = sscop_pdu_type & SSCOP_TYPE_MASK;
+  sscop_info.type = sscop_pdu_type & SSCOP_TYPE_MASK;
+  
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSCOP");
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pdu_type, sscop_type_vals,
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(sscop_info.type, sscop_type_vals,
 					"Unknown PDU type (0x%02x)"));
 
   /*
    * Find the length of the PDU and, if there's any payload and
    * padding, the length of the padding.
    */
-  switch (pdu_type) {
+  switch (sscop_info.type) {
 
   case SSCOP_SD:
     pad_len = (sscop_pdu_type >> 6) & 0x03;
@@ -221,19 +223,21 @@ dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, d
   case SSCOP_SDP:
 #endif
     pad_len = (sscop_pdu_type >> 6) & 0x03;
-    pdu_len = 8;
+    sscop_info.payload_len = pdu_len = 8;
     break;
 
   case SSCOP_UD:
     pad_len = (sscop_pdu_type >> 6) & 0x03;
-    pdu_len = 4;
+    sscop_info.payload_len = pdu_len = 4;
     break;
 
   default:
     pad_len = 0;
     pdu_len = reported_length;	/* No payload, just SSCOP */
+	sscop_info.payload_len = 0;
     break;
   }
+  
   if (tree) {
     ti = proto_tree_add_protocol_format(tree, proto_sscop, tvb,
 					reported_length - pdu_len,
@@ -242,7 +246,7 @@ dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, d
 
     proto_tree_add_item(sscop_tree, hf_sscop_type, tvb, SSCOP_PDU_TYPE, 1,FALSE);
 
-    switch (pdu_type) {
+    switch (sscop_info.type) {
 
     case SSCOP_BGN:
     case SSCOP_RS:
@@ -278,14 +282,14 @@ dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, d
       break;
 
     case SSCOP_STAT:
-		proto_tree_add_item(sscop_tree, hf_sscop_ps, tvb, SSCOP_N_PS + 1, 3,FALSE);
-		proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_N_MR + 1, 3, FALSE);
+		proto_tree_add_item(sscop_tree, hf_sscop_ps, tvb, SSCOP_SS_N_PS + 1, 3,FALSE);
+		proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_SS_N_MR + 1, 3, FALSE);
 		proto_tree_add_item(sscop_tree, hf_sscop_r, tvb, SSCOP_SS_N_R + 1, 3,FALSE);
 		dissect_stat_list(sscop_tree,tvb,3);
       break;
 
     case SSCOP_USTAT:
-		proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_N_MR + 1, 3, FALSE);
+		proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_SS_N_MR + 1, 3, FALSE);
 		proto_tree_add_item(sscop_tree, hf_sscop_r, tvb, SSCOP_SS_N_R + 1, 3,FALSE);
 		dissect_stat_list(sscop_tree,tvb,2);
       break;
@@ -297,7 +301,7 @@ dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, d
    *
    * XXX - what about a Management Data PDU?
    */
-  switch (pdu_type) {
+  switch (sscop_info.type) {
 
   case SSCOP_SD:
   case SSCOP_UD:
@@ -328,7 +332,7 @@ dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, d
        * equal to the length of the payload.
        */
       next_tvb = tvb_new_subset(tvb, 0, reported_length, reported_length);
-      if (pdu_type == SSCOP_SD)
+      if (sscop_info.type == SSCOP_SD)
       {
 		  call_dissector(payload_handle, next_tvb, pinfo, tree);		  
       }
@@ -400,7 +404,8 @@ proto_register_sscop(void)
 		{ &hf_sscop_s, { "N(S)", "sscop.s", FT_UINT24, BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_sscop_ps, { "N(PS)", "sscop.ps", FT_UINT24, BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_sscop_r, { "N(R)", "sscop.r", FT_UINT24, BASE_DEC, NULL, 0x0, "", HFILL }},
-		{ &hf_sscop_stat_s, { "N(S)", "sscop.stat.s", FT_UINT24, BASE_DEC, NULL, 0x0,"", HFILL }}
+		{ &hf_sscop_stat_s, { "N(S)", "sscop.stat.s", FT_UINT24, BASE_DEC, NULL, 0x0,"", HFILL }},
+		{ &hf_sscop_stat_count, { "Number of NACKed pdus", "sscop.stat.count", FT_UINT32, BASE_DEC, NULL, 0x0,"", HFILL }}
 	};
 	
   static gint *ett[] = {
