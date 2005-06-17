@@ -17,7 +17,12 @@
 	</listitem>
 	<listitem>
 	  <para>
-	    How to colorize the <application>Ethereal</application> display
+	    How to colorize the packet list
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    How to control protocol dissection
 	  </para>
 	</listitem>
 	<listitem>
@@ -45,22 +50,24 @@
 	<example id="ChCustEx1">
 	  <title>Help information available from Ethereal</title>
 	  <programlisting>
-This is GNU ethereal 0.10.5
-Compiled with GTK+ 2.4.3, with GLib 2.4.2, with WinPcap (version unknown),
-with libz 1.2.1, with libpcre 4.4, with Net-SNMP 5.1, with ADNS.
+This is GNU ethereal 0.10.11
+ (C) 1998-2005 Gerald Combs &lt;gerald@ethereal.com>
+Compiled with GTK+ 2.4.14, with GLib 2.4.7, with WinPcap (version unknown),
+with libz 1.2.2, with libpcre 4.4, with Net-SNMP 5.1.2, with ADNS.
 
-Running with WinPcap version 3.0 (packet.dll version 3, 1, 0, 20), based 
-on libpcap version 0.8 on Windows XP Service Pack 1, build 2600.
+Running with WinPcap version 3.1 beta4 (packet.dll version 3, 1, 0, 24), based o
+n libpcap version 0.8.3 on Windows XP Service Pack 1, build 2600.
 
 ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
-        [ -b &lt;number of ringbuffer files>[:&lt;duration>] ]
-        [ -B &lt;byte view height> ] [ -c &lt;count> ] [ -f &lt;capture filter> ]
-        [ -i &lt;interface> ] [ -m &lt;medium font> ] [ -N &lt;resolving> ]
-        [ -o &lt;preference setting> ] ... [ -P &lt;packet list height> ]
-        [ -r &lt;infile> ] [ -R &lt;read filter> ] [ -s &lt;snaplen> ]
-        [ -t &lt;time stamp format> ] [ -T &lt;tree view height> ]
-        [ -w &lt;savefile> ] [ -y &lt;link type> ] [ -z &lt;statistics string> ]
-        [ &lt;infile> ]
+        [ -b &lt;capture ring buffer option> ] ...] [ -B capture buffer size (Win32 only) ]
+        [ -c &lt;capture packet count> ] [ -f &lt;capture filter> ]
+        [ -g &lt;packet number> ]
+        [ -i &lt;capture interface> ] [ -m &lt;font> ] [ -N &lt;name resolving flags> ]
+        [ -o &lt;preference/recent setting> ] ...
+        [ -r &lt;infile> ] [ -R &lt;read (display) filter> ] [ -s &lt;capture snaplen> ]
+        [ -t &lt;time stamp format> ]
+        [ -w &lt;savefile> ] [ -y &lt;capture link type> ] [ -z &lt;statistics> ]
+        [ &lt;infile> ]	  
 	  </programlisting>
 	</example>
 
@@ -81,22 +88,31 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 		to a capture file. The criterion is of the form test:value, where test 
 		is one of: 
 		<variablelist>
-		<varlistentry><term><command>duration</command></term>
+		<varlistentry><term><command>duration</command>:value</term>
 			<listitem><para>
 			Stop writing to a capture file after value of seconds have elapsed. 
 			</para></listitem>
 		</varlistentry>
-		<varlistentry><term><command>filesize</command></term>
+		<varlistentry><term><command>filesize</command>:value</term>
 			<listitem><para>
 			Stop writing to a capture file after it reaches a size of value 
-			kilobytes (where a kilobyte is 1000 bytes, not 1024 bytes). 
+			kilobytes (where a kilobyte is 1000 bytes, not 1024 bytes). If 
+			this option is used together with the -b option, Ethereal will 
+			stop writing to the current capture file and switch to the next 
+			one if filesize is reached.
+			</para></listitem>
+		</varlistentry>
+		<varlistentry><term><command>files</command>:value</term>
+			<listitem><para>
+			Stop writing to capture files after value number of files were 
+			written.
 			</para></listitem>
 		</varlistentry>
 		</variablelist>
 		</para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry><term><command>-b &lt;number of ringbuffer files></command></term>
+	<varlistentry><term><command>-b &lt;capture ring buffer option></command></term>
 	  <listitem>
 	    <para>
 		If a maximum capture file size was specified, cause Ethereal to run 
@@ -117,17 +133,41 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 		the next file when the specified number of seconds has elapsed even 
 		if the current file is not completely fills up.
 	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry><term><command>-B &lt;byte view height></command></term>
-	  <listitem>
 	    <para>
-	      This option sets the initial height of the "Packet Bytes" pane.  
-	      This pane is usually the bottom pane in the Ethereal display.
+		<variablelist>
+		<varlistentry><term><command>duration</command>:value</term>
+			<listitem><para>
+			Switch to the next file after value seconds have elapsed, even 
+			if the current file is not completely filled up.
+			</para></listitem>
+		</varlistentry>
+		<varlistentry><term><command>filesize</command>:value</term>
+			<listitem><para>
+			Switch to the next file after it reaches a size of value kilobytes 
+			(where a kilobyte is 1000 bytes, not 1024 bytes).
+			</para></listitem>
+		</varlistentry>
+		<varlistentry><term><command>files</command>:value</term>
+			<listitem><para>
+			Begin again with the first file after value number of files were 
+			written (form a ring buffer).
+			</para></listitem>
+		</varlistentry>
+		</variablelist>
 	    </para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry><term><command>-c &lt;count></command></term>
+	<varlistentry><term><command>-B &lt;capture buffer size (Win32 only)></command></term>
+	  <listitem>
+	    <para>
+	      Win32 only: set capture buffer size (in MB, default is 1MB). This 
+		  is used by the the capture driver to buffer packet data until that 
+		  data can be written to disk. If you encounter packet drops while 
+		  capturing, try to increase this size.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>-c &lt;capture packet count></command></term>
 	  <listitem>
 	    <para>
 	      This option specifies the maximum number of packets to capture 
@@ -144,6 +184,14 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 	    </para>
 	  </listitem>
 	</varlistentry>
+	<varlistentry><term><command>-g &lt;packet number></command></term>
+	  <listitem>
+	    <para>
+	      After reading in a capture file using the -r flag, go to the given 
+		  packet number.
+	    </para>
+	  </listitem>
+	</varlistentry>
 	<varlistentry><term><command>-h</command></term>
 	  <listitem>
 	    <para>
@@ -152,7 +200,7 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 	    </para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry><term><command>-i &lt;interface></command></term>
+	<varlistentry><term><command>-i &lt;capture interface></command></term>
 	  <listitem>
 	    <para>
 	      The <command>-i</command> option allows you to specify, 
@@ -198,7 +246,7 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 	    </para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry><term><command>-m &lt;medium font></command></term>
+	<varlistentry><term><command>-m &lt;font></command></term>
 	  <listitem>
 	    <para>
 	      This option sets the name of the font used for most text 
@@ -214,7 +262,7 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 		</para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry><term><command>-N &lt;resolving&gt;</command></term>
+	<varlistentry><term><command>-N &lt;name resolving flags></command></term>
 	  <listitem>
 	    <para>
 	      Turns on name resolving for particular types of addresses 
@@ -229,14 +277,14 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><command>-o &lt;preference settings&gt;</command></term>
+	  <term><command>-o &lt;preference/recent settings&gt;</command></term>
 	  <listitem>
 	    <para>
-	      Sets a preference value, overriding the default value and 
-	      any value read from a preference file.  The argument to the 
+	      Sets a preference or recent value, overriding the default value and 
+	      any value read from a preference/recent file.  The argument to the 
 	      flag is a string of the form prefname:value, where prefname 
 	      is the name of the preference (which is the same name that 
-	      would appear in the preference file), and value is the value 
+	      would appear in the preference/recent file), and value is the value 
 	      to which it should be set.  Multiple instances of 
 	      <command>-o &lt;preference settings&gt; </command> can be 
 	      given on a single command line.
@@ -275,15 +323,6 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 	    </para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry>
-	  <term><command>-P &lt;packet list height></command></term>
-	  <listitem>
-	    <para>
-	      This option sets the initial height of the "Packet List" pane, 
-	      ie, the top pane.
-	    </para>
-	  </listitem>
-	</varlistentry>
 	<varlistentry><term><command>-Q</command></term>
 	  <listitem>
 	    <para>
@@ -303,7 +342,7 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 	    </para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry><term><command>-R &lt;read filter></command></term>
+	<varlistentry><term><command>-R &lt;read (display) filter></command></term>
 	  <listitem>
 	    <para>
 	      This option specifies a display filter to be applied when 
@@ -314,7 +353,7 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 	    </para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry><term><command>-s &lt;snaplen></command></term>
+	<varlistentry><term><command>-s &lt;capture snaplen></command></term>
 	  <listitem>
 	    <para>
 	      This option specifies the snapshot length to use when 
@@ -369,14 +408,6 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 	    </para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry>
-	  <term><command>-T &lt;tree view height></command></term>
-	  <listitem>
-	    <para>
-	      This option sets the initial height of the "Packet Details" pane.
-	    </para>
-	  </listitem>
-	</varlistentry>
 	<varlistentry><term><command>-v</command></term>
 	  <listitem>
 	    <para>
@@ -393,7 +424,7 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 	    </para>
 	  </listitem>
 	</varlistentry>
-	<varlistentry><term><command>-y &lt;link type></command></term>
+	<varlistentry><term><command>-y &lt;capture link type></command></term>
 	  <listitem>
 	    <para>
 		If a capture is started from the command line with -k, set the data 
@@ -418,20 +449,21 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
   <section id="ChCustColorizationSection"><title>Packet colorization</title>
     <para>
       A very useful mechanism available in Ethereal is packet colorization.  
-      You can set Ethereal up so that it colorizes packets according to a 
-      filter. This allows you to emphasize the packets you are interested in.
+      You can set-up Ethereal so that it will colorize packets according to a 
+      filter. This allows you to emphasize the packets you are usually 
+	  interested in.
     </para>
-    <note>
-      <title>Note!</title>
+    <tip>
+      <title>Tip!</title>
       <para>
 	  You will find a lot of Coloring Rule examples at the <command>Ethereal 
 	  Wiki Coloring Rules page</command> at <ulink 
 	  url="&EtherealWikiColoringRulesPage;">&EtherealWikiColoringRulesPage;</ulink>.
       </para>
-    </note>
+    </tip>
     <para>
       To colorize packets, select the Coloring Rules... menu item from 
-      the View menu, and Ethereal will pop up the "Coloring Rules" 
+      the View menu, Ethereal will pop up the "Coloring Rules" 
       dialog box as shown in <xref linkend="ChCustColoringRulesDialog"/>.
     </para>
     <figure id="ChCustColoringRulesDialog">
@@ -445,7 +477,7 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
     </para>
     <note><title>Note!</title>
 	<para>
-      You will need to carefully select the order that rules are listed 
+      You will need to carefully select the order the coloring rules are listed 
       (and thus applied) as they are applied in order from top to bottom. 
 	  So, more specific rules need to be listed before more general rules. 
 	  For example, if you have a color rule for UDP before the one for DNS, 
@@ -506,11 +538,10 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
   <section id="ChCustProtocolDissectionSection">
 	<title>Control Protocol dissection</title>
 	<para>
-		There are some ways, to let the user control how protocols are 
-		dissected.
+		The user can control how protocols are dissected.
 	</para>
 	<para>
-		Each protocol has its own dissector, so dissecting a packet will 
+		Each protocol has its own dissector, so dissecting a complete packet will 
 		typically involve several dissectors. As Ethereal tries to find the 
 		right dissector for each packet (using static "routes" and heuristics 
 		"guessing"), it might choose the wrong dissector in your specific 
@@ -554,8 +585,8 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 	<warning><title>Warning!</title>
 		<para>
 		You have to use the Save button to save your settings. The OK or Apply 
-		buttons will not save your changes, so they will be lost when Ethereal
-		is closed.
+		buttons will not save your changes permanently, so they will be lost 
+		when Ethereal is closed.
 		</para>
 	</warning>
     <para>
@@ -607,7 +638,7 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 	<para>
 		The "Decode As" functionality let you temporarily divert specific 
 		protocol dissections. This might be useful for example, if you do some 
-		uncommon things on your network.
+		uncommon experiments on your network.
 	</para>
     <para>
     <figure id="ChAdvDecodeAsFig">
@@ -636,9 +667,10 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
 	</listitem>
 	<listitem>
 	  <para>
-	    <command>Link/Network/Transport</command> Specify the way to decode 
-		packets. Which of these pages are available, depends on the content
-		of the selected packet when this dialog box was opened.
+	    <command>Link/Network/Transport</command> Specify the network layer 
+		at which "Decode As" should take place. Which of these pages are 
+		available, depends on the content of the selected packet when this 
+		dialog box was opened.
 	  </para>
 	</listitem>
 	<listitem>
