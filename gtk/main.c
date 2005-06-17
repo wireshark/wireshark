@@ -1101,7 +1101,7 @@ print_usage(gboolean print_ver) {
   fprintf(output, "\t[ -o <preference/recent setting> ] ... \n");
   fprintf(output, "\t[ -r <infile> ] [ -R <read (display) filter> ] [ -s <capture snaplen> ] \n");
   fprintf(output, "\t[ -t <time stamp format> ]\n");
-  fprintf(output, "\t[ -w <savefile> ] [ -y <capture link type> ] [ -z <statistics ]\n");
+  fprintf(output, "\t[ -w <savefile> ] [ -y <capture link type> ] [ -z <statistics> ]\n");
   fprintf(output, "\t[ <infile> ]\n");
 #else
   fprintf(output, "\n%s [ -vh ] [ -n ] [ -g <packet number> ] [ -m <font> ]\n", PACKAGE);
