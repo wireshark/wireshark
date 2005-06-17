@@ -16835,6 +16835,8 @@ proto_register_gsm_a(void)
     	"GPRS SM PCO PPP protocol", FT_UINT16, BASE_HEX);
 
     gsm_a_tap = register_tap("gsm_a");
+	
+	register_dissector("gsm_a_dtap", dissect_dtap, proto_a_dtap);
 }
 
 
@@ -16843,7 +16845,7 @@ proto_reg_handoff_gsm_a(void)
 {
 
     bssmap_handle = create_dissector_handle(dissect_bssmap, proto_a_bssmap);
-    dtap_handle = create_dissector_handle(dissect_dtap, proto_a_dtap);
+    dtap_handle = find_dissector("gsm_a_dtap");
     rp_handle = create_dissector_handle(dissect_rp, proto_a_rp);
 
     dissector_add("bssap.pdu_type",  BSSAP_PDU_TYPE_BSSMAP, bssmap_handle);
