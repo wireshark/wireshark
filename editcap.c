@@ -206,8 +206,8 @@ static void usage(void)
   int i;
   const char *string;
 
-  fprintf(stderr, "Usage: editcap [-r] [-h] [-v] [-T <encap type>] [-F <capture type>]\n");
-  fprintf(stderr, "               [-s <snaplen>] [-t <time adjustment>]\n");
+  fprintf(stderr, "Usage: editcap [-r] [-h] [-v] [-T <encap type>] [-E <probability>]\n");
+  fprintf(stderr, "               [-F <capture type>] [-s <snaplen>] [-t <time adjustment>]\n");
   fprintf(stderr, "               <infile> <outfile> [ <record#>[-<record#>] ... ]\n");
   fprintf(stderr, "  where\n");
   fprintf(stderr, "       \t-E <probability> specifies the probability (between 0 and 1)\n");
