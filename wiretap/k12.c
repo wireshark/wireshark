@@ -125,8 +125,9 @@ static gint get_record(guint8* buffer, FILE* fh, guint file_offset) {
 		
 		if (junky_offset > len) {
 			/* safe body */
-			if (len - 0x4 <= 0)
+			if (len - 0x4 <= 0) {
 				return -1;
+			}
 			
 			if ( file_read(buffer+0x4, 1, len - 0x4, fh) < len - 0x4 ) {
 				return -1;
@@ -232,6 +233,8 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, long *data_o
 		wth->pseudo_header.k12.stack_file = "unknown stack file";
 	}
 	
+	wth->pseudo_header.k12.stuff = wth->capture.k12;
+
 	return TRUE;
 }
 
@@ -240,11 +243,14 @@ static gboolean k12_seek_read(wtap *wth, long seek_off, union wtap_pseudo_header
 	k12_src_desc_t* src_desc;
 	guint8 buffer[0x2000];
 
-	if ( file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+	if ( file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
 		return FALSE;
+	}
 	
-	get_record(buffer, wth->random_fh, seek_off);
-
+	if (get_record(buffer, wth->random_fh, seek_off) < 1) {
+		return FALSE;
+	}
+	
 	memcpy(pd, buffer + K12_PACKET_FRAME, length);
 	
 	pseudo_header->k12.input = pntohl(buffer + K12_RECORD_INPUT);
@@ -263,6 +269,7 @@ static gboolean k12_seek_read(wtap *wth, long seek_off, union wtap_pseudo_header
 		pseudo_header->k12.stack_file = "unknown stack file";
 	}
 	
+	pseudo_header->k12.stuff = wth->capture.k12;
 	return TRUE;
 }
 
@@ -310,6 +317,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
 	guint32 type;
 	long offset;
 	long len;
+	guint32 rec_len;
 	guint32 extra_len;
 	guint32 name_len;
 	guint32 stack_len;
@@ -319,8 +327,9 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
 	if ( file_read(read_buffer,1,0x200,wth->fh) != 0x200 ) {
 		return 0;
 	} else {
-		if ( memcmp(read_buffer,k12_file_magic,8) != 0 )
+		if ( memcmp(read_buffer,k12_file_magic,8) != 0 ) {
 			return 0;
+		}
 	}
 	
 	offset = 0x200;
@@ -354,10 +363,16 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
 		} else if (type == K12_REC_SRCDSC) {
 			rec = g_malloc0(sizeof(k12_src_desc_t));
 			
+			rec_len = pntohl( read_buffer + K12_RECORD_LEN );
 			rec->input = pntohl( read_buffer + K12_RECORD_INPUT );
 			extra_len = pntohs( read_buffer + K12_SRCDESC_EXTRALEN );
 			name_len = pntohs( read_buffer + K12_SRCDESC_NAMELEN );
 			stack_len = pntohs( read_buffer + K12_SRCDESC_STACKLEN );
+			
+			if (extra_len == 0 || name_len == 0 || stack_len == 0
+				|| 0x20 + extra_len + name_len + stack_len > rec_len ) {
+				return 0;
+			}
 			
 			switch(( rec->input_type = pntohl( read_buffer + K12_SRCDESC_EXTRATYPE ) )) {
 				case K12_PORT_DS0S:
@@ -406,3 +421,239 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
 	
 	return 1;
 }
+
+int k12_dump_can_write_encap(int encap) {
+	
+	if (encap == WTAP_ENCAP_PER_PACKET)
+		return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+	
+	if (encap != WTAP_ENCAP_K12)
+		return WTAP_ERR_UNSUPPORTED_ENCAP;
+	
+	return 0;
+}
+
+static const gchar dumpy_junk[] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+
+static void k12_dump_record(wtap_dumper *wdh, long len,  guint8* buffer) {
+	long junky_offset = (0x2000 - ( (wdh->dump.k12->file_offset - 0x200) % 0x2000 )) % 0x2000;
+	
+	if (len > junky_offset) {
+		
+		if (junky_offset)
+			fwrite(buffer, 1, junky_offset, wdh->fh);
+		
+		fwrite(dumpy_junk, 1, 0x10, wdh->fh);
+		
+		fwrite(buffer+junky_offset, 1, len - junky_offset, wdh->fh);
+		
+		wdh->dump.k12->file_offset += len + 0x10;
+	} else {
+		fwrite(buffer, 1, len, wdh->fh);
+		wdh->dump.k12->file_offset += len;
+	}
+	
+	wdh->dump.k12->num_of_records++;
+}
+
+static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
+	k12_src_desc_t* src_desc = v;
+	wtap_dumper *wdh = p;
+	guint32 len;
+	guint offset;
+	guint i;
+	
+	union {
+		guint8 buffer[0x2000];
+		
+		struct {
+			guint32 len;
+			guint32 type;
+			guint32 unk32_1;
+			guint32 input;
+			
+			guint32 unk32_2;
+			guint32 unk32_3;
+			guint32 unk32_4;
+			guint16 unk16_1;
+			guint16 extra_len;
+			
+			guint16 name_len;
+			guint16 stack_len;
+			
+			struct {
+				guint32 type;
+				
+				union {
+					struct {
+						guint32 unk32;
+						guint8 mask[32];
+					} ds0mask;
+					
+					struct {
+						guint8 unk_data[0x10];
+						guint16 vp;
+						guint16 vc;
+					} atm;
+					
+					guint32 unk;
+				} desc;
+			} extra;
+		} record;
+	} obj;
+	
+	obj.record.type = g_htonl(K12_REC_SRCDSC);
+	obj.record.unk32_1 = g_htonl(0x00000001);
+	obj.record.input = g_htonl(src_desc->input);
+	
+	obj.record.unk32_2 = g_htonl(0x0000060f);
+	obj.record.unk32_3 = g_htonl(0x00000003);
+	obj.record.unk32_4 = g_htonl(0x01000100);
+
+	obj.record.unk16_1 = g_htons(0x0000);
+	obj.record.name_len = strlen(src_desc->input_name) + 1;
+	obj.record.stack_len = strlen(src_desc->stack_file) + 1;
+
+	obj.record.extra.type = g_htonl(src_desc->input_type);
+	
+	switch (src_desc->input_type) {
+		case K12_PORT_ATMPVC:
+			obj.record.extra_len = g_htons(0x18);
+			obj.record.extra.desc.atm.vp = g_htons(src_desc->input_info.atm.vp);
+			obj.record.extra.desc.atm.vc = g_htons(src_desc->input_info.atm.vc);
+			offset = 0x3c;
+			break;
+		case K12_PORT_DS0S:
+			obj.record.extra_len = g_htons(0x18);
+			for( i=0; i<32; i++ ) {
+				obj.record.extra.desc.ds0mask.mask[i] =
+					(src_desc->input_info.ds0mask & (1 << i)) ? 0xff : 0x00;
+			}
+			offset = 0x3c;
+			break;
+		default:
+			obj.record.extra_len = g_htons(0x08);
+			offset = 0x2c;
+			break;
+	}
+	
+	memcpy(obj.buffer + offset,
+		   src_desc->input_name,
+		   obj.record.name_len);
+	
+	memcpy(obj.buffer + offset + obj.record.name_len,
+		   src_desc->stack_file,
+		   obj.record.stack_len);
+	
+	len = offset + obj.record.name_len + obj.record.stack_len;
+	len += (len % 4) ? 4 - (len % 4) : 0;
+	
+	obj.record.len = g_htonl(len);
+	obj.record.name_len =  g_htons(obj.record.name_len);
+	obj.record.stack_len = g_htons(obj.record.stack_len);
+
+	k12_dump_record(wdh,len,obj.buffer);
+}
+
+static gboolean k12_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+							const union wtap_pseudo_header *pseudo_header,
+							const guchar *pd, int *err _U_) {
+	long len;
+	union {
+		guint8 buffer[0x2000];
+		struct {
+			guint32 len;
+			guint32 type;
+			guint32 frame_len;
+			guint32 input;
+			
+			guint32 datum_1;
+			guint32 datum_2;
+			guint64 ts;
+			
+			guint8 frame[0x1fc0];
+		} record;
+	} obj;
+	
+	if (wdh->dump.k12->num_of_records == 0) {
+		k12_t* file_data = pseudo_header->k12.stuff;
+		g_hash_table_foreach(file_data->src_by_id,k12_dump_src_setting,wdh);
+	}
+	
+	obj.record.len = 0x20 + phdr->len;
+	obj.record.len += (obj.record.len % 4) ? 4 - obj.record.len % 4 : 0;
+
+	len = obj.record.len;
+	
+	obj.record.len = g_htonl(obj.record.len);
+
+	obj.record.type = g_htonl(K12_REC_PACKET);
+	obj.record.frame_len = g_htonl(phdr->len);
+	obj.record.input = g_htonl(pseudo_header->k12.input);
+	
+	obj.record.ts = GUINT64_TO_BE((((guint64)phdr->ts.tv_sec - 631152000) * 2000000) + (phdr->ts.tv_usec * 2));
+
+	memcpy(obj.record.frame,pd,phdr->len);
+	
+	k12_dump_record(wdh,len,obj.buffer);
+	
+	/* XXX if OK */
+	return TRUE;
+}
+
+static const guint8 k12_eof[] = {0xff,0xff};
+
+static gboolean k12_dump_close(wtap_dumper *wdh, int *err) {
+	union {
+		guint8 b[sizeof(guint32)];
+		guint32 u;
+	} d;
+	
+	fwrite(k12_eof, 1, 2, wdh->fh);
+
+	if (fseek(wdh->fh, 8, SEEK_SET) == -1) {
+		*err = errno;
+		return FALSE;
+	}
+	
+	d.u = g_htonl(wdh->dump.k12->file_len);
+	
+	fwrite(d.b, 1, 4, wdh->fh);
+
+	d.u = g_htonl(wdh->dump.k12->num_of_records);
+	
+	fwrite(d.b, 1, 4, wdh->fh);
+
+	return TRUE;
+}
+
+
+gboolean k12_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err) {
+	
+	if (cant_seek) {
+		*err = WTAP_ERR_CANT_WRITE_TO_PIPE;
+		return FALSE;
+	}
+	
+	if ( fwrite(k12_file_magic, 1, 8, wdh->fh) != 8 ) {
+		*err = errno;
+		return FALSE;
+	}
+	
+	if (fseek(wdh->fh, 0x200, SEEK_SET) == -1) {
+		*err = errno;
+		return FALSE;
+	}
+
+	wdh->subtype_write = k12_dump;
+	wdh->subtype_close = k12_dump_close;
+	
+	wdh->dump.k12 = g_malloc(sizeof(k12_dump_t));
+	wdh->dump.k12->file_len = 0x200;
+	wdh->dump.k12->num_of_records = 0;
+	wdh->dump.k12->file_offset  = 0x200;
+	
+	return TRUE;
+}
+
+

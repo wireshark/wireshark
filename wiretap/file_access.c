@@ -502,7 +502,7 @@ static const struct file_type_info {
     
 	/* WTAP_FILE_K12 */
 	{ "Tektronix K12xx 32-bit .rf5 format", "rf5",
-		NULL, NULL },
+		k12_dump_can_write_encap, k12_dump_open },
 };
 
 /* Name that should be somewhat descriptive. */

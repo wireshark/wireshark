@@ -214,6 +214,13 @@ typedef struct {
 	guint8  network_type;
 } niobserver_dump_t;
 
+typedef struct {
+	guint32 file_len;
+	guint32 num_of_records;
+	guint32 file_offset;
+} k12_dump_t;
+
+
 struct wtap_dumper {
 	FILE*			fh;
 	int			file_type;
@@ -228,6 +235,7 @@ struct wtap_dumper {
 		netxray_dump_t		*netxray;
 		_5views_dump_t		*_5views;
 		niobserver_dump_t	*niobserver;
+		k12_dump_t		*k12;
 	} dump;
 
 	subtype_write_func	subtype_write;
