@@ -2081,6 +2081,10 @@ compile).
 
 1.11 Submitting code for your new dissector.
 
+  - TEST YOUR DISSECTOR BEFORE SUBMITTING IT.
+    Use fuzz-test.sh and/or randpkt against your dissector.  These are
+    described at <http://wiki.ethereal.com/FuzzTesting>.
+
   - Subscribe to <mailto:ethereal-dev@ethereal.com> by sending an email to
     <mailto:ethereal-dev-request@ethereal.com?body="help"> or visiting 
     <http://www.ethereal.com/lists/>.
@@ -2092,10 +2096,14 @@ compile).
   - Send the diff file along with a note requesting it's inclusion to
     <mailto:ethereal-dev@ethereal.com>. You can also use this procedure for
     providing patches to your dissector or any other part of ethereal.
-    
+
+  - If possible, add sample capture files to the sample captures page at
+    <http://wiki.ethereal.com/SampleCaptures>.  These files are used by
+    the automated build system for fuzz testing.
+
   - If you find that you are contributing a lot to ethereal on an ongoing
-    basis you can request to become a committer which will allow you to commit
-    files to subversion directly.
+    basis you can request to become a committer which will allow you to
+    commit files to subversion directly.
 
 2. Advanced dissector topics.
 
