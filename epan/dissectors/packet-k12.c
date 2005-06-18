@@ -29,10 +29,12 @@
 #endif
 
 #include <stdio.h>
+#include <errno.h>
 #include <glib.h>
 #include <string.h>
 #include <epan/packet.h>
 #include <prefs.h>
+#include <epan/report_err.h>
 
 static int proto_k12 = -1;
 
@@ -117,7 +119,8 @@ static gboolean free_just_key (gpointer k, gpointer v _U_, gpointer p _U_) {
 }
 
 
-static GHashTable* k12_load_config(FILE* fp) {
+static GHashTable* k12_load_config(gchar* filename) {
+	FILE* fp;
 	gchar buffer[0x10000];
 	size_t len;
 	GHashTable* hash = g_hash_table_new(g_str_hash,g_str_equal);
@@ -125,8 +128,15 @@ static GHashTable* k12_load_config(FILE* fp) {
 	gchar** lines = NULL;
 	guint i;
 	dissector_handle_t handle;
-
-	len = fread(buffer,1,0xFFFF,fp);
+	
+	/* XXX: should look for the file in common locations */
+	
+	if (( fp = fopen(filename,"r") )) {
+		len = fread(buffer,1,0xFFFF,fp);
+	} else {
+		report_open_failure(filename, errno, FALSE);
+		return NULL;
+	}
 
 	if (len > 0) {
 		lines = g_strsplit(buffer,"\n",0);
@@ -140,8 +150,7 @@ static GHashTable* k12_load_config(FILE* fp) {
 			curr = g_strsplit(lines[i]," ",0);
 			
 			if (! (curr[0] != NULL && *curr[0] != '\0' && curr[1] != NULL  && *curr[1] != '\0' ) ) {
-				/* XXX report_error */
-				g_warning("K12xx: Format error in line %u",i+1);
+				report_failure("K12xx: Format error in line %u",i+1);
 				g_strfreev(curr);
 				g_strfreev(lines);
 				g_hash_table_foreach_remove(hash,free_just_key,NULL);
@@ -154,8 +163,7 @@ static GHashTable* k12_load_config(FILE* fp) {
 			handle = find_dissector(curr[1]);
 
 			if (! handle ) {
-				/* XXX report_error */
-				g_warning("k12: proto %s not found",curr[1]);
+				report_failure("k12: proto %s not found",curr[1]);
 				handle = data_handle;
 			}
 			
@@ -170,15 +178,14 @@ static GHashTable* k12_load_config(FILE* fp) {
 	}
 	
 	g_hash_table_destroy(hash);
-				/* XXX report_error */
-	g_warning("K12xx: I/O error");
+	
+	report_read_failure(filename, errno);
+	
 	return NULL;
 }
 
 
-static void k12_load_prefs(void) {
-	FILE* fp;
-	
+static void k12_load_prefs(void) {	
 	if (k12_cfg) {
 		g_hash_table_foreach_remove(k12_cfg,free_just_key,NULL);
 		g_hash_table_destroy(k12_cfg);
@@ -186,13 +193,8 @@ static void k12_load_prefs(void) {
 	}
 	
 	if (*k12_config_filename != '\0') {
-		if (( fp = fopen(k12_config_filename,"r") )) {
-			k12_cfg = k12_load_config(fp);
+			k12_cfg = k12_load_config(k12_config_filename);
 			return;
-		} else {
-			/* XXX report_error */
-			g_warning("failed to open: %s",k12_config_filename);			
-		}
 	}
 }
 
