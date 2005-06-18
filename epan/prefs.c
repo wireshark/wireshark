@@ -1176,13 +1176,16 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
   gchar     hint[] = "(saving your preferences once should remove this warning)";
 
   if (! cur_val) {
-	  cur_val = g_string_new("");
+    cur_val = g_string_new("");
   }
   
   if (! cur_var) {
-	  cur_var = g_string_new("");
+    cur_var = g_string_new("");
   }
-  
+
+  g_string_truncate(cur_val, 0);
+  g_string_truncate(cur_var, 0);
+
   while ((got_c = getc(pf)) != EOF) {
     if (got_c == '\n') {
       state = START;
