@@ -391,7 +391,7 @@ void lct_dissector(struct _lct_ptr l, struct _fec_ptr f, tvbuff_t *tvb, proto_tr
 	}
 
 	/* Expected Residual Time (ERT) */
-	if (l.lct->sct_present) {
+	if (l.lct->ert_present) {
 		lct_timestamp_parse(tvb_get_ntohl(tvb, *offset), &l.lct->ert);
 		if (tree)
 			proto_tree_add_time(lct_tree, l.hf->ert, tvb, *offset, 4, &l.lct->ert);
