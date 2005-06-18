@@ -118,53 +118,6 @@ plugin_libs = \
 if ENABLE_STATIC
 plugin_ldadd = $(plugin_libs)
 
-dummyddd = \
-	plugins/acn/packet-acn.o \
-	plugins/agentx/packet-agentx.o \
-	plugins/artnet/packet-artnet.o \
-	plugins/asn1/packet-asn1.o \
-	plugins/ciscosm/packet-sm.o \
-	plugins/docsis/packet-bpkmattr.o \
-	plugins/docsis/packet-bpkmreq.o \
-	plugins/docsis/packet-bpkmrsp.o \
-	plugins/docsis/packet-docsis.o \
-	plugins/docsis/packet-dsaack.o \
-	plugins/docsis/packet-dsareq.o \
-	plugins/docsis/packet-dsarsp.o \
-	plugins/docsis/packet-dscack.o \
-	plugins/docsis/packet-dscreq.o \
-	plugins/docsis/packet-dscrsp.o \
-	plugins/docsis/packet-dsdreq.o \
-	plugins/docsis/packet-dsdrsp.o \
-	plugins/docsis/packet-macmgmt.o \
-	plugins/docsis/packet-map.o \
-	plugins/docsis/packet-regack.o \
-	plugins/docsis/packet-regreq.o \
-	plugins/docsis/packet-regrsp.o \
-	plugins/docsis/packet-rngreq.o \
-	plugins/docsis/packet-rngrsp.o \
-	plugins/docsis/packet-tlv.o \
-	plugins/docsis/packet-uccreq.o \
-	plugins/docsis/packet-uccrsp.o \
-	plugins/docsis/packet-ucd.o \
-	plugins/enttec/packet-enttec.o \
-	plugins/giop/packet-cosnaming.o \
-	plugins/giop/packet-coseventcomm.o \
-	plugins/gryphon/packet-gryphon.o \
-	plugins/irda/packet-irda.o \
-	plugins/irda/packet-ircomm.o \
-	plugins/irda/packet-sir.o \
-	plugins/lwres/packet-lwres.o \
-	plugins/megaco/packet-megaco.o \
-	plugins/mgcp/packet-mgcp.o \
-	plugins/opsi/packet-opsi.o \
-	plugins/pcli/packet-pcli.o \
-	plugins/rdm/packet-rdm.o \
-	plugins/rlm/packet-rlm.o \
-	plugins/rtnet/packet-rtnet.o \
-	plugins/rudp/packet-rudp.o \
-	plugins/v5ua/packet-v5ua.o
-
 else		# ENABLE_STATIC
 plugin_ldadd = \
 	"-dlopen" self	\
