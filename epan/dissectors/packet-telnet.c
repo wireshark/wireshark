@@ -404,7 +404,7 @@ dissect_comport_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
   
   guint8 cmd;
   guint8 isservercmd;
-  char *source;
+  const char *source;
   
   cmd = tvb_get_guint8(tvb, offset);
   isservercmd = cmd > 99;
@@ -1173,6 +1173,16 @@ telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, in
   gint cur_offset;
   gboolean iac_found;
 
+  /*
+   * iac_data is a hack: as data with value iac (0xff) is possible,
+   * this value must be escaped with iac (rfc 854). The proper way to
+   * handle this would be to copy all data into a buffer with iac in
+   * the data part removed and process it from there. For now, just
+   * fix the sanity checks. This of course leaves the double iac
+   * values in the decoded options.
+   */
+  int  iac_data = 0;
+
   offset += 2;	/* skip IAC and SB */
 
   /* Get the option code */
@@ -1210,6 +1220,7 @@ telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, in
              */
             iac_found = FALSE;
             cur_offset = iac_offset + 2;
+	    iac_data += 1;
         }
       }
 
@@ -1238,7 +1249,7 @@ telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, in
 
       case FIXED_LENGTH:
 	/* Make sure the length is what it's supposed to be. */
-	if (subneg_len != options[opt_byte].optlen) {
+	if (subneg_len - iac_data != options[opt_byte].optlen) {
 	  proto_tree_add_text(option_tree, tvb, start_offset, subneg_len,
 			    "Suboption parameter length is %d, should be %d",
 			    subneg_len, options[opt_byte].optlen);
@@ -1248,7 +1259,7 @@ telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, in
 
       case VARIABLE_LENGTH:
 	/* Make sure the length is greater than the minimum. */
-	if (subneg_len < options[opt_byte].optlen) {
+	if (subneg_len - iac_data < options[opt_byte].optlen) {
 	  proto_tree_add_text(option_tree, tvb, start_offset, subneg_len,
 			      "Suboption parameter length is %d, should be at least %d",
 			      subneg_len, options[opt_byte].optlen);
