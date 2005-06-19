@@ -45,6 +45,7 @@
 #include <epan/asn1.h>
 #include "format-oid.h"
 
+#include "packet-ber.h"
 #include "packet-ses.h"
 #include "packet-pres.h"
 extern const value_string ses_vals[];
@@ -3815,7 +3816,10 @@ proto_reg_handoff_ftam(void)
 	data_handle = find_dissector("data");
 	ftam_handle = create_dissector_handle(dissect_ftam,proto_ftam);
 	/* Register in acse oid table  */
+	/* remove this when ACSE is replaced later */
 	dissector_add_string("acse.application_context", "1.0.8571.1.1", ftam_handle); 
+
+	register_ber_oid_dissector("1.0.8571.1.1", dissect_ftam, proto_ftam, "ftam");
 }
 
 
