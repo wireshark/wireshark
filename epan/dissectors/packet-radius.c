@@ -1045,7 +1045,24 @@ static const radius_attr_info radius_vendor_cisco_attrib[] =
   {108,	RADIUS_STRING,		"H323 Redirect Ip Address", NULL, NULL},
   {109,	RADIUS_STRING,		"H323 Billing Model", NULL, NULL},
   {110,	RADIUS_STRING,		"H323 Currency Type", NULL, NULL},
-  /* #111-#186 */
+  {111,	RADIUS_STRING,		"subscriber", NULL, NULL},
+  {112,	RADIUS_STRING,		"gw-rxd-cdn", NULL, NULL},
+  {113,	RADIUS_STRING,		"gw-final-xlated-cdn", NULL, NULL},
+  /* #114-#140 */
+/*	# SIP Attributes 
+ *
+ */
+  {141,	RADIUS_STRING,		"call-id", NULL, NULL},
+  {142,	RADIUS_STRING,		"session-protocol", NULL, NULL},
+  {143,	RADIUS_STRING,		"method", NULL, NULL},
+  {144,	RADIUS_STRING,		"prev-hop-via", NULL, NULL},
+  {145,	RADIUS_STRING,		"prev-hop-ip", NULL, NULL},
+  {146,	RADIUS_STRING,		"incoming-req-uri", NULL, NULL},
+  {147,	RADIUS_STRING,		"outgoing-req-uri", NULL, NULL},
+  {148,	RADIUS_STRING,		"next-hop-ip", NULL, NULL},
+  {149,	RADIUS_STRING,		"next-hop-dn", NULL, NULL},
+  {150,	RADIUS_STRING,		"sip-hdr", NULL, NULL},
+
 /*
        Extra attributes sent by the Cisco, if you configure
        "radius-server vsa accounting" (requires IOS11.2+).
