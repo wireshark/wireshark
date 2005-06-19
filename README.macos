@@ -26,17 +26,31 @@ which is known to work in this constellation:
         GTK+ 2.4.0
         ATK 1.6.0
 
-and the corresponding dependencies, which you can download from the
+and the corresponding dependency, which you can download from the
 "dependencies" subdirectory of the GTK+ download directory on the GTK+
 FTP site:
 
 	pkg-config
+
+as well as GNU gettext, which isn't included in the directory of
+dependencies on the GTK+ FTP site.
+
+GTK+ can also be configured to include code to load various sorts of
+images.  To do so, you would also need the following dependencies, also
+available from the "dependencies" subdirectory of the GTK+ download
+directory:
+
 	jpegsrc
 	libpng
 	tiff
 
-as well as GNU gettext, which isn't included in the directory of
-dependencies on the GTK+ FTP site.
+However, on Tiger, it appears that the libraries built and installed by
+those packages collide with libraries that come with the OS, so you
+might have to configure GTK+ not to support loading those images
+(Ethereal doesn't use the ability to load JPEG, PNG, or TIFF images), by
+using the "--without-libpng", "--without-libjpeg", and
+"---without-libtiff" flags when running "configure" in the GTK+ source
+directory.
 
 NOTE: you must set the PKG_CONFIG_PATH environment variable to include
 "/usr/X11R6/lib/pkgconfig" (unless you've already set it, set it to
