@@ -180,7 +180,9 @@ void proto_reg_handoff_cmip(void) {
 	dissector_handle_t cmip_handle;
 
 	/*XXX this to be removed later and shoved into the conformance file */
+	/*XXX remove this later when ACSE is converted to ASN2ETH */
 	cmip_handle = create_dissector_handle(dissect_cmip,proto_cmip);
 	dissector_add_string("acse.application_context", "2.9.0.0.2", cmip_handle);
+	register_ber_oid_dissector("2.9.0.0.2", dissect_cmip, proto_cmip, "cmip");
 }
 
