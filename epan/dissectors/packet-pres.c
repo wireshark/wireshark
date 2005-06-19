@@ -722,6 +722,9 @@ new_item_len+(asn->offset-*offset)+1,
 				{
 				acse	=	get_integer_value(asn,new_item_len,offset);
 				print_value(asn,pres_tree_ms,tvb,offset,new_item_len);
+				if(session){
+					session->pres_ctx_id=acse;
+				}
 				}
 					break;
 			case OCTET_ALIGNED:
