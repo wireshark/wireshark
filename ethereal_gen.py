@@ -2180,10 +2180,6 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 #include <stdlib.h>
 #include <gmodule.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
@@ -2386,7 +2382,7 @@ if (!strcmp(header->exception_id, user_exception_@sname@ )) {
 
 /* Exception = @exname@ */
 
-static void decode_ex_@sname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+static void decode_ex_@sname@(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
 
     gboolean stream_is_big_endian;          /* big endianess */
 """
@@ -2419,7 +2415,7 @@ stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
 /* Struct = @stname@ */
 
-static void decode_@sname@_st(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+static void decode_@sname@_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
 
     gboolean stream_is_big_endian;          /* big endianess */
 """
@@ -2452,7 +2448,7 @@ stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
 /* Union = @unname@ */
 
-static void decode_@sname@_un(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+static void decode_@sname@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
 
     gboolean stream_is_big_endian;          /* big endianess */
 """
@@ -2596,7 +2592,7 @@ if (!strcmp(operation, set_@sname@_at ) && (header->message_type == Request) ) {
 
 /* Attribute = @atname@ */
 
-static void decode_@sname@_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+static void decode_@sname@_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
 
     gboolean stream_is_big_endian;          /* big endianess */
 """
@@ -2751,7 +2747,7 @@ if (disc_s_@discname@ == @labelval@) {
         
 /* Struct = @stname@ */
 
-static void decode_@name@_st(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation);
+static void decode_@name@_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
 
 """
 
@@ -2778,7 +2774,7 @@ decode_@name@_st(tvb, pinfo, tree, offset, header, operation);
         
 /* Union = @unname@ */
 
-static void decode_@name@_un(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation);
+static void decode_@name@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
 
 """
 
