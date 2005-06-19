@@ -60,6 +60,7 @@
  * |reserved field                 |
  * |-------------------------------|
  */
+#define INET6_ADDRLEN	16
 
 static int proto_dsi = -1;
 static int hf_dsi_flags = -1;
@@ -127,6 +128,7 @@ static int hf_dsi_server_flag_notify	= -1;
 static int hf_dsi_server_flag_reconnect	= -1;
 static int hf_dsi_server_flag_directory	= -1;
 static int hf_dsi_server_flag_utf8_name = -1;
+static int hf_dsi_server_flag_uuid      = -1;
 static int hf_dsi_server_flag_fast_copy = -1;
 static int hf_dsi_server_signature	= -1;
 
@@ -149,6 +151,8 @@ const value_string afp_server_addr_type_vals[] = {
   {3,	"DDP address" },
   {4,	"DNS name" },
   {5,	"IP+port ssh tunnel" },
+  {6,	"IP6 address" },
+  {7,	"IP6+port address" },
   {0,			NULL } };
 
 /* end status stuff */
@@ -298,6 +302,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	proto_tree_add_item(sub_tree, hf_dsi_server_flag_reconnect     , tvb, ofs, 2, FALSE);
 	proto_tree_add_item(sub_tree, hf_dsi_server_flag_directory     , tvb, ofs, 2, FALSE);
 	proto_tree_add_item(sub_tree, hf_dsi_server_flag_utf8_name     , tvb, ofs, 2, FALSE);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_uuid          , tvb, ofs, 2, FALSE);
 	proto_tree_add_item(sub_tree, hf_dsi_server_flag_fast_copy     , tvb, ofs, 2, FALSE);
 
 	proto_tree_add_item(tree, hf_dsi_server_name, tvb, offset +AFPSTATUS_PRELEN, 1, FALSE);
@@ -373,7 +378,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
 	if (adr_ofs) {
         	proto_tree *adr_tree;
-		char *tmp;
+		unsigned char *tmp;
         	const guint8 *ip;
 		guint16 net;
 		guint8  node;
@@ -418,6 +423,17 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 				else {
 					ti = proto_tree_add_text(adr_tree, tvb, ofs, len,"Malformed address type %d", type);
 				}
+				break;
+			case 6: /* IP6 */
+				ip = tvb_get_ptr(tvb, ofs+2, INET6_ADDRLEN);
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip6: %s", 
+				                ip6_to_str((const struct e_in6_addr *)ip));
+				break;
+			case 7: /* IP6 + 2bytes port */
+				ip = tvb_get_ptr(tvb, ofs+2, INET6_ADDRLEN);
+				port = tvb_get_ntohs(tvb, ofs+ 2+INET6_ADDRLEN);
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip6 %s:%d",
+						ip6_to_str((const struct e_in6_addr *)ip),port);
 				break;
 			default:
 				ti = proto_tree_add_text(adr_tree, tvb, ofs, len,"Unknow type : %d", type);
@@ -736,6 +752,10 @@ proto_register_dsi(void)
       { "Support UTF8 server name",      "dsi.server_flag.utf8_name",
 		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVUTF8,
       	"Server support UTF8 server name", HFILL }},
+    { &hf_dsi_server_flag_uuid,
+      { "Support UUIDs",      "dsi.server_flag.uuids",
+		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_UUID,
+      	"Server supports UUIDs", HFILL }},
     { &hf_dsi_server_flag_fast_copy,
       { "Support fast copy",      "dsi.server_flag.fast_copy",
 		FT_BOOLEAN, 16, NULL, AFPSRVRINFO_FASTBOZO,
