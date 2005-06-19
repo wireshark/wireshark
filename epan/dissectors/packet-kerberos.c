@@ -3707,7 +3707,7 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int d
 }
 
 guint32 
-kerberos_output_keytype()
+kerberos_output_keytype(void)
 {
   return keytype;
 }
