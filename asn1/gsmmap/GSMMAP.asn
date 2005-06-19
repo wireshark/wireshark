@@ -465,35 +465,35 @@ IntraCUG-Options ::= ENUMERATED {
   cugOG-CallBarred      ( 2 ) }
 
 Odb-GeneralData ::= BIT STRING {
-  allOGCallsBarred(0), 
-  internationalOGCallsBarred(1), 
-  internationalOGCallsNotToHPLMNCountryBarred(2), 
-  premiumRateInformationOGCallsBarred  (3 ), 
-  premiumRateEntertainementOGCallsBarred  (4 ), 
-  ssAccessBarred  (5 ), 
-  interzonalOGCallsBarred  (6 ), 
-  interzonalOGCallsNotToHPLMNCountryBarred  (7 ), 
-  interzonalOGCallsAndIntOGCallsNotToHPLMNCountryBarred  (8 ), 
-  allECTBarred  (9 ), 
-  chargeableECTBarred  (10 ), 
-  internationalECTBarred  (11 ), 
-  interzonalECTBarred  (12 ), 
-  doublyChargeableECTBarred  (13 ), 
-  multipleECTBarred  (14 ),
-  allPacketOrientedServicesBarred  (15 ), 
-  roamerAccessToHPLMN-AP-Barred  (16 ), 
-  roamerAccessToVPLMN-AP-Barred  (17 ), 
-  roamingOutsidePLMNOG-CallsBarred  (18 ), 
-  allIC-CallsBarred  (19 ), 
-  roamingOutsidePLMNIC-CallsBarred  (20 ), 
-  roamingOutsidePLMNICountryIC-CallsBarred  (21 ), 
-  roamingOutsidePLMN-Barred  (22 ), 
-  roamingOutsidePLMN-CountryBarred  (23 ), 
-  registrationAllCF-Barred  (24 ), 
-  registrationCFNotToHPLMN-Barred  (25 ), 
-  registrationInterzonalCF-Barred  (26 ), 
-  registrationInterzonalCFNotToHPLMN-Barred  (27 ), 
-  registrationInternationalCF-Barred  (28 )}
+allOG-CallsBarred (0),
+internationalOGCallsBarred (1),
+internationalOGCallsNotToHPLMN-CountryBarred (2),
+interzonalOGCallsBarred (6),
+interzonalOGCallsNotToHPLMN-CountryBarred (7),
+interzonalOGCallsAndInternationalOGCallsNotToHPLMN-CountryBarred (8),
+premiumRateInformationOGCallsBarred (3),
+premiumRateEntertainementOGCallsBarred (4),
+ss-AccessBarred (5),
+allECT-Barred (9),
+chargeableECT-Barred (10),
+internationalECT-Barred (11),
+interzonalECT-Barred (12),
+doublyChargeableECT-Barred (13),
+multipleECT-Barred (14),
+allPacketOrientedServicesBarred (15),
+roamerAccessToHPLMN-AP-Barred (16),
+roamerAccessToVPLMN-AP-Barred (17),
+roamingOutsidePLMNOG-CallsBarred (18),
+allIC-CallsBarred (19),
+roamingOutsidePLMNIC-CallsBarred (20),
+roamingOutsidePLMNICountryIC-CallsBarred (21),
+roamingOutsidePLMN-Barred (22),
+roamingOutsidePLMN-CountryBarred (23),
+registrationAllCF-Barred (24),
+registrationCFNotToHPLMN-Barred (25),
+registrationInterzonalCF-Barred (26),
+registrationInterzonalCFNotToHPLMN-Barred (27),
+registrationInternationalCF-Barred (28)}
 Odb-HPLMN-Data ::= BIT STRING {
   plmnSpecificBarringType1  (0 ), 
   plmnSpecificBarringType2  (1 ), 
@@ -617,7 +617,9 @@ InsertSubscriberDataArg ::= SEQUENCE {
                   qos-Subscribed        [18] IMPLICIT Qos-Subscribed, 
                   vplmnAddressAllowed   [19] IMPLICIT NULL OPTIONAL, 
                   apn                   [20] IMPLICIT OCTET STRING ( SIZE( 2 .. 63 ) ), 
-                  extensionContainer    [21] IMPLICIT ExtensionContainer OPTIONAL, 
+                  extensionContainer    [21] IMPLICIT ExtensionContainer OPTIONAL,
+				  ext-QoS-Subscribed	[0]	 IMPLICIT Ext-QoS-Subscribed OPTIONAL,
+				  pdp-ChargingCharacteristics [1] IMPLICIT ChargingCharacteristics OPTIONAL,
                   ... }, 
             extensionContainer         [2] IMPLICIT ExtensionContainer OPTIONAL, 
             ... } OPTIONAL, 
@@ -789,7 +791,19 @@ Ss-SubscriptionOption ::= CHOICE {
 ForwardingOptions ::= OCTET STRING ( SIZE( 1 ) )
 --  noReplyConditionTime    [7] IMPLICIT INTEGER ( 1 .. 100 ) OPTIONAL, 
 -- Changed to no size
+
+Ext-QoS-Subscribed ::= OCTET STRING (SIZE (1..9))
+-- OCTET 1:
+-- Allocation/Retention Priority (This octet encodes each priority level defined in
+-- 23.107 as the binary value of the priority level, declaration in 29.060)
+-- Octets 2-9 are coded according to 3GPP TS 24.008[35] Quality of Service Octets
+-- 6-13.
+
+ChargingCharacteristics ::= OCTET STRING (SIZE (2))
+-- Octets are coded according to 3GPP TS 32.015.
 -- End Ethereal adaptation --
+
+
 --deleteSubscriberData OPERATION
 --   ARGUMENT
 DeleteSubscriberDataArg ::= SEQUENCE {
@@ -1554,6 +1568,32 @@ Ussd-Res ::=  SEQUENCE {
 -- unknownAlphabet   localValue : 71, 
 -- ussd-Busy   localValue : 72}
 -- ::= localValue : 61
+
+AuthenticationFailureReportArg ::= SEQUENCE {
+      imsi                 Imsi, 
+      failureCause         ENUMERATED {
+         wrongUserResponse        (0 ), 
+         wrongNetworkSignature    (1 )}, 
+      extensionContainer   ExtensionContainer OPTIONAL, 
+      ... , 
+      re-attempt           BOOLEAN OPTIONAL, 
+      accessType           ENUMERATED {
+         call                      (0 ), 
+         emergencyCall             (1 ), 
+         locationUpdating          (2 ), 
+         supplementaryService      (3 ), 
+         shortMessage              (4 ), 
+         gprsAttach                (5 ), 
+         routingAreaUpdating       (6 ), 
+         serviceRequest            (7 ), 
+         pdpContextActivation      (8 ), 
+         pdpContextDeactivation    (9 ), 
+         ... , 
+         gprsDetach                (10 )} OPTIONAL, 
+      rand                 OCTET STRING (  SIZE (16 ) ) OPTIONAL, 
+      vlr-Number           [0] IMPLICIT Vlr-Number OPTIONAL, 
+      sgsn-Number          [1] IMPLICIT Sgsn-Number OPTIONAL}
+
 
 --registerPassword OPERATION
 --   ARGUMENT
