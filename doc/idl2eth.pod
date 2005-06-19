@@ -81,7 +81,7 @@ the B<Ethereal> distribution.  The latest version of B<Ethereal> can
 be found at B<http://www.ethereal.com>.
 
 B<idl2eth> uses B<omniidl>, and IDL parser, and can be found at
-B<http://www.uk.research.att.com/omniORB/omniORB.html>
+B<http://omniorb.sourceforge.net/>
 
 =head1 TODO
 
