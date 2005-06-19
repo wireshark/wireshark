@@ -86,8 +86,8 @@ typedef enum {
 
 /* Struct for boolean enumerations */
 typedef struct true_false_string {
-	char	*true_string;
-	char	*false_string;
+	const char	*true_string;
+	const char	*false_string;
 } true_false_string;
 
 /**
