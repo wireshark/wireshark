@@ -85,9 +85,9 @@ static gint ett_codec = -1;
 static gchar* command_string;
 static gboolean it_is_wildcard;
 
+static dissector_handle_t h248_term_handle;
 
 static dissector_table_t h248_package_bin_dissector_table=NULL;
-
 
 static const value_string package_name_vals[] = {
   {   0x0000, "Media stream properties H.248.1 Annex C" },
@@ -141,7 +141,7 @@ static const value_string package_name_vals[] = {
   {   0x0030, "3G Circuit Switched Data" },
   {   0x0031, "3G TFO Control" },
   {   0x0032, "3G Expanded Call Progress Tones" },
-  {   0x0033, "Advanced Audio Server (AAS) Base)" },					/* H.248.9 */
+  {   0x0033, "Advanced Audio Server (AAS Base)" },						/* H.248.9 */
   {   0x0034, "AAS Digit Collection" }, 								/* H.248.9 */
   {   0x0035, "AAS Recording" }, 										/* H.248.9 */
   {   0x0036, "AAS Segment Management" },								/* H.248.9 */ 
@@ -837,7 +837,7 @@ void proto_register_h248(void) {
 
   /* register a dissector table packages can attach to */
   h248_package_bin_dissector_table = register_dissector_table("h248.package.bin", "Binary H.248 Package Dissectors", FT_UINT16,BASE_HEX);
-
+  
 }
 
 
@@ -846,6 +846,7 @@ void proto_reg_handoff_h248(void) {
   dissector_handle_t h248_handle;
 
   h248_handle = find_dissector("h248");
+  h248_term_handle = find_dissector("h248term");
 
   dissector_add("m3ua.protocol_data_si", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);
   dissector_add("mtp3.service_indicator", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);

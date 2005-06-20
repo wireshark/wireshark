@@ -490,9 +490,9 @@ static gint ett_h248_Value = -1;
 static gchar* command_string;
 static gboolean it_is_wildcard;
 
+static dissector_handle_t h248_term_handle;
 
 static dissector_table_t h248_package_bin_dissector_table=NULL;
-
 
 static const value_string package_name_vals[] = {
   {   0x0000, "Media stream properties H.248.1 Annex C" },
@@ -546,7 +546,7 @@ static const value_string package_name_vals[] = {
   {   0x0030, "3G Circuit Switched Data" },
   {   0x0031, "3G TFO Control" },
   {   0x0032, "3G Expanded Call Progress Tones" },
-  {   0x0033, "Advanced Audio Server (AAS) Base)" },					/* H.248.9 */
+  {   0x0033, "Advanced Audio Server (AAS Base)" },						/* H.248.9 */
   {   0x0034, "AAS Digit Collection" }, 								/* H.248.9 */
   {   0x0035, "AAS Recording" }, 										/* H.248.9 */
   {   0x0036, "AAS Segment Management" },								/* H.248.9 */ 
@@ -1177,7 +1177,8 @@ static int dissect_authHeader_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static int
 dissect_h248_INTEGER_0_99(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -1219,7 +1220,8 @@ static int dissect_iP4Address_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static int
 dissect_h248_INTEGER_0_65535(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -1372,7 +1374,8 @@ static int dissect_serviceChangeMgcId(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_h248_ErrorCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -1423,7 +1426,8 @@ static int dissect_error_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 static int
 dissect_h248_TransactionId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -1461,7 +1465,8 @@ static int dissect_contextId_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_h248_INTEGER_0_15(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -1532,6 +1537,10 @@ dissect_h248_T_id(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_i
 	
 	  if (command_string != NULL  && ! it_is_wildcard && check_col(pinfo->cinfo, COL_INFO))
 		col_append_str(pinfo->cinfo, COL_INFO, bytes_to_str(tvb_get_ptr(tvb,0,tvb->length),tvb->length));
+
+	if (h248_term_handle) {
+		call_dissector(h248_term_handle, new_tvb, pinfo, tree);
+	}
 	
 
   return offset;
@@ -1596,7 +1605,8 @@ static int dissect_topologyDirection_impl(packet_info *pinfo, proto_tree *tree, 
 
 static int
 dissect_h248_StreamID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -1660,12 +1670,10 @@ static int dissect_contextReply_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 }
 
 
+
 static int
 dissect_h248_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  { proto_item *ti_tmp;
-  ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>8, 0, FALSE);
-  proto_item_append_text(ti_tmp, ": NULL");
-  }
+  offset = dissect_ber_null(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -2140,10 +2148,11 @@ static int dissect_mtl_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 }
 
 
+
 static int
 dissect_h248_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
-                                         hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -2155,7 +2164,8 @@ static int dissect_object_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_h248_INTEGER_0_255(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -2341,7 +2351,8 @@ static int dissect_muxDescriptor_impl(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_h248_RequestID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -2456,10 +2467,10 @@ static int dissect_sigType_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 }
 
 static const asn_namedbit NotifyCompletion_bits[] = {
-  {  0, &hf_h248_NotifyCompletion_onTimeOut, -1, -1, NULL, NULL },
-  {  1, &hf_h248_NotifyCompletion_onInterruptByEvent, -1, -1, NULL, NULL },
-  {  2, &hf_h248_NotifyCompletion_onInterruptByNewSignalDescr, -1, -1, NULL, NULL },
-  {  3, &hf_h248_NotifyCompletion_otherReason, -1, -1, NULL, NULL },
+  {  0, &hf_h248_NotifyCompletion_onTimeOut, -1, -1, "onTimeOut", NULL },
+  {  1, &hf_h248_NotifyCompletion_onInterruptByEvent, -1, -1, "onInterruptByEvent", NULL },
+  {  2, &hf_h248_NotifyCompletion_onInterruptByNewSignalDescr, -1, -1, "onInterruptByNewSignalDescr", NULL },
+  {  3, &hf_h248_NotifyCompletion_otherReason, -1, -1, "otherReason", NULL },
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
@@ -2851,16 +2862,16 @@ static int dissect_digitMapDescriptor_impl(packet_info *pinfo, proto_tree *tree,
 }
 
 static const asn_namedbit T_auditToken_bits[] = {
-  {  0, &hf_h248_T_auditToken_muxToken, -1, -1, NULL, NULL },
-  {  1, &hf_h248_T_auditToken_modemToken, -1, -1, NULL, NULL },
-  {  2, &hf_h248_T_auditToken_mediaToken, -1, -1, NULL, NULL },
-  {  3, &hf_h248_T_auditToken_eventsToken, -1, -1, NULL, NULL },
-  {  4, &hf_h248_T_auditToken_signalsToken, -1, -1, NULL, NULL },
-  {  5, &hf_h248_T_auditToken_digitMapToken, -1, -1, NULL, NULL },
-  {  6, &hf_h248_T_auditToken_statsToken, -1, -1, NULL, NULL },
-  {  7, &hf_h248_T_auditToken_observedEventsToken, -1, -1, NULL, NULL },
-  {  8, &hf_h248_T_auditToken_packagesToken, -1, -1, NULL, NULL },
-  {  9, &hf_h248_T_auditToken_eventBufferToken, -1, -1, NULL, NULL },
+  {  0, &hf_h248_T_auditToken_muxToken, -1, -1, "muxToken", NULL },
+  {  1, &hf_h248_T_auditToken_modemToken, -1, -1, "modemToken", NULL },
+  {  2, &hf_h248_T_auditToken_mediaToken, -1, -1, "mediaToken", NULL },
+  {  3, &hf_h248_T_auditToken_eventsToken, -1, -1, "eventsToken", NULL },
+  {  4, &hf_h248_T_auditToken_signalsToken, -1, -1, "signalsToken", NULL },
+  {  5, &hf_h248_T_auditToken_digitMapToken, -1, -1, "digitMapToken", NULL },
+  {  6, &hf_h248_T_auditToken_statsToken, -1, -1, "statsToken", NULL },
+  {  7, &hf_h248_T_auditToken_observedEventsToken, -1, -1, "observedEventsToken", NULL },
+  {  8, &hf_h248_T_auditToken_packagesToken, -1, -1, "packagesToken", NULL },
+  {  9, &hf_h248_T_auditToken_eventBufferToken, -1, -1, "eventBufferToken", NULL },
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
@@ -3646,7 +3657,8 @@ static int dissect_serviceChangeProfile_impl(packet_info *pinfo, proto_tree *tre
 
 static int
 dissect_h248_INTEGER_0_4294967295(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -5738,7 +5750,7 @@ void proto_register_h248(void) {
 
   /* register a dissector table packages can attach to */
   h248_package_bin_dissector_table = register_dissector_table("h248.package.bin", "Binary H.248 Package Dissectors", FT_UINT16,BASE_HEX);
-
+  
 }
 
 
@@ -5747,6 +5759,7 @@ void proto_reg_handoff_h248(void) {
   dissector_handle_t h248_handle;
 
   h248_handle = find_dissector("h248");
+  h248_term_handle = find_dissector("h248term");
 
   dissector_add("m3ua.protocol_data_si", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);
   dissector_add("mtp3.service_indicator", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);
