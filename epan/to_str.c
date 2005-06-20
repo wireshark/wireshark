@@ -827,11 +827,8 @@ decode_numeric_bitfield(guint32 val, guint32 mask, int width,
 gchar*	
 address_to_str(const address *addr)
 {
-#ifndef INET6_ADDRSTRLEN
-#define INET6_ADDRSTRLEN 46
-#endif
   static int i=0;
-  static gchar *strp, str[16][INET6_ADDRSTRLEN];/* IPv6 is the largest one */
+  static gchar *strp, str[16][256];
 
   i++;
   if(i>=16){
@@ -890,6 +887,10 @@ address_to_str_buf(const address *addr, gchar *buf)
     sprintf(buf, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x",
             addr->data[0], addr->data[1], addr->data[2], addr->data[3],
             addr->data[4], addr->data[5], addr->data[6], addr->data[7]);
+    break;
+  case AT_URI:
+    memmove(buf, addr->data, addr->len);
+    buf[addr->len] = '\0';
     break;
   default:
     g_assert_not_reached();

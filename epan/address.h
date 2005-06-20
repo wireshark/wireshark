@@ -44,7 +44,8 @@ typedef enum {
   AT_FC,		/* Fibre Channel */
   AT_SS7PC,		/* SS7 Point Code */
   AT_STRINGZ,		/* null-terminated string */
-  AT_EUI64		/* IEEE EUI-64 */
+  AT_EUI64,		/* IEEE EUI-64 */
+  AT_URI		/* URI/URL/URN */
 } address_type;
 
 typedef struct _address {
