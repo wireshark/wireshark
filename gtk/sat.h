@@ -1,6 +1,6 @@
 /* sat.h
  * 2003 Ronnie Sahlberg
- * Sub-address types for MAC addresses
+ * Sub-address types for MAC/URI addresses
  *
  * $Id$
  *
@@ -33,9 +33,10 @@
 /** Address type */
 typedef enum {
     SAT_NONE,       /**< no address type */
-    SAT_ETHER,      /**< Ethernet */
-    SAT_FDDI,       /**< FDDI */
-    SAT_TOKENRING   /**< Token Ring */
+    SAT_ETHER,      /**< MAC : Ethernet */
+    SAT_FDDI,       /**< MAC : FDDI */
+    SAT_TOKENRING,  /**< MAC : Token Ring */
+    SAT_JXTA        /**< URI : JXTA */
 } SAT_E;
 
 #endif /* __GTK_SAT_H__ */

@@ -114,7 +114,10 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
 				return "fddi.src";
 			case SAT_TOKENRING:
 				return "tr.src";
+                        default:
+                            ;
 			}
+                        break;
 		case AT_IPv4:
 			return "ip.src";
 		case AT_IPv6:
@@ -123,9 +126,18 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
 			return "ipx.src";
 		case AT_FC:
 			return "fc.s_id";
+		case AT_URI:
+			switch(specific_addr_type){
+			case SAT_JXTA:
+				return "jxta.message.src";
+                        default:
+                            ;
+			}
+                        break;
 		default:
 			;
 		}
+                break;
 	case FN_DST_ADDRESS:
 		switch(addr->type){
 		case AT_ETHER:
@@ -136,7 +148,10 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
 				return "fddi.dst";
 			case SAT_TOKENRING:
 				return "tr.dst";
+                        default:
+                            ;
 			}
+                        break;
 		case AT_IPv4:
 			return "ip.dst";
 		case AT_IPv6:
@@ -145,9 +160,18 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
 			return "ipx.dst";
 		case AT_FC:
 			return "fc.d_id";
+		case AT_URI:
+			switch(specific_addr_type){
+			case SAT_JXTA:
+				return "jxta.message.dst";
+                        default:
+                            ;
+			}
+                        break;
 		default:
 			;
 		}
+                break;
 	case FN_ANY_ADDRESS:
 		switch(addr->type){
 		case AT_ETHER:
@@ -158,7 +182,10 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
 				return "fddi.addr";
 			case SAT_TOKENRING:
 				return "tr.addr";
+                        default:
+                            break;
 			}
+                        break;
 		case AT_IPv4:
 			return "ip.addr";
 		case AT_IPv6:
@@ -167,15 +194,26 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
 			return "ipx.addr";
 		case AT_FC:
 			return "fc.id";
+		case AT_URI:
+			switch(specific_addr_type){
+			case SAT_JXTA:
+				return "jxta.message.address";
+                        default:
+                            ;
+			}
+                        break;
 		default:
 			;
 		}
+                break;
 	case FN_SRC_PORT:
 		switch(port_type){
 		case PT_TCP:
 			return "tcp.srcport";
 		case PT_UDP:
 			return "udp.srcport";
+                default:
+                        ;
 		}
 		break;
 	case FN_DST_PORT:
@@ -184,6 +222,8 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
 			return "tcp.dstport";
 		case PT_UDP:
 			return "udp.dstport";
+                default:
+                        ;
 		}
 		break;
 	case FN_ANY_PORT:
@@ -192,6 +232,8 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
 			return "tcp.port";
 		case PT_UDP:
 			return "udp.port";
+                default:
+                        ;
 		}
 		break;
 	}

@@ -53,7 +53,7 @@ jxta_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
 		0, 
 		1, 
 		jxtahdr->size, 
-		SAT_NONE, 
+		SAT_JXTA, 
 		PT_NONE);
 
 
@@ -93,4 +93,3 @@ register_tap_listener_jxta_conversation(void)
 
     register_conversation_table(TRUE, "JXTA", "jxta", NULL /*filter*/, jxta_conversation_packet);
 }
-

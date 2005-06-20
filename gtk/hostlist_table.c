@@ -86,7 +86,7 @@ hostlist_port_to_str(int port_type, guint32 port)
 #define FN_ANY_ADDRESS		0
 #define FN_ANY_PORT		1
 
-/* given an address (to distinguis between ipv4 and ipv6 for tcp/udp
+/* given an address (to distinguish between ipv4 and ipv6 for tcp/udp
    a port_type and a name_type (FN_...)
    return a string for the filter name
 
@@ -108,7 +108,10 @@ hostlist_get_filter_name(address *addr, int specific_addr_type, int port_type, i
 				return "fddi.addr";
 			case SAT_TOKENRING:
 				return "tr.addr";
+                        default :
+                                ;
 			}
+                        break;
 		case AT_IPv4:
 			return "ip.addr";
 		case AT_IPv6:
@@ -117,6 +120,14 @@ hostlist_get_filter_name(address *addr, int specific_addr_type, int port_type, i
 			return "ipx.addr";
 		case AT_FC:
 			return "fc.id";
+		case AT_URI:
+			switch(specific_addr_type){
+			case SAT_JXTA:
+				return "jxta.message.address";
+                        default:
+                            ;
+			}
+                        break;
 		default:
 			;
 		}
