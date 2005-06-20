@@ -146,6 +146,38 @@ static const true_false_string tfs_reqflags_integ = {
   "Per-message Integrity NOT Requested"
 };
 
+/*
+ * This takes an OID in binary form, not an OID as a text string, as
+ * an argument.
+ */
+static gssapi_oid_value *
+gssapi_lookup_oid(subid_t *oid, guint oid_len)
+{
+	gchar *oid_key;
+	gchar *p;
+	unsigned int i;
+	int len;
+	gssapi_oid_value *value;
+
+	/*
+	 * Convert the OID to a string, as text strings are used as
+	 * keys in the OID hash table.
+	 */
+	oid_key = g_malloc(oid_len * 22 + 1);
+	p = oid_key;
+	len = sprintf(p, "%lu", (unsigned long)oid[0]);
+	p += len;
+	for (i = 1; i < oid_len;i++) {
+		len = sprintf(p, ".%lu", (unsigned long)oid[i]);
+		p += len;
+	}
+
+	value = gssapi_lookup_oid_str(oid_key);
+	g_free(oid_key);
+	return value;
+}
+
+
 /* Display an ASN1 parse error.  Taken from packet-snmp.c */
 
 static dissector_handle_t data_handle;

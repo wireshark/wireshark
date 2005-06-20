@@ -38,8 +38,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#include <epan/asn1.h>    /* for subid_t */
-#include "format-oid.h"
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/dissectors/packet-gssapi.h>
 #include <epan/dissectors/packet-frame.h>
@@ -95,37 +93,6 @@ gssapi_init_oid(char *oid, int proto, int ett, dissector_handle_t handle,
 
 	g_hash_table_insert(gssapi_oids, key, value);
 	register_ber_oid_dissector_handle(key, handle, proto, comment);
-}
-
-/*
- * This takes an OID in binary form, not an OID as a text string, as
- * an argument.
- */
-gssapi_oid_value *
-gssapi_lookup_oid(subid_t *oid, guint oid_len)
-{
-	gchar *oid_key;
-	gchar *p;
-	unsigned int i;
-	int len;
-	gssapi_oid_value *value;
-
-	/*
-	 * Convert the OID to a string, as text strings are used as
-	 * keys in the OID hash table.
-	 */
-	oid_key = g_malloc(oid_len * 22 + 1);
-	p = oid_key;
-	len = sprintf(p, "%lu", (unsigned long)oid[0]);
-	p += len;
-	for (i = 1; i < oid_len;i++) {
-		len = sprintf(p, ".%lu", (unsigned long)oid[i]);
-		p += len;
-	}
-
-	value = g_hash_table_lookup(gssapi_oids, oid_key);
-	g_free(oid_key);
-	return value;
 }
 
 /*
@@ -385,7 +352,7 @@ proto_register_gssapi(void)
 	};
 
 	proto_gssapi = proto_register_protocol(
-		"Generic Security Service Application Program Interface",
+		"GSS-API Generic Security Service Application Program Interface",
 		"GSS-API", "gss-api");
 
 	proto_register_field_array(proto_gssapi, hf, array_length(hf));

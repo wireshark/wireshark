@@ -36,7 +36,6 @@
 
 #include "packet-windows-common.h"
 #include "packet-smb-common.h"
-#include <epan/asn1.h>		/* XXX - needed for subid_t */
 #include "packet-frame.h"
 #include <epan/prefs.h>
 #include <epan/crypt-rc4.h>
