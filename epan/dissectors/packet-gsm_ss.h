@@ -38,3 +38,8 @@ extern const value_string gsm_ss_err_code_strings[];
 
 extern void param_AddressString(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field);
 extern void gsm_ss_dissect(ASN1_SCK *asn1, proto_tree *tree, guint exp_len, guint opr_code, guint comp_type_tag);
+
+extern int tcap_find_eoc(ASN1_SCK *asn1);
+
+extern gboolean tcap_check_tag(ASN1_SCK *asn1, guint tag);
+

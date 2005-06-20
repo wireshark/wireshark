@@ -58,10 +58,4 @@ extern gint tcap_standard;
 extern const value_string tcap_component_type_str[];
 
 
-extern int tcap_find_eoc(ASN1_SCK *asn1);
-
-extern gboolean tcap_check_tag(ASN1_SCK *asn1, guint tag);
-
-
-
 #endif  /* PACKET_INAP_H */

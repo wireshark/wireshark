@@ -174,6 +174,61 @@ static gboolean gsm_ss_ucs2 = FALSE;
 static gboolean gsm_ss_compressed = FALSE;
 
 
+
+int
+tcap_find_eoc(ASN1_SCK *asn1)
+{
+    guint	saved_offset;
+    gint        prev_offset;
+    guint	tag;
+    guint	len;
+    gboolean	def_len;
+
+    saved_offset = asn1->offset;
+
+    while (!asn1_eoc(asn1, -1))
+    {
+	prev_offset = asn1->offset;
+	asn1_id_decode1(asn1, &tag);
+	asn1_length_decode(asn1, &def_len, &len);
+
+	if (def_len)
+	{
+	    asn1->offset += len;
+	}
+	else
+	{
+	    asn1->offset += tcap_find_eoc(asn1);
+	    asn1_eoc_decode(asn1, -1);
+	}
+	if (prev_offset >= asn1->offset)
+	    THROW(ReportedBoundsError);
+    }
+
+    len = asn1->offset - saved_offset;
+    asn1->offset = saved_offset;
+
+    return(len);
+}
+
+gboolean
+tcap_check_tag(ASN1_SCK *asn1, guint tag)
+{
+    guint saved_offset, real_tag;
+
+    if (tvb_length_remaining(asn1->tvb, asn1->offset) <= 0)
+    {
+	return (FALSE);
+    }
+
+    saved_offset = asn1->offset;
+    asn1_id_decode1(asn1, &real_tag);
+    asn1->offset = saved_offset;
+    return (tag == real_tag);
+}
+
+
+
 typedef struct dgt_set_t
 {
     unsigned char out[15];
