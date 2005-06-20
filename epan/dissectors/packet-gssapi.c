@@ -38,16 +38,17 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#include <epan/asn1.h>
+#include <epan/asn1.h>    /* for subid_t */
 #include "format-oid.h"
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/dissectors/packet-gssapi.h>
 #include <epan/dissectors/packet-frame.h>
 #include "epan/conversation.h"
+#include "packet-ber.h"
 
 static int proto_gssapi = -1;
 
-static int hf_gssapi = -1;
+static int hf_gssapi_oid = -1;
 
 static gint ett_gssapi = -1;
 
@@ -93,6 +94,7 @@ gssapi_init_oid(char *oid, int proto, int ett, dissector_handle_t handle,
 	value->comment = comment;
 
 	g_hash_table_insert(gssapi_oids, key, value);
+	register_ber_oid_dissector_handle(key, handle, proto, comment);
 }
 
 /*
@@ -126,24 +128,16 @@ gssapi_lookup_oid(subid_t *oid, guint oid_len)
 	return value;
 }
 
-/* Display an ASN1 parse error.  Taken from packet-snmp.c */
-
-static dissector_handle_t data_handle;
-
-static void
-dissect_parse_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		    proto_tree *tree, const char *field_name, int ret)
+/*
+ * This takes an OID in text string form as
+ * an argument.
+ */
+gssapi_oid_value *
+gssapi_lookup_oid_str(gchar *oid_key)
 {
-	char *errstr;
-
-	errstr = asn1_err_to_str(ret);
-
-	if (tree != NULL) {
-		proto_tree_add_text(tree, tvb, offset, 0,
-		    "ERROR: Couldn't parse %s: %s", field_name, errstr);
-		call_dissector(data_handle,
-		    tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
-	}
+	gssapi_oid_value *value;
+	value = g_hash_table_lookup(gssapi_oids, oid_key);
+	return value;
 }
 
 static int
@@ -152,18 +146,20 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	proto_item *item;
 	proto_tree *subtree;
-	ASN1_SCK hnd;
-	int ret, offset = 0;
 	volatile int return_offset = 0;
-	gboolean def;
-	guint len1, oid_len, cls, con, tag, nbytes;
-	subid_t *oid;
-	gchar *oid_string;
 	gssapi_oid_value *value;
 	volatile dissector_handle_t handle;
 	conversation_t *volatile conversation;
 	tvbuff_t *oid_tvb;
-	int len;
+	int len, offset, start_offset, oid_start_offset;
+	gint8 class;
+	gboolean pc, ind_field;
+	gint32 tag;
+	guint32 len1;
+	gchar oid[128];	/* should be enough */
+
+	start_offset=0;
+	offset=start_offset;
 
 	/*
 	 * We don't know whether the data is encrypted, so say it's
@@ -181,7 +177,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					 pinfo->destport, 0);
 
 	item = proto_tree_add_item(
-		tree, hf_gssapi, tvb, offset, -1, FALSE);
+		tree, proto_gssapi, tvb, offset, -1, FALSE);
 
 	subtree = proto_item_add_subtree(item, ett_gssapi);
 
@@ -199,20 +195,10 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 	TRY {
 		/* Read header */
-
-		asn1_open(&hnd, tvb, offset);
-
-		ret = asn1_header_decode(&hnd, &cls, &con, &tag, &def, &len1);
-
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_parse_error(tvb, offset, pinfo, subtree,
-				    "GSS-API header", ret);
-			return_offset = tvb_length(tvb);
-			goto done;
-		}
-
-
-		if (!(cls == ASN1_APL && con == ASN1_CON && tag == 0)) {
+		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+		offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+		
+		if (!(class == BER_CLASS_APP && pc && tag == 0)) {
 		  /* 
 		   * If we do not recognise an Application class,
 		   * then we are probably dealing with an inner context
@@ -251,12 +237,12 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  {
 		    /* It could be NTLMSSP, with no OID.  This can happen 
 		       for anything that microsoft calls 'Negotiate' or GSS-SPNEGO */
-		    if (tvb_strneql(tvb, offset, "NTLMSSP", 7) == 0) {
-		      call_dissector(ntlmssp_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, subtree);
+		    if (tvb_strneql(tvb, start_offset, "NTLMSSP", 7) == 0) {
+		      call_dissector(ntlmssp_handle, tvb_new_subset(tvb, start_offset, -1, -1), pinfo, subtree);
 		    } else {
-		      proto_tree_add_text(subtree, tvb, offset, 0,
-					  "Unknown header (cls=%d, con=%d, tag=%d)",
-					  cls, con, tag);
+		      proto_tree_add_text(subtree, tvb, start_offset, 0,
+					  "Unknown header (class=%d, pc=%d, tag=%d)",
+					  class, pc, tag);
 		    }
 		    return_offset = tvb_length(tvb);
 		    goto done;
@@ -264,12 +250,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  } else {
 		    tvbuff_t *oid_tvb;
 
-		    /* Naughty ... no way to reset the offset */
-		    /* Account for the fact we have consumed part of the */
-		    /* ASN.1 and we want to get it back */
-
-		    hnd.offset = offset;
-		    oid_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		    oid_tvb = tvb_new_subset(tvb, start_offset, -1, -1);
 		    if (is_verifier)
 			handle = value->wrap_handle;
 		    else
@@ -278,61 +259,28 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    if (len == 0)
 			return_offset = tvb_length(tvb);
 		    else
-			return_offset = offset + len;
+			return_offset = start_offset + len;
 		    goto done; /* We are finished here */
 		  }
 		}
 
-		offset = hnd.offset;
-
 		/* Read oid */
-
-		ret = asn1_oid_decode(&hnd, &oid, &oid_len, &nbytes);
-
-		if (ret != ASN1_ERR_NOERROR) {
-			dissect_parse_error(tvb, offset, pinfo, subtree,
-					    "GSS-API token", ret);
-			return_offset = tvb_length(tvb);
-			goto done;
-		}
-
-		oid_string = format_oid(oid, oid_len);
+		oid_start_offset=offset;
+		offset=dissect_ber_object_identifier(FALSE, pinfo, subtree, tvb, offset, hf_gssapi_oid, oid);
 
 		/*
 		 * Hand off to subdissector.
 		 */
 
-		if (((value = gssapi_lookup_oid(oid, oid_len)) == NULL) ||
+		if (((value = gssapi_lookup_oid_str(oid)) == NULL) ||
 		    !proto_is_protocol_enabled(value->proto)) {
-
-		        proto_tree_add_text(subtree, tvb, offset, nbytes, 
-					    "OID: %s",
-					    oid_string);
-
-			offset += nbytes;
-
-			g_free(oid_string);
-
 			/* No dissector for this oid */
-
-			proto_tree_add_text(subtree, tvb, offset, -1,
+			proto_tree_add_text(subtree, tvb, oid_start_offset, -1,
 					    "Token object");
 
 			return_offset = tvb_length(tvb);
 			goto done;
 		}
-
-		if (value)
-		  proto_tree_add_text(subtree, tvb, offset, nbytes, 
-				      "OID: %s (%s)",
-				      oid_string, value->comment);
-		else
-		  proto_tree_add_text(subtree, tvb, offset, nbytes, "OID: %s",
-				      oid_string);
-
-		offset += nbytes;
-
-		g_free(oid_string);
 
 		/*
 		 * This is not needed, as the sub-dissector adds a tree
@@ -400,7 +348,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 	 done:
-		asn1_close(&hnd, &offset);
+		;
 	} CATCH(BoundsError) {
 		RETHROW;
 	} CATCH(ReportedBoundsError) {
@@ -427,9 +375,9 @@ void
 proto_register_gssapi(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_gssapi,
-		  { "GSS-API", "gss-api", FT_NONE, BASE_NONE, NULL, 0x0,
-		    "GSS-API", HFILL }},
+		{ &hf_gssapi_oid, {
+		    "OID", "gss-api.OID", FT_STRING, BASE_NONE,
+		    NULL, 0, "This is a GSS-API Object Identifier", HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -517,8 +465,6 @@ static dcerpc_auth_subdissector_fns gssapi_auth_fns = {
 void
 proto_reg_handoff_gssapi(void)
 {
-	data_handle = find_dissector("data");
-
 	ntlmssp_handle = find_dissector("ntlmssp");
 
 	register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_CONNECT,
