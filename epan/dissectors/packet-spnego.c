@@ -67,7 +67,8 @@ static int proto_spnego = -1;
 static int proto_spnego_krb5 = -1;
 
 static int hf_spnego = -1;
-static int hf_spnego_oid = -1;
+static int hf_spnego_mech = -1;
+static int hf_spnego_this_mech = -1;
 static int hf_spnego_negtokeninit = -1;
 static int hf_spnego_negtokentarg = -1;
 static int hf_spnego_mechtype = -1;
@@ -1017,69 +1018,47 @@ dissect_spnego_krb5_wrap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 static int
 dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			 proto_tree *tree, ASN1_SCK *hnd,
+			 proto_tree *tree,
 			 gssapi_oid_value **next_level_value_p)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
-	gboolean def;
-	guint len1, len, cls, con, tag, nbytes;
-	subid_t *oid;
-	gchar *oid_string;
-	int ret;
 	gboolean saw_mechanism = FALSE;
+	int start_offset, start_oid_offset;
+	gint8 class;
+	gboolean pc, ind_field;
+	gint32 tag;
+	gint32 len1;
+	gchar oid[128];	/* should be enough */
 
+	start_offset=offset;
 	/*
 	 * MechTypeList ::= SEQUENCE OF MechType
 	 */
+	offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+	offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
 
-	ret = asn1_header_decode(hnd, &cls, &con, &tag, &def, &len1);
-
-	if (ret != ASN1_ERR_NOERROR) {
-	  dissect_parse_error(tvb, offset, pinfo, subtree,
-			      "SPNEGO last sequence header", ret);
-	  goto done;
-	}
-
-	if (!(cls == ASN1_UNI && con == ASN1_CON && tag == ASN1_SEQ)) {
+	if (!(class == BER_CLASS_UNI && pc && tag == BER_UNI_TAG_SEQUENCE)) {
 	  proto_tree_add_text(
-			      subtree, tvb, offset, 0,
-			      "Unknown header (cls=%d, con=%d, tag=%d)",
-			      cls, con, tag);
+			      tree, tvb, offset, 0,
+			      "Unknown header (class=%d, pc=%d, tag=%d)",
+			      class, pc, tag);
 	  goto done;
 	}
 
-	offset = hnd->offset;
-
-	item = proto_tree_add_item(tree, hf_spnego_mechtype, tvb, offset, 
-				   len1, FALSE);
+	item = proto_tree_add_item(tree, hf_spnego_mechtype, tvb, 
+				start_offset, len1, FALSE);
 	subtree = proto_item_add_subtree(item, ett_spnego_mechtype);
 
 	/*
-	 * Now, the object IDs ... We should translate them: FIXME
+	 * Now, the object IDs ...
 	 */
-
-	while (len1) {
+	start_oid_offset=offset;
+	while (offset<(start_oid_offset+len1)) {
 	  gssapi_oid_value *value;
 
-	  ret = asn1_oid_decode(hnd, &oid, &len, &nbytes);
-
-	  if (ret != ASN1_ERR_NOERROR) {
-	    dissect_parse_error(tvb, offset, pinfo, subtree,
-				"SPNEGO mechTypes token", ret);
-	    goto done;
-	  }
-
-	  oid_string = format_oid(oid, len);
-	  value = gssapi_lookup_oid(oid, len);
-	  if (value)
-	    proto_tree_add_text(subtree, tvb, offset, nbytes, "OID: %s (%s)",
-				oid_string, value->comment);
-	  else
-	    proto_tree_add_text(subtree, tvb, offset, nbytes, "OID: %s",
-				oid_string);
-
-	  g_free(oid_string);
+	  offset=dissect_ber_object_identifier(FALSE, pinfo, subtree, tvb, offset, hf_spnego_mech, oid);
+	  value = gssapi_lookup_oid_str(oid);
 
 	  /*
 	   * Tell our caller the first mechanism we see, so that if
@@ -1097,10 +1076,6 @@ dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	      *next_level_value_p = value;
 	    saw_mechanism = TRUE;
 	  }
-
-	  offset += nbytes;
-	  len1 -= nbytes;
-
 	}
 
  done:
@@ -1382,9 +1357,10 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	  case SPNEGO_mechTypes:
 
-	    offset = dissect_spnego_mechTypes(tvb, offset, pinfo,
-					      subtree, hnd,
+	    offset = dissect_spnego_mechTypes(tvb, hnd->offset, pinfo,
+					      subtree,
 					      next_level_value_p);
+	    hnd->offset=offset;
 
 	    break;
 
@@ -1843,7 +1819,7 @@ dissect_spnego_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	conversation_t *conversation;
 	gssapi_oid_value *next_level_value;
 	tvbuff_t *token_tvb;
-	int len, offset, start_offset, oid_start_offset;
+	int len, offset, start_offset;
 	gint8 class;
 	gboolean pc, ind_field;
 	gint32 tag;
@@ -1915,8 +1891,7 @@ dissect_spnego_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * might negotiate some security mechanism but put the OID
 	 * for some other security mechanism in GSS_Wrap tokens.)
 	 */
-	oid_start_offset=offset;
-	offset=dissect_ber_object_identifier(FALSE, pinfo, subtree, tvb, offset, hf_spnego_oid, oid);
+	offset=dissect_ber_object_identifier(FALSE, pinfo, subtree, tvb, offset, hf_spnego_this_mech, oid);
 	next_level_value = gssapi_lookup_oid_str(oid);
 
 	/*
@@ -1956,8 +1931,11 @@ proto_register_spnego(void)
 		{ &hf_spnego,
 		  { "SPNEGO", "spnego", FT_NONE, BASE_NONE, NULL, 0x0,
 		    "SPNEGO", HFILL }},
-		{ &hf_spnego_oid, {
-		    "thisMech", "spnego.OID", FT_STRING, BASE_NONE,
+		{ &hf_spnego_mech, {
+		    "Mech", "spnego.mech", FT_STRING, BASE_NONE,
+		    NULL, 0, "This is a SPNEGO Object Identifier", HFILL }},
+		{ &hf_spnego_this_mech, {
+		    "thisMech", "spnego.this_mech", FT_STRING, BASE_NONE,
 		    NULL, 0, "This is a SPNEGO Object Identifier", HFILL }},
 		{ &hf_spnego_negtokeninit,
 		  { "negTokenInit", "spnego.negtokeninit", FT_NONE, BASE_NONE,
