@@ -25,7 +25,9 @@
 /* packet-acse.c
  * Routines for ACSE packet dissection
  *   Ronnie Sahlberg 2005
- * dissect_acse() from original handwritten dissector by Sid
+ * dissect_acse() based original handwritten dissector by Sid
+ *   Yuriy Sidelnikov <YSidelnikov@hotmail.com>
+ *  
  *
  * $Id: packet-acse-template.c 12740 2004-12-13 08:15:34Z sahlberg $
  *
