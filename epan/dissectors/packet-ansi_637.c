@@ -1716,7 +1716,7 @@ dissect_ansi_637_trans_param(tvbuff_t *tvb, proto_tree *tree, guint32 *offset)
 
 	    if (ansi_637_add_string[0] != '\0')
 	    {
-		proto_item_append_text(item, ansi_637_add_string);
+		proto_item_append_text(item, "%s", ansi_637_add_string);
 	    }
 	}
 

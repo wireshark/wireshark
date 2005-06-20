@@ -320,7 +320,7 @@ append_pduval_str(proto_item *ti, int type, int len, tvbuff_t *tvb, int offset,
 					{
 						if (!first)
 							proto_item_append_text(ti, " ");
-						proto_item_append_text(ti, strval);
+						proto_item_append_text(ti, "%s", strval);
 					}
 				}
 			proto_item_append_text(ti, ")");

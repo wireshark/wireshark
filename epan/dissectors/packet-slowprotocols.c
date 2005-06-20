@@ -841,7 +841,7 @@ static const char cont_sep[] = ", ";
         if(item){                        \
             string = get_manuf_name(mac); \
             proto_item_append_text(item, " (");    \
-            proto_item_append_text(item, string);    \
+            proto_item_append_text(item, "%s", string);    \
             proto_item_append_text(item, ")");    \
         }
 

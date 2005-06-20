@@ -2208,7 +2208,7 @@ be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
 	if (add_string[0] != '\0')
 	{
-	    proto_item_append_text(item, add_string);
+	    proto_item_append_text(item, "%s", add_string);
 	}
 
 	proto_item_set_len(item, consumed);
@@ -11356,7 +11356,7 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, gu
 
 		if (a_add_string[0] != '\0')
 		{
-		    proto_item_append_text(item, a_add_string);
+		    proto_item_append_text(item, "%s", a_add_string);
 		    a_add_string[0] = '\0';
 		}
 	    }
@@ -11425,7 +11425,7 @@ elem_tv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, gui
 
 	    if (a_add_string[0] != '\0')
 	    {
-		proto_item_append_text(item, a_add_string);
+		proto_item_append_text(item, "%s", a_add_string);
 		a_add_string[0] = '\0';
 	    }
 	}
@@ -11498,7 +11498,7 @@ elem_tv_short(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int id
 
 	    if (a_add_string[0] != '\0')
 	    {
-		proto_item_append_text(item, a_add_string);
+		proto_item_append_text(item, "%s", a_add_string);
 		a_add_string[0] = '\0';
 	    }
 	}
@@ -11598,7 +11598,7 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset,
 
 	    if (a_add_string[0] != '\0')
 	    {
-		proto_item_append_text(item, a_add_string);
+		proto_item_append_text(item, "%s", a_add_string);
 		a_add_string[0] = '\0';
 	    }
 	}

@@ -1723,7 +1723,7 @@ get_name(tvbuff_t *tvb, int offset, int type)
 		string = tvb_format_text(tvb,offset, len);
     		break;
 	default:
-		string = "unknow type";
+		string = "Unknown type";
 		break;
     	}
 	return string;
@@ -1902,7 +1902,7 @@ dissect_reply_afp_get_server_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
 		len  = tvb_get_guint8(tvb, offset) +1;
 		rep = get_name(tvb, offset, 2);
-		proto_item_set_text(item, rep);
+		proto_item_set_text(item, "%s", rep);
 		proto_item_set_len(item, len +1);
 
 		proto_tree_add_item(tree, hf_afp_vol_name, tvb, offset, 1,FALSE);

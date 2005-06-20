@@ -12811,7 +12811,7 @@ dissect_ansi_param(ASN1_SCK *asn1, proto_tree *tree)
 
 	    if (ansi_map_add_string[0] != '\0')
 	    {
-		proto_item_append_text(item, ansi_map_add_string);
+		proto_item_append_text(item, "%s", ansi_map_add_string);
 		ansi_map_add_string[0] = '\0';
 	    }
 	}
@@ -12869,7 +12869,7 @@ dissect_ansi_params(ASN1_SCK *asn1, proto_tree *tree)
 
     if (ansi_map_add_string[0] != '\0')
     {
-	proto_item_append_text(item, ansi_map_add_string);
+	proto_item_append_text(item, "%s", ansi_map_add_string);
 	ansi_map_add_string[0] = '\0';
     }
 }

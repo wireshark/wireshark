@@ -1704,7 +1704,7 @@ dissect_spoolss_relstrarray(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	relstr_len = relstr_end - relstr_start;
 
-	proto_item_append_text(item, text);
+	proto_item_append_text(item, "%s", text);
 
 	if (data)
 		*data = text;
@@ -6325,7 +6325,7 @@ dissect_spoolss_printer_enum_values(tvbuff_t *tvb, int offset,
 
 	subtree = proto_item_add_subtree(item, ett_printer_enumdataex_value);
 
-	proto_item_append_text(item, name);
+	proto_item_append_text(item, "%s", name);
 			       
 	proto_tree_add_text(
 		subtree, tvb, offset - 8, 4, "Name offset: %d", name_offset);

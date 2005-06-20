@@ -1992,7 +1992,7 @@ elem_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
 	if (add_string[0] != '\0')
 	{
-	    proto_item_append_text(item, add_string);
+	    proto_item_append_text(item, "%s", add_string);
 	}
 
 	proto_item_set_len(item, consumed);
@@ -2189,7 +2189,7 @@ elem_downlink_re(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 
 	if (add_string[0] != '\0')
 	{
-	    proto_item_append_text(item, add_string);
+	    proto_item_append_text(item, "%s", add_string);
 	}
 
 	proto_item_set_len(item, consumed);
@@ -2337,7 +2337,7 @@ elem_ho_pow_lev(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     if (add_string[0] != '\0')
     {
-	proto_item_append_text(item, add_string);
+	proto_item_append_text(item, "%s", add_string);
     }
 
     proto_item_set_len(item, consumed);
@@ -2380,7 +2380,7 @@ elem_ho_pow_lev(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
 	if (add_string[0] != '\0')
 	{
-	    proto_item_append_text(item, add_string);
+	    proto_item_append_text(item, "%s", add_string);
 	}
 
 	proto_item_set_len(item, consumed);
@@ -6055,7 +6055,7 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint 
 
 		if (a_add_string[0] != '\0')
 		{
-		    proto_item_append_text(item, a_add_string);
+		    proto_item_append_text(item, "%s", a_add_string);
 		    a_add_string[0] = '\0';
 		}
 	    }
@@ -6117,7 +6117,7 @@ elem_tv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, gchar *
 
 	    if (a_add_string[0] != '\0')
 	    {
-		proto_item_append_text(item, a_add_string);
+		proto_item_append_text(item, "%s", a_add_string);
 		a_add_string[0] = '\0';
 	    }
 	}
@@ -6210,7 +6210,7 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint l
 
 	    if (a_add_string[0] != '\0')
 	    {
-		proto_item_append_text(item, a_add_string);
+		proto_item_append_text(item, "%s", a_add_string);
 		a_add_string[0] = '\0';
 	    }
 	}

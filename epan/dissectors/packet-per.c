@@ -1036,7 +1036,7 @@ DEBUG_ENTRY("dissect_per_choice");
 		} else {
 			guint32 new_offset;
 
-			proto_item_set_text(choiceitem, choice[index].name);
+			proto_item_set_text(choiceitem, "%s", choice[index].name);
 			new_offset=choice[index].func(tvb, offset, pinfo, choicetree);
 
 			if((new_offset>(offset+(length*8)))||((new_offset+8)<(offset+length*8))){

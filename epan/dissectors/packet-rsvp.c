@@ -1237,7 +1237,7 @@ dissect_rsvp_session (proto_tree *ti, tvbuff_t *tvb,
     proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
 			"Class number: %u - %s",
 			class, type_str);
-    proto_item_set_text(ti, summary_session(tvb, offset));
+    proto_item_set_text(ti, "%s", summary_session(tvb, offset));
 
     switch(type) {
     case RSVP_SESSION_TYPE_IPV4:
@@ -1866,7 +1866,7 @@ dissect_rsvp_template_filter (proto_tree *ti, tvbuff_t *tvb,
 	break;
     }
 
-     proto_item_set_text(ti, summary_template(tvb, offset));
+     proto_item_set_text(ti, "%s", summary_template(tvb, offset));
      switch(type) {
      case 1:
 	 proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,

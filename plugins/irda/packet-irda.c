@@ -949,7 +949,7 @@ gboolean check_iap_octet_result(tvbuff_t* tvb, proto_tree* tree, unsigned offset
         if (tree)
         {
             proto_item* ti = proto_tree_add_item(tree, hf_iap_invaloctet, tvb, offset, 0, FALSE);
-            proto_item_append_text(ti, attr_name);
+            proto_item_append_text(ti, "%s", attr_name);
             proto_item_append_text(ti, "\" attribute must be octet sequence!");
         }
 
@@ -975,7 +975,7 @@ guint8 check_iap_lsap_result(tvbuff_t* tvb, proto_tree* tree, unsigned offset,
         if (tree)
         {
             proto_item* ti = proto_tree_add_item(tree, hf_iap_invallsap, tvb, offset, 0, FALSE);
-            proto_item_append_text(ti, attr_name);
+            proto_item_append_text(ti, "%s", attr_name);
             proto_item_append_text(ti, "\" attribute must be integer value between 0x01 and 0x6F!");
         }
 
