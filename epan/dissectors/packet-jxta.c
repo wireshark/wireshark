@@ -43,7 +43,7 @@
 #include <epan/conversation.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
-#include <tap.h>
+#include <epan/tap.h>
 
 #include "packet-jxta.h"
 
@@ -54,15 +54,16 @@ static const gchar JXTA_MSGELEM_SIG[] = { 'j', 'x', 'e', 'l' };
 static const gchar JXTA_WELCOME_MSG_SIG[] = { 'J', 'X', 'T', 'A', 'H', 'E', 'L', 'L', 'O', ' ' };
 
 static int proto_jxta = -1;
+static int proto_welcome_jxta = -1;
+static int proto_udp_jxta = -1;
+static int proto_framing_jxta = -1;
 static int proto_message_jxta = -1;
 static int jxta_tap = -1;
 
 static dissector_table_t media_type_dissector_table = NULL;
 static dissector_handle_t tcp_jxta_handle = NULL;
 
-static int hf_jxta_udp = -1;
 static int hf_jxta_udpsig = -1;
-static int hf_jxta_welcome = -1;
 static int hf_jxta_welcome_initiator = -1;
 static int hf_jxta_welcome_sig = -1;
 static int hf_jxta_welcome_destAddr = -1;
@@ -70,12 +71,11 @@ static int hf_jxta_welcome_pubAddr = -1;
 static int hf_jxta_welcome_peerid = -1;
 static int hf_jxta_welcome_noProp = -1;
 static int hf_jxta_welcome_version = -1;
-static int hf_jxta_framing = -1;
 static int hf_jxta_framing_header = -1;
 static int hf_jxta_framing_header_name = -1;
 static int hf_jxta_framing_header_value_length = -1;
 static int hf_jxta_framing_header_value = -1;
-static int hf_jxta_message = -1;
+static int hf_jxta_message_address = -1;
 static int hf_jxta_message_src = -1;
 static int hf_jxta_message_dst = -1;
 static int hf_jxta_message_sig = -1;
@@ -99,17 +99,9 @@ static int hf_jxta_element_content_text = -1;
 
 /** our header fields */
 static hf_register_info hf[] = {
-    {&hf_jxta_udp,
-     {"JXTA UDP Message", "jxta.udp", FT_PROTOCOL, BASE_NONE, NULL, 0x0,
-      "JXTA UDP Message", HFILL}
-     },
     {&hf_jxta_udpsig,
      {"Signature", "jxta.udpsig", FT_STRING, BASE_NONE, NULL, 0x0,
       "JXTA UDP Signature", HFILL}
-     },
-    {&hf_jxta_welcome,
-     {"Welcome Message", "jxta.welcome", FT_STRING, BASE_NONE, NULL, 0x0,
-      "JXTA Connection Welcome Message", HFILL}
      },
     {&hf_jxta_welcome_initiator,
      {"Initiator", "jxta.welcome.initiator", FT_BOOLEAN, BASE_NONE, NULL, 0x00,
@@ -139,10 +131,6 @@ static hf_register_info hf[] = {
      {"Version", "jxta.welcome.version", FT_STRING, BASE_NONE, NULL, 0x0,
       "JXTA Connection Welcome Message Version", HFILL}
      },
-    {&hf_jxta_framing,
-     {"JXTA Message Framing", "jxta.framing", FT_PROTOCOL, BASE_NONE, NULL, 0x0,
-      "JXTA Message Framing Headers", HFILL}
-     },
     {&hf_jxta_framing_header,
      {"Header", "jxta.framing.header", FT_NONE, BASE_NONE, NULL, 0x0,
       "JXTA Message Framing Header", HFILL}
@@ -159,9 +147,9 @@ static hf_register_info hf[] = {
      {"Value", "jxta.framing.header.value", FT_BYTES, BASE_HEX, NULL, 0x0,
       "JXTA Message Framing Header Value", HFILL}
      },
-    {&hf_jxta_message,
-     {"JXTA Message", "jxta.message", FT_PROTOCOL, BASE_NONE, NULL, 0x0,
-      "JXTA Message", HFILL}
+    {&hf_jxta_message_address,
+     {"Address", "jxta.message.address", FT_STRING, BASE_NONE, NULL, 0x0,
+      "JXTA Message Address (source or destination)", HFILL}
      },
     {&hf_jxta_message_src,
      {"Source", "jxta.message.source", FT_STRING, BASE_NONE, NULL, 0x0,
@@ -307,10 +295,10 @@ static int dissect_jxta_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
 
 static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, address * found_addr, gboolean initiator);
 static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint64 * content_length,
-                                        char **content_type);
+                                        gchar **content_type);
 static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
-static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int ns_count,
-                                        const char **namespaces);
+static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint ns_count,
+                                        const gchar **namespaces);
 
 void proto_reg_handoff_jxta(void);
 void proto_reg_handoff_message_jxta(void);
@@ -375,9 +363,9 @@ static gboolean dissect_jxta_TCP_heur(tvbuff_t * tvb, packet_info * pinfo, proto
 **/
 static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-    int offset = 0;
-    int available;
-    int needed = 0;
+    guint offset = 0;
+    guint available;
+    gint needed = 0;
 
     conversation_t *conversation =
         find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
@@ -396,12 +384,12 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
 
     while (TRUE) {
         tvbuff_t *jxta_message_framing_tvb;
-        int processed = 0;
+        gint processed = 0;
         guint64 content_length = -1;
 
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < (int)sizeof(JXTA_UDP_SIG)) {
-            needed = available - sizeof(JXTA_UDP_SIG);
+        if (available < sizeof(JXTA_UDP_SIG)) {
+            needed = (gint) (available - sizeof(JXTA_UDP_SIG));
             break;
         }
 
@@ -428,12 +416,12 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
         offset += processed;
 
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < (int)content_length) {
-            needed = available - (int)content_length;
+        if (available < content_length) {
+            needed = (gint) (available - content_length);
             break;
         }
 
-        offset += (int)content_length;
+        offset += (guint) content_length;
 
         break;
     }
@@ -448,50 +436,42 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "JXTA");
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_set_str(pinfo->cinfo, COL_INFO, "UDP Message");
-    }
-
-    col_set_writable(pinfo->cinfo, FALSE);
-
     if (tree) {
-        int tree_offset = 0;
-        proto_item *jxta_udp_tree_item = proto_tree_add_item(tree, hf_jxta_udp, tvb, tree_offset, -1, FALSE);
+        guint tree_offset = 0;
+        proto_item *jxta_udp_tree_item = proto_tree_add_protocol_format(tree, proto_udp_jxta, tvb, tree_offset, -1, "JXTA UDP Message" );
         proto_tree *jxta_udp_tree = proto_item_add_subtree(jxta_udp_tree_item, ett_jxta_udp);
         tvbuff_t *jxta_message_framing_tvb;
         guint64 content_length = -1;
-        char *content_type = NULL;
+        gchar *content_type = NULL;
         tvbuff_t *jxta_message_tvb;
         gboolean dissected = FALSE;
-        int processed = 0;
-
+        gint processed = 0;
+        dissector_handle_t mime_dissector_handle;
 
         proto_tree_add_item(jxta_udp_tree, hf_jxta_udpsig, tvb, tree_offset, sizeof(JXTA_UDP_SIG), FALSE);
         tree_offset += sizeof(JXTA_UDP_SIG);
 
         jxta_message_framing_tvb = tvb_new_subset(tvb, tree_offset, -1, -1);
-        processed = dissect_jxta_message_framing(jxta_message_framing_tvb, pinfo, jxta_udp_tree, &content_length, &content_type);
+        processed = dissect_jxta_message_framing(jxta_message_framing_tvb, pinfo, tree, &content_length, &content_type);
         tree_offset += processed;
 
         jxta_message_tvb = tvb_new_subset(tvb, tree_offset, (gint) content_length, (gint) content_length);
-        dissected = dissector_try_string(media_type_dissector_table, content_type, jxta_message_tvb, pinfo, jxta_udp_tree);
+        mime_dissector_handle = dissector_get_string_handle(media_type_dissector_table, content_type);
+        dissected = 0 < call_dissector(mime_dissector_handle, jxta_message_tvb, pinfo, tree);        
         g_free(content_type);
 
         if (!dissected) {
             dissector_handle_t data_handle = find_dissector("data");
-            call_dissector(data_handle, jxta_message_tvb, pinfo, jxta_udp_tree);
+            call_dissector(data_handle, jxta_message_tvb, pinfo, tree);
         }
 
-        tree_offset += (int)content_length;
+        tree_offset += (guint) content_length;
 
         proto_item_set_end(jxta_udp_tree_item, tvb, tree_offset);
 
         DISSECTOR_ASSERT(offset == tree_offset);
     }
     
-    /* FIXME Could be a partially filled in jxta_stream_conversation_data object */     
-    tap_queue_packet(jxta_tap, pinfo, NULL );
-
     return offset;
 }
 
@@ -505,9 +485,9 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
 **/
 static int dissect_jxta_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-    int offset = 0;
-    int available = 0;
-    int processed;
+    guint offset = 0;
+    guint available = 0;
+    gint processed;
     conversation_t *tpt_conversation =
         find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
     jxta_stream_conversation_data * tpt_conv_data;
@@ -529,8 +509,12 @@ static int dissect_jxta_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
         tpt_conv_data->tpt_ptype = PT_NONE;
         tpt_conv_data->initiator_welcome_frame = 0;
         tpt_conv_data->initiator_address.type = AT_NONE;
+        tpt_conv_data->initiator_address.len = 0;
+        tpt_conv_data->initiator_address.data = NULL;
         tpt_conv_data->receiver_welcome_frame = 0;
         tpt_conv_data->receiver_address.type = AT_NONE;
+        tpt_conv_data->receiver_address.len = 0;
+        tpt_conv_data->receiver_address.data = NULL;
         conversation_add_proto_data(tpt_conversation, proto_jxta, tpt_conv_data);
     }
     
@@ -577,7 +561,7 @@ static int dissect_jxta_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
         processed = dissect_jxta_welcome(tvb, pinfo, tree, welcome_addr, initiator);
     } else {
         guint64 content_length = 0;
-        char *content_type = NULL;
+        gchar *content_type = NULL;
         gboolean dissected;
         conversation_t *peer_conversation = NULL;
         address saved_src_addr;
@@ -596,6 +580,8 @@ static int dissect_jxta_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
             }
 
             conversation_set_dissector(peer_conversation, tcp_jxta_handle);
+        } else {
+/*            g_warning( "Uninitialized peer conversation" ); */
         }
 
         /* Use our source and destination addresses if we have them */
@@ -628,29 +614,11 @@ static int dissect_jxta_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
         processed = dissect_jxta_message_framing(tvb, pinfo, tree, &content_length, &content_type);
 
         if ((processed > 0) && (NULL != content_type) && (0 != content_length)) {
-            int msg_offset = offset + processed;
+            guint msg_offset = offset + processed;
 
             available = tvb_reported_length_remaining(tvb, msg_offset);
-            if (available >= (int)content_length) {
+            if (available >= content_length) {
                 tvbuff_t *jxta_message_tvb = tvb_new_subset(tvb, msg_offset, (gint)content_length, (gint)content_length);
-
-                if (check_col(pinfo->cinfo, COL_INFO)) {
-                    col_set_str(pinfo->cinfo, COL_INFO, "Message");
-
-                    if ( AT_STRINGZ == pinfo->src.type ) {
-                        col_append_fstr( pinfo->cinfo, COL_INFO, " %s", pinfo->src.data );
-                    }
-
-                    if ((AT_STRINGZ == pinfo->dst.type) || (AT_STRINGZ == pinfo->dst.type)) {
-                        col_append_str( pinfo->cinfo, COL_INFO, " ->" );
-                    }
-
-                    if ( AT_STRINGZ == pinfo->dst.type) {
-                        col_append_fstr( pinfo->cinfo, COL_INFO, " %s", pinfo->dst.data );
-                    }
-
-                    col_set_writable(pinfo->cinfo, FALSE);
-                }
 
                 dissected = dissector_try_string(media_type_dissector_table, content_type, jxta_message_tvb, pinfo, tree);
 
@@ -659,9 +627,9 @@ static int dissect_jxta_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
                     call_dissector(data_handle, jxta_message_tvb, pinfo, tree);
                 }
 
-                processed += (int)content_length;
+                processed += (guint) content_length;
             } else {
-                processed = available - (int)content_length;
+                processed = available - (guint) content_length;
             }
 
             g_free(content_type);
@@ -700,13 +668,13 @@ static int dissect_jxta_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
 **/
 static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, address *found_addr, gboolean initiator )
 {
-    int offset = 0;
-    int afterwelcome;
-    int first_linelen;
-    int available = tvb_reported_length_remaining(tvb, offset);
+    guint offset = 0;
+    gint afterwelcome;
+    gint first_linelen;
+    guint available = tvb_reported_length_remaining(tvb, offset);
 
-    if (available < (int)sizeof(JXTA_WELCOME_MSG_SIG)) {
-        return available - sizeof(JXTA_WELCOME_MSG_SIG);
+    if (available < sizeof(JXTA_WELCOME_MSG_SIG)) {
+        return (gint) (available - sizeof(JXTA_WELCOME_MSG_SIG));
     }
 
     if (0 != tvb_memeql(tvb, 0, JXTA_WELCOME_MSG_SIG, sizeof(JXTA_WELCOME_MSG_SIG))) {
@@ -727,7 +695,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     }
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_set_str(pinfo->cinfo, COL_INFO, "Welcome Message ");
+        col_add_str(pinfo->cinfo, COL_INFO, "Welcome");
     }
 
     {
@@ -739,7 +707,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         proto_tree *jxta_welcome_tree = NULL;  
 
         if (tree) {
-           jxta_welcome_tree_item = proto_tree_add_item(tree, hf_jxta_welcome, tvb, offset, afterwelcome, FALSE);
+           jxta_welcome_tree_item = proto_tree_add_protocol_format(tree, proto_welcome_jxta, tvb, offset, afterwelcome, "JXTA Connection Welcome Message, %s", welcomeline);
            jxta_welcome_tree = proto_item_add_subtree(jxta_welcome_tree_item, ett_jxta_welcome);
            }
         
@@ -781,12 +749,14 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
             }
 
             if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_append_str( pinfo->cinfo, COL_INFO, ", " );
                 col_append_str( pinfo->cinfo, COL_INFO, *current_token );
             }
 
             if( NULL != found_addr ) {
-                found_addr->type = AT_STRINGZ;
-                found_addr->len = strlen( *current_token ) + 1;
+                found_addr->type = AT_URI;
+                found_addr->len = strlen( *current_token );
+                /* FIXME 20050605 bondolo THIS ALLOCATION IS A MEMORY LEAK! */
                 found_addr->data = g_strdup( *current_token );
             }
 
@@ -829,11 +799,11 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 *   @return number of bytes from the tvbuff_t which were processed.
 **/
 static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint64 * content_length,
-                                        char **content_type)
+                                        gchar **content_type)
 {
-    int offset = 0;
-    int available;
-    int needed = 0;
+    guint offset = 0;
+    guint available;
+    gint needed = 0;
 
     /*
      *   First go around. Make sure all of the bytes are there.
@@ -845,8 +815,8 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
         guint16 headervalue_offset;
 
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < (int)sizeof(guint8)) {
-            needed = available - sizeof(guint8);
+        if (available < sizeof(guint8)) {
+            needed = (gint) (available - sizeof(guint8));
             break;
         } else {
             headername_len = tvb_get_guint8(tvb, offset);
@@ -855,7 +825,7 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
 
             available = tvb_reported_length_remaining(tvb, offset);
             if (available < headername_len) {
-                needed = available - headername_len;
+                needed = (gint) (available - headername_len);
                 break;
             }
 
@@ -866,8 +836,8 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
         }
 
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < (int)sizeof(guint16)) {
-            needed = available - sizeof(guint16);
+        if (available < sizeof(guint16)) {
+            needed = (gint) (available - sizeof(guint16));
             break;
         } else {
             headervalue_len = tvb_get_ntohs(tvb, offset);
@@ -876,7 +846,7 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
 
             available = tvb_reported_length_remaining(tvb, offset);
             if (available < headervalue_len) {
-                needed = available - headervalue_len;
+                needed = (gint) (available - headervalue_len);
                 break;
             }
 
@@ -898,6 +868,8 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
     } while (TRUE);
 
     if ((needed > 0) && gDESEGMENT && pinfo->can_desegment) {
+        pinfo->desegment_offset = 0;
+        pinfo->desegment_len = needed;
         return -needed;
     }
 
@@ -905,8 +877,8 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
      *   Second (optional pass) Now that we are sure that all the bytes are there we update the protocol tree.
      */
     if (tree) {
-        int tree_offset = 0;
-        proto_item *framing_tree_item = proto_tree_add_item(tree, hf_jxta_framing, tvb, tree_offset, -1, FALSE);
+        guint tree_offset = 0;
+        proto_item *framing_tree_item = proto_tree_add_protocol_format(tree, proto_framing_jxta, tvb, tree_offset, -1, "JXTA Message Framing Headers");
         proto_tree *framing_tree = proto_item_add_subtree(framing_tree_item, ett_jxta_framing);
 
         /* parse framing headers */
@@ -976,15 +948,15 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
 **/
 static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-    int offset = 0;
-    int available;
-    int needed = 0;
+    guint offset = 0;
+    guint available;
+    gint needed = 0;
 
     while (TRUE) {
         /* First pass. Make sure all of the bytes we need are available */
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < (int)sizeof(JXTA_MSG_SIG)) {
-            needed = available - sizeof(JXTA_MSG_SIG);
+        if (available < sizeof(JXTA_MSG_SIG)) {
+            needed = (gint) (available - sizeof(JXTA_MSG_SIG));
             break;
         }
 
@@ -996,8 +968,8 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         offset += sizeof(JXTA_MSG_SIG);
 
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < (int)sizeof(guint8)) {
-            needed = available - sizeof(guint8);
+        if (available < sizeof(guint8)) {
+            needed = (gint) (available - sizeof(guint8));
             break;
         } else {
             guint8 message_version = tvb_get_guint8(tvb, offset);
@@ -1011,44 +983,44 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         }
 
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < (int)sizeof(guint16)) {
-            needed = available - sizeof(guint16);
+        if (available < sizeof(guint16)) {
+            needed = (gint) (available - sizeof(guint16));
             break;
         } else {
             guint16 msg_ns_count = tvb_get_ntohs(tvb, offset);
-            unsigned int each_namespace;
+            guint each_namespace;
 
             offset += sizeof(guint16);
 
             for (each_namespace = 0; each_namespace < msg_ns_count; each_namespace++) {
-                guint8 namespace_len;
+                guint16 namespace_len;
 
                 available = tvb_reported_length_remaining(tvb, offset);
-                if (available < (int)sizeof(guint8)) {
-                    needed = available - sizeof(guint8);
+                if (available < sizeof(namespace_len)) {
+                    needed = (gint) (available - sizeof(namespace_len));
                     break;
                 }
 
-                namespace_len = tvb_get_guint8(tvb, offset);
+                namespace_len = tvb_get_ntohs(tvb, offset);
 
-                available = tvb_reported_length_remaining(tvb, offset + 1);
+                available = tvb_reported_length_remaining(tvb, offset + sizeof(namespace_len));
                 if (available < namespace_len) {
-                    needed = available - namespace_len;
+                    needed = (gint) (available - namespace_len);
                     break;
                 }
 
-                offset += sizeof(guint8) + namespace_len;
+                offset += sizeof(namespace_len) + namespace_len;
             }
         }
 
         /* parse element count */
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < (int)sizeof(guint16)) {
-            needed = available - sizeof(guint16);
+        if (available < sizeof(guint16)) {
+            needed = (gint) (available - sizeof(guint16));
             break;
         } else {
             guint16 elem_count = tvb_get_ntohs(tvb, offset);
-            unsigned int each_elem;
+            guint each_elem;
 
             offset += sizeof(guint16);
 
@@ -1058,8 +1030,15 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
                 tvbuff_t *jxta_message_element_tvb = tvb_new_subset(tvb, offset, -1, -1);
                 int processed = dissect_jxta_message_element(jxta_message_element_tvb, pinfo, NULL, 0, NULL);
 
-                if (processed <= 0) {
-                    return processed;
+                if (processed < 0) {
+                    needed = -processed;
+                    break;
+                }
+                
+                if( 0 == processed ) {
+                    /* XXX bondolo Not really clear what we should do! */
+/*                    g_warning( "Failure processing message element #%d of %d of frame %d", each_elem, elem_count, pinfo->fd->num ); */
+                    return 0;
                 }
 
                 offset += processed;
@@ -1070,43 +1049,81 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     }
 
     if ((needed > 0) && gDESEGMENT && pinfo->can_desegment) {
+        pinfo->desegment_offset = 0;
+        pinfo->desegment_len = needed;
         return -needed;
     }
 
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        gchar src_addr[256];
+        gchar dst_addr[256];
+     
+        address_to_str_buf( &pinfo->src, src_addr );
+        address_to_str_buf( &pinfo->dst, dst_addr );
+        
+        if( PT_NONE != pinfo->ptype ) {
+           size_t len = strlen( src_addr );
+           src_addr[len] = ':';
+           g_snprintf( &src_addr[len+1], 256 - len - 1, "%d", pinfo->srcport );
+
+           len = strlen( dst_addr );
+           dst_addr[len] = ':';
+           g_snprintf( &dst_addr[len+1], 256 - len - 1, "%d", pinfo->destport );
+        }
+
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Message, %s -> %s", src_addr, dst_addr );
+
+        col_set_writable(pinfo->cinfo, FALSE);
+    }
+
     if (tree) {
-        int tree_offset = 0;
+        guint tree_offset = 0;
         proto_item *jxta_msg_tree_item = NULL;
         proto_tree *jxta_msg_tree = NULL;
         guint8 message_version;
-        const char **namespaces = NULL;
+        const gchar **namespaces = NULL;
         guint16 msg_ns_count;
-        unsigned int each_namespace;
+        guint each_namespace;
         guint16 elem_count;
-        unsigned int each_elem;
+        guint each_elem;
+        gchar src_addr[256];
+        gchar dst_addr[256];
+        proto_item * tree_item;
         
-        if ((AT_STRINGZ == pinfo->src.type) && (AT_STRINGZ == pinfo->dst.type)) {
-	    jxta_msg_tree_item = proto_tree_add_protocol_format(tree, hf_jxta_message, tvb, tree_offset, -1,
-	    "JXTA Message, %s -> %s", pinfo->src.data, pinfo->dst.data );
-        } else {
-	    jxta_msg_tree_item = proto_tree_add_item(tree, hf_jxta_message, tvb, tree_offset, -1, FALSE);
+        address_to_str_buf( &pinfo->src, src_addr );
+        address_to_str_buf( &pinfo->dst, dst_addr );
+        
+        if( PT_NONE != pinfo->ptype ) {
+           size_t len = strlen( src_addr );
+           src_addr[len] = ':';
+           g_snprintf( &src_addr[len+1], 256 - len - 1, "%d", pinfo->srcport );
+
+           len = strlen( dst_addr );
+           dst_addr[len] = ':';
+           g_snprintf( &dst_addr[len+1], 256 - len - 1, "%d", pinfo->destport );
         }
+
+        jxta_msg_tree_item = proto_tree_add_protocol_format(tree, proto_message_jxta, tvb, tree_offset, -1,
+	    "JXTA Message, %s -> %s", src_addr, dst_addr );
 
         jxta_msg_tree = proto_item_add_subtree(jxta_msg_tree_item, ett_jxta_msg);
 
-        if ( AT_STRINGZ == pinfo->src.type ) {
-            proto_item * src_item = proto_tree_add_item(jxta_msg_tree, hf_jxta_message_src, tvb, 0, 0, FALSE);
-            proto_item_append_text( src_item, "%s", pinfo->src.data );
-            PROTO_ITEM_SET_GENERATED(src_item);
-        }
-
-        if ( AT_STRINGZ == pinfo->dst.type) {
-            proto_item * dst_item = proto_tree_add_item(jxta_msg_tree, hf_jxta_message_dst, tvb, 0, 0, FALSE);
-            proto_item_append_text( dst_item, "%s", pinfo->dst.data );
-            PROTO_ITEM_SET_GENERATED(dst_item);
-        }
-
         proto_tree_add_item(jxta_msg_tree, hf_jxta_message_sig, tvb, tree_offset, sizeof(JXTA_MSG_SIG), FALSE);
         tree_offset += sizeof(JXTA_MSG_SIG);
+
+        tree_item = proto_tree_add_string(jxta_msg_tree, hf_jxta_message_src, tvb, 0, 0, src_addr);
+        PROTO_ITEM_SET_GENERATED(tree_item);
+
+        tree_item = proto_tree_add_string(jxta_msg_tree, hf_jxta_message_address, tvb, 0, 0, src_addr);
+        PROTO_ITEM_SET_HIDDEN(tree_item);
+        PROTO_ITEM_SET_GENERATED(tree_item);
+
+        tree_item = proto_tree_add_string(jxta_msg_tree, hf_jxta_message_dst, tvb, 0, 0, dst_addr);
+        PROTO_ITEM_SET_GENERATED(tree_item);
+
+        tree_item = proto_tree_add_string(jxta_msg_tree, hf_jxta_message_address, tvb, 0, 0, dst_addr);
+        PROTO_ITEM_SET_HIDDEN(tree_item);
+        PROTO_ITEM_SET_GENERATED(tree_item);
 
         message_version = tvb_get_guint8(tvb, tree_offset);
         proto_tree_add_uint(jxta_msg_tree, hf_jxta_message_version, tvb, tree_offset, sizeof(guint8), message_version);
@@ -1116,17 +1133,17 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         proto_tree_add_uint(jxta_msg_tree, hf_jxta_message_namespaces_count, tvb, tree_offset, sizeof(guint16), msg_ns_count);
         tree_offset += sizeof(guint16);
 
-        namespaces = g_malloc((msg_ns_count + 2) * sizeof(const char *));
+        namespaces = g_malloc((msg_ns_count + 2) * sizeof(const gchar *));
         namespaces[0] = "";
         namespaces[1] = "jxta";
 
         /* parse namespaces */
         for (each_namespace = 0; each_namespace < msg_ns_count; each_namespace++) {
-            guint8 namespace_len = tvb_get_guint8(tvb, tree_offset);
+            guint16 namespace_len = tvb_get_ntohs(tvb, tree_offset);
 
-            namespaces[2 + each_namespace] = tvb_get_string(tvb, tree_offset + 1, namespace_len);
-            proto_tree_add_item(jxta_msg_tree, hf_jxta_message_namespace_name, tvb, tree_offset, sizeof(guint8), FALSE);
-            tree_offset += sizeof(guint8) + namespace_len;
+            namespaces[2 + each_namespace] = tvb_get_string(tvb, tree_offset + sizeof(namespace_len), namespace_len);
+            proto_tree_add_item(jxta_msg_tree, hf_jxta_message_namespace_name, tvb, tree_offset, sizeof(namespace_len), FALSE);
+            tree_offset += sizeof(namespace_len) + namespace_len;
         }
 
         /* parse element count */
@@ -1143,17 +1160,17 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         }
 
         for (each_namespace = 2; each_namespace < msg_ns_count; each_namespace++) {
-            g_free((char *)namespaces[each_namespace]);
+            g_free((gchar *)namespaces[each_namespace]);
         }
 
-        g_free((char *)namespaces);
+        g_free((gchar *)namespaces);
 
         proto_item_set_end(jxta_msg_tree_item, tvb, tree_offset);
 
         DISSECTOR_ASSERT(tree_offset == offset);              
     }
 
-    if ((offset > 0) && (AT_STRINGZ == pinfo->src.type) && (AT_STRINGZ == pinfo->dst.type)) {
+    if ((offset > 0) && (AT_URI == pinfo->src.type) && (AT_URI == pinfo->dst.type)) {
         jxta_tap_header * tap_header = (jxta_tap_header *) g_mem_chunk_alloc(my_tap_structs);
         
         tap_header->src_address = pinfo->src;
@@ -1174,21 +1191,21 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 *   @param  tree The protocol tree.
 *   @return number of bytes from the tvbuff_t which were processed.
 **/
-static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int ns_count,
-                                        const char **namespaces)
+static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint ns_count,
+                                        const gchar **namespaces)
 {
-    int offset = 0;
-    int available;
-    int needed = 0;
+    guint offset = 0;
+    guint available;
+    gint needed = 0;
     guint8 flags;
 
     /* First pass. Make sure all of the bytes we need are available */
 
-    /* signature field */
     while (TRUE) {
+         /* signature field */
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < (int)sizeof(JXTA_MSGELEM_SIG)) {
-            needed = available - sizeof(JXTA_MSGELEM_SIG);
+        if (available < sizeof(JXTA_MSGELEM_SIG)) {
+            needed = (gint) (available - sizeof(JXTA_MSGELEM_SIG));
         }
 
         if (tvb_memeql(tvb, offset, JXTA_MSGELEM_SIG, sizeof(JXTA_MSGELEM_SIG)) != 0) {
@@ -1200,8 +1217,8 @@ static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, pro
 
         /* namespace id field */
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < (int)sizeof(guint8)) {
-            needed = available - sizeof(guint8);
+        if (available < sizeof(guint8)) {
+            needed = (gint) (available - sizeof(guint8));
             break;
         }
 
@@ -1209,8 +1226,8 @@ static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, pro
 
         /* flags field */
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < (int)sizeof(guint8)) {
-            needed = available - sizeof(guint8);
+        if (available < sizeof(guint8)) {
+            needed = (gint) (available - sizeof(guint8));
             break;
         } else {
             flags = tvb_get_guint8(tvb, offset);
@@ -1219,8 +1236,8 @@ static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, pro
 
         /* name field */
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < (int)sizeof(guint16)) {
-            needed = available - sizeof(guint16);
+        if (available < sizeof(guint16)) {
+            needed = (gint) (available - sizeof(guint16));
             break;
         } else {
             guint16 name_len = tvb_get_ntohs(tvb, offset);
@@ -1228,7 +1245,7 @@ static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, pro
 
             available = tvb_reported_length_remaining(tvb, offset);
             if (available < name_len) {
-                needed = available - name_len;
+                needed = (gint) (available - name_len);
                 break;
             }
 
@@ -1240,8 +1257,8 @@ static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, pro
             guint16 type_len;
 
             available = tvb_reported_length_remaining(tvb, offset);
-            if (available < (int)sizeof(guint16)) {
-                needed = available - sizeof(guint16);
+            if (available < sizeof(guint16)) {
+                needed = (gint) (available - sizeof(guint16));
                 break;
             }
 
@@ -1250,7 +1267,7 @@ static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, pro
 
             available = tvb_reported_length_remaining(tvb, offset);
             if (available < type_len) {
-                needed = available - type_len;
+                needed = (gint) (available - type_len);
                 break;
             }
 
@@ -1262,8 +1279,8 @@ static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, pro
             guint16 encoding_len;
 
             available = tvb_reported_length_remaining(tvb, offset);
-            if (available < (int)sizeof(guint16)) {
-                needed = available - sizeof(guint16);
+            if (available < sizeof(guint16)) {
+                needed = (gint) (available - sizeof(guint16));
                 break;
             }
 
@@ -1272,7 +1289,7 @@ static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, pro
 
             available = tvb_reported_length_remaining(tvb, offset);
             if (available < encoding_len) {
-                needed = available - encoding_len;
+                needed = (gint) (available - encoding_len);
                 break;
             }
 
@@ -1281,16 +1298,16 @@ static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, pro
 
         /* content field */
         available = tvb_reported_length_remaining(tvb, offset);
-        if (available < (int)sizeof(guint16)) {
-            needed = available - sizeof(guint16);
+        if (available < sizeof(guint16)) {
+            needed = (gint) (available - sizeof(guint16));
             break;
         } else {
             guint32 content_len = tvb_get_ntohl(tvb, offset);
             offset += sizeof(guint32);
 
             available = tvb_reported_length_remaining(tvb, offset);
-            if (available < (int)content_len) {
-                needed = available - content_len;
+            if (available < content_len) {
+                needed = (gint) (available - content_len);
                 break;
             }
 
@@ -1322,12 +1339,14 @@ static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, pro
     }
 
     if ((needed > 0) && gDESEGMENT && pinfo->can_desegment) {
+        pinfo->desegment_offset = 0;
+        pinfo->desegment_len = needed;
         return -needed;
     }
 
     /* Second (optional) pass : build the proto tree */
     if (tree) {
-        int tree_offset = 0;
+        guint tree_offset = 0;
         proto_item *jxta_elem_tree_item = proto_tree_add_item(tree, hf_jxta_element, tvb, tree_offset, -1, FALSE);
         proto_tree *jxta_elem_tree = proto_item_add_subtree(jxta_elem_tree_item, ett_jxta_elem);
         guint8 namespaceID;
@@ -1485,8 +1504,13 @@ void proto_register_jxta(void)
 
     jxta_tap = register_tap("jxta");
 
-    proto_message_jxta = proto_register_protocol("Media Type: application/x-jxta-msg",
-                                                 "application/x-jxta-msg", "application-x-jxta-msg");
+    proto_welcome_jxta = proto_register_protocol("JXTA Connection Welcome Message", "JXTA Welcome", "jxta.welcome");
+    
+    proto_udp_jxta = proto_register_protocol("JXTA UDP", "JXTA UDP", "jxta.udp");
+
+    proto_framing_jxta = proto_register_protocol("JXTA Message Framing", "JXTA Framing", "jxta.framing");
+    
+    proto_message_jxta = proto_register_protocol("JXTA Message", "JXTA Message", "jxta.message");
 
     /* Register header fields */
     proto_register_field_array(proto_jxta, hf, array_length(hf));
@@ -1517,7 +1541,7 @@ void proto_reg_handoff_jxta(void)
 
     if (!init_done) {
         new_register_dissector("jxta.udp", dissect_jxta_udp, proto_jxta);
-        heur_dissector_add("udp", dissect_jxta_UDP_heur, proto_jxta);
+        heur_dissector_add("udp", dissect_jxta_UDP_heur, proto_udp_jxta);
 
         new_register_dissector("jxta.tcp", dissect_jxta_tcp, proto_jxta);
         tcp_jxta_handle = find_dissector("jxta.tcp");
