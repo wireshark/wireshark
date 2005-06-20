@@ -4,6 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
+ * Copyright 2005, Ronnie Sahlberg (krb decryption)
  *
  * $Id$
  *
@@ -42,6 +43,7 @@
 
 #include <epan/asn1.h>
 #include "format-oid.h"
+#include "packet-ber.h"
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 #include "packet-kerberos.h"
@@ -65,6 +67,7 @@ static int proto_spnego = -1;
 static int proto_spnego_krb5 = -1;
 
 static int hf_spnego = -1;
+static int hf_spnego_oid = -1;
 static int hf_spnego_negtokeninit = -1;
 static int hf_spnego_negtokentarg = -1;
 static int hf_spnego_mechtype = -1;
@@ -1836,18 +1839,19 @@ dissect_spnego_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *item;
 	proto_tree *subtree;
-	int ret, offset = 0;
 	int return_offset;
-	ASN1_SCK hnd;
-	gboolean def;
-	guint len1, cls, con, tag, nbytes;
-	guint oid_len;
-	subid_t *oid;
-	gchar *oid_string;
 	conversation_t *conversation;
 	gssapi_oid_value *next_level_value;
 	tvbuff_t *token_tvb;
-	int len;
+	int len, offset, start_offset, oid_start_offset;
+	gint8 class;
+	gboolean pc, ind_field;
+	gint32 tag;
+	guint32 len1;
+	gchar oid[128];	/* should be enough */
+
+	start_offset=0;
+	offset=start_offset;
 
 	/*
 	 * We need this later, so lets get it now ...
@@ -1887,66 +1891,33 @@ dissect_spnego_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * with the "optional" "use in non-initial tokens" being chosen.
 	 */
 
-	asn1_open(&hnd, tvb, offset);
-
 	/*
 	 * Get the first header ...
 	 */
+	offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+	offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
 
-	ret = asn1_header_decode(&hnd, &cls, &con, &tag, &def, &len1);
-
-	if (ret != ASN1_ERR_NOERROR) {
-		dissect_parse_error(tvb, offset, pinfo, subtree,
-				    "SPNEGO context header", ret);
-		return_offset = tvb_length(tvb);
-		goto done;
-	}
-
-	if (!(cls == ASN1_APL && con == ASN1_CON && tag == 0)) {
+	if (!(class == BER_CLASS_APP && pc && tag == 0)) {
 		proto_tree_add_text(
-			subtree, tvb, offset, 0,
-			"Unknown header (cls=%d, con=%d, tag=%d)",
-			cls, con, tag);
+			subtree, tvb, start_offset, 0,
+			"Unknown header (class=%d, pc=%d, tag=%d)",
+			class, pc, tag);
 		return_offset = tvb_length(tvb);
 		goto done;
 	}
-
-	offset = hnd.offset;
 
 	/*
 	 * Get the OID, and find the handle, if any
-	 */
-
-	ret = asn1_oid_decode(&hnd, &oid, &oid_len, &nbytes);
-
-	if (ret != ASN1_ERR_NOERROR) {
-		dissect_parse_error(tvb, offset, pinfo, tree,
-				    "SPNEGO wrap token", ret);
-		return_offset = tvb_length(tvb);
-		goto done;
-	}
-
-	oid_string = format_oid(oid, oid_len);
-	next_level_value = gssapi_lookup_oid(oid, oid_len);
-
-	/*
-	 * XXX - what should we do if this doesn't match the value
+ 	 *
+	 * XXX - what should we do if this OID doesn't match the value
 	 * attached to the frame or conversation?  (That would be
 	 * bogus, but that's not impossible - some broken implementation
 	 * might negotiate some security mechanism but put the OID
 	 * for some other security mechanism in GSS_Wrap tokens.)
 	 */
-	if (next_level_value)
-	  proto_tree_add_text(tree, tvb, offset, nbytes, 
-			      "thisMech: %s (%s)",
-			      oid_string, next_level_value->comment);
-	else
-	  proto_tree_add_text(tree, tvb, offset, nbytes, "thisMech: %s",
-			      oid_string);
-
-	g_free(oid_string);
-
-	offset += nbytes;
+	oid_start_offset=offset;
+	offset=dissect_ber_object_identifier(FALSE, pinfo, subtree, tvb, offset, hf_spnego_oid, oid);
+	next_level_value = gssapi_lookup_oid_str(oid);
 
 	/*
 	 * Now dissect the GSS_Wrap token; it's assumed to be in the
@@ -1974,7 +1945,6 @@ dissect_spnego_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} else
 	  return_offset = tvb_length(tvb);
  done:
-	asn1_close(&hnd, &offset);
 
 	return return_offset;
 }
@@ -1986,6 +1956,9 @@ proto_register_spnego(void)
 		{ &hf_spnego,
 		  { "SPNEGO", "spnego", FT_NONE, BASE_NONE, NULL, 0x0,
 		    "SPNEGO", HFILL }},
+		{ &hf_spnego_oid, {
+		    "thisMech", "spnego.OID", FT_STRING, BASE_NONE,
+		    NULL, 0, "This is a SPNEGO Object Identifier", HFILL }},
 		{ &hf_spnego_negtokeninit,
 		  { "negTokenInit", "spnego.negtokeninit", FT_NONE, BASE_NONE,
 		    NULL, 0x0, "SPNEGO negTokenInit", HFILL}},
