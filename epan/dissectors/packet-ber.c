@@ -1,4 +1,7 @@
 /* #define DEBUG_BER 1 */
+/* TODO: dissect_ber_object_identifier() should take a char **value_string
+ * and let the caller strdup if required.
+ */
 /* TODO: change #.REGISTER signature to new_dissector_t and
  * update call_ber_oid_callback() accordingly.
  */
@@ -1215,7 +1218,10 @@ dissect_ber_GeneralString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 	return offset;
 }
 
-/* 8.19 Encoding of an object identifier value */
+/* 8.19 Encoding of an object identifier value.
+ * IF you pass a pointer for value_string to this one, MAKE SURE it is declared
+ * as char foo[MAX_OID_STR_LEN]
+ */
 int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, char *value_string) {
 	gint8 class;
 	gboolean pc;

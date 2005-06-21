@@ -297,7 +297,7 @@ static int dissect_protocol_versionrq_impl(packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_tcap_Applicationcontext(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	static char buffer[128];
+	static char buffer[MAX_OID_STR_LEN];
 	cur_oid = buffer;
 	pinfo->private_data = buffer;
   offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
@@ -609,7 +609,7 @@ dissect_tcap_ExternalPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 
 static int
 dissect_tcap_UserInfoOID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-	static char buffer[128];
+	static char buffer[MAX_OID_STR_LEN];
 	tcapext_oid = buffer;
 	pinfo->private_data = buffer;
   offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,

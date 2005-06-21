@@ -134,14 +134,14 @@ else
 offset+=len;
 
 #.FN_BODY Applicationcontext
-	static char buffer[128];
+	static char buffer[MAX_OID_STR_LEN];
 	cur_oid = buffer;
 	pinfo->private_data = buffer;
   offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
                                          hf_index, cur_oid);
 
 #.FN_BODY UserInfoOID
-	static char buffer[128];
+	static char buffer[MAX_OID_STR_LEN];
 	tcapext_oid = buffer;
 	pinfo->private_data = buffer;
   offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,

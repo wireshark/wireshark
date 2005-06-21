@@ -134,6 +134,8 @@ extern int dissect_ber_GeneralString(packet_info *pinfo, proto_tree *tree, tvbuf
 
 
 /* this function dissects a BER Object Identifier
+ * IF you pass a pointer for value_string to this one, MAKE SURE it is declared
+ * as char foo[MAX_OID_STR_LEN]
  */
 extern int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, char *value_string);
 

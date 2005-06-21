@@ -1029,7 +1029,7 @@ dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	gboolean pc, ind_field;
 	gint32 tag;
 	gint32 len1;
-	gchar oid[128];	/* should be enough */
+	gchar oid[MAX_OID_STR_LEN];
 
 	start_offset=offset;
 	/*
@@ -1824,7 +1824,7 @@ dissect_spnego_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean pc, ind_field;
 	gint32 tag;
 	guint32 len1;
-	gchar oid[128];	/* should be enough */
+	gchar oid[MAX_OID_STR_LEN];
 
 	start_offset=0;
 	offset=start_offset;
