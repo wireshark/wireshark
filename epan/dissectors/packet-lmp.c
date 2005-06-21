@@ -166,6 +166,7 @@ static value_string lmp_class_vals[] = {
     {LMP_CLASS_CHANNEL_STATUS_REQUEST, "CHANNEL_STATUS_REQUEST"},
     {LMP_CLASS_ERROR, "ERROR"},
     {LMP_CLASS_SERVICE_CONFIG, "SERVICE_CONFIG " },
+    {0, NULL}
 };
 
 
@@ -178,11 +179,13 @@ static const value_string channel_status_str[] = {
     {1, "Signal Okay (OK)"},
     {2, "Signal Degraded (SD)"},
     {3, "Signal Failed (SF)"},
+    {0, NULL}
 };
 static const value_string channel_status_short_str[] = {
     {1, "OK"},
     {2, "SD"},
     {3, "SF"},
+    {0, NULL}
 };
 
 /* Service Discovery Client ServiceConfig object (defined in UNI 1.0) */
@@ -193,6 +196,7 @@ static const value_string channel_status_short_str[] = {
 static const value_string service_attribute_link_type_str[] = {
     {5, "SDH ITU-T G.707"},
     {6, "SONET ANSI T1.105"},
+    {0, NULL}
 };
 
 /* Signal Types for SDH */
@@ -205,6 +209,7 @@ static const value_string service_attribute_signal_types_sdh_str[] = {
     {10, "STM-16"},
     {11, "STM-64"},
     {12, "STM-256"},
+    {0, NULL}
 };
 
 /* Signal Types for SONET */
@@ -217,6 +222,7 @@ static const value_string service_attribute_signal_types_sonet_str[] = {
     {10, "STS-48"},
     {11, "STS-192"},
     {12, "STS-768"},
+    {0, NULL}
 };
 
 /* 
