@@ -1169,22 +1169,14 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
 {
   enum { START, IN_VAR, PRE_VAL, IN_VAL, IN_SKIP };
   int       got_c, state = START;
-  static GString *cur_val = NULL;
-  static GString *cur_var = NULL;
+  GString  *cur_val;
+  GString  *cur_var;
   gboolean  got_val = FALSE;
   gint      fline = 1, pline = 1;
   gchar     hint[] = "(saving your preferences once should remove this warning)";
 
-  if (! cur_val) {
-    cur_val = g_string_new("");
-  }
-  
-  if (! cur_var) {
-    cur_var = g_string_new("");
-  }
-
-  g_string_truncate(cur_val, 0);
-  g_string_truncate(cur_var, 0);
+  cur_val = g_string_new("");
+  cur_var = g_string_new("");
 
   while ((got_c = getc(pf)) != EOF) {
     if (got_c == '\n') {
@@ -1282,6 +1274,10 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
       g_warning ("%s line %d: Incomplete preference %s", pf_path, pline, hint);
     }
   }
+
+  g_string_free(cur_val, TRUE);
+  g_string_free(cur_var, TRUE);
+
   if (ferror(pf))
     return errno;
   else
