@@ -81,8 +81,13 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	nstime_t	ts;
 	int		cap_len = 0, pkt_len = 0;
 	proto_tree	*tree;
-    proto_item  *item;
+        proto_item  *item;
+	int frame_number;
 
+	frame_number=pinfo->fd->num; /* dummy so that the buildbot crashdumps
+					will show the packetnumber where the
+					crash occured.
+				     */
 	tree=parent_tree;
 
 	pinfo->current_proto = "Frame";
