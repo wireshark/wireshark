@@ -3810,15 +3810,8 @@ proto_register_ftam(void)
 void
 proto_reg_handoff_ftam(void)
 {
-	dissector_handle_t ftam_handle;
-
 	/*   find data dissector  */
 	data_handle = find_dissector("data");
-	ftam_handle = create_dissector_handle(dissect_ftam,proto_ftam);
-	/* Register in acse oid table  */
-	/* remove this when ACSE is replaced later */
-	dissector_add_string("acse.application_context", "1.0.8571.1.1", ftam_handle); 
-
 	register_ber_oid_dissector("1.0.8571.1.1", dissect_ftam, proto_ftam, "ftam");
 }
 

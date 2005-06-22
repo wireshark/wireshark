@@ -13,7 +13,5 @@ clean:
 	rm -f parsetab.py $(DISSECTOR_FILES)
 
 copy_files: generate_dissector
-#	cp $(DISSECTOR_FILES) ../../epan/dissectors
-	echo "Dont use this dissector yet, there are two bugs in it you will"
-	echo "have to fix manually first.  See packet-acse.c comment at top "
+	cp $(DISSECTOR_FILES) ../../epan/dissectors
 

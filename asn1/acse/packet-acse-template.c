@@ -1,25 +1,9 @@
 /*XXX
-  there is a bug in the generated code
-  static const ber_sequence_t Association_data_sequence_of[1] = {
-    { BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_Association_data_item },
-  };
-  must be changed into
-  static const ber_sequence_t Association_data_sequence_of[1] = {
-    { BER_CLASS_UNI, 8, NULL, dissect_Association_data_item },
-  };
+  There is a bug in asn2eth that it can not yet handle tagged assignments such
+  as EXTERNAL  ::=  [UNIVERSAL 8] IMPLICIT SEQUENCE {
 
-  and 
-  static int dissect_Association_data_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-    int ret;
-    ret=dissect_acse_EXTERNAL(FALSE, tvb, offset, pinfo, tree, hf_acse_Association_data_item);
-    return ret;
-  }
-  must be changed into
-  static int dissect_Association_data_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-    int ret;
-    ret=dissect_acse_EXTERNAL(TRUE, tvb, offset, pinfo, tree, hf_acse_Association_data_item);
-    return ret;
-  }
+  This bug is workedaround by some .cnf magic but this should be cleaned up 
+  once asn2eth learns how to deal with tagged assignments
 */
 
 /* packet-acse.c
@@ -298,9 +282,6 @@ void proto_register_acse(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_acse, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-
-/*XXX remove later   just to keep the other dissectors happy */
-register_dissector_table("acse.application_context", "Application context OID", FT_STRING, BASE_NONE); 
 
   register_init_routine(acse_init);
 }

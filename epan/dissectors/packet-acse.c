@@ -6,33 +6,19 @@
 /* Input file: packet-acse-template.c */
 
 /*XXX
-  there is a bug in the generated code
-  static const ber_sequence_t Association_data_sequence_of[1] = {
-    { BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_Association_data_item },
-  };
-  must be changed into
-  static const ber_sequence_t Association_data_sequence_of[1] = {
-    { BER_CLASS_UNI, 8, NULL, dissect_Association_data_item },
-  };
+  There is a bug in asn2eth that it can not yet handle tagged assignments such
+  as EXTERNAL  ::=  [UNIVERSAL 8] IMPLICIT SEQUENCE {
 
-  and 
-  static int dissect_Association_data_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-    int ret;
-    ret=dissect_acse_EXTERNAL(FALSE, tvb, offset, pinfo, tree, hf_acse_Association_data_item);
-    return ret;
-  }
-  must be changed into
-  static int dissect_Association_data_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-    int ret;
-    ret=dissect_acse_EXTERNAL(TRUE, tvb, offset, pinfo, tree, hf_acse_Association_data_item);
-    return ret;
-  }
+  This bug is workedaround by some .cnf magic but this should be cleaned up 
+  once asn2eth learns how to deal with tagged assignments
 */
 
 /* packet-acse.c
  * Routines for ACSE packet dissection
  *   Ronnie Sahlberg 2005
- * dissect_acse() from original handwritten dissector by Sid
+ * dissect_acse() based original handwritten dissector by Sid
+ *   Yuriy Sidelnikov <YSidelnikov@hotmail.com>
+ *  
  *
  * $Id$
  *
@@ -455,13 +441,25 @@ static const ber_sequence_t EXTERNAL_sequence[] = {
 
 static int
 dissect_acse_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+  gint8 class;
+  gboolean pc, ind_field;
+  gint32 tag;
+  gint32 len1;
+
+  /* XXX  asn2eth can not yet handle tagged assignment so for the
+   * time being  just remove this tag manually inside the EXTERNAL
+   * dissector.
+   */
+   offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+   offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+   offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                 EXTERNAL_sequence, hf_index, ett_acse_EXTERNAL);
+
 
   return offset;
 }
 static int dissect_Association_data_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_acse_EXTERNAL(TRUE, tvb, offset, pinfo, tree, hf_acse_Association_data_item);
+  return dissect_acse_EXTERNAL(FALSE, tvb, offset, pinfo, tree, hf_acse_Association_data_item);
 }
 static int dissect_external_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_acse_EXTERNAL(TRUE, tvb, offset, pinfo, tree, hf_acse_external);
@@ -1065,7 +1063,7 @@ static int dissect_calling_asoi_tag_impl(packet_info *pinfo, proto_tree *tree, t
 }
 
 static const ber_sequence_t Association_data_sequence_of[1] = {
-  { BER_CLASS_UNI, 8, NULL, dissect_Association_data_item },
+  { BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_Association_data_item },
 };
 
 static int
@@ -2386,9 +2384,6 @@ void proto_register_acse(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_acse, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-
-/*XXX remove later   just to keep the other dissectors happy */
-register_dissector_table("acse.application_context", "Application context OID", FT_STRING, BASE_NONE); 
 
   register_init_routine(acse_init);
 }

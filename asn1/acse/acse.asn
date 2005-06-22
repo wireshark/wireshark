@@ -18,7 +18,10 @@ IMPORTS
 --  ITU-T Rec. X.501 | ISO/IEC 9594-2.
 
 
-
+-- Workaround for bug in ASN2ETH in the .cnf file
+-- to handle the lack of support for tagged assignments.
+-- remove that workaround once asn2eth learns how to handle
+-- tagged assignments.
 EXTERNAL  ::=  [UNIVERSAL 8] IMPLICIT SEQUENCE
      {
       direct-reference  OBJECT IDENTIFIER OPTIONAL,
