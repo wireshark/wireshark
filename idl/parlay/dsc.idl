@@ -1,0 +1,342 @@
+//Source file: dsc.idl
+//Date:  11 October 2004
+//Data Session Control Interfaces and Data Types for ETSI ES 203 915-08 V1.1.1, DES/TISPAN-01005-08-OSA, Parlay 5.0
+
+
+#ifndef __DSC_DEFINED
+#define __DSC_DEFINED
+
+
+#include "osa.idl"
+
+module org {
+	
+	module csapi {
+		
+		
+		module dsc {
+			interface IpAppDataSessionControlManager ;
+			interface IpDataSessionControlManager ;
+			interface IpDataSession;
+			
+			
+			const TpInt32 P_DATA_SESSION_SUPERVISE_INFORM = 4;
+			
+			const TpInt32 P_DATA_SESSION_SUPERVISE_DATA_SESSION_ENDED = 2;
+			
+			const TpInt32 P_DATA_SESSION_SUPERVISE_MESSAGE_SENT = 4;
+			
+			const TpInt32 P_DATA_SESSION_SUPERVISE_RELEASE = 1;
+			
+			const TpInt32 P_DATA_SESSION_SUPERVISE_RESPOND = 2;
+			
+			const TpInt32 P_DATA_SESSION_SUPERVISE_VOLUME_REACHED = 1;
+			
+			
+			struct TpChargePerVolume {
+				TpInt32 InitialCharge;
+				TpInt32 CurrentChargePerKilobyte;
+				TpInt32 NextChargePerKilobyte;
+			};
+			
+			enum TpDataSessionChargeOrderCategory {
+
+				P_DATA_SESSION_CHARGE_PER_VOLUME,
+				P_DATA_SESSION_CHARGE_NETWORK				
+			};
+			
+			
+			union TpDataSessionChargeOrder switch(TpDataSessionChargeOrderCategory) {
+				case P_DATA_SESSION_CHARGE_PER_VOLUME: TpChargePerVolume ChargePerVolume;
+				case P_DATA_SESSION_CHARGE_NETWORK: TpString NetworkCharge;
+			};
+			
+			
+			struct TpDataSessionChargePlan {
+				TpDataSessionChargeOrder ChargeOrderType;
+				TpString Currency;
+				TpString AdditionalInfo;
+			};
+			
+			
+			enum TpDataSessionErrorType {
+
+				P_DATA_SESSION_ERROR_UNDEFINED,
+				P_DATA_SESSION_ERROR_INVALID_ADDRESS,
+				P_DATA_SESSION_ERROR_INVALID_STATE				
+			};
+			
+			
+			union TpDataSessionAdditionalErrorInfo switch(TpDataSessionErrorType) {
+				case P_DATA_SESSION_ERROR_INVALID_ADDRESS: TpAddressError DataSessionErrorInvalidAddress;
+				default: short Dummy;
+			};
+			
+			
+			struct TpDataSessionError {
+				TpDateAndTime ErrorTime;
+				TpDataSessionErrorType ErrorType;
+				TpDataSessionAdditionalErrorInfo AdditionalErrorInfo;
+			};
+			
+			
+			typedef TpInt32 TpDataSessionEventName;
+			
+			
+			enum TpDataSessionFault {
+
+				P_DATA_SESSION_FAULT_UNDEFINED,
+				P_DATA_SESSION_FAULT_USER_ABORTED,
+				P_DATA_SESSION_TIMEOUT_ON_RELEASE,
+				P_DATA_SESSION_TIMEOUT_ON_INTERRUPT				
+			};
+			
+			
+			enum TpDataSessionMonitorMode {
+
+				P_DATA_SESSION_MONITOR_MODE_INTERRUPT,
+				P_DATA_SESSION_MONITOR_MODE_NOTIFY,
+				P_DATA_SESSION_MONITOR_MODE_DO_NOT_MONITOR				
+			};
+			
+			
+			struct TpDataSessionEventCriteria {
+				TpAddressRange DestinationAddress;
+				TpAddressRange OriginationAddress;
+				TpDataSessionEventName DataSessionEventName;
+				TpDataSessionMonitorMode MonitorMode;
+			};
+			
+			
+			struct TpDataSessionEventInfo {
+				TpAddress DestinationAddress;
+				TpAddress OriginatingAddress;
+				TpDataSessionEventName DataSessionEventName;
+				TpDataSessionMonitorMode MonitorMode;
+				TpDataSessionQosClass QoSClass;
+			};
+			
+			
+			struct TpDataSessionReleaseCause {
+				TpInt32 Value;
+				TpInt32 Location;
+			};
+			
+			
+			enum TpDataSessionReportType {
+
+				P_DATA_SESSION_REPORT_UNDEFINED,
+				P_DATA_SESSION_REPORT_CONNECTED,
+				P_DATA_SESSION_REPORT_DISCONNECT				
+			};
+			
+			
+			union TpDataSessionAdditionalReportInfo switch(TpDataSessionReportType) {
+				case P_DATA_SESSION_REPORT_DISCONNECT: TpDataSessionReleaseCause DataSessionDisconnect;
+				default: short Dummy;
+			};
+			
+			
+			struct TpDataSessionReport {
+				TpDataSessionMonitorMode MonitorMode;
+				TpDateAndTime DataSessionEventTime;
+				TpDataSessionReportType DataSessionReportType;
+				TpDataSessionAdditionalReportInfo AdditionalReportInfo;
+			};
+			
+			
+			struct TpDataSessionReportRequest {
+				TpDataSessionMonitorMode MonitorMode;
+				TpDataSessionReportType DataSessionReportType;
+			};
+			
+			
+			typedef sequence <TpDataSessionReportRequest> TpDataSessionReportRequestSet;
+			
+			
+			typedef TpInt32 TpDataSessionSuperviseReport;
+			
+			
+			typedef TpInt32 TpDataSessionSuperviseTreatment;
+			
+			
+			struct TpDataSessionSuperviseVolume {
+				TpInt32 VolumeQuantity;
+				TpInt32 VolumeUnit;
+			};
+			
+			
+			const TpInt32 P_EVENT_NAME_UNDEFINED = 0;
+			
+			const TpInt32 P_EVENT_DSCS_SETUP = 1;
+			
+			const TpInt32 P_EVENT_DSCS_ESTABLISHED = 2;
+			const TpInt32 P_EVENT_NAME_QOD_CHANGED = 4;
+			
+			struct TpDataSessionEventCriteriaResult {
+				TpDataSessionEventCriteria EventCriteria;
+				TpAssignmentID AssignmentID;
+			};
+			
+			
+			typedef sequence <TpDataSessionEventCriteriaResult> TpDataSessionEventCriteriaResultSet;
+			
+			
+			const TpInt32 P_EVENT_DSCS_QOS_CHANGED = 4;
+			
+			struct TpDataSessionIdentifier {
+				IpDataSession DataSessionReference;
+				TpSessionID DataSessionID;
+			};
+			
+			
+			interface IpAppDataSession : IpInterface {
+				
+				void connectRes (
+					in TpSessionID dataSessionID,	
+					in TpDataSessionReport eventReport,	
+					in TpAssignmentID assignmentID
+					);
+					
+				void connectErr (
+					in TpSessionID dataSessionID,	
+					in TpDataSessionError errorIndication,	
+					in TpAssignmentID assignmentID
+					);
+					
+				void superviseDataSessionRes (
+					in TpSessionID dataSessionID,	
+					in TpDataSessionSuperviseReport report,	
+					in TpDataSessionSuperviseVolume usedVolume,	
+					in TpDataSessionQosClass qualityOfService	
+					);
+					
+				void superviseDataSessionErr (
+					in TpSessionID dataSessionID,	
+					in TpDataSessionError errorIndication	
+					);
+					
+				void dataSessionFaultDetected (
+					in TpSessionID dataSessionID,	
+					in TpDataSessionFault fault	
+					);
+					
+			};
+			
+			
+			interface IpAppDataSessionControlManager : IpInterface {
+				
+				void dataSessionAborted (
+					in TpSessionID dataSession	
+					);
+					
+				IpAppDataSession reportNotification (
+					in TpDataSessionIdentifier dataSessionReference,	
+					in TpDataSessionEventInfo eventInfo,	
+					in TpAssignmentID assignmentID	
+					);
+					
+				void dataSessionNotificationContinued ();
+					
+				void dataSessionNotificationInterrupted ();
+					
+				void abortMultipleDataSessions (
+					in TpSessionIDSet dataSessionSet	
+					);
+					
+			};
+			
+			
+			interface IpDataSession : IpService {
+				
+				TpAssignmentID connectReq (
+					in TpSessionID dataSessionID,	
+					in TpDataSessionReportRequestSet responseRequested,	
+					in TpAddress targetAddress	
+					)					
+					raises (TpCommonExceptions,P_INVALID_NETWORK_STATE,P_INVALID_ADDRESS,P_INVALID_SESSION_ID);
+					
+				void release (
+					in TpSessionID dataSessionID,	
+					in TpDataSessionReleaseCause cause	
+					)					
+					raises (TpCommonExceptions,P_INVALID_NETWORK_STATE,P_INVALID_SESSION_ID);
+					
+				void superviseDataSessionReq (
+					in TpSessionID dataSessionID,	
+					in TpDataSessionSuperviseTreatment treatment,	
+					in TpDataSessionSuperviseVolume bytes	
+					)					
+					raises (TpCommonExceptions,P_INVALID_NETWORK_STATE,P_INVALID_SESSION_ID);
+					
+				void setDataSessionChargePlan (
+					in TpSessionID dataSessionID,	
+					in TpDataSessionChargePlan dataSessionChargePlan	
+					)					
+					raises (TpCommonExceptions,P_INVALID_NETWORK_STATE,P_INVALID_SESSION_ID);
+					
+				void setAdviceOfCharge (
+					in TpSessionID dataSessionID,	
+					in TpAoCInfo aoCInfo,	
+					in TpDuration tariffSwitch	
+					)					
+					raises (TpCommonExceptions,P_INVALID_NETWORK_STATE,P_INVALID_TIME_AND_DATE_FORMAT);
+					
+				void deassignDataSession (
+					in TpSessionID dataSessionID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+					
+				void continueProcessing (
+					in TpSessionID dataSessionID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_NETWORK_STATE);
+					
+			};
+			
+			
+			interface IpDataSessionControlManager : IpService {
+				
+				TpAssignmentID createNotification (
+					in IpAppDataSessionControlManager appDataSessionControlManager,	
+					in TpDataSessionEventCriteria eventCriteria	
+					)					
+					raises (TpCommonExceptions,P_INVALID_NETWORK_STATE,P_INVALID_CRITERIA,P_INVALID_EVENT_TYPE);
+					
+				void destroyNotification (
+					in TpAssignmentID assignmentID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_NETWORK_STATE,P_INVALID_ASSIGNMENT_ID);
+					
+				void changeNotification (
+					in TpAssignmentID assignmentID,	
+					in TpDataSessionEventCriteria eventCriteria	
+					)					
+					raises (TpCommonExceptions,P_INVALID_NETWORK_STATE,P_INVALID_ASSIGNMENT_ID,P_INVALID_CRITERIA,P_INVALID_EVENT_TYPE);
+					
+				TpAssignmentID enableNotifications (
+					in IpAppDataSessionControlManager appDataSessionControlManager	
+					)					
+					raises (TpCommonExceptions);
+					
+				void disableNotifications ()					
+					raises (TpCommonExceptions);
+					
+				TpDataSessionEventCriteriaResultSet getNotifications ()					
+					raises (TpCommonExceptions,P_INVALID_NETWORK_STATE);
+					
+				TpAssignmentID createNotifications (
+					in IpAppDataSessionControlManager appDataSessionControlManager,	
+					in TpDataSessionEventCriteria eventCriteria	
+					)					
+					raises (TpCommonExceptions,P_INVALID_NETWORK_STATE,P_INVALID_CRITERIA,P_INVALID_EVENT_TYPE,P_INVALID_INTERFACE_TYPE);
+					
+			};
+			
+		};
+		
+	};
+	
+};
+
+#endif

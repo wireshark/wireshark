@@ -1,0 +1,1085 @@
+//Source file: mmm.idl
+//Date:  1 September 2004
+//Multi Media Messaging for draft ETSI ES 203 915-15 v.0.0.2, DES/TISPAN-01005-15-OSA, Parlay 5.0
+
+
+#ifndef __MMM_DEFINED
+#define __MMM_DEFINED
+
+
+#include "osa.idl"
+
+module org {
+	
+	module csapi {
+		
+		
+		module mmm {
+			
+			interface IpMailbox;
+			interface IpMultiMediaMessaging;
+			interface IpAppMailbox;
+			interface IpAppMultiMediaMessaging;
+			
+			struct TpMailboxIdentifier {
+				IpMailbox Mailbox;
+				TpSessionID SessionID;
+			};
+			
+			
+			exception P_MMM_INVALID_AUTHENTICATION_INFORMATION {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_MMM_INVALID_MAILBOX {
+				TpString ExtraInformation;
+			};
+			
+			
+			struct TpMultiMediaMessagingIdentifier {
+				IpMultiMediaMessaging MultiMediaMessaging;
+				TpSessionID SessionID;
+			};
+			
+			
+			exception P_MMM_INVALID_DELIVERY_TYPE {
+				TpString ExtraInformation;
+			};
+			
+			
+			enum TpFolderInfoPropertyName {
+
+				P_MMM_FOLDER_UNDEFINED,
+				P_MMM_FOLDER_DATE_CREATED,
+				P_MMM_FOLDER_DATE_CHANGED,
+				P_MMM_FOLDER_SIZE,
+				P_MMM_FOLDER_NUMBER_OF_MESSAGES				
+			};
+			
+			
+			union TpFolderInfoProperty switch(TpFolderInfoPropertyName) {
+				case P_MMM_FOLDER_DATE_CREATED: TpDateAndTime FolderDateCreated;
+				case P_MMM_FOLDER_DATE_CHANGED: TpDateAndTime FolderDateChanged;
+				case P_MMM_FOLDER_SIZE: TpInt32 FolderSize;
+				case P_MMM_FOLDER_NUMBER_OF_MESSAGES: TpInt32 FolderNumberOfMessages;
+				default: short Dummy;
+			};
+			
+			
+			typedef sequence <TpFolderInfoProperty> TpFolderInfoPropertySet;
+			
+			
+			enum TpMailboxInfoPropertyName {
+
+				P_MMM_MAILBOX_UNDEFINED,
+				P_MMM_MAILBOX_OWNER,
+				P_MMM_MAILBOX_DATE_CREATED,
+				P_MMM_MAILBOX_DATE_CHANGED,
+				P_MMM_MAILBOX_SIZE				
+			};
+			
+			
+			union TpMailboxInfoProperty switch(TpMailboxInfoPropertyName) {
+				case P_MMM_MAILBOX_OWNER: TpString MailboxOwner;
+				case P_MMM_MAILBOX_DATE_CREATED: TpDateAndTime MailboxDateCreated;
+				case P_MMM_MAILBOX_DATE_CHANGED: TpDateAndTime MailboxDateChanged;
+				case P_MMM_MAILBOX_SIZE: TpInt32 MailboxSize;
+				default: short Dummy;
+			};
+			
+			
+			enum TpMessageInfoPropertyName {
+
+				P_MMM_MESSAGE_UNDEFINED,
+				P_MMM_MESSAGE_DATE_CREATED,
+				P_MMM_MESSAGE_DATE_RECEIVED,
+				P_MMM_MESSAGE_DATE_CHANGED,
+				P_MMM_MESSAGE_SIZE,
+				P_MMM_MESSAGE_STATUS				
+			};
+			
+			
+			enum TpMessagePriority {
+
+				P_MMM_MESSAGE_PRIORITY_UNDEFINED,
+				P_MMM_MESSAGE_PRIORITY_HIGH,
+				P_MMM_MESSAGE_PRIORITY_LOW				
+			};
+			
+			
+			typedef sequence <TpMailboxInfoProperty> TpMailboxInfoPropertySet;
+			
+			
+			struct TpListMessagesCriteria {
+				TpBoolean OnlyUnreadMessages;
+			};
+			
+			
+			struct TpMailboxFolderStatusInformation {
+				TpInt32 TotalMessageCount;
+			};
+			
+			
+			struct TpMessageDescription {
+				TpString MessageID;
+				TpAddress From;
+				TpAddressSet To;
+				TpString Subject;
+				TpDateAndTime ReceivedDate;
+				TpInt32 Size;
+			};
+			
+			
+			typedef sequence <TpMessageDescription> TpMessageDescriptionList;
+			
+			
+			struct TpBodyPartDescription {
+				TpString ContentDescription;
+				TpInt32 ContentSize;
+				TpString ContentType;
+				TpString ContentTransferEncoding;
+				TpString ContentID;
+				TpString ContentDisposition;
+				TpString PartID;
+				TpInt32 NestingLevel;
+			};
+			
+			
+			typedef sequence <TpBodyPartDescription> TpBodyPartDescriptionList;
+			
+			
+			struct TpBodyPart {
+				TpBodyPartDescription BodyPartHeader;
+				TpOctetSet BodyPartContent;
+			};
+			
+			
+			typedef sequence <TpBodyPart> TpBodyPartList;
+			
+			
+			enum TpMessageHeaderFieldType {
+
+				P_MESSAGE_DATE_SENT,
+				P_MESSAGE_SENT_FROM,
+				P_MESSAGE_SENDER,
+				P_MESSAGE_REPLY_TO,
+				P_MESSAGE_SENT_TO,
+				P_MESSAGE_CC_TO,
+				P_MESSAGE_BCC_TO,
+				P_MESSAGE_RFC822_MESSAGE_ID,
+				P_MESSAGE_IN_REPLY_TO,
+				P_MESSAGE_REFERENCES,
+				P_MESSAGE_SUBJECT,
+				P_MESSAGE_COMMENTS,
+				P_MESSAGE_KEYWORDS,
+				P_MESSAGE_TRACE_FIELD,
+				P_MESSAGE_RESENT_FIELD,
+				P_MESSAGE_MIME_VERSION,
+				P_MESSAGE_MIME_CONTENT,
+				P_MESSAGE_MIME_ENCODING,
+				P_MESSAGE_MIME_ID,
+				P_MESSAGE_MIME_DESCRIPTION,
+				P_MESSAGE_MIME_DISPOSITION,
+				P_MESSAGE_MIME_EXTENSION_FIELD,
+				P_MESSAGE_EXTENSION_FIELD,
+				P_MESSAGE_PRIORITY				
+			};
+			
+			
+			enum TpMailboxMessageStatus {
+
+				P_MMM_RECEIVED_MSG_STATUS_READ,
+				P_MMM_RECEIVED_MSG_STATUS_UNREAD,
+				P_MMM_RECEIVED_MSG_STATUS_FORWARDED,
+				P_MMM_RECEIVED_MSG_STATUS_REPLIED_TO,
+				P_MMM_DRAFT_MSG_STATUS_SAVED_OR_UNSENT,
+				P_MMM_SENT_MSG_STATUS_SENT,
+				P_MMM_SENT_MSG_STATUS_DELIVERED,
+				P_MMM_SENT_MSG_STATUS_READ,
+				P_MMM_SENT_MSG_STATUS_DELETED_UNREAD,
+				P_MMM_SENT_MSG_STATUS_NOT_DELIVERABLE,
+				P_MMM_SENT_MSG_STATUS_EXPIRED				
+			};
+			
+			
+			union TpMessageInfoProperty switch(TpMessageInfoPropertyName) {
+				case P_MMM_MESSAGE_DATE_CREATED: TpDateAndTime MessageDateCreated;
+				case P_MMM_MESSAGE_DATE_RECEIVED: TpDateAndTime MessageDateReceived;
+				case P_MMM_MESSAGE_DATE_CHANGED: TpDateAndTime MessageDateChanged;
+				case P_MMM_MESSAGE_SIZE: TpInt32 MessageSize;
+				case P_MMM_MESSAGE_STATUS: TpMailboxMessageStatus MessageStatus;
+				default: short Dummy;
+			};
+			
+			
+			typedef sequence <TpMessageInfoProperty> TpMessageInfoPropertySet;
+			
+			
+			struct TpGenericHeaderField {
+				TpString FieldName;
+				TpString FieldValue;
+			};
+			
+			
+			union TpMessageHeaderField switch(TpMessageHeaderFieldType) {
+				case P_MESSAGE_DATE_SENT: TpDateAndTime DateSent;
+				case P_MESSAGE_SENT_FROM: TpAddressSet From;
+				case P_MESSAGE_SENDER: TpAddress Sender;
+				case P_MESSAGE_REPLY_TO: TpAddressSet ReplyTo;
+				case P_MESSAGE_SENT_TO: TpAddressSet To;
+				case P_MESSAGE_CC_TO: TpAddressSet Cc;
+				case P_MESSAGE_BCC_TO: TpAddressSet Bcc;
+				case P_MESSAGE_RFC822_MESSAGE_ID: TpString RFC822MessageID;
+				case P_MESSAGE_IN_REPLY_TO: TpStringSet InReplyTo;
+				case P_MESSAGE_REFERENCES: TpStringSet References;
+				case P_MESSAGE_SUBJECT: TpString Subject;
+				case P_MESSAGE_COMMENTS: TpString Comments;
+				case P_MESSAGE_KEYWORDS: TpStringSet Keywords;
+				case P_MESSAGE_TRACE_FIELD: TpGenericHeaderField TraceField;
+				case P_MESSAGE_RESENT_FIELD: TpGenericHeaderField ResentField;
+				case P_MESSAGE_MIME_VERSION: TpString MimeVersion;
+				case P_MESSAGE_MIME_CONTENT: TpString MimeContent;
+				case P_MESSAGE_MIME_ENCODING: TpString MimeEncoding;
+				case P_MESSAGE_MIME_ID: TpString MimeID;
+				case P_MESSAGE_MIME_DESCRIPTION: TpString MimeDescription;
+				case P_MESSAGE_MIME_DISPOSITION: TpString MimeDisposition;
+				case P_MESSAGE_MIME_EXTENSION_FIELD: TpGenericHeaderField MimeExtensionField;
+				case P_MESSAGE_EXTENSION_FIELD: TpGenericHeaderField ExtensionField;
+				case P_MESSAGE_PRIORITY: TpMessagePriority Priority;
+			};
+			
+			
+			typedef sequence <TpMessageHeaderField> TpMessageHeaderFieldSet;
+			
+			
+			enum TpSetPropertyError {
+
+				P_MMM_PROPERTY_NOT_SET,
+				P_MMM_PROPERTY_READONLY,
+				P_MMM_PROPERTY_INSUFFICIENT_PRIVILEGE,
+				P_MMM_PROPERTY_NAME_UNKNOWN				
+			};
+			
+			
+			struct TpMessageInfoPropertyError {
+				TpMessageInfoPropertyName MessagePropertyName;
+				TpSetPropertyError Error;
+			};
+			
+			
+			typedef sequence <TpMessageInfoPropertyError> TpMessageInfoPropertyErrorSet;
+			
+			
+			enum TpMessagingEventName {
+
+				P_EVENT_MSG_NAME_UNDEFINED,
+				P_EVENT_MSG_NEW_MAILBOX_MESSAGE_ARRIVED,
+				P_EVENT_MSG_NEW_MESSAGE_ARRIVED				
+			};
+			
+			
+			struct TpNewMailboxMessageArrivedCriteria {
+				TpString MailboxID;
+				TpString AuthenticationInfo;
+			};
+			
+			
+			struct TpNewMailboxMessageArrivedInfo {
+				TpString MailboxID;
+				TpString FolderID;
+				TpMessageDescriptionList MessageDescription;
+				TpMessageHeaderFieldSet ExtendedHeaderInformation;
+			};
+			
+			
+			typedef TpInt32 TpMessageDeliveryReportType;
+			
+			
+			const TpMessageDeliveryReportType P_MESSAGE_REPORT_DELIVERY_UNDEFINED = 0;
+			
+			const TpMessageDeliveryReportType P_MESSAGE_REPORT_DELIVERED = 1;
+			
+			const TpMessageDeliveryReportType P_MESSAGE_REPORT_READ = 2;
+			
+			const TpMessageDeliveryReportType P_MESSAGE_REPORT_DELETED_UNREAD = 4;
+			
+			const TpMessageDeliveryReportType P_MESSAGE_REPORT_NOT_DELIVERABLE = 8;
+			
+			const TpMessageDeliveryReportType P_MESSAGE_REPORT_EXPIRED = 16;
+			
+			struct TpQueryStatusReport {
+				TpAddress DestinationAddress;
+				TpMessageDeliveryReportType ReportedStatus;
+			};
+			
+			
+			typedef sequence <TpQueryStatusReport> TpQueryStatusReportSet;
+			
+			
+			enum TpDeliveryTimeType {
+
+				P_MMM_SEND_IMMEDIATE,
+				P_MMM_DELIVERY_TIME				
+			};
+			
+			
+			union TpDeliveryTime switch(TpDeliveryTimeType) {
+				case P_MMM_DELIVERY_TIME: TpDateAndTime DeliveryTime;
+				default: short Dummy;
+			};
+			
+			
+			typedef TpString TpMessageDeliveryType;
+			
+			
+			const TpMessageDeliveryType P_MMM_SMS = "P_MMM_SMS";
+			
+			const TpMessageDeliveryType P_MMM_SMS_BINARY = "P_MMM_SMS_BINARY";
+			
+			const TpMessageDeliveryType P_MMM_MMS = "P_MMM_MMS";
+			
+			const TpMessageDeliveryType P_MMM_WAP_PUSH = "P_MMM_WAP_PUSH";
+			
+			const TpMessageDeliveryType P_MMM_EMAIL = "P_MMM_EMAIL";
+			
+			enum TpMessageTreatmentType {
+
+				P_MMM_TREATMENT_UNDEFINED,
+				P_MMM_TREATMENT_REPORT_REQUESTED,
+				P_MMM_TREATMENT_BILLING_ID,
+				P_MMM_TREATMENT_DELIVERY_TIME,
+				P_MMM_TREATMENT_VALIDITY_TIME				
+			};
+			
+			
+			union TpMessageTreatment switch(TpMessageTreatmentType) {
+				case P_MMM_TREATMENT_REPORT_REQUESTED: TpMessageDeliveryReportType DeliveryReport;
+				case P_MMM_TREATMENT_BILLING_ID: TpString BillingID;
+				case P_MMM_TREATMENT_DELIVERY_TIME: TpDeliveryTime DeliveryTime;
+				case P_MMM_TREATMENT_VALIDITY_TIME: TpDateAndTime ValidityTime;
+			};
+			
+			
+			typedef sequence <TpMessageTreatment> TpMessageTreatmentSet;
+			
+			
+			struct TpTerminatingAddressList {
+				TpAddressSet ToAddressList;
+				TpAddressSet CcAddressList;
+				TpAddressSet BccAddressList;
+			};
+			
+			
+			exception P_MMM_MAX_MESSAGE_SIZE_EXCEEDED {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_MMM_INVALID_FOLDER_ID {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_MMM_INVALID_MESSAGE_ID {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_MMM_INVALID_PART_ID {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_MMM_INVALID_PROPERTY {
+				TpString ExtraInformation;
+			};
+			
+			
+			enum TpMessagingError {
+
+				P_MMM_ERROR_UNDEFINED,
+				P_MMM_ERROR_INVALID_AUTHENTICATION_INFORMATION,
+				P_MMM_ERROR_INVALID_MAILBOX,
+				P_MMM_ERROR_INVALID_DELIVERY_TYPE,
+				P_MMM_ERROR_MAX_MESSAGE_SIZE_EXCEEDED,
+				P_MMM_ERROR_INVALID_FOLDER_ID,
+				P_MMM_ERROR_INVALID_MESSAGE_ID,
+				P_MMM_ERROR_INVALID_PART_ID,
+				P_MMM_ERROR_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH,
+				P_MMM_ERROR_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH,
+				P_MMM_ERROR_INVALID_DELIVERY_TIME,
+				P_MMM_ERROR_INVALID_VALIDITY_TIME,
+				P_MMM_ERROR_MAX_SUBJECT_SIZE_EXCEEDED,
+				P_MMM_ERROR_INVALID_ID,
+				P_MMM_ERROR_INVALID_NESTING_LEVEL,
+				P_MMM_ERROR_INVALID_CRITERIA,
+				P_MMM_ERROR_INFORMATION_NOT_AVAILABLE,
+				P_MMM_ERROR_CANNOT_CANCEL,
+				P_MMM_ERROR_INVALID_HEADER,
+				P_MMM_INVALID_NETWORK_STATE,
+				P_MMM_ERROR_RESOURCE_UNAVAILABLE,
+				P_MMM_ERROR_RESOURCE_TIMEOUT				
+			};
+			
+			
+			exception P_MMM_INVALID_DELIVERY_TIME {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_MMM_INVALID_VALIDITY_TIME {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_MMM_MAX_SUBJECT_SIZE_EXCEEDED {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_MMM_INFORMATION_NOT_AVAILABLE {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_MMM_CANNOT_CANCEL {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_MMM_INVALID_HEADER {
+				TpString ExtraInformation;
+			};
+			
+			
+			struct TpNewMessageArrivedCriteria {
+				TpAddressRange SourceAddress;
+				TpAddressRange DestinationAddress;
+				TpBoolean CreateMultiMediaMessagingSession;
+			};
+			
+			
+			union TpMessagingEventCriteria switch(TpMessagingEventName) {
+				case P_EVENT_MSG_NEW_MAILBOX_MESSAGE_ARRIVED: TpNewMailboxMessageArrivedCriteria EventNewMailboxMessageArrived;
+				case P_EVENT_MSG_NEW_MESSAGE_ARRIVED: TpNewMessageArrivedCriteria EventNewMessageArrived;
+				default: short Dummy;
+			};
+			
+			
+			typedef sequence <TpMessagingEventCriteria> TpMessagingEventCriteriaSet;
+			
+			
+			struct TpMessagingNotificationRequested {
+				TpMessagingEventCriteriaSet EventCriteria;
+				TpInt32 AssignmentID;
+			};
+			
+			
+			typedef sequence <TpMessagingNotificationRequested> TpMessagingNotificationRequestedSet;
+			
+			
+			struct TpMessagingNotificationRequestedSetEntry {
+				TpMessagingNotificationRequestedSet MessagingNotificationRequestedSet;
+				TpBoolean Final;
+			};
+			
+			
+			struct TpNewMessageArrivedInfo {
+				TpAddress SourceAddress;
+				TpAddressSet DestinationAddressSet;
+				TpOctetSet Message;
+				TpMessageHeaderFieldSet Headers;
+				TpMultiMediaMessagingIdentifier MultiMediaMessagingIdentifier;
+			};
+			
+			
+			union TpMessagingEventInfo switch(TpMessagingEventName) {
+				case P_EVENT_MSG_NAME_UNDEFINED: TpString EventNameUndefined;
+				case P_EVENT_MSG_NEW_MAILBOX_MESSAGE_ARRIVED: TpNewMailboxMessageArrivedInfo EventNewMailboxMessageArrived;
+				case P_EVENT_MSG_NEW_MESSAGE_ARRIVED: TpNewMessageArrivedInfo EventNewMessageArrived;
+			};
+			
+			
+			typedef sequence <TpMessagingEventInfo> TpMessagingEventInfoSet;
+			
+			
+			typedef sequence <TpMailboxIdentifier> TpMailboxIdentifierSet;
+			
+			
+			typedef sequence <TpMultiMediaMessagingIdentifier> TpMultiMediaMessagingIdentifierSet;
+			
+			
+			interface IpAppMultiMediaMessagingManager : IpInterface {
+				void mailboxTerminated (
+					in TpMailboxIdentifier mailboxIdentifier	
+					);
+					
+				IpAppMultiMediaMessaging reportNotification (
+					in TpAssignmentID assignmentID,	
+					in TpMessagingEventInfoSet eventInfo	
+					);
+					
+				void notificationsInterrupted ();
+					
+				void notificationsResumed ();
+					
+				void multiMediaMessagingTerminated (
+					in TpMultiMediaMessagingIdentifier multimediaMessagingIdentifier	
+					);
+					
+				void terminateMultipleMailboxes (
+					in TpMailboxIdentifierSet mailboxSet	
+					);
+					
+				void terminateMultipleMultiMediaMessagingSessions (
+					in TpMultiMediaMessagingIdentifierSet multiMediaMessagingSet	
+					);
+					
+			};
+			
+			
+			interface IpMultiMediaMessagingManager : IpService {
+				TpMailboxIdentifier openMailbox (
+					in TpString mailboxID,	
+					in TpString authenticationInfo,	
+					in IpAppMailbox appMailbox	
+					)					
+					raises (TpCommonExceptions,P_MMM_INVALID_MAILBOX,P_MMM_INVALID_AUTHENTICATION_INFORMATION,P_INVALID_INTERFACE_TYPE);
+					
+				TpMultiMediaMessagingIdentifier openMultiMediaMessaging (
+					in TpTerminatingAddressList defaultDestinationAddressList,	
+					in TpAddress defaultSourceAddress,	
+					in IpAppMultiMediaMessaging appMultiMediaMessaging	
+					)					
+					raises (TpCommonExceptions,P_INVALID_INTERFACE_TYPE,P_INVALID_ADDRESS);
+					
+				TpAssignmentID createNotification (
+					in IpAppMultiMediaMessagingManager appMultiMediaMessagingManager,	
+					in TpMessagingEventCriteriaSet eventCriteria	
+					)					
+					raises (TpCommonExceptions,P_INVALID_CRITERIA,P_INVALID_INTERFACE_TYPE);
+					
+				void destroyNotification (
+					in TpAssignmentID assignmentID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID);
+					
+				void changeNotification (
+					in TpAssignmentID assignmentID,	
+					in TpMessagingEventCriteriaSet eventCriteria	
+					)					
+					raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID,P_INVALID_CRITERIA);
+					
+				TpMessagingNotificationRequestedSetEntry getNextNotification (
+					in TpBoolean reset	
+					)					
+					raises (TpCommonExceptions);
+					
+				TpAssignmentID enableNotifications (
+					in IpAppMultiMediaMessagingManager appMultiMediaMessagingManager	
+					)					
+					raises (TpCommonExceptions,P_INVALID_INTERFACE_TYPE);
+					
+				void disableNotifications ()					
+					raises (TpCommonExceptions);
+					
+			};
+			
+			interface IpAppMailbox : IpInterface {
+				void createFolderRes (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpString folderID	
+					);
+					
+				void createFolderErr (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpMessagingError error,	
+					in TpString errorDetails	
+					);
+					
+				void getFoldersRes (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpString folderID,	
+					in TpStringList folderNames	
+					);
+					
+				void getFoldersErr (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpString folderID,	
+					in TpMessagingError error,	
+					in TpString errorDetails	
+					);
+					
+				void deleteFolderRes (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID	
+					);
+					
+				void deleteFolderErr (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpMessagingError error,	
+					in TpString errorDetails	
+					);
+					
+				void copyFolderRes (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID	
+					);
+					
+				void copyFolderErr (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpMessagingError error,	
+					in TpString errorDetails	
+					);
+					
+				void moveFolderRes (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID	
+					);
+					
+				void moveFolderErr (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpMessagingError error,	
+					in TpString errorDetails	
+					);
+					
+				void putMessageRes (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpString messageID	
+					);
+					
+				void putMessageErr (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpMessagingError error,	
+					in TpString errorDetails	
+					);
+					
+				void copyMessageRes (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID	
+					);
+					
+				void copyMessageErr (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpMessagingError error,	
+					in TpString errorDetails	
+					);
+					
+				void moveMessageRes (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID	
+					);
+					
+				void moveMessageErr (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpMessagingError error,	
+					in TpString errorDetails	
+					);
+					
+				void deleteMessageRes (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID	
+					);
+					
+				void deleteMessageErr (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpMessagingError error,	
+					in TpString errorDetails	
+					);
+					
+				void listMessagesRes (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpMessageDescriptionList messageList,	
+					in TpMailboxFolderStatusInformation mailboxStatusInfo,	
+					in TpBoolean final	
+					);
+					
+				void listMessagesErr (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpMessagingError error,	
+					in TpString errorDetails	
+					);
+					
+				void listMessageBodyPartsRes (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpBodyPartDescriptionList partsList	
+					);
+					
+				void listMessageBodyPartsErr (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpMessagingError error,	
+					in TpString errorDetails	
+					);
+					
+				void getMessageBodyPartsRes (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpBodyPartList bodyParts	
+					);
+					
+				void getMessageBodyPartsErr (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpMessagingError error,	
+					in TpString errorDetails	
+					);
+					
+				void getMessageHeadersRes (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpMessageHeaderFieldSet headers	
+					);
+					
+				void getMessageHeadersErr (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpMessagingError error,	
+					in TpString errorDetails	
+					);
+					
+				void getMessageContentRes (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpString contentType,	
+					in TpString contentTransferEncoding,	
+					in TpOctetSet content	
+					);
+					
+				void getMessageContentErr (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpMessagingError error,	
+					in TpString errorDetails	
+					);
+					
+				void getFullMessageRes (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpOctetSet message	
+					);
+					
+				void getFullMessageErr (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpMessagingError error,	
+					in TpString errorDetails	
+					);
+					
+				void getMailboxInfoPropertiesRes (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpMailboxInfoPropertySet returnedProperties	
+					);
+					
+				void getFolderInfoPropertiesRes (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpString folderID,	
+					in TpFolderInfoPropertySet returnedProperties	
+					);
+					
+				void getMessageInfoPropertiesRes (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpString messageID,	
+					in TpMessageInfoPropertySet returnedProperties	
+					);
+					
+				void setMessageInfoPropertiesRes (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpString messageID,	
+					in TpMessageInfoPropertySet propertiesUpdated	
+					);
+					
+				void setMessageInfoPropertiesErr (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpString messageID,	
+					in TpMessageInfoPropertyErrorSet propertiesNotUpdated	
+					);
+					
+				void getMailboxInfoPropertiesErr (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpMessagingError error,	
+					in TpString errorDetails	
+					);
+					
+				void getFolderInfoPropertiesErr (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpMessagingError error,	
+					in TpString errorDetails	
+					);
+					
+				void getMessageInfoPropertiesErr (
+					in TpSessionID mailboxSessionID,	
+					in TpAssignmentID requestID,	
+					in TpMessagingError error,	
+					in TpString errorDetails	
+					);
+					
+			};
+			
+			
+			interface IpMailbox : IpService {
+				void close (
+					in TpSessionID mailboxSessionID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+					
+				TpAssignmentID createFolderReq (
+					in TpSessionID mailboxSessionID,	
+					in TpString folderID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_MMM_INVALID_FOLDER_ID);
+					
+				TpAssignmentID getFoldersReq (
+					in TpSessionID mailboxSessionID,	
+					in TpString folderID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_MMM_INVALID_FOLDER_ID);
+					
+				TpAssignmentID deleteFolderReq (
+					in TpSessionID mailboxSessionID,	
+					in TpString folderID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_MMM_INVALID_FOLDER_ID);
+					
+				TpAssignmentID copyFolderReq (
+					in TpSessionID mailboxSessionID,	
+					in TpString sourceFolderID,	
+					in TpString destinationFolderID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_MMM_INVALID_FOLDER_ID);
+					
+				TpAssignmentID moveFolderReq (
+					in TpSessionID mailboxSessionID,	
+					in TpString sourceFolderID,	
+					in TpString destinationFolderID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_MMM_INVALID_FOLDER_ID);
+					
+				TpAssignmentID putMessageReq (
+					in TpSessionID mailboxSessionID,	
+					in TpString folderID,	
+					in TpOctetSet message	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_MMM_INVALID_FOLDER_ID,P_MMM_MAX_MESSAGE_SIZE_EXCEEDED);
+					
+				TpAssignmentID copyMessageReq (
+					in TpSessionID mailboxSessionID,	
+					in TpString fromFolderID,	
+					in TpString toFolderID,	
+					in TpString messageID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_MMM_INVALID_FOLDER_ID,P_MMM_INVALID_MESSAGE_ID);
+					
+				TpAssignmentID moveMessageReq (
+					in TpSessionID mailboxSessionID,	
+					in TpString fromFolderID,	
+					in TpString toFolderID,	
+					in TpString messageID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_MMM_INVALID_FOLDER_ID,P_MMM_INVALID_MESSAGE_ID);
+					
+				TpAssignmentID deleteMessageReq (
+					in TpSessionID mailboxSessionID,	
+					in TpString fromFolderID,	
+					in TpString messageID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_MMM_INVALID_FOLDER_ID,P_MMM_INVALID_MESSAGE_ID);
+					
+				TpAssignmentID listMessagesReq (
+					in TpSessionID mailboxSessionID,	
+					in TpString folderID,	
+					in TpListMessagesCriteria criteria,	
+					in TpBoolean reset	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_MMM_INVALID_FOLDER_ID,P_INVALID_CRITERIA);
+					
+				TpAssignmentID listMessageBodyPartsReq (
+					in TpSessionID mailboxSessionID,	
+					in TpString folderID,	
+					in TpString messageID,	
+					in TpInt32 maxNestingLevel	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_MMM_INVALID_FOLDER_ID,P_MMM_INVALID_MESSAGE_ID);
+					
+				TpAssignmentID getMessageBodyPartsReq (
+					in TpSessionID mailboxSessionID,	
+					in TpString folderID,	
+					in TpString messageID,	
+					in TpStringList partIDs	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_MMM_INVALID_FOLDER_ID,P_MMM_INVALID_MESSAGE_ID,P_MMM_INVALID_PART_ID);
+					
+				TpAssignmentID getMessageHeadersReq (
+					in TpSessionID mailboxSessionID,	
+					in TpString folderID,	
+					in TpString messageID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_MMM_INVALID_FOLDER_ID,P_MMM_INVALID_MESSAGE_ID);
+					
+				TpAssignmentID getMessageContentReq (
+					in TpSessionID mailboxSessionID,	
+					in TpString folderID,	
+					in TpString messageID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_MMM_INVALID_FOLDER_ID,P_MMM_INVALID_MESSAGE_ID);
+					
+				TpAssignmentID getFullMessageReq (
+					in TpSessionID mailboxSessionID,	
+					in TpString folderID,	
+					in TpString messageID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_MMM_INVALID_FOLDER_ID,P_MMM_INVALID_MESSAGE_ID);
+					
+				TpAssignmentID getMailboxInfoPropertiesReq (
+					in TpSessionID mailboxSessionID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+					
+				TpAssignmentID getFolderInfoPropertiesReq (
+					in TpSessionID mailboxSessionID,	
+					in TpString folderID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_MMM_INVALID_FOLDER_ID);
+					
+				TpAssignmentID getMessageInfoPropertiesReq (
+					in TpSessionID mailboxSessionID,	
+					in TpString messageID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_MMM_INVALID_MESSAGE_ID);
+					
+				TpAssignmentID setMessageInfoPropertiesReq (
+					in TpSessionID mailboxSessionID,	
+					in TpString messageID,	
+					in TpMessageInfoPropertySet properties	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_MMM_INVALID_MESSAGE_ID,P_MMM_INVALID_PROPERTY);
+					
+			};
+			
+			
+			interface IpAppMultiMediaMessaging : IpInterface {
+				void sendMessageRes (
+					in TpSessionID sessionID,	
+					in TpAssignmentID assignmentID	
+					);
+					
+				void sendMessageErr (
+					in TpSessionID sessionID,	
+					in TpAssignmentID assignmentID,	
+					in TpMessagingError error,	
+					in TpString errorDetails	
+					);
+					
+				void cancelMessageRes (
+					in TpSessionID sessionID,	
+					in TpAssignmentID assignmentID	
+					);
+					
+				void cancelMessageErr (
+					in TpSessionID sessionID,	
+					in TpAssignmentID assignmentID,	
+					in TpMessagingError error,	
+					in TpString errorDetails	
+					);
+					
+				void queryStatusRes (
+					in TpSessionID sessionID,	
+					in TpAssignmentID assignmentID,	
+					in TpQueryStatusReportSet result	
+					);
+					
+				void queryStatusErr (
+					in TpSessionID sessionID,	
+					in TpAssignmentID assignmentID,	
+					in TpMessagingError error,	
+					in TpString errorDetails	
+					);
+					
+				void messageStatusReport (
+					in TpSessionID sessionID,	
+					in TpAssignmentID assignmentID,	
+					in TpAddress destinationAddress,	
+					in TpMessageDeliveryReportType deliveryReportType,	
+					in TpString deliveryReportInfo	
+					);
+					
+				void messageReceived (
+					in TpSessionID sessionID,	
+					in TpOctetSet message,	
+					in TpMessageHeaderFieldSet headers	
+					);
+					
+			};
+			
+			
+			interface IpMultiMediaMessaging : IpService {
+				TpAssignmentID sendMessageReq (
+					in TpSessionID sessionID,	
+					in TpAddress sourceAddress,	
+					in TpTerminatingAddressList destinationAddressList,	
+					in TpMessageDeliveryType deliveryType,	
+					in TpMessageTreatmentSet messageTreatment,	
+					in TpOctetSet message,	
+					in TpMessageHeaderFieldSet additionalHeaders	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_ADDRESS,P_MMM_INVALID_DELIVERY_TYPE,P_MMM_MAX_MESSAGE_SIZE_EXCEEDED,P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH,P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH,P_MMM_INVALID_DELIVERY_TIME,P_MMM_INVALID_VALIDITY_TIME,P_MMM_MAX_SUBJECT_SIZE_EXCEEDED,P_MMM_INVALID_HEADER);
+					
+				void cancelMessageReq (
+					in TpSessionID sessionID,	
+					in TpAssignmentID assignmentID	
+					)					
+					raises (TpCommonExceptions, P_INVALID_SESSION_ID, P_INVALID_ASSIGNMENT_ID,P_INVALID_NETWORK_STATE,P_MMM_CANNOT_CANCEL);
+					
+				void queryStatusReq (
+					in TpSessionID sessionID,	
+					in TpAssignmentID assignmentID	
+					)					
+					raises (TpCommonExceptions, P_INVALID_SESSION_ID, P_INVALID_ASSIGNMENT_ID,P_MMM_INFORMATION_NOT_AVAILABLE);
+					
+				void close (
+					in TpSessionID sessionID	
+					)					
+					raises (TpCommonExceptions, P_INVALID_SESSION_ID);
+					
+			};
+			
+		};
+		
+	};
+	
+};
+
+#endif

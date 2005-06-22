@@ -1,0 +1,842 @@
+//Source file: pam_interfaces.idl
+//Date:  13 October 2004
+//Presence and Availability Management Interfaces for ES 203 915-14 V1.1.1, DES/TISPAN-01005-14-OSA, Parlay 5.0
+
+#ifndef __PAM_INTERFACES_DEFINED
+#define __PAM_INTERFACES_DEFINED
+
+
+#include "osa.idl"
+#include "pam_data.idl"
+
+module org {
+	
+	module csapi {
+		
+		module pam {
+			
+			module access {
+				interface IpAppPAMPreferenceCheck ;
+			};
+
+			
+			union TpPAMPreferenceData switch(TpPAMPreferenceType) {
+				case PAM_EXTERNAL_CONTROL: access::IpAppPAMPreferenceCheck ExternalControlInterface;
+				default: short Dummy;
+			};
+			
+			
+			module provisioning {
+				
+				
+				interface IpPAMIdentityManagement : IpInterface {
+					void createIdentity (
+						in TpPAMFQName identity,	
+						in TpStringList identityTypes,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_IDENTITY_EXISTS,P_PAM_UNKNOWN_TYPE,P_PAM_INVALID_CREDENTIAL);
+						
+					void deleteIdentity (
+						in TpPAMFQName identity,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+					TpBoolean isIdentity (
+						in TpPAMFQName identity,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_INVALID_CREDENTIAL);
+						
+					void createGroupIdentity (
+						in TpPAMFQName identity,	
+						in TpStringList identityTypes,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_IDENTITY_EXISTS,P_PAM_UNKNOWN_TYPE,P_PAM_INVALID_CREDENTIAL);
+						
+					void deleteGroupIdentity (
+						in TpPAMFQName identity,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+					void addToGroup (
+						in TpPAMFQName group,	
+						in TpPAMFQName member,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_MEMBER_EXISTS,P_PAM_UNKNOWN_GROUP,P_PAM_UNKNOWN_MEMBER,P_PAM_IS_CYCLIC,P_PAM_INVALID_CREDENTIAL);
+						
+					void removeFromGroup (
+						in TpPAMFQName group,	
+						in TpPAMFQName identity,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_NOT_MEMBER,P_PAM_UNKNOWN_GROUP,P_PAM_UNKNOWN_MEMBER,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMFQNameList listMembers (
+						in TpPAMFQName identity,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_GROUP,P_PAM_INVALID_CREDENTIAL);
+						
+					TpBoolean isGroupIdentity (
+						in TpPAMFQName identity,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMFQNameList listGroupMembership (
+						in TpPAMFQName identity,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+					void addAlias (
+						in TpPAMFQName identity,	
+						in TpPAMFQName alias,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_ALIAS_EXISTS,P_PAM_ALIAS_NOT_UNIQUE,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+					void removeAliases (
+						in TpPAMFQName identity,	
+						in TpPAMFQName alias,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_UNASSIGNED_ALIAS,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMFQNameList listAliases (
+						in TpPAMFQName identity,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMFQName lookupByAlias (
+						in TpPAMFQName alias,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_ALIAS,P_PAM_INVALID_CREDENTIAL);
+						
+					void associateTypes (
+						in TpPAMFQName identity,	
+						in TpStringList identityTypes,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_UNKNOWN_TYPE,P_PAM_TYPE_ASSOCIATED,P_PAM_INVALID_CREDENTIAL);
+						
+					void disassociateTypes (
+						in TpPAMFQName identity,	
+						in TpStringList identityTypes,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_DISASSOCIATED_TYPE,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMFQNameList listTypesOfIdentity (
+						in TpPAMFQName identity,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+					TpBoolean hasType (
+						in TpPAMFQName identity,	
+						in TpString typeName,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMAttributeList getIdentityAttributes (
+						in TpPAMFQName identity,	
+						in TpString identityType,	
+						in TpStringList attributeNames,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_UNKNOWN_TYPE,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					void setIdentityAttributes (
+						in TpPAMFQName identity,	
+						in TpString identityType,	
+						in TpPAMAttributeList attributes,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_UNKNOWN_TYPE,P_PAM_UNKNOWN_ATTRIBUTES,P_PAM_INVALID_CREDENTIAL);
+						
+				};
+				
+				
+				interface IpPAMAgentManagement : IpInterface {
+					void createAgent (
+						in TpPAMFQName agentName,	
+						in TpStringList agentTypes,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_AGENT_EXISTS,P_PAM_UNKNOWN_TYPE,P_PAM_INVALID_CREDENTIAL);
+						
+					void deleteAgent (
+						in TpPAMFQName agentName,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_AGENT,P_PAM_INVALID_CREDENTIAL);
+						
+					TpBoolean isAgent (
+						in TpPAMFQName agentName,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_INVALID_CREDENTIAL);
+						
+					void enableCapabilities (
+						in TpPAMFQName agentName,	
+						in TpPAMCapabilityList capabilities,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_AGENT,P_PAM_INVALID_CREDENTIAL);
+						
+					void disableCapabilities (
+						in TpPAMFQName agentName,	
+						in TpPAMCapabilityList capabilities,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_AGENT,P_PAM_NO_CAPABILITY,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMCapabilityList listEnabledCapabilities (
+						in TpPAMFQName agentName,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_AGENT,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMCapabilityList listAllCapabilities (
+						in TpPAMFQName agentName,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_AGENT,P_PAM_INVALID_CREDENTIAL);
+						
+					TpBoolean isCapableOf (
+						in TpPAMFQName agentName,	
+						in TpPAMCapability capability,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_AGENT,P_PAM_INVALID_CREDENTIAL);
+						
+					void associateTypes (
+						in TpPAMFQName agentName,	
+						in TpStringList agentTypes,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_AGENT,P_PAM_UNKNOWN_TYPE,P_PAM_TYPE_ASSOCIATED,P_PAM_INVALID_CREDENTIAL);
+						
+					void disassociateTypes (
+						in TpPAMFQName agentName,	
+						in TpStringList agentTypes,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_AGENT,P_PAM_DISASSOCIATED_TYPE,P_PAM_INVALID_CREDENTIAL);
+						
+					TpStringList listTypesOfAgent (
+						in TpPAMFQName agentName,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_AGENT,P_PAM_INVALID_CREDENTIAL);
+						
+					TpBoolean hasType (
+						in TpPAMFQName agentName,	
+						in TpString typeName,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_AGENT,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMAttributeList getAgentAttributes (
+						in TpPAMFQName agentName,	
+						in TpString agentType,	
+						in TpStringList attributeNames,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_AGENT,P_PAM_UNKNOWN_TYPE,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					void setAgentAttributes (
+						in TpPAMFQName agentName,	
+						in TpString agentType,	
+						in TpPAMAttributeList attributes,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_AGENT,P_PAM_UNKNOWN_TYPE,P_PAM_UNKNOWN_ATTRIBUTES,P_PAM_INVALID_CREDENTIAL);
+						
+				};
+				
+				
+				interface IpPAMAgentAssignment : IpInterface {
+					void assignAgent (
+						in TpPAMFQName identity,	
+						in TpPAMFQName agentName,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_UNKNOWN_AGENT,P_PAM_INVALID_CREDENTIAL);
+						
+					void unassignAgent (
+						in TpPAMFQName identity,	
+						in TpPAMFQName agentName,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_UNKNOWN_AGENT,P_PAM_UNKNOWN_ASSIGNMENT,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMFQNameList listAssignedAgents (
+						in TpPAMFQName identity,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMFQNameList listAssociatedIdentitiesOfAgent (
+						in TpPAMFQName agentName,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_AGENT,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMFQNameList listAssignedAgentsByCapability (
+						in TpPAMFQName identity,	
+						in TpPAMCapability capability,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMCapabilityList listCapabilitiesOfIdentity (
+						in TpPAMFQName identity,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+					TpBoolean isIdentityCapableOf (
+						in TpPAMFQName identity,	
+						in TpPAMCapability capability,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+				};
+				
+				
+				interface IpPAMIdentityTypeManagement : IpInterface {
+					void createIdentityAttribute (
+						in TpPAMAttributeDef pAttribute,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_ATTRIBUTE_EXISTS,P_PAM_INVALID_CREDENTIAL);
+						
+					void deleteIdentityAttribute (
+						in TpString attributeName,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMAttributeDef getIdentityAttributeDefinition (
+						in TpString attributeName,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					TpStringList listAllIdentityAttributes (
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_INVALID_CREDENTIAL);
+						
+					void createIdentityType (
+						in TpString typeName,	
+						in TpStringList attributeNames,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_TYPE_EXISTS,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					void deleteIdentityType (
+						in TpString typeName,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_TYPE,P_PAM_INVALID_CREDENTIAL);
+						
+					TpStringList listIdentityTypes (
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_INVALID_CREDENTIAL);
+						
+					void addIdentityTypeAttributes (
+						in TpString typeName,	
+						in TpStringList attributeNames,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_TYPE,P_PAM_ATTRIBUTE_EXISTS,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					void removeIdentityTypeAttributes (
+						in TpString typeName,	
+						in TpStringList attributeNames,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_TYPE,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					TpStringList listIdentityTypeAttributes (
+						in TpString typeName,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_TYPE,P_PAM_INVALID_CREDENTIAL);
+						
+				};
+				
+				
+				interface IpPAMAgentTypeManagement : IpInterface {
+					void createAgentAttribute (
+						in TpPAMAttributeDef pAttribute,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_ATTRIBUTE_EXISTS,P_PAM_INVALID_CREDENTIAL);
+						
+					void deleteAgentAttribute (
+						in TpString attributeName,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMAttributeDef getAgentAttributeDefinition (
+						in TpString attributeName,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					TpStringList listAllAgentAttributes (
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_INVALID_CREDENTIAL);
+						
+					void createAgentType (
+						in TpString typeName,	
+						in TpStringList attributeNames,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_TYPE_EXISTS,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					void deleteAgentType (
+						in TpString typeName,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_TYPE,P_PAM_INVALID_CREDENTIAL);
+						
+					TpStringList listAgentTypes (
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_INVALID_CREDENTIAL);
+						
+					void addAgentTypeAttributes (
+						in TpString typeName,	
+						in TpStringList attributeNames,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_TYPE,P_PAM_ATTRIBUTE_EXISTS,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					void removeAgentTypeAttributes (
+						in TpString typeName,	
+						in TpStringList attributeNames,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_TYPE,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					TpStringList listAgentTypeAttributes (
+						in TpString typeName,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_TYPE,P_PAM_INVALID_CREDENTIAL);
+						
+				};
+				
+				
+				interface IpPAMCapabilityManagement : IpInterface {
+					void createCapabilityAttribute (
+						in TpPAMAttributeDef pAttribute,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_ATTRIBUTE_EXISTS,P_PAM_INVALID_CREDENTIAL);
+						
+					void deleteCapabilityAttribute (
+						in TpString attributeName,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMAttributeDef getCapabilityAttributeDefinition (
+						in TpString attributeName,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					TpStringList listAllCapabilityAttributes (
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_INVALID_CREDENTIAL);
+						
+					void createCapability (
+						in TpPAMCapability capabilityName,	
+						in TpStringList attributeNames,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_TYPE_EXISTS,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					void deleteCapability (
+						in TpPAMCapability capabilityName,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_TYPE,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMCapabilityList listCapabilities (
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_INVALID_CREDENTIAL);
+						
+					void addCapabilityAttributes (
+						in TpPAMCapability capabilityName,	
+						in TpStringList attributeNames,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_TYPE,P_PAM_ATTRIBUTE_EXISTS,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					void removeCapabilityAttributes (
+						in TpPAMCapability capabilityName,	
+						in TpStringList attributeNames,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_TYPE,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					TpStringList listCapabilityAttributes (
+						in TpPAMCapability capabilityName,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_TYPE,P_PAM_INVALID_CREDENTIAL);
+						
+					void assignCapabilitiesToType (
+						in TpString agentType,	
+						in TpPAMCapabilityList capabilities,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_TYPE,P_PAM_UNKNOWN_CAPABILITY,P_PAM_INVALID_CREDENTIAL);
+						
+					void unassignCapabilitiesFromType (
+						in TpString agentType,	
+						in TpPAMCapabilityList capabilities,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_TYPE,P_PAM_UNKNOWN_CAPABILITY,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMCapabilityList listCapabilitiesOfType (
+						in TpString agentType,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_TYPE,P_PAM_INVALID_CREDENTIAL);
+						
+				};
+				
+				
+				interface IpPAMProvisioningManager : IpService {
+					TpPAMCredential getAuthToken (
+						in TpAttributeList askerData	
+						)						
+						raises (TpCommonExceptions,P_PAM_INVALID_CREDENTIAL);
+						
+					IpInterface obtainInterface (
+						in TpPAMProvisioningInterfaceName interfaceName	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNAVAILABLE_INTERFACE);
+						
+					TpPAMAccessControlData getAccessControl (
+						in TpPAMFQName identity,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+					void setAccessControl (
+						in TpPAMFQName identity,	
+						in TpPAMPreferenceOp operation,	
+						in TpPAMAccessControlData newAccessControl,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+				};
+				
+			};
+			
+			
+			module access {
+				
+				
+				interface IpPAMIdentityPresence : IpInterface {
+					void setIdentityPresence (
+						in TpPAMFQName identity,	
+						in TpString identityType,	
+						in TpPAMAttributeList attributes,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_UNKNOWN_TYPE,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					void setIdentityPresenceExpiration (
+						in TpPAMFQName identity,	
+						in TpString identityType,	
+						in TpStringList attributeNames,	
+						in TpPAMTimeInterval expiresIn,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_UNKNOWN_TYPE,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMAttributeList getIdentityPresence (
+						in TpPAMFQName identity,	
+						in TpString identityType,	
+						in TpStringList attributeNames,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_UNKNOWN_TYPE,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+				};
+				
+				
+				interface IpPAMAgentPresence : IpInterface {
+					void setAgentPresence (
+						in TpPAMFQName agent,	
+						in TpString agentType,	
+						in TpPAMAttributeList attributes,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_AGENT,P_PAM_UNKNOWN_TYPE,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					void setCapabilityPresence (
+						in TpPAMFQName agent,	
+						in TpPAMCapability capability,	
+						in TpPAMAttributeList attributes,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_AGENT,P_PAM_UNKNOWN_CAPABILITY,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					void setAgentPresenceExpiration (
+						in TpPAMFQName agent,	
+						in TpString agentType,	
+						in TpStringList attributeNames,	
+						in TpPAMTimeInterval expiresIn,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_AGENT,P_PAM_UNKNOWN_TYPE,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					void setCapabilityPresenceExpiration (
+						in TpPAMFQName agent,	
+						in TpPAMCapability capability,	
+						in TpStringList attributeNames,	
+						in TpPAMTimeInterval expiresIn,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_AGENT,P_PAM_NO_CAPABILITY,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMAttributeList getAgentPresence (
+						in TpPAMFQName agent,	
+						in TpString agentType,	
+						in TpStringList attributeNames,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_AGENT,P_PAM_UNKNOWN_TYPE,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMAttributeList getCapabilityPresence (
+						in TpPAMFQName agent,	
+						in TpPAMCapability capability,	
+						in TpStringList attributeNames,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_AGENT,P_PAM_UNKNOWN_CAPABILITY,P_PAM_UNKNOWN_ATTRIBUTE,P_PAM_INVALID_CREDENTIAL);
+						
+				};
+				
+				
+				interface IpAppPAMPreferenceCheck : IpInterface {
+					TpPAMAvailabilityProfileList computeAvailability (
+						in TpPAMFQName identity,	
+						in TpPAMContext pamContext,	
+						in TpStringList attributeNames,	
+						in TpPAMCredential authToken	
+						);
+						
+				};
+				
+				
+				interface IpPAMAvailability : IpInterface {
+					TpPAMAvailabilityProfileList getAvailability (
+						in TpPAMFQName identity,	
+						in TpPAMContext pamContext,	
+						in TpStringList attributeNames,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMPreferenceData getPreference (
+						in TpPAMFQName identity,	
+						in TpPAMContext pamContext,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+					void setPreference (
+						in TpPAMFQName identity,	
+						in TpPAMContext pamContext,	
+						in TpPAMPreferenceOp operation,	
+						in TpPAMPreferenceData newPreference,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+				};
+				
+				
+				interface IpPAMPresenceAvailabilityManager : IpService {
+					TpPAMCredential getAuthToken (
+						in TpAttributeList askerData	
+						)						
+						raises (TpCommonExceptions,P_PAM_INVALID_CREDENTIAL);
+						
+					IpInterface obtainInterface (
+						in TpPAMPresenceAvailabilityInterfaceName interfaceName	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNAVAILABLE_INTERFACE);
+						
+					TpPAMAccessControlData getAccessControl (
+						in TpPAMFQName identity,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+					void setAccessControl (
+						in TpPAMFQName identity,	
+						in TpPAMPreferenceOp operation,	
+						in TpPAMAccessControlData newAccessControl,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+					void activateService (
+						in TpPAMFQName identity,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+					void deactivateService (
+						in TpPAMFQName identity,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+					TpBoolean isActiveIdentity (
+						in TpPAMFQName identity,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+				};
+				
+			};
+			
+			
+			module event {
+				
+				
+				interface IpAppPAMEventHandler : IpInterface {
+					void eventNotify (
+						in TpPAMEventID eventID,	
+						in TpPAMNotificationInfoList eventInfo	
+						);
+						
+					void eventNotifyErr (
+						in TpPAMEventID eventID,	
+						in TpPAMErrorInfo errorInfo	
+						);
+						
+				};
+				
+				
+				interface IpPAMEventHandler : IpInterface {
+					TpBoolean isRegistered (
+						in TpPAMClientID clientID,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMClientID registerAppInterface (
+						in IpAppPAMEventHandler appInterface,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_INVALID_CREDENTIAL);
+						
+					TpPAMEventID registerForEvent (
+						in TpPAMClientID clientID,	
+						in TpPAMEventInfoList eventList,	
+						in TpDuration validFor,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_NOT_REGISTERED,P_PAM_INVALID_CREDENTIAL);
+						
+					void deregisterAppInterface (
+						in TpPAMClientID clientID,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_NOT_REGISTERED,P_PAM_INVALID_CREDENTIAL);
+						
+					void deregisterFromEvent (
+						in TpPAMEventID eventID,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_NOT_REGISTERED,P_PAM_INVALID_CREDENTIAL);
+						
+				};
+				
+				
+				interface IpPAMEventManager : IpService {
+					TpPAMCredential getAuthToken (
+						in TpAttributeList askerData	
+						)						
+						raises (TpCommonExceptions,P_PAM_INVALID_CREDENTIAL);
+						
+					IpInterface obtainInterface (
+						in TpPAMEventInterfaceName interfaceName	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNAVAILABLE_INTERFACE);
+						
+					TpPAMAccessControlData getAccessControl (
+						in TpPAMFQName identity,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+					void setAccessControl (
+						in TpPAMFQName identity,	
+						in TpPAMPreferenceOp operation,	
+						in TpPAMAccessControlData newAccessControl,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+					void activateService (
+						in TpPAMFQName identity,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+					void deactivateService (
+						in TpPAMFQName identity,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+					TpBoolean isActiveIdentity (
+						in TpPAMFQName identity,	
+						in TpPAMCredential authToken	
+						)						
+						raises (TpCommonExceptions,P_PAM_UNKNOWN_IDENTITY,P_PAM_INVALID_CREDENTIAL);
+						
+				};
+				
+			};
+			
+		};
+		
+	};
+	
+};
+
+#endif

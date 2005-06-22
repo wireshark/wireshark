@@ -1,0 +1,842 @@
+//Source file: mm.idl
+//Date:  8 October 2004
+//Mobility Interfaces and Data Types for ETSI ES 203 915-06 V1.1.1, DES/TISPAN-01005-06-OSA, Parlay 5.0
+
+#ifndef __MM_DEFINED
+#define __MM_DEFINED
+
+
+#include "osa.idl"
+
+module org {
+	
+	module csapi {
+		
+		module mm {
+			
+			
+			enum TpLocationPriority {
+
+				P_M_NORMAL,
+				P_M_HIGH				
+			};
+			
+			
+			enum TpLocationResponseIndicator {
+
+				P_M_NO_DELAY,
+				P_M_LOW_DELAY,
+				P_M_DELAY_TOLERANT,
+				P_M_USE_TIMER_VALUE				
+			};
+			
+			
+			struct TpLocationResponseTime {
+				TpLocationResponseIndicator ResponseTime;
+				TpInt32 TimerValue;
+			};
+			
+			
+			enum TpLocationTriggerCriteria {
+
+				P_UL_ENTERING_AREA,
+				P_UL_LEAVING_AREA				
+			};
+			
+			
+			struct TpLocationTrigger {
+				TpFloat Longitude;
+				TpFloat Latitude;
+				TpFloat AreaSemiMajor;
+				TpFloat AreaSemiMinor;
+				TpInt32 AngleOfSemiMajor;
+				TpLocationTriggerCriteria Criterion;
+				TpDuration ReportingInterval;
+			};
+			
+			
+			typedef sequence <TpLocationTrigger> TpLocationTriggerSet;
+			
+			
+			enum TpLocationType {
+
+				P_M_CURRENT,
+				P_M_CURRENT_OR_LAST_KNOWN,
+				P_M_INITIAL				
+			};
+			
+			
+			struct TpLocationRequest {
+				TpFloat RequestedAccuracy;
+				TpLocationResponseTime RequestedResponseTime;
+				TpBoolean AltitudeRequested;
+				TpLocationType Type;
+				TpLocationPriority Priority;
+				TpString RequestedLocationMethod;
+			};
+			
+			
+			enum TpLocationUncertaintyShape {
+
+				P_M_SHAPE_NONE,
+				P_M_SHAPE_CIRCLE,
+				P_M_SHAPE_CIRCLE_SECTOR,
+				P_M_SHAPE_CIRCLE_ARC_STRIPE,
+				P_M_SHAPE_ELLIPSE,
+				P_M_SHAPE_ELLIPSE_SECTOR,
+				P_M_SHAPE_ELLIPSE_ARC_STRIPE				
+			};
+			
+			
+			struct TpGeographicalPosition {
+				TpFloat Longitude;
+				TpFloat Latitude;
+				TpLocationUncertaintyShape TypeOfUncertaintyShape;
+				TpFloat UncertaintyInnerSemiMajor;
+				TpFloat UncertaintyOuterSemiMajor;
+				TpFloat UncertaintyInnerSemiMinor;
+				TpFloat UncertaintyOuterSemiMinor;
+				TpInt32 AngleOfSemiMajor;
+				TpInt32 SegmentStartAngle;
+				TpInt32 SegmentEndAngle;
+			};
+			
+			
+			enum TpMobilityDiagnostic {
+
+				P_M_NO_INFORMATION,
+				P_M_APPL_NOT_IN_PRIV_EXCEPT_LST,
+				P_M_CALL_TO_USER_NOT_SETUP,
+				P_M_PRIVACY_OVERRIDE_NOT_APPLIC,
+				P_M_DISALL_BY_LOCAL_REGULAT_REQ,
+				P_M_CONGESTION,
+				P_M_INSUFFICIENT_RESOURCES,
+				P_M_INSUFFICIENT_MEAS_DATA,
+				P_M_INCONSISTENT_MEAS_DATA,
+				P_M_LOC_PROC_NOT_COMPLETED,
+				P_M_LOC_PROC_NOT_SUPP_BY_USER,
+				P_M_QOS_NOT_ATTAINABLE				
+			};
+			
+			
+			enum TpMobilityError {
+
+				P_M_OK,
+				P_M_SYSTEM_FAILURE,
+				P_M_UNAUTHORIZED_NETWORK,
+				P_M_UNAUTHORIZED_APPLICATION,
+				P_M_UNKNOWN_SUBSCRIBER,
+				P_M_ABSENT_SUBSCRIBER,
+				P_M_POSITION_METHOD_FAILURE				
+			};
+			
+			
+			enum TpMobilityStopScope {
+
+				P_M_ALL_IN_ASSIGNMENT,
+				P_M_SPECIFIED_USERS				
+			};
+			
+			
+			struct TpMobilityStopAssignmentData {
+				TpAssignmentID AssignmentId;
+				TpMobilityStopScope StopScope;
+				TpAddressSet Users;
+			};
+			
+			
+			enum TpTerminalType {
+
+				P_M_FIXED,
+				P_M_MOBILE,
+				P_M_IP				
+			};
+			
+			
+			struct TpUlExtendedData {
+				TpGeographicalPosition GeographicalPosition;
+				TpTerminalType TerminalType;
+				TpBoolean AltitudePresent;
+				TpFloat Altitude;
+				TpFloat UncertaintyAltitude;
+				TpBoolean TimestampPresent;
+				TpDateAndTime Timestamp;
+				TpString UsedLocationMethod;
+			};
+			
+			
+			typedef sequence <TpUlExtendedData> TpUlExtendedDataSet;
+			
+			
+			struct TpUserLocation {
+				TpAddress UserID;
+				TpMobilityError StatusCode;
+				TpGeographicalPosition GeographicalPosition;
+			};
+			
+			
+			struct TpUserLocationExtended {
+				TpAddress UserID;
+				TpMobilityError StatusCode;
+				TpUlExtendedDataSet Locations;
+			};
+			
+			
+			typedef sequence <TpUserLocationExtended> TpUserLocationExtendedSet;
+			
+			
+			typedef sequence <TpUserLocation> TpUserLocationSet;
+			
+			
+			typedef TpString TpLocationCellIDOrLAI;
+			
+			
+			struct TpLocationTriggerCamel {
+				TpBoolean UpdateInsideVlr;
+				TpBoolean UpdateOutsideVlr;
+			};
+			
+			
+			struct TpUserLocationCamel {
+				TpAddress UserID;
+				TpMobilityError StatusCode;
+				TpBoolean GeographicalPositionPresent;
+				TpGeographicalPosition GeographicalPosition;
+				TpBoolean TimestampPresent;
+				TpDateAndTime Timestamp;
+				TpBoolean VlrNumberPresent;
+				TpAddress VlrNumber;
+				TpBoolean LocationNumberPresent;
+				TpAddress LocationNumber;
+				TpBoolean CellIdOrLaiPresent;
+				TpLocationCellIDOrLAI CellIdOrLai;
+			};
+			
+			
+			typedef sequence <TpUserLocationCamel> TpUserLocationCamelSet;
+			
+			
+			typedef TpString TpIMEI;
+			
+			
+			typedef TpString TpNaESRD;
+			
+			
+			typedef TpString TpNaESRK;
+			
+			
+			struct TpUserLocationEmergencyRequest {
+				TpBoolean UserAddressPresent;
+				TpAddress UserAddress;
+				TpBoolean NaEsrdPresent;
+				TpNaESRD NaEsrd;
+				TpBoolean NaEsrkPresent;
+				TpNaESRK NaEsrk;
+				TpBoolean ImeiPresent;
+				TpIMEI Imei;
+				TpLocationRequest LocationReq;
+			};
+			
+			
+			enum TpUserLocationEmergencyTrigger {
+
+				P_ULE_CALL_ORIGINATION,
+				P_ULE_CALL_RELEASE,
+				P_ULE_LOCATION_REQUEST				
+			};
+			
+			
+			struct TpUserLocationEmergency {
+				TpMobilityError StatusCode;
+				TpBoolean UserIdPresent;
+				TpAddress UserId;
+				TpBoolean NaEsrdPresent;
+				TpNaESRD NaEsrd;
+				TpBoolean NaEsrkPresent;
+				TpNaESRK NaEsrk;
+				TpBoolean ImeiPresent;
+				TpIMEI Imei;
+				TpUserLocationEmergencyTrigger TriggeringEvent;
+				TpBoolean GeographicalPositionPresent;
+				TpGeographicalPosition GeographicalPosition;
+				TpBoolean AltitudePresent;
+				TpFloat Altitude;
+				TpFloat UncertaintyAltitude;
+				TpBoolean TimestampPresent;
+				TpDateAndTime Timestamp;
+				TpString UsedLocationMethod;
+			};
+			
+			
+			enum TpUserStatusIndicator {
+
+				P_US_REACHABLE,
+				P_US_NOT_REACHABLE,
+				P_US_BUSY				
+			};
+			
+			
+			struct TpUserStatus {
+				TpAddress UserID;
+				TpMobilityError StatusCode;
+				TpUserStatusIndicator Status;
+				TpTerminalType TerminalType;
+			};
+			
+			
+			typedef sequence <TpUserStatus> TpUserStatusSet;
+			
+			
+			exception P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_INVALID_REPORTING_INTERVAL {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED {
+				TpString ExtraInformation;
+			};
+			
+			
+			struct TpTriggeredStatusRequest {
+				TpAddressSet Users;
+				TpAssignmentID AssignmentID;
+			};
+			
+			
+			typedef sequence <TpTriggeredStatusRequest> TpTriggeredStatusRequestSet;
+			
+			
+			struct TpTriggeredStatusRequestSetEntry {
+				TpTriggeredStatusRequestSet Requests;
+				TpBoolean Final;
+			};
+			
+			
+			struct TpPeriodicLocationRequest {
+				TpAddressSet Users;
+				TpLocationRequest Request;
+				TpDuration ReportingInterval;
+				TpAssignmentID AssignmentID;
+			};
+			
+			
+			typedef sequence <TpPeriodicLocationRequest> TpPeriodicLocationRequestSet;
+			
+			
+			struct TpPeriodicLocationRequestSetEntry {
+				TpPeriodicLocationRequestSet Requests;
+				TpBoolean Final;
+			};
+			
+			
+			struct TpTriggeredLocationRequest {
+				TpAddressSet Users;
+				TpLocationRequest Request;
+				TpAssignmentID AssignmentID;
+			};
+			
+			
+			typedef sequence <TpTriggeredLocationRequest> TpTriggeredLocationRequestSet;
+			
+			
+			struct TpTriggeredLocationRequestSetEntry {
+				TpTriggeredLocationRequestSet Requests;
+				TpBoolean Final;
+			};
+			
+			
+			struct TpUserStatusIndicatorExtended {
+				TpUserStatusIndicator UserStatusIndicator;
+				TpBoolean PDPContextActive;
+			};
+			
+			
+			enum TpAuthStatusIndicator {
+
+				P_AUTHENTICATED_FOR_NETWORK_ONLY,
+				P_AUTHENTICATED_FOR_NETWORK_AND_IP_SERVICES,
+				P_NOT_AUTHENTICATED				
+			};
+			
+			
+			struct TpUserInfo {
+				TpString UserName;
+				TpString Password;
+			};
+			
+			
+			enum TpAccessTechnology {
+
+				P_MOBILE_ACCESS_PS,
+				P_MOBILE_ACCESS_CS,
+				P_FIXED_ACCESS				
+			};
+			
+			
+			enum TpRoamingStatus {
+
+				P_UNKNOWN_ROAMING_STATUS,
+				P_HOME_USER,
+				P_NATIONAL_ROAMING,
+				P_INTERNATIONAL_ROAMING,
+				P_OPERATOR_ROAMING				
+			};
+			
+			
+			struct TpNetworkStatusIndicator {
+				TpString CountryCode;
+				TpString MobileNetworkCode;
+				TpAccessTechnology AccessTechnology;
+				TpRoamingStatus RoamingStatus;
+			};
+			
+			
+			struct TpUserStatusExtended {
+				TpString UserID;
+				TpMobilityError StatusCode;
+				TpUserStatusIndicatorExtended Status;
+				TpTerminalType TerminalType;
+				TpAuthStatusIndicator AuthenticationStatus;
+				TpNetworkStatusIndicator NetworkStatus;
+				TpString UserIPAddress;
+				TpString UserMSISDN;
+				TpUserInfo UserInfo;
+				TpString UserConnectionID;
+				TpString AccessPointName;
+			};
+			
+			
+			typedef sequence <TpUserStatusExtended> TpUserStatusExtendedSet;
+			
+			
+			typedef TpInt32 TpBindingNotificationCriteriaType;
+			
+			
+			const TpInt32 P_UB_NEW = 1;
+			
+			const TpInt32 P_UB_REMOVE = 2;
+			
+			const TpInt32 P_UB_UPDATE = 4;
+			
+			struct TpBindingNotificationCriteria {
+				TpBindingNotificationCriteriaType NotificationCriteriaType;
+				TpAddressSet ContactAddressSet;
+			};
+			
+			
+			typedef sequence <TpBindingNotificationCriteria> TpBindingNotificationCriteriaSet;
+			
+			
+			enum TpBindingEntryType {
+
+				P_UB_UNDEFINED,
+				P_UB_EXPIRES,
+				P_UB_CONTACT_ADDRESS,
+				P_UB_PREFERENCE				
+			};
+			
+			
+			union TpBindingEntry switch(TpBindingEntryType) {
+				case P_UB_EXPIRES: TpInt32 UBExpires;	
+				case P_UB_CONTACT_ADDRESS: TpAddress UBContactAddress;	
+				case P_UB_PREFERENCE: TpFloat UBPreference;	
+				default: short Dummy;
+			};
+			
+			
+			typedef sequence <TpBindingEntry> TpBindingEntrySet;
+			
+			
+			typedef sequence <TpBindingEntrySet> TpBindingSet;
+			
+			
+			module ul {
+				
+				interface IpAppUserLocation : IpInterface {
+					void locationReportRes (
+						in TpAssignmentID assignmentId,	
+						in TpUserLocationSet locations	
+						);
+						
+					void locationReportErr (
+						in TpAssignmentID assignmentId,	
+						in TpMobilityError cause,	
+						in TpMobilityDiagnostic diagnostic	
+						);
+						
+					void extendedLocationReportRes (
+						in TpAssignmentID assignmentId,	
+						in TpUserLocationExtendedSet locations	
+						);
+						
+					void extendedLocationReportErr (
+						in TpAssignmentID assignmentId,	
+						in TpMobilityError cause,	
+						in TpMobilityDiagnostic diagnostic	
+						);
+						
+					void periodicLocationReport (
+						in TpAssignmentID assignmentId,	
+						in TpUserLocationExtendedSet locations	
+						);
+						
+					void periodicLocationReportErr (
+						in TpAssignmentID assignmentId,	
+						in TpMobilityError cause,	
+						in TpMobilityDiagnostic diagnostic	
+						);
+						
+				};
+				
+				
+				interface IpUserLocation : IpService {
+					TpAssignmentID locationReportReq (
+						in IpAppUserLocation appLocation,	
+						in TpAddressSet users	
+						)						
+						raises (TpCommonExceptions,P_APPLICATION_NOT_ACTIVATED,P_INFORMATION_NOT_AVAILABLE,P_INVALID_INTERFACE_TYPE);
+						
+					TpAssignmentID extendedLocationReportReq (
+						in IpAppUserLocation appLocation,	
+						in TpAddressSet users,	
+						in TpLocationRequest request	
+						)						
+						raises (TpCommonExceptions,P_APPLICATION_NOT_ACTIVATED,P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED,P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED,P_INFORMATION_NOT_AVAILABLE,P_INVALID_INTERFACE_TYPE);
+						
+					TpAssignmentID periodicLocationReportingStartReq (
+						in IpAppUserLocation appLocation,	
+						in TpAddressSet users,	
+						in TpLocationRequest request,	
+						in TpDuration reportingInterval	
+						)						
+						raises (TpCommonExceptions,P_INVALID_REPORTING_INTERVAL,P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED,P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED,P_APPLICATION_NOT_ACTIVATED,P_INFORMATION_NOT_AVAILABLE,P_INVALID_INTERFACE_TYPE);
+						
+					void periodicLocationReportingStop (
+						in TpMobilityStopAssignmentData stopRequest	
+						)						
+						raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID);
+						
+					TpPeriodicLocationRequestSetEntry getNextPeriodicLocationRequest (
+						in TpBoolean reset	
+						)						
+						raises (TpCommonExceptions);
+						
+				};
+				
+				
+				interface IpAppTriggeredUserLocation : IpAppUserLocation {
+					void triggeredLocationReport (
+						in TpAssignmentID assignmentId,	
+						in TpUserLocationExtended location,	
+						in TpLocationTriggerCriteria criterion	
+						);
+						
+					void triggeredLocationReportErr (
+						in TpAssignmentID assignmentId,	
+						in TpMobilityError cause,	
+						in TpMobilityDiagnostic diagnostic	
+						);
+						
+				};
+				
+				
+				interface IpTriggeredUserLocation : IpUserLocation {
+					TpAssignmentID triggeredLocationReportingStartReq (
+						in IpAppTriggeredUserLocation appLocation,	
+						in TpAddressSet users,	
+						in TpLocationRequest request,	
+						in TpLocationTriggerSet triggers	
+						)						
+						raises (TpCommonExceptions,P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED,P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED,P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED,P_UNKNOWN_SUBSCRIBER,P_APPLICATION_NOT_ACTIVATED,P_INFORMATION_NOT_AVAILABLE,P_INVALID_INTERFACE_TYPE);
+						
+					void triggeredLocationReportingStop (
+						in TpMobilityStopAssignmentData stopRequest	
+						)						
+						raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID);
+						
+					TpTriggeredLocationRequestSetEntry getNextTriggeredLocationRequest (
+						in TpBoolean reset	
+						)						
+						raises (TpCommonExceptions);
+						
+				};
+				
+			};
+			
+			
+			module ulc {
+				
+				
+				interface IpAppUserLocationCamel : IpInterface {
+					void locationReportRes (
+						in TpAssignmentID assignmentId,	
+						in TpUserLocationCamelSet locations	
+						);
+						
+					void locationReportErr (
+						in TpAssignmentID assignmentId,	
+						in TpMobilityError cause,	
+						in TpMobilityDiagnostic diagnostic	
+						);
+						
+					void periodicLocationReport (
+						in TpAssignmentID assignmentId,	
+						in TpUserLocationCamelSet locations	
+						);
+						
+					void periodicLocationReportErr (
+						in TpAssignmentID assignmentId,	
+						in TpMobilityError cause,	
+						in TpMobilityDiagnostic diagnostic	
+						);
+						
+					void triggeredLocationReport (
+						in TpAssignmentID assignmentId,	
+						in TpUserLocationCamel location,	
+						in TpLocationTriggerCamel criterion	
+						);
+						
+					void triggeredLocationReportErr (
+						in TpAssignmentID assignmentId,	
+						in TpMobilityError cause,	
+						in TpMobilityDiagnostic diagnostic	
+						);
+						
+				};
+				
+				
+				interface IpUserLocationCamel : IpService {
+					TpAssignmentID locationReportReq (
+						in IpAppUserLocationCamel appLocationCamel,	
+						in TpAddressSet users	
+						)						
+						raises (TpCommonExceptions,P_UNKNOWN_SUBSCRIBER,P_APPLICATION_NOT_ACTIVATED,P_INFORMATION_NOT_AVAILABLE,P_INVALID_INTERFACE_TYPE);
+						
+					TpAssignmentID periodicLocationReportingStartReq (
+						in IpAppUserLocationCamel appLocationCamel,	
+						in TpAddressSet users,	
+						in TpDuration reportingInterval	
+						)						
+						raises (TpCommonExceptions,P_INVALID_REPORTING_INTERVAL,P_UNKNOWN_SUBSCRIBER,P_APPLICATION_NOT_ACTIVATED,P_INFORMATION_NOT_AVAILABLE,P_INVALID_INTERFACE_TYPE);
+						
+					void periodicLocationReportingStop (
+						in TpMobilityStopAssignmentData stopRequest	
+						)						
+						raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID);
+						
+					TpAssignmentID triggeredLocationReportingStartReq (
+						in IpAppUserLocationCamel appLocationCamel,	
+						in TpAddressSet users,	
+						in TpLocationTriggerCamel trigger	
+						)						
+						raises (TpCommonExceptions,P_UNKNOWN_SUBSCRIBER,P_APPLICATION_NOT_ACTIVATED,P_INFORMATION_NOT_AVAILABLE,P_INVALID_INTERFACE_TYPE);
+						
+					void triggeredLocationReportingStop (
+						in TpMobilityStopAssignmentData stopRequest	
+						)						
+						raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID);
+						
+					TpPeriodicLocationRequestSetEntry getNextPeriodicLocationRequest (
+						in TpBoolean reset	
+						)						
+						raises (TpCommonExceptions);
+						
+					TpTriggeredLocationRequestSetEntry getNextTriggeredLocationRequest (
+						in TpBoolean reset	
+						)						
+						raises (TpCommonExceptions);
+						
+				};
+				
+			};
+			
+			
+			module ule {
+				
+				
+				interface IpAppUserLocationEmergency : IpInterface {
+					void emergencyLocationReport (
+						in TpAssignmentID assignmentId,	
+						in TpUserLocationEmergency location	
+						);
+						
+					void emergencyLocationReportErr (
+						in TpAssignmentID assignmentId,	
+						in TpMobilityError cause,	
+						in TpMobilityDiagnostic diagnostic	
+						);
+						
+				};
+				
+				
+				interface IpUserLocationEmergency : IpService {
+					TpAssignmentID emergencyLocationReportReq (
+						in IpAppUserLocationEmergency appEmergencyLocation,	
+						in TpUserLocationEmergencyRequest request	
+						)						
+						raises (TpCommonExceptions,P_UNKNOWN_SUBSCRIBER,P_INFORMATION_NOT_AVAILABLE,P_APPLICATION_NOT_ACTIVATED,P_INVALID_INTERFACE_TYPE);
+						
+					TpAssignmentID subscribeEmergencyLocationReports (
+						in IpAppUserLocationEmergency appEmergencyLocation	
+						)						
+						raises (TpCommonExceptions,P_INVALID_INTERFACE_TYPE);
+						
+					void unSubscribeEmergencyLocationReports (
+						in TpAssignmentID assignmentId	
+						)						
+						raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID);
+						
+				};
+				
+			};
+			
+			
+			module us {
+				
+				
+				interface IpAppUserStatus : IpInterface {
+					void statusReportRes (
+						in TpAssignmentID assignmentId,	
+						in TpUserStatusSet status	
+						);
+						
+					void statusReportErr (
+						in TpAssignmentID assignmentId,	
+						in TpMobilityError cause,	
+						in TpMobilityDiagnostic diagnostic	
+						);
+						
+					void triggeredStatusReport (
+						in TpAssignmentID assignmentId,	
+						in TpUserStatus status	
+						);
+						
+					void triggeredStatusReportErr (
+						in TpAssignmentID assignmentId,	
+						in TpMobilityError cause,	
+						in TpMobilityDiagnostic diagnostic	
+						);
+						
+					void extendedStatusReportRes (
+						in TpAssignmentID assignmentId,	
+						in TpUserStatusExtendedSet status	
+						);
+						
+					void extendedStatusReportErr (
+						in TpAssignmentID assignmentId,	
+						in TpMobilityError cause,	
+						in TpMobilityDiagnostic diagnostic	
+						);
+						
+					void extTriggeredStatusReport (
+						in TpAssignmentID assignmentId,	
+						in TpUserStatusExtended status	
+						);
+						
+					void extTriggeredStatusReportErr (
+						in TpAssignmentID assignmentId,	
+						in TpMobilityError cause,	
+						in TpMobilityDiagnostic diagnostic	
+						);
+						
+				};
+				
+				
+				interface IpUserStatus : IpService {
+					TpAssignmentID statusReportReq (
+						in IpAppUserStatus appStatus,	
+						in TpAddressSet users	
+						)						
+						raises (TpCommonExceptions,P_UNKNOWN_SUBSCRIBER,P_INFORMATION_NOT_AVAILABLE,P_APPLICATION_NOT_ACTIVATED,P_INVALID_INTERFACE_TYPE);
+						
+					TpAssignmentID triggeredStatusReportingStartReq (
+						in IpAppUserStatus appStatus,	
+						in TpAddressSet users	
+						)						
+						raises (TpCommonExceptions,P_UNKNOWN_SUBSCRIBER,P_INFORMATION_NOT_AVAILABLE,P_APPLICATION_NOT_ACTIVATED,P_INVALID_INTERFACE_TYPE);
+						
+					void triggeredStatusReportingStop (
+						in TpMobilityStopAssignmentData stopRequest	
+						)						
+						raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID);
+						
+					TpTriggeredStatusRequestSetEntry getNextTriggeredStatusRequest (
+						in TpBoolean reset	
+						)						
+						raises (TpCommonExceptions);
+						
+					TpAssignmentID extendedStatusReportReq (
+						in IpAppUserStatus appStatus,	
+						in TpAddressSet users	
+						)						
+						raises (TpCommonExceptions,P_UNKNOWN_SUBSCRIBER,P_INFORMATION_NOT_AVAILABLE,P_APPLICATION_NOT_ACTIVATED,P_INVALID_INTERFACE_TYPE);
+						
+					TpAssignmentID extTriggeredStatusReportingStartReq (
+						in IpAppUserStatus appStatus,	
+						in TpAddressSet users	
+						)						
+						raises (TpCommonExceptions,P_UNKNOWN_SUBSCRIBER,P_INFORMATION_NOT_AVAILABLE,P_APPLICATION_NOT_ACTIVATED,P_INVALID_INTERFACE_TYPE);
+						
+					void extTriggeredStatusReportingStop (
+						in TpMobilityStopAssignmentData stopRequest	
+						)						
+						raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID);
+						
+				};
+				
+			};
+			
+			
+			module ub {
+				
+				
+				interface IpAppUserBinding : IpInterface {
+					TpBindingSet triggeredBindingRequestNotification (
+						in TpAssignmentID assignmentId,	
+						in TpAddress address,	
+						in TpBindingSet contactInformation	
+						);
+						
+					void triggeredBindingRequestNotificationStartErr (
+						in TpAssignmentID assignmentId,	
+						in TpMobilityError cause,	
+						in TpMobilityDiagnostic diagnostic	
+						);
+						
+				};
+				
+				
+				interface IpUserBinding : IpService {
+					TpAssignmentID triggeredBindingRequestNotificationStartReq (
+						in IpAppUserBinding appStatus,	
+						in TpAddressSet users,	
+						in TpBindingNotificationCriteriaSet criteria	
+						)						
+						raises (TpCommonExceptions,P_UNKNOWN_SUBSCRIBER,P_INFORMATION_NOT_AVAILABLE,P_APPLICATION_NOT_ACTIVATED,P_INVALID_INTERFACE_TYPE);
+						
+					void triggeredBindingRequestNotificationStop (
+						in TpAssignmentID assignmentId	
+						)						
+						raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID);
+						
+				};
+				
+			};
+			
+		};
+		
+	};
+	
+};
+
+#endif

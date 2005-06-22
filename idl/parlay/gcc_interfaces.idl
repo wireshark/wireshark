@@ -1,0 +1,225 @@
+//Source file: gcc_interfaces.idl
+//Date:  7 October 2004
+//Generic Call Control Interfaces for ES 203 915-4-2 V1.1.1, DES/TISPAN-01005-04-2-OSA, Parlay 5.0
+
+
+#ifndef __GCC_INTERFACES_DEFINED
+#define __GCC_INTERFACES_DEFINED
+
+
+#include "osa.idl"
+#include "common_cc_data.idl"
+#include "gcc_data.idl"
+
+module org {
+	
+	module csapi {
+		
+		module cc {
+			
+			module gccs {
+				
+				interface IpCall;
+
+				struct TpCallIdentifier {
+					IpCall CallReference;
+					TpSessionID CallSessionID;
+				};
+				
+				
+				
+				interface IpAppCall : IpInterface {
+					void routeRes (
+						in TpSessionID callSessionID,	
+						in TpCallReport eventReport,	
+						in TpSessionID callLegSessionID	
+						);
+						
+					void routeErr (
+						in TpSessionID callSessionID,	
+						in TpCallError errorIndication,	
+						in TpSessionID callLegSessionID	
+						);
+						
+					void getCallInfoRes (
+						in TpSessionID callSessionID,	
+						in TpCallInfoReport callInfoReport	
+						);
+						
+					void getCallInfoErr (
+						in TpSessionID callSessionID,	
+						in TpCallError errorIndication	
+						);
+						
+					void superviseCallRes (
+						in TpSessionID callSessionID,	
+						in TpCallSuperviseReport report,	
+						in TpDuration usedTime	
+						);
+						
+					void superviseCallErr (
+						in TpSessionID callSessionID,	
+						in TpCallError errorIndication	
+						);
+						
+					void callFaultDetected (
+						in TpSessionID callSessionID,	
+						in TpCallFault fault	
+						);
+						
+					void getMoreDialledDigitsRes (
+						in TpSessionID callSessionID,	
+						in TpString digits	
+						);
+						
+					void getMoreDialledDigitsErr (
+						in TpSessionID callSessionID,	
+						in TpCallError errorIndication	
+						);
+						
+					void callEnded (
+						in TpSessionID callSessionID,	
+						in TpCallEndedReport report	
+						);
+						
+				};
+				
+				
+				interface IpCall : IpService {
+					TpSessionID routeReq (
+						in TpSessionID callSessionID,	
+						in TpCallReportRequestSet responseRequested,	
+						in TpAddress targetAddress,	
+						in TpAddress originatingAddress,	
+						in TpAddress originalDestinationAddress,	
+						in TpAddress redirectingAddress,	
+						in TpCallAppInfoSet appInfo	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_ADDRESS,P_UNSUPPORTED_ADDRESS_PLAN,P_INVALID_NETWORK_STATE,P_INVALID_CRITERIA,P_INVALID_EVENT_TYPE);
+						
+					void release (
+						in TpSessionID callSessionID,	
+						in TpCallReleaseCause cause	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_NETWORK_STATE);
+						
+					void deassignCall (
+						in TpSessionID callSessionID	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					void getCallInfoReq (
+						in TpSessionID callSessionID,	
+						in TpCallInfoType callInfoRequested	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					void setCallChargePlan (
+						in TpSessionID callSessionID,	
+						in TpCallChargePlan callChargePlan	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					void setAdviceOfCharge (
+						in TpSessionID callSessionID,	
+						in TpAoCInfo aOCInfo,	
+						in TpDuration tariffSwitch	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					void getMoreDialledDigitsReq (
+						in TpSessionID callSessionID,	
+						in TpInt32 length	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					void superviseCallReq (
+						in TpSessionID callSessionID,	
+						in TpDuration time,	
+						in TpCallSuperviseTreatment treatment	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+						
+					void continueProcessing (
+						in TpSessionID callSessionID	
+						)						
+						raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_INVALID_NETWORK_STATE);
+						
+				};
+				
+				
+				interface IpAppCallControlManager : IpInterface {
+					void callAborted (
+						in TpSessionID callReference	
+						);
+						
+					IpAppCall callEventNotify (
+						in TpCallIdentifier callReference,	
+						in TpCallEventInfo eventInfo,	
+						in TpAssignmentID assignmentID	
+						);
+						
+					void callNotificationInterrupted ();
+						
+					void callNotificationContinued ();
+						
+					void callOverloadEncountered (
+						in TpAssignmentID assignmentID	
+						);
+						
+					void callOverloadCeased (
+						in TpAssignmentID assignmentID	
+						);
+						
+					void abortMultipleCalls (
+						in TpSessionIDSet callReferenceSet	
+						);
+						
+				};
+				
+				
+				interface IpCallControlManager : IpService {
+					TpCallIdentifier createCall (
+						in IpAppCall appCall	
+						)						
+						raises (TpCommonExceptions,P_INVALID_INTERFACE_TYPE);
+						
+					TpAssignmentID enableCallNotification (
+						in IpAppCallControlManager appCallControlManager,	
+						in TpCallEventCriteria eventCriteria	
+						)						
+						raises (TpCommonExceptions,P_INVALID_CRITERIA,P_INVALID_INTERFACE_TYPE,P_INVALID_EVENT_TYPE);
+						
+					void disableCallNotification (
+						in TpAssignmentID assignmentID	
+						)						
+						raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID);
+						
+					TpAssignmentID setCallLoadControl (
+						in TpDuration duration,	
+						in TpCallLoadControlMechanism mechanism,	
+						in TpCallTreatment treatment,	
+						in TpAddressRange addressRange	
+						)						
+						raises (TpCommonExceptions,P_INVALID_ADDRESS,P_UNSUPPORTED_ADDRESS_PLAN);
+						
+					void changeCallNotification (
+						in TpAssignmentID assignmentID,	
+						in TpCallEventCriteria eventCriteria	
+						)						
+						raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID,P_INVALID_CRITERIA,P_INVALID_EVENT_TYPE);
+						
+					TpCallEventCriteriaResultSet getCriteria ()						
+						raises (TpCommonExceptions);
+						
+				};
+				
+			};
+			
+		};
+		
+	};
+	
+};
+
+#endif

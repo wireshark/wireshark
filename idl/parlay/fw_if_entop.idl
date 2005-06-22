@@ -1,0 +1,248 @@
+//Source file: fw_if_entop.idl
+//Date:  13 October 2004
+//Framework to Enterprise Operator Interfaces for ES 203 915-03 V1.1.1, DES/TISPAN-01005-03-OSA, Parlay 5.0
+
+#ifndef __FW_IF_ENTOP_DEFINED
+#define __FW_IF_ENTOP_DEFINED
+
+#include "osa.idl"
+#include "fw_data.idl"
+
+module org {
+	
+	module csapi {
+		
+		module fw {
+			
+			module fw_enterprise_operator {
+				
+				
+				module service_subscription {
+					
+					
+					interface IpServiceProfileManagement : IpInterface {
+						TpServiceProfileID createServiceProfile (
+							in TpServiceProfileDescription serviceProfileDescription	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED);
+							
+						void modifyServiceProfile (
+							in TpServiceProfile serviceProfile	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_SERVICE_PROFILE_ID);
+							
+						void deleteServiceProfile (
+							in TpServiceProfileID serviceProfileID	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_SERVICE_PROFILE_ID);
+							
+						void assign (
+							in TpSagID sagID,	
+							in TpServiceProfileID serviceProfileID	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_SAG_ID,P_INVALID_SERVICE_PROFILE_ID,P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT);
+							
+						void deassign (
+							in TpSagID sagID,	
+							in TpServiceProfileID serviceProfileID	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_SAG_ID,P_INVALID_SERVICE_PROFILE_ID);
+							
+						TpAssignSagToServiceProfileConflictList requestConflictInfo ()							
+							raises (TpCommonExceptions,P_ACCESS_DENIED);
+							
+					};
+					
+					
+					interface IpServiceProfileInfoQuery : IpInterface {
+						TpServiceProfileIDList listServiceProfiles ()							
+							raises (TpCommonExceptions,P_ACCESS_DENIED);
+							
+						TpServiceProfileDescription describeServiceProfile (
+							in TpServiceProfileID serviceProfileID	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_SERVICE_PROFILE_ID);
+							
+						TpSagIDList listAssignedMembers (
+							in TpServiceProfileID serviceProfileID	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_SERVICE_PROFILE_ID);
+							
+					};
+					
+					
+					interface IpServiceContractManagement : IpInterface {
+						TpServiceContractID createServiceContract (
+							in TpServiceContractDescription serviceContractDescription	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_SERVICE_ID);
+							
+						void modifyServiceContract (
+							in TpServiceContract serviceContract	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_SERVICE_ID,P_INVALID_SERVICE_CONTRACT_ID);
+							
+						void deleteServiceContract (
+							in TpServiceContractID serviceContractID	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_SERVICE_CONTRACT_ID);
+							
+					};
+					
+					
+					interface IpServiceContractInfoQuery : IpInterface {
+						TpServiceContractDescription describeServiceContract (
+							in TpServiceContractID serviceContractID	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_SERVICE_CONTRACT_ID);
+							
+						TpServiceContractIDList listServiceContracts ()							
+							raises (TpCommonExceptions,P_ACCESS_DENIED);
+							
+						TpServiceProfileIDList listServiceProfiles (
+							in TpServiceContractID serviceContractID	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_SERVICE_CONTRACT_ID);
+							
+					};
+					
+					
+					interface IpEntOpAccountManagement : IpInterface {
+						void modifyEntOpAccount (
+							in TpEntOpProperties enterpriseOperatorProperties	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_PROPERTY);
+							
+						void deleteEntOpAccount ()							
+							raises (TpCommonExceptions,P_ACCESS_DENIED);
+							
+					};
+					
+					
+					interface IpEntOpAccountInfoQuery : IpInterface {
+						TpEntOp describeEntOpAccount ()							
+							raises (TpCommonExceptions,P_ACCESS_DENIED);
+							
+					};
+					
+					
+					interface IpClientAppManagement : IpInterface {
+						void createClientApp (
+							in TpClientAppDescription clientAppDescription	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_CLIENT_APP_ID);
+							
+						void modifyClientApp (
+							in TpClientAppDescription clientAppDescription	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_CLIENT_APP_ID);
+							
+						void deleteClientApp (
+							in TpClientAppID clientAppID	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_CLIENT_APP_ID);
+							
+						void createSAG (
+							in TpSag sag,	
+							in TpClientAppIDList clientAppIDs	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_CLIENT_APP_ID,P_INVALID_SAG_ID);
+							
+						void modifySAG (
+							in TpSag sag	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_SAG_ID);
+							
+						void deleteSAG (
+							in TpSagID sagID	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_SAG_ID);
+							
+						void addSAGMembers (
+							in TpSagID sagID,	
+							in TpClientAppIDList clientAppIDs	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_CLIENT_APP_ID,P_INVALID_SAG_ID,P_INVALID_ADDITION_TO_SAG);
+							
+						void removeSAGMembers (
+							in TpSagID sagID,	
+							in TpClientAppIDList clientAppIDList	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_CLIENT_APP_ID,P_INVALID_SAG_ID);
+							
+						TpAddSagMembersConflictList requestConflictInfo ()							
+							raises (TpCommonExceptions,P_ACCESS_DENIED);
+							
+					};
+					
+					
+					interface IpClientAppInfoQuery : IpInterface {
+						TpClientAppDescription describeClientApp (
+							in TpClientAppID clientAppID	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_CLIENT_APP_ID);
+							
+						TpClientAppIDList listClientApps ()							
+							raises (TpCommonExceptions,P_ACCESS_DENIED);
+							
+						TpSagDescription describeSAG (
+							in TpSagID sagID	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_SAG_ID);
+							
+						TpSagIDList listSAGs ()							
+							raises (TpCommonExceptions,P_ACCESS_DENIED);
+							
+						TpClientAppIDList listSAGMembers (
+							in TpSagID sagID	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_SAG_ID);
+							
+						TpSagIDList listClientAppMembership (
+							in TpClientAppID clientAppID	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_CLIENT_APP_ID);
+							
+					};
+					
+				};
+				
+				module notification {
+					
+					
+					interface IpClientEventNotification : IpInterface {
+						void reportNotification (
+							in TpFwEventInfo eventInfo,	
+							in TpAssignmentID assignmentID	
+							);
+							
+						void notificationTerminated ();
+							
+					};
+					
+					
+					interface IpEventNotification : IpInterface {
+						TpAssignmentID createNotification (
+							in TpFwEventCriteria eventCriteria	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_CRITERIA,P_INVALID_EVENT_TYPE);
+							
+						void destroyNotification (
+							in TpAssignmentID assignmentID	
+							)							
+							raises (TpCommonExceptions,P_ACCESS_DENIED,P_INVALID_ASSIGNMENT_ID);
+							
+					};
+					
+				};
+				
+			};
+			
+			
+		};
+		
+	};
+	
+};
+
+#endif

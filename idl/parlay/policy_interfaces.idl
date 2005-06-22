@@ -1,0 +1,725 @@
+//Source file: policy_interfaces.idl
+//Date:  13 October 2004
+//Policy Management Interfaces for ES 203 915-13 V1.1.1, DES/TISPAN-01005-13-OSA, Parlay 5.0
+
+#ifndef __POLICY_INTERFACES_DEFINED
+#define __POLICY_INTERFACES_DEFINED
+
+
+#include "osa.idl"
+#include "policy_data.idl"
+
+module org {
+	
+	module csapi {
+		
+		module policy {
+
+			module provisioning {
+
+				interface IpPolicyCondition ;
+				interface IpPolicyAction ;
+
+			};
+			
+			
+			struct TpPolicyConditionListElement {
+				provisioning::IpPolicyCondition Condition;
+				TpInt32 GroupNumber;
+				TpBoolean Negated;
+			};
+			
+			
+			typedef sequence <TpPolicyConditionListElement> TpPolicyConditionList;
+			
+			
+			struct TpPolicyActionListElement {
+				provisioning::IpPolicyAction Action;
+				TpInt32 SequenceNumber;
+			};
+			
+			
+			typedef sequence <TpPolicyActionListElement> TpPolicyActionList;
+			
+			module evaluation {
+				
+				
+				interface IpAppPolicyDomain : IpInterface {
+					void reportNotification (
+						in TpAssignmentID assignmentID ,	
+						in TpPolicyEvent event 	
+						);
+						
+					void evalPolicyRes (
+						in TpAssignmentID assignmentID,	
+						in TpPolicyNameValueList outputVariables	
+						);
+						
+					void evalPolicyErr (
+						in TpAssignmentID assignmentID,	
+						in TpPolicyError error	
+						);
+						
+				};
+				
+				
+				interface IpPolicyEvalManager : IpService {
+					TpPolicyNameValueList evalPolicy (
+						in TpString domainName,	
+						in TpString signatureName,	
+						in TpPolicyNameValueList inputVariables	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					TpAssignmentID evalPolicyReq (
+						in TpString domainName,	
+						in TpString signatureName,	
+						in TpPolicyNameValueList inputVariables,	
+						in IpAppPolicyDomain appPolicyDomain	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					void abortEvalPolicyReq (
+						in TpString domainName,	
+						in TpAssignmentID assignmentID	
+						)						
+						raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID);
+						
+					void generateEvent (
+						in TpString domainName,	
+						in TpString eventDefinitionName,	
+						in TpAttributeSet attributes	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					TpAssignmentID createNotification (
+						in TpString domainName,	
+						in IpAppPolicyDomain appPolicyDomain,	
+						in TpStringSet events	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					void destroyNotification (
+						in TpAssignmentID assignmentID,	
+						in TpStringSet events	
+						)						
+						raises (TpCommonExceptions,P_SYNTAX_ERROR);
+						
+				};
+				
+			};
+			
+			module provisioning {
+				interface IpPolicyRepository ;
+				interface IpPolicyManager ;
+				interface IpPolicyEventDefinition ;
+				interface IpPolicyCondition ;
+				interface IpPolicyAction ;
+				interface IpPolicyTimePeriodCondition ;
+				interface IpPolicyGroup ;
+				interface IpPolicyDomain ;
+				interface IpPolicyEventAction ;
+				
+				
+				
+				interface IpPolicy : IpInterface {
+					
+					TpAttribute getAttribute (
+						in TpString attributeName	
+						)						
+						raises (TpCommonExceptions,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					void setAttribute (
+						in TpAttribute targetAttribute	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpAttributeSet getAttributes (
+						in TpStringList attributeNames	
+						)						
+						raises (TpCommonExceptions);
+						
+					void setAttributes (
+						in TpAttributeSet targetAttributes	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_NO_TRANSACTION_IN_PROCESS);
+						
+				};
+				
+				
+				interface IpPolicyIterator : IpPolicy {
+					TpStringSet getList (
+						in TpInt32 startIndex,	
+						in TpInt32 numberRequested	
+						)						
+						raises (TpCommonExceptions);
+						
+				};
+				
+				
+				interface IpPolicyRepository : IpPolicy {
+					
+					IpPolicyRepository getParentRepository ()						
+						raises (TpCommonExceptions);
+						
+					IpPolicyRepository createRepository (
+						in TpString repositoryName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					IpPolicyRepository getRepository (
+						in TpString repositoryName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					void removeRepository (
+						in TpString repositoryName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpInt32 getRepositoryCount ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					IpPolicyIterator getRepositoryIterator ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					IpPolicyCondition createCondition (
+						in TpString conditionName,	
+						in TpPolicyConditionType conditionType,	
+						in TpAttributeSet conditionAttributes	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					IpPolicyCondition getCondition (
+						in TpString conditionName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					void removeCondition (
+						in TpString conditionName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpInt32 getConditionCount ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					IpPolicyIterator getConditionIterator ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					IpPolicyAction createAction (
+						in TpString actionName,	
+						in TpPolicyActionType actionType,	
+						in TpAttributeSet actionAttributes	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					IpPolicyAction getAction (
+						in TpString actionName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					void removeAction (
+						in TpString actionName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpInt32 getActionCount ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					IpPolicyIterator getActionIterator ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+				};
+				
+				
+				interface IpPolicyRule : IpPolicy {
+					
+					IpPolicyGroup getParentGroup ()						
+						raises (TpCommonExceptions);
+						
+					IpPolicyDomain getParentDomain ()						
+						raises (TpCommonExceptions);
+						
+					IpPolicyCondition createCondition (
+						in TpString conditionName,	
+						in TpPolicyConditionType conditionType,	
+						in TpAttributeSet conditionAttributes	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					IpPolicyCondition getCondition (
+						in TpString conditionName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					void removeCondition (
+						in TpString conditionName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpInt32 getConditionCount ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					IpPolicyIterator getConditionIterator ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					IpPolicyAction createAction (
+						in TpString actionName,	
+						in TpPolicyActionType actionType,	
+						in TpAttributeSet actionAttributes	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					IpPolicyAction getAction (
+						in TpString actionName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					void removeAction (
+						in TpString actionName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpInt32 getActionCount ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					IpPolicyIterator getActionIterator ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					void setValidityPeriodConditionByName (
+						in TpString conditionName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					void setValidityPeriodCondition (
+						in IpPolicyTimePeriodCondition conditionReference	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_NO_TRANSACTION_IN_PROCESS);
+						
+					IpPolicyTimePeriodCondition getValidityPeriodCondition ()						
+						raises (TpCommonExceptions);
+						
+					void unsetValidityPeriodCondition ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_NO_TRANSACTION_IN_PROCESS);
+						
+					void setConditionList (
+						in TpPolicyConditionList conditionList	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpPolicyConditionList getConditionList ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					void setActionList (
+						in TpPolicyActionList actionList	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpPolicyActionList getActionList ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+				};
+				
+				
+				interface IpPolicyManager : IpService {
+					
+					IpPolicyDomain createDomain (
+						in TpString domainName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					IpPolicyDomain getDomain (
+						in TpString domainName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					void removeDomain (
+						in TpString domainName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpInt32 getDomainCount ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					IpPolicyIterator getDomainIterator ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					TpStringSet findMatchingDomains (
+						in TpAttributeSet matchingAttributes
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					IpPolicyRepository createRepository (
+						in TpString repositoryName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					IpPolicyRepository getRepository (
+						in TpString repositoryName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					void removeRepository (
+						in TpString repositoryName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpInt32 getRepositoryCount ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					IpPolicyIterator getRepositoryIterator ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					void startTransaction ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_TRANSACTION_IN_PROCESS);
+						
+					TpBoolean commitTransaction ()						
+						raises (TpCommonExceptions,P_NO_TRANSACTION_IN_PROCESS);
+						
+					void abortTransaction ()						
+						raises (TpCommonExceptions,P_NO_TRANSACTION_IN_PROCESS);
+						
+				};
+				
+				
+				interface IpPolicyGroup : IpPolicy {
+					
+					IpPolicyDomain getParentDomain ()						
+						raises (TpCommonExceptions);
+						
+					IpPolicyGroup getParentGroup ()						
+						raises (TpCommonExceptions);
+						
+					IpPolicyGroup createGroup (
+						in TpString groupName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					IpPolicyGroup getGroup (
+						in TpString groupName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					void removeGroup (
+						in TpString groupName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpInt32 getGroupCount ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					IpPolicyIterator getGroupIterator ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					IpPolicyRule createRule (
+						in TpString ruleName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					IpPolicyRule getRule (
+						in TpString ruleName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					void removeRule (
+						in TpString ruleName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpInt32 getRuleCount ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					IpPolicyIterator getRuleIterator ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+				};
+				
+				
+				interface IpPolicyEventDefinition : IpPolicy {
+					
+					void setRequiredAttributes (
+						in TpAttributeSet requiredAttributes	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_NO_TRANSACTION_IN_PROCESS);
+						
+					void setOptionalAttributes (
+						in TpAttributeSet optionalAttributes	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpAttributeSet getRequiredAttributes ()						
+						raises (TpCommonExceptions);
+						
+					TpAttributeSet getOptionalAttributes ()						
+						raises (TpCommonExceptions);
+						
+					IpPolicyDomain getParentDomain ()						
+						raises (TpCommonExceptions);
+						
+				};
+				
+				
+				interface IpPolicyCondition : IpPolicy {
+					
+					IpPolicyRepository getParentRepository ()						
+						raises (TpCommonExceptions);
+						
+					IpPolicyRule getParentRule ()						
+						raises (TpCommonExceptions);
+						
+				};
+				
+				
+				interface IpPolicyTimePeriodCondition : IpPolicyCondition {
+				};
+				
+				
+				interface IpPolicyExpressionCondition : IpPolicyCondition {
+				};
+				
+				
+				interface IpPolicyEventCondition : IpPolicyCondition {
+				};
+				
+				
+				interface IpPolicyAction : IpPolicy {
+					
+					IpPolicyRepository getParentRepository ()						
+						raises (TpCommonExceptions);
+						
+					IpPolicyRule getParentRule ()						
+						raises (TpCommonExceptions);
+						
+				};
+				
+				
+				interface IpPolicyExpressionAction : IpPolicyAction {
+				};
+				
+				
+				interface IpPolicyEventAction : IpPolicyAction {
+				};
+				
+				
+				interface IpPolicySignature : IpPolicy {
+					
+					void setInputVariables (
+						in TpStringSet inputVariables	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					void setOutputVariables (
+						in TpStringSet outputVariables	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpStringSet getInputVariables ()						
+						raises (TpCommonExceptions);
+						
+					TpStringSet getOutputVariables ()						
+						raises (TpCommonExceptions);
+						
+					void setGroupNames (
+						in TpStringSet groupNames	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					void setPolicyRoles (
+						in TpStringSet roleNames	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpStringSet getGroupNames ()						
+						raises (TpCommonExceptions);
+						
+					TpStringSet getPolicyRoles ()						
+						raises (TpCommonExceptions);
+						
+					IpPolicyDomain getParentDomain ()						
+						raises (TpCommonExceptions);
+						
+				};
+				
+				
+				interface IpPolicyDomain : IpPolicy {
+					
+					IpPolicyDomain getParentDomain ()						
+						raises (TpCommonExceptions);
+						
+					IpPolicyDomain createDomain (
+						in TpString domainName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					IpPolicyDomain getDomain (
+						in TpString domainName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					void removeDomain (
+						in TpString domainName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpInt32 getDomainCount ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					IpPolicyIterator getDomainIterator ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					IpPolicyGroup createGroup (
+						in TpString groupName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					IpPolicyGroup getGroup (
+						in TpString groupName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					void removeGroup (
+						in TpString groupName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpInt32 getGroupCount ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					IpPolicyIterator getGroupIterator ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					IpPolicyRule createRule (
+						in TpString ruleName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					IpPolicyRule getRule (
+						in TpString ruleName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					void removeRule (
+						in TpString ruleName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpInt32 getRuleCount ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					IpPolicyIterator getRuleIterator ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					IpPolicyEventDefinition createEventDefinition (
+						in TpString eventDefinitionName,	
+						in TpStringSet requiredAttributes,	
+						in TpStringSet optionalAttributes	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					IpPolicyEventDefinition getEventDefinition (
+						in TpString eventDefinitionName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					void removeEventDefinition (
+						in TpString eventDefinitionName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpInt32 getEventDefinitionCount ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					IpPolicyIterator getEventDefinitionIterator ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					void createVariableSet (
+						in TpString variableSetName 	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpPolicyVarSet getVariableSet (
+						in TpString variableSetName 	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					void removeVariableSet (
+						in TpString variableSetName 	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpInt32 getVariableSetCount ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					IpPolicyIterator getVariableSetIterator ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+					void createVariable (
+						in TpString variableSetName,	
+						in TpString variableName,	
+						in TpPolicyType variableType	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					void setVariableValue (
+						in TpString variableSetName,	
+						in TpString variableName,	
+						in TpAny variableValue	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpPolicyType getVariableType (
+						in TpString variableSetName,	
+						in TpString variableName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					TpAny getVariableValue (
+						in TpString variableSetName,	
+						in TpString variableName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					TpPolicyVar getVariable (
+						in TpString variableSetName,	
+						in TpString variableName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					void removeVariable (
+						in TpString variablSetName,	
+						in TpString variableName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					IpPolicySignature createSignature (
+						in TpString signatureName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					IpPolicySignature getSignature (
+						in TpString signatureName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR);
+						
+					void removeSignature (
+						in TpString signatureName	
+						)						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION,P_SYNTAX_ERROR,P_NAME_SPACE_ERROR,P_NO_TRANSACTION_IN_PROCESS);
+						
+					TpInt32 getSignatureCount ()						
+						raises (TpCommonExceptions);
+						
+					IpPolicyIterator getSignatureIterator ()						
+						raises (TpCommonExceptions,P_ACCESS_VIOLATION);
+						
+				};
+				
+			};
+			
+		};
+		
+	};
+	
+};
+
+#endif

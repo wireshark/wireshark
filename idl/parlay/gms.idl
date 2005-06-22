@@ -1,0 +1,464 @@
+//Source file: gms.idl
+//Date:  11 October 2004
+//Generic Messaging Interfaces and Data Types for ETSI ES 203 915-09 V1.1.1, DES/TISPAN-01005-09-OSA, Parlay 5.0
+
+#ifndef __GMS_DEFINED
+#define __GMS_DEFINED
+
+
+#include "osa.idl"
+
+module org {
+	
+	module csapi {
+		
+		
+		module gms {
+			interface IpAppMessagingManager ;
+			interface IpMailbox ;
+			interface IpMailboxFolder ;
+			
+			
+			
+			enum TpMessagingFault {
+
+				P_MESSAGING_FAULT_UNDEFINED				
+			};
+			
+			
+			enum TpMessagingEventName {
+
+				P_EVENT_GMS_NAME_UNDEFINED,
+				P_EVENT_GMS_NEW_MESSAGE_ARRIVED				
+			};
+			
+			
+			enum TpMessageStatus {
+
+				P_MESSAGING_MESSAGE_STATUS_READ_MESSAGE,
+				P_MESSAGING_MESSAGE_STATUS_UNREAD_MESSAGE,
+				P_MESSAGING_MESSAGE_STATUS_FORWARDED_MESSAGE,
+				P_MESSAGING_MESSAGE_STATUS_REPLIED_TO_MESSAGE,
+				P_MESSAGING_MESSAGE_STATUS_SAVED_OR_UNSENT_MESSAGE,
+				P_MESSAGING_MESSAGE_STATUS_NOTIFICATION_THAT_A_MESSAGE_WAS_DELIVERED,
+				P_MESSAGING_MESSAGE_STATUS_NOTIFICATION_THAT_A_MESSAGE_WAS_READ,
+				P_MESSAGING_MESSAGE_STATUS_NOTIFICATION_THAT_A_MESSAGE_WAS_NOT_DELIVERED,
+				P_MESSAGING_MESSAGE_STATUS_NOTIFICATION_THAT_A_MESSAGE_WAS_NOT_READ				
+			};
+			
+			
+			enum TpMessagePriority {
+
+				P_MESSAGING_MESSAGE_PRIORITY_UNDEFINED,
+				P_MESSAGING_MESSAGE_PRIORITY_HIGH,
+				P_MESSAGING_MESSAGE_PRIORITY_LOW				
+			};
+			
+			
+			enum TpMessageInfoPropertyName {
+
+				P_MESSAGING_MESSAGE_UNDEFINED,
+				P_MESSAGING_MESSAGE_ID,
+				P_MESSAGING_MESSAGE_SUBJECT,
+				P_MESSAGING_MESSAGE_DATE_SENT,
+				P_MESSAGING_MESSAGE_DATE_RECEIVED,
+				P_MESSAGING_MESSAGE_DATE_CHANGED,
+				P_MESSAGING_MESSAGE_SENT_FROM,
+				P_MESSAGING_MESSAGE_SENT_TO,
+				P_MESSAGING_MESSAGE_CC_TO,
+				P_MESSAGING_MESSAGE_BCC_TO,
+				P_MESSAGING_MESSAGE_SIZE,
+				P_MESSAGING_MESSAGE_PRIORITY,
+				P_MESSAGING_MESSAGE_FORMAT,
+				P_MESSAGING_MESSAGE_FOLDER,
+				P_MESSAGING_MESSAGE_STATUS				
+			};
+			
+			
+			enum TpMessageFormat {
+
+				P_MESSAGING_MESSAGE_FORMAT_UNDEFINED,
+				P_MESSAGING_MESSAGE_FORMAT_TEXT,
+				P_MESSAGING_MESSAGE_FORMAT_BINARY,
+				P_MESSAGING_MESSAGE_FORMAT_UUENCODED,
+				P_MESSAGING_MESSAGE_FORMAT_MIME,
+				P_MESSAGING_MESSAGE_FORMAT_WAVE,
+				P_MESSAGING_MESSAGE_FORMAT_AU				
+			};
+			
+			
+			union TpMessageInfoProperty switch(TpMessageInfoPropertyName) {
+				case P_MESSAGING_MESSAGE_ID: TpString MessagingMessageID;
+				case P_MESSAGING_MESSAGE_SUBJECT: TpString MessagingMessageSubject;
+				case P_MESSAGING_MESSAGE_DATE_SENT: TpDateAndTime MessagingMessageDateSent;
+				case P_MESSAGING_MESSAGE_DATE_RECEIVED: TpDateAndTime MessagingMessageDateReceived;
+				case P_MESSAGING_MESSAGE_DATE_CHANGED: TpDateAndTime MessagingMessageDateChanged;
+				case P_MESSAGING_MESSAGE_SENT_FROM: TpAddress MessagingMessageSentFrom;
+				case P_MESSAGING_MESSAGE_SENT_TO: TpAddress MessagingMessageSentTo;
+				case P_MESSAGING_MESSAGE_CC_TO: TpAddress MessagingMessageCCTo;
+				case P_MESSAGING_MESSAGE_BCC_TO: TpAddress MessagingMessageBCCTo;
+				case P_MESSAGING_MESSAGE_SIZE: TpInt32 MessagingMessageSize;
+				case P_MESSAGING_MESSAGE_PRIORITY: TpMessagePriority MessagingMessagePriority;
+				case P_MESSAGING_MESSAGE_FORMAT: TpMessageFormat MessagingMessageFormat;
+				case P_MESSAGING_MESSAGE_FOLDER: TpString MessagingMessageFolder;
+				case P_MESSAGING_MESSAGE_STATUS: TpMessageStatus MessagingMessageStatus;
+				default: short Dummy;
+			};
+			
+			
+			typedef sequence <TpMessageInfoProperty> TpMessageInfoPropertySet;
+			
+			
+			enum TpMailboxInfoPropertyName {
+
+				P_MESSAGING_MAILBOX_UNDEFINED,
+				P_MESSAGING_MAILBOX_ID,
+				P_MESSAGING_MAILBOX_OWNER,
+				P_MESSAGING_MAILBOX_FOLDER,
+				P_MESSAGING_MAILBOX_DATE_CREATED,
+				P_MESSAGING_MAILBOX_DATE_CHANGED				
+			};
+			
+			
+			union TpMailboxInfoProperty switch(TpMailboxInfoPropertyName) {
+				case P_MESSAGING_MAILBOX_ID: TpAddress MessagingMailboxID;
+				case P_MESSAGING_MAILBOX_OWNER: TpString MessagingMailboxOwner;
+				case P_MESSAGING_MAILBOX_FOLDER: TpString MessagingMailboxFolder;
+				case P_MESSAGING_MAILBOX_DATE_CREATED: TpDateAndTime MessagingMailboxDateCreated;
+				case P_MESSAGING_MAILBOX_DATE_CHANGED: TpDateAndTime MessagingMailboxDateChanged;
+				default: short Dummy;
+			};
+			
+			
+			typedef sequence <TpMailboxInfoProperty> TpMailboxInfoPropertySet;
+			
+			
+			struct TpGMSNewMessageArrivedInfo {
+				TpAddress MailboxID;
+				TpString FolderID;
+				TpString MessageID;
+				TpInt32 NumberOfProperties;
+			};
+			
+			
+			union TpMessagingEventInfo switch(TpMessagingEventName) {
+				case P_EVENT_GMS_NAME_UNDEFINED: TpString EventNameUndefined;
+				case P_EVENT_GMS_NEW_MESSAGE_ARRIVED: TpGMSNewMessageArrivedInfo EventGMSNewMessageArrived;
+			};
+			
+			
+			struct TpGMSNewMessageArrivedCriteria {
+				TpAddress MailboxID;
+				TpString AuthenticationInfo;
+			};
+			
+			
+			union TpMessagingEventCriteria switch(TpMessagingEventName) {
+				case P_EVENT_GMS_NEW_MESSAGE_ARRIVED: TpGMSNewMessageArrivedCriteria EventGMSNewMessageArrived;
+				default: short Dummy;
+			};
+			
+			
+			enum TpFolderInfoPropertyName {
+
+				P_MESSAGING_FOLDER_UNDEFINED,
+				P_MESSAGING_FOLDER_ID,
+				P_MESSAGING_FOLDER_MESSAGE,
+				P_MESSAGING_FOLDER_SUBFOLDER,
+				P_MESSAGING_FOLDER_DATE_CREATED,
+				P_MESSAGING_FOLDER_DATE_CHANGED				
+			};
+			
+			
+			union TpFolderInfoProperty switch(TpFolderInfoPropertyName) {
+				case P_MESSAGING_FOLDER_ID: TpString MessagingFolderID;
+				case P_MESSAGING_FOLDER_MESSAGE: TpString MessagingFolderMessage;
+				case P_MESSAGING_FOLDER_SUBFOLDER: TpString MessagingFolderSubfolder;
+				case P_MESSAGING_FOLDER_DATE_CREATED: TpDateAndTime MessagingFolderDateCreated;
+				case P_MESSAGING_FOLDER_DATE_CHANGED: TpDateAndTime MessagingFolderDateChanged;
+				default: short Dummy;
+			};
+			
+			
+			typedef sequence <TpFolderInfoProperty> TpFolderInfoPropertySet;
+			
+			
+			exception P_GMS_INVALID_FOLDER_ID {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_GMS_INSUFFICIENT_PRIVILEGE {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_GMS_INVALID_AUTHENTICATION_INFORMATION {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_GMS_INVALID_MAILBOX {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_GMS_INVALID_MESSAGE_ID {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_GMS_LOCKING_LOCKED_MAILBOX {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_GMS_MESSAGE_NOT_REMOVED {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_GMS_NUMBER_NOT_POSITIVE {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_GMS_UNLOCKING_UNLOCKED_MAILBOX {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_GMS_MAILBOX_LOCKED {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_GMS_CANNOT_UNLOCK_MAILBOX {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_GMS_PROPERTY_NOT_SET {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_GMS_FOLDER_IS_OPEN {
+				TpString ExtraInformation;
+			};
+			
+			
+			exception P_GMS_MAILBOX_OPEN {
+				TpString ExtraInformation;
+			};
+			
+			
+			typedef TpLongString TpMessage;
+			
+			
+			struct TpMailboxIdentifier {
+				IpMailbox Mailbox;
+				TpSessionID SessionID;
+			};
+			
+			
+			struct TpMailboxFolderIdentifier {
+				IpMailboxFolder MailboxFolder;
+				TpSessionID SessionID;
+			};
+			
+			
+			interface IpMessagingManager : IpService {
+				
+				TpMailboxIdentifier openMailbox (
+					in TpAddress mailboxID,	
+					in TpString authenticationInfo	
+					)					
+					raises (TpCommonExceptions,P_GMS_INVALID_MAILBOX,P_GMS_INVALID_AUTHENTICATION_INFORMATION);
+					
+				TpAssignmentID enableMessagingNotification (
+					in IpAppMessagingManager appInterface,	
+					in TpMessagingEventCriteria eventCriteria	
+					)					
+					raises (TpCommonExceptions,P_INVALID_CRITERIA);
+					
+				void disableMessagingNotification (
+					in TpAssignmentID assignmentID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_ASSIGNMENT_ID);
+					
+			};
+			
+			
+			interface IpAppMessagingManager : IpInterface {
+				void mailboxTerminated (
+					in IpMailbox mailbox,	
+					in TpSessionID mailboxSessionID	
+					);
+					
+				void mailboxFaultDetected (
+					in IpMailbox mailbox,	
+					in TpSessionID mailboxSessionID,	
+					in TpMessagingFault fault	
+					);
+					
+				void messagingEventNotify (
+					in IpMessagingManager messagingManager,	
+					in TpMessagingEventInfo eventInfo,	
+					in TpAssignmentID assignmentID	
+					);
+					
+				void messagingNotificationTerminated ();
+					
+			};
+			
+
+			interface IpMailbox : IpService {
+				
+				void close (
+					in TpSessionID mailboxSessionID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+					
+				void lock (
+					in TpSessionID mailboxSessionID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_GMS_LOCKING_LOCKED_MAILBOX);
+					
+				void unlock (
+					in TpSessionID mailboxSessionID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_GMS_UNLOCKING_UNLOCKED_MAILBOX,P_GMS_CANNOT_UNLOCK_MAILBOX);
+					
+				TpInt32 getInfoAmount (
+					in TpSessionID mailboxSessionID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+					
+				TpMailboxInfoPropertySet getInfoProperties (
+					in TpSessionID mailboxSessionID,	
+					in TpInt32 firstProperty,	
+					in TpInt32 numberOfProperties	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_GMS_NUMBER_NOT_POSITIVE);
+					
+				void setInfoProperties (
+					in TpSessionID mailboxSessionID,	
+					in TpInt32 firstProperty,	
+					in TpMailboxInfoPropertySet mailboxInfoProperties	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_GMS_PROPERTY_NOT_SET,P_GMS_MAILBOX_LOCKED);
+					
+				TpMailboxFolderIdentifier openFolder (
+					in TpSessionID mailboxSessionID,	
+					in TpString folderID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_GMS_FOLDER_IS_OPEN,P_GMS_INVALID_FOLDER_ID,P_GMS_MAILBOX_LOCKED);
+					
+				void createFolder (
+					in TpSessionID mailboxSessionID,	
+					in TpString folderID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_GMS_INVALID_FOLDER_ID,P_GMS_MAILBOX_LOCKED);
+					
+				void remove (
+					in TpAddress mailboxID,	
+					in TpString authenticationInfo	
+					)					
+					raises (TpCommonExceptions,P_GMS_INSUFFICIENT_PRIVILEGE,P_GMS_INVALID_MAILBOX,P_GMS_MAILBOX_LOCKED,P_GMS_MAILBOX_OPEN,P_GMS_INVALID_AUTHENTICATION_INFORMATION);
+					
+			};
+			
+			interface IpMessage : IpService {
+				
+				TpInt32 getInfoAmount (
+					in TpSessionID folderSessionID,	
+					in TpString messageID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_GMS_INVALID_MESSAGE_ID);
+					
+				TpMessageInfoPropertySet getInfoProperties (
+					in TpSessionID folderSessionID,	
+					in TpString messageID,	
+					in TpInt32 firstProperty,	
+					in TpInt32 numberOfProperties	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_GMS_NUMBER_NOT_POSITIVE,P_GMS_INVALID_MESSAGE_ID);
+					
+				void setInfoProperties (
+					in TpSessionID folderSessionID,	
+					in TpString messageID,	
+					in TpInt32 firstProperty,	
+					in TpMessageInfoPropertySet messageInfoProperties	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_GMS_INVALID_MESSAGE_ID,P_GMS_PROPERTY_NOT_SET);
+					
+				void remove (
+					in TpSessionID folderSessionID,	
+					in TpString messageID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_GMS_INSUFFICIENT_PRIVILEGE,P_GMS_MESSAGE_NOT_REMOVED,P_GMS_INVALID_MESSAGE_ID);
+					
+				TpMessage getContent (
+					in TpSessionID folderSessionID,	
+					in TpString messageID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_GMS_INVALID_MESSAGE_ID);
+					
+			};
+			
+			interface IpMailboxFolder : IpService {
+				
+				TpInt32 getInfoAmount (
+					in TpSessionID folderSessionID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+					
+				TpFolderInfoPropertySet getInfoProperties (
+					in TpSessionID folderSessionID,	
+					in TpInt32 firstProperty,	
+					in TpInt32 numberOfProperties	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_GMS_NUMBER_NOT_POSITIVE);
+					
+				void setInfoProperties (
+					in TpSessionID folderSessionID,	
+					in TpInt32 firstProperty,	
+					in TpFolderInfoPropertySet folderInfoProperties	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_GMS_PROPERTY_NOT_SET);
+					
+				void putMessage (
+					in TpSessionID folderSessionID,	
+					in TpMessage message,	
+					in TpMessageInfoPropertySet messageInfoProperties	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+					
+				IpMessage getMessage (
+					in TpSessionID folderSessionID,	
+					in TpString messageID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_GMS_INVALID_MESSAGE_ID);
+					
+				void close (
+					in TpSessionID mailboxSessionID,	
+					in TpSessionID folderSessionID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID);
+					
+				void remove (
+					in TpSessionID mailboxSessionID,	
+					in TpString folderID	
+					)					
+					raises (TpCommonExceptions,P_INVALID_SESSION_ID,P_GMS_INSUFFICIENT_PRIVILEGE,P_GMS_INVALID_FOLDER_ID,P_GMS_FOLDER_IS_OPEN);
+					
+			};
+			
+		};
+		
+	};
+	
+};
+
+#endif
