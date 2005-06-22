@@ -1813,37 +1813,26 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* save parent_tree so subdissectors can create new top nodes */
 	top_tree=parent_tree;
 
-	/* create display subtree for the protocol */
-	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_acse, tvb, 0, -1, FALSE);
-		tree = proto_item_add_subtree(item, ett_acse);
-	}
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ACSE");
-  	if (check_col(pinfo->cinfo, COL_INFO))
-  		col_clear(pinfo->cinfo, COL_INFO);
-
-
 	/* first, try to check length   */
 	/* do we have at least 2 bytes  */
 	if (!tvb_bytes_exist(tvb, 0, 2)){
-		proto_tree_add_text(tree, tvb, offset, 
+		proto_tree_add_text(parent_tree, tvb, offset, 
 			tvb_reported_length_remaining(tvb,offset),
 			"User data");
 		return;  /* no, it isn't a ACSE PDU */
 	}
 	/* do we have spdu type from the session dissector?  */
 	if( !pinfo->private_data ){
-		if(tree){
-			proto_tree_add_text(tree, tvb, offset, -1,
+		if(parent_tree){
+			proto_tree_add_text(parent_tree, tvb, offset, -1,
 				"Internal error:can't get spdu type from session dissector.");
 		} 
 		return  ;
 	} else {
 		session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
 		if(session->spdu_type == 0 ) {
-			if(tree){
-				proto_tree_add_text(tree, tvb, offset, -1,
+			if(parent_tree){
+				proto_tree_add_text(parent_tree, tvb, offset, -1,
 					"Internal error:wrong spdu type %x from session dissector.",session->spdu_type);
 				return  ;
 			}
@@ -1863,15 +1852,26 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	case SES_DATA_TRANSFER:
 		oid=find_oid_by_ctx_id(pinfo, indir_ref);
 		if(oid){
-			call_ber_oid_callback(oid, tvb, offset, pinfo, top_tree);
+			call_ber_oid_callback(oid, tvb, offset, pinfo, parent_tree);
 		} else {
-			proto_tree_add_text(tree, tvb, offset, -1,
+			proto_tree_add_text(parent_tree, tvb, offset, -1,
 			    "dissector is not available");
 		}
 		return;
 	default:
 		return;
 	}
+
+	/* create display subtree for the protocol */
+	if(parent_tree){
+		item = proto_tree_add_item(parent_tree, proto_acse, tvb, 0, -1, FALSE);
+		tree = proto_item_add_subtree(item, ett_acse);
+	}
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ACSE");
+  	if (check_col(pinfo->cinfo, COL_INFO))
+  		col_clear(pinfo->cinfo, COL_INFO);
+
 
 	/*  we can't make any additional checking here   */
 	/*  postpone it before dissector will have more information */
