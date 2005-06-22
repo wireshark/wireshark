@@ -915,19 +915,19 @@ gchar* oid_to_str_buf(const guint8 *oid, gint oid_len, gchar *buf) {
   bufp = buf; value=0;
   for (i=0; i<oid_len; i++){
     byte = oid[i];
-    if ((bufp - buf) > (MAX_OID_STR_LEN - 12)) {
+    if ((bufp - buf) > (MAX_OID_STR_LEN - 16)) {    /* "4294967295" + ".>>>" + '\0' + 1 */
       bufp += sprintf(bufp, ".>>>");
       break;
     }
     if (i == 0) {
-      bufp += sprintf(bufp, "%d.%d", byte/40, byte%40);
+      bufp += sprintf(bufp, "%u.%u", byte/40, byte%40);
       continue;
     }
     value = (value << 7) | (byte & 0x7F);
     if (byte & 0x80) {
       continue;
     }
-    bufp += sprintf(bufp, ".%d", value);
+    bufp += sprintf(bufp, ".%u", value);
     value = 0;
   }
   *bufp = '\0';
