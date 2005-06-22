@@ -96,6 +96,8 @@ static int hf_media = -1;
 static int hf_media_title = -1;
 static int hf_unknown = -1;
 static int hf_invalid = -1;
+static int hf_ipbcp_version = -1;
+static int hf_ipbcp_type = -1;
 
 /* hf_owner subfields*/
 static int hf_owner_username = -1;
@@ -815,7 +817,8 @@ static void dissect_sdp_encryption_key(tvbuff_t *tvb, proto_item * ti){
 static void dissect_sdp_session_attribute(tvbuff_t *tvb, proto_item * ti){
   proto_tree *sdp_session_attribute_tree;
   gint offset, next_offset, tokenlen;
-
+  guint8 *field_name;
+  
   offset = 0;
   next_offset = 0;
   tokenlen = 0;
@@ -834,11 +837,46 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, proto_item * ti){
 		      hf_session_attribute_field,
 		      tvb, offset, tokenlen, FALSE);
 
+  field_name = tvb_get_string(tvb, offset, tokenlen);
+  
   offset = next_offset + 1;
-  proto_tree_add_item(sdp_session_attribute_tree,
-		      hf_session_attribute_value,
-		      tvb, offset, -1, FALSE);
 
+  if (strcmp(field_name, "ipbcp") == 0) {
+	  g_free(field_name);
+	  
+	  offset = tvb_pbrk_guint8(tvb,offset,-1,"0123456789");
+	  
+	  if (offset == -1)
+		  return;
+	  
+	  next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+	  
+	  if (next_offset == -1)
+		  return;
+	  
+	  tokenlen = next_offset - offset;
+	  
+	  proto_tree_add_item(sdp_session_attribute_tree,hf_ipbcp_version,tvb,offset,tokenlen,FALSE);
+
+	  offset = tvb_pbrk_guint8(tvb,offset,-1,"ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+	  if (offset == -1)
+		  return;
+
+	  tokenlen = tvb_find_line_end(tvb,offset,-1, &next_offset, FALSE);
+	  
+	  if (tokenlen == -1) 
+		  return;
+	  
+	  proto_tree_add_item(sdp_session_attribute_tree,hf_ipbcp_type,tvb,offset,tokenlen,FALSE);
+	  
+  } else {
+	  proto_tree_add_item(sdp_session_attribute_tree,
+						  hf_session_attribute_value,
+						  tvb, offset, -1, FALSE);
+
+	  g_free(field_name);
+  }
 }
 
 static void
@@ -1261,7 +1299,14 @@ proto_register_sdp(void)
       { "Media Attribute Value",
 	"sdp.media_attribute.value",FT_STRING, BASE_NONE, NULL, 0x0,
 	"Media Attribute Value", HFILL }},
-
+    { &hf_ipbcp_version,
+      { "IPBCP Protocol Version",
+	"ipbcp.version",FT_STRING, BASE_NONE, NULL, 0x0,
+	"IPBCP Protocol Version", HFILL }},
+    { &hf_ipbcp_type,
+      { "IPBCP Command Type",
+	"ipbcp.command",FT_STRING, BASE_NONE, NULL, 0x0,
+	"IPBCP Command Type", HFILL }},
   };
   static gint *ett[] = {
     &ett_sdp,
