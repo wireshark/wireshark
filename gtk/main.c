@@ -172,7 +172,6 @@ gboolean have_capture_file = FALSE; /* XXX - is there an aquivalent in cfile? */
 
 #ifdef _WIN32
 static gboolean has_console;	/* TRUE if app has console */
-/*static void create_console(void);*/
 static void destroy_console(void);
 #endif
 static void console_log_handler(const char *log_domain,
@@ -1087,14 +1086,15 @@ print_usage(gboolean print_ver) {
 	" (" SVNVERSION ")"
 #endif
         "\n (C) 1998-2005 Gerald Combs <gerald@ethereal.com>"
-	"\n%s\n\n%s\n",
+	"\n\n%s\n\n%s\n",
 	comp_info_str->str, runtime_info_str->str);
   } else {
     output = stderr;
   }
 #ifdef HAVE_LIBPCAP
   fprintf(output, "\n%s [ -vh ] [ -klLnpQS ] [ -a <capture autostop condition> ] ...\n", PACKAGE);	  
-  fprintf(output, "\t[ -b <capture ring buffer option> ] ...] [ -B capture buffer size (Win32 only) ]\n"); 
+  fprintf(output, "\t[ -b <capture ring buffer option> ] ...\n");
+  fprintf(output, "\t[ -B capture buffer size (Win32 only) ]\n"); 
   fprintf(output, "\t[ -c <capture packet count> ] [ -f <capture filter> ]\n");
   fprintf(output, "\t[ -g <packet number> ]\n");
   fprintf(output, "\t[ -i <capture interface> ] [ -m <font> ] [ -N <name resolving flags> ]\n");
@@ -1127,7 +1127,7 @@ show_version(void)
 #ifdef SVNVERSION
       " (" SVNVERSION ")"
 #endif
-      "\n%s\n\n%s\n",
+      "\n\n%s\n\n%s\n",
       comp_info_str->str, runtime_info_str->str);
 
 #ifdef _WIN32
