@@ -49,28 +49,28 @@ InvokeIDType
   }
 #.END
 
-#.FN_FTR Invoke
+#.FN_HDR Invoke
   opcode_type=OPCODE_INVOKE;
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "Invoke ");
   }
 #.END
 
-#.FN_FTR ReturnResult
+#.FN_HDR ReturnResult
   opcode_type=OPCODE_RETURN_RESULT;
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "ReturnResult ");
   }
 #.END
 
-#.FN_FTR ReturnError
+#.FN_HDR ReturnError
   opcode_type=OPCODE_RETURN_ERROR;
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "ReturnError ");
   }
 #.END
 
-#.FN_FTR Reject
+#.FN_HDR Reject
   opcode_type=OPCODE_REJECT;
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "Reject ");

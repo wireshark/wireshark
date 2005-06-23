@@ -2124,13 +2124,13 @@ static const ber_sequence_t Invoke_sequence[] = {
 
 static int
 dissect_cmip_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                Invoke_sequence, hf_index, ett_cmip_Invoke);
-
   opcode_type=OPCODE_INVOKE;
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "Invoke ");
   }
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                Invoke_sequence, hf_index, ett_cmip_Invoke);
+
   return offset;
 }
 static int dissect_invoke_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -2145,13 +2145,13 @@ static const ber_sequence_t ReturnResult_sequence[] = {
 
 static int
 dissect_cmip_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                ReturnResult_sequence, hf_index, ett_cmip_ReturnResult);
-
   opcode_type=OPCODE_RETURN_RESULT;
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "ReturnResult ");
   }
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                ReturnResult_sequence, hf_index, ett_cmip_ReturnResult);
+
   return offset;
 }
 static int dissect_returnResult_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -2165,13 +2165,13 @@ static const ber_sequence_t ReturnError_sequence[] = {
 
 static int
 dissect_cmip_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                ReturnError_sequence, hf_index, ett_cmip_ReturnError);
-
   opcode_type=OPCODE_RETURN_ERROR;
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "ReturnError ");
   }
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                ReturnError_sequence, hf_index, ett_cmip_ReturnError);
+
   return offset;
 }
 static int dissect_returnError_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -2330,13 +2330,13 @@ static const ber_sequence_t Reject_sequence[] = {
 
 static int
 dissect_cmip_Reject(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                Reject_sequence, hf_index, ett_cmip_Reject);
-
   opcode_type=OPCODE_REJECT;
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "Reject ");
   }
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                Reject_sequence, hf_index, ett_cmip_Reject);
+
   return offset;
 }
 static int dissect_reject_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
