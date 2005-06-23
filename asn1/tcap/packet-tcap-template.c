@@ -202,6 +202,10 @@ proto_register_tcap(void)
     /* we will fake a ssn subfield which has the same value obtained from sccp */
     tcap_itu_ssn_dissector_table = register_dissector_table("tcap.itu_ssn", "ITU TCAP SSN", FT_UINT8, BASE_DEC);
     tcap_ansi_ssn_dissector_table = register_dissector_table("tcap.ansi_ssn", "ANSI TCAP SSN", FT_UINT8, BASE_DEC);
+
+    /* 'globally' register dissector */
+    register_dissector("tcap", dissect_tcap, proto_tcap);
+
 }
 
 
