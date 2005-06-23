@@ -1098,8 +1098,8 @@ print_usage(gboolean print_ver) {
   fprintf(output, "\t[ -c <capture packet count> ] [ -f <capture filter> ]\n");
   fprintf(output, "\t[ -g <packet number> ]\n");
   fprintf(output, "\t[ -i <capture interface> ] [ -m <font> ] [ -N <name resolving flags> ]\n");
-  fprintf(output, "\t[ -o <preference/recent setting> ] ... \n");
-  fprintf(output, "\t[ -r <infile> ] [ -R <read (display) filter> ] [ -s <capture snaplen> ] \n");
+  fprintf(output, "\t[ -o <preference/recent setting> ] ...\n");
+  fprintf(output, "\t[ -r <infile> ] [ -R <read (display) filter> ] [ -s <capture snaplen> ]\n");
   fprintf(output, "\t[ -t <time stamp format> ]\n");
   fprintf(output, "\t[ -w <savefile> ] [ -y <capture link type> ] [ -z <statistics> ]\n");
   fprintf(output, "\t[ <infile> ]\n");
@@ -1617,7 +1617,6 @@ main(int argc, char *argv[])
   gboolean             capture_child; /* True if this is the child for "-S" */
   GLogLevelFlags       log_flags;
   guint                go_to_packet = 0;
-  gboolean             show_splash = TRUE;
   int                  optind_initial;
 
 #define OPTSTRING_INIT "a:b:c:f:g:Hhi:klLm:nN:o:pQr:R:Ss:t:w:vy:z:"
@@ -1639,13 +1638,94 @@ main(int argc, char *argv[])
     OPTSTRING_INIT OPTSTRING_WIN32;
 
 
+  /*** create the compile and runtime version strings ***/
+#ifdef _WIN32
+  /* Load wpcap if possible. Do this before collecting the run-time version information */
+  load_wpcap();
+
+  /* ... and also load the packet.dll from wpcap */
+  wpcap_packet_load();
+
+  /* Start windows sockets */
+  WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
+#endif  /* _WIN32 */
+
+  /* Assemble the compile-time version information string */
+  comp_info_str = g_string_new("Compiled ");
+  g_string_append(comp_info_str, "with ");
+  g_string_sprintfa(comp_info_str,
+#ifdef GTK_MAJOR_VERSION
+                    "GTK+ %d.%d.%d", GTK_MAJOR_VERSION, GTK_MINOR_VERSION,
+                    GTK_MICRO_VERSION);
+#else
+                    "GTK+ (version unknown)");
+#endif
+
+  g_string_append(comp_info_str, ", ");
+  get_compiled_version_info(comp_info_str);
+
+  /* Assemble the run-time version information string */
+  runtime_info_str = g_string_new("Running ");
+  get_runtime_version_info(runtime_info_str);
+
+
+  /*** "pre-scan" the command line parameters, if we have "console only" parameters ***/
+  /* (e.g. don't start GTK+, if we only have to show the command line help) */
+  optind_initial = optind;
+  while ((opt = getopt(argc, argv, optstring)) != -1) {
+    switch (opt) {
+      case 'h':        /* Print help and exit */
+        print_usage(TRUE);
+        exit(0);
+        break;
+      case 'v':        /* Show version and exit */
+        show_version();
+        exit(0);
+        break;
+      case 'G':        /* dump various field or other infos, see handle_dashG_option() */
+  /* If invoked with the "-G" flag, we dump out information based on
+     the argument to the "-G" flag; if no argument is specified,
+     for backwards compatibility we dump out a glossary of display
+     filter symbols.
+
+     We must do this before calling "gtk_init()", because "gtk_init()"
+     tries to open an X display, and we don't want to have to do any X
+     stuff just to do a build.
+
+     Given that we call "gtk_init()" before doing the regular argument
+     list processing, so that it can handle X and GTK+ arguments and
+     remove them from the list at which we look, this means we must do
+     this before doing the regular argument list processing, as well.
+
+     This means that:
+
+	you must give the "-G" flag as the first flag on the command line;
+
+	you must give it as "-G", nothing more, nothing less;
+
+	the first argument after the "-G" flag, if present, will be used
+	to specify the information to dump;
+
+	arguments after that will not be used. */        
+        handle_dashG_option(argc, argv, "ethereal");
+        /* will never return! */
+        exit(0);
+        break;
+    }
+  }
+
+  /* set getopt index back to initial value, so it will start with the first command line parameter again */
+  /* (XXX - this seems to be portable, but time will tell) */
+  optind = optind_initial;
+
+
   /* Set the current locale according to the program environment.
    * We haven't localized anything, but some GTK widgets are localized
    * (the file selection dialogue, for example).
    * This also sets the C-language locale to the native environment. */
   gtk_set_locale();
 
-  /* Let GTK get its args */
+  /* Let GTK get its args (will need an X server, so do this after command line only commands handled) */
   gtk_init (&argc, &argv);
 
   cf_callback_add(main_cf_callback, NULL);
@@ -1706,41 +1786,12 @@ main(int argc, char *argv[])
   }
 #endif
 
-  /* "pre-scan" the command line parameters, if we should show a splash screen */
-  /* (e.g. don't show a splash screen, if we only show the command line help) */
-  optind_initial = optind;
-  while ((opt = getopt(argc, argv, optstring)) != -1) {
-    switch (opt) {
-      case 'h':        /* help */
-      case 'v':        /* version */
-      case 'G':        /* dump various field or other infos, see handle_dashG_option() */
-          show_splash = FALSE;
-    }
-  }
-
-  /* set getopt index back to initial value, so it will start with the first command line parameter again */
-  /* (XXX - this seems to be portable, but time will tell) */
-  optind = optind_initial;
-
-  /* We want a splash screen only if we're not a child process */
-    /* We also want it only if we're not being run with "-G".
-       XXX - we also don't want it if we're being run with
-       "-h" or "-v", as those are options to run Ethereal and just
-       have it print stuff to the command line.  That would require
-       that we parse the argument list before putting up the splash
-       screen, which means we'd need to do so before reading the
-       preference files, as that could take enough time that we'd
-       want the splash screen up while we're doing that.  Unfortunately,
-       that means we'd have to queue up, for example, "-o" options,
-       so that we apply them *after* reading the preferences, as
-       they're supposed to override saved preferences. */
-  if ((argc < 2 || strcmp(argv[1], "-G") != 0)
+  /* We want a splash screen only if we're not a child process.
+     We won't come till here, if we had a "console only" command line parameter. */
 #ifdef HAVE_LIBPCAP
-      && !capture_child
+  if (!capture_child)
 #endif
-      && show_splash) {
     splash_win = splash_new("Loading Ethereal ...");
-  }
 
   splash_update(splash_win, "Registering dissectors ...");
 
@@ -1771,32 +1822,6 @@ main(int argc, char *argv[])
   /* Now register the preferences for any non-dissector modules.
      We must do that before we read the preferences as well. */
   prefs_register_modules();
-
-  /* If invoked with the "-G" flag, we dump out information based on
-     the argument to the "-G" flag; if no argument is specified,
-     for backwards compatibility we dump out a glossary of display
-     filter symbols.
-
-     We must do this before calling "gtk_init()", because "gtk_init()"
-     tries to open an X display, and we don't want to have to do any X
-     stuff just to do a build.
-
-     Given that we call "gtk_init()" before doing the regular argument
-     list processing, so that it can handle X and GTK+ arguments and
-     remove them from the list at which we look, this means we must do
-     this before doing the regular argument list processing, as well.
-
-     This means that:
-
-	you must give the "-G" flag as the first flag on the command line;
-
-	you must give it as "-G", nothing more, nothing less;
-
-	the first argument after the "-G" flag, if present, will be used
-	to specify the information to dump;
-
-	arguments after that will not be used. */
-  handle_dashG_option(argc, argv, "ethereal");
 
   /* multithread support currently doesn't seem to work in win32 gtk2.0.6 */
 #if !defined(_WIN32) && GTK_MAJOR_VERSION >= 2 && defined(G_THREADS_ENABLED) && defined USE_THREADS
@@ -1933,35 +1958,6 @@ main(int argc, char *argv[])
 
   init_cap_file(&cfile);
 
-#ifdef _WIN32
-  /* Load wpcap if possible. Do this before collecting the run-time version information */
-  load_wpcap();
-
-  /* ... and also load the packet.dll from wpcap */
-  wpcap_packet_load();
-
-  /* Start windows sockets */
-  WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
-#endif  /* _WIN32 */
-
-  /* Assemble the compile-time version information string */
-  comp_info_str = g_string_new("Compiled ");
-  g_string_append(comp_info_str, "with ");
-  g_string_sprintfa(comp_info_str,
-#ifdef GTK_MAJOR_VERSION
-                    "GTK+ %d.%d.%d", GTK_MAJOR_VERSION, GTK_MINOR_VERSION,
-                    GTK_MICRO_VERSION);
-#else
-                    "GTK+ (version unknown)");
-#endif
-
-  g_string_append(comp_info_str, ", ");
-  get_compiled_version_info(comp_info_str);
-
-  /* Assemble the run-time version information string */
-  runtime_info_str = g_string_new("Running ");
-  get_runtime_version_info(runtime_info_str);
-
   /* Now get our args */
   while ((opt = getopt(argc, argv, optstring)) != -1) {
     switch (opt) {
@@ -2003,10 +1999,6 @@ main(int argc, char *argv[])
       /*** all non capture option specific ***/
       case 'g':        /* Go to packet */
         go_to_packet = get_positive_int("Ethereal", optarg, "go to packet");
-        break;
-      case 'h':        /* Print help and exit */
-	print_usage(TRUE);
-	exit(0);
         break;
       case 'l':        /* Automatic scrolling in live capture mode */
 #ifdef HAVE_LIBPCAP
@@ -2104,10 +2096,6 @@ main(int argc, char *argv[])
           fprintf(stderr, "\"ad\" for absolute with date, or \"d\" for delta.\n");
           exit(1);
         }
-        break;
-      case 'v':        /* Show version and exit */
-        show_version();
-        exit(0);
         break;
       case 'z':
         /* We won't call the init function for the tap this soon
