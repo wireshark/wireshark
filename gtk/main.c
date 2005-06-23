@@ -2599,7 +2599,7 @@ WinMain (struct HINSTANCE__ *hInstance,
 void
 create_console(void)
 {
-  if (!has_console && prefs.gui_console_open != console_open_never) {
+  if (!has_console) {
     /* We have no console to which to print the version string, so
        create one and make it the standard input, output, and error. */
     if (!AllocConsole())
@@ -2662,7 +2662,9 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
   today = localtime(&curr);    
 
 #ifdef _WIN32
-  create_console();
+  if (prefs.gui_console_open != console_open_never) {
+    create_console();
+  }
   if (has_console) {
     /* For some unknown reason, the above doesn't appear to actually cause
        anything to be sent to the standard output, so we'll just splat the
