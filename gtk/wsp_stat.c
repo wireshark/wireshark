@@ -65,7 +65,7 @@ typedef struct _wsp_stats_t {
 } wspstat_t;
 /* used to keep track of a single type of status code */
 typedef struct _wsp_status_code_t {
-	gchar		*name;
+	const gchar	*name;
 	guint32		 packets;
 	GtkWidget	*widget;/* label in which we print the number of packets */
 	wspstat_t	*sp;	/* entire program interface */
@@ -311,8 +311,8 @@ gtk_wspstat_init(char *optarg)
 	char 		*title=NULL;
 	GString		*error_string;
 	GtkWidget	*main_vb, *pdutypes_fr, *statuscode_fr ;
-    GtkWidget	*bt_close;
-    GtkWidget	*bbox;
+	GtkWidget	*bt_close;
+	GtkWidget	*bbox;
 	guint32		 i;
 	wsp_status_code_t *sc;
 	
@@ -355,7 +355,7 @@ gtk_wspstat_init(char *optarg)
 		sp->pdu_stats[i].packets=0;
 	}
 
-    gtk_window_set_title(GTK_WINDOW(sp->win), title);
+	gtk_window_set_title(GTK_WINDOW(sp->win), title);
 	g_free(title);
 
 	/* container for the two frames */

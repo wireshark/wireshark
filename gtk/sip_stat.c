@@ -73,13 +73,13 @@ typedef struct _sip_stats_t {
  * for example it can be { 3, 404, "Not Found" ,...}
  * which means we captured 3 reply sip/1.1 404 Not Found */
 typedef struct _sip_response_code_t {
-    guint32 	 packets;		    /* 3 */
-    guint	 	 response_code;		/* 404 */
-    gchar		*name;			    /* "Not Found" */
-    GtkWidget	*widget;		    /* Label where we display it */
-    GtkWidget	*table;			    /* Table in which we put it,
-                                       e.g. client_error_table */
-    sipstat_t	*sp;                /* Pointer back to main struct */
+    guint32 	 packets;		/* 3 */
+    guint 	 response_code;		/* 404 */
+    const gchar	*name;			/* "Not Found" */
+    GtkWidget	*widget;		/* Label where we display it */
+    GtkWidget	*table;			/* Table in which we put it,
+					   e.g. client_error_table */
+    sipstat_t	*sp;			/* Pointer back to main struct */
 } sip_response_code_t;
 
 /* Used to keep track of the stats for a specific request string */

@@ -84,7 +84,7 @@ static void build_boolean_values(GtkWidget *value_list_scrolled_win,
 static void build_enum_values(GtkWidget *value_list_scrolled_win,
                               GtkWidget *value_list,
                               const value_string *values);
-static void add_value_list_item(GtkWidget *value_list, gchar *string,
+static void add_value_list_item(GtkWidget *value_list, const gchar *string,
                                 gpointer data);
 static void display_value_fields(header_field_info *hfinfo,
                                  gboolean is_comparison, GtkWidget *value_label,
@@ -503,7 +503,7 @@ build_enum_values(GtkWidget *value_list_scrolled_win _U_, GtkWidget *value_list,
 }
 
 static void
-add_value_list_item(GtkWidget *value_list, gchar *string, gpointer data)
+add_value_list_item(GtkWidget *value_list, const gchar *string, gpointer data)
 {
 #if GTK_MAJOR_VERSION < 2
     GtkWidget *label, *item;

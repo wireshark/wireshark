@@ -51,7 +51,7 @@ typedef struct _wsp_pdu_t {
 } wsp_pdu_t;
 /* used to keep track of RTT statistics */
 typedef struct _wsp_status_code_t {
-	gchar		*name;
+	const gchar	*name;
 	guint32		 packets;
 } wsp_status_code_t;
 /* used to keep track of the statictics for an entire program interface */

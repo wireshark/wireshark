@@ -55,7 +55,7 @@ typedef struct _sip_stats_t {
 typedef struct _sip_response_code_t {
 	guint32 	 packets;		/* 3 */
 	guint	 	 response_code;		/* 404 */
-	gchar		*name;			/* Not Found */
+	const gchar	*name;			/* Not Found */
 	sipstat_t	*sp;
 } sip_response_code_t;
 

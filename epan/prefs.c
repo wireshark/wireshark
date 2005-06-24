@@ -487,7 +487,7 @@ find_preference(module_t *module, const char *name)
  * Returns TRUE if the given protocol has registered preferences
  */
 gboolean
-prefs_is_registered_protocol(char *name)
+prefs_is_registered_protocol(const char *name)
 {
 	module_t *m = find_module(name);
 
@@ -498,7 +498,7 @@ prefs_is_registered_protocol(char *name)
  * Returns the module title of a registered protocol
  */
 const char *
-prefs_get_title_by_name(char *name)
+prefs_get_title_by_name(const char *name)
 {
 	module_t *m = find_module(name);
 

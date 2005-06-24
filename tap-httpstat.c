@@ -49,7 +49,7 @@ typedef struct _http_stats_t {
 typedef struct _http_response_code_t {
 	guint32 	 packets;		/* 3 */
 	guint	 	 response_code;		/* 404 */
-	gchar		*name;			/* Not Found */
+	const gchar	*name;			/* Not Found */
 	httpstat_t	*sp;
 } http_response_code_t;
 

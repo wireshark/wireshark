@@ -58,7 +58,8 @@ typedef struct _srt_stat_table {
  * @param vbox the corresponding GtkVBox to fill in
  * @param filter_string filter string or NULL
  */
-void init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, char *filter_string);
+void init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox,
+                    const char *filter_string);
 
 /** Init an srt table row data structure.
  *

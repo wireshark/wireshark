@@ -239,12 +239,12 @@ typedef struct preference pref_t;
 /*
  * Returns TRUE if the given protocol has registered preferences.
  */
-extern gboolean prefs_is_registered_protocol(char *name);
+extern gboolean prefs_is_registered_protocol(const char *name);
 
 /*
  * Returns the module title of a registered protocol (or NULL if unknown).
  */
-extern const char *prefs_get_title_by_name(char *name);
+extern const char *prefs_get_title_by_name(const char *name);
 
 /*
  * Register a preference with an unsigned integral value.

@@ -47,7 +47,7 @@ typedef struct _phs_t {
 	struct _phs_t *parent;
 	char *filter;
 	int protocol;
-	char *proto_name;
+	const char *proto_name;
 	guint32 frames;
 	guint32 bytes;
 } phs_t;

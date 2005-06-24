@@ -328,7 +328,7 @@ srt_create_popup_menu(srt_stat_table *rst)
 
 
 void
-init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, char *filter_string)
+init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *filter_string)
 {
 	int i, j;
 	column_arrows *col_arrows;

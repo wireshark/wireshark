@@ -70,7 +70,7 @@ typedef struct _http_stats_t {
 typedef struct _http_response_code_t {
 	guint32 	 packets;		/* 3 */
 	guint	 	 response_code;		/* 404 */
-	gchar		*name;			/* Not Found */
+	const gchar	*name;			/* Not Found */
 	GtkWidget	*widget;		/* Label where we display it */
 	GtkWidget	*table;			/* Table in which we put it, e.g. client_error_box */
 	httpstat_t	*sp;
