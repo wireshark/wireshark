@@ -2340,11 +2340,13 @@ default:
  *
  */
  
-static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_ ) {
+static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_ ) {
     
     gboolean be _U_;                        /* big endianess */
 
-    
+    if (!header->exception_id)
+        return FALSE;
+
 """
 
 
