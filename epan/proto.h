@@ -963,12 +963,12 @@ extern int proto_registrar_n(void);
 /** Get name of registered header_field number n.
  @param n item # n (0-indexed)
  @return the name of this registered item */
-extern char* proto_registrar_get_name(int n);
+extern const char* proto_registrar_get_name(int n);
 
 /** Get abbreviation of registered header_field number n.
  @param n item # n (0-indexed)
  @return the abbreviation of this registered item */
-extern char* proto_registrar_get_abbrev(int n);
+extern const char* proto_registrar_get_abbrev(int n);
 
 /** Get the header_field information based upon a field or protocol id.
  @param hfindex item # n (0-indexed)

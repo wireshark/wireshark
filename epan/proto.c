@@ -2903,7 +2903,7 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 	if ((hfinfo->name[0] != 0) && (hfinfo->abbrev[0] != 0 )) {
 
 		header_field_info *same_name_hfinfo, *same_name_next_hfinfo;
-		char *p;
+		const char *p;
 		guchar c;
 
 		/* Check that the filter name (abbreviation) is legal;
@@ -3652,7 +3652,7 @@ proto_registrar_n(void)
 	return gpa_hfinfo.len;
 }
 
-char*
+const char*
 proto_registrar_get_name(int n)
 {
 	header_field_info *hfinfo;
@@ -3661,7 +3661,7 @@ proto_registrar_get_name(int n)
 	return hfinfo->name;
 }
 
-char*
+const char*
 proto_registrar_get_abbrev(int n)
 {
 	header_field_info *hfinfo;

@@ -307,7 +307,7 @@ void
 selected_ptree_info_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
     int field_id;
-    gchar *proto_abbrev;
+    const gchar *proto_abbrev;
     gpointer  dialog;
 
 
@@ -351,7 +351,7 @@ void
 selected_ptree_ref_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
     int field_id;
-    gchar *proto_abbrev;
+    const gchar *proto_abbrev;
     gchar *selected_proto_url;
 
 

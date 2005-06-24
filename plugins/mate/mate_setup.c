@@ -237,7 +237,7 @@ static void new_attr_hfri(gchar* item_name, GHashTable* hfids, gchar* name) {
 
 }
 
-static gchar* my_protoname(int proto_id) {
+static const gchar* my_protoname(int proto_id) {
 	if (proto_id) {
 		return proto_registrar_get_abbrev(proto_id);
 	} else {
