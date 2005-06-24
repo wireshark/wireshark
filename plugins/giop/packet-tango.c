@@ -533,7 +533,9 @@ static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     
     gboolean be _U_;                        /* big endianess */
 
-    
+    if (!header->exception_id)
+        return FALSE;
+
 
     if (!strcmp(header->exception_id, user_exception_Tango_MultiDevFailed )) {
        decode_ex_Tango_MultiDevFailed(tvb, pinfo, tree, offset, header, operation);   /*  IDL:Tango/MultiDevFailed:1.0  */
