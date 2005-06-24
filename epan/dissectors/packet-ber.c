@@ -74,6 +74,7 @@ static gint hf_ber_length = -1;
 static gint hf_ber_bitstring_padding = -1;
 static gint hf_ber_unknown_OID = -1;
 static gint hf_ber_unknown_OCTETSTRING = -1;
+static gint hf_ber_unknown_GraphicString = -1;
 static gint hf_ber_unknown_NumericString = -1;
 static gint hf_ber_unknown_PrintableString = -1;
 static gint hf_ber_unknown_IA5String = -1;
@@ -292,6 +293,9 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 			break;
 		case BER_UNI_TAG_ENUMERATED:
 			offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_ENUMERATED, NULL);
+			break;
+		case BER_UNI_TAG_GraphicString:
+			offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_GraphicString, NULL);
 			break;
 		case BER_UNI_TAG_OCTETSTRING:
 			offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_OCTETSTRING, NULL);
@@ -1869,6 +1873,9 @@ proto_register_ber(void)
 	{ &hf_ber_unknown_OCTETSTRING, {
 	    "OCTETSTRING", "ber.unknown.OCTETSTRING", FT_BYTES, BASE_HEX,
 	    NULL, 0, "This is an unknown OCTETSTRING", HFILL }},
+	{ &hf_ber_unknown_GraphicString, {
+	    "GRAPHICSTRING", "ber.unknown.GRAPHICSTRING", FT_STRING, BASE_HEX,
+	    NULL, 0, "This is an unknown GRAPHICSTRING", HFILL }},
 	{ &hf_ber_unknown_OID, {
 	    "OID", "ber.unknown.OID", FT_STRING, BASE_NONE,
 	    NULL, 0, "This is an unknown Object Identifier", HFILL }},
