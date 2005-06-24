@@ -634,20 +634,24 @@ dissect_ber_null(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tv
   guint32 tag, len;
   int offset_old;
 
-  offset_old = offset;  
-  offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
-  if ((pc) ||
-      (!implicit_tag && ((class != BER_CLASS_UNI) || (tag != BER_UNI_TAG_NULL)))) {
-    proto_tree_add_text(tree, tvb, offset_old, offset - offset_old, "BER Error: NULL expected but Class:%d(%s) PC:%d Tag:%d was unexpected", class,val_to_str(class,ber_class_codes,"Unknown"), pc, tag);
+  if(!implicit_tag){
+    offset_old = offset;  
+    offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+    if ((pc) ||
+	(!implicit_tag && ((class != BER_CLASS_UNI) || (tag != BER_UNI_TAG_NULL)))) {
+      proto_tree_add_text(tree, tvb, offset_old, offset - offset_old, "BER Error: NULL expected but Class:%d(%s) PC:%d Tag:%d was unexpected", class,val_to_str(class,ber_class_codes,"Unknown"), pc, tag);
+    }
+
+    offset_old = offset;  
+    offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
+    if (len) {
+      proto_tree_add_text(tree, tvb, offset_old, offset - offset_old, "BER Error: NULL expect zero length but Length=%d", len);
+      proto_tree_add_text(tree, tvb, offset, len, "BER Error: unexpected data in NULL type");
+      offset += len;
+    }
   }
 
-  offset_old = offset;  
-  offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
-  if (len) {
-    proto_tree_add_text(tree, tvb, offset_old, offset - offset_old, "BER Error: NULL expect zero length but Length=%d", len);
-    proto_tree_add_text(tree, tvb, offset, len, "BER Error: unexpected data in NULL type");
-    offset += len;
-  }
+  proto_tree_add_item(tree, hf_id, tvb, offset, 0, FALSE);
 
   return offset;
 }
