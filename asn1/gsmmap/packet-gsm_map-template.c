@@ -25,6 +25,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * References: ETSI TS 129 002
+ * Updated to ETSI TS 129 002 V6.9.0 (2005-3GPP TS 29.002 version 6.9.0 Release 6)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -70,13 +71,9 @@ static int hf_gsm_map_currentPassword = -1;
 static int hf_gsm_map_extension = -1;
 static int hf_gsm_map_nature_of_number = -1;
 static int hf_gsm_map_number_plan = -1;
-static int hf_gsm_map_misdn_digits = -1;
+static int hf_gsm_map_isdn_address_digits = -1;
 static int hf_gsm_map_servicecentreaddress_digits = -1;
 static int hf_gsm_map_imsi_digits = -1;
-static int hf_gsm_map_map_gmsc_address_digits = -1;
-static int hf_gsm_map_map_RoamingNumber_digits = -1;
-static int hf_gsm_map_map_hlr_number_digits = -1;
-static int hf_gsm_map_map_ForwardedToNumber_digits = -1;
 static int hf_gsm_map_Ss_Status_unused = -1;
 static int hf_gsm_map_Ss_Status_q_bit = -1;
 static int hf_gsm_map_Ss_Status_p_bit = -1;
@@ -179,6 +176,7 @@ const value_string gsm_map_opr_code_strings[] = {
   {   2, "updateLocation" },
   {   3, "cancelLocation" },
   {   4, "provideRoamingNumber" },
+  {	  5, "noteSubscriberDataModified" },	
   {   6, "resumeCallHandling" },
   {   7, "insertSubscriberData" },
   {   8, "deleteSubscriberData" },
@@ -192,6 +190,7 @@ const value_string gsm_map_opr_code_strings[] = {
   {  17, "registerPassword" },
   {  18, "getPassword" },
   {  19, "processUnstructuredSS-Data" },		/* map-ac networkFunctionalSs (18) version1 (1) */
+  {  20, "releaseResources" },
   {  22, "sendRoutingInfo" },
   {  23, "updateGprsLocation" },
   {  24, "sendRoutingInfoForGprs" },
@@ -248,6 +247,9 @@ const value_string gsm_map_opr_code_strings[] = {
   {  83, "provideSubscriberLocation" },
   {  85, "sendRoutingInfoForLCS" },
   {  86, "subscriberLocationReport" },
+  {	 87, "ist-Alert" },
+  {	 88, "ist-Command" },
+  {  89, "noteMM-Event" },
   { 0, NULL }
 };
 static const value_string gsm_map_err_code_string_vals[] = {
@@ -414,22 +416,28 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_RegisterSS_Arg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case  11: /*eraseSS*/
-    offset=dissect_gsm_map_Ss_ForBS(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_SS_ForBS_Code(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 12: /*activateSS*/
-    offset=dissect_gsm_map_Ss_ForBS(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_SS_ForBS_Code(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 13: /*deactivateSS*/
-    offset=dissect_gsm_map_Ss_ForBS(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_SS_ForBS_Code(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 14: /*interrogateSS*/
-    offset=dissect_gsm_map_Ss_ForBS(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_SS_ForBS_Code(FALSE, tvb, offset, pinfo, tree, -1);
     break;
+  case 15: /*authenticationFailureReport*/
+	  offset=dissect_gsm_map_AuthenticationFailureReportArg(FALSE, tvb, offset, pinfo, tree, -1);
+	  break;
   case 17: /*registerPassword*/
-    offset=dissect_gsm_map_Ss_Code(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ss_Code);
+    offset=dissect_gsm_map_SS_Code(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ss_Code);
     break;
   case 18: /*getPassword*/
     offset=dissect_gsm_map_GetPasswordArg(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_getPassword);
+    break;
+  case 20: /*releaseResources*/
+    offset=dissect_gsm_map_ReleaseResourcesArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 22: /*sendRoutingInfo*/
     offset=dissect_gsm_map_SendRoutingInfoArg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -448,9 +456,9 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     break;
   case 29: /*sendEndSignal*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
-	if ( octet == 3){ /* This is a V9 message ??? */
+	if ( octet == 3){ /* This is a V3 message ??? */
 		offset = offset +2;
-		offset=dissect_gsm_map_SendEndSignalV9Arg(TRUE, tvb, offset, pinfo, tree, hf_gsm_mapSendEndSignal);
+		offset=dissect_gsm_map_SendEndSignalArgV3(TRUE, tvb, offset, pinfo, tree, hf_gsm_mapSendEndSignal);
 	}else{
 		offset=dissect_gsm_map_Bss_APDU(FALSE, tvb, offset, pinfo, tree, hf_gsm_mapSendEndSignal);
 	}
@@ -462,10 +470,22 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_SIWFSSignallingModifyArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 33: /*processAccessSignalling*/
+	octet = tvb_get_guint8(tvb,0) & 0xf;
+	if ( octet == 3){ /* This is a V3 message ??? */
+		offset = offset +2;
+		offset = dissect_gsm_map_ProcessAccessSignallingArgV3(TRUE, tvb, offset, pinfo, tree, hf_gsm_mapSendEndSignal);
+	}else{
     offset=dissect_gsm_map_Bss_APDU(FALSE, tvb, offset, pinfo, tree, -1);
+	}
     break;
   case 34: /*forwardAccessSignalling*/
-    offset=dissect_gsm_map_Bss_APDU(FALSE, tvb, offset, pinfo, tree, -1);
+	octet = tvb_get_guint8(tvb,0) & 0xf;
+	if ( octet == 3){ /* This is a V3 message ??? */
+		offset = offset +2;
+		offset=dissect_gsm_map_ForwardAccessSignallingArgV3(TRUE, tvb, offset, pinfo, tree, -1);
+	}else{
+		 offset=dissect_gsm_map_Bss_APDU(FALSE, tvb, offset, pinfo, tree, -1);
+	}
     break;
   case 37: /*reset*/
     offset=dissect_gsm_map_ResetArg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -484,9 +504,9 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     break;
   case 43: /*checkIMEI*/
 	  if (application_context_version < 2 ){
-		  offset=dissect_gsm_map_CheckIMEIArg(FALSE, tvb, offset, pinfo, tree, -1);
+		  offset=dissect_gsm_map_CheckIMEIArgV2(FALSE, tvb, offset, pinfo, tree, -1);
 	  }else{
-		  offset=dissect_gsm_map_CheckIMEIv2Arg(FALSE, tvb, offset, pinfo, tree, -1);
+		  offset=dissect_gsm_map_CheckIMEIArgV2(FALSE, tvb, offset, pinfo, tree, -1);
 	  }
     break;
   case 44: /*mt-forwardSM*/
@@ -508,7 +528,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_DeactivateTraceModeArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 55: /*sendIdentification*/
-    offset=dissect_gsm_map_Tmsi(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_TMSI(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 56: /*sendAuthenticationInfo*/
 	  if (application_context_version < 2 ){
@@ -521,7 +541,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 	offset=dissect_gsm_map_RestoreDataArg(FALSE, tvb, offset, pinfo, tree, -1);
 	break;
   case 58: /*sendIMSI*/
-	offset=dissect_gsm_map_Msisdn(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_msisdn);
+	offset = dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, -1);
 	break;
   case 59: /*processUnstructuredSS-Request*/
     offset=dissect_gsm_map_Ussd_Arg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -548,19 +568,19 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_ReadyForSM_Arg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 67: /*purgeMS*/
-    offset=dissect_gsm_map_PurgeMS_Arg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_PurgeMSArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 68: /*prepareHandover*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
-	if ( octet == 3){ /* This is a V9 message ??? */
+	if ( octet == 3){ /* This is a V3 message ??? */
 		offset = offset +2;
-		offset=dissect_gsm_map_PrepareHandoverV3Arg(TRUE, tvb, offset, pinfo, tree, -1);
+		offset=dissect_gsm_map_PrepareHO_ArgV3(TRUE, tvb, offset, pinfo, tree, -1);
 	}else{
 		offset=dissect_gsm_map_PrepareHO_Arg(FALSE, tvb, offset, pinfo, tree, -1);
 	}
     break;
   case 69: /*prepareSubsequentHandover*/
-    offset=dissect_gsm_map_PrepareSubsequentHO_Arg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_PrepareSubsequentHOArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 70: /*provideSubscriberInfo*/
     offset=dissect_gsm_map_ProvideSubscriberInfoArg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -594,6 +614,15 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     break;
   case 86: /*subscriberLocationReport*/
     offset=dissect_gsm_map_SubscriberLocationReport_Arg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 87: /*ist-Alert*/
+    offset=dissect_gsm_map_IST_AlertArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 88: /*ist-Command*/
+    offset=dissect_gsm_map_IST_CommandArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 89: /*noteMM-Event*/
+    offset=dissect_gsm_map_NoteMM_EventArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   default:
     proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
@@ -636,25 +665,31 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     break;
 	*/
   case  10: /*registerSS*/
-    offset=dissect_gsm_map_Ss_Info(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_SS_Info(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case  11: /*eraseSS*/
-    offset=dissect_gsm_map_Ss_Info(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_SS_Info(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 12: /*activateSS*/
-    offset=dissect_gsm_map_Ss_Info(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_SS_Info(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 13: /*deactivateSS*/
-    offset=dissect_gsm_map_Ss_Info(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_SS_Info(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 14: /*interrogateSS*/
     offset=dissect_gsm_map_InterrogateSS_Res(FALSE, tvb, offset, pinfo, tree, -1);
     break;
+  case 15: /*authenticationFailureReport*/
+	  offset=dissect_gsm_map_AuthenticationFailureReportArg(FALSE, tvb, offset, pinfo, tree, -1);
+	  break;
   case 17: /*registerPassword*/
     offset=dissect_gsm_map_NewPassword(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ss_Code);
     break;
   case 18: /*getPassword*/
     offset=dissect_gsm_map_CurrentPassword(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_currentPassword);
+    break;
+  case 20: /*releaseResources*/
+    offset=dissect_gsm_map_ReleaseResourcesRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 22: /*sendRoutingInfo*/
 	  /* This is done to get around a problem with IMPLICIT tag:s */
@@ -677,7 +712,7 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
 	  /* Taken from MAP-MobileServiceOperations{ 0 identified-organization (4) etsi (0) mobileDomain 
 	   * (0) gsm-Network (1) modules (3) map-MobileServiceOperations (5) version9 (9) }
 	   */
-    offset=dissect_gsm_map_ExtensionContainer(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_SendEndSignalRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 31: /*provideSIWFSNumbe*/
     offset=dissect_gsm_map_ProvideSIWFSNumberRes(FALSE, tvb, offset, pinfo, tree, -1);
@@ -692,13 +727,13 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     dissect_gsm_map_SendGroupCallEndSignalRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 43: /*checkIMEI*/
-    offset=dissect_gsm_map_EquipmentStatus(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_equipmentStatus);
+    offset=dissect_gsm_map_CheckIMEIRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 44: /*mt-forwardSM*/
     offset=dissect_gsm_map_Mt_forwardSM_Res(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 45: /*sendRoutingInfoForSM*/
-    offset=dissect_gsm_map_RoutingInfoForSMRes(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_RoutingInfoForSM_Res(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 46: /*mo-forwardSM*/
     offset=dissect_gsm_map_Mo_forwardSM_Res(FALSE, tvb, offset, pinfo, tree, -1);
@@ -716,17 +751,17 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     offset=dissect_gsm_map_SendIdentificationRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 56: /*sendAuthenticationInfo*/
-	  if (application_context_version < 3 ){
+	  if (application_context_version < 2 ){
 		  offset=dissect_gsm_map_SendAuthenticationInfoRes(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoRes);
 	  }else{
-		  offset=dissect_gsm_map_SendAuthenticationInfoV3Res(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoRes);
+		  offset=dissect_gsm_map_SendAuthenticationInfoResV3(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoRes);
 	  }
 	  break;
   case 57: /*restoreData*/
     offset=dissect_gsm_map_RestoreDataRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 58: /*sendIMSI*/
-    offset=dissect_gsm_map_Imsi(FALSE, tvb, offset, pinfo, tree,hf_gsm_map_imsi);
+    offset=dissect_gsm_map_IMSI(FALSE, tvb, offset, pinfo, tree,hf_gsm_map_imsi);
     break;
   case 59: /*unstructuredSS-Request*/
     offset=dissect_gsm_map_Ussd_Res(FALSE, tvb, offset, pinfo, tree, -1);
@@ -748,13 +783,13 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     offset=dissect_gsm_map_ReadyForSM_Res(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 67: /*purgeMS*/
-    offset=dissect_gsm_map_PurgeMS_Res(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_PurgeMSRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 68: /*prepareHandover*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
-	if ( octet == 3){ /* This is a V9 message ??? */
+	if ( octet == 3){ /* This is a V3 message ??? */
 		offset = offset +2;
-		offset=dissect_gsm_map_PrepareHandoverV3Res(TRUE, tvb, offset, pinfo, tree, hf_gsm_mapSendEndSignal);
+		offset=dissect_gsm_map_PrepareHO_ResV3(TRUE, tvb, offset, pinfo, tree, hf_gsm_mapSendEndSignal);
 	}else{
 		offset=dissect_gsm_map_PrepareHO_Res(FALSE, tvb, offset, pinfo, tree, -1);
 	}
@@ -794,6 +829,15 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     break;
   case 86: /*subscriberLocationReport*/
     offset=dissect_gsm_map_SubscriberLocationReport_Res(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 87: /*ist-Alert*/
+    offset=dissect_gsm_map_IST_AlertRes(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 88: /*ist-Command*/
+    offset=dissect_gsm_map_IST_CommandRes(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 89: /*noteMM-Event*/
+    offset=dissect_gsm_map_NoteMM_EventRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
  default:
     proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
@@ -1383,34 +1427,18 @@ void proto_register_gsm_map(void) {
       { "Number plan", "gsm_map.number_plan",
         FT_UINT8, BASE_HEX, VALS(gsm_map_number_plan_values), 0x0f,
         "Number plan", HFILL }},
-	{ &hf_gsm_map_misdn_digits,
-      { "Misdn digits", "gsm_map.misdn_digits",
+	{ &hf_gsm_map_isdn_address_digits,
+      { "ISDN Address digits", "gsm_map.isdn.adress.digits",
         FT_STRING, BASE_NONE, NULL, 0,
-        "Misdn digits", HFILL }},
+        "ISDN Address digits", HFILL }},
 	{ &hf_gsm_map_servicecentreaddress_digits,
       { "ServiceCentreAddress digits", "gsm_map.servicecentreaddress_digits",
         FT_STRING, BASE_NONE, NULL, 0,
         "ServiceCentreAddress digits", HFILL }},
-	{ &hf_gsm_map_map_gmsc_address_digits,
-      { "Gmsc Address digits digits", "gsm_map.gmsc_address_digits",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "Gmsc Address digits", HFILL }},
 	{ &hf_gsm_map_imsi_digits,
       { "Imsi digits", "gsm_map.imsi_digits",
         FT_STRING, BASE_NONE, NULL, 0,
         "Imsi digits", HFILL }},
-	{&hf_gsm_map_map_RoamingNumber_digits,
-      { "RoamingNumber digits", "gsm_map.RoamingNumber_digits",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "RoamingNumber digits", HFILL }},
-	{&hf_gsm_map_map_hlr_number_digits,
-      { "Hlr-Number digits", "gsm_map.hlr_number_digits",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "Hlr-Number digits", HFILL }},
-	{&hf_gsm_map_map_ForwardedToNumber_digits,
-      { "Forwarded To Number digits", "gsm_map.forwardedtonumber_digits",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "Forwarded To Number digits", HFILL }},
 	{ &hf_gsm_map_Ss_Status_unused,
       { "Unused", "gsm_map.unused",
         FT_UINT8, BASE_HEX, NULL, 0xf0,

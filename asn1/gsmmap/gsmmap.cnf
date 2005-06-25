@@ -13,44 +13,49 @@
 
 
 #.TYPE_RENAME
-InsertSubscriberDataArg/bearerserviceList BearerServiceList
-InsertSubscriberDataRes/bearerserviceList BearerServiceList
-InsertSubscriberDataRes/ss-List Ss_List
-DeleteSubscriberDataArg/ss-List Ss_List
-SendRoutingInfoRes/ss-List Ss_List
-SendIdentificationRes/authenticationSetList SendId_authenticationSetList
-AnyTimeModificationArg/modificationRequestFor-CF-Info/basicService BasicService_ext
-AnyTimeModificationArg/modificationRequestFor-CB-Info/basicService BasicService_ext
 
-AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/mt-smsCAMELTDP-CriteriaList/_item/sms-TriggerDetectionPoint Sms_TriggerDetectionPoint
-Sms-CAMEL-TDP-DataList/_item/sms-TriggerDetectionPoint Sms_TriggerDetectionPoint
-InsertSubscriberDataArg/vlrCamelSubscriptionInfo/ss-CSI Ss_CSI
-AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/ss-CSI Ss_CSI
-SendRoutingInfoRes/extendedRoutingInfo/camelRoutingInfo/gmscCamelSubscriptionInfo/t-CSI T_CSI
-AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/t-CSI T_CSI
-
-AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/t-BCSM-CAMEL-TDP-CriteriaList/_item/t-BCSM-TriggerDetectionPoint T_BCSM_TriggerDetectionPoint
-AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/vt-BCSM-CAMEL-TDP-CriteriaList/_item/t-BCSM-TriggerDetectionPoint T_BCSM_TriggerDetectionPoint
-AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/vt-IM-BCSM-CAMEL-TDP-CriteriaList/_item/t-BCSM-TriggerDetectionPoint T_BCSM_TriggerDetectionPoint
 #.FIELD_RENAME
-RequestedInfo/locationInformation  locationInformationFlag
-RequestedInfo/subscriberState      subscriberStateFlag
-AdditionalSignalInfo/signalInfo    ext_signalInfo
-ForwardingInfo/forwardingFeatureList forwardingFeatureList_1_32
-SendIdentificationRes/authenticationSetList sendId_authenticationSetList
-AnyTimeSubscriptionInterrogationArg/requestedSubscriptionInfo/supportedVLR-CAMEL-Phases supportedVLR_CAMEL_Phases_flg
-AnyTimeSubscriptionInterrogationArg/requestedSubscriptionInfo/supportedSGSN-CAMEL-Phases supportedSGSN_CAMEL_Phases_flg
+Ext-SS-Info/ss-Data ext-ss-Data
+RequestedInfo/subscriberState subscriberState-flg
+RequestedSubscriptionInfo/supportedVLR-CAMEL-Phases supportedVLR-CAMEL-Phases_flg
+RequestedSubscriptionInfo/supportedSGSN-CAMEL-Phases supportedSGSN-CAMEL-Phases_flg
+PrepareGroupCallArg/teleservice ext-teleservice
+BasicServiceCode/teleservice teleservice-code
+PDP-ContextInfo/qos-Subscribed ext-qos-Subscribed
+AccessNetworkSignalInfo/signalInfo longsignalInfo 
+Ext-SS-Info/callBarringInfo ext-callBarringInfo
+RequestedInfo/locationInformation locationInformation_flg
 RequestedInfo/imei imei_flg
-AnyTimeModificationArg/modificationRequestFor-CF-Info/basicService basicService_ext
-AnyTimeModificationArg/modificationRequestFor-CB-Info/basicService basicService_ext
-
-O-BcsmCamelTDP-CriteriaList/_item/basicServiceCriteria basicServiceCriteria_lst
-
-InterrogateSS-Res/forwardingFeatureList forwardingFeatureList_1_13
-AnyTimeModificationArg/modificationRequestFor-CF-Info/noReplyConditionTime noReplyConditionTime_1_100
-
-AnyTimeSubscriptionInterrogationRes/camel-SubscriptionInfo/o-IM-BcsmCamelTDP-CriteriaList/_item/o-BcsmTriggerDetectionPoint o-BcsmTriggerDetectionPoint
-O-BcsmCamelTDP-CriteriaList/_item/o-BcsmTriggerDetectionPoint o-BcsmTriggerDetectionPoint
+Ext-ForwFeature/forwardingOptions ext-forwardingOptions
+Ext-SS-Info/forwardingInfo ext-forwardingInfo
+RegisterSS-Arg/forwardedToNumber forwardedToNumber_addr 
+ModificationRequestFor-CF-Info/forwardedToNumber forwardedToNumber_addr
+Ext-ForwFeature/basicService ext-basicService
+Ext-CallBarringFeature/basicService ext-basicService
+CUG-Feature/basicService ext-basicService
+SendRoutingInfoRes/basicService ext-basicService
+ModificationRequestFor-CF-Info/basicService ext-basicService
+ModificationRequestFor-CB-Info/basicService ext-basicService
+SendRoutingInfoArg/basicServiceGroup ext-basicServiceGroup
+ResumeCallHandlingArg/basicServiceGroup ext-basicServiceGroup
+Ext-ForwFeature/ss-Status ext-ss-Status
+Ext-CallBarringFeature/ss-Status ext-ss-Status
+Ext-SS-Data/ss-Status ext-ss-Status
+LCS-PrivacyClass/ss-Status ext-ss-Status
+MOLR-Class/ss-Status ext-ss-Status
+MC-SS-Info/ss-Status ext-ss-Status
+ModificationRequestFor-CF-Info/ss-Status ext-ss-Status
+ModificationRequestFor-CB-Info/ss-Status ext-ss-Status
+SS-Data/basicServiceGroupList ext-basicServiceGroupList
+InterrogateSS-Res/basicServiceGroupList ext-basicServiceGroupList
+Ext-CallBarInfo/callBarringFeatureList ext-callBarringFeatureList 
+CallBarringData/callBarringFeatureList ext-callBarringFeatureList
+Ext-CallBarringInfoFor-CSE/callBarringFeatureList ext-callBarringFeatureList
+Ext-ForwInfo/forwardingFeatureList ext-forwardingFeatureList
+CallForwardingData/forwardingFeatureList ext-forwardingFeatureList
+Ext-ForwardingInfoFor-CSE/forwardingFeatureList ext-forwardingFeatureList
+Ext-ForwFeature/noReplyConditionTime ext-noReplyConditionTime
+ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
 #----------------------------------------------------------------------------------------
 #.FN_BODY Sm-RP-UI
 
@@ -67,7 +72,7 @@ O-BcsmCamelTDP-CriteriaList/_item/o-BcsmTriggerDetectionPoint o-BcsmTriggerDetec
     dissector_try_port(sms_dissector_table, 0, tpdu_tvb, pinfo, top_tree);
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_BODY Imsi
+#.FN_BODY IMSI
 
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
@@ -110,7 +115,7 @@ O-BcsmCamelTDP-CriteriaList/_item/o-BcsmTriggerDetectionPoint o-BcsmTriggerDetec
 
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_BODY Msisdn
+#.FN_BODY ISDN-AddressString
 
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
@@ -127,106 +132,40 @@ O-BcsmCamelTDP-CriteriaList/_item/o-BcsmTriggerDetectionPoint o-BcsmTriggerDetec
 
  digit_str = unpack_digits(parameter_tvb, 1);
 
- proto_tree_add_string(tree, hf_gsm_map_misdn_digits, parameter_tvb, 1, -1, digit_str);
+ proto_tree_add_string(tree, hf_gsm_map_isdn_address_digits, parameter_tvb, 1, -1, digit_str);
  if (digit_str)
 	g_free(digit_str);
 
  pinfo->p2p_dir = P2P_DIR_RECV;
 
 #.END
+
 #----------------------------------------------------------------------------------------
-#.FN_BODY Gmsc-Address
+#.FN_BODY SS-Status
 
  tvbuff_t	*parameter_tvb;
- char		*digit_str;
+ guint8		octet;
 
  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     &parameter_tvb);
-
  if (!parameter_tvb)
 	return offset;
 
- proto_tree_add_item(tree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
- proto_tree_add_item(tree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
- proto_tree_add_item(tree, hf_gsm_map_number_plan, parameter_tvb, 0,1,FALSE);
+ octet = tvb_get_guint8(parameter_tvb,0);
 
- digit_str = unpack_digits(parameter_tvb, 1);
+ proto_tree_add_uint(tree, hf_gsm_map_Ss_Status_unused, parameter_tvb, 0,1,octet);
+ if ((octet & 0x01)== 1)	
+	proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_q_bit, parameter_tvb, 0,1,octet);
+										
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_p_bit, parameter_tvb, 0,1,octet);									
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_r_bit, parameter_tvb, 0,1,octet);									
+ proto_tree_add_boolean(tree, hf_gsm_map_Ss_Status_a_bit, parameter_tvb, 0,1,octet);									
 
- proto_tree_add_string(tree, hf_gsm_map_map_gmsc_address_digits, parameter_tvb, 1, -1, digit_str);
- if (digit_str)
-	g_free(digit_str);
 
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_BODY Hlr-Number
-
- tvbuff_t	*parameter_tvb;
- char		*digit_str;
-
- offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    &parameter_tvb);
-
- if (!parameter_tvb)
-	return offset;
-
- proto_tree_add_item(tree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
- proto_tree_add_item(tree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
- proto_tree_add_item(tree, hf_gsm_map_number_plan, parameter_tvb, 0,1,FALSE);
-
- digit_str = unpack_digits(parameter_tvb, 1);
-
- proto_tree_add_string(tree, hf_gsm_map_map_hlr_number_digits, parameter_tvb, 1, -1, digit_str);
- if (digit_str)
-	g_free(digit_str);
-#.END
-#----------------------------------------------------------------------------------------
-#.FN_BODY RoamingNumber
-
- tvbuff_t	*parameter_tvb;
- char		*digit_str;
-
- offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    &parameter_tvb);
-
- if (!parameter_tvb)
-	return offset;
-
- proto_tree_add_item(tree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
- proto_tree_add_item(tree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
- proto_tree_add_item(tree, hf_gsm_map_number_plan, parameter_tvb, 0,1,FALSE);
-
- digit_str = unpack_digits(parameter_tvb, 1);
-
- proto_tree_add_string(tree, hf_gsm_map_map_RoamingNumber_digits, parameter_tvb, 1, -1, digit_str);
- if (digit_str)
-	g_free(digit_str);
-#.END
-#----------------------------------------------------------------------------------------
-#.FN_BODY ForwardedToNumber
-
- tvbuff_t	*parameter_tvb;
- char		*digit_str;
-
- offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    &parameter_tvb);
-
- if (!parameter_tvb)
-	return offset;
-
- proto_tree_add_item(tree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
- proto_tree_add_item(tree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
- proto_tree_add_item(tree, hf_gsm_map_number_plan, parameter_tvb, 0,1,FALSE);
-
- digit_str = unpack_digits(parameter_tvb, 1);
-
- proto_tree_add_string(tree, hf_gsm_map_map_ForwardedToNumber_digits, parameter_tvb, 1, -1, digit_str);
- if (digit_str)
-	g_free(digit_str);
-
-#.END
-
-#----------------------------------------------------------------------------------------
-#.FN_BODY Ss-Status
+#.FN_BODY Ext-SS-Status
+ /* Note Ext-SS-Status can have more than one byte */
 
  tvbuff_t	*parameter_tvb;
  guint8		octet;
@@ -294,9 +233,11 @@ O-BcsmCamelTDP-CriteriaList/_item/o-BcsmTriggerDetectionPoint o-BcsmTriggerDetec
 #.END
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR
-Ss-Code  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ssCode_vals)
+SS-Code  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ssCode_vals)
 Teleservice  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Teleservice_vals)
 Bearerservice  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Bearerservice_vals)
+Ext_Teleservice  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Teleservice_vals)
+Ext_Bearerservice  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Bearerservice_vals)
 
 #.END
 
