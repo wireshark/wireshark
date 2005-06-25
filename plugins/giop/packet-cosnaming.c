@@ -11,23 +11,22 @@
  * By Gerald Combs
  * Copyright 1999 Gerald Combs
  */
- 
+
 
 /*
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 
@@ -51,18 +50,22 @@ G_MODULE_EXPORT const gchar version[] = "0.0.1";
 
 
 
+static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset);
+
+
+
 /* Struct prototype declaration Start */
- 
 
 
-        
+
+
 /* Struct = IDL:omg.org/CosNaming/NameComponent:1.0 */
 
 static void decode_CosNaming_NameComponent_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
 
 
 
-        
+
 /* Struct = IDL:omg.org/CosNaming/Binding:1.0 */
 
 static void decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
@@ -70,15 +73,15 @@ static void decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
 
 /* Struct prototype declaration End */
- 
+
 
 
 /* Union prototype declaration Start */
- 
+
 
 
 /* Union prototype declaration End */
- 
+
 
 
 /* Initialise the protocol and subtree pointers */
@@ -104,7 +107,7 @@ static guint32  boundary = GIOP_HEADER_SIZE;  /* initial value */
 /*
  * IDL Operations Start
  */
- 
+
  
 static const char CosNaming_NamingContext_bind_op[] = "bind" ;
 static const char CosNaming_NamingContext_rebind_op[] = "rebind" ;
@@ -123,37 +126,37 @@ static const char CosNaming_BindingIterator_destroy_op[] = "destroy" ;
 /*
  * IDL Operations End
  */
- 
+
 
 /*  Begin Exception (containing members) String  Declare  */
 
 
 static const char user_exception_CosNaming_NamingContext_NotFound[] = "IDL:omg.org/CosNaming/NamingContext/NotFound:1.0" ; 
 static const char user_exception_CosNaming_NamingContext_CannotProceed[] = "IDL:omg.org/CosNaming/NamingContext/CannotProceed:1.0" ; 
-    
+
 /*  End Exception (containing members) String Declare  */
 
 
 /*
  * IDL Attributes Start
  */
- 
+
  
 
 /*
  * IDL Attributes End
  */
- 
+
 
 /*
  * IDL Enums Start
  */
- 
+
  
 /*
  * Enum = IDL:omg.org/CosNaming/BindingType:1.0
  */
- 
+
  
 static const value_string CosNaming_BindingType[] = {
 
@@ -161,12 +164,12 @@ static const value_string CosNaming_BindingType[] = {
    { 1, "ncontext" }, 
    { 0,       NULL },
 };
-    
+
 
 /*
  * Enum = IDL:omg.org/CosNaming/NamingContext/NotFoundReason:1.0
  */
- 
+
  
 static const value_string CosNaming_NamingContext_NotFoundReason[] = {
 
@@ -175,12 +178,12 @@ static const value_string CosNaming_NamingContext_NotFoundReason[] = {
    { 2, "not_object" }, 
    { 0,       NULL },
 };
-    
+
 
 /*
  * IDL Enums End
  */
- 
+
  
 /*  Begin Exception Helper Functions  */
 
@@ -205,7 +208,7 @@ static void decode_ex_CosNaming_NamingContext_NotFound(tvbuff_t *tvb _U_, packet
     stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
 
-        
+    
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
        proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,CosNaming_NamingContext_NotFoundReason,"Unknown Enum Value"));
@@ -213,7 +216,7 @@ static void decode_ex_CosNaming_NamingContext_NotFound(tvbuff_t *tvb _U_, packet
 
     u_octet4_loop_NotFound_rest_of_name = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of NotFound_rest_of_name = %u",u_octet4_loop_NotFound_rest_of_name);   
+       proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of NotFound_rest_of_name = %u",u_octet4_loop_NotFound_rest_of_name);
     }
 
     for (i_NotFound_rest_of_name=0; i_NotFound_rest_of_name < u_octet4_loop_NotFound_rest_of_name; i_NotFound_rest_of_name++) {
@@ -221,7 +224,7 @@ static void decode_ex_CosNaming_NamingContext_NotFound(tvbuff_t *tvb _U_, packet
         /*  Begin struct "CosNaming_NameComponent"  */
 
         
-                
+
         decode_CosNaming_NameComponent_st(tvb, pinfo, tree, offset, header, operation);
 
 
@@ -255,7 +258,7 @@ static void decode_ex_CosNaming_NamingContext_CannotProceed(tvbuff_t *tvb _U_, p
 
     u_octet4_loop_CannotProceed_rest_of_name = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of CannotProceed_rest_of_name = %u",u_octet4_loop_CannotProceed_rest_of_name);   
+       proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of CannotProceed_rest_of_name = %u",u_octet4_loop_CannotProceed_rest_of_name);
     }
 
     for (i_CannotProceed_rest_of_name=0; i_CannotProceed_rest_of_name < u_octet4_loop_CannotProceed_rest_of_name; i_CannotProceed_rest_of_name++) {
@@ -263,7 +266,7 @@ static void decode_ex_CosNaming_NamingContext_CannotProceed(tvbuff_t *tvb _U_, p
         /*  Begin struct "CosNaming_NameComponent"  */
 
         
-                
+
         decode_CosNaming_NameComponent_st(tvb, pinfo, tree, offset, header, operation);
 
 
@@ -273,7 +276,7 @@ static void decode_ex_CosNaming_NamingContext_CannotProceed(tvbuff_t *tvb _U_, p
 
 }
 
-    
+
 /*  End Exception Helper Functions  */
 
 
@@ -282,22 +285,25 @@ static void decode_ex_CosNaming_NamingContext_CannotProceed(tvbuff_t *tvb _U_, p
  * Main delegator for exception handling
  *
  */
- 
-static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_ ) {
-    
+
+static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_ ) {
+
     gboolean be _U_;                        /* big endianess */
+    proto_tree *tree _U_;
 
     if (!header->exception_id)
         return FALSE;
 
 
-    if (!strcmp(header->exception_id, user_exception_CosNaming_NamingContext_NotFound )) {
+    if (strcmp(header->exception_id, user_exception_CosNaming_NamingContext_NotFound) == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
        decode_ex_CosNaming_NamingContext_NotFound(tvb, pinfo, tree, offset, header, operation);   /*  IDL:omg.org/CosNaming/NamingContext/NotFound:1.0  */
        return TRUE;
     }
 
 
-    if (!strcmp(header->exception_id, user_exception_CosNaming_NamingContext_CannotProceed )) {
+    if (strcmp(header->exception_id, user_exception_CosNaming_NamingContext_CannotProceed) == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
        decode_ex_CosNaming_NamingContext_CannotProceed(tvb, pinfo, tree, offset, header, operation);   /*  IDL:omg.org/CosNaming/NamingContext/CannotProceed:1.0  */
        return TRUE;
     }
@@ -308,12 +314,12 @@ static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     return FALSE;    /* user exception not found */
 
 }
-    
+
 
 /*  Begin Attribute Helper Functions  */
 
 
-    
+
 /*  End Attribute Helper Functions  */
 
 
@@ -321,7 +327,7 @@ static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 /*
  * IDL:omg.org/CosNaming/NamingContext/bind:1.0
  */
- 
+
 
 static void decode_CosNaming_NamingContext_bind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -344,7 +350,7 @@ static void decode_CosNaming_NamingContext_bind(tvbuff_t *tvb _U_, packet_info *
 
         u_octet4_loop_n = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of n = %u",u_octet4_loop_n);   
+           proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of n = %u",u_octet4_loop_n);
         }
 
         for (i_n=0; i_n < u_octet4_loop_n; i_n++) {
@@ -352,7 +358,7 @@ static void decode_CosNaming_NamingContext_bind(tvbuff_t *tvb _U_, packet_info *
             /*  Begin struct "CosNaming_NameComponent"  */
 
             
-                    
+
             decode_CosNaming_NameComponent_st(tvb, pinfo, tree, offset, header, operation);
 
 
@@ -387,26 +393,26 @@ static void decode_CosNaming_NamingContext_bind(tvbuff_t *tvb _U_, packet_info *
 
             g_warning("Unknown Exception ");
 
-            
+
 
             break;
 
         
         }   /* switch(header->message_type) */
 
-        break;   
+        break;
 
     default:
 
         /* Unknown GIOP Message */
 
         g_warning("Unknown GIOP Message");
-        
+
 
         break;
 
-        
-    } /* switch(header->message_type) */ 
+    
+    } /* switch(header->message_type) */
 
 }
 
@@ -414,7 +420,7 @@ static void decode_CosNaming_NamingContext_bind(tvbuff_t *tvb _U_, packet_info *
 /*
  * IDL:omg.org/CosNaming/NamingContext/rebind:1.0
  */
- 
+
 
 static void decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -437,7 +443,7 @@ static void decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb _U_, packet_info
 
         u_octet4_loop_n = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of n = %u",u_octet4_loop_n);   
+           proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of n = %u",u_octet4_loop_n);
         }
 
         for (i_n=0; i_n < u_octet4_loop_n; i_n++) {
@@ -445,7 +451,7 @@ static void decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb _U_, packet_info
             /*  Begin struct "CosNaming_NameComponent"  */
 
             
-                    
+
             decode_CosNaming_NameComponent_st(tvb, pinfo, tree, offset, header, operation);
 
 
@@ -480,26 +486,26 @@ static void decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb _U_, packet_info
 
             g_warning("Unknown Exception ");
 
-            
+
 
             break;
 
         
         }   /* switch(header->message_type) */
 
-        break;   
+        break;
 
     default:
 
         /* Unknown GIOP Message */
 
         g_warning("Unknown GIOP Message");
-        
+
 
         break;
 
-        
-    } /* switch(header->message_type) */ 
+    
+    } /* switch(header->message_type) */
 
 }
 
@@ -507,7 +513,7 @@ static void decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb _U_, packet_info
 /*
  * IDL:omg.org/CosNaming/NamingContext/bind_context:1.0
  */
- 
+
 
 static void decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -530,7 +536,7 @@ static void decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb _U_, packe
 
         u_octet4_loop_n = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of n = %u",u_octet4_loop_n);   
+           proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of n = %u",u_octet4_loop_n);
         }
 
         for (i_n=0; i_n < u_octet4_loop_n; i_n++) {
@@ -538,7 +544,7 @@ static void decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb _U_, packe
             /*  Begin struct "CosNaming_NameComponent"  */
 
             
-                    
+
             decode_CosNaming_NameComponent_st(tvb, pinfo, tree, offset, header, operation);
 
 
@@ -573,26 +579,26 @@ static void decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb _U_, packe
 
             g_warning("Unknown Exception ");
 
-            
+
 
             break;
 
         
         }   /* switch(header->message_type) */
 
-        break;   
+        break;
 
     default:
 
         /* Unknown GIOP Message */
 
         g_warning("Unknown GIOP Message");
-        
+
 
         break;
 
-        
-    } /* switch(header->message_type) */ 
+    
+    } /* switch(header->message_type) */
 
 }
 
@@ -600,7 +606,7 @@ static void decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb _U_, packe
 /*
  * IDL:omg.org/CosNaming/NamingContext/rebind_context:1.0
  */
- 
+
 
 static void decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -623,7 +629,7 @@ static void decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb _U_, pac
 
         u_octet4_loop_n = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of n = %u",u_octet4_loop_n);   
+           proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of n = %u",u_octet4_loop_n);
         }
 
         for (i_n=0; i_n < u_octet4_loop_n; i_n++) {
@@ -631,7 +637,7 @@ static void decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb _U_, pac
             /*  Begin struct "CosNaming_NameComponent"  */
 
             
-                    
+
             decode_CosNaming_NameComponent_st(tvb, pinfo, tree, offset, header, operation);
 
 
@@ -666,26 +672,26 @@ static void decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb _U_, pac
 
             g_warning("Unknown Exception ");
 
-            
+
 
             break;
 
         
         }   /* switch(header->message_type) */
 
-        break;   
+        break;
 
     default:
 
         /* Unknown GIOP Message */
 
         g_warning("Unknown GIOP Message");
-        
+
 
         break;
 
-        
-    } /* switch(header->message_type) */ 
+    
+    } /* switch(header->message_type) */
 
 }
 
@@ -693,7 +699,7 @@ static void decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb _U_, pac
 /*
  * IDL:omg.org/CosNaming/NamingContext/resolve:1.0
  */
- 
+
 
 static void decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -716,7 +722,7 @@ static void decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb _U_, packet_inf
 
         u_octet4_loop_n = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of n = %u",u_octet4_loop_n);   
+           proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of n = %u",u_octet4_loop_n);
         }
 
         for (i_n=0; i_n < u_octet4_loop_n; i_n++) {
@@ -724,7 +730,7 @@ static void decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb _U_, packet_inf
             /*  Begin struct "CosNaming_NameComponent"  */
 
             
-                    
+
             decode_CosNaming_NameComponent_st(tvb, pinfo, tree, offset, header, operation);
 
 
@@ -755,26 +761,26 @@ static void decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb _U_, packet_inf
 
             g_warning("Unknown Exception ");
 
-            
+
 
             break;
 
         
         }   /* switch(header->message_type) */
 
-        break;   
+        break;
 
     default:
 
         /* Unknown GIOP Message */
 
         g_warning("Unknown GIOP Message");
-        
+
 
         break;
 
-        
-    } /* switch(header->message_type) */ 
+    
+    } /* switch(header->message_type) */
 
 }
 
@@ -782,7 +788,7 @@ static void decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb _U_, packet_inf
 /*
  * IDL:omg.org/CosNaming/NamingContext/unbind:1.0
  */
- 
+
 
 static void decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -805,7 +811,7 @@ static void decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb _U_, packet_info
 
         u_octet4_loop_n = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of n = %u",u_octet4_loop_n);   
+           proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of n = %u",u_octet4_loop_n);
         }
 
         for (i_n=0; i_n < u_octet4_loop_n; i_n++) {
@@ -813,7 +819,7 @@ static void decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb _U_, packet_info
             /*  Begin struct "CosNaming_NameComponent"  */
 
             
-                    
+
             decode_CosNaming_NameComponent_st(tvb, pinfo, tree, offset, header, operation);
 
 
@@ -845,26 +851,26 @@ static void decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb _U_, packet_info
 
             g_warning("Unknown Exception ");
 
-            
+
 
             break;
 
         
         }   /* switch(header->message_type) */
 
-        break;   
+        break;
 
     default:
 
         /* Unknown GIOP Message */
 
         g_warning("Unknown GIOP Message");
-        
+
 
         break;
 
-        
-    } /* switch(header->message_type) */ 
+    
+    } /* switch(header->message_type) */
 
 }
 
@@ -872,7 +878,7 @@ static void decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb _U_, packet_info
 /*
  * IDL:omg.org/CosNaming/NamingContext/new_context:1.0
  */
- 
+
 
 static void decode_CosNaming_NamingContext_new_context(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -914,26 +920,26 @@ static void decode_CosNaming_NamingContext_new_context(tvbuff_t *tvb _U_, packet
 
             g_warning("Unknown Exception ");
 
-            
+
 
             break;
 
         
         }   /* switch(header->message_type) */
 
-        break;   
+        break;
 
     default:
 
         /* Unknown GIOP Message */
 
         g_warning("Unknown GIOP Message");
-        
+
 
         break;
 
-        
-    } /* switch(header->message_type) */ 
+    
+    } /* switch(header->message_type) */
 
 }
 
@@ -941,7 +947,7 @@ static void decode_CosNaming_NamingContext_new_context(tvbuff_t *tvb _U_, packet
 /*
  * IDL:omg.org/CosNaming/NamingContext/bind_new_context:1.0
  */
- 
+
 
 static void decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -964,7 +970,7 @@ static void decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb _U_, p
 
         u_octet4_loop_n = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of n = %u",u_octet4_loop_n);   
+           proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of n = %u",u_octet4_loop_n);
         }
 
         for (i_n=0; i_n < u_octet4_loop_n; i_n++) {
@@ -972,7 +978,7 @@ static void decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb _U_, p
             /*  Begin struct "CosNaming_NameComponent"  */
 
             
-                    
+
             decode_CosNaming_NameComponent_st(tvb, pinfo, tree, offset, header, operation);
 
 
@@ -1003,26 +1009,26 @@ static void decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb _U_, p
 
             g_warning("Unknown Exception ");
 
-            
+
 
             break;
 
         
         }   /* switch(header->message_type) */
 
-        break;   
+        break;
 
     default:
 
         /* Unknown GIOP Message */
 
         g_warning("Unknown GIOP Message");
-        
+
 
         break;
 
-        
-    } /* switch(header->message_type) */ 
+    
+    } /* switch(header->message_type) */
 
 }
 
@@ -1030,7 +1036,7 @@ static void decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb _U_, p
 /*
  * IDL:omg.org/CosNaming/NamingContext/destroy:1.0
  */
- 
+
 
 static void decode_CosNaming_NamingContext_destroy(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -1073,26 +1079,26 @@ static void decode_CosNaming_NamingContext_destroy(tvbuff_t *tvb _U_, packet_inf
 
             g_warning("Unknown Exception ");
 
-            
+
 
             break;
 
         
         }   /* switch(header->message_type) */
 
-        break;   
+        break;
 
     default:
 
         /* Unknown GIOP Message */
 
         g_warning("Unknown GIOP Message");
-        
+
 
         break;
 
-        
-    } /* switch(header->message_type) */ 
+    
+    } /* switch(header->message_type) */
 
 }
 
@@ -1100,7 +1106,7 @@ static void decode_CosNaming_NamingContext_destroy(tvbuff_t *tvb _U_, packet_inf
 /*
  * IDL:omg.org/CosNaming/NamingContext/list:1.0
  */
- 
+
 
 static void decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -1141,7 +1147,7 @@ static void decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *
 
             u_octet4_loop_bl = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
             if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of bl = %u",u_octet4_loop_bl);   
+               proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of bl = %u",u_octet4_loop_bl);
             }
 
             for (i_bl=0; i_bl < u_octet4_loop_bl; i_bl++) {
@@ -1149,7 +1155,7 @@ static void decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *
                 /*  Begin struct "CosNaming_Binding"  */
 
                 
-                        
+
                 decode_CosNaming_Binding_st(tvb, pinfo, tree, offset, header, operation);
 
 
@@ -1172,26 +1178,26 @@ static void decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *
 
             g_warning("Unknown Exception ");
 
-            
+
 
             break;
 
         
         }   /* switch(header->message_type) */
 
-        break;   
+        break;
 
     default:
 
         /* Unknown GIOP Message */
 
         g_warning("Unknown GIOP Message");
-        
+
 
         break;
 
-        
-    } /* switch(header->message_type) */ 
+    
+    } /* switch(header->message_type) */
 
 }
 
@@ -1199,7 +1205,7 @@ static void decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *
 /*
  * IDL:omg.org/CosNaming/BindingIterator/next_one:1.0
  */
- 
+
 
 static void decode_CosNaming_BindingIterator_next_one(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -1235,7 +1241,7 @@ static void decode_CosNaming_BindingIterator_next_one(tvbuff_t *tvb _U_, packet_
             /*  Begin struct "CosNaming_Binding"  */
 
             
-                    
+
             decode_CosNaming_Binding_st(tvb, pinfo, tree, offset, header, operation);
 
 
@@ -1253,26 +1259,26 @@ static void decode_CosNaming_BindingIterator_next_one(tvbuff_t *tvb _U_, packet_
 
             g_warning("Unknown Exception ");
 
-            
+
 
             break;
 
         
         }   /* switch(header->message_type) */
 
-        break;   
+        break;
 
     default:
 
         /* Unknown GIOP Message */
 
         g_warning("Unknown GIOP Message");
-        
+
 
         break;
 
-        
-    } /* switch(header->message_type) */ 
+    
+    } /* switch(header->message_type) */
 
 }
 
@@ -1280,7 +1286,7 @@ static void decode_CosNaming_BindingIterator_next_one(tvbuff_t *tvb _U_, packet_
 /*
  * IDL:omg.org/CosNaming/BindingIterator/next_n:1.0
  */
- 
+
 
 static void decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -1323,7 +1329,7 @@ static void decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_in
 
             u_octet4_loop_bl = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
             if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of bl = %u",u_octet4_loop_bl);   
+               proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of bl = %u",u_octet4_loop_bl);
             }
 
             for (i_bl=0; i_bl < u_octet4_loop_bl; i_bl++) {
@@ -1331,7 +1337,7 @@ static void decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_in
                 /*  Begin struct "CosNaming_Binding"  */
 
                 
-                        
+
                 decode_CosNaming_Binding_st(tvb, pinfo, tree, offset, header, operation);
 
 
@@ -1351,26 +1357,26 @@ static void decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_in
 
             g_warning("Unknown Exception ");
 
-            
+
 
             break;
 
         
         }   /* switch(header->message_type) */
 
-        break;   
+        break;
 
     default:
 
         /* Unknown GIOP Message */
 
         g_warning("Unknown GIOP Message");
-        
+
 
         break;
 
-        
-    } /* switch(header->message_type) */ 
+    
+    } /* switch(header->message_type) */
 
 }
 
@@ -1378,7 +1384,7 @@ static void decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_in
 /*
  * IDL:omg.org/CosNaming/BindingIterator/destroy:1.0
  */
- 
+
 
 static void decode_CosNaming_BindingIterator_destroy(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -1421,26 +1427,26 @@ static void decode_CosNaming_BindingIterator_destroy(tvbuff_t *tvb _U_, packet_i
 
             g_warning("Unknown Exception ");
 
-            
+
 
             break;
 
         
         }   /* switch(header->message_type) */
 
-        break;   
+        break;
 
     default:
 
         /* Unknown GIOP Message */
 
         g_warning("Unknown GIOP Message");
-        
+
 
         break;
 
-        
-    } /* switch(header->message_type) */ 
+    
+    } /* switch(header->message_type) */
 
 }
 
@@ -1468,7 +1474,7 @@ static void decode_CosNaming_NameComponent_st(tvbuff_t *tvb _U_, packet_info *pi
        proto_tree_add_text(tree,tvb,*offset-4-u_octet4,4,"length = %u",u_octet4);
        if (u_octet4 > 0)
           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"NameComponent_id = %s",seq);
-       
+
     }
 
     g_free(seq);          /*  free buffer  */
@@ -1479,7 +1485,7 @@ static void decode_CosNaming_NameComponent_st(tvbuff_t *tvb _U_, packet_info *pi
        proto_tree_add_text(tree,tvb,*offset-4-u_octet4,4,"length = %u",u_octet4);
        if (u_octet4 > 0)
           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"NameComponent_kind = %s",seq);
-       
+
     }
 
     g_free(seq);          /*  free buffer  */
@@ -1509,7 +1515,7 @@ static void decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
     u_octet4_loop_Binding_binding_name = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of Binding_binding_name = %u",u_octet4_loop_Binding_binding_name);   
+       proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of Binding_binding_name = %u",u_octet4_loop_Binding_binding_name);
     }
 
     for (i_Binding_binding_name=0; i_Binding_binding_name < u_octet4_loop_Binding_binding_name; i_Binding_binding_name++) {
@@ -1517,7 +1523,7 @@ static void decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
         /*  Begin struct "CosNaming_NameComponent"  */
 
         
-                
+
         decode_CosNaming_NameComponent_st(tvb, pinfo, tree, offset, header, operation);
 
 
@@ -1525,7 +1531,7 @@ static void decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
     }
 
-        
+    
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
        proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,CosNaming_BindingType,"Unknown Enum Value"));
@@ -1533,29 +1539,39 @@ static void decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
 }
 
-static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname _U_) {
+
+/*
+ * Called once we accept the packet as being for us; it sets the
+ * Protocol and Info columns and creates the top-level protocol
+ * tree item.
+ */
+static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset) {
 
     proto_item *ti = NULL;
     proto_tree *tree = NULL;            /* init later, inside if(tree) */
-    
-    gboolean be;                        /* big endianess */
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
-       col_set_str(pinfo->cinfo, COL_PROTOCOL, "COSNAMING");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "COSNAMING");
 
-/* 
- * Do not clear COL_INFO, as nothing is being written there by 
- * this dissector yet. So leave it as is from the GIOP dissector.
- * TODO: add something useful to COL_INFO 
- *  if (check_col(pinfo->cinfo, COL_INFO))
- *     col_clear(pinfo->cinfo, COL_INFO);
- */
+    /*
+     * Do not clear COL_INFO, as nothing is being written there by
+     * this dissector yet. So leave it as is from the GIOP dissector.
+     * TODO: add something useful to COL_INFO
+     *  if (check_col(pinfo->cinfo, COL_INFO))
+     *     col_clear(pinfo->cinfo, COL_INFO);
+     */
 
     if (ptree) {
-       ti = proto_tree_add_item(ptree, proto_cosnaming, tvb, *offset, -1, FALSE);
-       tree = proto_item_add_subtree(ti, ett_cosnaming);
-    }  
+        ti = proto_tree_add_item(ptree, proto_cosnaming, tvb, *offset, -1, FALSE);
+        tree = proto_item_add_subtree(ti, ett_cosnaming);
+    }
+    return tree;
+}
 
+static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname _U_) {
+
+    gboolean be;                        /* big endianess */
+    proto_tree *tree _U_;
 
     be = is_big_endian(header);         /* get endianess - TODO use passed in stream_is_big_endian instead ? */
 
@@ -1563,81 +1579,92 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
     if ((header->message_type == Reply) && (header->rep_status == USER_EXCEPTION)) {
 
-       return decode_user_exception(tvb, pinfo, tree, offset, header, operation);
+       return decode_user_exception(tvb, pinfo, ptree, offset, header, operation);
 
     }
 
-    
+
 
     switch(header->message_type) {
 
     case Request:
     case Reply:
 
-        if (!operation)
-           THROW(ReportedBoundsError);
 
-        if (!strcmp(operation, CosNaming_NamingContext_bind_op )) {
+        if (strcmp(operation, CosNaming_NamingContext_bind_op) == 0) {
+           tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_bind(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (!strcmp(operation, CosNaming_NamingContext_rebind_op )) {
+        if (strcmp(operation, CosNaming_NamingContext_rebind_op) == 0) {
+           tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_rebind(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (!strcmp(operation, CosNaming_NamingContext_bind_context_op )) {
+        if (strcmp(operation, CosNaming_NamingContext_bind_context_op) == 0) {
+           tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_bind_context(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (!strcmp(operation, CosNaming_NamingContext_rebind_context_op )) {
+        if (strcmp(operation, CosNaming_NamingContext_rebind_context_op) == 0) {
+           tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_rebind_context(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (!strcmp(operation, CosNaming_NamingContext_resolve_op )) {
+        if (strcmp(operation, CosNaming_NamingContext_resolve_op) == 0) {
+           tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_resolve(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (!strcmp(operation, CosNaming_NamingContext_unbind_op )) {
+        if (strcmp(operation, CosNaming_NamingContext_unbind_op) == 0) {
+           tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_unbind(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (!strcmp(operation, CosNaming_NamingContext_new_context_op )) {
+        if (strcmp(operation, CosNaming_NamingContext_new_context_op) == 0) {
+           tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_new_context(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (!strcmp(operation, CosNaming_NamingContext_bind_new_context_op )) {
+        if (strcmp(operation, CosNaming_NamingContext_bind_new_context_op) == 0) {
+           tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_bind_new_context(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (!strcmp(operation, CosNaming_NamingContext_destroy_op )) {
+        if (strcmp(operation, CosNaming_NamingContext_destroy_op) == 0) {
+           tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_destroy(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (!strcmp(operation, CosNaming_NamingContext_list_op )) {
+        if (strcmp(operation, CosNaming_NamingContext_list_op) == 0) {
+           tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_list(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (!strcmp(operation, CosNaming_BindingIterator_next_one_op )) {
+        if (strcmp(operation, CosNaming_BindingIterator_next_one_op) == 0) {
+           tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_BindingIterator_next_one(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (!strcmp(operation, CosNaming_BindingIterator_next_n_op )) {
+        if (strcmp(operation, CosNaming_BindingIterator_next_n_op) == 0) {
+           tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_BindingIterator_next_n(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (!strcmp(operation, CosNaming_BindingIterator_destroy_op )) {
+        if (strcmp(operation, CosNaming_BindingIterator_destroy_op) == 0) {
+           tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_BindingIterator_destroy(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
@@ -1677,7 +1704,7 @@ void proto_register_giop_cosnaming(void) {
    static hf_register_info hf[] = {
 
       /* no fields yet */
-      
+
    };
 #endif
 
@@ -1688,14 +1715,14 @@ void proto_register_giop_cosnaming(void) {
    };
 
    /* Register the protocol name and description */
-   
+
    proto_cosnaming = proto_register_protocol("Cosnaming Dissector Using GIOP API" , "COSNAMING", "giop-cosnaming" );
 
 #if 0
    proto_register_field_array(proto_cosnaming, hf, array_length(hf));
 #endif
    proto_register_subtree_array(ett,array_length(ett));
-   
+
 }
 
 
@@ -1730,7 +1757,7 @@ void proto_register_handoff_giop_cosnaming(void) {
 
     /* Register for Heuristic Dissection */
 
-    register_giop_user(dissect_cosnaming, "COSNAMING" ,proto_cosnaming);     /* heuristic dissector */ 
+    register_giop_user(dissect_cosnaming, "COSNAMING" ,proto_cosnaming);     /* heuristic dissector */
 
 
 

@@ -1,8 +1,8 @@
 # -*- python -*-
 #
 # $Id$
-#                           
-# ethereal_gen.py (part of idl2eth)           
+#
+# ethereal_gen.py (part of idl2eth)
 #
 # Author : Frank Singleton (frank.singleton@ericsson.com)
 #
@@ -34,7 +34,7 @@
 #  02111-1307, USA.
 #
 # Description:
-#   
+#
 #   Omniidl Back-end which parses an IDL list of "Operation" nodes
 #   passed from ethereal_be2.py and generates "C" code for compiling
 #   as a plugin for the  Ethereal IP Protocol Analyser.
@@ -59,7 +59,7 @@ import sys, string
 import tempfile
 
 #
-# Output class, generates "C" src code for the sub-dissector 
+# Output class, generates "C" src code for the sub-dissector
 #
 # in:
 #
@@ -74,7 +74,7 @@ import tempfile
 
 #
 # TODO -- FS
-# 
+#
 # 1. generate hf[] data for searchable fields (but what is searchable?)
 # 2. add item instead of add_text()
 # 3. sequence handling [done]
@@ -134,7 +134,7 @@ class ethereal_gen_C:
     c_s_octet2    = "gint16    s_octet2;"
     c_u_octet1    = "guint8    u_octet1;"
     c_s_octet1    = "gint8     s_octet1;"
-    
+
     c_float       = "gfloat    my_float;"
     c_double      = "gdouble   my_double;"
 
@@ -143,14 +143,14 @@ class ethereal_gen_C:
     c_i_lim       = "guint32   u_octet4_loop_";     # loop limit
     c_u_disc      = "guint32   disc_u_";            # unsigned int union discriminant variable name (enum)
     c_s_disc      = "gint32    disc_s_";            # signed int union discriminant variable name (other cases, except Enum)
-    
+
     #
     # Constructor
     #
 
     def __init__(self, st, protocol_name, dissector_name ,description):
         self.st = output.Stream(tempfile.TemporaryFile(),4) # for first pass only
-        
+
         self.st_save = st               # where 2nd pass should go
         self.protoname = protocol_name  # Protocol Name (eg: ECHO)
         self.dissname = dissector_name  # Dissector name (eg: echo)
@@ -162,7 +162,7 @@ class ethereal_gen_C:
         self.fn_hash_built = 0          # flag to indicate the 1st pass is complete, and the fn_hash is correctly
                                         # populated with operations/vars and exceptions/vars
 
-                                        
+
     #
     # genCode()
     #
@@ -170,23 +170,23 @@ class ethereal_gen_C:
     # generated code.
     #
     #
-        
+
     def genCode(self,oplist, atlist, enlist, stlist, unlist):   # operation,attribute,enums,struct and union lists
 
 
         self.genHelpers(oplist,stlist,unlist)  # sneaky .. call it now, to populate the fn_hash
                                         # so when I come to that operation later, I have the variables to
                                         # declare already.
-                                        
+
         self.genExceptionHelpers(oplist) # sneaky .. call it now, to populate the fn_hash
                                          # so when I come to that exception later, I have the variables to
                                          # declare already.
-                                        
+
         self.genAttributeHelpers(atlist) # sneaky .. call it now, to populate the fn_hash
                                          # so when I come to that exception later, I have the variables to
                                          # declare already.
-                                        
-                                                                                
+
+
         self.fn_hash_built = 1          # DONE, so now I know , see genOperation()
 
         self.st = self.st_save
@@ -201,8 +201,8 @@ class ethereal_gen_C:
         self.genExList(oplist)          # string constant declares for user exceptions
         self.genAtList(atlist)          # string constant declares for Attributes
         self.genEnList(enlist)          # string constant declares for Enums
-        
-        
+
+
         self.genExceptionHelpers(oplist)   # helper function to decode user exceptions that have members
         self.genExceptionDelegator(oplist) # finds the helper function to decode a user exception
         self.genAttributeHelpers(atlist)   # helper function to decode "attributes"
@@ -211,7 +211,7 @@ class ethereal_gen_C:
 
         self.genMainEntryStart(oplist)
         self.genOpDelegator(oplist)
-        self.genAtDelegator(atlist)        
+        self.genAtDelegator(atlist)
         self.genMainEntryEnd()
 
         self.gen_proto_register()
@@ -219,7 +219,7 @@ class ethereal_gen_C:
         self.gen_plugin_register()
 
         #self.dumpvars()                 # debug
-        
+
 
 
     #
@@ -228,9 +228,9 @@ class ethereal_gen_C:
     # Generate Standard Ethereal Header Comments
     #
     #
-    
+
     def genHeader(self):
-        self.st.out(self.template_Header,dissector_name=self.dissname)        
+        self.st.out(self.template_Header,dissector_name=self.dissname)
         if self.DEBUG:
             print "XXX genHeader"
 
@@ -244,9 +244,9 @@ class ethereal_gen_C:
     #
     #
 
-    def genEthCopyright(self):        
+    def genEthCopyright(self):
         if self.DEBUG:
-            print "XXX genEthCopyright"            
+            print "XXX genEthCopyright"
         self.st.out(self.template_ethereal_copyright)
 
 
@@ -260,7 +260,7 @@ class ethereal_gen_C:
     def genGPL(self):
         if self.DEBUG:
             print "XXX genGPL"
-            
+
         self.st.out(self.template_GPL)
 
     #
@@ -273,9 +273,9 @@ class ethereal_gen_C:
     def genIncludes(self):
         if self.DEBUG:
             print "XXX genIncludes"
-            
+
         self.st.out(self.template_Includes)
-                                
+
 
     #
     # denDeclares
@@ -284,51 +284,55 @@ class ethereal_gen_C:
     #
     # Currently this is used for struct and union helper function declarations.
     #
-    
-    
+
+
     def genDeclares(self,oplist,atlist,enlist,stlist,unlist):
         if self.DEBUG:
             print "XXX genDeclares"
 
+        # prototype for start_dissecting()
+
+        self.st.out(self.template_prototype_start_dissecting)
+
         # struct prototypes
-        
-        self.st.out(self.template_prototype_struct_start)        
+
+        self.st.out(self.template_prototype_struct_start)
         for st in stlist:
             #print st.repoId()
-            sname = self.namespace(st, "_")   
+            sname = self.namespace(st, "_")
 
-            self.st.out(self.template_prototype_struct_body, stname=st.repoId(),name=sname)        
-        self.st.out(self.template_prototype_struct_end)        
+            self.st.out(self.template_prototype_struct_body, stname=st.repoId(),name=sname)
+        self.st.out(self.template_prototype_struct_end)
 
         # union prototypes
 
-        self.st.out(self.template_prototype_union_start)        
+        self.st.out(self.template_prototype_union_start)
         for un in unlist:
-            sname = self.namespace(un, "_")   
-            self.st.out(self.template_prototype_union_body, unname=un.repoId(),name=sname)        
-        self.st.out(self.template_prototype_union_end)        
-                        
+            sname = self.namespace(un, "_")
+            self.st.out(self.template_prototype_union_body, unname=un.repoId(),name=sname)
+        self.st.out(self.template_prototype_union_end)
 
 
-                                
+
+
     #
     # genProtocol
     #
     #
-    
+
     def genProtocol(self):
-        self.st.out(self.template_protocol, dissector_name=self.dissname)        
-        self.st.out(self.template_init_boundary)        
-        
-                                
+        self.st.out(self.template_protocol, dissector_name=self.dissname)
+        self.st.out(self.template_init_boundary)
+
+
     #
     # genProtoAndRegisteredFields
     #
     #
-    
+
     def genRegisteredFields(self):
-        self.st.out(self.template_registered_fields )        
-        
+        self.st.out(self.template_registered_fields )
+
 
 
     #
@@ -336,25 +340,25 @@ class ethereal_gen_C:
     #
 
     def genMainEntryStart(self,oplist):
-        self.st.out(self.template_main_dissector_start, dissname=self.dissname, disprot=self.protoname)        
+        self.st.out(self.template_main_dissector_start, dissname=self.dissname, disprot=self.protoname)
         self.st.inc_indent()
-        self.st.out(self.template_main_dissector_switch_msgtype_start)        
-        self.st.out(self.template_main_dissector_switch_msgtype_start_request_reply)        
+        self.st.out(self.template_main_dissector_switch_msgtype_start)
+        self.st.out(self.template_main_dissector_switch_msgtype_start_request_reply)
         self.st.inc_indent()
 
-                
+
     #
     # genMainEntryEnd
     #
 
     def genMainEntryEnd(self):
 
-        self.st.out(self.template_main_dissector_switch_msgtype_end_request_reply)        
+        self.st.out(self.template_main_dissector_switch_msgtype_end_request_reply)
         self.st.dec_indent()
-        self.st.out(self.template_main_dissector_switch_msgtype_all_other_msgtype)             
+        self.st.out(self.template_main_dissector_switch_msgtype_all_other_msgtype)
         self.st.dec_indent()
-        self.st.out(self.template_main_dissector_end)        
-        
+        self.st.out(self.template_main_dissector_end)
+
 
     #
     # genOpList
@@ -369,13 +373,13 @@ class ethereal_gen_C:
     #
 
     def genOpList(self,oplist):
-        self.st.out(self.template_comment_operations_start)        
+        self.st.out(self.template_comment_operations_start)
 
         for n in oplist:
-            sname = self.namespace(n, "_")   
+            sname = self.namespace(n, "_")
             opname = n.identifier()
             self.st.out(self.template_operations_declare, sname=sname, opname=opname)
-    
+
         self.st.out(self.template_comment_operations_end)
 
     #
@@ -391,9 +395,9 @@ class ethereal_gen_C:
     #
 
     def genExList(self,oplist):
-        
+
         self.st.out(self.template_comment_user_exceptions_string_declare_start)
-        
+
         exlist = self.get_exceptionList(oplist) # grab list of ALL UNIQUE exception nodes
 
         for ex in exlist:
@@ -401,12 +405,12 @@ class ethereal_gen_C:
                 print "XXX Exception " , ex.repoId()
                 print "XXX Exception Identifier" , ex.identifier()
                 print "XXX Exception Scoped Name" , ex.scopedName()
-            
+
             if (ex.members()):          # only if has members
-                sname = self.namespace(ex, "_")   
+                sname = self.namespace(ex, "_")
                 exname = ex.repoId()
                 self.st.out(self.template_user_exceptions_declare,  sname=sname, exname=ex.repoId())
-    
+
         self.st.out(self.template_comment_user_exceptions_string_declare_end)
 
     #
@@ -419,7 +423,7 @@ class ethereal_gen_C:
     # NOTE: Mapping of attributes to  operation(function) names is tricky.
     #
     # The actual accessor function names are language-mapping specific. The attribute name
-    # is subject to OMG IDL's name scoping rules; the accessor function names are 
+    # is subject to OMG IDL's name scoping rules; the accessor function names are
     # guaranteed not to collide with any legal operation names specifiable in OMG IDL.
     #
     # eg:
@@ -431,7 +435,7 @@ class ethereal_gen_C:
     #
     # static const char get_Penguin_Echo_get_width_at[] = "_get_width" ;
     # static const char set_Penguin_Echo_set_width_at[] = "_set_width" ;
-    #    
+    #
     # TODO: Implement some language dependant templates to handle naming conventions
     #       language <=> attribute. for C, C++. Java etc
     #
@@ -439,22 +443,22 @@ class ethereal_gen_C:
     #
     #
     #
-    # ie: def genAtlist(self,atlist,language) 
+    # ie: def genAtlist(self,atlist,language)
     #
-    
-    
+
+
 
     def genAtList(self,atlist):
-        self.st.out(self.template_comment_attributes_start)        
+        self.st.out(self.template_comment_attributes_start)
 
         for n in atlist:
-            for i in n.declarators():   # 
-                sname = self.namespace(i, "_")   
+            for i in n.declarators():   #
+                sname = self.namespace(i, "_")
                 atname = i.identifier()
                 self.st.out(self.template_attributes_declare_Java_get, sname=sname, atname=atname)
                 if not n.readonly():
                     self.st.out(self.template_attributes_declare_Java_set, sname=sname, atname=atname)
-    
+
         self.st.out(self.template_comment_attributes_end)
 
 
@@ -466,24 +470,24 @@ class ethereal_gen_C:
     # out: C code for IDL Enum decalarations using "static const value_string" template
     #
 
-    
+
 
     def genEnList(self,enlist):
-        
-        self.st.out(self.template_comment_enums_start)        
+
+        self.st.out(self.template_comment_enums_start)
 
         for enum in enlist:
             sname = self.namespace(enum, "_")
-            
+
             self.st.out(self.template_comment_enum_comment, ename=enum.repoId())
             self.st.out(self.template_value_string_start, valstringname=sname)
             for enumerator in enum.enumerators():
                 self.st.out(self.template_value_string_entry, intval=str(self.valFromEnum(enum,enumerator)), description=enumerator.identifier())
-                
-                
+
+
             #atname = n.identifier()
             self.st.out(self.template_value_string_end, valstringname=sname)
-    
+
         self.st.out(self.template_comment_enums_end)
 
 
@@ -507,7 +511,7 @@ class ethereal_gen_C:
     #
 
     def genExceptionDelegator(self,oplist):
-        
+
         self.st.out(self.template_main_exception_delegator_start)
         self.st.inc_indent()
 
@@ -518,13 +522,13 @@ class ethereal_gen_C:
                 print "XXX Exception " , ex.repoId()
                 print "XXX Exception Identifier" , ex.identifier()
                 print "XXX Exception Scoped Name" , ex.scopedName()
-            
+
             if (ex.members()):          # only if has members
-                sname = self.namespace(ex, "_")   
+                sname = self.namespace(ex, "_")
                 exname = ex.repoId()
                 self.st.out(self.template_ex_delegate_code,  sname=sname, exname=ex.repoId())
 
-        self.st.dec_indent()    
+        self.st.dec_indent()
         self.st.out(self.template_main_exception_delegator_end)
 
 
@@ -537,38 +541,38 @@ class ethereal_gen_C:
     #
     # For readonly attribute - generate get_xxx()
     # If NOT readonly attribute - also generate set_xxx()
-    #    
-        
-    def genAttributeHelpers(self,atlist):        
+    #
+
+    def genAttributeHelpers(self,atlist):
         if self.DEBUG:
             print "XXX genAttributeHelpers: atlist = ", atlist
 
         self.st.out(self.template_attribute_helpers_start)
-        
+
         for attrib in atlist:
             for decl in attrib.declarators():
                 self.genAtHelper(attrib,decl,"get") # get accessor
                 if not attrib.readonly():
                     self.genAtHelper(attrib,decl,"set") # set accessor
-                    
+
         self.st.out(self.template_attribute_helpers_end)
 
     #
-    # genAtHelper() 
+    # genAtHelper()
     #
     # Generate private helper functions to decode an attribute
     #
     # in: at - attribute node
-    # in: decl - declarator belonging to this attribute 
+    # in: decl - declarator belonging to this attribute
     # in: order - to generate a "get" or "set" helper
-    
+
     def genAtHelper(self,attrib,decl,order):
         if self.DEBUG:
             print "XXX genAtHelper"
-            
+
         sname = order + "_" + self.namespace(decl, "_")  # must use set or get prefix to avoid collision
         self.curr_sname = sname                    # update current opnode/exnode scoped name
-                                                
+
         if not self.fn_hash_built:
             self.fn_hash[sname] = []        # init empty list as val for this sname key
                                             # but only if the fn_hash is not already built
@@ -579,28 +583,28 @@ class ethereal_gen_C:
         self.st.out(self.template_helper_function_vars_start)
         self.dumpCvars(sname)
         self.st.out(self.template_helper_function_vars_end )
-        
+
         self.st.out(self.template_exception_helper_function_get_endianess)
 
         #
         # TODO - attributes are simple types, so remove array handling
         #
-                
+
         if decl.sizes():        # an array
             indices = self.get_indices_from_sizes(decl.sizes())
             string_indices = '%i ' % indices # convert int to string
-            self.st.out(self.template_get_CDR_array_comment, aname=decl.identifier(), asize=string_indices)     
+            self.st.out(self.template_get_CDR_array_comment, aname=decl.identifier(), asize=string_indices)
             self.st.out(self.template_get_CDR_array_start, aname=decl.identifier(), aval=string_indices)
             self.addvar(self.c_i + decl.identifier() + ";")
-            
+
             self.st.inc_indent()
 
             self.getCDR3(attrib.attrType(), decl.identifier() )
-                    
+
             self.st.dec_indent()
             self.st.out(self.template_get_CDR_array_end)
-                    
-                    
+
+
         else:
 
             self.getCDR3(attrib.attrType(), decl.identifier() )
@@ -618,9 +622,9 @@ class ethereal_gen_C:
     #
     # in: oplist
     #
-    
-        
-    def genExceptionHelpers(self,oplist):        
+
+
+    def genExceptionHelpers(self,oplist):
         exlist = self.get_exceptionList(oplist) # grab list of exception nodes
         if self.DEBUG:
             print "XXX genExceptionHelpers: exlist = ", exlist
@@ -630,22 +634,22 @@ class ethereal_gen_C:
             if (ex.members()):          # only if has members
                 #print "XXX Exception = " + ex.identifier()
                 self.genExHelper(ex)
-        
+
         self.st.out(self.template_exception_helpers_end)
 
 
     #
-    # genExhelper() 
+    # genExhelper()
     #
     # Generate private helper functions to decode User Exceptions
     #
     # in: exnode ( an exception node)
     #
-    
+
     def genExHelper(self,ex):
         if self.DEBUG:
             print "XXX genExHelper"
-            
+
         sname = self.namespace(ex, "_")
         self.curr_sname = sname         # update current opnode/exnode scoped name
         if not self.fn_hash_built:
@@ -658,31 +662,31 @@ class ethereal_gen_C:
         self.st.out(self.template_helper_function_vars_start)
         self.dumpCvars(sname)
         self.st.out(self.template_helper_function_vars_end )
-        
+
         self.st.out(self.template_exception_helper_function_get_endianess)
 
-        
+
         for m in ex.members():
             #print "XXX genExhelper, member = ", m, "member type = ", m.memberType()
-            
+
 
             for decl in m.declarators():
                 #print "XXX genExhelper, d = ", decl
                 if decl.sizes():        # an array
                     indices = self.get_indices_from_sizes(decl.sizes())
                     string_indices = '%i ' % indices # convert int to string
-                    self.st.out(self.template_get_CDR_array_comment, aname=decl.identifier(), asize=string_indices)     
+                    self.st.out(self.template_get_CDR_array_comment, aname=decl.identifier(), asize=string_indices)
                     self.st.out(self.template_get_CDR_array_start, aname=decl.identifier(), aval=string_indices)
                     self.addvar(self.c_i + decl.identifier() + ";")
-                    
-                    self.st.inc_indent()       
+
+                    self.st.inc_indent()
                     self.getCDR3(m.memberType(), ex.identifier() + "_" + decl.identifier() )
-                    
+
                     self.st.dec_indent()
                     self.st.out(self.template_get_CDR_array_end)
-                    
-                    
-                else:    
+
+
+                else:
                     self.getCDR3(m.memberType(), ex.identifier() + "_" + decl.identifier() )
 
         self.st.dec_indent()
@@ -699,8 +703,8 @@ class ethereal_gen_C:
     #
     # in: oplist, stlist, unlist
     #
-    
-        
+
+
     def genHelpers(self,oplist,stlist,unlist):
         for op in oplist:
             self.genOperation(op)
@@ -716,19 +720,19 @@ class ethereal_gen_C:
     #
     # in: opnode
     #
-    
+
     def genOperation(self,opnode):
         if self.DEBUG:
             print "XXX genOperation called"
-            
+
         sname = self.namespace(opnode, "_")
         if not self.fn_hash_built:
             self.fn_hash[sname] = []        # init empty list as val for this sname key
                                             # but only if the fn_hash is not already built
-        
+
         self.curr_sname = sname         # update current opnode's scoped name
         opname = opnode.identifier()
-        
+
         self.st.out(self.template_helper_function_comment, repoid=opnode.repoId() )
 
         self.st.out(self.template_helper_function_start, sname=sname)
@@ -737,45 +741,45 @@ class ethereal_gen_C:
         self.st.out(self.template_helper_function_vars_start)
         self.dumpCvars(sname)
         self.st.out(self.template_helper_function_vars_end )
-        
+
 
         self.st.out(self.template_helper_switch_msgtype_start)
 
         self.st.out(self.template_helper_switch_msgtype_request_start)
         self.st.inc_indent()
-        self.genOperationRequest(opnode)       
+        self.genOperationRequest(opnode)
         self.st.out(self.template_helper_switch_msgtype_request_end)
         self.st.dec_indent()
 
         self.st.out(self.template_helper_switch_msgtype_reply_start)
         self.st.inc_indent()
-        
+
         self.st.out(self.template_helper_switch_rep_status_start)
 
-        
+
         self.st.out(self.template_helper_switch_msgtype_reply_no_exception_start)
         self.st.inc_indent()
         self.genOperationReply(opnode)
         self.st.out(self.template_helper_switch_msgtype_reply_no_exception_end)
         self.st.dec_indent()
-        
+
         self.st.out(self.template_helper_switch_msgtype_reply_user_exception_start)
-        self.st.inc_indent()       
+        self.st.inc_indent()
         self.genOpExceptions(opnode)
         self.st.out(self.template_helper_switch_msgtype_reply_user_exception_end)
-        self.st.dec_indent()       
-        
+        self.st.dec_indent()
+
         self.st.out(self.template_helper_switch_msgtype_reply_default_start)
         self.st.out(self.template_helper_switch_msgtype_reply_default_end)
 
         self.st.out(self.template_helper_switch_rep_status_end)
-        
+
         self.st.dec_indent()
-        
+
         self.st.out(self.template_helper_switch_msgtype_default_start)
         self.st.out(self.template_helper_switch_msgtype_default_end)
-        
-        self.st.out(self.template_helper_switch_msgtype_end)        
+
+        self.st.out(self.template_helper_switch_msgtype_end)
         self.st.dec_indent()
 
 
@@ -788,7 +792,7 @@ class ethereal_gen_C:
     # Decode function parameters for a GIOP request message
     #
     #
-    
+
     def genOperationRequest(self,opnode):
         for p in opnode.parameters():
             if p.is_in():
@@ -798,37 +802,37 @@ class ethereal_gen_C:
                     print "XXX parameter type kind = " ,p.paramType().kind()
 
                 self.getCDR3(p.paramType(),p.identifier())
-                
+
 
     #
     # Decode function parameters for a GIOP reply message
     #
 
-    
+
     def genOperationReply(self,opnode):
 
         rt = opnode.returnType()        # get return type
         if self.DEBUG:
             print "XXX opnode  = " , opnode
             print "XXX return type  = " , rt
-            print "XXX return type.unalias  = " , rt.unalias()        
+            print "XXX return type.unalias  = " , rt.unalias()
             print "XXX return type.kind()  = " , rt.kind();
-            
+
 
         if (rt.kind() == idltype.tk_alias): # a typdef return val possibly ?
             #self.getCDR3(rt.decl().alias().aliasType(),"dummy")    # return value maybe a typedef
             #self.get_CDR_alias(rt, "Operation_Return_Value" )
             self.get_CDR_alias(rt, rt.name() )
-                               
-        else:            
+
+        else:
             self.getCDR3(rt, "Operation_Return_Value")    # return value is NOT an alias
-              
+
         for p in opnode.parameters():
             if p.is_out():              # out or inout
                 self.getCDR3(p.paramType(),p.identifier())
 
         #self.st.dec_indent()
-               
+
     def genOpExceptions(self,opnode):
         for ex in opnode.raises():
             if ex.members():
@@ -839,7 +843,7 @@ class ethereal_gen_C:
     #
     # Delegator for Operations
     #
-    
+
     def genOpDelegator(self,oplist):
         for op in oplist:
             opname = op.identifier()
@@ -850,7 +854,7 @@ class ethereal_gen_C:
     # Delegator for Attributes
     #
 
-    def genAtDelegator(self,atlist):            
+    def genAtDelegator(self,atlist):
         for a in atlist:
             for i in a.declarators():
                 atname = i.identifier()
@@ -858,12 +862,12 @@ class ethereal_gen_C:
                 self.st.out(self.template_at_delegate_code_get, sname=sname)
                 if not a.readonly():
                     self.st.out(self.template_at_delegate_code_set, sname=sname)
- 
+
 
     #
     # Add a variable declaration to the hash of list
     #
-    
+
     def addvar(self, var):
         if not ( var in self.fn_hash[self.curr_sname] ):
             self.fn_hash[self.curr_sname].append(var)
@@ -871,7 +875,7 @@ class ethereal_gen_C:
     #
     # Print the variable declaration from  the hash of list
     #
-                
+
 
     def dumpvars(self):
         for fn in self.fn_hash.keys():
@@ -882,7 +886,7 @@ class ethereal_gen_C:
     # Print the "C" variable declaration from  the hash of list
     # for a given scoped operation name (eg: tux_penguin_eat)
     #
-                
+
 
     def dumpCvars(self, sname):
             for v in self.fn_hash[sname]:
@@ -890,13 +894,13 @@ class ethereal_gen_C:
 
 
     #
-    # Given an enum node, and a enumerator node, return 
+    # Given an enum node, and a enumerator node, return
     # the enumerator's numerical value.
     #
     # eg: enum Color {red,green,blue} should return
     # val = 1 for green
     #
-                
+
     def valFromEnum(self,enumNode, enumeratorNode):
         if self.DEBUG:
             print "XXX valFromEnum, enumNode = ", enumNode, " from ", enumNode.repoId()
@@ -905,7 +909,7 @@ class ethereal_gen_C:
         if isinstance(enumeratorNode,idlast.Enumerator):
             value = enumNode.enumerators().index(enumeratorNode)
             return value
-                
+
 
 ## tk_null               = 0
 ## tk_void               = 1
@@ -957,13 +961,13 @@ class ethereal_gen_C:
 
         if self.DEBUG:
             print "XXX getCDR3: kind = " , pt
-            
+
         if pt == idltype.tk_ulong:
             self.get_CDR_ulong(pn)
         elif pt ==  idltype.tk_void:
             self.get_CDR_void(pn)
         elif pt ==  idltype.tk_short:
-            self.get_CDR_short(pn)          
+            self.get_CDR_short(pn)
         elif pt ==  idltype.tk_long:
             self.get_CDR_long(pn)
         elif pt ==  idltype.tk_ushort:
@@ -987,12 +991,12 @@ class ethereal_gen_C:
         elif pt ==  idltype.tk_wstring:
             self.get_CDR_wstring(pn)
         elif pt ==  idltype.tk_wchar:
-            self.get_CDR_wchar(pn)            
+            self.get_CDR_wchar(pn)
         elif pt ==  idltype.tk_enum:
             #print type.decl()
             self.get_CDR_enum(pn,type)
             #self.get_CDR_enum(pn)
-            
+
         elif pt ==  idltype.tk_struct:
             self.get_CDR_struct(type,pn)
         elif pt ==  idltype.tk_TypeCode: # will I ever get here ?
@@ -1004,11 +1008,11 @@ class ethereal_gen_C:
         elif pt == idltype.tk_array:
             self.get_CDR_array(type,pn)
         elif pt == idltype.tk_union:
-            self.get_CDR_union(type,pn)            
+            self.get_CDR_union(type,pn)
         elif pt == idltype.tk_alias:
             if self.DEBUG:
                 print "XXXXX Alias type XXXXX " , type
-            self.get_CDR_alias(type,pn)            
+            self.get_CDR_alias(type,pn)
         else:
             self.genWARNING("Unknown typecode = " + '%i ' % pt) # put comment in source code
 
@@ -1017,8 +1021,8 @@ class ethereal_gen_C:
     # get_CDR_XXX methods are here ..
     #
     #
-    
-            
+
+
     def get_CDR_ulong(self,pn):
         self.st.out(self.template_get_CDR_ulong, varname=pn)
         self.addvar(self.c_u_octet4)
@@ -1049,7 +1053,7 @@ class ethereal_gen_C:
     def get_CDR_boolean(self,pn):
         self.st.out(self.template_get_CDR_boolean, varname=pn)
         self.addvar(self.c_u_octet1)
-        
+
     def get_CDR_fixed(self,type,pn):
         if self.DEBUG:
             print "XXXX calling get_CDR_fixed, type = ", type
@@ -1059,14 +1063,14 @@ class ethereal_gen_C:
         string_digits = '%i ' % type.digits() # convert int to string
         string_scale  = '%i ' % type.scale()  # convert int to string
         string_length  = '%i ' % self.dig_to_len(type.digits())  # how many octets to hilight for a number of digits
-    
+
         self.st.out(self.template_get_CDR_fixed, varname=pn, digits=string_digits, scale=string_scale, length=string_length )
         self.addvar(self.c_seq)
-                
-                
+
+
     def get_CDR_char(self,pn):
         self.st.out(self.template_get_CDR_char, varname=pn)
-        self.addvar(self.c_u_octet1)        
+        self.addvar(self.c_u_octet1)
 
     def get_CDR_octet(self,pn):
         self.st.out(self.template_get_CDR_octet, varname=pn)
@@ -1092,12 +1096,12 @@ class ethereal_gen_C:
         self.st.out(self.template_get_CDR_wstring, varname=pn)
         self.addvar(self.c_u_octet4)
         self.addvar(self.c_seq)
-        
+
     def get_CDR_wchar(self,pn):
         self.st.out(self.template_get_CDR_wchar, varname=pn)
         self.addvar(self.c_s_octet1)
         self.addvar(self.c_seq)
-                
+
     def get_CDR_TypeCode(self,pn):
         self.st.out(self.template_get_CDR_TypeCode, varname=pn)
         self.addvar(self.c_u_octet4)
@@ -1110,7 +1114,7 @@ class ethereal_gen_C:
         self.addvar(self.c_u_octet4)
 
 
-            
+
     def get_CDR_union(self,type,pn):
         if self.DEBUG:
             print "XXX Union type =" , type, " pn = ",pn
@@ -1118,24 +1122,24 @@ class ethereal_gen_C:
             print "XXX Union Scoped Name" , type.scopedName()
 
        #  If I am a typedef union {..}; node then find the union node
-        
+
         if isinstance(type.decl(), idlast.Declarator):
-            ntype = type.decl().alias().aliasType().decl()           
+            ntype = type.decl().alias().aliasType().decl()
         else:
             ntype = type.decl()         # I am a union node
 
-        if self.DEBUG:    
+        if self.DEBUG:
             print "XXX Union ntype =" , ntype
 
         sname = self.namespace(ntype, "_")
         self.st.out(self.template_union_start, name=sname )
 
         # Output a call to the union helper function so I can handle recursive union also.
-        
-        self.st.out(self.template_decode_union,name=sname)    
+
+        self.st.out(self.template_decode_union,name=sname)
 
         self.st.out(self.template_union_end, name=sname )
-            
+
 
     #
     # Code to generate Union Helper functions
@@ -1163,7 +1167,7 @@ class ethereal_gen_C:
         self.st.out(self.template_helper_function_vars_start)
         self.dumpCvars(sname)
         self.st.out(self.template_helper_function_vars_end )
-        
+
         self.st.out(self.template_union_helper_function_get_endianess)
 
         st = un.switchType().unalias() # may be typedef switch type, so find real type
@@ -1183,97 +1187,97 @@ class ethereal_gen_C:
         #
 
         if (st.kind() == idltype.tk_enum):
-            std = st.decl()            
+            std = st.decl()
             self.st.out(self.template_comment_union_code_discriminant, uname=std.repoId() )
             self.st.out(self.template_union_code_save_discriminant_enum, discname=un.identifier() )
-            self.addvar(self.c_s_disc + un.identifier() + ";")            
+            self.addvar(self.c_s_disc + un.identifier() + ";")
 
         elif (st.kind() == idltype.tk_long):
             self.st.out(self.template_union_code_save_discriminant_long, discname=un.identifier() )
-            self.addvar(self.c_s_disc + un.identifier() + ";")            
+            self.addvar(self.c_s_disc + un.identifier() + ";")
 
         elif (st.kind() == idltype.tk_ulong):
             self.st.out(self.template_union_code_save_discriminant_ulong, discname=un.identifier() )
-            self.addvar(self.c_s_disc + un.identifier() + ";")            
+            self.addvar(self.c_s_disc + un.identifier() + ";")
 
         elif (st.kind() == idltype.tk_short):
             self.st.out(self.template_union_code_save_discriminant_short, discname=un.identifier() )
-            self.addvar(self.c_s_disc + un.identifier() + ";")            
+            self.addvar(self.c_s_disc + un.identifier() + ";")
 
         elif (st.kind() == idltype.tk_ushort):
             self.st.out(self.template_union_code_save_discriminant_ushort, discname=un.identifier() )
-            self.addvar(self.c_s_disc + un.identifier() + ";")            
+            self.addvar(self.c_s_disc + un.identifier() + ";")
 
         elif (st.kind() == idltype.tk_boolean):
             self.st.out(self.template_union_code_save_discriminant_boolean, discname=un.identifier()  )
-            self.addvar(self.c_s_disc + un.identifier() + ";")            
-            
+            self.addvar(self.c_s_disc + un.identifier() + ";")
+
         elif (st.kind() == idltype.tk_char):
             self.st.out(self.template_union_code_save_discriminant_char, discname=un.identifier() )
-            self.addvar(self.c_s_disc + un.identifier() + ";")            
+            self.addvar(self.c_s_disc + un.identifier() + ";")
 
         else:
             print "XXX Unknown st.kind() = ", st.kind()
-            
+
         #
         # Loop over all cases in this union
         #
-        
+
         for uc in un.cases():           # for all UnionCase objects in this union
             for cl in uc.labels():      # for all Caselabel objects in this UnionCase
 
                 # get integer value, even if discriminant is
                 # an Enumerator node
-                
+
                 if isinstance(cl.value(),idlast.Enumerator):
                     if self.DEBUG:
                         print "XXX clv.identifier()", cl.value().identifier()
                         print "XXX clv.repoId()", cl.value().repoId()
                         print "XXX clv.scopedName()", cl.value().scopedName()
-                                            
+
                     # find index of enumerator in enum declaration
                     # eg: RED is index 0 in enum Colors { RED, BLUE, GREEN }
-                    
+
                     clv = self.valFromEnum(std,cl.value())
-                    
+
                 else:
                     clv = cl.value()
-                    
+
                 #print "XXX clv = ",clv
 
-                #    
+                #
                 # if char, dont convert to int, but put inside single quotes so that it is understood by C.
                 # eg: if (disc == 'b')..
                 #
                 # TODO : handle \xxx chars generically from a function or table lookup rather than
                 #        a whole bunch of "if" statements. -- FS
-                
-                                          
+
+
                 if (st.kind() == idltype.tk_char):
                     if (clv == '\n'):          # newline
-                        string_clv = "'\\n'" 
+                        string_clv = "'\\n'"
                     elif (clv == '\t'):        # tab
                         string_clv = "'\\t'"
                     else:
                         string_clv = "'" + clv + "'"
-                else:                    
+                else:
                     string_clv = '%i ' % clv
 
                 #
                 # If default case, then skp comparison with discriminator
                 #
-                
+
                 if not cl.default():
                     self.st.out(self.template_comment_union_code_label_compare_start, discname=un.identifier(),labelval=string_clv )
-                    self.st.inc_indent()       
+                    self.st.inc_indent()
                 else:
                     self.st.out(self.template_comment_union_code_label_default_start  )
-                    
+
 
                 self.getCDR3(uc.caseType(),uc.declarator().identifier())
 
                 if not cl.default():
-                    self.st.dec_indent()       
+                    self.st.dec_indent()
                     self.st.out(self.template_comment_union_code_label_compare_end )
                 else:
                     self.st.out(self.template_comment_union_code_label_default_end  )
@@ -1284,7 +1288,7 @@ class ethereal_gen_C:
 
 
     #
-    # Currently, get_CDR_alias is geared to finding typdef 
+    # Currently, get_CDR_alias is geared to finding typdef
     #
 
     def get_CDR_alias(self,type,pn):
@@ -1294,43 +1298,43 @@ class ethereal_gen_C:
             print "XXX get_CDR_alias, type.decl().alias() = " ,type.decl().alias()
 
         decl = type.decl()              # get declarator object
-        
-        if (decl.sizes()):        # a typedef array 
+
+        if (decl.sizes()):        # a typedef array
             indices = self.get_indices_from_sizes(decl.sizes())
             string_indices = '%i ' % indices # convert int to string
             self.st.out(self.template_get_CDR_array_comment, aname=pn, asize=string_indices)
-            
-            self.st.out(self.template_get_CDR_array_start, aname=pn, aval=string_indices)                        
-            self.addvar(self.c_i + pn + ";")            
-            self.st.inc_indent()       
+
+            self.st.out(self.template_get_CDR_array_start, aname=pn, aval=string_indices)
+            self.addvar(self.c_i + pn + ";")
+            self.st.inc_indent()
             self.getCDR3(type.decl().alias().aliasType(),  pn )
-            
+
             self.st.dec_indent()
             self.st.out(self.template_get_CDR_array_end)
-            
-            
+
+
         else:                           # a simple typdef
             if self.DEBUG:
                 print "XXX get_CDR_alias, type = " ,type , " pn = " , pn
                 print "XXX get_CDR_alias, type.decl() = " ,type.decl()
 
             self.getCDR3(type, decl.identifier() )
-            
-            
-            
-        
-        
+
+
+
+
+
 
     #
     # Handle structs, including recursive
     #
-    
-    def get_CDR_struct(self,type,pn):       
+
+    def get_CDR_struct(self,type,pn):
 
         #  If I am a typedef struct {..}; node then find the struct node
-        
+
         if isinstance(type.decl(), idlast.Declarator):
-            ntype = type.decl().alias().aliasType().decl()           
+            ntype = type.decl().alias().aliasType().decl()
         else:
             ntype = type.decl()         # I am a struct node
 
@@ -1338,23 +1342,23 @@ class ethereal_gen_C:
         self.st.out(self.template_structure_start, name=sname )
 
         # Output a call to the struct helper function so I can handle recursive structs also.
-        
-        self.st.out(self.template_decode_struct,name=sname)    
+
+        self.st.out(self.template_decode_struct,name=sname)
 
         self.st.out(self.template_structure_end, name=sname )
 
     #
-    # genStructhelper() 
+    # genStructhelper()
     #
     # Generate private helper functions to decode a struct
     #
     # in: stnode ( a struct node)
     #
-    
+
     def genStructHelper(self,st):
         if self.DEBUG:
             print "XXX genStructHelper"
-            
+
         sname = self.namespace(st, "_")
         self.curr_sname = sname         # update current opnode/exnode/stnode scoped name
         if not self.fn_hash_built:
@@ -1367,7 +1371,7 @@ class ethereal_gen_C:
         self.st.out(self.template_helper_function_vars_start)
         self.dumpCvars(sname)
         self.st.out(self.template_helper_function_vars_end )
-        
+
         self.st.out(self.template_struct_helper_function_get_endianess)
 
         for m in st.members():
@@ -1375,19 +1379,19 @@ class ethereal_gen_C:
                 if decl.sizes():        # an array
                     indices = self.get_indices_from_sizes(decl.sizes())
                     string_indices = '%i ' % indices # convert int to string
-                    self.st.out(self.template_get_CDR_array_comment, aname=decl.identifier(), asize=string_indices)     
+                    self.st.out(self.template_get_CDR_array_comment, aname=decl.identifier(), asize=string_indices)
                     self.st.out(self.template_get_CDR_array_start, aname=decl.identifier(), aval=string_indices)
                     self.addvar(self.c_i + decl.identifier() + ";")
-                    
-                    self.st.inc_indent()       
-                    self.getCDR3(m.memberType(), st.identifier() + "_" + decl.identifier() )                    
+
+                    self.st.inc_indent()
+                    self.getCDR3(m.memberType(), st.identifier() + "_" + decl.identifier() )
                     self.st.dec_indent()
                     self.st.out(self.template_get_CDR_array_end)
-                    
-                    
-                else:                            
+
+
+                else:
                     self.getCDR3(m.memberType(), st.identifier() + "_" + decl.identifier() )
-                            
+
         self.st.dec_indent()
         self.st.out(self.template_struct_helper_function_end)
 
@@ -1399,35 +1403,35 @@ class ethereal_gen_C:
     # Generate code to access a sequence of a type
     #
 
-    
+
     def get_CDR_sequence(self,type, pn):
         self.st.out(self.template_get_CDR_sequence_length, seqname=pn )
         self.st.out(self.template_get_CDR_sequence_loop_start, seqname=pn )
         self.addvar(self.c_i_lim + pn + ";" )
         self.addvar(self.c_i + pn + ";")
 
-        self.st.inc_indent()       
+        self.st.inc_indent()
         self.getCDR3(type.unalias().seqType(), pn ) # and start all over with the type
-        self.st.dec_indent()     
-        
+        self.st.dec_indent()
+
         self.st.out(self.template_get_CDR_sequence_loop_end)
 
 
-        
+
     #
-    # Generate code to access arrays, 
+    # Generate code to access arrays,
     #
     # This is handled elsewhere. Arrays are either typedefs or in
     # structs
     #
     # TODO - Remove this
     #
-    
+
     def get_CDR_array(self,type, decl):
         if self.DEBUG:
             print "XXX get_CDR_array called "
             print "XXX array size = " ,decl.sizes()
-        
+
 
    #
    # namespace()
@@ -1439,8 +1443,8 @@ class ethereal_gen_C:
    # eg: Penguin::Echo::echoWString => Penguin_Echo_echoWString if sep = "_"
    #
    #
-   
-    def namespace(self,node,sep):    
+
+    def namespace(self,node,sep):
         sname = string.replace(idlutil.ccolonName(node.scopedName()), '::', sep)
         #print "XXX namespace: sname = " + sname
         return sname
@@ -1463,8 +1467,8 @@ class ethereal_gen_C:
     # -e explicit
     # -h heuristic
     #
-    
-    
+
+
 
     def gen_proto_reg_handoff(self, oplist):
 
@@ -1473,10 +1477,10 @@ class ethereal_gen_C:
 
         for iname in self.get_intlist(oplist):
             self.st.out(self.template_proto_reg_handoff_body, dissector_name=self.dissname, protocol_name=self.protoname, interface=iname )
-            
+
         self.st.out(self.template_proto_reg_handoff_heuristic, dissector_name=self.dissname,  protocol_name=self.protoname)
         self.st.dec_indent()
-        
+
         self.st.out(self.template_proto_reg_handoff_end)
 
 
@@ -1484,11 +1488,11 @@ class ethereal_gen_C:
     #
     # generate  proto_register_<protoname> code,
     #
-    
+
 
     def gen_proto_register(self):
         self.st.out(self.template_proto_register, description=self.description, protocol_name=self.protoname, dissector_name=self.dissname)
-    
+
 
     #
     # in - oplist[]
@@ -1506,7 +1510,7 @@ class ethereal_gen_C:
             sn = idlutil.slashName(sc1)         # penguin/tux
             if not int_hash.has_key(sn):
                 int_hash[sn] = 0;       # dummy val, but at least key is unique
-                
+
         return int_hash.keys()
 
 
@@ -1517,7 +1521,7 @@ class ethereal_gen_C:
     # out - a list of exception nodes (unique). This will be used in
     # to generate dissect_exception_XXX functions.
     #
-    
+
 
 
     def get_exceptionList(self,oplist):
@@ -1545,7 +1549,7 @@ class ethereal_gen_C:
         val = 1;
         for i in sizelist:
             val = val * i
-            
+
         return val
 
     #
@@ -1556,12 +1560,12 @@ class ethereal_gen_C:
     def dig_to_len(self,dignum):
         return (dignum/2) + 1
 
-            
+
 
     #
     # Output some TODO comment
     #
-    
+
 
     def genTODO(self,message):
         self.st.out(self.template_debug_TODO, message=message)
@@ -1569,11 +1573,11 @@ class ethereal_gen_C:
     #
     # Output some WARNING comment
     #
-    
+
 
     def genWARNING(self,message):
         self.st.out(self.template_debug_WARNING, message=message)
-            
+
     #
     # Templates for C code
     #
@@ -1584,18 +1588,18 @@ class ethereal_gen_C:
 /*
  * IDL Operations Start
  */
- 
+
  """
 
 
     template_operations_declare = """static const char @sname@_op[] = \"@opname@\" ;"""
-    
+
 
     template_comment_operations_end = """
 /*
  * IDL Operations End
  */
- 
+
 """
 
     template_helper_function_comment = """\
@@ -1603,13 +1607,13 @@ class ethereal_gen_C:
 /*
  * @repoid@
  */
- 
+
 """
-    
+
     template_helper_function_vars_start = """
 /* Operation specific Variable declarations Begin */
 """
-    
+
     template_helper_function_vars_end = """
 /* Operation specific Variable declarations End */
 """
@@ -1621,11 +1625,11 @@ static void decode_@sname@(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 
     gboolean stream_is_big_endian;          /* big endianess */
 """
-    
+
     template_helper_function_end = """\
 }
 """
-    
+
     #
     # proto_reg_handoff() templates
     #
@@ -1653,7 +1657,7 @@ register_giop_user_module(dissect_@dissector_name@, \"@protocol_name@\", \"@inte
 
 /* Register for Heuristic Dissection */
 
-register_giop_user(dissect_@dissector_name@, \"@protocol_name@\" ,proto_@dissector_name@);     /* heuristic dissector */ 
+register_giop_user(dissect_@dissector_name@, \"@protocol_name@\" ,proto_@dissector_name@);     /* heuristic dissector */
 
 """
 
@@ -1746,7 +1750,7 @@ void proto_register_giop_@dissector_name@(void) {
    static hf_register_info hf[] = {
 
       /* no fields yet */
-      
+
    };
 #endif
 
@@ -1757,14 +1761,14 @@ void proto_register_giop_@dissector_name@(void) {
    };
 
    /* Register the protocol name and description */
-   
+
    proto_@dissector_name@ = proto_register_protocol(\"@description@\" , \"@protocol_name@\", \"giop-@dissector_name@\" );
 
 #if 0
    proto_register_field_array(proto_@dissector_name@, hf, array_length(hf));
 #endif
    proto_register_subtree_array(ett,array_length(ett));
-   
+
 }
 
 
@@ -1775,7 +1779,8 @@ void proto_register_giop_@dissector_name@(void) {
     #
 
     template_op_delegate_code = """\
-if (!strcmp(operation, @sname@_op )) {
+if (strcmp(operation, @sname@_op) == 0) {
+   tree = start_dissecting(tvb, pinfo, ptree, offset);
    decode_@sname@(tvb, pinfo, tree, offset, header, operation);
    return TRUE;
 }
@@ -1801,23 +1806,23 @@ default:
     /* Unknown GIOP Exception */
 
     g_warning("Unknown GIOP Message");
-    
+
 """
     template_helper_switch_msgtype_default_end = """\
 break;
 """
 
-    
-    
+
+
     template_helper_switch_msgtype_end = """\
-    
-} /* switch(header->message_type) */ 
+
+} /* switch(header->message_type) */
 """
 
     template_helper_switch_msgtype_request_start = """\
 case Request:
 """
-    
+
     template_helper_switch_msgtype_request_end = """\
 break;
 """
@@ -1825,20 +1830,20 @@ break;
     template_helper_switch_msgtype_reply_start = """\
 case Reply:
 """
-    
+
     template_helper_switch_msgtype_reply_no_exception_start = """\
 case NO_EXCEPTION:
 """
-    
+
     template_helper_switch_msgtype_reply_no_exception_end = """\
 break;
 """
 
-    
+
     template_helper_switch_msgtype_reply_user_exception_start = """\
 case USER_EXCEPTION:
 """
-    
+
     template_helper_switch_msgtype_reply_user_exception_end = """\
 break;
 """
@@ -1850,9 +1855,9 @@ default:
 
     g_warning("Unknown Exception ");
 
-    
+
 """
-    
+
     template_helper_switch_msgtype_reply_default_end = """\
     break;
 """
@@ -1868,7 +1873,7 @@ default:
     /* Unknown GIOP Message */
 
     g_warning("Unknown GIOP Message");
-    
+
 """
 
     template_helper_switch_msgtype_default_end = """\
@@ -1876,7 +1881,7 @@ default:
 """
 
 
-    
+
     template_helper_switch_rep_status_start = """\
 switch(header->rep_status) {
 """
@@ -1887,28 +1892,28 @@ default:
     /* Unknown Reply Status */
 
     g_warning("Unknown Reply Status");
-    
+
 """
-    
+
     template_helper_switch_rep_status_default_end = """\
-    break;  
+    break;
 """
-    
+
     template_helper_switch_rep_status_end = """\
 
 }   /* switch(header->message_type) */
 
-break;   
+break;
 """
 
-            
+
 
 
 
     #
     # Templates for get_CDR_xxx accessors
     #
-    
+
     template_get_CDR_ulong = """\
 u_octet4 = get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary);
 if (tree) {
@@ -1922,7 +1927,7 @@ if (tree) {
    proto_tree_add_text(tree,tvb,*offset-2,2,"@varname@ = %i",s_octet2);
 }
 """
-    
+
     template_get_CDR_void = """\
 
 /* Function returns void */
@@ -1948,28 +1953,28 @@ if (tree) {
    proto_tree_add_text(tree,tvb,*offset-4,4,"@varname@ = %.6e",my_float);
 }
 """
-    
+
     template_get_CDR_double = """\
 my_double = get_CDR_double(tvb,offset,stream_is_big_endian, boundary);
 if (tree) {
    proto_tree_add_text(tree,tvb,*offset-8,8,"@varname@ = %.15e",my_double);
 }
 """
-    
+
     template_get_CDR_boolean = """\
 u_octet1 = get_CDR_boolean(tvb,offset);
 if (tree) {
    proto_tree_add_text(tree,tvb,*offset-1,1,"@varname@ = %u",u_octet1);
 }
 """
-    
+
     template_get_CDR_char = """\
 u_octet1 = get_CDR_char(tvb,offset);
 if (tree) {
    proto_tree_add_text(tree,tvb,*offset-1,1,"@varname@ = %u",u_octet1);
 }
 """
-    
+
     template_get_CDR_octet = """\
 u_octet1 = get_CDR_octet(tvb,offset);
 if (tree) {
@@ -1987,7 +1992,7 @@ get_CDR_any(tvb,tree,offset,stream_is_big_endian, boundary, header);
     template_get_CDR_fixed = """\
 get_CDR_fixed(tvb, &seq, offset, @digits@, @scale@);
 if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-@length@, @length@, "@varname@ < @digits@, @scale@> = %s",seq);   
+   proto_tree_add_text(tree,tvb,*offset-@length@, @length@, "@varname@ < @digits@, @scale@> = %s",seq);
 }
 
 g_free(seq);          /*  free buffer  */
@@ -1995,9 +2000,9 @@ seq = NULL;
 
 """
 
-            
+
     template_get_CDR_enum_symbolic = """\
-    
+
 u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
 if (tree) {
    proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,@valstringarray@,"Unknown Enum Value"));
@@ -2012,28 +2017,28 @@ if (tree) {
    proto_tree_add_text(tree,tvb,*offset-4-u_octet4,4,"length = %u",u_octet4);
    if (u_octet4 > 0)
       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"@varname@ = %s",seq);
-   
+
 }
 
 g_free(seq);          /*  free buffer  */
 seq = NULL;
 """
 
-   
+
     template_get_CDR_wstring = """\
 u_octet4 = get_CDR_wstring(tvb, &seq, offset, stream_is_big_endian, boundary, header);
 if (tree) {
    proto_tree_add_text(tree,tvb,*offset-4-u_octet4,4,"length = %u",u_octet4);
    if (u_octet4 > 0)
       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"@varname@ = %s",seq);
-   
+
 }
 
 g_free(seq);          /*  free buffer  */
 seq = NULL;
 """
 
-   
+
     template_get_CDR_wchar = """\
 s_octet1 = get_CDR_wchar(tvb, &seq, offset, header);
 if (tree) {
@@ -2045,9 +2050,9 @@ if (tree) {
 
     if (s_octet1 > 0)
         proto_tree_add_text(tree,tvb,*offset-s_octet1,s_octet1,"@varname@ = %s",seq);
-           
+
 }
-        
+
 g_free(seq);          /*  free buffer  */
 seq = NULL;
 """
@@ -2059,17 +2064,17 @@ seq = NULL;
 u_octet4 = get_CDR_typeCode(tvb, tree, offset, stream_is_big_endian, boundary, header);
 
 """
-    
+
     template_get_CDR_object = """\
 get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
 """
-    
+
 
     template_get_CDR_sequence_length = """\
 u_octet4_loop_@seqname@ = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
 if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of @seqname@ = %u",u_octet4_loop_@seqname@);   
+   proto_tree_add_text(tree,tvb,*offset-4, 4 ,"Seq length of @seqname@ = %u",u_octet4_loop_@seqname@);
 }
 """
 
@@ -2079,7 +2084,7 @@ for (i_@seqname@=0; i_@seqname@ < u_octet4_loop_@seqname@; i_@seqname@++) {
     template_get_CDR_sequence_loop_end = """\
 }
 """
-    
+
 
 
     template_get_CDR_array_start = """\
@@ -2092,7 +2097,7 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
     template_get_CDR_array_comment = """\
 /* Array: @aname@[ @asize@]  */
 """
-            
+
 
 
 
@@ -2137,9 +2142,9 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
  * By Gerald Combs
  * Copyright 1999 Gerald Combs
  */
- 
+
 """
-    
+
 
 
 #
@@ -2153,16 +2158,15 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 """
 
@@ -2192,35 +2196,45 @@ G_MODULE_EXPORT const gchar version[] = "0.0.1";
 
 """
 
-    
+
 #
 # Main dissector entry templates
 #
 
     template_main_dissector_start = """\
-static gboolean dissect_@dissname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname _U_) {
+
+/*
+ * Called once we accept the packet as being for us; it sets the
+ * Protocol and Info columns and creates the top-level protocol
+ * tree item.
+ */
+static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset) {
 
     proto_item *ti = NULL;
     proto_tree *tree = NULL;            /* init later, inside if(tree) */
-    
-    gboolean be;                        /* big endianess */
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
-       col_set_str(pinfo->cinfo, COL_PROTOCOL, \"@disprot@\");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, \"@disprot@\");
 
-/* 
- * Do not clear COL_INFO, as nothing is being written there by 
- * this dissector yet. So leave it as is from the GIOP dissector.
- * TODO: add something useful to COL_INFO 
- *  if (check_col(pinfo->cinfo, COL_INFO))
- *     col_clear(pinfo->cinfo, COL_INFO);
- */
+    /*
+     * Do not clear COL_INFO, as nothing is being written there by
+     * this dissector yet. So leave it as is from the GIOP dissector.
+     * TODO: add something useful to COL_INFO
+     *  if (check_col(pinfo->cinfo, COL_INFO))
+     *     col_clear(pinfo->cinfo, COL_INFO);
+     */
 
     if (ptree) {
-       ti = proto_tree_add_item(ptree, proto_@dissname@, tvb, *offset, -1, FALSE);
-       tree = proto_item_add_subtree(ti, ett_@dissname@);
-    }  
+        ti = proto_tree_add_item(ptree, proto_@dissname@, tvb, *offset, -1, FALSE);
+        tree = proto_item_add_subtree(ti, ett_@dissname@);
+    }
+    return tree;
+}
 
+static gboolean dissect_@dissname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname _U_) {
+
+    gboolean be;                        /* big endianess */
+    proto_tree *tree _U_;
 
     be = is_big_endian(header);         /* get endianess - TODO use passed in stream_is_big_endian instead ? */
 
@@ -2228,20 +2242,20 @@ static gboolean dissect_@dissname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     if ((header->message_type == Reply) && (header->rep_status == USER_EXCEPTION)) {
 
-       return decode_user_exception(tvb, pinfo, tree, offset, header, operation);
+       return decode_user_exception(tvb, pinfo, ptree, offset, header, operation);
 
     }
 
-    
+
 """
 
 
-       
+
 
     template_main_dissector_switch_msgtype_start = """\
 switch(header->message_type) {
 """
-    
+
     template_main_dissector_switch_msgtype_start_request_reply = """\
 case Request:
 case Reply:
@@ -2280,7 +2294,7 @@ default:
 """
 
 
-    
+
 
 
 
@@ -2299,9 +2313,9 @@ default:
 /*  Begin Exception Helper Functions  */
 
 """
-    
+
     template_exception_helpers_end = """\
-    
+
 /*  End Exception Helper Functions  */
 
 """
@@ -2311,23 +2325,23 @@ default:
 #
 # Templates for declaration of string constants for user exceptions.
 #
-    
+
     template_comment_user_exceptions_string_declare_start = """\
 /*  Begin Exception (containing members) String  Declare  */
 
 """
-    
+
     template_user_exceptions_declare = """static const char user_exception_@sname@[] = \"@exname@\" ; """
 
-    
+
     template_comment_user_exceptions_string_declare_end = """\
-    
+
 /*  End Exception (containing members) String Declare  */
 
 """
 
 
-    
+
 
 #
 # template for Main delegator for exception handling
@@ -2339,10 +2353,11 @@ default:
  * Main delegator for exception handling
  *
  */
- 
-static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_ ) {
-    
+
+static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_ ) {
+
     gboolean be _U_;                        /* big endianess */
+    proto_tree *tree _U_;
 
     if (!header->exception_id)
         return FALSE;
@@ -2354,7 +2369,8 @@ static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 # template for exception delegation code body
 #
     template_ex_delegate_code = """\
-if (!strcmp(header->exception_id, user_exception_@sname@ )) {
+if (strcmp(header->exception_id, user_exception_@sname@) == 0) {
+   tree = start_dissecting(tvb, pinfo, ptree, offset);
    decode_ex_@sname@(tvb, pinfo, tree, offset, header, operation);   /*  @exname@  */
    return TRUE;
 }
@@ -2372,9 +2388,9 @@ if (!strcmp(header->exception_id, user_exception_@sname@ )) {
     return FALSE;    /* user exception not found */
 
 }
-    
+
 """
-    
+
 #
 # template for exception helper code
 #
@@ -2402,12 +2418,12 @@ stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
 """
 
-    
+
     template_exception_helper_function_end = """\
 }
 """
 
-    
+
 #
 # template for struct helper code
 #
@@ -2436,7 +2452,7 @@ stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
 """
 
-    
+
     template_struct_helper_function_end = """\
 }
 """
@@ -2469,7 +2485,7 @@ stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
 """
 
-    
+
     template_union_helper_function_end = """\
 }
 """
@@ -2485,15 +2501,15 @@ static const value_string @valstringname@[] = {
 """
 
     template_value_string_entry = """\
-   { @intval@, \"@description@\" }, """    
-    
+   { @intval@, \"@description@\" }, """
+
     template_value_string_end = """\
    { 0,       NULL },
 };
-    
+
 """
 
-    
+
 
 #-------------------------------------------------------------#
 #             Enum   handling templates                       #
@@ -2503,21 +2519,21 @@ static const value_string @valstringname@[] = {
 /*
  * IDL Enums Start
  */
- 
+
  """
-    
+
     template_comment_enums_end = """\
 /*
  * IDL Enums End
  */
- 
+
  """
-    
+
     template_comment_enum_comment = """\
 /*
  * Enum = @ename@
  */
- 
+
  """
 
 
@@ -2531,7 +2547,7 @@ static const value_string @valstringname@[] = {
 /*
  * IDL Attributes Start
  */
- 
+
  """
 
     #
@@ -2540,13 +2556,13 @@ static const value_string @valstringname@[] = {
 
     template_attributes_declare_Java_get = """static const char get_@sname@_at[] = \"_get_@atname@\" ;"""
     template_attributes_declare_Java_set = """static const char set_@sname@_at[] = \"_set_@atname@\" ;"""
- 
+
 
     template_comment_attributes_end = """
 /*
  * IDL Attributes End
  */
- 
+
 """
 
 
@@ -2559,28 +2575,30 @@ static const value_string @valstringname@[] = {
     #
 
     template_at_delegate_code_get = """\
-if (!strcmp(operation, get_@sname@_at ) && (header->message_type == Reply) && (header->rep_status == NO_EXCEPTION) ) {
+if (strcmp(operation, get_@sname@_at) == 0 && (header->message_type == Reply) && (header->rep_status == NO_EXCEPTION) ) {
+   tree = start_dissecting(tvb, pinfo, ptree, offset);
    decode_get_@sname@_at(tvb, pinfo, tree, offset, header, operation);
    return TRUE;
 }
 """
-    
+
     template_at_delegate_code_set = """\
-if (!strcmp(operation, set_@sname@_at ) && (header->message_type == Request) ) {
+if (strcmp(operation, set_@sname@_at) == 0 && (header->message_type == Request) ) {
+   tree = start_dissecting(tvb, pinfo, ptree, offset);
    decode_set_@sname@_at(tvb, pinfo, tree, offset, header, operation);
    return TRUE;
 }
 """
-        
+
 
 
     template_attribute_helpers_start = """\
 /*  Begin Attribute Helper Functions  */
 
 """
-    
+
     template_attribute_helpers_end = """\
-    
+
 /*  End Attribute Helper Functions  */
 
 """
@@ -2612,12 +2630,12 @@ stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
 """
 
-    
+
     template_attribute_helper_function_end = """\
 }
 """
 
-    
+
 #-------------------------------------------------------------#
 #                     Debugging  templates                    #
 #-------------------------------------------------------------#
@@ -2644,7 +2662,7 @@ stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 """
 
 
-    
+
 #-------------------------------------------------------------#
 #                     IDL Union  templates                    #
 #-------------------------------------------------------------#
@@ -2655,7 +2673,7 @@ stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 /*
  * IDL Union Start - @uname@
  */
- 
+
  """
 
 
@@ -2663,46 +2681,46 @@ stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 /*
  * IDL union End - @uname@
  */
- 
+
 """
 
     template_comment_union_code_discriminant = """\
 /*
  * IDL Union - Discriminant - @uname@
  */
- 
+
  """
 
     #
     # Cast Unions types to something appropriate
-    # Enum value cast to guint32, all others cast to gint32 
+    # Enum value cast to guint32, all others cast to gint32
     # as omniidl accessor returns integer or Enum.
     #
 
     template_union_code_save_discriminant_enum = """\
 disc_s_@discname@ = (gint32) u_octet4;     /* save Enum Value  discriminant and cast to gint32 */
 """
-    
+
     template_union_code_save_discriminant_long = """\
 disc_s_@discname@ = (gint32) s_octet4;     /* save gint32 discriminant and cast to gint32 */
 """
 
     template_union_code_save_discriminant_ulong = """\
 disc_s_@discname@ = (gint32) u_octet4;     /* save guint32 discriminant and cast to gint32 */
-"""    
+"""
 
     template_union_code_save_discriminant_short = """\
 disc_s_@discname@ = (gint32) s_octet2;     /* save gint16 discriminant and cast to gint32 */
-"""    
+"""
 
     template_union_code_save_discriminant_ushort = """\
 disc_s_@discname@ = (gint32) u_octet2;     /* save guint16 discriminant and cast to gint32 */
-"""    
-    
+"""
+
     template_union_code_save_discriminant_char = """\
 disc_s_@discname@ = (gint32) u_octet1;     /* save guint1 discriminant and cast to gint32 */
 """
-    
+
     template_union_code_save_discriminant_boolean = """\
 disc_s_@discname@ = (gint32) u_octet1;     /* save guint1 discriminant and cast to gint32 */
 """
@@ -2721,12 +2739,12 @@ if (disc_s_@discname@ == @labelval@) {
 
     template_comment_union_code_label_default_start = """
 /* Default Union Case Start */
- 
+
 """
 
     template_comment_union_code_label_default_end = """\
 /* Default Union Case End */
- 
+
  """
 
     #
@@ -2735,18 +2753,23 @@ if (disc_s_@discname@ == @labelval@) {
     # for structs and union helper functions.
     #
 
+    template_prototype_start_dissecting = """
+static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset);
+
+"""
+
     template_prototype_struct_start = """
 /* Struct prototype declaration Start */
- 
+
 """
-    
+
     template_prototype_struct_end = """
 /* Struct prototype declaration End */
- 
+
 """
-    
+
     template_prototype_struct_body = """
-        
+
 /* Struct = @stname@ */
 
 static void decode_@name@_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
@@ -2754,26 +2777,26 @@ static void decode_@name@_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 """
 
     template_decode_struct = """
-        
+
 decode_@name@_st(tvb, pinfo, tree, offset, header, operation);
 
 """
 
 
-    
-    
+
+
     template_prototype_union_start = """
 /* Union prototype declaration Start */
- 
+
 """
-    
+
     template_prototype_union_end = """
 /* Union prototype declaration End */
- 
+
 """
-    
+
     template_prototype_union_body = """
-        
+
 /* Union = @unname@ */
 
 static void decode_@name@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
@@ -2781,9 +2804,8 @@ static void decode_@name@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 """
 
     template_decode_union = """
-        
+
 decode_@name@_un(tvb, pinfo, tree, offset, header, operation);
 
 """
-    
-    
+

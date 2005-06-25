@@ -11,23 +11,22 @@
  * By Gerald Combs
  * Copyright 1999 Gerald Combs
  */
- 
+
 
 /*
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
  */
 
 
@@ -51,20 +50,24 @@ G_MODULE_EXPORT const gchar version[] = "0.0.1";
 
 
 
+static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset);
+
+
+
 /* Struct prototype declaration Start */
- 
+
 
 
 /* Struct prototype declaration End */
- 
+
 
 
 /* Union prototype declaration Start */
- 
+
 
 
 /* Union prototype declaration End */
- 
+
 
 
 /* Initialise the protocol and subtree pointers */
@@ -90,7 +93,7 @@ static guint32  boundary = GIOP_HEADER_SIZE;  /* initial value */
 /*
  * IDL Operations Start
  */
- 
+
  
 static const char CosEventComm_PushConsumer_push_op[] = "push" ;
 static const char CosEventComm_PushConsumer_disconnect_push_consumer_op[] = "disconnect_push_consumer" ;
@@ -103,40 +106,40 @@ static const char CosEventComm_PullConsumer_disconnect_pull_consumer_op[] = "dis
 /*
  * IDL Operations End
  */
- 
+
 
 /*  Begin Exception (containing members) String  Declare  */
 
 
-    
+
 /*  End Exception (containing members) String Declare  */
 
 
 /*
  * IDL Attributes Start
  */
- 
+
  
 
 /*
  * IDL Attributes End
  */
- 
+
 
 /*
  * IDL Enums Start
  */
- 
+
  
 /*
  * IDL Enums End
  */
- 
+
  
 /*  Begin Exception Helper Functions  */
 
 
-    
+
 /*  End Exception Helper Functions  */
 
 
@@ -145,10 +148,11 @@ static const char CosEventComm_PullConsumer_disconnect_pull_consumer_op[] = "dis
  * Main delegator for exception handling
  *
  */
- 
-static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_ ) {
-    
+
+static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_ ) {
+
     gboolean be _U_;                        /* big endianess */
+    proto_tree *tree _U_;
 
     if (!header->exception_id)
         return FALSE;
@@ -159,12 +163,12 @@ static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     return FALSE;    /* user exception not found */
 
 }
-    
+
 
 /*  Begin Attribute Helper Functions  */
 
 
-    
+
 /*  End Attribute Helper Functions  */
 
 
@@ -172,7 +176,7 @@ static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 /*
  * IDL:omg.org/CosEventComm/PushConsumer/push:1.0
  */
- 
+
 
 static void decode_CosEventComm_PushConsumer_push(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -218,26 +222,26 @@ static void decode_CosEventComm_PushConsumer_push(tvbuff_t *tvb _U_, packet_info
 
             g_warning("Unknown Exception ");
 
-            
+
 
             break;
 
         
         }   /* switch(header->message_type) */
 
-        break;   
+        break;
 
     default:
 
         /* Unknown GIOP Message */
 
         g_warning("Unknown GIOP Message");
-        
+
 
         break;
 
-        
-    } /* switch(header->message_type) */ 
+    
+    } /* switch(header->message_type) */
 
 }
 
@@ -245,7 +249,7 @@ static void decode_CosEventComm_PushConsumer_push(tvbuff_t *tvb _U_, packet_info
 /*
  * IDL:omg.org/CosEventComm/PushConsumer/disconnect_push_consumer:1.0
  */
- 
+
 
 static void decode_CosEventComm_PushConsumer_disconnect_push_consumer(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -288,26 +292,26 @@ static void decode_CosEventComm_PushConsumer_disconnect_push_consumer(tvbuff_t *
 
             g_warning("Unknown Exception ");
 
-            
+
 
             break;
 
         
         }   /* switch(header->message_type) */
 
-        break;   
+        break;
 
     default:
 
         /* Unknown GIOP Message */
 
         g_warning("Unknown GIOP Message");
-        
+
 
         break;
 
-        
-    } /* switch(header->message_type) */ 
+    
+    } /* switch(header->message_type) */
 
 }
 
@@ -315,7 +319,7 @@ static void decode_CosEventComm_PushConsumer_disconnect_push_consumer(tvbuff_t *
 /*
  * IDL:omg.org/CosEventComm/PushSupplier/disconnect_push_supplier:1.0
  */
- 
+
 
 static void decode_CosEventComm_PushSupplier_disconnect_push_supplier(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -358,26 +362,26 @@ static void decode_CosEventComm_PushSupplier_disconnect_push_supplier(tvbuff_t *
 
             g_warning("Unknown Exception ");
 
-            
+
 
             break;
 
         
         }   /* switch(header->message_type) */
 
-        break;   
+        break;
 
     default:
 
         /* Unknown GIOP Message */
 
         g_warning("Unknown GIOP Message");
-        
+
 
         break;
 
-        
-    } /* switch(header->message_type) */ 
+    
+    } /* switch(header->message_type) */
 
 }
 
@@ -385,7 +389,7 @@ static void decode_CosEventComm_PushSupplier_disconnect_push_supplier(tvbuff_t *
 /*
  * IDL:omg.org/CosEventComm/PullSupplier/pull:1.0
  */
- 
+
 
 static void decode_CosEventComm_PullSupplier_pull(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -427,26 +431,26 @@ static void decode_CosEventComm_PullSupplier_pull(tvbuff_t *tvb _U_, packet_info
 
             g_warning("Unknown Exception ");
 
-            
+
 
             break;
 
         
         }   /* switch(header->message_type) */
 
-        break;   
+        break;
 
     default:
 
         /* Unknown GIOP Message */
 
         g_warning("Unknown GIOP Message");
-        
+
 
         break;
 
-        
-    } /* switch(header->message_type) */ 
+    
+    } /* switch(header->message_type) */
 
 }
 
@@ -454,7 +458,7 @@ static void decode_CosEventComm_PullSupplier_pull(tvbuff_t *tvb _U_, packet_info
 /*
  * IDL:omg.org/CosEventComm/PullSupplier/try_pull:1.0
  */
- 
+
 
 static void decode_CosEventComm_PullSupplier_try_pull(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -502,26 +506,26 @@ static void decode_CosEventComm_PullSupplier_try_pull(tvbuff_t *tvb _U_, packet_
 
             g_warning("Unknown Exception ");
 
-            
+
 
             break;
 
         
         }   /* switch(header->message_type) */
 
-        break;   
+        break;
 
     default:
 
         /* Unknown GIOP Message */
 
         g_warning("Unknown GIOP Message");
-        
+
 
         break;
 
-        
-    } /* switch(header->message_type) */ 
+    
+    } /* switch(header->message_type) */
 
 }
 
@@ -529,7 +533,7 @@ static void decode_CosEventComm_PullSupplier_try_pull(tvbuff_t *tvb _U_, packet_
 /*
  * IDL:omg.org/CosEventComm/PullSupplier/disconnect_pull_supplier:1.0
  */
- 
+
 
 static void decode_CosEventComm_PullSupplier_disconnect_pull_supplier(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -572,26 +576,26 @@ static void decode_CosEventComm_PullSupplier_disconnect_pull_supplier(tvbuff_t *
 
             g_warning("Unknown Exception ");
 
-            
+
 
             break;
 
         
         }   /* switch(header->message_type) */
 
-        break;   
+        break;
 
     default:
 
         /* Unknown GIOP Message */
 
         g_warning("Unknown GIOP Message");
-        
+
 
         break;
 
-        
-    } /* switch(header->message_type) */ 
+    
+    } /* switch(header->message_type) */
 
 }
 
@@ -599,7 +603,7 @@ static void decode_CosEventComm_PullSupplier_disconnect_pull_supplier(tvbuff_t *
 /*
  * IDL:omg.org/CosEventComm/PullConsumer/disconnect_pull_consumer:1.0
  */
- 
+
 
 static void decode_CosEventComm_PullConsumer_disconnect_pull_consumer(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -642,52 +646,62 @@ static void decode_CosEventComm_PullConsumer_disconnect_pull_consumer(tvbuff_t *
 
             g_warning("Unknown Exception ");
 
-            
+
 
             break;
 
         
         }   /* switch(header->message_type) */
 
-        break;   
+        break;
 
     default:
 
         /* Unknown GIOP Message */
 
         g_warning("Unknown GIOP Message");
-        
+
 
         break;
 
-        
-    } /* switch(header->message_type) */ 
+    
+    } /* switch(header->message_type) */
 
+}
+
+
+/*
+ * Called once we accept the packet as being for us; it sets the
+ * Protocol and Info columns and creates the top-level protocol
+ * tree item.
+ */
+static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset) {
+
+    proto_item *ti = NULL;
+    proto_tree *tree = NULL;            /* init later, inside if(tree) */
+
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "COSEVENTCOMM");
+
+    /*
+     * Do not clear COL_INFO, as nothing is being written there by
+     * this dissector yet. So leave it as is from the GIOP dissector.
+     * TODO: add something useful to COL_INFO
+     *  if (check_col(pinfo->cinfo, COL_INFO))
+     *     col_clear(pinfo->cinfo, COL_INFO);
+     */
+
+    if (ptree) {
+        ti = proto_tree_add_item(ptree, proto_coseventcomm, tvb, *offset, -1, FALSE);
+        tree = proto_item_add_subtree(ti, ett_coseventcomm);
+    }
+    return tree;
 }
 
 static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname _U_) {
 
-    proto_item *ti = NULL;
-    proto_tree *tree = NULL;            /* init later, inside if(tree) */
-    
     gboolean be;                        /* big endianess */
-
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-       col_set_str(pinfo->cinfo, COL_PROTOCOL, "COSEVENTCOMM");
-
-/* 
- * Do not clear COL_INFO, as nothing is being written there by 
- * this dissector yet. So leave it as is from the GIOP dissector.
- * TODO: add something useful to COL_INFO 
- *  if (check_col(pinfo->cinfo, COL_INFO))
- *     col_clear(pinfo->cinfo, COL_INFO);
- */
-
-    if (ptree) {
-       ti = proto_tree_add_item(ptree, proto_coseventcomm, tvb, *offset, -1, FALSE);
-       tree = proto_item_add_subtree(ti, ett_coseventcomm);
-    }  
-
+    proto_tree *tree _U_;
 
     be = is_big_endian(header);         /* get endianess - TODO use passed in stream_is_big_endian instead ? */
 
@@ -695,51 +709,56 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     if ((header->message_type == Reply) && (header->rep_status == USER_EXCEPTION)) {
 
-       return decode_user_exception(tvb, pinfo, tree, offset, header, operation);
+       return decode_user_exception(tvb, pinfo, ptree, offset, header, operation);
 
     }
 
-    
+
 
     switch(header->message_type) {
 
     case Request:
     case Reply:
 
-        if (!operation)
-           THROW(ReportedBoundsError);
 
-        if (!strcmp(operation, CosEventComm_PushConsumer_push_op )) {
+        if (strcmp(operation, CosEventComm_PushConsumer_push_op) == 0) {
+           tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosEventComm_PushConsumer_push(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (!strcmp(operation, CosEventComm_PushConsumer_disconnect_push_consumer_op )) {
+        if (strcmp(operation, CosEventComm_PushConsumer_disconnect_push_consumer_op) == 0) {
+           tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosEventComm_PushConsumer_disconnect_push_consumer(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (!strcmp(operation, CosEventComm_PushSupplier_disconnect_push_supplier_op )) {
+        if (strcmp(operation, CosEventComm_PushSupplier_disconnect_push_supplier_op) == 0) {
+           tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosEventComm_PushSupplier_disconnect_push_supplier(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (!strcmp(operation, CosEventComm_PullSupplier_pull_op )) {
+        if (strcmp(operation, CosEventComm_PullSupplier_pull_op) == 0) {
+           tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosEventComm_PullSupplier_pull(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (!strcmp(operation, CosEventComm_PullSupplier_try_pull_op )) {
+        if (strcmp(operation, CosEventComm_PullSupplier_try_pull_op) == 0) {
+           tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosEventComm_PullSupplier_try_pull(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (!strcmp(operation, CosEventComm_PullSupplier_disconnect_pull_supplier_op )) {
+        if (strcmp(operation, CosEventComm_PullSupplier_disconnect_pull_supplier_op) == 0) {
+           tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosEventComm_PullSupplier_disconnect_pull_supplier(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
 
-        if (!strcmp(operation, CosEventComm_PullConsumer_disconnect_pull_consumer_op )) {
+        if (strcmp(operation, CosEventComm_PullConsumer_disconnect_pull_consumer_op) == 0) {
+           tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosEventComm_PullConsumer_disconnect_pull_consumer(tvb, pinfo, tree, offset, header, operation);
            return TRUE;
         }
@@ -779,7 +798,7 @@ void proto_register_giop_coseventcomm(void) {
    static hf_register_info hf[] = {
 
       /* no fields yet */
-      
+
    };
 #endif
 
@@ -790,14 +809,14 @@ void proto_register_giop_coseventcomm(void) {
    };
 
    /* Register the protocol name and description */
-   
+
    proto_coseventcomm = proto_register_protocol("Coseventcomm Dissector Using GIOP API" , "COSEVENTCOMM", "giop-coseventcomm" );
 
 #if 0
    proto_register_field_array(proto_coseventcomm, hf, array_length(hf));
 #endif
    proto_register_subtree_array(ett,array_length(ett));
-   
+
 }
 
 
@@ -852,7 +871,7 @@ void proto_register_handoff_giop_coseventcomm(void) {
 
     /* Register for Heuristic Dissection */
 
-    register_giop_user(dissect_coseventcomm, "COSEVENTCOMM" ,proto_coseventcomm);     /* heuristic dissector */ 
+    register_giop_user(dissect_coseventcomm, "COSEVENTCOMM" ,proto_coseventcomm);     /* heuristic dissector */
 
 
 
