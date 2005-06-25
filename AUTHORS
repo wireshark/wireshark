@@ -2345,6 +2345,10 @@ Angelo Bannack		<angelo.bannack[AT]siemens.com> {
 	CSM_ENCAPS support
 }
 
+Paolo Frigo		<paolofrigo [AT] gmail.com> {
+	TANGO support
+}
+
 And assorted fixes and enhancements by the people listed above
 and by:
 
