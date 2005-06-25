@@ -1114,8 +1114,10 @@ conversation_delete_proto_data(conversation_t *conv, int proto)
 	item = g_slist_find_custom(conv->data_list, (gpointer *)&temp,
 	    p_compare);
 
-	if (item != NULL)
-		conv->data_list = g_slist_remove(conv->data_list, item);
+	while(item){
+		conv->data_list = g_slist_remove(conv->data_list, item->data);
+		item=item->next;
+	}
 }
 
 void
