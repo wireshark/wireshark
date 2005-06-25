@@ -35,6 +35,7 @@
 #include <string.h>
 
 #include "packet-ber.h"
+#include "packet-acse.h"
 #include "packet-x509if.h"
 #include "packet-cmip.h"
 

@@ -5,8 +5,10 @@
 
 #.MODULE_IMPORT
 InformationFramework x509if
+ACSE-1 acse
 
 #.INCLUDE ../x509if/x509if-exp.cnf
+#.INCLUDE ../acse/acse-exp.cnf
 
 #.EXPORTS
 CMIPAbortInfo
