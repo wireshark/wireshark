@@ -2641,7 +2641,6 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
     case ECHOREQ:
     case ECHOREP:
     case DISCREQ:
-    case IDENT:
       if(tree) {
 	proto_tree_add_text(fh_tree, tvb, offset, 4, "Magic number: 0x%08x",
 			tvb_get_ntohl(tvb, offset));
@@ -2650,6 +2649,18 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 	if (length > 0)
           proto_tree_add_text(fh_tree, tvb, offset, length, "Message (%d byte%s)",
 				length, plurality(length, "", "s"));
+      }
+      break;
+
+    case IDENT:
+      if(tree) {
+	proto_tree_add_text(fh_tree, tvb, offset, 4, "Magic number: 0x%08x",
+			tvb_get_ntohl(tvb, offset));
+	offset += 4;
+	length -= 4;
+	if (length > 0)
+          proto_tree_add_text(fh_tree, tvb, offset, length, "Message: %s",
+				tvb_format_text(tvb, offset, length));
       }
       break;
 
