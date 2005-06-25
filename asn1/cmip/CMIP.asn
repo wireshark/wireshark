@@ -316,9 +316,7 @@ Scope ::= CHOICE {
 CMISSync ::= ENUMERATED {bestEffort(0), atomic(1)}
 
 -- Supporting type definitions
---XXX Dont support EXTERNAL yet
---AccessControl ::= EXTERNAL
-AccessControl ::= OCTET STRING
+AccessControl ::= EXTERNAL
 
 
 GetArgument ::= SEQUENCE {
@@ -443,8 +441,7 @@ ROS ::= CHOICE {
 --      Information carried in user-information parameter of A-ABORT
 CMIPAbortInfo ::= SEQUENCE {
   abortSource  [0] IMPLICIT CMIPAbortSource
---XXX Dont know how to handle EXTERNAL yet
---XXX  userInfo     [1]  EXTERNAL OPTIONAL
+  userInfo     [1]  EXTERNAL OPTIONAL
 }
 
 CMIPAbortSource ::= ENUMERATED {cmiseServiceUser(0), cmiseServiceProvider(1)}
@@ -462,9 +459,8 @@ FunctionalUnits ::= BIT STRING {
 CMIPUserInfo ::= SEQUENCE {
   protocolVersion  [0] IMPLICIT ProtocolVersion OPTIONAL,
   functionalUnits  [1] IMPLICIT FunctionalUnits OPTIONAL
---XXX Dont know how to handle EXTERNAL yet
---XXX  accessControl    [2]  EXTERNAL OPTIONAL,
---XXX  userInfo         [3]  EXTERNAL OPTIONAL
+  accessControl    [2]  EXTERNAL OPTIONAL,
+  userInfo         [3]  EXTERNAL OPTIONAL
 }
 
 ProtocolVersion ::= BIT STRING {version1(0), version2(1)}

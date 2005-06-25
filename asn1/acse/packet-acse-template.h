@@ -26,7 +26,7 @@
 #ifndef PACKET_ACSE_H
 #define PACKET_ACSE_H
 
-/*#include "packet-acse-exp.h"*/
+#include "packet-acse-exp.h"
 
 #endif  /* PACKET_ACSE_H */
 

@@ -439,7 +439,7 @@ static const ber_sequence_t EXTERNAL_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_acse_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   gint8 class;
   gboolean pc, ind_field;

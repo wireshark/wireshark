@@ -33,7 +33,13 @@
 #ifndef PACKET_ACSE_H
 #define PACKET_ACSE_H
 
-/*#include "packet-acse-exp.h"*/
+
+/*--- Included file: packet-acse-exp.h ---*/
+
+int dissect_acse_EXTERNAL(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+
+/*--- End of included file: packet-acse-exp.h ---*/
+
 
 #endif  /* PACKET_ACSE_H */
 

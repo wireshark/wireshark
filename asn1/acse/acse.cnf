@@ -3,6 +3,9 @@ InformationFramework x509if
 
 #.INCLUDE ../x509if/x509if-exp.cnf
 
+#.EXPORTS
+EXTERNAL
+
 #.TYPE_RENAME
 AARQ-apdu/protocol-version	T_AARQ_protocol_version
 AARE-apdu/protocol-version	T_AARE_protocol_version
