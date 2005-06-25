@@ -1081,7 +1081,7 @@ print_usage(gboolean print_ver) {
 
   if (print_ver) {
     output = stdout;
-    fprintf(output, "This is GNU " PACKAGE " " VERSION
+    fprintf(output, "This is "PACKAGE " " VERSION
 #ifdef SVNVERSION
 	" (" SVNVERSION ")"
 #endif
