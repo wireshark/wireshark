@@ -7,7 +7,7 @@
  *
  * Anders Broman and Ronnie Sahlberg 2005
  *
- * $Id: packet-ftam-template.c 13967 2005-03-29 14:56:09Z gerald $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,6 +51,8 @@
 int proto_ftam = -1;
 
 static char object_identifier_id[MAX_OID_STR_LEN];
+/* Declare the function to avoid a compiler warning */
+static int dissect_ftam_OR_Set(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_);
 
 #include "packet-ftam-hf.c"
 

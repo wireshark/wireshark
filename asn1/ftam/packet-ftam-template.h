@@ -7,7 +7,7 @@
  *
  * Anders Broman and Ronnie Sahlberg 2005
  *
- * $Id:  $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
