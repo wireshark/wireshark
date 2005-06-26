@@ -49,6 +49,7 @@ val_to_str(guint32 val, const value_string *vs, const char *fmt) {
   ret = match_strval(val, vs);
   if (ret != NULL)
     return ret;
+
   if (cur == &str[0][0]) {
     cur = &str[1][0];
   } else if (cur == &str[1][0]) {
@@ -68,7 +69,10 @@ match_strval(guint32 val, const value_string *vs) {
 
   while (vs[i].strptr) {
     if (vs[i].value == val)
-      return(vs[i].strptr);
+      /* XXX - the correct implementation would be to use the return type:
+         "const gchar *", but this would require to change most calls of this 
+         function which are (directly and indirectly) *a lot* */
+      return( (gchar *) vs[i].strptr);
     i++;
   }
 
