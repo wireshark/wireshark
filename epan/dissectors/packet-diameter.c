@@ -562,7 +562,7 @@ xmlParseAVP(xmlNodePtr cur)
  * This routine will add a command to the list of commands.
  */
 static int
-addCommand(int code, char *name, char *vendorId)
+addCommand(int code, const char *name, char *vendorId)
 {
   CommandCode *entry;
 
@@ -653,7 +653,7 @@ dictionaryAddApplication(char *name, int id)
  * This routine will add a vendor to the vendors list
  */
 static int
-addVendor(int id, gchar *name, gchar *longName)
+addVendor(int id, const gchar *name, const gchar *longName)
 {
   VendorId *vendor;
 
