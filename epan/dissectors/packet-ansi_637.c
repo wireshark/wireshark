@@ -275,7 +275,7 @@ decode_7_bits(tvbuff_t *tvb, guint32 *offset, guint8 num_fields, guint8 *last_oc
     *last_oct = (bit == 1) ? oct : oct2;
 }
 
-static gchar *
+static const gchar *
 my_match_strval(guint32 val, const value_string *vs, gint *idx)
 {
     gint i = 0;
@@ -1492,7 +1492,7 @@ dissect_ansi_637_tele_param(tvbuff_t *tvb, proto_tree *tree, guint32 *offset)
     gint	ett_param_idx, idx;
     proto_tree	*subtree;
     proto_item	*item;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
 
     curr_offset = *offset;
@@ -1668,7 +1668,7 @@ dissect_ansi_637_trans_param(tvbuff_t *tvb, proto_tree *tree, guint32 *offset)
     gint	ett_param_idx, idx;
     proto_tree	*subtree;
     proto_item	*item;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
     curr_offset = *offset;
 
@@ -1735,7 +1735,7 @@ dissect_ansi_637_trans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree	*ansi_637_tree = NULL;
     guint32	curr_offset;
     gint	idx;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     guint8	oct;
     guint8	len;
 
