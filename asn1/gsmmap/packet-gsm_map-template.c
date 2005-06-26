@@ -244,6 +244,10 @@ const value_string gsm_map_opr_code_strings[] = {
   {  75, "remoteUserFree" },
   {  76, "registerCC-Entry" },
   {  77, "eraseCC-Entry" },
+  {  78, "secureTransportClass1" },
+  {  79, "secureTransportClass2" },
+  {  80, "secureTransportClass3" },
+  {  81, "secureTransportClass4" },
   {  83, "provideSubscriberLocation" },
   {  85, "sendRoutingInfoForLCS" },
   {  86, "subscriberLocationReport" },
@@ -606,7 +610,15 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case 77: /*eraseCC-Entry*/
     offset=dissect_gsm_map_EraseCC_EntryArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
+  case 78: /*secureTransportClass1*/
+  case 79: /*secureTransportClass1*/
+  case 80: /*secureTransportClass1*/
+  case 81: /*secureTransportClass1*/
+    offset=dissect_gsm_map_SecureTransportArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
   case 83: /*provideSubscriberLocation*/
+    offset=dissect_gsm_map_EraseCC_EntryArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
     offset=dissect_gsm_map_ProvideSubscriberLocation_Arg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 85: /*sendRoutingInfoForLCS*/
@@ -820,6 +832,12 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     break;
   case 77: /*eraseCC-Entry*/
     offset=dissect_gsm_map_EraseCC_EntryRes(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 78: /*secureTransportClass1*/
+  case 79: /*secureTransportClass1*/
+  case 80: /*secureTransportClass1*/
+  case 81: /*secureTransportClass1*/
+    offset=dissect_gsm_map_SecureTransportRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 83: /*provideSubscriberLocation*/
     offset=dissect_gsm_map_ProvideSubscriberLocation_Res(FALSE, tvb, offset, pinfo, tree, -1);

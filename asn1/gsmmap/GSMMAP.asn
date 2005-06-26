@@ -3698,11 +3698,7 @@ ModifyNotificationToCSE ::= ENUMERATED {
             deactivate    (0 ), 
             activate      (1 )}
 
-Odb-data ::=  SEQUENCE {
-            odb-GeneralData      ODB-GeneralData, 
-            odb-HPLMN-Data       ODB-HPLMN-Data OPTIONAL, 
-            extensionContainer   ExtensionContainer OPTIONAL, 
-            ... }
+
 M-CSI ::= SEQUENCE {
 	mobilityTriggers		MobilityTriggers,
 	serviceKey				ServiceKey,
