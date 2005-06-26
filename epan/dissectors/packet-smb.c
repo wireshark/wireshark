@@ -713,7 +713,7 @@ static const fragment_items smb_frag_items = {
 
 proto_tree *top_tree=NULL;     /* ugly */
 
-static char *decode_smb_name(guint8);
+static const char *decode_smb_name(guint8);
 static int dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *smb_tree, guint8 cmd, gboolean first_pdu);
 
 /*
@@ -14401,7 +14401,7 @@ const value_string smb_cmd_vals[] = {
   { 0x00, NULL },
 };
 
-static char *decode_smb_name(guint8 cmd)
+static const char *decode_smb_name(guint8 cmd)
 {
   return(smb_cmd_vals[cmd].strptr);
 }
