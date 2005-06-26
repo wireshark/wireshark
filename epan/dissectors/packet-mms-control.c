@@ -1,6 +1,6 @@
-/* packet-mms-control.c
+/* packet-msmms-control.c
  *
- * Routines for MMS control message dissection
+ * Routines for MicroSoft MMS control message dissection
  * MMS = Microsoft Media Server
  *
  * Copyright 2005
@@ -44,47 +44,47 @@
 
 #include "packet-tcp.h"
 
-static dissector_handle_t mms_command_handle;
+static dissector_handle_t msmms_command_handle;
 
-static gint    proto_mms_command                         = -1;
+static gint    proto_msmms_command                         = -1;
 
 /* Fields */
 
 /* Command header */
-static gint    hf_mms_command_common_header              = -1;
-static gint    hf_mms_command_version                    = -1;
-static gint    hf_mms_command_signature                  = -1;
-static gint    hf_mms_command_length                     = -1;
-static gint    hf_mms_command_protocol_type              = -1;
-static gint    hf_mms_command_length_remaining           = -1;
-static gint    hf_mms_command_sequence_number            = -1;
-static gint    hf_mms_command_timestamp                  = -1;
-static gint    hf_mms_command_length_remaining2          = -1;
-static gint    hf_mms_command_to_client_id               = -1;
-static gint    hf_mms_command_to_server_id               = -1;
-static gint    hf_mms_command_direction                  = -1;
+static gint    hf_msmms_command_common_header              = -1;
+static gint    hf_msmms_command_version                    = -1;
+static gint    hf_msmms_command_signature                  = -1;
+static gint    hf_msmms_command_length                     = -1;
+static gint    hf_msmms_command_protocol_type              = -1;
+static gint    hf_msmms_command_length_remaining           = -1;
+static gint    hf_msmms_command_sequence_number            = -1;
+static gint    hf_msmms_command_timestamp                  = -1;
+static gint    hf_msmms_command_length_remaining2          = -1;
+static gint    hf_msmms_command_to_client_id               = -1;
+static gint    hf_msmms_command_to_server_id               = -1;
+static gint    hf_msmms_command_direction                  = -1;
 
-static gint    hf_mms_command_prefix1                    = -1;
-static gint    hf_mms_command_prefix2                    = -1;
-static gint    hf_mms_command_unknown                    = -1;
+static gint    hf_msmms_command_prefix1                    = -1;
+static gint    hf_msmms_command_prefix2                    = -1;
+static gint    hf_msmms_command_unknown                    = -1;
 
-static gint    hf_mms_command_client_transport_info      = -1;
-static gint    hf_mms_command_client_player_info         = -1;
+static gint    hf_msmms_command_client_transport_info      = -1;
+static gint    hf_msmms_command_client_player_info         = -1;
 
 
 /* Subtrees */
-static gint    ett_mms_command                           = -1;
-static gint    ett_mms_command_common_header             = -1;
+static gint    ett_msmms_command                           = -1;
+static gint    ett_msmms_command_common_header             = -1;
 
 
-#define MMS_TCP_PORT 1755
+#define MSMMS_TCP_PORT 1755
 
-extern void mms_data_add_address(packet_info *pinfo, address *addr,
+extern void msmms_data_add_address(packet_info *pinfo, address *addr,
                                  port_type pt, int port);
 
 
 /* Main dissection function */
-static void dissect_mms_command_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_msmms_command_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Command details */
 static void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -182,12 +182,12 @@ static const value_string command_direction_vals[] =
 /**************************************************************************/
 /* Packet dissection functions                                            */
 /**************************************************************************/
-static void dissect_mms_command_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_msmms_command_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     gint        offset = 0;
     proto_item  *ti = NULL;
-    proto_tree  *mms_tree = NULL;
-    proto_tree  *mms_common_command_tree = NULL;
+    proto_tree  *msmms_tree = NULL;
+    proto_tree  *msmms_common_command_tree = NULL;
     guint32     sequence_number;
     guint16     command_id;
     guint16     command_dir;
@@ -196,18 +196,18 @@ static void dissect_mms_command_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     /* Set columns */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MMS-c");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSMMS-c");
     }
     if (check_col(pinfo->cinfo, COL_INFO))
     {
         col_set_str(pinfo->cinfo, COL_INFO, "Control: ");
     }
 
-    /* Create MMS control protocol tree */
+    /* Create MSMMS control protocol tree */
     if (tree)
     {
-        ti = proto_tree_add_item(tree, proto_mms_command, tvb, offset, -1, FALSE);
-        mms_tree = proto_item_add_subtree(ti, ett_mms_command);
+        ti = proto_tree_add_item(tree, proto_msmms_command, tvb, offset, -1, FALSE);
+        msmms_tree = proto_item_add_subtree(ti, ett_msmms_command);
     }
 
 
@@ -217,60 +217,60 @@ static void dissect_mms_command_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     /* Add a tree for common header */
     if (tree)
     {
-        ti =  proto_tree_add_string(mms_tree, hf_mms_command_common_header, tvb, offset, -1,
+        ti =  proto_tree_add_string(msmms_tree, hf_msmms_command_common_header, tvb, offset, -1,
                                     "");
-        mms_common_command_tree = proto_item_add_subtree(ti, ett_mms_command_common_header);
+        msmms_common_command_tree = proto_item_add_subtree(ti, ett_msmms_command_common_header);
     }
 
     /* Format of 1st 4 bytes unknown.  May be version... */
     offset += 4;
 
     /* Rude signature */
-    proto_tree_add_item(mms_common_command_tree, hf_mms_command_signature, tvb, offset, 4, TRUE);
+    proto_tree_add_item(msmms_common_command_tree, hf_msmms_command_signature, tvb, offset, 4, TRUE);
     offset += 4;
 
     /* Length of command */
-    proto_tree_add_item(mms_common_command_tree, hf_mms_command_length, tvb, offset, 4, TRUE);
+    proto_tree_add_item(msmms_common_command_tree, hf_msmms_command_length, tvb, offset, 4, TRUE);
     offset += 4;
 
     /* Protocol name */
-    proto_tree_add_item(mms_common_command_tree, hf_mms_command_protocol_type, tvb, offset, 4, TRUE);
+    proto_tree_add_item(msmms_common_command_tree, hf_msmms_command_protocol_type, tvb, offset, 4, TRUE);
     offset += 4;
 
     /* Remaining length in multiples of 8 bytes */
-    proto_tree_add_item(mms_common_command_tree, hf_mms_command_length_remaining, tvb, offset, 4, TRUE);
+    proto_tree_add_item(msmms_common_command_tree, hf_msmms_command_length_remaining, tvb, offset, 4, TRUE);
     offset += 4;
 
     /* Sequence number */
     sequence_number = tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(mms_common_command_tree, hf_mms_command_sequence_number, tvb, offset, 4, TRUE);
+    proto_tree_add_item(msmms_common_command_tree, hf_msmms_command_sequence_number, tvb, offset, 4, TRUE);
     offset += 4;
 
     /* Timestamp */
-    proto_tree_add_item(mms_common_command_tree, hf_mms_command_timestamp, tvb, offset, 8, TRUE);
+    proto_tree_add_item(msmms_common_command_tree, hf_msmms_command_timestamp, tvb, offset, 8, TRUE);
     offset += 8;
 
     /* Another length remaining field... */
     length_remaining = tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(mms_common_command_tree, hf_mms_command_length_remaining2, tvb, offset, 4, TRUE);
+    proto_tree_add_item(msmms_common_command_tree, hf_msmms_command_length_remaining2, tvb, offset, 4, TRUE);
     offset += 4;
 
     /* Command ID */
     command_dir = tvb_get_letohs(tvb, offset+2);
     command_id = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(mms_common_command_tree,
+    proto_tree_add_item(msmms_common_command_tree,
                         (command_id == TO_SERVER) ?
-                            hf_mms_command_to_server_id :
-                            hf_mms_command_to_client_id,
+                            hf_msmms_command_to_server_id :
+                            hf_msmms_command_to_client_id,
                         tvb, offset, 2, TRUE);
     offset += 2;
 
     /* Command direction */
-    proto_tree_add_item(mms_common_command_tree, hf_mms_command_direction, tvb, offset, 2, TRUE);
+    proto_tree_add_item(msmms_common_command_tree, hf_msmms_command_direction, tvb, offset, 2, TRUE);
     offset += 2;
 
     /* This is the end of the common command header */
-    proto_item_set_len(mms_common_command_tree, offset);
+    proto_item_set_len(msmms_common_command_tree, offset);
 
 
     /* Show summary in info column */
@@ -295,11 +295,11 @@ static void dissect_mms_command_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         switch (command_id)
         {
             case SERVER_COMMAND_TRANSPORT_INFO:
-                dissect_client_transport_info(tvb, pinfo, mms_tree,
+                dissect_client_transport_info(tvb, pinfo, msmms_tree,
                                               offset, length_remaining);
                 break;
             case SERVER_COMMAND_CONNECT_INFO:
-                dissect_client_player_info(tvb, pinfo, mms_tree,
+                dissect_client_player_info(tvb, pinfo, msmms_tree,
                                            offset, length_remaining);
                 break;
             /* TODO: other commands */
@@ -321,19 +321,19 @@ static void dissect_mms_command_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 }
 
 /* Return the number of bytes in this PDU */
-static guint32 get_mms_command_pdu_len(tvbuff_t *tvb, gint offset)
+static guint32 get_msmms_command_pdu_len(tvbuff_t *tvb, gint offset)
 {
     return tvb_get_letohl(tvb, offset+8) + 16;
 }
 
 /* Dissect a TCP command PDU */
-static void dissect_mms_command_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_msmms_command_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     tcp_dissect_pdus(tvb, pinfo, tree,
                      TRUE,  /* i.e. always desegment */
                      12,    /* Must have 12 bytes to determine length */
-                     get_mms_command_pdu_len,
-                     dissect_mms_command_pdu);
+                     get_msmms_command_pdu_len,
+                     dissect_msmms_command_pdu);
 }
 
 
@@ -352,23 +352,23 @@ void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     int fields_matched;
 
     /* These are flags */
-    proto_tree_add_item(tree, hf_mms_command_prefix1, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_msmms_command_prefix1, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item(tree, hf_mms_command_prefix1, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_msmms_command_prefix1, tvb, offset, 4, TRUE);
     offset += 4;
 
     /* These 12 bytes are not understood */
-    proto_tree_add_item(tree, hf_mms_command_unknown, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item(tree, hf_mms_command_unknown, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item(tree, hf_mms_command_unknown, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
 
     /* Extract and show the string in tree and info column */
     transport_info = tvb_fake_unicode(tvb, offset, (length_remaining - 20)/2, TRUE);
 
-    proto_tree_add_string_format(tree, hf_mms_command_client_transport_info, tvb,
+    proto_tree_add_string_format(tree, hf_msmms_command_client_transport_info, tvb,
                                  offset, length_remaining-20,
                                  transport_info, "Transport: (%s)", transport_info);
 
@@ -406,7 +406,7 @@ void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             guint8 octets[4] = {ipaddr[0], ipaddr[1], ipaddr[2], ipaddr[3]};
 
             address addr = {AT_IPv4, 4, octets};
-            mms_data_add_address(pinfo, &addr, pt, port);
+            msmms_data_add_address(pinfo, &addr, pt, port);
         }
     }
 
@@ -424,19 +424,19 @@ void dissect_client_player_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     char *player_info = "";
 
     /* These are flags */
-    proto_tree_add_item(tree, hf_mms_command_prefix1, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_msmms_command_prefix1, tvb, offset, 4, TRUE);
     offset += 4;
-    proto_tree_add_item(tree, hf_mms_command_prefix1, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_msmms_command_prefix1, tvb, offset, 4, TRUE);
     offset += 4;
 
     /* These 4 bytes are not understood */
-    proto_tree_add_item(tree, hf_mms_command_unknown, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_msmms_command_unknown, tvb, offset, 4, TRUE);
     offset += 4;
 
     /* Extract and show the string in tree and info column */
     player_info = tvb_fake_unicode(tvb, offset, (length_remaining - 12)/2, TRUE);
 
-    proto_tree_add_string_format(tree, hf_mms_command_client_player_info, tvb,
+    proto_tree_add_string_format(tree, hf_msmms_command_client_player_info, tvb,
                                  offset, length_remaining-12,
                                  player_info, "Player details: (%s)", player_info);
 
@@ -455,28 +455,28 @@ void dissect_client_player_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 /*************************/
 /* Register protocol     */
-void proto_register_mms_command(void)
+void proto_register_msmms_command(void)
 {
     static hf_register_info hf[] =
     {
         {
-            &hf_mms_command_common_header,
+            &hf_msmms_command_common_header,
             {
                 "Command common header",
-                "mms.command.common-header",
+                "msmms.command.common-header",
                 FT_STRING,
                 BASE_NONE,
                 NULL,
                 0x0,
-                "MMS command common header", HFILL
+                "MSMMS command common header", HFILL
             }
         },
 
         {
-            &hf_mms_command_version,
+            &hf_msmms_command_version,
             {
                 "Version",
-                "mms.command.version",
+                "msmms.command.version",
                 FT_UINT32,
                 BASE_DEC,
                 NULL,
@@ -485,10 +485,10 @@ void proto_register_mms_command(void)
             }
         },
         {
-            &hf_mms_command_signature,
+            &hf_msmms_command_signature,
             {
                 "Command signature",
-                "mms.command.signature",
+                "msmms.command.signature",
                 FT_UINT32,
                 BASE_HEX,
                 NULL,
@@ -497,10 +497,10 @@ void proto_register_mms_command(void)
             }
         },
         {
-            &hf_mms_command_length,
+            &hf_msmms_command_length,
             {
                 "Command length",
-                "mms.command.length",
+                "msmms.command.length",
                 FT_UINT32,
                 BASE_DEC,
                 NULL,
@@ -509,10 +509,10 @@ void proto_register_mms_command(void)
             }
         },
         {
-            &hf_mms_command_protocol_type,
+            &hf_msmms_command_protocol_type,
             {
                 "Protocol type",
-                "mms.command.protocol-type",
+                "msmms.command.protocol-type",
                 FT_STRING,
                 BASE_NONE,
                 NULL,
@@ -521,10 +521,10 @@ void proto_register_mms_command(void)
             }
         },
         {
-            &hf_mms_command_length_remaining,
+            &hf_msmms_command_length_remaining,
             {
                 "Length until end (8-byte blocks)",
-                "mms.command.length-remaining",
+                "msmms.command.length-remaining",
                 FT_UINT32,
                 BASE_DEC,
                 NULL,
@@ -533,10 +533,10 @@ void proto_register_mms_command(void)
             }
         },
         {
-            &hf_mms_command_sequence_number,
+            &hf_msmms_command_sequence_number,
             {
                 "Sequence number",
-                "mms.command.sequence-number",
+                "msmms.command.sequence-number",
                 FT_UINT32,
                 BASE_DEC,
                 NULL,
@@ -545,10 +545,10 @@ void proto_register_mms_command(void)
             }
         },
         {
-            &hf_mms_command_timestamp,
+            &hf_msmms_command_timestamp,
             {
                 "Time stamp (s)",
-                "mms.command.timestamp",
+                "msmms.command.timestamp",
                 FT_DOUBLE,
                 BASE_NONE,
                 NULL,
@@ -557,10 +557,10 @@ void proto_register_mms_command(void)
             }
         },
         {
-            &hf_mms_command_length_remaining2,
+            &hf_msmms_command_length_remaining2,
             {
                 "Length until end (8-byte blocks)",
-                "mms.command.length-remaining2",
+                "msmms.command.length-remaining2",
                 FT_UINT32,
                 BASE_DEC,
                 NULL,
@@ -569,10 +569,10 @@ void proto_register_mms_command(void)
             }
         },
         {
-            &hf_mms_command_to_server_id,
+            &hf_msmms_command_to_server_id,
             {
                 "Command",
-                "mms.command.to-server-id",
+                "msmms.command.to-server-id",
                 FT_UINT16,
                 BASE_HEX,
                 VALS(to_server_command_vals),
@@ -581,10 +581,10 @@ void proto_register_mms_command(void)
             }
         },
         {
-            &hf_mms_command_to_client_id,
+            &hf_msmms_command_to_client_id,
             {
                 "Command",
-                "mms.command.to-client-id",
+                "msmms.command.to-client-id",
                 FT_UINT16,
                 BASE_HEX,
                 VALS(to_client_command_vals),
@@ -593,10 +593,10 @@ void proto_register_mms_command(void)
             }
         },
         {
-            &hf_mms_command_direction,
+            &hf_msmms_command_direction,
             {
                 "Command direction",
-                "mms.command.direction",
+                "msmms.command.direction",
                 FT_UINT16,
                 BASE_HEX,
                 VALS(command_direction_vals),
@@ -606,10 +606,10 @@ void proto_register_mms_command(void)
         },
 
         {
-            &hf_mms_command_prefix1,
+            &hf_msmms_command_prefix1,
             {
                 "Prefix 1",
-                "mms.command.prefix1",
+                "msmms.command.prefix1",
                 FT_UINT32,
                 BASE_HEX,
                 NULL,
@@ -618,10 +618,10 @@ void proto_register_mms_command(void)
             }
         },
         {
-            &hf_mms_command_prefix2,
+            &hf_msmms_command_prefix2,
             {
                 "Prefix 2",
-                "mms.command.prefix2",
+                "msmms.command.prefix2",
                 FT_UINT32,
                 BASE_HEX,
                 NULL,
@@ -630,10 +630,10 @@ void proto_register_mms_command(void)
             }
         },
         {
-            &hf_mms_command_unknown,
+            &hf_msmms_command_unknown,
             {
                 "Unknown",
-                "mms.command.unknown",
+                "msmms.command.unknown",
                 FT_UINT32,
                 BASE_HEX,
                 NULL,
@@ -642,10 +642,10 @@ void proto_register_mms_command(void)
             }
         },
         {
-            &hf_mms_command_client_transport_info,
+            &hf_msmms_command_client_transport_info,
             {
                 "Client transport info",
-                "mms.command.client-transport-info",
+                "msmms.command.client-transport-info",
                 FT_STRING,
                 BASE_NONE,
                 NULL,
@@ -654,10 +654,10 @@ void proto_register_mms_command(void)
             }
         },
         {
-            &hf_mms_command_client_player_info,
+            &hf_msmms_command_client_player_info,
             {
                 "Player info",
-                "mms.command.player-info",
+                "msmms.command.player-info",
                 FT_STRING,
                 BASE_NONE,
                 NULL,
@@ -669,23 +669,22 @@ void proto_register_mms_command(void)
 
     static gint *ett[] =
     {
-        &ett_mms_command,
-        &ett_mms_command_common_header
+        &ett_msmms_command,
+        &ett_msmms_command_common_header
     };
 
     /* Register protocol and fields */
-    proto_mms_command = proto_register_protocol("Microsoft Media Server Control",
-                                                "MMS-c", "mms-c");
-    proto_register_field_array(proto_mms_command, hf, array_length(hf));
+    proto_msmms_command = proto_register_protocol("Microsoft Media Server Control",
+                                                "MSMMS-c", "msmms-c");
+    proto_register_field_array(proto_msmms_command, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    register_dissector("mms-c", dissect_mms_command_pdu, proto_mms_command);
+    register_dissector("msmms-c", dissect_msmms_command_pdu, proto_msmms_command);
 }
 
-void proto_reg_handoff_mms_command(void)
+void proto_reg_handoff_msmms_command(void)
 {
-    mms_command_handle = create_dissector_handle(dissect_mms_command_tcp,
-                                                 proto_mms_command);
-    dissector_add("tcp.port", MMS_TCP_PORT, mms_command_handle);
+    msmms_command_handle = create_dissector_handle(dissect_msmms_command_tcp,
+                                                 proto_msmms_command);
+    dissector_add("tcp.port", MSMMS_TCP_PORT, msmms_command_handle);
 }
-
 

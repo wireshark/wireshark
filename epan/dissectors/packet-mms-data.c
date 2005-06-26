@@ -1,6 +1,6 @@
-/* packet-mms-data.c
+/* packet-msmms-data.c
  *
- * Routines for MMS data message dissection
+ * Routines for MSMMS data message dissection
  * MMS = Microsoft Media Server
  *
  * Copyright 2005
@@ -42,42 +42,42 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 
-static dissector_handle_t mms_data_handle;
+static dissector_handle_t msmms_data_handle;
 
-static gint   proto_mms_data                             = -1;
+static gint   proto_msmms_data                             = -1;
 
 /* Fields */
 
 /* Pre-header fields */
-static gint   hf_mms_data_sequence_number                = -1;
-static gint   hf_mms_data_packet_id_type                 = -1;
-static gint   hf_mms_data_packet_length                  = -1;
+static gint   hf_msmms_data_sequence_number                = -1;
+static gint   hf_msmms_data_packet_id_type                 = -1;
+static gint   hf_msmms_data_packet_length                  = -1;
 
 /* UDP command fields */
-static gint   hf_mms_data_header_id                      = -1;
-static gint   hf_mms_data_client_id                      = -1;
-static gint   hf_mms_data_command_id                     = -1;
-static gint   hf_mms_data_packet_to_resend               = -1;
+static gint   hf_msmms_data_header_id                      = -1;
+static gint   hf_msmms_data_client_id                      = -1;
+static gint   hf_msmms_data_command_id                     = -1;
+static gint   hf_msmms_data_packet_to_resend               = -1;
 
-static gint   ett_mms_data                               = -1;
+static gint   ett_msmms_data                               = -1;
 
-#define MMS_UDP_COMMAND_PORT 1755
+#define MSMMS_UDP_COMMAND_PORT 1755
 
 /* Parse the only known UDP command (0x01) */
-static void dissect_mms_data_udp_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_msmms_data_udp_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     gint offset = 0;
 
     /* Header ID */
-    proto_tree_add_item(tree, hf_mms_data_header_id, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_msmms_data_header_id, tvb, offset, 4, TRUE);
     offset += 4;
 
     /* Client ID */
-    proto_tree_add_item(tree, hf_mms_data_client_id, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_msmms_data_client_id, tvb, offset, 4, TRUE);
     offset += 4;
 
     /* Command ID */
-    proto_tree_add_item(tree, hf_mms_data_command_id, tvb, offset, 2, TRUE);
+    proto_tree_add_item(tree, hf_msmms_data_command_id, tvb, offset, 2, TRUE);
     offset += 4;
 
     if (check_col(pinfo->cinfo, COL_INFO))
@@ -89,7 +89,7 @@ static void dissect_mms_data_udp_command(tvbuff_t *tvb, packet_info *pinfo, prot
     while (tvb_length_remaining(tvb, offset) >= 4)
     {
         guint32 packet_number = tvb_get_letohl(tvb, offset);
-        proto_tree_add_item(tree, hf_mms_data_packet_to_resend, tvb, offset, 4, TRUE);
+        proto_tree_add_item(tree, hf_msmms_data_packet_to_resend, tvb, offset, 4, TRUE);
         offset += 4;
 
         if (check_col(pinfo->cinfo, COL_INFO))
@@ -103,40 +103,40 @@ static void dissect_mms_data_udp_command(tvbuff_t *tvb, packet_info *pinfo, prot
 /****************************************************************************/
 /* Main dissection function                                                 */
 /****************************************************************************/
-static void dissect_mms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     gint offset = 0;
     proto_item  *ti = NULL;
-    proto_tree  *mms_tree = NULL;
+    proto_tree  *msmms_tree = NULL;
     guint32 sequence_number;
     guint16 packet_length;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MMS-d");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSMMS-d");
     }
 
-    /* Create MMS data protocol tree */
+    /* Create MSMMS data protocol tree */
     if (tree)
     {
-        ti = proto_tree_add_item(tree, proto_mms_data, tvb, offset, -1, FALSE);
-        mms_tree = proto_item_add_subtree(ti, ett_mms_data);
+        ti = proto_tree_add_item(tree, proto_msmms_data, tvb, offset, -1, FALSE);
+        msmms_tree = proto_item_add_subtree(ti, ett_msmms_data);
     }
 
     /* May be the command asking for packets to be resent */
-    if ((pinfo->ptype == PT_UDP) && (pinfo->destport == MMS_UDP_COMMAND_PORT))
+    if ((pinfo->ptype == PT_UDP) && (pinfo->destport == MSMMS_UDP_COMMAND_PORT))
     {
-        dissect_mms_data_udp_command(tvb, pinfo, mms_tree);
+        dissect_msmms_data_udp_command(tvb, pinfo, msmms_tree);
         return;
     }
 
     /* Sequence number */
     sequence_number = tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(mms_tree, hf_mms_data_sequence_number, tvb, offset, 4, TRUE);
+    proto_tree_add_item(msmms_tree, hf_msmms_data_sequence_number, tvb, offset, 4, TRUE);
     offset += 4;
 
     /* Packet ID type */
-    proto_tree_add_item(mms_tree, hf_mms_data_packet_id_type, tvb, offset, 1, TRUE);
+    proto_tree_add_item(msmms_tree, hf_msmms_data_packet_id_type, tvb, offset, 1, TRUE);
     offset++;
 
     /* TODO: flags depending upon whether UDP or TCP */
@@ -144,7 +144,7 @@ static void dissect_mms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* Packet Length */
     packet_length = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(mms_tree, hf_mms_data_packet_length, tvb, offset, 2, TRUE);
+    proto_tree_add_item(msmms_tree, hf_msmms_data_packet_length, tvb, offset, 2, TRUE);
     offset += 2;
 
     /* Show summary in info column */
@@ -156,8 +156,8 @@ static void dissect_mms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 
-/* Set up an MMS-d conversation */
-void mms_data_add_address(packet_info *pinfo, address *addr, port_type pt, int port)
+/* Set up an MSMMS-d conversation */
+void msmms_data_add_address(packet_info *pinfo, address *addr, port_type pt, int port)
 {
     address null_addr;
     conversation_t* p_conv;
@@ -185,21 +185,21 @@ void mms_data_add_address(packet_info *pinfo, address *addr, port_type pt, int p
     }
 
     /* Set dissector */
-    conversation_set_dissector(p_conv, mms_data_handle);
+    conversation_set_dissector(p_conv, msmms_data_handle);
 }
 
 
 /**************************/
 /* Register protocol      */
-void proto_register_mms_data(void)
+void proto_register_msmms_data(void)
 {
     static hf_register_info hf[] =
     {
         {
-            &hf_mms_data_sequence_number,
+            &hf_msmms_data_sequence_number,
             {
                 "Sequence number",
-                "mms.data.sequence",
+                "msmms.data.sequence",
                 FT_UINT32,
                 BASE_DEC,
                 NULL,
@@ -208,10 +208,10 @@ void proto_register_mms_data(void)
             }
         },
         {
-            &hf_mms_data_packet_id_type,
+            &hf_msmms_data_packet_id_type,
             {
                 "Packet ID type",
-                "mms.data.packet-id-type",
+                "msmms.data.packet-id-type",
                 FT_UINT8,
                 BASE_HEX,
                 NULL,
@@ -220,10 +220,10 @@ void proto_register_mms_data(void)
             }
         },
         {
-            &hf_mms_data_packet_length,
+            &hf_msmms_data_packet_length,
             {
                 "Packet length",
-                "mms.data.packet-length",
+                "msmms.data.packet-length",
                 FT_UINT16,
                 BASE_DEC,
                 NULL,
@@ -233,10 +233,10 @@ void proto_register_mms_data(void)
         },
 
         {
-            &hf_mms_data_header_id,
+            &hf_msmms_data_header_id,
             {
                 "Header ID",
-                "mms.data.header-id",
+                "msmms.data.header-id",
                 FT_UINT32,
                 BASE_HEX,
                 NULL,
@@ -245,10 +245,10 @@ void proto_register_mms_data(void)
             }
         },
         {
-            &hf_mms_data_client_id,
+            &hf_msmms_data_client_id,
             {
                 "Client ID",
-                "mms.data.client-id",
+                "msmms.data.client-id",
                 FT_UINT32,
                 BASE_HEX,
                 NULL,
@@ -257,10 +257,10 @@ void proto_register_mms_data(void)
             }
         },
         {
-            &hf_mms_data_command_id,
+            &hf_msmms_data_command_id,
             {
                 "Command ID",
-                "mms.data.command-id",
+                "msmms.data.command-id",
                 FT_UINT16,
                 BASE_DEC,
                 NULL,
@@ -269,10 +269,10 @@ void proto_register_mms_data(void)
             }
         },
         {
-            &hf_mms_data_packet_to_resend,
+            &hf_msmms_data_packet_to_resend,
             {
                 "Packet to resend",
-                "mms.data.packet-to-resend",
+                "msmms.data.packet-to-resend",
                 FT_UINT32,
                 BASE_DEC,
                 NULL,
@@ -284,23 +284,23 @@ void proto_register_mms_data(void)
 
     static gint *ett[] =
     {
-        &ett_mms_data
+        &ett_msmms_data
     };
 
     /* Register protocol and fields */
-    proto_mms_data = proto_register_protocol("Microsoft Media Server Data",
-                                             "MMS-d", "mms-d");
-    proto_register_field_array(proto_mms_data, hf, array_length(hf));
+    proto_msmms_data = proto_register_protocol("Microsoft Media Server Data",
+                                             "MSMMS-d", "msmms-d");
+    proto_register_field_array(proto_msmms_data, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    register_dissector("mms-d", dissect_mms_data, proto_mms_data);
+    register_dissector("msmms-d", dissect_msmms_data, proto_msmms_data);
 }
 
-void proto_reg_handoff_mms_data(void)
+void proto_reg_handoff_msmms_data(void)
 {
-    mms_data_handle = find_dissector("mms-d");
-    dissector_add_handle("udp.port", mms_data_handle);
-    dissector_add_handle("tcp.port", mms_data_handle);
-    dissector_add("udp.port", MMS_UDP_COMMAND_PORT, mms_data_handle);
+    msmms_data_handle = find_dissector("msmms-d");
+    dissector_add_handle("udp.port", msmms_data_handle);
+    dissector_add_handle("tcp.port", msmms_data_handle);
+    dissector_add("udp.port", MSMMS_UDP_COMMAND_PORT, msmms_data_handle);
 }
 
 
