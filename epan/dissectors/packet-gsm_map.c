@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-gsm_map.c                                                         */
+/* .\packet-gsm_map.c                                                         */
 /* ../../tools/asn2eth.py -X -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
 
 /* Input file: packet-gsm_map-template.c */
@@ -1179,7 +1179,6 @@ static gint ett_gsm_map_Ext_BasicServiceCode = -1;
 static gint ett_gsm_map_Ext_CallBarringInfoFor_CSE = -1;
 static gint ett_gsm_map_ODB_Info = -1;
 static gint ett_gsm_map_ODB_Data = -1;
-static gint ett_gsm_map_Odb_data = -1;
 static gint ett_gsm_map_M_CSI = -1;
 static gint ett_gsm_map_SS_EventList = -1;
 static gint ett_gsm_map_T_CSI = -1;
@@ -10557,21 +10556,6 @@ dissect_gsm_map_ModifyNotificationToCSE(gboolean implicit_tag _U_, tvbuff_t *tvb
   return offset;
 }
 
-static const ber_sequence_t Odb_data_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_odb_GeneralData },
-  { BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_odb_HPLMN_Data },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_gsm_map_Odb_data(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                Odb_data_sequence, hf_index, ett_gsm_map_Odb_data);
-
-  return offset;
-}
-
 
 static int
 dissect_gsm_map_OCTET_STRING_SIZE_1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
@@ -12761,6 +12745,10 @@ const value_string gsm_map_opr_code_strings[] = {
   {  75, "remoteUserFree" },
   {  76, "registerCC-Entry" },
   {  77, "eraseCC-Entry" },
+  {  78, "secureTransportClass1" },
+  {  79, "secureTransportClass2" },
+  {  80, "secureTransportClass3" },
+  {  81, "secureTransportClass4" },
   {  83, "provideSubscriberLocation" },
   {  85, "sendRoutingInfoForLCS" },
   {  86, "subscriberLocationReport" },
@@ -13123,7 +13111,15 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case 77: /*eraseCC-Entry*/
     offset=dissect_gsm_map_EraseCC_EntryArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
+  case 78: /*secureTransportClass1*/
+  case 79: /*secureTransportClass1*/
+  case 80: /*secureTransportClass1*/
+  case 81: /*secureTransportClass1*/
+    offset=dissect_gsm_map_SecureTransportArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
   case 83: /*provideSubscriberLocation*/
+    offset=dissect_gsm_map_EraseCC_EntryArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
     offset=dissect_gsm_map_ProvideSubscriberLocation_Arg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 85: /*sendRoutingInfoForLCS*/
@@ -13337,6 +13333,12 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     break;
   case 77: /*eraseCC-Entry*/
     offset=dissect_gsm_map_EraseCC_EntryRes(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 78: /*secureTransportClass1*/
+  case 79: /*secureTransportClass1*/
+  case 80: /*secureTransportClass1*/
+  case 81: /*secureTransportClass1*/
+    offset=dissect_gsm_map_SecureTransportRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 83: /*provideSubscriberLocation*/
     offset=dissect_gsm_map_ProvideSubscriberLocation_Res(FALSE, tvb, offset, pinfo, tree, -1);
@@ -16247,7 +16249,7 @@ void proto_register_gsm_map(void) {
     { &hf_gsm_map_odb_HPLMN_Data,
       { "odb-HPLMN-Data", "gsm_map.odb_HPLMN_Data",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
+        "ODB-Data/odb-HPLMN-Data", HFILL }},
     { &hf_gsm_map_SS_EventList_item,
       { "Item", "gsm_map.SS_EventList_item",
         FT_UINT8, BASE_DEC, VALS(ssCode_vals), 0,
@@ -17448,7 +17450,6 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_Ext_CallBarringInfoFor_CSE,
     &ett_gsm_map_ODB_Info,
     &ett_gsm_map_ODB_Data,
-    &ett_gsm_map_Odb_data,
     &ett_gsm_map_M_CSI,
     &ett_gsm_map_SS_EventList,
     &ett_gsm_map_T_CSI,
