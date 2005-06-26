@@ -283,7 +283,6 @@ dissect_trmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*ti;
 	int		mv_length, sv_offset, sv_additional;
 	guint8		mv_val;
-	char		*mv_text;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TR MAC");
@@ -293,10 +292,9 @@ dissect_trmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	mv_val = tvb_get_guint8(tvb, 3);
 
 	/* Interpret the major vector */
-	mv_text = val_to_str(mv_val, major_vector_vs, "Unknown Major Vector: %u");
-
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO, mv_text);
+		col_add_str(pinfo->cinfo, COL_INFO,
+		    val_to_str(mv_val, major_vector_vs, "Unknown Major Vector: %u"));
 
 	if (tree) {
 		mv_length = tvb_get_ntohs(tvb, 0);

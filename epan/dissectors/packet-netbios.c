@@ -331,7 +331,7 @@ int get_netbios_name( tvbuff_t *tvb, int offset, char *name_ret)
 /*
  * Get a string describing the type of a NetBIOS name.
  */
-char *
+const char *
 netbios_name_type_descr(int name_type)
 {
 	return val_to_str(name_type, nb_name_type_vals, "Unknown");
@@ -346,7 +346,7 @@ void netbios_add_name(char* label, tvbuff_t *tvb, int offset,
 	proto_item *tf;
 	char  name_str[(NETBIOS_NAME_LEN - 1)*4 + 1];
 	int   name_type;
-	char  *name_type_str;
+	const char  *name_type_str;
 
 					/* decode the name field */
 	name_type = get_netbios_name( tvb, offset, name_str);
@@ -1090,7 +1090,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree		*netb_tree = NULL;
 	proto_item		*ti;
 	guint16			hdr_len, command;
-	char			*command_name;
+	const char		*command_name;
 	char 			name[(NETBIOS_NAME_LEN - 1)*4 + 1];
 	int			name_type;
 	guint16			session_id;

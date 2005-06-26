@@ -273,7 +273,7 @@ esis_dissect_redirect_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree) {
  */
 static void
 dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-   char       *pdu_type_string        = NULL;
+   const char *pdu_type_string        = NULL;
    char       *pdu_type_format_string = "PDU Type      : %s (R:%s%s%s)";
    esis_hdr_t  ehdr;
    proto_item *ti;

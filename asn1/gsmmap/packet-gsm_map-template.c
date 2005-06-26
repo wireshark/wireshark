@@ -151,27 +151,6 @@ unpack_digits(tvbuff_t *tvb, int offset){
 
 #include "packet-gsm_map-fn.c"
 
-/* Stuff included from the "old" packet-gsm_map.c for tapping purposes */
-static gchar *
-my_match_strval(guint32 val, const value_string *vs, gint *idx)
-{
-    gint	i = 0;
-
-    while (vs[i].strptr) {
-	if (vs[i].value == val)
-	{
-	    *idx = i;
-	    return(vs[i].strptr);
-	}
-
-	i++;
-    }
-
-    *idx = -1;
-    return(NULL);
-}
-/* End includes from old" packet-gsm_map.c */
-
 const value_string gsm_map_opr_code_strings[] = {
   {   2, "updateLocation" },
   {   3, "cancelLocation" },
@@ -1053,10 +1032,9 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
     proto_item		*item=NULL;
     proto_tree		*tree=NULL;
-	/* Used for gsm_map TAP */
-	static			gsm_map_tap_rec_t tap_rec;
-	gint			op_idx;
-    gchar			*str = NULL;
+    /* Used for gsm_map TAP */
+    static		gsm_map_tap_rec_t tap_rec;
+    gint		op_idx;
 
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -1064,26 +1042,24 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM MAP");
     }
 
-	top_tree = parent_tree;
-	dissector_add("tcap.itu_ssn",pinfo->match_port, map_handle);
+    top_tree = parent_tree;
+    dissector_add("tcap.itu_ssn",pinfo->match_port, map_handle);
     /* create display subtree for the protocol */
     if(parent_tree){
-       item = proto_tree_add_item(parent_tree, proto_gsm_map, tvb, 0, -1, FALSE);
-       tree = proto_item_add_subtree(item, ett_gsm_map);
+        item = proto_tree_add_item(parent_tree, proto_gsm_map, tvb, 0, -1, FALSE);
+        tree = proto_item_add_subtree(item, ett_gsm_map);
     }
 
     dissect_gsm_map_GSMMAPPDU(FALSE, tvb, 0, pinfo, tree, -1);
-	str = my_match_strval(opcode, gsm_map_opr_code_strings, &op_idx);
+    match_strval_idx(opcode, gsm_map_opr_code_strings, &op_idx);
 
-	tap_rec.invoke = FALSE;
-	if ( gsmmap_pdu_type  == 1 )
-		tap_rec.invoke = TRUE;
-	tap_rec.opr_code_idx = op_idx;
-	tap_rec.size = gsm_map_pdu_size;
+    tap_rec.invoke = FALSE;
+    if ( gsmmap_pdu_type  == 1 )
+	tap_rec.invoke = TRUE;
+    tap_rec.opr_code_idx = op_idx;
+    tap_rec.size = gsm_map_pdu_size;
 
-	tap_queue_packet(gsm_map_tap, pinfo, &tap_rec);
-
-
+    tap_queue_packet(gsm_map_tap, pinfo, &tap_rec);
 }
 
 static const value_string ssCode_vals[] = {

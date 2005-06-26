@@ -964,7 +964,7 @@ get_item_string(proto_item *item)
 }
 #endif
 
-char *
+static const char *
 get_item_name(proto_item *item)
 {
 	return PITEM_FINFO(item)->hfinfo->name;
@@ -1771,7 +1771,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
         proto_tree      *nvtree;
         proto_item      *aditem;
         proto_tree      *adtree;
-        char            *valuestr = NULL;
+        const char      *valuestr = NULL;
         guint16         rtype = 0;
         guint16         rstate = 0;
         guint16         rnum = 0;
@@ -2178,7 +2178,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
 	proto_item      *nesitem;
         proto_tree      *atree;
 	proto_item      *aitem;
-        char *          vstring="";
+        const char      *vstring="";
               
        	strcpy(mval_buf.buffer, "");
 
@@ -2602,7 +2602,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
         gint            value5 = 0;
         guint32         value6 = 0;
         guint32         value7 = 0;
-        char *          valuestr = "";
+        const char      *valuestr = "";
         proto_tree      *ntree;
         proto_tree      *atree;
 	proto_item      *nitem;
@@ -4790,10 +4790,10 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
         guint32                         nds_flags = 0;
         guint32                         nds_offset = 0;
         nw_uni_t                        reply_buffer;
-        char *                          verb_string="";
+        const char                      *verb_string="";
         guint32                         nds_error_code = 0;
         guint32                         nds_reply_buffer = 0;
-        char *                          nds_error_string = NULL;
+        const char                      *nds_error_string = NULL;
         guint32                         nds_frag=0;
 	nds_val				pvalues[9];
 	char				string_buffer[9][1024];
@@ -4873,18 +4873,14 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                 nds_offset += 4;        
                 nds_frag = tvb_get_letohl(tvb, nds_offset);        
                 if (nds_reply_buffer > 7)
-                {                        
-                        nds_offset += 4; 
+                {
+                        nds_offset += 4;
                         nds_error_code = tvb_get_letohl(tvb, nds_offset);
                         nds_error_string = match_strval(nds_error_code, nds_reply_errors);
                         if (nds_error_string == NULL)
                         {
                                 nds_error_string = "NDS Error - No Definition Found";
                         }
-                        if (nds_error_string == NULL || nds_error_code == 0x00000000)
-                        {
-                                nds_error_string = "Ok";
-                        }        
                 }
         }
 
@@ -6129,7 +6125,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 	gboolean		run_req_cond = FALSE;
 	gboolean		run_info_str = FALSE;
         guint8                  nds_verb = 0;
-        char *                  verb_string = "";
+        const char              *verb_string = "";
         guint32                 nds_frag = 0;
         gboolean                added_arrow;
         nds_val			pvalues[9];

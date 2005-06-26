@@ -820,7 +820,7 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	 * Process the remaining markers and marker segments
 	 */
 	while (offset < tvb_len) {
-		char *str;
+		const char *str;
 		marker = tvb_get_ntohs(tvb, offset);
 		str = match_strval(marker, vals_marker);
 		if (str) { /* Known marker */

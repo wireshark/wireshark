@@ -304,25 +304,6 @@ my_dgt_tbcd_unpack(
     return(cnt);
 }
 
-static gchar *
-my_match_strval(guint32 val, const value_string *vs, gint *idx)
-{
-    gint	i = 0;
-
-    while (vs[i].strptr) {
-	if (vs[i].value == val)
-	{
-	    *idx = i;
-	    return(vs[i].strptr);
-	}
-
-	i++;
-    }
-
-    *idx = -1;
-    return(NULL);
-}
-
 /* PARAMETER dissection */
 
 void
@@ -2501,15 +2482,12 @@ gsm_ss_dissect(ASN1_SCK *asn1, proto_tree *tree, guint exp_len,
     guint opr_code, guint comp_type_tag)
 {
     void (*dissect_fcn)(ASN1_SCK *asn1, proto_tree *tree, guint exp_len);
-    gchar	*str;
     gint	op_idx;
 
 
     dissect_fcn = NULL;
 
-    str = my_match_strval(opr_code, gsm_ss_opr_code_strings, &op_idx);
-
-    if (str != NULL)
+    if (match_strval_idx(opr_code, gsm_ss_opr_code_strings, &op_idx) != NULL)
     {
 	switch (comp_type_tag)
 	{

@@ -212,7 +212,8 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		offset, group_offset, packet_type;
 	guint		i;
 	gint		packet_len, payload_start, payload_len;
-	char		*func_string = "", pkt_type_str[9] = "";
+	const char	*func_string = "";
+	char		pkt_type_str[9] = "";
 	char		err_str[100] = "";
 	guint32		byte_cnt, group_byte_cnt, group_word_cnt;
 	guint32		packet_num;	/* num to uniquely identify different mbtcp

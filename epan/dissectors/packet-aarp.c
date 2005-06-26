@@ -157,7 +157,7 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   guint16     ar_op;
   proto_tree  *aarp_tree;
   proto_item  *ti;
-  gchar       *op_str;
+  const gchar *op_str;
   int         sha_offset, spa_offset, tha_offset, tpa_offset;
   const guint8      *sha_val, *spa_val, *tha_val, *tpa_val;
   gchar       *sha_str, *spa_str, *tha_str, *tpa_str;

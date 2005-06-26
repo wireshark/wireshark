@@ -1664,9 +1664,9 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	unsigned int accept_state;
 	unsigned int reject_state;
 
-	char *msg_type_name = NULL;
+	const char *msg_type_name = NULL;
 	char *progname = NULL;
-	char *procname = NULL;
+	const char *procname = NULL;
 	static char procname_static[20];
 
 	unsigned int vers_low;

@@ -257,7 +257,7 @@ static const value_string hrd_vals[] = {
   {ARPHRD_EUI_64,   "EUI-64"               },
   {0,                NULL                  } };
 
-gchar *
+const gchar *
 arphrdtype_to_str(guint16 hwtype, const char *fmt) {
     return val_to_str(hwtype, hrd_vals, fmt);
 }
@@ -389,7 +389,7 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int         tot_len;
   proto_tree  *arp_tree;
   proto_item  *ti;
-  gchar       *op_str;
+  const gchar *op_str;
   int         sha_offset, ssa_offset, spa_offset;
   int         tha_offset, tsa_offset, tpa_offset;
   const guint8      *sha_val, *ssa_val, *spa_val;
@@ -637,7 +637,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int         tot_len;
   proto_tree  *arp_tree;
   proto_item  *ti;
-  gchar       *op_str;
+  const gchar *op_str;
   int         sha_offset, spa_offset, tha_offset, tpa_offset;
   const guint8      *sha_val, *spa_val, *tha_val, *tpa_val;
   gboolean    is_gratuitous;

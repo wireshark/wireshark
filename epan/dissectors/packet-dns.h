@@ -27,7 +27,7 @@
 #ifndef __PACKET_DNS_H__
 #define __PACKET_DNS_H__
 
-char *dns_class_name(int class);
+const char *dns_class_name(int class);
 
 int get_dns_name(tvbuff_t *, int, int, char *, int);
 

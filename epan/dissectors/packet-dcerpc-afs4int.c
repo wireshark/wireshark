@@ -305,9 +305,6 @@ static gint ett_afs4int_afsbundled_stat = -1;
 
 /* vars for our macro(s) */
 static int hf_error_st = -1;
-static guint32 st;
-static char *st_str;
-
 
 static e_uuid_t uuid_afs4int =
   { 0x4d37f2dd, 0xed93, 0x0000, {0x02, 0xc0, 0x37, 0xcf, 0x1e, 0x00, 0x00,
@@ -326,15 +323,19 @@ inode, volume, etc all will be garbage.
 */
 
 #define MACRO_ST_CLEAR(name) \
-  offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_error_st, &st); \
- st_str = val_to_str (st, dce_error_vals, "%u"); \
- if (st){ \
-if (check_col (pinfo->cinfo, COL_INFO)) \
-    col_add_fstr (pinfo->cinfo, COL_INFO, "%s st:%s ", name, st_str); \
-  }else{ \
-if (check_col (pinfo->cinfo, COL_INFO)) \
-    col_append_fstr (pinfo->cinfo, COL_INFO, " st:%s ", st_str); \
-}
+  { \
+    guint32 st; \
+    const char *st_str; \
+    offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_error_st, &st); \
+    st_str = val_to_str (st, dce_error_vals, "%u"); \
+    if (st){ \
+      if (check_col (pinfo->cinfo, COL_INFO)) \
+        col_add_fstr (pinfo->cinfo, COL_INFO, "%s st:%s ", name, st_str); \
+    }else{ \
+      if (check_col (pinfo->cinfo, COL_INFO)) \
+        col_append_fstr (pinfo->cinfo, COL_INFO, " st:%s ", st_str); \
+    } \
+  }
 
 static int
 dissect_afsFid (tvbuff_t * tvb, int offset,
@@ -899,6 +900,7 @@ dissect_afsErrorStatus (tvbuff_t * tvb, int offset,
   int old_offset = offset;
   guint32 st;
   dcerpc_info *di;
+  const char *st_str;
 
   di = pinfo->private_data;
   if (di->conformant_run)

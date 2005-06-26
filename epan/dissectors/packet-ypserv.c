@@ -98,7 +98,7 @@ static int
 dissect_ypserv_status(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, gint32 *rstatus)
 {
 	gint32 status;
-	char *err;
+	const char *err;
 
 	status=tvb_get_ntohl(tvb, offset);
 	if(rstatus){

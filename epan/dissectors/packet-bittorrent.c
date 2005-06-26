@@ -123,8 +123,8 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
 	type = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(mtree, hf_bittorrent_msg_type, tvb, offset, 1, FALSE); offset+=1;
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-		char *val = match_strval(type, bittorrent_messages);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		const char *val = match_strval(type, bittorrent_messages);
 		if (val != NULL) {
 		    col_set_str(pinfo->cinfo, COL_INFO, val);
 		}

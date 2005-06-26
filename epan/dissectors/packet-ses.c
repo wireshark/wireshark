@@ -782,7 +782,7 @@ dissect_parameter_group(tvbuff_t *tvb, int offset, proto_tree *tree,
 	proto_item *ti;
 	proto_tree *param_tree;
 	guint8 param_type;
-	char *param_str;
+	const char *param_str;
 	int len_len;
 	guint16 param_len;
 
@@ -861,7 +861,7 @@ dissect_parameters(tvbuff_t *tvb, int offset, guint16 len, proto_tree *tree,
 	proto_item *ti;
 	proto_tree *param_tree;
 	guint8 param_type;
-	char *param_str;
+	const char *param_str;
 	int len_len;
 	guint16 param_len;
 

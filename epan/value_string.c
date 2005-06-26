@@ -4,9 +4,8 @@
  * $Id$
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -38,9 +37,9 @@
 /* Tries to match val against each element in the value_string array vs.
    Returns the associated string ptr on a match.
    Formats val with fmt, and returns the resulting string, on failure. */
-gchar*
+const gchar*
 val_to_str(guint32 val, const value_string *vs, const char *fmt) {
-  gchar *ret;
+  const gchar *ret;
   static gchar  str[3][64];
   static gchar *cur;
 
@@ -62,21 +61,30 @@ val_to_str(guint32 val, const value_string *vs, const char *fmt) {
 }
 
 /* Tries to match val against each element in the value_string array vs.
-   Returns the associated string ptr on a match, or NULL on failure. */
-gchar*
-match_strval(guint32 val, const value_string *vs) {
+   Returns the associated string ptr, and sets "*idx" to the index in
+   that table, on a match, and returns NULL, and sets "*idx" to -1,
+   on failure. */
+const gchar*
+match_strval_idx(guint32 val, const value_string *vs, gint *idx) {
   gint i = 0;
 
   while (vs[i].strptr) {
-    if (vs[i].value == val)
-      /* XXX - the correct implementation would be to use the return type:
-         "const gchar *", but this would require to change most calls of this 
-         function which are (directly and indirectly) *a lot* */
-      return( (gchar *) vs[i].strptr);
+    if (vs[i].value == val) {
+      *idx = i;
+      return(vs[i].strptr);
+    }
     i++;
   }
 
+  *idx = -1;
   return(NULL);
+}
+
+/* Like match_strval_idx(), but doesn't return the index. */
+const gchar*
+match_strval(guint32 val, const value_string *vs) {
+    gint ignore_me;
+    return match_strval_idx(val, vs, &ignore_me);
 }
 
 /* Generate a string describing an enumerated bitfield (an N-bit field

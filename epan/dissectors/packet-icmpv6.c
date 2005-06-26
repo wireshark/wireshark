@@ -1016,8 +1016,8 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *ti, *tf = NULL;
     struct icmp6_hdr icmp6_hdr, *dp;
     struct icmp6_nodeinfo *ni = NULL;
-    char *codename, *typename;
-    char *colcodename, *coltypename;
+    const char *codename, *typename;
+    const char *colcodename, *coltypename;
     int len;
     guint length, reported_length;
     vec_t cksum_vec[4];

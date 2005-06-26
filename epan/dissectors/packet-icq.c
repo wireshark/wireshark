@@ -367,31 +367,31 @@ table_v5 [] = {
  0x3C, 0x51, 0x54, 0x3D, 0x5E, 0x54, 0x5D, 0x4E, 0x4C, 0x39, 0x50, 0x5F, 0x5F, 0x5F, 0x3F, 0x6F,
  0x47, 0x43, 0x69, 0x48, 0x33, 0x51, 0x54, 0x5D, 0x6E, 0x3C, 0x31, 0x64, 0x35, 0x5A, 0x00, 0x00 };
 
-static char*
+static const char*
 findMsgType(int num)
 {
     return val_to_str(num, msgTypeCode, "Unknown");
 }
 
-static char*
+static const char*
 findSubCmd(int num)
 {
     return val_to_str(num, serverMetaSubCmdCode, "Unknown (0x%04x)");
 }
 
-static char*
+static const char*
 findClientCmd(int num)
 {
     return val_to_str(num, clientCmdCode, "Unknown (%u)");
 }
 
-static char*
+static const char*
 findServerCmd(int num)
 {
     return val_to_str(num, serverCmdCode, "Unknown (%u)");
 }
 
-static char*
+static const char*
 findStatus(int num)
 {
     return val_to_str(num, statusCode, "Unknown (0x%08x)");

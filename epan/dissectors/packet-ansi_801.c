@@ -80,27 +80,6 @@ static proto_tree *g_tree;
 
 /* FUNCTIONS */
 
-static const gchar *
-my_match_strval(guint32 val, const value_string *vs, gint *idx)
-{
-    gint i = 0;
-
-    while (vs[i].strptr)
-    {
-	if (vs[i].value == val)
-	{
-	    *idx = i;
-	    return(vs[i].strptr);
-	}
-
-	i++;
-    }
-
-    *idx = -1;
-    return(NULL);
-}
-
-
 /* PARAM FUNCTIONS */
 
 #define	EXTRANEOUS_DATA_CHECK(edc_len, edc_max_len) \
@@ -321,7 +300,7 @@ for_request(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 	"%s :  Reserved",
 	bigbuf);
 
-    str = my_match_strval(oct & 0x0f, for_req_type_strings, &idx);
+    str = match_strval_idx(oct & 0x0f, for_req_type_strings, &idx);
 
     if (str == NULL)
     {
@@ -384,7 +363,7 @@ for_response(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 	"%s :  Unsolicited response indicator",
 	bigbuf);
 
-    str = my_match_strval(oct & 0x0f, for_rsp_type_strings, &idx);
+    str = match_strval_idx(oct & 0x0f, for_rsp_type_strings, &idx);
 
     if (str == NULL)
     {
@@ -442,7 +421,7 @@ rev_request(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 	"%s :  Reserved",
 	bigbuf);
 
-    str = my_match_strval(oct & 0x0f, rev_req_type_strings, &idx);
+    str = match_strval_idx(oct & 0x0f, rev_req_type_strings, &idx);
 
     if (str == NULL)
     {
@@ -505,7 +484,7 @@ rev_response(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 	"%s :  Unsolicited response indicator",
 	bigbuf);
 
-    str = my_match_strval(oct & 0x0f, rev_rsp_type_strings, &idx);
+    str = match_strval_idx(oct & 0x0f, rev_rsp_type_strings, &idx);
 
     if (str == NULL)
     {

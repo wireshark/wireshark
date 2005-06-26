@@ -267,18 +267,23 @@ static gboolean check_slsk_format(tvbuff_t *tvb, int offset, char format[]){
 
 }
 
-static char* get_message_type(tvbuff_t *tvb) {
+static const char* get_message_type(tvbuff_t *tvb) {
 	/*
 	* Checks if the Message Code is known.
 	* If unknown checks if the Message Code is stored in a byte.
 	* Returns the Message Type.
 	*/
 	int msg_code = tvb_get_letohl(tvb, 4);
-	gchar *message_type =  val_to_str(msg_code, slsk_tcp_msgs, "Unknown");
-	if (strcmp(message_type, "Unknown") == 0) {
-		if (check_slsk_format(tvb, 4, "bisis")) 	message_type = "Distributed Search";
-		if (check_slsk_format(tvb, 4, "bssi")) 	message_type = "Peer Init";
-		if (check_slsk_format(tvb, 4, "bi")) 	message_type = "Pierce Fw";
+	const gchar *message_type =  match_strval(msg_code, slsk_tcp_msgs);
+	if (message_type == NULL) {
+		if (check_slsk_format(tvb, 4, "bisis"))
+			message_type = "Distributed Search";
+		else if (check_slsk_format(tvb, 4, "bssi"))
+			message_type = "Peer Init";
+		else if (check_slsk_format(tvb, 4, "bi"))
+			message_type = "Pierce Fw";
+		else
+			message_type = "Unknown";
 	}
 	return message_type;
 }

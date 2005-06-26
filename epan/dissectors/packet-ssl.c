@@ -1033,7 +1033,6 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *ti              = NULL;
     proto_tree *ssl_record_tree = NULL;
     guint32 available_bytes     = 0;
-	gchar *proto_name_str	= NULL;
 
     available_bytes = tvb_length_remaining(tvb, offset);
 
@@ -1203,11 +1202,10 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             col_append_str(pinfo->cinfo, COL_INFO, "Application Data");
         if (ssl_record_tree)
         {
-			proto_name_str = match_strval(content_type, ssl_31_content_type);
             proto_item_set_text(ssl_record_tree,
                                 "%s Record Layer: %s Protocol: Application Data",
                                 ssl_version_short_names[*conv_version],
-								(proto_name_str!=NULL) ? proto_name_str : "unknown");
+                                val_to_str(content_type, ssl_31_content_type, "unknown"));
             tvb_ensure_bytes_exist(tvb, offset, record_length);
             proto_tree_add_item(ssl_record_tree, hf_ssl_record_appdata, tvb,
                                 offset, record_length, 0);
@@ -1237,15 +1235,12 @@ dissect_ssl3_change_cipher_spec(tvbuff_t *tvb,
      * } ChangeCipherSpec;
      *
      */
-	gchar *proto_name_str	= NULL;
-
     if (tree)
     {
-		proto_name_str = match_strval(content_type, ssl_31_content_type);
         proto_item_set_text(tree,
                             "%s Record Layer: %s Protocol: Change Cipher Spec",
                             ssl_version_short_names[*conv_version],
-							(proto_name_str!=NULL) ? proto_name_str : "unknown");
+                            val_to_str(content_type, ssl_31_content_type, "unknown"));
         proto_tree_add_item(tree, hf_ssl_change_cipher_spec, tvb,
                             offset++, 1, FALSE);
     }
@@ -1264,9 +1259,10 @@ dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
      */
     proto_tree *ti;
     proto_tree *ssl_alert_tree = NULL;
-    gchar *level;
-    gchar *desc;
+    const gchar *level;
+    const gchar *desc;
     guint8 byte;
+
     if (tree)
     {
         ti = proto_tree_add_item(tree, hf_ssl_alert_message, tvb,
@@ -1350,8 +1346,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
      */
     proto_tree *ti            = NULL;
     proto_tree *ssl_hand_tree = NULL;
-    gchar *msg_type_str       = NULL;
-	gchar *proto_name_str	= NULL;
+    const gchar *msg_type_str = NULL;
     guint8 msg_type;
     guint32 length;
     gboolean first_iteration  = TRUE;
@@ -1370,7 +1365,6 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
     {
         msg_type = tvb_get_guint8(tvb, offset);
         msg_type_str = match_strval(msg_type, ssl_31_handshake_type);
-		proto_name_str = match_strval(content_type, ssl_31_content_type);
         length   = tvb_get_ntoh24(tvb, offset + 1);
 
         if (!msg_type_str && !first_iteration)
@@ -1403,15 +1397,15 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
             {
                 proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s",
                                     ssl_version_short_names[*conv_version], 
-									(proto_name_str!=NULL) ? proto_name_str : "unknown",
-									(msg_type_str!=NULL) ? msg_type_str :
-                                    "Encrypted Handshake Message");
+                                    val_to_str(content_type, ssl_31_content_type, "unknown"),
+                                    (msg_type_str!=NULL) ? msg_type_str :
+                                        "Encrypted Handshake Message");
             }
             else
             {
                 proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s",
                                     ssl_version_short_names[*conv_version],
-									(proto_name_str!=NULL) ? proto_name_str : "unknown",
+                                    val_to_str(content_type, ssl_31_content_type, "unknown"),
                                     "Multiple Handshake Messages");
             }
 
@@ -1973,7 +1967,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gint    is_escape            = -1;
     gint16  padding_length       = -1;
     guint8  msg_type             = 0;
-    gchar   *msg_type_str        = NULL;
+    const gchar *msg_type_str    = NULL;
     guint32 available_bytes      = 0;
 
     proto_tree *ti;
@@ -2936,7 +2930,7 @@ ssl_is_valid_content_type(guint8 type)
 static int
 ssl_is_valid_ssl_version(guint16 version)
 {
-    gchar *version_str = match_strval(version, ssl_versions);
+    const gchar *version_str = match_strval(version, ssl_versions);
     return version_str != NULL;
 }
 

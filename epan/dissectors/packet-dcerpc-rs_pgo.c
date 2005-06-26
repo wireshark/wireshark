@@ -127,7 +127,6 @@ static gint ett_rs_pgo_id_key_t = -1;
 static gint ett_rs_pgo_unix_num_key_t = -1;
 static gint ett_rs_pgo_query_result_t = -1;
 static gint ett_rs_pgo_result_t = -1;
-static guint8 *st_str;
 
 
 #define sec_rgy_acct_admin_valid  0x1
@@ -176,6 +175,7 @@ dissect_error_status_t (tvbuff_t * tvb, int offset,
   int old_offset = offset;
   guint32 st;
   dcerpc_info *di;
+  const char *st_str;
 
   di = pinfo->private_data;
   if (di->conformant_run)
@@ -1001,7 +1001,7 @@ dissect_rs_pgo_query_result_t (tvbuff_t * tvb, int offset,
   int old_offset = offset;
   guint32 st;
   dcerpc_info *di;
-  guint8 *status;
+  const char *status;
 #define error_status_ok 0
 
   /*

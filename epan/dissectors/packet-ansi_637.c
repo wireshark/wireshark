@@ -275,27 +275,6 @@ decode_7_bits(tvbuff_t *tvb, guint32 *offset, guint8 num_fields, guint8 *last_oc
     *last_oct = (bit == 1) ? oct : oct2;
 }
 
-static const gchar *
-my_match_strval(guint32 val, const value_string *vs, gint *idx)
-{
-    gint i = 0;
-
-    while (vs[i].strptr)
-    {
-	if (vs[i].value == val)
-	{
-	    *idx = i;
-	    return(vs[i].strptr);
-	}
-
-	i++;
-    }
-
-    *idx = -1;
-    return(NULL);
-}
-
-
 /* PARAM FUNCTIONS */
 
 #define	EXTRANEOUS_DATA_CHECK(edc_len, edc_max_len) \
@@ -925,7 +904,7 @@ static void
 trans_param_tele_id(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string)
 {
     guint32	value;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
     EXACT_DATA_CHECK(len, 2);
 
@@ -949,7 +928,7 @@ static void
 trans_param_srvc_cat(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string)
 {
     guint32	value;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
     EXACT_DATA_CHECK(len, 2);
 
@@ -1498,7 +1477,7 @@ dissect_ansi_637_tele_param(tvbuff_t *tvb, proto_tree *tree, guint32 *offset)
     curr_offset = *offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
-    str = my_match_strval((guint32) oct, ansi_tele_param_strings, &idx);
+    str = match_strval_idx((guint32) oct, ansi_tele_param_strings, &idx);
 
     if (NULL == str)
     {
@@ -1556,7 +1535,7 @@ dissect_ansi_637_tele_message(tvbuff_t *tvb, proto_tree *ansi_637_tree)
     guint32	curr_offset;
     guint32	msg_id;
     guint32	msg_type;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     proto_item	*item;
     proto_tree	*subtree;
 
@@ -1625,7 +1604,7 @@ dissect_ansi_637_tele(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item	*ansi_637_item;
     proto_tree	*ansi_637_tree = NULL;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
@@ -1673,7 +1652,7 @@ dissect_ansi_637_trans_param(tvbuff_t *tvb, proto_tree *tree, guint32 *offset)
     curr_offset = *offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
-    str = my_match_strval((guint32) oct, ansi_trans_param_strings, &idx);
+    str = match_strval_idx((guint32) oct, ansi_trans_param_strings, &idx);
 
     if (NULL == str)
     {
@@ -1757,7 +1736,7 @@ dissect_ansi_637_trans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	oct = tvb_get_guint8(tvb, 0);
 
-	str = my_match_strval(oct, ansi_trans_msg_type_strings, &idx);
+	str = match_strval_idx(oct, ansi_trans_msg_type_strings, &idx);
 
 	if (NULL == str)
 	{

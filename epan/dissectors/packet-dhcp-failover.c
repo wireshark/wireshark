@@ -341,7 +341,7 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint type, serverflag;
 	guint poffset;
 	guint32 xid;
-	gchar *typestrval, *optionstrval, *tls_request_string;
+	gchar *tls_request_string;
 	guint32 time, lease_expiration_time, grace_expiration_time;
 	guint32 potential_expiration_time, client_last_transaction_time;
 	guint32 start_time_of_state;
@@ -352,15 +352,14 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 htype, reject_reason, message_digest_type;
 	const guint8 *chaddr;
 	guint8 binding_status;
-	gchar *binding_status_str, *reject_reason_str;
 	gchar *assigned_ip_address_str, *sending_server_ip_address_str;
 	guint32 addresses_transfered;
 	const guint8 *client_identifier_str, *vendor_class_str;
-	gchar *htype_str, *chaddr_str;
+	const gchar *htype_str;
+	gchar *chaddr_str;
 	gchar *lease_expiration_time_str;
 	gchar *grace_expiration_time_str, *potential_expiration_time_str;
 	gchar *client_last_transaction_time_str, *start_time_of_state_str;
-	gchar *server_state_str;
 	guint32 mclt;
 	guint8 server_state, protocol_version;
 	guint32 max_unacked_bndupd, receive_timer;
@@ -371,10 +370,6 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     
 	length = tvb_get_ntohs(tvb, 0);
         type = tvb_get_guint8(tvb, 2);
-	typestrval=  match_strval(type,failover_vals);
-  	if (typestrval==NULL) {
-        	typestrval="Unknown Packet";
-  	}
 	poffset = tvb_get_guint8(tvb, 3);
 	
 	if(poffset > 12)
@@ -391,7 +386,9 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO)){ 
 		col_add_fstr(pinfo->cinfo, 
-				COL_INFO,"%s xid: %x", typestrval,xid);
+				COL_INFO,"%s xid: %x",
+				val_to_str(type,failover_vals,"Unknown Packet"),
+				xid);
 	}
 	
 	actualoffset = poffset;
@@ -476,14 +473,11 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				
 				/*** DHCP-Style-Options ****/
 
-				optionstrval=  match_strval(helpliste->opcode,option_code_vals);
-			        if (optionstrval==NULL) {
-			                optionstrval="Unknown Packet";
-        			}
-
-
-				proto_item_append_text(oi, ", %s (%d)", 
-					optionstrval, helpliste->opcode);
+				proto_item_append_text(oi, ", %s (%d)",
+					val_to_str(helpliste->opcode,
+						option_code_vals,
+						"Unknown Packet"),
+					helpliste->opcode);
 
 				proto_tree_add_item(option_tree,
                 			hf_dhcpfo_option_code, tvb, 
@@ -503,15 +497,10 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 					binding_status = tvb_get_guint8(tvb,
 						helpliste->actualpoffset+4);
-					binding_status_str = 
-						match_strval(binding_status,
-							binding_status_vals);
-					if(binding_status_str == NULL)
-					{
-						binding_status_str = "Unknown Packet";
-					}
 					proto_item_append_text(oi, ", %s (%d)",
-							binding_status_str, 
+							val_to_str(binding_status,
+							    binding_status_vals,
+							    "Unknown Packet"),
 							binding_status);
 
 					proto_tree_add_item(option_tree,
@@ -612,14 +601,11 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 					reject_reason = tvb_get_guint8(tvb, 
 								helpliste->actualpoffset +4);
-					reject_reason_str = match_strval(reject_reason,
-                                                        reject_reason_vals);
-					if (reject_reason_str==NULL) {
-						reject_reason_str="Unknown Packet";
-					}
-					 
+
 					proto_item_append_text(oi, ", %s (%d)",
-							reject_reason_str, 
+							val_to_str(reject_reason,
+                                                            reject_reason_vals,
+                                                            "Unknown Packet"),
 							reject_reason);
 
 					if (helpliste->length != 1)
@@ -760,12 +746,9 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 					server_state = tvb_get_guint8(tvb, helpliste->actualpoffset+4);
 
-					server_state_str = match_strval(server_state,server_state_vals);
-					if (server_state_str==NULL) {
-						server_state_str="Unknown Packet";
-					}
 					proto_item_append_text(oi, ", %s (%d)", 
-						server_state_str, server_state);
+						val_to_str(server_state,server_state_vals, "Unknown Packet"),
+						server_state);
 
 					proto_tree_add_item(option_tree,
 						hf_dhcpfo_server_state, tvb,

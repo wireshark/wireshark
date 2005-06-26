@@ -86,7 +86,7 @@ dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*ti, *tf;
 	tvbuff_t	*next_tvb;
 	guint8		class;
-	gchar		*class_str;
+	const gchar	*class_str;
 	guint8		type;
 
 	/*

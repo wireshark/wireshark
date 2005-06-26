@@ -89,7 +89,7 @@ dissect_laplink_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	proto_tree *laplink_tree;
 	guint32 udp_ident;
-	gchar *udp_ident_string;
+	const gchar *udp_ident_string;
 
 	/*
 	 * Make sure the identifier is reasonable.

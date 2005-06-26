@@ -157,7 +157,7 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 		packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
 		int etype_id, int trailer_id, int fcs_len)
 {
-	char			*description;
+	const char		*description;
 	tvbuff_t		*next_tvb;
 	guint			length_before;
 	volatile gboolean	dissector_found = FALSE;

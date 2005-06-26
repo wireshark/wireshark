@@ -3611,7 +3611,7 @@ rddecryptpass(gchar *dest,tvbuff_t *tvb,int offset,int length)
     dest[totlen+1] = '\0';
 }
 
-static gchar *rd_match_strval(guint32 val, const value_string *vs) {
+static const gchar *rd_match_strval(guint32 val, const value_string *vs) {
 	return val_to_str(val, vs, "Undefined");
 }
 
@@ -4376,7 +4376,6 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   e_radiushdr rh;
   gchar *hex_authenticator;
 
-  gchar *codestrval;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RADIUS");
@@ -4390,11 +4389,6 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   rhlength = g_ntohs(rh.rh_pktlength);
   hdrlength = RD_HDR_LENGTH + AUTHENTICATOR_LENGTH;
   avplength = rhlength - hdrlength;
-  codestrval =  match_strval(rhcode,radius_vals);
-  if (codestrval==NULL)
-  {
-	codestrval="Unknown Packet";
-  }
   /* XXX Check for valid length value:
    * Length
    *
@@ -4410,7 +4404,8 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO))
   {
         col_add_fstr(pinfo->cinfo,COL_INFO,"%s(%d) (id=%d, l=%d)",
-		codestrval, rhcode, rhident, rhlength);
+		val_to_str(rhcode,radius_vals,"Unknown Packet"),
+		rhcode, rhident, rhlength);
   }
 
   if (tree)

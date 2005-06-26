@@ -4,9 +4,8 @@
  * $Id$
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -28,7 +27,7 @@
 
 #include <glib.h>
 
-/* Struct for the match_strval function */
+/* Struct for the val_to_str, match_strval_idx, and match_strval functions */
 
 typedef struct _value_string {
   guint32  value;
@@ -39,13 +38,18 @@ typedef struct _value_string {
 /* #define VS_END    { 0, NULL } */
 
 /* Tries to match val against each element in the value_string array vs.
-   Returns the associated string ptr on a match, or NULL on failure. */
-extern gchar*     match_strval(guint32 val, const value_string *vs);
+   Returns the associated string ptr, and sets "*idx" to the index in
+   that table, on a match, and returns NULL, and sets "*idx" to -1,
+   on failure. */
+extern const gchar* match_strval_idx(guint32 val, const value_string *vs, gint *idx);
+
+/* Like match_strval_idx(), but doesn't return the index. */
+extern const gchar* match_strval(guint32 val, const value_string *vs);
 
 /* Tries to match val against each element in the value_string array vs.
    Returns the associated string ptr on a match.
    Formats val with fmt, and returns the resulting string, on failure. */
-extern gchar*     val_to_str(guint32 val, const value_string *vs, const char *fmt);
+extern const gchar* val_to_str(guint32 val, const value_string *vs, const char *fmt);
 
 /* Generate a string describing an enumerated bitfield (an N-bit field
    with various specific values having particular names). */

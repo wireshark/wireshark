@@ -1015,7 +1015,7 @@ static void dissect_cops_pr_objects(tvbuff_t *tvb, guint32 offset, proto_tree *t
 {
   int object_len, contents_len;
   guint8 s_num, s_type;
-  char *type_str;
+  const char *type_str;
   int ret;
   proto_tree *cops_pr_tree, *obj_tree;
   proto_item *ti;

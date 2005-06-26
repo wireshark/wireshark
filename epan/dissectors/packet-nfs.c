@@ -1801,7 +1801,7 @@ static int
 dissect_nfs2_rmdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree* tree)
 {
 	guint32 status;
-	char *err;
+	const char *err;
 
 	offset = dissect_stat(tvb, offset, tree, &status);
 	switch (status) {
@@ -1823,7 +1823,7 @@ static int
 dissect_nfs2_symlink_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree* tree)
 {
 	guint32 status;
-	char *err;
+	const char *err;
 
 	offset = dissect_stat(tvb, offset, tree, &status);
 	switch (status) {
@@ -1845,7 +1845,7 @@ static int
 dissect_nfs2_link_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree* tree)
 {
 	guint32 status;
-	char *err;
+	const char *err;
 
 	offset = dissect_stat(tvb, offset, tree, &status);
 	switch (status) {
@@ -1867,7 +1867,7 @@ static int
 dissect_nfs2_rename_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree* tree)
 {
 	guint32 status;
-	char *err;
+	const char *err;
 
 	offset = dissect_stat(tvb, offset, tree, &status);
 	switch (status) {
@@ -1889,7 +1889,7 @@ static int
 dissect_nfs2_remove_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree* tree)
 {
 	guint32 status;
-	char *err;
+	const char *err;
 
 	offset = dissect_stat(tvb, offset, tree, &status);
 	switch (status) {
@@ -1921,7 +1921,7 @@ static int
 dissect_ftype(tvbuff_t *tvb, int offset, proto_tree *tree, char* name)
 {
 	guint32 ftype;
-	char* ftype_name = NULL;
+	const char* ftype_name = NULL;
 
 	const value_string nfs2_ftype[] =
 	{
@@ -2267,7 +2267,7 @@ static int
 dissect_attrstat(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, char *funcname)
 {
 	guint32 status;
-	char *err;
+	const char *err;
 
 	offset = dissect_stat(tvb, offset, tree, &status);
 	switch (status) {
@@ -2415,7 +2415,7 @@ dissect_diropres(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 {
 	guint32	status;
 	guint32 hash;
-	char *err;
+	const char *err;
 
 	offset = dissect_stat(tvb, offset, tree, &status);
 	switch (status) {
@@ -2499,7 +2499,7 @@ dissect_nfs2_readlink_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree *tree)
 {
 	guint32	status;
-	char *err;
+	const char *err;
 	char *name=NULL;
 
 	offset = dissect_stat(tvb, offset, tree, &status);
@@ -2564,7 +2564,7 @@ dissect_nfs2_read_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree* tree)
 {
 	guint32 status;
-	char *err;
+	const char *err;
 
 	offset = dissect_stat(tvb, offset, tree, &status);
 	switch (status) {
@@ -2812,7 +2812,7 @@ dissect_nfs2_readdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	guint32 status;
 	guint32 eof_value;
-	char *err;
+	const char *err;
 
 	offset = dissect_stat(tvb, offset, tree, &status);
 	switch (status) {
@@ -2851,7 +2851,7 @@ dissect_nfs2_statfs_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	guint32 blocks;
 	guint32 bfree;
 	guint32 bavail;
-	char *err;
+	const char *err;
 
 	offset = dissect_stat(tvb, offset, tree, &status);
 	switch (status) {
@@ -3524,7 +3524,7 @@ dissect_set_mode3(tvbuff_t *tvb, int offset, proto_tree *tree, char* name)
 	proto_tree* set_mode3_tree = NULL;
 	int old_offset = offset;
 	guint32 set_it;
-	char* set_it_name;
+	const char* set_it_name;
 
 	set_it = tvb_get_ntohl(tvb, offset+0);
 	set_it_name = val_to_str(set_it,value_follows,"Unknown");
@@ -3569,7 +3569,7 @@ dissect_set_uid3(tvbuff_t *tvb, int offset, proto_tree *tree, char* name)
 	proto_tree* set_uid3_tree = NULL;
 	int old_offset = offset;
 	guint32 set_it;
-	char* set_it_name;
+	const char* set_it_name;
 
 	set_it = tvb_get_ntohl(tvb, offset+0);
 	set_it_name = val_to_str(set_it,value_follows,"Unknown");
@@ -3614,7 +3614,7 @@ dissect_set_gid3(tvbuff_t *tvb, int offset, proto_tree *tree, char* name)
 	proto_tree* set_gid3_tree = NULL;
 	int old_offset = offset;
 	guint32 set_it;
-	char* set_it_name;
+	const char* set_it_name;
 
 	set_it = tvb_get_ntohl(tvb, offset+0);
 	set_it_name = val_to_str(set_it,value_follows,"Unknown");
@@ -3659,7 +3659,7 @@ dissect_set_size3(tvbuff_t *tvb, int offset, proto_tree *tree, char* name)
 	proto_tree* set_size3_tree = NULL;
 	int old_offset = offset;
 	guint32 set_it;
-	char* set_it_name;
+	const char* set_it_name;
 
 	set_it = tvb_get_ntohl(tvb, offset+0);
 	set_it_name = val_to_str(set_it,value_follows,"Unknown");
@@ -3718,7 +3718,7 @@ dissect_set_atime(tvbuff_t *tvb, int offset, proto_tree *tree, char* name)
 	proto_tree* set_atime_tree = NULL;
 	int old_offset = offset;
 	guint32 set_it;
-	char* set_it_name;
+	const char* set_it_name;
 
 	set_it = tvb_get_ntohl(tvb, offset+0);
 	set_it_name = val_to_str(set_it,time_how,"Unknown");
@@ -3765,7 +3765,7 @@ dissect_set_mtime(tvbuff_t *tvb, int offset, proto_tree *tree, char* name)
 	proto_tree* set_mtime_tree = NULL;
 	int old_offset = offset;
 	guint32 set_it;
-	char* set_it_name;
+	const char* set_it_name;
 
 	set_it = tvb_get_ntohl(tvb, offset+0);
 	set_it_name = val_to_str(set_it,time_how,"Unknown");
@@ -4002,7 +4002,7 @@ dissect_nfs3_getattr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree* tree)
 {
 	guint32 status;
-	char *err;
+	const char *err;
 
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
@@ -4033,7 +4033,7 @@ dissect_sattrguard3(tvbuff_t *tvb, int offset, proto_tree* tree, char *name)
 	proto_tree* sattrguard3_tree = NULL;
 	int old_offset = offset;
 	guint32 check;
-	char* check_name;
+	const char* check_name;
 
 	check = tvb_get_ntohl(tvb, offset+0);
 	check_name = val_to_str(check,value_follows,"Unknown");
@@ -4096,7 +4096,7 @@ dissect_nfs3_setattr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree* tree)
 {
 	guint32 status;
-	char *err;
+	const char *err;
 
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
@@ -4145,7 +4145,7 @@ dissect_nfs3_lookup_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree* tree)
 {
 	guint32 status;
-	char *err;
+	const char *err;
 	guint32 hash;
 
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
@@ -4203,7 +4203,7 @@ dissect_nfs3_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree* tree)
 {
 	guint32 status;
-	char *err;
+	const char *err;
 
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
@@ -4251,7 +4251,7 @@ dissect_nfs3_readlink_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree* tree)
 {
 	guint32 status;
-	char *err;
+	const char *err;
 	char *name=NULL;
 
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
@@ -4318,7 +4318,7 @@ dissect_nfs3_read_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 {
 	guint32 status;
 	guint32 len;
-	char *err;
+	const char *err;
 
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
@@ -4418,7 +4418,7 @@ dissect_nfs3_write_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	guint32 status;
 	guint32 len;
 	guint32 stable;
-	char *err;
+	const char *err;
 
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
@@ -4516,7 +4516,7 @@ dissect_nfs3_create_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree* tree)
 {
 	guint32 status;
-	char *err;
+	const char *err;
 
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
@@ -4567,7 +4567,7 @@ dissect_nfs3_mkdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree* tree)
 {
 	guint32 status;
-	char *err;
+	const char *err;
 
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
@@ -4620,7 +4620,7 @@ dissect_nfs3_symlink_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree* tree)
 {
 	guint32 status;
-	char *err;
+	const char *err;
 
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
@@ -4654,7 +4654,7 @@ dissect_nfs3_mknod_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 type;
 	guint32 hash;
 	char *name=NULL;
-	char *type_str;
+	const char *type_str;
 
 	offset = dissect_diropargs3(tvb, offset, pinfo, tree, "where", &hash, &name);
 	offset = dissect_ftype3(tvb, offset, tree, hf_nfs_ftype3, &type);
@@ -4687,7 +4687,7 @@ dissect_nfs3_mknod_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree* tree)
 {
 	guint32 status;
-	char *err;
+	const char *err;
 
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
@@ -4719,7 +4719,7 @@ dissect_nfs3_remove_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree* tree)
 {
 	guint32 status;
-	char *err;
+	const char *err;
 
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
@@ -4744,7 +4744,7 @@ dissect_nfs3_rmdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree* tree)
 {
 	guint32 status;
-	char *err;
+	const char *err;
 
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
@@ -4796,7 +4796,7 @@ dissect_nfs3_rename_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree* tree)
 {
 	guint32 status;
-	char *err;
+	const char *err;
 
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
@@ -4849,7 +4849,7 @@ dissect_nfs3_link_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree* tree)
 {
 	guint32 status;
-	char *err;
+	const char *err;
 
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
@@ -4945,7 +4945,7 @@ dissect_nfs3_readdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	guint32 status;
 	guint32 eof_value;
-	char *err;
+	const char *err;
 
 	offset = dissect_stat(tvb, offset, tree, &status);
 	switch (status) {
@@ -5076,7 +5076,7 @@ dissect_nfs3_readdirplus_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	guint32 status;
 	guint32 eof_value;
-	char *err;
+	const char *err;
 
 	offset = dissect_stat(tvb, offset, tree, &status);
 	switch (status) {
@@ -5133,7 +5133,7 @@ dissect_nfs3_fsstat_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 {
 	guint32 status;
 	guint32 invarsec;
-	char *err;
+	const char *err;
 
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
@@ -5212,7 +5212,7 @@ dissect_nfs3_fsinfo_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	guint32 properties;
 	proto_item*	properties_item = NULL;
 	proto_tree*	properties_tree = NULL;
-	char *err;
+	const char *err;
 
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
@@ -5338,7 +5338,7 @@ dissect_nfs3_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	guint32 status;
 	guint32 linkmax;
 	guint32 name_max;
-	char *err;
+	const char *err;
 
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
@@ -5408,7 +5408,7 @@ dissect_nfs3_commit_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree* tree)
 {
 	guint32 status;
-	char *err;
+	const char *err;
 
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {

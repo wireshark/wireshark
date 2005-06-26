@@ -200,7 +200,7 @@ static const value_string h245_AudioCapability_short_vals[] = {
 /* To put the codec type only in COL_INFO when
    an OLC is read */
 
-char* codec_type = NULL;
+const char* codec_type = NULL;
 static char standard_oid_str[256];
 static guint32 ipv4_address;
 static guint32 ipv4_port;

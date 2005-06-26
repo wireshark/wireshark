@@ -1488,7 +1488,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 	subtree = proto_item_add_subtree(ti, ett_bgp_attrs);
 	i = 2;
 	while (i < len) {
-	    char    *msg;
+	    const char *msg;
 	    int     off;
 	    gint    k;
 	    guint16 alen, tlen, aoff; 
@@ -2398,7 +2398,7 @@ dissect_bgp_notification(tvbuff_t *tvb, proto_tree *tree)
 {
     struct bgp_notification bgpn;   /* BGP NOTIFICATION message */
     int                     hlen;   /* message length           */
-    char                    *p;     /* string pointer           */
+    const char              *p;     /* string pointer           */
 
     /* snarf message */
     tvb_memcpy(tvb, bgpn.bgpn_marker, 0, BGP_MIN_NOTIFICATION_MSG_SIZE);
@@ -2596,7 +2596,7 @@ dissect_bgp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     guint16       bgp_len;       /* Message length             */
     guint8        bgp_type;      /* Message type               */
-    char          *typ;          /* Message type (string)      */
+    const char    *typ;          /* Message type (string)      */
     proto_item    *ti;           /* tree item                        */
     proto_tree    *bgp_tree;     /* BGP packet tree                  */
     proto_tree    *bgp1_tree;    /* BGP message tree                 */

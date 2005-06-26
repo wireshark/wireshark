@@ -268,7 +268,7 @@ get_nstring(tvbuff_t *tvb, gint offset, guint8* cbuf, size_t cbuflen)
 static void
 display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree)
 {
-  gchar* msg_code = NULL;
+  const gchar* msg_code = NULL;
   int pos = 0;
   guint8 mcode = 0;
   char mcode_buf[1024];
@@ -346,7 +346,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree)
       char hval[8192];
       guint16 hval_len;
       int orig_pos = pos;
-      gchar* hname = NULL;
+      const gchar* hname = NULL;
       int dp = 0;
       int cl = 0;
       guint8 hname_bytes[1024];
@@ -478,7 +478,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
    */
   cod = tvb_get_guint8(tvb, 4);
   if (ajp13_tree) {
-    gchar* msg_code = NULL;
+    const gchar* msg_code = NULL;
     char mcode_buf[1024];
     msg_code = val_to_str(cod, mtype_codes, "UNKNOWN");
     sprintf(mcode_buf, "(%d) %s", cod, msg_code);
@@ -489,7 +489,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   /* HTTP METHOD (ENCODED AS INTEGER)
    */
   {
-    gchar* meth_code = NULL;
+    const gchar* meth_code = NULL;
     meth = tvb_get_guint8(tvb, pos);
     meth_code = val_to_str(meth, http_method_codes, "UNKNOWN");
     if (ajp13_tree) {
@@ -577,7 +577,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
     char hval[8192];
     guint16 hval_len;
     int orig_pos = pos;
-    gchar* hname = NULL;
+    const gchar* hname = NULL;
     int dp = 0;
     int cl = 0;
     guint8 hname_bytes[1024];

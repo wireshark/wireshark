@@ -1073,7 +1073,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  guint8 class;
 	  guint8 type;
 	  guint8 negotiable;
-	  char *object_type;
+	  const char *object_type;
 
 	  obj_length = tvb_get_ntohs(tvb, offset+2);
 	  class = tvb_get_guint8(tvb, offset+1);

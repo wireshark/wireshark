@@ -146,7 +146,7 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *att_tree;
 	guint16 msg_type;
 	guint16 msg_length;
-	char *msg_type_str;
+	const char *msg_type_str;
 	guint16 att_type;
 	guint16 att_length;
 	guint16 offset;

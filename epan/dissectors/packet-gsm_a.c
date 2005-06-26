@@ -876,26 +876,6 @@ my_dgt_tbcd_unpack(
     return(cnt);
 }
 
-static gchar *
-my_match_strval(guint32 val, const value_string *vs, gint *idx)
-{
-    gint i = 0;
-
-    while (vs[i].strptr)
-    {
-	if (vs[i].value == val)
-	{
-	    *idx = i;
-	    return(vs[i].strptr);
-	}
-
-	i++;
-    }
-
-    *idx = -1;
-    return(NULL);
-}
-
 /* ELEMENT FUNCTIONS */
 
 #define	EXTRANEOUS_DATA_CHECK(edc_len, edc_max_len) \
@@ -6076,7 +6056,7 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
     guint	comp_len, temp_len;
     gboolean	def_len[3];
     guint	comp_tag, tag;
-    gchar	*str;
+    const gchar	*str;
     gint32	int_val;
 
     add_string = add_string;
@@ -6204,11 +6184,9 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 		saved_offset = asn1->offset;
 		asn1_int32_value_decode(asn1, temp_len, &int_val);
 
-		str = match_strval(int_val, gsm_ss_opr_code_strings);
-
 		proto_tree_add_text(temp_subtree, asn1->tvb,
 		    saved_offset, temp_len, "Operation Code: %s (%d)",
-		    (str == NULL) ? "Unknown Operation Code" : str,
+		    val_to_str(int_val, gsm_ss_opr_code_strings, "Unknown Operation Code"),
 		    int_val);
 	    }
 
@@ -6248,11 +6226,9 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 		    saved_offset = asn1->offset;
 		    asn1_int32_value_decode(asn1, temp_len, &int_val);
 
-		    str = match_strval(int_val, gsm_ss_opr_code_strings);
-
 		    proto_tree_add_text(temp_subtree, asn1->tvb,
 			saved_offset, temp_len, "Operation Code: %s (%d)",
-			(str == NULL) ? "Unknown Operation Code" : str,
+			val_to_str(int_val, gsm_ss_opr_code_strings, "Unknown Operation Code"),
 			int_val);
 		}
 
@@ -6297,11 +6273,9 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 		    saved_offset = asn1->offset;
 		    asn1_int32_value_decode(asn1, temp_len, &int_val);
 
-		    str = match_strval(int_val, gsm_ss_err_code_strings);
-
 		    proto_tree_add_text(temp_subtree, asn1->tvb,
 			saved_offset, temp_len, "Error Code: %s (%d)",
-			(str == NULL) ? "Unknown Error Code" : str,
+			val_to_str(int_val, gsm_ss_err_code_strings, "Unknown Error Code"),
 			int_val);
 		}
 		break;
@@ -16053,7 +16027,7 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint	idx;
     proto_item	*rp_item = NULL;
     proto_tree	*rp_tree = NULL;
-    gchar	*str;
+    const gchar	*str;
 
 
     if (check_col(pinfo->cinfo, COL_INFO))
@@ -16083,7 +16057,7 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     oct = tvb_get_guint8(tvb, offset++);
 
-    str = my_match_strval((guint32) oct, gsm_rp_msg_strings, &idx);
+    str = match_strval_idx((guint32) oct, gsm_rp_msg_strings, &idx);
 
     /*
      * create the protocol tree
@@ -16150,7 +16124,7 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint	idx;
     proto_item	*bssmap_item = NULL;
     proto_tree	*bssmap_tree = NULL;
-    gchar	*str;
+    const gchar	*str;
 
 
     if (check_col(pinfo->cinfo, COL_INFO))
@@ -16182,7 +16156,7 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     oct = tvb_get_guint8(tvb, offset++);
 
-    str = my_match_strval((guint32) oct, gsm_a_bssmap_msg_strings, &idx);
+    str = match_strval_idx((guint32) oct, gsm_a_bssmap_msg_strings, &idx);
 
     /*
      * create the protocol tree
@@ -16259,7 +16233,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree			*dtap_tree = NULL;
     proto_item			*oct_1_item = NULL;
     proto_tree			*pd_tree = NULL;
-    gchar			*msg_str;
+    const gchar			*msg_str;
     const gchar			*str;
     gint			ett_tree;
     gint			ti;
@@ -16336,7 +16310,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
     case 3:
 	str = gsm_a_pd_str[pd];
-	msg_str = my_match_strval((guint32) (oct & DTAP_CC_IEI_MASK), gsm_a_dtap_msg_cc_strings, &idx);
+	msg_str = match_strval_idx((guint32) (oct & DTAP_CC_IEI_MASK), gsm_a_dtap_msg_cc_strings, &idx);
 	ett_tree = ett_gsm_dtap_msg_cc[idx];
 	hf_idx = hf_gsm_a_dtap_msg_cc_type;
 	msg_fcn = dtap_msg_cc_fcn[idx];
@@ -16346,7 +16320,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 5:
 	str = gsm_a_pd_str[pd];
-	msg_str = my_match_strval((guint32) (oct & DTAP_MM_IEI_MASK), gsm_a_dtap_msg_mm_strings, &idx);
+	msg_str = match_strval_idx((guint32) (oct & DTAP_MM_IEI_MASK), gsm_a_dtap_msg_mm_strings, &idx);
 	ett_tree = ett_gsm_dtap_msg_mm[idx];
 	hf_idx = hf_gsm_a_dtap_msg_mm_type;
 	msg_fcn = dtap_msg_mm_fcn[idx];
@@ -16355,7 +16329,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 6:
 	str = gsm_a_pd_str[pd];
-	msg_str = my_match_strval((guint32) (oct & DTAP_RR_IEI_MASK), gsm_a_dtap_msg_rr_strings, &idx);
+	msg_str = match_strval_idx((guint32) (oct & DTAP_RR_IEI_MASK), gsm_a_dtap_msg_rr_strings, &idx);
 	ett_tree = ett_gsm_dtap_msg_rr[idx];
 	hf_idx = hf_gsm_a_dtap_msg_rr_type;
 	msg_fcn = dtap_msg_rr_fcn[idx];
@@ -16363,7 +16337,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 8:
 	str = gsm_a_pd_str[pd];
-	msg_str = my_match_strval((guint32) (oct & DTAP_GMM_IEI_MASK), gsm_a_dtap_msg_gmm_strings, &idx);
+	msg_str = match_strval_idx((guint32) (oct & DTAP_GMM_IEI_MASK), gsm_a_dtap_msg_gmm_strings, &idx);
 	ett_tree = ett_gsm_dtap_msg_gmm[idx];
 	hf_idx = hf_gsm_a_dtap_msg_gmm_type;
 	msg_fcn = dtap_msg_gmm_fcn[idx];
@@ -16371,7 +16345,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 9:
 	str = gsm_a_pd_str[pd];
-	msg_str = my_match_strval((guint32) (oct & DTAP_SMS_IEI_MASK), gsm_a_dtap_msg_sms_strings, &idx);
+	msg_str = match_strval_idx((guint32) (oct & DTAP_SMS_IEI_MASK), gsm_a_dtap_msg_sms_strings, &idx);
 	ett_tree = ett_gsm_dtap_msg_sms[idx];
 	hf_idx = hf_gsm_a_dtap_msg_sms_type;
 	msg_fcn = dtap_msg_sms_fcn[idx];
@@ -16380,7 +16354,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 10:
 	str = gsm_a_pd_str[pd];
-	msg_str = my_match_strval((guint32) (oct & DTAP_SM_IEI_MASK), gsm_a_dtap_msg_sm_strings, &idx);
+	msg_str = match_strval_idx((guint32) (oct & DTAP_SM_IEI_MASK), gsm_a_dtap_msg_sm_strings, &idx);
 	ett_tree = ett_gsm_dtap_msg_sm[idx];
 	hf_idx = hf_gsm_a_dtap_msg_sm_type;
 	msg_fcn = dtap_msg_sm_fcn[idx];
@@ -16389,7 +16363,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 11:
 	str = gsm_a_pd_str[pd];
-	msg_str = my_match_strval((guint32) (oct & DTAP_SS_IEI_MASK), gsm_a_dtap_msg_ss_strings, &idx);
+	msg_str = match_strval_idx((guint32) (oct & DTAP_SS_IEI_MASK), gsm_a_dtap_msg_ss_strings, &idx);
 	ett_tree = ett_gsm_dtap_msg_ss[idx];
 	hf_idx = hf_gsm_a_dtap_msg_ss_type;
 	msg_fcn = dtap_msg_ss_fcn[idx];

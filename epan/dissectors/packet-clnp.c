@@ -1810,7 +1810,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8      cnf_ttl;
   guint8      cnf_type;
   char        flag_string[6+1];
-  char       *pdu_type_string;
+  const char *pdu_type_string;
   proto_tree *type_tree;
   guint16     segment_length;
   guint16     du_id = 0;

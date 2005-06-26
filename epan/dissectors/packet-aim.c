@@ -666,7 +666,8 @@ static void dissect_aim_newconn(tvbuff_t *tvb, packet_info *pinfo,
 int dissect_aim_snac_error(tvbuff_t *tvb, packet_info *pinfo, 
 			     proto_tree *aim_tree)
 {
-  char *name;
+  const char *name;
+
   if ((name = match_strval(tvb_get_ntohs(tvb, 0), aim_snac_errors)) != NULL) {
      if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO, name);
@@ -681,12 +682,12 @@ int dissect_aim_snac_error(tvbuff_t *tvb, packet_info *pinfo,
 int dissect_aim_userinfo(tvbuff_t *tvb, packet_info *pinfo, 
 				 int offset, proto_tree *tree) 
 {
-	offset = dissect_aim_buddyname(tvb, pinfo, offset, tree);
+    offset = dissect_aim_buddyname(tvb, pinfo, offset, tree);
 
     proto_tree_add_item(tree, hf_aim_userinfo_warninglevel, tvb, offset, 2, FALSE);
     offset += 2;
 
-	return dissect_aim_tlv_list(tvb, pinfo, offset, tree, onlinebuddy_tlvs);
+    return dissect_aim_tlv_list(tvb, pinfo, offset, tree, onlinebuddy_tlvs);
 }
 
 int dissect_aim_fnac_flags(tvbuff_t *tvb, int offset, int len, proto_item *ti, guint16 flags)

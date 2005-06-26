@@ -75,7 +75,7 @@
 static void dissect_mmse_standalone(tvbuff_t *, packet_info *, proto_tree *);
 static void dissect_mmse_encapsulated(tvbuff_t *, packet_info *, proto_tree *);
 static void dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-	guint8 pdut, char *message_type);
+	guint8 pdut, const char *message_type);
 
 /*
  * Header field values
@@ -668,13 +668,13 @@ static void
 dissect_mmse_standalone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8	 pdut;
-    char	 *message_type;
+    const char	 *message_type;
 
     DebugLog(("dissect_mmse_standalone() - START (Packet %u)\n",
 		pinfo->fd->num));
 
     pdut = tvb_get_guint8(tvb, 1);
-    message_type = match_strval(pdut, vals_message_type);
+    message_type = val_to_str(pdut, vals_message_type, "Unknown type %u");
 
     /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -692,13 +692,13 @@ static void
 dissect_mmse_encapsulated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8	 pdut;
-    char	 *message_type;
+    const char	 *message_type;
 
     DebugLog(("dissect_mmse_encapsulated() - START (Packet %u)\n",
 		pinfo->fd->num));
 
     pdut = tvb_get_guint8(tvb, 1);
-    message_type = match_strval(pdut, vals_message_type);
+    message_type = val_to_str(pdut, vals_message_type, "Unknown type %u");
 
     /* Make entries in Info column on summary display */
     if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -711,7 +711,7 @@ dissect_mmse_encapsulated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void
 dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
-	char *message_type)
+	const char *message_type)
 {
     guint	 offset;
     guint8	 field = 0;
@@ -1235,7 +1235,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 		default:
 		    if (field & 0x80) { /* Well-known WSP header encoding */
 			guint8 peek = tvb_get_guint8(tvb, offset);
-			char *hdr_name = val_to_str(field, vals_mm_header_names,
+			const char *hdr_name = val_to_str(field, vals_mm_header_names,
 				"Unknown field (0x%02x)");
 			DebugLog(("\t\tUndecoded well-known header: %s\n",
 				    hdr_name));

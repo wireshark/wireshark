@@ -286,7 +286,8 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 encapsulation = 0;
 	int wtap_encap;
 	dissector_handle_t encap_dissector;
-	char *encap_name, *info;
+	char *encap_name;
+	const char *info;
 	guint8 type;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))

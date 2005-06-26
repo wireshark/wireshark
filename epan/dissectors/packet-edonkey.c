@@ -290,8 +290,7 @@ static guint8 edonkey_metatag_name_get_type(tvbuff_t *tvb, gint start, gint leng
 {
     guint8 *tag_name;
 
-    tag_name = match_strval(special_tagtype, edonkey_special_tags);
-    if (tag_name == NULL) {
+    if (match_strval(special_tagtype, edonkey_special_tags) == NULL) {
         gint index;
 	tag_name = tvb_get_string(tvb, start, length);
         index = lookup_str_index(tag_name, length, edonkey_special_tags);
@@ -308,7 +307,7 @@ static guint8 edonkey_metatag_name_get_type(tvbuff_t *tvb, gint start, gint leng
 static proto_item* edonkey_tree_add_metatag_name(proto_tree *tree, tvbuff_t *tvb,
                                             gint start, gint length, guint8 special_tagtype)
 {
-	gchar	*tag_name;
+    const gchar	*tag_name;
     tag_name = match_strval(special_tagtype, edonkey_special_tags);
     if (tag_name == NULL) {
         return proto_tree_add_item(tree, hf_edonkey_metatag_name, tvb, start, length, FALSE);
@@ -1190,7 +1189,7 @@ static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     int offset, bytes, messages;
     guint8 protocol, msg_type;
     guint32 msg_len;
-    gchar *protocol_name, *message_name;
+    const gchar *protocol_name, *message_name;
     void  (*dissector)(guint8, tvbuff_t*, packet_info*, int, int, proto_tree*);
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -1293,7 +1292,7 @@ static void dissect_edonkey_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree *edonkey_tree = NULL, *edonkey_msg_tree = NULL;
     int offset;
     guint8 protocol, msg_type;
-    gchar *protocol_name, *message_name;
+    const gchar *protocol_name, *message_name;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "eDonkey");

@@ -600,7 +600,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 	int name_type;
 	int type;
 	int class;
-	char *class_name;
+	const char *class_name;
 	char *type_name;
 	int data_offset;
 	int cur_offset;

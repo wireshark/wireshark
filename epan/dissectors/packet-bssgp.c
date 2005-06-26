@@ -1032,9 +1032,9 @@ translate_abqp_guaranteed_bit_rate_for_dl_extended(guint8 value, build_info_t *b
   return "";
 }
 
-static char*
+static const char*
 translate_msrac_access_technology_type(guint8 value) {
-  value_string tab_values[] = {
+  static const value_string tab_values[] = {
     { 0, "GSM P" },
     { 1, "GSM E" },
     { 2, "GSM R" },
@@ -1054,9 +1054,9 @@ translate_msrac_access_technology_type(guint8 value) {
   return val_to_str(value, tab_values, "Unknown");
 }
 
-static char*
+static const char*
 translate_msrac_dtm_gprs_multislot_class(guint8 value) {
- value_string tab_values[] = {
+ static const value_string tab_values[] = {
     { 0, "Unused, interpreted as ""Multislot class 5 supported""" },
     { 1, "Multislot class 5 supported" },
     { 2, "Multislot class 9 supported" },
@@ -1269,7 +1269,7 @@ decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   guint8 digits[MAX_NUM_IMSI_DIGITS];
   char digits_str[MAX_NUM_IMSI_DIGITS + 1];
 
-  value_string tab_type_of_identity[] = {
+  static const value_string tab_type_of_identity[] = {
     { BSSGP_MOBILE_IDENTITY_TYPE_IMSI, "IMSI" },
     { BSSGP_MOBILE_IDENTITY_TYPE_IMEI, "IMEI" },
     { BSSGP_MOBILE_IDENTITY_TYPE_IMEISV, "IMEISV" },
@@ -1531,7 +1531,7 @@ bssgp_pi_append_pfi(proto_item *pi, tvbuff_t *tvb, int offset) {
   const guint8 MASK_PFI = 0x7f;
   guint8 value;
 
-  value_string tab_pfi[] = {
+  static const value_string tab_pfi[] = {
     { 0, "Best effort" },
     { 1, "Signaling" },
     { 2, "SMS" },
@@ -1707,7 +1707,7 @@ decode_iei_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   guint8 value;
 
-  value_string tab_cause[] = {
+  static const value_string tab_cause[] = {
     { 0x00, "Processor overload" },
     { 0x01, "Equipment failure" },
     { 0x02, "Transit network service failure" },
@@ -1800,7 +1800,7 @@ decode_iei_drx_parameters(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset)
   guint8 data, value;
   guint16 cycle_value;
 
-  value_string tab_non_drx_timer[] = {
+  static const value_string tab_non_drx_timer[] = {
     { 0, "No non-DRX mode after transfer state" },
     { 1, "Max. 1 sec non-DRX mode after transfer state" },
     { 2, "Max. 2 sec non-DRX mode after transfer state" },
@@ -1813,7 +1813,7 @@ decode_iei_drx_parameters(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset)
     /* Otherwise "" */
   };
 
-  value_string tab_cycle_length_coefficient[] = {
+  static const value_string tab_cycle_length_coefficient[] = {
     { 0, "CN Specific DRX cycle length coefficient not specified by the MS, ie. the system information value 'CN domain specific DRX cycle length' is used" },
     { 6, "CN Specific DRX cycle length coefficient 6" },
     { 7, "CN Specific DRX cycle length coefficient 7" },
@@ -1911,7 +1911,7 @@ decode_iei_emlpp_priority(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset)
   proto_item *ti;
   guint8 data, value;
 
-  value_string tab_call_priority[] = {
+  static const value_string tab_call_priority[] = {
     { 0, "No priority applied" },
     { 1, "Call priority level 4" },
     { 2, "Call priority level 3" },
@@ -1938,7 +1938,7 @@ decode_iei_flush_action(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   guint8 value;
 
-  value_string tab_action_value[] = {
+  static const value_string tab_action_value[] = {
     { 0x00, "LLC-PDU(s) deleted" },
     { 0x01, "LLC-PDU(s) transferred" },
     { 0,    NULL },
@@ -2496,7 +2496,7 @@ decode_msrac_value_part(proto_tree *tree, tvbuff_t *tvb, guint64 bo) {
   guint8 att, length, bit, bl;
   proto_item *ti, *ti2, *pi;
   proto_tree *tf, *tf2;
-  char *att_name;
+  const char *att_name;
   guint64 start_bo;
   
   start_bo = bo;
@@ -2593,7 +2593,7 @@ decode_iei_priority(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_tree *tf;
   guint8 data, value;
 
-  value_string tab_priority_level[] = {
+  static const value_string tab_priority_level[] = {
     { 0, "Spare" },
     { 1, "Priority Level 1 = highest priority" },
     { 2, "Priority Level 2 = 2nd highest priority" },
@@ -2657,14 +2657,14 @@ decode_iei_qos_profile(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   guint8 data, value;
   guint16 peak_bit_rate;
 
-  value_string tab_precedence_ul[] = {
+  static const value_string tab_precedence_ul[] = {
     { 0,   "High priority" }, 
     { 1,   "Normal priority" },
     { 2,   "Low priority" },
     { 0,   NULL },
   };
 
-  value_string tab_precedence_dl[] = {
+  static const value_string tab_precedence_dl[] = {
     { 0,   "Radio priority 1" }, 
     { 1,   "Radio priority 2" },
     { 2,   "Radio priority 3" },
@@ -2730,7 +2730,7 @@ decode_iei_radio_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   guint8 value;
 
-  value_string tab_radio_cause[] = {
+  static const value_string tab_radio_cause[] = {
     { 0x00, "Radio contact lost with the MS" },
     { 0x01, "Radio link quality insufficient to continue communication" },
     { 0x02, "Cell reselection ordered" },
@@ -2755,7 +2755,7 @@ decode_iei_ra_cap_upd_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offse
   proto_item *ti;
   guint8 value;
 
-  value_string tab_cause[] = {
+  static const value_string tab_cause[] = {
     { 0x00, "OK, RA capability IE present" },
     { 0x01, "TLLI unknown in SGSN" },
     { 0x02, "No RA capabilities or IMSI available for this MS" },
@@ -2882,7 +2882,7 @@ decode_iei_lsa_information(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset
   int num_lsa_infos, i;
   guint8 data, value;
 
-  value_string tab_priority[] = {
+  static const value_string tab_priority[] = {
     { 0, "Priority 1 = lowest priority" },
     { 1, "Priority 2 = 2nd lowest priority" },
     { 2, "Priority 3 = 3rd lowest priority" },
@@ -2953,7 +2953,7 @@ decode_iei_gprs_timer(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_item *ti;
   guint8 data, value;
 
-  value_string tab_unit_value[] = {
+  static const value_string tab_unit_value[] = {
     { 0, "incremented in multiples of 2 s" },
     { 1, "incremented in multiples of 1 minute" },
     { 2, "incremented in multiples of decihours" },
@@ -3246,7 +3246,7 @@ decode_iei_service_utran_cco(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offs
   proto_item *ti;
   guint8 data, value; 
 
-  value_string tab_service_utran_cco[] = {
+  static const value_string tab_service_utran_cco[] = {
     { 0, "Network initiated cell change order procedure to UTRAN should be performed" },
     { 1, "Network initiated cell change order procedure to UTRAN should not be performed" },
     { 2, "Network initiated cell change order procedure to UTRAN shall not be performed" },
@@ -3297,7 +3297,7 @@ decode_iei_lcs_qos(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_tree *tf;
   guint8 data, value, vert;
 
-  value_string tab_rt[] = {
+  static const value_string tab_rt[] = {
     { 0, "Response time is not specified" },
     { 1, "Low delay" },
     { 2, "Delay tolerant" },
@@ -3366,7 +3366,7 @@ decode_iei_lcs_client_type(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset
   proto_tree *tf;
   guint8 data, category, subtype;
 
-  value_string tab_category[] = {
+  static const value_string tab_category[] = {
     { 0, "Value Added Client" },
     /* { 1, ??? XXX }, */
     { 2, "PLMN Operator" },
@@ -3555,7 +3555,7 @@ decode_iei_location_type(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) 
   proto_tree *tf;
   guint8 value;
 
-  value_string tab_location_information[] = {
+  static const value_string tab_location_information[] = {
     { 0, "Current geographic location" },
     { 1, "Location assistance information for the target MS" },
     { 2, "Deciphering keys for broadcast assistance data for the target MS" },
@@ -3563,7 +3563,7 @@ decode_iei_location_type(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) 
     /* Otherwise "Reserved" */
   };
 
-  value_string tab_positioning_method[] = {
+  static const value_string tab_positioning_method[] = {
     { 0, "Reserved" },
     { 1, "Mobile Assisted E-OTD" },
     { 2, "Mobile Based E-OTD" },
@@ -3723,7 +3723,7 @@ decode_iei_lcs_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   proto_tree *tf;
   guint8 value;
 
-  value_string tab_cause_value[] = {
+  static const value_string tab_cause_value[] = {
     { 0, "Unspecified" },
     { 1, "System failure" },
     { 2, "Protocol error" },
@@ -3744,7 +3744,7 @@ decode_iei_lcs_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
     /* Otherwise "Unspecified" */
   };
 
-  value_string tab_diagnostic_value[] = {
+  static const value_string tab_diagnostic_value[] = {
     { 0, "Congestion" },
     { 1, "Insufficient resources" },
     { 2, "Insufficient measurement data" },
@@ -4097,7 +4097,7 @@ decode_iei_global_cn_id(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 static void
 decode_ie(bssgp_ie_t *ie, build_info_t *bi) {
   int org_offset = bi->offset;
-  char *iename = val_to_str(ie->iei, tab_bssgp_ie_types, "Unknown");
+  const char *iename = val_to_str(ie->iei, tab_bssgp_ie_types, "Unknown");
   gboolean use_default_ie_name = (ie->name == NULL);
 
   if (tvb_length_remaining(bi->tvb, bi->offset) < 1) {

@@ -140,25 +140,6 @@ static gint ett_udh_ieis[NUM_UDH_IEIS];
 
 /* FUNCTIONS */
 
-gchar *
-my_match_strval(guint32 val, const value_string *vs, gint *idx)
-{
-    gint i = 0;
-
-    while (vs[i].strptr) {
-	if (vs[i].value == val)
-	{
-	    *idx = i;
-	    return(vs[i].strptr);
-	}
-
-	i++;
-    }
-
-    *idx = -1;
-    return(NULL);
-}
-
 /* 9.2.3.1 */
 #define DIS_FIELD_MTI(m_tree, m_bitmask, m_offset) \
 { \
@@ -2523,7 +2504,7 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8	msg_type;
     guint8	oct;
     gint	idx;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     gint	ett_msg_idx;
 
 
@@ -2564,7 +2545,7 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    msg_type |= ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x04 : 0x00);
 	}
 
-	str = my_match_strval(msg_type, msg_type_strings, &idx);
+	str = match_strval_idx(msg_type, msg_type_strings, &idx);
 
 	/*
 	 * create the GSM_SMS protocol tree

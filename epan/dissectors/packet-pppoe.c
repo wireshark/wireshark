@@ -60,7 +60,7 @@ static dissector_handle_t ppp_handle;
 #define PPPOE_TAG_AC_ERR 0x0202
 #define PPPOE_TAG_GENERIC_ERR 0x0203
 
-static gchar *
+static const gchar *
 pppoecode_to_str(guint8 codetype, const char *fmt) {
 	static const value_string code_vals[] = {
 		{PPPOE_CODE_SESSION, "Session Data"                             },
@@ -74,7 +74,7 @@ pppoecode_to_str(guint8 codetype, const char *fmt) {
 		return val_to_str(codetype, code_vals, fmt);
 }
 
-static gchar *
+static const gchar *
 pppoetag_to_str(guint16 tag_type, const char *fmt) {
 	static const value_string code_vals[] = {
 		{PPPOE_TAG_EOL,        "End-Of-List"       },

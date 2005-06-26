@@ -447,26 +447,6 @@ my_dgt_tbcd_unpack(
     return(cnt);
 }
 
-static const gchar *
-my_match_strval(guint32 val, const value_string *vs, gint *idx)
-{
-    gint i = 0;
-
-    while (vs[i].strptr)
-    {
-	if (vs[i].value == val)
-	{
-	    *idx = i;
-	    return(vs[i].strptr);
-	}
-
-	i++;
-    }
-
-    *idx = -1;
-    return(NULL);
-}
-
 /* ELEMENT FUNCTIONS */
 
 #define	EXTRANEOUS_DATA_CHECK(edc_len, edc_max_len) \
@@ -4531,7 +4511,7 @@ elem_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
 	rec_type = tvb_get_guint8(tvb, curr_offset);
 
-	str = my_match_strval((guint32) rec_type, ansi_ms_info_rec_str, &idx);
+	str = match_strval_idx((guint32) rec_type, ansi_ms_info_rec_str, &idx);
 
 	if (str == NULL)
 	{
@@ -7982,7 +7962,7 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     oct = tvb_get_guint8(tvb, offset++);
 
-    msg_str = my_match_strval((guint32) oct, ansi_a_ios401_bsmap_strings, &idx);
+    msg_str = match_strval_idx((guint32) oct, ansi_a_ios401_bsmap_strings, &idx);
 
     /*
      * create the a protocol tree
@@ -8105,7 +8085,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     saved_offset = offset;
     oct = tvb_get_guint8(tvb, offset++);
 
-    msg_str = my_match_strval((guint32) oct, ansi_a_ios401_dtap_strings, &idx);
+    msg_str = match_strval_idx((guint32) oct, ansi_a_ios401_dtap_strings, &idx);
 
     /*
      * create the a protocol tree

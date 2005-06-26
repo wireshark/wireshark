@@ -2838,7 +2838,7 @@ dissect_scsi_pagecode (tvbuff_t *tvb, packet_info *pinfo _U_,
                        scsi_device_type devtype)
 {
     guint8 pcode;
-    gchar *valstr;
+    const gchar *valstr;
     int hf_pagecode;
 
     pcode = tvb_get_guint8 (tvb, offset);
@@ -6570,7 +6570,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8 opcode;
     scsi_device_type devtype;
     scsi_cmnd_type cmd = 0;     /* 0 is undefined type */
-    gchar *valstr;
+    const gchar *valstr;
     scsi_task_data_t *cdata;
     scsi_devtype_key_t dkey;
     scsi_devtype_data_t *devdata;

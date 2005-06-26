@@ -1196,7 +1196,6 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   guint32 hdr_data_length;
   guint32 hdr_reserved;
   guint32 data_messageid;
-  gchar   *messageid_str;
   /*  guint32 data_size; */
 
   guint i = 0;
@@ -1234,10 +1233,9 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_tree_add_uint(skinny_tree, hf_skinny_reserved, tvb, offset+4, 4, hdr_reserved);
   }
 
-  messageid_str = val_to_str(data_messageid, message_id, "0x%08X (Unknown)");
-
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_str(pinfo->cinfo, COL_INFO, messageid_str);
+    col_add_str(pinfo->cinfo, COL_INFO,
+                val_to_str(data_messageid, message_id, "0x%08X (Unknown)"));
   }
 
   if (tree) {

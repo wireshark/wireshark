@@ -579,7 +579,7 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_tree *ti=NULL, *rtmac_tree=NULL;
   proto_item *item;
   dissector_handle_t dissector=NULL;
-  gchar *type_str=NULL;
+  const gchar *type_str=NULL;
 
   /* Read the header */
   type = tvb_get_ntohs(tvb, offset);
@@ -627,11 +627,9 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
           type_str = "Unknown";
       }
     } else {
-      if (!(flags & RTMAC_FLAG_TUNNEL)) {
-        type_str = match_strval(type, rtmac_type_vals);
-        if (!type_str)
-          type_str = "Unknown";
-      } else {
+      if (!(flags & RTMAC_FLAG_TUNNEL))
+        type_str = val_to_str(type, rtmac_type_vals, "Unknown");
+      else {
         if (dissector != data_handle)
           type_str = dissector_handle_get_short_name(dissector);
         else

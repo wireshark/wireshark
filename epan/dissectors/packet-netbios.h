@@ -37,7 +37,7 @@ void capture_netbios(packet_counts *);
 extern int process_netbios_name(const guchar *name_ptr, char *name_ret);
 extern int get_netbios_name(tvbuff_t *tvb, int offset,
     char *name_ret);
-extern char *netbios_name_type_descr(int name_type);
+extern const char *netbios_name_type_descr(int name_type);
 extern void netbios_add_name( char* label, tvbuff_t *tvb, int offset,
     proto_tree *tree);
 extern void dissect_netbios_payload(tvbuff_t *tvb, packet_info *pinfo,

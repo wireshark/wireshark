@@ -292,7 +292,7 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *ipcomp_tree;
     proto_item *ti;
     struct ipcomp ipcomp;
-    char *p;
+    const char *p;
 
     /*
      * load the top pane info. This should be overwritten by

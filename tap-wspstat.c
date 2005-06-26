@@ -46,7 +46,7 @@
 
 /* used to keep track of the stats for a specific PDU type*/
 typedef struct _wsp_pdu_t {
-	gchar 		*type;
+	const gchar 	*type;
 	guint32		 packets;
 } wsp_pdu_t;
 /* used to keep track of RTT statistics */

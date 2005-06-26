@@ -1037,7 +1037,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	guint32 error_index;
 
-	char *pdu_type_string;
+	const char *pdu_type_string;
 
 	subid_t *enterprise;
 	guint enterprise_length;
@@ -2045,7 +2045,7 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint length;
 
 	guint pdu_type;
-	char *pdu_type_string;
+	const char *pdu_type_string;
 	guint pdu_length;
 
 	guint32 version;

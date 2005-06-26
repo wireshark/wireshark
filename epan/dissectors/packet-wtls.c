@@ -462,8 +462,8 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 	guint public_key = 0;
 	guint signature = 0;
 	char valStr[1024];
-        char *valBulk = NULL;
-        char *valMac = NULL;
+        const char *valBulk = NULL;
+        const char *valMac = NULL;
 
 	proto_item *ti;
 	proto_item *cli_key_item;

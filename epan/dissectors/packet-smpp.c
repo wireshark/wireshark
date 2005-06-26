@@ -1717,8 +1717,8 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint	 command_id;		/* SMPP command		*/
     guint	 command_status;	/* Status code		*/
     guint	 sequence_number;	/* ...of command	*/
-    gchar	*command_str;
-    gchar	*command_status_str = NULL;
+    const gchar	*command_str;
+    const gchar	*command_status_str = NULL;
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item	*ti = NULL;
     proto_tree	*smpp_tree = NULL;

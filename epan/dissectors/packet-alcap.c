@@ -183,25 +183,6 @@ static const value_string msg_type_strings[] = {
 
 /* FUNCTIONS */
 
-static const gchar *
-my_match_strval(guint32 val, const value_string *vs, gint *idx)
-{
-    gint i = 0;
-
-    while (vs[i].strptr) {
-	if (vs[i].value == val)
-	{
-	    *idx = i;
-	    return(vs[i].strptr);
-	}
-
-	i++;
-    }
-
-    *idx = -1;
-    return(NULL);
-}
-
 /*
  * Ref. ITU-T Q.2630.1 (12/1999)
  * Section 7.4.1
@@ -1213,7 +1194,7 @@ dis_field_diagnostics(tvbuff_t *tvb, proto_tree *tree, guint *len, guint32 *offs
 	     */
 	    oct = tvb_get_guint8(tvb, curr_offset);
 
-	    str = my_match_strval(oct, msg_type_strings, &idx);
+	    str = match_strval_idx(oct, msg_type_strings, &idx);
 
 	    proto_tree_add_none_format(subtree, hf_alcap_none, tvb,
 		curr_offset, 1, (str == NULL) ? "Unknown message identifier" : str);
@@ -1225,7 +1206,7 @@ dis_field_diagnostics(tvbuff_t *tvb, proto_tree *tree, guint *len, guint32 *offs
 	    {
 		oct = tvb_get_guint8(tvb, curr_offset);
 
-		str = my_match_strval(oct, msg_parm_strings, &idx);
+		str = match_strval_idx(oct, msg_parm_strings, &idx);
 
 		proto_tree_add_none_format(subtree, hf_alcap_none, tvb,
 		    curr_offset, 1, (str == NULL) ? "Unknown parameter" : str);
@@ -1525,7 +1506,7 @@ dissect_alcap_parms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 len
 		
 		parm = tvb_get_guint8(tvb, curr_offset);
 		
-		str = my_match_strval(parm, msg_parm_strings, &idx);
+		str = match_strval_idx(parm, msg_parm_strings, &idx);
 		
 		if (str == NULL)
 		{
@@ -1606,7 +1587,7 @@ dissect_alcap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *alcap_tree)
 
     msg_type = tvb_get_guint8(tvb, offset);
 
-    str = my_match_strval(msg_type, msg_type_strings, &idx);
+    str = match_strval_idx(msg_type, msg_type_strings, &idx);
 
     if (str == NULL)
     {

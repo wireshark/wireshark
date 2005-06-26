@@ -55,7 +55,7 @@ static guint32  tid = 1;
 static gboolean ndps_show_oids=FALSE;
 
 /* Global Attribute for evaluation of Values */
-static char *global_attribute_name=NULL;
+static const char *global_attribute_name=NULL;
 
 static void dissect_ndps_request(tvbuff_t*, packet_info*, proto_tree*, guint32, guint32, int);
 
@@ -1662,7 +1662,7 @@ static int
 objectidentifier(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
 {
     guint32     length;
-    char        *label=NULL;
+    const char  *label=NULL;
     guint32     label_value=0;
     proto_tree  *atree;
     proto_item  *aitem;
@@ -2312,7 +2312,7 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     guint32     dimension;
     guint32     location;
     guint32     cardinal;
-    char        *label;
+    const char  *label;
     guint32     label_value;
     proto_tree  *atree;
     proto_item  *aitem;
@@ -2402,7 +2402,8 @@ attribute_value(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         case 57:         /* Job Priority */
         case 72:         /* Sides */
         case 95:         /* Enumeration */
-            if (strcmp(global_attribute_name,"(Novell) Attribute PRINTER SECURITY LEVEL")==0)
+            if (global_attribute_name != NULL &&
+                strcmp(global_attribute_name,"(Novell) Attribute PRINTER SECURITY LEVEL")==0)
             {
                 proto_tree_add_item(ndps_tree, hf_print_security, tvb, foffset, 4, FALSE);
                 foffset += 4;

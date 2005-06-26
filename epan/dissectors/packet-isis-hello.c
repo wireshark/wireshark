@@ -615,7 +615,7 @@ dissect_hello_ptp_adj_clv(tvbuff_t *tvb,
 	    { 0, NULL }
 	};
 	guint8 adj_state;
-	char *adj_state_str;
+	const char *adj_state_str;
 
 	adj_state = tvb_get_guint8(tvb, offset);
 	adj_state_str = val_to_str(adj_state, adj_state_vals, "Unknown (%u)");

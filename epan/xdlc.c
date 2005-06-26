@@ -185,7 +185,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
     char info[80];
     proto_tree *tc, *control_tree;
     gchar *frame_type = NULL;
-    gchar *modifier;
+    const gchar *modifier;
 
     switch (tvb_get_guint8(tvb, offset) & 0x03) {
 
@@ -285,14 +285,12 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	cf_items = cf_items_nonext;
 	control_format = "Control field: %s (0x%02X)";
 	if (is_response) {
-		modifier = match_strval(control & XDLC_U_MODIFIER_MASK,
-			u_modifier_short_vals_resp);
+		modifier = val_to_str(control & XDLC_U_MODIFIER_MASK,
+			u_modifier_short_vals_resp, "Unknown");
 	} else {
-		modifier = match_strval(control & XDLC_U_MODIFIER_MASK,
-			u_modifier_short_vals_cmd);
+		modifier = val_to_str(control & XDLC_U_MODIFIER_MASK,
+			u_modifier_short_vals_cmd, "Unknown");
 	}
-	if (modifier == NULL)
-		modifier = "Unknown";
 	poll_final = (control & XDLC_P_F);
 	sprintf(info, "U%s, func=%s",
 		(poll_final ?

@@ -141,18 +141,18 @@ static const value_string status_vals[] = {
 static int parse_attributes(tvbuff_t *tvb, int offset, proto_tree *tree);
 static proto_tree *add_integer_tree(proto_tree *tree, tvbuff_t *tvb,
     int offset, int name_length, int value_length, guint8 tag);
-static void add_integer_value(gchar *tag_desc, proto_tree *tree,
+static void add_integer_value(const gchar *tag_desc, proto_tree *tree,
     tvbuff_t *tvb, int offset, int name_length, int value_length, guint8 tag);
 static proto_tree *add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb,
     int offset, int name_length, int value_length);
-static void add_octetstring_value(gchar *tag_desc, proto_tree *tree,
+static void add_octetstring_value(const gchar *tag_desc, proto_tree *tree,
     tvbuff_t *tvb, int offset, int name_length, int value_length);
 static proto_tree *add_charstring_tree(proto_tree *tree, tvbuff_t *tvb,
     int offset, int name_length, int value_length);
-static void add_charstring_value(gchar *tag_desc, proto_tree *tree,
+static void add_charstring_value(const gchar *tag_desc, proto_tree *tree,
     tvbuff_t *tvb, int offset, int name_length, int value_length);
-static int add_value_head(gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
-    int offset, int name_length, int value_length);
+static int add_value_head(const gchar *tag_desc, proto_tree *tree,
+    tvbuff_t *tvb, int offset, int name_length, int value_length);
 
 static void
 dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -298,7 +298,7 @@ static int
 parse_attributes(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	guint8 tag;
-	gchar *tag_desc;
+	const gchar *tag_desc;
 	int name_length, value_length;
 	proto_tree *as_tree = tree;
 	proto_item *tas = NULL;
@@ -494,7 +494,7 @@ add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
 }
 
 static void
-add_integer_value(gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
+add_integer_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
     int offset, int name_length, int value_length, guint8 tag)
 {
 	guint8 bool_val;
@@ -539,7 +539,7 @@ add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
 }
 
 static void
-add_octetstring_value(gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
+add_octetstring_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
     int offset, int name_length, int value_length)
 {
 	offset = add_value_head(tag_desc, tree, tvb, offset, name_length,
@@ -565,7 +565,7 @@ add_charstring_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
 }
 
 static void
-add_charstring_value(gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
+add_charstring_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
     int offset, int name_length, int value_length)
 {
 	offset = add_value_head(tag_desc, tree, tvb, offset, name_length,
@@ -575,8 +575,8 @@ add_charstring_value(gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
 }
 
 static int
-add_value_head(gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb, int offset,
-    int name_length, int value_length)
+add_value_head(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
+    int offset, int name_length, int value_length)
 {
 	proto_tree_add_text(tree, tvb, offset, 1, "Tag: %s", tag_desc);
 	offset += 1;

@@ -2136,7 +2136,7 @@ dissect_ldap_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
   guint messageId;
   int next_offset;
   guint protocolOpCls, protocolOpCon, protocolOpTag;
-  gchar *typestr;
+  const gchar *typestr;
   guint opLen;
   ASN1_SCK a;
   int start;

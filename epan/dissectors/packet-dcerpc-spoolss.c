@@ -2652,7 +2652,7 @@ dissect_notify_field(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		     guint16 *data)
 {
 	guint16 field;
-	char *str;
+	const char *str;
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, NULL, drep,
@@ -5868,7 +5868,7 @@ dissect_NOTIFY_INFO_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *subtree;
 	guint32 count;
 	guint16 type, field;
-	char *field_string;
+	const char *field_string;
 
 	item = proto_tree_add_text(tree, tvb, offset, 0, "%s", "");
 

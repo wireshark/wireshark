@@ -80,27 +80,6 @@ static proto_tree *g_tree;
 
 /* FUNCTIONS */
 
-static const gchar *
-my_match_strval(guint32 val, const value_string *vs, gint *idx)
-{
-    gint i = 0;
-
-    while (vs[i].strptr)
-    {
-	if (vs[i].value == val)
-	{
-	    *idx = i;
-	    return(vs[i].strptr);
-	}
-
-	i++;
-    }
-
-    *idx = -1;
-    return(NULL);
-}
-
-
 /* PARAM FUNCTIONS */
 
 #define	EXTRANEOUS_DATA_CHECK(edc_len, edc_max_len) \
@@ -1929,7 +1908,7 @@ dissect_ansi_683_for_message(tvbuff_t *tvb, proto_tree *ansi_683_tree)
 
     msg_type = tvb_get_guint8(tvb, 0);
 
-    str = my_match_strval(msg_type, for_msg_type_strings, &idx);
+    str = match_strval_idx(msg_type, for_msg_type_strings, &idx);
 
     if (str == NULL)
     {
@@ -1959,7 +1938,7 @@ dissect_ansi_683_rev_message(tvbuff_t *tvb, proto_tree *ansi_683_tree)
 
     msg_type = tvb_get_guint8(tvb, 0);
 
-    str = my_match_strval(msg_type, rev_msg_type_strings, &idx);
+    str = match_strval_idx(msg_type, rev_msg_type_strings, &idx);
 
     if (str == NULL)
     {

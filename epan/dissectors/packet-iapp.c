@@ -185,7 +185,8 @@ static void dissect_caps(proto_item *pitem, tvbuff_t *tvb, int offset)
 {
 	proto_tree *captree;
 	int bit, val, z, thisbit;
-	gchar *strval, bitval[20];
+	const gchar *strval;
+	gchar bitval[20];
 
 	captree = proto_item_add_subtree(pitem, ett_iapp_cap);
 	val = tvb_get_guint8(tvb, offset + 3);
@@ -289,7 +290,7 @@ append_pduval_str(proto_item *ti, int type, int len, tvbuff_t *tvb, int offset,
 {
 	const guint8 *mac;
 	int z, val;
-	gchar *strval;
+	const gchar *strval;
 
 	proto_item_append_text(ti, " Value: ");
 
@@ -418,7 +419,7 @@ dissect_iapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	e_iapphdr ih;
 	int ia_version;
 	int ia_type;
-	gchar *codestrval;
+	const gchar *codestrval;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IAPP");

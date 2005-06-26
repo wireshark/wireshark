@@ -1148,7 +1148,7 @@ dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	char *sid_str=NULL;
-	char *name;
+	const char *name;
 
 	if(di->hf_index!=-1){
 		name=proto_registrar_get_name(di->hf_index);

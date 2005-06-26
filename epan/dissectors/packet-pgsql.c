@@ -88,8 +88,52 @@ static void dissect_pgsql_fe_msg(guchar, guint, tvbuff_t *, gint, proto_tree *);
 static void dissect_pgsql_be_msg(guchar, guint, tvbuff_t *, gint, proto_tree *);
 static void dissect_pgsql_msg(tvbuff_t *, packet_info *, proto_tree *);
 static void dissect_pgsql(tvbuff_t *, packet_info *, proto_tree *);
-static const char *identify(gboolean, guchar);
 static guint pgsql_length(tvbuff_t *, int);
+
+static const value_string fe_messages[] = {
+    { 'p', "Password message" },
+    { 'Q', "Simple query" },
+    { 'P', "Parse" },
+    { 'B', "Bind" },
+    { 'E', "Execute" },
+    { 'D', "Describe" },
+    { 'C', "Close" },
+    { 'H', "Flush" },
+    { 'S', "Sync" },
+    { 'F', "Function call" },
+    { 'd', "Copy data" },
+    { 'c', "Copy completion" },
+    { 'f', "Copy failure" },
+    { 'X', "Termination" },
+    { 0, NULL }
+};
+
+static const value_string be_messages[] = {
+    { 'R', "Authentication request" },
+    { 'K', "Backend key data" },
+    { 'S', "Parameter status" },
+    { '1', "Parse completion" },
+    { '2', "Bind completion" },
+    { '3', "Close completion" },
+    { 'C', "Command completion" },
+    { 't', "Parameter description" },
+    { 'T', "Row description" },
+    { 'D', "Data row" },
+    { 'I', "Empty query" },
+    { 'n', "No data" },
+    { 'E', "Error" },
+    { 'N', "Notice" },
+    { 's', "Portal suspended" },
+    { 'Z', "Ready for query" },
+    { 'A', "Notification" },
+    { 'V', "Function call response" },
+    { 'G', "CopyIn response" },
+    { 'H', "CopyOut response" },
+    { 'd', "Copy data" },
+    { 'c', "Copy completion" },
+    { 0, NULL }
+};
+
 
 static const value_string auth_types[] = {
     { 0, "Success" },
@@ -381,23 +425,29 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         n += 1;
     length = tvb_get_ntohl(tvb, n);
 
-    /* There are a few frontend messages that have no leading type byte.
-       We identify them by the fact that the first byte of their length
-       must be zero, and that the next four bytes are a unique tag. */
-    if (fe && type == '\0') {
-        guint tag = tvb_get_ntohl(tvb, 4);
+    /* This is like specifying VALS(messages) for hf_type, which we can't do
+       directly because of messages without type bytes, and because the type
+       interpretation depends on fe. */
+    if (fe) {
+        /* There are a few frontend messages that have no leading type byte.
+           We identify them by the fact that the first byte of their length
+           must be zero, and that the next four bytes are a unique tag. */
+        if (type == '\0') {
+            guint tag = tvb_get_ntohl(tvb, 4);
 
-        if (length == 16 && tag == 80877102)
-            typestr = "Cancel request";
-        else if (length == 8 && tag == 80877103)
-            typestr = "SSL request";
-        else if (tag == 196608)
-            typestr = "Startup message";
-        else
-            typestr = "Unknown";
+            if (length == 16 && tag == 80877102)
+                typestr = "Cancel request";
+            else if (length == 8 && tag == 80877103)
+                typestr = "SSL request";
+            else if (tag == 196608)
+                typestr = "Startup message";
+            else
+                typestr = "Unknown";
+        } else
+            typestr = val_to_str(type, fe_messages, "Unknown");
     }
     else {
-        typestr = identify(fe, type);
+        typestr = val_to_str(type, be_messages, "Unknown");
     }
 
     if (info) {
@@ -428,25 +478,6 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             dissect_pgsql_be_msg(type, length, tvb, n, ptree);
     }
 }
-
-
-static const value_string fe_messages[] = {
-    { 'p', "Password message" },
-    { 'Q', "Simple query" },
-    { 'P', "Parse" },
-    { 'B', "Bind" },
-    { 'E', "Execute" },
-    { 'D', "Describe" },
-    { 'C', "Close" },
-    { 'H', "Flush" },
-    { 'S', "Sync" },
-    { 'F', "Function call" },
-    { 'd', "Copy data" },
-    { 'c', "Copy completion" },
-    { 'f', "Copy failure" },
-    { 'X', "Termination" },
-    { 0, NULL }
-};
 
 
 static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
@@ -664,33 +695,6 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
 }
 
 
-static const value_string be_messages[] = {
-    { 'R', "Authentication request" },
-    { 'K', "Backend key data" },
-    { 'S', "Parameter status" },
-    { '1', "Parse completion" },
-    { '2', "Bind completion" },
-    { '3', "Close completion" },
-    { 'C', "Command completion" },
-    { 't', "Parameter description" },
-    { 'T', "Row description" },
-    { 'D', "Data row" },
-    { 'I', "Empty query" },
-    { 'n', "No data" },
-    { 'E', "Error" },
-    { 'N', "Notice" },
-    { 's', "Portal suspended" },
-    { 'Z', "Ready for query" },
-    { 'A', "Notification" },
-    { 'V', "Function call response" },
-    { 'G', "CopyIn response" },
-    { 'H', "CopyOut response" },
-    { 'd', "Copy data" },
-    { 'c', "Copy completion" },
-    { 0, NULL }
-};
-
-
 static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
                                  gint n, proto_tree *tree)
 {
@@ -869,28 +873,4 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
             proto_tree_add_item(tree, hf_val_data, tvb, n+4, l, FALSE);
         break;
     }
-}
-
-
-/* This is like specifying VALS(messages) for hf_type, which we can't do
-   directly because of messages without type bytes, and because the type
-   interpretation depends on fe. */
-
-static const char *identify(gboolean fe, guchar type)
-{
-    int i = 0;
-    const value_string *messages;
-
-    if (fe)
-        messages = fe_messages;
-    else
-        messages = be_messages;
-
-    while (messages[i].strptr) {
-        if (messages[i].value == type)
-            return messages[i].strptr;
-        i++;
-    }
-
-    return "Unknown";
 }

@@ -5,9 +5,8 @@
  * $Id$
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -28,7 +27,7 @@
 #define __PACKET_ARP_H__
 
 gchar *arphrdaddr_to_str(const guint8 *ad, int ad_len, guint16 type);
-gchar *arphrdtype_to_str(guint16 hwtype, const char *fmt);
+const gchar *arphrdtype_to_str(guint16 hwtype, const char *fmt);
 
 void dissect_atm_nsap(tvbuff_t *tvb, int offset, int len, proto_tree *tree);
 

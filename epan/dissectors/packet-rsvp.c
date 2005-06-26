@@ -1226,7 +1226,7 @@ static void
 dissect_rsvp_session (proto_tree *ti, tvbuff_t *tvb,
 		      int offset, int obj_length,
 		      int class, int type,
-		      char *type_str)
+		      const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -1435,7 +1435,7 @@ static void
 dissect_rsvp_hop (proto_tree *ti, tvbuff_t *tvb,
 		  int offset, int obj_length,
 		  int class, int type,
-		  char *type_str)
+		  const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -1506,7 +1506,7 @@ static void
 dissect_rsvp_time_values (proto_tree *ti, tvbuff_t *tvb,
 			  int offset, int obj_length,
 			  int class, int type,
-			  char *type_str)
+			  const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -1592,7 +1592,7 @@ static void
 dissect_rsvp_error (proto_tree *ti, tvbuff_t *tvb,
 		    int offset, int obj_length,
 		    int class, int type,
-		    char *type_str)
+		    const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -1689,7 +1689,7 @@ static void
 dissect_rsvp_scope (proto_tree *ti, tvbuff_t *tvb,
 		    int offset, int obj_length,
 		    int class, int type,
-		    char *type_str)
+		    const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -1745,7 +1745,7 @@ static void
 dissect_rsvp_style (proto_tree *ti, tvbuff_t *tvb,
 		    int offset, int obj_length,
 		    int class, int type,
-		    char *type_str)
+		    const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -1792,7 +1792,7 @@ static void
 dissect_rsvp_confirm (proto_tree *ti, tvbuff_t *tvb,
 		      int offset, int obj_length,
 		      int class, int type,
-		      char *type_str)
+		      const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -1840,7 +1840,7 @@ static void
 dissect_rsvp_template_filter (proto_tree *ti, tvbuff_t *tvb,
 			      int offset, int obj_length,
 			      int class, int type,
-			      char *type_str)
+			      const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -1917,7 +1917,7 @@ static void
 dissect_rsvp_tspec (proto_tree *ti, tvbuff_t *tvb,
 		    int offset, int obj_length,
 		    int class, int type,
-		    char *type_str)
+		    const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -2213,7 +2213,7 @@ static void
 dissect_rsvp_flowspec (proto_tree *ti, tvbuff_t *tvb,
 		       int offset, int obj_length,
 		       int class, int type,
-		       char *type_str)
+		       const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -2508,7 +2508,7 @@ static void
 dissect_rsvp_adspec (proto_tree *ti, tvbuff_t *tvb,
 		     int offset, int obj_length,
 		     int class, int type,
-		     char *type_str)
+		     const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -2537,7 +2537,7 @@ dissect_rsvp_adspec (proto_tree *ti, tvbuff_t *tvb,
 	guint8 service_num;
 	guint8 break_bit;
 	guint16 length;
-	char *str;
+	const char *str;
 
 	service_num = tvb_get_guint8(tvb, offset2);
 	str = val_to_str(service_num, intsrv_services_str, "Unknown");
@@ -2621,7 +2621,7 @@ static void
 dissect_rsvp_integrity (proto_tree *ti, tvbuff_t *tvb,
 			int offset, int obj_length,
 			int class, int type,
-			char *type_str)
+			const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -2657,7 +2657,7 @@ static void
 dissect_rsvp_policy (proto_tree *ti, tvbuff_t *tvb,
 		     int offset, int obj_length,
 		     int class, int type,
-		     char *type_str)
+		     const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -2681,7 +2681,7 @@ static void
 dissect_rsvp_label_request (proto_tree *ti, tvbuff_t *tvb,
 			    int offset, int obj_length,
 			    int class, int type,
-			    char *type_str)
+			    const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -2827,7 +2827,7 @@ static void
 dissect_rsvp_label (proto_tree *ti, tvbuff_t *tvb,
 		    int offset, int obj_length,
 		    int class, int type,
-		    char *type_str)
+		    const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -2890,7 +2890,7 @@ static void
 dissect_rsvp_label_set (proto_tree *ti, tvbuff_t *tvb,
 		        int offset, int obj_length,
 		        int class, int type,
-		        char *type_str)
+		        const char *type_str)
 {
     int offset2 = offset + 8;
     proto_tree *rsvp_object_tree;
@@ -2934,7 +2934,7 @@ static void
 dissect_rsvp_session_attribute (proto_tree *ti, tvbuff_t *tvb,
 				int offset, int obj_length,
 				int class, int type,
-				char *type_str)
+				const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -3365,7 +3365,7 @@ static void
 dissect_rsvp_explicit_route (proto_tree *ti, tvbuff_t *tvb,
 			     int offset, int obj_length,
 			     int class, int type,
-			     char *type_str)
+			     const char *type_str)
 {
     /* int offset2 = offset + 4; */
     proto_tree *rsvp_object_tree;
@@ -3406,7 +3406,7 @@ static void
 dissect_rsvp_record_route (proto_tree *ti, tvbuff_t *tvb,
 			   int offset, int obj_length,
 			   int class, int type,
-			   char *type_str)
+			   const char *type_str)
 {
     /* int offset2 = offset + 4; */
     proto_tree *rsvp_object_tree;
@@ -3447,7 +3447,7 @@ static void
 dissect_rsvp_message_id (proto_tree *ti, tvbuff_t *tvb,
 			 int offset, int obj_length,
 			 int class, int type,
-			 char *type_str)
+			 const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -3490,7 +3490,7 @@ static void
 dissect_rsvp_message_id_ack (proto_tree *ti, tvbuff_t *tvb,
 			     int offset, int obj_length,
 			     int class, int type,
-			     char *type_str)
+			     const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -3543,7 +3543,7 @@ static void
 dissect_rsvp_message_id_list (proto_tree *ti, tvbuff_t *tvb,
 			      int offset, int obj_length,
 			      int class, int type,
-			      char *type_str)
+			      const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -3588,7 +3588,7 @@ static void
 dissect_rsvp_hello (proto_tree *ti, tvbuff_t *tvb,
 		    int offset, int obj_length,
 		    int class, int type,
-		    char *type_str)
+		    const char *type_str)
 {
     proto_tree *rsvp_object_tree;
 
@@ -3627,7 +3627,7 @@ static void
 dissect_rsvp_dclass (proto_tree *ti, tvbuff_t *tvb,
 		     int offset, int obj_length,
 		     int class, int type,
-		     char *type_str)
+		     const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -3675,7 +3675,7 @@ static void
 dissect_rsvp_admin_status (proto_tree *ti, tvbuff_t *tvb,
 			   int offset, int obj_length,
 			   int class, int type,
-			   char *type_str)
+			   const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -3739,7 +3739,7 @@ static void
 dissect_rsvp_lsp_tunnel_if_id (proto_tree *ti, tvbuff_t *tvb,
 			       int offset, int obj_length,
 			       int class, int type,
-			       char *type_str)
+			       const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -3782,7 +3782,7 @@ static void
 dissect_rsvp_gen_uni (proto_tree *ti, tvbuff_t *tvb,
 		      int offset, int obj_length,
 		      int class, int type,
-		      char *type_str)
+		      const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -4070,7 +4070,7 @@ static void
 dissect_rsvp_call_id (proto_tree *ti, tvbuff_t *tvb,
 			  int offset, int obj_length,
 			  int class, int c_type,
-			  char *type_str)
+			  const char *type_str)
 {
     int type;
     char *str;
@@ -4194,7 +4194,7 @@ static void
 dissect_rsvp_restart_cap (proto_tree *ti, tvbuff_t *tvb,
 			  int offset, int obj_length,
 			  int class, int type,
-			  char *type_str)
+			  const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -4237,7 +4237,7 @@ static void
 dissect_rsvp_protection_info (proto_tree *ti, tvbuff_t *tvb,
 			      int offset, int obj_length,
 			      int class, int type,
-			      char *type_str)
+			      const char *type_str)
 {
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
@@ -4280,7 +4280,7 @@ static void
 dissect_rsvp_fast_reroute (proto_tree *ti, tvbuff_t *tvb,
 			   int offset, int obj_length,
 			   int class, int type,
-			   char *type_str)
+			   const char *type_str)
 {
     proto_tree *rsvp_object_tree;
     guint8 flags;
@@ -4357,7 +4357,7 @@ static void
 dissect_rsvp_detour (proto_tree *ti, tvbuff_t *tvb,
 		     int offset, int obj_length,
 		     int class, int type,
-		     char *type_str)
+		     const char *type_str)
 {
     proto_tree *rsvp_object_tree;
     int remaining_length, count;
@@ -4412,7 +4412,7 @@ static void
 dissect_rsvp_diffserv (proto_tree *ti, tvbuff_t *tvb,
 		       int offset, int obj_length,
 		       int class, int type,
-		       char *type_str
+		       const char *type_str
 		       )
 {
     proto_tree *rsvp_object_tree;
@@ -4599,7 +4599,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     while (len < msg_length) {
 	guint8 class;
 	guint8 type;
-	char *type_str;
+	const char *type_str;
 
 	obj_length = tvb_get_ntohs(tvb, offset);
 	class = tvb_get_guint8(tvb, offset+2);

@@ -5233,11 +5233,9 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			headerStart = offset + count + 1;
 			{
 				guint8 reply_status = tvb_get_guint8(tvb, offset);
-				char *reply_status_str = match_strval (reply_status, vals_status);
+				const char *reply_status_str;
 
-				if (reply_status_str == NULL)
-					reply_status_str = "(Unknown response status)";
-				
+				reply_status_str = val_to_str (reply_status, vals_status, "(Unknown response status)");
 				if (tree) {
 					ti = proto_tree_add_item (wsp_tree, hf_wsp_header_status,
 							tvb, offset, 1, bo_little_endian);

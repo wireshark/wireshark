@@ -132,7 +132,7 @@ static const value_string fc_lctl_rjt_val[] = {
 
 static gchar errstr[64];
 
-gchar *
+const gchar *
 fclctl_get_typestr (guint8 linkctl_type, guint8 type)
 {
     if ((linkctl_type == FC_LCTL_FBSYB) ||

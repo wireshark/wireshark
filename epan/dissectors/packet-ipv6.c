@@ -513,7 +513,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, char *optname)
 		break;
 	    case IP6OPT_RTALERT:
 	      {
-		char *rta;
+		const char *rta;
 
 		tmp = tvb_get_guint8(tvb, p + 1);
 		if (tmp == 2) {

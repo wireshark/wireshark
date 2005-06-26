@@ -747,27 +747,6 @@ my_dgt_tbcd_unpack(
     return(cnt);
 }
 
-static const gchar *
-my_match_strval(guint32 val, const value_string *vs, gint *idx)
-{
-    gint i = 0;
-
-    while (vs[i].strptr)
-    {
-	if (vs[i].value == val)
-	{
-	    *idx = i;
-	    return(vs[i].strptr);
-	}
-
-	i++;
-    }
-
-    *idx = -1;
-    return(NULL);
-}
-
-
 /* PARAM FUNCTIONS */
 
 #define	EXTRANEOUS_DATA_CHECK(edc_len, edc_max_len) \
@@ -3338,7 +3317,7 @@ param_faulty(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
     saved_offset = asn1->offset;
     asn1_int32_value_decode(asn1, 1, &value);
 
-    str = my_match_strval((guint32) value, ansi_param_1_strings, &idx);
+    str = match_strval_idx((guint32) value, ansi_param_1_strings, &idx);
 
     if (NULL == str)
     {
@@ -3353,7 +3332,7 @@ param_faulty(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	asn1->offset = saved_offset;
 	asn1_uint32_value_decode(asn1, 2, &value);
 
-	str = my_match_strval((guint32) value, ansi_param_2_strings, &idx);
+	str = match_strval_idx((guint32) value, ansi_param_2_strings, &idx);
 
 	if (NULL == str)
 	{
@@ -3368,7 +3347,7 @@ param_faulty(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	    asn1->offset = saved_offset;
 	    asn1_int32_value_decode(asn1, 3, &value);
 
-	    str = my_match_strval((guint32) value, ansi_param_3_strings, &idx);
+	    str = match_strval_idx((guint32) value, ansi_param_3_strings, &idx);
 
 	    if (NULL == str)
 	    {
@@ -6477,7 +6456,7 @@ param_sms_tele(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     ansi_map_sms_tele_id = -1;
 
@@ -6686,7 +6665,7 @@ dissect_cdma2000_ios_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *ad
 	num_elems++;
 
 	asn1_int32_value_decode(asn1, 1, &value);
-	str = my_match_strval((guint32) value, ansi_a_ios401_elem_1_strings, &idx);
+	str = match_strval_idx((guint32) value, ansi_a_ios401_elem_1_strings, &idx);
 
 	asn1_octet_decode(asn1, &elem_len);
 
@@ -12411,7 +12390,7 @@ dissect_ansi_opr_code(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gint
     guint len;
     guint tag;
     gint32 val;
-    gchar *str = NULL;
+    const gchar *str = NULL;
     guchar my_oct;
     proto_item *item;
     proto_tree *subtree;
@@ -12728,21 +12707,21 @@ dissect_ansi_param(ASN1_SCK *asn1, proto_tree *tree)
     saved_offset = asn1->offset;
 
     asn1_uint32_value_decode(asn1, 1, &val);
-    str = my_match_strval((guint32) val, ansi_param_1_strings, &idx);
+    str = match_strval_idx((guint32) val, ansi_param_1_strings, &idx);
 
     if (NULL == str)
     {
 	asn1->offset = saved_offset;
 	asn1_uint32_value_decode(asn1, 2, &val);
 
-	str = my_match_strval((guint32) val, ansi_param_2_strings, &idx);
+	str = match_strval_idx((guint32) val, ansi_param_2_strings, &idx);
 
 	if (NULL == str)
 	{
 	    asn1->offset = saved_offset;
 	    asn1_int32_value_decode(asn1, 3, &val);
 
-	    str = my_match_strval((guint32) val, ansi_param_3_strings, &idx);
+	    str = match_strval_idx((guint32) val, ansi_param_3_strings, &idx);
 
 	    if (NULL == str)
 	    {
@@ -12982,7 +12961,7 @@ dissect_ansi_map_message(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *ansi_ma
     guint	saved_offset;
     guint	tag;
     guint	len;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     proto_item *item, *tag_item;
     proto_tree *subtree, *tag_subtree;
     gboolean def_len;

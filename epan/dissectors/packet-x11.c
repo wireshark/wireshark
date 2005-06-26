@@ -2167,7 +2167,7 @@ static guint32 field8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 {
       guint32 v = VALUE8(tvb, *offsetp);
       header_field_info *hfi = proto_registrar_get_nth(hf);
-      gchar *enumValue = NULL;
+      const gchar *enumValue = NULL;
 
       if (hfi -> strings)
 	    enumValue = match_strval(v, cVALS(hfi -> strings));
@@ -2186,7 +2186,7 @@ static guint32 field16(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 {
       guint32 v = VALUE16(tvb, *offsetp);
       header_field_info *hfi = proto_registrar_get_nth(hf);
-      gchar *enumValue = NULL;
+      const gchar *enumValue = NULL;
 
       if (hfi -> strings)
 	    enumValue = match_strval(v, cVALS(hfi -> strings));
@@ -2205,7 +2205,7 @@ static guint32 field32(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 {
       guint32 v = VALUE32(tvb, *offsetp);
       header_field_info *hfi = proto_registrar_get_nth(hf);
-      gchar *enumValue = NULL;
+      const gchar *enumValue = NULL;
       const gchar *nameAsChar = hfi -> name;
 
       if (hfi -> strings)

@@ -611,7 +611,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     guint16 pim_cksum, computed_cksum;
     vec_t cksum_vec[4];
     guint32 phdr[2];
-    char *typestr;
+    const char *typestr;
     proto_tree *pim_tree = NULL;
     proto_item *ti;
     proto_tree *pimopt_tree = NULL;

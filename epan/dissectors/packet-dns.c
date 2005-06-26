@@ -377,7 +377,7 @@ static const value_string dns_types[] = {
 	{0,		NULL}
 };
 
-static char *
+static const char *
 dns_type_name (guint type)
 {
   return val_to_str(type, dns_types, "Unknown (%u)");
@@ -437,7 +437,7 @@ dns_type_description (guint type)
     "Next secured",                     /* future RFC 2535bis */
     "DNS public key"                    /* future RFC 2535bis */
   };
-  char *short_name;
+  const char *short_name;
   const char *long_name;
   static char strbuf[1024+1];
 
@@ -499,7 +499,7 @@ static const value_string dns_classes[] = {
 	{0,NULL}
 };
 
-char *
+const char *
 dns_class_name(int class)
 {
   return val_to_str(class, dns_classes, "Unknown (%u)");
@@ -754,7 +754,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   int name_len;
   int type;
   int class;
-  char *type_name;
+  const char *type_name;
   int data_offset;
   int data_start;
   proto_tree *q_tree;
@@ -934,8 +934,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
   int name_len;
   int type;
   int class;
-  char *class_name;
-  char *type_name;
+  const char *class_name;
+  const char *type_name;
   int data_offset;
   int cur_offset;
   int data_start;

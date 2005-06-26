@@ -1007,7 +1007,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
     int tlv_end_offset;
 
     int stlv_type, stlv_len, stlv_offset;
-    char *stlv_name;
+    const char *stlv_name;
     guint32 stlv_admingrp, mask;
     int i;
     guint8 switch_cap;

@@ -402,7 +402,7 @@ static void dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   guint32 hdr_data_length;
   guint32 hdr_marker;
   guint32 data_messageid;
-  gchar   *messageid_str;
+  const gchar *messageid_str;
   /*  guint32 data_size; */
 
   guint i = 0;

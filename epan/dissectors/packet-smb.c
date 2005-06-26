@@ -14558,7 +14558,7 @@ static const value_string HRD_errors[] = {
   {0, NULL}
 };
 
-static char *decode_smb_error(guint8 errcls, guint16 errcode)
+static const char *decode_smb_error(guint8 errcls, guint16 errcode)
 {
 
   switch (errcls) {

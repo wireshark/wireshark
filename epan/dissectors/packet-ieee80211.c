@@ -961,7 +961,7 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 	  {48, "Delay Bound"},
 	  {0, NULL}
 	};
-	char *field;
+	const char *field;
 
         snprintf(out_buff, SHORT_STR, "WME TSPEC: type %u, subtype %u, version %u",
 		 tag_val[tag_val_off + 3], tag_val[tag_val_off + 4], tag_val[tag_val_off + 5]);

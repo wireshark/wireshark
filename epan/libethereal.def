@@ -330,6 +330,7 @@ is_tpkt
 list_tap_cmd_args
 LocationRejectReason_vals       DATA
 match_strval
+match_strval_idx
 mkstemp
 mtp3_addr_to_str_buf
 mtp3_service_indicator_code_short_vals DATA
