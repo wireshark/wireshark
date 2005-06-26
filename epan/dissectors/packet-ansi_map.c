@@ -747,7 +747,7 @@ my_dgt_tbcd_unpack(
     return(cnt);
 }
 
-static gchar *
+static const gchar *
 my_match_strval(guint32 val, const value_string *vs, gint *idx)
 {
     gint i = 0;
@@ -3331,7 +3331,7 @@ param_faulty(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
     gint idx;
 
     add_string = add_string;
@@ -6675,7 +6675,7 @@ dissect_cdma2000_ios_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *ad
     guint32	orig_offset, saved_offset;
     proto_tree	*subtree;
     proto_item	*item;
-    gchar	*str;
+    const gchar	*str;
     gint	idx;
 
     num_elems = 0;
@@ -12720,7 +12720,7 @@ dissect_ansi_param(ASN1_SCK *asn1, proto_tree *tree)
     proto_tree *subtree;
     proto_item *item;
     guint val;
-    gchar *str = NULL;
+    const gchar *str = NULL;
     gint ett_param_idx, idx;
     gboolean def_len;
 
