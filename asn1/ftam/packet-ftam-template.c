@@ -52,8 +52,6 @@ int proto_ftam = -1;
 
 static char object_identifier_id[MAX_OID_STR_LEN];
 
-static struct SESSION_DATA_STRUCTURE* session = NULL;
-
 #include "packet-ftam-hf.c"
 
 /* Initialize the subtree pointers */

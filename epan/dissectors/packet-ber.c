@@ -1139,12 +1139,12 @@ printf("CHOICE dissect_ber_CHOICE(%s) entered len:%d\n",name,tvb_length_remainin
 	   run out of entries */
 	ch = choice;
 	if(branch_taken){
-		branch_taken=-1;
+		*branch_taken=-1;
 	}
 	while(ch->func){
 choice_try_again:
 		if(branch_taken){
-			branch_taken++;
+			(*branch_taken)++;
 		}
 #ifdef DEBUG_BER
 printf("CHOICE testing potential subdissector class:%d:(expected)%d  tag:%d:(expected)%d flags:%d\n",class,ch->class,tag,ch->tag,ch->flags);
@@ -1227,7 +1227,7 @@ printf("CHOICE dissect_ber_CHOICE(%s) subdissector ate %d bytes\n",name,count);
 	if(branch_taken){
 		/* none of the branches were taken so set the param 
 		   back to -1 */
-		branch_taken=-1;
+		*branch_taken=-1;
 	}
 #ifdef REMOVED
 	/*XXX here we should have another flag to the CHOICE to distinguish

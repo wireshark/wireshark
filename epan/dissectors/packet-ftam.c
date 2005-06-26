@@ -59,8 +59,6 @@ int proto_ftam = -1;
 
 static char object_identifier_id[MAX_OID_STR_LEN];
 
-static struct SESSION_DATA_STRUCTURE* session = NULL;
-
 
 /*--- Included file: packet-ftam-hf.c ---*/
 
@@ -1648,8 +1646,17 @@ static const ber_choice_t FTAM_Regime_PDU_choice[] = {
 
 static int
 dissect_ftam_FTAM_Regime_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  gint branch_taken;
+
   offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
-                              FTAM_Regime_PDU_choice, hf_index, ett_ftam_FTAM_Regime_PDU, NULL);
+                              FTAM_Regime_PDU_choice, hf_index, ett_ftam_FTAM_Regime_PDU, &branch_taken);
+  
+  if( (branch_taken!=-1) && ftam_FTAM_Regime_PDU_vals[branch_taken].strptr ){
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s:", ftam_FTAM_Regime_PDU_vals[branch_taken].strptr);
+	}
+  }
+
 
   return offset;
 }
@@ -3868,8 +3875,17 @@ static const ber_choice_t File_PDU_choice[] = {
 
 static int
 dissect_ftam_File_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  gint branch_taken;
+
   offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
-                              File_PDU_choice, hf_index, ett_ftam_File_PDU, NULL);
+                              File_PDU_choice, hf_index, ett_ftam_File_PDU, &branch_taken);
+
+  if( (branch_taken!=-1) && ftam_File_PDU_vals[branch_taken].strptr ){
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s:", ftam_File_PDU_vals[branch_taken].strptr);
+	}
+  }
+
 
   return offset;
 }
@@ -4197,8 +4213,17 @@ static const ber_choice_t Bulk_Data_PDU_choice[] = {
 
 static int
 dissect_ftam_Bulk_Data_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  gint branch_taken;
+
   offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
-                              Bulk_Data_PDU_choice, hf_index, ett_ftam_Bulk_Data_PDU, NULL);
+                              Bulk_Data_PDU_choice, hf_index, ett_ftam_Bulk_Data_PDU, &branch_taken);
+
+  if( (branch_taken!=-1) && ftam_Bulk_Data_PDU_vals[branch_taken].strptr ){
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s:", ftam_Bulk_Data_PDU_vals[branch_taken].strptr);
+	}
+  }
+
 
   return offset;
 }
@@ -5657,8 +5682,16 @@ static const ber_choice_t FSM_PDU_choice[] = {
 
 static int
 dissect_ftam_FSM_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  gint branch_taken;
+
   offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
-                              FSM_PDU_choice, hf_index, ett_ftam_FSM_PDU, NULL);
+                              FSM_PDU_choice, hf_index, ett_ftam_FSM_PDU, &branch_taken);
+
+  if( (branch_taken!=-1) && ftam_FSM_PDU_vals[branch_taken].strptr ){
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s:", ftam_FSM_PDU_vals[branch_taken].strptr);
+	}
+  }
 
   return offset;
 }
