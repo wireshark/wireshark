@@ -1215,7 +1215,7 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
           state      = IN_VAR;
           got_val    = FALSE;
           g_string_truncate(cur_var, 0);
-          g_string_append_c(cur_var, got_c);
+          g_string_append_c(cur_var, (gchar) got_c);
           pline = fline;
         } else if (isspace(got_c) && cur_var->len > 0 && got_val) {
           state = PRE_VAL;
@@ -1227,7 +1227,7 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
         break;
       case IN_VAR:
         if (got_c != ':') {
-          g_string_append_c(cur_var, got_c);
+          g_string_append_c(cur_var, (gchar) got_c);
         } else {
           state   = PRE_VAL;
           g_string_truncate(cur_val, 0);
@@ -1237,12 +1237,12 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
       case PRE_VAL:
         if (!isspace(got_c)) {
           state = IN_VAL;
-          g_string_append_c(cur_val, got_c);
+          g_string_append_c(cur_val, (gchar) got_c);
         }
         break;
       case IN_VAL:
         if (got_c != '#')  {
-          g_string_append_c(cur_val, got_c);
+          g_string_append_c(cur_val, (gchar) got_c);
         } else {
           while (isspace((guchar)cur_val->str[cur_val->len]) && cur_val->len > 0)
             g_string_truncate(cur_val, cur_val->len - 1);
