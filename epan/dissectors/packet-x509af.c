@@ -9,7 +9,7 @@
  * Routines for X.509 Authentication Framework packet dissection
  *  Ronnie Sahlberg 2004
  *
- * $Id: packet-x509af-template.c 12624 2004-11-30 04:08:16Z sahlberg $
+ * $Id: packet-x509af-template.c 14169 2005-04-22 21:17:13Z gerald $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -229,7 +229,8 @@ const value_string x509af_Version_vals[] = {
 
 int
 dissect_x509af_Version(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -241,7 +242,8 @@ static int dissect_version(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 
 int
 dissect_x509af_CertificateSerialNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -254,6 +256,7 @@ static int dissect_revokedUserCertificate(packet_info *pinfo, proto_tree *tree, 
 static int dissect_serial(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509af_CertificateSerialNumber(FALSE, tvb, offset, pinfo, tree, hf_x509af_serial);
 }
+
 
 
 static int
@@ -352,8 +355,8 @@ static const ber_choice_t Time_choice[] = {
 
 int
 dissect_x509af_Time(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Time_choice, hf_index, ett_x509af_Time);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Time_choice, hf_index, ett_x509af_Time, NULL);
 
   return offset;
 }
@@ -422,6 +425,7 @@ dissect_x509af_SubjectPublicKeyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 static int dissect_subjectPublicKeyInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509af_SubjectPublicKeyInfo(FALSE, tvb, offset, pinfo, tree, hf_x509af_subjectPublicKeyInfo);
 }
+
 
 
 static int
@@ -753,8 +757,8 @@ static const ber_choice_t InfoSubject_choice[] = {
 
 static int
 dissect_x509af_InfoSubject(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              InfoSubject_choice, hf_index, ett_x509af_InfoSubject);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              InfoSubject_choice, hf_index, ett_x509af_InfoSubject, NULL);
 
   return offset;
 }
@@ -897,8 +901,8 @@ static const ber_choice_t AssertionSubject_choice[] = {
 
 static int
 dissect_x509af_AssertionSubject(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              AssertionSubject_choice, hf_index, ett_x509af_AssertionSubject);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              AssertionSubject_choice, hf_index, ett_x509af_AssertionSubject, NULL);
 
   return offset;
 }

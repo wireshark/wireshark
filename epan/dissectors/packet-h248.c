@@ -1358,8 +1358,8 @@ static const ber_choice_t MId_choice[] = {
 
 static int
 dissect_h248_MId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              MId_choice, hf_index, ett_h248_MId);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              MId_choice, hf_index, ett_h248_MId, NULL);
 
   return offset;
 }
@@ -1821,8 +1821,8 @@ static const ber_choice_t ExtraInfo_choice[] = {
 
 static int
 dissect_h248_ExtraInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              ExtraInfo_choice, hf_index, ett_h248_ExtraInfo);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              ExtraInfo_choice, hf_index, ett_h248_ExtraInfo, NULL);
 
   return offset;
 }
@@ -2081,8 +2081,8 @@ static const ber_choice_t T_streams_choice[] = {
 
 static int
 dissect_h248_T_streams(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_streams_choice, hf_index, ett_h248_T_streams);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              T_streams_choice, hf_index, ett_h248_T_streams, NULL);
 
   return offset;
 }
@@ -2234,8 +2234,8 @@ static const ber_choice_t NonStandardIdentifier_choice[] = {
 
 static int
 dissect_h248_NonStandardIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              NonStandardIdentifier_choice, hf_index, ett_h248_NonStandardIdentifier);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              NonStandardIdentifier_choice, hf_index, ett_h248_NonStandardIdentifier, NULL);
 
   return offset;
 }
@@ -2434,8 +2434,8 @@ static const ber_choice_t EventDM_choice[] = {
 
 static int
 dissect_h248_EventDM(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              EventDM_choice, hf_index, ett_h248_EventDM);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              EventDM_choice, hf_index, ett_h248_EventDM, NULL);
 
   return offset;
 }
@@ -2612,8 +2612,8 @@ static const ber_choice_t SignalRequest_choice[] = {
 
 static int
 dissect_h248_SignalRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              SignalRequest_choice, hf_index, ett_h248_SignalRequest);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              SignalRequest_choice, hf_index, ett_h248_SignalRequest, NULL);
 
   return offset;
 }
@@ -3061,8 +3061,8 @@ static const ber_choice_t indAudMediaDescriptorStreams_choice[] = {
 
 static int
 dissect_h248_indAudMediaDescriptorStreams(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              indAudMediaDescriptorStreams_choice, hf_index, ett_h248_indAudMediaDescriptorStreams);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              indAudMediaDescriptorStreams_choice, hf_index, ett_h248_indAudMediaDescriptorStreams, NULL);
 
   return offset;
 }
@@ -3174,8 +3174,8 @@ static const ber_choice_t IndAudSignalsDescriptor_choice[] = {
 
 static int
 dissect_h248_IndAudSignalsDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              IndAudSignalsDescriptor_choice, hf_index, ett_h248_IndAudSignalsDescriptor);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              IndAudSignalsDescriptor_choice, hf_index, ett_h248_IndAudSignalsDescriptor, NULL);
 
   return offset;
 }
@@ -3257,8 +3257,8 @@ static const ber_choice_t IndAuditParameter_choice[] = {
 
 static int
 dissect_h248_IndAuditParameter(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              IndAuditParameter_choice, hf_index, ett_h248_IndAuditParameter);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              IndAuditParameter_choice, hf_index, ett_h248_IndAuditParameter, NULL);
 
   return offset;
 }
@@ -3331,8 +3331,8 @@ static const ber_choice_t AmmDescriptor_choice[] = {
 
 static int
 dissect_h248_AmmDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              AmmDescriptor_choice, hf_index, ett_h248_AmmDescriptor);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              AmmDescriptor_choice, hf_index, ett_h248_AmmDescriptor, NULL);
 
   return offset;
 }
@@ -3615,8 +3615,8 @@ static const ber_choice_t ServiceChangeAddress_choice[] = {
 
 static int
 dissect_h248_ServiceChangeAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              ServiceChangeAddress_choice, hf_index, ett_h248_ServiceChangeAddress);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              ServiceChangeAddress_choice, hf_index, ett_h248_ServiceChangeAddress, NULL);
 
   return offset;
 }
@@ -3735,8 +3735,8 @@ static const ber_choice_t Command_choice[] = {
 
 static int
 dissect_h248_Command(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Command_choice, hf_index, ett_h248_Command);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Command_choice, hf_index, ett_h248_Command, NULL);
 
   return offset;
 }
@@ -3945,8 +3945,8 @@ static const ber_choice_t AuditReturnParameter_choice[] = {
 
 static int
 dissect_h248_AuditReturnParameter(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              AuditReturnParameter_choice, hf_index, ett_h248_AuditReturnParameter);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              AuditReturnParameter_choice, hf_index, ett_h248_AuditReturnParameter, NULL);
 
   return offset;
 }
@@ -4069,8 +4069,8 @@ static const ber_choice_t AuditReply_choice[] = {
 
 static int
 dissect_h248_AuditReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              AuditReply_choice, hf_index, ett_h248_AuditReply);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              AuditReply_choice, hf_index, ett_h248_AuditReply, NULL);
 
   return offset;
 }
@@ -4160,8 +4160,8 @@ static const ber_choice_t ServiceChangeResult_choice[] = {
 
 static int
 dissect_h248_ServiceChangeResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              ServiceChangeResult_choice, hf_index, ett_h248_ServiceChangeResult);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              ServiceChangeResult_choice, hf_index, ett_h248_ServiceChangeResult, NULL);
 
   return offset;
 }
@@ -4213,8 +4213,8 @@ static const ber_choice_t CommandReply_choice[] = {
 
 static int
 dissect_h248_CommandReply(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              CommandReply_choice, hf_index, ett_h248_CommandReply);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              CommandReply_choice, hf_index, ett_h248_CommandReply, NULL);
 
   return offset;
 }
@@ -4286,8 +4286,8 @@ static const ber_choice_t T_transactionResult_choice[] = {
 
 static int
 dissect_h248_T_transactionResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_transactionResult_choice, hf_index, ett_h248_T_transactionResult);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              T_transactionResult_choice, hf_index, ett_h248_T_transactionResult, NULL);
 
   return offset;
 }
@@ -4365,8 +4365,8 @@ static const ber_choice_t Transaction_choice[] = {
 
 static int
 dissect_h248_Transaction(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Transaction_choice, hf_index, ett_h248_Transaction);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Transaction_choice, hf_index, ett_h248_Transaction, NULL);
 
   return offset;
 }
@@ -4404,8 +4404,8 @@ static const ber_choice_t T_messageBody_choice[] = {
 
 static int
 dissect_h248_T_messageBody(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_messageBody_choice, hf_index, ett_h248_T_messageBody);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              T_messageBody_choice, hf_index, ett_h248_T_messageBody, NULL);
 
   return offset;
 }

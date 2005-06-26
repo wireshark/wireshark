@@ -8,7 +8,7 @@
 /* packet-pkix1implicit.c
  * Routines for PKIX1Implitic packet dissection
  *
- * $Id: packet-pkix1implicit-template.c 12669 2004-12-05 21:47:49Z sahlberg $
+ * $Id: packet-pkix1implicit-template.c 12827 2004-12-24 12:22:52Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,7 +64,7 @@ static int hf_pkix1implicit_accessLocation = -1;  /* GeneralName */
 static int hf_pkix1implicit_noticeRef = -1;       /* NoticeReference */
 static int hf_pkix1implicit_explicitText = -1;    /* DisplayText */
 static int hf_pkix1implicit_organization = -1;    /* DisplayText */
-static int hf_pkix1implicit_noticeNumbers = -1;   /* SEQUNCE_OF_INTEGER */
+static int hf_pkix1implicit_noticeNumbers = -1;   /* T_noticeNumbers */
 static int hf_pkix1implicit_noticeNumbers_item = -1;  /* INTEGER */
 static int hf_pkix1implicit_visibleString = -1;   /* VisibleString */
 static int hf_pkix1implicit_bmpString = -1;       /* BMPString */
@@ -82,7 +82,7 @@ static gint ett_pkix1implicit_AuthorityInfoAccessSyntax = -1;
 static gint ett_pkix1implicit_AccessDescription = -1;
 static gint ett_pkix1implicit_UserNotice = -1;
 static gint ett_pkix1implicit_NoticeReference = -1;
-static gint ett_pkix1implicit_SEQUNCE_OF_INTEGER = -1;
+static gint ett_pkix1implicit_T_noticeNumbers = -1;
 static gint ett_pkix1implicit_DisplayText = -1;
 
 /*--- End of included file: packet-pkix1implicit-ett.c ---*/
@@ -118,12 +118,10 @@ static int dissect_accessLocation(packet_info *pinfo, proto_tree *tree, tvbuff_t
 }
 
 
+
 static int
 dissect_pkix1implicit_Dummy(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  { proto_item *ti_tmp;
-  ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>8, 0, FALSE);
-  proto_item_append_text(ti_tmp, ": NULL");
-  }
+  offset = dissect_ber_null(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -143,10 +141,11 @@ dissect_pkix1implicit_EDIPartyName(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 }
 
 
+
 static int
 dissect_pkix1implicit_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
-                                         hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -223,7 +222,7 @@ static int dissect_utf8String(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 }
 
 
-static const value_string DisplayText_vals[] = {
+static const value_string pkix1implicit_DisplayText_vals[] = {
   {   0, "visibleString" },
   {   1, "bmpString" },
   {   2, "utf8String" },
@@ -239,8 +238,8 @@ static const ber_choice_t DisplayText_choice[] = {
 
 static int
 dissect_pkix1implicit_DisplayText(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              DisplayText_choice, hf_index, ett_pkix1implicit_DisplayText);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              DisplayText_choice, hf_index, ett_pkix1implicit_DisplayText, NULL);
 
   return offset;
 }
@@ -255,7 +254,8 @@ static int dissect_organization(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_pkix1implicit_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -263,19 +263,19 @@ static int dissect_noticeNumbers_item(packet_info *pinfo, proto_tree *tree, tvbu
   return dissect_pkix1implicit_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_noticeNumbers_item);
 }
 
-static const ber_sequence_t SEQUNCE_OF_INTEGER_sequence_of[1] = {
+static const ber_sequence_t T_noticeNumbers_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_noticeNumbers_item },
 };
 
 static int
-dissect_pkix1implicit_SEQUNCE_OF_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_pkix1implicit_T_noticeNumbers(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUNCE_OF_INTEGER_sequence_of, hf_index, ett_pkix1implicit_SEQUNCE_OF_INTEGER);
+                                   T_noticeNumbers_sequence_of, hf_index, ett_pkix1implicit_T_noticeNumbers);
 
   return offset;
 }
 static int dissect_noticeNumbers(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pkix1implicit_SEQUNCE_OF_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_noticeNumbers);
+  return dissect_pkix1implicit_T_noticeNumbers(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_noticeNumbers);
 }
 
 static const ber_sequence_t NoticeReference_sequence[] = {
@@ -365,11 +365,11 @@ void proto_register_pkix1implicit(void) {
         "UserNotice/noticeRef", HFILL }},
     { &hf_pkix1implicit_explicitText,
       { "explicitText", "pkix1implicit.explicitText",
-        FT_UINT32, BASE_DEC, VALS(DisplayText_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(pkix1implicit_DisplayText_vals), 0,
         "UserNotice/explicitText", HFILL }},
     { &hf_pkix1implicit_organization,
       { "organization", "pkix1implicit.organization",
-        FT_UINT32, BASE_DEC, VALS(DisplayText_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(pkix1implicit_DisplayText_vals), 0,
         "NoticeReference/organization", HFILL }},
     { &hf_pkix1implicit_noticeNumbers,
       { "noticeNumbers", "pkix1implicit.noticeNumbers",
@@ -406,7 +406,7 @@ void proto_register_pkix1implicit(void) {
     &ett_pkix1implicit_AccessDescription,
     &ett_pkix1implicit_UserNotice,
     &ett_pkix1implicit_NoticeReference,
-    &ett_pkix1implicit_SEQUNCE_OF_INTEGER,
+    &ett_pkix1implicit_T_noticeNumbers,
     &ett_pkix1implicit_DisplayText,
 
 /*--- End of included file: packet-pkix1implicit-ettarr.c ---*/

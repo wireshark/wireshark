@@ -422,8 +422,8 @@ static const ber_choice_t T_encoding_choice[] = {
 
 static int
 dissect_acse_T_encoding(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_encoding_choice, hf_index, ett_acse_T_encoding);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              T_encoding_choice, hf_index, ett_acse_T_encoding, NULL);
 
   return offset;
 }
@@ -565,8 +565,8 @@ static const ber_choice_t AP_title_choice[] = {
 
 static int
 dissect_acse_AP_title(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              AP_title_choice, hf_index, ett_acse_AP_title);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              AP_title_choice, hf_index, ett_acse_AP_title, NULL);
 
   return offset;
 }
@@ -637,8 +637,8 @@ static const ber_choice_t ASO_qualifier_choice[] = {
 
 static int
 dissect_acse_ASO_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              ASO_qualifier_choice, hf_index, ett_acse_ASO_qualifier);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              ASO_qualifier_choice, hf_index, ett_acse_ASO_qualifier, NULL);
 
   return offset;
 }
@@ -816,8 +816,8 @@ static const ber_choice_t Authentication_value_choice[] = {
 
 static int
 dissect_acse_Authentication_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Authentication_value_choice, hf_index, ett_acse_Authentication_value);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Authentication_value_choice, hf_index, ett_acse_Authentication_value, NULL);
 
   return offset;
 }
@@ -1002,8 +1002,8 @@ static const ber_choice_t Syntactic_context_list_choice[] = {
 
 static int
 dissect_acse_Syntactic_context_list(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Syntactic_context_list_choice, hf_index, ett_acse_Syntactic_context_list);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Syntactic_context_list_choice, hf_index, ett_acse_Syntactic_context_list, NULL);
 
   return offset;
 }
@@ -1240,8 +1240,8 @@ static const ber_choice_t Associate_source_diagnostic_choice[] = {
 
 static int
 dissect_acse_Associate_source_diagnostic(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Associate_source_diagnostic_choice, hf_index, ett_acse_Associate_source_diagnostic);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Associate_source_diagnostic_choice, hf_index, ett_acse_Associate_source_diagnostic, NULL);
 
   return offset;
 }
@@ -1561,8 +1561,8 @@ static const ber_choice_t T_presentation_data_values_choice[] = {
 
 static int
 dissect_acse_T_presentation_data_values(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_presentation_data_values_choice, hf_index, ett_acse_T_presentation_data_values);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              T_presentation_data_values_choice, hf_index, ett_acse_T_presentation_data_values, NULL);
 
   return offset;
 }
@@ -1605,8 +1605,8 @@ static const ber_choice_t User_Data_choice[] = {
 
 static int
 dissect_acse_User_Data(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              User_Data_choice, hf_index, ett_acse_User_Data);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              User_Data_choice, hf_index, ett_acse_User_Data, NULL);
 
   return offset;
 }
@@ -1735,8 +1735,8 @@ static const ber_choice_t ACSE_apdu_choice[] = {
 
 static int
 dissect_acse_ACSE_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              ACSE_apdu_choice, hf_index, ett_acse_ACSE_apdu);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              ACSE_apdu_choice, hf_index, ett_acse_ACSE_apdu, NULL);
 
   return offset;
 }
@@ -1788,8 +1788,8 @@ static const ber_choice_t AE_title_choice[] = {
 
 static int
 dissect_acse_AE_title(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              AE_title_choice, hf_index, ett_acse_AE_title);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              AE_title_choice, hf_index, ett_acse_AE_title, NULL);
 
   return offset;
 }

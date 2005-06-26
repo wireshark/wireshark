@@ -41,7 +41,7 @@ ErrorMsgContent          BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 PKIMessage               TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 PKIHeader                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 PKIFreeText              TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-PKIBody                  TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(PKIBody_vals)  BITMASK = 0
+PKIBody                  TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmp_PKIBody_vals)  BITMASK = 0
 PKIProtection            TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
 ProtectedPart            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 PasswordBasedMac         TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
@@ -49,7 +49,7 @@ PBMParameter             TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  
 DHBasedMac               TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 DHBMParameter            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 NestedMessageContent     TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-PKIStatus                TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = VALS(PKIStatus_vals)  BITMASK = 0
+PKIStatus                TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = VALS(cmp_PKIStatus_vals)  BITMASK = 0
 PKIFailureInfo           TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
 PKIStatusInfo            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 OOBCert                  TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
@@ -60,7 +60,7 @@ POPODecKeyRespContent    TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  
 CertRepMessage           TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 CertResponse             TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 CertifiedKeyPair         TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-CertOrEncCert            TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(CertOrEncCert_vals)  BITMASK = 0
+CertOrEncCert            TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cmp_CertOrEncCert_vals)  BITMASK = 0
 KeyRecRepContent         TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 RevReqContent            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 RevDetails               TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0

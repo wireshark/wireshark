@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-gsm_map.c                                                         */
+/* ./packet-gsm_map.c                                                         */
 /* ../../tools/asn2eth.py -X -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
 
 /* Input file: packet-gsm_map-template.c */
@@ -2141,8 +2141,8 @@ static const ber_choice_t SuperChargerInfo_choice[] = {
 
 static int
 dissect_gsm_map_SuperChargerInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              SuperChargerInfo_choice, hf_index, ett_gsm_map_SuperChargerInfo);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              SuperChargerInfo_choice, hf_index, ett_gsm_map_SuperChargerInfo, NULL);
 
   return offset;
 }
@@ -2451,8 +2451,8 @@ static const ber_choice_t Identity_choice[] = {
 
 static int
 dissect_gsm_map_Identity(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Identity_choice, hf_index, ett_gsm_map_Identity);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Identity_choice, hf_index, ett_gsm_map_Identity, NULL);
 
   return offset;
 }
@@ -2779,8 +2779,8 @@ static const ber_choice_t AuthenticationSetList_choice[] = {
 
 static int
 dissect_gsm_map_AuthenticationSetList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              AuthenticationSetList_choice, hf_index, ett_gsm_map_AuthenticationSetList);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              AuthenticationSetList_choice, hf_index, ett_gsm_map_AuthenticationSetList, NULL);
 
   return offset;
 }
@@ -2862,8 +2862,8 @@ static const ber_choice_t CurrentSecurityContext_choice[] = {
 
 static int
 dissect_gsm_map_CurrentSecurityContext(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              CurrentSecurityContext_choice, hf_index, ett_gsm_map_CurrentSecurityContext);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              CurrentSecurityContext_choice, hf_index, ett_gsm_map_CurrentSecurityContext, NULL);
 
   return offset;
 }
@@ -3995,8 +3995,8 @@ static const ber_choice_t BasicService_choice[] = {
 
 static int
 dissect_gsm_map_BasicService(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              BasicService_choice, hf_index, ett_gsm_map_BasicService);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              BasicService_choice, hf_index, ett_gsm_map_BasicService, NULL);
 
   return offset;
 }
@@ -4413,8 +4413,8 @@ static const ber_choice_t Ext_BasicServiceCode_choice[] = {
 
 static int
 dissect_gsm_map_Ext_BasicServiceCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Ext_BasicServiceCode_choice, hf_index, ett_gsm_map_Ext_BasicServiceCode);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Ext_BasicServiceCode_choice, hf_index, ett_gsm_map_Ext_BasicServiceCode, NULL);
 
   return offset;
 }
@@ -4857,8 +4857,8 @@ static const ber_choice_t SS_SubscriptionOption_choice[] = {
 
 static int
 dissect_gsm_map_SS_SubscriptionOption(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              SS_SubscriptionOption_choice, hf_index, ett_gsm_map_SS_SubscriptionOption);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              SS_SubscriptionOption_choice, hf_index, ett_gsm_map_SS_SubscriptionOption, NULL);
 
   return offset;
 }
@@ -4950,8 +4950,8 @@ static const ber_choice_t Ext_SS_Info_choice[] = {
 
 static int
 dissect_gsm_map_Ext_SS_Info(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Ext_SS_Info_choice, hf_index, ett_gsm_map_Ext_SS_Info);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Ext_SS_Info_choice, hf_index, ett_gsm_map_Ext_SS_Info, NULL);
 
   return offset;
 }
@@ -6803,8 +6803,8 @@ static const ber_choice_t GPRSSubscriptionDataWithdraw_choice[] = {
 
 static int
 dissect_gsm_map_GPRSSubscriptionDataWithdraw(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              GPRSSubscriptionDataWithdraw_choice, hf_index, ett_gsm_map_GPRSSubscriptionDataWithdraw);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              GPRSSubscriptionDataWithdraw_choice, hf_index, ett_gsm_map_GPRSSubscriptionDataWithdraw, NULL);
 
   return offset;
 }
@@ -6842,8 +6842,8 @@ static const ber_choice_t LSAInformationWithdraw_choice[] = {
 
 static int
 dissect_gsm_map_LSAInformationWithdraw(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              LSAInformationWithdraw_choice, hf_index, ett_gsm_map_LSAInformationWithdraw);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              LSAInformationWithdraw_choice, hf_index, ett_gsm_map_LSAInformationWithdraw, NULL);
 
   return offset;
 }
@@ -6998,8 +6998,8 @@ static const ber_choice_t BasicServiceCode_choice[] = {
 
 static int
 dissect_gsm_map_BasicServiceCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              BasicServiceCode_choice, hf_index, ett_gsm_map_BasicServiceCode);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              BasicServiceCode_choice, hf_index, ett_gsm_map_BasicServiceCode, NULL);
 
   return offset;
 }
@@ -7652,8 +7652,8 @@ static const ber_choice_t RoutingInfo_choice[] = {
 
 static int
 dissect_gsm_map_RoutingInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              RoutingInfo_choice, hf_index, ett_gsm_map_RoutingInfo);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              RoutingInfo_choice, hf_index, ett_gsm_map_RoutingInfo, NULL);
 
   return offset;
 }
@@ -7718,8 +7718,8 @@ static const ber_choice_t ExtendedRoutingInfo_choice[] = {
 
 static int
 dissect_gsm_map_ExtendedRoutingInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              ExtendedRoutingInfo_choice, hf_index, ett_gsm_map_ExtendedRoutingInfo);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              ExtendedRoutingInfo_choice, hf_index, ett_gsm_map_ExtendedRoutingInfo, NULL);
 
   return offset;
 }
@@ -7797,8 +7797,8 @@ static const ber_choice_t CellGlobalIdOrServiceAreaIdOrLAI_choice[] = {
 
 static int
 dissect_gsm_map_CellGlobalIdOrServiceAreaIdOrLAI(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              CellGlobalIdOrServiceAreaIdOrLAI_choice, hf_index, ett_gsm_map_CellGlobalIdOrServiceAreaIdOrLAI);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              CellGlobalIdOrServiceAreaIdOrLAI_choice, hf_index, ett_gsm_map_CellGlobalIdOrServiceAreaIdOrLAI, NULL);
 
   return offset;
 }
@@ -7870,8 +7870,8 @@ static const ber_choice_t SubscriberState_choice[] = {
 
 static int
 dissect_gsm_map_SubscriberState(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              SubscriberState_choice, hf_index, ett_gsm_map_SubscriberState);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              SubscriberState_choice, hf_index, ett_gsm_map_SubscriberState, NULL);
 
   return offset;
 }
@@ -8070,8 +8070,8 @@ static const ber_choice_t PS_SubscriberState_choice[] = {
 
 static int
 dissect_gsm_map_PS_SubscriberState(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              PS_SubscriberState_choice, hf_index, ett_gsm_map_PS_SubscriberState);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              PS_SubscriberState_choice, hf_index, ett_gsm_map_PS_SubscriberState, NULL);
 
   return offset;
 }
@@ -8319,8 +8319,8 @@ static const ber_choice_t SubscriberId_choice[] = {
 
 static int
 dissect_gsm_map_SubscriberId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              SubscriberId_choice, hf_index, ett_gsm_map_SubscriberId);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              SubscriberId_choice, hf_index, ett_gsm_map_SubscriberId, NULL);
 
   return offset;
 }
@@ -8340,8 +8340,8 @@ static const ber_choice_t SubscriberIdentity_choice[] = {
 
 static int
 dissect_gsm_map_SubscriberIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              SubscriberIdentity_choice, hf_index, ett_gsm_map_SubscriberIdentity);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              SubscriberIdentity_choice, hf_index, ett_gsm_map_SubscriberIdentity, NULL);
 
   return offset;
 }
@@ -9060,8 +9060,8 @@ static const ber_choice_t SS_Info_choice[] = {
 
 static int
 dissect_gsm_map_SS_Info(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              SS_Info_choice, hf_index, ett_gsm_map_SS_Info);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              SS_Info_choice, hf_index, ett_gsm_map_SS_Info, NULL);
 
   return offset;
 }
@@ -9132,8 +9132,8 @@ static const ber_choice_t InterrogateSS_Res_choice[] = {
 
 static int
 dissect_gsm_map_InterrogateSS_Res(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              InterrogateSS_Res_choice, hf_index, ett_gsm_map_InterrogateSS_Res);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              InterrogateSS_Res_choice, hf_index, ett_gsm_map_InterrogateSS_Res, NULL);
 
   return offset;
 }
@@ -9514,8 +9514,8 @@ static const ber_choice_t Additional_Number_choice[] = {
 
 static int
 dissect_gsm_map_Additional_Number(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Additional_Number_choice, hf_index, ett_gsm_map_Additional_Number);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Additional_Number_choice, hf_index, ett_gsm_map_Additional_Number, NULL);
 
   return offset;
 }
@@ -9577,8 +9577,8 @@ static const ber_choice_t Sm_RP_DA_choice[] = {
 
 static int
 dissect_gsm_map_Sm_RP_DA(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Sm_RP_DA_choice, hf_index, ett_gsm_map_Sm_RP_DA);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Sm_RP_DA_choice, hf_index, ett_gsm_map_Sm_RP_DA, NULL);
 
   return offset;
 }
@@ -9603,8 +9603,8 @@ static const ber_choice_t Sm_RP_OA_choice[] = {
 
 static int
 dissect_gsm_map_Sm_RP_OA(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Sm_RP_OA_choice, hf_index, ett_gsm_map_Sm_RP_OA);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Sm_RP_OA_choice, hf_index, ett_gsm_map_Sm_RP_OA, NULL);
 
   return offset;
 }
@@ -10450,8 +10450,8 @@ static const ber_choice_t Ext_SS_InfoFor_CSE_choice[] = {
 
 static int
 dissect_gsm_map_Ext_SS_InfoFor_CSE(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Ext_SS_InfoFor_CSE_choice, hf_index, ett_gsm_map_Ext_SS_InfoFor_CSE);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Ext_SS_InfoFor_CSE_choice, hf_index, ett_gsm_map_Ext_SS_InfoFor_CSE, NULL);
 
   return offset;
 }
@@ -11562,8 +11562,8 @@ static const ber_choice_t TargetMS_choice[] = {
 
 static int
 dissect_gsm_map_TargetMS(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              TargetMS_choice, hf_index, ett_gsm_map_TargetMS);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              TargetMS_choice, hf_index, ett_gsm_map_TargetMS, NULL);
 
   return offset;
 }
@@ -11776,8 +11776,8 @@ static const ber_choice_t OperationCode_choice[] = {
 
 static int
 dissect_gsm_map_OperationCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              OperationCode_choice, hf_index, ett_gsm_map_OperationCode);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              OperationCode_choice, hf_index, ett_gsm_map_OperationCode, NULL);
 
   return offset;
 }
@@ -11800,8 +11800,8 @@ static const ber_choice_t ErrorCode_choice[] = {
 
 static int
 dissect_gsm_map_ErrorCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              ErrorCode_choice, hf_index, ett_gsm_map_ErrorCode);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              ErrorCode_choice, hf_index, ett_gsm_map_ErrorCode, NULL);
 
   return offset;
 }
@@ -11826,8 +11826,8 @@ static const ber_choice_t OriginalComponentIdentifier_choice[] = {
 
 static int
 dissect_gsm_map_OriginalComponentIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              OriginalComponentIdentifier_choice, hf_index, ett_gsm_map_OriginalComponentIdentifier);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              OriginalComponentIdentifier_choice, hf_index, ett_gsm_map_OriginalComponentIdentifier, NULL);
 
   return offset;
 }
@@ -11961,8 +11961,8 @@ static const ber_choice_t SystemFailureParam_choice[] = {
 
 static int
 dissect_gsm_map_SystemFailureParam(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              SystemFailureParam_choice, hf_index, ett_gsm_map_SystemFailureParam);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              SystemFailureParam_choice, hf_index, ett_gsm_map_SystemFailureParam, NULL);
 
   return offset;
 }
@@ -12312,8 +12312,8 @@ static const ber_choice_t CallBarredParam_choice[] = {
 
 static int
 dissect_gsm_map_CallBarredParam(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              CallBarredParam_choice, hf_index, ett_gsm_map_CallBarredParam);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              CallBarredParam_choice, hf_index, ett_gsm_map_CallBarredParam, NULL);
 
   return offset;
 }
@@ -13391,8 +13391,8 @@ static const ber_choice_t InvokeId_choice[] = {
 
 static int
 dissect_gsm_map_InvokeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              InvokeId_choice, hf_index, ett_gsm_map_InvokeId);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              InvokeId_choice, hf_index, ett_gsm_map_InvokeId, NULL);
 
   return offset;
 }
@@ -13469,8 +13469,8 @@ static const ber_choice_t ReturnError_result_choice[] = {
 static int
 dissect_ReturnError_result(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
 
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              ReturnError_result_choice, hf_gsm_map_returnError_result, ett_gsm_map_ReturnError_result);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              ReturnError_result_choice, hf_gsm_map_returnError_result, ett_gsm_map_ReturnError_result, NULL);
 
   return offset;
 }
@@ -13537,8 +13537,8 @@ dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str(gsmmap_pdu_type, GSMMAPPDU_vals, "Unknown GSM-MAP PDU (%u)"));
   }
 
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              GSMMAPPDU_choice, hf_index, ett_gsm_map_GSMMAPPDU);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              GSMMAPPDU_choice, hf_index, ett_gsm_map_GSMMAPPDU, NULL);
 
 
   return offset;

@@ -223,7 +223,8 @@ static const value_string crmf_Version_vals[] = {
 
 static int
 dissect_crmf_Version(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -286,8 +287,8 @@ static const ber_choice_t Time_choice[] = {
 
 static int
 dissect_crmf_Time(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Time_choice, hf_index, ett_crmf_Time);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Time_choice, hf_index, ett_crmf_Time, NULL);
 
   return offset;
 }
@@ -302,7 +303,8 @@ static int dissect_notAfter_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 static int
 dissect_crmf_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -360,6 +362,7 @@ dissect_crmf_CertTemplate(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 static int dissect_certTemplate(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_crmf_CertTemplate(FALSE, tvb, offset, pinfo, tree, hf_crmf_certTemplate);
 }
+
 
 
 static int
@@ -441,12 +444,10 @@ static int dissect_certReq(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 }
 
 
+
 static int
 dissect_crmf_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  { proto_item *ti_tmp;
-  ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>8, 0, FALSE);
-  proto_item_append_text(ti_tmp, ": NULL");
-  }
+  offset = dissect_ber_null(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -514,8 +515,8 @@ static const ber_choice_t T_authInfo_choice[] = {
 
 static int
 dissect_crmf_T_authInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_authInfo_choice, hf_index, ett_crmf_T_authInfo);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              T_authInfo_choice, hf_index, ett_crmf_T_authInfo, NULL);
 
   return offset;
 }
@@ -568,7 +569,8 @@ const value_string crmf_SubsequentMessage_vals[] = {
 
 int
 dissect_crmf_SubsequentMessage(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -593,8 +595,8 @@ static const ber_choice_t POPOPrivKey_choice[] = {
 
 int
 dissect_crmf_POPOPrivKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              POPOPrivKey_choice, hf_index, ett_crmf_POPOPrivKey);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              POPOPrivKey_choice, hf_index, ett_crmf_POPOPrivKey, NULL);
 
   return offset;
 }
@@ -624,8 +626,8 @@ static const ber_choice_t ProofOfPossession_choice[] = {
 
 int
 dissect_crmf_ProofOfPossession(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              ProofOfPossession_choice, hf_index, ett_crmf_ProofOfPossession);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              ProofOfPossession_choice, hf_index, ett_crmf_ProofOfPossession, NULL);
 
   return offset;
 }
@@ -739,7 +741,8 @@ static const value_string crmf_T_action_vals[] = {
 
 static int
 dissect_crmf_T_action(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -759,7 +762,8 @@ static const value_string crmf_T_pubMethod_vals[] = {
 
 static int
 dissect_crmf_T_pubMethod(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -849,8 +853,8 @@ static const ber_choice_t EncryptedKey_choice[] = {
 
 int
 dissect_crmf_EncryptedKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              EncryptedKey_choice, hf_index, ett_crmf_EncryptedKey);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              EncryptedKey_choice, hf_index, ett_crmf_EncryptedKey, NULL);
 
   return offset;
 }
@@ -898,8 +902,8 @@ static const ber_choice_t PKIArchiveOptions_choice[] = {
 
 int
 dissect_crmf_PKIArchiveOptions(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              PKIArchiveOptions_choice, hf_index, ett_crmf_PKIArchiveOptions);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              PKIArchiveOptions_choice, hf_index, ett_crmf_PKIArchiveOptions, NULL);
 
   return offset;
 }

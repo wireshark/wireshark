@@ -9,7 +9,7 @@
  * Routines for X.509 Information Framework packet dissection
  *  Ronnie Sahlberg 2004
  *
- * $Id: packet-x509if-template.c 12744 2004-12-13 12:43:48Z sahlberg $
+ * $Id: packet-x509if-template.c 14169 2005-04-22 21:17:13Z gerald $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -344,6 +344,7 @@ static int dissect_description(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 }
 
 
+
 static int
 dissect_x509if_AttributeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
@@ -554,12 +555,10 @@ static int dissect_attribute(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 }
 
 
+
 static int
 dissect_x509if_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  { proto_item *ti_tmp;
-  ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>8, 0, FALSE);
-  proto_item_append_text(ti_tmp, ": NULL");
-  }
+  offset = dissect_ber_null(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -569,6 +568,7 @@ static int dissect_allContexts(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 static int dissect_matchedValuesOnly(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509if_NULL(FALSE, tvb, offset, pinfo, tree, hf_x509if_matchedValuesOnly);
 }
+
 
 
 static int
@@ -661,8 +661,8 @@ static const ber_choice_t T_assertedContexts_choice[] = {
 
 static int
 dissect_x509if_T_assertedContexts(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_assertedContexts_choice, hf_index, ett_x509if_T_assertedContexts);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              T_assertedContexts_choice, hf_index, ett_x509if_T_assertedContexts, NULL);
 
   return offset;
 }
@@ -808,8 +808,8 @@ static const ber_choice_t Name_choice[] = {
 
 int
 dissect_x509if_Name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Name_choice, hf_index, ett_x509if_Name);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Name_choice, hf_index, ett_x509if_Name, NULL);
 
   return offset;
 }
@@ -854,8 +854,8 @@ static const ber_choice_t T_specificExclusions_item_choice[] = {
 
 static int
 dissect_x509if_T_specificExclusions_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_specificExclusions_item_choice, hf_index, ett_x509if_T_specificExclusions_item);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              T_specificExclusions_item_choice, hf_index, ett_x509if_T_specificExclusions_item, NULL);
 
   return offset;
 }
@@ -882,7 +882,8 @@ static int dissect_specificExclusions(packet_info *pinfo, proto_tree *tree, tvbu
 
 int
 dissect_x509if_BaseDistance(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -894,10 +895,11 @@ static int dissect_maximum(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 }
 
 
+
 static int
 dissect_x509if_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
-                                         hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -975,8 +977,8 @@ static const ber_choice_t Refinement_choice[] = {
 
 int
 dissect_x509if_Refinement(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Refinement_choice, hf_index, ett_x509if_Refinement);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Refinement_choice, hf_index, ett_x509if_Refinement, NULL);
 
   return offset;
 }
@@ -1013,8 +1015,8 @@ static const ber_choice_t T_chopSpecificExclusions_item_choice[] = {
 
 static int
 dissect_x509if_T_chopSpecificExclusions_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_chopSpecificExclusions_item_choice, hf_index, ett_x509if_T_chopSpecificExclusions_item);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              T_chopSpecificExclusions_item_choice, hf_index, ett_x509if_T_chopSpecificExclusions_item, NULL);
 
   return offset;
 }
@@ -1089,7 +1091,8 @@ dissect_x509if_AttributeUsage(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
 int
 dissect_x509if_RuleIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -1232,7 +1235,8 @@ dissect_x509if_DITContextUse(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
 static int
 dissect_x509if_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -1285,6 +1289,7 @@ dissect_x509if_SEQUENCE_OF_SelectedValues(gboolean implicit_tag _U_, tvbuff_t *t
 static int dissect_ra_selectedValues(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509if_SEQUENCE_OF_SelectedValues(FALSE, tvb, offset, pinfo, tree, hf_x509if_ra_selectedValues);
 }
+
 
 
 static int
@@ -1446,8 +1451,8 @@ static const ber_choice_t ContextCombination_choice[] = {
 
 int
 dissect_x509if_ContextCombination(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              ContextCombination_choice, hf_index, ett_x509if_ContextCombination);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              ContextCombination_choice, hf_index, ett_x509if_ContextCombination, NULL);
 
   return offset;
 }
@@ -1558,8 +1563,8 @@ static const ber_choice_t AttributeCombination_choice[] = {
 
 int
 dissect_x509if_AttributeCombination(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              AttributeCombination_choice, hf_index, ett_x509if_AttributeCombination);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              AttributeCombination_choice, hf_index, ett_x509if_AttributeCombination, NULL);
 
   return offset;
 }
@@ -1579,8 +1584,8 @@ static const ber_choice_t T_outputValues_choice[] = {
 
 static int
 dissect_x509if_T_outputValues(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_outputValues_choice, hf_index, ett_x509if_T_outputValues);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              T_outputValues_choice, hf_index, ett_x509if_T_outputValues, NULL);
 
   return offset;
 }
@@ -1784,9 +1789,9 @@ static int dissect_additionalControl(packet_info *pinfo, proto_tree *tree, tvbuf
 }
 
 static const asn_namedbit AllowedSubset_bits[] = {
-  {  0, &hf_x509if_AllowedSubset_baseObject, -1, -1, NULL, NULL },
-  {  1, &hf_x509if_AllowedSubset_oneLevel, -1, -1, NULL, NULL },
-  {  2, &hf_x509if_AllowedSubset_wholeSubtree, -1, -1, NULL, NULL },
+  {  0, &hf_x509if_AllowedSubset_baseObject, -1, -1, "baseObject", NULL },
+  {  1, &hf_x509if_AllowedSubset_oneLevel, -1, -1, "oneLevel", NULL },
+  {  2, &hf_x509if_AllowedSubset_wholeSubtree, -1, -1, "wholeSubtree", NULL },
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
@@ -1939,8 +1944,8 @@ static const ber_choice_t OutputValues_choice[] = {
 
 int
 dissect_x509if_OutputValues(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              OutputValues_choice, hf_index, ett_x509if_OutputValues);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              OutputValues_choice, hf_index, ett_x509if_OutputValues, NULL);
 
   return offset;
 }

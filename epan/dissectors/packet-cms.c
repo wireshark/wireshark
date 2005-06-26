@@ -9,7 +9,7 @@
  * Routines for RFC2630 Cryptographic Message Syntax packet dissection
  *   Ronnie Sahlberg 2004
  *
- * $Id: packet-cms-template.c 12740 2004-12-13 08:15:34Z sahlberg $
+ * $Id: packet-cms-template.c 14169 2005-04-22 21:17:13Z gerald $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -213,10 +213,11 @@ static int dissect_serialNumber(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 }
 
 
+
 int
 dissect_cms_ContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
-                                         hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -277,7 +278,8 @@ static const value_string cms_CMSVersion_vals[] = {
 
 static int
 dissect_cms_CMSVersion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -370,10 +372,11 @@ static int dissect_encapContentInfo(packet_info *pinfo, proto_tree *tree, tvbuff
 }
 
 
+
 static int
 dissect_cms_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
-                                         hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -504,8 +507,8 @@ static const ber_choice_t CertificateChoices_choice[] = {
 
 static int
 dissect_cms_CertificateChoices(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              CertificateChoices_choice, hf_index, ett_cms_CertificateChoices);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              CertificateChoices_choice, hf_index, ett_cms_CertificateChoices, NULL);
 
   return offset;
 }
@@ -593,8 +596,8 @@ static const ber_choice_t SignerIdentifier_choice[] = {
 
 int
 dissect_cms_SignerIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              SignerIdentifier_choice, hf_index, ett_cms_SignerIdentifier);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              SignerIdentifier_choice, hf_index, ett_cms_SignerIdentifier, NULL);
 
   return offset;
 }
@@ -731,8 +734,8 @@ static const ber_choice_t RecipientIdentifier_choice[] = {
 
 static int
 dissect_cms_RecipientIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              RecipientIdentifier_choice, hf_index, ett_cms_RecipientIdentifier);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              RecipientIdentifier_choice, hf_index, ett_cms_RecipientIdentifier, NULL);
 
   return offset;
 }
@@ -829,8 +832,8 @@ static const ber_choice_t OriginatorIdentifierOrKey_choice[] = {
 
 static int
 dissect_cms_OriginatorIdentifierOrKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              OriginatorIdentifierOrKey_choice, hf_index, ett_cms_OriginatorIdentifierOrKey);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              OriginatorIdentifierOrKey_choice, hf_index, ett_cms_OriginatorIdentifierOrKey, NULL);
 
   return offset;
 }
@@ -860,6 +863,7 @@ dissect_cms_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 static int dissect_date(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_cms_GeneralizedTime(FALSE, tvb, offset, pinfo, tree, hf_cms_date);
 }
+
 
 
 static int
@@ -937,8 +941,8 @@ static const ber_choice_t KeyAgreeRecipientIdentifier_choice[] = {
 
 static int
 dissect_cms_KeyAgreeRecipientIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              KeyAgreeRecipientIdentifier_choice, hf_index, ett_cms_KeyAgreeRecipientIdentifier);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              KeyAgreeRecipientIdentifier_choice, hf_index, ett_cms_KeyAgreeRecipientIdentifier, NULL);
 
   return offset;
 }
@@ -1064,8 +1068,8 @@ static const ber_choice_t RecipientInfo_choice[] = {
 
 static int
 dissect_cms_RecipientInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              RecipientInfo_choice, hf_index, ett_cms_RecipientInfo);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              RecipientInfo_choice, hf_index, ett_cms_RecipientInfo, NULL);
 
   return offset;
 }

@@ -144,7 +144,8 @@ static const value_string pkixqualified_PredefinedBiometricType_vals[] = {
 
 static int
 dissect_pkixqualified_PredefinedBiometricType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -153,10 +154,11 @@ static int dissect_predefinedBiometricType(packet_info *pinfo, proto_tree *tree,
 }
 
 
+
 static int
 dissect_pkixqualified_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
-                                         hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -182,8 +184,8 @@ static const ber_choice_t TypeOfBiometricData_choice[] = {
 
 static int
 dissect_pkixqualified_TypeOfBiometricData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              TypeOfBiometricData_choice, hf_index, ett_pkixqualified_TypeOfBiometricData);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              TypeOfBiometricData_choice, hf_index, ett_pkixqualified_TypeOfBiometricData, NULL);
 
   return offset;
 }
@@ -246,6 +248,7 @@ dissect_pkixqualified_BiometricSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, 
 
   return offset;
 }
+
 
 
 static int

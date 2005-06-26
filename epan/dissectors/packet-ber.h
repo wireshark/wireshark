@@ -124,7 +124,7 @@ typedef struct _ber_choice_t {
 
 /* this function dissects a BER choice 
  */
-extern int dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_choice_t *ch, gint hf_id, gint ett_id);
+extern int dissect_ber_CHOICE(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_choice_t *ch, gint hf_id, gint ett_id, gint *branch_taken);
 
 
 /* this function dissects a BER strings

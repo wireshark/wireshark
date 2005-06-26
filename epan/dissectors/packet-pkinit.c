@@ -59,14 +59,14 @@ static int proto_pkinit = -1;
 static int hf_pkinit_AuthPack_PDU = -1;           /* AuthPack */
 static int hf_pkinit_KDCDHKeyInfo_PDU = -1;       /* KDCDHKeyInfo */
 static int hf_pkinit_signedAuthPack = -1;         /* ContentInfo */
-static int hf_pkinit_trustedCertifiers = -1;      /* SEQUNCE_OF_TrustedCA */
+static int hf_pkinit_trustedCertifiers = -1;      /* SEQUENCE_OF_TrustedCA */
 static int hf_pkinit_trustedCertifiers_item = -1;  /* TrustedCA */
 static int hf_pkinit_kdcCert = -1;                /* IssuerAndSerialNumber */
 static int hf_pkinit_caName = -1;                 /* Name */
 static int hf_pkinit_issuerAndSerial = -1;        /* IssuerAndSerialNumber */
 static int hf_pkinit_pkAuthenticator = -1;        /* PKAuthenticator */
 static int hf_pkinit_clientPublicValue = -1;      /* SubjectPublicKeyInfo */
-static int hf_pkinit_supportedCMSTypes = -1;      /* SEQUNCE_OF_AlgorithmIdentifier */
+static int hf_pkinit_supportedCMSTypes = -1;      /* SEQUENCE_OF_AlgorithmIdentifier */
 static int hf_pkinit_supportedCMSTypes_item = -1;  /* AlgorithmIdentifier */
 static int hf_pkinit_cusec = -1;                  /* INTEGER */
 static int hf_pkinit_ctime = -1;                  /* KerberosTime */
@@ -86,10 +86,10 @@ static int hf_pkinit_dhKeyExpiration = -1;        /* KerberosTime */
 /*--- Included file: packet-pkinit-ett.c ---*/
 
 static gint ett_pkinit_PaPkAsReq = -1;
-static gint ett_pkinit_SEQUNCE_OF_TrustedCA = -1;
+static gint ett_pkinit_SEQUENCE_OF_TrustedCA = -1;
 static gint ett_pkinit_TrustedCA = -1;
 static gint ett_pkinit_AuthPack = -1;
-static gint ett_pkinit_SEQUNCE_OF_AlgorithmIdentifier = -1;
+static gint ett_pkinit_SEQUENCE_OF_AlgorithmIdentifier = -1;
 static gint ett_pkinit_PKAuthenticator = -1;
 static gint ett_pkinit_PaPkAsRep = -1;
 static gint ett_pkinit_KDCDHKeyInfo = -1;
@@ -140,7 +140,7 @@ static int dissect_dhKeyExpiration(packet_info *pinfo, proto_tree *tree, tvbuff_
 }
 
 
-static const value_string TrustedCA_vals[] = {
+static const value_string pkinit_TrustedCA_vals[] = {
   {   0, "caName" },
   {   2, "issuerAndSerial" },
   { 0, NULL }
@@ -154,8 +154,8 @@ static const ber_choice_t TrustedCA_choice[] = {
 
 static int
 dissect_pkinit_TrustedCA(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              TrustedCA_choice, hf_index, ett_pkinit_TrustedCA);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              TrustedCA_choice, hf_index, ett_pkinit_TrustedCA, NULL);
 
   return offset;
 }
@@ -163,19 +163,19 @@ static int dissect_trustedCertifiers_item(packet_info *pinfo, proto_tree *tree, 
   return dissect_pkinit_TrustedCA(FALSE, tvb, offset, pinfo, tree, hf_pkinit_trustedCertifiers_item);
 }
 
-static const ber_sequence_t SEQUNCE_OF_TrustedCA_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_OF_TrustedCA_sequence_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_trustedCertifiers_item },
 };
 
 static int
-dissect_pkinit_SEQUNCE_OF_TrustedCA(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_pkinit_SEQUENCE_OF_TrustedCA(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUNCE_OF_TrustedCA_sequence_of, hf_index, ett_pkinit_SEQUNCE_OF_TrustedCA);
+                                   SEQUENCE_OF_TrustedCA_sequence_of, hf_index, ett_pkinit_SEQUENCE_OF_TrustedCA);
 
   return offset;
 }
 static int dissect_trustedCertifiers(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pkinit_SEQUNCE_OF_TrustedCA(FALSE, tvb, offset, pinfo, tree, hf_pkinit_trustedCertifiers);
+  return dissect_pkinit_SEQUENCE_OF_TrustedCA(FALSE, tvb, offset, pinfo, tree, hf_pkinit_trustedCertifiers);
 }
 
 static const ber_sequence_t PaPkAsReq_sequence[] = {
@@ -197,7 +197,8 @@ dissect_pkinit_PaPkAsReq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 
 static int
 dissect_pkinit_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -212,7 +213,8 @@ static int dissect_dhNonce(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 
 static int
 dissect_pkinit_INTEGER_0_4294967295(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -239,19 +241,19 @@ static int dissect_pkAuthenticator(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_pkinit_PKAuthenticator(FALSE, tvb, offset, pinfo, tree, hf_pkinit_pkAuthenticator);
 }
 
-static const ber_sequence_t SEQUNCE_OF_AlgorithmIdentifier_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_OF_AlgorithmIdentifier_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_supportedCMSTypes_item },
 };
 
 static int
-dissect_pkinit_SEQUNCE_OF_AlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_pkinit_SEQUENCE_OF_AlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUNCE_OF_AlgorithmIdentifier_sequence_of, hf_index, ett_pkinit_SEQUNCE_OF_AlgorithmIdentifier);
+                                   SEQUENCE_OF_AlgorithmIdentifier_sequence_of, hf_index, ett_pkinit_SEQUENCE_OF_AlgorithmIdentifier);
 
   return offset;
 }
 static int dissect_supportedCMSTypes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pkinit_SEQUNCE_OF_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_pkinit_supportedCMSTypes);
+  return dissect_pkinit_SEQUENCE_OF_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_pkinit_supportedCMSTypes);
 }
 
 static const ber_sequence_t AuthPack_sequence[] = {
@@ -270,7 +272,7 @@ dissect_pkinit_AuthPack(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 }
 
 
-static const value_string PaPkAsRep_vals[] = {
+static const value_string pkinit_PaPkAsRep_vals[] = {
   {   0, "dhSignedData" },
   {   1, "encKeyPack" },
   { 0, NULL }
@@ -284,8 +286,8 @@ static const ber_choice_t PaPkAsRep_choice[] = {
 
 static int
 dissect_pkinit_PaPkAsRep(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              PaPkAsRep_choice, hf_index, ett_pkinit_PaPkAsRep);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              PaPkAsRep_choice, hf_index, ett_pkinit_PaPkAsRep, NULL);
 
   return offset;
 }
@@ -382,7 +384,7 @@ void proto_register_pkinit(void) {
         "PaPkAsReq/trustedCertifiers", HFILL }},
     { &hf_pkinit_trustedCertifiers_item,
       { "Item", "pkinit.trustedCertifiers_item",
-        FT_UINT32, BASE_DEC, VALS(TrustedCA_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(pkinit_TrustedCA_vals), 0,
         "PaPkAsReq/trustedCertifiers/_item", HFILL }},
     { &hf_pkinit_kdcCert,
       { "kdcCert", "pkinit.kdcCert",
@@ -459,10 +461,10 @@ void proto_register_pkinit(void) {
 /*--- Included file: packet-pkinit-ettarr.c ---*/
 
     &ett_pkinit_PaPkAsReq,
-    &ett_pkinit_SEQUNCE_OF_TrustedCA,
+    &ett_pkinit_SEQUENCE_OF_TrustedCA,
     &ett_pkinit_TrustedCA,
     &ett_pkinit_AuthPack,
-    &ett_pkinit_SEQUNCE_OF_AlgorithmIdentifier,
+    &ett_pkinit_SEQUENCE_OF_AlgorithmIdentifier,
     &ett_pkinit_PKAuthenticator,
     &ett_pkinit_PaPkAsRep,
     &ett_pkinit_KDCDHKeyInfo,

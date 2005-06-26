@@ -712,7 +712,8 @@ static const value_string camel_number_plan_values[] = {
 
 static int
 dissect_camel_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -851,7 +852,8 @@ dissect_camel_PBIPSSPCapabilities(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 
 static int
 dissect_camel_INTEGER_1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -996,7 +998,8 @@ dissect_camel_PBGeographicalInformation(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_camel_INTEGER_4_16(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -1035,7 +1038,8 @@ dissect_camel_PBGSNAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
 static int
 dissect_camel_INTEGER_0(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -1284,7 +1288,8 @@ static int dissect_accessPointName_impl(packet_info *pinfo, proto_tree *tree, tv
 
 static int
 dissect_camel_INTEGER_1_864000(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -1334,7 +1339,8 @@ static int dissect_active_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_camel_INTEGER_1_86400(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -1346,10 +1352,11 @@ static int dissect_maxElapsedTime_impl(packet_info *pinfo, proto_tree *tree, tvb
 }
 
 
+
 static int
 dissect_camel_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
-                                         hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -1372,8 +1379,8 @@ static const ber_choice_t Code_choice[] = {
 
 static int
 dissect_camel_Code(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Code_choice, hf_index, ett_camel_Code);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Code_choice, hf_index, ett_camel_Code, NULL);
 
   return offset;
 }
@@ -1408,12 +1415,10 @@ static int dissect_criticality(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 }
 
 
+
 static int
 dissect_camel_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  { proto_item *ti_tmp;
-  ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>8, 0, FALSE);
-  proto_item_append_text(ti_tmp, ": NULL");
-  }
+  offset = dissect_ber_null(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -1485,8 +1490,8 @@ static const ber_choice_t SupportedExtensionsExtensionType_choice[] = {
 
 static int
 dissect_camel_SupportedExtensionsExtensionType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              SupportedExtensionsExtensionType_choice, hf_index, ett_camel_SupportedExtensionsExtensionType);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              SupportedExtensionsExtensionType_choice, hf_index, ett_camel_SupportedExtensionsExtensionType, NULL);
 
   return offset;
 }
@@ -1563,8 +1568,8 @@ static const ber_choice_t AChBillingChargingCharacteristics_choice[] = {
 
 static int
 dissect_camel_AChBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              AChBillingChargingCharacteristics_choice, hf_index, ett_camel_AChBillingChargingCharacteristics);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              AChBillingChargingCharacteristics_choice, hf_index, ett_camel_AChBillingChargingCharacteristics, NULL);
 
   return offset;
 }
@@ -1620,7 +1625,8 @@ static int dissect_alertingPattern_impl(packet_info *pinfo, proto_tree *tree, tv
 
 static int
 dissect_camel_INTEGER_0_8191(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -1747,7 +1753,8 @@ static int dissect_appendFreeFormatData_impl(packet_info *pinfo, proto_tree *tre
 
 static int
 dissect_camel_ApplicationTimer(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -1787,7 +1794,8 @@ static int dissect_backwardServiceInteractionInd_impl(packet_info *pinfo, proto_
 
 static int
 dissect_camel_ServiceKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -1864,8 +1872,8 @@ static const ber_choice_t BasicGapCriteria_choice[] = {
 
 static int
 dissect_camel_BasicGapCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              BasicGapCriteria_choice, hf_index, ett_camel_BasicGapCriteria);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              BasicGapCriteria_choice, hf_index, ett_camel_BasicGapCriteria, NULL);
 
   return offset;
 }
@@ -1955,8 +1963,8 @@ static const ber_choice_t LegID_choice[] = {
 
 static int
 dissect_camel_LegID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              LegID_choice, hf_index, ett_camel_LegID);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              LegID_choice, hf_index, ett_camel_LegID, NULL);
 
   return offset;
 }
@@ -1977,8 +1985,8 @@ static const ber_choice_t DpSpecificCriteria_choice[] = {
 
 static int
 dissect_camel_DpSpecificCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              DpSpecificCriteria_choice, hf_index, ett_camel_DpSpecificCriteria);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              DpSpecificCriteria_choice, hf_index, ett_camel_DpSpecificCriteria, NULL);
 
   return offset;
 }
@@ -2030,8 +2038,8 @@ static const ber_choice_t BearerCapability_choice[] = {
 
 static int
 dissect_camel_BearerCapability(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              BearerCapability_choice, hf_index, ett_camel_BearerCapability);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              BearerCapability_choice, hf_index, ett_camel_BearerCapability, NULL);
 
   return offset;
 }
@@ -2173,8 +2181,8 @@ static const ber_choice_t ReceivingSideID_choice[] = {
 
 static int
 dissect_camel_ReceivingSideID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              ReceivingSideID_choice, hf_index, ett_camel_ReceivingSideID);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              ReceivingSideID_choice, hf_index, ett_camel_ReceivingSideID, NULL);
 
   return offset;
 }
@@ -2189,7 +2197,8 @@ static int dissect_legID2_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_camel_TimeIfNoTariffSwitch(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -2201,7 +2210,8 @@ static int dissect_timeIfNoTariffSwitch_impl(packet_info *pinfo, proto_tree *tre
 
 static int
 dissect_camel_INTEGER_0_864000(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -2241,8 +2251,8 @@ static const ber_choice_t TimeInformation_choice[] = {
 
 static int
 dissect_camel_TimeInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              TimeInformation_choice, hf_index, ett_camel_TimeInformation);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              TimeInformation_choice, hf_index, ett_camel_TimeInformation, NULL);
 
   return offset;
 }
@@ -2283,8 +2293,8 @@ static const ber_choice_t CamelCallResult_choice[] = {
 
 static int
 dissect_camel_CamelCallResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              CamelCallResult_choice, hf_index, ett_camel_CamelCallResult);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              CamelCallResult_choice, hf_index, ett_camel_CamelCallResult, NULL);
 
   return offset;
 }
@@ -2330,8 +2340,8 @@ static const ber_choice_t CamelAChBillingChargingCharacteristics_choice[] = {
 
 static int
 dissect_camel_CamelAChBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              CamelAChBillingChargingCharacteristics_choice, hf_index, ett_camel_CamelAChBillingChargingCharacteristics);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              CamelAChBillingChargingCharacteristics_choice, hf_index, ett_camel_CamelAChBillingChargingCharacteristics, NULL);
 
   return offset;
 }
@@ -2361,8 +2371,8 @@ static const ber_choice_t SendingSideID_choice[] = {
 
 static int
 dissect_camel_SendingSideID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              SendingSideID_choice, hf_index, ett_camel_SendingSideID);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              SendingSideID_choice, hf_index, ett_camel_SendingSideID, NULL);
 
   return offset;
 }
@@ -2404,8 +2414,8 @@ static const ber_choice_t CamelFCIBillingChargingCharacteristics_choice[] = {
 
 static int
 dissect_camel_CamelFCIBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              CamelFCIBillingChargingCharacteristics_choice, hf_index, ett_camel_CamelFCIBillingChargingCharacteristics);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              CamelFCIBillingChargingCharacteristics_choice, hf_index, ett_camel_CamelFCIBillingChargingCharacteristics, NULL);
 
   return offset;
 }
@@ -2486,8 +2496,8 @@ static const ber_choice_t CamelFCISMSBillingChargingCharacteristics_choice[] = {
 
 static int
 dissect_camel_CamelFCISMSBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              CamelFCISMSBillingChargingCharacteristics_choice, hf_index, ett_camel_CamelFCISMSBillingChargingCharacteristics);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              CamelFCISMSBillingChargingCharacteristics_choice, hf_index, ett_camel_CamelFCISMSBillingChargingCharacteristics, NULL);
 
   return offset;
 }
@@ -2507,8 +2517,8 @@ static const ber_choice_t CamelSCIBillingChargingCharacteristics_choice[] = {
 
 static int
 dissect_camel_CamelSCIBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              CamelSCIBillingChargingCharacteristics_choice, hf_index, ett_camel_CamelSCIBillingChargingCharacteristics);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              CamelSCIBillingChargingCharacteristics_choice, hf_index, ett_camel_CamelSCIBillingChargingCharacteristics, NULL);
 
   return offset;
 }
@@ -2585,7 +2595,8 @@ static int dissect_chargeNumber_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_camel_INTEGER_1_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -2608,8 +2619,8 @@ static const ber_choice_t ChargingCharacteristics_choice[] = {
 
 static int
 dissect_camel_ChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              ChargingCharacteristics_choice, hf_index, ett_camel_ChargingCharacteristics);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              ChargingCharacteristics_choice, hf_index, ett_camel_ChargingCharacteristics, NULL);
 
   return offset;
 }
@@ -2621,7 +2632,8 @@ static int dissect_chargingCharacteristics_impl(packet_info *pinfo, proto_tree *
 
 static int
 dissect_camel_INTEGER_0_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -2667,8 +2679,8 @@ static const ber_choice_t TransferredVolume_choice[] = {
 
 static int
 dissect_camel_TransferredVolume(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              TransferredVolume_choice, hf_index, ett_camel_TransferredVolume);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              TransferredVolume_choice, hf_index, ett_camel_TransferredVolume, NULL);
 
   return offset;
 }
@@ -2680,7 +2692,8 @@ static int dissect_transferredVolume_impl(packet_info *pinfo, proto_tree *tree, 
 
 static int
 dissect_camel_INTEGER_0_86400(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -2726,8 +2739,8 @@ static const ber_choice_t ElapsedTime_choice[] = {
 
 static int
 dissect_camel_ElapsedTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              ElapsedTime_choice, hf_index, ett_camel_ElapsedTime);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              ElapsedTime_choice, hf_index, ett_camel_ElapsedTime, NULL);
 
   return offset;
 }
@@ -2750,8 +2763,8 @@ static const ber_choice_t ChargingResult_choice[] = {
 
 static int
 dissect_camel_ChargingResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              ChargingResult_choice, hf_index, ett_camel_ChargingResult);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              ChargingResult_choice, hf_index, ett_camel_ChargingResult, NULL);
 
   return offset;
 }
@@ -2763,7 +2776,8 @@ static int dissect_chargingResult_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_camel_INTEGER_0_255(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -2821,8 +2835,8 @@ static const ber_choice_t TransferredVolumeRollOver_choice[] = {
 
 static int
 dissect_camel_TransferredVolumeRollOver(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              TransferredVolumeRollOver_choice, hf_index, ett_camel_TransferredVolumeRollOver);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              TransferredVolumeRollOver_choice, hf_index, ett_camel_TransferredVolumeRollOver, NULL);
 
   return offset;
 }
@@ -2862,8 +2876,8 @@ static const ber_choice_t ElapsedTimeRollOver_choice[] = {
 
 static int
 dissect_camel_ElapsedTimeRollOver(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              ElapsedTimeRollOver_choice, hf_index, ett_camel_ElapsedTimeRollOver);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              ElapsedTimeRollOver_choice, hf_index, ett_camel_ElapsedTimeRollOver, NULL);
 
   return offset;
 }
@@ -2886,8 +2900,8 @@ static const ber_choice_t ChargingRollOver_choice[] = {
 
 static int
 dissect_camel_ChargingRollOver(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              ChargingRollOver_choice, hf_index, ett_camel_ChargingRollOver);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              ChargingRollOver_choice, hf_index, ett_camel_ChargingRollOver, NULL);
 
   return offset;
 }
@@ -2899,7 +2913,8 @@ static int dissect_chargingRollOver_impl(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_camel_INTEGER_1_30(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -2932,7 +2947,8 @@ static int dissect_startDigit_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static int
 dissect_camel_INTEGER_1_127(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -3004,8 +3020,8 @@ static const ber_choice_t CollectedInfo_choice[] = {
 
 static int
 dissect_camel_CollectedInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              CollectedInfo_choice, hf_index, ett_camel_CollectedInfo);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              CollectedInfo_choice, hf_index, ett_camel_CollectedInfo, NULL);
 
   return offset;
 }
@@ -3437,8 +3453,8 @@ static const ber_choice_t EventSpecificInformationBCSM_choice[] = {
 
 static int
 dissect_camel_EventSpecificInformationBCSM(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              EventSpecificInformationBCSM_choice, hf_index, ett_camel_EventSpecificInformationBCSM);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              EventSpecificInformationBCSM_choice, hf_index, ett_camel_EventSpecificInformationBCSM, NULL);
 
   return offset;
 }
@@ -3514,8 +3530,8 @@ static const ber_choice_t EventSpecificInformationSMS_choice[] = {
 
 static int
 dissect_camel_EventSpecificInformationSMS(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              EventSpecificInformationSMS_choice, hf_index, ett_camel_EventSpecificInformationSMS);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              EventSpecificInformationSMS_choice, hf_index, ett_camel_EventSpecificInformationSMS, NULL);
 
   return offset;
 }
@@ -3612,8 +3628,8 @@ static const ber_choice_t GapCriteria_choice[] = {
 
 static int
 dissect_camel_GapCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              GapCriteria_choice, hf_index, ett_camel_GapCriteria);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              GapCriteria_choice, hf_index, ett_camel_GapCriteria, NULL);
 
   return offset;
 }
@@ -3625,7 +3641,8 @@ static int dissect_gapCriteria_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_camel_Duration(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -3637,7 +3654,8 @@ static int dissect_duration_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 static int
 dissect_camel_Interval(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -3666,7 +3684,8 @@ static int dissect_gapIndicators_impl(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_camel_Integer4(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -3800,8 +3819,8 @@ static const ber_choice_t VariablePart_choice[] = {
 
 static int
 dissect_camel_VariablePart(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              VariablePart_choice, hf_index, ett_camel_VariablePart);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              VariablePart_choice, hf_index, ett_camel_VariablePart, NULL);
 
   return offset;
 }
@@ -3860,8 +3879,8 @@ static const ber_choice_t MessageID_choice[] = {
 
 static int
 dissect_camel_MessageID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              MessageID_choice, hf_index, ett_camel_MessageID);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              MessageID_choice, hf_index, ett_camel_MessageID, NULL);
 
   return offset;
 }
@@ -3873,7 +3892,8 @@ static int dissect_messageID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_camel_INTEGER_0_32767(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -3935,8 +3955,8 @@ static const ber_choice_t InformationToSend_choice[] = {
 
 static int
 dissect_camel_InformationToSend(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              InformationToSend_choice, hf_index, ett_camel_InformationToSend);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              InformationToSend_choice, hf_index, ett_camel_InformationToSend, NULL);
 
   return offset;
 }
@@ -3959,8 +3979,8 @@ static const ber_choice_t GapTreatment_choice[] = {
 
 static int
 dissect_camel_GapTreatment(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              GapTreatment_choice, hf_index, ett_camel_GapTreatment);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              GapTreatment_choice, hf_index, ett_camel_GapTreatment, NULL);
 
   return offset;
 }
@@ -4034,8 +4054,8 @@ static const ber_choice_t GPRS_QoS_choice[] = {
 
 static int
 dissect_camel_GPRS_QoS(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              GPRS_QoS_choice, hf_index, ett_camel_GPRS_QoS);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              GPRS_QoS_choice, hf_index, ett_camel_GPRS_QoS, NULL);
 
   return offset;
 }
@@ -4168,10 +4188,11 @@ static int dissect_selectedLSA_Id_impl(packet_info *pinfo, proto_tree *tree, tvb
 }
 
 
+
 static int
 dissect_camel_ExtensionSetextensionId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
-                                         hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -4505,8 +4526,8 @@ static const ber_choice_t GPRSEventSpecificInformation_choice[] = {
 
 static int
 dissect_camel_GPRSEventSpecificInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              GPRSEventSpecificInformation_choice, hf_index, ett_camel_GPRSEventSpecificInformation);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              GPRSEventSpecificInformation_choice, hf_index, ett_camel_GPRSEventSpecificInformation, NULL);
 
   return offset;
 }
@@ -4559,7 +4580,8 @@ static int dissect_gPRSMSClass_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_camel_TCInvokeIdSet(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -4626,12 +4648,10 @@ static int dissect_originalCalledPartyID_impl(packet_info *pinfo, proto_tree *tr
 }
 
 
+
 static int
 dissect_camel_OCSIApplicable(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  { proto_item *ti_tmp;
-  ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>8, 0, FALSE);
-  proto_item_append_text(ti_tmp, ": NULL");
-  }
+  offset = dissect_ber_null(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -4693,8 +4713,8 @@ static const ber_choice_t RequestedInformationValue_choice[] = {
 
 static int
 dissect_camel_RequestedInformationValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              RequestedInformationValue_choice, hf_index, ett_camel_RequestedInformationValue);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              RequestedInformationValue_choice, hf_index, ett_camel_RequestedInformationValue, NULL);
 
   return offset;
 }
@@ -4947,12 +4967,10 @@ dissect_camel_UnavailableNetworkResource(gboolean implicit_tag _U_, tvbuff_t *tv
 }
 
 
+
 static int
 dissect_camel_SpecializedResourceReportArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  { proto_item *ti_tmp;
-  ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>8, 0, FALSE);
-  proto_item_append_text(ti_tmp, ": NULL");
-  }
+  offset = dissect_ber_null(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -4961,7 +4979,8 @@ dissect_camel_SpecializedResourceReportArg(gboolean implicit_tag _U_, tvbuff_t *
 
 static int
 dissect_camel_Priority(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -4982,7 +5001,8 @@ static int dissect_cug_Interlock_impl(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_camel_CUG_Index(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -5006,12 +5026,10 @@ static int dissect_smsReferenceNumber_impl(packet_info *pinfo, proto_tree *tree,
 }
 
 
+
 static int
 dissect_camel_SuppressionOfAnnouncement(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  { proto_item *ti_tmp;
-  ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>8, 0, FALSE);
-  proto_item_append_text(ti_tmp, ": NULL");
-  }
+  offset = dissect_ber_null(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -5043,7 +5061,8 @@ static int dissect_netDetNotReachable(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_camel_AgeOfLocationInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -5250,8 +5269,8 @@ static const ber_choice_t CancelArg_choice[] = {
 
 static int
 dissect_camel_CancelArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              CancelArg_choice, hf_index, ett_camel_CancelArg);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              CancelArg_choice, hf_index, ett_camel_CancelArg, NULL);
 
   return offset;
 }
@@ -5301,8 +5320,8 @@ static const ber_choice_t ReceivedInformationArg_choice[] = {
 
 static int
 dissect_camel_ReceivedInformationArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              ReceivedInformationArg_choice, hf_index, ett_camel_ReceivedInformationArg);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              ReceivedInformationArg_choice, hf_index, ett_camel_ReceivedInformationArg, NULL);
 
   return offset;
 }
@@ -5427,8 +5446,8 @@ static const ber_choice_t SubscriberState_choice[] = {
 
 static int
 dissect_camel_SubscriberState(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              SubscriberState_choice, hf_index, ett_camel_SubscriberState);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              SubscriberState_choice, hf_index, ett_camel_SubscriberState, NULL);
 
   return offset;
 }
@@ -5451,8 +5470,8 @@ static const ber_choice_t CellIdOrLAI_choice[] = {
 
 static int
 dissect_camel_CellIdOrLAI(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              CellIdOrLAI_choice, hf_index, ett_camel_CellIdOrLAI);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              CellIdOrLAI_choice, hf_index, ett_camel_CellIdOrLAI, NULL);
 
   return offset;
 }
@@ -5475,8 +5494,8 @@ static const ber_choice_t Ext_BasicServiceCode_choice[] = {
 
 static int
 dissect_camel_Ext_BasicServiceCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Ext_BasicServiceCode_choice, hf_index, ett_camel_Ext_BasicServiceCode);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Ext_BasicServiceCode_choice, hf_index, ett_camel_Ext_BasicServiceCode, NULL);
 
   return offset;
 }
@@ -5645,8 +5664,8 @@ static const ber_choice_t T_resourceAddress_choice[] = {
 
 static int
 dissect_camel_T_resourceAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_resourceAddress_choice, hf_index, ett_camel_T_resourceAddress);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              T_resourceAddress_choice, hf_index, ett_camel_T_resourceAddress, NULL);
 
   return offset;
 }
@@ -6451,8 +6470,8 @@ static const ber_choice_t InvokeId_choice[] = {
 
 static int
 dissect_camel_InvokeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              InvokeId_choice, hf_index, ett_camel_InvokeId);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              InvokeId_choice, hf_index, ett_camel_InvokeId, NULL);
 
   return offset;
 }
@@ -6554,8 +6573,8 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
     col_append_fstr(pinfo->cinfo, COL_INFO, val_to_str(camel_pdu_type, camelPDU_vals, "Unknown Camel (%u)"));
   }
 
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              camelPDU_choice, hf_index, ett_camel_camelPDU);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              camelPDU_choice, hf_index, ett_camel_camelPDU, NULL);
 
   return offset;
 }

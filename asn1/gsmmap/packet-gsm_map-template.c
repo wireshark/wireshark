@@ -874,8 +874,8 @@ static const ber_choice_t InvokeId_choice[] = {
 
 static int
 dissect_gsm_map_InvokeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              InvokeId_choice, hf_index, ett_gsm_map_InvokeId);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              InvokeId_choice, hf_index, ett_gsm_map_InvokeId, NULL);
 
   return offset;
 }
@@ -952,8 +952,8 @@ static const ber_choice_t ReturnError_result_choice[] = {
 static int
 dissect_ReturnError_result(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
 
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              ReturnError_result_choice, hf_gsm_map_returnError_result, ett_gsm_map_ReturnError_result);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              ReturnError_result_choice, hf_gsm_map_returnError_result, ett_gsm_map_ReturnError_result, NULL);
 
   return offset;
 }
@@ -1020,8 +1020,8 @@ dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str(gsmmap_pdu_type, GSMMAPPDU_vals, "Unknown GSM-MAP PDU (%u)"));
   }
 
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              GSMMAPPDU_choice, hf_index, ett_gsm_map_GSMMAPPDU);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              GSMMAPPDU_choice, hf_index, ett_gsm_map_GSMMAPPDU, NULL);
 
 
   return offset;

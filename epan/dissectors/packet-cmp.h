@@ -36,9 +36,9 @@
 
 /*--- Included file: packet-cmp-exp.h ---*/
 
-extern const value_string PKIBody_vals[];
-extern const value_string PKIStatus_vals[];
-extern const value_string CertOrEncCert_vals[];
+extern const value_string cmp_PKIBody_vals[];
+extern const value_string cmp_PKIStatus_vals[];
+extern const value_string cmp_CertOrEncCert_vals[];
 int dissect_cmp_PKIMessage(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_cmp_PKIHeader(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_cmp_PKIFreeText(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);

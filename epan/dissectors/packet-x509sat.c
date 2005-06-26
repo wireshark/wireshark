@@ -360,8 +360,8 @@ static const ber_choice_t CriteriaItem_choice[] = {
 
 static int
 dissect_x509sat_CriteriaItem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              CriteriaItem_choice, hf_index, ett_x509sat_CriteriaItem);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              CriteriaItem_choice, hf_index, ett_x509sat_CriteriaItem, NULL);
 
   return offset;
 }
@@ -406,17 +406,18 @@ static const ber_choice_t Criteria_choice[] = {
 
 int
 dissect_x509sat_Criteria(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Criteria_choice, hf_index, ett_x509sat_Criteria);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Criteria_choice, hf_index, ett_x509sat_Criteria, NULL);
 
   return offset;
 }
 
 
+
 static int
 dissect_x509sat_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
-                                         hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -444,7 +445,8 @@ static const value_string x509sat_T_subset_vals[] = {
 
 static int
 dissect_x509sat_T_subset(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -587,7 +589,8 @@ static const value_string x509sat_PreferredDeliveryMethod_item_vals[] = {
 
 static int
 dissect_x509sat_PreferredDeliveryMethod_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -762,8 +765,8 @@ static const ber_choice_t SubstringAssertion_item_choice[] = {
 
 static int
 dissect_x509sat_SubstringAssertion_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              SubstringAssertion_item_choice, hf_index, ett_x509sat_SubstringAssertion_item);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              SubstringAssertion_item_choice, hf_index, ett_x509sat_SubstringAssertion_item, NULL);
 
   return offset;
 }
@@ -812,8 +815,8 @@ static const ber_choice_t OctetSubstringAssertion_item_choice[] = {
 
 static int
 dissect_x509sat_OctetSubstringAssertion_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              OctetSubstringAssertion_item_choice, hf_index, ett_x509sat_OctetSubstringAssertion_item);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              OctetSubstringAssertion_item_choice, hf_index, ett_x509sat_OctetSubstringAssertion_item, NULL);
 
   return offset;
 }
@@ -909,7 +912,8 @@ static int dissect_absolute(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 static int
 dissect_x509sat_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -1004,13 +1008,13 @@ static int dissect_intDay(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 }
 
 static const asn_namedbit T_bitDay_bits[] = {
-  {  0, &hf_x509sat_T_bitDay_sunday, -1, -1, NULL, NULL },
-  {  1, &hf_x509sat_T_bitDay_monday, -1, -1, NULL, NULL },
-  {  2, &hf_x509sat_T_bitDay_tuesday, -1, -1, NULL, NULL },
-  {  3, &hf_x509sat_T_bitDay_wednesday, -1, -1, NULL, NULL },
-  {  4, &hf_x509sat_T_bitDay_thursday, -1, -1, NULL, NULL },
-  {  5, &hf_x509sat_T_bitDay_friday, -1, -1, NULL, NULL },
-  {  6, &hf_x509sat_T_bitDay_saturday, -1, -1, NULL, NULL },
+  {  0, &hf_x509sat_T_bitDay_sunday, -1, -1, "sunday", NULL },
+  {  1, &hf_x509sat_T_bitDay_monday, -1, -1, "monday", NULL },
+  {  2, &hf_x509sat_T_bitDay_tuesday, -1, -1, "tuesday", NULL },
+  {  3, &hf_x509sat_T_bitDay_wednesday, -1, -1, "wednesday", NULL },
+  {  4, &hf_x509sat_T_bitDay_thursday, -1, -1, "thursday", NULL },
+  {  5, &hf_x509sat_T_bitDay_friday, -1, -1, "friday", NULL },
+  {  6, &hf_x509sat_T_bitDay_saturday, -1, -1, "saturday", NULL },
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
@@ -1050,13 +1054,13 @@ static int dissect_intNamedDays(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 }
 
 static const asn_namedbit T_bitNamedDays_bits[] = {
-  {  0, &hf_x509sat_T_bitNamedDays_sunday, -1, -1, NULL, NULL },
-  {  1, &hf_x509sat_T_bitNamedDays_monday, -1, -1, NULL, NULL },
-  {  2, &hf_x509sat_T_bitNamedDays_tuesday, -1, -1, NULL, NULL },
-  {  3, &hf_x509sat_T_bitNamedDays_wednesday, -1, -1, NULL, NULL },
-  {  4, &hf_x509sat_T_bitNamedDays_thursday, -1, -1, NULL, NULL },
-  {  5, &hf_x509sat_T_bitNamedDays_friday, -1, -1, NULL, NULL },
-  {  6, &hf_x509sat_T_bitNamedDays_saturday, -1, -1, NULL, NULL },
+  {  0, &hf_x509sat_T_bitNamedDays_sunday, -1, -1, "sunday", NULL },
+  {  1, &hf_x509sat_T_bitNamedDays_monday, -1, -1, "monday", NULL },
+  {  2, &hf_x509sat_T_bitNamedDays_tuesday, -1, -1, "tuesday", NULL },
+  {  3, &hf_x509sat_T_bitNamedDays_wednesday, -1, -1, "wednesday", NULL },
+  {  4, &hf_x509sat_T_bitNamedDays_thursday, -1, -1, "thursday", NULL },
+  {  5, &hf_x509sat_T_bitNamedDays_friday, -1, -1, "friday", NULL },
+  {  6, &hf_x509sat_T_bitNamedDays_saturday, -1, -1, "saturday", NULL },
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
@@ -1087,8 +1091,8 @@ static const ber_choice_t NamedDay_choice[] = {
 
 int
 dissect_x509sat_NamedDay(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              NamedDay_choice, hf_index, ett_x509sat_NamedDay);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              NamedDay_choice, hf_index, ett_x509sat_NamedDay, NULL);
 
   return offset;
 }
@@ -1129,8 +1133,8 @@ static const ber_choice_t XDayOf_choice[] = {
 
 int
 dissect_x509sat_XDayOf(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              XDayOf_choice, hf_index, ett_x509sat_XDayOf);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              XDayOf_choice, hf_index, ett_x509sat_XDayOf, NULL);
 
   return offset;
 }
@@ -1155,8 +1159,8 @@ static const ber_choice_t T_days_choice[] = {
 
 static int
 dissect_x509sat_T_days(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_days_choice, hf_index, ett_x509sat_T_days);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              T_days_choice, hf_index, ett_x509sat_T_days, NULL);
 
   return offset;
 }
@@ -1165,12 +1169,10 @@ static int dissect_days(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 }
 
 
+
 static int
 dissect_x509sat_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  { proto_item *ti_tmp;
-  ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>8, 0, FALSE);
-  proto_item_append_text(ti_tmp, ": NULL");
-  }
+  offset = dissect_ber_null(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -1200,11 +1202,11 @@ static int dissect_intWeek(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 }
 
 static const asn_namedbit T_bitWeek_bits[] = {
-  {  0, &hf_x509sat_T_bitWeek_week1, -1, -1, NULL, NULL },
-  {  1, &hf_x509sat_T_bitWeek_week2, -1, -1, NULL, NULL },
-  {  2, &hf_x509sat_T_bitWeek_week3, -1, -1, NULL, NULL },
-  {  3, &hf_x509sat_T_bitWeek_week4, -1, -1, NULL, NULL },
-  {  4, &hf_x509sat_T_bitWeek_week5, -1, -1, NULL, NULL },
+  {  0, &hf_x509sat_T_bitWeek_week1, -1, -1, "week1", NULL },
+  {  1, &hf_x509sat_T_bitWeek_week2, -1, -1, "week2", NULL },
+  {  2, &hf_x509sat_T_bitWeek_week3, -1, -1, "week3", NULL },
+  {  3, &hf_x509sat_T_bitWeek_week4, -1, -1, "week4", NULL },
+  {  4, &hf_x509sat_T_bitWeek_week5, -1, -1, "week5", NULL },
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
@@ -1237,8 +1239,8 @@ static const ber_choice_t T_weeks_choice[] = {
 
 static int
 dissect_x509sat_T_weeks(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_weeks_choice, hf_index, ett_x509sat_T_weeks);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              T_weeks_choice, hf_index, ett_x509sat_T_weeks, NULL);
 
   return offset;
 }
@@ -1262,18 +1264,18 @@ static int dissect_intMonth(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 }
 
 static const asn_namedbit T_bitMonth_bits[] = {
-  {  0, &hf_x509sat_T_bitMonth_january, -1, -1, NULL, NULL },
-  {  1, &hf_x509sat_T_bitMonth_february, -1, -1, NULL, NULL },
-  {  2, &hf_x509sat_T_bitMonth_march, -1, -1, NULL, NULL },
-  {  3, &hf_x509sat_T_bitMonth_april, -1, -1, NULL, NULL },
-  {  4, &hf_x509sat_T_bitMonth_may, -1, -1, NULL, NULL },
-  {  5, &hf_x509sat_T_bitMonth_june, -1, -1, NULL, NULL },
-  {  6, &hf_x509sat_T_bitMonth_july, -1, -1, NULL, NULL },
-  {  7, &hf_x509sat_T_bitMonth_august, -1, -1, NULL, NULL },
-  {  8, &hf_x509sat_T_bitMonth_september, -1, -1, NULL, NULL },
-  {  9, &hf_x509sat_T_bitMonth_october, -1, -1, NULL, NULL },
-  { 10, &hf_x509sat_T_bitMonth_november, -1, -1, NULL, NULL },
-  { 11, &hf_x509sat_T_bitMonth_december, -1, -1, NULL, NULL },
+  {  0, &hf_x509sat_T_bitMonth_january, -1, -1, "january", NULL },
+  {  1, &hf_x509sat_T_bitMonth_february, -1, -1, "february", NULL },
+  {  2, &hf_x509sat_T_bitMonth_march, -1, -1, "march", NULL },
+  {  3, &hf_x509sat_T_bitMonth_april, -1, -1, "april", NULL },
+  {  4, &hf_x509sat_T_bitMonth_may, -1, -1, "may", NULL },
+  {  5, &hf_x509sat_T_bitMonth_june, -1, -1, "june", NULL },
+  {  6, &hf_x509sat_T_bitMonth_july, -1, -1, "july", NULL },
+  {  7, &hf_x509sat_T_bitMonth_august, -1, -1, "august", NULL },
+  {  8, &hf_x509sat_T_bitMonth_september, -1, -1, "september", NULL },
+  {  9, &hf_x509sat_T_bitMonth_october, -1, -1, "october", NULL },
+  { 10, &hf_x509sat_T_bitMonth_november, -1, -1, "november", NULL },
+  { 11, &hf_x509sat_T_bitMonth_december, -1, -1, "december", NULL },
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
@@ -1306,8 +1308,8 @@ static const ber_choice_t T_months_choice[] = {
 
 static int
 dissect_x509sat_T_months(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_months_choice, hf_index, ett_x509sat_T_months);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              T_months_choice, hf_index, ett_x509sat_T_months, NULL);
 
   return offset;
 }
@@ -1380,8 +1382,8 @@ static const ber_choice_t T_time_choice[] = {
 
 static int
 dissect_x509sat_T_time(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_time_choice, hf_index, ett_x509sat_T_time);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              T_time_choice, hf_index, ett_x509sat_T_time, NULL);
 
   return offset;
 }
@@ -1407,7 +1409,8 @@ static int dissect_entirely(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 int
 dissect_x509sat_TimeZone(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -1465,8 +1468,8 @@ static const ber_choice_t TimeAssertion_choice[] = {
 
 int
 dissect_x509sat_TimeAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              TimeAssertion_choice, hf_index, ett_x509sat_TimeAssertion);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              TimeAssertion_choice, hf_index, ett_x509sat_TimeAssertion, NULL);
 
   return offset;
 }
@@ -1486,8 +1489,8 @@ static const ber_choice_t LocaleContextSyntax_choice[] = {
 
 int
 dissect_x509sat_LocaleContextSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              LocaleContextSyntax_choice, hf_index, ett_x509sat_LocaleContextSyntax);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              LocaleContextSyntax_choice, hf_index, ett_x509sat_LocaleContextSyntax, NULL);
 
   return offset;
 }

@@ -60,7 +60,7 @@ static int hf_cmp_type_oid = -1;
 static int hf_cmp_header = -1;                    /* PKIHeader */
 static int hf_cmp_body = -1;                      /* PKIBody */
 static int hf_cmp_protection = -1;                /* PKIProtection */
-static int hf_cmp_extraCerts = -1;                /* SEQUNCE_SIZE_1_MAX_OF_Certificate */
+static int hf_cmp_extraCerts = -1;                /* SEQUENCE_SIZE_1_MAX_OF_Certificate */
 static int hf_cmp_extraCerts_item = -1;           /* Certificate */
 static int hf_cmp_pvno = -1;                      /* T_pvno */
 static int hf_cmp_sender = -1;                    /* GeneralName */
@@ -73,7 +73,7 @@ static int hf_cmp_transactionID = -1;             /* OCTET_STRING */
 static int hf_cmp_senderNonce = -1;               /* OCTET_STRING */
 static int hf_cmp_recipNonce = -1;                /* OCTET_STRING */
 static int hf_cmp_freeText = -1;                  /* PKIFreeText */
-static int hf_cmp_generalInfo = -1;               /* SEQUNCE_SIZE_1_MAX_OF_InfoTypeAndValue */
+static int hf_cmp_generalInfo = -1;               /* SEQUENCE_SIZE_1_MAX_OF_InfoTypeAndValue */
 static int hf_cmp_generalInfo_item = -1;          /* InfoTypeAndValue */
 static int hf_cmp_PKIFreeText_item = -1;          /* UTF8String */
 static int hf_cmp_ir = -1;                        /* CertReqMessages */
@@ -113,9 +113,9 @@ static int hf_cmp_POPODecKeyChallContent_item = -1;  /* Challenge */
 static int hf_cmp_witness = -1;                   /* OCTET_STRING */
 static int hf_cmp_challenge = -1;                 /* OCTET_STRING */
 static int hf_cmp_POPODecKeyRespContent_item = -1;  /* INTEGER */
-static int hf_cmp_caPubs = -1;                    /* SEQUNCE_SIZE_1_MAX_OF_Certificate */
+static int hf_cmp_caPubs = -1;                    /* SEQUENCE_SIZE_1_MAX_OF_Certificate */
 static int hf_cmp_caPubs_item = -1;               /* Certificate */
-static int hf_cmp_response = -1;                  /* SEQUNCE_OF_CertResponse */
+static int hf_cmp_response = -1;                  /* SEQUENCE_OF_CertResponse */
 static int hf_cmp_response_item = -1;             /* CertResponse */
 static int hf_cmp_certReqId = -1;                 /* INTEGER */
 static int hf_cmp_status1 = -1;                   /* PKIStatusInfo */
@@ -127,20 +127,20 @@ static int hf_cmp_publicationInfo = -1;           /* PKIPublicationInfo */
 static int hf_cmp_certificate = -1;               /* Certificate */
 static int hf_cmp_encryptedCert = -1;             /* EncryptedValue */
 static int hf_cmp_newSigCert = -1;                /* Certificate */
-static int hf_cmp_caCerts = -1;                   /* SEQUNCE_SIZE_1_MAX_OF_Certificate */
+static int hf_cmp_caCerts = -1;                   /* SEQUENCE_SIZE_1_MAX_OF_Certificate */
 static int hf_cmp_caCerts_item = -1;              /* Certificate */
-static int hf_cmp_keyPairHist = -1;               /* SEQUNCE_SIZE_1_MAX_OF_CertifiedKeyPair */
+static int hf_cmp_keyPairHist = -1;               /* SEQUENCE_SIZE_1_MAX_OF_CertifiedKeyPair */
 static int hf_cmp_keyPairHist_item = -1;          /* CertifiedKeyPair */
 static int hf_cmp_RevReqContent_item = -1;        /* RevDetails */
 static int hf_cmp_certDetails = -1;               /* CertTemplate */
 static int hf_cmp_revocationReason = -1;          /* ReasonFlags */
 static int hf_cmp_badSinceDate = -1;              /* GeneralizedTime */
 static int hf_cmp_crlEntryDetails = -1;           /* Extensions */
-static int hf_cmp_status2 = -1;                   /* SEQUNCE_SIZE_1_MAX_OF_PKIStatusInfo */
+static int hf_cmp_status2 = -1;                   /* SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo */
 static int hf_cmp_status_item = -1;               /* PKIStatusInfo */
-static int hf_cmp_revCerts = -1;                  /* SEQUNCE_SIZE_1_MAX_OF_CertId */
+static int hf_cmp_revCerts = -1;                  /* SEQUENCE_SIZE_1_MAX_OF_CertId */
 static int hf_cmp_revCerts_item = -1;             /* CertId */
-static int hf_cmp_crls = -1;                      /* SEQUNCE_SIZE_1_MAX_OF_CertificateList */
+static int hf_cmp_crls = -1;                      /* SEQUENCE_SIZE_1_MAX_OF_CertificateList */
 static int hf_cmp_crls_item = -1;                 /* CertificateList */
 static int hf_cmp_oldWithNew = -1;                /* Certificate */
 static int hf_cmp_newWithOld = -1;                /* Certificate */
@@ -176,9 +176,9 @@ static gint ett_cmp = -1;
 /*--- Included file: packet-cmp-ett.c ---*/
 
 static gint ett_cmp_PKIMessage = -1;
-static gint ett_cmp_SEQUNCE_SIZE_1_MAX_OF_Certificate = -1;
+static gint ett_cmp_SEQUENCE_SIZE_1_MAX_OF_Certificate = -1;
 static gint ett_cmp_PKIHeader = -1;
-static gint ett_cmp_SEQUNCE_SIZE_1_MAX_OF_InfoTypeAndValue = -1;
+static gint ett_cmp_SEQUENCE_SIZE_1_MAX_OF_InfoTypeAndValue = -1;
 static gint ett_cmp_PKIFreeText = -1;
 static gint ett_cmp_PKIBody = -1;
 static gint ett_cmp_ProtectedPart = -1;
@@ -191,18 +191,18 @@ static gint ett_cmp_POPODecKeyChallContent = -1;
 static gint ett_cmp_Challenge = -1;
 static gint ett_cmp_POPODecKeyRespContent = -1;
 static gint ett_cmp_CertRepMessage = -1;
-static gint ett_cmp_SEQUNCE_OF_CertResponse = -1;
+static gint ett_cmp_SEQUENCE_OF_CertResponse = -1;
 static gint ett_cmp_CertResponse = -1;
 static gint ett_cmp_CertifiedKeyPair = -1;
 static gint ett_cmp_CertOrEncCert = -1;
 static gint ett_cmp_KeyRecRepContent = -1;
-static gint ett_cmp_SEQUNCE_SIZE_1_MAX_OF_CertifiedKeyPair = -1;
+static gint ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CertifiedKeyPair = -1;
 static gint ett_cmp_RevReqContent = -1;
 static gint ett_cmp_RevDetails = -1;
 static gint ett_cmp_RevRepContent = -1;
-static gint ett_cmp_SEQUNCE_SIZE_1_MAX_OF_PKIStatusInfo = -1;
-static gint ett_cmp_SEQUNCE_SIZE_1_MAX_OF_CertId = -1;
-static gint ett_cmp_SEQUNCE_SIZE_1_MAX_OF_CertificateList = -1;
+static gint ett_cmp_SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo = -1;
+static gint ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CertId = -1;
+static gint ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CertificateList = -1;
 static gint ett_cmp_CAKeyUpdAnnContent = -1;
 static gint ett_cmp_RevAnnContent = -1;
 static gint ett_cmp_CRLAnnContent = -1;
@@ -268,11 +268,9 @@ static int dissect_hashAlg(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 static int dissect_certId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_crmf_CertId(FALSE, tvb, offset, pinfo, tree, hf_cmp_certId);
 }
-#if 0
 static int dissect_caPubs_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_pkix1explicit_Certificate(FALSE, tvb, offset, pinfo, tree, hf_cmp_caPubs_item);
 }
-#endif
 static int dissect_privateKey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_crmf_EncryptedValue(FALSE, tvb, offset, pinfo, tree, hf_cmp_privateKey);
 }
@@ -288,11 +286,9 @@ static int dissect_encryptedCert(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 static int dissect_newSigCert(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_pkix1explicit_Certificate(FALSE, tvb, offset, pinfo, tree, hf_cmp_newSigCert);
 }
-#if 0
 static int dissect_caCerts_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_pkix1explicit_Certificate(FALSE, tvb, offset, pinfo, tree, hf_cmp_caCerts_item);
 }
-#endif
 static int dissect_certDetails(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_crmf_CertTemplate(FALSE, tvb, offset, pinfo, tree, hf_cmp_certDetails);
 }
@@ -340,7 +336,7 @@ static int dissect_recipKID(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 }
 
 
-static const value_string T_pvno_vals[] = {
+static const value_string cmp_T_pvno_vals[] = {
   {   1, "ietf-version2" },
   { 0, NULL }
 };
@@ -348,7 +344,8 @@ static const value_string T_pvno_vals[] = {
 
 static int
 dissect_cmp_T_pvno(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -438,6 +435,7 @@ static int dissect_errorDetails(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 }
 
 
+
 static int
 dissect_cmp_T_infoType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
@@ -486,19 +484,19 @@ static int dissect_GenRepContent_item(packet_info *pinfo, proto_tree *tree, tvbu
   return dissect_cmp_InfoTypeAndValue(FALSE, tvb, offset, pinfo, tree, hf_cmp_GenRepContent_item);
 }
 
-static const ber_sequence_t SEQUNCE_SIZE_1_MAX_OF_InfoTypeAndValue_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_InfoTypeAndValue_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_generalInfo_item },
 };
 
 static int
-dissect_cmp_SEQUNCE_SIZE_1_MAX_OF_InfoTypeAndValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_InfoTypeAndValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUNCE_SIZE_1_MAX_OF_InfoTypeAndValue_sequence_of, hf_index, ett_cmp_SEQUNCE_SIZE_1_MAX_OF_InfoTypeAndValue);
+                                   SEQUENCE_SIZE_1_MAX_OF_InfoTypeAndValue_sequence_of, hf_index, ett_cmp_SEQUENCE_SIZE_1_MAX_OF_InfoTypeAndValue);
 
   return offset;
 }
 static int dissect_generalInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmp_SEQUNCE_SIZE_1_MAX_OF_InfoTypeAndValue(FALSE, tvb, offset, pinfo, tree, hf_cmp_generalInfo);
+  return dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_InfoTypeAndValue(FALSE, tvb, offset, pinfo, tree, hf_cmp_generalInfo);
 }
 
 static const ber_sequence_t PKIHeader_sequence[] = {
@@ -528,32 +526,33 @@ static int dissect_header(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
   return dissect_cmp_PKIHeader(FALSE, tvb, offset, pinfo, tree, hf_cmp_header);
 }
 
-static const ber_sequence_t SEQUNCE_SIZE_1_MAX_OF_Certificate_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_Certificate_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_extraCerts_item },
 };
 
 static int
-dissect_cmp_SEQUNCE_SIZE_1_MAX_OF_Certificate(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_Certificate(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUNCE_SIZE_1_MAX_OF_Certificate_sequence_of, hf_index, ett_cmp_SEQUNCE_SIZE_1_MAX_OF_Certificate);
+                                   SEQUENCE_SIZE_1_MAX_OF_Certificate_sequence_of, hf_index, ett_cmp_SEQUENCE_SIZE_1_MAX_OF_Certificate);
 
   return offset;
 }
 static int dissect_extraCerts(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmp_SEQUNCE_SIZE_1_MAX_OF_Certificate(FALSE, tvb, offset, pinfo, tree, hf_cmp_extraCerts);
+  return dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_Certificate(FALSE, tvb, offset, pinfo, tree, hf_cmp_extraCerts);
 }
 static int dissect_caPubs(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmp_SEQUNCE_SIZE_1_MAX_OF_Certificate(FALSE, tvb, offset, pinfo, tree, hf_cmp_caPubs);
+  return dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_Certificate(FALSE, tvb, offset, pinfo, tree, hf_cmp_caPubs);
 }
 static int dissect_caCerts(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmp_SEQUNCE_SIZE_1_MAX_OF_Certificate(FALSE, tvb, offset, pinfo, tree, hf_cmp_caCerts);
+  return dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_Certificate(FALSE, tvb, offset, pinfo, tree, hf_cmp_caCerts);
 }
 
 
 
 static int
 dissect_cmp_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -571,7 +570,7 @@ static int dissect_errorCode(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 }
 
 
-const value_string PKIStatus_vals[] = {
+const value_string cmp_PKIStatus_vals[] = {
   {   0, "granted" },
   {   1, "grantedWithMods" },
   {   2, "rejection" },
@@ -585,7 +584,8 @@ const value_string PKIStatus_vals[] = {
 
 int
 dissect_cmp_PKIStatus(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -594,16 +594,16 @@ static int dissect_status(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 }
 
 static const asn_namedbit PKIFailureInfo_bits[] = {
-  {  0, &hf_cmp_PKIFailureInfo_badAlg, -1, -1, NULL, NULL },
-  {  1, &hf_cmp_PKIFailureInfo_badMessageCheck, -1, -1, NULL, NULL },
-  {  2, &hf_cmp_PKIFailureInfo_badRequest, -1, -1, NULL, NULL },
-  {  3, &hf_cmp_PKIFailureInfo_badTime, -1, -1, NULL, NULL },
-  {  4, &hf_cmp_PKIFailureInfo_badCertId, -1, -1, NULL, NULL },
-  {  5, &hf_cmp_PKIFailureInfo_badDataFormat, -1, -1, NULL, NULL },
-  {  6, &hf_cmp_PKIFailureInfo_wrongAuthority, -1, -1, NULL, NULL },
-  {  7, &hf_cmp_PKIFailureInfo_incorrectData, -1, -1, NULL, NULL },
-  {  8, &hf_cmp_PKIFailureInfo_missingTimeStamp, -1, -1, NULL, NULL },
-  {  9, &hf_cmp_PKIFailureInfo_badPOP, -1, -1, NULL, NULL },
+  {  0, &hf_cmp_PKIFailureInfo_badAlg, -1, -1, "badAlg", NULL },
+  {  1, &hf_cmp_PKIFailureInfo_badMessageCheck, -1, -1, "badMessageCheck", NULL },
+  {  2, &hf_cmp_PKIFailureInfo_badRequest, -1, -1, "badRequest", NULL },
+  {  3, &hf_cmp_PKIFailureInfo_badTime, -1, -1, "badTime", NULL },
+  {  4, &hf_cmp_PKIFailureInfo_badCertId, -1, -1, "badCertId", NULL },
+  {  5, &hf_cmp_PKIFailureInfo_badDataFormat, -1, -1, "badDataFormat", NULL },
+  {  6, &hf_cmp_PKIFailureInfo_wrongAuthority, -1, -1, "wrongAuthority", NULL },
+  {  7, &hf_cmp_PKIFailureInfo_incorrectData, -1, -1, "incorrectData", NULL },
+  {  8, &hf_cmp_PKIFailureInfo_missingTimeStamp, -1, -1, "missingTimeStamp", NULL },
+  {  9, &hf_cmp_PKIFailureInfo_badPOP, -1, -1, "badPOP", NULL },
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
@@ -644,7 +644,7 @@ static int dissect_pKIStatusInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 }
 
 
-const value_string CertOrEncCert_vals[] = {
+const value_string cmp_CertOrEncCert_vals[] = {
   {   0, "certificate" },
   {   1, "encryptedCert" },
   { 0, NULL }
@@ -658,8 +658,8 @@ static const ber_choice_t CertOrEncCert_choice[] = {
 
 int
 dissect_cmp_CertOrEncCert(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              CertOrEncCert_choice, hf_index, ett_cmp_CertOrEncCert);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              CertOrEncCert_choice, hf_index, ett_cmp_CertOrEncCert, NULL);
 
   return offset;
 }
@@ -707,19 +707,19 @@ static int dissect_response_item(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_cmp_CertResponse(FALSE, tvb, offset, pinfo, tree, hf_cmp_response_item);
 }
 
-static const ber_sequence_t SEQUNCE_OF_CertResponse_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_OF_CertResponse_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_response_item },
 };
 
 static int
-dissect_cmp_SEQUNCE_OF_CertResponse(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_cmp_SEQUENCE_OF_CertResponse(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUNCE_OF_CertResponse_sequence_of, hf_index, ett_cmp_SEQUNCE_OF_CertResponse);
+                                   SEQUENCE_OF_CertResponse_sequence_of, hf_index, ett_cmp_SEQUENCE_OF_CertResponse);
 
   return offset;
 }
 static int dissect_response(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmp_SEQUNCE_OF_CertResponse(FALSE, tvb, offset, pinfo, tree, hf_cmp_response);
+  return dissect_cmp_SEQUENCE_OF_CertResponse(FALSE, tvb, offset, pinfo, tree, hf_cmp_response);
 }
 
 static const ber_sequence_t CertRepMessage_sequence[] = {
@@ -796,19 +796,19 @@ static int dissect_popdecr(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
   return dissect_cmp_POPODecKeyRespContent(FALSE, tvb, offset, pinfo, tree, hf_cmp_popdecr);
 }
 
-static const ber_sequence_t SEQUNCE_SIZE_1_MAX_OF_CertifiedKeyPair_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_CertifiedKeyPair_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_keyPairHist_item },
 };
 
 static int
-dissect_cmp_SEQUNCE_SIZE_1_MAX_OF_CertifiedKeyPair(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_CertifiedKeyPair(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUNCE_SIZE_1_MAX_OF_CertifiedKeyPair_sequence_of, hf_index, ett_cmp_SEQUNCE_SIZE_1_MAX_OF_CertifiedKeyPair);
+                                   SEQUENCE_SIZE_1_MAX_OF_CertifiedKeyPair_sequence_of, hf_index, ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CertifiedKeyPair);
 
   return offset;
 }
 static int dissect_keyPairHist(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmp_SEQUNCE_SIZE_1_MAX_OF_CertifiedKeyPair(FALSE, tvb, offset, pinfo, tree, hf_cmp_keyPairHist);
+  return dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_CertifiedKeyPair(FALSE, tvb, offset, pinfo, tree, hf_cmp_keyPairHist);
 }
 
 static const ber_sequence_t KeyRecRepContent_sequence[] = {
@@ -864,49 +864,49 @@ static int dissect_rr(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
   return dissect_cmp_RevReqContent(FALSE, tvb, offset, pinfo, tree, hf_cmp_rr);
 }
 
-static const ber_sequence_t SEQUNCE_SIZE_1_MAX_OF_PKIStatusInfo_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_status_item },
 };
 
 static int
-dissect_cmp_SEQUNCE_SIZE_1_MAX_OF_PKIStatusInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUNCE_SIZE_1_MAX_OF_PKIStatusInfo_sequence_of, hf_index, ett_cmp_SEQUNCE_SIZE_1_MAX_OF_PKIStatusInfo);
+                                   SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo_sequence_of, hf_index, ett_cmp_SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo);
 
   return offset;
 }
 static int dissect_status2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmp_SEQUNCE_SIZE_1_MAX_OF_PKIStatusInfo(FALSE, tvb, offset, pinfo, tree, hf_cmp_status2);
+  return dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo(FALSE, tvb, offset, pinfo, tree, hf_cmp_status2);
 }
 
-static const ber_sequence_t SEQUNCE_SIZE_1_MAX_OF_CertId_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_CertId_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_revCerts_item },
 };
 
 static int
-dissect_cmp_SEQUNCE_SIZE_1_MAX_OF_CertId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_CertId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUNCE_SIZE_1_MAX_OF_CertId_sequence_of, hf_index, ett_cmp_SEQUNCE_SIZE_1_MAX_OF_CertId);
+                                   SEQUENCE_SIZE_1_MAX_OF_CertId_sequence_of, hf_index, ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CertId);
 
   return offset;
 }
 static int dissect_revCerts(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmp_SEQUNCE_SIZE_1_MAX_OF_CertId(FALSE, tvb, offset, pinfo, tree, hf_cmp_revCerts);
+  return dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_CertId(FALSE, tvb, offset, pinfo, tree, hf_cmp_revCerts);
 }
 
-static const ber_sequence_t SEQUNCE_SIZE_1_MAX_OF_CertificateList_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_CertificateList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_crls_item },
 };
 
 static int
-dissect_cmp_SEQUNCE_SIZE_1_MAX_OF_CertificateList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_CertificateList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUNCE_SIZE_1_MAX_OF_CertificateList_sequence_of, hf_index, ett_cmp_SEQUNCE_SIZE_1_MAX_OF_CertificateList);
+                                   SEQUENCE_SIZE_1_MAX_OF_CertificateList_sequence_of, hf_index, ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CertificateList);
 
   return offset;
 }
 static int dissect_crls(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmp_SEQUNCE_SIZE_1_MAX_OF_CertificateList(FALSE, tvb, offset, pinfo, tree, hf_cmp_crls);
+  return dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_CertificateList(FALSE, tvb, offset, pinfo, tree, hf_cmp_crls);
 }
 
 static const ber_sequence_t RevRepContent_sequence[] = {
@@ -992,12 +992,10 @@ static int dissect_crlann(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 }
 
 
+
 int
 dissect_cmp_PKIConfirmContent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  { proto_item *ti_tmp;
-  ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>8, 0, FALSE);
-  proto_item_append_text(ti_tmp, ": NULL");
-  }
+  offset = dissect_ber_null(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -1065,7 +1063,7 @@ static int dissect_error(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 }
 
 
-const value_string PKIBody_vals[] = {
+const value_string cmp_PKIBody_vals[] = {
   {   0, "ir" },
   {   1, "ip" },
   {   2, "cr" },
@@ -1121,8 +1119,8 @@ static const ber_choice_t PKIBody_choice[] = {
 
 int
 dissect_cmp_PKIBody(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              PKIBody_choice, hf_index, ett_cmp_PKIBody);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              PKIBody_choice, hf_index, ett_cmp_PKIBody, NULL);
 
   return offset;
 }
@@ -1174,10 +1172,11 @@ dissect_cmp_ProtectedPart(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 }
 
 
+
 int
 dissect_cmp_PasswordBasedMac(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
-                                         hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -1199,10 +1198,11 @@ dissect_cmp_PBMParameter(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 }
 
 
+
 int
 dissect_cmp_DHBasedMac(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
-                                         hf_index, NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -1303,7 +1303,7 @@ void proto_register_cmp(void) {
         "", HFILL }},
     { &hf_cmp_body,
       { "body", "cmp.body",
-        FT_UINT32, BASE_DEC, VALS(PKIBody_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(cmp_PKIBody_vals), 0,
         "", HFILL }},
     { &hf_cmp_protection,
       { "protection", "cmp.protection",
@@ -1319,7 +1319,7 @@ void proto_register_cmp(void) {
         "PKIMessage/extraCerts/_item", HFILL }},
     { &hf_cmp_pvno,
       { "pvno", "cmp.pvno",
-        FT_INT32, BASE_DEC, VALS(T_pvno_vals), 0,
+        FT_INT32, BASE_DEC, VALS(cmp_T_pvno_vals), 0,
         "PKIHeader/pvno", HFILL }},
     { &hf_cmp_sender,
       { "sender", "cmp.sender",
@@ -1483,7 +1483,7 @@ void proto_register_cmp(void) {
         "", HFILL }},
     { &hf_cmp_status,
       { "status", "cmp.status",
-        FT_INT32, BASE_DEC, VALS(PKIStatus_vals), 0,
+        FT_INT32, BASE_DEC, VALS(cmp_PKIStatus_vals), 0,
         "", HFILL }},
     { &hf_cmp_statusString,
       { "statusString", "cmp.statusString",
@@ -1555,7 +1555,7 @@ void proto_register_cmp(void) {
         "CertResponse/rspInfo", HFILL }},
     { &hf_cmp_certOrEncCert,
       { "certOrEncCert", "cmp.certOrEncCert",
-        FT_UINT32, BASE_DEC, VALS(CertOrEncCert_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(cmp_CertOrEncCert_vals), 0,
         "CertifiedKeyPair/certOrEncCert", HFILL }},
     { &hf_cmp_privateKey,
       { "privateKey", "cmp.privateKey",
@@ -1741,9 +1741,9 @@ void proto_register_cmp(void) {
 /*--- Included file: packet-cmp-ettarr.c ---*/
 
     &ett_cmp_PKIMessage,
-    &ett_cmp_SEQUNCE_SIZE_1_MAX_OF_Certificate,
+    &ett_cmp_SEQUENCE_SIZE_1_MAX_OF_Certificate,
     &ett_cmp_PKIHeader,
-    &ett_cmp_SEQUNCE_SIZE_1_MAX_OF_InfoTypeAndValue,
+    &ett_cmp_SEQUENCE_SIZE_1_MAX_OF_InfoTypeAndValue,
     &ett_cmp_PKIFreeText,
     &ett_cmp_PKIBody,
     &ett_cmp_ProtectedPart,
@@ -1756,18 +1756,18 @@ void proto_register_cmp(void) {
     &ett_cmp_Challenge,
     &ett_cmp_POPODecKeyRespContent,
     &ett_cmp_CertRepMessage,
-    &ett_cmp_SEQUNCE_OF_CertResponse,
+    &ett_cmp_SEQUENCE_OF_CertResponse,
     &ett_cmp_CertResponse,
     &ett_cmp_CertifiedKeyPair,
     &ett_cmp_CertOrEncCert,
     &ett_cmp_KeyRecRepContent,
-    &ett_cmp_SEQUNCE_SIZE_1_MAX_OF_CertifiedKeyPair,
+    &ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CertifiedKeyPair,
     &ett_cmp_RevReqContent,
     &ett_cmp_RevDetails,
     &ett_cmp_RevRepContent,
-    &ett_cmp_SEQUNCE_SIZE_1_MAX_OF_PKIStatusInfo,
-    &ett_cmp_SEQUNCE_SIZE_1_MAX_OF_CertId,
-    &ett_cmp_SEQUNCE_SIZE_1_MAX_OF_CertificateList,
+    &ett_cmp_SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo,
+    &ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CertId,
+    &ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CertificateList,
     &ett_cmp_CAKeyUpdAnnContent,
     &ett_cmp_RevAnnContent,
     &ett_cmp_CRLAnnContent,

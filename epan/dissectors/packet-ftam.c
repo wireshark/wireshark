@@ -978,8 +978,8 @@ static const ber_choice_t Contents_Type_List_item_choice[] = {
 
 static int
 dissect_ftam_Contents_Type_List_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Contents_Type_List_item_choice, hf_index, ett_ftam_Contents_Type_List_item);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Contents_Type_List_item_choice, hf_index, ett_ftam_Contents_Type_List_item, NULL);
 
   return offset;
 }
@@ -1144,8 +1144,8 @@ dissect_ftam_Password(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
   offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
   offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
 
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Password_choice, hf_index, ett_ftam_Password);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Password_choice, hf_index, ett_ftam_Password, NULL);
 
 
 
@@ -1648,8 +1648,8 @@ static const ber_choice_t FTAM_Regime_PDU_choice[] = {
 
 static int
 dissect_ftam_FTAM_Regime_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              FTAM_Regime_PDU_choice, hf_index, ett_ftam_FTAM_Regime_PDU);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              FTAM_Regime_PDU_choice, hf_index, ett_ftam_FTAM_Regime_PDU, NULL);
 
   return offset;
 }
@@ -1693,8 +1693,8 @@ static const ber_choice_t Pathname_Attribute_choice[] = {
 
 static int
 dissect_ftam_Pathname_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Pathname_Attribute_choice, hf_index, ett_ftam_Pathname_Attribute);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Pathname_Attribute_choice, hf_index, ett_ftam_Pathname_Attribute, NULL);
 
   return offset;
 }
@@ -2226,8 +2226,8 @@ static const ber_choice_t Contents_Type_Attribute_choice[] = {
 
 static int
 dissect_ftam_Contents_Type_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Contents_Type_Attribute_choice, hf_index, ett_ftam_Contents_Type_Attribute);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Contents_Type_Attribute_choice, hf_index, ett_ftam_Contents_Type_Attribute, NULL);
 
   return offset;
 }
@@ -2274,8 +2274,8 @@ static const ber_choice_t Account_Attribute_choice[] = {
 
 static int
 dissect_ftam_Account_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Account_Attribute_choice, hf_index, ett_ftam_Account_Attribute);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Account_Attribute_choice, hf_index, ett_ftam_Account_Attribute, NULL);
 
   return offset;
 }
@@ -2317,8 +2317,8 @@ static const ber_choice_t Object_Availability_Attribute_choice[] = {
 
 static int
 dissect_ftam_Object_Availability_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Object_Availability_Attribute_choice, hf_index, ett_ftam_Object_Availability_Attribute);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Object_Availability_Attribute_choice, hf_index, ett_ftam_Object_Availability_Attribute, NULL);
 
   return offset;
 }
@@ -2341,8 +2341,8 @@ static const ber_choice_t Object_Size_Attribute_choice[] = {
 
 static int
 dissect_ftam_Object_Size_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Object_Size_Attribute_choice, hf_index, ett_ftam_Object_Size_Attribute);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Object_Size_Attribute_choice, hf_index, ett_ftam_Object_Size_Attribute, NULL);
 
   return offset;
 }
@@ -2529,8 +2529,8 @@ static const ber_choice_t Access_Control_Attribute_choice[] = {
 
 static int
 dissect_ftam_Access_Control_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Access_Control_Attribute_choice, hf_index, ett_ftam_Access_Control_Attribute);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Access_Control_Attribute_choice, hf_index, ett_ftam_Access_Control_Attribute, NULL);
 
   return offset;
 }
@@ -2559,8 +2559,8 @@ static const ber_choice_t Legal_Qualification_Attribute_choice[] = {
 
 static int
 dissect_ftam_Legal_Qualification_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Legal_Qualification_Attribute_choice, hf_index, ett_ftam_Legal_Qualification_Attribute);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Legal_Qualification_Attribute_choice, hf_index, ett_ftam_Legal_Qualification_Attribute, NULL);
 
   return offset;
 }
@@ -2585,8 +2585,8 @@ static const ber_choice_t Private_Use_Attribute_choice[] = {
 
 static int
 dissect_ftam_Private_Use_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Private_Use_Attribute_choice, hf_index, ett_ftam_Private_Use_Attribute);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Private_Use_Attribute_choice, hf_index, ett_ftam_Private_Use_Attribute, NULL);
 
   return offset;
 }
@@ -2976,8 +2976,8 @@ static const ber_choice_t Date_and_Time_Attribute_choice[] = {
 
 static int
 dissect_ftam_Date_and_Time_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Date_and_Time_Attribute_choice, hf_index, ett_ftam_Date_and_Time_Attribute);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Date_and_Time_Attribute_choice, hf_index, ett_ftam_Date_and_Time_Attribute, NULL);
 
   return offset;
 }
@@ -3009,8 +3009,8 @@ static const ber_choice_t User_Identity_Attribute_choice[] = {
 
 static int
 dissect_ftam_User_Identity_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              User_Identity_Attribute_choice, hf_index, ett_ftam_User_Identity_Attribute);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              User_Identity_Attribute_choice, hf_index, ett_ftam_User_Identity_Attribute, NULL);
 
   return offset;
 }
@@ -3134,8 +3134,8 @@ static const ber_choice_t Access_Control_Change_Attribute_choice[] = {
 
 static int
 dissect_ftam_Access_Control_Change_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Access_Control_Change_Attribute_choice, hf_index, ett_ftam_Access_Control_Change_Attribute);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Access_Control_Change_Attribute_choice, hf_index, ett_ftam_Access_Control_Change_Attribute, NULL);
 
   return offset;
 }
@@ -3253,8 +3253,8 @@ static const ber_choice_t T_contents_type_choice[] = {
 
 static int
 dissect_ftam_T_contents_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_contents_type_choice, hf_index, ett_ftam_T_contents_type);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              T_contents_type_choice, hf_index, ett_ftam_T_contents_type, NULL);
 
   return offset;
 }
@@ -3697,8 +3697,8 @@ dissect_ftam_FADU_Identity(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
   offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
   offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
 
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              FADU_Identity_choice, hf_index, ett_ftam_FADU_Identity);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              FADU_Identity_choice, hf_index, ett_ftam_FADU_Identity, NULL);
 
 
   return offset;
@@ -3868,8 +3868,8 @@ static const ber_choice_t File_PDU_choice[] = {
 
 static int
 dissect_ftam_File_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              File_PDU_choice, hf_index, ett_ftam_File_PDU);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              File_PDU_choice, hf_index, ett_ftam_File_PDU, NULL);
 
   return offset;
 }
@@ -4197,8 +4197,8 @@ static const ber_choice_t Bulk_Data_PDU_choice[] = {
 
 static int
 dissect_ftam_Bulk_Data_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Bulk_Data_PDU_choice, hf_index, ett_ftam_Bulk_Data_PDU);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Bulk_Data_PDU_choice, hf_index, ett_ftam_Bulk_Data_PDU, NULL);
 
   return offset;
 }
@@ -4292,8 +4292,8 @@ static const ber_choice_t T_string_value_item_choice[] = {
 
 static int
 dissect_ftam_T_string_value_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_string_value_item_choice, hf_index, ett_ftam_T_string_value_item);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              T_string_value_item_choice, hf_index, ett_ftam_T_string_value_item, NULL);
 
   return offset;
 }
@@ -4354,8 +4354,8 @@ static const ber_choice_t T_pathname_value_item_choice[] = {
 
 static int
 dissect_ftam_T_pathname_value_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_pathname_value_item_choice, hf_index, ett_ftam_T_pathname_value_item);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              T_pathname_value_item_choice, hf_index, ett_ftam_T_pathname_value_item, NULL);
 
   return offset;
 }
@@ -4552,8 +4552,8 @@ static const ber_choice_t Contents_Type_Pattern_choice[] = {
 
 static int
 dissect_ftam_Contents_Type_Pattern(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Contents_Type_Pattern_choice, hf_index, ett_ftam_Contents_Type_Pattern);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Contents_Type_Pattern_choice, hf_index, ett_ftam_Contents_Type_Pattern, NULL);
 
   return offset;
 }
@@ -4754,8 +4754,8 @@ static const ber_choice_t AND_Set_item_choice[] = {
 
 static int
 dissect_ftam_AND_Set_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              AND_Set_item_choice, hf_index, ett_ftam_AND_Set_item);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              AND_Set_item_choice, hf_index, ett_ftam_AND_Set_item, NULL);
 
   return offset;
 }
@@ -5070,8 +5070,8 @@ dissect_ftam_Operation_Result(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
   offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
   offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
 
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Operation_Result_choice, hf_index, ett_ftam_Operation_Result);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              Operation_Result_choice, hf_index, ett_ftam_Operation_Result, NULL);
 
 
   return offset;
@@ -5657,8 +5657,8 @@ static const ber_choice_t FSM_PDU_choice[] = {
 
 static int
 dissect_ftam_FSM_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              FSM_PDU_choice, hf_index, ett_ftam_FSM_PDU);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              FSM_PDU_choice, hf_index, ett_ftam_FSM_PDU, NULL);
 
   return offset;
 }
@@ -5685,8 +5685,8 @@ static const ber_choice_t PDU_choice[] = {
 
 static int
 dissect_ftam_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              PDU_choice, hf_index, ett_ftam_PDU);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              PDU_choice, hf_index, ett_ftam_PDU, NULL);
 
   return offset;
 }

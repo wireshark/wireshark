@@ -265,8 +265,8 @@ static const ber_choice_t InvokeId_choice[] = {
 
 static int
 dissect_inap_InvokeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              InvokeId_choice, hf_index, ett_inap_InvokeId);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              InvokeId_choice, hf_index, ett_inap_InvokeId, NULL);
 
   return offset;
 }
@@ -374,8 +374,8 @@ dissect_inap_INAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
   /* Get the length and add 2 */
   inap_pdu_size = tvb_get_guint8(tvb, offset+1)+2;
 
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              INAPPDU_choice, hf_index, ett_inap_INAPPDU);
+  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+                              INAPPDU_choice, hf_index, ett_inap_INAPPDU, NULL);
 
   if (check_col(pinfo->cinfo, COL_INFO)){
     col_prepend_fstr(pinfo->cinfo, COL_INFO, val_to_str(opcode, inap_opr_code_strings, "Unknown INAP (%u)"));

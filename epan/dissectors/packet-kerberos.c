@@ -1336,7 +1336,7 @@ static const ber_choice_t kerberos_applications_choice[] = {
 static int
 dissect_krb5_application_choice(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_choice(pinfo, tree, tvb, offset, kerberos_applications_choice, -1, -1);
+	offset=dissect_ber_CHOICE(pinfo, tree, tvb, offset, kerberos_applications_choice, -1, -1, NULL);
 	return offset;
 }
 
@@ -2914,7 +2914,7 @@ dissect_krb5_decrypt_PRIV (packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 		/* Add the decrypted data to the data source list. */
 		add_new_data_source(pinfo, next_tvb, "Decrypted Krb5");
 
-		offset=dissect_ber_choice(pinfo, tree, next_tvb, 0, kerberos_applications_choice, -1, -1);
+		offset=dissect_ber_CHOICE(pinfo, tree, next_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
 
 	}
 	return offset;
@@ -3184,7 +3184,7 @@ dissect_krb5_decrypt_authenticator_data (packet_info *pinfo, proto_tree *tree, t
 		add_new_data_source(pinfo, next_tvb, "Decrypted Krb5");
 
 
-		offset=dissect_ber_choice(pinfo, tree, next_tvb, 0, kerberos_applications_choice, -1, -1);
+		offset=dissect_ber_CHOICE(pinfo, tree, next_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
 
 	}
 	return offset;
@@ -3261,7 +3261,7 @@ dissect_krb5_decrypt_Ticket_data (packet_info *pinfo, proto_tree *tree, tvbuff_t
 		add_new_data_source(pinfo, next_tvb, "Decrypted Krb5");
 
 
-		offset=dissect_ber_choice(pinfo, tree, next_tvb, 0, kerberos_applications_choice, -1, -1);
+		offset=dissect_ber_CHOICE(pinfo, tree, next_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
 
 	}
 	return offset;
@@ -3324,7 +3324,7 @@ static const ber_choice_t Ticket_choice[] = {
 static int
 dissect_krb5_Ticket(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_choice(pinfo, tree, tvb, offset, Ticket_choice, -1, -1);
+	offset=dissect_ber_CHOICE(pinfo, tree, tvb, offset, Ticket_choice, -1, -1, NULL);
 
 	return offset;
 }
@@ -3395,7 +3395,7 @@ dissect_krb5_decrypt_AP_REP_data(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 		add_new_data_source(pinfo, next_tvb, "Decrypted Krb5");
 
 
-		offset=dissect_ber_choice(pinfo, tree, next_tvb, 0, kerberos_applications_choice, -1, -1);
+		offset=dissect_ber_CHOICE(pinfo, tree, next_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
 
 	}
 	return offset;
@@ -3508,7 +3508,7 @@ dissect_krb5_decrypt_KDC_REP_data (packet_info *pinfo, proto_tree *tree, tvbuff_
 		add_new_data_source(pinfo, next_tvb, "Decrypted Krb5");
 
 
-		offset=dissect_ber_choice(pinfo, tree, next_tvb, 0, kerberos_applications_choice, -1, -1);
+		offset=dissect_ber_CHOICE(pinfo, tree, next_tvb, 0, kerberos_applications_choice, -1, -1, NULL);
 
 	}
 	return offset;
@@ -3837,7 +3837,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 4;
     }
 
-    offset=dissect_ber_choice(pinfo, kerberos_tree, tvb, offset, kerberos_applications_choice, -1, -1);
+    offset=dissect_ber_CHOICE(pinfo, kerberos_tree, tvb, offset, kerberos_applications_choice, -1, -1, NULL);
 
     proto_item_set_len(item, offset);
     pinfo->private_data=saved_private_data;
