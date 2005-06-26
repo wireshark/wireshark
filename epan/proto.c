@@ -2938,7 +2938,7 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 			same_name_hfinfo->same_name_next = hfinfo;
 			hfinfo->same_name_prev = same_name_hfinfo;
 		}
-		g_tree_insert(gpa_name_tree, hfinfo->abbrev, hfinfo);
+		g_tree_insert(gpa_name_tree, (gpointer) (hfinfo->abbrev), hfinfo);
 	}
 
 	return hfinfo->id;
