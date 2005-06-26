@@ -2782,7 +2782,7 @@ samr_dissect_INDEX_ARRAY(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
 			guint8 *drep)
 {
-	char *field_name;
+	const char *field_name;
 	guint32 count;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -2887,7 +2887,7 @@ samr_dissect_IDX_AND_NAME_ARRAY(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
 			guint8 *drep)
 {
-	char *field_name;
+	const char *field_name;
 	guint32 count;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -2924,7 +2924,7 @@ samr_dissect_IDX_AND_NAME_ARRAY_ptr(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			guint8 *drep)
 {
-	char *field_name;
+	const char *field_name;
 	char str[256];
 	dcerpc_info *di;
 
