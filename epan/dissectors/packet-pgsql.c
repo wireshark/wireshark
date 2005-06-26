@@ -88,7 +88,7 @@ static void dissect_pgsql_fe_msg(guchar, guint, tvbuff_t *, gint, proto_tree *);
 static void dissect_pgsql_be_msg(guchar, guint, tvbuff_t *, gint, proto_tree *);
 static void dissect_pgsql_msg(tvbuff_t *, packet_info *, proto_tree *);
 static void dissect_pgsql(tvbuff_t *, packet_info *, proto_tree *);
-static char *identify(gboolean, guchar);
+static const char *identify(gboolean, guchar);
 static guint pgsql_length(tvbuff_t *, int);
 
 static const value_string auth_types[] = {
@@ -370,7 +370,7 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     gint n;
     guchar type;
-    char *typestr;
+    const char *typestr;
     guint length;
     gboolean info = check_col(pinfo->cinfo, COL_INFO);
     gboolean fe = (pinfo->match_port == pinfo->destport);
@@ -876,7 +876,7 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
    directly because of messages without type bytes, and because the type
    interpretation depends on fe. */
 
-static char *identify(gboolean fe, guchar type)
+static const char *identify(gboolean fe, guchar type)
 {
     int i = 0;
     const value_string *messages;
