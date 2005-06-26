@@ -80,7 +80,7 @@ static proto_tree *g_tree;
 
 /* FUNCTIONS */
 
-static gchar *
+static const gchar *
 my_match_strval(guint32 val, const value_string *vs, gint *idx)
 {
     gint i = 0;
@@ -1924,7 +1924,7 @@ dissect_ansi_683_for_message(tvbuff_t *tvb, proto_tree *ansi_683_tree)
 {
     guint8	msg_type;
     gint	idx;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
 
     msg_type = tvb_get_guint8(tvb, 0);
@@ -1954,7 +1954,7 @@ dissect_ansi_683_rev_message(tvbuff_t *tvb, proto_tree *ansi_683_tree)
 {
     guint8	msg_type;
     gint	idx;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
 
     msg_type = tvb_get_guint8(tvb, 0);
