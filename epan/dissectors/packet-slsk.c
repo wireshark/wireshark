@@ -308,7 +308,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	int offset, i, j;
 	guint32 msg_len, msg_code;
-	gchar *message_type;
+	const gchar *message_type;
 	guint8 *str;
 
 	int comprlen = 0;
