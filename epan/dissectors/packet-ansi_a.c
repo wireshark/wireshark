@@ -447,7 +447,7 @@ my_dgt_tbcd_unpack(
     return(cnt);
 }
 
-static gchar *
+static const gchar *
 my_match_strval(guint32 val, const value_string *vs, gint *idx)
 {
     gint i = 0;
@@ -4516,7 +4516,7 @@ elem_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
     guint8	num_recs;
     guint32	value;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar	*str;
     gint	ett_elem_idx, idx, i;
     proto_tree	*subtree;
     proto_item	*item;
@@ -7950,7 +7950,7 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint			idx;
     proto_item			*bsmap_item = NULL;
     proto_tree			*bsmap_tree = NULL;
-    gchar			*msg_str;
+    const gchar			*msg_str;
 
 
     if (check_col(pinfo->cinfo, COL_INFO))
@@ -8056,7 +8056,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree			*dtap_tree = NULL;
     proto_item			*oct_1_item = NULL;
     proto_tree			*oct_1_tree = NULL;
-    gchar			*msg_str;
+    const gchar			*msg_str;
     gchar			*str;
 
 
