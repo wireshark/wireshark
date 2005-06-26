@@ -1777,7 +1777,7 @@ static const char *keysymString(guint32 v)
 	    const value_string *p = keysym_vals_source;
 	    keysymTable = g_tree_new(compareGuint32);
 	    for(; p -> strptr; p++)
-		  g_tree_insert(keysymTable, GINT_TO_POINTER(p -> value), p -> strptr);
+		  g_tree_insert(keysymTable, GINT_TO_POINTER(p -> value), (gpointer) (p -> strptr) );
       }
       res = g_tree_lookup(keysymTable, GINT_TO_POINTER(v));
       return res ? res : "<Unknown>";
@@ -2206,7 +2206,7 @@ static guint32 field32(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       guint32 v = VALUE32(tvb, *offsetp);
       header_field_info *hfi = proto_registrar_get_nth(hf);
       gchar *enumValue = NULL;
-      gchar *nameAsChar = hfi -> name;
+      const gchar *nameAsChar = hfi -> name;
 
       if (hfi -> strings)
 	    enumValue = match_strval(v, cVALS(hfi -> strings));
