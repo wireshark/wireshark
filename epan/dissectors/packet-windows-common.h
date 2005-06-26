@@ -98,7 +98,7 @@ extern const value_string ms_country_codes[];
 int dissect_nt_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date);
 
 int dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, 
-		   char *name, char **sid_str, int hf_sid);
+		   const char *name, char **sid_str, int hf_sid);
 
 /* 
  * Stuff for dissecting NT access masks 

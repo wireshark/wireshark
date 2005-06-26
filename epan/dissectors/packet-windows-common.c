@@ -1239,8 +1239,8 @@ free_g_string(void *arg)
 */
 
 int
-dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, char *name,
-	       char **sid_str, int hf_sid)
+dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
+	       const char *name, char **sid_str, int hf_sid)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
