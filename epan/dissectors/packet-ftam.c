@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-ftam.c                                                            */
+/* .\packet-ftam.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p ftam -c ftam.cnf -s packet-ftam-template ISO8571-FTAM.asn */
 
 /* Input file: packet-ftam-template.c */
@@ -58,6 +58,8 @@
 int proto_ftam = -1;
 
 static char object_identifier_id[MAX_OID_STR_LEN];
+/* Declare the function to avoid a compiler warning */
+static int dissect_ftam_OR_Set(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_);
 
 
 /*--- Included file: packet-ftam-hf.c ---*/
