@@ -380,7 +380,7 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 	if(u_data->io->tmp_width>0){
 		u_data->io->x_interval = (float)((u_data->io->axis_width*1.0)/u_data->io->tmp_width);
 	} else {
-		u_data->io->x_interval = u_data->io->axis_width;
+		u_data->io->x_interval = (float)(u_data->io->axis_width);
 	}
 
 	e=0;
