@@ -96,10 +96,9 @@ dissect_hyperscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *hs_tree = NULL;
   proto_item *ti;
   guint8     hs_cmd, hs_ver;
-  char       *opcode_str;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "HYPERSCSI");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "HyperSCSI");
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -148,13 +147,9 @@ dissect_hyperscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   hs_cmd &= OPCODE_MASK;
 
-  opcode_str = match_strval(hs_cmd, hscsi_opcodes);
-
-  if (!opcode_str) 
-    opcode_str = "Unknown HyperSCSI Request or Response";
-
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_append_str(pinfo->cinfo, COL_INFO, (char *)opcode_str);
+    col_append_str(pinfo->cinfo, COL_INFO,
+                   val_to_str(hs_cmd, hscsi_opcodes, "Unknown HyperSCSI Request or Response (%u)"));
   }
 
   if (tree) {
@@ -163,7 +158,7 @@ dissect_hyperscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_uint(hs_pdu_tree, hf_hs_ver, tvb, 3, 1, hs_ver);
 
-    proto_tree_add_uint_format(hs_pdu_tree, hf_hs_cmd, tvb, 4, 1, hs_cmd, "HyperSCSI Command: %s", opcode_str);
+    proto_tree_add_uint(hs_pdu_tree, hf_hs_cmd, tvb, 4, 1, hs_cmd);
   }
 
 }
@@ -193,7 +188,7 @@ proto_register_hyperscsi(void)
 	0x0, "", HFILL}},
 
     { &hf_hs_cmd,
-      { "HyperSCSI Command", "hyperscsi.cmd", FT_UINT8, BASE_DEC, NULL, 0x0, 
+      { "HyperSCSI Command", "hyperscsi.cmd", FT_UINT8, BASE_DEC, VALS(hscsi_opcodes), 0x0, 
 	"", HFILL}},
   };
 
