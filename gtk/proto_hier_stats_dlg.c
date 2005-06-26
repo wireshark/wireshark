@@ -96,7 +96,7 @@ fill_in_tree_node(GNode *node, gpointer data)
 
     seconds = ps->last_time - ps->first_time;
 
-    text[0] = stats->hfinfo->name;
+    text[0] = (gchar *) stats->hfinfo->name;
     text[1] = g_strdup_printf("%6.2f%%",
                               PCT(stats->num_pkts_total, ps->tot_packets));
     text[2] = g_strdup_printf("%u", stats->num_pkts_total);
