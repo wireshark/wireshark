@@ -707,8 +707,11 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 #endif
 
 		/* resize the "time" draw area */
+#if GTK_MAJOR_VERSION >= 2
+               /* in GTK 1 it causes a loop of configure events */
         WIDGET_SET_SIZE(user_data->dlg.draw_area_time, label_width + 6, user_data->dlg.pixmap_height);
 		gtk_widget_show(user_data->dlg.draw_area_time);
+#endif
 
         left_x_border=3;
 		user_data->dlg.left_x_border = left_x_border;
