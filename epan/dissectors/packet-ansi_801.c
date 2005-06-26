@@ -80,7 +80,7 @@ static proto_tree *g_tree;
 
 /* FUNCTIONS */
 
-static gchar *
+static const gchar *
 my_match_strval(guint32 val, const value_string *vs, gint *idx)
 {
     gint i = 0;
@@ -308,7 +308,7 @@ for_request(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 {
     guint32	offset;
     guint8	oct;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     gint	idx;
     proto_tree	*subtree;
     proto_item	*item;
@@ -366,7 +366,7 @@ for_response(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 {
     guint32	offset;
     guint8	oct;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     gint	idx;
     proto_tree	*subtree;
     proto_item	*item;
@@ -429,7 +429,7 @@ rev_request(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 {
     guint32	offset;
     guint8	oct;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     gint	idx;
     proto_tree	*subtree;
     proto_item	*item;
@@ -487,7 +487,7 @@ rev_response(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 {
     guint32	offset;
     guint8	oct;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     gint	idx;
     proto_tree	*subtree;
     proto_item	*item;
