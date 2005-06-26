@@ -183,7 +183,7 @@ static const value_string msg_type_strings[] = {
 
 /* FUNCTIONS */
 
-static gchar *
+static const gchar *
 my_match_strval(guint32 val, const value_string *vs, gint *idx)
 {
     gint i = 0;
@@ -1182,7 +1182,7 @@ dis_field_diagnostics(tvbuff_t *tvb, proto_tree *tree, guint *len, guint32 *offs
     proto_item	*item;
     proto_tree	*subtree;
     guint8	parm_len;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     gint	idx;
     guint8	i;
 
@@ -1511,7 +1511,7 @@ dissect_alcap_parms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 len
     guint8	parm_len;
     guint32	curr_offset, saved_offset;
     gint	idx;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     proto_item	*item;
     proto_tree	*subtree;
     gint	ett_parm_idx;
@@ -1587,7 +1587,7 @@ dissect_alcap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *alcap_tree)
     guint32	offset;
     guint8	msg_type;
     gint	idx;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
     offset = 0;
 
