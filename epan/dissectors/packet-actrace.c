@@ -799,7 +799,7 @@ void proto_register_actrace(void)
 
     prefs_register_uint_preference(actrace_module, "udp_port",
                                    "AudioCodes Trunk Trace UDP port",
-                                   "Set the UDP port for AudioCodes Trunk Traces.\n"
+                                   "Set the UDP port for AudioCodes Trunk Traces."
                                    "Use http://x.x.x.x/TrunkTraces to enable the traces in the Blade",
                                    10, &global_actrace_udp_port);
 
