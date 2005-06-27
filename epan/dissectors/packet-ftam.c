@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-ftam.c                                                            */
+/* ./packet-ftam.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p ftam -c ftam.cnf -s packet-ftam-template ISO8571-FTAM.asn */
 
 /* Input file: packet-ftam-template.c */
@@ -1075,7 +1075,7 @@ static int dissect_actual_values2(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_ftam_GraphicString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, 0,
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_GraphicString,
                                          pinfo, tree, tvb, offset, hf_index,
                                          NULL);
 
