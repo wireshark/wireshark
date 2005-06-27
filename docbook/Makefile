@@ -176,8 +176,6 @@ EDG_FILES =	\
 	edg_src/EDG_preface.xml
 
 EDG_GRAPHICS =	\
-	edg_graphics/ethereal-capture-normal.dia	\
-	edg_graphics/ethereal-capture-normal.png	\
 	edg_graphics/ethereal-capture-sync.dia		\
 	edg_graphics/ethereal-capture-sync.png		\
 	edg_graphics/ethereal-capture_internals.dia	\
