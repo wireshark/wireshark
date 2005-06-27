@@ -750,7 +750,6 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   int len;
   char name[MAXDNAME];
   char *name_out;
-  int name_out_len;
   int name_len;
   int type;
   int class;
@@ -768,11 +767,11 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
 
   type_name = dns_type_name(type);
 
-  /* the name might contain non-printable characters, format it first */
-  /* the actual name to display will be smaller than the name_len */
-  /* XXX - is the name guaranteed to be a valid string or might strlen() fail? */
-  name_out_len = (name_len <= (int) strlen(name)) ? name_len : strlen(name);
-  name_out = format_text(name, name_out_len);
+  /*
+   * The name might contain octets that aren't printable characters,
+   * format it for display.
+   */
+  name_out = format_text(name, strlen(name));
 
   if (cinfo != NULL) {
     col_append_fstr(cinfo, COL_INFO, " %s %s", type_name, name_out);
@@ -782,7 +781,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
 		   name_out, type_name, dns_class_name(class));
     q_tree = proto_item_add_subtree(tq, ett_dns_qd);
 
-    proto_tree_add_string(q_tree, hf_dns_qry_name, tvb, offset, name_len, name_out);
+    proto_tree_add_string(q_tree, hf_dns_qry_name, tvb, offset, name_len, name);
     offset += name_len;
 
     proto_tree_add_uint_format(q_tree, hf_dns_qry_type, tvb, offset, 2, type,
@@ -931,6 +930,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 {
   int len;
   char name[MAXDNAME];
+  char *name_out;
   int name_len;
   int type;
   int class;
@@ -966,17 +966,22 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
   if (cinfo != NULL)
     col_append_fstr(cinfo, COL_INFO, " %s", type_name);
   if (dns_tree != NULL) {
+    /*
+     * The name might contain octets that aren't printable characters,
+     * format it for display.
+     */
+    name_out = format_text(name, strlen(name));
     if (type != T_OPT) {
       trr = proto_tree_add_text(dns_tree, tvb, offset,
 		    (data_offset - data_start) + data_len,
 		    "%s: type %s, class %s",
-		    name, type_name, class_name);
+		    name_out, type_name, class_name);
       rr_tree = add_rr_to_tree(trr, ett_dns_rr, tvb, offset, name, name_len,
 		     type, class, ttl, data_len);
     } else  {
       trr = proto_tree_add_text(dns_tree, tvb, offset,
 		    (data_offset - data_start) + data_len,
-		    "%s: type %s", name, type_name);
+		    "%s: type %s", name_out, type_name);
       rr_tree = add_opt_rr_to_tree(trr, ett_dns_rr, tvb, offset, name, name_len,
 		     type, class, ttl, data_len);
     }
@@ -1013,12 +1018,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       int ns_name_len;
 
       ns_name_len = get_dns_name(tvb, cur_offset, dns_data_offset, ns_name, sizeof(ns_name));
+      name_out = format_text(ns_name, strlen(ns_name));
       if (cinfo != NULL)
-	col_append_fstr(cinfo, COL_INFO, " %s", ns_name);
+	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       if (dns_tree != NULL) {
-	proto_item_append_text(trr, ", ns %s", ns_name);
+	proto_item_append_text(trr, ", ns %s", name_out);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, ns_name_len, "Name server: %s",
-			ns_name);
+			name_out);
       }
     }
     break;
@@ -1029,12 +1035,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       int cname_len;
 
       cname_len = get_dns_name(tvb, cur_offset, dns_data_offset, cname, sizeof(cname));
+      name_out = format_text(cname, strlen(cname));
       if (cinfo != NULL)
-	col_append_fstr(cinfo, COL_INFO, " %s", cname);
+	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       if (dns_tree != NULL) {
-	proto_item_append_text(trr, ", cname %s", cname);
+	proto_item_append_text(trr, ", cname %s", name_out);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, cname_len, "Primary name: %s",
-			cname);
+			name_out);
       }
     }
     break;
@@ -1052,17 +1059,19 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       guint32 minimum;
 
       mname_len = get_dns_name(tvb, cur_offset, dns_data_offset, mname, sizeof(mname));
+      name_out = format_text(mname, strlen(mname));
       if (cinfo != NULL)
-	col_append_fstr(cinfo, COL_INFO, " %s", mname);
+	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       if (dns_tree != NULL) {
-	proto_item_append_text(trr, ", mname %s", mname);
+	proto_item_append_text(trr, ", mname %s", name_out);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, mname_len, "Primary name server: %s",
-		       mname);
+		       name_out);
 	cur_offset += mname_len;
 
 	rname_len = get_dns_name(tvb, cur_offset, dns_data_offset, rname, sizeof(rname));
+        name_out = format_text(rname, strlen(rname));
 	proto_tree_add_text(rr_tree, tvb, cur_offset, rname_len, "Responsible authority's mailbox: %s",
-		       rname);
+		       name_out);
 	cur_offset += rname_len;
 
 	serial = tvb_get_ntohl(tvb, cur_offset);
@@ -1098,12 +1107,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       int pname_len;
 
       pname_len = get_dns_name(tvb, cur_offset, dns_data_offset, pname, sizeof(pname));
+      name_out = format_text(pname, strlen(pname));
       if (cinfo != NULL)
-	col_append_fstr(cinfo, COL_INFO, " %s", pname);
+	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       if (dns_tree != NULL) {
-	proto_item_append_text(trr, ", %s", pname);
+	proto_item_append_text(trr, ", %s", name_out);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, pname_len, "Domain name: %s",
-			pname);
+			name_out);
       }
       break;
     }
@@ -1223,14 +1233,15 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
       preference = tvb_get_ntohs(tvb, cur_offset);
       mx_name_len = get_dns_name(tvb, cur_offset + 2, dns_data_offset, mx_name, sizeof(mx_name));
+      name_out = format_text(mx_name, strlen(mx_name));
       if (cinfo != NULL)
-	col_append_fstr(cinfo, COL_INFO, " %u %s", preference, mx_name);
+	col_append_fstr(cinfo, COL_INFO, " %u %s", preference, name_out);
       if (dns_tree != NULL) {
 	proto_item_append_text(trr, ", preference %u, mx %s",
-		       preference, mx_name);
+		       preference, name_out);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Preference: %u", preference);
 	proto_tree_add_text(rr_tree, tvb, cur_offset + 2, mx_name_len, "Mail exchange: %s",
-			mx_name);
+			name_out);
       }
     }
     break;
@@ -1321,7 +1332,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
 	signer_name_len = get_dns_name(tvb, cur_offset, dns_data_offset, signer_name, sizeof(signer_name));
 	proto_tree_add_text(rr_tree, tvb, cur_offset, signer_name_len,
-		"Signer's name: %s", signer_name);
+		"Signer's name: %s",
+		format_text(signer_name, strlen(signer_name)));
 	cur_offset += signer_name_len;
 	rr_len -= signer_name_len;
 
@@ -1470,7 +1482,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	     break;
 	   case 3:
 	     gw_name_len = get_dns_name(tvb, cur_offset, dns_data_offset, gw, sizeof(gw));
-	     proto_tree_add_text(rr_tree, tvb, cur_offset, gw_name_len, "Gateway: %s", gw);
+	     proto_tree_add_text(rr_tree, tvb, cur_offset, gw_name_len,
+				 "Gateway: %s", format_text(gw, strlen(gw)));
 
 	     cur_offset += gw_name_len;
 	     rr_len -= gw_name_len;	     
@@ -1540,12 +1553,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
         strcpy(pname, "");
         pname_len = 0;
       }
+      name_out = format_text(pname, strlen(pname));
 
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %d %s %s",
                         pre_len,
                         ip6_to_str(&suffix),
-                        pname);
+                        name_out);
       }
       if (dns_tree != NULL) {
         proto_tree_add_text(rr_tree, tvb, a6_offset, 1,
@@ -1559,12 +1573,12 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
         }
         if (pre_len > 0) {
           proto_tree_add_text(rr_tree, tvb, a6_offset, pname_len,
-                              "Prefix name: %s", pname);
+                              "Prefix name: %s", name_out);
         }
         proto_item_append_text(trr, ", addr %d %s %s",
                             pre_len,
                             ip6_to_str(&suffix),
-                            pname);
+                            name_out);
       }
     }
     break;
@@ -1576,12 +1590,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
       dname_len = get_dns_name(tvb, cur_offset, dns_data_offset,
 			       dname, sizeof(dname));
+      name_out = format_text(dname, strlen(dname));
       if (cinfo != NULL)
-	col_append_fstr(cinfo, COL_INFO, " %s", dname);
+	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       if (dns_tree != NULL) {
-	proto_item_append_text(trr, ", dname %s", dname);
+	proto_item_append_text(trr, ", dname %s", name_out);
 	proto_tree_add_text(rr_tree, tvb, cur_offset,
-			    dname_len, "Target name: %s", dname);
+			    dname_len, "Target name: %s", name_out);
       }
     }
     break;
@@ -1637,13 +1652,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
       next_domain_name_len = get_dns_name(tvb, cur_offset, dns_data_offset,
 			next_domain_name, sizeof(next_domain_name));
+      name_out = format_text(next_domain_name, strlen(next_domain_name));
       if (cinfo != NULL)
-	col_append_fstr(cinfo, COL_INFO, " %s", next_domain_name);
+	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       if (dns_tree != NULL) {
-	proto_item_append_text(trr, ", next domain name %s",
-		     next_domain_name);
+	proto_item_append_text(trr, ", next domain name %s", name_out);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, next_domain_name_len,
-			"Next domain name: %s", next_domain_name);
+			"Next domain name: %s", name_out);
 	cur_offset += next_domain_name_len;
 	rr_len -= next_domain_name_len;
 	rr_type = 0;
@@ -1685,13 +1700,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
       next_domain_name_len = get_dns_name(tvb, cur_offset, dns_data_offset,
 			next_domain_name, sizeof(next_domain_name));
+      name_out = format_text(next_domain_name, strlen(next_domain_name));
       if (cinfo != NULL)
-	col_append_fstr(cinfo, COL_INFO, " %s", next_domain_name);
+	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       if (dns_tree != NULL) {
-	proto_item_append_text(trr, ", next domain name %s",
-		     next_domain_name);
+	proto_item_append_text(trr, ", next domain name %s", name_out);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, next_domain_name_len,
-			"Next domain name: %s", next_domain_name);
+			"Next domain name: %s", name_out);
 	cur_offset += next_domain_name_len;
 	rr_len -= next_domain_name_len;
 	rr_type = 0;
@@ -1722,14 +1737,15 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
       preference = tvb_get_ntohs(tvb, cur_offset);
       kx_name_len = get_dns_name(tvb, cur_offset + 2, dns_data_offset, kx_name, sizeof(kx_name));
+      name_out = format_text(kx_name, strlen(kx_name));
       if (cinfo != NULL)
-	col_append_fstr(cinfo, COL_INFO, " %u %s", preference, kx_name);
+	col_append_fstr(cinfo, COL_INFO, " %u %s", preference, name_out);
       if (dns_tree != NULL) {
 	proto_item_append_text(trr, ", preference %u, kx %s",
-		       preference, kx_name);
+		       preference, name_out);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Preference: %u", preference);
 	proto_tree_add_text(rr_tree, tvb, cur_offset + 2, kx_name_len, "Key exchange: %s",
-			kx_name);
+			name_out);
       }
     }
     break;
@@ -1844,7 +1860,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
 	tkey_algname_len = get_dns_name(tvb, cur_offset, dns_data_offset, tkey_algname, sizeof(tkey_algname));
 	proto_tree_add_text(rr_tree, tvb, cur_offset, tkey_algname_len,
-		"Algorithm name: %s", tkey_algname);
+		"Algorithm name: %s",
+		format_text(tkey_algname, strlen(tkey_algname)));
 	cur_offset += tkey_algname_len;
 	rr_len -= tkey_algname_len;
 
@@ -1969,7 +1986,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       if (dns_tree != NULL) {
 	tsig_algname_len = get_dns_name(tvb, cur_offset, dns_data_offset, tsig_algname, sizeof(tsig_algname));
 	proto_tree_add_text(rr_tree, tvb, cur_offset, tsig_algname_len,
-		"Algorithm name: %s", tsig_algname);
+		"Algorithm name: %s",
+		format_text(tsig_algname, strlen(tsig_algname)));
 	cur_offset += tsig_algname_len;
 	rr_len -= tsig_algname_len;
 
@@ -2146,12 +2164,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       rr_len -= 4;
 
       dname_len = get_dns_name(tvb, cur_offset, dns_data_offset, dname, sizeof(dname));
+      name_out = format_text(dname, strlen(dname));
       if (cinfo != NULL)
-	col_append_fstr(cinfo, COL_INFO, " %s", dname);
+	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       if (dns_tree != NULL) {
-	proto_item_append_text(trr, ", name result domain %s", dname);
+	proto_item_append_text(trr, ", name result domain %s", name_out);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, dname_len, "Name result domain: %s",
-			dname);
+			name_out);
       }
     }
     break;
@@ -2169,17 +2188,18 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       port = tvb_get_ntohs(tvb, cur_offset+4);
 
       target_len = get_dns_name(tvb, cur_offset + 6, dns_data_offset, target, sizeof(target));
+      name_out = format_text(target, strlen(target));
       if (cinfo != NULL)
-	col_append_fstr(cinfo, COL_INFO, " %u %u %u %s", priority, weight, port, target);
+	col_append_fstr(cinfo, COL_INFO, " %u %u %u %s", priority, weight, port, name_out);
       if (dns_tree != NULL) {
 	proto_item_append_text(trr,
 		       ", priority %u, weight %u, port %u, target %s",
-		       priority, weight, port, target);
+		       priority, weight, port, name_out);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Priority: %u", priority);
 	proto_tree_add_text(rr_tree, tvb, cur_offset + 2, 2, "Weight: %u", weight);
 	proto_tree_add_text(rr_tree, tvb, cur_offset + 4, 2, "Port: %u", port);
 	proto_tree_add_text(rr_tree, tvb, cur_offset + 6, target_len, "Target: %s",
-			target);
+			name_out);
       }
     }
     break;
