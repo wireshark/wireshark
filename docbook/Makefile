@@ -316,8 +316,8 @@ developer-guide.html: $(EDG_SOURCE)
 edg_html_chunked: $(EDG_SOURCE)
 	@ echo --- HTML CHUNKED ---
 	mkdir -p edg_html_chunked
-	mkdir -p edg_html/edg_graphics
-	cp edg_graphics/* edg_html/edg_graphics
+	mkdir -p edg_html_chunked/edg_graphics
+	cp edg_graphics/* edg_html_chunked/edg_graphics
 	$(XSLTPROC) --stringparam base.dir edg_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl $<
 	-chmod -R og+rX edg_html
 
