@@ -2790,7 +2790,7 @@ class RestrictedCharacterStringType (CharacterStringType):
     (minv, maxv, ext) = self.eth_get_size_constr()
     if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_ber_restricted_string', ret='offset',
-                              par=(('implicit_tag', self.GetTag(ectx)[1]),
+                              par=(('implicit_tag', self.GetTTag(ectx)[1]),
                                    ('pinfo', 'tree', 'tvb', 'offset', 'hf_index'),
                                    ('NULL',)))
     elif (ectx.Per() and self.HasConstraint() and self.constr.IsPermAlph()):
