@@ -454,6 +454,7 @@ p_add_proto_data
 p_get_proto_data
 q931_cause_code_vals           DATA
 q850_cause_code_vals           DATA		
+q931_message_type_vals         DATA
 range_convert_range
 range_convert_str
 range_copy
