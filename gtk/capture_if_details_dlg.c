@@ -329,7 +329,7 @@ static const value_string win32_802_11_channel_vals[] = {
 
 
 static void
-add_row_to_table(GtkWidget *list, guint *row, gchar *title, gchar *value, gboolean sensitive)
+add_row_to_table(GtkWidget *list, guint *row, gchar *title, const gchar *value, gboolean sensitive)
 {
     GtkWidget *label;
     gchar     *indent;
@@ -362,7 +362,7 @@ add_string_to_table_sensitive(GtkWidget *list, guint *row, gchar *title, gchar *
 
 
 static void
-add_string_to_table(GtkWidget *list, guint *row, gchar *title, gchar *value)
+add_string_to_table(GtkWidget *list, guint *row, gchar *title, const gchar *value)
 {
     add_row_to_table(list, row, title, value, TRUE);
 }

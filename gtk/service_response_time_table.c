@@ -427,7 +427,7 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *
 }
 
 void
-init_srt_table_row(srt_stat_table *rst, int index, char *procedure)
+init_srt_table_row(srt_stat_table *rst, int index, const char *procedure)
 {
 	char str[10];
 

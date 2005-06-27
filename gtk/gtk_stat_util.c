@@ -51,7 +51,7 @@ typedef struct _gtk_table {
 }gtk_table;
 
 void
-add_table_entry(gtk_table *tab, char *str, int x, int y)
+add_table_entry(gtk_table *tab, const char *str, int x, int y)
 {
 	GtkWidget *tmp;
 

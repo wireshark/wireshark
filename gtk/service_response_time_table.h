@@ -67,7 +67,7 @@ void init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox,
  * @param index number of procedure
  * @param procedure the procedures name
  */
-void init_srt_table_row(srt_stat_table *rst, int index, char *procedure);
+void init_srt_table_row(srt_stat_table *rst, int index, const char *procedure);
 
 /** Add srt response to table row data. This will not draw the data!
  *
