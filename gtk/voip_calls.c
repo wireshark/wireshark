@@ -10,7 +10,7 @@
  * Copyright 2004, Iskratel, Ltd, Kranj
  * By Miha Jemec <m.jemec@iskratel.si>
  * 
- * H323, RTP, RTP Event, MGCP and Graph Support
+ * H323, RTP, RTP Event, MGCP, AudioCodes (ISDN PRI and CAS) and Graph Support
  * By Alejandro Vaquero, alejandro.vaquero@verso.com
  * Copyright 2005, Verso Technologies Inc.
  *
@@ -54,6 +54,7 @@
 #include <epan/dissectors/packet-q931.h>
 #include <epan/dissectors/packet-sdp.h>
 #include <plugins/mgcp/packet-mgcp.h>
+#include <epan/dissectors/packet-actrace.h>
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/dissectors/packet-rtp-events.h>
 #include <epan/conversation.h>
@@ -73,11 +74,13 @@ char *voip_call_state_name[7]={
 	};
 
 /* defines whether we can consider the call active */
-char *voip_protocol_name[4]={
+char *voip_protocol_name[6]={
 	"SIP",
 	"ISUP",
 	"H323",
-	"MGCP"
+	"MGCP",
+	"AC_ISDN",
+	"AC_CAS"
 	};
 
 typedef struct {
@@ -98,7 +101,7 @@ static h245_labels_t h245_labels;
 /****************************************************************************/
 /* the one and only global voip_calls_tapinfo_t structure */
 static voip_calls_tapinfo_t the_tapinfo_struct =
-	{0, NULL, 0, NULL, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0};
+	{0, NULL, 0, NULL, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 /* the one and only global voip_rtp_tapinfo_t structure */
 static voip_rtp_tapinfo_t the_tapinfo_rtp_struct =
@@ -187,15 +190,18 @@ void graph_analysis_data_init(void){
 
 /****************************************************************************/
 /* Add a new item into the graph */
-int add_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, gchar *frame_label, gchar *comment, guint16 call_num)
+int add_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, const gchar *frame_label, gchar *comment, guint16 call_num, address *src_addr, address *dst_addr)
 {
 	graph_analysis_item_t *gai;
 
 	gai = g_malloc(sizeof(graph_analysis_item_t));
 	gai->frame_num = pinfo->fd->num;
 	gai->time= (double)pinfo->fd->rel_secs + (double) pinfo->fd->rel_usecs/1000000;
-	COPY_ADDRESS(&(gai->src_addr),&(pinfo->src));
-	COPY_ADDRESS(&(gai->dst_addr),&(pinfo->dst));
+/*	COPY_ADDRESS(&(gai->src_addr),&(pinfo->src));
+	COPY_ADDRESS(&(gai->dst_addr),&(pinfo->dst));*/
+	COPY_ADDRESS(&(gai->src_addr),src_addr);
+	COPY_ADDRESS(&(gai->dst_addr),dst_addr);
+
 	gai->port_src=pinfo->srcport;
 	gai->port_dst=pinfo->destport;
 	if (frame_label != NULL)
@@ -731,7 +737,7 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		++(tapinfo->npackets);
 
 		/* add to the graph */
-		add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num);  
+		add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num, &(pinfo->src), &(pinfo->dst));  
 		g_free(comment);
 		g_free(frame_label);
 		g_free((void *)tmp_src.data);
@@ -980,7 +986,7 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		++(tapinfo->npackets);
 
 		/* add to the graph */
-		add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num);  
+		add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num, &(pinfo->src), &(pinfo->dst));  
 		g_free(comment);
 		g_free(frame_label);
 	}
@@ -1115,6 +1121,11 @@ static guint16 h225_call_num = 0;
 static h225_cs_type h225_cstype = H225_OTHER;
 static gboolean h225_is_faststart;
 
+static guint32 actrace_frame_num = 0;
+static gint32 actrace_trunk = 0;
+static gint32 actrace_direction = 0;
+
+
 /****************************************************************************/
 /* whenever a q931_ packet is seen by the tap listener */
 static int 
@@ -1123,6 +1134,7 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 	GList *list,*list2;
 	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct; 
 	h323_calls_info_t *tmp_h323info,*tmp2_h323info;
+	actrace_isdn_calls_info_t *tmp_actrace_isdn_info;
 	voip_calls_info_t *tmp_listinfo;
 	voip_calls_info_t *strinfo = NULL;
 	h245_address_t *h245_add = NULL;
@@ -1242,6 +1254,8 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		/* we reset the h225_frame_num to 0 because there could be empty h225 in the same frame
 		   as non empty h225 (e.g connect), so we don't have to be here twice */
 		h225_frame_num = 0;
+
+	/* add staff to H245 */
 	} else if (h245_labels.frame_num == q931_frame_num) {
 	/* there are empty H225 frames that don't have guid (guaid=0) but they have h245 info, 
 	   so the only way to match those frames is with the Q931 CRV number */ 
@@ -1258,7 +1272,7 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 					/* if the frame number exists in graph, append to it*/
 					if (!append_to_frame_graph(tapinfo, q931_frame_num, "", comment)) {
 						/* if not exist, add to the graph */
-						add_to_graph(tapinfo, pinfo, "", comment, tmp_listinfo->call_num);
+						add_to_graph(tapinfo, pinfo, "", comment, tmp_listinfo->call_num, &(pinfo->src), &(pinfo->dst));
 					}
 					
 					/* Add the H245 info if exists to the Graph */
@@ -1269,7 +1283,103 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 			}
 			list = g_list_next (list);
 		}
+
+	/* add staff to ACTRACE */
+	} else if (actrace_frame_num == q931_frame_num) {
+		address pstn_add;
+		gchar *comment = NULL;
+
+		strinfo = NULL;
+		list = g_list_first(tapinfo->strinfo_list);
+		while (list)
+		{
+			tmp_listinfo=list->data;
+			if ( tmp_listinfo->protocol == VOIP_AC_ISDN ){
+				tmp_actrace_isdn_info = tmp_listinfo->prot_info;
+				/* TODO: Also check the IP of the Blade, and if the call is complete (no active) */
+				if ( (tmp_actrace_isdn_info->crv == q931_crv) && (tmp_actrace_isdn_info->trunk == actrace_trunk) ) {
+					strinfo = (voip_calls_info_t*)(list->data);
+					break;
+				}
+			}
+			list = g_list_next (list);
+		}
+
+		pstn_add.type = AT_STRINGZ;
+		pstn_add.len = 5;
+		pstn_add.data = g_strdup("PSTN");
+
+		/* if it is a new call, add it to the list */
+		if (!strinfo) {
+			strinfo = g_malloc(sizeof(voip_calls_info_t));
+			strinfo->call_active_state = VOIP_ACTIVE;
+			strinfo->call_state = VOIP_CALL_SETUP;
+			strinfo->from_identity=g_strdup(q931_calling_number);
+			strinfo->to_identity=g_strdup(q931_called_number);
+			COPY_ADDRESS(&(strinfo->initial_speaker),actrace_direction?&pstn_add:&(pinfo->src));
+			strinfo->first_frame_num=pinfo->fd->num;
+			strinfo->selected=FALSE;
+			strinfo->start_sec=pinfo->fd->rel_secs;
+			strinfo->start_usec=pinfo->fd->rel_usecs;
+			strinfo->protocol=VOIP_AC_ISDN;
+			strinfo->prot_info=g_malloc(sizeof(actrace_isdn_calls_info_t));
+			tmp_actrace_isdn_info=strinfo->prot_info;
+			tmp_actrace_isdn_info->crv=q931_crv;
+			tmp_actrace_isdn_info->trunk=actrace_trunk;
+			strinfo->npackets = 0;
+			strinfo->call_num = tapinfo->ncalls++;
+			tapinfo->strinfo_list = g_list_append(tapinfo->strinfo_list, strinfo);
+		}
+
+		strinfo->stop_sec=pinfo->fd->rel_secs;
+		strinfo->stop_usec=pinfo->fd->rel_usecs;
+		strinfo->last_frame_num=pinfo->fd->num;
+		++(strinfo->npackets);
+		/* increment the packets counter of all calls */
+		++(tapinfo->npackets);
+
+		switch(pi->message_type){
+		case Q931_SETUP:
+			comment = g_strdup_printf("AC_ISDN trunk:%u Calling: %s  Called:%s", actrace_trunk, q931_calling_number, q931_called_number);
+			strinfo->call_state=VOIP_CALL_SETUP;
+			break;
+		case Q931_CONNECT:
+			strinfo->call_state=VOIP_IN_CALL;
+			break;
+		case Q931_RELEASE_COMPLETE:
+		case Q931_RELEASE:
+		case Q931_DISCONNECT:
+			if (strinfo->call_state==VOIP_CALL_SETUP){
+				if (ADDRESSES_EQUAL(&(strinfo->initial_speaker), actrace_direction?&pstn_add:&(pinfo->src) )){  /* forward direction */
+					strinfo->call_state=VOIP_CANCELLED;
+				}
+				else{												/* reverse */
+					strinfo->call_state=VOIP_REJECTED;
+					tapinfo->rejected_calls++;
+				}
+			} else if ( (strinfo->call_state!=VOIP_CANCELLED) && (strinfo->call_state!=VOIP_REJECTED) ){
+					strinfo->call_state=VOIP_COMPLETED;
+					tapinfo->completed_calls++;
+			}
+			if (q931_cause_value != 0xFF){		
+				comment = g_strdup_printf("AC_ISDN trunk:%u Q931 Rel Cause (%i):%s", actrace_trunk, q931_cause_value, val_to_str(q931_cause_value, q931_cause_code_vals, "<unknown>"));
+			} else { /* Cause not set */
+				comment = g_strdup("AC_ISDN No Q931 Rel Cause");
+			}
+			break;
+		}
+
+		if (!comment)
+			comment = g_strdup_printf("AC_ISDN  trunk:%u", actrace_trunk );
+
+		add_to_graph(tapinfo, pinfo, val_to_str(pi->message_type, q931_message_type_vals, "<unknown>") , comment, strinfo->call_num, 
+				actrace_direction?&pstn_add:&(pinfo->src),
+				actrace_direction?&(pinfo->src):&pstn_add);
+
+		g_free(comment);
+		g_free((char *)pstn_add.data);
 	}
+
 	return 0;
 }
 
@@ -1529,7 +1639,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	/* if the frame number exists in graph, append to it*/
 	if (!append_to_frame_graph(tapinfo, pinfo->fd->num, pi->frame_label, comment)) {
 		/* if not exist, add to the graph */
-		add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num);
+		add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num, &(pinfo->src), &(pinfo->dst));
 		g_free((void *)tmp_src.data);
 		g_free((void *)tmp_dst.data);
 	}
@@ -1699,7 +1809,7 @@ H245dgcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 		/* if the frame number exists in graph, append to it*/
 		if (!append_to_frame_graph(tapinfo, pinfo->fd->num, frame_label, comment)) {
 			/* if not exist, add to the graph */
-			add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num);
+			add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num, &(pinfo->src), &(pinfo->dst));
 		}
 		g_free(frame_label);
 		g_free(comment);
@@ -2136,7 +2246,7 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 	++(tapinfo->npackets);
 
 	/* add to the graph */
-	add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num);  
+	add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num, &(pinfo->src), &(pinfo->dst));  
 	g_free(comment);
 	g_free(frame_label);
 
@@ -2198,6 +2308,137 @@ remove_tap_listener_mgcp_calls(void)
 }
 
 
+/****************************************************************************/
+/****************************TAP for ACTRACE (AudioCodes trace)**************/
+/****************************************************************************/
+
+/* whenever a ACTRACE packet is seen by the tap listener */
+static int 
+ACTRACEcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *ACTRACEinfo)
+{
+	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
+	const actrace_info_t *pi = ACTRACEinfo;
+	GList *list;
+	actrace_cas_calls_info_t *tmp_actrace_cas_info;
+	voip_calls_info_t *tmp_listinfo;
+	voip_calls_info_t *strinfo = NULL;
+
+
+	actrace_frame_num = pinfo->fd->num;
+	actrace_trunk = pi->trunk;
+	actrace_direction = pi->direction;
+
+	if (pi->type == 1){ /* is CAS protocol */
+		address pstn_add;
+		gchar *comment = NULL;
+
+		strinfo = NULL;
+		list = g_list_first(tapinfo->strinfo_list);
+		while (list)
+		{
+			tmp_listinfo=list->data;
+			if ( tmp_listinfo->protocol == VOIP_AC_CAS ){
+				tmp_actrace_cas_info = tmp_listinfo->prot_info;
+				/* TODO: Also check the IP of the Blade, and if the call is complete (no active) */
+				if ( (tmp_actrace_cas_info->bchannel == pi->cas_bchannel) && (tmp_actrace_cas_info->trunk == actrace_trunk) ) {
+					strinfo = (voip_calls_info_t*)(list->data);
+					break;
+				}
+			}
+			list = g_list_next (list);
+		}
+
+		pstn_add.type = AT_STRINGZ;
+		pstn_add.len = 5;
+		pstn_add.data = g_strdup("PSTN");
+
+		/* if it is a new call, add it to the list */
+		if (!strinfo) {
+			strinfo = g_malloc(sizeof(voip_calls_info_t));
+			strinfo->call_active_state = VOIP_ACTIVE;
+			strinfo->call_state = VOIP_CALL_SETUP;
+			strinfo->from_identity=g_strdup("N/A");
+			strinfo->to_identity=g_strdup("N/A");
+			COPY_ADDRESS(&(strinfo->initial_speaker),actrace_direction?&pstn_add:&(pinfo->src));
+			strinfo->first_frame_num=pinfo->fd->num;
+			strinfo->selected=FALSE;
+			strinfo->start_sec=pinfo->fd->rel_secs;
+			strinfo->start_usec=pinfo->fd->rel_usecs;
+			strinfo->protocol=VOIP_AC_CAS;
+			strinfo->prot_info=g_malloc(sizeof(actrace_cas_calls_info_t));
+			tmp_actrace_cas_info=strinfo->prot_info;
+			tmp_actrace_cas_info->bchannel=pi->cas_bchannel;
+			tmp_actrace_cas_info->trunk=actrace_trunk;
+			strinfo->npackets = 0;
+			strinfo->call_num = tapinfo->ncalls++;
+			tapinfo->strinfo_list = g_list_append(tapinfo->strinfo_list, strinfo);
+		}
+
+		strinfo->stop_sec=pinfo->fd->rel_secs;
+		strinfo->stop_usec=pinfo->fd->rel_usecs;
+		strinfo->last_frame_num=pinfo->fd->num;
+		++(strinfo->npackets);
+		/* increment the packets counter of all calls */
+		++(tapinfo->npackets);
+
+		if (!comment)
+			comment = g_strdup_printf("AC_CAS  trunk:%u", actrace_trunk );
+
+		add_to_graph(tapinfo, pinfo, pi->cas_frame_label , comment, strinfo->call_num, 
+				actrace_direction?&pstn_add:&(pinfo->src),
+				actrace_direction?&(pinfo->src):&pstn_add);
+
+		g_free(comment);
+		g_free((char *)pstn_add.data);
+	}
+	return 1;  /* refresh output */
+}
+
+
+/****************************************************************************/
+/* TAP INTERFACE */
+/****************************************************************************/
+static gboolean have_actrace_tap_listener=FALSE;
+/****************************************************************************/
+void
+actrace_calls_init_tap(void)
+{
+	GString *error_string;
+
+	if(have_actrace_tap_listener==FALSE)
+	{
+		/* don't register tap listener, if we have it already */
+		error_string = register_tap_listener("actrace", &(the_tapinfo_struct.actrace_dummy), NULL,
+			voip_calls_dlg_reset, 
+			ACTRACEcalls_packet, 
+			voip_calls_dlg_draw
+			);
+			
+		if (error_string != NULL) {
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+				      error_string->str);
+			g_string_free(error_string, TRUE);
+			exit(1);
+		}
+		have_actrace_tap_listener=TRUE;
+	}
+}
+
+
+/* XXX just copied from gtk/rpc_stat.c */
+void protect_thread_critical_region(void);
+void unprotect_thread_critical_region(void);
+
+/****************************************************************************/
+void
+remove_tap_listener_actrace_calls(void)
+{
+	protect_thread_critical_region();
+	remove_tap_listener(&(the_tapinfo_struct.actrace_dummy));
+	unprotect_thread_critical_region();
+
+	have_actrace_tap_listener=FALSE;
+}
 
 /****************************************************************************/
 /* ***************************TAP for OTHER PROTOCOL **********************************/

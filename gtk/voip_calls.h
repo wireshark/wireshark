@@ -63,10 +63,12 @@ typedef enum _voip_protocol {
 		VOIP_SIP,
 		VOIP_ISUP,
 		VOIP_H323,
-		VOIP_MGCP
+		VOIP_MGCP,
+		VOIP_AC_ISDN,
+		VOIP_AC_CAS
 } voip_protocol;
 
-extern char *voip_protocol_name[4];
+extern char *voip_protocol_name[6];
 
 /* defines specific SIP data */
 
@@ -115,6 +117,17 @@ typedef struct _mgcp_calls_info {
 	gboolean fromEndpoint; /* true if the call was originated from the Endpoint, false for calls from MGC */
 } mgcp_calls_info_t;
 
+/* defines specific ACTRACE ISDN data */
+typedef struct _actrace_isdn_calls_info {
+	gint32 crv;
+	int trunk;
+} actrace_isdn_calls_info_t;
+
+/* defines specific ACTRACE CAS data */
+typedef struct _actrace_cas_calls_info {
+	gint32 bchannel;
+	int trunk;
+} actrace_cas_calls_info_t;
 
 /* defines a voip call */
 typedef struct _voip_calls_info {
@@ -159,6 +172,7 @@ typedef struct _voip_calls_tapinfo {
 	int isup_dummy;
 	int q931_dummy;
 	int mgcp_dummy;
+	int actrace_dummy;
 } voip_calls_tapinfo_t;
 
 
@@ -213,7 +227,7 @@ void sdp_calls_init_tap(void);
 void rtp_init_tap(void);
 void rtp_event_init_tap(void);
 void mgcp_calls_init_tap(void);
-
+void actrace_calls_init_tap(void);
 
 /*
 * Removes the voip_calls tap listener (if not already done)
@@ -229,6 +243,7 @@ void remove_tap_listener_sdp_calls(void);
 void remove_tap_listener_rtp(void);
 void remove_tap_listener_rtp_event(void);
 void remove_tap_listener_mgcp_calls(void);
+void remove_tap_listener_actrace_calls(void);
 
 /*
 * Retrieves a constant reference to the unique info structure of the voip_calls tap listener.

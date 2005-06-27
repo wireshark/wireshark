@@ -55,7 +55,6 @@
 #include "ui_util.h"
 #include "compat_macros.h"
 #include "gtkglobals.h"
-#include "webbrowser.h"
 
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
@@ -126,8 +125,8 @@ static void add_to_clist(voip_calls_info_t* strinfo)
 	switch(strinfo->protocol){
 		case VOIP_ISUP:
 			tmp_isupinfo = strinfo->prot_info;
-			g_snprintf(field[8],30, "%i-%i -> %i-%i. CIC: %i", tmp_isupinfo->ni, tmp_isupinfo->opc,
-				tmp_isupinfo->ni, tmp_isupinfo->dpc, tmp_isupinfo->cic);
+			g_snprintf(field[8],30, "%i-%i -> %i-%i", tmp_isupinfo->ni, tmp_isupinfo->opc,
+				tmp_isupinfo->ni, tmp_isupinfo->dpc);
 			break;
 		case VOIP_H323:
 			tmp_h323info = strinfo->prot_info;
@@ -184,6 +183,7 @@ void voip_calls_remove_tap_listener(void)
 	if (find_tap_id("mgcp")) {
 		remove_tap_listener_mgcp_calls();
 	}
+	remove_tap_listener_actrace_calls();
 }
 
 /****************************************************************************/
@@ -335,13 +335,6 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 
 
 /****************************************************************************/
-
-static void help_bt_clicked( GtkButton *button _U_)
-{
-	browser_open_url("http://wiki.ethereal.com/VoIP_20calls");
-} 
- 
-
 static void
 on_graph_bt_clicked                    (GtkButton       *button _U_,
                                         gpointer         user_data _U_)
@@ -534,7 +527,6 @@ static void voip_calls_dlg_create (void)
 	GtkWidget *scrolledwindow;
 	GtkWidget *hbuttonbox;
 	GtkWidget *bt_close;
-	GtkWidget *bt_help;
 	GtkTooltips *tooltips = gtk_tooltips_new();
 
 	gchar *titles[NUM_COLS] =  {"Start Time", "Stop Time", "Initial Speaker", "From",  "To", "Protocol", "Packets", "State", "Comments"};
@@ -623,11 +615,6 @@ static void voip_calls_dlg_create (void)
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_SPREAD);
 	gtk_button_box_set_spacing (GTK_BUTTON_BOX (hbuttonbox), 30);
 
-	bt_help = BUTTON_NEW_FROM_STOCK(GTK_STOCK_HELP);
-	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_help);
-	SIGNAL_CONNECT(bt_help, "clicked", help_bt_clicked, NULL);
-	gtk_tooltips_set_tip (tooltips, bt_help, "Go to the help page", NULL);
-	
 	/*bt_unselect = gtk_button_new_with_label ("Unselect");
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_unselect);
 	gtk_tooltips_set_tip (tooltips, bt_unselect, "Unselect this conversation", NULL);*/
@@ -638,6 +625,7 @@ static void voip_calls_dlg_create (void)
 
 	bt_graph = gtk_button_new_with_label("Graph");
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_graph);
+	gtk_widget_show(bt_graph);
 	SIGNAL_CONNECT(bt_graph, "clicked", on_graph_bt_clicked, NULL);
 	gtk_tooltips_set_tip (tooltips, bt_graph, "Show a flow graph of the selected calls.", NULL);
 
@@ -748,6 +736,7 @@ voip_calls_init_tap(char *dummy _U_)
 	if (find_tap_id("mgcp")) {
 		mgcp_calls_init_tap();
 	}
+	actrace_calls_init_tap();
 	
 	/* init the Graph Analysys */
 	graph_analysis_data = graph_analysis_init();
