@@ -309,7 +309,7 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 				next_tree=proto_item_add_subtree(item, ett_ber_SEQUENCE);
 			}
 			next_tvb=tvb_new_subset(tvb, offset, len, len);
-			offset=dissect_unknown_ber(pinfo, next_tvb, 0, next_tree);
+			offset += dissect_unknown_ber(pinfo, next_tvb, 0, next_tree);
 			break;
 		case BER_UNI_TAG_NumericString:
 			offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_NumericString, NULL);
@@ -331,7 +331,7 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 			next_tree=proto_item_add_subtree(item, ett_ber_SEQUENCE);
 		}
 		next_tvb=tvb_new_subset(tvb, offset, len, len);
-		offset=dissect_unknown_ber(pinfo, next_tvb, 0, next_tree);
+		offset += dissect_unknown_ber(pinfo, next_tvb, 0, next_tree);
 		break;
 	default:
 		proto_tree_add_text(tree, tvb, offset, len, "BER: Error can not handle class:%d (0x%02x)",class,tvb_get_guint8(tvb, start_offset));
