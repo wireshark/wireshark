@@ -53,6 +53,7 @@ DISSECTOR_SRC =	\
 	packet-aarp.c	\
 	packet-acap.c	\
 	packet-acse.c	\
+	packet-actrace.c	\
 	packet-afp.c	\
 	packet-afs.c	\
 	packet-aim.c	\
@@ -608,6 +609,7 @@ DISSECTOR_SRC =	\
 # corresponding headers
 DISSECTOR_INCLUDES =	\
 	packet-acse.h	\
+	packet-actrace.h	\
 	packet-afp.h	\
 	packet-afs-defs.h	\
 	packet-afs-macros.h	\
