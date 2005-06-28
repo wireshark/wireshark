@@ -87,12 +87,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_restricted_string(TRUE, 1,
                                          pinfo, tree, tvb, offset, hf_index,
                                          NULL);
@@ -103,12 +104,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_bitstring(TRUE, pinfo, tree, tvb, offset,
                                  Protocol_Version_bits, hf_index, ett_ftam_Protocol_Version,
                                  NULL);
@@ -119,12 +121,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_bitstring(TRUE, pinfo, tree, tvb, offset,
                                  Service_Class_bits, hf_index, ett_ftam_Service_Class,
                                  NULL);
@@ -135,12 +138,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_bitstring(TRUE, pinfo, tree, tvb, offset,
                                  Functional_Units_bits, hf_index, ett_ftam_Functional_Units,
                                  NULL);
@@ -152,12 +156,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_bitstring(TRUE, pinfo, tree, tvb, offset,
                                  Attribute_Groups_bits, hf_index, ett_ftam_Attribute_Groups,
                                  NULL);
@@ -169,12 +174,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -184,12 +190,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence_of(TRUE, pinfo, tree, tvb, offset,
                                    Contents_Type_List_sequence_of, hf_index, ett_ftam_Contents_Type_List);
 
@@ -200,12 +207,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -215,12 +223,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -230,12 +239,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_object_identifier(TRUE, pinfo, tree, tvb, offset, hf_index,
                                             NULL);
 
@@ -246,12 +256,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                 Access_Context_sequence, hf_index, ett_ftam_Access_Context);
 
@@ -261,12 +272,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                 Access_Passwords_sequence, hf_index, ett_ftam_Access_Passwords);
 
@@ -276,12 +288,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+   if(!implicit_tag){
+     /* XXX  asn2eth can not yet handle tagged assignment yes so this
+      * XXX is some conformance file magic to work around that bug
+      */
+      offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+      offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+  }
   offset = dissect_ber_bitstring(TRUE, pinfo, tree, tvb, offset,
                                  Access_Request_bits, hf_index, ett_ftam_Access_Request,
                                  NULL);
@@ -291,12 +304,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_restricted_string(TRUE, 4,
                                          pinfo, tree, tvb, offset, hf_index,
                                          NULL);
@@ -306,12 +320,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -322,15 +337,15 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
-
 
 #.FN_BODY Change-Attributes
  gint8 class;
@@ -338,12 +353,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                 Change_Attributes_sequence, hf_index, ett_ftam_Change_Attributes);
 
@@ -354,12 +370,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence_of(TRUE, pinfo, tree, tvb, offset,
                                    Charging_sequence_of, hf_index, ett_ftam_Charging);
 
@@ -370,12 +387,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                 Concurrency_Control_sequence, hf_index, ett_ftam_Concurrency_Control);
 
@@ -386,12 +404,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_object_identifier(TRUE, pinfo, tree, tvb, offset, hf_index,
                                             NULL);
 
@@ -401,12 +420,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                 Create_Attributes_sequence, hf_index, ett_ftam_Create_Attributes);
 
@@ -416,12 +436,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence_of(TRUE, pinfo, tree, tvb, offset,
                                    Diagnostic_sequence_of, hf_index, ett_ftam_Diagnostic);
 
@@ -432,12 +453,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_object_identifier(TRUE, pinfo, tree, tvb, offset,
                                          hf_index, object_identifier_id);
 
@@ -447,26 +469,29 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
+
 #.FN_BODY Read-Attributes
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                 Read_Attributes_sequence, hf_index, ett_ftam_Read_Attributes);
 
@@ -476,12 +501,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                 Select_Attributes_sequence, hf_index, ett_ftam_Select_Attributes);
 
@@ -491,12 +517,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -506,12 +533,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_restricted_string(TRUE, 22,
                                          pinfo, tree, tvb, offset, hf_index,
                                          NULL);
@@ -521,12 +549,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence_of(TRUE, pinfo, tree, tvb, offset,
                                    Scope_sequence_of, hf_index, ett_ftam_Scope);
 
@@ -536,14 +565,16 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence_of(TRUE, pinfo, tree, tvb, offset,
                                    Objects_Attributes_List_sequence_of, hf_index, ett_ftam_Objects_Attributes_List);
+
 
 #.FN_BODY Path-Access-Passwords
  gint8 class;
@@ -551,12 +582,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence_of(TRUE, pinfo, tree, tvb, offset,
                                    Path_Access_Passwords_sequence_of, hf_index, ett_ftam_Path_Access_Passwords);
 
@@ -566,12 +598,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -581,12 +614,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_acse_EXTERNAL(TRUE, tvb, offset, pinfo, tree, hf_index);
 
 #.FN_BODY Attribute-Value-Assertions
@@ -595,12 +629,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ftam_OR_Set(TRUE, tvb, offset, pinfo, tree, hf_index);
 
 #.FN_BODY Referent-Indicator
@@ -609,12 +644,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_boolean(TRUE, pinfo, tree, tvb, offset, hf_index);
 
 #.FN_BODY Password
@@ -623,12 +659,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
                               Password_choice, hf_index, ett_ftam_Password, NULL);
 
@@ -639,12 +676,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
                               FADU_Identity_choice, hf_index, ett_ftam_FADU_Identity, NULL);
 
@@ -654,12 +692,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
                               Operation_Result_choice, hf_index, ett_ftam_Operation_Result, NULL);
 

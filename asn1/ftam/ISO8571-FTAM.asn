@@ -4,6 +4,8 @@
 -- this ASN.1 module is part of ISO/IEC 8571-4:1988;
 -- see the ISO|IEC text itself for full legal notices.
 -- 
+-- Manually added NBS9
+--
 ISO8571-FTAM {iso(1) standard(0) 8571 application-context(1) iso-ftam(1)} DEFINITIONS
 ::=
 BEGIN
@@ -16,7 +18,9 @@ PDU ::= CHOICE {
   fTAM-Regime-PDU  FTAM-Regime-PDU,
   file-PDU         File-PDU,
   bulk-Data-PDU    Bulk-Data-PDU,
-  fSM-PDU          FSM-PDU
+  fSM-PDU          FSM-PDU,
+  -- NBS9
+  nBS9		   [PRIVATE 2] IMPLICIT F-READ-ATTRIB-response
 }
 
 FTAM-Regime-PDU ::= CHOICE {

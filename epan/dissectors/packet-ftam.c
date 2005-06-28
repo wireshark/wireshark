@@ -68,6 +68,7 @@ static int hf_ftam_fTAM_Regime_PDU = -1;          /* FTAM_Regime_PDU */
 static int hf_ftam_file_PDU = -1;                 /* File_PDU */
 static int hf_ftam_bulk_Data_PDU = -1;            /* Bulk_Data_PDU */
 static int hf_ftam_fSM_PDU = -1;                  /* FSM_PDU */
+static int hf_ftam_nBS9 = -1;                     /* F_READ_ATTRIB_response */
 static int hf_ftam_f_initialize_request = -1;     /* F_INITIALIZE_request */
 static int hf_ftam_f_initialize_response = -1;    /* F_INITIALIZE_response */
 static int hf_ftam_f_terminate_request = -1;      /* F_TERMINATE_request */
@@ -681,12 +682,13 @@ dissect_ftam_Protocol_Version(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_bitstring(TRUE, pinfo, tree, tvb, offset,
                                  Protocol_Version_bits, hf_index, ett_ftam_Protocol_Version,
                                  NULL);
@@ -706,12 +708,13 @@ dissect_ftam_Implementation_Information(gboolean implicit_tag _U_, tvbuff_t *tvb
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_restricted_string(TRUE, 1,
                                          pinfo, tree, tvb, offset, hf_index,
                                          NULL);
@@ -765,12 +768,13 @@ dissect_ftam_Service_Class(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_bitstring(TRUE, pinfo, tree, tvb, offset,
                                  Service_Class_bits, hf_index, ett_ftam_Service_Class,
                                  NULL);
@@ -808,12 +812,13 @@ dissect_ftam_Functional_Units(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_bitstring(TRUE, pinfo, tree, tvb, offset,
                                  Functional_Units_bits, hf_index, ett_ftam_Functional_Units,
                                  NULL);
@@ -841,12 +846,13 @@ dissect_ftam_Attribute_Groups(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_bitstring(TRUE, pinfo, tree, tvb, offset,
                                  Attribute_Groups_bits, hf_index, ett_ftam_Attribute_Groups,
                                  NULL);
@@ -890,12 +896,13 @@ dissect_ftam_FTAM_Quality_of_Service(gboolean implicit_tag _U_, tvbuff_t *tvb, i
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -915,12 +922,13 @@ dissect_ftam_Document_Type_Name(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_object_identifier(TRUE, pinfo, tree, tvb, offset,
                                          hf_index, object_identifier_id);
 
@@ -940,12 +948,13 @@ dissect_ftam_Abstract_Syntax_Name(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_object_identifier(TRUE, pinfo, tree, tvb, offset, hf_index,
                                             NULL);
 
@@ -998,12 +1007,13 @@ dissect_ftam_Contents_Type_List(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence_of(TRUE, pinfo, tree, tvb, offset,
                                    Contents_Type_List_sequence_of, hf_index, ett_ftam_Contents_Type_List);
 
@@ -1023,12 +1033,13 @@ dissect_ftam_User_Identity(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_restricted_string(TRUE, 22,
                                          pinfo, tree, tvb, offset, hf_index,
                                          NULL);
@@ -1053,12 +1064,13 @@ dissect_ftam_Account(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_restricted_string(TRUE, 4,
                                          pinfo, tree, tvb, offset, hf_index,
                                          NULL);
@@ -1138,12 +1150,13 @@ dissect_ftam_Password(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
                               Password_choice, hf_index, ett_ftam_Password, NULL);
 
@@ -1340,12 +1353,13 @@ dissect_ftam_State_Result(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -1372,12 +1386,13 @@ dissect_ftam_Action_Result(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -1467,12 +1482,13 @@ dissect_ftam_Diagnostic(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence_of(TRUE, pinfo, tree, tvb, offset,
                                    Diagnostic_sequence_of, hf_index, ett_ftam_Diagnostic);
 
@@ -1557,12 +1573,13 @@ dissect_ftam_Charging(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence_of(TRUE, pinfo, tree, tvb, offset,
                                    Charging_sequence_of, hf_index, ett_ftam_Charging);
 
@@ -1738,12 +1755,13 @@ dissect_ftam_Select_Attributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                 Select_Attributes_sequence, hf_index, ett_ftam_Select_Attributes);
 
@@ -1773,12 +1791,13 @@ dissect_ftam_Access_Request(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+   if(!implicit_tag){
+     /* XXX  asn2eth can not yet handle tagged assignment yes so this
+      * XXX is some conformance file magic to work around that bug
+      */
+      offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+      offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+  }
   offset = dissect_ber_bitstring(TRUE, pinfo, tree, tvb, offset,
                                  Access_Request_bits, hf_index, ett_ftam_Access_Request,
                                  NULL);
@@ -1828,12 +1847,13 @@ dissect_ftam_Access_Passwords(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                 Access_Passwords_sequence, hf_index, ett_ftam_Access_Passwords);
 
@@ -1883,12 +1903,13 @@ dissect_ftam_Path_Access_Passwords(gboolean implicit_tag _U_, tvbuff_t *tvb, int
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence_of(TRUE, pinfo, tree, tvb, offset,
                                    Path_Access_Passwords_sequence_of, hf_index, ett_ftam_Path_Access_Passwords);
 
@@ -1960,12 +1981,13 @@ dissect_ftam_Concurrency_Control(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                 Concurrency_Control_sequence, hf_index, ett_ftam_Concurrency_Control);
 
@@ -2007,12 +2029,13 @@ dissect_ftam_Referent_Indicator(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_boolean(TRUE, pinfo, tree, tvb, offset, hf_index);
 
 
@@ -2187,12 +2210,13 @@ dissect_ftam_Constraint_Set_Name(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_object_identifier(TRUE, pinfo, tree, tvb, offset, hf_index,
                                             NULL);
 
@@ -2730,12 +2754,13 @@ dissect_ftam_Create_Attributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                 Create_Attributes_sequence, hf_index, ett_ftam_Create_Attributes);
 
@@ -3071,12 +3096,13 @@ dissect_ftam_Read_Attributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                 Read_Attributes_sequence, hf_index, ett_ftam_Read_Attributes);
 
@@ -3106,6 +3132,9 @@ dissect_ftam_F_READ_ATTRIB_response(gboolean implicit_tag _U_, tvbuff_t *tvb, in
                                 F_READ_ATTRIB_response_sequence, hf_index, ett_ftam_F_READ_ATTRIB_response);
 
   return offset;
+}
+static int dissect_nBS9_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ftam_F_READ_ATTRIB_response(TRUE, tvb, offset, pinfo, tree, hf_ftam_nBS9);
 }
 static int dissect_f_read_attrib_response_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_ftam_F_READ_ATTRIB_response(TRUE, tvb, offset, pinfo, tree, hf_ftam_f_read_attrib_response);
@@ -3175,12 +3204,13 @@ dissect_ftam_Change_Attributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                 Change_Attributes_sequence, hf_index, ett_ftam_Change_Attributes);
 
@@ -3280,15 +3310,15 @@ dissect_ftam_Activity_Identifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
-
 
 
   return offset;
@@ -3351,12 +3381,13 @@ dissect_ftam_Degree_Of_Overlap(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -3700,12 +3731,13 @@ dissect_ftam_FADU_Identity(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
                               FADU_Identity_choice, hf_index, ett_ftam_FADU_Identity, NULL);
 
@@ -3731,14 +3763,16 @@ dissect_ftam_FADU_Lock(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
+
 
   return offset;
 }
@@ -3932,12 +3966,13 @@ dissect_ftam_Access_Context(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                 Access_Context_sequence, hf_index, ett_ftam_Access_Context);
 
@@ -4038,12 +4073,13 @@ dissect_ftam_Request_Type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -4819,12 +4855,13 @@ dissect_ftam_Attribute_Value_Assertions(gboolean implicit_tag _U_, tvbuff_t *tvb
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ftam_OR_Set(TRUE, tvb, offset, pinfo, tree, hf_index);
 
 
@@ -4884,12 +4921,13 @@ dissect_ftam_Scope(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence_of(TRUE, pinfo, tree, tvb, offset,
                                    Scope_sequence_of, hf_index, ett_ftam_Scope);
 
@@ -4932,14 +4970,16 @@ dissect_ftam_Objects_Attributes_List(gboolean implicit_tag _U_, tvbuff_t *tvb, i
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_sequence_of(TRUE, pinfo, tree, tvb, offset,
                                    Objects_Attributes_List_sequence_of, hf_index, ett_ftam_Objects_Attributes_List);
+
 
 
   return offset;
@@ -5023,12 +5063,13 @@ dissect_ftam_Request_Operation_Result(gboolean implicit_tag _U_, tvbuff_t *tvb, 
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -5091,12 +5132,13 @@ dissect_ftam_Operation_Result(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
  gint32 tag;
  gint32 len1;
 
- /* XXX  asn2eth can not yet handle tagged assignment yes so this
-  * XXX is some conformance file magic to work around that bug
-  */
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
-
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
   offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
                               Operation_Result_choice, hf_index, ett_ftam_Operation_Result, NULL);
 
@@ -5703,18 +5745,20 @@ static int dissect_fSM_PDU(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 
 
 static const value_string ftam_PDU_vals[] = {
-  { -1/*choice*/, "fTAM-Regime-PDU" },
-  { -1/*choice*/, "file-PDU" },
-  { -1/*choice*/, "bulk-Data-PDU" },
-  { -1/*choice*/, "fSM-PDU" },
+  {   0, "fTAM-Regime-PDU" },
+  {   1, "file-PDU" },
+  {   2, "bulk-Data-PDU" },
+  {   3, "fSM-PDU" },
+  {   4, "nBS9" },
   { 0, NULL }
 };
 
 static const ber_choice_t PDU_choice[] = {
-  { -1/*choice*/, BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_fTAM_Regime_PDU },
-  { -1/*choice*/, BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_file_PDU },
-  { -1/*choice*/, BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_bulk_Data_PDU },
-  { -1/*choice*/, BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_fSM_PDU },
+  {   0, BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_fTAM_Regime_PDU },
+  {   1, BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_file_PDU },
+  {   2, BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_bulk_Data_PDU },
+  {   3, BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_fSM_PDU },
+  {   4, BER_CLASS_PRI, 2, BER_FLAGS_IMPLTAG, dissect_nBS9_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -5835,6 +5879,10 @@ void proto_register_ftam(void) {
       { "fSM-PDU", "ftam.fSM_PDU",
         FT_UINT32, BASE_DEC, VALS(ftam_FSM_PDU_vals), 0,
         "PDU/fSM-PDU", HFILL }},
+    { &hf_ftam_nBS9,
+      { "nBS9", "ftam.nBS9",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PDU/nBS9", HFILL }},
     { &hf_ftam_f_initialize_request,
       { "f-initialize-request", "ftam.f_initialize_request",
         FT_NONE, BASE_NONE, NULL, 0,
