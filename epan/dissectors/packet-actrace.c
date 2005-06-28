@@ -667,7 +667,7 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 			frame_label = g_strdup_printf("AB: %s", val_to_str(ACTRACE_CAS_EV_00-par0, actrace_cas_event_ab_vals, "ERROR"));
 		} else if (function == SEND_DEST_NUM) {
 			if (par0 == SEND_TYPE_ADDRESS ) {
-				frame_label = g_strdup_printf("DTMF/MF: sending DNIS", par1);
+				frame_label = g_strdup("DTMF/MF: sending DNIS");
 			} else if (par0 == SEND_TYPE_ANI ) {
 				frame_label = g_strdup("DTMF/MF: sending ANI");
 			} 
