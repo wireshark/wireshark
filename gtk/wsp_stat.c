@@ -251,7 +251,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 static void
-add_table_entry(wspstat_t *sp, char *str, int x, int y, int index)
+add_table_entry(wspstat_t *sp, const char *str, int x, int y, int index)
 {
 	GtkWidget *tmp;
 
