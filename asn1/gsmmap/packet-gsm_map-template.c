@@ -742,12 +742,14 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     offset=dissect_gsm_map_SendIdentificationRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 56: /*sendAuthenticationInfo*/
-	  if (application_context_version < 2 ){
-		  offset=dissect_gsm_map_SendAuthenticationInfoRes(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoRes);
-	  }else{
-		  offset=dissect_gsm_map_SendAuthenticationInfoResV3(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoRes);
-	  }
-	  break;
+	octet = tvb_get_guint8(tvb,0) & 0xf;
+	if ( octet == 3){ /* This is a V3 message ??? */
+		offset = offset +2;
+		offset=dissect_gsm_map_SendAuthenticationInfoResV3(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoRes);
+	}else{
+		offset=dissect_gsm_map_SendAuthenticationInfoRes(FALSE, tvb, offset, pinfo, tree, -1);
+	}
+	break;
   case 57: /*restoreData*/
     offset=dissect_gsm_map_RestoreDataRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
@@ -813,9 +815,9 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     offset=dissect_gsm_map_EraseCC_EntryRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 78: /*secureTransportClass1*/
-  case 79: /*secureTransportClass1*/
-  case 80: /*secureTransportClass1*/
-  case 81: /*secureTransportClass1*/
+  case 79: /*secureTransportClass2*/
+  case 80: /*secureTransportClass3*/
+  case 81: /*secureTransportClass4*/
     offset=dissect_gsm_map_SecureTransportRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 83: /*provideSubscriberLocation*/
