@@ -67,6 +67,13 @@ typedef struct _enc_key_t {
 } enc_key_t;
 extern enc_key_t *enc_key_list;
 
+guint8 *
+decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
+			int usage,
+			int length,
+			const char *cryptotext,
+			int keytype);
+
 #endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
 
 #endif /* HAVE_KERBEROS */
