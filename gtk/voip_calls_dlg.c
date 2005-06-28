@@ -322,6 +322,8 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 				gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), filter_string_fwd->str);
 				break;
 			case VOIP_MGCP:
+			case VOIP_AC_ISDN:
+			case VOIP_AC_CAS:
 				/* XXX - not supported */
 				break;
 		}
