@@ -120,7 +120,7 @@ static const value_string actrace_cas_mf_vals[] = {
     {43, "B"},
     {44, "C"},
     {45, "*"},
-    {46, "#"}
+    {46, "#"},
     {0, NULL}
 };
 
@@ -235,7 +235,7 @@ static const value_string actrace_cas_function_vals[] = {
     {11, "DEC_COUNTER"},
     {12, "SEND_PROG_TON"},
     {CHANGE_COLLECT_TYPE, "CHANGE_COLLECT_TYPE"},
-    {14, "GENERATE_CAS_EV"}
+    {14, "GENERATE_CAS_EV"},
     {0, NULL}
 };
 
@@ -261,7 +261,7 @@ static const value_string actrace_cas_pstn_event_vals[] = {
     {129, "acEV_CAS_CHANNEL_BLOCKED"},
     {130, "acEV_CAS_PROTOCOL_STARTED"},
     {131, "acEV_PSTN_CALL_STATE_RESPONSE"},
-    {132, "acEV_CAS_SEIZURE_ACK"}
+    {132, "acEV_CAS_SEIZURE_ACK"},
     {0, NULL}
 };
 
