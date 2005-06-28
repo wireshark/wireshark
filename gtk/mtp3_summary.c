@@ -190,11 +190,6 @@ mtp3_sum_draw(
     int			num_msus;
     double		num_bytes;
 
-    if (table == NULL)
-    {
-	return;
-    }
-
     *tot_num_msus_p = 0;
     *tot_num_bytes_p = 0;
 
