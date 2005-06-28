@@ -78,15 +78,15 @@ static dissector_handle_t lapd_handle;
 static const value_string actrace_cas_source_vals[] = {
     {ACTRACE_CAS_SOURCE_DSP, "DSP"},
     {ACTRACE_CAS_SOURCE_USER, "User"},
-	{ACTRACE_CAS_SOURCE_TABLE, "Table"},
-	{0,   NULL }
+    {ACTRACE_CAS_SOURCE_TABLE, "Table"},
+    {0,   NULL }
 };
 
 static const value_string actrace_cas_source_vals_short[] = {
     {ACTRACE_CAS_SOURCE_DSP, "D"},
     {ACTRACE_CAS_SOURCE_USER, "U"},
-	{ACTRACE_CAS_SOURCE_TABLE, "T"},
-	{0,   NULL }
+    {ACTRACE_CAS_SOURCE_TABLE, "T"},
+    {0,   NULL }
 };
 
 #define ACTRACE_CAS_EV_11 17
@@ -101,7 +101,8 @@ static const value_string actrace_cas_event_ab_vals[] = {
     {ACTRACE_CAS_EV_11, "11"},
     {ACTRACE_CAS_EV_10, "10"},
     {ACTRACE_CAS_EV_01, "01"},
-    {ACTRACE_CAS_EV_00, "00"}
+    {ACTRACE_CAS_EV_00, "00"},
+    {0, NULL}
 };
 
 static const value_string actrace_cas_mf_vals[] = {
@@ -120,10 +121,11 @@ static const value_string actrace_cas_mf_vals[] = {
     {44, "C"},
     {45, "*"},
     {46, "#"}
+    {0, NULL}
 };
 
 static const value_string actrace_cas_event_vals[] = {
-	{0, "FUNCTION0"},
+    {0, "FUNCTION0"},
     {1, "FUNCTION1"},
     {2, "FUNCTION2"},
     {3, "FUNCTION3"},
@@ -209,6 +211,7 @@ static const value_string actrace_cas_event_vals[] = {
     {113, "EV_FAIL_SEND_CAS"},
     {114, "EV_ALARM"},
     {ACTRACE_CAS_EV_DTMF, "EV_DTMF"},
+    {0, NULL}
 };
 
 #define SEND_CAS 2
@@ -233,6 +236,7 @@ static const value_string actrace_cas_function_vals[] = {
     {12, "SEND_PROG_TON"},
     {CHANGE_COLLECT_TYPE, "CHANGE_COLLECT_TYPE"},
     {14, "GENERATE_CAS_EV"}
+    {0, NULL}
 };
 
 static const value_string actrace_cas_pstn_event_vals[] = {
@@ -258,6 +262,7 @@ static const value_string actrace_cas_pstn_event_vals[] = {
     {130, "acEV_CAS_PROTOCOL_STARTED"},
     {131, "acEV_PSTN_CALL_STATE_RESPONSE"},
     {132, "acEV_CAS_SEIZURE_ACK"}
+    {0, NULL}
 };
 
 static const value_string actrace_cas_collect_type_vals[] = {
@@ -265,6 +270,7 @@ static const value_string actrace_cas_collect_type_vals[] = {
     {1, "COLLECT_TYPE_ANI"},
     {2, "COLLECT_TYPE_SOURCE_CATEGORY"},
     {3, "COLLECT_TYPE_LINE_CATEGORY"},
+    {0, NULL}
 };
 
 #define SEND_TYPE_ADDRESS 1
@@ -281,6 +287,7 @@ static const value_string actrace_cas_send_type_vals[] = {
     {SEND_TYPE_ANI, "ANI"},
     {SEND_TYPE_SOURCE_CATEGORY, "SOURCE_CATEGORY"},
     {SEND_TYPE_TRANSFER_CAPABILITY, "TRANSFER_CAPABILITY"},
+    {0, NULL}
 };
 
 static const value_string actrace_cas_cause_vals[] = {
@@ -393,6 +400,7 @@ static const value_string actrace_cas_cause_vals[] = {
     {316, "ACURC_BL_TIMEOUT"},
     {317, "ACURC_IN_CALL"},
     {318, "ACURC_CLEAR_RQ"},
+    {0, NULL}
 };
 
 /* ISDN */
@@ -402,6 +410,7 @@ static const value_string actrace_cas_cause_vals[] = {
 static const value_string actrace_isdn_direction_vals[] = {
     {PSTN_TO_BLADE, "Blade <-- PSTN"},
     {BLADE_TO_PSTN, "Blade --> PSTN"},
+    {0, NULL}
 };
 
 /*
