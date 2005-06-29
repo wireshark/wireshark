@@ -1555,7 +1555,7 @@ Attribute-Names ::= BIT STRING -- Kernel group
   read-future-Object-size(14),
   -- Security group
   read-access-control(15), read-path-access-control(21),
-  read-l8gal-qualifiCatiOnS(16),
+  read-legal-qualifiCatiOnS(16),
   -- Private group
   read-private-use(17)}
 

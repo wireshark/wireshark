@@ -480,7 +480,7 @@ static int hf_ftam_Attribute_Names_read_Object_size = -1;
 static int hf_ftam_Attribute_Names_read_future_Object_size = -1;
 static int hf_ftam_Attribute_Names_read_access_control = -1;
 static int hf_ftam_Attribute_Names_read_path_access_control = -1;
-static int hf_ftam_Attribute_Names_read_l8gal_qualifiCatiOnS = -1;
+static int hf_ftam_Attribute_Names_read_legal_qualifiCatiOnS = -1;
 static int hf_ftam_Attribute_Names_read_private_use = -1;
 
 /*--- End of included file: packet-ftam-hf.c ---*/
@@ -2872,7 +2872,7 @@ static const asn_namedbit Attribute_Names_bits[] = {
   { 14, &hf_ftam_Attribute_Names_read_future_Object_size, -1, -1, "read-future-Object-size", NULL },
   { 15, &hf_ftam_Attribute_Names_read_access_control, -1, -1, "read-access-control", NULL },
   { 21, &hf_ftam_Attribute_Names_read_path_access_control, -1, -1, "read-path-access-control", NULL },
-  { 16, &hf_ftam_Attribute_Names_read_l8gal_qualifiCatiOnS, -1, -1, "read-l8gal-qualifiCatiOnS", NULL },
+  { 16, &hf_ftam_Attribute_Names_read_legal_qualifiCatiOnS, -1, -1, "read-legal-qualifiCatiOnS", NULL },
   { 17, &hf_ftam_Attribute_Names_read_private_use, -1, -1, "read-private-use", NULL },
   { 0, NULL, 0, 0, NULL, NULL }
 };
@@ -7523,8 +7523,8 @@ void proto_register_ftam(void) {
       { "read-path-access-control", "ftam.read-path-access-control",
         FT_BOOLEAN, 8, NULL, 0x04,
         "", HFILL }},
-    { &hf_ftam_Attribute_Names_read_l8gal_qualifiCatiOnS,
-      { "read-l8gal-qualifiCatiOnS", "ftam.read-l8gal-qualifiCatiOnS",
+    { &hf_ftam_Attribute_Names_read_legal_qualifiCatiOnS,
+      { "read-legal-qualifiCatiOnS", "ftam.read-legal-qualifiCatiOnS",
         FT_BOOLEAN, 8, NULL, 0x80,
         "", HFILL }},
     { &hf_ftam_Attribute_Names_read_private_use,
