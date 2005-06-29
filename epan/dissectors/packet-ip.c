@@ -7,6 +7,12 @@
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
+ * Monday, June 27, 2005
+ * Support for the ICMP extensions for MPLS
+ * (http://www.ietf.org/proceedings/01aug/I-D/draft-ietf-mpls-icmp-02.txt)
+ * by   Maria-Luiza Crivat <luizacri@gmail.com>
+ * &    Brice Augustin <bricecotte@gmail.com>
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -164,9 +170,27 @@ static int hf_icmp_mip_reserved = -1;
 static int hf_icmp_mip_coa = -1;
 static int hf_icmp_mip_challenge = -1;
 
+/* MPLS extensions */
+static int hf_icmp_mpls = -1;
+static int hf_icmp_mpls_version = -1;
+static int hf_icmp_mpls_reserved = -1;
+static int hf_icmp_mpls_checksum = -1;
+static int hf_icmp_mpls_checksum_bad = -1;
+static int hf_icmp_mpls_length = -1;
+static int hf_icmp_mpls_class = -1;
+static int hf_icmp_mpls_c_type = -1;
+static int hf_icmp_mpls_label = -1;
+static int hf_icmp_mpls_exp = -1;
+static int hf_icmp_mpls_s = -1;
+static int hf_icmp_mpls_ttl = -1;
+
 static gint ett_icmp = -1;
 static gint ett_icmp_mip = -1;
 static gint ett_icmp_mip_flags = -1;
+/* MPLS extensions */
+static gint ett_icmp_mpls = -1;
+static gint ett_icmp_mpls_object = -1;
+static gint ett_icmp_mpls_stack_object = -1;
 
 /* ICMP definitions */
 
@@ -1294,6 +1318,282 @@ dissect_mip_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
 
 } /* dissect_mip_extensions */
 
+#define MPLS_STACK_ENTRY_OBJECT_CLASS           1
+#define MPLS_EXTENDED_PAYLOAD_OBJECT_CLASS      2
+
+#define MPLS_STACK_ENTRY_C_TYPE                 1
+#define MPLS_EXTENDED_PAYLOAD_C_TYPE            1
+
+/* XXX no header defines these macros ??? */
+#ifndef min
+#define min(a,b) (((a)<(b))?(a):(b))
+#endif
+
+#ifndef max
+#define max(a,b) (((a)>(b))?(a):(b))
+#endif
+
+/*
+ * Dissect the MPLS extensions
+ */
+static void
+dissect_mpls_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
+{
+    guint8          version;
+    guint8          class_num;
+    guint8          c_type;
+    guint8          ttl;
+    guint8          tmp;
+    guint16         reserved;
+    guint16         cksum, computed_cksum;
+    guint16         obj_length, obj_trunc_length;
+    proto_item      *ti, *tf_object, *tf_entry;
+    proto_tree      *mpls_tree=NULL, *mpls_object_tree, *mpls_stack_object_tree;
+    guint           obj_end_offset;
+    guint           reported_length;
+    guint           label;
+    gboolean        unknown_object;
+    
+    if (!tree)
+        return;
+    
+    reported_length = tvb_reported_length_remaining(tvb, offset);
+
+    if (reported_length < 4 /* Common header */)
+    {
+        proto_tree_add_text(tree, tvb, offset,
+                            reported_length,
+                            "MPLS Extensions (truncated)");
+        return;
+    }
+    
+    /* Add a tree for the MPLS extensions */           
+    ti = proto_tree_add_none_format(tree, hf_icmp_mpls, tvb,
+                                            offset, reported_length, "MPLS Extensions");
+
+    mpls_tree = proto_item_add_subtree(ti, ett_icmp_mpls);
+
+    /* Version */
+    version = hi_nibble(tvb_get_guint8(tvb, offset));
+    proto_tree_add_uint(mpls_tree, hf_icmp_mpls_version, tvb, offset, 1, version);
+
+    /* Reserved */
+    reserved = tvb_get_ntohs(tvb, offset) & 0x0fff;
+    proto_tree_add_uint_format(mpls_tree, hf_icmp_mpls_reserved,
+                                tvb, offset, 2, reserved,
+                                "Reserved: 0x%03x", reserved);
+
+    /* Checksum */
+    cksum = tvb_get_ntohs(tvb, offset + 2);
+    
+    computed_cksum = ip_checksum(tvb_get_ptr(tvb, offset, reported_length),
+                                    reported_length);
+
+    if (computed_cksum == 0)
+    {
+        proto_tree_add_uint_format(mpls_tree, hf_icmp_mpls_checksum, tvb, offset + 2, 2,
+                                    cksum, "Checksum: 0x%04x (correct)", cksum);
+    }
+    else
+    {
+        proto_tree_add_boolean_hidden(mpls_tree, hf_icmp_mpls_checksum_bad, tvb,
+                                            offset + 2, 2, TRUE);
+
+        proto_tree_add_uint_format(mpls_tree, hf_icmp_mpls_checksum, tvb, offset + 2, 2,
+                                    cksum,
+                                    "Checksum: 0x%04x (incorrect, should be 0x%04x)",
+                                    cksum, in_cksum_shouldbe(cksum, computed_cksum));
+    }
+
+    if (version != 1 && version != 2)
+    {
+        /* Unsupported version */
+        proto_item_append_text(ti, " (unsupported version)");
+        return;
+    }
+
+    /* Skip the common header */
+    offset += 4;
+
+    /* While there is enough room to read an object */
+    while (tvb_reported_length_remaining(tvb, offset) >= 4 /* Object header */)
+    {
+        /* Object length */
+        obj_length = tvb_get_ntohs(tvb, offset);
+
+        obj_trunc_length =  min(obj_length, tvb_reported_length_remaining(tvb, offset));
+
+        obj_end_offset = offset + obj_trunc_length;
+
+        /* Add a subtree for this object (the text will be reset later) */
+        tf_object = proto_tree_add_text(mpls_tree, tvb, offset,
+                                        max(obj_trunc_length, 4),
+                                        "Unknown object");
+
+        mpls_object_tree = proto_item_add_subtree(tf_object, ett_icmp_mpls_object);
+
+        proto_tree_add_uint(mpls_object_tree, hf_icmp_mpls_length, tvb, offset, 2, obj_length);
+
+        /* Class */
+        class_num = tvb_get_guint8(tvb, offset + 2);
+        proto_tree_add_uint(mpls_object_tree, hf_icmp_mpls_class, tvb, offset + 2, 1, class_num);
+
+        /* C-Type */
+        c_type = tvb_get_guint8(tvb, offset + 3);
+        proto_tree_add_uint(mpls_object_tree, hf_icmp_mpls_c_type, tvb, offset + 3, 1, c_type);
+
+        if (obj_length < 4 /* Object header */)
+        {
+            /* Thanks doc/README.developer :)) */
+            proto_item_set_text(tf_object, "Object with bad length");
+            break;
+        }
+
+        /* Skip the object header */
+        offset += 4;
+
+        /* Default cases will set this flag to TRUE */
+        unknown_object = FALSE;
+        
+        switch (class_num)
+        {
+            case MPLS_STACK_ENTRY_OBJECT_CLASS:
+                switch (c_type)
+                {
+                    case MPLS_STACK_ENTRY_C_TYPE:
+
+                        proto_item_set_text(tf_object, "MPLS Stack Entry");
+
+                        /* For each entry */
+                        while (offset + 4 <= obj_end_offset)
+                        {
+                            if (tvb_reported_length_remaining(tvb, offset) < 4)
+                            {
+                                /* Not enough room in the packet ! */
+                                break;
+                            }
+
+                            /* Create a subtree for each entry (the text will be set later) */
+                            tf_entry = proto_tree_add_text(mpls_object_tree,
+                                                            tvb, offset, 4, " ");
+                            mpls_stack_object_tree = proto_item_add_subtree(tf_entry, 
+                                                                            ett_icmp_mpls_stack_object);
+
+                            /* Label */
+                            label =  (guint)tvb_get_ntohs(tvb, offset);
+                            tmp = tvb_get_guint8(tvb, offset + 2);
+                            label = (label << 4) + (tmp >> 4);
+
+                            proto_tree_add_uint(mpls_stack_object_tree,
+                                                    hf_icmp_mpls_label,
+                                                    tvb,
+                                                    offset,
+                                                    3,
+                                                    label << 4);
+
+                            proto_item_set_text(tf_entry, "Label: %u", label);
+
+                            /* Experimental field (also called "CoS") */
+                            proto_tree_add_uint(mpls_stack_object_tree,
+                                                    hf_icmp_mpls_exp,
+                                                    tvb,
+                                                    offset + 2,
+                                                    1,
+                                                    tmp);
+
+                            proto_item_append_text(tf_entry, ", Exp: %u", (tmp >> 1) & 0x07);
+                                                    
+                            /* Stack bit */
+                            proto_tree_add_boolean(mpls_stack_object_tree,
+                                                    hf_icmp_mpls_s,
+                                                    tvb,
+                                                    offset + 2,
+                                                    1,
+                                                    tmp);
+
+                            proto_item_append_text(tf_entry, ", S: %u", tmp  & 0x01);
+                                                    
+                            /* TTL */
+                            ttl = tvb_get_guint8(tvb, offset + 3);
+
+                            proto_tree_add_item(mpls_stack_object_tree,
+                                                hf_icmp_mpls_ttl,
+                                                tvb,
+                                                offset + 3,
+                                                1,
+                                                FALSE);
+
+                            proto_item_append_text(tf_entry, ", TTL: %u", ttl);
+                                                
+                            /* Skip the entry */
+                            offset += 4;
+
+                        } /* end while */
+
+                        if (offset != obj_end_offset)
+                            proto_tree_add_text(mpls_object_tree, tvb,
+                                                offset,
+                                                obj_end_offset - offset,
+                                                "%d junk bytes",
+                                                obj_end_offset - offset);
+
+                        break;
+                    default:
+
+                        unknown_object = TRUE;
+
+                        break;
+                } /* end switch c_type */
+                break;
+            case MPLS_EXTENDED_PAYLOAD_OBJECT_CLASS:
+                switch (c_type)
+                {
+                    case MPLS_EXTENDED_PAYLOAD_C_TYPE:
+                        proto_item_set_text(tf_object, "Extended Payload");
+
+                        /* This object contains some portion of the original packet
+                        that could not fit in the 128 bytes of the ICMP payload */
+                        if (obj_trunc_length > 4)
+                            proto_tree_add_text(mpls_object_tree, tvb,
+                                                offset, obj_trunc_length - 4,
+                                                "Data (%d bytes)", obj_trunc_length - 4);
+
+                        break;
+                    default:
+
+                        unknown_object = TRUE;
+
+                        break;
+                } /* end switch c_type */
+                break;
+            default:
+
+                unknown_object = TRUE;
+
+                break;
+        } /* end switch class_num */
+        
+        /* The switches couldn't decode the object */
+        if (unknown_object == TRUE)
+        {
+            proto_item_set_text(tf_object, "Unknown object (%d/%d)", class_num, c_type);
+            
+            if (obj_trunc_length > 4)
+                proto_tree_add_text(mpls_object_tree, tvb,
+                                    offset, obj_trunc_length - 4,
+                                    "Data (%d bytes)", obj_trunc_length - 4);
+        }
+        
+        /* */
+        if (obj_trunc_length < obj_length)
+            proto_item_append_text(tf_object, " (truncated)");
+
+        /* Go to the end of the object */
+        offset = obj_end_offset;
+
+    } /* end while */
+} /* end dissect_mpls_extensions */
+
 static const gchar *unreach_str[] = {"Network unreachable",
                                      "Host unreachable",
                                      "Protocol unreachable",
@@ -1547,6 +1847,11 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Restore the "we're inside an error packet" flag. */
 	pinfo->in_error_pkt = save_in_error_pkt;
+
+	/* MPLS extensions */
+	if (tvb_reported_length(tvb) > 8 + 128)
+		dissect_mpls_extensions(tvb, 8 + 128, icmp_tree);
+	
 	break;
 
       case ICMP_ECHOREPLY:
@@ -1923,11 +2228,65 @@ proto_register_icmp(void)
     { &hf_icmp_mip_challenge,
       { "Challenge", "icmp.mip.challenge",    FT_BYTES, BASE_NONE, NULL, 0x0,
 	"", HFILL}},
+
+    { &hf_icmp_mpls,
+      { "ICMP Extensions for MPLS",	"icmp.mpls",	FT_NONE, BASE_NONE,	NULL, 0x0,
+	"", HFILL }},
+    
+	{ &hf_icmp_mpls_version,
+		{ "Version",		"icmp.mpls.version", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+            
+    { &hf_icmp_mpls_reserved,
+      { "Reserved",	"icmp.mpls.res",	FT_UINT16, BASE_HEX,	NULL, 0x0,
+      	"", HFILL }},
+
+	{ &hf_icmp_mpls_checksum,
+      { "Checksum",	"icmp.mpls.checksum",	FT_UINT16, BASE_HEX,	NULL, 0x0,
+      	"", HFILL }},
+
+	{ &hf_icmp_mpls_checksum_bad,
+      { "Bad Checksum",	"icmp.mpls.checksum_bad",	FT_BOOLEAN, BASE_NONE,	NULL, 0x0,
+	"", HFILL }},
+
+	{ &hf_icmp_mpls_length,
+      { "Length",	"icmp.mpls.length",	FT_UINT16, BASE_HEX,	NULL, 0x0,
+      	"", HFILL }},
+
+	{ &hf_icmp_mpls_class,
+		{ "Class",	"icmp.mpls.class", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+
+	{ &hf_icmp_mpls_c_type,
+		{ "C-Type",	"icmp.mpls.ctype", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+
+	{ &hf_icmp_mpls_label,
+		{ "Label",	"icmp.mpls.label", FT_UINT24, BASE_DEC, NULL, 0x00fffff0,
+			"", HFILL }},
+
+	{ &hf_icmp_mpls_exp,
+		{ "Experimental",	"icmp.mpls.exp", FT_UINT24, BASE_DEC,
+			NULL, 0x0e,
+			"", HFILL }},
+
+	{ &hf_icmp_mpls_s,
+		{ "Stack bit",	"icmp.mpls.s", FT_BOOLEAN, 24, TFS(&flags_set_truth), 0x01,
+			"", HFILL }},
+
+	{ &hf_icmp_mpls_ttl,
+		{ "Time to live",	"icmp.mpls.ttl", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"", HFILL }}
+
   };
   static gint *ett[] = {
     &ett_icmp,
 	&ett_icmp_mip,
-	&ett_icmp_mip_flags
+	&ett_icmp_mip_flags,
+	/* MPLS extensions */
+	&ett_icmp_mpls,
+	&ett_icmp_mpls_object,
+	&ett_icmp_mpls_stack_object
   };
 
   proto_icmp = proto_register_protocol("Internet Control Message Protocol",
