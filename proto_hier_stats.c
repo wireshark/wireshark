@@ -96,8 +96,10 @@ process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps, gu
      * as they don't belong to any protocol.
      * (happens e.g. for toplevel tree item of desegmentation "[Reassembled TCP Segments]") */
     if(finfo->hfinfo->parent != -1) {
-        /* this should only happen for generated items */
-        g_assert(PROTO_ITEM_IS_GENERATED(ptree_node));
+        /* there are some cases where helpful generated items are added
+	 * to the decode tree so do not test for it any more
+         *g_assert(PROTO_ITEM_IS_GENERATED(ptree_node));
+	 */
         return;
     }
 
