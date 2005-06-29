@@ -1530,12 +1530,12 @@ dissect_mpls_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
 
                         } /* end while */
 
-                        if (offset != obj_end_offset)
+                        if (offset < obj_end_offset)
                             proto_tree_add_text(mpls_object_tree, tvb,
                                                 offset,
                                                 obj_end_offset - offset,
-                                                "%d junk bytes",
-                                                obj_end_offset - offset);
+                                                "%ld junk bytes",
+                                                (long)(obj_end_offset - offset));
 
                         break;
                     default:
