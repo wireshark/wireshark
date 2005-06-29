@@ -208,6 +208,12 @@ get_ber_length_dont_check_len(proto_tree *tree, tvbuff_t *tvb, int offset, guint
 	tmp_length = 0;
 	tmp_ind = FALSE;
 
+	/* dont read beyond the end of the tvb */
+	if(tvb_length(tvb)<=offset){
+		*length=tvb_length(tvb)+99;
+		return offset;
+	}
+
 	oct = tvb_get_guint8(tvb, offset);
 	offset += 1;
 	
@@ -806,7 +812,7 @@ int dissect_ber_sequence(gboolean implicit_tag, packet_info *pinfo, proto_tree *
 	guint32 len;
 	proto_tree *tree = parent_tree;
 	proto_item *item = NULL;
-	int end_offset;
+	int end_offset, tag_start_offset;
 	tvbuff_t *next_tvb;
 
 #ifdef DEBUG_BER
@@ -915,6 +921,7 @@ printf("SEQUENCE dissect_ber_sq_of(%s) EOC FOUND length_is_indefinite:%d\n",name
 		}
 		hoffset = offset;
 		/* read header and len for next field */
+		tag_start_offset=offset;
 		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 		offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 		eoffset = offset + len;
@@ -922,7 +929,7 @@ ber_sequence_try_again:
 		/* have we run out of known entries in the sequence ?*/
 		if (!seq->func) {
 			/* it was not,  move to the enxt one and try again */
-			proto_tree_add_text(tree, tvb, offset, len, "BER Error: This field lies beyond the end of the known sequence definition.");
+			proto_tree_add_text(tree, tvb, tag_start_offset, offset-tag_start_offset, "BER Error: This field lies beyond the end of the known sequence definition. class:%d pc:%d tag:%d len:%d",class,pc,tag,len);
 			offset = eoffset;
 			continue;
 		}
