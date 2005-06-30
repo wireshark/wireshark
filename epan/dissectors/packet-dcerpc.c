@@ -2930,6 +2930,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint32 tot_len;
     tvbuff_t *auth_tvb, *payload_tvb, *decrypted_tvb;
     proto_item *pi;
+    proto_item *parent_pi;
 
     save_fragmented = pinfo->fragmented;
 
@@ -3144,6 +3145,10 @@ end_cn_stub:
 	    pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_reassembled_in,
 				decrypted_tvb, 0, 0, fd_head->reassembled_in);
         PROTO_ITEM_SET_GENERATED(pi);
+        parent_pi = proto_tree_get_parent(dcerpc_tree);
+        if(parent_pi != NULL) {
+            proto_item_append_text(parent_pi, ", [Reas: #%u]", fd_head->reassembled_in);
+        }
 	    if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO,
 			" [DCE/RPC %s fragment, reas: #%u]", fragment_type(hdr->flags), fd_head->reassembled_in);
@@ -3385,7 +3390,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				    tvb, 0, 0, value->rep_frame);
         PROTO_ITEM_SET_GENERATED(pi);
         if(parent_pi != NULL) {
-            proto_item_append_text(parent_pi, " [Response in: %u]", value->rep_frame);
+            proto_item_append_text(parent_pi, ", [Resp: #%u]", value->rep_frame);
         }
 	    }
 
@@ -3500,7 +3505,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				    tvb, 0, 0, value->req_frame);
         PROTO_ITEM_SET_GENERATED(pi);
         if(parent_pi != NULL) {
-            proto_item_append_text(parent_pi, " [Request in: %u]", value->req_frame);
+            proto_item_append_text(parent_pi, ", [Req: #%u]", value->req_frame);
         }
 		ns.secs= pinfo->fd->abs_secs-value->req_time.secs;
 		ns.nsecs=pinfo->fd->abs_usecs*1000-value->req_time.nsecs;
@@ -3606,6 +3611,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         if (value) {
             int length, reported_length, stub_length;
             dcerpc_info *di;
+            proto_item *parent_pi;
 
             di=get_next_di();
             /* handoff this call */
@@ -3621,6 +3627,10 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in,
 				    tvb, 0, 0, value->req_frame);
         PROTO_ITEM_SET_GENERATED(pi);
+        parent_pi = proto_tree_get_parent(dcerpc_tree);
+        if(parent_pi != NULL) {
+            proto_item_append_text(parent_pi, ", [Req: #%u]", value->req_frame);
+        }
 		ns.secs= pinfo->fd->abs_secs-value->req_time.secs;
 		ns.nsecs=pinfo->fd->abs_usecs*1000-value->req_time.nsecs;
 		if(ns.nsecs<0){
@@ -4319,6 +4329,7 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     fragment_data *fd_head;
     tvbuff_t *next_tvb;
     proto_item *pi;
+    proto_item *parent_pi;
 
     if (check_col (pinfo->cinfo, COL_INFO))
         col_append_fstr (pinfo->cinfo, COL_INFO, " opnum: %u len: %u", 
@@ -4408,6 +4419,10 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	        pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_reassembled_in,
 				    tvb, 0, 0, fd_head->reassembled_in);
             PROTO_ITEM_SET_GENERATED(pi);
+            parent_pi = proto_tree_get_parent(dcerpc_tree);
+            if(parent_pi != NULL) {
+                proto_item_append_text(parent_pi, ", [Reas: #%u]", fd_head->reassembled_in);
+            }
 	        if (check_col(pinfo->cinfo, COL_INFO)) {
 		    col_append_fstr(pinfo->cinfo, COL_INFO,
 			    " [DCE/RPC fragment, reas: #%u]", fd_head->reassembled_in);
@@ -4432,6 +4447,7 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
     dcerpc_call_value *value, v;
     dcerpc_matched_key matched_key, *new_matched_key;
     proto_item *pi;
+    proto_item *parent_pi;
 
     di=get_next_di();
     if(!(pinfo->fd->flags.visited)){
@@ -4485,6 +4501,10 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_response_in,
 			    tvb, 0, 0, value->rep_frame);
     PROTO_ITEM_SET_GENERATED(pi);
+    parent_pi = proto_tree_get_parent(dcerpc_tree);
+    if(parent_pi != NULL) {
+        proto_item_append_text(parent_pi, ", [Resp: #%u]", value->rep_frame);
+    }
     }
     dissect_dcerpc_dg_stub (tvb, offset, pinfo, dcerpc_tree, tree, hdr, di);
 }
@@ -4498,6 +4518,7 @@ dissect_dcerpc_dg_resp (tvbuff_t *tvb, int offset, packet_info *pinfo,
     dcerpc_call_value *value, v;
     dcerpc_matched_key matched_key, *new_matched_key;
     proto_item *pi;
+    proto_item *parent_pi;
 
     di=get_next_di();
     if(!(pinfo->fd->flags.visited)){
@@ -4543,6 +4564,10 @@ dissect_dcerpc_dg_resp (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in,
 			    tvb, 0, 0, value->req_frame);
     PROTO_ITEM_SET_GENERATED(pi);
+    parent_pi = proto_tree_get_parent(dcerpc_tree);
+    if(parent_pi != NULL) {
+        proto_item_append_text(parent_pi, ", [Req: #%u]", value->req_frame);
+    }
 	ns.secs= pinfo->fd->abs_secs-value->req_time.secs;
 	ns.nsecs=pinfo->fd->abs_usecs*1000-value->req_time.nsecs;
 	if(ns.nsecs<0){
@@ -4560,6 +4585,7 @@ dissect_dcerpc_dg_ping_ack (tvbuff_t *tvb, int offset, packet_info *pinfo,
                         proto_tree *dcerpc_tree, proto_tree *tree,
                         e_dce_dg_common_hdr_t *hdr, conversation_t *conv)
 {
+    proto_item *parent_pi;
 /*    if(!(pinfo->fd->flags.visited)){*/
 	dcerpc_call_value *call_value;
 	dcerpc_dg_call_key call_key;
@@ -4575,6 +4601,10 @@ dissect_dcerpc_dg_ping_ack (tvbuff_t *tvb, int offset, packet_info *pinfo,
 		pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in,
 				    tvb, 0, 0, call_value->req_frame);
         PROTO_ITEM_SET_GENERATED(pi);
+        parent_pi = proto_tree_get_parent(dcerpc_tree);
+        if(parent_pi != NULL) {
+            proto_item_append_text(parent_pi, ", [Req: #%u]", call_value->req_frame);
+        }
 
         if (check_col (pinfo->cinfo, COL_INFO))
             col_append_fstr(pinfo->cinfo, COL_INFO, " [req: #%u]", call_value->req_frame);
@@ -4681,6 +4711,10 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_item (tree, proto_dcerpc, tvb, 0, -1, FALSE);
         if (ti) {
             dcerpc_tree = proto_item_add_subtree(ti, ett_dcerpc);
+		    proto_item_append_text(ti, " %s, Seq: %u, Serial: %u, Frag: %u, FragLen: %u", 
+                val_to_str(hdr.ptype, pckt_vals, "Unknown (0x%02x)"),
+                hdr.seqnum, hdr.serial_hi*256+hdr.serial_lo,
+                hdr.frag_num, hdr.frag_len);
         }
     }
     offset = 0;
@@ -4705,6 +4739,15 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_boolean (dg_flags1_tree, hf_dcerpc_dg_flags1_frag, tvb, offset, 1, hdr.flags1);
             proto_tree_add_boolean (dg_flags1_tree, hf_dcerpc_dg_flags1_last_frag, tvb, offset, 1, hdr.flags1);
             proto_tree_add_boolean (dg_flags1_tree, hf_dcerpc_dg_flags1_rsrvd_01, tvb, offset, 1, hdr.flags1);
+            if(hdr.flags1) {
+		        proto_item_append_text(tf, " %s%s%s%s%s%s", 
+                    (hdr.flags1 & PFCL1_BROADCAST) ? "\"Broadcast\" " : "",
+                    (hdr.flags1 & PFCL1_IDEMPOTENT) ? "\"Idempotent\" " : "",
+                    (hdr.flags1 & PFCL1_MAYBE) ? "\"Maybe\" " : "",
+                    (hdr.flags1 & PFCL1_NOFACK) ? "\"No Fack\" " : "",
+                    (hdr.flags1 & PFCL1_FRAG) ? "\"Fragment\" " : "",
+                    (hdr.flags1 & PFCL1_LASTFRAG) ? "\"Last Fragment\" " : "");
+            }
         }
     }
     offset++;
@@ -4721,6 +4764,10 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_boolean (dg_flags2_tree, hf_dcerpc_dg_flags2_rsrvd_04, tvb, offset, 1, hdr.flags2);
             proto_tree_add_boolean (dg_flags2_tree, hf_dcerpc_dg_flags2_cancel_pending, tvb, offset, 1, hdr.flags2);
             proto_tree_add_boolean (dg_flags2_tree, hf_dcerpc_dg_flags2_rsrvd_01, tvb, offset, 1, hdr.flags2);
+            if(hdr.flags2) {
+		        proto_item_append_text(tf, " %s", 
+                    (hdr.flags2 & PFCL2_CANCEL_PENDING) ? "\"Cancel Pending\" " : "");
+            }
         }
     }
     offset++;
@@ -4732,6 +4779,10 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint(drep_tree, hf_dcerpc_drep_byteorder, tvb, offset, 1, hdr.drep[0] >> 4);
             proto_tree_add_uint(drep_tree, hf_dcerpc_drep_character, tvb, offset, 1, hdr.drep[0] & 0x0f);
             proto_tree_add_uint(drep_tree, hf_dcerpc_drep_fp, tvb, offset+1, 1, hdr.drep[1]);
+		    proto_item_append_text(tf, " (Order: %s, Char: %s, Float: %s)", 
+                val_to_str(hdr.drep[0] >> 4, drep_byteorder_vals, "Unknown"),
+                val_to_str(hdr.drep[0] & 0x0f, drep_character_vals, "Unknown"),
+                val_to_str(hdr.drep[1], drep_fp_vals, "Unknown"));
         }
     }
     offset += sizeof (hdr.drep);
