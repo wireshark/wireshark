@@ -283,7 +283,7 @@ static gboolean observer_seek_read(wtap *wth, long seek_off,
     int *err, gchar **err_info)
 {
 	packet_entry_header packet_header;
-
+	long seek_increment;
 	int bytes_read;
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
@@ -303,6 +303,16 @@ static gboolean observer_seek_read(wtap *wth, long seek_off,
 		*err = WTAP_ERR_BAD_RECORD;
 		*err_info = g_strdup("Observer: bad magic number for record in observer_seek_read");
 		return FALSE;
+	}
+
+
+	/* get the frame offset */
+	packet_header.offset_to_frame =
+	  GUINT16_FROM_LE(packet_header.offset_to_frame);
+	seek_increment = packet_header.offset_to_frame - sizeof(packet_header);
+	if(seek_increment>0) {
+	  if (file_seek(wth->random_fh, seek_increment, SEEK_CUR, err) == -1)
+	    return FALSE;
 	}
 
 	/* read in the packet */
