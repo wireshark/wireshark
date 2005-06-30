@@ -1005,6 +1005,9 @@ fill_in_columns(packet_info *pinfo)
     case COL_HPUX_DEVID:  /* done by nettl disector */
       break;
         
+    case COL_DCE_CALL:	/* done by dcerpc */
+      break;
+
     case NUM_COL_FMTS:	/* keep compiler happy - shouldn't get here */
       g_assert_not_reached();
       break;

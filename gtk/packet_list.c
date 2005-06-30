@@ -527,8 +527,11 @@ packet_list_new(e_prefs *prefs)
         eth_clist_set_column_auto_resize(ETH_CLIST(packet_list), i, FALSE);
         eth_clist_set_column_resizeable(ETH_CLIST(packet_list), i, TRUE);
 
-        /* Right-justify the packet number column. */
-        if (cfile.cinfo.col_fmt[i] == COL_NUMBER)
+        /* Right-justify some special columns. */
+        if (cfile.cinfo.col_fmt[i] == COL_NUMBER ||
+            cfile.cinfo.col_fmt[i] == COL_PACKET_LENGTH ||
+            cfile.cinfo.col_fmt[i] == COL_CUMULATIVE_BYTES ||
+            cfile.cinfo.col_fmt[i] == COL_DCE_CALL)
             eth_clist_set_column_justification(ETH_CLIST(packet_list), i,
                                                GTK_JUSTIFY_RIGHT);
     }

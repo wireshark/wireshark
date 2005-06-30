@@ -53,7 +53,7 @@ col_format_to_string(gint fmt) {
                      "%rd", "%ud", "%hd", "%rhd", "%uhd", "%nd", "%rnd",
                      "%und", "%S", "%rS", "%uS", "%D", "%rD", "%uD", "%p",
                      "%i", "%L", "%B", "%XO", "%XR", "%I", "%c", "%Xs", 
-                     "%Xd", "%V", "%x", "%e", "%H", "%P" };
+                     "%Xd", "%V", "%x", "%e", "%H", "%P", "%y" };
                      
   if (fmt < 0 || fmt >= NUM_COL_FMTS)
     return NULL;
@@ -65,7 +65,7 @@ col_format_to_string(gint fmt) {
   description */
 static gchar *dlist[NUM_COL_FMTS] = {
 	"Number",
-	"Time (command line specified)",
+	"Time (format as specified)",
 	"Relative time",
 	"Absolute time",
 	"Absolute date and time",
@@ -98,17 +98,18 @@ static gchar *dlist[NUM_COL_FMTS] = {
 	"Information",
 	"Packet length (bytes)" ,
 	"Cumulative Bytes" ,
-	"OXID",
-	"RXID",
+	"Fibre Channel OXID",
+	"Fibre Channel RXID",
 	"FW-1 monitor if/direction",
 	"Circuit ID",
-	"Src PortIdx",
-	"Dst PortIdx",
-	"VSAN",
+	"Cisco Src PortIdx",
+	"Cisco Dst PortIdx",
+	"Cisco VSAN",
 	"IEEE 802.11 TX rate",
 	"IEEE 802.11 RSSI",
 	"HP-UX Subsystem",
 	"HP-UX Device ID",
+	"DCE/RPC call (cn_call_id / dg_seqnum)",
 };
 
 gchar *
@@ -203,6 +204,9 @@ get_column_format_matches(gboolean *fmt_list, gint format) {
     case COL_HPUX_DEVID:
       fmt_list[COL_HPUX_DEVID] = TRUE;
       break;
+    case COL_DCE_CALL:
+      fmt_list[COL_DCE_CALL] = TRUE;
+      break;
     default:
       break;
   }
@@ -277,7 +281,7 @@ get_column_longest_string(gint format)
       return "Protocol";	/* not the longest, but the longest is too long */
       break;
     case COL_PACKET_LENGTH:
-      return "000000";
+      return "00000";
       break;
     case COL_CUMULATIVE_BYTES:
       return "00000000";
@@ -309,6 +313,9 @@ get_column_longest_string(gint format)
       return "OTS9000-TRANSPORT";
       break;
     case COL_HPUX_DEVID:
+      return "0000";
+      break;
+    case COL_DCE_CALL:
       return "0000";
       break;
     default: /* COL_INFO */
@@ -453,6 +460,9 @@ get_column_format_from_str(gchar *str) {
 	break;
       case 'P':
 	return COL_HPUX_DEVID;
+	break;
+      case 'y':
+	return COL_DCE_CALL;
 	break;
     }
     cptr++;

@@ -97,6 +97,7 @@ enum {
   COL_RSSI,           /* IEEE 802.11 - received signal strength */
   COL_HPUX_SUBSYS,    /* HP-UX Nettl Subsystem */
   COL_HPUX_DEVID,     /* HP-UX Nettl Device ID */
+  COL_DCE_CALL,       /* DCE/RPC call id OR datagram sequence number */
   NUM_COL_FMTS        /* Should always be last */
 };
 
