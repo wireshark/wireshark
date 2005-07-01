@@ -1309,6 +1309,7 @@ decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   case BSSGP_MOBILE_IDENTITY_TYPE_IMEISV:
     num_digits = 1 + (ie->value_length - 1) * 2;
     if (odd_even != ODD ) num_digits--;
+    if (num_digits > MAX_NUM_IMSI_DIGITS) THROW(ReportedBoundsError);
 
     i = 0;
     digits[i] = get_masked_guint8(data, BSSGP_MASK_LEFT_OCTET_HALF);
@@ -5377,7 +5378,14 @@ decode_pdu_ran_information(build_info_t *bi) {
   decode_pdu_general(ies, 7, bi);
 
   while (tvb_length_remaining(bi->tvb, bi->offset) >= 4) {
+    guint32 org_offset = bi->offset;
+
     decode_ie(&ies[7], bi);
+
+    /* prevent an endless loop */
+    if(org_offset == bi->offset) {
+        THROW(ReportedBoundsError);
+    }
   }
 }
 

@@ -1121,6 +1121,8 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
         return (offset+8);
     }
     
+    tvb_ensure_bytes_exist(tvb, offset, len);
+
     switch( tag )
     {
     case ISNS_ATTR_TAG_DELIMITER:
@@ -1133,9 +1135,11 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
 	offset = dissect_isns_attr_integer(tvb, offset, tree, hf_isns_entity_protocol, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_MGMT_IP_ADDRESS:
+    if(len != 16) THROW(ReportedBoundsError);
 	offset = dissect_isns_attr_ip_address(tvb, offset, tree, hf_isns_mgmt_ip_addr, tag, len);
 	break;
     case ISNS_ATTR_TAG_TIMESTAMP:
+    if(len != 8) THROW(ReportedBoundsError);
 	offset = dissect_isns_attr_integer(tvb, offset, tree, hf_isns_timestamp, tag, len, function_id);
 	break;
     case ISNS_ATTR_TAG_PROTOCOL_VERSION_RANGE:
@@ -1157,6 +1161,7 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
 	offset = dissect_isns_attr_not_decoded_yet(tvb, offset, tree, hf_isns_not_decoded_yet, tag, len);
 	break;
     case ISNS_ATTR_TAG_PORTAL_IP_ADDRESS:
+    if(len != 16) THROW(ReportedBoundsError);
 	offset = dissect_isns_attr_ip_address(tvb, offset, tree, hf_isns_portal_ip_addr, tag, len);
 	break;
     case ISNS_ATTR_TAG_PORTAL_PORT:
@@ -1220,6 +1225,7 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
 	offset = dissect_isns_attr_string(tvb, offset, tree, hf_isns_pg_iscsi_name, tag, len);
 	break;
     case ISNS_ATTR_TAG_PG_PORTAL_IP_ADDR:
+    if(len != 16) THROW(ReportedBoundsError);
 	offset = dissect_isns_attr_ip_address(tvb, offset, tree, hf_isns_pg_portal_ip_addr, tag, len);
 	break;
     case ISNS_ATTR_TAG_PG_PORTAL_PORT:

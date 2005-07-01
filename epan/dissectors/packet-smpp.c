@@ -2389,7 +2389,21 @@ proto_register_smpp(void)
 		HFILL
 	    }
 	},
-	{   &hf_smpp_user_message_reference,
+    {   &hf_smpp_source_subaddress,
+	    {   "Source Subaddress", "smpp.source_subaddress",
+		FT_STRING, BASE_NONE, NULL, 0x00,
+		"Source Subaddress",
+		HFILL
+	    }
+	},
+    {   &hf_smpp_dest_subaddress,
+	    {   "Destination Subaddress", "smpp.dest_subaddress",
+		FT_STRING, BASE_NONE, NULL, 0x00,
+		"Destination Subaddress",
+		HFILL
+	    }
+	},
+    {   &hf_smpp_user_message_reference,
 	    {   "Message reference", "smpp.user_message_reference",
 		FT_UINT16, BASE_HEX, NULL, 0x00,
 		"Reference to the message, assigned by the user.",

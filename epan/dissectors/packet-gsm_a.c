@@ -16373,6 +16373,8 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     default:
 	str = gsm_a_pd_str[pd];
+    /* XXX - hf_idx is still -1! this is a bug in the implementation, and I don't know how to fix it so simple return here */
+    return;
 	break;
     }
 
