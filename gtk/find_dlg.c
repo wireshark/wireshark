@@ -641,7 +641,6 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
             "%sFound no match!%s\n\n"
             "No packet contained those bytes.",
             simple_dialog_primary_start(), simple_dialog_primary_end());
-      g_free(bytes);
       return;
     }
   } else if (cfile.string) {
