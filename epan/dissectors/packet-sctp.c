@@ -2226,34 +2226,34 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     case SCTP_CHECKSUM_ADLER32:
       if (adler32_correct)
         proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                   checksum, "Checksum: 0x%08x (correct Adler32)", checksum);
+                                   checksum, "Checksum: 0x%08x [correct Adler32]", checksum);
       else
         proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                   checksum, "Checksum: 0x%08x (incorrect Adler32, should be 0x%08x)", checksum, calculated_adler32);
+                                   checksum, "Checksum: 0x%08x [incorrect Adler32, should be 0x%08x]", checksum, calculated_adler32);
       proto_tree_add_boolean_hidden(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(adler32_correct));
      break;
     case SCTP_CHECKSUM_CRC32C:
       if (crc32c_correct)
         proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                   checksum, "Checksum: 0x%08x (correct CRC32C)", checksum);
+                                   checksum, "Checksum: 0x%08x [correct CRC32C]", checksum);
       else
         proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                   checksum, "Checksum: 0x%08x (incorrect CRC32C, should be 0x%08x)", checksum, calculated_crc32c);
+                                   checksum, "Checksum: 0x%08x [incorrect CRC32C, should be 0x%08x]", checksum, calculated_crc32c);
       proto_tree_add_boolean_hidden(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct));
       break;
     case SCTP_CHECKSUM_AUTOMATIC:
       if ((adler32_correct) && !(crc32c_correct))
         proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                   checksum, "Checksum: 0x%08x (correct Adler32)", checksum);
+                                   checksum, "Checksum: 0x%08x [correct Adler32]", checksum);
       else if (!(adler32_correct) && (crc32c_correct))
         proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                   checksum, "Checksum: 0x%08x (correct CRC32C)", checksum);
+                                   checksum, "Checksum: 0x%08x [correct CRC32C]", checksum);
       else if ((adler32_correct) && (crc32c_correct))
         proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                   checksum, "Checksum: 0x%08x (correct Adler32 and CRC32C)", checksum);
+                                   checksum, "Checksum: 0x%08x [correct Adler32 and CRC32C]", checksum);
       else
         proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                   checksum, "Checksum: 0x%08x (incorrect, should be 0x%08x (Adler32) or 0x%08x (CRC32C))",
+                                   checksum, "Checksum: 0x%08x [incorrect, should be 0x%08x (Adler32) or 0x%08x (CRC32C)]",
                                    checksum, calculated_adler32, calculated_crc32c);
       proto_tree_add_boolean_hidden(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct || adler32_correct));
       break;
