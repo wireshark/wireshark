@@ -81,8 +81,8 @@ static int hf_nfs_fh_auth_type = -1;
 static int hf_nfs_fh_fsid_type = -1;
 static int hf_nfs_fh_fileid_type = -1;
 static int hf_nfs_stat = -1;
-static int hf_nfs_name = -1;
 static int hf_nfs_full_name = -1;
+static int hf_nfs_name = -1;
 static int hf_nfs_readlink_data = -1;
 static int hf_nfs_read_offset = -1;
 static int hf_nfs_read_count = -1;
@@ -185,6 +185,7 @@ static int hf_nfs_count3_maxcount = -1;
 static int hf_nfs_count3_dircount= -1;
 
 /* NFSv4 */
+static int hf_nfs_nfsstat4 = -1;
 static int hf_nfs_argop4 = -1;
 static int hf_nfs_resop4 = -1;
 static int hf_nfs_linktext4 = -1;
@@ -296,6 +297,9 @@ static int hf_nfs_acl4 = -1;
 static int hf_nfs_callback_ident = -1;
 static int hf_nfs_r_netid = -1;
 static int hf_nfs_r_addr = -1;
+
+/* Hidden field for v2, v3, and v4 status */
+static int hf_nfs_nfsstat = -1;
 
 static gint ett_nfs = -1;
 static gint ett_nfs_fh_encoding = -1;
@@ -1660,123 +1664,48 @@ dissect_fhandle_hidden(packet_info *pinfo, proto_tree *tree, nfs_fhandle_data_t 
 /* RFC 1094, Page 12..14 */
 static const value_string names_nfs_stat[] =
 {
-	{	0,	"OK" },
-	{	1,	"ERR_PERM" },
-	{	2,	"ERR_NOENT" },
-	{	5,	"ERR_IO" },
-	{	6,	"ERR_NX_IO" },
-	{	13,	"ERR_ACCES" },
-	{	17,	"ERR_EXIST" },
-	{	18,	"ERR_XDEV" },	/* not in spec, but can happen */
-	{	19,	"ERR_NODEV" },
-	{	20,	"ERR_NOTDIR" },
-	{	21,	"ERR_ISDIR" },
-	{	22,	"ERR_INVAL" },	/* not in spec, but I think it can happen */
-	{	26,	"ERR_TXTBSY" },	/* not in spec, but I think it can happen */
-	{	27,	"ERR_FBIG" },
-	{	28,	"ERR_NOSPC" },
-	{	30,	"ERR_ROFS" },
-	{	31,	"ERR_MLINK" },	/* not in spec, but can happen */
-	{	45,	"ERR_OPNOTSUPP" }, /* not in spec, but I think it can happen */
-	{	63,	"ERR_NAMETOOLONG" },
-	{	66,	"ERR_NOTEMPTY" },
-	{	69,	"ERR_DQUOT" },
-	{	70,	"ERR_STALE" },
-	{	99,	"ERR_WFLUSH" },
+	{	0,	"NFS_OK" },
+	{	1,	"NFSERR_PERM" },
+	{	2,	"NFSERR_NOENT" },
+	{	5,	"NFSERR_IO" },
+	{	6,	"NFSERR_NXIO" },
+	{	13,	"NFSERR_ACCES" },
+	{	17,	"NFSERR_EXIST" },
+	{	18,	"NFSERR_XDEV" },	/* not in spec, but can happen */
+	{	19,	"NFSERR_NODEV" },
+	{	20,	"NFSERR_NOTDIR" },
+	{	21,	"NFSERR_ISDIR" },
+	{	22,	"NFSERR_INVAL" },	/* not in spec, but I think it can happen */
+	{	26,	"NFSERR_TXTBSY" },	/* not in spec, but I think it can happen */
+	{	27,	"NFSERR_FBIG" },
+	{	28,	"NFSERR_NOSPC" },
+	{	30,	"NFSERR_ROFS" },
+	{	31,	"NFSERR_MLINK" },	/* not in spec, but can happen */
+	{	45,	"NFSERR_OPNOTSUPP" }, /* not in spec, but I think it can happen */
+	{	63,	"NFSERR_NAMETOOLONG" },
+	{	66,	"NFSERR_NOTEMPTY" },
+	{	69,	"NFSERR_DQUOT" },
+	{	70,	"NFSERR_STALE" },
+	{	99,	"NFSERR_WFLUSH" },
 	{	0,	NULL }
 };
 
-/* NFSv4 Draft Specification, Page 198-199 */
-static const value_string names_nfs_stat4[] = {
-	{	0,	"NFS4_OK"					},
-	{	1,	"NFS4ERR_PERM"					},
-	{	2,	"NFS4ERR_NOENT"					},
-	{	5,	"NFS4ERR_IO"					},
-	{	6,	"NFS4ERR_NXIO"					},
-	{	13,	"NFS4ERR_ACCES"					},
-	{	17,	"NFS4ERR_EXIST"					},
-	{	18,	"NFS4ERR_XDEV"					},
-	{	19,	"NFS4ERR_NODEV"					},
-	{	20,	"NFS4ERR_NOTDIR"				},
-	{	21,	"NFS4ERR_ISDIR"					},
-	{	22,	"NFS4ERR_INVAL"					},
-	{	27,	"NFS4ERR_FBIG"					},
-	{	28,	"NFS4ERR_NOSPC"					},
-	{	30,	"NFS4ERR_ROFS"					},
-	{	31,	"NFS4ERR_MLINK"					},
-	{	63,	"NFS4ERR_NAMETOOLONG"				},
-	{	66,	"NFS4ERR_NOTEMPTY"				},
-	{	69,	"NFS4ERR_DQUOT"					},
-	{	70,	"NFS4ERR_STALE"					},
-	{	10001,	"NFS4ERR_BADHANDLE"				},
-	{	10003,	"NFS4ERR_BAD_COOKIE"				},
-	{	10004,	"NFS4ERR_NOTSUPP"				},
-	{	10005,	"NFS4ERR_TOOSMALL"				},
-	{	10006,	"NFS4ERR_SERVERFAULT"				},
-	{	10007,	"NFS4ERR_BADTYPE"				},
-	{	10008,	"NFS4ERR_DELAY"					},
-	{	10009,	"NFS4ERR_SAME"					},
-	{	10010,	"NFS4ERR_DENIED"				},
-	{	10011,	"NFS4ERR_EXPIRED"				},
-	{	10012,	"NFS4ERR_LOCKED"				},
-	{	10013,	"NFS4ERR_GRACE"					},
-	{	10014,	"NFS4ERR_FHEXPIRED"				},
-	{	10015,	"NFS4ERR_SHARE_DENIED"				},
-	{	10016,	"NFS4ERR_WRONGSEC"				},
-	{	10017,	"NFS4ERR_CLID_INUSE"				},
-	{	10018,	"NFS4ERR_RESOURCE"				},
-	{	10019,	"NFS4ERR_MOVED"					},
-	{	10020,	"NFS4ERR_NOFILEHANDLE"				},
-	{	10021,	"NFS4ERR_MINOR_VERS_MISMATCH"			},
-	{	10022,	"NFS4ERR_STALE_CLIENTID"			},
-	{	10023,	"NFS4ERR_STALE_STATEID"				},
-	{	10024,	"NFS4ERR_OLD_STATEID"				},
-	{	10025,	"NFS4ERR_BAD_STATEID"				},
-	{	10026,	"NFS4ERR_BAD_SEQID"				},
-	{	10027,	"NFS4ERR_NOT_SAME"				},
-	{	10028,	"NFS4ERR_LOCK_RANGE"				},
-	{	10029,	"NFS4ERR_SYMLINK"				},
-	{	10030,	"NFS4ERR_READDIR_NOSPC"				},
-	{	10031,	"NFS4ERR_LEASE_MOVED"				},
-	{	10032,	"NFS4ERR_ATTRNOTSUPP"				},
-	{	10033,	"NFS4ERR_NO_GRACE"				},
-	{	10034,	"NFS4ERR_RECLAIM_BAD"				},
-	{	10035,	"NFS4ERR_RECLAIM_CONFLICT"			},
-	{	10036,	"NFS4ERR_BADXDR"				},
-	{	10037,	"NFS4ERR_LOCKS_HELD"				},
-	{	10038,	"NFS4ERR_OPENMODE"	},
-	{	10039,	"NFS4ERR_BADOWNER"	},
-	{	10040,	"NFS4ERR_BADCHAR"		},
-	{	10041,	"NFS4ERR_BADNAME"    },
-	{	10042,	"NFS4ERR_BAD_RANGE"	},
-	{	10043,	"NFS4ERR_LOCK_NOTSUPP"	},
-	{	10044,	"NFS4ERR_OP_ILLEGAL"	},
-	{	10045,	"NFS4ERR_DEADLOCK"	},
-	{	10046,	"NFS4ERR_FILE_OPEN"	},
-	{	10047,	"NFS4ERR_ADMIN_REVOKED"	},
-	{	10048,	"NFS4ERR_CB_PATH_DOWN"	},
-	{ 0, NULL }
-};
-
-
-/* This function has been modified to support NFSv4 style error codes as
- * well as being backwards compatible with NFSv2 and NFSv3.
- */
+/* RFC 1094, Page 12..14 */
 static int
-dissect_stat_internal(tvbuff_t *tvb, int offset,
-	proto_tree *tree, guint32* status, int nfsvers)
+dissect_stat(tvbuff_t *tvb, int offset, proto_tree *tree,
+	guint32 *status)
 {
 	guint32 stat;
+	proto_item *stat_item;
 
 	stat = tvb_get_ntohl(tvb, offset+0);
 
 	if (tree) {
-		/* this gives the right NFSv2 number<->message relation */
-		/* and makes it searchable via "nfs.status" */
-		proto_tree_add_uint_format(tree, hf_nfs_nfsstat3, tvb,
-			offset+0, 4, stat, "Status: %s (%u)",
-			val_to_str(stat,
-				(nfsvers != 4)? names_nfs_stat: names_nfs_stat4,"%u"), stat);
+		proto_tree_add_uint(tree, hf_nfs_stat, tvb, offset+0, 4,
+			stat);
+		stat_item = proto_tree_add_uint(tree, hf_nfs_nfsstat, tvb,
+			offset+0, 4, stat);
+		PROTO_ITEM_SET_HIDDEN(stat_item);
 	}
 
 	offset += 4;
@@ -1784,15 +1713,6 @@ dissect_stat_internal(tvbuff_t *tvb, int offset,
 	if (status) *status = stat;
 
 	return offset;
-}
-
-
-/* RFC 1094, Page 12..14 */
-static int
-dissect_stat(tvbuff_t *tvb, int offset, proto_tree *tree,
-	guint32 *status)
-{
-	return dissect_stat_internal(tvb, offset, tree, status, !4);
 }
 
 
@@ -1905,14 +1825,6 @@ dissect_nfs2_remove_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
 	}
 
 	return offset;
-}
-
-
-static int
-dissect_nfs_nfsstat4(tvbuff_t *tvb, int offset,
-	proto_tree *tree, guint32 *status)
-{
-	return dissect_stat_internal(tvb, offset, tree, status, 4);
 }
 
 
@@ -3063,35 +2975,35 @@ dissect_mode3(tvbuff_t *tvb, int offset, proto_tree *tree, char* name)
 /* RFC 1813, Page 16,17 */
 static const value_string names_nfs_nfsstat3[] =
 {
-	{	0,	"OK" },
-	{	1,	"ERR_PERM" },
-	{	2,	"ERR_NOENT" },
-	{	5,	"ERR_IO" },
-	{	6,	"ERR_NX_IO" },
-	{	13,	"ERR_ACCES" },
-	{	17,	"ERR_EXIST" },
-	{	18,	"ERR_XDEV" },
-	{	19,	"ERR_NODEV" },
-	{	20,	"ERR_NOTDIR" },
-	{	21,	"ERR_ISDIR" },
-	{	22,	"ERR_INVAL" },
-	{	27,	"ERR_FBIG" },
-	{	28,	"ERR_NOSPC" },
-	{	30,	"ERR_ROFS" },
-	{	31,	"ERR_MLINK" },
-	{	63,	"ERR_NAMETOOLONG" },
-	{	66,	"ERR_NOTEMPTY" },
-	{	69,	"ERR_DQUOT" },
-	{	70,	"ERR_STALE" },
-	{	71,	"ERR_REMOTE" },
-	{	10001,	"ERR_BADHANDLE" },
-	{	10002,	"ERR_NOT_SYNC" },
-	{	10003,	"ERR_BAD_COOKIE" },
-	{	10004,	"ERR_NOTSUPP" },
-	{	10005,	"ERR_TOOSMALL" },
-	{	10006,	"ERR_SERVERFAULT" },
-	{	10007,	"ERR_BADTYPE" },
-	{	10008,	"ERR_JUKEBOX" },
+	{	0,	"NFS3_OK" },
+	{	1,	"NFS3ERR_PERM" },
+	{	2,	"NFS3ERR_NOENT" },
+	{	5,	"NFS3ERR_IO" },
+	{	6,	"NFS3ERR_NXIO" },
+	{	13,	"NFS3ERR_ACCES" },
+	{	17,	"NFS3ERR_EXIST" },
+	{	18,	"NFS3ERR_XDEV" },
+	{	19,	"NFS3ERR_NODEV" },
+	{	20,	"NFS3ERR_NOTDIR" },
+	{	21,	"NFS3ERR_ISDIR" },
+	{	22,	"NFS3ERR_INVAL" },
+	{	27,	"NFS3ERR_FBIG" },
+	{	28,	"NFS3ERR_NOSPC" },
+	{	30,	"NFS3ERR_ROFS" },
+	{	31,	"NFS3ERR_MLINK" },
+	{	63,	"NFS3ERR_NAMETOOLONG" },
+	{	66,	"NFS3ERR_NOTEMPTY" },
+	{	69,	"NFS3ERR_DQUOT" },
+	{	70,	"NFS3ERR_STALE" },
+	{	71,	"NFS3ERR_REMOTE" },
+	{	10001,	"NFS3ERR_BADHANDLE" },
+	{	10002,	"NFS3ERR_NOT_SYNC" },
+	{	10003,	"NFS3ERR_BAD_COOKIE" },
+	{	10004,	"NFS3ERR_NOTSUPP" },
+	{	10005,	"NFS3ERR_TOOSMALL" },
+	{	10006,	"NFS3ERR_SERVERFAULT" },
+	{	10007,	"NFS3ERR_BADTYPE" },
+	{	10008,	"NFS3ERR_JUKEBOX" },
 	{	0,	NULL }
 };
 
@@ -3102,12 +3014,16 @@ dissect_nfsstat3(tvbuff_t *tvb, int offset,
 	proto_tree *tree,guint32 *status)
 {
 	guint32 nfsstat3;
+	proto_item *stat_item;
 
 	nfsstat3 = tvb_get_ntohl(tvb, offset+0);
 
 	if (tree) {
 		proto_tree_add_uint(tree, hf_nfs_nfsstat3, tvb,
-			offset, 4, nfsstat3);
+			offset+0, 4, nfsstat3);
+		stat_item = proto_tree_add_uint(tree, hf_nfs_nfsstat, tvb,
+			offset+0, 4, nfsstat3);
+		PROTO_ITEM_SET_HIDDEN(stat_item);
 	}
 
 	offset += 4;
@@ -4013,7 +3929,7 @@ dissect_nfs3_getattr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		default:
 			/* void */
 
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			}
@@ -4107,7 +4023,7 @@ dissect_nfs3_setattr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		default:
 			offset = dissect_wcc_data(tvb, offset, tree, "obj_wcc");
 
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			}
@@ -4166,7 +4082,7 @@ dissect_nfs3_lookup_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"dir_attributes");
 
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			}
@@ -4218,7 +4134,7 @@ dissect_nfs3_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"obj_attributes");
 
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			}
@@ -4272,7 +4188,7 @@ dissect_nfs3_readlink_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"symlink_attributes");
 
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			}
@@ -4340,7 +4256,7 @@ dissect_nfs3_read_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"file_attributes");
 
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			}
@@ -4440,7 +4356,7 @@ dissect_nfs3_write_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		default:
 			offset = dissect_wcc_data(tvb, offset, tree, "file_wcc");
 
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			}
@@ -4530,7 +4446,7 @@ dissect_nfs3_create_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		default:
 			offset = dissect_wcc_data(tvb, offset, tree, "dir_wcc");
 
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			}
@@ -4581,7 +4497,7 @@ dissect_nfs3_mkdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		default:
 			offset = dissect_wcc_data(tvb, offset, tree, "dir_wcc");
 
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			}
@@ -4634,7 +4550,7 @@ dissect_nfs3_symlink_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		default:
 			offset = dissect_wcc_data(tvb, offset, tree, "dir_wcc");
 
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			}
@@ -4701,7 +4617,7 @@ dissect_nfs3_mknod_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		default:
 			offset = dissect_wcc_data(tvb, offset, tree, "dir_wcc");
 
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			}
@@ -4729,7 +4645,7 @@ dissect_nfs3_remove_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		break;
 		default:
 			offset = dissect_wcc_data(tvb, offset, tree, "dir_wcc");
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			}
@@ -4754,7 +4670,7 @@ dissect_nfs3_rmdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		break;
 		default:
 			offset = dissect_wcc_data(tvb, offset, tree, "dir_wcc");
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			}
@@ -4809,7 +4725,7 @@ dissect_nfs3_rename_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			offset = dissect_wcc_data(tvb, offset, tree, "fromdir_wcc");
 			offset = dissect_wcc_data(tvb, offset, tree, "todir_wcc");
 
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			}
@@ -4864,7 +4780,7 @@ dissect_nfs3_link_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 				"file_attributes");
 			offset = dissect_wcc_data(tvb, offset, tree, "linkdir_wcc");
 
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			}
@@ -4947,7 +4863,7 @@ dissect_nfs3_readdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 eof_value;
 	const char *err;
 
-	offset = dissect_stat(tvb, offset, tree, &status);
+	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
 			proto_item_append_text(tree, ", READDIR Reply");
@@ -4967,7 +4883,7 @@ dissect_nfs3_readdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"dir_attributes");
 
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			}
@@ -5078,7 +4994,7 @@ dissect_nfs3_readdirplus_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 eof_value;
 	const char *err;
 
-	offset = dissect_stat(tvb, offset, tree, &status);
+	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
 			proto_item_append_text(tree, ", READDIRPLUS Reply");
@@ -5098,7 +5014,7 @@ dissect_nfs3_readdirplus_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"dir_attributes");
 
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			}
@@ -5164,7 +5080,7 @@ dissect_nfs3_fsstat_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"obj_attributes");
 
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			}
@@ -5304,7 +5220,7 @@ dissect_nfs3_fsinfo_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"obj_attributes");
 
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			}
@@ -5370,7 +5286,7 @@ dissect_nfs3_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"obj_attributes");
 
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			}
@@ -5421,7 +5337,7 @@ dissect_nfs3_commit_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		default:
 			offset = dissect_wcc_data(tvb, offset, tree, "file_wcc");
 
-			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
+			err=val_to_str(status, names_nfs_nfsstat3, "Unknown error:%u");
 			if (check_col(pinfo->cinfo, COL_INFO)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO," Error:%s", err);
 			}
@@ -5435,6 +5351,104 @@ dissect_nfs3_commit_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 /**********************************************************/
 /* NFS Version 4, RFC 3010 with nfs4_prot.x 1.103 changes */
 /**********************************************************/
+
+/* NFSv4 Draft Specification, Page 198-199 */
+static const value_string names_nfs_nfsstat4[] = {
+	{	0,	"NFS4_OK"					},
+	{	1,	"NFS4ERR_PERM"					},
+	{	2,	"NFS4ERR_NOENT"					},
+	{	5,	"NFS4ERR_IO"					},
+	{	6,	"NFS4ERR_NXIO"					},
+	{	13,	"NFS4ERR_ACCES"					},
+	{	17,	"NFS4ERR_EXIST"					},
+	{	18,	"NFS4ERR_XDEV"					},
+	{	19,	"NFS4ERR_NODEV"					},
+	{	20,	"NFS4ERR_NOTDIR"				},
+	{	21,	"NFS4ERR_ISDIR"					},
+	{	22,	"NFS4ERR_INVAL"					},
+	{	27,	"NFS4ERR_FBIG"					},
+	{	28,	"NFS4ERR_NOSPC"					},
+	{	30,	"NFS4ERR_ROFS"					},
+	{	31,	"NFS4ERR_MLINK"					},
+	{	63,	"NFS4ERR_NAMETOOLONG"				},
+	{	66,	"NFS4ERR_NOTEMPTY"				},
+	{	69,	"NFS4ERR_DQUOT"					},
+	{	70,	"NFS4ERR_STALE"					},
+	{	10001,	"NFS4ERR_BADHANDLE"				},
+	{	10003,	"NFS4ERR_BAD_COOKIE"				},
+	{	10004,	"NFS4ERR_NOTSUPP"				},
+	{	10005,	"NFS4ERR_TOOSMALL"				},
+	{	10006,	"NFS4ERR_SERVERFAULT"				},
+	{	10007,	"NFS4ERR_BADTYPE"				},
+	{	10008,	"NFS4ERR_DELAY"					},
+	{	10009,	"NFS4ERR_SAME"					},
+	{	10010,	"NFS4ERR_DENIED"				},
+	{	10011,	"NFS4ERR_EXPIRED"				},
+	{	10012,	"NFS4ERR_LOCKED"				},
+	{	10013,	"NFS4ERR_GRACE"					},
+	{	10014,	"NFS4ERR_FHEXPIRED"				},
+	{	10015,	"NFS4ERR_SHARE_DENIED"				},
+	{	10016,	"NFS4ERR_WRONGSEC"				},
+	{	10017,	"NFS4ERR_CLID_INUSE"				},
+	{	10018,	"NFS4ERR_RESOURCE"				},
+	{	10019,	"NFS4ERR_MOVED"					},
+	{	10020,	"NFS4ERR_NOFILEHANDLE"				},
+	{	10021,	"NFS4ERR_MINOR_VERS_MISMATCH"			},
+	{	10022,	"NFS4ERR_STALE_CLIENTID"			},
+	{	10023,	"NFS4ERR_STALE_STATEID"				},
+	{	10024,	"NFS4ERR_OLD_STATEID"				},
+	{	10025,	"NFS4ERR_BAD_STATEID"				},
+	{	10026,	"NFS4ERR_BAD_SEQID"				},
+	{	10027,	"NFS4ERR_NOT_SAME"				},
+	{	10028,	"NFS4ERR_LOCK_RANGE"				},
+	{	10029,	"NFS4ERR_SYMLINK"				},
+	{	10030,	"NFS4ERR_READDIR_NOSPC"				},
+	{	10031,	"NFS4ERR_LEASE_MOVED"				},
+	{	10032,	"NFS4ERR_ATTRNOTSUPP"				},
+	{	10033,	"NFS4ERR_NO_GRACE"				},
+	{	10034,	"NFS4ERR_RECLAIM_BAD"				},
+	{	10035,	"NFS4ERR_RECLAIM_CONFLICT"			},
+	{	10036,	"NFS4ERR_BADXDR"				},
+	{	10037,	"NFS4ERR_LOCKS_HELD"				},
+	{	10038,	"NFS4ERR_OPENMODE"	},
+	{	10039,	"NFS4ERR_BADOWNER"	},
+	{	10040,	"NFS4ERR_BADCHAR"		},
+	{	10041,	"NFS4ERR_BADNAME"    },
+	{	10042,	"NFS4ERR_BAD_RANGE"	},
+	{	10043,	"NFS4ERR_LOCK_NOTSUPP"	},
+	{	10044,	"NFS4ERR_OP_ILLEGAL"	},
+	{	10045,	"NFS4ERR_DEADLOCK"	},
+	{	10046,	"NFS4ERR_FILE_OPEN"	},
+	{	10047,	"NFS4ERR_ADMIN_REVOKED"	},
+	{	10048,	"NFS4ERR_CB_PATH_DOWN"	},
+	{ 0, NULL }
+};
+
+
+static int
+dissect_nfs_nfsstat4(tvbuff_t *tvb, int offset,
+	proto_tree *tree, guint32 *status)
+{
+	guint32 stat;
+	proto_item *stat_item;
+
+	stat = tvb_get_ntohl(tvb, offset+0);
+
+	if (tree) {
+		proto_tree_add_uint(tree, hf_nfs_nfsstat4, tvb, offset+0, 4,
+			stat);
+		stat_item = proto_tree_add_uint(tree, hf_nfs_nfsstat, tvb,
+			offset+0, 4, stat);
+		PROTO_ITEM_SET_HIDDEN(stat_item);
+	}
+
+	offset += 4;
+
+	if (status) *status = stat;
+
+	return offset;
+}
+
 
 static int
 dissect_nfs_utf8string(tvbuff_t *tvb, int offset,
@@ -7737,6 +7751,85 @@ static const value_string nfsv4_proc_vals[] = {
 
 static struct true_false_string yesno = { "Yes", "No" };
 
+/*
+ * Union of the NFSv2, NFSv3, and NFSv4 status codes.
+ * Use for the "nfs.status" hidden field.
+ */
+static const value_string names_nfs_nfsstat[] = {
+	{	0,	"OK"						},
+	{	1,	"ERR_PERM"					},
+	{	2,	"ERR_NOENT"					},
+	{	5,	"ERR_IO"					},
+	{	6,	"ERR_NXIO"					},
+	{	13,	"ERR_ACCES"					},
+	{	17,	"ERR_EXIST"					},
+	{	18,	"ERR_XDEV"					},
+	{	19,	"ERR_NODEV"					},
+	{	20,	"ERR_NOTDIR"					},
+	{	21,	"ERR_ISDIR"					},
+	{	22,	"ERR_INVAL"					},
+	{	26,	"ERR_TXTBSY"					},
+	{	27,	"ERR_FBIG"					},
+	{	28,	"ERR_NOSPC"					},
+	{	30,	"ERR_ROFS"					},
+	{	31,	"ERR_MLINK"					},
+	{	45,	"ERR_OPNOTSUPP"					},
+	{	63,	"ERR_NAMETOOLONG"				},
+	{	66,	"ERR_NOTEMPTY"					},
+	{	69,	"ERR_DQUOT"					},
+	{	70,	"ERR_STALE"					},
+	{	71,	"ERR_REMOTE"					},
+	{	99,	"ERR_WFLUSH"					},
+	{	10001,	"ERR_BADHANDLE"					},
+	{	10002,	"ERR_NOT_SYNC"					},
+	{	10003,	"ERR_BAD_COOKIE"				},
+	{	10004,	"ERR_NOTSUPP"					},
+	{	10005,	"ERR_TOOSMALL"					},
+	{	10006,	"ERR_SERVERFAULT"				},
+	{	10007,	"ERR_BADTYPE"					},
+	{	10008,	"ERR_DELAY"					},
+	{	10009,	"ERR_SAME"					},
+	{	10010,	"ERR_DENIED"					},
+	{	10011,	"ERR_EXPIRED"					},
+	{	10012,	"ERR_LOCKED"					},
+	{	10013,	"ERR_GRACE"					},
+	{	10014,	"ERR_FHEXPIRED"					},
+	{	10015,	"ERR_SHARE_DENIED"				},
+	{	10016,	"ERR_WRONGSEC"					},
+	{	10017,	"ERR_CLID_INUSE"				},
+	{	10018,	"ERR_RESOURCE"					},
+	{	10019,	"ERR_MOVED"					},
+	{	10020,	"ERR_NOFILEHANDLE"				},
+	{	10021,	"ERR_MINOR_VERS_MISMATCH"			},
+	{	10022,	"ERR_STALE_CLIENTID"				},
+	{	10023,	"ERR_STALE_STATEID"				},
+	{	10024,	"ERR_OLD_STATEID"				},
+	{	10025,	"ERR_BAD_STATEID"				},
+	{	10026,	"ERR_BAD_SEQID"					},
+	{	10027,	"ERR_NOT_SAME"					},
+	{	10028,	"ERR_LOCK_RANGE"				},
+	{	10029,	"ERR_SYMLINK"					},
+	{	10030,	"ERR_READDIR_NOSPC"				},
+	{	10031,	"ERR_LEASE_MOVED"				},
+	{	10032,	"ERR_ATTRNOTSUPP"				},
+	{	10033,	"ERR_NO_GRACE"					},
+	{	10034,	"ERR_RECLAIM_BAD"				},
+	{	10035,	"ERR_RECLAIM_CONFLICT"				},
+	{	10036,	"ERR_BADXDR"					},
+	{	10037,	"ERR_LOCKS_HELD"				},
+	{	10038,	"ERR_OPENMODE"					},
+	{	10039,	"ERR_BADOWNER"					},
+	{	10040,	"ERR_BADCHAR"					},
+	{	10041,	"ERR_BADNAME"					},
+	{	10042,	"ERR_BAD_RANGE"					},
+	{	10043,	"ERR_LOCK_NOTSUPP"				},
+	{	10044,	"ERR_OP_ILLEGAL"				},
+	{	10045,	"ERR_DEADLOCK"					},
+	{	10046,	"ERR_FILE_OPEN"					},
+	{	10047,	"ERR_ADMIN_REVOKED"				},
+	{	10048,	"ERR_CB_PATH_DOWN"				},
+	{	0,	NULL }
+};
 
 void
 proto_register_nfs(void)
@@ -7863,7 +7956,7 @@ proto_register_nfs(void)
 			"fileid_type", "nfs.fh.fileid_type", FT_UINT8, BASE_DEC,
 			VALS(fileid_type_names), 0, "file ID type", HFILL }},
 		{ &hf_nfs_stat, {
-			"Status", "nfs.status2", FT_UINT32, BASE_DEC,
+			"Status", "nfs.stat", FT_UINT32, BASE_DEC,
 			VALS(names_nfs_stat), 0, "Reply status", HFILL }},
 		{ &hf_nfs_full_name, {
 			"Full Name", "nfs.full_name", FT_STRING, BASE_DEC,
@@ -7968,7 +8061,7 @@ proto_register_nfs(void)
 			"Type", "nfs.type", FT_UINT32, BASE_DEC,
 			VALS(names_nfs_ftype3), 0, "File Type", HFILL }},
 		{ &hf_nfs_nfsstat3, {
-			"Status", "nfs.status", FT_UINT32, BASE_DEC,
+			"Status", "nfs.nfsstat3", FT_UINT32, BASE_DEC,
 			VALS(names_nfs_nfsstat3), 0, "Reply status", HFILL }},
 		{ &hf_nfs_read_eof, {
 			"EOF", "nfs.read.eof", FT_BOOLEAN, BASE_NONE,
@@ -8168,6 +8261,10 @@ proto_register_nfs(void)
 			NULL, 0, "Available free file slots", HFILL }},
 
 		/* NFSv4 */
+
+		{ &hf_nfs_nfsstat4, {
+			"Status", "nfs.nfsstat4", FT_UINT32, BASE_DEC,
+			VALS(names_nfs_nfsstat4), 0, "Reply status", HFILL }},
 
 		{ &hf_nfs_argop4, {
 			"Opcode", "nfs.call.operation", FT_UINT32, BASE_DEC,
@@ -8672,6 +8769,11 @@ proto_register_nfs(void)
 		{ &hf_nfs_secinfo_arr4, {
 			"Flavors Info", "nfs.flavors.info", FT_NONE, BASE_NONE,
 			NULL, 0, "Flavors Info", HFILL }},
+
+	/* Hidden field for v2, v3, and v4 status */
+		{ &hf_nfs_nfsstat, {
+			"Status", "nfs.status", FT_UINT32, BASE_DEC,
+			VALS(names_nfs_nfsstat), 0, "Reply status", HFILL }},
 	};
 
 	static gint *ett[] = {
