@@ -153,6 +153,10 @@ static const char vers_2_002[] = {
 	'0', '0', '2', '.', '0', '0', '2', '\0'
 };
 
+static const char vers_2_003[] = {
+	'0', '0', '2', '.', '0', '0', '3', '\0'
+};
+
 /* Old NetXRay data record format - followed by frame data. */
 struct old_netxrayrec_hdr {
 	guint32	timelo;		/* lower 32 bits of time stamp */
@@ -310,6 +314,10 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 			version_major = 2;
 			version_minor = 2;
 			file_type = WTAP_FILE_NETXRAY_2_00x;
+		} else if (memcmp(hdr.version, vers_2_003, sizeof vers_2_003) == 0) {
+			version_major = 2;
+			version_minor = 3;
+			file_type = WTAP_FILE_NETXRAY_2_00x;
 		} else {
 			*err = WTAP_ERR_UNSUPPORTED;
 			*err_info = g_strdup_printf("netxray: version \"%.8s\" unsupported", hdr.version);
@@ -406,7 +414,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		 * captures?
 		 */
 		if (network_type == 1 && hdr.xxc[4] == ETH_CAPTYPE_GIGPOD &&
-		    version_minor == 2)
+		    (version_minor == 2 || version_minor == 3))
 			start_timestamp = 0.0;
 		break;
 
