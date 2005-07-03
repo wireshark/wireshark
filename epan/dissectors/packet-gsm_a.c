@@ -705,7 +705,7 @@ static const value_string bssap_sapi_values[] = {
 /* Mobile Station Classmark  
  * Revision level 
  */
-const value_string MSC_rev_vals[] = {
+const value_string gsm_a_msc_rev_vals[] = {
 	{ 0,		"Reserved for GSM phase 1"},
 	{ 1,		"Used by GSM phase 2 mobile stations"},
 	{ 2,		"Used by mobile stations supporting R99 or later versions of the protocol"},
@@ -16213,7 +16213,6 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item			*oct_1_item = NULL;
     proto_tree			*pd_tree = NULL;
     const gchar			*msg_str;
-    const gchar			*str;
     gint			ett_tree;
     gint			ti;
     int				hf_idx;
@@ -16451,7 +16450,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     proto_tree_add_uint_format(dtap_tree, hf_idx,
 	tvb, offset, 1, oct,
-	"Message Type %s",str);
+	"Message Type %s",msg_str);
 
     offset++;
 
@@ -16624,7 +16623,7 @@ proto_register_gsm_a(void)
 	},
 	{ &hf_gsm_a_MSC_rev,
 		{ "Revision Level","gsm_a.MSC2_rev",
-		FT_UINT8,BASE_DEC,  VALS(MSC_rev_vals), 0x60,          
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_msc_rev_vals), 0x60,          
 		"Revision level", HFILL }
 	},
 	{ &hf_gsm_a_ES_IND,

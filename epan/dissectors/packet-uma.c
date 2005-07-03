@@ -2350,7 +2350,7 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urr_MSC2_rev,
 			{ "Revision Level","uma.urr.MSC2_rev",
-			FT_UINT8,BASE_DEC,  VALS(MSC_rev_vals), 0x60,          
+			FT_UINT8,BASE_DEC,  VALS(gsm_a_msc_rev_vals), 0x60,          
 			"Revision level", HFILL }
 		},
 		{ &hf_uma_urr_ES_IND,
