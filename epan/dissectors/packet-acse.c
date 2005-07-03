@@ -546,7 +546,7 @@ static int dissect_ap_title_form3(packet_info *pinfo, proto_tree *tree, tvbuff_t
 }
 
 
-static const value_string acse_AP_title_vals[] = {
+const value_string acse_AP_title_vals[] = {
   {   0, "ap-title-form1" },
   {   1, "ap-title-form2" },
   {   2, "ap-title-form3" },
@@ -563,7 +563,7 @@ static const ber_choice_t AP_title_choice[] = {
   { 0, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_acse_AP_title(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
                               AP_title_choice, hf_index, ett_acse_AP_title, NULL);
@@ -650,7 +650,7 @@ static int dissect_qualifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 }
 
 
-static int
+int
 dissect_acse_AE_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_acse_ASO_qualifier(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
@@ -668,7 +668,7 @@ static int dissect_responding_AE_qualifier(packet_info *pinfo, proto_tree *tree,
 
 
 
-static int
+int
 dissect_acse_AP_invocation_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
@@ -687,7 +687,7 @@ static int dissect_responding_AP_invocation_identifier(packet_info *pinfo, proto
 
 
 
-static int
+int
 dissect_acse_AE_invocation_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
@@ -743,7 +743,7 @@ static int dissect_mechanism_name_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_acse_GraphicString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, 0,
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_GraphicString,
                                          pinfo, tree, tvb, offset, hf_index,
                                          NULL);
 

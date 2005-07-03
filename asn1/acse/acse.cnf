@@ -5,6 +5,10 @@ InformationFramework x509if
 
 #.EXPORTS
 EXTERNAL
+AP-title
+AP-invocation-identifier
+AE-qualifier
+AE-invocation-identifier
 
 #.TYPE_RENAME
 AARQ-apdu/protocol-version	T_AARQ_protocol_version
