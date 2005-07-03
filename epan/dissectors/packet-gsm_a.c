@@ -648,6 +648,27 @@ const gchar *gsm_a_pd_str[] = {
     "Reserved for extension of the PD to one octet length",
     "Reserved for tests procedures"
 };
+/* L3 Protocol discriminator values according to TS 24 007 (6.4.0)  */
+static const value_string protocol_discriminator_vals[] = {
+	{0x0,		"Group call control"},
+	{0x1,		"Broadcast call control"},
+	{0x2,		"Reserved: was allocated in earlier phases of the protocol"},
+	{0x3,		"Call Control; call related SS messages"},
+	{0x4,		"GPRS Transparent Transport Protocol (GTTP)"},
+	{0x5,		"Mobility Management messages"},
+	{0x6,		"Radio Resources Management messages"},
+	{0x7,		"Unknown"},
+	{0x8,		"GPRS mobility management messages"},
+	{0x9,		"SMS messages"},
+	{0xa,		"GPRS session management messages"},
+	{0xb,		"Non call related SS messages"},
+	{0xc,		"Location services specified in 3GPP TS 44.071 [8a]"},
+	{0xd,		"Unknown"},
+	{0xe,		"Reserved for extension of the PD to one octet length "},
+	{0xf,		"Reserved for tests procedures described in 3GPP TS 44.014 [5a] and 3GPP TS 34.109 [17a]."},
+	{ 0,	NULL }
+};
+
 static const value_string gsm_a_pd_short_str_vals[] = {
 	{0x0,		"GCC"},				/* Group Call Control */
 	{0x1,		"BCC"},				/* Broadcast Call Control */
@@ -677,6 +698,181 @@ static const value_string bssap_sapi_values[] = {
     { 0x00,		"RR/MM/CC" },
     { 0x03,		"SMS" },
     { 0,		NULL } };
+
+/* Mobile Station Classmark Value strings
+ */
+
+/* Mobile Station Classmark  
+ * Revision level 
+ */
+const value_string MSC_rev_vals[] = {
+	{ 0,		"Reserved for GSM phase 1"},
+	{ 1,		"Used by GSM phase 2 mobile stations"},
+	{ 2,		"Used by mobile stations supporting R99 or later versions of the protocol"},
+	{ 3,		"Reserved for future use"},
+	{ 0,	NULL }
+};
+
+/* ES IND (octet 3, bit 5) "Controlled Early Classmark Sending" option implementation */
+static const value_string ES_IND_vals[] = {
+	{ 0,		"Controlled Early Classmark Sending option is not implemented in the MS"},
+	{ 1,		"Controlled Early Classmark Sending option is implemented in the MS"},
+	{ 0,	NULL }
+};
+/* A5/1 algorithm supported (octet 3, bit 4 */
+static const value_string A5_1_algorithm_sup_vals[] = {
+	{ 0,		"encryption algorithm A5/1 available"},
+	{ 1,		"encryption algorithm A5/1 not available"},
+	{ 0,	NULL }
+};
+/* RF Power Capability (Octet 3) */
+static const value_string RF_power_capability_vals[] = {
+	{ 0,		"class 1"},
+	{ 1,		"class 2"},
+	{ 2,		"class 3"},
+	{ 3,		"class 4"},
+	{ 4,		"class 5"},
+	{ 7,		"RF Power capability is irrelevant in this information element"},
+	{ 0,	NULL }
+};
+/* PS capability (pseudo-synchronization capability) (octet 4) */
+static const value_string ps_sup_cap_vals[] = {
+	{ 0,		"PS capability not present"},
+	{ 1,		"PS capability present"},
+	{ 0,	NULL }
+};
+/* SS Screening Indicator (octet 4)defined in 3GPP TS 24.080 */
+static const value_string SS_screening_indicator_vals[] = {
+	{ 0,		"Default value of phase 1"},
+	{ 1,		"Capability of handling of ellipsis notation and phase 2 error handling "},
+	{ 2,		"For future use"},
+	{ 3,		"For future use"},
+	{ 0,	NULL }
+};
+/* SM capability (MT SMS pt to pt capability) (octet 4)*/
+static const value_string SM_capability_vals[] = {
+	{ 0,		"Mobile station does not support mobile terminated point to point SMS"},
+	{ 1,		"Mobile station supports mobile terminated point to point SMS"},
+	{ 0,	NULL }
+};
+/* VBS notification reception (octet 4) */
+static const value_string VBS_notification_rec_vals[] = {
+	{ 0,		"no VBS capability or no notifications wanted"},
+	{ 1,		"VBS capability and notifications wanted"},
+	{ 0,	NULL }
+};
+/* VGCS notification reception (octet 4) */
+static const value_string VGCS_notification_rec_vals[] = {
+	{ 0,		"no VGCS capability or no notifications wanted"},
+	{ 1,		"VGCS capability and notifications wanted"},
+	{ 0,	NULL }
+};
+/* FC Frequency Capability (octet 4 ) */
+static const value_string FC_frequency_cap_vals[] = {
+	{ 0,		"The MS does not support the E-GSM or R-GSM band"},
+	{ 1,		"The MS does support the E-GSM or R-GSM "},
+	{ 0,	NULL }
+};
+/* CM3 (octet 5, bit 8) */
+static const value_string CM3_vals[] = {
+	{ 0,		"The MS does not support any options that are indicated in CM3"},
+	{ 1,		"The MS supports options that are indicated in classmark 3 IE"},
+	{ 0,	NULL }
+};
+/* LCS VA capability (LCS value added location request notification capability) (octet 5,bit 6) */
+static const value_string LCS_VA_cap_vals[] = {
+	{ 0,		"LCS value added location request notification capability not supported"},
+	{ 1,		"LCS value added location request notification capability supported"},
+	{ 0,	NULL }
+};
+/* UCS2 treatment (octet 5, bit 5) */
+static const value_string UCS2_treatment_vals[] = {
+	{ 0,		"the ME has a preference for the default alphabet"},
+	{ 1,		"the ME has no preference between the use of the default alphabet and the use of UCS2"},
+	{ 0,	NULL }
+};
+/* SoLSA (octet 5, bit 4) */
+static const value_string SoLSA_vals[] = {
+	{ 0,		"The ME does not support SoLSA"},
+	{ 1,		"The ME supports SoLSA"},
+	{ 0,	NULL }
+};
+/* CMSP: CM Service Prompt (octet 5, bit 3) */
+static const value_string CMSP_vals[] = {
+	{ 0,		"Network initiated MO CM connection request not supported"},
+	{ 1,		"Network initiated MO CM connection request supported for at least one CM protocol"},
+	{ 0,	NULL }
+};
+/* A5/3 algorithm supported (octet 5, bit 2) */
+static const value_string A5_3_algorithm_sup_vals[] = {
+	{ 0,		"encryption algorithm A5/3 available"},
+	{ 1,		"encryption algorithm A5/3 not available"},
+	{ 0,	NULL }
+};
+
+/* A5/2 algorithm supported (octet 5, bit 1) */
+static const value_string A5_2_algorithm_sup_vals[] = {
+	{ 0,		"encryption algorithm A5/2 available"},
+	{ 1,		"encryption algorithm A5/3 not available"},
+	{ 0,	NULL }
+};
+
+/* algorithm identifier
+ * If SC=1 then:
+ * bits
+ * 4 3 2
+ */
+ static const value_string algorithm_identifier_vals[] = {
+	{ 0,		"Cipher with algorithm A5/1"},
+ 	{ 1,		"Cipher with algorithm A5/2"},
+ 	{ 2,		"Cipher with algorithm A5/3"},
+	{ 3,		"Cipher with algorithm A5/4"},
+ 	{ 4,		"Cipher with algorithm A5/5"},
+ 	{ 5,		"Cipher with algorithm A5/6"},
+ 	{ 6,		"Cipher with algorithm A5/7"},
+	{ 7,		"Reserved"},
+	{ 0,	NULL }
+};
+
+ static const value_string mobile_identity_type_vals[] = {
+	{ 1,		"IMSI"},
+	{ 2,		"IMEI"},
+	{ 3,		"IMEISV"},
+	{ 4,		"TMSI/P-TMSI"},
+	{ 0,		"No Identity"},
+	{ 0,	NULL }
+};
+
+static const value_string oddevenind_vals[] = {
+	{ 0,		"Even number of identity digits"},
+	{ 1,		"Odd number of identity digits"},
+	{ 0,	NULL }
+};
+
+/* RR cause value (octet 2) TS 44.018 6.11.0*/
+static const value_string RR_cause_vals[] = {
+	{ 0,		"Normal event"},
+	{ 1,		"Abnormal release, unspecified"},
+	{ 2,		"Abnormal release, channel unacceptable"},
+	{ 3,		"Abnormal release, timer expired"},
+	{ 4,		"Abnormal release, no activity on the radio path"},
+	{ 5,		"Preemptive release"},
+	{ 6,		"UTRAN configuration unknown"},
+	{ 8,		"Handover impossible, timing advance out of range"},
+	{ 9,		"Channel mode unacceptable"},
+	{ 10,		"Frequency not implemented"},
+	{ 13,		"Originator or talker leaving group call area"},
+	{ 12,		"Lower layer failure"},
+	{ 0x41,		"Call already cleared"},
+	{ 0x5f,		"Semantically incorrect message"},
+	{ 0x60,		"Invalid mandatory information"},
+	{ 0x61,		"Message type non-existent or not implemented"},
+	{ 0x62,		"Message type not compatible with protocol state"},
+	{ 0x64,		"Conditional IE error"},
+	{ 0x65,		"No cell allocation available"},
+	{ 0x6f,		"Protocol error unspecified"},
+	{ 0,	NULL }
+};
 
 static const gchar *cell_disc_str[] = {
     "The whole Cell Global Identification, CGI, is used to identify the cells",
@@ -736,6 +932,29 @@ static int hf_gsm_a_dlci_spare = -1;
 static int hf_gsm_a_dlci_sapi = -1;
 static int hf_gsm_a_bssmap_cause = -1;
 static int hf_gsm_a_dtap_cause = -1;
+
+static int hf_gsm_a_MSC_rev = -1;
+static int hf_gsm_a_ES_IND			= -1;
+static int hf_gsm_a_A5_1_algorithm_sup = -1;
+static int hf_gsm_a_RF_power_capability = -1;
+static int hf_gsm_a_ps_sup_cap		= -1;
+static int hf_gsm_a_SS_screening_indicator = -1;
+static int hf_gsm_a_SM_capability		 = -1;
+static int hf_gsm_a_VBS_notification_rec = -1;
+static int hf_gsm_a_VGCS_notification_rec = -1;
+static int hf_gsm_a_FC_frequency_cap	= -1;
+static int hf_gsm_a_CM3				= -1;
+static int hf_gsm_a_LCS_VA_cap		= -1;
+static int hf_gsm_a_UCS2_treatment	= -1;
+static int hf_gsm_a_SoLSA				= -1;
+static int hf_gsm_a_CMSP				= -1;
+static int hf_gsm_a_A5_3_algorithm_sup= -1;
+static int hf_gsm_a_A5_2_algorithm_sup = -1;
+
+static int hf_gsm_a_odd_even_ind = -1;
+static int hf_gsm_a_mobile_identity_type = -1;
+static int hf_gsm_a_L3_protocol_discriminator = -1; 
+static int hf_gsm_a_skip_ind = -1; 
 
 /* Initialize the subtree pointers */
 static gint ett_bssmap_msg = -1;
@@ -1327,12 +1546,8 @@ be_l3_header_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	"%s :  Spare",
 	a_bigbuf);
 
-    other_decode_bitfield_value(a_bigbuf, oct, DTAP_PD_MASK, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Protocol Discriminator: %s",
-	a_bigbuf,
-	gsm_a_pd_str[oct & DTAP_PD_MASK]);
+	proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, curr_offset, 1, FALSE);
+
 
     curr_offset++;
 
@@ -2896,18 +3111,9 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 	    "%s :  Unused",
 	    a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Odd/Even Indicator: %s",
-	    a_bigbuf,
-	    (oct & 0x08) ? "ODD" : "EVEN");
+	proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Type of Identity: No Identity Code",
-	    a_bigbuf);
+	proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
 
 	strcpy(add_string, " - No Identity Code");
 
@@ -2937,19 +3143,10 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 
 	odd = oct & 0x08;
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Odd/Even Indicator: %s",
-	    a_bigbuf,
-	    odd ? "ODD" : "EVEN");
+	proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Type of Identity: %s",
-	    a_bigbuf,
-	    ((oct & 0x07) == 3) ? "IMEISV" : "IMSI");
+	proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
+
 
 	a_bigbuf[0] = Dgt_msid.out[(oct & 0xf0) >> 4];
 	curr_offset++;
@@ -2993,18 +3190,10 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 	    a_bigbuf,
 	    Dgt_msid.out[(oct & 0xf0) >> 4]);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Odd/Even Indicator: %s",
-	    a_bigbuf,
-	    (oct & 0x08) ? "ODD" : "EVEN");
+	proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Type of Identity: IMEI",
-	    a_bigbuf);
+	proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
+
 
 	a_bigbuf[0] = Dgt_msid.out[(oct & 0xf0) >> 4];
 	curr_offset++;
@@ -3034,18 +3223,10 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 	    "%s :  Unused",
 	    a_bigbuf);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Odd/Even Indicator: %s",
-	    a_bigbuf,
-	    (oct & 0x08) ? "ODD" : "EVEN");
+	proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    "%s :  Type of Identity: TMSI/P-TMSI",
-	    a_bigbuf);
+	proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
+
 
 	curr_offset++;
 
@@ -3085,8 +3266,6 @@ de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
     guint32	curr_offset;
     proto_tree	*subtree;
     proto_item	*item;
-    gchar	*str;
-
     len = len;
     add_string = add_string;
     curr_offset = offset;
@@ -3106,55 +3285,13 @@ de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	"%s :  Spare",
 	a_bigbuf);
 
-    switch ((oct & 0x60) >> 5)
-    {
-    case 0: str = "Reserved for GSM phase 1"; break;
-    case 1: str = "Used by GSM phase 2 mobile stations"; break;
-    case 2: str = "Used by mobile stations supporting R99 or later versions of the protocol"; break;
-    default:
-	str = "Reserved for future use";
-	break;
-    }
+    proto_tree_add_item(subtree, hf_gsm_a_MSC_rev, tvb, curr_offset, 1, FALSE);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
-    proto_tree_add_text(subtree,
-	tvb, curr_offset, 1,
-	"%s :  Revision Level: %s",
-	a_bigbuf,
-	str);
+	proto_tree_add_item(subtree, hf_gsm_a_ES_IND, tvb, curr_offset, 1, FALSE);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
-    proto_tree_add_text(subtree,
-	tvb, curr_offset, 1,
-	"%s :  ES IND: Controlled Early Classmark Sending is %simplemented",
-	a_bigbuf,
-	(oct & 0x10) ? "" : "not ");
+	proto_tree_add_item(subtree, hf_gsm_a_A5_1_algorithm_sup, tvb, curr_offset, 1, FALSE);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
-    proto_tree_add_text(subtree,
-	tvb, curr_offset, 1,
-	"%s :  A5/1: encryption algorithm A5/1 %savailable",
-	a_bigbuf,
-	(oct & 0x08) ? "not " : "");
-
-    switch (oct & 0x07)
-    {
-    case 0: str = "Class 1"; break;
-    case 1: str = "Class 2"; break;
-    case 2: str = "Class 3"; break;
-    case 3: str = "Class 4"; break;
-    case 4: str = "Class 5"; break;
-    default:
-	str = "Reserved";
-	break;
-    }
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-    proto_tree_add_text(subtree,
-	tvb, curr_offset, 1,
-	"%s :  RF power capability: %s",
-	a_bigbuf,
-	str);
+    proto_tree_add_item(subtree, hf_gsm_a_RF_power_capability, tvb, curr_offset, 1, FALSE);
 
     curr_offset++;
 
@@ -3171,8 +3308,6 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str;
-
     add_string = add_string;
     curr_offset = offset;
 
@@ -3184,55 +3319,13 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	"%s :  Spare",
 	a_bigbuf);
 
-    switch ((oct & 0x60) >> 5)
-    {
-    case 0: str = "Reserved for GSM phase 1"; break;
-    case 1: str = "Used by GSM phase 2 mobile stations"; break;
-    case 2: str = "Used by mobile stations supporting R99 or later versions of the protocol"; break;
-    default:
-	str = "Reserved for future use";
-	break;
-    }
+	proto_tree_add_item(tree, hf_gsm_a_MSC_rev, tvb, curr_offset, 1, FALSE);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Revision Level: %s",
-	a_bigbuf,
-	str);
+	proto_tree_add_item(tree, hf_gsm_a_ES_IND, tvb, curr_offset, 1, FALSE);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  ES IND: Controlled Early Classmark Sending is %simplemented",
-	a_bigbuf,
-	(oct & 0x10) ? "" : "not ");
+	proto_tree_add_item(tree, hf_gsm_a_A5_1_algorithm_sup, tvb, curr_offset, 1, FALSE);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  A5/1: encryption algorithm A5/1 %savailable",
-	a_bigbuf,
-	(oct & 0x08) ? "not " : "");
-
-    switch (oct & 0x07)
-    {
-    case 0: str = "Class 1"; break;
-    case 1: str = "Class 2"; break;
-    case 2: str = "Class 3"; break;
-    case 3: str = "Class 4"; break;
-    case 4: str = "Class 5"; break;
-    default:
-	str = "Reserved";
-	break;
-    }
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  RF power capability: %s",
-	a_bigbuf,
-	str);
+    proto_tree_add_item(tree, hf_gsm_a_RF_power_capability, tvb, curr_offset, 1, FALSE);
 
     curr_offset++;
 
@@ -3246,57 +3339,18 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	"%s :  Spare",
 	a_bigbuf);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  PS capability (pseudo-synchronization capability): %spresent",
-	a_bigbuf,
-	(oct & 0x40) ? "" : "not ");
+    proto_tree_add_item(tree, hf_gsm_a_ps_sup_cap, tvb, curr_offset, 1, FALSE);
 
-    switch ((oct & 0x30) >> 4)
-    {
-    case 0: str = "Default value for phase 1"; break;
-    case 1: str = "Capability of handling of ellipsis notation and phase 2 error handling"; break;
-    default:
-	str = "Reserved";
-	break;
-    }
+    proto_tree_add_item(tree, hf_gsm_a_SS_screening_indicator, tvb, curr_offset, 1, FALSE);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x30, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  SS Screening Indicator: %s",
-	a_bigbuf,
-	str);
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  SM capability (MT SMS pt to pt capability): MS %s MT SMS",
-	a_bigbuf,
-	(oct & 0x08) ? "supports" : "does not support");
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x04, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  VBS notification reception: %s",
-	a_bigbuf,
-	(oct & 0x04) ?  "VBS capability and notifications wanted" :
-	    "no VBS capability or no notifications wanted");
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  VGCS notification reception: %s",
-	a_bigbuf,
-	(oct & 0x02) ?  "VGCS capability and notifications wanted" :
-	    "no VGCS capability or no notifications wanted");
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  FC Frequency Capability",
-	a_bigbuf);
+    /* SM capability (MT SMS pt to pt capability) (octet 4)*/
+	proto_tree_add_item(tree, hf_gsm_a_SM_capability, tvb, curr_offset, 1, FALSE);
+	/* VBS notification reception (octet 4) */
+	proto_tree_add_item(tree, hf_gsm_a_VBS_notification_rec, tvb, curr_offset, 1, FALSE);
+	/*VGCS notification reception (octet 4)*/
+	proto_tree_add_item(tree, hf_gsm_a_VGCS_notification_rec, tvb, curr_offset, 1, FALSE);
+	/* FC Frequency Capability (octet 4 ) */
+	proto_tree_add_item(tree, hf_gsm_a_FC_frequency_cap, tvb, curr_offset, 1, FALSE);
 
     curr_offset++;
 
@@ -3304,66 +3358,20 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  CM3: %s",
-	a_bigbuf,
-	(oct & 0x80) ?
-	    "The MS supports options that are indicated in classmark 3 IE" :
-	    "The MS does not support any options that are indicated in CM3");
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Spare",
-	a_bigbuf);
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x20, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  LCS VA capability: LCS value added location request notification capability %ssupported",
-	a_bigbuf,
-	(oct & 0x20) ? "" : "not ");
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  UCS2 treatment: %s",
-	a_bigbuf,
-	(oct & 0x10) ?
-	    "the ME has no preference between the use of the default alphabet and the use of UCS2" :
-	    "the ME has a preference for the default alphabet (defined in 3GPP TS 03.38) over UCS2");
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  SoLSA: the ME %s SoLSA",
-	a_bigbuf,
-	(oct & 0x08) ? "supports" : "does not support");
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x04, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  CMSP (CM Service Prompt): %s",
-	a_bigbuf,
-	(oct & 0x04) ?
-	    "'Network initiated MO CM connection request' supported for at least one CM protocol" :
-	    "'Network initiated MO CM connection request' not supported");
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  A5/3: encryption algorithm A5/3 %savailable",
-	a_bigbuf,
-	(oct & 0x02) ? "" : "not ");
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  A5/2: encryption algorithm A5/2 %savailable",
-	a_bigbuf,
-	(oct & 0x01) ? "" : "not ");
+	/* CM3 (octet 5, bit 8) */
+	proto_tree_add_item(tree, hf_gsm_a_CM3, tvb, curr_offset, 1, FALSE);
+	/* LCS VA capability (LCS value added location request notification capability) (octet 5,bit 6) */
+	proto_tree_add_item(tree, hf_gsm_a_LCS_VA_cap, tvb, curr_offset, 1, FALSE);
+	/* UCS2 treatment (octet 5, bit 5) */
+	proto_tree_add_item(tree, hf_gsm_a_UCS2_treatment, tvb, curr_offset, 1, FALSE);
+	/* SoLSA (octet 5, bit 4) */
+	proto_tree_add_item(tree, hf_gsm_a_SoLSA, tvb, curr_offset, 1, FALSE);
+	/* CMSP: CM Service Prompt (octet 5, bit 3) */
+	proto_tree_add_item(tree, hf_gsm_a_CMSP, tvb, curr_offset, 1, FALSE);
+	/* A5/3 algorithm supported (octet 5, bit 2) */
+	proto_tree_add_item(tree, hf_gsm_a_A5_3_algorithm_sup, tvb, curr_offset, 1, FALSE);
+	/* A5/2 algorithm supported (octet 5, bit 1) */
+	proto_tree_add_item(tree, hf_gsm_a_A5_2_algorithm_sup, tvb, curr_offset, 1, FALSE);
 
     curr_offset++;
 
@@ -3495,11 +3503,7 @@ de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	a_bigbuf,
 	str);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
-    proto_tree_add_text(subtree, tvb, curr_offset, 1,
-	"%s :  PD (Protocol Discriminator): %s",
-	a_bigbuf,
-	gsm_a_pd_str[oct & 0x0f]);
+    proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, curr_offset, 1, FALSE);
 
     curr_offset++;
 
@@ -3610,7 +3614,6 @@ de_rr_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str;
 
     len = len;
     add_string = add_string;
@@ -3618,36 +3621,12 @@ de_rr_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    switch (oct)
-    {
-    case 0x00: str = "Normal event"; break;
-    case 0x01: str = "Abnormal release, unspecified"; break;
-    case 0x02: str = "Abnormal release, channel unacceptable"; break;
-    case 0x03: str = "Abnormal release, timer expired"; break;
-    case 0x04: str = "Abnormal release, no activity on the radio path"; break;
-    case 0x05: str = "Preemptive release"; break;
-    case 0x08: str = "Handover impossible, timing advance out of range"; break;
-    case 0x09: str = "Channel mode unacceptable"; break;
-    case 0x0a: str = "Frequency not implemented"; break;
-    case 0x41: str = "Call already cleared"; break;
-    case 0x5f: str = "Semantically incorrect message"; break;
-    case 0x60: str = "Invalid mandatory information"; break;
-    case 0x61: str = "Message type non-existent or not implemented"; break;
-    case 0x62: str = "Message type not compatible with protocol state"; break;
-    case 0x64: str = "Conditional IE error"; break;
-    case 0x65: str = "No cell allocation available"; break;
-    case 0x6f: str = "Protocol error unspecified"; break;
-    default:
-	str = "Reserved, treat as Normal event";
-	break;
-    }
-
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
 	"RR Cause value: 0x%02x (%u) %s",
 	oct,
 	oct,
-	str);
+	val_to_str(oct, RR_cause_vals, "Reserved, treat as Normal event"));
 
     curr_offset++;
 
@@ -16309,7 +16288,6 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (pd)
     {
     case 3:
-	str = gsm_a_pd_str[pd];
 	msg_str = match_strval_idx((guint32) (oct & DTAP_CC_IEI_MASK), gsm_a_dtap_msg_cc_strings, &idx);
 	ett_tree = ett_gsm_dtap_msg_cc[idx];
 	hf_idx = hf_gsm_a_dtap_msg_cc_type;
@@ -16319,7 +16297,6 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
 
     case 5:
-	str = gsm_a_pd_str[pd];
 	msg_str = match_strval_idx((guint32) (oct & DTAP_MM_IEI_MASK), gsm_a_dtap_msg_mm_strings, &idx);
 	ett_tree = ett_gsm_dtap_msg_mm[idx];
 	hf_idx = hf_gsm_a_dtap_msg_mm_type;
@@ -16328,7 +16305,6 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
 
     case 6:
-	str = gsm_a_pd_str[pd];
 	msg_str = match_strval_idx((guint32) (oct & DTAP_RR_IEI_MASK), gsm_a_dtap_msg_rr_strings, &idx);
 	ett_tree = ett_gsm_dtap_msg_rr[idx];
 	hf_idx = hf_gsm_a_dtap_msg_rr_type;
@@ -16336,7 +16312,6 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
 
     case 8:
-	str = gsm_a_pd_str[pd];
 	msg_str = match_strval_idx((guint32) (oct & DTAP_GMM_IEI_MASK), gsm_a_dtap_msg_gmm_strings, &idx);
 	ett_tree = ett_gsm_dtap_msg_gmm[idx];
 	hf_idx = hf_gsm_a_dtap_msg_gmm_type;
@@ -16344,7 +16319,6 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
 
     case 9:
-	str = gsm_a_pd_str[pd];
 	msg_str = match_strval_idx((guint32) (oct & DTAP_SMS_IEI_MASK), gsm_a_dtap_msg_sms_strings, &idx);
 	ett_tree = ett_gsm_dtap_msg_sms[idx];
 	hf_idx = hf_gsm_a_dtap_msg_sms_type;
@@ -16353,7 +16327,6 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
 
     case 10:
-	str = gsm_a_pd_str[pd];
 	msg_str = match_strval_idx((guint32) (oct & DTAP_SM_IEI_MASK), gsm_a_dtap_msg_sm_strings, &idx);
 	ett_tree = ett_gsm_dtap_msg_sm[idx];
 	hf_idx = hf_gsm_a_dtap_msg_sm_type;
@@ -16362,7 +16335,6 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
 
     case 11:
-	str = gsm_a_pd_str[pd];
 	msg_str = match_strval_idx((guint32) (oct & DTAP_SS_IEI_MASK), gsm_a_dtap_msg_ss_strings, &idx);
 	ett_tree = ett_gsm_dtap_msg_ss[idx];
 	hf_idx = hf_gsm_a_dtap_msg_ss_type;
@@ -16372,7 +16344,6 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
 
     default:
-	str = gsm_a_pd_str[pd];
     /* XXX - hf_idx is still -1! this is a bug in the implementation, and I don't know how to fix it so simple return here */
     return;
 	break;
@@ -16409,17 +16380,13 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_text(dtap_tree,
 	    tvb, 0, 1,
 	    "Protocol Discriminator: %s",
-	    str);
+	    val_to_str(pd, protocol_discriminator_vals, "Unknown (%u)"));
 
     pd_tree = proto_item_add_subtree(oct_1_item, ett_dtap_oct_1);
 
     if (ti == -1)
     {
-	other_decode_bitfield_value(a_bigbuf, oct_1, 0xf0, 8);
-	proto_tree_add_text(pd_tree,
-	    tvb, 0, 1,
-	    "%s :  Skip Indicator",
-	    a_bigbuf);
+	proto_tree_add_item(pd_tree, hf_gsm_a_skip_ind, tvb, 0, 1, FALSE);
     }
     else
     {
@@ -16451,12 +16418,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
     }
 
-    other_decode_bitfield_value(a_bigbuf, oct_1, DTAP_PD_MASK, 8);
-    proto_tree_add_text(pd_tree,
-	tvb, 0, 1,
-	"%s :  Protocol Discriminator: %u",
-	a_bigbuf,
-	pd);
+    proto_tree_add_item(pd_tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, FALSE);
 
     if ((ti != -1) &&
 	(ti & DTAP_TIE_PRES_MASK) == DTAP_TIE_PRES_MASK)
@@ -16660,6 +16622,112 @@ proto_register_gsm_a(void)
 	    FT_UINT8, BASE_HEX, 0, 0x0,
 	    "", HFILL }
 	},
+	{ &hf_gsm_a_MSC_rev,
+		{ "Revision Level","gsm_a.MSC2_rev",
+		FT_UINT8,BASE_DEC,  VALS(MSC_rev_vals), 0x60,          
+		"Revision level", HFILL }
+	},
+	{ &hf_gsm_a_ES_IND,
+		{ "ES IND","gsm_a.MSC2_rev",
+		FT_UINT8,BASE_DEC,  VALS(ES_IND_vals), 0x20,          
+			"ES IND", HFILL }
+	},
+	{ &hf_gsm_a_A5_1_algorithm_sup,
+		{ "A5/1 algorithm supported","gsm_a.MSC2_rev",
+		FT_UINT8,BASE_DEC,  VALS(A5_1_algorithm_sup_vals), 0x10,          
+		"A5/1 algorithm supported ", HFILL }
+	},
+	{ &hf_gsm_a_RF_power_capability,
+		{ "RF Power Capability","gsm_a.MSC2_rev",
+		FT_UINT8,BASE_DEC,  VALS(RF_power_capability_vals), 0x07,          
+		"RF Power Capability", HFILL }
+	},
+	{ &hf_gsm_a_ps_sup_cap,
+		{ "PS capability (pseudo-synchronization capability)","gsm_a.ps_sup_cap",
+		FT_UINT8,BASE_DEC,  VALS(ps_sup_cap_vals), 0x40,          
+		"PS capability (pseudo-synchronization capability)", HFILL }
+	},
+	{ &hf_gsm_a_SS_screening_indicator,
+		{ "SS Screening Indicator","gsm_a.SS_screening_indicator",
+		FT_UINT8,BASE_DEC,  VALS(SS_screening_indicator_vals), 0x30,          
+		"SS Screening Indicator", HFILL }
+	},
+	{ &hf_gsm_a_SM_capability,
+		{ "SM capability (MT SMS pt to pt capability)","gsm_a.SM_cap",
+		FT_UINT8,BASE_DEC,  VALS(SM_capability_vals), 0x08,          
+		"SM capability (MT SMS pt to pt capability)", HFILL }
+	},
+	{ &hf_gsm_a_VBS_notification_rec,
+		{ "VBS notification reception ","gsm_a.VBS_notification_rec",
+		FT_UINT8,BASE_DEC,  VALS(VBS_notification_rec_vals), 0x04,          
+		"VBS notification reception ", HFILL }
+	},
+	{ &hf_gsm_a_VGCS_notification_rec,
+		{ "VGCS notification reception ","gsm_a.VGCS_notification_rec",
+		FT_UINT8,BASE_DEC,  VALS(VGCS_notification_rec_vals), 0x02,          
+		"VGCS notification reception", HFILL }
+	},
+	{ &hf_gsm_a_FC_frequency_cap,
+		{ "FC Frequency Capability","gsm_a.FC_frequency_cap",
+		FT_UINT8,BASE_DEC,  VALS(FC_frequency_cap_vals), 0x01,          
+		"FC Frequency Capability", HFILL }
+	},
+	{ &hf_gsm_a_CM3,
+		{ "CM3","gsm_a.CM3",
+		FT_UINT8,BASE_DEC,  VALS(CM3_vals), 0x01,          
+		"CM3", HFILL }
+	},
+	{ &hf_gsm_a_LCS_VA_cap,
+		{ "LCS VA capability (LCS value added location request notification capability) ","gsm_a.LCS_VA_cap",
+		FT_UINT8,BASE_DEC,  VALS(LCS_VA_cap_vals), 0x80,          
+		"LCS VA capability (LCS value added location request notification capability) ", HFILL }
+	},
+	{ &hf_gsm_a_UCS2_treatment,
+		{ "UCS2 treatment ","gsm_a.UCS2_treatment",
+		FT_UINT8,BASE_DEC,  VALS(UCS2_treatment_vals), 0x10,          
+		"UCS2 treatment ", HFILL }
+	},
+	{ &hf_gsm_a_SoLSA,
+		{ "SoLSA","gsm_a.SoLSA",
+		FT_UINT8,BASE_DEC,  VALS(SoLSA_vals), 0x08,          
+		"SoLSA", HFILL }
+	},
+	{ &hf_gsm_a_CMSP,
+		{ "CMSP: CM Service Prompt ","gsm_a.CMSP",
+		FT_UINT8,BASE_DEC,  VALS(CMSP_vals), 0x04,          
+		"CMSP: CM Service Prompt ", HFILL }
+	},
+	{ &hf_gsm_a_A5_3_algorithm_sup,
+		{ "A5/3 algorithm supported ","gsm_a.A5_3_algorithm_sup",
+		FT_UINT8,BASE_DEC,  VALS(A5_3_algorithm_sup_vals), 0x02,          
+		"A5/3 algorithm supported ", HFILL }
+	},
+	{ &hf_gsm_a_A5_2_algorithm_sup,
+		{ "A5/2 algorithm supported ","gsm_a.A5_2_algorithm_sup",
+		FT_UINT8,BASE_DEC,  VALS(A5_2_algorithm_sup_vals), 0x01,          
+		"A5/2 algorithm supported ", HFILL }
+	},
+	{ &hf_gsm_a_mobile_identity_type,
+		{ "Mobile Identity Type","gsm_a.ie.mobileid.type",
+		FT_UINT8, BASE_DEC, VALS(mobile_identity_type_vals), 0x07,          
+		"Mobile Identity Type", HFILL }
+	},
+	{ &hf_gsm_a_odd_even_ind,
+		{ "Odd/even indication","gsm_a.oddevenind",
+		FT_UINT8, BASE_DEC, oddevenind_vals, 0x08,          
+		"Mobile Identity", HFILL }
+	},
+	{ &hf_gsm_a_L3_protocol_discriminator,
+		{ "Protocol discriminator","gsm_a.L3_protocol_discriminator",
+		FT_UINT8,BASE_DEC,  VALS(protocol_discriminator_vals), 0x0f,          
+		"Protocol discriminator", HFILL }
+	},
+	{ &hf_gsm_a_skip_ind,
+		{ "Skip Indicator",           "gsm_a.skip.ind",
+		FT_UINT8, BASE_DEC, NULL, 0xf0,          
+		"Skip Indicator", HFILL }
+	},
+
     };
 
     /* Setup protocol subtree array */

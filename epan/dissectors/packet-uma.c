@@ -69,6 +69,7 @@
 #include <epan/packet.h>
 #include "prefs.h"
 #include "packet-bssap.h"
+#include "packet-gsm_a.h"
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
 
@@ -642,7 +643,7 @@ static const value_string register_reject_cause_vals[] = {
 /* L3 Protocol discriminator values according to TS 24 007 (640)  */
 static const value_string protocol_discriminator_vals[] = {
 	{0x0,		"Group call control"},
-	{0x1,		"broadcast call control"},
+	{0x1,		"Broadcast call control"},
 	{0x2,		"Reserved: was allocated in earlier phases of the protocol"},
 	{0x3,		"Call Control; call related SS messages"},
 	{0x4,		"GPRS Transparent Transport Protocol (GTTP)"},
@@ -1063,7 +1064,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	char		*string;
 	guint16		GPRS_user_data_transport_UDP_port,UNC_tcp_port,RTP_UDP_port,RTCP_UDP_port, communication_port;
 	guint32		udr;
-	conversation_t* conversation;
+	conversation_t *conversation;
 	address dst_addr, null_addr;
 	guint8		str_len;
 
@@ -1588,6 +1589,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* Mobile Station Classmark 3 
 		 * The rest of the IE is coded as in [TS 24.008], not including IEI and length, if present
 		 */
+		break;
 	case 57:		
 		/* LLC-PDU 
 		 * The rest of the IE is coded as in [TS 48.018], not including IEI and length, if present
@@ -1796,9 +1798,8 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 			conversation = conversation_new(pinfo->fd->num, &dst_addr,
 			    &null_addr, PT_TCP,UNC_tcp_port ,
 			    0, NO_ADDR2|NO_PORT2);
-
-		/* Set dissector */
-		conversation_set_dissector(conversation, uma_tcp_handle);
+			/* Set dissector */
+			conversation_set_dissector(conversation, uma_tcp_handle);
 		}
 
 		break;
@@ -2067,7 +2068,7 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urr_mobile_identity_type,
 			{ "Mobile Identity Type","uma.urr.ie.mobileid.type",
-			FT_UINT8, BASE_DEC, uma_urr_mobile_identity_type_vals, 0x07,          
+			FT_UINT8, BASE_DEC, VALS(uma_urr_mobile_identity_type_vals), 0x07,          
 			"Mobile Identity Type", HFILL }
 		},
 		{ &hf_uma_urr_odde_even_ind,
@@ -2343,13 +2344,13 @@ proto_register_uma(void)
 			"Protocol discriminator", HFILL }
 		},
 		{ &hf_uma_urr_channel_mode,
-			{ "Channel Mode","uma.urr.MSC2_rev",
+			{ "Channel Mode","uma.urr.channel_mode",
 			FT_UINT8,BASE_DEC,  VALS(channel_mode_vals), 0x0,          
 			"Channel Mode", HFILL }
 		},
 		{ &hf_uma_urr_MSC2_rev,
 			{ "Revision Level","uma.urr.MSC2_rev",
-			FT_UINT8,BASE_DEC,  VALS(MSC2_rev_vals), 0x60,          
+			FT_UINT8,BASE_DEC,  VALS(MSC_rev_vals), 0x60,          
 			"Revision level", HFILL }
 		},
 		{ &hf_uma_urr_ES_IND,
