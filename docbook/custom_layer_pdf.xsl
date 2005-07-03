@@ -18,11 +18,22 @@
 <xsl:param name="section.autolabel" select="1"/>
 <xsl:param name="section.label.includes.component.label" select="1"/>
 
+<!-- include a single TOC (use book style TOC, removes the list of figures etc.) -->
+<xsl:param name="generate.toc" select="'book toc'"/>
+
 <!-- include page numbers in cross references -->
 <!-- <xsl:param name="insert.xref.page.number" select="1"/> -->
 
 <!-- don't show URL's, but only the text of it -->
 <xsl:param name="ulink.show" select="0"/>
+
+<!-- hyphenate URL's after the slash -->
+<xsl:param name="ulink.hyphenate" select="'&#x200b;'"></xsl:param>
+
+<!-- don't allow section titles to be hyphenated -->
+<xsl:attribute-set name="section.title.properties">
+  <xsl:attribute name="hyphenate">false</xsl:attribute>
+</xsl:attribute-set>
 
 <!-- put a page break after each section -->
 <xsl:attribute-set name="section.level1.properties">
