@@ -383,6 +383,7 @@ DISSECTOR_SRC =	\
 	packet-media.c	\
 	packet-mip.c	\
 	packet-mip6.c	\
+	packet-mms.c	\
 	packet-mms-control.c	\
 	packet-mms-data.c	\
 	packet-mmse.c	\

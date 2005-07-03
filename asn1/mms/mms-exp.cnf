@@ -1,0 +1,8 @@
+#.IMPORT_TAG
+MMSpdu                   BER_CLASS_CON -1/*choice*/
+#.END
+
+#.TYPE_ATTR
+MMSpdu                   TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(mms_MMSpdu_vals)  BITMASK = 0
+#.END
+
