@@ -1849,6 +1849,10 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->in_error_pkt = save_in_error_pkt;
 
 	/* MPLS extensions */
+	/* XXX - this doesn't handle ICMP packets with more than
+	   128 bytes of the original datagram, which RFC 1812 doesn't
+	   disallow.  Make whether to handle MPLS extensions a
+	   preference setting? */
 	if (tvb_reported_length(tvb) > 8 + 128)
 		dissect_mpls_extensions(tvb, 8 + 128, icmp_tree);
 	
