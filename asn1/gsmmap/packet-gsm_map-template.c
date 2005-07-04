@@ -44,6 +44,7 @@
 #include "packet-ber.h"
 #include "packet-q931.h"
 #include "packet-gsm_map.h"
+#include "packet-gsm_a.h"
 
 #define PNAME  "GSM Mobile Application"
 #define PSNAME "GSM_MAP"
@@ -108,6 +109,7 @@ dissector_handle_t	map_handle;
 static proto_tree *top_tree;
 static int application_context_version;
 gint protocolId;
+gint AccessNetworkProtocolId;
 static int gsm_map_tap = -1;
 
 

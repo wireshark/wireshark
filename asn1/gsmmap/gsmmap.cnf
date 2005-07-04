@@ -193,11 +193,17 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, &protocolId);
 
 #----------------------------------------------------------------------------------------
+#.FN_BODY AccessNetworkProtocolId
+
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, &AccessNetworkProtocolId);
+
+#----------------------------------------------------------------------------------------
 #.FN_BODY SignalInfo
 
  tvbuff_t	*parameter_tvb;
  guint8		octet;
  guint8		length;
+ tvbuff_t	*next_tvb;
 
  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     &parameter_tvb);
@@ -210,8 +216,14 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
  	/* gsm-0806 */
 	case 2:
 		break;
-	/* gsm-BSSMAP */
+	/* gsm-BSSMAP TODO Is it correct to stripp off tw first octets here?*/
 	case 3:
+		octet = tvb_get_guint8(parameter_tvb,0);
+		length = tvb_get_guint8(parameter_tvb,1);
+		if ( octet == 0) {/* DISCRIMINATION TS 48 006 */
+			next_tvb = tvb_new_subset(parameter_tvb, 2, -1, -1);
+			dissect_bssmap(next_tvb, pinfo, tree);
+		}
 		break;
 	/* ets-300102-1 (~Q.931 ) */
 	case 4:
@@ -223,6 +235,37 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
 	default:
 		break;
 }
+
+#----------------------------------------------------------------------------------------
+#.FN_BODY LongSignalInfo
+
+ tvbuff_t	*parameter_tvb;
+ guint8		octet;
+ guint8		length;
+ tvbuff_t	*next_tvb;
+
+ offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                    &parameter_tvb);
+ if (!parameter_tvb)
+	return offset;
+ switch (AccessNetworkProtocolId){
+	/* ts3G-48006 */
+	case 1:
+		octet = tvb_get_guint8(parameter_tvb,0);
+		length = tvb_get_guint8(parameter_tvb,1);
+		if ( octet == 0) {/* DISCRIMINATION TS 48 006 */
+			/* gsm-BSSMAP? */
+			next_tvb = tvb_new_subset(parameter_tvb, 2, -1, -1);
+			dissect_bssmap(next_tvb, pinfo, tree);
+		}
+		break;
+ 	/* ts3G-25413 */
+	case 2:
+		break;
+	default:
+		break;
+
+ }
 #----------------------------------------------------------------------------------------
 #.FN_BODY PrivateExtension/extType
 
@@ -236,9 +279,10 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
 SS-Code  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ssCode_vals)
 Teleservice  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Teleservice_vals)
 Bearerservice  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Bearerservice_vals)
-Ext_Teleservice  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Teleservice_vals)
-Ext_Bearerservice  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Bearerservice_vals)
-
+TeleserviceCode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Teleservice_vals)
+BearerServiceCode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Bearerservice_vals)
+Ext-TeleserviceCode TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Teleservice_vals)
+Ext-BearerServiceCode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Bearerservice_vals)
 #.END
 
 
