@@ -58,6 +58,7 @@ typedef struct _gsm_a_tap_rec_t {
     gsm_a_pd_str_e	protocol_disc;
 } gsm_a_tap_rec_t;
 
+void dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /*
  * the following allows TAP code access to the messages

@@ -16091,7 +16091,7 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-static void
+void
 dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     static gsm_a_tap_rec_t	tap_rec[4];
