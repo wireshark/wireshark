@@ -39,6 +39,7 @@
 
 #define ETHER_LEN	6
 #define IPv6_LEN	16
+#define GUID_LEN	16
 
 static void
 bytes_fvalue_new(fvalue_t *fv)
@@ -119,6 +120,13 @@ ipv6_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
 	g_assert(!already_copied);
 	common_fvalue_set(fv, value, IPv6_LEN);
+}
+
+static void
+guid_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
+{
+	g_assert(!already_copied);
+	common_fvalue_set(fv, value, GUID_LEN);
 }
 
 static gpointer
@@ -216,6 +224,31 @@ ipv6_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogF
 
 	ipv6_fvalue_set(fv, buffer, FALSE);
 	return TRUE;
+}
+
+static gboolean
+guid_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
+{
+	/*
+	 * Don't log a message if this fails; we'll try looking it
+	 * up as an GUID if it does, and if that fails,
+	 * we'll log a message.
+	 */
+	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
+		if (fv->value.bytes->len > GUID_LEN) {
+			logfunc("\"%s\" contains too many bytes to be a valid Globally Unique Identifier.",
+			    s);
+			return FALSE;
+		}
+		else if (fv->value.bytes->len < GUID_LEN && !allow_partial_value) {
+			logfunc("\"%s\" contains too few bytes to be a valid Globally Unique Identifier.",
+			    s);
+			return FALSE;
+		}
+
+		return TRUE;
+	}
+	return FALSE;
 }
 
 static guint
@@ -547,8 +580,44 @@ ftype_register_bytes(void)
 		slice,
 	};
 
+	static ftype_t guid_type = {
+		"GUID",			/* name */
+		"Globally Unique Identifier",			/* pretty_name */
+		GUID_LEN,			/* wire_size */
+		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_free,		/* free_value */
+		guid_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
+		bytes_to_repr,		/* val_to_string_repr */
+		bytes_repr_len,		/* len_string_repr */
+
+		guid_fvalue_set,		/* set_value */
+		NULL,				/* set_value_integer */
+		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_floating */
+
+		value_get,			/* get_value */
+		NULL,				/* get_value_integer */
+		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_floating */
+
+		cmp_eq,
+		cmp_ne,
+		cmp_gt,
+		cmp_ge,
+		cmp_lt,
+		cmp_le,
+		cmp_bytes_bitwise_and,
+		cmp_contains,
+		NULL,				/* cmp_matches */
+
+		len,
+		slice,
+	};
+
 	ftype_register(FT_BYTES, &bytes_type);
 	ftype_register(FT_UINT_BYTES, &uint_bytes_type);
 	ftype_register(FT_ETHER, &ether_type);
 	ftype_register(FT_IPv6, &ipv6_type);
+	ftype_register(FT_GUID, &guid_type);
 }

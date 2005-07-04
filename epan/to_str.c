@@ -934,3 +934,22 @@ gchar* oid_to_str_buf(const guint8 *oid, gint oid_len, gchar *buf) {
 
   return buf;
 }
+
+gchar* guid_to_str(const guint8 *guid) {
+  /* static buffer */
+  static int cnt = 0;
+  static gchar strbuf[8][GUID_STR_LEN];
+
+  cnt = (cnt + 1) % 8;
+  return guid_to_str_buf(guid, strbuf[cnt]);
+}
+
+gchar* guid_to_str_buf(const guint8 *guid, gchar *buf) {
+  sprintf(buf, "%02X%02X%02X%02X-%02X%02X-%02X%02X-%02X%02X-%02X%02X%02X%02X%02X%02X",
+          guid[0], guid[1], guid[2], guid[3],
+          guid[4], guid[5],
+          guid[6], guid[7],
+          guid[8], guid[9], 
+          guid[10], guid[11], guid[12], guid[13], guid[14], guid[15]);
+  return buf;
+}

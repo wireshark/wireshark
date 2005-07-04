@@ -137,6 +137,10 @@ proto_tree_set_ipv6(field_info *fi, const guint8* value_ptr);
 static void
 proto_tree_set_ipv6_tvb(field_info *fi, tvbuff_t *tvb, gint start);
 static void
+proto_tree_set_guid(field_info *fi, const guint8* value_ptr);
+static void
+proto_tree_set_guid_tvb(field_info *fi, tvbuff_t *tvb, gint start);
+static void
 proto_tree_set_boolean(field_info *fi, guint32 value);
 static void
 proto_tree_set_float(field_info *fi, float value);
@@ -842,6 +846,11 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			proto_tree_set_ether_tvb(new_fi, tvb, start);
 			break;
 
+		case FT_GUID:
+			DISSECTOR_ASSERT(length == 16);
+			proto_tree_set_guid_tvb(new_fi, tvb, start);
+			break;
+
 		case FT_FLOAT:
 			DISSECTOR_ASSERT(length == 4);
 			if (little_endian)
@@ -1388,6 +1397,75 @@ static void
 proto_tree_set_ipv6_tvb(field_info *fi, tvbuff_t *tvb, gint start)
 {
 	proto_tree_set_ipv6(fi, tvb_get_ptr(tvb, start, 16));
+}
+
+/* Add a FT_GUID to a proto_tree */
+proto_item *
+proto_tree_add_guid(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
+		const guint8* value_ptr)
+{
+	proto_item		*pi;
+	field_info		*new_fi;
+	header_field_info	*hfinfo;
+
+	if (!tree)
+		return (NULL);
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex);
+
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
+	DISSECTOR_ASSERT(hfinfo->type == FT_GUID);
+
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
+	proto_tree_set_guid(new_fi, value_ptr);
+
+	return pi;
+}
+
+proto_item *
+proto_tree_add_guid_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
+		const guint8* value_ptr)
+{
+	proto_item		*pi;
+
+	pi = proto_tree_add_guid(tree, hfindex, tvb, start, length, value_ptr);
+	if (pi == NULL)
+		return (NULL);
+
+	PROTO_ITEM_SET_HIDDEN(pi);
+
+	return pi;
+}
+
+proto_item *
+proto_tree_add_guid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
+		const guint8* value_ptr, const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+
+	pi = proto_tree_add_guid(tree, hfindex, tvb, start, length, value_ptr);
+	if (pi == NULL)
+		return (NULL);
+
+	va_start(ap, format);
+	proto_tree_set_representation(pi, format, ap);
+	va_end(ap);
+
+	return pi;
+}
+
+/* Set the FT_GUID value */
+static void
+proto_tree_set_guid(field_info *fi, const guint8* value_ptr)
+{
+	fvalue_set(&fi->value, (gpointer) value_ptr, FALSE);
+}
+
+static void
+proto_tree_set_guid_tvb(field_info *fi, tvbuff_t *tvb, gint start)
+{
+	proto_tree_set_guid(fi, tvb_get_ptr(tvb, start, 16));
 }
 
 static void
@@ -3143,6 +3221,15 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
 
+		case FT_GUID:
+			bytes = fvalue_get(&fi->value);
+			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+				"%s: %s", hfinfo->name,
+				 guid_to_str(bytes));
+			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
+			break;
+
 		case FT_STRING:
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
@@ -4231,6 +4318,7 @@ proto_can_match_selected(field_info *finfo, epan_dissect_t *edt)
 		case FT_BYTES:
 		case FT_UINT_BYTES:
 		case FT_PROTOCOL:
+		case FT_GUID:
 			/*
 			 * These all have values, so we can match.
 			 */
@@ -4413,6 +4501,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 		case FT_ABSOLUTE_TIME:
 		case FT_RELATIVE_TIME:
 		case FT_IPv4:
+		case FT_GUID:
 			/* Figure out the string length needed.
 			 * 	The ft_repr length.
 			 * 	4 bytes for " == ".

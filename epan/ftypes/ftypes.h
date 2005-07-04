@@ -60,6 +60,7 @@ enum ftenum {
 	FT_IPXNET,
 	FT_FRAMENUM,	/* a UINT32, but if selected lets you go to frame with that numbe */
 	FT_PCRE,		/* a compiled Perl-Compatible Regular Expression object */
+	FT_GUID,		/* GUID, UUID */
 	FT_NUM_TYPES /* last item number plus one */
 };
 
