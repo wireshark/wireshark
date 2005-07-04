@@ -1,10 +1,10 @@
 #.TYPE_ATTR
 TimeStamp                TYPE = FT_ABSOLUTE_TIME  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-AuthenticationMechanism  TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(AuthenticationMechanism_vals)  BITMASK = 0
+AuthenticationMechanism  TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(h235_AuthenticationMechanism_vals)  BITMASK = 0
 ClearToken               TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 SIGNEDxxx                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 ENCRYPTEDxxx             TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 HASHEDxxx                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-CryptoToken              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(CryptoToken_vals)  BITMASK = 0
+CryptoToken              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(h235_CryptoToken_vals)  BITMASK = 0
 #.END
 

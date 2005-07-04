@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-h235.c                                                            */
-/* ../../tools/asn2eth.py -X -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn */
+/* .\packet-h235.c                                                            */
+/* ../../tools/asn2eth.py -X -e -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn */
 
 /* Input file: packet-h235-template.c */
 
@@ -167,11 +167,11 @@ static int dissect_toBeSigned(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 
+
 static int
 dissect_h235_ChallengeString(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                    8, 128,
-                                    NULL, NULL);
+                                       8, 128, NULL);
 
   return offset;
 }
@@ -184,7 +184,7 @@ static int dissect_challenge(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 int
 dissect_h235_TimeStamp(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           1U, 4294967295U, NULL, NULL, FALSE);
+                                              1U, 4294967295U, NULL, NULL, FALSE);
 
   return offset;
 }
@@ -197,7 +197,7 @@ static int dissect_timeStamp(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 static int
 dissect_h235_RandomVal(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_integer(tvb, offset, pinfo, tree, hf_index,
-                               NULL, NULL);
+                                  NULL, NULL);
 
   return offset;
 }
@@ -245,10 +245,11 @@ static int dissect_secureChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 
+
 static int
 dissect_h235_OBJECT_IDENTIFIER(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index,
-                                         NULL);
+                                            NULL);
 
   return offset;
 }
@@ -269,11 +270,11 @@ static int dissect_keyDerivationOID(tvbuff_t *tvb, int offset, packet_info *pinf
 }
 
 
+
 static int
 dissect_h235_OCTET_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                    -1, -1,
-                                    NULL, NULL);
+                                       -1, -1, NULL);
 
   return offset;
 }
@@ -443,7 +444,7 @@ static int dissect_eckasdh2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
-static const value_string ECKASDH_vals[] = {
+static const value_string h235_ECKASDH_vals[] = {
   {   0, "eckasdhp" },
   {   1, "eckasdh2" },
   { 0, NULL }
@@ -485,12 +486,10 @@ static int dissect_certificate(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 
+
 static int
 dissect_h235_NULL(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  { proto_item *ti_tmp;
-  ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>8, 0, FALSE);
-  proto_item_append_text(ti_tmp, ": NULL");
-  }
+  offset = dissect_per_null(tvb, offset, pinfo, tree, hf_index);
 
   return offset;
 }
@@ -520,7 +519,7 @@ static int dissect_tls(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 }
 
 
-static const value_string AuthenticationBES_vals[] = {
+static const value_string h235_AuthenticationBES_vals[] = {
   {   0, "default" },
   {   1, "radius" },
   { 0, NULL }
@@ -545,7 +544,7 @@ static int dissect_authenticationBES(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 
-const value_string AuthenticationMechanism_vals[] = {
+const value_string h235_AuthenticationMechanism_vals[] = {
   {   0, "dhExch" },
   {   1, "pwdSymEnc" },
   {   2, "pwdHash" },
@@ -583,7 +582,7 @@ dissect_h235_AuthenticationMechanism(tvbuff_t *tvb, int offset, packet_info *pin
 static int
 dissect_h235_INTEGER(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_integer(tvb, offset, pinfo, tree, hf_index,
-                               NULL, NULL);
+                                  NULL, NULL);
 
   return offset;
 }
@@ -592,11 +591,11 @@ static int dissect_ranInt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 }
 
 
+
 static int
 dissect_h235_IV8(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                    8, 8,
-                                    NULL, NULL);
+                                       8, 8, NULL);
 
   return offset;
 }
@@ -605,11 +604,11 @@ static int dissect_iv8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 }
 
 
+
 static int
 dissect_h235_IV16(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                    16, 16,
-                                    NULL, NULL);
+                                       16, 16, NULL);
 
   return offset;
 }
@@ -727,7 +726,7 @@ static int dissect_secureSharedSecret(tvbuff_t *tvb, int offset, packet_info *pi
 }
 
 
-static const value_string H235Key_vals[] = {
+static const value_string h235_H235Key_vals[] = {
   {   0, "secureChannel" },
   {   1, "sharedSecret" },
   {   2, "certProtectedKey" },
@@ -855,7 +854,7 @@ static int dissect_cryptoHashedToken(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 
-const value_string CryptoToken_vals[] = {
+const value_string h235_CryptoToken_vals[] = {
   {   0, "cryptoEncryptedToken" },
   {   1, "cryptoSignedToken" },
   {   2, "cryptoHashedToken" },
@@ -1000,7 +999,7 @@ void proto_register_h235(void) {
         "", HFILL }},
     { &hf_h235_authenticationBES,
       { "authenticationBES", "h235.authenticationBES",
-        FT_UINT32, BASE_DEC, VALS(AuthenticationBES_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h235_AuthenticationBES_vals), 0,
         "AuthenticationMechanism/authenticationBES", HFILL }},
     { &hf_h235_tokenOID,
       { "tokenOID", "h235.tokenOID",
@@ -1036,7 +1035,7 @@ void proto_register_h235(void) {
         "", HFILL }},
     { &hf_h235_eckasdhkey,
       { "eckasdhkey", "h235.eckasdhkey",
-        FT_UINT32, BASE_DEC, VALS(ECKASDH_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h235_ECKASDH_vals), 0,
         "ClearToken/eckasdhkey", HFILL }},
     { &hf_h235_sendersID,
       { "sendersID", "h235.sendersID",
@@ -1044,7 +1043,7 @@ void proto_register_h235(void) {
         "ClearToken/sendersID", HFILL }},
     { &hf_h235_h235Key,
       { "h235Key", "h235.h235Key",
-        FT_UINT32, BASE_DEC, VALS(H235Key_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(h235_H235Key_vals), 0,
         "ClearToken/h235Key", HFILL }},
     { &hf_h235_toBeSigned,
       { "toBeSigned", "h235.toBeSigned",

@@ -274,7 +274,7 @@ DEBUG_ENTRY("dissect_per_sequence_of");
 guint32
 dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
 {
-	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index, min_len, max_len, NULL, NULL);
+	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index, min_len, max_len, NULL);
 
 	return offset;
 }
@@ -1386,7 +1386,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
    hf_index can either be a FT_BYTES or an FT_STRING
 */
 guint32
-dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len, guint32 *value_offset, guint32 *value_len)
+dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len, tvbuff_t **value_tvb)
 {
 	proto_tree *etr = NULL;
 	proto_item *it = NULL;
@@ -1477,8 +1477,8 @@ DEBUG_ENTRY("dissect_per_octet_string");
 			}
 		}
 	}
-	if (value_offset) *value_offset = val_start;
-	if (value_len) *value_len = val_length;
+	if (value_tvb)
+		*value_tvb = tvb_new_subset(tvb, val_start, val_length, val_length);
 	return offset;
 }
 

@@ -726,12 +726,10 @@ static int dissect_nonStandard(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 
+
 static int
 dissect_h450_NULL(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  { proto_item *ti_tmp;
-  ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>8, 0, FALSE);
-  proto_item_append_text(ti_tmp, ": NULL");
-  }
+  offset = dissect_per_null(tvb, offset, pinfo, tree, hf_index);
 
   return offset;
 }
@@ -974,21 +972,21 @@ dissect_h450_H4501SupplementaryService(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 
+
 static int
 dissect_h450_Notassignedlocalopcode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                    -1, -1,
-                                    NULL, NULL);
+                                       -1, -1, NULL);
 
   return offset;
 }
 
 
+
 static int
 dissect_h450_SubaddressInformation(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                    1, 20,
-                                    NULL, NULL);
+                                       1, 20, NULL);
 
   return offset;
 }
@@ -1041,11 +1039,11 @@ static int dissect_userSpecifiedSubaddress(tvbuff_t *tvb, int offset, packet_inf
 }
 
 
+
 static int
 dissect_h450_NSAPSubaddress(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                    1, 20,
-                                    NULL, NULL);
+                                       1, 20, NULL);
 
   return offset;
 }
@@ -1382,10 +1380,11 @@ static int dissect_presentationAllowedIndicator(tvbuff_t *tvb, int offset, packe
 }
 
 
+
 static int
 dissect_h450_OBJECT_IDENTIFIER(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index,
-                                         NULL);
+                                            NULL);
 
   return offset;
 }
@@ -1394,11 +1393,11 @@ static int dissect_extensionId(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 
+
 static int
 dissect_h450_ExtensionArgument(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                    -1, -1,
-                                    NULL, NULL);
+                                       -1, -1, NULL);
 
   return offset;
 }
@@ -1545,11 +1544,11 @@ static int dissect_nominatedInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 
+
 static int
 dissect_h450_H225InformationElement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                    -1, -1,
-                                    NULL, NULL);
+                                       -1, -1, NULL);
 
   return offset;
 }
@@ -2229,7 +2228,7 @@ static int dissect_originalDiversionReason(tvbuff_t *tvb, int offset, packet_inf
 static int
 dissect_h450_INTEGER_1_15(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           1U, 15U, NULL, NULL, FALSE);
+                                              1U, 15U, NULL, NULL, FALSE);
 
   return offset;
 }
@@ -2776,7 +2775,7 @@ dissect_h450_RemoteRetrieveRes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 static int
 dissect_h450_ParkedToPosition(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           0U, 65535U, NULL, NULL, FALSE);
+                                              0U, 65535U, NULL, NULL, FALSE);
 
   return offset;
 }
@@ -3075,7 +3074,7 @@ dissect_h450_CpickupNotifyArg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 static int
 dissect_h450_INTEGER_0_255(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           0U, 255U, NULL, NULL, FALSE);
+                                              0U, 255U, NULL, NULL, FALSE);
 
   return offset;
 }
@@ -3102,7 +3101,7 @@ dissect_h450_CallWaitingArg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
 static int
 dissect_h450_INTEGER_0_65535(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           0U, 65535U, NULL, NULL, FALSE);
+                                              0U, 65535U, NULL, NULL, FALSE);
 
   return offset;
 }
@@ -3154,7 +3153,7 @@ static int dissect_msgCentreId(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 static int
 dissect_h450_NbOfMessages(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           0U, 65535U, NULL, NULL, FALSE);
+                                              0U, 65535U, NULL, NULL, FALSE);
 
   return offset;
 }
@@ -3179,7 +3178,7 @@ static int dissect_timestamp(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 static int
 dissect_h450_INTEGER_0_9(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           0U, 9U, NULL, NULL, FALSE);
+                                              0U, 9U, NULL, NULL, FALSE);
 
   return offset;
 }
@@ -3330,11 +3329,11 @@ dissect_h450_MWIInterrogateRes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 }
 
 
+
 static int
 dissect_h450_SimpleName(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                    1, 50,
-                                    NULL, NULL);
+                                       1, 50, NULL);
 
   return offset;
 }
@@ -3590,7 +3589,7 @@ static const value_string h450_CICapabilityLevel_vals[] = {
 static int
 dissect_h450_CICapabilityLevel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           1U, 3U, NULL, NULL, FALSE);
+                                              1U, 3U, NULL, NULL, FALSE);
 
   return offset;
 }
@@ -3685,7 +3684,7 @@ static const value_string h450_CIProtectionLevel_vals[] = {
 static int
 dissect_h450_CIProtectionLevel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           0U, 3U, NULL, NULL, FALSE);
+                                              0U, 3U, NULL, NULL, FALSE);
 
   return offset;
 }
@@ -3883,7 +3882,7 @@ static int dissect_partyCategory(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 static int
 dissect_h450_SSCIProtectionLevel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           0U, 3U, NULL, NULL, FALSE);
+                                              0U, 3U, NULL, NULL, FALSE);
 
   return offset;
 }
@@ -4045,15 +4044,11 @@ dissect_h4501_GeneralProblem(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 static int
 dissect_h4501_ReturnResult_result(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-   tvbuff_t *result_tvb;
-   guint32 result_offset=0;
-   guint32 result_len=0;
+   tvbuff_t *result_tvb = NULL;
 
-   offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, -1, -1, &result_offset, &result_len);
+   offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, -1, -1, &result_tvb);
 
-   if(result_len){
-      result_tvb = tvb_new_subset(tvb, result_offset, result_len, result_len);
-
+   if(tvb_length(result_tvb)){
       switch (localOpcode) {
       case CallTransferIdentify:
          dissect_h450_CTIdentifyRes(result_tvb, 0, pinfo, tree, hf_h4502_CTIdentifyRes);
@@ -4140,7 +4135,7 @@ static int
 dissect_h4501_parameter(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
    /* TODO - decode return error parameter based on localErrorCode */
-   offset=dissect_per_octet_string(tvb, offset, pinfo, tree, hf_h4501_parameter, -1, -1, NULL, NULL);
+   offset=dissect_per_octet_string(tvb, offset, pinfo, tree, hf_h4501_parameter, -1, -1, NULL);
    return offset;
 }
 static const value_string localErrorCode_vals[] = {
@@ -4347,26 +4342,21 @@ dissect_h4501_ROS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 static int
 dissect_h4501_argument(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-   tvbuff_t *argument_tvb;
-   guint32 argument_offset=0;
-   guint32 argument_len=0;
+   tvbuff_t *argument_tvb = NULL;
 
   if ( is_globalcode ){
 	  /* TODO call oid dissector
 	   * call_ber_oid_callback isn't realy apropriate ?
 	   */
-	  offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_h4501_globalargument, -1, -1, NULL, NULL);
+	  offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_h4501_globalargument, -1, -1, NULL);
 	  is_globalcode = FALSE;
 	  return offset;
 
   }
 
-   offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, -1, -1, &argument_offset, &argument_len);
+   offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, -1, -1, &argument_tvb);
 
-   if(argument_len){
-      argument_tvb = tvb_new_subset(tvb, argument_offset, argument_len, argument_len);
-
-
+   if(tvb_length(argument_tvb)){
       switch (localOpcode) {
 		  /* h450.2 */
 		  case CallTransferIdentify:  /* Localvalue 7 */

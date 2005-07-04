@@ -371,15 +371,11 @@ dissect_h4501_GeneralProblem(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 static int
 dissect_h4501_ReturnResult_result(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-   tvbuff_t *result_tvb;
-   guint32 result_offset=0;
-   guint32 result_len=0;
+   tvbuff_t *result_tvb = NULL;
 
-   offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, -1, -1, &result_offset, &result_len);
+   offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, -1, -1, &result_tvb);
 
-   if(result_len){
-      result_tvb = tvb_new_subset(tvb, result_offset, result_len, result_len);
-
+   if(tvb_length(result_tvb)){
       switch (localOpcode) {
       case CallTransferIdentify:
          dissect_h450_CTIdentifyRes(result_tvb, 0, pinfo, tree, hf_h4502_CTIdentifyRes);
@@ -466,7 +462,7 @@ static int
 dissect_h4501_parameter(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
    /* TODO - decode return error parameter based on localErrorCode */
-   offset=dissect_per_octet_string(tvb, offset, pinfo, tree, hf_h4501_parameter, -1, -1, NULL, NULL);
+   offset=dissect_per_octet_string(tvb, offset, pinfo, tree, hf_h4501_parameter, -1, -1, NULL);
    return offset;
 }
 static const value_string localErrorCode_vals[] = {
@@ -673,26 +669,21 @@ dissect_h4501_ROS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 static int
 dissect_h4501_argument(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-   tvbuff_t *argument_tvb;
-   guint32 argument_offset=0;
-   guint32 argument_len=0;
+   tvbuff_t *argument_tvb = NULL;
 
   if ( is_globalcode ){
 	  /* TODO call oid dissector
 	   * call_ber_oid_callback isn't realy apropriate ?
 	   */
-	  offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_h4501_globalargument, -1, -1, NULL, NULL);
+	  offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_h4501_globalargument, -1, -1, NULL);
 	  is_globalcode = FALSE;
 	  return offset;
 
   }
 
-   offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, -1, -1, &argument_offset, &argument_len);
+   offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, -1, -1, &argument_tvb);
 
-   if(argument_len){
-      argument_tvb = tvb_new_subset(tvb, argument_offset, argument_len, argument_len);
-
-
+   if(tvb_length(argument_tvb)){
       switch (localOpcode) {
 		  /* h450.2 */
 		  case CallTransferIdentify:  /* Localvalue 7 */

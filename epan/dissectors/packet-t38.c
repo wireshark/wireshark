@@ -529,21 +529,22 @@ dissect_t38_Data_Field_field_type(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_t38_Data_Field_field_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	guint32 value_offset = 0;
-	guint32 value_len = 0;
+	tvbuff_t *value_tvb = NULL;
+	guint32 value_len;
 
 	offset=dissect_per_octet_string(tvb, offset, pinfo,
         tree, hf_t38_Data_Field_field_data, 1, 65535,
-        &value_offset, &value_len);
+        &value_tvb);
+	value_len = tvb_length(value_tvb);
 
 	if (check_col(pinfo->cinfo, COL_INFO) && primary_part){
         if(value_len < 8){
         	col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]",
-               tvb_bytes_to_str(tvb,value_offset,value_len));
+               tvb_bytes_to_str(value_tvb,0,value_len));
         }
         else {
         	col_append_fstr(pinfo->cinfo, COL_INFO, "[%s...]",
-               tvb_bytes_to_str(tvb,value_offset,7));
+               tvb_bytes_to_str(value_tvb,0,7));
         }
 	}
 	return offset;
@@ -658,7 +659,7 @@ dissect_t38_fec_data_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 {
     offset=dissect_per_octet_string(tvb, offset, pinfo,
         tree, hf_t38_fec_data_item, -1, -1,
-        NULL, NULL);
+        NULL);
 	return offset;
 }
 

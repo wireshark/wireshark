@@ -98,7 +98,7 @@ extern guint32 dissect_per_choice(tvbuff_t *tvb, guint32 offset, packet_info *pi
 
 extern guint32 dissect_per_sequence(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *sequence);
 
-extern guint32 dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len, guint32 *value_offset, guint32 *value_len);
+extern guint32 dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len, tvbuff_t **value_tvb);
 
 extern guint32 dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len);
 

@@ -2741,29 +2741,27 @@ class OctetStringType (Type):
   def GetTTag(self, ectx):
     return ('BER_CLASS_UNI', 'BER_UNI_TAG_OCTETSTRING')
 
-  def eth_type_fn(self, proto, tname, ectx):
-    out = ectx.eth_type_fn_hdr(tname)
-    (minv, maxv, ext) = self.eth_get_size_constr()
-    if (ectx.OBer()):
-      body = ectx.eth_fn_call('dissect_ber_octet_string', ret='offset',
-                              par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset', 'hf_index'),
-                                   ('NULL',)))
+  def eth_type_default_pars(self, ectx):
+    pars = Type.eth_type_default_pars(self, ectx)
+    (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_size_constr()
+    return pars
+
+  def eth_type_default_body(self, ectx, tname):
+    if (ectx.Ber()):
+      body = ectx.eth_fn_call('dissect_%(ER)s_octet_string', ret='offset',
+                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
+                                   ('%(VAL_PTR)s',),))
     elif (ectx.NPer()):
-      body = ectx.eth_fn_call('dissect_pern_octet_string', ret='offset',
-                              par=(('tvb', 'offset', 'pinfo', 'tree'),
-                                   ('hf_index', 'item', 'private_data'),
-                                   (minv, maxv, ext),
-                                   ('NULL', 'NULL')))
+      body = ectx.eth_fn_call('dissect_%(ER)s_octet_string', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s', 'item', 'private_data'),
+                                   ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s', '%(VAL_PTR)s',),))
     elif (ectx.OPer()):
-      body = ectx.eth_fn_call('dissect_per_octet_string', ret='offset',
-                              par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
-                                   (minv, maxv),
-                                   ('NULL', 'NULL')))
+      body = ectx.eth_fn_call('dissect_%(ER)s_octet_string', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s'),
+                                   ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(VAL_PTR)s',),))
     else:
       body = '#error Can not decode %s' % (tname)
-    out += ectx.eth_type_fn_body(tname, body)
-    out += ectx.eth_type_fn_ftr(tname)
-    return out
+    return body
 
 #--- CharacterStringType ------------------------------------------------------
 class CharacterStringType (Type):
