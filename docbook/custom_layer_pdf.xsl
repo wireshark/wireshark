@@ -28,6 +28,7 @@
 <xsl:param name="ulink.show" select="0"/>
 
 <!-- hyphenate URL's after the slash -->
+<!-- (http://docbook.sourceforge.net/release/xsl/current/doc/fo/ulink.hyphenate.html) -->
 <xsl:param name="ulink.hyphenate" select="'&#x200b;'"></xsl:param>
 
 <!-- don't allow section titles to be hyphenated -->
