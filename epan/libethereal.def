@@ -420,6 +420,9 @@ proto_tree_add_ether_hidden
 proto_tree_add_float
 proto_tree_add_float_format
 proto_tree_add_float_hidden
+proto_tree_add_guid
+proto_tree_add_guid_format
+proto_tree_add_guid_hidden
 proto_tree_add_int
 proto_tree_add_int_format
 proto_tree_add_int_hidden
