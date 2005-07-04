@@ -2949,12 +2949,18 @@ dissect_reply_body (tvbuff_t *tvb, guint offset, packet_info *pinfo,
 	exres = try_explicit_giop_dissector(tvb,pinfo,clnp_tree, &offset, header, entry->operation, entry->repoid );
       }
 
-      /* Only call heuristic if no explicit dixxector was found */
+      /* Only call heuristic if no explicit dissector was found */
 
       if(! exres) {
-	try_heuristic_giop_dissector(tvb,pinfo,clnp_tree,&offset,header,entry->operation);
+	exres = try_heuristic_giop_dissector(tvb,pinfo,clnp_tree,&offset,header,entry->operation);
       }
 
+      if(! exres) {
+        gint stub_length = tvb_reported_length_remaining(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, -1,
+                                 "Stub data (%d byte%s)", stub_length,
+                                 plurality(stub_length, "", "s"));
+      }
 
       break;
 
@@ -3410,6 +3416,12 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
     try_heuristic_giop_dissector(tvb,pinfo,tree,&offset,header,operation);
   }
 
+  if(! exres) {
+    gint stub_length = tvb_reported_length_remaining(tvb, offset);
+    proto_tree_add_text(request_tree, tvb, offset, -1,
+			"Stub data (%d byte%s)", stub_length,
+			plurality(stub_length, "", "s"));
+  }
 
   /*
    * We're done with operation, so we can call the cleanup handler to free
@@ -3562,6 +3574,12 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
     try_heuristic_giop_dissector(tvb,pinfo,tree,&offset,header,operation);
   }
 
+  if(! exres) {
+    gint stub_length = tvb_reported_length_remaining(tvb, offset);
+    proto_tree_add_text(request_tree, tvb, offset, -1,
+			"Stub data (%d byte%s)", stub_length,
+			plurality(stub_length, "", "s"));
+  }
 
   /*
    * We're done with operation, so we can call the cleanup handler to free
