@@ -443,7 +443,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 					/* if this is an ACF, ARJ or DCF, DRJ, give guid to tap and make it filterable */
 					if (msg_category == 3 || msg_category == 5) {
 						memcpy(pi->guid, h225ras_call->guid,16);
-						proto_tree_add_bytes_hidden(tree, hf_h225_guid, tvb, 0, 16, pi->guid);
+						proto_tree_add_guid_hidden(tree, hf_h225_guid, tvb, 0, 16, pi->guid);
 					}
 
 					if (h225ras_call->rsp_num == 0) {
