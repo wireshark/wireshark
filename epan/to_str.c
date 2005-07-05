@@ -945,7 +945,7 @@ gchar* guid_to_str(const guint8 *guid) {
 }
 
 gchar* guid_to_str_buf(const guint8 *guid, gchar *buf) {
-  sprintf(buf, "%02X%02X%02X%02X-%02X%02X-%02X%02X-%02X%02X-%02X%02X%02X%02X%02X%02X",
+  sprintf(buf, "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
           guid[0], guid[1], guid[2], guid[3],
           guid[4], guid[5],
           guid[6], guid[7],
