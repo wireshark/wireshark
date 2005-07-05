@@ -135,6 +135,7 @@ proto_reg_handoff_xml(void)
 	dissector_add_string("media_type", "application/xslt+xml", xml_handle);
 	dissector_add_string("media_type", "application/mathml+xml", xml_handle);
 	dissector_add_string("media_type", "image/svg+xml", xml_handle);
+	dissector_add_string("media_type", "application/vnd.wv.csp.xml", xml_handle);
 
 	xml_lexer_init(proto_xml,ett_xml);
 }
