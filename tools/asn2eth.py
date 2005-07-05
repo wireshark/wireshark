@@ -1035,7 +1035,7 @@ class EthCtx:
         elif self.eth_type[t]['user_def'] & 0x02:
           fx.write("extern const value_string %s[];\n" % (self.eth_vals_nm(t)))
         else:
-          fx.write(self.eth_type[t]['val'].eth_type_vals(self.eth_type[t]['proto'], t, self))
+          fx.write(self.eth_type[t]['val'].eth_type_vals(t, self))
       if self.eth_type[t]['no_emit'] & 0x01:
         pass
       elif self.eth_type[t]['user_def'] & 0x01:
@@ -1750,9 +1750,9 @@ class Type (Node):
         ext = 'FALSE'
     return (minv, maxv, ext)
 
-  def eth_type_vals(self, proto, tname, ectx):
+  def eth_type_vals(self, tname, ectx):
     if self.eth_has_vals():
-      print "#Unhandled  eth_type_vals('%s', '%s') in %s" % (proto, tname, self.type)
+      print "#Unhandled  eth_type_vals('%s') in %s" % (tname, self.type)
       print self.str_depth(1)
     return ''
 
@@ -2416,7 +2416,7 @@ class ChoiceType (Type):
       #print "Choice IndetermTag()=%s" % (str(not self.HasOwnTag()))
       return not self.HasOwnTag()
 
-    def eth_type_vals(self, proto, tname, ectx):
+    def eth_type_vals(self, tname, ectx):
       out = '\n'
       tagval = False
       if (ectx.Ber()):
@@ -2554,7 +2554,7 @@ class EnumeratedType (Type):
   def GetTTag(self, ectx):
     return ('BER_CLASS_UNI', 'BER_UNI_TAG_ENUMERATED')
 
-  def get_vals_maxv(self, proto, tname, ectx):
+  def get_vals_maxv(self, ectx):
     vals = []
     lastv = 0
     used = {}
@@ -2589,41 +2589,41 @@ class EnumeratedType (Type):
           maxv = val
     return (vals, maxv)
 
-  def eth_type_vals(self, proto, tname, ectx):
+  def eth_type_vals(self, tname, ectx):
     out = '\n'
-    (vals, xxxx) = self.get_vals_maxv(proto, tname, ectx)
+    (vals, xxxx) = self.get_vals_maxv(ectx)
     out += ectx.eth_vals(tname, vals)
     return out
 
-  def eth_type_fn(self, proto, tname, ectx):
-    fname = ectx.eth_type[tname]['ref'][0]
-    (xxxx, maxv) = self.get_vals_maxv(proto, tname, ectx)
+  def eth_type_default_pars(self, ectx):
+    pars = Type.eth_type_default_pars(self, ectx)
+    (xxxx, maxv) = self.get_vals_maxv(ectx)
     maxv = str(maxv)
-    minv = '0'
-    out = '\n'
     if self.ext is None:
       ext = 'FALSE'
     else:
       ext = 'TRUE'
-    out += ectx.eth_type_fn_hdr(tname)
+    pars['MIN_VAL'] = '0'
+    pars['MAX_VAL'] = maxv
+    pars['EXT'] = ext
+    return pars
+
+  def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_ber_integer', ret='offset',
-                              par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset', 'hf_index', 'NULL'),))
+      body = ectx.eth_fn_call('dissect_%(ER)s_integer', ret='offset',
+                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
+                                   ('%(VAL_PTR)s',),))
     elif (ectx.NPer()):
-      body = "  offset = dissect_pern_constrained_integer(tvb, offset, pinfo, tree,\n"
-      body += "                                               %s, %s, %s,\n" \
-             % (0, maxv, ext)
-      body += "                                               NULL);\n"
+      body = ectx.eth_fn_call('dissect_%(ER)s_constrained_integer', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s', 'item', 'private_data'),
+                                   ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s', '%(VAL_PTR)s',),))
     elif (ectx.OPer()):
-      body = ectx.eth_fn_call('dissect_per_constrained_integer', ret='offset',
-                              par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
-                                   (minv, maxv, 'NULL', 'NULL', ext)))
+      body = ectx.eth_fn_call('dissect_%(ER)s_constrained_integer', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s'),
+                                   ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(VAL_PTR)s', '%(CREATED_ITEM_PTR)s', '%(EXT)s'),))
     else:
       body = '#error Can not decode %s' % (tname)
-
-    out += ectx.eth_type_fn_body(tname, body)
-    out += ectx.eth_type_fn_ftr(tname)
-    return out
+    return body
 
 #--- AnyType -----------------------------------------------------------
 class AnyType (Type):
@@ -3035,7 +3035,7 @@ class IntegerType (Type):
     else:
       return False
 
-  def eth_type_vals(self, proto, tname, ectx):
+  def eth_type_vals(self, tname, ectx):
     if not self.eth_has_vals(): return ''
     out = '\n'
     vals = []
