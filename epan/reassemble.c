@@ -1177,8 +1177,9 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 	fd_head->len = size;		/* record size for caller	*/
 
 	/* add all data fragments */
+	dfpos = 0;
 	last_fd=NULL;
-	for (dfpos=0,fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {
+	for (fd_i=fd_head->next;fd_i && fd_i->len + dfpos <= size;fd_i=fd_i->next) {
 	  if (fd_i->len) {
 	    if(!last_fd || last_fd->offset!=fd_i->offset){
 	      memcpy(fd_head->data+dfpos,fd_i->data,fd_i->len);
@@ -1193,8 +1194,8 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 			fd_head->flags |= FD_OVERLAPCONFLICT;
 	      }
 	    }
-	    last_fd=fd_i;
 	  }
+	  last_fd=fd_i;
 	}
 
 	/* we have defragmented the pdu, now free all fragments*/
