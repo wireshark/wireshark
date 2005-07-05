@@ -160,6 +160,7 @@ typedef struct _voip_calls_tapinfo {
 	int completed_calls;
 	int rejected_calls;
 	graph_analysis_info_t* graph_analysis;
+	gboolean redraw;
 	/* 
 	 * Now add dummy variables, one for each tap listener.
 	 * Their address will be used to distinguish between them.
@@ -249,7 +250,7 @@ void remove_tap_listener_actrace_calls(void);
 * Retrieves a constant reference to the unique info structure of the voip_calls tap listener.
 * The user should not modify the data pointed to.
 */
-const voip_calls_tapinfo_t* voip_calls_get_info(void);
+voip_calls_tapinfo_t* voip_calls_get_info(void);
 
 /*
 * Cleans up memory of voip calls tap.

@@ -89,9 +89,11 @@ static GList *last_list = NULL;
 static guint32 calls_nb = 0;     /* number of displayed calls */
 static guint32 calls_ns = 0;     /* number of selected calls */
 
-static graph_analysis_data_t *graph_analysis_data;
+static graph_analysis_data_t *graph_analysis_data = NULL;
 
 #define NUM_COLS 9
+static const GdkColor COLOR_SELECT = {0, 0x00ff, 0x80ff, 0x80ff};
+static const GdkColor COLOR_DEFAULT = {0, 0xffff, 0xffff, 0xffff};
 
 /****************************************************************************/
 /* append a line to clist */
@@ -105,10 +107,12 @@ static void add_to_clist(voip_calls_info_t* strinfo)
 	isup_calls_info_t *tmp_isupinfo;
 	h323_calls_info_t *tmp_h323info;
 	gboolean tmp_bool = FALSE;
+	GdkColor color = COLOR_SELECT;
 	for (c=0;c<NUM_COLS;c++){
 		data[c]=&field[c][0];
 	}
 
+/*	strinfo->selected = FALSE;*/
 
 	g_snprintf(field[0], 15, "%i.%2i", strinfo->start_sec, strinfo->start_usec/10000);
 	g_snprintf(field[1], 15, "%i.%2i", strinfo->stop_sec, strinfo->stop_usec/10000);
@@ -143,6 +147,12 @@ static void add_to_clist(voip_calls_info_t* strinfo)
 
 	
 	added_row = gtk_clist_append(GTK_CLIST(clist), data);
+
+	/* set the background color if selected */
+	if (strinfo->selected) { 
+		calls_ns++;
+		gtk_clist_set_background(GTK_CLIST(clist), added_row, &color);
+	}
 
 	/* set data pointer of last row to point to user data for that row */
 	gtk_clist_set_row_data(GTK_CLIST(clist), added_row, strinfo);
@@ -197,10 +207,12 @@ voip_calls_on_destroy                      (GtkObject       *object _U_,
 	voip_calls_remove_tap_listener();
 
 	/* Clean up memory used by calls tap */
-	voip_calls_reset((voip_calls_tapinfo_t*) voip_calls_get_info());
+	voip_calls_dlg_reset(NULL);
 
 	/* Note that we no longer have a "VoIP Calls" dialog box. */
 	voip_calls_dlg = NULL;
+
+	graph_analysis_data = NULL;
 }
 
 
@@ -379,9 +391,6 @@ on_graph_bt_clicked                    (GtkButton       *button _U_,
 		graph_analysis_update(graph_analysis_data);		/* refresh it */
 }
 
-static const GdkColor COLOR_SELECT = {0, 0x00ff, 0x80ff, 0x80ff};
-static const GdkColor COLOR_DEFAULT = {0, 0xffff, 0xffff, 0xffff};
-
 /****************************************************************************/
 /* when the user selects a row in the calls list */
 static void
@@ -395,6 +404,9 @@ voip_calls_on_select_row(GtkCList *clist,
 	gchar label_text[80];
 	
 	selected_call_fwd = gtk_clist_get_row_data(GTK_CLIST(clist), row);
+
+	if (selected_call_fwd==NULL)
+		return;
 
 	if (!selected_call_fwd->selected)
 		calls_ns++;
@@ -424,10 +436,14 @@ voip_calls_on_select_row(GtkCList *clist,
 		color = COLOR_DEFAULT;
 
 	gtk_clist_set_background(GTK_CLIST(clist), row, &color);
-	
-	/*gtk_widget_set_sensitive(bt_unselect, TRUE);*/
-	gtk_widget_set_sensitive(bt_filter, TRUE);
-	gtk_widget_set_sensitive(bt_graph, TRUE);
+
+	if 	(calls_ns > 0) {
+		gtk_widget_set_sensitive(bt_filter, TRUE);
+		gtk_widget_set_sensitive(bt_graph, TRUE);
+	} else {
+		gtk_widget_set_sensitive(bt_filter, FALSE);
+		gtk_widget_set_sensitive(bt_graph, FALSE);
+	}
 
 	/* TODO: activate other buttons when implemented */
 }
@@ -665,26 +681,27 @@ static void voip_calls_dlg_create (void)
 void voip_calls_dlg_update(GList *list)
 {
 	gchar label_text[256];
-guint foo;
 	if (voip_calls_dlg != NULL) {
-		gtk_clist_clear(GTK_CLIST(clist));
 		calls_nb = 0;
 		calls_ns = 0;
-        	g_snprintf(label_text, 256,
-        		"Total: Calls: %d   Start packets: %d   Completed calls: %d   Rejected calls: %d",
-			g_list_length(voip_calls_get_info()->strinfo_list),
-		        voip_calls_get_info()->start_packets, 
-			voip_calls_get_info()->completed_calls,
-			voip_calls_get_info()->rejected_calls);
-        	gtk_label_set(GTK_LABEL(status_label), label_text);
 
-		foo=	g_list_length(list);
+       	g_snprintf(label_text, 256,
+       		"Total: Calls: %d   Start packets: %d   Completed calls: %d   Rejected calls: %d",
+		g_list_length(voip_calls_get_info()->strinfo_list),
+        voip_calls_get_info()->start_packets, 
+		voip_calls_get_info()->completed_calls,
+		voip_calls_get_info()->rejected_calls);
+       	gtk_label_set(GTK_LABEL(status_label), label_text);
+
+		gtk_clist_freeze(GTK_CLIST(clist));
+		gtk_clist_clear(GTK_CLIST(clist));
 		list = g_list_first(list);
 		while (list)
 		{
 			add_to_clist((voip_calls_info_t*)(list->data));
 			list = g_list_next(list);
 		}
+		gtk_clist_thaw(GTK_CLIST(clist));
 
 		g_snprintf(label_text, 256,
 	        	"Detected %d VoIP %s. Selected %d %s.",
@@ -693,8 +710,6 @@ guint foo;
 			calls_ns,
 			plurality(calls_ns, "Call", "Calls"));
 		gtk_label_set(GTK_LABEL(top_label), label_text);
-
-		voip_calls_on_unselect(NULL, NULL);
 	}
 
 	last_list = list;
@@ -705,7 +720,10 @@ guint foo;
 /* draw function for tap listeners to keep the window up to date */
 void voip_calls_dlg_draw(void *ptr _U_)
 {
-	voip_calls_dlg_update(voip_calls_get_info()->strinfo_list);
+	if (voip_calls_get_info()->redraw) {
+		voip_calls_dlg_update(voip_calls_get_info()->strinfo_list);
+		voip_calls_get_info()->redraw = FALSE;
+	}
 }
 
 /* reset function for tap listeners to clear window, if necessary */
@@ -713,13 +731,28 @@ void voip_calls_dlg_reset(void *ptr _U_)
 {
 	/* Clean up memory used by calls tap */
 	voip_calls_reset((voip_calls_tapinfo_t*) voip_calls_get_info());
+
+	/* close the graph window if open */
+	if (graph_analysis_data->dlg.window != NULL) {
+		window_cancel_button_cb(NULL, graph_analysis_data->dlg.window);
+		graph_analysis_data->dlg.window = NULL;
+	}
 }
 
 /* init function for tap */
 static void
 voip_calls_init_tap(char *dummy _U_)
 {
-	graph_analysis_data_init();
+	gint c;
+	gchar *data[NUM_COLS];
+	gchar field[NUM_COLS][50];
+
+	if (graph_analysis_data == NULL) {
+		graph_analysis_data_init();
+		/* init the Graph Analysys */
+		graph_analysis_data = graph_analysis_init();
+		graph_analysis_data->graph_info = voip_calls_get_info()->graph_analysis;
+	}
 
 	/* Clean up memory used by calls tap */
 	voip_calls_reset((voip_calls_tapinfo_t*) voip_calls_get_info());
@@ -739,10 +772,6 @@ voip_calls_init_tap(char *dummy _U_)
 		mgcp_calls_init_tap();
 	}
 	actrace_calls_init_tap();
-	
-	/* init the Graph Analysys */
-	graph_analysis_data = graph_analysis_init();
-	graph_analysis_data->graph_info = voip_calls_get_info()->graph_analysis;
 
 	/* create dialog box if necessary */
 	if (voip_calls_dlg == NULL) {
@@ -751,10 +780,20 @@ voip_calls_init_tap(char *dummy _U_)
 		/* There's already a dialog box; reactivate it. */
 		reactivate_window(voip_calls_dlg);
 	}
+
+	voip_calls_get_info()->redraw = TRUE;
+	voip_calls_dlg_draw(NULL);
+	voip_calls_get_info()->redraw = TRUE;
+	for (c=0;c<NUM_COLS;c++){
+		data[c]=&field[c][0];
+		field[c][0] = NULL;
+	}
+	g_snprintf(field[3], 50, "Please wait...");
+	gtk_clist_append(GTK_CLIST(clist), data);
 	
 	/* Scan for VoIP calls calls (redissect all packets) */
 	cf_retap_packets(&cfile);
-	
+
 	/* Tap listener will be removed and cleaned up in voip_calls_on_destroy */
 }
 

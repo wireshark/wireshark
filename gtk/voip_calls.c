@@ -197,8 +197,6 @@ int add_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, const gc
 	gai = g_malloc(sizeof(graph_analysis_item_t));
 	gai->frame_num = pinfo->fd->num;
 	gai->time= (double)pinfo->fd->rel_secs + (double) pinfo->fd->rel_usecs/1000000;
-/*	COPY_ADDRESS(&(gai->src_addr),&(pinfo->src));
-	COPY_ADDRESS(&(gai->dst_addr),&(pinfo->dst));*/
 	COPY_ADDRESS(&(gai->src_addr),src_addr);
 	COPY_ADDRESS(&(gai->dst_addr),dst_addr);
 
@@ -494,6 +492,9 @@ RTP_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 		strinfo->stop_rel_sec = pinfo->fd->rel_secs;
 		strinfo->stop_rel_usec = pinfo->fd->rel_usecs;
 	}
+
+	the_tapinfo_struct.redraw = TRUE;
+
 	return 1;
 }
 
@@ -750,12 +751,15 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 				sdp_summary = NULL;
 		}
 	}
+
+	tapinfo->redraw = TRUE;
+
 	return 1;  /* refresh output */
 }
 
 
 /****************************************************************************/
-const voip_calls_tapinfo_t* voip_calls_get_info(void)
+voip_calls_tapinfo_t* voip_calls_get_info(void)
 {
 	return &the_tapinfo_struct;
 }
@@ -991,10 +995,9 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		g_free(frame_label);
 	}
 
+	tapinfo->redraw = TRUE;
 
-
-	
-	return 1;
+	return 1;  /* refresh output */
 }
 
 /****************************************************************************/
@@ -1273,6 +1276,9 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 					if (!append_to_frame_graph(tapinfo, q931_frame_num, "", comment)) {
 						/* if not exist, add to the graph */
 						add_to_graph(tapinfo, pinfo, "", comment, tmp_listinfo->call_num, &(pinfo->src), &(pinfo->dst));
+						++(tmp_listinfo->npackets);
+						/* increment the packets counter of all calls */
+						++(tapinfo->npackets);
 					}
 					
 					/* Add the H245 info if exists to the Graph */
@@ -1380,7 +1386,9 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		g_free((char *)pstn_add.data);
 	}
 
-	return 0;
+	tapinfo->redraw = TRUE;
+
+	return 1;  /* refresh output */
 }
 
 /****************************************************************************/
@@ -1652,6 +1660,8 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	
 	} 
 	
+	tapinfo->redraw = TRUE;
+
 	return 1;  /* refresh output */
 }
 
@@ -1804,6 +1814,9 @@ H245dgcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 
 	/* Tunnel is OFF, and we matched the h245 add so we add it to graph */
 	if (strinfo!=NULL){
+		++(strinfo->npackets);
+		/* increment the packets counter of all calls */
+		++(tapinfo->npackets);
 		frame_label = g_strdup(pi->frame_label);
 		comment = g_strdup(pi->comment);
 		/* if the frame number exists in graph, append to it*/
@@ -1820,6 +1833,8 @@ H245dgcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 	
 		h245_add_label(pinfo->fd->num, (gchar *) pi->frame_label, (gchar *) pi->comment);
 	}
+
+	tapinfo->redraw = TRUE;
 
 	return 1;  /* refresh output */
 }
@@ -1889,6 +1904,8 @@ SDPcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 	/* Append to graph the SDP summary if the packet exists */
 	sdp_summary = g_strdup_printf("SDP (%s)", pi->summary_str);
 	append_to_frame_graph(tapinfo, pinfo->fd->num, sdp_summary, NULL);
+
+	tapinfo->redraw = TRUE;
 
 	return 1;  /* refresh output */
 }
@@ -2257,6 +2274,8 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 			sdp_summary = NULL;
 	}
 
+	tapinfo->redraw = TRUE;
+
 	return 1;  /* refresh output */
 }
 
@@ -2391,6 +2410,9 @@ ACTRACEcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, 
 		g_free(comment);
 		g_free((char *)pstn_add.data);
 	}
+
+	tapinfo->redraw = TRUE;
+
 	return 1;  /* refresh output */
 }
 
@@ -2458,6 +2480,8 @@ prot_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		++(strinfo->npackets);
 		++(tapinfo->npackets);
 	}
+
+	tapinfo->redraw = TRUE;
 
 	return 1;
 }

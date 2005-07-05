@@ -89,6 +89,7 @@ typedef struct _dialog_data_t {
     GdkPixmap *pixmap_time;
     GdkPixmap *pixmap;
     GdkPixmap *pixmap_comments;
+	GtkWidget *scroll_window;
 	GtkWidget *v_scrollbar;
 	GtkAdjustment *v_scrollbar_adjustment;
 	GtkWidget *hpane;
