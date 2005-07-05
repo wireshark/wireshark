@@ -989,16 +989,24 @@ class EthCtx:
     #end out_field()
     def out_pdu(f):
       t = self.eth_hf[f]['ethtype']
+      is_new = self.eth_hf[f]['pdu']['new']
       if self.field[self.eth_hf[f]['ref'][0]]['impl']:
         impl = 'TRUE'
       else:
         impl = 'FALSE'
-      out = 'static void dissect_'+f+'(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {\n'
+      out = 'static '
+      if (is_new):
+        out += 'int'
+      else:
+        out += 'void'
+      out += ' dissect_'+f+'(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {\n'
       if (self.Ber()):
         par=((impl, 'tvb', '0', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
       else:
         par=(('tvb', '0', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
-      out += self.eth_fn_call('dissect_%s_%s' % (self.eth_type[t]['proto'], t), par=par)
+      ret = None
+      if (is_new): ret = 'return'
+      out += self.eth_fn_call('dissect_%s_%s' % (self.eth_type[t]['proto'], t), ret=ret, par=par)
       out += '}\n'
       return out
     #end out_pdu()
@@ -1078,10 +1086,11 @@ class EthCtx:
     for f in self.eth_hfpdu_ord:
       pdu = self.eth_hf[f]['pdu']
       if (pdu and pdu['reg']):
+        new_prefix = ''
+        if (pdu['new']): new_prefix = 'new_'
         dis = self.proto
-        if (pdu['reg'] != '.'):
-          dis += '.' + pdu['reg']
-        fx.write('  register_dissector("%s", dissect_%s, proto_%s);\n' % (dis, f, self.eproto))
+        if (pdu['reg'] != '.'): dis += '.' + pdu['reg']
+        fx.write('  %sregister_dissector("%s", dissect_%s, proto_%s);\n' % (new_prefix, dis, f, self.eproto))
         if (not pdu['hidden']):
           fx.write('  %s_handle = find_dissector("%s");\n' % (asn2c(dis), dis))
         fempty = False
@@ -1097,6 +1106,8 @@ class EthCtx:
       if not self.field.has_key(reg['pdu']): continue
       f = self.field[reg['pdu']]['ethname']
       pdu = self.eth_hf[f]['pdu'] 
+      new_prefix = ''
+      if (pdu['new']): new_prefix = 'new_'
       if (reg['rtype'] in ('NUM', 'STR')):
         rstr = ''
         if (reg['rtype'] == 'STR'): rstr = '_string'
@@ -1108,10 +1119,10 @@ class EthCtx:
           else:
             hnd = 'find_dissector("%s")' % (dis)
         else:
-          hnd = 'create_dissector_handle(dissect_%s, proto_%s)' % (f, self.eproto)
-        fx.write(' dissector_add%s("%s", %s, %s);\n' % (rstr, reg['rtable'], reg['rport'], hnd))
+          hnd = '%screate_dissector_handle(dissect_%s, proto_%s)' % (new_prefix, f, self.eproto)
+        fx.write('  dissector_add%s("%s", %s, %s);\n' % (rstr, reg['rtable'], reg['rport'], hnd))
       elif (reg['rtype'] in ('BER', 'PER')):
-        fx.write(' register_%s_oid_dissector(%s, dissect_%s, proto_%s, %s);\n' % (reg['rtype'].lower(), reg['roid'], f, self.eproto, reg['roidname']))
+        fx.write('  %sregister_%s_oid_dissector(%s, dissect_%s, proto_%s, %s);\n' % (new_prefix, reg['rtype'].lower(), reg['roid'], f, self.eproto, reg['roidname']))
       fempty = False
     fx.write('\n')
     self.output.file_close(fx, discard=fempty)
@@ -1218,17 +1229,17 @@ class EthCnf:
       return '';
     return self.fn[name][ctx]['text']
 
-  def add_pdu(self, par, fn, lineno):
+  def add_pdu(self, par, is_new, fn, lineno):
     #print "add_pdu(par=%s, %s, %d)" % (str(par), fn, lineno)
     (reg, hidden) = (None, False)
     if (len(par) > 1): reg = par[1]
     if (reg and reg[0]=='@'): (reg, hidden) = (reg[1:], True)
-    attr = {'reg' : reg, 'hidden' : hidden}
+    attr = {'new' : is_new, 'reg' : reg, 'hidden' : hidden}
     self.add_item('PDU', par[0], attr=attr, fn=fn, lineno=lineno)
     return
 
   def add_register(self, pdu, par, fn, lineno):
-    #print "add_pdu(pdu=%s, par=%s, %s, %d)" % (pdu, str(par), fn, lineno)
+    #print "add_register(pdu=%s, par=%s, %s, %d)" % (pdu, str(par), fn, lineno)
     if (par[0] in ('N', 'NUM')):   rtype = 'NUM'; (pmin, pmax) = (2, 2)
     elif (par[0] in ('S', 'STR')): rtype = 'STR'; (pmin, pmax) = (2, 2)
     elif (par[0] in ('B', 'BER')): rtype = 'BER'; (pmin, pmax) = (1, 2)
@@ -1328,7 +1339,8 @@ class EthCnf:
       if comment.search(line): continue
       result = directive.search(line)
       if result:  # directive
-        if result.group('name') in ('EXPORTS', 'PDU', 'REGISTER', 'USER_DEFINED', 'NO_EMIT', 'MODULE_IMPORT', 'OMIT_ASSIGNMENT', 
+        if result.group('name') in ('EXPORTS', 'PDU', 'PDU_NEW', 'REGISTER', 'REGISTER_NEW', 
+                                    'USER_DEFINED', 'NO_EMIT', 'MODULE_IMPORT', 'OMIT_ASSIGNMENT', 
                                     'TYPE_RENAME', 'FIELD_RENAME', 'IMPORT_TAG',
                                     'TYPE_ATTR', 'ETYPE_ATTR', 'FIELD_ATTR', 'EFIELD_ATTR'):
           ctx = result.group('name')
@@ -1383,19 +1395,23 @@ class EthCnf:
           elif (par[i] == 'NO_PROT_PREFIX'): flag |= 0x10
           else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[i]), UserWarning, fn, lineno)
         self.add_item(ctx, par[0], flag=flag, fn=fn, lineno=lineno)
-      elif ctx == 'PDU':
+      elif ctx in ('PDU', 'PDU_NEW'):
         if empty.match(line): continue
         par = get_par(line, 1, 5, fn=fn, lineno=lineno)
         if not par: continue
-        self.add_pdu(par[0:2], fn, lineno)
+        is_new = False
+        if (ctx == 'PDU_NEW'): is_new = True
+        self.add_pdu(par[0:2], is_new, fn, lineno)
         if (len(par)>=3):
           self.add_register(par[0], par[2:5], fn, lineno)
-      elif ctx == 'REGISTER':
+      elif ctx in ('REGISTER', 'REGISTER_NEW'):
         if empty.match(line): continue
         par = get_par(line, 3, 4, fn=fn, lineno=lineno)
         if not par: continue
         if not self.check_item('PDU', par[0]):
-          self.add_pdu(par[0:1], fn, lineno)
+          is_new = False
+          if (ctx == 'REGISTER_NEW'): is_new = True
+          self.add_pdu(par[0:1], is_new, fn, lineno)
         self.add_register(par[0], par[1:4], fn, lineno)
       elif ctx == 'MODULE_IMPORT':
         if empty.match(line): continue
