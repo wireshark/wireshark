@@ -236,10 +236,8 @@ CallIdentifier/guid guid
 
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_BODY H245TransportAddress/h245ipAddress/h245ipv4port
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           0U, 65535U, &ipv4_port, NULL, FALSE);
-
+#.FN_PARS H245TransportAddress/h245ipAddress/h245ipv4port
+  VAL_PTR = &ipv4_port
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR ParallelH245Control/_item
@@ -488,10 +486,9 @@ CallIdentifier/guid guid
   tvb_memcpy(guid_tvb,h225_pi->guid,0,tvb_length(guid_tvb));
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_BODY RequestSeqNum
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           1U, 65535U, &(h225_pi->requestSeqNum), NULL, FALSE);
-
+#.FN_PARS RequestSeqNum
+  VAL_PTR = &(h225_pi->requestSeqNum)
+#.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY H323-UU-PDU/h4501SupplementaryService/_item
 
