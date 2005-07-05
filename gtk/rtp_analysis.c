@@ -614,6 +614,7 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		statinfo->diff = 0;
 		statinfo->flags |= STAT_FLAG_FIRST;
 		statinfo->first_packet = FALSE;
+		statinfo->timestamp = rtpinfo->info_timestamp;
 	}
 	/* is it a packet with the mark bit set? */
 	if (rtpinfo->info_marker_set) {
@@ -621,7 +622,7 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 			statinfo->delta_timestamp = rtpinfo->info_timestamp - statinfo->timestamp;
 			statinfo->flags |= STAT_FLAG_MARKER;
 		}
-		else{
+		else if (!(statinfo->flags & STAT_FLAG_FIRST)) {
 			statinfo->flags |= STAT_FLAG_WRONG_TIMESTAMP;
 		}
 	}
