@@ -1804,6 +1804,9 @@ class Type (Node):
       pars.update(ectx.conform.use_item('FN_PARS', tname))
     elif ectx.conform.check_item('FN_PARS', ectx.eth_type[tname]['ref'][0]):
       pars.update(ectx.conform.use_item('FN_PARS', ectx.eth_type[tname]['ref'][0]))
+    pars['DEFAULT_BODY'] = body
+    for i in range(4):
+      for k in pars.keys(): pars[k] = pars[k] % pars
     out += ectx.eth_type_fn_body(tname, body, pars=pars)
     out += ectx.eth_type_fn_ftr(tname)
     return out
@@ -2719,24 +2722,20 @@ class BooleanType (Type):
   def eth_ftype(self, ectx):
     return ('FT_BOOLEAN', '8')
 
-  def eth_type_fn(self, proto, tname, ectx):
-    out = ectx.eth_type_fn_hdr(tname)
+  def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_ber_boolean', ret='offset',
-                              par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset', 'hf_index'),))
+      body = ectx.eth_fn_call('dissect_%(ER)s_boolean', ret='offset',
+                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),))
     elif (ectx.NPer()):
-      body = ectx.eth_fn_call('dissect_pern_boolean', ret='offset',
-                              par=(('tvb', 'offset', 'pinfo', 'tree'),
-                                   ('hf_index', 'item', 'NULL')))
+      body = ectx.eth_fn_call('dissect_%(ER)s_boolean', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s', 'item', 'NULL'),))
     elif (ectx.OPer()):
-      body = ectx.eth_fn_call('dissect_per_boolean', ret='offset',
-                              par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
-                                   ('NULL', 'NULL')))
+      body = ectx.eth_fn_call('dissect_%(ER)s_boolean', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s'),
+                                   ('%(VAL_PTR)s', '%(CREATED_ITEM_PTR)s'),))
     else:
       body = '#error Can not decode %s' % (tname)
-    out += ectx.eth_type_fn_body(tname, body)
-    out += ectx.eth_type_fn_ftr(tname)
-    return out
+    return body
 
 #--- OctetStringType ----------------------------------------------------------
 class OctetStringType (Type):
