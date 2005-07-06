@@ -224,37 +224,36 @@ CallIdentifier/guid guid
 	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13, NULL, 0);
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_PARS H245TransportAddress/h245ipAddress/h245ipv4
+  VAL_PTR = &value_tvb
 #.FN_BODY H245TransportAddress/h245ipAddress/h245ipv4
-
 	tvbuff_t *value_tvb;
 
-  offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                    4, 4,
-                                    &value_tvb);
+%(DEFAULT_BODY)s
 	tvb_memcpy(value_tvb, (char *)&ipv4_address, 0, 4);
-
-
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_PARS H245TransportAddress/h245ipAddress/h245ipv4port
   VAL_PTR = &ipv4_port
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_HDR ParallelH245Control/_item
-	tvbuff_t *h245_tvb = NULL;
 #.FN_PARS ParallelH245Control/_item
 	VAL_PTR = &h245_tvb
-#.FN_FTR ParallelH245Control/_item
+#.FN_BODY ParallelH245Control/_item
+	tvbuff_t *h245_tvb = NULL;
+
+%(DEFAULT_BODY)s
 	if (h245_tvb && tvb_length(h245_tvb)) {
 		call_dissector(h245dg_handle, h245_tvb, pinfo, tree);
 	}
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_HDR H245Control/_item
-	tvbuff_t *h245_tvb = NULL;
 #.FN_PARS H245Control/_item
 	VAL_PTR = &h245_tvb
-#.FN_FTR H245Control/_item
+#.FN_BODY H245Control/_item
+	tvbuff_t *h245_tvb = NULL;
+
+%(DEFAULT_BODY)s
 	if (h245_tvb && tvb_length(h245_tvb)) {
 		call_dissector(h245dg_handle, h245_tvb, pinfo, tree);
 	}
@@ -291,8 +290,8 @@ CallIdentifier/guid guid
   g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_BODY H323-UU-PDU/h245Tunneling
-	offset=dissect_per_boolean(tvb, offset, pinfo, tree, hf_h225_h245Tunneling, &(h225_pi->is_h245Tunneling), NULL);
+#.FN_PARS H323-UU-PDU/h245Tunneling
+  VAL_PTR = &(h225_pi->is_h245Tunneling)
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR Setup-UUIE
@@ -479,6 +478,8 @@ CallIdentifier/guid guid
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_PARS CallIdentifier/guid
+  VAL_PTR = &guid_tvb
 #.FN_BODY CallIdentifier/guid
   tvbuff_t *guid_tvb;
 
@@ -490,11 +491,12 @@ CallIdentifier/guid guid
   VAL_PTR = &(h225_pi->requestSeqNum)
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_PARS H323-UU-PDU/h4501SupplementaryService/_item
+  VAL_PTR = &h4501_tvb
 #.FN_BODY H323-UU-PDU/h4501SupplementaryService/_item
-
 	tvbuff_t *h4501_tvb = NULL;
-	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, -1, -1, &h4501_tvb);
 
+%(DEFAULT_BODY)s
 	if(tvb_length(h4501_tvb)){
 		call_dissector(h4501_handle, h4501_tvb, pinfo, tree);
 	}
@@ -513,11 +515,12 @@ CallIdentifier/guid guid
 
 #.FN_HDR H323-UU-PDU/tunnelledSignallingMessage
   tp_handle = NULL;
-#.FN_HDR H323-UU-PDU/tunnelledSignallingMessage/messageContent/_item
-  tvbuff_t *next_tvb = NULL;
 #.FN_PARS H323-UU-PDU/tunnelledSignallingMessage/messageContent/_item
   VAL_PTR = &next_tvb
-#.FN_FTR H323-UU-PDU/tunnelledSignallingMessage/messageContent/_item
+#.FN_BODY H323-UU-PDU/tunnelledSignallingMessage/messageContent/_item
+  tvbuff_t *next_tvb = NULL;
+
+%(DEFAULT_BODY)s
   if (next_tvb && tvb_length(next_tvb)) {
     call_dissector((tp_handle)?tp_handle:data_handle, next_tvb, pinfo, tree);
   }
@@ -565,11 +568,12 @@ H221NonStandard/manufacturerCode  VAL_PTR = &manufacturerCode
 
 #.FN_HDR NonStandardParameter
   nsp_handle = NULL;
-#.FN_HDR NonStandardParameter/data
-  tvbuff_t *next_tvb = NULL;
 #.FN_PARS NonStandardParameter/data
   VAL_PTR = &next_tvb
-#.FN_FTR NonStandardParameter/data
+#.FN_BODY NonStandardParameter/data
+  tvbuff_t *next_tvb = NULL;
+
+%(DEFAULT_BODY)s
   if (next_tvb && tvb_length(next_tvb)) {
     call_dissector((nsp_handle)?nsp_handle:data_handle, next_tvb, pinfo, tree);
   }

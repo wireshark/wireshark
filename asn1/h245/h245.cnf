@@ -264,19 +264,15 @@ OpenLogicalChannel
   h245_pi->msg_type = H245_OpenLogChnAck;
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_BODY CapabilityIdentifier/standard
-  offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index,
-                                         standard_oid_str);
-
+#.FN_PARS CapabilityIdentifier/standard
+  VAL_PTR = standard_oid_str
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_BODY GenericMessage/subMessageIdentifer
+#.FN_HDR GenericMessage/subMessageIdentifer
+  guint32 subMessageIdentifer;
 
-guint32 subMessageIdentifer;
-
-  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           0U, 127U, &subMessageIdentifer, NULL, FALSE);
-
+#.FN_PARS GenericMessage/subMessageIdentifer
+  VAL_PTR = &subMessageIdentifer
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY UnicastAddress/iPAddress/network
@@ -293,13 +289,12 @@ guint32 subMessageIdentifer;
 
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_PARS UnicastAddress/iPAddress/tsapIdentifier
+  VAL_PTR = &tsapIdentifier
 #.FN_BODY UnicastAddress/iPAddress/tsapIdentifier
-guint32 tsapIdentifier;
+  guint32 tsapIdentifier;
 
-
-	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
-		hf_h245_tsapIdentifier,  0,  65535,
-		&tsapIdentifier, NULL, FALSE);
+%(DEFAULT_BODY)s
   if ( media_channel )
 	ipv4_port = tsapIdentifier;
 
@@ -459,11 +454,12 @@ NonStandardIdentifier/h221NonStandard/manufacturerCode  VAL_PTR = &manufacturerC
 
 #.FN_HDR NonStandardParameter
   nsp_handle = NULL;
-#.FN_HDR NonStandardParameter/data
-  tvbuff_t *next_tvb = NULL;
 #.FN_PARS NonStandardParameter/data
   VAL_PTR = &next_tvb
-#.FN_FTR NonStandardParameter/data
+#.FN_BODY NonStandardParameter/data
+  tvbuff_t *next_tvb = NULL;
+
+%(DEFAULT_BODY)s
   if (next_tvb && tvb_length(next_tvb)) {
     call_dissector((nsp_handle)?nsp_handle:data_handle, next_tvb, pinfo, tree);
   }
