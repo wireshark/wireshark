@@ -1434,7 +1434,7 @@ class EthCnf:
         if not par: continue
         self.add_item('TYPE_RENAME', par[0], eth_name=par[1], fn=fn, lineno=lineno)
         if not par[1][0].isupper():
-          warnings.warn_explicit("Type shoud be renamed to uppercase name (%s)" % (par[1]),
+          warnings.warn_explicit("Type should be renamed to uppercase name (%s)" % (par[1]),
                                   UserWarning, fn, lineno)
       elif ctx == 'FIELD_RENAME':
         if empty.match(line): continue
@@ -1442,7 +1442,7 @@ class EthCnf:
         if not par: continue
         self.add_item('FIELD_RENAME', par[0], eth_name=par[1], fn=fn, lineno=lineno)
         if not par[1][0].islower():
-          warnings.warn_explicit("Field shoud be renamed to lowercase name (%s)" % (par[1]),
+          warnings.warn_explicit("Field should be renamed to lowercase name (%s)" % (par[1]),
                                   UserWarning, fn, lineno)
       elif ctx in ('TYPE_ATTR', 'ETYPE_ATTR', 'FIELD_ATTR', 'EFIELD_ATTR'):
         if empty.match(line): continue
