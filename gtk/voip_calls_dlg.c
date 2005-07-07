@@ -786,7 +786,7 @@ voip_calls_init_tap(char *dummy _U_)
 	voip_calls_get_info()->redraw = TRUE;
 	for (c=0;c<NUM_COLS;c++){
 		data[c]=&field[c][0];
-		field[c][0] = NULL;
+		field[c][0] = '\0';
 	}
 	g_snprintf(field[3], 50, "Please wait...");
 	gtk_clist_append(GTK_CLIST(clist), data);
