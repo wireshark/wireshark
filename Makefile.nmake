@@ -406,6 +406,7 @@ REQUIRED_TOOLS=\
 	$(SH)	\
 	$(YACC)	\
 	$(LEX)	\
+	env	\
 	grep	\
 	/usr/bin/find	\
 	$(PERL)	\

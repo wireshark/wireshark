@@ -4,6 +4,7 @@
 DOWNLOAD_PREFIX="http://anonsvn.ethereal.com/ethereal-win32-libs/tags/2005-01-17/packages"
 
 err_exit () {
+	echo ""
 	echo "ERROR: $1"
 	echo ""
 	exit 1
@@ -25,6 +26,8 @@ case "$1" in
 		usage
 	fi
 	echo "Checking for required applications:"
+	which which > /dev/null 2>&1 || \
+		err_exit "Can't find 'which'.  Unable to proceed."
 	for APP in $* ; do
 		APP_PATH=`cygpath --unix $APP`
 		if [ -x "$APP_PATH" -a ! -d "$APP_PATH" ] ; then
