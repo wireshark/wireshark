@@ -1311,9 +1311,7 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 			list = g_list_next (list);
 		}
 
-		pstn_add.type = AT_STRINGZ;
-		pstn_add.len = 5;
-		pstn_add.data = g_strdup("PSTN");
+		SET_ADDRESS(&pstn_add, AT_STRINGZ, 5, g_strdup("PSTN"));
 
 		/* if it is a new call, add it to the list */
 		if (!strinfo) {
@@ -2367,9 +2365,7 @@ ACTRACEcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, 
 			list = g_list_next (list);
 		}
 
-		pstn_add.type = AT_STRINGZ;
-		pstn_add.len = 5;
-		pstn_add.data = g_strdup("PSTN");
+		SET_ADDRESS(&pstn_add, AT_STRINGZ, 5, g_strdup("PSTN"));
 
 		/* if it is a new call, add it to the list */
 		if (!strinfo) {

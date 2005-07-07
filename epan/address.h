@@ -57,7 +57,7 @@ typedef struct _address {
 #define	SET_ADDRESS(addr, addr_type, addr_len, addr_data) { \
 	(addr)->type = (addr_type); \
 	(addr)->len = (addr_len); \
-	(addr)->data = (addr_data); \
+	(addr)->data = (void *)(addr_data); \
 	}
 
 /*
