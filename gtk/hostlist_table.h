@@ -36,10 +36,10 @@ typedef struct _hostlist_talker_t {
 	guint32 port_type;      /**< port_type (e.g. PT_TCP) */
 	guint32 port;           /**< port */
 
-	guint32 rx_frames;      /**< number of received packets */
-	guint32 tx_frames;      /**< number of transmitted packets */
-	guint32 rx_bytes;       /**< number of received bytes */
-	guint32 tx_bytes;       /**< number of transmitted bytes */
+	guint64 rx_frames;      /**< number of received packets */
+	guint64 tx_frames;      /**< number of transmitted packets */
+	guint64 rx_bytes;       /**< number of received bytes */
+	guint64 tx_bytes;       /**< number of transmitted bytes */
 } hostlist_talker_t;
 
 /** Hostlist widget */

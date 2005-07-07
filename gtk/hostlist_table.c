@@ -211,7 +211,7 @@ hostlist_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 {
 	char *text1 = NULL;
 	char *text2 = NULL;
-	int i1, i2;
+	guint64 i1, i2;
 
 	const GtkCListRow *row1 = ptr1;
 	const GtkCListRow *row2 = ptr2;
@@ -229,8 +229,8 @@ hostlist_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 	case 5:
 	case 6:
 	case 7:
-		i1=atoi(text1);
-		i2=atoi(text2);
+		sscanf(text1, "%" PRIu64, &i1);
+		sscanf(text2, "%" PRIu64, &i2);
 		return i1-i2;
 	}
 	g_assert_not_reached();
@@ -540,21 +540,21 @@ draw_hostlist_table_data(hostlist_table *hl)
 
         j=gtk_clist_find_row_from_data(hl->table, (gpointer)i);
 
-        g_snprintf(str, 16, "%u", hl->hosts[i].tx_frames+hl->hosts[i].rx_frames);
+        g_snprintf(str, 16, "%" PRIu64, hl->hosts[i].tx_frames+hl->hosts[i].rx_frames);
         gtk_clist_set_text(hl->table, j, 2, str);
-        g_snprintf(str, 16, "%u", hl->hosts[i].tx_bytes+hl->hosts[i].rx_bytes);
+        g_snprintf(str, 16, "%" PRIu64, hl->hosts[i].tx_bytes+hl->hosts[i].rx_bytes);
         gtk_clist_set_text(hl->table, j, 3, str);
 
 
-        g_snprintf(str, 16, "%u", hl->hosts[i].tx_frames);
+        g_snprintf(str, 16, "%" PRIu64, hl->hosts[i].tx_frames);
         gtk_clist_set_text(hl->table, j, 4, str);
-        g_snprintf(str, 16, "%u", hl->hosts[i].tx_bytes);
+        g_snprintf(str, 16, "%" PRIu64, hl->hosts[i].tx_bytes);
         gtk_clist_set_text(hl->table, j, 5, str);
 
 
-        g_snprintf(str, 16, "%u", hl->hosts[i].rx_frames);
+        g_snprintf(str, 16, "%" PRIu64, hl->hosts[i].rx_frames);
         gtk_clist_set_text(hl->table, j, 6, str);
-        g_snprintf(str, 16, "%u", hl->hosts[i].rx_bytes);
+        g_snprintf(str, 16, "%" PRIu64, hl->hosts[i].rx_bytes);
         gtk_clist_set_text(hl->table, j, 7, str);
 
     }
@@ -1046,19 +1046,19 @@ add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, g
         entries[0]="";
         entries[1]="";
 
-        g_snprintf(frames, 16, "%u", talker->tx_frames+talker->rx_frames);
+        g_snprintf(frames, 16, "%" PRIu64, talker->tx_frames+talker->rx_frames);
         entries[2]=frames;
-        g_snprintf(bytes, 16, "%u", talker->tx_bytes+talker->rx_bytes);
+        g_snprintf(bytes, 16, "%" PRIu64, talker->tx_bytes+talker->rx_bytes);
         entries[3]=bytes;
 
-        g_snprintf(txframes, 16, "%u", talker->tx_frames);
+        g_snprintf(txframes, 16, "%" PRIu64, talker->tx_frames);
         entries[4]=txframes;
-        g_snprintf(txbytes, 16, "%u", talker->tx_bytes);
+        g_snprintf(txbytes, 16, "%" PRIu64, talker->tx_bytes);
         entries[5]=txbytes;
 
-        g_snprintf(rxframes, 16, "%u", talker->rx_frames);
+        g_snprintf(rxframes, 16, "%" PRIu64, talker->rx_frames);
         entries[6]=rxframes;
-        g_snprintf(rxbytes, 16, "%u", talker->rx_bytes);
+        g_snprintf(rxbytes, 16, "%" PRIu64, talker->rx_bytes);
         entries[7]=rxbytes;
 
         gtk_clist_insert(hl->table, talker_idx, entries);
