@@ -71,6 +71,8 @@ PLUGINS=../../plugins/acn/acn.dll \
 	../../plugins/enttec/enttec.dll \
 	../../plugins/giop/coseventcomm.dll \
 	../../plugins/giop/cosnaming.dll \
+	../../plugins/giop/parlay.dll \
+	../../plugins/giop/tango.dll \
 	../../plugins/gryphon/gryphon.dll \
 	../../plugins/irda/irda.dll \
 	../../plugins/lwres/lwres.dll \
