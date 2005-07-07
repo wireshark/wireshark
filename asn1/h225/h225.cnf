@@ -478,8 +478,6 @@ CallIdentifier/guid guid
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS CallIdentifier/guid
-  VAL_PTR = &guid_tvb
 #.FN_BODY CallIdentifier/guid
   tvbuff_t *guid_tvb;
 
