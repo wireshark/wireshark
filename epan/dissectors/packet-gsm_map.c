@@ -7,7 +7,7 @@
 
 /* packet-gsm_map-template.c
  * Routines for GSM MobileApplication packet dissection
- * Copyright 2004 - 2005 , Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2004 - 2005 , Anders Broman <anders.broman [AT] ericsson.com>
  * Based on the dissector by:
  * Felix Fei <felix.fei [AT] utstar.com>
  * and Michael Lum <mlum [AT] telostech.com>
@@ -1354,9 +1354,8 @@ static const value_string gsm_map_ProtocolId_vals[] = {
 
 static int
 dissect_gsm_map_ProtocolId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, &protocolId);
-
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  &protocolId);
 
   return offset;
 }
@@ -2117,7 +2116,8 @@ static const value_string gsm_map_IST_SupportIndicator_vals[] = {
 
 static int
 dissect_gsm_map_IST_SupportIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -2490,7 +2490,8 @@ static const value_string gsm_map_CancellationType_vals[] = {
 
 static int
 dissect_gsm_map_CancellationType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -2985,9 +2986,8 @@ static const value_string gsm_map_AccessNetworkProtocolId_vals[] = {
 
 static int
 dissect_gsm_map_AccessNetworkProtocolId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, &AccessNetworkProtocolId);
-
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  &AccessNetworkProtocolId);
 
   return offset;
 }
@@ -3764,7 +3764,8 @@ static const value_string gsm_map_KeyStatus_vals[] = {
 
 static int
 dissect_gsm_map_KeyStatus(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -3884,7 +3885,8 @@ static const value_string gsm_map_RequestingNodeType_vals[] = {
 
 static int
 dissect_gsm_map_RequestingNodeType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -4021,7 +4023,8 @@ static const value_string gsm_map_EquipmentStatus_vals[] = {
 
 static int
 dissect_gsm_map_EquipmentStatus(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -4054,7 +4057,8 @@ static const value_string gsm_map_OverrideCategory_vals[] = {
 
 static int
 dissect_gsm_map_OverrideCategory(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -4182,7 +4186,8 @@ static const value_string gsm_map_SubscriberStatus_vals[] = {
 
 static int
 dissect_gsm_map_SubscriberStatus(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -4203,7 +4208,8 @@ static const value_string gsm_map_BcsmTriggerDetectionPoint_vals[] = {
 
 static int
 dissect_gsm_map_BcsmTriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -4250,7 +4256,8 @@ static const value_string gsm_map_DefaultCallHandling_vals[] = {
 
 static int
 dissect_gsm_map_DefaultCallHandling(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -4303,7 +4310,8 @@ static const value_string gsm_map_O_BcsmTriggerDetectionPoint_vals[] = {
 
 static int
 dissect_gsm_map_O_BcsmTriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -4790,7 +4798,8 @@ static const value_string gsm_map_IntraCUG_Options_vals[] = {
 
 static int
 dissect_gsm_map_IntraCUG_Options(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -4924,7 +4933,8 @@ static const value_string gsm_map_CliRestrictionOption_vals[] = {
 
 static int
 dissect_gsm_map_CliRestrictionOption(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -5263,7 +5273,8 @@ static const value_string gsm_map_MatchType_vals[] = {
 
 static int
 dissect_gsm_map_MatchType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -5357,7 +5368,8 @@ static const value_string gsm_map_CallTypeCriteria_vals[] = {
 
 static int
 dissect_gsm_map_CallTypeCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -5500,7 +5512,8 @@ static const value_string gsm_map_SMS_TriggerDetectionPoint_vals[] = {
 
 static int
 dissect_gsm_map_SMS_TriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -5521,7 +5534,8 @@ static const value_string gsm_map_DefaultSMS_Handling_vals[] = {
 
 static int
 dissect_gsm_map_DefaultSMS_Handling(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -5598,7 +5612,8 @@ static const value_string gsm_map_T_BcsmTriggerDetectionPoint_vals[] = {
 
 static int
 dissect_gsm_map_T_BcsmTriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -5796,7 +5811,8 @@ static const value_string gsm_map_MT_SMS_TPDU_Type_vals[] = {
 
 static int
 dissect_gsm_map_MT_SMS_TPDU_Type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -6117,7 +6133,8 @@ static const value_string gsm_map_NetworkAccessMode_vals[] = {
 
 static int
 dissect_gsm_map_NetworkAccessMode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -6135,7 +6152,8 @@ static const value_string gsm_map_LSAOnlyAccessIndicator_vals[] = {
 
 static int
 dissect_gsm_map_LSAOnlyAccessIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -6258,7 +6276,8 @@ static const value_string gsm_map_NotificationToMSUser_vals[] = {
 
 static int
 dissect_gsm_map_NotificationToMSUser(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -6296,7 +6315,8 @@ static const value_string gsm_map_GMLC_Restriction_vals[] = {
 
 static int
 dissect_gsm_map_GMLC_Restriction(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -6354,7 +6374,8 @@ static const value_string gsm_map_LCSClientInternalID_vals[] = {
 
 static int
 dissect_gsm_map_LCSClientInternalID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -6626,7 +6647,8 @@ static const value_string gsm_map_GPRS_TriggerDetectionPoint_vals[] = {
 
 static int
 dissect_gsm_map_GPRS_TriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -6644,7 +6666,8 @@ static const value_string gsm_map_DefaultGPRS_Handling_vals[] = {
 
 static int
 dissect_gsm_map_DefaultGPRS_Handling(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -6837,7 +6860,8 @@ static const value_string gsm_map_RegionalSubscriptionResponse_vals[] = {
 
 static int
 dissect_gsm_map_RegionalSubscriptionResponse(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -7076,8 +7100,8 @@ dissect_gsm_map_BearerServiceCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 
   return offset;
 }
-static int dissect_bearerService(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_BearerServiceCode(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_bearerService);
+static int dissect_bearerService_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_BearerServiceCode(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_bearerService);
 }
 
 
@@ -7089,8 +7113,8 @@ dissect_gsm_map_TeleserviceCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 
   return offset;
 }
-static int dissect_teleservice_code(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_TeleserviceCode(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_teleservice_code);
+static int dissect_teleservice_code_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_TeleserviceCode(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_teleservice_code);
 }
 
 
@@ -7101,8 +7125,8 @@ static const value_string gsm_map_BasicServiceCode_vals[] = {
 };
 
 static const ber_choice_t BasicServiceCode_choice[] = {
-  {   2, BER_CLASS_CON, 2, 0, dissect_bearerService },
-  {   3, BER_CLASS_CON, 3, 0, dissect_teleservice_code },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_bearerService_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_teleservice_code_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -7484,7 +7508,8 @@ static const value_string gsm_map_InterrogationType_vals[] = {
 
 static int
 dissect_gsm_map_InterrogationType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -7529,7 +7554,8 @@ static const value_string gsm_map_ForwardingReason_vals[] = {
 
 static int
 dissect_gsm_map_ForwardingReason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -7654,7 +7680,8 @@ static const value_string gsm_map_Ext_ProtocolId_vals[] = {
 
 static int
 dissect_gsm_map_Ext_ProtocolId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -8163,7 +8190,8 @@ static const value_string gsm_map_NotReachableReason_vals[] = {
 
 static int
 dissect_gsm_map_NotReachableReason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -8285,7 +8313,8 @@ static const value_string gsm_map_NumberPortabilityStatus_vals[] = {
 
 static int
 dissect_gsm_map_NumberPortabilityStatus(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -8390,7 +8419,8 @@ static const value_string gsm_map_UnavailabilityCause_vals[] = {
 
 static int
 dissect_gsm_map_UnavailabilityCause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -8499,7 +8529,8 @@ static const value_string gsm_map_NetDetNotReachable_vals[] = {
 
 static int
 dissect_gsm_map_NetDetNotReachable(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -8761,7 +8792,8 @@ static const value_string gsm_map_Ccbs_Monitoring_vals[] = {
 
 static int
 dissect_gsm_map_Ccbs_Monitoring(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -8776,7 +8808,8 @@ static const value_string gsm_map_ReportingState_vals[] = {
 
 static int
 dissect_gsm_map_ReportingState(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -8811,7 +8844,8 @@ static const value_string gsm_map_CCBS_SubscriberStatus_vals[] = {
 
 static int
 dissect_gsm_map_CCBS_SubscriberStatus(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -8860,7 +8894,8 @@ static const value_string gsm_map_MonitoringMode_vals[] = {
 
 static int
 dissect_gsm_map_MonitoringMode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -8879,7 +8914,8 @@ static const value_string gsm_map_CallOutcome_vals[] = {
 
 static int
 dissect_gsm_map_CallOutcome(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -8948,7 +8984,8 @@ static const value_string gsm_map_Ruf_Outcome_vals[] = {
 
 static int
 dissect_gsm_map_Ruf_Outcome(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -8980,7 +9017,8 @@ static const value_string gsm_map_CallTerminationIndicator_vals[] = {
 
 static int
 dissect_gsm_map_CallTerminationIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -9345,13 +9383,15 @@ static const value_string gsm_map_FailureCause_vals[] = {
 
 static int
 dissect_gsm_map_FailureCause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
 static int dissect_failureCause(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_FailureCause(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_failureCause);
 }
+
 
 
 static int
@@ -9386,7 +9426,8 @@ static const value_string gsm_map_AccessType_vals[] = {
 
 static int
 dissect_gsm_map_AccessType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -9448,7 +9489,8 @@ static const value_string gsm_map_GetPasswordArg_vals[] = {
 
 static int
 dissect_gsm_map_GetPasswordArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -9861,7 +9903,8 @@ static const value_string gsm_map_Sm_DeliveryOutcome_vals[] = {
 
 static int
 dissect_gsm_map_Sm_DeliveryOutcome(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -9988,7 +10031,8 @@ static const value_string gsm_map_T_alertReason_vals[] = {
 
 static int
 dissect_gsm_map_T_alertReason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -10035,7 +10079,8 @@ static const value_string gsm_map_T_requestedDomain_vals[] = {
 
 static int
 dissect_gsm_map_T_requestedDomain(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -10161,7 +10206,8 @@ static const value_string gsm_map_RequestedCAMEL_SubscriptionInfo_vals[] = {
 
 static int
 dissect_gsm_map_RequestedCAMEL_SubscriptionInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -10185,7 +10231,8 @@ static const value_string gsm_map_AdditionalRequestedCAMEL_SubscriptionInfo_vals
 
 static int
 dissect_gsm_map_AdditionalRequestedCAMEL_SubscriptionInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -10424,7 +10471,8 @@ static const value_string gsm_map_ModificationInstruction_vals[] = {
 
 static int
 dissect_gsm_map_ModificationInstruction(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -10695,7 +10743,8 @@ static const value_string gsm_map_ModifyNotificationToCSE_vals[] = {
 
 static int
 dissect_gsm_map_ModifyNotificationToCSE(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -11085,7 +11134,8 @@ static const value_string gsm_map_LocationEstimateType_vals[] = {
 
 static int
 dissect_gsm_map_LocationEstimateType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -11142,7 +11192,8 @@ static const value_string gsm_map_LCSClientType_vals[] = {
 
 static int
 dissect_gsm_map_LCSClientType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -11174,7 +11225,8 @@ static const value_string gsm_map_LCS_FormatIndicator_vals[] = {
 
 static int
 dissect_gsm_map_LCS_FormatIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -11303,7 +11355,8 @@ static const value_string gsm_map_ResponseTimeCategory_vals[] = {
 
 static int
 dissect_gsm_map_ResponseTimeCategory(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -11424,7 +11477,8 @@ static const value_string gsm_map_PrivacyCheckRelatedAction_vals[] = {
 
 static int
 dissect_gsm_map_PrivacyCheckRelatedAction(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -11465,7 +11519,8 @@ static const value_string gsm_map_AreaType_vals[] = {
 
 static int
 dissect_gsm_map_AreaType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -11544,7 +11599,8 @@ static const value_string gsm_map_OccurrenceInfo_vals[] = {
 
 static int
 dissect_gsm_map_OccurrenceInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -11781,7 +11837,8 @@ static const value_string gsm_map_LCS_Event_vals[] = {
 
 static int
 dissect_gsm_map_LCS_Event(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -11804,7 +11861,8 @@ static const value_string gsm_map_TerminationCause_vals[] = {
 
 static int
 dissect_gsm_map_TerminationCause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -12066,7 +12124,8 @@ static const value_string gsm_map_NetworkResource_vals[] = {
 
 static int
 dissect_gsm_map_NetworkResource(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -12187,7 +12246,8 @@ static const value_string gsm_map_T_unknownSubscriberDiagnostic_vals[] = {
 
 static int
 dissect_gsm_map_T_unknownSubscriberDiagnostic(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -12245,7 +12305,8 @@ static const value_string gsm_map_T_roamingNotAllowedCause_vals[] = {
 
 static int
 dissect_gsm_map_T_roamingNotAllowedCause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -12356,7 +12417,8 @@ static const value_string gsm_map_T_absentSubscriberReason_vals[] = {
 
 static int
 dissect_gsm_map_T_absentSubscriberReason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -12416,7 +12478,8 @@ static const value_string gsm_map_CallBarringCause_vals[] = {
 
 static int
 dissect_gsm_map_CallBarringCause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -12514,7 +12577,8 @@ static const value_string gsm_map_T_cug_RejectCause_vals[] = {
 
 static int
 dissect_gsm_map_T_cug_RejectCause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -12588,7 +12652,8 @@ static const value_string gsm_map_Pw_RegistrationFailureCause_vals[] = {
 
 static int
 dissect_gsm_map_Pw_RegistrationFailureCause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -12646,7 +12711,8 @@ static const value_string gsm_map_T_sm_EnumeratedDeliveryFailureCause_vals[] = {
 
 static int
 dissect_gsm_map_T_sm_EnumeratedDeliveryFailureCause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -12736,7 +12802,8 @@ static const value_string gsm_map_T_unauthorizedLCSClient_Diagnostic_vals[] = {
 
 static int
 dissect_gsm_map_T_unauthorizedLCSClient_Diagnostic(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -12775,7 +12842,8 @@ static const value_string gsm_map_T_positionMethodFailure_Diagnostic_vals[] = {
 
 static int
 dissect_gsm_map_T_positionMethodFailure_Diagnostic(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -13177,7 +13245,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_TMSI(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 56: /*sendAuthenticationInfo*/
-	  if (application_context_version < 2 ){
+	  if (application_context_version < 3 ){
 		  offset=dissect_gsm_map_SendAuthenticationInfoArg(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_imsi);
 	  }else{
 		  offset=dissect_gsm_map_SendAuthenticationInfoArgV2(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoArg);

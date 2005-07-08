@@ -4,11 +4,15 @@
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
+ *
  * Added the GPRS Mobility Managment Protocol and 
  * the GPRS Session Managment Protocol
  *   Copyright 2004, Rene Pilz <rene.pilz [AT] ftw.com>
  *   In association with Telecommunications Research Center 
  *   Vienna (ftw.)Betriebs-GmbH within the Project Metawin.
+ *
+ * Added Dissection of Radio Resource Management Information Elements
+ * Copyright 2005, Anders Broman [AT] ericsson.com
  *
  * Title		3GPP			Other
  *
@@ -33,6 +37,7 @@
  *   Mobile radio interface layer 3 specification;
  *   Radio Resource Control Protocol
  *   (GSM 04.18 version 8.4.1 Release 1999)
+ *   (3GPP TS 04.18 version 8.26.0 Release 1999)
  *
  *   Reference [5]
  *   Point-to-Point (PP) Short Message Service (SMS)
@@ -252,10 +257,17 @@ const value_string gsm_a_dtap_msg_rr_strings[] = {
 
     { 0x0b,	"Reserved" },
 
-/*    { 0xc0,	"Utran Classmark Change" }, CONFLICTS WITH Handover To UTRAN Command */
+/*	ETSI TS 101 503 V8.5.0 Seems to give Other def for this Messages???
+    { 0xc0,	"Utran Classmark Change" }, CONFLICTS WITH Handover To UTRAN Command 
     { 0xc1,	"UE RAB Preconfiguration" },
-    { 0xc2,	"cdma2000 Classmark Change" },
+    { 0xc2,	"cdma2000 Classmark Change" },*/
 
+	/* ETSI TS 101 503 V8.5.0 */
+    { 0x60,	"Utran Classmark Change" },  
+    { 0x61,	"UE RAB Preconfiguration" },
+    { 0x62,	"cdma2000 Classmark Change" },
+    { 0x63,	"Inter System to UTRAN Handover Command" },
+    { 0x64,	"Inter System to cdma2000 Handover Command" },
     { 0x18,	"System Information Type 8" },
     { 0x19,	"System Information Type 1" },
     { 0x1a,	"System Information Type 2" },
@@ -515,7 +527,130 @@ static const value_string gsm_dtap_elem_strings[] = {
     { 0x00,	"Priority Level" },
     { 0x00,	"PLMN List" },
     /* Radio Resource Management Information Elements 10.5.2, most are from 10.5.1 */
-    { 0x00,	"RR Cause" },
+/*
+ * [3]  10.5.2.1a	BA Range
+ */
+    { 0x00,	"Cell Channel Description" },		/* [3]  10.5.2.1b	*/	
+/* [3]  10.5.2.1c	BA List Pref
+ * [3]  10.5.2.1d	UTRAN Frequency List
+ * [3]  10.5.2.1e	Cell selection indicator after release of all TCH and SDCCH IE
+ */
+	{ 0x00, "Cell Description" },				/* 10.5.2.2  */
+/*
+ * [3]  10.5.2.3	Cell Options (BCCH)	
+ * [3]  10.5.2.3a	Cell Options (SACCH)
+ * [3]  10.5.2.4	Cell Selection Parameters
+ * [3]  10.5.2.4a	(void) */
+	{ 0x00, "Channel Description" },			/* 10.5.2.5	 */
+	{ 0x00, "Channel Description 2" },			/* 10.5.2.5a */
+
+	{ 0x00, "Channel Mode" },					/* [3]  10.5.2.6 */	
+	{ 0x00, "Channel Mode 2" },					/* [3]  10.5.2.7 */	
+/* [3]  10.5.2.7a	UTRAN predefined configuration status information / START-CS / UE CapabilityUTRAN Classmark information element	218
+ * [3]  10.5.2.7b	(void)
+ * [3]  10.5.2.7c	Classmark Enquiry Mask
+ * [3]  10.5.2.7d	GERAN Iu Mode Classmark information element
+ * [3]  10.5.2.8	Channel Needed
+ * [3]  10.5.2.8a	(void)	
+ * [3]  10.5.2.8b	Channel Request Description 2 */
+ 	{ 0x00, "Cipher Mode Setting" },				/* [3]  10.5.2.9	*/
+/* [3]  10.5.2.10	Cipher Response
+ * [3]  10.5.2.11	Control Channel Description
+ * [3]  10.5.2.11a	DTM Information Details */
+	{ 0x00, "Dynamic ARFCN Mapping" },			/* [3]  10.5.2.11b	*/
+	{ 0x00, "Frequency Channel Sequence" },		/* [3]  10.5.2.12	*/
+    { 0x00,	"Frequency List" },					/* 10.5.2.13		*/
+	{ 0x00,	"Frequency Short List" },			/* 10.5.2.14		*/
+	{ 0x00,	"Frequency Short List2" },			/* 10.5.2.14a		*/
+/* [3]  10.5.2.14b	Group Channel Description
+ * [3]  10.5.2.14c	GPRS Resumption
+ * [3]  10.5.2.14d	GPRS broadcast information
+ * [3]  10.5.2.14e	Enhanced DTM CS Release Indication
+ */
+	{ 0x00, "Handover Reference" },				/* 10.5.2.15 */
+/*
+ * [3] 10.5.2.16 IA Rest Octets
+ * [3] 10.5.2.17 IAR Rest Octets
+ * [3] 10.5.2.18 IAX Rest Octets
+ * [3] 10.5.2.19 L2 Pseudo Length
+ * [3] 10.5.2.20 Measurement Results
+ * [3] 10.5.2.20a GPRS Measurement Results
+ */
+ 	{ 0x00, "Mobile Allocation" },				/* [3] 10.5.2.21	*/ 
+ 	{ 0x00, "Mobile Time Difference" },			/* [3] 10.5.2.21a	*/
+ 	{ 0x00, "MultiRate configuration" },		/* [3] 10.5.2.21aa	*/
+	{ 0x00, "Multislot Allocation" },			/* [3] 10.5.2.21b	*/ 
+ /*
+ * [3] 10.5.2.21c NC mode
+ * [3] 10.5.2.22 Neighbour Cell Description
+ * [3] 10.5.2.22a Neighbour Cell Description 2
+ * [3] 10.5.2.22b (void)
+ * [3] 10.5.2.22c NT/N Rest Octets
+ * [3] 10.5.2.23 P1 Rest Octets
+ * [3] 10.5.2.24 P2 Rest Octets
+ * [3] 10.5.2.25 P3 Rest Octets
+ * [3] 10.5.2.25a Packet Channel Description
+ * [3] 10.5.2.25b Dedicated mode or TBF
+ * [3] 10.5.2.25c RR Packet Uplink Assignment
+ * [3] 10.5.2.25d RR Packet Downlink Assignment
+ * [3] 10.5.2.26 Page Mode
+ * [3] 10.5.2.26a (void)
+ * [3] 10.5.2.26b (void)
+ * [3] 10.5.2.26c (void)
+ * [3] 10.5.2.26d (void)
+ * [3] 10.5.2.27 NCC Permitted
+ */
+	{ 0x00, "Power Command" },					/* 10.5.2.28 */
+	{ 0x00, "Power Command and access type" },	/* 10.5.2.28a */
+/*
+ * [3] 10.5.2.29 RACH Control Parameters
+ * [3] 10.5.2.30 Request Reference
+ */
+    { 0x00,	"RR Cause" },						/* 10.5.2.31 */
+	{ 0x00,	"Synchronization Indication" },		/* 10.5.2.39 */
+/* [3] 10.5.2.32 SI 1 Rest Octets
+ * [3] 10.5.2.33 SI 2bis Rest Octets 
+ * [3] 10.5.2.33a SI 2ter Rest Octets
+ * [3] 10.5.2.33b SI 2quater Rest Octets
+ * [3] 10.5.2.34 SI 3 Rest Octets
+ * [3] 10.5.2.35 SI 4 Rest Octets
+ * [3] 10.5.2.35a SI 6 Rest Octets
+ * [3] 10.5.2.36 SI 7 Rest Octets
+ * [3] 10.5.2.37 SI 8 Rest Octets
+ * [3] 10.5.2.37a SI 9 Rest Octets
+ * [3] 10.5.2.37b SI 13 Rest Octets
+ * [3] 10.5.2.37c (void)
+ * [3] 10.5.2.37d (void)
+ * [3] 10.5.2.37e SI 16 Rest Octets
+ * [3] 10.5.2.37f SI 17 Rest Octets
+ * [3] 10.5.2.37g SI 19 Rest Octets
+ * [3] 10.5.2.37h SI 18 Rest Octets
+ * [3] 10.5.2.37i SI 20 Rest Octets */
+    { 0x00,	"Starting Time" },					/* [3] 10.5.2.38 Starting Time	*/
+    { 0x00,	"Timing Advance" },					/* [3] 10.5.2.40 Timing Advance */ 
+	{ 0x00,	"Time Difference" },				/* [3] 10.5.2.41 Time Difference				*/
+	{ 0x00,	"TLLI" },							/* [3] 10.5.2.41a TLLI							*/
+/*
+ * [3] 10.5.2.42 TMSI/P-TMSI */
+	{ 0x00,	"VGCS target mode Indication" },	/* [3] 10.5.2.42a								*/ 
+	{ 0x00,	"VGCS Ciphering Parameters" },		/* [3] 10.5.2.42b								*/
+/* [3] 10.5.2.43 Wait Indication
+ * [3] 10.5.2.44 SI10 rest octets $(ASCI)$
+ * [3] 10.5.2.45 EXTENDED MEASUREMENT RESULTS
+ * [3] 10.5.2.46 Extended Measurement Frequency List
+ * [3] 10.5.2.47 Suspension Cause
+ * [3] 10.5.2.48 APDU ID 
+ * [3] 10.5.2.49 APDU Flags
+ * [3] 10.5.2.50 APDU Data
+ * [3] 10.5.2.51 Handover To UTRAN Command
+ * [3] 10.5.2.52 Handover To cdma2000 Command 
+ * [3] 10.5.2.53 (void)
+ * [3] 10.5.2.54 (void)
+ * [3] 10.5.2.55 (void)
+ * [3] 10.5.2.56 3G Target Cell */
+	{ 0x00,	"Dedicated Service Information" },		/* [3] 10.5.2.59	*/
+
+
     /* Mobility Management Information Elements 10.5.3 */
     { 0x00,	"Authentication Parameter RAND" },
     { 0x00,	"Authentication Parameter AUTN (UMTS authentication challenge only)" },
@@ -533,7 +668,7 @@ static const value_string gsm_dtap_elem_strings[] = {
     { 0x00,	"CTS Permission" },
     { 0x00,	"LSA Identifier" },
     { 0x00,	"Daylight Saving Time" },
-    { 0x00,     "Emergency Number List" },
+    { 0x00, "Emergency Number List" },
     /* Call Control Information Elements 10.5.4 */
     { 0x00,	"Auxiliary States" },
     { 0x00,	"Bearer Capability" },
@@ -817,12 +952,7 @@ static const value_string A5_2_algorithm_sup_vals[] = {
 	{ 0,	NULL }
 };
 
-/* algorithm identifier
- * If SC=1 then:
- * bits
- * 4 3 2
- */
- static const value_string algorithm_identifier_vals[] = {
+ static const value_string gsm_a_algorithm_identifier_vals[] = {
 	{ 0,		"Cipher with algorithm A5/1"},
  	{ 1,		"Cipher with algorithm A5/2"},
  	{ 2,		"Cipher with algorithm A5/3"},
@@ -956,6 +1086,34 @@ static int hf_gsm_a_mobile_identity_type = -1;
 static int hf_gsm_a_L3_protocol_discriminator = -1; 
 static int hf_gsm_a_skip_ind = -1; 
 
+static int hf_gsm_a_bcc				= -1;
+static int hf_gsm_a_ncc				= -1;
+static int hf_gsm_a_bcch_arfcn		= -1;
+static int hf_gsm_a_rr_ho_ref_val = -1;
+static int hf_gsm_a_b8spare = -1;
+static int hf_gsm_a_rr_pow_cmd_atc = -1;
+static int hf_gsm_a_rr_pow_cmd_epc = -1;
+static int hf_gsm_a_rr_pow_cmd_fpcepc = -1;
+static int hf_gsm_a_rr_pow_cmd_powlev = -1;
+static int hf_gsm_a_rr_sync_ind_nci = -1;
+static int hf_gsm_a_rr_sync_ind_rot = -1;
+static int hf_gsm_a_rr_sync_ind_si = -1;
+static int hf_gsm_a_rr_format_id = -1;
+static int hf_gsm_a_rr_channel_mode = -1;
+static int hf_gsm_a_rr_channel_mode2 = -1;
+static int hf_gsm_a_rr_sc = -1;
+static int hf_gsm_a_algorithm_id = -1;
+static int hf_gsm_a_rr_multirate_speech_ver = -1;
+static int hf_gsm_a_rr_NCSB				= -1;
+static int hf_gsm_a_rr_ICMI				= -1;
+static int hf_gsm_a_rr_start_mode		= -1;
+static int hf_gsm_a_rr_timing_adv = -1;
+static int hf_gsm_a_rr_time_diff = -1;
+static int hf_gsm_a_rr_tlli = -1;
+static int hf_gsm_a_rr_target_mode = -1;
+static int hf_gsm_a_rr_group_cipher_key_number = -1;
+static int hf_gsm_a_rr_last_segment = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_bssmap_msg = -1;
 static gint ett_dtap_msg = -1;
@@ -996,6 +1154,7 @@ static gint ett_gmm_attach_type = -1;
 static gint ett_gmm_context_stat = -1;
 static gint ett_gmm_update_type = -1;
 static gint ett_gmm_radio_cap = -1;
+
 
 static gint ett_sm_tft = -1;
 
@@ -2891,8 +3050,145 @@ typedef enum
     DE_PD_SAPI,	/* PD and SAPI $(CCBS)$ */
     DE_PRIO,	/* Priority Level */
     DE_PLMN_LIST,	/* PLMN List */
-    /* Radio Resource Management Information Elements 10.5.2, most are from 10.5.1 */
-    DE_RR_CAUSE,	/* RR Cause */
+
+    /* Radio Resource Management Information Elements 10.5.2, most are from 10.5.1	*/
+/*
+ * [3]  10.5.2.1a	BA Range
+ */
+	DE_RR_CELL_CH_DSC,				/* [3]  10.5.2.1b	Cell Channel Description	*/
+
+/* [3]  10.5.2.1c	BA List Pref
+ * [3]  10.5.2.1d	UTRAN Frequency List
+ * [3]  10.5.2.1e	Cell selection indicator after release of all TCH and SDCCH IE
+ */
+	DE_RR_CELL_DSC,					/* 10.5.2.2   RR Cell Description				*/
+/*
+ * [3]  10.5.2.3	Cell Options (BCCH)	
+ * [3]  10.5.2.3a	Cell Options (SACCH)
+ * [3]  10.5.2.4	Cell Selection Parameters
+ * [3]  10.5.2.4a	(void)
+ */
+	DE_RR_CH_DSC,					/* [3]  10.5.2.5	Channel Description			*/
+	DE_RR_CH_DSC2,					/* [3]  10.5.2.5a   Channel Description 2 		*/
+	DE_RR_CH_MODE,					/* [3]  10.5.2.6	Channel Mode				*/
+	DE_RR_CH_MODE2,					/* [3]  10.5.2.7	Channel Mode 2				*/
+/* [3]  10.5.2.7a	UTRAN predefined configuration status information / START-CS / UE CapabilityUTRAN Classmark information element	218
+ * [3]  10.5.2.7b	(void)
+ * [3]  10.5.2.7c	Classmark Enquiry Mask
+ * [3]  10.5.2.7d	GERAN Iu Mode Classmark information element
+ * [3]  10.5.2.8	Channel Needed
+ * [3]  10.5.2.8a	(void)	
+ * [3]  10.5.2.8b	Channel Request Description 2 */
+	DE_RR_CIP_MODE_SET,				/* [3]  10.5.2.9	Cipher Mode Setting			*/
+/* [3]  10.5.2.10	Cipher Response
+ * [3]  10.5.2.11	Control Channel Description
+ * [3]  10.5.2.11a	DTM Information Details */
+	DE_RR_DYN_ARFCN_MAP,			/* [3]  10.5.2.11b	Dynamic ARFCN Mapping		*/
+	DE_RR_FREQ_CH_SEQ,				/* [3]  10.5.2.12	Frequency Channel Sequence	*/
+	DE_RR_FREQ_LIST,				/* [3]  10.5.2.13	Frequency List				*/
+
+/* [3]  10.5.2.13.1	General description
+ * [3]  10.5.2.13.2	Bit map 0 format
+ * [3]  10.5.2.13.3	Range 1024 format
+ * [3]  10.5.2.13.4	Range 512 format
+ * [3]  10.5.2.13.5	Range 256 format
+ * [3]  10.5.2.13.6	Range 128 format
+ * [3]  10.5.2.13.7	Variable bit map format
+ */
+	DE_RR_FREQ_SHORT_LIST,			/* [3]  10.5.2.14	Frequency Short List		*/
+	DE_RR_FREQ_SHORT_LIST2,			/* [3]  10.5.2.14a	Frequency Short List 2		*/
+/* [3]  10.5.2.14b	Group Channel Description
+ * [3]  10.5.2.14c	GPRS Resumption
+ * [3]  10.5.2.14d	GPRS broadcast information
+ * [3]  10.5.2.14e	Enhanced DTM CS Release Indication
+ */
+
+	DE_RR_HO_REF,					/* 10.5.2.15  Handover Reference				*/
+/*
+ * [3] 10.5.2.16 IA Rest Octets
+ * [3] 10.5.2.17 IAR Rest Octets
+ * [3] 10.5.2.18 IAX Rest Octets
+ * [3] 10.5.2.19 L2 Pseudo Length
+ * [3] 10.5.2.20 Measurement Results
+ * [3] 10.5.2.20a GPRS Measurement Results
+ */
+	DE_RR_MOB_ALL,					/* [3] 10.5.2.21 Mobile Allocation				*/
+	DE_RR_MOB_TIME_DIFF,			/* [3] 10.5.2.21a Mobile Time Difference		*/
+	DE_RR_MULTIRATE_CONF,			/* [3] 10.5.2.21aa MultiRate configuration		*/
+	DE_RR_MULT_ALL,					/* [3] 10.5.2.21b Multislot Allocation			*/
+
+/*
+ * [3] 10.5.2.21c NC mode
+ * [3] 10.5.2.22 Neighbour Cell Description
+ * [3] 10.5.2.22a Neighbour Cell Description 2
+ * [3] 10.5.2.22b (void)
+ * [3] 10.5.2.22c NT/N Rest Octets
+ * [3] 10.5.2.23 P1 Rest Octets
+ * [3] 10.5.2.24 P2 Rest Octets
+ * [3] 10.5.2.25 P3 Rest Octets
+ * [3] 10.5.2.25a Packet Channel Description
+ * [3] 10.5.2.25b Dedicated mode or TBF
+ * [3] 10.5.2.25c RR Packet Uplink Assignment
+ * [3] 10.5.2.25d RR Packet Downlink Assignment
+ * [3] 10.5.2.26 Page Mode
+ * [3] 10.5.2.26a (void)
+ * [3] 10.5.2.26b (void)
+ * [3] 10.5.2.26c (void)
+ * [3] 10.5.2.26d (void)
+ * [3] 10.5.2.27 NCC Permitted
+ */
+	DE_RR_POW_CMD,					/* 10.5.2.28  Power Command						*/
+	DE_RR_POW_CMD_AND_ACC_TYPE,		/* 10.5.2.28a Power Command and access type		*/
+/*
+ * [3] 10.5.2.29 RACH Control Parameters
+ * [3] 10.5.2.30 Request Reference
+ */
+    DE_RR_CAUSE,					/* 10.5.2.31  RR Cause							*/
+	DE_RR_SYNC_IND,					/* 10.5.2.39  Synchronization Indication		*/
+/* [3] 10.5.2.32 SI 1 Rest Octets
+ * [3] 10.5.2.33 SI 2bis Rest Octets 
+ * [3] 10.5.2.33a SI 2ter Rest Octets
+ * [3] 10.5.2.33b SI 2quater Rest Octets
+ * [3] 10.5.2.34 SI 3 Rest Octets
+ * [3] 10.5.2.35 SI 4 Rest Octets
+ * [3] 10.5.2.35a SI 6 Rest Octets
+ * [3] 10.5.2.36 SI 7 Rest Octets
+ * [3] 10.5.2.37 SI 8 Rest Octets
+ * [3] 10.5.2.37a SI 9 Rest Octets
+ * [3] 10.5.2.37b SI 13 Rest Octets
+ * [3] 10.5.2.37c (void)
+ * [3] 10.5.2.37d (void)
+ * [3] 10.5.2.37e SI 16 Rest Octets
+ * [3] 10.5.2.37f SI 17 Rest Octets
+ * [3] 10.5.2.37g SI 19 Rest Octets
+ * [3] 10.5.2.37h SI 18 Rest Octets
+ * [3] 10.5.2.37i SI 20 Rest Octets */
+	DE_RR_STARTING_TIME,			/* [3] 10.5.2.38 Starting Time					*/
+	DE_RR_TIMING_ADV,				/* [3] 10.5.2.40 Timing Advance					*/
+	DE_RR_TIME_DIFF,				/* [3] 10.5.2.41 Time Difference				*/
+	DE_RR_TLLI,						/* [3] 10.5.2.41a TLLI							*/
+/*
+ * [3] 10.5.2.42 TMSI/P-TMSI */
+	DE_RR_VGCS_TAR_MODE_IND,		/* [3] 10.5.2.42a VGCS target mode Indication	*/
+	DE_RR_VGCS_CIP_PAR,				/* [3] 10.5.2.42b	VGCS Ciphering Parameters	*/
+
+/* [3] 10.5.2.43 Wait Indication
+ * [3] 10.5.2.44 SI10 rest octets $(ASCI)$
+ * [3] 10.5.2.45 EXTENDED MEASUREMENT RESULTS
+ * [3] 10.5.2.46 Extended Measurement Frequency List
+ * [3] 10.5.2.47 Suspension Cause
+ * [3] 10.5.2.48 APDU ID 
+ * [3] 10.5.2.49 APDU Flags
+ * [3] 10.5.2.50 APDU Data
+ * [3] 10.5.2.51 Handover To UTRAN Command
+ * [3] 10.5.2.52 Handover To cdma2000 Command 
+ * [3] 10.5.2.53 (void)
+ * [3] 10.5.2.54 (void)
+ * [3] 10.5.2.55 (void)
+ * [3] 10.5.2.56 3G Target Cell */
+	DE_RR_DED_SERV_INF,				/* [3] 10.5.2.59	Dedicated Service Information */
+
+
     /* Mobility Management Information Elements 10.5.3 */
     DE_AUTH_PARAM_RAND,	/* Authentication Parameter RAND */
     DE_AUTH_PARAM_AUTN,	/* Authentication Parameter AUTN (UMTS authentication challenge only) */
@@ -3605,6 +3901,685 @@ de_plmn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 
     return(curr_offset - offset);
 }
+/*
+10.5.2 Radio Resource management information elements
+ * [3] 10.5.2.1a BA Range
+ */
+/*
+ * [3] 10.5.2.1b Cell Channel Description
+ */
+static guint8
+de_rr_cell_ch_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+	/* FORMAT-ID, Format Identifier (part of octet 3)*/
+	proto_tree_add_item(tree, hf_gsm_a_rr_format_id, tvb, curr_offset, 1, FALSE);
+	/* Cell Channel Description */ 
+	proto_tree_add_text(tree,tvb, curr_offset, len-1,"Cell Channel Description(Not decoded)");
+
+	
+	curr_offset = curr_offset + 17;
+
+    return(curr_offset - offset);
+}
+/*
+ * [3] 10.5.2.1c BA List Pref 
+ * [3] 10.5.2.1d UTRAN Frequency List 
+ */
+/*
+ * [3] 10.5.2.2 Cell Description 
+ */
+static guint8
+de_rr_cell_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    proto_tree	*subtree;
+    proto_item	*item;
+    guint8	oct;
+    guint32	curr_offset;
+	guint16 bcch_arfcn;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+	item =
+	proto_tree_add_text(tree,
+	    tvb, curr_offset, 2,
+	    gsm_dtap_elem_strings[DE_RR_CELL_DSC].strptr);
+
+    subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_RR_CELL_DSC]);
+
+	proto_tree_add_item(subtree, hf_gsm_a_ncc, tvb, curr_offset, 1, FALSE);
+  	proto_tree_add_item(subtree, hf_gsm_a_bcc, tvb, curr_offset, 1, FALSE);
+	bcch_arfcn = (tvb_get_guint8(tvb,curr_offset) & 0xc0) << 2;
+	bcch_arfcn = bcch_arfcn | tvb_get_guint8(tvb,curr_offset+1);
+	proto_tree_add_uint(subtree, hf_gsm_a_bcch_arfcn , tvb, curr_offset, 2, bcch_arfcn );
+
+
+    curr_offset = curr_offset + 2;
+
+
+    return(curr_offset - offset);
+}
+/*
+ * [3] 10.5.2.3 Cell Options (BCCH) 
+ * [3] 10.5.2.3a Cell Options (SACCH) 
+ * [3] 10.5.2.4 Cell Selection Parameters
+ * [3] 10.5.2.4a MAC Mode and Channel Coding Requested 
+ * [3] 10.5.2.5 Channel Description
+ */
+static guint8
+de_rr_ch_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    proto_tree_add_text(tree,tvb, curr_offset, 4,"Channel Description(Not decoded)");
+	
+	curr_offset = curr_offset + 4;
+
+    return(curr_offset - offset);
+}
+/*
+ * [3] 10.5.2.5a Channel Description 2
+ */
+static guint8
+de_rr_ch_dsc2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    proto_tree_add_text(tree,tvb, curr_offset, 3,"Channel Description 2(Not decoded)");
+	
+	curr_offset = curr_offset + 3;
+
+    return(curr_offset - offset);
+}
+/*
+ * [3] 10.5.2.6 Channel Mode
+ */
+
+/* Channel Mode  */
+static const value_string gsm_a_rr_channel_mode_vals[] = {
+{ 0x00,		"signalling only"},
+{ 0x01,		"speech full rate or half rate version 1(GSM FR or GSM HR)"},
+{ 0x21,		"speech full rate or half rate version 2(GSM EFR)"},
+{ 0x41,		"speech full rate or half rate version 3(FR AMR or HR AMR)"},
+{ 0x81,		"speech full rate or half rate version 4(OFR AMR-WB or OHR AMR-WB)"},
+{ 0x82,		"speech full rate or half rate version 5(FR AMR-WB )"},
+{ 0x83,		"speech full rate or half rate version 6(OHR AMR )"},
+{ 0x61,		"data, 43.5 kbit/s (downlink)+14.5 kbps (uplink)"},
+{ 0x62,		"data, 29.0 kbit/s (downlink)+14.5 kbps (uplink)"},
+{ 0x64,		"data, 43.5 kbit/s (downlink)+29.0 kbps (uplink)"},
+{ 0x67,		"data, 14.5 kbit/s (downlink)+43.5 kbps (uplink)"},
+{ 0x65,		"data, 14.5 kbit/s (downlink)+29.0 kbps (uplink)"},
+{ 0x66,		"data, 29.0 kbit/s (downlink)+43.5 kbps (uplink)"},
+{ 0x27,		"data, 43.5 kbit/s radio interface rate"},
+{ 0x63,		"data, 32.0 kbit/s radio interface rate"},
+{ 0x43,		"data, 29.0 kbit/s radio interface rate"},
+{ 0x0f,		"data, 14.5 kbit/s radio interface rate"},
+{ 0x03,		"data, 12.0 kbit/s radio interface rate"},
+{ 0x0b,		"data, 6.0 kbit/s radio interface rate"},
+{ 0x13,		"data, 3.6 kbit/s radio interface rate"},
+	{ 0,	NULL }
+};
+
+static guint8
+de_rr_ch_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    proto_tree_add_item(tree, hf_gsm_a_rr_channel_mode, tvb, curr_offset, 1, FALSE);
+	
+	curr_offset = curr_offset + 1;
+
+    return(curr_offset - offset);
+}
+/*
+ * [3] 10.5.2.7 Channel Mode 2 
+ */
+
+static const value_string gsm_a_rr_channel_mode2_vals[] = {
+{ 0x00,		"signalling only"},
+{ 0x05,		"speech half rate version 1(GSM HR)"},
+{ 0x25,		"speech half rate version 2(GSM EFR)"},
+{ 0x45,		"speech half rate version 3(HR AMR)"},
+{ 0x85,		"speech half rate version 4(OHR AMR-WB)"},
+{ 0x06,		"speech half rate version 6(OHR AMR )"},
+{ 0x0f,		"data, 6.0 kbit/s radio interface rate"},
+{ 0x17,		"data, 3.6 kbit/s radio interface rate"},
+	{ 0,	NULL }
+};
+
+static guint8
+de_rr_ch_mode2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    proto_tree_add_item(tree, hf_gsm_a_rr_channel_mode2, tvb, curr_offset, 1, FALSE);
+	
+	curr_offset = curr_offset + 1;
+
+    return(curr_offset - offset);
+}  
+/*
+ * [3] 10.5.2.7a UTRAN Classmark information element
+ * [3] 10.5.2.7b (void)
+ * [3] 10.5.2.7c Classmark Enquiry Mask
+ * [3] 10.5.2.8 Channel Needed
+ * [3] 10.5.2.8a Channel Request Description
+ * [3] 10.5.2.8b Channel Request Description 2
+ */
+/*
+ * [3] 10.5.2.9 Cipher Mode Setting
+ */
+/* SC (octet 1) */
+static const value_string gsm_a_rr_sc_vals[] = {
+	{ 0,		"No ciphering"},
+	{ 1,		"Start ciphering"},
+	{ 0,	NULL }
+};
+/* algorithm identifier
+ * If SC=1 then:
+ * bits
+ * 4 3 2
+ */
+
+static guint8
+de_rr_cip_mode_set(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+	guint8 oct;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;		
+
+	/* Cipher Mode Setting
+		 * Note: The coding of fields SC and algorithm identifier is defined in [44.018] 
+		 * as part of the Cipher Mode Setting IE.
+		 */
+		proto_tree_add_item(tree, hf_gsm_a_rr_sc, tvb, curr_offset, 1, FALSE);
+		oct = tvb_get_guint8(tvb,curr_offset);
+		if ( (oct & 1) == 1){ /* Start ciphering */
+			/* algorithm identifier */
+			proto_tree_add_item(tree, hf_gsm_a_algorithm_id, tvb, curr_offset, 1, FALSE);
+		}
+	curr_offset = curr_offset + 1;
+
+    return(curr_offset - offset);
+}
+/*
+ * [3] 10.5.2.10 Cipher Response
+ * [3] 10.5.2.11 Control Channel Description
+ * [3] 10.5.2.11a DTM Information Details
+ */
+/* 
+ * [3]  10.5.2.11b	Dynamic ARFCN Mapping		
+ */
+static guint8
+de_rr_dyn_arfcn_map(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+	proto_tree_add_text(tree,tvb, curr_offset, len,"Dynamic ARFCN Mapping content(Not decoded)");
+
+	
+	curr_offset = curr_offset + len;
+
+    return(curr_offset - offset);
+}  
+/*
+ * [3] 10.5.2.12 Frequency Channel Sequence
+ */
+static guint8
+de_rr_freq_ch_seq(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+	proto_tree_add_text(tree,tvb, curr_offset, 3,"Frequency Channel Sequence(Not decoded)");
+
+	
+	curr_offset = curr_offset + 10;
+
+    return(curr_offset - offset);
+}  
+/*
+ * [3] 10.5.2.13 Frequency List
+ * 
+ * Bit Bit Bit Bit Bit format notation
+ * 8 7  4 3 2
+ * 0 0  X X X bit map 0
+ * 1 0  0 X X 1024 range
+ * 1 0  1 0 0 512 range
+ * 1 0  1 0 1 256 range
+ * 1 0  1 1 0 128 range
+ * 1 0  1 1 1 variable bit map
+ */
+/* The mask 0xce (1100 1110) will produce the result 0110 0111*/ 
+static const value_string gsm_a_rr_freq_list_format_id_vals[] = {
+	{ 0x00,		"bit map 0"},
+	{ 0x02,		"bit map 0"},
+	{ 0x04,		"bit map 0"},
+	{ 0x06,		"bit map 0"},
+	{ 0x08,		"bit map 0"},
+	{ 0x0a,		"bit map 0"},
+	{ 0x0c,		"bit map 0"},
+	{ 0x0e,		"bit map 0"},
+	{ 0x40,		"1024 range"},
+	{ 0x41,		"1024 range"},
+	{ 0x42,		"1024 range"},
+	{ 0x43,		"1024 range"},
+	{ 0x44,		"512 range"},
+	{ 0x45,		"256 range"},
+	{ 0x46,		"128 range"},
+	{ 0x47,		"variable bit map"},
+	{ 0x00,	NULL }
+};
+static guint8
+de_rr_freq_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+	/* FORMAT-ID, Format Identifier (part of octet 3)*/
+	proto_tree_add_item(tree, hf_gsm_a_rr_format_id, tvb, curr_offset, 1, FALSE);
+	/* Frequency list */ 
+	proto_tree_add_text(tree,tvb, curr_offset, len-1,"Frequency Data(Not decoded)");
+
+	curr_offset = curr_offset + len;
+    return(curr_offset - offset);
+
+}
+/*
+ * [3] 10.5.2.13.1 General description
+ * [3] 10.5.2.13.2 Bit map 0 format
+ * [3] 10.5.2.13.3 Range 1024 format
+ * [3] 10.5.2.13.4 Range 512 format
+ * [3] 10.5.2.13.5 Range 256 format
+ * [3] 10.5.2.13.6 Range 128 format
+ * [3] 10.5.2.13.7 Variable bit map format
+ */
+/*
+ * [3] 10.5.2.14 Frequency Short List
+ *
+ *The Frequency Short List information element is a type 3 information element of 10 octet length.
+ *
+ * This element is encoded exactly as the Frequency List information element, 
+ * except that it has a fixed length instead of a variable length and does 
+ * not contain a length indicator and that it shall not be encoded in bitmap 0 format.
+ */
+static guint8
+de_rr_freq_short_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+	/* FORMAT-ID, Format Identifier (part of octet 3)*/
+	proto_tree_add_item(tree, hf_gsm_a_rr_format_id, tvb, curr_offset, 1, FALSE);
+	/* Frequency list */ 
+	proto_tree_add_text(tree,tvb, curr_offset, 9,"Frequency Data(Not decoded)");
+
+	curr_offset = curr_offset + 10;
+    return(curr_offset - offset);
+
+}
+/*
+ * [3] 10.5.2.14a Frequency Short List 2
+ *
+ * The Frequency Short List information element is a type 3 information element of 8 octet length.
+ *
+ * This element is encoded exactly as the Frequency List information element, 
+ * except that it has a fixed length instead of a variable length and does 
+ * not contain a length indicator and that it shall not be encoded in bitmap 0 format.
+ */
+static guint8
+de_rr_freq_short_list2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+	/* FORMAT-ID, Format Identifier (part of octet 3)*/
+	proto_tree_add_item(tree, hf_gsm_a_rr_format_id, tvb, curr_offset, 1, FALSE);
+
+	/* Frequency list */ 
+	proto_tree_add_text(tree,tvb, curr_offset, 7,"Frequency Data(Not decoded)");
+
+	curr_offset = curr_offset + 8;
+    return(curr_offset - offset);
+
+}
+/*
+ * [3] 10.5.2.14b Group Channel Description
+ * [3] 10.5.2.14c GPRS Resumption
+ * [3] 10.5.2.14d GPRS broadcast information
+ */
+/*
+ * [3] 10.5.2.15 Handover Reference
+ */
+static guint8
+de_rr_ho_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    proto_tree	*subtree;
+    proto_item	*item;
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+	item =
+	proto_tree_add_text(tree,
+	    tvb, curr_offset, 1,
+	    gsm_dtap_elem_strings[DE_RR_HO_REF].strptr);
+
+    subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_RR_HO_REF]);
+
+	/* Handover reference value */
+    proto_tree_add_item(subtree, hf_gsm_a_rr_ho_ref_val, tvb, curr_offset, 1, FALSE);
+	
+	curr_offset = curr_offset + 1;
+
+    return(curr_offset - offset);
+}
+/*
+ * [3] 10.5.2.16 IA Rest Octets
+ * [3] 10.5.2.17 IAR Rest Octets
+ * [3] 10.5.2.18 IAX Rest Octets
+ * [3] 10.5.2.19 L2 Pseudo Length
+ * [3] 10.5.2.20 Measurement Results
+ * [3] 10.5.2.20a GPRS Measurement Results
+ */
+/*
+ * [3] 10.5.2.21 Mobile Allocation
+ */
+static guint8
+de_rr_mob_all(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+	proto_tree_add_text(tree,tvb, curr_offset, len ,"Data(Not decoded)");
+
+	curr_offset = curr_offset + len;
+    return(curr_offset - offset);
+
+}
+/*
+ * [3] 10.5.2.21a Mobile Time Difference
+ */
+static guint8
+de_rr_mob_time_diff(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+	proto_tree_add_text(tree,tvb, curr_offset, len ,"Data(Not decoded)");
+
+	curr_offset = curr_offset + len;
+    return(curr_offset - offset);
+
+}
+/*
+ * [3] 10.5.2.21aa MultiRate configuration
+ */
+/*	Multirate speech version Octet 3 Bits 8 7 6 */
+static const value_string multirate_speech_ver_vals[] = {
+	{ 1,		"Adaptive Multirate speech version 1"},
+	{ 2,		"Adaptive Multirate speech version 2"},
+	{ 0,	NULL }
+};
+/* Bit	5 	NSCB: Noise Suppression Control Bit */
+static const value_string NSCB_vals[] = {
+	{ 0,		"Noise Suppression can be used (default)"},
+	{ 1,		"Noise Suppression shall be turned off"},
+	{ 0,	NULL }
+};
+/* Bit	4	ICMI: Initial Codec Mode Indicator */
+static const value_string ICMI_vals[] = {
+	{ 0,		"The initial codec mode is defined by the implicit rule provided in 3GPP TS 05.09"},
+	{ 1,		"The initial codec mode is defined by the Start Mode field"},
+	{ 0,	NULL }
+};
+
+static guint8
+de_rr_multirate_conf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+	guint8 oct;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+	proto_tree_add_item(tree, hf_gsm_a_rr_multirate_speech_ver, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_rr_NCSB, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_rr_ICMI, tvb, curr_offset, 1, FALSE);
+	/* The initial codec mode is coded as in 3GPP TS 45.009 */
+	proto_tree_add_item(tree, hf_gsm_a_rr_start_mode, tvb, curr_offset, 1, FALSE);
+	oct = ( tvb_get_guint8(tvb,curr_offset) &0xe0 ) >> 5;
+	curr_offset++;
+	switch ( oct){
+	case 1:
+		/* Adaptive Multirate speech version 1 */
+		/* Set of AMR codec modes */
+		proto_tree_add_text(tree,tvb, curr_offset, len-1 ,"Data(Not decoded)");
+		break;
+	case 2:
+		/* Adaptive Multirate speech version 2 */
+		proto_tree_add_text(tree,tvb, curr_offset, len-1 ,"Data(Not decoded)");
+		break;
+	default:
+		proto_tree_add_text(tree,tvb,offset,1,"Unknown version");
+		proto_tree_add_text(tree,tvb, curr_offset, len-1 ,"Data(Not decoded)");
+			break;
+	}
+
+	curr_offset = offset + len;
+    return(curr_offset - offset);
+
+}
+/*
+ * [3] 10.5.2.21b Multislot Allocation
+ */
+static guint8
+de_rr_mult_all(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+	proto_tree_add_text(tree,tvb, curr_offset, len ,"Data(Not decoded)");
+
+	curr_offset = curr_offset + len;
+    return(curr_offset - offset);
+
+}
+/*
+ * [3] 10.5.2.21c NC mode
+ * [3] 10.5.2.22 Neighbour Cell Description
+ * [3] 10.5.2.22a Neighbour Cell Description 2
+ * [3] 10.5.2.22b (void)
+ * [3] 10.5.2.22c NT/N Rest Octets
+ * [3] 10.5.2.23 P1 Rest Octets
+ * [3] 10.5.2.24 P2 Rest Octets
+ * [3] 10.5.2.25 P3 Rest Octets
+ * [3] 10.5.2.25a Packet Channel Description
+ * [3] 10.5.2.25b Dedicated mode or TBF
+ * [3] 10.5.2.25c RR Packet Uplink Assignment
+ * [3] 10.5.2.25d RR Packet Downlink Assignment
+ * [3] 10.5.2.26 Page Mode
+ * [3] 10.5.2.26a (void)
+ * [3] 10.5.2.26b (void)
+ * [3] 10.5.2.26c (void)
+ * [3] 10.5.2.26d (void)
+ * [3] 10.5.2.27 NCC Permitted
+ */
+/*
+ * [3] 10.5.2.28 Power Command
+ *
+ *
+ * ATC (Access Type Control) (octet 2)Bit 8
+ * 0	Sending of Handover access is mandatory
+ * 1	Sending of Handover access is optional
+ */
+static const true_false_string gsm_a_rr_pow_cmd_atc_value  = {
+  "Sending of Handover access is optional",
+  "Sending of Handover access is mandatory"
+};
+/*
+ *  The EPC mode field (octet 2) indicates whether the assigned channel(s) 
+ *  shall be in enhanced power control (EPC) mode. It is only valid for channels
+ *  on which EPC may be used. It is coded as follows:
+*/
+static const true_false_string gsm_a_rr_pow_cmd_epc_value  = {
+  "Channel(s) in EPC mode",
+  "Channel(s) not in EPC mode"
+};
+/*
+ * FPC_EPC (octet 2)
+ * The FPC_EPC field (octet 2) has different interpretation depending
+ *		on the channel mode	of the assigned channel (s) and the value 
+ *		of the EPC mode field.
+ * If the channel mode is such that fast power control (FPC) may be 
+ *		used, the FPC_EPC field indicates whether Fast Measurement
+ *		Reporting and Power Control mechanism is used.
+ *		It is coded as follows:
+ * Value 0	FPC not in use
+ *       1	FPC in use
+ * If the channel mode is such that EPC may be used and the EPC mode 
+ *		field indicates that the channel is in EPC mode, the FPC_EPC
+ *		field indicates whether EPC shall be used for uplink power control. 
+ * It is coded as follows:
+ * Value 0	EPC not in use for uplink power control
+ *		 1	EPC in use for uplink power control
+ *
+ */
+static const true_false_string gsm_a_rr_pow_cmd_fpcepc_value  = {
+  "FPC in use/EPC in use for uplink power control",
+  "FPC not in use/C not in use for uplink power control"
+};
+
+/*
+ * Power level (octet 2)The power level field is coded as the binaryRepresentation 
+ * of the "power control level", see 3GPP TS 3GPP TS 45.005. This value shall be used 
+ * by the mobile station According to 3GPP TS 45.008.Range: 0 to 31.
+ */
+
+static guint8
+de_rr_pow_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    proto_tree	*subtree;
+    proto_item	*item;
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+	item =
+	proto_tree_add_text(tree,
+	    tvb, curr_offset, 1,
+	    gsm_dtap_elem_strings[DE_RR_POW_CMD].strptr);
+
+    subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_RR_POW_CMD]);
+
+    proto_tree_add_item(subtree, hf_gsm_a_b8spare, tvb, curr_offset, 1, FALSE);
+	/*EPC mode */	
+    proto_tree_add_item(subtree, hf_gsm_a_rr_pow_cmd_epc, tvb, curr_offset, 1, FALSE);
+	/*FPC_EPC*/
+    proto_tree_add_item(subtree, hf_gsm_a_rr_pow_cmd_fpcepc, tvb, curr_offset, 1, FALSE);
+	/*POWER LEVEL*/
+    proto_tree_add_item(subtree, hf_gsm_a_rr_pow_cmd_powlev, tvb, curr_offset, 1, FALSE);
+	
+	curr_offset = curr_offset + 1;
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [3] 10.5.2.28a Power Command and access type
+ */
+static guint8
+de_rr_pow_cmd_and_acc_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    proto_tree	*subtree;
+    proto_item	*item;
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+	item =
+	proto_tree_add_text(tree,
+	    tvb, curr_offset, 1,
+	    gsm_dtap_elem_strings[DE_RR_POW_CMD_AND_ACC_TYPE].strptr);
+
+    subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_RR_POW_CMD_AND_ACC_TYPE]);
+
+	/*ATC */	
+    proto_tree_add_item(subtree, hf_gsm_a_rr_pow_cmd_atc, tvb, curr_offset, 1, FALSE);
+	/*EPC mode */	
+    proto_tree_add_item(subtree, hf_gsm_a_rr_pow_cmd_epc, tvb, curr_offset, 1, FALSE);
+	/*FPC_EPC*/
+    proto_tree_add_item(subtree, hf_gsm_a_rr_pow_cmd_fpcepc, tvb, curr_offset, 1, FALSE);
+	/*POWER LEVEL*/
+    proto_tree_add_item(subtree, hf_gsm_a_rr_pow_cmd_powlev, tvb, curr_offset, 1, FALSE);
+	
+	curr_offset = curr_offset + 1;
+
+    return(curr_offset - offset);
+}
+/*
+ * [3] 10.5.2.29 RACH Control Parameters
+ * [3] 10.5.2.30 Request Reference
+ */
 
 /*
  * [3] 10.5.2.31
@@ -3630,10 +4605,242 @@ de_rr_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 
     curr_offset++;
 
-    /* no length check possible */
+    return(curr_offset - offset);
+}
+/*
+ * [3] 10.5.2.32 SI 1 Rest Octets
+ * [3] 10.5.2.33 SI 2bis Rest Octets 
+ * [3] 10.5.2.33a SI 2ter Rest Octets
+ * [3] 10.5.2.33b SI 2quater Rest Octets
+ * [3] 10.5.2.34 SI 3 Rest Octets
+ * [3] 10.5.2.35 SI 4 Rest Octets
+ * [3] 10.5.2.35a SI 6 Rest Octets
+ * [3] 10.5.2.36 SI 7 Rest Octets
+ * [3] 10.5.2.37 SI 8 Rest Octets
+ * [3] 10.5.2.37a SI 9 Rest Octets
+ * [3] 10.5.2.37b SI 13 Rest Octets
+ * [3] 10.5.2.37c (void)
+ * [3] 10.5.2.37d (void)
+ * [3] 10.5.2.37e SI 16 Rest Octets
+ * [3] 10.5.2.37f SI 17 Rest Octets
+ * [3] 10.5.2.37g SI 19 Rest Octets
+ * [3] 10.5.2.37h SI 18 Rest Octets
+ * [3] 10.5.2.37i SI 20 Rest Octets
+ */
+/*
+ * [3] 10.5.2.38 Starting Time
+ */
+static guint8
+de_rr_starting_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+	proto_tree_add_text(tree,tvb, curr_offset, 3 ,"Data(Not decoded)");
+
+	curr_offset = curr_offset + 3;
+    return(curr_offset - offset);
+}
+/*
+ * [3] 10.5.2.39 Synchronization Indication
+ */
+/*
+ * ROT: Report Observed Time Difference (Octet1 bit 3) */
+
+static const true_false_string sm_a_rr_sync_ind_rot_value  = {
+  "Mobile Time Difference IE shall be included in the HANDOVER COMPLETE message",
+  "Mobile Time Difference IE shall not be included in the HANDOVER COMPLETE message"
+};
+
+/* SI: Synchronization indication (octet 1)Bit2 1 */
+
+static const value_string gsm_a_rr_sync_ind_si_vals[] = {
+	{ 0,		"Non-synchronized"},
+	{ 1,		"Synchronized"},
+	{ 2,		"Pre-synchronised"},
+	{ 3,		"Pseudo-synchronised"},
+	{ 0,	NULL }
+};
+/* NCI: Normal cell indication (octet 1, bit 4) */
+
+static const true_false_string gsm_a_rr_sync_ind_nci_value  = {
+  "Out of range timing advance shall trigger a handover failure procedure",
+  "Out of range timing advance is ignored"
+};
+
+
+static guint8
+de_rr_sync_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+	/*NCI */	
+    proto_tree_add_item(tree, hf_gsm_a_rr_sync_ind_nci, tvb, curr_offset, 1, FALSE);
+	/*ROT */	
+    proto_tree_add_item(tree, hf_gsm_a_rr_sync_ind_rot, tvb, curr_offset, 1, FALSE);
+	/*SI*/
+    proto_tree_add_item(tree, hf_gsm_a_rr_sync_ind_si, tvb, curr_offset, 1, FALSE);
+	
+	curr_offset = curr_offset + 1;
 
     return(curr_offset - offset);
 }
+
+/*
+ * [3] 10.5.2.40 Timing Advance
+ */
+static guint8
+de_rr_timing_adv(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+	proto_tree_add_item(tree, hf_gsm_a_rr_timing_adv, tvb, curr_offset, 1, FALSE);
+	curr_offset = curr_offset + 1;
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [3] 10.5.2.41 Time Difference
+ */
+static guint8
+de_rr_time_diff(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+	proto_tree_add_item(tree, hf_gsm_a_rr_time_diff, tvb, curr_offset, 1, FALSE);
+	curr_offset = curr_offset + 1;
+
+    return(curr_offset - offset);
+}
+/*
+ * [3] 10.5.2.41a TLLI
+ */
+static guint8
+de_rr_tlli(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+	proto_tree_add_item(tree, hf_gsm_a_rr_tlli, tvb, curr_offset, 4, FALSE);
+	curr_offset = curr_offset + 4;
+
+    return(curr_offset - offset);
+}
+/*
+ * [3] 10.5.2.42 TMSI/P-TMSI
+ */
+/*
+ * [3] 10.5.2.42a VGCS target mode Indication
+ */
+/*
+Target mode (octet 3)
+Bit	8 7
+	0 0	dedicated mode
+	0 1	group transmit mode
+	Other values are reserved for future use.
+*/
+static const value_string gsm_a_rr_target_mode_vals[] = {
+	{ 0,		"Dedicated mode"},
+	{ 1,		"Group transmit mode"},
+	{ 0,	NULL }
+};
+static guint8
+de_rr_vgcs_tar_mode_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+	proto_tree_add_item(tree, hf_gsm_a_rr_target_mode, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_rr_group_cipher_key_number, tvb, curr_offset, 1, FALSE);
+	curr_offset = curr_offset + 1;
+
+    return(curr_offset - offset);
+}
+
+/* 
+ * [3] 10.5.2.42b	VGCS Ciphering Parameters	
+ */
+static guint8
+de_rr_vgcs_cip_par(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+	proto_tree_add_text(tree,tvb, curr_offset, len ,"Data(Not decoded)");
+
+	curr_offset = curr_offset + 3;
+    return(curr_offset - offset);
+}
+/*
+ * [3] 10.5.2.43 Wait Indication
+ * [3] 10.5.2.44 SI10 rest octets $(ASCI)$
+ * [3] 10.5.2.45 EXTENDED MEASUREMENT RESULTS
+ * [3] 10.5.2.46 Extended Measurement Frequency List
+ * [3] 10.5.2.47 Suspension Cause
+ * [3] 10.5.2.48 APDU ID 
+ * [3] 10.5.2.49 APDU Flags
+ * [3] 10.5.2.50 APDU Data
+ * [3] 10.5.2.51 Handover To UTRAN Command
+ * [3] 10.5.2.52 Handover To cdma2000 Command 
+ * [3] 10.5.2.53 (void)
+ * [3] 10.5.2.54 (void)
+ * [3] 10.5.2.55 (void)
+ * [3] 10.5.2.56 3G Target Cell
+*/
+/* 
+ * [3] 10.5.2.59	Dedicated Service Information 
+ */
+/*
+Last Segment (octet 2)
+bit 1
+0	mobile station shall not perform Service Information Sending procedure on new cell.
+1	mobile station shall perform Service Information Sending procedure on new cell.
+*/
+static const true_false_string gsm_a_rr_last_segment_value  = {
+  "Mobile station shall perform Service Information Sending procedure on new cell.",
+  "mobile station shall not perform Service Information Sending procedure on new cell."
+};
+static guint8
+de_rr_ded_serv_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+	proto_tree_add_item(tree, hf_gsm_a_rr_last_segment, tvb, curr_offset, 1, FALSE);
+
+	curr_offset = curr_offset + 3;
+    return(curr_offset - offset);
+}
+
+
 
 /*
  * [3] 10.5.3.1
@@ -11111,9 +12318,133 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     de_pd_sapi,	/* PD and SAPI $(CCBS)$ */
     de_prio /* handled inline */,	/* Priority Level */
     de_plmn_list,	/* PLMN List */
-    /* Radio Resource Management Information Elements 10.5.2, most are from 10.5.1 */
-    de_rr_cause,	/* RR Cause */
-    /* Mobility Management Information Elements 10.5.3 */
+    /* Radio Resource Management  Information Elements 10.5.2, most are from 10.5.1 */
+/*
+ * [3]  10.5.2.1a	BA Range
+ */
+	de_rr_cell_ch_dsc,				/* [3]  10.5.2.1b	Cell Channel Description	*/
+/* [3]  10.5.2.1c	BA List Pref
+ * [3]  10.5.2.1d	UTRAN Frequency List
+ * [3]  10.5.2.1e	Cell selection indicator after release of all TCH and SDCCH IE
+ */
+	de_rr_cell_dsc,					/* 10.5.2.2   RR Cell Description				*/
+/*
+ * [3]  10.5.2.3	Cell Options (BCCH)	
+ * [3]  10.5.2.3a	Cell Options (SACCH)
+ * [3]  10.5.2.4	Cell Selection Parameters
+ * [3]  10.5.2.4a	(void)
+ */
+	de_rr_ch_dsc,					/* [3]  10.5.2.5	Channel Description			*/
+	de_rr_ch_dsc2,					/* [3]  10.5.2.5a   RR Channel Description 2 	*/
+	de_rr_ch_mode,					/* [3]  10.5.2.6	Channel Mode				*/
+	de_rr_ch_mode2,					/* [3]  10.5.2.7	Channel Mode 2				*/
+/*
+ * [3]  10.5.2.7a	UTRAN predefined configuration status information / START-CS / UE CapabilityUTRAN Classmark information element	218
+ * [3]  10.5.2.7b	(void)
+ * [3]  10.5.2.7c	Classmark Enquiry Mask
+ * [3]  10.5.2.7d	GERAN Iu Mode Classmark information element
+ * [3]  10.5.2.8	Channel Needed
+ * [3]  10.5.2.8a	(void)	
+ * [3]  10.5.2.8b	Channel Request Description 2 */
+	de_rr_cip_mode_set,					/* [3]  10.5.2.9	Cipher Mode Setting		*/
+/* [3]  10.5.2.10	Cipher Response
+ * [3]  10.5.2.11	Control Channel Description
+ * [3]  10.5.2.11a	DTM Information Details */
+	de_rr_dyn_arfcn_map,				/* [3]  10.5.2.11b	Dynamic ARFCN Mapping		*/
+	de_rr_freq_ch_seq,					/* [3]  10.5.2.12	Frequency Channel Sequence	*/
+	de_rr_freq_list,					/* [3]  10.5.2.13	Frequency List				*/
+	de_rr_freq_short_list,				/* [3]  10.5.2.14	Frequency Short List		*/
+	de_rr_freq_short_list2,				/* [3]  10.5.2.14a	Frequency Short List 2		*/
+/* [3]  10.5.2.14b	Group Channel Description
+ * [3]  10.5.2.14c	GPRS Resumption
+ * [3]  10.5.2.14d	GPRS broadcast information
+ * [3]  10.5.2.14e	Enhanced DTM CS Release Indication
+ */
+	de_rr_ho_ref,					/* 10.5.2.15  Handover Reference				*/
+/*
+ * [3] 10.5.2.16 IA Rest Octets
+ * [3] 10.5.2.17 IAR Rest Octets
+ * [3] 10.5.2.18 IAX Rest Octets
+ * [3] 10.5.2.19 L2 Pseudo Length
+ * [3] 10.5.2.20 Measurement Results
+ * [3] 10.5.2.20a GPRS Measurement Results
+ */
+	de_rr_mob_all,					/* [3] 10.5.2.21 Mobile Allocation				*/
+	de_rr_mob_time_diff,			/* [3] 10.5.2.21a Mobile Time Difference		*/
+	de_rr_multirate_conf,			/* [3] 10.5.2.21aa MultiRate configuration		*/
+	de_rr_mult_all,					/* [3] 10.5.2.21b Multislot Allocation			*/
+/*
+ * [3] 10.5.2.21c NC mode
+ * [3] 10.5.2.22 Neighbour Cell Description
+ * [3] 10.5.2.22a Neighbour Cell Description 2
+ * [3] 10.5.2.22b (void)
+ * [3] 10.5.2.22c NT/N Rest Octets
+ * [3] 10.5.2.23 P1 Rest Octets
+ * [3] 10.5.2.24 P2 Rest Octets
+ * [3] 10.5.2.25 P3 Rest Octets
+ * [3] 10.5.2.25a Packet Channel Description
+ * [3] 10.5.2.25b Dedicated mode or TBF
+ * [3] 10.5.2.25c RR Packet Uplink Assignment
+ * [3] 10.5.2.25d RR Packet Downlink Assignment
+ * [3] 10.5.2.26 Page Mode
+ * [3] 10.5.2.26a (void)
+ * [3] 10.5.2.26b (void)
+ * [3] 10.5.2.26c (void)
+ * [3] 10.5.2.26d (void)
+ * [3] 10.5.2.27 NCC Permitted
+ */
+	de_rr_pow_cmd,					/* 10.5.2.28  Power Command						*/
+	de_rr_pow_cmd_and_acc_type,		/* 10.5.2.28a Power Command and access type		*/
+/*
+ * [3] 10.5.2.29 RACH Control Parameters
+ * [3] 10.5.2.30 Request Reference
+ */
+    de_rr_cause,					/* 10.5.2.31  RR Cause							*/
+	de_rr_sync_ind,					/* 10.5.2.39  Synchronization Indication		*/
+/* [3] 10.5.2.32 SI 1 Rest Octets
+ * [3] 10.5.2.33 SI 2bis Rest Octets 
+ * [3] 10.5.2.33a SI 2ter Rest Octets
+ * [3] 10.5.2.33b SI 2quater Rest Octets
+ * [3] 10.5.2.34 SI 3 Rest Octets
+ * [3] 10.5.2.35 SI 4 Rest Octets
+ * [3] 10.5.2.35a SI 6 Rest Octets
+ * [3] 10.5.2.36 SI 7 Rest Octets
+ * [3] 10.5.2.37 SI 8 Rest Octets
+ * [3] 10.5.2.37a SI 9 Rest Octets
+ * [3] 10.5.2.37b SI 13 Rest Octets
+ * [3] 10.5.2.37c (void)
+ * [3] 10.5.2.37d (void)
+ * [3] 10.5.2.37e SI 16 Rest Octets
+ * [3] 10.5.2.37f SI 17 Rest Octets
+ * [3] 10.5.2.37g SI 19 Rest Octets
+ * [3] 10.5.2.37h SI 18 Rest Octets
+ * [3] 10.5.2.37i SI 20 Rest Octets */
+	de_rr_starting_time,				/* [3] 10.5.2.38 Starting Time					*/
+	de_rr_timing_adv,					/* [3] 10.5.2.40 Timing Advance					*/ 
+	de_rr_time_diff,					/* [3] 10.5.2.41 Time Difference				*/
+	de_rr_tlli,							/* [3] 10.5.2.41a TLLI							*/
+/*
+ * [3] 10.5.2.42 TMSI/P-TMSI */
+	de_rr_vgcs_tar_mode_ind,			/* [3] 10.5.2.42a VGCS target mode Indication	*/
+	de_rr_vgcs_cip_par,					/* [3] 10.5.2.42b	VGCS Ciphering Parameters	*/
+/* [3] 10.5.2.43 Wait Indication
+ * [3] 10.5.2.44 SI10 rest octets $(ASCI)$
+ * [3] 10.5.2.45 EXTENDED MEASUREMENT RESULTS
+ * [3] 10.5.2.46 Extended Measurement Frequency List
+ * [3] 10.5.2.47 Suspension Cause
+ * [3] 10.5.2.48 APDU ID 
+ * [3] 10.5.2.49 APDU Flags
+ * [3] 10.5.2.50 APDU Data
+ * [3] 10.5.2.51 Handover To UTRAN Command
+ * [3] 10.5.2.52 Handover To cdma2000 Command 
+ * [3] 10.5.2.53 (void)
+ * [3] 10.5.2.54 (void)
+ * [3] 10.5.2.55 (void)
+ * [3] 10.5.2.56 3G Target Cell
+*/
+	de_rr_ded_serv_inf,					/* [3] 10.5.2.59	Dedicated Service Information */
+
+	/* Mobility Management Information Elements 10.5.3 */
     de_auth_param_rand,	/* Authentication Parameter RAND */
     de_auth_param_autn,	/* Authentication Parameter AUTN (UMTS authentication challenge only) */
     de_auth_resp_param,	/* Authentication Response Parameter */
@@ -13496,7 +14827,135 @@ dtap_mm_tmsi_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
+/*
+ * [3] 9.1.15
+ */
+static void
+dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+    curr_offset = offset;
+    curr_len = len;
 
+	/* Mandatory Elemets
+	 * Cell description 10.5.2.2 
+	 */
+	ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RR_CELL_DSC);
+
+	/* Description of the first channel,after time
+	 * Channel Description 2 10.5.2.5a
+	 */
+	ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RR_CH_DSC2);
+
+	/* Handover Reference 10.5.2.15 */
+	ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RR_HO_REF);
+
+	/* Power Command and Access type 10.5.2.28a */
+	ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RR_POW_CMD_AND_ACC_TYPE);
+
+	/* optional elements */
+
+	/* Synchronization Indication 10.5.2.39 */
+	ELEM_OPT_TV_SHORT(0xD0,BSSAP_PDU_TYPE_DTAP, DE_RR_SYNC_IND,"");
+
+	/* Frequency Short List 10.5.2.14 */
+	ELEM_OPT_TV(0x02,BSSAP_PDU_TYPE_DTAP, DE_RR_FREQ_SHORT_LIST," - Frequency Short List, after time");
+
+	/* Frequency List 10.5.2.13 */
+	ELEM_OPT_TLV(0x05, BSSAP_PDU_TYPE_DTAP, DE_RR_FREQ_LIST, " - Frequency List, after time");
+
+	/* Cell Channel Description 10.5.2.1b */
+	ELEM_OPT_TV(0x62,BSSAP_PDU_TYPE_DTAP, DE_RR_CELL_CH_DSC, "");
+
+	/* Multislot Allocation 10.5.2.21b */
+	ELEM_OPT_TLV(0x10,BSSAP_PDU_TYPE_DTAP, DE_RR_MULT_ALL, "");
+
+	/* Mode of the First Channel(Channel Set 1)) Channel Mode 10.5.2.6*/
+	ELEM_OPT_TV(0x63,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_MODE, " - Mode of the First Channel(Channel Set 1))");
+
+	/* Mode of Channel Set 2 Channel Mode 10.5.2.6*/
+	ELEM_OPT_TV(0x11,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_MODE, " - Mode of Channel Set 2");
+
+	/* Mode of Channel Set 3 Channel Mode 10.5.2.6*/	
+	ELEM_OPT_TV(0x13,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_MODE, " - Mode of Channel Set 3");
+
+	/* Mode of Channel Set 4 Channel Mode 10.5.2.6*/
+	ELEM_OPT_TV(0x14,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_MODE, " - Mode of Channel Set 4");
+
+	/* Mode of Channel Set 5 Channel Mode 10.5.2.6*/
+	ELEM_OPT_TV(0x15,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_MODE, " - Mode of Channel Set 5");
+
+	/* Mode of Channel Set 6 Channel Mode 10.5.2.6*/
+	ELEM_OPT_TV(0x16,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_MODE, " - Mode of Channel Set 6");
+
+	/* Mode of Channel Set 7 Channel Mode 10.5.2.6*/
+	ELEM_OPT_TV(0x17,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_MODE, " - Mode of Channel Set 7");
+
+	/* Mode of Channel Set 8 Channel Mode 10.5.2.6*/
+	ELEM_OPT_TV(0x18,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_MODE, " - Mode of Channel Set 8");
+
+	/* Description of the Second Channel, after time, Channel Description 10.5.2.5 */
+	ELEM_OPT_TV(0x64,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_DSC, " - Description of the Second Channel, after time");
+
+	/* Mode of the Second Channel, Channel Mode 2 10.5.2.7 */
+	ELEM_OPT_TV(0x66,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_MODE2, " - Mode of the Second Channel");
+
+	/* Frequency Channel Sequence, after time, Frequency Channel Sequence 10.5.2.12 */
+	ELEM_OPT_TV(0x69,BSSAP_PDU_TYPE_DTAP, DE_RR_FREQ_CH_SEQ, " - Frequency Channel Sequence, after time");
+
+	/* Mobile Allocation, after time, Mobile Allocation 10.5.2.21 */
+	ELEM_OPT_TLV(0x72,BSSAP_PDU_TYPE_DTAP, DE_RR_MOB_ALL, " - Mobile Allocation, after time");
+	
+	/* Starting Time 10.5.2.38 */
+	ELEM_OPT_TV(0x7C,BSSAP_PDU_TYPE_DTAP, DE_RR_STARTING_TIME, "");
+
+	/* Real Time Difference, Time Difference 10.5.2.41 */
+	ELEM_OPT_TV(0x7B,BSSAP_PDU_TYPE_DTAP, DE_RR_TIME_DIFF, " - Real Time Difference");
+
+	/* Timing Advance, Timing Advance 10.5.2.40 */
+	ELEM_OPT_TV(0x7D,BSSAP_PDU_TYPE_DTAP, DE_RR_TIMING_ADV, "");
+
+	/* Frequency Short List, before time, Frequency Short List 10.5.2.14 */
+	ELEM_OPT_TLV(0x19,BSSAP_PDU_TYPE_DTAP, DE_RR_FREQ_SHORT_LIST, " - Frequency Short List, before time");
+
+	/* Frequency List, before time,	Frequency List 10.5.2.13 */
+	ELEM_OPT_TV(0x12,BSSAP_PDU_TYPE_DTAP, DE_RR_FREQ_LIST, " - Frequency List, before time");
+
+	/* Description of the First Channel, before time,	Channel Description 2 10.5.2.5a*/
+	ELEM_OPT_TV(0x1c,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_DSC2, " - Description of the First Channel, before time");
+
+	/* Description of the Second Channel, before time,	Channel Description 10.5.2.5*/
+	ELEM_OPT_TV(0x1d,BSSAP_PDU_TYPE_DTAP, DE_RR_CH_DSC, " - Description of the Second Channel, before time");
+
+	/* Frequency channel sequence before time,	Frequency channel sequence 10.5.2.12*/
+	ELEM_OPT_TV(0x1e,BSSAP_PDU_TYPE_DTAP, DE_RR_FREQ_CH_SEQ, " - Frequency channel sequence before time");
+
+	/* Mobile Allocation, before time,	Mobile Allocation 10.5.2.21*/
+	ELEM_OPT_TLV(0x21,BSSAP_PDU_TYPE_DTAP, DE_RR_MOB_ALL, " - Mobile Allocation, before time");
+
+	/* Cipher Mode Setting,	Cipher Mode Setting 10.5.2.9*/
+	ELEM_OPT_TV_SHORT(0x90,BSSAP_PDU_TYPE_DTAP, DE_RR_CIP_MODE_SET, "");
+
+	/* VGCS target mode Indication,	VGCS target mode Indication 10.5.2.42a*/
+	ELEM_OPT_TLV(0x01,BSSAP_PDU_TYPE_DTAP, DE_RR_VGCS_TAR_MODE_IND, "");
+
+	/* Multi-Rate configuration,	MultiRate configuration 10.5.2.21aa*/
+	ELEM_OPT_TLV(0x03,BSSAP_PDU_TYPE_DTAP, DE_RR_MULTIRATE_CONF, "");
+
+	/* Dynamic ARFCN Mapping,	Dynamic ARFCN Mapping 10.5.2.11b*/
+	ELEM_OPT_TLV(0x76,BSSAP_PDU_TYPE_DTAP, DE_RR_DYN_ARFCN_MAP, "");
+
+	/* VGCS Ciphering Parameters,	VGCS Ciphering Parameters 10.5.2.42b*/
+	ELEM_OPT_TLV(0x04,BSSAP_PDU_TYPE_DTAP, DE_RR_VGCS_CIP_PAR, "");
+
+	/* Dedicated Service Information,	Dedicated Service Information 10.5.2.59*/
+	ELEM_OPT_TV(0x51,BSSAP_PDU_TYPE_DTAP, DE_RR_DED_SERV_INF, "");
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+
+}
 /*
  * [4] 9.1.25
  */
@@ -15792,7 +17251,7 @@ static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     NULL,	/* Assignment Command */
     NULL,	/* Assignment Complete */
     NULL,	/* Assignment Failure */
-    NULL,	/* Handover Command */
+    dtap_rr_ho_cmd,	/* Handover Command */
     NULL,	/* Handover Complete */
     NULL,	/* Handover Failure */
     NULL,	/* Physical Information */
@@ -15815,9 +17274,11 @@ static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 
     NULL,	/* Reserved */
 
-/*    NULL,	* Utran Classmark Change * CONFLICTS WITH Handover To UTRAN Command */
+    NULL,	/* Utran Classmark Change  */
     NULL,	/* UE RAB Preconfiguration */
     NULL,	/* cdma2000 Classmark Change */
+    NULL,	/* Inter System to UTRAN Handover Command */
+    NULL,	/* Inter System to cdma2000 Handover Command */
 
     NULL,	/* System Information Type 8 */
     NULL,	/* System Information Type 1 */
@@ -16725,6 +18186,142 @@ proto_register_gsm_a(void)
 		{ "Skip Indicator",           "gsm_a.skip.ind",
 		FT_UINT8, BASE_DEC, NULL, 0xf0,          
 		"Skip Indicator", HFILL }
+	},
+	{ &hf_gsm_a_bcc,
+		{ "BCC","gsm_a.bcc",
+		FT_UINT8,BASE_DEC,  NULL, 0x07,          
+		"BCC", HFILL }
+	},
+	{ &hf_gsm_a_ncc,
+		{ "NCC","gsm_a.ncc",
+		FT_UINT8,BASE_DEC,  NULL, 0x38,          
+		"NCC", HFILL }
+	},
+	{ &hf_gsm_a_bcch_arfcn,
+		{ "BCCH ARFCN(RF channel number)","gsm_a.bcch_arfcn",
+		FT_UINT16,BASE_DEC,  NULL, 0x0,          
+		"BCCH ARFCN", HFILL }
+	},
+	{ &hf_gsm_a_rr_ho_ref_val,
+		{ "Handover reference value","gsm_a.rr.ho_ref_val",
+		FT_UINT8,BASE_DEC,  NULL, 0x0,          
+		"Handover reference value", HFILL }
+	},
+	{ &hf_gsm_a_b8spare,
+		{ "Spare","gsm_a.spareb8",
+		FT_BOOLEAN,8,  NULL, 0x80,          
+		"Spare", HFILL }
+	},
+	{ &hf_gsm_a_rr_pow_cmd_atc,
+		{ "Spare","gsm_a.rr.pow_cmd_atc",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_pow_cmd_atc_value), 0x80,          
+		"Spare", HFILL }
+	},
+	{ &hf_gsm_a_rr_pow_cmd_epc,
+		{ "EPC_mode","gsm_a.rr.pow_cmd_epc",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_pow_cmd_epc_value), 0x40,          
+		"EPC_mode", HFILL }
+	},
+	{ &hf_gsm_a_rr_pow_cmd_fpcepc,
+		{ "FPC_EPC","gsm_a.rr.pow_cmd_fpcepc",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_pow_cmd_fpcepc_value), 0x20,          
+		"FPC_EPC", HFILL }
+	},
+	{ &hf_gsm_a_rr_pow_cmd_powlev,
+		{ "POWER LEVEL","sm_a.rr.pow_cmd_pow",
+		FT_UINT8,BASE_DEC,  NULL, 0x1f,          
+		"POWER LEVEL", HFILL }
+	},
+	{ &hf_gsm_a_rr_sync_ind_nci,
+		{ "Normal cell indication(NCI)","gsm_a.rr.sync_ind_nci",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_sync_ind_nci_value), 0x08,          
+		"Normal cell indication(NCI)", HFILL }
+	},
+	{ &hf_gsm_a_rr_sync_ind_rot,
+		{ "Report Observed Time Difference(ROT)","gsm_a.rr.sync_ind_rot",
+		FT_BOOLEAN,8,  TFS(&sm_a_rr_sync_ind_rot_value), 0x04,          
+		"Report Observed Time Difference(ROT)", HFILL }
+	},
+	{ &hf_gsm_a_rr_sync_ind_si,
+		{ "Synchronization indication(SI)","gsm_a.rr_sync_ind_si",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_sync_ind_si_vals), 0x03,          
+		"Synchronization indication(SI)", HFILL }
+	},
+	{ &hf_gsm_a_rr_format_id,
+		{ "Format Identifier","gsm_a.rr_format_id",
+		FT_UINT8,BASE_HEX,  VALS(gsm_a_rr_freq_list_format_id_vals), 0xce,          
+		"Format Identifier", HFILL }
+	},
+	{ &hf_gsm_a_rr_channel_mode,
+		{ "Channel Mode","gsm_a.rr.channel_mode",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_mode_vals), 0x0,          
+		"Channel Mode", HFILL }
+	},
+	{ &hf_gsm_a_rr_channel_mode2,
+		{ "Channel Mode 2","gsm_a.rr.channel_mode2",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_channel_mode2_vals), 0x0,          
+		"Channel Mode 2", HFILL }
+	},
+	{ &hf_gsm_a_rr_sc,
+		{ "SC","gsm_a.rr.SC",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_sc_vals), 0x1,          
+		"SC", HFILL }
+	},
+	{ &hf_gsm_a_algorithm_id,
+		{ "Algorithm identifier","gsm_a.algorithm_identifier",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_algorithm_identifier_vals), 0xe,          
+		"Algorithm_identifier", HFILL }
+	},
+
+	{ &hf_gsm_a_rr_multirate_speech_ver,
+		{ "Multirate speech version","gsm_a.rr.multirate_speech_ver",
+		FT_UINT8,BASE_DEC,  VALS(multirate_speech_ver_vals), 0xe0,          
+		"Multirate speech version", HFILL }
+	},
+	{ &hf_gsm_a_rr_NCSB,
+		{ "NSCB: Noise Suppression Control Bit","gsm_a.rr.NCSB",
+		FT_UINT8,BASE_DEC,  VALS(NSCB_vals), 0x10,          
+		"NSCB: Noise Suppression Control Bit", HFILL }
+	},
+	{ &hf_gsm_a_rr_ICMI,
+		{ "ICMI: Initial Codec Mode Indicator","gsm_a.rr.ICMI",
+		FT_UINT8,BASE_DEC,  VALS(ICMI_vals), 0x8,          
+		"ICMI: Initial Codec Mode Indicator", HFILL }
+	},
+	{ &hf_gsm_a_rr_start_mode,
+		{ "Start Mode","gsm_a.rr.start_mode",
+		FT_UINT8,BASE_DEC,  NULL, 0x3,          
+		"Start Mode", HFILL }
+	},
+	{ &hf_gsm_a_rr_timing_adv,
+		{ "Timing advance value","gsm_a.rr.timing_adv",
+		FT_UINT8,BASE_DEC,  NULL, 0x0,          
+		"Timing advance value", HFILL }
+	},
+	{ &hf_gsm_a_rr_time_diff,
+		{ "Time difference value","gsm_a.rr.time_diff",
+		FT_UINT8,BASE_DEC,  NULL, 0x0,          
+		"Time difference value", HFILL }
+	},
+	{ &hf_gsm_a_rr_tlli,
+		{ "Start Mode","gsm_a.rr.tlli",
+		FT_UINT32,BASE_DEC,  NULL, 0x0,          
+		"Start Mode", HFILL }
+	},
+	{ &hf_gsm_a_rr_target_mode,
+		{ "Target mode","gsm_a.rr.target_mode",
+		FT_UINT8,BASE_DEC,  NULL, 0xc0,          
+		"Target mode", HFILL }
+	},
+	{ &hf_gsm_a_rr_group_cipher_key_number,
+		{ "Group cipher key number","gsm_a.rr.Group_cipher_key_number",
+		FT_UINT8,BASE_DEC,  NULL, 0x3c,          
+		"Group cipher key number", HFILL }
+	},
+	{ &hf_gsm_a_rr_last_segment,
+		{ "Last Segment ","gsm_a.rr.last_segment",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_last_segment_value), 0x01,          
+		"Last Segment ", HFILL }
 	},
 
     };
