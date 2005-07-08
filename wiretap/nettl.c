@@ -51,13 +51,13 @@ static guchar nettl_magic_hpux10[MAGIC_SIZE] = {
 
 struct nettl_file_hdr {
     guchar	magic[MAGIC_SIZE];
-    guchar	file_name[56];
-    guchar	tz[20];
-    guchar	host_name[9];
-    guchar	os_vers[9];
+    gchar	file_name[56];
+    gchar	tz[20];
+    gchar	host_name[9];
+    gchar	os_vers[9];
     guchar	os_v;
     guint8	xxa[8];
-    guchar	model[11];
+    gchar	model[11];
     guint16	unknown;	/* just padding to 128 bytes? */
 };
 
