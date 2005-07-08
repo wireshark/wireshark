@@ -776,11 +776,11 @@ SubscriberStatus ::= ENUMERATED {
   operatorDeterminedBarring    ( 1 ) }
 
 BcsmTriggerDetectionPoint ::= ENUMERATED {
-  collectedInfo    ( 2 ), 
-  routeSelectFailure    (4 ),
-  termAttemptAuthorized    ( 12 ), 
-  tBusy                    (13 ), 
-  tNoAnswer                (14 ),  
+  collectedInfo				( 2 ), 
+  routeSelectFailure		(4 ),
+  termAttemptAuthorized		( 12 ), 
+  tBusy						(13 ), 
+  tNoAnswer					(14 ),  
   ...  }
 
 ServiceKey ::= INTEGER ( 0 .. 2147483647 )
@@ -3249,8 +3249,8 @@ CallBarringData ::= SEQUENCE {
 Password ::= NumericString (SIZE( 4 ) )
 
 BasicServiceCode ::= CHOICE {
-	bearerService	[2] BearerServiceCode,
-	teleservice		[3] TeleserviceCode}
+	bearerService	[2] IMPLICIT BearerServiceCode,
+	teleservice		[3] IMPLICIT TeleserviceCode}
 
 BearerServiceCode ::= OCTET STRING (SIZE (1))
 -- This type is used to represent the code identifying a single

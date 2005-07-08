@@ -1,6 +1,6 @@
 /* packet-gsm_map-template.c
  * Routines for GSM MobileApplication packet dissection
- * Copyright 2004 - 2005 , Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2004 - 2005 , Anders Broman <anders.broman [AT] ericsson.com>
  * Based on the dissector by:
  * Felix Fei <felix.fei [AT] utstar.com>
  * and Michael Lum <mlum [AT] telostech.com>
@@ -516,7 +516,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_TMSI(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 56: /*sendAuthenticationInfo*/
-	  if (application_context_version < 2 ){
+	  if (application_context_version < 3 ){
 		  offset=dissect_gsm_map_SendAuthenticationInfoArg(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_imsi);
 	  }else{
 		  offset=dissect_gsm_map_SendAuthenticationInfoArgV2(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoArg);

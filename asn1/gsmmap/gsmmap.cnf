@@ -188,14 +188,14 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
 
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_BODY ProtocolId
+#.FN_PARS  ProtocolId
 
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, &protocolId);
+  VAL_PTR = &protocolId
 
 #----------------------------------------------------------------------------------------
-#.FN_BODY AccessNetworkProtocolId
+#.FN_PARS AccessNetworkProtocolId
 
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, &AccessNetworkProtocolId);
+  VAL_PTR = &AccessNetworkProtocolId
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY SignalInfo
