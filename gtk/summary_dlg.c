@@ -215,7 +215,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Dropped count */
   if (summary.drops_known) {
-    g_snprintf(string_buff, SUM_STR_MAX, "%u", summary.drops);
+    g_snprintf(string_buff, SUM_STR_MAX, "%" PRIu64, summary.drops);
   } else {
     g_snprintf(string_buff, SUM_STR_MAX, "unknown");
   }
@@ -319,9 +319,9 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   add_string_to_list(list, "Avg. packet size", string_buff, string_buff2);
 
   /* Byte count */
-  g_snprintf(string_buff, SUM_STR_MAX, "%d", summary.bytes);
+  g_snprintf(string_buff, SUM_STR_MAX, "%" PRIu64, summary.bytes);
   if (summary.dfilter && summary.filtered_count > 0){
-    g_snprintf(string_buff2, SUM_STR_MAX, "%d", summary.filtered_bytes);
+    g_snprintf(string_buff2, SUM_STR_MAX, "%" PRIu64, summary.filtered_bytes);
   } else {
     strcpy(string_buff2, "");
   }

@@ -31,7 +31,7 @@
 #endif
 
 typedef struct _summary_tally {
-    guint32	bytes;		/* total bytes */
+    guint64	bytes;		/* total bytes */
     double	start_time;	/* seconds, with msec resolution */
     double	stop_time;	/* seconds, with msec resolution */
     double	elapsed_time;	/* seconds, with msec resolution,
@@ -40,7 +40,7 @@ typedef struct _summary_tally {
     int		marked_count;	/* number of marked packets */
     int		packet_count;	/* total number of packets in trace */
     int		filtered_count; /* number of filtered packets */
-    guint32	filtered_bytes;	/* total bytes in the filtered packets */
+    guint64	filtered_bytes;	/* total bytes in the filtered packets */
     double 	filtered_start; /* time in seconds, with msec resolution */
     double 	filtered_stop;  /* time in seconds, with msec resolution */
     const char	*filename;
@@ -49,7 +49,7 @@ typedef struct _summary_tally {
     gboolean	has_snap;	/* TRUE if maximum capture packet length is known */
     int		snap;		/* Maximum captured packet length */
     gboolean    drops_known;	/* TRUE if number of packet drops is known */
-    guint32     drops;		/* number of packet drops */
+    guint64     drops;		/* number of packet drops */
     const char	*dfilter;	/* display filter */
 
     /* capture related, use summary_fill_in_capture() to get values */
