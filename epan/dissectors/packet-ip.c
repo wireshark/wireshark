@@ -1004,11 +1004,12 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
               "Header checksum: 0x%04x [correct]", iph->ip_sum);
       }
       else {
-	item = proto_tree_add_boolean_hidden(ip_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, TRUE);
-	PROTO_ITEM_SET_HIDDEN(item);
 	proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum,
           "Header checksum: 0x%04x [incorrect, should be 0x%04x]", iph->ip_sum,
 	  in_cksum_shouldbe(iph->ip_sum, ipsum));
+	item = proto_tree_add_boolean(ip_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, TRUE);
+	PROTO_ITEM_SET_GENERATED(item);
+    PROTO_ITEM_SET_HIDDEN(item);
       }
     }
   } else {
@@ -1392,7 +1393,7 @@ dissect_mpls_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
     if (computed_cksum == 0)
     {
         proto_tree_add_uint_format(mpls_tree, hf_icmp_mpls_checksum, tvb, offset + 2, 2,
-                                    cksum, "Checksum: 0x%04x (correct)", cksum);
+                                    cksum, "Checksum: 0x%04x [correct]", cksum);
     }
     else
     {
@@ -1401,7 +1402,7 @@ dissect_mpls_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
 
         proto_tree_add_uint_format(mpls_tree, hf_icmp_mpls_checksum, tvb, offset + 2, 2,
                                     cksum,
-                                    "Checksum: 0x%04x (incorrect, should be 0x%04x)",
+                                    "Checksum: 0x%04x [incorrect, should be 0x%04x]",
                                     cksum, in_cksum_shouldbe(cksum, computed_cksum));
     }
 
@@ -1769,14 +1770,14 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (computed_cksum == 0) {
         proto_tree_add_uint_format(icmp_tree, hf_icmp_checksum, tvb, 2, 2,
  			  cksum,
-			  "Checksum: 0x%04x (correct)", cksum);
+			  "Checksum: 0x%04x [correct]", cksum);
       } else {
         item = proto_tree_add_boolean(icmp_tree, hf_icmp_checksum_bad,
 			  tvb, 2, 2, TRUE);
         PROTO_ITEM_SET_HIDDEN(item);
         proto_tree_add_uint_format(icmp_tree, hf_icmp_checksum, tvb, 2, 2,
 		  cksum,
-		  "Checksum: 0x%04x (incorrect, should be 0x%04x)",
+		  "Checksum: 0x%04x [incorrect, should be 0x%04x]",
 		  cksum, in_cksum_shouldbe(cksum, computed_cksum));
       }
     } else {

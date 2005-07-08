@@ -4555,11 +4555,11 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	computed_cksum = in_cksum(&cksum_vec[0], 1);
 	if (computed_cksum == 0) {
 	    proto_tree_add_text(rsvp_header_tree, tvb, offset+2, 2,
-				"Message Checksum: 0x%04x (correct)",
+				"Message Checksum: 0x%04x [correct]",
 				cksum);
 	} else {
 	    proto_tree_add_text(rsvp_header_tree, tvb, offset+2, 2,
-				"Message Checksum: 0x%04x (incorrect, should be 0x%04x)",
+				"Message Checksum: 0x%04x [incorrect, should be 0x%04x]",
 				cksum,
 				in_cksum_shouldbe(cksum, computed_cksum));
 	}

@@ -1274,7 +1274,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tvb,
 			offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,
 			cksum,
-			"Checksum: 0x%04x (correct)", cksum);
+			"Checksum: 0x%04x [correct]", cksum);
 	    } else {
 		proto_tree_add_boolean_hidden(icmp6_tree, hf_icmpv6_checksum_bad,
 			tvb,
@@ -1284,7 +1284,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tvb,
 			offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,
 			cksum,
-			"Checksum: 0x%04x (incorrect, should be 0x%04x)",
+			"Checksum: 0x%04x [incorrect, should be 0x%04x]",
 			cksum, in_cksum_shouldbe(cksum, computed_cksum));
 	    }
 	} else {

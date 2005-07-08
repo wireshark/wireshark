@@ -2941,24 +2941,28 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       computed_cksum = in_cksum(&cksum_vec[0], 4);
       if (computed_cksum == 0) {
         proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
-          offset + 16, 2, th_sum, "Checksum: 0x%04x (correct)", th_sum);
+          offset + 16, 2, th_sum, "Checksum: 0x%04x [correct]", th_sum);
 
         /* Checksum is valid, so we're willing to desegment it. */
         desegment_ok = TRUE;
       } else {
-        proto_tree_add_boolean_hidden(tcp_tree, hf_tcp_checksum_bad, tvb,
-	   offset + 16, 2, TRUE);
+        proto_item *item;
+
         proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
            offset + 16, 2, th_sum,
-	   "Checksum: 0x%04x (incorrect, should be 0x%04x)", th_sum,
+	   "Checksum: 0x%04x [incorrect, should be 0x%04x]", th_sum,
 	   in_cksum_shouldbe(th_sum, computed_cksum));
+        item = proto_tree_add_boolean(tcp_tree, hf_tcp_checksum_bad, tvb,
+	   offset + 16, 2, TRUE);
+        PROTO_ITEM_SET_GENERATED(item);
+        PROTO_ITEM_SET_HIDDEN(item);
 
         if (check_col(pinfo->cinfo, COL_INFO))
           col_append_fstr(pinfo->cinfo, COL_INFO, " [TCP CHECKSUM INCORRECT]");
 
         /* Checksum is invalid, so we're not willing to desegment it. */
         desegment_ok = FALSE;
-        pinfo->noreassembly_reason = " (incorrect TCP checksum)";
+        pinfo->noreassembly_reason = " [incorrect TCP checksum]";
       }
     } else {
       proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,

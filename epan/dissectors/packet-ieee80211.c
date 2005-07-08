@@ -2297,11 +2297,11 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	      if (fcs == sent_fcs)
 		proto_tree_add_uint_format(hdr_tree, hf_fcs, tvb,
 			hdr_len + len, 4, sent_fcs,
-			"Frame check sequence: 0x%08x (correct)", sent_fcs);
+			"Frame check sequence: 0x%08x [correct]", sent_fcs);
 	      else
 		proto_tree_add_uint_format(hdr_tree, hf_fcs, tvb,
 			hdr_len + len, 4, sent_fcs,
-			"Frame check sequence: 0x%08x (incorrect, should be 0x%08x)",
+			"Frame check sequence: 0x%08x [incorrect, should be 0x%08x]",
 			sent_fcs, fcs);
 	    }
 	}

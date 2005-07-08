@@ -1053,11 +1053,11 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    if (computed_cksum == 0) {
 		proto_tree_add_text(lmp_header_tree, tvb, offset+6, 2,
-				    "Message Checksum: 0x%04x (correct)",
+				    "Message Checksum: 0x%04x [correct]",
 				    cksum);
 	    } else {
 		proto_tree_add_text(lmp_header_tree, tvb, offset+6, 2,
-				    "Message Checksum: 0x%04x (incorrect, should be 0x%04x)",
+				    "Message Checksum: 0x%04x [incorrect, should be 0x%04x]",
 				    cksum,
 				    in_cksum_shouldbe(cksum, computed_cksum));
 	    }

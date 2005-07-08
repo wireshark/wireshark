@@ -1352,12 +1352,12 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			computed_cksum = in_cksum(&cksum_vec[0], 1);
 			if (computed_cksum == 0) {
 				proto_tree_add_uint_format(pgm_tree, hf_pgm_main_cksum, tvb,
-					offset+6, 2, pgmhdr.cksum, "Checksum: 0x%04x (correct)", pgmhdr.cksum);
+					offset+6, 2, pgmhdr.cksum, "Checksum: 0x%04x [correct]", pgmhdr.cksum);
 			} else {
 				proto_tree_add_boolean_hidden(pgm_tree, hf_pgm_main_cksum_bad, tvb,
 				    offset+6, 2, TRUE);
 				proto_tree_add_uint_format(pgm_tree, hf_pgm_main_cksum, tvb,
-				    offset+6, 2, pgmhdr.cksum, "Checksum: 0x%04x (incorrect, should be 0x%04x)",
+				    offset+6, 2, pgmhdr.cksum, "Checksum: 0x%04x [incorrect, should be 0x%04x]",
 					pgmhdr.cksum, in_cksum_shouldbe(pgmhdr.cksum, computed_cksum));
 			}
 		} else {

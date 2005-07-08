@@ -1887,13 +1887,13 @@ dissect_dnp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     calc_dl_crc = calculateCRC(tvb_get_ptr(tvb, 0, DNP_HDR_LEN - 2), DNP_HDR_LEN - 2);
     if (dl_crc == calc_dl_crc)
       proto_tree_add_uint_format(dl_tree, hf_dnp_hdr_CRC, tvb, offset, 2,
-               dl_crc, "CRC: 0x%04x (correct)", dl_crc);
+               dl_crc, "CRC: 0x%04x [correct]", dl_crc);
     else
     {
       proto_tree_add_boolean_hidden(dl_tree, hf_dnp_hdr_CRC_bad, tvb,
                   offset, 2, TRUE);
       proto_tree_add_uint_format(dl_tree, hf_dnp_hdr_CRC, tvb,
-               offset, 2, dl_crc, "CRC: 0x%04x (incorrect, should be 0x%04x)",
+               offset, 2, dl_crc, "CRC: 0x%04x [incorrect, should be 0x%04x]",
                      dl_crc, calc_dl_crc);
     }
     offset += 2;

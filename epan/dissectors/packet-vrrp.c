@@ -183,11 +183,11 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
                         if (computed_cksum == 0) {
                                 proto_tree_add_text(vrrp_tree, tvb, offset, 2,
-                                                    "Checksum: 0x%04x (correct)",
+                                                    "Checksum: 0x%04x [correct]",
                                                     cksum);
                         } else {
                                 proto_tree_add_text(vrrp_tree, tvb, offset, 2,
-                                                    "Checksum: 0x%04x (incorrect, should be 0x%04x)",
+                                                    "Checksum: 0x%04x [incorrect, should be 0x%04x]",
                                                     cksum,
                                                     in_cksum_shouldbe(cksum, computed_cksum));
                         }

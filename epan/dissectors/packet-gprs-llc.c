@@ -298,11 +298,11 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		switch ( fcs_status ) {
 
 		case FCS_VALID:
-			proto_tree_add_text ( llcgprs_tree , tvb , crc_start , 3 , "FCS: 0x%06x (correct)" , fcs_calc&0xffffff );
+			proto_tree_add_text ( llcgprs_tree , tvb , crc_start , 3 , "FCS: 0x%06x [correct]" , fcs_calc&0xffffff );
 			break;
 
 		case FCS_NOT_VALID:
-			proto_tree_add_text ( llcgprs_tree , tvb , crc_start , 3 , "FCS: 0x%06x  (incorrect, should be 0x%06x)",
+			proto_tree_add_text ( llcgprs_tree , tvb , crc_start , 3 , "FCS: 0x%06x [incorrect, should be 0x%06x]",
 				fcs,  fcs_calc );
 			break;
 

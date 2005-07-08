@@ -340,13 +340,13 @@ void igmp_checksum(proto_tree *tree, tvbuff_t *tvb, int hf_index,
 		if (cksum == 0) {
 			proto_tree_add_uint_format(tree, hf_index,
 			    tvb, 2, 2, hdrcksum,
-			    "Header checksum: 0x%04x (correct)", hdrcksum);
+			    "Header checksum: 0x%04x [correct]", hdrcksum);
 		} else {
 			proto_tree_add_boolean_hidden(tree, hf_index_bad,
 			    tvb, 2, 2, TRUE);
 			proto_tree_add_uint_format(tree, hf_index,
 			    tvb, 2, 2, hdrcksum,
-			    "Header checksum: 0x%04x (incorrect, should be 0x%04x)", hdrcksum,in_cksum_shouldbe(hdrcksum,cksum));
+			    "Header checksum: 0x%04x [incorrect, should be 0x%04x]", hdrcksum,in_cksum_shouldbe(hdrcksum,cksum));
 		}
 	} else
 		proto_tree_add_uint(tree, hf_index, tvb, 2, 2, hdrcksum);

@@ -1808,23 +1808,23 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 
         		case NO_CKSUM :
 	      			proto_tree_add_uint_format(lsp_tree, hf_isis_lsp_checksum, tvb, offset, 2, checksum,
-					"Checksum: 0x%04x (unused)", checksum);
+					"Checksum: 0x%04x [unused]", checksum);
        	 		break;
         		case DATA_MISSING :
           			isis_dissect_unknown(tvb, tree, offset,
-		    			"packet length %d went beyond packet",
+		    			"[packet length %d went beyond packet]",
       			 		tvb_length_remaining(tvb, offset_checksum));
         		break;
         		case CKSUM_NOT_OK :
 					proto_tree_add_uint_format(lsp_tree, hf_isis_lsp_checksum, tvb, offset, 2, checksum,
-						"Checksum: 0x%04x (incorrect, should be 0x%04x)",
+						"Checksum: 0x%04x [incorrect, should be 0x%04x]",
 						checksum, cacl_checksum);
 					proto_tree_add_boolean_hidden(lsp_tree, hf_isis_lsp_checksum_bad,
 						tvb, offset, 2, TRUE);
         		break;
 	        	case CKSUM_OK :
 	        			proto_tree_add_uint_format(lsp_tree, hf_isis_lsp_checksum, tvb, offset, 2, checksum,
-						"Checksum: 0x%04x (correct)", checksum);
+						"Checksum: 0x%04x [correct]", checksum);
 					proto_tree_add_boolean_hidden(lsp_tree, hf_isis_lsp_checksum_bad,
 						tvb, offset, 2, FALSE);
         		break;

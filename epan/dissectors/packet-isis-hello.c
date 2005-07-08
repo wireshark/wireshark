@@ -553,22 +553,22 @@ dissect_hello_checksum_clv(tvbuff_t *tvb,
 
         		case NO_CKSUM :
                                 proto_tree_add_text ( tree, tvb, offset, length,
-                                                      "Checksum: 0x%04x (unused)", checksum);
+                                                      "Checksum: 0x%04x [unused]", checksum);
        	 		break;
         		case DATA_MISSING :
           			isis_dissect_unknown(tvb, tree, offset,
-                                                     "packet length %d went beyond packet",
+                                                     "[packet length %d went beyond packet]",
                                                      tvb_length_remaining(tvb, 0));
         		break;
         		case CKSUM_NOT_OK :
                                 proto_tree_add_text ( tree, tvb, offset, length,
-                                                      "Checksum: 0x%04x (incorrect, should be 0x%04x)",
+                                                      "Checksum: 0x%04x [incorrect, should be 0x%04x]",
                                                       checksum,
                                                       cacl_checksum);
         		break;
 	        	case CKSUM_OK :
                                 proto_tree_add_text ( tree, tvb, offset, length,
-                                                      "Checksum: 0x%04x (correct)", checksum);
+                                                      "Checksum: 0x%04x [correct]", checksum);
         		break;
         		default :
           			g_message("'check_and_get_checksum' returned an invalid value");

@@ -196,12 +196,12 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    if (computed_cksum == 0) {
 		proto_tree_add_uint_format(pim_tree, hf_pim_cksum, tvb,
 			    offset, 2, pim_cksum,
-			    "Checksum: 0x%04x (correct)",
+			    "Checksum: 0x%04x [correct]",
 			    pim_cksum);
 	    } else {
 		proto_tree_add_uint_format(pim_tree, hf_pim_cksum, tvb,
 			    offset, 2, pim_cksum,
-			    "Checksum: 0x%04x (incorrect, should be 0x%04x)",
+			    "Checksum: 0x%04x [incorrect, should be 0x%04x]",
 			    pim_cksum, in_cksum_shouldbe(pim_cksum, computed_cksum));
 	    }
 	} else {
@@ -716,12 +716,12 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    if (computed_cksum == 0) {
 		proto_tree_add_uint_format(pim_tree, hf_pim_cksum, tvb,
 			offset + 2, 2, pim_cksum,
-			"Checksum: 0x%04x (correct)",
+			"Checksum: 0x%04x [correct]",
 			pim_cksum);
 	    } else {
 		proto_tree_add_uint_format(pim_tree, hf_pim_cksum, tvb,
 			offset + 2, 2, pim_cksum,
-			"Checksum: 0x%04x (incorrect, should be 0x%04x)",
+			"Checksum: 0x%04x [incorrect, should be 0x%04x]",
 			pim_cksum, in_cksum_shouldbe(pim_cksum, computed_cksum));
 	    }
 	} else {

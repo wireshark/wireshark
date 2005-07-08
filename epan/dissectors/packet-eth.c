@@ -388,11 +388,11 @@ add_ethernet_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
       guint32 fcs = crc32_802_tvb(tvb, tvb_length(tvb) - 4);
       if (fcs == sent_fcs) {
 	proto_tree_add_text(fh_tree, trailer_tvb, trailer_length, 4,
-			    "Frame check sequence: 0x%08x (correct)",
+			    "Frame check sequence: 0x%08x [correct]",
 			    sent_fcs);
       } else {
 	proto_tree_add_text(fh_tree, trailer_tvb, trailer_length, 4,
-			    "Frame check sequence: 0x%08x (incorrect, should be 0x%08x)",
+			    "Frame check sequence: 0x%08x [incorrect, should be 0x%08x]",
 			    sent_fcs, fcs);
       }
     }

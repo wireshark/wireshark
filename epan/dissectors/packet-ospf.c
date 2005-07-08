@@ -575,10 +575,10 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    computed_cksum = in_cksum(cksum_vec, cksum_vec_len);
 	    if (computed_cksum == 0) {
 		proto_tree_add_text(ospf_header_tree, tvb, 12, 2,
-			"Packet Checksum: 0x%04x (correct)", cksum);
+			"Packet Checksum: 0x%04x [correct]", cksum);
 	    } else {
 		proto_tree_add_text(ospf_header_tree, tvb, 12, 2,
-			"Packet Checksum: 0x%04x (incorrect, should be 0x%04x)",
+			"Packet Checksum: 0x%04x [incorrect, should be 0x%04x]",
 			cksum, in_cksum_shouldbe(cksum, computed_cksum));
 	    }
 	} else {
@@ -637,7 +637,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  	    proto_tree_add_text(ospf_header_tree, tvb, 14, 1, "Instance ID: %u",
 			    instance_ID);
  	    reserved = tvb_get_guint8(tvb, 15);
-	    proto_tree_add_text(ospf_header_tree, tvb, 15, 1, (reserved == 0 ? "Reserved: %u" : "Reserved: %u (incorrect, should be 0)"),
+	    proto_tree_add_text(ospf_header_tree, tvb, 15, 1, (reserved == 0 ? "Reserved: %u" : "Reserved: %u [incorrect, should be 0]"),
 				reserved);
 	    break;
 	}
@@ -786,7 +786,7 @@ dissect_ospf_db_desc(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version
             case OSPF_VERSION_3:
 
 	        reserved = tvb_get_guint8(tvb, offset);
-	        proto_tree_add_text(ospf_db_desc_tree, tvb, offset, 1, (reserved == 0 ? "Reserved: %u" : "Reserved: %u (incorrect, should be 0)"),
+	        proto_tree_add_text(ospf_db_desc_tree, tvb, offset, 1, (reserved == 0 ? "Reserved: %u" : "Reserved: %u [incorrect, should be 0]"),
 				reserved);
 
 	        dissect_ospf_options(tvb, offset + 1, ospf_db_desc_tree, version);
@@ -795,7 +795,7 @@ dissect_ospf_db_desc(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version
 			    tvb_get_ntohs(tvb, offset+4));
 
 	        reserved = tvb_get_guint8(tvb, offset + 6);
-	        proto_tree_add_text(ospf_db_desc_tree, tvb, offset + 6, 1, (reserved == 0 ? "Reserved: %u" : "Reserved: %u (incorrect, should be 0)"),
+	        proto_tree_add_text(ospf_db_desc_tree, tvb, offset + 6, 1, (reserved == 0 ? "Reserved: %u" : "Reserved: %u [incorrect, should be 0]"),
 				reserved);
 
 	        flags = tvb_get_guint8(tvb, offset + 7);
@@ -859,7 +859,7 @@ dissect_ospf_ls_req(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
     	    case OSPF_VERSION_3:
  	        reserved = tvb_get_ntohs(tvb, offset);
  	        proto_tree_add_text(ospf_lsr_tree, tvb, offset, 2,
- 	            (reserved == 0 ? "Reserved: %u" :  "Reserved: %u (incorrect, should be 0)"), reserved);
+ 	            (reserved == 0 ? "Reserved: %u" :  "Reserved: %u [incorrect, should be 0]"), reserved);
  	        ls_type = tvb_get_ntohs(tvb, offset+2);
 	        proto_tree_add_text(ospf_lsr_tree, tvb, offset+2, 2, "LS Type: %s (0x%04x)",
 			    val_to_str(ls_type, v3_ls_type_vals, "Unknown"),
@@ -1880,7 +1880,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 	    /* reserved field */
  	    reserved = tvb_get_guint8(tvb, offset+1);
 	    proto_tree_add_text(ospf_lsa_tree, tvb, offset+1, 1,
-	       (reserved == 0 ? "Reserved: %u" : "Reserved: %u (incorrect, should be 0)"),reserved);
+	       (reserved == 0 ? "Reserved: %u" : "Reserved: %u [incorrect, should be 0]"),reserved);
 
 	    /* metric */
             metric=tvb_get_ntohs(tvb, offset+2);
@@ -1910,7 +1910,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 	/* reserved field */
  	reserved = tvb_get_guint8(tvb, offset);
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset, 1,
-	       (reserved == 0 ? "Reserved: %u" : "Reserved: %u (incorrect, should be 0)"),reserved);
+	       (reserved == 0 ? "Reserved: %u" : "Reserved: %u [incorrect, should be 0]"),reserved);
 
         /* options field in an network-lsa */
         dissect_ospf_options(tvb, offset + 1, ospf_lsa_tree, OSPF_VERSION_3);
@@ -1932,7 +1932,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 	/* reserved field */
  	reserved = tvb_get_guint8(tvb, offset);
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset, 1,
-	       (reserved == 0 ? "Reserved: %u" : "Reserved: %u (incorrect, should be 0)"),reserved);
+	       (reserved == 0 ? "Reserved: %u" : "Reserved: %u [incorrect, should be 0]"),reserved);
 
 	/* metric */
         metric=tvb_get_ntoh24(tvb, offset+1);
@@ -1948,7 +1948,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         /* 16 bits reserved */
 	reserved16=tvb_get_ntohs(tvb, offset+6);
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset+6, 2,
-	       (reserved16 == 0 ? "Reserved: %u" : "Reserved: %u (incorrect, should be 0)"),reserved16);
+	       (reserved16 == 0 ? "Reserved: %u" : "Reserved: %u [incorrect, should be 0]"),reserved16);
 
         offset+=8;
 
@@ -1965,7 +1965,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 	/* reserved field */
  	reserved = tvb_get_guint8(tvb, offset);
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset, 1,
-	       (reserved == 0 ? "Reserved: %u" : "Reserved: %u (incorrect, should be 0)"),reserved);
+	       (reserved == 0 ? "Reserved: %u" : "Reserved: %u [incorrect, should be 0]"),reserved);
 
         /* options field in an inter-area-router-lsa */
         dissect_ospf_options(tvb, offset + 1, ospf_lsa_tree, OSPF_VERSION_3);
@@ -1973,7 +1973,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 	/* reserved field */
  	reserved = tvb_get_guint8(tvb, offset+4);
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset+4, 1,
-	       (reserved == 0 ? "Reserved: %u" : "Reserved: %u (incorrect, should be 0)"),reserved);
+	       (reserved == 0 ? "Reserved: %u" : "Reserved: %u [incorrect, should be 0]"),reserved);
 
 	/* metric */
         metric=tvb_get_ntoh24(tvb, offset+5);
@@ -2090,7 +2090,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 	    /* 16 bits reserved */
 	    reserved16=tvb_get_ntohs(tvb, offset+2);
 	    proto_tree_add_text(ospf_lsa_tree, tvb, offset+2, 2,
-	       (reserved16 == 0 ? "Reserved: %u" : "Reserved: %u (incorrect, should be 0)"),reserved16);
+	       (reserved16 == 0 ? "Reserved: %u" : "Reserved: %u [incorrect, should be 0]"),reserved16);
 
             offset+=4;
 

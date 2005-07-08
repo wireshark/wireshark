@@ -1521,11 +1521,11 @@ decode_fcs(tvbuff_t *tvb, proto_tree *fh_tree, int fcs_decode, int proto_offset)
       rx_fcs_got = tvb_get_letohs(tvb, rx_fcs_offset);
       if (rx_fcs_got != rx_fcs_exp) {
         proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 2,
-                            "FCS 16: 0x%04x (incorrect, should be 0x%04x)",
+                            "FCS 16: 0x%04x [incorrect, should be 0x%04x]",
                             rx_fcs_got, rx_fcs_exp);
       } else {
         proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 2,
-                            "FCS 16: 0x%04x (correct)",
+                            "FCS 16: 0x%04x [correct]",
                             rx_fcs_got);
       }
     }
@@ -1573,11 +1573,11 @@ decode_fcs(tvbuff_t *tvb, proto_tree *fh_tree, int fcs_decode, int proto_offset)
       rx_fcs_got = tvb_get_letohl(tvb, rx_fcs_offset);
       if (rx_fcs_got != rx_fcs_exp) {
         proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 4,
-                            "FCS 32: 0x%08x (incorrect, should be 0x%08x)",
+                            "FCS 32: 0x%08x [incorrect, should be 0x%08x]",
                             rx_fcs_got, rx_fcs_exp);
       } else {
         proto_tree_add_text(fh_tree, tvb, rx_fcs_offset, 4,
-                            "FCS 32: 0x%08x (correct)",
+                            "FCS 32: 0x%08x [correct]",
                             rx_fcs_got);
       }
     }
