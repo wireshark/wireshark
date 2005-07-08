@@ -36,6 +36,7 @@
 #include "packet-actrace.h"
 
 #define UDP_PORT_ACTRACE 2428
+#define NOT_ACTRACE 0
 #define ACTRACE_CAS 1
 #define ACTRACE_ISDN 2
 
@@ -414,11 +415,9 @@ static const value_string actrace_isdn_direction_vals[] = {
 };
 
 /*
- * Define the trees for actrace
- * We need one for actrace itself, and one for the trunk protocol (CAS, ISDN, SS7)
+ * Define the tree for actrace
  */
 static int ett_actrace = -1;
-static int ett_actrace_proto = -1;
 
 /*
  * Define the tap for actrace
@@ -430,50 +429,42 @@ static actrace_info_t *actrace_pi;
  * Here are the global variable associated with
  * the user definable characteristics of the dissection
  */
-static int global_actrace_udp_port = UDP_PORT_ACTRACE;
-static int global_actrace_protocol = ACTRACE_CAS;
+static guint global_actrace_udp_port = UDP_PORT_ACTRACE;
 
 /*
  * Variables to allow for proper deletion of dissector registration when
  * the user changes port from the gui.
  */
-static int actrace_udp_port = 0;
+static guint actrace_udp_port = 0;
 
 /* Some basic utility functions that are specific to this dissector */
-static gboolean is_actrace(tvbuff_t *tvb, gint offset);
+static int is_actrace(tvbuff_t *tvb, gint offset);
 
 /*
  * The dissect functions
  */
-static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                 proto_tree *actrace_tree, proto_tree *ti);
+static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *actrace_tree);
 static void dissect_actrace_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                 proto_tree *actrace_tree, proto_tree *ti);
+                                 proto_tree *actrace_tree);
 
 /************************************************************************
  * dissect_actrace - The dissector for the AudioCodes Trace prtocol
  ************************************************************************/
 static void dissect_actrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	gint sectionlen;
-	gint tvb_sectionend,tvb_sectionbegin, tvb_len, tvb_current_len;
-	proto_tree *actrace_tree, *ti;
+	proto_tree *actrace_tree;
+	proto_item *ti;
+	int actrace_protocol;
 
 	/* Initialize variables */
-	tvb_sectionend = 0;
-	tvb_sectionbegin = tvb_sectionend;
-	sectionlen = 0;
-	tvb_len = tvb_length(tvb);
-	tvb_current_len  = tvb_len;
 	actrace_tree = NULL;
-	ti = NULL;
 
 	/*
 	 * Set the columns now, so that they'll be set correctly if we throw
 	 * an exception.  We can set them later as well....
 	 */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_add_str(pinfo->cinfo, COL_PROTOCOL, "AC_TRACE");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "AC_TRACE");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
@@ -482,7 +473,8 @@ static void dissect_actrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * for a valid "source" and fixed len for CAS; and the direction for ISDN.
 	 * This isn't infallible, but its cheap and its better than nothing.
 	 */
-	if (is_actrace(tvb, 0))
+	actrace_protocol = is_actrace(tvb, 0);
+	if (actrace_protocol != NOT_ACTRACE)
 	{
 		if (tree)
 		{
@@ -491,13 +483,13 @@ static void dissect_actrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			actrace_tree = proto_item_add_subtree(ti, ett_actrace);
 		}
 
-		switch (global_actrace_protocol)
+		switch (actrace_protocol)
 		{
 			case ACTRACE_CAS:
-				dissect_actrace_cas(tvb, pinfo, tree, actrace_tree,ti);
+				dissect_actrace_cas(tvb, pinfo, actrace_tree);
 				break;
 			case ACTRACE_ISDN:
-				dissect_actrace_isdn(tvb, pinfo, tree, actrace_tree,ti);
+				dissect_actrace_isdn(tvb, pinfo, tree, actrace_tree);
 				break;
 		}
 	} else {
@@ -509,12 +501,11 @@ static void dissect_actrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static actrace_info_t pi;
 
 /* Dissect an individual actrace CAS message */
-static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                 proto_tree *actrace_tree, proto_tree *ti)
+static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *actrace_tree)
 {
 	/* Declare variables */
 	gint sectionlen;
-	gint tvb_sectionend,tvb_sectionbegin, tvb_len, tvb_current_len;
+	gint tvb_sectionend,tvb_sectionbegin;
 	gint32 value, function, trunk, bchannel, source, event, curr_state, next_state;
 	gint32 par0, par1, par2;
 	gchar *frame_label = NULL;
@@ -525,15 +516,10 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	tvb_sectionend = 0;
 	tvb_sectionbegin = tvb_sectionend;
 	sectionlen = 0;
-	tvb_len = tvb_length(tvb);
-	tvb_current_len  = tvb_len;
 	value = 0;
 
-	/* the CAS masages are 48 byte fixed */
-	if (tvb_len != 48) return;
-
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_add_str(pinfo->cinfo, COL_PROTOCOL, "AC_CAS");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "AC_CAS");
 
 	value = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_int(actrace_tree, hf_actrace_cas_time, tvb, offset, 4, value);
@@ -678,7 +664,7 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		/* Initialise packet info for passing to tap */
 		actrace_pi = g_malloc(sizeof(actrace_info_t));
 
-	    actrace_pi->type = ACTRACE_CAS;
+		actrace_pi->type = ACTRACE_CAS;
 		actrace_pi->direction = direction;
 		actrace_pi->trunk = trunk;
 		actrace_pi->cas_bchannel = bchannel;
@@ -690,7 +676,7 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 /* Dissect an individual actrace ISDN message */
 static void dissect_actrace_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                 proto_tree *actrace_tree, proto_tree *ti)
+                                 proto_tree *actrace_tree)
 {
 	/* Declare variables */
 	gint len;
@@ -730,7 +716,7 @@ static void dissect_actrace_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	call_dissector(lapd_handle, next_tvb, pinfo, tree);
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_add_str(pinfo->cinfo, COL_PROTOCOL, "AC_ISDN");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "AC_ISDN");
 	if (check_col(pinfo->cinfo, COL_INFO))
 			col_prepend_fstr(pinfo->cinfo, COL_INFO, "Trunk:%d  Blade %s PSTN "
 			, trunk, value==PSTN_TO_BLADE?"<--":"-->");
@@ -852,31 +838,29 @@ void proto_reg_handoff_actrace(void)
  * tvb - The tvbuff in which we are looking for
  * offset - The offset in tvb at which we are looking for
  *
- * Return: TRUE if there is an AudioCode trace packet at offset in tvb, otherwise FALSE
+ * Return: NOT_ACTRACE if there isn't an AutioCode trace packet at offset
+ * in tvb, ACTRACE_CAS if there's a CAS packet there, ACTRACE_ISDN if
+ * there's an ISDN packet there.
  */
-static gboolean is_actrace(tvbuff_t *tvb, gint offset)
+static int is_actrace(tvbuff_t *tvb, gint offset)
 {
 	gint tvb_len;
 	gint32 source, isdn_header;
 
-	tvb_len = tvb_length(tvb);
+	tvb_len = tvb_reported_length(tvb);
 	
 	/* is a CAS packet? 
 	 * the CAS masages are 48 byte fixed and the sorce should be 0,1 or 2 (DSP, User or Table) 
 	 */
 	source = tvb_get_ntohl(tvb, offset+4);
-	if ( (tvb_len == 48) && ((source > -1) && (source <3)) ) {
-		global_actrace_protocol = ACTRACE_CAS;
-		return TRUE;
-	}
+	if ( (tvb_len == 48) && ((source > -1) && (source <3)) )
+		return ACTRACE_CAS;
 	/* is ISDN packet? 
 	 * the ISDN packets have 0x49446463 for packets from PSTN to the Blade and
 	 * 0x49644443 for packets from the Blade to the PSTN at offset 4
 	 */
 	isdn_header = tvb_get_ntohl(tvb, offset+4);
-	if ( (tvb_len >= 50) && ( (isdn_header == PSTN_TO_BLADE) || (isdn_header == BLADE_TO_PSTN)) ){
-		global_actrace_protocol = ACTRACE_ISDN;
-		return TRUE;
-	}
-	return FALSE;
+	if ( (tvb_len >= 50) && ( (isdn_header == PSTN_TO_BLADE) || (isdn_header == BLADE_TO_PSTN)) )
+		return ACTRACE_ISDN;
+	return NOT_ACTRACE;
 }
