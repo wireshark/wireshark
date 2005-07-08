@@ -200,7 +200,8 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 				tsnumber = ntohl(sack_header->cum_tsn_ack);
 				if (nr>0)
 				{
-					gap = (struct gaps *)(sack_header->tsns+(4*(nr-1)));
+					/* FIXME: Only the first gap report is considered */
+					gap = (struct gaps *)&(sack_header->tsns);
 					gap_start=ntohs(gap->start);
 					gap_end = ntohs(gap->end);
 					max_num=gap_end+tsnumber;
