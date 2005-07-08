@@ -119,7 +119,7 @@ FILE SECTION
 
   <!-- Third Chapter -->
   <!ENTITY EtherealEmpty SYSTEM "./graphics/ethereal-empty.png" NDATA PNG>
-  <!ENTITY EtherealThreePane1 SYSTEM "./graphics/ethereal-3pane.png" NDATA PNG>
+  <!ENTITY EtherealThreePane1 SYSTEM "./graphics/ethereal-main.png" NDATA PNG>
   <!ENTITY EtherealMenuOnly SYSTEM "./graphics/ethereal-menu.png" NDATA PNG>
   <!ENTITY EtherealMainToolbar SYSTEM "./graphics/ethereal-main-toolbar.png" NDATA PNG>
   <!ENTITY EtherealFilterToolbar SYSTEM "./graphics/ethereal-filter-toolbar.png" NDATA PNG>
