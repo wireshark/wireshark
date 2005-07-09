@@ -72,7 +72,7 @@
 #endif /* 0/1 */
 
 /* fixed values taken from the standard */
-#define ICEP_MAGIC				"IceP"
+static const guint8 icep_magic[] = { 'I', 'c', 'e', 'P' };
 #define ICEP_HEADER_SIZE			14
 #define ICEP_MIN_REPLY_SIZE			5
 #define ICEP_MIN_PARAMS_SIZE			6
@@ -174,7 +174,6 @@ static void dissect_ice_string(proto_tree *tree, int hf_icep,
 	 */
 	
 	guint32 Size = 0;
-	const char *p;
 	char *s = NULL;
 	
 	(*consumed) = 0;
@@ -259,16 +258,11 @@ static void dissect_ice_string(proto_tree *tree, int hf_icep,
 	
 		
 	if ( Size != 0 ) {
-		p = tvb_get_ptr(tvb, offset, Size);
-		s = g_malloc(Size + 1);
-		strncpy(s, p, Size);
-		s[Size] = '\0';
+		s = tvb_get_string(tvb, offset, Size);
 		if (tree && add_hf)
 			proto_tree_add_string(tree, hf_icep, tvb, offset, Size, s);
 	} else {
-		s = g_malloc( strlen("(empty)") + 1 );
-		sprintf(s, "(empty)");
-		s[strlen("(empty)")] = '\0';
+		s = g_strdup("(empty)");
 		/* display the 0x00 Size byte when click on a empty ice_string */
 		if (tree && add_hf)
 			proto_tree_add_string(tree, hf_icep, tvb, offset - 1, 1, s);
@@ -1246,7 +1240,7 @@ static gboolean dissect_icep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	
         /* check for magic string (taken from packet-giop.c) */
 	
-	if ( tvb_memeql(tvb, 0, ICEP_MAGIC, 4) == -1 ) {
+	if ( tvb_memeql(tvb, 0, icep_magic, 4) == -1 ) {
 		/* Not a ICEP packet. */
 		return FALSE;
 	}
