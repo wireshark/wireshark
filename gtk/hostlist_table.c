@@ -231,7 +231,9 @@ hostlist_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 	case 7:
 		sscanf(text1, "%" PRIu64, &i1);
 		sscanf(text2, "%" PRIu64, &i2);
-		return i1-i2;
+        /* XXX - this might cause trouble because of overflow problems */
+        /* XXX - is this correct anyway? Subtracting two unsigned values will still be an unsigned value, which will never become negative */
+		return (gint) (i1-i2);
 	}
 	g_assert_not_reached();
 	
