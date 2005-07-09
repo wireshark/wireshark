@@ -375,7 +375,7 @@ static void dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree  *lwapp_tree;
     proto_tree  *flags_tree;
     tvbuff_t    *next_client;
-    char         dest_mac[6];
+    guint8       dest_mac[6];
     guint8       have_destmac=0;
 
     /* Set up structures needed to add the protocol subtree and manage it */
@@ -394,7 +394,7 @@ static void dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
     /* First, set up our dest mac, if we're a control packet with a
      * dest of port 12223 */
     if (pinfo->destport == 12223 ) {
-        tvb_memcpy(tvb, (guint8*)dest_mac, offset, 6);
+        tvb_memcpy(tvb, dest_mac, offset, 6);
         have_destmac = 1;
         
         /* Copy our header */
@@ -428,8 +428,7 @@ static void dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
     if (tree) {
 
 	/* create display subtree for the protocol */
-	ti = proto_tree_add_item(tree, proto_lwapp, tvb, offset,
-				 tvb_length(tvb), FALSE);
+	ti = proto_tree_add_item(tree, proto_lwapp, tvb, offset, -1, FALSE);
 	lwapp_tree = proto_item_add_subtree(ti, ett_lwapp);
 
         if (have_destmac) {
