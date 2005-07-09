@@ -90,6 +90,8 @@ static gint ett_bittorrent_msg = -1;
 
 static gboolean bittorrent_desegment = TRUE;
 
+static dissector_handle_t bittorrent_handle;
+
 static guint get_bittorrent_pdu_length(tvbuff_t *tvb, int offset)
 {
 	if (tvb_get_guint8(tvb, offset) == 19) {
@@ -166,6 +168,7 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
 static void dissect_bittorrent_welcome (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset = 0;
+
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_set_str(pinfo->cinfo, COL_INFO, "BitTorrent Handshake");
 	}
@@ -181,11 +184,11 @@ static void dissect_bittorrent_tcp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto
 {
 	proto_item *ti;
 	
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "BitTorrent");
-    }
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BitTorrent");
+	}
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_set_str(pinfo->cinfo, COL_INFO, "BitTorrent Peer-To-Peer connection");
 	}
 
@@ -205,27 +208,24 @@ static void dissect_bittorrent (tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	tcp_dissect_pdus(tvb, pinfo, tree, bittorrent_desegment, 4, get_bittorrent_pdu_length, dissect_bittorrent_tcp_pdu);
 }
 
+static const guint8 bittorrent_magic[20] = {
+	19,
+	'B', 'i', 't', 'T', 'o', 'r', 'r', 'e', 'n', 't',
+	' ', 'p', 'r', 'o', 't', 'o', 'c', 'o', 'l'
+};
+
 static gboolean test_bittorrent_packet (tvbuff_t *tvb, packet_info *pinfo,
 										     proto_tree *tree)
 {
 	conversation_t *conversation;
 
-    if (!tvb_bytes_exist(tvb, 0, 20))
-		return FALSE;
-
-	if (tvb_get_guint8(tvb, 0) != 19) {
-		return FALSE;
-	}
-
-	if (tvb_memeql(tvb, 1, "BitTorrent protocol", 19) == -1) {
+	if (tvb_memeql(tvb, 0, bittorrent_magic, sizeof bittorrent_magic) == -1) {
 		return FALSE;
 	}
 
 	conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
-	DISSECTOR_ASSERT(find_dissector("bittorrent"));
-
-	conversation_set_dissector(conversation, find_dissector("bittorrent"));
+	conversation_set_dissector(conversation, bittorrent_handle);
 	
 	dissect_bittorrent(tvb, pinfo, tree);
 
@@ -304,5 +304,6 @@ void
 proto_reg_handoff_bittorrent(void)
 {
 	register_dissector("bittorrent", dissect_bittorrent, proto_bittorrent);
+	bittorrent_handle = find_dissector("bittorrent");
   	heur_dissector_add("tcp", test_bittorrent_packet, proto_bittorrent);
 }
