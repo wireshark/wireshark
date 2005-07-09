@@ -63,8 +63,8 @@
 static int proto_lmp = -1;
 
 #define UDP_PORT_LMP_DEFAULT 701
-static int lmp_udp_port = UDP_PORT_LMP_DEFAULT;
-static int lmp_udp_port_config = UDP_PORT_LMP_DEFAULT;
+static guint lmp_udp_port = UDP_PORT_LMP_DEFAULT;
+static guint lmp_udp_port_config = UDP_PORT_LMP_DEFAULT;
 
 static dissector_handle_t lmp_handle;
 

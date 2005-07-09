@@ -61,7 +61,7 @@ static gint ett_ipdc = -1;
 static gint ett_ipdc_tag = -1;
 
 static gboolean ipdc_desegment = TRUE;
-static gint ipdc_port_pref = TCP_PORT_IPDC;
+static guint ipdc_port_pref = TCP_PORT_IPDC;
 static gboolean new_packet = FALSE;
 
 static dissector_handle_t q931_handle;
@@ -429,7 +429,7 @@ proto_register_ipdc(void)
 void
 proto_reg_handoff_ipdc(void)
 {
-	static gint last_ipdc_port_pref = 0;
+	static guint last_ipdc_port_pref = 0;
 	static dissector_handle_t ipdc_tcp_handle = NULL;
 
 	if (ipdc_tcp_handle) {

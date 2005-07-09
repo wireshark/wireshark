@@ -346,10 +346,10 @@ typedef struct {
 #define DEFAULT_UDP_ENCAP_UCAST_PORT 3055
 #define DEFAULT_UDP_ENCAP_MCAST_PORT 3056
 
-static int udp_encap_ucast_port = 0;
-static int udp_encap_mcast_port = 0;
-static int old_encap_ucast_port = 0;
-static int old_encap_mcast_port = 0;
+static guint udp_encap_ucast_port = 0;
+static guint udp_encap_mcast_port = 0;
+static guint old_encap_ucast_port = 0;
+static guint old_encap_mcast_port = 0;
 
 static int proto_pgm = -1;
 static int ett_pgm = -1;

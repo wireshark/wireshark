@@ -361,11 +361,11 @@ static const value_string cip_class_names_vals[] = {
 static proto_item*
 add_byte_array_text_to_proto_tree( proto_tree *tree, tvbuff_t *tvb, gint start, gint length, const char* str )
 {
-  const char *tmp;
-  char       *tmp2, *tmp2start;
-  proto_item *pi;
-  int         i,tmp_length,tmp2_length;
-  guint32     octet;
+  const guint8 *tmp;
+  char         *tmp2, *tmp2start;
+  proto_item   *pi;
+  int           i,tmp_length,tmp2_length;
+  guint32       octet;
   /* At least one version of Apple's C compiler/linker is buggy, causing
      a complaint from the linker about the "literal C string section"
      not ending with '\0' if we initialize a 16-element "char" array with

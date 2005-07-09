@@ -43,8 +43,8 @@
 #define NETWORK_BYTE_ORDER          FALSE
 #define SCTP_PORT_M2PA              3565
 
-static int global_sctp_port       = SCTP_PORT_M2PA;
-static int sctp_port              = 0;
+static guint global_sctp_port       = SCTP_PORT_M2PA;
+static guint sctp_port              = 0;
 
 void proto_reg_handoff_m2pa(void);
 

@@ -79,7 +79,7 @@ static int enableDataDigests = FALSE;
 
 static int dataDigestIsCRC32 = TRUE;
 
-static int dataDigestSize = 4;
+static guint dataDigestSize = 4;
 
 static guint iscsi_port = 3260;
 

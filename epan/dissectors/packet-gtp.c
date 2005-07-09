@@ -56,9 +56,9 @@ static dissector_table_t ppp_subdissector_table;
 #define GTP_OPTIONAL	2
 #define GTP_CONDITIONAL	4
 
-static int g_gtpv0_port		= GTPv0_PORT;
-static int g_gtpv1c_port	= GTPv1C_PORT;
-static int g_gtpv1u_port	= GTPv1U_PORT;
+static guint g_gtpv0_port	= GTPv0_PORT;
+static guint g_gtpv1c_port	= GTPv1C_PORT;
+static guint g_gtpv1u_port	= GTPv1U_PORT;
 
 void proto_reg_handoff_gtp(void);
 
@@ -207,9 +207,9 @@ static gint ett_gtp_priv_ext		= -1;
 static gboolean	gtp_tpdu		= TRUE;
 static gboolean	gtp_over_tcp		= TRUE;
 static gboolean	gtp_etsi_order		= FALSE;
-static int	gtpv0_port		= 0;
-static int	gtpv1c_port		= 0;
-static int	gtpv1u_port		= 0;
+static guint	gtpv0_port		= 0;
+static guint	gtpv1c_port		= 0;
+static guint	gtpv1u_port		= 0;
 
 /* Definition of flags masks */
 #define GTP_VER_MASK 0xE0
@@ -4607,7 +4607,7 @@ proto_reg_handoff_gtp(void)
 	}
 	
 	ip_handle = find_dissector("ip");
-  ipv6_handle = find_dissector("ipv6");
+	ipv6_handle = find_dissector("ipv6");
 	ppp_handle = find_dissector("ppp");
 	data_handle = find_dissector("data");
 	gtpcdr_handle = find_dissector("gtpcdr");

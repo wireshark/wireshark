@@ -64,7 +64,7 @@ dissect_ap1394(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
   proto_tree *fh_tree = NULL;
-  const char *src_addr, *dst_addr;
+  const guint8 *src_addr, *dst_addr;
   guint16    etype;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))

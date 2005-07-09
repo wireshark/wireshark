@@ -1591,7 +1591,7 @@ static int ositp_decode_ER(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 {
   proto_tree *cotp_tree;
   proto_item *ti;
-  guchar *str;
+  char *str;
   guint16 dst_ref;
 
   if (li > LI_MAX_ER)

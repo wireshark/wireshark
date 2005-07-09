@@ -8,12 +8,6 @@
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
- * Copied from WHATEVER_FILE_YOU_USED (where "WHATEVER_FILE_YOU_USED"
- * is a dissector file; if you just copied this from README.developer,
- * don't bother with the "Copied from" - you don't even need to put
- * in a "Copied from" if you copied an existing dissector, especially
- * if the bulk of the code in the new dissector is your code)
- * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -57,7 +51,7 @@
 #define BSSGP_NOT_DECODED "< Not decoded yet >"
 #define BSSGP_UNKNOWN -1
 static int bssgp_decode_nri = 0;
-static int bssgp_nri_length = 4;
+static guint bssgp_nri_length = 4;
 
 static dissector_handle_t bssgp_handle;
 static dissector_handle_t llc_handle;
@@ -1240,7 +1234,7 @@ decode_nri(proto_tree *tf, build_info_t *bi, guint32 tmsi_tlli) {
   const guint32 FOREIGN_TLLI_MASK = 0x80000000;
   guint16 nri;
   
-  if (bssgp_decode_nri && (bssgp_nri_length > 0) && 
+  if (bssgp_decode_nri && (bssgp_nri_length != 0) && 
     (((tmsi_tlli & LOCAL_TLLI_MASK) == LOCAL_TLLI_MASK) ||
      ((tmsi_tlli & FOREIGN_TLLI_MASK) == FOREIGN_TLLI_MASK))) {
     nri = get_masked_guint32(tmsi_tlli, make_mask32( (guint8) bssgp_nri_length, 8));

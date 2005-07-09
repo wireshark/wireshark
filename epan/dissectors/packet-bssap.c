@@ -139,7 +139,7 @@ static dissector_table_t bsap_dissector_table;
  */
 static guint8	pdu_type = 0xFF;
 
-static guint	bssap_or_bsap_global = BSSAP_OR_BSAP_DEFAULT;
+static gint	bssap_or_bsap_global = BSSAP_OR_BSAP_DEFAULT;
 
 
 static void

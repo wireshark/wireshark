@@ -39,11 +39,11 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_manolito = -1;
-static guint32 hf_manolito_checksum = -1;
-static guint32 hf_manolito_seqno = -1;
-static guint32 hf_manolito_src = -1;
-static guint32 hf_manolito_dest = -1;
-static guint32 hf_manolito_options = -1;
+static int hf_manolito_checksum = -1;
+static int hf_manolito_seqno = -1;
+static int hf_manolito_src = -1;
+static int hf_manolito_dest = -1;
+static int hf_manolito_options = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_manolito = -1;

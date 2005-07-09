@@ -63,7 +63,7 @@ dissect_retix_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *retix_bpdu_tree;
   proto_tree *ti;
-  const char *bridge_mac_str;
+  const guint8 *bridge_mac_str;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "R-STP");

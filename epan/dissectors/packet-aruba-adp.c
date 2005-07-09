@@ -60,8 +60,8 @@ dissect_aruba_adp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *ti = NULL;
   proto_tree *aruba_adp_tree = NULL;
   guint16 type;
-  const char *src_mac;
-  const char *switchip;
+  const guint8 *src_mac;
+  const guint8 *switchip;
 
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))

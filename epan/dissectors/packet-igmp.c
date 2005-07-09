@@ -452,7 +452,7 @@ dissect_v3_group_record(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	tvb_memcpy(tvb, (guint8 *)&ip, offset+4, 4);
 	item = proto_tree_add_text(parent_tree, tvb, offset, -1,
 		"Group Record : %s  %s",
-			ip_to_str((gchar*)&ip),
+			ip_to_str((guint8*)&ip),
 			val_to_str(tvb_get_guint8(tvb, offset), vs_record_type,"")
 		);
 	tree = proto_item_add_subtree(item, ett_group_record);

@@ -87,7 +87,7 @@ static GHashTable *wlan_fragment_table = NULL;
 static GHashTable *wlan_reassembled_table = NULL;
 
 /* Stuff for the WEP decoder */
-static guint num_wepkeys = 0;
+static gint num_wepkeys = 0;
 static guint8 **wep_keys = NULL;
 static int *wep_keylens = NULL;
 static void init_wepkeys(void);
@@ -3467,7 +3467,7 @@ static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
     return NULL;  /* krap! */
 
   /* try once with the key index in the packet, then look through our list. */
-  for (i = -1; i < (int) num_wepkeys; i++) {
+  for (i = -1; i < num_wepkeys; i++) {
     /* copy the encrypted data over to the tmp buffer */
 #if 0
     printf("trying %d\n", i);
@@ -3514,7 +3514,7 @@ static int wep_decrypt(guint8 *buf, guint32 len, int key_override) {
   if (key_override >= 0)
     keyidx = key_override;
 
-  if (keyidx >= num_wepkeys)
+  if (keyidx >= (guint)num_wepkeys)
     return -1;
 
   keylen = wep_keylens[keyidx];
@@ -3584,7 +3584,7 @@ static int wep_decrypt(guint8 *buf, guint32 len, int key_override) {
 
 static void init_wepkeys(void) {
   char *tmp;
-  guint i;
+  int i;
   GByteArray *bytes;
   gboolean res;
 

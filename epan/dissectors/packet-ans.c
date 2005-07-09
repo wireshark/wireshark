@@ -73,7 +73,7 @@ dissect_ans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree  *ans_tree = NULL;
 	guint16      sender_id;
 	guint32      seq_num;
-	gchar        team_id[6];
+	guint8       team_id[6];
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Intel ANS probe");

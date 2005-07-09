@@ -108,7 +108,7 @@ typedef struct _nlm_msg_res_unmatched_data {
 	int req_frame;
 	nstime_t ns;
 	int cookie_len;
-	const char *cookie;
+	const guint8 *cookie;
 } nlm_msg_res_unmatched_data;
 
 typedef struct _nlm_msg_res_matched_data {
@@ -168,7 +168,7 @@ nlm_msg_res_unmatched_equal(gconstpointer k1, gconstpointer k2)
 		return 0;
 	}
 
-	return( !memcmp(umd1->cookie, umd2->cookie, umd1->cookie_len));
+	return( memcmp(umd1->cookie, umd2->cookie, umd1->cookie_len) == 0);
 }
 static gint
 nlm_msg_res_matched_equal(gconstpointer k1, gconstpointer k2)
@@ -271,7 +271,7 @@ nlm_register_unmatched_res(packet_info *pinfo, tvbuff_t *tvb, int offset)
 	nlm_msg_res_unmatched_data *old_umd;
 
 	umd.cookie_len=tvb_get_ntohl(tvb, offset);
-	umd.cookie=(const char *)tvb_get_ptr(tvb, offset+4, -1);
+	umd.cookie=tvb_get_ptr(tvb, offset+4, -1);
 
 	/* have we seen this cookie before? */
 	old_umd=g_hash_table_lookup(nlm_msg_res_unmatched, (gconstpointer)&umd);

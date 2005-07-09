@@ -210,8 +210,8 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree) {
     struct ip6_rthdr rt;
     guint len;
     proto_tree *rthdr_tree;
-	proto_item *ti;
-    char buf[sizeof(struct ip6_rthdr0) + sizeof(struct e_in6_addr) * 23];
+    proto_item *ti;
+    guint8 buf[sizeof(struct ip6_rthdr0) + sizeof(struct e_in6_addr) * 23];
 
     tvb_memcpy(tvb, (guint8 *)&rt, offset, sizeof(rt));
     len = (rt.ip6r_len + 1) << 3;

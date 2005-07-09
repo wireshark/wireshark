@@ -47,7 +47,7 @@
 void proto_reg_handoff_beep(void);
 
 
-static int global_beep_tcp_port = TCP_PORT_BEEP;
+static guint global_beep_tcp_port = TCP_PORT_BEEP;
 static int global_beep_strict_term = TRUE;
 
 static int proto_beep = -1;
@@ -96,7 +96,7 @@ static int ett_mime_header = -1;
 static int ett_header = -1;
 static int ett_trailer = -1;
 
-static unsigned int tcp_port = 0;
+static guint tcp_port = 0;
 
 /* Get the state of the more flag ... */
 

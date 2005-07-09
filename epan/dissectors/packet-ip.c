@@ -556,7 +556,7 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
           "(suboption would go past end of option)");
         break;
       }
-      tvb_memcpy(tvb, (char *)&addr, offset + optoffset, sizeof(addr));
+      tvb_memcpy(tvb, (guint8 *)&addr, offset + optoffset, sizeof(addr));
       ts = tvb_get_ntohl(tvb, offset + optoffset + 4);
       optlen -= 8;
       proto_tree_add_text(field_tree, tvb, offset + optoffset,      8,

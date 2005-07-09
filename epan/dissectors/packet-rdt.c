@@ -169,11 +169,11 @@ static gint    ett_rdt_bw_probing_flags         = -1;
 
 /* Port preference settings */
 static gboolean global_rdt_register_udp_port = FALSE;
-static gint     global_rdt_udp_port = 6970;
+static guint    global_rdt_udp_port = 6970;
 
 /* Also store this so can delete registered setting properly */
 static gboolean  rdt_register_udp_port = FALSE;
-static gint      rdt_udp_port = 0;
+static guint     rdt_udp_port = 0;
 
 
 void proto_reg_handoff_rdt(void);

@@ -240,7 +240,7 @@ static dissector_handle_t rpc_handle;
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t data_handle;
 
-static int max_rpc_tcp_pdu_size = 262144;
+static guint max_rpc_tcp_pdu_size = 262144;
 
 static const fragment_items rpc_frag_items = {
 	&ett_rpc_fragment,
@@ -2801,7 +2801,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	struct tcpinfo *tcpinfo;
 	guint32 seq;
 	guint32 rpc_rm;
-	volatile gint32 len;
+	volatile guint32 len;
 	gint32 seglen;
 	gint tvb_len, tvb_reported_len;
 	tvbuff_t *frag_tvb;
@@ -2850,7 +2850,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (rpc_desegment) {
 		seglen = tvb_length_remaining(tvb, offset + 4);
 
-		if (len > seglen && pinfo->can_desegment) {
+		if ((gint)len > seglen && pinfo->can_desegment) {
 			/*
 			 * This frame doesn't have all of the
 			 * data for this message, but we can do
@@ -2889,9 +2889,9 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	len += 4;	/* include record mark */
 	tvb_len = tvb_length_remaining(tvb, offset);
 	tvb_reported_len = tvb_reported_length_remaining(tvb, offset);
-	if (tvb_len > len)
+	if (tvb_len > (gint)len)
 		tvb_len = len;
-	if (tvb_reported_len > len)
+	if (tvb_reported_len > (gint)len)
 		tvb_reported_len = len;
 	frag_tvb = tvb_new_subset(tvb, offset, tvb_len,
 	    tvb_reported_len);

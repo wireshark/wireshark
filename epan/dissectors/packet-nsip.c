@@ -46,10 +46,10 @@
 #define NSIP_SEP ", " /* Separator string */
 #define NSIP_LITTLE_ENDIAN 0
 
-static int nsip_udp_port1 = NSIP_UDP_PORT1;
-static int nsip_udp_port2 = NSIP_UDP_PORT2;
-static int global_nsip_udp_port1 = NSIP_UDP_PORT1;
-static int global_nsip_udp_port2 = NSIP_UDP_PORT2;
+static guint nsip_udp_port1 = NSIP_UDP_PORT1;
+static guint nsip_udp_port2 = NSIP_UDP_PORT2;
+static guint global_nsip_udp_port1 = NSIP_UDP_PORT1;
+static guint global_nsip_udp_port2 = NSIP_UDP_PORT2;
 
 void proto_reg_handoff_nsip(void);
 

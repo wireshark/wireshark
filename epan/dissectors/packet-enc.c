@@ -60,10 +60,10 @@ struct enchdr {
 static dissector_handle_t  data_handle, ip_handle, ipv6_handle;
 
 /* header fields */
-static unsigned int proto_enc = -1;
-static unsigned int hf_enc_af = -1;
-static unsigned int hf_enc_spi = -1;
-static unsigned int hf_enc_flags = -1;
+static int proto_enc = -1;
+static int hf_enc_af = -1;
+static int hf_enc_spi = -1;
+static int hf_enc_flags = -1;
 
 static gint ett_enc = -1;
 

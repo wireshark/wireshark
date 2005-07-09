@@ -49,11 +49,11 @@ static gint ett_echo = -1;
 static void dissect_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   
-  proto_tree *echo_tree = NULL;
-  proto_item *ti;
-  int         offset = 0;
-  gboolean    request = FALSE;
-  const char  *data = tvb_get_ptr(tvb, offset, -1);
+  proto_tree   *echo_tree = NULL;
+  proto_item   *ti;
+  int           offset = 0;
+  gboolean      request = FALSE;
+  const guint8 *data = tvb_get_ptr(tvb, offset, -1);
 
   if (pinfo->destport == ECHO_PORT) {
     request = TRUE;
