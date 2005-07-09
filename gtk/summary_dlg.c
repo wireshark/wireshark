@@ -306,13 +306,15 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Packet size */
   if (summary.packet_count > 0){
     g_snprintf(string_buff, SUM_STR_MAX, "%.3f bytes",
-      (float)summary.bytes/summary.packet_count);
+      /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
+      (float) (gint64) (summary.bytes/summary.packet_count) );
   } else {
     strcpy(string_buff, "");
   }
   if (summary.dfilter && summary.filtered_count > 0){
     g_snprintf(string_buff2, SUM_STR_MAX, "%.3f bytes",
-          (float) summary.filtered_bytes/summary.filtered_count);
+          /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
+          (float) (gint64) summary.filtered_bytes/summary.filtered_count);
   } else {
     strcpy(string_buff2, "");
   }
@@ -329,12 +331,14 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Bytes per second */
   if (seconds > 0){
-    g_snprintf(string_buff, SUM_STR_MAX, "%.3f", summary.bytes/seconds);
+    /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
+    g_snprintf(string_buff, SUM_STR_MAX, "%.3f", ((gint64) summary.bytes)/seconds );
   } else {
     strcpy(string_buff, "");
   }
   if (summary.dfilter && disp_seconds > 0){
-    g_snprintf(string_buff2, SUM_STR_MAX, "%.3f", summary.filtered_bytes/disp_seconds);
+    /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
+    g_snprintf(string_buff2, SUM_STR_MAX, "%.3f", ((gint64) summary.filtered_bytes)/disp_seconds );
   } else {
     strcpy(string_buff2, "");
   }
@@ -342,13 +346,15 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* MBit per second */
   if (seconds > 0){
-    g_snprintf(string_buff, SUM_STR_MAX, "%.3f", summary.bytes * 8.0 / (seconds * 1000.0 * 1000.0));
+    /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
+    g_snprintf(string_buff, SUM_STR_MAX, "%.3f", ((gint64) summary.bytes) * 8.0 / (seconds * 1000.0 * 1000.0));
   } else {
     strcpy(string_buff, "");
   }
   if (summary.dfilter && disp_seconds > 0){
     g_snprintf(string_buff2, SUM_STR_MAX, "%.3f", 
-          summary.filtered_bytes * 8.0 / (disp_seconds * 1000.0 * 1000.0));
+          /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
+          ((gint64) summary.filtered_bytes) * 8.0 / (disp_seconds * 1000.0 * 1000.0));
   } else {
     strcpy(string_buff2, "");
   }
