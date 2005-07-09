@@ -36,9 +36,9 @@ ServiceLocator		B	"1.3.6.1.5.5.7.48.1.7"	"id-pkix-ocsp-service-locator"
                                  hf_ocsp_responseType_id, responseType_id);
 
 #.FN_BODY ResponseBytes/response
-  guint8 class;
+  gint8 class;
   gboolean pc, ind;
-  guint32 tag;
+  gint32 tag;
   guint32 len;
   /* skip past the T and L  */
   offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);

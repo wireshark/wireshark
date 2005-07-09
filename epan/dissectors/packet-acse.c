@@ -378,10 +378,11 @@ static int dissect_single_ASN1_type(packet_info *pinfo, proto_tree *tree, tvbuff
 }
 
 
+
 static int
 dissect_acse_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
@@ -444,7 +445,7 @@ dissect_acse_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
   gint8 class;
   gboolean pc, ind_field;
   gint32 tag;
-  gint32 len1;
+  guint32 len1;
 
   /* XXX  asn2eth can not yet handle tagged assignment so for the
    * time being  just remove this tag manually inside the EXTERNAL
@@ -1477,7 +1478,8 @@ static const value_string acse_ABRT_diagnostic_vals[] = {
 
 static int
 dissect_acse_ABRT_diagnostic(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -1520,10 +1522,11 @@ static int dissect_user_information_impl(packet_info *pinfo, proto_tree *tree, t
 }
 
 
+
 static int
 dissect_acse_Simply_encoded_data(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }

@@ -34,7 +34,7 @@ ACRQ-apdu/aSO-context-name	ACRQ_aSO_context_name
   gint8 class;
   gboolean pc, ind_field;
   gint32 tag;
-  gint32 len1;
+  guint32 len1;
 
   /* XXX  asn2eth can not yet handle tagged assignment so for the
    * time being  just remove this tag manually inside the EXTERNAL

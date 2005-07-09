@@ -9,7 +9,7 @@
  * Routines for SMRSE Short Message Relay Service packet dissection
  *   Ronnie Sahlberg 2004
  *
- * $Id: packet-smrse-template.c 12245 2004-10-08 20:28:04Z guy $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -162,10 +162,11 @@ static int dissect_numbering_plan(packet_info *pinfo, proto_tree *tree, tvbuff_t
 }
 
 
+
 static int
 dissect_smrse_SemiOctetString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
@@ -175,9 +176,9 @@ static int
 dissect_smrse_T_octet_format(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 	char *strp,tmpstr[21];
 	guint32 i, start_offset;
-	guint8 class;
+	gint8 class;
 	gboolean pc, ind;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
 	static char n2a[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
@@ -297,10 +298,11 @@ dissect_smrse_SMR_Bind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 }
 
 
+
 static int
 dissect_smrse_IMSI_Address(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
@@ -369,6 +371,7 @@ dissect_smrse_SMR_Unbind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 }
 
 
+
 static int
 dissect_smrse_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_boolean(implicit_tag, pinfo, tree, tvb, offset, hf_index);
@@ -405,10 +408,11 @@ static int dissect_message_reference(packet_info *pinfo, proto_tree *tree, tvbuf
 }
 
 
+
 static int
 dissect_smrse_RP_UD(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }

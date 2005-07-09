@@ -78,9 +78,9 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
                                  hf_x509af_extension_id, extension_id);
 
 #.FN_BODY Extension/extnValue
-  guint8 class;
+  gint8 class;
   gboolean pc, ind;
-  guint32 tag;
+  gint32 tag;
   guint32 len;
   /* skip past the T and L  */
   offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);

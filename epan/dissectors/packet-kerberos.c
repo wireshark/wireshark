@@ -1604,9 +1604,9 @@ static int dissect_krb5_addr_type(packet_info *pinfo, proto_tree *tree, tvbuff_t
 }
 static int dissect_krb5_address(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	guint8 class;
+	gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
 	char address_str[256];
 	proto_item *it=NULL;

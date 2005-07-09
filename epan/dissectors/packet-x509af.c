@@ -9,7 +9,7 @@
  * Routines for X.509 Authentication Framework packet dissection
  *  Ronnie Sahlberg 2004
  *
- * $Id: packet-x509af-template.c 14169 2005-04-22 21:17:13Z gerald $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -441,6 +441,7 @@ static int dissect_extnId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 }
 
 
+
 static int
 dissect_x509af_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_boolean(implicit_tag, pinfo, tree, tvb, offset, hf_index);
@@ -452,11 +453,12 @@ static int dissect_critical(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 }
 
 
+
 static int
 dissect_x509af_T_extnValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  guint8 class;
+  gint8 class;
   gboolean pc, ind;
-  guint32 tag;
+  gint32 tag;
   guint32 len;
   /* skip past the T and L  */
   offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
@@ -1343,13 +1345,13 @@ void proto_reg_handoff_x509af(void) {
 
 /*--- Included file: packet-x509af-dis-tab.c ---*/
 
- register_ber_oid_dissector("2.5.4.36", dissect_Certificate_PDU, proto_x509af, "id-at-userCertificate");
- register_ber_oid_dissector("2.5.4.37", dissect_Certificate_PDU, proto_x509af, "id-at-cAcertificate");
- register_ber_oid_dissector("2.5.4.38", dissect_CertificateList_PDU, proto_x509af, "id-at-authorityRevocationList");
- register_ber_oid_dissector("2.5.4.39", dissect_CertificateList_PDU, proto_x509af, "id-at-certificateRevocationList");
- register_ber_oid_dissector("2.5.4.40", dissect_CertificatePair_PDU, proto_x509af, "id-at-crossCertificatePair");
- register_ber_oid_dissector("2.5.4.58", dissect_AttributeCertificate_PDU, proto_x509af, "id-at-attributeCertificate");
- register_ber_oid_dissector("2.5.4.59", dissect_CertificateList_PDU, proto_x509af, "id-at-attributeCertificateRevocationList");
+  register_ber_oid_dissector("2.5.4.36", dissect_Certificate_PDU, proto_x509af, "id-at-userCertificate");
+  register_ber_oid_dissector("2.5.4.37", dissect_Certificate_PDU, proto_x509af, "id-at-cAcertificate");
+  register_ber_oid_dissector("2.5.4.38", dissect_CertificateList_PDU, proto_x509af, "id-at-authorityRevocationList");
+  register_ber_oid_dissector("2.5.4.39", dissect_CertificateList_PDU, proto_x509af, "id-at-certificateRevocationList");
+  register_ber_oid_dissector("2.5.4.40", dissect_CertificatePair_PDU, proto_x509af, "id-at-crossCertificatePair");
+  register_ber_oid_dissector("2.5.4.58", dissect_AttributeCertificate_PDU, proto_x509af, "id-at-attributeCertificate");
+  register_ber_oid_dissector("2.5.4.59", dissect_CertificateList_PDU, proto_x509af, "id-at-attributeCertificateRevocationList");
 
 
 /*--- End of included file: packet-x509af-dis-tab.c ---*/

@@ -9,7 +9,7 @@
  * Routines for RFC2630 Cryptographic Message Syntax packet dissection
  *   Ronnie Sahlberg 2004
  *
- * $Id: packet-cms-template.c 14169 2005-04-22 21:17:13Z gerald $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -333,11 +333,13 @@ static int dissect_eContentType(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 }
 
 
+
 static int
 dissect_cms_T_eContent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  guint8 class;
+  gint8 class;
   gboolean pc, ind;
-  guint32 tag, len;
+  gint32 tag;
+  guint32 len;
   int pdu_offset = offset;
 
   /* XXX Do we care about printing out the octet string? */
@@ -567,10 +569,11 @@ static int dissect_issuerAndSerialNumber(packet_info *pinfo, proto_tree *tree, t
 }
 
 
+
 static int
 dissect_cms_SubjectKeyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
@@ -621,10 +624,11 @@ static int dissect_signedAttrs_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 }
 
 
+
 int
 dissect_cms_SignatureValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
@@ -755,10 +759,11 @@ static int dissect_keyEncryptionAlgorithm(packet_info *pinfo, proto_tree *tree, 
 }
 
 
+
 static int
 dissect_cms_EncryptedKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
@@ -842,10 +847,11 @@ static int dissect_originator(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 }
 
 
+
 static int
 dissect_cms_UserKeyingMaterial(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
@@ -1003,10 +1009,11 @@ static int dissect_kari_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 }
 
 
+
 static int
 dissect_cms_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
@@ -1104,10 +1111,11 @@ static int dissect_contentEncryptionAlgorithm(packet_info *pinfo, proto_tree *tr
 }
 
 
+
 static int
 dissect_cms_EncryptedContent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
@@ -1166,10 +1174,11 @@ dissect_cms_EnvelopedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 }
 
 
+
 static int
 dissect_cms_Digest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
@@ -1235,10 +1244,11 @@ static int dissect_authenticatedAttributes_impl(packet_info *pinfo, proto_tree *
 }
 
 
+
 static int
 dissect_cms_MessageAuthenticationCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
@@ -1683,11 +1693,11 @@ void proto_reg_handoff_cms(void) {
 
 /*--- Included file: packet-cms-dis-tab.c ---*/
 
- register_ber_oid_dissector("1.2.840.113549.1.7.2", dissect_SignedData_PDU, proto_cms, "id-signedData");
- register_ber_oid_dissector("1.2.840.113549.1.7.3", dissect_EnvelopedData_PDU, proto_cms, "id-envelopedData");
- register_ber_oid_dissector("1.2.840.113549.1.7.5", dissect_DigestedData_PDU, proto_cms, "id-digestedData");
- register_ber_oid_dissector("1.2.840.113549.1.7.6", dissect_EncryptedData_PDU, proto_cms, "id-encryptedData");
- register_ber_oid_dissector("1.2.840.113549.1.9.16.1.2", dissect_AuthenticatedData_PDU, proto_cms, "id-ct-authenticatedData");
+  register_ber_oid_dissector("1.2.840.113549.1.7.2", dissect_SignedData_PDU, proto_cms, "id-signedData");
+  register_ber_oid_dissector("1.2.840.113549.1.7.3", dissect_EnvelopedData_PDU, proto_cms, "id-envelopedData");
+  register_ber_oid_dissector("1.2.840.113549.1.7.5", dissect_DigestedData_PDU, proto_cms, "id-digestedData");
+  register_ber_oid_dissector("1.2.840.113549.1.7.6", dissect_EncryptedData_PDU, proto_cms, "id-encryptedData");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.1.2", dissect_AuthenticatedData_PDU, proto_cms, "id-ct-authenticatedData");
 
 
 /*--- End of included file: packet-cms-dis-tab.c ---*/

@@ -18,9 +18,9 @@
 #.FN_BODY SMS-Address/address-value/octet-format
 	char *strp,tmpstr[21];
 	guint32 i, start_offset;
-	guint8 class;
+	gint8 class;
 	gboolean pc, ind;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
 	static char n2a[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 

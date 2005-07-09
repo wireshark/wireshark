@@ -53,9 +53,10 @@ RecipientEncryptedKey/rid	rekRid
                                          hf_cms_ci_contentType, object_identifier_id);
 
 #.FN_BODY EncapsulatedContentInfo/eContent
-  guint8 class;
+  gint8 class;
   gboolean pc, ind;
-  guint32 tag, len;
+  gint32 tag;
+  guint32 len;
   int pdu_offset = offset;
 
   /* XXX Do we care about printing out the octet string? */

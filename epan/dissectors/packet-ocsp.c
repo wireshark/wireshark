@@ -9,7 +9,7 @@
  * Routines for Online Certificate Status Protocol (RFC2560) packet dissection
  *  Ronnie Sahlberg 2004
  *
- * $Id: packet-ocsp-template.c 12573 2004-11-22 03:36:26Z sahlberg $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -206,10 +206,11 @@ static int dissect_version(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 }
 
 
+
 static int
 dissect_ocsp_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
@@ -367,7 +368,8 @@ static const value_string ocsp_OCSPResponseStatus_vals[] = {
 
 static int
 dissect_ocsp_OCSPResponseStatus(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -390,11 +392,12 @@ static int dissect_responseType(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 }
 
 
+
 static int
 dissect_ocsp_T_response(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  guint8 class;
+  gint8 class;
   gboolean pc, ind;
-  guint32 tag;
+  gint32 tag;
   guint32 len;
   /* skip past the T and L  */
   offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
@@ -440,10 +443,11 @@ dissect_ocsp_OCSPResponse(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 }
 
 
+
 static int
 dissect_ocsp_KeyHash(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
@@ -686,7 +690,7 @@ dissect_ocsp_ServiceLocator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 
 static int
 dissect_ocsp_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, 0,
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
                                          pinfo, tree, tvb, offset, hf_index,
                                          NULL);
 
@@ -1066,11 +1070,11 @@ void proto_reg_handoff_ocsp(void) {
 
 /*--- Included file: packet-ocsp-dis-tab.c ---*/
 
- register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.1", dissect_BasicOCSPResponse_PDU, proto_ocsp, "id-pkix-ocsp-basic");
- register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.3", dissect_CrlID_PDU, proto_ocsp, "id-pkix-ocsp-crl");
- register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.4", dissect_AcceptableResponses_PDU, proto_ocsp, "id-pkix-ocsp-response");
- register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.6", dissect_ArchiveCutoff_PDU, proto_ocsp, "id-pkix-ocsp-archive-cutoff");
- register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.7", dissect_ServiceLocator_PDU, proto_ocsp, "id-pkix-ocsp-service-locator");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.1", dissect_BasicOCSPResponse_PDU, proto_ocsp, "id-pkix-ocsp-basic");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.3", dissect_CrlID_PDU, proto_ocsp, "id-pkix-ocsp-crl");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.4", dissect_AcceptableResponses_PDU, proto_ocsp, "id-pkix-ocsp-response");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.6", dissect_ArchiveCutoff_PDU, proto_ocsp, "id-pkix-ocsp-archive-cutoff");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.7", dissect_ServiceLocator_PDU, proto_ocsp, "id-pkix-ocsp-service-locator");
 
 
 /*--- End of included file: packet-ocsp-dis-tab.c ---*/

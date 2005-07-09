@@ -267,9 +267,9 @@ get_ber_length_dont_check_len(proto_tree *tree, tvbuff_t *tvb, int offset, guint
 int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	int start_offset;
-	guint8 class;
+	gint8 class;
 	gboolean pc, ind;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
 	proto_item *item=NULL;
 	proto_tree *next_tree=NULL;
@@ -538,9 +538,9 @@ dissect_ber_length(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int 
 /* 8.7 Encoding of an octetstring value */
 int 
 dissect_ber_octet_string(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **out_tvb) {
-	guint8 class;
+	gint8 class;
 	gboolean pc, ind;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
 	int end_offset;
 	proto_item *it;
@@ -639,9 +639,10 @@ int dissect_ber_octet_string_wcb(gboolean implicit_tag, packet_info *pinfo, prot
 /* 8.8 Encoding of a null value */
 int 
 dissect_ber_null(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id) {
-  guint8 class;
+  gint8 class;
   gboolean pc;
-  guint32 tag, len;
+  gint32 tag;
+  guint32 len;
   int offset_old;
 
   if(!implicit_tag){
@@ -669,9 +670,9 @@ dissect_ber_null(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tv
 int
 dissect_ber_integer(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, guint32 *value)
 {
-	guint8 class;
+	gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
 	gint32 val;
 	gint64 val64;
@@ -768,9 +769,9 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n",name,impl
 int
 dissect_ber_boolean(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id)
 {
-	guint8 class;
+	gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
 	guint8 val;
 	header_field_info *hfi;
