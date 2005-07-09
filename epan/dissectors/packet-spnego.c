@@ -456,13 +456,13 @@ arcfour_mic_key(void *key_data, size_t key_size, int key_type,
 		void *cksum_data, size_t cksum_size,
 		void *key6_data)
 {
-    char k5_data[16];
-    char T[4];
+    guint8 k5_data[16];
+    guint8 T[4];
 
     memset(T, 0, 4);
 
     if (key_type == KEYTYPE_ARCFOUR_56) {
-	char L40[14] = "fortybits";
+	guint8 L40[14] = "fortybits";
 
 	memcpy(L40 + 10, T, sizeof(T));
 	md5_hmac(
@@ -507,20 +507,20 @@ usage2arcfour(int usage)
 }
 
 static int
-arcfour_mic_cksum(char *key_data, int key_length,
+arcfour_mic_cksum(guint8 *key_data, int key_length,
 		  unsigned usage,
 		  u_char sgn_cksum[8],
-		  const char *v1, size_t l1,
+		  const void *v1, size_t l1,
 		  const void *v2, size_t l2,
 		  const void *v3, size_t l3)
 {
-    const char signature[] = "signaturekey";
-    char ksign_c[16];
+    const guint8 signature[] = "signaturekey";
+    guint8 ksign_c[16];
     unsigned char t[4];
     md5_state_t ms;
     unsigned char digest[16];
     int rc4_usage;
-    char cksum[16];
+    guint8 cksum[16];
     
     rc4_usage=usage2arcfour(usage);
     md5_hmac(signature, sizeof(signature), 
@@ -573,16 +573,16 @@ gssapi_verify_pad(unsigned char *wrapped_data, int wrapped_length,
 
 static int
 decrypt_arcfour(packet_info *pinfo,
-	 char *input_message_buffer,
-	 char *output_message_buffer,
-	 char *key_value, int key_size, int key_type)
+	 guint8 *input_message_buffer,
+	 guint8 *output_message_buffer,
+	 guint8 *key_value, int key_size, int key_type)
 {
-    unsigned char Klocaldata[16];
+    guint8 Klocaldata[16];
     int ret;
-    int32_t seq_number;
+    gint32 seq_number;
     size_t datalen;
-    char k6_data[16], SND_SEQ[8], Confounder[8];
-    char cksum_data[8];
+    guint8 k6_data[16], SND_SEQ[8], Confounder[8];
+    guint8 cksum_data[8];
     int cmp;
     int conf_flag;
     size_t padlen = 0;

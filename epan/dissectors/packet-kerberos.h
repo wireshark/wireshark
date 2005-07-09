@@ -71,7 +71,7 @@ guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int usage,
 			int length,
-			const char *cryptotext,
+			const guint8 *cryptotext,
 			int keytype);
 
 #endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */

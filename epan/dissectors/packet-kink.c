@@ -706,7 +706,7 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   guint32 reserved2;
   guint16 inner_payload_length;
   int start_payload_offset = 0;    /* Keep the begining of the payload offset */
-  const char *data_value;
+  const guint8 *data_value;
 #ifdef HAVE_KERBEROS
   tvbuff_t *next_tvb;
   guint8 *plaintext=NULL;

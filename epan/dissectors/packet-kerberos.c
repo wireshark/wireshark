@@ -412,7 +412,7 @@ guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int usage,
 			int length,
-			const char *cryptotext,
+			const guint8 *cryptotext,
 			int keytype)
 {
 	static int first_time=1;
@@ -531,7 +531,7 @@ guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int usage,
 			int length,
-			const char *cryptotext,
+			const guint8 *cryptotext,
 			int keytype)
 {
 	static int first_time=1;
@@ -702,7 +702,7 @@ guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			int _U_ usage,
 			int length,
-			const char *cryptotext,
+			const guint8 *cryptotext,
 			int keytype)
 {
 	tvbuff_t *encr_tvb;
@@ -2158,7 +2158,7 @@ dissect_krb5_keytype(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int of
 	return offset;
 }
 static int keylength;
-static const char *keyvalue;
+static const guint8 *keyvalue;
 static int
 store_keyvalue(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb, int offset)
 {
