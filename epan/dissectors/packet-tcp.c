@@ -90,6 +90,8 @@ static int hf_tcp_urgent_pointer = -1;
 static int hf_tcp_analysis_flags = -1;
 static int hf_tcp_analysis_acks_frame = -1;
 static int hf_tcp_analysis_ack_rtt = -1;
+static int hf_tcp_analysis_rto = -1;
+static int hf_tcp_analysis_rto_frame = -1;
 static int hf_tcp_analysis_retransmission = -1;
 static int hf_tcp_analysis_fast_retransmission = -1;
 static int hf_tcp_analysis_out_of_order = -1;
@@ -217,6 +219,10 @@ static int tcp_acked_count = 5000;	/* one for almost every other segment in the 
 struct tcp_acked {
 	guint32 frame_acked;
 	nstime_t ts;
+	
+	guint32  rto_frame;	
+	nstime_t rto_ts;	/* Time since previous packet for 
+				   retransmissions. */
 	guint16 flags;
 	guint32 dupack_num;	/* dup ack number */
 	guint32 dupack_frame;	/* dup ack to frame # */
@@ -901,6 +907,7 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 
 				t=(ntu->ts.secs-pinfo->fd->abs_secs)*1000000000;
 				t=t+ntu->ts.nsecs-(pinfo->fd->abs_usecs*1000);
+
 				if(t>4000000){
 					outoforder=FALSE;
 				}
@@ -919,6 +926,57 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 
 			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
 			ta->flags|=TCP_A_RETRANSMISSION;
+
+#ifdef REMOVED
+/* The code in the block here and is ifdeffed out tries to measure the RTO
+ * as the delta between the time the original pakcet was lost and this packet,
+ * which is essentially what the RTO is all about. We dont do that here.
+ *
+ * Instead we define the RTO as the delta between the retransmitted packet
+ * and the last previous data segment on the same session.
+ * This is an metric on how long the link were idle due to the RTO
+ * and thus since this reflects the real damage to performance  this is much
+ * more interesting for most people.
+ * Measuring the RTO in this way, while technically not entirely correct,
+ * allows us to SUM(tcp.analysis.rto) for a session and we will have the amount
+ * of time for that session that was spent waiting for a retransmission instead
+ * of pushing data across.
+ */ 
+			/* measure RTO from the most recent frame we have in 
+			 * the sliding window that has a sequence number equal
+			 * to or less than the retransmitted frame.
+			 */
+			ntu=NULL;
+			for(tu=ual1;tu;tu=tu->next){
+				if(GE_SEQ(seq,tu->seq)){
+					if(tu->frame){
+						ntu=tu;
+						break;
+					}
+				}
+			}
+#endif
+			ntu=ual1;
+			if(ntu){
+				/* Set RTO to the delta since the previous 
+				 * segment with an equal or lower sequence 
+				 * number.
+				 */
+				ta->rto_ts.secs=pinfo->fd->abs_secs-ntu->ts.secs;
+				ta->rto_ts.nsecs=pinfo->fd->abs_usecs*1000-ntu->ts.nsecs;
+				if(ta->rto_ts.nsecs<0){
+					ta->rto_ts.nsecs+=1000000000;
+					ta->rto_ts.secs--;
+				}
+				ta->rto_frame=ntu->frame;
+			} else {
+				/* we didnt see any previous packet so we
+				 * cant calculate the RTO 
+				 */
+				ta->rto_ts.secs=0;
+				ta->rto_ts.nsecs=0;
+				ta->rto_frame=0;
+			}
 
 			/* did this segment contain any more data we havent seen yet?
 			 * if so we can just increase nextseq
@@ -1277,6 +1335,13 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 			PROTO_ITEM_SET_GENERATED(flags_item);
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Retransmission] ");
+			}
+			if( ta->rto_ts.secs || ta->rto_ts.nsecs ){
+				item = proto_tree_add_time(flags_tree, hf_tcp_analysis_rto,
+					tvb, 0, 0, &ta->rto_ts);
+        			PROTO_ITEM_SET_GENERATED(item);
+				item=proto_tree_add_uint(flags_tree, hf_tcp_analysis_rto_frame, tvb, 0, 0, ta->rto_frame);
+				PROTO_ITEM_SET_GENERATED(item);
 			}
 		}
 		if( ta->flags&TCP_A_FAST_RETRANSMISSION ){
@@ -3261,6 +3326,14 @@ proto_register_tcp(void)
 		{ &hf_tcp_analysis_ack_rtt,
 		  { "The RTT to ACK the segment was",            "tcp.analysis.ack_rtt", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
 		    "How long time it took to ACK the segment (RTT)", HFILL}},
+
+		{ &hf_tcp_analysis_rto,
+		  { "The RTO for this segment was",            "tcp.analysis.rto", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+		    "How long transmission was delayed before this segment was retransmitted (RTO)", HFILL}},
+
+		{ &hf_tcp_analysis_rto_frame,
+		  { "RTO based on delta from frame", "tcp.analysis.rto_frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"This is the frame we measure the RTO from", HFILL }},
 
 		{ &hf_tcp_urgent_pointer,
 		{ "Urgent pointer",		"tcp.urgent_pointer", FT_UINT16, BASE_DEC, NULL, 0x0,
