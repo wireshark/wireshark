@@ -40,6 +40,9 @@ CLEANFILES = \
 	docsis \
 	*~
 
+MAINTAINERCLEANFILES = \
+	Makefile.in
+
 EXTRA_DIST = \
 	Makefile.nmake \
 	README

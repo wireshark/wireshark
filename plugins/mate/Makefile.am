@@ -27,8 +27,20 @@ INCLUDES = -I$(top_srcdir)
 plugindir = @plugindir@
 
 plugin_LTLIBRARIES = mate.la
-mate_la_SOURCES = moduleinfo.h mate.h  mate_util.h mate_grammar.h \
-                  packet-mate.c mate_runtime.c mate_setup.c mate_util.c mate_plugin.c mate_grammar.c mate_parser.c
+
+mate_la_SOURCES = \
+	mate.h		\
+	mate_grammar.c	\
+	mate_grammar.h	\
+	mate_parser.c	\
+	mate_plugin.c	\
+	mate_runtime.c	\
+	mate_setup.c	\
+	mate_util.c	\
+	mate_util.h	\
+	moduleinfo.h	\
+	packet-mate.c
+
 mate_la_LDFLAGS = -module -avoid-version
 mate_la_LIBADD = @PLUGIN_LIBS@
 
@@ -40,6 +52,13 @@ LIBS =
 CLEANFILES = \
 	mate \
 	*~
+
+MAINTAINERCLEANFILES = \
+	Makefile.in		\
+	mate_grammar.c		\
+	mate_grammar.h		\
+	mate_grammar.out	\
+	mate_parser.c
 
 EXTRA_DIST = \
 	mate_grammar.lemon \

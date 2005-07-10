@@ -28,6 +28,13 @@ CLEANFILES = \
 	libdfilter.la		\
 	*~
 
+MAINTAINERCLEANFILES = \
+	Makefile.in	\
+	grammar.c	\
+	grammar.h	\
+	grammar.out	\
+	scanner.c
+
 INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/.. -I$(srcdir)/$(LEMON)
 
 libdfilter_la_SOURCES = \

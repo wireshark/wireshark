@@ -47,6 +47,9 @@ CLEANFILES = \
 	xml \
 	*~
 
+MAINTAINERCLEANFILES = \
+	Makefile.in
+
 EXTRA_DIST = \
 	Makefile.nmake \
 	xml_lexer.l

@@ -40,5 +40,8 @@ CLEANFILES = \
 	mgcp \
 	*~
 
+MAINTAINERCLEANFILES = \
+	Makefile.in
+
 EXTRA_DIST = \
 	Makefile.nmake

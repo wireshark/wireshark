@@ -61,6 +61,9 @@ CLEANFILES = \
 	libethereal.la		\
 	*~
 
+MAINTAINERCLEANFILES = \
+	Makefile.in
+
 #
 # Add the object files for missing routines, if any.
 #

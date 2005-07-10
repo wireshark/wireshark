@@ -53,3 +53,7 @@ plugindir = @plugindir@
 
 EXTRA_DIST = \
 	Makefile.nmake
+
+MAINTAINERCLEANFILES = \
+	Makefile.in
+

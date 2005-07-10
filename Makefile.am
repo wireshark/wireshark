@@ -360,11 +360,19 @@ DISTCLEANFILES = \
 	ps.c
 
 MAINTAINERCLEANFILES =		\
-	$(GENERATED_FILES)
+	$(GENERATED_FILES)	\
+	Makefile.in		\
+	aclocal.m4		\
+	config.h.in		\
+	configure		\
+	depcomp			\
+	install-sh		\
+	ltmain.sh		\
+	missing
 
 EXTRA_DIST = \
 	FAQ			\
-	INSTALL.configure       \
+	INSTALL.configure	\
 	Makefile.common		\
 	Makefile.nmake		\
 	README.aix		\
@@ -387,7 +395,7 @@ EXTRA_DIST = \
 	capture-wpcap.h		\
 	capture_wpcap_packet.c  \
 	capture_wpcap_packet.h  \
-	cfilters 			\
+	cfilters 		\
 	cleanbld.bat		\
 	colorfilters 		\
 	config.h.win32		\
@@ -402,16 +410,16 @@ EXTRA_DIST = \
 	debian/postinst		\
 	debian/prerm		\
 	debian/rules		\
-	dfilters 			\
+	dfilters 		\
 	dictionary.dtd		\
 	dictionary.xml		\
-	doc/Makefile.am         \
-	doc/Makefile.nmake      \
-	doc/README.capture      \
-	doc/README.design       \
-	doc/README.developer    \
-	doc/README.idl2eth      \
-	doc/README.plugins      \
+	doc/Makefile.am		\
+	doc/Makefile.nmake	\
+	doc/README.capture	\
+	doc/README.design	\
+	doc/README.developer	\
+	doc/README.idl2eth	\
+	doc/README.plugins	\
 	doc/README.regression   \
 	doc/README.tapping	\
 	doc/README.tvbuff	\
@@ -532,19 +540,19 @@ EXTRA_DIST = \
 	make-manuf		\
 	make-tapreg-dotc	\
 	make-version.pl		\
-	manuf                   \
+	manuf			\
 	manuf.tmpl		\
 	mergecap.c		\
 	mobileipv4.xml		\
 	nasreq.xml		\
 	perlnoutf.pl		\
-	print.ps                \
+	print.ps		\
 	randpkt.c		\
 	rdps.c			\
 	sunping.xml		\
-	text2pcap-scanner.l     \
-	text2pcap.c             \
-	text2pcap.h             \
+	text2pcap-scanner.l	\
+	text2pcap.c		\
+	text2pcap.h		\
 	wka.tmpl
 
 if SETUID_INSTALL

@@ -31,6 +31,9 @@ noinst_PROGRAMS = lemon
 CLEANFILES = \
 	*~
 
+MAINTAINERCLEANFILES = \
+	Makefile.in
+
 lemon_SOURCES = \
 	lemon.c
 

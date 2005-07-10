@@ -28,6 +28,9 @@ CLEANFILES = \
 	libftypes.la	\
 	*~
 
+MAINTAINERCLEANFILES = \
+	Makefile.in
+
 INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/..
 
 libftypes_la_SOURCES =	\

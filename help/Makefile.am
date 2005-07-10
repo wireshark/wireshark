@@ -25,15 +25,19 @@
 # Install the help files in the "help" subdirectory of the data directory.
 #
 helpdir = $(pkgdatadir)/help
-help_DATA =            \
-	toc                 \
-	getting_started.txt \
-	capturing.txt       \
-	capture_filters.txt \
-	display_filters.txt \
-	faq.txt             \
+help_DATA = \
+	toc			\
+	getting_started.txt	\
+	capturing.txt		\
+	capture_filters.txt	\
+	display_filters.txt	\
+	faq.txt			\
 	overview.txt
 
 EXTRA_DIST = $(help_DATA) Makefile.nmake
 
 CLEANFILES = 
+
+MAINTAINERCLEANFILES = \
+	Makefile.in
+

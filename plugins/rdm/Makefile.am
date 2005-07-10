@@ -40,5 +40,8 @@ CLEANFILES = \
 	rdm \
 	*~
 
+MAINTAINERCLEANFILES = \
+	Makefile.in
+
 EXTRA_DIST = \
 	Makefile.nmake

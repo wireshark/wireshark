@@ -40,5 +40,8 @@ CLEANFILES = \
 	stats_tree \
 	*~
 
+MAINTAINERCLEANFILES = \
+	Makefile.in
+
 EXTRA_DIST = \
 	Makefile.nmake

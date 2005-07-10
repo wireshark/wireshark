@@ -54,9 +54,12 @@ LIBS =
 CLEANFILES = \
 	cosnaming \
 	coseventcomm \
-        tango \
+	tango \
 	parlay \
 	*~
+
+MAINTAINERCLEANFILES = \
+	Makefile.in
 
 EXTRA_DIST = \
 	Makefile.nmake

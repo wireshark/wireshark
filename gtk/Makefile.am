@@ -29,8 +29,9 @@ CLEANFILES = \
 	libui.a		\
 	*~
 
-MAINTAINERCLEANFILES =		\
-	$(GENERATED_FILES)
+MAINTAINERCLEANFILES = \
+	$(GENERATED_FILES)	\
+	Makefile.in
 
 ethereal-tap-register.c: $(ETHEREAL_TAP_SRC) $(top_srcdir)/make-tapreg-dotc
 	@echo Making ethereal-tap-register.c
@@ -94,7 +95,7 @@ noinst_HEADERS = \
 	tap_dfilter_dlg.h \
 	tap_menu.h	\
 	text_page.h	\
-	toolbar.h       \
+	toolbar.h	\
 	ui_util.h	\
 	voip_calls.h	\
 	voip_calls_dlg.h \

@@ -37,3 +37,7 @@ EXTRA_DIST = \
 	unix2dos.pl		\
 	win32-setup.sh		\
 	yacc.py
+
+MAINTAINERCLEANFILES = \
+	Makefile.in
+

@@ -36,6 +36,11 @@ asn1_la_LIBADD = @PLUGIN_LIBS@
 # add them here.
 LIBS = $(GLIB_LIBS)
 
-CLEANFILES = asn1 *~
+CLEANFILES = \
+	asn1	\
+	*~
+
+MAINTAINERCLEANFILES = \
+	Makefile.in
 
 EXTRA_DIST = Makefile.nmake

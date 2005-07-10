@@ -40,5 +40,8 @@ CLEANFILES = \
 	agentx \
 	*~
 
+MAINTAINERCLEANFILES = \
+	Makefile.in
+
 EXTRA_DIST = \
 	Makefile.nmake

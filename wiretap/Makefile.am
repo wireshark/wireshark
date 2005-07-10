@@ -33,7 +33,12 @@ CLEANFILES = \
 	libwiretap.la		\
 	*~
 
-MAINTAINERCLEANFILES = $(GENERATED_FILES)
+MAINTAINERCLEANFILES = \
+	$(GENERATED_FILES)	\
+	Makefile.in		\
+	aclocal.m4		\
+	config.h.in		\
+	configure
 
 libwiretap_la_SOURCES = \
 	$(NONGENERATED_C_FILES)	\

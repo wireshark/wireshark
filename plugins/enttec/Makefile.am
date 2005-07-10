@@ -40,5 +40,8 @@ CLEANFILES = \
 	enttec \
 	*~
 
+MAINTAINERCLEANFILES = \
+	Makefile.in
+
 EXTRA_DIST = \
 	Makefile.nmake

@@ -40,5 +40,8 @@ CLEANFILES = \
 	artnet \
 	*~
 
+MAINTAINERCLEANFILES = \
+	Makefile.in
+
 EXTRA_DIST = \
 	Makefile.nmake

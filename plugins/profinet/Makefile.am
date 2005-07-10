@@ -40,5 +40,8 @@ CLEANFILES = \
 	profinet \
 	*~
 
+MAINTAINERCLEANFILES = \
+	Makefile.in
+
 EXTRA_DIST = \
 	Makefile.nmake
