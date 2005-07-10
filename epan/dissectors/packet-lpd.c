@@ -128,7 +128,7 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 tvb_format_text(tvb, 1, printer_len));
 			}
 			else {
-				call_dissector(data_handle,tvb, pinfo, tree);
+				call_dissector(data_handle,tvb, pinfo, lpd_tree);
 			}
 		}
 		else if (lpr_packet_type == response) {
@@ -137,11 +137,11 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					"Response: %s", lpd_server_code[code]);
 			}
 			else {
-				call_dissector(data_handle,tvb, pinfo, tree);
+				call_dissector(data_handle,tvb, pinfo, lpd_tree);
 			}
 		}
 		else {
-			call_dissector(data_handle,tvb, pinfo, tree);
+			call_dissector(data_handle,tvb, pinfo, lpd_tree);
 		}
 	}
 }
