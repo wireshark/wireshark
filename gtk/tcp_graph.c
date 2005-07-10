@@ -382,7 +382,7 @@ static void callback_graph_type (GtkWidget * , gpointer );
 static void callback_graph_init_on_typechg (GtkWidget * , gpointer );
 static void callback_create_help (GtkWidget * , gpointer );
 static void update_zoom_spins (struct graph * );
-static struct tcpheader *select_tcpip_session (frame_data *, struct segment * );
+static struct tcpheader *select_tcpip_session (capture_file *, struct segment * );
 static int compare_headers (address *saddr1, address *daddr1, guint16 sport1, guint16 dport1, address *saddr2, address *daddr2, guint16 sport2, guint16 dport2, int dir);
 static int get_num_dsegs (struct graph * );
 static int get_num_acks (struct graph * );
@@ -512,7 +512,7 @@ void tcp_graph_cb (GtkWidget *w _U_, gpointer data, guint callback_action /*grap
 	graph_put (g);
 
 	g->type = graph_type;
-	if (!(thdr=select_tcpip_session (cfile.current_frame, &current))) {
+	if (!(thdr=select_tcpip_session (&cfile, &current))) {
 		return;
 	}
 
@@ -662,7 +662,7 @@ static void create_drawing_area (struct graph *g)
 	g->font = gdk_font_load ("-biznet-fotinostypewriter-medium-r-normal-*-*-120"
 							"-*-*-m-*-iso8859-2");
 #endif
-	thdr=select_tcpip_session (cfile.current_frame, &current);
+	thdr=select_tcpip_session (&cfile, &current);
 	g_snprintf (window_title, WINDOW_TITLE_LENGTH, "TCP Graph %d: %s %s:%d -> %s:%d",
 			refnum,
 			cf_get_display_name(&cfile),
@@ -1817,7 +1817,7 @@ static void graph_segment_list_get (struct graph *g)
 
 
 	debug(DBS_FENTRY) puts ("graph_segment_list_get()");
-	select_tcpip_session (cfile.current_frame, &current);
+	select_tcpip_session (&cfile, &current);
 	if (g->type == GRAPH_THROUGHPUT)
 		ts.direction = COMPARE_CURR_DIR;
 	else
@@ -1864,9 +1864,8 @@ tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
  * then present the user with a dialog where the user can select WHICH tcp
  * session to graph.
  */
-static struct tcpheader *select_tcpip_session (frame_data *fd, struct segment *hdrs)
+static struct tcpheader *select_tcpip_session (capture_file *cf, struct segment *hdrs)
 {
-	capture_file *cf;
 	frame_data *fdata;
 	gint err;
 	gchar *err_info;
@@ -1875,7 +1874,6 @@ static struct tcpheader *select_tcpip_session (frame_data *fd, struct segment *h
 	GString *error_string;
 	th_t th = {0, NULL};
 
-	cf = &cfile;
 	fdata = cf->current_frame;
 
 	/* no real filter yet */
@@ -1910,9 +1908,10 @@ static struct tcpheader *select_tcpip_session (frame_data *fd, struct segment *h
 	remove_tap_listener(&th);
 
 	if(th.num_hdrs==0){
-		/* currently selected packet is neither TCP over IP over Ethernet II/PPP
-		 * nor TCP over IP alone - should display some
-		 * kind of warning dialog */
+		/* This "shouldn't happen", as our menu items shouldn't
+		 * even be enabled if the selected packet isn't a TCP
+		 * segment, as tcp_graph_selected_packet_enabled() is used
+		 * to determine whether to enable any of our menu items. */
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Selected packet isn't a TCP segment");
 		return NULL;
@@ -1923,15 +1922,16 @@ static struct tcpheader *select_tcpip_session (frame_data *fd, struct segment *h
 	if(th.num_hdrs>1){
 		/* can only handle a single tcp layer yet */
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "Too many TCP headers in selected packet");
+		    "The selected packet has more than one TCP"
+		    "header in it.");
 		return NULL;
 	}
 
-	hdrs->num = fd->num;
-	hdrs->rel_secs = fd->rel_secs;
-	hdrs->rel_usecs = fd->rel_usecs;
-	hdrs->abs_secs = fd->abs_secs;
-	hdrs->abs_usecs = fd->abs_usecs;
+	hdrs->num = fdata->num;
+	hdrs->rel_secs = fdata->rel_secs;
+	hdrs->rel_usecs = fdata->rel_usecs;
+	hdrs->abs_secs = fdata->abs_secs;
+	hdrs->abs_usecs = fdata->abs_usecs;
 	hdrs->th_seq=th.tcphdr->th_seq;
 	hdrs->th_ack=th.tcphdr->th_ack;
 	hdrs->th_win=th.tcphdr->th_win;
@@ -4059,4 +4059,3 @@ register_tap_listener_tcp_graph(void)
     register_tap_menu_item("TCP Stream Graph/Round Trip Time Graph", REGISTER_TAP_GROUP_NONE,
         tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(3));
 }
-
