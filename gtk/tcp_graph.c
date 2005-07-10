@@ -46,66 +46,19 @@
 #include "dlg_utils.h"
 #include <epan/epan_dissect.h>
 #include "tap_menu.h"
+#include "../epan/dissectors/packet-tcp.h"
+#include "../epan/address.h"
+#include "../epan/tap.h"
 
-/* from <net/ethernet.h> */
-struct ether_header {
-	guint8 ether_dhost[6];	/* destination eth addr */
-	guint8 ether_shost[6];	/* source ether addr */
-	guint16 ether_type;	/* packet type ID field */
-};
-
-/* reverse engineered from capture file, not too difficult :) */
-struct ppp_header {
-	guint8 ppp_type;	/* Protocol on PPP connection */
-};
-
-/* 802.1q header */
-struct vlan_802_1_q {
-	guint16 info;
-	guint16 type;
-};
-
-/* from <netinet/ip.h> */
-struct iphdr {
-	guint8 version_ihl;
-	guint8 tos;
-	guint16 tot_len;
-	guint16 id;
-	guint16 frag_off;
-	guint8 ttl;
-	guint8 protocol;
-	guint16 check;
-	guint32 saddr;
-	guint32 daddr;
-};
-
-#define IPHDR_IHL_SHIFT		0
-#define IPHDR_IHL_MASK		(0xf << IPHDR_IHL_SHIFT)
-#define IHL(iphdrptr)		( ((iphdrptr)->version_ihl & IPHDR_IHL_MASK) >> IPHDR_IHL_SHIFT )
-
-/* from <netinet/tcp.h> */
-struct tcphdr {
-	guint16 source;
-	guint16 dest;
-	guint32 seq;
-	guint32 ack_seq;
-	guint16 flags;
 #define TH_FIN    0x01
 #define TH_SYN    0x02
 #define TH_RST    0x04
 #define TH_PUSH   0x08
 #define TH_ACK    0x10
 #define TH_URG    0x20
-	guint16 window;
-	guint16 check;
-	guint16 urg_ptr;
-};
 
-#define TCP_SYN(tcphdr)		( g_ntohs ((tcphdr).flags) & TH_SYN )
-#define TCP_ACK(tcphdr)		( g_ntohs ((tcphdr).flags) & TH_ACK )
-#define TCP_DOFF_SHIFT		12
-#define TCP_DOFF_MASK		(0xf << TCP_DOFF_SHIFT)
-#define DOFF(tcphdr)		( ( g_ntohs ((tcphdr).flags) & TCP_DOFF_MASK) >> TCP_DOFF_SHIFT )
+#define TCP_SYN(flags)		( flags & TH_SYN )
+#define TCP_ACK(flags)		( flags & TH_ACK )
 
 #define TXT_WIDTH	850
 #define TXT_HEIGHT	550
@@ -119,6 +72,7 @@ struct tcphdr {
 #define AXIS_HORIZONTAL		0
 #define AXIS_VERTICAL		1
 
+
 struct segment {
 	struct segment *next;
 	guint32 num;
@@ -126,9 +80,16 @@ struct segment {
 	guint32 rel_usecs;
 	guint32 abs_secs;
 	guint32 abs_usecs;
-	struct iphdr iphdr;
-	struct tcphdr tcphdr;
-	int data;				/* amount of data in this segment */
+
+	guint32 th_seq;
+	guint32 th_ack;
+	guint8  th_flags;
+	guint32 th_win;   /* make it 32 bits so we can handle some scaling */
+	guint32 th_seglen;
+	guint16 th_sport;
+	guint16 th_dport;
+	address ip_src;
+	address ip_dst;
 };
 
 struct rect {
@@ -421,8 +382,8 @@ static void callback_graph_type (GtkWidget * , gpointer );
 static void callback_graph_init_on_typechg (GtkWidget * , gpointer );
 static void callback_create_help (GtkWidget * , gpointer );
 static void update_zoom_spins (struct graph * );
-static int get_headers (frame_data *, char * , struct segment * );
-static int compare_headers (struct segment * , struct segment * , int );
+static struct tcpheader *select_tcpip_session (frame_data *, char * , struct segment * );
+static int compare_headers (address *saddr1, address *daddr1, guint16 sport1, guint16 dport1, address *saddr2, address *daddr2, guint16 sport2, guint16 dport2, int dir);
 static int get_num_dsegs (struct graph * );
 static int get_num_acks (struct graph * );
 static void graph_type_dependent_initialize (struct graph * );
@@ -537,7 +498,9 @@ void tcp_graph_cb (GtkWidget *w _U_, gpointer data, guint callback_action /*grap
 {
 	struct segment current;
 	struct graph *g;
-    guint graph_type = GPOINTER_TO_INT(data);
+	struct tcpheader *thdr;
+
+	guint graph_type = GPOINTER_TO_INT(data);
 
 	debug(DBS_FENTRY) puts ("tcp_graph_cb()");
 
@@ -549,12 +512,7 @@ void tcp_graph_cb (GtkWidget *w _U_, gpointer data, guint callback_action /*grap
 	graph_put (g);
 
 	g->type = graph_type;
-	if (!get_headers (cfile.current_frame, cfile.pd, &current)) {
-		/* currently selected packet is neither TCP over IP over Ethernet II/PPP
-		 * nor TCP over IP alone - should display some
-		 * kind of warning dialog */
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "Selected packet isn't a TCP segment");
+	if (!(thdr=select_tcpip_session (cfile.current_frame, cfile.pd, &current))) {
 		return;
 	}
 
@@ -642,13 +600,13 @@ static void display_text (struct graph *g)
 	/* we have to find Initial Sequence Number for both ends of connection */
 	for (ptr=g->segments; ptr; ptr=ptr->next) {
 		if (compare_headers (g->current, ptr, COMPARE_CURR_DIR)) {
-			isn_this = g_ntohl (ptr->tcphdr.seq);
+			isn_this = ptr->th_seq;
 			break;
 		}
 	}
 	for (ptr=g->segments; ptr; ptr=ptr->next) {
 		if (!compare_headers (g->current, ptr, COMPARE_CURR_DIR)) {
-			isn_opposite = g_ntohl (ptr->tcphdr.seq);
+			isn_opposite = ptr->th_seq;
 			break;
 		}
 	}
@@ -656,7 +614,7 @@ static void display_text (struct graph *g)
 	seq_opposite_prev = isn_opposite;
 	for (ptr=g->segments; ptr; ptr=ptr->next) {
 		double time=ptr->rel_secs + ptr->rel_usecs/1000000.0;
-		unsigned int seq = g_ntohl (ptr->tcphdr.seq);
+		unsigned int seq = ptr->th_seq;
 		int seq_delta_isn, seq_delta_prev;
 
 		if (compare_headers (g->current, ptr, COMPARE_CURR_DIR)) {
@@ -673,8 +631,7 @@ static void display_text (struct graph *g)
 		g_snprintf ((char *)line, 256, "%10d%15.6f%15.6f%15.6f%15u%15d%15d%10u\n",
 						ptr->num, time, time-first_time, time-prev_time,
 						seq, seq_delta_isn, seq_delta_prev,
-						g_ntohs (ptr->iphdr.tot_len) - 4*IHL(&(ptr->iphdr)) -
-						4*DOFF(ptr->tcphdr));
+						ptr->th_seglen);
 #if GTK_MAJOR_VERSION < 2
 		gtk_text_insert(GTK_TEXT(g->text), g->font, c, NULL,
                                 (const char * )line, -1);
@@ -696,6 +653,7 @@ static void create_drawing_area (struct graph *g)
 #define WINDOW_TITLE_LENGTH 64
 	char window_title[WINDOW_TITLE_LENGTH];
 	struct segment current;
+	struct tcpheader *thdr;
 
 	debug(DBS_FENTRY) puts ("create_drawing_area()");
 #if 0
@@ -704,21 +662,15 @@ static void create_drawing_area (struct graph *g)
 	g->font = gdk_font_load ("-biznet-fotinostypewriter-medium-r-normal-*-*-120"
 							"-*-*-m-*-iso8859-2");
 #endif
-	get_headers (cfile.current_frame, cfile.pd, &current);
-	g_snprintf (window_title, WINDOW_TITLE_LENGTH, "TCP Graph %d: %s %d.%d.%d.%d:%d -> %d.%d.%d.%d:%d",
-					refnum,
-					cf_get_display_name(&cfile),
-					(current.iphdr.saddr    )&0xff,
-					(current.iphdr.saddr>> 8)&0xff,
-					(current.iphdr.saddr>>16)&0xff,
-					(current.iphdr.saddr>>24)&0xff,
-					g_ntohs(current.tcphdr.source),
-					(current.iphdr.daddr    )&0xff,
-					(current.iphdr.daddr>> 8)&0xff,
-					(current.iphdr.daddr>>16)&0xff,
-					(current.iphdr.daddr>>24)&0xff,
-					g_ntohs(current.tcphdr.dest)
-);
+	thdr=select_tcpip_session (cfile.current_frame, cfile.pd, &current);
+	g_snprintf (window_title, WINDOW_TITLE_LENGTH, "TCP Graph %d: %s %s:%d -> %s:%d",
+			refnum,
+			cf_get_display_name(&cfile),
+			address_to_str(&(thdr->ip_src)),
+			thdr->th_sport,
+			address_to_str(&(thdr->ip_dst)),
+			thdr->th_dport
+	);
 	g->toplevel = dlg_window_new ("Tcp Graph");
     gtk_window_set_title(GTK_WINDOW(g->toplevel), window_title);
 	gtk_widget_set_name (g->toplevel, "Test Graph");
@@ -1795,159 +1747,222 @@ static void graph_destroy (struct graph *g)
 #endif
 }
 
+
+typedef struct _tcp_scan_t {
+	struct segment *current;
+	int direction;
+	struct graph *g;
+	struct segment *last;
+} tcp_scan_t;
+
+static int
+tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+	static struct segment *segment=NULL;
+	tcp_scan_t *ts=(tcp_scan_t *)pct;
+	struct tcpheader *tcphdr=(struct tcpheader *)vip;
+
+	if(!segment){
+		segment=g_malloc(sizeof (struct segment));
+		if(!segment){
+			perror ("malloc failed");
+		}
+	}
+
+
+	if (compare_headers(&ts->current->ip_src, &ts->current->ip_dst,
+			    ts->current->th_sport, ts->current->th_dport,
+			    &tcphdr->ip_src, &tcphdr->ip_dst,
+			    tcphdr->th_sport, tcphdr->th_dport,
+			    ts->direction)) {
+		segment->next = NULL;
+		segment->num = pinfo->fd->num;
+		segment->rel_secs = pinfo->fd->rel_secs;
+		segment->rel_usecs = pinfo->fd->rel_usecs;
+		segment->abs_secs = pinfo->fd->abs_secs;
+		segment->abs_usecs = pinfo->fd->abs_usecs;
+		segment->th_seq=tcphdr->th_seq;
+		segment->th_ack=tcphdr->th_ack;
+		segment->th_win=tcphdr->th_win;
+		segment->th_flags=tcphdr->th_flags;
+		segment->th_sport=tcphdr->th_sport;
+		segment->th_dport=tcphdr->th_dport;
+		segment->th_seglen=tcphdr->th_seglen;
+		COPY_ADDRESS(&segment->ip_src, &tcphdr->ip_src);
+		COPY_ADDRESS(&segment->ip_dst, &tcphdr->ip_dst);
+		if (ts->g->segments) {
+			ts->last->next = segment;
+		} else {
+			ts->g->segments = segment;
+		}
+		ts->last = segment;
+		if(pinfo->fd->num==ts->current->num){
+			ts->g->current = segment;
+		}
+
+		segment=NULL;
+	}
+
+	return 0;
+}
+
+
+
 /* here we collect all the external data we will ever need */
 static void graph_segment_list_get (struct graph *g)
 {
-	frame_data *ptr;
-	union wtap_pseudo_header pseudo_header;
-	char pd[WTAP_MAX_PACKET_SIZE];
-	struct segment *segment=NULL, *last=NULL;
 	struct segment current;
-	int condition;
-	int err;
-	gchar *err_info;
+	GString *error_string;
+	tcp_scan_t ts;
+
 
 	debug(DBS_FENTRY) puts ("graph_segment_list_get()");
-	get_headers (cfile.current_frame, cfile.pd, &current);
+	select_tcpip_session (cfile.current_frame, cfile.pd, &current);
 	if (g->type == GRAPH_THROUGHPUT)
-		condition = COMPARE_CURR_DIR;
+		ts.direction = COMPARE_CURR_DIR;
 	else
-		condition = COMPARE_ANY_DIR;
+		ts.direction = COMPARE_ANY_DIR;
 
-	for (ptr=cfile.plist; ptr; ptr=ptr->next) {
-		if (!wtap_seek_read (cfile.wth, ptr->file_off, &pseudo_header,
-				     pd, ptr->cap_len, &err, &err_info)) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      cf_read_error_message(err, err_info),
-				      cfile.filename);
-			break;
-		}
-		if (!segment)
-			segment = (struct segment * )malloc (sizeof (struct segment));
-			if (!segment)
-				perror ("malloc failed");
-		if (!get_headers (ptr, pd, segment))
-			continue;	/* not TCP over IP over Ethernet II */
-		if (compare_headers (&current, segment, condition)) {
-			segment->next = NULL;
-			segment->num = ptr->num;
-			segment->rel_secs = ptr->rel_secs;
-			segment->rel_usecs = ptr->rel_usecs;
-			segment->abs_secs = ptr->abs_secs;
-			segment->abs_usecs = ptr->abs_usecs;
-			segment->data = g_ntohs (segment->iphdr.tot_len) -
-							4*IHL(&(segment->iphdr)) - 4*DOFF(segment->tcphdr);
-			if (g->segments) {
-				last->next = segment;
-			} else {
-				g->segments = segment;
-			}
-			last = segment;
-			if (ptr==cfile.current_frame)
-				g->current = segment;
-		}
-		segment = NULL;
-	}
-}
-
-static int get_headers (frame_data *fd, char *pd, struct segment *hdrs)
-{
-	struct ether_header *e;
-	struct ppp_header   *p;
-	struct vlan_802_1_q *vlan;
-	void *ip;
-	void *tcp;
-
-	/*
-	 * XXX - on Alpha, even fetching one-byte fields from structures
-	 * pointed to by unaligned pointers may be risky, as, unless
-	 * the BWX instructions are being used, a one-byte load is done
-	 * by loading the word containing the byte and then extracting
-	 * the byte.
-	 *
-	 * This means that the references to "p->ppp_type" and
-	 * "((struct iphdr *)ip)->protocol" may turn into a load of
-	 * an unaligned word.
+	/* rescan all the packets and pick up all interesting tcp headers.
+	 * we only fitler for TCP here for speed and do teh actual compare
+	 * in the tap listener
 	 */
-	switch (fd->lnk_t) {
-
-	case WTAP_ENCAP_ETHERNET:
-		/* It's Ethernet */
-		e = (struct ether_header *)pd;
-		switch (pntohs (&e->ether_type))
-		{
-			case ETHERTYPE_IP:
-				ip = e + 1;
-				break;
-
-			case ETHERTYPE_VLAN:
-				/*
-				 * This code is awful but no more than the
-				 * rest of this file!!
-				 *
-				 * This really needs to be converted to
-				 * work as a TCP tap, so that the
-				 * regular dissectors take care of
-				 * finding the TCP header, rather than
-				 * doing our own *ad hoc* header
-				 * parsing.
-				 */ 
-				vlan = (struct vlan_802_1_q *)(e + 1);
-				if (ETHERTYPE_IP != pntohs(&vlan->type))
-					return FALSE;
-				ip = vlan + 1;
-				break;
-
-			default:
-				return FALSE;
-		}
-		break;
-
-	case WTAP_ENCAP_PPP:
-	case WTAP_ENCAP_PPP_WITH_PHDR:
-		/* It's PPP */
-		p = (struct ppp_header *)pd;
-		if (p->ppp_type != PPP_IP)
-			return FALSE;	/* not IP */
-		ip = p + 1;
-		break;
-
-	case WTAP_ENCAP_RAW_IP:
-		/* Raw IP */
-		ip = pd;
-		break;
-
-	default:
-		/* Those are the only encapsulation types we handle */
-		return FALSE;
+	ts.current=&current;
+	ts.g=g;
+	ts.last=NULL;
+	error_string=register_tap_listener("tcp", &ts, "tcp", NULL, tapall_tcpip_packet, NULL);
+	if(error_string){
+		fprintf(stderr, "ethereal: Couldn't register tcp_graph tap: %s\n",
+		    error_string->str);
+		g_string_free(error_string, TRUE);
+		exit(1);
 	}
-	if (((struct iphdr *)ip)->protocol != IP_PROTO_TCP) {
-		/* printf ("transport protocol not TCP: %#1x\n", ip->protocol); */
-		return FALSE;
-	}
-	tcp = (struct tcphdr *)((guint8 *)ip + 4*IHL((struct iphdr *)ip));
-
-	memcpy(&hdrs->iphdr, ip, sizeof (struct iphdr));
-	memcpy(&hdrs->tcphdr, tcp, sizeof (struct tcphdr));
-	return TRUE;
+	cf_redissect_packets(&cfile);
+	remove_tap_listener(&ts);
 }
 
-static int compare_headers (struct segment *h1, struct segment *h2, int dir)
+
+typedef struct _th_t {
+	int num_hdrs;
+	struct tcpheader *tcphdr;
+} th_t;
+
+static int
+tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip)
 {
-	if (dir == COMPARE_CURR_DIR)
-		return h1->iphdr.saddr == h2->iphdr.saddr &&
-			   h1->iphdr.daddr == h2->iphdr.daddr &&
-			   h1->tcphdr.source == h2->tcphdr.source &&
-			   h1->tcphdr.dest == h2->tcphdr.dest;
-	else
-		return (h1->iphdr.saddr == h2->iphdr.saddr &&
-			   h1->iphdr.daddr == h2->iphdr.daddr &&
-			   h1->tcphdr.source == h2->tcphdr.source &&
-			   h1->tcphdr.dest == h2->tcphdr.dest) ||
-			   (h1->iphdr.saddr == h2->iphdr.daddr &&
-			   h1->iphdr.daddr == h2->iphdr.saddr &&
-			   h1->tcphdr.source == h2->tcphdr.dest &&
-			   h1->tcphdr.dest == h2->tcphdr.source);
+	th_t *th=pct;
+
+	th->num_hdrs++;
+	th->tcphdr=(struct tcpheader *)vip;
+
+	return 0;
+}
+
+
+
+/* XXX should be enhanced so that if we have multiple TCP layers in the trace
+ * then present the user with a dialog where the user can select WHICH tcp
+ * session to graph.
+ */
+static struct tcpheader *select_tcpip_session (frame_data *fd, char *pd, struct segment *hdrs)
+{
+	capture_file *cf;
+	frame_data *fdata;
+	gint err;
+	gchar *err_info;
+	epan_dissect_t *edt;
+	dfilter_t *sfcode;
+	GString *error_string;
+	th_t th = {0, NULL};
+
+	cf = &cfile;
+	fdata = cf->current_frame;
+
+	/* no real filter yet */
+	if (!dfilter_compile("tcp", &sfcode)) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, dfilter_error_msg);
+		return NULL;
+	}
+
+	/* dissect the current frame */
+	if (!wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
+	    cf->pd, fdata->cap_len, &err, &err_info)) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			cf_read_error_message(err, err_info), cf->filename);
+		return NULL;
+	}
+
+
+	error_string=register_tap_listener("tcp", &th, NULL, NULL, tap_tcpip_packet, NULL);
+	if(error_string){
+		fprintf(stderr, "ethereal: Couldn't register tcp_graph tap: %s\n",
+		    error_string->str);
+		g_string_free(error_string, TRUE);
+		exit(1);
+	}
+
+	edt = epan_dissect_new(TRUE, FALSE);
+	epan_dissect_prime_dfilter(edt, sfcode);
+	tap_queue_init(edt);
+	epan_dissect_run(edt, &cf->pseudo_header, cf->pd, fdata, NULL);
+	tap_push_tapped_queue(edt);
+	epan_dissect_free(edt);
+	remove_tap_listener(&th);
+
+	if(th.num_hdrs==0){
+		/* currently selected packet is neither TCP over IP over Ethernet II/PPP
+		 * nor TCP over IP alone - should display some
+		 * kind of warning dialog */
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "Selected packet isn't a TCP segment");
+		return NULL;
+	}
+	/* XXX fix this later, we should show a dialog allowing the user
+	   to select which session he wants here
+         */
+	if(th.num_hdrs>1){
+		/* can only handle a single tcp layer yet */
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "Too many TCP headers in selected packet");
+		return NULL;
+	}
+
+	hdrs->num = fd->num;
+	hdrs->rel_secs = fd->rel_secs;
+	hdrs->rel_usecs = fd->rel_usecs;
+	hdrs->abs_secs = fd->abs_secs;
+	hdrs->abs_usecs = fd->abs_usecs;
+	hdrs->th_seq=th.tcphdr->th_seq;
+	hdrs->th_ack=th.tcphdr->th_ack;
+	hdrs->th_win=th.tcphdr->th_win;
+	hdrs->th_flags=th.tcphdr->th_flags;
+	hdrs->th_sport=th.tcphdr->th_sport;
+	hdrs->th_dport=th.tcphdr->th_dport;
+	hdrs->th_seglen=th.tcphdr->th_seglen;
+	COPY_ADDRESS(&hdrs->ip_src, &th.tcphdr->ip_src);
+	COPY_ADDRESS(&hdrs->ip_dst, &th.tcphdr->ip_dst);
+	return th.tcphdr;
+
+}
+
+static int compare_headers (address *saddr1, address *daddr1, guint16 sport1, guint16 dport1, address *saddr2, address *daddr2, guint16 sport2, guint16 dport2, int dir)
+{
+	int dir1, dir2;
+
+	dir1 = ((!(CMP_ADDRESS(saddr1, saddr2))) &&
+		(!(CMP_ADDRESS(daddr1, daddr2))) &&
+		(sport1==sport2) &&
+		(dport1==dport2));
+
+	if(dir==COMPARE_CURR_DIR){
+		return dir1;	
+	} else {
+		dir2 = ((!(CMP_ADDRESS(saddr1, daddr2))) &&
+			(!(CMP_ADDRESS(daddr1, saddr2))) &&
+			(sport1==dport2) &&
+			(dport1==sport2));
+		return dir1 || dir2;
+	}
 }
 
 static void graph_segment_list_free (struct graph *g)
@@ -3242,7 +3257,11 @@ static int get_num_dsegs (struct graph *g)
 	struct segment *tmp;
 
 	for (tmp=g->segments, count=0; tmp; tmp=tmp->next) {
-		if (compare_headers (g->current, tmp, COMPARE_CURR_DIR)) {
+		if(compare_headers(&g->current->ip_src, &g->current->ip_dst,
+				   g->current->th_sport, g->current->th_dport,
+				   &tmp->ip_src, &tmp->ip_dst,
+				   tmp->th_sport, tmp->th_dport,
+				   COMPARE_CURR_DIR)) {
 			count++;
 		}
 	}
@@ -3255,7 +3274,11 @@ static int get_num_acks (struct graph *g)
 	struct segment *tmp;
 
 	for (tmp=g->segments, count=0; tmp; tmp=tmp->next) {
-		if (!compare_headers (g->current, tmp, COMPARE_CURR_DIR)) {
+		if(!compare_headers(&g->current->ip_src, &g->current->ip_dst,
+				   g->current->th_sport, g->current->th_dport,
+				   &tmp->ip_src, &tmp->ip_dst,
+				   tmp->th_sport, tmp->th_dport,
+				   COMPARE_CURR_DIR)) {
 			count++;
 		}
 	}
@@ -3313,23 +3336,32 @@ static void tseq_stevens_get_bounds (struct graph *g)
 	guint32 ack_base = 0;
 
 	for (first=g->segments; first->next; first=first->next) {
-		if (compare_headers (g->current, first, COMPARE_CURR_DIR))
+		if(compare_headers(&g->current->ip_src, &g->current->ip_dst,
+				   g->current->th_sport, g->current->th_dport,
+				   &first->ip_src, &first->ip_dst,
+				   first->th_sport, first->th_dport,
+				   COMPARE_CURR_DIR)) {
 			break;
+		}
 	}
 	last = NULL;
 	ymax = 0;
 	tmax = 0;
 	
-	seq_base = g_ntohl (first->tcphdr.seq);
+	seq_base = first->th_seq;
 	for (tmp=g->segments; tmp; tmp=tmp->next) {
 		unsigned int highest_byte_num;
 		last = tmp;
-		if (compare_headers (g->current, tmp, COMPARE_CURR_DIR)) {
-			seq_cur = g_ntohl (tmp->tcphdr.seq) -seq_base;
-			highest_byte_num = seq_cur + tmp->data;
+		if(compare_headers(&g->current->ip_src, &g->current->ip_dst,
+				   g->current->th_sport, g->current->th_dport,
+				   &tmp->ip_src, &tmp->ip_dst,
+				   tmp->th_sport, tmp->th_dport,
+				   COMPARE_CURR_DIR)) {
+			seq_cur = tmp->th_seq -seq_base;
+			highest_byte_num = seq_cur + tmp->th_seglen;
 		}
 		else {
-			seq_cur = g_ntohl (tmp->tcphdr.ack_seq);
+			seq_cur = tmp->th_ack;
 			if (!ack_base)
 				ack_base = seq_cur;
 			highest_byte_num = seq_cur - ack_base;
@@ -3372,9 +3404,14 @@ static void tseq_stevens_make_elmtlist (struct graph *g)
 	for (tmp=g->segments; tmp; tmp=tmp->next) {
 		double secs, seqno;
 
-		if (!compare_headers (g->current, tmp, COMPARE_CURR_DIR))
+		if(!compare_headers(&g->current->ip_src, &g->current->ip_dst,
+				   g->current->th_sport, g->current->th_dport,
+				   &tmp->ip_src, &tmp->ip_dst,
+				   tmp->th_sport, tmp->th_dport,
+				   COMPARE_CURR_DIR)) {
 			continue;
-		seq_cur = g_ntohl (tmp->tcphdr.seq) - seq_base;
+		}
+		seq_cur = tmp->th_seq - seq_base;
 		secs = g->zoom.x * (tmp->rel_secs + tmp->rel_usecs / 1000000.0 - x0);
 		seqno = g->zoom.y * seq_cur;
 
@@ -3522,13 +3559,18 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 	seq_base = (guint32) y0;
 	/* initialize "previous" values */
 	for (tmp=g->segments; tmp; tmp=tmp->next)
-		if (!compare_headers (g->current, tmp, COMPARE_CURR_DIR))
+		if(!compare_headers(&g->current->ip_src, &g->current->ip_dst,
+				   g->current->th_sport, g->current->th_dport,
+				   &tmp->ip_src, &tmp->ip_dst,
+				   tmp->th_sport, tmp->th_dport,
+				   COMPARE_CURR_DIR)) {
 			break;
+		}
 	/*
-	p_ackno = (unsigned int )(g->zoom.y * (g_ntohl (tmp->tcphdr.ack_seq) - y0));
+	p_ackno = (unsigned int )(g->zoom.y * (tmp->th_ack - y0));
 	 */
 	p_ackno = 0;
-	p_win = g->zoom.y * g_ntohs (tmp->tcphdr.window);
+	p_win = g->zoom.y * tmp->th_win;
 	p_t = g->segments->rel_secs + g->segments->rel_usecs/1000000.0 - x0;
 	for (tmp=g->segments; tmp; tmp=tmp->next) {
 		double secs, data;
@@ -3537,15 +3579,19 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 		secs = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
 		x = secs - x0;
 		x *= g->zoom.x;
-		if (compare_headers (g->current, tmp, COMPARE_CURR_DIR)) {
+		if(compare_headers(&g->current->ip_src, &g->current->ip_dst,
+				   g->current->th_sport, g->current->th_dport,
+				   &tmp->ip_src, &tmp->ip_dst,
+				   tmp->th_sport, tmp->th_dport,
+				   COMPARE_CURR_DIR)) {
 			/* forward direction -> we need seqno and amount of data */
 			double y1, y2;
 
-			seq_cur = g_ntohl (tmp->tcphdr.seq) -seq_base;
-			if (TCP_SYN (tmp->tcphdr))
+			seq_cur = tmp->th_seq -seq_base;
+			if (TCP_SYN (tmp->th_flags))
 				data = 1;
 			else
-				data = tmp->data;
+				data = tmp->th_seglen;
 
 			y1 = g->zoom.y * (seq_cur);
 			y2 = g->zoom.y * (seq_cur + data);
@@ -3572,13 +3618,13 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 			e1++;
 		} else {
 			double ackno, win;
-			if (TCP_SYN (tmp->tcphdr) && ! TCP_ACK (tmp->tcphdr))
+			if (TCP_SYN (tmp->th_flags) && ! TCP_ACK (tmp->th_flags))
 				/* SYN's have ACK==0 and are useless here */
 				continue;
 			/* backward direction -> we need ackno and window */
-			seq_cur = g_ntohl (tmp->tcphdr.ack_seq) - seq_base;
+			seq_cur = tmp->th_ack - seq_base;
 			ackno = seq_cur * g->zoom.y;
-			win = g_ntohs (tmp->tcphdr.window) * g->zoom.y;
+			win = tmp->th_win * g->zoom.y;
 
 			/* ack line */
 			e0->type = ELMT_LINE;
@@ -3667,10 +3713,10 @@ static void tput_make_elmtlist (struct graph *g)
 		double time = tmp->rel_secs + tmp->rel_usecs/1000000.0;
 		dtime = time - (oldest->rel_secs + oldest->rel_usecs/1000000.0);
 		if (i>g->s.tput.nsegs) {
-			sum -= oldest->data;
+			sum -= oldest->th_seglen;
 			oldest=oldest->next;
 		}
-		sum += tmp->data;
+		sum += tmp->th_seglen;
 		tput = sum / dtime;
 		/* debug(DBS_TPUT_ELMTS) printf ("tput=%f\n", tput); */
 
@@ -3709,10 +3755,10 @@ static void tput_initialize (struct graph *g)
 		dtime = tmp->rel_secs + tmp->rel_usecs/1000000.0 -
 						(oldest->rel_secs + oldest->rel_usecs/1000000.0);
 		if (i>g->s.tput.nsegs) {
-			sum -= oldest->data;
+			sum -= oldest->th_seglen;
 			oldest=oldest->next;
 		}
-		sum += tmp->data;
+		sum += tmp->th_seglen;
 		tput = sum / dtime;
 		debug(DBS_TPUT_ELMTS) printf ("tput=%f\n", tput);
 		if (tput > tputmax)
@@ -3800,25 +3846,29 @@ static void rtt_initialize (struct graph *g)
 	rtt_read_config (g);
 
 	for (tmp=g->segments; tmp; tmp=tmp->next) {
-		if (compare_headers (g->current, tmp, COMPARE_CURR_DIR)) {
-			guint32 seqno = g_ntohl (tmp->tcphdr.seq);
+		if(compare_headers(&g->current->ip_src, &g->current->ip_dst,
+				   g->current->th_sport, g->current->th_dport,
+				   &tmp->ip_src, &tmp->ip_dst,
+				   tmp->th_sport, tmp->th_dport,
+				   COMPARE_CURR_DIR)) {
+			guint32 seqno = tmp->th_seq;
 
 			if (!first) {
 				first= tmp;
 				seq_base = seqno;
 			}
 			seqno -= seq_base;
-			if (tmp->data && !rtt_is_retrans (unack, seqno)) {
+			if (tmp->th_seglen && !rtt_is_retrans (unack, seqno)) {
 				double time = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
 				u = rtt_get_new_unack (time, seqno);
 				if (!u) return;
 				rtt_put_unack_on_list (&unack, u);
 			}
 
-			if (seqno + tmp->data > xmax)
-				xmax = seqno + tmp->data;
+			if (seqno + tmp->th_seglen > xmax)
+				xmax = seqno + tmp->th_seglen;
 		} else if (first) {
-			guint32 ackno = g_ntohl (tmp->tcphdr.ack_seq) -seq_base;
+			guint32 ackno = tmp->th_ack -seq_base;
 			double time = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
 			struct unack *v;
 
@@ -3915,21 +3965,26 @@ static void rtt_make_elmtlist (struct graph *g)
 	if (g->elists->elements == NULL) {
 		int n = 1 + get_num_dsegs (g);
 		e = elements = (struct element * )malloc (n*sizeof (struct element));
-	} else
+	} else {
 		e = elements = g->elists->elements;
+	}
 
 	for (tmp=g->segments; tmp; tmp=tmp->next) {
-		if (compare_headers (g->current, tmp, COMPARE_CURR_DIR)) {
-			guint32 seqno = g_ntohl (tmp->tcphdr.seq) -seq_base;
+		if(compare_headers(&g->current->ip_src, &g->current->ip_dst,
+				   g->current->th_sport, g->current->th_dport,
+				   &tmp->ip_src, &tmp->ip_dst,
+				   tmp->th_sport, tmp->th_dport,
+				   COMPARE_CURR_DIR)) {
+			guint32 seqno = tmp->th_seq -seq_base;
 
-			if (tmp->data && !rtt_is_retrans (unack, seqno)) {
+			if (tmp->th_seglen && !rtt_is_retrans (unack, seqno)) {
 				double time = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
 				u = rtt_get_new_unack (time, seqno);
 				if (!u) return;
 				rtt_put_unack_on_list (&unack, u);
 			}
 		} else {
-			guint32 ackno = g_ntohl (tmp->tcphdr.ack_seq) -seq_base;
+			guint32 ackno = tmp->th_ack -seq_base;
 			double time = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
 			struct unack *v;
 
