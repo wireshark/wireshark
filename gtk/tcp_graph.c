@@ -382,7 +382,7 @@ static void callback_graph_type (GtkWidget * , gpointer );
 static void callback_graph_init_on_typechg (GtkWidget * , gpointer );
 static void callback_create_help (GtkWidget * , gpointer );
 static void update_zoom_spins (struct graph * );
-static struct tcpheader *select_tcpip_session (frame_data *, char * , struct segment * );
+static struct tcpheader *select_tcpip_session (frame_data *, struct segment * );
 static int compare_headers (address *saddr1, address *daddr1, guint16 sport1, guint16 dport1, address *saddr2, address *daddr2, guint16 sport2, guint16 dport2, int dir);
 static int get_num_dsegs (struct graph * );
 static int get_num_acks (struct graph * );
@@ -512,7 +512,7 @@ void tcp_graph_cb (GtkWidget *w _U_, gpointer data, guint callback_action /*grap
 	graph_put (g);
 
 	g->type = graph_type;
-	if (!(thdr=select_tcpip_session (cfile.current_frame, cfile.pd, &current))) {
+	if (!(thdr=select_tcpip_session (cfile.current_frame, &current))) {
 		return;
 	}
 
@@ -662,7 +662,7 @@ static void create_drawing_area (struct graph *g)
 	g->font = gdk_font_load ("-biznet-fotinostypewriter-medium-r-normal-*-*-120"
 							"-*-*-m-*-iso8859-2");
 #endif
-	thdr=select_tcpip_session (cfile.current_frame, cfile.pd, &current);
+	thdr=select_tcpip_session (cfile.current_frame, &current);
 	g_snprintf (window_title, WINDOW_TITLE_LENGTH, "TCP Graph %d: %s %s:%d -> %s:%d",
 			refnum,
 			cf_get_display_name(&cfile),
@@ -1817,7 +1817,7 @@ static void graph_segment_list_get (struct graph *g)
 
 
 	debug(DBS_FENTRY) puts ("graph_segment_list_get()");
-	select_tcpip_session (cfile.current_frame, cfile.pd, &current);
+	select_tcpip_session (cfile.current_frame, &current);
 	if (g->type == GRAPH_THROUGHPUT)
 		ts.direction = COMPARE_CURR_DIR;
 	else
@@ -1864,7 +1864,7 @@ tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
  * then present the user with a dialog where the user can select WHICH tcp
  * session to graph.
  */
-static struct tcpheader *select_tcpip_session (frame_data *fd, char *pd, struct segment *hdrs)
+static struct tcpheader *select_tcpip_session (frame_data *fd, struct segment *hdrs)
 {
 	capture_file *cf;
 	frame_data *fdata;
