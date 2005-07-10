@@ -1824,7 +1824,7 @@ static void graph_segment_list_get (struct graph *g)
 		ts.direction = COMPARE_ANY_DIR;
 
 	/* rescan all the packets and pick up all interesting tcp headers.
-	 * we only fitler for TCP here for speed and do teh actual compare
+	 * we only filter for TCP here for speed and do the actual compare
 	 * in the tap listener
 	 */
 	ts.current=&current;
@@ -1837,7 +1837,7 @@ static void graph_segment_list_get (struct graph *g)
 		g_string_free(error_string, TRUE);
 		exit(1);
 	}
-	cf_redissect_packets(&cfile);
+	cf_retap_packets(&cfile);
 	remove_tap_listener(&ts);
 }
 
