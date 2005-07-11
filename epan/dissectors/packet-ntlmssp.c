@@ -362,7 +362,8 @@ static int
 dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
 			proto_tree *ntlmssp_tree, 
 			gboolean unicode_strings,
-			int string_hf, int *start, int *end)
+			int string_hf, int *start, int *end,
+			const char **stringp)
 {
   proto_tree *tree = NULL;
   proto_item *tf = NULL;
@@ -379,6 +380,8 @@ dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
     if (ntlmssp_tree)
 	    proto_tree_add_string(ntlmssp_tree, string_hf, tvb,
 				  offset, 8, "NULL");
+    if (stringp != NULL)
+      *stringp = "";
     return offset+8;
   }
 
@@ -386,6 +389,8 @@ dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
   string_text = get_unicode_or_ascii_string(tvb, &string_offset,
 					    unicode_strings, &result_length,
 					    FALSE, TRUE, &bc);
+  if (stringp != NULL)
+    *stringp = string_text;
 
   if (ntlmssp_tree) {
     tf = proto_tree_add_string(ntlmssp_tree, string_hf, tvb,
@@ -753,10 +758,10 @@ dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree)
    */
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, FALSE, 
 				  hf_ntlmssp_negotiate_domain,
-				  &start, &workstation_end);
+				  &start, &workstation_end, NULL);
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, FALSE, 
 				  hf_ntlmssp_negotiate_workstation,
-				  &start, &domain_end);
+				  &start, &domain_end, NULL);
 
   /* XXX - two blobs after this one, sometimes? */
 
@@ -908,7 +913,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
    */
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, unicode_strings, 
 			 hf_ntlmssp_challenge_domain,
-			 &item_start, &item_end);
+			 &item_start, &item_end, NULL);
   data_start = item_start;
   data_end = item_end;
 
@@ -1004,6 +1009,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   gboolean unicode_strings = FALSE;
   ntlmssp_info *conv_ntlmssp_info;
   conversation_t *conversation;
+  const char *domain_name, *user_name;
 
   /*
    * Get flag info from the original negotiate message, if any.
@@ -1076,7 +1082,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, 
 				  unicode_strings, 
 				  hf_ntlmssp_auth_domain,
-				  &item_start, &item_end);
+				  &item_start, &item_end, &domain_name);
   data_start = MIN(data_start, item_start);
   data_end = MAX(data_end, item_end);
 
@@ -1085,16 +1091,20 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, 
 				  unicode_strings, 
 				  hf_ntlmssp_auth_username,
-				  &item_start, &item_end);
+				  &item_start, &item_end, &user_name);
   data_start = MIN(data_start, item_start);
   data_end = MAX(data_end, item_end);
+
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", User: %s\\%s",
+		    domain_name, user_name);
 
   /* hostname */
   item_start = tvb_get_letohl(tvb, offset+4);
   offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, 
 				  unicode_strings, 
 				  hf_ntlmssp_auth_hostname,
-				  &item_start, &item_end);
+				  &item_start, &item_end, NULL);
   data_start = MIN(data_start, item_start);
   data_end = MAX(data_end, item_end);
 
