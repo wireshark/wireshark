@@ -80,6 +80,7 @@ static int hf_gsm_map_extension = -1;
 static int hf_gsm_map_nature_of_number = -1;
 static int hf_gsm_map_number_plan = -1;
 static int hf_gsm_map_isdn_address_digits = -1;
+static int hf_gsm_map_address_digits = -1;
 static int hf_gsm_map_servicecentreaddress_digits = -1;
 static int hf_gsm_map_imsi_digits = -1;
 static int hf_gsm_map_Ss_Status_unused = -1;
@@ -87,6 +88,13 @@ static int hf_gsm_map_Ss_Status_q_bit = -1;
 static int hf_gsm_map_Ss_Status_p_bit = -1;
 static int hf_gsm_map_Ss_Status_r_bit = -1;
 static int hf_gsm_map_Ss_Status_a_bit = -1;
+static int hf_gsm_map_notification_to_forwarding_party = -1;
+static int hf_gsm_map_redirecting_presentation = -1;
+static int hf_gsm_map_notification_to_calling_party = -1;
+static int hf_gsm_map_forwarding_reason = -1;
+static int hf_gsm_map_pdp_type_org = -1;
+static int hf_gsm_map_etsi_pdp_type_number = -1;
+static int hf_gsm_map_ietf_pdp_type_number = -1;
 
 
 /*--- Included file: packet-gsm_map-hf.c ---*/
@@ -346,7 +354,7 @@ static int hf_gsm_map_ext_basicService = -1;      /* Ext_BasicServiceCode */
 static int hf_gsm_map_ext_ss_Status = -1;         /* Ext_SS_Status */
 static int hf_gsm_map_forwardedToNumber = -1;     /* ISDN_AddressString */
 static int hf_gsm_map_forwardedToSubaddress = -1;  /* ISDN_SubaddressString */
-static int hf_gsm_map_ext_forwardingOptions = -1;  /* Ext_ForwOptions */
+static int hf_gsm_map_ext_forwardingOptions = -1;  /* T_forwardingOptions */
 static int hf_gsm_map_ext_noReplyConditionTime = -1;  /* Ext_NoRepCondTime */
 static int hf_gsm_map_longForwardedToNumber = -1;  /* FTN_AddressString */
 static int hf_gsm_map_ext_callBarringFeatureList = -1;  /* Ext_CallBarFeatureList */
@@ -1373,8 +1381,9 @@ dissect_gsm_map_SignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
  guint8		length;
  tvbuff_t	*next_tvb;
 
- offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    &parameter_tvb);
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
  if (!parameter_tvb)
 	return offset;
  switch (protocolId){
@@ -1403,7 +1412,6 @@ dissect_gsm_map_SignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 	default:
 		break;
 }
-
 
   return offset;
 }
@@ -1632,6 +1640,7 @@ dissect_gsm_map_ISDN_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 	g_free(digit_str);
 
  pinfo->p2p_dir = P2P_DIR_RECV;
+
 
 
   return offset;
@@ -3005,8 +3014,9 @@ dissect_gsm_map_LongSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
  guint8		length;
  tvbuff_t	*next_tvb;
 
- offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    &parameter_tvb);
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
  if (!parameter_tvb)
 	return offset;
  switch (AccessNetworkProtocolId){
@@ -3027,7 +3037,6 @@ dissect_gsm_map_LongSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 		break;
 
  }
-
   return offset;
 }
 static int dissect_longsignalInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -4601,8 +4610,22 @@ dissect_gsm_map_Ext_ForwOptions(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 
   return offset;
 }
+
+
+static int
+dissect_gsm_map_T_forwardingOptions(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_gsm_map_Ext_ForwOptions(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+
+	proto_tree_add_item(tree, hf_gsm_map_notification_to_forwarding_party, tvb, 0,1,FALSE);
+	proto_tree_add_item(tree, hf_gsm_map_redirecting_presentation, tvb, 0,1,FALSE);
+	proto_tree_add_item(tree, hf_gsm_map_notification_to_calling_party, tvb, 0,1,FALSE);
+	proto_tree_add_item(tree, hf_gsm_map_forwarding_reason, tvb, 0,1,FALSE);
+
+  return offset;
+}
 static int dissect_ext_forwardingOptions_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_Ext_ForwOptions(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ext_forwardingOptions);
+  return dissect_gsm_map_T_forwardingOptions(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ext_forwardingOptions);
 }
 
 
@@ -4622,8 +4645,26 @@ static int dissect_ext_noReplyConditionTime_impl(packet_info *pinfo, proto_tree 
 
 static int
 dissect_gsm_map_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
+
+ tvbuff_t	*parameter_tvb;
+ char		*digit_str;
+
+ offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                    &parameter_tvb);
+
+ if (!parameter_tvb)
+	return offset;
+
+ proto_tree_add_item(tree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(tree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(tree, hf_gsm_map_number_plan, parameter_tvb, 0,1,FALSE);
+
+ digit_str = unpack_digits(parameter_tvb, 1);
+
+ proto_tree_add_string(tree, hf_gsm_map_address_digits, parameter_tvb, 1, -1, digit_str);
+ if (digit_str)
+	g_free(digit_str);
+
 
   return offset;
 }
@@ -5947,9 +5988,26 @@ static int dissect_pdp_ContextIdentifier_impl(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_gsm_map_PDP_Type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
+	guint8 pdp_type_org;
+	tvbuff_t	*parameter_tvb;
 
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+ if (!parameter_tvb)
+	return offset;
+	proto_tree_add_item(tree, hf_gsm_map_pdp_type_org, parameter_tvb, 0,1,FALSE);
+	pdp_type_org = tvb_get_guint8(parameter_tvb,1);
+	switch (pdp_type_org){
+		case 0: /* ETSI */
+			proto_tree_add_item(tree, hf_gsm_map_etsi_pdp_type_number, parameter_tvb, 0,1,FALSE);
+			break;
+		case 1: /* IETF */
+			proto_tree_add_item(tree, hf_gsm_map_ietf_pdp_type_number, parameter_tvb, 0,1,FALSE);
+			break;
+		default:
+		break;
+	}
   return offset;
 }
 static int dissect_pdp_Type_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -5973,8 +6031,16 @@ static int dissect_pdp_Address_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_gsm_map_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+
+	tvbuff_t	*parameter_tvb;
+
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+
+	 if (!parameter_tvb)
+		return offset;
+	de_sm_qos(parameter_tvb, tree, 0, 3, NULL);
 
   return offset;
 }
@@ -6008,8 +6074,16 @@ static int dissect_lcsAPN_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_gsm_map_Ext_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+
+	tvbuff_t	*parameter_tvb;
+
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+
+	 if (!parameter_tvb)
+		return offset;
+	de_sm_qos(parameter_tvb, tree, 0, 9, NULL);
 
   return offset;
 }
@@ -7183,6 +7257,11 @@ dissect_gsm_map_ForwardingOptions(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
+
+	proto_tree_add_item(tree, hf_gsm_map_notification_to_forwarding_party, tvb, 0,1,FALSE);
+	proto_tree_add_item(tree, hf_gsm_map_redirecting_presentation, tvb, 0,1,FALSE);
+	proto_tree_add_item(tree, hf_gsm_map_notification_to_calling_party, tvb, 0,1,FALSE);
+	proto_tree_add_item(tree, hf_gsm_map_forwarding_reason, tvb, 0,1,FALSE);
   return offset;
 }
 static int dissect_forwardingOptions_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -13973,6 +14052,92 @@ static const value_string Bearerservice_vals[] = {
 { 0, NULL }
 };
 
+/* ForwardingOptions 
+
+-- bit 8: notification to forwarding party
+-- 0 no notification
+-- 1 notification
+*/
+static const true_false_string notification_value  = {
+  "Notification",
+  "No notification"
+};
+/*
+-- bit 7: redirecting presentation
+-- 0 no presentation
+-- 1 presentation
+*/
+static const true_false_string redirecting_presentation_value  = {
+  "Presentation",
+  "No presentationn"
+};
+/*
+-- bit 6: notification to calling party
+-- 0 no notification
+-- 1 notification
+*/
+/*
+-- bit 5: 0 (unused)
+-- bits 43: forwarding reason
+-- 00 ms not reachable
+-- 01 ms busy
+-- 10 no reply
+-- 11 unconditional when used in a SRI Result,
+-- or call deflection when used in a RCH Argument
+*/
+static const value_string forwarding_reason_values[] = {
+{0x0, "ms not reachable" },
+{0x1, "ms busy" },
+{0x2, "no reply" },
+{0x3, "unconditional when used in a SRI Result or call deflection when used in a RCH Argument" },
+{ 0, NULL }
+};
+/*
+-- bits 21: 00 (unused)
+*/
+
+static const value_string pdp_type_org_values[] = {
+{0x0, "ETSI" },
+{0x1, "IETF" },
+{0xf, "Empty PDP type" },
+{ 0, NULL }
+};
+
+static const value_string etsi_pdp_type_number_values[] = {
+{0x0, "Reserved, used in earlier version of this protocol" },
+{0x1, "PPP" },
+{ 0, NULL }
+};
+
+static const value_string ietf_pdp_type_number_values[] = {
+{0x21, "IPv4 Address" },
+{0x57, "IPv6 Address" },
+{ 0, NULL }
+};
+
+/*
+ChargingCharacteristics ::= OCTET STRING (SIZE (2))
+-- Octets are coded according to 3GPP TS 32.015.
+-- From 3GPP TS 32.015.
+--
+-- Descriptions for the bits of the flag set:
+--
+-- Bit 1: H (Hot billing) := '00000001'B
+-- Bit 2: F (Flat rate) := '00000010'B
+-- Bit 3: P (Prepaid service) := '00000100'B
+-- Bit 4: N (Normal billing) := '00001000'B
+-- Bit 5: - (Reserved, set to 0) := '00010000'B
+-- Bit 6: - (Reserved, set to 0) := '00100000'B
+-- Bit 7: - (Reserved, set to 0) := '01000000'B
+-- Bit 8: - (Reserved, set to 0) := '10000000'B
+*/
+static const value_string chargingcharacteristics_values[] = {
+{0x1, "H (Hot billing)" },
+{0x2, "F (Flat rate)" },
+{0x4, "P (Prepaid service)" },
+{0x8, "N (Normal billing)" },
+{ 0, NULL }
+};
 /*--- proto_reg_handoff_gsm_map ---------------------------------------*/
 static void range_delete_callback(guint32 ssn)
 {
@@ -14149,7 +14314,7 @@ void proto_register_gsm_map(void) {
     { &hf_gsm_map_nature_of_number,
       { "Nature of number", "gsm_map.nature_of_number",
         FT_UINT8, BASE_HEX, VALS(gsm_map_nature_of_number_values), 0x70,
-        "ature of number", HFILL }},
+        "Nature of number", HFILL }},
     { &hf_gsm_map_number_plan,
       { "Number plan", "gsm_map.number_plan",
         FT_UINT8, BASE_HEX, VALS(gsm_map_number_plan_values), 0x0f,
@@ -14158,6 +14323,10 @@ void proto_register_gsm_map(void) {
       { "ISDN Address digits", "gsm_map.isdn.adress.digits",
         FT_STRING, BASE_NONE, NULL, 0,
         "ISDN Address digits", HFILL }},
+	{ &hf_gsm_map_address_digits,
+      { "Address digits", "gsm_map.adress.digits",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Address digits", HFILL }},
 	{ &hf_gsm_map_servicecentreaddress_digits,
       { "ServiceCentreAddress digits", "gsm_map.servicecentreaddress_digits",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -14186,6 +14355,35 @@ void proto_register_gsm_map(void) {
       { "A bit", "gsm_map.ss_status_a_bit",
         FT_BOOLEAN, 8, TFS(&gsm_map_Ss_Status_a_values), 0x01,
         "A bit", HFILL }},
+	{ &hf_gsm_map_notification_to_forwarding_party,
+      { "Notification to forwarding party", "gsm_map.notification_to_forwarding_party",
+        FT_BOOLEAN, 8, TFS(&notification_value), 0x80,
+        "Notification to forwarding party", HFILL }},
+	{ &hf_gsm_map_redirecting_presentation,
+      { "Redirecting presentation", "gsm_map.redirecting_presentation",
+        FT_BOOLEAN, 8, TFS(&redirecting_presentation_value), 0x40,
+        "Redirecting presentation", HFILL }},
+	{ &hf_gsm_map_notification_to_calling_party,
+      { "Notification to calling party", "gsm_map.notification_to_clling_party",
+        FT_BOOLEAN, 8, TFS(&notification_value), 0x20,
+        "Notification to calling party", HFILL }},
+    { &hf_gsm_map_forwarding_reason,
+      { "Forwarding reason", "gsm_map.forwarding_reason",
+        FT_UINT8, BASE_HEX, VALS(forwarding_reason_values), 0x0c,
+        "forwarding reason", HFILL }},
+    { &hf_gsm_map_pdp_type_org,
+      { "PDP Type Organization", "gsm_map.pdp_type_org",
+        FT_UINT8, BASE_HEX, VALS(pdp_type_org_values), 0x0f,
+        "PDP Type Organization", HFILL }},
+    { &hf_gsm_map_etsi_pdp_type_number,
+      { "PDP Type Number", "gsm_map.pdp_type_org",
+        FT_UINT8, BASE_HEX, VALS(etsi_pdp_type_number_values), 0,
+        "ETSI PDP Type Number", HFILL }},
+    { &hf_gsm_map_ietf_pdp_type_number,
+      { "PDP Type Number", "gsm_map.ietf_pdp_type_number",
+        FT_UINT8, BASE_HEX, VALS(ietf_pdp_type_number_values), 0,
+        "IETF PDP Type Number", HFILL }},
+	
 
 
 /*--- Included file: packet-gsm_map-hfarr.c ---*/
@@ -14848,7 +15046,7 @@ void proto_register_gsm_map(void) {
         "InsertSubscriberDataArg/sgsn-CAMEL-SubscriptionInfo", HFILL }},
     { &hf_gsm_map_chargingCharacteristics,
       { "chargingCharacteristics", "gsm_map.chargingCharacteristics",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_UINT16, BASE_DEC, VALS(chargingcharacteristics_values), 0x0f00,
         "", HFILL }},
     { &hf_gsm_map_accessRestrictionData,
       { "accessRestrictionData", "gsm_map.accessRestrictionData",
@@ -14908,7 +15106,7 @@ void proto_register_gsm_map(void) {
         "PDP-Context/ext-QoS-Subscribed", HFILL }},
     { &hf_gsm_map_pdp_ChargingCharacteristics,
       { "pdp-ChargingCharacteristics", "gsm_map.pdp_ChargingCharacteristics",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_UINT16, BASE_DEC, VALS(chargingcharacteristics_values), 0x0f00,
         "PDP-Context/pdp-ChargingCharacteristics", HFILL }},
     { &hf_gsm_map_ext2_QoS_Subscribed,
       { "ext2-QoS-Subscribed", "gsm_map.ext2_QoS_Subscribed",

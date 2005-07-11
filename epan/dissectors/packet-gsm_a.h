@@ -59,7 +59,7 @@ typedef struct _gsm_a_tap_rec_t {
 } gsm_a_tap_rec_t;
 
 void dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
+guint8 de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string);
 /*
  * the following allows TAP code access to the messages
  * without having to duplicate it. With MSVC and a 

@@ -11137,7 +11137,7 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 /*
  * [7] 10.5.6.5
  */
-static guint8
+guint8
 de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
 {
     guint32	curr_offset;
