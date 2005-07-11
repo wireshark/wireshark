@@ -228,6 +228,10 @@ DISSECTOR_SRC =	\
 	packet-dhcp-failover.c	\
 	packet-dhcpv6.c	\
 	packet-diameter.c	\
+ 	packet-dis.c	\
+ 	packet-dis-enums.c	\
+ 	packet-dis-fields.c	\
+ 	packet-dis-pdus.c	\
 	packet-diffserv-mpls-common.c	\
 	packet-distcc.c	\
 	packet-dlsw.c	\
@@ -673,6 +677,9 @@ DISSECTOR_INCLUDES =	\
 	packet-ddtp.h	\
 	packet-diameter-defs.h	\
 	packet-diffserv-mpls-common.h	\
+ 	packet-dis-enums.h	\
+ 	packet-dis-fields.h	\
+ 	packet-dis-pdus.h	\
 	packet-dns.h	\
 	packet-dvmrp.h	\
 	packet-e164.h   \
