@@ -73,6 +73,7 @@ static int hf_gsm_map_extension = -1;
 static int hf_gsm_map_nature_of_number = -1;
 static int hf_gsm_map_number_plan = -1;
 static int hf_gsm_map_isdn_address_digits = -1;
+static int hf_gsm_map_address_digits = -1;
 static int hf_gsm_map_servicecentreaddress_digits = -1;
 static int hf_gsm_map_imsi_digits = -1;
 static int hf_gsm_map_Ss_Status_unused = -1;
@@ -80,6 +81,13 @@ static int hf_gsm_map_Ss_Status_q_bit = -1;
 static int hf_gsm_map_Ss_Status_p_bit = -1;
 static int hf_gsm_map_Ss_Status_r_bit = -1;
 static int hf_gsm_map_Ss_Status_a_bit = -1;
+static int hf_gsm_map_notification_to_forwarding_party = -1;
+static int hf_gsm_map_redirecting_presentation = -1;
+static int hf_gsm_map_notification_to_calling_party = -1;
+static int hf_gsm_map_forwarding_reason = -1;
+static int hf_gsm_map_pdp_type_org = -1;
+static int hf_gsm_map_etsi_pdp_type_number = -1;
+static int hf_gsm_map_ietf_pdp_type_number = -1;
 
 #include "packet-gsm_map-hf.c"
 
@@ -1244,6 +1252,92 @@ static const value_string Bearerservice_vals[] = {
 { 0, NULL }
 };
 
+/* ForwardingOptions 
+
+-- bit 8: notification to forwarding party
+-- 0 no notification
+-- 1 notification
+*/
+static const true_false_string notification_value  = {
+  "Notification",
+  "No notification"
+};
+/*
+-- bit 7: redirecting presentation
+-- 0 no presentation
+-- 1 presentation
+*/
+static const true_false_string redirecting_presentation_value  = {
+  "Presentation",
+  "No presentationn"
+};
+/*
+-- bit 6: notification to calling party
+-- 0 no notification
+-- 1 notification
+*/
+/*
+-- bit 5: 0 (unused)
+-- bits 43: forwarding reason
+-- 00 ms not reachable
+-- 01 ms busy
+-- 10 no reply
+-- 11 unconditional when used in a SRI Result,
+-- or call deflection when used in a RCH Argument
+*/
+static const value_string forwarding_reason_values[] = {
+{0x0, "ms not reachable" },
+{0x1, "ms busy" },
+{0x2, "no reply" },
+{0x3, "unconditional when used in a SRI Result or call deflection when used in a RCH Argument" },
+{ 0, NULL }
+};
+/*
+-- bits 21: 00 (unused)
+*/
+
+static const value_string pdp_type_org_values[] = {
+{0x0, "ETSI" },
+{0x1, "IETF" },
+{0xf, "Empty PDP type" },
+{ 0, NULL }
+};
+
+static const value_string etsi_pdp_type_number_values[] = {
+{0x0, "Reserved, used in earlier version of this protocol" },
+{0x1, "PPP" },
+{ 0, NULL }
+};
+
+static const value_string ietf_pdp_type_number_values[] = {
+{0x21, "IPv4 Address" },
+{0x57, "IPv6 Address" },
+{ 0, NULL }
+};
+
+/*
+ChargingCharacteristics ::= OCTET STRING (SIZE (2))
+-- Octets are coded according to 3GPP TS 32.015.
+-- From 3GPP TS 32.015.
+--
+-- Descriptions for the bits of the flag set:
+--
+-- Bit 1: H (Hot billing) := '00000001'B
+-- Bit 2: F (Flat rate) := '00000010'B
+-- Bit 3: P (Prepaid service) := '00000100'B
+-- Bit 4: N (Normal billing) := '00001000'B
+-- Bit 5: - (Reserved, set to 0) := '00010000'B
+-- Bit 6: - (Reserved, set to 0) := '00100000'B
+-- Bit 7: - (Reserved, set to 0) := '01000000'B
+-- Bit 8: - (Reserved, set to 0) := '10000000'B
+*/
+static const value_string chargingcharacteristics_values[] = {
+{0x1, "H (Hot billing)" },
+{0x2, "F (Flat rate)" },
+{0x4, "P (Prepaid service)" },
+{0x8, "N (Normal billing)" },
+{ 0, NULL }
+};
 /*--- proto_reg_handoff_gsm_map ---------------------------------------*/
 static void range_delete_callback(guint32 ssn)
 {
@@ -1420,7 +1514,7 @@ void proto_register_gsm_map(void) {
     { &hf_gsm_map_nature_of_number,
       { "Nature of number", "gsm_map.nature_of_number",
         FT_UINT8, BASE_HEX, VALS(gsm_map_nature_of_number_values), 0x70,
-        "ature of number", HFILL }},
+        "Nature of number", HFILL }},
     { &hf_gsm_map_number_plan,
       { "Number plan", "gsm_map.number_plan",
         FT_UINT8, BASE_HEX, VALS(gsm_map_number_plan_values), 0x0f,
@@ -1429,6 +1523,10 @@ void proto_register_gsm_map(void) {
       { "ISDN Address digits", "gsm_map.isdn.adress.digits",
         FT_STRING, BASE_NONE, NULL, 0,
         "ISDN Address digits", HFILL }},
+	{ &hf_gsm_map_address_digits,
+      { "Address digits", "gsm_map.adress.digits",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Address digits", HFILL }},
 	{ &hf_gsm_map_servicecentreaddress_digits,
       { "ServiceCentreAddress digits", "gsm_map.servicecentreaddress_digits",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -1457,6 +1555,35 @@ void proto_register_gsm_map(void) {
       { "A bit", "gsm_map.ss_status_a_bit",
         FT_BOOLEAN, 8, TFS(&gsm_map_Ss_Status_a_values), 0x01,
         "A bit", HFILL }},
+	{ &hf_gsm_map_notification_to_forwarding_party,
+      { "Notification to forwarding party", "gsm_map.notification_to_forwarding_party",
+        FT_BOOLEAN, 8, TFS(&notification_value), 0x80,
+        "Notification to forwarding party", HFILL }},
+	{ &hf_gsm_map_redirecting_presentation,
+      { "Redirecting presentation", "gsm_map.redirecting_presentation",
+        FT_BOOLEAN, 8, TFS(&redirecting_presentation_value), 0x40,
+        "Redirecting presentation", HFILL }},
+	{ &hf_gsm_map_notification_to_calling_party,
+      { "Notification to calling party", "gsm_map.notification_to_clling_party",
+        FT_BOOLEAN, 8, TFS(&notification_value), 0x20,
+        "Notification to calling party", HFILL }},
+    { &hf_gsm_map_forwarding_reason,
+      { "Forwarding reason", "gsm_map.forwarding_reason",
+        FT_UINT8, BASE_HEX, VALS(forwarding_reason_values), 0x0c,
+        "forwarding reason", HFILL }},
+    { &hf_gsm_map_pdp_type_org,
+      { "PDP Type Organization", "gsm_map.pdp_type_org",
+        FT_UINT8, BASE_HEX, VALS(pdp_type_org_values), 0x0f,
+        "PDP Type Organization", HFILL }},
+    { &hf_gsm_map_etsi_pdp_type_number,
+      { "PDP Type Number", "gsm_map.pdp_type_org",
+        FT_UINT8, BASE_HEX, VALS(etsi_pdp_type_number_values), 0,
+        "ETSI PDP Type Number", HFILL }},
+    { &hf_gsm_map_ietf_pdp_type_number,
+      { "PDP Type Number", "gsm_map.ietf_pdp_type_number",
+        FT_UINT8, BASE_HEX, VALS(ietf_pdp_type_number_values), 0,
+        "IETF PDP Type Number", HFILL }},
+	
 
 #include "packet-gsm_map-hfarr.c"
   };

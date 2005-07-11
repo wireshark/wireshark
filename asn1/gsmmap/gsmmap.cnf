@@ -138,7 +138,29 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
 
  pinfo->p2p_dir = P2P_DIR_RECV;
 
+
 #.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY AddressString
+
+ tvbuff_t	*parameter_tvb;
+ char		*digit_str;
+
+ offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                    &parameter_tvb);
+
+ if (!parameter_tvb)
+	return offset;
+
+ proto_tree_add_item(tree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(tree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(tree, hf_gsm_map_number_plan, parameter_tvb, 0,1,FALSE);
+
+ digit_str = unpack_digits(parameter_tvb, 1);
+
+ proto_tree_add_string(tree, hf_gsm_map_address_digits, parameter_tvb, 1, -1, digit_str);
+ if (digit_str)
+	g_free(digit_str);
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY SS-Status
@@ -198,15 +220,18 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
   VAL_PTR = &AccessNetworkProtocolId
 
 #----------------------------------------------------------------------------------------
-#.FN_BODY SignalInfo
+#.FN_HDR SignalInfo
 
  tvbuff_t	*parameter_tvb;
  guint8		octet;
  guint8		length;
  tvbuff_t	*next_tvb;
 
- offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    &parameter_tvb);
+ #.FN_PARS  SignalInfo
+
+  VAL_PTR = &parameter_tvb
+
+#.FN_FTR SignalInfo
  if (!parameter_tvb)
 	return offset;
  switch (protocolId){
@@ -237,15 +262,19 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
 }
 
 #----------------------------------------------------------------------------------------
-#.FN_BODY LongSignalInfo
+#.FN_HDR LongSignalInfo
 
  tvbuff_t	*parameter_tvb;
  guint8		octet;
  guint8		length;
  tvbuff_t	*next_tvb;
 
- offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    &parameter_tvb);
+#.FN_PARS  LongSignalInfo
+
+  VAL_PTR = &parameter_tvb
+
+
+#.FN_FTR LongSignalInfo
  if (!parameter_tvb)
 	return offset;
  switch (AccessNetworkProtocolId){
@@ -274,6 +303,70 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
   offset = tvb_length_remaining(tvb,offset);		
 
 #.END
+#.FN_FTR ForwardingOptions
+
+	proto_tree_add_item(tree, hf_gsm_map_notification_to_forwarding_party, tvb, 0,1,FALSE);
+	proto_tree_add_item(tree, hf_gsm_map_redirecting_presentation, tvb, 0,1,FALSE);
+	proto_tree_add_item(tree, hf_gsm_map_notification_to_calling_party, tvb, 0,1,FALSE);
+	proto_tree_add_item(tree, hf_gsm_map_forwarding_reason, tvb, 0,1,FALSE);
+#.FN_FTR Ext-ForwFeature/forwardingOptions
+
+	proto_tree_add_item(tree, hf_gsm_map_notification_to_forwarding_party, tvb, 0,1,FALSE);
+	proto_tree_add_item(tree, hf_gsm_map_redirecting_presentation, tvb, 0,1,FALSE);
+	proto_tree_add_item(tree, hf_gsm_map_notification_to_calling_party, tvb, 0,1,FALSE);
+	proto_tree_add_item(tree, hf_gsm_map_forwarding_reason, tvb, 0,1,FALSE);
+
+#.FN_HDR PDP-Type
+	guint8 pdp_type_org;
+	tvbuff_t	*parameter_tvb;
+
+#.FN_PARS  PDP-Type
+
+  VAL_PTR = &parameter_tvb
+
+#.FN_FTR PDP-Type
+ if (!parameter_tvb)
+	return offset;
+	proto_tree_add_item(tree, hf_gsm_map_pdp_type_org, parameter_tvb, 0,1,FALSE);
+	pdp_type_org = tvb_get_guint8(parameter_tvb,1);
+	switch (pdp_type_org){
+		case 0: /* ETSI */
+			proto_tree_add_item(tree, hf_gsm_map_etsi_pdp_type_number, parameter_tvb, 0,1,FALSE);
+			break;
+		case 1: /* IETF */
+			proto_tree_add_item(tree, hf_gsm_map_ietf_pdp_type_number, parameter_tvb, 0,1,FALSE);
+			break;
+		default:
+		break;
+	}
+#.FN_HDR QoS-Subscribed
+
+	tvbuff_t	*parameter_tvb;
+
+#.FN_PARS QoS-Subscribed
+		
+  VAL_PTR = &parameter_tvb
+
+#.FN_FTR QoS-Subscribed
+
+	 if (!parameter_tvb)
+		return offset;
+	de_sm_qos(parameter_tvb, tree, 0, 3, NULL);
+
+#.FN_HDR Ext-QoS-Subscribed
+
+	tvbuff_t	*parameter_tvb;
+
+#.FN_PARS Ext-QoS-Subscribed
+		
+  VAL_PTR = &parameter_tvb
+
+#.FN_FTR Ext-QoS-Subscribed
+
+	 if (!parameter_tvb)
+		return offset;
+	de_sm_qos(parameter_tvb, tree, 0, 9, NULL);
+
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR
 SS-Code  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ssCode_vals)
@@ -283,6 +376,7 @@ TeleserviceCode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Teleservice
 BearerServiceCode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Bearerservice_vals)
 Ext-TeleserviceCode TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Teleservice_vals)
 Ext-BearerServiceCode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Bearerservice_vals)
+ChargingCharacteristics  TYPE = FT_UINT16  DISPLAY = BASE_DEC  BITMASK = 0x0f00 STRINGS = VALS(chargingcharacteristics_values)
 #.END
 
 
