@@ -13,7 +13,7 @@
 @HTTP@http || tcp.port == 80@[36107,65535,32590][0,0,0]
 @IPX@ipx || stp@[65534,58325,58808][0,0,0]
 @DCERPC@dcerpc@[51199,38706,65533][0,0,0]
-@Routing@hsrp || eigrp || || ospf || bgp || cdp || vrrp || gvrp || igmp || ismp@[65534,62325,54808][0,0,0]
+@Routing@hsrp || eigrp || ospf || bgp || cdp || vrrp || gvrp || igmp || ismp@[65534,62325,54808][0,0,0]
 @TCP SYN/FIN@tcp.flags & 0x02 || tcp.flags.fin == 1@[41026,41026,41026][0,0,0]
 @TCP@tcp@[59345,58980,65534][0,0,0]
 @UDP@udp@[28834,57427,65533][0,0,0]
