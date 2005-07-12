@@ -267,11 +267,11 @@ dissect_tcap_param(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
     tvbuff_t	*next_tvb;
     proto_tree *subtree;
     proto_item *pi;
-    guint8 class;
+    gint8 class;
     gboolean pc;
-    guint32 tag;
+    gint32 tag;
     guint32 len;
-    guint32 ind_field;
+    gboolean ind_field;
     
     while (tvb_reported_length_remaining(tvb, offset) > 0)
     {

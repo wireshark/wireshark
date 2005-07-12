@@ -315,11 +315,11 @@ static int
 dissect_tcap_User_information(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 tvbuff_t	*parameter_tvb;
 tvbuff_t	*next_tvb;
-guint8 class;
+gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
-	guint32 ind_field; 
+	gboolean ind_field; 
 
 
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -564,11 +564,11 @@ static int
 dissect_tcap_Dialog1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 tvbuff_t	*parameter_tvb;
 tvbuff_t	*next_tvb;
-guint8 class;
+gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
-	guint32 ind_field;
+	gboolean ind_field;
 	
 
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -626,11 +626,11 @@ static int dissect_useroid(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 static int
 dissect_tcap_ExternUserInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 tvbuff_t	*next_tvb;
-guint8 class;
+gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint32 tag;
 	guint32 len, start_offset;
-	guint32 ind_field;
+	gboolean ind_field;
 /* 
  * ok lets look at the oid and ssn and try and find a dissector, otherwise lets decode it.
  */
@@ -799,11 +799,11 @@ static int
 dissect_tcap_DialogueOC(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 tvbuff_t	*parameter_tvb;
 tvbuff_t	*next_tvb;
-guint8 class;
+gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
-	guint32 ind_field;
+	gboolean ind_field;
 	
 
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -910,11 +910,11 @@ static int dissect_opCode(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 static int
 dissect_tcap_Parameter(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 tvbuff_t	*next_tvb;
-guint8 class;
+gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
-	guint32 ind_field;
+	gboolean ind_field;
 
 
   offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -1237,11 +1237,11 @@ static const ber_choice_t Component_choice[] = {
 static int
 dissect_tcap_Component(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 tvbuff_t	*next_tvb;
-guint8 class;
+gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
-	guint32 ind_field;
+	gboolean ind_field;
 /* 
  * ok lets look at the oid and ssn and try and find a dissector, otherwise lets decode it.
  */
@@ -2902,11 +2902,11 @@ dissect_tcap_param(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
     tvbuff_t	*next_tvb;
     proto_tree *subtree;
     proto_item *pi;
-    guint8 class;
+    gint8 class;
     gboolean pc;
-    guint32 tag;
+    gint32 tag;
     guint32 len;
-    guint32 ind_field;
+    gboolean ind_field;
     
     while (tvb_reported_length_remaining(tvb, offset) > 0)
     {

@@ -20,11 +20,11 @@
 #.FN_BODY DialogueOC
 tvbuff_t	*parameter_tvb;
 tvbuff_t	*next_tvb;
-guint8 class;
+gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
-	guint32 ind_field;
+	gboolean ind_field;
 	
 
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -43,11 +43,11 @@ return offset+2;
 #.FN_BODY Dialog1
 tvbuff_t	*parameter_tvb;
 tvbuff_t	*next_tvb;
-guint8 class;
+gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
-	guint32 ind_field;
+	gboolean ind_field;
 	
 
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -65,11 +65,11 @@ dissect_tcap_DialoguePDU(TRUE, parameter_tvb, 0, pinfo, tree, -1);
 
 #.FN_BODY Parameter
 tvbuff_t	*next_tvb;
-guint8 class;
+gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
-	guint32 ind_field;
+	gboolean ind_field;
 
 
   offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -84,11 +84,11 @@ guint8 class;
 #.FN_BODY User_information
 tvbuff_t	*parameter_tvb;
 tvbuff_t	*next_tvb;
-guint8 class;
+gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
-	guint32 ind_field; 
+	gboolean ind_field; 
 
 
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -104,11 +104,11 @@ if (parameter_tvb)
 return offset+len;
 #.FN_BODY Component
 tvbuff_t	*next_tvb;
-guint8 class;
+gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint32 tag;
 	guint32 len;
-	guint32 ind_field;
+	gboolean ind_field;
 /* 
  * ok lets look at the oid and ssn and try and find a dissector, otherwise lets decode it.
  */
@@ -149,11 +149,11 @@ offset+=len;
 
 #.FN_BODY ExternUserInfo
 tvbuff_t	*next_tvb;
-guint8 class;
+gint8 class;
 	gboolean pc;
-	guint32 tag;
+	gint32 tag;
 	guint32 len, start_offset;
-	guint32 ind_field;
+	gboolean ind_field;
 /* 
  * ok lets look at the oid and ssn and try and find a dissector, otherwise lets decode it.
  */

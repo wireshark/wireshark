@@ -680,7 +680,7 @@ dissect_ftam_Protocol_Version(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -706,7 +706,7 @@ dissect_ftam_Implementation_Information(gboolean implicit_tag _U_, tvbuff_t *tvb
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -725,6 +725,7 @@ dissect_ftam_Implementation_Information(gboolean implicit_tag _U_, tvbuff_t *tvb
 static int dissect_implementation_information(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_ftam_Implementation_Information(FALSE, tvb, offset, pinfo, tree, hf_ftam_implementation_information);
 }
+
 
 
 static int
@@ -766,7 +767,7 @@ dissect_ftam_Service_Class(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -810,7 +811,7 @@ dissect_ftam_Functional_Units(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -844,7 +845,7 @@ dissect_ftam_Attribute_Groups(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -894,7 +895,7 @@ dissect_ftam_FTAM_Quality_of_Service(gboolean implicit_tag _U_, tvbuff_t *tvb, i
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -920,7 +921,7 @@ dissect_ftam_Document_Type_Name(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -946,7 +947,7 @@ dissect_ftam_Abstract_Syntax_Name(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -1005,7 +1006,7 @@ dissect_ftam_Contents_Type_List(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -1031,7 +1032,7 @@ dissect_ftam_User_Identity(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -1062,7 +1063,7 @@ dissect_ftam_Account(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -1119,10 +1120,11 @@ static int dissect_Pathname_item(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 }
 
 
+
 static int
 dissect_ftam_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
@@ -1148,7 +1150,7 @@ dissect_ftam_Password(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -1351,7 +1353,7 @@ dissect_ftam_State_Result(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -1384,7 +1386,7 @@ dissect_ftam_Action_Result(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -1480,7 +1482,7 @@ dissect_ftam_Diagnostic(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -1571,7 +1573,7 @@ dissect_ftam_Charging(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -1753,7 +1755,7 @@ dissect_ftam_Select_Attributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -1789,7 +1791,7 @@ dissect_ftam_Access_Request(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
    if(!implicit_tag){
      /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -1845,7 +1847,7 @@ dissect_ftam_Access_Passwords(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -1901,7 +1903,7 @@ dissect_ftam_Path_Access_Passwords(gboolean implicit_tag _U_, tvbuff_t *tvb, int
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -1979,7 +1981,7 @@ dissect_ftam_Concurrency_Control(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -2022,12 +2024,13 @@ static int dissect_f_select_request_impl(packet_info *pinfo, proto_tree *tree, t
 }
 
 
+
 static int
 dissect_ftam_Referent_Indicator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -2208,7 +2211,7 @@ dissect_ftam_Constraint_Set_Name(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -2752,7 +2755,7 @@ dissect_ftam_Create_Attributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -3094,7 +3097,7 @@ dissect_ftam_Read_Attributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -3202,7 +3205,7 @@ dissect_ftam_Change_Attributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -3308,7 +3311,7 @@ dissect_ftam_Activity_Identifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -3379,7 +3382,7 @@ dissect_ftam_Degree_Of_Overlap(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -3729,7 +3732,7 @@ dissect_ftam_FADU_Identity(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -3761,7 +3764,7 @@ dissect_ftam_FADU_Lock(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -3964,7 +3967,7 @@ dissect_ftam_Access_Context(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -4071,7 +4074,7 @@ dissect_ftam_Request_Type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -4853,7 +4856,7 @@ dissect_ftam_Attribute_Value_Assertions(gboolean implicit_tag _U_, tvbuff_t *tvb
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -4919,7 +4922,7 @@ dissect_ftam_Scope(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -4968,7 +4971,7 @@ dissect_ftam_Objects_Attributes_List(gboolean implicit_tag _U_, tvbuff_t *tvb, i
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -5061,7 +5064,7 @@ dissect_ftam_Request_Operation_Result(gboolean implicit_tag _U_, tvbuff_t *tvb, 
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -5130,7 +5133,7 @@ dissect_ftam_Operation_Result(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this

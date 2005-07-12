@@ -1024,11 +1024,11 @@ dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
 	gboolean saw_mechanism = FALSE;
-	int start_offset, start_oid_offset;
+	int start_offset, start_oid_offset, end_oid_offset;
 	gint8 class;
 	gboolean pc, ind_field;
 	gint32 tag;
-	gint32 len1;
+	guint32 len1;
 	gchar oid[MAX_OID_STR_LEN];
 
 	start_offset=offset;
@@ -1054,7 +1054,8 @@ dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * Now, the object IDs ...
 	 */
 	start_oid_offset=offset;
-	while (offset<(start_oid_offset+len1)) {
+	end_oid_offset = start_oid_offset+len1;
+	while (offset<end_oid_offset) {
 	  gssapi_oid_value *value;
 
 	  offset=dissect_ber_object_identifier(FALSE, pinfo, subtree, tvb, offset, hf_spnego_mech, oid);
