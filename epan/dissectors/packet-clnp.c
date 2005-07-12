@@ -84,6 +84,7 @@ static int hf_cotp_next_tpdu_number_extended = -1;
 static int hf_cotp_eot			= -1;
 static int hf_cotp_eot_extended	= -1;
 
+static int hf_cotp_li          = -1;
 static int hf_cotp_type        = -1;
 static int hf_cotp_segments    = -1;
 static int hf_cotp_segment     = -1;
@@ -102,6 +103,7 @@ static const true_false_string fragment_descriptions = {
 static int  proto_cltp         = -1;
 static gint ett_cltp           = -1;
 
+static int hf_cltp_li = -1;
 static int hf_cltp_type = -1;
 
 static const fragment_items clnp_frag_items = {
@@ -230,16 +232,16 @@ struct clnp_segment {
 #define DT_TPDU        		0xF	/* COTP */
 
 static const value_string cotp_tpdu_type_abbrev_vals[] = {
-  { ED_TPDU,	"ED" },
-  { EA_TPDU,	"EA" },
-  { RJ_TPDU,	"RJ" },
-  { AK_TPDU,	"AK" },
-  { ER_TPDU,	"ER" },
-  { DR_TPDU,	"DR" },
-  { DC_TPDU,	"DC" },
-  { CC_TPDU,	"CC" },
-  { CR_TPDU,	"CR" },
-  { DT_TPDU,	"DT" },
+  { ED_TPDU,	"ED Expedited Data" },
+  { EA_TPDU,	"EA Expedited Data Acknowledgement" },
+  { RJ_TPDU,	"RJ Reject" },
+  { AK_TPDU,	"AK Data Acknowledgement" },
+  { ER_TPDU,	"ER TPDU Error" },
+  { DR_TPDU,	"DR Disconnect Request" },
+  { DC_TPDU,	"DC Disconnect Confirm" },
+  { CC_TPDU,	"CC Connect Confirm" },
+  { CR_TPDU,	"CR Connect Request" },
+  { DT_TPDU,	"DT Data" },
   { 0,		NULL }
 };
 
@@ -839,10 +841,8 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
-    proto_tree_add_text(cotp_tree, tvb, offset,      1,
-			"Length indicator: %u", li);
-    proto_tree_add_uint_format(cotp_tree, hf_cotp_type, tvb, offset +  1, 1, tpdu,
-			       "TPDU code: 0x%x (DR: Disconnect Request)", tpdu);
+    proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
+    proto_tree_add_uint(cotp_tree, hf_cotp_type, tvb, offset +  1, 1, tpdu);
     proto_tree_add_uint(cotp_tree, hf_cotp_destref, tvb, offset +  2, 2, dst_ref);
     proto_tree_add_uint(cotp_tree, hf_cotp_srcref, tvb, offset +  4, 2, src_ref);
     proto_tree_add_text(cotp_tree, tvb, offset +  6, 1,
@@ -950,14 +950,12 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
-    proto_tree_add_text(cotp_tree, tvb, offset, 1,
-			"Length indicator: %u", li);
+    proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
   }
   offset += 1;
 
   if (tree) {
-    proto_tree_add_uint_format(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu, 
-			"TPDU code: 0x%x (DT: Data)", tpdu);
+    proto_tree_add_uint(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu);
   }
   offset += 1;
   li -= 1;
@@ -1135,14 +1133,12 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
-    proto_tree_add_text(cotp_tree, tvb, offset, 1,
-			"Length indicator: %u", li);
+    proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
   }
   offset += 1;
 
   if (tree) {
-    proto_tree_add_uint_format(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu,
-			"TPDU code: 0x%x (ED: Expedited Data)", tpdu);
+    proto_tree_add_uint(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu);
   }
   offset += 1;
   li -= 1;
@@ -1216,10 +1212,8 @@ static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
-    proto_tree_add_text(cotp_tree, tvb, offset,      1,
-			"Length indicator: %u", li);
-    proto_tree_add_uint_format(cotp_tree, hf_cotp_type, tvb, offset +  1, 1, tpdu,
-			"TPDU code: 0x%x (RJ: Reject)", tpdu);
+    proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
+    proto_tree_add_uint(cotp_tree, hf_cotp_type, tvb, offset +  1, 1, tpdu);
     if (li == LI_NORMAL_RJ)
       proto_tree_add_text(cotp_tree, tvb, offset +  1, 1,
 			  "Credit: %u", cdt);
@@ -1274,15 +1268,12 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
-    proto_tree_add_text(cotp_tree, tvb, offset, 1,
-			"Length indicator: %u", li);
+    proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
   }
   offset += 1;
 
   if (tree) {
-    proto_tree_add_uint_format(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu,
-			"TPDU code: 0x%x (%s)", tpdu,
-			(tpdu == CR_TPDU) ? "CR: Connect Request" : "CC: Connect Confirm");
+    proto_tree_add_uint(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu);
   }
   offset += 1;
   li -= 1;
@@ -1350,14 +1341,12 @@ static int ositp_decode_DC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
-    proto_tree_add_text(cotp_tree, tvb, offset, 1,
-			"Length indicator: %u", li);
+    proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
   }
   offset += 1;
 
   if (tree) {
-    proto_tree_add_uint_format(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu, 
-			"TPDU code: 0x%x (DC: Disconnect Confirm)", tpdu);
+    proto_tree_add_uint(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu);
   }
   offset += 1;
   li -= 1;
@@ -1406,14 +1395,12 @@ static int ositp_decode_AK(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     if (tree) {
       ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
       cotp_tree = proto_item_add_subtree(ti, ett_cotp);
-      proto_tree_add_text(cotp_tree, tvb, offset, 1,
-			  "Length indicator: %u", li);
+      proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
     }
     offset += 1;
 
     if (tree) {
-      proto_tree_add_uint_format(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu, 
-			  "TPDU code: 0x%x (AK: Data Acknowledgement)", tpdu);
+      proto_tree_add_uint(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu);
       proto_tree_add_text(cotp_tree, tvb, offset, 1,
 			  "Credit: %u", cdt);
     }
@@ -1449,14 +1436,12 @@ static int ositp_decode_AK(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     if (tree) {
       ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
       cotp_tree = proto_item_add_subtree(ti, ett_cotp);
-      proto_tree_add_text(cotp_tree, tvb, offset, 1,
-			  "Length indicator: %u", li);
+      proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
     }
     offset += 1;
 
     if (tree) {
-      proto_tree_add_uint_format(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu, 
-			  "TPDU code: 0x%x (AK: Data Acknowledgement)", tpdu);
+      proto_tree_add_uint(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu);
     }
     offset += 1;
     li -= 1;
@@ -1545,14 +1530,12 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
-    proto_tree_add_text(cotp_tree, tvb, offset, 1,
-			"Length indicator: %u", li);
+    proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
   }
   offset += 1;
 
   if (tree) {
-    proto_tree_add_uint_format(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu,
-			"TPDU code: 0x%x (EA: Expedited Data Acknowledgement)", tpdu);
+    proto_tree_add_uint(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu);
   }
   offset += 1;
   li -= 1;
@@ -1625,10 +1608,8 @@ static int ositp_decode_ER(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
-    proto_tree_add_text(cotp_tree, tvb, offset,      1,
-			"Length indicator: %u", li);
-    proto_tree_add_uint_format(cotp_tree, hf_cotp_type, tvb, offset +  1, 1, tpdu,
-			"TPDU code: 0x%x (ER: TPDU Error)", tpdu);
+    proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
+    proto_tree_add_uint(cotp_tree, hf_cotp_type, tvb, offset +  1, 1, tpdu);
     proto_tree_add_uint(cotp_tree, hf_cotp_destref, tvb, offset +  2, 2, dst_ref);
     proto_tree_add_text(cotp_tree, tvb, offset +  4, 1,
 			"Reject cause: %s", str);
@@ -1653,14 +1634,12 @@ static int ositp_decode_UD(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cltp, tvb, offset, li + 1, FALSE);
     cltp_tree = proto_item_add_subtree(ti, ett_cltp);
-    proto_tree_add_text(cltp_tree, tvb, offset, 1,
-			"Length indicator: %u", li);
+    proto_tree_add_uint(cltp_tree, hf_cltp_li, tvb, offset, 1,li);
   }
   offset += 1;
 
   if (tree) {
-    proto_tree_add_uint_format(cltp_tree, hf_cltp_type, tvb, offset, 1, tpdu, 
-			"TPDU code: 0x%x (UD)", tpdu);
+    proto_tree_add_uint(cltp_tree, hf_cltp_type, tvb, offset, 1, tpdu);
   }
   offset += 1;
   li -= 1;
@@ -2300,14 +2279,17 @@ void proto_register_cotp(void)
     { &hf_cotp_destref,
       { "Destination reference", "cotp.destref", FT_UINT16, BASE_HEX, NULL, 0x0,
         "Destination address reference", HFILL}}, 
+    { &hf_cotp_li,
+      { "Length", "cotp.li", FT_UINT8, BASE_DEC, NULL, 0x0,
+        "Length Indicator, length of this header", HFILL}},
     { &hf_cotp_type,
-      { "COTP PDU Type", "cotp.type", FT_UINT8, BASE_HEX, VALS(cotp_tpdu_type_abbrev_vals), 0x0,
-        "COTP PDU Type", HFILL}},
+      { "PDU Type", "cotp.type", FT_UINT8, BASE_HEX, VALS(cotp_tpdu_type_abbrev_vals), 0x0,
+        "PDU Type - upper nibble of byte", HFILL}},
     { &hf_cotp_tpdu_number,
-      { "TPDU number", "cotp.tpdu-number", FT_UINT8, BASE_HEX, NULL, 0x0,
+      { "TPDU number", "cotp.tpdu-number", FT_UINT8, BASE_HEX, NULL, 0x7f,
         "TPDU number", HFILL}},
     { &hf_cotp_tpdu_number_extended,
-      { "TPDU number", "cotp.tpdu-number", FT_UINT32, BASE_HEX, NULL, 0x0,
+      { "TPDU number", "cotp.tpdu-number", FT_UINT32, BASE_HEX, NULL, 0x0 /* XXX - 0x7fff? */,
         "TPDU number", HFILL}},
     { &hf_cotp_next_tpdu_number,
       { "Your TPDU number", "cotp.next-tpdu-number", FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -2412,9 +2394,12 @@ proto_reg_handoff_cotp(void)
 void proto_register_cltp(void)
 {
   static hf_register_info hf[] = {
+    { &hf_cltp_li,
+      { "Length", "cltp.li", FT_UINT8, BASE_DEC, NULL, 0x0,
+        "Length Indicator, length of this header", HFILL}},
     { &hf_cltp_type,
-      { "CLTP PDU Type", "cltp.type", FT_UINT8, BASE_HEX, VALS(cltp_tpdu_type_abbrev_vals), 0x0,
-        "CLTP PDU Type", HFILL}},
+      { "PDU Type", "cltp.type", FT_UINT8, BASE_HEX, VALS(cltp_tpdu_type_abbrev_vals), 0x0,
+        "PDU Type", HFILL}},
   };
   static gint *ett[] = {
 	&ett_cltp,
