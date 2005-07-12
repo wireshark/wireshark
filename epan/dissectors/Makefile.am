@@ -108,6 +108,7 @@ register.c: $(plugin_src) $(DISSECTOR_SRC) $(srcdir)/make-reg-dotc $(srcdir)/mak
 CLEANFILES = \
 	libdissectors.a		\
 	libdissectors.la	\
+	register.c-tmp		\
 	$(GENERATED_HEADER_FILES)	\
 	*~
 

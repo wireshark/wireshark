@@ -286,7 +286,7 @@ SUFFIXES = .sh
 #
 # Build "tethereal-tap-register.c", which contains a function
 # "register_all_tap_listeners()"
-# that calls the register routines for all tehtereal tap listeners.
+# that calls the register routines for all tethereal tap listeners.
 #
 # We do this by grepping through sources.
 #
@@ -300,7 +300,7 @@ SUFFIXES = .sh
 tethereal-tap-register.c: $(TETHEREAL_TAP_SRC) $(srcdir)/make-tapreg-dotc
 	@echo Making tethereal-tap-register.c
 	@$(srcdir)/make-tapreg-dotc tethereal-tap-register.c $(srcdir) $(TETHEREAL_TAP_SRC)
- 
+
 ps.c: print.ps rdps
 	./rdps $(srcdir)/print.ps ps.c
 
@@ -330,7 +330,7 @@ dftest_DEPENDENCIES = \
 dftest_LDADD = \
 	$(ethereal_optional_objects)	\
 	$(dftest_additional_libs)	\
- 	@SNMP_LIBS@ @SSL_LIBS@		\
+	@SNMP_LIBS@ @SSL_LIBS@		\
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
 	@GLIB_LIBS@ -lm			\
