@@ -2862,35 +2862,40 @@ decode_triplet(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 count) {
 /* adjust - how many bytes before quintuplet should be highlighted
  */
 static int
-decode_quintuplet(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 count, guint8 adjust) {
+decode_quintuplet(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 count) {
 
 	proto_tree	*ext_tree_quint;
 	proto_item	*te_quint;
-	guint16		q_len, xres_len, auth_len, q_offset, i;
+	guint16		q_offset, i;
+	guint8          xres_len, auth_len;
 
 	q_offset = 0;
 
 	for (i=0;i<count;i++) {
 
-		offset = offset + q_offset;
-
-		q_len = tvb_get_ntohs(tvb, offset);
-
-		te_quint = proto_tree_add_text(tree, tvb, offset-adjust, q_len+adjust, "Quintuplet #%x", i);
+		te_quint = proto_tree_add_text(tree, tvb, offset, -1, "Quintuplet #%x", i+1);
 		ext_tree_quint = proto_item_add_subtree(te_quint, ett_gtp_quint);
 
-		proto_tree_add_text(ext_tree_quint, tvb, offset, 2, "Length: %x", q_len);
-		proto_tree_add_text(ext_tree_quint, tvb, offset+2, 16, "RAND: %s", tvb_bytes_to_str(tvb, offset+2, 16));
-		xres_len = tvb_get_ntohs(tvb, offset+18);
-		proto_tree_add_text(ext_tree_quint, tvb, offset+18, 2, "XRES length: %u", xres_len);
-		proto_tree_add_text(ext_tree_quint, tvb, offset+20, xres_len, "XRES: %s", tvb_bytes_to_str(tvb, offset+20, xres_len));
-		proto_tree_add_text(ext_tree_quint, tvb, offset+20+xres_len, 16, "Quintuplet ciphering key: %s", tvb_bytes_to_str(tvb, offset+20+xres_len, 16));
-		proto_tree_add_text(ext_tree_quint, tvb, offset+36+xres_len, 16, "Quintuplet integrity key: %s", tvb_bytes_to_str(tvb, offset+36+xres_len, 16));
-		auth_len = tvb_get_ntohs(tvb, offset+52+xres_len);
-		proto_tree_add_text(ext_tree_quint, tvb, offset+52+xres_len, 2, "Authentication length: %u", auth_len);
-		proto_tree_add_text(ext_tree_quint, tvb, offset+54+xres_len, auth_len, "AUTH: %s", tvb_bytes_to_str(tvb, offset+54+xres_len, auth_len));
 
-		q_offset = q_offset + q_len + 2;
+		proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 16, "RAND: %s", tvb_bytes_to_str(tvb, offset, 16));
+		q_offset = q_offset + 16;
+		xres_len = tvb_get_guint8(tvb, offset+q_offset);
+		proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 1, "XRES length: %u", xres_len);
+		q_offset++;
+		proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, xres_len, "XRES: %s", tvb_bytes_to_str(tvb, offset + q_offset, xres_len));
+		q_offset = q_offset + xres_len;
+		proto_tree_add_text(ext_tree_quint, tvb ,offset + q_offset, 16, "Quintuplet Ciphering Key: %s", tvb_bytes_to_str(tvb, offset + q_offset, 16));
+		q_offset = q_offset + 16;
+		proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 16, "Quintuplet Integrity Key: %s", tvb_bytes_to_str(tvb, offset + q_offset, 16));
+		q_offset = q_offset +16;
+		auth_len = tvb_get_guint8(tvb, offset + q_offset);
+		proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 1, "Authentication length: %u", auth_len);
+		q_offset++;
+		proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, auth_len, "AUTH: %s", tvb_bytes_to_str(tvb, offset + q_offset, auth_len));
+
+		q_offset = q_offset+auth_len;
+		proto_item_set_end(te_quint, tvb, offset+q_offset);
+
 	}
 
 	return q_offset;
@@ -2912,42 +2917,48 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 	te = proto_tree_add_text(tree, tvb, offset, 1, val_to_str(GTP_EXT_MM_CNTXT, gtp_val, "Unknown message"));
 	ext_tree_mm = proto_item_add_subtree(te, ett_gtp_mm);
 
+	/* Octet 2 - 3 */
 	length = tvb_get_ntohs(tvb, offset+1);
 	if (length < 1) return 3;
 
+	/* Octet 4 */
 	cksn = tvb_get_guint8(tvb, offset+3) & 0x07;
+	/* Octet 5 */
 	sec_mode = (tvb_get_guint8(tvb, offset+4) >> 6) & 0x03;
 	count = (tvb_get_guint8(tvb, offset+4) >> 3) & 0x07;
 	cipher = tvb_get_guint8(tvb, offset+4) & 0x07;
 
 	proto_tree_add_text(ext_tree_mm, tvb, offset+1, 2, "Length: %x", length);
-	proto_tree_add_text(ext_tree_mm, tvb, offset+3, 1, "Ciphering Key Sequence Number: %u", cksn);
 	if (gtp_version != 0) {
-		proto_tree_add_text(ext_tree_mm, tvb, offset+3, 1, "Security type: %u (%s)", sec_mode,
+		proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "Security type: %u (%s)", sec_mode,
 		                    val_to_str(sec_mode, mm_sec_modep, "Unknown"));
 	} else {
 		sec_mode = 1;
 	}
 
-	proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "No of triplets: %u", count);
+	
 
 	switch (sec_mode) {
-		case 0:
+		case 0:				/* Used cipher value, UMTS keys and Quintuplets */
+			proto_tree_add_text(ext_tree_mm, tvb, offset+3, 1, "Ciphering Key Sequence Number(CKSN)/Key Set Identifier(KSI): %u", cksn);
+			proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "No of Quintuplets: %u", count);
 			if (cipher == 0) {
 				proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "Ciphering: no ciphering");
 			} else {
 				proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "Ciphering: GEA/%u", cipher);
 			}
 			proto_tree_add_text(ext_tree_mm, tvb, offset+5, 16, "Ciphering key CK: %s", tvb_bytes_to_str(tvb, offset+5, 16));
-			proto_tree_add_text(ext_tree_mm, tvb, offset+21, 16, "Integrity key CK: %s", tvb_bytes_to_str(tvb, offset+21, 16));
+			proto_tree_add_text(ext_tree_mm, tvb, offset+21, 16, "Integrity key IK: %s", tvb_bytes_to_str(tvb, offset+21, 16));
 			quint_len = tvb_get_ntohs(tvb, offset+37);
-			proto_tree_add_text(ext_tree_mm, tvb, offset+37, 2, "Quintuplets length: %x", quint_len);
+			proto_tree_add_text(ext_tree_mm, tvb, offset+37, 2, "Quintuplets length: 0x%x (%u)", quint_len, quint_len);
 
-			offset = offset + decode_quintuplet(tvb, offset+39, ext_tree_mm, count, 0) + 39;
+			offset = offset + decode_quintuplet(tvb, offset+39, ext_tree_mm, count) + 39;
 
 
 			break;
-		case 1:
+		case 1:				/* GSM key and triplets */
+			proto_tree_add_text(ext_tree_mm, tvb, offset+3, 1, "Ciphering Key Sequence Number(CKSN): %u", cksn);
+			proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "No of triplets: %u", count);
 			if (cipher == 0) {
 				proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "Ciphering: no ciphering");
 			} else {
@@ -2955,19 +2966,23 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 			}
 			proto_tree_add_text(ext_tree_mm, tvb, offset+5, 8, "Ciphering key Kc: %s", tvb_bytes_to_str(tvb, offset+5, 8));
 
-			offset = offset + decode_triplet(tvb, offset+13, ext_tree_mm, count) + 13;
+			offset = offset + decode_triplet(tvb, offset+13, ext_tree_mm, count) + 14;
 
 			break;
-		case 2:
+		case 2:				/* UMTS key and quintuplets */
+			proto_tree_add_text(ext_tree_mm, tvb, offset+3, 1, "Key Set Identifier(KSI): %u", cksn);
+			proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "No of Quintuplets: %u", count);
 			proto_tree_add_text(ext_tree_mm, tvb, offset+5, 16, "Ciphering key CK: %s", tvb_bytes_to_str(tvb, offset+5, 16));
-			proto_tree_add_text(ext_tree_mm, tvb, offset+21, 16, "Integrity key CK: %s", tvb_bytes_to_str(tvb, offset+21, 16));
+			proto_tree_add_text(ext_tree_mm, tvb, offset+21, 16, "Integrity key IK: %s", tvb_bytes_to_str(tvb, offset+21, 16));
 			quint_len = tvb_get_ntohs(tvb, offset+37);
-			proto_tree_add_text(ext_tree_mm, tvb, offset+37, 2, "Quintuplets length: %x", quint_len);
+			proto_tree_add_text(ext_tree_mm, tvb, offset+37, 2, "Quintuplets length: 0x%x (%u)", quint_len, quint_len);
 
-			offset = offset + decode_quintuplet(tvb, offset+39, ext_tree_mm, count, 0) + 39;
+			offset = offset + decode_quintuplet(tvb, offset+39, ext_tree_mm, count) + 39;
 
 			break;
-		case 3:
+		case 3:				/* GSM key and quintuplets */
+			proto_tree_add_text(ext_tree_mm, tvb, offset+3, 1, "Ciphering Key Sequence Number(CKSN): %u", cksn);
+			proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "No of Quintuplets: %u", count);
 			if (cipher == 0) {
 				proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "Ciphering: no ciphering");
 			} else {
@@ -2975,9 +2990,9 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 			}
 			proto_tree_add_text(ext_tree_mm, tvb, offset+5, 8, "Ciphering key Kc: %s", tvb_bytes_to_str(tvb, offset+5, 8));
 			quint_len = tvb_get_ntohs(tvb, offset+13);
-			proto_tree_add_text(ext_tree_mm, tvb, offset+13, 2, "Quintuplets length: %x", quint_len);
+			proto_tree_add_text(ext_tree_mm, tvb, offset+13, 2, "Quintuplets length: 0x%x (%u)", quint_len, quint_len);
 
-			offset = offset + decode_quintuplet(tvb, offset+15, ext_tree_mm, count, 0) + 15;
+			offset = offset + decode_quintuplet(tvb, offset+15, ext_tree_mm, count) + 15;
 
 			break;
 		default:
@@ -3666,7 +3681,43 @@ decode_gtp_qos_umts(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 static int
 decode_gtp_auth_qui(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
-	return (1 + decode_quintuplet(tvb, offset+1, tree, 1, 1));
+	proto_tree	*ext_tree_quint;
+	proto_item	*te_quint;
+	guint16		q_offset, q_len;
+	guint8      xres_len, auth_len;
+
+	q_offset = 0;
+
+
+	offset = offset + q_offset;
+
+	q_len = tvb_get_ntohs(tvb, offset);
+
+	te_quint = proto_tree_add_text(tree, tvb, offset+1, q_len, "Quintuplet");
+	ext_tree_quint = proto_item_add_subtree(te_quint, ett_gtp_quint);
+
+	proto_tree_add_text(ext_tree_quint, tvb, offset, 2, "Length: %x", q_len);
+	q_offset = q_offset + 2;
+
+	proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 16, "RAND: %s", tvb_bytes_to_str(tvb, offset, 16));
+	q_offset = q_offset + 16;
+	xres_len = tvb_get_guint8(tvb, offset+q_offset);
+	proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 1, "XRES length: %u", xres_len);
+	q_offset++;
+	proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, xres_len, "XRES: %s", tvb_bytes_to_str(tvb, offset + q_offset, xres_len));
+	q_offset = q_offset + xres_len;
+	proto_tree_add_text(ext_tree_quint, tvb ,offset + q_offset, 16, "Quintuplet Ciphering Key: %s", tvb_bytes_to_str(tvb, offset + q_offset, 16));
+	q_offset = q_offset + 16;
+	proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 16, "Quintuplet Integrity Key: %s", tvb_bytes_to_str(tvb, offset + q_offset, 16));
+	q_offset = q_offset +16;
+	auth_len = tvb_get_guint8(tvb, offset + q_offset);
+	proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 1, "Authentication length: %u", auth_len);
+	q_offset++;
+	proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, auth_len, "AUTH: %s", tvb_bytes_to_str(tvb, offset + q_offset, auth_len));
+
+	q_offset = q_offset+auth_len;
+
+	return (1 + q_offset);
 
 }
 
