@@ -638,7 +638,7 @@ void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_widget_show(chunk_bt1);
 	SIGNAL_CONNECT(chunk_bt1, "clicked", on_chunk2_dlg, u_data);
 	
-	graph_bt1 = gtk_button_new_with_label("Graph");
+	graph_bt1 = gtk_button_new_with_label("Graph TSN");
 	gtk_box_pack_start(GTK_BOX(h_button_box), graph_bt1, FALSE, FALSE, 0);
 	gtk_widget_show(graph_bt1);
 	SIGNAL_CONNECT(graph_bt1, "clicked", on_graph2_dlg, u_data);

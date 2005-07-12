@@ -198,23 +198,17 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 				sack_header =(struct sack_chunk_header *)tlist->data;
 				nr=ntohs(sack_header->nr_of_gaps);
 				tsnumber = ntohl(sack_header->cum_tsn_ack);
-				if (nr>0)
-				{
-					/* FIXME: Only the first gap report is considered */
-					gap = (struct gaps *)&(sack_header->tsns);
-					gap_start=ntohs(gap->start);
-					gap_end = ntohs(gap->end);
-					max_num=gap_end+tsnumber;
-				}
-				else
-					max_num=tsnumber;
 
 				if (sack->secs>=u_data->io->x1_tmp_sec)
 				{
 					if (nr>0)
 					{
+						gap = (struct gaps *)(&(sack_header->tsns));
 						for(i=0;i<nr; i++)
 						{
+							gap_start=ntohs(gap->start);
+							gap_end = ntohs(gap->end);
+							max_num=gap_end+tsnumber;
 							for (j=gap_start; j<=gap_end; j++)
 							{
 								diff=sack->secs*1000000+sack->usecs-u_data->io->min_x;
@@ -223,8 +217,12 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 								             (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(j+tsnumber,min_tsn))*u_data->io->y_interval)),
 								             3, 3,0, (64*360) );
 							}
+							if (i < nr-1)
+								gap++;
 						}
 					}
+					else
+						max_num=tsnumber;
 					if (tsnumber>=min_tsn)
 					{
 						diff=sack->secs*1000000+sack->usecs-u_data->io->min_x;
