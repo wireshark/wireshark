@@ -156,6 +156,7 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				ti = proto_tree_add_item(tree, proto_tpkt, tvb,
 				    offset, -1, FALSE);
 				tpkt_tree = proto_item_add_subtree(ti, ett_tpkt);
+				proto_item_set_text(ti, "TPKT");
 
 				proto_tree_add_text(tpkt_tree, tvb, offset, -1,
 				    "Continuation data");
@@ -241,10 +242,12 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			ti = proto_tree_add_item(tree, proto_tpkt, tvb,
 			    offset, 4, FALSE);
 			tpkt_tree = proto_item_add_subtree(ti, ett_tpkt);
+			proto_item_set_text(ti, "TPKT");
 
 			/* Version */
 			proto_tree_add_item(tpkt_tree, hf_tpkt_version, tvb,
 			    offset, 1, FALSE);
+			proto_item_append_text(ti, ", Version: 3");
 
 			/* Reserved octet*/
 			proto_tree_add_item(tpkt_tree, hf_tpkt_reserved, tvb,
@@ -253,6 +256,7 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			/* Length */
 			proto_tree_add_uint(tpkt_tree, hf_tpkt_length, tvb,
 			    offset + 2, 2, data_len);
+			proto_item_append_text(ti, ", Length: %u", data_len);
 		}
 		pinfo->current_proto = saved_proto;
 
@@ -337,7 +341,7 @@ proto_register_tpkt(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				"Version, only version 3 is defined", HFILL
 			}
 		},
 		{
@@ -349,7 +353,7 @@ proto_register_tpkt(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				"Reserved, should be 0", HFILL
 			}
 		},
 		{
@@ -361,7 +365,7 @@ proto_register_tpkt(void)
 				BASE_DEC,
 				NULL,
 				0x0,
-				"", HFILL
+				"Length of data unit, including this header", HFILL
 			}
 		},
 	};
@@ -372,7 +376,7 @@ proto_register_tpkt(void)
 	};
 	module_t *tpkt_module;
 
-	proto_tpkt = proto_register_protocol("TPKT", "TPKT", "tpkt");
+	proto_tpkt = proto_register_protocol("TPKT - ISO on TCP - RFC1006", "TPKT", "tpkt");
 	proto_tpkt_ptr = find_protocol_by_id(proto_tpkt);
 	proto_register_field_array(proto_tpkt, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
