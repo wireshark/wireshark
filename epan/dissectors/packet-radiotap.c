@@ -72,6 +72,7 @@ enum ieee80211_radiotap_type {
     IEEE80211_RADIOTAP_ANTENNA = 11,
     IEEE80211_RADIOTAP_DB_ANTSIGNAL = 12,
     IEEE80211_RADIOTAP_DB_ANTNOISE = 13,
+    IEEE80211_RADIOTAP_FCS = 14,
     IEEE80211_RADIOTAP_EXT = 31
 };
 
@@ -287,7 +288,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset+=sizeof(struct ieee80211_radiotap_header);
 
     if(check_col(pinfo->cinfo, COL_INFO))
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Radiotap Capture v%x, Length %d",
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Radiotap Capture v%x, Length %u",
 		version, length);
 
     /* Dissect the packet */
