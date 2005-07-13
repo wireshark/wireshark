@@ -366,7 +366,7 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 		switch(context_id) {
 			case 0x0000000:
 				strncpy(context_string,"Ctx 0",sizeof(context_string));
-				strncpy(context_string,"0 (Null Context)",sizeof(context_string));
+				strncpy(context_string_long,"0 (Null Context)",sizeof(context_string));
 				break;
 			case 0xFFFFFFFF:
 				strncpy(context_string,"Ctx *",sizeof(context_string));
