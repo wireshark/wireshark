@@ -400,11 +400,12 @@ static int dissect_aim_rendezvous_extended_message(tvbuff_t *tvb, proto_tree *ms
 	message_type = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_type, tvb, offset, 1, FALSE); offset+=1;
 	message_flags = tvb_get_guint8(tvb, offset);
-	ti_flags = proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_flags, tvb, offset, 1, message_flags); offset+=1;
+	ti_flags = proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_flags, tvb, offset, 1, message_flags);
 	flags_entry = proto_item_add_subtree(ti_flags, ett_aim_extended_data_message_flags);
 	proto_tree_add_boolean(flags_entry, hf_aim_rendezvous_extended_data_message_flags_normal, tvb, offset, 1, message_flags);
 	proto_tree_add_boolean(flags_entry, hf_aim_rendezvous_extended_data_message_flags_auto, tvb, offset, 1, message_flags);
 	proto_tree_add_boolean(flags_entry, hf_aim_rendezvous_extended_data_message_flags_multi, tvb, offset, 1, message_flags);
+	offset+=1;
 	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_status_code, tvb, offset, 2, TRUE); offset+=2;
 	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_priority_code, tvb, offset, 2, TRUE); offset+=2;
 	text_length = tvb_get_letohs(tvb, offset);
