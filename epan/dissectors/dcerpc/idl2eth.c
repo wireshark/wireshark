@@ -42,10 +42,12 @@ TODO
 
    SID          A SID structure.
 
+   uuid_t	A 16 byte FT_GUID blob.
+   GUID		
+
 
    policy_handle
    bool8
-   GUID
    uuid_t
    policy_handle
    NTTIME
@@ -1135,7 +1137,7 @@ find_type(char *name)
 			FPRINTF(eth_code, "    return offset;\n");
 			FPRINTF(eth_code, "}\n");
 			FPRINTF(eth_code, "\n");
-			tmptype=register_new_type(name, dissectorname, "FT_STRING", "BASE_NONE", "0", "NULL", 4);
+			tmptype=register_new_type(name, dissectorname, "FT_GUID", "BASE_NONE", "0", "NULL", 4);
 		} else if(!strcmp(name,"policy_handle")){
 			sprintf(dissectorname, "%s_dissect_%s", ifname, name);
 			FPRINTF(NULL,"\nAutogenerating built-in type:%s\n------------\n",name);

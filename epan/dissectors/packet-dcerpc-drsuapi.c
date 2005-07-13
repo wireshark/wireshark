@@ -8264,7 +8264,7 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsBindInfo24_site_guid,
-          { "site_guid", "drsuapi.DsBindInfo24.site_guid", FT_STRING, BASE_NONE,
+          { "site_guid", "drsuapi.DsBindInfo24.site_guid", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -8279,7 +8279,7 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsBindInfo28_site_guid,
-          { "site_guid", "drsuapi.DsBindInfo28.site_guid", FT_STRING, BASE_NONE,
+          { "site_guid", "drsuapi.DsBindInfo28.site_guid", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -8314,7 +8314,7 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsBind_bind_guid,
-          { "bind_guid", "drsuapi.DsBind.bind_guid", FT_STRING, BASE_NONE,
+          { "bind_guid", "drsuapi.DsBind.bind_guid", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -8344,7 +8344,7 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaSyncRequest1Info_guid1,
-          { "guid1", "drsuapi.DsReplicaSyncRequest1Info.guid1", FT_STRING, BASE_NONE,
+          { "guid1", "drsuapi.DsReplicaSyncRequest1Info.guid1", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -8484,7 +8484,7 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaSyncRequest1_guid1,
-          { "guid1", "drsuapi.DsReplicaSyncRequest1.guid1", FT_STRING, BASE_NONE,
+          { "guid1", "drsuapi.DsReplicaSyncRequest1.guid1", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -8534,7 +8534,7 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaCoursor_source_dsa_invocation_id,
-          { "source_dsa_invocation_id", "drsuapi.DsReplicaCoursor.source_dsa_invocation_id", FT_STRING, BASE_NONE,
+          { "source_dsa_invocation_id", "drsuapi.DsReplicaCoursor.source_dsa_invocation_id", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -8569,12 +8569,12 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsGetNCChangesRequest5_guid1,
-          { "guid1", "drsuapi.DsGetNCChangesRequest5.guid1", FT_STRING, BASE_NONE,
+          { "guid1", "drsuapi.DsGetNCChangesRequest5.guid1", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
         { &hf_drsuapi_DsGetNCChangesRequest5_guid2,
-          { "guid2", "drsuapi.DsGetNCChangesRequest5.guid2", FT_STRING, BASE_NONE,
+          { "guid2", "drsuapi.DsGetNCChangesRequest5.guid2", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -8649,12 +8649,12 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsGetNCChangesRequest8_guid1,
-          { "guid1", "drsuapi.DsGetNCChangesRequest8.guid1", FT_STRING, BASE_NONE,
+          { "guid1", "drsuapi.DsGetNCChangesRequest8.guid1", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
         { &hf_drsuapi_DsGetNCChangesRequest8_guid2,
-          { "guid2", "drsuapi.DsGetNCChangesRequest8.guid2", FT_STRING, BASE_NONE,
+          { "guid2", "drsuapi.DsGetNCChangesRequest8.guid2", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -8759,12 +8759,12 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsGetNCChangesCtr6_guid1,
-          { "guid1", "drsuapi.DsGetNCChangesCtr6.guid1", FT_STRING, BASE_NONE,
+          { "guid1", "drsuapi.DsGetNCChangesCtr6.guid1", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
         { &hf_drsuapi_DsGetNCChangesCtr6_guid2,
-          { "guid2", "drsuapi.DsGetNCChangesCtr6.guid2", FT_STRING, BASE_NONE,
+          { "guid2", "drsuapi.DsGetNCChangesCtr6.guid2", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -8889,7 +8889,7 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaUpdateRefsRequest1_dest_dsa_guid,
-          { "dest_dsa_guid", "drsuapi.DsReplicaUpdateRefsRequest1.dest_dsa_guid", FT_STRING, BASE_NONE,
+          { "dest_dsa_guid", "drsuapi.DsReplicaUpdateRefsRequest1.dest_dsa_guid", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -9224,22 +9224,22 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsGetDCInfo2_site_guid,
-          { "site_guid", "drsuapi.DsGetDCInfo2.site_guid", FT_STRING, BASE_NONE,
+          { "site_guid", "drsuapi.DsGetDCInfo2.site_guid", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
         { &hf_drsuapi_DsGetDCInfo2_computer_guid,
-          { "computer_guid", "drsuapi.DsGetDCInfo2.computer_guid", FT_STRING, BASE_NONE,
+          { "computer_guid", "drsuapi.DsGetDCInfo2.computer_guid", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
         { &hf_drsuapi_DsGetDCInfo2_server_guid,
-          { "server_guid", "drsuapi.DsGetDCInfo2.server_guid", FT_STRING, BASE_NONE,
+          { "server_guid", "drsuapi.DsGetDCInfo2.server_guid", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
         { &hf_drsuapi_DsGetDCInfo2_ntds_guid,
-          { "ntds_guid", "drsuapi.DsGetDCInfo2.ntds_guid", FT_STRING, BASE_NONE,
+          { "ntds_guid", "drsuapi.DsGetDCInfo2.ntds_guid", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -9344,7 +9344,7 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaGetInfoRequest1_guid1,
-          { "guid1", "drsuapi.DsReplicaGetInfoRequest1.guid1", FT_STRING, BASE_NONE,
+          { "guid1", "drsuapi.DsReplicaGetInfoRequest1.guid1", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -9359,7 +9359,7 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaGetInfoRequest2_guid1,
-          { "guid1", "drsuapi.DsReplicaGetInfoRequest2.guid1", FT_STRING, BASE_NONE,
+          { "guid1", "drsuapi.DsReplicaGetInfoRequest2.guid1", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -9424,22 +9424,22 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaNeighbour_naming_context_obj_guid,
-          { "naming_context_obj_guid", "drsuapi.DsReplicaNeighbour.naming_context_obj_guid", FT_STRING, BASE_NONE,
+          { "naming_context_obj_guid", "drsuapi.DsReplicaNeighbour.naming_context_obj_guid", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaNeighbour_source_dsa_obj_guid,
-          { "source_dsa_obj_guid", "drsuapi.DsReplicaNeighbour.source_dsa_obj_guid", FT_STRING, BASE_NONE,
+          { "source_dsa_obj_guid", "drsuapi.DsReplicaNeighbour.source_dsa_obj_guid", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaNeighbour_source_dsa_invocation_id,
-          { "source_dsa_invocation_id", "drsuapi.DsReplicaNeighbour.source_dsa_invocation_id", FT_STRING, BASE_NONE,
+          { "source_dsa_invocation_id", "drsuapi.DsReplicaNeighbour.source_dsa_invocation_id", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaNeighbour_transport_obj_guid,
-          { "transport_obj_guid", "drsuapi.DsReplicaNeighbour.transport_obj_guid", FT_STRING, BASE_NONE,
+          { "transport_obj_guid", "drsuapi.DsReplicaNeighbour.transport_obj_guid", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -9519,7 +9519,7 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaObjMetaData_originating_dsa_invocation_id,
-          { "originating_dsa_invocation_id", "drsuapi.DsReplicaObjMetaData.originating_dsa_invocation_id", FT_STRING, BASE_NONE,
+          { "originating_dsa_invocation_id", "drsuapi.DsReplicaObjMetaData.originating_dsa_invocation_id", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -9554,7 +9554,7 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaKccDsaFailure_dsa_obj_guid,
-          { "dsa_obj_guid", "drsuapi.DsReplicaKccDsaFailure.dsa_obj_guid", FT_STRING, BASE_NONE,
+          { "dsa_obj_guid", "drsuapi.DsReplicaKccDsaFailure.dsa_obj_guid", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -9659,12 +9659,12 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaOp_nc_obj_guid,
-          { "nc_obj_guid", "drsuapi.DsReplicaOp.nc_obj_guid", FT_STRING, BASE_NONE,
+          { "nc_obj_guid", "drsuapi.DsReplicaOp.nc_obj_guid", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaOp_remote_dsa_obj_guid,
-          { "remote_dsa_obj_guid", "drsuapi.DsReplicaOp.remote_dsa_obj_guid", FT_STRING, BASE_NONE,
+          { "remote_dsa_obj_guid", "drsuapi.DsReplicaOp.remote_dsa_obj_guid", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -9724,7 +9724,7 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaAttrValMetaData_originating_dsa_invocation_id,
-          { "originating_dsa_invocation_id", "drsuapi.DsReplicaAttrValMetaData.originating_dsa_invocation_id", FT_STRING, BASE_NONE,
+          { "originating_dsa_invocation_id", "drsuapi.DsReplicaAttrValMetaData.originating_dsa_invocation_id", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -9754,7 +9754,7 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaCoursor2_source_dsa_invocation_id,
-          { "source_dsa_invocation_id", "drsuapi.DsReplicaCoursor2.source_dsa_invocation_id", FT_STRING, BASE_NONE,
+          { "source_dsa_invocation_id", "drsuapi.DsReplicaCoursor2.source_dsa_invocation_id", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -9784,7 +9784,7 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaCoursor3_source_dsa_invocation_id,
-          { "source_dsa_invocation_id", "drsuapi.DsReplicaCoursor3.source_dsa_invocation_id", FT_STRING, BASE_NONE,
+          { "source_dsa_invocation_id", "drsuapi.DsReplicaCoursor3.source_dsa_invocation_id", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -9834,7 +9834,7 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaObjMetaData2_originating_dsa_invocation_id,
-          { "originating_dsa_invocation_id", "drsuapi.DsReplicaObjMetaData2.originating_dsa_invocation_id", FT_STRING, BASE_NONE,
+          { "originating_dsa_invocation_id", "drsuapi.DsReplicaObjMetaData2.originating_dsa_invocation_id", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -9909,7 +9909,7 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaAttrValMetaData2_originating_dsa_invocation_id,
-          { "originating_dsa_invocation_id", "drsuapi.DsReplicaAttrValMetaData2.originating_dsa_invocation_id", FT_STRING, BASE_NONE,
+          { "originating_dsa_invocation_id", "drsuapi.DsReplicaAttrValMetaData2.originating_dsa_invocation_id", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
@@ -9959,7 +9959,7 @@ proto_register_drsuapi(void)
          "", HFILL }},
 
         { &hf_drsuapi_DsReplicaConnection04_bind_guid,
-          { "bind_guid", "drsuapi.DsReplicaConnection04.bind_guid", FT_STRING, BASE_NONE,
+          { "bind_guid", "drsuapi.DsReplicaConnection04.bind_guid", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 

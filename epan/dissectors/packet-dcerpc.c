@@ -1132,15 +1132,22 @@ dissect_dcerpc_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
                                       uuid.Data4[6], uuid.Data4[7]);
 		} else {
 #endif
-			/* we don't know the name of this uuid */
-			proto_tree_add_string_format (tree, hfindex, tvb, offset, 16, "",
-                                      "%s: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-									  hfi->name,
+			/* GUID have changed from FT_STRING to FT_GUID
+			   but we havent changed all dissectors yet.
+			 */
+			if(hfi->type==FT_GUID){
+				proto_tree_add_item(tree, hfindex, tvb, offset, 16, (drep[0] & 0x10));
+			} else {
+				/* we don't know the name of this uuid */
+				proto_tree_add_string_format (tree, hfindex, tvb, offset, 16, "",
+                	              "%s: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+				      hfi->name,
                                       uuid.Data1, uuid.Data2, uuid.Data3,
                                       uuid.Data4[0], uuid.Data4[1],
                                       uuid.Data4[2], uuid.Data4[3],
                                       uuid.Data4[4], uuid.Data4[5],
                                       uuid.Data4[6], uuid.Data4[7]);
+			}
 #if 0
 		}
 #endif
