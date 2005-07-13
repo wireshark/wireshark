@@ -762,7 +762,7 @@ proto_register_dssetup(void)
          "", HFILL }},
 
         { &hf_dssetup_DsRolePrimaryDomInfoBasic_domain_guid,
-          { "domain_guid", "dssetup.DsRolePrimaryDomInfoBasic.domain_guid", FT_STRING, BASE_NONE,
+          { "domain_guid", "dssetup.DsRolePrimaryDomInfoBasic.domain_guid", FT_GUID, BASE_NONE,
           NULL, 0,
          "", HFILL }},
 
