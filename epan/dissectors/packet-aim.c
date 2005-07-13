@@ -1009,11 +1009,6 @@ const aim_client_capability *aim_find_capability ( e_uuid_t clsid)
 	return NULL;
 }
 
-int dissect_aim_tlv_value_capability_data ( proto_item *ti _U_, guint16 valueid _U_, tvbuff_t *tvb _U_, packet_info *pinfo _U_)
-{
-	return 0;
-}
-
 int dissect_aim_capability(proto_tree *entry, tvbuff_t *tvb, int offset)
 {
 	const aim_client_capability *caps = NULL;

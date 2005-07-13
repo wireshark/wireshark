@@ -64,7 +64,7 @@ static const aim_tlv messaging_incoming_ch1_tlvs[] = {
 };
 
 int dissect_aim_tlv_value_rendezvous ( proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_);
-extern int dissect_aim_tlv_value_capability_data ( proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_);
+int dissect_aim_tlv_value_extended_data ( proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_);
 
 
 #define INCOMING_CH2_SERVER_ACK_REQ    	   0x0003
@@ -79,13 +79,13 @@ static const aim_tlv messaging_incoming_ch2_tlvs[] = {
 #define RENDEZVOUS_TLV_INT_IP				0x0003
 #define RENDEZVOUS_TLV_EXT_IP				0x0004
 #define RENDEZVOUS_TLV_EXT_PORT				0x0005
-#define RENDEZVOUS_TLV_CAPABILITY_DATA		0x2711
+#define RENDEZVOUS_TLV_EXTENDED_DATA			0x2711
 
 static const aim_tlv rendezvous_tlvs[] = {
 	{ RENDEZVOUS_TLV_INT_IP, "Internal IP", dissect_aim_tlv_value_ipv4 },
 	{ RENDEZVOUS_TLV_EXT_IP, "External IP", dissect_aim_tlv_value_ipv4 },
 	{ RENDEZVOUS_TLV_EXT_PORT, "External Port", dissect_aim_tlv_value_uint16 },
-	{ RENDEZVOUS_TLV_CAPABILITY_DATA, "Capability Data", dissect_aim_tlv_value_capability_data },
+	{ RENDEZVOUS_TLV_EXTENDED_DATA, "Extended Data", dissect_aim_tlv_value_extended_data },
 	{ 0, NULL, NULL },
 };
 
@@ -110,6 +110,60 @@ static const value_string rendezvous_msg_types[] = {
 	{ RENDEZVOUS_MSG_ACCEPT, "Accept" },
 	{ 0, "Unknown" },
 };
+
+#define CLIENTAUTORESP_REASON_BUSTED_PAYLOAD	2
+#define CLIENTAUTORESP_REASON_CHANNEL_SPECIFIC	3
+
+static const value_string clientautoresp_reason_types[] = {
+	{ CLIENTAUTORESP_REASON_BUSTED_PAYLOAD, "Busted Payload" },
+	{ CLIENTAUTORESP_REASON_CHANNEL_SPECIFIC, "Channel-specific" },
+	{ 0, "Unknown" },
+};
+
+#define EXTENDED_DATA_MTYPE_PLAIN 0x01
+#define EXTENDED_DATA_MTYPE_CHAT 0x02
+#define EXTENDED_DATA_MTYPE_FILEREQ 0x03
+#define EXTENDED_DATA_MTYPE_URL 0x04
+#define EXTENDED_DATA_MTYPE_AUTHREQ 0x06
+#define EXTENDED_DATA_MTYPE_AUTHDENY 0x07
+#define EXTENDED_DATA_MTYPE_AUTHOK 0x08
+#define EXTENDED_DATA_MTYPE_SERVER 0x09
+#define EXTENDED_DATA_MTYPE_ADDED 0x0C
+#define EXTENDED_DATA_MTYPE_WWP 0x0D
+#define EXTENDED_DATA_MTYPE_EEXPRESS 0x0E
+#define EXTENDED_DATA_MTYPE_CONTACTS 0x13
+#define EXTENDED_DATA_MTYPE_PLUGIN 0x1A
+#define EXTENDED_DATA_MTYPE_AUTOAWAY 0xE8
+#define EXTENDED_DATA_MTYPE_AUTOBUSY 0xE9
+#define EXTENDED_DATA_MTYPE_AUTONA 0xEA
+#define EXTENDED_DATA_MTYPE_AUTODND 0xEB
+#define EXTENDED_DATA_MTYPE_AUTOFFC 0xEC
+
+static const value_string extended_data_message_types[] = {
+	{EXTENDED_DATA_MTYPE_PLAIN, "Plain text (simple) message"},
+	{EXTENDED_DATA_MTYPE_CHAT, "Chat request message"},
+	{EXTENDED_DATA_MTYPE_FILEREQ, "File request / file ok message"},
+	{EXTENDED_DATA_MTYPE_URL, "URL message (0xFE formatted)"},
+	{EXTENDED_DATA_MTYPE_AUTHREQ, "Authorization request message (0xFE formatted)"},
+	{EXTENDED_DATA_MTYPE_AUTHDENY, "Authorization denied message (0xFE formatted)"},
+	{EXTENDED_DATA_MTYPE_AUTHOK, "Authorization given message (empty)"},
+	{EXTENDED_DATA_MTYPE_SERVER, "Message from OSCAR server (0xFE formatted)"},
+	{EXTENDED_DATA_MTYPE_ADDED, "\"You-were-added\" message (0xFE formatted)"},
+	{EXTENDED_DATA_MTYPE_WWP, "Web pager message (0xFE formatted)"},
+	{EXTENDED_DATA_MTYPE_EEXPRESS, "Email express message (0xFE formatted)"},
+	{EXTENDED_DATA_MTYPE_CONTACTS, "Contact list message"},
+	{EXTENDED_DATA_MTYPE_PLUGIN, "Plugin message described by text string"},
+	{EXTENDED_DATA_MTYPE_AUTOAWAY, "Auto away message"},
+	{EXTENDED_DATA_MTYPE_AUTOBUSY, "Auto occupied message"},
+	{EXTENDED_DATA_MTYPE_AUTONA, "Auto not available message"},
+	{EXTENDED_DATA_MTYPE_AUTODND, "Auto do not disturb message"},
+	{EXTENDED_DATA_MTYPE_AUTOFFC, "Auto free for chat message"},
+	{ 0, "Unknown" },
+};
+
+#define EXTENDED_DATA_MFLAG_NORMAL 0x01
+#define EXTENDED_DATA_MFLAG_AUTO 0x03
+#define EXTENDED_DATA_MFLAG_MULTI 0x80
 
 #define EVIL_ORIGIN_ANONYMOUS		1
 #define EVIL_ORIGIN_NONANONYMOUS 	2
@@ -138,10 +192,24 @@ static int hf_aim_icbm_evil = -1;
 static int hf_aim_evil_warn_level = -1;
 static int hf_aim_evil_new_warn_level = -1;
 static int hf_aim_rendezvous_msg_type = -1;
+static int hf_aim_icbm_clientautoresp_reason = -1;
+static int hf_aim_icbm_clientautoresp_protocol_version = -1;
+static int hf_aim_icbm_clientautoresp_client_caps_flags = -1;
+static int hf_aim_rendezvous_extended_data_message_type = -1;
+static int hf_aim_rendezvous_extended_data_message_flags = -1;
+static int hf_aim_rendezvous_extended_data_message_flags_normal = -1;
+static int hf_aim_rendezvous_extended_data_message_flags_auto = -1;
+static int hf_aim_rendezvous_extended_data_message_flags_multi = -1;
+static int hf_aim_rendezvous_extended_data_message_status_code = -1;
+static int hf_aim_rendezvous_extended_data_message_priority_code = -1;
+static int hf_aim_rendezvous_extended_data_message_text_length = -1;
+static int hf_aim_rendezvous_extended_data_message_text = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_aim_messaging = -1;
 static gint ett_aim_rendezvous_data = -1;
+static gint ett_aim_extended_data = -1;
+static gint ett_aim_extended_data_message_flags = -1;
 
 int dissect_aim_tlv_value_rendezvous ( proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
 {
@@ -262,6 +330,177 @@ static int dissect_aim_msg_minityping(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	return offset;
 }
 
+typedef struct _aim_client_plugin
+{
+	const char *name;
+	e_uuid_t uuid;
+} aim_client_plugin;
+
+static const aim_client_plugin known_client_plugins[] = {
+	{ "None",
+	 {0x0, 0x0, 0x0,
+	 	{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}}},
+
+	{ "Status Manager",
+	 {0xD140CF10, 0xE94F, 0x11D3,
+	 	{0xBC, 0xD2, 0x00, 0x04, 0xAC, 0x96, 0xDD, 0x96}}},
+
+	{ NULL, {0x0, 0x0, 0x0, { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 } } }
+};
+
+const aim_client_plugin *aim_find_plugin ( e_uuid_t uuid)
+{
+	int i;
+
+	for(i = 0; known_client_plugins[i].name; i++) 
+	{
+		const aim_client_plugin *plugin = &(known_client_plugins[i]);
+
+		if(memcmp(&(plugin->uuid), &uuid, sizeof(e_uuid_t)) == 0)
+			return plugin;
+	}
+
+	return NULL;
+}
+
+int dissect_aim_plugin(proto_tree *entry, tvbuff_t *tvb, int offset, e_uuid_t* out_plugin_uuid)
+{
+	const aim_client_plugin *plugin = NULL;
+	e_uuid_t uuid;
+
+	uuid.Data1 = tvb_get_ntohl(tvb, offset);
+	uuid.Data2 = tvb_get_ntohs(tvb, offset+4);
+	uuid.Data3 = tvb_get_ntohs(tvb, offset+6);
+	tvb_memcpy(tvb, uuid.Data4, offset+8, 8);
+	if (out_plugin_uuid)
+		*out_plugin_uuid = uuid;
+
+	plugin = aim_find_plugin(uuid);
+
+	proto_tree_add_text(entry, tvb, offset, 16, 
+		"Plugin: %s {%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}", 
+		plugin ? plugin->name:"Unknown", uuid.Data1, uuid.Data2, 
+		uuid.Data3, uuid.Data4[0], uuid.Data4[1], uuid.Data4[2], 
+		uuid.Data4[3], uuid.Data4[4],	uuid.Data4[5], uuid.Data4[6], 
+			uuid.Data4[7]
+	);
+	
+	return offset+16;
+}
+
+static int dissect_aim_rendezvous_extended_message(tvbuff_t *tvb, proto_tree *msg_tree)
+{
+	guint8 message_type, message_flags;
+	int offset = 0;
+	proto_item *ti_flags;
+	proto_tree *flags_entry;
+	guint16 text_length;
+	guint8* text;
+	
+	message_type = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_type, tvb, offset, 1, FALSE); offset+=1;
+	message_flags = tvb_get_guint8(tvb, offset);
+	ti_flags = proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_flags, tvb, offset, 1, message_flags); offset+=1;
+	flags_entry = proto_item_add_subtree(ti_flags, ett_aim_extended_data_message_flags);
+	proto_tree_add_boolean(flags_entry, hf_aim_rendezvous_extended_data_message_flags_normal, tvb, offset, 1, message_flags);
+	proto_tree_add_boolean(flags_entry, hf_aim_rendezvous_extended_data_message_flags_auto, tvb, offset, 1, message_flags);
+	proto_tree_add_boolean(flags_entry, hf_aim_rendezvous_extended_data_message_flags_multi, tvb, offset, 1, message_flags);
+	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_status_code, tvb, offset, 2, TRUE); offset+=2;
+	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_priority_code, tvb, offset, 2, TRUE); offset+=2;
+	text_length = tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_text_length, tvb, offset, 2, TRUE); offset+=2;
+	text = tvb_get_string(tvb, offset, text_length);
+	proto_tree_add_text(msg_tree, tvb, offset, text_length, "Text: %s", text); offset+=text_length;
+	offset = tvb->length;
+	
+	return offset;
+}
+
+static int is_uuid_null(e_uuid_t uuid)
+{
+	return (uuid.Data1 == 0) &&
+	       (uuid.Data2 == 0) &&
+	       (uuid.Data3 == 0) &&
+	       (uuid.Data4[0] == 0) &&
+	       (uuid.Data4[1] == 0) &&
+	       (uuid.Data4[2] == 0) &&
+	       (uuid.Data4[3] == 0) &&
+	       (uuid.Data4[4] == 0) &&
+	       (uuid.Data4[5] == 0) &&
+	       (uuid.Data4[6] == 0) &&
+	       (uuid.Data4[7] == 0);
+}
+
+int dissect_aim_tlv_value_extended_data ( proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
+{
+	int offset = 0;
+	guint16 length, protocol_version;
+	int start_offset;
+	proto_tree *entry;
+	e_uuid_t plugin_uuid;
+
+	entry = proto_item_add_subtree(ti, ett_aim_extended_data);
+	length = tvb_get_letohs(tvb, offset);
+	proto_tree_add_text(entry, tvb, offset, 2, "Length: %d", length); offset+=2;
+	start_offset = offset;
+	protocol_version = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(entry, hf_aim_icbm_clientautoresp_protocol_version, tvb, offset, 2, TRUE); offset+=2;
+	
+	offset = dissect_aim_plugin(entry, tvb, offset, &plugin_uuid);
+	proto_tree_add_text(entry, tvb, offset, 2, "Unknown"); offset += 2;
+	proto_tree_add_item(entry, hf_aim_icbm_clientautoresp_client_caps_flags, tvb, offset, 4, TRUE); offset+=4;
+	proto_tree_add_text(entry, tvb, offset, 1, "Unknown");	offset += 1;
+	proto_tree_add_text(entry, tvb, offset, 2, "Downcounter?"); offset += 2;
+
+	offset = start_offset + length;
+
+	length = tvb_get_letohs(tvb, offset);
+	proto_tree_add_text(entry, tvb, offset, 2, "Length: %d", length); offset+=2;
+	start_offset = offset;
+	proto_tree_add_text(entry, tvb, offset, 2, "Downcounter?"); offset += 2;
+	proto_tree_add_text(entry, tvb, offset, length-2, "Unknown");
+	offset = start_offset + length;
+
+	if (is_uuid_null(plugin_uuid))
+	{
+	        /* a message follows */
+	        tvbuff_t *subtvb = tvb_new_subset(tvb, offset, -1, -1);
+	        offset += dissect_aim_rendezvous_extended_message(subtvb, entry);
+	}
+	else
+	{
+	        /* plugin-specific data follows */
+	        proto_tree_add_text(entry, tvb, offset, -1, "Plugin-specific data");
+	}
+	offset = tvb->length;
+	
+	return offset;
+}
+
+static int dissect_aim_msg_clientautoresp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
+{
+	int offset = 0;
+	guint16 reason;
+
+	proto_tree_add_item(msg_tree,hf_aim_icbm_cookie, tvb, offset, 8, FALSE); offset+=8;
+	proto_tree_add_item(msg_tree,hf_aim_icbm_channel, tvb, offset, 2, FALSE); offset+=2;
+	offset = dissect_aim_buddyname(tvb, pinfo, offset, msg_tree);
+	reason = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(msg_tree, hf_aim_icbm_clientautoresp_reason, tvb, offset, 2, FALSE); offset+=2;
+	switch (reason)
+	{
+	case 0x0003:
+		{
+		    proto_item *ti_extended_data = proto_tree_add_text(msg_tree, tvb, offset, -1, "Extended Data");
+		    tvbuff_t *subtvb = tvb_new_subset(tvb, offset, -1, -1);
+		    dissect_aim_tlv_value_extended_data(ti_extended_data, 0, subtvb, pinfo);			
+		}
+		break;
+	}
+	
+	return offset;
+}
+
 static const aim_subtype aim_fnac_family_messaging[] = {
 	{ 0x0001, "Error", dissect_aim_snac_error },
 	{ 0x0002, "Set ICBM Parameter", dissect_aim_msg_params },
@@ -273,7 +512,7 @@ static const aim_subtype aim_fnac_family_messaging[] = {
 	{ 0x0008, "Evil Request", dissect_aim_msg_evil_req },
 	{ 0x0009, "Evil Response", dissect_aim_msg_evil_repl  },
 	{ 0x000a, "Missed Call", NULL },
-	{ 0x000b, "Client Auto Response", NULL },
+	{ 0x000b, "Client Auto Response", dissect_aim_msg_clientautoresp },
 	{ 0x000c, "Acknowledge", NULL },
 	{ 0x0014, "Mini Typing Notifications (MTN)", dissect_aim_msg_minityping },
 	{ 0, NULL, NULL }
@@ -336,12 +575,50 @@ proto_register_aim_messaging(void)
 		{ &hf_aim_rendezvous_msg_type,
 			{ "Message Type", "aim.rendezvous.msg_type", FT_UINT16, BASE_HEX, VALS(rendezvous_msg_types), 0x0, "", HFILL },
 		},
+		{ &hf_aim_icbm_clientautoresp_reason,
+			{ "Reason", "aim.clientautoresp.reason", FT_UINT16, BASE_DEC, VALS(clientautoresp_reason_types), 0x0, "", HFILL },
+		},
+		{ &hf_aim_icbm_clientautoresp_protocol_version,
+			{ "Version", "aim.clientautoresp.protocol_version", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+		},
+		{ &hf_aim_icbm_clientautoresp_client_caps_flags,
+			{ "Client Capabilities Flags", "aim.clientautoresp.client_caps_flags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL },
+		},
+		{ &hf_aim_rendezvous_extended_data_message_type,
+			{ "Message Type", "aim.icbm.extended_data.message.type", FT_UINT8, BASE_HEX, VALS(extended_data_message_types), 0x0, "", HFILL },
+		},
+		{ &hf_aim_rendezvous_extended_data_message_flags,
+			{ "Message Flags", "aim.icbm.extended_data.message.flags", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL },
+		},
+		{ &hf_aim_rendezvous_extended_data_message_flags_normal,
+			{ "Normal Message", "aim.icbm.extended_data.message.flags.normal", FT_BOOLEAN, 16, TFS(&flags_set_truth), EXTENDED_DATA_MFLAG_NORMAL, "", HFILL },
+		},
+		{ &hf_aim_rendezvous_extended_data_message_flags_auto,
+			{ "Auto Message", "aim.icbm.extended_data.message.flags.auto", FT_BOOLEAN, 16, TFS(&flags_set_truth), EXTENDED_DATA_MFLAG_AUTO, "", HFILL },
+		},
+		{ &hf_aim_rendezvous_extended_data_message_flags_multi,
+			{ "Multiple Recipients Message", "aim.icbm.rendezvous.extended_data.message.flags.multi", FT_BOOLEAN, 16, TFS(&flags_set_truth), EXTENDED_DATA_MFLAG_MULTI, "", HFILL },
+		},
+		{ &hf_aim_rendezvous_extended_data_message_status_code,
+			{ "Status Code", "aim.icbm.extended_data.message.status_code", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+		},
+		{ &hf_aim_rendezvous_extended_data_message_priority_code,
+			{ "Priority Code", "aim.icbm.extended_data.message.priority_code", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+		},
+		{ &hf_aim_rendezvous_extended_data_message_text_length,
+			{ "Text Length", "aim.icbm.extended_data.message.text_length", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
+		},
+		{ &hf_aim_rendezvous_extended_data_message_text,
+			{ "Text", "aim.icbm.extended_data.message.text", FT_STRING, BASE_HEX, NULL, 0x0, "", HFILL },
+		}
 	};
 
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_aim_messaging,
 		&ett_aim_rendezvous_data,
+		&ett_aim_extended_data,
+		&ett_aim_extended_data_message_flags
 	};
 
 	/* Register the protocol name and description */
