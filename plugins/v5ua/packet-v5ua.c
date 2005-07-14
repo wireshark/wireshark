@@ -55,7 +55,6 @@ G_MODULE_EXPORT const gchar version[] = VERSION;
 #endif
 
 #include <epan/packet.h>
-#include "moduleinfo.h"
 
 
 /* Initialize the protocol and registered fields */
