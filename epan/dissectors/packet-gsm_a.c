@@ -547,9 +547,9 @@ static const value_string gsm_dtap_elem_strings[] = {
 	{ 0x00, "Channel Mode" },					/* [3]  10.5.2.6 */	
 	{ 0x00, "Channel Mode 2" },					/* [3]  10.5.2.7 */	
 /* [3]  10.5.2.7a	UTRAN predefined configuration status information / START-CS / UE CapabilityUTRAN Classmark information element	218
- * [3]  10.5.2.7b	(void)
- * [3]  10.5.2.7c	Classmark Enquiry Mask
- * [3]  10.5.2.7d	GERAN Iu Mode Classmark information element
+ * [3]  10.5.2.7b	(void) */
+	{ 0x00, "Classmark Enquiry Mask" },			/* [3]  10.5.2.7c */
+/* [3]  10.5.2.7d	GERAN Iu Mode Classmark information element
  * [3]  10.5.2.8	Channel Needed
  * [3]  10.5.2.8a	(void)	
  * [3]  10.5.2.8b	Channel Request Description 2 */
@@ -637,9 +637,9 @@ static const value_string gsm_dtap_elem_strings[] = {
 /* [3] 10.5.2.43 Wait Indication
  * [3] 10.5.2.44 SI10 rest octets $(ASCI)$
  * [3] 10.5.2.45 EXTENDED MEASUREMENT RESULTS
- * [3] 10.5.2.46 Extended Measurement Frequency List
- * [3] 10.5.2.47 Suspension Cause
- * [3] 10.5.2.48 APDU ID 
+ * [3] 10.5.2.46 Extended Measurement Frequency List */
+	{ 0x00,	"Suspension Cause" },				/* [3] 10.5.2.47								*/ 
+/* [3] 10.5.2.48 APDU ID 
  * [3] 10.5.2.49 APDU Flags
  * [3] 10.5.2.50 APDU Data
  * [3] 10.5.2.51 Handover To UTRAN Command
@@ -980,7 +980,7 @@ static const value_string oddevenind_vals[] = {
 };
 
 /* RR cause value (octet 2) TS 44.018 6.11.0*/
-static const value_string RR_cause_vals[] = {
+static const value_string gsm_a_rr_RR_cause_vals[] = {
 	{ 0,		"Normal event"},
 	{ 1,		"Abnormal release, unspecified"},
 	{ 2,		"Abnormal release, channel unacceptable"},
@@ -1003,17 +1003,21 @@ static const value_string RR_cause_vals[] = {
 	{ 0x6f,		"Protocol error unspecified"},
 	{ 0,	NULL }
 };
-
-static const gchar *cell_disc_str[] = {
-    "The whole Cell Global Identification, CGI, is used to identify the cells",
-    "Location Area Code, LAC, and Cell Identify, CI, is used to identify the cells",
-    "Cell Identity, CI, is used to identify the cells",
-    "No cell is associated with the transaction",
-    "Location Area Identification, LAI, is used to identify all cells within a Location Area",
-    "Location Area Code, LAC, is used to identify all cells within a location area",
-    "All cells on the BSS are identified"
+/* Cell identification discriminator */
+static const value_string gsm_a_rr_cell_id_disc_vals[] = {
+	{ 0,		"The whole Cell Global Identification, CGI, is used to identify the cells."},
+	{ 1,		"Location Area Code, LAC, and Cell Identify, CI, is used to identify the cells."},
+	{ 2,		"Cell Identity, CI, is used to identify the cells."},
+	{ 3,		"No cell is associated with the transaction."},
+	{ 4,		"Location Area Identification, LAI, is used to identify all cells within a Location Area."},
+	{ 5,		"Location Area Code, LAC, is used to identify all cells within a location area."},
+	{ 6,		"All cells on the BSS are identified."},
+	{ 8,		"Intersystem Handover to UTRAN or cdma2000. PLMN-ID, LAC, and RNC-ID, are encoded to identify the target RNC."},
+	{ 9,		"Intersystem Handover to UTRAN or cdma2000. The RNC-ID is coded to identify the target RNC."},
+	{ 10,		"Intersystem Handover to UTRAN or cdma2000. LAC and RNC-ID are encoded to identify the target RNC."},
+	{ 0,	NULL }
 };
-#define	NUM_CELL_DISC_STR	(sizeof(cell_disc_str)/sizeof(gchar *))
+
 
 #define	DTAP_PD_MASK		0x0f
 #define	DTAP_SKIP_MASK		0xf0
@@ -1113,6 +1117,17 @@ static int hf_gsm_a_rr_tlli = -1;
 static int hf_gsm_a_rr_target_mode = -1;
 static int hf_gsm_a_rr_group_cipher_key_number = -1;
 static int hf_gsm_a_rr_last_segment = -1;
+static int hf_gsm_a_gmm_split_on_ccch = -1;
+static int hf_gsm_a_gmm_non_drx_timer = -1;
+static int hf_gsm_a_gmm_cn_spec_drs_cycle_len_coef = -1;
+static int hf_gsm_a_rr_RR_cause = -1;
+static int hf_gsm_a_be_cell_id_disc = -1;
+static int hf_gsm_a_be_rnc_id = -1;
+static int hf_gsm_a_rr_cm_cng_msg_req = -1;
+static int hf_gsm_a_rr_utran_cm_cng_msg_req = -1;
+static int hf_gsm_a_rr_cdma200_cm_cng_msg_req = -1;
+static int hf_gsm_a_rr_geran_iu_cm_cng_msg_req = -1;
+static int hf_gsm_a_rr_suspension_cause = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bssmap_msg = -1;
@@ -2214,6 +2229,9 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 	/* FALLTHRU */
 
     case 0x04:
+	/* FALLTHRU */
+
+    case 0x08:  /* For intersystem handover from GSM to UMTS or cdma2000: */
 	octs[0] = tvb_get_guint8(tvb, curr_offset);
 	octs[1] = tvb_get_guint8(tvb, curr_offset + 1);
 	octs[2] = tvb_get_guint8(tvb, curr_offset + 2);
@@ -2232,19 +2250,37 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
     case 0x01:
     case 0x05:
+	case 0x0a: /*For intersystem handover from GSM to UMTS or cdma2000: */
 
 	/* LAC */
 
 	value = tvb_get_ntohs(tvb, curr_offset);
 
-	proto_tree_add_uint(tree, hf_gsm_a_cell_lac, tvb,
-	    curr_offset, 2, value);
+	proto_tree_add_item(tree, hf_gsm_a_cell_lac, tvb, curr_offset, 2, FALSE);
 
 	curr_offset += 2;
 
 	sprintf(add_string, " - LAC (0x%04x)", value);
 
-	if ((disc == 0x04) || (disc == 0x05)) break;
+	case 0x09: /* For intersystem handover from GSM to UMTS or cdma2000: */
+
+	if ((disc == 0x08) ||(disc == 0x09) || (disc == 0x0a)){ 
+		/* RNC-ID */
+		value = tvb_get_ntohs(tvb, curr_offset);
+		proto_tree_add_item(tree, hf_gsm_a_be_rnc_id, tvb, curr_offset, 2, FALSE);
+
+		if (add_string[0] == '\0')
+			{
+			    sprintf(add_string, " - RNC-ID (%u)", value);
+			}
+			else
+			{
+			    sprintf(add_string, "%s/RNC-ID (%u)", add_string, value);
+			}
+			break;
+	}
+
+	if ((disc == 0x04) || (disc == 0x05) || (disc == 0x08)) break;
 
 	/* FALLTHRU */
 
@@ -2300,25 +2336,8 @@ be_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	"%s :  Spare",
 	a_bigbuf);
 
-    disc = oct & 0x0f;
-
-    if (disc >= (gint) NUM_CELL_DISC_STR)
-    {
-	str = "Unknown";
-    }
-    else
-    {
-	str = cell_disc_str[disc];
-    }
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Cell Identification Discriminator: (%u) %s",
-	a_bigbuf,
-	disc,
-	str);
-
+    proto_tree_add_item(tree, hf_gsm_a_be_cell_id_disc, tvb, curr_offset, 1, FALSE);
+	disc = oct&0x0f;
     curr_offset++;
 
     NO_MORE_DATA_CHECK(len);
@@ -2500,7 +2519,7 @@ be_down_dtx_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 /*
  * [2] 3.2.2.27
  */
-static guint8
+guint8
 be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
 {
     guint8	oct;
@@ -2522,25 +2541,8 @@ be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 	"%s :  Spare",
 	a_bigbuf);
 
-    disc = oct & 0x0f;
-
-    if (disc >= (gint) NUM_CELL_DISC_STR)
-    {
-	str = "Unknown";
-    }
-    else
-    {
-	str = cell_disc_str[disc];
-    }
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Cell Identification Discriminator: (%u) %s",
-	a_bigbuf,
-	disc,
-	str);
-
+	disc = oct & 0x0f;
+	proto_tree_add_item(tree, hf_gsm_a_be_cell_id_disc, tvb, curr_offset, 1, FALSE);
     curr_offset++;
 
     NO_MORE_DATA_CHECK(len);
@@ -3073,9 +3075,9 @@ typedef enum
 	DE_RR_CH_MODE,					/* [3]  10.5.2.6	Channel Mode				*/
 	DE_RR_CH_MODE2,					/* [3]  10.5.2.7	Channel Mode 2				*/
 /* [3]  10.5.2.7a	UTRAN predefined configuration status information / START-CS / UE CapabilityUTRAN Classmark information element	218
- * [3]  10.5.2.7b	(void)
- * [3]  10.5.2.7c	Classmark Enquiry Mask
- * [3]  10.5.2.7d	GERAN Iu Mode Classmark information element
+ * [3]  10.5.2.7b	(void) */
+	DE_RR_CM_ENQ_MASK,				/* [3]  10.5.2.7c	Classmark Enquiry Mask		*/
+/* [3]  10.5.2.7d	GERAN Iu Mode Classmark information element
  * [3]  10.5.2.8	Channel Needed
  * [3]  10.5.2.8a	(void)	
  * [3]  10.5.2.8b	Channel Request Description 2 */
@@ -3086,15 +3088,6 @@ typedef enum
 	DE_RR_DYN_ARFCN_MAP,			/* [3]  10.5.2.11b	Dynamic ARFCN Mapping		*/
 	DE_RR_FREQ_CH_SEQ,				/* [3]  10.5.2.12	Frequency Channel Sequence	*/
 	DE_RR_FREQ_LIST,				/* [3]  10.5.2.13	Frequency List				*/
-
-/* [3]  10.5.2.13.1	General description
- * [3]  10.5.2.13.2	Bit map 0 format
- * [3]  10.5.2.13.3	Range 1024 format
- * [3]  10.5.2.13.4	Range 512 format
- * [3]  10.5.2.13.5	Range 256 format
- * [3]  10.5.2.13.6	Range 128 format
- * [3]  10.5.2.13.7	Variable bit map format
- */
 	DE_RR_FREQ_SHORT_LIST,			/* [3]  10.5.2.14	Frequency Short List		*/
 	DE_RR_FREQ_SHORT_LIST2,			/* [3]  10.5.2.14a	Frequency Short List 2		*/
 /* [3]  10.5.2.14b	Group Channel Description
@@ -3175,9 +3168,9 @@ typedef enum
 /* [3] 10.5.2.43 Wait Indication
  * [3] 10.5.2.44 SI10 rest octets $(ASCI)$
  * [3] 10.5.2.45 EXTENDED MEASUREMENT RESULTS
- * [3] 10.5.2.46 Extended Measurement Frequency List
- * [3] 10.5.2.47 Suspension Cause
- * [3] 10.5.2.48 APDU ID 
+ * [3] 10.5.2.46 Extended Measurement Frequency List */
+	DE_RR_SUS_CAU,					/* [3] 10.5.2.47 Suspension Cause				*/
+/* [3] 10.5.2.48 APDU ID 
  * [3] 10.5.2.49 APDU Flags
  * [3] 10.5.2.50 APDU Data
  * [3] 10.5.2.51 Handover To UTRAN Command
@@ -3318,6 +3311,7 @@ de_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
     curr_offset = offset;
 
     curr_offset +=
+		/* Is this correct???? - Anders Broman */
 	be_cell_id_aux(tvb, tree, offset, len, add_string, 0x02);
 
     /* no length check possible */
@@ -3328,7 +3322,7 @@ de_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 /*
  * [3] 10.5.1.3
  */
-static guint8
+guint8
 de_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
 {
     guint8	octs[3];
@@ -3343,18 +3337,19 @@ de_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
     add_string = add_string;
     curr_offset = offset;
 
-    octs[0] = tvb_get_guint8(tvb, curr_offset);
-    octs[1] = tvb_get_guint8(tvb, curr_offset + 1);
-    octs[2] = tvb_get_guint8(tvb, curr_offset + 2);
-
-    mcc_mnc_aux(octs, mcc, mnc);
-
     item =
 	proto_tree_add_text(tree,
 	    tvb, curr_offset, 5,
 	    gsm_dtap_elem_strings[DE_LAI].strptr);
 
     subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_LAI]);
+
+    octs[0] = tvb_get_guint8(tvb, curr_offset);
+    octs[1] = tvb_get_guint8(tvb, curr_offset + 1);
+    octs[2] = tvb_get_guint8(tvb, curr_offset + 2);
+
+    mcc_mnc_aux(octs, mcc, mnc);
+
 
     proto_tree_add_text(subtree,
 	tvb, curr_offset, 3,
@@ -3384,7 +3379,7 @@ de_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 /*
  * [3] 10.5.1.4
  */
-static guint8
+guint8
 de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
 {
     guint8	oct;
@@ -3599,21 +3594,15 @@ de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 /*
  * [3] 10.5.1.6
  */
-static guint8
+guint8
 de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
 {
-    guint8	oct;
     guint32	curr_offset;
     add_string = add_string;
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Spare",
-	a_bigbuf);
+    proto_tree_add_item(tree, hf_gsm_a_b8spare, tvb, curr_offset, 1, FALSE);
 
 	proto_tree_add_item(tree, hf_gsm_a_MSC_rev, tvb, curr_offset, 1, FALSE);
 
@@ -3627,13 +3616,7 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 
     NO_MORE_DATA_CHECK(len);
 
-    oct = tvb_get_guint8(tvb, curr_offset);
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Spare",
-	a_bigbuf);
+    proto_tree_add_item(tree, hf_gsm_a_b8spare, tvb, curr_offset, 1, FALSE);
 
     proto_tree_add_item(tree, hf_gsm_a_ps_sup_cap, tvb, curr_offset, 1, FALSE);
 
@@ -3651,8 +3634,6 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
     curr_offset++;
 
     NO_MORE_DATA_CHECK(len);
-
-    oct = tvb_get_guint8(tvb, curr_offset);
 
 	/* CM3 (octet 5, bit 8) */
 	proto_tree_add_item(tree, hf_gsm_a_CM3, tvb, curr_offset, 1, FALSE);
@@ -3934,7 +3915,7 @@ de_rr_cell_ch_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 /*
  * [3] 10.5.2.2 Cell Description 
  */
-static guint8
+guint8
 de_rr_cell_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
 {
     proto_tree	*subtree;
@@ -4036,7 +4017,7 @@ static const value_string gsm_a_rr_channel_mode_vals[] = {
 	{ 0,	NULL }
 };
 
-static guint8
+guint8
 de_rr_ch_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
 {
     guint32	curr_offset;
@@ -4085,7 +4066,58 @@ de_rr_ch_mode2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 /*
  * [3] 10.5.2.7a UTRAN Classmark information element
  * [3] 10.5.2.7b (void)
+ */
+/*
  * [3] 10.5.2.7c Classmark Enquiry Mask
+ * Bit 8:
+ * 0	CLASSMARK CHANGE message is requested
+ * 1	CLASSMARK CHANGE message is not requested
+ * Bits 7-5 . 5
+ * 000	UTRAN CLASSMARK CHANGE message including status on predefined configurations (i.e. Sequence Description) is requested
+ * 111	UTRAN CLASSMARK CHANGE message including status on predefined configurations (i.e. Sequence Description) is not requested.
+ * All other values shall not be sent. If received, they shall be interpreted as '000'.
+ * Bit 4:
+ * 0	CDMA2000 CLASSMARK CHANGE message requested
+ * 1	CDMA2000 CLASSMARK CHANGE message not requested.
+ * Bit 3:
+ * 0	GERAN IU MODE CLASSMARK CHANGE message requested
+ * 1	GERAN IU MODE CLASSMARK CHANGE message not requested.
+ * Bits 2 - 1: spare(0).
+ */
+static const true_false_string gsm_a_msg_req_value  = {
+  "message is not requested",
+  "message is requested"
+};
+static const value_string gsm_a_rr_utran_cm_cng_msg_req_vals[] = {
+{ 0x0,		"message including status on predefined configurations (i.e. Sequence Description) is requested"},
+{ 0x1,		"message including status on predefined configurations (i.e. Sequence Description) is requested"},
+{ 0x2,		"message including status on predefined configurations (i.e. Sequence Description) is requested"},
+{ 0x3,		"message including status on predefined configurations (i.e. Sequence Description) is requested"},
+{ 0x4,		"message including status on predefined configurations (i.e. Sequence Description) is requested"},
+{ 0x5,		"message including status on predefined configurations (i.e. Sequence Description) is requested"},
+{ 0x6,		"message including status on predefined configurations (i.e. Sequence Description) is requested"},
+{ 0x7,		"message including status on predefined configurations (i.e. Sequence Description) is not requested."},
+	{ 0,	NULL }
+};
+guint8
+de_rr_cm_enq_mask(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+	
+	proto_tree_add_item(tree, hf_gsm_a_rr_cm_cng_msg_req, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_rr_utran_cm_cng_msg_req, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_rr_cdma200_cm_cng_msg_req, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_rr_geran_iu_cm_cng_msg_req, tvb, curr_offset, 1, FALSE);
+
+	curr_offset = curr_offset + 1;
+
+    return(curr_offset - offset);
+}
+/*
  * [3] 10.5.2.8 Channel Needed
  * [3] 10.5.2.8a Channel Request Description
  * [3] 10.5.2.8b Channel Request Description 2
@@ -4105,7 +4137,7 @@ static const value_string gsm_a_rr_sc_vals[] = {
  * 4 3 2
  */
 
-static guint8
+guint8
 de_rr_cip_mode_set(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
 {
     guint32	curr_offset;
@@ -4584,24 +4616,16 @@ de_rr_pow_cmd_and_acc_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
 /*
  * [3] 10.5.2.31
  */
-static guint8
+guint8
 de_rr_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
 {
-    guint8	oct;
     guint32	curr_offset;
 
     len = len;
     add_string = add_string;
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
-
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"RR Cause value: 0x%02x (%u) %s",
-	oct,
-	oct,
-	val_to_str(oct, RR_cause_vals, "Reserved, treat as Normal event"));
+	proto_tree_add_item(tree, hf_gsm_a_rr_RR_cause, tvb, curr_offset, 1, FALSE);
 
     curr_offset++;
 
@@ -4730,8 +4754,9 @@ de_rr_time_diff(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 }
 /*
  * [3] 10.5.2.41a TLLI
+ * The TLLI is encoded as a binary number with a length of 4 octets. TLLI is defined in 3GPP TS 23.003
  */
-static guint8
+guint8
 de_rr_tlli(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
 {
     guint32	curr_offset;
@@ -4801,7 +4826,36 @@ de_rr_vgcs_cip_par(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
  * [3] 10.5.2.44 SI10 rest octets $(ASCI)$
  * [3] 10.5.2.45 EXTENDED MEASUREMENT RESULTS
  * [3] 10.5.2.46 Extended Measurement Frequency List
+ */
+/*
  * [3] 10.5.2.47 Suspension Cause
+ */
+/*Suspension cause value (octet 2)*/
+static const value_string gsm_a_rr_suspension_cause_vals[] = {
+	{ 0,		"Emergency call, mobile originating call or call re-establishment"},
+	{ 1,		"Location Area Update"},
+	{ 2,		"MO Short message service"},
+	{ 3,		"Other procedure which can be completed with an SDCCH"},
+	{ 4,		"MO Voice broadcast or group call"},
+	{ 5,		"Mobile terminating CS connection"},
+	{ 6,		"DTM not supported in the cell"},
+	{ 0,	NULL }
+};
+guint8
+de_rr_sus_cau(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+	proto_tree_add_item(tree, hf_gsm_a_rr_suspension_cause, tvb, curr_offset, 1, FALSE);
+
+	curr_offset = curr_offset + 1;
+    return(curr_offset - offset);
+}
+/*
  * [3] 10.5.2.48 APDU ID 
  * [3] 10.5.2.49 APDU Flags
  * [3] 10.5.2.50 APDU Data
@@ -8242,8 +8296,67 @@ de_gmm_detach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 
 /*
  * [7] 10.5.5.6
+ * 
+ * SPLIT on CCCH, octet 3 (bit 4)
+ * 0 Split pg cycle on CCCH is not supported by the mobile station
+ * 1 Split pg cycle on CCCH is supported by the mobile station
  */
-static guint8
+static const true_false_string gsm_a_gmm_split_on_ccch_value  = {
+  "Split pg cycle on CCCH is supported by the mobile station",
+  "Split pg cycle on CCCH is not supported by the mobile station"
+};
+
+/* non-DRX timer, octet 3
+ * bit
+ * 3 2 1
+ */
+static const value_string gsm_a_gmm_non_drx_timer_strings[] = {
+    { 0x00,	"no non-DRX mode after transfer state" },
+    { 0x01,	"max. 1 sec non-DRX mode after transfer state" },
+    { 0x02,	"max. 2 sec non-DRX mode after transfer state" },
+    { 0x03,	"max. 4 sec non-DRX mode after transfer state" },
+    { 0x04,	"max. 8 sec non-DRX mode after transfer state" },
+    { 0x05,	"max. 16 sec non-DRX mode after transfer state" },
+    { 0x06,	"max. 32 sec non-DRX mode after transfer state" },
+    { 0x07,	"max. 64 sec non-DRX mode after transfer state" },
+    { 0, NULL },
+};
+/*
+ * CN Specific DRX cycle length coefficient, octet 3
+ * bit
+ * 8 7 6 5 Iu mode specific
+ * 0 0 0 0 CN Specific DRX cycle length coefficient not specified by the MS, ie. the
+ * system information value 'CN domain specific DRX cycle length' is used.
+ * (Ref 3GPP TS 25.331)
+ * 0 1 1 0 CN Specific DRX cycle length coefficient 6
+ * 0 1 1 1 CN Specific DRX cycle length coefficient 7
+ * 1 0 0 0 CN Specific DRX cycle length coefficient 8
+ * 1 0 0 1 CN Specific DRX cycle length coefficient 9
+ * All other values shall be interpreted as "CN Specific DRX cycle length coefficient not
+ * specified by the MS " by this version of the protocol.
+ * NOTE: In Iu mode this field (octet 3 bits 8 to 5) is used, but was spare in earlier
+ * versions of this protocol.
+ */
+static const value_string gsm_a_gmm_cn_spec_drs_cycle_len_coef_strings[] = {
+    { 0x00,	"CN Specific DRX cycle length coefficient not specified by the MS" },
+    { 0x01,	"CN Specific DRX cycle length coefficient not specified by the MS" },
+    { 0x02,	"CN Specific DRX cycle length coefficient not specified by the MS" },
+    { 0x03,	"CN Specific DRX cycle length coefficient not specified by the MS" },
+    { 0x04,	"CN Specific DRX cycle length coefficient not specified by the MS" },
+    { 0x05,	"CN Specific DRX cycle length coefficient not specified by the MS" },
+    { 0x06,	"CN Specific DRX cycle length coefficient 6" },
+    { 0x07,	"CN Specific DRX cycle length coefficient 7" },
+    { 0x08,	"CN Specific DRX cycle length coefficient 8" },
+    { 0x09,	"CN Specific DRX cycle length coefficient 9" },
+    { 0x0a,	"CN Specific DRX cycle length coefficient not specified by the MS" },
+    { 0x0b,	"CN Specific DRX cycle length coefficient not specified by the MS" },
+    { 0x0c,	"CN Specific DRX cycle length coefficient not specified by the MS" },
+    { 0x0d,	"CN Specific DRX cycle length coefficient not specified by the MS" },
+    { 0x0e,	"CN Specific DRX cycle length coefficient not specified by the MS" },
+    { 0x0f,	"CN Specific DRX cycle length coefficient not specified by the MS" },
+    { 0, NULL },
+};
+guint8
 de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
 {
     guint8	oct;
@@ -8251,14 +8364,14 @@ de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
     gchar       *str;
     gchar	str_val[]="00";
     proto_item  *tf = NULL;
-    proto_tree      *tf_tree = NULL;
+    proto_tree  *tf_tree = NULL;
     
     len = len;
     add_string = add_string;
     curr_offset = offset;
 
     tf = proto_tree_add_text(tree,
-    	tvb, curr_offset, 1,
+    	tvb, curr_offset, 2,
     	"DRX Parameter");
 
     tf_tree = proto_item_add_subtree(tf, ett_gmm_drx );
@@ -8314,54 +8427,9 @@ de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 	str);
 
     curr_offset++;
-
-    oct = tvb_get_guint8(tvb, curr_offset);
-
-    switch(oct&8)
-    {
-    	case 8: str="Split pg cycle on CCCH is not supported by the mobile station"; break;
-	default: str="Split pg cycle on CCCH is supported by the mobile station";
-    }
-
-    proto_tree_add_text(tf_tree,
-	tvb, curr_offset, 1,
-	"Split on CCCH: (%u) %s",
-	(oct>>3&1),
-	str);
-
-    switch(oct&7)
-    {
-    	case 0: str="no non-DRX mode after transfer state"; break;
-    	case 1: str="max. 1 sec non-DRX mode after transfer state"; break;
-    	case 2: str="max. 2 sec non-DRX mode after transfer state"; break;
-    	case 3: str="max. 4 sec non-DRX mode after transfer state"; break;
-    	case 4: str="max. 8 sec non-DRX mode after transfer state"; break;
-    	case 5: str="max. 16 sec non-DRX mode after transfer state"; break;
-    	case 6: str="max. 32 sec non-DRX mode after transfer state"; break;
-    	case 7: str="max. 64 sec non-DRX mode after transfer state"; break;
-    }
-
-    proto_tree_add_text(tf_tree,
-	tvb, curr_offset, 1,
-	"Non-DRX timer: (%u) %s",
-	oct&7,
-	str);
-
-    switch(oct>>4)
-    {
-    	case 0: str="CN Specific DRX cycle length coefficient not specifiedb by the MS, ie. the system information value >CN domain specific DRX cycle length< is used.(Ref 3GPP TS 25.331)"; break;
-    	case 6: str="CN Specific DRX cycle length coefficient 6"; break;
-    	case 7: str="CN Specific DRX cycle length coefficient 7"; break;
-    	case 8: str="CN Specific DRX cycle length coefficient 8"; break;
-    	case 9: str="CN Specific DRX cycle length coefficient 9"; break;
-    	default: str="CN Specific DRX cycle length coefficient not specified by the MS";
-    }
-
-    proto_tree_add_text(tf_tree,
-	tvb, curr_offset, 1,
-	"CN Specific DRX cycle length coefficient: (%u) %s",
-	oct>>4,
-	str);
+	proto_tree_add_item(tf_tree, hf_gsm_a_gmm_cn_spec_drs_cycle_len_coef, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tf_tree, hf_gsm_a_gmm_split_on_ccch, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tf_tree, hf_gsm_a_gmm_non_drx_timer, tvb, curr_offset, 1, FALSE);
 
     curr_offset++;
 
@@ -8638,7 +8706,7 @@ de_gmm_rec_npdu_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 /*
  * [7] 10.5.5.12
  */
-static guint8
+guint8
 de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
 {
     guint8	oct;
@@ -8680,6 +8748,7 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
     oct = tvb_get_guint8(tvb, curr_offset);
     curr_len--;
 
+	/* bit 8 */
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
 	"GEA1: (%u) %s",
@@ -8687,6 +8756,7 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	answer_gea[oct>>7]);
     oct<<=1;
 
+	/* bit 7 */
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
 	"SM capabilities via dedicated channels: (%u) %s",
@@ -8694,6 +8764,7 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	answer_smdch[oct>>7]);
     oct<<=1;
 
+	/* bit 6 */
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
 	"SM capabilities via GPRS channels: (%u) %s",
@@ -8701,13 +8772,15 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	answer_smgprs[oct>>7]);
     oct<<=1;
 
+	/* bit 5 */
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
 	"UCS2 support: (%u) %s",
 	oct>>7,
 	answer_ucs2[oct>>7]);
     oct<<=1;
-
+	
+	/* bit 4 3 */
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
 	"SS Screening Indicator: (%u) %s",
@@ -8715,6 +8788,7 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	answer_ssid[oct>>6]);
     oct<<=2;
 
+	/* bit 2 */
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
 	"SoLSA Capability: (%u) %s",
@@ -8722,6 +8796,7 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	answer_solsa[oct>>7]);
     oct<<=1;
 
+	/* bit 1 */
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
 	"Revision level indicator: (%u) %s",
@@ -10239,7 +10314,7 @@ de_gmm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 /*
  * [7] 10.5.5.15
  */
-static guint8
+guint8
 de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
 {
     guint32	mcc;
@@ -10247,6 +10322,8 @@ de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
     guint32	lac;
     guint32	rac;
     guint32	curr_offset;
+    proto_item  *tf = NULL;
+    proto_tree  *gmm_rai_tree = NULL;
     
     len = len;
     add_string = add_string;
@@ -10263,10 +10340,10 @@ de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
     lac |= tvb_get_guint8(tvb, curr_offset+4);
     rac = tvb_get_guint8(tvb, curr_offset+5);
 
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 6,
-	"Routing area identification: %x-%x-%x-%x",
-	mcc,mnc,lac,rac);
+	proto_tree_add_text(tree,
+		tvb, curr_offset, 6,
+		"Routing area identification: %x-%x-%x-%x",
+		mcc,mnc,lac,rac);
 
     curr_offset+=6;
 
@@ -11865,13 +11942,24 @@ de_sm_tear_down(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 /*
  * [7] 10.5.6.11
  */
-static guint8
+/* Packet Flow Identifier value (octet 3) */
+static const value_string gsm_a_packet_flow_id_vals[] = {
+	{ 0,		"Best Effort"},
+	{ 1,		"Signaling"},
+	{ 2,		"SMS"},
+	{ 3,		"TOM8"},
+	{ 4,		"reserved"},
+	{ 5,		"reserved"},
+	{ 6,		"reserved"},
+	{ 7,		"reserved"},
+	{ 0,	NULL }
+};
+guint8
 de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
 {
     guint32	curr_offset;
     guint	curr_len;
     guchar	oct;
-    gchar	*str;
     
     curr_len = len;
     add_string = add_string;
@@ -11879,22 +11967,10 @@ de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    switch ( oct&0x7f )
-    {
-    	case 0x00: str="Best Effort"; break;
-    	case 0x01: str="Signaling"; break;
-    	case 0x02: str="SMS"; break;
-    	case 0x03: str="TOM8"; break;
-    	case 0x04: str="reserved"; break;
-    	case 0x05: str="reserved"; break;
-    	case 0x06: str="reserved"; break;
-    	case 0x07: str="reserved"; break;
-	default: str="dynamically assigned"; break;
-    }
-
     proto_tree_add_text(tree,
     	tvb, curr_offset, 1,
-    	"Packet Flow Identifier: (%u) %s",oct&0x7f,str);
+    	"Packet Flow Identifier: (%u) %s",oct&0x7f,
+		val_to_str(oct&0x7f, gsm_a_packet_flow_id_vals, "dynamically assigned (%u)"));
 
     curr_offset+= curr_len;	   
 	   	   
@@ -12340,9 +12416,10 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 	de_rr_ch_mode2,					/* [3]  10.5.2.7	Channel Mode 2				*/
 /*
  * [3]  10.5.2.7a	UTRAN predefined configuration status information / START-CS / UE CapabilityUTRAN Classmark information element	218
- * [3]  10.5.2.7b	(void)
- * [3]  10.5.2.7c	Classmark Enquiry Mask
- * [3]  10.5.2.7d	GERAN Iu Mode Classmark information element
+ * [3]  10.5.2.7b	(void) */
+
+	de_rr_cm_enq_mask,				/* [3]  10.5.2.7c	Classmark Enquiry Mask		*/
+/* [3]  10.5.2.7d	GERAN Iu Mode Classmark information element
  * [3]  10.5.2.8	Channel Needed
  * [3]  10.5.2.8a	(void)	
  * [3]  10.5.2.8b	Channel Request Description 2 */
@@ -12430,9 +12507,9 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 /* [3] 10.5.2.43 Wait Indication
  * [3] 10.5.2.44 SI10 rest octets $(ASCI)$
  * [3] 10.5.2.45 EXTENDED MEASUREMENT RESULTS
- * [3] 10.5.2.46 Extended Measurement Frequency List
- * [3] 10.5.2.47 Suspension Cause
- * [3] 10.5.2.48 APDU ID 
+ * [3] 10.5.2.46 Extended Measurement Frequency List */
+	de_rr_sus_cau,						/* [3] 10.5.2.47 Suspension Cause				*/
+/* [3] 10.5.2.48 APDU ID 
  * [3] 10.5.2.49 APDU Flags
  * [3] 10.5.2.50 APDU Data
  * [3] 10.5.2.51 Handover To UTRAN Command
@@ -14830,7 +14907,7 @@ dtap_mm_tmsi_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 /*
  * [3] 9.1.15
  */
-static void
+void
 dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
     guint32	curr_offset;
@@ -18209,7 +18286,7 @@ proto_register_gsm_a(void)
 	},
 	{ &hf_gsm_a_b8spare,
 		{ "Spare","gsm_a.spareb8",
-		FT_BOOLEAN,8,  NULL, 0x80,          
+		FT_UINT8,BASE_DEC,  NULL, 0x80,          
 		"Spare", HFILL }
 	},
 	{ &hf_gsm_a_rr_pow_cmd_atc,
@@ -18319,9 +18396,64 @@ proto_register_gsm_a(void)
 		"Group cipher key number", HFILL }
 	},
 	{ &hf_gsm_a_rr_last_segment,
-		{ "Last Segment ","gsm_a.rr.last_segment",
+		{ "Last Segment","gsm_a.rr.last_segment",
 		FT_BOOLEAN,8,  TFS(&gsm_a_rr_last_segment_value), 0x01,          
-		"Last Segment ", HFILL }
+		"Last Segment", HFILL }
+	},
+	{ &hf_gsm_a_gmm_split_on_ccch,
+		{ "SPLIT on CCCH","gsm_a.gmm.split_on_ccch",
+		FT_BOOLEAN,8,  TFS(&gsm_a_gmm_split_on_ccch_value), 0x08,          
+		"SPLIT on CCCH", HFILL }
+	},
+	{ &hf_gsm_a_gmm_non_drx_timer,
+		{ "Non-DRX timer","gsm_a.gmm.non_drx_timer",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_gmm_non_drx_timer_strings), 0x07,          
+		"Non-DRX timer", HFILL }
+	},
+	{ &hf_gsm_a_gmm_cn_spec_drs_cycle_len_coef,
+		{ "CN Specific DRX cycle length coefficient","gsm_a.gmm.cn_spec_drs_cycle_len_coef",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_gmm_cn_spec_drs_cycle_len_coef_strings), 0xf0,          
+		"CN Specific DRX cycle length coefficient", HFILL }
+	},
+	{ &hf_gsm_a_rr_RR_cause,
+		{ "RR cause value","gsm_a.rr.RRcause",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_RR_cause_vals), 0x0,          
+		"RR cause value", HFILL }
+		},
+	{ &hf_gsm_a_be_cell_id_disc,
+		{ "Cell identification discriminator","gsm_a.be.cell_id_disc",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_cell_id_disc_vals), 0x0f,          
+		"Cell identificationdiscriminator", HFILL }
+	},
+	{ &hf_gsm_a_be_rnc_id,
+		{ "RNC-ID","gsm_a.be.rnc_id",
+		FT_UINT16,BASE_DEC,  NULL, 0x0,          
+		"RNC-ID", HFILL }
+	},
+	{ &hf_gsm_a_rr_cm_cng_msg_req, 
+		{ "CLASSMARK CHANGE","gsm_a.rr_cm_cng_msg_req",
+		FT_BOOLEAN,8,  TFS(&gsm_a_msg_req_value), 0x80,          
+		"CLASSMARK CHANGE ", HFILL }
+	},
+	{ &hf_gsm_a_rr_utran_cm_cng_msg_req,
+		{ "UTRAN CLASSMARK CHANGE","gsm_a.rr_utran_cm_cng_msg_req",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_utran_cm_cng_msg_req_vals), 0x70,          
+		"UTRAN CLASSMARK CHANGE", HFILL }
+	},
+	{ &hf_gsm_a_rr_cdma200_cm_cng_msg_req,
+		{ "CDMA2000 CLASSMARK CHANGE ","gsm_a.rr_cdma200_cm_cng_msg_req",
+		FT_BOOLEAN,8,  TFS(&gsm_a_msg_req_value), 0x08,          
+		"CDMA2000 CLASSMARK CHANGE ", HFILL }
+	},
+	{ &hf_gsm_a_rr_geran_iu_cm_cng_msg_req,
+		{ "GERAN IU MODE CLASSMARK CHANGE","gsm_a.rr_geran_iu_cm_cng_msg_req",
+		FT_BOOLEAN,8,  TFS(&gsm_a_msg_req_value), 0x04,          
+		"GERAN IU MODE CLASSMARK CHANGE", HFILL }
+	},
+	{ &hf_gsm_a_rr_suspension_cause,
+		{ "Suspension cause value","gsm_a.rr.suspension_cause",
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_suspension_cause_vals), 0x0,          
+		"Suspension cause value", HFILL }
 	},
 
     };

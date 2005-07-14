@@ -40,6 +40,8 @@
 #include "packet-gtp.h"
 #include "packet-ipv6.h"
 #include "packet-ppp.h"
+#include "packet-bssap.h"
+#include "packet-gsm_a.h"
 
 static dissector_table_t ppp_subdissector_table;
 
@@ -171,6 +173,13 @@ static int hf_gtp_user_addr_pdp_org	= -1;
 static int hf_gtp_user_addr_pdp_type	= -1;
 static int hf_gtp_user_ipv4		= -1;
 static int hf_gtp_user_ipv6		= -1;
+static int hf_gtp_security_mode = -1;
+static int hf_gtp_no_of_vectors = -1;
+static int hf_gtp_cipher_algorithm = -1;
+static int hf_gtp_cksn_ksi = -1;
+static int hf_gtp_cksn = -1;
+static int hf_gtp_ksi = -1;
+
 
 /* Initialize the subtree pointers */
 static gint ett_gtp			= -1;
@@ -203,7 +212,8 @@ static gint ett_gtp_rel_pack		= -1;
 static gint ett_gtp_can_pack		= -1;
 static gint ett_gtp_data_resp		= -1;
 static gint ett_gtp_priv_ext		= -1;
-
+static gint ett_gtp_net_cap			= -1;
+	
 static gboolean	gtp_tpdu		= TRUE;
 static gboolean	gtp_over_tcp		= TRUE;
 static gboolean	gtp_etsi_order		= FALSE;
@@ -223,6 +233,11 @@ static const value_string ver_types[] = {
 	{ 5, "None" },
 	{ 6, "None" },
 	{ 7, "None" },
+	{ 0, NULL }
+};
+static const value_string pt_types[] = {
+	{ 0, "GTP'" },
+	{ 1, "GTP" },
 	{ 0, NULL }
 };
 
@@ -984,6 +999,19 @@ static const value_string mm_sec_modep[] = {
 	{ 0,	NULL }
 };
 
+static const value_string gtp_cipher_algorithm[] = {
+	{ 0, "No ciphering" },
+	{ 1, "GEA/1" },
+	{ 2, "GEA/2" },
+	{ 3, "GEA/3" },
+	{ 4, "GEA/4" },
+	{ 5, "GEA/5" },
+	{ 6, "GEA/6" },
+	{ 7, "GEA/7" },
+	{ 0, NULL }
+};
+
+
 #define MM_PROTO_GROUP_CALL_CONTROL	0x00
 #define MM_PROTO_BROADCAST_CALL_CONTROL	0x01
 #define MM_PROTO_PDSS1			0x02
@@ -995,192 +1023,6 @@ static const value_string mm_sec_modep[] = {
 #define MM_PROTO_SMS			0x09
 #define MM_PROTO_SESSION_MGMT		0x0A
 #define MM_PROTO_NON_CALL_RELATED	0x0B
-
-static const value_string mm_proto_disc[] = {
-	{ MM_PROTO_GROUP_CALL_CONTROL,		"Group call control" },
-	{ MM_PROTO_BROADCAST_CALL_CONTROL,	"Broadcast call control" },
-	{ MM_PROTO_PDSS1,			"PDSS1" },
-	{ MM_PROTO_CALL_CONTROL,		"Call control; call related SS messages" },
-	{ MM_PROTO_PDSS2,			"PDSS2" },
-	{ MM_PROTO_MM_NON_GPRS,			"Mobility Management messages for non-GPRS services" },
-	{ MM_PROTO_RR_MGMT,			"Radio Resource management messages" },
-	{ MM_PROTO_MM_GPRS,			"Mobility Management messages for GPRS services" },
-	{ MM_PROTO_SMS,				"SMS" },
-	{ MM_PROTO_SESSION_MGMT,		"Session Management messages" },
-	{ MM_PROTO_NON_CALL_RELATED,		"Non-call related SS messages" },
-	{ 0,					NULL }
-};
-
-static const value_string mm_rr_mess[] = {
-	{ 0x3C, "RR initialization request" },
-	{ 0x3B, "Additional assignment" },
-	{ 0x3F, "Immediate assignment" },
-	{ 0x39, "Immediate assignment extended" },
-	{ 0x3A, "Immediate assignment reject" },
-
-	{ 0x35, "Ciphering mode command" },
-	{ 0x32, "Ciphering mode complete" },
-
-	{ 0x30, "Configuration change command" },
-	{ 0x31, "Configuration change ack" },
-	{ 0x33, "Configuration change reject" },
-
-	{ 0x2E, "Assignment command" },
-	{ 0x29, "Assignment complete" },
-	{ 0x2F, "Assigment failure" },
-	{ 0x2B, "Handover command" },
-	{ 0x2C, "Handover complete" },
-	{ 0x28, "Handover failure" },
-	{ 0x2D, "Physical information" },
-
-	{ 0x08, "RR-cell change order" },
-	{ 0x23, "PDCH assignment command" },
-
-	{ 0x0D, "Channel release" },
-	{ 0x0A, "Partial release" },
-	{ 0x0F, "PArtial release complete" },
-
-	{ 0x21, "Paging request type 1" },
-	{ 0x22, "Paging request type 2" },
-	{ 0x24, "Paging request type 3" },
-	{ 0x27, "Paging response" },
-	{ 0x20, "Notification/NCH" },
-	{ 0x25, "Notification/FACCH" },
-	{ 0x26, "Reserved" },
-	{ 0x0B, "Reserved" },
-
-	{ 0x18, "System information type 8" },
-	{ 0x19, "System information type 1" },
-	{ 0x1A, "System information type 2" },
-	{ 0x1B, "System information type 3" },
-	{ 0x1C, "System information type 4" },
-	{ 0x1D, "System information type 5" },
-	{ 0x1E, "System information type 6" },
-	{ 0x1F, "System information type 7" },
-
-	{ 0x02, "System information type 2bis" },
-	{ 0x03, "System information type 2ter" },
-	{ 0x05, "System information type 5bis" },
-	{ 0x06, "System information type 5ter" },
-	{ 0x04, "System information 9" },
-	{ 0x00, "System information 13" },
-	{ 0x01, "System information 14" },
-
-	{ 0x3D, "System information type 16" },
-	{ 0x3E, "System information type 17" },
-
-	{ 0x10, "Channel mode modify" },
-	{ 0x12, "RR status" },
-	{ 0x17, "Channel mode modify ack" },
-	{ 0x14, "Frequency redefinition" },
-	{ 0x15, "Measurement report" },
-	{ 0x16, "Classmark change" },
-	{ 0x13, "Classmark enquiry" },
-	{ 0x36, "Extended measurement report" },
-	{ 0x37, "Extended measurement order" },
-	{ 0x34, "GPRS suspension request" },
-
-	{ 0x09, "VGCS uplink grant" },
-	{ 0x0E, "Uplink release" },
-	{ 0x0C, "Uplink free" },
-	{ 0x2A, "Uplink busy" },
-	{ 0x11, "Talker indication" },
-
-	{ 0, NULL }
-};
-
-static const value_string mm_mm_mess[] = {
-	{ 0x01, "IMSI DETACH INDICATION" },
-	{ 0x02, "LOCATION UPDATING ACCEPT" },
-	{ 0x04, "LOCATION UPDATING REJECT" },
-	{ 0x08, "LOCATION UPDATING REQUEST" },
-	{ 0x11, "AUTHENTICATION REJECT" },
-	{ 0x12, "AUTHENTICATION REQUEST" },
-	{ 0x14, "AUTHENTICATION RESPONSE" },
-	{ 0x18, "IDENTITY REQUEST" },
-	{ 0x19, "IDENTITY RESPONSE" },
-	{ 0x1A, "TMSI REALLOCATION COMMAND" },
-	{ 0x1B, "TMSI REALLOCATION COMPLETE" },
-	{ 0x21, "CM SERVICE ACCEPT" },
-	{ 0x22, "CM SERVICE REJECT" },
-	{ 0x23, "CM SERVICE ABORT" },
-	{ 0x24, "CM SERVICE REQUEST" },
-	{ 0x25, "CM SERVICE PROMPT" },
-	{ 0x26, "NOTIFICATION RESPONSE" },
-	{ 0x28, "CM RE-ESTABLISHMENT REQUEST" },
-	{ 0x29, "ABORT" },
-	{ 0x30, "MM NULL" },
-	{ 0x31, "MM STATUS" },
-	{ 0x32, "MM INFORMATION" },
-	{ 0, NULL }
-};
-
-static const value_string mm_cc_mess[] = {
-	{ 0x00, "escape to nationally specific" },
-/*{ 0 x 0 0, "- - - Call establishment messages:" },*/
-	{ 0x01, "ALERTING" },
-	{ 0x08, "CALL CONFIRMED" },
-	{ 0x02, "CALL PROCEEDING" },
-	{ 0x07, "CONNECT" },
-	{ 0x0F, "CONNECT ACKNOWLEDGE" },
-	{ 0x0E, "EMERGENCY SETUP" },
-	{ 0x03, "PROGRESS" },
-	{ 0x04, "CC-ESTABLISHMENT" },
-	{ 0x06, "CC-ESTABLISHMENT CONFIRMED" },
-	{ 0x0B, "RECALL" },
-	{ 0x09, "START CC" },
-	{ 0x05, "SETUP" },
-/*{ 0 x 0 1, "- - - Call information phase messages:" },*/
-	{ 0x17, "MODIFY" },
-	{ 0x1F, "MODIFY COMPLETE" },
-	{ 0x13, "MODIFY REJECT" },
-	{ 0x10, "USER INFORMATION" },
-	{ 0x18, "HOLD" },
-	{ 0x19, "HOLD ACKNOWLEDGE" },
-	{ 0x1A, "HOLD REJECT" },
-	{ 0x1C, "RETRIEVE" },
-	{ 0x1D, "RETRIEVE ACKNOWLEDGE" },
-	{ 0x1E, "RETRIEVE REJECT" },
-/*{ 0 x 1 0, "- - - Call clearing messages:" },*/
-	{ 0x25, "DISCONNECT" },
-	{ 0x2D, "RELEASE" },
-	{ 0x2A, "RELEASE COMPLETE" },
-/*{ 0 x 1 1, "- - - Miscellaneous messages:" },*/
-	{ 0x39, "CONGESTION CONTROL" },
-	{ 0x3E, "NOTIFY" },
-	{ 0x3D, "STATUS" },
-	{ 0x34, "STATUS ENQUIRY" },
-	{ 0x35, "START DTMF" },
-	{ 0x31, "STOP DTMF" },
-	{ 0x32, "STOP DTMF ACKNOWLEDGE" },
-	{ 0x36, "START DTMF ACKNOWLEDGE" },
-	{ 0x37, "START DTMF REJECT" },
-	{ 0x3A, "FACILITY" },
-	{ 0, NULL }
-};
-
-static const value_string mm_gprs_mess[] = {
-	{ 0x01, "Attach request" },
-	{ 0x02, "Attach accept" },
-	{ 0x03, "Attach complete" },
-	{ 0x04, "Attach reject" },
-	{ 0x05, "Detach request" },
-	{ 0x06, "Detach accept" },
-	{ 0x08, "Routing area update request" },
-	{ 0x09, "Routing area update accept" },
-	{ 0x0A, "Routing area update complete" },
-	{ 0x0B, "Routing area update reject" },
-	{ 0x10, "P-TMSI reallocation command" },
-	{ 0x11, "P-TMSI reallocation complete" },
-	{ 0x12, "Authentication and ciphering req" },
-	{ 0x13, "Authentication and ciphering resp" },
-	{ 0x14, "Authentication and ciphering rej" },
-	{ 0x15, "Identity request" },
-	{ 0x16, "Identity response" },
-	{ 0x20, "GMM status" },
-	{ 0x21, "GMM information" },
-	{ 0, NULL }
-};
 
 static const value_string tft_code_type[] = {
 	{ 0, "Spare" },
@@ -1200,6 +1042,7 @@ static dissector_handle_t ipv6_handle;
 static dissector_handle_t ppp_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t gtpcdr_handle;
+static dissector_table_t bssap_pdu_type_table=NULL;
 
 static int decode_gtp_cause		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int decode_gtp_imsi		(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
@@ -2909,10 +2752,14 @@ decode_quintuplet(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 count) {
 static int
 decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
-	guint16		length, quint_len, net_cap, con_len;
-	guint8		cksn, count, sec_mode, cipher, trans_id, proto_disc, message, drx_split, drx_len, drx_ccch, non_drx_timer;
+	guint16		length, quint_len, con_len;
+	guint8		cksn, count, sec_mode, len;
 	proto_tree	*ext_tree_mm;
 	proto_item	*te;
+    proto_item  *tf = NULL;
+    proto_tree  *tf_tree = NULL;
+	tvbuff_t	*l3_tvb;
+
 
 	te = proto_tree_add_text(tree, tvb, offset, 1, val_to_str(GTP_EXT_MM_CNTXT, gtp_val, "Unknown message"));
 	ext_tree_mm = proto_item_add_subtree(te, ett_gtp_mm);
@@ -2926,27 +2773,18 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 	/* Octet 5 */
 	sec_mode = (tvb_get_guint8(tvb, offset+4) >> 6) & 0x03;
 	count = (tvb_get_guint8(tvb, offset+4) >> 3) & 0x07;
-	cipher = tvb_get_guint8(tvb, offset+4) & 0x07;
 
 	proto_tree_add_text(ext_tree_mm, tvb, offset+1, 2, "Length: %x", length);
-	if (gtp_version != 0) {
-		proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "Security type: %u (%s)", sec_mode,
-		                    val_to_str(sec_mode, mm_sec_modep, "Unknown"));
-	} else {
+	if (gtp_version == 0)
 		sec_mode = 1;
-	}
-
 	
 
 	switch (sec_mode) {
 		case 0:				/* Used cipher value, UMTS keys and Quintuplets */
-			proto_tree_add_text(ext_tree_mm, tvb, offset+3, 1, "Ciphering Key Sequence Number(CKSN)/Key Set Identifier(KSI): %u", cksn);
-			proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "No of Quintuplets: %u", count);
-			if (cipher == 0) {
-				proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "Ciphering: no ciphering");
-			} else {
-				proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "Ciphering: GEA/%u", cipher);
-			}
+			proto_tree_add_item(ext_tree_mm, hf_gtp_cksn_ksi, tvb, offset+3, 1, FALSE);
+			proto_tree_add_item(ext_tree_mm, hf_gtp_security_mode, tvb, offset+4, 1, FALSE);
+			proto_tree_add_item(ext_tree_mm, hf_gtp_no_of_vectors, tvb, offset+4, 1, FALSE);
+			proto_tree_add_item(ext_tree_mm, hf_gtp_cipher_algorithm, tvb, offset+4, 1, FALSE);
 			proto_tree_add_text(ext_tree_mm, tvb, offset+5, 16, "Ciphering key CK: %s", tvb_bytes_to_str(tvb, offset+5, 16));
 			proto_tree_add_text(ext_tree_mm, tvb, offset+21, 16, "Integrity key IK: %s", tvb_bytes_to_str(tvb, offset+21, 16));
 			quint_len = tvb_get_ntohs(tvb, offset+37);
@@ -2957,21 +2795,21 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 
 			break;
 		case 1:				/* GSM key and triplets */
-			proto_tree_add_text(ext_tree_mm, tvb, offset+3, 1, "Ciphering Key Sequence Number(CKSN): %u", cksn);
-			proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "No of triplets: %u", count);
-			if (cipher == 0) {
-				proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "Ciphering: no ciphering");
-			} else {
-				proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "Ciphering: GEA/%u", cipher);
-			}
+			proto_tree_add_item(ext_tree_mm, hf_gtp_cksn, tvb, offset+3, 1, FALSE);
+			if (gtp_version != 0) 
+				proto_tree_add_item(ext_tree_mm, hf_gtp_security_mode, tvb, offset+4, 1, FALSE);
+
+			proto_tree_add_item(ext_tree_mm, hf_gtp_no_of_vectors, tvb, offset+4, 1, FALSE);
+			proto_tree_add_item(ext_tree_mm, hf_gtp_cipher_algorithm, tvb, offset+4, 1, FALSE);
 			proto_tree_add_text(ext_tree_mm, tvb, offset+5, 8, "Ciphering key Kc: %s", tvb_bytes_to_str(tvb, offset+5, 8));
 
 			offset = offset + decode_triplet(tvb, offset+13, ext_tree_mm, count) + 14;
 
 			break;
 		case 2:				/* UMTS key and quintuplets */
-			proto_tree_add_text(ext_tree_mm, tvb, offset+3, 1, "Key Set Identifier(KSI): %u", cksn);
-			proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "No of Quintuplets: %u", count);
+			proto_tree_add_item(ext_tree_mm, hf_gtp_ksi, tvb, offset+3, 1, FALSE);
+			proto_tree_add_item(ext_tree_mm, hf_gtp_security_mode, tvb, offset+4, 1, FALSE);
+			proto_tree_add_item(ext_tree_mm, hf_gtp_no_of_vectors, tvb, offset+4, 1, FALSE);
 			proto_tree_add_text(ext_tree_mm, tvb, offset+5, 16, "Ciphering key CK: %s", tvb_bytes_to_str(tvb, offset+5, 16));
 			proto_tree_add_text(ext_tree_mm, tvb, offset+21, 16, "Integrity key IK: %s", tvb_bytes_to_str(tvb, offset+21, 16));
 			quint_len = tvb_get_ntohs(tvb, offset+37);
@@ -2981,13 +2819,10 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 
 			break;
 		case 3:				/* GSM key and quintuplets */
-			proto_tree_add_text(ext_tree_mm, tvb, offset+3, 1, "Ciphering Key Sequence Number(CKSN): %u", cksn);
-			proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "No of Quintuplets: %u", count);
-			if (cipher == 0) {
-				proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "Ciphering: no ciphering");
-			} else {
-				proto_tree_add_text(ext_tree_mm, tvb, offset+4, 1, "Ciphering: GEA/%u", cipher);
-			}
+			proto_tree_add_item(ext_tree_mm, hf_gtp_cksn, tvb, offset+3, 1, FALSE);
+			proto_tree_add_item(ext_tree_mm, hf_gtp_security_mode, tvb, offset+4, 1, FALSE);
+			proto_tree_add_item(ext_tree_mm, hf_gtp_no_of_vectors, tvb, offset+4, 1, FALSE);
+			proto_tree_add_item(ext_tree_mm, hf_gtp_cipher_algorithm, tvb, offset+4, 1, FALSE);
 			proto_tree_add_text(ext_tree_mm, tvb, offset+5, 8, "Ciphering key Kc: %s", tvb_bytes_to_str(tvb, offset+5, 8));
 			quint_len = tvb_get_ntohs(tvb, offset+13);
 			proto_tree_add_text(ext_tree_mm, tvb, offset+13, 2, "Quintuplets length: 0x%x (%u)", quint_len, quint_len);
@@ -2999,63 +2834,42 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 			break;
 	}
 
+/*
+ * 3GPP TS 24.008 10.5.5.6 ( see packet-gsm_a.c )
+ */
+	de_gmm_drx_param(tvb, ext_tree_mm, offset, 2, NULL);
+	offset = offset +2;
 
-	drx_split = tvb_get_guint8(tvb, offset);
-	drx_len = (tvb_get_guint8(tvb, offset+1) >> 4) & 0x0F;
-	drx_ccch = (tvb_get_guint8(tvb, offset+1) >> 3) & 0x01;
-	non_drx_timer = tvb_get_guint8(tvb, offset+1) & 0x07;
+	len	= tvb_get_guint8(tvb, offset);
+    tf = proto_tree_add_text(ext_tree_mm,
+    	tvb, offset, len+1,
+    	"MS Network Capability");
 
-	net_cap	= tvb_get_ntohs(tvb, offset+2);
-	con_len = tvb_get_ntohs(tvb, offset+4);
+    tf_tree = proto_item_add_subtree(tf, ett_gtp_net_cap);
 
-	proto_tree_add_text(ext_tree_mm, tvb, offset, 1, "DRX: split PG cycle code: %u", drx_split);
-	proto_tree_add_text(ext_tree_mm, tvb, offset+1, 1, "DRX: CN specific DRX cycle length coefficient: %u", drx_len);
-	proto_tree_add_text(ext_tree_mm, tvb, offset+1, 1, "DRX: split PG cycle on CCCH supported by MS: %s", yesno[drx_ccch]);
-	if (non_drx_timer == 0) {
-		proto_tree_add_text(ext_tree_mm, tvb, offset+1, 1, "DRX: no non-DRX mode after transfer state");
-	} else {
-		proto_tree_add_text(ext_tree_mm, tvb, offset+1, 1, "DRX: max sec non-DRX mode after transfer state:  2^%u", non_drx_timer-1);
-	}
+	proto_tree_add_text(tf_tree, tvb, offset, 1, "Length of MS network capability contents: %u", len);
 
-	proto_tree_add_text(ext_tree_mm, tvb, offset+2, 2, "MS network capability: %u", net_cap);
-	proto_tree_add_text(ext_tree_mm, tvb, offset+4, 2, "Container length: %u", con_len);
+	offset++;
+/*
+ * GPP TS 24.008 10.5.5.12 ( see packet-gsm_a.c )
+ */
+	de_gmm_ms_net_cap(tvb, tf_tree, offset, len, NULL);
+	offset = offset +len;
+
+/* Container contains one or several optional information elements as described in the clause 'Overview', 
+ * from the clause 'General message format and information elements coding' in 3GPP TS 24.008. 
+ * The IMEISV shall, if available, be included in the Container.
+ */
+
+	con_len = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_text(ext_tree_mm, tvb, offset, 2, "Container length: %u", con_len);
+	offset = offset + 2;
 
 	if (con_len > 0) {
-		trans_id = (tvb_get_guint8(tvb, offset+6) >> 4) & 0x0F;
-		proto_tree_add_text(ext_tree_mm, tvb, offset+6, 1, "Transaction identifier: 0x%x", trans_id);
-		proto_disc = tvb_get_guint8(tvb, offset+6) & 0x0F;
-		proto_tree_add_text(ext_tree_mm, tvb, offset+6, 1, "Protocol discriminator: 0x%x (%s)", proto_disc,
-		                    val_to_str(proto_disc, mm_proto_disc, "Unknown"));
-		message = tvb_get_guint8(tvb, offset+7);
-		switch (message) {
-
-		case MM_PROTO_RR_MGMT:
-			proto_tree_add_text(ext_tree_mm, tvb, offset+7, 1, "Message type: 0x%02x (%s)", message,
-					    val_to_str(message, mm_rr_mess, "Unknown"));
-			break;
-
-		case MM_PROTO_MM_NON_GPRS:
-			proto_tree_add_text(ext_tree_mm, tvb, offset+7, 1, "Message type: 0x%02x (%s)", message,
-					    val_to_str(message, mm_mm_mess, "Unknown"));
-			break;
-
-		case MM_PROTO_CALL_CONTROL:
-		case MM_PROTO_GROUP_CALL_CONTROL:
-		case MM_PROTO_BROADCAST_CALL_CONTROL:
-			proto_tree_add_text(ext_tree_mm, tvb, offset+7, 1, "Message type: 0x%02x (%s)", message,
-					    val_to_str(message, mm_cc_mess, "Unknown"));
-			break;
-
-		case MM_PROTO_MM_GPRS:
-			proto_tree_add_text(ext_tree_mm, tvb, offset+7, 1, "Message type: 0x%02x (%s)", message,
-					    val_to_str(message, mm_gprs_mess, "Unknown"));
-			break;
-
-		default:
-			proto_tree_add_text(ext_tree_mm, tvb, offset+7, 1, "Message type: 0x%02x", message);
-			break;
-		}
-		/* XXX - dissect additional IEs from GSM L3 message */
+		
+		l3_tvb = tvb_new_subset(tvb, offset,con_len, con_len );
+		if  (!dissector_try_port(bssap_pdu_type_table,BSSAP_PDU_TYPE_DTAP, l3_tvb, pinfo, ext_tree_mm))
+		   		call_dissector(data_handle, l3_tvb, pinfo, ext_tree_mm);
 	}
 
 	return 3+length;
@@ -4467,9 +4281,21 @@ proto_register_gtp(void)
 		{ &hf_gtp_ext_id, { "Extension identifier", "gtp.ext_id", FT_UINT16, BASE_DEC, NULL, 0, "Extension Identifier", HFILL }},
 		{ &hf_gtp_ext_val, { "Extension value", "gtp.ext_val", FT_STRING, BASE_DEC, NULL, 0, "Extension Value", HFILL }},
 		{ &hf_gtp_flags, { "Flags", "gtp.flags", FT_UINT8, BASE_HEX, NULL, 0, "Ver/PT/Spare...", HFILL }},
-		{ &hf_gtp_flags_ver, { "Version", "gtp.flags.version", FT_UINT8, BASE_DEC, VALS(ver_types), GTP_VER_MASK, "GTP Version", HFILL }},
-		{ &hf_gtp_flags_pt, { "Protocol type",	"gtp.flags.payload", FT_UINT8, BASE_DEC, NULL, GTP_PT_MASK, "Protocol Type", HFILL }},
-		{ &hf_gtp_flags_spare1, { "Reserved", "gtp.flags.reserved", FT_UINT8, BASE_DEC, NULL, GTP_SPARE1_MASK, "Reserved (shall be sent as '111' )", HFILL }},
+		{ &hf_gtp_flags_ver, 
+			{ "Version", "gtp.flags.version", 
+			FT_UINT8, BASE_DEC, VALS(ver_types), GTP_VER_MASK, 
+			"GTP Version", HFILL }
+		},
+		{ &hf_gtp_flags_pt, 
+			{ "Protocol type",	"gtp.flags.payload", 
+			FT_UINT8, BASE_DEC, VALS(pt_types), GTP_PT_MASK,
+			"Protocol Type", HFILL }
+		},
+		{ &hf_gtp_flags_spare1,
+			{ "Reserved", "gtp.flags.reserved", 
+			FT_UINT8, BASE_DEC, NULL, GTP_SPARE1_MASK, 
+			"Reserved (shall be sent as '111' )", HFILL }
+		},
 		{ &hf_gtp_flags_snn, { "Is SNDCP N-PDU included?", "gtp.flags.snn", FT_BOOLEAN, 8, TFS(&yes_no_tfs), GTP_SNN_MASK, "Is SNDCP N-PDU LLC Number included? (1 = yes, 0 = no)", HFILL }},
 		{ &hf_gtp_flags_spare2,	{ "Reserved", "gtp.flags.reserved", FT_UINT8, BASE_DEC, NULL, GTP_SPARE2_MASK, "Reserved (shall be sent as '1' )", HFILL }},
 		{ &hf_gtp_flags_e, { "Is Next Extension Header present?", "gtp.flags.e", FT_BOOLEAN, 8, TFS(&yes_no_tfs), GTP_E_MASK, "Is Next Extension Header present? (1 = yes, 0 = no)", HFILL }},
@@ -4558,6 +4384,36 @@ proto_register_gtp(void)
 		{ &hf_gtp_user_addr_pdp_type, { "PDP type number", "gtp.user_addr_pdp_type", FT_UINT8, BASE_HEX, VALS (pdp_type), 0, "PDP type", HFILL }},
 		{ &hf_gtp_user_ipv4, { "End user address IPv4", "gtp.user_ipv4", FT_IPv4, BASE_DEC, NULL, 0, "End user address IPv4", HFILL }},
 		{ &hf_gtp_user_ipv6, { "End user address IPv6", "gtp.user_ipv6", FT_IPv6, BASE_HEX, NULL, 0, "End user address IPv6", HFILL }},		
+		{ &hf_gtp_security_mode, 
+			{ "Security Mode", "gtp.security_mode", 
+			FT_UINT8, BASE_DEC, VALS(mm_sec_modep), 0xc0, 
+			"Security Mode", HFILL }
+		},
+		{ &hf_gtp_no_of_vectors,
+			{ "No of Vectors", "gtp.no_of_vectors", 
+			FT_UINT8, BASE_DEC, NULL, 0x38, 
+			"No of Vectors", HFILL }
+		},
+		{ &hf_gtp_cipher_algorithm,
+			{ "Cipher Algorithm", "gtp.no_of_vectors", 
+			FT_UINT8, BASE_DEC, VALS(gtp_cipher_algorithm), 0x07, 
+			"Cipher Algorithm", HFILL }
+		},
+		{ &hf_gtp_cksn_ksi,
+			{ "Ciphering Key Sequence Number (CKSN)/Key Set Identifier (KSI)", "gtp.cksn_ksi", 
+			FT_UINT8, BASE_DEC, NULL, 0x07, 
+			"CKSN/KSI", HFILL }
+		},
+		{ &hf_gtp_cksn,
+			{ "Ciphering Key Sequence Number (CKSN)", "gtp.cksn_ksi", 
+			FT_UINT8, BASE_DEC, NULL, 0x07, 
+			"CKSN", HFILL }
+		},
+		{ &hf_gtp_ksi,
+			{ "Key Set Identifier (KSI)", "gtp.cksn_ksi", 
+			FT_UINT8, BASE_DEC, NULL, 0x07, 
+			"KSI", HFILL }
+		},
 	};
 	
 	static gint *ett_gtp_array[] = {
@@ -4591,6 +4447,7 @@ proto_register_gtp(void)
 		&ett_gtp_can_pack,
 		&ett_gtp_data_resp,
 		&ett_gtp_priv_ext,
+		&ett_gtp_net_cap,
 	};
 
 	module_t	*gtp_module;
@@ -4613,7 +4470,7 @@ proto_register_gtp(void)
 	prefs_register_obsolete_preference(gtp_module, "ppp_reorder");
 	
 	/* This preference can be used to disable the dissection of GTP over TCP. Most of the Wireless operators uses GTP over UDP.
-		 * The preference is set to TRUE by default fo rbackward compatibility
+		 * The preference is set to TRUE by default forbackward compatibility
 		 */
 	prefs_register_bool_preference(gtp_module, "dissect_gtp_over_tcp", "Dissect GTP over TCP", "Dissect GTP over TCP", &gtp_over_tcp);
 
@@ -4662,4 +4519,6 @@ proto_reg_handoff_gtp(void)
 	ppp_handle = find_dissector("ppp");
 	data_handle = find_dissector("data");
 	gtpcdr_handle = find_dissector("gtpcdr");
+	bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
+
 }
