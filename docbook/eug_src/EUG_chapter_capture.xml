@@ -770,7 +770,7 @@ ethereal -i eth0 -k
       <xref linkend="ChCapCaptureOptionsDialog"/>. The following is an outline 
 	  of the syntax of the <command>tcpdump</command> capture filter language. 
 	  See the expression option at the tcpdump manual page for details:
-	  <ulink url="http://www.tcpdump.org/tcpdump_man.html"/>
+	  <ulink url="&TcpdumpManpage;"/>.
     </para>
     <para>
       A capture filter takes the form of a series of primitive expressions 
@@ -931,8 +931,8 @@ tcp port 23 and not host 10.0.0.5
 	    <para>
 	      This primitive allows you to create complex filter 
 	      expressions that select bytes or ranges of bytes in 
-	      packets.  Please see the tcpdump man pages for more 
-	      details.
+	      packets.  Please see the tcpdump man page at
+		  <ulink url="&TcpdumpManpage;"/> for more details.
 	    </para>
 	  </listitem>
 	</varlistentry>

@@ -100,6 +100,11 @@ Winpcap Info
   <!ENTITY WinPcapDownloadWebsite "http://www.winpcap.org/install/default.htm">
 
 <!--
+Tcpdump Info
+-->
+  <!ENTITY TcpdumpManpage "http://www.tcpdump.org/tcpdump_man.html">
+
+<!--
 Gnu info
 -->
   <!ENTITY GPLWebsite "http://www.gnu.org/copyleft/gpl.html">
