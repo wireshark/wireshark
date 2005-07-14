@@ -53,6 +53,8 @@
 #define ARLEN(a) (sizeof(a)/sizeof(a[0]))
 
 static int proto_isakmp = -1;
+static int hf_ike_certificate_authority = -1;
+static int hf_ike_v2_certificate_authority = -1;
 
 static gint ett_isakmp = -1;
 static gint ett_isakmp_flags = -1;
@@ -104,7 +106,9 @@ static void dissect_id(tvbuff_t *, int, int, proto_tree *,
     packet_info *, int, int);
 static void dissect_cert(tvbuff_t *, int, int, proto_tree *,
     packet_info *, int, int);
-static void dissect_certreq(tvbuff_t *, int, int, proto_tree *,
+static void dissect_certreq_v1(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int, int);
+static void dissect_certreq_v2(tvbuff_t *, int, int, proto_tree *,
     packet_info *, int, int);
 static void dissect_hash(tvbuff_t *, int, int, proto_tree *,
     packet_info *, int, int);
@@ -173,7 +177,7 @@ static struct payload_func v1_plfunc[] = {
   {  4, "Key Exchange",		dissect_key_exch  },
   {  5, "Identification",	dissect_id        },
   {  6, "Certificate",		dissect_cert      },
-  {  7, "Certificate Request",	dissect_certreq   },
+  {  7, "Certificate Request",	dissect_certreq_v1},
   {  8, "Hash",			dissect_hash      },
   {  9, "Signature",		dissect_sig       },
   { 10, "Nonce",		dissect_nonce     },
@@ -195,7 +199,7 @@ static struct payload_func v2_plfunc[] = {
   { 35, "Identification - I",	dissect_id        },
   { 36, "Identification - R",	dissect_id        },
   { 37, "Certificate",		dissect_cert      },
-  { 38, "Certificate Request",	dissect_certreq   },
+  { 38, "Certificate Request",	dissect_certreq_v2},
   { 39, "Authentication",	dissect_auth      },
   { 40, "Nonce",		dissect_nonce     },
   { 41, "Notification",		dissect_notif     },
@@ -325,8 +329,6 @@ static const guint8 VID_draft_ietf_ipsec_heartbeats_00[VID_LEN_8]= {0x8D, 0xB7, 
 *  means. ykaul-at-bezeqint.net
 */
 static const guint8 VID_HeartBeat_Notify[VID_LEN] = {0x48, 0x65, 0x61, 0x72, 0x74, 0x42, 0x65, 0x61, 0x74, 0x5f, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x79}; 
-
-static int hf_ike_certificate_authority = -1;
 
 void
 isakmp_dissect_payloads(tvbuff_t *tvb, proto_tree *tree, int isakmp_version,
@@ -1150,7 +1152,7 @@ dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 }
 
 static void
-dissect_certreq(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+dissect_certreq_v1(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     packet_info *pinfo, int isakmp_version, int unused _U_)
 {
   guint8		cert_type;
@@ -1163,13 +1165,34 @@ dissect_certreq(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   length -= 1;
 
   if (length) {
-    if (cert_type == 4)
+    if (cert_type == 4){
       dissect_x509if_Name(FALSE, tvb, offset, pinfo, tree, hf_ike_certificate_authority);
-    else
+    } else {
       proto_tree_add_text(tree, tvb, offset, length, "Certificate Authority");
+    }
   }
   else
     proto_tree_add_text(tree, tvb, offset, length, "Certificate Authority (empty)");
+}
+
+static void
+dissect_certreq_v2(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    packet_info *pinfo _U_, int isakmp_version, int unused _U_)
+{
+  guint8		cert_type;
+
+  cert_type = tvb_get_guint8(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 1,
+		      "Certificate type: %u - %s",
+		      cert_type, certtype2str(isakmp_version, cert_type));
+  offset += 1;
+  length -= 1;
+
+  /* this is a list of 20 byte SHA-1 hashes */
+  while (length) {
+    proto_tree_add_item(tree, hf_ike_v2_certificate_authority, tvb, offset, 20, FALSE);
+    length-=20;
+  }
 }
 
 static void
@@ -2455,6 +2478,9 @@ proto_register_isakmp(void)
   static hf_register_info hf[] = {
     { &hf_ike_certificate_authority,
       { "Certificate Authority Distinguished Name", "ike.cert_authority_dn", FT_UINT32, BASE_DEC, NULL, 0x0, "Certificate Authority Distinguished Name", HFILL }
+    },
+    { &hf_ike_v2_certificate_authority,
+      { "Certificate Authority", "ike.cert_authority", FT_BYTES, BASE_HEX, NULL, 0x0, "SHA-1 hash of the Certificate Authority", HFILL }
     },
   };
   static gint *ett[] = {
