@@ -58,6 +58,7 @@ LIBETHEREAL_SRC = 		\
 	prefs.c			\
 	proto.c			\
 	ptvcursor.c		\
+	radius_dict.c   \
 	range.c			\
 	reassemble.c		\
 	req_resp_hdrs.c		\

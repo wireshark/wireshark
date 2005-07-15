@@ -86,6 +86,75 @@ diameterdir = $(pkgdatadir)/diameter
 diameter_DATA = dictionary.dtd dictionary.xml imscxdx.xml mobileipv4.xml \
 	nasreq.xml sunping.xml
 
+
+#
+# Install the RADIUS directory files in the "radius" subdirectory
+# of that directory.
+#
+radiusdir = $(pkgdatadir)/radius
+radius_DATA = \
+	radius/dictionary  \
+	radius/dictionary.3com  \
+	radius/dictionary.3gpp  \
+	radius/dictionary.3gpp2  \
+	radius/dictionary.acc  \
+	radius/dictionary.alcatel  \
+	radius/dictionary.alteon  \
+	radius/dictionary.altiga  \
+	radius/dictionary.aptis  \
+	radius/dictionary.ascend  \
+	radius/dictionary.bay  \
+	radius/dictionary.bintec  \
+	radius/dictionary.bristol  \
+	radius/dictionary.cablelabs  \
+	radius/dictionary.cabletron  \
+	radius/dictionary.cisco  \
+	radius/dictionary.cisco.bbsm  \
+	radius/dictionary.cisco.vpn3000  \
+	radius/dictionary.cisco.vpn5000  \
+	radius/dictionary.colubris  \
+	radius/dictionary.columbia_university  \
+	radius/dictionary.compat  \
+	radius/dictionary.cosine  \
+	radius/dictionary.erx  \
+	radius/dictionary.extreme  \
+	radius/dictionary.foundry  \
+	radius/dictionary.freeradius  \
+	radius/dictionary.gandalf  \
+	radius/dictionary.garderos  \
+	radius/dictionary.gemtek  \
+	radius/dictionary.itk  \
+	radius/dictionary.juniper  \
+	radius/dictionary.karlnet  \
+	radius/dictionary.livingston  \
+	radius/dictionary.localweb  \
+	radius/dictionary.merit  \
+	radius/dictionary.microsoft  \
+	radius/dictionary.mikrotik  \
+	radius/dictionary.navini  \
+	radius/dictionary.netscreen  \
+	radius/dictionary.nokia  \
+	radius/dictionary.nomadix  \
+	radius/dictionary.propel  \
+	radius/dictionary.quintum  \
+	radius/dictionary.redback  \
+	radius/dictionary.redcreek  \
+	radius/dictionary.shasta  \
+	radius/dictionary.shiva  \
+	radius/dictionary.sonicwall  \
+	radius/dictionary.springtide  \
+	radius/dictionary.t_systems_nova  \
+	radius/dictionary.telebit  \
+	radius/dictionary.trapeze  \
+	radius/dictionary.tunnel  \
+	radius/dictionary.unisphere  \
+	radius/dictionary.unix  \
+	radius/dictionary.usr  \
+	radius/dictionary.valemount  \
+	radius/dictionary.versanet  \
+	radius/dictionary.wispr  \
+	radius/dictionary.xedia
+
 PLATFORM_SRC = pcap-util-unix.c
 
 include Makefile.common
@@ -95,7 +164,7 @@ plugin_libs = \
 	plugins/acn/acn.la \
 	plugins/agentx/agentx.la \
 	plugins/artnet/artnet.la \
-	plugins/asn1/asn1.la \
+	Plugins/asn1/asn1.la \
 	plugins/ciscosm/ciscosm.la \
 	plugins/docsis/docsis.la \
 	plugins/enttec/enttec.la \
@@ -547,6 +616,67 @@ EXTRA_DIST = \
 	nasreq.xml		\
 	perlnoutf.pl		\
 	print.ps		\
+	radius/dictionary  \
+	radius/dictionary.3com  \
+	radius/dictionary.3gpp  \
+	radius/dictionary.3gpp2  \
+	radius/dictionary.acc  \
+	radius/dictionary.alcatel  \
+	radius/dictionary.alteon  \
+	radius/dictionary.altiga  \
+	radius/dictionary.aptis  \
+	radius/dictionary.ascend  \
+	radius/dictionary.bay  \
+	radius/dictionary.bintec  \
+	radius/dictionary.bristol  \
+	radius/dictionary.cablelabs  \
+	radius/dictionary.cabletron  \
+	radius/dictionary.cisco  \
+	radius/dictionary.cisco.bbsm  \
+	radius/dictionary.cisco.vpn3000  \
+	radius/dictionary.cisco.vpn5000  \
+	radius/dictionary.colubris  \
+	radius/dictionary.columbia_university  \
+	radius/dictionary.compat  \
+	radius/dictionary.cosine  \
+	radius/dictionary.erx  \
+	radius/dictionary.extreme  \
+	radius/dictionary.foundry  \
+	radius/dictionary.freeradius  \
+	radius/dictionary.gandalf  \
+	radius/dictionary.garderos  \
+	radius/dictionary.gemtek  \
+	radius/dictionary.itk  \
+	radius/dictionary.juniper  \
+	radius/dictionary.karlnet  \
+	radius/dictionary.livingston  \
+	radius/dictionary.localweb  \
+	radius/dictionary.merit  \
+	radius/dictionary.microsoft  \
+	radius/dictionary.mikrotik  \
+	radius/dictionary.navini  \
+	radius/dictionary.netscreen  \
+	radius/dictionary.nokia  \
+	radius/dictionary.nomadix  \
+	radius/dictionary.propel  \
+	radius/dictionary.quintum  \
+	radius/dictionary.redback  \
+	radius/dictionary.redcreek  \
+	radius/dictionary.shasta  \
+	radius/dictionary.shiva  \
+	radius/dictionary.sonicwall  \
+	radius/dictionary.springtide  \
+	radius/dictionary.t_systems_nova  \
+	radius/dictionary.telebit  \
+	radius/dictionary.trapeze  \
+	radius/dictionary.tunnel  \
+	radius/dictionary.unisphere  \
+	radius/dictionary.unix  \
+	radius/dictionary.usr  \
+	radius/dictionary.valemount  \
+	radius/dictionary.versanet  \
+	radius/dictionary.wispr  \
+	radius/dictionary.xedia \
 	randpkt.c		\
 	rdps.c			\
 	sunping.xml		\

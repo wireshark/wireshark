@@ -53,6 +53,7 @@ EXTRA_DIST = \
 	libethereal.def	\
 	Makefile.common	\
 	Makefile.nmake	\
+	radius_dict.l   \
 	tvbtest.c	\
 	doxygen.cfg.in
 
@@ -73,6 +74,8 @@ libethereal_la_DEPENDENCIES = @G_ASCII_STRTOULL_LO@ @INET_ATON_LO@ @INET_PTON_LO
 tvbtest: tvbtest.o tvbuff.o except.o strutil.o
 	$(LINK) -o tvbtest tvbtest.o tvbuff.o except.o strutil.o `glib-config --libs`
 
+radius_dict.c: radius_dict.l
+	$(LEX) radius_dict.l
 
 if HAVE_PLUGINS
 

@@ -141,3 +141,5 @@ mkstemp.c: ..\mkstemp.c
 strptime.c: ..\strptime.c
 	xcopy ..\strptime.c . /d /y
 
+radius_dict.c : radius_dict.l
+	$(LEX) radius_dict.l
