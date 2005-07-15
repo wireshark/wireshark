@@ -2,7 +2,7 @@
  * Routines for Unlicensed Mobile Access(UMA) dissection
  * Copyright 2005, Anders Broman <anders.broman[at]ericsson.com>
  *
- * $Id$
+ * $Id:
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1109,7 +1109,10 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	case 32:		
 		/* Handover From UMAN Command 
 		 * If the target RAT is GERAN, the rest of the IE is coded as HANDOVER COMMAND message in [TS 44.018]
-		 *
+		 * TODO: Find out RAT target
+		 * dtap_rr_ho_cmd(tvb, urr_ie_tree, offset, ie_len);
+		 */
+		/*
 		 * If the target RAT is UTRAN, the rest of the IE is coded as
 		 * HANDOVER TO UTRAN COMMAND message in [TS 25.331].
 		 */
@@ -1325,7 +1328,13 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 			ie_offset = dissect_mcc_mnc(tvb, urr_ie_tree, ie_offset);
 			proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, ie_offset, 2, FALSE);
 			ie_offset = ie_offset + 2;
-			/* The octets 9-12 are coded as shown in 3GPP TS 25.331, Table 'Cell identity'. */
+			/* The octets 9-12 are coded as shown in 3GPP TS 25.331, Table 'Cell identity'. 
+			 * 10.3.2.2 Cell identity
+			 * This information element identifies a cell unambiguously within a PLMN.
+			 * NOTE: This information element may carry any implementation dependent identity that unambiguously identifies a
+			 * cell within a PLMN.
+			 * Cell identity - bit string(28)
+			 */
 		}
 		break;
 	case 67:
