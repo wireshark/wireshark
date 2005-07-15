@@ -37,9 +37,9 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include "packet-gtp.h"
 #include "packet-ipv6.h"
 #include "packet-ppp.h"
+#include "packet-radius.h"
 #include "packet-bssap.h"
 #include "packet-gsm_a.h"
 
@@ -2965,27 +2965,31 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 			/* For QoS inside RADIUS Client messages from GGSN */
 			utf8_type = 2;
 
-			/* The field in the RADIUS message starts one byte before :) */
-			length = tvb_get_guint8 (tvb, offset);
-			te = proto_tree_add_text (tree, tvb, offset - 1, length, "%s", qos_str);
+			/* The field in the RADIUS message is the length of the tvb we were given */
+			length = tvb_length(tvb);
+			te = proto_tree_add_text (tree, tvb, offset, length, "%s", qos_str);
 
 			ext_tree_qos = proto_item_add_subtree (te, ett_gtp_qos);
 			
-			proto_tree_add_item (ext_tree_qos, hf_gtp_qos_version, tvb, offset + 1, 2, FALSE);
+			proto_tree_add_item (ext_tree_qos, hf_gtp_qos_version, tvb, offset, 2, FALSE);
 
 			/* Hyphen handling */
-			hyphen = tvb_get_guint8(tvb, offset + 3);
+			hyphen = tvb_get_guint8(tvb, offset + 2);
 			if (hyphen == ((guint8) '-'))
 			{
 				/* Hyphen is present, put in protocol tree */
-				proto_tree_add_text (ext_tree_qos, tvb, offset + 3, 1, "Hyphen separator: -");
+				proto_tree_add_text (ext_tree_qos, tvb, offset + 2, 1, "Hyphen separator: -");
 				offset++; /* "Get rid" of hyphen */
 			}
 
 			/* Now, we modify offset here and in order to use type later
 			 * effectively.*/
-			offset += 2;
-			retval = length + 3;      /* Actually, will be ignored. */
+			offset++;
+			
+			length -= offset;
+			length /=2;
+			
+			retval = length + 2;      /* Actually, will be ignored. */
 			break;
 		default:
 			/* XXX - what should we do with the length here? */
@@ -3123,6 +3127,11 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 	}
 
 	return retval;
+}
+
+static gchar* dissect_radius_qos_umts(proto_tree *tree, tvbuff_t *tvb) {
+	decode_qos_umts(tvb, 0, tree, "UMTS GTP QoS Profile", 3);
+	return "UMTS GTP QoS Profile";
 }
 
 static void
@@ -4483,9 +4492,13 @@ proto_reg_handoff_gtp(void)
 	static int Initialized = FALSE;
 	static dissector_handle_t gtp_handle;
 
+	
 	if (!Initialized) {
 		gtp_handle = find_dissector("gtp");
 		ppp_subdissector_table = find_dissector_table("ppp.protocol");
+		
+		radius_register_avp_dissector(10415,5,dissect_radius_qos_umts);
+
 		Initialized = TRUE;
 	} else {
 		dissector_delete ("udp.port", gtpv0_port, gtp_handle);
@@ -4507,6 +4520,7 @@ proto_reg_handoff_gtp(void)
 	dissector_add ("udp.port", g_gtpv0_port, gtp_handle);
 	dissector_add ("udp.port", g_gtpv1c_port, gtp_handle);
 	dissector_add ("udp.port", g_gtpv1u_port, gtp_handle);
+
 	
 	if ( gtp_over_tcp ) {
 		dissector_add ("tcp.port", g_gtpv0_port, gtp_handle);
