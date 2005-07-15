@@ -429,7 +429,7 @@ static int hf_h450_ssCHDoNotHold = -1;            /* NULL */
 static int hf_h450_ssCTDoNotTransfer = -1;        /* NULL */
 static int hf_h450_ssMWICallbackCall = -1;        /* NULL */
 static int hf_h450_ssCISilentMonitorPermitted = -1;  /* NULL */
-static int hf_h450_Unspecified_extension = -1;    /* Extension */
+static int hf_h450_unspecified_extension = -1;    /* Extension */
 static int hf_h450_nonStandard = -1;              /* NonStandardParameter */
 static int hf_h450_extensionId = -1;              /* OBJECT_IDENTIFIER */
 static int hf_h450_extensionArgument = -1;        /* ExtensionArgument */
@@ -922,10 +922,14 @@ static int dissect_interpretationApdu(tvbuff_t *tvb, int offset, packet_info *pi
 }
 
 
+static const per_sequence_t SEQUENCE_OF_ROSxxx_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rosApdus_item },
+};
+
 static int
 dissect_h450_SEQUENCE_OF_ROSxxx(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h450_SEQUENCE_OF_ROSxxx, dissect_rosApdus_item);
+                                      ett_h450_SEQUENCE_OF_ROSxxx, SEQUENCE_OF_ROSxxx_sequence_of);
 
   return offset;
 }
@@ -995,10 +999,11 @@ static int dissect_subaddressInformation(tvbuff_t *tvb, int offset, packet_info 
 }
 
 
+
 static int
 dissect_h450_BOOLEAN(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_boolean(tvb, offset, pinfo, tree, hf_index,
-                               NULL, NULL);
+                                  NULL, NULL);
 
   return offset;
 }
@@ -1248,10 +1253,14 @@ dissect_h450_PresentedNumberUnscreened(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 
+static const per_sequence_t SEQUENCE_OF_AliasAddress_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_destinationAddress_item },
+};
+
 static int
 dissect_h450_SEQUENCE_OF_AliasAddress(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h450_SEQUENCE_OF_AliasAddress, dissect_destinationAddress_item);
+                                      ett_h450_SEQUENCE_OF_AliasAddress, SEQUENCE_OF_AliasAddress_sequence_of);
 
   return offset;
 }
@@ -1368,10 +1377,11 @@ static int dissect_numberB(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 
+
 static int
 dissect_h450_PresentationAllowedIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_boolean(tvb, offset, pinfo, tree, hf_index,
-                               NULL, NULL);
+                                  NULL, NULL);
 
   return offset;
 }
@@ -1424,15 +1434,19 @@ static int dissect_ExtensionSeq_item(tvbuff_t *tvb, int offset, packet_info *pin
 static int dissect_mixedExtension_extension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h450_Extension(tvb, offset, pinfo, tree, hf_h450_mixedExtension_extension);
 }
-static int dissect_Unspecified_extension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h450_Extension(tvb, offset, pinfo, tree, hf_h450_Unspecified_extension);
+static int dissect_unspecified_extension(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h450_Extension(tvb, offset, pinfo, tree, hf_h450_unspecified_extension);
 }
 
+
+static const per_sequence_t ExtensionSeq_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ExtensionSeq_item },
+};
 
 static int
 dissect_h450_ExtensionSeq(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h450_ExtensionSeq, dissect_ExtensionSeq_item);
+                                      ett_h450_ExtensionSeq, ExtensionSeq_sequence_of);
 
   return offset;
 }
@@ -1656,7 +1670,7 @@ static const value_string h450_EndDesignation_vals[] = {
 static int
 dissect_h450_EndDesignation(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           0, 1, NULL, NULL, TRUE);
+                                              0, 1, NULL, NULL, TRUE);
 
   return offset;
 }
@@ -1675,7 +1689,7 @@ static const value_string h450_CallStatus_vals[] = {
 static int
 dissect_h450_CallStatus(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           0, 1, NULL, NULL, TRUE);
+                                              0, 1, NULL, NULL, TRUE);
 
   return offset;
 }
@@ -1827,7 +1841,7 @@ static const value_string h450_Procedure_vals[] = {
 static int
 dissect_h450_Procedure(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           0, 2, NULL, NULL, TRUE);
+                                              0, 2, NULL, NULL, TRUE);
 
   return offset;
 }
@@ -1884,7 +1898,7 @@ static const value_string h450_BasicService_vals[] = {
 static int
 dissect_h450_BasicService(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           0, 75, NULL, NULL, FALSE);
+                                              0, 75, NULL, NULL, FALSE);
 
   return offset;
 }
@@ -2113,11 +2127,15 @@ static int dissect_IntResultList_item(tvbuff_t *tvb, int offset, packet_info *pi
 }
 
 
+static const per_sequence_t IntResultList_set_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_IntResultList_item },
+};
+
 static int
 dissect_h450_IntResultList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_set_of(tvb, offset, pinfo, tree, hf_index,
-                                          ett_h450_IntResultList, dissect_IntResultList_item,
-                                          0, 29);
+                                             ett_h450_IntResultList, IntResultList_set_of,
+                                             0, 29);
 
   return offset;
 }
@@ -2206,7 +2224,7 @@ static const value_string h450_DiversionReason_vals[] = {
 static int
 dissect_h450_DiversionReason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           0, 3, NULL, NULL, TRUE);
+                                              0, 3, NULL, NULL, TRUE);
 
   return offset;
 }
@@ -2248,7 +2266,7 @@ static const value_string h450_SubscriptionOption_vals[] = {
 static int
 dissect_h450_SubscriptionOption(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           0, 2, NULL, NULL, TRUE);
+                                              0, 2, NULL, NULL, TRUE);
 
   return offset;
 }
@@ -2569,11 +2587,15 @@ static int dissect_resultExtension_item(tvbuff_t *tvb, int offset, packet_info *
 }
 
 
+static const per_sequence_t SEQUENCE_SIZE_0_255_OF_MixedExtension_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_extensionArg_item },
+};
+
 static int
 dissect_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                               ett_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension, dissect_extensionArg_item,
-                                               0, 255);
+                                                  ett_h450_SEQUENCE_SIZE_0_255_OF_MixedExtension, SEQUENCE_SIZE_0_255_OF_MixedExtension_sequence_of,
+                                                  0, 255);
 
   return offset;
 }
@@ -2816,7 +2838,7 @@ static const value_string h450_ParkCondition_vals[] = {
 static int
 dissect_h450_ParkCondition(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           0, 3, NULL, NULL, TRUE);
+                                              0, 3, NULL, NULL, TRUE);
 
   return offset;
 }
@@ -2884,7 +2906,7 @@ static const value_string h450_CallType_vals[] = {
 static int
 dissect_h450_CallType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           0, 1, NULL, NULL, TRUE);
+                                              0, 1, NULL, NULL, TRUE);
 
   return offset;
 }
@@ -3187,11 +3209,15 @@ static int dissect_priority(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
+static const per_sequence_t ExtensionArg_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ExtensionArg_item },
+};
+
 static int
 dissect_h450_ExtensionArg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                               ett_h450_ExtensionArg, dissect_ExtensionArg_item,
-                                               0, 255);
+                                                  ett_h450_ExtensionArg, ExtensionArg_sequence_of,
+                                                  0, 255);
 
   return offset;
 }
@@ -3287,11 +3313,15 @@ dissect_h450_MwiInterrogate(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
 }
 
 
+static const per_sequence_t MwiDummyRes_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_MwiDummyRes_item },
+};
+
 static int
 dissect_h450_MwiDummyRes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                               ett_h450_MwiDummyRes, dissect_MwiDummyRes_item,
-                                               0, 255);
+                                                  ett_h450_MwiDummyRes, MwiDummyRes_sequence_of,
+                                                  0, 255);
 
   return offset;
 }
@@ -3319,11 +3349,15 @@ static int dissect_MWIInterrogateRes_item(tvbuff_t *tvb, int offset, packet_info
 }
 
 
+static const per_sequence_t MWIInterrogateRes_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_MWIInterrogateRes_item },
+};
+
 static int
 dissect_h450_MWIInterrogateRes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                               ett_h450_MWIInterrogateRes, dissect_MWIInterrogateRes_item,
-                                               1, 64);
+                                                  ett_h450_MWIInterrogateRes, MWIInterrogateRes_sequence_of,
+                                                  1, 64);
 
   return offset;
 }
@@ -3869,7 +3903,7 @@ static const value_string h450_PartyCategory_vals[] = {
 static int
 dissect_h450_PartyCategory(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           0, 3, NULL, NULL, TRUE);
+                                              0, 3, NULL, NULL, TRUE);
 
   return offset;
 }
@@ -3963,7 +3997,7 @@ static const value_string h450_Unspecified_vals[] = {
 };
 
 static const per_choice_t Unspecified_choice[] = {
-  {   0, "extension"                   , ASN1_NO_EXTENSIONS     , dissect_Unspecified_extension },
+  {   0, "extension"                   , ASN1_NO_EXTENSIONS     , dissect_unspecified_extension },
   {   1, "nonStandard"                 , ASN1_NO_EXTENSIONS     , dissect_nonStandard },
   { 0, NULL, 0, NULL }
 };
@@ -4758,7 +4792,7 @@ void proto_register_h450(void) {
         "InterpretationApdu/rejectAnyUnrecognizedInvokePdu", HFILL }},
     { &hf_h450_rosApdus,
       { "rosApdus", "h450.rosApdus",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "ServiceApdus/rosApdus", HFILL }},
     { &hf_h450_rosApdus_item,
       { "Item", "h450.rosApdus_item",
@@ -4818,7 +4852,7 @@ void proto_register_h450(void) {
         "", HFILL }},
     { &hf_h450_destinationAddress,
       { "destinationAddress", "h450.destinationAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "EndpointAddress/destinationAddress", HFILL }},
     { &hf_h450_destinationAddress_item,
       { "Item", "h450.destinationAddress_item",
@@ -4862,7 +4896,7 @@ void proto_register_h450(void) {
         "UserSpecifiedSubaddress/oddCountIndicator", HFILL }},
     { &hf_h450_extensionSeq,
       { "extensionSeq", "h450.extensionSeq",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h450_nonStandardData,
       { "nonStandardData", "h450.nonStandardData",
@@ -5114,7 +5148,7 @@ void proto_register_h450(void) {
         "IntResult/extension", HFILL }},
     { &hf_h450_holdNotificArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "HoldNotificArg/extensionArg", HFILL }},
     { &hf_h450_extensionArg_item,
       { "Item", "h450.extensionArg_item",
@@ -5122,15 +5156,15 @@ void proto_register_h450(void) {
         "", HFILL }},
     { &hf_h450_retrieveNotificArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "RetrieveNotificArg/extensionArg", HFILL }},
     { &hf_h450_remoteHoldArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "RemoteHoldArg/extensionArg", HFILL }},
     { &hf_h450_extensionRes,
       { "extensionRes", "h450.extensionRes",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h450_extensionRes_item,
       { "Item", "h450.extensionRes_item",
@@ -5138,7 +5172,7 @@ void proto_register_h450(void) {
         "", HFILL }},
     { &hf_h450_remoteRetrieveArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "RemoteRetrieveArg/extensionArg", HFILL }},
     { &hf_h450_mixedExtension_extension,
       { "extension", "h450.extension",
@@ -5162,7 +5196,7 @@ void proto_register_h450(void) {
         "", HFILL }},
     { &hf_h450_cpRequestArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CpRequestArg/extensionArg", HFILL }},
     { &hf_h450_parkCondition,
       { "parkCondition", "h450.parkCondition",
@@ -5170,7 +5204,7 @@ void proto_register_h450(void) {
         "", HFILL }},
     { &hf_h450_cpSetupArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CpSetupArg/extensionArg", HFILL }},
     { &hf_h450_callPickupId,
       { "callPickupId", "h450.callPickupId",
@@ -5198,11 +5232,11 @@ void proto_register_h450(void) {
         "", HFILL }},
     { &hf_h450_groupIndicationOnArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "GroupIndicationOnArg/extensionArg", HFILL }},
     { &hf_h450_groupIndicationOffArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "GroupIndicationOffArg/extensionArg", HFILL }},
     { &hf_h450_picking_upNumber,
       { "picking-upNumber", "h450.picking_upNumber",
@@ -5210,23 +5244,23 @@ void proto_register_h450(void) {
         "", HFILL }},
     { &hf_h450_pickrequArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "PickrequArg/extensionArg", HFILL }},
     { &hf_h450_pickupArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "PickupArg/extensionArg", HFILL }},
     { &hf_h450_pickExeArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "PickExeArg/extensionArg", HFILL }},
     { &hf_h450_cpNotifyArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CpNotifyArg/extensionArg", HFILL }},
     { &hf_h450_cpickupNotifyArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CpickupNotifyArg/extensionArg", HFILL }},
     { &hf_h450_nbOfAddWaitingCalls,
       { "nbOfAddWaitingCalls", "h450.nbOfAddWaitingCalls",
@@ -5234,7 +5268,7 @@ void proto_register_h450(void) {
         "CallWaitingArg/nbOfAddWaitingCalls", HFILL }},
     { &hf_h450_callWaitingArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CallWaitingArg/extensionArg", HFILL }},
     { &hf_h450_msgCentreId,
       { "msgCentreId", "h450.msgCentreId",
@@ -5258,7 +5292,7 @@ void proto_register_h450(void) {
         "", HFILL }},
     { &hf_h450_mWIActivateArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "MWIActivateArg/extensionArg", HFILL }},
     { &hf_h450_MwiDummyRes_item,
       { "Item", "h450.MwiDummyRes_item",
@@ -5270,11 +5304,11 @@ void proto_register_h450(void) {
         "", HFILL }},
     { &hf_h450_mWIDeactivateArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "MWIDeactivateArg/extensionArg", HFILL }},
     { &hf_h450_mWIInterrogateArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "MWIInterrogateArg/extensionArg", HFILL }},
     { &hf_h450_MWIInterrogateRes_item,
       { "Item", "h450.MWIInterrogateRes_item",
@@ -5282,7 +5316,7 @@ void proto_register_h450(void) {
         "MWIInterrogateRes/_item", HFILL }},
     { &hf_h450_mWIInterrogateResElt_extensionArg,
       { "extensionArg", "h450.extensionArg",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "MWIInterrogateResElt/extensionArg", HFILL }},
     { &hf_h450_integer,
       { "integer", "h450.integer",
@@ -5306,7 +5340,7 @@ void proto_register_h450(void) {
         "NameArg/name", HFILL }},
     { &hf_h450_nameArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "NameArg/extensionArg", HFILL }},
     { &hf_h450_namePresentationAllowed,
       { "namePresentationAllowed", "h450.namePresentationAllowed",
@@ -5358,7 +5392,7 @@ void proto_register_h450(void) {
         "CcRequestArg/retain-sig-connection", HFILL }},
     { &hf_h450_ccRequestArg_extension,
       { "extension", "h450.extension",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CcRequestArg/extension", HFILL }},
     { &hf_h450_extension_item,
       { "Item", "h450.extension_item",
@@ -5370,7 +5404,7 @@ void proto_register_h450(void) {
         "CcRequestRes/retain-service", HFILL }},
     { &hf_h450_ccRequestRes_extension,
       { "extension", "h450.extension",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CcRequestRes/extension", HFILL }},
     { &hf_h450_shortArg,
       { "shortArg", "h450.shortArg",
@@ -5382,23 +5416,23 @@ void proto_register_h450(void) {
         "CcArg/longArg", HFILL }},
     { &hf_h450_ccShortArg_extension,
       { "extension", "h450.extension",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CcShortArg/extension", HFILL }},
     { &hf_h450_ccLongArg_extension,
       { "extension", "h450.extension",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CcLongArg/extension", HFILL }},
     { &hf_h450_coReqOptArg_extension,
       { "extension", "h450.extension",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CoReqOptArg/extension", HFILL }},
     { &hf_h450_rUAlertOptArg_extension,
       { "extension", "h450.extension",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "RUAlertOptArg/extension", HFILL }},
     { &hf_h450_cfbOvrOptArg_extension,
       { "extension", "h450.extension",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CfbOvrOptArg/extension", HFILL }},
     { &hf_h450_ciCapabilityLevel,
       { "ciCapabilityLevel", "h450.ciCapabilityLevel",
@@ -5406,7 +5440,7 @@ void proto_register_h450(void) {
         "", HFILL }},
     { &hf_h450_cIRequestArg_argumentExtension,
       { "argumentExtension", "h450.argumentExtension",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CIRequestArg/argumentExtension", HFILL }},
     { &hf_h450_argumentExtension_item,
       { "Item", "h450.argumentExtension_item",
@@ -5418,7 +5452,7 @@ void proto_register_h450(void) {
         "", HFILL }},
     { &hf_h450_cIRequestRes_resultExtension,
       { "resultExtension", "h450.resultExtension",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CIRequestRes/resultExtension", HFILL }},
     { &hf_h450_resultExtension_item,
       { "Item", "h450.resultExtension_item",
@@ -5426,7 +5460,7 @@ void proto_register_h450(void) {
         "", HFILL }},
     { &hf_h450_cIGetCIPLOptArg_argumentExtension,
       { "argumentExtension", "h450.argumentExtension",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CIGetCIPLOptArg/argumentExtension", HFILL }},
     { &hf_h450_ciProtectionLevel,
       { "ciProtectionLevel", "h450.ciProtectionLevel",
@@ -5438,31 +5472,31 @@ void proto_register_h450(void) {
         "CIGetCIPLRes/silentMonitoringPermitted", HFILL }},
     { &hf_h450_cIGetCIPLRes_resultExtension,
       { "resultExtension", "h450.resultExtension",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CIGetCIPLRes/resultExtension", HFILL }},
     { &hf_h450_cIIsOptArg_argumentExtension,
       { "argumentExtension", "h450.argumentExtension",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CIIsOptArg/argumentExtension", HFILL }},
     { &hf_h450_cIIsOptRes_resultExtension,
       { "resultExtension", "h450.resultExtension",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CIIsOptRes/resultExtension", HFILL }},
     { &hf_h450_cIFrcRelArg_argumentExtension,
       { "argumentExtension", "h450.argumentExtension",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CIFrcRelArg/argumentExtension", HFILL }},
     { &hf_h450_cIFrcRelOptRes_resultExtension,
       { "resultExtension", "h450.resultExtension",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CIFrcRelOptRes/resultExtension", HFILL }},
     { &hf_h450_cIWobOptArg_argumentExtension,
       { "argumentExtension", "h450.argumentExtension",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CIWobOptArg/argumentExtension", HFILL }},
     { &hf_h450_cIWobOptRes_resultExtension,
       { "resultExtension", "h450.resultExtension",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CIWobOptRes/resultExtension", HFILL }},
     { &hf_h450_specificCall,
       { "specificCall", "h450.specificCall",
@@ -5470,15 +5504,15 @@ void proto_register_h450(void) {
         "CISilentArg/specificCall", HFILL }},
     { &hf_h450_cISilentArg_argumentExtension,
       { "argumentExtension", "h450.argumentExtension",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CISilentArg/argumentExtension", HFILL }},
     { &hf_h450_cISilentOptRes_resultExtension,
       { "resultExtension", "h450.resultExtension",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CISilentOptRes/resultExtension", HFILL }},
     { &hf_h450_cINotificationArg_argumentExtension,
       { "argumentExtension", "h450.argumentExtension",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CINotificationArg/argumentExtension", HFILL }},
     { &hf_h450_callIntrusionImpending,
       { "callIntrusionImpending", "h450.callIntrusionImpending",
@@ -5518,11 +5552,11 @@ void proto_register_h450(void) {
         "CmnArg/featureControl", HFILL }},
     { &hf_h450_cmnArg_extension,
       { "extension", "h450.extension",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CmnArg/extension", HFILL }},
     { &hf_h450_cmnRequestArg_extensionArg,
       { "extensionArg", "h450.extensionArg",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CmnRequestArg/extensionArg", HFILL }},
     { &hf_h450_ssCFreRoutingSupported,
       { "ssCFreRoutingSupported", "h450.ssCFreRoutingSupported",
@@ -5600,7 +5634,7 @@ void proto_register_h450(void) {
       { "ssCISilentMonitorPermitted", "h450.ssCISilentMonitorPermitted",
         FT_NONE, BASE_NONE, NULL, 0,
         "FeatureControl/ssCISilentMonitorPermitted", HFILL }},
-    { &hf_h450_Unspecified_extension,
+    { &hf_h450_unspecified_extension,
       { "extension", "h450.extension",
         FT_NONE, BASE_NONE, NULL, 0,
         "Unspecified/extension", HFILL }},

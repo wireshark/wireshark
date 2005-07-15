@@ -34,6 +34,8 @@ if (check_col(pinfo->cinfo, COL_INFO)){ \
 } \
 tvb_get_guint8(tvb, 9999);
 
+typedef int (*per_callback)(tvbuff_t *, int, packet_info *, proto_tree *);
+
 /* in all functions here, offset is guint32 and is
    byteposition<<3 + bitposition
 */
@@ -51,14 +53,14 @@ typedef struct _per_choice_t {
 	int value;
 	char *name;
 	int extension;
-	int (*func)(tvbuff_t *, int, packet_info *, proto_tree *);
+	per_callback func;
 } per_choice_t;
 
 typedef struct _per_sequence_t {
 	char *name;
 	int extension;
 	int optional;
-	int (*func)(tvbuff_t *, int, packet_info *, proto_tree *);
+	per_callback func;
 } per_sequence_t;
 
 
@@ -68,7 +70,7 @@ extern guint32 dissect_per_null(tvbuff_t *tvb, guint32 offset, packet_info *pinf
 
 extern guint32 dissect_per_GeneralString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
-extern guint32 dissect_per_sequence_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, int (*func)(tvbuff_t *, int , packet_info *, proto_tree *));
+extern guint32 dissect_per_sequence_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq);
 
 extern guint32 dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len);
 
@@ -80,11 +82,11 @@ extern guint32 dissect_per_VisibleString(tvbuff_t *tvb, guint32 offset, packet_i
 
 extern guint32 dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len);
 
-extern guint32 dissect_per_constrained_sequence_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, int (*func)(tvbuff_t *, int , packet_info *, proto_tree *), int min_len, int max_len);
+extern guint32 dissect_per_constrained_sequence_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq, int min_len, int max_len);
 
-extern guint32 dissect_per_constrained_set_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, int (*func)(tvbuff_t *, int , packet_info *, proto_tree *), int min_len, int max_len);
+extern guint32 dissect_per_constrained_set_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq, int min_len, int max_len);
 
-extern guint32 dissect_per_set_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, int (*func)(tvbuff_t *, int , packet_info *, proto_tree *));
+extern guint32 dissect_per_set_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq);
 
 extern guint32 dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, char *value_string);
 

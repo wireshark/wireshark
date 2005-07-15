@@ -239,28 +239,35 @@ DEBUG_ENTRY("dissect_per_sequence_of_helper");
 	return offset;
 }
 guint32
-dissect_per_sequence_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, int (*func)(tvbuff_t *, int , packet_info *, proto_tree *))
+dissect_per_sequence_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq)
 {
 	proto_item *item;
 	proto_tree *tree;
 	guint32 old_offset=offset;
 	guint32 length;
 	proto_tree *etr = NULL;
+	header_field_info *hfi;
 
 DEBUG_ENTRY("dissect_per_sequence_of");
-
-	item=proto_tree_add_item(parent_tree, hf_index, tvb, offset>>3, 0, FALSE);
-	tree=proto_item_add_subtree(item, ett_index);
 
 	/* semi-constrained whole number for number of elements */
 	/* each element encoded as 10.9 */
 
 	if(display_internal_per_fields){
-		etr=tree;
+		etr=parent_tree;
 	}
 	offset=dissect_per_length_determinant(tvb, offset, pinfo, etr, hf_per_sequence_of_length, &length);
 
-	offset=dissect_per_sequence_of_helper(tvb, offset, pinfo, tree, func, length);
+	hfi = proto_registrar_get_nth(hf_index);
+	if (IS_FT_UINT(hfi->type)) {
+		item = proto_tree_add_uint(parent_tree, hf_index, tvb, offset>>3, 0, length);
+		proto_item_append_text(item, (length==1)?" item":" items");
+	} else {
+		item=proto_tree_add_item(parent_tree, hf_index, tvb, offset>>3, 0, FALSE);
+	}
+	tree=proto_item_add_subtree(item, ett_index);
+
+	offset=dissect_per_sequence_of_helper(tvb, offset, pinfo, tree, seq->func, length);
 
 
 	proto_item_set_len(item, (offset>>3)!=(old_offset>>3)?(offset>>3)-(old_offset>>3):1);
@@ -490,17 +497,16 @@ dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_t
 
 /* this function dissects a constrained sequence of */
 guint32
-dissect_per_constrained_sequence_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, int (*func)(tvbuff_t *, int , packet_info *, proto_tree *), int min_len, int max_len)
+dissect_per_constrained_sequence_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq, int min_len, int max_len)
 {
 	proto_item *item;
 	proto_tree *tree;
 	guint32 old_offset=offset;
 	guint32 length;
+	header_field_info *hfi;
 
 
 DEBUG_ENTRY("dissect_per_constrained_sequence_of");
-	item=proto_tree_add_item(parent_tree, hf_index, tvb, offset>>3, 0, FALSE);
-	tree=proto_item_add_subtree(item, ett_index);
 
 	/* 19.5 if min==max and min,max<64k ==> no length determinant */
 	if((min_len==max_len) && (min_len<65536)){
@@ -513,21 +519,28 @@ DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 		guint32 start_offset=offset;
 		/* semi-constrained whole number for number of elements */
 		/* each element encoded as 10.9 */
-		offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, -1, &length);
+		offset=dissect_per_length_determinant(tvb, offset, pinfo, parent_tree, -1, &length);
 		length+=min_len;
-		proto_tree_add_uint(tree, hf_per_sequence_of_length, tvb, start_offset>>3, (offset>>3)!=(start_offset>>3)?(offset>>3)-(start_offset>>3):1, length);
+		proto_tree_add_uint(parent_tree, hf_per_sequence_of_length, tvb, start_offset>>3, (offset>>3)!=(start_offset>>3)?(offset>>3)-(start_offset>>3):1, length);
 		goto call_sohelper;
 	}
 
 	/* constrained whole number for number of elements */
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo,
-		tree, hf_per_sequence_of_length, min_len, max_len,
+		parent_tree, hf_per_sequence_of_length, min_len, max_len,
 		&length, NULL, FALSE);
 
-
-
 call_sohelper:
-	offset=dissect_per_sequence_of_helper(tvb, offset, pinfo, tree, func, length);
+	hfi = proto_registrar_get_nth(hf_index);
+	if (IS_FT_UINT(hfi->type)) {
+		item = proto_tree_add_uint(parent_tree, hf_index, tvb, offset>>3, 0, length);
+		proto_item_append_text(item, (length==1)?" item":" items");
+	} else {
+		item=proto_tree_add_item(parent_tree, hf_index, tvb, offset>>3, 0, FALSE);
+	}
+	tree=proto_item_add_subtree(item, ett_index);
+
+	offset=dissect_per_sequence_of_helper(tvb, offset, pinfo, tree, seq->func, length);
 
 
 	proto_item_set_len(item, (offset>>3)!=(old_offset>>3)?(offset>>3)-(old_offset>>3):1);
@@ -536,11 +549,11 @@ call_sohelper:
 
 /* this function dissects a constrained set of */
 guint32
-dissect_per_constrained_set_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, int (*func)(tvbuff_t *, int , packet_info *, proto_tree *), int min_len, int max_len)
+dissect_per_constrained_set_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq, int min_len, int max_len)
 {
 	/* for basic-per  a set-of is encoded in the same way as a sequence-of */
 DEBUG_ENTRY("dissect_per_constrained_set_of");
-	offset=dissect_per_constrained_sequence_of(tvb, offset, pinfo, parent_tree, hf_index, ett_index, func, min_len, max_len);
+	offset=dissect_per_constrained_sequence_of(tvb, offset, pinfo, parent_tree, hf_index, ett_index, seq, min_len, max_len);
 	return offset;
 }
 
@@ -551,11 +564,11 @@ DEBUG_ENTRY("dissect_per_constrained_set_of");
 
 /* this function dissects a set of */
 guint32
-dissect_per_set_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, int (*func)(tvbuff_t *, int , packet_info *, proto_tree *))
+dissect_per_set_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq)
 {
 	/* for basic-per  a set-of is encoded in the same way as a sequence-of */
 DEBUG_ENTRY("dissect_per_set_of");
-	offset=dissect_per_sequence_of(tvb, offset, pinfo, parent_tree, hf_index, ett_index, func);
+	offset=dissect_per_sequence_of(tvb, offset, pinfo, parent_tree, hf_index, ett_index, seq);
 	return offset;
 }
 

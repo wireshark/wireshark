@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-h225.c                                                            */
+/* .\packet-h225.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h225 -c h225.cnf -s packet-h225-template h225.asn */
 
 /* Input file: packet-h225-template.c */
@@ -1212,15 +1212,12 @@ static int dissect_protocolIdentifier(tvbuff_t *tvb, int offset, packet_info *pi
 
 static int
 dissect_h225_T_h245ipv4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-
 	tvbuff_t *value_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                    4, 4,
-                                    &value_tvb);
+                                       4, 4, &value_tvb);
+
 	tvb_memcpy(value_tvb, (char *)&ipv4_address, 0, 4);
-
-
 
   return offset;
 }
@@ -1233,8 +1230,7 @@ static int dissect_h245ipv4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 static int
 dissect_h225_T_h245ipv4port(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           0U, 65535U, &ipv4_port, NULL, FALSE);
-
+                                              0U, 65535U, &ipv4_port, NULL, FALSE);
 
   return offset;
 }
@@ -1325,10 +1321,14 @@ static int dissect_segment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 
+static const per_sequence_t T_h245route_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h245route_item },
+};
+
 static int
 dissect_h225_T_h245route(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_T_h245route, dissect_h245route_item);
+                                      ett_h225_T_h245route, T_h245route_sequence_of);
 
   return offset;
 }
@@ -2117,12 +2117,14 @@ static int dissect_nonStandardIdentifier(tvbuff_t *tvb, int offset, packet_info 
 static int
 dissect_h225_T_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   tvbuff_t *next_tvb = NULL;
+
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
                                        -1, -1, &next_tvb);
 
   if (next_tvb && tvb_length(next_tvb)) {
     call_dissector((nsp_handle)?nsp_handle:data_handle, next_tvb, pinfo, tree);
   }
+
   return offset;
 }
 static int dissect_nsp_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -2297,10 +2299,14 @@ static int dissect_ipAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 }
 
 
+static const per_sequence_t T_route_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_route_item },
+};
+
 static int
 dissect_h225_T_route(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_T_route, dissect_route_item);
+                                      ett_h225_T_route, T_route_sequence_of);
 
   return offset;
 }
@@ -2924,10 +2930,14 @@ static int dissect_sourceEndpointInfo_item(tvbuff_t *tvb, int offset, packet_inf
 }
 
 
+static const per_sequence_t SEQUENCE_OF_AliasAddress_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_alertingAddress_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_AliasAddress(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_AliasAddress, dissect_alertingAddress_item);
+                                      ett_h225_SEQUENCE_OF_AliasAddress, SEQUENCE_OF_AliasAddress_sequence_of);
 
   return offset;
 }
@@ -3125,10 +3135,14 @@ static int dissect_gatewayDataRate(tvbuff_t *tvb, int offset, packet_info *pinfo
 }
 
 
+static const per_sequence_t SEQUENCE_OF_DataRate_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_dataRatesSupported_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_DataRate(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_DataRate, dissect_dataRatesSupported_item);
+                                      ett_h225_SEQUENCE_OF_DataRate, SEQUENCE_OF_DataRate_sequence_of);
 
   return offset;
 }
@@ -3154,10 +3168,14 @@ static int dissect_supportedPrefixes_item(tvbuff_t *tvb, int offset, packet_info
 }
 
 
+static const per_sequence_t SEQUENCE_OF_SupportedPrefix_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_supportedPrefixes_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_SupportedPrefix(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_SupportedPrefix, dissect_supportedPrefixes_item);
+                                      ett_h225_SEQUENCE_OF_SupportedPrefix, SEQUENCE_OF_SupportedPrefix_sequence_of);
 
   return offset;
 }
@@ -3420,10 +3438,14 @@ static int dissect_protocols_item(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
+static const per_sequence_t SEQUENCE_OF_SupportedProtocols_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_desiredProtocols_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_SupportedProtocols(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_SupportedProtocols, dissect_desiredProtocols_item);
+                                      ett_h225_SEQUENCE_OF_SupportedProtocols, SEQUENCE_OF_SupportedProtocols_sequence_of);
 
   return offset;
 }
@@ -3491,10 +3513,11 @@ static int dissect_terminal(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
+
 static int
 dissect_h225_BOOLEAN(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_boolean(tvb, offset, pinfo, tree, hf_index,
-                               NULL, NULL);
+                                  NULL, NULL);
 
   return offset;
 }
@@ -3775,10 +3798,14 @@ static int dissect_desiredTunnelledProtocol(tvbuff_t *tvb, int offset, packet_in
 }
 
 
+static const per_sequence_t SEQUENCE_OF_TunnelledProtocol_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_supportedTunnelledProtocols_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_TunnelledProtocol(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_TunnelledProtocol, dissect_supportedTunnelledProtocols_item);
+                                      ett_h225_SEQUENCE_OF_TunnelledProtocol, SEQUENCE_OF_TunnelledProtocol_sequence_of);
 
   return offset;
 }
@@ -3840,10 +3867,14 @@ static int dissect_callReferenceValue(tvbuff_t *tvb, int offset, packet_info *pi
 }
 
 
+static const per_sequence_t SEQUENCE_OF_CallReferenceValue_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_destExtraCRV_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_CallReferenceValue(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_CallReferenceValue, dissect_destExtraCRV_item);
+                                      ett_h225_SEQUENCE_OF_CallReferenceValue, SEQUENCE_OF_CallReferenceValue_sequence_of);
 
   return offset;
 }
@@ -4105,10 +4136,14 @@ static int dissect_h245SecurityCapability_item(tvbuff_t *tvb, int offset, packet
 }
 
 
+static const per_sequence_t SEQUENCE_OF_H245Security_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h245SecurityCapability_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_H245Security(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_H245Security, dissect_h245SecurityCapability_item);
+                                      ett_h225_SEQUENCE_OF_H245Security, SEQUENCE_OF_H245Security_sequence_of);
 
   return offset;
 }
@@ -4117,10 +4152,14 @@ static int dissect_h245SecurityCapability(tvbuff_t *tvb, int offset, packet_info
 }
 
 
+static const per_sequence_t SEQUENCE_OF_ClearToken_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tokens_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_ClearToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_ClearToken, dissect_tokens_item);
+                                      ett_h225_SEQUENCE_OF_ClearToken, SEQUENCE_OF_ClearToken_sequence_of);
 
   return offset;
 }
@@ -4217,10 +4256,14 @@ static int dissect_cryptoTokens_item(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 
+static const per_sequence_t SEQUENCE_OF_CryptoH323Token_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cryptoTokens_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_CryptoH323Token(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_CryptoH323Token, dissect_cryptoTokens_item);
+                                      ett_h225_SEQUENCE_OF_CryptoH323Token, SEQUENCE_OF_CryptoH323Token_sequence_of);
 
   return offset;
 }
@@ -4258,10 +4301,14 @@ static int dissect_FastStart_item(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
+static const per_sequence_t FastStart_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_FastStart_item },
+};
+
 static int
 dissect_h225_FastStart(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_FastStart, dissect_FastStart_item);
+                                      ett_h225_FastStart, FastStart_sequence_of);
 
   return offset;
 }
@@ -4380,10 +4427,14 @@ static int dissect_language_item(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 
+static const per_sequence_t Language_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_language_item },
+};
+
 static int
 dissect_h225_Language(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_Language, dissect_language_item);
+                                      ett_h225_Language, Language_sequence_of);
 
   return offset;
 }
@@ -4431,7 +4482,7 @@ const value_string h225_ScreeningIndicator_vals[] = {
 int
 dissect_h225_ScreeningIndicator(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           0, 3, NULL, NULL, TRUE);
+                                              0, 3, NULL, NULL, TRUE);
 
   return offset;
 }
@@ -4656,10 +4707,14 @@ static int dissect_serviceControl_item(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 
+static const per_sequence_t SEQUENCE_OF_ServiceControlSession_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_serviceControl_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_ServiceControlSession(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_ServiceControlSession, dissect_serviceControl_item);
+                                      ett_h225_SEQUENCE_OF_ServiceControlSession, SEQUENCE_OF_ServiceControlSession_sequence_of);
 
   return offset;
 }
@@ -4780,10 +4835,14 @@ static int dissect_sipGwCallsAvailable_item(tvbuff_t *tvb, int offset, packet_in
 }
 
 
+static const per_sequence_t SEQUENCE_OF_CallsAvailable_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_voiceGwCallsAvailable_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_CallsAvailable(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_CallsAvailable, dissect_voiceGwCallsAvailable_item);
+                                      ett_h225_SEQUENCE_OF_CallsAvailable, SEQUENCE_OF_CallsAvailable_sequence_of);
 
   return offset;
 }
@@ -4885,10 +4944,14 @@ static int dissect_cic_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
+static const per_sequence_t T_cic_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_cic_item },
+};
+
 static int
 dissect_h225_T_cic(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_T_cic, dissect_cic_item);
+                                      ett_h225_T_cic, T_cic_sequence_of);
 
   return offset;
 }
@@ -4927,10 +4990,14 @@ static int dissect_cic(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 }
 
 
+static const per_sequence_t T_member_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_member_item },
+};
+
 static int
 dissect_h225_T_member(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_T_member, dissect_member_item);
+                                      ett_h225_T_member, T_member_sequence_of);
 
   return offset;
 }
@@ -5060,11 +5127,15 @@ static int dissect_unicode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 
+static const per_sequence_t SEQUENCE_SIZE_1_512_OF_EnumeratedParameter_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_parameters_item },
+};
+
 static int
 dissect_h225_SEQUENCE_SIZE_1_512_OF_EnumeratedParameter(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                               ett_h225_SEQUENCE_SIZE_1_512_OF_EnumeratedParameter, dissect_parameters_item,
-                                               1, 512);
+                                                  ett_h225_SEQUENCE_SIZE_1_512_OF_EnumeratedParameter, SEQUENCE_SIZE_1_512_OF_EnumeratedParameter_sequence_of,
+                                                  1, 512);
 
   return offset;
 }
@@ -5076,11 +5147,15 @@ static int dissect_compound(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
+static const per_sequence_t SEQUENCE_SIZE_1_16_OF_GenericData_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nested_item },
+};
+
 static int
 dissect_h225_SEQUENCE_SIZE_1_16_OF_GenericData(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                               ett_h225_SEQUENCE_SIZE_1_16_OF_GenericData, dissect_nested_item,
-                                               1, 16);
+                                                  ett_h225_SEQUENCE_SIZE_1_16_OF_GenericData, SEQUENCE_SIZE_1_16_OF_GenericData_sequence_of,
+                                                  1, 16);
 
   return offset;
 }
@@ -5162,10 +5237,14 @@ dissect_h225_GenericData(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 }
 
 
+static const per_sequence_t SEQUENCE_OF_GenericData_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_genericData_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_GenericData(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_GenericData, dissect_genericData_item);
+                                      ett_h225_SEQUENCE_OF_GenericData, SEQUENCE_OF_GenericData_sequence_of);
 
   return offset;
 }
@@ -5209,10 +5288,14 @@ static int dissect_supportedFeatures_item(tvbuff_t *tvb, int offset, packet_info
 }
 
 
+static const per_sequence_t SEQUENCE_OF_FeatureDescriptor_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_neededFeatures_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_FeatureDescriptor(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_FeatureDescriptor, dissect_neededFeatures_item);
+                                      ett_h225_SEQUENCE_OF_FeatureDescriptor, SEQUENCE_OF_FeatureDescriptor_sequence_of);
 
   return offset;
 }
@@ -5231,12 +5314,14 @@ static int dissect_supportedFeatures(tvbuff_t *tvb, int offset, packet_info *pin
 static int
 dissect_h225_ParallelH245Control_item(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
 	tvbuff_t *h245_tvb = NULL;
+
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
                                        -1, -1, &h245_tvb);
 
 	if (h245_tvb && tvb_length(h245_tvb)) {
 		call_dissector(h245dg_handle, h245_tvb, pinfo, tree);
 	}
+
   return offset;
 }
 static int dissect_ParallelH245Control_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -5244,10 +5329,14 @@ static int dissect_ParallelH245Control_item(tvbuff_t *tvb, int offset, packet_in
 }
 
 
+static const per_sequence_t ParallelH245Control_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ParallelH245Control_item },
+};
+
 static int
 dissect_h225_ParallelH245Control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_ParallelH245Control, dissect_ParallelH245Control_item);
+                                      ett_h225_ParallelH245Control, ParallelH245Control_sequence_of);
 
   return offset;
 }
@@ -5274,10 +5363,14 @@ static int dissect_additionalSourceAddresses_item(tvbuff_t *tvb, int offset, pac
 }
 
 
+static const per_sequence_t SEQUENCE_OF_ExtendedAliasAddress_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_additionalSourceAddresses_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_ExtendedAliasAddress(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_ExtendedAliasAddress, dissect_additionalSourceAddresses_item);
+                                      ett_h225_SEQUENCE_OF_ExtendedAliasAddress, SEQUENCE_OF_ExtendedAliasAddress_sequence_of);
 
   return offset;
 }
@@ -5743,10 +5836,14 @@ static int dissect_conferences_item(tvbuff_t *tvb, int offset, packet_info *pinf
 }
 
 
+static const per_sequence_t SEQUENCE_OF_ConferenceList_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_conferences_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_ConferenceList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_ConferenceList, dissect_conferences_item);
+                                      ett_h225_SEQUENCE_OF_ConferenceList, SEQUENCE_OF_ConferenceList_sequence_of);
 
   return offset;
 }
@@ -5992,9 +6089,10 @@ static int dissect_h323_message_body(tvbuff_t *tvb, int offset, packet_info *pin
 
 static int
 dissect_h225_T_h4501SupplementaryService_item(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-
 	tvbuff_t *h4501_tvb = NULL;
-	offset=dissect_per_octet_string(tvb, offset, pinfo, tree, -1, -1, -1, &h4501_tvb);
+
+  offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
+                                       -1, -1, &h4501_tvb);
 
 	if(tvb_length(h4501_tvb)){
 		call_dissector(h4501_handle, h4501_tvb, pinfo, tree);
@@ -6007,10 +6105,14 @@ static int dissect_h4501SupplementaryService_item(tvbuff_t *tvb, int offset, pac
 }
 
 
+static const per_sequence_t T_h4501SupplementaryService_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h4501SupplementaryService_item },
+};
+
 static int
 dissect_h225_T_h4501SupplementaryService(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_T_h4501SupplementaryService, dissect_h4501SupplementaryService_item);
+                                      ett_h225_T_h4501SupplementaryService, T_h4501SupplementaryService_sequence_of);
 
   return offset;
 }
@@ -6019,9 +6121,11 @@ static int dissect_h4501SupplementaryService(tvbuff_t *tvb, int offset, packet_i
 }
 
 
+
 static int
 dissect_h225_T_h245Tunneling(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-	offset=dissect_per_boolean(tvb, offset, pinfo, tree, hf_h225_h245Tunneling, &(h225_pi->is_h245Tunneling), NULL);
+  offset = dissect_per_boolean(tvb, offset, pinfo, tree, hf_index,
+                                  &(h225_pi->is_h245Tunneling), NULL);
 
   return offset;
 }
@@ -6034,12 +6138,14 @@ static int dissect_h245Tunneling(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 static int
 dissect_h225_H245Control_item(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
 	tvbuff_t *h245_tvb = NULL;
+
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
                                        -1, -1, &h245_tvb);
 
 	if (h245_tvb && tvb_length(h245_tvb)) {
 		call_dissector(h245dg_handle, h245_tvb, pinfo, tree);
 	}
+
   return offset;
 }
 static int dissect_H245Control_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -6047,10 +6153,14 @@ static int dissect_H245Control_item(tvbuff_t *tvb, int offset, packet_info *pinf
 }
 
 
+static const per_sequence_t H245Control_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_H245Control_item },
+};
+
 static int
 dissect_h225_H245Control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_H245Control, dissect_H245Control_item);
+                                      ett_h225_H245Control, H245Control_sequence_of);
 
   return offset;
 }
@@ -6059,10 +6169,14 @@ static int dissect_h245Control(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 
+static const per_sequence_t SEQUENCE_OF_NonStandardParameter_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nonStandardControl_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_NonStandardParameter(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_NonStandardParameter, dissect_nonStandardControl_item);
+                                      ett_h225_SEQUENCE_OF_NonStandardParameter, SEQUENCE_OF_NonStandardParameter_sequence_of);
 
   return offset;
 }
@@ -6098,12 +6212,14 @@ static int dissect_callLinkage(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 static int
 dissect_h225_T_messageContent_item(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   tvbuff_t *next_tvb = NULL;
+
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
                                        -1, -1, &next_tvb);
 
   if (next_tvb && tvb_length(next_tvb)) {
     call_dissector((tp_handle)?tp_handle:data_handle, next_tvb, pinfo, tree);
   }
+
   return offset;
 }
 static int dissect_messageContent_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -6111,10 +6227,14 @@ static int dissect_messageContent_item(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 
+static const per_sequence_t T_messageContent_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_messageContent_item },
+};
+
 static int
 dissect_h225_T_messageContent(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_T_messageContent, dissect_messageContent_item);
+                                      ett_h225_T_messageContent, T_messageContent_sequence_of);
 
   return offset;
 }
@@ -6279,10 +6399,14 @@ static int dissect_endpointAliasPattern_item(tvbuff_t *tvb, int offset, packet_i
 }
 
 
+static const per_sequence_t SEQUENCE_OF_TransportAddress_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_callSignalAddress_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_TransportAddress(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_TransportAddress, dissect_callSignalAddress_item);
+                                      ett_h225_SEQUENCE_OF_TransportAddress, SEQUENCE_OF_TransportAddress_sequence_of);
 
   return offset;
 }
@@ -6410,10 +6534,14 @@ static int dissect_alternateGatekeeper_item(tvbuff_t *tvb, int offset, packet_in
 }
 
 
+static const per_sequence_t SEQUENCE_OF_AlternateGK_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_alternateGatekeeper_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_AlternateGK(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_AlternateGK, dissect_alternateGatekeeper_item);
+                                      ett_h225_SEQUENCE_OF_AlternateGK, SEQUENCE_OF_AlternateGK_sequence_of);
 
   return offset;
 }
@@ -6476,8 +6604,7 @@ static int dissect_securityError(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 static int
 dissect_h225_RequestSeqNum(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                           1U, 65535U, &(h225_pi->requestSeqNum), NULL, FALSE);
-
+                                              1U, 65535U, &(h225_pi->requestSeqNum), NULL, FALSE);
 
   return offset;
 }
@@ -6918,10 +7045,14 @@ static int dissect_hopCount(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
+static const per_sequence_t T_associatedSessionIds_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_associatedSessionIds_item },
+};
+
 static int
 dissect_h225_T_associatedSessionIds(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_T_associatedSessionIds, dissect_associatedSessionIds_item);
+                                      ett_h225_T_associatedSessionIds, T_associatedSessionIds_sequence_of);
 
   return offset;
 }
@@ -6956,10 +7087,14 @@ static int dissect_video_item(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 
+static const per_sequence_t SEQUENCE_OF_Endpoint_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_alternateEndpoints_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_Endpoint(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_Endpoint, dissect_alternateEndpoints_item);
+                                      ett_h225_SEQUENCE_OF_Endpoint, SEQUENCE_OF_Endpoint_sequence_of);
 
   return offset;
 }
@@ -6974,10 +7109,14 @@ static int dissect_destAlternatives(tvbuff_t *tvb, int offset, packet_info *pinf
 }
 
 
+static const per_sequence_t SEQUENCE_OF_AuthenticationMechanism_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_authenticationCapability_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_AuthenticationMechanism(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_AuthenticationMechanism, dissect_authenticationCapability_item);
+                                      ett_h225_SEQUENCE_OF_AuthenticationMechanism, SEQUENCE_OF_AuthenticationMechanism_sequence_of);
 
   return offset;
 }
@@ -6986,10 +7125,14 @@ static int dissect_authenticationCapability(tvbuff_t *tvb, int offset, packet_in
 }
 
 
+static const per_sequence_t T_algorithmOIDs_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_algorithmOIDs_item },
+};
+
 static int
 dissect_h225_T_algorithmOIDs(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_T_algorithmOIDs, dissect_algorithmOIDs_item);
+                                      ett_h225_T_algorithmOIDs, T_algorithmOIDs_sequence_of);
 
   return offset;
 }
@@ -6998,10 +7141,14 @@ static int dissect_algorithmOIDs(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 
+static const per_sequence_t SEQUENCE_OF_IntegrityMechanism_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_integrity_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_IntegrityMechanism(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_IntegrityMechanism, dissect_integrity_item);
+                                      ett_h225_SEQUENCE_OF_IntegrityMechanism, SEQUENCE_OF_IntegrityMechanism_sequence_of);
 
   return offset;
 }
@@ -7139,10 +7286,14 @@ static int dissect_gatekeeperReject(tvbuff_t *tvb, int offset, packet_info *pinf
 }
 
 
+static const per_sequence_t SEQUENCE_OF_AddressPattern_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_terminalAliasPattern_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_AddressPattern(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_AddressPattern, dissect_terminalAliasPattern_item);
+                                      ett_h225_SEQUENCE_OF_AddressPattern, SEQUENCE_OF_AddressPattern_sequence_of);
 
   return offset;
 }
@@ -7154,10 +7305,14 @@ static int dissect_endpointAliasPattern(tvbuff_t *tvb, int offset, packet_info *
 }
 
 
+static const per_sequence_t SEQUENCE_OF_H248PackagesDescriptor_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_supportedH248Packages_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_H248PackagesDescriptor(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_H248PackagesDescriptor, dissect_supportedH248Packages_item);
+                                      ett_h225_SEQUENCE_OF_H248PackagesDescriptor, SEQUENCE_OF_H248PackagesDescriptor_sequence_of);
 
   return offset;
 }
@@ -7256,10 +7411,14 @@ static int dissect_preGrantedARQ(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 
+static const per_sequence_t SEQUENCE_OF_RasUsageSpecification_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_usageSpec_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_RasUsageSpecification(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_RasUsageSpecification, dissect_usageSpec_item);
+                                      ett_h225_SEQUENCE_OF_RasUsageSpecification, SEQUENCE_OF_RasUsageSpecification_sequence_of);
 
   return offset;
 }
@@ -7596,10 +7755,14 @@ static int dissect_DestinationInfo_item(tvbuff_t *tvb, int offset, packet_info *
 }
 
 
+static const per_sequence_t DestinationInfo_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_DestinationInfo_item },
+};
+
 static int
 dissect_h225_DestinationInfo(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_DestinationInfo, dissect_DestinationInfo_item);
+                                      ett_h225_DestinationInfo, DestinationInfo_sequence_of);
 
   return offset;
 }
@@ -7759,10 +7922,14 @@ static int dissect_admissionConfirmSequence_item(tvbuff_t *tvb, int offset, pack
 }
 
 
+static const per_sequence_t SEQUENCE_OF_PartyNumber_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_routeCallToSCN_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_PartyNumber(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_PartyNumber, dissect_routeCallToSCN_item);
+                                      ett_h225_SEQUENCE_OF_PartyNumber, SEQUENCE_OF_PartyNumber_sequence_of);
 
   return offset;
 }
@@ -7868,10 +8035,14 @@ static int dissect_admissionReject(tvbuff_t *tvb, int offset, packet_info *pinfo
 }
 
 
+static const per_sequence_t SEQUENCE_OF_BandwidthDetails_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_bandwidthDetails_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_BandwidthDetails(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_BandwidthDetails, dissect_bandwidthDetails_item);
+                                      ett_h225_SEQUENCE_OF_BandwidthDetails, SEQUENCE_OF_BandwidthDetails_sequence_of);
 
   return offset;
 }
@@ -8325,10 +8496,14 @@ static int dissect_infoRequest(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 
+static const per_sequence_t SEQUENCE_OF_RTPSession_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_audio_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_RTPSession(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_RTPSession, dissect_audio_item);
+                                      ett_h225_SEQUENCE_OF_RTPSession, SEQUENCE_OF_RTPSession_sequence_of);
 
   return offset;
 }
@@ -8340,10 +8515,14 @@ static int dissect_video(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 }
 
 
+static const per_sequence_t SEQUENCE_OF_TransportChannelInfo_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_data_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_TransportChannelInfo(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_TransportChannelInfo, dissect_data_item);
+                                      ett_h225_SEQUENCE_OF_TransportChannelInfo, SEQUENCE_OF_TransportChannelInfo_sequence_of);
 
   return offset;
 }
@@ -8352,10 +8531,14 @@ static int dissect_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 }
 
 
+static const per_sequence_t SEQUENCE_OF_ConferenceIdentifier_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_substituteConfIDs_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_ConferenceIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_ConferenceIdentifier, dissect_substituteConfIDs_item);
+                                      ett_h225_SEQUENCE_OF_ConferenceIdentifier, SEQUENCE_OF_ConferenceIdentifier_sequence_of);
 
   return offset;
 }
@@ -8381,10 +8564,14 @@ static int dissect_pdu_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
+static const per_sequence_t T_pdu_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_pdu_item },
+};
+
 static int
 dissect_h225_T_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_T_pdu, dissect_pdu_item);
+                                      ett_h225_T_pdu, T_pdu_sequence_of);
 
   return offset;
 }
@@ -8428,10 +8615,14 @@ static int dissect_perCallInfo_item(tvbuff_t *tvb, int offset, packet_info *pinf
 }
 
 
+static const per_sequence_t T_perCallInfo_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_perCallInfo_item },
+};
+
 static int
 dissect_h225_T_perCallInfo(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_T_perCallInfo, dissect_perCallInfo_item);
+                                      ett_h225_T_perCallInfo, T_perCallInfo_sequence_of);
 
   return offset;
 }
@@ -8782,10 +8973,14 @@ static int dissect_serviceControlResponse(tvbuff_t *tvb, int offset, packet_info
 }
 
 
+static const per_sequence_t SEQUENCE_OF_AdmissionConfirm_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_admissionConfirmSequence_item },
+};
+
 static int
 dissect_h225_SEQUENCE_OF_AdmissionConfirm(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                   ett_h225_SEQUENCE_OF_AdmissionConfirm, dissect_admissionConfirmSequence_item);
+                                      ett_h225_SEQUENCE_OF_AdmissionConfirm, SEQUENCE_OF_AdmissionConfirm_sequence_of);
 
   return offset;
 }
@@ -9067,7 +9262,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_h4501SupplementaryService,
       { "h4501SupplementaryService", "h225.h4501SupplementaryService",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "H323-UU-PDU/h4501SupplementaryService", HFILL }},
     { &hf_h225_h4501SupplementaryService_item,
       { "Item", "h225.h4501SupplementaryService_item",
@@ -9079,11 +9274,11 @@ void proto_register_h225(void) {
         "H323-UU-PDU/h245Tunneling", HFILL }},
     { &hf_h225_h245Control,
       { "h245Control", "h225.h245Control",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "H323-UU-PDU/h245Control", HFILL }},
     { &hf_h225_nonStandardControl,
       { "nonStandardControl", "h225.nonStandardControl",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "H323-UU-PDU/nonStandardControl", HFILL }},
     { &hf_h225_nonStandardControl_item,
       { "Item", "h225.nonStandardControl_item",
@@ -9103,7 +9298,7 @@ void proto_register_h225(void) {
         "H323-UU-PDU/tunnelledSignallingMessage/tunnelledProtocolID", HFILL }},
     { &hf_h225_messageContent,
       { "messageContent", "h225.messageContent",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "H323-UU-PDU/tunnelledSignallingMessage/messageContent", HFILL }},
     { &hf_h225_messageContent_item,
       { "Item", "h225.messageContent_item",
@@ -9123,7 +9318,7 @@ void proto_register_h225(void) {
         "H323-UU-PDU/stimulusControl", HFILL }},
     { &hf_h225_genericData,
       { "genericData", "h225.genericData",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_genericData_item,
       { "Item", "h225.genericData_item",
@@ -9167,7 +9362,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_tokens,
       { "tokens", "h225.tokens",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_tokens_item,
       { "Item", "h225.tokens_item",
@@ -9175,7 +9370,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_cryptoTokens,
       { "cryptoTokens", "h225.cryptoTokens",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_cryptoTokens_item,
       { "Item", "h225.cryptoTokens_item",
@@ -9183,7 +9378,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_fastStart,
       { "fastStart", "h225.fastStart",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_multipleCalls,
       { "multipleCalls", "h225.multipleCalls",
@@ -9195,7 +9390,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_alertingAddress,
       { "alertingAddress", "h225.alertingAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Alerting-UUIE/alertingAddress", HFILL }},
     { &hf_h225_alertingAddress_item,
       { "Item", "h225.alertingAddress_item",
@@ -9215,7 +9410,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_serviceControl,
       { "serviceControl", "h225.serviceControl",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_serviceControl_item,
       { "Item", "h225.serviceControl_item",
@@ -9235,7 +9430,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_language,
       { "language", "h225.language",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_language_item,
       { "Item", "h225.language_item",
@@ -9243,7 +9438,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_connectedAddress,
       { "connectedAddress", "h225.connectedAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Connect-UUIE/connectedAddress", HFILL }},
     { &hf_h225_connectedAddress_item,
       { "Item", "h225.connectedAddress_item",
@@ -9259,7 +9454,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_busyAddress,
       { "busyAddress", "h225.busyAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "ReleaseComplete-UUIE/busyAddress", HFILL }},
     { &hf_h225_busyAddress_item,
       { "Item", "h225.busyAddress_item",
@@ -9367,7 +9562,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_sourceAddress,
       { "sourceAddress", "h225.sourceAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Setup-UUIE/sourceAddress", HFILL }},
     { &hf_h225_sourceAddress_item,
       { "Item", "h225.sourceAddress_item",
@@ -9379,7 +9574,7 @@ void proto_register_h225(void) {
         "Setup-UUIE/sourceInfo", HFILL }},
     { &hf_h225_destinationAddress,
       { "destinationAddress", "h225.destinationAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Setup-UUIE/destinationAddress", HFILL }},
     { &hf_h225_destinationAddress_item,
       { "Item", "h225.destinationAddress_item",
@@ -9391,7 +9586,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_destExtraCallInfo,
       { "destExtraCallInfo", "h225.destExtraCallInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_destExtraCallInfo_item,
       { "Item", "h225.destExtraCallInfo_item",
@@ -9399,7 +9594,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_destExtraCRV,
       { "destExtraCRV", "h225.destExtraCRV",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Setup-UUIE/destExtraCRV", HFILL }},
     { &hf_h225_destExtraCRV_item,
       { "Item", "h225.destExtraCRV_item",
@@ -9451,7 +9646,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_h245SecurityCapability,
       { "h245SecurityCapability", "h225.h245SecurityCapability",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Setup-UUIE/h245SecurityCapability", HFILL }},
     { &hf_h225_h245SecurityCapability_item,
       { "Item", "h225.h245SecurityCapability_item",
@@ -9491,7 +9686,7 @@ void proto_register_h225(void) {
         "Setup-UUIE/symmetricOperationRequired", HFILL }},
     { &hf_h225_desiredProtocols,
       { "desiredProtocols", "h225.desiredProtocols",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_desiredProtocols_item,
       { "Item", "h225.desiredProtocols_item",
@@ -9499,7 +9694,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_neededFeatures,
       { "neededFeatures", "h225.neededFeatures",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_neededFeatures_item,
       { "Item", "h225.neededFeatures_item",
@@ -9507,7 +9702,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_desiredFeatures,
       { "desiredFeatures", "h225.desiredFeatures",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_desiredFeatures_item,
       { "Item", "h225.desiredFeatures_item",
@@ -9515,7 +9710,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_supportedFeatures,
       { "supportedFeatures", "h225.supportedFeatures",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_supportedFeatures_item,
       { "Item", "h225.supportedFeatures_item",
@@ -9523,11 +9718,11 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_parallelH245Control,
       { "parallelH245Control", "h225.parallelH245Control",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Setup-UUIE/parallelH245Control", HFILL }},
     { &hf_h225_additionalSourceAddresses,
       { "additionalSourceAddresses", "h225.additionalSourceAddresses",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Setup-UUIE/additionalSourceAddresses", HFILL }},
     { &hf_h225_additionalSourceAddresses_item,
       { "Item", "h225.additionalSourceAddresses_item",
@@ -9611,7 +9806,7 @@ void proto_register_h225(void) {
         "Facility-UUIE/alternativeAddress", HFILL }},
     { &hf_h225_alternativeAliasAddress,
       { "alternativeAliasAddress", "h225.alternativeAliasAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Facility-UUIE/alternativeAliasAddress", HFILL }},
     { &hf_h225_alternativeAliasAddress_item,
       { "Item", "h225.alternativeAliasAddress_item",
@@ -9623,7 +9818,7 @@ void proto_register_h225(void) {
         "Facility-UUIE/reason", HFILL }},
     { &hf_h225_conferences,
       { "conferences", "h225.conferences",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Facility-UUIE/conferences", HFILL }},
     { &hf_h225_conferences_item,
       { "Item", "h225.conferences_item",
@@ -9703,7 +9898,7 @@ void proto_register_h225(void) {
         "TransportAddress/ipSourceRoute/port", HFILL }},
     { &hf_h225_route,
       { "route", "h225.route",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "TransportAddress/ipSourceRoute/route", HFILL }},
     { &hf_h225_route_item,
       { "Item", "h225.route_item",
@@ -9787,7 +9982,7 @@ void proto_register_h225(void) {
         "H245TransportAddress/h245ipSourceRoute/h245routeport", HFILL }},
     { &hf_h225_h245route,
       { "h245route", "h225.h245route",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "H245TransportAddress/h245ipSourceRoute/h245route", HFILL }},
     { &hf_h225_h245route_item,
       { "Item", "h225.h245route_item",
@@ -9859,7 +10054,7 @@ void proto_register_h225(void) {
         "EndpointType/set", HFILL }},
     { &hf_h225_supportedTunnelledProtocols,
       { "supportedTunnelledProtocols", "h225.supportedTunnelledProtocols",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "EndpointType/supportedTunnelledProtocols", HFILL }},
     { &hf_h225_supportedTunnelledProtocols_item,
       { "Item", "h225.supportedTunnelledProtocols_item",
@@ -9867,7 +10062,7 @@ void proto_register_h225(void) {
         "EndpointType/supportedTunnelledProtocols/_item", HFILL }},
     { &hf_h225_protocol,
       { "protocol", "h225.protocol",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_protocol_item,
       { "Item", "h225.protocol_item",
@@ -9919,7 +10114,7 @@ void proto_register_h225(void) {
         "SupportedProtocols/sip", HFILL }},
     { &hf_h225_dataRatesSupported,
       { "dataRatesSupported", "h225.dataRatesSupported",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_dataRatesSupported_item,
       { "Item", "h225.dataRatesSupported_item",
@@ -9927,7 +10122,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_supportedPrefixes,
       { "supportedPrefixes", "h225.supportedPrefixes",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_supportedPrefixes_item,
       { "Item", "h225.supportedPrefixes_item",
@@ -10211,7 +10406,7 @@ void proto_register_h225(void) {
         "ExtendedAliasAddress/address", HFILL }},
     { &hf_h225_aliasAddress,
       { "aliasAddress", "h225.aliasAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Endpoint/aliasAddress", HFILL }},
     { &hf_h225_aliasAddress_item,
       { "Item", "h225.aliasAddress_item",
@@ -10219,7 +10414,7 @@ void proto_register_h225(void) {
         "Endpoint/aliasAddress/_item", HFILL }},
     { &hf_h225_callSignalAddress,
       { "callSignalAddress", "h225.callSignalAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_callSignalAddress_item,
       { "Item", "h225.callSignalAddress_item",
@@ -10227,7 +10422,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_rasAddress,
       { "rasAddress", "h225.rasAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_rasAddress_item,
       { "Item", "h225.rasAddress_item",
@@ -10243,7 +10438,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_remoteExtensionAddress,
       { "remoteExtensionAddress", "h225.remoteExtensionAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_remoteExtensionAddress_item,
       { "Item", "h225.remoteExtensionAddress_item",
@@ -10255,7 +10450,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_annexE,
       { "annexE", "h225.annexE",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "AlternateTransportAddresses/annexE", HFILL }},
     { &hf_h225_annexE_item,
       { "Item", "h225.annexE_item",
@@ -10263,7 +10458,7 @@ void proto_register_h225(void) {
         "AlternateTransportAddresses/annexE/_item", HFILL }},
     { &hf_h225_sctp,
       { "sctp", "h225.sctp",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "AlternateTransportAddresses/sctp", HFILL }},
     { &hf_h225_sctp_item,
       { "Item", "h225.sctp_item",
@@ -10295,7 +10490,7 @@ void proto_register_h225(void) {
         "AlternateGK/needToRegister", HFILL }},
     { &hf_h225_alternateGatekeeper,
       { "alternateGatekeeper", "h225.alternateGatekeeper",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_alternateGatekeeper_item,
       { "Item", "h225.alternateGatekeeper_item",
@@ -10575,7 +10770,7 @@ void proto_register_h225(void) {
         "CallCapacity/currentCallCapacity", HFILL }},
     { &hf_h225_voiceGwCallsAvailable,
       { "voiceGwCallsAvailable", "h225.voiceGwCallsAvailable",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CallCapacityInfo/voiceGwCallsAvailable", HFILL }},
     { &hf_h225_voiceGwCallsAvailable_item,
       { "Item", "h225.voiceGwCallsAvailable_item",
@@ -10583,7 +10778,7 @@ void proto_register_h225(void) {
         "CallCapacityInfo/voiceGwCallsAvailable/_item", HFILL }},
     { &hf_h225_h310GwCallsAvailable,
       { "h310GwCallsAvailable", "h225.h310GwCallsAvailable",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CallCapacityInfo/h310GwCallsAvailable", HFILL }},
     { &hf_h225_h310GwCallsAvailable_item,
       { "Item", "h225.h310GwCallsAvailable_item",
@@ -10591,7 +10786,7 @@ void proto_register_h225(void) {
         "CallCapacityInfo/h310GwCallsAvailable/_item", HFILL }},
     { &hf_h225_h320GwCallsAvailable,
       { "h320GwCallsAvailable", "h225.h320GwCallsAvailable",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CallCapacityInfo/h320GwCallsAvailable", HFILL }},
     { &hf_h225_h320GwCallsAvailable_item,
       { "Item", "h225.h320GwCallsAvailable_item",
@@ -10599,7 +10794,7 @@ void proto_register_h225(void) {
         "CallCapacityInfo/h320GwCallsAvailable/_item", HFILL }},
     { &hf_h225_h321GwCallsAvailable,
       { "h321GwCallsAvailable", "h225.h321GwCallsAvailable",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CallCapacityInfo/h321GwCallsAvailable", HFILL }},
     { &hf_h225_h321GwCallsAvailable_item,
       { "Item", "h225.h321GwCallsAvailable_item",
@@ -10607,7 +10802,7 @@ void proto_register_h225(void) {
         "CallCapacityInfo/h321GwCallsAvailable/_item", HFILL }},
     { &hf_h225_h322GwCallsAvailable,
       { "h322GwCallsAvailable", "h225.h322GwCallsAvailable",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CallCapacityInfo/h322GwCallsAvailable", HFILL }},
     { &hf_h225_h322GwCallsAvailable_item,
       { "Item", "h225.h322GwCallsAvailable_item",
@@ -10615,7 +10810,7 @@ void proto_register_h225(void) {
         "CallCapacityInfo/h322GwCallsAvailable/_item", HFILL }},
     { &hf_h225_h323GwCallsAvailable,
       { "h323GwCallsAvailable", "h225.h323GwCallsAvailable",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CallCapacityInfo/h323GwCallsAvailable", HFILL }},
     { &hf_h225_h323GwCallsAvailable_item,
       { "Item", "h225.h323GwCallsAvailable_item",
@@ -10623,7 +10818,7 @@ void proto_register_h225(void) {
         "CallCapacityInfo/h323GwCallsAvailable/_item", HFILL }},
     { &hf_h225_h324GwCallsAvailable,
       { "h324GwCallsAvailable", "h225.h324GwCallsAvailable",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CallCapacityInfo/h324GwCallsAvailable", HFILL }},
     { &hf_h225_h324GwCallsAvailable_item,
       { "Item", "h225.h324GwCallsAvailable_item",
@@ -10631,7 +10826,7 @@ void proto_register_h225(void) {
         "CallCapacityInfo/h324GwCallsAvailable/_item", HFILL }},
     { &hf_h225_t120OnlyGwCallsAvailable,
       { "t120OnlyGwCallsAvailable", "h225.t120OnlyGwCallsAvailable",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CallCapacityInfo/t120OnlyGwCallsAvailable", HFILL }},
     { &hf_h225_t120OnlyGwCallsAvailable_item,
       { "Item", "h225.t120OnlyGwCallsAvailable_item",
@@ -10639,7 +10834,7 @@ void proto_register_h225(void) {
         "CallCapacityInfo/t120OnlyGwCallsAvailable/_item", HFILL }},
     { &hf_h225_t38FaxAnnexbOnlyGwCallsAvailable,
       { "t38FaxAnnexbOnlyGwCallsAvailable", "h225.t38FaxAnnexbOnlyGwCallsAvailable",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CallCapacityInfo/t38FaxAnnexbOnlyGwCallsAvailable", HFILL }},
     { &hf_h225_t38FaxAnnexbOnlyGwCallsAvailable_item,
       { "Item", "h225.t38FaxAnnexbOnlyGwCallsAvailable_item",
@@ -10647,7 +10842,7 @@ void proto_register_h225(void) {
         "CallCapacityInfo/t38FaxAnnexbOnlyGwCallsAvailable/_item", HFILL }},
     { &hf_h225_terminalCallsAvailable,
       { "terminalCallsAvailable", "h225.terminalCallsAvailable",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CallCapacityInfo/terminalCallsAvailable", HFILL }},
     { &hf_h225_terminalCallsAvailable_item,
       { "Item", "h225.terminalCallsAvailable_item",
@@ -10655,7 +10850,7 @@ void proto_register_h225(void) {
         "CallCapacityInfo/terminalCallsAvailable/_item", HFILL }},
     { &hf_h225_mcuCallsAvailable,
       { "mcuCallsAvailable", "h225.mcuCallsAvailable",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CallCapacityInfo/mcuCallsAvailable", HFILL }},
     { &hf_h225_mcuCallsAvailable_item,
       { "Item", "h225.mcuCallsAvailable_item",
@@ -10663,7 +10858,7 @@ void proto_register_h225(void) {
         "CallCapacityInfo/mcuCallsAvailable/_item", HFILL }},
     { &hf_h225_sipGwCallsAvailable,
       { "sipGwCallsAvailable", "h225.sipGwCallsAvailable",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CallCapacityInfo/sipGwCallsAvailable", HFILL }},
     { &hf_h225_sipGwCallsAvailable_item,
       { "Item", "h225.sipGwCallsAvailable_item",
@@ -10699,7 +10894,7 @@ void proto_register_h225(void) {
         "CircuitIdentifier/group", HFILL }},
     { &hf_h225_cic_2_4,
       { "cic", "h225.cic",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CicInfo/cic", HFILL }},
     { &hf_h225_cic_item,
       { "Item", "h225.cic_item",
@@ -10711,7 +10906,7 @@ void proto_register_h225(void) {
         "CicInfo/pointCode", HFILL }},
     { &hf_h225_member,
       { "member", "h225.member",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "GroupID/member", HFILL }},
     { &hf_h225_member_item,
       { "Item", "h225.member_item",
@@ -10763,7 +10958,7 @@ void proto_register_h225(void) {
         "ServiceControlSession/reason/close", HFILL }},
     { &hf_h225_nonStandardUsageTypes,
       { "nonStandardUsageTypes", "h225.nonStandardUsageTypes",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "RasUsageInfoTypes/nonStandardUsageTypes", HFILL }},
     { &hf_h225_nonStandardUsageTypes_item,
       { "Item", "h225.nonStandardUsageTypes_item",
@@ -10815,7 +11010,7 @@ void proto_register_h225(void) {
         "RasUsageSpecification/required", HFILL }},
     { &hf_h225_nonStandardUsageFields,
       { "nonStandardUsageFields", "h225.nonStandardUsageFields",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "RasUsageInformation/nonStandardUsageFields", HFILL }},
     { &hf_h225_nonStandardUsageFields_item,
       { "Item", "h225.nonStandardUsageFields_item",
@@ -10895,7 +11090,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_parameters,
       { "parameters", "h225.parameters",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "GenericData/parameters", HFILL }},
     { &hf_h225_parameters_item,
       { "Item", "h225.parameters_item",
@@ -10951,7 +11146,7 @@ void proto_register_h225(void) {
         "Content/transport", HFILL }},
     { &hf_h225_compound,
       { "compound", "h225.compound",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Content/compound", HFILL }},
     { &hf_h225_compound_item,
       { "Item", "h225.compound_item",
@@ -10959,7 +11154,7 @@ void proto_register_h225(void) {
         "Content/compound/_item", HFILL }},
     { &hf_h225_nested,
       { "nested", "h225.nested",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Content/nested", HFILL }},
     { &hf_h225_nested_item,
       { "Item", "h225.nested_item",
@@ -10999,7 +11194,7 @@ void proto_register_h225(void) {
         "RTPSession/sessionId", HFILL }},
     { &hf_h225_associatedSessionIds,
       { "associatedSessionIds", "h225.associatedSessionIds",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "RTPSession/associatedSessionIds", HFILL }},
     { &hf_h225_associatedSessionIds_item,
       { "Item", "h225.associatedSessionIds_item",
@@ -11139,7 +11334,7 @@ void proto_register_h225(void) {
         "RasMessage/serviceControlResponse", HFILL }},
     { &hf_h225_admissionConfirmSequence,
       { "admissionConfirmSequence", "h225.admissionConfirmSequence",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "RasMessage/admissionConfirmSequence", HFILL }},
     { &hf_h225_admissionConfirmSequence_item,
       { "Item", "h225.admissionConfirmSequence_item",
@@ -11155,7 +11350,7 @@ void proto_register_h225(void) {
         "GatekeeperRequest/rasAddress", HFILL }},
     { &hf_h225_endpointAlias,
       { "endpointAlias", "h225.endpointAlias",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_endpointAlias_item,
       { "Item", "h225.endpointAlias_item",
@@ -11163,7 +11358,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_alternateEndpoints,
       { "alternateEndpoints", "h225.alternateEndpoints",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_alternateEndpoints_item,
       { "Item", "h225.alternateEndpoints_item",
@@ -11171,7 +11366,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_authenticationCapability,
       { "authenticationCapability", "h225.authenticationCapability",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "GatekeeperRequest/authenticationCapability", HFILL }},
     { &hf_h225_authenticationCapability_item,
       { "Item", "h225.authenticationCapability_item",
@@ -11179,7 +11374,7 @@ void proto_register_h225(void) {
         "GatekeeperRequest/authenticationCapability/_item", HFILL }},
     { &hf_h225_algorithmOIDs,
       { "algorithmOIDs", "h225.algorithmOIDs",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "GatekeeperRequest/algorithmOIDs", HFILL }},
     { &hf_h225_algorithmOIDs_item,
       { "Item", "h225.algorithmOIDs_item",
@@ -11187,7 +11382,7 @@ void proto_register_h225(void) {
         "GatekeeperRequest/algorithmOIDs/_item", HFILL }},
     { &hf_h225_integrity,
       { "integrity", "h225.integrity",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_integrity_item,
       { "Item", "h225.integrity_item",
@@ -11243,7 +11438,7 @@ void proto_register_h225(void) {
         "RegistrationRequest/terminalType", HFILL }},
     { &hf_h225_terminalAlias,
       { "terminalAlias", "h225.terminalAlias",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_terminalAlias_item,
       { "Item", "h225.terminalAlias_item",
@@ -11271,7 +11466,7 @@ void proto_register_h225(void) {
         "RegistrationRequest/additiveRegistration", HFILL }},
     { &hf_h225_terminalAliasPattern,
       { "terminalAliasPattern", "h225.terminalAliasPattern",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_terminalAliasPattern_item,
       { "Item", "h225.terminalAliasPattern_item",
@@ -11283,7 +11478,7 @@ void proto_register_h225(void) {
         "RegistrationRequest/usageReportingCapability", HFILL }},
     { &hf_h225_supportedH248Packages,
       { "supportedH248Packages", "h225.supportedH248Packages",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "RegistrationRequest/supportedH248Packages", HFILL }},
     { &hf_h225_supportedH248Packages_item,
       { "Item", "h225.supportedH248Packages_item",
@@ -11347,7 +11542,7 @@ void proto_register_h225(void) {
         "RegistrationConfirm/supportsAdditiveRegistration", HFILL }},
     { &hf_h225_usageSpec,
       { "usageSpec", "h225.usageSpec",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_usageSpec_item,
       { "Item", "h225.usageSpec_item",
@@ -11379,7 +11574,7 @@ void proto_register_h225(void) {
         "RegistrationRejectReason/invalidRASAddress", HFILL }},
     { &hf_h225_duplicateAlias,
       { "duplicateAlias", "h225.duplicateAlias",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "RegistrationRejectReason/duplicateAlias", HFILL }},
     { &hf_h225_duplicateAlias_item,
       { "Item", "h225.duplicateAlias_item",
@@ -11423,7 +11618,7 @@ void proto_register_h225(void) {
         "UnregistrationRequest/reason", HFILL }},
     { &hf_h225_endpointAliasPattern,
       { "endpointAliasPattern", "h225.endpointAliasPattern",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "UnregistrationRequest/endpointAliasPattern", HFILL }},
     { &hf_h225_endpointAliasPattern_item,
       { "Item", "h225.endpointAliasPattern_item",
@@ -11467,11 +11662,11 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_destinationInfo,
       { "destinationInfo", "h225.destinationInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_srcInfo,
       { "srcInfo", "h225.srcInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "AdmissionRequest/srcInfo", HFILL }},
     { &hf_h225_srcInfo_item,
       { "Item", "h225.srcInfo_item",
@@ -11495,7 +11690,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_srcAlternatives,
       { "srcAlternatives", "h225.srcAlternatives",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "AdmissionRequest/srcAlternatives", HFILL }},
     { &hf_h225_srcAlternatives_item,
       { "Item", "h225.srcAlternatives_item",
@@ -11503,7 +11698,7 @@ void proto_register_h225(void) {
         "AdmissionRequest/srcAlternatives/_item", HFILL }},
     { &hf_h225_destAlternatives,
       { "destAlternatives", "h225.destAlternatives",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "AdmissionRequest/destAlternatives", HFILL }},
     { &hf_h225_destAlternatives_item,
       { "Item", "h225.destAlternatives_item",
@@ -11579,7 +11774,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_supportedProtocols,
       { "supportedProtocols", "h225.supportedProtocols",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_supportedProtocols_item,
       { "Item", "h225.supportedProtocols_item",
@@ -11587,7 +11782,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_modifiedSrcInfo,
       { "modifiedSrcInfo", "h225.modifiedSrcInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_h225_modifiedSrcInfo_item,
       { "Item", "h225.modifiedSrcInfo_item",
@@ -11675,7 +11870,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_routeCallToSCN,
       { "routeCallToSCN", "h225.routeCallToSCN",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "AdmissionRejectReason/routeCallToSCN", HFILL }},
     { &hf_h225_routeCallToSCN_item,
       { "Item", "h225.routeCallToSCN_item",
@@ -11711,7 +11906,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_bandwidthDetails,
       { "bandwidthDetails", "h225.bandwidthDetails",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "BandwidthRequest/bandwidthDetails", HFILL }},
     { &hf_h225_bandwidthDetails_item,
       { "Item", "h225.bandwidthDetails_item",
@@ -11743,7 +11938,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_sourceInfo,
       { "sourceInfo", "h225.sourceInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "LocationRequest/sourceInfo", HFILL }},
     { &hf_h225_sourceInfo_item,
       { "Item", "h225.sourceInfo_item",
@@ -11755,7 +11950,7 @@ void proto_register_h225(void) {
         "LocationRequest/hopCount", HFILL }},
     { &hf_h225_sourceEndpointInfo,
       { "sourceEndpointInfo", "h225.sourceEndpointInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "LocationRequest/sourceEndpointInfo", HFILL }},
     { &hf_h225_sourceEndpointInfo_item,
       { "Item", "h225.sourceEndpointInfo_item",
@@ -11779,7 +11974,7 @@ void proto_register_h225(void) {
         "", HFILL }},
     { &hf_h225_routeCalltoSCN,
       { "routeCalltoSCN", "h225.routeCalltoSCN",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "LocationRejectReason/routeCalltoSCN", HFILL }},
     { &hf_h225_routeCalltoSCN_item,
       { "Item", "h225.routeCalltoSCN_item",
@@ -11831,7 +12026,7 @@ void proto_register_h225(void) {
         "InfoRequestResponse/rasAddress", HFILL }},
     { &hf_h225_perCallInfo,
       { "perCallInfo", "h225.perCallInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "InfoRequestResponse/perCallInfo", HFILL }},
     { &hf_h225_perCallInfo_item,
       { "Item", "h225.perCallInfo_item",
@@ -11843,7 +12038,7 @@ void proto_register_h225(void) {
         "InfoRequestResponse/perCallInfo/_item/originator", HFILL }},
     { &hf_h225_audio,
       { "audio", "h225.audio",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "InfoRequestResponse/perCallInfo/_item/audio", HFILL }},
     { &hf_h225_audio_item,
       { "Item", "h225.audio_item",
@@ -11851,7 +12046,7 @@ void proto_register_h225(void) {
         "InfoRequestResponse/perCallInfo/_item/audio/_item", HFILL }},
     { &hf_h225_video,
       { "video", "h225.video",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "InfoRequestResponse/perCallInfo/_item/video", HFILL }},
     { &hf_h225_video_item,
       { "Item", "h225.video_item",
@@ -11859,7 +12054,7 @@ void proto_register_h225(void) {
         "InfoRequestResponse/perCallInfo/_item/video/_item", HFILL }},
     { &hf_h225_data,
       { "data", "h225.data",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "InfoRequestResponse/perCallInfo/_item/data", HFILL }},
     { &hf_h225_data_item,
       { "Item", "h225.data_item",
@@ -11875,7 +12070,7 @@ void proto_register_h225(void) {
         "InfoRequestResponse/perCallInfo/_item/callSignaling", HFILL }},
     { &hf_h225_substituteConfIDs,
       { "substituteConfIDs", "h225.substituteConfIDs",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "InfoRequestResponse/perCallInfo/_item/substituteConfIDs", HFILL }},
     { &hf_h225_substituteConfIDs_item,
       { "Item", "h225.substituteConfIDs_item",
@@ -11883,7 +12078,7 @@ void proto_register_h225(void) {
         "InfoRequestResponse/perCallInfo/_item/substituteConfIDs/_item", HFILL }},
     { &hf_h225_pdu,
       { "pdu", "h225.pdu",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "InfoRequestResponse/perCallInfo/_item/pdu", HFILL }},
     { &hf_h225_pdu_item,
       { "Item", "h225.pdu_item",
@@ -11939,7 +12134,7 @@ void proto_register_h225(void) {
         "RequestInProgress/delay", HFILL }},
     { &hf_h225_protocols,
       { "protocols", "h225.protocols",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "ResourcesAvailableIndicate/protocols", HFILL }},
     { &hf_h225_protocols_item,
       { "Item", "h225.protocols_item",
