@@ -455,6 +455,9 @@ get_it_value(io_stat_t *io, int graph_id, int idx)
 		case CALC_TYPE_MIN:
 			value=it->time_min.secs*1000000+it->time_min.nsecs/1000;
 			break;
+		case CALC_TYPE_SUM:
+			value=it->time_tot.secs*1000000+it->time_tot.nsecs/1000;
+			break;
 		case CALC_TYPE_AVG:
 			if(it->frames){
 #ifdef G_HAVE_UINT64
@@ -623,6 +626,7 @@ io_stat_draw(io_stat_t *io)
 			switch(adv_type){
 			case FT_RELATIVE_TIME:
 				switch(io->graphs[i].calc_type){
+				case CALC_TYPE_SUM:
 				case CALC_TYPE_MAX:
 				case CALC_TYPE_MIN:
 				case CALC_TYPE_AVG:
@@ -1563,6 +1567,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 		case FT_RELATIVE_TIME:
 			/* this type only supports COUNT, MAX, MIN, AVG */
 			switch(gio->calc_type){
+			case CALC_TYPE_SUM:
 			case CALC_TYPE_COUNT:
 			case CALC_TYPE_MAX:
 			case CALC_TYPE_MIN:
