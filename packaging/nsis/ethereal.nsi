@@ -298,10 +298,10 @@ SetOutPath $INSTDIR
 
 
 
-:
-: Install the RADIUS directory files in the "radius" subdirectory
-: of the installation directory.
-:
+;
+; Install the RADIUS directory files in the "radius" subdirectory
+; of the installation directory.
+;
 SetOutPath $INSTDIR\radius
 File "..\..\radius\dictionary"
 File "..\..\radius\dictionary.3com"
