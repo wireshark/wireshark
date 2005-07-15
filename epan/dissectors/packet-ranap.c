@@ -4850,6 +4850,8 @@ proto_register_ranap(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   nas_pdu_dissector_table = register_dissector_table("ranap.nas_pdu", "RANAP NAS PDU", FT_UINT8, BASE_DEC);
+  register_dissector("ranap", dissect_ranap, proto_ranap);
+
 }
 
 
@@ -4858,7 +4860,7 @@ proto_reg_handoff_ranap(void)
 {
   dissector_handle_t ranap_handle;
 
-  ranap_handle = create_dissector_handle(dissect_ranap, proto_ranap);
+  ranap_handle = find_dissector("ranap");;
   /*
   dissector_add("sua.ssn",  SCCP_SSN_RANAP, ranap_handle);
   */
