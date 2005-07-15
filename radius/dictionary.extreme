@@ -1,0 +1,15 @@
+#
+#	Dictionary for Extreme Networks VSA's.
+#	http://www.extremenetworks.com/
+#
+#	$Id$
+#
+VENDOR		Extreme		1916
+
+ATTRIBUTE	Extreme-Netlogin-Vlan		203	string	Extreme
+ATTRIBUTE	Extreme-Netlogin-Url		204	string	Extreme
+ATTRIBUTE	Extreme-Netlogin-Url-Desc	205	string	Extreme
+ATTRIBUTE	Extreme-Netlogin-Only		206	integer Extreme
+
+VALUE	Extreme-Netlogin-Only		Disabled	0
+VALUE	Extreme-Netlogin-Only		Enabled		1

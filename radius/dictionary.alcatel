@@ -1,0 +1,64 @@
+#
+# Alcatel Broadband Access Server dictionary.
+#
+# Version:      1.00  10-July-2002  Lasse Johnsen <lassejohnsen@bulldogcommunications.com>
+#		$Id$
+#
+
+VENDOR          Alcatel         3041
+
+#
+#       Alcatel Vendor Specific Extensions
+#
+#
+ATTRIBUTE       AAT-Client-Primary-DNS          5       ipaddr          Alcatel
+ATTRIBUTE       AAT-Client-Primary-WINS-NBNS    6       ipaddr          Alcatel
+ATTRIBUTE       AAT-Client-Secondary-WINS-NBNS  7       ipaddr          Alcatel
+#ATTRIBUTE       AAT-Client-Primary-DNS          8       ipaddr          Alcatel
+ATTRIBUTE       AAT-PPP-Address                 9       ipaddr          Alcatel
+ATTRIBUTE       AAT-ATM-Direct                  21      string          Alcatel
+ATTRIBUTE       AAT-IP-TOS                      22      integer         Alcatel
+ATTRIBUTE       AAT-IP-TOS-Precedence           23      integer         Alcatel
+ATTRIBUTE       AAT-IP-TOS-Apply-To             24      integer         Alcatel
+ATTRIBUTE       AAT-MCast-Client                27      integer         Alcatel
+ATTRIBUTE       AAT-Vrouter-Name                61      string          Alcatel
+ATTRIBUTE       AAT-Require-Auth                62      integer         Alcatel
+ATTRIBUTE       AAT-IP-Pool-Definition          63      string          Alcatel
+ATTRIBUTE       AAT-Assign-IP-Pool              64      integer         Alcatel
+ATTRIBUTE       AAT-Data-Filter                 65      string          Alcatel
+ATTRIBUTE       AAT-Source-IP-Check             66      integer         Alcatel
+ATTRIBUTE       AAT-ATM-VPI                     128     integer         Alcatel
+ATTRIBUTE       AAT-ATM-VCI                     129     integer         Alcatel
+ATTRIBUTE       AAT-Input-Octets-Diff           130     integer         Alcatel
+ATTRIBUTE       AAT-Output-Octets-Diff          131     integer         Alcatel
+ATTRIBUTE       AAT-User-MAC-Address            132     string          Alcatel
+ATTRIBUTE       AAT-ATM-Traffic-Profile         133     string          Alcatel
+
+VALUE   AAT-MCast-Client        Multicast-No                    0
+VALUE   AAT-MCast-Client        Multicast-Yes                   1
+
+VALUE   AAT-Require-Auth        Not-Require-Auth                0
+VALUE   AAT-Require-Auth        Require-Auth                    1
+
+VALUE   AAT-Source-IP-Check     Source-IP-Check-No              0
+VALUE   AAT-Source-IP-Check     Source-IP-Check-Yes             1
+
+VALUE   AAT-IP-TOS              IP-TOS-Normal                   0
+VALUE   AAT-IP-TOS              IP-TOS-Disabled                 1
+VALUE   AAT-IP-TOS              IP-TOS-Cost                     2
+VALUE   AAT-IP-TOS              IP-TOS-Reliability              4
+VALUE   AAT-IP-TOS              IP-TOS-Throughput               8
+VALUE   AAT-IP-TOS              IP-TOS-Latency                  16
+
+VALUE   AAT-IP-TOS-Apply-To     IP-TOS-Apply-To-Incoming        1024
+VALUE   AAT-IP-TOS-Apply-To     IP-TOS-Apply-To-Both            3072
+VALUE   AAT-IP-TOS-Apply-To     IP-TOS-Apply-To-Outgoing        2048
+
+VALUE   AAT-IP-TOS-Precedence   IP-TOS-Precedence-Pri-Normal    0
+VALUE   AAT-IP-TOS-Precedence   IP-TOS-Precedence-Pri-One       32
+VALUE   AAT-IP-TOS-Precedence   IP-TOS-Precedence-Pri-Two       64
+VALUE   AAT-IP-TOS-Precedence   IP-TOS-Precedence-Pri-Three     96
+VALUE   AAT-IP-TOS-Precedence   IP-TOS-Precedence-Pri-Four      128
+VALUE   AAT-IP-TOS-Precedence   IP-TOS-Precedence-Pri-Five      160
+VALUE   AAT-IP-TOS-Precedence   IP-TOS-Precedence-Pri-Six       192
+VALUE   AAT-IP-TOS-Precedence   IP-TOS-Precedence-Pri-Seven     224

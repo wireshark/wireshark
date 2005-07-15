@@ -1,0 +1,15 @@
+#
+#	Found on the net.
+#
+#	$Id$
+#
+
+VENDOR Propel 14895
+
+BEGIN-VENDOR	Propel
+ATTRIBUTE	Propel-Accelerate			1	integer
+ATTRIBUTE	Propel-Dialed-Digits			2	string
+ATTRIBUTE	Propel-Client-IP-Address		3	ipaddr
+ATTRIBUTE	Propel-Client-NAS-IP-Address		4	ipaddr
+ATTRIBUTE	Propel-Client-Source-ID			5	integer
+END-VENDOR	Propel

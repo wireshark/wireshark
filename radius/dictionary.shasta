@@ -1,0 +1,19 @@
+#
+# dictionary.shasta
+#
+#           Nortel Shasta VSAs
+#           Andre Gustavo de C. Albuquerque <gustavoa@nortelnetworks.com>
+#           
+
+VENDOR		Shasta		3199
+
+#
+# Standard attribute
+#
+ATTRIBUTE	Shasta-User-Privilege	1	integer		Shasta
+ATTRIBUTE	Shasta-Service-Profile	2	string		Shasta
+ATTRIBUTE	Shasta-VPN-Name		3	string		Shasta
+
+VALUE		Shasta-User-Privilege	User		1
+VALUE		Shasta-User-Privilege	Super-User	2
+VALUE		Shasta-User-Privilege	SSuper-User	3
