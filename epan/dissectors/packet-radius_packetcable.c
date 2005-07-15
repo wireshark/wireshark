@@ -1,9 +1,9 @@
 /*
- * packet-radius.c
+ * packet-radius_packetcable.c
  *
  * Routines for Packetcable's RADIUS AVPs dissection
  *
- * $Id: packet-radius.c 14786 2005-06-26 19:56:52Z guy $
+ * $Id: $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
