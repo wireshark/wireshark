@@ -428,14 +428,17 @@ static const value_string Type_of_msg_vals[] = {
 	{ 1, "data" },
     { 0, NULL}
 };
-
 static int
-dissect_t38_Type_of_msg(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset=dissect_per_choice(tvb, offset, pinfo,
-        tree, hf_t38_Type_of_msg, ett_t38_Type_of_msg,
-        Type_of_msg_choice, "Type of message", &Type_of_msg_value);
-	return offset;
+dissect_t38_Type_of_msg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_t38_Type_of_msg, Type_of_msg_choice, "Type_of_msg",
+                              &Type_of_msg_value);
+
+  return offset;
+}
+
+static int dissect_type_of_msg(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_t38_Type_of_msg(tvb, offset, pinfo, tree, hf_t38_Type_of_msg);
 }
 
 static const per_choice_t Data_Field_field_type_PreCorrigendum_choice[] = {
@@ -567,21 +570,25 @@ dissect_t38_Data_Field_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 	return offset;
 }
 
+static const per_sequence_t t38_Data_Field_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t38_Data_Field_item },
+};
+
 static int
-dissect_t38_Data_Field(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset=dissect_per_sequence_of(tvb, offset, pinfo,
-        tree, hf_t38_Data_Field, ett_t38_Data_Field,
-        dissect_t38_Data_Field_item);
-	return offset;
+dissect_t38_Data_Field(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_sequence_of(tvb, offset, pinfo, tree, hf_index,
+                                      ett_t38_Data_Field, t38_Data_Field_sequence_of);
+
+  return offset;
+}
+static int dissect_data_field(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_t38_Data_Field(tvb, offset, pinfo, tree, hf_t38_Data_Field);
 }
 
 static const per_sequence_t IFPPacket_sequence[] = {
-	{ "type-of-msg", ASN1_NO_EXTENSIONS, ASN1_NOT_OPTIONAL,
-		dissect_t38_Type_of_msg },
-	{ "data-field", ASN1_NO_EXTENSIONS, ASN1_OPTIONAL,
-		dissect_t38_Data_Field },
-	{ NULL, 0, 0, NULL }
+  { "type-of-msg"                 , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_type_of_msg },
+  { "data-field"                  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_data_field },
+  { NULL, 0, 0, NULL }
 };
 
 static int
@@ -629,6 +636,10 @@ dissect_t38_secondary_ifp_packets_item(tvbuff_t *tvb, int offset, packet_info *p
 	return offset;
 }
 
+static const per_sequence_t SEQUENCE_OF_t38_secondary_ifp_packets_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t38_secondary_ifp_packets_item },
+};
+
 static int
 dissect_t38_secondary_ifp_packets(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
@@ -641,7 +652,7 @@ dissect_t38_secondary_ifp_packets(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     offset=dissect_per_sequence_of(tvb, offset, pinfo,
         tree, hf_t38_secondary_ifp_packets, ett_t38_secondary_ifp_packets,
-        dissect_t38_secondary_ifp_packets_item);
+        SEQUENCE_OF_t38_secondary_ifp_packets_sequence_of);
 	return offset;
 }
 
@@ -662,13 +673,15 @@ dissect_t38_fec_data_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
         NULL);
 	return offset;
 }
-
+static const per_sequence_t T_t38_fec_data_sequence_of[1] = {
+  { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t38_fec_data_item },
+};
 static int
 dissect_t38_fec_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     offset=dissect_per_sequence_of(tvb, offset, pinfo,
         tree, hf_t38_fec_data, ett_t38_fec_data,
-        dissect_t38_fec_data_item);
+        T_t38_fec_data_sequence_of);
 	return offset;
 }
 
