@@ -98,5 +98,4 @@ ETH_VAR_IMPORT const value_string gsm_a_dtap_msg_sms_strings[];
 ETH_VAR_IMPORT const value_string gsm_a_dtap_msg_sm_strings[];
 ETH_VAR_IMPORT const value_string gsm_a_dtap_msg_ss_strings[];
 ETH_VAR_IMPORT const gchar *gsm_a_pd_str[];
-ETH_VAR_IMPORT const value_string gsm_a_msc_rev_vals[];
 

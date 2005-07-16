@@ -2322,7 +2322,6 @@ be_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
     guint8	oct;
     guint8	disc;
     guint32	curr_offset;
-    const gchar	*str = NULL;
 
     len = len;
     add_string = add_string;
@@ -2529,7 +2528,6 @@ be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
     guint32	curr_offset;
     proto_item	*item = NULL;
     proto_tree	*subtree = NULL;
-    const gchar	*str = NULL;
 
     curr_offset = offset;
 
@@ -10322,8 +10320,6 @@ de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
     guint32	lac;
     guint32	rac;
     guint32	curr_offset;
-    proto_item  *tf = NULL;
-    proto_tree  *gmm_rai_tree = NULL;
     
     len = len;
     add_string = add_string;

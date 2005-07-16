@@ -144,7 +144,6 @@ static int hf_uma_urr_TU3902_timer		= -1;
 static int hf_uma_urr_communication_port = -1;
 static int hf_uma_urr_L3_Message		= -1;
 static int hf_uma_urr_L3_protocol_discriminator = -1;
-static int hf_uma_urr_channel_mode		= -1;
 static int hf_uma_urr_sc				= -1;
 static int hf_uma_urr_algorithm_id		= -1;
 static int hf_uma_urr_GPRS_resumption	= -1;
@@ -524,20 +523,6 @@ static const value_string Three_GECS_vals[] = {
 	{ 1,		"The sending of UTRAN Classmark Sending messages is controlled by the Early Classmark Sending Control parameter"},
 	{ 0,	NULL }
 };
-/* Cell identification discriminator */
-static const value_string cell_id_disc_vals[] = {
-	{ 0,		"The whole Cell Global Identification, CGI, is used to identify the cells."},
-	{ 1,		"Location Area Code, LAC, and Cell Identify, CI, is used to identify the cells."},
-	{ 2,		"Cell Identity, CI, is used to identify the cells."},
-	{ 3,		"No cell is associated with the transaction."},
-	{ 4,		"Location Area Identification, LAI, is used to identify all cells within a Location Area."},
-	{ 5,		"Location Area Code, LAC, is used to identify all cells within a location area."},
-	{ 6,		"All cells on the BSS are identified."},
-	{ 8,		"Intersystem Handover to UTRAN or cdma2000. PLMN-ID, LAC, and RNC-ID, are encoded to identify the target RNC."},
-	{ 9,		"Intersystem Handover to UTRAN or cdma2000. The RNC-ID is coded to identify the target RNC."},
-	{ 10,		"Intersystem Handover to UTRAN or cdma2000. LAC and RNC-ID are encoded to identify the target RNC."},
-	{ 0,	NULL }
-};
 
 /*GRS, GSM RR State (octet 3)*/
 static const value_string GRS_GSM_RR_State_vals[] = {
@@ -562,16 +547,6 @@ static const value_string URR_state_vals[] = {
 	{ 0,		"URR is in URR-IDLE state"},
 	{ 1,		"URR is in URR-DEDICATED state"},
 	{ 2,		"URR is in URR-REGISTERED state"},
-	{ 0,	NULL }
-};
-/* Mobile Station Classmark 2 
- * Revision level (octet 3)
- */
-static const value_string MSC2_rev_vals[] = {
-	{ 0,		"Reserved for GSM phase 1"},
-	{ 1,		"Used by GSM phase 2 mobile stations"},
-	{ 2,		"Used by mobile stations supporting R99 or later versions of the protocol"},
-	{ 3,		"Reserved for future use"},
 	{ 0,	NULL }
 };
 
@@ -648,15 +623,6 @@ static const value_string ULQI_vals[] = {
 	{ 1,		"Radio problem"},
 	{ 2,		"Network problem"},
 	{ 4,		"Undetermined problem"},
-	{ 0,	NULL }
-};
-
-/* Packet Flow Identifier value (octet 3) */
-static const value_string packet_flow_id_vals[] = {
-	{ 0,		"Best Effort"},
-	{ 1,		"Signaling"},
-	{ 2,		"SMS"},
-	{ 3,		"TOM8"},
 	{ 0,	NULL }
 };
 
