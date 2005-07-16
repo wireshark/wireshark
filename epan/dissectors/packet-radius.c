@@ -802,11 +802,12 @@ proto_register_radius(void)
 		dict = radius_load_dictionary(dir,"dictionary",&dict_err_str);
 	} else {
 		dict = NULL;
-		dict_err_str = "Could not find the radius directory";
+		dict_err_str = g_strdup("Could not find the radius directory");
 	}
 	
 	if (dict_err_str) {
-		report_failure("radius:\n%s",dict_err_str);
+		report_failure("radius: %s",dict_err_str);
+		g_free(dict_err_str);
 	}
 	
 	if (dict) {
