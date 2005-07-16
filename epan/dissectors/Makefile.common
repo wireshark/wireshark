@@ -710,7 +710,6 @@ DISSECTOR_INCLUDES =	\
 	packet-gsm_sms.h	\
 	packet-gsm_ss.h	\
 	packet-gssapi.h	\
-	packet-gtp.h	\
 	packet-h225.h	\
 	packet-h235.h	\
 	packet-h245.h	\
