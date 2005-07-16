@@ -1,0 +1,23 @@
+# WlanCertExtn.cnf
+# WlanCertExtn conformation file
+
+# $Id: WlanCertExtn.cnf 12434 2004-10-29 12:11:42Z sahlberg $
+
+#.MODULE_IMPORT
+
+#.EXPORTS
+
+#.REGISTER
+
+SSIDList         B "1.3.6.1.5.5.7.1.13" "id-pe-wlanSSID"
+SSIDList         B "1.3.6.1.5.5.7.10.6" "id-aca-wlanSSID"
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.END
+
+
