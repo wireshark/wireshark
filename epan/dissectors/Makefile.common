@@ -788,6 +788,7 @@ DISSECTOR_INCLUDES =	\
 	packet-prism.h	\
 	packet-q931.h	\
 	packet-radiotap.h	\
+	packet-radius.h	\
 	packet-raw.h	\
 	packet-rdt.h	\
 	packet-ripng.h	\
