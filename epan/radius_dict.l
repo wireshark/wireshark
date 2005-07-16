@@ -268,9 +268,9 @@ gboolean destroy_attrs(gpointer k _U_, gpointer v, gpointer p _U_) {
 	g_free(a->name);
 	if (a->vs) {
 		for(i=0; a->vs[i].strptr; i++) {
-			g_free(a->vs[i].strptr); /* fake const warning */
+			g_free((void *)a->vs[i].strptr);
 		}
-		g_free(a->vs);
+		g_free((void *)a->vs);
 	}
 	g_free(a);
 	return TRUE;
