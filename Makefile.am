@@ -164,7 +164,7 @@ plugin_libs = \
 	plugins/acn/acn.la \
 	plugins/agentx/agentx.la \
 	plugins/artnet/artnet.la \
-	Plugins/asn1/asn1.la \
+	plugins/asn1/asn1.la \
 	plugins/ciscosm/ciscosm.la \
 	plugins/docsis/docsis.la \
 	plugins/enttec/enttec.la \
