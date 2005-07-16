@@ -3,7 +3,7 @@
  *
  * Routines for Packetcable's RADIUS AVPs dissection
  *
- * $Id: $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
