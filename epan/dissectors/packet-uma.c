@@ -2,7 +2,7 @@
  * Routines for Unlicensed Mobile Access(UMA) dissection
  * Copyright 2005, Anders Broman <anders.broman[at]ericsson.com>
  *
- * $Id:
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
