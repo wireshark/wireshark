@@ -62,6 +62,9 @@ CLEANFILES = \
 	libethereal.la		\
 	*~
 
+DISTCLEANFILES = \
+	radius_dict.c
+
 MAINTAINERCLEANFILES = \
 	Makefile.in
 
