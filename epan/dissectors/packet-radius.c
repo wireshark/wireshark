@@ -781,11 +781,11 @@ proto_register_radius(void)
 	gchar* dict_err_str = NULL;
 	
 	ri.hf = g_array_new(FALSE,TRUE,sizeof(hf_register_info));
-	ri.ett = g_array_new(FALSE,TRUE,sizeof(gint));
+	ri.ett = g_array_new(FALSE,TRUE,sizeof(gint *));
 	ri.vend_vs = g_array_new(TRUE,TRUE,sizeof(value_string));
 	
 	g_array_append_vals(ri.hf, base_hf, array_length(base_hf));
-	g_array_append_vals(ri.ett, base_ett, array_length(base_ett));
+	g_array_append_vals(ri.ett, &base_ett, array_length(base_ett));
 	
 	dir = get_persconffile_path("radius", FALSE);
 	
