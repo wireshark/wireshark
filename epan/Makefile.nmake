@@ -85,7 +85,7 @@ clean:
 	cd ..
 
 distclean: clean
-	rm -f config.h register.c mkstemp.c strptime.c
+	rm -f config.h register.c mkstemp.c strptime.c radius_dict.c
 	cd ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../dfilter
