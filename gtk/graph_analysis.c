@@ -66,6 +66,16 @@
 
 #include "simple_dialog.h"
 
+
+/* XXX FIXME */
+/* GTK-1.x does not have GDK_IS_DRAWABLE so just define is as always being true
+ * so that ethereal compiles.
+ * At later stage we should implement it as a real fallback for gtk-1.x
+ * but for the time being   us very few gtk-1.2 users at elast can compile.
+ */
+#if (GTK_MAJOR_VERSION < 2)
+#define GDK_IS_DRAWABLE(x) 1
+#endif
 /****************************************************************************/
 
 
