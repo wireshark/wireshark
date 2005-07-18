@@ -64,7 +64,7 @@ static char* dis_proto_name_short = "DIS";
 
 /* Main dissector routine to be invoked for a DIS PDU.
  */
-static void dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *dis_tree = 0;
     proto_item *dis_node = 0;
@@ -75,6 +75,16 @@ static void dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint offset = 0;
     const gchar *pduString = 0;
     DIS_ParserNode *pduParser = 0;
+
+    /* DIS packets must be at least 12 bytes long.  DIS uses port 3000, by
+     * default, but the Cisco Redundant Link Management protocol can also use
+     * that port; RLM packets are 8 bytes long, so we use this to distinguish
+     * between them.
+     */
+    if (tvb_reported_length(tvb) < 12)
+    {
+        return 0;
+    }
 
     /* Reset the global PDU type variable -- this will be parsed as part of
      * the DIS header.
@@ -138,6 +148,7 @@ static void dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset = parseFields(tvb, dis_payload_tree, offset, pduParser);
         proto_item_set_end(dis_payload_node, tvb, offset);
     }
+    return tvb_length(tvb);
 }
 
 /* Register handoff routine for DIS dissector.  This will be invoked initially
@@ -150,7 +161,7 @@ void proto_reg_handoff_dis(void)
 
     if (!dis_prefs_initialized)
     {
-        dis_dissector_handle = create_dissector_handle(dissect_dis, proto_dis);
+        dis_dissector_handle = new_create_dissector_handle(dissect_dis, proto_dis);
     }
     else
     {
