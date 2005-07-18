@@ -1,12 +1,9 @@
 #-----------------------------------------------------------------------------
 # ply: lex.py
 #
-# Author: David M. Beazley (beazley@cs.uchicago.edu)
-#         Department of Computer Science
-#         University of Chicago
-#         Chicago, IL  60637
+# Author: David M. Beazley (dave@dabeaz.com)
 #
-# Copyright (C) 2001, David M. Beazley
+# Copyright (C) 2001-2005, David M. Beazley
 #
 # $Header: /cvs/projects/PLY/lex.py,v 1.1.1.1 2004/05/21 15:34:10 beazley Exp $
 #
@@ -190,7 +187,7 @@ scanner you have defined.
 # -----------------------------------------------------------------------------
 
 
-__version__ = "1.4"
+__version__ = "1.6"
 
 import re, types, sys, copy
 
@@ -240,13 +237,15 @@ class Lexer:
         c.lexdata = self.lexdata
         c.lexpos = self.lexpos
         c.lexlen = self.lexlen
-        c.lenindexfunc = self.lexindexfunc
+        c.lexindexfunc = self.lexindexfunc
         c.lexerrorf = self.lexerrorf
         c.lextokens = self.lextokens
         c.lexignore = self.lexignore
+	c.debug = self.debug
         c.lineno = self.lineno
         c.optimize = self.optimize
         c.token = c.realtoken
+	return c
 
     # ------------------------------------------------------------
     # input() - Push a new string into the lexer
