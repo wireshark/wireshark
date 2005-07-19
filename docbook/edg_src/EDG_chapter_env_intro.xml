@@ -81,12 +81,12 @@
 	
 	<section><title>Microsoft Windows</title>
     <para>
-	Thanks to the Win32 API, development on all windows platforms will be 
+	Thanks to the Win32 API, development on all Windows platforms will be 
 	done in a very similar way. However some differences between the platforms 
 	are existing (especially between the NT and 95 based platforms), the 
-	differences will be notified where appropriate. All Windows platforms will 
-	be referred as Win32, Win or Windows might be used with the same meaning.
-	As Windows CE differs a lot compared to the other windows platforms 
+	differences will be notified where appropriate. All Windows platforms 
+	referred to as Win32, Win or Windows may be used with the same meaning.
+	As Windows CE differs a lot compared to the other Windows platforms 
 	mentioned, Ethereal will not run on Windows CE and there are no plans to 
 	support it.
 	<itemizedlist>
@@ -235,18 +235,28 @@
 	<itemizedlist>
 	<listitem>
     <para>
-	Win32 (.exe file). The typical windows end user is used to get an setup 
-	.exe file, which will install all the required things for him.
+	Win32 (.exe file). The typical Windows end user is used to get a setup.exe 
+	file, which will install all the required things for him.
     </para>
 	</listitem>
 	<listitem>
     <para>
-	Debian (.deb file)
+	Debian (.deb file). A user of a Debian Package Manager (DPKG) based system 
+	is used to get a .deb file from which the package manager checks the 
+	dependancies and installs the software.
     </para>
 	</listitem>
 	<listitem>
     <para>
-	RedHat (.rpm file)
+	RedHat (.rpm file). A user of a RedHat Package Manager (RPM) based system
+	is used to get a .rpm file from which the package manager checks the 
+	dependancies and installs the software.
+    </para>
+	</listitem>
+	<listitem>
+    <para>
+	Solaris. A Solaris user is used to get a file from which the package manager 
+	(PKG) checks the dependancies and installs the software.
     </para>
 	</listitem>
 	</itemizedlist>
@@ -264,9 +274,9 @@
 	<section id="ChIntroReleaseSource">
 	<title>Source code distributions</title>
     <para>
-	It's still common for unix developers to give the end user a source 
+	It's still common for UNIX developers to give the end user a source 
 	tarball and let the user compile it on their target machine (configure, 
-	make, make install). However, for different unix (linux) distributions 
+	make, make install). However, for different UNIX (Linux) distributions 
 	it's becoming more common to release binary packages (e.g. .deb or .rpm 
 	files) these days.
     </para>
@@ -292,6 +302,29 @@
       places that may be of interest to you (well, beside this guide of 
 	  course).
 	</para>
+
+        <section id="ChIntroHomepage"><title>Website</title>
+    <para>
+        You will find lot's of useful information on the Ethereal homepage at
+        <ulink url="&EtherealWebSite;">&EtherealWebSite;</ulink>.
+        </para>
+        </section>
+
+        <section id="ChIntroWiki"><title>Wiki</title>
+    <para>
+        The Ethereal Wiki at <ulink
+        url="&EtherealWikiSite;">&EtherealWikiSite;</ulink> provides a wide range
+        of information related to Ethereal and packet capturing in general.
+        You will find a lot of information not part of this developer's guide. For
+        example, there is an explanation how to capture on a switched network,
+        an ongoing effort to build a protocol reference and a lot more.
+        </para>
+        <para>
+        And best of all, if you would like to contribute your knowledge on a
+        specific topic (maybe a network protocol you know well), you can edit the
+        wiki pages by simply using your webbrowser.
+        </para>
+        </section>
 	
 	<section id="ChIntroFAQ"><title>FAQ</title>
     <para>
@@ -346,6 +379,17 @@
 	    </para>
 	  </listitem>
 	</varlistentry>
+	<varlistentry><term><command>ethereal-bugs</command></term>
+	  <listitem>
+	    <para>
+	      This list is for Ethereal developers. Everytime a change to the bug 
+		  database occurs, a mail to this mailing list is generated.
+		  If you want to be notified about all the changes to the bug 
+		  database, join this list. Details about the bug database can be 
+		  found in <xref linkend="ChIntroBugDatabase"/>.
+	    </para>
+	  </listitem>
+	</varlistentry>
 	<varlistentry><term><command>ethereal-cvs</command></term>
 	  <listitem>
 	    <para>
@@ -372,7 +416,16 @@
 	</tip>
     </para>
 	</section>
-	
+
+	<section id="ChIntroBugDatabase"><title>Bug database</title>
+	<para>
+	The Etereal community started collecting bug reports in a Bugzilla database at
+	<ulink url="&EtherealBugsSite;">&EtherealBugsSite;</ulink>.
+	This database is filled with manually filed bug reports, usually after some 
+	discussion on ethereal-dev, and bug reports from the QA build tooling.
+	</para>
+	</section>
+		
 	<section id="ChIntroReportProblems"><title>Reporting Problems</title>
 	<note><title>Note!</title>
 	<para>
@@ -430,8 +483,9 @@
 	</note>
 	<note><title>Don't send confidential information!</title>
 	<para>
-	If you send captured data to the mailing lists, be sure they don't contain 
-	any sensitive or confidential information like passwords or such.
+	If you send captured data to the mailing lists, or add it to your bug report,
+	be sure it doesn't contain any sensitive or confidential information, 
+	such as passwords.
 	</para>
 	</note>
   </section>
@@ -480,7 +534,7 @@ $
 	  <para>
 	    You should mail the traceback to the 
 		<ulink url="mailto:&EtherealDevMailList;">&EtherealDevMailList;</ulink>
-	    mailing list.
+	    mailing list, or append it to your bug report.
 	  </para>
   </section>
   

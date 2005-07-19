@@ -11,9 +11,9 @@
   <para>
 	Developers who are new to Ethereal are often having a hard time getting 
 	their development environment up and running. This is
-	especially true for win32 developers, as a lot of the tools and methods
-	used when building Ethereal are much more common in the unix world than
-	on win32.
+	especially true for Win32 developers, as a lot of the tools and methods
+	used when building Ethereal are much more common in the UNIX world than
+	on Win32.
   </para>
   <para>
 	The first part of this book will describe how to set up the environment 
@@ -116,8 +116,8 @@
       The latest copy of this documentation can always be found at: 
      <!-- <ulink url="&LatestVersionWebsite;">&LatestVersionWebsite;</ulink>; 
       and at: --> 
-      <ulink url="&EtherealWebSite;/docs/developer-guide/"/>.
-	  XXX - is that true?
+      <ulink url="&EtherealWikiSite;/Development"/> in PDF (A4 and US letter)
+      and HTML (single and chunked) and CHM format.
     </para>
    <!-- <para>
       In addition, you can find a PDF version of the guide at: 
@@ -135,7 +135,7 @@
   <section id="PreFeedback">
     <title>Providing feedback about this document</title>
     <para>
-      Should you have any feedback about this document, please send them 
+      Should you have any feedback about this document, please send it 
       to the authors through <ulink url="mailto:&EtherealDevMailList;">&EtherealDevMailList;</ulink>.
     </para>
   </section>
