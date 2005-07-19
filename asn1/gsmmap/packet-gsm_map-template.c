@@ -135,7 +135,7 @@ unpack_digits(tvbuff_t *tvb, int offset){
 	length = length - offset;
 	digit_str = g_malloc(length*2+1);
 
-	while ( offset <= length ){
+	while ( offset < length ){
 
 		octet = tvb_get_guint8(tvb,offset);
 		digit_str[i] = ((octet & 0x0f) + 0x30);
