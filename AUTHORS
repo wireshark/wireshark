@@ -2353,6 +2353,11 @@ Paolo Frigo		<paolofrigo [AT] gmail.com> {
 Jeremy J Ouellette	<jouellet [AT] scires.com> {
 	DIS support
 }
+
+Aboo Valappil		<valappil_aboo [AT] emc.com> {
+	iFCP support
+}
+
 And assorted fixes and enhancements by the people listed above
 and by:
 
