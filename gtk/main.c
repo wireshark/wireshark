@@ -142,8 +142,8 @@
 
 
 /*
- * File under personal preferences directory in which GTK settings for
- * Ethereal are stored.
+ * Files under personal and global preferences directories in which
+ * GTK settings for Ethereal are stored.
  */
 #define RC_FILE "gtkrc"
 
@@ -2333,8 +2333,8 @@ main(int argc, char *argv[])
   }
 
   /* read in rc file from global and personal configuration paths. */
-  /* XXX - is this a good idea? */
-  gtk_rc_parse(RC_FILE);
+  rc_file = get_datafile_path(RC_FILE);
+  gtk_rc_parse(rc_file);
   rc_file = get_persconffile_path(RC_FILE, FALSE);
   gtk_rc_parse(rc_file);
 

@@ -109,7 +109,7 @@ read_disabled_protos_list(char **gpath_return, int *gopen_errno_return,
   /* Construct the pathname of the user's disabled protocols file. */
   ff_path = get_persconffile_path(PROTOCOLS_FILE_NAME, FALSE);
 
-  /* Read the global disabled protocols file, if it exists. */
+  /* Read the user's disabled protocols file, if it exists. */
   *path_return = NULL;
   if ((ff = fopen(ff_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */

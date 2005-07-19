@@ -796,7 +796,7 @@ protocols last.
 
 Packets are colored according to a list of color filters. Each filter
 consists of a name, a filter expression and a coloration. A packet is
-colored according to the first filter that it matches, Color filter
+colored according to the first filter that it matches. Color filter
 expressions use exactly the same syntax as display filter expressions.
 
 When Ethereal starts, the color filters are loaded from:
@@ -1861,18 +1861,21 @@ The I<Plugins> page lets you view the dissector plugin modules
 available on your system.
 
 The I<Plugins List> shows the name and version of each dissector plugin
-module found on your system.  The plugins are searched in the following
+module found on your system.
+
+On Unix-compatible systems, the plugins are looked for in the following
 directories: the F<lib/ethereal/plugins/$VERSION> directory under the
 main installation directory (for example,
-F</usr/local/lib/ethereal/plugins/$VERSION>),
-F</usr/lib/ethereal/plugins/$VERSION>,
-F</usr/local/lib/ethereal/plugins/$VERSION>, and
-F<$HOME/.ethereal/plugins> on UNIX-compatible systems, and in the
-F<plugins\$VERSION> directory under the main installation directory (for
-example, F<C:\Program Files\Ethereal\plugins\$VERSION>) and
-F<%APPDATA%\Ethereal\plugins\$VERSION> (or, if %APPDATA% isn't defined,
-F<%USERPROFILE%\Application Data\Ethereal\plugins\$VERSION>) on Windows
-systems; $VERSION is the version number of the plugin interface, which
+F</usr/local/lib/ethereal/plugins/$VERSION>), and then
+F<$HOME/.ethereal/plugins>.
+
+On Windows systems, the plugins are looked for in the following
+directories: F<plugins\$VERSION> directory under the main installation
+directory (for example, F<C:\Program Files\Ethereal\plugins\$VERSION>),
+and then F<%APPDATA%\Ethereal\plugins\$VERSION> (or, if %APPDATA% isn't
+defined, F<%USERPROFILE%\Application Data\Ethereal\plugins\$VERSION>).
+
+$VERSION is the version number of the plugin interface, which
 is typically the version number of Ethereal.  Note that a dissector
 plugin module may support more than one protocol; there is not
 necessarily a one-to-one correspondence between dissector plugin modules
@@ -1899,16 +1902,17 @@ These files contains various B<Ethereal> configuration settings.
 
 =item Preferences
 
-The I<preferences> files contain global (system-wide) and personal preference 
-settings. If the system-wide preference file exists, it is read first, 
-overriding the default values. If the personal preferences file 
-exits, it is read then, overriding these values (again). Note: If the command 
-line flag B<-o> is used, it will override these values even once more.
+The F<preferences> files contain global (system-wide) and personal
+preference settings. If the system-wide preference file exists, it is
+read first, overriding the default settings. If the personal preferences
+file exists, it is read next, overriding any previous values. Note: If
+the command line flag B<-o> is used (possibly more than once), it will
+in turn override values from the preferences files.
 
 The preferences settings are in the form I<prefname>B<:>I<value>, 
 one per line,
-where I<prefname> is the name of the preference (which is the same name
-that would appear in the preference file), and I<value> is the value to
+where I<prefname> is the name of the preference
+and I<value> is the value to
 which it should be set; white space is allowed between B<:> and
 I<value>.  A preference setting can be continued on subsequent lines by
 indenting the continuation lines with white space.  A B<#> character
@@ -1918,13 +1922,13 @@ starts a comment that runs to the end of the line:
   # TRUE or FALSE (case-insensitive).
   gui.scrollbar_on_right: TRUE
 
-The global preferences file is searched in the
-F<ethereal> directory under the F<share> subdirectory of the main
-installation directory (for example, F</usr/local/share/ethereal/preferences>) on
-UNIX-compatible systems, and in the main installation directory (for
-example, F<C:\Program Files\Ethereal\preferences>) on Windows systems.
+The global preferences file is looked for in the F<ethereal> directory
+under the F<share> subdirectory of the main installation directory (for
+example, F</usr/local/share/ethereal/preferences>) on UNIX-compatible
+systems, and in the main installation directory (for example,
+F<C:\Program Files\Ethereal\preferences>) on Windows systems.
 
-The personal preferences file, is searched in F<$HOME/.ethereal/preferences> on
+The personal preferences file is looked for in F<$HOME/.ethereal/preferences> on
 UNIX-compatible systems and F<%APPDATA%\Ethereal\preferences> (or, if
 %APPDATA% isn't defined, F<%USERPROFILE%\Application
 Data\Ethereal\preferences>) on Windows systems.
@@ -1936,14 +1940,14 @@ unknown/obsolete settings that were in the file.
 
 =item Recent
 
-The I<recent> file will store personal settings (mostly GUI related) like 
-the current B<Ethereal> window size. The file is saved at program exit and 
-read in at program start automatically. Note: If the command line flag B<-o> 
-is used, it will override the settings from this file.
+The F<recent> file contains personal settings (mostly GUI related) such
+as the current B<Ethereal> window size. The file is saved at program exit and 
+read in at program start automatically. Note: The command line flag B<-o> 
+may be used to override settings from this file.
 
-The settings in this file have the same format as 
-in the I<Preferences> files, and the same directory as for the personal preferences
-file is used.
+The settings in this file have the same format as in the F<preferences>
+files, and the same directory as for the personal preferences file is
+used.
 
 Note: Whenever Ethereal is closed, your recent file
 will be overwritten with the new settings, destroying any comments and 
@@ -1951,50 +1955,59 @@ unknown/obsolete settings that were in the file.
 
 =item Disabled (Enabled) Protocols
 
-The I<disabled_protos> file contains a list of
+The F<disabled_protos> files contain system-wide and personal lists of
 protocols that have been disabled, so that their dissectors are never
-called.  The file contains protocol names, one per line, where the
+called.  The files contain protocol names, one per line, where the
 protocol name is the same name that would be used in a display filter
 for the protocol:
 
   http
   tcp     # a comment
 
-The same directory as for the personal preferences file is used.
+If a protocol is listed in the global F<disabled_protos> file, it is not
+displayed in the I<Analyze:Enabled Protocols> dialog box, and so cannot
+be enabled by the user.
 
-Note: Whenever the disabled protocols list is saved by using the
-I<Save> button in the I<Analyze:Enabled Protocols> dialog box, your disabled
-protocols file will be overwritten with the new settings, destroying any
-comments that were in the file.
+The global F<disabled_protos> file uses the same directory as the global
+preferences file.
+
+The personal F<disabled_protos> file uses the same directory as the
+personal preferences file.
+
+Note: Whenever the disabled protocols list is saved by using the I<Save>
+button in the I<Analyze:Enabled Protocols> dialog box, your personal
+disabled protocols file will be overwritten with the new settings,
+destroying any comments that were in the file.
 
 =item Name Resolution (hosts)
 
-If the personal F<hosts> file exists, the entries in
-that file are used to resolve IPv4 and IPv6 addresses before any other
-attempts are made to resolve them.  That file has the standard F<hosts>
+If the personal F<hosts> file exists, it is
+used to resolve IPv4 and IPv6 addresses before any other
+attempts are made to resolve them.  The file has the standard F<hosts>
 file syntax; each line contains one IP address and name, separated by
 whitespace. The same directory as for the personal preferences file is used.
 
 =item Name Resolution (ethers)
 
-The F<ethers> files, are consulted to correlate 6-byte hardware addresses to 
-names. First the global F<ethers> file is tried and if that address is not 
-found there the personal one is tried next.
+The F<ethers> files are consulted to correlate 6-byte hardware addresses to 
+names. First the personal F<ethers> file is tried and if an address is not 
+found there the global F<ethers> is tried next.
 
-Each line contains one hardware address and
-name, separated by whitespace.  The digits of the hardware address are
-separated by either a colon (:), a dash (-), or a period (.).  The
-following three lines are valid lines of an F<ethers> file:
+Each line contains one hardware address and name, separated by
+whitespace.  The digits of the hardware address are separated by colons
+(:), dashes (-) or periods (.).  The same separator character must be
+used consistently in an address. The following three lines are valid
+lines of an F<ethers> file:
 
   ff:ff:ff:ff:ff:ff          Broadcast
   c0-00-ff-ff-ff-ff          TR_broadcast
   00.00.00.00.00.00          Zero_broadcast
 
-The global F<ethers> file is searched in the F</etc> directory on
+The global F<ethers> file is looked for in the F</etc> directory on
 UNIX-compatible systems, and in the main installation directory (for
 example, F<C:\Program Files\Ethereal>) on Windows systems.
 
-The personal F<ethers> file is searched in the same directory as the personal 
+The personal F<ethers> file is looked for in the same directory as the personal 
 preferences file.
 
 =item Name Resolution (manuf)
@@ -2002,25 +2015,23 @@ preferences file.
 The F<manuf> file is used to match the 3-byte vendor portion of a 6-byte 
 hardware address with the manufacturer's name; it can also contain well-known 
 MAC addresses and address ranges specified with a netmask.  The format of the 
-file is the same as the F<ethers> file, except that entries of the form:
+file is the same as the F<ethers> files, except that entries such as:
 
   00:00:0C      Cisco
 
 can be provided, with the 3-byte OUI and the name for a vendor, and
-entries of the form:
+entries such as:
 
   00-00-0C-07-AC/40     All-HSRP-routers
 
 can be specified, with a MAC address and a mask indicating how many bits
-of the address must match.  Trailing zero bytes can be omitted from
-address ranges.  That entry, for example, will match addresses from
-00-00-0C-07-AC-00 through 00-00-0C-07-AC-FF.  The mask need not be a
+of the address must match. The above entry, for example, has 40
+significant bits, or 5 bytes, and would match addresses from
+00-00-0C-07-AC-00 through 00-00-0C-07-AC-FF. The mask need not be a
 multiple of 8.
 
-The F<manuf> file is installed in the F<etc> directory under the
-main installation directory (for example, F</usr/local/etc/manuf>) on
-UNIX-compatible systems, and in the main installation directory (for
-example, F<C:\Program Files\Ethereal\manuf>) on Windows systems.
+The F<manuf> file is looked for in the same directory as the global
+preferences file.
 
 =item Name Resolution (ipxnets)
 
@@ -2029,8 +2040,8 @@ names. First the global F<ipxnets> file is tried and if that address is not
 found there the personal one is tried next.
 
 The format is the same as the F<ethers>
-file, except that each address if four bytes instead of six. 
-Additionally, the address can be represented a single hexadecimal
+file, except that each address is four bytes instead of six. 
+Additionally, the address can be represented as a single hexadecimal
 number, as is more common in the IPX world, rather than four hex octets. 
 For example, these four lines are valid lines of an F<ipxnets> file:
 
@@ -2039,12 +2050,12 @@ For example, these four lines are valid lines of an F<ipxnets> file:
   00:00:BE:EF              IT_Server1
   110f                     FileServer3
 
-The global F<ipxnets> file is found in the F</etc> directory on
+The global F<ipxnets> file is looked for in the F</etc> directory on
 UNIX-compatible systems, and in the main installation directory (for
 example, F<C:\Program Files\Ethereal>) on Windows systems.
 
-The personal F<ipxnets> file is searched in the same directory as the personal 
-preferences file.
+The personal F<ipxnets> file is looked for in the same directory as the
+personal preferences file.
 
 =item Capture Filters
 
@@ -2059,7 +2070,12 @@ The global F<cfilters> file uses the same directory as the
 global preferences file.
 
 The personal F<cfilters> file uses the same directory as the personal 
-preferences file.
+preferences file. It is written through the Capture:Capture Filters
+dialog.
+
+If the global F<cfilters> file exists, it is used only if the personal
+F<cfilters> file does not exist; global and personal capture filters are
+not merged.
 
 =item Display Filters
 
@@ -2074,7 +2090,12 @@ The global F<dfilters> file uses the same directory as the
 global preferences file.
 
 The personal F<dfilters> file uses the same directory as the 
-personal preferences file.
+personal preferences file. It is written through the Analyze:Display
+Filters dialog.
+
+If the global F<dfilters> file exists, it is used only if the personal
+F<dfilters> file does not exist; global and personal display filters are
+not merged.
 
 =item Color Filters (Coloring Rules)
 
@@ -2091,7 +2112,26 @@ The global F<colorfilters> file uses the same directory as the
 global preferences file.
 
 The personal F<colorfilters> file uses the same directory as the 
-personal preferences file.
+personal preferences file. It is written through the View:Coloring Rules
+dialog.
+
+If the global F<colorfilters> file exists, it is used only if the personal
+F<colorfilters> file does not exist; global and personal color filters are
+not merged.
+
+=item GTK rc files
+
+The F<gtkrc> files contain system-wide and personal GTK theme settings.
+
+The global F<gtkrc> file uses the same directory as the
+global preferences file.
+
+The personal F<gtkrc> file uses the same directory as the personal
+preferences file.
+
+=item Plugins
+
+See above in the description of the About:Plugins page.
 
 =back
 

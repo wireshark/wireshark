@@ -793,7 +793,7 @@ static ether_t *get_ethbyname(const gchar *name)
 {
   ether_t *eth;
 
-  set_ethent(g_ethers_path);
+  set_ethent(g_pethers_path);
 
   while ((eth = get_ethent(NULL, FALSE)) && strncmp(name, eth->name, MAXNAMELEN) != 0)
     ;
@@ -801,7 +801,7 @@ static ether_t *get_ethbyname(const gchar *name)
   if (eth == NULL) {
     end_ethent();
 
-    set_ethent(g_pethers_path);
+    set_ethent(g_ethers_path);
 
     while ((eth = get_ethent(NULL, FALSE)) && strncmp(name, eth->name, MAXNAMELEN) != 0)
       ;
@@ -818,7 +818,7 @@ static ether_t *get_ethbyaddr(const guint8 *addr)
 
   ether_t *eth;
 
-  set_ethent(g_ethers_path);
+  set_ethent(g_pethers_path);
 
   while ((eth = get_ethent(NULL, FALSE)) && memcmp(addr, eth->addr, 6) != 0)
     ;
@@ -826,7 +826,7 @@ static ether_t *get_ethbyaddr(const guint8 *addr)
   if (eth == NULL) {
     end_ethent();
 
-    set_ethent(g_pethers_path);
+    set_ethent(g_ethers_path);
 
     while ((eth = get_ethent(NULL, FALSE)) && memcmp(addr, eth->addr, 6) != 0)
       ;
@@ -1610,6 +1610,16 @@ read_hosts_file (const char *hostspath)
 void
 host_name_lookup_init(void) {
   char *hostspath;
+
+  /*
+   * Load the user's hosts file, if they have one.
+   */
+  hostspath = get_persconffile_path(ENAME_HOSTS, FALSE);
+  if (!read_hosts_file(hostspath) && errno != ENOENT) {
+    report_open_failure(hostspath, errno, FALSE);
+  }
+  g_free(hostspath);
+
 #ifdef HAVE_GNU_ADNS
   /*
    * We're using GNU ADNS, which doesn't check the system hosts file;
@@ -1642,18 +1652,7 @@ host_name_lookup_init(void) {
 #else /* WIN32 */
   read_hosts_file("/etc/hosts");
 #endif /* WIN32 */
-#endif /* HAVE_GNU_ADNS */
 
-  /*
-   * Load the user's hosts file, if they have one.
-   */
-  hostspath = get_persconffile_path(ENAME_HOSTS, FALSE);
-  if (!read_hosts_file(hostspath) && errno != ENOENT) {
-    report_open_failure(hostspath, errno, FALSE);
-  }
-  g_free(hostspath);
-
-#ifdef HAVE_GNU_ADNS
   /* XXX - Any flags we should be using? */
   /* XXX - We could provide config settings for DNS servers, and
            pass them to ADNS with adns_init_strcfg */
