@@ -842,18 +842,19 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 				   top_y_border/2-label_height/2,
 				   layout);
 		}
-#endif		
+#endif
 
 		/* Paint the background items */
 		for (current_item=0; current_item<display_items; current_item++){
 			/*select the color. if it is the selected item select blue color */
-			if ( current_item+first_item == user_data->dlg.selected_item )
+			if ( current_item+first_item == user_data->dlg.selected_item ) {
 				frame_bg_color = user_data->dlg.bg_gc[0];
-			else
+ 			} else {
 				frame_bg_color = user_data->dlg.bg_gc[1+user_data->dlg.items[current_item].conv_num%MAX_NUM_COL_CONV];
+			}
 			
 			/* Paint background */
-			if (several_convs && GDK_IS_DRAWABLE(user_data->dlg.pixmap)) {
+			if (GDK_IS_DRAWABLE(user_data->dlg.pixmap)) {
 				gdk_draw_rectangle(user_data->dlg.pixmap,
 								   frame_bg_color,
 								   TRUE,
