@@ -102,7 +102,7 @@ extern void write_recent_geom(gpointer key, gpointer value, gpointer rf);
  * question.  Return an indication of whether it succeeded or failed
  * in some fashion.
  *
- * @param a string of the form "<recent name>:<recent value>", as might appear
+ * @param prefarg a string of the form "<recent name>:<recent value>", as might appear
  * as an argument to a "-o" command line option
  * @return PREFS_SET_OK or PREFS_SET_SYNTAX_ERR
  */

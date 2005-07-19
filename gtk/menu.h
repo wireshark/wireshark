@@ -91,8 +91,9 @@ extern void set_menus_for_packet_history(gboolean back_history, gboolean forward
 
 /** The current file has changed, we need to update the file set menu items.
  *
- * @param back_history some back history entries available
- * @param forward_history some forward history entries available
+ * @param file_set the current file is part of a file set
+ * @param previous_file the previous file set (or NULL)
+ * @param next_file the next file set (or NULL)
  */
 extern void set_menus_for_file_set(gboolean file_set, gboolean previous_file, gboolean next_file);
 

@@ -255,7 +255,6 @@ dlg_radio_button_new_with_label_with_mnemonic( \
  *
  * @param radio_group group the radio buttons (another radio button or NULL for first one)
  * @param label_text the text to display
- * @param accel_group accelerator group (GTK1 only)
  * @return the new radio button
  */
 #define RADIO_BUTTON_NEW_WITH_LABEL(radio_group, label_text) \

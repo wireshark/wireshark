@@ -271,7 +271,7 @@ extern gboolean main_filter_packets(capture_file *cf, const gchar *dftext,
 
 /** Init the drag-n-drop functionality.
  *
- * @param the target widget for this dnd operations
+ * @param w the target widget for this dnd operations
  */
 extern void dnd_init(GtkWidget *w);
 

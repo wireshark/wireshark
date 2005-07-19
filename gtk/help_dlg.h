@@ -86,11 +86,11 @@ void topic_cb(GtkWidget *widget, topic_action_e topic);
  * @param data user_data (unused)
  * @param topic the topic to display
  */
-void topic_menu_cb(GtkWidget *w _U_, gpointer data _U_, topic_action_e topic);
+void topic_menu_cb(GtkWidget *widget _U_, gpointer data _U_, topic_action_e topic);
 
 /** Check, if a specific topic is available.
  *
- * @param topic the topic to display
+ * @param action the topic action to display
  * @return TRUE, if topic is available, FALSE if not
  */
 gboolean topic_available(topic_action_e action);
