@@ -1611,6 +1611,14 @@ void
 host_name_lookup_init(void) {
   char *hostspath;
 
+#ifdef HAVE_GNU_ADNS
+#ifdef WIN32
+  char *sysroot;
+  static char rootpath_nt[] = "\\system32\\drivers\\etc\\hosts";
+  static char rootpath_ot[] = "\\hosts";
+#endif /* WIN32 */
+#endif /*GNU_ADNS */
+
   /*
    * Load the user's hosts file, if they have one.
    */
@@ -1626,9 +1634,6 @@ host_name_lookup_init(void) {
    * we load that file ourselves.
    */
 #ifdef WIN32
-  char *sysroot;
-  static char rootpath_nt[] = "\\system32\\drivers\\etc\\hosts";
-  static char rootpath_ot[] = "\\hosts";
 
   sysroot = getenv("WINDIR");
   if (sysroot != NULL) {
