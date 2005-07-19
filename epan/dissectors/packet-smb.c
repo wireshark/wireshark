@@ -10438,10 +10438,17 @@ dissect_4_2_16_8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (*trunc) {
 		return offset;
 	}
+
+	/* 4 pad bytes */
+	offset+=4;
+
 	offset = dissect_4_2_16_5(tvb, pinfo, tree, offset, bcp, trunc);
 	if (*trunc) {
 		return offset;
 	}
+
+	/* 2 pad bytes */
+	offset+=2;
 
 	/* index number */
 	CHECK_BYTE_COUNT_SUBR(8);
@@ -10477,7 +10484,7 @@ dissect_4_2_16_8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item(tree, hf_smb_t2_alignment, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
 
-	offset = dissect_4_2_16_6(tvb, pinfo, tree, offset, bcp, trunc);
+	offset = dissect_4_2_16_7(tvb, pinfo, tree, offset, bcp, trunc);
 
 	return offset;
 }
