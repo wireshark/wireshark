@@ -380,7 +380,7 @@ extern proto_item* proto_tree_get_parent(proto_tree *tree);
 
 /** Move an existing item behind another existing item.
  @param tree the tree to which both items belong
- @param item the item which keeps it's position
+ @param fixed_item the item which keeps it's position
  @param item_to_move the item which will be moved */
 extern void proto_tree_move_item(proto_tree *tree, proto_item *fixed_item, proto_item *item_to_move);
 
@@ -1022,7 +1022,7 @@ extern int proto_registrar_get_ftype(int n);
  @return -1 if item _is_ a protocol */
 extern int proto_registrar_get_parent(int n);
 
-/** Is item #n a protocol?
+/** Is item # n a protocol?
  @param n item # n (0-indexed)
  @return TRUE if it's a protocol, FALSE if it's not */
 extern gboolean proto_registrar_is_protocol(int n);
@@ -1046,7 +1046,7 @@ extern header_field_info *proto_get_next_protocol_field(void **cookle);
  @return proto_id */
 extern int proto_get_id_by_filter_name(gchar* filter_name);
 
-/** Can item #n decoding be disabled?
+/** Can item # n decoding be disabled?
  @param proto_id protocol id (0-indexed)
  @return TRUE if it's a protocol, FALSE if it's not */
 extern gboolean proto_can_toggle_protocol(int proto_id);
