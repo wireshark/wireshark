@@ -229,26 +229,60 @@ static const true_false_string fqdn_s = {
 
 /* Adds domain */
 static void
-dhcpv6_domain(proto_tree * subtree, tvbuff_t *tvb, int off, guint16 optlen)
+dhcpv6_domain(proto_tree * subtree, tvbuff_t *tvb, int offset, guint16 optlen)
 {
+    int start_offset=offset;
+    char domain[256];
+    int pos;
     guint8 len;
-    char *domain;
 
-    while (optlen) {
-	len = tvb_get_guint8(tvb, off);
-	if (len==0)
-	    break;
-	if (len>optlen) {
-	    proto_tree_add_text(subtree, tvb, off, optlen, "Malformed option");
-	    return;
-	}
-	domain = tvb_get_string(tvb, off+1, len);
-	proto_tree_add_text(subtree, tvb, off, len+1, "Domain: %s", domain);
-	g_free(domain);
-	off    += len+1;
-	optlen -= len+1;
-    };
-}
+    pos=0;
+    while(optlen){
+        /* this is the start of the domain name */
+        if(!pos){
+            start_offset=offset;
+        }
+        domain[pos]=0;
+
+        /* read length of the next substring */
+        len = tvb_get_guint8(tvb, offset);
+        offset++;
+        optlen--;
+
+        /* if len==0 and pos>0 we have read an entire domain string */
+        if(!len){
+            if(!pos){
+                /* empty string, this must be an error? */
+                proto_tree_add_text(subtree, tvb, start_offset, offset-start_offset, "Malformed option");
+                return;
+            } else {
+                proto_tree_add_text(subtree, tvb, start_offset, offset-start_offset, "Domain: %s", domain);
+                pos=0;
+                continue;
+            }
+        }
+
+        /* add the substring to domain */
+        if(pos){
+            domain[pos]='.';
+            pos++;
+        }
+        if(pos+len>254){
+                /* too long string, this must be an error? */
+                proto_tree_add_text(subtree, tvb, start_offset, offset-start_offset, "Malformed option");
+                return;
+        }
+        tvb_memcpy(tvb, domain+pos, offset, len);
+        pos+=len;
+        offset+=len;
+        optlen-=len;
+    }        
+    
+    if(pos){
+        domain[pos]=0;
+        proto_tree_add_text(subtree, tvb, start_offset, offset-start_offset, "Domain: %s", domain);
+    }
+}    
 
 /* Returns the number of bytes consumed by this option. */
 static int
