@@ -973,7 +973,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str);
  @param filter_name protocol name used for a display filter string 
  @return the new protocol handle */
 extern int
-proto_register_protocol(char *name, char *short_name, char *filter_name);
+proto_register_protocol(const char *name, const char *short_name, const char *filter_name);
 
 /** Register a header_field array.
  @param parent the protocol handle from proto_register_protocol()

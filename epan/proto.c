@@ -2614,7 +2614,7 @@ proto_tree_move_item(proto_tree *tree, proto_item *fixed_item, proto_item *item_
 
 
 int
-proto_register_protocol(char *name, char *short_name, char *filter_name)
+proto_register_protocol(const char *name, const char *short_name, const char *filter_name)
 {
     protocol_t *protocol;
     header_field_info *hfinfo;
