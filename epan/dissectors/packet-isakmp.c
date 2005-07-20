@@ -55,6 +55,7 @@
 static int proto_isakmp = -1;
 static int hf_ike_certificate_authority = -1;
 static int hf_ike_v2_certificate_authority = -1;
+static int hf_ike_nat_keepalive = -1;
 
 static gint ett_isakmp = -1;
 static gint ett_isakmp_flags = -1;
@@ -428,6 +429,17 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     ti = proto_tree_add_item(tree, proto_isakmp, tvb, offset, -1, FALSE);
     isakmp_tree = proto_item_add_subtree(ti, ett_isakmp);
+  }
+
+  /* RFC3948 2.3 NAT Keepalive packet:
+   * 1 byte payload with the value 0xff.
+   */
+  if( (tvb_length(tvb)==1) && (tvb_get_guint8(tvb, offset)==0xff) ){
+    if (check_col(pinfo->cinfo, COL_INFO)){
+      col_add_str(pinfo->cinfo, COL_INFO, "NAT Keepalive");
+    }
+    proto_tree_add_item(isakmp_tree, hf_ike_nat_keepalive, tvb, offset, 1, FALSE);
+    return;
   }
 
   hdr.length = tvb_get_ntohl(tvb, offset + sizeof(hdr) - sizeof(hdr.length));
@@ -2481,6 +2493,9 @@ proto_register_isakmp(void)
     },
     { &hf_ike_v2_certificate_authority,
       { "Certificate Authority", "ike.cert_authority", FT_BYTES, BASE_HEX, NULL, 0x0, "SHA-1 hash of the Certificate Authority", HFILL }
+    },
+    { &hf_ike_nat_keepalive,
+      { "NAT Keepalive", "ike.nat_keepalive", FT_NONE, BASE_HEX, NULL, 0x0, "NAT Keepalive packet", HFILL }
     },
   };
   static gint *ett[] = {
