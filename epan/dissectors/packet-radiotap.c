@@ -370,7 +370,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    }
 	    if (tree) {
 		proto_tree_add_int(radiotap_tree, hf_radiotap_antsignal,
-				   tvb, offset, 1, tvb_get_guint8(tvb, offset));
+				   tvb, offset, 1, (gint8) tvb_get_guint8(tvb, offset));
 	    }
 	    offset++;
 	    break;
@@ -379,7 +379,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    /* XXX distinguish units */
 	    if (tree) {
 		proto_tree_add_int(radiotap_tree, hf_radiotap_antnoise,
-				   tvb, offset, 1, tvb_get_guint8(tvb, offset));
+				   tvb, offset, 1, (gint8) tvb_get_guint8(tvb, offset));
 	    }
 	    offset++;
 	    break;
