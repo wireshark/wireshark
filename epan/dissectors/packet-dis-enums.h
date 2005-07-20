@@ -244,7 +244,7 @@ extern const value_string DIS_PDU_Category_AirPlatform_Strings[];
 
 typedef enum
 {
-    DIS_CATEGORY_SURFACEPLATFORM_OTHER = 0,
+    DIS_CATEGORY_SURFACEPLATFORM_OTHER = 0
 } DIS_PDU_Category_SurfacePlatform;
 
 extern const value_string DIS_PDU_Category_SurfacePlatform_Strings[];
