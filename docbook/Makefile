@@ -21,7 +21,6 @@ FOP=fop-0.20.5/fop.bat
 # html help compiler (Win32 only)
 # (comment this out, if you don't want chm or don't have hhc installed)
 HHC="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
-#HHC="true"
 
 ############### YOU SHOULDN'T HAVE TO EDIT ANYTHING BELOW THIS LINE! ################
 
@@ -241,13 +240,13 @@ eug: user-guide-a4.pdf user-guide-us.pdf user-guide.html eug_html_chunked user-g
 
 # validate the content
 eug.validated: $(EUG_SOURCE)
-	@ echo --- VALIDATING XML ---
+	@ echo --- EUG - VALIDATING XML ---
 	$(XMLLINT) --valid --noout $<
 	touch $@
 
 # create html single page file
 user-guide.html: $(EUG_SOURCE)
-	@ echo --- HTML SINGLE PAGE ---
+	@ echo --- EUG - HTML SINGLE PAGE ---
 	mkdir -p eug_html/graphics/toolbar
 	cp graphics/*.* eug_html/graphics
 	cp graphics/toolbar/* eug_html/graphics/toolbar
@@ -256,7 +255,7 @@ user-guide.html: $(EUG_SOURCE)
 	
 # create html chunked page files
 eug_html_chunked: $(EUG_SOURCE)
-	@ echo --- HTML CHUNKED ---
+	@ echo --- EUG - HTML CHUNKED ---
 	mkdir -p eug_html_chunked/graphics/toolbar
 	cp graphics/*.* eug_html_chunked/graphics
 	cp graphics/toolbar/* eug_html_chunked/graphics/toolbar
@@ -267,7 +266,7 @@ eug_html_chunked: $(EUG_SOURCE)
 # you will get lot's of errors, but that's ok
 user-guide-us.fo: $(EUG_SOURCE)
 ifdef FOP
-	@ echo --- PDF US PAPER ---
+	@ echo --- EUG - PDF US PAPER ---
 	$(XSLTPROC) --stringparam paper.type letter --nonet custom_layer_pdf.xsl $< > $@
 endif
 
@@ -275,14 +274,14 @@ endif
 # you will get lot's of errors, but that's ok
 user-guide-a4.fo: $(EUG_SOURCE)
 ifdef FOP
-	@ echo --- PDF A4 PAPER ---
+	@ echo --- EUG - PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl $< > $@
 endif
 
 # create MS html help file (through html chunked pages)
 user-guide.chm: $(EUG_SOURCE)
 ifdef HHC
-	@ echo --- MICROSOFT HTML HELP ---
+	@ echo --- EUG - MICROSOFT HTML HELP ---
 	mkdir -p eug_chm/graphics/toolbar
 	-cp graphics/*.* eug_chm/graphics/
 	-cp graphics/toolbar/* eug_chm/graphics/toolbar/
@@ -298,13 +297,13 @@ edg: developer-guide-a4.pdf developer-guide-us.pdf developer-guide.html edg_html
 
 # validate the content
 edg.validated: $(EDG_SOURCE)
-	@ echo --- VALIDATING XML ---
+	@ echo --- EDG - VALIDATING XML ---
 	$(XMLLINT) --valid --noout $<
 	touch $@
 
 # create html single page file
 developer-guide.html: $(EDG_SOURCE)
-	@ echo --- HTML SINGLE PAGE ---
+	@ echo --- EDG - HTML SINGLE PAGE ---
 	mkdir -p edg_html/edg_graphics
 	cp edg_graphics/* edg_html/edg_graphics
 	$(XSLTPROC) --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > edg_html/$@
@@ -312,7 +311,7 @@ developer-guide.html: $(EDG_SOURCE)
 	
 # create html chunked page files
 edg_html_chunked: $(EDG_SOURCE)
-	@ echo --- HTML CHUNKED ---
+	@ echo --- EDG - HTML CHUNKED ---
 	mkdir -p edg_html_chunked
 	mkdir -p edg_html_chunked/edg_graphics
 	cp edg_graphics/* edg_html_chunked/edg_graphics
@@ -323,7 +322,7 @@ edg_html_chunked: $(EDG_SOURCE)
 # you will get lot's of errors, but that's ok
 developer-guide-us.fo: $(EDG_SOURCE)
 ifdef FOP
-	@ echo --- PDF US PAPER ---
+	@ echo --- EDG - PDF US PAPER ---
 	$(XSLTPROC) --stringparam paper.type letter --nonet custom_layer_pdf.xsl $< > $@
 endif
 
@@ -331,14 +330,14 @@ endif
 # you will get lot's of errors, but that's ok
 developer-guide-a4.fo: $(EDG_SOURCE)
 ifdef FOP
-	@ echo --- PDF A4 PAPER ---
+	@ echo --- EDG - PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl $< > $@
 endif
 
 # create MS html help file (through html chunked pages)
 developer-guide.chm: $(EDG_SOURCE)
 ifdef HHC
-	@ echo --- MICROSOFT HTML HELP ---
+	@ echo --- EDG - MICROSOFT HTML HELP ---
 	mkdir -p edg_chm/edg_graphics
 	cp edg_graphics/* edg_chm/edg_graphics
 	$(XSLTPROC) --stringparam base.dir edg_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
