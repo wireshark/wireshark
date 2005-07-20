@@ -412,10 +412,10 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 			    "; DSAP %s %s, SSAP %s %s",
-			    val_to_str(dsap & SAP_MASK, sap_vals, "%02x"),
+			    val_to_str(dsap & SAP_MASK, sap_vals, "0x%02x"),
 			    dsap & DSAP_GI_BIT ?
 			      "Group" : "Individual",
-			    val_to_str(ssap & SAP_MASK, sap_vals, "%02x"),
+			    val_to_str(ssap & SAP_MASK, sap_vals, "0x%02x"),
 			    ssap & SSAP_CR_BIT ?
 			      "Response" : "Command"
 			);
@@ -625,19 +625,19 @@ proto_register_llc(void)
 	static hf_register_info hf[] = {
 		{ &hf_llc_dsap,
 		{ "DSAP",	"llc.dsap", FT_UINT8, BASE_HEX,
-			VALS(sap_vals), 0x0, "", HFILL }},
+			VALS(sap_vals), 0x0, "DSAP - 7 Most Significant Bits only", HFILL }},
 
 		{ &hf_llc_dsap_ig,
 		{ "IG Bit",	"llc.dsap.ig", FT_BOOLEAN, BASE_HEX,
-			&ig_bit, 0x0, "Individual/Group", HFILL }},
+			&ig_bit, 0x0, "Individual/Group - Least Significant Bit only", HFILL }},
 
 		{ &hf_llc_ssap,
 		{ "SSAP", "llc.ssap", FT_UINT8, BASE_HEX,
-			VALS(sap_vals), 0x0, "", HFILL }},
+			VALS(sap_vals), 0x0, "SSAP - 7 Most Significant Bits only", HFILL }},
 
 		{ &hf_llc_ssap_cr,
 		{ "CR Bit", "llc.ssap.cr", FT_BOOLEAN, BASE_HEX,
-			&cr_bit, 0x0, "Command/Response", HFILL }},
+			&cr_bit, 0x0, "Command/Response - Least Significant Bit only", HFILL }},
 
 		{ &hf_llc_ctrl,
 		{ "Control", "llc.control", FT_UINT16, BASE_HEX,
