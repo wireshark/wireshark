@@ -882,7 +882,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	 * The rest of the IE is coded as in [TS 24.008] not including IEI and
 	 * length, if present.(10.5.1.4)
 	 */
-		de_mid(tvb, urr_ie_tree, offset, ie_len, "");
+		de_mid(tvb, urr_ie_tree, offset, ie_len, NULL);
 		break;
 
 	case 2:			

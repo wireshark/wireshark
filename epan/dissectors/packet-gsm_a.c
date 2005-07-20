@@ -1497,7 +1497,8 @@ be_cic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 
     curr_offset += 2;
 
-    sprintf(add_string, " - (%u) (0x%04x)", value, value);
+    if (add_string)
+	sprintf(add_string, " - (%u) (0x%04x)", value, value);
 
     /* no length check possible */
 
@@ -1567,7 +1568,8 @@ be_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
 	    curr_offset++;
 
-	    strcpy(add_string, " - (National Cause)");
+	    if (add_string)
+		strcpy(add_string, " - (National Cause)");
 	}
 	else
 	{
@@ -1666,7 +1668,8 @@ be_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
 	curr_offset++;
 
-	sprintf(add_string, " - (%u) %s", oct & 0x7f, str);
+	if (add_string)
+	    sprintf(add_string, " - (%u) %s", oct & 0x7f, str);
     }
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -1691,7 +1694,8 @@ be_tmsi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
 	tvb, curr_offset, 4,
 	value);
 
-    sprintf(add_string, " - (0x%04x)", value);
+    if (add_string)
+	sprintf(add_string, " - (0x%04x)", value);
 
     curr_offset += 4;
 
@@ -1704,12 +1708,11 @@ be_tmsi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
  * [2] 3.2.2.9
  */
 static guint8
-be_l3_header_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+be_l3_header_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
 
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -1760,14 +1763,13 @@ be_l3_header_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
  * [2] 3.2.2.10
  */
 static guint8
-be_enc_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+be_enc_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint8	mask;
     guint8	alg_id;
     guint32	curr_offset;
 
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -1852,7 +1854,8 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 	a_bigbuf,
 	str);
 
-    sprintf(add_string, " - (%s)", str);
+    if (add_string)
+	sprintf(add_string, " - (%s)", str);
 
     curr_offset++;
 
@@ -2220,7 +2223,8 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
     gchar	mcc[4];
     gchar	mnc[4];
 
-    add_string[0] = '\0';
+    if (add_string)
+	add_string[0] = '\0';
     curr_offset = offset;
 
     switch (disc)
@@ -2260,7 +2264,8 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
 	curr_offset += 2;
 
-	sprintf(add_string, " - LAC (0x%04x)", value);
+	if (add_string)
+	    sprintf(add_string, " - LAC (0x%04x)", value);
 
 	case 0x09: /* For intersystem handover from GSM to UMTS or cdma2000: */
 
@@ -2269,15 +2274,18 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 		value = tvb_get_ntohs(tvb, curr_offset);
 		proto_tree_add_item(tree, hf_gsm_a_be_rnc_id, tvb, curr_offset, 2, FALSE);
 
-		if (add_string[0] == '\0')
-			{
-			    sprintf(add_string, " - RNC-ID (%u)", value);
-			}
-			else
-			{
-			    sprintf(add_string, "%s/RNC-ID (%u)", add_string, value);
-			}
-			break;
+		if (add_string)
+		{
+		    if (add_string[0] == '\0')
+		    {
+			sprintf(add_string, " - RNC-ID (%u)", value);
+		    }
+		    else
+		    {
+			sprintf(add_string, "%s/RNC-ID (%u)", add_string, value);
+		    }
+		}
+		break;
 	}
 
 	if ((disc == 0x04) || (disc == 0x05) || (disc == 0x08)) break;
@@ -2295,13 +2303,16 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
 	curr_offset += 2;
 
-	if (add_string[0] == '\0')
+	if (add_string)
 	{
-	    sprintf(add_string, " - CI (%u)", value);
-	}
-	else
-	{
-	    sprintf(add_string, "%s/CI (%u)", add_string, value);
+	    if (add_string[0] == '\0')
+	    {
+		sprintf(add_string, " - CI (%u)", value);
+	    }
+	    else
+	    {
+		sprintf(add_string, "%s/CI (%u)", add_string, value);
+	    }
 	}
 	break;
 
@@ -2324,7 +2335,6 @@ be_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -2394,7 +2404,8 @@ be_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
 	(oct & 0x3c) >> 2,
 	str);
 
-    sprintf(add_string, " - (%u)", (oct & 0x3c) >> 2);
+    if (add_string)
+	sprintf(add_string, " - (%u)", (oct & 0x3c) >> 2);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
     proto_tree_add_text(tree,
@@ -2421,12 +2432,11 @@ be_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
  * [2] 3.2.2.24
  */
 static guint8
-be_l3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+be_l3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
     tvbuff_t	*l3_tvb;
 
-    add_string = add_string;
     curr_offset = offset;
 
     proto_tree_add_text(tree, tvb, curr_offset, len,
@@ -2450,7 +2460,7 @@ be_l3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * [2] 3.2.2.25
  */
 static guint8
-be_dlci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+be_dlci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
@@ -2458,7 +2468,6 @@ be_dlci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
     proto_tree	*subtree = NULL;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     item =
@@ -2484,13 +2493,12 @@ be_dlci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
  * [2] 3.2.2.26
  */
 static guint8
-be_down_dtx_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+be_down_dtx_flag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint	oct;
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -2556,13 +2564,14 @@ be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
 	subtree = proto_item_add_subtree(item, ett_cell_list);
 
-	add_string[0] = '\0';
+	if (add_string)
+	    add_string[0] = '\0';
 	consumed =
 	    be_cell_id_aux(tvb, subtree, curr_offset, len - (curr_offset - offset), add_string, disc);
 
-	if (add_string[0] != '\0')
+	if (add_string && add_string[0] != '\0')
 	{
-	    proto_item_append_text(item, "%s", add_string);
+	    proto_item_append_text(item, "%s", add_string ? add_string : "");
 	}
 
 	proto_item_set_len(item, consumed);
@@ -2573,8 +2582,10 @@ be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
     }
     while ((len - (curr_offset - offset)) > 0);
 
-    sprintf(add_string, " - %u cell%s",
-	num_cells, plurality(num_cells, "", "s"));
+    if (add_string) {
+	sprintf(add_string, " - %u cell%s",
+	    num_cells, plurality(num_cells, "", "s"));
+    }
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -2585,14 +2596,13 @@ be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * [2] 3.2.2.33
  */
 static guint8
-be_chosen_chan(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+be_chosen_chan(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar	*str = NULL;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -2654,13 +2664,12 @@ be_chosen_chan(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * [2] 3.2.2.34
  */
 static guint8
-be_ciph_resp_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+be_ciph_resp_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -2689,12 +2698,11 @@ be_ciph_resp_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
  * [2] 3.2.2.35
  */
 static guint8
-be_l3_msg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+be_l3_msg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
     tvbuff_t	*l3_tvb;
 
-    add_string = add_string;
     curr_offset = offset;
 
     proto_tree_add_text(tree, tvb, curr_offset, len,
@@ -2718,14 +2726,13 @@ be_l3_msg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
  * [2] 3.2.2.43
  */
 static guint8
-be_for_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+be_for_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar	*str = NULL;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -2796,7 +2803,8 @@ be_chosen_enc_alg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
     curr_offset++;
 
-    sprintf(add_string, " - %s", str);
+    if (add_string)
+	sprintf(add_string, " - %s", str);
 
     /* no length check possible */
 
@@ -2839,7 +2847,8 @@ be_cct_pool(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 
     curr_offset++;
 
-    sprintf(add_string, " - (%u)", oct);
+    if (add_string)
+	sprintf(add_string, " - (%u)", oct);
 
     /* no length check possible */
 
@@ -2850,14 +2859,13 @@ be_cct_pool(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
  * [2] 3.2.2.49
  */
 static guint8
-be_curr_chan_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+be_curr_chan_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar	*str;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -2918,13 +2926,12 @@ be_curr_chan_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * [2] 3.2.2.50
  */
 static guint8
-be_que_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+be_que_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -3002,7 +3009,8 @@ be_speech_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 
     curr_offset++;
 
-    sprintf(add_string, " - (%s)", short_str);
+    if (add_string)
+	sprintf(add_string, " - (%s)", short_str);
 
     /* no length check possible */
 
@@ -3013,11 +3021,10 @@ be_speech_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
  * [2] 3.2.2.68
  */
 static guint8
-be_apdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+be_apdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
-    add_string = add_string;
     curr_offset = offset;
 
     proto_tree_add_text(tree, tvb, curr_offset, len,
@@ -3321,7 +3328,7 @@ de_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * [3] 10.5.1.3
  */
 guint8
-de_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	octs[3];
     guint16	value;
@@ -3332,7 +3339,6 @@ de_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
     gchar	mnc[4];
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     item =
@@ -3404,7 +3410,8 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 
 	proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
 
-	strcpy(add_string, " - No Identity Code");
+	if (add_string)
+	    strcpy(add_string, " - No Identity Code");
 
 	curr_offset++;
 
@@ -3453,9 +3460,10 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 	    "BCD Digits: %s",
 	    a_bigbuf);
 
-	sprintf(add_string, " - %s (%s)",
-	    ((oct & 0x07) == 3) ? "IMEISV" : "IMSI",
-	    a_bigbuf);
+	if (add_string)
+	    sprintf(add_string, " - %s (%s)",
+		((oct & 0x07) == 3) ? "IMEISV" : "IMSI",
+		a_bigbuf);
 
 	curr_offset += len - (curr_offset - offset);
 
@@ -3500,7 +3508,8 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 	    "BCD Digits: %s",
 	    a_bigbuf);
 
-	sprintf(add_string, " - IMEI (%s)", a_bigbuf);
+	if (add_string)
+	    sprintf(add_string, " - IMEI (%s)", a_bigbuf);
 
 	curr_offset += len - (curr_offset - offset);
 	break;
@@ -3525,7 +3534,8 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 	    tvb, curr_offset, 4,
 	    value);
 
-	sprintf(add_string, " - TMSI/P-TMSI (0x%04x)", value);
+	if (add_string)
+	    sprintf(add_string, " - TMSI/P-TMSI (0x%04x)", value);
 
 	curr_offset += 4;
 	break;
@@ -3534,7 +3544,8 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 	proto_tree_add_text(tree, tvb, curr_offset, len,
 	    "Format Unknown");
 
-	strcpy(add_string, " - Format Unknown");
+	if (add_string)
+	    strcpy(add_string, " - Format Unknown");
 
 	curr_offset += len;
 	break;
@@ -3549,14 +3560,13 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
  * [3] 10.5.1.5
  */
 static guint8
-de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     proto_tree	*subtree;
     proto_item	*item;
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -3593,10 +3603,9 @@ de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * [3] 10.5.1.6
  */
 guint8
-de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
-    add_string = add_string;
     curr_offset = offset;
 
 
@@ -3659,7 +3668,7 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * [3] 10.5.1.9
  */
 static guint8
-de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	value;
@@ -3667,7 +3676,6 @@ de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
     gchar	*str;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     value = tvb_get_ntohl(tvb, curr_offset);
@@ -3737,7 +3745,7 @@ de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
  * [3] 10.5.1.10a
  */
 static guint8
-de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
@@ -3746,7 +3754,6 @@ de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
     gchar	*str;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -3791,14 +3798,13 @@ de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * [3] 10.5.1.11
  */
 static guint8
-de_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar	*str;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -3849,7 +3855,6 @@ de_plmn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
     gchar	mnc[4];
     guint8	num_plmn;
 
-    add_string = add_string;
     curr_offset = offset;
 
     num_plmn = 0;
@@ -3873,8 +3878,9 @@ de_plmn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 	num_plmn++;
     }
 
-    sprintf(add_string, " - %u PLMN%s",
-	num_plmn, plurality(num_plmn, "", "s"));
+    if (add_string)
+	sprintf(add_string, " - %u PLMN%s",
+	    num_plmn, plurality(num_plmn, "", "s"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -3888,12 +3894,11 @@ de_plmn_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
  * [3] 10.5.2.1b Cell Channel Description
  */
 static guint8
-de_rr_cell_ch_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_cell_ch_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	/* FORMAT-ID, Format Identifier (part of octet 3)*/
@@ -3914,7 +3919,7 @@ de_rr_cell_ch_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
  * [3] 10.5.2.2 Cell Description 
  */
 guint8
-de_rr_cell_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_cell_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     proto_tree	*subtree;
     proto_item	*item;
@@ -3923,7 +3928,6 @@ de_rr_cell_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 	guint16 bcch_arfcn;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -3954,12 +3958,11 @@ de_rr_cell_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * [3] 10.5.2.5 Channel Description
  */
 static guint8
-de_rr_ch_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_ch_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     proto_tree_add_text(tree,tvb, curr_offset, 4,"Channel Description(Not decoded)");
@@ -3972,12 +3975,11 @@ de_rr_ch_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
  * [3] 10.5.2.5a Channel Description 2
  */
 static guint8
-de_rr_ch_dsc2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_ch_dsc2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     proto_tree_add_text(tree,tvb, curr_offset, 3,"Channel Description 2(Not decoded)");
@@ -4016,12 +4018,11 @@ static const value_string gsm_a_rr_channel_mode_vals[] = {
 };
 
 guint8
-de_rr_ch_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_ch_mode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     proto_tree_add_item(tree, hf_gsm_a_rr_channel_mode, tvb, curr_offset, 1, FALSE);
@@ -4047,12 +4048,11 @@ static const value_string gsm_a_rr_channel_mode2_vals[] = {
 };
 
 static guint8
-de_rr_ch_mode2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_ch_mode2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     proto_tree_add_item(tree, hf_gsm_a_rr_channel_mode2, tvb, curr_offset, 1, FALSE);
@@ -4098,12 +4098,11 @@ static const value_string gsm_a_rr_utran_cm_cng_msg_req_vals[] = {
 	{ 0,	NULL }
 };
 guint8
-de_rr_cm_enq_mask(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_cm_enq_mask(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 	
 	proto_tree_add_item(tree, hf_gsm_a_rr_cm_cng_msg_req, tvb, curr_offset, 1, FALSE);
@@ -4136,13 +4135,12 @@ static const value_string gsm_a_rr_sc_vals[] = {
  */
 
 guint8
-de_rr_cip_mode_set(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_cip_mode_set(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 	guint8 oct;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;		
 
 	/* Cipher Mode Setting
@@ -4168,12 +4166,11 @@ de_rr_cip_mode_set(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
  * [3]  10.5.2.11b	Dynamic ARFCN Mapping		
  */
 static guint8
-de_rr_dyn_arfcn_map(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_dyn_arfcn_map(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	proto_tree_add_text(tree,tvb, curr_offset, len,"Dynamic ARFCN Mapping content(Not decoded)");
@@ -4187,12 +4184,11 @@ de_rr_dyn_arfcn_map(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
  * [3] 10.5.2.12 Frequency Channel Sequence
  */
 static guint8
-de_rr_freq_ch_seq(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_freq_ch_seq(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	proto_tree_add_text(tree,tvb, curr_offset, 3,"Frequency Channel Sequence(Not decoded)");
@@ -4235,12 +4231,11 @@ static const value_string gsm_a_rr_freq_list_format_id_vals[] = {
 	{ 0x00,	NULL }
 };
 static guint8
-de_rr_freq_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_freq_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	/* FORMAT-ID, Format Identifier (part of octet 3)*/
@@ -4271,12 +4266,11 @@ de_rr_freq_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * not contain a length indicator and that it shall not be encoded in bitmap 0 format.
  */
 static guint8
-de_rr_freq_short_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_freq_short_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	/* FORMAT-ID, Format Identifier (part of octet 3)*/
@@ -4298,12 +4292,11 @@ de_rr_freq_short_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * not contain a length indicator and that it shall not be encoded in bitmap 0 format.
  */
 static guint8
-de_rr_freq_short_list2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_freq_short_list2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	/* FORMAT-ID, Format Identifier (part of octet 3)*/
@@ -4325,14 +4318,13 @@ de_rr_freq_short_list2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
  * [3] 10.5.2.15 Handover Reference
  */
 static guint8
-de_rr_ho_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_ho_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     proto_tree	*subtree;
     proto_item	*item;
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	item =
@@ -4361,12 +4353,11 @@ de_rr_ho_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
  * [3] 10.5.2.21 Mobile Allocation
  */
 static guint8
-de_rr_mob_all(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_mob_all(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	proto_tree_add_text(tree,tvb, curr_offset, len ,"Data(Not decoded)");
@@ -4379,12 +4370,11 @@ de_rr_mob_all(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
  * [3] 10.5.2.21a Mobile Time Difference
  */
 static guint8
-de_rr_mob_time_diff(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_mob_time_diff(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	proto_tree_add_text(tree,tvb, curr_offset, len ,"Data(Not decoded)");
@@ -4416,13 +4406,12 @@ static const value_string ICMI_vals[] = {
 };
 
 static guint8
-de_rr_multirate_conf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_multirate_conf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 	guint8 oct;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	proto_tree_add_item(tree, hf_gsm_a_rr_multirate_speech_ver, tvb, curr_offset, 1, FALSE);
@@ -4456,12 +4445,11 @@ de_rr_multirate_conf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
  * [3] 10.5.2.21b Multislot Allocation
  */
 static guint8
-de_rr_mult_all(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_mult_all(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	proto_tree_add_text(tree,tvb, curr_offset, len ,"Data(Not decoded)");
@@ -4542,14 +4530,13 @@ static const true_false_string gsm_a_rr_pow_cmd_fpcepc_value  = {
  */
 
 static guint8
-de_rr_pow_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_pow_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     proto_tree	*subtree;
     proto_item	*item;
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	item =
@@ -4576,14 +4563,13 @@ de_rr_pow_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
  * [3] 10.5.2.28a Power Command and access type
  */
 static guint8
-de_rr_pow_cmd_and_acc_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_pow_cmd_and_acc_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     proto_tree	*subtree;
     proto_item	*item;
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	item =
@@ -4615,12 +4601,11 @@ de_rr_pow_cmd_and_acc_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
  * [3] 10.5.2.31
  */
 guint8
-de_rr_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	proto_tree_add_item(tree, hf_gsm_a_rr_RR_cause, tvb, curr_offset, 1, FALSE);
@@ -4653,12 +4638,11 @@ de_rr_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
  * [3] 10.5.2.38 Starting Time
  */
 static guint8
-de_rr_starting_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_starting_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	proto_tree_add_text(tree,tvb, curr_offset, 3 ,"Data(Not decoded)");
@@ -4695,12 +4679,11 @@ static const true_false_string gsm_a_rr_sync_ind_nci_value  = {
 
 
 static guint8
-de_rr_sync_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_sync_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	/*NCI */	
@@ -4719,12 +4702,11 @@ de_rr_sync_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * [3] 10.5.2.40 Timing Advance
  */
 static guint8
-de_rr_timing_adv(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_timing_adv(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	proto_tree_add_item(tree, hf_gsm_a_rr_timing_adv, tvb, curr_offset, 1, FALSE);
@@ -4737,12 +4719,11 @@ de_rr_timing_adv(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
  * [3] 10.5.2.41 Time Difference
  */
 static guint8
-de_rr_time_diff(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_time_diff(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	proto_tree_add_item(tree, hf_gsm_a_rr_time_diff, tvb, curr_offset, 1, FALSE);
@@ -4755,12 +4736,11 @@ de_rr_time_diff(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * The TLLI is encoded as a binary number with a length of 4 octets. TLLI is defined in 3GPP TS 23.003
  */
 guint8
-de_rr_tlli(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_tlli(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	proto_tree_add_item(tree, hf_gsm_a_rr_tlli, tvb, curr_offset, 4, FALSE);
@@ -4787,12 +4767,11 @@ static const value_string gsm_a_rr_target_mode_vals[] = {
 	{ 0,	NULL }
 };
 static guint8
-de_rr_vgcs_tar_mode_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_vgcs_tar_mode_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	proto_tree_add_item(tree, hf_gsm_a_rr_target_mode, tvb, curr_offset, 1, FALSE);
@@ -4806,12 +4785,11 @@ de_rr_vgcs_tar_mode_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
  * [3] 10.5.2.42b	VGCS Ciphering Parameters	
  */
 static guint8
-de_rr_vgcs_cip_par(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_vgcs_cip_par(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	proto_tree_add_text(tree,tvb, curr_offset, len ,"Data(Not decoded)");
@@ -4840,12 +4818,11 @@ static const value_string gsm_a_rr_suspension_cause_vals[] = {
 	{ 0,	NULL }
 };
 guint8
-de_rr_sus_cau(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_sus_cau(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	proto_tree_add_item(tree, hf_gsm_a_rr_suspension_cause, tvb, curr_offset, 1, FALSE);
@@ -4878,12 +4855,11 @@ static const true_false_string gsm_a_rr_last_segment_value  = {
   "mobile station shall not perform Service Information Sending procedure on new cell."
 };
 static guint8
-de_rr_ded_serv_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rr_ded_serv_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 	proto_tree_add_item(tree, hf_gsm_a_rr_last_segment, tvb, curr_offset, 1, FALSE);
@@ -4898,12 +4874,11 @@ de_rr_ded_serv_inf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
  * [3] 10.5.3.1
  */
 static guint8
-de_auth_param_rand(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_auth_param_rand(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 /*
@@ -4926,11 +4901,10 @@ de_auth_param_rand(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
  * [3] 10.5.3.1.1
  */
 static guint8
-de_auth_param_autn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_auth_param_autn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
-    add_string = add_string;
     curr_offset = offset;
 
     proto_tree_add_text(tree,
@@ -4948,12 +4922,11 @@ de_auth_param_autn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
  * [3] 10.5.3.2
  */
 static guint8
-de_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
 /*
@@ -4976,11 +4949,10 @@ de_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
  * [3] 10.5.3.2.1
  */
 static guint8
-de_auth_resp_param_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_auth_resp_param_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
-    add_string = add_string;
     curr_offset = offset;
 
     proto_tree_add_text(tree,
@@ -4998,11 +4970,10 @@ de_auth_resp_param_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
  * [3] 10.5.3.2.2
  */
 static guint8
-de_auth_fail_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_auth_fail_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
-    add_string = add_string;
     curr_offset = offset;
 
     proto_tree_add_text(tree,
@@ -5020,13 +4991,12 @@ de_auth_fail_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
  * [3] 10.5.3.5a
  */
 static guint8
-de_network_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_network_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar	*str;
 
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -5102,14 +5072,13 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * [3] 10.5.3.6
  */
 static guint8
-de_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar	*str;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -5173,13 +5142,12 @@ de_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
  * [3] 10.5.3.8
  */
 static guint8
-de_time_zone(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_time_zone(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -5201,13 +5169,12 @@ de_time_zone(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
  * [3] 10.5.3.9
  */
 static guint8
-de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct, oct2, oct3;
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -5261,11 +5228,10 @@ de_time_zone_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
  * [3] 10.5.3.11
  */
 static guint8
-de_lsa_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_lsa_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
-    add_string = add_string;
     curr_offset = offset;
 
     proto_tree_add_text(tree,
@@ -5283,13 +5249,12 @@ de_lsa_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
  * [3] 10.5.3.12
  */
 static guint8
-de_day_saving_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_day_saving_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar	*str;
 
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -5328,13 +5293,12 @@ de_day_saving_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
  * [3] 10.5.4.4
  */
 static guint8
-de_aux_states(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_aux_states(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar	*str;
 
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -5535,7 +5499,8 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 	a_bigbuf,
 	str);
 
-    sprintf(add_string, " - (%s)", str);
+    if (add_string)
+	sprintf(add_string, " - (%s)", str);
 
     curr_offset++;
 
@@ -6519,12 +6484,11 @@ bc_octet_7:
  * [3] 10.5.4.5a
  */
 static guint8
-de_cc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_cc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
 
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -6601,7 +6565,7 @@ de_cc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
  * [3] 10.5.4.6
  */
 static guint8
-de_call_state(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_call_state(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
@@ -6610,7 +6574,6 @@ de_call_state(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
     gchar	*str;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -6774,7 +6737,8 @@ de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 
     curr_offset += len - (curr_offset - offset);
 
-    sprintf(add_string, " - (%s)", a_bigbuf);
+    if (add_string)
+	sprintf(add_string, " - (%s)", a_bigbuf);
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -6785,13 +6749,12 @@ de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
  * [3] 10.5.4.8
  */
 static guint8
-de_cld_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_cld_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar	*str;
 
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -6990,7 +6953,8 @@ de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 
     curr_offset += len - (curr_offset - offset);
 
-    sprintf(add_string, " - (%s)", a_bigbuf);
+    if (add_string)
+	sprintf(add_string, " - (%s)", a_bigbuf);
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -7001,13 +6965,12 @@ de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
  * [3] 10.5.4.10
  */
 static guint8
-de_clg_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_clg_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar	*str;
 
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -7232,7 +7195,8 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
     curr_offset++;
 
-    sprintf(add_string, " - (%u) %s", cause, str);
+    if (add_string)
+	sprintf(add_string, " - (%u) %s", cause, str);
 
     NO_MORE_DATA_CHECK(len);
 
@@ -7285,7 +7249,7 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
  * [6] 3.6
  */
 static guint8
-de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     ASN1_SCK	asn1_real, *asn1;
     proto_item	*item;
@@ -7297,7 +7261,6 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
     const gchar	*str;
     gint32	int_val;
 
-    add_string = add_string;
 
     asn1 = &asn1_real;
     asn1_open(asn1, tvb, offset);
@@ -7636,7 +7599,8 @@ de_keypad_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 
     curr_offset++;
 
-    sprintf(add_string, " - %c", oct & 0x7f);
+    if (add_string)
+	sprintf(add_string, " - %c", oct & 0x7f);
 
     /* no length check possible */
 
@@ -7741,7 +7705,8 @@ de_prog_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 	str,
 	oct & 0x7f);
 
-    sprintf(add_string, " - %d", oct & 0x7f);
+    if (add_string)
+	sprintf(add_string, " - %d", oct & 0x7f);
 
     curr_offset++;
 
@@ -7754,14 +7719,13 @@ de_prog_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
  * [3] 10.5.4.22
  */
 static guint8
-de_repeat_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_repeat_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar	*str;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -7794,13 +7758,12 @@ de_repeat_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
  * [6] 3.7.2
  */
 static guint8
-de_ss_ver_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_ss_ver_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar	*str;
 
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -7830,12 +7793,11 @@ de_ss_ver_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
  * [5] 8.1.4.1
  */
 static guint8
-de_cp_user_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_cp_user_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
     tvbuff_t	*rp_tvb;
 
-    add_string = add_string;
     curr_offset = offset;
 
     proto_tree_add_text(tree, tvb, curr_offset, len,
@@ -7894,7 +7856,8 @@ de_cp_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 
     curr_offset++;
 
-    sprintf(add_string, " - (%u) %s", oct, str);
+    if (add_string)
+	sprintf(add_string, " - (%u) %s", oct, str);
 
     /* no length check possible */
 
@@ -7905,13 +7868,12 @@ de_cp_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
  * [5] 8.2.3
  */
 static guint8
-de_rp_message_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rp_message_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -7933,7 +7895,7 @@ de_rp_message_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
  * [5] 8.2.5.1
  */
 static guint8
-de_rp_orig_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rp_orig_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     return(de_cld_party_bcd_num(tvb, tree, offset, len, add_string));
 }
@@ -7942,7 +7904,7 @@ de_rp_orig_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * [5] 8.2.5.2
  */
 static guint8
-de_rp_dest_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rp_dest_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     return(de_cld_party_bcd_num(tvb, tree, offset, len, add_string));
 }
@@ -7951,12 +7913,11 @@ de_rp_dest_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * [5] 8.2.5.3
  */
 static guint8
-de_rp_user_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_rp_user_data(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
     tvbuff_t	*tpdu_tvb;
 
-    add_string = add_string;
     curr_offset = offset;
 
     proto_tree_add_text(tree, tvb, curr_offset, len,
@@ -8038,7 +7999,8 @@ de_rp_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 
     curr_offset++;
 
-    sprintf(add_string, " - (%u) %s", oct & 0x7f, str);
+    if (add_string)
+	sprintf(add_string, " - (%u) %s", oct & 0x7f, str);
 
     NO_MORE_DATA_CHECK(len);
 
@@ -8057,14 +8019,13 @@ de_rp_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
  * [7] 10.5.5.1
  */
 static guint8
-de_gmm_attach_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_attach_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar       *str;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -8093,7 +8054,7 @@ de_gmm_attach_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
  * [7] 10.5.5.2
  */
 static guint8
-de_gmm_attach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_attach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint8      oct_ciph;
@@ -8104,7 +8065,6 @@ de_gmm_attach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
     proto_tree      *tf_tree = NULL;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -8160,14 +8120,13 @@ de_gmm_attach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
  * [7] 10.5.5.3
  */
 static guint8
-de_gmm_ciph_alg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_ciph_alg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar	*str;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -8202,14 +8161,13 @@ de_gmm_ciph_alg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * [7] 10.5.5.4
  */
 static guint8
-de_gmm_tmsi_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_tmsi_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar	*str;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -8238,7 +8196,7 @@ de_gmm_tmsi_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
  * [7] 10.5.5.5
  */
 static guint8
-de_gmm_detach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_detach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
@@ -8248,7 +8206,6 @@ de_gmm_detach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
     proto_tree      *tf_tree = NULL;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -8355,7 +8312,7 @@ static const value_string gsm_a_gmm_cn_spec_drs_cycle_len_coef_strings[] = {
     { 0, NULL },
 };
 guint8
-de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
@@ -8365,7 +8322,6 @@ de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
     proto_tree  *tf_tree = NULL;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     tf = proto_tree_add_text(tree,
@@ -8440,14 +8396,13 @@ de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
  * [7] 10.5.5.7
  */
 static guint8
-de_gmm_ftostby(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_ftostby(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar       *str;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -8475,14 +8430,13 @@ de_gmm_ftostby(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * [7] 10.5.5.7
  */
 static guint8
-de_gmm_ftostby_h(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_ftostby_h(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar       *str;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -8513,13 +8467,12 @@ de_gmm_ftostby_h(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
  * [7] 10.5.5.8
  */
 static guint8
-de_gmm_ptmsi_sig(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_ptmsi_sig(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	val;
     guint32	curr_offset;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     val = tvb_get_guint8(tvb, curr_offset);
@@ -8550,7 +8503,6 @@ de_gmm_ptmsi_sig2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
     guint32	val;
     guint32	curr_offset;
 
-    add_string = add_string;
     curr_offset = offset;
 
     val = tvb_get_guint8(tvb, curr_offset);
@@ -8562,7 +8514,7 @@ de_gmm_ptmsi_sig2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
     proto_tree_add_text(tree,
 	tvb, curr_offset, 3,
 	"P-TMSI Signature 2: 0x%08x (%u) %s",
-	val, val , add_string);
+	val, val , add_string ? add_string : "");
 
     curr_offset+=3;
 
@@ -8575,14 +8527,13 @@ de_gmm_ptmsi_sig2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
  * [7] 10.5.5.9
  */
 static guint8
-de_gmm_ident_type2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_ident_type2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar       *str;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -8612,14 +8563,13 @@ de_gmm_ident_type2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
  * [7] 10.5.5.10
  */
 static guint8
-de_gmm_imeisv_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_imeisv_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar       *str;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -8650,13 +8600,12 @@ de_gmm_imeisv_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
  * [7] 10.5.5.11
  */
 static guint8
-de_gmm_rec_npdu_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_rec_npdu_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
     guint	curr_len;
     
     curr_len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     if ( len == 0 ) return 0;
@@ -8705,7 +8654,7 @@ de_gmm_rec_npdu_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
  * [7] 10.5.5.12
  */
 guint8
-de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
@@ -8739,7 +8688,6 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
     			"LCS value added location request notification capability supported" };
     
     curr_len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     if ( curr_len == 0 ){ EXTRANEOUS_DATA_CHECK(len, curr_offset - offset); return(curr_offset - offset); }
@@ -8868,7 +8816,7 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
 
 static guint8
-de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
     guint	curr_len;
@@ -8953,7 +8901,6 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
     guchar dtm_egprs_mslot = 4;
     
     curr_len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     bits_in_oct = 0;
@@ -10206,12 +10153,11 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
  * [7] 10.5.5.13
  */
 static guint8
-de_gc_spare(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gc_spare(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     proto_tree_add_text(tree,
@@ -10229,14 +10175,13 @@ de_gc_spare(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
  * [7] 10.5.5.14
  */
 static guint8
-de_gmm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar       *str;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -10313,7 +10258,7 @@ de_gmm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
  * [7] 10.5.5.15
  */
 guint8
-de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	mcc;
     guint32	mnc;
@@ -10322,7 +10267,6 @@ de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
     guint32	curr_offset;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     mcc = tvb_get_guint8(tvb, curr_offset);
@@ -10352,14 +10296,13 @@ de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * [7] 10.5.5.17
  */
 static guint8
-de_gmm_update_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_update_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar       *str;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -10391,7 +10334,7 @@ de_gmm_update_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
  * [7] 10.5.5.18
  */
 static guint8
-de_gmm_update_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_update_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint8	oct_ciph;
@@ -10402,7 +10345,6 @@ de_gmm_update_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
     proto_tree      *tf_tree = NULL;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -10459,13 +10401,12 @@ de_gmm_update_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
  * [7] 10.5.5.19
  */
 static guint8
-de_gmm_ac_ref_nr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_ac_ref_nr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -10487,13 +10428,12 @@ de_gmm_ac_ref_nr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
  * [7] 10.5.5.19
  */
 static guint8
-de_gmm_ac_ref_nr_h(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_ac_ref_nr_h(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -10518,7 +10458,7 @@ de_gmm_ac_ref_nr_h(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
  * [8] 10.5.5.20
  */
 static guint8
-de_gmm_service_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_service_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint8	oct_ciph;
@@ -10526,7 +10466,6 @@ de_gmm_service_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     gchar	*str;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -10568,12 +10507,11 @@ de_gmm_service_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
  * [7] 10.5.5.21
  */
 static guint8
-de_gmm_cell_notfi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_cell_notfi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
 
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     proto_tree_add_text(tree,
@@ -10589,7 +10527,7 @@ de_gmm_cell_notfi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
  * [7] 10.5.5.22
  */
 static guint8
-de_gmm_ps_lcs_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_ps_lcs_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
@@ -10600,7 +10538,6 @@ de_gmm_ps_lcs_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
     			"MS assisted GPS supported" };
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -10649,14 +10586,13 @@ de_gmm_ps_lcs_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
  * [7] 10.5.5.23
  */
 static guint8
-de_gmm_net_feat_supp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gmm_net_feat_supp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar       *str;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -10684,7 +10620,7 @@ de_gmm_net_feat_supp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
  * [7] 10.5.7.3
  */
 static guint8
-de_gc_timer(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gc_timer(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint16	val;
@@ -10692,7 +10628,6 @@ de_gc_timer(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
     gchar       *str;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -10737,7 +10672,6 @@ de_gc_timer2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
     gchar       *str;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -10761,7 +10695,7 @@ de_gc_timer2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 	tvb, curr_offset, 1,
 	"GPRS Timer: (%u) %u %s %s",
 	oct, val,
-	str,add_string);
+	str, add_string ? add_string : "");
 
     curr_offset++;
 
@@ -10772,14 +10706,13 @@ de_gc_timer2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
  * [7] 10.5.7.2
  */
 static guint8
-de_gc_radio_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gc_radio_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar       *str;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -10808,14 +10741,13 @@ de_gc_radio_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
  * [7] 10.5.7.5
  */
 static guint8
-de_gc_radio_prio2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gc_radio_prio2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint32	curr_offset;
     gchar       *str;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -10847,7 +10779,7 @@ de_gc_radio_prio2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
  * [7] 10.5.7.1
  */
 static guint8
-de_gc_context_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_gc_context_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint8	oct;
     guint16	pdp_nr;
@@ -10858,7 +10790,6 @@ de_gc_context_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
     gchar 	str[2][20]={ "PDP-INACTIVE", "PDP-ACTIVE" };
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -10909,7 +10840,6 @@ de_sm_apn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
     cptr = tvb_get_ptr(tvb, offset, len);
 
     
-    add_string = add_string;
     curr_offset = offset;
 
     /* init buffer and copy it */
@@ -10926,7 +10856,7 @@ de_sm_apn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
     
     proto_tree_add_text(tree,
     	tvb, curr_offset, len,
-    	"APN: %s %s", str+1 , add_string);
+    	"APN: %s %s", str+1 , add_string ? add_string : "");
 
     curr_offset+= len;
 
@@ -10945,7 +10875,6 @@ de_sm_nsapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
     guint32	curr_offset;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -10953,7 +10882,7 @@ de_sm_nsapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
 	"NSAPI: 0x%02x (%u) %s",
-	oct&0x0f, oct&0x0f,add_string);
+	oct&0x0f, oct&0x0f,add_string ? add_string : "");
 
     curr_offset++;
 
@@ -10964,7 +10893,7 @@ de_sm_nsapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
  * [7] 10.5.6.3
  */
 static guint8
-de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
     guint	curr_len;
@@ -10972,7 +10901,6 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
     struct e_in6_addr ipv6_addr;
     
     curr_len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -11070,7 +10998,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
  * [7] 10.5.6.4
  */
 static guint8
-de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
     guint	curr_len;
@@ -11080,7 +11008,6 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
     struct e_in6_addr ipv6_addr;
 
     curr_len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -11211,15 +11138,14 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * [7] 10.5.6.5
  */
 guint8
-de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
     guint	curr_len;
     guchar       oct;
-    guchar       *str;
+    gchar       *str;
     
     curr_len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -11779,7 +11705,6 @@ de_sm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
     gchar       *str;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -11827,7 +11752,7 @@ de_sm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
 	"LLC SAPI: (%u) %s %s",
-	oct, str,add_string);
+	oct, str,add_string ? add_string : "");
 
     curr_offset++;
 
@@ -11838,7 +11763,7 @@ de_sm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
  * [7] 10.5.6.7
  */
 static guint8
-de_sm_linked_ti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_sm_linked_ti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
     guint	curr_len;
@@ -11848,7 +11773,6 @@ de_sm_linked_ti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
     			"The message is sent to the side that originates the TI" };
     
     curr_len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -11894,7 +11818,6 @@ de_sm_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
     guint32	curr_offset;
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -11902,7 +11825,7 @@ de_sm_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
 	"LLC SAPI: 0x%02x (%u) %s",
-	oct&0x0f, oct&0x0f,add_string);
+	oct&0x0f, oct&0x0f,add_string ? add_string : "");
 
     curr_offset++;
 
@@ -11920,7 +11843,6 @@ de_sm_tear_down(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
     gchar	str[2][30] = { "tear down not requested" , "tear down requested" };
     
     len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -11928,7 +11850,7 @@ de_sm_tear_down(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
     proto_tree_add_text(tree,
 	tvb, curr_offset, 1,
 	"Tear Down Indicator: (%u) %s %s",
-	oct&1, str[oct&1],add_string);
+	oct&1, str[oct&1],add_string ? add_string : "");
 
     curr_offset++;
 
@@ -11951,14 +11873,13 @@ static const value_string gsm_a_packet_flow_id_vals[] = {
 	{ 0,	NULL }
 };
 guint8
-de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
     guint	curr_len;
     guchar	oct;
     
     curr_len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -11979,7 +11900,7 @@ de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * [7] 10.5.6.12
  */
 static guint8
-de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
 {
     guint32	curr_offset;
     guint	curr_len;
@@ -11993,7 +11914,6 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
     guchar	oct;
     
     curr_len = len;
-    add_string = add_string;
     curr_offset = offset;
 
     /*
