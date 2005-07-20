@@ -48,6 +48,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/ipv6-utils.h>
+#include "packet-arp.h"
 
 static int proto_dhcpv6 = -1;
 static int hf_dhcpv6_msgtype = -1;
@@ -292,6 +293,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 	guint8 *buf;
 	guint16	opttype;
 	guint16	optlen;
+	guint16	hwtype;
 	guint16	temp_optlen = 0;
 	proto_item *ti;
 	proto_tree *subtree;
@@ -344,15 +346,18 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 					optlen, "DUID: malformed option");
 				break;
 			}
-			/* XXX seconds since Jan 1 2000 */
+			hwtype=tvb_get_ntohs(tvb, off + 2);
 			proto_tree_add_text(subtree, tvb, off + 2, 2,
-				"Hardware type: %u",
-				tvb_get_ntohs(tvb, off + 2));
+				"Hardware type: %s (%u)",
+				arphrdtype_to_str(hwtype, "Unknown"),
+				hwtype);
+			/* XXX seconds since Jan 1 2000 */
 			proto_tree_add_text(subtree, tvb, off + 4, 4,
 				"Time: %u", tvb_get_ntohl(tvb, off + 4));
 			if (optlen > 8) {
 				proto_tree_add_text(subtree, tvb, off + 8,
-					optlen - 8, "Link-layer address");
+					optlen - 8, "Link-layer address: %s",
+					arphrdaddr_to_str(tvb_get_ptr(tvb, off+8, optlen-8), optlen-8, hwtype));
 			}
 			break;
 		case DUID_EN:
@@ -375,12 +380,15 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 					optlen, "DUID: malformed option");
 				break;
 			}
+			hwtype=tvb_get_ntohs(tvb, off + 2);
 			proto_tree_add_text(subtree, tvb, off + 2, 2,
-				"Hardware type: %u",
-				tvb_get_ntohs(tvb, off + 2));
+				"Hardware type: %s (%u)",
+				arphrdtype_to_str(hwtype, "Unknown"),
+				hwtype);
 			if (optlen > 4) {
 				proto_tree_add_text(subtree, tvb, off + 4,
-					optlen - 4, "Link-layer address");
+					optlen - 4, "Link-layer address: %s",
+					arphrdaddr_to_str(tvb_get_ptr(tvb, off+4, optlen-4), optlen-4, hwtype));
 			}
 			break;
 		}
