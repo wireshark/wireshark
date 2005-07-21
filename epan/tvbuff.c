@@ -2408,6 +2408,12 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			inflateReset(strm);
 			next = c;
 			strm->next_in = next;
+			if (c - compr > comprlen) {
+				g_free(strm);
+				g_free(compr);
+				g_free(strmbuf);
+				return NULL;
+			}
 			comprlen -= (c - compr);
 			
 			err = inflateInit2(strm, wbits);
