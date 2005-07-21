@@ -285,7 +285,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
     gboolean first_pass, gboolean *at_end, const char **dhcp_type_p,
     const guint8 **vendor_class_id_p)
 {
-	char			*text;
+	const char		*text;
 	enum field_type		ftype;
 	guchar			code = tvb_get_guint8(tvb, voff);
 	int			optlen;
