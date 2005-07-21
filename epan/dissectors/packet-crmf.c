@@ -287,7 +287,7 @@ static const ber_choice_t Time_choice[] = {
 
 static int
 dissect_crmf_Time(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Time_choice, hf_index, ett_crmf_Time, NULL);
 
   return offset;
@@ -410,6 +410,7 @@ static int dissect_Controls_item(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_crmf_AttributeTypeAndValue(FALSE, tvb, offset, pinfo, tree, hf_crmf_Controls_item);
 }
 
+
 static const ber_sequence_t Controls_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Controls_item },
 };
@@ -417,7 +418,7 @@ static const ber_sequence_t Controls_sequence_of[1] = {
 int
 dissect_crmf_Controls(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   Controls_sequence_of, hf_index, ett_crmf_Controls);
+                                      Controls_sequence_of, hf_index, ett_crmf_Controls);
 
   return offset;
 }
@@ -515,7 +516,7 @@ static const ber_choice_t T_authInfo_choice[] = {
 
 static int
 dissect_crmf_T_authInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               T_authInfo_choice, hf_index, ett_crmf_T_authInfo, NULL);
 
   return offset;
@@ -595,7 +596,7 @@ static const ber_choice_t POPOPrivKey_choice[] = {
 
 int
 dissect_crmf_POPOPrivKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               POPOPrivKey_choice, hf_index, ett_crmf_POPOPrivKey, NULL);
 
   return offset;
@@ -626,7 +627,7 @@ static const ber_choice_t ProofOfPossession_choice[] = {
 
 int
 dissect_crmf_ProofOfPossession(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               ProofOfPossession_choice, hf_index, ett_crmf_ProofOfPossession, NULL);
 
   return offset;
@@ -635,6 +636,7 @@ static int dissect_pop(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
   return dissect_crmf_ProofOfPossession(FALSE, tvb, offset, pinfo, tree, hf_crmf_pop);
 }
 
+
 static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_regInfo_item },
 };
@@ -642,7 +644,7 @@ static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue_sequenc
 static int
 dissect_crmf_SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue_sequence_of, hf_index, ett_crmf_SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue);
+                                      SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue_sequence_of, hf_index, ett_crmf_SEQUENCE_SIZE_1_MAX_OF_AttributeTypeAndValue);
 
   return offset;
 }
@@ -668,6 +670,7 @@ static int dissect_CertReqMessages_item(packet_info *pinfo, proto_tree *tree, tv
   return dissect_crmf_CertReqMsg(FALSE, tvb, offset, pinfo, tree, hf_crmf_CertReqMessages_item);
 }
 
+
 static const ber_sequence_t CertReqMessages_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_CertReqMessages_item },
 };
@@ -675,16 +678,17 @@ static const ber_sequence_t CertReqMessages_sequence_of[1] = {
 int
 dissect_crmf_CertReqMessages(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   CertReqMessages_sequence_of, hf_index, ett_crmf_CertReqMessages);
+                                      CertReqMessages_sequence_of, hf_index, ett_crmf_CertReqMessages);
 
   return offset;
 }
 
 
+
 static int
 dissect_crmf_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
@@ -788,6 +792,7 @@ static int dissect_pubInfos_item(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_crmf_SinglePubInfo(FALSE, tvb, offset, pinfo, tree, hf_crmf_pubInfos_item);
 }
 
+
 static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_SinglePubInfo_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pubInfos_item },
 };
@@ -795,7 +800,7 @@ static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_SinglePubInfo_sequence_of[1] 
 static int
 dissect_crmf_SEQUENCE_SIZE_1_MAX_OF_SinglePubInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUENCE_SIZE_1_MAX_OF_SinglePubInfo_sequence_of, hf_index, ett_crmf_SEQUENCE_SIZE_1_MAX_OF_SinglePubInfo);
+                                      SEQUENCE_SIZE_1_MAX_OF_SinglePubInfo_sequence_of, hf_index, ett_crmf_SEQUENCE_SIZE_1_MAX_OF_SinglePubInfo);
 
   return offset;
 }
@@ -853,7 +858,7 @@ static const ber_choice_t EncryptedKey_choice[] = {
 
 int
 dissect_crmf_EncryptedKey(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               EncryptedKey_choice, hf_index, ett_crmf_EncryptedKey, NULL);
 
   return offset;
@@ -863,16 +868,18 @@ static int dissect_encryptedPrivKey_impl(packet_info *pinfo, proto_tree *tree, t
 }
 
 
+
 int
 dissect_crmf_KeyGenParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
 static int dissect_keyGenParameters_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_crmf_KeyGenParameters(TRUE, tvb, offset, pinfo, tree, hf_crmf_keyGenParameters);
 }
+
 
 
 static int
@@ -902,7 +909,7 @@ static const ber_choice_t PKIArchiveOptions_choice[] = {
 
 int
 dissect_crmf_PKIArchiveOptions(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               PKIArchiveOptions_choice, hf_index, ett_crmf_PKIArchiveOptions, NULL);
 
   return offset;
@@ -995,7 +1002,7 @@ void proto_register_crmf(void) {
         "CertReqMsg/pop", HFILL }},
     { &hf_crmf_regInfo,
       { "regInfo", "crmf.regInfo",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CertReqMsg/regInfo", HFILL }},
     { &hf_crmf_regInfo_item,
       { "Item", "crmf.regInfo_item",
@@ -1011,7 +1018,7 @@ void proto_register_crmf(void) {
         "CertRequest/certTemplate", HFILL }},
     { &hf_crmf_controls,
       { "controls", "crmf.controls",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CertRequest/controls", HFILL }},
     { &hf_crmf_version,
       { "version", "crmf.version",
@@ -1155,7 +1162,7 @@ void proto_register_crmf(void) {
         "PKIPublicationInfo/action", HFILL }},
     { &hf_crmf_pubInfos,
       { "pubInfos", "crmf.pubInfos",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "PKIPublicationInfo/pubInfos", HFILL }},
     { &hf_crmf_pubInfos_item,
       { "Item", "crmf.pubInfos_item",

@@ -126,7 +126,7 @@ dissector_try_port
 dissector_try_string
 dissect_ber_bitstring
 dissect_ber_boolean
-dissect_ber_CHOICE
+dissect_ber_choice
 dissect_ber_GeneralizedTime
 dissect_ber_identifier
 dissect_ber_integer

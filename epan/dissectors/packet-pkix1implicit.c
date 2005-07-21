@@ -170,6 +170,7 @@ static int dissect_AuthorityInfoAccessSyntax_item(packet_info *pinfo, proto_tree
   return dissect_pkix1implicit_AccessDescription(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_AuthorityInfoAccessSyntax_item);
 }
 
+
 static const ber_sequence_t AuthorityInfoAccessSyntax_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_AuthorityInfoAccessSyntax_item },
 };
@@ -177,7 +178,7 @@ static const ber_sequence_t AuthorityInfoAccessSyntax_sequence_of[1] = {
 int
 dissect_pkix1implicit_AuthorityInfoAccessSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   AuthorityInfoAccessSyntax_sequence_of, hf_index, ett_pkix1implicit_AuthorityInfoAccessSyntax);
+                                      AuthorityInfoAccessSyntax_sequence_of, hf_index, ett_pkix1implicit_AuthorityInfoAccessSyntax);
 
   return offset;
 }
@@ -238,7 +239,7 @@ static const ber_choice_t DisplayText_choice[] = {
 
 static int
 dissect_pkix1implicit_DisplayText(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               DisplayText_choice, hf_index, ett_pkix1implicit_DisplayText, NULL);
 
   return offset;
@@ -263,6 +264,7 @@ static int dissect_noticeNumbers_item(packet_info *pinfo, proto_tree *tree, tvbu
   return dissect_pkix1implicit_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_noticeNumbers_item);
 }
 
+
 static const ber_sequence_t T_noticeNumbers_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_noticeNumbers_item },
 };
@@ -270,7 +272,7 @@ static const ber_sequence_t T_noticeNumbers_sequence_of[1] = {
 static int
 dissect_pkix1implicit_T_noticeNumbers(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   T_noticeNumbers_sequence_of, hf_index, ett_pkix1implicit_T_noticeNumbers);
+                                      T_noticeNumbers_sequence_of, hf_index, ett_pkix1implicit_T_noticeNumbers);
 
   return offset;
 }
@@ -337,7 +339,7 @@ void proto_register_pkix1implicit(void) {
         "Dummy", HFILL }},
     { &hf_pkix1implicit_AuthorityInfoAccessSyntax_PDU,
       { "AuthorityInfoAccessSyntax", "pkix1implicit.AuthorityInfoAccessSyntax",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "AuthorityInfoAccessSyntax", HFILL }},
     { &hf_pkix1implicit_nameAssigner,
       { "nameAssigner", "pkix1implicit.nameAssigner",
@@ -373,7 +375,7 @@ void proto_register_pkix1implicit(void) {
         "NoticeReference/organization", HFILL }},
     { &hf_pkix1implicit_noticeNumbers,
       { "noticeNumbers", "pkix1implicit.noticeNumbers",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "NoticeReference/noticeNumbers", HFILL }},
     { &hf_pkix1implicit_noticeNumbers_item,
       { "Item", "pkix1implicit.noticeNumbers_item",
@@ -428,16 +430,16 @@ void proto_reg_handoff_pkix1implicit(void) {
 
 /*--- Included file: packet-pkix1implicit-dis-tab.c ---*/
 
- register_ber_oid_dissector("1.3.6.1.5.5.7.1.1", dissect_AuthorityInfoAccessSyntax_PDU, proto_pkix1implicit, "id-pe-authorityInfoAccessSyntax");
- register_ber_oid_dissector("1.3.6.1.5.5.7.3.1", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-serverAuth");
- register_ber_oid_dissector("1.3.6.1.5.5.7.3.2", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-clientAuth");
- register_ber_oid_dissector("1.3.6.1.5.5.7.3.3", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-codeSigning");
- register_ber_oid_dissector("1.3.6.1.5.5.7.3.4", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-emailProtection");
- register_ber_oid_dissector("1.3.6.1.5.5.7.3.5", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-ip-kp-ipsecEndSystem");
- register_ber_oid_dissector("1.3.6.1.5.5.7.3.6", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-ipsecTunnel");
- register_ber_oid_dissector("1.3.6.1.5.5.7.3.7", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-ipsecUser");
- register_ber_oid_dissector("1.3.6.1.5.5.7.3.8", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-timeStamping");
- register_ber_oid_dissector("1.3.6.1.5.5.7.3.9", dissect_Dummy_PDU, proto_pkix1implicit, "OCSPSigning");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.1.1", dissect_AuthorityInfoAccessSyntax_PDU, proto_pkix1implicit, "id-pe-authorityInfoAccessSyntax");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.3.1", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-serverAuth");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.3.2", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-clientAuth");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.3.3", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-codeSigning");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.3.4", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-emailProtection");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.3.5", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-ip-kp-ipsecEndSystem");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.3.6", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-ipsecTunnel");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.3.7", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-ipsecUser");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.3.8", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-timeStamping");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.3.9", dissect_Dummy_PDU, proto_pkix1implicit, "OCSPSigning");
 
 
 /*--- End of included file: packet-pkix1implicit-dis-tab.c ---*/

@@ -48,12 +48,12 @@ AttributeValueAssertion  TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  
 ContextAssertion         TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 AttributeTypeAssertion   TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 Name                     TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x509if_Name_vals)  BITMASK = 0
-RDNSequence              TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-DistinguishedName        TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-RelativeDistinguishedName TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+RDNSequence              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+DistinguishedName        TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+RelativeDistinguishedName TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 AttributeTypeAndDistinguishedValue TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 SubtreeSpecification     TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-LocalName                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+LocalName                TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 ChopSpecification        TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 BaseDistance             TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 Refinement               TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x509if_Refinement_vals)  BITMASK = 0

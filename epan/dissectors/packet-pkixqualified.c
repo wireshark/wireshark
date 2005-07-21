@@ -184,7 +184,7 @@ static const ber_choice_t TypeOfBiometricData_choice[] = {
 
 static int
 dissect_pkixqualified_TypeOfBiometricData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               TypeOfBiometricData_choice, hf_index, ett_pkixqualified_TypeOfBiometricData, NULL);
 
   return offset;
@@ -194,10 +194,11 @@ static int dissect_typeOfBiometricData(packet_info *pinfo, proto_tree *tree, tvb
 }
 
 
+
 static int
 dissect_pkixqualified_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
@@ -237,6 +238,7 @@ static int dissect_BiometricSyntax_item(packet_info *pinfo, proto_tree *tree, tv
   return dissect_pkixqualified_BiometricData(FALSE, tvb, offset, pinfo, tree, hf_pkixqualified_BiometricSyntax_item);
 }
 
+
 static const ber_sequence_t BiometricSyntax_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_BiometricSyntax_item },
 };
@@ -244,7 +246,7 @@ static const ber_sequence_t BiometricSyntax_sequence_of[1] = {
 static int
 dissect_pkixqualified_BiometricSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   BiometricSyntax_sequence_of, hf_index, ett_pkixqualified_BiometricSyntax);
+                                      BiometricSyntax_sequence_of, hf_index, ett_pkixqualified_BiometricSyntax);
 
   return offset;
 }
@@ -293,6 +295,7 @@ static int dissect_QCStatements_item(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_pkixqualified_QCStatement(FALSE, tvb, offset, pinfo, tree, hf_pkixqualified_QCStatements_item);
 }
 
+
 static const ber_sequence_t QCStatements_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_QCStatements_item },
 };
@@ -300,10 +303,11 @@ static const ber_sequence_t QCStatements_sequence_of[1] = {
 static int
 dissect_pkixqualified_QCStatements(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   QCStatements_sequence_of, hf_index, ett_pkixqualified_QCStatements);
+                                      QCStatements_sequence_of, hf_index, ett_pkixqualified_QCStatements);
 
   return offset;
 }
+
 
 static const ber_sequence_t NameRegistrationAuthorities_sequence_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_NameRegistrationAuthorities_item },
@@ -312,7 +316,7 @@ static const ber_sequence_t NameRegistrationAuthorities_sequence_of[1] = {
 static int
 dissect_pkixqualified_NameRegistrationAuthorities(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   NameRegistrationAuthorities_sequence_of, hf_index, ett_pkixqualified_NameRegistrationAuthorities);
+                                      NameRegistrationAuthorities_sequence_of, hf_index, ett_pkixqualified_NameRegistrationAuthorities);
 
   return offset;
 }
@@ -382,11 +386,11 @@ void proto_register_pkixqualified(void) {
         "Printablestring", HFILL }},
     { &hf_pkixqualified_BiometricSyntax_PDU,
       { "BiometricSyntax", "pkixqualified.BiometricSyntax",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "BiometricSyntax", HFILL }},
     { &hf_pkixqualified_QCStatements_PDU,
       { "QCStatements", "pkixqualified.QCStatements",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "QCStatements", HFILL }},
     { &hf_pkixqualified_SemanticsInformation_PDU,
       { "SemanticsInformation", "pkixqualified.SemanticsInformation",
@@ -438,7 +442,7 @@ void proto_register_pkixqualified(void) {
         "SemanticsInformation/semanticsIdentifier", HFILL }},
     { &hf_pkixqualified_nameRegistrationAuthorities,
       { "nameRegistrationAuthorities", "pkixqualified.nameRegistrationAuthorities",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "SemanticsInformation/nameRegistrationAuthorities", HFILL }},
     { &hf_pkixqualified_NameRegistrationAuthorities_item,
       { "Item", "pkixqualified.NameRegistrationAuthorities_item",
@@ -481,15 +485,15 @@ void proto_reg_handoff_pkixqualified(void) {
 
 /*--- Included file: packet-pkixqualified-dis-tab.c ---*/
 
- register_ber_oid_dissector("1.3.6.1.5.5.7.1.2", dissect_BiometricSyntax_PDU, proto_pkixqualified, "id-pe-biometricInfo");
- register_ber_oid_dissector("1.3.6.1.5.5.7.1.3", dissect_QCStatements_PDU, proto_pkixqualified, "id-pe-qcStatements");
- register_ber_oid_dissector("1.3.6.1.5.5.7.11.1", dissect_SemanticsInformation_PDU, proto_pkixqualified, "id-qcs-pkixQCSyntax-v1");
- register_ber_oid_dissector("1.3.6.1.5.5.7.11.2", dissect_SemanticsInformation_PDU, proto_pkixqualified, "id-qcs-pkixQCSyntax-v2");
- register_ber_oid_dissector("1.3.6.1.5.5.7.9.1", dissect_Generalizedtime_PDU, proto_pkixqualified, "id-pda-dateOfBirth");
- register_ber_oid_dissector("1.3.6.1.5.5.7.9.2", dissect_Directorystring_PDU, proto_pkixqualified, "id-pda-placeOfBirth");
- register_ber_oid_dissector("1.3.6.1.5.5.7.9.3", dissect_Printablestring_PDU, proto_pkixqualified, "id-pda-gender");
- register_ber_oid_dissector("1.3.6.1.5.5.7.9.4", dissect_Printablestring_PDU, proto_pkixqualified, "id-pda-countryOfCitizenship");
- register_ber_oid_dissector("1.3.6.1.5.5.7.9.5", dissect_Printablestring_PDU, proto_pkixqualified, "id-pda-countryOfResidence");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.1.2", dissect_BiometricSyntax_PDU, proto_pkixqualified, "id-pe-biometricInfo");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.1.3", dissect_QCStatements_PDU, proto_pkixqualified, "id-pe-qcStatements");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.11.1", dissect_SemanticsInformation_PDU, proto_pkixqualified, "id-qcs-pkixQCSyntax-v1");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.11.2", dissect_SemanticsInformation_PDU, proto_pkixqualified, "id-qcs-pkixQCSyntax-v2");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.9.1", dissect_Generalizedtime_PDU, proto_pkixqualified, "id-pda-dateOfBirth");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.9.2", dissect_Directorystring_PDU, proto_pkixqualified, "id-pda-placeOfBirth");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.9.3", dissect_Printablestring_PDU, proto_pkixqualified, "id-pda-gender");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.9.4", dissect_Printablestring_PDU, proto_pkixqualified, "id-pda-countryOfCitizenship");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.9.5", dissect_Printablestring_PDU, proto_pkixqualified, "id-pda-countryOfResidence");
 
 
 /*--- End of included file: packet-pkixqualified-dis-tab.c ---*/

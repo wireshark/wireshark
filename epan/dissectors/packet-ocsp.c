@@ -260,6 +260,7 @@ static int dissect_requestList_item(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_ocsp_Request(FALSE, tvb, offset, pinfo, tree, hf_ocsp_requestList_item);
 }
 
+
 static const ber_sequence_t SEQUENCE_OF_Request_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_requestList_item },
 };
@@ -267,7 +268,7 @@ static const ber_sequence_t SEQUENCE_OF_Request_sequence_of[1] = {
 static int
 dissect_ocsp_SEQUENCE_OF_Request(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUENCE_OF_Request_sequence_of, hf_index, ett_ocsp_SEQUENCE_OF_Request);
+                                      SEQUENCE_OF_Request_sequence_of, hf_index, ett_ocsp_SEQUENCE_OF_Request);
 
   return offset;
 }
@@ -307,6 +308,7 @@ static int dissect_signature(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
   return dissect_ocsp_BIT_STRING(FALSE, tvb, offset, pinfo, tree, hf_ocsp_signature);
 }
 
+
 static const ber_sequence_t SEQUENCE_OF_Certificate_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_certs_item },
 };
@@ -314,7 +316,7 @@ static const ber_sequence_t SEQUENCE_OF_Certificate_sequence_of[1] = {
 static int
 dissect_ocsp_SEQUENCE_OF_Certificate(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUENCE_OF_Certificate_sequence_of, hf_index, ett_ocsp_SEQUENCE_OF_Certificate);
+                                      SEQUENCE_OF_Certificate_sequence_of, hf_index, ett_ocsp_SEQUENCE_OF_Certificate);
 
   return offset;
 }
@@ -470,7 +472,7 @@ static const ber_choice_t ResponderID_choice[] = {
 
 static int
 dissect_ocsp_ResponderID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               ResponderID_choice, hf_index, ett_ocsp_ResponderID, NULL);
 
   return offset;
@@ -560,7 +562,7 @@ static const ber_choice_t CertStatus_choice[] = {
 
 static int
 dissect_ocsp_CertStatus(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               CertStatus_choice, hf_index, ett_ocsp_CertStatus, NULL);
 
   return offset;
@@ -589,6 +591,7 @@ static int dissect_responses_item(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_ocsp_SingleResponse(FALSE, tvb, offset, pinfo, tree, hf_ocsp_responses_item);
 }
 
+
 static const ber_sequence_t SEQUENCE_OF_SingleResponse_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_responses_item },
 };
@@ -596,7 +599,7 @@ static const ber_sequence_t SEQUENCE_OF_SingleResponse_sequence_of[1] = {
 static int
 dissect_ocsp_SEQUENCE_OF_SingleResponse(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUENCE_OF_SingleResponse_sequence_of, hf_index, ett_ocsp_SEQUENCE_OF_SingleResponse);
+                                      SEQUENCE_OF_SingleResponse_sequence_of, hf_index, ett_ocsp_SEQUENCE_OF_SingleResponse);
 
   return offset;
 }
@@ -661,6 +664,7 @@ static int dissect_AcceptableResponses_item(packet_info *pinfo, proto_tree *tree
   return dissect_ocsp_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_ocsp_AcceptableResponses_item);
 }
 
+
 static const ber_sequence_t AcceptableResponses_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_AcceptableResponses_item },
 };
@@ -668,7 +672,7 @@ static const ber_sequence_t AcceptableResponses_sequence_of[1] = {
 static int
 dissect_ocsp_AcceptableResponses(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   AcceptableResponses_sequence_of, hf_index, ett_ocsp_AcceptableResponses);
+                                      AcceptableResponses_sequence_of, hf_index, ett_ocsp_AcceptableResponses);
 
   return offset;
 }
@@ -822,7 +826,7 @@ void proto_register_ocsp(void) {
         "ArchiveCutoff", HFILL }},
     { &hf_ocsp_AcceptableResponses_PDU,
       { "AcceptableResponses", "ocsp.AcceptableResponses",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "AcceptableResponses", HFILL }},
     { &hf_ocsp_ServiceLocator_PDU,
       { "ServiceLocator", "ocsp.ServiceLocator",
@@ -850,7 +854,7 @@ void proto_register_ocsp(void) {
         "TBSRequest/requestorName", HFILL }},
     { &hf_ocsp_requestList,
       { "requestList", "ocsp.requestList",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "TBSRequest/requestList", HFILL }},
     { &hf_ocsp_requestList_item,
       { "Item", "ocsp.requestList_item",
@@ -858,7 +862,7 @@ void proto_register_ocsp(void) {
         "TBSRequest/requestList/_item", HFILL }},
     { &hf_ocsp_requestExtensions,
       { "requestExtensions", "ocsp.requestExtensions",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "TBSRequest/requestExtensions", HFILL }},
     { &hf_ocsp_signatureAlgorithm,
       { "signatureAlgorithm", "ocsp.signatureAlgorithm",
@@ -870,7 +874,7 @@ void proto_register_ocsp(void) {
         "", HFILL }},
     { &hf_ocsp_certs,
       { "certs", "ocsp.certs",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_ocsp_certs_item,
       { "Item", "ocsp.certs_item",
@@ -882,7 +886,7 @@ void proto_register_ocsp(void) {
         "Request/reqCert", HFILL }},
     { &hf_ocsp_singleRequestExtensions,
       { "singleRequestExtensions", "ocsp.singleRequestExtensions",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Request/singleRequestExtensions", HFILL }},
     { &hf_ocsp_hashAlgorithm,
       { "hashAlgorithm", "ocsp.hashAlgorithm",
@@ -930,7 +934,7 @@ void proto_register_ocsp(void) {
         "ResponseData/producedAt", HFILL }},
     { &hf_ocsp_responses,
       { "responses", "ocsp.responses",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "ResponseData/responses", HFILL }},
     { &hf_ocsp_responses_item,
       { "Item", "ocsp.responses_item",
@@ -938,7 +942,7 @@ void proto_register_ocsp(void) {
         "ResponseData/responses/_item", HFILL }},
     { &hf_ocsp_responseExtensions,
       { "responseExtensions", "ocsp.responseExtensions",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "ResponseData/responseExtensions", HFILL }},
     { &hf_ocsp_byName,
       { "byName", "ocsp.byName",
@@ -966,7 +970,7 @@ void proto_register_ocsp(void) {
         "SingleResponse/nextUpdate", HFILL }},
     { &hf_ocsp_singleExtensions,
       { "singleExtensions", "ocsp.singleExtensions",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "SingleResponse/singleExtensions", HFILL }},
     { &hf_ocsp_good,
       { "good", "ocsp.good",

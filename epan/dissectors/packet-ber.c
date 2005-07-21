@@ -1075,7 +1075,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) subdissector ate %d bytes\n",name,coun
  * in case it was a CHOICE { } OPTIONAL
  */
 int
-dissect_ber_CHOICE(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_choice_t *choice, gint hf_id, gint ett_id, gint *branch_taken)
+dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_choice_t *choice, gint hf_id, gint ett_id, gint *branch_taken)
 {
 	gint8 class;
 	gboolean pc, ind;
@@ -1101,9 +1101,9 @@ name=hfinfo->name;
 name="unnamed";
 }
 if(tvb_length_remaining(tvb,offset)>3){
-printf("CHOICE dissect_ber_CHOICE(%s) entered offset:%d len:%d %02x:%02x:%02x\n",name,offset,tvb_length_remaining(tvb,offset),tvb_get_guint8(tvb,offset),tvb_get_guint8(tvb,offset+1),tvb_get_guint8(tvb,offset+2));
+printf("CHOICE dissect_ber_choice(%s) entered offset:%d len:%d %02x:%02x:%02x\n",name,offset,tvb_length_remaining(tvb,offset),tvb_get_guint8(tvb,offset),tvb_get_guint8(tvb,offset+1),tvb_get_guint8(tvb,offset+2));
 }else{
-printf("CHOICE dissect_ber_CHOICE(%s) entered len:%d\n",name,tvb_length_remaining(tvb,offset));
+printf("CHOICE dissect_ber_choice(%s) entered len:%d\n",name,tvb_length_remaining(tvb,offset));
 }
 }
 #endif
@@ -1135,8 +1135,8 @@ printf("CHOICE dissect_ber_CHOICE(%s) entered len:%d\n",name,tvb_length_remainin
 			case FT_UINT32:
 				break;
 		default:
-			proto_tree_add_text(tree, tvb, offset, len,"dissect_ber_CHOICE(): Was passed a HF field that was not integer type : %s",hfinfo->abbrev);
-			fprintf(stderr,"dissect_ber_CHOICE(): frame:%d offset:%d Was passed a HF field that was not integer type : %s\n",pinfo->fd->num,offset,hfinfo->abbrev);
+			proto_tree_add_text(tree, tvb, offset, len,"dissect_ber_choice(): Was passed a HF field that was not integer type : %s",hfinfo->abbrev);
+			fprintf(stderr,"dissect_ber_choice(): frame:%d offset:%d Was passed a HF field that was not integer type : %s\n",pinfo->fd->num,offset,hfinfo->abbrev);
 			return end_offset;
 		}
 	}
@@ -1191,9 +1191,9 @@ name=hfinfo->name;
 name="unnamed";
 }
 if(tvb_length_remaining(next_tvb,0)>3){
-printf("CHOICE dissect_ber_CHOICE(%s) calling subdissector start_offset:%d offset:%d len:%d %02x:%02x:%02x\n",name,start_offset,offset,tvb_length_remaining(next_tvb,0),tvb_get_guint8(next_tvb,0),tvb_get_guint8(next_tvb,1),tvb_get_guint8(next_tvb,2));
+printf("CHOICE dissect_ber_choice(%s) calling subdissector start_offset:%d offset:%d len:%d %02x:%02x:%02x\n",name,start_offset,offset,tvb_length_remaining(next_tvb,0),tvb_get_guint8(next_tvb,0),tvb_get_guint8(next_tvb,1),tvb_get_guint8(next_tvb,2));
 }else{
-printf("CHOICE dissect_ber_CHOICE(%s) calling subdissector len:%d\n",name,tvb_length(next_tvb));
+printf("CHOICE dissect_ber_choice(%s) calling subdissector len:%d\n",name,tvb_length(next_tvb));
 }
 }
 #endif
@@ -1208,7 +1208,7 @@ name=hfinfo->name;
 } else {
 name="unnamed";
 }
-printf("CHOICE dissect_ber_CHOICE(%s) subdissector ate %d bytes\n",name,count);
+printf("CHOICE dissect_ber_choice(%s) subdissector ate %d bytes\n",name,count);
 }
 #endif
 			if((count==0)&&(ch->class==class)&&(ch->tag==-1)&&(ch->flags&BER_FLAGS_NOOWNTAG)){

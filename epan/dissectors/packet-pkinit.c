@@ -154,7 +154,7 @@ static const ber_choice_t TrustedCA_choice[] = {
 
 static int
 dissect_pkinit_TrustedCA(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               TrustedCA_choice, hf_index, ett_pkinit_TrustedCA, NULL);
 
   return offset;
@@ -163,6 +163,7 @@ static int dissect_trustedCertifiers_item(packet_info *pinfo, proto_tree *tree, 
   return dissect_pkinit_TrustedCA(FALSE, tvb, offset, pinfo, tree, hf_pkinit_trustedCertifiers_item);
 }
 
+
 static const ber_sequence_t SEQUENCE_OF_TrustedCA_sequence_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_trustedCertifiers_item },
 };
@@ -170,7 +171,7 @@ static const ber_sequence_t SEQUENCE_OF_TrustedCA_sequence_of[1] = {
 static int
 dissect_pkinit_SEQUENCE_OF_TrustedCA(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUENCE_OF_TrustedCA_sequence_of, hf_index, ett_pkinit_SEQUENCE_OF_TrustedCA);
+                                      SEQUENCE_OF_TrustedCA_sequence_of, hf_index, ett_pkinit_SEQUENCE_OF_TrustedCA);
 
   return offset;
 }
@@ -241,6 +242,7 @@ static int dissect_pkAuthenticator(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_pkinit_PKAuthenticator(FALSE, tvb, offset, pinfo, tree, hf_pkinit_pkAuthenticator);
 }
 
+
 static const ber_sequence_t SEQUENCE_OF_AlgorithmIdentifier_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_supportedCMSTypes_item },
 };
@@ -248,7 +250,7 @@ static const ber_sequence_t SEQUENCE_OF_AlgorithmIdentifier_sequence_of[1] = {
 static int
 dissect_pkinit_SEQUENCE_OF_AlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUENCE_OF_AlgorithmIdentifier_sequence_of, hf_index, ett_pkinit_SEQUENCE_OF_AlgorithmIdentifier);
+                                      SEQUENCE_OF_AlgorithmIdentifier_sequence_of, hf_index, ett_pkinit_SEQUENCE_OF_AlgorithmIdentifier);
 
   return offset;
 }
@@ -286,7 +288,7 @@ static const ber_choice_t PaPkAsRep_choice[] = {
 
 static int
 dissect_pkinit_PaPkAsRep(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               PaPkAsRep_choice, hf_index, ett_pkinit_PaPkAsRep, NULL);
 
   return offset;
@@ -380,7 +382,7 @@ void proto_register_pkinit(void) {
         "PaPkAsReq/signedAuthPack", HFILL }},
     { &hf_pkinit_trustedCertifiers,
       { "trustedCertifiers", "pkinit.trustedCertifiers",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "PaPkAsReq/trustedCertifiers", HFILL }},
     { &hf_pkinit_trustedCertifiers_item,
       { "Item", "pkinit.trustedCertifiers_item",
@@ -408,7 +410,7 @@ void proto_register_pkinit(void) {
         "AuthPack/clientPublicValue", HFILL }},
     { &hf_pkinit_supportedCMSTypes,
       { "supportedCMSTypes", "pkinit.supportedCMSTypes",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "AuthPack/supportedCMSTypes", HFILL }},
     { &hf_pkinit_supportedCMSTypes_item,
       { "Item", "pkinit.supportedCMSTypes_item",
@@ -488,8 +490,8 @@ void proto_reg_handoff_pkinit(void) {
 
 /*--- Included file: packet-pkinit-dis-tab.c ---*/
 
- register_ber_oid_dissector("1.3.6.1.5.2.3.1", dissect_AuthPack_PDU, proto_pkinit, "id-pkauthdata");
- register_ber_oid_dissector("1.3.6.1.5.2.3.2", dissect_KDCDHKeyInfo_PDU, proto_pkinit, "id-pkdhkeydata");
+  register_ber_oid_dissector("1.3.6.1.5.2.3.1", dissect_AuthPack_PDU, proto_pkinit, "id-pkauthdata");
+  register_ber_oid_dissector("1.3.6.1.5.2.3.2", dissect_KDCDHKeyInfo_PDU, proto_pkinit, "id-pkdhkeydata");
 
 
 /*--- End of included file: packet-pkinit-dis-tab.c ---*/

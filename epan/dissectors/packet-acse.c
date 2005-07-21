@@ -423,7 +423,7 @@ static const ber_choice_t T_encoding_choice[] = {
 
 static int
 dissect_acse_T_encoding(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               T_encoding_choice, hf_index, ett_acse_T_encoding, NULL);
 
   return offset;
@@ -566,7 +566,7 @@ static const ber_choice_t AP_title_choice[] = {
 
 int
 dissect_acse_AP_title(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               AP_title_choice, hf_index, ett_acse_AP_title, NULL);
 
   return offset;
@@ -638,7 +638,7 @@ static const ber_choice_t ASO_qualifier_choice[] = {
 
 static int
 dissect_acse_ASO_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               ASO_qualifier_choice, hf_index, ett_acse_ASO_qualifier, NULL);
 
   return offset;
@@ -817,7 +817,7 @@ static const ber_choice_t Authentication_value_choice[] = {
 
 static int
 dissect_acse_Authentication_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Authentication_value_choice, hf_index, ett_acse_Authentication_value, NULL);
 
   return offset;
@@ -829,6 +829,7 @@ static int dissect_responding_authentication_value(packet_info *pinfo, proto_tre
   return dissect_acse_Authentication_value(FALSE, tvb, offset, pinfo, tree, hf_acse_responding_authentication_value);
 }
 
+
 static const ber_sequence_t ASO_context_name_list_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_ASO_context_name_list_item },
 };
@@ -836,7 +837,7 @@ static const ber_sequence_t ASO_context_name_list_sequence_of[1] = {
 static int
 dissect_acse_ASO_context_name_list(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   ASO_context_name_list_sequence_of, hf_index, ett_acse_ASO_context_name_list);
+                                      ASO_context_name_list_sequence_of, hf_index, ett_acse_ASO_context_name_list);
 
   return offset;
 }
@@ -908,6 +909,7 @@ static int dissect_transfer_syntax_name_impl(packet_info *pinfo, proto_tree *tre
   return dissect_acse_TransferSyntaxName(TRUE, tvb, offset, pinfo, tree, hf_acse_transfer_syntax_name);
 }
 
+
 static const ber_sequence_t SEQUENCE_OF_TransferSyntaxName_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_transfer_syntaxes_item },
 };
@@ -915,7 +917,7 @@ static const ber_sequence_t SEQUENCE_OF_TransferSyntaxName_sequence_of[1] = {
 static int
 dissect_acse_SEQUENCE_OF_TransferSyntaxName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUENCE_OF_TransferSyntaxName_sequence_of, hf_index, ett_acse_SEQUENCE_OF_TransferSyntaxName);
+                                      SEQUENCE_OF_TransferSyntaxName_sequence_of, hf_index, ett_acse_SEQUENCE_OF_TransferSyntaxName);
 
   return offset;
 }
@@ -941,6 +943,7 @@ static int dissect_Context_list_item(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_acse_Context_list_item(FALSE, tvb, offset, pinfo, tree, hf_acse_Context_list_item);
 }
 
+
 static const ber_sequence_t Context_list_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Context_list_item },
 };
@@ -948,7 +951,7 @@ static const ber_sequence_t Context_list_sequence_of[1] = {
 static int
 dissect_acse_Context_list(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   Context_list_sequence_of, hf_index, ett_acse_Context_list);
+                                      Context_list_sequence_of, hf_index, ett_acse_Context_list);
 
   return offset;
 }
@@ -973,6 +976,7 @@ static int dissect_Default_Context_List_item(packet_info *pinfo, proto_tree *tre
   return dissect_acse_Default_Context_List_item(FALSE, tvb, offset, pinfo, tree, hf_acse_Default_Context_List_item);
 }
 
+
 static const ber_sequence_t Default_Context_List_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Default_Context_List_item },
 };
@@ -980,7 +984,7 @@ static const ber_sequence_t Default_Context_List_sequence_of[1] = {
 static int
 dissect_acse_Default_Context_List(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   Default_Context_List_sequence_of, hf_index, ett_acse_Default_Context_List);
+                                      Default_Context_List_sequence_of, hf_index, ett_acse_Default_Context_List);
 
   return offset;
 }
@@ -1003,7 +1007,7 @@ static const ber_choice_t Syntactic_context_list_choice[] = {
 
 static int
 dissect_acse_Syntactic_context_list(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Syntactic_context_list_choice, hf_index, ett_acse_Syntactic_context_list, NULL);
 
   return offset;
@@ -1045,6 +1049,7 @@ static int dissect_ASOI_tag_item(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_acse_ASOI_tag_item(FALSE, tvb, offset, pinfo, tree, hf_acse_ASOI_tag_item);
 }
 
+
 static const ber_sequence_t ASOI_tag_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ASOI_tag_item },
 };
@@ -1052,7 +1057,7 @@ static const ber_sequence_t ASOI_tag_sequence_of[1] = {
 static int
 dissect_acse_ASOI_tag(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   ASOI_tag_sequence_of, hf_index, ett_acse_ASOI_tag);
+                                      ASOI_tag_sequence_of, hf_index, ett_acse_ASOI_tag);
 
   return offset;
 }
@@ -1063,6 +1068,7 @@ static int dissect_calling_asoi_tag_impl(packet_info *pinfo, proto_tree *tree, t
   return dissect_acse_ASOI_tag(TRUE, tvb, offset, pinfo, tree, hf_acse_calling_asoi_tag);
 }
 
+
 static const ber_sequence_t Association_data_sequence_of[1] = {
   { BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_Association_data_item },
 };
@@ -1070,7 +1076,7 @@ static const ber_sequence_t Association_data_sequence_of[1] = {
 static int
 dissect_acse_Association_data(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   Association_data_sequence_of, hf_index, ett_acse_Association_data);
+                                      Association_data_sequence_of, hf_index, ett_acse_Association_data);
 
   return offset;
 }
@@ -1241,7 +1247,7 @@ static const ber_choice_t Associate_source_diagnostic_choice[] = {
 
 static int
 dissect_acse_Associate_source_diagnostic(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Associate_source_diagnostic_choice, hf_index, ett_acse_Associate_source_diagnostic, NULL);
 
   return offset;
@@ -1320,6 +1326,7 @@ static int dissect_P_context_result_list_item(packet_info *pinfo, proto_tree *tr
   return dissect_acse_P_context_result_list_item(FALSE, tvb, offset, pinfo, tree, hf_acse_P_context_result_list_item);
 }
 
+
 static const ber_sequence_t P_context_result_list_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_P_context_result_list_item },
 };
@@ -1327,7 +1334,7 @@ static const ber_sequence_t P_context_result_list_sequence_of[1] = {
 static int
 dissect_acse_P_context_result_list(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   P_context_result_list_sequence_of, hf_index, ett_acse_P_context_result_list);
+                                      P_context_result_list_sequence_of, hf_index, ett_acse_P_context_result_list);
 
   return offset;
 }
@@ -1564,7 +1571,7 @@ static const ber_choice_t T_presentation_data_values_choice[] = {
 
 static int
 dissect_acse_T_presentation_data_values(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               T_presentation_data_values_choice, hf_index, ett_acse_T_presentation_data_values, NULL);
 
   return offset;
@@ -1608,7 +1615,7 @@ static const ber_choice_t User_Data_choice[] = {
 
 static int
 dissect_acse_User_Data(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               User_Data_choice, hf_index, ett_acse_User_Data, NULL);
 
   return offset;
@@ -1738,7 +1745,7 @@ static const ber_choice_t ACSE_apdu_choice[] = {
 
 static int
 dissect_acse_ACSE_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               ACSE_apdu_choice, hf_index, ett_acse_ACSE_apdu, NULL);
 
   return offset;
@@ -1791,7 +1798,7 @@ static const ber_choice_t AE_title_choice[] = {
 
 static int
 dissect_acse_AE_title(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               AE_title_choice, hf_index, ett_acse_AE_title, NULL);
 
   return offset;
@@ -2023,7 +2030,7 @@ void proto_register_acse(void) {
         "AARQ-apdu/calling-authentication-value", HFILL }},
     { &hf_acse_aSO_context_name_list,
       { "aSO-context-name-list", "acse.aSO_context_name_list",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_acse_implementation_information,
       { "implementation-information", "acse.implementation_information",
@@ -2035,15 +2042,15 @@ void proto_register_acse(void) {
         "", HFILL }},
     { &hf_acse_called_asoi_tag,
       { "called-asoi-tag", "acse.called_asoi_tag",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_acse_calling_asoi_tag,
       { "calling-asoi-tag", "acse.calling_asoi_tag",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_acse_AARQ_user_information,
       { "user-information", "acse.user_information",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "AARQ-apdu/user-information", HFILL }},
     { &hf_acse_AARE_protocol_version,
       { "protocol-version", "acse.protocol_version",
@@ -2087,11 +2094,11 @@ void proto_register_acse(void) {
         "AARE-apdu/responding-authentication-value", HFILL }},
     { &hf_acse_p_context_result_list,
       { "p-context-result-list", "acse.p_context_result_list",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_acse_AARE_user_information,
       { "user-information", "acse.user_information",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "AARE-apdu/user-information", HFILL }},
     { &hf_acse_RLRQ_reason,
       { "reason", "acse.reason",
@@ -2107,7 +2114,7 @@ void proto_register_acse(void) {
         "", HFILL }},
     { &hf_acse_RLRQ_user_information,
       { "user-information", "acse.user_information",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "RLRQ-apdu/user-information", HFILL }},
     { &hf_acse_RLRE_reason,
       { "reason", "acse.reason",
@@ -2115,7 +2122,7 @@ void proto_register_acse(void) {
         "RLRE-apdu/reason", HFILL }},
     { &hf_acse_RLRE_user_information,
       { "user-information", "acse.user_information",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "RLRE-apdu/user-information", HFILL }},
     { &hf_acse_abort_source,
       { "abort-source", "acse.abort_source",
@@ -2127,7 +2134,7 @@ void proto_register_acse(void) {
         "ABRT-apdu/abort-diagnostic", HFILL }},
     { &hf_acse_ABRT_user_information,
       { "user-information", "acse.user_information",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "ABRT-apdu/user-information", HFILL }},
     { &hf_acse_a_user_data,
       { "a-user-data", "acse.a_user_data",
@@ -2139,11 +2146,11 @@ void proto_register_acse(void) {
         "ACRQ-apdu/aSO-context-name", HFILL }},
     { &hf_acse_user_information,
       { "user-information", "acse.user_information",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_acse_aSO_context_name,
       { "aSO-context-name", "acse.aSO_context_name",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "ACRP-apdu/aSO-context-name", HFILL }},
     { &hf_acse_ap_title_form1,
       { "ap-title-form1", "acse.ap_title_form1",
@@ -2159,7 +2166,7 @@ void proto_register_acse(void) {
         "AP-title/ap-title-form3", HFILL }},
     { &hf_acse_aso_qualifier_form1,
       { "aso-qualifier-form1", "acse.aso_qualifier_form1",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "ASO-qualifier/aso-qualifier-form1", HFILL }},
     { &hf_acse_aso_qualifier_form2,
       { "aso-qualifier-form2", "acse.aso_qualifier_form2",
@@ -2195,11 +2202,11 @@ void proto_register_acse(void) {
         "ASO-context-name-list/_item", HFILL }},
     { &hf_acse_context_list,
       { "context-list", "acse.context_list",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Syntactic-context-list/context-list", HFILL }},
     { &hf_acse_default_contact_list,
       { "default-contact-list", "acse.default_contact_list",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Syntactic-context-list/default-contact-list", HFILL }},
     { &hf_acse_Context_list_item,
       { "Item", "acse.Context_list_item",
@@ -2215,7 +2222,7 @@ void proto_register_acse(void) {
         "Context-list/_item/abstract-syntax", HFILL }},
     { &hf_acse_transfer_syntaxes,
       { "transfer-syntaxes", "acse.transfer_syntaxes",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Context-list/_item/transfer-syntaxes", HFILL }},
     { &hf_acse_transfer_syntaxes_item,
       { "Item", "acse.transfer_syntaxes_item",

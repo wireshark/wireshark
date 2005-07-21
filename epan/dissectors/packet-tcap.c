@@ -449,7 +449,7 @@ static const ber_choice_t Associate_source_diagnostic_choice[] = {
 
 static int
 dissect_tcap_Associate_source_diagnostic(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Associate_source_diagnostic_choice, hf_index, ett_tcap_Associate_source_diagnostic, NULL);
 
   return offset;
@@ -531,7 +531,7 @@ static const ber_choice_t DialoguePDU_choice[] = {
 
 static int
 dissect_tcap_DialoguePDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               DialoguePDU_choice, hf_index, ett_tcap_DialoguePDU, NULL);
 
   return offset;
@@ -788,7 +788,7 @@ static const ber_choice_t UniDialoguePDU_choice[] = {
 
 static int
 dissect_tcap_UniDialoguePDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               UniDialoguePDU_choice, hf_index, ett_tcap_UniDialoguePDU, NULL);
 
   return offset;
@@ -896,7 +896,7 @@ static const ber_choice_t OPERATION_choice[] = {
 
 static int
 dissect_tcap_OPERATION(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               OPERATION_choice, hf_index, ett_tcap_OPERATION, NULL);
 
   return offset;
@@ -1020,7 +1020,7 @@ static const ber_choice_t ErrorCode_choice[] = {
 
 static int
 dissect_tcap_ErrorCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               ErrorCode_choice, hf_index, ett_tcap_ErrorCode, NULL);
 
   return offset;
@@ -1074,7 +1074,7 @@ static const ber_choice_t T_invokeIDRej_choice[] = {
 
 static int
 dissect_tcap_T_invokeIDRej(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               T_invokeIDRej_choice, hf_index, ett_tcap_T_invokeIDRej, NULL);
 
   return offset;
@@ -1189,7 +1189,7 @@ static const ber_choice_t T_problem_choice[] = {
 
 static int
 dissect_tcap_T_problem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               T_problem_choice, hf_index, ett_tcap_T_problem, NULL);
 
   return offset;
@@ -1255,13 +1255,13 @@ if (ber_oid_dissector_table && cur_oid){
 if(!dissector_try_string(ber_oid_dissector_table, cur_oid, next_tvb, pinfo, tcap_top_tree))	
 	{
 	if (!dissector_try_port(tcap_itu_ssn_dissector_table, pinfo->match_port, next_tvb,pinfo, tcap_top_tree))
-			 	dissect_ber_CHOICE(pinfo, tree, next_tvb, 0,
+			 	dissect_ber_choice(pinfo, tree, next_tvb, 0,
                         Component_choice, hf_index, ett_tcap_Component, NULL);
 	}
 }
 else
 	 if (!dissector_try_port(tcap_itu_ssn_dissector_table, pinfo->match_port, next_tvb, pinfo, tcap_top_tree))
-			dissect_ber_CHOICE(pinfo, tree, next_tvb, 0,
+			dissect_ber_choice(pinfo, tree, next_tvb, 0,
                         Component_choice, hf_index, ett_tcap_Component, NULL);
 
 offset+=len;
@@ -1451,7 +1451,7 @@ static const ber_choice_t Reason_choice[] = {
 
 static int
 dissect_tcap_Reason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Reason_choice, hf_index, ett_tcap_Reason, NULL);
 
   return offset;
@@ -1544,7 +1544,7 @@ static const ber_choice_t T_applicationContext_choice[] = {
 
 static int
 dissect_tcap_T_applicationContext(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               T_applicationContext_choice, hf_index, ett_tcap_T_applicationContext, NULL);
 
   return offset;
@@ -1568,7 +1568,7 @@ static const ber_choice_t T_securityContext_choice[] = {
 
 static int
 dissect_tcap_T_securityContext(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               T_securityContext_choice, hf_index, ett_tcap_T_securityContext, NULL);
 
   return offset;
@@ -1592,7 +1592,7 @@ static const ber_choice_t T_confidentialityId_choice[] = {
 
 static int
 dissect_tcap_T_confidentialityId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               T_confidentialityId_choice, hf_index, ett_tcap_T_confidentialityId, NULL);
 
   return offset;
@@ -1664,7 +1664,7 @@ static const ber_choice_t OperationCode_choice[] = {
 
 static int
 dissect_tcap_OperationCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               OperationCode_choice, hf_index, ett_tcap_OperationCode, NULL);
 
   return offset;
@@ -1941,7 +1941,7 @@ next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
 if (!dissector_try_port(tcap_ansi_ssn_dissector_table, pinfo->match_port, next_tvb, pinfo, tcap_top_tree))
     {
-	offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+	offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               ComponentPDU_choice, hf_index, ett_tcap_ComponentPDU, NULL);
 	}
 	
@@ -2074,7 +2074,7 @@ static const ber_choice_t T_causeInformation_choice[] = {
 
 static int
 dissect_tcap_T_causeInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               T_causeInformation_choice, hf_index, ett_tcap_T_causeInformation, NULL);
 
   return offset;
@@ -2138,7 +2138,7 @@ static const ber_choice_t MessageType_choice[] = {
 
 static int
 dissect_tcap_MessageType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               MessageType_choice, hf_index, ett_tcap_MessageType, NULL);
 
   return offset;
@@ -2159,7 +2159,7 @@ static const ber_choice_t ERROR_choice[] = {
 
 static int
 dissect_tcap_ERROR(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               ERROR_choice, hf_index, ett_tcap_ERROR, NULL);
 
   return offset;

@@ -222,7 +222,7 @@ static const ber_choice_t T_address_value_choice[] = {
 
 static int
 dissect_smrse_T_address_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               T_address_value_choice, hf_index, ett_smrse_T_address_value, NULL);
 
   return offset;

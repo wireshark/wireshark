@@ -99,10 +99,11 @@ static gint ett_MAP_DialoguePDU_MAP_ProviderAbortInfo = -1;
 
 
 
+
 static int
 dissect_MAP_DialoguePDU_DestinationReference(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
@@ -111,10 +112,11 @@ static int dissect_destinationReference_impl(packet_info *pinfo, proto_tree *tre
 }
 
 
+
 static int
 dissect_MAP_DialoguePDU_OriginationReference(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
@@ -180,7 +182,8 @@ static const value_string MAP_DialoguePDU_Reason_vals[] = {
 
 static int
 dissect_MAP_DialoguePDU_Reason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -229,7 +232,8 @@ static const value_string MAP_DialoguePDU_ResourceUnavailable_vals[] = {
 
 static int
 dissect_MAP_DialoguePDU_ResourceUnavailable(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -252,7 +256,8 @@ static const value_string MAP_DialoguePDU_ApplicationProcedureCancellation_vals[
 
 static int
 dissect_MAP_DialoguePDU_ApplicationProcedureCancellation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -279,7 +284,7 @@ static const ber_choice_t MAP_UserAbortChoice_choice[] = {
 
 static int
 dissect_MAP_DialoguePDU_MAP_UserAbortChoice(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               MAP_UserAbortChoice_choice, hf_index, ett_MAP_DialoguePDU_MAP_UserAbortChoice, NULL);
 
   return offset;
@@ -314,7 +319,8 @@ static const value_string MAP_DialoguePDU_MAP_ProviderAbortReason_vals[] = {
 
 static int
 dissect_MAP_DialoguePDU_MAP_ProviderAbortReason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -361,7 +367,7 @@ static const ber_choice_t MAP_DialoguePDU_choice[] = {
 
 static int
 dissect_MAP_DialoguePDU_MAP_DialoguePDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               MAP_DialoguePDU_choice, hf_index, ett_MAP_DialoguePDU_MAP_DialoguePDU, NULL);
 
   return offset;
@@ -441,7 +447,8 @@ static const value_string MAP_DialoguePDU_ResourceUnavailableReason_vals[] = {
 
 static int
 dissect_MAP_DialoguePDU_ResourceUnavailableReason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }
@@ -461,7 +468,8 @@ static const value_string MAP_DialoguePDU_ProcedureCancellationReason_vals[] = {
 
 static int
 dissect_MAP_DialoguePDU_ProcedureCancellationReason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
   return offset;
 }

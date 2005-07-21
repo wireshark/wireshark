@@ -168,10 +168,11 @@ static int dissect_serialNumber(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 }
 
 
+
 static int
 dissect_ess_ContentIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
@@ -198,6 +199,7 @@ static int dissect_allOrFirstTier_impl(packet_info *pinfo, proto_tree *tree, tvb
   return dissect_ess_AllOrFirstTier(TRUE, tvb, offset, pinfo, tree, hf_ess_allOrFirstTier);
 }
 
+
 static const ber_sequence_t SEQUENCE_OF_GeneralNames_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_receiptsTo_item },
 };
@@ -205,7 +207,7 @@ static const ber_sequence_t SEQUENCE_OF_GeneralNames_sequence_of[1] = {
 static int
 dissect_ess_SEQUENCE_OF_GeneralNames(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUENCE_OF_GeneralNames_sequence_of, hf_index, ett_ess_SEQUENCE_OF_GeneralNames);
+                                      SEQUENCE_OF_GeneralNames_sequence_of, hf_index, ett_ess_SEQUENCE_OF_GeneralNames);
 
   return offset;
 }
@@ -237,7 +239,7 @@ static const ber_choice_t ReceiptsFrom_choice[] = {
 
 static int
 dissect_ess_ReceiptsFrom(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               ReceiptsFrom_choice, hf_index, ett_ess_ReceiptsFrom, NULL);
 
   return offset;
@@ -280,10 +282,11 @@ static int dissect_version(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 }
 
 
+
 static int
 dissect_ess_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
@@ -338,10 +341,11 @@ dissect_ess_ContentHints(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 }
 
 
+
 static int
 dissect_ess_MsgSigDigest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
@@ -419,7 +423,7 @@ static const ber_choice_t ESSPrivacyMark_choice[] = {
 
 static int
 dissect_ess_ESSPrivacyMark(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               ESSPrivacyMark_choice, hf_index, ett_ess_ESSPrivacyMark, NULL);
 
   return offset;
@@ -469,6 +473,7 @@ static int dissect_SecurityCategories_item(packet_info *pinfo, proto_tree *tree,
   return dissect_ess_SecurityCategory(FALSE, tvb, offset, pinfo, tree, hf_ess_SecurityCategories_item);
 }
 
+
 static const ber_sequence_t SecurityCategories_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_SecurityCategories_item },
 };
@@ -476,7 +481,7 @@ static const ber_sequence_t SecurityCategories_set_of[1] = {
 static int
 dissect_ess_SecurityCategories(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
-                              SecurityCategories_set_of, hf_index, ett_ess_SecurityCategories);
+                                 SecurityCategories_set_of, hf_index, ett_ess_SecurityCategories);
 
   return offset;
 }
@@ -496,7 +501,7 @@ static const ber_choice_t EntityIdentifier_choice[] = {
 
 static int
 dissect_ess_EntityIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               EntityIdentifier_choice, hf_index, ett_ess_EntityIdentifier, NULL);
 
   return offset;
@@ -545,7 +550,7 @@ static const ber_choice_t MLReceiptPolicy_choice[] = {
 
 static int
 dissect_ess_MLReceiptPolicy(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               MLReceiptPolicy_choice, hf_index, ett_ess_MLReceiptPolicy, NULL);
 
   return offset;
@@ -572,6 +577,7 @@ static int dissect_MLExpansionHistory_item(packet_info *pinfo, proto_tree *tree,
   return dissect_ess_MLData(FALSE, tvb, offset, pinfo, tree, hf_ess_MLExpansionHistory_item);
 }
 
+
 static const ber_sequence_t MLExpansionHistory_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_MLExpansionHistory_item },
 };
@@ -579,16 +585,17 @@ static const ber_sequence_t MLExpansionHistory_sequence_of[1] = {
 static int
 dissect_ess_MLExpansionHistory(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   MLExpansionHistory_sequence_of, hf_index, ett_ess_MLExpansionHistory);
+                                      MLExpansionHistory_sequence_of, hf_index, ett_ess_MLExpansionHistory);
 
   return offset;
 }
 
 
+
 static int
 dissect_ess_Hash(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+                                       NULL);
 
   return offset;
 }
@@ -630,6 +637,7 @@ static int dissect_certs_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_ess_ESSCertID(FALSE, tvb, offset, pinfo, tree, hf_ess_certs_item);
 }
 
+
 static const ber_sequence_t SEQUENCE_OF_ESSCertID_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_certs_item },
 };
@@ -637,13 +645,14 @@ static const ber_sequence_t SEQUENCE_OF_ESSCertID_sequence_of[1] = {
 static int
 dissect_ess_SEQUENCE_OF_ESSCertID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUENCE_OF_ESSCertID_sequence_of, hf_index, ett_ess_SEQUENCE_OF_ESSCertID);
+                                      SEQUENCE_OF_ESSCertID_sequence_of, hf_index, ett_ess_SEQUENCE_OF_ESSCertID);
 
   return offset;
 }
 static int dissect_certs(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_ess_SEQUENCE_OF_ESSCertID(FALSE, tvb, offset, pinfo, tree, hf_ess_certs);
 }
+
 
 static const ber_sequence_t SEQUENCE_OF_PolicyInformation_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_policies_item },
@@ -652,7 +661,7 @@ static const ber_sequence_t SEQUENCE_OF_PolicyInformation_sequence_of[1] = {
 static int
 dissect_ess_SEQUENCE_OF_PolicyInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUENCE_OF_PolicyInformation_sequence_of, hf_index, ett_ess_SEQUENCE_OF_PolicyInformation);
+                                      SEQUENCE_OF_PolicyInformation_sequence_of, hf_index, ett_ess_SEQUENCE_OF_PolicyInformation);
 
   return offset;
 }
@@ -743,7 +752,7 @@ void proto_register_ess(void) {
         "ContentReference", HFILL }},
     { &hf_ess_MLExpansionHistory_PDU,
       { "MLExpansionHistory", "ess.MLExpansionHistory",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "MLExpansionHistory", HFILL }},
     { &hf_ess_SigningCertificate_PDU,
       { "SigningCertificate", "ess.SigningCertificate",
@@ -759,11 +768,11 @@ void proto_register_ess(void) {
         "ReceiptRequest/receiptsFrom", HFILL }},
     { &hf_ess_receiptsTo,
       { "receiptsTo", "ess.receiptsTo",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "ReceiptRequest/receiptsTo", HFILL }},
     { &hf_ess_receiptsTo_item,
       { "Item", "ess.receiptsTo_item",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "ReceiptRequest/receiptsTo/_item", HFILL }},
     { &hf_ess_allOrFirstTier,
       { "allOrFirstTier", "ess.allOrFirstTier",
@@ -771,11 +780,11 @@ void proto_register_ess(void) {
         "ReceiptsFrom/allOrFirstTier", HFILL }},
     { &hf_ess_receiptList,
       { "receiptList", "ess.receiptList",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "ReceiptsFrom/receiptList", HFILL }},
     { &hf_ess_receiptList_item,
       { "Item", "ess.receiptList_item",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "ReceiptsFrom/receiptList/_item", HFILL }},
     { &hf_ess_version,
       { "version", "ess.version",
@@ -843,23 +852,23 @@ void proto_register_ess(void) {
         "MLReceiptPolicy/none", HFILL }},
     { &hf_ess_insteadOf,
       { "insteadOf", "ess.insteadOf",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "MLReceiptPolicy/insteadOf", HFILL }},
     { &hf_ess_insteadOf_item,
       { "Item", "ess.insteadOf_item",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "MLReceiptPolicy/insteadOf/_item", HFILL }},
     { &hf_ess_inAdditionTo,
       { "inAdditionTo", "ess.inAdditionTo",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "MLReceiptPolicy/inAdditionTo", HFILL }},
     { &hf_ess_inAdditionTo_item,
       { "Item", "ess.inAdditionTo_item",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "MLReceiptPolicy/inAdditionTo/_item", HFILL }},
     { &hf_ess_certs,
       { "certs", "ess.certs",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "SigningCertificate/certs", HFILL }},
     { &hf_ess_certs_item,
       { "Item", "ess.certs_item",
@@ -867,7 +876,7 @@ void proto_register_ess(void) {
         "SigningCertificate/certs/_item", HFILL }},
     { &hf_ess_policies,
       { "policies", "ess.policies",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "SigningCertificate/policies", HFILL }},
     { &hf_ess_policies_item,
       { "Item", "ess.policies_item",
@@ -883,7 +892,7 @@ void proto_register_ess(void) {
         "ESSCertID/issuerSerial", HFILL }},
     { &hf_ess_issuer,
       { "issuer", "ess.issuer",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "IssuerSerial/issuer", HFILL }},
     { &hf_ess_serialNumber,
       { "serialNumber", "ess.serialNumber",
@@ -937,14 +946,14 @@ void proto_reg_handoff_ess(void) {
 
 /*--- Included file: packet-ess-dis-tab.c ---*/
 
- register_ber_oid_dissector("1.2.840.113549.1.9.16.2.1", dissect_ReceiptRequest_PDU, proto_ess, "id-aa-receiptRequest");
- register_ber_oid_dissector("1.2.840.113549.1.9.16.2.7", dissect_ContentIdentifier_PDU, proto_ess, "id-aa-contentIdentifier");
- register_ber_oid_dissector("1.2.840.113549.1.9.16.1.1", dissect_Receipt_PDU, proto_ess, "id-ct-receipt");
- register_ber_oid_dissector("1.2.840.113549.1.9.16.2.4", dissect_ContentHints_PDU, proto_ess, "id-aa-contentHint");
- register_ber_oid_dissector("1.2.840.113549.1.9.16.2.5", dissect_MsgSigDigest_PDU, proto_ess, "id-aa-msgSigDigest");
- register_ber_oid_dissector("1.2.840.113549.1.9.16.2.10", dissect_ContentReference_PDU, proto_ess, "id-aa-contentReference");
- register_ber_oid_dissector("1.2.840.113549.1.9.16.2.3", dissect_MLExpansionHistory_PDU, proto_ess, "id-aa-mlExpandHistory");
- register_ber_oid_dissector("1.2.840.113549.1.9.16.2.12", dissect_SigningCertificate_PDU, proto_ess, "id-aa-signingCertificate");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.2.1", dissect_ReceiptRequest_PDU, proto_ess, "id-aa-receiptRequest");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.2.7", dissect_ContentIdentifier_PDU, proto_ess, "id-aa-contentIdentifier");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.1.1", dissect_Receipt_PDU, proto_ess, "id-ct-receipt");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.2.4", dissect_ContentHints_PDU, proto_ess, "id-aa-contentHint");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.2.5", dissect_MsgSigDigest_PDU, proto_ess, "id-aa-msgSigDigest");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.2.10", dissect_ContentReference_PDU, proto_ess, "id-aa-contentReference");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.2.3", dissect_MLExpansionHistory_PDU, proto_ess, "id-aa-mlExpandHistory");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.2.12", dissect_SigningCertificate_PDU, proto_ess, "id-aa-signingCertificate");
 
 
 /*--- End of included file: packet-ess-dis-tab.c ---*/

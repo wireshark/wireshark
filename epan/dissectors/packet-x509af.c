@@ -355,7 +355,7 @@ static const ber_choice_t Time_choice[] = {
 
 int
 dissect_x509af_Time(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Time_choice, hf_index, ett_x509af_Time, NULL);
 
   return offset;
@@ -490,6 +490,7 @@ static int dissect_Extensions_item(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_x509af_Extension(FALSE, tvb, offset, pinfo, tree, hf_x509af_Extensions_item);
 }
 
+
 static const ber_sequence_t Extensions_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Extensions_item },
 };
@@ -497,7 +498,7 @@ static const ber_sequence_t Extensions_sequence_of[1] = {
 int
 dissect_x509af_Extensions(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   Extensions_sequence_of, hf_index, ett_x509af_Extensions);
+                                      Extensions_sequence_of, hf_index, ett_x509af_Extensions);
 
   return offset;
 }
@@ -566,6 +567,7 @@ static int dissect_certificate(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_x509af_Certificate(FALSE, tvb, offset, pinfo, tree, hf_x509af_certificate);
 }
 
+
 static const ber_sequence_t CrossCertificates_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_CrossCertificates_item },
 };
@@ -573,13 +575,14 @@ static const ber_sequence_t CrossCertificates_set_of[1] = {
 int
 dissect_x509af_CrossCertificates(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
-                              CrossCertificates_set_of, hf_index, ett_x509af_CrossCertificates);
+                                 CrossCertificates_set_of, hf_index, ett_x509af_CrossCertificates);
 
   return offset;
 }
 static int dissect_ForwardCertificationPath_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509af_CrossCertificates(FALSE, tvb, offset, pinfo, tree, hf_x509af_ForwardCertificationPath_item);
 }
+
 
 static const ber_sequence_t ForwardCertificationPath_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_ForwardCertificationPath_item },
@@ -588,7 +591,7 @@ static const ber_sequence_t ForwardCertificationPath_sequence_of[1] = {
 int
 dissect_x509af_ForwardCertificationPath(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   ForwardCertificationPath_sequence_of, hf_index, ett_x509af_ForwardCertificationPath);
+                                      ForwardCertificationPath_sequence_of, hf_index, ett_x509af_ForwardCertificationPath);
 
   return offset;
 }
@@ -627,6 +630,7 @@ static int dissect_theCACertificates_item(packet_info *pinfo, proto_tree *tree, 
   return dissect_x509af_CertificatePair(FALSE, tvb, offset, pinfo, tree, hf_x509af_theCACertificates_item);
 }
 
+
 static const ber_sequence_t SEQUENCE_OF_CertificatePair_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_theCACertificates_item },
 };
@@ -634,7 +638,7 @@ static const ber_sequence_t SEQUENCE_OF_CertificatePair_sequence_of[1] = {
 static int
 dissect_x509af_SEQUENCE_OF_CertificatePair(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUENCE_OF_CertificatePair_sequence_of, hf_index, ett_x509af_SEQUENCE_OF_CertificatePair);
+                                      SEQUENCE_OF_CertificatePair_sequence_of, hf_index, ett_x509af_SEQUENCE_OF_CertificatePair);
 
   return offset;
 }
@@ -674,6 +678,7 @@ static int dissect_revokedCertificates_item(packet_info *pinfo, proto_tree *tree
   return dissect_x509af_T_revokedCertificates_item(FALSE, tvb, offset, pinfo, tree, hf_x509af_revokedCertificates_item);
 }
 
+
 static const ber_sequence_t T_revokedCertificates_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_revokedCertificates_item },
 };
@@ -681,7 +686,7 @@ static const ber_sequence_t T_revokedCertificates_sequence_of[1] = {
 static int
 dissect_x509af_T_revokedCertificates(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   T_revokedCertificates_sequence_of, hf_index, ett_x509af_T_revokedCertificates);
+                                      T_revokedCertificates_sequence_of, hf_index, ett_x509af_T_revokedCertificates);
 
   return offset;
 }
@@ -759,7 +764,7 @@ static const ber_choice_t InfoSubject_choice[] = {
 
 static int
 dissect_x509af_InfoSubject(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               InfoSubject_choice, hf_index, ett_x509af_InfoSubject, NULL);
 
   return offset;
@@ -785,6 +790,7 @@ static int dissect_attCertValidityPeriod(packet_info *pinfo, proto_tree *tree, t
   return dissect_x509af_AttCertValidityPeriod(FALSE, tvb, offset, pinfo, tree, hf_x509af_attCertValidityPeriod);
 }
 
+
 static const ber_sequence_t SEQUENCE_OF_Attribute_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_attributes_item },
 };
@@ -792,7 +798,7 @@ static const ber_sequence_t SEQUENCE_OF_Attribute_sequence_of[1] = {
 static int
 dissect_x509af_SEQUENCE_OF_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUENCE_OF_Attribute_sequence_of, hf_index, ett_x509af_SEQUENCE_OF_Attribute);
+                                      SEQUENCE_OF_Attribute_sequence_of, hf_index, ett_x509af_SEQUENCE_OF_Attribute);
 
   return offset;
 }
@@ -859,6 +865,7 @@ static int dissect_acPath_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_x509af_ACPathData(FALSE, tvb, offset, pinfo, tree, hf_x509af_acPath_item);
 }
 
+
 static const ber_sequence_t SEQUENCE_OF_ACPathData_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_acPath_item },
 };
@@ -866,7 +873,7 @@ static const ber_sequence_t SEQUENCE_OF_ACPathData_sequence_of[1] = {
 static int
 dissect_x509af_SEQUENCE_OF_ACPathData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUENCE_OF_ACPathData_sequence_of, hf_index, ett_x509af_SEQUENCE_OF_ACPathData);
+                                      SEQUENCE_OF_ACPathData_sequence_of, hf_index, ett_x509af_SEQUENCE_OF_ACPathData);
 
   return offset;
 }
@@ -903,7 +910,7 @@ static const ber_choice_t AssertionSubject_choice[] = {
 
 static int
 dissect_x509af_AssertionSubject(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               AssertionSubject_choice, hf_index, ett_x509af_AssertionSubject, NULL);
 
   return offset;
@@ -912,6 +919,7 @@ static int dissect_assertion_subject(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_x509af_AssertionSubject(FALSE, tvb, offset, pinfo, tree, hf_x509af_assertion_subject);
 }
 
+
 static const ber_sequence_t SET_OF_AttributeType_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_attType_item },
 };
@@ -919,7 +927,7 @@ static const ber_sequence_t SET_OF_AttributeType_set_of[1] = {
 static int
 dissect_x509af_SET_OF_AttributeType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
-                              SET_OF_AttributeType_set_of, hf_index, ett_x509af_SET_OF_AttributeType);
+                                 SET_OF_AttributeType_set_of, hf_index, ett_x509af_SET_OF_AttributeType);
 
   return offset;
 }
@@ -1061,7 +1069,7 @@ void proto_register_x509af(void) {
         "Certificate/signedCertificate/subjectUniqueIdentifier", HFILL }},
     { &hf_x509af_extensions,
       { "extensions", "x509af.extensions",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_x509af_algorithmIdentifier,
       { "algorithmIdentifier", "x509af.algorithmIdentifier",
@@ -1125,11 +1133,11 @@ void proto_register_x509af(void) {
         "", HFILL }},
     { &hf_x509af_certificationPath,
       { "certificationPath", "x509af.certificationPath",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Certificates/certificationPath", HFILL }},
     { &hf_x509af_ForwardCertificationPath_item,
       { "Item", "x509af.ForwardCertificationPath_item",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "ForwardCertificationPath/_item", HFILL }},
     { &hf_x509af_CrossCertificates_item,
       { "Item", "x509af.CrossCertificates_item",
@@ -1137,7 +1145,7 @@ void proto_register_x509af(void) {
         "CrossCertificates/_item", HFILL }},
     { &hf_x509af_theCACertificates,
       { "theCACertificates", "x509af.theCACertificates",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CertificationPath/theCACertificates", HFILL }},
     { &hf_x509af_theCACertificates_item,
       { "Item", "x509af.theCACertificates_item",
@@ -1165,7 +1173,7 @@ void proto_register_x509af(void) {
         "CertificateList/signedCertificateList/nextUpdate", HFILL }},
     { &hf_x509af_revokedCertificates,
       { "revokedCertificates", "x509af.revokedCertificates",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CertificateList/signedCertificateList/revokedCertificates", HFILL }},
     { &hf_x509af_revokedCertificates_item,
       { "Item", "x509af.revokedCertificates_item",
@@ -1181,11 +1189,11 @@ void proto_register_x509af(void) {
         "CertificateList/signedCertificateList/revokedCertificates/_item/revocationDate", HFILL }},
     { &hf_x509af_crlEntryExtensions,
       { "crlEntryExtensions", "x509af.crlEntryExtensions",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CertificateList/signedCertificateList/revokedCertificates/_item/crlEntryExtensions", HFILL }},
     { &hf_x509af_crlExtensions,
       { "crlExtensions", "x509af.crlExtensions",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "CertificateList/signedCertificateList/crlExtensions", HFILL }},
     { &hf_x509af_attributeCertificate,
       { "attributeCertificate", "x509af.attributeCertificate",
@@ -1193,7 +1201,7 @@ void proto_register_x509af(void) {
         "", HFILL }},
     { &hf_x509af_acPath,
       { "acPath", "x509af.acPath",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "AttributeCertificationPath/acPath", HFILL }},
     { &hf_x509af_acPath_item,
       { "Item", "x509af.acPath_item",
@@ -1217,11 +1225,11 @@ void proto_register_x509af(void) {
         "", HFILL }},
     { &hf_x509af_infoSubjectName,
       { "subjectName", "x509af.subjectName",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "AttributeCertificateInfo/subject/subjectName", HFILL }},
     { &hf_x509af_issuerName,
       { "issuer", "x509af.issuer",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_x509af_attCertValidityPeriod,
       { "attCertValidityPeriod", "x509af.attCertValidityPeriod",
@@ -1229,7 +1237,7 @@ void proto_register_x509af(void) {
         "AttributeCertificateInfo/attCertValidityPeriod", HFILL }},
     { &hf_x509af_attributes,
       { "attributes", "x509af.attributes",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "AttributeCertificateInfo/attributes", HFILL }},
     { &hf_x509af_attributes_item,
       { "Item", "x509af.attributes_item",
@@ -1273,7 +1281,7 @@ void proto_register_x509af(void) {
         "AttributeCertificateAssertion/attCertValidity", HFILL }},
     { &hf_x509af_attType,
       { "attType", "x509af.attType",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "AttributeCertificateAssertion/attType", HFILL }},
     { &hf_x509af_attType_item,
       { "Item", "x509af.attType_item",

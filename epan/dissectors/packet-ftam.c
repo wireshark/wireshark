@@ -988,7 +988,7 @@ static const ber_choice_t Contents_Type_List_item_choice[] = {
 
 static int
 dissect_ftam_Contents_Type_List_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Contents_Type_List_item_choice, hf_index, ett_ftam_Contents_Type_List_item, NULL);
 
   return offset;
@@ -996,6 +996,7 @@ dissect_ftam_Contents_Type_List_item(gboolean implicit_tag _U_, tvbuff_t *tvb, i
 static int dissect_Contents_Type_List_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_ftam_Contents_Type_List_item(FALSE, tvb, offset, pinfo, tree, hf_ftam_Contents_Type_List_item);
 }
+
 
 static const ber_sequence_t Contents_Type_List_sequence_of[1] = {
   { BER_CLASS_APP, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_Contents_Type_List_item },
@@ -1159,7 +1160,7 @@ dissect_ftam_Password(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Password_choice, hf_index, ett_ftam_Password, NULL);
 
 
@@ -1473,6 +1474,7 @@ static int dissect_Diagnostic_item(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_ftam_Diagnostic_item(FALSE, tvb, offset, pinfo, tree, hf_ftam_Diagnostic_item);
 }
 
+
 static const ber_sequence_t Diagnostic_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Diagnostic_item },
 };
@@ -1563,6 +1565,7 @@ dissect_ftam_Charging_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 static int dissect_Charging_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_ftam_Charging_item(FALSE, tvb, offset, pinfo, tree, hf_ftam_Charging_item);
 }
+
 
 static const ber_sequence_t Charging_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Charging_item },
@@ -1669,7 +1672,7 @@ static int
 dissect_ftam_FTAM_Regime_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   gint branch_taken;
 
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               FTAM_Regime_PDU_choice, hf_index, ett_ftam_FTAM_Regime_PDU, &branch_taken);
   
   if( (branch_taken!=-1) && ftam_FTAM_Regime_PDU_vals[branch_taken].strptr ){
@@ -1685,6 +1688,7 @@ static int dissect_fTAM_Regime_PDU(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_ftam_FTAM_Regime_PDU(FALSE, tvb, offset, pinfo, tree, hf_ftam_fTAM_Regime_PDU);
 }
 
+
 static const ber_sequence_t Pathname_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_GraphicString, BER_FLAGS_NOOWNTAG, dissect_Pathname_item },
 };
@@ -1692,7 +1696,7 @@ static const ber_sequence_t Pathname_sequence_of[1] = {
 static int
 dissect_ftam_Pathname(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   Pathname_sequence_of, hf_index, ett_ftam_Pathname);
+                                      Pathname_sequence_of, hf_index, ett_ftam_Pathname);
 
   return offset;
 }
@@ -1721,7 +1725,7 @@ static const ber_choice_t Pathname_Attribute_choice[] = {
 
 static int
 dissect_ftam_Pathname_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Pathname_Attribute_choice, hf_index, ett_ftam_Pathname_Attribute, NULL);
 
   return offset;
@@ -1813,6 +1817,7 @@ static int dissect_action_list_impl(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_ftam_Access_Request(TRUE, tvb, offset, pinfo, tree, hf_ftam_action_list);
 }
 
+
 static const ber_sequence_t Pass_Passwords_sequence_of[1] = {
   { BER_CLASS_APP, 17, BER_FLAGS_NOOWNTAG, dissect_Pass_Passwords_item },
 };
@@ -1820,7 +1825,7 @@ static const ber_sequence_t Pass_Passwords_sequence_of[1] = {
 static int
 dissect_ftam_Pass_Passwords(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   Pass_Passwords_sequence_of, hf_index, ett_ftam_Pass_Passwords);
+                                      Pass_Passwords_sequence_of, hf_index, ett_ftam_Pass_Passwords);
 
   return offset;
 }
@@ -1893,6 +1898,7 @@ dissect_ftam_Path_Access_Passwords_item(gboolean implicit_tag _U_, tvbuff_t *tvb
 static int dissect_Path_Access_Passwords_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_ftam_Path_Access_Passwords_item(FALSE, tvb, offset, pinfo, tree, hf_ftam_Path_Access_Passwords_item);
 }
+
 
 static const ber_sequence_t Path_Access_Passwords_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Path_Access_Passwords_item },
@@ -2262,7 +2268,7 @@ static const ber_choice_t Contents_Type_Attribute_choice[] = {
 
 static int
 dissect_ftam_Contents_Type_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Contents_Type_Attribute_choice, hf_index, ett_ftam_Contents_Type_Attribute, NULL);
 
   return offset;
@@ -2310,7 +2316,7 @@ static const ber_choice_t Account_Attribute_choice[] = {
 
 static int
 dissect_ftam_Account_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Account_Attribute_choice, hf_index, ett_ftam_Account_Attribute, NULL);
 
   return offset;
@@ -2353,7 +2359,7 @@ static const ber_choice_t Object_Availability_Attribute_choice[] = {
 
 static int
 dissect_ftam_Object_Availability_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Object_Availability_Attribute_choice, hf_index, ett_ftam_Object_Availability_Attribute, NULL);
 
   return offset;
@@ -2377,7 +2383,7 @@ static const ber_choice_t Object_Size_Attribute_choice[] = {
 
 static int
 dissect_ftam_Object_Size_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Object_Size_Attribute_choice, hf_index, ett_ftam_Object_Size_Attribute, NULL);
 
   return offset;
@@ -2529,6 +2535,7 @@ static int dissect_delete_values_item(packet_info *pinfo, proto_tree *tree, tvbu
   return dissect_ftam_Access_Control_Element(FALSE, tvb, offset, pinfo, tree, hf_ftam_delete_values_item);
 }
 
+
 static const ber_sequence_t SET_OF_Access_Control_Element_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_actual_values_item },
 };
@@ -2536,7 +2543,7 @@ static const ber_sequence_t SET_OF_Access_Control_Element_set_of[1] = {
 static int
 dissect_ftam_SET_OF_Access_Control_Element(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
-                              SET_OF_Access_Control_Element_set_of, hf_index, ett_ftam_SET_OF_Access_Control_Element);
+                                 SET_OF_Access_Control_Element_set_of, hf_index, ett_ftam_SET_OF_Access_Control_Element);
 
   return offset;
 }
@@ -2565,7 +2572,7 @@ static const ber_choice_t Access_Control_Attribute_choice[] = {
 
 static int
 dissect_ftam_Access_Control_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Access_Control_Attribute_choice, hf_index, ett_ftam_Access_Control_Attribute, NULL);
 
   return offset;
@@ -2595,7 +2602,7 @@ static const ber_choice_t Legal_Qualification_Attribute_choice[] = {
 
 static int
 dissect_ftam_Legal_Qualification_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Legal_Qualification_Attribute_choice, hf_index, ett_ftam_Legal_Qualification_Attribute, NULL);
 
   return offset;
@@ -2621,7 +2628,7 @@ static const ber_choice_t Private_Use_Attribute_choice[] = {
 
 static int
 dissect_ftam_Private_Use_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Private_Use_Attribute_choice, hf_index, ett_ftam_Private_Use_Attribute, NULL);
 
   return offset;
@@ -2687,6 +2694,7 @@ static int dissect_extension_set_attributes_item(packet_info *pinfo, proto_tree 
   return dissect_ftam_Extension_Attribute(FALSE, tvb, offset, pinfo, tree, hf_ftam_extension_set_attributes_item);
 }
 
+
 static const ber_sequence_t SEQUENCE_OF_Extension_Attribute_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_extension_set_attributes_item },
 };
@@ -2694,7 +2702,7 @@ static const ber_sequence_t SEQUENCE_OF_Extension_Attribute_sequence_of[1] = {
 static int
 dissect_ftam_SEQUENCE_OF_Extension_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUENCE_OF_Extension_Attribute_sequence_of, hf_index, ett_ftam_SEQUENCE_OF_Extension_Attribute);
+                                      SEQUENCE_OF_Extension_Attribute_sequence_of, hf_index, ett_ftam_SEQUENCE_OF_Extension_Attribute);
 
   return offset;
 }
@@ -2719,6 +2727,7 @@ static int dissect_Attribute_Extensions_item(packet_info *pinfo, proto_tree *tre
   return dissect_ftam_Attribute_Extension_Set(FALSE, tvb, offset, pinfo, tree, hf_ftam_Attribute_Extensions_item);
 }
 
+
 static const ber_sequence_t Attribute_Extensions_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Attribute_Extensions_item },
 };
@@ -2726,7 +2735,7 @@ static const ber_sequence_t Attribute_Extensions_sequence_of[1] = {
 static int
 dissect_ftam_Attribute_Extensions(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   Attribute_Extensions_sequence_of, hf_index, ett_ftam_Attribute_Extensions);
+                                      Attribute_Extensions_sequence_of, hf_index, ett_ftam_Attribute_Extensions);
 
   return offset;
 }
@@ -2905,6 +2914,7 @@ static int dissect_extension_attribute_names_item(packet_info *pinfo, proto_tree
   return dissect_ftam_Extension_Attribute_identifier(FALSE, tvb, offset, pinfo, tree, hf_ftam_extension_attribute_names_item);
 }
 
+
 static const ber_sequence_t SEQUENCE_OF_Extension_Attribute_identifier_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_extension_attribute_names_item },
 };
@@ -2912,7 +2922,7 @@ static const ber_sequence_t SEQUENCE_OF_Extension_Attribute_identifier_sequence_
 static int
 dissect_ftam_SEQUENCE_OF_Extension_Attribute_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUENCE_OF_Extension_Attribute_identifier_sequence_of, hf_index, ett_ftam_SEQUENCE_OF_Extension_Attribute_identifier);
+                                      SEQUENCE_OF_Extension_Attribute_identifier_sequence_of, hf_index, ett_ftam_SEQUENCE_OF_Extension_Attribute_identifier);
 
   return offset;
 }
@@ -2937,6 +2947,7 @@ static int dissect_Attribute_Extension_Names_item(packet_info *pinfo, proto_tree
   return dissect_ftam_Attribute_Extension_Set_Name(FALSE, tvb, offset, pinfo, tree, hf_ftam_Attribute_Extension_Names_item);
 }
 
+
 static const ber_sequence_t Attribute_Extension_Names_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Attribute_Extension_Names_item },
 };
@@ -2944,7 +2955,7 @@ static const ber_sequence_t Attribute_Extension_Names_sequence_of[1] = {
 static int
 dissect_ftam_Attribute_Extension_Names(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   Attribute_Extension_Names_sequence_of, hf_index, ett_ftam_Attribute_Extension_Names);
+                                      Attribute_Extension_Names_sequence_of, hf_index, ett_ftam_Attribute_Extension_Names);
 
   return offset;
 }
@@ -2969,6 +2980,7 @@ static int dissect_f_read_attrib_request_impl(packet_info *pinfo, proto_tree *tr
   return dissect_ftam_F_READ_ATTRIB_request(TRUE, tvb, offset, pinfo, tree, hf_ftam_f_read_attrib_request);
 }
 
+
 static const ber_sequence_t Child_Objects_Attribute_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_GraphicString, BER_FLAGS_NOOWNTAG, dissect_Child_Objects_Attribute_item },
 };
@@ -2976,7 +2988,7 @@ static const ber_sequence_t Child_Objects_Attribute_set_of[1] = {
 static int
 dissect_ftam_Child_Objects_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
-                              Child_Objects_Attribute_set_of, hf_index, ett_ftam_Child_Objects_Attribute);
+                                 Child_Objects_Attribute_set_of, hf_index, ett_ftam_Child_Objects_Attribute);
 
   return offset;
 }
@@ -3013,7 +3025,7 @@ static const ber_choice_t Date_and_Time_Attribute_choice[] = {
 
 static int
 dissect_ftam_Date_and_Time_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Date_and_Time_Attribute_choice, hf_index, ett_ftam_Date_and_Time_Attribute, NULL);
 
   return offset;
@@ -3046,7 +3058,7 @@ static const ber_choice_t User_Identity_Attribute_choice[] = {
 
 static int
 dissect_ftam_User_Identity_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               User_Identity_Attribute_choice, hf_index, ett_ftam_User_Identity_Attribute, NULL);
 
   return offset;
@@ -3175,7 +3187,7 @@ static const ber_choice_t Access_Control_Change_Attribute_choice[] = {
 
 static int
 dissect_ftam_Access_Control_Change_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Access_Control_Change_Attribute_choice, hf_index, ett_ftam_Access_Control_Change_Attribute, NULL);
 
   return offset;
@@ -3295,7 +3307,7 @@ static const ber_choice_t T_contents_type_choice[] = {
 
 static int
 dissect_ftam_T_contents_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               T_contents_type_choice, hf_index, ett_ftam_T_contents_type, NULL);
 
   return offset;
@@ -3350,6 +3362,7 @@ static int dissect_request_recovery_mode_impl(packet_info *pinfo, proto_tree *tr
   return dissect_ftam_T_request_recovery_mode(TRUE, tvb, offset, pinfo, tree, hf_ftam_request_recovery_mode);
 }
 
+
 static const ber_sequence_t SET_OF_Abstract_Syntax_Name_set_of[1] = {
   { BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_remove_contexts_item },
 };
@@ -3357,7 +3370,7 @@ static const ber_sequence_t SET_OF_Abstract_Syntax_Name_set_of[1] = {
 static int
 dissect_ftam_SET_OF_Abstract_Syntax_Name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
-                              SET_OF_Abstract_Syntax_Name_set_of, hf_index, ett_ftam_SET_OF_Abstract_Syntax_Name);
+                                 SET_OF_Abstract_Syntax_Name_set_of, hf_index, ett_ftam_SET_OF_Abstract_Syntax_Name);
 
   return offset;
 }
@@ -3691,6 +3704,7 @@ static int dissect_name_list_item(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_ftam_Node_Name(FALSE, tvb, offset, pinfo, tree, hf_ftam_name_list_item);
 }
 
+
 static const ber_sequence_t SEQUENCE_OF_Node_Name_sequence_of[1] = {
   { BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_name_list_item },
 };
@@ -3698,7 +3712,7 @@ static const ber_sequence_t SEQUENCE_OF_Node_Name_sequence_of[1] = {
 static int
 dissect_ftam_SEQUENCE_OF_Node_Name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUENCE_OF_Node_Name_sequence_of, hf_index, ett_ftam_SEQUENCE_OF_Node_Name);
+                                      SEQUENCE_OF_Node_Name_sequence_of, hf_index, ett_ftam_SEQUENCE_OF_Node_Name);
 
   return offset;
 }
@@ -3741,7 +3755,7 @@ dissect_ftam_FADU_Identity(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               FADU_Identity_choice, hf_index, ett_ftam_FADU_Identity, NULL);
 
 
@@ -3916,7 +3930,7 @@ static int
 dissect_ftam_File_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   gint branch_taken;
 
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               File_PDU_choice, hf_index, ett_ftam_File_PDU, &branch_taken);
 
   if( (branch_taken!=-1) && ftam_File_PDU_vals[branch_taken].strptr ){
@@ -4256,7 +4270,7 @@ static int
 dissect_ftam_Bulk_Data_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   gint branch_taken;
 
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Bulk_Data_PDU_choice, hf_index, ett_ftam_Bulk_Data_PDU, &branch_taken);
 
   if( (branch_taken!=-1) && ftam_Bulk_Data_PDU_vals[branch_taken].strptr ){
@@ -4358,7 +4372,7 @@ static const ber_choice_t T_string_value_item_choice[] = {
 
 static int
 dissect_ftam_T_string_value_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               T_string_value_item_choice, hf_index, ett_ftam_T_string_value_item, NULL);
 
   return offset;
@@ -4367,6 +4381,7 @@ static int dissect_string_value_item(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_ftam_T_string_value_item(FALSE, tvb, offset, pinfo, tree, hf_ftam_string_value_item);
 }
 
+
 static const ber_sequence_t T_string_value_sequence_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_string_value_item },
 };
@@ -4374,7 +4389,7 @@ static const ber_sequence_t T_string_value_sequence_of[1] = {
 static int
 dissect_ftam_T_string_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   T_string_value_sequence_of, hf_index, ett_ftam_T_string_value);
+                                      T_string_value_sequence_of, hf_index, ett_ftam_T_string_value);
 
   return offset;
 }
@@ -4420,7 +4435,7 @@ static const ber_choice_t T_pathname_value_item_choice[] = {
 
 static int
 dissect_ftam_T_pathname_value_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               T_pathname_value_item_choice, hf_index, ett_ftam_T_pathname_value_item, NULL);
 
   return offset;
@@ -4429,6 +4444,7 @@ static int dissect_pathname_value_item(packet_info *pinfo, proto_tree *tree, tvb
   return dissect_ftam_T_pathname_value_item(FALSE, tvb, offset, pinfo, tree, hf_ftam_pathname_value_item);
 }
 
+
 static const ber_sequence_t T_pathname_value_sequence_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_pathname_value_item },
 };
@@ -4436,7 +4452,7 @@ static const ber_sequence_t T_pathname_value_sequence_of[1] = {
 static int
 dissect_ftam_T_pathname_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   T_pathname_value_sequence_of, hf_index, ett_ftam_T_pathname_value);
+                                      T_pathname_value_sequence_of, hf_index, ett_ftam_T_pathname_value);
 
   return offset;
 }
@@ -4618,7 +4634,7 @@ static const ber_choice_t Contents_Type_Pattern_choice[] = {
 
 static int
 dissect_ftam_Contents_Type_Pattern(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Contents_Type_Pattern_choice, hf_index, ett_ftam_Contents_Type_Pattern, NULL);
 
   return offset;
@@ -4720,6 +4736,7 @@ static int dissect_extension_set_attribute_Patterns_item(packet_info *pinfo, pro
   return dissect_ftam_T_extension_set_attribute_Patterns_item(FALSE, tvb, offset, pinfo, tree, hf_ftam_extension_set_attribute_Patterns_item);
 }
 
+
 static const ber_sequence_t T_extension_set_attribute_Patterns_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_extension_set_attribute_Patterns_item },
 };
@@ -4727,7 +4744,7 @@ static const ber_sequence_t T_extension_set_attribute_Patterns_sequence_of[1] = 
 static int
 dissect_ftam_T_extension_set_attribute_Patterns(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   T_extension_set_attribute_Patterns_sequence_of, hf_index, ett_ftam_T_extension_set_attribute_Patterns);
+                                      T_extension_set_attribute_Patterns_sequence_of, hf_index, ett_ftam_T_extension_set_attribute_Patterns);
 
   return offset;
 }
@@ -4752,6 +4769,7 @@ static int dissect_Attribute_Extensions_Pattern_item(packet_info *pinfo, proto_t
   return dissect_ftam_Attribute_Extensions_Pattern_item(FALSE, tvb, offset, pinfo, tree, hf_ftam_Attribute_Extensions_Pattern_item);
 }
 
+
 static const ber_sequence_t Attribute_Extensions_Pattern_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Attribute_Extensions_Pattern_item },
 };
@@ -4759,7 +4777,7 @@ static const ber_sequence_t Attribute_Extensions_Pattern_sequence_of[1] = {
 static int
 dissect_ftam_Attribute_Extensions_Pattern(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   Attribute_Extensions_Pattern_sequence_of, hf_index, ett_ftam_Attribute_Extensions_Pattern);
+                                      Attribute_Extensions_Pattern_sequence_of, hf_index, ett_ftam_Attribute_Extensions_Pattern);
 
   return offset;
 }
@@ -4820,7 +4838,7 @@ static const ber_choice_t AND_Set_item_choice[] = {
 
 static int
 dissect_ftam_AND_Set_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               AND_Set_item_choice, hf_index, ett_ftam_AND_Set_item, NULL);
 
   return offset;
@@ -4829,6 +4847,7 @@ static int dissect_AND_Set_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_ftam_AND_Set_item(FALSE, tvb, offset, pinfo, tree, hf_ftam_AND_Set_item);
 }
 
+
 static const ber_sequence_t AND_Set_sequence_of[1] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_AND_Set_item },
 };
@@ -4836,7 +4855,7 @@ static const ber_sequence_t AND_Set_sequence_of[1] = {
 static int
 dissect_ftam_AND_Set(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   AND_Set_sequence_of, hf_index, ett_ftam_AND_Set);
+                                      AND_Set_sequence_of, hf_index, ett_ftam_AND_Set);
 
   return offset;
 }
@@ -4846,6 +4865,7 @@ static int dissect_OR_Set_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 static int dissect_Attribute_Value_Assertions_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_ftam_AND_Set(FALSE, tvb, offset, pinfo, tree, hf_ftam_Attribute_Value_Assertions_item);
 }
+
 
 static const ber_sequence_t Attribute_Value_Assertions_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Attribute_Value_Assertions_item },
@@ -4913,6 +4933,7 @@ static int dissect_Scope_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_ftam_Scope_item(FALSE, tvb, offset, pinfo, tree, hf_ftam_Scope_item);
 }
 
+
 static const ber_sequence_t Scope_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Scope_item },
 };
@@ -4961,6 +4982,7 @@ dissect_ftam_F_LIST_request(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 static int dissect_f_list_request_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_ftam_F_LIST_request(TRUE, tvb, offset, pinfo, tree, hf_ftam_f_list_request);
 }
+
 
 static const ber_sequence_t Objects_Attributes_List_sequence_of[1] = {
   { BER_CLASS_APP, 18, BER_FLAGS_NOOWNTAG, dissect_Objects_Attributes_List_item },
@@ -5100,6 +5122,7 @@ static int dissect_f_group_delete_request_impl(packet_info *pinfo, proto_tree *t
   return dissect_ftam_F_GROUP_DELETE_request(TRUE, tvb, offset, pinfo, tree, hf_ftam_f_group_delete_request);
 }
 
+
 static const ber_sequence_t SEQUENCE_OF_Pathname_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_success_Object_names_item },
 };
@@ -5107,7 +5130,7 @@ static const ber_sequence_t SEQUENCE_OF_Pathname_sequence_of[1] = {
 static int
 dissect_ftam_SEQUENCE_OF_Pathname(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SEQUENCE_OF_Pathname_sequence_of, hf_index, ett_ftam_SEQUENCE_OF_Pathname);
+                                      SEQUENCE_OF_Pathname_sequence_of, hf_index, ett_ftam_SEQUENCE_OF_Pathname);
 
   return offset;
 }
@@ -5142,7 +5165,7 @@ dissect_ftam_Operation_Result(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Operation_Result_choice, hf_index, ett_ftam_Operation_Result, NULL);
 
 
@@ -5731,7 +5754,7 @@ static int
 dissect_ftam_FSM_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   gint branch_taken;
 
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               FSM_PDU_choice, hf_index, ett_ftam_FSM_PDU, &branch_taken);
 
   if( (branch_taken!=-1) && ftam_FSM_PDU_vals[branch_taken].strptr ){
@@ -5767,7 +5790,7 @@ static const ber_choice_t PDU_choice[] = {
 
 static int
 dissect_ftam_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               PDU_choice, hf_index, ett_ftam_PDU, NULL);
 
   return offset;
@@ -5801,6 +5824,7 @@ dissect_ftam_F_CHECK_response(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
   return offset;
 }
 
+
 static const ber_sequence_t OR_Set_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_OR_Set_item },
 };
@@ -5808,7 +5832,7 @@ static const ber_sequence_t OR_Set_sequence_of[1] = {
 static int
 dissect_ftam_OR_Set(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   OR_Set_sequence_of, hf_index, ett_ftam_OR_Set);
+                                      OR_Set_sequence_of, hf_index, ett_ftam_OR_Set);
 
   return offset;
 }
@@ -5944,7 +5968,7 @@ void proto_register_ftam(void) {
         "", HFILL }},
     { &hf_ftam_contents_type_list,
       { "contents-type-list", "ftam.contents_type_list",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_ftam_initiator_identity,
       { "initiator-identity", "ftam.initiator_identity",
@@ -5972,7 +5996,7 @@ void proto_register_ftam(void) {
         "", HFILL }},
     { &hf_ftam_diagnostic,
       { "diagnostic", "ftam.diagnostic",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_ftam_Contents_Type_List_item,
       { "Item", "ftam.Contents_Type_List_item",
@@ -5988,7 +6012,7 @@ void proto_register_ftam(void) {
         "", HFILL }},
     { &hf_ftam_charging,
       { "charging", "ftam.charging",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_ftam_f_select_request,
       { "f-select-request", "ftam.f_select_request",
@@ -6108,7 +6132,7 @@ void proto_register_ftam(void) {
         "", HFILL }},
     { &hf_ftam_path_access_passwords,
       { "path-access-passwords", "ftam.path_access_passwords",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_ftam_concurrency_control,
       { "concurrency-control", "ftam.concurrency_control",
@@ -6136,7 +6160,7 @@ void proto_register_ftam(void) {
         "", HFILL }},
     { &hf_ftam_attribute_extension_names,
       { "attribute-extension-names", "ftam.attribute_extension_names",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_ftam_read_attributes,
       { "attributes", "ftam.attributes",
@@ -6176,7 +6200,7 @@ void proto_register_ftam(void) {
         "F-OPEN-request/recovery-mode", HFILL }},
     { &hf_ftam_remove_contexts,
       { "remove-contexts", "ftam.remove_contexts",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_ftam_remove_contexts_item,
       { "Item", "ftam.remove_contexts_item",
@@ -6184,7 +6208,7 @@ void proto_register_ftam(void) {
         "", HFILL }},
     { &hf_ftam_define_contexts,
       { "define-contexts", "ftam.define_contexts",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_ftam_define_contexts_item,
       { "Item", "ftam.define_contexts_item",
@@ -6356,7 +6380,7 @@ void proto_register_ftam(void) {
         "", HFILL }},
     { &hf_ftam_pass_passwords,
       { "pass-passwords", "ftam.pass_passwords",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_ftam_link_password,
       { "link-password", "ftam.link_password",
@@ -6396,7 +6420,7 @@ void proto_register_ftam(void) {
         "", HFILL }},
     { &hf_ftam_attribute_extensions,
       { "attribute-extensions", "ftam.attribute_extensions",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_ftam_Charging_item,
       { "Item", "ftam.Charging_item",
@@ -6508,7 +6532,7 @@ void proto_register_ftam(void) {
         "FADU-Identity/single-name", HFILL }},
     { &hf_ftam_name_list,
       { "name-list", "ftam.name_list",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "FADU-Identity/name-list", HFILL }},
     { &hf_ftam_name_list_item,
       { "Item", "ftam.name_list_item",
@@ -6532,7 +6556,7 @@ void proto_register_ftam(void) {
         "Read-Attributes/linked-Object", HFILL }},
     { &hf_ftam_child_objects,
       { "child-objects", "ftam.child_objects",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Read-Attributes/child-objects", HFILL }},
     { &hf_ftam_primaty_pathname,
       { "primaty-pathname", "ftam.primaty_pathname",
@@ -6584,7 +6608,7 @@ void proto_register_ftam(void) {
         "", HFILL }},
     { &hf_ftam_actual_values3,
       { "actual-values", "ftam.actual_values",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Access-Control-Attribute/actual-values", HFILL }},
     { &hf_ftam_actual_values_item,
       { "Item", "ftam.actual_values_item",
@@ -6596,7 +6620,7 @@ void proto_register_ftam(void) {
         "Access-Control-Change-Attribute/actual-values", HFILL }},
     { &hf_ftam_insert_values,
       { "insert-values", "ftam.insert_values",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Access-Control-Change-Attribute/actual-values/insert-values", HFILL }},
     { &hf_ftam_insert_values_item,
       { "Item", "ftam.insert_values_item",
@@ -6604,7 +6628,7 @@ void proto_register_ftam(void) {
         "Access-Control-Change-Attribute/actual-values/insert-values/_item", HFILL }},
     { &hf_ftam_delete_values,
       { "delete-values", "ftam.delete_values",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Access-Control-Change-Attribute/actual-values/delete-values", HFILL }},
     { &hf_ftam_delete_values_item,
       { "Item", "ftam.delete_values_item",
@@ -6692,11 +6716,11 @@ void proto_register_ftam(void) {
         "Object-Availability-Attribute/actual-values", HFILL }},
     { &hf_ftam_incomplete_pathname,
       { "incomplete-pathname", "ftam.incomplete_pathname",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Pathname-Attribute/incomplete-pathname", HFILL }},
     { &hf_ftam_complete_pathname,
       { "complete-pathname", "ftam.complete_pathname",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Pathname-Attribute/complete-pathname", HFILL }},
     { &hf_ftam_actual_values7,
       { "actual-values", "ftam.actual_values",
@@ -6860,19 +6884,19 @@ void proto_register_ftam(void) {
         "", HFILL }},
     { &hf_ftam_attribute_value_asset_tions,
       { "attribute-value-asset-tions", "ftam.attribute_value_asset_tions",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "F-LIST-request/attribute-value-asset-tions", HFILL }},
     { &hf_ftam_scope,
       { "scope", "ftam.scope",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_ftam_objects_attributes_list,
       { "objects-attributes-list", "ftam.objects_attributes_list",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
     { &hf_ftam_attribute_value_assertions,
       { "attribute-value-assertions", "ftam.attribute_value_assertions",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "F-GROUP-SELECT-request/attribute-value-assertions", HFILL }},
     { &hf_ftam_maximum_set_size,
       { "maximum-set-size", "ftam.maximum_set_size",
@@ -6920,7 +6944,7 @@ void proto_register_ftam(void) {
         "", HFILL }},
     { &hf_ftam_extension_attribute_names,
       { "extension-attribute-names", "ftam.extension_attribute_names",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Attribute-Extension-Set-Name/extension-attribute-names", HFILL }},
     { &hf_ftam_extension_attribute_names_item,
       { "Item", "ftam.extension_attribute_names_item",
@@ -6932,7 +6956,7 @@ void proto_register_ftam(void) {
         "Attribute-Extensions/_item", HFILL }},
     { &hf_ftam_extension_set_attributes,
       { "extension-set-attributes", "ftam.extension_set_attributes",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Attribute-Extension-Set/extension-set-attributes", HFILL }},
     { &hf_ftam_extension_set_attributes_item,
       { "Item", "ftam.extension_set_attributes_item",
@@ -6960,7 +6984,7 @@ void proto_register_ftam(void) {
         "Scope/_item/retrieval-scope", HFILL }},
     { &hf_ftam_OR_Set_item,
       { "Item", "ftam.OR_Set_item",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "OR-Set/_item", HFILL }},
     { &hf_ftam_AND_Set_item,
       { "Item", "ftam.AND_Set_item",
@@ -7048,7 +7072,7 @@ void proto_register_ftam(void) {
         "AND-Set/_item/legal-quailfication-Pattern", HFILL }},
     { &hf_ftam_attribute_extensions_pattern,
       { "attribute-extensions-pattern", "ftam.attribute_extensions_pattern",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "AND-Set/_item/attribute-extensions-pattern", HFILL }},
     { &hf_ftam_equality_comparision,
       { "equality-comparision", "ftam.equality_comparision",
@@ -7056,7 +7080,7 @@ void proto_register_ftam(void) {
         "", HFILL }},
     { &hf_ftam_pathname_value,
       { "pathname-value", "ftam.pathname_value",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Pathname-Pattern/pathname-value", HFILL }},
     { &hf_ftam_pathname_value_item,
       { "Item", "ftam.pathname_value_item",
@@ -7072,7 +7096,7 @@ void proto_register_ftam(void) {
         "", HFILL }},
     { &hf_ftam_string_value,
       { "string-value", "ftam.string_value",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "String-Pattern/string-value", HFILL }},
     { &hf_ftam_string_value_item,
       { "Item", "ftam.string_value_item",
@@ -7140,7 +7164,7 @@ void proto_register_ftam(void) {
         "Attribute-Extensions-Pattern/_item", HFILL }},
     { &hf_ftam_extension_set_attribute_Patterns,
       { "extension-set-attribute-Patterns", "ftam.extension_set_attribute_Patterns",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Attribute-Extensions-Pattern/_item/extension-set-attribute-Patterns", HFILL }},
     { &hf_ftam_extension_set_attribute_Patterns_item,
       { "Item", "ftam.extension_set_attribute_Patterns_item",
@@ -7164,11 +7188,11 @@ void proto_register_ftam(void) {
         "Operation-Result/success-Object-count", HFILL }},
     { &hf_ftam_success_Object_names,
       { "success-Object-names", "ftam.success_Object_names",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Operation-Result/success-Object-names", HFILL }},
     { &hf_ftam_success_Object_names_item,
       { "Item", "ftam.success_Object_names_item",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Operation-Result/success-Object-names/_item", HFILL }},
     { &hf_ftam_Pathname_item,
       { "Item", "ftam.Pathname_item",
@@ -7192,7 +7216,7 @@ void proto_register_ftam(void) {
         "AE-title/ae", HFILL }},
     { &hf_ftam_Attribute_Value_Assertions_item,
       { "Item", "ftam.Attribute_Value_Assertions_item",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "Attribute-Value-Assertions/_item", HFILL }},
     { &hf_ftam_Protocol_Version_version_1,
       { "version-1", "ftam.version-1",

@@ -2535,7 +2535,7 @@ class ChoiceType (Type):
         out += "  { 0, NULL, 0, NULL }\n};\n"
       out += ectx.eth_type_fn_hdr(tname)
       if (ectx.Ber()):
-        body = ectx.eth_fn_call('dissect_ber_CHOICE', ret='offset',
+        body = ectx.eth_fn_call('dissect_ber_choice', ret='offset',
                                 par=(('pinfo', 'tree', 'tvb', 'offset'),
                                      (tname+'_choice', 'hf_index', ectx.eth_type[tname]['tree'], 'NULL')))
       elif (ectx.NPer()):

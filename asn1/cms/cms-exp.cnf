@@ -19,13 +19,13 @@ Countersignature         BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 ContentInfo              TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 ContentType              TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 SignedData               TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-DigestAlgorithmIdentifiers TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-SignerInfos              TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+DigestAlgorithmIdentifiers TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+SignerInfos              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 EncapsulatedContentInfo  TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 SignerInfo               TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 SignerIdentifier         TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(cms_SignerIdentifier_vals)  BITMASK = 0
-SignedAttributes         TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-UnsignedAttributes       TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+SignedAttributes         TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+UnsignedAttributes       TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 SignatureValue           TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
 EnvelopedData            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 IssuerAndSerialNumber    TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0

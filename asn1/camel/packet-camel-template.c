@@ -421,7 +421,7 @@ static const ber_choice_t InvokeId_choice[] = {
 
 static int
 dissect_camel_InvokeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               InvokeId_choice, hf_index, ett_camel_InvokeId, NULL);
 
   return offset;
@@ -524,7 +524,7 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
     col_append_fstr(pinfo->cinfo, COL_INFO, val_to_str(camel_pdu_type, camelPDU_vals, "Unknown Camel (%u)"));
   }
 
-  offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               camelPDU_choice, hf_index, ett_camel_camelPDU, NULL);
 
   return offset;

@@ -29,12 +29,12 @@ CertReq                  BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 #.END
 
 #.TYPE_ATTR
-CertReqMessages          TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+CertReqMessages          TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 CertReqMsg               TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 CertRequest              TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 CertTemplate             TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 OptionalValidity         TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-Controls                 TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+Controls                 TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 AttributeTypeAndValue    TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 ProofOfPossession        TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(crmf_ProofOfPossession_vals)  BITMASK = 0
 POPOSigningKey           TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0

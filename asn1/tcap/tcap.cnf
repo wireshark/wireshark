@@ -122,13 +122,13 @@ if (ber_oid_dissector_table && cur_oid){
 if(!dissector_try_string(ber_oid_dissector_table, cur_oid, next_tvb, pinfo, tcap_top_tree))	
 	{
 	if (!dissector_try_port(tcap_itu_ssn_dissector_table, pinfo->match_port, next_tvb,pinfo, tcap_top_tree))
-			 	dissect_ber_CHOICE(pinfo, tree, next_tvb, 0,
+			 	dissect_ber_choice(pinfo, tree, next_tvb, 0,
                         Component_choice, hf_index, ett_tcap_Component, NULL);
 	}
 }
 else
 	 if (!dissector_try_port(tcap_itu_ssn_dissector_table, pinfo->match_port, next_tvb, pinfo, tcap_top_tree))
-			dissect_ber_CHOICE(pinfo, tree, next_tvb, 0,
+			dissect_ber_choice(pinfo, tree, next_tvb, 0,
                         Component_choice, hf_index, ett_tcap_Component, NULL);
 
 offset+=len;
@@ -189,7 +189,7 @@ next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
 if (!dissector_try_port(tcap_ansi_ssn_dissector_table, pinfo->match_port, next_tvb, pinfo, tcap_top_tree))
     {
-	offset = dissect_ber_CHOICE(pinfo, tree, tvb, offset,
+	offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               ComponentPDU_choice, hf_index, ett_tcap_ComponentPDU, NULL);
 	}
 	
