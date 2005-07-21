@@ -755,6 +755,7 @@ Delete "$INSTDIR\FAQ"
 Delete "$INSTDIR\NEWS.txt"
 Delete "$INSTDIR\manuf"
 Delete "$INSTDIR\pcrepattern.3.txt"
+Delete "$INSTDIR\radius\*.*"
 Delete "$SMPROGRAMS\Ethereal\*.*"
 Delete "$DESKTOP\Ethereal.lnk"
 
@@ -787,6 +788,7 @@ RMDir "$INSTDIR\plugins"
 RMDir "$INSTDIR\diameter"
 RMDir "$INSTDIR\snmp\mibs"
 RMDir "$INSTDIR\snmp"
+RMDir "$INSTDIR\radius"
 RMDir "$INSTDIR"
 
 IfFileExists "$INSTDIR" 0 NoFinalErrorMsg
