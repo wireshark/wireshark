@@ -393,6 +393,8 @@ WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Pa
 
 SectionEnd
 
+SectionGroup "Ethereal"
+
 !ifdef GTK1_DIR
 Section "Ethereal GTK1" SecEtherealGTK1
 ;-------------------------------------------
@@ -435,6 +437,7 @@ SectionEnd
 !ifdef GTK_WIMP_DIR
 Section "GTK-Wimp" SecGTKWimp
 ;-------------------------------------------
+SectionIn 1
 SetOutPath $INSTDIR\lib\gtk-2.0\${GTK2_INST_VERSION}.0\engines
 File "${GTK_WIMP_DIR}\libwimp.dll"
 SetOutPath $INSTDIR\share\themes\Default\gtk-2.0
@@ -442,6 +445,9 @@ File "${GTK_WIMP_DIR}\Theme\gtk-2.0\gtkrc"
 SectionEnd
 !endif
 !endif
+
+SectionGroupEnd	; "Ethereal"
+
 
 Section "Tethereal" SecTethereal
 ;-------------------------------------------
@@ -452,6 +458,70 @@ SetOutPath $INSTDIR
 File "..\..\tethereal.exe"
 File "..\..\doc\tethereal.html"
 SectionEnd
+
+SectionGroup	"Plugins / Extensions"
+
+Section "Dissector Plugins" SecPlugins
+;-------------------------------------------
+!ifdef GTK1_DIR & GTK2_DIR
+SectionIn 1 2
+!endif
+SetOutPath $INSTDIR\plugins\${VERSION}
+File "..\..\plugins\acn\acn.dll"
+File "..\..\plugins\agentx\agentx.dll"
+File "..\..\plugins\artnet\artnet.dll"
+File "..\..\plugins\asn1\asn1.dll"
+File "..\..\plugins\ciscosm\ciscosm.dll"
+File "..\..\plugins\docsis\docsis.dll"
+File "..\..\plugins\enttec\enttec.dll"
+File "..\..\plugins\giop\coseventcomm.dll"
+File "..\..\plugins\giop\cosnaming.dll"
+File "..\..\plugins\giop\parlay.dll"
+File "..\..\plugins\giop\tango.dll"
+File "..\..\plugins\gryphon\gryphon.dll"
+File "..\..\plugins\irda\irda.dll"
+File "..\..\plugins\lwres\lwres.dll"
+File "..\..\plugins\megaco\megaco.dll"
+File "..\..\plugins\mgcp\mgcp.dll"
+File "..\..\plugins\opsi\opsi.dll"
+File "..\..\plugins\pcli\pcli.dll"
+File "..\..\plugins\profinet\profinet.dll"
+File "..\..\plugins\rdm\rdm.dll"
+File "..\..\plugins\rlm\rlm.dll"
+File "..\..\plugins\rtnet\rtnet.dll"
+File "..\..\plugins\rudp\rudp.dll"
+File "..\..\plugins\v5ua\v5ua.dll"
+File "..\..\plugins\xml\xml.dll"
+SectionEnd
+
+Section "Tree Statistics Plugin (currently http only)" SecStatsTree
+;-------------------------------------------
+!ifdef GTK1_DIR & GTK2_DIR
+SectionIn 1 2
+!endif
+SetOutPath $INSTDIR\plugins\${VERSION}
+File "..\..\plugins\stats_tree\stats_tree.dll"
+SectionEnd
+
+Section "Mate - Meta Analysis and Tracing Engine" SecMate
+;-------------------------------------------
+SetOutPath $INSTDIR\plugins\${VERSION}
+File "..\..\plugins\mate\mate.dll"
+SectionEnd
+
+Section "SNMP MIBs" SecMIBs
+;-------------------------------------------
+!ifdef GTK1_DIR & GTK2_DIR
+SectionIn 1 2
+!endif
+SetOutPath $INSTDIR\snmp\mibs
+File "${NET_SNMP_DIR}\mibs\*.txt"
+SectionEnd
+
+SectionGroupEnd	; "Plugins / Extensions"
+
+
+SectionGroup "Tools"
 
 Section "Editcap" SecEditcap
 ;-------------------------------------------
@@ -493,63 +563,10 @@ File "..\..\capinfos.exe"
 File "..\..\doc\capinfos.html"
 SectionEnd
 
+SectionGroupEnd	; "Tools"
 
-Section "Dissector Plugins" SecPlugins
-;-------------------------------------------
-!ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
-!endif
-SetOutPath $INSTDIR\plugins\${VERSION}
-File "..\..\plugins\acn\acn.dll"
-File "..\..\plugins\agentx\agentx.dll"
-File "..\..\plugins\artnet\artnet.dll"
-File "..\..\plugins\asn1\asn1.dll"
-File "..\..\plugins\ciscosm\ciscosm.dll"
-File "..\..\plugins\docsis\docsis.dll"
-File "..\..\plugins\enttec\enttec.dll"
-File "..\..\plugins\giop\coseventcomm.dll"
-File "..\..\plugins\giop\cosnaming.dll"
-File "..\..\plugins\giop\parlay.dll"
-File "..\..\plugins\giop\tango.dll"
-File "..\..\plugins\gryphon\gryphon.dll"
-File "..\..\plugins\irda\irda.dll"
-File "..\..\plugins\lwres\lwres.dll"
-File "..\..\plugins\megaco\megaco.dll"
-File "..\..\plugins\mgcp\mgcp.dll"
-File "..\..\plugins\opsi\opsi.dll"
-File "..\..\plugins\pcli\pcli.dll"
-File "..\..\plugins\profinet\profinet.dll"
-File "..\..\plugins\rdm\rdm.dll"
-File "..\..\plugins\rlm\rlm.dll"
-File "..\..\plugins\rtnet\rtnet.dll"
-File "..\..\plugins\rudp\rudp.dll"
-File "..\..\plugins\v5ua\v5ua.dll"
-File "..\..\plugins\xml\xml.dll"
-SectionEnd
 
-Section "Tree Statistics Plugin (currently only for http)" SecStatsTree
-;-------------------------------------------
-!ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
-!endif
-SetOutPath $INSTDIR\plugins\${VERSION}
-File "..\..\plugins\stats_tree\stats_tree.dll"
-SectionEnd
-
-Section "Mate - Meta Analysis and Tracing Engine (Experimental)" SecMate
-;-------------------------------------------
-SetOutPath $INSTDIR\plugins\${VERSION}
-File "..\..\plugins\mate\mate.dll"
-SectionEnd
-
-Section "SNMP MIBs" SecMIBs
-;-------------------------------------------
-!ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
-!endif
-SetOutPath $INSTDIR\snmp\mibs
-File "${NET_SNMP_DIR}\mibs\*.txt"
-SectionEnd
+SectionGroup	"Icons / Shortcuts"
 
 ; SectionDivider
 ;-------------------------------------------
@@ -631,6 +648,8 @@ push $R0
 pop $R0
 !insertmacro UpdateIcons
 SectionEnd
+
+SectionGroupEnd	; "Icons / Shortcuts"
 
 Section "Load Winpcap NPF service at startup" SecNPFservice
 ;-------------------------------------------
@@ -787,7 +806,7 @@ SectionEnd
 !ifdef GTK2_DIR  
   !insertmacro MUI_DESCRIPTION_TEXT ${SecEtherealGTK2} "${PROGRAM_NAME} is a GUI network protocol analyzer (using the modern GTK2 GUI toolkit)."
 !ifdef GTK_WIMP_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecGTKWimp} "GTKWimp is the GTK2 windows impersonator (native Win32 look and feel)."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecGTKWimp} "GTKWimp is the GTK2 windows impersonator (native Win32 look and feel, for Win2000 and up)."
 !endif  
 !endif
   !insertmacro MUI_DESCRIPTION_TEXT ${SecTethereal} "Tethereal is a text based network protocol analyzer."
