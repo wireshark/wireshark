@@ -42,7 +42,7 @@ extern void register_tap_listener_cmd_arg(char *cmd, void (*func)(char *arg));
 extern gboolean process_tap_cmd_arg(char *optarg);
 extern void list_tap_cmd_args(void);
 extern void start_requested_taps(void);
-extern int register_tap(char *name);
+extern int register_tap(const char *name);
 extern int find_tap_id(char *name);
 extern void tap_queue_packet(int tap_id, packet_info *pinfo, const void *tap_specific_data);
 extern void tap_queue_init(epan_dissect_t *edt);

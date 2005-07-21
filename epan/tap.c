@@ -200,7 +200,7 @@ start_requested_taps(void)
    packet is associated.
 */  
 int
-register_tap(char *name)
+register_tap(const char *name)
 {
 	tap_dissector_t *td, *tdl;
 	int i;
