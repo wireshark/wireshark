@@ -173,9 +173,9 @@ enum field_type {
 };
 
 struct opt_info {
-	char	*text;
+	const char	*text;
 	enum field_type ftype;
-	const void *data;
+	const void	*data;
 };
 
 static const true_false_string flag_set_broadcast = {
@@ -2033,7 +2033,8 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 	guint16 raw_val;
 	unsigned long flow_val = 0;
 	int off = PKT_MDC_TLV_OFF + voff;
-	int tlv_len, i;
+	guint tlv_len;
+	int i;
 	guint8 asc_val[3] = "  ", flow_val_str[5];
 	static GString *tlv_str = NULL;
 	char bit_fld[64];

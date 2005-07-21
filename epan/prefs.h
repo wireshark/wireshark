@@ -262,9 +262,9 @@ extern void prefs_register_bool_preference(module_t *module, const char *name,
  * Register a preference with an enumerated value.
  */
 typedef struct {
-	char	*name;
-	char	*description;
-	gint	value;
+	const char	*name;
+	const char	*description;
+	gint		value;
 } enum_val_t;
 
 extern void prefs_register_enum_preference(module_t *module, const char *name,
