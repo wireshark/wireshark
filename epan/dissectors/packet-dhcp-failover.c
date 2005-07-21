@@ -341,7 +341,7 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint type, serverflag;
 	guint poffset;
 	guint32 xid;
-	gchar *tls_request_string;
+	const gchar *tls_request_string;
 	guint32 time, lease_expiration_time, grace_expiration_time;
 	guint32 potential_expiration_time, client_last_transaction_time;
 	guint32 start_time_of_state;
