@@ -1,5 +1,87 @@
 $Id$
 
+== July 12, 2005
+
+Ethereal 0.10.12 has been released.
+
+Our testing program has turned up several more security issues:
+
+  The CAMEL dissector could dereference a null pointer.
+  Discovered by Steve Grubb.
+  Version affected: 0.10.11
+
+  The LDAP dissector could free static memory and crash. 
+  Versions affected: 0.8.5 to 0.10.11
+
+  The AgentX dissector could crash.
+  Versions affected: 0.10.10 to 0.10.11
+
+  The 802.3 dissector could go into an infinite loop.
+  Versions affected: 0.8.16 to 0.10.11
+
+  The PER dissector could abort.
+  Versions affected: 0.10.5 to 0.10.11
+
+  The DHCP dissector could go into an infinite loop.
+  Versions affected: 0.10.7 to 0.10.11
+
+  The BER dissector could abort.
+  Version affected: 0.10.11
+
+  The MEGACO dissector could go into an infinite loop.
+  Versions affected: 0.9.14 to 0.10.11
+
+  The GIOP dissector could dereference a null pointer.
+  Versions affected: 0.8.20 to 0.10.11
+
+  The SMB dissector was susceptible to a buffer overflow.
+  Versions affected: 0.9.12 to 0.10.11
+
+  The WBXML could dereference a null pointer.
+  Versions affected: 0.10.1 to 0.10.11
+
+  The H1 dissector could go into an infinite loop.
+  Versions affected: 0.8.15 to 0.10.11
+
+  The DOCSIS dissector could cause a crash.
+  Versions affected: 0.9.13 to 0.10.11
+
+  The SMPP dissector could go into an infinite loop.
+  Versions affected: 0.10.1 to 0.10.11
+
+  The AFP dissector was susceptible to a format string overflow.
+  Versions affected: 0.9.4 to 0.10.11
+
+  SCTP graphs could crash.
+  Version affected: 0.10.11
+
+  The HTTP dissector could crash.
+  Versions affected: 0.10.4 to 0.10.11
+
+
+Please see the following advisory for more information:
+  
+    http://www.ethereal.com/appnotes/enpa-sa-00020.html
+    
+Everyone is encouraged to upgrade.
+
+
+New and updated features
+
+
+
+New protocol support
+
+
+
+Updated protocol support
+
+
+
+New and updated capture file support
+
+
+
 == May 4, 2005
 
 Ethereal 0.10.11 has been released.
