@@ -43,6 +43,7 @@
 #include "rpc_defrag.h"
 #include "packet-nfs.h"
 #include <epan/tap.h>
+#include <epan/emem.h>
 
 /*
  * See:
@@ -617,18 +618,19 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
         }
 
 	if (string_data) {
-		string_buffer = tvb_get_string(tvb, data_offset,
-		    string_length_copy);
+		char *tmpstr;
+		tmpstr = tvb_get_string(tvb, data_offset, string_length_copy);
+		string_buffer = memcpy(ep_alloc(string_length_copy), tmpstr, string_length_copy);
+		g_free(tmpstr);
 	} else {
-		string_buffer = tvb_memdup(tvb, data_offset,
-		    string_length_copy);
+		string_buffer = tvb_memcpy(tvb, ep_alloc(string_length_copy), data_offset, string_length_copy);
 	}
 	/* calculate a nice printable string */
 	if (string_length) {
 		if (string_length != string_length_copy) {
 			if (string_data) {
 				/* alloc maximum data area */
-				string_buffer_print = (char*)g_malloc(string_length_copy + 12 + 1);
+				string_buffer_print = (char*)ep_alloc(string_length_copy + 12 + 1);
 				/* copy over the data */
 				memcpy(string_buffer_print,string_buffer,string_length_copy);
 				/* append a 0 byte for sure printing */
@@ -642,22 +644,18 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 				   put the securing \0).
 				*/
 				strcat(string_buffer_print,"<TRUNCATED>");
+			} else {
+				string_buffer_print="<DATA><TRUNCATED>";
 			}
-			else {
-				string_buffer_print = g_strdup("<DATA><TRUNCATED>");
-			}
-		}
-		else {
+		} else {
 			if (string_data) {
-				string_buffer_print = g_strdup(string_buffer);
-			}
-			else {
-				string_buffer_print = g_strdup("<DATA>");
+				string_buffer_print = string_buffer;
+			} else {
+				string_buffer_print="<DATA>";
 			}
 		}
-	}
-	else {
-		string_buffer_print = g_strdup("<EMPTY>");
+	} else {
+		string_buffer_print="<EMPTY>";
 	}
 
 	if (tree) {
@@ -709,14 +707,8 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 	if (string_item)
 		proto_item_set_end(string_item, tvb, offset);
 
-	if (string_buffer != NULL)
-		g_free(string_buffer);
-	if (string_buffer_print != NULL) {
-		if (string_buffer_ret != NULL)
-			*string_buffer_ret = string_buffer_print;
-		else
-			g_free(string_buffer_print);
-	}
+	if (string_buffer_ret != NULL)
+		*string_buffer_ret = string_buffer_print;
 
 	/*
 	 * If the data was truncated, throw the appropriate exception,
