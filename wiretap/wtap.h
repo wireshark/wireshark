@@ -465,8 +465,8 @@ typedef union {
 
 struct k12_phdr {
 	guint32 input;
-	gchar* input_name;
-	gchar* stack_file;
+	const gchar* input_name;
+	const gchar* stack_file;
 	guint32 input_type;
 	k12_input_info_t input_info;
 	void* stuff;

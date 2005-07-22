@@ -145,9 +145,9 @@ XMIT-Max7:20: (task "_brouterControlTask" at 0xb094ac20, time: 1481.51) 20 octet
 #define NO_USER "<none>"
 
 int yyparse(void);
-void yyerror(char *);
+void yyerror(const char *);
 
-gchar *ascend_parse_error;
+const gchar *ascend_parse_error;
 
 static unsigned int bcur;
 static guint32 start_time, secs, usecs, caplen, wirelen;
@@ -509,7 +509,7 @@ parse_ascend(FILE_T fh, guint8 *pd, struct ascend_phdr *phdr,
 }
 
 void
-yyerror (char *s)
+yyerror (const char *s)
 {
   ascend_parse_error = s;
 }

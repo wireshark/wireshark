@@ -311,7 +311,7 @@ find_module(const char *name)
 {
 	GList *list_entry;
 
-	list_entry = g_list_find_custom(modules, (gpointer)name, module_match);
+	list_entry = g_list_find_custom(modules, name, module_match);
 	if (list_entry == NULL)
 		return NULL;	/* no such module */
 	return (module_t *) list_entry->data;
@@ -404,7 +404,7 @@ register_preference(module_t *module, const char *name, const char *title,
     const char *description, pref_type_t type)
 {
 	pref_t *preference;
-	const guchar *p;
+	const gchar *p;
 
 	preference = g_malloc(sizeof (pref_t));
 	preference->name = name;
@@ -427,8 +427,8 @@ register_preference(module_t *module, const char *name, const char *title,
 	 * and shouldn't require quoting, shifting, etc.
 	 */
 	for (p = name; *p != '\0'; p++)
-		g_assert(isascii(*p) &&
-		    (islower(*p) || isdigit(*p) || *p == '_' || *p == '.'));
+		g_assert(isascii((guchar)*p) &&
+		    (islower((guchar)*p) || isdigit((guchar)*p) || *p == '_' || *p == '.'));
 
 	/*
 	 * Make sure there's not already a preference with that
@@ -476,7 +476,7 @@ find_preference(module_t *module, const char *name)
 {
 	GList *list_entry;
 
-	list_entry = g_list_find_custom(module->prefs, (gpointer)name,
+	list_entry = g_list_find_custom(module->prefs, name,
 	    preference_match);
 	if (list_entry == NULL)
 		return NULL;	/* no such preference */
@@ -867,7 +867,7 @@ find_val_for_string(const char *needle, const enum_val_t *haystack,
  * default value that was passed as the third argument is returned.
  */
 static int
-find_index_from_string_array(char *needle, char **haystack, int default_value)
+find_index_from_string_array(char *needle, const char **haystack, int default_value)
 {
 	int i = 0;
 
@@ -1293,7 +1293,7 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
 int
 prefs_set_pref(char *prefarg)
 {
-	guchar *p, *colonp;
+	gchar *p, *colonp;
 	int ret;
 
 	/*
@@ -1318,7 +1318,7 @@ prefs_set_pref(char *prefarg)
 	 * as we allow it in the preferences file, we might as well
 	 * allow it here).
 	 */
-	while (isspace(*p))
+	while (isspace((guchar)*p))
 		p++;
 	if (*p == '\0') {
 		/*

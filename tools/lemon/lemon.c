@@ -193,11 +193,11 @@ struct lemon {
   struct symbol **symbols; /* Sorted array of pointers to symbols */
   int errorcnt;            /* Number of errors */
   struct symbol *errsym;   /* The error symbol */
-  const char *name;        /* Name of the generated parser */
+  char *name;              /* Name of the generated parser */
   char *arg;               /* Declaration of the 3th argument to parser */
   char *tokentype;         /* Type of terminal symbols in the parser stack */
   char *start;             /* Name of the start symbol for the grammar */
-  const char *stacksize;   /* Size of the parser stack */
+  char *stacksize;         /* Size of the parser stack */
   char *include;           /* Code to put at the start of the C file */
   int  includeln;          /* Line number for start of include code */
   char *error;             /* Code to execute when an error is seen */

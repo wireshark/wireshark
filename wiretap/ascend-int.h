@@ -36,7 +36,7 @@ typedef struct {
 
 extern int at_eof;
 
-extern gchar *ascend_parse_error;
+extern const gchar *ascend_parse_error;
 
 /*
  * Pointer to the pseudo-header for the current packet.
