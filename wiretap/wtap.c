@@ -300,6 +300,9 @@ static const struct encap_type_info {
 	/* WTAP_ENCAP_NETTL_X25 */
 	{ "X25 with nettl headers", "x25-nettl" },
 
+	/* WTAP_ENCAP_JUNIPER_MLPPP */
+	{ "Juniper MLPPP", "juniper-mlppp" },
+
 };
 
 /* Name that should be somewhat descriptive. */
