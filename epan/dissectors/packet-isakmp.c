@@ -1908,9 +1908,9 @@ msgtype2str(int isakmp_version, guint16 type)
     { 29,	"UNSUPPORTED-EXCHANGE-TYPE" },
     { 30,	"UNEQUAL-PAYLOAD-LENGTHS" },
     { 8192,	"RESERVED" },
-    { 16384,	"RESPONDER-LIFETIME" },
-    { 24576,	"REPLAY-STATUS" },
-    { 24577,	"DOI-specific codes" },	/* XXX missing number ? */
+    { 16384,	"CONNECTED" },
+    { 24576,	"RESPONDER-LIFETIME" },
+    { 24577,	"REPLAY-STATUS" },
     { 24578,	"INITIAL-CONTACT" },
     { 0,	NULL },
   };
