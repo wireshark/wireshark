@@ -89,7 +89,6 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	const char *des;
 	const char *enum_val = "";
-	char *tmp_str;
 	char tmp_tag_text[IPDC_STR_LEN + 1];
 	const value_string *val_ptr;
 	guint32	type;
@@ -210,10 +209,9 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		switch (type) {
 			/* simple IPDC_ASCII strings */
 			case IPDC_ASCII:
-				tmp_str = tvb_memdup(tvb, offset + 2, len);
-				strncpy(tmp_tag_text, tmp_str, len);
+				g_assert(len<=IPDC_STR_LEN);
+				tvb_memcpy(tvb, tmp_tag_text, offset+2, len);
 				tmp_tag_text[len] = 0;
-				free(tmp_str);
 				proto_tree_add_text(tag_tree, tvb, offset,
 				len + 2, "0x%2.2x: %s: %s", tag, des,
 				tmp_tag_text);
