@@ -24,7 +24,7 @@
  */
 
 #include <stdio.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <glib.h>
 #include "emem.h"
 
