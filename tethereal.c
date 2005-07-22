@@ -103,7 +103,7 @@
 #endif /* _WIN32 */
 #include "capture.h"
 #endif /* HAVE_LIBPCAP */
-
+#include "epan/emem.h"
 
 /*
  * This is the template for the decode as option; it is shared between the
@@ -654,6 +654,9 @@ main(int argc, char *argv[])
   dfilter_t           *rfcode = NULL;
   e_prefs             *prefs;
   char                 badopt;
+
+  /* initialize memory allocation subsystem */
+  ep_init_chunk();
   
 #ifdef HAVE_LIBPCAP
   capture_opts_init(&capture_opts, NULL /* cfile */);

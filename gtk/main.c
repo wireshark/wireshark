@@ -138,6 +138,7 @@
 #endif
 #include "capture_ui_utils.h"
 #include "log.h"
+#include "../epan/emem.h"
 
 
 
@@ -1637,6 +1638,8 @@ main(int argc, char *argv[])
   char optstring[sizeof(OPTSTRING_INIT) + sizeof(OPTSTRING_CHILD) + sizeof(OPTSTRING_WIN32) - 2] =
     OPTSTRING_INIT OPTSTRING_WIN32;
 
+  /* initialize memory allocation subsystem */
+  ep_init_chunk();
 
   /*** create the compile and runtime version strings ***/
 #ifdef _WIN32

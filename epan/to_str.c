@@ -67,6 +67,7 @@
 #include <epan/dissectors/packet-mtp3.h>
 #include <stdio.h>
 #include <time.h>
+#include "emem.h"
 
 #define MAX_BYTESTRING_LEN	6
 
@@ -140,18 +141,11 @@ ether_to_str(const guint8 *ad)
 */
 gchar *
 ip_to_str(const guint8 *ad) {
-  static gchar  str[4][16];
-  static guint32   cur_idx=0;
-  gchar *cur;
+  gchar *buf;
 
-  cur_idx++;
-  if(cur_idx>3){ 
-     cur_idx=0;
-  }
-  cur=&str[cur_idx][0];
-
-  ip_to_str_buf(ad, cur);
-  return cur;
+  buf=ep_alloc(16);
+  ip_to_str_buf(ad, buf);
+  return buf;
 }
 
 /* 

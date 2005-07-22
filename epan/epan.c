@@ -21,6 +21,7 @@
 #include "column-utils.h"
 #include "tap.h"
 #include "addr_resolv.h"
+#include "emem.h"
 
 static void (*report_failure_func)(const char *, va_list);
 static void (*report_open_failure_func)(const char *, int, gboolean);
@@ -150,6 +151,9 @@ void
 epan_dissect_run(epan_dissect_t *edt, void* pseudo_header,
         const guint8* data, frame_data *fd, column_info *cinfo)
 {
+	/* free all memory allocated during previous packet */
+	ep_free_all();
+
 	dissect_packet(edt, pseudo_header, data, fd, cinfo);
 }
 

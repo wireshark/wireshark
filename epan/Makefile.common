@@ -43,6 +43,7 @@ LIBETHEREAL_SRC = 		\
 	crypt-md4.c		\
 	crypt-md5.c		\
 	crypt-rc4.c		\
+	emem.c			\
 	epan.c			\
 	except.c		\
 	filesystem.c		\
@@ -101,6 +102,7 @@ LIBETHEREAL_INCLUDES = 		\
 	crypt-md4.h		\
 	crypt-md5.h		\
 	crypt-rc4.h		\
+	emem.h			\
 	epan.h			\
 	epan_dissect.h		\
 	except.h		\
