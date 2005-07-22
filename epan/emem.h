@@ -2,7 +2,7 @@
  * Definitions for ethereal memory management and garbage collection
  * Ronnie Sahlberg 2005
  *
- * $Id: emem.h 14436 2005-05-25 23:28:59Z ulfl $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

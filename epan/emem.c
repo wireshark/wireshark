@@ -2,7 +2,7 @@
  * Ethereal memory management and garbage collection functions
  * Ronnie Sahlberg 2005
  *
- * $Id: emem.c 14510 2005-05-31 21:17:54Z ulfl $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
