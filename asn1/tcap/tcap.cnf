@@ -205,7 +205,7 @@ if (parameter_tvb){
 	if ((len)&&(check_col(pinfo->cinfo, COL_INFO))){
 		col_append_fstr(pinfo->cinfo, COL_INFO, "otid(");
 	   	for(i=0;i<len;i++)
-        		  col_append_fstr(pinfo->cinfo, COL_INFO, "%02x",tvb_get_guint8(parameter_tvb,i));
+        		  col_append_fstr(pinfo->cinfo, COL_INFO, "%%02x",tvb_get_guint8(parameter_tvb,i));
         	col_append_fstr(pinfo->cinfo, COL_INFO, ") ");
 	}
 
@@ -220,7 +220,7 @@ if (parameter_tvb){
 	if ((len)&&(check_col(pinfo->cinfo, COL_INFO))){
 		col_append_fstr(pinfo->cinfo, COL_INFO, "dtid(");
 		for(i=0;i<len;i++)
-          		col_append_fstr(pinfo->cinfo, COL_INFO, "%02x",tvb_get_guint8(parameter_tvb,i));
+          		col_append_fstr(pinfo->cinfo, COL_INFO, "%%02x",tvb_get_guint8(parameter_tvb,i));
         	col_append_fstr(pinfo->cinfo, COL_INFO, ") ");
 	   }
 }
