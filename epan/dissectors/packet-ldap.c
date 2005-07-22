@@ -528,7 +528,7 @@ static int read_string_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
 
   if (s && length)
     *s = string;
-  else if (length)
+  else
     g_free(string);
 
   return ASN1_ERR_NOERROR;
