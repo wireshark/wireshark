@@ -81,8 +81,7 @@
  */
 static gchar *
 bytestring_to_str(const guint8 *ad, guint32 len, char punct) {
-  static gchar  str[3][MAX_BYTESTRING_LEN*3];
-  static gchar *cur;
+  gchar *buf;
   gchar        *p;
   int          i;
   guint32      octet;
@@ -99,15 +98,9 @@ bytestring_to_str(const guint8 *ad, guint32 len, char punct) {
   g_assert(len > 0 && len <= MAX_BYTESTRING_LEN);
   len--;
 
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {
-    cur = &str[2][0];
-  } else {
-    cur = &str[0][0];
-  }
-  p = &cur[18];
-  *--p = '\0';
+  buf=ep_alloc(MAX_BYTESTRING_LEN*3+1);
+  p = &buf[MAX_BYTESTRING_LEN*3];
+  *p = '\0';
   i = len;
   for (;;) {
     octet = ad[i];
@@ -230,17 +223,12 @@ ip6_to_str(const struct e_in6_addr *ad) {
 #ifndef INET6_ADDRSTRLEN
 #define INET6_ADDRSTRLEN 46
 #endif
-  static int i=0;
-  static gchar *strp, str[4][INET6_ADDRSTRLEN];
+  static gchar *str;
 
-  i++;
-  if(i>=4){
-    i=0;
-  }
-  strp=str[i];
+  str=ep_alloc(INET6_ADDRSTRLEN+1);
 
-  ip6_to_str_buf(ad, strp);
-  return strp;
+  ip6_to_str_buf(ad, str);
+  return str;
 }
 
 void
@@ -252,28 +240,20 @@ ip6_to_str_buf(const struct e_in6_addr *ad, gchar *buf)
 gchar*
 ipx_addr_to_str(guint32 net, const guint8 *ad)
 {
-	static gchar	str[3][8+1+MAXNAMELEN+1]; /* 8 digits, 1 period, NAME, 1 null */
-	static gchar	*cur;
-	char		*name;
+	gchar	*buf;
+	char	*name;
 
-	if (cur == &str[0][0]) {
-		cur = &str[1][0];
-	} else if (cur == &str[1][0]) {
-		cur = &str[2][0];
-	} else {
-		cur = &str[0][0];
-	}
-
+	buf=ep_alloc(8+1+MAXNAMELEN+1); /* 8 digits, 1 period, NAME, 1 null */
 	name = get_ether_name_if_known(ad);
 
 	if (name) {
-		sprintf(cur, "%s.%s", get_ipxnet_name(net), name);
+		sprintf(buf, "%s.%s", get_ipxnet_name(net), name);
 	}
 	else {
-		sprintf(cur, "%s.%s", get_ipxnet_name(net),
+		sprintf(buf, "%s.%s", get_ipxnet_name(net),
 		    bytestring_to_str(ad, 6, '\0'));
 	}
-	return cur;
+	return buf;
 }
 
 gchar*
@@ -286,8 +266,7 @@ ipxnet_to_string(const guint8 *ad)
 gchar *
 ipxnet_to_str_punct(const guint32 ad, char punct)
 {
-  static gchar  str[3][12];
-  static gchar *cur;
+  gchar        *buf;
   gchar        *p;
   int          i;
   guint32      octet;
@@ -303,14 +282,8 @@ ipxnet_to_str_punct(const guint32 ad, char punct)
   static const guint32  octet_mask[4] =
 	  { 0xff000000 , 0x00ff0000, 0x0000ff00, 0x000000ff };
 
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {
-    cur = &str[2][0];
-  } else {
-    cur = &str[0][0];
-  }
-  p = &cur[12];
+  buf=ep_alloc(12);
+  p = &buf[12];
   *--p = '\0';
   i = 3;
   for (;;) {
@@ -330,18 +303,12 @@ ipxnet_to_str_punct(const guint32 ad, char punct)
 gchar *
 vines_addr_to_str(const guint8 *addrp)
 {
-  static gchar	str[3][214];
-  static gchar	*cur;
+  gchar	*buf;
 
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {
-    cur = &str[2][0];
-  } else {
-    cur = &str[0][0];
-  }
-  vines_addr_to_str_buf(addrp, cur);
-  return cur;
+  buf=ep_alloc(214);
+
+  vines_addr_to_str_buf(addrp, buf);
+  return buf;
 }
 
 void
@@ -425,44 +392,30 @@ time_secs_to_str_buf(gint32 time, guint32 frac, gboolean is_nsecs,
 gchar *
 time_secs_to_str(gint32 time)
 {
-  static gchar  str[3][TIME_SECS_LEN+1];
-  static gchar *cur;
+  gchar *buf;
 
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {
-    cur = &str[2][0];
-  } else {
-    cur = &str[0][0];
-  }
+  buf=ep_alloc(TIME_SECS_LEN+1);
 
   if (time == 0) {
-    sprintf(cur, "0 time");
-    return cur;
+    sprintf(buf, "0 time");
+    return buf;
   }
 
-  time_secs_to_str_buf(time, 0, FALSE, cur);
-  return cur;
+  time_secs_to_str_buf(time, 0, FALSE, buf);
+  return buf;
 }
 
 gchar *
 time_msecs_to_str(gint32 time)
 {
-  static gchar  str[3][TIME_SECS_LEN+1+3+1];
-  static gchar *cur;
+  gchar *buf;
   int msecs;
 
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {
-    cur = &str[2][0];
-  } else {
-    cur = &str[0][0];
-  }
+  buf=ep_alloc(TIME_SECS_LEN+1+3+1);
 
   if (time == 0) {
-    sprintf(cur, "0 time");
-    return cur;
+    sprintf(buf, "0 time");
+    return buf;
   }
 
   if(time<0){
@@ -476,8 +429,8 @@ time_msecs_to_str(gint32 time)
     time /= 1000;
   }
 
-  time_secs_to_str_buf(time, msecs, FALSE, cur);
-  return cur;
+  time_secs_to_str_buf(time, msecs, FALSE, buf);
+  return buf;
 }
 
 static const char *mon_names[12] = {
@@ -499,20 +452,13 @@ gchar *
 abs_time_to_str(nstime_t *abs_time)
 {
         struct tm *tmp;
-        static gchar *cur;
-        static char str[3][3+1+2+2+4+1+2+1+2+1+2+1+9+1];
+        gchar *buf;
 
-        if (cur == &str[0][0]) {
-                cur = &str[1][0];
-        } else if (cur == &str[1][0]) {
-                cur = &str[2][0];
-        } else {
-                cur = &str[0][0];
-        }
+	buf=ep_alloc(3+1+2+2+4+1+2+1+2+1+2+1+9+1);
 
         tmp = localtime(&abs_time->secs);
         if (tmp) {
-		sprintf(cur, "%s %2d, %d %02d:%02d:%02d.%09ld",
+		sprintf(buf, "%s %2d, %d %02d:%02d:%02d.%09ld",
 		    mon_names[tmp->tm_mon],
 		    tmp->tm_mday,
 		    tmp->tm_year + 1900,
@@ -521,28 +467,21 @@ abs_time_to_str(nstime_t *abs_time)
 		    tmp->tm_sec,
 		    (long)abs_time->nsecs);
         } else
-		strncpy(cur, "Not representable", sizeof(str[0]));
-        return cur;
+		strncpy(buf, "Not representable", 3+1+2+2+4+1+2+1+2+1+2+1+9+1);
+        return buf;
 }
 
 gchar *
 abs_time_secs_to_str(time_t abs_time)
 {
         struct tm *tmp;
-        static gchar *cur;
-        static char str[3][3+1+2+2+4+1+2+1+2+1+2+1];
+        gchar *buf;
 
-        if (cur == &str[0][0]) {
-                cur = &str[1][0];
-        } else if (cur == &str[1][0]) {
-                cur = &str[2][0];
-        } else {
-                cur = &str[0][0];
-        }
+	buf=ep_alloc(3+1+2+2+4+1+2+1+2+1+2+1);
 
         tmp = localtime(&abs_time);
         if (tmp) {
-		sprintf(cur, "%s %2d, %d %02d:%02d:%02d",
+		sprintf(buf, "%s %2d, %d %02d:%02d:%02d",
 		    mon_names[tmp->tm_mon],
 		    tmp->tm_mday,
 		    tmp->tm_year + 1900,
@@ -550,8 +489,8 @@ abs_time_secs_to_str(time_t abs_time)
 		    tmp->tm_min,
 		    tmp->tm_sec);
         } else
-		strncpy(cur, "Not representable", sizeof(str[0]));
-        return cur;
+		strncpy(buf, "Not representable", 3+1+2+2+4+1+2+1+2+1+2+1);
+        return buf;
 }
 
 void
@@ -592,21 +531,14 @@ display_signed_time(gchar *buf, int buflen, gint32 sec, gint32 frac,
 gchar *
 rel_time_to_str(nstime_t *rel_time)
 {
-	static gchar *cur;
-	static char str[3][1+TIME_SECS_LEN+1+6+1];
+	gchar *buf;
 	char *p;
 	char *sign;
 	gint32 time;
 	gint32 nsec;
 
-	if (cur == &str[0][0]) {
-		cur = &str[1][0];
-	} else if (cur == &str[1][0]) {
-		cur = &str[2][0];
-	} else {
-		cur = &str[0][0];
-	}
-	p = cur;
+	buf=ep_alloc(1+TIME_SECS_LEN+1+6+1);
+	p = buf;
 
 	/* If the nanoseconds part of the time stamp is negative,
 	   print its absolute value and, if the seconds part isn't
@@ -616,8 +548,8 @@ rel_time_to_str(nstime_t *rel_time)
 	time = rel_time->secs;
 	nsec = rel_time->nsecs;
 	if (time == 0 && nsec == 0) {
-		sprintf(cur, "0.000000000 seconds");
-		return cur;
+		sprintf(buf, "0.000000000 seconds");
+		return buf;
 	}
 	if (nsec < 0) {
 		nsec = -nsec;
@@ -632,7 +564,7 @@ rel_time_to_str(nstime_t *rel_time)
 	}
 
 	time_secs_to_str_buf(time, nsec, TRUE, p);
-	return cur;
+	return buf;
 }
 
 #define REL_TIME_SECS_LEN	(1+10+1+9+1)
@@ -643,20 +575,13 @@ rel_time_to_str(nstime_t *rel_time)
 gchar *
 rel_time_to_secs_str(nstime_t *rel_time)
 {
-        static gchar *cur;
-        static char str[3][REL_TIME_SECS_LEN];
+        gchar *buf;
 
-        if (cur == &str[0][0]) {
-                cur = &str[1][0];
-        } else if (cur == &str[1][0]) {
-                cur = &str[2][0];
-        } else {
-                cur = &str[0][0];
-        }
+	buf=ep_alloc(REL_TIME_SECS_LEN);
 
-        display_signed_time(cur, REL_TIME_SECS_LEN, rel_time->secs,
+        display_signed_time(buf, REL_TIME_SECS_LEN, rel_time->secs,
             rel_time->nsecs, NSECS);
-        return cur;
+        return buf;
 }
 
 
@@ -686,10 +611,12 @@ fcwwn_to_str (const guint8 *ad)
 {
     int fmt;
     guint8 oui[6];
-    static gchar ethstr[512];
-    
+    gchar *ethstr;
+
     if (ad == NULL) return NULL;
     
+    ethstr=ep_alloc(512);    
+
     fmt = (ad[0] & 0xF0) >> 4;
 
     switch (fmt) {
@@ -774,9 +701,10 @@ const char *
 decode_boolean_bitfield(guint32 val, guint32 mask, int width,
     const char *truedesc, const char *falsedesc)
 {
-  static char buf[1025];
+  char *buf;
   char *p;
 
+  buf=ep_alloc(1025); /* is this a bit overkill? */
   p = decode_bitfield_value(buf, val, mask, width);
   if (val & mask)
     strcpy(p, truedesc);
@@ -791,10 +719,11 @@ const char *
 decode_numeric_bitfield(guint32 val, guint32 mask, int width,
     const char *fmt)
 {
-  static char buf[1025];
+  char *buf;
   char *p;
   int shift = 0;
 
+  buf=ep_alloc(1025); /* isnt this a bit overkill? */
   /* Compute the number of bits we have to shift the bitfield right
      to extract its value. */
   while ((mask & (1<<shift)) == 0)
@@ -821,17 +750,11 @@ decode_numeric_bitfield(guint32 val, guint32 mask, int width,
 gchar*	
 address_to_str(const address *addr)
 {
-  static int i=0;
-  static gchar *strp, str[16][256];
+  gchar *str;
 
-  i++;
-  if(i>=16){
-    i=0;
-  }
-  strp=str[i];
-
-  address_to_str_buf(addr, strp);
-  return strp;
+  str=ep_alloc(256);
+  address_to_str_buf(addr, str);
+  return str;
 }
 
 void
@@ -892,12 +815,10 @@ address_to_str_buf(const address *addr, gchar *buf)
 }
 
 gchar* oid_to_str(const guint8 *oid, gint oid_len) {
-  /* static buffer */
-  static int cnt = 0;
-  static gchar strbuf[8][MAX_OID_STR_LEN];
+  gchar *buf;
 
-  cnt = (cnt + 1) % 8;
-  return oid_to_str_buf(oid, oid_len, strbuf[cnt]);
+  buf=ep_alloc(MAX_OID_STR_LEN);
+  return oid_to_str_buf(oid, oid_len, buf);
 }
 
 gchar* oid_to_str_buf(const guint8 *oid, gint oid_len, gchar *buf) {
@@ -930,12 +851,10 @@ gchar* oid_to_str_buf(const guint8 *oid, gint oid_len, gchar *buf) {
 }
 
 gchar* guid_to_str(const guint8 *guid) {
-  /* static buffer */
-  static int cnt = 0;
-  static gchar strbuf[8][GUID_STR_LEN];
+  gchar *buf;
 
-  cnt = (cnt + 1) % 8;
-  return guid_to_str_buf(guid, strbuf[cnt]);
+  buf=ep_alloc(GUID_STR_LEN);
+  return guid_to_str_buf(guid, buf);
 }
 
 gchar* guid_to_str_buf(const guint8 *guid, gchar *buf) {
