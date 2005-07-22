@@ -49,7 +49,7 @@
 #define BSSGP_MOBILE_IDENTITY_TYPE_NO_IDENTITY 0
 #define BSSGP_SEP ", "
 #define BSSGP_NOT_DECODED "< Not decoded yet >"
-#define BSSGP_UNKNOWN -1
+#define BSSGP_UNKNOWN (-1)
 static int bssgp_decode_nri = 0;
 static guint bssgp_nri_length = 4;
 
@@ -463,7 +463,7 @@ get_bit_field_label(guint16 value, guint16 value_mask, guint16 num_bits) {
 
   DISSECTOR_ASSERT(num_bits <= MAX_NUM_BITS);
   for (i = 0; i < num_bits; i++) {
-    bit_mask = (guint16)pow(2, i);
+    bit_mask = 1 << i;
     if (value_mask & bit_mask) {
       label[num_bits - 1 - i] = (value & bit_mask) ? '1' : '0';
     }
@@ -634,7 +634,7 @@ translate_abqp_reliability_class(guint8 value, build_info_t *bi) {
     return "Reserved";
   default:
     return "Unacknowledged GTP and LLC; Acknowledged RLC, Protected data"; 
-  };
+  }
 }
 static char*
 translate_abqp_delay_class(guint8 value, build_info_t *bi) {
@@ -653,7 +653,7 @@ translate_abqp_delay_class(guint8 value, build_info_t *bi) {
   case 7: return "Reserved";
   default:
     return "Delay class 4 (best effort)";
-  };
+  }
 }
 static char*
 translate_abqp_peak_throughput(guint8 value, build_info_t *bi) {
@@ -677,7 +677,7 @@ translate_abqp_peak_throughput(guint8 value, build_info_t *bi) {
   case 15: return "Reserved";
   default:
     return "Up to 1 000 octets/s";
-  };
+  }
 }
 static char*
 translate_abqp_precedence_class(guint8 value, build_info_t *bi) {
@@ -695,7 +695,7 @@ translate_abqp_precedence_class(guint8 value, build_info_t *bi) {
   case 7: return "Reserved";
   default:
     return "Normal priority";
-  };
+  }
 }
 static char*
 translate_abqp_mean_throughput(guint8 value, build_info_t *bi) {
@@ -729,7 +729,7 @@ translate_abqp_mean_throughput(guint8 value, build_info_t *bi) {
   case 0x1f: return "Best effort";
   default:
     return "Best effort";
-  };
+  }
 }
 static char*
 translate_abqp_traffic_class(guint8 value, build_info_t *bi) {
@@ -755,8 +755,7 @@ translate_abqp_traffic_class(guint8 value, build_info_t *bi) {
       /* The network shall map all other values not explicitly defined onto one of the values defined in this version of the protocol. The network shall return a negotiated value which is explicitly defined in this version of the protocol */
       return "Error";
     }
-
-  };
+  }
 }
 static char*
 translate_abqp_delivery_order(guint8 value, build_info_t *bi) {
@@ -773,7 +772,7 @@ translate_abqp_delivery_order(guint8 value, build_info_t *bi) {
   case 3: return "Reserved";
   default:
     return "Error in BSSGP dissector";
-  };
+  }
 }
 static char*
 translate_abqp_delivery_of_erroneous_sdu(guint8 value, build_info_t *bi) {
@@ -798,7 +797,7 @@ translate_abqp_delivery_of_erroneous_sdu(guint8 value, build_info_t *bi) {
       /* The network shall map all other values not explicitly defined onto one of the values defined in this version of the protocol. The network shall return a negotiated value which is explicitly defined in this version of the protocol */
       return "Error";
     }
-  };
+  }
 }
 static char*
 translate_abqp_max_sdu_size(guint8 value, build_info_t *bi) {
@@ -848,7 +847,7 @@ translate_abqp_max_bit_rate_for_ul(guint8 value, build_info_t *bi) {
     else {
       return "Reserved";
     }
-  };
+  }
   if ((value >= 1) && (value <= 0x3f)) {
     g_snprintf(result, BSSGP_TRANSLATION_MAX_LEN, "%u kbps", value);
     return result;
@@ -889,7 +888,7 @@ translate_abqp_residual_ber(guint8 value, build_info_t *bi) {
   case 8: return "1*10^-6";
   case 9: return "6*10^-8";
   case 15: return "Reserved";
-  };
+  }
   if (bi->ul_data) {
     /* The MS shall consider all other values as reserved */
     return "Reserved";
@@ -918,7 +917,7 @@ translate_abqp_sdu_error_ratio(guint8 value, build_info_t *bi) {
   case 6: return "1*10^-6";
   case 7: return "1*10^-1";
   case 15: return "Reserved";
-  };
+  }
   if (bi->ul_data) {
     /* The MS shall consider all other values as reserved */
     return "Reserved";
@@ -1051,7 +1050,7 @@ translate_msrac_access_technology_type(guint8 value) {
 static const char*
 translate_msrac_dtm_gprs_multislot_class(guint8 value) {
  static const value_string tab_values[] = {
-    { 0, "Unused, interpreted as ""Multislot class 5 supported""" },
+    { 0, "Unused, interpreted as \"Multislot class 5 supported\"" },
     { 1, "Multislot class 5 supported" },
     { 2, "Multislot class 9 supported" },
     { 3, "Multislot class 11 supported" },
@@ -1273,6 +1272,8 @@ decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
     /* Otherwise "Reserved" */
   };
 
+  digits_str[0] = '\0'; /* conceivably num_digits below could be zero */
+
   if (bi->bssgp_tree) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     tf = proto_item_add_subtree(ti, ett_bssgp_mobile_identity);
@@ -1371,7 +1372,7 @@ decode_mobile_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
     break;
   default:
     ;    
-  };
+  }
 #undef MAX_NUM_IMSI_DIGITS
 }
 
@@ -1833,7 +1834,7 @@ decode_iei_drx_parameters(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset)
   }
   else {
     switch (value) {
-    case 0: cycle_value = 704;
+    case 0: cycle_value = 704; break;
     case 65: cycle_value = 71; break;
     case 66: cycle_value = 72; break;
     case 67: cycle_value = 74; break;
@@ -2861,7 +2862,7 @@ decode_iei_lsa_identifier_list(bssgp_ie_t *ie, build_info_t *bi, int ie_start_of
 
   num_lsa_ids = (ie->value_length - 1) / 3;
 
-  for (i = 0; i < num_lsa_ids; i++); {
+  for (i = 0; i < num_lsa_ids; i++) {
     proto_tree_add_lsa_id(bi, tf);
   }
 }
@@ -2914,7 +2915,7 @@ decode_iei_lsa_information(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset
 
   num_lsa_infos = (ie->value_length - 1) / 4;
 
-  for (i = 0; i < num_lsa_infos; i++); {
+  for (i = 0; i < num_lsa_infos; i++) {
     ti2 = proto_tree_add_text(tf, bi->tvb, bi->offset, 4, 
 			      "LSA Identification and attributes %u", i + 1);
     tf2 = proto_item_add_subtree(ti2, ett_bssgp_lsa_information_lsa_identification_and_attributes);
@@ -3325,7 +3326,7 @@ decode_iei_lcs_qos(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
     value = get_masked_guint8(data, MASK_ACCURACY);
     pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_ACCURACY);
     proto_item_append_text(pi, "Horizontal Accuracy: %.1f m", 
-			   10 * (pow(1.1, value) - 1));
+			   10 * (pow(1.1, (double)value) - 1));
   }
   bi->offset++;
 
@@ -3340,7 +3341,7 @@ decode_iei_lcs_qos(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
     value = get_masked_guint8(data, MASK_ACCURACY);
     pi = proto_tree_add_bitfield8(tf, bi->tvb, bi->offset, MASK_ACCURACY);
     proto_item_append_text(pi, "Vertical Accuracy: %.1f m", 
-			   45 * (pow(1.025, value) - 1));
+			   45 * (pow(1.025, (double)value) - 1));
   }
   bi->offset++;
 
@@ -3407,7 +3408,8 @@ decode_iei_lcs_client_type(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset
     case 3: proto_item_append_text(pi, "Anonymous statistics"); break;
     case 4: proto_item_append_text(pi, "Target MS service support node"); break;
     default: proto_item_append_text(pi, "Reserved"); break;
-    };
+    }
+    break;
   case 3:
   case 4:
     if (subtype == 0) {
@@ -3418,7 +3420,7 @@ decode_iei_lcs_client_type(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset
     }
   default: /* Not category == 1! */
     proto_item_append_text(pi, "Reserved"); break;
-  };
+  }
 
   bi->offset++;
 }
@@ -3652,7 +3654,7 @@ decode_iei_positioning_data(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offse
       else {
 	proto_item_set_text(pi, "Reserved for network specific positioning methods");
       }
-    };
+    }
     proto_item_append_text(pi, " (%#02x)", value); /* Method */
     
     value = get_masked_guint8(data, MASK_USAGE);
@@ -4116,6 +4118,7 @@ decode_ie(bssgp_ie_t *ie, build_info_t *bi) {
     break;
   case BSSGP_IE_FORMAT_V:
     ie->value_length = ie->total_length;
+    break;
   default:
     ;
   }
