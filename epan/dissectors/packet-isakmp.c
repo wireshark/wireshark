@@ -1845,6 +1845,7 @@ exchtype2str(int isakmp_version, guint8 type)
     { 34,	"IKE_SA_INIT" },
     { 35,	"IKE_AUTH " },
     { 36,	"CREATE_CHILD_SA" },
+    { 37,	"INFORMATIONAL" },
     { 0,	NULL },
   };
 
