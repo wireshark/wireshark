@@ -183,6 +183,7 @@ dtbl_entry_get_handle
 dtbl_entry_get_initial_handle
 EBCDIC_to_ASCII
 EBCDIC_to_ASCII1
+ep_init_chunk
 epan_cleanup
 epan_dissect_fill_in_columns
 epan_dissect_free
