@@ -48,13 +48,14 @@ struct ieee80211_radiotap_header {
 				 * it_version, it_pad,
 				 * it_len, and data fields.
 				 */
-    guint32   it_present;       /* A bitmap telling which
-				 * fields are present. Set bit 31
-				 * (0x80000000) to extend the
-				 * bitmap by another 32 bits.
-				 * Additional extensions are made
-				 * by setting bit 31.
-				 */
+#define MAX_PRESENT 1
+    guint32   it_present[MAX_PRESENT];	/* A bitmap telling which
+					 * fields are present. Set bit 31
+					 * (0x80000000) to extend the
+					 * bitmap by another 32 bits.
+					 * Additional extensions are made
+					 * by setting bit 31.
+					 */
 };
 
 enum ieee80211_radiotap_type {
@@ -125,7 +126,9 @@ enum ieee80211_radiotap_type {
 static int proto_radiotap = -1;
 
 static int hf_radiotap_version = -1;
+static int hf_radiotap_pad = -1;
 static int hf_radiotap_length = -1;
+static int hf_radiotap_present1 = -1;
 static int hf_radiotap_mactime = -1;
 static int hf_radiotap_channel_frequency = -1;
 static int hf_radiotap_channel_flags = -1;
@@ -137,6 +140,7 @@ static int hf_radiotap_txpower = -1;
 static int hf_radiotap_preamble = -1;
 
 static gint ett_radiotap = -1;
+static gint ett_radiotap_present = -1;
 
 static dissector_handle_t ieee80211_handle;
 
@@ -187,10 +191,16 @@ proto_register_radiotap(void)
   static hf_register_info hf[] = {
     { &hf_radiotap_version,
       { "Header revision", "radiotap.version",
-	FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
+	FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL } },
+    { &hf_radiotap_pad,
+      { "Header pad", "radiotap.pad",
+	FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_radiotap_length,
        { "Header length", "radiotap.length",
-	 FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
+	 FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL } },
+    { &hf_radiotap_present1,
+       { "Present elements", "radiotap.present",
+	 FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL } },
 
     { &hf_radiotap_preamble,
       { "Preamble", "radiotap.flags.preamble",
@@ -204,7 +214,7 @@ proto_register_radiotap(void)
 	FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_radiotap_channel_flags,
       { "Channel type", "radiotap.channel.flags",
-	FT_UINT32, BASE_HEX, VALS(phy_type), 0x0, "", HFILL } },
+	FT_UINT16, BASE_HEX, VALS(phy_type), 0x0, "", HFILL } },
     { &hf_radiotap_datarate,
       { "Data rate", "radiotap.datarate",
 	FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
@@ -222,7 +232,8 @@ proto_register_radiotap(void)
 	FT_INT32, BASE_DEC, NULL, 0x0, "", HFILL } },
   };
   static gint *ett[] = {
-    &ett_radiotap
+    &ett_radiotap,
+    &ett_radiotap_present
   };
 
   proto_radiotap = proto_register_protocol("IEEE 802.11 Radiotap Capture header", "802.11 Radiotap", "radiotap");
@@ -268,9 +279,10 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #define BITNO_2(x) (((x) & 2) ? 1 : 0)
 #define BIT(n)	(1 << n)
     proto_tree *radiotap_tree = NULL;
+    proto_tree *pt, *present_tree;
     proto_item *ti;
     int offset;
-    guint32 version;
+    guint32 version, pad;
     guint32 length;
     guint32 rate, freq, flags;
     guint32 present, next_present;
@@ -283,20 +295,34 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset = 0;
 
     version = tvb_get_guint8(tvb, offset);
+    pad = tvb_get_guint8(tvb, offset+1);
     length = tvb_get_letohs(tvb, offset+2);
     present = tvb_get_letohl(tvb, offset+4);
-    offset+=sizeof(struct ieee80211_radiotap_header);
 
     if(check_col(pinfo->cinfo, COL_INFO))
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Radiotap Capture v%x, Length %u",
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Radiotap Capture v%u, Length %u",
 		version, length);
 
     /* Dissect the packet */
     if (tree) {
 	ti = proto_tree_add_protocol_format(tree, proto_radiotap,
-	      tvb, 0, length, "Radiotap Header");
+	    tvb, 0, length, "Radiotap Header v%u, Length %u", version, length);
 	radiotap_tree = proto_item_add_subtree(ti, ett_radiotap);
+	proto_tree_add_uint(radiotap_tree, hf_radiotap_version,
+	    tvb, offset, 1, version);
+	proto_tree_add_uint(radiotap_tree, hf_radiotap_pad,
+	    tvb, offset + 1, 1, pad);
+	proto_tree_add_uint(radiotap_tree, hf_radiotap_length,
+	    tvb, offset + 2, 2, length);
+	pt = proto_tree_add_uint_format(radiotap_tree, hf_radiotap_present1,
+	    tvb, offset + 4, 4, present, "Present flags (0x%08x)", present);
+	present_tree = proto_item_add_subtree(pt, ett_radiotap_present);
     }
+    /*
+     * FIXME: This only works if there is exactly 1 it_present
+     *        field in the header
+     */
+    offset += sizeof(struct ieee80211_radiotap_header);
 
     for (; present; present = next_present) {
 	/* clear the least significant bit that is set */
