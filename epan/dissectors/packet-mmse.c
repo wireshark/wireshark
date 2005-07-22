@@ -48,6 +48,7 @@
 #include "packet-wap.h"
 #include "packet-wsp.h"
 /* #include "packet-mmse.h" */		/* We autoregister	*/
+#include <epan/emem.h>
 
 #define	MM_QUOTE		0x7F	/* Quoted string	*/
 
@@ -472,9 +473,9 @@ get_text_string(tvbuff_t *tvb, guint offset, char **strval)
     len = tvb_strsize(tvb, offset);
     DebugLog((" [1] tvb_strsize(tvb, offset) == %u\n", len));
     if (tvb_get_guint8(tvb, offset) == MM_QUOTE)
-	*strval = (char *)tvb_memdup(tvb, offset + 1, len - 1);
+	*strval = (char *)tvb_memcpy(tvb, ep_alloc(len-1), offset+1, len-1);
     else
-	*strval = (char *)tvb_memdup(tvb, offset, len);
+	*strval = (char *)tvb_memcpy(tvb, ep_alloc(len), offset, len);
     DebugLog((" [3] Return(len) == %u\n", len));
     return len;
 }
@@ -771,7 +772,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			proto_tree_add_string(mmse_tree, hf_mmse_transaction_id,
 				tvb, offset - 1, length + 1,strval);
 		    }
-		    g_free(strval);
 		    offset += length;
 		    break;
 		case MM_VERSION_HDR:		/* nibble-Major/nibble-minor*/
@@ -796,7 +796,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			proto_tree_add_string(mmse_tree, hf_mmse_bcc, tvb,
 				offset - 1, length + 1, strval);
 		    }
-		    g_free(strval);
 		    offset += length;
 		    break;
 		case MM_CC_HDR:			/* Encoded-string-value	*/
@@ -805,7 +804,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			proto_tree_add_string(mmse_tree, hf_mmse_cc, tvb,
 				offset - 1, length + 1, strval);
 		    }
-		    g_free(strval);
 		    offset += length;
 		    break;
 		case MM_CLOCATION_HDR:		/* Uri-value		*/
@@ -834,7 +832,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 				    hf_mmse_content_location,
 				    tvb, offset - 1, length + 1, strval);
 			}
-			g_free(strval);
 		    }
 		    offset += length;
 		    break;
@@ -938,7 +935,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 						      &strval);
 			    proto_tree_add_string(mmse_tree, hf_mmse_from, tvb,
 				    offset-1, length + count + 1, strval);
-			    g_free(strval);
 			}
 		    }
 		    offset += length + count;
@@ -963,7 +959,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 				    tvb, offset - 1, length + 1,
 				    strval);
 			}
-			g_free(strval);
 			offset += length;
 		    }
 		    break;
@@ -973,7 +968,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			proto_tree_add_string(mmse_tree, hf_mmse_message_id,
 				tvb, offset - 1, length + 1, strval);
 		    }
-		    g_free(strval);
 		    offset += length;
 		    break;
 		case MM_MSIZE_HDR:		/* Long-integer		*/
@@ -1042,7 +1036,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 				    hf_mmse_response_text, tvb, offset - 1,
 				    length + 1, strval);
 			}
-			g_free(strval);
 		    }
 		    offset += length;
 		    break;
@@ -1066,7 +1059,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			proto_tree_add_string(mmse_tree, hf_mmse_subject, tvb,
 				offset - 1, length + 1, strval);
 		    }
-		    g_free(strval);
 		    offset += length;
 		    break;
 		case MM_TO_HDR:			/* Encoded-string-value	*/
@@ -1075,7 +1067,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			proto_tree_add_string(mmse_tree, hf_mmse_to, tvb,
 				offset - 1, length + 1, strval);
 		    }
-		    g_free(strval);
 		    offset += length;
 		    break;
 
@@ -1115,7 +1106,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 				    hf_mmse_retrieve_text, tvb, offset - 1,
 				    length + 1, strval);
 			}
-			g_free(strval);
 		    }
 		    offset += length;
 		    break;
@@ -1148,7 +1138,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 				hf_mmse_reply_charging_id,
 				tvb, offset - 1, length + 1, strval);
 		    }
-		    g_free(strval);
 		    offset += length;
 		    break;
 		case MM_REPLY_CHARGING_SIZE_HDR:	/* Long-integer */
@@ -1188,7 +1177,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			proto_tree_add_string(subtree,
 				hf_mmse_prev_sent_by_address,
 				tvb, offset + count + count1, count2, strval);
-			g_free(strval);
 		    }
 		    offset += length + count;
 		    break;
@@ -1257,7 +1245,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 					hdr_name,
 					format_text(strval, strlen(strval)));
 			    }
-			    g_free(strval);
 			} else { /* General form with length */
 			    if (peek == 0x1F) { /* Value length in guintvar */
 				guint length_len = 0;
@@ -1283,7 +1270,6 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			length = get_text_string(tvb, offset, &strval);
 			DebugLog(("\t\tUndecoded literal header: %s\n",
 				    strval));
-			CLEANUP_PUSH(g_free, strval);
 			length2= get_text_string(tvb, offset+length, &strval2);
 
 			if (tree) {
@@ -1296,9 +1282,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 				    format_text(strval, strlen(strval)),
 				    format_text(strval2, strlen(strval2)));
 			}
-			g_free(strval2);
 			offset += length + length2;
-			CLEANUP_CALL_AND_POP;
 		    }
 		    break;
 	    }
