@@ -84,10 +84,10 @@ static gboolean airopeekv9_seek_read(wtap *wth, long seek_off,
     int *err, gchar **err_info);
 static void airopeekv9_close(wtap *wth);
 
-static int wtap_file_read_pattern (wtap *wth, char *pattern, int *err)
+static int wtap_file_read_pattern (wtap *wth, const char *pattern, int *err)
 {
     int c;
-    char *cp;
+    const char *cp;
 
     cp = pattern;
     while (*cp)
@@ -119,7 +119,7 @@ static int wtap_file_read_pattern (wtap *wth, char *pattern, int *err)
 
 
 static int wtap_file_read_till_separator (wtap *wth, char *buffer, int buflen,
-					char *separators, int *err)
+					const char *separators, int *err)
 {
     int c;
     char *cp;

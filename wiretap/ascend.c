@@ -62,8 +62,8 @@
 #define ASCEND_MAX_SEEK 100000
 
 typedef struct _ascend_magic_string {
-  guint    type;
-  gchar   *strptr; 
+  guint        type;
+  const gchar   *strptr; 
 } ascend_magic_string;
 
 #define ASCEND_MAGIC_STRINGS	11
@@ -106,8 +106,8 @@ static long ascend_seek(wtap *wth, int max_seek, int *err)
   while (((byte = file_getc(wth->fh)) != EOF) && bytes_read < max_seek) {
 
     for (string_i = 0; string_i < ASCEND_MAGIC_STRINGS; string_i++) {
-      gchar *strptr = ascend_magic[string_i].strptr;
-      guint len     = strlen(strptr);
+      const gchar *strptr = ascend_magic[string_i].strptr;
+      guint len           = strlen(strptr);
       
       if (byte == *(strptr + string_level[string_i])) {
         string_level[string_i]++;

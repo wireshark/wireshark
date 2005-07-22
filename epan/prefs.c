@@ -77,27 +77,27 @@ static int mgcp_udp_port_count;
 
 e_prefs prefs;
 
-static gchar	*gui_ptree_line_style_text[] =
+static const gchar	*gui_ptree_line_style_text[] =
 	{ "NONE", "SOLID", "DOTTED", "TABBED", NULL };
 
-static gchar	*gui_ptree_expander_style_text[] =
+static const gchar	*gui_ptree_expander_style_text[] =
 	{ "NONE", "SQUARE", "TRIANGLE", "CIRCULAR", NULL };
 
-static gchar	*gui_hex_dump_highlight_style_text[] =
+static const gchar	*gui_hex_dump_highlight_style_text[] =
 	{ "BOLD", "INVERSE", NULL };
 
-static gchar	*gui_console_open_text[] =
+static const gchar	*gui_console_open_text[] =
 	{ "NEVER", "AUTOMATIC", "ALWAYS", NULL };
 
-static gchar	*gui_fileopen_style_text[] =
+static const gchar	*gui_fileopen_style_text[] =
 	{ "LAST_OPENED", "SPECIFIED", NULL };
 
 /* GTK knows of two ways representing "both", vertical and horizontal aligned.
  * as this may not work on other guis, we use only "both" in general here */
-static gchar	*gui_toolbar_style_text[] =
+static const gchar	*gui_toolbar_style_text[] =
 	{ "ICONS", "TEXT", "BOTH", NULL };
 
-static gchar	*gui_layout_content_text[] =
+static const gchar	*gui_layout_content_text[] =
 	{ "NONE", "PLIST", "PDETAILS", "PBYTES", NULL };
 
 /*
@@ -916,10 +916,10 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
 {
   int         i;
   int         err;
-  char       *pf_path;
-  FILE       *pf;
-  fmt_data   *cfmt;
-  gchar      *col_fmt[] = {"No.",      "%m", "Time",        "%t",
+  char        *pf_path;
+  FILE        *pf;
+  fmt_data    *cfmt;
+  const gchar *col_fmt[] = {"No.",      "%m", "Time",        "%t",
                            "Source",   "%s", "Destination", "%d",
                            "Protocol", "%p", "Info",        "%i"};
 
@@ -1404,8 +1404,8 @@ prefs_set_pref(char *prefarg)
 #define GREEN_COMPONENT(x) (guint16) (((((x) >>  8) & 0xff) * 65535 / 255))
 #define BLUE_COMPONENT(x)  (guint16) ( (((x)        & 0xff) * 65535 / 255))
 
-static gchar *pr_formats[] = { "text", "postscript" };
-static gchar *pr_dests[]   = { "command", "file" };
+static const gchar *pr_formats[] = { "text", "postscript" };
+static const gchar *pr_dests[]   = { "command", "file" };
 
 typedef struct {
   char    letter;
@@ -1421,7 +1421,7 @@ static name_resolve_opt_t name_resolve_opt[] = {
 
 #define N_NAME_RESOLVE_OPT	(sizeof name_resolve_opt / sizeof name_resolve_opt[0])
 
-static char *
+static const char *
 name_resolve_to_string(guint32 name_resolve)
 {
   static char string[N_NAME_RESOLVE_OPT+1];

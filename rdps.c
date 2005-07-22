@@ -39,7 +39,7 @@ with 2 functions:
 
 #define BUFFER_SIZE 1024
 
-void start_code(FILE *fd, char *func);
+void start_code(FILE *fd, const char *func);
 void write_code(FILE *fd, char *string);
 void end_code(FILE *fd);
 void ps_clean_string(char *out, const char *in,
@@ -125,7 +125,7 @@ int main(int argc, char **argv)
         exit(0);
 }
 
-void start_code(FILE *fd, char *func)
+void start_code(FILE *fd, const char *func)
 {
 	fprintf(fd, "/* Created by rdps.c. Do not edit! */\n");
 	fprintf(fd, "void print_ps_%s(FILE *fd) {\n", func);

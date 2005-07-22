@@ -193,11 +193,11 @@ struct lemon {
   struct symbol **symbols; /* Sorted array of pointers to symbols */
   int errorcnt;            /* Number of errors */
   struct symbol *errsym;   /* The error symbol */
-  char *name;              /* Name of the generated parser */
+  const char *name;        /* Name of the generated parser */
   char *arg;               /* Declaration of the 3th argument to parser */
   char *tokentype;         /* Type of terminal symbols in the parser stack */
   char *start;             /* Name of the start symbol for the grammar */
-  char *stacksize;         /* Size of the parser stack */
+  const char *stacksize;   /* Size of the parser stack */
   char *include;           /* Code to put at the start of the C file */
   int  includeln;          /* Line number for start of include code */
   char *error;             /* Code to execute when an error is seen */
@@ -235,7 +235,7 @@ struct action *Action_sort(struct action *);
 void Action_add(struct action **, enum e_action, struct symbol *, void *);
 
 /********* From the file "assert.h" ************************************/
-void myassert(char *, int);
+void myassert(const char *, int);
 #ifndef NDEBUG
 #  define assert(X) if(!(X))myassert(__FILE__,__LINE__)
 #else
@@ -264,19 +264,19 @@ void Configlist_reset(void);
 
 /********* From the file "error.h" ***************************************/
 #if __GNUC__ >= 2
-void ErrorMsg( char *, int, char *, ... )
+void ErrorMsg( const char *, int, const char *, ... )
   __attribute__((format (printf, 3, 4)));
 #else
-void ErrorMsg( char *, int, char *, ... );
+void ErrorMsg( const char *, int, const char *, ... );
 #endif
 
 /****** From the file "option.h" ******************************************/
 struct s_options {
   enum { OPT_FLAG=1,  OPT_INT,  OPT_DBL,  OPT_STR,
          OPT_FFLAG, OPT_FINT, OPT_FDBL, OPT_FSTR} type;
-  char *label;
+  const char *label;
   char *arg;
-  char *message;
+  const char *message;
 };
 int    optinit(char**,struct s_options*,FILE*);
 int    optnargs(void);
@@ -325,19 +325,19 @@ int SetUnion(char *A,char *B);    /* A <- A U B, thru element N */
 
 /* Routines for handling a strings */
 
-char *Strsafe(char *);
+char *Strsafe(const char *);
 
 void Strsafe_init(void);
 int Strsafe_insert(char *);
-char *Strsafe_find(char *);
+char *Strsafe_find(const char *);
 
 /* Routines for handling symbols of the grammar */
 
-struct symbol *Symbol_new(char *x);
+struct symbol *Symbol_new(const char *x);
 int Symbolcmpp(const void *, const void *);
 void Symbol_init(void);
 int Symbol_insert(struct symbol *, char *);
-struct symbol *Symbol_find(char *);
+struct symbol *Symbol_find(const char *);
 struct symbol *Symbol_Nth(int);
 int Symbol_count(void);
 struct symbol **Symbol_arrayof(void);
@@ -423,7 +423,7 @@ void Action_add(struct action **app, enum e_action type, struct symbol *sp,
 /*
 ** A more efficient way of handling assertions.
 */
-void myassert(char *file, int line)
+void myassert(const char *file, int line)
 {
   fprintf(stderr,"Assertion failed on line %d of file \"%s\"\n",line,file);
   exit(1);
@@ -1102,7 +1102,7 @@ static int findbreak(char *msg, int min, int max)
 #define ERRMSGSIZE  10000 /* Hope this is big enough.  No way to error check */
 #define LINEWIDTH      79 /* Max width of any output line */
 #define PREFIXLIMIT    30 /* Max width of the prefix on each line */
-void ErrorMsg(char *filename, int lineno, char *format, ...)
+void ErrorMsg(const char *filename, int lineno, const char *format, ...)
 {
   char errmsg[ERRMSGSIZE];
   char prefix[PREFIXLIMIT+10];
@@ -2320,7 +2320,7 @@ void Plink_delete(struct plink *plp)
 ** name comes from malloc() and must be freed by the calling
 ** function.
 */
-PRIVATE char *file_makename(char *pattern, char *suffix)
+PRIVATE char *file_makename(char *pattern, const char *suffix)
 {
   char *name;
   char *cp;
@@ -2343,7 +2343,7 @@ PRIVATE char *file_makename(char *pattern, char *suffix)
 ** Space to hold this name comes from malloc() and must be
 ** freed by the calling function.
 */
-PRIVATE char *file_makename_using_basename(struct lemon *lemp, char *suffix)
+PRIVATE char *file_makename_using_basename(struct lemon *lemp, const char *suffix)
 {
 	return file_makename(lemp->basename, suffix);
 }
@@ -2357,7 +2357,7 @@ PRIVATE char *file_makename_using_basename(struct lemon *lemp, char *suffix)
 ** side, we should add another arg to file_open() indicating which
 ** directory, ("input, "output", or "other") we should deal with.
 */
-PRIVATE FILE *file_open(struct lemon *lemp, char *suffix, char *mode)
+PRIVATE FILE *file_open(struct lemon *lemp, const char *suffix, const char *mode)
 {
   FILE *fp;
   char *name;
@@ -2557,7 +2557,7 @@ void ReportOutput(struct lemon *lemp)
 ** the exacutable */
 PRIVATE char *pathsearch(char *argv0, char *name, int modemask)
 {
-  char *pathlist;
+  const char *pathlist;
   char *path,*cp;
   char c;
 
@@ -2620,7 +2620,7 @@ PRIVATE int compute_action(struct lemon *lemp, struct action *ap)
 ** if name!=0, then any word that begin with "Parse" is changed to
 ** begin with *name instead.
 */
-PRIVATE void tplt_xfer(char *name, FILE *in, FILE *out, int *lineno)
+PRIVATE void tplt_xfer(const char *name, FILE *in, FILE *out, int *lineno)
 {
   int i, iStart;
   char line[LINESIZE];
@@ -2844,7 +2844,7 @@ void print_stack_union(
   char *stddt;              /* Standardized name for a datatype */
   int i,j;                  /* Loop counters */
   int hash;                 /* For hashing the name of a type */
-  char *name;               /* Name of the parser */
+  const char *name;         /* Name of the parser */
 
   /* Allocate and initialize types[] and allocate stddt[] */
   arraysize = lemp->nsymbol * 2;
@@ -2944,7 +2944,7 @@ void ReportTable(
   struct rule *rp;
   int i;
   int tablecnt;
-  char *name;
+  const char *name;
 
   in = tplt_open(lemp);
   if( in==0 ) return;
@@ -2967,7 +2967,7 @@ void ReportTable(
 
   /* Generate #defines for all tokens */
   if( mhflag ){
-    char *prefix;
+    const char *prefix;
     fprintf(out,"#if INTERFACE\n"); lineno++;
     if( lemp->tokenprefix ) prefix = lemp->tokenprefix;
     else                    prefix = "";
@@ -3221,7 +3221,7 @@ void ReportTable(
 void ReportHeader(struct lemon *lemp)
 {
   FILE *out, *in;
-  char *prefix;
+  const char *prefix;
   char line[LINESIZE];
   char pattern[LINESIZE];
   int i;
@@ -3362,7 +3362,7 @@ int SetUnion(char *s1, char *s2)
 ** Code for processing tables in the LEMON parser generator.
 */
 
-PRIVATE int strhash(char *x)
+PRIVATE int strhash(const char *x)
 {
   int h = 0;
   while( *x) h = h*13 + *(x++);
@@ -3373,7 +3373,7 @@ PRIVATE int strhash(char *x)
 ** keep strings in a table so that the same string is not in more
 ** than one place.
 */
-char *Strsafe(char *y)
+char *Strsafe(const char *y)
 {
   char *z;
 
@@ -3487,7 +3487,7 @@ int Strsafe_insert(char *data)
 
 /* Return a pointer to data assigned to the given key.  Return NULL
 ** if no such key. */
-char *Strsafe_find(char *key)
+char *Strsafe_find(const char *key)
 {
   int h;
   x1node *np;
@@ -3505,7 +3505,7 @@ char *Strsafe_find(char *key)
 /* Return a pointer to the (terminal or nonterminal) symbol "x".
 ** Create a new symbol if this is the first time "x" has been seen.
 */
-struct symbol *Symbol_new(char *x)
+struct symbol *Symbol_new(const char *x)
 {
   struct symbol *sp;
 
@@ -3653,7 +3653,7 @@ int Symbol_insert(struct symbol *data, char *key)
 
 /* Return a pointer to data assigned to the given key.  Return NULL
 ** if no such key. */
-struct symbol *Symbol_find(char *key)
+struct symbol *Symbol_find(const char *key)
 {
   int h;
   x2node *np;
