@@ -147,24 +147,24 @@
 /* 2 Bytes, message formatting: [First Octet] | [Second Octet] */
 /***************************************************************************/
 /* Octet 1 */
-#define AL_IIN_BMSG        0x0001   /* Bit 0 - Broadcast message rx'd */
-#define AL_IIN_CLS1D       0x0002   /* Bit 1 - Class 1 Data Available */
-#define AL_IIN_CLS2D       0x0004   /* Bit 2 - Class 2 Data Available */
-#define AL_IIN_CLS3D       0x0008   /* Bit 3 - Class 3 Data Available */
-#define AL_IIN_TSR         0x0010   /* Bit 4 - Time Sync Req'd from Master */
-#define AL_IIN_DOL         0x0020   /* Bit 5 - Digital Outputs in Local Mode */
-#define AL_IIN_DT          0x0040   /* Bit 6 - Device Trouble */
-#define AL_IIN_RST         0x0080   /* Bit 7 - Device Restart */
+#define AL_IIN_BMSG        0x0100   /* Bit 0 - Broadcast message rx'd */
+#define AL_IIN_CLS1D       0x0200   /* Bit 1 - Class 1 Data Available */
+#define AL_IIN_CLS2D       0x0400   /* Bit 2 - Class 2 Data Available */
+#define AL_IIN_CLS3D       0x0800   /* Bit 3 - Class 3 Data Available */
+#define AL_IIN_TSR         0x1000   /* Bit 4 - Time Sync Req'd from Master */
+#define AL_IIN_DOL         0x2000   /* Bit 5 - Digital Outputs in Local Mode */
+#define AL_IIN_DT          0x4000   /* Bit 6 - Device Trouble */
+#define AL_IIN_RST         0x8000   /* Bit 7 - Device Restart */
 
 /* Octet 2 */
-                        /* 0x0100      Bit 0 - Reserved */
-#define AL_IIN_OBJU        0x0200   /* Bit 1 - Requested Objects Unknown */
-#define AL_IIN_PIOOR       0x0400   /* Bit 2 - Parameters Invalid or Out of Range */
-#define AL_IIN_EBO         0x0800   /* Bit 3 - Event Buffer Overflow */
-#define AL_IIN_OAE         0x1000   /* Bit 4 - Operation Already Executing */
-#define AL_IIN_CC          0x2000   /* Bit 5 - Device Configuration Corrupt */
-                        /* 0x4000      Bit 6 - Reserved */
-                        /* 0x8000      Bit 7 - Reserved */
+                        /* 0x0001      Bit 0 - Reserved */
+#define AL_IIN_OBJU        0x0002   /* Bit 1 - Requested Objects Unknown */
+#define AL_IIN_PIOOR       0x0004   /* Bit 2 - Parameters Invalid or Out of Range */
+#define AL_IIN_EBO         0x0008   /* Bit 3 - Event Buffer Overflow */
+#define AL_IIN_OAE         0x0010   /* Bit 4 - Operation Already Executing */
+#define AL_IIN_CC          0x0020   /* Bit 5 - Device Configuration Corrupt */
+                        /* 0x0040      Bit 6 - Reserved */
+                        /* 0x0080      Bit 7 - Reserved */
 
 /***************************************************************************/
 /* Application Layer Data Object Qualifier */
@@ -435,6 +435,20 @@ static int hf_dnp3_al_iin_ebo = -1;
 static int hf_dnp3_al_iin_oae = -1;
 static int hf_dnp3_al_iin_cc = -1;
 static int hf_dnp3_al_obj = -1;
+static int hf_dnp3_al_objq_index = -1;
+static int hf_dnp3_al_objq_code = -1;
+static int hf_dnp3_al_range_start8 = -1;
+static int hf_dnp3_al_range_stop8 = -1;
+static int hf_dnp3_al_range_start16 = -1;
+static int hf_dnp3_al_range_stop16 = -1;
+static int hf_dnp3_al_range_start32 = -1;
+static int hf_dnp3_al_range_stop32 = -1;
+static int hf_dnp3_al_range_abs8 = -1;
+static int hf_dnp3_al_range_abs16 = -1;
+static int hf_dnp3_al_range_abs32 = -1;
+static int hf_dnp3_al_range_quant8 = -1;
+static int hf_dnp3_al_range_quant16 = -1;
+static int hf_dnp3_al_range_quant32 = -1;
 /*static int hf_dnp3_al_objq = -1;
   static int hf_dnp3_al_nobj = -1; */
 static int hf_dnp3_al_ptnum = -1;
@@ -746,8 +760,10 @@ static gint ett_fragments = -1;
 /* Added for Application Layer Decoding */
 static gint ett_dnp3_al_iin = -1;
 static gint ett_dnp3_al_obj = -1;
+static gint ett_dnp3_al_obj_qualifier = -1;
+static gint ett_dnp3_al_obj_range = -1;
 static gint ett_dnp3_al_objdet = -1;
-static gint ett_dnp3_al_objqual = -1;
+static gint ett_dnp3_al_obj_quality = -1;
 
 /* Tables for reassembly of fragments. */
 static GHashTable *al_fragment_table = NULL;
@@ -838,81 +854,96 @@ calculateCRC(const void *buf, guint len) {
 }
 
 /*****************************************************************/
+/*  Adds text to item, with trailing "," if required             */
+/*****************************************************************/
+static gboolean
+add_item_text(proto_item *item, gchar *text, gboolean comma_needed)
+{
+  if (comma_needed) {
+    proto_item_append_text(item, ", ");
+  }
+  proto_item_append_text(item, text);
+  return TRUE;
+}
+
+/*****************************************************************/
 /*  Application Layer Process Internal Indications (IIN)         */
 /*****************************************************************/
 static void
 dnp3_al_process_iin(tvbuff_t *tvb, int offset, proto_tree *al_tree)
 {
 
-  guint16       al_iin, al_iindisp;
+  guint16       al_iin;
   proto_item    *tiin;
   proto_tree    *iin_tree = NULL;
+  gboolean      comma_needed = FALSE;
 
-  al_iin = tvb_get_letohs(tvb, offset);
-  al_iindisp = tvb_get_ntohs(tvb, offset);
+  al_iin = tvb_get_ntohs(tvb, offset);
 
-  tiin = proto_tree_add_uint_format(al_tree, hf_dnp3_al_iin, tvb, offset, 2, al_iindisp,
+  tiin = proto_tree_add_uint_format(al_tree, hf_dnp3_al_iin, tvb, offset, 2, al_iin,
         "Internal Indications: ");
-  if (al_iin & AL_IIN_BMSG)  proto_item_append_text(tiin, "Broadcast Message Rx'd, ");
-  if (al_iin & AL_IIN_CLS1D) proto_item_append_text(tiin, "Class 1 Data Available, ");
-  if (al_iin & AL_IIN_CLS2D) proto_item_append_text(tiin, "Class 2 Data Available, ");
-  if (al_iin & AL_IIN_CLS3D) proto_item_append_text(tiin, "Class 3 Data Available, ");
-  if (al_iin & AL_IIN_TSR)   proto_item_append_text(tiin, "Time Sync Required, ");
-  if (al_iin & AL_IIN_DOL)   proto_item_append_text(tiin, "Digital Outputs in Local, ");
-  if (al_iin & AL_IIN_DT)    proto_item_append_text(tiin, "Device Trouble, ");
-  if (al_iin & AL_IIN_RST)   proto_item_append_text(tiin, "Device Restart, ");
-  if (al_iin & AL_IIN_OBJU)  proto_item_append_text(tiin, "Requested Objects Unknown, ");
-  if (al_iin & AL_IIN_PIOOR) proto_item_append_text(tiin, "Parameters Invalid or Out of Range, ");
-  if (al_iin & AL_IIN_EBO)   proto_item_append_text(tiin, "Event Buffer Overflow, ");
-  if (al_iin & AL_IIN_OAE)   proto_item_append_text(tiin, "Operation Already Executing, ");
-  if (al_iin & AL_IIN_CC)    proto_item_append_text(tiin, "Device Configuration Corrupt, ");
-  proto_item_append_text(tiin, "(0x%04x)", al_iindisp);
+  if (al_iin & AL_IIN_RST)    comma_needed = add_item_text(tiin, "Device Restart", comma_needed);
+  if (al_iin & AL_IIN_DOL)    comma_needed = add_item_text(tiin, "Digital Outputs in Local", comma_needed);
+  if (al_iin & AL_IIN_DT)     comma_needed = add_item_text(tiin, "Device Trouble", comma_needed);
+  if (al_iin & AL_IIN_TSR)    comma_needed = add_item_text(tiin, "Time Sync Required", comma_needed);
+  if (al_iin & AL_IIN_CLS3D)  comma_needed = add_item_text(tiin, "Class 3 Data Available", comma_needed);
+  if (al_iin & AL_IIN_CLS2D)  comma_needed = add_item_text(tiin, "Class 2 Data Available", comma_needed);
+  if (al_iin & AL_IIN_CLS1D)  comma_needed = add_item_text(tiin, "Class 1 Data Available", comma_needed);
+  if (al_iin & AL_IIN_BMSG)   comma_needed = add_item_text(tiin, "Broadcast Message Rx'd", comma_needed);
+  if (al_iin & AL_IIN_CC)     comma_needed = add_item_text(tiin, "Device Configuration Corrupt", comma_needed);
+  if (al_iin & AL_IIN_OAE)    comma_needed = add_item_text(tiin, "Operation Already Executing", comma_needed);
+  if (al_iin & AL_IIN_EBO)    comma_needed = add_item_text(tiin, "Event Buffer Overflow", comma_needed);
+  if (al_iin & AL_IIN_PIOOR)  comma_needed = add_item_text(tiin, "Parameters Invalid or Out of Range", comma_needed);
+  if (al_iin & AL_IIN_OBJU)   comma_needed = add_item_text(tiin, "Requested Objects Unknown", comma_needed);
+  proto_item_append_text(tiin, " (0x%04x)", al_iin);
 
   iin_tree = proto_item_add_subtree(tiin, ett_dnp3_al_iin);
-  proto_tree_add_boolean(iin_tree, hf_dnp3_al_iin_bmsg, tvb, offset, 1, al_iin);
-  proto_tree_add_boolean(iin_tree, hf_dnp3_al_iin_cls1d, tvb, offset, 1, al_iin);
-  proto_tree_add_boolean(iin_tree, hf_dnp3_al_iin_cls2d, tvb, offset, 1, al_iin);
-  proto_tree_add_boolean(iin_tree, hf_dnp3_al_iin_cls3d, tvb, offset, 1, al_iin);
-  proto_tree_add_boolean(iin_tree, hf_dnp3_al_iin_tsr, tvb, offset, 1, al_iin);
-  proto_tree_add_boolean(iin_tree, hf_dnp3_al_iin_dol, tvb, offset, 1, al_iin);
-  proto_tree_add_boolean(iin_tree, hf_dnp3_al_iin_dt, tvb, offset, 1, al_iin);
-  proto_tree_add_boolean(iin_tree, hf_dnp3_al_iin_rst, tvb, offset, 1, al_iin);
-  proto_tree_add_boolean(iin_tree, hf_dnp3_al_iin_obju, tvb, (offset+1), 1, al_iin);
-  proto_tree_add_boolean(iin_tree, hf_dnp3_al_iin_pioor, tvb, (offset+1), 1, al_iin);
-  proto_tree_add_boolean(iin_tree, hf_dnp3_al_iin_ebo, tvb, (offset+1), 1, al_iin);
-  proto_tree_add_boolean(iin_tree, hf_dnp3_al_iin_oae, tvb, (offset+1), 1, al_iin);
-  proto_tree_add_boolean(iin_tree, hf_dnp3_al_iin_cc, tvb, (offset+1), 1, al_iin);
-
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_rst, tvb, offset, 2, FALSE);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_dt, tvb, offset, 2, FALSE);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_dol, tvb, offset, 2, FALSE);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_tsr, tvb, offset, 2, FALSE);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_cls3d, tvb, offset, 2, FALSE);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_cls2d, tvb, offset, 2, FALSE);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_cls1d, tvb, offset, 2, FALSE);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_bmsg, tvb, offset, 2, FALSE);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_cc, tvb, offset, 2, FALSE);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_oae, tvb, offset, 2, FALSE);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_ebo, tvb, offset, 2, FALSE);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_pioor, tvb, offset, 2, FALSE);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_obju, tvb, offset, 2, FALSE);
 }
 
 /*****************************************************************/
 /* Function to determine Application Layer Object Index size */
 /*****************************************************************/
-static void
-dnp3_al_obj_procindex(tvbuff_t *tvb, int x, int offset, guint8 al_objq_index, guint32 *al_ptaddr, int *indexbytes)
+static int
+dnp3_al_obj_procindex(tvbuff_t *tvb, int bitindex, int offset, guint8 al_objq_index, guint32 *al_ptaddr)
 {
+  int indexbytes = 0;
+
   switch (al_objq_index)
   {
     case AL_OBJQL_IDX_NI:        /* No Index */
-     if (x > 0)                /* Increment Address by 1 */
+     if (bitindex > 0)           /* Increment Address by 1 */
      {
       *al_ptaddr += 1;
-      *indexbytes = 0;
      }
+    indexbytes = 0;
      break;
     case AL_OBJQL_IDX_1O:
      *al_ptaddr = tvb_get_guint8(tvb, offset);
-     *indexbytes = 1;
+     indexbytes = 1;
      break;
     case AL_OBJQL_IDX_2O:
      *al_ptaddr = tvb_get_letohs(tvb, offset);
-     *indexbytes = 2;
+     indexbytes = 2;
      break;
     case AL_OBJQL_IDX_4O:
      *al_ptaddr = tvb_get_letohl(tvb, offset);
-     *indexbytes = 4;
+     indexbytes = 4;
      break;
   }
+  return indexbytes;
 }
 
 /*****************************************************************/
@@ -924,143 +955,145 @@ dnp3_al_obj_quality(tvbuff_t *tvb, int offset, guint8 al_ptflags, proto_item *t_
 {
 
   proto_tree  *quality_tree = NULL;
-  gboolean    f0,f1,f2,f3,f4,f5,f6,f7;
+  int         hf0 = 0, hf1 = 0, hf2 = 0, hf3 = 0, hf4 = 0, hf5 = 0, hf6 = 0, hf7 = 0;
 
+  proto_item_append_text(t_point, "(Quality: ");
   switch (type) {
     case 0: /* Binary Input Quality flags */
-      f0 = al_ptflags & AL_OBJ_BI_FLAG0;
-      f1 = al_ptflags & AL_OBJ_BI_FLAG1;
-      f2 = al_ptflags & AL_OBJ_BI_FLAG2;
-      f3 = al_ptflags & AL_OBJ_BI_FLAG3;
-      f4 = al_ptflags & AL_OBJ_BI_FLAG4;
-      f5 = al_ptflags & AL_OBJ_BI_FLAG5;
-      f7 = al_ptflags & AL_OBJ_BI_FLAG7;
+      quality_tree = proto_item_add_subtree(t_point, ett_dnp3_al_obj_quality);
 
-      if (f0) { proto_item_append_text(t_point, "Online"); }
-      else {    proto_item_append_text(t_point, "Offline"); }
-      if (f1)   proto_item_append_text(t_point, ", Restart");
-      if (f2)   proto_item_append_text(t_point, ", Comm Fail");
-      if (f3)   proto_item_append_text(t_point, ", Remote Force");
-      if (f4)   proto_item_append_text(t_point, ", Local Force");
-      if (f5)   proto_item_append_text(t_point, ", Chatter Filter");
+      if (al_ptflags & AL_OBJ_BI_FLAG0) {
+        proto_item_append_text(t_point, "Online");
+      }
+      else {
+        proto_item_append_text(t_point, "Offline");
+      }
+      if (al_ptflags & AL_OBJ_BI_FLAG1) proto_item_append_text(t_point, ", Restart");
+      if (al_ptflags & AL_OBJ_BI_FLAG2) proto_item_append_text(t_point, ", Comm Fail");
+      if (al_ptflags & AL_OBJ_BI_FLAG3) proto_item_append_text(t_point, ", Remote Force");
+      if (al_ptflags & AL_OBJ_BI_FLAG4) proto_item_append_text(t_point, ", Local Force");
+      if (al_ptflags & AL_OBJ_BI_FLAG5) proto_item_append_text(t_point, ", Chatter Filter");
 
-      quality_tree = proto_item_add_subtree(t_point, ett_dnp3_al_objqual);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_biq_b0, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_biq_b1, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_biq_b2, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_biq_b3, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_biq_b4, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_biq_b5, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_biq_b6, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_biq_b7, tvb, offset, 1, al_ptflags);
+      hf0 = hf_dnp3_al_biq_b0;
+      hf1 = hf_dnp3_al_biq_b1;
+      hf2 = hf_dnp3_al_biq_b2;
+      hf3 = hf_dnp3_al_biq_b3;
+      hf4 = hf_dnp3_al_biq_b4;
+      hf5 = hf_dnp3_al_biq_b5;
+      hf6 = hf_dnp3_al_biq_b6;
+      hf7 = hf_dnp3_al_biq_b7;
       break;
 
     case 1: /* Binary Output Quality flags */
-      f0 = al_ptflags & AL_OBJ_BO_FLAG0;
-      f1 = al_ptflags & AL_OBJ_BO_FLAG1;
-      f2 = al_ptflags & AL_OBJ_BO_FLAG2;
-      f3 = al_ptflags & AL_OBJ_BO_FLAG3;
-      f4 = al_ptflags & AL_OBJ_BO_FLAG4;
-      f7 = al_ptflags & AL_OBJ_BO_FLAG7;
+      quality_tree = proto_item_add_subtree(t_point, ett_dnp3_al_obj_quality);
 
-      if (f0) { proto_item_append_text(t_point, "Online"); }
-      else {    proto_item_append_text(t_point, "Offline"); }
-      if (f1)   proto_item_append_text(t_point, ", Restart");
-      if (f2)   proto_item_append_text(t_point, ", Comm Fail");
-      if (f3)   proto_item_append_text(t_point, ", Remote Force");
-      if (f4)   proto_item_append_text(t_point, ", Local Force");
+      if (al_ptflags & AL_OBJ_BO_FLAG0) {
+        proto_item_append_text(t_point, "Online");
+      }
+      else {
+        proto_item_append_text(t_point, "Offline");
+      }
+      if (al_ptflags & AL_OBJ_BO_FLAG1) proto_item_append_text(t_point, ", Restart");
+      if (al_ptflags & AL_OBJ_BO_FLAG2) proto_item_append_text(t_point, ", Comm Fail");
+      if (al_ptflags & AL_OBJ_BO_FLAG3) proto_item_append_text(t_point, ", Remote Force");
+      if (al_ptflags & AL_OBJ_BO_FLAG4) proto_item_append_text(t_point, ", Local Force");
 
-      quality_tree = proto_item_add_subtree(t_point, ett_dnp3_al_objqual);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_boq_b0, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_boq_b1, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_boq_b2, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_boq_b3, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_boq_b4, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_boq_b5, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_boq_b6, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_boq_b7, tvb, offset, 1, al_ptflags);
+      hf0 = hf_dnp3_al_boq_b0;
+      hf1 = hf_dnp3_al_boq_b1;
+      hf2 = hf_dnp3_al_boq_b2;
+      hf3 = hf_dnp3_al_boq_b3;
+      hf4 = hf_dnp3_al_boq_b4;
+      hf5 = hf_dnp3_al_boq_b5;
+      hf6 = hf_dnp3_al_boq_b6;
+      hf7 = hf_dnp3_al_boq_b7;
       break;
 
     case 2: /* Counter Quality flags */
-      f0 = al_ptflags & AL_OBJ_CTR_FLAG0;
-      f1 = al_ptflags & AL_OBJ_CTR_FLAG1;
-      f2 = al_ptflags & AL_OBJ_CTR_FLAG2;
-      f3 = al_ptflags & AL_OBJ_CTR_FLAG3;
-      f4 = al_ptflags & AL_OBJ_CTR_FLAG4;
-      f5 = al_ptflags & AL_OBJ_CTR_FLAG5;
+      quality_tree = proto_item_add_subtree(t_point, ett_dnp3_al_obj_quality);
 
-      if (f0) { proto_item_append_text(t_point, "Online"); }
-      else {    proto_item_append_text(t_point, "Offline"); }
-      if (f1)   proto_item_append_text(t_point, ", Restart");
-      if (f2)   proto_item_append_text(t_point, ", Comm Fail");
-      if (f3)   proto_item_append_text(t_point, ", Remote Force");
-      if (f4)   proto_item_append_text(t_point, ", Local Force");
-      if (f5)   proto_item_append_text(t_point, ", Roll-over");
+      if (al_ptflags & AL_OBJ_CTR_FLAG0) {
+        proto_item_append_text(t_point, "Online");
+      }
+      else {
+        proto_item_append_text(t_point, "Offline");
+      }
+      if (al_ptflags & AL_OBJ_CTR_FLAG1) proto_item_append_text(t_point, ", Restart");
+      if (al_ptflags & AL_OBJ_CTR_FLAG2) proto_item_append_text(t_point, ", Comm Fail");
+      if (al_ptflags & AL_OBJ_CTR_FLAG3) proto_item_append_text(t_point, ", Remote Force");
+      if (al_ptflags & AL_OBJ_CTR_FLAG4) proto_item_append_text(t_point, ", Local Force");
+      if (al_ptflags & AL_OBJ_CTR_FLAG5) proto_item_append_text(t_point, ", Roll-over");
 
-      quality_tree = proto_item_add_subtree(t_point, ett_dnp3_al_objqual);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_ctrq_b0, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_ctrq_b1, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_ctrq_b2, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_ctrq_b3, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_ctrq_b4, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_ctrq_b5, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_ctrq_b6, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_ctrq_b7, tvb, offset, 1, al_ptflags);
+      hf0 = hf_dnp3_al_ctrq_b0;
+      hf1 = hf_dnp3_al_ctrq_b1;
+      hf2 = hf_dnp3_al_ctrq_b2;
+      hf3 = hf_dnp3_al_ctrq_b3;
+      hf4 = hf_dnp3_al_ctrq_b4;
+      hf5 = hf_dnp3_al_ctrq_b5;
+      hf6 = hf_dnp3_al_ctrq_b6;
+      hf7 = hf_dnp3_al_ctrq_b7;
       break;
 
     case 3: /* Analog Input Quality flags */
-      f0 = al_ptflags & AL_OBJ_AI_FLAG0;
-      f1 = al_ptflags & AL_OBJ_AI_FLAG1;
-      f2 = al_ptflags & AL_OBJ_AI_FLAG2;
-      f3 = al_ptflags & AL_OBJ_AI_FLAG3;
-      f4 = al_ptflags & AL_OBJ_AI_FLAG4;
-      f5 = al_ptflags & AL_OBJ_AI_FLAG5;
-      f6 = al_ptflags & AL_OBJ_AI_FLAG6;
+      quality_tree = proto_item_add_subtree(t_point, ett_dnp3_al_obj_quality);
 
-      if (f0) { proto_item_append_text(t_point, "Online"); }
-      else {    proto_item_append_text(t_point, "Offline"); }
-      if (f1)   proto_item_append_text(t_point, ", Restart");
-      if (f2)   proto_item_append_text(t_point, ", Comm Fail");
-      if (f3)   proto_item_append_text(t_point, ", Remote Force");
-      if (f4)   proto_item_append_text(t_point, ", Local Force");
-      if (f5)   proto_item_append_text(t_point, ", Over-Range");
-      if (f6)   proto_item_append_text(t_point, ", Reference Check");
+      if (al_ptflags & AL_OBJ_AI_FLAG0) {
+        proto_item_append_text(t_point, "Online");
+      }
+      else {
+        proto_item_append_text(t_point, "Offline");
+      }
+      if (al_ptflags & AL_OBJ_AI_FLAG1) proto_item_append_text(t_point, ", Restart");
+      if (al_ptflags & AL_OBJ_AI_FLAG2) proto_item_append_text(t_point, ", Comm Fail");
+      if (al_ptflags & AL_OBJ_AI_FLAG3) proto_item_append_text(t_point, ", Remote Force");
+      if (al_ptflags & AL_OBJ_AI_FLAG4) proto_item_append_text(t_point, ", Local Force");
+      if (al_ptflags & AL_OBJ_AI_FLAG5) proto_item_append_text(t_point, ", Over-Range");
+      if (al_ptflags & AL_OBJ_AI_FLAG6) proto_item_append_text(t_point, ", Reference Check");
 
-      quality_tree = proto_item_add_subtree(t_point, ett_dnp3_al_objqual);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_aiq_b0, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_aiq_b1, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_aiq_b2, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_aiq_b3, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_aiq_b4, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_aiq_b5, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_aiq_b6, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_aiq_b7, tvb, offset, 1, al_ptflags);
+      hf0 = hf_dnp3_al_aiq_b0;
+      hf1 = hf_dnp3_al_aiq_b1;
+      hf2 = hf_dnp3_al_aiq_b2;
+      hf3 = hf_dnp3_al_aiq_b3;
+      hf4 = hf_dnp3_al_aiq_b4;
+      hf5 = hf_dnp3_al_aiq_b5;
+      hf6 = hf_dnp3_al_aiq_b6;
+      hf7 = hf_dnp3_al_aiq_b7;
       break;
 
     case 4: /* Analog Output Quality flags */
-      f0 = al_ptflags & AL_OBJ_AO_FLAG0;
-      f1 = al_ptflags & AL_OBJ_AO_FLAG1;
-      f2 = al_ptflags & AL_OBJ_AO_FLAG2;
-      f3 = al_ptflags & AL_OBJ_AO_FLAG3;
+      quality_tree = proto_item_add_subtree(t_point, ett_dnp3_al_obj_quality);
 
-      if (f0) { proto_item_append_text(t_point, "Online"); }
-      else {    proto_item_append_text(t_point, "Offline"); }
-      if (f1)   proto_item_append_text(t_point, ", Restart");
-      if (f2)   proto_item_append_text(t_point, ", Comm Fail");
-      if (f3)   proto_item_append_text(t_point, ", Remote Force");
+      if (al_ptflags & AL_OBJ_AO_FLAG0) {
+        proto_item_append_text(t_point, "Online");
+      }
+      else {
+        proto_item_append_text(t_point, "Offline");
+      }
+      if (al_ptflags & AL_OBJ_AO_FLAG1) proto_item_append_text(t_point, ", Restart");
+      if (al_ptflags & AL_OBJ_AO_FLAG2) proto_item_append_text(t_point, ", Comm Fail");
+      if (al_ptflags & AL_OBJ_AO_FLAG3) proto_item_append_text(t_point, ", Remote Force");
 
-      quality_tree = proto_item_add_subtree(t_point, ett_dnp3_al_objqual);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_aoq_b0, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_aoq_b1, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_aoq_b2, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_aoq_b3, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_aoq_b4, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_aoq_b5, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_aoq_b6, tvb, offset, 1, al_ptflags);
-      proto_tree_add_boolean(quality_tree, hf_dnp3_al_aoq_b7, tvb, offset, 1, al_ptflags);
+      hf0 = hf_dnp3_al_aoq_b0;
+      hf1 = hf_dnp3_al_aoq_b1;
+      hf2 = hf_dnp3_al_aoq_b2;
+      hf3 = hf_dnp3_al_aoq_b3;
+      hf4 = hf_dnp3_al_aoq_b4;
+      hf5 = hf_dnp3_al_aoq_b5;
+      hf6 = hf_dnp3_al_aoq_b6;
+      hf7 = hf_dnp3_al_aoq_b7;
       break;
   }
 
+  if (quality_tree != NULL) {
+    proto_tree_add_item(quality_tree, hf7, tvb, offset, 1, TRUE);
+    proto_tree_add_item(quality_tree, hf6, tvb, offset, 1, TRUE);
+    proto_tree_add_item(quality_tree, hf5, tvb, offset, 1, TRUE);
+    proto_tree_add_item(quality_tree, hf4, tvb, offset, 1, TRUE);
+    proto_tree_add_item(quality_tree, hf3, tvb, offset, 1, TRUE);
+    proto_tree_add_item(quality_tree, hf2, tvb, offset, 1, TRUE);
+    proto_tree_add_item(quality_tree, hf1, tvb, offset, 1, TRUE);
+    proto_tree_add_item(quality_tree, hf0, tvb, offset, 1, TRUE);
+  }
+  proto_item_append_text(t_point, ")");
 }
 
 /**********************************************************************/
@@ -1111,93 +1144,117 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree)
 {
 
   guint8        al_objq, al_objq_index, al_objq_code, al_ptflags, al_ctlobj_code,
-                al_ctlobj_code_c, al_ctlobj_code_m, al_ctlobj_code_tc, al_ctlobj_count;
+                al_ctlobj_code_c, al_ctlobj_code_m, al_ctlobj_code_tc, al_ctlobj_count, al_bi_val, bitindex=0;
   guint16       al_obj, temp16=0, al_val16=0, al_ctlobj_stat;
   guint32       al_val32, num_items=0, al_ptaddr=0, al_ctlobj_on, al_ctlobj_off;
   gboolean      al_bit;
   guint         temp_pos;
-  int           rangebytes=0, indexbytes=0, x=0;
-  proto_item    *t_objdet = NULL, *t_point = NULL;
-  proto_tree    *objdet_tree = NULL;
-  const gchar   *object_str, *qual_index_str, *qual_code_str, *ctl_code_str, *ctl_misc_str, *ctl_tc_str, *ctl_status_str;
+  int           rangebytes=0, indexbytes=0;
+  proto_item    *t_objdet = NULL, *t_point = NULL, *qualifier_item = NULL, *range_item = NULL;
+  proto_tree    *objdet_tree = NULL, *qualifier_tree, *range_tree;
+  const gchar   *ctl_code_str, *ctl_misc_str, *ctl_tc_str, *ctl_status_str;
   gchar         buff[25];
 
   /* Application Layer Objects in this Message */
   al_obj = tvb_get_ntohs(tvb, offset);
 
-  /* Object Qualifier */
-  al_objq = tvb_get_guint8(tvb, (offset + 2) );
-  al_objq_index = al_objq & AL_OBJQ_INDEX;
-  al_objq_index = al_objq_index >> 4; /* bit-shift to the right by 4 (x111xxxx -> xxxxx111) */
-  al_objq_code = al_objq & AL_OBJQ_CODE;
-  qual_index_str = val_to_str(al_objq_index, dnp3_al_objq_index_vals, "Unknown Index (0x%02x)");
-  qual_code_str = val_to_str(al_objq_code, dnp3_al_objq_code_vals, "Unknown Code (0x%02x)");
-
-  object_str = val_to_str(al_obj, dnp3_al_obj_vals, "Unknown Object - Abort Decoding...");
-
   /* Create Data Objects Detail Tree */
   t_objdet = proto_tree_add_uint_format(robj_tree, hf_dnp3_al_obj, tvb, offset, 2, al_obj,
-     "Object(s): %s (0x%04x)", object_str, al_obj);
+     "Object(s): %s (0x%04x)", val_to_str(al_obj, dnp3_al_obj_vals, "Unknown Object - Abort Decoding..."), al_obj);
   objdet_tree = proto_item_add_subtree(t_objdet, ett_dnp3_al_obj);
 
   offset += 2;
 
-  proto_tree_add_text(objdet_tree, tvb, offset, 1, "Index Prefixing: %s (%d)", qual_index_str, al_objq_index);
-  proto_tree_add_text(objdet_tree, tvb, offset, 1, "Qualifier Code: %s (%d)", qual_code_str, al_objq_code);
+  /* Object Qualifier */
+  al_objq = tvb_get_guint8(tvb, offset);
+  al_objq_index = al_objq & AL_OBJQ_INDEX;
+  al_objq_index = al_objq_index >> 4; /* bit-shift to the right by 4 (x111xxxx -> xxxxx111) */
+  al_objq_code = al_objq & AL_OBJQ_CODE;
+
+  qualifier_item = proto_tree_add_text(objdet_tree, tvb, offset, 1, "Qualifier Field, Prefix: %s, Code: %s",
+    val_to_str(al_objq_index, dnp3_al_objq_index_vals, "Unknown Index Type"),
+    val_to_str(al_objq_code, dnp3_al_objq_code_vals, "Unknown Code Type"));
+  qualifier_tree = proto_item_add_subtree(qualifier_item, ett_dnp3_al_obj_qualifier);
+  proto_tree_add_item(qualifier_tree, hf_dnp3_al_objq_index, tvb, offset, 1, FALSE);
+  proto_tree_add_item(qualifier_tree, hf_dnp3_al_objq_code, tvb, offset, 1, FALSE);
 
   offset += 1;
+
+  /* Create (possibly synthesized) number of items and range field tree */
+  range_item = proto_tree_add_text(objdet_tree, tvb, offset, 0, "Number of Items: ");
+  range_tree = proto_item_add_subtree(range_item, ett_dnp3_al_obj_range);
 
   switch (al_objq_code)
   {
     case AL_OBJQL_CODE_SSI8:           /* 8-bit Start and Stop Indices in Range Field */
       num_items = ( tvb_get_guint8(tvb, offset+1) - tvb_get_guint8(tvb, offset) + 1);
+      PROTO_ITEM_SET_GENERATED(range_item);
       al_ptaddr = tvb_get_guint8(tvb, offset);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_start8, tvb, offset, 1, TRUE);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_stop8, tvb, offset + 1, 1, TRUE);
       rangebytes = 2;
       break;
     case AL_OBJQL_CODE_SSI16:          /* 16-bit Start and Stop Indices in Range Field */
       num_items = ( tvb_get_letohs(tvb, offset+2) - tvb_get_letohs(tvb, (offset)) + 1);
+      PROTO_ITEM_SET_GENERATED(range_item);
       al_ptaddr = tvb_get_letohs(tvb, offset);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_start16, tvb, offset, 2, TRUE);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_stop16, tvb, offset + 2, 2, TRUE);
       rangebytes = 4;
       break;
     case AL_OBJQL_CODE_SSI32:          /* 32-bit Start and Stop Indices in Range Field */
       num_items = ( tvb_get_letohl(tvb, offset+4) - tvb_get_letohl(tvb, offset) + 1);
+      PROTO_ITEM_SET_GENERATED(range_item);
       al_ptaddr = tvb_get_letohl(tvb, offset);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_start32, tvb, offset, 4, TRUE);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_stop32, tvb, offset + 4, 2, TRUE);
       rangebytes = 8;
       break;
     case AL_OBJQL_CODE_AA8:            /* 8-bit Absolute Address in Range Field */
       num_items = 1;
+      PROTO_ITEM_SET_GENERATED(range_item);
       al_ptaddr = tvb_get_guint8(tvb, offset);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_abs8, tvb, offset, 1, TRUE);
       rangebytes = 1;
       break;
     case AL_OBJQL_CODE_AA16:           /* 16-bit Absolute Address in Range Field */
       num_items = 1;
+      PROTO_ITEM_SET_GENERATED(range_item);
       al_ptaddr = tvb_get_letohs(tvb, offset);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_abs16, tvb, offset, 2, TRUE);
       rangebytes = 2;
       break;
     case AL_OBJQL_CODE_AA32:           /* 32-bit Absolute Address in Range Field */
       num_items = 1;
+      PROTO_ITEM_SET_GENERATED(range_item);
       al_ptaddr = tvb_get_letohl(tvb, offset);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_abs32, tvb, offset, 4, TRUE);
       rangebytes = 4;
       break;
     case AL_OBJQL_CODE_SF8:            /* 8-bit Single Field Quantity in Range Field */
       num_items = tvb_get_guint8(tvb, offset);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_quant8, tvb, offset, 1, TRUE);
       rangebytes = 1;
+      proto_item_set_len(range_item, rangebytes);
       break;
     case AL_OBJQL_CODE_SF16:           /* 16-bit Single Field Quantity in Range Field */
       num_items = tvb_get_letohs(tvb, offset);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_quant16, tvb, offset, 2, TRUE);
       rangebytes = 2;
+      proto_item_set_len(range_item, rangebytes);
       break;
     case AL_OBJQL_CODE_SF32:           /* 32-bit Single Field Quantity in Range Field */
       num_items = tvb_get_letohl(tvb, offset);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_quant32, tvb, offset, 4, TRUE);
       rangebytes = 4;
+      proto_item_set_len(range_item, rangebytes);
       break;
   }
-
-  proto_tree_add_text(objdet_tree, tvb, offset, rangebytes, "Number of Items: %d", num_items);
+  proto_item_append_text(range_item, "%d", num_items);
 
   offset += rangebytes;
 
-  x = 0; /* Temp variable for cycling through points when object values are encoded into
+  bitindex = 0; /* Temp variable for cycling through points when object values are encoded into
             bits; primarily objects 0x0101 & 0x1001 */
 
   for (temp16 = 0; temp16 < num_items; temp16++)
@@ -1212,27 +1269,26 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree)
       case AL_OBJ_AI_ALL:      /* Analog Input All Var (Obj:30, Var:All) */
       case AL_OBJ_AIC_ALL:     /* Analog Input Change All Var (Obj:32 Var:All) */
 
-        dnp3_al_obj_procindex(tvb, x, offset, al_objq_index, &al_ptaddr, &indexbytes);
+        indexbytes = dnp3_al_obj_procindex(tvb, bitindex, offset, al_objq_index, &al_ptaddr);
         offset += indexbytes;
         break;
 
       case AL_OBJ_BI_1BIT:    /* Single-Bit Binary Input (Obj:01, Var:01) */
       case AL_OBJ_BO:         /* Binary Output (Obj:10, Var:01) */
 
-        if ((x >= 0) && (x <= 7))
+        if (bitindex <= 7)
         {
-          al_val16 = tvb_get_guint8(tvb, offset);
+          al_bi_val = tvb_get_guint8(tvb, offset);
         }
-        else if (x > 7)
+        else /* bitindex > 7 */
         {
           offset += 1;
-          al_val16 = tvb_get_guint8(tvb, offset);
-          x = 0;
+          al_bi_val = tvb_get_guint8(tvb, offset);
+          bitindex = 0;
         }
-	/* XXX what about al_val16?    it might be uninitialized here */
 
-        al_bit = al_val16 & (1 << x); /* Mask out unused bits in this octet  */
-        al_bit = al_bit >> x;         /* Move remaining bit to bit0 position */
+        /* Extract the bit from the packed byte */
+        al_bit = (al_bi_val & (1 << bitindex)) > 0;
 
         proto_tree_add_uint_format(objdet_tree, hf_dnp3_al_ptnum, tvb, offset, 1, al_ptaddr,
            "Point Number %d, Value: %d", al_ptaddr, al_bit);
@@ -1251,20 +1307,20 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree)
 
         /* Get Point Flags */
         al_ptflags = tvb_get_guint8(tvb, offset);
-        al_bit = (al_ptflags & AL_OBJ_BI_FLAG7) >> 7; /* bit shift 1xxxxxxx -> xxxxxxx1 */
+        al_bit = (al_ptflags & AL_OBJ_BI_FLAG7) > 0;
 
         switch (al_obj) {
           case AL_OBJ_BI_STAT:
             t_point = proto_tree_add_uint_format(objdet_tree, hf_dnp3_al_ptnum, tvb, offset, 1, al_ptaddr,
-               "Point Number %d (Quality: ", al_ptaddr);
+               "Point Number %d ", al_ptaddr);
             dnp3_al_obj_quality(tvb, offset, al_ptflags, t_point, 0);
-            proto_item_append_text(t_point, "), Value: %d", al_bit);
+            proto_item_append_text(t_point, ", Value: %d", al_bit);
             break;
           case AL_OBJ_BO_STAT:
             t_point = proto_tree_add_uint_format(objdet_tree, hf_dnp3_al_ptnum, tvb, offset, 1, al_ptaddr,
-               "Point Number %d (Quality: ", al_ptaddr);
+               "Point Number %d ", al_ptaddr);
             dnp3_al_obj_quality(tvb, offset, al_ptflags, t_point, 1);
-            proto_item_append_text(t_point, "), Value: %d", al_bit);
+            proto_item_append_text(t_point, ", Value: %d", al_bit);
             break;
         }
 
@@ -1275,7 +1331,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree)
       case AL_OBJ_BIC_TIME:   /* Binary Input Change w/ Time (Obj:02, Var:02)  */
 
         temp_pos = offset;
-        dnp3_al_obj_procindex(tvb, x, offset, al_objq_index, &al_ptaddr, &indexbytes);
+        indexbytes = dnp3_al_obj_procindex(tvb, bitindex, offset, al_objq_index, &al_ptaddr);
         temp_pos += indexbytes;
 
         /* Get Point Flags */
@@ -1285,9 +1341,9 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree)
         al_bit = (al_ptflags & AL_OBJ_BI_FLAG7) >> 7; /* bit shift 1xxxxxxx -> xxxxxxx1 */
 
         t_point = proto_tree_add_uint_format(objdet_tree, hf_dnp3_al_ptnum, tvb, offset, (indexbytes + 7), al_ptaddr,
-          "Point Number %d (Quality: ", al_ptaddr);
+          "Point Number %d ", al_ptaddr);
         dnp3_al_obj_quality(tvb, (offset+indexbytes), al_ptflags, t_point, 0);
-        proto_item_append_text(t_point, "), Value: %d, Timestamp: %s", al_bit, dnp3_al_decode_timestamp(tvb, temp_pos, buff));
+        proto_item_append_text(t_point, ", Value: %d, Timestamp: %s", al_bit, dnp3_al_decode_timestamp(tvb, temp_pos, buff));
 
         offset += (indexbytes + 7);
 
@@ -1297,7 +1353,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree)
 
         /* Process Index */
         temp_pos = offset;
-        dnp3_al_obj_procindex(tvb, x, offset, al_objq_index, &al_ptaddr, &indexbytes);
+        indexbytes = dnp3_al_obj_procindex(tvb, bitindex, offset, al_objq_index, &al_ptaddr);
         temp_pos += indexbytes;
 
         al_ctlobj_code = tvb_get_guint8(tvb, temp_pos);
@@ -1351,7 +1407,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree)
 
         /* Process Index */
         temp_pos = offset;
-        dnp3_al_obj_procindex(tvb, x, offset, al_objq_index, &al_ptaddr, &indexbytes);
+        indexbytes = dnp3_al_obj_procindex(tvb, bitindex, offset, al_objq_index, &al_ptaddr);
         temp_pos += indexbytes;
 
         /* Get Point Flags */
@@ -1366,9 +1422,9 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree)
 
             al_val32 = tvb_get_letohl(tvb, temp_pos);
             t_point = proto_tree_add_uint_format(objdet_tree, hf_dnp3_al_ptnum, tvb, offset, (indexbytes + 5), al_ptaddr,
-               "Point Number %d (Quality: ", al_ptaddr);
+               "Point Number %d ", al_ptaddr);
             dnp3_al_obj_quality(tvb, (offset+indexbytes), al_ptflags, t_point, 2);
-            proto_item_append_text(t_point, "), Value: %d", al_val32);
+            proto_item_append_text(t_point, ", Value: %d", al_val32);
             offset += (indexbytes + 5);
             break;
 
@@ -1378,9 +1434,9 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree)
 
             al_val16 = tvb_get_letohs(tvb, temp_pos);
             t_point = proto_tree_add_uint_format(objdet_tree, hf_dnp3_al_ptnum, tvb, offset, (indexbytes + 3), al_ptaddr,
-               "Point Number %d (Quality: ", al_ptaddr);
+               "Point Number %d ", al_ptaddr);
             dnp3_al_obj_quality(tvb, (offset+indexbytes), al_ptflags, t_point, 2);
-            proto_item_append_text(t_point, "), Value: %d", al_val16);
+            proto_item_append_text(t_point, ", Value: %d", al_val16);
             offset += (indexbytes + 3);
             break;
         }
@@ -1394,7 +1450,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree)
 
         /* Process Index */
         temp_pos = offset;
-        dnp3_al_obj_procindex(tvb, x, offset, al_objq_index, &al_ptaddr, &indexbytes);
+        indexbytes = dnp3_al_obj_procindex(tvb, bitindex, offset, al_objq_index, &al_ptaddr);
         temp_pos += indexbytes;
 
         /* Get Point Flags */
@@ -1408,9 +1464,9 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree)
 
             al_val32 = tvb_get_letohl(tvb, temp_pos);
             t_point = proto_tree_add_uint_format(objdet_tree, hf_dnp3_al_ptnum, tvb, offset, (indexbytes + 5), al_ptaddr,
-              "Point Number %d (Quality: ", al_ptaddr);
+              "Point Number %d ", al_ptaddr);
             dnp3_al_obj_quality(tvb, (offset+indexbytes), al_ptflags, t_point, 3);
-            proto_item_append_text(t_point, "), Value: %d", al_val32);
+            proto_item_append_text(t_point, ", Value: %d", al_val32);
             offset += (indexbytes + 5);
             break;
 
@@ -1419,9 +1475,9 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree)
 
             al_val16 = tvb_get_letohs(tvb, temp_pos);
             t_point = proto_tree_add_uint_format(objdet_tree, hf_dnp3_al_ptnum, tvb, offset, (indexbytes + 3), al_ptaddr,
-              "Point Number %d (Quality: ", al_ptaddr);
+              "Point Number %d ", al_ptaddr);
             dnp3_al_obj_quality(tvb, (offset+indexbytes), al_ptflags, t_point, 3);
-            proto_item_append_text(t_point, "), Value: %d", al_val16);
+            proto_item_append_text(t_point, ", Value: %d", al_val16);
             offset += (indexbytes + 3);
             break;
         }
@@ -1435,7 +1491,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree)
 
         /* Process Index */
         temp_pos = offset;
-        dnp3_al_obj_procindex(tvb, x, offset, al_objq_index, &al_ptaddr, &indexbytes);
+        indexbytes = dnp3_al_obj_procindex(tvb, bitindex, offset, al_objq_index, &al_ptaddr);
         temp_pos += indexbytes;
 
         switch (al_obj)
@@ -1466,7 +1522,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree)
 
         /* Process Index */
         temp_pos = offset;
-        dnp3_al_obj_procindex(tvb, x, offset, al_objq_index, &al_ptaddr, &indexbytes);
+        indexbytes = dnp3_al_obj_procindex(tvb, bitindex, offset, al_objq_index, &al_ptaddr);
         temp_pos += indexbytes;
 
         /* Get Point Flags */
@@ -1480,9 +1536,9 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree)
             al_val32 = tvb_get_letohl(tvb, temp_pos);
             temp_pos += 4;
             t_point = proto_tree_add_uint_format(objdet_tree, hf_dnp3_al_ptnum, tvb, offset, (indexbytes + 11), al_ptaddr,
-              "Point Number %d (Quality: ", al_ptaddr);
+              "Point Number %d ", al_ptaddr);
             dnp3_al_obj_quality(tvb, (offset+indexbytes), al_ptflags, t_point, 3);
-            proto_item_append_text(t_point, "), Value: %d, Timestamp: %s", al_val32, dnp3_al_decode_timestamp(tvb, temp_pos, buff));
+            proto_item_append_text(t_point, ", Value: %d, Timestamp: %s", al_val32, dnp3_al_decode_timestamp(tvb, temp_pos, buff));
             offset += (indexbytes + 11); /* 1byte quality, 4bytes value, 6bytes timestamp */
             break;
 
@@ -1491,9 +1547,9 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree)
             al_val16 = tvb_get_letohs(tvb, temp_pos);
             temp_pos += 2;
             t_point = proto_tree_add_uint_format(objdet_tree, hf_dnp3_al_ptnum, tvb, offset, (indexbytes + 9), al_ptaddr,
-              "Point Number %d (Quality: ", al_ptaddr);
+              "Point Number %d ", al_ptaddr);
             dnp3_al_obj_quality(tvb, (offset+indexbytes), al_ptflags, t_point, 3);
-            proto_item_append_text(t_point, "), Value: %d, Timestamp: %s", al_val16, dnp3_al_decode_timestamp(tvb, temp_pos, buff));
+            proto_item_append_text(t_point, ", Value: %d, Timestamp: %s", al_val16, dnp3_al_decode_timestamp(tvb, temp_pos, buff));
             offset += (indexbytes + 9); /* 1byte quality, 2bytes value, 6bytes timestamp */
             break;
         }
@@ -1504,7 +1560,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree)
 
         /* Process Index */
         temp_pos = offset;
-        dnp3_al_obj_procindex(tvb, x, offset, al_objq_index, &al_ptaddr, &indexbytes);
+        indexbytes = dnp3_al_obj_procindex(tvb, bitindex, offset, al_objq_index, &al_ptaddr);
         temp_pos += indexbytes;
 
         /* Get Point Flags */
@@ -1513,9 +1569,9 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree)
 
         al_val16 = tvb_get_letohs(tvb, temp_pos);
         t_point = proto_tree_add_uint_format(objdet_tree, hf_dnp3_al_ptnum, tvb, offset, (indexbytes + 3), al_ptaddr,
-          "Point Number %d (Quality: ", al_ptaddr);
+          "Point Number %d ", al_ptaddr);
         dnp3_al_obj_quality(tvb, (offset+indexbytes), al_ptflags, t_point, 4);
-        proto_item_append_text(t_point, "), Value: %d", al_val16);
+        proto_item_append_text(t_point, ", Value: %d", al_val16);
 
         offset += (indexbytes + 3);
 
@@ -1541,14 +1597,14 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree)
       case AL_OBJ_CLASS3:
 
         /* Process Index */
-        dnp3_al_obj_procindex(tvb, x, offset, al_objq_index, &al_ptaddr, &indexbytes);
+        indexbytes = dnp3_al_obj_procindex(tvb, bitindex, offset, al_objq_index, &al_ptaddr);
         offset += indexbytes;
         break;
 
       case AL_OBJ_IIN:     /* IIN Data Object */
 
         /* Process Index */
-        dnp3_al_obj_procindex(tvb, x, offset, al_objq_index, &al_ptaddr, &indexbytes);
+        indexbytes = dnp3_al_obj_procindex(tvb, bitindex, offset, al_objq_index, &al_ptaddr);
         offset += indexbytes;
         break;
 
@@ -1560,7 +1616,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree)
         break;
     }
 
-    x += 1;
+    bitindex += 1;
   }
 
   return offset;
@@ -1616,7 +1672,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     proto_tree_add_boolean(field_tree, hf_dnp3_al_fir, tvb, offset, 1, al_ctl);
     proto_tree_add_boolean(field_tree, hf_dnp3_al_fin, tvb, offset, 1, al_ctl);
     proto_tree_add_boolean(field_tree, hf_dnp3_al_con, tvb, offset, 1, al_ctl);
-    proto_tree_add_item(field_tree, hf_dnp3_al_seq, tvb, offset, 1, al_ctl);
+    proto_tree_add_item(field_tree, hf_dnp3_al_seq, tvb, offset, 1, FALSE);
     offset += 1;
 
     /* If this packet is NOT the final Application Layer Message, exit and continue
@@ -1638,7 +1694,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
         /* Create Read Request Data Objects Tree */
         t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "READ Request Data Objects");
-        robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_obj);
+        robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
 
         /* Process Data Object Details */
         while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
@@ -1651,7 +1707,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
         /* Create Write Request Data Objects Tree */
         t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "WRITE Request Data Objects");
-        robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_obj);
+        robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
 
         /* Process Data Object Details */
         while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
@@ -1664,7 +1720,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
         /* Create Select Request Data Objects Tree */
         t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "SELECT Request Data Objects");
-        robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_obj);
+        robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
 
         /* Process Data Object Details */
         while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
@@ -1678,7 +1734,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
         /* Create Operate Request Data Objects Tree */
         t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "OPERATE Request Data Objects");
-        robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_obj);
+        robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
 
         /* Process Data Object Details */
         while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
@@ -1692,7 +1748,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
         /* Create Direct Operate Request Data Objects Tree */
         t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "DIRECT OPERATE Request Data Objects");
-        robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_obj);
+        robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
 
         /* Process Data Object Details */
         while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
@@ -1705,7 +1761,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
         /* Create Enable Spontaneous Messages Data Objects Tree */
         t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "Enable Spontaneous Msg's Data Objects");
-        robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_obj);
+        robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
 
         /* Process Data Object Details */
         while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
@@ -1733,7 +1789,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
         {
           /* Create Response Data Objects Tree */
           t_robj = proto_tree_add_text(al_tree, tvb, offset, -1,"RESPONSE Data Objects");
-          robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_obj);
+          robj_tree = proto_item_add_subtree(t_robj, ett_dnp3_al_objdet);
 
           /* Process Data Object Details */
           while (offset <= (data_len-2)) {  /* 2 octet object code + CRC32 */
@@ -1928,7 +1984,7 @@ dissect_dnp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       tr_tree = proto_item_add_subtree(tc, ett_dnp3_tr_ctl);
       proto_tree_add_boolean(tr_tree, hf_dnp3_tr_fin, tvb, offset, 1, tr_ctl);
       proto_tree_add_boolean(tr_tree, hf_dnp3_tr_fir, tvb, offset, 1, tr_ctl);
-      proto_tree_add_item(tr_tree, hf_dnp3_tr_seq, tvb, offset, 1, tr_ctl);
+      proto_tree_add_item(tr_tree, hf_dnp3_tr_seq, tvb, offset, 1, FALSE);
     }
 
     /* Allocate AL chunk tree */
@@ -2195,6 +2251,48 @@ proto_register_dnp3(void)
     { &hf_dnp3_al_obj,
     { "Object", "dnp3.al.obj", FT_UINT16, BASE_HEX, VALS(dnp3_al_obj_vals), 0x0, "Application Layer Object", HFILL }},
 
+    { &hf_dnp3_al_objq_index,
+    { "Index Prefix", "dnp3.al.objq.index", FT_UINT8, BASE_DEC, VALS(dnp3_al_objq_index_vals), AL_OBJQ_INDEX, "Object Index Prefixing", HFILL }},
+
+    { &hf_dnp3_al_objq_code,
+    { "Qualifier Code", "dnp3.al.objq.code", FT_UINT8, BASE_DEC, VALS(dnp3_al_objq_code_vals), AL_OBJQ_CODE, "Object Qualifier Code", HFILL }},
+
+    { &hf_dnp3_al_range_start8,
+    { "Start", "dnp3.al.range.start8", FT_UINT8, BASE_DEC, NULL, 0x0, "Object Start Index", HFILL }},
+
+    { &hf_dnp3_al_range_stop8,
+    { "Stop", "dnp3.al.range.stop8", FT_UINT8, BASE_DEC, NULL, 0x0, "Object Stop Index", HFILL }},
+
+    { &hf_dnp3_al_range_start16,
+    { "Start", "dnp3.al.range.start16", FT_UINT16, BASE_DEC, NULL, 0x0, "Object Start Index", HFILL }},
+
+    { &hf_dnp3_al_range_stop16,
+    { "Stop", "dnp3.al.range.stop16", FT_UINT16, BASE_DEC, NULL, 0x0, "Object Stop Index", HFILL }},
+
+    { &hf_dnp3_al_range_start32,
+    { "Start", "dnp3.al.range.start32", FT_UINT32, BASE_DEC, NULL, 0x0, "Object Start Index", HFILL }},
+
+    { &hf_dnp3_al_range_stop32,
+    { "Stop", "dnp3.al.range.stop32", FT_UINT32, BASE_DEC, NULL, 0x0, "Object Stop Index", HFILL }},
+
+    { &hf_dnp3_al_range_abs8,
+    { "Address", "dnp3.al.range.abs8", FT_UINT8, BASE_DEC, NULL, 0x0, "Object Absolute Address", HFILL }},
+
+    { &hf_dnp3_al_range_abs16,
+    { "Address", "dnp3.al.range.abs16", FT_UINT16, BASE_DEC, NULL, 0x0, "Object Absolute Address", HFILL }},
+
+    { &hf_dnp3_al_range_abs32,
+    { "Address", "dnp3.al.range.abs32", FT_UINT32, BASE_DEC, NULL, 0x0, "Object Absolute Address", HFILL }},
+
+    { &hf_dnp3_al_range_quant8,
+    { "Quantity", "dnp3.al.range.quant8", FT_UINT8, BASE_DEC, NULL, 0x0, "Object Quantity", HFILL }},
+
+    { &hf_dnp3_al_range_quant16,
+    { "Quantity", "dnp3.al.range.quant16", FT_UINT16, BASE_DEC, NULL, 0x0, "Object Quantity", HFILL }},
+
+    { &hf_dnp3_al_range_quant32,
+    { "Quantity", "dnp3.al.range.quant32", FT_UINT32, BASE_DEC, NULL, 0x0, "Object Quantity", HFILL }},
+
     { &hf_dnp3_al_ptnum,
     { "Object Point Number", "dnp3.al.ptnum", FT_UINT16, BASE_DEC, NULL, 0x0, "Object Point Number", HFILL }},
 
@@ -2269,7 +2367,6 @@ proto_register_dnp3(void)
 
     { &hf_dnp3_al_ctrq_b7,
     { "Reserved", "dnp3.al.ctrq.b7", FT_BOOLEAN, 8, TFS(&flags_set_truth), AL_OBJ_CTR_FLAG7, "", HFILL }},
-
 
     { &hf_dnp3_al_aiq_b0,
     { "Online", "dnp3.al.aiq.b0", FT_BOOLEAN, 8, TFS(&flags_set_truth), AL_OBJ_AI_FLAG0, "", HFILL }},
@@ -2359,8 +2456,10 @@ proto_register_dnp3(void)
     &ett_dnp3_al_ctl,
     &ett_dnp3_al_iin,
     &ett_dnp3_al_obj,
+    &ett_dnp3_al_obj_qualifier,
+    &ett_dnp3_al_obj_range,
     &ett_dnp3_al_objdet,
-    &ett_dnp3_al_objqual,
+    &ett_dnp3_al_obj_quality,
     &ett_fragment,
     &ett_fragments
   };
