@@ -43,4 +43,18 @@ struct _pcre_tuple_t {
 void
 ftype_register(enum ftenum ftype, ftype_t *ft);
 
+/* These are the ftype registration functions that need to be called.
+ * This list and the initialization function could be produced
+ * via a script, like the dissector registration, but there's so few
+ * that I don't mind doing it by hand for now. */
+void ftype_register_bytes(void);
+void ftype_register_double(void);
+void ftype_register_integers(void);
+void ftype_register_ipv4(void);
+void ftype_register_none(void);
+void ftype_register_string(void);
+void ftype_register_time(void);
+void ftype_register_tvbuff(void);
+void ftype_register_pcre(void);
+
 #endif

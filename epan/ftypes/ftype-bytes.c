@@ -47,7 +47,7 @@ bytes_fvalue_new(fvalue_t *fv)
 	fv->value.bytes = NULL;
 }
 
-void
+static void
 bytes_fvalue_free(fvalue_t *fv)
 {
 	if (fv->value.bytes) {

@@ -34,20 +34,6 @@ static ftype_t* type_list[FT_NUM_TYPES];
 /* Space for quickly allocating/de-allocating fvalue_t's */
 SLAB_FREE_LIST_DEFINE(fvalue_t)
 
-/* These are the ftype registration functions that need to be called.
- * This list and the initialization function could be produced
- * via a script, like the dissector registration, but there's so few
- * that I don't mind doing it by hand for now. */
-void ftype_register_bytes(void);
-void ftype_register_double(void);
-void ftype_register_integers(void);
-void ftype_register_ipv4(void);
-void ftype_register_none(void);
-void ftype_register_string(void);
-void ftype_register_time(void);
-void ftype_register_tvbuff(void);
-void ftype_register_pcre(void);
-
 /* Initialize the ftype module. */
 void
 ftypes_initialize(void)
