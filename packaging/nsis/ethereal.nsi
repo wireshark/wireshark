@@ -6,7 +6,8 @@
  
 !ifdef MAKENSIS_MODERN_UI
 ; Set the compression mechanism first
-SetCompressor lzma
+; as of NSIS 2.07, solid compression is no longer default, so set the /SOLID switch (saves ~1MB)
+;SetCompressor /SOLID lzma
 !endif
 
 !ifdef GTK1_DIR & GTK2_DIR
@@ -14,13 +15,15 @@ InstType "Ethereal (GTK2 user interface)"
 InstType "Ethereal (legacy GTK1 user interface)"
 !endif
 
+InstType "un.Default (keep Personal Settings and WinPcap)"
+InstType "un.All (remove all)"
+
 ; Used to refresh the display of file association
 !define SHCNE_ASSOCCHANGED 0x08000000
 !define SHCNF_IDLIST 0
 
 ; Used to add associations between file extensions and Ethereal
 !define ETHEREAL_ASSOC "ethereal-file"
-
 
 ; ============================================================================
 ; Header configuration
@@ -55,6 +58,7 @@ XPStyle on
 ; If you are using a different version, it's not predictable what will happen.
 
 !include "MUI.nsh"
+;!addplugindir ".\Plugins"
 
 !define MUI_ICON "..\..\image\ethereal.ico"
 !define MUI_UNICON "..\..\image\ethereal.ico"
@@ -63,8 +67,8 @@ XPStyle on
 !define MUI_FINISHPAGE_NOAUTOCLOSE
 !define MUI_UNFINISHPAGE_NOAUTOCLOSE
 !define MUI_WELCOMEPAGE_TEXT "This wizard will guide you through the installation of Ethereal.\r\n\r\nBefore starting the installation, make sure Ethereal is not running.\r\n\r\nClick 'Next' to continue."
-!define MUI_FINISHPAGE_LINK "Install WinPcap to be able to capture packets from a network!"
-!define MUI_FINISHPAGE_LINK_LOCATION "http://winpcap.polito.it"
+;!define MUI_FINISHPAGE_LINK "Install WinPcap to be able to capture packets from a network!"
+;!define MUI_FINISHPAGE_LINK_LOCATION "http://www.winpcap.org"
 
 ; NSIS shows Readme files by opening the Readme file with the default application for
 ; the file's extension. "README.win32" won't work in most cases, because extension "win32" 
@@ -73,6 +77,10 @@ XPStyle on
 !define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\NEWS.txt"
 !define MUI_FINISHPAGE_SHOWREADME_TEXT "Show News"
 !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
+!define MUI_FINISHPAGE_RUN "$INSTDIR\ethereal.exe"
+!define MUI_FINISHPAGE_RUN_NOTCHECKED
+
+
 
 !define MUI_PAGE_CUSTOMFUNCTION_SHOW myShowCallback
 
@@ -83,12 +91,15 @@ XPStyle on
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_LICENSE "..\..\COPYING"
 !insertmacro MUI_PAGE_COMPONENTS
+Page custom DisplayAdditionalTasksPage
 !insertmacro MUI_PAGE_DIRECTORY
+Page custom DisplayWinPcapPage
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
  
 !insertmacro MUI_UNPAGE_WELCOME
 !insertmacro MUI_UNPAGE_CONFIRM
+!insertmacro MUI_UNPAGE_COMPONENTS
 !insertmacro MUI_UNPAGE_INSTFILES
 !insertmacro MUI_UNPAGE_FINISH
 
@@ -99,6 +110,17 @@ XPStyle on
 !insertmacro MUI_LANGUAGE "English"
 
 !endif ; MAKENSIS_MODERN_UI
+
+; ============================================================================
+; Reserve Files
+; ============================================================================
+  
+  ;Things that need to be extracted on first (keep these lines before any File command!)
+  ;Only useful for BZIP2 compression
+  
+  ReserveFile "AdditionalTasksPage.ini"
+  ReserveFile "WinPcapPage.ini"
+  !insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
 
 ; ============================================================================
 ; Section macros
@@ -129,6 +151,11 @@ XPStyle on
   Pop $0
 
 !macroend
+
+; ============================================================================
+; Services
+; ============================================================================
+!include "servicelib.nsh"
 
 ; ============================================================================
 ; License page configuration
@@ -163,6 +190,7 @@ InstallDirRegKey HKEY_LOCAL_MACHINE SOFTWARE\Ethereal "InstallDir"
 ; Install page configuration
 ; ============================================================================
 ShowInstDetails show
+ShowUninstDetails show
 
 ; ============================================================================
 ; Functions and macros
@@ -225,9 +253,28 @@ un.unlink.end:
 	pop $R1
 FunctionEnd
 
+Function .onInit
+  ;Extract InstallOptions INI files
+  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "AdditionalTasksPage.ini"  
+  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "WinpcapPage.ini"  
+FunctionEnd
+
+Function DisplayAdditionalTasksPage
+  !insertmacro MUI_HEADER_TEXT "Select Additional Tasks" "Which additional tasks should be done?"
+  !insertmacro MUI_INSTALLOPTIONS_DISPLAY "AdditionalTasksPage.ini"
+FunctionEnd
+
+Function DisplayWinPcapPage
+  !insertmacro MUI_HEADER_TEXT "Install WinPcap?" "WinPcap is required to capture live network data. Should WinPcap be installed?"
+  !insertmacro MUI_INSTALLOPTIONS_DISPLAY "WinPcapPage.ini"
+FunctionEnd
+
 ; ============================================================================
 ; Installation execution commands
 ; ============================================================================
+
+Var WINPCAP_UNINSTALL ;declare variable for holding the value of a registry key
+;Var ETHEREAL_UNINSTALL ;declare variable for holding the value of a registry key
 
 Section "-Required"
 ;-------------------------------------------
@@ -239,6 +286,8 @@ Section "-Required"
 SectionIn 1 2 RO
 !endif
 SetShellVarContext all
+
+
 
 SetOutPath $INSTDIR
 File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll"
@@ -391,9 +440,114 @@ WriteUninstaller "uninstall.exe"
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\ethereal.exe" "" '$INSTDIR\ethereal.exe'
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\ethereal.exe" "Path" '$INSTDIR'
 
-SectionEnd
+; Create start menu entries (depending on additional tasks page)
+ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "State"
+StrCmp $0 "0" SecRequired_skip_StartMenu
+SetOutPath $PROFILE
+CreateDirectory "$SMPROGRAMS\Ethereal"
+; To qoute "http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnwue/html/ch11d.asp":
+; "Do not include Readme, Help, or Uninstall entries on the Programs menu."
+Delete "$SMPROGRAMS\Ethereal\Ethereal Web Site.lnk"
+;WriteINIStr "$SMPROGRAMS\Ethereal\Ethereal Web Site.url" "InternetShortcut" "URL" "http://www.ethereal.com/"
+CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal.lnk" "$INSTDIR\ethereal.exe" "" "$INSTDIR\ethereal.exe" 0 "" "" "The Ethereal Network Protocol Analyzer"
+;CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Manual.lnk" "$INSTDIR\ethereal.html"
+;CreateShortCut "$SMPROGRAMS\Ethereal\Display Filters Manual.lnk" "$INSTDIR\ethereal-filter.html"
+CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Program Directory.lnk" \
+          "$INSTDIR"
+;CreateShortCut "$SMPROGRAMS\Ethereal\Uninstall Ethereal.lnk" "$INSTDIR\uninstall.exe"
+SecRequired_skip_StartMenu:
 
-SectionGroup "Ethereal"
+
+; Create desktop icon (depending on additional tasks page)
+ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "State"
+StrCmp $0 "0" SecRequired_skip_DesktopIcon
+CreateShortCut "$DESKTOP\Ethereal.lnk" "$INSTDIR\ethereal.exe" "" "$INSTDIR\ethereal.exe" 0 "" "" "The Ethereal Network Protocol Analyzer"
+SecRequired_skip_DesktopIcon:
+
+; Create quick launch icon (depending on additional tasks page)
+ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "State"
+StrCmp $0 "0" SecRequired_skip_QuickLaunchIcon
+CreateShortCut "$QUICKLAUNCH\Ethereal.lnk" "$INSTDIR\ethereal.exe" "" "$INSTDIR\ethereal.exe" 0 "" "" "The Ethereal Network Protocol Analyzer"
+SecRequired_skip_QuickLaunchIcon:
+
+; Create File Extensions (depending on additional tasks page)
+ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 6" "State"
+StrCmp $0 "0" SecRequired_skip_FileExtensions
+WriteRegStr HKCR ${ETHEREAL_ASSOC} "" "Ethereal file"
+WriteRegStr HKCR "${ETHEREAL_ASSOC}\Shell\open\command" "" '"$INSTDIR\ethereal.exe" "%1"'
+WriteRegStr HKCR "${ETHEREAL_ASSOC}\DefaultIcon" "" '"$INSTDIR\ethereal.exe",0'
+push $R0
+	StrCpy $R0 ".5vw"
+  	Call Associate
+	StrCpy $R0 ".acp"
+  	Call Associate
+  	StrCpy $R0 ".apc"
+  	Call Associate
+  	StrCpy $R0 ".atc"
+  	Call Associate
+  	StrCpy $R0 ".bfr"
+  	Call Associate
+	StrCpy $R0 ".cap"
+  	Call Associate
+	StrCpy $R0 ".enc"
+  	Call Associate
+  	StrCpy $R0 ".erf"
+  	Call Associate
+  	StrCpy $R0 ".fdc"
+  	Call Associate
+  	StrCpy $R0 ".pcap"
+  	Call Associate
+  	StrCpy $R0 ".pkt"
+  	Call Associate
+  	StrCpy $R0 ".snoop"
+  	Call Associate
+	StrCpy $R0 ".syc"
+  	Call Associate
+  	StrCpy $R0 ".tpc"
+  	Call Associate
+  	StrCpy $R0 ".tr1"
+  	Call Associate
+  	StrCpy $R0 ".trace"
+  	Call Associate
+	StrCpy $R0 ".trc"
+  	Call Associate  	
+  	StrCpy $R0 ".wpc"
+  	Call Associate
+  	StrCpy $R0 ".wpz"
+  	Call Associate
+; if somethings added here, add it also to the uninstall section and the AdditionalTask page
+pop $R0
+!insertmacro UpdateIcons
+SecRequired_skip_FileExtensions:
+
+; Install WinPcap (depending on winpcap page setting)
+ReadINIStr $0 "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State"
+StrCmp $0 "0" SecRequired_skip_Winpcap
+; Uinstall old WinPcap first
+ReadRegStr $WINPCAP_UNINSTALL HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "UninstallString"
+IfErrors lbl_winpcap_notinstalled ;if RegKey is unavailable, WinPcap is not installed
+ExecWait '$WINPCAP_UNINSTALL' $0
+DetailPrint "WinPcap uninstaller returned $0"
+lbl_winpcap_notinstalled:
+SetOutPath $INSTDIR
+File "WinPcap_3_0.exe"
+ExecWait '"$INSTDIR\WinPcap_3_0.exe"' $0
+DetailPrint "WinPcap installer returned $0"
+SecRequired_skip_Winpcap:
+
+; Load Winpcap NPF service at startup (depending on additional tasks page)
+ReadINIStr $0 "$PLUGINSDIR\WinPcapPage.ini" "Field 8" "State"
+StrCmp $0 "0" SecRequired_skip_WinpcapService
+WriteRegDWORD HKEY_LOCAL_MACHINE "SYSTEM\CurrentControlSet\Services\NPF" "Start" 2 ;set NPF to (SERVICE_AUTO_START)
+; we have to tell the installer, we need a reboot!
+;SetRebootFlag true
+!insertmacro SERVICE "start" "NPF" ""
+SecRequired_skip_WinpcapService:
+
+SectionEnd ; "Required"
+
+
+SectionGroup "!Ethereal" SecEtherealGroup
 
 !ifdef GTK1_DIR
 Section "Ethereal GTK1" SecEtherealGTK1
@@ -459,7 +613,7 @@ File "..\..\tethereal.exe"
 File "..\..\doc\tethereal.html"
 SectionEnd
 
-SectionGroup	"Plugins / Extensions"
+SectionGroup "Plugins / Extensions" SecPluginsGroup
 
 Section "Dissector Plugins" SecPlugins
 ;-------------------------------------------
@@ -521,7 +675,7 @@ SectionEnd
 SectionGroupEnd	; "Plugins / Extensions"
 
 
-SectionGroup "Tools"
+SectionGroup "Tools" SecToolsGroup
 
 Section "Editcap" SecEditcap
 ;-------------------------------------------
@@ -566,102 +720,13 @@ SectionEnd
 SectionGroupEnd	; "Tools"
 
 
-SectionGroup	"Icons / Shortcuts"
-
-; SectionDivider
-;-------------------------------------------
-
-Section "Start Menu Shortcuts" SecShortcuts
-;-------------------------------------------
-!ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
-!endif
-SetOutPath $PROFILE
-CreateDirectory "$SMPROGRAMS\Ethereal"
-
-Delete "$SMPROGRAMS\Ethereal\Ethereal Web Site.lnk"
-WriteINIStr "$SMPROGRAMS\Ethereal\Ethereal Web Site.url" \
-          "InternetShortcut" "URL" "http://www.ethereal.com/"
-CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal.lnk" "$INSTDIR\ethereal.exe" "" "$INSTDIR\ethereal.exe" 0 "" "" "The Ethereal Network Protocol Analyzer"
-CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Manual.lnk" "$INSTDIR\ethereal.html"
-CreateShortCut "$SMPROGRAMS\Ethereal\Display Filters Manual.lnk" "$INSTDIR\ethereal-filter.html"
-CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Program Directory.lnk" \
-          "$INSTDIR"
-CreateShortCut "$SMPROGRAMS\Ethereal\Uninstall Ethereal.lnk" "$INSTDIR\uninstall.exe"
-SectionEnd
-
-Section "Desktop Icon" SecDesktopIcon
-;-------------------------------------------
-!ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
-!endif
-CreateShortCut "$DESKTOP\Ethereal.lnk" "$INSTDIR\ethereal.exe" "" "$INSTDIR\ethereal.exe" 0 "" "" "The Ethereal Network Protocol Analyzer"
-SectionEnd
-
-Section "Associate file extensions to Ethereal" SecFileExtensions
-;-------------------------------------------
-!ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
-!endif
-WriteRegStr HKCR ${ETHEREAL_ASSOC} "" "Ethereal file"
-WriteRegStr HKCR "${ETHEREAL_ASSOC}\Shell\open\command" "" '"$INSTDIR\ethereal.exe" "%1"'
-WriteRegStr HKCR "${ETHEREAL_ASSOC}\DefaultIcon" "" '"$INSTDIR\ethereal.exe",0'
-push $R0
-	StrCpy $R0 ".5vw"
-  	Call Associate
-	StrCpy $R0 ".acp"
-  	Call Associate
-  	StrCpy $R0 ".apc"
-  	Call Associate
-  	StrCpy $R0 ".atc"
-  	Call Associate
-  	StrCpy $R0 ".bfr"
-  	Call Associate
-	StrCpy $R0 ".cap"
-  	Call Associate
-	StrCpy $R0 ".enc"
-  	Call Associate
-  	StrCpy $R0 ".erf"
-  	Call Associate
-  	StrCpy $R0 ".fdc"
-  	Call Associate
-  	StrCpy $R0 ".pcap"
-  	Call Associate
-  	StrCpy $R0 ".pkt"
-  	Call Associate
-  	StrCpy $R0 ".snoop"
-  	Call Associate
-	StrCpy $R0 ".syc"
-  	Call Associate
-  	StrCpy $R0 ".tpc"
-  	Call Associate
-  	StrCpy $R0 ".tr1"
-  	Call Associate
-  	StrCpy $R0 ".trace"
-  	Call Associate
-	StrCpy $R0 ".trc"
-  	Call Associate  	
-  	StrCpy $R0 ".wpc"
-  	Call Associate
-  	StrCpy $R0 ".wpz"
-  	Call Associate
-pop $R0
-!insertmacro UpdateIcons
-SectionEnd
-
-SectionGroupEnd	; "Icons / Shortcuts"
-
-Section "Load Winpcap NPF service at startup" SecNPFservice
-;-------------------------------------------
-	WriteRegDWORD HKEY_LOCAL_MACHINE "SYSTEM\CurrentControlSet\Services\NPF" "Start" 2 ;set NPF to (SERVICE_AUTO_START)
-SectionEnd
-
-Section "Uninstall"
+Section "Uninstall" un.SecUinstall
 ;-------------------------------------------
 
 ;
 ; UnInstall for every user
 ;
+SectionIn 1 2
 SetShellVarContext all
 
 Delete "$INSTDIR\tethereal.exe"
@@ -739,8 +804,6 @@ Delete "$INSTDIR\lib\pango\1.2.0\modules\*.*"
 Delete "$INSTDIR\lib\pango\1.4.0\modules\*.*"
 Delete "$INSTDIR\share\themes\Default\gtk-2.0\*.*"
 Delete "$INSTDIR\help\*.*"
-Delete "$INSTDIR\plugins\${VERSION}\*.*"
-Delete "$INSTDIR\plugins\*.*"
 Delete "$INSTDIR\diameter\*.*"
 Delete "$INSTDIR\snmp\mibs\*.*"
 Delete "$INSTDIR\snmp\*.*"
@@ -758,6 +821,7 @@ Delete "$INSTDIR\pcrepattern.3.txt"
 Delete "$INSTDIR\radius\*.*"
 Delete "$SMPROGRAMS\Ethereal\*.*"
 Delete "$DESKTOP\Ethereal.lnk"
+Delete "$QUICKLAUNCH\Ethereal.lnk"
 
 RMDir "$INSTDIR\etc\gtk-2.0"
 RMDir "$INSTDIR\etc\pango"
@@ -783,48 +847,101 @@ RMDir "$INSTDIR\share\themes"
 RMDir "$INSTDIR\share"
 RMDir "$SMPROGRAMS\Ethereal"
 RMDir "$INSTDIR\help"
-RMDir "$INSTDIR\plugins\${VERSION}"
-RMDir "$INSTDIR\plugins"
 RMDir "$INSTDIR\diameter"
 RMDir "$INSTDIR\snmp\mibs"
 RMDir "$INSTDIR\snmp"
 RMDir "$INSTDIR\radius"
 RMDir "$INSTDIR"
 
-IfFileExists "$INSTDIR" 0 NoFinalErrorMsg
-    MessageBox MB_OK "Please note: The directory $INSTDIR could not be removed!" IDOK 0 ; skipped if file doesn't exist
-NoFinalErrorMsg: 
+SectionEnd ; "Uinstall"
 
+Section "Un.Plugins" un.SecPlugins
+;-------------------------------------------
+SectionIn 1 2
+;Delete "$INSTDIR\plugins\${VERSION}\*.*"
+;Delete "$INSTDIR\plugins\*.*"
+;RMDir "$INSTDIR\plugins\${VERSION}"
+;RMDir "$INSTDIR\plugins"
+RMDir /r "$INSTDIR\plugins"
 SectionEnd
+
+Section "Un.Global Settings" un.SecGlobalSettings
+;-------------------------------------------
+SectionIn 1 2
+Delete "$INSTDIR\cfilters"
+Delete "$INSTDIR\colorfilters"
+Delete "$INSTDIR\dfilters"
+RMDir "$INSTDIR"
+SectionEnd
+
+Section /o "Un.Personal Settings" un.SecPersonalSettings
+;-------------------------------------------
+SectionIn 2
+SetShellVarContext current
+Delete "$APPDATA\Ethereal\*.*"
+RMDir "$APPDATA\Ethereal"
+SectionEnd
+
+;VAR un.WINPCAP_UNINSTALL
+
+Section /o "Un.WinPcap" un.SecWinPcap
+;-------------------------------------------
+SectionIn 2
+ReadRegStr $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "UninstallString"
+;IfErrors un.lbl_winpcap_notinstalled ;if RegKey is unavailable, WinPcap is not installed
+;MessageBox MB_OK "WinPcap $1"
+ExecWait '$1' $0
+DetailPrint "WinPcap uninstaller returned $0"
+;SetRebootFlag true
+;un.lbl_winpcap_notinstalled:
+SectionEnd
+
+Section "-Un.Finally"
+;-------------------------------------------
+SectionIn 1 2
+; this test must be done after all other things uninstalled (e.g. Global Settings)
+IfFileExists "$INSTDIR" 0 NoFinalErrorMsg
+    MessageBox MB_OK "Please note: The directory $INSTDIR could not be removed!" IDOK 0 ; skipped if dir doesn't exist
+NoFinalErrorMsg: 
+SectionEnd
+
 
 ; ============================================================================
 ; PLEASE MAKE SURE, THAT THE DESCRIPTIVE TEXT FITS INTO THE DESCRIPTION FIELD!
 ; ============================================================================
 !ifdef MAKENSIS_MODERN_UI
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecEtherealGroup} "${PROGRAM_NAME} is a GUI network protocol analyzer."
 !ifdef GTK1_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecEtherealGTK1} "${PROGRAM_NAME} is a GUI network protocol analyzer."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecEtherealGTK1} "${PROGRAM_NAME} using the classical GTK1 user interface."
 !endif  
 !ifdef GTK2_DIR  
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecEtherealGTK2} "${PROGRAM_NAME} is a GUI network protocol analyzer (using the modern GTK2 GUI toolkit)."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecEtherealGTK2} "${PROGRAM_NAME} using the modern GTK2 user interface."
 !ifdef GTK_WIMP_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecGTKWimp} "GTKWimp is the GTK2 windows impersonator (native Win32 look and feel, for Win2000 and up)."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecGTKWimp} "GTK-Wimp is the GTK2 windows impersonator (native Win32 look and feel, for Win2000 and up)."
 !endif  
 !endif
   !insertmacro MUI_DESCRIPTION_TEXT ${SecTethereal} "Tethereal is a text based network protocol analyzer."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Editcap is a program that reads a capture file and writes some or all of the packets into another capture file."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Text2pcap is a program that reads in an ASCII hex dump and writes the data into a libpcap-style capture file."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Mergecap is a program that combines multiple saved capture files into a single output file."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfos} "Capinfos is a program that provides information on capture files."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecPluginsGroup} "Some plugins and extensions for both Ethereal and Tethereal."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecPlugins} "Plugins with some extended dissections."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecStatsTree} "Plugin for some extended statistics."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMate} "Plugin - Meta Analysis and Tracing Engine (Experimental)."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMIBs} "SNMP MIBs for better SNMP dissection."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecShortcuts} "Start menu shortcuts."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecDesktopIcon} "Ethereal desktop icon."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecFileExtensions} "Associate standard network trace files to ${PROGRAM_NAME}"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecNPFservice} "Start WinPcap's service at startup, so users with restricted privilegies can capture. Requires a reboot."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecToolsGroup} "Additional command line based tools."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Editcap is a program that reads a capture file and writes some or all of the packets into another capture file."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Text2pcap is a program that reads in an ASCII hex dump and writes the data into a libpcap-style capture file."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Mergecap is a program that combines multiple saved capture files into a single output file"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfos} "Capinfos is a program that provides information on capture files."
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
+
+!insertmacro MUI_UNFUNCTION_DESCRIPTION_BEGIN 
+  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecUinstall} "Uninstall all Ethereal components."
+  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPlugins} "Uninstall all Plugins (even from previous Ethereal versions)."
+  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecGlobalSettings} "Uninstall global settings like: $INSTDIR\cfilters"
+  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPersonalSettings} "Uninstall personal settings like your preferences file from your profile: $PROFILE."
+  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecWinPcap} "Call WinPcap's uninstall program."
+!insertmacro MUI_UNFUNCTION_DESCRIPTION_END
+  
 !endif ; MAKENSIS_MODERN_UI
 
 ; ============================================================================
@@ -832,6 +949,7 @@ SectionEnd
 ; ============================================================================
 !ifdef GTK1_DIR & GTK2_DIR
 ;Disable GTK-Wimp for GTK1
+
 Function .onSelChange
 	Push $0
 	SectionGetFlags ${SecEtherealGTK1} $0
@@ -888,10 +1006,32 @@ FunctionEnd
 
 
 !include "GetWindowsVersion.nsh"
+!include WinMessages.nsh
 
 Var NPF_START ;declare variable for holding the value of a registry key
+Var WINPCAP_VERSION ;declare variable for holding the value of a registry key
 
 Function myShowCallback
+
+; Uinstall old Ethereal first
+; XXX - doesn't work, but kept here for further experiments
+;ReadRegStr $ETHEREAL_UNINSTALL HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "UninstallString"
+;IfErrors lbl_ethereal_notinstalled ;if RegKey is unavailable, WinPcap is not installed
+;MessageBox MB_YESNO|MB_ICONQUESTION "Uninstall the old Ethereal version first (recommended)?" 
+; Hide the installer while uninstalling
+;GetDlgItem $0 $HWNDPARENT 1
+;FindWindow $0 "#32770" "" $HWNDPARENT
+;MessageBox MB_OK "Window $0" 
+;ShowWindow $0 ${SW_HIDE}
+;HideWindow
+;ExecWait '$ETHEREAL_UNINSTALL' $0
+;DetailPrint "WinPcap uninstaller returned $0"
+;GetDlgItem $0 $HWNDPARENT 1
+;ShowWindow $0 ${SW_SHOW}
+;MessageBox MB_OK "Uninstalled" 
+;lbl_ethereal_notinstalled:
+
+
 	; Get the Windows version
 	Call GetWindowsVersion
 	Pop $R0 ; Windows Version
@@ -911,16 +1051,47 @@ lbl_select_wimp:
 
 lbl_ignore_wimp:
 !endif
-	;Disable Section SecNPFservice for Win OT and if Winpcap is not installed
+
+	; detect if WinPcap should be installed
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap 3.0"
+	ReadRegStr $WINPCAP_VERSION HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName"
+	IfErrors 0 lbl_winpcap_installed ;if RegKey is available, WinPcap is already installed
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "WinPcap is currently not installed"
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Flags" "DISABLED"
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "(Use Add/Remove Programs first to uninstall any undetected old WinPcap versions)"
+	Goto lbl_winpcap_done
+
+lbl_winpcap_installed:
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "$WINPCAP_VERSION"
+	; starts the version string with "WinPcap 2."?
+	StrCpy $1 "$WINPCAP_VERSION" 10
+	StrCmp $1 "WinPcap 2." 0 lbl_winpcap_3+
+	; WinPcap 2.x 
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "1"
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "The currently installed $WINPCAP_VERSION will be uninstalled first."
+	Goto lbl_winpcap_done
+
+lbl_winpcap_3+:
+	; WinPcap 3.x (or later)
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "0"
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If selected, the currently installed $WINPCAP_VERSION will be uninstalled first."
+lbl_winpcap_done:
+
+	;Disable NPF service setting for Win OT and if Winpcap is not installed
 	StrCmp $R0 '95' lbl_npf_disable
 	StrCmp $R0 '98' lbl_npf_disable
 	StrCmp $R0 'ME' lbl_npf_disable
 	ReadRegDWORD $NPF_START HKEY_LOCAL_MACHINE "SYSTEM\CurrentControlSet\Services\NPF" "Start"
-	IfErrors lbl_npf_disable ;RegKey not available, so do not set it
-	IntCmp $NPF_START 3 lbl_done
+	IfErrors lbl_npf_done ;RegKey not available, so do not set it
+	IntCmp $NPF_START 2 0 lbl_npf_done
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 8" "State" "1"
+	Goto lbl_npf_done
 	;disable
 lbl_npf_disable:
-	!insertmacro DisableSection ${SecNPFservice}
-	
-lbl_done:
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 8" "State" "0"
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 8" "Flags" "DISABLED"
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 9" "Flags" "DISABLED"	
+lbl_npf_done:
+
+
 FunctionEnd

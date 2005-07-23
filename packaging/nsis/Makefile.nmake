@@ -42,7 +42,7 @@ EXE=../../tethereal.exe ../../editcap.exe \
 !IFDEF GTK2_DIR
 	../../ethereal-gtk2.exe \
 !ENDIF
-	../../text2pcap.exe ../../mergecap.exe ../../capinfos.exe
+	../../text2pcap.exe ../../mergecap.exe ../../capinfos.exe WinPcap_3_0.exe
 DLL=../../wiretap/wiretap-$(WTAP_VERSION).dll
 DOC=../../doc/ethereal.html		\
 	../../doc/tethereal.html	\
@@ -89,6 +89,12 @@ PLUGINS=../../plugins/acn/acn.dll \
 	../../plugins/v5ua/v5ua.dll \
 	../../plugins/xml/xml.dll
 
+NSI=ethereal.nsi \
+	GetWindowsVersion.nsh \
+	servicelib.nsh \
+	AdditionalTasksPage.ini \
+	WinPcapPage.ini
+
 DELIVERABLES=$(EXE) $(DLL) $(DOC) $(DOC_dos) $(GPL) $(HELP) $(PLUGINS)
 
 all: NEWS.txt $(DEST)-setup-$(VERSION).exe
@@ -96,7 +102,7 @@ all: NEWS.txt $(DEST)-setup-$(VERSION).exe
 NEWS.txt: ../../NEWS
 	$(UNIX2DOS) < ../../NEWS > NEWS.txt
 
-$(DEST)-setup-$(VERSION).exe : ethereal.nsi $(DELIVERABLES) Makefile.nmake
+$(DEST)-setup-$(VERSION).exe : $(NSI) $(DELIVERABLES) Makefile.nmake
 	$(MAKENSIS) \
 	/DDEST=$(DEST) \
 !IF "$(MAKENSIS_MODERN_UI)" != ""
