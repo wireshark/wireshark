@@ -170,7 +170,7 @@ typedef struct _fvalue_t {
 
 typedef void (*FvalueNewFunc)(fvalue_t*);
 typedef void (*FvalueFreeFunc)(fvalue_t*);
-typedef void (*LogFunc)(char*,...);
+typedef void (*LogFunc)(const char*,...);
 
 typedef gboolean (*FvalueFromUnparsed)(fvalue_t*, char*, gboolean, LogFunc);
 typedef gboolean (*FvalueFromString)(fvalue_t*, char*, LogFunc);
