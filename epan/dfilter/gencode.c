@@ -25,6 +25,7 @@
 #endif
 
 #include "dfilter-int.h"
+#include "gencode.h"
 #include "dfvm.h"
 #include "syntax-tree.h"
 #include "sttype-range.h"

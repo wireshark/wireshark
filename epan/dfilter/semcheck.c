@@ -27,6 +27,7 @@
 #include <string.h>
 
 #include "dfilter-int.h"
+#include "semcheck.h"
 #include "syntax-tree.h"
 #include "sttype-range.h"
 #include "sttype-test.h"
