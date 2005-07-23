@@ -53,7 +53,7 @@ int     df_lex(void);
 static void*	ParserObj = NULL;
 
 void
-dfilter_fail(char *format, ...)
+dfilter_fail(const char *format, ...)
 {
 	va_list	args;
 

@@ -63,7 +63,7 @@ extern stnode_t *df_lval;
 
 /* Set dfilter_error_msg_buf and dfilter_error_msg */
 void
-dfilter_fail(char *format, ...);
+dfilter_fail(const char *format, ...);
 
 void
 DfilterTrace(FILE *TraceFILE, char *zTracePrompt);
