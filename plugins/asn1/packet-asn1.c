@@ -190,13 +190,13 @@ static guint pabbrev_pdu_len;		/* length initial part of fieldname with 'abbrev.
 #define ASN1_EOI 4 /* this is in the class number space... */
 #define ASN1_BEG 2 /* to be merged with constructed flag, first entry in sequence */
 
-static char tag_class[] = "UACPX";
+static const char tag_class[] = "UACPX";
 
-static char *asn1_cls[] = { "Universal", "Application", "Context", "Private" };
+static const char *asn1_cls[] = { "Universal", "Application", "Context", "Private" };
 
-static char *asn1_con[] = { "Primitive", "Constructed" };
+static const char *asn1_con[] = { "Primitive", "Constructed" };
 
-static char *asn1_tag[] = {
+static const char *asn1_tag[] = {
 	/*  0 */ "EOC", 	    "Boolean",        "Integer",          "BitString",
 	/*  4 */ "OctetString",     "Null",           "ObjectIdentifier", "ObjectDescriptor",
 	/*  8 */ "External",        "Real",           "Enumerated",       "tag11",
@@ -266,7 +266,7 @@ static int asn1_uni_type[] = {
 #define TBLTYPE(x) (tbl_types[x&TBL_TYPEmask])
 
 /* text tables for debugging and GUI */
-static char *tbl_types[] = {
+static const char *tbl_types[] = {
 		       /*  0 */	"tbl-boolean",
 		       /*  1 */	"tbl-integer",
 		       /*  2 */	"tbl-bitstring",
@@ -290,7 +290,7 @@ static char *tbl_types[] = {
 
 		       /* 19 */ "tbl-invalid",
 };
-static char *tbl_types_asn1[] = {
+static const char *tbl_types_asn1[] = {
 		       /*  0 */	"BOOLEAN",
 		       /*  1 */	"INTEGER",
 		       /*  2 */	"BITSTRING",
@@ -340,7 +340,7 @@ static guint tbl_types_ethereal[] = {
 		       /* 19 */ FT_NONE,	/* TBL_INVALID */		
 };
 
-static char *tbl_types_ethereal_txt[] = {
+static const char *tbl_types_ethereal_txt[] = {
 		       /*  0 */	"FT_BOOLEAN",	/* TBL_BOOLEAN */
 		       /*  1 */	"FT_UINT32",	/* TBL_INTEGER */
 		       /*  2 */	"FT_UINT32",	/* TBL_BITSTRING */
@@ -368,9 +368,9 @@ static char *tbl_types_ethereal_txt[] = {
 typedef struct _PDUinfo PDUinfo;
 struct _PDUinfo {
 	guint type;
-	char *name;
-	char *typename;
-	char *fullname;
+	const char *name;
+	const char *typename;
+	const char *fullname;
 	guchar tclass;
 	guint tag;
 	guint flags;
@@ -403,9 +403,9 @@ static guint PDUinfo_initflags = 0;	/* default flags for newly allocated PDUinfo
 typedef struct _PDUprops PDUprops;
 struct _PDUprops {
 	guint type;	/* value from enum TBLTypeId */
-	char *name;
-	char *typename;
-	char *fullname;
+	const char *name;
+	const char *typename;
+	const char *fullname;
 	guint flags;
 	gpointer data;
 	gint value_id;
@@ -420,9 +420,9 @@ struct _PDUprops {
 #define OUT_FLAG_constructed 0x20
 
 static PDUprops *getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons);
-static char *getPDUenum(PDUprops *props, guint offset, guint cls, guint tag, guint value);
+static const char *getPDUenum(PDUprops *props, guint offset, guint cls, guint tag, guint value);
 
-static char empty[] = "";		/* address of the empt string, avoids many tests for NULL */
+static const char empty[] = "";		/* address of the empt string, avoids many tests for NULL */
 #define MAX_OTSLEN 256		/* max printed size for an octet string */
 
 
@@ -483,7 +483,7 @@ get_context(guint level)
 /* Convert a bit string to an ascii representation for printing
  * -- not thread safe ...
  */
-static char *showbits(guchar *val, guint count)
+static const char *showbits(guchar *val, guint count)
 {
 	static char str[BUFLM];
 	guint i;
@@ -503,7 +503,7 @@ static char *showbits(guchar *val, guint count)
 }
 
 /* get bitnames string for bits set */
-static char *
+static const char *
 showbitnames(guchar *val, guint count, PDUprops *props, guint offset)
 {
 	static char str[BUFLL];
@@ -557,7 +557,7 @@ showoctets(guchar *octets, guint len, guint hexlen) /* if len <= hexlen, always 
 	guint dohex = 0;
 	guint i;
 	char *str, *p;
-	char *endstr = empty;
+	const char *endstr = empty;
 
 	if (len == 0) {
 		str = g_malloc(1);
@@ -713,7 +713,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   char tagstr[BUFLS];
   char headstr[BUFLL];
   char offstr[BUFLS];
-  char *name, *tname;
+  const char *name, *tname;
   volatile guint boffset;
   volatile int i = 0;		/* PDU counter */
   proto_tree * volatile ti = 0, * volatile ti2 = 0, *asn1_tree, *tree2;
@@ -938,7 +938,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
   ASN1_SCK asn1;
   guint ret, cls, con, tag, def, len, boffset, soffset, eos;
   guint value;
-  char *clsstr, *constr, *tagstr;
+  const char *clsstr, *constr, *tagstr;
   char tagbuf[BUFLM];
   char lenbuf[BUFLM];
   char nnbuf[BUFLS];
@@ -952,7 +952,8 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
   static char textfmt_b[] = "off=%d: [%s %s %s] (%s)%s: %s:%s%s";	/* bit field */
   static char textfmt_c[] = "off=%d: [%s %s %s] (%s)%s%s%s";		/* constructed */
   static char matchind[] = " ~"; /* indication of possible match */
-  char *name, *ename, *tname, *oname;
+  const char *name, *ename, *tname;
+  char *oname;
   PDUprops props;
 
   ti = 0;			/* suppress gcc warning */
@@ -1713,7 +1714,7 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 	guint eos, ret, cls, con, tag, def, len, value;
 	guchar *octets, *bits, unused;
 	subid_t *oid;
-	char *clsstr, *constr, *tagstr;
+	const char *clsstr, *constr, *tagstr;
 	char tagbuf[BUFLM];
 	char lenbuf[BUFLM];
 	GNode *cur_node = 0;
@@ -1927,7 +1928,7 @@ enum _tbl_t {
 };
 typedef enum _tbl_t tbl_t;
 /* text for 'tbl_t' type for debugging */
-static char *data_types[] = {
+static const char *data_types[] = {
 			"Module",
 			"TypeDef",
 			"Tag",
@@ -2368,7 +2369,7 @@ define_module(GNode *p, GNode *q)
 
 typedef struct _SearchDef SearchDef;
 struct _SearchDef {
-	char *key;
+	const char *key;
 	GNode *here;
 };
 
@@ -2506,7 +2507,8 @@ get_values(void)		/* collect values from ASN.1 tree */
 	SearchDef sd;
 	NameDefs nd;
 	guint i;
-	char X, *t, *s, *E;
+	char X;
+	const char *t, *s, *E;
 	static char missing[] = "  **missing**  ";
 
 	if (asn1_verbose) g_message("interpreting tree");
@@ -2625,7 +2627,7 @@ showGNode(GNode *p, int n)
 			break;
 		case TBLTYPE_Type: {
 			TBLType *t = (TBLType *)p->data;
-			char *fn, *s = empty;
+			const char *fn, *s = empty;
 			if (t->fieldName)
 				s = t->fieldName;
 			/* typeId is a value from enum TBLTypeId */
@@ -2636,7 +2638,7 @@ showGNode(GNode *p, int n)
 		        break;
 		case TBLTYPE_Tag: {
 			TBLTag *t = (TBLTag *)p->data;
-			char *s = empty;
+			const char *s = empty;
 			if ((t->tclass == ASN1_UNI) && (t->code < 32))
 				s = asn1_tag[t->code];
 			if (asn1_verbose) g_message("%*stag %c%d[%s]", n, empty,
@@ -2657,7 +2659,7 @@ showGNode(GNode *p, int n)
 			break;
 		case TBLTYPE_TypeRef: {
 			TBLTypeRef *r = (TBLTypeRef *)p->data;
-			char *s = empty;
+			const char *s = empty;
 			if (typeDef_names)
 				s = typeDef_names[r->typeDefId].name;
 			if (asn1_verbose) g_message("%*styperef %d[%s]%s", n, empty,
@@ -3257,7 +3259,7 @@ static void
 PDUtext(char *txt, PDUinfo *info) /* say everything we know about this entry */
 {
 	PDUinfo *rinfo;
-	char *tt, *nn, *tn, *fn, *oo, *ii, *an, *tr, *ty;
+	const char *tt, *nn, *tn, *fn, *oo, *ii, *an, *tr, *ty;
 
 	if (info) {
 		tt = TBLTYPE(info->type);
@@ -3970,7 +3972,7 @@ static struct _statestack {
 	GNode *node;
 	guint type;
 	guint offset;
-	char *name;
+	const char *name;
 } PDUstate[1024];
 static gint PDUstatec = 0;
 
@@ -4000,8 +4002,9 @@ static gint PDUstatec = 0;
 static void
 showstack(statestack *pos, char *txt, int n)
 {
-	char buf[1024], *name, *type, *stype;
-	char *rep, *chs, *done, *ref, *pop, *chr, *rch, *sch, *con;
+	char buf[1024];
+	const char *name, *type, *stype;
+	const char *rep, *chs, *done, *ref, *pop, *chr, *rch, *sch, *con;
 	int i, j;
 	GNode *g;
 	statestack *p;
@@ -4066,7 +4069,7 @@ showstack(statestack *pos, char *txt, int n)
 static void
 showrefNode(GNode *node, int n)
 {
-	char *name = empty, *type = empty, *tname = empty;
+	const char *name = empty, *type = empty, *tname = empty;
 	int cls = 0, tag = 0;
 	PDUinfo *info;
 	GNode *ref = 0;
@@ -4095,7 +4098,7 @@ showrefNode(GNode *node, int n)
 static void
 showNode(GNode *node, int n, int m)
 {
-	char *name = empty, *type = empty;
+	const char *name = empty, *type = empty;
 	GNode *ref = 0;
 
 	if (n > m)
@@ -4194,7 +4197,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 {
 	statestack pos, pos2, save_pos;
 	PDUinfo *info;
-	char *ret, *tmp;
+	const char *ret, *tmp;
 	int typeflags = 0, donext = 0, pushed = 0, cons_handled = 0;
 	static char namestr[64]; /* enough ? */
 	static char posstr[40];
@@ -4750,12 +4753,12 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 	return out;
 }
 
-static char *
+static const char *
 getPDUenum(PDUprops *props, guint offset, guint cls, guint tag, guint value)
 {
 	GNode *list;
 	PDUinfo *info;
-	char *ret, *name;
+	const char *ret, *name;
 	static char unnamed[] = "*unnamed*";
 	
 	(void) cls; (void) tag;		/* make a reference */
@@ -4803,7 +4806,7 @@ getPDUenum(PDUprops *props, guint offset, guint cls, guint tag, guint value)
 /* insert error text in front of spec
  * with a delimeter we can recognize on next attempt
  */
-static void insert_error(gchar *s, int len, gchar *err, guint mark)
+static void insert_error(gchar *s, int len, const gchar *err, guint mark)
 {
 	gchar *news;
 	guint slen;
