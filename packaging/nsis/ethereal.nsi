@@ -7,7 +7,7 @@
 !ifdef MAKENSIS_MODERN_UI
 ; Set the compression mechanism first
 ; as of NSIS 2.07, solid compression is no longer default, so set the /SOLID switch (saves ~1MB)
-;SetCompressor /SOLID lzma
+SetCompressor /SOLID lzma
 !endif
 
 !ifdef GTK1_DIR & GTK2_DIR
