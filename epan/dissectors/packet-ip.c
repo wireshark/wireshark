@@ -71,6 +71,10 @@ static gboolean ip_defragment = FALSE;
 /* Place IP summary in proto tree */
 static gboolean ip_summary_in_tree = TRUE;
 
+/* Decode the end of the ICMP payload as ICMP MPLS extensions
+if the packet in the payload has more than 128 bytes */
+static gboolean favor_icmp_mpls_ext = FALSE;
+
 static int proto_ip = -1;
 static int hf_ip_version = -1;
 static int hf_ip_hdr_len = -1;
@@ -1844,17 +1848,29 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Decode the IP header and first 64 bits of data from the
 	   original datagram. */
 	next_tvb = tvb_new_subset(tvb, 8, -1, -1);
+	
+	/* There is a collision between RFC 1812 and draft-ietf-mpls-icmp-02.
+	We don't know how to decode the 128th and following bytes of the ICMP payload.
+	According to draft-ietf-mpls-icmp-02, these bytes should be decoded as MPLS extensions
+	whereas RFC 1812 tells us to decode them as a portion of the original packet.
+	Let the user decide.
+	
+	Here the user decided to favor MPLS extensions.
+	Force the IP dissector to decode only the first 128 bytes. */
+	if ((tvb_reported_length(tvb) > 8 + 128) &&
+			favor_icmp_mpls_ext && (tvb_get_ntohs(tvb, 8 + 2) > 128))
+		set_actual_length(next_tvb, 128);
+	
 	call_dissector(ip_handle, next_tvb, pinfo, icmp_tree);
 
 	/* Restore the "we're inside an error packet" flag. */
 	pinfo->in_error_pkt = save_in_error_pkt;
 
-	/* MPLS extensions */
-	/* XXX - this doesn't handle ICMP packets with more than
-	   128 bytes of the original datagram, which RFC 1812 doesn't
-	   disallow.  Make whether to handle MPLS extensions a
-	   preference setting? */
-	if (tvb_reported_length(tvb) > 8 + 128)
+	/* Decode MPLS extensions if the payload has at least 128 bytes, and
+		- the original packet in the ICMP payload has less than 128 bytes, or
+		- the user favors the MPLS extensions analysis */
+	if ((tvb_reported_length(tvb) > 8 + 128)
+			&& (tvb_get_ntohs(tvb, 8 + 2) <= 128 || favor_icmp_mpls_ext))
 		dissect_mpls_extensions(tvb, 8 + 128, icmp_tree);
 	
 	break;
@@ -2293,11 +2309,20 @@ proto_register_icmp(void)
 	&ett_icmp_mpls_object,
 	&ett_icmp_mpls_stack_object
   };
-
+  
+  module_t *icmp_module;
+  
   proto_icmp = proto_register_protocol("Internet Control Message Protocol",
 				       "ICMP", "icmp");
   proto_register_field_array(proto_icmp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  
+  icmp_module = prefs_register_protocol(proto_icmp, NULL);
+  
+  prefs_register_bool_preference(icmp_module, "favor_icmp_mpls",
+	    "Favor ICMP extensions for MPLS",
+	    "Whether the 128th and following bytes of the ICMP payload should be decoded as MPLS extensions or as a portion of the original packet",
+	    &favor_icmp_mpls_ext);
 }
 
 void
