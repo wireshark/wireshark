@@ -1039,7 +1039,7 @@ done:
 
 /*
  * NAME:        asn1_err_to_str                             [API]
- * SYNOPSIS:    char *asn1_err_to_str
+ * SYNOPSIS:    const char *asn1_err_to_str
  *                  (
  *                      int     err
  *                  )
@@ -1048,10 +1048,10 @@ done:
  *              err: the error code
  * RETURNS:     string for the error
  */
-char *
+const char *
 asn1_err_to_str(int err)
 {
-    char         *errstr;
+    const char   *errstr;
     char         errstrbuf[14+1+1+11+1+1];	/* "Unknown error (%d)\0" */
 
     switch (err) {

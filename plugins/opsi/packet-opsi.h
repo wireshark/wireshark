@@ -51,11 +51,11 @@
 
 /* Internal structure to dissect attributes */
 typedef struct {
-	guint16 attribute_type;		/* attribute code */
-        char    *tree_text;             /* text for fold out */
-        gint    *tree_id;               /* id for add_item */
-        int*	hf_type_attribute;	/* id for seach option */
-        void    (*dissect)(tvbuff_t *tvb, proto_tree *tree, int* hfValue, int offset, int length);
+	guint16		attribute_type;		/* attribute code */
+        const char	*tree_text;             /* text for fold out */
+        gint		*tree_id;               /* id for add_item */
+        int*		hf_type_attribute;	/* id for seach option */
+        void		(*dissect)(tvbuff_t *tvb, proto_tree *tree, int* hfValue, int offset, int length);
 } opsi_attribute_handle_t;
 
 

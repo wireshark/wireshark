@@ -268,7 +268,7 @@ static int callagent_tcp_port = 0;
 static int callagent_udp_port = 0;
 
 /* Some basic utility functions that are specific to this dissector */
-static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength, gchar **verb_name);
+static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength, const gchar **verb_name);
 static gboolean is_mgcp_rspcode(tvbuff_t *tvb, gint offset, gint maxlength);
 static gint tvb_parse_param(tvbuff_t *tvb, gint offset, gint maxlength, int** hf);
 
@@ -345,7 +345,7 @@ static void dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 num_messages;
 	gint tvb_sectionend,tvb_sectionbegin, tvb_len, tvb_current_len;
 	proto_tree *mgcp_tree, *ti;
-	gchar *verb_name = "";
+	const gchar *verb_name = "";
 
 	/* Initialize variables */
 	tvb_sectionend = 0;
@@ -451,7 +451,7 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	gint sectionlen;
 	gint tvb_sectionend,tvb_sectionbegin, tvb_len, tvb_current_len;
 	tvbuff_t *next_tvb;
-	gchar *verb_name = "";
+	const gchar *verb_name = "";
 
 	/* Initialise stat info for passing to tap */
 	pi_current++;
@@ -950,7 +950,7 @@ void proto_reg_handoff_mgcp(void)
  *
  * Return: TRUE if there is an MGCP verb at offset in tvb, otherwise FALSE
  */
-static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength, gchar **verb_name)
+static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength, const gchar **verb_name)
 {
 	int returnvalue = FALSE;
 	guint8 word[5];
@@ -1321,7 +1321,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	mgcp_call_t *mgcp_call = NULL;
 	nstime_t delta;
 	gint rspcode = 0;
-	gchar *verb_description = "";
+	const gchar *verb_description = "";
 	char code_with_verb[64] = "";  /* To fit "<4-letter-code> (<longest-verb>)" */
 
 	static address null_address = { AT_NONE, 0, NULL };

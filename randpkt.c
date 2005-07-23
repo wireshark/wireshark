@@ -74,12 +74,12 @@ enum {
 };
 
 typedef struct {
-	char	*abbrev;
-	char	*longname;
-	int	produceable_type;
-	guint8	*sample_buffer;
-	int	sample_wtap_encap;
-	int	sample_length;
+	const char	*abbrev;
+	const char	*longname;
+	int		produceable_type;
+	guint8		*sample_buffer;
+	int		sample_wtap_encap;
+	int		sample_length;
 } pkt_example;
 
 /* Ethernet, indicating ARP */

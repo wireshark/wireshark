@@ -46,14 +46,16 @@
 
 /* Given a format number (as defined in packet.h), returns its equivalent
    string */
-gchar *
+const gchar *
 col_format_to_string(gint fmt) {
-  gchar *slist[] = { "%m", "%t", "%Rt", "%At", "%Yt", "%Tt", "%s", "%rs",
-                     "%us","%hs", "%rhs", "%uhs", "%ns", "%rns", "%uns", "%d",
-                     "%rd", "%ud", "%hd", "%rhd", "%uhd", "%nd", "%rnd",
-                     "%und", "%S", "%rS", "%uS", "%D", "%rD", "%uD", "%p",
-                     "%i", "%L", "%B", "%XO", "%XR", "%I", "%c", "%Xs", 
-                     "%Xd", "%V", "%x", "%e", "%H", "%P", "%y" };
+  const gchar *slist[] = {
+	"%m", "%t", "%Rt", "%At", "%Yt", "%Tt", "%s", "%rs",
+	"%us","%hs", "%rhs", "%uhs", "%ns", "%rns", "%uns", "%d",
+	"%rd", "%ud", "%hd", "%rhd", "%uhd", "%nd", "%rnd",
+	"%und", "%S", "%rS", "%uS", "%D", "%rD", "%uD", "%p",
+	"%i", "%L", "%B", "%XO", "%XR", "%I", "%c", "%Xs", 
+	"%Xd", "%V", "%x", "%e", "%H", "%P", "%y"
+};
                      
   if (fmt < 0 || fmt >= NUM_COL_FMTS)
     return NULL;
@@ -63,7 +65,7 @@ col_format_to_string(gint fmt) {
 
 /* Given a format number (as defined in packet.h), returns its
   description */
-static gchar *dlist[NUM_COL_FMTS] = {
+static const gchar *dlist[NUM_COL_FMTS] = {
 	"Number",
 	"Time (format as specified)",
 	"Relative time",
@@ -112,7 +114,7 @@ static gchar *dlist[NUM_COL_FMTS] = {
 	"DCE/RPC call (cn_call_id / dg_seqnum)",
 };
 
-gchar *
+const gchar *
 col_format_desc(gint fmt) {
   g_assert((fmt >= 0) && (fmt < NUM_COL_FMTS));
   return(dlist[fmt]);
@@ -224,7 +226,7 @@ get_column_format_matches(gboolean *fmt_list, gint format) {
    is done, and given that the width for COL...SRC and COL...DST columns
    is somewhat arbitrary in any case.  We should probably clean
    that up eventually, though. */
-char *
+const char *
 get_column_longest_string(gint format)
 {
   switch (format) {

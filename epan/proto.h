@@ -1044,7 +1044,7 @@ extern header_field_info *proto_get_next_protocol_field(void **cookle);
 /** Given a protocol's filter_name.
  @param filter_name the filter name to search for
  @return proto_id */
-extern int proto_get_id_by_filter_name(gchar* filter_name);
+extern int proto_get_id_by_filter_name(const gchar* filter_name);
 
 /** Can item # n decoding be disabled?
  @param proto_id protocol id (0-indexed)

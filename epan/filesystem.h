@@ -119,13 +119,13 @@ gboolean deletefile (const char *path);
  * Return an error message for UNIX-style errno indications on open or
  * create operations.
  */
-char *file_open_error_message(int err, gboolean for_writing);
+const char *file_open_error_message(int err, gboolean for_writing);
 
 /*
  * Return an error message for UNIX-style errno indications on write
  * operations.
  */
-char *file_write_error_message(int err);
+const char *file_write_error_message(int err);
 
 /*
  * Check, if file is existing.

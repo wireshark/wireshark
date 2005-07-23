@@ -33,7 +33,7 @@ extern "C" {
  * Handle the "-G" option, to cause protocol field, etc. information
  * to be printed.
  */
-void handle_dashG_option(int argc, char **argv, char *progname);
+void handle_dashG_option(int argc, char **argv, const char *progname);
 
 int get_natural_int(const char *appname, const char *string, const char *name);
 

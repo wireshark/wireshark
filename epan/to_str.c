@@ -341,7 +341,7 @@ time_secs_to_str_buf(gint32 time, guint32 frac, gboolean is_nsecs,
 {
   static gchar *p;
   int hours, mins, secs;
-  gchar *msign = "";
+  const gchar *msign = "";
   gboolean do_comma = FALSE;
 
   if(time<0){
@@ -497,7 +497,7 @@ void
 display_signed_time(gchar *buf, int buflen, gint32 sec, gint32 frac,
     time_res_t units)
 {
-	char *sign;
+	const char *sign;
 
 	/* If the fractional part of the time stamp is negative,
 	   print its absolute value and, if the seconds part isn't
@@ -533,7 +533,7 @@ rel_time_to_str(nstime_t *rel_time)
 {
 	gchar *buf;
 	char *p;
-	char *sign;
+	const char *sign;
 	gint32 time;
 	gint32 nsec;
 

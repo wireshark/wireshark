@@ -182,7 +182,7 @@ void ParseTrace(FILE *TraceFILE, char *zTracePrompt){
 
 /* For tracing shifts, the names of all terminals and nonterminals
 ** are required.  The following table supplies these names */
-static char *yyTokenName[] = {
+static const char *yyTokenName[] = {
 %%
 };
 #define YYTRACE(X) if( yyTraceFILE ) fprintf(yyTraceFILE,"%sReduce [%s].\n",yyTracePrompt,X);

@@ -277,7 +277,7 @@ static gchar *serv_name_lookup(guint port, port_type proto)
   int hash_idx;
   hashport_t *tp;
   hashport_t **table;
-  char *serv_proto = NULL;
+  const char *serv_proto = NULL;
   struct servent *servp;
 
   switch(proto) {
@@ -524,7 +524,7 @@ static gchar *host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
 
 } /* host_name_lookup6 */
 
-const gchar *solve_address_to_name(address *addr)
+static const gchar *solve_address_to_name(address *addr)
 {
   guint32 ipv4_addr;
   struct e_in6_addr ipv6_addr;

@@ -120,7 +120,7 @@ dissect_rlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	proto_tree *rlm_tree;
 	guint8 rlm_type, version;
-	char *type_str = NULL;
+	const char *type_str = NULL;
 
 	if (pinfo->srcport < 3000 || pinfo->srcport > 3015
 			|| pinfo->destport < 3000 || pinfo->destport > 3015

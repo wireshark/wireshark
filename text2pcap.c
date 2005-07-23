@@ -176,10 +176,10 @@ static guint32 ts_usec = 0;
 static char *ts_fmt = NULL;
 
 /* Input file */
-static char *input_filename;
+static const char *input_filename;
 static FILE *input_file = NULL;
 /* Output file */
-static char *output_filename;
+static const char *output_filename;
 static FILE *output_file = NULL;
 
 /* Offset base to parse */
@@ -330,7 +330,7 @@ static unsigned long pcap_link_type = 1;   /* Default is DLT-EN10MB */
  * Pass in TRUE if this is an offset, FALSE if not
  */
 static unsigned long
-parse_num (char *str, int offset)
+parse_num (const char *str, int offset)
 {
     unsigned long num;
     char *c;
@@ -347,7 +347,7 @@ parse_num (char *str, int offset)
  * Write this byte into current packet
  */
 static void
-write_byte (char *str)
+write_byte (const char *str)
 {
     unsigned long num;
 

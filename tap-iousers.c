@@ -50,7 +50,7 @@
 #include <string.h>
 
 typedef struct _io_users_t {
-	char *type;
+	const char *type;
 	char *filter;
 	struct _io_users_item_t *items;
 } io_users_t;
@@ -582,7 +582,7 @@ void
 iousers_init(char *optarg)
 {
 	char *filter=NULL;
-	char *tap_type, *tap_type_name;
+	const char *tap_type, *tap_type_name;
 	tap_packet_cb packet_func;
 	io_users_t *iu=NULL;
 	GString *error_string;

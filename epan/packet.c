@@ -187,7 +187,7 @@ static GMemChunk *data_source_chunk = NULL;
  * the tvbuff for the data source and its name.
  */
 void
-add_new_data_source(packet_info *pinfo, tvbuff_t *tvb, char *name)
+add_new_data_source(packet_info *pinfo, tvbuff_t *tvb, const char *name)
 {
 	data_source *src;
 
@@ -616,7 +616,7 @@ struct dtbl_entry {
 struct dissector_table {
 	GHashTable	*hash_table;
 	GSList		*dissector_handles;
-	char		*ui_name;
+	const char	*ui_name;
 	ftenum_t	type;
 	int		base;
 };
@@ -906,7 +906,7 @@ find_string_dtbl_entry(dissector_table_t sub_dissectors, const gchar *pattern)
 
 /* Add an entry to a string dissector table. */
 void
-dissector_add_string(const char *name, gchar *pattern,
+dissector_add_string(const char *name, const gchar *pattern,
     dissector_handle_t handle)
 {
 	dissector_table_t sub_dissectors = find_dissector_table( name);
@@ -1369,7 +1369,7 @@ dissector_all_tables_foreach_table (DATFunc_table func,
 }
 
 dissector_table_t
-register_dissector_table(const char *name, char *ui_name, ftenum_t type,
+register_dissector_table(const char *name, const char *ui_name, ftenum_t type,
     int base)
 {
 	dissector_table_t	sub_dissectors;

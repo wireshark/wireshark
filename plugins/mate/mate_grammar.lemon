@@ -94,9 +94,9 @@ typedef struct _gog_statements {
 	LoAL* current_gogkeys;
 } gog_statement_t;
 
-static void configuration_error(mate_config* mc, gchar* fmt, ...) {
+static void configuration_error(mate_config* mc, const gchar* fmt, ...) {
 	static gchar error_buffer[256];
-	gchar* incl;
+	const gchar* incl;
 	gint i;
 	mate_config_frame* current_frame;
 	va_list list;

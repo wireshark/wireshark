@@ -556,7 +556,7 @@ prefs_register_enum_preference(module_t *module, const char *name,
  */
 void
 prefs_register_string_preference(module_t *module, const char *name,
-    const char *title, const char *description, char **var)
+    const char *title, const char *description, const char **var)
 {
 	pref_t *preference;
 

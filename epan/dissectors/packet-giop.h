@@ -118,7 +118,7 @@ extern gboolean dissect_giop(tvbuff_t *, packet_info *, proto_tree *); /* new in
  * This is for heuristic dissection
  */
 
-extern void register_giop_user(giop_sub_dissector_t *sub, gchar *name,
+extern void register_giop_user(giop_sub_dissector_t *sub, const gchar *name,
     int sub_proto);
 
 /*

@@ -38,18 +38,18 @@ typedef void (*tap_draw_cb)(void *tapdata);
 
 
 extern void tap_init(void);
-extern void register_tap_listener_cmd_arg(char *cmd, void (*func)(char *arg));
+extern void register_tap_listener_cmd_arg(const char *cmd, void (*func)(char *arg));
 extern gboolean process_tap_cmd_arg(char *optarg);
 extern void list_tap_cmd_args(void);
 extern void start_requested_taps(void);
 extern int register_tap(const char *name);
-extern int find_tap_id(char *name);
+extern int find_tap_id(const char *name);
 extern void tap_queue_packet(int tap_id, packet_info *pinfo, const void *tap_specific_data);
 extern void tap_queue_init(epan_dissect_t *edt);
 extern void tap_push_tapped_queue(epan_dissect_t *edt);
 extern void reset_tap_listeners(void);
 extern void draw_tap_listeners(gboolean draw_all);
-extern GString *register_tap_listener(char *tapname, void *tapdata,
+extern GString *register_tap_listener(const char *tapname, void *tapdata,
     char *fstring, tap_reset_cb tap_reset, tap_packet_cb tap_packet,
     tap_draw_cb tap_draw);
 extern void remove_tap_listener(void *tapdata);

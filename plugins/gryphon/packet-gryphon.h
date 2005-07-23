@@ -457,8 +457,8 @@
 
 
 typedef struct val_str_dsp {
-    int     value;
-    char    *strptr;
-    int     (*cmd_fnct)(tvbuff_t *, int, proto_tree*);
-    int     (*rsp_fnct)(tvbuff_t *, int, proto_tree*);
+    int		value;
+    const char	*strptr;
+    int		(*cmd_fnct)(tvbuff_t *, int, proto_tree*);
+    int		(*rsp_fnct)(tvbuff_t *, int, proto_tree*);
 } val_str_dsp;

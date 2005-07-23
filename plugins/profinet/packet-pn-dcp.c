@@ -329,7 +329,7 @@ dissect_pn_padding(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 /* append the given info text */
 static void
-pn_append_info(packet_info *pinfo, proto_item *dcp_item, char *text)
+pn_append_info(packet_info *pinfo, proto_item *dcp_item, const char *text)
 {
     if (check_col(pinfo->cinfo, COL_INFO))
         col_append_fstr(pinfo->cinfo, COL_INFO, text);

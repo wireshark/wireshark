@@ -245,7 +245,7 @@ blk_cmnt_stop  "*/"
 
 %%
 
-extern gboolean mate_load_config(gchar* filename, mate_config* matecfg) {
+extern gboolean mate_load_config(const gchar* filename, mate_config* matecfg) {
 	gboolean state;
 	mc = matecfg;
 

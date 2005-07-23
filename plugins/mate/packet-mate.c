@@ -37,8 +37,8 @@ static mate_config* mc = NULL;
 
 static int proto_mate = -1;
 
-static gchar* pref_mate_config_filename = "";
-static gchar* current_mate_config_filename = NULL;
+static const gchar* pref_mate_config_filename = "";
+static const gchar* current_mate_config_filename = NULL;
 
 static proto_item *mate_i = NULL;
 
@@ -196,8 +196,8 @@ void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 	float  rel_time;
 	float  gop_time;
 	float pdu_rel_time;
-	gchar* pdu_str;
-	gchar* type_str;
+	const gchar* pdu_str;
+	const gchar* type_str;
 	guint32 pdu_item;
 	
 	gop_item = proto_tree_add_uint(tree,gop->cfg->hfid,tvb,0,0,gop->id);

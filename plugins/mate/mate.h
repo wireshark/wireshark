@@ -372,7 +372,7 @@ extern mate_pdu* mate_get_pdus(guint32 framenum);
 extern void mate_analyze_frame(packet_info *pinfo, proto_tree* tree);
 
 /* from mate_setup.c */
-extern mate_config* mate_make_config(gchar* filename, int mate_hfid);
+extern mate_config* mate_make_config(const gchar* filename, int mate_hfid);
 
 extern mate_config* mate_cfg(void);
 extern mate_cfg_pdu* new_pducfg(gchar* name);
@@ -384,6 +384,6 @@ extern gchar* add_ranges(gchar* range, GPtrArray* range_ptr_arr);
 
 
 /* from mate_parser.l */
-extern gboolean mate_load_config(gchar* filename, mate_config* mc);
+extern gboolean mate_load_config(const gchar* filename, mate_config* mc);
 
 #endif

@@ -228,7 +228,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 {
 	field_info	*fi = PITEM_FINFO(node);
 	write_pdml_data	*pdata = (write_pdml_data*) data;
-	gchar		*label_ptr;
+	const gchar	*label_ptr;
 	gchar		label_str[ITEM_LABEL_LENGTH];
 	char		*dfilter_string;
 	int		chop_len;

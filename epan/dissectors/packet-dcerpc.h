@@ -238,7 +238,7 @@ int dissect_ndr_wchar_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 typedef struct _dcerpc_sub_dissector {
     guint16 num;
-    gchar   *name;
+    const gchar   *name;
     dcerpc_dissect_fnct_t *dissect_rqst;
     dcerpc_dissect_fnct_t *dissect_resp;
 } dcerpc_sub_dissector;

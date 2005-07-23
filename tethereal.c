@@ -197,7 +197,7 @@ static void show_print_file_io_error(int err);
 static gboolean write_preamble(capture_file *cf);
 static gboolean print_packet(capture_file *cf, epan_dissect_t *edt);
 static gboolean write_finale(void);
-static char *cf_open_error_message(int err, gchar *err_info,
+static const char *cf_open_error_message(int err, gchar *err_info,
     gboolean for_writing, int file_type);
 #ifdef HAVE_LIBPCAP
 #ifndef _WIN32
@@ -1470,7 +1470,7 @@ capture(char *save_file, int out_file_type)
 #ifndef _WIN32
   void        (*oldhandler)(int);
   static const char ppamsg[] = "can't find PPA for ";
-  char       *libpcap_warn;
+  const char  *libpcap_warn;
   volatile int pipe_fd = -1;
   struct pcap_hdr hdr;
   struct pcaprec_modified_hdr rechdr;
@@ -2853,11 +2853,11 @@ show_print_file_io_error(int err)
   }
 }
 
-static char *
+static const char *
 cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
                       int file_type)
 {
-  char *errmsg;
+  const char *errmsg;
   static char errmsg_errno[1024+1];
 
   if (err < 0) {

@@ -1288,7 +1288,7 @@ static int giop_getline(FILE *fp, gchar *line, int maxlen) {
  * and store in object key hash
  */
 
-static void read_IOR_strings_from_file(gchar *name, int max_iorlen) {
+static void read_IOR_strings_from_file(const gchar *name, int max_iorlen) {
   guchar *buf;			/* NOTE reused for every line */
   int len;
   int ior_val_len;		/* length after unstringifying. */
@@ -1436,7 +1436,7 @@ static void giop_init(void) {
  *
  */
 
-void register_giop_user(giop_sub_dissector_t *sub, gchar *name, int sub_proto) {
+void register_giop_user(giop_sub_dissector_t *sub, const gchar *name, int sub_proto) {
 
   giop_sub_handle_t *subh;
 

@@ -30,7 +30,7 @@
 static mate_config* matecfg = NULL;
 
 /* appends the formatted string to the current error log */
-static void report_error(gchar* fmt, ...) {
+static void report_error(const gchar* fmt, ...) {
 	static gchar error_buffer[DEBUG_BUFFER_SIZE];
 
 	va_list list;
@@ -679,8 +679,8 @@ static void print_hfid_hash(gpointer k, gpointer v, gpointer p _U_) {
 static void print_pdu_config(mate_cfg_pdu* cfg, GString* s) {
 	guint i;
 	int hfid;
-	gchar* discard;
-	gchar* stop;
+	const gchar* discard;
+	const gchar* stop;
 	
 	discard = cfg->discard ? "TRUE": "FALSE";
 	stop = cfg->last_extracted ? "TRUE" : "FALSE";
@@ -858,7 +858,7 @@ static void print_config(void) {
 	g_string_free(config_text,TRUE);
 }
 
-extern mate_config* mate_make_config(gchar* filename, int mate_hfid) {
+extern mate_config* mate_make_config(const gchar* filename, int mate_hfid) {
 	gint* ett;
 	avp_init();
 

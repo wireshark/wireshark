@@ -351,7 +351,7 @@ get_persconffile_dir(void)
 	char *appdatadir;
 	char *userprofiledir;
 #else
-	char *homedir;
+	const char *homedir;
 	struct passwd *pwd;
 #endif
 	static char *pf_dir = NULL;
@@ -647,10 +647,10 @@ char *get_tempfile_path(const char *filename)
  * Return an error message for UNIX-style errno indications on open or
  * create operations.
  */
-char *
+const char *
 file_open_error_message(int err, gboolean for_writing)
 {
-	char *errmsg;
+	const char *errmsg;
 	static char errmsg_errno[1024+1];
 
 	switch (err) {
@@ -698,10 +698,10 @@ file_open_error_message(int err, gboolean for_writing)
  * Return an error message for UNIX-style errno indications on write
  * operations.
  */
-char *
+const char *
 file_write_error_message(int err)
 {
-	char *errmsg;
+	const char *errmsg;
 	static char errmsg_errno[1024+1];
 
 	switch (err) {

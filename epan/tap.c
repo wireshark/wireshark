@@ -84,7 +84,7 @@ static volatile tap_listener_t *tap_listener_queue=NULL;
  */
 typedef struct _tap_cmd_arg {
 	struct _tap_cmd_arg *next;
-	char *cmd;
+	const char *cmd;
 	void (*func)(char *arg);
 } tap_cmd_arg;
 static tap_cmd_arg *tap_cmd_arg_list=NULL;
@@ -117,7 +117,7 @@ tap_init(void)
  * and initialization routine
  * ********************************************************************** */
 void
-register_tap_listener_cmd_arg(char *cmd, void (*func)(char *arg))
+register_tap_listener_cmd_arg(const char *cmd, void (*func)(char *arg))
 {
 	tap_cmd_arg *newtca;
 
@@ -384,7 +384,7 @@ draw_tap_listeners(gboolean draw_all)
    or 0 if no such tap was found.
  */
 int 
-find_tap_id(char *name)
+find_tap_id(const char *name)
 {
 	tap_dissector_t *td;
 	int i;
@@ -404,7 +404,7 @@ find_tap_id(char *name)
  *           message.
  */
 GString *
-register_tap_listener(char *tapname, void *tapdata, char *fstring, tap_reset_cb reset, tap_packet_cb packet, tap_draw_cb draw)
+register_tap_listener(const char *tapname, void *tapdata, char *fstring, tap_reset_cb reset, tap_packet_cb packet, tap_draw_cb draw)
 {
 	tap_listener_t *tl;
 	int tap_id;

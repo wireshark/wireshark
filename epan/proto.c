@@ -580,7 +580,7 @@ header_field_info*
 proto_registrar_get_byname(const char *field_name)
 {
 	DISSECTOR_ASSERT(field_name != NULL);
-	return g_tree_lookup(gpa_name_tree, (gpointer)field_name);
+	return g_tree_lookup(gpa_name_tree, field_name);
 }
 
 /* Add a text-only node, leaving it to our caller to fill the text in */
@@ -2800,7 +2800,7 @@ proto_get_id(protocol_t *protocol)
 	return protocol->proto_id;
 }
 
-int proto_get_id_by_filter_name(gchar* filter_name)
+int proto_get_id_by_filter_name(const gchar* filter_name)
 {
 	GList *list_entry;
 	protocol_t *protocol;

@@ -317,11 +317,12 @@ skip:
 void
 save_disabled_protos_list(char **pref_path_return, int *errno_return)
 {
-  gchar      *ff_path, *ff_path_new, *ff_name;
-  FILE       *ff;
-  gint        i;
-  protocol_t *protocol;
-  void       *cookie;
+  gchar       *ff_path, *ff_path_new;
+  const gchar *ff_name;
+  FILE        *ff;
+  gint         i;
+  protocol_t  *protocol;
+  void        *cookie;
 
   *pref_path_return = NULL;	/* assume no error */
 

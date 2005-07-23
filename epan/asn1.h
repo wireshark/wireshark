@@ -145,6 +145,6 @@ extern int asn1_oid_decode (ASN1_SCK *asn1, subid_t **oid, guint *len,
 			    guint *nbytes);
 extern int asn1_sequence_decode (ASN1_SCK *asn1, guint *seq_len, guint *nbytes);
 
-extern char *asn1_err_to_str (int err);
+extern const char *asn1_err_to_str (int err);
 
 #endif

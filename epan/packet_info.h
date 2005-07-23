@@ -60,7 +60,7 @@ typedef struct _packet_info {
   guint32 ipxptype;		/* IPX packet type, if this is an IPX packet */
   circuit_type ctype;		/* type of circuit, for protocols with a VC identifier */
   guint32 circuit_id;		/* circuit ID, for protocols with a VC identifier */
-  char   *noreassembly_reason;  /* reason why reassembly wasn't done, if any */
+  const char *noreassembly_reason;  /* reason why reassembly wasn't done, if any */
   gboolean fragmented;		/* TRUE if the protocol is only a fragment */
   gboolean in_error_pkt;	/* TRUE if we're inside an {ICMP,CLNP,...} error packet */
   port_type ptype;		/* type of the following two port numbers */

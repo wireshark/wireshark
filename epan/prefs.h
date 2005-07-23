@@ -275,7 +275,7 @@ extern void prefs_register_enum_preference(module_t *module, const char *name,
  * Register a preference with a character-string value.
  */
 extern void prefs_register_string_preference(module_t *module, const char *name,
-    const char *title, const char *description, char **var);
+    const char *title, const char *description, const char **var);
 
 /*
  * Register a preference with a ranged value.

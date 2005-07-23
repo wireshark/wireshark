@@ -180,11 +180,11 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint16 control;
     int control_len;
     const xdlc_cf_items *cf_items;
-    char *control_format;
+    const char *control_format;
     guint16 poll_final;
     char info[80];
     proto_tree *tc, *control_tree;
-    gchar *frame_type = NULL;
+    const gchar *frame_type = NULL;
     const gchar *modifier;
 
     switch (tvb_get_guint8(tvb, offset) & 0x03) {

@@ -163,7 +163,7 @@ extern void dissector_all_tables_foreach_table (DATFunc_table func,
 
 /* a protocol uses the function to register a sub-dissector table */
 extern dissector_table_t register_dissector_table(const char *name,
-    char *ui_name, ftenum_t type, int base);
+    const char *ui_name, ftenum_t type, int base);
 
 /* Find a dissector table by table name. */
 extern dissector_table_t find_dissector_table(const char *name);
@@ -208,7 +208,7 @@ extern dissector_handle_t dissector_get_port_handle(
     dissector_table_t sub_dissectors, guint32 port);
 
 /* Add an entry to a string dissector table. */
-extern void dissector_add_string(const char *name, gchar *pattern,
+extern void dissector_add_string(const char *name, const gchar *pattern,
     dissector_handle_t handle);
 
 /* Delete the entry for a dissector in a string dissector table
@@ -379,7 +379,7 @@ final_registration_all_protocols(void);
  * the tvbuff for the data source and its name.
  */
 extern void add_new_data_source(packet_info *pinfo, tvbuff_t *tvb,
-    char *name);
+    const char *name);
 
 /*
  * Free up a frame's list of data sources.

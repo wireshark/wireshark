@@ -130,7 +130,7 @@ extern SCS_collection* scs_init(void) {
  *
  * Return value: a pointer to the subscribed string.
  **/
-gchar* scs_subscribe(SCS_collection* c, gchar* s) {
+gchar* scs_subscribe(SCS_collection* c, const gchar* s) {
 	gchar* orig = NULL;
 	guint* ip = NULL;
 	size_t len = 0;
@@ -346,7 +346,7 @@ extern void avp_init(void) {
  * Return value: a pointer to the newly created avp.
  *
  **/
-extern AVP* new_avp_from_finfo(gchar* name, field_info* finfo) {
+extern AVP* new_avp_from_finfo(const gchar* name, field_info* finfo) {
 	AVP* new = g_mem_chunk_alloc(avp_chunk);
 	gchar* value;
 	
@@ -397,7 +397,7 @@ extern AVP* new_avp_from_finfo(gchar* name, field_info* finfo) {
  * Return value: a pointer to the newly created avp.
  *
  **/
-extern AVP* new_avp(gchar* name, gchar* value, gchar o) {
+extern AVP* new_avp(const gchar* name, const gchar* value, gchar o) {
 	AVP* new = g_mem_chunk_alloc(avp_chunk);
 
 	new->n = scs_subscribe(avp_strings, name);
@@ -468,7 +468,7 @@ extern void rename_avp(AVP* avp, gchar* name) {
  * Return value: a pointer to the newly created avpl.
  *
  **/
-extern AVPL* new_avpl(gchar* name) {
+extern AVPL* new_avpl(const gchar* name) {
 	AVPL* new_avpl = g_mem_chunk_alloc(avp_chunk);
 
 #ifdef _AVP_DEBUGGING
@@ -913,7 +913,7 @@ extern void merge_avpl(AVPL* dst, AVPL* src, gboolean copy_avps) {
  * Return value: a pointer to the newly allocated string.
  *
  **/
-extern AVPL* new_avpl_from_avpl(gchar* name, AVPL* avpl, gboolean copy_avps) {
+extern AVPL* new_avpl_from_avpl(const gchar* name, AVPL* avpl, gboolean copy_avps) {
 	AVPL* newavpl = new_avpl(name);
 	void* cookie = NULL;
 	AVP* avp;
@@ -1043,7 +1043,7 @@ extern AVP* match_avp(AVP* src, AVP* op) {
  * Return value: a pointer to the newly created avpl containing the
  *				 matching avps.
  **/
-extern AVPL* new_avpl_loose_match(gchar* name,
+extern AVPL* new_avpl_loose_match(const gchar* name,
 								  AVPL* src,
 								  AVPL* op,
 								  gboolean copy_avps) {
@@ -1121,7 +1121,7 @@ extern AVPL* new_avpl_loose_match(gchar* name,
  * Return value: a pointer to the newly created avpl containing the
  *				 matching avps.
  **/
-extern AVPL* new_avpl_every_match(gchar* name, AVPL* src, AVPL* op, gboolean copy_avps) {
+extern AVPL* new_avpl_every_match(const gchar* name, AVPL* src, AVPL* op, gboolean copy_avps) {
 	AVPL* newavpl;
 	AVPN* co = NULL;
 	AVPN* cs = NULL;
@@ -1212,7 +1212,7 @@ extern AVPL* new_avpl_every_match(gchar* name, AVPL* src, AVPL* op, gboolean cop
  * Return value: a pointer to the newly created avpl containing the
  *				 matching avps.
  **/
-extern AVPL* new_avpl_exact_match(gchar* name,AVPL* src, AVPL* op, gboolean copy_avps) {
+extern AVPL* new_avpl_exact_match(const gchar* name,AVPL* src, AVPL* op, gboolean copy_avps) {
 	AVPL* newavpl = new_avpl(name);
 	AVPN* co = NULL;
 	AVPN* cs = NULL;
@@ -1283,7 +1283,7 @@ extern AVPL* new_avpl_exact_match(gchar* name,AVPL* src, AVPL* op, gboolean copy
 	return NULL;
 }
 
-extern AVPL* new_avpl_from_match(avpl_match_mode mode, gchar* name,AVPL* src, AVPL* op, gboolean copy_avps) {
+extern AVPL* new_avpl_from_match(avpl_match_mode mode, const gchar* name,AVPL* src, AVPL* op, gboolean copy_avps) {
 	AVPL* avpl = NULL;
 	
 	switch (mode) {
@@ -1435,7 +1435,7 @@ extern void avpl_transform(AVPL* src, AVPL_Transf* op) {
  *
  * Return value: a pointer to the newly created loal.
  **/
-extern LoAL* new_loal(gchar* name) {
+extern LoAL* new_loal(const gchar* name) {
 	LoAL* new_loal = g_mem_chunk_alloc(avp_chunk);
 
 	if (! name) {
@@ -1614,7 +1614,7 @@ extern void delete_loal(LoAL* loal, gboolean avpls_too, gboolean avps_too) {
  * load_loal_error:
  * Used by loal_from_file to handle errors while loading.
  **/
-LoAL* load_loal_error(FILE* fp, LoAL* loal, AVPL* curr, int linenum, gchar* fmt, ...) {
+LoAL* load_loal_error(FILE* fp, LoAL* loal, AVPL* curr, int linenum, const gchar* fmt, ...) {
 	va_list list;
 	gchar* desc;
 	LoAL* ret = NULL;

@@ -54,12 +54,12 @@ typedef gboolean (*ias_value_dissector_t)(tvbuff_t* tvb, unsigned offset, packet
                                           unsigned list_index, guint8 attr_type);
 
 typedef const struct ias_attr_dissector {
-    char*                   attr_name;
+    const char*             attr_name;
     ias_value_dissector_t   value_dissector;
 } ias_attr_dissector_t;
 
 typedef const struct ias_class_dissector {
-    char*                   class_name;
+    const char*             class_name;
     ias_attr_dissector_t*   pattr_dissector;
 } ias_class_dissector_t;
 

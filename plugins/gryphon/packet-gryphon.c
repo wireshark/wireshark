@@ -137,7 +137,7 @@ static int cmd_bits_in(tvbuff_t*, int, proto_tree*);
 static int cmd_bits_out(tvbuff_t*, int, proto_tree*);
 static int cmd_init_strat(tvbuff_t*, int, proto_tree*);
 
-static char *frame_type[] = {
+static const char *frame_type[] = {
 	"",
 	"Command request",
 	"Command response",
@@ -869,7 +869,7 @@ decode_misc (tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_init(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    char    	*ptr;
+    const char    	*ptr;
 
     if (tvb_get_guint8(tvb, offset) == 0)
     	ptr = "Always initialize";
@@ -1164,7 +1164,7 @@ resp_getspeeds(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_sort(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    char    	*which;
+    const char	*which;
 
     which = tvb_get_guint8(tvb, offset) ?
 	    "Sort into blocks of up to 16 messages" :
@@ -1177,7 +1177,7 @@ cmd_sort(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_optimize(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    char    	*which;
+    const char	*which;
 
     which = tvb_get_guint8(tvb, offset) ?
 	    "Optimize for latency (Nagle algorithm disabled)" :
@@ -1390,7 +1390,7 @@ cmd_sched_rep(tvbuff_t *tvb, int offset, proto_tree *pt)
     proto_item	    *item;
     int		    save_offset;
     unsigned int    x;
-    char            *type;
+    const char      *type;
 
     msglen = tvb_reported_length_remaining(tvb, offset);
     x = tvb_get_ntohl(tvb, offset);
@@ -1415,10 +1415,10 @@ cmd_sched_rep(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 resp_blm_data(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    unsigned int    i;
-    int             hours, minutes, seconds, fraction, x, fract;
-    unsigned long   timestamp;
-    static char    *fields[] = {
+    unsigned int      i;
+    int               hours, minutes, seconds, fraction, x, fract;
+    unsigned long     timestamp;
+    static const char *fields[] = {
     	"Bus load average: %d.%02d%%",
     	"Current bus load: %d.%02d%%",
     	"Peak bus load: %d.%02d%%",
@@ -1446,7 +1446,7 @@ static int
 resp_blm_stat(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     unsigned int    x, i;
-    char    	    *fields[] = {
+    const char 	    *fields[] = {
     	"Receive frame count: %u",
     	"Transmit frame count: %u",
     	"Receive dropped frame count: %u",
@@ -1815,7 +1815,7 @@ cmd_options(tvbuff_t *tvb, int offset, proto_tree *pt)
     proto_item	    *item;
     proto_tree	    *tree;
     unsigned int    i, size, padding, option, option_length, option_value;
-    char	    *string, *string1;
+    const char	    *string, *string1;
 
     msglen = tvb_reported_length_remaining(tvb, offset);
     item = proto_tree_add_text(pt, tvb, offset, 1, "Handle: %u",
@@ -1882,8 +1882,8 @@ cmd_options(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_files(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int	    msglen;
-    gchar  *which;
+    int	         msglen;
+    const gchar  *which;
 
     msglen = tvb_reported_length_remaining(tvb, offset);
     if (tvb_get_guint8(tvb, offset) == 0)
@@ -1901,8 +1901,8 @@ cmd_files(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 resp_files(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int		msglen;
-    gchar  	*flag;
+    int			msglen;
+    const gchar  	*flag;
 
     msglen = tvb_reported_length_remaining(tvb, offset);
     flag = tvb_get_guint8(tvb, offset) ? "Yes": "No";
@@ -1915,24 +1915,30 @@ resp_files(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_usdt(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int     ids, id, remain, size, i, j, bytes;
-    gchar  *desc;
-    guint8  flags;
-    proto_tree	    *localTree;
-    proto_item	    *localItem;
-    gchar  *actions[] = {"Use 11 bit headers only",
-                          "Use 29 bit headers only",
-                          "Use both 11 & 29 bit headers",
-                          "undefined"};
-    gchar *xmit_opts[] = {"Pad messages with less than 8 data bytes with 0x00's",
-                           "Pad messages with less than 8 data bytes with 0xFF's",
-                           "Do not pad messages with less than 8 data bytes",
-                           "undefined"};
-    gchar *recv_opts[] = {"Do not verify the integrity of long received messages and do not send them to the client",
-                           "Verify the integrity of long received messages and send them to the client",
-                           "Verify the integrity of long received messages but do not send them to the client",
-                           "undefined"};
-    gchar *block_desc[] = {"USDT request", "USDT response", "UUDT response"};
+    int		ids, id, remain, size, i, j, bytes;
+    const gchar	*desc;
+    guint8	flags;
+    proto_tree	*localTree;
+    proto_item	*localItem;
+    const gchar	*actions[] = {
+	"Use 11 bit headers only",
+	"Use 29 bit headers only",
+	"Use both 11 & 29 bit headers",
+	"undefined"
+    };
+    const gchar *xmit_opts[] = {
+	"Pad messages with less than 8 data bytes with 0x00's",
+	"Pad messages with less than 8 data bytes with 0xFF's",
+	"Do not pad messages with less than 8 data bytes",
+	"undefined"
+    };
+    const gchar *recv_opts[] = {
+	"Do not verify the integrity of long received messages and do not send them to the client",
+	"Verify the integrity of long received messages and send them to the client",
+	"Verify the integrity of long received messages but do not send them to the client",
+	"undefined"
+    };
+    const gchar *block_desc[] = {"USDT request", "USDT response", "UUDT response"};
 
     flags = tvb_get_guint8(tvb, offset);
     if (flags & 1)
@@ -2046,8 +2052,8 @@ cmd_bits_in (tvbuff_t *tvb, int offset, proto_tree *pt)
     proto_item	*item;
     proto_tree	*tree;
     unsigned int i;
-    int	    msglen, mask, value;
-    char    *decode[] = {"Input 1", "Input 2", "Input 3", "Pushbutton"};
+    int	        msglen, mask, value;
+    const char  *decode[] = {"Input 1", "Input 2", "Input 3", "Pushbutton"};
 
     msglen = tvb_reported_length_remaining(tvb, offset);
     value = tvb_get_guint8(tvb, offset);
@@ -2075,8 +2081,8 @@ cmd_bits_out (tvbuff_t *tvb, int offset, proto_tree *pt)
     proto_item	*item;
     proto_tree	*tree;
     unsigned int i;
-    int	    msglen, mask, value;
-    char    *decode[] = {"Output 1", "Output 2"};
+    int	        msglen, mask, value;
+    const char  *decode[] = {"Output 1", "Output 2"};
 
     msglen = tvb_reported_length_remaining(tvb, offset);
     value = tvb_get_guint8(tvb, offset);
@@ -2187,7 +2193,8 @@ filter_block(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 blm_mode(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    char    *mode, line[50];
+    const char    *mode;
+    char line[50];
     int     x, y, seconds;
 
     x = tvb_get_ntohl(tvb, offset);

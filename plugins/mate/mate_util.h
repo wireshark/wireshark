@@ -56,7 +56,7 @@ typedef struct _scs_collection SCS_collection;
 
 extern void destroy_scs_collection(SCS_collection* c);
 extern SCS_collection* scs_init(void);
-extern gchar* scs_subscribe(SCS_collection* collection, gchar* s);
+extern gchar* scs_subscribe(SCS_collection* collection, const gchar* s);
 extern void scs_unsubscribe(SCS_collection* collection, gchar* s);
 extern gchar* scs_subscribe_printf(SCS_collection* collection, gchar* fmt, ...);
 
@@ -157,13 +157,13 @@ extern void setup_avp_debug(FILE* fp, int* general, int* avp, int* avp_op, int* 
  */
 
 /* creates a new avp */
-extern AVP* new_avp(gchar* name, gchar* value, gchar op);
+extern AVP* new_avp(const gchar* name, const gchar* value, gchar op);
 
 /* creates a copy od an avp */
 extern AVP* avp_copy(AVP* from);
 
 /* creates an avp from a field_info record */
-extern AVP* new_avp_from_finfo(gchar* name, field_info* finfo);
+extern AVP* new_avp_from_finfo(const gchar* name, field_info* finfo);
 
 /*
  * avp destructor
@@ -185,26 +185,26 @@ extern AVP* match_avp(AVP* src, AVP* op);
  */
 
 /* creates an empty avp list */
-extern AVPL* new_avpl(gchar* name);
+extern AVPL* new_avpl(const gchar* name);
 
 
 /* creates a copy of an avp list */
-extern AVPL* new_avpl_from_avpl(gchar* name, AVPL* avpl, gboolean copy_avps);
+extern AVPL* new_avpl_from_avpl(const gchar* name, AVPL* avpl, gboolean copy_avps);
 
 /* creates an avp list containing any avps in src matching any avps in op
    it will eventually create an empty list in none match */
-extern AVPL* new_avpl_loose_match(gchar* name,AVPL* src, AVPL* op, gboolean copy_avps);
+extern AVPL* new_avpl_loose_match(const gchar* name,AVPL* src, AVPL* op, gboolean copy_avps);
 
 /* creates an avp list containing any avps in src matching every avp in op
   it will not create a list if there is not a match for every attribute in op */
-extern AVPL* new_avpl_every_match(gchar* name,AVPL* src, AVPL* op, gboolean copy_avps);
+extern AVPL* new_avpl_every_match(const gchar* name,AVPL* src, AVPL* op, gboolean copy_avps);
 
 /* creates an avp list containing every avp in src matching every avp in op
    it will not create a list unless every avp in op is matched only once to avery avp in op */
-extern AVPL* new_avpl_exact_match(gchar* name,AVPL* src, AVPL* op, gboolean copy_avps);
+extern AVPL* new_avpl_exact_match(const gchar* name,AVPL* src, AVPL* op, gboolean copy_avps);
 
 /* uses mode to call one of the former matches. NO_MATCH = merge(merge(copy(src),op)) */
-extern AVPL* new_avpl_from_match(avpl_match_mode mode, gchar* name,AVPL* src, AVPL* op, gboolean copy_avps);
+extern AVPL* new_avpl_from_match(avpl_match_mode mode, const gchar* name,AVPL* src, AVPL* op, gboolean copy_avps);
 
 
 
@@ -262,7 +262,7 @@ extern void avpl_transform(AVPL* src, AVPL_Transf* op);
  */
 
 /* creates an empty list of avp lists */
-extern LoAL* new_loal(gchar* name);
+extern LoAL* new_loal(const gchar* name);
 
 /* given a file loads all the avpls contained in it
    every line is formatted as it is the output of avplist_to_string */

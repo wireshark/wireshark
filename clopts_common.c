@@ -40,7 +40,7 @@
  * to be printed.
  */
 void
-handle_dashG_option(int argc, char **argv, char *progname)
+handle_dashG_option(int argc, char **argv, const char *progname)
 {
   char *gpf_path, *pf_path;
   int   gpf_open_errno, gpf_read_errno;

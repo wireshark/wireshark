@@ -237,9 +237,9 @@ extern void stats_tree_reinit(void* p) {
 }
 
 /* register a new stats_tree */
-extern void stats_tree_register(guint8* tapname,
-								guint8* abbr, 
-								guint8* name,
+extern void stats_tree_register(const guint8* tapname,
+								const guint8* abbr, 
+								const guint8* name,
 								stat_tree_packet_cb packet,
 								stat_tree_init_cb init,
 								stat_tree_cleanup_cb cleanup) {
