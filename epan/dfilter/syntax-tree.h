@@ -61,6 +61,13 @@ typedef struct {
 	gint32		value;
 } stnode_t;
 
+/* These are the sttype_t registration function prototypes. */
+void sttype_register_integer(void);
+void sttype_register_pointer(void);
+void sttype_register_range(void);
+void sttype_register_string(void);
+void sttype_register_test(void);
+
 void
 sttype_init(void);
 
