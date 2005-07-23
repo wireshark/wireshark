@@ -2281,7 +2281,6 @@ dissect_nfs2_rmdir_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 		col_append_fstr(pinfo->cinfo, COL_INFO,", DH:0x%08x/%s", hash, name);
 	}
 	proto_item_append_text(tree, ", RMDIR Call DH:0x%08x/%s", hash, name);
-	g_free(name);
 
 	return offset;
 }
@@ -2298,7 +2297,6 @@ dissect_nfs2_remove_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 		col_append_fstr(pinfo->cinfo, COL_INFO,", DH:0x%08x/%s", hash, name);
 	}
 	proto_item_append_text(tree, ", REMOVE Call DH:0x%08x/%s", hash, name);
-	g_free(name);
 
 	return offset;
 }
@@ -2315,7 +2313,6 @@ dissect_nfs2_lookup_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 		col_append_fstr(pinfo->cinfo, COL_INFO,", DH:0x%08x/%s", hash, name);
 	}
 	proto_item_append_text(tree, ", LOOKUP Call DH:0x%08x/%s", hash, name);
-	g_free(name);
 
 	return offset;
 }
@@ -2422,7 +2419,6 @@ dissect_nfs2_readlink_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 				col_append_fstr(pinfo->cinfo, COL_INFO," Path:%s", name);
 			}
 			proto_item_append_text(tree, ", READLINK Reply Path:%s", name);
-			g_free(name);
 		break;
 		default:
 			err=val_to_str(status, names_nfs_stat, "Unknown error:%u");
@@ -2548,7 +2544,6 @@ dissect_nfs2_mkdir_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		col_append_fstr(pinfo->cinfo, COL_INFO,", DH:0x%08x/%s", hash, name);
 	}
 	proto_item_append_text(tree, ", MKDIR Call DH:0x%08x/%s", hash, name);
-	g_free(name);
 
 	return offset;
 }
@@ -2567,7 +2562,6 @@ dissect_nfs2_create_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		col_append_fstr(pinfo->cinfo, COL_INFO,", DH:0x%08x/%s", hash, name);
 	}
 	proto_item_append_text(tree, ", CREATE Call DH:0x%08x/%s", hash, name);
-	g_free(name);
 
 	return offset;
 }
@@ -2591,8 +2585,6 @@ dissect_nfs2_rename_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	proto_item_append_text(tree, ", RENAME Call From DH:0x%08x/%s To DH:0x%08x/%s", from_hash, from_name, to_hash, to_name);
 
-	g_free(from_name);
-	g_free(to_name);
 	return offset;
 }
 
@@ -2614,7 +2606,6 @@ dissect_nfs2_link_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	proto_item_append_text(tree, ", LINK Call From DH:0x%08x To DH:0x%08x/%s", from_hash, to_hash, to_name);
 
-	g_free(to_name);
 	return offset;
 }
 
@@ -2636,8 +2627,6 @@ dissect_nfs2_symlink_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		col_append_fstr(pinfo->cinfo, COL_INFO,", From DH:0x%08x/%s To %s", from_hash, from_name, to_name);
 	}
 	proto_item_append_text(tree, ", SYMLINK Call From DH:0x%08x/%s To %s", from_hash, from_name, to_name);
-	g_free(from_name);
-	g_free(to_name);
 
 	return offset;
 }
@@ -2701,7 +2690,6 @@ dissect_readdir_entry(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	if (entry_item)
 		proto_item_set_text(entry_item, "Entry: file ID %u, name %s",
 		fileid, name);
-	g_free(name);
 
 	cookie = tvb_get_ntohl(tvb, offset + 0);
 	if (entry_tree)
@@ -3814,7 +3802,6 @@ dissect_nfs3_remove_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		col_append_fstr(pinfo->cinfo, COL_INFO,", DH:0x%08x/%s", hash, name);
 	}
 	proto_item_append_text(tree, ", REMOVE Call DH:0x%08x/%s", hash, name);
-	g_free(name);
 
 	return offset;
 }
@@ -3850,7 +3837,6 @@ dissect_nfs3_rmdir_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		col_append_fstr(pinfo->cinfo, COL_INFO,", DH:0x%08x/%s", hash, name);
 	}
 	proto_item_append_text(tree, ", RMDIR Call DH:0x%08x/%s", hash, name);
-	g_free(name);
 
 	return offset;
 }
@@ -4049,7 +4035,6 @@ dissect_nfs3_lookup_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		col_append_fstr(pinfo->cinfo, COL_INFO,", DH:0x%08x/%s", hash, name);
 	}
 	proto_item_append_text(tree, ", LOOKUP Call DH:0x%08x/%s", hash, name);
-	g_free(name);
 
 	return offset;
 }
@@ -4182,7 +4167,6 @@ dissect_nfs3_readlink_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 				col_append_fstr(pinfo->cinfo, COL_INFO," Path:%s", name);
 			}
 			proto_item_append_text(tree, ", READLINK Reply Path:%s", name);
-			g_free(name);
 		break;
 		default:
 			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
@@ -4420,7 +4404,6 @@ dissect_nfs3_create_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		col_append_fstr(pinfo->cinfo, COL_INFO,", DH:0x%08x/%s Mode:%s", hash, name, val_to_str(mode, names_createmode3, "Unknown Mode:%u"));
 	}
 	proto_item_append_text(tree, ", CREATE Call DH:0x%08x/%s Mode:%s", hash, name, val_to_str(mode, names_createmode3, "Unknown Mode:%u"));
-	g_free(name);
 
 	return offset;
 }
@@ -4473,7 +4456,6 @@ dissect_nfs3_mkdir_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		col_append_fstr(pinfo->cinfo, COL_INFO,", DH:0x%08x/%s", hash, name);
 	}
 	proto_item_append_text(tree, ", MKDIR Call DH:0x%08x/%s", hash, name);
-	g_free(name);
 
 	return offset;
 }
@@ -4526,8 +4508,6 @@ dissect_nfs3_symlink_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		col_append_fstr(pinfo->cinfo, COL_INFO,", From DH:0x%08x/%s To %s", from_hash, from_name, to_name);
 	}
 	proto_item_append_text(tree, ", SYMLINK Call From DH:0x%08x/%s To %s", from_hash, from_name, to_name);
-	g_free(from_name);
-	g_free(to_name);
 
 	return offset;
 }
@@ -4594,7 +4574,6 @@ dissect_nfs3_mknod_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x/%s %s", hash, name, type_str);
 	}
 	proto_item_append_text(tree, ", MKNOD Call FH:0x%08x/%s %s", hash, name, type_str);
-	g_free(name);
 
 	return offset;
 }
@@ -4700,8 +4679,6 @@ dissect_nfs3_rename_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	proto_item_append_text(tree, ", RENAME Call From DH:0x%08x/%s To DH:0x%08x/%s", from_hash, from_name, to_hash, to_name);
 
-	g_free(from_name);
-	g_free(to_name);
 	return offset;
 }
 
@@ -4754,7 +4731,6 @@ dissect_nfs3_link_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	proto_item_append_text(tree, ", LINK Call From DH:0x%08x To DH:0x%08x/%s", from_hash, to_hash, to_name);
 
-	g_free(to_name);
 	return offset;
 }
 
@@ -4840,7 +4816,6 @@ dissect_entry3(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO," %s", name);
 	}
-	g_free(name);
 
 	offset = dissect_rpc_uint64(tvb, entry_tree, hf_nfs_readdir_entry3_cookie,
 		offset);
@@ -4927,12 +4902,7 @@ dissect_entryplus3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item* entry_item = NULL;
 	proto_tree* entry_tree = NULL;
 	int old_offset = offset;
-	static char *name=NULL;
-
-	if(name){
-		g_free(name);
-		name=NULL;
-	}
+	char *name=NULL;
 
 	if (tree) {
 		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry, tvb,

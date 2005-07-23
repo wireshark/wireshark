@@ -214,8 +214,6 @@ dissect_mountlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 		/* now we know, that mountlist is shorter */
 		proto_item_set_len(lock_item, offset - old_offset);
 	}
-	g_free(hostname);
-	g_free(directory);
 
 	return offset;
 }
@@ -311,7 +309,6 @@ dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		/* now we know, that exportlist is shorter */
 		proto_item_set_len(exportlist_item, offset - old_offset);
 	}
-	g_free(directory);
 
 	return offset;
 }
@@ -601,8 +598,6 @@ dissect_sgi_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 		/* now we know, that exportlist is shorter */
 		proto_item_set_len(exportlist_item, offset - old_offset);
 	}
-	g_free(directory);
-	g_free(options);
 
 	return offset;
 }

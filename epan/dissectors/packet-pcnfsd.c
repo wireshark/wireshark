@@ -221,10 +221,6 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_item_set_text(ident_item, "Authentication Ident: %s",
 			ident);
 	}
-	if (ident) {
-		g_free(ident);
-		ident = NULL;
-	}
 
 	offset = newoffset;
 
@@ -251,10 +247,6 @@ dissect_pcnfsd2_auth_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	if (password_item) {
 		proto_item_set_text(password_item, "Authentication Password: %s",
 			password);
-	}
-	if (password) {
-		g_free(password);
-		password = NULL;
 	}
 
 	offset = newoffset;

@@ -199,7 +199,6 @@ dissect_match_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 		col_append_fstr(pinfo->cinfo, COL_INFO," %s/", str);
 	}
 	proto_item_append_text(tree, " %s/", str);
-	g_free(str);
 
 	/*map*/
 	offset = dissect_rpc_string(tvb, tree, hf_ypserv_map, offset, &str);
@@ -207,7 +206,6 @@ dissect_match_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 		col_append_fstr(pinfo->cinfo, COL_INFO,"%s/", str);
 	}
 	proto_item_append_text(tree, "%s/", str);
-	g_free(str);
 
 	/*key*/
 	offset = dissect_rpc_string(tvb, tree, hf_ypserv_key, offset, &str);
@@ -215,7 +213,6 @@ dissect_match_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 		col_append_fstr(pinfo->cinfo, COL_INFO,"%s", str);
 	}
 	proto_item_append_text(tree, "%s", str);
-	g_free(str);
 
 	return offset;
 }
@@ -239,7 +236,6 @@ dissect_match_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 			}
 			proto_item_append_text(tree, " %s", str);
 
-			g_free(str);
 		} else {
 			offset = dissect_rpc_string(tvb, tree, hf_ypserv_value,offset, NULL);
 		}
@@ -408,7 +404,6 @@ dissect_order_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 		col_append_fstr(pinfo->cinfo, COL_INFO," %s/", str);
 	}
 	proto_item_append_text(tree, " %s/", str);
-	g_free(str);
 
 	/*map*/
 	offset = dissect_rpc_string(tvb, tree, hf_ypserv_map, offset, &str);
@@ -416,7 +411,6 @@ dissect_order_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 		col_append_fstr(pinfo->cinfo, COL_INFO,"%s", str);
 	}
 	proto_item_append_text(tree, "%s", str);
-	g_free(str);
 
 	return offset;
 }

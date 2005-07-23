@@ -219,7 +219,6 @@ dissect_hclnfsd_authorize_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 
 					offset = newoffset;
 
-					g_free(ident);
 					ident = NULL;
 				}
 			}
