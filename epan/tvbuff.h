@@ -410,6 +410,11 @@ extern gchar *tvb_format_stringzpad(tvbuff_t *tvb, gint offset, gint size);
  * Throws an exception if the tvbuff ends before the string does.
  */
 extern guint8 *tvb_get_string(tvbuff_t *tvb, gint offset, gint length);
+/* Same as above but the buffer returned from this function does not have to
+ * be freed. It will be automatically freed after the packet is dissected.
+ * Buffers allocated by this function are NOT persistent.
+ */
+extern guint8 *ep_tvb_get_string(tvbuff_t *tvb, gint offset, gint length);
 
 /**
  * Given a tvbuff and an offset, with the offset assumed to refer to

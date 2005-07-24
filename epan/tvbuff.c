@@ -48,6 +48,7 @@
 #include "pint.h"
 #include "tvbuff.h"
 #include "strutil.h"
+#include "emem.h"
 
 static const guint8*
 ensure_contiguous_no_exception(tvbuff_t *tvb, gint offset, gint length,
@@ -1723,6 +1724,37 @@ tvb_get_string(tvbuff_t *tvb, gint offset, gint length)
 	strbuf[length] = '\0';
 	return strbuf;
 }
+/*
+ * Given a tvbuff, an offset, and a length, allocate a buffer big enough
+ * to hold a non-null-terminated string of that length at that offset,
+ * plus a trailing '\0', copy the string into it, and return a pointer
+ * to the string.
+ *
+ * Throws an exception if the tvbuff ends before the string does.
+ *
+ * This function allocates memory from a buffer with packet lifetime.
+ * You do not have to free this buffer, it will be automatically freed
+ * when ethereal starts decoding the next packet.
+ * Do not use this function if you want the allocated memory to be persistent
+ * after the current packet has been dissected.
+ */
+guint8 *
+ep_tvb_get_string(tvbuff_t *tvb, gint offset, gint length)
+{
+	const guint8 *ptr;
+	guint8 *strbuf = NULL;
+
+	tvb_ensure_bytes_exist(tvb, offset, length);
+
+	ptr = ensure_contiguous(tvb, offset, length);
+	strbuf = ep_alloc(length + 1);
+	if (length != 0) {
+		memcpy(strbuf, ptr, length);
+	}
+	strbuf[length] = '\0';
+	return strbuf;
+}
+
 
 /*
  * Given a tvbuff and an offset, with the offset assumed to refer to
