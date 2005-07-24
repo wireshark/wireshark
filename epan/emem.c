@@ -22,12 +22,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
 #include <glib.h>
+#include <proto.h>
 #include "emem.h"
 
 /* When required, allocate more memory from the OS in this size chunks */
@@ -72,7 +76,7 @@ ep_alloc(size_t size)
 	}
 
 	/* make sure we dont try to allocate too much (arbitrary limit) */
-	g_assert(size<(EMEM_PACKET_CHUNK_SIZE>>2));
+	DISSECTOR_ASSERT(size<(EMEM_PACKET_CHUNK_SIZE>>2));
 
 	/* we dont have any free data, so we must allocate a new one */
 	if(!emem_packet_mem.free_list){
@@ -155,16 +159,8 @@ gchar* ep_strdup_printf(const gchar* fmt, ...) {
 	va_start(ap,fmt);
 	len = g_printf_string_upper_bound (fmt, ap);
 	
-	if ( len < (EMEM_PACKET_CHUNK_SIZE>>2) ) {
-		dst = ep_alloc(len);
-		g_vsnprintf (dst, len, fmt, ap);
-	} else {
-		len = (EMEM_PACKET_CHUNK_SIZE>>2) - 4;
-		
-		dst = ep_alloc(len);
-		g_vsnprintf (dst, len, fmt, ap);
-		memcpy(dst+len,"...",4);
-	}
+	dst = ep_alloc(len+1);
+	g_vsnprintf (dst, len, fmt, ap);
 	
 	va_end(ap);
 	return dst;
