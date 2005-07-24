@@ -68,7 +68,11 @@ Everyone is encouraged to upgrade.
 
 New and updated features
 
+  The zlib library that ship with the Windows
+  installer have been updated to version 1.2.3.
 
+  The Windows installer now includes the WinPcap
+  installer, you'll now have all in one place.
 
 New protocol support
 
