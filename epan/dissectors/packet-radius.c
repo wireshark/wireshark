@@ -78,7 +78,7 @@ typedef struct {
 
 #define AUTHENTICATOR_LENGTH	16
 #define RD_HDR_LENGTH		4
-#define MAX_RADIUS_PACKET_SIZE 4096
+#define HDR_LENGTH		(RD_HDR_LENGTH + AUTHENTICATOR_LENGTH)
 
 #define UDP_PORT_RADIUS		1645
 #define UDP_PORT_RADIUS_NEW	1812
@@ -132,7 +132,7 @@ static gint ett_eap = -1;
 
 radius_attr_info_t no_dictionary_entry = {"Unknown-Attribute",0,FALSE,FALSE,radius_octets, NULL, NULL, -1, -1, -1, -1, -1 };
 
-dissector_handle_t eap_fragment_handle;
+dissector_handle_t eap_handle;
 
 static const gchar* shared_secret = "";
 
@@ -175,7 +175,7 @@ static gchar* dissect_cosine_vpvc(proto_tree* tree, tvbuff_t* tvb) {
 	guint vpi, vci;
 	
 	if ( tvb_length(tvb) != 4 )
-		return "[Wrong Lenght for VP/VC AVP]";
+		return "[Wrong Length for VP/VC AVP]";
 	
 	vpi = tvb_get_ntohs(tvb,0);
 	vci = tvb_get_ntohs(tvb,2);
@@ -291,7 +291,7 @@ void radius_ipaddr(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _
 	gchar buf[16];
 	
 	if (len != 4) {
-		proto_item_append_text(avp_item, "[wrong lenght for IP address]");
+		proto_item_append_text(avp_item, "[wrong length for IP address]");
 		return;
 	}
 	
@@ -309,7 +309,7 @@ void radius_ipv6addr(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo
 
 	/* XXX ??? */
 	if (len != 16) {
-		proto_item_append_text(avp_item, "[wrong lenght for IPv6 address]");
+		proto_item_append_text(avp_item, "[wrong length for IPv6 address]");
 		return;
 	}
 	
@@ -324,7 +324,7 @@ void radius_date(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_
 	nstime_t time_ptr; 
 
 	if (len != 4) {
-		proto_item_append_text(avp_item, "[wrong lenght for timestamp]");
+		proto_item_append_text(avp_item, "[wrong length for timestamp]");
 		return;
 	}
 	time_ptr.secs = tvb_get_ntohl(tvb,offset);
@@ -345,45 +345,60 @@ void radius_ifid(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_
 }
 
 
-static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int length) {
+static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, guint length) {
 	gboolean last_eap = FALSE;
 	guint8* eap_buffer = NULL;
 	guint eap_seg_num = 0;
+	guint eap_tot_len_captured = 0;
 	guint eap_tot_len = 0;
 	proto_tree* eap_tree = NULL;
 	tvbuff_t* eap_tvb = NULL;
 
-	if (length == 0) {
-		proto_tree_add_text(tree, tvb,offset,0,"No Attribute Value Pairs Found");
-		return;
-	}
-	
-	do {
+	/*
+	 * In case we throw an exception, clean up whatever stuff we've
+	 * allocated (if any).
+	 */
+	CLEANUP_PUSH(g_free, eap_buffer);
+
+	while (length != 0) {
 		radius_attr_info_t* dictionary_entry = NULL;
 		radius_vendor_info_t* vendor = NULL;
-		guint32 avp_type = tvb_get_guint8(tvb,offset);
-        guint32 avp_length = tvb_get_guint8(tvb,offset+1);
+		gint tvb_len;
+		guint32 avp_type;
+		guint32 avp_length;
 		guint32 vendor_id = 0;
 		guint32 avp_vsa_type = 0;
 		guint32 avp_vsa_len = 0;
-		proto_item* avp_item = proto_tree_add_text(tree,tvb,offset,avp_length,"AVP: l=%u ",avp_length);
+		proto_item* avp_item;
 		proto_item* avp_len_item;
 		proto_tree* avp_tree;
 		
-		tvb_ensure_length_remaining(tvb, offset + avp_length - 1);
+		if (length < 2) {
+			proto_tree_add_text(tree, tvb, offset, 0,
+					    "Not enough room in packet for AVP header");
+			return;
+		}
+		avp_type = tvb_get_guint8(tvb,offset);
+		avp_length = tvb_get_guint8(tvb,offset+1);
 
-		length -= avp_length;
-		
-		if (avp_length < 3) {
-			proto_item_append_text(avp_item, "[AVP TOO SHORT]");
+		if (length < avp_length) {
+			proto_tree_add_text(tree, tvb, offset, 0,
+					    "Not enough room in packet for AVP");
 			return;
 		}
 		
+		length -= avp_length;
+
 		avp_item = proto_tree_add_text(tree,tvb,offset,avp_length,"AVP: l=%u ",avp_length);
 		
 		if (avp_type == RADIUS_VENDOR_SPECIFIC_CODE) {
 			/* XXX TODO: handle 2 byte codes for USR */
 			
+			if (avp_length < 8) {
+				proto_item_append_text(avp_item, "[AVP TOO SHORT]");
+				offset += avp_length;
+				continue;
+			}
 			vendor_id = tvb_get_ntohl(tvb,offset+2);
 			avp_vsa_type = tvb_get_guint8(tvb,offset+6);
 			avp_vsa_len = tvb_get_guint8(tvb,offset+7);
@@ -406,50 +421,7 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 			
 			avp_length -= 8;
 			offset += 8;
-
-		} else if (avp_type == RADIUS_EAP_MESSAGE_CODE) {
-			guint eap_seg_len = avp_length - 2;
-			
-			if (! eap_buffer) eap_buffer = ep_alloc(MAX_RADIUS_PACKET_SIZE);
-
-			if (eap_tot_len + eap_seg_len > MAX_RADIUS_PACKET_SIZE) {
-				proto_tree_add_text(tree, tvb,offset,0,"[Eap-Message longer than maximum radius packet size]");
-				return;
-			}
-			
-			tvb_memcpy(tvb,eap_buffer + eap_tot_len, offset+2, eap_seg_len);
-			eap_tot_len += eap_seg_len;
-
-			eap_seg_num++;
-			
-			if ( tvb_bytes_exist(tvb, offset, avp_length + 3) ) {
-				guint8 next_type = tvb_get_guint8(tvb, offset + avp_length);
-				
-				if ( next_type != RADIUS_EAP_MESSAGE_CODE ) {
-					last_eap = TRUE;
-				}
-			} else {
-				last_eap = TRUE;
-			}
-
-			if (last_eap) {
-				
-				proto_item_append_text(avp_item, "t=EAP-Message(79) Last Segment[%u]",eap_seg_num);
-				
-				eap_tree = proto_item_add_subtree(avp_item,ett_eap);
-				
-				eap_tvb = tvb_new_real_data(eap_buffer, eap_tot_len, eap_tot_len);
-				tvb_set_child_real_data_tvbuff(tvb, eap_tvb);
-				add_new_data_source(pinfo, eap_tvb, "Reassembled EAP");
-				
-			} else {
-				proto_item_append_text(avp_item, "t=EAP-Message(79) Segment[%u]",eap_seg_num);
-			}
-			
-			offset += avp_length;
-			continue;
 		} else {
-			
 			dictionary_entry = g_hash_table_lookup(dict->attrs_by_id,GUINT_TO_POINTER(avp_type));
 			
 			if (! dictionary_entry ) {
@@ -458,6 +430,11 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 			
 			proto_item_append_text(avp_item, " t=%s(%u)", dictionary_entry->name, avp_type);
 			
+			if (avp_length < 2) {
+				proto_item_append_text(avp_item, "[AVP TOO SHORT]");
+				offset += avp_length;
+				continue;
+			}
 			avp_length -= 2;
 			offset += 2;
 		}
@@ -465,48 +442,181 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 		avp_tree = proto_item_add_subtree(avp_item,dictionary_entry->ett);
 
 		avp_len_item = proto_tree_add_uint(avp_tree,
-										   dictionary_entry->hf_len,
-										   tvb,0,0,avp_length);
+						   dictionary_entry->hf_len,
+						   tvb,0,0,avp_length);
 		PROTO_ITEM_SET_GENERATED(avp_len_item);
-		
-		if (dictionary_entry->tagged) {
-			
-			guint tag = tvb_get_guint8(tvb,offset);
-			
-			if (tag <=  0x1f) {
+
+		tvb_len = tvb_length_remaining(tvb, offset);
+		if ((gint)avp_length < tvb_len)
+			tvb_len = avp_length;
+
+		if (avp_type == RADIUS_EAP_MESSAGE_CODE) {
+			eap_seg_num++;
+
+			/* Show this as an EAP fragment. */
+			if (tree)
+				proto_tree_add_text(avp_tree, tvb,
+				    offset, tvb_len, "EAP fragment");
+
+			if (eap_tvb != NULL) {
+				/*
+				 * Oops, a non-consecutive EAP-Message
+				 * attribute.
+				 */
+				proto_item_append_text(avp_item,
+				    " (non-consecutive)");
+			} else {
+				/*
+				 * RFC 2869 says, in section 5.13, describing
+				 * the EAP-Message attribute:
+				 *
+				 *    The NAS places EAP messages received
+				 *    from the authenticating peer into one
+				 *    or more EAP-Message attributes and
+				 *    forwards them to the RADIUS Server
+				 *    within an Access-Request message.
+				 *    If multiple EAP-Messages are
+				 *    contained within an Access-Request or
+				 *    Access-Challenge packet, they MUST be
+				 *    in order and they MUST be consecutive
+				 *    attributes in the Access-Request or
+				 *    Access-Challenge packet.
+				 *
+				 *		...
+				 *
+				 *    The String field contains EAP packets,
+				 *    as defined in [3].  If multiple
+				 *    EAP-Message attributes are present
+				 *    in a packet their values should be
+				 *    concatenated; this allows EAP packets
+				 *    longer than 253 octets to be passed
+				 *    by RADIUS.
+				 *
+				 * Do reassembly of EAP-Message attributes.
+				 * We just concatenate all the attributes,
+				 * and when we see either the end of the
+				 * attribute list or a non-EAP-Message
+				 * attribute, we know we're done.
+				 */
+
+				if (eap_buffer == NULL)
+					eap_buffer =
+					    g_malloc(eap_tot_len_captured + tvb_len);
+				else
+					eap_buffer = g_realloc(eap_buffer,
+					    eap_tot_len_captured + tvb_len);
+				tvb_memcpy(tvb, eap_buffer + eap_tot_len_captured,
+				    offset, tvb_len);
+				eap_tot_len_captured += tvb_len;
+				eap_tot_len += avp_length;
+
+				if ( tvb_bytes_exist(tvb, offset + avp_length + 1, 1) ) {
+					guint8 next_type = tvb_get_guint8(tvb, offset + avp_length);
 				
-				proto_tree_add_uint(avp_tree,dictionary_entry->hf_tag,tvb,offset,1,tag);
+					if ( next_type != RADIUS_EAP_MESSAGE_CODE ) {
+						/* Non-EAP-Message attribute */
+						last_eap = TRUE;
+					}
+				} else {
+					/*
+					 * No more attributes, either because
+					 * we're at the end of the packet or
+					 * because we're at the end of the
+					 * captured packet data.
+					 */
+					last_eap = TRUE;
+				}
+
+				if (last_eap) {
+					gboolean save_writable;
+
+					proto_item_append_text(avp_item,
+					    " Last Segment[%u]", eap_seg_num);
+
+					eap_tree = proto_item_add_subtree(avp_item,ett_eap);
 				
-				proto_item_append_text(avp_item, " Tag=0x%.2x", tag);
+					eap_tvb = tvb_new_real_data(eap_buffer,
+					    eap_tot_len_captured, eap_tot_len);
+					tvb_set_free_cb(eap_tvb, g_free);
+					tvb_set_child_real_data_tvbuff(tvb,
+					    eap_tvb);
+					add_new_data_source(pinfo, eap_tvb,
+					    "Reassembled EAP");
+
+					/*
+					 * Don't free this when we're done -
+					 * it's associated with a tvbuff.
+					 */
+					eap_buffer = NULL;
+	
+					/*
+					 * Set the columns non-writable,
+					 * so that the packet list shows
+					 * this as an RADIUS packet, not
+					 * as an EAP packet.
+					 */
+					save_writable =
+					    col_get_writable(pinfo->cinfo);
+					col_set_writable(pinfo->cinfo, FALSE);
+
+					call_dissector(eap_handle, eap_tvb,
+					    pinfo, eap_tree);
+
+					col_set_writable(pinfo->cinfo,
+					    save_writable);
+				} else {
+					proto_item_append_text(avp_item,
+					    " Segment[%u]", eap_seg_num);
+				}
+			}
+		} else {
+			if (dictionary_entry->tagged) {
+				guint tag;
+
+				if (avp_length < 3) {
+					proto_tree_add_text(tree, tvb, offset,
+					    0, "AVP too short for tag");
+					offset += avp_length;
+					continue;
+				}
+				tag = tvb_get_guint8(tvb, offset);
+				if (tag <=  0x1f) {
+					proto_tree_add_uint(avp_tree,
+					    dictionary_entry->hf_tag,
+					    tvb, offset, 1, tag);
+				
+					proto_item_append_text(avp_item,
+					    " Tag=0x%.2x", tag);
 		
-				offset++;
-				avp_length--;
+					offset++;
+					avp_length--;
+				}
+			}
+
+			if ( dictionary_entry->dissector ) {
+				tvbuff_t* tvb_value;
+				gchar* str;
+			
+				tvb_value = tvb_new_subset(tvb, offset, tvb_len, (gint) avp_length);
+			
+				str = dictionary_entry->dissector(avp_tree,tvb_value);
+			
+				proto_item_append_text(avp_item, ": %s",str);
+			} else {
+				proto_item_append_text(avp_item, ": ");
+			
+				dictionary_entry->type(dictionary_entry,avp_tree,pinfo,tvb,offset,avp_length,avp_item);
 			}
 		}
 		
-		if ( dictionary_entry->dissector ) {
-			tvbuff_t* tvb_value;
-			gchar* str;
-			
-			tvb_value = tvb_new_subset(tvb, offset, (gint) avp_length, (gint) avp_length);
-			
-			str = dictionary_entry->dissector(avp_tree,tvb_value);
-			
-			proto_item_append_text(avp_item, ": %s",str);
-		} else {
-			proto_item_append_text(avp_item, ": ");
-			
-			dictionary_entry->type(dictionary_entry,avp_tree,pinfo,tvb,offset,avp_length,avp_item);
-		}
-		
 		offset += avp_length;
-		
-	} while (length > 0);
-	
-	/* dulcis in fundo we call the EAP dissector */ 
-	if (eap_tree && eap_tvb )
-		call_dissector(eap_fragment_handle, eap_tvb, pinfo, eap_tree);
+	}
 
+	/*
+	 * Call the cleanup handler to free any reassembled data we haven't
+	 * attached to a tvbuff, and pop the handler.
+	 */
+	CLEANUP_CALL_AND_POP;
 }
 
 static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -518,21 +628,19 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint rhlength;
 	guint rhcode;
 	guint rhident;
-	gint avplength,hdrlength;
+	guint avplength;
 	e_radiushdr rh;
 	
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "RADIUS");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RADIUS");
 	if (check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
+		col_clear(pinfo->cinfo, COL_INFO);
 	
 	tvb_memcpy(tvb,(guint8 *)&rh,0,sizeof(e_radiushdr));
 	
 	rhcode = rh.rh_code;
 	rhident = rh.rh_ident;
 	rhlength = g_ntohs(rh.rh_pktlength);
-	hdrlength = RD_HDR_LENGTH + AUTHENTICATOR_LENGTH;
-	avplength = rhlength - hdrlength;
 	/* XXX Check for valid length value:
 		* Length
 		*
@@ -547,41 +655,55 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
-        col_add_fstr(pinfo->cinfo,COL_INFO,"%s(%d) (id=%d, l=%d)",
-					 val_to_str(rhcode,radius_vals,"Unknown Packet"),
-					 rhcode, rhident, rhlength);
+		col_add_fstr(pinfo->cinfo,COL_INFO,"%s(%d) (id=%d, l=%d)",
+			     val_to_str(rhcode,radius_vals,"Unknown Packet"),
+			     rhcode, rhident, rhlength);
 	}
 	
 	if (tree)
 	{
-        ti = proto_tree_add_item(tree,proto_radius, tvb, 0, rhlength, FALSE);
+		ti = proto_tree_add_item(tree,proto_radius, tvb, 0, rhlength, FALSE);
 		
-        radius_tree = proto_item_add_subtree(ti, ett_radius);
+		radius_tree = proto_item_add_subtree(ti, ett_radius);
 		
 		proto_tree_add_uint(radius_tree,hf_radius_code, tvb, 0, 1, rh.rh_code);
 		
-        proto_tree_add_uint_format(radius_tree,hf_radius_id, tvb, 1, 1, rh.rh_ident,
+		proto_tree_add_uint_format(radius_tree,hf_radius_id, tvb, 1, 1, rh.rh_ident,
 								   "Packet identifier: 0x%01x (%d)", rhident,rhident);
-		
-		if (avplength >= 0) {
-			proto_tree_add_uint(radius_tree, hf_radius_length, tvb,
-								2, 2, rhlength);
-		} else {
-			proto_tree_add_text(radius_tree, tvb, 2, 2, "Bogus header length: %d",
-								rhlength);
-			return;
+	}
+
+	/*
+	 * Make sure the length is sane.
+	 */
+	if (rhlength < HDR_LENGTH)
+	{
+		if (tree)
+		{
+			proto_tree_add_uint_format(radius_tree, hf_radius_length,
+						   tvb, 2, 2, rhlength,
+						   "Length: %u (bogus, < %u)",
+						   rhlength, HDR_LENGTH);
 		}
+		return;
+	}
+	avplength = rhlength - HDR_LENGTH;
+	if (tree)
+	{
+		proto_tree_add_uint(radius_tree, hf_radius_length, tvb,
+				    2, 2, rhlength);
 		
 		proto_tree_add_item(radius_tree, hf_radius_authenticator, tvb, 4,AUTHENTICATOR_LENGTH,FALSE);
-		tvb_memcpy(tvb,authenticator,0,AUTHENTICATOR_LENGTH);
+	}
+	tvb_memcpy(tvb,authenticator,0,AUTHENTICATOR_LENGTH);
 
-		if (avplength > 0) {
-			/* list the attribute value pairs */
-			avptf = proto_tree_add_text(radius_tree, tvb,hdrlength,avplength,"Attribute Value Pairs");
-			avptree = proto_item_add_subtree(avptf, ett_radius_avp);
+	if (avplength > 0) {
+		/* list the attribute value pairs */
+		avptf = proto_tree_add_text(radius_tree, tvb, HDR_LENGTH,
+					    avplength, "Attribute Value Pairs");
+		avptree = proto_item_add_subtree(avptf, ett_radius_avp);
 			
-			dissect_attribute_value_pairs(avptree, pinfo, tvb, hdrlength, avplength);
-		}
+		dissect_attribute_value_pairs(avptree, pinfo, tvb, HDR_LENGTH,
+					      avplength);
 	}
 }	
 
@@ -847,7 +969,7 @@ proto_reg_handoff_radius(void)
 {
 	dissector_handle_t radius_handle;
 	
-	eap_fragment_handle = find_dissector("eap_fragment");
+	eap_handle = find_dissector("eap");
 	
 	radius_handle = create_dissector_handle(dissect_radius, proto_radius);
 	

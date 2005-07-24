@@ -597,8 +597,7 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 }
 
 static int
-dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		 gboolean fragmented)
+dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint8      eap_code;
   guint8      eap_id;
@@ -694,18 +693,6 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   eap_len = tvb_get_ntohs(tvb, 2);
   len = eap_len;
-
-  if (fragmented) {
-    /*
-     * This is an EAP fragment inside, for example, RADIUS.  If we don't
-     * have all of the packet data, return the negative of the amount of
-     * additional data we need.
-     */
-    int reported_len = tvb_reported_length_remaining(tvb, 0);
-
-    if (reported_len < len)
-      return -(len - reported_len);
-  }
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_eap, tvb, 0, len, FALSE);
@@ -1190,18 +1177,6 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   return tvb_length(tvb);
 }
 
-static int
-dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  return dissect_eap_data(tvb, pinfo, tree, FALSE);
-}
-
-static int
-dissect_eap_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  return dissect_eap_data(tvb, pinfo, tree, TRUE);
-}
-
 void
 proto_register_eap(void)
 {
@@ -1265,7 +1240,6 @@ proto_register_eap(void)
   register_init_routine(&eap_init_protocol);
 
   new_register_dissector("eap", dissect_eap, proto_eap);
-  new_register_dissector("eap_fragment", dissect_eap_fragment, proto_eap);
   register_init_routine(eaptls_defragment_init);
 }
 
