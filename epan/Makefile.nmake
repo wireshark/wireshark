@@ -143,3 +143,6 @@ strptime.c: ..\strptime.c
 
 radius_dict.c : radius_dict.l
 	$(LEX) radius_dict.l
+
+sminmpec.c: enterprise-numbers make-sminmpec.pl
+	$(PERL) make-sminmpec.pl enterprise-numbers sminmpec.c

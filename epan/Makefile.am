@@ -50,9 +50,11 @@ EXTRA_libethereal_la_SOURCES =	\
 	inet_v6defs.h
 
 EXTRA_DIST = \
+	enterprise-numbers  \
 	libethereal.def	\
 	Makefile.common	\
 	Makefile.nmake	\
+	make-sminmpec.pl \
 	radius_dict.l   \
 	tvbtest.c	\
 	doxygen.cfg.in
@@ -79,6 +81,9 @@ tvbtest: tvbtest.o tvbuff.o except.o strutil.o
 
 radius_dict.c: radius_dict.l
 	$(LEX) radius_dict.l
+
+sminmpec.c: enterprise-numbers make-sminmpec.pl
+	$(PERL) make-sminmpec.pl enterprise-numbers sminmpec.c
 
 if HAVE_PLUGINS
 
