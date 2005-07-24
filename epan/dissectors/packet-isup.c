@@ -54,6 +54,7 @@
 #include "packet-isup.h"
 #include "packet-e164.h"
 #include "sctpppids.h"
+#include <epan/emem.h>
 
 #define MTP3_ISUP_SERVICE_INDICATOR     5
 #define MTP3_BICC_SERVICE_INDICATOR     13
@@ -1493,7 +1494,7 @@ dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree *
     proto_tree_add_string(address_digits_tree, hf_isup_called, parameter_tvb, 
 	  offset - length, length, called_number);
   }
-  tap_called_number = g_strdup(called_number);
+  tap_called_number = ep_strdup(called_number);
 }
 /* ------------------------------------------------------------------
   Dissector Parameter  Subsequent number
@@ -2963,7 +2964,7 @@ dissect_isup_calling_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree 
     }
   }
   proto_item_set_text(parameter_item, "Calling Party Number: %s", calling_number);
-  tap_calling_number = g_strdup(calling_number);
+  tap_calling_number = ep_strdup(calling_number);
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Original called  number
@@ -5512,7 +5513,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
      proto_tree_add_text(isup_tree, message_tvb, 0, 0, "No optional parameters are possible with this message type");
    /* if there are calling/called number, we'll get them for the tap */
 
-   tap_rec.calling_number=tap_calling_number?tap_calling_number:g_strdup("");
+   tap_rec.calling_number=tap_calling_number?tap_calling_number:ep_strdup("");
    tap_rec.called_number=tap_called_number;
    tap_rec.cause_value=tap_cause_value;
    tap_queue_packet(isup_tap, pinfo, &tap_rec);
