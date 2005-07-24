@@ -977,11 +977,10 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					offset += 4+len;
 					len = tvb_get_letohl(tvb, offset);
 					proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len);
-					str = tvb_get_string(tvb, offset+4, len);
+					str = ep_tvb_get_string(tvb, offset+4, len);
 					proto_tree_add_string_format(slsk_tree, hf_slsk_connection_type, tvb, offset+4, len, str,
 						"Connection Type: %s (Char: %s)", connection_type(str),
 						format_text(str, len));
-					g_free(str);
 					offset += 4+len;
 				}
 				else if (check_slsk_format(tvb, offset, "issiii")) {
@@ -998,11 +997,10 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					offset += 4+len;
 					len = tvb_get_letohl(tvb, offset);
 					proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len);
-					str = tvb_get_string(tvb, offset+4, len);
+					str = ep_tvb_get_string(tvb, offset+4, len);
 					proto_tree_add_string_format(slsk_tree, hf_slsk_connection_type, tvb, offset+4, len, str,
 						"Connection Type: %s (Char: %s)", connection_type(str),
 						format_text(str, len));
-					g_free(str);
 					offset += 4+len;
 					proto_tree_add_item(slsk_tree, hf_slsk_ip, tvb, offset, 4, FALSE);
 					offset += 4;
@@ -2359,11 +2357,10 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 						offset += 4+len;
 						len = tvb_get_letohl(tvb, offset);
 						proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len);
-						str = tvb_get_string(tvb, offset+4, len);
+						str = ep_tvb_get_string(tvb, offset+4, len);
 						proto_tree_add_string_format(slsk_tree, hf_slsk_connection_type, tvb, offset+4, len, str,
 							"Connection Type: %s (Char: %s)", connection_type(str),
 							format_text(str, len));
-						g_free(str);
 						offset += 4+len;
 						proto_tree_add_uint(slsk_tree, hf_slsk_token, tvb, offset, 4, tvb_get_letohl(tvb, offset));
 						offset += 4;

@@ -364,7 +364,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tokenoffset = 2;
 		if (hf == hf_unknown)
 			tokenoffset = 0;
-		string = tvb_get_string(tvb, offset + tokenoffset,
+		string = ep_tvb_get_string(tvb, offset + tokenoffset,
 		    linelen - tokenoffset);
 		sub_ti = proto_tree_add_string_format(sdp_tree,hf,tvb, offset,
 					       linelen, string,
@@ -372,7 +372,6 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					       proto_registrar_get_name(hf),
 					       format_text(string,
 					         linelen - tokenoffset));
-		g_free(string);
 		call_sdp_subdissector(tvb_new_subset(tvb,offset+tokenoffset,
 						     linelen-tokenoffset,
 						     linelen-tokenoffset),
@@ -837,12 +836,11 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, proto_item * ti){
 		      hf_session_attribute_field,
 		      tvb, offset, tokenlen, FALSE);
 
-  field_name = tvb_get_string(tvb, offset, tokenlen);
+  field_name = ep_tvb_get_string(tvb, offset, tokenlen);
   
   offset = next_offset + 1;
 
   if (strcmp(field_name, "ipbcp") == 0) {
-	  g_free(field_name);
 	  
 	  offset = tvb_pbrk_guint8(tvb,offset,-1,"0123456789");
 	  
@@ -875,7 +873,6 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, proto_item * ti){
 						  hf_session_attribute_value,
 						  tvb, offset, -1, FALSE);
 
-	  g_free(field_name);
   }
 }
 
@@ -967,14 +964,13 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
     
     if (strcmp(transport_info->media_proto[transport_info->media_count],
                "RTP/AVP") == 0) {
-      media_format = tvb_get_string(tvb, offset, tokenlen);
+      media_format = ep_tvb_get_string(tvb, offset, tokenlen);
       proto_tree_add_string(sdp_media_tree, hf_media_format, tvb, offset,
                              tokenlen, val_to_str(atol(media_format), rtp_payload_type_vals, "%u"));
 	  index = transport_info->media[transport_info->media_count].pt_count;
 	  transport_info->media[transport_info->media_count].pt[index] = atol(media_format);
 	  if (index < (SDP_MAX_RTP_PAYLOAD_TYPES-1))
 		  transport_info->media[transport_info->media_count].pt_count++;
-      g_free(media_format);
     } else {
       proto_tree_add_item(sdp_media_tree, hf_media_format, tvb,
 			  offset, tokenlen, FALSE);
@@ -1021,7 +1017,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
 		      hf_media_attribute_field,
 		      tvb, offset, tokenlen, FALSE);
 
-  field_name = tvb_get_string(tvb, offset, tokenlen);
+  field_name = ep_tvb_get_string(tvb, offset, tokenlen);
 
   offset = next_offset + 1;
   proto_tree_add_item(sdp_media_attribute_tree,
@@ -1033,21 +1029,19 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
 	gint *key;
 
 	next_offset = tvb_find_guint8(tvb,offset,-1,' ');
-	g_free(field_name);
 
     if(next_offset == -1)
 		return;
 
     tokenlen = next_offset - offset;
 
-	payload_type = tvb_get_string(tvb, offset, tokenlen);
+    payload_type = ep_tvb_get_string(tvb, offset, tokenlen);
 
     offset = next_offset + 1;
 
     next_offset = tvb_find_guint8(tvb,offset,-1,'/');
 
     if(next_offset == -1){
-		g_free(payload_type);
         return;
     }
 
@@ -1091,8 +1085,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
 		else
 			g_hash_table_insert(transport_info->media[ transport_info->media_count-1 ].rtp_dyn_payload, key, encoding_name);
 
-    g_free(payload_type);
-  } else g_free(field_name);
+  }
 }
 
 void

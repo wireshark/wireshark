@@ -1062,12 +1062,11 @@ dissect_mq_gmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean bLi
 				if (check_col(pinfo->cinfo, COL_INFO)) 
 				{
 					guint8* sQueue;
-					sQueue = tvb_get_string(tvb, offset + 24, 48);
+					sQueue = ep_tvb_get_string(tvb, offset + 24, 48);
 					if (strip_trailing_blanks(sQueue, 48) != 0)
 					{
 						col_append_fstr(pinfo->cinfo, COL_INFO, " Q=%s", sQueue);
 					}
-					g_free(sQueue);
 				}
 	
 				if (tree)
@@ -1139,12 +1138,11 @@ dissect_mq_pmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean bLi
 				if (check_col(pinfo->cinfo, COL_INFO)) 
 				{
 					guint8* sQueue;
-					sQueue = tvb_get_string(tvb, offset + 32, 48);
+					sQueue = ep_tvb_get_string(tvb, offset + 32, 48);
 					if (strip_trailing_blanks(sQueue, 48) != 0)
 					{
 						col_append_fstr(pinfo->cinfo, COL_INFO, " Q=%s", sQueue);
 					}
-					g_free(sQueue);
 				}
 	
 				if (tree)
@@ -1436,18 +1434,16 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							{
 								guint8* sApplicationName;
 								guint8* sQueueManager;
-								sApplicationName = tvb_get_string(tvb, offset + 48, 28);
+								sApplicationName = ep_tvb_get_string(tvb, offset + 48, 28);
 								if (strip_trailing_blanks(sApplicationName, 28) != 0)
 								{
 									col_append_fstr(pinfo->cinfo, COL_INFO, ": App=%s", sApplicationName);
 								}
-								g_free(sApplicationName);
-								sQueueManager = tvb_get_string(tvb, offset, 48);
+								sQueueManager = ep_tvb_get_string(tvb, offset, 48);
 								if (strip_trailing_blanks(sQueueManager, 48) != 0)
 								{
 									col_append_fstr(pinfo->cinfo, COL_INFO, " QM=%s", sQueueManager);
 								}
-								g_free(sQueueManager);
 							}
 		
 		
@@ -1563,9 +1559,8 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							if (tree)
 							{
 								guint8* sStructId;
-								sStructId = tvb_get_string(tvb, offset, 4);
+								sStructId = ep_tvb_get_string(tvb, offset, 4);
 								ti = proto_tree_add_text(mqroot_tree, tvb, offset, 12, (const char*)sStructId);
-								g_free(sStructId);
 								mq_tree = proto_item_add_subtree(ti, ett_mq_spi_base);
 	
 								proto_tree_add_item(mq_tree, hf_mq_spi_base_structid, tvb, offset, 4, FALSE);
@@ -1606,9 +1601,8 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								{
 									/* Dissect the common part of these structures */
 									guint8* sStructId;
-									sStructId = tvb_get_string(tvb, offset, 4);
+									sStructId = ep_tvb_get_string(tvb, offset, 4);
 									ti = proto_tree_add_text(mqroot_tree, tvb, offset, -1, "%s", (const char*)sStructId);
-									g_free(sStructId);
 									mq_tree = proto_item_add_subtree(ti, ett_mq_spi_base);
 	
 									proto_tree_add_item(mq_tree, hf_mq_spi_base_structid, tvb, offset, 4, FALSE);
@@ -1789,12 +1783,11 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							if (check_col(pinfo->cinfo, COL_INFO)) 
 							{
 								guint8* sChannel;
-								sChannel = tvb_get_string(tvb, offset + 24, 20);
+								sChannel = ep_tvb_get_string(tvb, offset + 24, 20);
 								if (strip_trailing_blanks(sChannel, 20) != 0)
 								{
 									col_append_fstr(pinfo->cinfo, COL_INFO, ": CHL=%s", sChannel);
 								}
-								g_free(sChannel);
 							}
 		
 							if (tree)
@@ -1856,12 +1849,11 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								if (check_col(pinfo->cinfo, COL_INFO)) 
 								{
 									guint8* sQueueManager;
-									sQueueManager = tvb_get_string(tvb, offset + 48, 48);
+									sQueueManager = ep_tvb_get_string(tvb, offset + 48, 48);
 									if (strip_trailing_blanks(sQueueManager,48) != 0)
 									{
 										col_append_fstr(pinfo->cinfo, COL_INFO, " QM=%s", sQueueManager);
 									}
-									g_free(sQueueManager);
 								}
 		
 								if (tree)
@@ -1891,12 +1883,11 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							if (check_col(pinfo->cinfo, COL_INFO)) 
 							{
 								guint8* sUserId;
-								sUserId = tvb_get_string(tvb, offset + 4, 12);
+								sUserId = ep_tvb_get_string(tvb, offset + 4, 12);
 								if (strip_trailing_blanks(sUserId, 12) != 0)
 								{
 									col_append_fstr(pinfo->cinfo, COL_INFO, ": User=%s", sUserId);
 								}
-								g_free(sUserId);
 							}
 		
 							if (tree)
@@ -1943,12 +1934,11 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							if (check_col(pinfo->cinfo, COL_INFO)) 
 							{
 								guint8* sQueue;
-								sQueue = tvb_get_string(tvb, offset + 12, 48);
+								sQueue = ep_tvb_get_string(tvb, offset + 12, 48);
 								if (strip_trailing_blanks(sQueue,48) != 0)
 								{
 									col_append_fstr(pinfo->cinfo, COL_INFO, " Obj=%s", sQueue);
 								}
-								g_free(sQueue);
 							}
 		
 							if (tree)
@@ -2245,7 +2235,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							if (tMsgProps.iOffsetFormat != 0)
 							{
 									guint8* sFormat = NULL;
-									sFormat = tvb_get_string(tvb, tMsgProps.iOffsetFormat, 8);
+									sFormat = ep_tvb_get_string(tvb, tMsgProps.iOffsetFormat, 8);
 									if (strip_trailing_blanks(sFormat, 8) == 0)	sFormat = (guint8*)g_strdup("MQNONE");
 									if (check_col(pinfo->cinfo, COL_INFO)) 
 									{
@@ -2255,7 +2245,6 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 									{
 										proto_tree_add_string_hidden(tree, hf_mq_md_hidden_lastformat, tvb, tMsgProps.iOffsetFormat, 8, (const char*)sFormat);
 									}
-									g_free(sFormat);
 							}
 							if (check_col(pinfo->cinfo, COL_INFO)) 
 							{

@@ -785,12 +785,11 @@ ucp_handle_int(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 	tvb_ensure_bytes_exist(tvb, *offset, len + 1);
     } else
 	len = idx - *offset;
-    strval = tvb_get_string(tvb, *offset, len);
+    strval = ep_tvb_get_string(tvb, *offset, len);
     if (len > 0) {
 	intval = atoi(strval);
 	proto_tree_add_uint(tree, field, tvb, *offset, idx, intval);
     }
-    g_free(strval);
     *offset += len;
     if (idx != -1)
 	*offset += 1;	/* skip terminating '/' */
@@ -812,14 +811,13 @@ ucp_handle_time(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 	tvb_ensure_bytes_exist(tvb, *offset, len + 1);
     } else
 	len = idx - *offset;
-    strval = tvb_get_string(tvb, *offset, len);
+    strval = ep_tvb_get_string(tvb, *offset, len);
     if (len > 0) {
 	tval = ucp_mktime(strval);
 	tmptime.secs  = tval;
 	tmptime.nsecs = 0;
 	proto_tree_add_time(tree, field, tvb, *offset, idx, &tmptime);
     }
-    g_free(strval);
     *offset += len;
     if (idx != -1)
 	*offset += 1;	/* skip terminating '/' */
