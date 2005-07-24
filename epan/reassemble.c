@@ -41,10 +41,10 @@ typedef struct _fragment_key {
 } fragment_key;
 
 typedef struct _dcerpc_fragment_key {
-       address src;
-       address dst;
-       guint32 id;
-    e_uuid_t act_id;
+	address src;
+	address dst;
+	guint32 id;
+	e_uuid_t act_id;
 } dcerpc_fragment_key;
 
 static GMemChunk *fragment_key_chunk = NULL;
@@ -109,34 +109,34 @@ fragment_hash(gconstpointer k)
 static gint
 dcerpc_fragment_equal(gconstpointer k1, gconstpointer k2)
 {
-       const dcerpc_fragment_key* key1 = (const dcerpc_fragment_key*) k1;
-       const dcerpc_fragment_key* key2 = (const dcerpc_fragment_key*) k2;
+	const dcerpc_fragment_key* key1 = (const dcerpc_fragment_key*) k1;
+	const dcerpc_fragment_key* key2 = (const dcerpc_fragment_key*) k2;
 
-       /*key.id is the first item to compare since item is most
-         likely to differ between sessions, thus shortcircuiting
-         the comparasion of addresses.
-       */
-       return (((key1->id == key2->id)
-             && (ADDRESSES_EQUAL(&key1->src, &key2->src))
-             && (ADDRESSES_EQUAL(&key1->dst, &key2->dst))
-             && (memcmp (&key1->act_id, &key2->act_id, sizeof (e_uuid_t)) == 0))
-            ? TRUE : FALSE);
+	/*key.id is the first item to compare since item is most
+	  likely to differ between sessions, thus shortcircuiting
+	  the comparasion of addresses.
+	*/
+	return (((key1->id == key2->id)
+	      && (ADDRESSES_EQUAL(&key1->src, &key2->src))
+	      && (ADDRESSES_EQUAL(&key1->dst, &key2->dst))
+	      && (memcmp (&key1->act_id, &key2->act_id, sizeof (e_uuid_t)) == 0))
+	     ? TRUE : FALSE);
 }
 
 static guint
 dcerpc_fragment_hash(gconstpointer k)
 {
-       const dcerpc_fragment_key* key = (const dcerpc_fragment_key*) k;
-       guint hash_val;
+	const dcerpc_fragment_key* key = (const dcerpc_fragment_key*) k;
+	guint hash_val;
 
-       hash_val = 0;
+	hash_val = 0;
 
-       hash_val += key->id;
-       hash_val += key->act_id.Data1;
-       hash_val += key->act_id.Data2 << 16;
-       hash_val += key->act_id.Data3;
+	hash_val += key->id;
+	hash_val += key->act_id.Data1;
+	hash_val += key->act_id.Data2 << 16;
+	hash_val += key->act_id.Data3;
 
-       return hash_val;
+	return hash_val;
 }
 
 typedef struct _reassembled_key {
@@ -753,7 +753,7 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 	return TRUE;
 }
 
-fragment_data *
+static fragment_data *
 fragment_add_common(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	     GHashTable *fragment_table, guint32 frag_offset,
 	     guint32 frag_data_len, gboolean more_frags,
@@ -1687,14 +1687,21 @@ process_reassembled_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 /*
- * Show a single fragment in a fragment subtree.
+ * Show a single fragment in a fragment subtree, and put information about
+ * it in the top-level item for that subtree.
  */
 static void
 show_fragment(fragment_data *fd, int offset, const fragment_items *fit,
-    proto_tree *ft, tvbuff_t *tvb)
+    proto_tree *ft, proto_item *fi, gboolean first_frag, tvbuff_t *tvb)
 {
 	proto_item *fei=NULL;
 	int hf;
+
+	if (first_frag)
+		proto_item_append_text(fi, " (%u bytes): ", tvb_length(tvb));
+	else
+		proto_item_append_text(fi, ", ");
+	proto_item_append_text(fi, "#%u(%u)", fd->frame, fd->len);
 
 	if (fd->flags & (FD_OVERLAPCONFLICT
 		|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
@@ -1786,7 +1793,7 @@ show_fragment_tree(fragment_data *fd_head, const fragment_items *fit,
 {
 	fragment_data *fd;
 	proto_tree *ft;
-    int i = 0;
+	gboolean first_frag;
 
 	/* It's not fragmented. */
 	pinfo->fragmented = FALSE;
@@ -1796,16 +1803,11 @@ show_fragment_tree(fragment_data *fd_head, const fragment_items *fit,
 	PROTO_ITEM_SET_GENERATED(*fi);
 
 	ft = proto_item_add_subtree(*fi, *(fit->ett_fragments));
-    for (fd = fd_head->next; fd != NULL; fd = fd->next) {
-		show_fragment(fd, fd->offset, fit, ft, tvb);
-        if(i == 0) {
-            proto_item_append_text(*fi, " (%u bytes): ", tvb_length(tvb));
-        } else {
-            proto_item_append_text(*fi, ", ");
-        }
-        proto_item_append_text(*fi, "#%u(%u)", fd->frame, fd->len);
-        i++;
-    }
+	first_frag = TRUE;
+	for (fd = fd_head->next; fd != NULL; fd = fd->next) {
+		show_fragment(fd, fd->offset, fit, ft, *fi, first_frag, tvb);
+		first_frag = FALSE;
+	}
 
 	return show_fragment_errs_in_col(fd_head, fit, pinfo);
 }
@@ -1823,7 +1825,7 @@ show_fragment_seq_tree(fragment_data *fd_head, const fragment_items *fit,
 	guint32 offset, next_offset;
 	fragment_data *fd, *last_fd;
 	proto_tree *ft;
-    int i = 0;
+	gboolean first_frag;
 
 	/* It's not fragmented. */
 	pinfo->fragmented = FALSE;
@@ -1836,20 +1838,15 @@ show_fragment_seq_tree(fragment_data *fd_head, const fragment_items *fit,
 	offset = 0;
 	next_offset = 0;
 	last_fd = NULL;
+	first_frag = TRUE;
 	for (fd = fd_head->next; fd != NULL; fd = fd->next){
 		if (last_fd == NULL || last_fd->offset != fd->offset) {
 			offset = next_offset;
 			next_offset += fd->len;
 		}
 		last_fd = fd;
-		show_fragment(fd, offset, fit, ft, tvb);
-        if(i == 0) {
-            proto_item_append_text(*fi, " (%u bytes): ", tvb_length(tvb));
-        } else {
-            proto_item_append_text(*fi, ", ");
-        }
-        proto_item_append_text(*fi, "#%u(%u)", fd->frame, fd->len);
-        i++;
+		show_fragment(fd, offset, fit, ft, *fi, first_frag, tvb);
+		first_frag = FALSE;
 	}
 
 	return show_fragment_errs_in_col(fd_head, fit, pinfo);
