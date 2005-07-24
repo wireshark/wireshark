@@ -1991,7 +1991,7 @@ whitespace. The same directory as for the personal preferences file is used.
 
 The F<ethers> files are consulted to correlate 6-byte hardware addresses to 
 names. First the personal F<ethers> file is tried and if an address is not 
-found there the global F<ethers> is tried next.
+found there the global F<ethers> file is tried next.
 
 Each line contains one hardware address and name, separated by
 whitespace.  The digits of the hardware address are separated by colons
