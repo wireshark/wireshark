@@ -1,5 +1,5 @@
 /*
- * packet-radius.c
+ * packet-radius.h
  *
  * Definitions for RADIUS packet disassembly
  * $Id$

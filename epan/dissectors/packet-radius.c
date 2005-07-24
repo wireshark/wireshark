@@ -60,6 +60,7 @@
 #include <epan/crypt-md5.h>
 #include <epan/sminmpec.h>
 #include <epan/filesystem.h>
+#include <epan/emem.h>
 
 #include "packet-radius.h"
 
@@ -172,7 +173,6 @@ static const value_string radius_vals[] =
 
 static gchar* dissect_cosine_vpvc(proto_tree* tree, tvbuff_t* tvb) {
 	guint vpi, vci;
-	static gchar buff[24]; /* XXX use e_packet_alloc() */
 	
 	if ( tvb_length(tvb) != 4 )
 		return "[Wrong Lenght for VP/VC AVP]";
@@ -183,9 +183,7 @@ static gchar* dissect_cosine_vpvc(proto_tree* tree, tvbuff_t* tvb) {
 	proto_tree_add_uint(tree,hf_radius_cosine_vpi,tvb,0,2,vpi);
 	proto_tree_add_uint(tree,hf_radius_cosine_vci,tvb,2,2,vci);
 
-	g_snprintf(buff,sizeof(buff),"%u/%u",vpi,vci);
-	
-	return buff; 
+	return ep_strdup_printf("%u/%u",vpi,vci); 
 }
 
 static void
@@ -349,7 +347,7 @@ void radius_ifid(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_
 
 static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int length) {
 	gboolean last_eap = FALSE;
-	static guint8 eap_buffer[MAX_RADIUS_PACKET_SIZE];
+	guint8* eap_buffer = NULL;
 	guint eap_seg_num = 0;
 	guint eap_tot_len = 0;
 	proto_tree* eap_tree = NULL;
@@ -368,22 +366,24 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 		guint32 vendor_id = 0;
 		guint32 avp_vsa_type = 0;
 		guint32 avp_vsa_len = 0;
-		proto_item* avp_item;
+		proto_item* avp_item = proto_tree_add_text(tree,tvb,offset,avp_length,"AVP: l=%u ",avp_length);
 		proto_item* avp_len_item;
 		proto_tree* avp_tree;
 		
+		tvb_ensure_length_remaining(tvb, offset + avp_length - 1);
+
+		length -= avp_length;
+		
 		if (avp_length < 3) {
-			proto_tree_add_text(tree, tvb,offset,0,"AVP too short");
+			proto_item_append_text(avp_item, "[AVP TOO SHORT]");
 			return;
 		}
-		
-		length -= avp_length;
-
-		tvb_ensure_length_remaining(tvb, offset + avp_length - 1);
 		
 		avp_item = proto_tree_add_text(tree,tvb,offset,avp_length,"AVP: l=%u ",avp_length);
 		
 		if (avp_type == RADIUS_VENDOR_SPECIFIC_CODE) {
+			/* XXX TODO: handle 2 byte codes for USR */
+			
 			vendor_id = tvb_get_ntohl(tvb,offset+2);
 			avp_vsa_type = tvb_get_guint8(tvb,offset+6);
 			avp_vsa_len = tvb_get_guint8(tvb,offset+7);
@@ -410,7 +410,9 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 		} else if (avp_type == RADIUS_EAP_MESSAGE_CODE) {
 			guint eap_seg_len = avp_length - 2;
 			
-			if (eap_tot_len + eap_seg_len > sizeof(eap_buffer)) {
+			if (! eap_buffer) eap_buffer = ep_alloc(MAX_RADIUS_PACKET_SIZE);
+
+			if (eap_tot_len + eap_seg_len > MAX_RADIUS_PACKET_SIZE) {
 				proto_tree_add_text(tree, tvb,offset,0,"[Eap-Message longer than maximum radius packet size]");
 				return;
 			}
@@ -806,7 +808,7 @@ proto_register_radius(void)
 	}
 	
 	if (dict_err_str) {
-		report_failure("radius: %s",dict_err_str);
+		g_warning("radius: %s",dict_err_str);
 		g_free(dict_err_str);
 	}
 	
@@ -814,18 +816,18 @@ proto_register_radius(void)
 		g_hash_table_foreach(dict->attrs_by_id,register_attrs,&ri);
 		g_hash_table_foreach(dict->vendors_by_id,register_vendors,&ri);
 	} else {
+		/* XXX: TODO load a default dictionary */
 		dict = g_malloc(sizeof(radius_dictionary_t));
 		
 		dict->attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
 		dict->attrs_by_name = g_hash_table_new(g_str_hash,g_str_equal);
 		dict->vendors_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
-		dict->vendors_by_name = g_hash_table_new(g_str_hash,g_str_equal);		
+		dict->vendors_by_name = g_hash_table_new(g_str_hash,g_str_equal);
 	}
 	
 	radius_vendors = (value_string*) ri.vend_vs->data;
 	
-	proto_radius = proto_register_protocol("Radius Protocol", "RADIUS",
-	    "radius");
+	proto_radius = proto_register_protocol("Radius Protocol", "RADIUS", "radius");
 	
 	proto_register_field_array(proto_radius,(hf_register_info*)(ri.hf->data),ri.hf->len);
 	proto_register_subtree_array((gint**)(ri.ett->data), ri.ett->len);
