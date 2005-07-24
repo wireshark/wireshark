@@ -32,14 +32,13 @@
 
 #include <epan/stats_tree.h>
 
-extern void register_pinfo_stat_trees(void);
 extern void register_http_stat_trees(void);
 
 G_MODULE_EXPORT const gchar version[] = "0.0";
 
 G_MODULE_EXPORT void plugin_register_tap_listener(void)
 {
-	register_http_stat_trees();
+	register_pinfo_stat_trees();
 }
 
 #endif
