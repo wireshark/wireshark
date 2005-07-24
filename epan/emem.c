@@ -25,6 +25,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
 #include <glib.h>
 #include "emem.h"
 
@@ -113,6 +115,61 @@ ep_alloc(size_t size)
 
 	return buf;
 }
+
+
+
+gchar* ep_strdup(const gchar* src) {
+	guint len = strlen(src);
+	gchar* dst;
+	
+	dst = strncpy(ep_alloc(len+1), src, len);
+
+	dst[len] = '\0';
+	
+	return dst;
+}
+
+gchar* ep_strndup(const gchar* src, size_t len) {
+	guint actual_len = strlen(src);
+	gchar* dst;
+	
+	if (len > actual_len)
+		len = actual_len;
+	
+	dst = strncpy(ep_alloc(len+1), src, len);
+	
+	dst[len] = '\0';
+	
+	return dst;
+}
+
+guint8* ep_memdup(const guint8* src, size_t len) {
+	return memcpy(ep_alloc(len), src, len);
+}
+
+gchar* ep_strdup_printf(const gchar* fmt, ...) {
+	va_list ap;
+	guint len;
+	gchar* dst;
+	
+	va_start(ap,fmt);
+	len = g_printf_string_upper_bound (fmt, ap);
+	
+	if ( len < (EMEM_PACKET_CHUNK_SIZE>>2) ) {
+		dst = ep_alloc(len);
+		g_vsnprintf (dst, len, fmt, ap);
+	} else {
+		len = (EMEM_PACKET_CHUNK_SIZE>>2) - 4;
+		
+		dst = ep_alloc(len);
+		g_vsnprintf (dst, len, fmt, ap);
+		memcpy(dst+len,"...",4);
+	}
+	
+	va_end(ap);
+	return dst;
+}
+
 
 /* release all allocated memory back to the pool.
  */

@@ -41,8 +41,22 @@
  * once when [t]ethereal is initialized to set up the required structures.
  */
 void ep_init_chunk(void);
+
 /* Allocate memory with a packet lifetime scope */
 void *ep_alloc(size_t size);
+
+/* Duplicate a string with a packet lifetime scope */
+gchar* ep_strdup(const gchar* src);
+
+/* Duplicate at most n characters of a string with a packet lifetime scope */
+gchar* ep_strndup(const gchar* src, size_t len);
+
+/* Duplicate a buffer with a packet lifetime scope */
+guint8* ep_memdup(const guint8* src, size_t len);
+
+/* Create a formated string with a packet lifetime scope */
+gchar* ep_strdup_printf(const gchar* fmt, ...);
+
 /* release all memory allocated in the previous packet dissector */
 void ep_free_all(void);
 
