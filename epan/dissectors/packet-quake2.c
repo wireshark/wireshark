@@ -117,10 +117,9 @@ dissect_quake2_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 
         len = tvb_length_remaining(tvb, offset);
         if (cl_tree) {
-                text = tvb_get_string(tvb, offset, len);
+                text = ep_tvb_get_string(tvb, offset, len);
                 proto_tree_add_string(cl_tree, hf_quake2_connectionless_text,
                         tvb, offset, len, text);
-                g_free(text);
         }
         offset += len;
 

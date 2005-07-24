@@ -391,16 +391,14 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                                                 
 		switch (tlv) {
 		   case PAGP_TLV_DEVICE_NAME:
-			ch = tvb_get_string(tvb, offset+4, len-4);
+			ch = ep_tvb_get_string(tvb, offset+4, len-4);
 			proto_tree_add_string(tlv_tree, hf_pagp_tlv_device_name,
 			   tvb, offset+4, len-4, ch);
-			g_free(ch);
 			break;
 		   case PAGP_TLV_PORT_NAME:
-			ch = tvb_get_string(tvb, offset+4, len-4);
+			ch = ep_tvb_get_string(tvb, offset+4, len-4);
 			proto_tree_add_string(tlv_tree, hf_pagp_tlv_port_name,
 			   tvb, offset+4, len-4, ch);
-			g_free(ch);
 			break;
 		   case PAGP_TLV_AGPORT_MAC:
 			p_sys = tvb_get_ptr(tvb, offset+4, 6);

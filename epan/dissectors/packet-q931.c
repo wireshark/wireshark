@@ -40,6 +40,7 @@
 #include "packet-e164.h"
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
+#include <epan/emem.h>
 
 #include "lapd_sapi.h"
 #include "packet-tpkt.h"
@@ -57,8 +58,6 @@
  */
 static void reset_q931_packet_info(q931_packet_info *pi);
 static gboolean have_valid_q931_pi=FALSE;
-static q931_packet_info pi_arr[5]; /* We assuming a maximum of 5 q931 messaages per packet */
-static int pi_current=0;
 static q931_packet_info *q931_pi=NULL;
 static int q931_tap = -1;
 
@@ -2090,18 +2089,17 @@ dissect_q931_number_ie(tvbuff_t *tvb, int offset, int len,
 	if ( number_plan == 1 ) {
 		if ( e164_info.e164_number_type != NONE ){
 
-			e164_info.E164_number_str = tvb_get_string(tvb, offset, len);
+			e164_info.E164_number_str = ep_tvb_get_string(tvb, offset, len);
 			e164_info.E164_number_length = len;
 			dissect_e164_number(tvb, tree, offset, len, e164_info);
-			g_free(e164_info.E164_number_str);
 		}
 	}
 
     /* Collect q931_packet_info */
     if ( e164_info.e164_number_type == CALLING_PARTY_NUMBER && have_valid_q931_pi)
-          q931_pi->calling_number = tvb_get_string(tvb, offset, len);
+          q931_pi->calling_number = ep_tvb_get_string(tvb, offset, len);
     if ( e164_info.e164_number_type == CALLED_PARTY_NUMBER && have_valid_q931_pi)
-          q931_pi->called_number = tvb_get_string(tvb, offset, len);
+          q931_pi->called_number = ep_tvb_get_string(tvb, offset, len);
 }
 
 /*
@@ -2342,11 +2340,8 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	fragment_data *fd_head;
 	tvbuff_t *next_tvb = NULL;
 
-	pi_current++;
-	if(pi_current==5){
-		pi_current=0;
-	}
-	q931_pi=&pi_arr[pi_current];
+	q931_pi=ep_alloc(sizeof(q931_packet_info));
+
 	/* Init struct for collecting q931_packet_info */
 	reset_q931_packet_info(q931_pi);
 	have_valid_q931_pi=TRUE;
@@ -3249,10 +3244,6 @@ static void reset_q931_packet_info(q931_packet_info *pi)
         return;
     }
 
-    if (pi->calling_number)
-	    g_free(pi->calling_number);
-    if (pi->called_number)
-	    g_free(pi->called_number);
     pi->calling_number = NULL;
     pi->called_number = NULL;
     pi->cause_value = 0xFF;
