@@ -367,7 +367,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
 
 	    {
 		guint16 version = tvb_get_ntohs(tvb, offset+17); 
-		char *service = dcerpc_get_proto_name(&uuid, version);
+		const char *service = dcerpc_get_proto_name(&uuid, version);
 		if (service)
 		    proto_item_append_text(tr, "UUID: %s", service);
 		else

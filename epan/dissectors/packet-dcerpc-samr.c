@@ -195,7 +195,7 @@ static e_uuid_t uuid_dcerpc_samr = {
 static guint16 ver_dcerpc_samr = 1;
 
 /* Configuration variables */
-static char *nt_password = NULL;
+static const char *nt_password = NULL;
 
 /* Dissect connect specific access rights */
 

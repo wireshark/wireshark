@@ -268,7 +268,8 @@ print_usage(gboolean print_ver)
  * descriptive name.
  */
 static void
-display_dissector_table_names(char *table_name, char *ui_name, gpointer output)
+display_dissector_table_names(char *table_name, const char *ui_name,
+                              gpointer output)
 {
   fprintf((FILE *)output, "\t%s (%s)\n", table_name, ui_name);
 }

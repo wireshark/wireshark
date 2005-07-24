@@ -2046,7 +2046,7 @@ set_pref(gchar *pref_name, gchar *value)
     case PREF_STRING:
       if (strcmp(*pref->varp.string, value) != 0) {
         module->prefs_changed = TRUE;
-        g_free(*pref->varp.string);
+        g_free((void *)*pref->varp.string);
         *pref->varp.string = g_strdup(value);
       }
       break;

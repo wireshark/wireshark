@@ -69,7 +69,7 @@
 #include <epan/crypt-md5.h>
 #include "packet-tacacs.h"
 
-static void md5_xor( guint8 *data, char *key, int data_len, guint8 *session_id, guint8 version, guint8 seq_no );
+static void md5_xor( guint8 *data, const char *key, int data_len, guint8 *session_id, guint8 version, guint8 seq_no );
 
 static int proto_tacacs = -1;
 static int hf_tacacs_version = -1;
@@ -88,7 +88,7 @@ static int hf_tacacs_result3 = -1;
 
 static gint ett_tacacs = -1;
 
-static char *tacplus_opt_key;
+static const char *tacplus_opt_key;
 static GSList *tacplus_keys = NULL;
 
 #define VERSION_TACACS	0x00
@@ -343,7 +343,7 @@ typedef struct _tacplus_key_entry {
 } tacplus_key_entry;
 
 static gint 
-tacplus_decrypted_tvb_setup( tvbuff_t *tvb, tvbuff_t **dst_tvb, packet_info *pinfo, guint32 len, guint8 version, char *key )
+tacplus_decrypted_tvb_setup( tvbuff_t *tvb, tvbuff_t **dst_tvb, packet_info *pinfo, guint32 len, guint8 version, const char *key )
 {
 	guint8	*buff;
 	guint8 session_id[4];
@@ -828,7 +828,7 @@ cmp_conv_address( gconstpointer p1, gconstpointer p2 )
 	return ret;
 }
 
-static char*
+static const char*
 find_key( address *srv, address *cln )
 {
 	tacplus_key_entry data;
@@ -892,9 +892,9 @@ free_tacplus_keys( gpointer data, gpointer user_data _U_ )
 
 static 
 void
-parse_tacplus_keys( char *keys_from_option )
+parse_tacplus_keys( const char *keys_from_option )
 {
-	char *s1,*s;
+	char *key_copy,*s,*s1;
 
 	/* Drop old keys */
 	if( tacplus_keys ) {
@@ -907,16 +907,15 @@ parse_tacplus_keys( char *keys_from_option )
 		/* option not in client/server=key format */
 		return ;
 	}
-	s=strdup(keys_from_option);
-	s1=s;
-	keys_from_option = s;
-	while(keys_from_option){
-		if( (s=strchr( keys_from_option, ' ' )) != NULL )
-			*s++='\0';
-		parse_tuple( keys_from_option );
-		keys_from_option=s;
+	key_copy=strdup(keys_from_option);
+	s=key_copy;
+	while(s){
+		if( (s1=strchr( s, ' ' )) != NULL )
+			*s1++='\0';
+		parse_tuple( s );
+		s=s1;
 	}
-	g_free( s1 );
+	g_free( key_copy );
 #ifdef DEB_TACPLUS
 	g_slist_foreach( tacplus_keys, tacplus_print_key_entry, GINT_TO_POINTER(1) );
 #endif
@@ -934,7 +933,7 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*tmp_pi;
 	guint32		len;
 	gboolean	request=( pinfo->destport == TCP_PORT_TACACS );
-	char		*key=NULL;
+	const char	*key=NULL;
 
 	if( request ) {
 		key=find_key( &pinfo->dst, &pinfo->src );
@@ -1111,7 +1110,7 @@ proto_reg_handoff_tacplus(void)
 #define MD5_LEN 16
 
 static void
-md5_xor( guint8 *data, char *key, int data_len, guint8 *session_id, guint8 version, guint8 seq_no )
+md5_xor( guint8 *data, const char *key, int data_len, guint8 *session_id, guint8 version, guint8 seq_no )
 {
 	int i,j,md5_len;
 	md5_byte_t *md5_buff;

@@ -77,13 +77,13 @@ static GtkWidget *proto_w = NULL;
 static GSList *protocol_list = NULL;
 
 typedef struct protocol_data {
-  char     *name;
-  char 	   *abbrev;
-  int  	   hfinfo_index;
-  gboolean enabled;
-  gboolean was_enabled;
+  const char  *name;
+  const char  *abbrev;
+  int  	      hfinfo_index;
+  gboolean    enabled;
+  gboolean    was_enabled;
 #if GTK_MAJOR_VERSION < 2
-  gint     row;
+  gint        row;
 #else
   GtkTreeIter iter;
 #endif

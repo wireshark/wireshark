@@ -131,7 +131,7 @@ static int proto_snmp = -1;
 # define DEF_MIB_MODULES "IP-MIB:IF-MIB:TCP-MIB:UDP-MIB:SNMPv2-MIB:RFC1213-MIB:UCD-SNMP-MIB"
 #endif /* _WIN32 */
 
-static gchar *mib_modules = DEF_MIB_MODULES;
+static const gchar *mib_modules = DEF_MIB_MODULES;
 static gboolean display_oid = TRUE;
 
 /* Subdissector tables */
@@ -534,7 +534,7 @@ static void
 dissect_snmp_parse_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		   proto_tree *tree, const char *field_name, int ret)
 {
-	char *errstr;
+	const char *errstr;
 
 	errstr = asn1_err_to_str(ret);
 

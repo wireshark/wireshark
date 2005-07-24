@@ -277,7 +277,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
   const char *type_name;
   void *cookie, *cookie2;
   protocol_t *protocol;
-  char *name, *short_name, *filter_name;
+  const char *name, *short_name, *filter_name;
   int namel = 0, short_namel = 0, filter_namel = 0;
   int count, fcount;
 
@@ -303,7 +303,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
     for (i = proto_get_first_protocol(&cookie); i != -1;
          i = proto_get_next_protocol(&cookie)) {
 	    count++;
-        protocol = find_protocol_by_id(i);
+	    protocol = find_protocol_by_id(i);
 	    name = proto_get_protocol_name(i);
 	    short_name = proto_get_protocol_short_name(protocol);
 	    filter_name = proto_get_protocol_filter_name(i);
@@ -328,7 +328,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
     /* ok, display the correctly aligned strings */
     for (i = proto_get_first_protocol(&cookie); i != -1;
          i = proto_get_next_protocol(&cookie)) {
-        protocol = find_protocol_by_id(i);
+	    protocol = find_protocol_by_id(i);
 	    name = proto_get_protocol_name(i);
 	    short_name = proto_get_protocol_short_name(protocol);
 	    filter_name = proto_get_protocol_filter_name(i);
@@ -391,7 +391,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
     fcount = 0;
     for (i = proto_get_first_protocol(&cookie); i != -1;
          i = proto_get_next_protocol(&cookie)) {
-        protocol = find_protocol_by_id(i);
+	    protocol = find_protocol_by_id(i);
 	    name = proto_get_protocol_name(i);
 	    short_name = proto_get_protocol_short_name(protocol);
 	    filter_name = proto_get_protocol_filter_name(i);

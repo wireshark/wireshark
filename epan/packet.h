@@ -142,7 +142,7 @@ typedef void (*DATFunc) (gchar *table_name, ftenum_t selector_type,
     gpointer key, gpointer value, gpointer user_data);
 typedef void (*DATFunc_handle) (gchar *table_name, gpointer value,
     gpointer user_data);
-typedef void (*DATFunc_table) (gchar *table_name, gchar *ui_name,
+typedef void (*DATFunc_table) (gchar *table_name, const gchar *ui_name,
     gpointer user_data);
 
 /* Opaque structure - provides type checking but no access to components */
@@ -169,7 +169,7 @@ extern dissector_table_t register_dissector_table(const char *name,
 extern dissector_table_t find_dissector_table(const char *name);
 
 /* Get the UI name for a sub-dissector table, given its internal name */
-extern char *get_dissector_table_ui_name(const char *name);
+extern const char *get_dissector_table_ui_name(const char *name);
 
 /* Get the field type for values of the selector for a dissector table,
    given the table's internal name */
@@ -284,7 +284,7 @@ extern void new_register_dissector(const char *name, new_dissector_t dissector,
     int proto);
 
 /* Get the short name of the protocol for a dissector handle. */
-extern char *dissector_handle_get_short_name(dissector_handle_t handle);
+extern const char *dissector_handle_get_short_name(dissector_handle_t handle);
 
 /* Get the index of the protocol for a dissector handle. */
 extern int dissector_handle_get_protocol_index(dissector_handle_t handle);

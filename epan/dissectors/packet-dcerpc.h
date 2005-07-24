@@ -245,7 +245,7 @@ typedef struct _dcerpc_sub_dissector {
 
 /* registration function for subdissectors */
 void dcerpc_init_uuid (int proto, int ett, e_uuid_t *uuid, guint16 ver, dcerpc_sub_dissector *procs, int opnum_hf);
-char *dcerpc_get_proto_name(e_uuid_t *uuid, guint16 ver);
+const char *dcerpc_get_proto_name(e_uuid_t *uuid, guint16 ver);
 int dcerpc_get_proto_hf_opnum(e_uuid_t *uuid, guint16 ver);
 dcerpc_sub_dissector *dcerpc_get_proto_sub_dissector(e_uuid_t *uuid, guint16 ver);
 
@@ -254,7 +254,7 @@ dcerpc_sub_dissector *dcerpc_get_proto_sub_dissector(e_uuid_t *uuid, guint16 ver
 value_string *value_string_from_subdissectors(dcerpc_sub_dissector *sd);
 
 /* try to get protocol name registered for this uuid */
-gchar *dcerpc_get_uuid_name(e_uuid_t *uuid, guint16 ver);
+const gchar *dcerpc_get_uuid_name(e_uuid_t *uuid, guint16 ver);
 
 /* Private data passed to subdissectors from the main DCERPC dissector. */
 typedef struct _dcerpc_call_value {
@@ -306,7 +306,7 @@ typedef struct _dcerpc_uuid_value {
     protocol_t *proto;
     int proto_id;
     int ett;
-    gchar *name;
+    const gchar *name;
     dcerpc_sub_dissector *procs;
     int opnum_hf;
 } dcerpc_uuid_value;

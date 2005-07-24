@@ -42,9 +42,9 @@ typedef struct _user_encap_t {
 	gchar* abbr;
 	gchar* long_name;
 	
-	gchar* payload;
-	gchar* header;
-	gchar* trailer;
+	const gchar* payload;
+	const gchar* header;
+	const gchar* trailer;
 	guint header_size;
 	guint trailer_size;
 	

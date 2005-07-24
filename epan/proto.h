@@ -1058,7 +1058,7 @@ extern protocol_t *find_protocol_by_id(int proto_id);
 /** Get the protocol's name for the given protocol's item number.
  @param proto_id protocol id (0-indexed)
  @return its name */
-extern char *proto_get_protocol_name(int proto_id);
+extern const char *proto_get_protocol_name(int proto_id);
 
 /** Get the protocol's item number, for the given protocol's "protocol_t".
  @return its proto_id */
@@ -1066,7 +1066,7 @@ extern int proto_get_id(protocol_t *protocol);
 
 /** Get the protocol's short name, for the given protocol's "protocol_t".
  @return its short name. */
-extern char *proto_get_protocol_short_name(protocol_t *protocol);
+extern const char *proto_get_protocol_short_name(protocol_t *protocol);
 
 /** Is protocol's decoding enabled ?
  @param protocol 
@@ -1076,7 +1076,7 @@ extern gboolean proto_is_protocol_enabled(protocol_t *protocol);
 /** Get a protocol's filter name by it's item number.
  @param proto_id protocol id (0-indexed)
  @return its filter name. */
-extern char *proto_get_protocol_filter_name(int proto_id);
+extern const char *proto_get_protocol_filter_name(int proto_id);
 
 /** Enable / Disable protocol of the given item number.
  @param proto_id protocol id (0-indexed)

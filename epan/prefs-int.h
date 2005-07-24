@@ -67,7 +67,7 @@ struct preference {
 		guint *uint;
 		gboolean *boolp;
 		gint *enump;
-		char **string;
+		const char **string;
 		range_t **range;
 	} varp;			/* pointer to variable storing the value */
 	union {

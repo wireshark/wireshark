@@ -53,7 +53,7 @@ typedef struct _aim_family {
 	int proto_id;
 	protocol_t *proto;
 	guint16 family;
-	char *name;
+	const char *name;
 	const aim_subtype *subtypes;
 } aim_family;
 

@@ -248,7 +248,7 @@ static gboolean allow_zero_as_app_id = FALSE;
 static gboolean suppress_console_output = TRUE;
 
 #define DICT_FN  "diameter/dictionary.xml"
-static gchar *gbl_diameterDictionary;
+static const gchar *gbl_diameterDictionary;
 
 typedef struct _e_diameterhdr_v16 {
   guint32  versionLength;
@@ -316,7 +316,7 @@ static gchar *diameter_vendor_to_str(guint32 vendorId, gboolean longName);
  * the xmlsoft examples.
  */
 static xmlDocPtr
-xmlParseFilePush( char *filename, int checkValid
+xmlParseFilePush( const char *filename, int checkValid
 #ifndef ETHEREAL_XML_DO_VALIDITY_CHECKING
                  _U_
 #endif

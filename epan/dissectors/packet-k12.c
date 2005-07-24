@@ -55,7 +55,7 @@ static dissector_handle_t data_handle;
 
 static module_t *k12_module;
 
-static char* k12_config_filename = "";
+static const char* k12_config_filename = "";
 
 static GHashTable* k12_cfg = NULL;
 
@@ -119,7 +119,7 @@ static gboolean free_just_key (gpointer k, gpointer v _U_, gpointer p _U_) {
 }
 
 
-static GHashTable* k12_load_config(gchar* filename) {
+static GHashTable* k12_load_config(const gchar* filename) {
 	FILE* fp;
 	gchar buffer[0x10000];
 	size_t len;
@@ -193,8 +193,8 @@ static void k12_load_prefs(void) {
 	}
 	
 	if (*k12_config_filename != '\0') {
-			k12_cfg = k12_load_config(k12_config_filename);
-			return;
+		k12_cfg = k12_load_config(k12_config_filename);
+		return;
 	}
 }
 

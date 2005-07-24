@@ -165,14 +165,14 @@ int hf_text_only = -1;
 
 /* Structure for information about a protocol */
 struct _protocol {
-	char	*name;		/* long description */
-	char	*short_name;	/* short description */
-	char	*filter_name;	/* name of this protocol in filters */
-	int	proto_id;	/* field ID for this protocol */
-	GList	*fields;	/* fields for this protocol */
-	GList	*last_field;	/* pointer to end of list of fields */
-	gboolean is_enabled;	/* TRUE if protocol is enabled */
-	gboolean can_toggle;	/* TRUE if is_enabled can be changed */
+	const char *name;		/* long description */
+	const char *short_name;		/* short description */
+	const char *filter_name;	/* name of this protocol in filters */
+	int	proto_id;		/* field ID for this protocol */
+	GList	*fields;		/* fields for this protocol */
+	GList	*last_field;		/* pointer to end of list of fields */
+	gboolean is_enabled;		/* TRUE if protocol is enabled */
+	gboolean can_toggle;		/* TRUE if is_enabled can be changed */
 };
 
 /* List of all protocols */
@@ -2648,7 +2648,7 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
         g_error("Duplicate protocol name \"%s\"!"
             " This might be caused by an inappropriate plugin or a development error.", name);
     }
-    g_hash_table_insert(proto_names, key, name);
+    g_hash_table_insert(proto_names, key, (gpointer)name);
 
     key = g_malloc (sizeof(gint));
     *key = g_str_hash(short_name);
@@ -2657,7 +2657,7 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
         g_error("Duplicate protocol short_name \"%s\"!"
             " This might be caused by an inappropriate plugin or a development error.", short_name);
     }
-    g_hash_table_insert(proto_short_names, key, short_name);
+    g_hash_table_insert(proto_short_names, key, (gpointer)short_name);
 
     found_invalid = FALSE;
     for (i = 0; i < strlen(filter_name); i++) {
@@ -2679,7 +2679,7 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
         g_error("Duplicate protocol filter_name \"%s\"!"
             " This might be caused by an inappropriate plugin or a development error.", filter_name);
     }
-    g_hash_table_insert(proto_filter_names, key, filter_name);
+    g_hash_table_insert(proto_filter_names, key, (gpointer)filter_name);
 
     /* Add this protocol to the list of known protocols; the list
        is sorted by protocol short name. */
@@ -2813,7 +2813,7 @@ int proto_get_id_by_filter_name(const gchar* filter_name)
 	return protocol->proto_id;
 }
 
-char *
+const char *
 proto_get_protocol_name(int proto_id)
 {
 	protocol_t *protocol;
@@ -2822,7 +2822,7 @@ proto_get_protocol_name(int proto_id)
 	return protocol->name;
 }
 
-char *
+const char *
 proto_get_protocol_short_name(protocol_t *protocol)
 {
 	if (protocol == NULL)
@@ -2830,7 +2830,7 @@ proto_get_protocol_short_name(protocol_t *protocol)
 	return protocol->short_name;
 }
 
-char *
+const char *
 proto_get_protocol_filter_name(int proto_id)
 {
 	protocol_t *protocol;

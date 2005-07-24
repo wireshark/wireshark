@@ -985,7 +985,7 @@ pref_fetch(pref_t *pref, gpointer user_data)
     str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
     if (strcmp(*pref->varp.string, str_val) != 0) {
       *pref_changed_p = TRUE;
-      g_free(*pref->varp.string);
+      g_free((void *)*pref->varp.string);
       *pref->varp.string = g_strdup(str_val);
     }
     break;
@@ -1319,7 +1319,7 @@ pref_revert(pref_t *pref, gpointer user_data)
   case PREF_STRING:
     if (strcmp(*pref->varp.string, pref->saved_val.string) != 0) {
       *pref_changed_p = TRUE;
-      g_free(*pref->varp.string);
+      g_free((void *)*pref->varp.string);
       *pref->varp.string = g_strdup(pref->saved_val.string);
     }
     break;

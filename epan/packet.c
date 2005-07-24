@@ -937,7 +937,7 @@ dissector_add_string(const char *name, const gchar *pattern,
 	dtbl_entry->initial = dtbl_entry->current;
 
 /* do the table insertion */
-    	g_hash_table_insert( sub_dissectors->hash_table, pattern,
+    	g_hash_table_insert( sub_dissectors->hash_table, (gpointer)pattern,
     	    (gpointer)dtbl_entry);
 
 	/*
@@ -1417,7 +1417,7 @@ register_dissector_table(const char *name, const char *ui_name, ftenum_t type,
 	return sub_dissectors;
 }
 
-char *
+const char *
 get_dissector_table_ui_name(const char *name)
 {
 	dissector_table_t sub_dissectors = find_dissector_table( name);
@@ -1583,7 +1583,7 @@ static GHashTable *registered_dissectors = NULL;
 
 /* Get the short name of the protocol for a dissector handle, if it has
    a protocol. */
-char *
+const char *
 dissector_handle_get_short_name(dissector_handle_t handle)
 {
 	if (handle->protocol == NULL) {
@@ -1758,7 +1758,7 @@ dissector_dump_decodes_display(gchar *table_name, ftenum_t selector_type _U_,
 	dtbl_entry_t *dtbl_entry;
 	dissector_handle_t handle;
 	gint proto_id;
-	gchar *decode_as;
+	const gchar *decode_as;
 
 	g_assert(sub_dissectors);
 	switch (sub_dissectors->type) {

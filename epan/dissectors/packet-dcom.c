@@ -658,8 +658,8 @@ dissect_dcom_simple_resp(tvbuff_t *tvb, int offset,
    Returns the associated string ptr on a match.
    Formats uuid number and returns the resulting string, on failure.
    (copied from val_to_str) */
-gchar* dcom_uuid_to_str(e_uuid_t *uuid) {
-  gchar *ret;
+const gchar* dcom_uuid_to_str(e_uuid_t *uuid) {
+  const gchar *ret;
   static gchar  str[3][64];
   static gchar *cur;
 
@@ -1154,7 +1154,7 @@ dissect_dcom_append_UUID(tvbuff_t *tvb, int offset,
 	int hfindex, gchar *field_name, int field_index)
 {
 	e_uuid_t uuid;
-	gchar *uuid_name;
+	const gchar *uuid_name;
 
 
 	offset = dissect_dcom_UUID(tvb, offset, pinfo, tree, drep, 

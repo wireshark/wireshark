@@ -78,7 +78,8 @@ dissect_getport_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 {
 	guint32 proto, version;
 	guint32 prog;
-	char *prog_name, *proto_name;
+	const char *prog_name;
+	char *proto_name;
 
 	/* make sure we remember protocol type until the reply packet */
 	if(!pinfo->fd->flags.visited){

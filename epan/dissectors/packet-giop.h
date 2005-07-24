@@ -105,7 +105,7 @@ typedef gboolean (giop_sub_dissector_t)(tvbuff_t *, packet_info *, proto_tree *,
 
 typedef struct giop_sub_handle {
   giop_sub_dissector_t *sub_fn;  /* ptr to sub dissector function */
-  gchar *sub_name;	         /* subdissector string name */
+  const gchar *sub_name;         /* subdissector string name */
   protocol_t *sub_proto;         /* protocol_t for subprotocol */
 } giop_sub_handle_t;
 

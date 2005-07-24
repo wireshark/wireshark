@@ -55,7 +55,7 @@
 typedef struct _rpcstat_t {
 	GtkWidget *win;
 	srt_stat_table srt_table;
-	char *prog;
+	const char *prog;
 	guint32 program;
 	guint32 version;
 	guint32 num_procedures;
@@ -224,8 +224,8 @@ gtk_rpcstat_init(char *optarg)
 	GtkWidget *vbox;
 	GtkWidget *stat_label;
 	GtkWidget *filter_label;
-    GtkWidget *bbox;
-    GtkWidget *close_bt;
+	GtkWidget *bbox;
+	GtkWidget *close_bt;
 	int program, version, pos;
 	char *filter=NULL;
 	GString *error_string;

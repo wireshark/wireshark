@@ -58,7 +58,7 @@
 typedef struct _rpcstat_t {
 	GtkWidget *win;
 	srt_stat_table srt_table;
-	char *prog;
+	const char *prog;
 	e_uuid_t uuid;
 	guint16 ver;
 	int num_procedures;
@@ -193,8 +193,8 @@ gtk_dcerpcstat_init(char *optarg)
 	GtkWidget *vbox;
 	GtkWidget *stat_label;
 	GtkWidget *filter_label;
-    GtkWidget *bbox;
-    GtkWidget *close_bt;
+	GtkWidget *bbox;
+	GtkWidget *close_bt;
 	dcerpc_sub_dissector *procs;
 	e_uuid_t uuid;
 	guint d1,d2,d3,d40,d41,d42,d43,d44,d45,d46,d47;
@@ -295,7 +295,7 @@ gtk_dcerpcstat_init(char *optarg)
 
        	for(i=0;i<(max_procs+1);i++){
 		int j;
-		char *proc_name;
+		const char *proc_name;
 
 		proc_name="unknown";
 		for(j=0;procs[j].name;j++){
@@ -431,7 +431,7 @@ static GtkWidget *program_submenu_menu;
 static GtkWidget *program_submenu_item;
 static GtkWidget *program_submenu_label;
 static int program_subitem_index;
-static char *first_menu_name;
+static const char *first_menu_name;
 static void 
 dcerpcstat_add_program_to_menu(dcerpc_uuid_key *k, dcerpc_uuid_value *v)
 {

@@ -424,9 +424,9 @@ int rpc_prog_hf(guint32 prog, guint32 vers)
 /*	return the name associated with a previously registered program. This
 	should probably eventually be expanded to use the rpc YP/NIS map
 	so that it can give names for programs not handled by ethereal */
-char *rpc_prog_name(guint32 prog)
+const char *rpc_prog_name(guint32 prog)
 {
-	char *progname = NULL;
+	const char *progname = NULL;
 	rpc_prog_info_key       rpc_prog_key;
 	rpc_prog_info_value     *rpc_prog;
 
@@ -1657,7 +1657,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	unsigned int reject_state;
 
 	const char *msg_type_name = NULL;
-	char *progname = NULL;
+	const char *progname = NULL;
 	const char *procname = NULL;
 	static char procname_static[20];
 

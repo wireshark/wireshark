@@ -110,7 +110,7 @@ static int weak_iv(guchar *iv);
  */
 
 #ifndef USE_ENV
-static char *wep_keystr[] = {NULL, NULL, NULL, NULL};
+static const char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 #endif
 
 /* ************************************************************************* */
@@ -3589,7 +3589,7 @@ static int wep_decrypt(guint8 *buf, guint32 len, int key_override) {
 }
 
 static void init_wepkeys(void) {
-  char *tmp;
+  const char *tmp;
   int i;
   GByteArray *bytes;
   gboolean res;

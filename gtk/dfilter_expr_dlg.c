@@ -731,7 +731,7 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
 }
 
 static void
-dfilter_report_bad_value(char *format, ...)
+dfilter_report_bad_value(const char *format, ...)
 {
 	char error_msg_buf[1024];
 	va_list args;
@@ -1396,7 +1396,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
     GtkTreeIter iter, child_iter;
     void *cookie, *cookie2;
-    gchar *name;
+    const gchar *name;
 
     for (i = proto_get_first_protocol(&cookie); i != -1;
 	 i = proto_get_next_protocol(&cookie)) {

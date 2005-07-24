@@ -198,7 +198,7 @@ static void
 dissect_parse_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    proto_tree *tree, const char *field_name, int ret)
 {
-	char *errstr;
+	const char *errstr;
 
 	errstr = asn1_err_to_str(ret);
 

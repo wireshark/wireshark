@@ -120,7 +120,7 @@ extern const value_string rpc_auth_flavor[];
 extern void rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table,
     int procedure_hf);
 extern void rpc_init_prog(int proto, guint32 prog, int ett);
-extern char *rpc_prog_name(guint32 prog);
+extern const char *rpc_prog_name(guint32 prog);
 extern char *rpc_proc_name(guint32 prog, guint32 vers, guint32 proc);
 extern int rpc_prog_hf(guint32 prog, guint32 vers);
 
@@ -167,7 +167,7 @@ typedef struct _rpc_prog_info_value {
 	protocol_t *proto;
 	int proto_id;
 	int ett;
-	char* progname;
+	const char* progname;
 	GArray *procedure_hfs;
 } rpc_prog_info_value;
 

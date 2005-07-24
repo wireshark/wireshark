@@ -134,7 +134,7 @@ radius_attr_info_t no_dictionary_entry = {"Unknown-Attribute",0,FALSE,FALSE,radi
 
 dissector_handle_t eap_fragment_handle;
 
-static gchar* shared_secret = "";
+static const gchar* shared_secret = "";
 
 static guint8 authenticator[AUTHENTICATOR_LENGTH];
 
@@ -201,7 +201,7 @@ radius_decrypt_avp(gchar *dest,tvbuff_t *tvb,int offset,int length)
     totlen = 1;
 	
     md5_init(&md_ctx);
-    md5_append(&md_ctx,(guint8*)shared_secret,strlen(shared_secret));
+    md5_append(&md_ctx,(const guint8*)shared_secret,strlen(shared_secret));
     md5_append(&md_ctx,authenticator, AUTHENTICATOR_LENGTH);
     md5_finish(&md_ctx,digest);
 	

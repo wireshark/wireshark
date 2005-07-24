@@ -55,7 +55,7 @@ typedef struct _rpc_procedure_t {
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _rpcstat_t {
-	char *prog;
+	const char *prog;
 	char *filter;
 	guint32 program;
 	guint32 version;

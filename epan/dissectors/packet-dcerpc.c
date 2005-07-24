@@ -680,7 +680,7 @@ dcerpc_init_uuid (int proto, int ett, e_uuid_t *uuid, guint16 ver,
 
 
 /* try to get registered name for this uuid */
-gchar *dcerpc_get_uuid_name(e_uuid_t *uuid, guint16 ver)
+const gchar *dcerpc_get_uuid_name(e_uuid_t *uuid, guint16 ver)
 {
     dcerpc_uuid_key key;
     dcerpc_uuid_value *sub_proto;
@@ -703,7 +703,7 @@ gchar *dcerpc_get_uuid_name(e_uuid_t *uuid, guint16 ver)
 /* Function to find the name of a registered protocol
  * or NULL if the protocol/version is not known to ethereal.
  */
-char *
+const char *
 dcerpc_get_proto_name(e_uuid_t *uuid, guint16 ver)
 {
     dcerpc_uuid_key key;
@@ -2174,7 +2174,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     dcerpc_uuid_value *sub_proto;
     proto_tree *volatile sub_tree = NULL;
     dcerpc_sub_dissector *proc;
-    gchar *name = NULL;
+    const gchar *name = NULL;
     dcerpc_dissect_fnct_t *volatile sub_dissect;
     const char *volatile saved_proto;
     void *volatile saved_private_data;
