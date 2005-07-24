@@ -138,7 +138,6 @@ ETHEREAL_TAP_SRC = \
 	hostlist_udpip.c \
 	hostlist_wlan.c \
 	io_stat.c	\
-	isup_stat.c	\
 	ldap_stat.c	\
 	mgcp_stat.c	\
 	mtp3_stat.c	\
