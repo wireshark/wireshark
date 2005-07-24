@@ -1811,7 +1811,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   guint16 seq_control;
   guint32 seq_number, frag_number;
   gboolean more_frags;
-  const guint8 *src = NULL, *dst = NULL;
+  const guint8 *src = NULL, *dst = NULL, *bssid = NULL;
   proto_item *ti = NULL;
   proto_item *flag_item;
   proto_item *fc_item;
@@ -1996,6 +1996,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       SET_ADDRESS(&whdr->bssid, AT_ETHER, 6, tvb_get_ptr(tvb, 16,6));
       SET_ADDRESS(&whdr->src, AT_ETHER, 6, src);
       SET_ADDRESS(&whdr->dst, AT_ETHER, 6, dst);
+      whdr->type = frame_type_subtype;
 
       seq_control = tvb_get_letohs(tvb, 22);
       frag_number = COOK_FRAGMENT_NUMBER(seq_control);
@@ -2120,24 +2121,28 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	case DATA_ADDR_T1:
 	  src = tvb_get_ptr (tvb, 10, 6);
 	  dst = tvb_get_ptr (tvb, 4, 6);
+	  bssid = tvb_get_ptr (tvb, 16, 6);
 	  break;
 
 
 	case DATA_ADDR_T2:
 	  src = tvb_get_ptr (tvb, 16, 6);
 	  dst = tvb_get_ptr (tvb, 4, 6);
+	  bssid = tvb_get_ptr (tvb, 10, 6);
 	  break;
 
 
 	case DATA_ADDR_T3:
 	  src = tvb_get_ptr (tvb, 10, 6);
 	  dst = tvb_get_ptr (tvb, 16, 6);
+	  bssid = tvb_get_ptr (tvb, 4, 6);
 	  break;
 
 
 	case DATA_ADDR_T4:
 	  src = tvb_get_ptr (tvb, 24, 6);
 	  dst = tvb_get_ptr (tvb, 16, 6);
+	  bssid = tvb_get_ptr (tvb, 16, 6);
 	  break;
 	}
 
@@ -2148,9 +2153,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
       /* for tap */
 
-      SET_ADDRESS(&whdr->bssid, AT_ETHER, 6, tvb_get_ptr(tvb, 16,6));
+      SET_ADDRESS(&whdr->bssid, AT_ETHER, 6, bssid);
       SET_ADDRESS(&whdr->src, AT_ETHER, 6, src);
       SET_ADDRESS(&whdr->dst, AT_ETHER, 6, dst);
+      whdr->type = frame_type_subtype;
 
       seq_control = tvb_get_letohs(tvb, 22);
       frag_number = COOK_FRAGMENT_NUMBER(seq_control);
