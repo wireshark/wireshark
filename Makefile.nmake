@@ -460,7 +460,7 @@ setup: verify_tools
 !ENDIF
 !IFDEF ZLIB_DIR
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		zlib122-dll zlib122-dll.zip
+		zlib123-dll zlib123-dll.zip
 !ENDIF
 !IFDEF GTK2_DIR
 !IF "$(GTK2_INST_VERSION)" == "2.4"
@@ -508,7 +508,7 @@ clean_setup:
     rm -r -f $(ETHEREAL_LIBS)/gtk+
     rm -r -f $(ETHEREAL_LIBS)/libiconv-1.9.1.bin.woe32
     rm -r -f $(ETHEREAL_LIBS)/gettext-runtime-0.13.1
-    rm -r -f $(ETHEREAL_LIBS)/zlib122-dll
+    rm -r -f $(ETHEREAL_LIBS)/zlib123-dll
     rm -r -f $(ETHEREAL_LIBS)/gtk2
     rm -r -f $(ETHEREAL_LIBS)/gtk-wimp
 
