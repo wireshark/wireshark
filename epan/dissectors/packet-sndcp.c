@@ -561,7 +561,7 @@ proto_reg_handoff_sndcp(void)
 {
   dissector_handle_t sndcp_handle;
 
-  sndcp_handle = create_dissector_handle(dissect_sndcp, proto_sndcp);
+  sndcp_handle = find_dissector("sndcp"); 
 
   /* Register SNDCP dissector with LLC layer for SAPI 3,5,9 and 11 
    */
