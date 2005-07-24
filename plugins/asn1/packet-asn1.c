@@ -135,17 +135,17 @@ static guint tcp_port_asn1 = TCP_PORT_ASN1;
 static guint udp_port_asn1 = UDP_PORT_ASN1;
 static guint sctp_port_asn1 = SCTP_PORT_ASN1;
 #else
-static char *global_tcp_ports_asn1 = NULL;
-static char *global_udp_ports_asn1 = NULL;
-static char *global_sctp_ports_asn1 = NULL;
+static range_t *global_tcp_ports_asn1;
+static range_t *global_udp_ports_asn1;
+static range_t *global_sctp_ports_asn1;
 
-static GSList *tcp_ports_asn1 = 0;
-static GSList *udp_ports_asn1 = 0;
-static GSList *sctp_ports_asn1 = 0;
+static range_t *tcp_ports_asn1;
+static range_t *udp_ports_asn1;
+static range_t *sctp_ports_asn1;
 #endif /* JUST_ONE_PORT */
 
 static gboolean asn1_desegment = TRUE;
-static char *asn1_filename = NULL;
+static const char *asn1_filename = NULL;
 static char *old_default_asn1_filename = NULL;
 #define OLD_DEFAULT_ASN1FILE "asn1" G_DIR_SEPARATOR_S "default.tt"
 #ifdef _WIN32
@@ -153,7 +153,7 @@ static char *old_default_asn1_filename = NULL;
 static char *bad_separator_old_default_asn1_filename = NULL;
 #endif
 static char *current_asn1 = NULL;
-static char *asn1_pduname = NULL;
+static const char *asn1_pduname = NULL;
 static char *current_pduname = NULL;
 static gboolean asn1_debug = FALSE;
 static guint first_pdu_offset = 0;
@@ -2739,7 +2739,7 @@ static char eol[] = "\r\n";
 }
 
 static void
-read_asn1_type_table(char *filename)
+read_asn1_type_table(const char *filename)
 {
 	FILE *f;
 	guint size;
@@ -3332,7 +3332,7 @@ showPDUtree(GNode *p, int n)
 }
 
 static gboolean
-build_pdu_tree(char *pduname)
+build_pdu_tree(const char *pduname)
 {
 	SearchDef sd;
 	guint pdudef, i, tcount;
@@ -4797,142 +4797,6 @@ getPDUenum(PDUprops *props, guint offset, guint cls, guint tag, guint value)
 
 #endif /* READSYNTAX */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * */
-/* Routines to handle parsing a list of ports    */
-/* * * * * * * * * * * * * * * * * * * * * * * * */
-
-#define SKIPWHITE(_s) { while(isspace((guchar)*(_s))) { (_s)++; } }
-
-/* insert error text in front of spec
- * with a delimeter we can recognize on next attempt
- */
-static void insert_error(gchar *s, int len, const gchar *err, guint mark)
-{
-	gchar *news;
-	guint slen;
-
-	news = malloc(len);
-	slen = strlen(s);
-	
-	mark = (mark < slen) ? mark : slen; /* clamp mark within the string */
-
-	snprintf(news, len, "[%s] %.*s|%s", err, (int)mark, s, s + mark);
-	strncpy(s, news, len);
-	free(news);
-}
-
-/* parse a range of port numbers: a,b-c,d
- */
-static GSList *parse_port_range(gchar *s, int len)
-{
-	GSList *list = NULL;
-	guint n, count, fill, fillstart = 0;
-	gchar *es, *orgs;
-
-	count = fill = 0;
-
-	if (s == 0) return 0;
-
-	orgs = es = s;
-
-	SKIPWHITE(es);
-	if (*es == '[')	{	/* an old error message */
-		while(*es != ']') { es++; };
-		es++;
-		SKIPWHITE(es);
-	}
-	memmove(orgs, es, strlen(es)+1); /* remove old error message */
-
-	es = orgs;
-
-	while(1) {
-		s = es;
-		SKIPWHITE(s);	/* for better position of error indicator */
-		n = strtoul(s, &es, 0);
-		if ( (s == es) ||	/* no character processed */
-		     (n > 0xffff) ) { 	/* port number out of range */
-			/* syntax error */
-			if (s == es) es++; /* err indicator after error pos */
-			insert_error(orgs, len, "syntax error", es - orgs);
-			g_slist_free (list);
-			return 0;
-		} else {	/* OK, have a port number */
-			if (fill) { /* create a range of numbers */
-				fill = 0;
-				while(++fillstart < n) {
-					list = g_slist_append (list, GINT_TO_POINTER (fillstart));
-					count++;
-					if (count > 100) {
-						insert_error(orgs, len, "too many ports", es - orgs);
-						g_slist_free (list);
-						return 0;
-					}
-				}
-			}
-			list = g_slist_append (list, GINT_TO_POINTER (n));
-			count++;
-
-			SKIPWHITE(es);
-
-			if (isdigit((guchar)*es))
-				continue; /* a missig comma is OK */
-
-			switch(*es++) {
-			case ',':	 /* on to the next port number */
-				continue;
-			case '-':	 /* start a port range */
-				fill = 1;
-				fillstart = n;
-				continue;
-			case '\0':	/* OK, finished */
-				break;
-			default:	/* some error */
-				insert_error(orgs, len, "invalid character", es - orgs);
-				g_slist_free (list);
-				return 0;
-			}
-			break;
-		}
-	}
-	return list;
-}
-
-/* build text representation of given port list
- */
-static void show_port_range(GSList *list, gchar *buf, int len)
-{
-	gchar delim = 0;
-	int this, last, size;
-
-	last = -2;
-	size = 0;
-	while(list) {
-		this = GPOINTER_TO_INT(list->data);
-		if ((last+1) == this) {
-			delim = '-';
-			last++;
-		} else {
-			if (delim == '-') {
-				size += snprintf(&buf[size], len - size, "%c%d", delim, last);
-				delim = ',';
-			}
-			if (delim)
-				buf[size++] = delim;
-			size += snprintf(&buf[size], len - size, "%d", this);
-			delim = ',';
-			last = this;
-		}
-		list = g_slist_next(list);
-
-	}
-
-	if (delim == '-')
-		size += snprintf(&buf[size], len - size, "%c%d", delim, last);
-}
-
-/* end of port list management routines */
-
-
 void 
 proto_register_asn1(void) {
 
@@ -4999,30 +4863,30 @@ proto_register_asn1(void) {
 				 "ASN.1 messages will be read",
 				 10, &global_sctp_port_asn1);
 #else
-  snprintf(tmpstr, sizeof(tmpstr), "%d", TCP_PORT_ASN1);
-  global_tcp_ports_asn1 = strdup(tmpstr);
+  snprintf(tmpstr, sizeof(tmpstr), "%u", TCP_PORT_ASN1);
+  range_convert_str(&global_tcp_ports_asn1, tmpstr, 65535);
   
-  snprintf(tmpstr, sizeof(tmpstr), "%d", UDP_PORT_ASN1);
-  global_udp_ports_asn1 = strdup(tmpstr);
+  snprintf(tmpstr, sizeof(tmpstr), "%u", UDP_PORT_ASN1);
+  range_convert_str(&global_udp_ports_asn1, tmpstr, 65535);
   
-  snprintf(tmpstr, sizeof(tmpstr), "%d", SCTP_PORT_ASN1);
-  global_sctp_ports_asn1 = strdup(tmpstr);
+  snprintf(tmpstr, sizeof(tmpstr), "%u", SCTP_PORT_ASN1);
+  range_convert_str(&global_sctp_ports_asn1, tmpstr, 65535);
   
-  prefs_register_string_preference(asn1_module, "tcp_ports",
+  prefs_register_range_preference(asn1_module, "tcp_ports",
 				 "ASN.1 TCP Ports",
 				 "The TCP ports on which "
 				 "ASN.1 messages will be read",
-				 &global_tcp_ports_asn1);
-  prefs_register_string_preference(asn1_module, "udp_ports",
+				 &global_tcp_ports_asn1, 65535);
+  prefs_register_range_preference(asn1_module, "udp_ports",
 				 "ASN.1 UDP Ports",
 				 "The UDP ports on which "
 				 "ASN.1 messages will be read",
-				 &global_udp_ports_asn1);
-  prefs_register_string_preference(asn1_module, "sctp_ports",
+				 &global_udp_ports_asn1, 65535);
+  prefs_register_range_preference(asn1_module, "sctp_ports",
 				 "ASN.1 SCTP Ports",
 				 "The SCTP ports on which "
 				 "ASN.1 messages will be read",
-				 &global_sctp_ports_asn1);
+				 &global_sctp_ports_asn1, 65535);
 #endif /* JUST_ONE_PORT */
 
   prefs_register_bool_preference(asn1_module, "desegment_messages",
@@ -5077,25 +4941,71 @@ proto_register_asn1(void) {
 
 /* The registration hand-off routing */
 
+static dissector_handle_t asn1_handle;
+
+static void
+register_tcp_port(guint32 port)
+{
+  dissector_add("tcp.port", port, asn1_handle);
+}
+
+static void
+unregister_tcp_port(guint32 port)
+{
+  dissector_delete("tcp.port", port, asn1_handle);
+}
+
+static void
+register_udp_port(guint32 port)
+{
+  dissector_add("udp.port", port, asn1_handle);
+}
+
+static void
+unregister_udp_port(guint32 port)
+{
+  dissector_delete("udp.port", port, asn1_handle);
+}
+
+static void
+register_sctp_port(guint32 port)
+{
+  dissector_add("sctp.port", port, asn1_handle);
+}
+
+static void
+unregister_sctp_port(guint32 port)
+{
+  dissector_delete("sctp.port", port, asn1_handle);
+}
+
 void
 proto_reg_handoff_asn1(void) {
   static int asn1_initialized = FALSE;
-  static dissector_handle_t asn1_handle;
-  GSList *list;
-  gint len;
+#ifndef JUST_ONE_PORT
+  char *tcp_ports_asn1_string, *udp_ports_asn1_string, *sctp_ports_asn1_string;
+#endif
 
   pcount = 0;
 
 #ifdef JUST_ONE_PORT
-  if (asn1_verbose) g_message("prefs change: tcpport=%d, udpport=%d, sctpport=%d, desegnment=%d, "
+  if (asn1_verbose) g_message("prefs change: tcpport=%u, udpport=%u, sctpport=%u, desegnment=%d, "
 		"asn1file=%s, pduname=%s, first_offset=%d, debug=%d, msg_win=%d, verbose=%d",
   	  global_tcp_port_asn1, global_udp_port_asn1, global_sctp_port_asn1, asn1_desegment,
 	  asn1_filename, asn1_pduname, first_pdu_offset, asn1_debug, asn1_message_win, asn1_verbose);
 #else
-  if (asn1_verbose) g_message("prefs change: tcpports=%s, udpports=%s, sctpports=%s, desegnment=%d, "
+  if (asn1_verbose) {
+    tcp_ports_asn1_string = range_convert_range(global_tcp_ports_asn1);
+    udp_ports_asn1_string = range_convert_range(global_udp_ports_asn1);
+    sctp_ports_asn1_string = range_convert_range(global_sctp_ports_asn1);
+    g_message("prefs change: tcpports=%s, udpports=%s, sctpports=%s, desegnment=%d, "
 		"asn1file=%s, pduname=%s, first_offset=%d, debug=%d, msg_win=%d, verbose=%d",
-  	  global_tcp_ports_asn1, global_udp_ports_asn1, global_sctp_ports_asn1, asn1_desegment,
+  	  tcp_ports_asn1_string, udp_ports_asn1_string, sctp_ports_asn1_string, asn1_desegment,
 	  asn1_filename, asn1_pduname, first_pdu_offset, asn1_debug, asn1_message_win, asn1_verbose);
+    g_free(tcp_ports_asn1_string);
+    g_free(udp_ports_asn1_string);
+    g_free(sctp_ports_asn1_string);
+  }
 #endif /* JUST_ONE_PORT */
 
   if(!asn1_initialized) {
@@ -5103,30 +5013,24 @@ proto_reg_handoff_asn1(void) {
     asn1_initialized = TRUE;
   } else {	/* clean up ports and their lists */
 #ifdef JUST_ONE_PORT
-    dissector_delete("tcp.port", tcp_port_asn1, asn1_handle);
-    dissector_delete("udp.port", udp_port_asn1, asn1_handle);
-    dissector_delete("sctp.port", sctp_port_asn1, asn1_handle);
+    unregister_tcp_port(tcp_port_asn1);
+    unregister_udp_port(udp_port_asn1);
+    unregister_sctp_port(sctp_port_asn1);
 #else
-    list = tcp_ports_asn1;
-    while (list) {
-	    dissector_delete("tcp.port", GPOINTER_TO_INT(list->data), asn1_handle);
-	    list = g_slist_next(list);
+    if (tcp_ports_asn1 != NULL) {
+      range_foreach(tcp_ports_asn1, unregister_tcp_port);
+      g_free(tcp_ports_asn1);
     }
-    g_slist_free(tcp_ports_asn1);
 
-    list = udp_ports_asn1;
-    while (list) {
-	    dissector_delete("udp.port", GPOINTER_TO_INT(list->data), asn1_handle);
-	    list = g_slist_next(list);
+    if (udp_ports_asn1 != NULL) {
+      range_foreach(udp_ports_asn1, unregister_udp_port);
+      g_free(udp_ports_asn1);
     }
-    g_slist_free(udp_ports_asn1);
     
-    list = sctp_ports_asn1;
-    while (list) {
-	    dissector_delete("sctp.port", GPOINTER_TO_INT(list->data), asn1_handle);
-	    list = g_slist_next(list);
+    if (sctp_ports_asn1 != NULL) {
+      range_foreach(sctp_ports_asn1, unregister_sctp_port);
+      g_free(sctp_ports_asn1);
     }
-    g_slist_free(sctp_ports_asn1);
 #endif /* JUST_ONE_PORT */
   }
 
@@ -5163,49 +5067,17 @@ proto_reg_handoff_asn1(void) {
     udp_port_asn1 = global_udp_port_asn1;
     sctp_port_asn1 = global_sctp_port_asn1;
 
-    dissector_add("tcp.port", global_tcp_port_asn1, asn1_handle);
-    dissector_add("udp.port", global_udp_port_asn1, asn1_handle);
-    dissector_add("sctp.port", global_sctp_port_asn1, asn1_handle);
+    register_tcp_port(tcp_port_asn1);
+    register_udp_port(udp_port_asn1);
+    register_sctp_port(sctp_port_asn1);
 #else
-    len = strlen(global_tcp_ports_asn1) + 32; /* extra for possible error message */
-    global_tcp_ports_asn1 = realloc(global_tcp_ports_asn1, len);
-    tcp_ports_asn1 = parse_port_range(global_tcp_ports_asn1, len);
-    if (tcp_ports_asn1)		/* no error, normalize presentation */
-	  show_port_range(tcp_ports_asn1, global_tcp_ports_asn1, len);
-    else
-	  g_message("tcp_ports: %s\n", global_tcp_ports_asn1);
+    tcp_ports_asn1 = range_copy(global_tcp_ports_asn1);
+    udp_ports_asn1 = range_copy(global_udp_ports_asn1);
+    udp_ports_asn1 = range_copy(global_udp_ports_asn1);
 
-    len = strlen(global_udp_ports_asn1) + 32; /* extra for possible error message */
-    global_udp_ports_asn1 = realloc(global_udp_ports_asn1, len);
-    udp_ports_asn1 = parse_port_range(global_udp_ports_asn1, len);
-    if (udp_ports_asn1)		/* no error, normalize presentation */
-	  show_port_range(udp_ports_asn1, global_udp_ports_asn1, len);
-    else
-	  g_message("udp_ports: %s\n", global_udp_ports_asn1);
-
-    len = strlen(global_sctp_ports_asn1) + 32; /* extra for possible error message */
-    global_sctp_ports_asn1 = realloc(global_sctp_ports_asn1, len);
-    sctp_ports_asn1 = parse_port_range(global_sctp_ports_asn1, len);
-    if (sctp_ports_asn1)		/* no error, normalize presentation */
-	  show_port_range(sctp_ports_asn1, global_sctp_ports_asn1, len);
-    else
-	  g_message("sctp_ports: %s\n", global_sctp_ports_asn1);
-
-    list = tcp_ports_asn1;
-    while (list) {
-	  dissector_add("tcp.port", GPOINTER_TO_INT(list->data), asn1_handle);
-	  list = g_slist_next(list);
-    }
-    list = udp_ports_asn1;
-    while (list) {
-	  dissector_add("udp.port", GPOINTER_TO_INT(list->data), asn1_handle);
-	  list = g_slist_next(list);
-    }
-    list = sctp_ports_asn1;
-    while (list) {
-	  dissector_add("sctp.port", GPOINTER_TO_INT(list->data), asn1_handle);
-	  list = g_slist_next(list);
-    }
+    range_foreach(tcp_ports_asn1, register_tcp_port);
+    range_foreach(udp_ports_asn1, register_udp_port);
+    range_foreach(sctp_ports_asn1, register_sctp_port);
   }
 #endif /* JUST_ONE_PORT */
 }
