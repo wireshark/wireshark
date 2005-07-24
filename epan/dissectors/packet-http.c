@@ -41,6 +41,8 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/base64.h>
+#include <epan/emem.h>
+#include <epan/stats_tree.h>
 
 #include <epan/req_resp_hdrs.h>
 #include "packet-http.h"
@@ -192,6 +194,227 @@ static heur_dissector_list_t heur_subdissector_list;
 static dissector_handle_t ntlmssp_handle=NULL;
 static dissector_handle_t gssapi_handle=NULL;
 
+static const value_string vals_status_code[] = {
+	{ 100, "Continue" },
+	{ 101, "Switching Protocols" },
+	{ 199, "Informational - Others" },
+	
+	{ 200, "OK"},
+	{ 201, "Created"},
+	{ 202, "Accepted"},
+	{ 203, "Non-authoritative Information"},
+	{ 204, "No Content"},
+	{ 205, "Reset Content"},
+	{ 206, "Partial Content"},
+	{ 299, "Success - Others"},
+	
+	{ 300, "Multiple Choices"},
+	{ 301, "Moved Permanently"},
+	{ 302, "Moved Temporarily"},
+	{ 303, "See Other"},
+	{ 304, "Not Modified"},
+	{ 305, "Use Proxy"},
+	{ 399, "Redirection - Others"},
+	
+	{ 400, "Bad Request"},
+	{ 401, "Unauthorized"},
+	{ 402, "Payment Required"},
+	{ 403, "Forbidden"},
+	{ 404, "Not Found"},
+	{ 405, "Method Not Allowed"},
+	{ 406, "Not Acceptable"},
+	{ 407, "Proxy Authentication Required"},
+	{ 408, "Request Time-out"},
+	{ 409, "Conflict"},
+	{ 410, "Gone"},
+	{ 411, "Length Required"},
+	{ 412, "Precondition Failed"},
+	{ 413, "Request Entity Too Large"},
+	{ 414, "Request-URI Too Large"},
+	{ 415, "Unsupported Media Type"},
+	{ 499, "Client Error - Others"},
+	
+	{ 500, "Internal Server Error"},
+	{ 501, "Not Implemented"},
+	{ 502, "Bad Gateway"},
+	{ 503, "Service Unavailable"},
+	{ 504, "Gateway Time-out"},
+	{ 505, "HTTP Version not supported"},
+	{ 599, "Server Error - Others"},
+	
+	{ 0, 	NULL}
+};
+
+static const gchar* st_str_reqs = "HTTP Requests by Server";
+static const gchar* st_str_reqs_by_srv_addr = "HTTP Requests by Server Address";
+static const gchar* st_str_reqs_by_http_host = "HTTP Requests by HTTP Host";
+static const gchar* st_str_resps_by_srv_addr = "HTTP Responses by Server Address";
+
+static int st_node_reqs = -1;
+static int st_node_reqs_by_srv_addr = -1;
+static int st_node_reqs_by_http_host = -1;
+static int st_node_resps_by_srv_addr = -1;
+
+static void http_reqs_stats_tree_init(stats_tree* st) {
+	st_node_reqs = stats_tree_create_node(st, st_str_reqs, 0, TRUE);
+	st_node_reqs_by_srv_addr = stats_tree_create_node(st, st_str_reqs_by_srv_addr, st_node_reqs, TRUE);
+	st_node_reqs_by_http_host = stats_tree_create_node(st, st_str_reqs_by_http_host, st_node_reqs, TRUE);
+	st_node_resps_by_srv_addr = stats_tree_create_node(st, st_str_resps_by_srv_addr, 0, TRUE);
+}
+
+static int http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p) {
+	const http_info_value_t* v = p;
+	int reqs_by_this_host;
+	int reqs_by_this_addr;
+	int resps_by_this_addr;
+	int i = v->response_code;
+	static gchar ip_str[256];
+	
+	
+	if (v->request_method) {
+		g_snprintf(ip_str,sizeof(ip_str),"%s",address_to_str(&pinfo->dst));
+		
+		tick_stat_node(st, st_str_reqs, 0, FALSE);
+		tick_stat_node(st, st_str_reqs_by_srv_addr, st_node_reqs, TRUE);
+		tick_stat_node(st, st_str_reqs_by_http_host, st_node_reqs, TRUE);
+		reqs_by_this_addr = tick_stat_node(st, ip_str, st_node_reqs_by_srv_addr, TRUE);
+		
+		if (v->http_host) {
+			reqs_by_this_host = tick_stat_node(st, v->http_host, st_node_reqs_by_http_host, TRUE);
+			tick_stat_node(st, ip_str, reqs_by_this_host, FALSE);
+			
+			tick_stat_node(st, v->http_host, reqs_by_this_addr, FALSE);
+		}
+		
+		return 1;
+		
+	} else if (i != 0) {
+		g_snprintf(ip_str,sizeof(ip_str),"%s",address_to_str(&pinfo->src));
+		
+		tick_stat_node(st, st_str_resps_by_srv_addr, 0, FALSE);
+		resps_by_this_addr = tick_stat_node(st, ip_str, st_node_resps_by_srv_addr, TRUE);
+		
+		if ( (i>100)&&(i<400) ) {
+			tick_stat_node(st, "OK", resps_by_this_addr, FALSE);
+		} else {
+			tick_stat_node(st, "KO", resps_by_this_addr, FALSE);
+		}
+		
+		return 1;
+	}
+	
+	return 0;
+}
+
+
+static int st_node_requests_by_host = -1;
+static const guint8* st_str_requests_by_host = "HTTP Requests by HTTP Host";
+
+static void http_req_stats_tree_init(stats_tree* st) {
+	st_node_requests_by_host = stats_tree_create_node(st, st_str_requests_by_host, 0, TRUE);
+}
+
+static int http_req_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p) {
+	const http_info_value_t* v = p;
+	int reqs_by_this_host;
+	
+	if (v->request_method) {
+		tick_stat_node(st, st_str_requests_by_host, 0, FALSE);
+		
+		if (v->http_host) {
+			reqs_by_this_host = tick_stat_node(st, v->http_host, st_node_requests_by_host, TRUE);
+			
+			if (v->request_uri) {
+				tick_stat_node(st, v->request_uri, reqs_by_this_host, TRUE);
+			}
+		}
+		
+		return 1;
+	}
+	
+	return 0;
+}
+
+static const guint8* st_str_packets = "Total HTTP Packets";
+static const guint8* st_str_requests = "HTTP Request Packets";
+static const guint8* st_str_responses = "HTTP Response Packets";
+static const guint8* st_str_resp_broken = "???: broken";
+static const guint8* st_str_resp_100 = "1xx: Informational";
+static const guint8* st_str_resp_200 = "2xx: Success";
+static const guint8* st_str_resp_300 = "3xx: Redirection";
+static const guint8* st_str_resp_400 = "4xx: Client Error";
+static const guint8* st_str_resp_500 = "5xx: Server Error";
+static const guint8* st_str_other = "Other HTTP Packets";
+
+static int st_node_packets = -1;
+static int st_node_requests = -1;
+static int st_node_responses = -1;
+static int st_node_resp_broken = -1;
+static int st_node_resp_100 = -1;
+static int st_node_resp_200 = -1;
+static int st_node_resp_300 = -1;
+static int st_node_resp_400 = -1;
+static int st_node_resp_500 = -1;
+static int st_node_other = -1;
+
+
+static void http_stats_tree_init(stats_tree* st) {
+	st_node_packets = stats_tree_create_node(st, st_str_packets, 0, TRUE);	
+	st_node_requests = stats_tree_create_pivot(st, st_str_requests, st_node_packets);
+	st_node_responses = stats_tree_create_node(st, st_str_responses, st_node_packets, TRUE);
+	st_node_resp_broken = stats_tree_create_node(st, st_str_resp_broken, st_node_responses, TRUE);
+	st_node_resp_100    = stats_tree_create_node(st, st_str_resp_100,    st_node_responses, TRUE);
+	st_node_resp_200    = stats_tree_create_node(st, st_str_resp_200,    st_node_responses, TRUE);
+	st_node_resp_300    = stats_tree_create_node(st, st_str_resp_300,    st_node_responses, TRUE);
+	st_node_resp_400    = stats_tree_create_node(st, st_str_resp_400,    st_node_responses, TRUE);
+	st_node_resp_500    = stats_tree_create_node(st, st_str_resp_500,    st_node_responses, TRUE);
+	st_node_other = stats_tree_create_node(st, st_str_other, st_node_packets,FALSE);
+}
+
+static int http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p) {
+	const http_info_value_t* v = p;
+	guint i = v->response_code;
+	int resp_grp;
+	const guint8* resp_str;
+	static gchar str[64];
+	
+	tick_stat_node(st, st_str_packets, 0, FALSE);
+	
+	if (i) {
+		tick_stat_node(st, st_str_responses, st_node_packets, FALSE);
+		
+		if ( (i<100)||(i>=600) ) {
+			resp_grp = st_node_resp_broken;
+			resp_str = st_str_resp_broken;
+		} else if (i<200) {
+			resp_grp = st_node_resp_100;
+			resp_str = st_str_resp_100;
+		} else if (i<300) {
+			resp_grp = st_node_resp_200;
+			resp_str = st_str_resp_200;
+		} else if (i<400) {
+			resp_grp = st_node_resp_300;
+			resp_str = st_str_resp_300;
+		} else if (i<500) {
+			resp_grp = st_node_resp_400;
+			resp_str = st_str_resp_400;
+		} else {
+			resp_grp = st_node_resp_500;
+			resp_str = st_str_resp_500;
+		}
+		
+		tick_stat_node(st, resp_str, st_node_responses, FALSE);
+		
+		g_snprintf(str, sizeof(str),"%u %s",i,match_strval(i,vals_status_code));
+		tick_stat_node(st, str, resp_grp, FALSE);
+	} else if (v->request_method) {
+		stats_tree_tick_pivot(st,st_node_requests,v->request_method);
+	} else {
+		tick_stat_node(st, st_str_other, st_node_packets, FALSE);		
+	}
+	
+	return 1;
+}
 
 /* Return a tvb that contains the binary representation of a base64
    string */
@@ -224,28 +447,6 @@ dissect_http_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		call_dissector(ntlmssp_handle, ntlmssp_tvb, pinfo, tree);
 	else
 		call_dissector(gssapi_handle, ntlmssp_tvb, pinfo, tree);
-}
-
-static void
-cleanup_headers(void *arg)
-{
-	headers_t *headers = arg;
-
-	if (headers->content_type != NULL)
-		g_free(headers->content_type);
-	headers->content_type = NULL;
-	/*
-	 * The content_type_parameters field actually points into the
-	 * content_type headers, so don't free it, as that'll double-free
-	 * some memory.
-	 */
-	headers->content_type_parameters = NULL;
-	if (headers->content_encoding != NULL)
-		g_free(headers->content_encoding);
-	headers->content_encoding = NULL;
-	if (headers->transfer_encoding != NULL)
-		g_free(headers->transfer_encoding);
-	headers->transfer_encoding = NULL;
 }
 
 /*
@@ -327,7 +528,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	/* we first allocate and initialize the current stat_info */ 
-	stat_info = g_malloc(sizeof(http_info_value_t));
+	stat_info = ep_alloc(sizeof(http_info_value_t));
 	stat_info->framenum = framenum;
 	stat_info->response_code = 0;
 	stat_info->request_method = NULL;
@@ -336,17 +537,13 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* We'll then delete from the array all the stat_infos that do not belong to this frame */ 
 	i = stat_infos->len;
-	while (i) {		
+	while (i) {
 		--i;
 		
 		si = g_ptr_array_index(stat_infos,i);
 		
 		if ( si->framenum != framenum ) {
 			g_ptr_array_remove_index_fast(stat_infos,i);
-			if (si->request_method) g_free(si->request_method);
-			if (si->request_uri) g_free(si->request_uri);
-			if (si->http_host) g_free(si->http_host);
-			g_free(si);
 		}
 	}
 	
@@ -409,7 +606,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	headers.content_encoding = NULL; /* content encoding not known yet */
 	headers.transfer_encoding = NULL; /* transfer encoding not known yet */
 	saw_req_resp_or_header = FALSE;	/* haven't seen anything yet */
-	CLEANUP_PUSH(cleanup_headers, &headers);
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 		/*
 		 * Find the end of the line.
@@ -878,13 +1074,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * for that content type?
 			 */
 			save_private_data = pinfo->private_data;
-			/*
-			 * XXX - this won't get freed if the subdissector
-			 * throws an exception.  Do we really need to
-			 * strdup it?
-			 */
+
 			if (headers.content_type_parameters)
-				pinfo->private_data = g_strdup(headers.content_type_parameters);
+				pinfo->private_data = ep_strdup(headers.content_type_parameters);
 			else
 				pinfo->private_data = NULL;
 			/*
@@ -945,12 +1137,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += datalen;
 	}
 
-	/*
-	 * Clean up any header stuff, by calling and popping the cleanup
-	 * handler.
-	 */
-	CLEANUP_CALL_AND_POP;
-
 	tap_queue_packet(http_tap, pinfo, stat_info);
 
 	return offset - orig_offset;
@@ -981,7 +1167,7 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	tokenlen = get_token_len(line, lineend, &next_token);
 	if (tokenlen == 0)
 		return;
-	stat_info->request_uri = tvb_get_string(tvb, offset, tokenlen);
+	stat_info->request_uri = (gchar*) tvb_get_string(tvb, offset, tokenlen);
 	proto_tree_add_string(tree, hf_http_request_uri, tvb, offset, tokenlen,
 	    stat_info->request_uri);
 	offset += next_token - line;
@@ -1079,7 +1265,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			break;
 		}
 
-		c = chunk_string;
+		c = (gchar*) chunk_string;
 
 		/*
 		 * We don't care about the extensions.
@@ -1088,7 +1274,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			*c = '\0';
 		}
 
-		if (sscanf(chunk_string, "%x", &chunk_size) != 1) {
+		if ( ( chunk_size = strtol((gchar*)chunk_string, NULL, 16) ) == 0 ) {
 			g_free(chunk_string);
 			break;
 		}
@@ -1385,9 +1571,7 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 		if (isHttpRequestOrReply && reqresp_dissector) {
 			*reqresp_dissector = basic_request_dissector;
 			if (!stat_info->request_method)
-				stat_info->request_method = g_malloc( index+1 );
-				strncpy( stat_info->request_method, data, index);
-				stat_info->request_method[index] = '\0';
+				stat_info->request_method = ep_strndup(data, index+1);
 		}
 	}
 
@@ -1482,10 +1666,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 		 * Fetch the value.
 		 */
 		value_len = line_end_offset - value_offset;
-		value = g_malloc(value_len + 1);
-		memcpy(value, &line[value_offset - offset], value_len);
-		value[value_len] = '\0';
-		CLEANUP_PUSH(g_free, value);
+		value = ep_strndup(&line[value_offset - offset], value_len);
 
 		/*
 		 * Add it to the protocol tree as a particular field,
@@ -1515,10 +1696,8 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			break;
 
 		case HDR_CONTENT_TYPE:
-			if (eh_ptr->content_type != NULL)
-				g_free(eh_ptr->content_type);
-			eh_ptr->content_type = g_malloc(value_len + 1);
-			memcpy(eh_ptr->content_type, value, value_len + 1);
+			eh_ptr->content_type = (gchar*) ep_memdup((guint8*)value,value_len + 1);
+
 			for (i = 0; i < value_len; i++) {
 				c = value[i];
 				if (c == ';' || isspace(c)) {
@@ -1577,31 +1756,18 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			break;
 
 		case HDR_CONTENT_ENCODING:
-			if (eh_ptr->content_encoding != NULL)
-				g_free(eh_ptr->content_encoding);
-			eh_ptr->content_encoding = g_malloc(value_len + 1);
-			memcpy(eh_ptr->content_encoding, value, value_len);
-			eh_ptr->content_encoding[value_len] = '\0';
+			eh_ptr->content_encoding = ep_strndup(value, value_len);
 			break;
 
 		case HDR_TRANSFER_ENCODING:
-			if (eh_ptr->transfer_encoding != NULL)
-				g_free(eh_ptr->transfer_encoding);
-			eh_ptr->transfer_encoding = g_malloc(value_len + 1);
-			memcpy(eh_ptr->transfer_encoding, value, value_len);
-			eh_ptr->transfer_encoding[value_len] = '\0';
+			eh_ptr->transfer_encoding = ep_strndup(value, value_len);
 			break;
 			
-		case HDR_HOST:
-			stat_info->http_host = g_strdup(value);
+		case HDR_HOST: 
+			stat_info->http_host = ep_strndup(value, value_len);
 			break;
+			
 		}
-
-		/*
-		 * Free the value, by calling and popping the cleanup
-		 * handler for it.
-		 */
-		CLEANUP_CALL_AND_POP;
 	}
 }
 
@@ -1986,6 +2152,11 @@ proto_reg_handoff_http(void)
 
 	ntlmssp_handle = find_dissector("ntlmssp");
 	gssapi_handle = find_dissector("gssapi");
+	
+	stats_tree_register("http","http","HTTP/Packet Counter", http_stats_tree_packet, http_stats_tree_init, NULL );
+	stats_tree_register("http","http_req","HTTP/Requests", http_req_stats_tree_packet, http_req_stats_tree_init, NULL );
+	stats_tree_register("http","http_srv","HTTP/Load Distribution",http_reqs_stats_tree_packet,http_reqs_stats_tree_init, NULL );
+	
 }
 
 /*
