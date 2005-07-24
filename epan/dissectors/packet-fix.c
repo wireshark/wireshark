@@ -868,9 +868,8 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        value = tvb_get_string(tvb, value_offset, value_len);
+        value = ep_tvb_get_string(tvb, value_offset, value_len);
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s", (char *)g_datalist_get_data(&msg_types, value));
-        g_free(value);
     }
 
     /* In the interest of speed, if "tree" is NULL, don't do any work not
@@ -926,11 +925,10 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                    packet. */
                 return TRUE;
             }
-            tag_str = tvb_get_string(tvb, field_offset, tag_len);
+            tag_str = ep_tvb_get_string(tvb, field_offset, tag_len);
             tag = atoi(tag_str);
-            g_free(tag_str);
 
-            value = tvb_get_string(tvb, value_offset, value_len);
+            value = ep_tvb_get_string(tvb, value_offset, value_len);
 
             switch(tag) {
                 case 1: /* Field Account */
@@ -2916,7 +2914,6 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             field_offset = offset = ctrla_offset + 1;
             ctrla_offset = tvb_find_guint8(tvb, field_offset, -1, 0x01);
 
-            g_free(value);
             tag_str = NULL;
         }
     }

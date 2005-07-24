@@ -1417,11 +1417,10 @@ elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 	a_bigbuf[0] = Dgt_msid.out[(oct & 0xf0) >> 4];
 	curr_offset++;
 
-	poctets = tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
+	poctets = ep_tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
 
 	my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
 	    &Dgt_msid);
-	g_free(poctets);
 
 	proto_tree_add_string_format(tree,
 	    ((oct & 0x07) == 1) ? hf_ansi_a_min : hf_ansi_a_imsi,
@@ -2746,7 +2745,7 @@ elem_clg_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	curr_offset++;
     }
 
-    poctets = tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
+    poctets = ep_tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
 
     proto_tree_add_string_format(tree, hf_ansi_a_clg_party_ascii_num,
 	tvb, curr_offset, len - (curr_offset - offset),
@@ -2757,7 +2756,6 @@ elem_clg_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
     curr_offset += len - (curr_offset - offset);
 
     sprintf(add_string, " - (%s)", poctets);
-    g_free(poctets);
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -3258,11 +3256,10 @@ elem_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     curr_offset++;
 
-    poctets = tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
+    poctets = ep_tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
 
     my_dgt_tbcd_unpack(a_bigbuf, poctets, len - (curr_offset - offset),
 	&Dgt_tbcd);
-    g_free(poctets);
 
     proto_tree_add_string_format(tree, hf_ansi_a_cld_party_bcd_num,
 	tvb, curr_offset, len - (curr_offset - offset),
@@ -3396,11 +3393,10 @@ elem_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 	curr_offset++;
     }
 
-    poctets = tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
+    poctets = ep_tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
 
     my_dgt_tbcd_unpack(a_bigbuf, poctets, len - (curr_offset - offset),
 	&Dgt_tbcd);
-    g_free(poctets);
 
     proto_tree_add_string_format(tree, hf_ansi_a_clg_party_bcd_num,
 	tvb, curr_offset, len - (curr_offset - offset),
@@ -5286,7 +5282,7 @@ elem_cld_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 
     curr_offset++;
 
-    poctets = tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
+    poctets = ep_tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
 
     proto_tree_add_string_format(tree, hf_ansi_a_cld_party_ascii_num,
 	tvb, curr_offset, len - (curr_offset - offset),
@@ -5297,7 +5293,6 @@ elem_cld_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
     curr_offset += len - (curr_offset - offset);
 
     sprintf(add_string, " - (%s)", poctets);
-    g_free(poctets);
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 

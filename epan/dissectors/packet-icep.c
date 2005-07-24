@@ -158,8 +158,6 @@ static packet_info *mypinfo;
  * This function dissects an "Ice string", adds hf to "tree" and returns consumed 
  * bytes in "*consumed", if errors "*consumed" is -1.
  *
- * Memory for the new string "*dest" is obtained with g_malloc, and caller 
- * is responsible for it (i.e. don't forget to g_free() it if you pass *dest != NULL).
  * "*dest" is a null terminated version of the dissected Ice string.
  */
 static void dissect_ice_string(proto_tree *tree, int hf_icep, 
@@ -258,7 +256,7 @@ static void dissect_ice_string(proto_tree *tree, int hf_icep,
 	
 		
 	if ( Size != 0 ) {
-		s = tvb_get_string(tvb, offset, Size);
+		s = ep_tvb_get_string(tvb, offset, Size);
 		if (tree && add_hf)
 			proto_tree_add_string(tree, hf_icep, tvb, offset, Size, s);
 	} else {
@@ -270,8 +268,6 @@ static void dissect_ice_string(proto_tree *tree, int hf_icep,
 	
 	if ( dest != NULL )
 		*dest = s;
-	else
-		g_free(s);
 	
 	offset += Size;
 	(*consumed) += Size;
@@ -484,7 +480,6 @@ static void dissect_ice_context(proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		
 		if ( consumed_key == -1 ) {
 			(*consumed) = -1;
-			g_free(str_key);
 			return;
 		}
 		
@@ -496,8 +491,6 @@ static void dissect_ice_context(proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		
 		if ( consumed_value == -1 ) {
 			(*consumed) = -1;
-			g_free(str_value);
-			g_free(str_key);
 			return;
 		}
 		
@@ -513,8 +506,6 @@ static void dissect_ice_context(proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 					    str_key, str_value);
 		}
 		
-		g_free(str_value);
-		g_free(str_key);
 	}
 }
 
@@ -733,8 +724,6 @@ static void dissect_icep_request_common(tvbuff_t *tvb, guint32 offset,
 				col_append_fstr(mypinfo->cinfo, COL_INFO, " %s.%s()", 
 						namestr, opstr);
 			}
-			g_free(opstr);
-			g_free(namestr);
 			opstr = NULL;
 			namestr = NULL;
 		}
@@ -790,10 +779,6 @@ static void dissect_icep_request_common(tvbuff_t *tvb, guint32 offset,
 	
 error:
 	(*total_consumed) = -1;
-	if (namestr)
-		g_free(namestr);
-	if (opstr)
-		g_free(opstr);
 }
 
 

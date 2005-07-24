@@ -1597,7 +1597,7 @@ name_in_bitmap(tvbuff_t *tvb, gint offset, guint16 bitmap, int isdir)
 			tp_ofs = nameoff +org_offset;
 			len = tvb_get_guint8(tvb, tp_ofs);
 			tp_ofs++;
-			name = tvb_get_string(tvb, tp_ofs, len);
+			name = ep_tvb_get_string(tvb, tp_ofs, len);
 			return name;
 		}
 		offset += 2;
@@ -1635,7 +1635,7 @@ name_in_bitmap(tvbuff_t *tvb, gint offset, guint16 bitmap, int isdir)
 			tp_ofs = nameoff +org_offset +4;
 			len16 = tvb_get_ntohs(tvb, tp_ofs);
 			tp_ofs += 2;
-			name = tvb_get_string(tvb, tp_ofs, len16);
+			name = ep_tvb_get_string(tvb, tp_ofs, len16);
 			return name;
 		}
 	}
@@ -2064,7 +2064,6 @@ loop_record(tvbuff_t *tvb, proto_tree *ptree, gint offset,
 			}
 			if (name) {
 				item = proto_tree_add_text(ptree, tvb, offset, size, "%s", name);
-				g_free(name);
 			}
 			else {
 				item = proto_tree_add_text(ptree, tvb, offset, size, "line %d", i+1);

@@ -2189,7 +2189,7 @@ fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 			 * other dissectors need to handle various
 			 * character encodings.
 			 */
-			str_val = tvb_get_string(tvb, offset, l);
+			str_val = ep_tvb_get_string(tvb, offset, l);
 			/** this decoding may be not correct for multi-byte characters, Lka */
 			switch (character_set) {
 			case 0x00:	/* ANSI_X3.4 */
@@ -2215,7 +2215,6 @@ fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 				break;
 			}
 			proto_tree_add_text(tree, tvb, offset, l, "%s'%s'", LABEL(label), out);
-			g_free(str_val);
 			lvt-=l;
 			offset+=l;
 		} while (lvt > 0);
