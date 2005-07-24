@@ -1541,7 +1541,10 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 #endif
 		/* create main Graph draw area */
         user_data->dlg.draw_area=gtk_drawing_area_new();
-		user_data->dlg.pixmap_width = user_data->num_nodes * NODE_WIDTH;
+		if (user_data->num_nodes < 2)
+			user_data->dlg.pixmap_width = 2 * NODE_WIDTH;
+		else
+			user_data->dlg.pixmap_width = user_data->num_nodes * NODE_WIDTH;
         WIDGET_SET_SIZE(user_data->dlg.draw_area, user_data->dlg.pixmap_width, user_data->dlg.pixmap_height);
 		user_data->dlg.scroll_window=gtk_scrolled_window_new(NULL, NULL);
 		if ( user_data->num_nodes < 6)  
