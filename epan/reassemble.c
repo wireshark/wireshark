@@ -1613,7 +1613,7 @@ process_reassembled_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	tvbuff_t *next_tvb;
 	gboolean update_col_info;
-    proto_item *frag_tree_item;
+	proto_item *frag_tree_item;
 
 	if (fd_head != NULL && pinfo->fd->num == fd_head->reassembled_in) {
 		/*
