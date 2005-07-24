@@ -19,7 +19,7 @@ LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 LINK_PLUGIN_WITH=..\..\epan\libethereal.lib
 CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
 
-OBJECTS=stats_tree_plugin.obj
+OBJECTS=stats_tree_plugin.obj pinfo_stats_tree.obj
 
 stats_tree.dll stats_tree.exp stats_tree.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
 	link -dll /out:stats_tree.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
