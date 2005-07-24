@@ -455,15 +455,6 @@ dissect_http_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  */
 static http_info_value_t	*stat_info;
 
-/*
- * As the http_info_value_t will contain much more allocated data than it
- * used to, we'll keep the stat_infos for this frame in this array.
- *
- * we'll clean it at every call of dissect_http_message() leaving in the array
- * only those stat_infos that belong to the current frame
- */
-static GPtrArray* stat_infos;
-
 static int
 dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree)
@@ -534,21 +525,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	stat_info->request_method = NULL;
 	stat_info->request_uri = NULL;
 	stat_info->http_host = NULL;
-
-	/* We'll then delete from the array all the stat_infos that do not belong to this frame */ 
-	i = stat_infos->len;
-	while (i) {
-		--i;
-		
-		si = g_ptr_array_index(stat_infos,i);
-		
-		if ( si->framenum != framenum ) {
-			g_ptr_array_remove_index_fast(stat_infos,i);
-		}
-	}
-	
-	/* then we'll add the current stat_info to the array */
-	g_ptr_array_add(stat_infos,stat_info);
 
 	switch (pinfo->match_port) {
 
@@ -1167,7 +1143,7 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	tokenlen = get_token_len(line, lineend, &next_token);
 	if (tokenlen == 0)
 		return;
-	stat_info->request_uri = (gchar*) tvb_get_string(tvb, offset, tokenlen);
+	stat_info->request_uri = (gchar*) ep_tvb_get_string(tvb, offset, tokenlen);
 	proto_tree_add_string(tree, hf_http_request_uri, tvb, offset, tokenlen,
 	    stat_info->request_uri);
 	offset += next_token - line;
@@ -1258,7 +1234,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			break;
 		}
 
-		chunk_string = tvb_get_string(tvb, offset, linelen);
+		chunk_string = ep_tvb_get_string(tvb, offset, linelen);
 
 		if (chunk_string == NULL) {
 			/* Can't get the chunk size line */
@@ -1275,11 +1251,8 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 		}
 
 		if ( ( chunk_size = strtol((gchar*)chunk_string, NULL, 16) ) == 0 ) {
-			g_free(chunk_string);
 			break;
 		}
-
-		g_free(chunk_string);
 
 
 		if (chunk_size > datalen) {
@@ -2105,8 +2078,6 @@ proto_register_http(void)
 	 * Register for tapping
 	 */
 	http_tap = register_tap("http");
-	
-	stat_infos = g_ptr_array_new();
 }
 
 /*
