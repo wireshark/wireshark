@@ -30,6 +30,8 @@
 
 #include <epan/stats_tree.h>
 
+#include "pinfo_stats_tree.h"
+
 /* XXX: this belongs to to_str.c */
 static const gchar* port_type_to_str (port_type type) {
 	switch (type) {
@@ -51,11 +53,11 @@ static const gchar* port_type_to_str (port_type type) {
 static int st_node_ip = -1;
 static gchar* st_str_ip = "IP address";
 
-extern void ip_hosts_stats_tree_init(stats_tree* st) {
+static void ip_hosts_stats_tree_init(stats_tree* st) {
 	st_node_ip = stats_tree_create_node(st, st_str_ip, 0, TRUE);	
 }
 
-extern int ip_hosts_stats_tree_packet(stats_tree *st  , packet_info *pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
+static int ip_hosts_stats_tree_packet(stats_tree *st  , packet_info *pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
 	static guint8 str[128];
 	
 	tick_stat_node(st, st_str_ip, 0, FALSE);
@@ -73,11 +75,11 @@ extern int ip_hosts_stats_tree_packet(stats_tree *st  , packet_info *pinfo, epan
 static int st_node_ptype = -1;
 static gchar* st_str_ptype = "Port Type";
 
-extern void ptype_stats_tree_init(stats_tree* st) {
+static void ptype_stats_tree_init(stats_tree* st) {
 	st_node_ptype = stats_tree_create_pivot(st, st_str_ptype, 0);
 }
 
-extern int ptype_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
+static int ptype_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
 	const gchar* ptype;
 	
 	ptype = port_type_to_str(pinfo->ptype);
@@ -91,11 +93,11 @@ extern int ptype_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_diss
 static int st_node_plen = -1;
 static gchar* st_str_plen = "Packet Lenght";
 
-extern void plen_stats_tree_init(stats_tree* st) {
+static void plen_stats_tree_init(stats_tree* st) {
 	st_node_plen = stats_tree_create_range_node(st, st_str_plen, 0, "0-19","20-39","40-79","80-159","160-319","320-639","640-1279","1280-",NULL);
 }
 
-extern int plen_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
+static int plen_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
 	tick_stat_node(st, st_str_plen, 0, FALSE);
 	stats_tree_tick_range(st, st_str_plen, 0, pinfo->fd->pkt_len);
 	
@@ -111,11 +113,11 @@ extern int plen_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_disse
 static int st_node_dsts = -1;
 static gchar* st_str_dsts = "Destinations";
 
-extern void dsts_stats_tree_init(stats_tree* st) {
+static void dsts_stats_tree_init(stats_tree* st) {
 	st_node_dsts = stats_tree_create_node(st, st_str_dsts, 0, TRUE);	
 }
 
-extern int dsts_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
+static int dsts_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
 	static guint8 str[128];
 	int ip_dst_node;
 	int proto_node;
