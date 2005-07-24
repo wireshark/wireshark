@@ -46,6 +46,7 @@
 #include <string.h>
 
 #include "epan/packet.h"
+#include <epan/emem.h>
 
 
 #define	ALCAP_MSG_HEADER_LEN	6
@@ -115,8 +116,8 @@ static int hf_alcap_organizational_unique_id = -1;
 static int hf_alcap_served_user_gen_ref = -1;
 static int hf_alcap_nsap_address = -1;
 
-static char bigbuf[1024];
-static char bigbuf2[1024];
+static char* bigbuf;
+static char* bigbuf2;
 static dissector_handle_t data_handle;
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
@@ -1621,6 +1622,9 @@ dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item	*alcap_item;
     proto_tree	*alcap_tree = NULL;
 
+	bigbuf = ep_alloc(1024);
+	bigbuf2 = ep_alloc(1024);
+	
     g_pinfo = pinfo;
 
     /*
