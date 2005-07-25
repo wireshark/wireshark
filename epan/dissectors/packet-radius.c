@@ -360,7 +360,7 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 	 */
 	CLEANUP_PUSH(g_free, eap_buffer);
 
-	while (length != 0) {
+	while (length > 0) {
 		radius_attr_info_t* dictionary_entry = NULL;
 		radius_vendor_info_t* vendor = NULL;
 		gint tvb_len;
@@ -375,15 +375,21 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 		
 		if (length < 2) {
 			proto_tree_add_text(tree, tvb, offset, 0,
-					    "Not enough room in packet for AVP header");
+					    "[Not enough room in packet for AVP header]");
 			return;
 		}
 		avp_type = tvb_get_guint8(tvb,offset);
 		avp_length = tvb_get_guint8(tvb,offset+1);
 
+		if (avp_length < 1) {
+			proto_tree_add_text(tree, tvb, offset+1, 1,
+					    "[AVP too short]");
+			return;
+		}
+
 		if (length < avp_length) {
 			proto_tree_add_text(tree, tvb, offset, 0,
-					    "Not enough room in packet for AVP");
+					    "[Not enough room in packet for AVP]");
 			return;
 		}
 		
@@ -395,7 +401,7 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 			/* XXX TODO: handle 2 byte codes for USR */
 			
 			if (avp_length < 8) {
-				proto_item_append_text(avp_item, "[AVP TOO SHORT]");
+				proto_item_append_text(avp_item, "[AVP too short]");
 				offset += avp_length;
 				continue;
 			}
@@ -431,7 +437,7 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 			proto_item_append_text(avp_item, " t=%s(%u)", dictionary_entry->name, avp_type);
 			
 			if (avp_length < 2) {
-				proto_item_append_text(avp_item, "[AVP TOO SHORT]");
+				proto_item_append_text(avp_item, "[AVP too short]");
 				offset += avp_length;
 				continue;
 			}
