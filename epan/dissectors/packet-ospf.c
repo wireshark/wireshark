@@ -1353,7 +1353,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 		case OIF_TNA_IPv4_ADDRESS:
 		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-
+					     "%s (IPv4): %s", stlv_name,
 					     ip_to_str(tvb_get_ptr(tvb, stlv_offset + 8, 4)));
 		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_oif_tna_stlv);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
