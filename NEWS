@@ -116,6 +116,14 @@ New and updated features
 
   RADIUS dictionaries are now included.
 
+  A lot of documentation were updated
+
+  Some command line parameters have changed, see
+  the Ethereal / Tethereal manual pages
+  
+  A "File/File Set" submenu was added to better handle 
+  Ring buffer/Multiple Files 
+  
   Flow graphs can now be created for any protocol.
 
   Memory management has been greatly improved.
