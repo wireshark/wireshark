@@ -37,6 +37,7 @@
 #include <epan/packet.h>
 #include "packet-pktc.h"
 #include "packet-kerberos.h"
+#include "packet-snmp.h"
 
 #define PKTC_PORT	1293
 #define PKTC_MTAFQDN_PORT	2246
@@ -81,6 +82,7 @@ static gint hf_pktc_mtafqdn_ip = -1;
 static gint ett_pktc = -1;
 static gint ett_pktc_app_spec_data = -1;
 static gint ett_pktc_list_of_ciphersuites = -1;
+static gint ett_pktc_engineid = -1;
 
 static gint ett_pktc_mtafqdn = -1;
 
@@ -170,7 +172,9 @@ dissect_pktc_app_specific_data(packet_info *pinfo _U_, proto_tree *parent_tree, 
 {
     int old_offset=offset;
     proto_tree *tree = NULL;
+    proto_tree *engineid_tree = NULL;
     proto_item *item = NULL;
+    proto_item *engineid_item = NULL;
     guint8 len;
 
     if (parent_tree) {
@@ -192,7 +196,9 @@ dissect_pktc_app_specific_data(packet_info *pinfo _U_, proto_tree *parent_tree, 
             offset+=1;
 
             /* snmpEngineID */
-            proto_tree_add_item(tree, hf_pktc_snmpEngineID, tvb, offset, len, FALSE);
+            engineid_item = proto_tree_add_item(tree, hf_pktc_snmpEngineID, tvb, offset, len, FALSE);
+	    engineid_tree = proto_item_add_subtree(engineid_item, ett_pktc_engineid);
+	    dissect_snmp_engineid(engineid_tree, tvb, offset, len);
             offset+=len;
 
             /* boots */
@@ -719,6 +725,7 @@ proto_register_pktc(void)
         &ett_pktc,
         &ett_pktc_app_spec_data,
         &ett_pktc_list_of_ciphersuites,
+	&ett_pktc_engineid,
     };
 
     proto_pktc = proto_register_protocol("PacketCable", "PKTC", "pktc");

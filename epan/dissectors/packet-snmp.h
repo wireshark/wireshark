@@ -32,5 +32,6 @@
  */
 extern guint dissect_snmp_pdu(tvbuff_t *, int, packet_info *, proto_tree *tree,
     int, gint, gboolean);
+extern int dissect_snmp_engineid(proto_tree *, tvbuff_t *, int, int);
 
 #endif

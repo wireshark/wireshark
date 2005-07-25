@@ -2174,6 +2174,7 @@ Thomas Anders           <thomas.anders [AT] blue-cable.de> {
 	PacketCable DHCP options
 	PacketCable (PKTC) updates and enhancements
 	MGCP sub-parameter dissection
+	SNMP Engine ID dissection for SNMP and PKTC
 }
 
 Rich Coe                <Richard.Coe [AT] med.ge.com> {

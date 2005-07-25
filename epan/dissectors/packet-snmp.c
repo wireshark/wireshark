@@ -55,6 +55,7 @@
 #include <epan/conversation.h>
 #include "etypes.h"
 #include <epan/prefs.h>
+#include <epan/sminmpec.h>
 #include "packet-ipx.h"
 #include "packet-hpext.h"
 #include "packet-frame.h"
@@ -143,6 +144,7 @@ static gint ett_parameters_qos = -1;
 static gint ett_global = -1;
 static gint ett_flags = -1;
 static gint ett_secur = -1;
+static gint ett_engineid = -1;
 
 static int hf_snmp_version = -1;
 static int hf_snmp_community = -1;
@@ -159,6 +161,15 @@ static int hf_snmpv3_flags = -1;
 static int hf_snmpv3_flags_auth = -1;
 static int hf_snmpv3_flags_crypt = -1;
 static int hf_snmpv3_flags_report = -1;
+static int hf_snmp_engineid_conform = -1;
+static int hf_snmp_engineid_enterprise = -1;
+static int hf_snmp_engineid_format = -1;
+static int hf_snmp_engineid_ipv4 = -1;
+static int hf_snmp_engineid_ipv6 = -1;
+static int hf_snmp_engineid_mac = -1;
+static int hf_snmp_engineid_text = -1;
+static int hf_snmp_engineid_time = -1;
+static int hf_snmp_engineid_data = -1;
 
 static int proto_smux = -1;
 
@@ -528,6 +539,151 @@ snmp_tag_cls2syntax ( guint tag, guint cls, gushort *syntax)
         cnv++;
     }
     return NULL;
+}
+
+#define F_SNMP_ENGINEID_CONFORM 0x80
+#define SNMP_ENGINEID_RFC1910 0x00
+#define SNMP_ENGINEID_RFC3411 0x01
+
+static const true_false_string tfs_snmp_engineid_conform = {
+  "RFC3411 (SNMPv3)",
+  "RFC1910 (Non-SNMPv3)"
+};
+
+#define SNMP_ENGINEID_FORMAT_IPV4 0x01
+#define SNMP_ENGINEID_FORMAT_IPV6 0x02
+#define SNMP_ENGINEID_FORMAT_MACADDRESS 0x03
+#define SNMP_ENGINEID_FORMAT_TEXT 0x04
+#define SNMP_ENGINEID_FORMAT_OCTETS 0x05
+
+static const value_string snmp_engineid_format_vals[] = {
+	{ SNMP_ENGINEID_FORMAT_IPV4,	"IPv4 address" },
+	{ SNMP_ENGINEID_FORMAT_IPV6,	"IPv6 address" },
+	{ SNMP_ENGINEID_FORMAT_MACADDRESS,	"MAC address" },
+	{ SNMP_ENGINEID_FORMAT_TEXT,	"Text, administratively assigned" },
+	{ SNMP_ENGINEID_FORMAT_OCTETS,	"Octets, administratively assigned" },
+	{ 0,   	NULL }
+};
+
+/* 
+ * SNMP Engine ID dissection according to RFC 3411 (SnmpEngineID TC)
+ * or historic RFC 1910 (AgentID)
+ */
+int
+dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
+{
+    proto_item *item = NULL;
+    guint8 conformance, format;
+    guint32 enterpriseid, seconds;
+    nstime_t ts;
+    int len_remain = len;
+
+    /* first bit: engine id conformance */
+    if (len_remain<4) return offset;
+    conformance = ((tvb_get_guint8(tvb, offset)>>7) && 0x01);
+    proto_tree_add_item(tree, hf_snmp_engineid_conform, tvb, offset, 1, FALSE);
+
+    /* 4-byte enterprise number/name */
+    if (len_remain<4) return offset;
+    enterpriseid = tvb_get_ntohl(tvb, offset);
+    if (conformance) 
+      enterpriseid -= 0x80000000; /* ignore first bit */
+    proto_tree_add_uint(tree, hf_snmp_engineid_enterprise, tvb, offset, 4, enterpriseid);
+    offset+=4;
+    len_remain-=4;
+
+    switch(conformance) {
+
+    case SNMP_ENGINEID_RFC1910:
+      /* 12-byte AgentID w/ 8-byte trailer */
+      if (len_remain==8) {
+	proto_tree_add_text(tree, tvb, offset, 8, "AgentID Trailer: 0x%s",
+			    tvb_bytes_to_str(tvb, offset, 8));
+	offset+=8;
+	len_remain-=8;
+      } else {
+	proto_tree_add_text(tree, tvb, offset, len_remain, "<Data not conforming to RFC1910>");
+	return offset;
+      }
+      break;
+
+    case SNMP_ENGINEID_RFC3411: /* variable length: 5..32 */
+
+      /* 1-byte format specifier */
+      if (len_remain<1) return offset;
+      format = tvb_get_guint8(tvb, offset);
+      item = proto_tree_add_uint_format(tree, hf_snmp_engineid_format, tvb, offset, 1, format, "Engine ID Format: %s (%d)",
+			  val_to_str(format, snmp_engineid_format_vals, "Reserved/Enterprise-specific"), format);
+      offset+=1;
+      len_remain-=1;
+
+      switch(format) {
+      case SNMP_ENGINEID_FORMAT_IPV4:
+	/* 4-byte IPv4 address */
+	if (len_remain==4) {
+	  proto_tree_add_item(tree, hf_snmp_engineid_ipv4, tvb, offset, 4, FALSE);
+	  offset+=4;
+	  len_remain=0;
+	}
+	break;
+      case SNMP_ENGINEID_FORMAT_IPV6:
+	/* 16-byte IPv6 address */
+	if (len_remain==16) {
+	  proto_tree_add_item(tree, hf_snmp_engineid_ipv6, tvb, offset, 16, FALSE);
+	  offset+=16;
+	  len_remain=0;
+	}
+	break;
+      case SNMP_ENGINEID_FORMAT_MACADDRESS:
+	/* 6-byte MAC address */
+	if (len_remain==6) {
+	  proto_tree_add_item(tree, hf_snmp_engineid_mac, tvb, offset, 6, FALSE);
+	  offset+=6;
+	  len_remain=0;
+	}
+	break;
+      case SNMP_ENGINEID_FORMAT_TEXT:
+	/* max. 27-byte string, administratively assigned */
+	if (len_remain<=27) {
+	  proto_tree_add_item(tree, hf_snmp_engineid_text, tvb, offset, len_remain, FALSE);
+	  offset+=len_remain;
+	  len_remain=0;
+	}
+	break;
+      case 128:
+	/* most common enterprise-specific format: (ucd|net)-snmp random */
+	if ((enterpriseid==2021)||(enterpriseid==8072)) {
+	  proto_item_append_text(item, (enterpriseid==2021) ? ": UCD-SNMP Random" : ": Net-SNMP Random"); 
+	  /* demystify: 4B random, 4B epoch seconds */
+	  if (len_remain==8) {
+	    proto_tree_add_item(tree, hf_snmp_engineid_data, tvb, offset, 4, FALSE);
+	    seconds = tvb_get_letohl(tvb, offset+4);
+	    ts.secs = seconds;
+	    proto_tree_add_time_format(tree, hf_snmp_engineid_time, tvb, offset+4, 4, 
+                                  &ts, "Engine ID Data: Creation Time: %s",
+                                  abs_time_secs_to_str(seconds));
+	    offset+=8;
+	    len_remain=0;
+	  }
+	}
+	break;
+      case SNMP_ENGINEID_FORMAT_OCTETS:
+      default:
+	/* max. 27 bytes, administratively assigned or unknown format */
+	if (len_remain<=27) {
+	  proto_tree_add_item(tree, hf_snmp_engineid_data, tvb, offset, len_remain, FALSE);
+	  offset+=len_remain;
+	  len_remain=0;
+	}
+	break;
+      }
+    }
+
+    if (len_remain>0) {
+      proto_tree_add_text(tree, tvb, offset, len_remain, "<Data not conforming to RFC3411>");
+      offset+=len_remain;
+    }
+    return offset;
 }
 
 static void
@@ -1567,6 +1723,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *global_tree = NULL;
 	proto_tree *flags_tree = NULL;
 	proto_tree *secur_tree = NULL;
+	proto_tree *engineid_tree = NULL;
 	proto_item *item = NULL;
 	int ret;
 	guint cls, con, tag;
@@ -1868,9 +2025,13 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				return message_length;
 			}
 			if (secur_tree) {
-				proto_tree_add_text(secur_tree, tvb, offset,
+			  item = proto_tree_add_text(secur_tree, tvb, offset,
 				    length, "Authoritative Engine ID: %s",
-				    bytes_to_str(aengineid, aengineid_length));
+					      bytes_to_str(aengineid, aengineid_length));
+			  if (aengineid_length>0) {
+			    engineid_tree = proto_item_add_subtree(item, ett_engineid);
+			    dissect_snmp_engineid(engineid_tree, tvb, offset+length-aengineid_length, aengineid_length);
+			  }
 			}
 			g_free(aengineid);
 			offset += length;
@@ -1991,9 +2152,13 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			return message_length;
 		}
 		if (snmp_tree) {
-			proto_tree_add_text(snmp_tree, tvb, offset, length,
+			item = proto_tree_add_text(snmp_tree, tvb, offset, length,
 			    "Context Engine ID: %s",
 			    bytes_to_str(cengineid, cengineid_length));
+			if (cengineid_length>0) {
+			  engineid_tree = proto_item_add_subtree(item, ett_engineid);
+			  dissect_snmp_engineid(engineid_tree, tvb, offset+length-cengineid_length, cengineid_length);
+			}
 		}
 		g_free(cengineid);
 		offset += length;
@@ -2501,6 +2666,33 @@ proto_register_snmp(void)
 		{ &hf_snmpv3_flags_report,
 		{ "Reportable", "snmpv3.flags.report", FT_BOOLEAN, 8,
 		    TFS(&flags_set_truth), TH_REPORT, "", HFILL }},
+		{ &hf_snmp_engineid_conform, {
+		    "Engine ID Conformance", "snmp.engineid.conform", FT_BOOLEAN, 8,
+		    TFS(&tfs_snmp_engineid_conform), F_SNMP_ENGINEID_CONFORM, "Engine ID RFC3411 Conformance", HFILL }},
+		{ &hf_snmp_engineid_enterprise, {
+		    "Engine Enterprise ID", "snmp.engineid.enterprise", FT_UINT32, BASE_DEC,
+		    VALS(sminmpec_values), 0, "Engine Enterprise ID", HFILL }},
+		{ &hf_snmp_engineid_format, {
+		    "Engine ID Format", "snmp.engineid.format", FT_UINT8, BASE_DEC,
+		    VALS(snmp_engineid_format_vals), 0, "Engine ID Format", HFILL }},
+		{ &hf_snmp_engineid_ipv4, {
+		    "Engine ID Data: IPv4 address", "snmp.engineid.ipv4", FT_IPv4, BASE_NONE,
+		    NULL, 0, "Engine ID Data: IPv4 address", HFILL }},
+		{ &hf_snmp_engineid_ipv6, {
+		    "Engine ID Data: IPv6 address", "snmp.engineid.ipv6", FT_IPv6, BASE_NONE,
+		    NULL, 0, "Engine ID Data: IPv6 address", HFILL }},
+		{ &hf_snmp_engineid_mac, {
+		    "Engine ID Data: MAC address", "snmp.engineid.mac", FT_ETHER, BASE_NONE,
+		    NULL, 0, "Engine ID Data: MAC address", HFILL }},
+		{ &hf_snmp_engineid_text, {
+		    "Engine ID Data: Text", "snmp.engineid.text", FT_STRING, BASE_NONE,
+		    NULL, 0, "Engine ID Data: Text", HFILL }},
+		{ &hf_snmp_engineid_time, {
+		    "Engine ID Data: Time", "snmp.engineid.time", FT_ABSOLUTE_TIME, BASE_NONE,
+		    NULL, 0, "Engine ID Data: Time", HFILL }},
+		{ &hf_snmp_engineid_data, {
+		    "Engine ID Data", "snmp.engineid.data", FT_BYTES, BASE_HEX,
+		    NULL, 0, "Engine ID Data", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_snmp,
@@ -2509,6 +2701,7 @@ proto_register_snmp(void)
 		&ett_global,
 		&ett_flags,
 		&ett_secur,
+		&ett_engineid,
 	};
 	module_t *snmp_module;
 
