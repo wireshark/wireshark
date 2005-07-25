@@ -676,8 +676,15 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 	}
 
 
-	/* check if we have received the entire fragment
-	 * this is easy since the list is sorted and the head is faked.
+	/*
+	 * Check if we have received the entire fragment.
+	 * This is easy since the list is sorted and the head is faked.
+	 *
+	 * First, we compute the amount of contiguous data that's
+	 * available.  (The check for fd_i->offset <= max rules out
+	 * fragments that don't start before or at the end of the
+	 * previous fragment, i.e. fragments that have a gap between
+	 * them and the previous fragment.)
 	 */
 	max = 0;
 	for (fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {
@@ -688,7 +695,11 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 	}
 
 	if (max < (fd_head->datalen)) {
-		/* we have not received all packets yet */
+		/*
+		 * The amount of contiguous data we have is less than the
+		 * amount of data we're trying to reassemble, so we haven't
+		 * received all packets yet.
+		 */
 		return FALSE;
 	}
 
@@ -725,18 +736,34 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 			}
 			/* dfpos is always >= than fd_i->offset */
 			/* No gaps can exist here, max_loop(above) does this */
+			/* XXX - true? Can we get fd_i->offset+fd-i->len */
+			/* overflowing, for example? */
 			if( fd_i->offset+fd_i->len > dfpos ) {
-				if( !(fd_i->flags & FD_NOT_MALLOCED) ) {
-					memcpy(fd_head->data+dfpos, fd_i->data+(dfpos-fd_i->offset),
-					fd_i->len-(dfpos-fd_i->offset));
-					g_free(fd_i->data);
-				} else {
-					g_warning("Reassemble error in frame %d", pinfo->fd->num);
-					fd_i->flags ^= FD_NOT_MALLOCED;
-				}
-			} 
-
-
+				if (fd_i->offset+fd_i->len > max)
+					g_warning("Reassemble error in frame %u: offset %u + len %u > max %u",
+					    pinfo->fd->num, fd_i->offset,
+					    fd_i->len, max);
+				else if (dfpos < fd_i->offset)
+					g_warning("Reassemble error in frame %u: dfpos %u < offset %u",
+					    pinfo->fd->num, dfpos, fd_i->offset);
+				else if (dfpos-fd_i->offset > fd_i->len)
+					g_warning("Reassemble error in frame %u: dfpos %u - offset %u > len %u",
+					    pinfo->fd->num, dfpos, fd_i->offset,
+					    fd_i->len);
+				else
+					memcpy(fd_head->data+dfpos,
+					    fd_i->data+(dfpos-fd_i->offset),
+					    fd_i->len-(dfpos-fd_i->offset));
+			} else {
+				if (fd_i->offset+fd_i->len < fd_i->offset)
+					g_warning("Reassemble error in frame %u: offset %u + len %u < offset",
+					    pinfo->fd->num, fd_i->offset,
+					    fd_i->len);
+			}
+			if( fd_i->flags & FD_NOT_MALLOCED )
+				fd_i->flags &= ~FD_NOT_MALLOCED;
+			else
+				g_free(fd_i->data);
 			fd_i->data=NULL;
 
 			dfpos=MAX(dfpos,(fd_i->offset+fd_i->len));
