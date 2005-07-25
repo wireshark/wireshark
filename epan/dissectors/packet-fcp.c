@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -147,12 +147,12 @@ static gchar *
 task_mgmt_flags_to_str (guint8 flags, gchar *str)
 {
     int stroff = 0;
-    
+
     if (str == NULL)
         return str;
 
     *str = '\0';
-    
+
     if (flags & 0x80) {
         strcpy (str, "Obsolete, ");
         stroff += 10;
@@ -200,7 +200,7 @@ rspflags_to_str (guint8 flags, gchar *str)
         return (str);
 
     *str = '\0';
-    
+
     if (flags & 0x10) {
         strcpy (str, "FCP_CONF_REQ | ");
         stroff += 15;
@@ -248,7 +248,7 @@ dissect_fcp_cmnd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (flags) {
         add_len = tvb_get_guint8 (tvb, offset+11) & 0x7C;
         add_len = add_len >> 2;
-        
+
         len = FCP_DEF_CMND_LEN + add_len;
     }
     else {
@@ -258,7 +258,7 @@ dissect_fcp_cmnd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* We track the conversation to determine how many bytes is required */
     /* by the data that is sent back or sent next by the initiator as part */
     /* of this command. The state is destroyed in the response dissector */
-    
+
     conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                       pinfo->ptype, pinfo->oxid,
                                       pinfo->rxid, NO_PORT2);
@@ -267,12 +267,12 @@ dissect_fcp_cmnd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                          pinfo->ptype, pinfo->oxid,
                                          pinfo->rxid, NO_PORT2);
     }
-    
+
     ckey.conv_idx = conversation->index;
     task_key.conv_id = conversation->index;
     task_key.task_id = conversation->index;
     pinfo->private_data = (void *)&task_key;
-    
+
     cdata = (fcp_conv_data_t *)g_hash_table_lookup (fcp_req_hash,
                                                     &ckey);
     /*
@@ -289,7 +289,7 @@ dissect_fcp_cmnd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (cdata) {
         /* Since we never free the memory used by an exchange, this maybe a
          * case of another request using the same exchange as a previous
-         * req. 
+         * req.
          */
         cdata->fcp_dl = tvb_get_ntohl (tvb, offset+12+16+add_len);
         cdata->abs_usecs = pinfo->fd->abs_usecs;
@@ -298,15 +298,15 @@ dissect_fcp_cmnd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else {
         req_key = g_mem_chunk_alloc (fcp_req_keys);
         req_key->conv_idx = conversation->index;
-        
+
         cdata = g_mem_chunk_alloc (fcp_req_vals);
         cdata->fcp_dl = tvb_get_ntohl (tvb, offset+12+16+add_len);
         cdata->abs_usecs = pinfo->fd->abs_usecs;
         cdata->abs_secs = pinfo->fd->abs_secs;
-        
+
         g_hash_table_insert (fcp_req_hash, req_key, cdata);
     }
-    
+
     /* XXX this one is redundant  right?  ronnie
     dissect_scsi_cdb (tvb, pinfo, fcp_tree, offset+12, 16+add_len,
                       SCSI_DEV_UNKNOWN, lun);
@@ -316,11 +316,11 @@ dissect_fcp_cmnd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_protocol_format (tree, proto_fcp, tvb, 0, len,
                                              "FCP_CMND");
         fcp_tree = proto_item_add_subtree (ti, ett_fcp);
-    }    
+    }
     proto_tree_add_uint_hidden (fcp_tree, hf_fcp_type, tvb, offset, 0, 0);
-    
+
     lun0 = tvb_get_guint8 (tvb, offset);
-    
+
     /* Display single-level LUNs in decimal for clarity */
     /* I'm taking a shortcut here by assuming that if the first byte of the
      * LUN field is 0, it is a single-level LUN. This is not true. For a
@@ -380,7 +380,7 @@ dissect_fcp_data (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                       pinfo->rxid, NO_PORT2);
     if (conversation) {
         ckey.conv_idx = conversation->index;
-    
+
         cdata = (fcp_conv_data_t *)g_hash_table_lookup (fcp_req_hash,
                                                         &ckey);
         task_key.conv_id = conversation->index;
@@ -424,7 +424,7 @@ dissect_fcp_rsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     scsi_task_id_t task_key;
 
     status = tvb_get_guint8 (tvb, offset+11);
-    
+
     if (check_col (pinfo->cinfo, COL_INFO)) {
         col_append_fstr (pinfo->cinfo, COL_INFO, " , %s",
                          val_to_str (status, scsi_status_val, "0x%x"));
@@ -436,13 +436,13 @@ dissect_fcp_rsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                       pinfo->rxid, NO_PORT2);
     if (conversation) {
         ckey.conv_idx = conversation->index;
-    
+
         cdata = (fcp_conv_data_t *)g_hash_table_lookup (fcp_req_hash,
                                                         &ckey);
         task_key.conv_id = task_key.task_id = conversation->index;
         pinfo->private_data = (void *)&task_key;
     }
-    
+
     if (tree) {
         ti = proto_tree_add_protocol_format (tree, proto_fcp, tvb, 0, -1,
                                              "FCP_RSP");
@@ -485,9 +485,9 @@ dissect_fcp_rsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                  0);
         }
         /* This handles too-large rsplen values (including ones > 2^31-1) */
-        tvb_ensure_bytes_exist (tvb, offset+24, rsplen);
-        offset += 24+rsplen;
         if (flags & 0x2) {
+            tvb_ensure_bytes_exist (tvb, offset+24, rsplen);
+            offset += 24+rsplen;
             dissect_scsi_snsinfo (tvb, pinfo, tree, offset,
                                   snslen,
 				  (guint16) (cdata?cdata->fcp_lun:0xffff) );
@@ -527,10 +527,10 @@ dissect_fcp_xfer_rdy (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                          pinfo->ptype, pinfo->oxid,
                                          pinfo->rxid, NO_PORT2);
     }
-    
+
     if (conversation) {
         ckey.conv_idx = conversation->index;
-    
+
         cdata = (fcp_conv_data_t *)g_hash_table_lookup (fcp_req_hash,
                                                         &ckey);
         if (cdata != NULL) {
@@ -539,11 +539,11 @@ dissect_fcp_xfer_rdy (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         else {
             req_key = g_mem_chunk_alloc (fcp_req_keys);
             req_key->conv_idx = conversation->index;
-            
+
             cdata = g_mem_chunk_alloc (fcp_req_vals);
             cdata->fcp_dl = tvb_get_ntohl (tvb, offset+4);
             cdata->fcp_lun = -1;
-            
+
             g_hash_table_insert (fcp_req_hash, req_key, cdata);
         }
     }
@@ -582,7 +582,7 @@ dissect_fcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 r_ctl;
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCP");
 
     r_ctl = pinfo->r_ctl;
@@ -593,7 +593,7 @@ dissect_fcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_set_str (pinfo->cinfo, COL_INFO, val_to_str (r_ctl, fcp_iu_val,
                                                       "0x%x"));
     }
-    
+
     switch (r_ctl) {
     case FCP_IU_DATA:
         dissect_fcp_data (tvb, pinfo, tree);
@@ -624,7 +624,7 @@ dissect_fcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_fcp (void)
-{                 
+{
 
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
@@ -711,5 +711,3 @@ proto_reg_handoff_fcp (void)
 
     data_handle = find_dissector ("data");
 }
-
-
