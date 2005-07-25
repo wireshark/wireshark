@@ -89,7 +89,7 @@ GTK_WIMP_DIR=$(ETHEREAL_LIBS)\gtk-wimp
 # If you don't have Zlib, comment this line out, so that Zlib isn't
 # defined.
 #
-ZLIB_DIR=$(ETHEREAL_LIBS)\zlib122-dll
+ZLIB_DIR=$(ETHEREAL_LIBS)\zlib123-dll
 
 #
 # Set PCAP_DIR to the pathname of the directory in which the WinPcap
@@ -149,7 +149,8 @@ GETTEXT_DIR=$(ETHEREAL_LIBS)\gettext-runtime-0.13.1
 LOCAL_CFLAGS=/Zi /W3
 
 # Linker flags
-# /DEBUG generate debug info
+# /DEBUG  generate debug info
+# /PROFILE generate map file(s) for profiling
 LOCAL_LDFLAGS=/DEBUG
 
 # Set PDB_FILE according to your VC++ version 
