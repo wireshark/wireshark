@@ -321,7 +321,7 @@ call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 static gboolean krb_decrypt = FALSE;
 
 /* keytab filename */
-static char *keytab_filename = "insert filename here";
+static const char *keytab_filename = "insert filename here";
 
 #endif
 
@@ -330,7 +330,7 @@ static char *keytab_filename = "insert filename here";
 enc_key_t *enc_key_list=NULL;
 
 static void
-add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *keyvalue, char *origin)
+add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *keyvalue, const char *origin)
 {
 	enc_key_t *new_key;
 
@@ -354,7 +354,7 @@ printf("added key in %d\n",pinfo->fd->num);
 #ifdef HAVE_MIT_KERBEROS
 
 static void
-read_keytab_file(char *filename, krb5_context *context)
+read_keytab_file(const char *filename, krb5_context *context)
 {
 	krb5_keytab keytab;
 	krb5_keytab_entry key;
@@ -474,7 +474,7 @@ printf("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
 
 #elif defined(HAVE_HEIMDAL_KERBEROS)
 static void
-read_keytab_file(char *filename, krb5_context *context)
+read_keytab_file(const char *filename, krb5_context *context)
 {
 	krb5_keytab keytab;
 	krb5_keytab_entry key;
@@ -616,7 +616,7 @@ GSList *service_key_list = NULL;
 
 
 static void
-add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *keyvalue, char *origin)
+add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *keyvalue, const char *origin)
 {
 	service_key_t *new_key;
 
@@ -650,7 +650,7 @@ clear_keytab(void) {
 }
 
 static void
-read_keytab_file(char *service_key_file)
+read_keytab_file(const char *service_key_file)
 {
 	FILE *skf;
 	struct stat st;
@@ -3682,7 +3682,7 @@ dissect_krb5_ERROR(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 
 
 
-static struct { char *set; char *unset; } bitval = { "Set", "Not set" };
+static struct { const char *set; const char *unset; } bitval = { "Set", "Not set" };
 
 static gint dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo,
 				 proto_tree *tree);

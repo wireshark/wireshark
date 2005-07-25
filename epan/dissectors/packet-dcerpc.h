@@ -183,13 +183,13 @@ typedef void (dcerpc_callback_fnct_t)(packet_info *pinfo, proto_tree *tree, prot
 
 int dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			   proto_tree *tree, guint8 *drep,
-			   dcerpc_dissect_fnct_t *fnct, int type, char *text, 
+			   dcerpc_dissect_fnct_t *fnct, int type, const char *text, 
 			   int hf_index, dcerpc_callback_fnct_t *callback,
 			   void *callback_args);
 
 int dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			proto_tree *tree, guint8 *drep,
-			dcerpc_dissect_fnct_t *fnct, int type, char *text, 
+			dcerpc_dissect_fnct_t *fnct, int type, const char *text, 
 			int hf_index);
 int dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, guint8 *drep);
 int dissect_ndr_embedded_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,

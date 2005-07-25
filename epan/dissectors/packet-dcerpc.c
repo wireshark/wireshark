@@ -1870,7 +1870,7 @@ find_pointer_index(guint32 id)
 int
 dissect_ndr_pointer_cb(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		    proto_tree *tree, guint8 *drep, dcerpc_dissect_fnct_t *fnct,
-		    int type, char *text, int hf_index, 
+		    int type, const char *text, int hf_index, 
 		    dcerpc_callback_fnct_t *callback, void *callback_args)
 {
 	dcerpc_info *di;
@@ -2071,7 +2071,7 @@ after_ref_id:
 int
 dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		    proto_tree *tree, guint8 *drep, dcerpc_dissect_fnct_t *fnct,
-		    int type, char *text, int hf_index)
+		    int type, const char *text, int hf_index)
 {
 	return dissect_ndr_pointer_cb(
 		tvb, offset, pinfo, tree, drep, fnct, type, text, hf_index,
@@ -2902,7 +2902,7 @@ dissect_dcerpc_cn_bind_nak (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 #define PFC_FRAG_MASK  0x03
 
-static char *
+static const char *
 fragment_type(guint8 flags)
 {
 	flags = flags & PFC_FRAG_MASK;
