@@ -288,6 +288,7 @@ void radius_octets(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _
 
 void radius_ipaddr(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
 	guint32 uint;
+	guint8 ip[4];
 	gchar buf[16];
 	
 	if (len != 4) {
@@ -295,11 +296,11 @@ void radius_ipaddr(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _
 		return;
 	}
 	
-	uint = tvb_get_ntohl(tvb,offset);
+	tvb_memcpy(tvb,ip,offset,4);
 	
 	proto_tree_add_item(tree, a->hf, tvb, offset, len, FALSE);
 
-	ip_to_str_buf((guint8*)&uint, buf);	
+	ip_to_str_buf(ip, buf);
 	proto_item_append_text(avp_item, "%s", buf);
 }
 
