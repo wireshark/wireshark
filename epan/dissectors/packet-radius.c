@@ -287,7 +287,6 @@ void radius_octets(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _
 }
 
 void radius_ipaddr(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
-	guint32 uint;
 	guint8 ip[4];
 	gchar buf[16];
 	
