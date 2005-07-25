@@ -80,7 +80,7 @@ PANGO_INST_VERSION=1.4
 # If you don't have GTK-Wimp, comment this line out, so that GTK-Wimp isn't
 # defined.
 #
-GTK_WIMP_DIR=$(ETHEREAL_LIBS)\gtk-wimp
+GTK_WIMP_DIR=$(ETHEREAL_LIBS)\gtk-wimp\gtk-wimp-0.7.0-bin
 
 #
 # If you have Zlib, set this to the pathname of the directory in
