@@ -182,14 +182,20 @@ The plugins directory contains a Makefile.am.
 You need to change the SUBDIRS directive to reflect the addition of 
 your plugin:
 
-SUBDIRS = gryphon mgcp xxx
+SUBDIRS = \
+	gryphon \
+	mgcp \
+	xxx
 
 
 4.5 Changes to plugins/Makefile.nmake
 
 To the Makefile.nmake you need to add your plugin to the all: rule
 
-all: plugin_api.obj gryphon mgcp xxx
+all: \
+	gryphon \
+	mgcp \
+	xxx
 
 then add a rule for your plugin:
 
@@ -202,7 +208,6 @@ and finally add to the clean rule support for cleaning up after your
 plugin:
 
 clean:
-	rm -f plugin_api.obj
 	cd gryphon
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../mgcp
