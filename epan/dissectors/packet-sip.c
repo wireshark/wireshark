@@ -55,6 +55,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 
 #include "packet-sip.h"
 #include <epan/tap.h>
@@ -1066,11 +1067,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				col_add_fstr(pinfo->cinfo, COL_INFO, "Status: %s",
 				             tvb_format_text(tvb, SIP2_HDR_LEN + 1, linelen - SIP2_HDR_LEN - 1));
 			}
-			string = tvb_get_string(tvb, SIP2_HDR_LEN + 5, linelen - (SIP2_HDR_LEN + 5));
-			stat_info->reason_phrase = g_malloc(linelen - (SIP2_HDR_LEN + 5) + 1);
-			strncpy(stat_info->reason_phrase, string, linelen - (SIP2_HDR_LEN + 5) + 1);
-			/* String no longer needed */
-			g_free(string);
+			stat_info->reason_phrase = ep_tvb_get_string(tvb, SIP2_HDR_LEN + 5, linelen - (SIP2_HDR_LEN + 5));
 		break;
 
 		case OTHER_LINE:
@@ -1189,7 +1186,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				 * Fetch the value.
 				 */
 				value_len = line_end_offset - value_offset;
-				value = tvb_get_string(tvb, value_offset,
+				value = ep_tvb_get_string(tvb, value_offset,
 				                       value_len);
 
 				/*
@@ -1249,7 +1246,7 @@ separator_found:
 							proto_tree_add_item(sip_element_tree, hf_sip_to_addr, tvb, parameter_offset,
 							                    parameter_len, FALSE);
 							/*info for the tap for voip_calls.c*/
-							stat_info->tap_to_addr=tvb_get_string(tvb, parameter_offset, parameter_len);
+							stat_info->tap_to_addr=ep_tvb_get_string(tvb, parameter_offset, parameter_len);
 
 							parameter_offset = parameter_end_offset + 1;
 							/*
@@ -1284,7 +1281,7 @@ separator_found:
 							proto_tree_add_item(sip_element_tree, hf_sip_to_addr, tvb, parameter_offset,
 							                    parameter_len, FALSE);
 							/*info for the tap for voip_calls.c*/
-							stat_info->tap_to_addr=tvb_get_string(tvb, parameter_offset, parameter_len);
+							stat_info->tap_to_addr=ep_tvb_get_string(tvb, parameter_offset, parameter_len);
 							offset = parameter_end_offset;
 						}
 						/* Find parameter tag if present.
@@ -1359,7 +1356,7 @@ separator_found2:
 							dfilter_store_sip_from_addr(tvb, sip_element_tree,
 							                            parameter_offset, parameter_len);
 							/*info for the tap for voip_calls.c*/
-							stat_info->tap_from_addr=tvb_get_string(tvb, parameter_offset, parameter_len);
+							stat_info->tap_from_addr=ep_tvb_get_string(tvb, parameter_offset, parameter_len);
 							parameter_offset = parameter_end_offset + 1;
 							/*
 							 * URI parameters ?
@@ -1393,7 +1390,7 @@ separator_found2:
 							proto_tree_add_item(sip_element_tree, hf_sip_from_addr, tvb, parameter_offset,
 							                    parameter_len, FALSE);
 							/*info for the tap for voip_calls.c*/
-							stat_info->tap_from_addr=tvb_get_string(tvb, parameter_offset, parameter_len);
+							stat_info->tap_from_addr=ep_tvb_get_string(tvb, parameter_offset, parameter_len);
 							offset = parameter_end_offset;
 						}
 						/* Find parameter tag if present.
@@ -1474,7 +1471,7 @@ separator_found2:
 						        strlen(value)+1 < MAX_CALL_ID_SIZE ?
 						        strlen(value)+1 :
 						        MAX_CALL_ID_SIZE);
-						stat_info->tap_call_id = g_strdup(call_id);
+						stat_info->tap_call_id = ep_strdup(call_id);
 
 						/* Add 'Call-id' string item to tree */
 						if(hdr_tree) {
@@ -1528,17 +1525,16 @@ separator_found2:
 								parameter_offset++;
 							content_type_len = semi_colon_offset - value_offset;
 							content_type_parameter_str_len = line_end_offset - parameter_offset;
-							content_type_parameter_str = tvb_get_string(tvb, parameter_offset,
+							content_type_parameter_str = ep_tvb_get_string(tvb, parameter_offset,
 							                             content_type_parameter_str_len);
 						}
-						media_type_str = tvb_get_string(tvb, value_offset, content_type_len);
+						media_type_str = ep_tvb_get_string(tvb, value_offset, content_type_len);
 #if GLIB_MAJOR_VERSION < 2
-						media_type_str_lower_case = g_strdup(media_type_str);
+						media_type_str_lower_case = ep_strdup(media_type_str);
 						g_strdown(media_type_str_lower_case);
 #else
 						media_type_str_lower_case = g_ascii_strdown(media_type_str, -1);
 #endif
-						g_free(media_type_str);
 					break;
 
 					case POS_CONTACT :
@@ -1586,7 +1582,6 @@ separator_found2:
 						}
 					break;
 				}/* end switch */
-				g_free(value);
 			}/*if HF_index */
 		}/* if colon_offset */
 		offset = next_offset;
@@ -1615,11 +1610,9 @@ separator_found2:
 			                                   media_type_str_lower_case,
 			                                   next_tvb, pinfo,
 			                                   message_body_tree);
-			g_free(media_type_str_lower_case);
 			pinfo->private_data = save_private_data;
 			/* If no match dump as text */
 		}
-		g_free(content_type_parameter_str);
 		if ( found_match != TRUE )
 		{
 			offset = 0;
@@ -1705,16 +1698,12 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, guint meth_len)
 	 * We know we have the entire method; otherwise, "sip_parse_line()"
 	 * would have returned OTHER_LINE.
 	 */
-	string = tvb_get_string(tvb, 0, meth_len);
+	string = ep_tvb_get_string(tvb, 0, meth_len);
 	if (tree) {
 		proto_tree_add_string(tree, hf_Method, tvb, 0, meth_len, string);
 	}
 	/* Copy request method for telling tap */
-	stat_info->request_method = g_malloc(meth_len+1);
-	strncpy(stat_info->request_method, string, meth_len+1);
-
-	/* String no longer needed */
-	g_free(string);
+	stat_info->request_method = string;
 }
 
 /* Display filter for SIP Status-Line */
