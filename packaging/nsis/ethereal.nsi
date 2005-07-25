@@ -5,11 +5,12 @@
 
  
 !ifdef MAKENSIS_MODERN_UI
-; Set the compression mechanism first
-SetCompressor lzma
-; as of NSIS 2.07, solid compression is no longer default, so set the /SOLID switch (saves ~1MB), 
-; which unfortunately creates an error with NSIS prior 2.07
-;SetCompressor /SOLID lzma
+; Set the compression mechanism first.
+; As of NSIS 2.07, solid compression which makes installer about 1MB smaller 
+; is no longer the default, so use the /SOLID switch.
+; This unfortunately is unknown to NSIS prior to 2.07 and creates an error.
+; So if you get an error here, please update to at least NSIS 2.07!
+SetCompressor /SOLID lzma
 !endif
 
 !ifdef GTK1_DIR & GTK2_DIR
