@@ -1,5 +1,5 @@
 /* packet-user_encap.c
- * Allow users to specify the dissectors for USERn DLTs
+ * Allow users to specify the dissectors for DLTs
  * Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  *
  * $Id$
@@ -38,6 +38,9 @@
 typedef void (*encap_dissector_t)(tvbuff_t*,packet_info*,proto_tree*,dissector_handle_t);
 
 typedef struct _user_encap_t {
+	guint wtap_encap;
+	guint last_encap;
+	
 	gchar* name;
 	gchar* abbr;
 	gchar* long_name;
@@ -50,7 +53,7 @@ typedef struct _user_encap_t {
 	
 	int hfid;
 	
-	gint encap;
+	gint special_encap;
 	
 	encap_dissector_t encap_dissector;
 	dissector_t dissector;
@@ -62,6 +65,27 @@ typedef struct _user_encap_t {
 	dissector_handle_t header_handle;
 	dissector_handle_t trailer_handle;
 } user_encap_t;
+
+static const enum_val_t user_dlts[] = {
+	{ "Disabled", "Disabled", 0 },
+	{ "USER00", "User 0 (DLT=147 WTAP_ENCAP=45)", WTAP_ENCAP_USER0 },
+	{ "USER01", "User 1 (DLT=148 WTAP_ENCAP=46)", WTAP_ENCAP_USER1 },
+	{ "USER02", "User 2 (DLT=149 WTAP_ENCAP=47)", WTAP_ENCAP_USER2 },
+	{ "USER03", "User 3 (DLT=150 WTAP_ENCAP=48)", WTAP_ENCAP_USER3 },
+	{ "USER04", "User 4 (DLT=151 WTAP_ENCAP=49)", WTAP_ENCAP_USER4 },
+	{ "USER05", "User 5 (DLT=152 WTAP_ENCAP=50)", WTAP_ENCAP_USER5 },
+	{ "USER06", "User 6 (DLT=153 WTAP_ENCAP=51)", WTAP_ENCAP_USER6 },
+	{ "USER07", "User 7 (DLT=154 WTAP_ENCAP=52)", WTAP_ENCAP_USER7 },
+	{ "USER08", "User 8 (DLT=155 WTAP_ENCAP=53)", WTAP_ENCAP_USER8 },
+	{ "USER09", "User 9 (DLT=156 WTAP_ENCAP=54)", WTAP_ENCAP_USER9 },
+	{ "USER10", "User 10 (DLT=157 WTAP_ENCAP=55)", WTAP_ENCAP_USER10 },
+	{ "USER11", "User 11 (DLT=158 WTAP_ENCAP=56)", WTAP_ENCAP_USER11 },
+	{ "USER12", "User 12 (DLT=159 WTAP_ENCAP=57)", WTAP_ENCAP_USER12 },
+	{ "USER13", "User 13 (DLT=160 WTAP_ENCAP=58)", WTAP_ENCAP_USER13 },
+	{ "USER14", "User 14 (DLT=161 WTAP_ENCAP=59)", WTAP_ENCAP_USER14 },
+	{ "USER15", "User 15 (DLT=162 WTAP_ENCAP=60)", WTAP_ENCAP_USER15 },
+	{ NULL, NULL, 0 }
+};
 
 static const enum_val_t encap_types[] = {
 	{ "None", "No encpsulation", 0 },
@@ -76,40 +100,16 @@ static const encap_dissector_t encap_dissectors[] = {
 
 static void dissect_user(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree,guint id);
 
-static void dissect_user0(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) { dissect_user(tvb,pinfo,tree,0); } 
-static void dissect_user1(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) { dissect_user(tvb,pinfo,tree,1); } 
-static void dissect_user2(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) { dissect_user(tvb,pinfo,tree,2); } 
-static void dissect_user3(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) { dissect_user(tvb,pinfo,tree,3); } 
-static void dissect_user4(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) { dissect_user(tvb,pinfo,tree,4); } 
-static void dissect_user5(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) { dissect_user(tvb,pinfo,tree,5); } 
-static void dissect_user6(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) { dissect_user(tvb,pinfo,tree,6); } 
-static void dissect_user7(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) { dissect_user(tvb,pinfo,tree,7); } 
-static void dissect_user8(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) { dissect_user(tvb,pinfo,tree,8); } 
-static void dissect_user9(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) { dissect_user(tvb,pinfo,tree,9); } 
-static void dissect_user10(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) { dissect_user(tvb,pinfo,tree,10); } 
-static void dissect_user11(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) { dissect_user(tvb,pinfo,tree,11); } 
-static void dissect_user12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) { dissect_user(tvb,pinfo,tree,12); } 
-static void dissect_user13(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) { dissect_user(tvb,pinfo,tree,13); } 
-static void dissect_user14(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) { dissect_user(tvb,pinfo,tree,14); } 
-static void dissect_user15(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) { dissect_user(tvb,pinfo,tree,15); } 
+static void dissect_user_a(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) { dissect_user(tvb,pinfo,tree,0); } 
+static void dissect_user_b(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) { dissect_user(tvb,pinfo,tree,1); } 
+static void dissect_user_c(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) { dissect_user(tvb,pinfo,tree,2); } 
+static void dissect_user_d(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) { dissect_user(tvb,pinfo,tree,3); } 
 
 user_encap_t encaps[] = {
-	{"USER0","user0","DLT_USER00","","","",0,0,-1,0,NULL,dissect_user0,NULL,NULL,NULL,NULL,NULL},
-	{"USER1","user1","DLT_USER01","","","",0,0,-1,0,NULL,dissect_user1,NULL,NULL,NULL,NULL,NULL},
-	{"USER2","user2","DLT_USER02","","","",0,0,-1,0,NULL,dissect_user2,NULL,NULL,NULL,NULL,NULL},
-	{"USER3","user3","DLT_USER03","","","",0,0,-1,0,NULL,dissect_user3,NULL,NULL,NULL,NULL,NULL},
-	{"USER4","user4","DLT_USER04","","","",0,0,-1,0,NULL,dissect_user4,NULL,NULL,NULL,NULL,NULL},
-	{"USER5","user5","DLT_USER05","","","",0,0,-1,0,NULL,dissect_user5,NULL,NULL,NULL,NULL,NULL},
-	{"USER6","user6","DLT_USER06","","","",0,0,-1,0,NULL,dissect_user6,NULL,NULL,NULL,NULL,NULL},
-	{"USER7","user7","DLT_USER07","","","",0,0,-1,0,NULL,dissect_user7,NULL,NULL,NULL,NULL,NULL},
-	{"USER8","user8","DLT_USER08","","","",0,0,-1,0,NULL,dissect_user8,NULL,NULL,NULL,NULL,NULL},
-	{"USER9","user9","DLT_USER09","","","",0,0,-1,0,NULL,dissect_user9,NULL,NULL,NULL,NULL,NULL},
-	{"USER10","user10","DLT_USER10","","","",0,0,-1,0,NULL,dissect_user10,NULL,NULL,NULL,NULL,NULL},
-	{"USER11","user11","DLT_USER11","","","",0,0,-1,0,NULL,dissect_user11,NULL,NULL,NULL,NULL,NULL},
-	{"USER12","user12","DLT_USER12","","","",0,0,-1,0,NULL,dissect_user12,NULL,NULL,NULL,NULL,NULL},
-	{"USER13","user13","DLT_USER13","","","",0,0,-1,0,NULL,dissect_user13,NULL,NULL,NULL,NULL,NULL},
-	{"USER14","user14","DLT_USER14","","","",0,0,-1,0,NULL,dissect_user14,NULL,NULL,NULL,NULL,NULL},
-	{"USER15","user15","DLT_USER15","","","",0,0,-1,0,NULL,dissect_user15,NULL,NULL,NULL,NULL,NULL},
+	{0,0,"DLT_USER_A","user_dlt_a","DLT User A","","","",0,0,-1,0,NULL,dissect_user_a,NULL,NULL,NULL,NULL,NULL},
+	{0,0,"DLT_USER_B","user_dlt_b","DLT User B","","","",0,0,-1,0,NULL,dissect_user_b,NULL,NULL,NULL,NULL,NULL},
+	{0,0,"DLT_USER_C","user_dlt_c","DLT User C","","","",0,0,-1,0,NULL,dissect_user_c,NULL,NULL,NULL,NULL,NULL},
+	{0,0,"DLT_USER_D","user_dlt_d","DLT User D","","","",0,0,-1,0,NULL,dissect_user_d,NULL,NULL,NULL,NULL,NULL},
 };
 
 static void dissect_user(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree,guint id) {
@@ -139,51 +139,57 @@ static void dissect_user(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree,guint
 	}
 }
 
-void proto_reg_handoff_user_encap(void)
-{
-	int i;
+void proto_reg_handoff_user_encap(void) {
+	guint i;
 	static dissector_handle_t data_handle;
 	
 	data_handle = find_dissector("data");
 
-	for (i = 0; i < 16; i++) {
-		encaps[i].handle =  find_dissector(encaps[i].abbr);
-		dissector_add("wtap_encap", WTAP_ENCAP_USER0 + i, encaps[i].handle);
-
-		if(*(encaps[i].payload) != '\0') {
-			encaps[i].payload_handle = find_dissector(encaps[i].payload);
-			
-			if (encaps[i].payload_handle == NULL) {
-				encaps[i].payload_handle = data_handle;
-				report_failure("%s: No such proto: %s",encaps[i].long_name,encaps[i].payload);
-			}
-		} else {
-			encaps[i].payload_handle = data_handle;			
-		}
-
-		if(*(encaps[i].header) != '\0') {
-			encaps[i].header_handle = find_dissector(encaps[i].header);
-			
-			if (encaps[i].header_handle == NULL) {
-				encaps[i].header_handle = data_handle;
-				report_failure("%s: No such proto: %s",encaps[i].long_name,encaps[i].header);
-			}
-		} else {
-			encaps[i].header_handle = data_handle;			
-		}
+	for (i = 0; i < array_length(encaps); i++) {
 		
-		if(*(encaps[i].trailer) != '\0') {
-			encaps[i].trailer_handle = find_dissector(encaps[i].trailer);
-			
-			if (encaps[i].trailer_handle == NULL) {
-				encaps[i].trailer_handle = data_handle;
-				report_failure("%s: No such proto: %s",encaps[i].long_name,encaps[i].trailer);
-			}
-		} else {
-			encaps[i].trailer_handle = data_handle;			
-		}
+		if(encaps[i].last_encap)
+			dissector_delete("wtap_encap", encaps[i].last_encap, encaps[i].handle);
 		
-		encaps[i].encap_dissector = encap_dissectors[encaps[i].encap];
+		if (encaps[i].wtap_encap) {
+			encaps[i].handle =  find_dissector(encaps[i].abbr);
+			dissector_add("wtap_encap", encaps[i].wtap_encap, encaps[i].handle);
+			encaps[i].last_encap = encaps[i].wtap_encap;
+			
+			if(*(encaps[i].payload) != '\0') {
+				encaps[i].payload_handle = find_dissector(encaps[i].payload);
+				
+				if (encaps[i].payload_handle == NULL) {
+					encaps[i].payload_handle = data_handle;
+					report_failure("%s: No such proto: %s",encaps[i].long_name,encaps[i].payload);
+				}
+			} else {
+				encaps[i].payload_handle = data_handle;			
+			}
+			
+			if(*(encaps[i].header) != '\0') {
+				encaps[i].header_handle = find_dissector(encaps[i].header);
+				
+				if (encaps[i].header_handle == NULL) {
+					encaps[i].header_handle = data_handle;
+					report_failure("%s: No such proto: %s",encaps[i].long_name,encaps[i].header);
+				}
+			} else {
+				encaps[i].header_handle = data_handle;			
+			}
+			
+			if(*(encaps[i].trailer) != '\0') {
+				encaps[i].trailer_handle = find_dissector(encaps[i].trailer);
+				
+				if (encaps[i].trailer_handle == NULL) {
+					encaps[i].trailer_handle = data_handle;
+					report_failure("%s: No such proto: %s",encaps[i].long_name,encaps[i].trailer);
+				}
+			} else {
+				encaps[i].trailer_handle = data_handle;			
+			}
+			
+			encaps[i].encap_dissector = encap_dissectors[encaps[i].special_encap];
+		}
 	}
 }
 
@@ -191,16 +197,17 @@ void proto_register_user_encap(void)
 {
 	int i;
 	
-	for (i = 0; i < 16; i++) {
+	for (i = 0; i < array_length(encaps); i++) {
 		encaps[i].hfid = proto_register_protocol(encaps[i].name, encaps[i].long_name, encaps[i].abbr);
 		encaps[i].module = prefs_register_protocol(encaps[i].hfid, proto_reg_handoff_user_encap);
 		
-		prefs_register_string_preference(encaps[i].module, "payload","Payload", "Payload", &encaps[i].payload);
-		prefs_register_enum_preference(encaps[i].module, "encap","Encapsulation", "The encapsulation used", &encaps[i].encap, encap_types, FALSE);
-		prefs_register_uint_preference(encaps[i].module, "header_size","Header Size", "The size (in bytes) of the Header (0 if none)", 10, &encaps[i].header_size);
-		prefs_register_uint_preference(encaps[i].module, "trailer_size","Trailer Size", "The size (in bytes) of the Trailer (0 if none)", 10, &encaps[i].trailer_size);
-		prefs_register_string_preference(encaps[i].module, "header_proto","Header Protocol", "Header Protocol (used only when ecapsulation is not given)", &encaps[i].header);
-		prefs_register_string_preference(encaps[i].module, "trailer_proto","Trailer Protocol", "Trailer Protocol (used only when ecapsulation is not given)", &encaps[i].trailer);
+		prefs_register_enum_preference(encaps[i].module, "dlt","DLT", "Data Link Type", &(encaps[i].wtap_encap), user_dlts, FALSE);
+		prefs_register_enum_preference(encaps[i].module, "special_encap","Special Encapsulation", "", &(encaps[i].special_encap), encap_types, FALSE);
+		prefs_register_string_preference(encaps[i].module, "payload","Payload", "Payload", (const char **) &(encaps[i].payload));
+		prefs_register_uint_preference(encaps[i].module, "header_size","Header Size", "The size (in octets) of the Header", 10, &(encaps[i].header_size));
+		prefs_register_uint_preference(encaps[i].module, "trailer_size","Trailer Size", "The size (in octets) of the Trailer", 10, &(encaps[i].trailer_size));
+		prefs_register_string_preference(encaps[i].module, "header_proto","Header Protocol", "Header Protocol (used only when ecapsulation is not given)", (const char **)&(encaps[i].header));
+		prefs_register_string_preference(encaps[i].module, "trailer_proto","Trailer Protocol", "Trailer Protocol (used only when ecapsulation is not given)", (const char **)&(encaps[i].trailer));
 		
 		register_dissector(encaps[i].abbr, encaps[i].dissector, encaps[i].hfid);
 	}
