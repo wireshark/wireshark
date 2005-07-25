@@ -78,31 +78,31 @@ whitespace [[:blank:]\r\n]+
 text_start ([^<[:blank:]\r\n]|[^<])
 text_stop <
 
-%START OUT COMMENT TAG CLOSE_TAG XMLPI DOCTYPE MARKUPDECL TEXT
+%START OUTSIDE COMMENT TAG CLOSE_TAG XMLPI DOCTYPE MARKUPDECL CDATA
 %%
 
-<OUT>{whitespace}			{ text_offset = offset - yyleng; add_xml_item(XML_WHITESPACE, yyleng); }
-<OUT>{dtd_doctype_stop}		{ text_offset = offset - yyleng; add_xml_item(XML_DOCTYPE_STOP, yyleng); }
+<OUTSIDE>{whitespace}			{ text_offset = offset - yyleng; add_xml_item(XML_WHITESPACE, yyleng); }
+<OUTSIDE>{dtd_doctype_stop}		{ text_offset = offset - yyleng; add_xml_item(XML_DOCTYPE_STOP, yyleng); }
 
-<OUT>{text_start}			{ text_offset = offset - yyleng; BEGIN TEXT; }
-<TEXT>{text_stop}			{ add_xml_item(XML_TEXT, --offset - text_offset ); BEGIN OUT; }
+<OUTSIDE>{text_start}			{ text_offset = offset - yyleng; BEGIN CDATA; }
+<CDATA>{text_stop}			{ add_xml_item(XML_TEXT, --offset - text_offset ); BEGIN OUTSIDE; }
 
-<OUT>{comment_start}		{ text_offset = offset - yyleng; BEGIN COMMENT; }
-<COMMENT>{comment_end}		{ add_xml_item(XML_COMMENT, offset - text_offset); BEGIN OUT; }
+<OUTSIDE>{comment_start}		{ text_offset = offset - yyleng; BEGIN COMMENT; }
+<COMMENT>{comment_end}		{ add_xml_item(XML_COMMENT, offset - text_offset); BEGIN OUTSIDE; }
 
-<OUT>{closetag_start}		{ text_offset = offset - yyleng ; BEGIN CLOSE_TAG; }
-<CLOSE_TAG>{tag_end}		{ add_xml_item(XML_CLOSE_TAG, offset - text_offset ); BEGIN OUT; }
+<OUTSIDE>{closetag_start}		{ text_offset = offset - yyleng ; BEGIN CLOSE_TAG; }
+<CLOSE_TAG>{tag_end}		{ add_xml_item(XML_CLOSE_TAG, offset - text_offset ); BEGIN OUTSIDE; }
 
-<OUT>{xmlpi_start}			{ text_offset = offset - yyleng; BEGIN XMLPI; }
-<XMLPI>{xmlpi_end}			{ add_xml_item(XML_XMLPI, offset - text_offset); BEGIN OUT; }
+<OUTSIDE>{xmlpi_start}			{ text_offset = offset - yyleng; BEGIN XMLPI; }
+<XMLPI>{xmlpi_end}			{ add_xml_item(XML_XMLPI, offset - text_offset); BEGIN OUTSIDE; }
 
-<OUT>{markupdecl_start}		{ text_offset = offset - yyleng -1; BEGIN MARKUPDECL; }
-<MARKUPDECL>{open_brace}	{ add_xml_item(XML_DOCTYPE_START, offset - text_offset); BEGIN OUT; }
-<MARKUPDECL>{tag_end}		{ add_xml_item(XML_MARKUPDECL,  offset - text_offset); BEGIN OUT; }
+<OUTSIDE>{markupdecl_start}		{ text_offset = offset - yyleng -1; BEGIN MARKUPDECL; }
+<MARKUPDECL>{open_brace}	{ add_xml_item(XML_DOCTYPE_START, offset - text_offset); BEGIN OUTSIDE; }
+<MARKUPDECL>{tag_end}		{ add_xml_item(XML_MARKUPDECL,  offset - text_offset); BEGIN OUTSIDE; }
 
-<OUT>{tag_start}			{ text_offset = offset - yyleng -1; BEGIN TAG; }
-<TAG>{closedtag_end}		{ add_xml_item(XML_CLOSEDTAG, offset - text_offset); BEGIN OUT; }
-<TAG>{tag_end}				{ add_xml_item(XML_TAG, offset - text_offset); BEGIN OUT; }
+<OUTSIDE>{tag_start}			{ text_offset = offset - yyleng -1; BEGIN TAG; }
+<TAG>{closedtag_end}		{ add_xml_item(XML_CLOSEDTAG, offset - text_offset); BEGIN OUTSIDE; }
+<TAG>{tag_end}				{ add_xml_item(XML_TAG, offset - text_offset); BEGIN OUTSIDE; }
 
 %%
 
@@ -163,7 +163,7 @@ extern void dissect_xml(tvbuff_t* the_tvb, packet_info* pinfo _U_, proto_tree* t
 		pi = proto_tree_add_item(tree, proto_xml, tvb, 0, -1, FALSE);
 		tree = proto_item_add_subtree(pi, ett_xml);
 				
-		BEGIN OUT;
+		BEGIN OUTSIDE;
 		yylex();
 		yyrestart(NULL);
 		
