@@ -307,7 +307,6 @@ dissect_ifcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               gboolean check_port)
 {
     gint offset = 0,
-         start  = 0,
          frame_len = 0;
     gint bytes_remaining = tvb_length_remaining (tvb, offset);
     guint8 sof = 0, eof = 0;
@@ -334,7 +333,6 @@ dissect_ifcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             return (TRUE);
         }
 
-        start = offset;
         if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "iFCP");
 
@@ -357,11 +355,11 @@ dissect_ifcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         
         if (tree) {
-            if (tvb_bytes_exist (tvb, offset, offset+frame_len-4)) {
+            if (tvb_bytes_exist (tvb, offset, frame_len-4)) {
                 sof = tvb_get_guint8 (tvb, offset+iFCP_ENCAP_HEADER_LEN);
                 eof = tvb_get_guint8 (tvb, offset+frame_len - 4);
 
-                ti = proto_tree_add_protocol_format (tree, proto_ifcp, tvb, 0,
+                ti = proto_tree_add_protocol_format (tree, proto_ifcp, tvb, offset,
                                                      iFCP_ENCAP_HEADER_LEN,
                                                      "iFCP (%s/%s)",
                                                      val_to_str (sof, ifcp_sof_vals,
@@ -372,7 +370,7 @@ dissect_ifcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             else {
                 sof = tvb_get_guint8 (tvb, offset+iFCP_ENCAP_HEADER_LEN);
                 
-                ti = proto_tree_add_protocol_format (tree, proto_ifcp, tvb, 0,
+                ti = proto_tree_add_protocol_format (tree, proto_ifcp, tvb, offset,
                                                      iFCP_ENCAP_HEADER_LEN,
                                                      "iFCP (%s/%s)",
                                                      val_to_str (sof, ifcp_sof_vals,
@@ -383,19 +381,19 @@ dissect_ifcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* Dissect the Common FC Encap header */
             dissect_fcencap_header (tvb, ifcp_tree, offset);
 
-            offset += iFCP_ENCAP_HEADER_LEN;
 
             /* print SOF */
-            proto_tree_add_item (ifcp_tree, hf_ifcp_sof, tvb, offset, 1, 0);
-            proto_tree_add_item (ifcp_tree, hf_ifcp_sof_c, tvb, offset+2, 1, 0);
+            proto_tree_add_item (ifcp_tree, hf_ifcp_sof, tvb, offset+iFCP_ENCAP_HEADER_LEN, 1, 0);
+            proto_tree_add_item (ifcp_tree, hf_ifcp_sof_c, tvb, offset+iFCP_ENCAP_HEADER_LEN+2, 1, 0);
+
            /* print EOF */
                 
-            offset += (frame_len-iFCP_ENCAP_HEADER_LEN-4);
             if (tvb_bytes_exist (tvb, offset, 4)) {
-                    proto_tree_add_item (ifcp_tree, hf_ifcp_eof, tvb, offset, 1, 0);
-                    proto_tree_add_item (ifcp_tree, hf_ifcp_eof_c, tvb, offset+2, 1, 0);
+                    proto_tree_add_item (ifcp_tree, hf_ifcp_eof, tvb, offset+frame_len-4, 1, 0);
+                    proto_tree_add_item (ifcp_tree, hf_ifcp_eof_c, tvb, offset+frame_len-2, 1, 0);
             }
         }
+
 
         /* Call the FC Dissector if this is carrying an FC frame */
         /* Set the SOF/EOF flags in the packet_info header */
@@ -417,8 +415,8 @@ dissect_ifcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
         }
             
-            /* Special frame bit is not set */
-        next_tvb = tvb_new_subset (tvb, iFCP_ENCAP_HEADER_LEN+4, -1, -1);
+        next_tvb = tvb_new_subset (tvb, offset+iFCP_ENCAP_HEADER_LEN+4, frame_len-iFCP_ENCAP_HEADER_LEN-8, frame_len-iFCP_ENCAP_HEADER_LEN-8);
+
         if (fc_handle) {
                 call_dissector (fc_handle, next_tvb, pinfo, tree);
         }
@@ -426,6 +424,7 @@ dissect_ifcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 call_dissector (data_handle, next_tvb, pinfo, tree);
         }
 
+        offset += frame_len;
         bytes_remaining -= frame_len;
     }
 
@@ -561,3 +560,4 @@ proto_reg_handoff_ifcp (void)
     data_handle = find_dissector("data");
     fc_handle = find_dissector("fc");
 }
+
