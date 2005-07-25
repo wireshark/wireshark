@@ -6,10 +6,6 @@ Ethereal 0.10.12 has been released.
 
 Our testing program has turned up several more security issues:
 
-  The CAMEL dissector could dereference a null pointer.
-  Discovered by Steve Grubb.
-  Version affected: 0.10.11
-
   The LDAP dissector could free static memory and crash. 
   Versions affected: 0.8.5 to 0.10.11
 
@@ -25,7 +21,7 @@ Our testing program has turned up several more security issues:
   The DHCP dissector could go into an infinite loop.
   Versions affected: 0.10.7 to 0.10.11
 
-  The BER dissector could abort.
+  The BER dissector could abort or loop infinitely.
   Version affected: 0.10.11
 
   The MEGACO dissector could go into an infinite loop.
@@ -58,6 +54,53 @@ Our testing program has turned up several more security issues:
   The HTTP dissector could crash.
   Versions affected: 0.10.4 to 0.10.11
 
+  The SMB dissector could go into a large loop.
+  Versions affected: 0.9.0 to 0.10.11
+
+  The DCERPC dissector could crash.
+  Versions affected: 0.9.16 to 0.10.11.
+
+  Several dissectors could crash while reassembling packets.
+  Versions affected: 0.9.0 to 0.10.11
+
+  
+
+
+  A separate review by Steve Grubb at Red Hat turned up the following
+  issues:
+
+  The CAMEL dissector could dereference a null pointer.
+  Version affected: 0.10.11
+
+  The DHCP dissector could crash.
+  Versions affected: 0.10.4 to 0.10.11
+
+  The CAMEL dissector could crash.
+  Versions affected: 0.10.10 to 0.10.11
+
+  The PER dissector could crash.
+  Versions affected: 0.10.10 to 0.10.11
+
+  The RADIUS dissector could crash.
+  Versions affected: 0.9.4 to 0.10.11
+
+  The Telnet dissector could crash.
+  Versions affected: 0.9.10 to 0.10.11
+
+  The IS-IS LSP dissector could crash.
+  Versions affected: 0.8.19 to 0.10.11
+
+  The NCP dissector could crash.
+  Versions affected: 0.9.15 to 0.10.11
+
+  
+  
+
+
+  Ethereal uses the zlib compression library.  Security vulnerabilities
+  have been discovered in zlib 1.2.1 and 1.2.2.  The Windows installer
+  now ships with zlib 1.2.3, which fixes these vulnerabilities.
+
 
 Please see the following advisory for more information:
   
@@ -68,22 +111,142 @@ Everyone is encouraged to upgrade.
 
 New and updated features
 
-  The zlib library that ship with the Windows
-  installer have been updated to version 1.2.3.
+  The Windows installer now includes the WinPcap 3.0 installer.  You don't
+  have to download and install it separately.
 
-  The Windows installer now includes the WinPcap
-  installer, you'll now have all in one place.
+  RADIUS dictionaries are now included.
+
+  Flow graphs can now be created for any protocol.
+
+  Memory management has been greatly improved.
+
+  JXTA has been added to the conversations menu.
 
 New protocol support
 
+ACSE,
+ARMAGETRONAD,
+AudioCodes trunk trace,
+CSM_ENCAPS,
+DIS,
+FTAM,
+iFCP,
+Juniper PPPoE,
+MMS,
+MS MediaServer,
+MSRP,
+Parlay,
+Synergy,
+TANGO,
+WLAN Certificate Extensions,
 
 
 Updated protocol support
 
-
+802.11 Radiotap,
+9P,
+ACSE,
+AFP,
+AgentX,
+AIM,
+ANSI MAP,
+BACapp,
+BVLC,
+Camel,
+CLNP,
+CMIP,
+DCERPC,
+DCOM,
+DHCP,
+DHCP Failover,
+DHCPv6,
+DICOM,
+DNP,
+DNS,
+DOCSIS,
+EAP,
+Ethernet,
+FCIP,
+FC-SWILS,
+GIOP,
+GSM A,
+GSM MAP,
+GSSAPI,
+GTP,
+H.221,
+H.225,
+H.235,
+H.245,
+H.248,
+H.450,
+H1,
+HPSW,
+HTTP,
+HyperSCSI,
+ICMP,
+IEEE 802.3,
+IEEE 802.11,
+IP,
+IPDC,
+ISAKMP,
+iSCSI,
+iSNS,
+ISUP,
+JXTA,
+Kerberos,
+KINK,
+LDAP,
+LLC,
+LMP,
+LWAPP,
+MEGACO,
+MGCP,
+MMSE,
+NDMP,
+NDPS,
+NFS,
+NTLMSSP,
+OSI,
+PER,
+PPP,
+PRES,
+PROFINET,
+RDT,
+RMT,
+RPC,
+Rsync,
+RSVP,
+RTP,
+RTSP,
+SCSI,
+SCTP,
+SDP,
+SIP,
+SMB,
+SMPP,
+SNMP,
+SPNEGO,
+SSCOP,
+SSL,
+T.38,
+TCAP,
+TCP,
+Telnet,
+TFTP,
+TPKT,
+UDP,
+UDVM,
+UMA,
+V5UA,
+WBXML,
+WSP,
+XML,
+YMSG,
+YPSERV,
 
 New and updated capture file support
 
+HP Nettl, Tektronix K12
 
 
 == May 4, 2005
