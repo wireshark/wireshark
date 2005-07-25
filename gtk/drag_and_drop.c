@@ -151,15 +151,15 @@ static void
 dnd_merge_files(int in_file_count, char **in_filenames)
 {
     char *tmpname;
-    gboolean merge_ok;
+    cf_status_t merge_status;
     int err;
 
     /* merge the files in chonological order */
     tmpname = NULL;
-    merge_ok = cf_merge_files(&tmpname, in_file_count, in_filenames,
+    merge_status = cf_merge_files(&tmpname, in_file_count, in_filenames,
                               WTAP_FILE_PCAP, FALSE);
 
-    if (!merge_ok) {
+    if (merge_status != CF_OK) {
         /* merge failed */
         g_free(tmpname);
 	return;
@@ -200,10 +200,10 @@ dnd_merge_files(int in_file_count, char **in_filenames)
 
 /* open/merge the dnd file */
 void
-dnd_open_file_cmd(GtkSelectionData *selection_data)
+dnd_open_file_cmd(gchar *cf_names_freeme)
 {
     int       err;
-    gchar     *cf_name, *cf_name_freeme;
+    gchar     *cf_name;
     int       in_files;
     gpointer  dialog;
     GString   *dialog_text;
@@ -212,18 +212,13 @@ dnd_open_file_cmd(GtkSelectionData *selection_data)
 
     
     /* DND_TARGET_URL on Win32:
-     * The selection_data->data is a single string, containing one or more URI's,
+     * The cf_name_freeme is a single string, containing one or more URI's,
      * seperated by CR/NL chars. The length of the whole field can be found 
      * in the selection_data->length field. If it contains one file, simply open it,
      * If it contains more than one file, ask to merge these files. */
 
-    /* the data string is not zero terminated -> make a zero terminated "copy" of it */
-    cf_name_freeme = g_malloc(selection_data->length + 1);
-    memcpy(cf_name_freeme, selection_data->data, selection_data->length);
-    cf_name_freeme[selection_data->length] = '\0';
-
     /* count the number of input files */
-    cf_name = cf_name_freeme;
+    cf_name = cf_names_freeme;
     for(in_files = 0; (cf_name = strstr(cf_name, "\r\n")) != NULL; ) {
         cf_name += 2;
         in_files++;
@@ -232,7 +227,7 @@ dnd_open_file_cmd(GtkSelectionData *selection_data)
     in_filenames = g_malloc(sizeof(char*) * in_files);
 
     /* store the starts of the file entries in a gchar array */
-    cf_name = cf_name_freeme;
+    cf_name = cf_names_freeme;
     in_filenames[0] = cf_name;
     for(files_work = 1; (cf_name = strstr(cf_name, "\r\n")) != NULL && files_work < in_files; ) {
         cf_name += 2;
@@ -241,7 +236,7 @@ dnd_open_file_cmd(GtkSelectionData *selection_data)
     }
 
     /* replace trailing CR NL simply with zeroes (in place), so we get valid terminated strings */
-    cf_name = cf_name_freeme;
+    cf_name = cf_names_freeme;
     g_strdelimit(cf_name, "\r\n", '\0');
 
     /* convert all filenames from URI to local filename (in place) */
@@ -283,12 +278,12 @@ dnd_open_file_cmd(GtkSelectionData *selection_data)
     }
 
     g_free(in_filenames);
-    g_free(cf_name_freeme);
+    g_free(cf_names_freeme);
 }
 
 /* ask the user to save current unsaved file, before opening the dnd file */
 static void 
-dnd_save_file_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
+dnd_save_file_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
 {
     switch(btn) {
     case(ESD_BTN_SAVE):
@@ -314,6 +309,7 @@ dnd_data_received(GtkWidget *widget _U_, GdkDragContext *dc _U_, gint x _U_, gin
 GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
 {
     gpointer  dialog;
+	gchar *cf_names_freeme;
 
     if (info == DND_TARGET_URL) {
         /* Usually we block incoming events by disabling the corresponding menu/toolbar items. 
@@ -341,6 +337,12 @@ GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
             return;
         }
 
+		/* the selection_data will soon be gone, make a copy first */
+		/* the data string is not zero terminated -> make a zero terminated "copy" of it */
+		cf_names_freeme = g_malloc(selection_data->length + 1);
+		memcpy(cf_names_freeme, selection_data->data, selection_data->length);
+		cf_names_freeme[selection_data->length] = '\0';
+
         /* ask the user to save it's current capture file first */
         if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
             /* user didn't saved his current file, ask him */
@@ -348,10 +350,10 @@ GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
                         ESD_BTNS_SAVE_DONTSAVE_CANCEL,
                         PRIMARY_TEXT_START "Save capture file before opening a new one?" PRIMARY_TEXT_END "\n\n"
                         "If you open a new capture file without saving, your current capture data will be discarded.");
-            simple_dialog_set_cb(dialog, dnd_save_file_answered_cb, selection_data);
+            simple_dialog_set_cb(dialog, dnd_save_file_answered_cb, cf_names_freeme );
         } else {
             /* unchanged file */
-            dnd_open_file_cmd(selection_data);
+            dnd_open_file_cmd( cf_names_freeme );
         }
     }
 }

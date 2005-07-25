@@ -278,7 +278,7 @@ extern void dnd_init(GtkWidget *w);
 /** Open a new file coming from drag and drop.
  * @param selection_data the selection data reported from GTK
  */
-extern void dnd_open_file_cmd(GtkSelectionData *selection_data);
+extern void dnd_open_file_cmd(gchar *cf_names_freeme);
 
 /** Update the packets statusbar to the current values. */
 extern void packets_bar_update(void);
