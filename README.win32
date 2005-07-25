@@ -91,6 +91,16 @@ you want to compile Ethereal yourself.
 Compiling the Ethereal distribution from source
 ===============================================
 
+Developer's Guide
+-----------------
+You can find a comprehensive guide how to develop Ethereal in the 
+Developer's Guide, which you can find (and much more info) at: 
+
+http://wiki.ethereal.com/Development
+
+The guide contains detailed information how to setup the development 
+environment and it's usage.
+
 Compilers
 ---------
 MS Visual C++ Version 6
