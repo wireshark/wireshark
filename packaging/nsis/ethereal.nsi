@@ -43,8 +43,10 @@ OutFile "${DEST}-setup-${VERSION}.exe"
 Icon "..\..\image\ethereal.ico"
 UninstallIcon "..\..\image\ethereal.ico"
 
+; Uninstall stuff (NSIS 2.08: "\r\n" don't work here)
+!define MUI_UNCONFIRMPAGE_TEXT_TOP "The following Ethereal installation will be uninstalled. Click 'Next' to continue."
 ; Uninstall stuff (this text isn't used with the MODERN_UI!)
-UninstallText "This will uninstall Ethereal.\r\nBefore starting the uninstallation, make sure Ethereal is not running.\r\nClick 'Next' to continue."
+;UninstallText "This will uninstall Ethereal.\r\nBefore starting the uninstallation, make sure Ethereal is not running.\r\nClick 'Next' to continue."
 
 XPStyle on
 
@@ -540,12 +542,14 @@ SecRequired_skip_Winpcap:
 
 ; Load Winpcap NPF service at startup (depending on additional tasks page)
 ReadINIStr $0 "$PLUGINSDIR\WinPcapPage.ini" "Field 8" "State"
-StrCmp $0 "0" SecRequired_skip_WinpcapService
+StrCmp $0 "0" SecRequired_no_WinpcapService
 WriteRegDWORD HKEY_LOCAL_MACHINE "SYSTEM\CurrentControlSet\Services\NPF" "Start" 2 ;set NPF to (SERVICE_AUTO_START)
-; we have to tell the installer, we need a reboot!
-;SetRebootFlag true
 !insertmacro SERVICE "start" "NPF" ""
-SecRequired_skip_WinpcapService:
+Goto SecRequired_done_WinpcapService
+SecRequired_no_WinpcapService:
+WriteRegDWORD HKEY_LOCAL_MACHINE "SYSTEM\CurrentControlSet\Services\NPF" "Start" 3 ;set NPF to (SERVICE_DEMAND_START)
+!insertmacro SERVICE "stop" "NPF" ""
+SecRequired_done_WinpcapService:
 
 SectionEnd ; "Required"
 
@@ -1080,13 +1084,14 @@ lbl_winpcap_3+:
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If selected, the currently installed $WINPCAP_VERSION will be uninstalled first."
 lbl_winpcap_done:
 
-	;Disable NPF service setting for Win OT and if Winpcap is not installed
+	; Disable NPF service setting for Win OT 
 	StrCmp $R0 '95' lbl_npf_disable
 	StrCmp $R0 '98' lbl_npf_disable
 	StrCmp $R0 'ME' lbl_npf_disable
 	ReadRegDWORD $NPF_START HKEY_LOCAL_MACHINE "SYSTEM\CurrentControlSet\Services\NPF" "Start"
+	; (Winpcap may not be installed already, so no regKey is no error here)
 	IfErrors lbl_npf_done ;RegKey not available, so do not set it
-	IntCmp $NPF_START 2 0 lbl_npf_done
+	IntCmp $NPF_START 2 0 lbl_npf_done lbl_npf_done
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 8" "State" "1"
 	Goto lbl_npf_done
 	;disable
@@ -1095,6 +1100,31 @@ lbl_npf_disable:
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 8" "Flags" "DISABLED"
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 9" "Flags" "DISABLED"	
 lbl_npf_done:
+
+
+	; if Ethereal was previously installed, unselect previously not installed icons etc.
+	; detect if Ethereal is already installed -> 
+	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "UninstallString"
+	IfErrors lbl_ethereal_notinstalled ;if RegKey is unavailable, Ethereal is not installed
+
+	; only select Start Menu Group, if previously installed
+	; (we use the "all users" start menu, so select it first)
+	SetShellVarContext all
+	IfFileExists "$SMPROGRAMS\Ethereal\Ethereal.lnk" lbl_have_startmenu
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 2" "State" "0"
+lbl_have_startmenu:
+
+	; only select Desktop Icon, if previously installed
+	IfFileExists "$DESKTOP\Ethereal.lnk" lbl_have_desktopicon
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "State" "0"
+lbl_have_desktopicon:
+
+	; only select Quick Launch Icon, if previously installed
+	IfFileExists "$QUICKLAUNCH\Ethereal.lnk" lbl_have_quicklaunchicon
+	WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "State" "0"
+lbl_have_quicklaunchicon:
+
+lbl_ethereal_notinstalled:
 
 
 FunctionEnd
