@@ -625,7 +625,6 @@ dissect_payload_kink_isakmp(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   guint8 inner_next_pload;
   guint8 qm, qmmaj, qmmin;
   guint16 reserved2;
-  guint16 quick_mode_payloads_length;
   int start_payload_offset = 0;      /* Keep the begining of the payload offset */
   tvbuff_t *isakmp_tvb;
   

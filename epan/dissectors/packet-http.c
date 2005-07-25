@@ -481,9 +481,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int		reported_datalen = -1;
 	dissector_handle_t handle;
 	gboolean	dissected;
-	guint		i;
+	/*guint		i;*/
 	guint32 framenum = pinfo->fd->num;
-	http_info_value_t *si;
+	/*http_info_value_t *si;*/
 
 	/*
 	 * Is this a request or response?
