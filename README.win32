@@ -428,22 +428,24 @@ together with the GTK2 version of Ethereal.
 No changes to the Ethereal sources are needed, GTK-Wimp simply changes the 
 way GTK2 displays the widgets (by changing the GTK2 default theme).
 
-GTK-Wimp might already be installed. In this case, the files mentioned below
-are already existing at the appropriate places.
+GTK-Wimp will be automatically installed if you use the official Ethereal Setup. 
+In this case, the files mentioned below are already existing at the appropriate 
+places.
 
-If GTK-Wimp isn't installed, you can install it yourself: 
+If GTK-Wimp wasn't installed, you can install it yourself (however, this 
+method is error prone and therefore no longer recommended): 
 
 1. Go to http://gtk-wimp.sourceforge.net/
 2. Download the ZIP archive containing the library and the theme
 3. Locate the installation directory of Ethereal (C:\Program Files\Ethereal)
 4. Create a subdirectory 'share\themes\Default\gtk-2.0'
 5. Drop the file 'gtkrc' in 'share\themes\Default\gtk-2.0'
-6. Create a subdirectory named 'lib\gtk-2.0\2.2.0\engines'
-7. Drop the 'libwimp.dll' library in 'lib\gtk-2.0\2.2.0\engines'
+6. Create a subdirectory named 'lib\gtk-2.0\2.4.0\engines'
+7. Drop the 'libwimp.dll' library in 'lib\gtk-2.0\2.4.0\engines'
 
 When you're finished, you should have:
 
-C:\Program Files\Ethereal\lib\gtk-2.0\2.2.0\engines\libwimp.dll
+C:\Program Files\Ethereal\lib\gtk-2.0\2.4.0\engines\libwimp.dll
 C:\Program Files\Ethereal\share\themes\Default\gtk-2.0\gtkrc
 
 After (re-)starting Ethereal, you should now see it's widgets in the modern 
