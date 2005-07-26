@@ -533,7 +533,7 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 					last_eap = TRUE;
 				}
 
-				if (last_eap) {
+				if (last_eap && eap_buffer) {
 					gboolean save_writable;
 
 					proto_item_append_text(avp_item,
