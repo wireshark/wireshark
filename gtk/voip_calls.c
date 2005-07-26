@@ -675,10 +675,6 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		}
 	}
 
-	g_free(pi->tap_from_addr);
-	g_free(pi->tap_to_addr);
-	g_free(pi->tap_call_id);
-
 	if (strinfo!=NULL){
 
 		/* let's analyze the call state */
