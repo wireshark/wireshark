@@ -189,7 +189,6 @@ ep_alloc0
 ep_strdup
 ep_strdup_printf
 ep_strndup
-ep_strsplit
 ep_memdup
 ep_tvb_get_string
 ep_tvb_memdup
