@@ -332,6 +332,12 @@ extern guint8* tvb_memcpy(tvbuff_t*, guint8* target, gint offset, gint length);
  * tvb_memdup(). Calls tvb_memcpy() */
 extern guint8* tvb_memdup(tvbuff_t*, gint offset, gint length);
 
+/* Same as above but the buffer returned from this function does not have to
+* be freed. It will be automatically freed after the packet is dissected.
+* Buffers allocated by this function are NOT persistent.
+*/
+extern guint8* ep_tvb_memdup(tvbuff_t *tvb, gint offset, gint length);
+
 /** WARNING! This function is possibly expensive, temporarily allocating
  * another copy of the packet data. Furthermore, it's dangerous because once
  * this pointer is given to the user, there's no guarantee that the user will

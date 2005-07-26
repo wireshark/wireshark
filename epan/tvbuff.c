@@ -1002,10 +1002,38 @@ tvb_memdup(tvbuff_t *tvb, gint offset, gint length)
 {
 	guint	abs_offset, abs_length;
 	guint8	*duped;
-
+	
 	check_offset_length(tvb, offset, length, &abs_offset, &abs_length);
-
+	
 	duped = g_malloc(abs_length);
+	return tvb_memcpy(tvb, duped, abs_offset, abs_length);
+}
+
+/*
+ * XXX - this doesn't treat a length of -1 as an error.
+ * If it did, this could replace some code that calls
+ * "tvb_ensure_bytes_exist()" and then allocates a buffer and copies
+ * data to it.
+ *
+ * "composite_ensure_contiguous_no_exception()" depends on -1 not being
+ * an error; does anything else depend on this routine treating -1 as
+ * meaning "to the end of the buffer"?
+ * 
+ * This function allocates memory from a buffer with packet lifetime.
+ * You do not have to free this buffer, it will be automatically freed
+ * when ethereal starts decoding the next packet.
+ * Do not use this function if you want the allocated memory to be persistent
+ * after the current packet has been dissected.
+ */
+guint8*
+ep_tvb_memdup(tvbuff_t *tvb, gint offset, gint length)
+{
+	guint	abs_offset, abs_length;
+	guint8	*duped;
+	
+	check_offset_length(tvb, offset, length, &abs_offset, &abs_length);
+	
+	duped = ep_alloc(abs_length);
 	return tvb_memcpy(tvb, duped, abs_offset, abs_length);
 }
 
