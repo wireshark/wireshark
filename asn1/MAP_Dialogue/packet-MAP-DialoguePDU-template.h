@@ -1,4 +1,4 @@
-/* packet-pkinit.h
+/* packet-MAP_DialoguePDU.h
  * Routines for MAP_DialoguePDU packet dissection
  *
  * $Id$

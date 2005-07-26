@@ -34,6 +34,7 @@
 #include <string.h>
 
 #include "packet-ber.h"
+#include "packet-gsm_map.h"
 
 #define PNAME  "MAP_DialoguePDU"
 #define PSNAME "MAP_DialoguePDU"

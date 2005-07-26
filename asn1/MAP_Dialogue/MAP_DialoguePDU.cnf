@@ -4,6 +4,11 @@
 # $Id$
 
 #.MODULE_IMPORT
+MAP-CommonDataTypes gsm_map
+MAP-ExtensionDataTypes gsm_map
+MAP-ST-DataTypes gsm_map
+
+#.INCLUDE ../gsmmap/gsm_map-exp.cnf
 
 #.EXPORTS
 
