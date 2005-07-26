@@ -535,8 +535,8 @@ ExecWait '$WINPCAP_UNINSTALL' $0
 DetailPrint "WinPcap uninstaller returned $0"
 lbl_winpcap_notinstalled:
 SetOutPath $INSTDIR
-File "WinPcap_3_0.exe"
-ExecWait '"$INSTDIR\WinPcap_3_0.exe"' $0
+File "WinPcap_3_1_beta4.exe"
+ExecWait '"$INSTDIR\WinPcap_3_1_beta4.exe"' $0
 DetailPrint "WinPcap installer returned $0"
 SecRequired_skip_Winpcap:
 
@@ -1060,7 +1060,7 @@ lbl_ignore_wimp:
 !endif
 
 	; detect if WinPcap should be installed
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap 3.0"
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap 3.1 beta 4"
 	ReadRegStr $WINPCAP_VERSION HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName"
 	IfErrors 0 lbl_winpcap_installed ;if RegKey is available, WinPcap is already installed
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "WinPcap is currently not installed"
