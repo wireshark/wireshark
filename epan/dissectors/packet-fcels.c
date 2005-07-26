@@ -135,7 +135,8 @@ static int hf_fcels_cbind_userinfo = -1;
 static int hf_fcels_cbind_snpname = -1;
 static int hf_fcels_cbind_dnpname = -1;
 static int hf_fcels_cbind_status = -1;
-static int hf_fcels_cbind_chandle = -1;
+static int hf_fcels_chandle = -1;
+static int hf_fcels_unbind_status = -1;
 
 static gint ett_fcels;           
 static gint ett_fcels_lsrjt;
@@ -188,6 +189,13 @@ static const value_string cbind_addr_mode_vals[] = {
 };
 
 static const value_string cbind_status_vals[] = {
+    {0, "Success"},
+    {16, "Failed - Unspecified Reason"},
+    {18, "Failed - Connection ID invalid"},
+    {0, NULL},
+};
+
+static const value_string unbind_status_vals[] = {
     {0, "Success"},
     {16, "Failed - Unspecified Reason"},
     {17, "Failed - No such device"},
@@ -1461,12 +1469,48 @@ dissect_fcels_cbind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             col_append_str (pinfo->cinfo, COL_INFO, "Request");
         }
         break;
-    case 40: /* 36 byte Request + 4 bytes FC CRC */
+    case 40: /* 36 byte Response + 4 bytes FC CRC */
         if (check_col (pinfo->cinfo, COL_INFO)) {
             col_append_str (pinfo->cinfo, COL_INFO, "Response");
         }
         proto_tree_add_item (cbind_tree, hf_fcels_cbind_status, tvb, offset+30, 2, FALSE);
-        proto_tree_add_item (cbind_tree, hf_fcels_cbind_chandle, tvb, offset+34, 2, FALSE);
+        proto_tree_add_item (cbind_tree, hf_fcels_chandle, tvb, offset+34, 2, FALSE);
+        break;
+    }
+
+}
+
+static void
+dissect_fcels_unbind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    proto_item *ti)
+{
+    int offset = 0;
+    proto_tree *cbind_tree=NULL;
+
+    if (tree) {
+        cbind_tree = proto_item_add_subtree (ti, ett_fcels_cbind);
+
+        proto_tree_add_item (cbind_tree, hf_fcels_opcode, tvb, offset, 1, FALSE);
+    }
+    if (check_col (pinfo->cinfo, COL_INFO)) {
+        col_add_str (pinfo->cinfo, COL_INFO, "UNBIND ");
+    }
+
+    proto_tree_add_item (cbind_tree, hf_fcels_cbind_userinfo, tvb, offset+4, 4, FALSE);
+    proto_tree_add_item (cbind_tree, hf_fcels_chandle, tvb, offset+10, 2, FALSE);
+
+
+    switch(tvb_reported_length(tvb)){
+    case 24: /* 20 byte Request + 4 bytes FC CRC */
+        if (check_col (pinfo->cinfo, COL_INFO)) {
+            col_append_str (pinfo->cinfo, COL_INFO, "Request");
+        }
+        break;
+    case 28: /* 24 byte Response + 4 bytes FC CRC */
+        if (check_col (pinfo->cinfo, COL_INFO)) {
+            col_append_str (pinfo->cinfo, COL_INFO, "Response");
+        }
+        proto_tree_add_item (cbind_tree, hf_fcels_unbind_status, tvb, offset+22, 2, FALSE);
         break;
     }
 
@@ -1817,6 +1861,9 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case FC_ELS_CBIND:
         dissect_fcels_cbind (tvb, pinfo, tree, ti);
         break;
+    case FC_ELS_UNBIND:
+        dissect_fcels_unbind (tvb, pinfo, tree, ti);
+        break;
     default:
         /* proto_tree_add_text ( */
         call_dissector (data_handle, tvb, pinfo, tree);
@@ -2048,9 +2095,12 @@ proto_register_fcels (void)
         { &hf_fcels_cbind_status,
           {"Status", "fcels.cbind.status", FT_UINT16, BASE_DEC,
            VALS(cbind_status_vals), 0x0, "Cbind status", HFILL}},
-        { &hf_fcels_cbind_chandle,
+        { &hf_fcels_chandle,
           {"Connection Handle", "fcels.cbind.handle", FT_UINT16, BASE_HEX,
-           NULL, 0x0, "Cbind connection handle", HFILL}},
+           NULL, 0x0, "Cbind/Unbind connection handle", HFILL}},
+        { &hf_fcels_unbind_status,
+          {"Status", "fcels.unbind.status", FT_UINT16, BASE_DEC,
+           VALS(unbind_status_vals), 0x0, "Unbind status", HFILL}},
     };
 
     static gint *ett[] = {

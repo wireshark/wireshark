@@ -58,6 +58,7 @@
 #define FC_ELS_RPSC          0x7D
 #define FC_ELS_AUTH          0x90
 #define FC_ELS_CBIND         0xE0
+#define FC_ELS_UNBIND        0xE4
 
 static const value_string fc_els_proto_val[] = {
     {FC_ELS_LSRJT        , "LS_RJT"},
@@ -92,6 +93,7 @@ static const value_string fc_els_proto_val[] = {
     {FC_ELS_RPSC         , "RPSC"},
     {FC_ELS_AUTH         , "AUTH"},
     {FC_ELS_CBIND        , "CBIND"},
+    {FC_ELS_UNBIND       , "UNBIND"},
     {0, NULL},
 };
 
