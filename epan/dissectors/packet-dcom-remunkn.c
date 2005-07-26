@@ -188,7 +188,7 @@ dissect_remunk_remrelease_rqst(tvbuff_t *tvb, int offset,
 	e_uuid_t ipid;
 	guint32	u32PublicRefs;
 	guint32	u32PrivateRefs;
-	gchar *pszFormat;
+	const gchar *pszFormat;
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 	guint32	u32SubStart;

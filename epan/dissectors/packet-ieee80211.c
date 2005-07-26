@@ -814,7 +814,7 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
     }
 }
 
-static char *wpa_cipher_str[] = 
+static const char *wpa_cipher_str[] = 
 {
   "NONE",
   "WEP (40-bit)",
@@ -824,7 +824,7 @@ static char *wpa_cipher_str[] =
   "WEP (104-bit)",
 };
 
-static char *
+static const char *
 wpa_cipher_idx2str(guint idx)
 {
   if (idx < sizeof(wpa_cipher_str)/sizeof(wpa_cipher_str[0]))
@@ -832,14 +832,14 @@ wpa_cipher_idx2str(guint idx)
   return "UNKNOWN";
 }
 
-static char *wpa_keymgmt_str[] = 
+static const char *wpa_keymgmt_str[] = 
 {
   "NONE",
   "WPA",
   "PSK",
 };
 
-static char *
+static const char *
 wpa_keymgmt_idx2str(guint idx)
 {
   if (idx < sizeof(wpa_keymgmt_str)/sizeof(wpa_keymgmt_str[0]))
@@ -1771,7 +1771,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 }
 
 static void
-set_src_addr_cols(packet_info *pinfo, const guint8 *addr, char *type)
+set_src_addr_cols(packet_info *pinfo, const guint8 *addr, const char *type)
 {
   if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
     col_add_fstr(pinfo->cinfo, COL_RES_DL_SRC, "%s (%s)",
@@ -1782,7 +1782,7 @@ set_src_addr_cols(packet_info *pinfo, const guint8 *addr, char *type)
 }
 
 static void
-set_dst_addr_cols(packet_info *pinfo, const guint8 *addr, char *type)
+set_dst_addr_cols(packet_info *pinfo, const guint8 *addr, const char *type)
 {
   if (check_col(pinfo->cinfo, COL_RES_DL_DST))
     col_add_fstr(pinfo->cinfo, COL_RES_DL_DST, "%s (%s)",

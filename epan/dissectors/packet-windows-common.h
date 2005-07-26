@@ -159,7 +159,7 @@ struct standard_mapping {
 };
 
 struct access_mask_info {
-	char *specific_rights_name;
+	const char *specific_rights_name;
 	nt_access_mask_fn_t *specific_rights_fn;
 	struct generic_mapping *generic_mapping;
 	struct standard_mapping *standard_mapping;

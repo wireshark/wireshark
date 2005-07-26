@@ -32,7 +32,7 @@
 
 typedef struct _aim_tlv {
   guint16 valueid;
-  char *desc;
+  const char *desc;
   int (*dissector) (proto_item *ti, guint16 value_id, tvbuff_t *tvb, packet_info *);
 } aim_tlv;
 
@@ -44,7 +44,7 @@ struct aiminfo {
 
 typedef struct _aim_subtype {
 	guint16 id;
-	char *name;
+	const char *name;
 	int (*dissector) (tvbuff_t *, packet_info *, proto_tree *);
 } aim_subtype;
 

@@ -163,7 +163,7 @@ dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 
 void
 dcerpc_smb_store_pol_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
-			  char *name);
+			  const char *name);
 
 /* Fetch details stored with a policy handle */
 
@@ -216,7 +216,7 @@ int dissect_ndr_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 int dissect_ndr_str_pointer_item(tvbuff_t *tvb, gint offset, 
 				 packet_info *pinfo, proto_tree *tree, 
-				 guint8 *drep, int type, char *text, 
+				 guint8 *drep, int type, const char *text, 
 				 int hf_index, int levels);
 
 /*

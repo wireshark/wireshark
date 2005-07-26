@@ -363,7 +363,7 @@ dissect_ipv6_options(tvbuff_t *tvb, int offset, guint length,
   const ip_tcp_opt *optp;
   opt_len_type      len_type;
   unsigned int      optlen;
-  char             *name;
+  const char       *name;
   char              name_str[7+1+1+2+2+1+1];	/* "Unknown (0x%02x)" */
   void            (*dissect)(const struct ip_tcp_opt *, tvbuff_t *,
 				int, guint, packet_info *, proto_tree *);
@@ -450,7 +450,7 @@ dissect_ipv6_options(tvbuff_t *tvb, int offset, guint length,
 }
 
 static int
-dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, char *optname)
+dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, const char *optname)
 {
     struct ip6_ext ext;
     int len;
@@ -792,7 +792,7 @@ again:
            put something in the Info column; leave it there. */
       	if (!ah) {
           if (hopopts || routing || dstopts) {
-            char *sep = "IPv6 ";
+            const char *sep = "IPv6 ";
             if (hopopts) {
               col_append_fstr(pinfo->cinfo, COL_INFO, "%shop-by-hop options",
                              sep);

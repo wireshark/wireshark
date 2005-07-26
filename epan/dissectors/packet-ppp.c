@@ -1636,7 +1636,7 @@ dissect_lcp_async_map_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 			proto_tree *tree)
 {
   guint32 map;
-  char *mapstr;
+  const char *mapstr;
   static const char *ctrlchars[32] = {
     "NUL", "SOH",       "STX", "ETX",        "EOT",      "ENQ", "ACK", "BEL",
     "BS",  "HT",        "NL",  "VT",         "NP (FF)",  "CR",  "SO",  "SI",
@@ -3079,11 +3079,11 @@ static const true_false_string frag_truth = {
 static void
 dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *mp_tree, *hdr_tree;
-  proto_item *ti = NULL;
-  guint8      flags;
-  gchar      *flag_str;
-  tvbuff_t   *next_tvb;
+  proto_tree  *mp_tree, *hdr_tree;
+  proto_item  *ti = NULL;
+  guint8       flags;
+  const gchar *flag_str;
+  tvbuff_t    *next_tvb;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP MP");

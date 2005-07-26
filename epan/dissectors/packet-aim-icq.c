@@ -87,7 +87,7 @@ static gint hf_icq_dropped_msg_flag = -1;
 static struct
 {
 	guint16 subtype;
-	char *name;
+	const char *name;
 	int (*dissector) (tvbuff_t *, packet_info *, proto_tree *);
 } icq_calls [] = {
 	{ 0x0001, "Server Error Reply", NULL },

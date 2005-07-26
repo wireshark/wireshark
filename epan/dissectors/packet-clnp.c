@@ -793,7 +793,7 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   proto_item *ti;
   guint16 dst_ref, src_ref;
   guchar  reason;
-  char *str;
+  const char *str;
 
   if (li < LI_MIN_DR)
     return -1;
@@ -1574,7 +1574,7 @@ static int ositp_decode_ER(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 {
   proto_tree *cotp_tree;
   proto_item *ti;
-  char *str;
+  const char *str;
   guint16 dst_ref;
 
   if (li > LI_MAX_ER)

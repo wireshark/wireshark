@@ -2080,7 +2080,7 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int
 dissect_ndr_toplevel_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		    proto_tree *tree, guint8 *drep, dcerpc_dissect_fnct_t *fnct,
-		    int type, char *text, int hf_index)
+		    int type, const char *text, int hf_index)
 {
 	int ret;
 
@@ -2093,7 +2093,7 @@ dissect_ndr_toplevel_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int
 dissect_ndr_embedded_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		    proto_tree *tree, guint8 *drep, dcerpc_dissect_fnct_t *fnct,
-		    int type, char *text, int hf_index)
+		    int type, const char *text, int hf_index)
 {
 	int ret;
 

@@ -1151,7 +1151,7 @@ dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 int
 dissect_dcom_append_UUID(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep,
-	int hfindex, gchar *field_name, int field_index)
+	int hfindex, const gchar *field_name, int field_index)
 {
 	e_uuid_t uuid;
 	const gchar *uuid_name;

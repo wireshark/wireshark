@@ -857,7 +857,7 @@ calculateCRC(const void *buf, guint len) {
 /*  Adds text to item, with trailing "," if required             */
 /*****************************************************************/
 static gboolean
-add_item_text(proto_item *item, gchar *text, gboolean comma_needed)
+add_item_text(proto_item *item, const gchar *text, gboolean comma_needed)
 {
   if (comma_needed) {
     proto_item_append_text(item, ", ");

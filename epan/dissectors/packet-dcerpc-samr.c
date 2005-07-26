@@ -2762,7 +2762,7 @@ samr_dissect_INDEX_ARRAY_value (tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static char *
+static const char *
 plural_ending(const char *string)
 {
 	size_t string_len;

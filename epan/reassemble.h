@@ -227,12 +227,12 @@ typedef struct _fragment_items {
 	int	*hf_fragment_error;
 	int	*hf_reassembled_in;
 
-	char	*tag;
+	const char	*tag;
 } fragment_items;
 
 extern tvbuff_t *
 process_reassembled_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    char *name, fragment_data *fd_head, const fragment_items *fit,
+    const char *name, fragment_data *fd_head, const fragment_items *fit,
     gboolean *update_col_infop, proto_tree *tree);
 
 extern gboolean

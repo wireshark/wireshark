@@ -35,7 +35,7 @@ typedef enum {
 /* Member of table of IP or TCP options. */
 typedef struct ip_tcp_opt {
   int   optcode;	/* code for option */
-  char  *name;		/* name of option */
+  const char  *name;	/* name of option */
   int   *subtree_index;	/* pointer to subtree index for option */
   opt_len_type len_type; /* type of option length field */
   int	optlen;		/* value length should be (minimum if VARIABLE) */

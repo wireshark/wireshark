@@ -461,7 +461,7 @@ static int hf_time_msec = -1;
 
 static int
 dissect_SYSTEM_TIME(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		    proto_tree *tree, guint8 *drep, char *name, 
+		    proto_tree *tree, guint8 *drep, const char *name, 
 		    gboolean add_subtree, char **data)
 {
 	proto_item *item = NULL;
@@ -708,7 +708,7 @@ static int SpoolssGetPrinterData_r(tvbuff_t *tvb, int offset,
 				    hf_printerdata_type, &type);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		char *data = dcv->private_data ? dcv->private_data : "????";
+		const char *data = dcv->private_data ? dcv->private_data : "????";
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", data);
 	}
@@ -805,7 +805,7 @@ static int SpoolssGetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_returned, &size);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		char *data = dcv->private_data ? dcv->private_data : "????";
+		const char *data = dcv->private_data ? dcv->private_data : "????";
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", data);
 	}
@@ -963,7 +963,7 @@ static int SpoolssSetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 static int
 dissect_spoolss_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			  proto_tree *tree, guint8 *drep _U_, char **data,
-			  char *name)
+			  const char *name)
 {
 	gint len, remaining;
 	char *text;
@@ -2713,7 +2713,7 @@ static const value_string printer_notify_types[] =
 	{ 0, NULL }
 };
 
-static char *notify_plural(int count)
+static const char *notify_plural(int count)
 {
 	if (count == 1)
 		return "notification";
@@ -6220,7 +6220,7 @@ static int SpoolssEnumPrinterKey_q(tvbuff_t *tvb, int offset,
 		hf_printerdata_key, TRUE, &key_name);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		char *kn = key_name;
+		const char *kn = key_name;
 
 		if (!key_name[0])
 			kn = "\"\"";
