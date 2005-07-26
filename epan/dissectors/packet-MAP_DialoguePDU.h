@@ -1,11 +1,11 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-MAP_DialoguePDU.h                                                 */
+/* .\packet-MAP_DialoguePDU.h                                                 */
 /* ../../tools/asn2eth.py -X -b -e -p MAP_DialoguePDU -c MAP_DialoguePDU.cnf -s packet-MAP-DialoguePDU-template MAP_DialoguePDU.asn */
 
 /* Input file: packet-MAP-DialoguePDU-template.h */
 
-/* packet-pkinit.h
+/* packet-MAP_DialoguePDU.h
  * Routines for MAP_DialoguePDU packet dissection
  *
  * $Id$

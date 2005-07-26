@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-MAP_DialoguePDU.c                                                 */
+/* .\packet-MAP_DialoguePDU.c                                                 */
 /* ../../tools/asn2eth.py -X -b -e -p MAP_DialoguePDU -c MAP_DialoguePDU.cnf -s packet-MAP-DialoguePDU-template MAP_DialoguePDU.asn */
 
 /* Input file: packet-MAP-DialoguePDU-template.c */
@@ -41,6 +41,7 @@
 #include <string.h>
 
 #include "packet-ber.h"
+#include "packet-gsm_map.h"
 
 #define PNAME  "MAP_DialoguePDU"
 #define PSNAME "MAP_DialoguePDU"
@@ -51,21 +52,26 @@ int proto_MAP_DialoguePDU = -1;
 
 /*--- Included file: packet-MAP_DialoguePDU-hf.c ---*/
 
-static int hf_MAP_DialoguePDU_map_open = -1;      /* T_map_open */
-static int hf_MAP_DialoguePDU_destinationReference = -1;  /* DestinationReference */
-static int hf_MAP_DialoguePDU_originationReference = -1;  /* OriginationReference */
-static int hf_MAP_DialoguePDU_map_accept = -1;    /* T_map_accept */
-static int hf_MAP_DialoguePDU_map_close = -1;     /* T_map_close */
-static int hf_MAP_DialoguePDU_map_refuse = -1;    /* T_map_refuse */
+static int hf_MAP_DialoguePDU_map_open = -1;      /* MAP_OpenInfo */
+static int hf_MAP_DialoguePDU_map_accept = -1;    /* MAP_AcceptInfo */
+static int hf_MAP_DialoguePDU_map_close = -1;     /* MAP_CloseInfo */
+static int hf_MAP_DialoguePDU_map_refuse = -1;    /* MAP_RefuseInfo */
+static int hf_MAP_DialoguePDU_map_userAbort = -1;  /* MAP_UserAbortInfo */
+static int hf_MAP_DialoguePDU_map_providerAbort = -1;  /* MAP_ProviderAbortInfo */
+static int hf_MAP_DialoguePDU_destinationReference = -1;  /* AddressString */
+static int hf_MAP_DialoguePDU_originationReference = -1;  /* AddressString */
+static int hf_MAP_DialoguePDU_extensionContainer = -1;  /* ExtensionContainer */
 static int hf_MAP_DialoguePDU_reason = -1;        /* Reason */
-static int hf_MAP_DialoguePDU_map_userAbort = -1;  /* T_map_userAbort */
+static int hf_MAP_DialoguePDU_alternativeApplicationContext = -1;  /* OBJECT_IDENTIFIER */
 static int hf_MAP_DialoguePDU_map_UserAbortChoice = -1;  /* MAP_UserAbortChoice */
-static int hf_MAP_DialoguePDU_map_providerAbort = -1;  /* T_map_providerAbort */
-static int hf_MAP_DialoguePDU_map_ProviderAbortReason = -1;  /* MAP_ProviderAbortReason */
 static int hf_MAP_DialoguePDU_userSpecificReason = -1;  /* NULL */
 static int hf_MAP_DialoguePDU_userResourceLimitation = -1;  /* NULL */
-static int hf_MAP_DialoguePDU_resourceUnavailable = -1;  /* ResourceUnavailable */
-static int hf_MAP_DialoguePDU_applicationProcedureCancellation = -1;  /* ApplicationProcedureCancellation */
+static int hf_MAP_DialoguePDU_resourceUnavailable = -1;  /* ResourceUnavailableReason */
+static int hf_MAP_DialoguePDU_applicationProcedureCancellation = -1;  /* ProcedureCancellationReason */
+static int hf_MAP_DialoguePDU_map_ProviderAbortReason = -1;  /* MAP_ProviderAbortReason */
+static int hf_MAP_DialoguePDU_encapsulatedAC = -1;  /* OBJECT_IDENTIFIER */
+static int hf_MAP_DialoguePDU_securityHeader = -1;  /* SecurityHeader */
+static int hf_MAP_DialoguePDU_protectedPayload = -1;  /* ProtectedPayload */
 
 /*--- End of included file: packet-MAP_DialoguePDU-hf.c ---*/
 
@@ -75,12 +81,6 @@ static int hf_MAP_DialoguePDU_applicationProcedureCancellation = -1;  /* Applica
 /*--- Included file: packet-MAP_DialoguePDU-ett.c ---*/
 
 static gint ett_MAP_DialoguePDU_MAP_DialoguePDU = -1;
-static gint ett_MAP_DialoguePDU_T_map_open = -1;
-static gint ett_MAP_DialoguePDU_T_map_accept = -1;
-static gint ett_MAP_DialoguePDU_T_map_close = -1;
-static gint ett_MAP_DialoguePDU_T_map_refuse = -1;
-static gint ett_MAP_DialoguePDU_T_map_userAbort = -1;
-static gint ett_MAP_DialoguePDU_T_map_providerAbort = -1;
 static gint ett_MAP_DialoguePDU_MAP_OpenInfo = -1;
 static gint ett_MAP_DialoguePDU_MAP_AcceptInfo = -1;
 static gint ett_MAP_DialoguePDU_MAP_CloseInfo = -1;
@@ -88,6 +88,7 @@ static gint ett_MAP_DialoguePDU_MAP_RefuseInfo = -1;
 static gint ett_MAP_DialoguePDU_MAP_UserAbortInfo = -1;
 static gint ett_MAP_DialoguePDU_MAP_UserAbortChoice = -1;
 static gint ett_MAP_DialoguePDU_MAP_ProviderAbortInfo = -1;
+static gint ett_MAP_DialoguePDU_MAP_ProtectedDialoguePDU = -1;
 
 /*--- End of included file: packet-MAP_DialoguePDU-ett.c ---*/
 
@@ -97,78 +98,70 @@ static gint ett_MAP_DialoguePDU_MAP_ProviderAbortInfo = -1;
 
 /*--- Fields for imported types ---*/
 
-
-
-
-static int
-dissect_MAP_DialoguePDU_DestinationReference(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
 static int dissect_destinationReference_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_MAP_DialoguePDU_DestinationReference(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_destinationReference);
-}
-
-
-
-static int
-dissect_MAP_DialoguePDU_OriginationReference(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
+  return dissect_gsm_map_AddressString(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_destinationReference);
 }
 static int dissect_originationReference_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_MAP_DialoguePDU_OriginationReference(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_originationReference);
+  return dissect_gsm_map_AddressString(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_originationReference);
+}
+static int dissect_extensionContainer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_ExtensionContainer(FALSE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_extensionContainer);
+}
+static int dissect_securityHeader(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_SecurityHeader(FALSE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_securityHeader);
+}
+static int dissect_protectedPayload(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_ProtectedPayload(FALSE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_protectedPayload);
 }
 
-static const ber_sequence_t T_map_open_sequence[] = {
+static const ber_sequence_t MAP_OpenInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationReference_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_originationReference_impl },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_MAP_DialoguePDU_T_map_open(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_MAP_DialoguePDU_MAP_OpenInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_map_open_sequence, hf_index, ett_MAP_DialoguePDU_T_map_open);
+                                MAP_OpenInfo_sequence, hf_index, ett_MAP_DialoguePDU_MAP_OpenInfo);
 
   return offset;
 }
 static int dissect_map_open_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_MAP_DialoguePDU_T_map_open(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_map_open);
+  return dissect_MAP_DialoguePDU_MAP_OpenInfo(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_map_open);
 }
 
-static const ber_sequence_t T_map_accept_sequence[] = {
+static const ber_sequence_t MAP_AcceptInfo_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_MAP_DialoguePDU_T_map_accept(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_MAP_DialoguePDU_MAP_AcceptInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_map_accept_sequence, hf_index, ett_MAP_DialoguePDU_T_map_accept);
+                                MAP_AcceptInfo_sequence, hf_index, ett_MAP_DialoguePDU_MAP_AcceptInfo);
 
   return offset;
 }
 static int dissect_map_accept_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_MAP_DialoguePDU_T_map_accept(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_map_accept);
+  return dissect_MAP_DialoguePDU_MAP_AcceptInfo(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_map_accept);
 }
 
-static const ber_sequence_t T_map_close_sequence[] = {
+static const ber_sequence_t MAP_CloseInfo_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_MAP_DialoguePDU_T_map_close(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_MAP_DialoguePDU_MAP_CloseInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_map_close_sequence, hf_index, ett_MAP_DialoguePDU_T_map_close);
+                                MAP_CloseInfo_sequence, hf_index, ett_MAP_DialoguePDU_MAP_CloseInfo);
 
   return offset;
 }
 static int dissect_map_close_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_MAP_DialoguePDU_T_map_close(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_map_close);
+  return dissect_MAP_DialoguePDU_MAP_CloseInfo(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_map_close);
 }
 
 
@@ -176,6 +169,8 @@ static const value_string MAP_DialoguePDU_Reason_vals[] = {
   {   0, "noReasonGiven" },
   {   1, "invalidDestinationReference" },
   {   2, "invalidOriginatingReference" },
+  {   3, "encapsulatedAC-NotSupported" },
+  {   4, "transportProtectionNotAdequate" },
   { 0, NULL }
 };
 
@@ -191,20 +186,38 @@ static int dissect_reason(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
   return dissect_MAP_DialoguePDU_Reason(FALSE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_reason);
 }
 
-static const ber_sequence_t T_map_refuse_sequence[] = {
+
+
+static int
+dissect_MAP_DialoguePDU_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+static int dissect_alternativeApplicationContext(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_MAP_DialoguePDU_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_alternativeApplicationContext);
+}
+static int dissect_encapsulatedAC(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_MAP_DialoguePDU_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_encapsulatedAC);
+}
+
+static const ber_sequence_t MAP_RefuseInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_reason },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_alternativeApplicationContext },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_MAP_DialoguePDU_T_map_refuse(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_MAP_DialoguePDU_MAP_RefuseInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_map_refuse_sequence, hf_index, ett_MAP_DialoguePDU_T_map_refuse);
+                                MAP_RefuseInfo_sequence, hf_index, ett_MAP_DialoguePDU_MAP_RefuseInfo);
 
   return offset;
 }
 static int dissect_map_refuse_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_MAP_DialoguePDU_T_map_refuse(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_map_refuse);
+  return dissect_MAP_DialoguePDU_MAP_RefuseInfo(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_map_refuse);
 }
 
 
@@ -223,7 +236,7 @@ static int dissect_userResourceLimitation_impl(packet_info *pinfo, proto_tree *t
 }
 
 
-static const value_string MAP_DialoguePDU_ResourceUnavailable_vals[] = {
+static const value_string MAP_DialoguePDU_ResourceUnavailableReason_vals[] = {
   {   0, "shortTermResourceLimitation" },
   {   1, "longTermResourceLimitation" },
   { 0, NULL }
@@ -231,18 +244,18 @@ static const value_string MAP_DialoguePDU_ResourceUnavailable_vals[] = {
 
 
 static int
-dissect_MAP_DialoguePDU_ResourceUnavailable(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_MAP_DialoguePDU_ResourceUnavailableReason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
 static int dissect_resourceUnavailable_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_MAP_DialoguePDU_ResourceUnavailable(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_resourceUnavailable);
+  return dissect_MAP_DialoguePDU_ResourceUnavailableReason(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_resourceUnavailable);
 }
 
 
-static const value_string MAP_DialoguePDU_ApplicationProcedureCancellation_vals[] = {
+static const value_string MAP_DialoguePDU_ProcedureCancellationReason_vals[] = {
   {   0, "handoverCancellation" },
   {   1, "radioChannelRelease" },
   {   2, "networkPathRelease" },
@@ -255,14 +268,14 @@ static const value_string MAP_DialoguePDU_ApplicationProcedureCancellation_vals[
 
 
 static int
-dissect_MAP_DialoguePDU_ApplicationProcedureCancellation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_MAP_DialoguePDU_ProcedureCancellationReason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
 static int dissect_applicationProcedureCancellation_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_MAP_DialoguePDU_ApplicationProcedureCancellation(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_applicationProcedureCancellation);
+  return dissect_MAP_DialoguePDU_ProcedureCancellationReason(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_applicationProcedureCancellation);
 }
 
 
@@ -293,20 +306,21 @@ static int dissect_map_UserAbortChoice(packet_info *pinfo, proto_tree *tree, tvb
   return dissect_MAP_DialoguePDU_MAP_UserAbortChoice(FALSE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_map_UserAbortChoice);
 }
 
-static const ber_sequence_t T_map_userAbort_sequence[] = {
+static const ber_sequence_t MAP_UserAbortInfo_sequence[] = {
   { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_map_UserAbortChoice },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_MAP_DialoguePDU_T_map_userAbort(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_MAP_DialoguePDU_MAP_UserAbortInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_map_userAbort_sequence, hf_index, ett_MAP_DialoguePDU_T_map_userAbort);
+                                MAP_UserAbortInfo_sequence, hf_index, ett_MAP_DialoguePDU_MAP_UserAbortInfo);
 
   return offset;
 }
 static int dissect_map_userAbort_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_MAP_DialoguePDU_T_map_userAbort(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_map_userAbort);
+  return dissect_MAP_DialoguePDU_MAP_UserAbortInfo(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_map_userAbort);
 }
 
 
@@ -328,20 +342,21 @@ static int dissect_map_ProviderAbortReason(packet_info *pinfo, proto_tree *tree,
   return dissect_MAP_DialoguePDU_MAP_ProviderAbortReason(FALSE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_map_ProviderAbortReason);
 }
 
-static const ber_sequence_t T_map_providerAbort_sequence[] = {
+static const ber_sequence_t MAP_ProviderAbortInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_map_ProviderAbortReason },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_MAP_DialoguePDU_T_map_providerAbort(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_MAP_DialoguePDU_MAP_ProviderAbortInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_map_providerAbort_sequence, hf_index, ett_MAP_DialoguePDU_T_map_providerAbort);
+                                MAP_ProviderAbortInfo_sequence, hf_index, ett_MAP_DialoguePDU_MAP_ProviderAbortInfo);
 
   return offset;
 }
 static int dissect_map_providerAbort_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_MAP_DialoguePDU_T_map_providerAbort(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_map_providerAbort);
+  return dissect_MAP_DialoguePDU_MAP_ProviderAbortInfo(TRUE, tvb, offset, pinfo, tree, hf_MAP_DialoguePDU_map_providerAbort);
 }
 
 
@@ -373,116 +388,17 @@ dissect_MAP_DialoguePDU_MAP_DialoguePDU(gboolean implicit_tag _U_, tvbuff_t *tvb
   return offset;
 }
 
-static const ber_sequence_t MAP_OpenInfo_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationReference_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_originationReference_impl },
+static const ber_sequence_t MAP_ProtectedDialoguePDU_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_encapsulatedAC },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_securityHeader },
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_protectedPayload },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_MAP_DialoguePDU_MAP_OpenInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_MAP_DialoguePDU_MAP_ProtectedDialoguePDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                MAP_OpenInfo_sequence, hf_index, ett_MAP_DialoguePDU_MAP_OpenInfo);
-
-  return offset;
-}
-
-static const ber_sequence_t MAP_AcceptInfo_sequence[] = {
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_MAP_DialoguePDU_MAP_AcceptInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                MAP_AcceptInfo_sequence, hf_index, ett_MAP_DialoguePDU_MAP_AcceptInfo);
-
-  return offset;
-}
-
-static const ber_sequence_t MAP_CloseInfo_sequence[] = {
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_MAP_DialoguePDU_MAP_CloseInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                MAP_CloseInfo_sequence, hf_index, ett_MAP_DialoguePDU_MAP_CloseInfo);
-
-  return offset;
-}
-
-static const ber_sequence_t MAP_RefuseInfo_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_reason },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_MAP_DialoguePDU_MAP_RefuseInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                MAP_RefuseInfo_sequence, hf_index, ett_MAP_DialoguePDU_MAP_RefuseInfo);
-
-  return offset;
-}
-
-static const ber_sequence_t MAP_UserAbortInfo_sequence[] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_map_UserAbortChoice },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_MAP_DialoguePDU_MAP_UserAbortInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                MAP_UserAbortInfo_sequence, hf_index, ett_MAP_DialoguePDU_MAP_UserAbortInfo);
-
-  return offset;
-}
-
-
-static const value_string MAP_DialoguePDU_ResourceUnavailableReason_vals[] = {
-  {   0, "shortTermResourceLimitation" },
-  {   1, "longTermResourceLimitation" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_MAP_DialoguePDU_ResourceUnavailableReason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-
-static const value_string MAP_DialoguePDU_ProcedureCancellationReason_vals[] = {
-  {   0, "handoverCancellation" },
-  {   1, "radioChannelRelease" },
-  {   2, "networkPathRelease" },
-  {   3, "callRelease" },
-  {   4, "associatedProcedureFailure" },
-  {   5, "tandemDialogueRelease" },
-  {   6, "remoteOperationsFailure" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_MAP_DialoguePDU_ProcedureCancellationReason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-static const ber_sequence_t MAP_ProviderAbortInfo_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_map_ProviderAbortReason },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_MAP_DialoguePDU_MAP_ProviderAbortInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                MAP_ProviderAbortInfo_sequence, hf_index, ett_MAP_DialoguePDU_MAP_ProviderAbortInfo);
+                                MAP_ProtectedDialoguePDU_sequence, hf_index, ett_MAP_DialoguePDU_MAP_ProtectedDialoguePDU);
 
   return offset;
 }
@@ -509,14 +425,6 @@ void proto_register_MAP_DialoguePDU(void) {
       { "map-open", "MAP_DialoguePDU.map_open",
         FT_NONE, BASE_NONE, NULL, 0,
         "MAP-DialoguePDU/map-open", HFILL }},
-    { &hf_MAP_DialoguePDU_destinationReference,
-      { "destinationReference", "MAP_DialoguePDU.destinationReference",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
-    { &hf_MAP_DialoguePDU_originationReference,
-      { "originationReference", "MAP_DialoguePDU.originationReference",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
     { &hf_MAP_DialoguePDU_map_accept,
       { "map-accept", "MAP_DialoguePDU.map_accept",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -529,26 +437,38 @@ void proto_register_MAP_DialoguePDU(void) {
       { "map-refuse", "MAP_DialoguePDU.map_refuse",
         FT_NONE, BASE_NONE, NULL, 0,
         "MAP-DialoguePDU/map-refuse", HFILL }},
-    { &hf_MAP_DialoguePDU_reason,
-      { "reason", "MAP_DialoguePDU.reason",
-        FT_UINT32, BASE_DEC, VALS(MAP_DialoguePDU_Reason_vals), 0,
-        "", HFILL }},
     { &hf_MAP_DialoguePDU_map_userAbort,
       { "map-userAbort", "MAP_DialoguePDU.map_userAbort",
         FT_NONE, BASE_NONE, NULL, 0,
         "MAP-DialoguePDU/map-userAbort", HFILL }},
-    { &hf_MAP_DialoguePDU_map_UserAbortChoice,
-      { "map-UserAbortChoice", "MAP_DialoguePDU.map_UserAbortChoice",
-        FT_UINT32, BASE_DEC, VALS(MAP_DialoguePDU_MAP_UserAbortChoice_vals), 0,
-        "", HFILL }},
     { &hf_MAP_DialoguePDU_map_providerAbort,
       { "map-providerAbort", "MAP_DialoguePDU.map_providerAbort",
         FT_NONE, BASE_NONE, NULL, 0,
         "MAP-DialoguePDU/map-providerAbort", HFILL }},
-    { &hf_MAP_DialoguePDU_map_ProviderAbortReason,
-      { "map-ProviderAbortReason", "MAP_DialoguePDU.map_ProviderAbortReason",
-        FT_UINT32, BASE_DEC, VALS(MAP_DialoguePDU_MAP_ProviderAbortReason_vals), 0,
+    { &hf_MAP_DialoguePDU_destinationReference,
+      { "destinationReference", "MAP_DialoguePDU.destinationReference",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "MAP-OpenInfo/destinationReference", HFILL }},
+    { &hf_MAP_DialoguePDU_originationReference,
+      { "originationReference", "MAP_DialoguePDU.originationReference",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "MAP-OpenInfo/originationReference", HFILL }},
+    { &hf_MAP_DialoguePDU_extensionContainer,
+      { "extensionContainer", "MAP_DialoguePDU.extensionContainer",
+        FT_NONE, BASE_NONE, NULL, 0,
         "", HFILL }},
+    { &hf_MAP_DialoguePDU_reason,
+      { "reason", "MAP_DialoguePDU.reason",
+        FT_UINT32, BASE_DEC, VALS(MAP_DialoguePDU_Reason_vals), 0,
+        "MAP-RefuseInfo/reason", HFILL }},
+    { &hf_MAP_DialoguePDU_alternativeApplicationContext,
+      { "alternativeApplicationContext", "MAP_DialoguePDU.alternativeApplicationContext",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "MAP-RefuseInfo/alternativeApplicationContext", HFILL }},
+    { &hf_MAP_DialoguePDU_map_UserAbortChoice,
+      { "map-UserAbortChoice", "MAP_DialoguePDU.map_UserAbortChoice",
+        FT_UINT32, BASE_DEC, VALS(MAP_DialoguePDU_MAP_UserAbortChoice_vals), 0,
+        "MAP-UserAbortInfo/map-UserAbortChoice", HFILL }},
     { &hf_MAP_DialoguePDU_userSpecificReason,
       { "userSpecificReason", "MAP_DialoguePDU.userSpecificReason",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -559,12 +479,28 @@ void proto_register_MAP_DialoguePDU(void) {
         "MAP-UserAbortChoice/userResourceLimitation", HFILL }},
     { &hf_MAP_DialoguePDU_resourceUnavailable,
       { "resourceUnavailable", "MAP_DialoguePDU.resourceUnavailable",
-        FT_UINT32, BASE_DEC, VALS(MAP_DialoguePDU_ResourceUnavailable_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(MAP_DialoguePDU_ResourceUnavailableReason_vals), 0,
         "MAP-UserAbortChoice/resourceUnavailable", HFILL }},
     { &hf_MAP_DialoguePDU_applicationProcedureCancellation,
       { "applicationProcedureCancellation", "MAP_DialoguePDU.applicationProcedureCancellation",
-        FT_UINT32, BASE_DEC, VALS(MAP_DialoguePDU_ApplicationProcedureCancellation_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(MAP_DialoguePDU_ProcedureCancellationReason_vals), 0,
         "MAP-UserAbortChoice/applicationProcedureCancellation", HFILL }},
+    { &hf_MAP_DialoguePDU_map_ProviderAbortReason,
+      { "map-ProviderAbortReason", "MAP_DialoguePDU.map_ProviderAbortReason",
+        FT_UINT32, BASE_DEC, VALS(MAP_DialoguePDU_MAP_ProviderAbortReason_vals), 0,
+        "MAP-ProviderAbortInfo/map-ProviderAbortReason", HFILL }},
+    { &hf_MAP_DialoguePDU_encapsulatedAC,
+      { "encapsulatedAC", "MAP_DialoguePDU.encapsulatedAC",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "MAP-ProtectedDialoguePDU/encapsulatedAC", HFILL }},
+    { &hf_MAP_DialoguePDU_securityHeader,
+      { "securityHeader", "MAP_DialoguePDU.securityHeader",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MAP-ProtectedDialoguePDU/securityHeader", HFILL }},
+    { &hf_MAP_DialoguePDU_protectedPayload,
+      { "protectedPayload", "MAP_DialoguePDU.protectedPayload",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "MAP-ProtectedDialoguePDU/protectedPayload", HFILL }},
 
 /*--- End of included file: packet-MAP_DialoguePDU-hfarr.c ---*/
 
@@ -576,12 +512,6 @@ void proto_register_MAP_DialoguePDU(void) {
 /*--- Included file: packet-MAP_DialoguePDU-ettarr.c ---*/
 
     &ett_MAP_DialoguePDU_MAP_DialoguePDU,
-    &ett_MAP_DialoguePDU_T_map_open,
-    &ett_MAP_DialoguePDU_T_map_accept,
-    &ett_MAP_DialoguePDU_T_map_close,
-    &ett_MAP_DialoguePDU_T_map_refuse,
-    &ett_MAP_DialoguePDU_T_map_userAbort,
-    &ett_MAP_DialoguePDU_T_map_providerAbort,
     &ett_MAP_DialoguePDU_MAP_OpenInfo,
     &ett_MAP_DialoguePDU_MAP_AcceptInfo,
     &ett_MAP_DialoguePDU_MAP_CloseInfo,
@@ -589,6 +519,7 @@ void proto_register_MAP_DialoguePDU(void) {
     &ett_MAP_DialoguePDU_MAP_UserAbortInfo,
     &ett_MAP_DialoguePDU_MAP_UserAbortChoice,
     &ett_MAP_DialoguePDU_MAP_ProviderAbortInfo,
+    &ett_MAP_DialoguePDU_MAP_ProtectedDialoguePDU,
 
 /*--- End of included file: packet-MAP_DialoguePDU-ettarr.c ---*/
 

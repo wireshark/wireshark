@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-gsm_map.c                                                         */
+/* .\packet-gsm_map.c                                                         */
 /* ../../tools/asn2eth.py -X -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
 
 /* Input file: packet-gsm_map-template.c */
@@ -1505,7 +1505,7 @@ static const ber_sequence_t ExtensionContainer_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_gsm_map_ExtensionContainer(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 ExtensionContainer_sequence, hf_index, ett_gsm_map_ExtensionContainer);
@@ -4655,7 +4655,7 @@ static int dissect_ext_noReplyConditionTime_impl(packet_info *pinfo, proto_tree 
 
 
 
-static int
+int
 dissect_gsm_map_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 
  tvbuff_t	*parameter_tvb;
@@ -12191,7 +12191,7 @@ static const ber_sequence_t SecurityHeader_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_gsm_map_SecurityHeader(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 SecurityHeader_sequence, hf_index, ett_gsm_map_SecurityHeader);
@@ -12204,7 +12204,7 @@ static int dissect_securityHeader(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 
 
-static int
+int
 dissect_gsm_map_ProtectedPayload(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);

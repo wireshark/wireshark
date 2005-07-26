@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-gsm_map.h                                                         */
+/* .\packet-gsm_map.h                                                         */
 /* ../../tools/asn2eth.py -X -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
 
 /* Input file: packet-gsm_map-template.h */
@@ -45,6 +45,15 @@ typedef struct _gsm_map_tap_rec_t {
 ETH_VAR_IMPORT const value_string gsm_map_opr_code_strings[];
 char* unpack_digits(tvbuff_t *tvb, int offset);
 
-/* #include "packet-gsm_map-exp.h"*/
+
+/*--- Included file: packet-gsm_map-exp.h ---*/
+
+int dissect_gsm_map_AddressString(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_gsm_map_SecurityHeader(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_gsm_map_ProtectedPayload(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_gsm_map_ExtensionContainer(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+
+/*--- End of included file: packet-gsm_map-exp.h ---*/
+
 
 #endif  /* PACKET_GSM_MAP_H */
