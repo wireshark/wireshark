@@ -515,7 +515,7 @@ main(int argc, char **argv)
 		pkthdr.len = len_this_pkt;
 		pkthdr.ts.tv_sec = i; /* just for variety */
 
-		for (j = example->sample_length; j < len_random; j++) {
+		for (j = example->sample_length; j < len_this_pkt; j++) {
 			/* Add format strings here and there */
 			if ((int) (100.0*rand()/(RAND_MAX+1.0)) < 3 && j < (len_random - 3)) {
 				memcpy(&buffer[j], "%s", 3);
