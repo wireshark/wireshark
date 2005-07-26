@@ -23,8 +23,8 @@
  */
 
 #ifndef PACKET_MAP_DIALOGUEPDU_H
-#define PACKET_GSM_MAP_H
+#define PACKET_MAP_DIALOGUEPDU_H
 
-#include "packet-MAP_DialoguePDU-exp.h"*/
+#include "packet-MAP_DialoguePDU-exp.h"
 
 #endif  /* PACKET_MAP_DIALOGUEPDU_H */
