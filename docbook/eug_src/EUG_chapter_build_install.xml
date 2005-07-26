@@ -470,7 +470,7 @@ apt-get install ethereal
     </para>
 	</note>
   </section>
-  <section id="ChBuildInstallComponents">
+  <section id="ChBuildWinInstaller">
     <title>Ethereal Installer Settings</title>
     <para>
 	Beside the usual installer options like where to install the program, 
