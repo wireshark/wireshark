@@ -1,6 +1,6 @@
 $Id$
 
-== July 12, 2005
+== July 26, 2005
 
 Ethereal 0.10.12 has been released.
 
@@ -45,9 +45,6 @@ Our testing program has turned up several more security issues:
   The SMPP dissector could go into an infinite loop.
   Versions affected: 0.10.1 to 0.10.11
 
-  The AFP dissector was susceptible to a format string overflow.
-  Versions affected: 0.9.4 to 0.10.11
-
   SCTP graphs could crash.
   Version affected: 0.10.11
 
@@ -63,11 +60,8 @@ Our testing program has turned up several more security issues:
   Several dissectors could crash while reassembling packets.
   Versions affected: 0.9.0 to 0.10.11
 
-  
 
-
-  A separate review by Steve Grubb at Red Hat turned up the following
-  issues:
+  Steve Grubb at Red Hat found the following issues:
 
   The CAMEL dissector could dereference a null pointer.
   Version affected: 0.10.11
@@ -93,8 +87,11 @@ Our testing program has turned up several more security issues:
   The NCP dissector could crash.
   Versions affected: 0.9.15 to 0.10.11
 
-  
-  
+
+  iDEFENSE found the following issues:
+
+  Several dissectors were susceptible to a format string overflow.
+  Versions affected: 0.9.4 to 0.10.11
 
 
   Ethereal uses the zlib compression library.  Security vulnerabilities
@@ -116,152 +113,52 @@ New and updated features
 
   RADIUS dictionaries are now included.
 
-  A lot of documentation were updated
+  A lot of documentation was updated
 
-  Some command line parameters have changed, see
-  the Ethereal / Tethereal manual pages
-  
-  A "File/File Set" submenu was added to better handle 
-  Ring buffer/Multiple Files 
-  
+  Some command line parameters have changed, see the Ethereal / Tethereal
+  manual pages
+
+  A "File/File Set" submenu was added to better handle multiple files
+  (such as ring buffers).
+
   Flow graphs can now be created for any protocol.
 
   Memory management has been greatly improved.
 
   JXTA has been added to the conversations menu.
 
-  When compiled with MIT/Heimdal Kerberos and if keytab files are provided, 
-  Ethereal can now decrypt and dissect both SecureLDAP and encrypted DCE/RPC.
+  When compiled with MIT/Heimdal Kerberos AND if keytab files are
+  provided, Ethereal can now decrypt and dissect both SecureLDAP and
+  encrypted DCE/RPC.
 
-  TCP Sequence graphs should now work for all captures and all encapsulation
-  types.
-  
+  TCP Sequence graphs should now work for all captures and all
+  encapsulation types.
+
+
 New protocol support
 
-ACSE,
-ARMAGETRONAD,
-AudioCodes trunk trace,
-CSM_ENCAPS,
-DEC DNA Routing,
-DIS,
-FTAM,
-iFCP,
-Juniper PPPoE,
-MMS,
-MS MediaServer,
-MSRP,
-Parlay,
-Synergy,
-TANGO,
-WLAN Certificate Extensions,
+  ACSE, ARMAGETRONAD, AudioCodes trunk trace, CSM_ENCAPS, DEC DNA Routing,
+  DIS, FTAM, iFCP, Juniper PPPoE, MMS, MS MediaServer, MSRP, Parlay,
+  Synergy, TANGO, WLAN Certificate Extensions
 
 
 Updated protocol support
 
-802.11 Radiotap,
-9P,
-ACSE,
-AFP,
-AgentX,
-AIM,
-ANSI MAP,
-BACapp,
-BVLC,
-Camel,
-CLNP,
-CMIP,
-DCERPC,
-DCOM,
-DHCP,
-DHCP Failover,
-DHCPv6,
-DICOM,
-DNP,
-DNS,
-DOCSIS,
-EAP,
-Ethernet,
-FCIP,
-FC-SWILS,
-GIOP,
-GSM A,
-GSM MAP,
-GSSAPI,
-GTP,
-H.221,
-H.225,
-H.235,
-H.245,
-H.248,
-H.450,
-H1,
-HPSW,
-HTTP,
-HyperSCSI,
-ICMP,
-IEEE 802.3,
-IEEE 802.11,
-IP,
-IPDC,
-ISAKMP,
-iSCSI,
-iSNS,
-ISUP,
-JXTA,
-Kerberos,
-KINK,
-LDAP,
-LLC,
-LMP,
-LWAPP,
-MEGACO,
-MGCP,
-MMSE,
-NDMP,
-NDPS,
-NFS,
-NTLMSSP,
-OSI,
-PER,
-PPP,
-PRES,
-PROFINET,
-RDT,
-RMT,
-RPC,
-Rsync,
-RSVP,
-RTP,
-RTSP,
-SCSI,
-SCTP,
-SDP,
-SIP,
-SMB,
-SMPP,
-SNMP,
-SPNEGO,
-SSCOP,
-SSL,
-T.38,
-TCAP,
-TCP,
-Telnet,
-TFTP,
-TPKT,
-UDP,
-UDVM,
-UMA,
-V5UA,
-WBXML,
-WSP,
-XML,
-YMSG,
-YPSERV,
+  802.11 Radiotap, 9P, ACSE, AFP, AgentX, AIM, ANSI MAP, BACapp, BVLC,
+  Camel, CLNP, CMIP, DCERPC, DCOM, DHCP, DHCP Failover, DHCPv6, DICOM,
+  DNP, DNS, DOCSIS, EAP, Ethernet, FC ELS, FCIP, FCP, FC-SWILS, GIOP,
+  GSM A, GSM MAP, GSSAPI, GTP, H1, H.221, H.225, H.235, H.245, H.248,
+  H.450, HPSW, HTTP, HyperSCSI, ICMP, IEEE 802.11, IEEE 802.3, iFCP,
+  IP, IPDC, ISAKMP, iSCSI, iSNS, ISUP, JXTA, Kerberos, KINK, LDAP, LLC,
+  LMP, LWAPP, MEGACO, MGCP, MMSE, NDMP, NDPS, NFS, NTLMSSP, OSI, OSPF,
+  PER, PPP, PRES, PROFINET, RDT, RMT, RPC, RSVP, Rsync, RTP, RTSP, SCSI,
+  SCTP, SDP, SIP, SMB, SMPP, SNMP, SPNEGO, SSCOP, SSL, T.38, TCAP, TCP,
+  Telnet, TFTP, TPKT, UDP, UDVM, UMA, V5UA, WBXML, WSP, XML, YMSG, YPSERV
+
 
 New and updated capture file support
 
-HP Nettl, Tektronix K12
+  HP Nettl, Tektronix K12
 
 
 == May 4, 2005
