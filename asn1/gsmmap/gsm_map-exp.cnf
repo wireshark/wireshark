@@ -1,0 +1,14 @@
+#.IMPORT_TAG
+AddressString            BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
+SecurityHeader           BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+ProtectedPayload         BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
+ExtensionContainer       BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+#.END
+
+#.TYPE_ATTR
+AddressString            TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+SecurityHeader           TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+ProtectedPayload         TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+ExtensionContainer       TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+#.END
+

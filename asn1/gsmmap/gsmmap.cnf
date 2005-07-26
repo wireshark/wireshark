@@ -6,6 +6,10 @@
 #.MODULE_IMPORT
 
 #.EXPORTS
+AddressString
+ExtensionContainer
+SecurityHeader
+ProtectedPayload
 
 #.PDU
 

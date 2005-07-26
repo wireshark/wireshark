@@ -38,6 +38,6 @@ typedef struct _gsm_map_tap_rec_t {
 ETH_VAR_IMPORT const value_string gsm_map_opr_code_strings[];
 char* unpack_digits(tvbuff_t *tvb, int offset);
 
-/* #include "packet-gsm_map-exp.h"*/
+#include "packet-gsm_map-exp.h"
 
 #endif  /* PACKET_GSM_MAP_H */
