@@ -171,6 +171,7 @@ static guint16  ver_ICBAAccoSync = 0;
 
 
 static const value_string cba_acco_qc_vals[] = {
+	{ 0x1c, "BadOutOfService" },
 	{ 0x44, "UncertainLastUsableValue" },
 	{ 0x48, "UncertainSubstituteSet" },
 	{ 0x50, "UncertainSensorNotAccurate" },
