@@ -28,6 +28,8 @@
 #include "config.h"
 #endif
 
+#include <string.h>
+
 #ifndef __STDC__
 /* This is a separate conditional since some stdc systems
    reject `defined (const)'.  */
@@ -477,7 +479,7 @@ _getopt_internal (argc, argv, optstring, longopts, longind, long_only)
 	   p++, option_index++)
 	if (!strncmp (p->name, nextchar, s - nextchar))
 	  {
-	    if (s - nextchar == strlen (p->name))
+	    if ((size_t)(s - nextchar) == strlen (p->name))
 	      {
 		/* Exact match found.  */
 		pfound = p;
