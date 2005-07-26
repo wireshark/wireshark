@@ -1006,7 +1006,6 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	char *media_type_str_lower_case = NULL;
 	char *content_type_parameter_str = NULL;
 	guint resend_for_packet = 0;
-	char  *string;
 	int strlen_to_copy;
 
 	/* Initialise stat info for passing to tap */
