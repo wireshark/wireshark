@@ -679,6 +679,8 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
 			g_free(line);
 		}
 		length = tvb_length(tvb);
+		if (length == 0)
+		    return TRUE;
 		cp = tvb_get_ptr(tvb, 0, length);
 		if (!print_hex_data_buffer(stream, cp, length,
 		    edt->pi.fd->flags.encoding))
