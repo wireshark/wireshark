@@ -1,4 +1,35 @@
 ------------------------------------------------------------------------
+r15107 | gerald | 2005-07-26 16:18:02 -0500 (Tue, 26 Jul 2005) | 2 lines
+Changed paths:
+   M /releases/ethereal-0.10.12/epan/emem.c
+   M /releases/ethereal-0.10.12/epan/emem.h
+   M /releases/ethereal-0.10.12/epan/libethereal.def
+
+Remove ep_strsplit().
+
+------------------------------------------------------------------------
+r15103 | gerald | 2005-07-26 14:20:18 -0500 (Tue, 26 Jul 2005) | 1 line
+Changed paths:
+   A /releases/ethereal-0.10.12 (from /trunk:15102)
+
+Create the 0.10.12 release branch
+------------------------------------------------------------------------
+r15102 | gerald | 2005-07-26 14:18:50 -0500 (Tue, 26 Jul 2005) | 2 lines
+Changed paths:
+   M /trunk/ChangeLog
+   M /trunk/NEWS
+
+More updates.
+
+------------------------------------------------------------------------
+r15101 | gerald | 2005-07-26 14:11:31 -0500 (Tue, 26 Jul 2005) | 2 lines
+Changed paths:
+   M /trunk/asn1/MAP_Dialogue/packet-MAP-DialoguePDU-template.h
+   M /trunk/epan/dissectors/packet-MAP_DialoguePDU.h
+
+Fixes from Gisle Vanem.
+
+------------------------------------------------------------------------
 r15100 | lego | 2005-07-26 13:32:12 -0500 (Tue, 26 Jul 2005) | 7 lines
 Changed paths:
    M /trunk/epan/emem.c
