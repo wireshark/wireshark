@@ -130,6 +130,12 @@ New and updated features
 
   JXTA has been added to the conversations menu.
 
+  When compiled with MIT/Heimdal Kerberos and if keytab files are provided, 
+  Ethereal can now decrypt and dissect both SecureLDAP and encrypted DCE/RPC.
+
+  TCP Sequence graphs should now work for all captures and all encapsulation
+  types.
+  
 New protocol support
 
 ACSE,
