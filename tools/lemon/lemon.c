@@ -2557,7 +2557,7 @@ void ReportOutput(struct lemon *lemp)
 ** the exacutable */
 PRIVATE char *pathsearch(char *argv0, char *name, int modemask)
 {
-  const char *pathlist;
+  char *pathlist;
   char *path,*cp;
   char c;
 
