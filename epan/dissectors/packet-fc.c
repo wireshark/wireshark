@@ -756,7 +756,7 @@ static const value_string fc_els_proto_val[] = {
 
 /* Code to actually dissect the packets */
 static void
-dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_ifcp)
 {
    /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti=NULL;
@@ -798,11 +798,24 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += 8;
         fchdr.r_ctl = tvb_get_guint8 (tvb, offset);
     }
-    
-    SET_ADDRESS (&pinfo->dst, AT_FC, 3, tvb_get_ptr(tvb,offset+1,3));
-    SET_ADDRESS (&fchdr.d_id, AT_FC, 3, tvb_get_ptr(tvb,offset+1,3));
-    SET_ADDRESS (&pinfo->src, AT_FC, 3, tvb_get_ptr(tvb,offset+5,3));
-    SET_ADDRESS (&fchdr.s_id, AT_FC, 3, tvb_get_ptr(tvb,offset+5,3));
+
+    /* Each fc endpoint pair gets its own TCP session in iFCP but
+     * the src/dst ids are undefined(==semi-random) in the FC header.
+     * This means we can no track conversations for FC over iFCP by using
+     * the FC src/dst addresses.
+     * For iFCP: Do not update the pinfo src/dst struct and let it remain 
+     * being tcpip src/dst so that request/response matching in the FCP layer
+     * will use ip addresses instead and still work.
+     */
+    if(!is_ifcp){    
+	SET_ADDRESS (&pinfo->dst, AT_FC, 3, tvb_get_ptr(tvb,offset+1,3));
+	SET_ADDRESS (&pinfo->src, AT_FC, 3, tvb_get_ptr(tvb,offset+5,3));
+	pinfo->srcport=0;
+	pinfo->destport=0;
+    }
+    SET_ADDRESS (&fchdr.d_id, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
+    SET_ADDRESS (&fchdr.s_id, pinfo->src.type, pinfo->src.len, pinfo->src.data);
+
     fchdr.cs_ctl = tvb_get_guint8 (tvb, offset+4);
     fchdr.type  = tvb_get_guint8 (tvb, offset+8);
     fchdr.fctl=tvb_get_ntoh24(tvb,offset+9);
@@ -836,7 +849,7 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     is_valid_frame = ((pinfo->sof_eof & 0x40) == 0x40);
 
     ftype = fc_get_ftype (fchdr.r_ctl, fchdr.type);
-    
+
     if (check_col (pinfo->cinfo, COL_INFO)) {
          col_add_str (pinfo->cinfo, COL_INFO, val_to_str (ftype, fc_ftype_vals,
                                                           "Unknown Type (0x%x)"));
@@ -1027,7 +1040,7 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     fchdr.r_ctl & 0x0F);
         break;
     }
-        
+  
     proto_tree_add_uint_hidden (fc_tree, hf_fc_ftype, tvb, offset, 1,
                            ftype); 
 
@@ -1267,9 +1280,15 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if ((ftype != FC_FTYPE_LINKCTL) && (ftype != FC_FTYPE_BLS)) {
-        if (!dissector_try_port (fcftype_dissector_table, ftype, next_tvb,
-                                 pinfo, tree)) {
+	/* If relative offset is used, only dissect the pdu with
+	 * offset 0 (param) */
+	if( (fchdr.fctl&FC_FCTL_REL_OFFSET) && param ){
             call_dissector (data_handle, next_tvb, pinfo, tree);
+	} else {
+	    if (!dissector_try_port (fcftype_dissector_table, ftype, 
+				next_tvb, pinfo, tree)) {
+	        call_dissector (data_handle, next_tvb, pinfo, tree);
+            }
         }
     } else if (ftype == FC_FTYPE_BLS) {
         if ((fchdr.r_ctl & 0x0F) == FC_BLS_BAACC) {
@@ -1282,6 +1301,16 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tap_queue_packet(fc_tap, pinfo, &fchdr);
 }
 
+static void
+dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    dissect_fc_helper (tvb, pinfo, tree, FALSE);
+}
+static void
+dissect_fc_ifcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    dissect_fc_helper (tvb, pinfo, tree, TRUE);
+}
 
 /* Register the protocol with Ethereal */
 
@@ -1436,6 +1465,7 @@ proto_register_fc(void)
     /* Register the protocol name and description */
     proto_fc = proto_register_protocol ("Fibre Channel", "FC", "fc");
     register_dissector ("fc", dissect_fc, proto_fc);
+    register_dissector ("fc_ifcp", dissect_fc_ifcp, proto_fc);
     fc_tap = register_tap("fc");
 
     /* Required function calls to register the header fields and subtrees used */

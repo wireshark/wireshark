@@ -558,6 +558,5 @@ proto_reg_handoff_ifcp (void)
     dissector_add_handle("tcp.port", ifcp_handle);
 
     data_handle = find_dissector("data");
-    fc_handle = find_dissector("fc");
+    fc_handle = find_dissector("fc_ifcp");
 }
-

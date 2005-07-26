@@ -263,6 +263,8 @@ dissect_fcp_cmnd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                       pinfo->ptype, pinfo->oxid,
                                       pinfo->rxid, NO_PORT2);
     if (!conversation) {
+	/* NO_PORT2: Dont check RXID, iFCP traces i have all have 
+	 * RXID==0xffff in the command PDU.   ronnie */
         conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                          pinfo->ptype, pinfo->oxid,
                                          pinfo->rxid, NO_PORT2);
@@ -375,7 +377,7 @@ dissect_fcp_data (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     scsi_task_id_t task_key;
 
     /* Retrieve conversation state to determine expected payload */
-    conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
+    conversation = find_conversation (pinfo->fd->num, &pinfo->dst, &pinfo->src,
                                       pinfo->ptype, pinfo->oxid,
                                       pinfo->rxid, NO_PORT2);
     if (conversation) {
