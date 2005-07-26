@@ -2034,7 +2034,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 	unsigned long flow_val = 0;
 	int off = PKT_MDC_TLV_OFF + voff;
 	guint tlv_len;
-	int i;
+	guint i;
 	guint8 asc_val[3] = "  ", flow_val_str[5];
 	static GString *tlv_str = NULL;
 	char bit_fld[64];

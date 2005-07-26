@@ -798,7 +798,7 @@ handleDataDigest(proto_item *ti, tvbuff_t *tvb, guint offset, int dataLen) {
 	    }
 	    return offset + dataLen + 4;
 	}
-	if(available_bytes >= (dataLen + dataDigestSize)) {
+	if((unsigned)available_bytes >= (dataLen + dataDigestSize)) {
 	    proto_tree_add_item(ti, hf_iscsi_DataDigest, tvb, offset + dataLen, dataDigestSize, FALSE);
 	}
 	return offset + dataLen + dataDigestSize;

@@ -35,7 +35,7 @@
 #endif
 
 #include <stdio.h>
-#include <stdlib.h>
+/* #include <stdlib.h> */
 #include <gmodule.h>
 
 #ifdef HAVE_SYS_TYPES_H
@@ -183,7 +183,7 @@ static gint ett_params = -1;
 static guint32 ansi_637_trans_tele_id;
 static char ansi_637_bigbuf[1024];
 static gchar ansi_637_add_string[1024];
-static dissector_handle_t data_handle;
+/* static dissector_handle_t data_handle; */
 static dissector_table_t tele_dissector_table;
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
@@ -194,7 +194,7 @@ static void
 decode_7_bits(tvbuff_t *tvb, guint32 *offset, guint8 num_fields, guint8 *last_oct, guint8 *last_bit, gchar *buf)
 {
     guint8	oct, oct2, bit;
-    guint32	saved_offset;
+    /* guint32	saved_offset; */
     guint32	i;
 
 
@@ -203,7 +203,7 @@ decode_7_bits(tvbuff_t *tvb, guint32 *offset, guint8 num_fields, guint8 *last_oc
 	return;
     }
 
-    saved_offset = *offset;
+    /* saved_offset = *offset; */
     oct = oct2 = *last_oct;
     bit = *last_bit;
 
@@ -398,7 +398,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     /* NOTE: there are now 3 bits remaining in 'oct' */
 
-    if (len - used <= 0) return;
+    if (len <= used) return;
 
     /*
      * decode rest if 7-bit ASCII
@@ -1533,7 +1533,7 @@ dissect_ansi_637_tele_message(tvbuff_t *tvb, proto_tree *ansi_637_tree)
     guint8	len;
     guint32	octs;
     guint32	curr_offset;
-    guint32	msg_id;
+    /* guint32	msg_id; */
     guint32	msg_type;
     const gchar	*str = NULL;
     proto_item	*item;
@@ -1554,7 +1554,7 @@ dissect_ansi_637_tele_message(tvbuff_t *tvb, proto_tree *ansi_637_tree)
 
     octs = tvb_get_ntoh24(tvb, 2);
     msg_type = (octs >> 20) & 0x0f;
-    msg_id = (octs >> 4) & 0xffff;
+    /* msg_id = (octs >> 4) & 0xffff; */
 
     str = match_strval(msg_type, ansi_tele_msg_type_strings);
 
@@ -1912,5 +1912,5 @@ proto_reg_handoff_ansi_637(void)
      */
     dissector_add("ansi_a.sms", 0, ansi_637_trans_handle);
 
-    data_handle = find_dissector("data");
+    /* data_handle = find_dissector("data"); */
 }

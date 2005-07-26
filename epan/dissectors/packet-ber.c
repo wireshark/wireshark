@@ -209,7 +209,7 @@ get_ber_length_dont_check_len(proto_tree *tree, tvbuff_t *tvb, int offset, guint
 	tmp_ind = FALSE;
 
 	/* dont read beyond the end of the tvb */
-	if(tvb_length(tvb)<=offset){
+	if(tvb_length(tvb)<=(unsigned)offset){
 		*length=tvb_length(tvb)+99;
 		return offset;
 	}
@@ -225,7 +225,7 @@ get_ber_length_dont_check_len(proto_tree *tree, tvbuff_t *tvb, int offset, guint
 		if (len) {
 			/* 8.1.3.5 */
 			while (len--) {
-				if(offset>=tvb_length(tvb)){
+				if((unsigned)offset>=tvb_length(tvb)){
 					if (length)
 						*length = 999999999;
 					if (ind)

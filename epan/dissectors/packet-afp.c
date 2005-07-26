@@ -36,10 +36,10 @@
 # include "snprintf.h"
 #endif
 
-#include <string.h>
+/* #include <string.h> */
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/strutil.h>
+/* #include <epan/strutil.h> */
 #include <epan/conversation.h>
 
 #include "packet-afp.h"
@@ -735,7 +735,7 @@ static const value_string map_id_type_vals[] = {
 #define AR_U_WRITE 	(1 << 26)	/* user has write access */
 
 #define AR_BLANK	(1 << 28)	/* Blank Access Privileges (use parent dir privileges) */
-#define AR_U_OWN 	(1 << 31)	/* user is the owner */
+#define AR_U_OWN 	(1UL << 31)	/* user is the owner */
 
 static int hf_afp_dir_ar          = -1;
 static int hf_afp_dir_ar_o_search = -1;
@@ -1326,7 +1326,7 @@ parse_UTF8_filename(proto_tree *tree, tvbuff_t *tvb, gint offset, gint org_offse
 static gint
 parse_file_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap, int shared)
 {
-	guint16 snameoff = 0;
+	/* guint16 snameoff = 0; */
 	gint 	max_offset = 0;
 
 	gint 	org_offset = offset;
@@ -1365,7 +1365,7 @@ parse_file_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap,
 
 	}
 	if ((bitmap & kFPShortNameBit)) {
-		snameoff = tvb_get_ntohs(tvb, offset);
+		/* snameoff = tvb_get_ntohs(tvb, offset); */
 		proto_tree_add_item(tree, hf_afp_short_name_offset,tvb, offset, 2, FALSE);
 		offset += 2;
 	}
@@ -1484,7 +1484,7 @@ decode_dir_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset)
 static gint
 parse_dir_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap)
 {
-	guint16 snameoff = 0;
+	/* guint16 snameoff = 0; */
 	gint 	max_offset = 0;
 
 	gint 	org_offset = offset;
@@ -1522,7 +1522,7 @@ parse_dir_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap)
 		offset += 2;
 	}
 	if ((bitmap & kFPShortNameBit)) {
-		snameoff = tvb_get_ntohs(tvb, offset);
+		/* snameoff = tvb_get_ntohs(tvb, offset); */
 		proto_tree_add_item(tree, hf_afp_short_name_offset,tvb, offset, 2, FALSE);
 		offset += 2;
 	}
@@ -2206,7 +2206,7 @@ query_catsearch(tvbuff_t *tvb, proto_tree *ptree, gint offset, int ext)
 	offset += 2;
 
 	r_bitmap = tvb_get_ntohl(tvb, offset);
-	if (ptree) {
+	/* Already checked this above: if (ptree) */ {
 		item = proto_tree_add_item(ptree, hf_afp_file_bitmap, tvb, offset, 4,FALSE);
 		sub_tree = proto_item_add_subtree(item, ett_afp_cat_r_bitmap);
 
@@ -3426,10 +3426,12 @@ int size;
 
 	/* FIXME spec and capture disagree : or it's 4 bytes with no token type, or it's 2 bytes */
 	size = 4;
+	/* [cm]: FIXME continued:  Since size is set to 4, this test is never true.
 	if (size == 2) {
 		proto_tree_add_item(tree, hf_afp_session_token_type, tvb, offset, 2,FALSE);
 		offset += 2;
 	}
+	*/
 	len = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_item(tree, hf_afp_session_token_len, tvb, offset, size,FALSE);
 	offset += size;
@@ -4219,7 +4221,6 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_query_afp_set_acl(tvb, pinfo, afp_tree, offset);break;
 		case AFP_ACCESS:
 			offset = dissect_query_afp_access(tvb, pinfo, afp_tree, offset);break;
-			break;
  		}
 	}
  	else {
@@ -5782,7 +5783,7 @@ proto_register_afp(void)
   proto_register_field_array(proto_afp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_init_routine( &afp_reinit);
+  register_init_routine(afp_reinit);
 
   register_dissector("afp", dissect_afp, proto_afp);
   data_handle = find_dissector("data");
