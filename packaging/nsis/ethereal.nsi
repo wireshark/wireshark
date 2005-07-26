@@ -10,7 +10,7 @@
 ; is no longer the default, so use the /SOLID switch.
 ; This unfortunately is unknown to NSIS prior to 2.07 and creates an error.
 ; So if you get an error here, please update to at least NSIS 2.07!
-;SetCompressor /SOLID lzma
+SetCompressor /SOLID lzma
 !endif
 
 !ifdef GTK1_DIR & GTK2_DIR
