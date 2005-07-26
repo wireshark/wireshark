@@ -10,7 +10,7 @@
 ; is no longer the default, so use the /SOLID switch.
 ; This unfortunately is unknown to NSIS prior to 2.07 and creates an error.
 ; So if you get an error here, please update to at least NSIS 2.07!
-SetCompressor /SOLID lzma
+;SetCompressor /SOLID lzma
 !endif
 
 !ifdef GTK1_DIR & GTK2_DIR
@@ -655,7 +655,7 @@ File "..\..\plugins\v5ua\v5ua.dll"
 File "..\..\plugins\xml\xml.dll"
 SectionEnd
 
-Section "Tree Statistics Plugin (currently http only)" SecStatsTree
+Section "Tree Statistics Plugin" SecStatsTree
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
 SectionIn 1 2
@@ -1070,18 +1070,28 @@ lbl_ignore_wimp:
 
 lbl_winpcap_installed:
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "$WINPCAP_VERSION"
-	; starts the version string with "WinPcap 2."?
+	; WinPcap 2.x (including betas): the version string starts with "WinPcap 2."
 	StrCpy $1 "$WINPCAP_VERSION" 10
-	StrCmp $1 "WinPcap 2." 0 lbl_winpcap_3+
-	; WinPcap 2.x 
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "1"
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "The currently installed $WINPCAP_VERSION will be uninstalled first."
-	Goto lbl_winpcap_done
+	StrCmp $1 "WinPcap 2." lbl_winpcap_do_install
+	; WinPcap 3.0 (including betas): the version string starts with "WinPcap 3.0"
+	StrCpy $1 "$WINPCAP_VERSION" 11
+	StrCmp $1 "WinPcap 3.0" lbl_winpcap_do_install
+	; WinPcap 3.1 previous beta's; exact string match
+	StrCmp "$WINPCAP_VERSION" "WinPcap 3.1 beta" lbl_winpcap_do_install
+	StrCmp "$WINPCAP_VERSION" "WinPcap 3.1 beta2" lbl_winpcap_do_install
+	StrCmp "$WINPCAP_VERSION" "WinPcap 3.1 beta3" lbl_winpcap_do_install
 
-lbl_winpcap_3+:
-	; WinPcap 3.x (or later)
+; lbl_winpcap_dont_install:
+	; seems to be the current or even a newer version, so don't install
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "0"
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If selected, the currently installed $WINPCAP_VERSION will be uninstalled first."
+	Goto lbl_winpcap_done
+
+lbl_winpcap_do_install:
+	; seems to be an old version, install newer one
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "1"
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "The currently installed $WINPCAP_VERSION will be uninstalled first."
+
 lbl_winpcap_done:
 
 	; Disable NPF service setting for Win OT 
