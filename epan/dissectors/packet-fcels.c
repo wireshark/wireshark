@@ -128,6 +128,14 @@ static int hf_fcels_nodemgmt = -1;
 static int hf_fcels_ipvers = -1;
 static int hf_fcels_tcpport = -1;
 static int hf_fcels_ip = -1;
+static int hf_fcels_cbind_liveness = -1;
+static int hf_fcels_cbind_addr_mode = -1;
+static int hf_fcels_cbind_ifcp_version = -1;
+static int hf_fcels_cbind_userinfo = -1;
+static int hf_fcels_cbind_snpname = -1;
+static int hf_fcels_cbind_dnpname = -1;
+static int hf_fcels_cbind_status = -1;
+static int hf_fcels_cbind_chandle = -1;
 
 static gint ett_fcels;           
 static gint ett_fcels_lsrjt;
@@ -158,6 +166,7 @@ static gint ett_fcels_rlir;
 static gint ett_fcels_lirr;
 static gint ett_fcels_srl;
 static gint ett_fcels_rpsc;         
+static gint ett_fcels_cbind;         
 
 static const value_string fc_prli_fc4_val[] = {
     {FC_TYPE_SCSI    , "FCP"},
@@ -169,6 +178,24 @@ static const value_string fc_prli_fc4_val[] = {
     {FC_TYPE_AL      , "AL"},
     {FC_TYPE_SNMP    , "SNMP"},
     {FC_TYPE_CMNSVC  , "Common to all FC-4 Types"},
+    {0, NULL},
+};
+
+static const value_string cbind_addr_mode_vals[] = {
+    {0, "Address Translation mode"},
+    {1, "Address Transperent Mode"},
+    {0, NULL},
+};
+
+static const value_string cbind_status_vals[] = {
+    {0, "Success"},
+    {16, "Failed - Unspecified Reason"},
+    {17, "Failed - No such device"},
+    {18, "Failed - iFCP session already exists"},
+    {19, "Failed - Lack of resources"},
+    {20, "Failed - Incompatible address translation mode"},
+    {21, "Failed - Incorrect protocol version"},
+    {22, "Failed - Gateway not synchronized"},
     {0, NULL},
 };
 
@@ -1401,6 +1428,50 @@ dissect_fcels_rpsc (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 }
 
+
+static void
+dissect_fcels_cbind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    proto_item *ti)
+{
+    int offset = 0;
+    proto_tree *cbind_tree=NULL;
+
+    if (tree) {
+        cbind_tree = proto_item_add_subtree (ti, ett_fcels_cbind);
+
+        proto_tree_add_item (cbind_tree, hf_fcels_opcode, tvb, offset, 1, FALSE);
+    }
+    if (check_col (pinfo->cinfo, COL_INFO)) {
+        col_add_str (pinfo->cinfo, COL_INFO, "CBIND ");
+    }
+
+    proto_tree_add_item (cbind_tree, hf_fcels_cbind_liveness, tvb, offset+4, 2, FALSE);
+    proto_tree_add_item (cbind_tree, hf_fcels_cbind_addr_mode, tvb, offset+6, 1, FALSE);
+    proto_tree_add_item (cbind_tree, hf_fcels_cbind_ifcp_version, tvb, offset+7, 1, FALSE);
+    proto_tree_add_item (cbind_tree, hf_fcels_cbind_userinfo, tvb, offset+8, 4, FALSE);
+
+    proto_tree_add_string (cbind_tree, hf_fcels_cbind_snpname, tvb, offset+12, 8,
+                           fcwwn_to_str (tvb_get_ptr (tvb, offset+12, 8)));
+    proto_tree_add_string (cbind_tree, hf_fcels_cbind_dnpname, tvb, offset+20, 8,
+                           fcwwn_to_str (tvb_get_ptr (tvb, offset+20, 8)));
+
+    switch(tvb_reported_length(tvb)){
+    case 32: /* 28 byte Request + 4 bytes FC CRC */
+        if (check_col (pinfo->cinfo, COL_INFO)) {
+            col_append_str (pinfo->cinfo, COL_INFO, "Request");
+        }
+        break;
+    case 40: /* 36 byte Request + 4 bytes FC CRC */
+        if (check_col (pinfo->cinfo, COL_INFO)) {
+            col_append_str (pinfo->cinfo, COL_INFO, "Response");
+        }
+        proto_tree_add_item (cbind_tree, hf_fcels_cbind_status, tvb, offset+30, 2, FALSE);
+        proto_tree_add_item (cbind_tree, hf_fcels_cbind_chandle, tvb, offset+34, 2, FALSE);
+        break;
+    }
+
+}
+
 static void
 dissect_fcels_rnid (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint8 isreq, proto_item *ti)
@@ -1743,6 +1814,9 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (isreq && fcsp_handle)
             call_dissector (fcsp_handle, tvb, pinfo, tree);
         break;
+    case FC_ELS_CBIND:
+        dissect_fcels_cbind (tvb, pinfo, tree, ti);
+        break;
     default:
         /* proto_tree_add_text ( */
         call_dissector (data_handle, tvb, pinfo, tree);
@@ -1953,6 +2027,30 @@ proto_register_fcels (void)
         { &hf_fcels_ip,
           {"IP Address", "fcels.rnid.ip", FT_IPv6, BASE_HEX, NULL, 0x0, "",
            HFILL}},
+        { &hf_fcels_cbind_liveness,
+          {"Liveness Test Interval", "fcels.cbind.liveness", FT_UINT16, BASE_DEC,
+           NULL, 0x0, "Liveness Test Interval in seconds", HFILL}},
+        { &hf_fcels_cbind_addr_mode,
+          {"Addressing Mode", "fcels.cbind.addr_mode", FT_UINT8, BASE_HEX,
+           VALS(cbind_addr_mode_vals), 0x0, "Addressing Mode", HFILL}},
+        { &hf_fcels_cbind_ifcp_version,
+          {"iFCP version", "fcels.cbind.ifcp_version", FT_UINT8, BASE_DEC,
+           NULL, 0x0, "Version of iFCP protocol", HFILL}},
+        { &hf_fcels_cbind_userinfo,
+          {"UserInfo", "fcels.cbind.userinfo", FT_UINT32, BASE_HEX,
+           NULL, 0x0, "Userinfo token", HFILL}},
+        { &hf_fcels_cbind_snpname,
+          {"Source N_Port Port_Name", "fcels.cbind.snpname", FT_STRING, BASE_HEX, NULL, 0x0,
+           "", HFILL}},
+        { &hf_fcels_cbind_dnpname,
+          {"Destination N_Port Port_Name", "fcels.cbind.dnpname", FT_STRING, BASE_HEX, NULL, 0x0,
+           "", HFILL}},
+        { &hf_fcels_cbind_status,
+          {"Status", "fcels.cbind.status", FT_UINT16, BASE_DEC,
+           VALS(cbind_status_vals), 0x0, "Cbind status", HFILL}},
+        { &hf_fcels_cbind_chandle,
+          {"Connection Handle", "fcels.cbind.handle", FT_UINT16, BASE_HEX,
+           NULL, 0x0, "Cbind connection handle", HFILL}},
     };
 
     static gint *ett[] = {
@@ -1986,6 +2084,7 @@ proto_register_fcels (void)
         &ett_fcels_lirr,
         &ett_fcels_srl,
         &ett_fcels_rpsc,
+        &ett_fcels_cbind,
     };
 
     /* Register the protocol name and description */
