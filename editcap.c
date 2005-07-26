@@ -32,6 +32,10 @@
 #include "getopt.h"
 #endif
 
+#ifdef _WIN32
+#include <process.h>    /* getpid */
+#endif
+
 /*
  * Some globals so we can pass things to various routines
  */
@@ -461,7 +465,7 @@ int main(int argc, char *argv[])
               }
 
               if (err_type < ERR_WT_FMT) {
-                if (i < phdr->caplen - 2)
+                if ((unsigned int)i < phdr->caplen - 2)
                   strcpy(&buf[i],  "%s");
                 err_type = ERR_WT_TOTAL;
               } else {
