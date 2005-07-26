@@ -225,6 +225,7 @@ DISSECTOR_SRC =	\
 	packet-dcom-sysact.c \
 	packet-ddtp.c	\
 	packet-dec-bpdu.c	\
+	packet-dec-dnart.c	\
 	packet-dhcp-failover.c	\
 	packet-dhcpv6.c	\
 	packet-diameter.c	\
