@@ -51,9 +51,9 @@
 #include "epan/packet.h"
 
 
-static char *ansi_proto_name_tele = "ANSI IS-637-A (SMS) Teleservice Layer";
-static char *ansi_proto_name_trans = "ANSI IS-637-A (SMS) Transport Layer";
-static char *ansi_proto_name_short = "IS-637-A";
+static const char *ansi_proto_name_tele = "ANSI IS-637-A (SMS) Teleservice Layer";
+static const char *ansi_proto_name_trans = "ANSI IS-637-A (SMS) Transport Layer";
+static const char *ansi_proto_name_short = "IS-637-A";
 
 static const value_string ansi_srvc_cat_strings[] = {
     { 0x0000,	"Unknown or unspecified" },
@@ -312,7 +312,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
     guint32	required_octs;
     guint32	saved_offset;
     guint32	i;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
     SHORT_DATA_CHECK(len, 2);
 
@@ -516,8 +516,8 @@ tele_param_rel_timestamp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 off
 {
     guint8	oct;
     guint32	value = 0;
-    gchar	*str = NULL;
-    gchar	*str2 = NULL;
+    const gchar	*str = NULL;
+    const gchar	*str2 = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
@@ -554,7 +554,7 @@ static void
 tele_param_pri_ind(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
@@ -584,7 +584,7 @@ static void
 tele_param_priv_ind(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
@@ -656,7 +656,7 @@ static void
 tele_param_alert(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
@@ -686,7 +686,7 @@ static void
 tele_param_lang_ind(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
@@ -851,7 +851,7 @@ static void
 tele_param_disp_mode(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
@@ -952,7 +952,7 @@ trans_param_address(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, 
     guint32	saved_offset;
     guint32	required_octs;
     guint32	i;
-    gchar	*str;
+    const gchar	*str;
 
     SHORT_DATA_CHECK(len, 2);
 
@@ -1224,7 +1224,7 @@ trans_param_subaddress(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offse
 {
     guint8	oct, oct2, num_fields;
     guint32	i;
-    gchar	*str;
+    const gchar	*str;
 
     SHORT_DATA_CHECK(len, 2);
 
@@ -1338,7 +1338,7 @@ static void
 trans_param_cause_codes(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string)
 {
     guint8	oct;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
     oct = tvb_get_guint8(tvb, offset);
 

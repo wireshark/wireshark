@@ -95,8 +95,8 @@ static const value_string msg_parm_strings[] = {
 };
 #define	NUM_PARMS (sizeof(msg_parm_strings)/sizeof(value_string))
 
-static char *alcap_proto_name = "AAL type 2 signalling protocol - Capability set 1 (Q.2630.1)";
-static char *alcap_proto_name_short = "ALCAP";
+static const char *alcap_proto_name = "AAL type 2 signalling protocol - Capability set 1 (Q.2630.1)";
+static const char *alcap_proto_name_short = "ALCAP";
 
 /* Initialize the subtree pointers */
 static gint ett_alcap = -1;
@@ -195,7 +195,7 @@ dis_field_compatibility(tvbuff_t *tvb, proto_tree *tree, guint32 *offset, gboole
     guint8	compat;
     proto_item	*item;
     proto_tree	*subtree;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
     curr_offset = *offset;
 
@@ -448,7 +448,7 @@ dis_field_audio_service(tvbuff_t *tvb, proto_tree *tree, guint *len, guint32 *of
     guint8	oct;
     proto_item	*item;
     proto_tree	*subtree;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
     curr_offset = *offset;
 
@@ -910,7 +910,7 @@ dis_field_nature_of_address(tvbuff_t *tvb, proto_tree *tree, guint *len, guint32
     guint8	oct;
     proto_item	*item;
     proto_tree	*subtree;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
     curr_offset = *offset;
 
@@ -1068,7 +1068,7 @@ dis_field_cause_value(tvbuff_t *tvb, proto_tree *tree, guint *len, guint32 *offs
     guint8	oct;
     proto_item	*item;
     proto_tree	*subtree;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
     *compat = FALSE;
     curr_offset = *offset;

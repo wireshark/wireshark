@@ -31,6 +31,7 @@
 #endif
 
 #include <stdio.h>
+#include <string.h>
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
@@ -1704,11 +1705,11 @@ decode_vol_did_file_dir_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset)
 }
 
 /* ------------------------ */
-static gchar *
+static const gchar *
 get_name(tvbuff_t *tvb, int offset, int type)
 {
   	int   len;
-  	gchar *string;
+  	const gchar *string;
 
 	switch (type) {
 	case 1:
@@ -1734,7 +1735,7 @@ decode_name_label (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint off
 {
 	int len;
 	int header;
-	gchar *name;
+	const gchar *name;
 	guint8 type;
   	proto_tree *sub_tree = NULL;
   	proto_item *item;

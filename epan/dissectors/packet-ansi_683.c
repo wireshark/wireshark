@@ -46,8 +46,8 @@
 #include "epan/packet.h"
 
 
-static char *ansi_proto_name = "ANSI IS-683-A (OTA (Mobile))";
-static char *ansi_proto_name_short = "IS-683-A";
+static const char *ansi_proto_name = "ANSI IS-683-A (OTA (Mobile))";
+static const char *ansi_proto_name_short = "IS-683-A";
 
 #define	ANSI_683_FORWARD	0
 #define	ANSI_683_REVERSE	1
@@ -105,10 +105,10 @@ static proto_tree *g_tree;
 	return; \
     }
 
-static gchar *
+static const gchar *
 rev_feat_id_type(guint8 feat_id)
 {
-    gchar	*str;
+    const gchar	*str;
 
     switch (feat_id)
     {
@@ -126,10 +126,10 @@ rev_feat_id_type(guint8 feat_id)
     return(str);
 }
 
-static gchar *
+static const gchar *
 rev_res_code_type(guint8 res_code)
 {
-    gchar	*str;
+    const gchar	*str;
 
     switch (res_code)
     {
@@ -161,10 +161,10 @@ rev_res_code_type(guint8 res_code)
 #define	CHANGE_SPC_VAL_BLOCK		1
 #define	VALDATE_SPASM_VAL_BLOCK		2
 
-static gchar *
+static const gchar *
 for_val_param_block_type(guint8 block_type)
 {
-    gchar	*str;
+    const gchar	*str;
 
     switch (block_type)
     {
@@ -180,10 +180,10 @@ for_val_param_block_type(guint8 block_type)
     return(str);
 }
 
-static gchar *
+static const gchar *
 rev_sspr_param_block_type(guint8 block_type)
 {
-    gchar	*str;
+    const gchar	*str;
 
     switch (block_type)
     {
@@ -198,10 +198,10 @@ rev_sspr_param_block_type(guint8 block_type)
     return(str);
 }
 
-static gchar *
+static const gchar *
 for_sspr_param_block_type(guint8 block_type)
 {
-    gchar	*str;
+    const gchar	*str;
 
     switch (block_type)
     {
@@ -220,10 +220,10 @@ for_sspr_param_block_type(guint8 block_type)
 #define	CDMA_NAM_BLOCK		2
 #define	IMSI_T_NAM_BLOCK	3
 
-static gchar *
+static const gchar *
 rev_nam_param_block_type(guint8 block_type)
 {
-    gchar	*str;
+    const gchar	*str;
 
     switch (block_type)
     {
@@ -240,10 +240,10 @@ rev_nam_param_block_type(guint8 block_type)
     return(str);
 }
 
-static gchar *
+static const gchar *
 for_nam_param_block_type(guint8 block_type)
 {
-    gchar	*str;
+    const gchar	*str;
 
     switch (block_type)
     {
@@ -719,7 +719,7 @@ static void
 msg_config_req(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct, num_blocks;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     guint32	i, saved_offset;
 
     SHORT_DATA_CHECK(len, 1);
@@ -764,7 +764,7 @@ static void
 msg_download_req(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct, block_id, block_len;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     proto_tree	*subtree;
     proto_item	*item;
     guint32	i, saved_offset;
@@ -956,7 +956,7 @@ static void
 msg_sspr_config_req(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     guint32	saved_offset;
     guint32	value;
     proto_tree	*subtree;
@@ -1014,7 +1014,7 @@ static void
 msg_sspr_download_req(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct, block_len;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     guint32	saved_offset;
     proto_tree	*subtree;
     proto_item	*item;
@@ -1064,7 +1064,7 @@ static void
 msg_validate_req(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct, block_id, block_len;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     proto_tree	*subtree;
     proto_item	*item;
     guint32	i, saved_offset, block_offset;
@@ -1181,7 +1181,7 @@ static void
 msg_config_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct, num_blocks, block_len;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     guint32	i, saved_offset;
     proto_tree	*subtree;
     proto_item	*item;
@@ -1272,7 +1272,7 @@ static void
 msg_download_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct, num_blocks;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     guint32	i, saved_offset;
     proto_tree	*subtree;
     proto_item	*item;
@@ -1333,7 +1333,7 @@ static void
 msg_ms_key_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     guint32	saved_offset;
 
     EXACT_DATA_CHECK(len, 1);
@@ -1357,7 +1357,7 @@ static void
 msg_key_gen_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct, result_len;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     guint32	saved_offset;
 
     SHORT_DATA_CHECK(len, 2);
@@ -1452,7 +1452,7 @@ static void
 msg_commit_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     guint32	saved_offset;
 
     EXACT_DATA_CHECK(len, 1);
@@ -1476,7 +1476,7 @@ static void
 msg_protocap_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct, num_feat, add_len;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     guint32	i, saved_offset;
     guint32	value;
     proto_tree	*subtree;
@@ -1612,7 +1612,7 @@ static void
 msg_sspr_config_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct, block_len;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     guint32	saved_offset;
 
     SHORT_DATA_CHECK(len, 3);
@@ -1670,7 +1670,7 @@ static void
 msg_sspr_download_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     guint32	saved_offset;
     guint32	value;
 
@@ -1723,7 +1723,7 @@ static void
 msg_validate_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct, block_id, num_blocks;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     guint32	i, saved_offset;
     proto_tree	*subtree;
     proto_item	*item;
@@ -1784,7 +1784,7 @@ static void
 msg_otapa_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint8	oct;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     guint32	saved_offset;
 
     SHORT_DATA_CHECK(len, 2);

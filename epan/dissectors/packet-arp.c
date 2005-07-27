@@ -140,7 +140,7 @@ static const value_string atmop_vals[] = {
 #define ARP_PRO_IS_IPv4(ar_pro, ar_pln) \
 	((ar_pro) == ETHERTYPE_IP && (ar_pln) == 4)
 
-gchar *
+const gchar *
 arphrdaddr_to_str(const guint8 *ad, int ad_len, guint16 type)
 {
   if (ad_len == 0)
@@ -153,7 +153,7 @@ arphrdaddr_to_str(const guint8 *ad, int ad_len, guint16 type)
   return bytes_to_str(ad, ad_len);
 }
 
-static gchar *
+static const gchar *
 arpproaddr_to_str(const guint8 *ad, int ad_len, guint16 type)
 {
   if (ad_len == 0)
@@ -168,7 +168,7 @@ arpproaddr_to_str(const guint8 *ad, int ad_len, guint16 type)
 #define	N_ATMARPNUM_TO_STR_STRINGS	2
 #define	MAX_E164_STR_LEN		20
 
-static gchar *
+static const gchar *
 atmarpnum_to_str(const guint8 *ad, int ad_tl)
 {
   int           ad_len = ad_tl & ATMARP_LEN_MASK;
@@ -206,7 +206,7 @@ atmarpnum_to_str(const guint8 *ad, int ad_tl)
   }
 }
 
-static gchar *
+static const gchar *
 atmarpsubaddr_to_str(const guint8 *ad, int ad_tl)
 {
   int           ad_len = ad_tl & ATMARP_LEN_MASK;
@@ -394,8 +394,8 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int         tha_offset, tsa_offset, tpa_offset;
   const guint8      *sha_val, *ssa_val, *spa_val;
   const guint8      *tha_val, *tsa_val, *tpa_val;
-  gchar       *sha_str, *ssa_str, *spa_str;
-  gchar       *tha_str, *tsa_str, *tpa_str;
+  const gchar       *sha_str, *ssa_str, *spa_str;
+  const gchar       *tha_str, *tsa_str, *tpa_str;
   proto_tree  *tl_tree;
   proto_item  *tl;
 

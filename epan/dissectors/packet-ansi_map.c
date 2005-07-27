@@ -589,7 +589,7 @@ static const value_string ansi_tele_strings[] = {
 };
 
 #define	NUM_BAND_CLASS_STR	(sizeof(band_class_str)/sizeof(gchar *))
-static gchar *band_class_str[] = {
+static const gchar *band_class_str[] = {
     "800 MHz Cellular System",
     "1.850 to 1.990 GHz Broadband PCS",
     "872 to 960 MHz TACS Band",
@@ -606,7 +606,7 @@ static gchar *band_class_str[] = {
 };
 
 #define	NUM_QOS_PRI_STR		(sizeof(qos_pri_str)/sizeof(gchar *))
-static gchar *qos_pri_str[] = {
+static const gchar *qos_pri_str[] = {
     "Priority Level 0.  This is the lowest level",
     "Priority Level 1",
     "Priority Level 2",
@@ -776,14 +776,13 @@ my_dgt_tbcd_unpack(
     }
 
 static void
-param_mscid(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_mscid(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 market_id, switch_num;
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 3);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 2, &market_id);
@@ -796,13 +795,12 @@ param_mscid(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_page_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_page_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -826,15 +824,14 @@ param_page_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_srvc_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_srvc_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -861,15 +858,14 @@ param_srvc_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_sme_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_sme_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -895,15 +891,14 @@ param_sme_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_alert_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_alert_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     SHORT_DATA_CHECK(len, 2);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -950,7 +945,6 @@ param_alert_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	bigbuf,
 	str);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -981,13 +975,12 @@ param_alert_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_term_acc_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_term_acc_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -1014,13 +1007,12 @@ param_term_acc_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_term_treat(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_term_treat(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -1046,15 +1038,14 @@ param_term_treat(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_term_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_term_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     SHORT_DATA_CHECK(len, 2);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -1119,7 +1110,6 @@ param_term_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	bigbuf,
 	str);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -1141,12 +1131,11 @@ param_term_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_aav(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_aav(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -1160,15 +1149,14 @@ param_aav(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_ann_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_ann_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     SHORT_DATA_CHECK(len, 3);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -1355,13 +1343,12 @@ param_ann_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_alert_res(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_alert_res(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -1388,13 +1375,12 @@ param_alert_res(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_conf_call_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_conf_call_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -1418,13 +1404,12 @@ param_conf_call_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_count_upd_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_count_upd_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -1449,13 +1434,12 @@ param_count_upd_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 }
 
 static void
-param_ssd_upd_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_ssd_upd_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -1481,15 +1465,14 @@ param_ssd_upd_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_cond_den_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cond_den_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -1510,15 +1493,14 @@ param_cond_den_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 }
 
 static void
-param_den_auth_per(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_den_auth_per(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     SHORT_DATA_CHECK(len, 2);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -1558,12 +1540,11 @@ param_den_auth_per(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_ho_state(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_ho_state(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -1585,13 +1566,12 @@ param_ho_state(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_geo_auth(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_geo_auth(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -1619,13 +1599,12 @@ param_geo_auth(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_mw_noti_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_mw_noti_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -1669,13 +1648,12 @@ param_mw_noti_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_paca_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_paca_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -1724,14 +1702,13 @@ param_paca_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_digit_collect_ctrl(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_digit_collect_ctrl(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
     proto_item *item;
     proto_tree *subtree;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -2379,12 +2356,11 @@ param_digit_collect_ctrl(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 }
 
 static void
-param_no_ans_time(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_no_ans_time(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -2398,15 +2374,14 @@ param_no_ans_time(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_mw_noti_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_mw_noti_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset, orig_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     SHORT_DATA_CHECK(len, 2);
 
-    add_string = add_string;
     orig_offset = asn1->offset;
     saved_offset = asn1->offset;
 
@@ -2457,13 +2432,12 @@ param_mw_noti_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_otfi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_otfi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -2595,14 +2569,13 @@ param_otfi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
  *	Authentication Response Unique Challenge
  */
 static void
-param_auth_resp_all(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_auth_resp_all(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 3);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -2664,7 +2637,7 @@ param_bill_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 {
     gint32 id, segcount;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 7);
 
@@ -2692,15 +2665,14 @@ param_bill_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_cdma_so(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma_so(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 so;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     SHORT_DATA_CHECK(len, 2);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
     asn1_int32_value_decode(asn1, 2, &so);
 
@@ -2803,13 +2775,12 @@ param_cdma_so(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_tdma_sc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_tdma_sc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -2838,15 +2809,14 @@ param_tdma_sc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_dmh_red_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_dmh_red_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 redind;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &redind);
@@ -2897,14 +2867,13 @@ param_dmh_red_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_cic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 tg, mem;
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 2);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &tg);
@@ -2919,15 +2888,14 @@ param_cic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_qic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_qic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 qic;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &qic);
@@ -2957,15 +2925,14 @@ param_qic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_feat_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_feat_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -2988,7 +2955,7 @@ param_feat_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 	str);
 }
 
-gchar *calling_feat_ind_str[] = {
+const gchar *calling_feat_ind_str[] = {
     "Not used",
     "Not authorized",
     "Authorized but de-activated",
@@ -2996,14 +2963,13 @@ gchar *calling_feat_ind_str[] = {
 };
 
 static void
-param_calling_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_calling_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     SHORT_DATA_CHECK(len, 2);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -3193,15 +3159,14 @@ param_calling_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 }
 
 static void
-param_usage_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_usage_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -3223,7 +3188,7 @@ param_usage_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	value);
 }
 
-gchar *tdma_data_feat_ind_str[] = {
+const gchar *tdma_data_feat_ind_str[] = {
     "Not used",
     "Not authorized",
     "Authorized but de-activated",
@@ -3231,14 +3196,13 @@ gchar *tdma_data_feat_ind_str[] = {
 };
 
 static void
-param_tdma_data_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_tdma_data_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     SHORT_DATA_CHECK(len, 2);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -3306,14 +3270,13 @@ param_tdma_data_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 }
 
 static void
-param_faulty(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_faulty(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
     const gchar *str = NULL;
     gint idx;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
     asn1_int32_value_decode(asn1, 1, &value);
 
@@ -3377,15 +3340,14 @@ param_faulty(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_sys_type_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_sys_type_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 sys_type_code;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &sys_type_code);
@@ -3443,11 +3405,10 @@ param_ext_sys_type_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_
 {
     gint32 type;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 2);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &type);
@@ -3480,14 +3441,13 @@ param_ext_sys_type_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_
 }
 
 static void
-param_cdma_sea_win(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma_sea_win(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -3507,14 +3467,13 @@ param_cdma_sea_win(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_cdma_sea_param(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma_sea_param(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     SHORT_DATA_CHECK(len, 4);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -3588,12 +3547,11 @@ param_cdma_sea_param(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_cdma_code_chan(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma_code_chan(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -3615,15 +3573,14 @@ param_cdma_code_chan(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     SHORT_DATA_CHECK(len, 3);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -3677,14 +3634,13 @@ param_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_cdma_plcm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma_plcm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 6);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -3711,14 +3667,13 @@ param_cdma_plcm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_ctrl_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_ctrl_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 4);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -3774,15 +3729,14 @@ param_ctrl_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_cdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value, temp_int;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     SHORT_DATA_CHECK(len, 8);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 2, &value);
@@ -3928,13 +3882,12 @@ param_cdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_namps_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_namps_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -3983,15 +3936,14 @@ param_namps_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 }
 
 static void
-param_cdma_ms_meas_chan_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma_ms_meas_chan_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value, temp_int;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     SHORT_DATA_CHECK(len, 2);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 2, &value);
@@ -4030,15 +3982,14 @@ param_cdma_ms_meas_chan_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *a
 }
 
 static void
-param_tdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_tdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     SHORT_DATA_CHECK(len, 5);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -4134,12 +4085,11 @@ param_tdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_tdma_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_tdma_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -4196,12 +4146,11 @@ param_tdma_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_cdma_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -4326,12 +4275,11 @@ param_cdma_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_namps_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_namps_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -4366,12 +4314,11 @@ param_namps_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 }
 
 static void
-param_mob_rev(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_mob_rev(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -4385,13 +4332,12 @@ param_mob_rev(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_cdma_band_class(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma_band_class(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value, temp_int;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -4423,15 +4369,14 @@ param_cdma_band_class(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 }
 
 static void
-param_calling_party_name(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_calling_party_name(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     SHORT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -4482,15 +4427,14 @@ param_calling_party_name(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 }
 
 static void
-param_red_party_name(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_red_party_name(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     SHORT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -4541,11 +4485,8 @@ param_red_party_name(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_srvc_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_srvc_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
-
-    add_string = add_string;
-
     proto_tree_add_text(tree, asn1->tvb,
 	asn1->offset, len,
 	"Service Identifier (Spec. does not define clearly)");
@@ -4554,15 +4495,14 @@ param_srvc_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_all_or_none(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_all_or_none(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -4584,15 +4524,14 @@ param_all_or_none(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_change(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_change(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -4616,15 +4555,14 @@ param_change(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_data_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_data_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -4649,13 +4587,12 @@ param_data_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_fail_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_fail_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     guint saved_offset;
 
     SHORT_DATA_CHECK(len, 2);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     proto_tree_add_text(tree, asn1->tvb,
@@ -4666,15 +4603,14 @@ param_fail_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_fail_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_fail_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -4698,15 +4634,14 @@ param_fail_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_resume_pic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_resume_pic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -4747,13 +4682,12 @@ param_resume_pic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_special_rsc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_special_rsc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value, i;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     i = 0;
@@ -4786,14 +4720,13 @@ param_special_rsc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_time_date_offset(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_time_date_offset(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 2);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 2, &value);
@@ -4805,16 +4738,15 @@ param_time_date_offset(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 }
 
 static void
-param_network_tmsi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_network_tmsi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value, addr_type, first_dig;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
     guchar *poctets;
 
     SHORT_DATA_CHECK(len, 4);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 4, &value);
@@ -4876,12 +4808,11 @@ param_network_tmsi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_reqd_param_mask(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_reqd_param_mask(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -4931,13 +4862,12 @@ param_reqd_param_mask(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 }
 
 static void
-param_srvc_red_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_srvc_red_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -4965,12 +4895,11 @@ param_srvc_red_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_srvc_red_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_srvc_red_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -4999,13 +4928,12 @@ param_srvc_red_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_roaming_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_roaming_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -5040,14 +4968,13 @@ param_roaming_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_cdma_pci(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma_pci(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -5066,14 +4993,13 @@ param_cdma_pci(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_cdma_chan_num(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma_chan_num(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     SHORT_DATA_CHECK(len, 2);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 2, &value);
@@ -5101,14 +5027,13 @@ param_cdma_chan_num(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_cdma_sci(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma_sci(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -5128,15 +5053,14 @@ param_cdma_sci(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_vp_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_vp_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -5162,13 +5086,12 @@ param_vp_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_cdma_scm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma_scm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -5225,13 +5148,12 @@ param_cdma_scm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_ota_result_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_ota_result_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -5261,12 +5183,11 @@ param_ota_result_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 }
 
 static void
-param_cdma_scm2(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma_scm2(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -5280,15 +5201,14 @@ param_cdma_scm2(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_tdma_term_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_tdma_term_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     SHORT_DATA_CHECK(len, 4);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -5460,15 +5380,14 @@ param_tdma_term_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_tdma_voice_coder(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_tdma_voice_coder(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value, vc;
     guint orig_offset, saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     SHORT_DATA_CHECK(len, 2);
 
-    add_string = add_string;
     orig_offset = asn1->offset;
     saved_offset = asn1->offset;
 
@@ -5509,14 +5428,13 @@ param_tdma_voice_coder(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 }
 
 static void
-param_cdma_pilot_pn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma_pilot_pn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     SHORT_DATA_CHECK(len, 2);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 2, &value);
@@ -5543,14 +5461,13 @@ param_cdma_pilot_pn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_cdma_pilot_strength(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma_pilot_strength(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -5570,15 +5487,14 @@ param_cdma_pilot_strength(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *ad
 }
 
 static void
-param_trunk_stat(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_trunk_stat(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -5600,13 +5516,12 @@ param_trunk_stat(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_pref_lang_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_pref_lang_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -5633,13 +5548,12 @@ param_pref_lang_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_rand_valtime(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_rand_valtime(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -5662,15 +5576,14 @@ param_rand_valtime(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_tdma_burst_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_tdma_burst_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -5705,15 +5618,14 @@ param_tdma_burst_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_orig_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_orig_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -5742,14 +5654,13 @@ param_orig_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_ms_loc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_ms_loc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     SHORT_DATA_CHECK(len, 7);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 3, &value);
@@ -5781,13 +5692,12 @@ param_ms_loc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_unique_chal_rep(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_unique_chal_rep(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -5813,13 +5723,12 @@ param_unique_chal_rep(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 }
 
 static void
-param_rand_unique(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_rand_unique(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 3);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     proto_tree_add_text(tree, asn1->tvb,
@@ -5830,14 +5739,13 @@ param_rand_unique(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_vpmask(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_vpmask(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 66);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -5888,13 +5796,12 @@ param_vpmask(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_ssd(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_ssd(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 16);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     proto_tree_add_text(tree, asn1->tvb,
@@ -5909,15 +5816,14 @@ param_ssd(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_upd_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_upd_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -5939,13 +5845,12 @@ param_upd_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_sme_key(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_sme_key(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 8);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     proto_tree_add_text(tree, asn1->tvb,
@@ -5956,13 +5861,12 @@ param_sme_key(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_rand_ssd(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_rand_ssd(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 7);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     proto_tree_add_text(tree, asn1->tvb,
@@ -5973,13 +5877,12 @@ param_rand_ssd(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_setup_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_setup_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -6002,11 +5905,10 @@ param_setup_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_randc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_randc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     guint saved_offset;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     proto_tree_add_text(tree, asn1->tvb,
@@ -6023,7 +5925,7 @@ param_ext_mscid(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 {
     gint32 type;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 4);
 
@@ -6059,13 +5961,12 @@ param_ext_mscid(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_sub_addr(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_sub_addr(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
     asn1_int32_value_decode(asn1, 1, &value);
 
@@ -6110,18 +6011,17 @@ param_sub_addr(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_digits(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_digits(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value, b1, b2, b3, b4, enc, plan;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
     proto_item *item;
     proto_tree *subtree;
     guchar *poctets;
 
     SHORT_DATA_CHECK(len, 4);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
     asn1_int32_value_decode(asn1, 1, &value);
 
@@ -6304,14 +6204,13 @@ param_digits(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_esn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_esn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 4);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 4, &value);
@@ -6325,13 +6224,12 @@ param_esn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_sms_noti(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_sms_noti(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -6358,13 +6256,12 @@ param_sms_noti(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_sms_orig_restric(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_sms_orig_restric(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -6423,13 +6320,12 @@ param_sms_orig_restric(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 }
 
 static void
-param_seizure(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_seizure(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -6452,7 +6348,7 @@ param_seizure(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_sms_tele(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_sms_tele(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -6462,7 +6358,6 @@ param_sms_tele(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     SHORT_DATA_CHECK(len, 2);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 2, &value);
@@ -6497,13 +6392,12 @@ param_sms_tele(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_sms_term_restric(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_sms_term_restric(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -6548,13 +6442,12 @@ param_sms_term_restric(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 }
 
 static void
-param_sms_msg_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_sms_msg_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -6576,13 +6469,12 @@ param_sms_msg_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_qos_pri(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_qos_pri(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value, temp_int;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -6625,14 +6517,13 @@ param_qos_pri(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_calling_party_cat(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_calling_party_cat(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -6646,7 +6537,7 @@ param_calling_party_cat(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_
  * Dissect IOS data parameters expected to be in TLV format
  */
 static void
-dissect_cdma2000_ios_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+dissect_cdma2000_ios_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32	value;
     guint	num_elems;
@@ -6715,13 +6606,12 @@ param_cdma2000_ho_rsp_ios(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *ad
 }
 
 static void
-param_msid_usage(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_msid_usage(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -6751,15 +6641,14 @@ param_msid_usage(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_new_min_ext(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_new_min_ext(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 3);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -6819,13 +6708,12 @@ param_new_min_ext(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_dtx_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_dtx_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -6853,13 +6741,12 @@ param_dtx_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_cdma_mob_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma_mob_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -6887,7 +6774,7 @@ param_cdma_mob_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_gen_time(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_gen_time(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     gint32 h, m, s, ts;
@@ -6895,7 +6782,6 @@ param_gen_time(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     SHORT_DATA_CHECK(len, 6);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -6945,11 +6831,10 @@ param_gen_time(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_geo_pos(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_geo_pos(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     guint saved_offset;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     proto_tree_add_text(tree, asn1->tvb,
@@ -6958,13 +6843,12 @@ param_geo_pos(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_mob_call_status(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_mob_call_status(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value, auth;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -7015,13 +6899,12 @@ param_mob_call_status(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 }
 
 static void
-param_pos_req_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_pos_req_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -7048,13 +6931,12 @@ param_pos_req_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_pos_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_pos_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -7096,13 +6978,12 @@ param_pos_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_pos_source(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_pos_source(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -7139,15 +7020,14 @@ param_pos_source(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_acg_encounter(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_acg_encounter(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -7199,15 +7079,14 @@ param_acg_encounter(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_ctrl_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_ctrl_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -7259,15 +7138,14 @@ param_ctrl_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_gap_duration(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_gap_duration(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -7299,15 +7177,14 @@ param_gap_duration(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_scf_overload_gap_int(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_scf_overload_gap_int(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -7347,12 +7224,11 @@ param_scf_overload_gap_int(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *a
 }
 
 static void
-param_tdma_time_align(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_tdma_time_align(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -7375,11 +7251,11 @@ param_tdma_time_align(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 }
 
 static void
-dump_rssi(ASN1_SCK *asn1, proto_tree *tree, gchar *leader)
+dump_rssi(ASN1_SCK *asn1, proto_tree *tree, const gchar *leader)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     saved_offset = asn1->offset;
 
@@ -7646,15 +7522,14 @@ param_tdma_maho_chan(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_tdma_maho_req(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_tdma_maho_req(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -7674,15 +7549,14 @@ param_tdma_maho_req(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_sm_gap_int(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_sm_gap_int(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -7716,13 +7590,11 @@ param_sm_gap_int(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_mob_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_mob_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset, i;
-    gchar *str = NULL;
-
-    add_string = add_string;
+    const gchar *str = NULL;
 
     for (i=0; i < len; i++)
     {
@@ -7762,14 +7634,13 @@ param_mob_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_cdma_psmm_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma_psmm_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -7781,15 +7652,14 @@ param_cdma_psmm_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 }
 
 static void
-param_cdma_sowd2(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma_sowd2(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     SHORT_DATA_CHECK(len, 5);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 2, &value);
@@ -7837,13 +7707,12 @@ param_cdma_sowd2(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_sms_charge_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_sms_charge_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -7869,15 +7738,14 @@ param_sms_charge_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_auth_per(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_auth_per(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 2);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -7915,13 +7783,12 @@ param_auth_per(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_ctrl_chan_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_ctrl_chan_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -7946,15 +7813,14 @@ param_ctrl_chan_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_tdma_data_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_tdma_data_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     SHORT_DATA_CHECK(len, 2);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -8048,13 +7914,12 @@ param_tdma_data_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_tdma_voice_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_tdma_voice_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -8100,13 +7965,12 @@ param_tdma_voice_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 }
 
 static void
-param_tdma_bandwidth(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_tdma_bandwidth(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -8141,13 +8005,12 @@ param_tdma_bandwidth(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_change_srvc_attr(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_change_srvc_attr(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -8192,15 +8055,14 @@ param_change_srvc_attr(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 }
 
 static void
-param_dp_params(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_dp_params(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     SHORT_DATA_CHECK(len, 4);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -8256,12 +8118,11 @@ param_dp_params(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_trn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_trn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     guint saved_offset;
     guchar *poctets;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_string_value_decode(asn1, len, &poctets);
@@ -8274,13 +8135,12 @@ param_trn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_islp_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_islp_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -8305,13 +8165,12 @@ param_islp_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_ana_red_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_ana_red_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -8355,14 +8214,13 @@ param_ana_red_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_reason_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_reason_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     gint i;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     i = 0;
@@ -8402,12 +8260,11 @@ param_reason_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_imsi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_imsi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     guint saved_offset;
     guchar *poctets;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
     asn1_string_value_decode(asn1, len, &poctets);
 
@@ -8423,14 +8280,13 @@ param_imsi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_min(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_min(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     guint saved_offset;
     guchar *poctets;
 
     EXACT_DATA_CHECK(len, 5);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
     asn1_string_value_decode(asn1, len, &poctets);
 
@@ -8446,15 +8302,14 @@ param_min(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_auth_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_auth_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -8479,15 +8334,14 @@ param_auth_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_sus_acc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_sus_acc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -8511,14 +8365,13 @@ param_sus_acc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_dis_text(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_dis_text(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     SHORT_DATA_CHECK(len, 3);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -8545,15 +8398,13 @@ param_dis_text(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_dis_text2(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_dis_text2(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint orig_offset, saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     SHORT_DATA_CHECK(len, 4);
-
-    add_string = add_string;
 
     orig_offset = asn1->offset;
     saved_offset = asn1->offset;
@@ -8641,14 +8492,12 @@ param_dis_text2(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_dmh_srvc_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_dmh_srvc_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint orig_offset, saved_offset;
 
     SHORT_DATA_CHECK(len, 5);
-
-    add_string = add_string;
 
     orig_offset = asn1->offset;
     saved_offset = asn1->offset;
@@ -8688,14 +8537,12 @@ param_dmh_srvc_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint orig_offset, saved_offset;
 
     SHORT_DATA_CHECK(len, 5);
-
-    add_string = add_string;
 
     orig_offset = asn1->offset;
     saved_offset = asn1->offset;
@@ -8735,14 +8582,13 @@ param_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_a_key_ver(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_a_key_ver(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     gint i;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     i = 0;
@@ -8776,14 +8622,13 @@ param_a_key_ver(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_inter_msg_time(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_inter_msg_time(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -8798,15 +8643,14 @@ param_inter_msg_time(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_rel_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_rel_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -8835,7 +8679,7 @@ param_rel_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_time_day(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_time_day(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     gint32 h, m, s, ts;
@@ -8843,7 +8687,6 @@ param_time_day(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     EXACT_DATA_CHECK(len, 3);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 3, &value);
@@ -8864,13 +8707,11 @@ param_time_day(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_call_status(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_call_status(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
-
-    add_string = add_string;
+    const gchar *str = NULL;
 
     if (len > 4)
     {
@@ -8903,15 +8744,14 @@ param_call_status(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_ms_status(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_ms_status(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
     gboolean has_chan;
     gboolean extended;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -9020,12 +8860,11 @@ param_ms_status(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_pos_info_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_pos_info_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -9075,15 +8914,14 @@ param_pos_info_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_rel_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_rel_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -9117,15 +8955,14 @@ param_rel_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_ho_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_ho_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -9149,15 +8986,14 @@ param_ho_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_red_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_red_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -9188,14 +9024,13 @@ param_red_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_confid_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_confid_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -9229,15 +9064,14 @@ param_confid_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_sys_acc_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_sys_acc_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -9266,15 +9100,14 @@ param_sys_acc_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_scm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_scm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value, temp_int;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -9321,15 +9154,14 @@ param_scm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_deny_acc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_deny_acc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -9359,14 +9191,13 @@ param_deny_acc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_cdma_sig_qual(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma_sig_qual(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -9386,15 +9217,14 @@ param_cdma_sig_qual(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_rec_sig_qual(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_rec_sig_qual(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -9416,15 +9246,14 @@ param_rec_sig_qual(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_sig_qual(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_sig_qual(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -9446,15 +9275,14 @@ param_sig_qual(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_ssd_no_share(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_ssd_no_share(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -9474,15 +9302,14 @@ param_ssd_no_share(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_report_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_report_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -9518,15 +9345,14 @@ param_report_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_term_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_term_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -9566,15 +9392,14 @@ param_term_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_term_res(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_term_res(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -9597,15 +9422,14 @@ param_term_res(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_dereg(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_dereg(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -9628,14 +9452,13 @@ param_dereg(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_group_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_group_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     SHORT_DATA_CHECK(len, 4);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 4, &value);
@@ -9649,15 +9472,14 @@ param_group_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_auth_den(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_auth_den(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -9688,10 +9510,10 @@ param_auth_den(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	value);
 }
 
-static gchar *
+static const gchar *
 find_trig_type(gint32 value)
 {
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     switch (value)
     {
@@ -9761,14 +9583,13 @@ find_trig_type(gint32 value)
 }
 
 static void
-param_trig_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_trig_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -9781,13 +9602,12 @@ param_trig_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_win_op_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_win_op_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -9844,12 +9664,11 @@ param_win_op_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_win_trig_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_win_trig_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value, i, j;
     guint saved_offset;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     j = 0;
@@ -9911,14 +9730,13 @@ param_win_trig_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
     char *p;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -10147,15 +9965,14 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     SHORT_DATA_CHECK(len, 4);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -10588,15 +10405,14 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     SHORT_DATA_CHECK(len, 4);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -11029,13 +10845,12 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -11356,15 +11171,14 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_sys_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_sys_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -11461,13 +11275,12 @@ param_sys_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_act_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_act_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -11514,15 +11327,14 @@ param_act_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_border_acc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_border_acc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -11545,13 +11357,12 @@ param_border_acc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_avail_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_avail_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -11574,13 +11385,12 @@ param_avail_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_can_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_can_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -11605,15 +11415,14 @@ param_can_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_can_den(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_can_den(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -11637,15 +11446,14 @@ param_can_den(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_acc_den(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_acc_den(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 1);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -11678,13 +11486,12 @@ param_acc_den(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_sms_acc_den_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_sms_acc_den_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -11714,11 +11521,9 @@ param_sms_acc_den_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 }
 
 static void
-param_sms_bd(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_sms_bd(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     tvbuff_t *next_tvb;
-
-    add_string = add_string;
 
     next_tvb = tvb_new_subset(asn1->tvb, asn1->offset, len, len);
 
@@ -11744,13 +11549,12 @@ param_sms_bd(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_sms_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_sms_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -11809,12 +11613,11 @@ param_sms_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_cdma_soci(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma_soci(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -11828,12 +11631,10 @@ param_cdma_soci(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_int(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_int(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
-
-    add_string = add_string;
 
     if (len > 4)
     {
@@ -11854,15 +11655,14 @@ param_int(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_pc_ssn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_pc_ssn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value, b1, b2, b3, b4;
     guint saved_offset;
-    gchar *str = NULL;
+    const gchar *str = NULL;
 
     EXACT_DATA_CHECK(len, 5);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -11903,14 +11703,13 @@ param_pc_ssn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_lai(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_lai(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     gint32 value;
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 2);
 
-    add_string = add_string;
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 2, &value);
@@ -11923,12 +11722,11 @@ param_lai(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
     guint saved_offset;
     guint num_parms;
 
-    add_string = add_string;
     num_parms = 0;
     saved_offset = asn1->offset;
 
@@ -11953,7 +11751,7 @@ param_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
 #define	NUM_PARAM_1 (sizeof(ansi_param_1_strings)/sizeof(value_string))
 static gint ett_ansi_param_1[NUM_PARAM_1];
-static void (*param_1_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string) = {
+static void (*param_1_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_) = {
     param_bill_id,	/* Billing ID */
     param_int,	/* Serving Cell ID */
     param_int,	/* Target Cell ID */
@@ -11990,7 +11788,7 @@ static void (*param_1_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar 
 
 #define	NUM_PARAM_2 (sizeof(ansi_param_2_strings)/sizeof(value_string))
 static gint ett_ansi_param_2[NUM_PARAM_2];
-static void (*param_2_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string) = {
+static void (*param_2_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_) = {
     param_tdma_burst_ind,	/* TDMA Burst Indicator */
     param_pc_ssn,	/* PC_SSN */
     param_lai,	/* Location Area ID */
@@ -12091,7 +11889,7 @@ static void (*param_2_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar 
 
 #define	NUM_PARAM_3 (sizeof(ansi_param_3_strings)/sizeof(value_string))
 static gint ett_ansi_param_3[NUM_PARAM_3];
-static void (*param_3_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string) = {
+static void (*param_3_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_) = {
     param_act_code,	/* Action Code */
     param_alert_res,	/* Alert Result */
     param_list,	/* Announcement List */
@@ -12337,7 +12135,7 @@ check_ansi_map_tag(ASN1_SCK *asn1, guint tag)
 }
 
 static void
-dissect_ansi_map_octet(ASN1_SCK *asn1, proto_tree *tree, guchar * str)
+dissect_ansi_map_octet(ASN1_SCK *asn1, proto_tree *tree, const guchar * str)
 {
     guint saved_offset;
     guchar my_oct;
@@ -12472,8 +12270,8 @@ dissect_ansi_problem(ASN1_SCK *asn1, proto_tree *tree)
     guint tag;
     proto_tree *subtree;
     proto_item *item = NULL;
-    gchar *str = NULL;
-    gchar *type_str = NULL;
+    const gchar *str = NULL;
+    const gchar *type_str = NULL;
     gint32 type, spec;
     gboolean def_len;
 
@@ -12616,7 +12414,7 @@ dissect_ansi_error(ASN1_SCK *asn1, proto_tree *tree)
     gint32 value;
     proto_tree *subtree;
     proto_item *item = NULL;
-    gchar *str = NULL;
+    const gchar *str = NULL;
     gboolean def_len;
 
 
@@ -12693,7 +12491,7 @@ dissect_ansi_error(ASN1_SCK *asn1, proto_tree *tree)
 static gboolean
 dissect_ansi_param(ASN1_SCK *asn1, proto_tree *tree)
 {
-    void (*param_fcn)(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string) = NULL;
+    void (*param_fcn)(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_) = NULL;
     guint saved_offset = 0;
     guint len;
     proto_tree *subtree;
@@ -12808,7 +12606,7 @@ dissect_ansi_params(ASN1_SCK *asn1, proto_tree *tree)
     guint tag;
     proto_tree *subtree;
     proto_item *item = NULL;
-    gchar *str = NULL;
+    const gchar *str = NULL;
     gboolean def_len;
 
 #define TCAP_PARAM_SET_TAG 0xf2

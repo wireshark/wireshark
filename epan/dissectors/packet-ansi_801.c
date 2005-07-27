@@ -52,8 +52,8 @@
 #include "epan/packet.h"
 
 
-static char *ansi_proto_name = "ANSI IS-801 (Location Services (PLD))";
-static char *ansi_proto_name_short = "IS-801";
+static const char *ansi_proto_name = "ANSI IS-801 (Location Services (PLD))";
+static const char *ansi_proto_name_short = "IS-801";
 
 #define	ANSI_801_FORWARD	0
 #define	ANSI_801_REVERSE	1
@@ -530,7 +530,7 @@ dissect_ansi_801_for_message(tvbuff_t *tvb, proto_tree *tree)
     guint32	offset;
     guint8	oct, num_req, num_rsp;
     guint	rem_len;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
     offset = 0;
     oct = tvb_get_guint8(tvb, offset);
@@ -663,7 +663,7 @@ dissect_ansi_801_rev_message(tvbuff_t *tvb, proto_tree *tree)
     guint32	offset;
     guint8	oct, num_req, num_rsp;
     guint	rem_len;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
     offset = 0;
     oct = tvb_get_guint8(tvb, offset);
