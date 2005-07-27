@@ -356,7 +356,7 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 addresses_transfered;
 	const guint8 *client_identifier_str, *vendor_class_str;
 	const gchar *htype_str;
-	gchar *chaddr_str;
+	const gchar *chaddr_str;
 	gchar *lease_expiration_time_str;
 	gchar *grace_expiration_time_str, *potential_expiration_time_str;
 	gchar *client_last_transaction_time_str, *start_time_of_state_str;
