@@ -43,6 +43,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <epan/proto.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
@@ -1270,7 +1271,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 
                        /* set the observedEvents or signalReq used in Voip Calls analysis */
                        if (buf != NULL) {
-                               *buf = tvb_get_string(tvb, tvb_current_offset, (len - tvb_current_offset + offset));
+                               *buf = ep_tvb_get_string(tvb, tvb_current_offset, (len - tvb_current_offset + offset));
                        }
 		}
 	}
@@ -1397,7 +1398,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				if (mgcp_type == MGCP_REQUEST)
 				{
 					endpointId = tvb_format_text(tvb, tvb_previous_offset,tokenlen);
-					mi->endpointId = g_strdup(endpointId);
+					mi->endpointId = ep_strdup(endpointId);
 					proto_tree_add_string(tree,hf_mgcp_req_endpoint, tvb,
 					                      tvb_previous_offset, tokenlen, endpointId);
 				}
@@ -1781,14 +1782,15 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offse
 
 	/* The P: line */
 	offset += param_type_len; /* skip the P: */
-	tokenline = tvb_get_string(tvb, offset, param_val_len);
+	tokenline = ep_tvb_get_string(tvb, offset, param_val_len);
 
 	/* Split into type=value pairs separated by comma */
-	tokens = g_strsplit(tokenline, ",", -1);
+	tokens = ep_strsplit(tokenline, ",", -1);
+	
 	for (i = 0; tokens[i] != NULL; i++)
 	{
 		tokenlen = strlen(tokens[i]);
-		typval = g_strsplit(tokens[i], "=", 2);
+		typval = ep_strsplit(tokens[i], "=", 2);
 		if ((typval[0] != NULL) && (typval[1] != NULL))
 		{
 			if (!strcasecmp(g_strstrip(typval[0]), "PS"))
@@ -1867,9 +1869,6 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offse
 		offset += tokenlen + 1; /* 1 extra for the delimiter */
 	}
 
-	g_strfreev(typval);
-	g_strfreev(tokens);
-	g_free(tokenline);
 }
 
 /* Dissect the local connection option */
@@ -1895,17 +1894,17 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint
 
 	/* The L: line */
 	offset += param_type_len; /* skip the L: */
-	tokenline = tvb_get_string(tvb, offset, param_val_len);
+	tokenline = ep_tvb_get_string(tvb, offset, param_val_len);
 
 	/* Split into type=value pairs separated by comma */
-	tokens = g_strsplit(tokenline, ",", -1);
+	tokens = ep_strsplit(tokenline, ",", -1);
 	for (i = 0; tokens[i] != NULL; i++)
 	{
 		hf_uint = -1;
 		hf_string = -1;
         
 		tokenlen = strlen(tokens[i]);
-		typval = g_strsplit(tokens[i], ":", 2);
+		typval = ep_strsplit(tokens[i], ":", 2);
 		if ((typval[0] != NULL) && (typval[1] != NULL))
 		{
 			if (!strcasecmp(g_strstrip(typval[0]), "p"))
@@ -2029,10 +2028,6 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint
 		}
 		offset += tokenlen + 1; /* 1 extra for the delimiter */
 	}
-	
-	g_strfreev(typval);
-	g_strfreev(tokens);
-	g_free(tokenline);
 }
 
 
