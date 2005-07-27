@@ -39,8 +39,6 @@
 #include "compat_macros.h"
 #include "gtkglobals.h"
 
-#include "image/clist_ascend.xpm"
-#include "image/clist_descend.xpm"
 #include "simple_dialog.h"
 
 #include <epan/to_str.h>
