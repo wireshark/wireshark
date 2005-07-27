@@ -686,7 +686,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
   const ip_tcp_opt *optp;
   opt_len_type      len_type;
   unsigned int      optlen;
-  char             *name;
+  const char       *name;
   char              name_str[7+1+1+2+2+1+1];	/* "Unknown (0x%02x)" */
   void            (*dissect)(const struct ip_tcp_opt *, tvbuff_t *,
 				int, guint, packet_info *, proto_tree *);
