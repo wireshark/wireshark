@@ -63,7 +63,7 @@ static void   free_col_info(e_prefs *);
 #define PF_NAME		"preferences"
 #define OLD_GPF_NAME	"ethereal.conf"	/* old name for global preferences file */
 
-static gboolean init_prefs = TRUE;
+static gboolean prefs_initialized = FALSE;
 static gchar *gpf_path = NULL;
 
 /*
@@ -897,6 +897,158 @@ print.file: /a/very/long/path/
 
 #define DEF_NUM_COLS    6
 
+/* Initialize preferences to wired-in default values.
+ * They may be overridden by the global preferences file or the
+ *  user's preferences file.
+ */
+void
+init_prefs() {
+  int         i;
+  fmt_data    *cfmt;
+  const gchar *col_fmt[] = {"No.",      "%m", "Time",        "%t",
+                           "Source",   "%s", "Destination", "%d",
+                           "Protocol", "%p", "Info",        "%i"};
+
+  if (prefs_initialized)
+    return;
+
+  prefs.pr_format  = PR_FMT_TEXT;
+  prefs.pr_dest    = PR_DEST_CMD;
+  prefs.pr_file    = g_strdup("ethereal.out");
+  prefs.pr_cmd     = g_strdup("lpr");
+  prefs.col_list = NULL;
+  for (i = 0; i < DEF_NUM_COLS; i++) {
+    cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
+    cfmt->title = g_strdup(col_fmt[i * 2]);
+    cfmt->fmt   = g_strdup(col_fmt[(i * 2) + 1]);
+    prefs.col_list = g_list_append(prefs.col_list, cfmt);
+  }
+  prefs.num_cols  = DEF_NUM_COLS;
+  prefs.st_client_fg.pixel =     0;
+  prefs.st_client_fg.red   = 32767;
+  prefs.st_client_fg.green =     0;
+  prefs.st_client_fg.blue  =     0;
+  prefs.st_client_bg.pixel =     0;
+  prefs.st_client_bg.red   = 64507;
+  prefs.st_client_bg.green = 60909;
+  prefs.st_client_bg.blue  = 60909;
+  prefs.st_server_fg.pixel =     0;
+  prefs.st_server_fg.red   =     0;
+  prefs.st_server_fg.green =     0;
+  prefs.st_server_fg.blue  = 32767;
+  prefs.st_server_bg.pixel =     0;
+  prefs.st_server_bg.red   = 60909;
+  prefs.st_server_bg.green = 60909;
+  prefs.st_server_bg.blue  = 64507;
+  prefs.gui_scrollbar_on_right = TRUE;
+  prefs.gui_plist_sel_browse = FALSE;
+  prefs.gui_ptree_sel_browse = FALSE;
+  prefs.gui_altern_colors = FALSE;
+  prefs.gui_ptree_line_style = 0;
+  prefs.gui_ptree_expander_style = 1;
+  prefs.gui_hex_dump_highlight_style = 1;
+  prefs.filter_toolbar_show_in_statusbar = FALSE;
+  prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
+#ifdef _WIN32
+  /* XXX - not sure, if it must be "Lucida Console" or "lucida console"
+   * for gui_font_name1. Maybe it's dependant on the windows version running?!
+   * verified on XP: "Lucida Console"
+   * unknown for other windows versions.
+   *
+   * Problem: if we have no preferences file, and the default font name is unknown, 
+   * we cannot save Preferences as an error dialog pops up "You have not selected a font".
+   */
+  prefs.gui_font_name1 = g_strdup("-*-Lucida Console-medium-r-*-*-*-100-*-*-*-*-*-*");
+  prefs.gui_font_name2 = g_strdup("Lucida Console 10");
+#else
+  /*
+   * XXX - for now, we make the initial font name a pattern that matches
+   * only ISO 8859/1 fonts, so that we don't match 2-byte fonts such
+   * as ISO 10646 fonts.
+   *
+   * Users in locales using other one-byte fonts will have to choose
+   * a different font from the preferences dialog - or put the font
+   * selection in the global preferences file to make that font the
+   * default for all users who don't explicitly specify a different
+   * font.
+   *
+   * Making this a font set rather than a font has two problems:
+   *
+   *	1) as far as I know, you can't select font sets with the
+   *	   font selection dialog;
+   *
+   *  2) if you use a font set, the text to be drawn must be a
+   *	   multi-byte string in the appropriate locale, but
+   *	   Ethereal does *NOT* guarantee that's the case - in
+   *	   the hex-dump window, each character in the text portion
+   *	   of the display must be a *single* byte, and in the
+   *	   packet-list and protocol-tree windows, text extracted
+   *	   from the packet is not necessarily in the right format.
+   *
+   * "Doing this right" may, for the packet-list and protocol-tree
+   * windows, require that dissectors know what the locale is
+   * *AND* know what locale and text representation is used in
+   * the packets they're dissecting, and may be impossible in
+   * the hex-dump window (except by punting and displaying only
+   * ASCII characters).
+   *
+   * GTK+ 2.0 may simplify part of the problem, as it will, as I
+   * understand it, use UTF-8-encoded Unicode as its internal
+   * character set; however, we'd still have to know whatever
+   * character set and encoding is used in the packet (which
+   * may differ for different protocols, e.g. SMB might use
+   * PC code pages for some strings and Unicode for others, whilst
+   * NFS might use some UNIX character set encoding, e.g. ISO 8859/x,
+   * or one of the EUC character sets for Asian languages, or one
+   * of the other multi-byte character sets, or UTF-8, or...).
+   *
+   * I.e., as far as I can tell, "internationalizing" the packet-list,
+   * protocol-tree, and hex-dump windows involves a lot more than, say,
+   * just using font sets rather than fonts.
+   */
+  prefs.gui_font_name1 = g_strdup("-misc-fixed-medium-r-semicondensed-*-*-120-*-*-*-*-iso8859-1");
+  /* XXX- is this the correct default font name for GTK2 none win32? */
+  prefs.gui_font_name2 = g_strdup("fixed medium 12");
+#endif
+  prefs.gui_marked_fg.pixel        =     65535;
+  prefs.gui_marked_fg.red          =     65535;
+  prefs.gui_marked_fg.green        =     65535;
+  prefs.gui_marked_fg.blue         =     65535;
+  prefs.gui_marked_bg.pixel        =         0;
+  prefs.gui_marked_bg.red          =         0;
+  prefs.gui_marked_bg.green        =         0;
+  prefs.gui_marked_bg.blue         =         0;
+  prefs.gui_geometry_save_position =         0;
+  prefs.gui_geometry_save_size     =         1;
+  prefs.gui_geometry_save_maximized=         1;
+  prefs.gui_console_open           = console_open_never;
+  prefs.gui_fileopen_style         = FO_STYLE_LAST_OPENED;
+  prefs.gui_recent_files_count_max = 10;
+  prefs.gui_fileopen_dir           = g_strdup("");
+  prefs.gui_fileopen_preview       = 3;
+  prefs.gui_ask_unsaved            = TRUE;
+  prefs.gui_find_wrap              = TRUE;
+  prefs.gui_webbrowser             = g_strdup("mozilla %s");
+  prefs.gui_window_title           = g_strdup("");
+  prefs.gui_layout_type            = layout_type_5;
+  prefs.gui_layout_content_1       = layout_pane_content_plist;
+  prefs.gui_layout_content_2       = layout_pane_content_pdetails;
+  prefs.gui_layout_content_3       = layout_pane_content_pbytes;
+
+/* set the default values for the capture dialog box */
+  prefs.capture_device           = NULL;
+  prefs.capture_devices_descr    = NULL;
+  prefs.capture_devices_hide     = NULL;
+  prefs.capture_prom_mode        = TRUE;
+  prefs.capture_real_time        = FALSE;
+  prefs.capture_auto_scroll      = FALSE;
+  prefs.capture_show_info        = TRUE;
+  prefs.name_resolve             = RESOLV_ALL ^ RESOLV_NETWORK;
+  prefs.name_resolve_concurrency = 500;
+
+  prefs_initialized = TRUE;
+}
+
 
 /* Read the preferences file, fill in "prefs", and return a pointer to it.
 
@@ -914,154 +1066,11 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
 	   char **gpf_path_return, int *pf_errno_return,
 	   int *pf_read_errno_return, char **pf_path_return)
 {
-  int         i;
   int         err;
   char        *pf_path;
   FILE        *pf;
-  fmt_data    *cfmt;
-  const gchar *col_fmt[] = {"No.",      "%m", "Time",        "%t",
-                           "Source",   "%s", "Destination", "%d",
-                           "Protocol", "%p", "Info",        "%i"};
 
-  if (init_prefs) {
-    /* Initialize preferences to wired-in default values.
-       They may be overridden by the global preferences file or the
-       user's preferences file. */
-    init_prefs       = FALSE;
-    prefs.pr_format  = PR_FMT_TEXT;
-    prefs.pr_dest    = PR_DEST_CMD;
-    prefs.pr_file    = g_strdup("ethereal.out");
-    prefs.pr_cmd     = g_strdup("lpr");
-    prefs.col_list = NULL;
-    for (i = 0; i < DEF_NUM_COLS; i++) {
-      cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
-      cfmt->title = g_strdup(col_fmt[i * 2]);
-      cfmt->fmt   = g_strdup(col_fmt[(i * 2) + 1]);
-      prefs.col_list = g_list_append(prefs.col_list, cfmt);
-    }
-    prefs.num_cols  = DEF_NUM_COLS;
-    prefs.st_client_fg.pixel =     0;
-    prefs.st_client_fg.red   = 32767;
-    prefs.st_client_fg.green =     0;
-    prefs.st_client_fg.blue  =     0;
-    prefs.st_client_bg.pixel =     0;
-    prefs.st_client_bg.red   = 64507;
-    prefs.st_client_bg.green = 60909;
-    prefs.st_client_bg.blue  = 60909;
-    prefs.st_server_fg.pixel =     0;
-    prefs.st_server_fg.red   =     0;
-    prefs.st_server_fg.green =     0;
-    prefs.st_server_fg.blue  = 32767;
-    prefs.st_server_bg.pixel =     0;
-    prefs.st_server_bg.red   = 60909;
-    prefs.st_server_bg.green = 60909;
-    prefs.st_server_bg.blue  = 64507;
-    prefs.gui_scrollbar_on_right = TRUE;
-    prefs.gui_plist_sel_browse = FALSE;
-    prefs.gui_ptree_sel_browse = FALSE;
-    prefs.gui_altern_colors = FALSE;
-    prefs.gui_ptree_line_style = 0;
-    prefs.gui_ptree_expander_style = 1;
-    prefs.gui_hex_dump_highlight_style = 1;
-    prefs.filter_toolbar_show_in_statusbar = FALSE;
-    prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
-#ifdef _WIN32
-    /* XXX - not sure, if it must be "Lucida Console" or "lucida console"
-     * for gui_font_name1. Maybe it's dependant on the windows version running?!
-     * verified on XP: "Lucida Console"
-     * unknown for other windows versions.
-     *
-     * Problem: if we have no preferences file, and the default font name is unknown, 
-     * we cannot save Preferences as an error dialog pops up "You have not selected a font".
-     */
-    prefs.gui_font_name1 = g_strdup("-*-Lucida Console-medium-r-*-*-*-100-*-*-*-*-*-*");
-    prefs.gui_font_name2 = g_strdup("Lucida Console 10");
-#else
-    /*
-     * XXX - for now, we make the initial font name a pattern that matches
-     * only ISO 8859/1 fonts, so that we don't match 2-byte fonts such
-     * as ISO 10646 fonts.
-     *
-     * Users in locales using other one-byte fonts will have to choose
-     * a different font from the preferences dialog - or put the font
-     * selection in the global preferences file to make that font the
-     * default for all users who don't explicitly specify a different
-     * font.
-     *
-     * Making this a font set rather than a font has two problems:
-     *
-     *	1) as far as I know, you can't select font sets with the
-     *	   font selection dialog;
-     *
-     *  2) if you use a font set, the text to be drawn must be a
-     *	   multi-byte string in the appropriate locale, but
-     *	   Ethereal does *NOT* guarantee that's the case - in
-     *	   the hex-dump window, each character in the text portion
-     *	   of the display must be a *single* byte, and in the
-     *	   packet-list and protocol-tree windows, text extracted
-     *	   from the packet is not necessarily in the right format.
-     *
-     * "Doing this right" may, for the packet-list and protocol-tree
-     * windows, require that dissectors know what the locale is
-     * *AND* know what locale and text representation is used in
-     * the packets they're dissecting, and may be impossible in
-     * the hex-dump window (except by punting and displaying only
-     * ASCII characters).
-     *
-     * GTK+ 2.0 may simplify part of the problem, as it will, as I
-     * understand it, use UTF-8-encoded Unicode as its internal
-     * character set; however, we'd still have to know whatever
-     * character set and encoding is used in the packet (which
-     * may differ for different protocols, e.g. SMB might use
-     * PC code pages for some strings and Unicode for others, whilst
-     * NFS might use some UNIX character set encoding, e.g. ISO 8859/x,
-     * or one of the EUC character sets for Asian languages, or one
-     * of the other multi-byte character sets, or UTF-8, or...).
-     *
-     * I.e., as far as I can tell, "internationalizing" the packet-list,
-     * protocol-tree, and hex-dump windows involves a lot more than, say,
-     * just using font sets rather than fonts.
-     */
-    prefs.gui_font_name1 = g_strdup("-misc-fixed-medium-r-semicondensed-*-*-120-*-*-*-*-iso8859-1");
-    /* XXX- is this the correct default font name for GTK2 none win32? */
-    prefs.gui_font_name2 = g_strdup("fixed medium 12");
-#endif
-    prefs.gui_marked_fg.pixel        =     65535;
-    prefs.gui_marked_fg.red          =     65535;
-    prefs.gui_marked_fg.green        =     65535;
-    prefs.gui_marked_fg.blue         =     65535;
-    prefs.gui_marked_bg.pixel        =         0;
-    prefs.gui_marked_bg.red          =         0;
-    prefs.gui_marked_bg.green        =         0;
-    prefs.gui_marked_bg.blue         =         0;
-    prefs.gui_geometry_save_position =         0;
-    prefs.gui_geometry_save_size     =         1;
-    prefs.gui_geometry_save_maximized=         1;
-    prefs.gui_console_open           = console_open_never;
-    prefs.gui_fileopen_style         = FO_STYLE_LAST_OPENED;
-    prefs.gui_recent_files_count_max = 10;
-    prefs.gui_fileopen_dir           = g_strdup("");
-    prefs.gui_fileopen_preview       = 3;
-    prefs.gui_ask_unsaved            = TRUE;
-    prefs.gui_find_wrap              = TRUE;
-    prefs.gui_webbrowser             = g_strdup("mozilla %s");
-    prefs.gui_window_title           = g_strdup("");
-    prefs.gui_layout_type            = layout_type_5;
-    prefs.gui_layout_content_1       = layout_pane_content_plist;
-    prefs.gui_layout_content_2       = layout_pane_content_pdetails;
-    prefs.gui_layout_content_3       = layout_pane_content_pbytes;
-
-/* set the default values for the capture dialog box */
-    prefs.capture_device           = NULL;
-    prefs.capture_devices_descr    = NULL;
-    prefs.capture_devices_hide     = NULL;
-    prefs.capture_prom_mode        = TRUE;
-    prefs.capture_real_time        = FALSE;
-    prefs.capture_auto_scroll      = FALSE;
-    prefs.capture_show_info        = TRUE;
-    prefs.name_resolve             = RESOLV_ALL ^ RESOLV_NETWORK;
-    prefs.name_resolve_concurrency = 500;
-  }
+  init_prefs();
 
   /*
    * If we don't already have the pathname of the global preferences
@@ -2210,6 +2219,9 @@ write_prefs(char **pf_path_return)
   FILE        *pf;
   GList       *clp, *col_l;
   fmt_data    *cfmt;
+
+  /* Needed for "-G defaultprefs" */
+  init_prefs();
 
   /* To do:
    * - Split output lines longer than MAX_VAL_LEN
