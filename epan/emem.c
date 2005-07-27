@@ -172,8 +172,8 @@ gchar** ep_strsplit(const gchar* string, const gchar* sep, int max_tokens) {
 	gchar* splitted;
 	gchar* s;
 	guint tokens;
-	guint str_len = strlen(splitted);
-	guint sep_len = strlen(sep);
+	guint str_len;
+	guint sep_len;
 	guint i;
 	gchar** vec;
 	enum { AT_START, IN_PAD, IN_TOKEN } state;
@@ -203,7 +203,7 @@ gchar** ep_strsplit(const gchar* string, const gchar* sep, int max_tokens) {
 		
 	} 
 	
-	vec = ep_alloc_array(gchar,tokens+1);
+	vec = ep_alloc_array(gchar*,tokens+1);
 	state = AT_START;
 	
 	for (i=0; i< str_len; i++) {
