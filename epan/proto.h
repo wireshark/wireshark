@@ -37,6 +37,8 @@
 #ifndef __PROTO_H__
 #define __PROTO_H__
 
+#include "config.h"
+
 #ifdef HAVE_STDARG_H
 # include <stdarg.h>
 #else
