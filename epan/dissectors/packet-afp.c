@@ -36,7 +36,7 @@
 # include "snprintf.h"
 #endif
 
-/* #include <string.h> */
+#include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
 /* #include <epan/strutil.h> */
