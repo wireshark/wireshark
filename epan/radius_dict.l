@@ -109,7 +109,7 @@
 <ATTR_W_ID>ifid						{ attr_type = radius_ifid;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>[0-9a-z_-]+				{ attr_type = radius_octets;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_TYPE>has_tag[,]?			{ has_tag = TRUE; attr_vendor = NULL;  BEGIN ATTR_W_VENDOR; }
-<ATTR_W_TYPE>encrypted=1[,]?			{ encrypted=TRUE;  attr_vendor = NULL;  BEGIN ATTR_W_VENDOR; }
+<ATTR_W_TYPE>encrypt=1[,]?			{ encrypted=TRUE;  attr_vendor = NULL;  BEGIN ATTR_W_VENDOR; }
 <ATTR_W_TYPE>[,0-9a-z_-]+=([^\n]+)	{ /* ignore other parameters */  attr_vendor = NULL;  BEGIN ATTR_W_VENDOR; }
 <ATTR_W_TYPE>[0-9a-z_-]+			{ attr_vendor = g_strdup(yytext);  add_attribute(attr_name,attr_id,attr_type,attr_vendor,encrypted,has_tag); attr_vendor = NULL;  BEGIN OUT; }
 <ATTR_W_TYPE>\n						{ add_attribute(attr_name,attr_id,attr_type,current_vendor ? g_strdup(current_vendor) : NULL ,encrypted,has_tag); linenums[include_stack_ptr]++;  BEGIN OUT; }
