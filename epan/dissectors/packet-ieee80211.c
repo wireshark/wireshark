@@ -134,6 +134,12 @@ static const char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 #define COOK_FLAGS(x)           (((x) & 0xFF00) >> 8)
 #define COOK_DS_STATUS(x)       ((x) & 0x3)
 #define COOK_WEP_KEY(x)       (((x) & 0xC0) >> 6)
+#define COOK_QOS_TID(x)		   ((x) & 0x000F)
+#define COOK_QOS_EOSP(x)	   (((x) & 0x0010) >> 4) /* end of service period */
+#define COOK_QOS_FIELD_CONTENT(x)  (((x) & 0xFF00) >> 8)
+#define COOK_PS_BUF_STATE(x)	   (((x) & 0x02) >> 1)
+#define COOK_PS_BUF_AC(x)	   (((x) & 0x0C) >> 2)
+#define COOK_PS_BUF_LOAD(x)	   (((x) & 0xF0) >> 4)
 
 #define KEY_EXTIV		0x20
 #define EXTIV_LEN		8
@@ -146,6 +152,10 @@ static const char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 #define FLAG_MORE_DATA		0x20
 #define FLAG_WEP		0x40
 #define FLAG_ORDER		0x80
+#define FLAG_DATA_NULL		0x24
+#define FLAG_DATA_QOS		0x28
+#define FLAG_EOSP		0x08
+#define FLAG_DATA_CF_POLL	0x22
 
 #define IS_TO_DS(x)            ((x) & FLAG_TO_DS)
 #define IS_FROM_DS(x)          ((x) & FLAG_FROM_DS)
@@ -155,10 +165,13 @@ static const char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 #define HAS_MORE_DATA(x)       ((x) & FLAG_MORE_DATA)
 #define IS_WEP(x)              (!wlan_ignore_wep && ((x) & FLAG_WEP))
 #define IS_STRICTLY_ORDERED(x) ((x) & FLAG_ORDER)
+#define IS_DATA_NULL(x)	       (((x) & 0xf4) == FLAG_DATA_NULL)
+#define IS_DATA_QOS(x)	       (((x) & 0xf8) == FLAG_DATA_QOS)
+#define IS_DATA_CF_POLL(x)     (((x) & 0xf2) == FLAG_DATA_CF_POLL)
 
-#define MGT_RESERVED_RANGE(x)  (((x>=0x06)&&(x<=0x07))||((x>=0x0D)&&(x<=0x0F)))
-#define CTRL_RESERVED_RANGE(x) ((x>=0x10)&&(x<=0x19))
-#define DATA_RESERVED_RANGE(x) ((x>=0x28)&&(x<=0x2f))
+#define MGT_RESERVED_RANGE(x)  (((x>=0x06)&&(x<=0x07))||((x>=0x0E)&&(x<=0x0F)))
+#define CTRL_RESERVED_RANGE(x) ((x>=0x10)&&(x<=0x17))
+#define DATA_RESERVED_RANGE(x) (x==0x2D)
 #define SPEC_RESERVED_RANGE(x) ((x>=0x30)&&(x<=0x3f))
 
 
@@ -186,6 +199,9 @@ static const char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 #define MGT_DEAUTHENTICATION 0x0C	/* Management - Deauthentication           */
 #define MGT_ACTION           0x0D	/* Management - Action */
 
+#define CTRL_BLOCK_ACK_REQ   0x18	/* Control - Block ack Request		    */
+#define CTRL_BLOCK_ACK	     0x19	/* Control - Block ack			    */
+
 #define CTRL_PS_POLL         0x1A	/* Control - power-save poll               */
 #define CTRL_RTS             0x1B	/* Control - request to send               */
 #define CTRL_CTS             0x1C	/* Control - clear to send                 */
@@ -195,14 +211,21 @@ static const char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 
 #define DATA                 0x20	/* Data - Data                             */
 #define DATA_CF_ACK          0x21	/* Data - Data + CF acknowledge            */
-#define DATA_CF_POLL         0x22	/* Data - Data + CF poll                   */
+#define DATA_CF_POLL         FLAG_DATA_CF_POLL	/* Data - Data + CF poll                   */
 #define DATA_CF_ACK_POLL     0x23	/* Data - Data + CF acknowledge + CF poll  */
-#define DATA_NULL_FUNCTION   0x24	/* Data - Null function (no data)          */
+#define DATA_NULL_FUNCTION   FLAG_DATA_NULL	/* Data - Null function (no data)          */
 #define DATA_CF_ACK_NOD      0x25	/* Data - CF ack (no data)                 */
-#define DATA_CF_POLL_NOD     0x26       /* Data - Data + CF poll (No data)         */
+#define DATA_CF_POLL_NOD     0x26       /* Data - CF poll (No data)         */
 #define DATA_CF_ACK_POLL_NOD 0x27	/* Data - CF ack + CF poll (no data)       */
-#define DATA_QOS_DATA        0x28	/* Data - QoS Data                         */
-#define DATA_QOS_NULL        0x2c	/* Data - QoS Null                         */
+#define DATA_QOS_DATA        FLAG_DATA_QOS	/* Data - QoS Data                         */
+
+
+#define DATA_QOS_DATA_CF_ACK        0x29	/* Data - QoS Data + CF-Ack		  */
+#define DATA_QOS_DATA_CF_POLL       0x2A	/* Data - QoS Data + CF-Poll		  */
+#define DATA_QOS_DATA_CF_ACK_POLL   0x2B	/* Data - QoS Data + CF-Ack + CF-poll	  */
+#define DATA_QOS_NULL		    0x2C	/* Data - QoS Null			  */
+#define DATA_QOS_CF_POLL_NOD	    0x2E	/* Data - QoS CF-poll (No Data)		  */
+#define DATA_QOS_CF_ACK_POLL_NOD    0x2F	/* Data - QoS CF-Ack + CF-poll (No Data)  */
 
 #define DATA_ADDR_T1         0
 #define DATA_ADDR_T2         (FLAG_FROM_DS << 8)
@@ -251,14 +274,35 @@ static const char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 #define TAG_COUNTRY_INFO         0x07
 #define TAG_FH_HOPPING_PARAMETER 0x08
 #define TAG_FH_HOPPING_TABLE     0x09
+#define TAG_REQUEST		 0x0A
+#define TAG_QBSS_LOAD		 0x0B
+#define TAG_EDCA_PARAM_SET	 0x0C
+#define TAG_TRAF_SPEC		 0x0D
+#define TAG_TRAF_CLASS		 0x0E
+#define TAG_SCHEDULE		 0x0F
 #define TAG_CHALLENGE_TEXT       0x10
+#define TAG_POWER_CONSTRAINT	 0x20
+#define TAG_POWER_CAPABILITY	 0x21
+#define TAG_TPC_REQUEST		 0x22
+#define TAG_TPC_REPORT		 0x23
+#define TAG_SUPPORTED_CHANNELS	 0x24
+#define TAG_CHANNEL_SWITCH_ANN	 0x25
+#define TAG_MEASURE_REQ		 0x26
+#define TAG_MEASURE_RSP		 0x27
+#define TAG_QUIET		 0x28
+#define TAG_IBSS_DFS		 0x29
 #define TAG_ERP_INFO             0x2A
+#define TAG_TS_DELAY		 0x2B
+#define TAG_TCLAS_PROCESS	 0x2C
+#define TAG_QOS_CAPABILITY	 0x2E
 #define TAG_ERP_INFO_OLD         0x2F	/* IEEE Std 802.11g/D4.0 */
 #define TAG_RSN_IE               0x30
 #define TAG_EXT_SUPP_RATES       0x32
+#define TAG_AGERE_PROPRIETARY	 0x80
 #define TAG_CISCO_UNKNOWN_1	 0x85	/* Cisco Compatible eXtensions? */
 #define TAG_CISCO_UNKNOWN_2	 0x88	/* Cisco Compatible eXtensions? */
 #define TAG_VENDOR_SPECIFIC_IE	 0xDD
+#define TAG_SYMBOL_PROPRIETARY	 0xAD
 
 #define WPA_OUI	"\x00\x50\xF2"
 #define RSN_OUI "\x00\x0F\xAC"
@@ -298,6 +342,13 @@ static const value_string frame_type_subtype_vals[] = {
 	{DATA_CF_ACK_POLL_NOD, "Data + CF-Acknowledgement/Poll (No data)"},
 	{DATA_QOS_DATA,        "QoS Data"},
 	{DATA_QOS_NULL,        "QoS Null (No data)"},
+	{DATA_QOS_DATA_CF_ACK,	"802.11 Q0S Data + CF-Ack"},
+	{DATA_QOS_DATA_CF_POLL,	"802.11 QoS Data + CF-Poll"},
+	{DATA_QOS_DATA_CF_ACK_POLL,	"802.11 Q0S Data + CF-Ack/Poll"},
+	{DATA_QOS_CF_POLL_NOD,	"802.11 QoS CF-poll (No Data)"},
+	{DATA_QOS_CF_ACK_POLL_NOD,  "802.11 QoS CF-Ack + CF-poll (No Data)"},
+	{CTRL_BLOCK_ACK_REQ,	"802.11 Block Ack Req"},
+	{CTRL_BLOCK_ACK,	"802.11 Block Ack"},
 	{0,                    NULL}
 };
 
@@ -340,6 +391,7 @@ static const char *wme_acs[4] = {
 };
 
 static int proto_wlan = -1;
+static packet_info * g_pinfo;
 
 /* ************************************************************************* */
 /*                Header field info values for radio information             */
@@ -394,6 +446,14 @@ static int hf_addr = -1;	/* Source or destination address subfield */
 /* ************************************************************************* */
 static int hf_qos_priority = -1;
 static int hf_qos_ack_policy = -1;
+static int hf_qos_eosp = -1;
+static int hf_qos_field_content = -1;
+/*static int hf_qos_txop_limit = -1;*/
+static int hf_qos_buf_state = -1;
+static int hf_qos_buf_ac = -1;
+static int hf_qos_buf_load = -1;
+/*static int hf_qos_txop_dur_req = -1;
+static int hf_qos_queue_size = -1;*/
 
 /* ************************************************************************* */
 /*                Header values for sequence number field                    */
@@ -452,6 +512,10 @@ static int ff_cf_pbcc = -1;
 static int ff_cf_agility = -1;
 static int ff_short_slot_time = -1;
 static int ff_dsss_ofdm = -1;
+static int ff_cf_spec_man = -1;
+static int ff_cf_apsd = -1;
+static int ff_cf_del_blk_ack = -1;
+static int ff_cf_imm_blk_ack = -1;
 
 /* ************************************************************************* */
 /*                       Tagged value format fields                          */
@@ -496,6 +560,7 @@ static gint ett_80211_mgt = -1;
 static gint ett_fixed_parameters = -1;
 static gint ett_tagged_parameters = -1;
 static gint ett_qos_parameters = -1;
+static gint ett_qos_ps_buf_state = -1;
 static gint ett_wep_parameters = -1;
 
 static gint ett_rsn_cap_tree = -1;
@@ -547,6 +612,8 @@ find_header_length (guint16 fcf)
     case CTRL_PS_POLL:
     case CTRL_CFP_END:
     case CTRL_CFP_ENDACK:
+    case CTRL_BLOCK_ACK_REQ:
+    case CTRL_BLOCK_ACK:
       return 16;
     }
     return 4;	/* XXX */
@@ -554,15 +621,11 @@ find_header_length (guint16 fcf)
   case DATA_FRAME:
     len = (COOK_ADDR_SELECTOR(fcf) == DATA_ADDR_T4) ? DATA_LONG_HDR_LEN :
 						      DATA_SHORT_HDR_LEN;
-    switch (COMPOSE_FRAME_TYPE (fcf)) {
-
-    case DATA_QOS_DATA:
-    case DATA_QOS_NULL:
+    if( IS_DATA_QOS(fcf))
       return len + 2;
-
-    default:
+    else
       return len;
-    }
+  
   default:
     return 4;	/* XXX */
   }
@@ -720,11 +783,15 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       break;
 
     case FIELD_BEACON_INTERVAL:
-      temp_double = (double) tvb_get_letohs (tvb, offset);
+      capability = tvb_get_letohs (tvb, offset);
+      temp_double = (double)capability;
       temp_double = temp_double * 1024 / 1000000;
       proto_tree_add_double_format (tree, ff_beacon_interval, tvb, offset, 2,
 				    temp_double,"Beacon Interval: %f [Seconds]",
 				    temp_double);
+      if (check_col (g_pinfo->cinfo, COL_INFO)) {
+          col_append_fstr(g_pinfo->cinfo, COL_INFO, ",BI=%d", capability);
+      }
       break;
 
 
@@ -756,9 +823,17 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 			      capability);
       proto_tree_add_boolean (cap_tree, ff_cf_agility, tvb, offset, 2,
 			      capability);
+      proto_tree_add_boolean (cap_tree, ff_cf_spec_man, tvb, offset, 2,
+			      capability);
       proto_tree_add_boolean (cap_tree, ff_short_slot_time, tvb, offset, 2,
 			      capability);
+      proto_tree_add_boolean (cap_tree, ff_cf_apsd, tvb, offset, 2,
+			      capability);
       proto_tree_add_boolean (cap_tree, ff_dsss_ofdm, tvb, offset, 2,
+			      capability);     
+      proto_tree_add_boolean (cap_tree, ff_cf_del_blk_ack, tvb, offset, 2,
+			      capability);
+      proto_tree_add_boolean (cap_tree, ff_cf_imm_blk_ack, tvb, offset, 2,
 			      capability);
       break;
 
@@ -1183,6 +1258,27 @@ static const value_string tag_num_vals[] = {
 	{ TAG_CISCO_UNKNOWN_1,      "Cisco Unknown 1 + Device Name" },
 	{ TAG_CISCO_UNKNOWN_2,      "Cisco Unknown 2" },
 	{ TAG_VENDOR_SPECIFIC_IE,   "Vendor Specific" },
+	{ TAG_SYMBOL_PROPRIETARY,   "Symbol Proprietary"},
+	{ TAG_AGERE_PROPRIETARY,    "Agere Proprietary"},
+	{ TAG_REQUEST,		    "Request"},
+	{ TAG_QBSS_LOAD,	    "QBSS Load Element"},
+	{ TAG_EDCA_PARAM_SET,	    "EDCA Parameter Set"},
+	{ TAG_TRAF_SPEC,	    "Traffic Specification"},
+	{ TAG_TRAF_CLASS,	    "Traffic Classification"},
+	{ TAG_SCHEDULE,		    "Schedule"},
+	{ TAG_TS_DELAY,		    "TS Delay"},
+	{ TAG_TCLAS_PROCESS,	    "TCLAS Processing"},
+	{ TAG_QOS_CAPABILITY,	    "QoS Capability"},
+	{ TAG_POWER_CONSTRAINT,	    "Power Constraint"},
+	{ TAG_POWER_CAPABILITY,	    "Power Capability"},
+	{ TAG_TPC_REQUEST,	    "TPC Request"},
+	{ TAG_TPC_REPORT,	    "TPC Report"},
+	{ TAG_SUPPORTED_CHANNELS,   "Supported Channels"},
+	{ TAG_CHANNEL_SWITCH_ANN,   "Channel Switch Announcement"},
+	{ TAG_MEASURE_REQ,	    "Measurement Request"},
+	{ TAG_MEASURE_RSP,	    "Measurement Response"},
+	{ TAG_QUIET,		    "Quiet"},
+	{ TAG_IBSS_DFS,		    "IBSS DFS"},
 	{ 0,                        NULL }
 };
 
@@ -1193,6 +1289,7 @@ static const value_string environment_vals[] = {
 	{ 0,    NULL }
 };
 
+static int beacon_padding = 0; /* beacon padding bug */
 static int
 add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int offset)
 {
@@ -1227,6 +1324,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
     {
 
     case TAG_SSID:
+      if(beacon_padding == 0) /* padding bug */
       {
         char *ssid;
 
@@ -1248,6 +1346,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
           proto_item_append_text(ti, ": Broadcast");
         }
         g_free(ssid);
+	beacon_padding++; /* padding bug */
       }
       break;
 
@@ -1548,6 +1647,7 @@ ieee_80211_add_tagged_parameters (tvbuff_t * tvb, int offset, packet_info * pinf
 {
   int next_len;
 
+  beacon_padding = 0; /* this is for the beacon padding confused with ssid fix */
   while (tagged_parameters_len > 0) {
     if ((next_len=add_tagged_field (pinfo, tree, tvb, offset))==0)
       break;
@@ -1573,6 +1673,8 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
       proto_tree *tagged_tree;
       int offset;
       int tagged_parameter_tree_len;
+
+      g_pinfo = pinfo;
 
       CHECK_DISPLAY_AS_X(data_handle,proto_wlan_mgt, tvb, pinfo, tree);
 
@@ -1777,8 +1879,8 @@ set_src_addr_cols(packet_info *pinfo, const guint8 *addr, const char *type)
     col_add_fstr(pinfo->cinfo, COL_RES_DL_SRC, "%s (%s)",
 		    get_ether_name(addr), type);
   if (check_col(pinfo->cinfo, COL_UNRES_DL_SRC))
-    col_add_fstr(pinfo->cinfo, COL_UNRES_DL_SRC, "%s (%s)",
-		     ether_to_str(addr), type);
+    col_add_fstr(pinfo->cinfo, COL_UNRES_DL_SRC, "%s",
+		     ether_to_str(addr));
 }
 
 static void
@@ -1788,8 +1890,8 @@ set_dst_addr_cols(packet_info *pinfo, const guint8 *addr, const char *type)
     col_add_fstr(pinfo->cinfo, COL_RES_DL_DST, "%s (%s)",
 		     get_ether_name(addr), type);
   if (check_col(pinfo->cinfo, COL_UNRES_DL_DST))
-    col_add_fstr(pinfo->cinfo, COL_UNRES_DL_DST, "%s (%s)",
-		     ether_to_str(addr), type);
+    col_add_fstr(pinfo->cinfo, COL_UNRES_DL_DST, "%s",
+		     ether_to_str(addr));
 }
 
 typedef enum {
@@ -1811,7 +1913,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   guint16 seq_control;
   guint32 seq_number, frag_number;
   gboolean more_frags;
-  const guint8 *src = NULL, *dst = NULL, *bssid = NULL;
+  const guint8 *src = NULL;
+  const guint8 *dst = NULL;
+  const guint8 *bssid = NULL;
   proto_item *ti = NULL;
   proto_item *flag_item;
   proto_item *fc_item;
@@ -1831,6 +1935,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   guchar iv_buff[4];
   wlan_hdr *volatile whdr;
   static wlan_hdr whdrs[4];
+  char fc_string[9] = "........";
+
+  guint32 fcs;
+  guint32 sent_fcs;
 
   whdr= &whdrs[0];
 
@@ -1864,6 +1972,16 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     hdr_len = find_header_length (fcf);
   frame_type_subtype = COMPOSE_FRAME_TYPE(fcf);
 
+  /*if (check_col (pinfo->cinfo, COL_INFO))
+      col_set_str (pinfo->cinfo, COL_INFO,
+          val_to_str(frame_type_subtype, frame_type_subtype_vals,
+              "Unrecognized (Reserved frame)"));*/
+
+  if (check_col (pinfo->cinfo, COL_PROTOCOL))
+      col_set_str (pinfo->cinfo, COL_PROTOCOL,
+          val_to_str(frame_type_subtype, frame_type_subtype_vals,
+              "Unrecognized (Reserved frame)"));
+
   if (check_col (pinfo->cinfo, COL_INFO))
       col_set_str (pinfo->cinfo, COL_INFO,
           val_to_str(frame_type_subtype, frame_type_subtype_vals,
@@ -1871,6 +1989,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
   flags = COOK_FLAGS (fcf);
   more_frags = HAVE_FRAGMENTS (flags);
+
 
   /* Add the radio information, if present, and the FC to the current tree */
   if (tree)
@@ -2002,6 +2121,15 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       frag_number = COOK_FRAGMENT_NUMBER(seq_control);
       seq_number = COOK_SEQUENCE_NUMBER(seq_control);
 
+      if (check_col (pinfo->cinfo, COL_INFO))
+      {
+	col_append_fstr(pinfo->cinfo, COL_INFO,
+          ",SN=%d", seq_number);
+
+  	col_append_fstr(pinfo->cinfo, COL_INFO,
+          ",FN=%d",frag_number);
+      }
+
       if (tree)
 	{
 	  proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 4, 6, dst);
@@ -2108,6 +2236,42 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	      proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 10, 6, src);
 	    }
 	  break;
+
+	case CTRL_BLOCK_ACK_REQ:  
+	  {
+	    src = tvb_get_ptr (tvb, 10, 6);
+	    dst = tvb_get_ptr (tvb, 4, 6);
+
+	    set_src_addr_cols(pinfo, src, "TA");
+	    set_dst_addr_cols(pinfo, dst, "RA");
+
+	    if (tree)
+	    {
+	      proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, src);
+
+	      proto_tree_add_ether (hdr_tree, hf_addr_ta, tvb, 10, 6, dst);
+	    }
+	  /* TODO BAR */
+	  break;
+	  }
+	  
+	case CTRL_BLOCK_ACK:
+	  {
+	    src = tvb_get_ptr (tvb, 10, 6);
+	    dst = tvb_get_ptr (tvb, 4, 6);
+
+	    set_src_addr_cols(pinfo, src, "TA");
+	    set_dst_addr_cols(pinfo, dst, "RA");
+
+	    if (tree)
+	    {
+	      proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, src);
+
+	      proto_tree_add_ether (hdr_tree, hf_addr_ta, tvb, 10, 6, dst);
+	    }
+	    /* TODO BAR Format */
+	    break;
+	  }
 	}
       break;
 
@@ -2162,6 +2326,15 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       frag_number = COOK_FRAGMENT_NUMBER(seq_control);
       seq_number = COOK_SEQUENCE_NUMBER(seq_control);
 
+      if (check_col (pinfo->cinfo, COL_INFO))
+      {
+	col_append_fstr(pinfo->cinfo, COL_INFO,
+          ",SN=%d", seq_number);
+
+  	col_append_fstr(pinfo->cinfo, COL_INFO,
+          ",FN=%d",frag_number);
+      }
+      
       /* Now if we have a tree we start adding stuff */
       if (tree)
 	{
@@ -2313,28 +2486,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	}
     }
 
-  if (tree && (frame_type_subtype == DATA_QOS_DATA || frame_type_subtype == DATA_QOS_NULL)) {
-      proto_item *qos_fields;
-      proto_tree *qos_tree;
 
-      guint16 qos_control, qos_priority, qos_ack_policy;
-
-      qos_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len - 2, 2,
-				       "QoS parameters");
-      qos_tree = proto_item_add_subtree (qos_fields, ett_qos_parameters);
-
-      qos_control = tvb_get_letohs(tvb, hdr_len - 2);
-      qos_priority = COOK_QOS_PRIORITY(qos_control);
-      qos_ack_policy = COOK_QOS_ACK_POLICY(qos_control);
-      proto_tree_add_uint_format (qos_tree, hf_qos_priority, tvb,
-				  hdr_len - 2, 2, qos_priority,
-				  "Priority: %d (%s) (%s)",
-				  qos_priority, qos_tags[qos_priority], qos_acs[qos_priority]);
-      proto_tree_add_uint_format (qos_tree, hf_qos_ack_policy, tvb,
-				  hdr_len - 2, 2, qos_ack_policy,
-				  "Ack Policy: %d (%sAcknowledge)", 
-				  qos_ack_policy, qos_ack_policy ? "Do not " : "");
-  }
 
   /*
    * Only management and data frames have a body, so we don't have
@@ -2347,20 +2499,95 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       break;
 
     case DATA_FRAME:
+      {
+	if (tree && IS_DATA_QOS(frame_type_subtype)) {
+    
+	  proto_item *qos_fields;
+	  proto_tree *qos_tree;
+
+          guint16 qos_control;
+	  guint16 qos_priority;
+          guint16 qos_ack_policy;
+	  guint16 qos_eosp;
+	  guint16 qos_field_content;
+
+	  qos_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len - 2, 2,
+	      "QoS parameters");
+          qos_tree = proto_item_add_subtree (qos_fields, ett_qos_parameters);
+
+          qos_control =	      tvb_get_letohs(tvb, hdr_len - 2);
+	  qos_priority =      COOK_QOS_PRIORITY(qos_control);
+          qos_ack_policy =    COOK_QOS_ACK_POLICY(qos_control);
+	  qos_eosp =	      COOK_QOS_EOSP(qos_control);
+	  qos_field_content = COOK_QOS_FIELD_CONTENT( qos_control);
+
+          proto_tree_add_uint_format (qos_tree, hf_qos_priority, tvb,
+	      hdr_len - 2, 2, qos_priority,
+	      "Priority: %d (%s) (%s)",
+	      qos_priority, qos_tags[qos_priority], qos_acs[qos_priority]);
+
+    	  if(flags & FLAG_FROM_DS)	{
+	    proto_tree_add_boolean (qos_tree, hf_qos_eosp, tvb, 
+	      1, 1, qos_eosp);
+
+	    if(IS_DATA_CF_POLL(frame_type_subtype)) {
+	      /* txop limit */
+	      proto_tree_add_uint_format (qos_tree, hf_qos_field_content, tvb,
+      		  hdr_len - 1, 1, qos_field_content, "TXOP Limit: %d ", qos_field_content);
+	      
+	    }else {
+	      /* qap ps buffer state */
+	      proto_item *qos_ps_buf_state_fields;
+    	      proto_tree *qos_ps_buf_state_tree;
+	      guint16 buf_state;
+	      guint16 buf_ac;
+	      guint16 buf_load;
+
+	      buf_state = COOK_PS_BUF_STATE(qos_field_content);
+	      buf_ac	= COOK_PS_BUF_AC(qos_field_content);  /*access category */
+	      buf_load	= COOK_PS_BUF_LOAD(qos_field_content);
+
+	      qos_ps_buf_state_fields = proto_tree_add_text(qos_tree, tvb, hdr_len - 1, 1,
+	      "QAP PS Buffer State: 0x%x", qos_field_content);
+    	      qos_ps_buf_state_tree = proto_item_add_subtree (qos_ps_buf_state_fields, ett_qos_ps_buf_state);
+
+	      proto_tree_add_boolean (qos_ps_buf_state_tree, hf_qos_buf_state, tvb, 
+    		  1, 1, buf_state);
+	      
+	      proto_tree_add_uint_format (qos_ps_buf_state_tree, hf_qos_buf_ac, tvb,
+		  hdr_len - 1, 1, buf_ac, "Priority: %d (%s)",
+		  buf_ac, wme_acs[buf_ac]);
+	      
+	      proto_tree_add_uint_format (qos_ps_buf_state_tree, hf_qos_buf_load, tvb,
+      		  hdr_len - 1, 1, buf_load, "Buffered load: %d ", (buf_load * 4096));
+	      
+	    }
+	  } else  if(qos_eosp)  {
+	    /* txop limit requested */
+	    proto_tree_add_uint_format (qos_tree, hf_qos_field_content, tvb,
+      		  hdr_len - 1, 1, qos_field_content, "Queue Size: %d ", (qos_field_content * 254));
+	  } else  {
+	    /* queue size */
+	    proto_tree_add_uint_format (qos_tree, hf_qos_field_content, tvb,
+		  hdr_len - 1, 1, qos_field_content, "TXOP Limit Requested: %d ", qos_field_content);
+	  }
+	  
+	  proto_tree_add_uint (qos_tree, hf_qos_ack_policy, tvb, 1, 1,
+	      qos_ack_policy); 
+
+      	} /* end of qos control field */
+	  
       /*
        * No-data frames don't have a body.
        */
-      switch (frame_type_subtype)
-	{
+      if( IS_DATA_NULL(frame_type_subtype))
+	return;
+ 
+      break;
+      }
 
-	case DATA_NULL_FUNCTION:
-	case DATA_CF_ACK_NOD:
-	case DATA_CF_POLL_NOD:
-	case DATA_CF_ACK_POLL_NOD:
-	case DATA_QOS_NULL:
-	  return;
-	}
-	break;
+    case CONTROL_FRAME:
+      return;
 
     default:
       return;
@@ -2756,10 +2983,14 @@ proto_register_ieee80211 (void)
   };
 
   static const value_string tofrom_ds[] = {
-    {0,                       "Not leaving DS or network is operating in AD-HOC mode (To DS: 0  From DS: 0)"},
-    {FLAG_TO_DS,              "Frame is entering DS (To DS: 1  From DS: 0)"},
-    {FLAG_FROM_DS,            "Frame is exiting DS (To DS: 0  From DS: 1)"},
-    {FLAG_TO_DS|FLAG_FROM_DS, "Frame part of WDS (To DS: 1  From DS: 1)"},
+    {0,                       "Not leaving DS or network is operating "
+      "in AD-HOC mode (To DS: 0 From DS: 0)"},
+    {FLAG_TO_DS,              "Frame from STA to DS via an AP (To DS: 1 "
+      "From DS: 0)"},
+    {FLAG_FROM_DS,            "Frame from DS to a STA via AP(To DS: 0 "
+      "From DS: 1)"},
+    {FLAG_TO_DS|FLAG_FROM_DS, "Frame part of WDS from one AP to another "
+      "AP (To DS: 1 From DS: 1)"},
     {0, NULL}
   };
 
@@ -2839,12 +3070,35 @@ proto_register_ieee80211 (void)
     "DSSS-OFDM modulation not allowed"
   };
 
+  static const true_false_string cf_spec_man_flags = {
+    "dot11SpectrumManagementRequired TRUE",
+    "dot11SpectrumManagementRequired FALSE",
+  };
+ 
+  static const true_false_string cf_apsd_flags = {
+    "apsd implemented",
+    "apsd not implemented",
+  };
 
+  static const true_false_string cf_del_blk_ack_flags = {
+    "delayed block ack implemented",
+    "delayed block ack not implented",
+  };
+  
+  static const true_false_string cf_imm_blk_ack_flags = {
+    "immediate block ack implemented",
+    "immediate block ack not implented",
+  };  
   static const true_false_string cf_ibss_flags = {
     "Transmitter belongs to an IBSS",
     "Transmitter belongs to a BSS"
   };
 
+  static const true_false_string eosp_flag = {
+    "End of service period",
+    "Service period"
+  };
+  
   static const value_string sta_cf_pollable[] = {
     {0x00, "Station is not CF-Pollable"},
     {0x02, "Station is CF-Pollable, "
@@ -2852,6 +3106,7 @@ proto_register_ieee80211 (void)
     {0x01, "Station is CF-Pollable, "
      "requesting to be placed on the CF-polling list"},
     {0x03, "Station is CF-Pollable, requesting never to be polled"},
+    {0x0200, "QSTA requesting association in QBSS"},
     {0, NULL}
   };
 
@@ -2860,6 +3115,10 @@ proto_register_ieee80211 (void)
     {0x02, "Point coordinator at AP for delivery only (no polling)"},
     {0x01, "Point coordinator at AP for delivery and polling"},
     {0x03, "Reserved"},
+    {0x0200, "QAP (HC) does not use CFP for delivery of unicast data type frames"},
+    {0x0202, "QAP (HC) uses CFP for delivery, but does not send CF-Polls to non-QoS STAs"},
+    {0x0201, "QAP (HC) uses CFP for delivery, and sends CF-Polls to non-QoS STAs"},
+    {0x0203, "Reserved"},
     {0, NULL}
   };
 
@@ -2884,7 +3143,11 @@ proto_register_ieee80211 (void)
     {0x07, "Class 3 frame received from nonassociated station"},
     {0x08, "Disassociated because sending STA is leaving (has left) BSS"},
     {0x09, "Station requesting (re)association is not authenticated with "
-     "responding station"},
+      "responding station"},
+    {0x0A, "Disassociated because the information in the Power Capability "
+      "element is unacceptable"},
+    {0x0B, "Disassociated because the information in the Supported"
+      "Channels element is unacceptable"},
     {0x0D, "Invalid Information Element"},
     {0x0E, "Michael MIC failure"},
     {0x0F, "4-Way Handshake timeout"},
@@ -2898,6 +3161,18 @@ proto_register_ieee80211 (void)
     {0x16, "Invalid RSN IE Capabilities"},
     {0x17, "IEEE 802.1X Authentication failed"},
     {0x18, "Cipher suite is rejected per security policy"},
+    {0x20, "Disassociated for unspecified, QoS-related reason"},
+    {0x21, "Disassociated because QAP lacks sufficient bandwidth for this QSTA"},
+    {0x22, "Disassociated because of excessive number of frames that need to be "
+      "acknowledged, but are not acknowledged for AP transmissions and/or poor "
+	"channel conditions"},
+    {0x23, "Disassociated because QSTA is transmitting outside the limits of its TXOPs"},
+    {0x24, "Requested from peer QSTA as the QSTA is leaving the QBSS (or resetting)"},
+    {0x25, "Requested from peer QSTA as it does not want to use the mechanism"},
+    {0x26, "Requested from peer QSTA as the QSTA received frames using the mechanism "
+      "for which a set up is required"},
+    {0x27, "Requested from peer QSTA due to time out"},
+    {0x2D, "Peer QSTA does not support the requested cipher suite"},
     {0x00, NULL}
   };
 
@@ -2929,10 +3204,30 @@ proto_register_ieee80211 (void)
      "PBCC encoding"},
     {0x15, "Association denied due to requesting station not supporting "
      "channel agility"},
+    {0x16, "Association request rejected because Spectrum Management"
+      "capability is required"},
+    {0x17, "Association request rejected because the information in the"
+      "Power Capability element is unacceptable"},
+    {0x18, "Association request rejected because the information in the"
+      "Supported Channels element is unacceptable"},
     {0x19, "Association denied due to requesting station not supporting "
      "short slot operation"},
     {0x1A, "Association denied due to requesting station not supporting "
      "DSSS-OFDM operation"},
+    {0x20, "Unspecified, QoS-related failure"},
+    {0x21, "Association denied due to QAP having insufficient bandwidth "
+      "to handle another QSTA"},
+    {0x22, "Association denied due to excessive frame loss rates and/or "
+      "poor conditions on current operating channel"},
+    {0x23, "Association (with QBSS) denied due to requesting station not "
+      "supporting the QoS facility"},
+    {0x25, "The request has been declined."},
+    {0x26, "The request has not been successful as one or more parameters "
+      "have invalid values."},
+    {0x27, "The TS has not been created because the request cannot be honored. "
+      "However, a suggested TSPEC is provided so that the initiating QSTA may "
+	"attempt to set another TS with the suggested changes to the TSPEC."},
+    
     {0x28, "Invalid Information Element"},
     {0x29, "Group Cipher is not valid"},
     {0x2A, "Pairwise Cipher is not valid"},
@@ -2940,6 +3235,11 @@ proto_register_ieee80211 (void)
     {0x2C, "Unsupported RSN IE version"},
     {0x2D, "Invalid RSN IE Capabilities"},
     {0x2E, "Cipher suite is rejected per security policy"},
+    {0x2F, "The TS has not been created. However, the HC may be capable of "
+      "creating a TS, in response to a request, after the time indicated in the TS Delay element."},
+    {0x30, "Direct Link is not allowed in the BSS by policy"},
+    {0x31, "Destination STA is not present within this QBSS."},
+    {0x32, "The Destination STA is not a QSTA."},
     {0x00, NULL}
   };
 
@@ -2949,9 +3249,22 @@ proto_register_ieee80211 (void)
   };
 
   static const value_string action_codes[] = {
+    {0x00, "Spectrum Management"},
+    {0x01, "QoS"},
+    {0x02, "DLS"},
+    {0x03, "Block Ack"},
     {0x00, NULL}
   };
 
+  static const value_string spec_man_action[] ={
+    {0x00, "Measurement Request"},
+    {0x01, "Measurement Report"},
+    {0x02, "TPC Request"},
+    {0x03, "TPC Report"},
+    {0x04, "Channel Switch Announcement"},
+    {0x00, NULL}
+  };
+    
   static const value_string wme_action_codes[] = {
     {0x00, "Setup request"},
     {0x01, "Setup response"},
@@ -2963,6 +3276,14 @@ proto_register_ieee80211 (void)
     {0x00, "Admission accepted"},
     {0x01, "Invalid parameters"},
     {0x03, "Refused"},
+    {0x00, NULL}
+  };
+
+  static const value_string ack_policy[] = {
+    {0x00, "Normal Ack"},
+    {0x02, "No Ack"},
+    {0x01, "No explicit Ack"},
+    {0x03, "Block Ack"},
     {0x00, NULL}
   };
 
@@ -3082,11 +3403,31 @@ proto_register_ieee80211 (void)
     {&hf_qos_priority,
      {"Priority", "wlan.qos.priority", FT_UINT16, BASE_DEC, NULL, 0,
       "802.1D Tag", HFILL }},
+    
+    {&hf_qos_eosp,
+     {"EOSP", "wlan.qos.eosp", FT_BOOLEAN, 8, TFS (&eosp_flag), FLAG_EOSP,
+      "EOSP Field", HFILL }},
 
     {&hf_qos_ack_policy,
-     {"Ack Policy", "wlan.qos.ack", FT_UINT16, BASE_DEC, NULL, 0,
+     {"Ack Policy", "wlan.qos.ack", FT_UINT16, BASE_HEX,  VALS (&ack_policy), 0,
       "Ack Policy", HFILL }},
 
+    {&hf_qos_field_content,
+     {"Content", "wlan.qos.fc_content", FT_UINT16, BASE_DEC, NULL, 0,
+      "Content1", HFILL }},
+    
+/*    {&hf_qos_buffer_state,
+     {"QAP PS buffer State", "wlan.qos.ps_buf_state", FT_UINT16, BASE_DEC, NULL, 0,
+      "QAP PS buffer State", HFILL }},
+      
+    {&hf_qos_txop_dur_req,
+     {"TXOP Duration Requested", "wlan.qos.txop_dur_req", FT_UINT16, BASE_DEC, NULL, 0,
+      "TXOP Duration Requested", HFILL }},
+    
+    {&hf_qos_queue_size,
+     {"Queue Size", "wlan.qos.queue_size", FT_UINT16, BASE_DEC, NULL, 0,
+      "Queue Size", HFILL }},*/
+      
     {&hf_fcs,
      {"Frame check sequence", "wlan.fcs", FT_UINT32, BASE_HEX,
       NULL, 0, "FCS", HFILL }},
@@ -3144,8 +3485,8 @@ proto_register_ieee80211 (void)
       BASE_HEX, NULL, 0, "CCMP Extended Initialization Vector", HFILL }},
 
     {&hf_wep_key,
-     {"Key", "wlan.wep.key", FT_UINT8, BASE_DEC, NULL, 0,
-      "Key", HFILL }},
+     {"Key Index", "wlan.wep.key", FT_UINT8, BASE_DEC, NULL, 0,
+      "Key Index", HFILL }},
 
     {&hf_wep_icv,
      {"WEP ICV", "wlan.wep.icv", FT_UINT32, BASE_HEX, NULL, 0,
@@ -3207,12 +3548,12 @@ proto_register_ieee80211 (void)
 
     {&ff_cf_sta_poll,
      {"CFP participation capabilities", "wlan_mgt.fixed.capabilities.cfpoll.sta",
-      FT_UINT16, BASE_HEX, VALS (&sta_cf_pollable), 0x000C,
+      FT_UINT16, BASE_HEX, VALS (&sta_cf_pollable), 0x020C,
       "CF-Poll capabilities for a STA", HFILL }},
 
     {&ff_cf_ap_poll,
      {"CFP participation capabilities", "wlan_mgt.fixed.capabilities.cfpoll.ap",
-      FT_UINT16, BASE_HEX, VALS (&ap_cf_pollable), 0x000C,
+      FT_UINT16, BASE_HEX, VALS (&ap_cf_pollable), 0x020C,
       "CF-Poll capabilities for an AP", HFILL }},
 
     {&ff_cf_privacy,
@@ -3231,16 +3572,35 @@ proto_register_ieee80211 (void)
      {"Channel Agility", "wlan_mgt.fixed.capabilities.agility",
       FT_BOOLEAN, 16, TFS (&cf_agility_flags), 0x0080, "Channel Agility", HFILL }},
 
+    {&ff_cf_spec_man,
+     {"Spectrum Management", "wlan_mgt.fixed.capabilities.spec_man",
+      FT_BOOLEAN, 16, TFS (&cf_spec_man_flags), 0x0100, "Spectrum Management", HFILL }},
+
     {&ff_short_slot_time,
      {"Short Slot Time", "wlan_mgt.fixed.capabilities.short_slot_time",
       FT_BOOLEAN, 16, TFS (&short_slot_time_flags), 0x0400, "Short Slot Time",
       HFILL }},
 
+    {&ff_cf_apsd,
+     {"Automatic Power Save Delivery", "wlan_mgt.fixed.capabilities.apsd",
+      FT_BOOLEAN, 16, TFS (&cf_apsd_flags), 0x0800, "Automatic Power Save "
+	"Delivery", HFILL }},
+    
     {&ff_dsss_ofdm,
      {"DSSS-OFDM", "wlan_mgt.fixed.capabilities.dsss_ofdm",
       FT_BOOLEAN, 16, TFS (&dsss_ofdm_flags), 0x2000, "DSSS-OFDM Modulation",
       HFILL }},
 
+    {&ff_cf_del_blk_ack,
+     {"Delayed Block Ack", "wlan_mgt.fixed.capabilities.del_blk_ack",
+      FT_BOOLEAN, 16, TFS (&cf_del_blk_ack_flags), 0x4000, "Delayed Block "
+	"Ack", HFILL }},
+    
+    {&ff_cf_imm_blk_ack,
+     {"Immediate Block Ack", "wlan_mgt.fixed.capabilities.imm_blk_ack",
+      FT_BOOLEAN, 16, TFS (&cf_imm_blk_ack_flags), 0x8000, "Immediate Block "
+	"Ack", HFILL }},
+    
     {&ff_auth_seq,
      {"Authentication SEQ", "wlan_mgt.fixed.auth_seq",
       FT_UINT16, BASE_HEX, NULL, 0, "Authentication sequence number", HFILL }},
@@ -3361,6 +3721,7 @@ proto_register_ieee80211 (void)
     &ett_fixed_parameters,
     &ett_tagged_parameters,
     &ett_qos_parameters,
+    &ett_qos_ps_buf_state,
     &ett_wep_parameters,
     &ett_cap_tree,
     &ett_rsn_cap_tree,
