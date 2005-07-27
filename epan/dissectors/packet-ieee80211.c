@@ -2551,6 +2551,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	      "QAP PS Buffer State: 0x%x", qos_field_content);
     	      qos_ps_buf_state_tree = proto_item_add_subtree (qos_ps_buf_state_fields, ett_qos_ps_buf_state);
 
+/*	FIXME: hf_ values not defined
 	      proto_tree_add_boolean (qos_ps_buf_state_tree, hf_qos_buf_state, tvb, 
     		  1, 1, buf_state);
 	      
@@ -2560,7 +2561,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	      
 	      proto_tree_add_uint_format (qos_ps_buf_state_tree, hf_qos_buf_load, tvb,
       		  hdr_len - 1, 1, buf_load, "Buffered load: %d ", (buf_load * 4096));
-	      
+*/	      
+
 	    }
 	  } else  if(qos_eosp)  {
 	    /* txop limit requested */
