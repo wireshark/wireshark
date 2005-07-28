@@ -32,6 +32,7 @@
 #define OUI_BRIDGED	0x0080C2	/* Bridged Frame-Relay, RFC 2427 */
 					/* and Bridged ATM, RFC 2684 */
 #define	OUI_ATM_FORUM	0x00A03E	/* ATM Forum */
+#define OUI_EXTREME	0x00E02B	/* Extreme EDP/ESRP */
 #define OUI_CABLE_BPDU	0x00E02F	/* DOCSIS spanning tree BPDU */
 #define	OUI_APPLE_ATALK	0x080007	/* Appletalk */
 #define	OUI_HP		0x080009	/* Hewlett-Packard */
