@@ -1328,7 +1328,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       {
         char *ssid;
 
-        ssid = tvb_get_string(tvb, offset + 2, tag_len);
+        ssid = ep_tvb_get_string(tvb, offset + 2, tag_len);
         proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
                                tag_len, ssid);
         if (check_col (pinfo->cinfo, COL_INFO)) {
@@ -1345,7 +1345,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         } else {
           proto_item_append_text(ti, ": Broadcast");
         }
-        g_free(ssid);
 	beacon_padding++; /* padding bug */
       }
       break;

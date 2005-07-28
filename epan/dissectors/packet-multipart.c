@@ -559,11 +559,10 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 	while (line_len > 0)
 	{
 		gint colon_offset;
-		char *hdr_str = tvb_get_string(tvb, offset, next_offset - offset);
+		char *hdr_str = ep_tvb_get_string(tvb, offset, next_offset - offset);
 		char *header_str;
 
 		header_str = unfold_and_compact_mime_header(hdr_str, &colon_offset);
-		g_free(hdr_str);
 		if (colon_offset <= 0) {
 			if (tree) {
 				proto_tree_add_text(subtree, tvb, offset, next_offset - offset,

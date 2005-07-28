@@ -1082,7 +1082,7 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	 * some way we can get that string, rather than duplicating the
 	 * efforts of that routine?
 	 */
-	s = tvb_get_string(
+	s = ep_tvb_get_string(
 		tvb, start_offset + 12, (end_offset - start_offset - 12) );
 
 	/* Append string to COL_INFO */
@@ -1118,8 +1118,6 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 		
 		dcv->private_data = g_strdup(s);
 	}
-
-	g_free(s);
 }
 
 /* Dissect a pointer to a NDR string and append the string value to the
