@@ -3447,11 +3447,10 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 	a_bigbuf[0] = Dgt_msid.out[(oct & 0xf0) >> 4];
 	curr_offset++;
 
-	poctets = tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
+	poctets = ep_tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
 
 	my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
 	    &Dgt_msid);
-	g_free(poctets);
 
 	proto_tree_add_string_format(tree,
 	    ((oct & 0x07) == 3) ? hf_gsm_a_imeisv : hf_gsm_a_imsi,
@@ -3495,11 +3494,10 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 	a_bigbuf[0] = Dgt_msid.out[(oct & 0xf0) >> 4];
 	curr_offset++;
 
-	poctets = tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
+	poctets = ep_tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
 
 	my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
 	    &Dgt_msid);
-	g_free(poctets);
 
 	proto_tree_add_string_format(tree,
 	    hf_gsm_a_imei,
@@ -6723,11 +6721,10 @@ de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 
     NO_MORE_DATA_CHECK(len);
 
-    poctets = tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
+    poctets = ep_tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
 
     my_dgt_tbcd_unpack(a_bigbuf, poctets, len - (curr_offset - offset),
 	&Dgt_mbcd);
-    g_free(poctets);
 
     proto_tree_add_string_format(tree, hf_gsm_a_cld_party_bcd_num,
 	tvb, curr_offset, len - (curr_offset - offset),
@@ -6939,11 +6936,10 @@ de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 
     NO_MORE_DATA_CHECK(len);
 
-    poctets = tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
+    poctets = ep_tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
 
     my_dgt_tbcd_unpack(a_bigbuf, poctets, len - (curr_offset - offset),
 	&Dgt_mbcd);
-    g_free(poctets);
 
     proto_tree_add_string_format(tree, hf_gsm_a_clg_party_bcd_num,
 	tvb, curr_offset, len - (curr_offset - offset),

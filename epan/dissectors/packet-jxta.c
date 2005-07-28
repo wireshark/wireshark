@@ -458,7 +458,6 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
         jxta_message_tvb = tvb_new_subset(tvb, tree_offset, (gint) content_length, (gint) content_length);
         mime_dissector_handle = dissector_get_string_handle(media_type_dissector_table, content_type);
         dissected = 0 < call_dissector(mime_dissector_handle, jxta_message_tvb, pinfo, tree);        
-        g_free(content_type);
 
         if (!dissected) {
             dissector_handle_t data_handle = find_dissector("data");
@@ -632,7 +631,6 @@ static int dissect_jxta_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
                 processed = available - (guint) content_length;
             }
 
-            g_free(content_type);
         }
 
         /* Restore the saved src and dst addresses */
@@ -699,7 +697,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     }
 
     {
-        gchar * welcomeline = tvb_get_string( tvb, offset, first_linelen );
+        gchar * welcomeline = ep_tvb_get_string( tvb, offset, first_linelen );
         gchar** tokens = g_strsplit( welcomeline, " ", 6 );
         gchar** current_token = tokens;
         guint token_offset = offset;
@@ -781,7 +779,6 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
             current_token++;
             }
 
-        g_free(welcomeline);
         g_strfreev(tokens);
     }
 
@@ -855,7 +852,7 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
 
         if (content_type && (sizeof("content-type") - 1) == headername_len) {
             if (0 == tvb_strncaseeql(tvb, headername_offset, "content-type", sizeof("content-type") - 1)) {
-                *content_type = tvb_get_string(tvb, headervalue_offset, headervalue_len);
+                *content_type = ep_tvb_get_string(tvb, headervalue_offset, headervalue_len);
             }
         }
 
@@ -1133,7 +1130,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         proto_tree_add_uint(jxta_msg_tree, hf_jxta_message_namespaces_count, tvb, tree_offset, sizeof(guint16), msg_ns_count);
         tree_offset += sizeof(guint16);
 
-        namespaces = g_malloc((msg_ns_count + 2) * sizeof(const gchar *));
+        namespaces = ep_alloc((msg_ns_count + 2) * sizeof(const gchar *));
         namespaces[0] = "";
         namespaces[1] = "jxta";
 
@@ -1141,7 +1138,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         for (each_namespace = 0; each_namespace < msg_ns_count; each_namespace++) {
             guint16 namespace_len = tvb_get_ntohs(tvb, tree_offset);
 
-            namespaces[2 + each_namespace] = tvb_get_string(tvb, tree_offset + sizeof(namespace_len), namespace_len);
+            namespaces[2 + each_namespace] = ep_tvb_get_string(tvb, tree_offset + sizeof(namespace_len), namespace_len);
             proto_tree_add_item(jxta_msg_tree, hf_jxta_message_namespace_name, tvb, tree_offset, sizeof(namespace_len), FALSE);
             tree_offset += sizeof(namespace_len) + namespace_len;
         }
@@ -1158,12 +1155,6 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
             tree_offset +=
                 dissect_jxta_message_element(jxta_message_element_tvb, pinfo, jxta_msg_tree, msg_ns_count + 2, namespaces);
         }
-
-        for (each_namespace = 2; each_namespace < msg_ns_count; each_namespace++) {
-            g_free((gchar *)namespaces[each_namespace]);
-        }
-
-        g_free((gchar *)namespaces);
 
         proto_item_set_end(jxta_msg_tree_item, tvb, tree_offset);
 
@@ -1391,7 +1382,7 @@ static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, pro
             proto_tree_add_item(jxta_elem_tree, hf_jxta_element_type, tvb, tree_offset, sizeof(guint16), FALSE);
             tree_offset += sizeof(guint16);
 
-            mediatype = tvb_get_string(tvb, tree_offset, type_len);
+            mediatype = ep_tvb_get_string(tvb, tree_offset, type_len);
 
             /* remove any params */
             {
@@ -1408,7 +1399,6 @@ static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, pro
 #else
             {
                 gchar *mediatype_lowercase = g_ascii_strdown(mediatype, -1);
-                g_free(mediatype);
                 mediatype = mediatype_lowercase;
             }
 #endif
@@ -1429,7 +1419,7 @@ static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, pro
 
         element_content_tvb = tvb_new_subset(tvb, tree_offset, content_len, content_len);
 
-        if (NULL != mediatype) {
+        if (mediatype) {
             if( 0 == strcmp( "application/x-jxta-tls-block", mediatype ) ) {
                 /* If we recognize it as a TLS packet then we shuffle it off to ssl dissector. */
                 dissector_handle_t ssl_handle = find_dissector("ssl");
@@ -1442,7 +1432,6 @@ static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, pro
                                                          mediatype, element_content_tvb, pinfo, jxta_elem_tree);
             }
             
-            g_free(mediatype);
         }
 
         if (!media_type_recognized) {

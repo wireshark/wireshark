@@ -143,7 +143,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    /* this is a hideous first hack!!! */
    if(tvb_length_remaining(tvb, offset) == 12) {
         length = 12;
-        version = tvb_get_string(tvb, offset, length);
+        version = ep_tvb_get_string(tvb, offset, length);
         if(version[0] == 'R' && version[1] == 'F' && version[2] == 'B') {
             /* remove trailing \n */
             version[11] = '\0';
@@ -151,7 +151,6 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	            length, version);
 	        if (check_col(pinfo->cinfo, COL_INFO)) 
 		        col_add_str(pinfo->cinfo, COL_INFO, version);
-            g_free(version);
             offset += length;
         }
    }
