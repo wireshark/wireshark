@@ -444,7 +444,7 @@ static guint8 *
 zonenm_to_str (tvbuff_t *tvb, gint offset)
 {
     int len = tvb_get_guint8 (tvb, offset);
-    return tvb_get_string (tvb, offset+4, len);
+    return ep_tvb_get_string (tvb, offset+4, len);
 }
 
 /* Offset points to the start of the zone object */
@@ -1042,7 +1042,6 @@ dissect_swils_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
         str = zonenm_to_str (tvb, offset+4);
         proto_tree_add_string (zmbr_tree, hf_swils_zone_mbrid, tvb,
                                offset+4, idlen, str);
-        g_free (str);
         break;
     case FC_SWILS_ZONEMBR_WWN_LUN:
         proto_tree_add_string (zmbr_tree, hf_swils_zone_mbrid, tvb,
@@ -1094,7 +1093,6 @@ dissect_swils_zone_obj (tvbuff_t *tvb, proto_tree *zobj_tree, int offset)
     str = zonenm_to_str (tvb, offset+4);
     proto_tree_add_string (zobj_tree, hf_swils_zone_objname, tvb,
                            offset+4, ZONENAME_LEN (tvb, offset+4), str);
-    g_free (str);
 
     numrec = tvb_get_ntohl (tvb, offset+4+ZONENAME_LEN (tvb, offset+4));
     proto_tree_add_text (zobj_tree, tvb,
@@ -1141,7 +1139,6 @@ dissect_swils_mergereq (tvbuff_t *tvb, proto_tree *mr_tree, guint8 isreq)
                 proto_tree_add_string (mr_tree, hf_swils_zone_activezonenm, tvb,
                                        offset+4, ZONENAME_LEN (tvb, offset+4),
                                        str);
-                g_free (str);
                 
                 /* objlistlen gives the size of the active zoneset object list */ 
                 objlistlen = zonesetlen - ZONENAME_LEN (tvb, offset+4);
@@ -1289,7 +1286,6 @@ dissect_swils_sfc (tvbuff_t *tvb, proto_tree *sfc_tree, guint8 isreq)
                 proto_tree_add_string (sfc_tree, hf_swils_sfc_zonenm, tvb,
                                        offset+4, ZONENAME_LEN (tvb, offset+4),
                                        str);
-                g_free (str);
                 
                 /* objlistlen gives the size of the active zoneset object list */ 
                 objlistlen = zonesetlen - ZONENAME_LEN (tvb, offset+4);

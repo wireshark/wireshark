@@ -10273,9 +10273,8 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 		/* EA name */
 
-		name = tvb_get_string(tvb, offset, name_len);
+		name = ep_tvb_get_string(tvb, offset, name_len);
 		proto_item_append_text(item, ": %s", format_text(name, strlen(name)));
-		g_free(name);
 
 		CHECK_BYTE_COUNT_SUBR(name_len + 1);
 		proto_tree_add_item(

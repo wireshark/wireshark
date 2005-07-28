@@ -1143,7 +1143,7 @@ static guint8 *
 zonenm_to_str (tvbuff_t *tvb, gint offset)
 {
     int len = tvb_get_guint8 (tvb, offset);
-    return tvb_get_string (tvb, offset+4, len);
+    return ep_tvb_get_string (tvb, offset+4, len);
 }
 
 static void
@@ -1186,7 +1186,6 @@ dissect_fcdns_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
         str = zonenm_to_str (tvb, offset+4);
         proto_tree_add_string (zmbr_tree, hf_fcdns_zone_mbrid, tvb,
                                offset+4, idlen, str);
-        g_free (str);
         break;
     default:
         proto_tree_add_string (zmbr_tree, hf_fcdns_zone_mbrid, tvb,

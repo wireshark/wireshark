@@ -168,7 +168,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	guint8 color_resolution;
 	guint8 image_bpp;
 	guint tvb_len = tvb_reported_length(tvb);
-	char *str = tvb_get_string(tvb, 0, 6);
+	char *str = ep_tvb_get_string(tvb, 0, 6);
 	guint8 version;
 
 	/* Check whether we're processing a GIF object */
@@ -181,7 +181,6 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	} else {
 		/* Not a GIF image! */
 		version = GIF_ERROR;
-		g_free(str);
 		return;
 	}
 	/* Add summary to INFO column if it is enabled */
@@ -196,7 +195,6 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_gif, tvb, 0, -1, TRUE);
 		proto_item_append_text(ti, ", Version: %s", str);
-		g_free(str);
 		gif_tree = proto_item_add_subtree(ti, ett_gif);
 		/* GIF signature */
 		ti = proto_tree_add_item(gif_tree, hf_version, tvb, 0, 6, TRUE);
@@ -440,8 +438,6 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			}
 		} /* while */
 	}
-	else
-		g_free(str);
 }
 
 

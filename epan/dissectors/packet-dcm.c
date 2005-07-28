@@ -492,7 +492,7 @@ dcm_setSyntax(dcmItem_t *di, char *name)
     if (di->xfer != dcm_xfer_unk)
 	g_free(di->xfer);	/* free prev allocated xfer */
     di->syntax = 0;
-    di->xfer = name;
+    di->xfer = g_strdup(name);
     if (0 == *name) return;
     /* this would be faster to skip the common parts, and have a FSA to 
      * find the syntax.
@@ -660,8 +660,7 @@ dissect_dcm_assoc(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb, int offse
 	    if (ti)
 		proto_tree_add_item(dcm_tree, hf_dcm_pdi_syntax, tvb, offset, len > 65 ? 65 : len, FALSE);
 	    if (reply && di && di->valid) {
-		/* setSyntax now free's existing name, if being reset */
-		name = tvb_get_string(tvb, offset, len);
+		name = ep_tvb_get_string(tvb, offset, len);
 		dcm_setSyntax(di, name);
 	    }
 	    reply = 0;
