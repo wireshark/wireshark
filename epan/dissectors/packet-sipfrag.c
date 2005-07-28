@@ -79,7 +79,7 @@ dissect_sipfrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* For now, add all lines as unparsed strings */
 
         /* Extract & add the string. */
-        string = tvb_get_string(tvb, offset, linelen);
+        string = ep_tvb_get_string(tvb, offset, linelen);
         proto_tree_add_string_format(sipfrag_tree, hf_line,
                                      tvb, offset,
                                      linelen, string,
@@ -90,9 +90,6 @@ dissect_sipfrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (lines == 1 && check_col(pinfo->cinfo, COL_INFO)) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "(%s", string);
         }
-
-        /* Finished with this string now. */
-        g_free(string);
 
         /* Move onto next line. */
         offset = next_offset;

@@ -1277,7 +1277,7 @@ static void add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *p
 	get_integer_value(val,tvb,start,len,ok)
 
 /* NOTE - Don't forget to g_free() the str value after its usage as the
- * tvb_get_string[z]() functions return g_malloc()ed memory! */ 
+ * tvb_get_stringz() functions return g_malloc()ed memory! */ 
 #define get_text_string(str,tvb,start,len,ok) \
 	if (is_text_string(tvb_get_guint8(tvb,start))) { \
 		str = (gchar *)tvb_get_stringz(tvb,start,(gint *)&len); \
@@ -5894,7 +5894,7 @@ add_post_variable (proto_tree *tree, tvbuff_t *tvb, guint variableStart, guint v
 	char *variableBuffer;
 	char *valueBuffer;
 
-	variableBuffer = tvb_get_string(tvb, variableStart, variableLength);
+	variableBuffer = ep_tvb_get_string(tvb, variableStart, variableLength);
 
 	if (valueEnd < valueStart)
 	{
@@ -5907,7 +5907,7 @@ add_post_variable (proto_tree *tree, tvbuff_t *tvb, guint variableStart, guint v
 		valueLength = valueEnd-valueStart;
 		/* XXX - if this throws an exception, "variableBuffer"
 		   is leaked */
-		valueBuffer = tvb_get_string(tvb, valueStart, valueLength);
+		valueBuffer = ep_tvb_get_string(tvb, valueStart, valueLength);
 	}
 
 	/* Check for variables with no value */
@@ -5920,8 +5920,6 @@ add_post_variable (proto_tree *tree, tvbuff_t *tvb, guint variableStart, guint v
 
 	proto_tree_add_text (tree, tvb, variableStart, valueEnd-variableStart, "%s: %s", variableBuffer, valueBuffer);
 
-	g_free (variableBuffer);
-	g_free (valueBuffer);
 }
 
 static void
