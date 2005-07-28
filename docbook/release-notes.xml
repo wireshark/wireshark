@@ -1,0 +1,147 @@
+<?xml version="1.0"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" 
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
+
+<!-- $Id: user-guide.xml 15094 2005-07-26 18:01:25Z ulfl $ -->
+
+<!--
+DOCUMENT SECTION
+-Use this section to encode all document information
+-->
+
+  <!ENTITY DocumentTitle "<application>Ethereal</application> Release Notes">
+  <!ENTITY DocumentSubTitle "&DocumentVersion; (&SvnVersion;) for Ethereal &EtherealCurrentVersion;">
+  <!ENTITY DocumentTitleAbbreviation "Relnotes">
+
+  <!ENTITY % SvnVersionFile SYSTEM "svn_version.xml">
+  %SvnVersionFile;
+<!ENTITY DocumentLegalNotice "<para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU General Public License, Version 2 or any later version published by the Free Software Foundation.</para><para>All logos and trademarks in this document are property of their respective owner.</para>">
+
+<!--
+Ethereal Info
+-->
+  <!ENTITY EtherealCurrentVersion "0.10.12">
+  <!ENTITY EtherealWebSite "http://www.ethereal.com">
+  <!ENTITY EtherealUsersGuidePage "&EtherealWebSite;/docs/#usersguide">
+  <!ENTITY EtherealDownloadPage "&EtherealWebSite;/download.html">
+  <!ENTITY EtherealBinariesPage "&EtherealWebSite;/download.html#releases">
+  <!ENTITY EtherealAuthorsPage "&EtherealWebSite;/introduction.html#authors">
+  <!ENTITY EtherealProtocolsPage "&EtherealWebSite;/docs/dfref/">
+  <!ENTITY EtherealFAQPage "&EtherealWebSite;/faq.html">
+  <!ENTITY EtherealFAQPromiscPage "&EtherealWebSite;/faq#promiscsniff">
+  <!ENTITY EtherealMediaPage "&EtherealWebSite;/media.html">
+  <!ENTITY EtherealWikiPage "http://wiki.ethereal.com">
+  <!ENTITY EtherealWikiCaptureFiltersPage "&EtherealWikiPage;/CaptureFilters">
+  <!ENTITY EtherealWikiDisplayFiltersPage "&EtherealWikiPage;/DisplayFilters">
+  <!ENTITY EtherealWikiPreferencesPage "&EtherealWikiPage;/Preferences">
+  <!ENTITY EtherealWikiColoringRulesPage "&EtherealWikiPage;/ColoringRules">
+  <!ENTITY EtherealWikiPreferencesPage "&EtherealWikiPage;/Preferences">
+
+  <!ENTITY EtherealDevMailList "ethereal-dev[AT]ethereal.com">
+  <!ENTITY EtherealUsersMailList "ethereal-users[AT]ethereal.com">
+
+  
+<!--
+Winpcap Info
+-->
+  <!ENTITY WinPcapWebsite "http://www.winpcap.org">
+  <!ENTITY WinPcapDownloadWebsite "http://www.winpcap.org/install/default.htm">
+
+<!--
+Gnu info
+-->
+  <!ENTITY GPLWebsite "http://www.gnu.org/copyleft/gpl.html">
+
+]>
+
+<article>
+  <title>Ethereal &EtherealCurrentVersion; Release Notes</title>
+
+  <section id="WhatIs"><title>What is Ethereal?</title>
+    <para>
+      Ethereal is the world's most popular network protocol analyzer.  It
+      is used for troubleshooting, analysis, development, and education.
+    </para>
+  </section>
+
+  <section id="WhatsNew"><title>What's New</title>
+    <para>
+      Here are just a few things that this version of Ethereal has to offer:
+      <itemizedlist>
+	<listitem><para>
+	  Many security vulnerabilities have been elimited.  In related
+	  news, all protocols are now disabled by default.
+	</para></listitem>
+      </itemizedlist>
+    </para>
+  </section>
+
+  <section id="GettingEthereal"><title>Getting Ethereal</title>
+    <section><title>Microsoft Windows</title>
+      <para>
+	Download ethereal-setup-&EtherealCurrentVersion;.exe from the
+	<ulink url="http://www.ethereal.com/docs/distribution/win32/">Windows
+	download area</ulink> on the main web site.  Double-click the 
+	installer executable.
+      </para>
+    </section>
+
+    <section><title>Sun Solaris</title>
+      <para>
+	Download the appropriate package from the
+	<ulink url="http://www.ethereal.com/docs/distribution/solaris/">Solaris
+	download area</ulink> on the main web site.  Uncompress the package
+	using bzip2, and install it using pkgadd.
+      </para>
+    </section>
+
+    <section><title>Source Code</title>
+      <para>
+	Download ethereal-&EtherealCurrentVersion;.tar.gz from the
+	<ulink url="http://www.ethereal.com/docs/distribution/">main
+	download area</ulink> on the web site.  Extract the package
+	using tar and gzip.  Run "configure ; make ; make install".
+      </para>
+    </section>
+
+    <section><title>Vendor-supplied Packages</title>
+      <para>
+	Most Linux and Unix vendors supply their own Ethereal packages.
+	You can install or upgrade Ethereal using the package management
+	system specific to that platform.
+      </para>
+    </section>
+
+  </section>
+
+  <section id="RemovingEthereal"><title>Removing Ethereal</title>
+    <para>
+  <!-- XXX needs to be written -->
+    </para>
+  </section>
+
+  <section id="FileLocations"><title>File Locations</title>
+    <para>
+  <!-- XXX needs to be written -->
+    </para>
+  </section>
+
+  <section id="KnownProblems"><title>Known Problems</title>
+    <para>
+  <!-- XXX needs to be written -->
+    </para>
+  </section>
+
+  <section id="GettingHelp"><title>Getting Help</title>
+    <para>
+  <!-- XXX needs to be written -->
+    </para>
+  </section>
+
+  <section id="FAQ"><title>Frequently Asked Questions</title>
+    <para>
+  <!-- XXX needs to be written -->
+    </para>
+  </section>
+
+</article>

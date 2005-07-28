@@ -200,6 +200,10 @@ EDG_SOURCE =	\
 	$(EDG_FILES)		\
 	$(EDG_GRAPHICS)
 
+RELEASE_NOTES_SOURCE = \
+	release-notes.xml	\
+	svn_version.xml
+
 CLEANFILES =	\
 	*.chm			\
 	*.fo			\
@@ -217,7 +221,7 @@ CLEANFILES =	\
 	svn_version.xml		\
 
 
-all: eug.validated edg.validated eug edg
+all: eug.validated edg.validated release_notes.validated eug edg release_notes
 
 clean:
 	rm -rf $(CLEANFILES)
@@ -341,6 +345,47 @@ ifdef HHC
 	mkdir -p edg_chm/edg_graphics
 	cp edg_graphics/* edg_chm/edg_graphics
 	$(XSLTPROC) --stringparam base.dir edg_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path edg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
+	-$(HHC) htmlhelp.hhp
+	-mv htmlhelp.chm $@
+	-rm -r htmlhelp.hhp
+	-rm -r toc.hhc
+endif
+
+
+release_notes: release-notes-a4.pdf release-notes-us.pdf release-notes.html release-notes.chm
+
+# validate the content
+release_notes.validated: $(RELEASE_NOTES_SOURCE)
+	@ echo --- RELEASE NOTES - VALIDATING XML ---
+	$(XMLLINT) --valid --noout $<
+	touch $@
+
+# create html single page file
+release-notes.html: $(RELEASE_NOTES_SOURCE)
+	@ echo --- RELEASE NOTES - HTML ---
+	$(XSLTPROC) --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > $@
+	
+# create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
+# you will get lot's of errors, but that's ok
+release-notes-us.fo: $(RELEASE_NOTES_SOURCE)
+ifdef FOP
+	@ echo --- RELEASE NOTES - PDF US PAPER ---
+	$(XSLTPROC) --stringparam paper.type letter --nonet custom_layer_pdf.xsl $< > $@
+endif
+
+# create pdf file (through XSL-FO), portrait pages on A4 paper
+# you will get lot's of errors, but that's ok
+release-notes-a4.fo: $(RELEASE_NOTES_SOURCE)
+ifdef FOP
+	@ echo --- RELEASE NOTES - PDF A4 PAPER ---
+	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl $< > $@
+endif
+
+# create MS html help file (through html chunked pages)
+release-notes.chm: $(RELEASE_NOTES_SOURCE)
+ifdef HHC
+	@ echo --- RELEASE NOTES - MICROSOFT HTML HELP ---
+	$(XSLTPROC) --stringparam base.dir . --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
 	-$(HHC) htmlhelp.hhp
 	-mv htmlhelp.chm $@
 	-rm -r htmlhelp.hhp
