@@ -2364,7 +2364,8 @@ Fred Hoekstra		<fred.hoekstra [AT] philips.com> {
 }
 
 Ankur Aggarwal		<ankur [AT] in.athenasemi.com> {
-	IEEE 802.11 QoS decoding
+	IEEE 802.11e (QoS) decoding
+	Improved IEEE 802.11h decoding
 }
 
 And assorted fixes and enhancements by the people listed above
