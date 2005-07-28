@@ -110,7 +110,7 @@ on_destroy(GtkObject *object _U_, gpointer user_data)
 }
 
 static void
-on_notebook_switch_page()
+on_notebook_switch_page(void)
 {
 }
 

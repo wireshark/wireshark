@@ -121,7 +121,7 @@ enum {
     PROTO_LLC,
     PROTO_LLC_SNAP,
     PROTO_ETHER,
-    PROTO_OAM,
+    PROTO_OAM
 };
 
 static const value_string juniper_proto_vals[] = {

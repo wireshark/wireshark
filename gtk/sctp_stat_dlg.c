@@ -568,7 +568,7 @@ gtk_sctpstat_dlg(void)
 
 }
 
-void sctp_stat_dlg_show()
+void sctp_stat_dlg_show(void)
 {
 	if (sctp_stat_dlg != NULL)
 	{
