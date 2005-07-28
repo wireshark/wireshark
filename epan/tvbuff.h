@@ -395,6 +395,12 @@ extern gint tvb_strnlen(tvbuff_t*, gint offset, guint maxlength);
  * convert from Unicode. */
 extern char *tvb_fake_unicode(tvbuff_t *tvb, int offset, int len,
                               gboolean little_endian);
+/* Same as above but the buffer returned from this function does not have to
+ * be freed. It will be automatically freed after the packet is dissected.
+ * Buffers allocated by this function are NOT persistent.
+ */
+extern char *ep_tvb_fake_unicode(tvbuff_t *tvb, int offset, int len,
+                              gboolean little_endian);
 
 /**
  * Format the data in the tvb from offset for size ...
