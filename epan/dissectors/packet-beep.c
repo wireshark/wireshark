@@ -547,7 +547,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
   int            st_offset, msgno, ansno, seqno, size, channel, ackno, window, cc,
                  more;
 
-  char * cmd_temp = NULL;
+  const char * cmd_temp = NULL;
   int is_ANS = 0;
   st_offset = offset;
 

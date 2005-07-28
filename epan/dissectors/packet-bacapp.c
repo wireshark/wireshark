@@ -32,7 +32,7 @@
 /* some necessary forward function prototypes */
 static guint
 fApplicationTypesEnumerated (tvbuff_t *tvb, proto_tree *tree, guint offset, 
-	guint8 *label, const value_string *vs);
+	const gchar *label, const value_string *vs);
 
 static const char *bacapp_unknown_service_str = "unknown service";
 static const char *ASHRAE_Reserved_Fmt = "(%d) Reserved for Use by ASHRAE";
@@ -1473,14 +1473,14 @@ fTagHeader (tvbuff_t *tvb, guint offset, guint8 *tag_no, guint8* class_tag,
 }
 
 static guint
-fNullTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
+fNullTag (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 {
 	guint8 tag_no, class_tag;
 	guint32 lvt;
 	proto_item *ti;
 	proto_tree *subtree;
 
-	ti = proto_tree_add_text(tree, tvb, offset, 1, "%sNULL", LABEL(label));
+	ti = proto_tree_add_text(tree, tvb, offset, 1, "%sNULL", label);
 	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 	fTagHeaderTree (tvb, subtree, offset, &tag_no, &class_tag, &lvt);
 
@@ -1488,7 +1488,7 @@ fNullTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 }
 
 static guint
-fBooleanTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
+fBooleanTag (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 {
 	guint8 tag_no, class_tag;
 	guint32 lvt = 0;
@@ -1496,7 +1496,7 @@ fBooleanTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 	proto_tree *subtree;
 
 	ti = proto_tree_add_text(tree, tvb, offset, 1,
-		"%s%s", LABEL(label), lvt == 0 ? "FALSE" : "TRUE");
+		"%s%s", label, lvt == 0 ? "FALSE" : "TRUE");
 	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 	fTagHeaderTree (tvb, subtree, offset, &tag_no, &class_tag, &lvt);
 
@@ -1504,7 +1504,7 @@ fBooleanTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 }
 
 static guint
-fUnsignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
+fUnsignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 {
 	guint64 val = 0;
 	guint8 tag_no, class_tag;
@@ -1517,10 +1517,10 @@ fUnsignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 	/* only support up to an 8 byte (64-bit) integer */
 	if (fUnsigned64 (tvb, offset + tag_len, lvt, &val))
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
-			"%s(Unsigned) %" PRIu64, LABEL(label), val);
+			"%s(Unsigned) %" PRIu64, label, val);
 	else
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
-			"%s - %u octets (Unsigned)", LABEL(label), lvt);
+			"%s - %u octets (Unsigned)", label, lvt);
 	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 	fTagHeaderTree (tvb, subtree, offset, &tag_no, &class_tag, &lvt);
 	
@@ -1529,7 +1529,7 @@ fUnsignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 
 /* set split_val to zero when not needed */
 static guint
-fEnumeratedTagSplit (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label,
+fEnumeratedTagSplit (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label,
 	const value_string *vs, guint32 split_val)
 {
 	guint32 val = 0;
@@ -1544,14 +1544,14 @@ fEnumeratedTagSplit (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *labe
 	if (fUnsigned32 (tvb, offset+tag_len, lvt, &val)) {
 		if (vs)
 			ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
-				"%s %s", LABEL(label), val_to_split_str(val, split_val, vs,	
+				"%s %s", label, val_to_split_str(val, split_val, vs,	
 				ASHRAE_Reserved_Fmt,Vendor_Proprietary_Fmt));
 		else
 			ti =proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
-				"%s %u", LABEL(label), val);
+				"%s %u", label, val);
 	} else {
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
-			"%s - %u octets (enumeration)", LABEL(label), lvt);
+			"%s - %u octets (enumeration)", label, lvt);
 	}
 	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 	fTagHeaderTree (tvb, subtree, offset, &tag_no, &class_tag, &lvt);
@@ -1560,14 +1560,14 @@ fEnumeratedTagSplit (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *labe
 }
 
 static guint
-fEnumeratedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label,
+fEnumeratedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label,
 	const value_string *vs)
 {
 	return fEnumeratedTagSplit (tvb, tree, offset, label, vs, 0);
 }
 
 static guint
-fSignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
+fSignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 {
 	guint64 val = 0;
 	guint8 tag_no, class_tag;
@@ -1579,10 +1579,10 @@ fSignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 	tag_len = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
 	if (fUnsigned64 (tvb, offset + tag_len, lvt, &val))
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
-			"%s(Signed) %" PRId64, LABEL(label), (gint64) val);
+			"%s(Signed) %" PRId64, label, (gint64) val);
 	else
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
-			"%s - %u octets (Signed)", LABEL(label), lvt);
+			"%s - %u octets (Signed)", label, lvt);
 	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 	fTagHeaderTree(tvb, subtree, offset, &tag_no, &class_tag, &lvt);
 	
@@ -1590,7 +1590,7 @@ fSignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 }
 
 static guint
-fRealTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
+fRealTag (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 {
 	guint8 tag_no, class_tag;
 	guint32 lvt;
@@ -1602,7 +1602,7 @@ fRealTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 	tag_len = fTagHeader(tvb, offset, &tag_no, &class_tag, &lvt);
 	f_val = tvb_get_ntohieee_float(tvb, offset+tag_len);
 	ti = proto_tree_add_text(tree, tvb, offset, 4+tag_len,
-		"%s%f (Real)", LABEL(label), f_val);
+		"%s%f (Real)", label, f_val);
 	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 	fTagHeaderTree(tvb, subtree, offset, &tag_no, &class_tag, &lvt);
 	
@@ -1610,7 +1610,7 @@ fRealTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 }
 
 static guint
-fDoubleTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
+fDoubleTag (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 {
 	guint8 tag_no, class_tag;
 	guint32 lvt;
@@ -1622,7 +1622,7 @@ fDoubleTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 	tag_len = fTagHeader(tvb, offset, &tag_no, &class_tag, &lvt);
 	d_val = tvb_get_ntohieee_double(tvb, offset+tag_len);
 	ti = proto_tree_add_text(tree, tvb, offset, 8+tag_len,
-		"%s%lf (Double)", LABEL(label), d_val);
+		"%s%lf (Double)", label, d_val);
 	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 	fTagHeaderTree(tvb, subtree, offset, &tag_no, &class_tag, &lvt);
 	
@@ -1652,7 +1652,7 @@ fProcessId (tvbuff_t *tvb, proto_tree *tree, guint offset)
 }
 
 static guint
-fTimeSpan (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
+fTimeSpan (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 {
 	guint32 val = 0, lvt;
 	guint8 tag_no, class_tag;
@@ -1664,12 +1664,12 @@ fTimeSpan (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 	if (fUnsigned32 (tvb, offset+tag_len, lvt, &val))
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len, 
 		"%s (hh.mm.ss): %d.%02d.%02d%s", 
-		LABEL(label), 
+		label, 
 		(val / 3600), ((val % 3600) / 60), (val % 60), 
 		val == 0 ? " (indefinite)" : "");
 	else
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
-			"%s - %u octets (Signed)", LABEL(label), lvt);
+			"%s - %u octets (Signed)", label, lvt);
 	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 	fTagHeaderTree(tvb, subtree, offset, &tag_no, &class_tag, &lvt);
 
@@ -1701,7 +1701,7 @@ fWeekNDay (tvbuff_t *tvb, proto_tree *tree, guint offset)
 }
 
 static guint
-fDate (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
+fDate (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 {
 	guint32 year, month, day, weekday;
 	guint8 tag_no, class_tag;
@@ -1717,11 +1717,11 @@ fDate (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 	weekday = tvb_get_guint8(tvb, offset+tag_len+3);
 	if ((year == 255) && (day == 255) && (month == 255) && (weekday == 255))
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
-			"%sany", LABEL(label));
+			"%sany", label);
 	else
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
 			"%s%s %d, %d, (Day of Week = %s)",
-			LABEL(label), val_to_str(month,
+			label, val_to_str(month,
 				months,
 				"month (%d) not found"),
 			day, year, val_to_str(weekday,
@@ -1734,7 +1734,7 @@ fDate (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 }
 
 static guint
-fTime (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
+fTime (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 {
 	guint32 year, month, day, weekday, lvt;
 	guint8 tag_no, class_tag;
@@ -1749,11 +1749,11 @@ fTime (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 	weekday = tvb_get_guint8(tvb, offset+tag_len+3);
 	if ((year == 255) && (day == 255) && (month == 255) && (weekday == 255))
 		ti = proto_tree_add_text(tree, tvb, offset,
-			lvt+tag_len, "%sany", LABEL(label));
+			lvt+tag_len, "%sany", label);
 	else
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
 			"%s%d:%02d:%02d.%d %s = %02d:%02d:%02d.%d",
-			LABEL(label),
+			label,
 			year > 12 ? year -12 : year,
 			month, day, weekday,
 			year > 12 ? "P.M." : "A.M.",
@@ -1765,13 +1765,13 @@ fTime (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 }
 
 static guint
-fDateTime (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
+fDateTime (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 {
 	proto_tree *subtree = tree;
 	proto_item *tt;
 
 	if (label != NULL) {
-		tt = proto_tree_add_text (subtree, tvb, offset, 1, "%s", LABEL(label));
+		tt = proto_tree_add_text (subtree, tvb, offset, 1, "%s", label);
 		subtree = proto_item_add_subtree(tt, ett_bacapp_value);
 	}
 	offset = fDate    (tvb,subtree,offset,"Date: ");
@@ -1894,7 +1894,7 @@ fDestination (tvbuff_t *tvb, proto_tree *tree, guint offset)
 }
 
 static guint
-fOctetString (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label, guint32 lvt)
+fOctetString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label, guint32 lvt)
 {
 	gchar *tmp;
 
@@ -1902,7 +1902,7 @@ fOctetString (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label, guin
 		return offset;
 
 	tmp = tvb_bytes_to_str(tvb, offset, lvt);
-	proto_tree_add_text(tree, tvb, offset, lvt, "%s %s", LABEL(label), tmp);
+	proto_tree_add_text(tree, tvb, offset, lvt, "%s %s", label, tmp);
 
 	return offset + lvt;
 }
@@ -2112,7 +2112,7 @@ fPropertyIdentifier (tvbuff_t *tvb, proto_tree *tree, guint offset)
 }
 
 static guint
-fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
+fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 {
 	guint8 tag_no, class_tag, character_set;
 	guint32 lvt, l;
@@ -2214,7 +2214,7 @@ fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 				out = str_val;
 				break;
 			}
-			proto_tree_add_text(tree, tvb, offset, l, "%s'%s'", LABEL(label), out);
+			proto_tree_add_text(tree, tvb, offset, l, "%s'%s'", label, out);
 			lvt-=l;
 			offset+=l;
 		} while (lvt > 0);
@@ -2223,7 +2223,7 @@ fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
 }
 
 static guint
-fBitStringTagVS (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label,
+fBitStringTagVS (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label,
 	const value_string *src)
 {
 	guint8 tag_no, class_tag, tmp;
@@ -2243,7 +2243,7 @@ fBitStringTagVS (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label,
 					proto_tree_add_text(tree, tvb,
 						offset+i+1, 1,
 						"%s%s = TRUE",
-						LABEL(label),
+						label,
 						val_to_str((guint) (i*8 +j),
 							src,
 							ASHRAE_Reserved_Fmt));
@@ -2251,7 +2251,7 @@ fBitStringTagVS (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label,
 					proto_tree_add_text(tree, tvb,
 						offset+i+1, 1,
 						"%s%s = FALSE",
-						LABEL(label),
+						label,
 						val_to_str((guint) (i*8 +j),
 							src,
 							ASHRAE_Reserved_Fmt));
@@ -2268,19 +2268,19 @@ fBitStringTagVS (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label,
 		for (; j < 8; j++)
 			bf_arr[min(255,((lvt-2)*8)+j)] = 'x';
 		bf_arr[min(255,((lvt-2)*8)+j)] = '\0';
-		proto_tree_add_text(tree, tvb, offset, lvt, "%sB'%s'", LABEL(label), bf_arr);
+		proto_tree_add_text(tree, tvb, offset, lvt, "%sB'%s'", label, bf_arr);
 	} else {
 		for (j = 0; j < (int) (8 - unused); j++) {
 			if (tmp & (1 << (7 - j)))
 				proto_tree_add_text(tree, tvb, offset+i+1, 1,
 					"%s%s = TRUE",
-					LABEL(label),
+					label,
 					val_to_str((guint) (i*8 +j),
 						src,
 						ASHRAE_Reserved_Fmt));
 			else
 				proto_tree_add_text(tree, tvb, offset+i+1, 1,
-					"%s%s = FALSE", LABEL(label),
+					"%s%s = FALSE", label,
 					val_to_str((guint) (i*8 +j),
 						src,
 						ASHRAE_Reserved_Fmt));
@@ -2292,7 +2292,7 @@ fBitStringTagVS (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label,
 }
 
 static guint
-fBitStringTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
+fBitStringTag (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 {
 	return fBitStringTagVS (tvb, tree, offset, label, NULL);
 }
@@ -2301,7 +2301,7 @@ fBitStringTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
    with reserved and proprietarty ranges (split) */  
 static guint
 fApplicationTypesEnumeratedSplit (tvbuff_t *tvb, proto_tree *tree, guint offset, 
-	guint8 *label, const value_string *src, guint32 split_val)
+	const gchar *label, const value_string *src, guint32 split_val)
 {
 	guint8 tag_no, class_tag;
 	guint32 lvt;
@@ -2333,7 +2333,7 @@ fApplicationTypesEnumeratedSplit (tvbuff_t *tvb, proto_tree *tree, guint offset,
 				offset = fDoubleTag(tvb, tree, offset, label);
 				break;
 			case 6: /** Octet String 20.2.8 */
-				ti = proto_tree_add_text(tree, tvb, offset, tag_len, "%s (%d Characters)", LABEL(label), lvt);
+				ti = proto_tree_add_text(tree, tvb, offset, tag_len, "%s (%d Characters)", label, lvt);
 				subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &class_tag, &lvt);
 				offset = fOctetString (tvb, tree, offset, label, lvt);
@@ -2359,7 +2359,7 @@ fApplicationTypesEnumeratedSplit (tvbuff_t *tvb, proto_tree *tree, guint offset,
 			case 13: /* reserved for ASHRAE */
 			case 14:
 			case 15:
-				proto_tree_add_text(tree, tvb, offset, lvt+tag_len, "%s'reserved for ASHRAE'", LABEL(label));
+				proto_tree_add_text(tree, tvb, offset, lvt+tag_len, "%s'reserved for ASHRAE'", label);
 				offset+=lvt+tag_len;
 				break;
 			default:
@@ -2371,14 +2371,14 @@ fApplicationTypesEnumeratedSplit (tvbuff_t *tvb, proto_tree *tree, guint offset,
 
 static guint
 fApplicationTypesEnumerated (tvbuff_t *tvb, proto_tree *tree, guint offset, 
-	guint8 *label, const value_string *vs)
+	const gchar *label, const value_string *vs)
 {
   return fApplicationTypesEnumeratedSplit(tvb, tree, offset, label, vs, 0);
 }
 
 static guint
 fApplicationTypes (tvbuff_t *tvb, proto_tree *tree, guint offset, 
-	guint8 *label)
+	const gchar *label)
 {
   return fApplicationTypesEnumeratedSplit(tvb, tree, offset, label, NULL, 0);
 }
@@ -2770,7 +2770,7 @@ fConfirmedPrivateTransferAck(tvbuff_t *tvb, proto_tree *tree, guint offset)
 }
 
 static guint
-fLifeSafetyOperationRequest(tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label)
+fLifeSafetyOperationRequest(tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 {
 	guint lastoffset = 0;
 	guint8 tag_no, class_tag;
@@ -2779,7 +2779,7 @@ fLifeSafetyOperationRequest(tvbuff_t *tvb, proto_tree *tree, guint offset, guint
 	proto_item *tt;
 
 	if (label != NULL) {
-		tt = proto_tree_add_text (subtree, tvb, offset, 1, "%s", LABEL(label));
+		tt = proto_tree_add_text (subtree, tvb, offset, 1, "%s", label);
 		subtree = proto_item_add_subtree(tt, ett_bacapp_value);
 	}
 
@@ -5747,7 +5747,7 @@ proto_reg_handoff_bacapp(void)
 }
 
 guint32
-fConvertXXXtoUTF8 (const guint8 *in, size_t *inbytesleft, guint8 *out, size_t *outbytesleft, guint8 *fromcoding)
+fConvertXXXtoUTF8 (const guint8 *in, size_t *inbytesleft, guint8 *out, size_t *outbytesleft, const gchar *fromcoding)
 {  /* I don't want to let in and out be modified */
 #ifdef HAVE_CONFIG_H
 #if HAVE_ICONV_H
@@ -5760,7 +5760,7 @@ fConvertXXXtoUTF8 (const guint8 *in, size_t *inbytesleft, guint8 *out, size_t *o
      
     if ((icd = iconv_open ("UTF-8", fromcoding)) != (iconv_t) -1) {
 
-        i = iconv (icd, (char**) inpp, inbytesleft, (char**) outpp, outbytesleft);
+        i = iconv (icd, inpp, inbytesleft, (char**) outpp, outbytesleft);
 	*outpp[0] = '\0';
         iconv_close (icd);
         return i;

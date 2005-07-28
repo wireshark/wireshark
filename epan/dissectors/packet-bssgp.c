@@ -382,7 +382,7 @@ static const value_string tab_bssgp_ie_types[] = {
 
 typedef struct {
   guint8        iei;
-  char         *name;
+  const char   *name;
   guint8        presence_req;
   int           format;
   gint16        value_length; /* in bytes (read from capture)*/
@@ -574,15 +574,15 @@ tvb_get_bits8(tvbuff_t *tvb, guint64 bo, guint8 num_bits) {
   return (data & mask) >> (16 - shift_value - num_bits);
 }
 
-proto_item *
+static proto_item *
 bit_proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, 
-			guint64 bo, guint8 bl, char *value) {
+			guint64 bo, guint8 bl, const char *value) {
   /* XXX: Use varargs */
   return proto_tree_add_text(tree, tvb, get_start_octet(bo),
 			     get_num_octets_spanned(bo, bl), value);
 }
 
-proto_item *
+static proto_item *
 bit_proto_tree_add_bit_field8(proto_tree *tree, tvbuff_t *tvb,
 			      guint64 bo, guint8 bl) {
   /* XXX: Use varargs */
@@ -610,7 +610,7 @@ bit_proto_tree_add_bit_field8(proto_tree *tree, tvbuff_t *tvb,
   return pi;
 }
 
-static char*
+static const char*
 translate_abqp_reliability_class(guint8 value, build_info_t *bi) {
   switch (value) {
   case 0: 
@@ -636,7 +636,7 @@ translate_abqp_reliability_class(guint8 value, build_info_t *bi) {
     return "Unacknowledged GTP and LLC; Acknowledged RLC, Protected data"; 
   }
 }
-static char*
+static const char*
 translate_abqp_delay_class(guint8 value, build_info_t *bi) {
   switch (value) {
   case 0: 
@@ -655,7 +655,7 @@ translate_abqp_delay_class(guint8 value, build_info_t *bi) {
     return "Delay class 4 (best effort)";
   }
 }
-static char*
+static const char*
 translate_abqp_peak_throughput(guint8 value, build_info_t *bi) {
   switch (value) {
   case 0:
@@ -679,7 +679,7 @@ translate_abqp_peak_throughput(guint8 value, build_info_t *bi) {
     return "Up to 1 000 octets/s";
   }
 }
-static char*
+static const char*
 translate_abqp_precedence_class(guint8 value, build_info_t *bi) {
   switch (value) {
   case 0: 
@@ -697,7 +697,7 @@ translate_abqp_precedence_class(guint8 value, build_info_t *bi) {
     return "Normal priority";
   }
 }
-static char*
+static const char*
 translate_abqp_mean_throughput(guint8 value, build_info_t *bi) {
   switch (value) {
   case 0:
@@ -731,7 +731,7 @@ translate_abqp_mean_throughput(guint8 value, build_info_t *bi) {
     return "Best effort";
   }
 }
-static char*
+static const char*
 translate_abqp_traffic_class(guint8 value, build_info_t *bi) {
   switch (value) {
   case 0:
@@ -757,7 +757,7 @@ translate_abqp_traffic_class(guint8 value, build_info_t *bi) {
     }
   }
 }
-static char*
+static const char*
 translate_abqp_delivery_order(guint8 value, build_info_t *bi) {
   switch (value) {
   case 0: 
@@ -774,7 +774,7 @@ translate_abqp_delivery_order(guint8 value, build_info_t *bi) {
     return "Error in BSSGP dissector";
   }
 }
-static char*
+static const char*
 translate_abqp_delivery_of_erroneous_sdu(guint8 value, build_info_t *bi) {
   switch (value) {
   case 0:
@@ -799,7 +799,7 @@ translate_abqp_delivery_of_erroneous_sdu(guint8 value, build_info_t *bi) {
     }
   }
 }
-static char*
+static const char*
 translate_abqp_max_sdu_size(guint8 value, build_info_t *bi) {
   static char result[BSSGP_TRANSLATION_MAX_LEN];
 
@@ -836,7 +836,7 @@ translate_abqp_max_sdu_size(guint8 value, build_info_t *bi) {
   }
 }  
 
-static char*
+static const char*
 translate_abqp_max_bit_rate_for_ul(guint8 value, build_info_t *bi) {
   static char result[BSSGP_TRANSLATION_MAX_LEN];
 
@@ -863,12 +863,12 @@ translate_abqp_max_bit_rate_for_ul(guint8 value, build_info_t *bi) {
   return "0 kbps";
 }
 
-static char*
+static const char*
 translate_abqp_max_bit_rate_for_dl(guint8 value, build_info_t *bi) {
   return translate_abqp_max_bit_rate_for_ul(value, bi);
 }
 
-static char*
+static const char*
 translate_abqp_residual_ber(guint8 value, build_info_t *bi) {
   switch (value) {
   case 0:
@@ -899,7 +899,7 @@ translate_abqp_residual_ber(guint8 value, build_info_t *bi) {
   }
 }
 
-static char*
+static const char*
 translate_abqp_sdu_error_ratio(guint8 value, build_info_t *bi) {
   switch (value) {
   case 0:
@@ -928,7 +928,7 @@ translate_abqp_sdu_error_ratio(guint8 value, build_info_t *bi) {
   }
 }
 
-static char*
+static const char*
 translate_abqp_transfer_delay(guint8 value, build_info_t *bi) {
   static char result[BSSGP_TRANSLATION_MAX_LEN];
 
@@ -955,7 +955,7 @@ translate_abqp_transfer_delay(guint8 value, build_info_t *bi) {
   return "Reserved";
 }
 
-static char*
+static const char*
 translate_abqp_traffic_handling_priority(guint8 value, build_info_t *bi) {
   switch (value) {
   case 0:
@@ -972,16 +972,16 @@ translate_abqp_traffic_handling_priority(guint8 value, build_info_t *bi) {
   }
 }
 
-static char*
+static const char*
 translate_abqp_guaranteed_bit_rate_for_ul(guint8 value, build_info_t *bi) {
   return translate_abqp_max_bit_rate_for_ul(value, bi);
 }
-static char*
+static const char*
 translate_abqp_guaranteed_bit_rate_for_dl(guint8 value, build_info_t *bi) {
   return translate_abqp_max_bit_rate_for_ul(value, bi);
 }
 
-static char*
+static const char*
 translate_abqp_source_statistics_descriptor(guint8 value, build_info_t *bi) {
   if (bi->ul_data) {
     switch (value) {
@@ -995,7 +995,7 @@ translate_abqp_source_statistics_descriptor(guint8 value, build_info_t *bi) {
   }
 }
 
-static char*
+static const char*
 translate_abqp_max_bit_rate_for_dl_extended(guint8 value, build_info_t *bi _U_) {
   static char result[BSSGP_TRANSLATION_MAX_LEN];
 
@@ -1010,7 +1010,7 @@ translate_abqp_max_bit_rate_for_dl_extended(guint8 value, build_info_t *bi _U_) 
   return "";
 }
 
-static char*
+static const char*
 translate_abqp_guaranteed_bit_rate_for_dl_extended(guint8 value, build_info_t *bi _U_) {
   static char result[BSSGP_TRANSLATION_MAX_LEN];
 
@@ -1060,7 +1060,7 @@ translate_msrac_dtm_gprs_multislot_class(guint8 value) {
   return val_to_str(value, tab_values, "");
 }
 
-static char*
+static const char*
 translate_msrac_extended_dtm_gprs_multislot_class(guint8 value, guint8 dgmsc) {
   switch (dgmsc) {
   case 0: return "Unused, interpreted as Multislot class 5 supported";
@@ -1191,7 +1191,7 @@ translate_msrac_high_multislot_capability(guint8 capability, guint8 class) {
 }
 #endif
 
-static char*
+static const char*
 translate_channel_needed(guint8 value) {
   switch (value) {
   case 0: return "Any channel";
@@ -1610,7 +1610,7 @@ get_value_length(bssgp_ie_t *ie, build_info_t *bi) {
 
 static void
 decode_simple_ie(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset, 
-		 char *pre_str, char *post_str, 
+		 const char *pre_str, const char *post_str, 
 		 gboolean show_as_dec) {
   /* XXX: Allow mask? */
   proto_item *ti;

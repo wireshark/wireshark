@@ -63,11 +63,6 @@
 #define true 1
 #endif
 
-#ifndef LABEL
-#define LABEL(lbl) (lbl==NULL ? (guint8 *) "Value: " : lbl)
-#endif
-
-
 /* BACnet PDU Types */
 #define BACAPP_TYPE_CONFIRMED_SERVICE_REQUEST 0
 #define BACAPP_TYPE_UNCONFIRMED_SERVICE_REQUEST 1
@@ -252,7 +247,7 @@ fAbortPDU(tvbuff_t *tvb, proto_tree *tree, guint offset);
  * @return modified offset
  */
 static guint
-fUnsignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label);
+fUnsignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label);
 
 /**
  * 20.2.5, adds the label with max 64Bit signed Integer Value to tree
@@ -263,7 +258,7 @@ fUnsignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label);
  * @return modified offset
  */
 static guint
-fSignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label);
+fSignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label);
 
 /**
  * 20.2.8, adds the label with Octet String to tree; if lvt == 0 then lvt = restOfFrame
@@ -275,7 +270,7 @@ fSignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label);
  * @return modified offset
  */
 static guint
-fOctetString (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label, guint32 lvt);
+fOctetString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label, guint32 lvt);
 
 /**
  * 20.2.12, adds the label with Date Value to tree
@@ -286,7 +281,7 @@ fOctetString (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label, guin
  * @return modified offset
  */
 static guint
-fDate    (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label);
+fDate    (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label);
 
 /**
  * 20.2.13, adds the label with Time Value to tree
@@ -297,7 +292,7 @@ fDate    (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label);
  * @return modified offset
  */
 static guint
-fTime (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label);
+fTime (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label);
 
 /**
  * 20.2.14, adds Object Identifier to tree
@@ -489,7 +484,7 @@ fGetEventInformationACK (tvbuff_t *tvb, proto_tree *tree, guint offset);
  * @return modified offset
  */
 static guint
-fLifeSafetyOperationRequest(tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label);
+fLifeSafetyOperationRequest(tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label);
 
 /**
  * SubscribeCOV-Request ::= SEQUENCE {
@@ -1289,7 +1284,7 @@ fVTCloseError(tvbuff_t *tvb, proto_tree *tree, guint offset);
  * @return modified offset
  */
 static guint
-fApplicationTypes   (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label);
+fApplicationTypes   (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label);
 
 /**
  * BACnetActionCommand ::= SEQUENCE {
@@ -1415,7 +1410,7 @@ fDateRange (tvbuff_t *tvb, proto_tree *tree, guint offset);
  * @return modified offset
  */
 static guint
-fDateTime (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label);
+fDateTime (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label);
 
 /**
  * BACnetDestination ::= SEQUENCE {
@@ -1893,7 +1888,7 @@ fProcessId (tvbuff_t *tvb, proto_tree *tree, guint offset);
  * @return modified offset
  */
 static guint
-fTimeSpan (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 *label);
+fTimeSpan (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label);
 
 /**
  * BACnet Application PDUs chapter 21
@@ -2016,7 +2011,7 @@ proto_reg_handoff_bacapp(void);
  * @return count of modified characters of returned string, -1 for errors
  */
 guint32
-fConvertXXXtoUTF8(const guint8 *in, size_t *inbytesleft,guint8 *out, size_t *outbytesleft, guint8 *fromcoding);
+fConvertXXXtoUTF8(const guint8 *in, size_t *inbytesleft,guint8 *out, size_t *outbytesleft, const gchar *fromcoding);
 
 #endif /* __BACAPP_H__ */
 

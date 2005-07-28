@@ -156,14 +156,14 @@ dissect_ber_oid_NULL_callback(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 
 
 void
-register_ber_oid_dissector_handle(char *oid, dissector_handle_t dissector, int proto _U_, char *name)
+register_ber_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name)
 {
 	dissector_add_string("ber.oid", oid, dissector);
 	g_hash_table_insert(oid_table, oid, name);
 }
 
 void
-register_ber_oid_dissector(char *oid, dissector_t dissector, int proto, char *name)
+register_ber_oid_dissector(const char *oid, dissector_t dissector, int proto, const char *name)
 {
 	dissector_handle_t dissector_handle;
 
@@ -174,7 +174,7 @@ register_ber_oid_dissector(char *oid, dissector_t dissector, int proto, char *na
 
 /* Register the oid name to get translation in proto dissection */
 void
-register_ber_oid_name(char *oid, char *name)
+register_ber_oid_name(const char *oid, const char *name)
 {
 	g_hash_table_insert(oid_table, oid, name);
 }
@@ -1731,7 +1731,7 @@ int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree 
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	const asn_namedbit *nb;
-	char *sep;
+	const char *sep;
 	gboolean term;
 
 	if(!implicit_tag){
@@ -1828,7 +1828,7 @@ int dissect_ber_bitstring32(gboolean implicit_tag, packet_info *pinfo, proto_tre
 	guint32 val;
 	int **bf;
 	header_field_info *hfi;
-	char *sep;
+	const char *sep;
 	gboolean term;
 	unsigned int i, tvb_len;
 

@@ -156,7 +156,7 @@ struct _COPS_CNV
   guint class;
   guint tag;
   gint  syntax;
-  gchar *name;
+  const gchar *name;
 };
 
 static COPS_CNV CopsCnv [] =
@@ -174,7 +174,7 @@ static COPS_CNV CopsCnv [] =
   {0,       0,         -1,                  NULL}
 };
 
-static gchar *
+static const gchar *
 cops_tag_cls2syntax ( guint tag, guint cls, gushort *syntax)
 {
   COPS_CNV *cnv;
@@ -796,8 +796,8 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree
                                        guint8 s_num, guint8 s_type, int len);
 
 /* Added for PacketCable */
-static proto_tree *info_to_cops_subtree(tvbuff_t *, proto_tree *, int, int, char *);
-static proto_item *info_to_display(tvbuff_t *, proto_item *, int, int, char *, const value_string *, int, gint *);
+static proto_tree *info_to_cops_subtree(tvbuff_t *, proto_tree *, int, int, const char *);
+static proto_item *info_to_display(tvbuff_t *, proto_item *, int, int, const char *, const value_string *, int, gint *);
 
 static void cops_transaction_id(tvbuff_t *, packet_info *, proto_tree *, guint8, guint, guint32);
 static void cops_subscriber_id_v4(tvbuff_t *, proto_tree *, guint, guint32);
@@ -906,7 +906,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
-static char *cops_c_type_to_str(guint8 c_num, guint8 c_type)
+static const char *cops_c_type_to_str(guint8 c_num, guint8 c_type)
 {
   switch (c_num) {
   case COPS_OBJ_HANDLE:
@@ -969,7 +969,7 @@ static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code
   guint8 c_num, c_type;
   proto_item *ti;
   proto_tree *obj_tree;
-  char *type_str;
+  const char *type_str;
 
   object_len = tvb_get_ntohs(tvb, offset);
   if (object_len < COPS_OBJECT_HDR_SIZE) {
@@ -1329,7 +1329,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
 
   guint vb_length;
   gushort vb_type;
-  gchar *vb_type_name;
+  const gchar *vb_type_name;
 
   int ret;
   guint cls, con, tag;
@@ -2498,7 +2498,7 @@ void proto_reg_handoff_cops(void)
  */
 
 static proto_item *
-info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, char *str, const value_string *vsp, int mode,gint *hf_proto_parameter)
+info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, const char *str, const value_string *vsp, int mode,gint *hf_proto_parameter)
 {
      proto_item *pi = NULL;
      guint8   code8  = 0;
@@ -2627,7 +2627,7 @@ info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, char *st
 
 /* Print the subtree information for cops */
 static proto_tree *
-info_to_cops_subtree(tvbuff_t *tvb, proto_tree *st, int n, int offset, char *str) {
+info_to_cops_subtree(tvbuff_t *tvb, proto_tree *st, int n, int offset, const char *str) {
      proto_item *tv;
 
      tv  = proto_tree_add_uint_format( st, hf_cops_subtree, tvb, offset, n, (guint)NULL, str);

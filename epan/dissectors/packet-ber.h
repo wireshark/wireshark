@@ -153,8 +153,8 @@ typedef struct _asn_namedbit {
 	int *p_id;
 	gint32 gb0;  /* the 1st bit of "bit group", -1 = the 1st bit of current byte */
 	gint32 gb1;  /* last bit of "bit group", -1 = last bit of current byte */
-	gchar *tstr;  /* true string */
-	gchar *fstr;  /* false string */
+	const gchar *tstr;  /* true string */
+	const gchar *fstr;  /* false string */
 } asn_namedbit;
 /* this function dissects a BER BIT-STRING
  */
@@ -166,9 +166,9 @@ extern proto_item *ber_last_created_item;
 extern proto_item *get_ber_last_created_item(void);
 
 int call_ber_oid_callback(char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
-void register_ber_oid_dissector_handle(char *oid, dissector_handle_t dissector, int proto, char *name);
-void register_ber_oid_dissector(char *oid, dissector_t dissector, int proto, char *name);
-void register_ber_oid_name(char *oid, char *name);
+void register_ber_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto, const char *name);
+void register_ber_oid_dissector(const char *oid, dissector_t dissector, int proto, const char *name);
+void register_ber_oid_name(const char *oid, const char *name);
 void dissect_ber_oid_NULL_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 char * get_ber_oid_name(char *str);
 

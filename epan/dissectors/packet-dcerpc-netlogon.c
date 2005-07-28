@@ -3056,7 +3056,7 @@ netlogon_dissect_CIPHER_VALUE_DATA(tvbuff_t *tvb, int offset,
 static int
 netlogon_dissect_CIPHER_VALUE(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
-			guint8 *drep, char *name, int hf_index)
+			guint8 *drep, const char *name, int hf_index)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;

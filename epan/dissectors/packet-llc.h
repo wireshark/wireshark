@@ -33,7 +33,7 @@ void dissect_snap(tvbuff_t *, int, packet_info *, proto_tree *,
 /*
  * Add an entry for a new OUI.
  */
-void llc_add_oui(guint32, const char *, char *, hf_register_info *);
+void llc_add_oui(guint32, const char *, const char *, hf_register_info *);
 
 extern const value_string sap_vals[];
 

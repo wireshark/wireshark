@@ -381,7 +381,7 @@ static gint bgp_asn_len = 0;
  */
 static int
 decode_prefix4(proto_tree *tree, int hf_addr, tvbuff_t *tvb, gint offset,
-    guint16 tlen, char *tag)
+    guint16 tlen, const char *tag)
 {
     proto_item *ti;
     proto_tree *prefix_tree;
@@ -423,7 +423,7 @@ decode_prefix4(proto_tree *tree, int hf_addr, tvbuff_t *tvb, gint offset,
  */
 static int
 decode_prefix6(proto_tree *tree, int hf_addr, tvbuff_t *tvb, gint offset,
-    guint16 tlen, char *tag)
+    guint16 tlen, const char *tag)
 {
     proto_item        *ti;
     proto_tree        *prefix_tree;
@@ -635,7 +635,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, GString *b
  */
 static int
 decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
-    guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *tag)
+    guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, const char *tag)
 {
     int                 start_offset = offset;
     proto_item          *ti;

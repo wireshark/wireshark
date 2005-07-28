@@ -130,7 +130,7 @@ typedef struct value_name {
 
 typedef struct old_avp_info {
   guint32           code;
-  gchar            *name;
+  const gchar      *name;
   diameterDataType  type;
   const value_string *values;
 } oldAvpInfo;
@@ -1076,7 +1076,7 @@ diameter_avp_get_name(guint32 avpCode, guint32 vendorId)
   sprintf(buffer, "Unknown AVP:0x%08x", avpCode);
   return buffer;
 } /* diameter_avp_get_name */
-static gchar *
+static const gchar *
 diameter_avp_get_value(guint32 avpCode, guint32 vendorId, guint32 avpValue)
 {
   avpInfo *probe;
@@ -1158,7 +1158,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32          commandCode=0, pktLength=0;
   guint8           version=0, flags=0;
   gchar            flagstr[64] = "<None>";
-  gchar           *fstr[] = {"RSVD7", "RSVD6", "RSVD5", "RSVD4", "RSVD3", "Error", "Proxyable", "Request" };
+  const gchar     *fstr[] = {"RSVD7", "RSVD6", "RSVD5", "RSVD4", "RSVD3", "Error", "Proxyable", "Request" };
   gchar            commandString[64], vendorName[64], applicationName[64];
   gint        i;
   guint      bpos;
@@ -1536,7 +1536,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
   size_t avpDataLength;
   int avpType;
   gchar flagstr[64] = "<None>";
-  gchar *fstr[] = {"RSVD7", "RSVD6", "RSVD5", "RSVD4", "RSVD3", "Protected", "Mandatory", "Vendor-Specific" };
+  const gchar *fstr[] = {"RSVD7", "RSVD6", "RSVD5", "RSVD4", "RSVD3", "Protected", "Mandatory", "Vendor-Specific" };
   gint        i;
   guint      bpos;
 

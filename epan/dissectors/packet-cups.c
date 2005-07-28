@@ -65,8 +65,8 @@ enum                                    /* Not a typedef'd enum so we can OR */
 
 typedef struct {
 	guint32	bit;
-	char	*on_string;
-	char	*off_string;
+	const char	*on_string;
+	const char	*off_string;
 } cups_ptype_bit_info;
 
 static const cups_ptype_bit_info cups_ptype_bits[] = {

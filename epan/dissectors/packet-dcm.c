@@ -163,8 +163,8 @@ struct dcmItem {
     struct dcmItem *next, *prev;
     int valid;
     guint8 id;		/* 0x20 Presentation Context */
-    guint8 *abs;	/* 0x30 Abstract syntax */
-    char *xfer;		/* 0x40 Transfer syntax */
+    const guint8 *abs;	/* 0x30 Abstract syntax */
+    const char *xfer;	/* 0x40 Transfer syntax */
     guint8 syntax;
 #define DCM_ILE  0x01		/* implicit, little endian */
 #define DCM_EBE  0x02           /* explicit, big endian */
@@ -172,7 +172,7 @@ struct dcmItem {
 #define DCM_UNK  0xf0
 };
 typedef struct dcmItem dcmItem_t;
-static char *dcm_xfer_unk = "not found - click on ASSOC Request";
+static const char *dcm_xfer_unk = "not found - click on ASSOC Request";
 
 struct dcmState {
     dcmItem_t *first, *last;
@@ -189,7 +189,7 @@ typedef struct dcmState dcmState_t;
 struct dcmTag {
     int tag;
     int dtype;
-    char *desc;
+    const char *desc;
 #define DCM_TSTR  1
 #define DCM_TINT2 2
 #define DCM_TINT4 3
@@ -316,10 +316,10 @@ mkds(void)
     return ds;
 }
 
-char *
+const char *
 dcm_pdu2str(guint8 item)
 {
-    char *s = "";
+    const char *s = "";
     switch (item) {
     case 1: s = "ASSOC Request"; break;
     case 2: s = "ASSOC Accept"; break;
@@ -340,10 +340,10 @@ dcm_pdu2str(guint8 item)
     return s;
 }
 
-char *
+const char *
 dcm_result2str(guint8 result)
 {
-    char *s = "";
+    const char *s = "";
     switch (result) {
     case 1:  s = "Reject Permanent"; break;
     case 2:  s = "Reject Transient"; break;
@@ -352,10 +352,10 @@ dcm_result2str(guint8 result)
     return s;
 }
 
-char *
+const char *
 dcm_source2str(guint8 source)
 {
-    char *s = "";
+    const char *s = "";
     switch (source) {
     case 1:  s = "User"; break;
     case 2:  s = "Provider (ACSE)"; break;
@@ -365,10 +365,10 @@ dcm_source2str(guint8 source)
     return s;
 }
 
-char * 
+const char * 
 dcm_reason2str(guint8 source, guint8 reason)
 {
-    char *s = "";
+    const char *s = "";
     if (1 == source) switch (reason) {
 	case 1:  s = "No reason"; break;
 	case 2:  s = "App Name not supported"; break;
@@ -387,10 +387,10 @@ dcm_reason2str(guint8 source, guint8 reason)
     return s;
 }
 
-char *
+const char *
 dcm_abort2str(guint8 reason)
 {
-    char *s = "";
+    const char *s = "";
     switch (reason) {
     case 0:  s = "not specified"; break;
     case 1:  s = "unrecognized"; break;
@@ -403,10 +403,10 @@ dcm_abort2str(guint8 reason)
     return s;
 }
 
-char *
+const char *
 dcm_PCresult2str(guint8 result)
 {
-    char *s = "";
+    const char *s = "";
     switch (result) {
     case 0:  s = "accept"; break;
     case 1:  s = "user-reject"; break;
@@ -418,10 +418,10 @@ dcm_PCresult2str(guint8 result)
     return s;
 }
 
-char *
+const char *
 dcm_flags2str(guint8 flags)
 {
-    char *s = "";
+    const char *s = "";
     switch (flags) {
     case 0:  s = "Data,    more Fragments"; break;	/* 00 */
     case 1:  s = "Command, more Fragments"; break;      /* 01 */
@@ -432,10 +432,10 @@ dcm_flags2str(guint8 flags)
     return s;
 }
 
-char *
+const char *
 dcm_cmd2str(guint16 us)
 {
-    char *s = "";
+    const char *s = "";
     /* there should be a better way to do this */
     switch (us) {
     case 0x0001:  s = "C-STORE-RQ"; break;
@@ -466,10 +466,10 @@ dcm_cmd2str(guint16 us)
     return s;
 }
 
-char *
+const char *
 dcm_rsp2str(guint16 us)
 {
-    char *s = "";
+    const char *s = "";
     switch (us) {
     case 0x0000:  s = "Success"; break;
     case 0xa701:

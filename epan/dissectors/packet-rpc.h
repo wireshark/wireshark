@@ -110,7 +110,7 @@ typedef int (dissect_function_t)(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 typedef struct _vsff {
 	guint32	value;
-	gchar   *strptr;
+	const gchar   *strptr;
 	dissect_function_t *dissect_call;
 	dissect_function_t *dissect_reply;
 } vsff;
