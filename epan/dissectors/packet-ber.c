@@ -359,7 +359,7 @@ call_ber_oid_callback(char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, 
 {
 	tvbuff_t *next_tvb;
 
-	next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));
+	next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
 	if(!dissector_try_string(ber_oid_dissector_table, oid, next_tvb, pinfo, tree)){
 		proto_item *item=NULL;
 		proto_tree *next_tree=NULL;
@@ -616,7 +616,7 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 			if(len<=(guint32)tvb_length_remaining(tvb, offset)){
 				*out_tvb = tvb_new_subset(tvb, offset, len, len);
 			} else {
-				*out_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));
+				*out_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
 			}
 		}
 	}
@@ -1008,7 +1008,7 @@ ber_sequence_try_again:
 			 * length) of if the tvb is short, then just
 			 * give it all of the tvb and hope for the best.
 			 */
-			next_tvb = tvb_new_subset(tvb, hoffset, tvb_length_remaining(tvb,hoffset), tvb_length_remaining(tvb,hoffset));
+			next_tvb = tvb_new_subset(tvb, hoffset, tvb_length_remaining(tvb,hoffset), tvb_reported_length_remaining(tvb,hoffset));
 		} else {
 			next_tvb = tvb_new_subset(tvb, hoffset, eoffset-hoffset, eoffset-hoffset);
 		}
@@ -1778,7 +1778,7 @@ int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree 
 			if(len<=(guint32)tvb_length_remaining(tvb, offset)){
 				*out_tvb = tvb_new_subset(tvb, offset, len, len);
 			} else {
-				*out_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));
+				*out_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
 			}
 		}
 	}
