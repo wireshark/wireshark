@@ -121,7 +121,7 @@ extern void rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table,
     int procedure_hf);
 extern void rpc_init_prog(int proto, guint32 prog, int ett);
 extern const char *rpc_prog_name(guint32 prog);
-extern char *rpc_proc_name(guint32 prog, guint32 vers, guint32 proc);
+extern const char *rpc_proc_name(guint32 prog, guint32 vers, guint32 proc);
 extern int rpc_prog_hf(guint32 prog, guint32 vers);
 
 extern unsigned int rpc_roundup(unsigned int a);
@@ -183,7 +183,7 @@ typedef struct _rpc_proc_info_key {
 } rpc_proc_info_key;
 
 typedef struct _rpc_proc_info_value {
-	gchar		*name;
+	const gchar	*name;
 	dissect_function_t *dissect_call;
 	dissect_function_t *dissect_reply;
 } rpc_proc_info_value;

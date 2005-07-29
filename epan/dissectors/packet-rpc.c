@@ -333,11 +333,12 @@ rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table,
 
 
 /*	return the name associated with a previously registered procedure. */
-char *rpc_proc_name(guint32 prog, guint32 vers, guint32 proc)
+const char *
+rpc_proc_name(guint32 prog, guint32 vers, guint32 proc)
 {
 	rpc_proc_info_key key;
 	rpc_proc_info_value *value;
-	char *procname;
+	const char *procname;
 	static char procname_static[20];
 
 	key.prog = prog;
@@ -1495,7 +1496,7 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	static address null_address = { AT_NONE, 0, NULL };
 	rpc_call_info_key rpc_call_key;
 	rpc_call_info_value *rpc_call;
-	char *procname = NULL;
+	const char *procname = NULL;
 	char procname_static[20];
 	dissect_function_t *dissect_function = NULL;
 

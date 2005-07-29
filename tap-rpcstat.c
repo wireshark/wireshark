@@ -46,7 +46,7 @@
 
 /* used to keep track of statistics for a specific procedure */
 typedef struct _rpc_procedure_t {
-	char *proc;
+	const char *proc;
 	int num;
 	nstime_t min;
 	nstime_t max;
