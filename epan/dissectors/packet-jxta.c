@@ -44,6 +44,7 @@
 #include <epan/strutil.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
+#include <epan/emem.h>
 
 #include "packet-jxta.h"
 
