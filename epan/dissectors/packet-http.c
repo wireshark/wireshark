@@ -1326,6 +1326,13 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 
 
 			if (chunk_size > 0) {
+				/*
+				 * XXX - just use "proto_tree_add_text()"?
+				 * This means that, in Tethereal, you get
+				 * the entire chunk dumped out in hex,
+				 * in addition to whatever dissection is
+				 * done on the reassembled data.
+				 */
 				call_dissector(data_handle, data_tvb, pinfo,
 				    chunk_subtree);
 			}
