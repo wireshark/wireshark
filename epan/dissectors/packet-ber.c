@@ -159,7 +159,7 @@ void
 register_ber_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name)
 {
 	dissector_add_string("ber.oid", oid, dissector);
-	g_hash_table_insert(oid_table, oid, name);
+	g_hash_table_insert(oid_table, (gpointer)oid, (gpointer)name);
 }
 
 void
@@ -169,17 +169,17 @@ register_ber_oid_dissector(const char *oid, dissector_t dissector, int proto, co
 
 	dissector_handle=create_dissector_handle(dissector, proto);
 	dissector_add_string("ber.oid", oid, dissector_handle);
-	g_hash_table_insert(oid_table, oid, name);
+	g_hash_table_insert(oid_table, (gpointer)oid, (gpointer)name);
 }
 
 /* Register the oid name to get translation in proto dissection */
 void
 register_ber_oid_name(const char *oid, const char *name)
 {
-	g_hash_table_insert(oid_table, oid, name);
+	g_hash_table_insert(oid_table, (gpointer)oid, (gpointer)name);
 }
 
-/* Get oid name fom has table to get translation in proto dissection(packet-per.c) */
+/* Get oid name from hash table to get translation in proto dissection(packet-per.c) */
 char *
 get_ber_oid_name(char *oid)
 {
