@@ -390,7 +390,6 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 	    if(transport_info.media_port[n]!=NULL) {
 		    port = atol(transport_info.media_port[n]);
-		    g_free(transport_info.media_port[n]);
 	    }
 	    if(transport_info.media_proto[n]!=NULL) {
 		    /* Check if media protocol is RTP */
@@ -398,7 +397,6 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    /* Check if media protocol is T38 */
 		    is_t38 = ( (strcmp(transport_info.media_proto[n],"UDPTL")==0) || (strcmp(transport_info.media_proto[n],"udptl")==0) );
 
-		    g_free(transport_info.media_proto[n]);
 	    }
 	    if(transport_info.connection_address!=NULL) {
 		    if(transport_info.connection_type!=NULL) {
@@ -469,13 +467,6 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		rtp_free_hash_dyn_payload(transport_info.media[n].rtp_dyn_payload);
 	}
 
-	/* Free up 'connection info' strings */
-	if(transport_info.connection_address) {
-		g_free(transport_info.connection_address);
-	}
-	if(transport_info.connection_type!=NULL) {
-		g_free(transport_info.connection_type);
-	}
 
 	datalen = tvb_length_remaining(tvb, offset);
 	if (datalen > 0) {
@@ -611,7 +602,7 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
     return;
   tokenlen = next_offset - offset;
   /* Save connection address type */
-  transport_info->connection_type = tvb_get_string(tvb, offset, tokenlen);
+  transport_info->connection_type = ep_tvb_get_string(tvb, offset, tokenlen);
 
 
   proto_tree_add_item(sdp_connection_info_tree,
@@ -626,11 +617,11 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
     tokenlen = -1;	/* end of tvbuff */
     /* Save connection address */
     transport_info->connection_address =
-        tvb_get_string(tvb, offset, tvb_length_remaining(tvb, offset));
+        ep_tvb_get_string(tvb, offset, tvb_length_remaining(tvb, offset));
   } else {
     tokenlen = next_offset - offset;
     /* Save connection address */
-    transport_info->connection_address = tvb_get_string(tvb, offset, tokenlen);
+    transport_info->connection_address = ep_tvb_get_string(tvb, offset, tokenlen);
   }
 
   proto_tree_add_item(sdp_connection_info_tree,
@@ -910,7 +901,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
   if(next_offset != -1){
     tokenlen = next_offset - offset;
     /* Save port info */
-    transport_info->media_port[transport_info->media_count] = tvb_get_string(tvb, offset, tokenlen);
+    transport_info->media_port[transport_info->media_count] = ep_tvb_get_string(tvb, offset, tokenlen);
 
     proto_tree_add_item(sdp_media_tree, hf_media_port, tvb,
 			offset, tokenlen, FALSE);
@@ -929,7 +920,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
       return;
     tokenlen = next_offset - offset;
     /* Save port info */
-    transport_info->media_port[transport_info->media_count] = tvb_get_string(tvb, offset, tokenlen);
+    transport_info->media_port[transport_info->media_count] = ep_tvb_get_string(tvb, offset, tokenlen);
 
     /* XXX Remember Port */
     proto_tree_add_item(sdp_media_tree, hf_media_port, tvb,
@@ -944,7 +935,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 
   tokenlen = next_offset - offset;
   /* Save port protocol */
-  transport_info->media_proto[transport_info->media_count] = tvb_get_string(tvb, offset, tokenlen);
+  transport_info->media_proto[transport_info->media_count] = ep_tvb_get_string(tvb, offset, tokenlen);
 
   /* XXX Remember Protocol */
   proto_tree_add_item(sdp_media_tree, hf_media_proto, tvb,
