@@ -374,7 +374,7 @@ xmlParseFilePush( const char *filename, int checkValid
  * only called when the XML dictionary fails to load properly.
  */
 static int
-addStaticAVP(int code, gchar *name, diameterDataType type, const value_string *values)
+addStaticAVP(int code, const gchar *name, diameterDataType type, const value_string *values)
 {
   avpInfo *entry;
   ValueName *vEntry=NULL;
@@ -415,7 +415,7 @@ addStaticAVP(int code, gchar *name, diameterDataType type, const value_string *v
  * only called when the XML dictionary fails to load properly.
  */
 static int
-addVendorAVP(int code, gchar *name, diameterDataType type, const value_string *values,int vendorId)
+addVendorAVP(int code, const gchar *name, diameterDataType type, const value_string *values,int vendorId)
 {
   avpInfo *entry;
   ValueName *vEntry=NULL;
@@ -1514,7 +1514,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
   e_avphdr avph;
   gchar avpTypeString[64];
   gchar avpNameString[64];
-  gchar *valstr;
+  const gchar *valstr;
   guint32 vendorId=0;
   gchar    vendorName[64];
   int hdrLength;
