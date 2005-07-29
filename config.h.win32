@@ -218,3 +218,6 @@
 
 /* We don't know what the plugin installation directory will be. */
 #define PLUGIN_DIR NULL
+
+/* We shouldn't need this under Windows but we'll define it anyway. */
+#define HTML_VIEWER "mozilla"

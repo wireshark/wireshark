@@ -1028,7 +1028,7 @@ init_prefs() {
   prefs.gui_fileopen_preview       = 3;
   prefs.gui_ask_unsaved            = TRUE;
   prefs.gui_find_wrap              = TRUE;
-  prefs.gui_webbrowser             = g_strdup("mozilla %s");
+  prefs.gui_webbrowser             = g_strdup(HTML_VIEWER " %s");
   prefs.gui_window_title           = g_strdup("");
   prefs.gui_layout_type            = layout_type_5;
   prefs.gui_layout_content_1       = layout_pane_content_plist;

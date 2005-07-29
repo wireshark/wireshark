@@ -57,23 +57,24 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* This information comes from the LPRng HOWTO, which also describes
 		RFC 1179. http://www.astart.com/lprng/LPRng-HOWTO.html */
-	static char	*lpd_client_code[] = {
-		"Unknown command",
-		"LPC: start print / jobcmd: abort",
-		"LPR: transfer a printer job / jobcmd: receive control file",
-		"LPQ: print short form of queue status / jobcmd: receive data file",
-		"LPQ: print long form of queue status",
-		"LPRM: remove jobs",
-		"LPRng lpc: do control operation",
-		"LPRng lpr: transfer a block format print job",
-		"LPRng lpc: secure command transfer",
-		"LPRng lpq: verbose status information"
+	static value_string	*lpd_client_code[] = {
+		{ 1, "LPC: start print / jobcmd: abort" },
+		{ 2, "LPR: transfer a printer job / jobcmd: receive control file" },
+		{ 3, "LPQ: print short form of queue status / jobcmd: receive data file" },
+		{ 4, "LPQ: print long form of queue status" },
+		{ 5, "LPRM: remove jobs" },
+		{ 6, "LPRng lpc: do control operation" },
+		{ 7, "LPRng lpr: transfer a block format print job" },
+		{ 8, "LPRng lpc: secure command transfer" },
+		{ 9, "LPRng lpq: verbose status information" },
+		{ 0, NULL }
 	};
-	static char	*lpd_server_code[] = {
-		"Success: accepted, proceed",
-		"Queue not accepting jobs",
-		"Queue temporarily full, retry later",
-		"Bad job format, do not retry"
+	static value_string	*lpd_server_code[] = {
+		{ 0, "Success: accepted, proceed" },
+		{ 1, "Queue not accepting jobs" },
+		{ 2, "Queue temporarily full, retry later" },
+		{ 3, "Bad job format, do not retry" },
+		{ 0, NULL }
 	};
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -95,7 +96,7 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		if (lpr_packet_type == request) {
-			col_set_str(pinfo->cinfo, COL_INFO, lpd_client_code[code]);
+			col_set_str(pinfo->cinfo, COL_INFO, val_to_str(code, lpd_client_code, "Unknown client code: %u"));
 		}
 		else if (lpr_packet_type == response) {
 			col_set_str(pinfo->cinfo, COL_INFO, "LPD response");
@@ -122,7 +123,7 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			if (code <= 9 && printer_len != -1) {
 				proto_tree_add_text(lpd_tree, tvb, 0, 1,
-					lpd_client_code[code]);
+					val_to_str(code, lpd_client_code, "Unknown client code: %u"));
 				proto_tree_add_text(lpd_tree, tvb, 1, printer_len,
 					 "Printer/options: %s",
 					 tvb_format_text(tvb, 1, printer_len));
@@ -134,7 +135,7 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		else if (lpr_packet_type == response) {
 			if (code <= 3) {
 				proto_tree_add_text(lpd_tree, tvb, 0, 1,
-					"Response: %s", lpd_server_code[code]);
+					"Response: %s", val_to_str(code, lpd_server_code, "Unknown server code: %u"));
 			}
 			else {
 				call_dissector(data_handle,tvb, pinfo, lpd_tree);

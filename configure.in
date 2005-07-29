@@ -38,6 +38,14 @@ then
 	#
 	AC_MSG_ERROR(I couldn't find pod2html; make sure it's installed and in your path)
 fi
+AC_PATH_PROG(HTML_VIEWER, htmlview)
+if test "x$HTML_VIEWER" = x
+then
+	AC_DEFINE_UNQUOTED(HTML_VIEWER, "mozilla", [HTML viewer, e.g. mozilla])
+else
+	AC_DEFINE_UNQUOTED(HTML_VIEWER, "htmlview", [HTML viewer, e.g. mozilla])
+fi
+
 AC_PATH_PROG(LEX, flex)
 AC_PATH_PROG(PYTHON, python)
 
