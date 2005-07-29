@@ -346,6 +346,7 @@ void radius_ifid(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_
 
 
 static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, guint length) {
+	proto_item* item;
 	gboolean last_eap = FALSE;
 	guint8* eap_buffer = NULL;
 	guint eap_seg_num = 0;
@@ -374,8 +375,9 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 		proto_tree* avp_tree;
 		
 		if (length < 2) {
-			proto_tree_add_text(tree, tvb, offset, 0,
-					    "[Not enough room in packet for AVP header]");
+			item = proto_tree_add_text(tree, tvb, offset, 0,
+					    "Not enough room in packet for AVP header");
+			PROTO_ITEM_SET_GENERATED(item);
 			return;
 		}
 		avp_type = tvb_get_guint8(tvb,offset);
@@ -388,8 +390,9 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 		}
 
 		if (length < avp_length) {
-			proto_tree_add_text(tree, tvb, offset, 0,
-					    "[Not enough room in packet for AVP]");
+			item = proto_tree_add_text(tree, tvb, offset, 0,
+					    "Not enough room in packet for AVP");
+			PROTO_ITEM_SET_GENERATED(item);
 			return;
 		}
 		
