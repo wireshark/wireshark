@@ -476,6 +476,17 @@ fragment_set_partial_reassembly(packet_info *pinfo, guint32 id, GHashTable *frag
 
 	fd_head = g_hash_table_lookup(fragment_table, &key);
 
+	/*
+	 * XXX - why not do all the stuff done early in "fragment_add_work()",
+	 * turning off FD_DEFRAGMENTED and pointing the fragments' data
+	 * pointers to the appropriate part of the already-reassembled
+	 * data, and clearing the data length and "reassembled in" frame
+	 * number, here?  We currently have a hack in the TCP dissector
+	 * not to set the "reassembled in" value if the "partial reassembly"
+	 * flag is set, so that in the first pass through the packets
+	 * we don't falsely set a packet as reassembled in that packet
+	 * if the dissector decided that even more reassembly was needed.
+	 */
 	if(fd_head){
 		fd_head->flags |= FD_PARTIAL_REASSEMBLY;
 	}
@@ -600,6 +611,7 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 		fd_head->flags ^= FD_DEFRAGMENTED|FD_PARTIAL_REASSEMBLY;
 		fd_head->flags &= (~FD_TOOLONGFRAGMENT) & (~FD_MULTIPLETAILS);
 		fd_head->datalen=0;
+		fd_head->reassembled_in=0;
 	}
 
 	if (!more_frags) {

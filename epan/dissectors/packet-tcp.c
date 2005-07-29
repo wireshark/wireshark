@@ -1941,12 +1941,15 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				 */
 				show_fragment_tree(ipfd_head, &tcp_segment_items,
 					tree, pinfo, next_tvb, &frag_tree_item);
-                /* the toplevel fragment subtree is now behind all desegmented data,
-                 * move it right behind the TCP tree */
-                tcp_tree_item = proto_tree_get_parent(tcp_tree);
-                if(frag_tree_item && tcp_tree_item) {
-                    proto_tree_move_item(tree, tcp_tree_item, frag_tree_item);
-                }
+				/*
+				 * The toplevel fragment subtree is now
+				 * behind all desegmented data; move it
+				 * right behind the TCP tree.
+				 */
+				tcp_tree_item = proto_tree_get_parent(tcp_tree);
+				if(frag_tree_item && tcp_tree_item) {
+					proto_tree_move_item(tree, tcp_tree_item, frag_tree_item);
+				}
 
 				/* Did the subdissector ask us to desegment
 				   some more data?  This means that the data
@@ -2066,14 +2069,15 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	}
 
 	if (!called_dissector || pinfo->desegment_len != 0) {
-		if (ipfd_head != NULL && ipfd_head->reassembled_in != 0) {
+		if (ipfd_head != NULL && ipfd_head->reassembled_in != 0 &&
+		    !(ipfd_head->flags & FD_PARTIAL_REASSEMBLY)) {
 			/*
 			 * We know what frame this PDU is reassembled in;
 			 * let the user know.
 			 */
 			item=proto_tree_add_uint(tcp_tree, hf_tcp_reassembled_in,
 			    tvb, 0, 0, ipfd_head->reassembled_in);
-            PROTO_ITEM_SET_GENERATED(item);
+			PROTO_ITEM_SET_GENERATED(item);
 		}
 
 		/*
