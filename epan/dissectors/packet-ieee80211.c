@@ -1936,9 +1936,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   static wlan_hdr whdrs[4];
   char fc_string[9] = "........";
 
-  guint32 fcs;
-  guint32 sent_fcs;
-
   whdr= &whdrs[0];
 
   if (check_col (pinfo->cinfo, COL_PROTOCOL))
@@ -2472,6 +2469,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	    {
 	      guint32 fcs = crc32_802_tvb(tvb, hdr_len + len);
 	      guint32 sent_fcs = tvb_get_ntohl(tvb, hdr_len + len);
+
 	      if (fcs == sent_fcs)
 		proto_tree_add_uint_format(hdr_tree, hf_fcs, tvb,
 			hdr_len + len, 4, sent_fcs,
