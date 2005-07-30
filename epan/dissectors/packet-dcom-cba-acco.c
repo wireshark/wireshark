@@ -35,6 +35,7 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 #include "packet-dcom.h"
+#include "packet-dcom-cba-acco.h"
 
 static int hf_cba_acco_opnum = -1;
 
