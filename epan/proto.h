@@ -98,7 +98,7 @@ typedef struct _protocol protocol_t;
  * @param expression expression to test in the assertion
  */
 #define DISSECTOR_ASSERT(expression)  \
-  ((void) ((expression) ? 0 : \
+  ((void) ((expression) ? (void)0 : \
    __DISSECTOR_ASSERT (expression, __FILE__, __LINE__)))
 
 /** Same as DISSECTOR_ASSERT(), but will throw DissectorError exception
