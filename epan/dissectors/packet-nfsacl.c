@@ -73,7 +73,7 @@ static gint ett_nfsacl_aclent_entries = -1;
 
 static int
 dissect_nfsacl_mask(tvbuff_t *tvb, int offset, proto_tree *tree, 
-		char *name)
+		const char *name)
 {
 	guint32 mask;
 	proto_item *mask_item = NULL;

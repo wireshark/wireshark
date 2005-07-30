@@ -487,7 +487,7 @@ static gint ett_h248_Value = -1;
 /*--- End of included file: packet-h248-ett.c ---*/
 
 
-static gchar* command_string;
+static const gchar* command_string;
 static gboolean it_is_wildcard;
 
 static dissector_handle_t h248_term_handle;
