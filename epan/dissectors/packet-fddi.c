@@ -187,7 +187,7 @@ capture_fddi(const guchar *pd, int len, packet_counts *ld)
 
 } /* capture_fddi */
 
-static gchar *
+static const gchar *
 fddifc_to_str(int fc)
 {
   static gchar strbuf[128+1];
@@ -265,7 +265,7 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
   proto_tree *fh_tree = NULL;
   proto_item *ti;
-  gchar      *fc_str;
+  const gchar *fc_str;
   proto_tree *fc_tree;
   static guchar src[6], dst[6];
   guchar     src_swapped[6], dst_swapped[6];

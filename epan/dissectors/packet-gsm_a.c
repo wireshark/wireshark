@@ -1514,7 +1514,7 @@ be_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
     guint8	oct;
     guint32	value;
     guint32	curr_offset;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
     curr_offset = offset;
 
@@ -1824,7 +1824,7 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
     guint8	sdi;
     guint8	num_chan;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -2367,7 +2367,7 @@ be_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar *str;
 
     len = len;
     curr_offset = offset;
@@ -2600,7 +2600,7 @@ be_chosen_chan(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str = NULL;
+    const gchar *str = NULL;
 
     len = len;
     curr_offset = offset;
@@ -2730,7 +2730,7 @@ be_for_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str = NULL;
+    const gchar *str = NULL;
 
     len = len;
     curr_offset = offset;
@@ -2774,7 +2774,7 @@ be_chosen_enc_alg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str = NULL;
+    const gchar *str = NULL;
 
     len = len;
     curr_offset = offset;
@@ -2819,7 +2819,7 @@ be_cct_pool(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str = NULL;
+    const gchar *str = NULL;
 
     len = len;
     curr_offset = offset;
@@ -2863,7 +2863,7 @@ be_curr_chan_1(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar *str;
 
     len = len;
     curr_offset = offset;
@@ -2970,8 +2970,8 @@ be_speech_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str = NULL;
-    gchar	*short_str = NULL;
+    const gchar *str = NULL;
+    const gchar	*short_str = NULL;
 
     len = len;
     curr_offset = offset;
@@ -3671,7 +3671,7 @@ de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
     guint8	oct;
     guint32	value;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar *str;
 
     len = len;
     curr_offset = offset;
@@ -3749,7 +3749,7 @@ de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
     guint32	curr_offset;
     proto_tree	*subtree;
     proto_item	*item;
-    gchar	*str;
+    const gchar *str;
 
     len = len;
     curr_offset = offset;
@@ -3800,7 +3800,7 @@ de_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar *str;
 
     len = len;
     curr_offset = offset;
@@ -4993,7 +4993,7 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -5074,7 +5074,7 @@ de_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar *str;
 
     len = len;
     curr_offset = offset;
@@ -5251,7 +5251,7 @@ de_day_saving_time(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -5295,7 +5295,7 @@ de_aux_states(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -5367,7 +5367,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
     guint32	saved_offset;
     proto_tree	*subtree;
     proto_item	*item;
-    gchar	*str;
+    const gchar *str;
 
 #define	DE_BC_ITC_SPEECH	0x00
 #define	DE_BC_ITC_UDI		0x01
@@ -6569,7 +6569,7 @@ de_call_state(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
     guint32	curr_offset;
     proto_tree	*subtree;
     proto_item	*item;
-    gchar	*str;
+    const gchar *str;
 
     len = len;
     curr_offset = offset;
@@ -6652,7 +6652,7 @@ de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
     guint8	ton;
     guint8	*poctets;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -6750,7 +6750,7 @@ de_cld_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -6817,7 +6817,7 @@ de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
     guint8	ton;
     guint8	*poctets;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -6965,7 +6965,7 @@ de_clg_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -7031,7 +7031,7 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
     guint8	oct;
     guint8	cause;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -7611,7 +7611,7 @@ de_prog_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar *str;
 
     len = len;
     curr_offset = offset;
@@ -7719,7 +7719,7 @@ de_repeat_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar *str;
 
     len = len;
     curr_offset = offset;
@@ -7758,7 +7758,7 @@ de_ss_ver_ind(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -7821,7 +7821,7 @@ de_cp_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar *str;
 
     len = len;
     curr_offset = offset;
@@ -7941,7 +7941,7 @@ de_rp_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar *str;
 
     curr_offset = offset;
 
@@ -8019,7 +8019,7 @@ de_gmm_attach_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar       *str;
+    const gchar	*str;
     
     len = len;
     curr_offset = offset;
@@ -8055,8 +8055,8 @@ de_gmm_attach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
     guint8	oct;
     guint8      oct_ciph;
     guint32	curr_offset;
-    gchar       *str_follow;
-    gchar       *str_attach;
+    const gchar	*str_follow;
+    const gchar	*str_attach;
     proto_item  *tf = NULL;
     proto_tree      *tf_tree = NULL;
     
@@ -8120,7 +8120,7 @@ de_gmm_ciph_alg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar *str;
     
     len = len;
     curr_offset = offset;
@@ -8161,7 +8161,7 @@ de_gmm_tmsi_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar *str;
     
     len = len;
     curr_offset = offset;
@@ -8196,8 +8196,8 @@ de_gmm_detach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar       *str;
-    gchar	*str_power;
+    const gchar	*str;
+    const gchar *str_power;
     proto_item  *tf = NULL;
     proto_tree      *tf_tree = NULL;
     
@@ -8312,8 +8312,8 @@ de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar       *str;
-    gchar	str_val[]="00";
+    const gchar	*str;
+    gchar	str_val[3];
     proto_item  *tf = NULL;
     proto_tree  *tf_tree = NULL;
     
@@ -8365,9 +8365,11 @@ de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
     	case 96: str="288"; break;
     	case 97: str="320"; break;
     	case 98: str="352"; break;
-	default: str=str_val;
-		str[0]=oct/10+'0';
-		str[1]=oct%10+'0';
+	default:
+		str_val[0]=oct/10+'0';
+		str_val[1]=oct%10+'0';
+		str_val[2]=0;
+		str=str_val;
     }
 
     proto_tree_add_text(tf_tree,
@@ -8396,7 +8398,7 @@ de_gmm_ftostby(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar       *str;
+    const gchar	*str;
     
     len = len;
     curr_offset = offset;
@@ -8430,7 +8432,7 @@ de_gmm_ftostby_h(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar       *str;
+    const gchar	*str;
     
     len = len;
     curr_offset = offset;
@@ -8527,7 +8529,7 @@ de_gmm_ident_type2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar       *str;
+    const gchar	*str;
     
     len = len;
     curr_offset = offset;
@@ -8563,7 +8565,7 @@ de_gmm_imeisv_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar       *str;
+    const gchar	*str;
     
     len = len;
     curr_offset = offset;
@@ -8825,7 +8827,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
     guint       add_ocetets;	/* octets which are covered by one element -1 */
     guint       curr_bits_length;
     guchar	acc_type;
-    gchar       *str;
+    const gchar	*str;
     gchar       multi_slot_str[64][230] = {
     	"Not specified", /* 00 */
     	"Max Rx-Slot/TDMA:1 Max Tx-Slot/TDMA:1 Max-Sum-Slot/TDMA:2 Tta:3 Ttb:2 Tra:4 Trb:2 Type:1", /* 01 */
@@ -10175,7 +10177,7 @@ de_gmm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar       *str;
+    const gchar	*str;
     
     len = len;
     curr_offset = offset;
@@ -10296,7 +10298,7 @@ de_gmm_update_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar       *str;
+    const gchar	*str;
     
     len = len;
     curr_offset = offset;
@@ -10335,8 +10337,8 @@ de_gmm_update_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
     guint8	oct;
     guint8	oct_ciph;
     guint32	curr_offset;
-    gchar       *str_follow;
-    gchar       *str_update;
+    const gchar	*str_follow;
+    const gchar	*str_update;
     proto_item  *tf = NULL;
     proto_tree      *tf_tree = NULL;
     
@@ -10459,7 +10461,7 @@ de_gmm_service_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     guint8	oct;
     guint8	oct_ciph;
     guint32	curr_offset;
-    gchar	*str;
+    const gchar *str;
     
     len = len;
     curr_offset = offset;
@@ -10586,7 +10588,7 @@ de_gmm_net_feat_supp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar       *str;
+    const gchar	*str;
     
     len = len;
     curr_offset = offset;
@@ -10621,7 +10623,7 @@ de_gc_timer(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
     guint8	oct;
     guint16	val;
     guint32	curr_offset;
-    gchar       *str;
+    const gchar	*str;
     
     len = len;
     curr_offset = offset;
@@ -10665,7 +10667,7 @@ de_gc_timer2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
     guint8	oct;
     guint16	val;
     guint32	curr_offset;
-    gchar       *str;
+    const gchar	*str;
     
     len = len;
     curr_offset = offset;
@@ -10706,7 +10708,7 @@ de_gc_radio_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar       *str;
+    const gchar	*str;
     
     len = len;
     curr_offset = offset;
@@ -10741,7 +10743,7 @@ de_gc_radio_prio2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar       *str;
+    const gchar	*str;
     
     len = len;
     curr_offset = offset;
@@ -10998,7 +11000,7 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 {
     guint32	curr_offset;
     guint	curr_len;
-    gchar       *str;
+    const gchar	*str;
     guchar      oct;
     guchar      oct2;
     struct e_in6_addr ipv6_addr;
@@ -11139,7 +11141,7 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
     guint32	curr_offset;
     guint	curr_len;
     guchar       oct;
-    gchar       *str;
+    const gchar	*str;
     
     curr_len = len;
     curr_offset = offset;
@@ -11698,7 +11700,7 @@ de_sm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 {
     guint8	oct;
     guint32	curr_offset;
-    gchar       *str;
+    const gchar	*str;
     
     len = len;
     curr_offset = offset;
@@ -11905,7 +11907,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
     guchar	op_code;
     guchar	pkt_fil_count;
     guchar      e_bit;
-    gchar	*str;
+    const gchar *str;
     guchar      count;
     guchar	oct;
     
@@ -12571,7 +12573,7 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
  * Type Length Value (TLV) element dissector
  */
 static guint8
-elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len, gchar *name_add)
+elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add)
 {
     guint8		oct, parm_len;
     guint8		consumed;
@@ -12648,7 +12650,7 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, gu
  * is not defined for these.
  */
 static guint8
-elem_tv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, gchar *name_add)
+elem_tv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add)
 {
     guint8		oct;
     guint8		consumed;
@@ -12719,7 +12721,7 @@ elem_tv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, gui
  * is not defined for these.
  */
 static guint8
-elem_tv_short(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, gchar *name_add)
+elem_tv_short(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add)
 {
     guint8		oct;
     guint8		consumed;
@@ -12786,7 +12788,7 @@ elem_tv_short(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int id
  * Type (T) element dissector
  */
 static guint8
-elem_t(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, gchar *name_add)
+elem_t(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, const gchar *name_add)
 {
     guint8		oct;
     guint32		curr_offset;
@@ -12821,7 +12823,7 @@ elem_t(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guin
  * Length Value (LV) element dissector
  */
 static guint8
-elem_lv(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset, guint len, gchar *name_add)
+elem_lv(tvbuff_t *tvb, proto_tree *tree, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add)
 {
     guint8		parm_len;
     guint8		consumed;
@@ -14389,7 +14391,7 @@ dtap_mm_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     guint8	oct;
     proto_tree	*subtree;
     proto_item	*item;
-    gchar	*str;
+    const gchar *str;
 
     curr_offset = offset;
     curr_len = len;
@@ -14488,7 +14490,7 @@ dtap_mm_id_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     guint	curr_len;
     proto_tree	*subtree;
     proto_item	*item;
-    gchar	*str;
+    const gchar *str;
 
     curr_offset = offset;
     curr_len = len;
@@ -14645,7 +14647,7 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     guint8	oct;
     proto_tree	*subtree;
     proto_item	*item;
-    gchar	*str;
+    const gchar *str;
 
     curr_offset = offset;
     curr_len = len;
@@ -15143,7 +15145,7 @@ dtap_cc_congestion_control(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
     guint8	oct;
     proto_tree	*subtree;
     proto_item	*item;
-    gchar	*str;
+    const gchar *str;
 
     curr_offset = offset;
     curr_len = len;

@@ -351,7 +351,7 @@ static void dissect_gnutella_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	proto_tree *gnutella_query_tree;
 	guint8 payload_descriptor;
 	guint32 size = 0;
-	char *payload_descriptor_text;
+	const char *payload_descriptor_text;
 
 	if (tree) {
 		ti = proto_tree_add_item(tree,

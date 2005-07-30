@@ -2237,7 +2237,7 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
 
   start_off = cur_off;
   if (dns_tree) {
-    char *s = (isupdate ?  "Zone" : "Queries");
+    const char *s = (isupdate ?  "Zone" : "Queries");
     ti = proto_tree_add_text(dns_tree, tvb, start_off, -1, s);
     qatree = proto_item_add_subtree(ti, ett_dns_qry);
   }
@@ -2253,7 +2253,7 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
 
 static int
 dissect_answer_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
-    int count, column_info *cinfo, proto_tree *dns_tree, char *name,
+    int count, column_info *cinfo, proto_tree *dns_tree, const char *name,
     packet_info *pinfo)
 {
   int start_off, add_off;

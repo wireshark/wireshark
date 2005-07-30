@@ -361,7 +361,7 @@ static GMemChunk *rtcp_conversations = NULL;
 void rtcp_add_address( packet_info *pinfo,
                        address *addr, int port,
                        int other_port,
-                       gchar *setup_method, guint32 setup_frame_number)
+                       const gchar *setup_method, guint32 setup_frame_number)
 {
 	address null_addr;
 	conversation_t* p_conv;
@@ -1170,7 +1170,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
                                         "Chunk: %u -- Null Terminator ",
                                         count);
                 } else if (( value & 0x8000 )) {
-                    gchar* run_type = (value & 0x4000) ? "1s" : "0s";
+                    const gchar* run_type = (value & 0x4000) ? "1s" : "0s";
                     value &= 0x7FFF;
                     proto_tree_add_text(chunks_tree, tvb, offset, 2,
                                         "Chunk: %u -- Length Run %s, length: %u",

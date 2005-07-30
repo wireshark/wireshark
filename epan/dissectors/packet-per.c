@@ -288,7 +288,7 @@ dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_t
 
 /* XXX we dont do >64k length strings   yet */
 guint32
-dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len, char *alphabet, int alphabet_length, char *info_str, guint32 info_str_len)
+dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len, const char *alphabet, int alphabet_length, char *info_str, guint32 info_str_len)
 {
 	guint32 length;
 	gboolean byte_aligned;
@@ -917,7 +917,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	   22.8 extension marker == 1
 */
 guint32
-dissect_per_choice(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, gint ett_index, const per_choice_t *choice, char *name, guint32 *value)
+dissect_per_choice(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, gint ett_index, const per_choice_t *choice, const char *name, guint32 *value)
 {
 	gboolean extension_present, extension_flag;
 	int extension_root_entries;
@@ -1067,7 +1067,7 @@ printf("new_offset:%d  offset:%d  length*8:%d\n",new_offset,offset,length*8);
 }
 
 
-static char *
+static const char *
 index_get_optional_name(const per_sequence_t *sequence, int index)
 {
 	int i;
@@ -1083,7 +1083,7 @@ index_get_optional_name(const per_sequence_t *sequence, int index)
 	return "<unknown type>";
 }
 
-static char *
+static const char *
 index_get_extension_name(const per_sequence_t *sequence, int index)
 {
 	int i;

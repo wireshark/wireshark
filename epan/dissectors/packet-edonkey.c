@@ -239,7 +239,7 @@ static const value_string edonkey_search_conds[] = {
 /* Dissects a generic eDonkey list */
 static int dissect_edonkey_list(tvbuff_t *tvb, packet_info *pinfo _U_, 
                                 int offset,  proto_tree *tree,
-                                int listnum_length, char* listdesc,
+                                int listnum_length, const char* listdesc,
                                 int  (*item_dissector)(tvbuff_t  *, packet_info *, int, proto_tree *))
 {
     /* <List> ::= <List Size> <Item>* */
@@ -271,7 +271,7 @@ static int dissect_edonkey_list(tvbuff_t *tvb, packet_info *pinfo _U_,
     return offset;
 }
 
-gint lookup_str_index(gchar* str, gint length, const value_string *vs) 
+static gint lookup_str_index(gchar* str, gint length, const value_string *vs) 
 {
   gint i = 0;
 

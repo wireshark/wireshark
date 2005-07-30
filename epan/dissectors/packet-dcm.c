@@ -298,7 +298,7 @@ dcm_init(void)
     }
 }
 
-dcmState_t *
+static dcmState_t *
 mkds(void)
 {
     dcmState_t *ds;
@@ -316,7 +316,7 @@ mkds(void)
     return ds;
 }
 
-const char *
+static const char *
 dcm_pdu2str(guint8 item)
 {
     const char *s = "";
@@ -340,7 +340,7 @@ dcm_pdu2str(guint8 item)
     return s;
 }
 
-const char *
+static const char *
 dcm_result2str(guint8 result)
 {
     const char *s = "";
@@ -352,7 +352,7 @@ dcm_result2str(guint8 result)
     return s;
 }
 
-const char *
+static const char *
 dcm_source2str(guint8 source)
 {
     const char *s = "";
@@ -365,7 +365,7 @@ dcm_source2str(guint8 source)
     return s;
 }
 
-const char * 
+static const char * 
 dcm_reason2str(guint8 source, guint8 reason)
 {
     const char *s = "";
@@ -387,7 +387,7 @@ dcm_reason2str(guint8 source, guint8 reason)
     return s;
 }
 
-const char *
+static const char *
 dcm_abort2str(guint8 reason)
 {
     const char *s = "";
@@ -403,7 +403,7 @@ dcm_abort2str(guint8 reason)
     return s;
 }
 
-const char *
+static const char *
 dcm_PCresult2str(guint8 result)
 {
     const char *s = "";
@@ -418,7 +418,7 @@ dcm_PCresult2str(guint8 result)
     return s;
 }
 
-const char *
+static const char *
 dcm_flags2str(guint8 flags)
 {
     const char *s = "";
@@ -432,7 +432,7 @@ dcm_flags2str(guint8 flags)
     return s;
 }
 
-const char *
+static const char *
 dcm_cmd2str(guint16 us)
 {
     const char *s = "";
@@ -466,7 +466,7 @@ dcm_cmd2str(guint16 us)
     return s;
 }
 
-const char *
+static const char *
 dcm_rsp2str(guint16 us)
 {
     const char *s = "";
@@ -485,7 +485,7 @@ dcm_rsp2str(guint16 us)
     return s;
 }
 
-void
+static void
 dcm_setSyntax(dcmItem_t *di, char *name)
 {
     if (NULL == di) return;
@@ -513,7 +513,7 @@ dcm_setSyntax(dcmItem_t *di, char *name)
 	di->syntax = DCM_ELE;	 /* explicit little endian, deflated */
 }
 
-char *
+static char *
 dcm_tag2str(guint16 grp, guint16 elm, guint8 syntax, tvbuff_t *tvb, int offset, guint32 len, int vr, int tr)
 {
     static char buf[512+1];	/* bad form ??? */
@@ -624,7 +624,7 @@ dcm_get_pdu_len(tvbuff_t *tvb, int offset)
     return len + 6;		/* add in fixed header part */
 }
 
-void 
+static void 
 dissect_dcm_assoc(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb, int offset)
 { 
     proto_tree *dcm_tree = NULL;
@@ -766,7 +766,7 @@ lookupCtx(dcmState_t *dd, guint8 ctx)
 #define D_LEN4   5
 #define D_VALUE  6
 
-void 
+static void 
 dissect_dcm_data(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb)
 {
     int len, offset, toffset, state, vr, tr;

@@ -182,7 +182,7 @@ DIS_BitMask DIS_APPEARANCE_LIFEFORM[] =
 
 /* Adjust an offset variable for proper alignment for a specified field length.
  */
-gint alignOffset(gint offset, guint fieldLength)
+static gint alignOffset(gint offset, guint fieldLength)
 {
     gint remainder = offset % fieldLength;
     if (remainder != 0)

@@ -289,7 +289,7 @@ static void dissect_etheric_message(tvbuff_t *message_tvb, packet_info *pinfo, p
 /* ------------------------------------------------------------------
   Mapping number to ASCII-character
  ------------------------------------------------------------------ */
-char number_to_char_2(int number)
+static char number_to_char_2(int number)
 {
   if (number < 10)
     return ((char) number + 0x30);
@@ -641,7 +641,7 @@ dissect_etheric_backward_call_indicators_parameter(tvbuff_t *parameter_tvb,proto
 /* ------------------------------------------------------------------
   Dissector Message Type release message
  */
-gint
+static gint
 dissect_etheric_release_message(tvbuff_t *message_tvb, proto_tree *etheric_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
@@ -694,7 +694,7 @@ dissect_etheric_unknown_parameter(tvbuff_t *parameter_tvb, proto_item *parameter
 /* ------------------------------------------------------------------
   Dissector Message Type Initial address message
  */
-gint
+static gint
 dissect_etheric_initial_address_message(tvbuff_t *message_tvb, proto_tree *etheric_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
@@ -782,7 +782,7 @@ dissect_etheric_initial_address_message(tvbuff_t *message_tvb, proto_tree *ether
 /* ------------------------------------------------------------------
   Dissector Message Type Address complete
  */
-gint
+static gint
 dissect_etheric_address_complete_message(tvbuff_t *message_tvb, proto_tree *etheric_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
@@ -809,7 +809,7 @@ dissect_etheric_address_complete_message(tvbuff_t *message_tvb, proto_tree *ethe
 /* ------------------------------------------------------------------
   Dissector Message Type Call Progress
 */
-gint
+static gint
 dissect_etheric_call_progress_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;

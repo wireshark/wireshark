@@ -256,7 +256,7 @@ rtp_free_hash_dyn_payload(GHashTable *rtp_dyn_payload)
 void rtp_add_address(packet_info *pinfo,
                      address *addr, int port,
                      int other_port,
-                     gchar *setup_method, guint32 setup_frame_number, GHashTable *rtp_dyn_payload)
+                     const gchar *setup_method, guint32 setup_frame_number, GHashTable *rtp_dyn_payload)
 {
 	address null_addr;
 	conversation_t* p_conv;

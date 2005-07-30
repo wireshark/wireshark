@@ -139,7 +139,7 @@ static void esis_dissect_redirect_pdu( guint8 len, tvbuff_t *tvb,
  *   void (may modify proto tree)
  */
 static void
-esis_dissect_unknown( tvbuff_t *tvb, proto_tree *tree, char *fmat, ...){
+esis_dissect_unknown( tvbuff_t *tvb, proto_tree *tree, const char *fmat, ...){
   va_list ap;
 
   va_start(ap, fmat);
@@ -274,13 +274,13 @@ esis_dissect_redirect_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree) {
 static void
 dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
    const char *pdu_type_string        = NULL;
-   char       *pdu_type_format_string = "PDU Type      : %s (R:%s%s%s)";
+   const char *pdu_type_format_string = "PDU Type      : %s (R:%s%s%s)";
    esis_hdr_t  ehdr;
    proto_item *ti;
    proto_tree *esis_tree    = NULL;
    guint8      variable_len;
    guint       tmp_uint     = 0;
-   char       *cksum_status;
+   const char *cksum_status;
 
    if (check_col(pinfo->cinfo, COL_PROTOCOL))
      col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESIS");

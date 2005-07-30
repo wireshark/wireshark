@@ -51,13 +51,13 @@ typedef int (*per_callback)(tvbuff_t *, int, packet_info *, proto_tree *);
 
 typedef struct _per_choice_t {
 	int value;
-	char *name;
+	const char *name;
 	int extension;
 	per_callback func;
 } per_choice_t;
 
 typedef struct _per_sequence_t {
-	char *name;
+	const char *name;
 	int extension;
 	int optional;
 	per_callback func;
@@ -96,7 +96,7 @@ extern guint32 dissect_per_integer(tvbuff_t *tvb, guint32 offset, packet_info *p
 
 extern guint32 dissect_per_constrained_integer(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, guint32 min, guint32 max, guint32 *value, proto_item **item, gboolean has_extension);
 
-extern guint32 dissect_per_choice(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, gint ett_index, const per_choice_t *choice, char *name, guint32 *value);
+extern guint32 dissect_per_choice(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, gint ett_index, const per_choice_t *choice, const char *name, guint32 *value);
 
 extern guint32 dissect_per_sequence(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *sequence);
 
@@ -104,6 +104,6 @@ extern guint32 dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, packet_in
 
 extern guint32 dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len);
 
-extern guint32 dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len, char *alphabet, int alphabet_length, char *info_str, guint32 info_str_len);
+extern guint32 dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len, const char *alphabet, int alphabet_length, char *info_str, guint32 info_str_len);
 
 #endif  /* __PACKET_PER_H__ */

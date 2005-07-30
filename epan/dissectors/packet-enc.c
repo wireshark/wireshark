@@ -67,7 +67,7 @@ static int hf_enc_flags = -1;
 
 static gint ett_enc = -1;
 
-void
+static void
 capture_enc(const guchar *pd, int offset, int len, packet_counts *ld)
 {
   struct enchdr ench;

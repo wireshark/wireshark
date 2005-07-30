@@ -312,7 +312,7 @@ param_AddressString(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
     guint	saved_offset;
     gint32	value;
     guchar	*poctets;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     char	bigbuf[1024];
 
     saved_offset = asn1->offset;
@@ -389,7 +389,7 @@ param_ssCode(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
 {
     guint	saved_offset;
     gint32	value;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
     hf_field = hf_field;
 
@@ -692,7 +692,7 @@ param_bearerservice(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
 {
     guint	saved_offset;
     gint32	value;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
     hf_field = hf_field;
 
@@ -771,7 +771,7 @@ param_teleservice(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
 {
     guint	saved_offset;
     gint32	value;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
     hf_field = hf_field;
 
@@ -833,7 +833,7 @@ param_ussdDCS(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
 {
     guint		saved_offset;
     gint32		value;
-    gchar		*str = NULL;
+    const gchar		*str = NULL;
     char		bigbuf[1024];
     proto_tree		*subtree;
     proto_item		*item;
@@ -1132,7 +1132,7 @@ param_guidanceInfo(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
 {
     guint		saved_offset;
     gint32		value;
-    gchar		*str = NULL;
+    const gchar		*str = NULL;
 
     hf_field = hf_field;
 
@@ -1158,7 +1158,7 @@ param_forwardingOpt(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field)
     guint		saved_offset;
     gint32		value;
     char		bigbuf[1024];
-    gchar		*str = NULL;
+    const gchar		*str = NULL;
 
     hf_field = hf_field;
 

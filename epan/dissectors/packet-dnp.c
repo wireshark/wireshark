@@ -1106,7 +1106,7 @@ dnp3_al_obj_quality(tvbuff_t *tvb, int offset, guint8 al_ptflags, proto_item *t_
 /* Final hex no. should be: 0xAABBCCDDEEFF                            */
 /* Epoch time + ms.  dd:mm:yyyy hh:mm:ss.iii                          */
 /**********************************************************************/
-char *
+static char *
 dnp3_al_decode_timestamp(tvbuff_t *tvb, int temp_pos, char* buff)
 {
 

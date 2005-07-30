@@ -59,8 +59,8 @@ static gint ett_dis_payload = -1;
 static dissector_handle_t dis_dissector_handle;
 static guint dis_udp_port = DEFAULT_DIS_UDP_PORT;
 
-static char* dis_proto_name = "Distributed Interactive Simulation";
-static char* dis_proto_name_short = "DIS";
+static const char* dis_proto_name = "Distributed Interactive Simulation";
+static const char* dis_proto_name_short = "DIS";
 
 /* Main dissector routine to be invoked for a DIS PDU.
  */

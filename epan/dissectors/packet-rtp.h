@@ -65,7 +65,7 @@ struct _rtp_conversation_info
 void rtp_add_address(packet_info *pinfo,
                      address *addr, int port,
                      int other_port,
-                     gchar *setup_method, 
+                     const gchar *setup_method, 
 					 guint32 setup_frame_number,
 					 GHashTable *rtp_dyn_payload);
 

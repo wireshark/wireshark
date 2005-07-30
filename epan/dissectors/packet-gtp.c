@@ -1166,10 +1166,10 @@ struct _gtp_hdr {
 };
 
 static	guint8		gtp_version = 0;
-static	char		*yesno[] = { "no", "yes" };
+static	const char	*yesno[] = { "no", "yes" };
 
 static void
-col_append_str_gtp(column_info *cinfo, gint el, gchar *proto_name) {
+col_append_str_gtp(column_info *cinfo, gint el, const gchar *proto_name) {
 
 	int	i;
 	int	max_len;
@@ -2101,7 +2101,7 @@ decode_gtp_ptmsi(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *
 /* adjust - how many bytes before offset should be highlighted
  */
 static int
-decode_qos_gprs(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, guint8 adjust) {
+decode_qos_gprs(tvbuff_t *tvb, int offset, proto_tree *tree, const gchar* qos_str, guint8 adjust) {
 
 	guint8		spare1, delay, reliability, peak, spare2,  precedence, spare3, mean;
 	proto_tree	*ext_tree_qos;
@@ -2909,8 +2909,8 @@ static guint8 wrapped_tvb_get_guint8( tvbuff_t *tvb, int offset, int type)
   * WARNING :) type does not mean length of length any more... see below for
   * type = 3!
  */
-int
-decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, guint8 type) {
+static int
+decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, const gchar* qos_str, guint8 type) {
 
 	guint		length;
 	guint8		al_ret_priority;
@@ -3129,7 +3129,7 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, gchar* qos_str, gui
 	return retval;
 }
 
-static gchar* dissect_radius_qos_umts(proto_tree *tree, tvbuff_t *tvb) {
+static const gchar* dissect_radius_qos_umts(proto_tree *tree, tvbuff_t *tvb) {
 	decode_qos_umts(tvb, 0, tree, "UMTS GTP QoS Profile", 3);
 	return "UMTS GTP QoS Profile";
 }

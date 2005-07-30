@@ -94,8 +94,8 @@
     }
 
 
-static char *gsm_sms_proto_name = "GSM SMS TPDU (GSM 03.40)";
-static char *gsm_sms_proto_name_short = "GSM SMS";
+static const char *gsm_sms_proto_name = "GSM SMS TPDU (GSM 03.40)";
+static const char *gsm_sms_proto_name_short = "GSM SMS";
 
 /* Initialize the subtree pointers */
 static gint ett_gsm_sms = -1;
@@ -212,12 +212,12 @@ static gint ett_udh_ieis[NUM_UDH_IEIS];
 }
 
 static void
-dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, gchar *title)
+dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *title)
 {
     static gchar	digit_table[] = {"0123456789*#abc\0"};
     proto_item		*item;
     proto_tree		*subtree = NULL;
-    gchar		*str = NULL;
+    const gchar		*str = NULL;
     guint8		oct;
     guint32		offset;
     guint32		numdigocts;
@@ -354,7 +354,7 @@ dis_field_pid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
     proto_tree	*subtree = NULL;
     guint8	form;
     guint8	telematic;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
 
     item =
@@ -514,7 +514,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
     proto_item	*item;
     proto_tree	*subtree = NULL;
     guint8	form;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     gboolean	default_5_bits;
     gboolean	default_3_bits;
     gboolean	default_data;
@@ -1107,15 +1107,15 @@ dis_field_dt(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 static void
 dis_field_st(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 {
-    static gchar	*sc_complete = "Short message transaction completed";
-    static gchar	*sc_temporary = "Temporary error, SC still trying to transfer SM";
-    static gchar	*sc_perm = "Permanent error, SC is not making any more transfer attempts";
-    static gchar	*sc_tempfin = "Temporary error, SC is not making any more transfer attempts";
+    static const gchar	*sc_complete = "Short message transaction completed";
+    static const gchar	*sc_temporary = "Temporary error, SC still trying to transfer SM";
+    static const gchar	*sc_perm = "Permanent error, SC is not making any more transfer attempts";
+    static const gchar	*sc_tempfin = "Temporary error, SC is not making any more transfer attempts";
     proto_item		*item;
     proto_tree		*subtree = NULL;
     guint8		value;
-    gchar		*str = NULL;
-    gchar		*str2 = NULL;
+    const gchar		*str = NULL;
+    const gchar	*str2 = NULL;
 
 
     item =
@@ -1308,7 +1308,7 @@ dis_field_fcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 {
     proto_item	*item;
     proto_tree	*subtree = NULL;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
 
 
     item =
@@ -1531,7 +1531,7 @@ gsm_sms_char_ascii_decode(unsigned char* dest, const unsigned char* src, int len
 static void
 dis_iei_apa_8bit(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     guint8	oct;
 
 
@@ -1576,7 +1576,7 @@ dis_iei_apa_8bit(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 static void
 dis_iei_apa_16bit(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     guint32	value;
 
 
@@ -1633,7 +1633,7 @@ dis_field_ud_iei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
     guint8	oct;
     proto_item	*item;
     proto_tree	*subtree = NULL;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     guint8	iei_len;
 
 
@@ -2129,7 +2129,7 @@ dis_msg_submit(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     guint8	oct;
     guint8	vp_form;
     guint8	udl;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     gboolean	seven_bit;
     gboolean	eight_bit;
     gboolean	ucs2;
@@ -2423,7 +2423,7 @@ dis_msg_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     guint32	length;
     guint8	oct;
     guint8	cdl;
-    gchar	*str = NULL;
+    const gchar	*str = NULL;
     gboolean	udhi;
 
 

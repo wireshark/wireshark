@@ -474,7 +474,7 @@ static const value_string dcom_vt_bool_vals[] = {
 
 
 /* dissect extension to DCOM "this" and "that" */
-int
+static int
 dissect_dcom_extent(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
@@ -857,7 +857,7 @@ dissect_dcom_COMVERSION(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 	
 
-int
+static int
 dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 						proto_tree *tree, guint8 *drep, int hfindex _U_)
 {
@@ -1183,7 +1183,7 @@ dissect_dcom_append_UUID(tvbuff_t *tvb, int offset,
 /* get a zero terminated wide character string from tvb */
 /* maxlength is including zero termination */
 /* XXX: is there a function existing somewhere, already implementing this? */
-int
+static int
 dcom_tvb_get_nwstringz0(tvbuff_t *tvb, gint offset, guint32 maxlength, gchar *pszStr)
 {
 	guint32 u32Idx;
