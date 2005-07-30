@@ -171,7 +171,7 @@ static const value_string radius_vals[] =
 	{0, NULL}
 };
 
-static gchar* dissect_cosine_vpvc(proto_tree* tree, tvbuff_t* tvb) {
+static const gchar* dissect_cosine_vpvc(proto_tree* tree, tvbuff_t* tvb) {
 	guint vpi, vci;
 	
 	if ( tvb_length(tvb) != 4 )
@@ -604,7 +604,7 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 
 			if ( dictionary_entry->dissector ) {
 				tvbuff_t* tvb_value;
-				gchar* str;
+				const gchar* str;
 			
 				tvb_value = tvb_new_subset(tvb, offset, tvb_len, (gint) avp_length);
 			
