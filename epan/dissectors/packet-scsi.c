@@ -3063,7 +3063,7 @@ dissect_spc3_persistentreservein (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
                          guint offset, gboolean isreq, gboolean iscdb,
                          guint payload_len, scsi_task_data_t *cdata)
 {
-    guint8 flags;
+    guint16 flags;
     int numrec, i;
     guint len;
 
@@ -3865,11 +3865,9 @@ dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     char *str;
 
     if (tree && isreq && iscdb) {
-	cdata->flags=0;
-
         format=tvb_get_guint8(tvb, offset+1)&0x0f;
 	/* save format so we can decode the response */
-        cdata->flags|=format;
+        cdata->flags=format;
 
         switch(format){
         case 0x00:
