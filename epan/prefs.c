@@ -902,7 +902,7 @@ print.file: /a/very/long/path/
  *  user's preferences file.
  */
 void
-init_prefs() {
+init_prefs(void) {
   int         i;
   fmt_data    *cfmt;
   const gchar *col_fmt[] = {"No.",      "%m", "Time",        "%t",
