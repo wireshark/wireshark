@@ -57,7 +57,7 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* This information comes from the LPRng HOWTO, which also describes
 		RFC 1179. http://www.astart.com/lprng/LPRng-HOWTO.html */
-	static value_string	*lpd_client_code[] = {
+	static const value_string lpd_client_code[] = {
 		{ 1, "LPC: start print / jobcmd: abort" },
 		{ 2, "LPR: transfer a printer job / jobcmd: receive control file" },
 		{ 3, "LPQ: print short form of queue status / jobcmd: receive data file" },
@@ -69,7 +69,7 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		{ 9, "LPRng lpq: verbose status information" },
 		{ 0, NULL }
 	};
-	static value_string	*lpd_server_code[] = {
+	static const value_string lpd_server_code[] = {
 		{ 0, "Success: accepted, proceed" },
 		{ 1, "Queue not accepting jobs" },
 		{ 2, "Queue temporarily full, retry later" },
