@@ -1934,7 +1934,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   guchar iv_buff[4];
   wlan_hdr *volatile whdr;
   static wlan_hdr whdrs[4];
-  char fc_string[9] = "........";
 
   whdr= &whdrs[0];
 
