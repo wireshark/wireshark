@@ -549,7 +549,7 @@ static guint16
 proto_add_icq_attr(proto_tree* tree, /* The tree to add to */
 		   tvbuff_t *tvb,    /* Tvbuff with packet */
 		   const int offset, /* Offset from the start of packet of field */
-		   char* descr)	/* The description to use in the tree */
+		   const char* descr)	/* The description to use in the tree */
 {
     guint16 len;
 
@@ -577,12 +577,12 @@ icqv5_decode_msgType(proto_tree* tree,
     gint sep_offset;
     int sz;            /* Size of the current element */
     unsigned int n;
-    static char* url_field_descr[] = {
+    static const char* url_field_descr[] = {
 	"Description",
 	"URL",
     };
 #define N_URL_FIELDS	(sizeof url_field_descr / sizeof url_field_descr[0])
-    static char* email_field_descr[] = {
+    static const char* email_field_descr[] = {
 	"Nickname",
 	"First name",
 	"Last name",
@@ -591,7 +591,7 @@ icqv5_decode_msgType(proto_tree* tree,
 	"Text"
     };
 #define N_EMAIL_FIELDS	(sizeof email_field_descr / sizeof email_field_descr[0])
-    static char* auth_req_field_descr[] = {
+    static const char* auth_req_field_descr[] = {
 	"Nickname",
 	"First name",
 	"Last name",
@@ -600,7 +600,7 @@ icqv5_decode_msgType(proto_tree* tree,
 	"Reason"
     };
 #define N_AUTH_REQ_FIELDS	(sizeof auth_req_field_descr / sizeof auth_req_field_descr[0])
-    static char* user_added_field_descr[] = {
+    static const char* user_added_field_descr[] = {
 	"Nickname",
 	"First name",
 	"Last name",
@@ -1484,13 +1484,13 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 	     * They are used to "implement" a poorman's exception handling
 	     */
 	    int len = 0;
-	    char *descr[] = {
+	    const char *descr[] = {
 		"Nick",
 		"First name",
 		"Last name",
 		"Email",
 		NULL};
-	    char** d = descr;
+	    const char** d = descr;
 	    unsigned char auth;
 	    /*
 	     * Read UIN

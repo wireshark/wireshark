@@ -460,7 +460,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree)
 {
 	http_proto_t	proto;
-	char		*proto_tag;
+	const char	*proto_tag;
 	proto_tree	*http_tree = NULL;
 	proto_item	*ti = NULL;
 	const guchar	*line;
@@ -1562,9 +1562,9 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
  * Process headers.
  */
 typedef struct {
-	char	*name;
-	gint	*hf;
-	int	special;
+	const char	*name;
+	gint		*hf;
+	int		special;
 } header_info;
 
 #define HDR_NO_SPECIAL		0
@@ -1866,7 +1866,7 @@ dissect_http_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_http_message(tvb, 0, pinfo, tree);
 }
 
-void reinit_http(void) {
+static void reinit_http(void) {
 	if ( http_alternate_tcp_port != alternate_tcp_port ) {
 		
 		if (alternate_tcp_port)

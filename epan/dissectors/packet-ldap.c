@@ -1768,7 +1768,7 @@ static void dissect_ldap_request_compare(ASN1_SCK *a, proto_tree *tree)
   int length;
   char *string1 = NULL;
   char *string2 = NULL;
-  char *s1, *s2;
+  const char *s1, *s2;
   char *compare;
   int ret;
 

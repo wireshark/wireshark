@@ -784,10 +784,10 @@ void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint32 tool_version_length = 0;
     guint32 download_update_player_length = 0;
     guint32 password_encryption_type_length = 0;
-    char    *server_version = "";
-    char    *tool_version = "";
-    char    *download_update_player = "";
-    char    *password_encryption_type = "";
+    const char    *server_version = "";
+    const char    *tool_version = "";
+    const char    *download_update_player = "";
+    const char    *password_encryption_type = "";
 
     /* Prefix bytes */
     proto_tree_add_item(tree, hf_msmms_command_prefix1, tvb, offset, 4, TRUE);
@@ -919,7 +919,7 @@ void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 void dissect_client_player_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 guint offset, guint length_remaining)
 {
-    char *player_info = "";
+    const char *player_info = "";
 
     proto_tree_add_item(tree, hf_msmms_command_prefix1, tvb, offset, 4, TRUE);
     offset += 4;
@@ -1034,7 +1034,7 @@ void dissect_timing_test_response(tvbuff_t *tvb, proto_tree *tree, guint offset)
 void dissect_request_server_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                  guint offset, guint length_remaining)
 {
-    char *server_file = "";
+    const char *server_file = "";
 
     /* CommandLevel */
     proto_tree_add_item(tree, hf_msmms_command_prefix1, tvb, offset, 4, TRUE);

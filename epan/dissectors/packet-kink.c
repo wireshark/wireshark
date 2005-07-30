@@ -810,7 +810,7 @@ dissect_payload_kink_error(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_
   guint16 payload_length;
   guint32 error_code;
   int start_payload_offset = 0; /* Keep the begining of the payload offset */
-  char *char_error_code[] = {
+  const char *char_error_code[] = {
     "KINK_OK",
     "KINK_PROTOERR",
     "KINK_INVDOI",

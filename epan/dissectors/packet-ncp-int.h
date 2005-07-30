@@ -77,7 +77,7 @@ typedef struct {
 	guint8			func;
 	guint8			subfunc;
 	guint8			has_subfunc;
-	gchar*			name;
+	const gchar*		name;
 	gint			group;
 	const ptvc_record	*request_ptvc;
 	const ptvc_record	*reply_ptvc;

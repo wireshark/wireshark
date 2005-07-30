@@ -86,7 +86,7 @@ static const value_string isis_vals[] = {
  */
 void
 isis_dissect_unknown(tvbuff_t *tvb, proto_tree *tree, int offset,
-	char *fmat, ...)
+	const char *fmat, ...)
 {
 	va_list	ap;
 

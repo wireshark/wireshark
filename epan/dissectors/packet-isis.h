@@ -55,6 +55,6 @@
 
 extern char *isis_address_to_string(tvbuff_t *tvb, int offset, int len);
 extern void isis_dissect_unknown(tvbuff_t *tvb, proto_tree *tree, int offset,
-	char *fmat, ...);
+	const char *fmat, ...);
 
 #endif /* _PACKET_ISIS_H */

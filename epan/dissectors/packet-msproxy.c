@@ -321,7 +321,7 @@ static int display_application_name(tvbuff_t *tvb, int offset,
 }
 
 
-static char *get_msproxy_cmd_name( int cmd, int direction) {
+static const char *get_msproxy_cmd_name( int cmd, int direction) {
 
 /* return the command name string for cmd */
 

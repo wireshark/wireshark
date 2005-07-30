@@ -1985,7 +1985,7 @@ situation2str(guint32 type)
 
   static char	msg[SIT_MSG_NUM];
   int		n = 0;
-  char *	sep = "";
+  const char *	sep = "";
   int		ret;
 
   if (type & SIT_IDENTITY) {

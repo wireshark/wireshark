@@ -230,7 +230,7 @@ static const value_string rcode_vals[] = {
 
 #define	NAME_FLAGS_G		(1<<(15-0))	/* group name */
 
-static char *
+static const char *
 nbns_type_name (int type)
 {
 	switch (type) {
@@ -387,7 +387,7 @@ get_nbns_name_type_class(tvbuff_t *tvb, int offset, int nbns_data_offset,
 
 static void
 add_name_and_type(proto_tree *tree, tvbuff_t *tvb, int offset, int len,
-    char *tag, char *name, int name_type)
+    const char *tag, const char *name, int name_type)
 {
 	if (name_type != -1) {
 		proto_tree_add_text(tree, tvb, offset, len, "%s: %s (%s)",
@@ -408,7 +408,7 @@ dissect_nbns_query(tvbuff_t *tvb, int offset, int nbns_data_offset,
 	int name_type;
 	int type;
 	int class;
-	char *type_name;
+	const char *type_name;
 	int data_offset;
 	int data_start;
 	proto_tree *q_tree;
@@ -601,7 +601,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 	int type;
 	int class;
 	const char *class_name;
-	char *type_name;
+	const char *type_name;
 	int data_offset;
 	int cur_offset;
 	int data_start;
@@ -987,7 +987,7 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int nbns_data_offset,
 static int
 dissect_answer_records(tvbuff_t *tvb, int cur_off, int nbns_data_offset,
     int count, column_info *cinfo, proto_tree *nbns_tree, int opcode,
-    char *name)
+    const char *name)
 {
 	int start_off, add_off;
 	proto_tree *qatree = NULL;

@@ -66,7 +66,7 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
 	proto_tree *manolito_tree;
-	char* packet_type = 0;
+	const char* packet_type = 0;
 
 	/* Make entries in Protocol column and Info column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
@@ -125,7 +125,7 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			guint8* data;            /* payload */
 			int start;               /* field starting location */
 			char field_name_str[3];  /* printable name */
-			char* longname;          /* human-friendly field name */
+			const char* longname;    /* human-friendly field name */
 
 			start = offset;
 

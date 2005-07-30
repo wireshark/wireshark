@@ -162,7 +162,7 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int offset = 0;
 	gboolean is_request = (pinfo->destport == 631);
 	guint16 status_code;
-	gchar *status_fmt;
+	const gchar *status_fmt;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPP");

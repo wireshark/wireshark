@@ -488,7 +488,7 @@ dissect_lsp_mt_id(tvbuff_t *tvb, proto_tree *tree, int offset)
  */
 static void
 dissect_metric(tvbuff_t *tvb, proto_tree *tree,	int offset, guint8 value,
-	char *pstr, int force_supported )
+	const char *pstr, int force_supported )
 {
 	int s;
 

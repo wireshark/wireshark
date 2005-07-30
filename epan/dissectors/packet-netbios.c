@@ -337,7 +337,7 @@ netbios_name_type_descr(int name_type)
 	return val_to_str(name_type, nb_name_type_vals, "Unknown");
 }
 
-void netbios_add_name(char* label, tvbuff_t *tvb, int offset,
+void netbios_add_name(const char* label, tvbuff_t *tvb, int offset,
     proto_tree *tree)
 
 {/* add a name field display tree. Display the name and station type in sub-tree */
@@ -544,7 +544,7 @@ static void nb_data2(int hf, tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 
-static void nb_resync_indicator( tvbuff_t *tvb, int offset, proto_tree *tree, char *cmd_str)
+static void nb_resync_indicator( tvbuff_t *tvb, int offset, proto_tree *tree, const char *cmd_str)
 {
 	guint16 resync_indicator = tvb_get_letohs( tvb, offset + NB_DATA2);
 

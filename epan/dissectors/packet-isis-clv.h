@@ -75,7 +75,7 @@
  */
 typedef struct {
         int     optcode;                /* code for option */
-        char    *tree_text;             /* text for fold out */
+        const char    *tree_text;       /* text for fold out */
         gint    *tree_id;               /* id for add_item */
         void    (*dissect)(tvbuff_t *tvb, proto_tree *tree,
                                 int offset, int id_length, int length);

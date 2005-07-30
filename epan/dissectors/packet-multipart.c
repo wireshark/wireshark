@@ -90,8 +90,8 @@ static gint ett_multipart_body = -1;
 
 
 typedef struct {
-        char *name;
-        char *compact_name;
+        const char *name;
+        const char *compact_name;
 } multipart_header_t;
 
 static const multipart_header_t multipart_headers[] = {

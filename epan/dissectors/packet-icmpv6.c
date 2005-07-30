@@ -148,7 +148,7 @@ dissect_icmpv6opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
     proto_item *ti, *tf;
     struct nd_opt_hdr nd_opt_hdr, *opt;
     int len;
-    char *typename;
+    const char *typename;
     static const guint8 nd_redirect_reserved[6] = {0, 0, 0, 0, 0, 0};
     guint8 nd_redirect_res[6];
 

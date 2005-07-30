@@ -72,7 +72,7 @@ static int hf_msrp_end_line			= -1;
 static int hf_msrp_cnt_flg			= -1;
 
 typedef struct {
-        char *name;
+        const char *name;
 } msrp_header_t;
 
 static const msrp_header_t msrp_headers[] = {

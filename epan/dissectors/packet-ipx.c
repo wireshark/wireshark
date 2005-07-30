@@ -439,7 +439,7 @@ static GMemChunk *spx_hash_values = NULL;
 static GMemChunk *spx_rexmit_infos = NULL;
 
 /* Hash Functions */
-gint
+static gint
 spx_equal(gconstpointer v, gconstpointer v2)
 {
 	const spx_hash_key	*val1 = (const spx_hash_key*)v;
@@ -453,7 +453,7 @@ spx_equal(gconstpointer v, gconstpointer v2)
 	return 0;
 }
 
-guint
+static guint
 spx_hash_func(gconstpointer v)
 {
 	const spx_hash_key	*spx_key = (const spx_hash_key*)v;
@@ -514,7 +514,7 @@ spx_postseq_cleanup(void)
 	 * needed during random-access processing of the proto_tree.*/
 }
 
-spx_hash_value*
+static spx_hash_value*
 spx_hash_insert(conversation_t *conversation, guint32 spx_src, guint16 spx_seq)
 {
 	spx_hash_key		*key;
@@ -537,7 +537,7 @@ spx_hash_insert(conversation_t *conversation, guint32 spx_src, guint16 spx_seq)
 }
 
 /* Returns the spx_hash_value*, or NULL if not found. */
-spx_hash_value*
+static spx_hash_value*
 spx_hash_lookup(conversation_t *conversation, guint32 spx_src, guint32 spx_seq)
 {
 	spx_hash_key		key;
@@ -897,7 +897,7 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		cursor;
 	int		available_length;
 
-	static char	*rip_type[3] = { "Request", "Response", "Unknown" };
+	static const char	*rip_type[3] = { "Request", "Response", "Unknown" };
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX RIP");
@@ -1238,7 +1238,7 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16		server_port;
 	guint16		intermediate_network;
 
-	static char	*sap_type[4] = { "General Query", "General Response",
+	static const char	*sap_type[4] = { "General Query", "General Response",
 		"Nearest Query", "Nearest Response" };
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))

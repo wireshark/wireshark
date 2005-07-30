@@ -672,7 +672,7 @@ static GMemChunk *ncp_req_hash_keys = NULL;
 static GMemChunk *ncp_req_hash_values = NULL;
 
 /* Hash Functions */
-gint
+static gint
 ncp_equal(gconstpointer v, gconstpointer v2)
 {
 	const ncp_req_hash_key	*val1 = (const ncp_req_hash_key*)v;
@@ -685,7 +685,7 @@ ncp_equal(gconstpointer v, gconstpointer v2)
 	return 0;
 }
 
-gint
+static gint
 ncp_eid_equal(gconstpointer v, gconstpointer v2)
 {
 	const ncp_req_eid_hash_key	*val1 = (const ncp_req_eid_hash_key*)v;
@@ -697,14 +697,14 @@ ncp_eid_equal(gconstpointer v, gconstpointer v2)
 	return 0;
 }
 
-guint
+static guint
 ncp_hash(gconstpointer v)
 {
 	const ncp_req_hash_key	*ncp_key = (const ncp_req_hash_key*)v;
 	return GPOINTER_TO_UINT(ncp_key->conversation) + ncp_key->nw_sequence;
 }
 
-guint
+static guint
 ncp_eid_hash(gconstpointer v)
 {
 	const ncp_req_eid_hash_key	*ncp_eid_key = (const ncp_req_eid_hash_key*)v;
@@ -798,7 +798,7 @@ ncp_postseq_cleanup(void)
 	 * needed during random-access processing of the proto_tree.*/
 }
 
-ncp_req_hash_value*
+static ncp_req_hash_value*
 ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
 		const ncp_record *ncp_rec)
 {
@@ -825,7 +825,7 @@ ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
 	return request_value;
 }
 
-ncp_req_eid_hash_value*
+static ncp_req_eid_hash_value*
 ncp_eid_hash_insert(guint32 nw_eid)
 {
 	ncp_req_eid_hash_key		*request_eid_key;
@@ -846,7 +846,7 @@ ncp_eid_hash_insert(guint32 nw_eid)
 }
 
 /* Returns the ncp_rec*, or NULL if not found. */
-ncp_req_hash_value*
+static ncp_req_hash_value*
 ncp_hash_lookup(conversation_t *conversation, guint8 nw_sequence)
 {
 	ncp_req_hash_key		request_key;
@@ -858,7 +858,7 @@ ncp_hash_lookup(conversation_t *conversation, guint8 nw_sequence)
 }
 
 /* Returns the value_rec* for needed EID, or NULL if not found. */
-ncp_req_eid_hash_value*
+static ncp_req_eid_hash_value*
 ncp_eid_hash_lookup(conversation_t *conversation _U_, guint32 nw_eid)
 {
 	ncp_req_eid_hash_key		request_eid_key;
@@ -1096,7 +1096,7 @@ uint_to_nwtime(guint data, nw_time_t *nwtime)
 	nwtime->hour   = ((data & 0xf800) >> 11);
 }
 
-char *
+static char *
 unicode_to_string(char * data, guint32 length)
 {
         guint32 i;
@@ -1460,7 +1460,7 @@ static const ncp_record ncplip_echo =
 		NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL };
 
 /* Wrapper around proto_tree_free() */
-void free_proto_tree(void *tree)
+static void free_proto_tree(void *tree)
 {
 	if (tree) {
 		proto_tree_free((proto_tree*) tree);
@@ -1578,7 +1578,7 @@ uni_to_string(char * data, guint32 str_length, char *dest_buf)
 * %x = integer in hex format = 1
 * %s = string = 2
 **************************************/  
-int
+static int
 get_info_type(const gchar* check_string)
 {
         guint length;
@@ -1603,7 +1603,7 @@ static void
 process_bitfield(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
 {
         gchar                   flags_str[512];
-        gchar                   *sep;
+        const gchar             *sep;
 	proto_item		*tinew;
 	proto_tree		*flags_tree;
         guint32                 i;

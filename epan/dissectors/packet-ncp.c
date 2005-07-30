@@ -117,11 +117,6 @@ static dissector_handle_t data_handle;
 #define NCP_RQST_HDR_LENGTH	7
 #define NCP_RPLY_HDR_LENGTH	8
 
-
-/* Hash functions */
-gint  ncp_equal (gconstpointer v, gconstpointer v2);
-guint ncp_hash  (gconstpointer v);
-
 /* These are the header structures to handle NCP over IP */
 #define	NCPIP_RQST	0x446d6454	/* "DmdT" */
 #define NCPIP_RPLY	0x744e6350	/* "tNcP" */
@@ -212,7 +207,7 @@ static GMemChunk *mncp_rhash_keys = NULL;
 static GMemChunk *mncp_rhash_values = NULL;
 
 /* Hash Functions */
-gint
+static gint
 mncp_equal(gconstpointer v, gconstpointer v2)
 {
 	const mncp_rhash_key	*val1 = (const mncp_rhash_key*)v;
@@ -224,7 +219,7 @@ mncp_equal(gconstpointer v, gconstpointer v2)
 	return 0;
 }
 
-guint
+static guint
 mncp_hash(gconstpointer v)
 {
 	const mncp_rhash_key	*mncp_key = (const mncp_rhash_key*)v;
@@ -262,7 +257,7 @@ mncp_postseq_cleanup(void)
 {
 }
 
-mncp_rhash_value*
+static mncp_rhash_value*
 mncp_hash_insert(conversation_t *conversation)
 {
 	mncp_rhash_key		*key;
@@ -282,7 +277,7 @@ mncp_hash_insert(conversation_t *conversation)
 }
 
 /* Returns the ncp_rec*, or NULL if not found. */
-mncp_rhash_value*
+static mncp_rhash_value*
 mncp_hash_lookup(conversation_t *conversation)
 {
 	mncp_rhash_key		key;
@@ -313,7 +308,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint16				nw_connection, ncp_burst_seqno, ncp_ack_seqno;
 	guint16				flags = 0;
 	char				flags_str[2+3+1+3+1+3+1+3+1+3+1+1];
-	char				*sep;
+	const char			*sep;
 	proto_tree			*flags_tree = NULL;
 	int				hdr_offset = 0;
 	int				commhdr;
