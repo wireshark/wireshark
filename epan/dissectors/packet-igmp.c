@@ -110,6 +110,7 @@
 #include <epan/packet.h>
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
+#include "packet-igmp.h"
 #include "packet-dvmrp.h"
 #include "packet-pim.h"
 #include "packet-mrdisc.h"
@@ -649,7 +650,7 @@ dissect_igmp_v0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, i
 static int
 dissect_igmp_mtrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, int offset)
 {
-	char *typestr, *blocks = NULL;
+	const char *typestr, *blocks = NULL;
 	char buf[20];
 
 	/* All multicast traceroute packets (Query, Request and

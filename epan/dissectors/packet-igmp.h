@@ -22,8 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PACKET_MSNIP_H__
-#define __PACKET_MSNIP_H__
+#ifndef __PACKET_IGMP_H__
+#define __PACKET_IGMP_H__
 
 void igmp_checksum(proto_tree *tree, tvbuff_t *tvb, int hf_index,
     int hf_index_bad, packet_info *pinfo, guint len);
