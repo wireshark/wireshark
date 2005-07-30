@@ -57,7 +57,31 @@
 #include <epan/conversation.h>
 #include "etypes.h"
 #include "packet-fc.h"
-#include "packet-fcsp.h"
+
+/* Message Codes */
+#define FC_AUTH_MSG_AUTH_REJECT        0x0A 
+#define FC_AUTH_MSG_AUTH_NEGOTIATE     0x0B 
+#define FC_AUTH_MSG_AUTH_DONE          0x0C 
+#define FC_AUTH_DHCHAP_CHALLENGE       0x10 
+#define FC_AUTH_DHCHAP_REPLY           0x11 
+#define FC_AUTH_DHCHAP_SUCCESS         0x12 
+#define FC_AUTH_FCAP_REQUEST           0x13 
+#define FC_AUTH_FCAP_ACKNOWLEDGE       0x14 
+#define FC_AUTH_FCAP_CONFIRM           0x15 
+#define FC_AUTH_FCPAP_INIT             0x16 
+#define FC_AUTH_FCPAP_ACCEPT           0x17 
+#define FC_AUTH_FCPAP_COMPLETE         0x18
+
+#define FC_AUTH_NAME_TYPE_WWN          0x1
+
+#define FC_AUTH_PROTO_TYPE_DHCHAP      0x1
+#define FC_AUTH_PROTO_TYPE_FCAP        0x2
+
+#define FC_AUTH_DHCHAP_HASH_MD5        0x5
+#define FC_AUTH_DHCHAP_HASH_SHA1       0x6
+
+#define FC_AUTH_DHCHAP_PARAM_HASHLIST  0x1
+#define FC_AUTH_DHCHAP_PARAM_DHgIDLIST 0x2
 
 /* Initialize the protocol and registered fields */
 static int proto_fcsp              = -1;
@@ -167,7 +191,7 @@ static const value_string fcauth_dhchap_dhgid_vals[] = {
    that calls all the protocol registration.
 */
 
-void dissect_fcsp_dhchap_auth_param (tvbuff_t *tvb, proto_tree *tree,
+static void dissect_fcsp_dhchap_auth_param (tvbuff_t *tvb, proto_tree *tree,
                                      int offset, gint32 total_len)
 {
     guint16 auth_param_tag;
@@ -214,7 +238,7 @@ void dissect_fcsp_dhchap_auth_param (tvbuff_t *tvb, proto_tree *tree,
     }
 }
 
-void dissect_fcsp_dhchap_challenge (tvbuff_t *tvb, proto_tree *tree)
+static void dissect_fcsp_dhchap_challenge (tvbuff_t *tvb, proto_tree *tree)
 {
     int offset = 12;
     guint16 name_type;
@@ -265,7 +289,7 @@ void dissect_fcsp_dhchap_challenge (tvbuff_t *tvb, proto_tree *tree)
 }
 
 
-void dissect_fcsp_dhchap_reply (tvbuff_t *tvb, proto_tree *tree)
+static void dissect_fcsp_dhchap_reply (tvbuff_t *tvb, proto_tree *tree)
 {
     int offset = 12;
     guint32 param_len;
@@ -296,7 +320,7 @@ void dissect_fcsp_dhchap_reply (tvbuff_t *tvb, proto_tree *tree)
     }
 }
 
-void dissect_fcsp_dhchap_success (tvbuff_t *tvb, proto_tree *tree)
+static void dissect_fcsp_dhchap_success (tvbuff_t *tvb, proto_tree *tree)
 {
     int offset = 12;
     guint32 param_len;
@@ -312,7 +336,7 @@ void dissect_fcsp_dhchap_success (tvbuff_t *tvb, proto_tree *tree)
 }
 
 
-void dissect_fcsp_auth_negotiate (tvbuff_t *tvb, proto_tree *tree)
+static void dissect_fcsp_auth_negotiate (tvbuff_t *tvb, proto_tree *tree)
 {
     int offset = 12;
     guint16 name_type, name_len, proto_type, param_len;
@@ -367,11 +391,11 @@ void dissect_fcsp_auth_negotiate (tvbuff_t *tvb, proto_tree *tree)
     }
 }
 
-void dissect_fcsp_auth_done (tvbuff_t *tvb _U_, proto_tree *tree _U_)
+static void dissect_fcsp_auth_done (tvbuff_t *tvb _U_, proto_tree *tree _U_)
 {
 }
 
-void dissect_fcsp_auth_rjt (tvbuff_t *tvb, proto_tree *tree)
+static void dissect_fcsp_auth_rjt (tvbuff_t *tvb, proto_tree *tree)
 {
     int offset = 12;
     
@@ -381,7 +405,7 @@ void dissect_fcsp_auth_rjt (tvbuff_t *tvb, proto_tree *tree)
     }
 }
 
-void dissect_fcsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_fcsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti = NULL;
     guint8 opcode;
