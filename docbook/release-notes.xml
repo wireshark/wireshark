@@ -66,12 +66,21 @@ Gnu info
 
   <section id="WhatsNew"><title>What's New</title>
     <para>
-      Here are just a few things that this version of Ethereal has to offer:
+      The following bugs have been fixed since the previous release:
       <itemizedlist>
+
 	<listitem><para>
-	  Many security vulnerabilities have been elimited.  In related
-	  news, all protocols are now disabled by default.
+	  The LPD dissector could crash.
+	  <!-- Fixed in 15143, 15147 -->
+	  Versions affected: 0.3.16 to 0.10.12.
 	</para></listitem>
+
+	<listitem><para>
+	  The ISAKMP dissector could exhaust system memory.
+	  <!-- Fixed in 15163 -->
+	  Versions affected: 0.10.11 to 0.10.12.
+	</para></listitem>
+
       </itemizedlist>
     </para>
   </section>
