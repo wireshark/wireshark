@@ -797,6 +797,7 @@ rpm-package: dist
 		mkdir -p BUILD RPMS SOURCES ; \
 		cd SOURCES ; \
 		ln -s ../../../$(distdir).tar.gz ; \
+		ln -s ../../../ethereal.desktop ; \
 		ln -s ../../../image/elogo3d64x64.png ethereal.png ; \
 		cd .. ; \
 		rpmbuild --define "_topdir `cd . && pwd`" -bb SPECS/ethereal.spec && \
@@ -810,6 +811,7 @@ srpm-package: dist
 		mkdir -p BUILD SRPMS SOURCES ; \
 		cd SOURCES ; \
 		ln -s ../../../$(distdir).tar.gz ; \
+		ln -s ../../../ethereal.desktop ; \
 		ln -s ../../../image/elogo3d64x64.png ethereal.png ; \
 		cd .. ; \
 		rpmbuild --define "_topdir `cd . && pwd`" -bs SPECS/ethereal.spec && \
