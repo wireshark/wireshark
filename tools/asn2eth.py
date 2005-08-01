@@ -523,7 +523,7 @@ class EthCtx:
     self.named_bit = []
 
     for t in self.type_imp:
-      nm = t
+      nm = asn2c(t)
       self.eth_type[nm] = { 'import' : self.type[t]['import'], 
                             'proto' : asn2c(self.type[t]['proto']),
                             'attr' : {}, 'ref' : []}
@@ -1972,24 +1972,27 @@ class Type_Ref (Type):
     else:
       return ectx.type[self.val]['val'].IndetermTag(ectx)
 
-  def eth_type_fn(self, proto, tname, ectx):
-    out = ectx.eth_type_fn_hdr(tname)
+  def eth_type_default_pars(self, ectx, tname):
+    pars = Type.eth_type_default_pars(self, ectx, tname)
     t = ectx.type[self.val]['ethname']
-    if (ectx.OBer()):
-      body = ectx.eth_fn_call('dissect_%s_%s' % (ectx.eth_type[t]['proto'], t), ret='offset',
-                              par=(('implicit_tag', 'tvb', 'offset', 'pinfo', 'tree', 'hf_index'),))
+    pars['TYPE_REF_PROTO'] = ectx.eth_type[t]['proto']
+    pars['TYPE_REF_TNAME'] = t
+    pars['TYPE_REF_FN'] = 'dissect_%(TYPE_REF_PROTO)s_%(TYPE_REF_TNAME)s'
+    return pars
+
+  def eth_type_default_body(self, ectx, tname):
+    if (ectx.Ber()):
+      body = ectx.eth_fn_call('%(TYPE_REF_FN)s', ret='offset',
+                              par=(('%(IMPLICIT_TAG)s', '%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s'),))
     elif (ectx.NPer()):
-      body = ectx.eth_fn_call('dissect_%s_%s' % (ectx.eth_type[t]['proto'], t), ret='offset',
-                              par=(('tvb', 'offset', 'pinfo', 'tree'),
-                                   ('hf_index', 'item', 'private_data')))
+      body = ectx.eth_fn_call('%(TYPE_REF_FN)s', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s', 'item', 'private_data'),))
     elif (ectx.OPer()):
-      body = ectx.eth_fn_call('dissect_%s_%s' % (ectx.eth_type[t]['proto'], t), ret='offset',
-                              par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),))
+      body = ectx.eth_fn_call('%(TYPE_REF_FN)s', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s'),))
     else:
       body = '#error Can not decode %s' % (tname)
-    out += ectx.eth_type_fn_body(tname, body)
-    out += ectx.eth_type_fn_ftr(tname)
-    return out
+    return body
 
 #--- SqType -----------------------------------------------------------
 class SqType (Type):
@@ -2033,8 +2036,45 @@ class SqType (Type):
       out = ''
     return out   
 
+#--- SeqType -----------------------------------------------------------
+class SeqType (SqType):
+  def eth_type_default_table(self, ectx, tname):
+    #print "eth_type_default_table(tname='%s')" % (tname)
+    fname = ectx.eth_type[tname]['ref'][0]
+    table = "static const %(ER)s_sequence_t %(TABLE)s[] = {\n"
+    if hasattr(self, 'ext_list'):
+      ext = 'ASN1_EXTENSION_ROOT'
+    else:
+      ext = 'ASN1_NO_EXTENSIONS'
+    for e in (self.elt_list):
+      f = fname + '/' + e.val.name
+      table += self.out_item(f, e.val, e.optional, ext, ectx)
+    if hasattr(self, 'ext_list'):
+      for e in (self.ext_list):
+        f = fname + '/' + e.val.name
+        table += self.out_item(f, e.val, e.optional, 'ASN1_NOT_EXTENSION_ROOT', ectx)
+    if (ectx.Ber()):
+      table += "  { 0, 0, 0, NULL }\n};\n"
+    else:
+      table += "  { NULL, 0, 0, NULL }\n};\n"
+    return table
+
+#--- SeqOfType -----------------------------------------------------------
+class SeqOfType (SqType):
+  def eth_type_default_table(self, ectx, tname):
+    #print "eth_type_default_table(tname='%s')" % (tname)
+    fname = ectx.eth_type[tname]['ref'][0]
+    if self.val.IsNamed ():
+      f = fname + '/' + self.val.name
+    else:
+      f = fname + '/' + '_item'
+    table = "static const %(ER)s_sequence_t %(TABLE)s[1] = {\n"
+    table += self.out_item(f, self.val, False, 'ASN1_NO_EXTENSIONS', ectx)
+    table += "};\n"
+    return table
+
 #--- SequenceOfType -----------------------------------------------------------
-class SequenceOfType (SqType):
+class SequenceOfType (SeqOfType):
   def to_python (self, ctx):
     # name, tag (None for no tag, EXPLICIT() for explicit), typ)
     # or '' + (1,) for optional
@@ -2076,18 +2116,6 @@ class SequenceOfType (SqType):
     pars['TABLE'] = '%(TNAME)s_sequence_of'
     return pars
 
-  def eth_type_default_table(self, ectx, tname):
-    #print "eth_type_default_table(tname='%s')" % (tname)
-    fname = ectx.eth_type[tname]['ref'][0]
-    if self.val.IsNamed ():
-      f = fname + '/' + self.val.name
-    else:
-      f = fname + '/' + '_item'
-    table = "static const %(ER)s_sequence_t %(TABLE)s[1] = {\n"
-    table += self.out_item(f, self.val, False, 'ASN1_NO_EXTENSIONS', ectx)
-    table += "};\n"
-    return table
-
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_%(ER)s_sequence_of', ret='offset',
@@ -2119,7 +2147,7 @@ class SequenceOfType (SqType):
 
 
 #--- SetOfType ----------------------------------------------------------------
-class SetOfType (SqType):
+class SetOfType (SeqOfType):
   def eth_reg_sub(self, ident, ectx):
     itmnm = ident
     if not self.val.IsNamed ():
@@ -2150,18 +2178,6 @@ class SetOfType (SqType):
     (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_size_constr()
     pars['TABLE'] = '%(TNAME)s_set_of'
     return pars
-
-  def eth_type_default_table(self, ectx, tname):
-    #print "eth_type_default_table(tname='%s')" % (tname)
-    fname = ectx.eth_type[tname]['ref'][0]
-    if self.val.IsNamed ():
-      f = fname + '/' + self.val.name
-    else:
-      f = fname + '/' + '_item'
-    table = "static const %(ER)s_sequence_t %(TABLE)s[1] = {\n"
-    table += self.out_item(f, self.val, False, 'ASN1_NO_EXTENSIONS', ectx)
-    table += "};\n"
-    return table
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
@@ -2216,7 +2232,7 @@ class Tag (Node):
     return (tc, self.num)
  
 #--- SequenceType -------------------------------------------------------------
-class SequenceType (SqType):
+class SequenceType (SeqType):
   def to_python (self, ctx):
       # name, tag (None for no tag, EXPLICIT() for explicit), typ)
       # or '' + (1,) for optional
@@ -2274,46 +2290,30 @@ class SequenceType (SqType):
   def GetTTag(self, ectx):
     return ('BER_CLASS_UNI', 'BER_UNI_TAG_SEQUENCE')
 
-  def eth_type_fn(self, proto, tname, ectx):
-    fname = ectx.eth_type[tname]['ref'][0]
-    out = "static const %s_sequence_t %s_sequence[] = {\n" % (ectx.encp(), tname)
-    if hasattr(self, 'ext_list'):
-      ext = 'ASN1_EXTENSION_ROOT'
-    else:
-      ext = 'ASN1_NO_EXTENSIONS'
-    for e in (self.elt_list):
-      f = fname + '/' + e.val.name
-      out += self.out_item(f, e.val, e.optional, ext, ectx)
-    if hasattr(self, 'ext_list'):
-      for e in (self.ext_list):
-        f = fname + '/' + e.val.name
-        out += self.out_item(f, e.val, e.optional, 'ASN1_NOT_EXTENSION_ROOT', ectx)
+  def eth_type_default_pars(self, ectx, tname):
+    pars = Type.eth_type_default_pars(self, ectx, tname)
+    pars['TABLE'] = '%(TNAME)s_sequence'
+    return pars
+
+  def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
-      out += "  { 0, 0, 0, NULL }\n};\n"
-    else:
-      out += "  { NULL, 0, 0, NULL }\n};\n"
-    out += ectx.eth_type_fn_hdr(tname)
-    if (ectx.OBer()):
-      body = ectx.eth_fn_call('dissect_ber_sequence', ret='offset',
-                              par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset'),
-                                   (tname+'_sequence', 'hf_index', ectx.eth_type[tname]['tree'])))
+      body = ectx.eth_fn_call('dissect_%(ER)s_sequence', ret='offset',
+                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                                   ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
     elif (ectx.NPer()):
-      body = ectx.eth_fn_call('dissect_pern_sequence', ret='offset',
-                              par=(('tvb', 'offset', 'pinfo', 'tree'),
-                                   ('hf_index', 'item', 'private_data'),
-                                   (ectx.eth_type[tname]['tree'], tname+'_sequence', '"'+tname+'"')))
+      body = ectx.eth_fn_call('dissect_%(ER)s_sequence', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s', 'item', 'private_data'),
+                                   ('%(ETT_INDEX)s', '%(TABLE)s',),))
     elif (ectx.OPer()):
-      body = ectx.eth_fn_call('dissect_per_sequence', ret='offset',
-                              par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
-                                   (ectx.eth_type[tname]['tree'], tname+'_sequence')))
+      body = ectx.eth_fn_call('dissect_%(ER)s_sequence', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s'),
+                                   ('%(ETT_INDEX)s', '%(TABLE)s',),))
     else:
       body = '#error Can not decode %s' % (tname)
-    out += ectx.eth_type_fn_body(tname, body)
-    out += ectx.eth_type_fn_ftr(tname)
-    return out
+    return body
 
 #--- SetType ------------------------------------------------------------------
-class SetType(SqType):
+class SetType(SeqType):
   def eth_reg_sub(self, ident, ectx):
     for e in (self.elt_list):
       e.val.eth_reg(ident, ectx, parent=ident)
@@ -2327,234 +2327,226 @@ class SetType(SqType):
   def GetTTag(self, ectx):
     return ('BER_CLASS_UNI', 'BER_UNI_TAG_SET')
 
-  def eth_type_fn(self, proto, tname, ectx):
-    out = "static const %s_sequence_t %s_set[] = {\n" % (ectx.encp(), tname)
+  def eth_type_default_pars(self, ectx, tname):
+    pars = Type.eth_type_default_pars(self, ectx, tname)
+    pars['TABLE'] = '%(TNAME)s_set'
+    return pars
+
+  def eth_type_default_body(self, ectx, tname):
+    if (ectx.Ber()):
+      body = ectx.eth_fn_call('dissect_%(ER)s_set', ret='offset',
+                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                                   ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
+    elif (ectx.NPer()):
+      body = ectx.eth_fn_call('dissect_%(ER)s_set', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s', 'item', 'private_data'),
+                                   ('%(ETT_INDEX)s', '%(TABLE)s',),))
+    elif (ectx.OPer()):
+      body = ectx.eth_fn_call('dissect_%(ER)s_set', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s'),
+                                   ('%(ETT_INDEX)s', '%(TABLE)s',),))
+    else:
+      body = '#error Can not decode %s' % (tname)
+    return body
+
+#--- ChoiceType ---------------------------------------------------------------
+class ChoiceType (Type):
+  def to_python (self, ctx):
+      # name, tag (None for no tag, EXPLICIT() for explicit), typ)
+      # or '' + (1,) for optional
+      if self.__dict__.has_key('ext_list'):
+        return "%sasn1.CHOICE ([%s], ext=[%s])" % (ctx.spaces (), 
+                               self.elts_to_py (self.elt_list, ctx),
+                               self.elts_to_py (self.ext_list, ctx))
+      else:
+        return "%sasn1.CHOICE ([%s])" % (ctx.spaces (), self.elts_to_py (self.elt_list, ctx))
+  def elts_to_py (self, list, ctx):
+      ctx.indent ()
+      def elt_to_py (nt):
+          assert (nt.type == 'named_type')
+          tagstr = 'None'
+          if hasattr (nt, 'ident'):
+              identstr = nt.ident
+          else:
+              if hasattr (nt.typ, 'val'):
+                  identstr = nt.typ.val # XXX, making up name
+              elif hasattr (nt.typ, 'name'):
+                  identstr = nt.typ.name
+              else:
+                  identstr = ctx.make_new_name ()
+
+          if hasattr (nt.typ, 'type') and nt.typ.type == 'tag': # ugh
+              tagstr = mk_tag_str (ctx,nt.typ.tag.cls,
+                                   nt.typ.tag.tag_typ,nt.typ.tag.num)
+      
+
+              nt = nt.typ
+          return "('%s',%s,%s)" % (identstr, tagstr,
+                                    nt.typ.to_python (ctx))
+      indentstr = ",\n" + ctx.spaces ()
+      rv =  indentstr.join ([elt_to_py (e) for e in list])
+      ctx.outdent ()
+      return rv
+
+  def eth_reg_sub(self, ident, ectx):
+      #print "eth_reg_sub(ident='%s')" % (ident)
+      for e in (self.elt_list):
+          e.eth_reg(ident, ectx, parent=ident)
+      if hasattr(self, 'ext_list'):
+          for e in (self.ext_list):
+              e.eth_reg(ident, ectx, parent=ident)
+
+  def eth_ftype(self, ectx):
+    return ('FT_UINT32', 'BASE_DEC')
+
+  def eth_strings(self):
+    return '$$'
+
+  def eth_need_tree(self):
+    return True
+
+  def eth_has_vals(self):
+    return True
+
+  def GetTTag(self, ectx):
+    lst = self.elt_list
+    cls = '-1/*choice*/'
+    if hasattr(self, 'ext_list'):
+      lst.extend(self.ext_list)
+    if (len(lst) > 0):
+      cls = lst[0].GetTag(ectx)[0]
+    for e in (lst):
+      if (e.GetTag(ectx)[0] != cls):
+        cls = '-1/*choice*/'
+    return (cls, '-1/*choice*/')
+
+  def IndetermTag(self, ectx):
+    #print "Choice IndetermTag()=%s" % (str(not self.HasOwnTag()))
+    return not self.HasOwnTag()
+
+  def eth_type_vals(self, tname, ectx):
+    out = '\n'
+    tagval = False
+    if (ectx.Ber()):
+      lst = self.elt_list
+      if hasattr(self, 'ext_list'):
+        lst.extend(self.ext_list)
+      if (len(lst) > 0):
+        t = lst[0].GetTag(ectx)[0]
+        tagval = True
+      if (t == 'BER_CLASS_UNI'):
+        tagval = False
+      for e in (lst):
+        if (e.GetTag(ectx)[0] != t):
+          tagval = False
+    vals = []
+    cnt = 0
+    for e in (self.elt_list):
+      if (tagval): val = e.GetTag(ectx)[1]
+      else: val = str(cnt)
+      vals.append((val, e.name))
+      cnt += 1
+    if hasattr(self, 'ext_list'):
+      for e in (self.ext_list):
+        if (tagval): val = e.GetTag(ectx)[1]
+        else: val = str(cnt)
+        vals.append((val, e.name))
+        cnt += 1
+    out += ectx.eth_vals(tname, vals)
+    return out
+
+  def eth_type_default_pars(self, ectx, tname):
+    pars = Type.eth_type_default_pars(self, ectx, tname)
+    pars['TABLE'] = '%(TNAME)s_choice'
+    pars['CHOICE_NAME'] = '"%(TNAME)s"'
+    return pars
+
+  def eth_type_default_table(self, ectx, tname):
+    def out_item(val, e, ext, ectx):
+      f = fname + '/' + e.name
+      ef = ectx.field[f]['ethname']
+      efd = ef
+      if (ectx.field[f]['impl']):
+        efd += '_impl'
+      if (ectx.Ber()):
+        opt = ''
+        if (not e.HasOwnTag()):
+          opt = 'BER_FLAGS_NOOWNTAG'
+        elif (e.tag.mode == 'IMPLICIT'):
+          if (opt): opt += '|'
+          opt += 'BER_FLAGS_IMPLTAG'
+        if (not opt): opt = '0'
+      if (ectx.OBer()):
+        (tc, tn) = e.GetTag(ectx)
+        out = '  { %3s, %-13s, %s, %s, dissect_%s },\n' \
+              % (val, tc, tn, opt, efd)
+      elif (ectx.NPer()):
+        out = '  { %3s, &%-30s, %-23s, dissect_%s_%s },\n' \
+              % (val, ef, ext, ectx.eth_type[ectx.eth_hf[ef]['ethtype']]['proto'], ectx.eth_hf[ef]['ethtype'])
+      elif (ectx.OPer()):
+        out = '  { %3s, %-30s, %-23s, dissect_%s },\n' \
+              % (val, '"'+e.name+'"', ext, efd)
+      else:
+        out = ''
+      return out   
+    # end out_item()
+    #print "eth_type_default_table(tname='%s')" % (tname)
     fname = ectx.eth_type[tname]['ref'][0]
+    tagval = False
+    if (ectx.Ber()):
+      lst = self.elt_list
+      if hasattr(self, 'ext_list'):
+        lst.extend(self.ext_list)
+      if (len(lst) > 0):
+        t = lst[0].GetTag(ectx)[0]
+        tagval = True
+      if (t == 'BER_CLASS_UNI'):
+        tagval = False
+      for e in (lst):
+        if (e.GetTag(ectx)[0] != t):
+          tagval = False
+    table = "static const %(ER)s_choice_t %(TABLE)s[] = {\n"
+    cnt = 0
     if hasattr(self, 'ext_list'):
       ext = 'ASN1_EXTENSION_ROOT'
     else:
       ext = 'ASN1_NO_EXTENSIONS'
     for e in (self.elt_list):
-      f = fname + '/' + e.val.name
-      out += self.out_item(f, e.val, e.optional, ext, ectx)
+      if (tagval): val = e.GetTag(ectx)[1]
+      else: val = str(cnt)
+      table += out_item(val, e, ext, ectx)
+      cnt += 1
     if hasattr(self, 'ext_list'):
       for e in (self.ext_list):
-        f = fname + '/' + e.val.name
-        out += self.out_item(f, e.val, e.optional, 'ASN1_NOT_EXTENSION_ROOT', ectx)
-    out += "  { NULL, 0, 0, NULL }\n};\n"
-    out += ectx.eth_type_fn_hdr(tname)
-    if (ectx.OBer()):
-      body = ectx.eth_fn_call('dissect_ber_set', ret='offset',
-                              par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset'),
-                                   (tname+'_set', 'hf_index', ectx.eth_type[tname]['tree'])))
+        if (tagval): val = e.GetTag(ectx)[1]
+        else: val = str(cnt)
+        table += out_item(val, e, 'ASN1_NOT_EXTENSION_ROOT', ectx)
+        cnt += 1
+    if (ectx.Ber()):
+      table += "  { 0, 0, 0, 0, NULL }\n};\n"
+    else:
+      table += "  { 0, NULL, 0, NULL }\n};\n"
+    return table
+
+  def eth_type_default_body(self, ectx, tname):
+    if (ectx.Ber()):
+      body = ectx.eth_fn_call('dissect_%(ER)s_choice', ret='offset',
+                              par=(('%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                                   ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s'),
+                                   ('%(VAL_PTR)s',),))
     elif (ectx.NPer()):
-      body = ectx.eth_fn_call('dissect_pern_set', ret='offset',
-                              par=(('tvb', 'offset', 'pinfo', 'tree'),
-                                   ('hf_index', 'item', 'private_data'),
-                                   (ectx.eth_type[tname]['tree'], tname+'_set', '"'+tname+'"')))
+      body = ectx.eth_fn_call('dissect_%(ER)s_choice', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s', 'item', 'private_data'),
+                                   ('%(ETT_INDEX)s', '%(TABLE)s', '%(CHOICE_NAME)s',),
+                                   ('%(VAL_PTR)s',),))
     elif (ectx.OPer()):
-      body = ectx.eth_fn_call('dissect_per_sequence', ret='offset',
-                              par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
-                                   (ectx.eth_type[tname]['tree'], tname+'_set')))
+      body = ectx.eth_fn_call('dissect_%(ER)s_choice', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s'),
+                                   ('%(ETT_INDEX)s', '%(TABLE)s', '%(CHOICE_NAME)s',),
+                                   ('%(VAL_PTR)s',),))
     else:
       body = '#error Can not decode %s' % (tname)
-    out += ectx.eth_type_fn_body(tname, body)
-    out += ectx.eth_type_fn_ftr(tname)
-    return out
-
-#--- ChoiceType ---------------------------------------------------------------
-class ChoiceType (Type):
-    def to_python (self, ctx):
-        # name, tag (None for no tag, EXPLICIT() for explicit), typ)
-        # or '' + (1,) for optional
-        if self.__dict__.has_key('ext_list'):
-          return "%sasn1.CHOICE ([%s], ext=[%s])" % (ctx.spaces (), 
-                                 self.elts_to_py (self.elt_list, ctx),
-                                 self.elts_to_py (self.ext_list, ctx))
-        else:
-          return "%sasn1.CHOICE ([%s])" % (ctx.spaces (), self.elts_to_py (self.elt_list, ctx))
-    def elts_to_py (self, list, ctx):
-        ctx.indent ()
-        def elt_to_py (nt):
-            assert (nt.type == 'named_type')
-            tagstr = 'None'
-            if hasattr (nt, 'ident'):
-                identstr = nt.ident
-            else:
-                if hasattr (nt.typ, 'val'):
-                    identstr = nt.typ.val # XXX, making up name
-                elif hasattr (nt.typ, 'name'):
-                    identstr = nt.typ.name
-                else:
-                    identstr = ctx.make_new_name ()
-
-            if hasattr (nt.typ, 'type') and nt.typ.type == 'tag': # ugh
-                tagstr = mk_tag_str (ctx,nt.typ.tag.cls,
-                                     nt.typ.tag.tag_typ,nt.typ.tag.num)
-        
-
-                nt = nt.typ
-            return "('%s',%s,%s)" % (identstr, tagstr,
-                                      nt.typ.to_python (ctx))
-        indentstr = ",\n" + ctx.spaces ()
-        rv =  indentstr.join ([elt_to_py (e) for e in list])
-        ctx.outdent ()
-        return rv
-
-    def eth_reg_sub(self, ident, ectx):
-        #print "eth_reg_sub(ident='%s')" % (ident)
-        for e in (self.elt_list):
-            e.eth_reg(ident, ectx, parent=ident)
-        if hasattr(self, 'ext_list'):
-            for e in (self.ext_list):
-                e.eth_reg(ident, ectx, parent=ident)
-
-    def eth_ftype(self, ectx):
-      return ('FT_UINT32', 'BASE_DEC')
-
-    def eth_strings(self):
-      return '$$'
-
-    def eth_need_tree(self):
-      return True
-
-    def eth_has_vals(self):
-      return True
-
-    def GetTTag(self, ectx):
-      lst = self.elt_list
-      cls = '-1/*choice*/'
-      if hasattr(self, 'ext_list'):
-        lst.extend(self.ext_list)
-      if (len(lst) > 0):
-        cls = lst[0].GetTag(ectx)[0]
-      for e in (lst):
-        if (e.GetTag(ectx)[0] != cls):
-          cls = '-1/*choice*/'
-      return (cls, '-1/*choice*/')
-
-    def IndetermTag(self, ectx):
-      #print "Choice IndetermTag()=%s" % (str(not self.HasOwnTag()))
-      return not self.HasOwnTag()
-
-    def eth_type_vals(self, tname, ectx):
-      out = '\n'
-      tagval = False
-      if (ectx.Ber()):
-        lst = self.elt_list
-        if hasattr(self, 'ext_list'):
-          lst.extend(self.ext_list)
-        if (len(lst) > 0):
-          t = lst[0].GetTag(ectx)[0]
-          tagval = True
-        if (t == 'BER_CLASS_UNI'):
-          tagval = False
-        for e in (lst):
-          if (e.GetTag(ectx)[0] != t):
-            tagval = False
-      vals = []
-      cnt = 0
-      for e in (self.elt_list):
-        if (tagval): val = e.GetTag(ectx)[1]
-        else: val = str(cnt)
-        vals.append((val, e.name))
-        cnt += 1
-      if hasattr(self, 'ext_list'):
-        for e in (self.ext_list):
-          if (tagval): val = e.GetTag(ectx)[1]
-          else: val = str(cnt)
-          vals.append((val, e.name))
-          cnt += 1
-      out += ectx.eth_vals(tname, vals)
-      return out
-
-    def eth_type_fn(self, proto, tname, ectx):
-      def out_item(val, e, ext, ectx):
-        f = fname + '/' + e.name
-        ef = ectx.field[f]['ethname']
-        efd = ef
-        if (ectx.field[f]['impl']):
-          efd += '_impl'
-        if (ectx.Ber()):
-          opt = ''
-          if (not e.HasOwnTag()):
-            opt = 'BER_FLAGS_NOOWNTAG'
-          elif (e.tag.mode == 'IMPLICIT'):
-            if (opt): opt += '|'
-            opt += 'BER_FLAGS_IMPLTAG'
-          if (not opt): opt = '0'
-        if (ectx.OBer()):
-          (tc, tn) = e.GetTag(ectx)
-          out = '  { %3s, %-13s, %s, %s, dissect_%s },\n' \
-                % (val, tc, tn, opt, efd)
-        elif (ectx.NPer()):
-          out = '  { %3s, &%-30s, %-23s, dissect_%s_%s },\n' \
-                % (val, ef, ext, ectx.eth_type[ectx.eth_hf[ef]['ethtype']]['proto'], ectx.eth_hf[ef]['ethtype'])
-        elif (ectx.OPer()):
-          out = '  { %3s, %-30s, %-23s, dissect_%s },\n' \
-                % (val, '"'+e.name+'"', ext, efd)
-        else:
-          out = ''
-        return out   
-      # end out_item()
-      fname = ectx.eth_type[tname]['ref'][0]
-      out = '\n'
-      tagval = False
-      if (ectx.Ber()):
-        lst = self.elt_list
-        if hasattr(self, 'ext_list'):
-          lst.extend(self.ext_list)
-        if (len(lst) > 0):
-          t = lst[0].GetTag(ectx)[0]
-          tagval = True
-        if (t == 'BER_CLASS_UNI'):
-          tagval = False
-        for e in (lst):
-          if (e.GetTag(ectx)[0] != t):
-            tagval = False
-      out += "static const %s_choice_t %s_choice[] = {\n" % (ectx.encp(), tname)
-      cnt = 0
-      if hasattr(self, 'ext_list'):
-        ext = 'ASN1_EXTENSION_ROOT'
-      else:
-        ext = 'ASN1_NO_EXTENSIONS'
-      for e in (self.elt_list):
-        if (tagval): val = e.GetTag(ectx)[1]
-        else: val = str(cnt)
-        out += out_item(val, e, ext, ectx)
-        cnt += 1
-      if hasattr(self, 'ext_list'):
-        for e in (self.ext_list):
-          if (tagval): val = e.GetTag(ectx)[1]
-          else: val = str(cnt)
-          out += out_item(val, e, 'ASN1_NOT_EXTENSION_ROOT', ectx)
-          cnt += 1
-      if (ectx.Ber()):
-        out += "  { 0, 0, 0, 0, NULL }\n};\n"
-      else:
-        out += "  { 0, NULL, 0, NULL }\n};\n"
-      out += ectx.eth_type_fn_hdr(tname)
-      if (ectx.Ber()):
-        body = ectx.eth_fn_call('dissect_ber_choice', ret='offset',
-                                par=(('pinfo', 'tree', 'tvb', 'offset'),
-                                     (tname+'_choice', 'hf_index', ectx.eth_type[tname]['tree'], 'NULL')))
-      elif (ectx.NPer()):
-        body = ectx.eth_fn_call('dissect_pern_choice', ret='offset',
-                                par=(('tvb', 'offset', 'pinfo', 'tree'),
-                                     ('hf_index', 'item', 'private_data'),
-                                     (ectx.eth_type[tname]['tree'], tname+'_choice'+ectx.pvp(), '"'+tname+'"'),
-                                     ('NULL',)))
-      elif (ectx.OPer()):
-        body = ectx.eth_fn_call('dissect_per_choice', ret='offset',
-                                par=(('tvb', 'offset', 'pinfo', 'tree', 'hf_index'),
-                                     (ectx.eth_type[tname]['tree'], tname+'_choice', '"'+tname+'"'),
-                                     ('NULL',)))
-      else:
-        body = '#error Can not decode %s' % (tname)
-      out += ectx.eth_type_fn_body(tname, body)
-      out += ectx.eth_type_fn_ftr(tname)
-      return out
-
+    return body
    
 #--- EnumeratedType -----------------------------------------------------------
 class EnumeratedType (Type):
