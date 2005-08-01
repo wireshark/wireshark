@@ -3,21 +3,28 @@
 %define rel      1
 %define prefix   /usr
 
-Summary:	Network traffic analyzer
+Summary:	Network protocol analyzer
 Name:		ethereal
 Version:	%ver
 Release:	%rel
 License:	GPL
 Group:		Networking/Utilities
-Source:		ethereal-%{PACKAGE_VERSION}.tar.gz
+Source:		http://ethereal.com/distribution/all-versions/%{name}-%{version}.tar.gz
+Source1:	%{name}.desktop
+Source2:	%{name}.png
 URL:		http://www.ethereal.com/
 BuildRoot:	/tmp/ethereal-%{PACKAGE_VERSION}-root
-Packager:	FastJack <fastjack@i-s-o.net>
+Packager:	Gerald Combs <gerald[AT]ethereal.com>
 Requires:	gtk2
 Requires:	libpcap openssl
 
 %description
-Ethereal is a network traffic analyzer for Unix-ish operating systems.
+Ethereal is a free network protocol analyzer for Unix and Windows. It
+allows you to examine data from a live network or from a capture file
+on disk. You can interactively browse the capture data, viewing summary
+and detail information for each packet. Ethereal has several powerful
+features, including a rich display filter language and the ability to
+view the reconstructed stream of a TCP session.
 
 %prep
 %setup
@@ -46,6 +53,13 @@ rm -rf $RPM_BUILD_ROOT
 %prefix/man/*/*
 
 %changelog
+* Mon Aug 01 2005 Gerald Combs
+- Add a desktop file and icon for future use
+
+- Take over the role of packager
+
+- Update descriptions and source locations
+
 * Thu Oct 28 2004 Joerg Mayer
 - Add openssl requirement (heimdal and net-snmp are still automatic)
 
