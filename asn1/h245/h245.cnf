@@ -9,27 +9,27 @@ DataProtocolCapability NO_PROT_PREFIX
 OpenLogicalChannel
 
 #----------------------------------------------------------------------------------------
+#.FN_PARS RequestMessage
+  VAL_PTR = &value
 #.FN_BODY RequestMessage
   guint32 value;
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h245_RequestMessage, RequestMessage_choice, "RequestMessage",
-                              &value);
 
+%(DEFAULT_BODY)s
 	if (check_col(pinfo->cinfo, COL_INFO)){
 	        if ( h245_shorttypes == TRUE )
 	        {
-	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_RequestMessage_short_vals, "<unknown>"));
 		}
 		else
 		{
-	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_RequestMessage_vals, "<unknown>"));
 		}
 	}
 
 	if (( check_col(pinfo->cinfo, COL_INFO)) && ( codec_type != NULL ) && ( value == 3) ){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", codec_type );
+		col_append_fstr(pinfo->cinfo, COL_INFO, "(%%s) ", codec_type );
 	}
 
         col_set_fence(pinfo->cinfo,COL_INFO);
@@ -38,33 +38,32 @@ OpenLogicalChannel
 
     /* if it is TCS*/
     if ((codec_type != NULL) && ( value == 2))
-                g_snprintf(h245_pi->frame_label, 50, "%s (%s) ",val_to_str(value, h245_RequestMessage_short_vals, "UKN"), h245_pi->frame_label);
+                g_snprintf(h245_pi->frame_label, 50, "%%s (%%s) ",val_to_str(value, h245_RequestMessage_short_vals, "UKN"), h245_pi->frame_label);
     else
-                g_snprintf(h245_pi->frame_label, 50, "%s ", val_to_str(value, h245_RequestMessage_short_vals, "UKN"));
+                g_snprintf(h245_pi->frame_label, 50, "%%s ", val_to_str(value, h245_RequestMessage_short_vals, "UKN"));
 
-    g_snprintf(h245_pi->comment, 50, "%s %s ", h245_pi->comment, val_to_str(value, h245_RequestMessage_vals, "<unknown>"));
+    g_snprintf(h245_pi->comment, 50, "%%s %%s ", h245_pi->comment, val_to_str(value, h245_RequestMessage_vals, "<unknown>"));
 
     /* if it is OLC or RM*/
     if ((codec_type != NULL) && (( value == 3) || ( value == 8)))
-                g_snprintf(h245_pi->frame_label, 50, "%s (%s) ", h245_pi->frame_label, codec_type);
+                g_snprintf(h245_pi->frame_label, 50, "%%s (%%s) ", h245_pi->frame_label, codec_type);
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_PARS ResponseMessage
+  VAL_PTR = &value
 #.FN_BODY ResponseMessage
   guint32 value;
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h245_ResponseMessage, ResponseMessage_choice, "ResponseMessage",
-                              &value);
 
-
+%(DEFAULT_BODY)s
 	if (check_col(pinfo->cinfo, COL_INFO)){
 	        if ( h245_shorttypes == TRUE )
 	        {
-	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_ResponseMessage_short_vals, "<unknown>"));
 		}
 		else
 		{
-	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_ResponseMessage_vals, "<unknown>"));
 		}
 	}
@@ -72,126 +71,121 @@ OpenLogicalChannel
 	col_set_fence(pinfo->cinfo,COL_INFO);
 
     /* Add to packet info */
-    g_snprintf(h245_pi->frame_label, 50, "%s %s ", h245_pi->frame_label, val_to_str(value, h245_ResponseMessage_short_vals, "UKN"));
-    g_snprintf(h245_pi->comment, 50, "%s %s ", h245_pi->comment, val_to_str(value, h245_ResponseMessage_vals, "<unknown>"));
+    g_snprintf(h245_pi->frame_label, 50, "%%s %%s ", h245_pi->frame_label, val_to_str(value, h245_ResponseMessage_short_vals, "UKN"));
+    g_snprintf(h245_pi->comment, 50, "%%s %%s ", h245_pi->comment, val_to_str(value, h245_ResponseMessage_vals, "<unknown>"));
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_PARS IndicationMessage
+  VAL_PTR = &value
 #.FN_BODY IndicationMessage
   guint32 value;
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h245_IndicationMessage, IndicationMessage_choice, "IndicationMessage",
-                              &value);
 
-
+%(DEFAULT_BODY)s
 	if (check_col(pinfo->cinfo, COL_INFO)){
 	        if ( h245_shorttypes == TRUE )
 	        {
-	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_IndicationMessage_short_vals, "<unknown>"));
 		}
 		else
 		{
-	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_IndicationMessage_vals, "<unknown>"));
 		}
 	}
 
 	col_set_fence(pinfo->cinfo,COL_INFO);
     /* Add to packet info */
-    g_snprintf(h245_pi->frame_label, 50, "%s %s ", h245_pi->frame_label, val_to_str(value, h245_IndicationMessage_short_vals, "UKN"));
-    g_snprintf(h245_pi->comment, 50, "%s %s ", h245_pi->comment, val_to_str(value, h245_IndicationMessage_vals, "<unknown>"));
+    g_snprintf(h245_pi->frame_label, 50, "%%s %%s ", h245_pi->frame_label, val_to_str(value, h245_IndicationMessage_short_vals, "UKN"));
+    g_snprintf(h245_pi->comment, 50, "%%s %%s ", h245_pi->comment, val_to_str(value, h245_IndicationMessage_vals, "<unknown>"));
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_PARS CommandMessage
+  VAL_PTR = &value
 #.FN_BODY CommandMessage
   guint32 value;
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h245_CommandMessage, CommandMessage_choice, "CommandMessage",
-                              &value);
 
-
+%(DEFAULT_BODY)s
 	if (check_col(pinfo->cinfo, COL_INFO)){
 	        if ( h245_shorttypes == TRUE )
 	        {
-	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_CommandMessage_short_vals, "<unknown>"));
 		}
 		else
 		{
-	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+	        	col_append_fstr(pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_CommandMessage_vals, "<unknown>"));
 		}
 	}
 
 	col_set_fence(pinfo->cinfo,COL_INFO);
     /* Add to packet info */
-    g_snprintf(h245_pi->frame_label, 50, "%s %s ", h245_pi->frame_label, val_to_str(value, h245_CommandMessage_short_vals, "UKN"));
-    g_snprintf(h245_pi->comment, 50, "%s %s ", h245_pi->comment, val_to_str(value, h245_CommandMessage_vals, "<unknown>"));
+    g_snprintf(h245_pi->frame_label, 50, "%%s %%s ", h245_pi->frame_label, val_to_str(value, h245_CommandMessage_short_vals, "UKN"));
+    g_snprintf(h245_pi->comment, 50, "%%s %%s ", h245_pi->comment, val_to_str(value, h245_CommandMessage_vals, "<unknown>"));
 
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_PARS AudioCapability
+  VAL_PTR = &value
 #.FN_BODY AudioCapability
   guint32 value;
 
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h245_AudioCapability, AudioCapability_choice, "AudioCapability",
-                              &value);
-
+%(DEFAULT_BODY)s
         codec_type = val_to_str(value, h245_AudioCapability_short_vals, "<unknown>");
-		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, val_to_str(value, h245_AudioCapability_short_vals, "ukn"));
+		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%%s %%s", h245_pi->frame_label, val_to_str(value, h245_AudioCapability_short_vals, "ukn"));
 
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_PARS VideoCapability
+  VAL_PTR = &value
 #.FN_BODY VideoCapability
   guint32 value;
 
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h245_VideoCapability, VideoCapability_choice, "VideoCapability",
-                              &value);
-
+%(DEFAULT_BODY)s
         codec_type = val_to_str(value, h245_VideoCapability_vals, "<unknown>");
-		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, codec_type);
+		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%%s %%s", h245_pi->frame_label, codec_type);
 
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_PARS Application
+  VAL_PTR = &value
 #.FN_BODY Application
   guint32 value;
 
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h245_Application, Application_choice, "Application",
-                              &value);
-
+%(DEFAULT_BODY)s
         codec_type = val_to_str(value, h245_Application_vals, "<unknown>");
-		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, codec_type);
+		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%%s %%s", h245_pi->frame_label, codec_type);
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_PARS AudioMode
+  VAL_PTR = &value
 #.FN_BODY AudioMode
   guint32 value;
 
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h245_AudioMode, AudioMode_choice, "AudioMode",
-                              &value);
+%(DEFAULT_BODY)s
   codec_type = val_to_str(value, h245_AudioMode_vals, "<unknown>");
-		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, val_to_str(value, h245_AudioMode_vals, "ukn"));
+		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%%s %%s", h245_pi->frame_label, val_to_str(value, h245_AudioMode_vals, "ukn"));
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_PARS VideoMode
+  VAL_PTR = &value
 #.FN_BODY VideoMode
   guint32 value;
 
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h245_VideoMode, VideoMode_choice, "VideoMode",
-                              &value);
+%(DEFAULT_BODY)s
   codec_type = val_to_str(value, h245_VideoMode_vals, "<unknown>");
-		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, val_to_str(value, h245_VideoMode_vals, "ukn"));
+		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%%s %%s", h245_pi->frame_label, val_to_str(value, h245_VideoMode_vals, "ukn"));
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_PARS DataModeApplication
+  VAL_PTR = &value
 #.FN_BODY DataModeApplication
   guint32 value;
 
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h245_DataModeApplication, DataModeApplication_choice, "DataModeApplication",
-                              &value);
+%(DEFAULT_BODY)s
   codec_type = val_to_str(value, h245_DataModeApplication_vals, "<unknown>");
-		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%s %s", h245_pi->frame_label, val_to_str(value, h245_DataModeApplication_vals, "ukn"));
+		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%%s %%s", h245_pi->frame_label, val_to_str(value, h245_DataModeApplication_vals, "ukn"));
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR MasterSlaveDeterminationAck
@@ -275,12 +269,13 @@ OpenLogicalChannel
   VAL_PTR = &subMessageIdentifer
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_PARS UnicastAddress/iPAddress/network
+  VAL_PTR = &value_tvb
 #.FN_BODY UnicastAddress/iPAddress/network
 
 	tvbuff_t *value_tvb;
 
-  offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
-                                    4, 4, &value_tvb);
+%(DEFAULT_BODY)s
   if ( media_channel )
 	tvb_memcpy(value_tvb, (char *)&ipv4_address, 0, 4);
 
@@ -414,17 +409,17 @@ OpenLogicalChannel
 
 #--- NonStandardParameter ---------------------------------------------------------------
 
+#.FN_PARS
+NonStandardIdentifier         VAL_PTR = &value
+NonStandardIdentifier/object  VAL_PTR = nsiOID
+#.END
 #.FN_BODY NonStandardIdentifier
 	guint32 value;
 
 	nsiOID[0] = '\0';
 	h221NonStandard = 0;
 
-	offset = dissect_per_choice(tvb, offset, pinfo, tree,
-				hf_h245_nonStandardIdentifier,
-				ett_h245_NonStandardIdentifier, NonStandardIdentifier_choice, "NonStandardIdentifier",
-				&value);
-
+%(DEFAULT_BODY)s
 	switch (value) {
 		case 0 :  /* object */
 			nsp_handle = dissector_get_string_handle(nsp_object_dissector_table, nsiOID);
@@ -435,8 +430,6 @@ OpenLogicalChannel
 		default :
 			nsp_handle = NULL;
     }
-#.FN_PARS NonStandardIdentifier/object
-  VAL_PTR = nsiOID
 #.END
 
 #.FN_HDR NonStandardIdentifier/h221NonStandard

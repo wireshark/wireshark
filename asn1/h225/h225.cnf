@@ -137,16 +137,15 @@ RegistrationRejectReason/securityError reg_securityError
 CallIdentifier/guid guid
 
 #----------------------------------------------------------------------------------------
+#.FN_PARS H323-UU-PDU/h323-message-body
+  VAL_PTR = &message_body_val
 #.FN_BODY H323-UU-PDU/h323-message-body
 	guint32 message_body_val;
 
 	contains_faststart = FALSE;
-	offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h225_T_h323_message_body, T_h323_message_body_choice, "T_h323_message_body",
-                              &message_body_val);
-
+%(DEFAULT_BODY)s
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "CS: %s ",
+		col_append_fstr(pinfo->cinfo, COL_INFO, "CS: %%s ",
 			val_to_str(message_body_val, T_h323_message_body_vals, "<unknown>"));
         }
 
@@ -188,15 +187,14 @@ CallIdentifier/guid guid
 
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_PARS RasMessage
+  VAL_PTR = &rasmessage_value
 #.FN_BODY RasMessage
   	guint32 rasmessage_value;
 
-  	offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h225_RasMessage, RasMessage_choice, "RasMessage",
-                               &rasmessage_value);
-			       
+%(DEFAULT_BODY)s
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_add_fstr(pinfo->cinfo, COL_INFO, "RAS: %s ",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "RAS: %%s ",
 			val_to_str(rasmessage_value, RasMessage_vals, "<unknown>"));
 	}
 
@@ -369,112 +367,101 @@ CallIdentifier/guid guid
 
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_PARS 
+FacilityReason            VAL_PTR = &value
+GatekeeperRejectReason    VAL_PTR = &value
+UnregRequestReason        VAL_PTR = &value
+UnregRejectReason         VAL_PTR = &value
+BandRejectReason          VAL_PTR = &value
+DisengageReason           VAL_PTR = &value
+DisengageRejectReason     VAL_PTR = &value
+AdmissionRejectReason     VAL_PTR = &value
+LocationRejectReason      VAL_PTR = &value
+RegistrationRejectReason  VAL_PTR = &value
+InfoRequestNakReason      VAL_PTR = &value
+ReleaseCompleteReason     VAL_PTR = &value
+#.END
+
 #.FN_BODY FacilityReason
 	guint32 value;
 	
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h225_FacilityReason, FacilityReason_choice, "FacilityReason",
-                              &value);
+%(DEFAULT_BODY)s
 	h225_pi->reason = value;
-
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY GatekeeperRejectReason
   guint32 value;
 	
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h225_GatekeeperRejectReason, GatekeeperRejectReason_choice, "GatekeeperRejectReason",
-                              &value);
+%(DEFAULT_BODY)s
   h225_pi->reason = value;
-
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY UnregRequestReason
   guint32 value;
 	
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h225_UnregRequestReason, UnregRequestReason_choice, "UnregRequestReason",
-                              &value);
+%(DEFAULT_BODY)s
   h225_pi->reason = value;
-
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY UnregRejectReason
   guint32 value;
 
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h225_UnregRejectReason, UnregRejectReason_choice, "UnregRejectReason",
-                              &value);
+%(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY BandRejectReason
   guint32 value;
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h225_BandRejectReason, BandRejectReason_choice, "BandRejectReason",
-                              &value);
+
+%(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY DisengageReason
   guint32 value;
 	
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h225_DisengageReason, DisengageReason_choice, "DisengageReason",
-                              &value);
+%(DEFAULT_BODY)s
   h225_pi->reason = value;
 #----------------------------------------------------------------------------------------
 #.FN_BODY DisengageRejectReason
   guint32 value;
 	
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h225_DisengageRejectReason, DisengageRejectReason_choice, "DisengageRejectReason",
-                              &value);
+%(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY AdmissionRejectReason
   guint32 value;
 
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h225_AdmissionRejectReason, AdmissionRejectReason_choice, "AdmissionRejectReason",
-                              &value);
+%(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY LocationRejectReason
   guint32 value;
 
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h225_LocationRejectReason, LocationRejectReason_choice, "LocationRejectReason",
-                              &value);
+%(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY RegistrationRejectReason
   guint32 value;
 
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h225_RegistrationRejectReason, RegistrationRejectReason_choice, "RegistrationRejectReason",
-                              &value);
+%(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY InfoRequestNakReason
   guint32 value;
 	
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h225_InfoRequestNakReason, InfoRequestNakReason_choice, "InfoRequestNakReason",
-                              &value);
+%(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY ReleaseCompleteReason
   guint32 value;
 	
-  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_h225_ReleaseCompleteReason, ReleaseCompleteReason_choice, "ReleaseCompleteReason",
-                              &value);
+%(DEFAULT_BODY)s
   h225_pi->reason = value;
 #.END
 #----------------------------------------------------------------------------------------
@@ -526,17 +513,18 @@ CallIdentifier/guid guid
 
 #--- NonStandardParameter ---------------------------------------------------------------
 
+#.FN_PARS
+NonStandardIdentifier         VAL_PTR = &value
+NonStandardIdentifier/object  VAL_PTR = nsiOID
+#.END
+
 #.FN_BODY NonStandardIdentifier
 	guint32 value;
 
 	nsiOID[0] = '\0';
 	h221NonStandard = 0;
 
-	offset = dissect_per_choice(tvb, offset, pinfo, tree,
-				hf_h225_nonStandardIdentifier,
-				ett_h225_NonStandardIdentifier, NonStandardIdentifier_choice, "NonStandardIdentifier",
-				&value);
-
+%(DEFAULT_BODY)s
 	switch (value) {
 		case 0 :  /* object */
 			nsp_handle = dissector_get_string_handle(nsp_object_dissector_table, nsiOID);
@@ -547,8 +535,6 @@ CallIdentifier/guid guid
 		default :
 			nsp_handle = NULL;
     }
-#.FN_PARS NonStandardIdentifier/object
-  VAL_PTR = nsiOID
 #.END
 
 #.FN_HDR H221NonStandard

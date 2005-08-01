@@ -710,7 +710,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
   
   if( (branch_taken!=-1) && ftam_FTAM_Regime_PDU_vals[branch_taken].strptr ){
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %s:", ftam_FTAM_Regime_PDU_vals[branch_taken].strptr);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %%s:", ftam_FTAM_Regime_PDU_vals[branch_taken].strptr);
 	}
   }
 
@@ -722,7 +722,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
 
   if( (branch_taken!=-1) && ftam_File_PDU_vals[branch_taken].strptr ){
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %s:", ftam_File_PDU_vals[branch_taken].strptr);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %%s:", ftam_File_PDU_vals[branch_taken].strptr);
 	}
   }
 
@@ -734,7 +734,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
 
   if( (branch_taken!=-1) && ftam_Bulk_Data_PDU_vals[branch_taken].strptr ){
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %s:", ftam_Bulk_Data_PDU_vals[branch_taken].strptr);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %%s:", ftam_Bulk_Data_PDU_vals[branch_taken].strptr);
 	}
   }
 
@@ -746,6 +746,6 @@ Legal-Qualification-Attribute/actual-values	actual_values9
 
   if( (branch_taken!=-1) && ftam_FSM_PDU_vals[branch_taken].strptr ){
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %s:", ftam_FSM_PDU_vals[branch_taken].strptr);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %%s:", ftam_FSM_PDU_vals[branch_taken].strptr);
 	}
   }
