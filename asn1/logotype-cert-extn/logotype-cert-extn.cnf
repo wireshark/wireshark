@@ -1,7 +1,7 @@
 # logotype-cert-extn.cnf
 # LogotypeCertExtn conformation file
 
-# $Id: logotype-cert-extn.cnf 12558 2004-11-21 10:16:06Z sahlberg $
+# $Id$
 
 #.MODULE_IMPORT
 AuthenticationFramework		x509af

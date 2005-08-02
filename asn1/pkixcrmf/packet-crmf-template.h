@@ -2,7 +2,7 @@
  * Routines for RFC2511 Certificate Request Message Format packet dissection
  *   Ronnie Sahlberg 2004
  *
- * $Id: packet-crmf-template.h 12573 2004-11-22 03:36:26Z sahlberg $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

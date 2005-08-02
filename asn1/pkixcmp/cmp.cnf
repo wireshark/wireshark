@@ -1,7 +1,7 @@
 # CMP.cnf
 # CMP conformation file
 
-# $Id: cmp.cnf 12740 2004-12-13 08:15:34Z sahlberg $
+# $Id$
 
 #.MODULE_IMPORT
 PKIX1Explicit88	pkix1explicit

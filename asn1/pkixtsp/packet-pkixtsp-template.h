@@ -2,7 +2,7 @@
  * Routines for RFC3161 Time-Stamp Protocol packet dissection
  *    Ronnie Sahlberg 2004
  *
- * $Id: packet-pkixtsp-template.h 12437 2004-10-30 02:18:44Z sahlberg $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

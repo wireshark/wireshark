@@ -1,6 +1,6 @@
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake 13077 2005-01-16 23:26:02Z lroland $
+# $Id$
 
 include ../../config.nmake
 

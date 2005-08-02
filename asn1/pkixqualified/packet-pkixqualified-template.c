@@ -2,7 +2,7 @@
  * Routines for RFC3739 PKIXqualified packet dissection
  *  Ronnie Sahlberg 2004
  *
- * $Id: packet-pkixqualified-template.c 12434 2004-10-29 12:11:42Z sahlberg $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

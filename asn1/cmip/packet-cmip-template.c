@@ -2,7 +2,7 @@
  * Routines for X.711 CMIP packet dissection
  *   Ronnie Sahlberg 2004
  *
- * $Id: packet-cmip-template.c 12245 2004-10-08 20:28:04Z guy $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

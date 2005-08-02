@@ -2,7 +2,7 @@
  * Routines for Wireless Certificate Extension (RFC3770)
  *  Ronnie Sahlberg 2005
  *
- * $Id: packet-wlancertextn-template.c 12434 2004-10-29 12:11:42Z sahlberg $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

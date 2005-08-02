@@ -2,7 +2,7 @@
  * Routines for ACSE packet dissection
  *   Ronnie Sahlberg 2005
  *
- * $Id: packet-acse-template.h 12573 2004-11-22 03:36:26Z sahlberg $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

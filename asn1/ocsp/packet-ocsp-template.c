@@ -2,7 +2,7 @@
  * Routines for Online Certificate Status Protocol (RFC2560) packet dissection
  *  Ronnie Sahlberg 2004
  *
- * $Id: packet-ocsp-template.c 12573 2004-11-22 03:36:26Z sahlberg $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
