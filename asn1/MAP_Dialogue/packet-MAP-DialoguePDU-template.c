@@ -49,7 +49,7 @@ int proto_MAP_DialoguePDU = -1;
 
 #include "packet-MAP_DialoguePDU-fn.c"
 
-void
+static void
 dissect_MAP_Dialogue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
   dissect_MAP_DialoguePDU_MAP_DialoguePDU(FALSE, tvb, 0, pinfo, parent_tree, -1);
