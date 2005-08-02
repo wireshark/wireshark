@@ -1783,78 +1783,80 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 
     if (udhi)
     {
-	/* step over header */
 
-	udh_item =
-	    proto_tree_add_text(subtree, tvb,
-		offset, oct + 1,
-		"User-Data Header");
+		/* step over header */
 
-	udh_subtree = proto_item_add_subtree(udh_item, ett_udh);
+		udh_item =
+		    proto_tree_add_text(subtree, tvb,
+			offset, oct + 1,
+			"User-Data Header");
 
-	proto_tree_add_text(udh_subtree,
-	    tvb, offset, 1,
-	    "User Data Header Length (%d)",
-	    oct);
+		udh_subtree = proto_item_add_subtree(udh_item, ett_udh);
 
-	offset++;
-	udl--;
-	length--;
-
-	dis_field_ud_iei(tvb, udh_subtree, offset, oct);
-
-	offset += oct;
-	udl -= oct;
-	length -= oct;
-
-	if (seven_bit)
-	{
-	    /* step over fill bits ? */
-
-	    fill_bits = 7 - (((oct + 1) * 8) % 7);
-	    if (fill_bits != 7)
-	    {
-		oct = tvb_get_guint8(tvb, offset);
-
-		other_decode_bitfield_value(bigbuf, oct, fill_bits_mask[fill_bits], 8);
 		proto_tree_add_text(udh_subtree,
 		    tvb, offset, 1,
-		    "%s :  Fill bits",
-		    bigbuf);
-	    }
-	}
+		    "User Data Header Length (%d)",
+		    oct);
+
+		offset++;
+		udl--;
+		length--;
+
+		dis_field_ud_iei(tvb, udh_subtree, offset, oct);
+
+		offset += oct;
+		udl -= oct;
+		length -= oct;
+
+		if (seven_bit)
+			{
+		    /* step over fill bits ? */
+
+		    fill_bits = 7 - (((oct + 1) * 8) % 7);
+		    if (fill_bits != 7)
+			    {
+				oct = tvb_get_guint8(tvb, offset);
+
+				other_decode_bitfield_value(bigbuf, oct, fill_bits_mask[fill_bits], 8);
+				proto_tree_add_text(udh_subtree,
+					tvb, offset, 1,
+					"%s :  Fill bits",
+					bigbuf);
+			}
+		}
     }
 
     if (compressed)
     {
-	proto_tree_add_text(subtree, tvb,
-	    offset, length,
-	    "Compressed data");
+		proto_tree_add_text(subtree, tvb,
+		    offset, length,
+		    "Compressed data");
     }
     else
     {
-	if (seven_bit)
-	{
-	    out_len =
-		gsm_sms_char_7bit_unpack(fill_bits, length, sizeof(bigbuf),
+		if (seven_bit)
+		{
+		    out_len =
+			gsm_sms_char_7bit_unpack(fill_bits, length, sizeof(bigbuf),
 		    tvb_get_ptr(tvb, offset, length), bigbuf);
-	    bigbuf[out_len] = '\0';
-	    gsm_sms_char_ascii_decode(bigbuf, bigbuf, out_len);
-	    bigbuf[udl] = '\0';
+		    bigbuf[out_len] = '\0';
+		    gsm_sms_char_ascii_decode(bigbuf, bigbuf, out_len);
+			bigbuf[udl] = '\0';
 
-	    proto_tree_add_text(subtree, tvb, offset, length, "%s", bigbuf);
-	}
-	else if (eight_bit)
-	{
-	    proto_tree_add_text(subtree, tvb, offset, length, "%s",
+			proto_tree_add_text(subtree, tvb, offset, length, "%s", bigbuf);
+		}
+		else if (eight_bit)
+			{
+			proto_tree_add_text(subtree, tvb, offset, length, "%s",
 	        tvb_format_text(tvb, offset, length));
-	}
-	else if (ucs2)
-	{
-	    ustr = tvb_fake_unicode(tvb, offset, length, FALSE);
-	    proto_tree_add_text(subtree, tvb, offset, length, "%s", ustr);
-	    g_free(ustr);
-	}
+		}
+		else if (ucs2)
+			{
+			/* tvb_fake_unicode takes the lengt in number of guint16's */
+			ustr = tvb_fake_unicode(tvb, offset, (length>>1), FALSE);
+			proto_tree_add_text(subtree, tvb, offset, length, "%s", ustr);
+			g_free(ustr);
+		}
     }
 }
 
