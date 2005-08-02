@@ -219,7 +219,7 @@ typedef char * (* ext_t_func_ptr)(tvbuff_t *, guint32, guint32);
 typedef char * (* opaque_token_func_ptr)(tvbuff_t *, guint32, guint8, guint8, guint32 *);
 typedef char * (* opaque_literal_func_ptr)(tvbuff_t *, guint32, const char *, guint8, guint32 *);
 
-char *
+static char *
 default_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 		guint8 token _U_, guint8 codepage _U_, guint32 *length)
 {
@@ -229,7 +229,7 @@ default_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 	return str;
 }
 
-char *
+static char *
 default_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 		const char *token _U_, guint8 codepage _U_, guint32 *length)
 {
@@ -239,7 +239,7 @@ default_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 	return str;
 }
 
-char *
+static char *
 default_opaque_binary_attr(tvbuff_t *tvb, guint32 offset,
 		guint8 token _U_, guint8 codepage _U_, guint32 *length)
 {
@@ -249,7 +249,7 @@ default_opaque_binary_attr(tvbuff_t *tvb, guint32 offset,
 	return str;
 }
 
-char *
+static char *
 default_opaque_literal_attr(tvbuff_t *tvb, guint32 offset,
 		const char *token _U_, guint8 codepage _U_, guint32 *length)
 {
@@ -261,7 +261,7 @@ default_opaque_literal_attr(tvbuff_t *tvb, guint32 offset,
 
 /* Render a hex %dateTime encoded timestamp as a string.
  * 0x20011231123456 becomes "2001-12-31T12:34:56Z" */
-char *
+static char *
 date_time_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 {
 	char *str;
@@ -316,7 +316,7 @@ date_time_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 
 /* Is ALWAYS 6 bytes long:
  * 00YY YYYY  YYYY YYMM  MMDD DDDh  hhhh mmmm  mmss ssss  ZZZZ ZZZZ */
-char *
+static char *
 wv_datetime_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 {
 	char *str;
@@ -361,7 +361,7 @@ wv_datetime_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 
 /* WV-CSP integer values for tag content is encoded in a fashion similar
  * to a Long-Integer in WSP */
-char *
+static char *
 wv_integer_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 {
 	char *str;
@@ -392,7 +392,7 @@ wv_integer_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 	return str;
 }
 
-char *
+static char *
 wv_csp10_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 		const char *token, guint8 codepage _U_, guint32 *length)
 {
@@ -427,7 +427,7 @@ wv_csp10_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 	return str;
 }
 
-char *
+static char *
 wv_csp10_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 		guint8 token, guint8 codepage, guint32 *length)
 {
@@ -489,7 +489,7 @@ wv_csp10_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 	return str;
 }
 
-char *
+static char *
 wv_csp11_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 		const char *token, guint8 codepage _U_, guint32 *length)
 {
@@ -525,7 +525,7 @@ wv_csp11_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 	return str;
 }
 
-char *
+static char *
 wv_csp11_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 		guint8 token, guint8 codepage, guint32 *length)
 {
@@ -596,7 +596,7 @@ wv_csp11_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 	return str;
 }
 
-char *
+static char *
 wv_csp12_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 		const char *token, guint8 codepage _U_, guint32 *length)
 {
@@ -634,7 +634,7 @@ wv_csp12_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 	return str;
 }
 
-char *
+static char *
 wv_csp12_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 		guint8 token, guint8 codepage, guint32 *length)
 {
@@ -716,7 +716,7 @@ wv_csp12_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 	return str;
 }
 
-char *
+static char *
 sic10_opaque_literal_attr(tvbuff_t *tvb, guint32 offset,
 		const char *token, guint8 codepage _U_, guint32 *length)
 {
@@ -736,7 +736,7 @@ sic10_opaque_literal_attr(tvbuff_t *tvb, guint32 offset,
 	return str;
 }
 
-char *
+static char *
 sic10_opaque_binary_attr(tvbuff_t *tvb, guint32 offset,
 		guint8 token, guint8 codepage, guint32 *length)
 {
@@ -766,7 +766,7 @@ sic10_opaque_binary_attr(tvbuff_t *tvb, guint32 offset,
 	return str;
 }
 
-char *
+static char *
 emnc10_opaque_literal_attr(tvbuff_t *tvb, guint32 offset,
 		const char *token, guint8 codepage _U_, guint32 *length)
 {
@@ -785,7 +785,7 @@ emnc10_opaque_literal_attr(tvbuff_t *tvb, guint32 offset,
 	return str;
 }
 
-char *
+static char *
 emnc10_opaque_binary_attr(tvbuff_t *tvb, guint32 offset,
 		guint8 token, guint8 codepage, guint32 *length)
 {
@@ -4768,7 +4768,7 @@ static const wbxml_decoding decode_wv_cspc_12 = {
 /* Discriminator for WV-CSP; allows version detection based on parsing parts
  * of the start of the WBXML body.
  */
-const wbxml_decoding *
+static const wbxml_decoding *
 wv_csp_discriminator(tvbuff_t *tvb, guint32 offset)
 {
 	guint32 magic_1 = tvb_get_ntohl(tvb, offset + 0);

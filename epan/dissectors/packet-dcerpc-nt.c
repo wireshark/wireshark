@@ -211,7 +211,7 @@ dissect_ndr_counted_byte_array_cb(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-void cb_byte_array_postprocess(packet_info *pinfo, proto_tree *tree _U_,
+static void cb_byte_array_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 			proto_item *item, tvbuff_t *tvb, 
 			int start_offset, int end_offset,
 			void *callback_args)

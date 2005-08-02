@@ -467,7 +467,7 @@ dissect_q933_protocol_discriminator(tvbuff_t *tvb, int offset, proto_tree *tree)
 	}
 }
 
-void
+static void
 dissect_q933_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {
@@ -886,7 +886,7 @@ static const value_string q933_rejection_reason_vals[] = {
 	{ 0x00, NULL }
 };
 
-void
+static void
 dissect_q933_cause_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree, int hf_cause_value)
 {
@@ -1319,7 +1319,7 @@ static const value_string q933_progress_description_vals[] = {
 	{ 0,    NULL }
 };
 
-void
+static void
 dissect_q933_progress_indicator_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {
@@ -1757,7 +1757,7 @@ static const value_string q933_audiovisual_characteristics_vals[] = {
 	{ 0x00, NULL }
 };
 
-void
+static void
 dissect_q933_high_layer_compat_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {
@@ -1832,7 +1832,7 @@ static const value_string q933_protocol_discriminator_vals[] = {
 	{ 0,					NULL }
 };
 
-void
+static void
 dissect_q933_user_user_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {

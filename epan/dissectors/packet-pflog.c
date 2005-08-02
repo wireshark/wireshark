@@ -78,7 +78,7 @@ static int hf_old_pflog_dir = -1;
 
 static gint ett_old_pflog = -1;
 
-void
+static void
 capture_pflog(const guchar *pd, int offset, int len, packet_counts *ld)
 {
   const struct pfloghdr *pflogh;
@@ -317,7 +317,7 @@ proto_reg_handoff_pflog(void)
 }
 
 
-void
+static void
 capture_old_pflog(const guchar *pd, int offset, int len, packet_counts *ld)
 {
   struct old_pfloghdr pflogh;

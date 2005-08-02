@@ -690,7 +690,7 @@ int dissect_aim_userinfo(tvbuff_t *tvb, packet_info *pinfo,
     return dissect_aim_tlv_list(tvb, pinfo, offset, tree, onlinebuddy_tlvs);
 }
 
-int dissect_aim_fnac_flags(tvbuff_t *tvb, int offset, int len, proto_item *ti, guint16 flags)
+static int dissect_aim_fnac_flags(tvbuff_t *tvb, int offset, int len, proto_item *ti, guint16 flags)
 {
 	proto_tree *entry = proto_item_add_subtree(ti, ett_aim_fnac_flags);
 	proto_tree_add_boolean(entry, hf_aim_fnac_flag_next_is_related, tvb, offset, len, flags);
@@ -994,7 +994,7 @@ static const aim_client_capability known_client_caps[] = {
 	{ NULL, {0x0, 0x0, 0x0, { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 } } }
 };
 
-const aim_client_capability *aim_find_capability ( e_uuid_t clsid)
+static const aim_client_capability *aim_find_capability ( e_uuid_t clsid)
 {
 	int i;
 

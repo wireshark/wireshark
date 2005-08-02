@@ -1130,7 +1130,7 @@ static const value_string poll_subtype_vals[] = {
 /* separated into a stand alone routine to other protocol dissectors */
 /* can call to it, ie. socks	*/
 
-void
+static void
 decode_pgm_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, pgm_type *pgmhdr)
 {
@@ -1158,7 +1158,7 @@ decode_pgm_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   call_dissector(data_handle,next_tvb, pinfo, tree);
 
 }
-int
+static int
 total_size(tvbuff_t *tvb, pgm_type *hdr)
 {
 	int bytes = sizeof(pgm_type);

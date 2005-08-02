@@ -273,7 +273,7 @@ static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
 /* Initialize the state handler
  *
  */
-void
+static void
 sigcomp_init_protocol(void)
 {
 	sigcomp_init_udvm();

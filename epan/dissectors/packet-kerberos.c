@@ -3844,7 +3844,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
-void
+static void
 kerberos_prefs_apply_cb(void) {
 #ifdef HAVE_LIBNETTLE
 	clear_keytab();

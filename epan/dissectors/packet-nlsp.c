@@ -146,7 +146,7 @@ typedef struct {
  * Output:
  *	void (may modify proto tree)
  */
-void
+static void
 nlsp_dissect_unknown(tvbuff_t *tvb, proto_tree *tree, int offset,
 	char *fmat, ...)
 {

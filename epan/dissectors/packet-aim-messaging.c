@@ -348,7 +348,7 @@ static const aim_client_plugin known_client_plugins[] = {
 	{ NULL, {0x0, 0x0, 0x0, { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 } } }
 };
 
-const aim_client_plugin *aim_find_plugin ( e_uuid_t uuid)
+static const aim_client_plugin *aim_find_plugin ( e_uuid_t uuid)
 {
 	int i;
 
@@ -363,7 +363,7 @@ const aim_client_plugin *aim_find_plugin ( e_uuid_t uuid)
 	return NULL;
 }
 
-int dissect_aim_plugin(proto_tree *entry, tvbuff_t *tvb, int offset, e_uuid_t* out_plugin_uuid)
+static int dissect_aim_plugin(proto_tree *entry, tvbuff_t *tvb, int offset, e_uuid_t* out_plugin_uuid)
 {
 	const aim_client_plugin *plugin = NULL;
 	e_uuid_t uuid;

@@ -63,7 +63,7 @@ static gint ett_pcnfsd_auth_ident = -1;
 static gint ett_pcnfsd_auth_password = -1;
 static gint ett_pcnfsd_gids = -1;
 
-int
+static int
 dissect_pcnfsd_username(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	return dissect_rpc_string(tvb, tree, hf_pcnfsd_username, offset, NULL);
@@ -83,7 +83,7 @@ static const value_string names_mapreq[] =
 	{	0,	NULL	}
 };
 
-int
+static int
 dissect_pcnfsd_mapreq(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	guint32 mapreq;
@@ -99,7 +99,7 @@ dissect_pcnfsd_mapreq(tvbuff_t *tvb, int offset, proto_tree *tree)
 	return offset;
 }
 
-int
+static int
 dissect_pcnfsd2_dissect_mapreq_arg_item(tvbuff_t *tvb, int offset,
 	packet_info *pinfo _U_, proto_tree *tree)
 {
@@ -112,7 +112,7 @@ dissect_pcnfsd2_dissect_mapreq_arg_item(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-int
+static int
 dissect_pcnfsd2_mapid_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {
@@ -136,7 +136,7 @@ static const value_string names_maprstat[] =
 	{	0,	NULL	}
 };
 
-int
+static int
 dissect_pcnfsd2_dissect_mapreq_res_item(tvbuff_t *tvb, int offset,
 	packet_info *pinfo _U_, proto_tree *tree)
 {
@@ -159,7 +159,7 @@ dissect_pcnfsd2_dissect_mapreq_res_item(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-int
+static int
 dissect_pcnfsd2_mapid_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {

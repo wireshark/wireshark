@@ -40,6 +40,7 @@
 #include <epan/afn.h>
 #include "packet-ipv6.h"
 #include <epan/in_cksum.h>
+#include "packet-pim.h"
 
 #define PIM_TYPE(x)	((x) & 0x0f)
 #define PIM_VER(x)	(((x) & 0xf0) >> 4)

@@ -488,7 +488,7 @@ typedef struct
 /* Hash table functions */
 
 /* Equal keys */
-gint sip_equal(gconstpointer v, gconstpointer v2)
+static gint sip_equal(gconstpointer v, gconstpointer v2)
 {
 	const sip_hash_key* val1 = v;
 	const sip_hash_key* val2 = v2;
@@ -508,7 +508,7 @@ gint sip_equal(gconstpointer v, gconstpointer v2)
 
 /* Compute a hash value for a given key. */
 /* Don't try to use addresses here, call-id should be almost unique. */
-guint sip_hash_func(gconstpointer v)
+static guint sip_hash_func(gconstpointer v)
 {
 	gint n;
 	const sip_hash_key *key = v;

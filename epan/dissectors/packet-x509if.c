@@ -43,6 +43,7 @@
 
 #include "packet-ber.h"
 #include "packet-x509sat.h"
+#include "packet-x509if.h"
 
 #define PNAME  "X.509 Information Framework"
 #define PSNAME "X509IF"

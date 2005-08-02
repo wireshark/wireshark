@@ -41,6 +41,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "packet-pkcs1.h"
 #include "packet-ber.h"
 #include "packet-x509af.h"
 

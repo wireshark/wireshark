@@ -133,7 +133,7 @@ static gint ett_atsvc_enum_ctr = -1;
 
 
 
-int
+static int
 atsvc_dissect_JobTime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
 {
 	guint32 job_time;

@@ -1524,7 +1524,7 @@ typedef struct _ipmi_cmd_dissect{
 
 /* Sensor/Event  NetFN (0x04) */
 
-void
+static void
 dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo, tvbuff_t *tvb,
 								gint *poffset, guint8 len, guint8 response, guint8 authtype)
 {
@@ -1735,7 +1735,7 @@ dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet
 }
 
 
-void
+static void
 dissect_cmd_GetDeviceSDR(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo, tvbuff_t *tvb,
 								gint *poffset, guint8 len, guint8 response, guint8 authtype _U_)
 {
@@ -1788,7 +1788,7 @@ dissect_cmd_GetDeviceSDR(proto_tree *tree, proto_tree *ipmi_tree, packet_info *p
 }
 
 
-void
+static void
 dissect_cmd_Get_Device_SDR_Info(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
 {
@@ -1842,7 +1842,7 @@ dissect_cmd_Get_Device_SDR_Info(proto_tree *tree, proto_tree *ipmi_tree, packet_
 
 }
 
-void
+static void
 dissect_cmd_Reserve_Device_SDR_Repository(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype _U_)
 {
@@ -1862,7 +1862,7 @@ dissect_cmd_Reserve_Device_SDR_Repository(proto_tree *tree, proto_tree *ipmi_tre
 
 }
 
-void
+static void
 dissect_cmd_Set_Sensor_Hysteresis(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype _U_)
 {
@@ -1895,7 +1895,7 @@ dissect_cmd_Set_Sensor_Hysteresis(proto_tree *tree, proto_tree *ipmi_tree, packe
 
 }
 
-void
+static void
 dissect_cmd_Get_Sensor_Hysteresis(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype _U_)
 {
@@ -1927,7 +1927,7 @@ dissect_cmd_Get_Sensor_Hysteresis(proto_tree *tree, proto_tree *ipmi_tree, packe
 
 }
 
-void
+static void
 dissect_cmd_Set_Sensor_Thresholds(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
 {
@@ -2001,7 +2001,7 @@ dissect_cmd_Set_Sensor_Thresholds(proto_tree *tree, proto_tree *ipmi_tree, packe
 
 }
 
-void
+static void
 dissect_cmd_Get_Sensor_Thresholds(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
 {
@@ -2076,7 +2076,7 @@ dissect_cmd_Get_Sensor_Thresholds(proto_tree *tree, proto_tree *ipmi_tree, packe
 
 }
 
-void
+static void
 dissect_cmd_Get_Sensor_Reading(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len, guint8 response, guint8 authtype)
 {
@@ -2220,7 +2220,7 @@ dissect_cmd_Get_Sensor_Reading(proto_tree *tree, proto_tree *ipmi_tree, packet_i
 
 /* App NetFN (0x06) */
 
-void
+static void
 dissect_cmd_Get_Device_ID(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len, guint8 response, guint8 authtype)
 {
@@ -2352,7 +2352,7 @@ dissect_cmd_Get_Device_ID(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 
 
 /* Storage NetFN (0x0a) */
-void
+static void
 dissect_cmd_Get_FRU_Inventory_Area_Info(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
 {
@@ -2399,7 +2399,7 @@ dissect_cmd_Get_FRU_Inventory_Area_Info(proto_tree *tree, proto_tree *ipmi_tree,
 	
 }
 
-void
+static void
 dissect_cmd_Get_SEL_Info(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
 {
@@ -2483,7 +2483,7 @@ dissect_cmd_Get_SEL_Info(proto_tree *tree, proto_tree *ipmi_tree, packet_info *p
 
 }
 
-void
+static void
 dissect_cmd_Reserve_SEL(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype _U_)
 {
@@ -2503,7 +2503,7 @@ dissect_cmd_Reserve_SEL(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pi
 
 }
 
-void
+static void
 dissect_cmd_Get_SEL_Entry(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo, tvbuff_t *tvb,
 								gint *poffset, guint8 len, guint8 response, guint8 authtype _U_)
 {
@@ -2556,7 +2556,7 @@ dissect_cmd_Get_SEL_Entry(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 
 }
 
-void
+static void
 dissect_cmd_Clear_SEL(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
 {
@@ -2620,7 +2620,7 @@ dissect_cmd_Clear_SEL(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinf
 
 /* Picmg NetFN (0x2c) */
 
-void
+static void
 dissect_cmd_Get_PICMG_Properties(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype _U_)
 {
@@ -2662,7 +2662,7 @@ dissect_cmd_Get_PICMG_Properties(proto_tree *tree, proto_tree *ipmi_tree, packet
 
 }
 
-void
+static void
 dissect_cmd_FRU_Control(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 							gint *poffset, guint8 len _U_, guint8 response, guint8 authtype _U_)
 {
@@ -2698,7 +2698,7 @@ dissect_cmd_FRU_Control(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pi
 
 }
 
-void
+static void
 dissect_cmd_Get_FRU_Led_Properties(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 							gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
 {
@@ -2760,7 +2760,7 @@ dissect_cmd_Get_FRU_Led_Properties(proto_tree *tree, proto_tree *ipmi_tree, pack
 
 }
 
-void 
+static void 
 dissect_cmd_Get_Led_Color_Capabilities(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 							gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
 {
@@ -2862,7 +2862,7 @@ dissect_cmd_Get_Led_Color_Capabilities(proto_tree *tree, proto_tree *ipmi_tree, 
 
 }
 
-void 
+static void 
 dissect_cmd_Set_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
 {
@@ -2929,7 +2929,7 @@ dissect_cmd_Set_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 
 }
 
-void 
+static void 
 dissect_cmd_Get_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
 {
@@ -3047,7 +3047,7 @@ dissect_cmd_Get_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 
 }
 
-void
+static void
 dissect_cmd_Set_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
 {
@@ -3177,7 +3177,7 @@ dissect_cmd_Set_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, p
 
 }
 
-void
+static void
 dissect_cmd_Get_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
 {
@@ -3229,7 +3229,7 @@ dissect_cmd_Get_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, p
 
 }
 
-void
+static void
 dissect_cmd_Set_FRU_Activation(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype _U_)
 {
@@ -3265,7 +3265,7 @@ dissect_cmd_Set_FRU_Activation(proto_tree *tree, proto_tree *ipmi_tree, packet_i
 
 }
 
-void
+static void
 dissect_cmd_Get_Device_Locator_Record_ID(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype _U_)
 {
@@ -3302,7 +3302,7 @@ dissect_cmd_Get_Device_Locator_Record_ID(proto_tree *tree, proto_tree *ipmi_tree
 
 }
 
-void
+static void
 dissect_cmd_Set_Power_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype _U_)
 {
@@ -3342,7 +3342,7 @@ dissect_cmd_Set_Power_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info
 
 }
 
-void
+static void
 dissect_cmd_Get_Power_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len, guint8 response, guint8 authtype)
 {
@@ -3419,7 +3419,7 @@ dissect_cmd_Get_Power_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info
 
 }
 
-void
+static void
 dissect_cmd_Set_Fan_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype _U_)
 {
@@ -3454,7 +3454,7 @@ dissect_cmd_Set_Fan_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 
 }
 
-void
+static void
 dissect_cmd_Get_Fan_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len, guint8 response, guint8 authtype _U_)
 {
@@ -3502,7 +3502,7 @@ dissect_cmd_Get_Fan_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 
 /******************************************lane**********************************************/
 
-void dissect_ipmi_data(proto_tree *, proto_tree *, packet_info *, tvbuff_t *, gint *,
+static void dissect_ipmi_data(proto_tree *, proto_tree *, packet_info *, tvbuff_t *, gint *,
 						guint8, guint8, guint8, guint8,guint8);
 
 

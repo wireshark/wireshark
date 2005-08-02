@@ -1345,7 +1345,7 @@ guint8 tap_cause_value = 0;
 /* ------------------------------------------------------------------
   Mapping number to ASCII-character
  ------------------------------------------------------------------ */
-char number_to_char(int number)
+static char number_to_char(int number)
 {
   if (number < 10)
     return ((char) number + ASCII_NUMBER_DELTA);
@@ -4671,7 +4671,7 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *p
 /* ------------------------------------------------------------------
   Dissector Message Type Initial address message
  */
-gint
+static gint
 dissect_isup_initial_address_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
@@ -4751,7 +4751,7 @@ dissect_isup_initial_address_message(tvbuff_t *message_tvb, proto_tree *isup_tre
 /* ------------------------------------------------------------------
   Dissector Message Type subsequent address message
  */
-gint dissect_isup_subsequent_address_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
+static gint dissect_isup_subsequent_address_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
   tvbuff_t *parameter_tvb;
@@ -4783,7 +4783,7 @@ gint dissect_isup_subsequent_address_message(tvbuff_t *message_tvb, proto_tree *
 /* ------------------------------------------------------------------
   Dissector Message Type Information request message
  */
-gint
+static gint
 dissect_isup_information_request_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
@@ -4807,7 +4807,7 @@ dissect_isup_information_request_message(tvbuff_t *message_tvb, proto_tree *isup
 /* ------------------------------------------------------------------
   Dissector Message Type Information
  */
-gint
+static gint
 dissect_isup_information_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
@@ -4831,7 +4831,7 @@ dissect_isup_information_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 /* ------------------------------------------------------------------
   Dissector Message Type Continuity
  */
-gint
+static gint
 dissect_isup_continuity_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
@@ -4855,7 +4855,7 @@ dissect_isup_continuity_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 /* ------------------------------------------------------------------
   Dissector Message Type Address complete
  */
-gint
+static gint
 dissect_isup_address_complete_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
@@ -4879,7 +4879,7 @@ dissect_isup_address_complete_message(tvbuff_t *message_tvb, proto_tree *isup_tr
 /* ------------------------------------------------------------------
   Dissector Message Type Connect
  */
-gint
+static gint
 dissect_isup_connect_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
@@ -4903,7 +4903,7 @@ dissect_isup_connect_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 /* ------------------------------------------------------------------
   Dissector Message Type release message
  */
-gint
+static gint
 dissect_isup_release_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
@@ -4935,7 +4935,7 @@ dissect_isup_release_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 /* ------------------------------------------------------------------
   Dissector Message Type Resume/Suspend
  */
-gint
+static gint
 dissect_isup_suspend_resume_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
@@ -4959,7 +4959,7 @@ dissect_isup_suspend_resume_message(tvbuff_t *message_tvb, proto_tree *isup_tree
 /* ------------------------------------------------------------------
   Dissector Message Type Circuit group reset/query message
  */
-gint
+static gint
 dissect_isup_circuit_group_reset_query_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
@@ -4991,7 +4991,7 @@ dissect_isup_circuit_group_reset_query_message(tvbuff_t *message_tvb, proto_tree
 /* ------------------------------------------------------------------
   Dissector Message Type Circuit group blocking/blocking ack/unblocking/unblocking ack messages
  */
-gint
+static gint
 dissect_isup_circuit_group_blocking_messages(tvbuff_t *message_tvb, proto_tree *isup_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
@@ -5036,7 +5036,7 @@ dissect_isup_circuit_group_blocking_messages(tvbuff_t *message_tvb, proto_tree *
 /* ------------------------------------------------------------------
   Dissector Message Type Facility request/accepted
  */
-gint
+static gint
 dissect_isup_facility_request_accepted_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
@@ -5060,7 +5060,7 @@ dissect_isup_facility_request_accepted_message(tvbuff_t *message_tvb, proto_tree
 /* ------------------------------------------------------------------
   Dissector Message Type Facility reject
  */
-gint
+static gint
 dissect_isup_facility_reject_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
@@ -5104,7 +5104,7 @@ dissect_isup_facility_reject_message(tvbuff_t *message_tvb, proto_tree *isup_tre
 /* ------------------------------------------------------------------
   Dissector Message Type Circuit group reset acknowledgement message
  */
-gint
+static gint
 dissect_isup_circuit_group_reset_acknowledgement_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
@@ -5136,7 +5136,7 @@ dissect_isup_circuit_group_reset_acknowledgement_message(tvbuff_t *message_tvb, 
 /* ------------------------------------------------------------------
   Dissector Message Type Circuit group query response message
  */
-gint
+static gint
 dissect_isup_circuit_group_query_response_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
@@ -5187,7 +5187,7 @@ dissect_isup_circuit_group_query_response_message(tvbuff_t *message_tvb, proto_t
 /* ------------------------------------------------------------------
   Dissector Message Type Call Progress
 */
-gint
+static gint
 dissect_isup_call_progress_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
@@ -5211,7 +5211,7 @@ dissect_isup_call_progress_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 /* ------------------------------------------------------------------
   Dissector Message Type User-to-User information
  */
-gint
+static gint
 dissect_isup_user_to_user_information_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
@@ -5243,7 +5243,7 @@ dissect_isup_user_to_user_information_message(tvbuff_t *message_tvb, proto_tree 
 /* ------------------------------------------------------------------
   Dissector Message Type Confusion
  */
-gint
+static gint
 dissect_isup_confusion_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
