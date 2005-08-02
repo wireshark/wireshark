@@ -53,7 +53,7 @@ extern int access(const char *, int);
 #endif
 
 /* #define PRIVATE static */
-#define PRIVATE
+#define PRIVATE static
 
 #ifdef TEST
 #define MAXRHS 5       /* Set low to exercise exception code */
@@ -2434,7 +2434,7 @@ void Reprint(struct lemon *lemp)
   }
 }
 
-void ConfigPrint(FILE *fp, struct config *cfp)
+PRIVATE void ConfigPrint(FILE *fp, struct config *cfp)
 {
   struct rule *rp;
   int i;
@@ -2480,7 +2480,7 @@ PRIVATE void PlinkPrint(FILE *out, struct plink *plp, char *tag)
 /* Print an action to the given file descriptor.  Return FALSE if
 ** nothing was actually printed.
 */
-int PrintAction(struct action *ap, FILE *fp, int indent){
+PRIVATE int PrintAction(struct action *ap, FILE *fp, int indent){
   int result = 1;
   switch( ap->type ){
     case SHIFT:
@@ -2703,7 +2703,7 @@ PRIVATE void tplt_print(FILE *out, struct lemon *lemp, char *str,
 ** The following routine emits code for the destructor for the
 ** symbol sp
 */
-void emit_destructor_code(FILE *out, struct symbol *sp, struct lemon *lemp,
+PRIVATE void emit_destructor_code(FILE *out, struct symbol *sp, struct lemon *lemp,
     int *lineno)
 {
  char *cp;
@@ -2735,7 +2735,7 @@ void emit_destructor_code(FILE *out, struct symbol *sp, struct lemon *lemp,
 /*
 ** Return TRUE (non-zero) if the given symbol has a distructor.
 */
-int has_destructor(struct symbol *sp, struct lemon *lemp)
+PRIVATE int has_destructor(struct symbol *sp, struct lemon *lemp)
 {
   int ret;
   if( sp->type==TERMINAL ){
@@ -2831,7 +2831,7 @@ PRIVATE void emit_code(FILE *out, struct rule *rp, struct lemon *lemp,
 ** union, also set the ".dtnum" field of every terminal and nonterminal
 ** symbol.
 */
-void print_stack_union(
+PRIVATE void print_stack_union(
     FILE *out,              /* The output stream */
     struct lemon *lemp,     /* The main info structure for this parser */
     int *plineno,           /* Pointer to the line number */
