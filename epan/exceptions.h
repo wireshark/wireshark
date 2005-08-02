@@ -13,6 +13,10 @@
 /**
     Index is out of range.
     An attempt was made to read past the end of a buffer.
+    This generally means that the capture was done with a "slice"
+    length or "snapshot" length less than the maximum packet size,
+    and a link-layer packet was cut short by that, so not all of the
+    data in the link-layer packet was available.
 **/
 #define BoundsError		1	
 
@@ -22,6 +26,17 @@
     differs from a BoundsError in that the parent protocol established a
     limit past which this dissector should not process in the buffer and that
     limit was execeeded.
+    This generally means that the packet is invalid, i.e. whatever
+    code constructed the packet and put it on the wire didn't put enough
+    data into it.  It is therefore currently reported as a "Malformed
+    packet".
+    However, it also happens in some cases where the packet was fragmented
+    and the fragments weren't reassembled.  We need to add another length
+    field to a tvbuff, so that "length of the packet from the link layer"
+    and "length of the packet were it fully reassembled" are different,
+    and going past the first of those without going past the second would
+    throw a different exception, which would be reported as an "Unreassembled
+    packet" rather than a "Malformed packet".
 **/
 #define ReportedBoundsError	2
 
