@@ -31,6 +31,7 @@
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "i4b_trace.h"
+#include "i4btrace.h"
 
 static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
     long *data_offset);

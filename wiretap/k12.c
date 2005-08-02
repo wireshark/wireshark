@@ -35,6 +35,7 @@
 #include "wtap.h"
 #include "file_wrappers.h"
 #include "buffer.h"
+#include "k12.h"
 
 /*
  * the 32 bits .rf5 file contains:
