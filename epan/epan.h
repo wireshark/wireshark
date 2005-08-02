@@ -32,13 +32,18 @@ typedef struct _epan_dissect_t epan_dissect_t;
 
 #include "dfilter/dfilter.h"
 
+/* init the whole epan module, this is used to be called only once in a program */
 void epan_init(const char * plugindir, void (*register_all_protocols)(void),
 	       void (*register_all_handoffs)(void),
 	       void (*report_failure)(const char *, va_list),
 	       void (*report_open_failure)(const char *, int, gboolean),
 	       void (*report_read_failure)(const char *, int));
+/* cleanup the whole epan module, this is used to be called only once in a program */
 void epan_cleanup(void);
+/* Initialize the table of conversations. */
 void epan_conversation_init(void);
+/* Initialize the table of circuits. */
+/* XXX - what is a circuit and should this better be combined with epan_conversation_init? */
 void epan_circuit_init(void);
 
 /* A client will create one epan_t for an entire dissection session.
@@ -48,6 +53,7 @@ void epan_circuit_init(void);
  * some protocols cannot be decoded without knowledge of previous packets.
  * This inter-packet "state" is stored in the epan_t.
  */
+/* XXX - NOTE: epan_t, epan_new and epan_free are currently unused! */
 typedef struct epan_session epan_t;
 
 epan_t*
@@ -57,19 +63,25 @@ void
 epan_free(epan_t*);
 
 
+/* get a new single packet dissection */
+/* should be freed using epan_dissect_free() after packet dissection completed */
 epan_dissect_t*
 epan_dissect_new(gboolean create_proto_tree, gboolean proto_tree_visible);
 
+/* run a single packet dissection */
 void
 epan_dissect_run(epan_dissect_t *edt, void* pseudo_header,
         const guint8* data, frame_data *fd, column_info *cinfo);
 
+/* Prime a proto_tree using the fields/protocols used in a dfilter. */
 void
-epan_dissect_prime_dfilter(epan_dissect_t *edt, const dfilter_t*);
+epan_dissect_prime_dfilter(epan_dissect_t *edt, const dfilter_t *dfcode);
 
+/* fill the dissect run output into the packet list columns */
 void
 epan_dissect_fill_in_columns(epan_dissect_t *edt);
 
+/* free a single packet dissection */
 void
 epan_dissect_free(epan_dissect_t* edt);
 
