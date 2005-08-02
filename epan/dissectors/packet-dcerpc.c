@@ -2938,6 +2938,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     tvbuff_t *auth_tvb, *payload_tvb, *decrypted_tvb;
     proto_item *pi;
     proto_item *parent_pi;
+    proto_item *dcerpc_tree_item;
 
     save_fragmented = pinfo->fragmented;
 
@@ -3079,6 +3080,8 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     /* defragmentation is a bit tricky here, as there's no offset of the fragment 
      * in the protocol data.
      *
+	 * The allocation hint will contain the remaining bytes of all fragments following.
+	 *
      * Currently two possible ways:
      * - the transmitter sends an alloc_hint != 0, use it
      * - the transmitter sends an alloc_hint == 0, simply append fragments
@@ -3087,8 +3090,9 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     /* if this is the first fragment we need to start reassembly
     */
     if(hdr->flags&PFC_FIRST_FRAG){
-	fragment_add(decrypted_tvb, 0, pinfo, frame, dcerpc_co_reassemble_table,
-		     0, tvb_length(decrypted_tvb), TRUE);
+	fragment_add(decrypted_tvb, 0, pinfo, frame, 
+		dcerpc_co_reassemble_table,
+		0 /* fragment offset */, tvb_length(decrypted_tvb), TRUE /* more_frags */);
 	fragment_set_tot_len(pinfo, frame,
         dcerpc_co_reassemble_table, alloc_hint ? alloc_hint : tvb_length(decrypted_tvb));
 
@@ -3099,15 +3103,19 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     if(!(hdr->flags&PFC_LAST_FRAG)){
 	tot_len = fragment_get_tot_len(pinfo, frame,
 		 dcerpc_co_reassemble_table);
-    tvb_ensure_bytes_exist(tvb, tot_len-alloc_hint, tvb_length(decrypted_tvb));
-	fragment_add(decrypted_tvb, 0, pinfo, frame,
-		 dcerpc_co_reassemble_table,
-		 tot_len-alloc_hint, tvb_length(decrypted_tvb),
-		 TRUE);
 	if(alloc_hint == 0) {
-	     fragment_set_tot_len(pinfo, frame,
+		fragment_set_tot_len(pinfo, frame,
 		  dcerpc_co_reassemble_table, tot_len + tvb_length(decrypted_tvb));
+	} else {
+		/* the alloc_hint shouldn't be larger than the expected remaining length */
+		if(alloc_hint > (tot_len - tvb_length(decrypted_tvb))) {
+			THROW(ReportedBoundsError);
+		}
 	}
+	fragment_add(decrypted_tvb, 0, pinfo, frame,
+		dcerpc_co_reassemble_table,
+		tot_len-alloc_hint /* fragment offset */, tvb_length(decrypted_tvb),
+		TRUE /* more_frags */);
 
 	goto end_cn_stub;
     }
@@ -3116,16 +3124,18 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     */
     tot_len = fragment_get_tot_len(pinfo, frame,
 		dcerpc_co_reassemble_table);
-    tvb_ensure_bytes_exist(tvb, tot_len-alloc_hint, tvb_length(decrypted_tvb));
-    fd_head = fragment_add(decrypted_tvb, 0, pinfo,
-		frame,
+	/* the alloc_hint shouldn't be larger than the expected remaining length */
+	if(alloc_hint != 0 && alloc_hint > (tot_len - tvb_length(decrypted_tvb))) {
+		THROW(ReportedBoundsError);
+	}
+    fd_head = fragment_add(decrypted_tvb, 0, pinfo, frame,
 		dcerpc_co_reassemble_table,
-		tot_len-alloc_hint, tvb_length(decrypted_tvb),
-		TRUE);
+		tot_len-alloc_hint /* fragment offset */, tvb_length(decrypted_tvb),
+		TRUE /* more_frags */);
 	if(alloc_hint == 0) {		
 	    fragment_set_tot_len(pinfo, frame,
 		  dcerpc_co_reassemble_table, tot_len + tvb_length(decrypted_tvb));
-    }
+	}
 
 end_cn_stub:
 
@@ -3141,7 +3151,13 @@ end_cn_stub:
 	    tvb_set_child_real_data_tvbuff(decrypted_tvb, next_tvb);
 	    add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
 	    show_fragment_tree(fd_head, &dcerpc_frag_items,
-		dcerpc_tree, pinfo, next_tvb, &frag_tree_item);
+			tree, pinfo, next_tvb, &frag_tree_item);
+		/* the toplevel fragment subtree is now behind all desegmented data,
+		 * move it right behind the DCE/RPC tree */
+		dcerpc_tree_item = proto_tree_get_parent(dcerpc_tree);
+		if(frag_tree_item && dcerpc_tree_item) {
+			proto_tree_move_item(tree, dcerpc_tree_item, frag_tree_item);
+		}
 
 	    pinfo->fragmented = FALSE;
 
