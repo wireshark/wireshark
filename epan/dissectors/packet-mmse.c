@@ -535,10 +535,10 @@ get_encoded_strval(tvbuff_t *tvb, guint offset, char **strval)
     if (field < 32) {
 	length = get_value_length(tvb, offset, &count);
 	if (length < 2) {
-	    *strval = g_strdup("");
+	    *strval = "";
 	} else {
 	    /* \todo	Something with "Char-set", skip for now	*/
-	    *strval = (char *)tvb_get_string(tvb, offset + count + 1, length - 1);
+	    *strval = (char *)ep_tvb_get_string(tvb, offset + count + 1, length - 1);
 	}
 	return count + length;
     } else
