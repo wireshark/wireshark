@@ -16858,7 +16858,7 @@ dissect_h245_Moderfc2733(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 /*--- End of included file: packet-h245-fn.c ---*/
 
 
-void
+static void
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
     pi_current++;
@@ -16875,7 +16875,7 @@ dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	tap_queue_packet(h245_tap, pinfo, h245_pi);
 }
 
-void
+static void
 dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	proto_item *it;
