@@ -232,7 +232,7 @@ void add_value(gchar* attrib_name, gchar* value_repr, long value) {
 }
 
 
-void setup_attrs(gpointer k _U_, gpointer v, gpointer p _U_) {
+static void setup_attrs(gpointer k _U_, gpointer v, gpointer p _U_) {
 	radius_attr_info_t* a = v;
 	gpointer key;
 	
@@ -249,19 +249,19 @@ void setup_attrs(gpointer k _U_, gpointer v, gpointer p _U_) {
 	}
 }
 
-void setup_vendors(gpointer k _U_, gpointer v, gpointer p) {
+static void setup_vendors(gpointer k _U_, gpointer v, gpointer p) {
 	radius_vendor_info_t* vnd = v;
 	
 	g_hash_table_foreach(vnd->attrs_by_id,setup_attrs,p);	
 }
 
-gboolean destroy_values(gpointer k, gpointer v, gpointer p _U_) {
+static gboolean destroy_values(gpointer k, gpointer v, gpointer p _U_) {
 	g_free(k);
 	g_array_free(v,FALSE);
 	return TRUE;
 }
 
-gboolean destroy_attrs(gpointer k _U_, gpointer v, gpointer p _U_) {
+static gboolean destroy_attrs(gpointer k _U_, gpointer v, gpointer p _U_) {
 	radius_attr_info_t* a = v;
 	int i;
 	
@@ -276,7 +276,7 @@ gboolean destroy_attrs(gpointer k _U_, gpointer v, gpointer p _U_) {
 	return TRUE;
 }
 
-gboolean destroy_vendors(gpointer k _U_, gpointer v, gpointer p) {
+static gboolean destroy_vendors(gpointer k _U_, gpointer v, gpointer p) {
 	radius_vendor_info_t* vnd = v;
 	g_free(vnd->name);
 	g_hash_table_foreach_remove(vnd->attrs_by_id,destroy_attrs,p);
@@ -285,7 +285,7 @@ gboolean destroy_vendors(gpointer k _U_, gpointer v, gpointer p) {
 	return TRUE;
 }
 
-void destroy_dict(radius_dictionary_t* d) {
+static void destroy_dict(radius_dictionary_t* d) {
 	g_hash_table_foreach_remove(d->attrs_by_id,destroy_attrs,NULL);
 	g_hash_table_foreach_remove(d->vendors_by_id,destroy_vendors,NULL);	
 	g_hash_table_destroy(d->vendors_by_id);

@@ -101,7 +101,7 @@ static GMemChunk *conv_proto_data_area = NULL;
  * addr2 and port2 are used in the function if their respective conversation
  * options bits are set (NO_ADDR2 and NO_PORT2).
  */
-conversation_t *
+static conversation_t *
 conversation_create_from_template(conversation_t *conversation, address *addr2, guint32 port2)
 {
    /*

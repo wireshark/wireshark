@@ -27,6 +27,7 @@
 #endif
 
 #include <string.h>
+#include "base64.h"
 
 /* Decode a base64 string in-place - simple and slow algorithm.
    Return length of result. Taken from rproxy/librsync/base64.c by

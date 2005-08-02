@@ -1225,7 +1225,7 @@ dissector_all_tables_foreach_func (gpointer key, gpointer value, gpointer user_d
  * Walk all dissector tables calling a user supplied function on each
  * entry.
  */
-void
+static void
 dissector_all_tables_foreach (DATFunc func,
 			      gpointer user_data)
 {

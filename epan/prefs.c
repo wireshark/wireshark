@@ -901,7 +901,7 @@ print.file: /a/very/long/path/
  * They may be overridden by the global preferences file or the
  *  user's preferences file.
  */
-void
+static void
 init_prefs(void) {
   int         i;
   fmt_data    *cfmt;

@@ -57,7 +57,7 @@ void sha1_starts( sha1_context *ctx )
     ctx->state[4] = 0xC3D2E1F0;
 }
 
-void sha1_process( sha1_context *ctx, guint8 data[64] )
+static void sha1_process( sha1_context *ctx, guint8 data[64] )
 {
     guint32 temp, W[16], A, B, C, D, E;
 
