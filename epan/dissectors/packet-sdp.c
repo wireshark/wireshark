@@ -1064,7 +1064,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
 				gint *key2;
 				key2=g_malloc( sizeof(gint) );
 				*key2=atol(payload_type);
-				g_hash_table_insert(transport_info->media[n].rtp_dyn_payload, key2, g_strdup(encoding_name));
+				g_hash_table_insert(transport_info->media[n].rtp_dyn_payload, key2, encoding_name);
 			}
 		}
 
