@@ -70,12 +70,6 @@ Gnu info
       <itemizedlist>
 
 	<listitem><para>
-	  The LPD dissector could crash.
-	  <!-- Fixed in 15143, 15147 -->
-	  Versions affected: 0.3.16 to 0.10.12.
-	</para></listitem>
-
-	<listitem><para>
 	  The ISAKMP dissector could exhaust system memory.
 	  <!-- Fixed in 15163 -->
 	  Versions affected: 0.10.11 to 0.10.12.
