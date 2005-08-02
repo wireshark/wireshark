@@ -1300,7 +1300,7 @@ dissect_tds_login_ack_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_t
 	offset += 4;
 }
 
-int 
+static int 
 dissect_tds7_results_token(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	guint16 num_columns, table_len;

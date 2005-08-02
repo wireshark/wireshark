@@ -585,7 +585,7 @@ menus_init(void) {
 }
 
 
-gint tap_menu_item_add_compare(gconstpointer a, gconstpointer b)
+static gint tap_menu_item_add_compare(gconstpointer a, gconstpointer b)
 {
     return strcmp(
         ((const menu_item_t *) a)->name, 
@@ -594,7 +594,7 @@ gint tap_menu_item_add_compare(gconstpointer a, gconstpointer b)
 
 
 /* add a menuitem below the current node */
-GList * tap_menu_item_add(
+static GList * tap_menu_item_add(
     char *name, 
     gint group, 
     GtkItemFactoryCallback callback,
@@ -756,7 +756,7 @@ register_tap_menu_item(
 }
 
 
-guint merge_tap_menus_layered(GList *node, gint group) {
+static guint merge_tap_menus_layered(GList *node, gint group) {
     GtkItemFactoryEntry *entry;
     GList       *child;
     guint       added = 0;
@@ -931,7 +931,7 @@ set_menu_sensitivity(GtkItemFactory *ifactory, const gchar *path, gint val)
   g_free(dup);
 }
 
-void
+static void
 set_menu_object_data_meat(GtkItemFactory *ifactory, gchar *path, gchar *key, gpointer data)
 {
 	GtkWidget *menu = NULL;
@@ -962,7 +962,7 @@ set_menu_object_data (gchar *path, gchar *key, gpointer data) {
 #define MENU_RECENT_FILES_PATH "/File/Open Recent"
 #define MENU_RECENT_FILES_KEY "Recent File Name"
 
-void
+static void
 update_menu_recent_capture_file1(GtkWidget *widget, gpointer cnt) {
     gchar *widget_cf_name;
 

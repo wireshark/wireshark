@@ -322,7 +322,7 @@ extern int stats_tree_packet(void* p, packet_info* pinfo, epan_dissect_t *edt, c
 		return 0;
 }
 
-extern GHashTable* stat_tree_registry(void) {
+static GHashTable* stat_tree_registry(void) {
 	return registry;
 }
 

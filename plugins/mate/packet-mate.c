@@ -42,7 +42,7 @@ static const gchar* current_mate_config_filename = NULL;
 
 static proto_item *mate_i = NULL;
 
-void pdu_attrs_tree(proto_tree* tree, tvbuff_t *tvb, mate_pdu* pdu) {
+static void pdu_attrs_tree(proto_tree* tree, tvbuff_t *tvb, mate_pdu* pdu) {
 	AVPN* c;
 	proto_item *avpl_i;
 	proto_tree *avpl_t;
@@ -63,7 +63,7 @@ void pdu_attrs_tree(proto_tree* tree, tvbuff_t *tvb, mate_pdu* pdu) {
 	}
 }
 
-void gop_attrs_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
+static void gop_attrs_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 	AVPN* c;
 	proto_item *avpl_i;
 	proto_tree *avpl_t;
@@ -84,7 +84,7 @@ void gop_attrs_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 	}
 }
 
-void gog_attrs_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog) {
+static void gog_attrs_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog) {
 	AVPN* c;
 	proto_item *avpl_i;
 	proto_tree *avpl_t;
@@ -105,9 +105,9 @@ void gog_attrs_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog) {
 	}
 }
 
-void mate_gop_tree(proto_tree* pdu_tree, tvbuff_t *tvb, mate_gop* gop);
+static void mate_gop_tree(proto_tree* pdu_tree, tvbuff_t *tvb, mate_gop* gop);
 
-void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop) {
+static void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop) {
 	proto_item *gog_item;
 	proto_tree *gog_tree;
 	proto_item *gog_time_item;
@@ -185,7 +185,7 @@ void mate_gog_tree(proto_tree* tree, tvbuff_t *tvb, mate_gog* gog, mate_gop* gop
 	}
 }
 
-void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
+static void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 	proto_item *gop_item;
 	proto_tree *gop_time_tree;
 	proto_item *gop_time_item;
@@ -259,7 +259,7 @@ void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 }
 
 
-void mate_pdu_tree(mate_pdu *pdu, tvbuff_t *tvb, proto_tree* tree) {
+static void mate_pdu_tree(mate_pdu *pdu, tvbuff_t *tvb, proto_tree* tree) {
 	proto_item *pdu_item;
 	proto_tree *pdu_tree;
 	
@@ -295,7 +295,7 @@ void mate_pdu_tree(mate_pdu *pdu, tvbuff_t *tvb, proto_tree* tree) {
 	}
 }
 
-extern void mate_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static void mate_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	mate_pdu* pdus;
 	proto_tree *mate_t;
 	

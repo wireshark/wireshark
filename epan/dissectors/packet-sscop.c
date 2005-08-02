@@ -168,7 +168,7 @@ static const value_string sscop_type_vals[] = {
 #define	SSCOP_SS_N_MR	(reported_length - 8)	/* lower 3 bytes thereof */
 #define	SSCOP_SS_N_R	(reported_length - 4)	/* lower 3 bytes thereof */
 
-extern void dissect_stat_list(proto_tree *tree, tvbuff_t *tvb,guint h) {
+static void dissect_stat_list(proto_tree *tree, tvbuff_t *tvb,guint h) {
 	gint n,i;
 	proto_item* pi;
 
@@ -341,7 +341,7 @@ dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, d
 }
 }
 
-extern void dissect_sscop(tvbuff_t* tvb, packet_info* pinfo,proto_tree* tree)
+static void dissect_sscop(tvbuff_t* tvb, packet_info* pinfo,proto_tree* tree)
 {
 	dissect_sscop_and_payload(tvb,pinfo,tree,default_handle);
 }

@@ -225,7 +225,7 @@ void scs_unsubscribe(SCS_collection* c, gchar* s) {
  * Return value: the stored copy of the formated string.
  *
  **/
-extern gchar* scs_subscribe_printf(SCS_collection* c, gchar* fmt, ...) {
+gchar* scs_subscribe_printf(SCS_collection* c, gchar* fmt, ...) {
 	va_list list;
 	static gchar buf[SCS_HUGE_SIZE];
 	
@@ -236,7 +236,7 @@ extern gchar* scs_subscribe_printf(SCS_collection* c, gchar* fmt, ...) {
 	return scs_subscribe(c,buf);
 }
 
-extern gchar* scs_subscribe_int(SCS_collection* c, int i) {
+static gchar* scs_subscribe_int(SCS_collection* c, int i) {
 	static gchar buf[SCS_SMALL_SIZE];
 	
 	g_snprintf(buf, SCS_SMALL_SIZE-1 ,"%i", i);
@@ -244,7 +244,7 @@ extern gchar* scs_subscribe_int(SCS_collection* c, int i) {
 	return scs_subscribe(c,buf);
 }
 
-extern gchar* scs_subscribe_float(SCS_collection* c, float f) {
+static gchar* scs_subscribe_float(SCS_collection* c, float f) {
 	static gchar buf[SCS_SMALL_SIZE];
 	
 	g_snprintf(buf, SCS_SMALL_SIZE-1 ,"%f", f);
@@ -453,7 +453,7 @@ extern AVP* avp_copy(AVP* from) {
 }
 
 
-extern void rename_avp(AVP* avp, gchar* name) {
+static void rename_avp(AVP* avp, gchar* name) {
 	gchar* s = avp->n;
 	avp->n = scs_subscribe(avp_strings,name);
 	scs_unsubscribe(avp_strings,s);
@@ -1312,7 +1312,7 @@ extern AVPL* new_avpl_from_match(avpl_match_mode mode, const gchar* name,AVPL* s
  *
  * Return value: a pointer to the newly created avpl transformation
  **/
-extern AVPL_Transf* new_avpl_transform(gchar* name, AVPL* mixed, avpl_match_mode match_mode, avpl_replace_mode replace_mode) {
+static AVPL_Transf* new_avpl_transform(gchar* name, AVPL* mixed, avpl_match_mode match_mode, avpl_replace_mode replace_mode) {
 	AVPL_Transf* t = g_malloc(sizeof(AVPL_Transf));
 	AVP* avp;
 
@@ -1614,7 +1614,7 @@ extern void delete_loal(LoAL* loal, gboolean avpls_too, gboolean avps_too) {
  * load_loal_error:
  * Used by loal_from_file to handle errors while loading.
  **/
-LoAL* load_loal_error(FILE* fp, LoAL* loal, AVPL* curr, int linenum, const gchar* fmt, ...) {
+static LoAL* load_loal_error(FILE* fp, LoAL* loal, AVPL* curr, int linenum, const gchar* fmt, ...) {
 	va_list list;
 	gchar* desc;
 	LoAL* ret = NULL;

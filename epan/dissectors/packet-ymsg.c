@@ -277,7 +277,7 @@ static const value_string ymsg_status_vals[] = {
 static guint get_ymsg_pdu_len(tvbuff_t *tvb, int offset);
 static void dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-int
+static int
 get_content_item_length(tvbuff_t *tvb, int offset) {
 	int origoffset = offset;
 	guint16 curdata;

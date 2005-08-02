@@ -3684,7 +3684,7 @@ static GMemChunk *ndps_req_hash_keys = NULL;
 static GMemChunk *ndps_req_hash_values = NULL;
 
 /* Hash Functions */
-gint
+static gint
 ndps_equal(gconstpointer v, gconstpointer v2)
 {
 	const ndps_req_hash_key	*val1 = (const ndps_req_hash_key*)v;
@@ -3697,7 +3697,7 @@ ndps_equal(gconstpointer v, gconstpointer v2)
 	return 0;
 }
 
-guint
+static guint
 ndps_hash(gconstpointer v)
 {
 	const ndps_req_hash_key	*ndps_key = (const ndps_req_hash_key*)v;
@@ -3750,7 +3750,7 @@ ndps_postseq_cleanup(void)
 	 * needed during random-access processing of the proto_tree.*/
 }
 
-ndps_req_hash_value*
+static ndps_req_hash_value*
 ndps_hash_insert(conversation_t *conversation, guint32 ndps_xport)
 {
 	ndps_req_hash_key		*request_key;
@@ -3775,7 +3775,7 @@ ndps_hash_insert(conversation_t *conversation, guint32 ndps_xport)
 }
 
 /* Returns the ncp_rec*, or NULL if not found. */
-ndps_req_hash_value*
+static ndps_req_hash_value*
 ndps_hash_lookup(conversation_t *conversation, guint32 ndps_xport)
 {
 	ndps_req_hash_key		request_key;
