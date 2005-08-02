@@ -1,5 +1,5 @@
 <!-- EDG Chapter Capture -->
-<!-- $Id: EDG_chapter_capture.xml 11816 2004-08-23 19:46:18Z ulfl $ -->
+<!-- $Id$ -->
 
 <chapter id="ChapterCapture">
   <title>Packet capturing</title>

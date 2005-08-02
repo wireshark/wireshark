@@ -21,6 +21,7 @@ FOP=fop-0.20.5/fop.bat
 # html help compiler (Win32 only)
 # (comment this out, if you don't want chm or don't have hhc installed)
 HHC="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
+#HHC="true"
 
 ############### YOU SHOULDN'T HAVE TO EDIT ANYTHING BELOW THIS LINE! ################
 
