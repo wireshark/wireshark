@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "packet-x509if.h"
 #include "packet-ber.h"
 #include "packet-x509sat.h"
 
