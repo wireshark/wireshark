@@ -53,6 +53,11 @@ CLEANFILES = \
 	mate \
 	*~
 
+DISTCLEANFILES = \
+	mate_grammar.out	\
+	mate_grammar.c		\
+	mate_grammar.h
+
 MAINTAINERCLEANFILES = \
 	Makefile.in		\
 	mate_grammar.c		\

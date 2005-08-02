@@ -28,6 +28,11 @@ CLEANFILES = \
 	libdfilter.la		\
 	*~
 
+DISTCLEANFILES = \
+	grammar.out	\
+	grammar.c	\
+	grammar.h
+
 MAINTAINERCLEANFILES = \
 	Makefile.in	\
 	grammar.c	\
