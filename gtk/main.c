@@ -2535,7 +2535,9 @@ main(int argc, char *argv[])
 #endif /* HAVE_LIBPCAP */
   }
 
+  /* we'll enter the GTK loop now and hand the control over to GTK ... */
   gtk_main();
+  /* ... back from GTK, we're going down now! */
 
   epan_cleanup();
   g_free(rc_file);
