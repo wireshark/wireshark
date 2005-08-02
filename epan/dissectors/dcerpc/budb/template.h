@@ -5,7 +5,7 @@
 /* packet-dcerpc-budb.h
  * Routines for BUDB packet disassembly
  *
- * $Id: packet-dcerpc-budb.h 11410 2004-07-18 18:06:47Z gram $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

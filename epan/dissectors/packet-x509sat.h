@@ -9,7 +9,7 @@
  * Routines for X.509 Selected Attribute Types packet dissection
  *   Ronnie Sahlberg 2004
  *
- * $Id: packet-x509sat-template.h 12573 2004-11-22 03:36:26Z sahlberg $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

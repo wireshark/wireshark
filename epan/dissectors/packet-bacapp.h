@@ -2,7 +2,7 @@
  * Routines for BACnet (APDU) dissection
  * Copyright 2004, Herbert Lischka <lischka@kieback-peter.de>, Berlin
  *
- * $Id: packet-bacapp.h,v 1.00 2004/03/11 17:50:07 Lka Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

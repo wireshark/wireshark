@@ -2,7 +2,7 @@
  * Routines for synergy dissection
  * Copyright 2005, Vasanth Manickam <vasanthm@gmail.com>
  *
- * $Id: $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

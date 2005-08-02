@@ -5,7 +5,7 @@
 /* packet-dcerpc-drsuapi.h
  * Routines for DRSUAPI packet disassembly
  *
- * $Id: packet-dcerpc-drsuapi.h 11410 2004-07-18 18:06:47Z gram $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

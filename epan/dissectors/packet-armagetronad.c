@@ -2,7 +2,7 @@
  * Routines for the Armagetronad packet dissection
  * Copyright 2005, Guillaume Chazarain <guichaz@yahoo.fr>
  *
- * $Id: README.developer 13227 2005-02-01 15:45:03Z jmayer $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

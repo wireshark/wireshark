@@ -9,7 +9,7 @@
  * Routines for RFC3907 Logotype Certificate Extensions packet dissection
  *    Ronnie Sahlberg 2004
  *
- * $Id: packet-logotype-cert-extn-template.h 12437 2004-10-30 02:18:44Z sahlberg $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

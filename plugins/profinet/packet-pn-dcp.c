@@ -250,7 +250,7 @@ static const value_string pn_dcp_suboption_manuf[] = {
 
 
 /* dissect an 8 bit unsigned integer */
-int
+static int
 dissect_pn_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
                   proto_tree *tree, int hfindex, guint8 *pdata)
 {
@@ -266,7 +266,7 @@ dissect_pn_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 }
 
 /* dissect a 16 bit unsigned integer */
-int
+static int
 dissect_pn_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
                        proto_tree *tree, int hfindex, guint16 *pdata)
 {
@@ -283,7 +283,7 @@ dissect_pn_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 }
 
 /* dissect a 32 bit unsigned integer */
-int
+static int
 dissect_pn_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
                        proto_tree *tree, int hfindex, guint32 *pdata)
 {
@@ -300,7 +300,7 @@ dissect_pn_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 }
 
 /* dissect an IPv4 address */
-int 
+static int 
 dissect_pn_ipv4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                     proto_tree *tree, int hfindex, guint32 *pdata)
 {
@@ -317,7 +317,7 @@ dissect_pn_ipv4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 /* dissect some padding data (with the given length) */
-int 
+static int 
 dissect_pn_padding(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                     proto_tree *tree, int length)
 {

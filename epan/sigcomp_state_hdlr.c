@@ -3,7 +3,7 @@
  * used for Signaling Compression (SigComp) dissection.
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id: sigcomp_state_hdlr.c 12788 2004-12-20 10:56:25Z jmayer $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

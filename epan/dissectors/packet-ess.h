@@ -9,7 +9,7 @@
  * Routines for RFC2634 Extended Security Services packet dissection
  *    Ronnie Sahlberg 2004
  *
- * $Id: packet-ess-template.h 12437 2004-10-30 02:18:44Z sahlberg $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

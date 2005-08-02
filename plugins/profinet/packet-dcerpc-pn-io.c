@@ -465,7 +465,7 @@ static const value_string pn_io_module_state[] = {
 
 
 /* dissect a 6 byte MAC address */
-int 
+static int 
 dissect_MAC(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                     proto_tree *tree, int hfindex, guint8 *pdata)
 {

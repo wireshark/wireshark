@@ -9,7 +9,7 @@
  *
  * Ronnie Sahlberg 2005
  *
- * $Id: packet-mms-template.c 13967 2005-03-29 14:56:09Z gerald $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

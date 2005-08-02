@@ -1,7 +1,7 @@
 /* 
  * Copyright 2004, Irene Ruengeler <i.ruengeler [AT] fh-muenster.de>
  *
- * $Id: sctp_chunk_stat_dlg.c 13531 2005-02-27 13:57:45Z lego $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

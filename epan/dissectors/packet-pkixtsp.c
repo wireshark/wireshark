@@ -9,7 +9,7 @@
  * Routines for RFC2634 Extended Security Services packet dissection
  *   Ronnie Sahlberg 2004
  *
- * $Id: packet-pkixtsp-template.c 12438 2004-10-30 02:36:58Z sahlberg $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

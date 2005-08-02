@@ -6,7 +6,7 @@
  * Copyright 2003-2005 Fred Hoekstra, Philips Medical Systems.
  *                (fred.hoekstra@philips.com) 
  *
- * $Id: packet-dec-dnart.c 14135 2005-07-25 12:05:50Z fhoekstra $
+ * $Id$
  *
  * Use was made of the following documentation:
  * (See URL http://linux-decnet.sourceforge.net/docs).

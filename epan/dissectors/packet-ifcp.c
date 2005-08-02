@@ -8,7 +8,7 @@
  * Significantly based on packet-fcip.c by
  *       Copyright 2001, Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-ifcp.c 14796 2005-06-27 08:27:49Z sahlberg $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

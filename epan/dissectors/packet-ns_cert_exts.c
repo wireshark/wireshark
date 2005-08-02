@@ -8,7 +8,7 @@
 /* packet-ns_cert_exts.c
  * Routines for NetScape Certificate Extensions packet dissection
  *
- * $Id: packet-ns_cert_exts-template.c 12395 2004-10-26 14:02:02Z sahlberg $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

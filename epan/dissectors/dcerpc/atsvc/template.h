@@ -5,7 +5,7 @@
 /* packet-dcerpc-atsvc.h
  * Routines for ATSVC packet disassembly
  *
- * $Id: packet-dcerpc-atsvc.h 11410 2004-07-18 18:06:47Z gram $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

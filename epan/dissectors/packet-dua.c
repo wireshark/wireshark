@@ -9,7 +9,7 @@
  *
  * Copyright 2005, Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-dua.c 12115 2004-09-27 22:55:15Z guy $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

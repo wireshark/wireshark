@@ -8,7 +8,7 @@
 /* packet-pkix1implicit.h
  * Routines for PKIX1Implicit packet dissection
  *
- * $Id: packet-pkix1implicit-template.h 12827 2004-12-24 12:22:52Z sahlberg $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

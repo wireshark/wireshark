@@ -5,7 +5,7 @@
 /* packet-dcerpc-butc.c
  * Routines for BUTC packet disassembly
  *
- * $Id: packet-dcerpc-butc.c 11592 2004-08-03 02:28:49Z guy $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

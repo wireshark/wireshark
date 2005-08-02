@@ -3,7 +3,7 @@
  *
  * Ronnie Sahlberg 2004
  *
- * $Id: packet-kerberos4.c 11410 2004-07-18 18:06:47Z gram $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

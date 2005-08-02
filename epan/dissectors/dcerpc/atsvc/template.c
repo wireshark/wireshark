@@ -8,7 +8,7 @@
  *      * Copyright 2003 Jean-Baptiste Marchand <jbm@hsc.fr>
  * and IDL file from samba 4
  *
- * $Id: packet-dcerpc-atsvc.c 11592 2004-08-03 02:28:49Z guy $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

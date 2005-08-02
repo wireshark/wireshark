@@ -9,7 +9,7 @@
  * Routines for PKCS#1/RFC2313 packet dissection
  *  Ronnie Sahlberg 2004
  *
- * $Id: packet-pkcs1-template.h 12573 2004-11-22 03:36:26Z sahlberg $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

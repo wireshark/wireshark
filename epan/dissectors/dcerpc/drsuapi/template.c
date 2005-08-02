@@ -6,7 +6,7 @@
  * Routines for DRSUAPI packet disassembly
  *   ronnie sahlberg 2005
  *
- * $Id: packet-dcerpc-drsuapi.c 11592 2004-08-03 02:28:49Z guy $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

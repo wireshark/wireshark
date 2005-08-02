@@ -9,7 +9,7 @@
  * Routines for RFC2510 Certificate Management Protocol packet dissection
  *   Ronnie Sahlberg 2004
  *
- * $Id: packet-cmp-template.h 12573 2004-11-22 03:36:26Z sahlberg $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
