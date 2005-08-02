@@ -1508,7 +1508,7 @@ main_cf_cb_file_safe_reload_finished(gpointer data _U_)
     set_menus_for_unsaved_capture_file(FALSE);
 }
 
-void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
+static void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
 {
     switch(event) {
     case(cf_cb_file_closed):
@@ -2699,7 +2699,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 }
 
 
-GtkWidget *info_bar_new(void)
+static GtkWidget *info_bar_new(void)
 {
     /* tip: tooltips don't work on statusbars! */
     info_bar = gtk_statusbar_new();
@@ -2714,7 +2714,7 @@ GtkWidget *info_bar_new(void)
     return info_bar;
 }
 
-GtkWidget *packets_bar_new(void)
+static GtkWidget *packets_bar_new(void)
 {
     /* tip: tooltips don't work on statusbars! */
     packets_bar = gtk_statusbar_new();
@@ -2728,11 +2728,11 @@ GtkWidget *packets_bar_new(void)
 /*
  * Helper for main_widgets_rearrange()
  */
-void foreach_remove_a_child(GtkWidget *widget, gpointer data) {
+static void foreach_remove_a_child(GtkWidget *widget, gpointer data) {
     gtk_container_remove(GTK_CONTAINER(data), widget);
 }
 
-GtkWidget *main_widget_layout(gint layout_content)
+static GtkWidget *main_widget_layout(gint layout_content)
 {
     switch(layout_content) {
     case(layout_pane_content_none):
@@ -3015,7 +3015,7 @@ welcome_new(void)
 }
 #endif /* 0 */
 
-GtkWidget *
+static GtkWidget *
 welcome_new(void)
 {
     /* this is just a dummy to fill up window space, simply showing nothing */

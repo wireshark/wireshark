@@ -430,7 +430,7 @@ preview_new(void)
 static GtkWidget *file_open_w;
 
 /* Open a file */
-void
+static void
 file_open_cmd(GtkWidget *w)
 {
   GtkWidget	*main_hb, *main_vb, *filter_hbox, *filter_bt, *filter_te,
@@ -757,7 +757,7 @@ file_open_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 static GtkWidget *file_merge_w;
 
 /* Merge existing with another file */
-void
+static void
 file_merge_cmd(GtkWidget *w)
 {
   GtkWidget	*main_hb, *main_vb, *ft_hb, *ft_lb, *filter_hbox,
@@ -1116,7 +1116,7 @@ file_merge_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 }
 
 
-void file_close_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
+static void file_close_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
 {
     switch(btn) {
     case(ESD_BTN_SAVE):
@@ -1763,7 +1763,7 @@ static GtkWidget *file_color_export_w;
  * Called when the "Export" dialog box is created and when the marked
  * count changes.
  */
-void
+static void
 color_set_export_marked_sensitive(GtkWidget * cfmark_cb)
 {
   if (file_color_export_w == NULL) {

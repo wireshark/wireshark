@@ -310,7 +310,7 @@ set_frame_mark(gboolean set, frame_data *frame, gint row) {
 }
 
 /* call this after last set_frame_mark is done */
-void mark_frames_ready(void) {
+static void mark_frames_ready(void) {
   file_set_save_marked_sensitive();
   packets_bar_update();
 }
@@ -606,7 +606,7 @@ packet_list_freeze(void)
     eth_clist_freeze(ETH_CLIST(packet_list));
 }
 
-void
+static void
 packet_list_resize_columns(void) {
     int         i;
     int         progbar_nextstep;

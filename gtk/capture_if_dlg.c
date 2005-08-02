@@ -156,7 +156,7 @@ capture_details_cb(GtkWidget *details_bt _U_, gpointer if_data)
 
 
 /* open a single interface */
-void
+static void
 open_if(gchar *name, if_dlg_data_t *if_dlg_data)
 {
   gchar       open_err_str[PCAP_ERRBUF_SIZE];
@@ -240,7 +240,7 @@ update_if(if_dlg_data_t *if_dlg_data)
 
 
 /* close a single interface */
-void
+static void
 close_if(if_dlg_data_t *if_dlg_data)
 {
     if(if_dlg_data->pch)
@@ -250,7 +250,7 @@ close_if(if_dlg_data_t *if_dlg_data)
 
 
 /* update all interfaces */
-gboolean
+static gboolean
 update_all(gpointer data)
 {
     GList *curr;

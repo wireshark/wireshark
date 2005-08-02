@@ -500,7 +500,7 @@ add_filter_to_list(gpointer filter_arg, gpointer list_arg)
   num_of_filters++;
 }
 
-void move_this_row (GtkWidget   *color_filters, 
+static void move_this_row (GtkWidget   *color_filters, 
                      gint         filter_number,
                      gint         amount)            /* only tested with +1(down) and -1(up) */
 {
@@ -689,7 +689,7 @@ struct remember_data
 };
 /* called for each selected row in the tree.
 */
-void remember_this_row (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer arg)
+static void remember_this_row (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer arg)
 {
     gint         *path_index;
     color_filter_t *colorf;
@@ -1081,7 +1081,7 @@ color_clear_cmd(GtkWidget *widget)
 }
 
 /* clear button: user responded to question */
-void color_clear_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
+static void color_clear_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
 {
     switch(btn) {
     case(ESD_BTN_CLEAR):

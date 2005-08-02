@@ -280,7 +280,7 @@ static void overwrite (char *string, char *text_to_insert, guint32 p1, guint32 p
 
 
 /****************************************************************************/
-gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
+static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 {
         guint32 i, first_node, display_items, display_nodes;
 		guint32 start_position, end_position, item_width, header_length;
@@ -1665,7 +1665,7 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
  * and Return -2 if the array is full
  */
 /****************************************************************************/
-gint is_node_array(graph_analysis_data_t* user_data, address* node)
+static gint is_node_array(graph_analysis_data_t* user_data, address* node)
 {
 	int i;
 	for (i=0; i<MAX_NUM_NODES; i++){
@@ -1678,7 +1678,7 @@ gint is_node_array(graph_analysis_data_t* user_data, address* node)
 
 /* Get the nodes from the list */
 /****************************************************************************/
-void get_nodes(graph_analysis_data_t* user_data)
+static void get_nodes(graph_analysis_data_t* user_data)
 {
 	GList* list;
 	graph_analysis_item_t *gai;

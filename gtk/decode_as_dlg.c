@@ -1548,7 +1548,7 @@ decode_add_tcpudp_page (gchar *prompt, gchar *table_name)
     return(page);
 }
 
-void
+static void
 decode_sctp_list_menu_start(GtkWidget **list_p, GtkWidget **scrolled_win_p)
 {
 #if GTK_MAJOR_VERSION < 2

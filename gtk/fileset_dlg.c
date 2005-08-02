@@ -202,7 +202,7 @@ fileset_dlg_add_file(fileset_entry *entry) {
 
 
 /* init the fileset table */
-void
+static void
 fileset_init_table(GtkWidget *parent)
 {
   GtkWidget     *fs_lb;

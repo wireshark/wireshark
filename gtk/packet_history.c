@@ -130,7 +130,7 @@ void packet_history_clear(void) {
 }
 
 
-void packet_history_back(void) {
+static void packet_history_back(void) {
     GList *previous;
 
     if(history_current) {
@@ -151,7 +151,7 @@ void packet_history_back(void) {
 }
 
 
-void packet_history_forward(void) {
+static void packet_history_forward(void) {
     GList *next;
 
     if(history_current) {

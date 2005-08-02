@@ -37,6 +37,7 @@
 #include <windows.h>
 #endif
 
+#include "main.h"
 #include "recent.h"
 #include <epan/prefs.h>
 

@@ -61,6 +61,9 @@
 typedef struct capture_options_tag * p_capture_options_t;
 extern p_capture_options_t capture_opts;
 
+extern void protect_thread_critical_region(void);
+extern void unprotect_thread_critical_region(void);
+
 /** User requested "Zoom In" by menu or toolbar.
  *
  * @param widget parent widget (unused)

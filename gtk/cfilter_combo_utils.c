@@ -40,7 +40,7 @@
 /* XXX: use a preference for this setting! */
 static guint cfilter_combo_max_recent = 20;
 
-gboolean
+static gboolean
 cfilter_combo_add(gchar *s) {
   GList     *li;
   GList     *fl = OBJECT_GET_DATA(top_level, E_CFILTER_FL_KEY);
