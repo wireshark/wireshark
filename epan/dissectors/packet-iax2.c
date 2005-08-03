@@ -45,6 +45,13 @@
 #define IAX2_PORT		4569
 #define PROTO_TAG_IAX2		"IAX2"
 
+/* enough to hold any address in an address_t */
+#define MAX_ADDRESS 16
+
+/* the maximum number of transfers (of each end) we can deal with per call,
+ * plus one */
+#define IAX_MAX_TRANSFERS 2
+
 /* #define DEBUG_HASHING */
 
 /* Ethereal ID of the IAX2 protocol */
@@ -56,16 +63,20 @@ static int proto_iax2 = -1;
  */
 static int hf_iax2_packet_type = -1;
 static int hf_iax2_retransmission = -1;
+static int hf_iax2_callno = -1;
 static int hf_iax2_scallno = -1;
 static int hf_iax2_dcallno = -1;
 static int hf_iax2_ts = -1;
 static int hf_iax2_minits = -1;
 static int hf_iax2_minividts = -1;
+static int hf_iax2_absts = -1;
+static int hf_iax2_lateness = -1;
 static int hf_iax2_minividmarker = -1;
 static int hf_iax2_oseqno = -1;
 static int hf_iax2_iseqno = -1;
 static int hf_iax2_type = -1;
 static int hf_iax2_csub = -1;
+static int hf_iax2_dtmf_csub = -1;
 static int hf_iax2_cmd_csub = -1;
 static int hf_iax2_iax_csub = -1;
 static int hf_iax2_voice_csub = -1;
@@ -90,62 +101,20 @@ static int hf_iax2_cap_png = -1;
 static int hf_iax2_cap_h261 = -1;
 static int hf_iax2_cap_h263 = -1;
 
+/* hf_iax2_ies is an array of header fields, one per potential Information
+ * Element. It's done this way (rather than having separate variables for each
+ * IE) to make the dissection of information elements clearer and more
+ * orthoganal.
+ *
+ * To add the ability to dissect a new information element, just add an
+ * appropriate entry to hf[] in proto_register_iax2(); dissect_ies() will then
+ * pick it up automatically.
+ */
+static int hf_iax2_ies[256];
+static int hf_iax2_ie_datetime = -1;
 static int hf_IAX_IE_APPARENTADDR_SINFAMILY = -1;
 static int hf_IAX_IE_APPARENTADDR_SINPORT = -1;
 static int hf_IAX_IE_APPARENTADDR_SINADDR = -1;
-static int hf_IAX_IE_APPARENTADDR_SINZERO = -1;		  
-static int hf_IAX_IE_CALLED_NUMBER = -1;
-static int hf_IAX_IE_CALLING_NUMBER = -1;
-static int hf_IAX_IE_CALLING_ANI = -1;
-static int hf_IAX_IE_CALLING_NAME = -1;
-static int hf_IAX_IE_CALLED_CONTEXT = -1;
-static int hf_IAX_IE_USERNAME = -1;
-static int hf_IAX_IE_PASSWORD = -1;
-static int hf_IAX_IE_CAPABILITY = -1;
-static int hf_IAX_IE_FORMAT = -1;
-static int hf_IAX_IE_LANGUAGE = -1;
-static int hf_IAX_IE_VERSION = -1;
-static int hf_IAX_IE_ADSICPE = -1;
-static int hf_IAX_IE_DNID = -1;
-static int hf_IAX_IE_AUTHMETHODS = -1;
-static int hf_IAX_IE_CHALLENGE = -1;
-static int hf_IAX_IE_MD5_RESULT = -1;
-static int hf_IAX_IE_RSA_RESULT = -1;
-static int hf_IAX_IE_REFRESH = -1;
-static int hf_IAX_IE_DPSTATUS = -1;
-static int hf_IAX_IE_CALLNO = -1;
-static int hf_IAX_IE_CAUSE = -1;
-static int hf_IAX_IE_IAX_UNKNOWN = -1;
-static int hf_IAX_IE_MSGCOUNT = -1;
-static int hf_IAX_IE_AUTOANSWER = -1;
-static int hf_IAX_IE_MUSICONHOLD = -1;
-static int hf_IAX_IE_TRANSFERID = -1;
-static int hf_IAX_IE_RDNIS = -1;
-static int hf_IAX_IE_PROVISIONING = -1;
-static int hf_IAX_IE_AESPROVISIONING = -1;
-static int hf_IAX_IE_DATETIME = -1;
-static int hf_IAX_IE_DEVICETYPE = -1;
-static int hf_IAX_IE_SERVICEIDENT = -1;
-static int hf_IAX_IE_FIRMWAREVER = -1;
-static int hf_IAX_IE_FWBLOCKDESC = -1;
-static int hf_IAX_IE_FWBLOCKDATA = -1;
-static int hf_IAX_IE_PROVVER = -1;
-static int hf_IAX_IE_CALLINGPRES = -1;
-static int hf_IAX_IE_CALLINGTON = -1;
-static int hf_IAX_IE_CALLINGTNS = -1;
-static int hf_IAX_IE_SAMPLINGRATE = -1;
-static int hf_IAX_IE_CAUSECODE = -1;
-static int hf_IAX_IE_ENCRYPTION = -1;
-static int hf_IAX_IE_ENCKEY = -1;
-static int hf_IAX_IE_CODEC_PREFS = -1;
-static int hf_IAX_IE_RR_JITTER = -1;
-static int hf_IAX_IE_RR_LOSS = -1;
-static int hf_IAX_IE_RR_PKTS = -1;
-static int hf_IAX_IE_RR_DELAY = -1;
-static int hf_IAX_IE_RR_DROPPED = -1;
-static int hf_IAX_IE_RR_OOO = -1;
-
-static int hf_IAX_IE_DATAFORMAT = -1;
 static int hf_IAX_IE_UNKNOWN_BYTE = -1;
 static int hf_IAX_IE_UNKNOWN_I16 = -1;
 static int hf_IAX_IE_UNKNOWN_I32 = -1;
@@ -415,6 +384,9 @@ typedef struct {
   port_type ptype;
   guint32 port;
   guint32 callno;
+
+  /* this is where addr->data points to. it's put in here for easy freeing */
+  guint8 address_data[MAX_ADDRESS];
 } iax_circuit_key;
 
 /* tables */
@@ -466,7 +438,7 @@ static gint iax_circuit_equal(gconstpointer v, gconstpointer w)
   g_message( "+++ Comparing for equality: %s, %s: %u",key_to_str(v1), key_to_str(v2), result);
 #endif
 
-  return result;;
+  return result;
 }
 
 static guint iax_circuit_hash (gconstpointer v)
@@ -490,6 +462,9 @@ static guint iax_circuit_hash (gconstpointer v)
   return (guint) hash_val;
 }
 
+/* Find, or create, a circuit for the given
+   {address,porttype,port,call} quadruplet
+*/
 static guint iax_circuit_lookup(const address *address,
 				port_type ptype,
 				guint32 port,
@@ -503,16 +478,15 @@ static guint iax_circuit_lookup(const address *address,
   key.port = port;
   key.callno = callno;
 
-#ifdef DEBUG_HASHING
-  g_message( "+++ looking up key: %s", key_to_str(&key));
-#endif
-  
   circuit_id_p = g_hash_table_lookup( iax_circuit_hashtab, &key);
   if( ! circuit_id_p ) {
     iax_circuit_key *new_key;
 
     new_key = g_mem_chunk_alloc(iax_circuit_keys);
-    COPY_ADDRESS(&new_key->addr, address);
+    new_key->addr.type = address->type;
+    new_key->addr.len = MIN(address->len,MAX_ADDRESS);
+    new_key->addr.data = new_key->address_data;
+    memmove(new_key->address_data,address->data,new_key->addr.len);
     new_key->ptype = ptype;
     new_key->port = port;
     new_key->callno = callno;
@@ -521,11 +495,11 @@ static guint iax_circuit_lookup(const address *address,
     *circuit_id_p = ++circuitcount;
 
     g_hash_table_insert(iax_circuit_hashtab, new_key, circuit_id_p);
-  }
 
 #ifdef DEBUG_HASHING
-    g_message( "+++ Id: %u", *circuit_id_p );
+    g_message("Created new circuit id %u for node %s", *circuit_id_p, key_to_str(new_key));
 #endif
+  }
 
   return *circuit_id_p;
 }
@@ -552,13 +526,19 @@ typedef struct iax_call_data {
   guint32 src_codec, dst_codec;
   guint32 src_vformat, dst_vformat;
 
-  guint forward_circuit_id;
-  guint reverse_circuit_id;
+  /* when a transfer takes place, we'll get a new circuit id; we assume that we
+     don't try to transfer more than IAX_MAX_TRANSFERS times in a call */
+  guint forward_circuit_ids[IAX_MAX_TRANSFERS];
+  guint reverse_circuit_ids[IAX_MAX_TRANSFERS];
+  guint n_forward_circuit_ids;
+  guint n_reverse_circuit_ids;
 
-  guint callno;
+  /* this is the subdissector for the call */
+  dissector_handle_t subdissector;
+
+  /* the absolute start time of the call */
+  nstime_t start_time;
 } iax_call_data;
-
-static guint callcount = 0;
 
 static GMemChunk *iax_call_datas = NULL;
 
@@ -587,15 +567,82 @@ static void iax_init_hash( void )
 				      IAX_INIT_PACKET_COUNT,
 				      G_ALLOC_ONLY);
   circuitcount = 0;
-  callcount = 0;
 }
 
 
-static iax_call_data *iax_lookup_circuit_details_from_dest( guint src_circuit_id,
-							    guint dst_circuit_id,
-							    guint framenum,
-							    gboolean *reversed_p,
-							    circuit_t **circuit_p)
+
+/* creates a new CT_IAX2 circuit with a specified circuit id for a call
+ *
+ * typically a call has up to three associated circuits: an original source, an
+ * original destination, and the result of a transfer.
+ *
+ * For each endpoint, a CT_IAX2 circuit is created and added to the call_data
+ * by this function
+ *
+ * 'reversed' should be true if this end is the one which would have _received_
+ * the NEW packet, or it is an endpoint to which the 'destination' is being
+ * transferred.
+ *
+ */
+static circuit_t *iax2_new_circuit_for_call(guint circuit_id, guint framenum, iax_call_data *iax_call,
+					    gboolean reversed)
+{
+  circuit_t *res;
+  
+  if(( reversed && iax_call->n_reverse_circuit_ids >= IAX_MAX_TRANSFERS) ||
+     ( !reversed && iax_call->n_forward_circuit_ids >= IAX_MAX_TRANSFERS)) {
+    g_warning("Too many transfers for iax_call");
+    return NULL;
+  }
+  
+  res = circuit_new(CT_IAX2,
+                    circuit_id,
+                    framenum );
+
+  circuit_add_proto_data(res, proto_iax2, iax_call);
+	
+  if( reversed )
+    iax_call -> reverse_circuit_ids[iax_call->n_reverse_circuit_ids++] = circuit_id;
+  else
+    iax_call -> forward_circuit_ids[iax_call->n_forward_circuit_ids++] = circuit_id;
+
+  return res;
+}
+
+
+/* returns true if this circuit id is a "forward" circuit for this call: ie, it
+ * is the point which _sent_ the original 'NEW' packet, or a point to which that
+ * end was subsequently transferred */
+static gboolean is_forward_circuit(guint circuit_id,
+				   const iax_call_data *iax_call)
+{
+  guint i;
+  for(i=0;i<iax_call->n_forward_circuit_ids;i++){
+    if(circuit_id == iax_call->forward_circuit_ids[i])
+      return TRUE;
+  }
+  return FALSE;
+}
+
+/* returns true if this circuit id is a "reverse" circuit for this call: ie, it
+ * is the point which _received_ the original 'NEW' packet, or a point to which that
+ * end was subsequently transferred */
+static gboolean is_reverse_circuit(guint circuit_id,
+				   const iax_call_data *iax_call)
+{
+  guint i;
+  for(i=0;i<iax_call->n_reverse_circuit_ids;i++){
+    if(circuit_id == iax_call->reverse_circuit_ids[i])
+      return TRUE;
+  }
+  return FALSE;
+}
+
+
+static iax_call_data *iax_lookup_call_from_dest( guint src_circuit_id,
+                                                 guint dst_circuit_id,
+                                                 guint framenum,
+                                                 gboolean *reversed_p)
 {
   circuit_t *dst_circuit;
   iax_call_data * iax_call;
@@ -611,8 +658,6 @@ static iax_call_data *iax_lookup_circuit_details_from_dest( guint src_circuit_id
 #endif
     if( reversed_p )
       *reversed_p = FALSE;
-    if( circuit_p )
-      *circuit_p = NULL;
     return NULL;
   }
 
@@ -625,8 +670,8 @@ static iax_call_data *iax_lookup_circuit_details_from_dest( guint src_circuit_id
   /* there's no way we can create a CT_IAX2 circuit without adding
      iax call data to it; assert this */
   DISSECTOR_ASSERT(iax_call);
-  
-  if( dst_circuit_id == iax_call -> forward_circuit_id ) {
+
+  if( is_forward_circuit(dst_circuit_id, iax_call )) {
 #ifdef DEBUG_HASHING
     g_message( "++ destination circuit matches forward_circuit_id of call, "
 	       "therefore packet is reversed" );
@@ -634,9 +679,7 @@ static iax_call_data *iax_lookup_circuit_details_from_dest( guint src_circuit_id
 
     reversed = TRUE;
 
-    if( iax_call -> reverse_circuit_id == 0 ) {
-      circuit_t *rev_circuit;
-      
+    if( iax_call -> n_reverse_circuit_ids == 0 ) {
       /* we are going in the reverse direction, and this call
 	 doesn't have a reverse circuit associated with it.
 	 create one now. */
@@ -645,64 +688,39 @@ static iax_call_data *iax_lookup_circuit_details_from_dest( guint src_circuit_id
 		 "new reverse circuit for this call" );
 #endif
 
-      iax_call -> reverse_circuit_id = src_circuit_id;
-      rev_circuit = circuit_new(CT_IAX2,
-				src_circuit_id,
-				framenum );
-      circuit_add_proto_data(rev_circuit, proto_iax2, iax_call);
-	
-      /* we should have already set up a subdissector for the forward
-       * circuit. we'll need to copy it to the reverse circuit. */
-      circuit_set_dissector(rev_circuit, circuit_get_dissector(dst_circuit));
+      iax2_new_circuit_for_call( src_circuit_id, framenum, iax_call, TRUE );
 #ifdef DEBUG_HASHING
       g_message( "++ done" );
 #endif
-    } else if( iax_call -> reverse_circuit_id != src_circuit_id ) {
-      g_warning( "IAX Packet %u from circuit ids %u->%u"
+    } else if( !is_reverse_circuit(src_circuit_id, iax_call )) {
+      g_warning( "IAX Packet %u from circuit ids %u->%u "
 		 "conflicts with earlier call with circuit ids %u->%u",
 		 framenum,
 		 src_circuit_id,dst_circuit_id,
-		 iax_call->forward_circuit_id,
-		 iax_call->reverse_circuit_id);
-      if( reversed_p )
-        *reversed_p = FALSE;
-      if( circuit_p )
-        *circuit_p = NULL;
+		 iax_call->forward_circuit_ids[0],
+		 iax_call->reverse_circuit_ids[0]);
       return NULL;
     }
-  } else if ( dst_circuit_id == iax_call -> reverse_circuit_id ) {
+  } else if ( is_reverse_circuit(dst_circuit_id, iax_call)) {
 #ifdef DEBUG_HASHING
     g_message( "++ destination circuit matches reverse_circuit_id of call, "
 	       "therefore packet is forward" );
 #endif
 
     reversed = FALSE;
-    if( iax_call -> forward_circuit_id != src_circuit_id ) {
-      g_warning( "IAX Packet %u from circuit ids %u->%u"
+    if( !is_forward_circuit(src_circuit_id, iax_call)) {
+      g_warning( "IAX Packet %u from circuit ids %u->%u "
 		 "conflicts with earlier call with circuit ids %u->%u",
 		 framenum,
 		 src_circuit_id,dst_circuit_id,
-		 iax_call->forward_circuit_id,
-		 iax_call->reverse_circuit_id);
+		 iax_call->forward_circuit_ids[0],
+		 iax_call->reverse_circuit_ids[0]);
       if( reversed_p )
         *reversed_p = FALSE;
-      if( circuit_p )
-        *circuit_p = NULL;
       return NULL;
     }
   } else {
     DISSECTOR_ASSERT_NOT_REACHED();
-  }
-
-
-  if( circuit_p ) {
-    /* by now we've created a new circuit if one was necessary, or
-       bailed out if it looks like a conflict, and we should be able
-       to look up the source circuit without issue */
-    *circuit_p = find_circuit( CT_IAX2, 
-			       src_circuit_id,
-			       framenum );
-    DISSECTOR_ASSERT(*circuit_p);
   }
 
   if( reversed_p )
@@ -712,17 +730,15 @@ static iax_call_data *iax_lookup_circuit_details_from_dest( guint src_circuit_id
 }
 
   
-  /* looks up a circuit_t and an iax_call for this packet */
-static iax_call_data *iax_lookup_circuit_details( packet_info *pinfo, 
-						 guint32 scallno,
-						 guint32 dcallno,
-						 gboolean *reversed_p,
-						 circuit_t **circuit_p)
+/* looks up an iax_call for this packet */
+static iax_call_data *iax_lookup_call( packet_info *pinfo, 
+                                       guint32 scallno,
+                                       guint32 dcallno,
+                                       gboolean *reversed_p)
 {
   gboolean reversed = FALSE;
   iax_call_data *iax_call = NULL;
   guint src_circuit_id;
-  circuit_t *src_circuit = NULL;
 
 #ifdef DEBUG_HASHING
   g_message( "++ iax_lookup_circuit_details: Looking up circuit for frame %u, "
@@ -747,8 +763,10 @@ static iax_call_data *iax_lookup_circuit_details( packet_info *pinfo,
     dst_circuit_id = iax_circuit_lookup(&pinfo->dst,pinfo->ptype,
 					pinfo->destport,dcallno);
 
-    iax_call = iax_lookup_circuit_details_from_dest(src_circuit_id, dst_circuit_id, pinfo->fd->num, &reversed, &src_circuit);
+    iax_call = iax_lookup_call_from_dest(src_circuit_id, dst_circuit_id,
+                                         pinfo->fd->num, &reversed);
   } else {
+    circuit_t *src_circuit;
 
     /* in all other circumstances, the source circuit should already
      * exist: its absense indicates that we missed the all-important NEW
@@ -766,9 +784,9 @@ static iax_call_data *iax_lookup_circuit_details( packet_info *pinfo,
 	 iax call data to it; assert this */
       DISSECTOR_ASSERT(iax_call);
 
-      if( src_circuit_id == iax_call -> forward_circuit_id )
+      if( is_forward_circuit(src_circuit_id,iax_call))
 	reversed = FALSE;
-      else if ( src_circuit_id == iax_call -> reverse_circuit_id )
+      else if(is_reverse_circuit(src_circuit_id,iax_call))
 	reversed = TRUE;
       else {
 	/* there's also no way we can attach an iax_call_data to a circuit
@@ -780,23 +798,12 @@ static iax_call_data *iax_lookup_circuit_details( packet_info *pinfo,
     }
   }
 
-  if(src_circuit && iax_call) {
-    /* info for subdissectors. We always pass on the forward circuit,
-     * and steal the p2p_dir flag to indicate the direction */
-    pinfo -> ctype = CT_IAX2;
-    pinfo -> circuit_id = (guint32)iax_call->forward_circuit_id;
-    pinfo -> p2p_dir = reversed?P2P_DIR_RECV:P2P_DIR_SENT;
-  }
-
   if(reversed_p)
     *reversed_p = reversed;
 
-  if(circuit_p)
-    *circuit_p = src_circuit;
-
 #ifdef DEBUG_HASHING
   if( iax_call ) {
-    g_message( "++ Found call for packet: id %u, reversed=%c", iax_call->callno, reversed?'1':'0' );
+    g_message( "++ Found call for packet: id %u, reversed=%c", iax_call->iax_forward_circuit_ids[0], reversed?'1':'0' );
   } else {
     g_message( "++ Call not found. Must have missed the NEW packet?" );
   }
@@ -809,11 +816,9 @@ static iax_call_data *iax_lookup_circuit_details( packet_info *pinfo,
 /* handles a NEW packet by creating a new iax call and forward circuit.
    the reverse circuit is not created until the ACK is received and
    is created by iax_lookup_circuit_details. */
-static iax_call_data *iax_new_circuit_details( packet_info *pinfo, 
-					      guint32 scallno,
-					      circuit_t **circuit_p)
+static iax_call_data *iax_new_call( packet_info *pinfo, 
+                                    guint32 scallno)
 {
-  circuit_t *circuit;
   iax_call_data *call;
   guint circuit_id;
     
@@ -821,31 +826,20 @@ static iax_call_data *iax_new_circuit_details( packet_info *pinfo,
   g_message( "+ new_circuit: Handling NEW packet, frame %u", pinfo->fd->num );
 #endif
   
-    circuit_id = iax_circuit_lookup(&pinfo->src,pinfo->ptype,
-				    pinfo->srcport,scallno);
+  circuit_id = iax_circuit_lookup(&pinfo->src,pinfo->ptype,
+                                  pinfo->srcport,scallno);
     
-    circuit = circuit_new(CT_IAX2,
-			  circuit_id,
-			  pinfo->fd->num );
+  call = g_mem_chunk_alloc(iax_call_datas);
+  call -> dataformat = 0;
+  call -> src_codec = 0;
+  call -> dst_codec = 0;
+  call -> n_forward_circuit_ids = 0;
+  call -> n_reverse_circuit_ids = 0;
+  call -> subdissector = NULL;
+  call -> start_time.secs  = pinfo->fd->abs_secs;
+  call -> start_time.nsecs = (pinfo->fd->abs_usecs-1000) * 1000;
 
-    
-
-    call = g_mem_chunk_alloc(iax_call_datas);
-    call -> dataformat = 0;
-    call -> src_codec = 0;
-    call -> dst_codec = 0;
-    call -> forward_circuit_id = circuit_id;
-    call -> reverse_circuit_id = 0;
-    call -> callno = ++callcount;
-
-#ifdef DEBUG_HASHING
-    g_message( "+ new_circuit: Added new circuit for new call %u", call -> callno );
-#endif
-
-    circuit_add_proto_data( circuit, proto_iax2, call );
-
-  if( circuit_p )
-    *circuit_p = circuit;
+  iax2_new_circuit_for_call(circuit_id,pinfo->fd->num,call,FALSE);
 
   return call;
 }
@@ -855,22 +849,65 @@ static iax_call_data *iax_new_circuit_details( packet_info *pinfo,
 
 /* per-packet data */
 typedef struct iax_packet_data {
+  gboolean first_time; /* we're dissecting this packet for the first time; so
+			  things like codec and transfer requests should be
+			  propogated into the call data */
   iax_call_data *call_data;
   guint32 codec;
+  gboolean reversed;
+  nstime_t abstime;    /* the absolute time of this packet, based on its
+                        * timestamp and the NEW packet's time (-1 if unknown) */
 } iax_packet_data;
 
 static GMemChunk *iax_packets = NULL;
 
-static iax_packet_data *iax_new_packet_data(iax_call_data *call)
+static iax_packet_data *iax_new_packet_data(iax_call_data *call, gboolean reversed)
 {
   iax_packet_data *p = g_mem_chunk_alloc(iax_packets);
+  p->first_time=TRUE;
   p->call_data=call;
   p->codec=0;
+  p->reversed=reversed;
+  p->abstime.secs=-1;
+  p->abstime.nsecs=-1;
   return p;
+}
+
+static void  iax2_populate_pinfo_from_packet_data(packet_info *pinfo, const iax_packet_data * p)
+{
+  /* info for subdissectors. We always pass on the original forward circuit,
+   * and steal the p2p_dir flag to indicate the direction */
+  if( p->call_data == NULL ) {
+     /* if we missed the NEW packet for this call, call_data will be null. it's
+      * tbd what the best thing to do here is. */
+    pinfo -> ctype = CT_NONE;
+  } else {
+    pinfo -> ctype = CT_IAX2;
+    pinfo -> circuit_id = (guint32)p->call_data->forward_circuit_ids[0];
+    pinfo -> p2p_dir = p->reversed?P2P_DIR_RECV:P2P_DIR_SENT;
+
+    if (check_col (pinfo->cinfo, COL_CIRCUIT_ID)) {
+      col_set_str (pinfo->cinfo, COL_CIRCUIT_ID, "" );
+      col_add_fstr(pinfo->cinfo, COL_CIRCUIT_ID, "%u", pinfo->circuit_id);
+    }
+    if (check_col (pinfo->cinfo, COL_IF_DIR))
+      col_set_str (pinfo->cinfo, COL_IF_DIR, p->reversed ? "rev" : "fwd" );
+  }
 }
 
 
 /* ************************************************************************* */
+
+/* this is passed up from the IE dissector to the main dissector */
+typedef struct
+{
+  address peer_address;
+  port_type peer_ptype;
+  guint32 peer_port;
+  guint32 peer_callno;
+  guint32 dataformat;
+} iax2_ie_data;
+
 
 static guint32 dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
 				guint16 scallno,
@@ -986,31 +1023,49 @@ dissect_iax2 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   proto_item_set_len(iax2_item, len);
 }
 
+static proto_item *dissect_datetime_ie(tvbuff_t *tvb, guint32 offset, proto_tree *ies_tree)
+{
+  struct tm tm;
+  guint32 ie_val;
+  nstime_t datetime;
+    
+  proto_tree_add_item (ies_tree, hf_iax2_ies[IAX_IE_DATETIME], tvb, offset + 2, 4, FALSE);
+  ie_val = tvb_get_ntohl(tvb, offset+2);
+
+  /* who's crazy idea for a time encoding was this? */
+  tm.tm_sec  = (ie_val & 0x1f) << 1;
+  tm.tm_min  = (ie_val>>5) & 0x3f;
+  tm.tm_hour = (ie_val>>11) & 0x1f;
+  tm.tm_mday = (ie_val>>16) & 0x1f;
+  tm.tm_mon  = ((ie_val>>21) & 0xf) - 1;
+  tm.tm_year = ((ie_val>>25) & 0x7f) + 100;
+  tm.tm_isdst= -1; /* there's no info on whether DST was in force; assume it's
+                    * the same as currently */
+
+  datetime.secs = mktime(&tm);
+  datetime.nsecs = 0;
+  return proto_tree_add_time (ies_tree, hf_iax2_ie_datetime, tvb, offset+2, 4, &datetime);
+}
+  
 
 /* dissect the information elements in an IAX frame. Returns the updated offset */
 static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 			    proto_tree * iax_tree,
-			    iax_call_data *iax_call_data )
+			    iax2_ie_data *ie_data)
 {
-  proto_tree *sockaddr_tree = NULL;
-  proto_item *sockaddr_item = 0;
-
-
+  DISSECTOR_ASSERT(ie_data);
+  
   while (offset < tvb_reported_length (tvb)) {
 
     int ies_type = tvb_get_guint8(tvb, offset);
     int ies_len = tvb_get_guint8(tvb, offset + 1);
 
     if( iax_tree ) {
-      proto_item *ti;
+      proto_item *ti, *ie_item = NULL;
       proto_tree *ies_tree;
+      int ie_hf = hf_iax2_ies[ies_type];
 
-      ti = proto_tree_add_text(iax_tree, tvb, offset, ies_len+2,
-			       "Information Element: %s (0x%02X)",
-			       val_to_str(ies_type, iax_ies_type, 
-					  "Unknown information element"),
-			       ies_type);
-
+      ti = proto_tree_add_text(iax_tree, tvb, offset, ies_len+2, " " );
 
       ies_tree = proto_item_add_subtree(ti, ett_iax2_ie);
       
@@ -1021,295 +1076,165 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
       proto_tree_add_text(ies_tree, tvb, offset+1, 1, "Length: %u",ies_len);
 
 
+      /* hf_iax2_ies[] is an array, indexed by IE number, of header-fields, one
+	 per IE. Apart from a couple of special cases which require more
+	 complex decoding, we can just look up an entry from the array, and add
+	 the relevant item.
+      */
+	 
       switch (ies_type) {
-	    case IAX_IE_CALLED_NUMBER:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_CALLED_NUMBER, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_CALLING_NUMBER:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_CALLING_NUMBER,
-				   tvb, offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_CALLING_ANI:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_CALLING_ANI, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_CALLING_NAME:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_CALLING_NAME, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_CALLED_CONTEXT:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_CALLED_CONTEXT,
-				   tvb, offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_USERNAME:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_USERNAME, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_PASSWORD:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_PASSWORD, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_LANGUAGE:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_LANGUAGE, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_DNID:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_DNID, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_CHALLENGE:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_CHALLENGE, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_MD5_RESULT:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_MD5_RESULT, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_RSA_RESULT:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_RSA_RESULT, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_RDNIS:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_RDNIS, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_CAPABILITY:
-	    {
-	      proto_tree *codec_tree;
-	      proto_item *codec_base;
+        case IAX_IE_DATETIME:
+          ie_item = dissect_datetime_ie(tvb,offset,ies_tree);
+          break;
 
-	      if (ies_len != 4) THROW(ReportedBoundsError);
-	      codec_base =
-		proto_tree_add_item (ies_tree, hf_IAX_IE_CAPABILITY,
-				     tvb, offset + 2, ies_len, FALSE);
-	      codec_tree =
-		proto_item_add_subtree (codec_base, ett_iax2_codecs);
+        
+	case IAX_IE_CAPABILITY:
+	{
+	  proto_tree *codec_tree;
+
+          if (ies_len != 4) THROW(ReportedBoundsError);
+
+	  ie_item =
+	    proto_tree_add_item (ies_tree, ie_hf,
+				 tvb, offset + 2, ies_len, FALSE);
+	  codec_tree =
+	    proto_item_add_subtree (ie_item, ett_iax2_codecs);
 	      
-	      proto_tree_add_item(codec_tree, hf_iax2_cap_g723_1, tvb, offset + 2, ies_len, FALSE );
-	      proto_tree_add_item(codec_tree, hf_iax2_cap_gsm, tvb, offset + 2, ies_len, FALSE );
-	      proto_tree_add_item(codec_tree, hf_iax2_cap_ulaw, tvb, offset + 2, ies_len, FALSE );
-	      proto_tree_add_item(codec_tree, hf_iax2_cap_alaw, tvb, offset + 2, ies_len, FALSE );
-	      proto_tree_add_item(codec_tree, hf_iax2_cap_g726, tvb, offset + 2, ies_len, FALSE );
-	      proto_tree_add_item(codec_tree, hf_iax2_cap_adpcm, tvb, offset + 2, ies_len, FALSE );
-	      proto_tree_add_item(codec_tree, hf_iax2_cap_slinear, tvb, offset + 2, ies_len, FALSE );
-	      proto_tree_add_item(codec_tree, hf_iax2_cap_lpc10, tvb, offset + 2, ies_len, FALSE );
-	      proto_tree_add_item(codec_tree, hf_iax2_cap_g729a, tvb, offset + 2, ies_len, FALSE );
-	      proto_tree_add_item(codec_tree, hf_iax2_cap_speex, tvb, offset + 2, ies_len, FALSE );
-	      proto_tree_add_item(codec_tree, hf_iax2_cap_ilbc, tvb, offset + 2, ies_len, FALSE );
-	      proto_tree_add_item(codec_tree, hf_iax2_cap_jpeg, tvb, offset + 2, ies_len, FALSE );
-	      proto_tree_add_item(codec_tree, hf_iax2_cap_png, tvb, offset + 2, ies_len, FALSE );
-	      proto_tree_add_item(codec_tree, hf_iax2_cap_h261, tvb, offset + 2, ies_len, FALSE );
-	      proto_tree_add_item(codec_tree, hf_iax2_cap_h263, tvb, offset + 2, ies_len, FALSE );
+	  proto_tree_add_item(codec_tree, hf_iax2_cap_g723_1, tvb, offset + 2, ies_len, FALSE );
+	  proto_tree_add_item(codec_tree, hf_iax2_cap_gsm, tvb, offset + 2, ies_len, FALSE );
+	  proto_tree_add_item(codec_tree, hf_iax2_cap_ulaw, tvb, offset + 2, ies_len, FALSE );
+	  proto_tree_add_item(codec_tree, hf_iax2_cap_alaw, tvb, offset + 2, ies_len, FALSE );
+	  proto_tree_add_item(codec_tree, hf_iax2_cap_g726, tvb, offset + 2, ies_len, FALSE );
+	  proto_tree_add_item(codec_tree, hf_iax2_cap_adpcm, tvb, offset + 2, ies_len, FALSE );
+	  proto_tree_add_item(codec_tree, hf_iax2_cap_slinear, tvb, offset + 2, ies_len, FALSE );
+	  proto_tree_add_item(codec_tree, hf_iax2_cap_lpc10, tvb, offset + 2, ies_len, FALSE );
+	  proto_tree_add_item(codec_tree, hf_iax2_cap_g729a, tvb, offset + 2, ies_len, FALSE );
+	  proto_tree_add_item(codec_tree, hf_iax2_cap_speex, tvb, offset + 2, ies_len, FALSE );
+	  proto_tree_add_item(codec_tree, hf_iax2_cap_ilbc, tvb, offset + 2, ies_len, FALSE );
+	  proto_tree_add_item(codec_tree, hf_iax2_cap_jpeg, tvb, offset + 2, ies_len, FALSE );
+	  proto_tree_add_item(codec_tree, hf_iax2_cap_png, tvb, offset + 2, ies_len, FALSE );
+	  proto_tree_add_item(codec_tree, hf_iax2_cap_h261, tvb, offset + 2, ies_len, FALSE );
+	  proto_tree_add_item(codec_tree, hf_iax2_cap_h263, tvb, offset + 2, ies_len, FALSE );
+	  break;
+	}
+
+	case IAX_IE_APPARENT_ADDR:
+	{
+	  proto_tree *sockaddr_tree = NULL;
+	  guint16 family;
+
+	  ie_item = proto_tree_add_text(ies_tree, tvb, offset + 2, 16, "Apparent Address");
+	  sockaddr_tree = proto_item_add_subtree(ie_item, ett_iax2_ies_apparent_addr);
+
+	  /* the family is little-endian. That's probably broken, given
+	     everything else is big-endian, but that's not our fault.
+	  */
+	  family = tvb_get_letohs(tvb, offset+2);
+	  proto_tree_add_uint(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINFAMILY, tvb, offset + 2, 2, family);
+	      
+	  switch( family ) {
+	    /* these come from linux/socket.h */
+	    case 2: /* AF_INET */
+	    {
+	      /* the ip address is big-endian, but then so is address.data */
+	      SET_ADDRESS(&ie_data->peer_address,AT_IPv4,4,tvb_get_ptr(tvb,offset+6,4));
+	      
+	      /* IAX is always over UDP */
+	      ie_data->peer_ptype = PT_UDP;
+	      ie_data->peer_port = tvb_get_ntohs(tvb, offset+4);
+	      proto_tree_add_uint(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINPORT, tvb, offset + 4, 2, ie_data->peer_port);
+	      proto_tree_add_ipv4(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINADDR, tvb, offset + 6, 4, *(guint32 *)(&ie_data->peer_address.data));
 	      break;
 	    }
-	    case IAX_IE_FORMAT:
-	      if (ies_len != 4) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_FORMAT, tvb,
-				   offset + 2, ies_len, FALSE);
+
+	    default:
+	      g_warning("Not supported in IAX dissector: peer address family of %u", family);
 	      break;
-	    case IAX_IE_VERSION:
-	      if (ies_len != 2) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_VERSION, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_ADSICPE:
-	      if (ies_len != 2) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_ADSICPE, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_AUTHMETHODS:
-	      if (ies_len != 2) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_AUTHMETHODS, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_APPARENT_ADDR:
-	      sockaddr_item = proto_tree_add_text(ies_tree, tvb, offset + 2, 16, "Apparent Address");
-	      sockaddr_tree = proto_item_add_subtree(sockaddr_item, ett_iax2_ies_apparent_addr);
-	      proto_tree_add_item(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINADDR, tvb, offset + 6, 4, FALSE);
-	      proto_tree_add_item(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINPORT, tvb, offset + 4, 2, FALSE);
-	      break;
-	    case IAX_IE_REFRESH:
-	      if (ies_len != 2) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_REFRESH, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_DPSTATUS:
-	      if (ies_len != 2) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_DPSTATUS, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_CALLNO:
-	      if (ies_len != 2) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_CALLNO, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_CAUSE:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_CAUSE, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_IAX_UNKNOWN:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_IAX_UNKNOWN, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_MSGCOUNT:
-	      if (ies_len != 2) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_MSGCOUNT, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_AUTOANSWER:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_AUTOANSWER, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_MUSICONHOLD:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_MUSICONHOLD, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_TRANSFERID:
-	      if (ies_len != 4) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_TRANSFERID, tvb,
-				   offset + 2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_PROVISIONING:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_PROVISIONING, tvb,
-				  offset +2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_AESPROVISIONING:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_AESPROVISIONING, tvb,
-				  offset +2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_DATETIME:
-	      if (ies_len != 2) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_DATETIME, tvb,
-				  offset +2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_DEVICETYPE:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_DEVICETYPE, tvb,
-				  offset +2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_SERVICEIDENT:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_SERVICEIDENT, tvb,
-				  offset +2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_FIRMWAREVER:
-	      if (ies_len != 2) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_FIRMWAREVER, tvb,
-				  offset +2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_FWBLOCKDESC:
-	      if (ies_len != 4) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_FWBLOCKDESC, tvb,
-				  offset +2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_FWBLOCKDATA:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_FWBLOCKDATA, tvb,
-				  offset +2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_PROVVER:
-	      if (ies_len != 4) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_PROVVER, tvb,
-				  offset +2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_CALLINGPRES:
-	      if (ies_len != 1) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_CALLINGPRES, tvb,
-				  offset +2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_CALLINGTON:
-	      if (ies_len != 1) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_CALLINGTON, tvb,
-				  offset +2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_CALLINGTNS:
-	      if (ies_len != 2) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_CALLINGTNS, tvb,
-				  offset +2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_SAMPLINGRATE:
-	      if (ies_len != 2) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_SAMPLINGRATE, tvb,
-				  offset +2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_CAUSECODE:
-	      if (ies_len != 1) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_CAUSECODE, tvb,
-				   offset +2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_ENCRYPTION:
-	      if (ies_len != 2) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_ENCRYPTION, tvb,
-				  offset +2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_ENCKEY:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_ENCKEY, tvb,
-				  offset +2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_CODEC_PREFS:
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_CODEC_PREFS, tvb,
-				  offset +2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_RR_JITTER:
-	      if (ies_len != 4) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_RR_JITTER, tvb,
-				  offset +2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_RR_LOSS:
-	      if (ies_len != 4) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_RR_LOSS, tvb,
-				  offset +2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_RR_PKTS:
-	      if (ies_len != 4) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_RR_PKTS, tvb,
-				  offset +2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_RR_DELAY:
-	      if (ies_len != 2) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_RR_DELAY, tvb,
-				  offset +2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_RR_DROPPED:
-	      if (ies_len != 4) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_RR_DROPPED, tvb,
-				  offset +2, ies_len, FALSE);
-	      break;
-	    case IAX_IE_RR_OOO:
-	      if (ies_len != 4) THROW(ReportedBoundsError);
-	      proto_tree_add_item (ies_tree, hf_IAX_IE_RR_OOO, tvb,
-				  offset +2, ies_len, FALSE);
-	      break;
+	  }
+	  break;
+	}
 	      
-      case IAX_IE_DATAFORMAT:
-	if (ies_len != 4) THROW(ReportedBoundsError);
-	proto_tree_add_item (ies_tree, hf_IAX_IE_DATAFORMAT, tvb,
-			     offset + 2, ies_len, FALSE);
-
-	if( iax_call_data )
-	  iax_call_data -> dataformat = tvb_get_ntohl(tvb, offset+2);
-	    
-	break;
-
-      default:
-      {
-	switch(ies_len) {
-	case 1:
-	  proto_tree_add_item( ies_tree, hf_IAX_IE_UNKNOWN_BYTE, tvb, offset+2, ies_len, FALSE );
-	  break;
-	  
-	case 2:
-	  proto_tree_add_item( ies_tree, hf_IAX_IE_UNKNOWN_I16, tvb, offset+2, ies_len, FALSE );
-	  break;
-	
-	case 4:
-	  proto_tree_add_item( ies_tree, hf_IAX_IE_UNKNOWN_I32, tvb, offset+2, ies_len, FALSE );
-	  break;
+        case IAX_IE_DATAFORMAT:
+          if (ies_len != 4) THROW(ReportedBoundsError);
+          ie_item = proto_tree_add_item (ies_tree, ie_hf, tvb,
+                               offset + 2, ies_len, FALSE);
+          ie_data -> dataformat = tvb_get_ntohl(tvb, offset+2);
+          break;
 
 	default:
-	  proto_tree_add_item( ies_tree, hf_IAX_IE_UNKNOWN_BYTES, tvb, offset+2, ies_len, FALSE );
+	  if( ie_hf != -1 ) {
+            /* throw an error if the IE isn't the expected length */
+            gint explen = ftype_length(proto_registrar_get_nth(ie_hf)->type);
+            if(explen != 0 && ies_len != explen)
+              THROW(ReportedBoundsError);
+	    ie_item = proto_tree_add_item(ies_tree, ie_hf, tvb, offset + 2, ies_len, FALSE);
+	  } else {
+            /* we don't understand this ie: add a generic one */
+            guint32 value;
+            const guint8 *ptr;
+            const guint8 *ie_name = val_to_str(ies_type, iax_ies_type, "Unknown");
+	  
+            switch(ies_len) {
+              case 1:
+                value = tvb_get_guint8(tvb, offset + 2);
+                ie_item =
+                  proto_tree_add_uint_format(ies_tree, hf_IAX_IE_UNKNOWN_BYTE,
+                                             tvb, offset+2, 1, value,
+                                             "%s: %#02x", ie_name, value );
+                break;
+	  
+              case 2:
+                value = tvb_get_ntohs(tvb, offset + 2);
+                ie_item =
+                  proto_tree_add_uint_format(ies_tree, hf_IAX_IE_UNKNOWN_I16,
+                                             tvb, offset+2, 2, value,
+                                             "%s: %#04x", ie_name, value );
+                break;
+	
+              case 4:
+                value = tvb_get_ntohl(tvb, offset + 2);
+                ie_item =
+                  proto_tree_add_uint_format(ies_tree, hf_IAX_IE_UNKNOWN_I32,
+                                             tvb, offset+2, 4, value,
+                                             "%s: %#08x", ie_name, value );
+                break;
+
+              default:
+                ptr = tvb_get_ptr(tvb, offset + 2, ies_len);
+                ie_item =
+                  proto_tree_add_string_format(ies_tree, hf_IAX_IE_UNKNOWN_BYTES,
+                                               tvb, offset+2, ies_len, ptr,
+                                               "%s: %s", ie_name, ptr );
+                break;
+            }
+	  }
+	  break;
+      }
+
+      /* by now, we *really* ought to have added an item */
+      DISSECTOR_ASSERT(ie_item != NULL);
+
+      /* Retrieve the text from the item we added, and append it to the main IE
+       * item */
+      if(!PROTO_ITEM_IS_HIDDEN(ti)) {
+	field_info *ie_finfo = PITEM_FINFO(ie_item);
+	
+	/* if the representation of the item has already been set, use that;
+	   else we have to allocate a block to put the text into */
+	if( ie_finfo -> rep != NULL ) 
+	  proto_item_set_text(ti, "Information Element: %s",
+			      ie_finfo->rep->representation);
+	else {
+          guint8 *ie_val = NULL;
+	  ie_val = g_malloc(ITEM_LABEL_LENGTH);
+	  proto_item_fill_label(ie_finfo, ie_val);
+	  proto_item_set_text(ti, "Information Element: %s",
+			      ie_val);
+	  g_free(ie_val);
 	}
       }
-      }
     }
+
     offset += ies_len + 2;
   }
   return offset;
@@ -1329,7 +1254,99 @@ static guint32 uncompress_subclass(guint8 csub)
     return (guint32)csub;
 }
 
+/* returns the new offset */
+static guint32 dissect_iax2_command(tvbuff_t * tvb, guint32 offset,
+				    packet_info * pinfo, proto_tree *tree,
+				    iax_packet_data *iax_packet)
+{
+  guint8 csub = tvb_get_guint8(tvb, offset);
+  guint8 address_data[MAX_ADDRESS];
+  iax2_ie_data ie_data = {{AT_NONE,0,address_data},0,0,0,(guint32)-1};
+  iax_call_data *iax_call = iax_packet -> call_data;
+  
+  /* add the subclass */
+  proto_tree_add_uint (tree, hf_iax2_iax_csub, tvb, offset, 1, csub);
+  offset++;
 
+  if (check_col (pinfo->cinfo, COL_INFO))
+    col_append_fstr (pinfo->cinfo, COL_INFO, " %s", 
+		     val_to_str (csub, iax_iax_subclasses, "unknown (0x%02x)"));
+
+  if (offset >= tvb_reported_length (tvb))
+    return offset;
+  
+  offset += dissect_ies(tvb, offset, tree, &ie_data);
+
+  /* if this is a data call, set up a subdissector for the circuit */
+  if(iax_call && ie_data.dataformat != (guint32)-1 && iax_call -> subdissector == NULL) {
+    iax_call -> subdissector = dissector_get_port_handle(iax2_dataformat_dissector_table, ie_data.dataformat );
+    iax_call -> dataformat = ie_data.dataformat;
+  }
+
+  /* if this is a transfer request, record it in the call data */
+  if( csub == IAX_COMMAND_TXREQ && iax_packet -> first_time ) {
+    if( ie_data.peer_address.type != AT_NONE && ie_data.peer_callno != 0 ) {
+      guint tx_circuit = iax_circuit_lookup(&ie_data.peer_address,
+					    ie_data.peer_ptype,
+					    ie_data.peer_port,
+					    ie_data.peer_callno);
+
+#if 0
+      g_message("found transfer request for call %u->%u, to new id %u",
+		iax_call->forward_circuit_ids[0],
+		iax_call->reverse_circuit_ids[0],
+		tx_circuit);
+#endif
+      
+      iax2_new_circuit_for_call(tx_circuit,pinfo->fd->num,iax_call,iax_packet->reversed);
+    }
+  }
+  
+  return offset;
+}
+
+static void iax2_add_ts_fields(packet_info * pinfo, proto_tree * iax2_tree, iax_packet_data *iax_packet, guint16 shortts)
+{
+  guint32 longts = shortts;
+  nstime_t ts;
+  proto_item *item;
+    
+  if(iax_packet->call_data == NULL) {
+    /* no call info for this frame; perhaps we missed the NEW packet */
+    return;
+  }
+
+  if(iax_packet->abstime.secs == -1) {
+    time_t start_secs = iax_packet->call_data->start_time.secs;
+    guint32 abs_secs = start_secs + longts/1000;
+
+    /* deal with short timestamps by assuming that packets are never more than
+     * 16 seconds late */
+    while(abs_secs < pinfo->fd->abs_secs - 16) {
+      longts += 32768;
+      abs_secs = start_secs + longts/1000;
+    }
+
+    iax_packet->abstime.secs=abs_secs;
+    iax_packet->abstime.nsecs=iax_packet->call_data->start_time.nsecs + (longts % 1000) * 1000000;
+    if(iax_packet->abstime.nsecs >= 1000000000) {
+      iax_packet->abstime.nsecs -= 1000000000;
+      iax_packet->abstime.secs ++;
+    }
+  }
+  
+  item = proto_tree_add_time(iax2_tree, hf_iax2_absts, NULL, 0, 0, &iax_packet->abstime);
+  PROTO_ITEM_SET_GENERATED(item);
+
+  ts.secs  = pinfo->fd->abs_secs;
+  ts.nsecs = pinfo->fd->abs_usecs * 1000;
+  get_timedelta(&ts, &ts, &iax_packet->abstime);
+  
+  item = proto_tree_add_time(iax2_tree, hf_iax2_lateness, NULL, 0, 0, &ts);
+  PROTO_ITEM_SET_GENERATED(item);
+}
+
+/* returns the new offset */
 static guint32
 dissect_fullpacket (tvbuff_t * tvb, guint32 offset, 
 		    guint16 scallno,
@@ -1349,8 +1366,6 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
   gboolean reversed;
   gboolean rtp_marker;
 
-  circuit_t *circuit;
-
   /*
    * remove the top bit for retransmission detection 
    */
@@ -1368,35 +1383,38 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
 
     if( type == AST_FRAME_IAX && csub == IAX_COMMAND_NEW ) {
       /* NEW packets start a new call */
-      iax_call = iax_new_circuit_details(pinfo,scallno,&circuit);
+      iax_call = iax_new_call(pinfo,scallno);
       reversed = FALSE;
     } else {
-      iax_call = iax_lookup_circuit_details(pinfo, scallno, dcallno,
-				       &reversed, &circuit);
+      iax_call = iax_lookup_call(pinfo, scallno, dcallno,
+                                 &reversed);
     }
 
-    iax_packet = iax_new_packet_data(iax_call);
+    iax_packet = iax_new_packet_data(iax_call, reversed);
     p_add_proto_data(pinfo->fd,proto_iax2,iax_packet);
   } else {
     iax_call = iax_packet->call_data;
-
-    /*
-     * XXX - the code needs to set "circuit" and "reversed" somehow here,
-     * by determining them based on values in "iax_call" or "iax_packet".
-     * I leave that as an exercise for somebody who wants to maintain
-     * this code.
-     */
-    circuit = NULL;
-    reversed = FALSE;
+    reversed = iax_packet->reversed;
   }
-   
+
+  iax2_populate_pinfo_from_packet_data(pinfo, iax_packet);
+  
   if( iax2_tree ) {
       proto_item *packet_type_base;
 
       proto_tree_add_item (iax2_tree, hf_iax2_dcallno, tvb, offset, 2, FALSE );
+
       proto_tree_add_boolean(iax2_tree, hf_iax2_retransmission, tvb, offset, 2, FALSE );
 
+      if( iax_call ) {
+        proto_item *item = 
+          proto_tree_add_uint (iax2_tree, hf_iax2_callno, tvb, 0, 4,
+                             iax_call->forward_circuit_ids[0] );
+        PROTO_ITEM_SET_GENERATED(item);
+      }
+
       proto_tree_add_uint (iax2_tree, hf_iax2_ts, tvb, offset+2, 4, ts);
+      iax2_add_ts_fields(pinfo, iax2_tree, iax_packet, (guint16)ts);
 
       proto_tree_add_item (iax2_tree, hf_iax2_oseqno, tvb, offset+6, 1,
 			   FALSE);
@@ -1419,29 +1437,11 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
 
   switch( type ) {
   case AST_FRAME_IAX:
-    /* add the subclass */
-    proto_tree_add_uint (packet_type_tree, hf_iax2_iax_csub, tvb,
-			   offset+9, 1, csub);
-    offset += 10;
-
-    if (check_col (pinfo->cinfo, COL_INFO))
-      col_append_fstr (pinfo->cinfo, COL_INFO, " %s", 
-		    val_to_str (csub, iax_iax_subclasses, "unknown (0x%02x)"));
-
-    if (offset < tvb_reported_length (tvb)) {
-      offset += dissect_ies(tvb, offset, packet_type_tree, iax_call);
-    }
-
-    if( csub == IAX_COMMAND_NEW && circuit && iax_call ) {
-      /* if this is a data call, set up a subdissector for the circuit */
-      dissector_handle_t s;
-      s = dissector_get_port_handle(iax2_dataformat_dissector_table, iax_call -> dataformat );
-      circuit_set_dissector( circuit, s );
-    }
+    offset=dissect_iax2_command(tvb,offset+9,pinfo,packet_type_tree,iax_packet);
     break;
-
+    
   case AST_FRAME_DTMF:
-    proto_tree_add_text (packet_type_tree, tvb, offset+9, 1, "DTMF digit: %c", csub);
+    proto_tree_add_item (packet_type_tree, hf_iax2_dtmf_csub, tvb, offset+9, 1, FALSE);
     offset += 10;
 
     if (check_col (pinfo->cinfo, COL_INFO))
@@ -1494,7 +1494,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
 
     offset += 10;
 
-    if( iax_call ) {
+    if( iax_call && iax_packet -> first_time ) {
       if( reversed ) {
 	iax_call->dst_vformat = codec;
       } else {
@@ -1520,6 +1520,10 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
     break;
   }
 
+  /* next time we come to parse this packet, don't propogate the codec into the
+   * call_data */
+  iax_packet->first_time = FALSE;
+  
   return offset;
 }
 
@@ -1533,12 +1537,11 @@ static iax_packet_data *iax2_get_packet_data_for_minipacket(packet_info * pinfo,
   if( !p ) {
     /* if not, find or create an iax_call info structure for this IAX session. */
     gboolean reversed;
-    circuit_t *circuit;
     iax_call_data *iax_call;
 
-    iax_call = iax_lookup_circuit_details(pinfo, scallno, 0, &reversed, &circuit);
+    iax_call = iax_lookup_call(pinfo, scallno, 0, &reversed);
 
-    p = iax_new_packet_data(iax_call);
+    p = iax_new_packet_data(iax_call,reversed);
     p_add_proto_data(pinfo->fd,proto_iax2,p);
 
     /* set the codec for this frame to be whatever the last full frame used */
@@ -1549,6 +1552,8 @@ static iax_packet_data *iax2_get_packet_data_for_minipacket(packet_info * pinfo,
         p->codec = reversed ? iax_call -> dst_codec : iax_call -> src_codec;
     }
   }
+
+  iax2_populate_pinfo_from_packet_data(pinfo, p);
   return p;
 }
 
@@ -1560,6 +1565,7 @@ static guint32 dissect_minivideopacket (tvbuff_t * tvb, guint32 offset,
   guint32 ts;
   iax_packet_data *iax_packet;
   gboolean rtp_marker;
+  proto_item *item;
 
   ts = tvb_get_ntohs(tvb, offset);
 
@@ -1567,15 +1573,22 @@ static guint32 dissect_minivideopacket (tvbuff_t * tvb, guint32 offset,
   rtp_marker = ts & 0x8000 ? TRUE:FALSE;
   ts &= ~0x8000;
 
+  iax_packet = iax2_get_packet_data_for_minipacket(pinfo, scallno, TRUE);
 
   if( iax2_tree ) {
+    if( iax_packet->call_data ) {
+      item = 
+        proto_tree_add_uint (iax2_tree, hf_iax2_callno, tvb, 0, 4,
+				    iax_packet->call_data->forward_circuit_ids[0] );
+      PROTO_ITEM_SET_GENERATED(item);
+    }
+
     proto_tree_add_item (iax2_tree, hf_iax2_minividts, tvb, offset, 2, FALSE);
+    iax2_add_ts_fields(pinfo, iax2_tree, iax_packet, (guint16)ts);
     proto_tree_add_item (iax2_tree, hf_iax2_minividmarker, tvb, offset, 2, FALSE);
   }
 
   offset += 2;
-  
-  iax_packet = iax2_get_packet_data_for_minipacket(pinfo, scallno, TRUE);
   
   if (check_col (pinfo->cinfo, COL_INFO))
       col_add_fstr (pinfo->cinfo, COL_INFO, 
@@ -1585,6 +1598,10 @@ static guint32 dissect_minivideopacket (tvbuff_t * tvb, guint32 offset,
 
   dissect_payload(tvb, offset, pinfo, main_tree, ts, TRUE, iax_packet);
 
+  /* next time we come to parse this packet, don't propogate the codec into the
+   * call_data */
+  iax_packet->first_time = FALSE;
+  
   return offset;
 }
 
@@ -1594,13 +1611,23 @@ dissect_minipacket (tvbuff_t * tvb, guint32 offset, guint16 scallno, packet_info
 {
   guint32 ts;
   iax_packet_data *iax_packet;
+  proto_item *item;
 
   ts = tvb_get_ntohs(tvb, offset);
 
   iax_packet = iax2_get_packet_data_for_minipacket(pinfo, scallno, FALSE);
+
+  if( iax2_tree ) {
+    if( iax_packet->call_data ) {
+      item = proto_tree_add_uint (iax2_tree, hf_iax2_callno, tvb, 0, 4,
+				  iax_packet->call_data->forward_circuit_ids[0] );
+      PROTO_ITEM_SET_GENERATED(item);
+    }
+
+    proto_tree_add_uint (iax2_tree, hf_iax2_minits, tvb, offset, 2, ts);
+    iax2_add_ts_fields(pinfo, iax2_tree, iax_packet,(guint16)ts);
+  }
   
-  proto_tree_add_uint (iax2_tree, hf_iax2_minits, tvb, offset, 2,
-		       ts);
   offset += 2;
   
   if (check_col (pinfo->cinfo, COL_INFO))
@@ -1613,6 +1640,10 @@ dissect_minipacket (tvbuff_t * tvb, guint32 offset, guint16 scallno, packet_info
   dissect_payload(tvb, offset, pinfo, main_tree, ts, FALSE, iax_packet);
 
 
+  /* next time we come to parse this packet, don't propogate the codec into the
+   * call_data */
+  iax_packet->first_time = FALSE;
+  
   return offset;
 }
 
@@ -1654,9 +1685,10 @@ static void dissect_payload(tvbuff_t *tvb, guint32 offset,
   }
 
   /* pass the rest of the block to a subdissector */
-  if( !video && try_circuit_dissector(pinfo->ctype, pinfo->circuit_id, pinfo->fd->num,
-			    sub_tvb, pinfo, tree))
+  if( !video && iax_call && iax_call->subdissector ) {
+    call_dissector(iax_call->subdissector,sub_tvb, pinfo, tree);
     return;
+  }
 
   if( codec != 0 && dissector_try_port(iax2_codec_dissector_table, codec, sub_tvb, pinfo, tree ))
     return;
@@ -1703,10 +1735,14 @@ proto_register_iax2 (void)
   static hf_register_info hf[] = {
 
     {&hf_iax2_packet_type,
-     {"Packet type", "iax2.type", FT_UINT8, BASE_DEC, VALS(iax_packet_types), 0,
+     {"Packet type", "iax2.packet_type", FT_UINT8, BASE_DEC, VALS(iax_packet_types), 0,
       "Full/minivoice/minivideo/meta packet",
       HFILL}},
 
+    {&hf_iax2_callno,
+     {"Call identifier", "iax2.call", FT_UINT32, BASE_DEC, NULL, 0,
+      "This is the identifier Ethereal assigns to identify this call. It does "
+      "not correspond to any real field in the protocol", HFILL }},
 
     {&hf_iax2_scallno,
      {"Source call", "iax2.src_call", FT_UINT16, BASE_DEC, NULL, 0x7FFF,
@@ -1743,6 +1779,17 @@ proto_register_iax2 (void)
       "this packet was transmitted",
       HFILL}},
 
+    {&hf_iax2_absts,
+     {"Absolute Time", "iax2.abstime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
+      "The absoulte time of this packet (calculated by adding the IAX timestamp to "
+      " the start time of this call)",
+      HFILL}},
+
+    {&hf_iax2_lateness,
+     {"Lateness", "iax2.lateness", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+      "The lateness of this packet compared to its timestamp",
+      HFILL}},
+
     {&hf_iax2_minividmarker,
      {"Marker", "iax2.video.marker", FT_UINT16, BASE_DEC, NULL, 0x8000,
       "RTP end-of-frame marker",
@@ -1767,8 +1814,13 @@ proto_register_iax2 (void)
       HFILL}},
 
     {&hf_iax2_csub,
-     {"Sub-class", "iax2.subclass", FT_UINT8, BASE_DEC, NULL, 0x0, 
-      "subclass",
+     {"Unknown subclass", "iax2.subclass", FT_UINT8, BASE_DEC, NULL, 0x0, 
+      "Subclass of unknown type of full IAX2 frame",
+      HFILL}},
+
+    {&hf_iax2_dtmf_csub,
+     {"DTMF subclass (digit)", "iax2.dtmf.subclass", FT_STRINGZ, BASE_NONE, NULL, 0x0,
+      "DTMF subclass gives the DTMF digit",
       HFILL}},
 
     {&hf_iax2_cmd_csub,
@@ -1777,14 +1829,14 @@ proto_register_iax2 (void)
       "This gives the command number for a Control packet.", HFILL}},
 
     {&hf_iax2_iax_csub,
-     {"IAX type", "iax2.iax.subclass", FT_UINT8, BASE_DEC,
+     {"IAX subclass", "iax2.iax.subclass", FT_UINT8, BASE_DEC,
       VALS (iax_iax_subclasses),
       0x0, 
-      "IAX type gives the command number for IAX signalling packets", HFILL}},
+      "IAX subclass gives the command number for IAX signalling packets", HFILL}},
 
     {&hf_iax2_voice_csub,
-     {"Sub-class", "iax2.voice.subclass", FT_UINT8, BASE_DEC, NULL, 0x0, 
-      "subclass",
+     {"Voice Subclass (compressed codec no)", "iax2.voice.subclass", FT_UINT8, BASE_DEC, NULL, 0x0, 
+      "Voice Subclass (compressed codec no)",
       HFILL}},
 
     {&hf_iax2_voice_codec,
@@ -1793,8 +1845,8 @@ proto_register_iax2 (void)
       "CODEC gives the codec used to encode audio data", HFILL}},
 
     {&hf_iax2_video_csub,
-     {"Subclass (compressed codec no)", "iax2.video.subclass", FT_UINT8, BASE_DEC, NULL, 0xBF, 
-      "Subclass (compressed codec no)",
+     {"Video Subclass (compressed codec no)", "iax2.video.subclass", FT_UINT8, BASE_DEC, NULL, 0xBF, 
+      "Video Subclass (compressed codec no)",
       HFILL}},
     
     {&hf_iax2_marker,
@@ -1816,231 +1868,232 @@ proto_register_iax2 (void)
      {"Port", "iax2.iax.app_addr.sinport", FT_UINT16, BASE_DEC, NULL, 0, "Port", HFILL }},
     {&hf_IAX_IE_APPARENTADDR_SINADDR,
      {"Address", "iax2.iax.app_addr.sinaddr", FT_IPv4, BASE_HEX, NULL, 0, "Address", HFILL }},
-    {&hf_IAX_IE_APPARENTADDR_SINZERO,
-     {"Zero", "iax2.iax.app_addr.sinzero", FT_BYTES, BASE_HEX, NULL, 0, "Zero", HFILL }},
-
-    {&hf_IAX_IE_CALLED_NUMBER,
+    
+    {&hf_iax2_ies[IAX_IE_CALLED_NUMBER],
      {"Number/extension being called", "iax2.iax.called_number",
       FT_STRING,
       BASE_NONE, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_CALLING_NUMBER,
+    {&hf_iax2_ies[IAX_IE_CALLING_NUMBER],
      {"Calling number", "iax2.iax.calling_number", FT_STRING,
       BASE_NONE, NULL,
       0x0, "", HFILL}},
 
-    {&hf_IAX_IE_CALLING_ANI,
+    {&hf_iax2_ies[IAX_IE_CALLING_ANI],
      {"Calling number ANI for billing", "iax2.iax.calling_ani",
       FT_STRING,
       BASE_NONE, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_CALLING_NAME,
+    {&hf_iax2_ies[IAX_IE_CALLING_NAME],
      {"Name of caller", "iax2.iax.calling_name", FT_STRING, BASE_NONE,
       NULL,
       0x0, "", HFILL}},
 
-    {&hf_IAX_IE_CALLED_CONTEXT,
+    {&hf_iax2_ies[IAX_IE_CALLED_CONTEXT],
      {"Context for number", "iax2.iax.called_context", FT_STRING,
       BASE_NONE,
       NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_USERNAME,
+    {&hf_iax2_ies[IAX_IE_USERNAME],
      {"Username (peer or user) for authentication",
       "iax2.iax.username",
       FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_PASSWORD,
+    {&hf_iax2_ies[IAX_IE_PASSWORD],
      {"Password for authentication", "iax2.iax.password", FT_STRING,
       BASE_NONE, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_CAPABILITY,
+    {&hf_iax2_ies[IAX_IE_CAPABILITY],
      {"Actual codec capability", "iax2.iax.capability", FT_UINT32,
       BASE_HEX,
       NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_FORMAT,
+    {&hf_iax2_ies[IAX_IE_FORMAT],
      {"Desired codec format", "iax2.iax.format", FT_UINT32, BASE_HEX,
       VALS (codec_types), 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_LANGUAGE,
+    {&hf_iax2_ies[IAX_IE_LANGUAGE],
      {"Desired language", "iax2.iax.language", FT_STRING, BASE_NONE,
       NULL,
       0x0, "", HFILL}},
 
-    {&hf_IAX_IE_VERSION,
+    {&hf_iax2_ies[IAX_IE_VERSION],
      {"Protocol version", "iax2.iax.version", FT_UINT16, BASE_HEX, NULL,
       0x0,
       "", HFILL}},
 
-    {&hf_IAX_IE_ADSICPE,
+    {&hf_iax2_ies[IAX_IE_ADSICPE],
      {"CPE ADSI capability", "iax2.iax.cpe_adsi", FT_UINT16, BASE_HEX,
       NULL,
       0x0, "", HFILL}},
 
-    {&hf_IAX_IE_DNID,
+    {&hf_iax2_ies[IAX_IE_DNID],
      {"Originally dialed DNID", "iax2.iax.dnid", FT_STRING, BASE_NONE,
       NULL,
       0x0, "", HFILL}},
 
-    {&hf_IAX_IE_AUTHMETHODS,
+    {&hf_iax2_ies[IAX_IE_AUTHMETHODS],
      {"Authentication method(s)", "iax2.iax.auth.methods", FT_UINT16,
       BASE_HEX,
       NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_CHALLENGE,
+    {&hf_iax2_ies[IAX_IE_CHALLENGE],
      {"Challenge data for MD5/RSA", "iax2.iax.auth.challenge",
       FT_STRING,
       BASE_NONE, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_MD5_RESULT,
+    {&hf_iax2_ies[IAX_IE_MD5_RESULT],
      {"MD5 challenge result", "iax2.iax.auth.md5", FT_STRING,
       BASE_NONE, NULL,
       0x0, "", HFILL}},
 
-    {&hf_IAX_IE_RSA_RESULT,
+    {&hf_iax2_ies[IAX_IE_RSA_RESULT],
      {"RSA challenge result", "iax2.iax.auth.rsa", FT_STRING,
       BASE_NONE, NULL,
       0x0, "", HFILL}},
 
-    {&hf_IAX_IE_REFRESH,
+    {&hf_iax2_ies[IAX_IE_REFRESH],
      {"When to refresh registration", "iax2.iax.refresh", FT_INT16,
       BASE_DEC,
       NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_DPSTATUS,
+    {&hf_iax2_ies[IAX_IE_DPSTATUS],
      {"Dialplan status", "iax2.iax.dialplan_status", FT_UINT16,
       BASE_HEX, NULL,
       0x0, "", HFILL}},
 
-    {&hf_IAX_IE_CALLNO,
-     {"Call number of peer", "iax2.iax.call_no", FT_INT16, BASE_DEC,
+    {&hf_iax2_ies[IAX_IE_CALLNO],
+     {"Call number of peer", "iax2.iax.call_no", FT_UINT16, BASE_DEC,
       NULL,
       0x0, "", HFILL}},
 
-    {&hf_IAX_IE_CAUSE,
+    {&hf_iax2_ies[IAX_IE_CAUSE],
      {"Cause", "iax2.iax.cause", FT_STRING, BASE_NONE, NULL, 0x0, "",
       HFILL}},
 
-    {&hf_IAX_IE_IAX_UNKNOWN,
+    {&hf_iax2_ies[IAX_IE_IAX_UNKNOWN],
      {"Unknown IAX command", "iax2.iax.iax_unknown", FT_BYTES,
       BASE_HEX, NULL,
       0x0, "", HFILL}},
 
-    {&hf_IAX_IE_MSGCOUNT,
+    {&hf_iax2_ies[IAX_IE_MSGCOUNT],
      {"How many messages waiting", "iax2.iax.msg_count", FT_INT16,
       BASE_DEC,
       NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_AUTOANSWER,
+    {&hf_iax2_ies[IAX_IE_AUTOANSWER],
      {"Request auto-answering", "iax2.iax.autoanswer", FT_NONE,
       BASE_NONE,
       NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_MUSICONHOLD,
+    {&hf_iax2_ies[IAX_IE_MUSICONHOLD],
      {"Request musiconhold with QUELCH", "iax2.iax.moh", FT_NONE,
       BASE_NONE,
       NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_TRANSFERID,
+    {&hf_iax2_ies[IAX_IE_TRANSFERID],
      {"Transfer Request Identifier", "iax2.iax.transferid", FT_UINT32,
       BASE_HEX, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_RDNIS,
+    {&hf_iax2_ies[IAX_IE_RDNIS],
      {"Referring DNIS", "iax2.iax.rdnis", FT_STRING, BASE_NONE, NULL,
       0x0, "",
       HFILL}},
 
-    {&hf_IAX_IE_PROVISIONING,
+    {&hf_iax2_ies[IAX_IE_PROVISIONING],
      {"Provisioning info","iax2.iax.provisioning", FT_STRING, BASE_NONE,
        NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_AESPROVISIONING,
+    {&hf_iax2_ies[IAX_IE_AESPROVISIONING],
      {"AES Provisioning info","iax2.iax.aesprovisioning", FT_STRING, BASE_NONE,
        NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_DATETIME,
-     {"Date/Time", "iax2.iax.datetime", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}},
+    {&hf_iax2_ies[IAX_IE_DATETIME],
+     {"Date/Time", "iax2.iax.datetime.raw", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_DEVICETYPE,
+    {&hf_iax2_ie_datetime,
+     {"Date/Time", "iax2.iax.datetime", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0, "", HFILL }},
+
+    {&hf_iax2_ies[IAX_IE_DEVICETYPE],
      {"Device type", "iax2.iax.devicetype", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_SERVICEIDENT,
+    {&hf_iax2_ies[IAX_IE_SERVICEIDENT],
      {"Service identifier", "iax2.iax.serviceident", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_FIRMWAREVER,
+    {&hf_iax2_ies[IAX_IE_FIRMWAREVER],
      {"Firmware version", "iax2.iax.firmwarever", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_FWBLOCKDESC,
+    {&hf_iax2_ies[IAX_IE_FWBLOCKDESC],
      {"Firmware block description", "iax2.iax.fwblockdesc", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_FWBLOCKDATA,
+    {&hf_iax2_ies[IAX_IE_FWBLOCKDATA],
      {"Firmware block of data", "iax2.iax.fwblockdata", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_PROVVER,
+    {&hf_iax2_ies[IAX_IE_PROVVER],
      {"Provisioning version", "iax2.iax.provver", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_CALLINGPRES,
+    {&hf_iax2_ies[IAX_IE_CALLINGPRES],
      {"Calling presentation", "iax2.iax.callingpres", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_CALLINGTON,
+    {&hf_iax2_ies[IAX_IE_CALLINGTON],
      {"Calling type of number", "iax2.iax.callington", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_CALLINGTNS,
+    {&hf_iax2_ies[IAX_IE_CALLINGTNS],
      {"Calling transit network select", "iax2.iax.callingtns", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_SAMPLINGRATE,
+    {&hf_iax2_ies[IAX_IE_SAMPLINGRATE],
      {"Supported sampling rates", "iax2.iax.samplingrate", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_CAUSECODE,
+    {&hf_iax2_ies[IAX_IE_CAUSECODE],
      {"Hangup cause", "iax2.iax.causecode", FT_UINT8, BASE_HEX, VALS(iax_causecodes),
        0x0, "", HFILL}},
 
-    {&hf_IAX_IE_ENCRYPTION,
+    {&hf_iax2_ies[IAX_IE_ENCRYPTION],
      {"Encryption format", "iax2.iax.encryption", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_ENCKEY,
+    {&hf_iax2_ies[IAX_IE_ENCKEY],
      {"Encryption key", "iax2.iax.enckey", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_CODEC_PREFS,
+    {&hf_iax2_ies[IAX_IE_CODEC_PREFS],
      {"Codec negotiation", "iax2.iax.codecprefs", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_RR_JITTER,
+    {&hf_iax2_ies[IAX_IE_RR_JITTER],
      {"Received jitter (as in RFC1889)", "iax2.iax.rrjitter", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_RR_LOSS,
+    {&hf_iax2_ies[IAX_IE_RR_LOSS],
      {"Received loss (high byte loss pct, low 24 bits loss count, as in rfc1889)", "iax2.iax.rrloss",
        FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_RR_PKTS,
+    {&hf_iax2_ies[IAX_IE_RR_PKTS],
      {"Total frames received", "iax2.iax.rrpkts", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_RR_DELAY,
+    {&hf_iax2_ies[IAX_IE_RR_DELAY],
      {"Max playout delay in ms for received frames", "iax2.iax.rrdelay", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_RR_DROPPED,
+    {&hf_iax2_ies[IAX_IE_RR_DROPPED],
      {"Dropped frames (presumably by jitterbuffer)", "iax2.iax.rrdropped", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_RR_OOO,
+    {&hf_iax2_ies[IAX_IE_RR_OOO],
      {"Frame received out of order", "iax2.iax.rrooo", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL}},
 
-    {&hf_IAX_IE_DATAFORMAT,
+    {&hf_iax2_ies[IAX_IE_DATAFORMAT],
      {"Data call format", "iax2.iax.dataformat", FT_UINT32, BASE_HEX,
       VALS(iax_dataformats), 0x0, "", HFILL}},
 
     {&hf_IAX_IE_UNKNOWN_BYTE,
-     {"data", "iax2.iax.unknowndata", FT_UINT8, BASE_HEX, NULL,
+     {"Unknown", "iax2.iax.unknownbyte", FT_UINT8, BASE_HEX, NULL,
       0x0, "Raw data for unknown IEs",
       HFILL}},
     {&hf_IAX_IE_UNKNOWN_I16,
-     {"data", "iax2.iax.unknowndata", FT_UINT16, BASE_HEX, NULL,
+     {"Unknown", "iax2.iax.unknownshort", FT_UINT16, BASE_HEX, NULL,
       0x0, "Raw data for unknown IEs",
       HFILL}},
     {&hf_IAX_IE_UNKNOWN_I32,
-     {"data", "iax2.iax.unknowndata", FT_UINT32, BASE_HEX, NULL,
+     {"Unknown", "iax2.iax.unknownlong", FT_UINT32, BASE_HEX, NULL,
       0x0, "Raw data for unknown IEs",
       HFILL}},
     {&hf_IAX_IE_UNKNOWN_BYTES,
-     {"data", "iax2.iax.unknowndata", FT_BYTES, BASE_NONE, NULL,
+     {"Unknown", "iax2.iax.unknownstring", FT_STRING, BASE_NONE, NULL,
       0x0, "Raw data for unknown IEs",
       HFILL}},
 
@@ -2129,6 +2182,9 @@ proto_register_iax2 (void)
     &ett_iax2_codecs,
     &ett_iax2_ies_apparent_addr
   };
+
+  /* initialise the hf_iax2_ies[] array to -1 */
+  memset(hf_iax2_ies,0xff,sizeof(hf_iax2_ies));
 
   proto_iax2 =
     proto_register_protocol ("Inter-Asterisk eXchange v2", "IAX2", "iax2");

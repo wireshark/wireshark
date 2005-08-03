@@ -53,6 +53,7 @@ LIBETHEREAL_SRC = 		\
 	in_cksum.c		\
 	ipproto.c		\
 	ipv4.c			\
+	nstime.c		\
 	osi-utils.c		\
 	packet.c		\
 	plugins.c		\

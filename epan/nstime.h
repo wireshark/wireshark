@@ -32,4 +32,27 @@ typedef struct {
 	int	nsecs;
 } nstime_t;
 
+/* functions */
+
+/* calculate the delta between two times
+ *
+ * delta = b-a
+ *
+ * Note that it is acceptable for two or more of the arguments to point at the
+ * same structure.
+ */
+extern void get_timedelta(nstime_t *delta, const nstime_t *b, const nstime_t *a );
+
+/* calculate the sum of two times
+ *
+ * sum = a+b
+ *
+ * Note that it is acceptable for two or more of the arguments to point at the
+ * same structure.
+ */
+extern void get_timesum(nstime_t *sum, const nstime_t *b, const nstime_t *a );
+
+/* sum += a */
+#define addtime(sum, a) get_timesum(sum, sum, b)
+
 #endif /* __NSTIME_H__  */

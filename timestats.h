@@ -43,12 +43,6 @@ typedef struct _timestat_t {
 
 /* functions */
 
-/* delta = b - a */
-extern void get_timedelta(nstime_t *delta, const nstime_t *b, const nstime_t *a );
-
-/* sum += a */
-extern void addtime(nstime_t *sum, const nstime_t *a);
-
 /* converts nstime to gdouble, time base is milli seconds*/
 extern gdouble nstime_to_msec(const nstime_t *time);
 

@@ -26,36 +26,6 @@
 #include "timestats.h"
 
 /*
- * function: get_timedelta
- * delta = b - a
- */
-
-void get_timedelta(nstime_t *delta, const nstime_t *b, const nstime_t *a )
-{
-	delta->secs = b->secs - a->secs;
-	delta->nsecs= b->nsecs - a->nsecs;
-	if(delta->nsecs<0){
-		delta->nsecs+=1000000000;
-		delta->secs--;
-	}
-}
-
-/*
- * function: addtime
- * sum += a
- */
-
-void addtime(nstime_t *sum, const nstime_t *a)
-{
-	sum->secs += a->secs;
-	sum->nsecs += a->nsecs;
-	if(sum->nsecs>1000000000){
-		sum->nsecs-=1000000000;
-		sum->secs++;
-	}
-}
-
-/*
  * function: nstime_to_msec
  * converts nstime to gdouble, time base is milli seconds
  */
