@@ -40,19 +40,20 @@
  *	structure of the header at the beginning of every trace mbuf
  *---------------------------------------------------------------------------*/
 typedef struct {
-	unsigned int length;	/* length of the following mbuf		*/
-	int unit;		/* controller unit number		*/
-	int type;		/* type of channel			*/
+	guint32 length;		/* length of the following mbuf		*/
+	gint32 unit;		/* controller unit number		*/
+	gint32 type;		/* type of channel			*/
 #define TRC_CH_I	0		/* Layer 1 INFO's		*/
 #define TRC_CH_D 	1		/* D channel 			*/
 #define TRC_CH_B1	2		/* B1 channel			*/
 #define TRC_CH_B2	3		/* B2 channel			*/
-	int dir;		/* direction 				*/
+	gint32 dir;		/* direction 				*/
 #define FROM_TE	0			/* user -> network		*/
 #define FROM_NT 1			/* network -> user		*/
-	int trunc;		/* # of truncated bytes (frame > MCLBYTES) */
-	unsigned int count;	/* frame count for this unit/type	*/
-	struct timeval time;	/* timestamp for this frame		*/
+	gint32 trunc;		/* # of truncated bytes (frame > MCLBYTES) */
+	guint32 count;		/* frame count for this unit/type	*/
+	guint32 ts_sec;		/* timestamp seconds */
+	guint32 ts_usec;	/* timestamp microseconds */
 } i4b_trace_hdr_t;
 
 #define INFO0		0	/* layer 1 */
@@ -79,10 +80,10 @@ typedef struct {
 #define TRACE_B_RX	0x10		/* trace B channel on	*/
 
 typedef struct {
-	int rxunit;		/* unit # for rx frames	*/
-	int rxflags;		/* d and/or b channel	*/
-	int txunit;		/* unit # for tx frames */
-	int txflags;		/* d and/or b channel	*/
+	gint32 rxunit;		/* unit # for rx frames	*/
+	gint32 rxflags;		/* d and/or b channel	*/
+	gint32 txunit;		/* unit # for tx frames */
+	gint32 txflags;		/* d and/or b channel	*/
 } i4b_trace_setupa_t;
 
 #define	I4B_TRC_SETA	_IOW('T', 2, i4b_trace_setupa_t) /* set analyze mode */

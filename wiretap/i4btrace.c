@@ -142,8 +142,8 @@ static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
 	wth->phdr.len = length;
 	wth->phdr.caplen = length;
 
-	wth->phdr.ts.tv_sec = hdr.time.tv_sec;
-	wth->phdr.ts.tv_usec = hdr.time.tv_usec;
+	wth->phdr.ts.tv_sec = hdr.ts_sec;
+	wth->phdr.ts.tv_usec = hdr.ts_usec;
 
 	/*
 	 * Read the packet data.
@@ -244,8 +244,8 @@ i4b_byte_swap_header(wtap *wth, i4b_trace_hdr_t *hdr)
 		hdr->dir = BSWAP32(hdr->dir);
 		hdr->trunc = BSWAP32(hdr->trunc);
 		hdr->count = BSWAP32(hdr->count);
-		hdr->time.tv_sec = BSWAP32(hdr->time.tv_sec);
-		hdr->time.tv_usec = BSWAP32(hdr->time.tv_usec);
+		hdr->ts_sec = BSWAP32(hdr->ts_sec);
+		hdr->ts_usec = BSWAP32(hdr->ts_usec);
 	}
 }
 
