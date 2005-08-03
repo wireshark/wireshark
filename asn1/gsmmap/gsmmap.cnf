@@ -10,7 +10,43 @@ AddressString
 ExtensionContainer
 SecurityHeader
 ProtectedPayload
-
+SS-Code
+SS-Status
+CUG-Index
+CCBS-Feature
+AlertingPattern
+USSD-DataCodingScheme
+USSD-String
+ISDN-AddressString
+ISDN-SubaddressString
+NotificationToMSUser
+LocationType
+LCSClientExternalID
+LCSClientName
+LCSRequestorID
+LCSCodeword
+LCSServiceTypeID
+LCS-QoS
+SupportedGADShapes
+AgeOfLocationInformation
+Ext-GeographicalInformation
+Add-GeographicalInformation
+LCS-ReferenceNumber
+GSN-Address
+DeferredLocationEventType
+AreaEventInfo
+SS-Info
+RegisterSS-Arg
+SS-ForBS-Code
+GetPasswordArg
+CurrentPassword
+NewPassword
+Ussd-Arg
+Ussd-Res
+EraseCC-EntryArg
+EraseCC-EntryRes
+RegisterCC-EntryRes
+InterrogateSS-Res
 #.PDU
 
 #.NO_EMIT
@@ -61,12 +97,16 @@ Ext-ForwardingInfoFor-CSE/forwardingFeatureList ext-forwardingFeatureList
 Ext-ForwFeature/noReplyConditionTime ext-noReplyConditionTime
 ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
 #----------------------------------------------------------------------------------------
+#.FN_PARS  Sm-RP-UI
+
+  VAL_PTR = &tpdu_tvb
+
 #.FN_BODY Sm-RP-UI
 
   tvbuff_t	*tpdu_tvb;
   	
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    &tpdu_tvb);
+  %(DEFAULT_BODY)s
+
     /*
      * dissect the embedded TPDU message
      */
@@ -76,13 +116,17 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
     dissector_try_port(sms_dissector_table, 0, tpdu_tvb, pinfo, top_tree);
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_PARS  IMSI
+
+  VAL_PTR = &parameter_tvb
+ 
 #.FN_BODY IMSI
 
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
 
- offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    &parameter_tvb);
+ %(DEFAULT_BODY)s
+
  if (!parameter_tvb)
 	return offset;
 
@@ -96,13 +140,17 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
 
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_PARS ServiceCentreAddress
+
+  VAL_PTR = &parameter_tvb
+
 #.FN_BODY ServiceCentreAddress
 
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
 
- offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    &parameter_tvb);
+ %(DEFAULT_BODY)s
+
  if (!parameter_tvb)
 	return offset;
 
@@ -119,13 +167,16 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
 
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_PARS ISDN-AddressString
+
+  VAL_PTR = &parameter_tvb
+
 #.FN_BODY ISDN-AddressString
 
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
 
- offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    &parameter_tvb);
+%(DEFAULT_BODY)s
 
  if (!parameter_tvb)
 	return offset;
@@ -145,13 +196,16 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
 
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_PARS AddressString
+
+  VAL_PTR = &parameter_tvb
+
 #.FN_BODY AddressString
 
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
 
- offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    &parameter_tvb);
+%(DEFAULT_BODY)s
 
  if (!parameter_tvb)
 	return offset;
@@ -167,13 +221,17 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
 	g_free(digit_str);
 
 #----------------------------------------------------------------------------------------
+#.FN_PARS SS-Status
+
+  VAL_PTR = &parameter_tvb
+
 #.FN_BODY SS-Status
 
  tvbuff_t	*parameter_tvb;
  guint8		octet;
 
- offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    &parameter_tvb);
+%(DEFAULT_BODY)s
+
  if (!parameter_tvb)
 	return offset;
 
@@ -190,14 +248,18 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
 
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_PARS Ext-SS-Status
+
+  VAL_PTR = &parameter_tvb
+
 #.FN_BODY Ext-SS-Status
  /* Note Ext-SS-Status can have more than one byte */
 
  tvbuff_t	*parameter_tvb;
  guint8		octet;
 
- offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    &parameter_tvb);
+%(DEFAULT_BODY)s
+
  if (!parameter_tvb)
 	return offset;
 
@@ -224,18 +286,20 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
   VAL_PTR = &AccessNetworkProtocolId
 
 #----------------------------------------------------------------------------------------
-#.FN_HDR SignalInfo
+#.FN_PARS  SignalInfo
+
+  VAL_PTR = &parameter_tvb
+
+#.FN_BODY SignalInfo
 
  tvbuff_t	*parameter_tvb;
  guint8		octet;
  guint8		length;
  tvbuff_t	*next_tvb;
 
- #.FN_PARS  SignalInfo
 
-  VAL_PTR = &parameter_tvb
+%(DEFAULT_BODY)s
 
-#.FN_FTR SignalInfo
  if (!parameter_tvb)
 	return offset;
  switch (protocolId){
@@ -266,19 +330,20 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
 }
 
 #----------------------------------------------------------------------------------------
-#.FN_HDR LongSignalInfo
+#.FN_PARS  LongSignalInfo
+
+  VAL_PTR = &parameter_tvb
+
+#.FN_BODY LongSignalInfo
 
  tvbuff_t	*parameter_tvb;
  guint8		octet;
  guint8		length;
  tvbuff_t	*next_tvb;
 
-#.FN_PARS  LongSignalInfo
 
-  VAL_PTR = &parameter_tvb
+%(DEFAULT_BODY)s
 
-
-#.FN_FTR LongSignalInfo
  if (!parameter_tvb)
 	return offset;
  switch (AccessNetworkProtocolId){
@@ -320,15 +385,17 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
 	proto_tree_add_item(tree, hf_gsm_map_notification_to_calling_party, tvb, 0,1,FALSE);
 	proto_tree_add_item(tree, hf_gsm_map_forwarding_reason, tvb, 0,1,FALSE);
 
-#.FN_HDR PDP-Type
-	guint8 pdp_type_org;
-	tvbuff_t	*parameter_tvb;
-
 #.FN_PARS  PDP-Type
 
   VAL_PTR = &parameter_tvb
 
-#.FN_FTR PDP-Type
+#.FN_BODY PDP-Type
+	guint8 pdp_type_org;
+	tvbuff_t	*parameter_tvb;
+
+
+%(DEFAULT_BODY)s
+
  if (!parameter_tvb)
 	return offset;
 	proto_tree_add_item(tree, hf_gsm_map_pdp_type_org, parameter_tvb, 0,1,FALSE);
@@ -343,29 +410,32 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
 		default:
 		break;
 	}
-#.FN_HDR QoS-Subscribed
-
-	tvbuff_t	*parameter_tvb;
 
 #.FN_PARS QoS-Subscribed
 		
   VAL_PTR = &parameter_tvb
 
-#.FN_FTR QoS-Subscribed
+#.FN_BODY QoS-Subscribed
+
+	tvbuff_t	*parameter_tvb;
+
+
+%(DEFAULT_BODY)s
 
 	 if (!parameter_tvb)
 		return offset;
 	de_sm_qos(parameter_tvb, tree, 0, 3, NULL);
 
-#.FN_HDR Ext-QoS-Subscribed
-
-	tvbuff_t	*parameter_tvb;
-
 #.FN_PARS Ext-QoS-Subscribed
 		
   VAL_PTR = &parameter_tvb
 
-#.FN_FTR Ext-QoS-Subscribed
+#.FN_BODY Ext-QoS-Subscribed
+
+	tvbuff_t	*parameter_tvb;
+
+
+%(DEFAULT_BODY)s
 
 	 if (!parameter_tvb)
 		return offset;

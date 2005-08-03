@@ -681,7 +681,7 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     offset=dissect_gsm_map_InterrogateSS_Res(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 15: /*authenticationFailureReport*/
-	  offset=dissect_gsm_map_AuthenticationFailureReportArg(FALSE, tvb, offset, pinfo, tree, -1);
+	  offset=dissect_gsm_map_AuthenticationFailureReportRes(FALSE, tvb, offset, pinfo, tree, -1);
 	  break;
   case 17: /*registerPassword*/
     offset=dissect_gsm_map_NewPassword(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ss_Code);
@@ -1074,7 +1074,7 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     tap_queue_packet(gsm_map_tap, pinfo, &tap_rec);
 }
 
-static const value_string ssCode_vals[] = {
+const value_string ssCode_vals[] = {
   { 0x00, "allSS - all SS" },
   { 0x10 ,"allLineIdentificationSS - all line identification SS" },
   { 0x11 ,"clip - calling line identification presentation" },
