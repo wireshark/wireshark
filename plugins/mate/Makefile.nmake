@@ -38,6 +38,15 @@ mate.dll mate.exp mate.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
 clean:
 	rm -f $(OBJECTS) mate.dll mate.exp mate.lib *.pdb
 
+#
+# We remove the generated files with "distclean" because one of them,
+# "mate_parser.c", needs different #includes for UN*X and Windows
+# (UN*X versions of Flex make it include <unistd.h>, but that's a
+# UN*X-only header), so if you're going to build from source, you need
+# to build "mate_parser.c" from "mate_parser.l" with Flex.
+# This might not be necessary for "mate_grammar.{c,h}", but we handle them
+# the same for now.
+#
 distclean: clean
 	rm -f mate_parser.c mate_grammar.c mate_grammar.h mate_grammar.out
 

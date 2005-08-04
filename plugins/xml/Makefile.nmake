@@ -34,11 +34,11 @@ clean:
 	rm -f $(OBJECTS) xml.dll xml.exp xml.lib *.pdb
 
 #
-# We remove the generated files with "distclean" because one of them,
-# "xml_lexer.c", needs different #includes for UN*X and Windows
-# (UN*X versions of Flex make it include <unistd.h>, but that's a
-# UN*X-only header), so if you're going to build from source, you need
-# to build "xml_lexer.c" from "xml_lexer.l" with Flex.
+# We remove "xml_lexter.c" with "distclean" because it needs different
+# #includes for UN*X and Windows (UN*X versions of Flex make it include
+# <unistd.h>, but that's a UN*X-only header), so if you're going to build
+# from source, you need to build "xml_lexer.c" from "xml_lexer.l" with
+# Flex.
 #
 distclean: clean
 	rm -f xml_lexer.c
