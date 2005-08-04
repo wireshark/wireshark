@@ -31,7 +31,6 @@
 #include "sttype-range.h"
 #include "sttype-test.h"
 #include "ftypes/ftypes.h"
-#include <epan/gdebug.h>
 
 static void
 gencode(dfwork_t *dfw, stnode_t *st_node);
