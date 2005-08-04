@@ -7,12 +7,6 @@
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
- * Copied from WHATEVER_FILE_YOU_USED (where "WHATEVER_FILE_YOU_USED"
- * is a dissector file; if you just copied this from README.developer,
- * don't bother with the "Copied from" - you don't even need to put
- * in a "Copied from" if you copied an existing dissector, especially
- * if the bulk of the code in the new dissector is your code)
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -775,9 +769,9 @@ dissect_fcfcs_gcap (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 
             offset += 4;
             for (i = 0; i < numrec; i++) {
-                proto_tree_add_item (tree, hf_fcs_mgmt_subtype, tvb, offset,
-                                     1, 0);
                 subtype = tvb_get_guint8 (tvb, offset);
+                proto_tree_add_uint (tree, hf_fcs_mgmt_subtype, tvb, offset,
+                                     1, subtype);
 
                 proto_tree_add_item (tree, hf_fcs_vnd_capmask, tvb, offset+1,
                                      3, 0);
@@ -789,6 +783,7 @@ dissect_fcfcs_gcap (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                     proto_tree_add_item (tree, hf_fcs_unsmask, tvb, offset+4,
                                          4, 0);
                 }
+                offset += 8;
             }
         }
     }
