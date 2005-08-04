@@ -24,6 +24,14 @@ thus run through C rather than C++ compilers, and not all C compilers
 support C++-style comments (GCC does, but IBM's C compiler for AIX, for
 example, doesn't do so by default).
 
+Don't initialize variables in their declaration with non-constant
+values. Not all compilers support this. E.g. don't use
+	guint32 i = somearray[2];
+use
+	guint32 i;
+	i = somearray[2];
+instead.
+
 Don't use zero-length arrays; not all compilers support them.  If an
 array would have no members, just leave it out.
 
