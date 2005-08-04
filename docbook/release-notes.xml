@@ -71,8 +71,20 @@ Gnu info
 
 	<listitem><para>
 	  The ISAKMP dissector could exhaust system memory.
-	  <!-- Fixed in 15163 -->
+	  <!-- Fixed in r15163 -->
 	  Versions affected: 0.10.11 to 0.10.12.
+	</para></listitem>
+
+	<listitem><para>
+	  The FC-FCS dissector could exhaust system memory.
+	  <!-- Fixed in r15204 -->
+	  Versions affected: 0.9.0 to 0.10.12.
+	</para></listitem>
+
+	<listitem><para>
+	  The RSVP dissector could exhaust system memory.
+	  <!-- Fixed in  r15206 -->
+	  Versions affected: 0.9.4 to 0.10.12.
 	</para></listitem>
 
       </itemizedlist>
