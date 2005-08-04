@@ -5,7 +5,7 @@
  * Copyright 2005
  * Written by Martin Mathieson
  *
- * $Id: packet-rdt.c 14456 2005-05-27 18:35:19Z etxrab $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -822,8 +822,15 @@ void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* Set the dissector for indicated conversation */
         if (pt != PT_NONE)
         {
-            guint8 octets[4] = {ipaddr[0], ipaddr[1], ipaddr[2], ipaddr[3]};
-            address addr = {AT_IPv4, 4, octets};
+            guint8 octets[4];
+            address addr;
+            octets[0] = ipaddr[0];
+            octets[1] = ipaddr[1];
+            octets[2] = ipaddr[2];
+            octets[3] = ipaddr[3];
+            addr.type = AT_IPv4;
+            addr.len = 4;
+            addr.data = octets;
             msmms_data_add_address(pinfo, &addr, pt, port);
         }
     }
