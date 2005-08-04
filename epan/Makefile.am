@@ -57,6 +57,7 @@ EXTRA_DIST = \
 	make-sminmpec.pl \
 	radius_dict.l   \
 	tvbtest.c	\
+	exntest.c	\
 	doxygen.cfg.in
 
 CLEANFILES = \
@@ -77,10 +78,15 @@ libethereal_la_LIBADD = @G_ASCII_STRTOULL_LO@ @INET_ATON_LO@ @INET_PTON_LO@ @INE
 libethereal_la_DEPENDENCIES = @G_ASCII_STRTOULL_LO@ @INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ dfilter/libdfilter.la ftypes/libftypes.la dissectors/libdissectors.la
 
 tvbtest: tvbtest.o tvbuff.o except.o strutil.o
-	$(LINK) -o tvbtest tvbtest.o tvbuff.o except.o strutil.o `glib-config --libs`
+	$(LINK) $^ $(GLIB_LIBS) -lz
+
+exntest: exntest.o except.o
+	$(LINK) $^ $(GLIB_LIBS)
 
 radius_dict.c: radius_dict.l
 	$(LEX) radius_dict.l
+
+tvbtest.o exntest.o: exceptions.h
 
 sminmpec.c: enterprise-numbers make-sminmpec.pl
 	$(PERL) make-sminmpec.pl enterprise-numbers sminmpec.c

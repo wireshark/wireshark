@@ -198,6 +198,15 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		0, 0, cap_len, "Capture Length: %d byte%s", cap_len,
 		plurality(cap_len, "", "s"));
 
+      /* we are going to be using proto_item_append_string() on
+       * hf_frame_protocols, and we must therefore disable the
+       * TRY_TO_FAKE_THIS_ITEM() optimisation for the tree by
+       * setting it as visible.
+       *
+       * See proto.h for details.
+       */
+      PTREE_DATA(fh_tree)->visible=1;
+
 	  ti = proto_tree_add_string(fh_tree, hf_frame_protocols, tvb,
 	  	0, 0, "");
       PROTO_ITEM_SET_GENERATED(ti);

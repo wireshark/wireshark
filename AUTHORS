@@ -2188,6 +2188,7 @@ Dominic Béchaz          <bdo [AT] zhwin.ch> {
 Richard van der Hoff     <richardv [AT] mxtelecom.com> {
 	IAX2 updates
 	CRC16 routines
+    Exception logic fixes
 }
 
 Shaun Jackman		<sjackman [AT] telus.net> {

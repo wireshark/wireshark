@@ -81,23 +81,31 @@
  * This is really something like:
  *
  * {
- * 	x = setjmp()
+ * 	caught = FALSE:
+ * 	x = setjmp();
  * 	if (x == 0) {
  * 		<TRY code>
  * 	}
- * 	else if (x == 1) {
+ * 	if (!caught && x == 1) {
+ * 		caught = TRUE;
  * 		<CATCH(1) code>
  * 	}
- * 	else if (x == 2) {
+ * 	if (!caught && x == 2) {
+ * 		caught = TRUE;
  * 		<CATCH(2) code>
  * 	}
- * 	else if (x == 3 || x == 4) {
+ * 	if (!caught && (x == 3 || x == 4)) {
+ * 		caught = TRUE;
  * 		<CATCH2(3,4) code>
  * 	}
- * 	else {
- * 		<CATCH_ALL code> {
+ * 	if (!caught && x != 0) {
+ *		caught = TRUE;
+ * 		<CATCH_ALL code>
  * 	}
  * 	<FINALLY code>
+ * 	if(!caught) {
+ *      	RETHROW(x)
+ * 	}
  * }<ENDTRY tag>
  *
  * All CATCH's must precede a CATCH_ALL.
@@ -125,40 +133,65 @@
  * CLEANUP_CB_CALL_AND_POP
  */
 
+/* we do up to three passes through the bit of code after except_try_push(),
+ * and except_state is used to keep track of where we are.
+ */
+#define EXCEPT_CAUGHT   1 /* exception has been caught, no need to rethrow at
+                           * END_TRY */
 
+#define EXCEPT_RETHROWN 2 /* the exception was rethrown from a CATCH
+                           * block. Don't reenter the CATCH blocks, but do
+                           * execute FINALLY and rethrow at END_TRY */
+
+#define EXCEPT_FINALLY  4 /* we've entered the FINALLY block - don't allow
+                           * RETHROW, and don't reenter FINALLY if a
+                           * different exception is thrown */
 
 #define TRY \
 {\
 	except_t *exc; \
+	volatile int except_state = 0; \
 	static const except_id_t catch_spec[] = { \
 		{ XCEPT_GROUP_ETHEREAL, XCEPT_CODE_ANY } }; \
 	except_try_push(catch_spec, 1, &exc); \
-	if (exc == 0) { \
+	                                               \
+    	if(except_state & EXCEPT_CAUGHT)               \
+            except_state |= EXCEPT_RETHROWN;           \
+	except_state &= ~EXCEPT_CAUGHT;                \
+	                                               \
+	if (except_state == 0 && exc == 0)             \
 		/* user's code goes here */
 
 #define ENDTRY \
-	} \
+	/* rethrow the exception if necessary */ \
+	if(!(except_state&EXCEPT_CAUGHT) && exc != 0)  \
+	    except_rethrow(exc);                 \
 	except_try_pop();\
 }
 
+/* the (except_state |= EXCEPT_CAUGHT) in the below is a way of setting
+ * except_state before the user's code, without disrupting the user's code if
+ * it's a one-liner.
+ */
 #define CATCH(x) \
-	} \
-	else if (exc->except_id.except_code == (x)) { \
+	if (except_state == 0 && exc != 0 && exc->except_id.except_code == (x) && \
+	    (except_state |= EXCEPT_CAUGHT))                                      \
 		/* user's code goes here */
 
 #define CATCH2(x,y) \
-	} \
-	else if (exc->except_id.except_code == (x) || exc->except_id.except_code == (y)) { \
+	if (except_state == 0 && exc != 0 && \
+	    (exc->except_id.except_code == (x) || exc->except_id.except_code == (y)) && \
+	    (except_state|=EXCEPT_CAUGHT))                                             \
 		/* user's code goes here */
 
 #define CATCH_ALL \
-	} \
-	else { \
+	if (except_state == 0 && exc != 0 && \
+	    (except_state|=EXCEPT_CAUGHT))                                             \
 		/* user's code goes here */
 
+
 #define FINALLY \
-	} \
-	{ \
+	if( !(except_state & EXCEPT_FINALLY) && (except_state|=EXCEPT_FINALLY)) \
 		/* user's code goes here */
 
 #define THROW(x) \
@@ -169,7 +202,24 @@
 
 #define GET_MESSAGE			except_message(exc)
 
-#define RETHROW				except_rethrow(exc)
+#define RETHROW                                     \
+    {                                               \
+        /* check we're in a catch block */          \
+        g_assert(except_state == EXCEPT_CAUGHT);    \
+	/* we can't use except_rethrow here, as that pops a catch block \
+	 * off the stack, and we don't want to do that, because we want to \
+	 * excecute the FINALLY {} block first.     \
+	 * except_throw doesn't provide an interface to rethrow an existing \
+	 * exception; however, longjmping back to except_try_push() has the \
+	 * desired effect.			    \
+	 *					    \
+	 * Note also that THROW and RETHROW should provide much the same \
+	 * functionality in terms of which blocks to enter, so any messing \ 
+	 * about with except_state in here would indicate that THROW is \
+	 * doing the wrong thing.                   \
+	 */					    \
+        longjmp(except_ch.except_jmp,1);            \
+    }
 
 #define EXCEPT_CODE			except_code(exc)
 
