@@ -106,6 +106,24 @@ Compilers
 MS Visual C++ Version 6
 This is the common compiler used for building Ethereal on win32.
 
+If you've downloaded an Ethereal source tarball and unpacked it, then,
+before you do any build, you must do
+
+	nmake -f makefile.nmake distclean
+
+to get rid of files included in the source distribution that are built
+for UN*X (so that the source distribution can be compiled on UN*X
+without requiring tools such as Flex) and that won't compile on Windows
+as generated.
+
+You must also do that if you've built for UN*X in the same directory
+tree, regardless of whether you are building from a source tarball or
+from the Subversion tree.
+
+You do not have to do this if you're directly building from the
+Subversion tree, as long as you haven't done a UN*X build in the same
+directory.
+
 MS Visual C++ Version 7 / VC.NET
 Currently unsupported for two reasons:
 -the licence agreement does NOT allow you to compile GPL code.
