@@ -1139,7 +1139,7 @@ find_rsvp_session_tempfilt(tvbuff_t *tvb, int hdr_offset, int *session_offp, int
 {
     int s_off = 0, t_off = 0;
     int len, off;
-    guint16 obj_length;
+    guint obj_length;
 
     if (!tvb_bytes_exist(tvb, hdr_offset+6, 2))
 	goto done;
@@ -1973,9 +1973,9 @@ dissect_rsvp_tspec (proto_tree *ti, tvbuff_t *tvb,
 	while (mylen > 0) {
 	    guint8 service_num;
 	    guint8 param_id;
-	    guint16 param_len;
-	    guint16 param_len_processed;
-	    guint16 length;
+	    guint param_len;
+	    guint param_len_processed;
+	    guint length;
 
 	    service_num = tvb_get_guint8(tvb, offset2);
 	    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
@@ -2267,10 +2267,10 @@ dissect_rsvp_flowspec (proto_tree *ti, tvbuff_t *tvb,
 	offset2+= 4;
 	while (mylen > 0) {
 	    guint8 service_num;
-	    guint16 length;
+	    guint length;
 	    guint8 param_id;
-	    guint16 param_len;
-	    guint16 param_len_processed;
+	    guint param_len;
+	    guint param_len_processed;
 
 	    service_num = tvb_get_guint8(tvb, offset2);
 	    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
@@ -2296,6 +2296,8 @@ dissect_rsvp_flowspec (proto_tree *ti, tvbuff_t *tvb,
 	    while (param_len_processed < length) {
 		param_id = tvb_get_guint8(tvb, offset2);
 		param_len = tvb_get_ntohs(tvb, offset2+2) + 1;
+		if (param_len < 1)
+		    THROW(ReportedBoundsError);
 		switch(param_id) {
 		case 127:
 		    /* Token Bucket */
@@ -2557,7 +2559,7 @@ dissect_rsvp_adspec (proto_tree *ti, tvbuff_t *tvb,
     while (mylen > 0) {
 	guint8 service_num;
 	guint8 break_bit;
-	guint16 length;
+	guint length;
 	const char *str;
 
 	service_num = tvb_get_guint8(tvb, offset2);
@@ -2583,7 +2585,7 @@ dissect_rsvp_adspec (proto_tree *ti, tvbuff_t *tvb,
 	i = length*4;
 	while (i > 0) {
 	    guint8 id;
-	    guint16 phdr_length;
+	    guint phdr_length;
 
 	    id = tvb_get_guint8(tvb, offset2);
 	    phdr_length = tvb_get_ntohs(tvb, offset2+2);
