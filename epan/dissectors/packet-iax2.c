@@ -1261,8 +1261,17 @@ static guint32 dissect_iax2_command(tvbuff_t * tvb, guint32 offset,
 {
   guint8 csub = tvb_get_guint8(tvb, offset);
   guint8 address_data[MAX_ADDRESS];
-  iax2_ie_data ie_data = {{AT_NONE,0,address_data},0,0,0,(guint32)-1};
-  iax_call_data *iax_call = iax_packet -> call_data;
+  iax2_ie_data ie_data;
+  iax_call_data *iax_call;
+
+  ie_data.peer_address.type = AT_NONE;
+  ie_data.peer_address.len = 0;
+  ie_data.peer_address.data = address_data;
+  ie_data.peer_ptype = 0;
+  ie_data.peer_port = 0;
+  ie_data.peer_callno = 0;
+  ie_data.dataformat = (guint32)-1;
+  iax_call = iax_packet -> call_data;
   
   /* add the subclass */
   proto_tree_add_uint (tree, hf_iax2_iax_csub, tvb, offset, 1, csub);
