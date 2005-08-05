@@ -385,6 +385,13 @@ make
 	that file.
 	</para>
 	<para>
+	Then you should cleanup any intermediate files, which are shipped for 
+	convenience of Unix users, by typing inside the command line (cmd.exe):
+	</para>
+	<para>
+	<prompt>&gt;</prompt> <userinput>nmake -f Makefile.nmake distclean</userinput>
+	</para>
+	<para>
 	After doing this, typing inside the command line (cmd.exe):
 	</para>
 	<para>

@@ -1239,10 +1239,15 @@ written by Larry Wall and Paul Eggert]]>
 	<para>
 	<programlisting>
 <![CDATA[Checking for required applications:
+        cl: /cygdrive/c/Program Files/Microsoft Visual Studio/VC98/bin/cl
+        link: /cygdrive/c/Program Files/Microsoft Visual Studio/VC98/bin/link
+        nmake: /cygdrive/c/Program Files/Microsoft Visual Studio/VC98/bin/nmake
         bash: /usr/bin/bash
         bison: /usr/bin/bison
         flex: /usr/bin/flex
+        env: /usr/bin/env
         grep: /usr/bin/grep
+        find: /usr/bin/find
         perl: /usr/bin/perl
         env: /usr/bin/env
         python: /usr/bin/python
@@ -1250,6 +1255,20 @@ written by Larry Wall and Paul Eggert]]>
         unzip: /usr/bin/unzip
         wget: /usr/bin/wget]]>
 	</programlisting>
+	</para>	
+	<para>	
+	If you have problems with all the first three ones, check if you called 
+	...\Microsoft Visual Studio\VC98\Bin\vcvars32.bat before 
+	(which will "fix" your PATH settings).
+	</para>	
+	<para>	
+	Unfortunately, the link command is defined both from cygwin and from MSVC 
+	with completely different purpose, you'll need the MSVC link. 
+	If your link command looks something like: /usr/bin/link, the link command 
+	of cygwin takes precedence over the MSVC one. To fix this, you can change 
+	your PATH environment setting or simply renaming the link.exe in cygwin. 
+	If you rename it, make sure to remember that a cygwin update may provide 
+	a new version of it.
 	</para>	
 	</section>
 
