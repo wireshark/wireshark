@@ -146,12 +146,13 @@ dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    proto_tree *daap_tree;
    int offset = 0;
    gboolean is_request = (pinfo->destport == TCP_PORT_DAAP);
-   
-   
+
    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "DAAP");
-   
-   
+
+   /*
+    * XXX - what about the music itself?  Check for bogus tag values?
+    */
    if (check_col(pinfo->cinfo, COL_INFO)) {
       if (is_request) {
 	 col_add_str(pinfo->cinfo, COL_INFO, "DAAP Request");
@@ -165,8 +166,6 @@ dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
    }
 
-   
-   
    if (tree) {
       ti = proto_tree_add_item(tree, proto_daap, tvb, 0, -1, FALSE);
       daap_tree = proto_item_add_subtree(ti, ett_daap);     
