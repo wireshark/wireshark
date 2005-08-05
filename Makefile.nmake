@@ -403,12 +403,15 @@ doxygen: doxygen.cfg doxygen-run
 ################################################################################
 
 REQUIRED_TOOLS=\
+	$(CC) \
+	$(LINK) \
+	nmake \
 	$(SH)	\
 	$(YACC)	\
 	$(LEX)	\
 	env	\
 	grep	\
-	/usr/bin/find	\
+	find	\
 	$(PERL)	\
 	$(PYTHON)	\
 	sed	\
