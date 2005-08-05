@@ -5073,7 +5073,7 @@ proto_reg_handoff_asn1(void) {
 #else
     tcp_ports_asn1 = range_copy(global_tcp_ports_asn1);
     udp_ports_asn1 = range_copy(global_udp_ports_asn1);
-    udp_ports_asn1 = range_copy(global_udp_ports_asn1);
+    sctp_ports_asn1 = range_copy(global_sctp_ports_asn1);
 
     range_foreach(tcp_ports_asn1, register_tcp_port);
     range_foreach(udp_ports_asn1, register_udp_port);
