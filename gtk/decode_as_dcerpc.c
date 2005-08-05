@@ -196,7 +196,7 @@ decode_dcerpc_reset_all(void)
 /* remove a binding (looking the same way as the given one) */
 static void
 decode_dcerpc_binding_reset(
-gchar *table_name _U_, 
+const gchar *table_name _U_, 
 decode_dcerpc_bind_values_t *binding)
 {
     GSList *le;
@@ -224,7 +224,7 @@ decode_dcerpc_bind_values_t *binding)
 /* a binding has changed (remove a previously existing one) */
 static void
 decode_dcerpc_binding_change(
-gchar *table_name, 
+const gchar *table_name, 
 decode_dcerpc_bind_values_t *binding)
 {
 
@@ -241,7 +241,7 @@ decode_dcerpc_bind_values_t *binding)
 
 /* a binding has changed (add/replace/remove it) */
 static void
-decode_change_one_dcerpc_binding(gchar *table_name, decode_dcerpc_bind_values_t *binding, GtkWidget *list)
+decode_change_one_dcerpc_binding(const gchar *table_name, decode_dcerpc_bind_values_t *binding, GtkWidget *list)
 {
     dcerpc_uuid_key     *key;
     gchar              *abbrev;
@@ -308,7 +308,7 @@ static void
 decode_dcerpc(GtkWidget *notebook_pg)
 {
     GtkWidget *list;
-    gchar *table_name;
+    const gchar *table_name;
     decode_dcerpc_bind_values_t *binding;
 
 
@@ -347,7 +347,7 @@ decode_dcerpc_add_to_list(gpointer key, gpointer value, gpointer user_data)
 
 /* add all interfaces to the list */
 static GtkWidget *
-decode_add_dcerpc_menu (GtkWidget *page, gchar *table_name _U_)
+decode_add_dcerpc_menu (GtkWidget *page, const gchar *table_name _U_)
 {
     GtkWidget *scrolled_window;
     GtkWidget *list;

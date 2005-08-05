@@ -1,5 +1,5 @@
 /* XPM */
-static char * icon_excl_xpm[] = {
+static const char * icon_excl_xpm[] = {
 "64 64 21 1",
 " 	c None",
 ".	c #FFFFFF",

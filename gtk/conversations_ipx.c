@@ -53,9 +53,9 @@ ipx_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
 
 
 static void
-ipx_conversation_init(char *optarg)
+ipx_conversation_init(const char *optarg)
 {
-	char *filter=NULL;
+	const char *filter=NULL;
 
 	if(!strncmp(optarg,"conv,ipx,",9)){
 		filter=optarg+9;

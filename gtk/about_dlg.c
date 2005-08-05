@@ -207,7 +207,7 @@ about_folders_page_new(void)
   GtkWidget   *table;
   const char *constpath;
   char *path;
-  gchar *titles[] = { "Name", "Folder", "Typical Files"};
+  const gchar *titles[] = { "Name", "Folder", "Typical Files"};
   GtkWidget *scrolledwindow;
 
   scrolledwindow = scrolled_window_new(NULL, NULL);

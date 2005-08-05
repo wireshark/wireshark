@@ -61,9 +61,9 @@ jxta_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
 }
 
 static void
-jxta_conversation_init(char *optarg)
+jxta_conversation_init(const char *optarg)
 {
-	char *filter=NULL;
+	const char *filter=NULL;
 
 	if(!strncmp(optarg,"conv,jxta,",10)){
 		filter=optarg+10;

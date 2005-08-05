@@ -1,5 +1,5 @@
 /* XPM */
-static char * checkbox_16_xpm[] = {
+static const char * checkbox_16_xpm[] = {
 "16 16 25 1",
 " 	c None",
 ".	c #9D9D9D",

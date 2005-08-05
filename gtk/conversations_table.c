@@ -100,7 +100,7 @@ ct_port_to_str(int port_type, guint32 port)
    of protocols,   either ethernet, tokenring, fddi etc so we must be more
    specific there  thats why we need specific_addr_type
 */
-static char *
+static const char *
 ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int name_type)
 {
 	switch(name_type){
@@ -1154,7 +1154,7 @@ copy_as_csv_cb(GtkWindow *win _U_, gpointer data)
 
 
 static gboolean
-init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean hide_ports, char *table_name, char *tap_name, char *filter, tap_packet_cb packet_func)
+init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter, tap_packet_cb packet_func)
 {
     int i;
     column_arrows *col_arrows;
@@ -1273,7 +1273,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
 
 
 void
-init_conversation_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, tap_packet_cb packet_func)
+init_conversation_table(gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter, tap_packet_cb packet_func)
 {
     conversations_table *conversations;
     char title[256];
@@ -1352,7 +1352,7 @@ ct_win_destroy_notebook_cb(GtkWindow *win _U_, gpointer data)
 
 
 static conversations_table *
-init_ct_notebook_page_cb(gboolean hide_ports, char *table_name, char *tap_name, char *filter, tap_packet_cb packet_func)
+init_ct_notebook_page_cb(gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter, tap_packet_cb packet_func)
 {
     gboolean ret;
     GtkWidget *page_vbox;
@@ -1378,9 +1378,9 @@ init_ct_notebook_page_cb(gboolean hide_ports, char *table_name, char *tap_name, 
 
 typedef struct {
     gboolean hide_ports;       /* hide TCP / UDP port columns */
-    char *table_name;          /* GUI output name */
-    char *tap_name;            /* internal name */
-    char *filter;              /* display filter string (unused) */
+    const char *table_name;    /* GUI output name */
+    const char *tap_name;      /* internal name */
+    const char *filter;        /* display filter string (unused) */
     tap_packet_cb packet_func; /* function to be called for new incoming packets */
 } register_ct_t;
 
@@ -1388,7 +1388,7 @@ typedef struct {
 static GSList *registered_ct_tables = NULL;
 
 void
-register_conversation_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, tap_packet_cb packet_func)
+register_conversation_table(gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter, tap_packet_cb packet_func)
 {
     register_ct_t *table;
 
@@ -1616,7 +1616,7 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
 
     /* if this was a new conversation we have to create a clist row for it */
     if(new_conversation){
-        char *entries[NUM_COLS];
+        const char *entries[NUM_COLS];
         char frames[16],bytes[16],txframes[16],txbytes[16],rxframes[16],rxbytes[16];
 
         /* these values will be filled by call to draw_ct_table_addresses() below */

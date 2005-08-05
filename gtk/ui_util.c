@@ -957,7 +957,7 @@ simple_list_append(GtkWidget *list, ...)
 
 /* create a simple list widget */
 GtkWidget *
-simple_list_new(gint cols, gchar **titles) {
+simple_list_new(gint cols, const gchar **titles) {
     GtkWidget *plugins_list;
 #if GTK_MAJOR_VERSION >= 2
     int i;
@@ -1025,7 +1025,7 @@ copy_to_clipboard(GString *str)
  * (Or ignore it if unspecified).
  */
 gchar *
-create_user_window_title(gchar *caption)
+create_user_window_title(const gchar *caption)
 {
 	/* fail-safe */
 	if (caption == NULL)

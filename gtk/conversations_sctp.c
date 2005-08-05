@@ -1,7 +1,7 @@
 /* conversations_sctp.c
  * conversations_sctp   2005 Oleg Terletsky <oleg.terletsky@comverse.com>
  *
- * $Id:$
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,9 +62,9 @@ sctp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
 
 
 static void
-sctp_conversation_init(char *optarg)
+sctp_conversation_init(const char *optarg)
 {
-	char *filter=NULL;
+	const char *filter=NULL;
 
 	if(!strncmp(optarg,"conv,sctp,",10)){
 		filter=optarg+10;

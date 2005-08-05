@@ -53,9 +53,9 @@ tcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_
 
 
 static void
-tcpip_conversation_init(char *optarg)
+tcpip_conversation_init(const char *optarg)
 {
-	char *filter=NULL;
+	const char *filter=NULL;
 
 	if(!strncmp(optarg,"conv,tcp,",9)){
 		filter=optarg+9;

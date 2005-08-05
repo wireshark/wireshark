@@ -813,7 +813,7 @@ filter_dlg_save_cb(GtkWidget *save_bt _U_, gpointer data)
 	char *pf_dir_path;
 	char *f_path;
 	int f_save_errno;
-	char *filter_type;
+	const char *filter_type;
 
 	/* Create the directory that holds personal configuration files,
 	   if necessary.  */

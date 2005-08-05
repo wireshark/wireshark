@@ -94,7 +94,7 @@ hostlist_port_to_str(int port_type, guint32 port)
    of protocols,   either ethernet, tokenring, fddi etc so we must be more
    specific there  thats why we need specific_addr_type
 */
-static char *
+static const char *
 hostlist_get_filter_name(address *addr, int specific_addr_type, int port_type, int name_type)
 {
 	switch(name_type){
@@ -617,7 +617,7 @@ copy_as_csv_cb(GtkWindow *win _U_, gpointer data)
 
 
 static gboolean
-init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hide_ports, char *table_name, char *tap_name, char *filter, tap_packet_cb packet_func)
+init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter, tap_packet_cb packet_func)
 {
     int i;
     column_arrows *col_arrows;
@@ -1041,7 +1041,7 @@ add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, g
 
     /* if this was a new talker we have to create a clist row for it */
     if(new_talker){
-        char *entries[NUM_COLS];
+        const char *entries[NUM_COLS];
         char frames[16],bytes[16],txframes[16],txbytes[16],rxframes[16],rxbytes[16];
 
         /* these values will be filled by call to draw_hostlist_table_addresses() below */

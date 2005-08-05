@@ -63,7 +63,7 @@ static void remember_selected_row(GtkTreeSelection *sel, gpointer list);
 #endif
 static void color_destroy_cb(GtkButton *button, gpointer user_data);
 static void destroy_edit_dialog_cb(gpointer filter_arg, gpointer dummy);
-static void create_new_color_filter(GtkButton *button, char *filter);
+static void create_new_color_filter(GtkButton *button, const char *filter);
 static void color_new_cb(GtkButton *button, gpointer user_data);
 static void color_props_cb(GtkButton *button, gpointer user_data);
 static void color_delete_cb(GtkWidget *widget, gpointer user_data);
@@ -209,7 +209,7 @@ colorize_dialog_new (char *filter)
   GtkTreeViewColumn *column;
   GtkTreeSelection  *selection;
 #endif
-  gchar *titles[] = { "Name", "String" };
+  const gchar *titles[] = { "Name", "String" };
 
 
   row_selected = -1; /* no row selected */
@@ -903,7 +903,7 @@ color_import_cb(GtkButton *button, gpointer user_data )
 /* Create a new filter in the list, and pop up an "Edit color filter"
    dialog box to edit it. */
 static void
-create_new_color_filter(GtkButton *button, char *filter)
+create_new_color_filter(GtkButton *button, const char *filter)
 {
   color_filter_t   *colorf;
   GtkStyle         *style;

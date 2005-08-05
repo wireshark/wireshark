@@ -1,5 +1,5 @@
 /* XPM */
-static char * resize_columns_24_xpm[] = {
+static const char * resize_columns_24_xpm[] = {
 "24 24 24 1",
 " 	c None",
 ".	c #000000",

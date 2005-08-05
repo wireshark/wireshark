@@ -52,10 +52,10 @@
  */
 
 typedef struct _tap_dfilter_dlg {
-	char *win_title;	/* title */
-	char *init_string;	/* the string to call the tap without a filter via "-z" option */
+	const char *win_title;		/* title */
+	const char *init_string;	/* the string to call the tap without a filter via "-z" option */
 	void (* tap_init_cb)(char *);	/* callback to init function of the tap */
-	gint index;		/* initiate this value always with "-1" */
+	gint index;			/* initiate this value always with "-1" */
 } tap_dfilter_dlg;
 
 /* This will update the titles of the dialog windows when we load a new capture file. */

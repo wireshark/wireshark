@@ -1,5 +1,5 @@
 /* XPM */
-static char * capture_interfaces_24_xpm[] = {
+static const char * capture_interfaces_24_xpm[] = {
 "24 24 219 2",
 "  	c None",
 ". 	c #000000",

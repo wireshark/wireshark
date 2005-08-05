@@ -497,7 +497,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 
-static gchar *titles[]={"Message Type or Reason",
+static const gchar *titles[]={"Message Type or Reason",
 			"Count" };
 
 static void

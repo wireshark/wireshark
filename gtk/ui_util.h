@@ -261,7 +261,7 @@ extern GtkWidget *tree_view_new(GtkTreeModel *model);
  * @param titles the titles of all columns
  * @return the new simple list widget
  */
-extern GtkWidget *simple_list_new(gint cols, gchar **titles);
+extern GtkWidget *simple_list_new(gint cols, const gchar **titles);
 /** Append a row to the simple list.
  *
  * @param list the list from simple_list_new()
@@ -302,7 +302,7 @@ extern void copy_to_clipboard(GString *str);
  * @param caption string you want included in title (appended to user-defined string)
  * @return a newly created title string including user-defined preference (if specified)
  */
-extern gchar *create_user_window_title(gchar *caption);
+extern gchar *create_user_window_title(const gchar *caption);
 
 
 #endif /* __GTKGUIUI_UTIL_H__ */

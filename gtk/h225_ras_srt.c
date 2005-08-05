@@ -268,7 +268,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 
-static gchar *titles[]={"RAS-Type",
+static const gchar *titles[]={"RAS-Type",
 			"Measurements",
 			"Min RTT",
 			"Max RTT",

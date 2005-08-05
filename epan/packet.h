@@ -156,7 +156,7 @@ extern void dissector_table_foreach (char *name, DATFunc func,
     gpointer user_data);
 extern void dissector_all_tables_foreach_changed (DATFunc func,
     gpointer user_data);
-extern void dissector_table_foreach_handle(char *name, DATFunc_handle func,
+extern void dissector_table_foreach_handle(const char *name, DATFunc_handle func,
     gpointer user_data);
 extern void dissector_all_tables_foreach_table (DATFunc_table func,
     gpointer user_data);

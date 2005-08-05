@@ -1261,7 +1261,7 @@ dissector_table_foreach (char *name,
  * function on each entry.
  */
 void
-dissector_table_foreach_handle(char *name,
+dissector_table_foreach_handle(const char *name,
 			       DATFunc_handle func,
 			       gpointer user_data)
 {

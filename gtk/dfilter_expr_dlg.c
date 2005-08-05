@@ -77,7 +77,7 @@ typedef struct protocol_data {
 
 static void show_relations(GtkWidget *relation_list, ftenum_t ftype);
 static gboolean relation_is_presence_test(const char *string);
-static void add_relation_list(GtkWidget *relation_list, char *relation, gboolean sensitive);
+static void add_relation_list(GtkWidget *relation_list, const char *relation, gboolean sensitive);
 static void build_boolean_values(GtkWidget *value_list_scrolled_win,
                                  GtkWidget *value_list,
                                  const true_false_string *values);
@@ -297,7 +297,7 @@ relation_is_presence_test(const char *string)
 }
 
 static void
-add_relation_list(GtkWidget *relation_list, char *relation, gboolean sensitive)
+add_relation_list(GtkWidget *relation_list, const char *relation, gboolean sensitive)
 {
 #if GTK_MAJOR_VERSION < 2
     GtkWidget *label, *item;
@@ -431,7 +431,7 @@ build_boolean_values(GtkWidget *value_list_scrolled_win, GtkWidget *value_list,
      */
     if (values == NULL)
         values = &true_false;
-    add_value_list_item(value_list, values->true_string, (gpointer)values);
+    add_value_list_item(value_list, values->true_string, values);
     add_value_list_item(value_list, values->false_string, NULL);
 
     /*
@@ -488,7 +488,7 @@ build_enum_values(GtkWidget *value_list_scrolled_win _U_, GtkWidget *value_list,
      */
     while (values->strptr != NULL) {
         add_value_list_item(value_list, values->strptr,
-                            (gpointer)values);
+                            values);
         values++;
     }
 

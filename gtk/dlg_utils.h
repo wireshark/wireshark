@@ -166,7 +166,7 @@ extern void set_last_open_dir(char *dirname);
  * @return the new button row
  * @todo move this to ui_util.h
  */
-extern GtkWidget *dlg_button_row_new(gchar *stock_id_first, ...);
+extern GtkWidget *dlg_button_row_new(const gchar *stock_id_first, ...);
 
 /** Set the "activate" signal for a widget to call a routine to
  *  activate the "OK" button for a dialog box.

@@ -1,5 +1,5 @@
 /* XPM */
-static char * eexcl3d64_xpm[] = {
+static const char * eexcl3d64_xpm[] = {
 "64 64 1305 2",
 "  	c None",
 ". 	c #ACAFAC",

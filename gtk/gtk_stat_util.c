@@ -74,7 +74,7 @@ add_table_entry(gtk_table *tab, const char *str, int x, int y)
 /* init a main windowfor stats, set title and display used filter in window */
 
 void
-init_main_stat_window(GtkWidget *window, GtkWidget *mainbox, char *title, char *filter)
+init_main_stat_window(GtkWidget *window, GtkWidget *mainbox, const char *title, const char *filter)
 {
 	GtkWidget *main_label;
 	GtkWidget *filter_label;
@@ -101,7 +101,7 @@ init_main_stat_window(GtkWidget *window, GtkWidget *mainbox, char *title, char *
 /* create a table, using a scrollable gtkclist */
 
 GtkCList *
-create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, char *titles[])
+create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, const char *titles[])
 {
 	GtkCList *table;
 	int i;

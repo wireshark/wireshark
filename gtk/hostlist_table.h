@@ -50,7 +50,7 @@ typedef struct _hostlist_table {
 	GtkWidget           *scrolled_window;   /**< the scrolled window */
 	GtkCList            *table;             /**< the GTK table */
 	guint32             num_columns;        /**< number of columns in the above table */
-    char                *default_titles[8]; /**< Column headers */
+	const char          *default_titles[8]; /**< Column headers */
 	GtkWidget           *menu;              /**< context menu */
 	gboolean            has_ports;          /**< table has ports */
 	guint32             num_hosts;          /**< number of hosts (0 or 1) */
@@ -76,7 +76,7 @@ extern void register_hostlist_table(gboolean hide_ports, char *table_name, char 
  * @param filter the optional filter name or NULL
  * @param packet_func the function to be called for each incoming packet
  */
-extern void init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, tap_packet_cb packet_func);
+extern void init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter, tap_packet_cb packet_func);
 
 /** Callback for "Endpoints" statistics item.
  *

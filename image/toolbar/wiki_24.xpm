@@ -1,5 +1,5 @@
 /* XPM */
-static char * wiki_24_xpm[] = {
+static const char * wiki_24_xpm[] = {
 "24 24 305 2",
 "  	c None",
 ". 	c #2D373E",

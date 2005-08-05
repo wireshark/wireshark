@@ -1,5 +1,5 @@
 /* XPM */
-static char * file_set_next_16_xpm[] = {
+static const char * file_set_next_16_xpm[] = {
 "16 16 42 1",
 " 	c None",
 ".	c #000000",

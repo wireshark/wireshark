@@ -1,5 +1,5 @@
 /* XPM */
-static char *icon_ethereal_xpm[] = {
+static const char *icon_ethereal_xpm[] = {
 /* width height num_colors chars_per_pixel */
 "    66    63       10            1",
 /* colors */

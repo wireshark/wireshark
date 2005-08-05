@@ -72,7 +72,7 @@ extern GtkWidget *main_menu_new(GtkAccelGroup **accel);
  * @param key the key to set
  * @param data the data to set
  */
-extern void set_menu_object_data(gchar *path, gchar *key, gpointer data);
+extern void set_menu_object_data(const gchar *path, const gchar *key, gpointer data);
 
 /** The popup menu handler.
  *

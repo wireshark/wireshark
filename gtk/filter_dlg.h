@@ -38,7 +38,7 @@
  * created.
  */
 typedef struct {
-    gchar    *title;                /**< title of dialog box */
+    const gchar    *title;          /**< title of dialog box */
     gboolean wants_apply_button;    /**< dialog should have an Apply button */
     gboolean activate_on_ok;        /**< if parent text widget should be
                                         activated on "Ok" or "Apply" */

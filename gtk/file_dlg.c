@@ -359,7 +359,7 @@ file_open_entry_changed(GtkWidget *w _U_, gpointer file_sel)
 
 /* copied from summary_dlg.c */
 static GtkWidget *
-add_string_to_table_sensitive(GtkWidget *list, guint *row, gchar *title, gchar *value, gboolean sensitive)
+add_string_to_table_sensitive(GtkWidget *list, guint *row, const gchar *title, const gchar *value, gboolean sensitive)
 {
     GtkWidget *label;
     gchar     *indent;
@@ -386,7 +386,7 @@ add_string_to_table_sensitive(GtkWidget *list, guint *row, gchar *title, gchar *
 }
 
 static GtkWidget *
-add_string_to_table(GtkWidget *list, guint *row, gchar *title, gchar *value)
+add_string_to_table(GtkWidget *list, guint *row, const gchar *title, const gchar *value)
 {
     return add_string_to_table_sensitive(list, row, title, value, TRUE);
 }

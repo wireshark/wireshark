@@ -41,7 +41,7 @@
  * @param title the title for the window
  * @param filter the filter string
  */
-extern void init_main_stat_window(GtkWidget *window, GtkWidget *mainbox, char *title, char *filter);
+extern void init_main_stat_window(GtkWidget *window, GtkWidget *mainbox, const char *title, const char *filter);
 
 /** Create a stats table, using a scrollable gtkclist.
  *
@@ -50,6 +50,6 @@ extern void init_main_stat_window(GtkWidget *window, GtkWidget *mainbox, char *t
  * @param columns number of columns
  * @param titles 
  */
-extern GtkCList *create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, char *titles[]);
+extern GtkCList *create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, const char *titles[]);
 
 #endif

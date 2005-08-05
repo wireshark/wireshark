@@ -1,5 +1,5 @@
 /* XPM */
-static char * colorize_24_xpm[] = {
+static const char * colorize_24_xpm[] = {
 "24 24 57 1",
 " 	c None",
 ".	c #000000",

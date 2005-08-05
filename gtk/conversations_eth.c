@@ -53,9 +53,9 @@ eth_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
 
 
 static void
-eth_conversation_init(char *optarg)
+eth_conversation_init(const char *optarg)
 {
-	char *filter=NULL;
+	const char *filter=NULL;
 
 	if(!strncmp(optarg,"conv,eth,",9)){
 		filter=optarg+9;

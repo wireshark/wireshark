@@ -47,13 +47,13 @@ typedef struct _conversation_t {
 
 /** Conversation widget */
 typedef struct _conversations_table {
-	char                *name;              /**< the name of the table */
+	const char          *name;              /**< the name of the table */
 	GtkWidget           *win;               /**< GTK window */
 	GtkWidget           *page_lb;           /**< label */
 	GtkWidget           *scrolled_window;   /**< the scrolled window */
 	GtkCList            *table;             /**< the GTK table */
         guint32             num_columns;         /**< number of columns in the above table */
-        char                *default_titles[10]; /**< Column headers */
+        const char          *default_titles[10]; /**< Column headers */
 	GtkWidget           *menu;              /**< context menu */
 	gboolean            has_ports;          /**< table has ports */
 	guint32             num_conversations;  /**< number of conversations */
@@ -69,7 +69,7 @@ typedef struct _conversations_table {
  * @param filter the optional filter name or NULL
  * @param packet_func the function to be called for each incoming packet
  */
-extern void register_conversation_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, tap_packet_cb packet_func);
+extern void register_conversation_table(gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter, tap_packet_cb packet_func);
 
 /** Init the conversation table for the single conversation window.
  *
@@ -79,7 +79,7 @@ extern void register_conversation_table(gboolean hide_ports, char *table_name, c
  * @param filter the optional filter name or NULL
  * @param packet_func the function to be called for each incoming packet
  */
-extern void init_conversation_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, tap_packet_cb packet_func);
+extern void init_conversation_table(gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter, tap_packet_cb packet_func);
 
 /** Callback for "Conversations" statistics item.
  *

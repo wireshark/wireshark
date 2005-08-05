@@ -278,7 +278,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
 #define TIME_UNIT_HOUR      2
 #define TIME_UNIT_DAY       3
 #define MAX_TIME_UNITS 4
-static char *time_unit_name[MAX_TIME_UNITS] = {
+static const char *time_unit_name[MAX_TIME_UNITS] = {
 	"second(s)",
 	"minute(s)",
 	"hour(s)",
@@ -385,7 +385,7 @@ guint32 value)
 #define SIZE_UNIT_MEGABYTES 2
 #define SIZE_UNIT_GIGABYTES 3
 #define MAX_SIZE_UNITS 4
-static char *size_unit_name[MAX_SIZE_UNITS] = {
+static const char *size_unit_name[MAX_SIZE_UNITS] = {
 	"byte(s)",
 	"kilobyte(s)",
 	"megabyte(s)",

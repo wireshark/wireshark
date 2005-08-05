@@ -223,7 +223,7 @@ gboolean topic_available(topic_action_e action) {
 /*
  * Open the help dialog and show a specific help page.
  */
-static void help_topic(gchar *topic) {
+static void help_topic(const gchar *topic) {
     gchar       *page_topic;
     GtkWidget   *help_nb;
     GSList      *help_page_ent;

@@ -1,5 +1,5 @@
 /* XPM */
-static char * internet_24_xpm[] = {
+static const char * internet_24_xpm[] = {
 "24 24 310 2",
 "  	c None",
 ". 	c #2D373E",

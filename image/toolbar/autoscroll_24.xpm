@@ -1,5 +1,5 @@
 /* XPM */
-static char * autoscroll_24_xpm[] = {
+static const char * autoscroll_24_xpm[] = {
 "24 24 71 1",
 " 	c None",
 ".	c #000000",

@@ -72,7 +72,7 @@ extern void add_menu_recent_capture_file(gchar *file);
 
 recent_settings_t recent;
 
-static char *ts_type_text[] =
+static const char *ts_type_text[] =
 	{ "RELATIVE", "ABSOLUTE", "ABSOLUTE_WITH_DATE", "DELTA", NULL };
 
 /* Takes an string and a pointer to an array of strings, and a default int value.
@@ -81,7 +81,7 @@ static char *ts_type_text[] =
  * default value that was passed as the third argument is returned.
  */
 static int
-find_index_from_string_array(char *needle, char **haystack, int default_value)
+find_index_from_string_array(const char *needle, const char **haystack, int default_value)
 {
 	int i = 0;
 

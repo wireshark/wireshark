@@ -649,7 +649,7 @@ static GList * tap_menu_item_add(
  */
 void
 register_tap_menu_item(
-    char *name, 
+    const char *name, 
     REGISTER_TAP_GROUP_E group,
     GtkItemFactoryCallback callback,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *),
@@ -657,7 +657,7 @@ register_tap_menu_item(
     gpointer callback_data)
 {
     /*static const char toolspath[] = "/Statistics/";*/
-    char *toolspath;
+    const char *toolspath;
     char *p;
     char *menupath;
     size_t menupathlen;
@@ -932,7 +932,7 @@ set_menu_sensitivity(GtkItemFactory *ifactory, const gchar *path, gint val)
 }
 
 static void
-set_menu_object_data_meat(GtkItemFactory *ifactory, gchar *path, gchar *key, gpointer data)
+set_menu_object_data_meat(GtkItemFactory *ifactory, const gchar *path, const gchar *key, gpointer data)
 {
 	GtkWidget *menu = NULL;
 
@@ -941,7 +941,7 @@ set_menu_object_data_meat(GtkItemFactory *ifactory, gchar *path, gchar *key, gpo
 }
 
 void
-set_menu_object_data (gchar *path, gchar *key, gpointer data) {
+set_menu_object_data (const gchar *path, const gchar *key, gpointer data) {
   GSList *menu_list = popup_menu_list;
   gchar *shortpath = strrchr(path, '/');
 

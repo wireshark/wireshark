@@ -201,7 +201,7 @@ typedef struct _sctp_assoc_info {
 typedef struct _sctp_error_info {
 	guint32 frame_number;
 	gchar   chunk_info[200];
-	gchar  *info_text;
+	const gchar  *info_text;
 } sctp_error_info_t;
 
 

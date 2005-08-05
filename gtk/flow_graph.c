@@ -241,7 +241,7 @@ int flow_graph_tcp_add_to_graph(packet_info *pinfo, const struct tcpheader *tcph
 {
 	graph_analysis_item_t *gai;
 	/* copied from packet-tcp */
-	gchar     *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR" };
+	const gchar *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR" };
 	guint i, bpos;
 	guint fpos = 0;
 	gchar flags[64] = "<None>";
@@ -524,7 +524,7 @@ static void flow_graph_dlg_create (void)
 
 /* init function for tap */
 static void
-flow_graph_init_tap(char *dummy _U_)
+flow_graph_init_tap(const char *dummy _U_)
 {
 
 	/* initialize graph items store */

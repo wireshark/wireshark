@@ -1,5 +1,5 @@
 /* XPM */
-static char * telephony_16_xpm[] = {
+static const char * telephony_16_xpm[] = {
 "16 16 87 1",
 " 	c None",
 ".	c #000000",

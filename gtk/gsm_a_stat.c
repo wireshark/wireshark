@@ -358,10 +358,10 @@ gsm_a_stat_gtk_win_destroy_cb(
 static void
 gsm_a_stat_gtk_win_create(
     gsm_a_stat_dlg_t	*dlg_p,
-    char		*title)
+    const char		*title)
 {
 #define	INIT_TABLE_NUM_COLUMNS	3
-    char		*default_titles[] = { "IEI", "Message Name", "Count" };
+    const char		*default_titles[] = { "IEI", "Message Name", "Count" };
     int			i;
     column_arrows	*col_arrows;
     GtkWidget		*column_lb;
@@ -506,7 +506,7 @@ gsm_a_stat_gtk_dtap_cb(
     GtkWidget		*w _U_,
     gpointer		d _U_,
     gsm_a_stat_dlg_t	*dlg_dtap_p,
-    char		*title,
+    const char		*title,
     const value_string	*dtap_msg_strings)
 {
     int			i;

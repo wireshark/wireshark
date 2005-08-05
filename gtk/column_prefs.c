@@ -77,7 +77,7 @@ column_prefs_show() {
   GList             *clp = NULL;
   fmt_data          *cfmt;
   gint               i;
-  gchar             *column_titles[] = {"Title", "Format"};
+  const gchar       *column_titles[] = {"Title", "Format"};
 #if GTK_MAJOR_VERSION < 2
   gchar             *col_ent[2];
   gint               row;
@@ -423,7 +423,7 @@ column_list_select_cb(GtkTreeSelection *sel, gpointer  user_data _U_)
 static void
 column_list_new_cb(GtkWidget *w _U_, gpointer data _U_) {
     fmt_data     *cfmt;
-    gchar        *title = "New Column";
+    const gchar  *title = "New Column";
 #if GTK_MAJOR_VERSION < 2
     gchar        *col_ent[2];
 #else

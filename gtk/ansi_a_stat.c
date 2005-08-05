@@ -271,10 +271,10 @@ ansi_a_stat_gtk_win_destroy_cb(
 static void
 ansi_a_stat_gtk_win_create(
     ansi_a_stat_dlg_t	*dlg_p,
-    char		*title)
+    const char		*title)
 {
 #define	INIT_TABLE_NUM_COLUMNS	3
-    char		*default_titles[] = { "IEI", "Message Name", "Count" };
+    const char		*default_titles[] = { "IEI", "Message Name", "Count" };
     int			i;
     column_arrows	*col_arrows;
     GtkWidget		*column_lb;

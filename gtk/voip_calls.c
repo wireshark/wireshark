@@ -63,7 +63,7 @@
 #include "alert_box.h"
 #include "simple_dialog.h"
 
-char *voip_call_state_name[7]={
+const char *voip_call_state_name[7]={
 	"CALL SETUP",
 	"RINGING",
 	"IN CALL",
@@ -74,7 +74,7 @@ char *voip_call_state_name[7]={
 	};
 
 /* defines whether we can consider the call active */
-char *voip_protocol_name[6]={
+const char *voip_protocol_name[6]={
 	"SIP",
 	"ISUP",
 	"H323",
@@ -84,8 +84,8 @@ char *voip_protocol_name[6]={
 	};
 
 typedef struct {
-	gchar *frame_label;
-	gchar *comment;
+	const gchar *frame_label;
+	const gchar *comment;
 } graph_str;
 
 #define H245_MAX 6
@@ -1960,7 +1960,7 @@ remove_tap_listener_sdp_calls(void)
    This function will look for a signal/event in the SignalReq/ObsEvent string
    and return true if it is found 
 */
-gboolean isSignal(gchar *signal, gchar *signalStr)
+gboolean isSignal(const gchar *signal, const gchar *signalStr)
 {
 	gint i; 
 	gchar **resultArray;

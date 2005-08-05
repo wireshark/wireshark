@@ -65,7 +65,7 @@ typedef struct column_arrows {
 
 typedef struct _my_columns_t {
     guint32		value;
-    gchar		*strptr;
+    const gchar		*strptr;
     GtkJustification	just;
 } my_columns_t;
 
@@ -300,7 +300,7 @@ gsm_map_stat_gtk_win_destroy_cb(
 static void
 gsm_map_stat_gtk_win_create(
     gsm_map_stat_dlg_t	*dlg_p,
-    char		*title)
+    const char		*title)
 {
     int			i;
     column_arrows	*col_arrows;

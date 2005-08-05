@@ -98,7 +98,7 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
 
   GtkWidget *main_vb, *bbox, *proto_list, *label, *proto_sw, *proto_frame,
             *proto_vb, *button;
-  gchar *titles[] = { "Status", "Protocol", "Description" };
+  const gchar *titles[] = { "Status", "Protocol", "Description" };
 #if GTK_MAJOR_VERSION < 2
   gint width;
 #else

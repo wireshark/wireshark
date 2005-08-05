@@ -1,5 +1,5 @@
 /* XPM */
-static char * stock_dialog_question_48_xpm[] = {
+static const char * stock_dialog_question_48_xpm[] = {
 "48 48 481 2",
 "  	c None",
 ". 	c #572B20",

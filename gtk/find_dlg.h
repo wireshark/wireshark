@@ -63,6 +63,6 @@ extern void find_frame_with_filter(char *filter);
  * @param filter the filter string
  * @param backwards TRUE, if searching should be done backwards
  */
-extern void find_previous_next_frame_with_filter(char *filter, gboolean backwards);
+extern void find_previous_next_frame_with_filter(const char *filter, gboolean backwards);
 
 #endif /* find_dlg.h */

@@ -1019,8 +1019,8 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
 #else
   GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(bv));
   GtkTextIter    iter;
-  char          *revstyle;
-  gchar         *convline;
+  const char    *revstyle;
+  const gchar   *convline;
   gsize          newsize;
   GtkTextMark   *mark = NULL;
 #endif

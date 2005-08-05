@@ -783,7 +783,7 @@ find_previous_cb(GtkWidget *w , gpointer d)
 
 /* this function jumps to the next packet matching the filter */
 void
-find_previous_next_frame_with_filter(char *filter, gboolean backwards)
+find_previous_next_frame_with_filter(const char *filter, gboolean backwards)
 {
   dfilter_t *sfcode;
   gboolean sbackwards_saved;

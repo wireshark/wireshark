@@ -149,7 +149,7 @@ gtk_sctperror_dlg(void)
 	GtkWidget *bt_frame;
 	GtkWidget *bt_close;
 
-	gchar *titles[NUM_COLS] =  {"Framenumber","Chunk Types", "Info"};
+	const gchar *titles[NUM_COLS] =  {"Framenumber","Chunk Types", "Info"};
 	column_arrows *col_arrows;
 	GtkStyle *win_style;
 	GtkWidget *column_lb;

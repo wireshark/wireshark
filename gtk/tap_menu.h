@@ -73,7 +73,7 @@ typedef enum {
  * @param callback_data data for callback function
  */    
 extern void register_tap_menu_item(
-    char *name, 
+    const char *name, 
     REGISTER_TAP_GROUP_E group,
     GtkItemFactoryCallback callback,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *),

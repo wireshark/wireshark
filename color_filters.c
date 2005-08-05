@@ -111,8 +111,8 @@ color_filters_init(void)
 
 /* Create a new filter */
 color_filter_t *
-color_filter_new(gchar *name,          /* The name of the filter to create */
-                 gchar *filter_string, /* The string representing the filter */
+color_filter_new(const gchar *name,    /* The name of the filter to create */
+                 const gchar *filter_string, /* The string representing the filter */
                  color_t *bg_color,    /* The background color */
                  color_t *fg_color)    /* The foreground color */
 {

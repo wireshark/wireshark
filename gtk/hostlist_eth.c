@@ -58,7 +58,7 @@ eth_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 
 
 static void
-gtk_eth_hostlist_init(char *optarg)
+gtk_eth_hostlist_init(const char *optarg)
 {
 	char *filter=NULL;
 

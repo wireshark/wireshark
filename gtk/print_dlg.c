@@ -72,7 +72,7 @@ typedef enum {
 */
 
 static GtkWidget *
-open_print_dialog(char *title, output_action_e action, print_args_t *args);
+open_print_dialog(const char *title, output_action_e action, print_args_t *args);
 static void print_cmd_toggle_dest(GtkWidget *widget, gpointer data);
 static void print_cmd_toggle_detail(GtkWidget *widget, gpointer data);
 static void print_ok_cb(GtkWidget *ok_bt, gpointer parent_w);
@@ -388,7 +388,7 @@ print_browse_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
 
 /* Open the print dialog */
 static GtkWidget *
-open_print_dialog(char *title, output_action_e action, print_args_t *args)
+open_print_dialog(const char *title, output_action_e action, print_args_t *args)
 {
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;

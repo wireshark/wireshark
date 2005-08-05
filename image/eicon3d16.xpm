@@ -1,5 +1,5 @@
 /* XPM */
-static char * eicon3d16_xpm[] = {
+static const char * eicon3d16_xpm[] = {
 "16 16 195 2",
 "  	c None",
 ". 	c #C6CAC6",

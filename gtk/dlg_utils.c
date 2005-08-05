@@ -63,7 +63,7 @@ static void file_selection_browse_destroy_cb(GtkWidget *win, GtkWidget* file_te)
 
 /* create a button for the button row (helper for dlg_button_row_new) */
 static GtkWidget *
-dlg_button_new(GtkWidget *hbox, GtkWidget *button_hbox, gchar *stock_id)
+dlg_button_new(GtkWidget *hbox, GtkWidget *button_hbox, const gchar *stock_id)
 {
     GtkWidget *button;
 
@@ -87,32 +87,32 @@ dlg_button_new(GtkWidget *hbox, GtkWidget *button_hbox, gchar *stock_id)
  *     GTK2 (e.g. GNOME) "Apply" "Cancel" "OK"
  */
 GtkWidget *
-dlg_button_row_new(gchar *stock_id_first, ...)
+dlg_button_row_new(const gchar *stock_id_first, ...)
 {
     gint        buttons = 0;
     va_list     stock_id_list;
-    gchar       *stock_id = stock_id_first;
+    const gchar *stock_id = stock_id_first;
     GtkWidget   *hbox;
     GtkWidget   *button_hbox;
     GtkWidget   *help_hbox;
     GtkWidget   *button;
 
-    gchar *ok           = NULL;
-    gchar *apply        = NULL;
-    gchar *save         = NULL;
-    gchar *dont_save	= NULL;
-    gchar *cancel       = NULL;
-    gchar *close        = NULL;
-    gchar *clear        = NULL;
-    gchar *start        = NULL;
-    gchar *stop         = NULL;
-    gchar *create_stat  = NULL;
-    gchar *help         = NULL;
-    gchar *print        = NULL;
-    gchar *find         = NULL;
-    gchar *jump         = NULL;
-    gchar *yes          = NULL;
-    gchar *no           = NULL;
+    const gchar *ok           = NULL;
+    const gchar *apply        = NULL;
+    const gchar *save         = NULL;
+    const gchar *dont_save    = NULL;
+    const gchar *cancel       = NULL;
+    const gchar *close        = NULL;
+    const gchar *clear        = NULL;
+    const gchar *start        = NULL;
+    const gchar *stop         = NULL;
+    const gchar *create_stat  = NULL;
+    const gchar *help         = NULL;
+    const gchar *print        = NULL;
+    const gchar *find         = NULL;
+    const gchar *jump         = NULL;
+    const gchar *yes          = NULL;
+    const gchar *no           = NULL;
 
 
     va_start(stock_id_list, stock_id_first);

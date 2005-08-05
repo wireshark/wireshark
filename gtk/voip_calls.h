@@ -52,7 +52,7 @@ typedef enum _voip_call_state {
 		VOIP_UNKNOWN
 } voip_call_state;
 
-extern char *voip_call_state_name[7];
+extern const char *voip_call_state_name[7];
 
 typedef enum _voip_call_active_state {
 		VOIP_ACTIVE,
@@ -68,7 +68,7 @@ typedef enum _voip_protocol {
 		VOIP_AC_CAS
 } voip_protocol;
 
-extern char *voip_protocol_name[6];
+extern const char *voip_protocol_name[6];
 
 /* defines specific SIP data */
 

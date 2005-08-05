@@ -336,7 +336,7 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *
 	GdkPixmap *ascend_pm, *descend_pm;
 	GtkStyle *win_style;
 	GtkWidget *column_lb;
-	char *default_titles[] = { "Index", "Procedure", "Calls", "Min SRT", "Max SRT", "Avg SRT" };
+	const char *default_titles[] = { "Index", "Procedure", "Calls", "Min SRT", "Max SRT", "Avg SRT" };
 
 
 	if(filter_string){

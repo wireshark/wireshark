@@ -251,9 +251,8 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 				*cur_opts_fr, *ed_opts_fr, *main_vb,
 				*if_descr_lb, *if_hide_lb,
 				*bbox, *ok_bt, *cancel_bt;
-	gchar *cur_titles[] = { "Device", "Description", 
-												"Comment", "Hide?" };
-    int row = 0;
+	const gchar *cur_titles[] = { "Device", "Description", "Comment", "Hide?" };
+	int row = 0;
 
 	GtkWidget *caller = gtk_widget_get_toplevel(w);
 	

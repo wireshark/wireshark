@@ -56,7 +56,7 @@ plugins_scan(GtkWidget *list)
 {
     plugin     *pt_plug;
     GString    *type;
-    char       *sep;
+    const char       *sep;
 
     pt_plug = plugin_list;
     while (pt_plug)
@@ -88,7 +88,7 @@ about_plugins_page_new(void)
 {
     GtkWidget *scrolledwindow;
     GtkWidget *plugins_list;
-    gchar     *titles[] = {"Name", "Version", "Type"};
+    const gchar     *titles[] = {"Name", "Version", "Type"};
 
     
     scrolledwindow = scrolled_window_new(NULL, NULL);

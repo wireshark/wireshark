@@ -51,9 +51,9 @@ ip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, c
 }
 
 static void
-ip_conversation_init(char *optarg)
+ip_conversation_init(const char *optarg)
 {
-	char *filter=NULL;
+	const char *filter=NULL;
 
 	if(!strncmp(optarg,"conv,ip,",8)){
 		filter=optarg+8;

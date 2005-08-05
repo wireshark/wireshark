@@ -1,5 +1,5 @@
 /* XPM */
-static char * stock_help_24_xpm[] = {
+static const char * stock_help_24_xpm[] = {
 "24 24 244 2",
 "  	c None",
 ". 	c #000000",

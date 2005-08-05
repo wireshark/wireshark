@@ -108,7 +108,7 @@ color_filters_colorize_packet(gint row, epan_dissect_t *edt);
  * @param fg_color foreground color
  * @return the new color filter
  */
-color_filter_t *color_filter_new(gchar *name, gchar *filter_string,
+color_filter_t *color_filter_new(const gchar *name, const gchar *filter_string,
     color_t *bg_color, color_t *fg_color);
 
 /** Remove the color filter.

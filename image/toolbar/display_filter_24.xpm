@@ -1,5 +1,5 @@
 /* XPM */
-static char * display_filter_24_xpm[] = {
+static const char * display_filter_24_xpm[] = {
 "24 24 110 2",
 "  	c None",
 ". 	c #000000",
