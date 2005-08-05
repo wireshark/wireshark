@@ -41,9 +41,9 @@ typedef struct _user_encap_t {
 	guint wtap_encap;
 	guint last_encap;
 	
-	gchar* name;
-	gchar* abbr;
-	gchar* long_name;
+	const gchar* name;
+	const gchar* abbr;
+	const gchar* long_name;
 	
 	const gchar* payload;
 	const gchar* header;

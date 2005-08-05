@@ -1705,7 +1705,7 @@ dissect_nt_v2_ace_flags(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	guint8 mask;
-	char *sep = " ";
+	const char *sep = " ";
 
 	mask = tvb_get_guint8(tvb, offset);
 

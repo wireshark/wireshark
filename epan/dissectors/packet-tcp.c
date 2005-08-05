@@ -2744,7 +2744,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *ti = NULL, *tf;
   int        offset = 0;
   gchar      flags[64] = "<None>";
-  gchar     *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR" };
+  const gchar *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR" };
   gint       fpos = 0, i;
   guint      bpos;
   guint      optlen;

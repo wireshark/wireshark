@@ -1026,11 +1026,11 @@ static const value_string vines_rtp_info_type_vals[] = {
 };
 
 static void rtp_show_machine_type(proto_tree *tree, tvbuff_t *tvb, int offset,
-    char *tag);
+    const char *tag);
 static void rtp_show_flags(proto_tree *tree, tvbuff_t *tvb, int offset,
-    char *tag);
+    const char *tag);
 static int srtp_show_machine_info(proto_tree *tree, tvbuff_t *tvb, int offset,
-    char *tag);
+    const char *tag);
 static int rtp_show_gateway_info(proto_tree *tree, tvbuff_t *tvb, int offset,
     guint8 link_addr_length, guint8 source_route_length);
 
@@ -1404,7 +1404,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-rtp_show_machine_type(proto_tree *tree, tvbuff_t *tvb, int offset, char *tag)
+rtp_show_machine_type(proto_tree *tree, tvbuff_t *tvb, int offset, const char *tag)
 {
 	guint8 machine_type;
 	proto_item *ti;
@@ -1432,7 +1432,7 @@ rtp_show_machine_type(proto_tree *tree, tvbuff_t *tvb, int offset, char *tag)
 }
 
 static void
-rtp_show_flags(proto_tree *tree, tvbuff_t *tvb, int offset, char *tag)
+rtp_show_flags(proto_tree *tree, tvbuff_t *tvb, int offset, const char *tag)
 {
 	guint8 flags;
 	proto_item *ti;
@@ -1461,7 +1461,7 @@ rtp_show_flags(proto_tree *tree, tvbuff_t *tvb, int offset, char *tag)
 }
 
 static int
-srtp_show_machine_info(proto_tree *tree, tvbuff_t *tvb, int offset, char *tag)
+srtp_show_machine_info(proto_tree *tree, tvbuff_t *tvb, int offset, const char *tag)
 {
 	guint16 metric;
 	guint8 node_type;

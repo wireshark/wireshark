@@ -269,7 +269,7 @@ x25_hash_add_proto_end(guint16 vc, guint32 frame)
     close_circuit(circuit, frame);
 }
 
-static char *clear_code(unsigned char code)
+static const char *clear_code(unsigned char code)
 {
     static char buffer[25];
 
@@ -307,7 +307,7 @@ static char *clear_code(unsigned char code)
     return buffer;
 }
 
-static char *clear_diag(unsigned char code)
+static const char *clear_diag(unsigned char code)
 {
     static char buffer[25];
 
@@ -534,7 +534,7 @@ static char *clear_diag(unsigned char code)
     return buffer;
 }
 
-static char *reset_code(unsigned char code)
+static const char *reset_code(unsigned char code)
 {
     static char buffer[25];
 
@@ -562,7 +562,7 @@ static char *reset_code(unsigned char code)
     return buffer;
 }
 
-static char *restart_code(unsigned char code)
+static const char *restart_code(unsigned char code)
 {
     static char buffer[25];
 
@@ -582,7 +582,7 @@ static char *restart_code(unsigned char code)
     return buffer;
 }
 
-static char *registration_code(unsigned char code)
+static const char *registration_code(unsigned char code)
 {
     static char buffer[25];
 
@@ -1482,7 +1482,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean toa;         /* TOA/NPI address format */
     guint16 bytes0_1;
     guint8 pkt_type;
-    char *short_name = NULL, *long_name = NULL;
+    const char *short_name = NULL, *long_name = NULL;
     tvbuff_t *next_tvb = NULL;
     gboolean q_bit_set = FALSE;
     gboolean m_bit_set;

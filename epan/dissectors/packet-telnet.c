@@ -123,7 +123,7 @@ typedef enum {
 
 /* Member of table of IP or TCP options. */
 typedef struct tn_opt {
-  char  *name;			/* name of option */
+  const char  *name;		/* name of option */
   gint  *subtree_index;		/* pointer to subtree index for option */
   tn_opt_len_type len_type;	/* type of option length field */
   int	optlen;			/* value length should be (minimum if VARIABLE) */
@@ -1280,7 +1280,7 @@ telnet_sub_option(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, in
 
 static int
 telnet_will_wont_do_dont(proto_tree *telnet_tree, tvbuff_t *tvb,
-			int start_offset, char *type)
+			int start_offset, const char *type)
 {
   int offset = start_offset;
   guint8 opt_byte;

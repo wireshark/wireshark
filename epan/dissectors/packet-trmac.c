@@ -103,9 +103,11 @@ sv_text(tvbuff_t *tvb, int svoff, proto_tree *tree)
 	int	sv_length = tvb_get_guint8(tvb, svoff+0);
 	guint16	beacon_type, ring;
 
-	char *beacon[] = {"Recovery mode set", "Signal loss error",
+	const char *beacon[] = {
+		"Recovery mode set", "Signal loss error",
 		"Streaming signal not Claim Token MAC frame",
-		"Streaming signal, Claim Token MAC frame"};
+		"Streaming signal, Claim Token MAC frame"
+	};
 
 	proto_tree	*sv_tree;
 	proto_item	*ti;
