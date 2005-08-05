@@ -124,6 +124,19 @@ static guint
 fConfirmedRequestPDU(tvbuff_t *tvb, proto_tree *tree, guint offset);
 
 /**
+ * @param tvb
+ * @param tree 
+ * @param offset
+ * @param ack - indocates whether working on request or ack
+ * @param svc - output variable to return service choice
+ * @param tt  - output varable to return service choice item
+ * @return modified offset
+ */
+static guint
+fStartConfirmed(tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 ack,
+				gint *svc, proto_item **tt);
+
+/**
  * Unconfirmed-Request-PDU ::= SEQUENCE {
  * 	pdu-type		[0] Unsigned (0..15), -- 1 for this PDU type
  *  reserved		[1] Unsigned (0..15), -- must be set zero
@@ -1370,6 +1383,15 @@ fCalendaryEntry (tvbuff_t *tvb, proto_tree *tree, guint offset);
 static guint
 fClientCOV (tvbuff_t *tvb, proto_tree *tree, guint offset);
 
+/**
+ * BACnetDailySchedule ::= SEQUENCE {
+ *  day-schedule    [0] SENQUENCE OF BACnetTimeValue
+ * }
+ * @param tvb 
+ * @param tree 
+ * @param offset 
+ * @return modified offset
+ */
 static guint
 fDailySchedule (tvbuff_t *tvb, proto_tree *tree, guint offset);
 
@@ -1607,7 +1629,7 @@ fNotificationParameters (tvbuff_t *tvb, proto_tree *tree, guint offset);
  * @return modified offset
  */
 static guint
-fObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fBACnetObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
 
 /**
  * BACnetObjectPropertyValue ::= SEQUENCE {
@@ -1636,6 +1658,9 @@ fObjectPropertyValue (tvbuff_t *tvb, proto_tree *tree, guint offset);
 static guint
 fPriorityArray (tvbuff_t *tvb, proto_tree *tree, guint offset);
 
+static guint
+fPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 tagoffset, guint8 list);
+
 /**
  * BACnetPropertyReference ::= SEQUENCE {
  * 	propertyIdentifier	[0] BACnetPropertyIdentifier,
@@ -1647,7 +1672,10 @@ fPriorityArray (tvbuff_t *tvb, proto_tree *tree, guint offset);
  * @return modified offset
  */
 static guint
-fPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fBACnetPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 list);
+
+static guint
+fBACnetObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
 
 /**
  * BACnetPropertyValue ::= SEQUENCE {
@@ -1663,7 +1691,10 @@ fPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset);
  * @return modified offset
  */
 static guint
-fPropertyValue (tvbuff_t *tvb, proto_tree *tree, guint offset);
+fBACnetPropertyValue (tvbuff_t *tvb, proto_tree *tree, guint offset);
+
+static guint
+fPropertyValue (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 tagoffset);
 
 /**
  * BACnet Application PDUs chapter 21
@@ -1976,6 +2007,18 @@ fObjectSpecifier (tvbuff_t *tvb, proto_tree *tree, guint offset);
  */
 static guint
 fError(tvbuff_t *tvb, proto_tree *tree, guint offset);
+
+/**
+ * Generic handler for context tagged values.  Mostly for handling
+ * vendor-defined properties and services.
+ * @param tvb
+ * @param tree
+ * @param offset
+ * @return modified offset
+ * @todo beautify this ugly construct
+ */
+static guint
+fContextTaggedValue(tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label);
 
 /**
  * realizes some ABSTRACT-SYNTAX.&Type
