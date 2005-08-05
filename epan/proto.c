@@ -91,12 +91,12 @@ static void fill_label_int64(field_info *fi, gchar *label_str);
 static void fill_label_enumerated_int(field_info *fi, gchar *label_str);
 
 int hfinfo_bitwidth(header_field_info *hfinfo);
-static char* hfinfo_uint_vals_format(header_field_info *hfinfo);
-static char* hfinfo_uint_format(header_field_info *hfinfo);
-static char* hfinfo_uint64_format(header_field_info *hfinfo);
-static char* hfinfo_int_vals_format(header_field_info *hfinfo);
-static char* hfinfo_int_format(header_field_info *hfinfo);
-static char* hfinfo_int64_format(header_field_info *hfinfo);
+static const char* hfinfo_uint_vals_format(header_field_info *hfinfo);
+static const char* hfinfo_uint_format(header_field_info *hfinfo);
+static const char* hfinfo_uint64_format(header_field_info *hfinfo);
+static const char* hfinfo_int_vals_format(header_field_info *hfinfo);
+static const char* hfinfo_int_format(header_field_info *hfinfo);
+static const char* hfinfo_int64_format(header_field_info *hfinfo);
 
 static proto_item*
 proto_tree_add_node(proto_tree *tree, field_info *fi);
@@ -3302,7 +3302,8 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 static void
 fill_label_enumerated_bitfield(field_info *fi, gchar *label_str)
 {
-	char *format = NULL, *p;
+	const char *format = NULL;
+	char *p;
 	int bitfield_byte_length, bitwidth;
 	guint32 unshifted_value;
 	guint32 value;
@@ -3338,7 +3339,8 @@ fill_label_enumerated_bitfield(field_info *fi, gchar *label_str)
 static void
 fill_label_numeric_bitfield(field_info *fi, gchar *label_str)
 {
-	char *format = NULL, *p;
+	const char *format = NULL;
+	char *p;
 	int bitfield_byte_length, bitwidth;
 	guint32 unshifted_value;
 	guint32 value;
@@ -3374,7 +3376,7 @@ fill_label_numeric_bitfield(field_info *fi, gchar *label_str)
 static void
 fill_label_enumerated_uint(field_info *fi, gchar *label_str)
 {
-	char *format = NULL;
+	const char *format = NULL;
 	header_field_info	*hfinfo = fi->hfinfo;
 	guint32 value;
 	int					ret;	/*tmp return value */
@@ -3395,7 +3397,7 @@ fill_label_enumerated_uint(field_info *fi, gchar *label_str)
 static void
 fill_label_uint(field_info *fi, gchar *label_str)
 {
-	char *format = NULL;
+	const char *format = NULL;
 	header_field_info	*hfinfo = fi->hfinfo;
 	guint32 value;
 	int					ret;	/*tmp return value */
@@ -3414,7 +3416,7 @@ fill_label_uint(field_info *fi, gchar *label_str)
 static void
 fill_label_uint64(field_info *fi, gchar *label_str)
 {
-	char *format = NULL;
+	const char *format = NULL;
 	header_field_info	*hfinfo = fi->hfinfo;
 	guint64 value;
 	int					ret;	/*tmp return value */
@@ -3433,7 +3435,7 @@ fill_label_uint64(field_info *fi, gchar *label_str)
 static void
 fill_label_enumerated_int(field_info *fi, gchar *label_str)
 {
-	char *format = NULL;
+	const char *format = NULL;
 	header_field_info	*hfinfo = fi->hfinfo;
 	guint32 value;
 	int					ret;	/*tmp return value */
@@ -3453,7 +3455,7 @@ fill_label_enumerated_int(field_info *fi, gchar *label_str)
 static void
 fill_label_int(field_info *fi, gchar *label_str)
 {
-	char *format = NULL;
+	const char *format = NULL;
 	header_field_info	*hfinfo = fi->hfinfo;
 	guint32 value;
 	int					ret;	/*tmp return value */
@@ -3472,7 +3474,7 @@ fill_label_int(field_info *fi, gchar *label_str)
 static void
 fill_label_int64(field_info *fi, gchar *label_str)
 {
-	char *format = NULL;
+	const char *format = NULL;
 	header_field_info	*hfinfo = fi->hfinfo;
 	guint64 value;
 	int					ret;	/*tmp return value */
@@ -3524,10 +3526,10 @@ hfinfo_bitwidth(header_field_info *hfinfo)
 	return bitwidth;
 }
 
-static char*
+static const char*
 hfinfo_uint_vals_format(header_field_info *hfinfo)
 {
-	char *format = NULL;
+	const char *format = NULL;
 
 	switch(hfinfo->display) {
 		case BASE_DEC:
@@ -3562,10 +3564,10 @@ hfinfo_uint_vals_format(header_field_info *hfinfo)
 	return format;
 }
 
-static char*
+static const char*
 hfinfo_uint_format(header_field_info *hfinfo)
 {
-	char *format = NULL;
+	const char *format = NULL;
 
 	/* Pick the proper format string */
 	if (hfinfo->type == FT_FRAMENUM) {
@@ -3608,10 +3610,10 @@ hfinfo_uint_format(header_field_info *hfinfo)
 	return format;
 }
 
-static char*
+static const char*
 hfinfo_int_vals_format(header_field_info *hfinfo)
 {
-	char *format = NULL;
+	const char *format = NULL;
 
 	switch(hfinfo->display) {
 		case BASE_DEC:
@@ -3646,10 +3648,10 @@ hfinfo_int_vals_format(header_field_info *hfinfo)
 	return format;
 }
 
-static char*
+static const char*
 hfinfo_uint64_format(header_field_info *hfinfo)
 {
-	char *format = NULL;
+	const char *format = NULL;
 
 	/* Pick the proper format string */
 	switch(hfinfo->display) {
@@ -3669,10 +3671,10 @@ hfinfo_uint64_format(header_field_info *hfinfo)
 	return format;
 }
 
-static char*
+static const char*
 hfinfo_int_format(header_field_info *hfinfo)
 {
-	char *format = NULL;
+	const char *format = NULL;
 
 	/* Pick the proper format string */
 	switch(hfinfo->display) {
@@ -3708,10 +3710,10 @@ hfinfo_int_format(header_field_info *hfinfo)
 	return format;
 }
 
-static char*
+static const char*
 hfinfo_int64_format(header_field_info *hfinfo)
 {
-	char *format = NULL;
+	const char *format = NULL;
 
 	/* Pick the proper format string */
 	switch(hfinfo->display) {
@@ -4207,10 +4209,10 @@ proto_registrar_dump_fields(int format)
 	}
 }
 
-static char*
+static const char*
 hfinfo_numeric_format(header_field_info *hfinfo)
 {
-	char *format = NULL;
+	const char *format = NULL;
 
 	/* Pick the proper format string */
 	if (hfinfo->type == FT_FRAMENUM) {
@@ -4375,7 +4377,8 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 {
 	header_field_info	*hfinfo;
 	int			abbrev_len;
-	char			*buf, *stringified, *format, *ptr;
+	char			*buf, *stringified, *ptr;
+	const char		*format;
 	int			dfilter_len, i;
 	gint			start, length, length_remaining;
 	guint8			c;
