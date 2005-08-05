@@ -4124,7 +4124,7 @@ decode_ie(bssgp_ie_t *ie, build_info_t *bi) {
   }
 
   if (use_default_ie_name) {
-    ie->name = malloc(strlen(iename) + 1);
+    ie->name = g_malloc(strlen(iename) + 1);
     if (ie->name == NULL) {
 #ifdef BSSGP_DEBUG
       proto_tree_add_text(bi->bssgp_tree, bi->tvb, bi->offset, 1, 
@@ -4345,7 +4345,7 @@ decode_ie(bssgp_ie_t *ie, build_info_t *bi) {
   }
   if (use_default_ie_name) {
     /* Memory has been allocated; free it */
-    free(ie->name);
+    g_free(ie->name);
     ie->name = NULL;
   }
 }

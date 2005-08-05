@@ -791,7 +791,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 		tmp_info.src.len  = 16;
 	}
 	
-	addr = malloc(tmp_info.src.len);
+	addr = g_malloc(tmp_info.src.len);
 	memcpy(addr, sctp_info->ip_src.data, tmp_info.src.len);
 	tmp_info.src.data = addr;
 
@@ -808,7 +808,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 		tmp_info.dst.len  = 16;
 	}
 	
-	addr = malloc(tmp_info.dst.len);
+	addr = g_malloc(tmp_info.dst.len);
 	memcpy(addr, sctp_info->ip_dst.data, tmp_info.dst.len);
 	tmp_info.dst.data = addr;
 
@@ -839,12 +839,12 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 			memset(info, 0, sizeof(sctp_assoc_info_t));
 			info->src.type = tmp_info.src.type;
 			info->src.len  = tmp_info.src.len;
-			addr = malloc(tmp_info.dst.len);
+			addr = g_malloc(tmp_info.dst.len);
 			memcpy(addr,(tmp_info.src.data), tmp_info.src.len);
 			info->src.data = addr;
 			info->dst.type = tmp_info.dst.type;
 			info->dst.len  = tmp_info.dst.len;
-			addr = malloc(tmp_info.dst.len);
+			addr = g_malloc(tmp_info.dst.len);
 			memcpy(addr, (tmp_info.dst.data), tmp_info.dst.len);
 			info->dst.data = addr;
 			info->port1 = tmp_info.port1;
@@ -904,18 +904,18 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 				sack->tsns = NULL;
 				sack->src.type=tsn->src.type = tmp_info.src.type;
 				sack->src.len=tsn->src.len   = tmp_info.src.len;
-				addr = malloc(tmp_info.src.len);
+				addr = g_malloc(tmp_info.src.len);
 				memcpy(addr, tmp_info.src.data, tmp_info.src.len);
 				tsn->src.data = addr;
-				addr = malloc(tmp_info.src.len);
+				addr = g_malloc(tmp_info.src.len);
 				memcpy(addr, tmp_info.src.data, tmp_info.src.len);
 				sack->src.data = addr;
 				sack->dst.type = tsn->dst.type = tmp_info.dst.type;
 				sack->dst.len  =tsn->dst.len   = tmp_info.dst.len;
-				addr = malloc(tmp_info.dst.len);
+				addr = g_malloc(tmp_info.dst.len);
 				memcpy(addr, tmp_info.dst.data, tmp_info.dst.len);
 				tsn->dst.data = addr;
-				addr = malloc(tmp_info.dst.len);
+				addr = g_malloc(tmp_info.dst.len);
 				memcpy(addr, tmp_info.dst.data, tmp_info.dst.len);
 				sack->dst.data = addr;
 				sack->secs=tsn->secs   = (guint32)pinfo->fd->rel_secs;
@@ -956,7 +956,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 						store = g_malloc(sizeof (address));
 						store->type = AT_IPv4;;
 						store->len  = 4;
-						store->data = malloc(4);
+						store->data = g_malloc(4);
 						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(store->data),IPV4_ADDRESS_OFFSET, 4);
 						info = add_address(store, info, 1);
 					}
@@ -965,7 +965,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 						store = g_malloc(sizeof (address));
 						store->type = AT_IPv6;;
 						store->len  = 16;
-						store->data = malloc(16);
+						store->data = g_malloc(16);
 						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(store->data),IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH);	
 						info = add_address(store, info, 1);
 					}
@@ -1070,14 +1070,14 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 				store = g_malloc(sizeof (address));
 				store->type = tmp_info.src.type;
 				store->len  = tmp_info.src.len;
-				addr = malloc(tmp_info.src.len);
+				addr = g_malloc(tmp_info.src.len);
 				memcpy(addr,(tmp_info.src.data),tmp_info.src.len);
 				store->data = addr;
 				info  = add_address(store, info, 1);
 				store = g_malloc(sizeof (address));
 				store->type = tmp_info.dst.type;
 				store->len  = tmp_info.dst.len;
-				addr = malloc(tmp_info.dst.len);
+				addr = g_malloc(tmp_info.dst.len);
 				memcpy(addr,(tmp_info.dst.data),tmp_info.dst.len);
 				store->data = addr;
 				info = add_address(store, info, 2);
@@ -1118,18 +1118,18 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 			sack->tsns = NULL;
 			sack->src.type = tsn->src.type = tmp_info.src.type;
 			sack->src.len  = tsn->src.len = tmp_info.src.len;
-			addr = malloc(tmp_info.src.len);
+			addr = g_malloc(tmp_info.src.len);
 			memcpy(addr, tmp_info.src.data, tmp_info.src.len);
 			tsn->src.data = addr;
-			addr = malloc(tmp_info.src.len);
+			addr = g_malloc(tmp_info.src.len);
 			memcpy(addr, tmp_info.src.data, tmp_info.src.len);
 			sack->src.data = addr;
 			sack->dst.type = tsn->dst.type = tmp_info.dst.type;
 			sack->dst.len  = tsn->dst.len = tmp_info.dst.len;
-			addr = malloc(tmp_info.dst.len);
+			addr = g_malloc(tmp_info.dst.len);
 			memcpy(addr, tmp_info.dst.data, tmp_info.dst.len);
 			tsn->dst.data = addr;			
-			addr = malloc(tmp_info.dst.len);
+			addr = g_malloc(tmp_info.dst.len);
 			memcpy(addr, tmp_info.dst.data, tmp_info.dst.len);
 			sack->dst.data = addr;
 			sack->secs=tsn->secs = (guint32)pinfo->fd->rel_secs;
@@ -1160,7 +1160,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 		store = g_malloc(sizeof (address));
 		store->type = tmp_info.src.type;
 		store->len  = tmp_info.src.len;
-		addr = malloc(tmp_info.src.len);
+		addr = g_malloc(tmp_info.src.len);
 		memcpy(addr,(tmp_info.src.data),tmp_info.src.len);
 		store->data = addr;
 			
@@ -1172,7 +1172,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 		store = g_malloc(sizeof (address));
 		store->type = tmp_info.dst.type;
 		store->len  = tmp_info.dst.len;
-		addr = malloc(tmp_info.dst.len);
+		addr = g_malloc(tmp_info.dst.len);
 		memcpy(addr,(tmp_info.dst.data),tmp_info.dst.len);
 		store->data = addr;
 		
@@ -1222,7 +1222,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 						store = g_malloc(sizeof (address));
 						store->type = AT_IPv4;;
 						store->len  = 4;
-						store->data = malloc(4);
+						store->data = g_malloc(4);
 						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(store->data),IPV4_ADDRESS_OFFSET, 4);
 						info = add_address(store, info, info->direction);
 					}
@@ -1231,7 +1231,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 						store = g_malloc(sizeof (address));
 						store->type = AT_IPv6;;
 						store->len  = 16;
-						store->data = malloc(16);
+						store->data = g_malloc(16);
 						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(store->data),IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH);
 						info = add_address(store, info, info->direction);
 					}

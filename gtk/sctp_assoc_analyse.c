@@ -752,9 +752,9 @@ void sctp_analyse_cb(struct sctp_analyse* u_data)
 		return;
 	}
 
-	ip_src = malloc(edt->pi.src.len);
+	ip_src = g_malloc(edt->pi.src.len);
 	memcpy(ip_src, edt->pi.src.data, edt->pi.src.len);
-	ip_dst = malloc(edt->pi.dst.len);
+	ip_dst = g_malloc(edt->pi.dst.len);
 	memcpy(ip_dst, edt->pi.dst.data, edt->pi.dst.len);
 	srcport = edt->pi.srcport;
 	dstport = edt->pi.destport;

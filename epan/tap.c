@@ -121,7 +121,7 @@ register_tap_listener_cmd_arg(const char *cmd, void (*func)(char *arg))
 {
 	tap_cmd_arg *newtca;
 
-	newtca=malloc(sizeof(tap_cmd_arg));
+	newtca=g_malloc(sizeof(tap_cmd_arg));
 	newtca->next=tap_cmd_arg_list;
 	tap_cmd_arg_list=newtca;
 	newtca->cmd=cmd;

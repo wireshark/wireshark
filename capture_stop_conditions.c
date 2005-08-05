@@ -84,7 +84,7 @@ typedef struct _cnd_timeout_dat{
 static condition* _cnd_constr_timeout(condition* cnd, va_list ap){
   cnd_timeout_dat *data = NULL;
   /* allocate memory */
-  if((data = (cnd_timeout_dat*)malloc(sizeof(cnd_timeout_dat))) == NULL)
+  if((data = (cnd_timeout_dat*)g_malloc(sizeof(cnd_timeout_dat))) == NULL)
     return NULL;
   /* initialize user data */
   data->start_time = time(NULL);
@@ -101,7 +101,7 @@ static condition* _cnd_constr_timeout(condition* cnd, va_list ap){
  */
 static void _cnd_destr_timeout(condition* cnd){
   /* free memory */
-  free(cnd_get_user_data(cnd));
+  g_free(cnd_get_user_data(cnd));
 } /* END _cnd_destr_timeout() */
 
 /*
@@ -159,7 +159,7 @@ typedef struct _cnd_capturesize_dat{
 static condition* _cnd_constr_capturesize(condition* cnd, va_list ap){
   cnd_capturesize_dat *data = NULL;
   /* allocate memory */
-  if((data = (cnd_capturesize_dat*)malloc(sizeof(cnd_capturesize_dat))) == NULL)
+  if((data = (cnd_capturesize_dat*)g_malloc(sizeof(cnd_capturesize_dat))) == NULL)
     return NULL;
   /* initialize user data */
   data->max_capture_size = va_arg(ap, long);
@@ -175,7 +175,7 @@ static condition* _cnd_constr_capturesize(condition* cnd, va_list ap){
  */
 static void _cnd_destr_capturesize(condition* cnd){
   /* free memory */
-  free(cnd_get_user_data(cnd));
+  g_free(cnd_get_user_data(cnd));
 } /* END _cnd_destr_capturesize() */
 
 /*

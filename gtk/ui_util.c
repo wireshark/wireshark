@@ -417,7 +417,7 @@ window_geom_save(const gchar *name, window_geometry_t *geom)
         g_free(work);
     }
 
-    /* malloc and insert the new one */
+    /* g_malloc and insert the new one */
     work = g_malloc(sizeof(*geom));
     *work = *geom;
     key = g_strdup(name);

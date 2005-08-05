@@ -671,14 +671,14 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (flags & FLAG_COMPRESSED) { /* the remainder of the packet is compressed */
 	 	guint16 orig_size = tvb_get_ntohs(tvb, offset); offset += 2;
 		guchar *decompressed_buffer; /* Buffers for decompression */
-		decompressed_buffer = (guchar*) malloc (orig_size);
+		decompressed_buffer = (guchar*) g_malloc (orig_size);
 		decompress_packet (tvb_get_ptr(tvb, offset, -1), tvb_length_remaining(tvb, offset),
 				decompressed_buffer, orig_size);
 		/* Now re-setup the tvb buffer to have the new data */
 		next_tvb = tvb_new_real_data(decompressed_buffer, orig_size, orig_size);
 		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 		add_new_data_source(pinfo, next_tvb, "Decompressed Data");
-		tvb_set_free_cb(next_tvb, free);
+		tvb_set_free_cb(next_tvb, g_free);
 	} else {
 		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 	}
@@ -696,7 +696,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    	</para>
    	<para>
    	So armed with the size, a buffer is allocated to receive the uncompressed
-   	data using malloc, and the packet is decompressed into it.
+   	data using g_malloc, and the packet is decompressed into it.
    	The tvb_get_ptr function is useful to get a pointer to the raw data of 
    	the packet from the offset onwards. In this case the 
    	decompression routine also needs to know the length, which is
@@ -709,7 +709,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    	Finally we add this data as a new data source, so that
    	the detailed display can show the decompressed bytes as well as the original.
    	One procedural step is to add a handler to free the data when its no longer needed.
-   	In this case as malloc was used to allocate the memory, free is the appropriate
+   	In this case as g_malloc was used to allocate the memory, g_free is the appropriate
    	function.
    	</para>
 	<para> 

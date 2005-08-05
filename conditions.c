@@ -61,13 +61,13 @@ condition* cnd_new(const char* class_id, ...){
   if((cls = (_cnd_class*)g_hash_table_lookup(classes, class_id)) == NULL)
     return NULL;
   /* initialize the basic structure */
-  if((cnd_ref = (condition*)malloc(sizeof(condition))) == NULL) return NULL;
+  if((cnd_ref = (condition*)g_malloc(sizeof(condition))) == NULL) return NULL;
   cnd_ref->user_data = NULL;
   cnd_ref->eval_func = cls->eval_func;
   cnd_ref->reset_func = cls->reset_func;
   /* copy the class id */
-  if((id = (char*)malloc(strlen(class_id)+1)) == NULL){
-    free(cnd_ref);
+  if((id = (char*)g_malloc(strlen(class_id)+1)) == NULL){
+    g_free(cnd_ref);
     return NULL;
   }
   strcpy(id, class_id);
@@ -78,8 +78,8 @@ condition* cnd_new(const char* class_id, ...){
   va_end(ap);
   /* check for successful construction */
   if(cnd == NULL){
-    free(cnd_ref);
-    free(id);
+    g_free(cnd_ref);
+    g_free(id);
   }
   return cnd;
 } /* END cnd_new() */
@@ -96,9 +96,9 @@ void cnd_delete(condition *cnd){
   /* call class specific destructor */
   if(cls != NULL) (cls->destr_func)(cnd);
   /* free memory */
-  free(cnd->class_id);
+  g_free(cnd->class_id);
   /* free basic structure */
-  free(cnd);
+  g_free(cnd);
 } /* END cnd_delete() */
 
 gboolean cnd_eval(condition *cnd, ...){
@@ -143,11 +143,11 @@ gboolean cnd_register_class(const char* class_id,
     return FALSE;
   /* GHashTable keys need to be persistent for the lifetime of the hash
      table. Allocate memory and copy the class id which we use as key. */
-  if((key = (char*)malloc(strlen(class_id)+1)) == NULL) return FALSE;
+  if((key = (char*)g_malloc(strlen(class_id)+1)) == NULL) return FALSE;
   strcpy(key, class_id);
   /* initialize class structure */
-  if((cls = (_cnd_class*)malloc(sizeof(_cnd_class))) == NULL){
-    free(key);
+  if((cls = (_cnd_class*)g_malloc(sizeof(_cnd_class))) == NULL){
+    g_free(key);
     return FALSE;
   }
   cls->constr_func = constr_func;
@@ -174,10 +174,10 @@ void cnd_unregister_class(const char* class_id){
   /* remove constructor from hash table */
   g_hash_table_remove(classes, class_id);
   /* free the key */
-  free(pkey);
+  g_free(pkey);
   pkey = NULL;
   /* free the value */
-  free(cls);
+  g_free(cls);
 } /* END cnd_unregister_class() */
 
 /*

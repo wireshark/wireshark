@@ -257,8 +257,8 @@ reassemble_tcp( gulong sequence, gulong length, const char* data,
   else {
     /* out of order packet */
     if(data_length > 0 && sequence > seq[src_index] ) {
-      tmp_frag = (tcp_frag *)malloc( sizeof( tcp_frag ) );
-      tmp_frag->data = (guchar *)malloc( data_length );
+      tmp_frag = (tcp_frag *)g_malloc( sizeof( tcp_frag ) );
+      tmp_frag->data = (guchar *)g_malloc( data_length );
       tmp_frag->seq = sequence;
       tmp_frag->len = length;
       tmp_frag->data_len = data_length;
@@ -293,8 +293,8 @@ check_fragments( int index, tcp_stream_chunk *sc ) {
       } else {
 	frags[index] = current->next;
       }
-      free( current->data );
-      free( current );
+      g_free( current->data );
+      g_free( current );
       return 1;
     }
     prev = current;
@@ -319,8 +319,8 @@ reset_tcp_reassembly() {
     current = frags[i];
     while( current ) {
       next = current->next;
-      free( current->data );
-      free( current );
+      g_free( current->data );
+      g_free( current );
       current = next;
     }
     frags[i] = NULL;

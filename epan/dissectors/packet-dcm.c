@@ -303,7 +303,7 @@ mkds(void)
 {
     dcmState_t *ds;
 
-    if (NULL == (ds = (dcmState_t *) malloc(sizeof(dcmState_t)))) {
+    if (NULL == (ds = (dcmState_t *) g_malloc(sizeof(dcmState_t)))) {
 	return NULL;
     }
     ds->pdu = 0;

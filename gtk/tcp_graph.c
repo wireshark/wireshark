@@ -1604,11 +1604,11 @@ static struct graph *graph_new (void)
 {
 	struct graph *g;
 
-	g = (struct graph * )calloc (1, sizeof (struct graph));
+	g = (struct graph * )g_malloc0 (sizeof (struct graph));
 	graph_element_lists_initialize (g);
 
-	g->x_axis = (struct axis * )calloc (1, sizeof (struct axis));
-	g->y_axis = (struct axis * )calloc (1, sizeof (struct axis));
+	g->x_axis = (struct axis * )g_malloc0 (sizeof (struct axis));
+	g->y_axis = (struct axis * )g_malloc0 (sizeof (struct axis));
 	g->x_axis->g = g;
 	g->x_axis->flags = 0;
 	g->x_axis->flags |= AXIS_ORIENTATION;
@@ -1725,9 +1725,9 @@ static void graph_destroy (struct graph *g)
 #endif
 	gdk_pixmap_unref (g->pixmap[0]);
 	gdk_pixmap_unref (g->pixmap[1]);
-	free (g->x_axis);
-	free (g->y_axis);
-	free (g->title);
+	g_free (g->x_axis);
+	g_free (g->y_axis);
+	g_free (g->title);
 	graph_segment_list_free (g);
 	graph_element_lists_free (g);
 #if 0
@@ -1740,7 +1740,7 @@ static void graph_destroy (struct graph *g)
 		graphs = g->next;
 	else
 		p->next = g->next;
-	free (g);
+	g_free (g);
 #if 0
 	for (tmp=graphs; tmp; tmp=tmp->next)
 		printf ("%p next: %p\n", tmp, tmp->next);
@@ -1971,7 +1971,7 @@ static void graph_segment_list_free (struct graph *g)
 
 	while (g->segments) {
 		segment = g->segments->next;
-		free (g->segments);
+		g_free (g->segments);
 		g->segments = segment;
 	}
 	g->segments = NULL;
@@ -1979,7 +1979,7 @@ static void graph_segment_list_free (struct graph *g)
 
 static void graph_element_lists_initialize (struct graph *g)
 {
-	g->elists = (struct element_list *)calloc (1, sizeof (struct element_list));
+	g->elists = (struct element_list *)g_malloc0 (sizeof (struct element_list));
 }
 
 static void graph_element_lists_make (struct graph *g)
@@ -2011,18 +2011,18 @@ static void graph_element_lists_free (struct graph *g)
 
 #if 0
 	for (list=g->elists; list; list=list->next)
-		free (list->elements);
+		g_free (list->elements);
 	while (g->elists->next) {
 		list = g->elists->next->next;
-		free (g->elists->next);
+		g_free (g->elists->next);
 		g->elists->next = list;
 	}
 #endif
 
 	for (list=g->elists; list; list=next_list) {
-		free (list->elements);
+		g_free (list->elements);
 		next_list = list->next;
-		free (list);
+		g_free (list);
 	}
 	g->elists = NULL;	/* just to make debugging easier */
 }
@@ -2210,7 +2210,7 @@ static void axis_destroy (struct axis *axis)
 {
 	gdk_pixmap_unref (axis->pixmap[0]);
 	gdk_pixmap_unref (axis->pixmap[1]);
-	free (axis->label);
+	g_free (axis->label);
 }
 
 static void axis_display (struct axis *axis)
@@ -2716,7 +2716,7 @@ static void magnify_create (struct graph *g, int x, int y)
 	struct ipoint pos, offsetpos;
 	GdkEvent *e=NULL;
 
-	mg = g->magnify.g = (struct graph * )malloc (sizeof (struct graph));
+	mg = g->magnify.g = (struct graph * )g_malloc (sizeof (struct graph));
 	memcpy ((void * )mg, (void * )g, sizeof (struct graph));
 
 	mg->toplevel = dlg_window_new("tcp graph magnify");
@@ -2742,7 +2742,7 @@ static void magnify_create (struct graph *g, int x, int y)
 	new_list = mg->elists;
 	for ( ; list; list=list->next) {
 		new_list->next =
-				(struct element_list * )malloc (sizeof (struct element_list));
+				(struct element_list * )g_malloc (sizeof (struct element_list));
 		new_list = new_list->next;
 		new_list->next = NULL;
 		new_list->elements = NULL;
@@ -2806,13 +2806,13 @@ static void magnify_destroy (struct graph *g)
 	gdk_pixmap_unref (mg->pixmap[0]);
 	gdk_pixmap_unref (mg->pixmap[1]);
 	for (list=mg->elists; list; list=list->next)
-		free (list->elements);
+		g_free (list->elements);
 	while (mg->elists->next) {
 		list = mg->elists->next->next;
-		free (mg->elists->next);
+		g_free (mg->elists->next);
 		mg->elists->next = list;
 	}
-	free (g->magnify.g);
+	g_free (g->magnify.g);
 	g->magnify.active = 0;
 }
 
@@ -3297,14 +3297,14 @@ static void tseq_stevens_read_config (struct graph *g)
 	g->s.tseq_stevens.seq_height = 4;
 	g->s.tseq_stevens.flags = 0;
 
-	g->title = (char ** )malloc (2 * sizeof (char *));
+	g->title = (char ** )g_malloc (2 * sizeof (char *));
 	g->title[0] = "Time/Sequence Graph";
 	g->title[1] = NULL;
-	g->y_axis->label = (char ** )malloc (3 * sizeof (char * ));
+	g->y_axis->label = (char ** )g_malloc (3 * sizeof (char * ));
 	g->y_axis->label[0] = "number[B]";
 	g->y_axis->label[1] = "Sequence";
 	g->y_axis->label[2] = NULL;
-	g->x_axis->label = (char ** )malloc (2 * sizeof (char * ));
+	g->x_axis->label = (char ** )g_malloc (2 * sizeof (char * ));
 	g->x_axis->label[0] = "Time[s]";
 	g->x_axis->label[1] = NULL;
 }
@@ -3397,7 +3397,7 @@ static void tseq_stevens_make_elmtlist (struct graph *g)
 	debug(DBS_FENTRY) puts ("tseq_stevens_make_elmtlist()");
 	if (g->elists->elements == NULL) {
 		int n = 1 + get_num_dsegs (g);
-		e = elements = (struct element * )malloc (n*sizeof (struct element));
+		e = elements = (struct element * )g_malloc (n*sizeof (struct element));
 	} else
 		e = elements = g->elists->elements;
 
@@ -3512,18 +3512,18 @@ static void tseq_tcptrace_read_config (struct graph *g)
 	gdk_gc_set_foreground (g->s.tseq_tcptrace.gc_ack[1], &color);
 
 	g->elists->next = (struct element_list * )
-										malloc (sizeof (struct element_list));
+										g_malloc (sizeof (struct element_list));
 	g->elists->next->next = NULL;
 	g->elists->next->elements = NULL;
 
-	g->title = (char ** )malloc (2 * sizeof (char *));
+	g->title = (char ** )g_malloc (2 * sizeof (char *));
 	g->title[0] = "Time/Sequence Graph";
 	g->title[1] = NULL;
-	g->y_axis->label = (char ** )malloc (3 * sizeof (char * ));
+	g->y_axis->label = (char ** )g_malloc (3 * sizeof (char * ));
 	g->y_axis->label[0] = "number[B]";
 	g->y_axis->label[1] = "Sequence";
 	g->y_axis->label[2] = NULL;
-	g->x_axis->label = (char ** )malloc (2 * sizeof (char * ));
+	g->x_axis->label = (char ** )g_malloc (2 * sizeof (char * ));
 	g->x_axis->label[0] = "Time[s]";
 	g->x_axis->label[1] = NULL;
 }
@@ -3544,13 +3544,13 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 
 	if (g->elists->elements == NULL) {
 		int n = 1 + 4*get_num_acks(g);
-		e0 = elements0 = (struct element * )malloc (n*sizeof (struct element));
+		e0 = elements0 = (struct element * )g_malloc (n*sizeof (struct element));
 	} else
 		e0 = elements0 = g->elists->elements;
 
 	if (g->elists->next->elements == NULL ) {
 		int n = 1 + 3*get_num_dsegs(g);
-		e1 = elements1 = (struct element * )malloc (n*sizeof (struct element));
+		e1 = elements1 = (struct element * )g_malloc (n*sizeof (struct element));
 	} else
 		e1 = elements1 = g->elists->next->elements;
 
@@ -3705,7 +3705,7 @@ static void tput_make_elmtlist (struct graph *g)
 
 	if (g->elists->elements == NULL) {
 		int n = 1 + get_num_dsegs (g);
-		e = elements = (struct element * )malloc (n*sizeof (struct element));
+		e = elements = (struct element * )g_malloc (n*sizeof (struct element));
 	} else
 		e = elements = g->elists->elements;
 
@@ -3788,14 +3788,14 @@ static void tput_read_config (struct graph *g)
 	g->s.tput.height = 4;
 	g->s.tput.nsegs = 20;
 
-	g->title = (char ** )malloc (2 * sizeof (char *));
+	g->title = (char ** )g_malloc (2 * sizeof (char *));
 	g->title[0] = "Throughput Graph";
 	g->title[1] = NULL;
-	g->y_axis->label = (char ** )malloc (3 * sizeof (char * ));
+	g->y_axis->label = (char ** )g_malloc (3 * sizeof (char * ));
 	g->y_axis->label[0] = "[B/s]";
 	g->y_axis->label[1] = "Throughput";
 	g->y_axis->label[2] = NULL;
-	g->x_axis->label = (char ** )malloc (2 * sizeof (char * ));
+	g->x_axis->label = (char ** )g_malloc (2 * sizeof (char * ));
 	g->x_axis->label[0] = "Time[s]";
 	g->x_axis->label[1] = NULL;
 	g->s.tput.flags = 0;
@@ -3821,13 +3821,13 @@ static void rtt_read_config (struct graph *g)
 	g->s.rtt.height = 4;
 	g->s.rtt.flags = 0;
 
-	g->title = (char ** )malloc (2 * sizeof (char *));
+	g->title = (char ** )g_malloc (2 * sizeof (char *));
 	g->title[0] = "Round Trip Time Graph";
 	g->title[1] = NULL;
-	g->y_axis->label = (char ** )malloc (3 * sizeof (char * ));
+	g->y_axis->label = (char ** )g_malloc (3 * sizeof (char * ));
 	g->y_axis->label[0] = "RTT [s]";
 	g->y_axis->label[1] = NULL;
-	g->x_axis->label = (char ** )malloc (2 * sizeof (char * ));
+	g->x_axis->label = (char ** )g_malloc (2 * sizeof (char * ));
 	g->x_axis->label[0] = "Sequence Number[B]";
 	g->x_axis->label[1] = NULL;
 }
@@ -3911,7 +3911,7 @@ static struct unack *rtt_get_new_unack (double time, unsigned int seqno)
 {
 	struct unack *u;
 
-	u = (struct unack * )malloc (sizeof (struct unack));
+	u = (struct unack * )g_malloc (sizeof (struct unack));
 	if (!u)
 		return NULL;
 	u->next = NULL;
@@ -3943,12 +3943,12 @@ static void rtt_delete_unack_from_list (struct unack **l, struct unack *dead)
 
 	if (dead==list) {
 		*l = list->next;
-		free (list);
+		g_free (list);
 	} else
 		for (u=list; u; u=u->next)
 			if (u->next == dead) {
 				u->next = u->next->next;
-				free (dead);
+				g_free (dead);
 				break;
 			}
 }
@@ -3964,7 +3964,7 @@ static void rtt_make_elmtlist (struct graph *g)
 
 	if (g->elists->elements == NULL) {
 		int n = 1 + get_num_dsegs (g);
-		e = elements = (struct element * )malloc (n*sizeof (struct element));
+		e = elements = (struct element * )g_malloc (n*sizeof (struct element));
 	} else {
 		e = elements = g->elists->elements;
 	}
