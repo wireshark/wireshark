@@ -246,7 +246,7 @@ blk_cmnt_stop  "*/"
 %%
 
 extern gboolean mate_load_config(const gchar* filename, mate_config* matecfg) {
-	gboolean state;
+	gboolean state = TRUE;
 	mc = matecfg;
 
 	yyin = fopen(filename,"r");
@@ -283,7 +283,6 @@ extern gboolean mate_load_config(const gchar* filename, mate_config* matecfg) {
 		g_free(current_frame);
 	
 		g_ptr_array_free(mc->config_stack,FALSE);
-		state = TRUE;
 	} CATCH(MateConfigError) {
 		state = FALSE;
 	} CATCH_ALL {
