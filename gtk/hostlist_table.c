@@ -729,7 +729,7 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
 
 
 void
-init_hostlist_table(gboolean hide_ports, const char *table_name, char *tap_name, char *filter, tap_packet_cb packet_func)
+init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter, tap_packet_cb packet_func)
 {
     hostlist_table *hosttable;
     char title[256];
