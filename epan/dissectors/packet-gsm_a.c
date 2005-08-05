@@ -10897,29 +10897,32 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
     guint	curr_len;
     guchar	oct;
     struct e_in6_addr ipv6_addr;
-    
+
     curr_len = len;
     curr_offset = offset;
-
+	
     oct = tvb_get_guint8(tvb, curr_offset);
     curr_len--;
     curr_offset++;
 
-    proto_tree_add_text(tree,tvb, curr_offset, 1, "Ext: 0x%02x (%u)",oct>>7,oct>>7);
-    proto_tree_add_text(tree,tvb, curr_offset, 1, "Configuration Protocol: PPP (%u)",oct&0x0f);
+	/* MLT - Possible bugs here */
+	/* made it (curr_offset - 1) instead of curr_offset in display since the line */
+	/* right before moves the current index */
+    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Ext: 0x%02x (%u)",oct>>7,oct>>7);
+    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Configuration Protocol: PPP (%u)",oct&0x0f);
 
     while ( curr_len > 0 )
     {
     	guchar e_len;
     	guint16 prot;
-	tvbuff_t *l3_tvb;
-	dissector_handle_t handle = NULL;
-	static packet_info p_info;
-	
-	prot = tvb_get_guint8(tvb, curr_offset);
-	prot <<= 8;
-	prot |= tvb_get_guint8(tvb, curr_offset+1);
-	e_len = tvb_get_guint8(tvb, curr_offset+2);
+		tvbuff_t *l3_tvb;
+		dissector_handle_t handle = NULL;
+		static packet_info p_info;
+
+		prot = tvb_get_guint8(tvb, curr_offset);
+		prot <<= 8;
+		prot |= tvb_get_guint8(tvb, curr_offset+1);
+		e_len = tvb_get_guint8(tvb, curr_offset+2);
     	curr_len-=3;
     	curr_offset+=3;
 
@@ -18538,5 +18541,23 @@ proto_reg_handoff_gsm_a(void)
     dissector_add("bssap.pdu_type",  BSSAP_PDU_TYPE_DTAP, dtap_handle);
     dissector_add("ranap.nas_pdu",  BSSAP_PDU_TYPE_DTAP, dtap_handle);
     dissector_add("llcgprs.sapi", 1 , dtap_handle);
+	/* MLT CHANGES - add other GPRS subprotocols */
+	dissector_add("llcgprs.sapi", 0, dtap_handle); /* Reserved */
+	dissector_add("llcgprs.sapi", 2, dtap_handle); /* TOM2 */
+	dissector_add("llcgprs.sapi", 3, dtap_handle); /* LL3 */
+	dissector_add("llcgprs.sapi", 4, dtap_handle); /* Reserved */
+	dissector_add("llcgprs.sapi", 5, dtap_handle); /* LL5 */
+	dissector_add("llcgprs.sapi", 6, dtap_handle); /* Reserved */
+	dissector_add("llcgprs.sapi", 7, dtap_handle); /* LLSMS */
+	dissector_add("llcgprs.sapi", 8, dtap_handle); /* TOM8 */
+	dissector_add("llcgprs.sapi", 9, dtap_handle); /* LL9 */
+	dissector_add("llcgprs.sapi", 10, dtap_handle); /* Reserved */
+	dissector_add("llcgprs.sapi", 11, dtap_handle); /* LL 11 */
+	dissector_add("llcgprs.sapi", 12, dtap_handle); /* Reserved */
+	dissector_add("llcgprs.sapi", 13, dtap_handle); /* Reserved */
+	dissector_add("llcgprs.sapi", 14, dtap_handle); /* Reserved */
+	dissector_add("llcgprs.sapi", 15, dtap_handle); /* Reserved */
+	/* END MLT CHANGES */
+
     data_handle = find_dissector("data");
 }
