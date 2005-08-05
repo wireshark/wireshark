@@ -213,7 +213,7 @@ static gint ett_pct_exch_suites		  = -1;
 #define SSL_VER_PCT                       4
 
 /* corresponds to the #defines above */
-static gchar* ssl_version_short_names[] = {
+static const gchar* ssl_version_short_names[] = {
     "SSL",
     "SSLv2",
     "SSLv3",

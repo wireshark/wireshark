@@ -222,7 +222,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                   offset += auth_data_len;
           }
           if (is_enc || is_comp) {
-                  char *mangle;
+                  const char *mangle;
                   if (is_enc && is_comp) mangle = "compressed and encrypted";
                   else if (is_enc) mangle = "encrypted";
                   else mangle = "compressed";

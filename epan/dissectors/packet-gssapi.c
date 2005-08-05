@@ -80,8 +80,8 @@ gssapi_oid_hash(gconstpointer k)
 }
 
 void
-gssapi_init_oid(char *oid, int proto, int ett, dissector_handle_t handle,
-		dissector_handle_t wrap_handle, gchar *comment)
+gssapi_init_oid(const char *oid, int proto, int ett, dissector_handle_t handle,
+		dissector_handle_t wrap_handle, const gchar *comment)
 {
 	char *key = g_strdup(oid);
 	gssapi_oid_value *value = g_malloc(sizeof(*value));

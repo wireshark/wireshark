@@ -45,7 +45,7 @@ static gint ett_nntp = -1;
 static void
 dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-        gchar           *type;
+        const gchar     *type;
 	proto_tree	*nntp_tree;
 	proto_item	*ti;
 	gint		offset = 0;

@@ -125,8 +125,8 @@ static const char *sip_methods[] = {
  * Updated with: http://www.ietf.org/internet-drafts/draft-ietf-sip-resource-priority-05.txt
  */
 typedef struct {
-        char *name;
-        char *compact_name;
+        const char *name;
+        const char *compact_name;
 } sip_header_t;
 static const sip_header_t sip_headers[] = {
                 { "Unknown-header", 			NULL }, /* 0 Pad so that the real headers start at index 1 */
@@ -992,7 +992,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	tvbuff_t *next_tvb;
 	gboolean is_known_request;
 	gboolean found_match = FALSE;
-	char *descr;
+	const char *descr;
 	guint token_1_len = 0;
 	guint current_method_idx = 0;
 	proto_item *ts = NULL, *ti = NULL, *th = NULL, *sip_element_item = NULL;

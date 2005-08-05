@@ -277,7 +277,7 @@ static void
 dissect_option_rfd( const guchar error, const guchar field, int offset,
                           guchar len, tvbuff_t *tvb, proto_tree *tree ) {
   guchar error_class = 0;
-  char   *format_string[] =
+  const char   *format_string[] =
              { "Reason for discard {General}        : %s, in field %u",
                "Reason for discard {Address}        : %s, in field %u",
                "Reason for discard {Source Routing}: %s, in field %u",

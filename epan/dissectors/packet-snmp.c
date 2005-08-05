@@ -485,7 +485,7 @@ struct _SNMP_CNV
   guint class;
   guint tag;
   gint  syntax;
-  gchar *name;
+  const gchar *name;
 };
 
 static SNMP_CNV SnmpCnv [] =
@@ -523,7 +523,7 @@ static SNMP_CNV SnmpCnv [] =
  * RETURNS:     name on success, NULL on failure
  */
 
-static gchar *
+static const gchar *
 snmp_tag_cls2syntax ( guint tag, guint cls, gushort *syntax)
 {
     SNMP_CNV *cnv;
@@ -944,7 +944,7 @@ snmp_variable_decode(proto_tree *snmp_tree,
 	gboolean def;
 	guint vb_length;
 	gushort vb_type;
-	gchar *vb_type_name;
+	const gchar *vb_type_name;
 	int ret;
 	guint cls, con, tag;
 

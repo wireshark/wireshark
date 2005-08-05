@@ -217,7 +217,7 @@ static const value_string slsk_attr_type[] = {
 	{ 2, "VBR"},
 };
 
-static char* connection_type(char con_type[]) {
+static const char* connection_type(char con_type[]) {
 	if (strlen(con_type) != 1) return "Unknown";
 	if (con_type[0] == 'D') return "Distributed Search";
 	if (con_type[0] == 'P') return "Peer Connection";		/* "File Search Result / User Info Request / Get Shared File List" */
@@ -225,7 +225,7 @@ static char* connection_type(char con_type[]) {
 	return "Unknown";
 }
 
-static gboolean check_slsk_format(tvbuff_t *tvb, int offset, char format[]){
+static gboolean check_slsk_format(tvbuff_t *tvb, int offset, const char format[]){
 	
 	/*
 	* Returns TRUE if tvbuff beginning at offset matches a certain format

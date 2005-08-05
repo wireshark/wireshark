@@ -1208,7 +1208,7 @@ static char *summary_session (tvbuff_t *tvb, int offset)
 static char *summary_template (tvbuff_t *tvb, int offset)
 {
     static char buf[80];
-    char *objtype;
+    const char *objtype;
 
     if (tvb_get_guint8(tvb, offset+2) == RSVP_CLASS_FILTER_SPEC)
 	objtype = "FILTERSPEC";
@@ -1368,7 +1368,7 @@ dissect_rsvp_ifid_tlv (proto_tree *ti, proto_tree *rsvp_object_tree,
     int     tlv_off;
     guint16   tlv_type;
     guint     tlv_len;
-    char     *ifindex_name;
+    const char *ifindex_name;
     proto_tree *rsvp_ifid_subtree, *ti2;
     int       offset2 = offset + 4;
 
@@ -2855,7 +2855,7 @@ dissect_rsvp_label (proto_tree *ti, tvbuff_t *tvb,
     int offset2 = offset + 4;
     proto_tree *rsvp_object_tree;
     int mylen, i;
-    char *name;
+    const char *name;
 
     name = (class==RSVP_CLASS_SUGGESTED_LABEL ? "SUGGESTED LABEL":
 	    (class==RSVP_CLASS_UPSTREAM_LABEL ? "UPSTREAM LABEL":
@@ -3909,7 +3909,7 @@ dissect_rsvp_gen_uni (proto_tree *ti, tvbuff_t *tvb,
     mylen = obj_length - 4;
     switch(type) {
     case 1: {
-	char *c;
+	const char *c;
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			    "C-type: 1");
 	for (i=1, l = 0; l < mylen; i++) {

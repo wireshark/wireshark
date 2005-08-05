@@ -35,7 +35,7 @@ typedef void (radius_attr_dissector_t)(radius_attr_info_t*, proto_tree*, packet_
 typedef const gchar* (radius_avp_dissector_t)(proto_tree*,tvbuff_t*);
 
 struct _radius_attr_info_t {
-	gchar *name;
+	const gchar *name;
 	guint code;
 	gboolean encrypt;
 	gboolean tagged;
@@ -68,4 +68,4 @@ radius_attr_dissector_t radius_ifid;
 extern void radius_register_avp_dissector(guint32 vendor_id, guint32 attribute_id, radius_avp_dissector_t dissector);
 
 /* from radius_dict.l */
-radius_dictionary_t* radius_load_dictionary (gchar* directory, gchar* filename, gchar** err_str);
+radius_dictionary_t* radius_load_dictionary (gchar* directory, const gchar* filename, gchar** err_str);

@@ -155,8 +155,8 @@ static const value_string mode_types[] = {
  * their Reference Clock ID (4bytes field) according to following table:
  */
 static const struct {
-	char *id;
-	char *data;
+	const char *id;
+	const char *data;
 } primary_sources[] = {
 	{ "LOCL",	"uncalibrated local clock" },
 	{ "PPS\0",	"atomic clock or other pulse-per-second source" },
@@ -417,7 +417,7 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree      *ntp_tree;
 	proto_item	*ti;
 	guint8		flags;
-	char *infostr;
+	const char *infostr;
 	void (*dissector)(tvbuff_t *, proto_item *, guint8);
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))

@@ -1457,9 +1457,9 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
     guint8		 link_type;
     guint16 		 link_counter;
     guint8 		 tos_counter;
-    char  		*link_type_str;
-    char  		*link_type_short_str;
-    char  		*link_id;
+    const char 		*link_type_str;
+    const char 		*link_type_short_str;
+    const char 		*link_id;
 
     /* AS-external LSA */
     guint8		 options;
@@ -1749,7 +1749,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
     /* router LSA */
     guint8		 link_type;
-    char  		*link_type_str;
+    const char 		*link_type_str;
     guint32              metric;
 
     guint8               router_lsa_flags;

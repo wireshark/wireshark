@@ -404,7 +404,7 @@ find_tap_id(const char *name)
  *           message.
  */
 GString *
-register_tap_listener(const char *tapname, void *tapdata, char *fstring, tap_reset_cb reset, tap_packet_cb packet, tap_draw_cb draw)
+register_tap_listener(const char *tapname, void *tapdata, const char *fstring, tap_reset_cb reset, tap_packet_cb packet, tap_draw_cb draw)
 {
 	tap_listener_t *tl;
 	int tap_id;

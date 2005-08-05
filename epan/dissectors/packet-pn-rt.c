@@ -101,10 +101,10 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8 u8DataStatus;
   guint8 u8TransferStatus;
   guint16 u16CycleCounter;
-  gchar *pszProtAddInfo;
-  gchar *pszProtShort;
-  gchar *pszProtSummary;
-  gchar *pszProtComment;
+  const gchar *pszProtAddInfo;
+  const gchar *pszProtShort;
+  const gchar *pszProtSummary;
+  const gchar *pszProtComment;
   proto_item *item = NULL;
   proto_tree *ds_tree = NULL;
   proto_tree *pn_rt_tree, *ti;

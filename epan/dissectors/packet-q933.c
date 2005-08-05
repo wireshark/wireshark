@@ -1433,7 +1433,7 @@ dissect_q933_ns_facilities_ie(tvbuff_t *tvb, int offset, int len,
 
 static int
 dissect_q933_guint16_value(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree, char *label)
+    proto_tree *tree, const char *label)
 {
 	guint8 octet;
 	guint16 value;
@@ -1869,7 +1869,7 @@ dissect_q933_user_user_ie(tvbuff_t *tvb, int offset, int len,
  */
 static void
 dissect_q933_ia5_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree,
-    char *label)
+    const char *label)
 {
 	if (len != 0) {
 		proto_tree_add_text(tree, tvb, offset, len, "%s: %s", label,

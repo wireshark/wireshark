@@ -4166,7 +4166,7 @@ dissect_sbc2_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 {
     guint8 flags;
     guint32 len, block_len, tot_len;
-    char *un;
+    const char *un;
 
     if (!tree)
         return;

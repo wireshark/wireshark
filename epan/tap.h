@@ -50,7 +50,7 @@ extern void tap_push_tapped_queue(epan_dissect_t *edt);
 extern void reset_tap_listeners(void);
 extern void draw_tap_listeners(gboolean draw_all);
 extern GString *register_tap_listener(const char *tapname, void *tapdata,
-    char *fstring, tap_reset_cb tap_reset, tap_packet_cb tap_packet,
+    const char *fstring, tap_reset_cb tap_reset, tap_packet_cb tap_packet,
     tap_draw_cb tap_draw);
 extern void remove_tap_listener(void *tapdata);
 extern gboolean have_tap_listeners(void);

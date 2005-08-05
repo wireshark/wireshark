@@ -152,7 +152,7 @@ skipwhite:
 #define			MAX_ARGS 80
 static	int		cmd_argc = 0;
 static	char		*cmd_argv[MAX_ARGS];
-static	char		*cmd_null_string = "";
+static	const char	*cmd_null_string = "";
 static	int		cmd_argv_start[MAX_ARGS];
 static	int		cmd_argv_length[MAX_ARGS];
 

@@ -211,7 +211,7 @@ static gint ett_sonmp = -1;
 static void 
 dissect_sonmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	char *hello_type;
+	const char *hello_type;
 	proto_tree *sonmp_tree = NULL;
 	proto_item *ti;
 	

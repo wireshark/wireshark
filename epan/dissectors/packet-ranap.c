@@ -1241,7 +1241,7 @@ proto_tree_add_PERint32(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint offse
 /*                                                                           */
 /*****************************************************************************/
 static int
-dissect_iE_Extension(tvbuff_t *tvb, proto_tree *tree, gint *offset, gint *bitoffset, char *description)
+dissect_iE_Extension(tvbuff_t *tvb, proto_tree *tree, gint *offset, gint *bitoffset, const char *description)
 {
   proto_item	*ext_item = NULL;
   proto_tree	*ext_tree = NULL;
@@ -1967,7 +1967,7 @@ dissect_transportLayerInformation(tvbuff_t *tvb, proto_tree *ie_tree, gint *offs
 
 
 static int
-dissect_dataVolumeList (tvbuff_t *tvb, proto_tree *ie_tree, gint *offset, gint *bitoffset, char *parname)
+dissect_dataVolumeList (tvbuff_t *tvb, proto_tree *ie_tree, gint *offset, gint *bitoffset, const char *parname)
 {
    proto_item	*optionals_item = NULL;
    proto_tree	*optionals_tree = NULL;

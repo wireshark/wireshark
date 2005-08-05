@@ -79,7 +79,7 @@ dissect_getport_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	guint32 proto, version;
 	guint32 prog;
 	const char *prog_name;
-	char *proto_name;
+	const char *proto_name;
 
 	/* make sure we remember protocol type until the reply packet */
 	if(!pinfo->fd->flags.visited){
@@ -117,7 +117,7 @@ dissect_getport_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	/* protocol */
 	proto = tvb_get_ntohl(tvb, offset+8);
-	proto_name = (char *)ipprotostr(proto);
+	proto_name = ipprotostr(proto);
 	proto_tree_add_uint_format(tree, hf_portmap_proto, tvb,
 		offset+8, 4, proto, "Proto: %s (%u)", proto_name, proto);
 	if (check_col(pinfo->cinfo, COL_INFO)) {

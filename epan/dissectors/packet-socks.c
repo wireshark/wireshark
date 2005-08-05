@@ -181,7 +181,7 @@ typedef struct {
 
 
 
-static char *address_type_table[] = {
+static const char *address_type_table[] = {
 	"Unknown",
 	"IPv4",
 	"Unknown",
@@ -236,7 +236,7 @@ static GMemChunk *socks_vals = NULL;
 
 
 static int display_string(tvbuff_t *tvb, int offset,
-	proto_tree *tree, char *label){
+	proto_tree *tree, const char *label){
 
 /* display a string with a length, characters encoding */
 /* they are displayed under a tree with the name in Label variable */
@@ -269,7 +269,7 @@ static int display_string(tvbuff_t *tvb, int offset,
 
 
 
-static char *get_auth_method_name( guint Number){
+static const char *get_auth_method_name( guint Number){
 
 /* return the name of the authenication method */
 
@@ -287,7 +287,7 @@ static char *get_auth_method_name( guint Number){
 }
 
 
-static char *get_command_name( guint Number){
+static const char *get_command_name( guint Number){
 
 /* return the name of the command as a string */
 

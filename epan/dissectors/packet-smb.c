@@ -1319,7 +1319,7 @@ static const true_false_string tfs_da_writetru = {
 	"Write through disabled"
 };
 static int
-dissect_access(tvbuff_t *tvb, proto_tree *parent_tree, int offset, char *type)
+dissect_access(tvbuff_t *tvb, proto_tree *parent_tree, int offset, const char *type)
 {
 	guint16 mask;
 	proto_item *item = NULL;

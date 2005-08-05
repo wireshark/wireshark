@@ -295,7 +295,7 @@ static void destroy_dict(radius_dictionary_t* d) {
 	g_free(d);
 }
 
-radius_dictionary_t* radius_load_dictionary (gchar* dir, gchar* filename, gchar** err_str) {
+radius_dictionary_t* radius_load_dictionary (gchar* dir, const gchar* filename, gchar** err_str) {
 	int i;
 	
 	directory = dir;

@@ -1126,7 +1126,7 @@ dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_execute_cdb_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree,
-    char *name, int hf_len, gboolean isreq)
+    const char *name, int hf_len, gboolean isreq)
 {
 	proto_item* item = NULL;
 	proto_tree* tree = NULL;

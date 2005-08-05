@@ -37,4 +37,4 @@ struct _t38_conversation_info
 void t38_add_address(packet_info *pinfo,
                      address *addr, int port,
                      int other_port,
-                     gchar *setup_method, guint32 setup_frame_number);
+                     const gchar *setup_method, guint32 setup_frame_number);

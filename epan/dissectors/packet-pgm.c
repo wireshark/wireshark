@@ -484,11 +484,12 @@ static dissector_handle_t data_handle;
  * was the URL for the PGM draft.
  */
 
-static char *
+static const char *
 optsstr(nchar_t opts)
 {
 	static char msg[256];
-	char *p = msg, *str;
+	char *p = msg;
+	const char *str;
 
 	if (opts == 0)
 		return("");
@@ -526,11 +527,12 @@ optsstr(nchar_t opts)
 	}
 	return(msg);
 }
-static char *
+static const char *
 paritystr(nchar_t parity)
 {
 	static char msg[256];
-	char *p = msg, *str;
+	char *p = msg;
+	const char *str;
 
 	if (parity == 0)
 		return("");

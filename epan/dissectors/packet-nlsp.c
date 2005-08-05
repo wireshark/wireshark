@@ -121,10 +121,10 @@ static const true_false_string supported_string = {
  * Our sub-packet dismantle structure for CLV's
  */
 typedef struct {
-	int	optcode;		/* code for option */
-	char	*tree_text;		/* text for fold out */
-	gint	*tree_id;		/* id for add_item */
-	void	(*dissect)(tvbuff_t *tvb, proto_tree *tree,
+	int		optcode;		/* code for option */
+	const char	*tree_text;		/* text for fold out */
+	gint		*tree_id;		/* id for add_item */
+	void		(*dissect)(tvbuff_t *tvb, proto_tree *tree,
 				int offset, int length);
 } nlsp_clv_handle_t;
 
@@ -148,7 +148,7 @@ typedef struct {
  */
 static void
 nlsp_dissect_unknown(tvbuff_t *tvb, proto_tree *tree, int offset,
-	char *fmat, ...)
+	const char *fmat, ...)
 {
 	va_list	ap;
 
