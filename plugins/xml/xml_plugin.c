@@ -36,7 +36,7 @@
 #include <gmodule.h>
 #endif
 
-/* these two are in packet-mate.c */
+/* these two are in packet-xml.c */
 void proto_register_xml(void);
 void proto_reg_handoff_xml(void);
 
