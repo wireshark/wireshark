@@ -47,7 +47,7 @@ typedef struct {
  * the file we tried to read - it should be freed by our caller -
  * and "*errno_return" is set to the error.
  */
-void read_filter_list(filter_list_type_t list, char **pref_path_return,
+void read_filter_list(filter_list_type_t list, const char **pref_path_return,
     int *errno_return);
 
 /*
@@ -75,5 +75,5 @@ void remove_from_filter_list(filter_list_type_t list, GList *fl_entry);
  * the file we tried to read - it should be freed by our caller -
  * and "*errno_return" is set to the error.
  */
-void save_filter_list(filter_list_type_t list, char **pref_path_return,
+void save_filter_list(filter_list_type_t list, const char **pref_path_return,
     int *errno_return);

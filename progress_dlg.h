@@ -75,7 +75,7 @@ delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title,
  * @param percentage the current percentage value (0..1)
  * @param status the new status string to show, e.g. "3000KB of 6000KB"
  */
-void update_progress_dlg(progdlg_t *dlg, gfloat percentage, gchar *status);
+void update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *status);
 
 /**
  * Destroy the progress bar.

@@ -523,7 +523,7 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
   WSADATA     wsaData;
 #else
   static const char ppamsg[] = "can't find PPA for ";
-  char       *libpcap_warn;
+  const char  *libpcap_warn;
 #endif
 
 

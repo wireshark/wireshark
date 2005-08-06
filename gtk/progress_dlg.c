@@ -326,7 +326,7 @@ stop_cb(GtkWidget *w _U_, gpointer data)
  * Update the progress information of the progress dialog box.
  */
 void
-update_progress_dlg(progdlg_t *dlg, gfloat percentage, gchar *status)
+update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *status)
 {
 	GtkWidget *dlg_w = dlg->dlg_w;
 	GtkWidget *prog_bar;

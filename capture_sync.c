@@ -104,7 +104,7 @@
 
 
 #ifndef _WIN32
-static char *sync_pipe_signame(int);
+static const char *sync_pipe_signame(int);
 #endif
 
 
@@ -280,8 +280,8 @@ signal_pipe_capquit_to_child(capture_options *capture_opts)
 
 
 /* Add a string pointer to a NULL-terminated array of string pointers. */
-static char **
-sync_pipe_add_arg(char **args, int *argc, char *arg)
+static const char **
+sync_pipe_add_arg(const char **args, int *argc, const char *arg)
 {
   /* Grow the array; "*argc" currently contains the number of string
      pointers, *not* counting the NULL pointer at the end, so we have
@@ -344,7 +344,7 @@ sync_pipe_start(capture_options *capture_opts) {
     char errmsg[1024+1];
 #endif
     int argc;
-    char **argv;
+    const char **argv;
     enum PIPES { PIPE_READ, PIPE_WRITE };   /* Constants 0 and 1 for PIPE_READ and PIPE_WRITE */
     int sync_pipe[2];                       /* pipe used to send messages from child to parent */
 
@@ -727,10 +727,10 @@ sync_pipe_wait_for_child(capture_options *capture_opts)
 
 #ifndef _WIN32
 /* convert signal to corresponding name */
-static char *
+static const char *
 sync_pipe_signame(int sig)
 {
-  char *sigmsg;
+  const char *sigmsg;
   static char sigmsg_buf[6+1+3+1];
 
   switch (sig) {

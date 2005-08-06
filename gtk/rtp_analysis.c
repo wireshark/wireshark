@@ -120,7 +120,7 @@ static guint32 yscale_max[MAX_YSCALE] = {AUTO_MAX_YSCALE, 1000, 2000, 5000, 1000
 #define MAX_PIXELS_PER_TICK 4
 #define DEFAULT_PIXELS_PER_TICK 1
 static guint32 pixels_per_tick[MAX_PIXELS_PER_TICK] = {1, 2, 5, 10};
-static char *graph_descr[4] = {"Fwd Jitter", "Fwd Difference", "Rvr Jitter", "Rvr Difference"};
+static const char *graph_descr[4] = {"Fwd Jitter", "Fwd Difference", "Rvr Jitter", "Rvr Difference"};
 /* unit is in ms */
 #define MAX_TICK_VALUES 5
 #define DEFAULT_TICK_VALUE 1
@@ -301,7 +301,7 @@ typedef struct _user_data_t {
 
 
 /* Column titles. */
-static gchar *titles[9] =  {
+static const gchar *titles[9] =  {
 	"Packet",
 	"Sequence",
 	"Delta (ms)",
@@ -1998,7 +1998,7 @@ static void create_tick_interval_menu_items(user_data_t* user_data, GtkWidget *m
 }
 
 /****************************************************************************/
-static void create_ctrl_menu(user_data_t* user_data, GtkWidget *box, char *name, void (*func)(user_data_t* user_data, GtkWidget *menu))
+static void create_ctrl_menu(user_data_t* user_data, GtkWidget *box, const char *name, void (*func)(user_data_t* user_data, GtkWidget *menu))
 {
         GtkWidget *hbox;
         GtkWidget *label;
@@ -3113,11 +3113,11 @@ column_arrows* add_sort_by_column(GtkWidget* window, GtkWidget* clist,
 	ascend_pm = gdk_pixmap_create_from_xpm_d(window->window,
 			&ascend_bm,
 			&win_style->bg[GTK_STATE_NORMAL],
-			(gchar **)clist_ascend_xpm);
+			(const gchar **)clist_ascend_xpm);
 	descend_pm = gdk_pixmap_create_from_xpm_d(window->window,
 			&descend_bm,
 			&win_style->bg[GTK_STATE_NORMAL],
-			(gchar **)clist_descend_xpm);
+			(const gchar **)clist_descend_xpm);
 
 	for (i=0; i<NUM_COLS; i++) {
 		col_arrows[i].table = gtk_table_new(2, 2, FALSE);
@@ -3342,7 +3342,7 @@ void create_rtp_dialog(user_data_t* user_data)
 
 /****************************************************************************/
 static gboolean process_node(proto_node *ptree_node, header_field_info *hfinformation,
-							gchar* proto_field, guint32* p_result)
+							const gchar* proto_field, guint32* p_result)
 {
 	field_info            *finfo;
 	proto_node            *proto_sibling_node;
@@ -3382,9 +3382,9 @@ static gboolean process_node(proto_node *ptree_node, header_field_info *hfinform
 
 /****************************************************************************/
 static gboolean get_int_value_from_proto_tree(proto_tree *protocol_tree,
-											 gchar* proto_name,
-											 gchar* proto_field,
-											 guint32* p_result)
+						 const gchar* proto_name,
+						 const gchar* proto_field,
+						 guint32* p_result)
 {
 	proto_node      *ptree_node;
 	header_field_info     *hfinformation;

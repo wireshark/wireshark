@@ -159,7 +159,7 @@ struct axis {
 	struct irect s;
 	gdouble min, max;
 	gdouble major, minor;		/* major and minor ticks */
-	char **label;
+	const char **label;
 };
 
 #define HAXIS_INIT_HEIGHT	70
@@ -292,7 +292,7 @@ struct graph {
 		/* this belongs to style structs of graph types that make use of it */
 		GtkToggleButton *time_orig_conn, *seq_orig_isn;
 	} gui;
-	char **title;
+	const char **title;
 	/* Next 4 attribs describe the graph in natural units, before any scaling.
 	 * For example, if we want to display graph of TCP conversation that
 	 * started 112.309845 s after beginning of the capture and ran until
@@ -3297,14 +3297,14 @@ static void tseq_stevens_read_config (struct graph *g)
 	g->s.tseq_stevens.seq_height = 4;
 	g->s.tseq_stevens.flags = 0;
 
-	g->title = (char ** )g_malloc (2 * sizeof (char *));
+	g->title = (const char ** )g_malloc (2 * sizeof (char *));
 	g->title[0] = "Time/Sequence Graph";
 	g->title[1] = NULL;
-	g->y_axis->label = (char ** )g_malloc (3 * sizeof (char * ));
+	g->y_axis->label = (const char ** )g_malloc (3 * sizeof (char * ));
 	g->y_axis->label[0] = "number[B]";
 	g->y_axis->label[1] = "Sequence";
 	g->y_axis->label[2] = NULL;
-	g->x_axis->label = (char ** )g_malloc (2 * sizeof (char * ));
+	g->x_axis->label = (const char ** )g_malloc (2 * sizeof (char * ));
 	g->x_axis->label[0] = "Time[s]";
 	g->x_axis->label[1] = NULL;
 }
@@ -3512,18 +3512,18 @@ static void tseq_tcptrace_read_config (struct graph *g)
 	gdk_gc_set_foreground (g->s.tseq_tcptrace.gc_ack[1], &color);
 
 	g->elists->next = (struct element_list * )
-										g_malloc (sizeof (struct element_list));
+				g_malloc (sizeof (struct element_list));
 	g->elists->next->next = NULL;
 	g->elists->next->elements = NULL;
 
-	g->title = (char ** )g_malloc (2 * sizeof (char *));
+	g->title = (const char ** )g_malloc (2 * sizeof (char *));
 	g->title[0] = "Time/Sequence Graph";
 	g->title[1] = NULL;
-	g->y_axis->label = (char ** )g_malloc (3 * sizeof (char * ));
+	g->y_axis->label = (const char ** )g_malloc (3 * sizeof (char * ));
 	g->y_axis->label[0] = "number[B]";
 	g->y_axis->label[1] = "Sequence";
 	g->y_axis->label[2] = NULL;
-	g->x_axis->label = (char ** )g_malloc (2 * sizeof (char * ));
+	g->x_axis->label = (const char ** )g_malloc (2 * sizeof (char * ));
 	g->x_axis->label[0] = "Time[s]";
 	g->x_axis->label[1] = NULL;
 }
@@ -3788,14 +3788,14 @@ static void tput_read_config (struct graph *g)
 	g->s.tput.height = 4;
 	g->s.tput.nsegs = 20;
 
-	g->title = (char ** )g_malloc (2 * sizeof (char *));
+	g->title = (const char ** )g_malloc (2 * sizeof (char *));
 	g->title[0] = "Throughput Graph";
 	g->title[1] = NULL;
-	g->y_axis->label = (char ** )g_malloc (3 * sizeof (char * ));
+	g->y_axis->label = (const char ** )g_malloc (3 * sizeof (char * ));
 	g->y_axis->label[0] = "[B/s]";
 	g->y_axis->label[1] = "Throughput";
 	g->y_axis->label[2] = NULL;
-	g->x_axis->label = (char ** )g_malloc (2 * sizeof (char * ));
+	g->x_axis->label = (const char ** )g_malloc (2 * sizeof (char * ));
 	g->x_axis->label[0] = "Time[s]";
 	g->x_axis->label[1] = NULL;
 	g->s.tput.flags = 0;
@@ -3821,13 +3821,13 @@ static void rtt_read_config (struct graph *g)
 	g->s.rtt.height = 4;
 	g->s.rtt.flags = 0;
 
-	g->title = (char ** )g_malloc (2 * sizeof (char *));
+	g->title = (const char ** )g_malloc (2 * sizeof (char *));
 	g->title[0] = "Round Trip Time Graph";
 	g->title[1] = NULL;
-	g->y_axis->label = (char ** )g_malloc (3 * sizeof (char * ));
+	g->y_axis->label = (const char ** )g_malloc (3 * sizeof (char * ));
 	g->y_axis->label[0] = "RTT [s]";
 	g->y_axis->label[1] = NULL;
-	g->x_axis->label = (char ** )g_malloc (2 * sizeof (char * ));
+	g->x_axis->label = (const char ** )g_malloc (2 * sizeof (char * ));
 	g->x_axis->label[0] = "Sequence Number[B]";
 	g->x_axis->label[1] = NULL;
 }

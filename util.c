@@ -112,7 +112,7 @@ get_args_as_string(int argc, char **argv, int optind)
 }
 
 static char *
-setup_tmpdir(char *dir)
+setup_tmpdir(const char *dir)
 {
 	int len = strlen(dir);
 	char *newdir;
@@ -266,7 +266,7 @@ compute_timestamp_diff(gint *diffsec, gint *diffusec,
    CLIENTNAME (terminal server): <remote name>
  */
 
-gchar *get_conn_cfilter(void) {
+const gchar *get_conn_cfilter(void) {
 	static GString *filter_str = NULL;
 	gchar *env, **tokens;
 

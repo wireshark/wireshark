@@ -239,7 +239,7 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 	const gchar *filter_string;
 	gchar c;
 	GString *filter_string_fwd;
-	gchar *filter_prepend;
+	const gchar *filter_prepend;
 	gboolean isFirst = TRUE;
 	GList* list;
 	guint filter_length = 0;
@@ -547,7 +547,7 @@ static void voip_calls_dlg_create (void)
 	GtkWidget *bt_close;
 	GtkTooltips *tooltips = gtk_tooltips_new();
 
-	gchar *titles[NUM_COLS] =  {"Start Time", "Stop Time", "Initial Speaker", "From",  "To", "Protocol", "Packets", "State", "Comments"};
+	const gchar *titles[NUM_COLS] =  {"Start Time", "Stop Time", "Initial Speaker", "From",  "To", "Protocol", "Packets", "State", "Comments"};
 	column_arrows *col_arrows;
 	GtkWidget *column_lb;
 	int i;

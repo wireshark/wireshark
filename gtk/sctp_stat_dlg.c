@@ -438,7 +438,7 @@ gtk_sctpstat_dlg(void)
 	GtkWidget *hbuttonbox2;
 	GtkWidget *bt_close;
 
-	gchar *titles[NUM_COLS] =  {"Port 1","Port 2", "No of Packets", "Checksum", "No of Errors", "Data Chunks", "Data Bytes"};
+	const gchar *titles[NUM_COLS] =  {"Port 1","Port 2", "No of Packets", "Checksum", "No of Errors", "Data Chunks", "Data Bytes"};
 	column_arrows *col_arrows;
 	GdkBitmap *ascend_bm, *descend_bm;
 	GdkPixmap *ascend_pm, *descend_pm;
@@ -495,11 +495,11 @@ gtk_sctpstat_dlg(void)
 	ascend_pm = gdk_pixmap_create_from_xpm_d(scrolledwindow1->window,
 	                                         &ascend_bm,
 	                                         &win_style->bg[GTK_STATE_NORMAL],
-	                                         (gchar **)clist_ascend_xpm);
+	                                         (const gchar **)clist_ascend_xpm);
 	descend_pm = gdk_pixmap_create_from_xpm_d(scrolledwindow1->window,
 	                                          &descend_bm,
 	                                          &win_style->bg[GTK_STATE_NORMAL],
-	                                          (gchar **)clist_descend_xpm);
+	                                          (const gchar **)clist_descend_xpm);
 	for (i=0; i<NUM_COLS; i++)
 	{
 		col_arrows[i].table = gtk_table_new(2, 2, FALSE);

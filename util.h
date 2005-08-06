@@ -41,7 +41,7 @@ char *get_args_as_string(int, char **, int);
 void compute_timestamp_diff(gint *, gint *, guint32, guint32, guint32, guint32);
 
 /* Create a capture filter for the connection */
-char *get_conn_cfilter(void);
+const char *get_conn_cfilter(void);
 
 #ifdef __cplusplus
 }

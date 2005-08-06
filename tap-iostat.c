@@ -43,7 +43,7 @@ typedef struct _io_stat_t {
 	gint32 interval;	/* unit is ms */
 	guint32 num_items;
 	struct _io_stat_item_t *items;
-	char **filters;
+	const char **filters;
 } io_stat_t;	
 
 #define CALC_TYPE_BYTES	0
@@ -429,7 +429,7 @@ iostat_draw(void *arg)
 
 
 static int
-get_calc_field(char *filter, char **flt)
+get_calc_field(const char *filter, const char **flt)
 {
 	char field[256];
 	int i;
@@ -461,10 +461,10 @@ get_calc_field(char *filter, char **flt)
 }
 
 static void
-register_io_tap(io_stat_t *io, int i, char *filter)
+register_io_tap(io_stat_t *io, int i, const char *filter)
 {
 	GString *error_string;
-	char *flt;
+	const char *flt;
 
 	io->items[i].prev=&io->items[i];
 	io->items[i].next=NULL;

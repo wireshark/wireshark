@@ -65,7 +65,7 @@ typedef struct column_arrows {
 
 typedef struct _my_columns_t {
     guint32		value;
-    gchar		*strptr;
+    const gchar		*strptr;
     GtkJustification	just;
 } my_columns_t;
 
@@ -185,7 +185,7 @@ mtp3_sum_draw(
     int			*tot_num_msus_p,
     double		*tot_num_bytes_p)
 {
-    char		*entries[MTP3_SUM_INIT_TABLE_NUM_COLUMNS];
+    const char		*entries[MTP3_SUM_INIT_TABLE_NUM_COLUMNS];
     int			i, j;
     int			num_msus;
     double		num_bytes;

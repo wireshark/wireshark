@@ -68,10 +68,10 @@ enum chunk_types {
 	COOKIE_ACK    = 11
 };
 
-char *chunk_name(int type)
+const char *chunk_name(int type)
 {
 #define CASE(x) case x: s=#x; break
-	char *s = "unknown";
+	const char *s = "unknown";
 	switch (type)
 	{
 		CASE(DATA);
@@ -215,7 +215,7 @@ gtk_sctpstat_dlg(struct sctp_udata *u_data, unsigned int direction)
 	GtkWidget *hbuttonbox2;
 	GtkWidget *bt_close;
 
-	gchar *titles[NUM_COLS] =  {"IP Address", "DATA", "INIT", "INIT_ACK", "SACK", "HEARTBEAT", "HEARTBEAT_ACK", "ABORT", "SHUTDOWN", "SHUTDOWN_ACK", "ERROR", "COOKIE_ECHO", "COOKIE_ACK", "Others"};
+	const gchar *titles[NUM_COLS] =  {"IP Address", "DATA", "INIT", "INIT_ACK", "SACK", "HEARTBEAT", "HEARTBEAT_ACK", "ABORT", "SHUTDOWN", "SHUTDOWN_ACK", "ERROR", "COOKIE_ECHO", "COOKIE_ACK", "Others"};
 	column_arrows *col_arrows;
 	GdkBitmap *ascend_bm, *descend_bm;
 	GdkPixmap *ascend_pm, *descend_pm;
@@ -286,11 +286,11 @@ gtk_sctpstat_dlg(struct sctp_udata *u_data, unsigned int direction)
 	ascend_pm = gdk_pixmap_create_from_xpm_d(scrolledwindow1->window,
 	                                         &ascend_bm,
 	                                         &win_style->bg[GTK_STATE_NORMAL],
-	                                         (gchar **)clist_ascend_xpm);
+	                                         (const gchar **)clist_ascend_xpm);
 	descend_pm = gdk_pixmap_create_from_xpm_d(scrolledwindow1->window,
 	                                          &descend_bm,
 	                                          &win_style->bg[GTK_STATE_NORMAL],
-	                                          (gchar **)clist_descend_xpm);
+	                                          (const gchar **)clist_descend_xpm);
 	for (i=0; i<NUM_COLS; i++)
 	{
 		col_arrows[i].table = gtk_table_new(2, 2, FALSE);

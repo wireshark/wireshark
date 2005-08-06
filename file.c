@@ -126,7 +126,7 @@ static gboolean find_packet(capture_file *cf,
 static void cf_open_failure_alert_box(const char *filename, int err,
 				      gchar *err_info, gboolean for_writing,
 				      int file_type);
-static char *file_rename_error_message(int err);
+static const char *file_rename_error_message(int err);
 static void cf_write_failure_alert_box(const char *filename, int err);
 static void cf_close_failure_alert_box(const char *filename, int err);
 static   gboolean copy_binary_file(const char *from_filename, const char *to_filename);
@@ -331,8 +331,8 @@ cf_read(capture_file *cf)
   int         err;
   gchar       *err_info;
   const gchar *name_ptr;
-  gchar       *load_msg, *load_fmt = "%s";
-  char        *errmsg;
+  const gchar *load_msg, *load_fmt = "%s";
+  const char  *errmsg;
   char         errmsg_errno[1024+1];
   gchar        err_str[2048+1];
   long         data_offset;
@@ -933,7 +933,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
   int               i;
   char              errmsg_errno[1024+1];
   gchar             err_str[2048+1];
-  char             *errmsg;
+  const char       *errmsg;
   gboolean          got_read_error = FALSE, got_write_error = FALSE;
   long              data_offset;
   progdlg_t        *progbar = NULL;
@@ -1127,9 +1127,9 @@ cf_merge_files(char **out_filenamep, int in_file_count,
 cf_status_t
 cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
 {
-  dfilter_t *dfcode;
-  char      *filter_new = dftext ? dftext : "";
-  char      *filter_old = cf->dfilter ? cf->dfilter : "";
+  dfilter_t  *dfcode;
+  const char *filter_new = dftext ? dftext : "";
+  const char *filter_old = cf->dfilter ? cf->dfilter : "";
 
   /* if new filter equals old one, do nothing unless told to do so */
   if (!force && strcmp(filter_new, filter_old) == 0) {
@@ -3084,7 +3084,7 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
   wtap_dumper  *pdh;
   save_callback_args_t callback_args;
 
-  cf_callback_invoke(cf_cb_file_safe_started, (gpointer) fname);
+  cf_callback_invoke(cf_cb_file_safe_started, fname);
 
   /* don't write over an existing file. */
   /* this should've been already checked by our caller, just to be sure... */
@@ -3368,10 +3368,10 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
   }
 }
 
-static char *
+static const char *
 file_rename_error_message(int err)
 {
-  char *errmsg;
+  const char *errmsg;
   static char errmsg_errno[1024+1];
 
   switch (err) {

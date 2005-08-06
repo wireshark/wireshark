@@ -73,7 +73,7 @@ static guint32 pixels_per_tick[MAX_PIXELS_PER_TICK] = {1, 2, 5, 10};
 #define PLOT_STYLE_IMPULSE	1
 #define PLOT_STYLE_FILLED_BAR	2
 #define MAX_PLOT_STYLES		3
-static char *plot_style_name[MAX_PLOT_STYLES] = {
+static const char *plot_style_name[MAX_PLOT_STYLES] = {
 	"Line",
 	"Impulse",
 	"FBar",
@@ -84,12 +84,12 @@ static char *plot_style_name[MAX_PLOT_STYLES] = {
 #define COUNT_TYPE_BYTES    1
 #define COUNT_TYPE_ADVANCED 2
 #define MAX_COUNT_TYPES 3
-static char *count_type_names[MAX_COUNT_TYPES] = {"Packets/Tick", "Bytes/Tick", "Advanced..."};
+static const char *count_type_names[MAX_COUNT_TYPES] = {"Packets/Tick", "Bytes/Tick", "Advanced..."};
 
 /* unit is in ms */
 #define MAX_TICK_VALUES 5
 #define DEFAULT_TICK_VALUE 3
-static guint tick_interval_values[MAX_TICK_VALUES] = { 1, 10, 100, 1000, 10000 };
+static const guint tick_interval_values[MAX_TICK_VALUES] = { 1, 10, 100, 1000, 10000 };
 
 #define CALC_TYPE_SUM	0
 #define CALC_TYPE_COUNT	1
@@ -98,7 +98,7 @@ static guint tick_interval_values[MAX_TICK_VALUES] = { 1, 10, 100, 1000, 10000 }
 #define CALC_TYPE_AVG	4
 #define CALC_TYPE_LOAD	5
 #define MAX_CALC_TYPES 6
-static char *calc_type_names[MAX_CALC_TYPES] = {"SUM(*)", "COUNT(*)", "MAX(*)", "MIN(*)", "AVG(*)", "LOAD(*)"};
+static const char *calc_type_names[MAX_CALC_TYPES] = {"SUM(*)", "COUNT(*)", "MAX(*)", "MIN(*)", "AVG(*)", "LOAD(*)"};
 
 
 typedef struct _io_stat_calc_type_t {
@@ -1443,7 +1443,7 @@ create_frames_or_bytes_menu_items(io_stat_t *io, GtkWidget *menu)
 }
 
 static void
-create_ctrl_menu(io_stat_t *io, GtkWidget *box, char *name, void (*func)(io_stat_t *io, GtkWidget *menu))
+create_ctrl_menu(io_stat_t *io, GtkWidget *box, const char *name, void (*func)(io_stat_t *io, GtkWidget *menu))
 {
 	GtkWidget *hbox;
 	GtkWidget *label;
@@ -1678,7 +1678,7 @@ create_calc_types_menu_items(io_stat_graph_t *gio, GtkWidget *menu)
 
 
 static void
-create_advanced_menu(io_stat_graph_t *gio, GtkWidget *box, char *name, void (*func)(io_stat_graph_t *io, GtkWidget *menu))
+create_advanced_menu(io_stat_graph_t *gio, GtkWidget *box, const char *name, void (*func)(io_stat_graph_t *io, GtkWidget *menu))
 {
 	GtkWidget *hbox;
 	GtkWidget *label;
