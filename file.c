@@ -331,7 +331,6 @@ cf_read(capture_file *cf)
   int         err;
   gchar       *err_info;
   const gchar *name_ptr;
-  const gchar *load_msg, *load_fmt = "%s";
   const char  *errmsg;
   char         errmsg_errno[1024+1];
   gchar        err_str[2048+1];
@@ -360,7 +359,6 @@ cf_read(capture_file *cf)
   cf_callback_invoke(cf_cb_file_read_start, cf);
 
   name_ptr = get_basename(cf->filename);
-  load_msg = g_strdup_printf(load_fmt, name_ptr);
 
   /* Update the progress bar when it gets to this value. */
   progbar_nextstep = 0;
@@ -399,10 +397,8 @@ cf_read(capture_file *cf)
         }
         if (progbar == NULL) {
           /* Create the progress bar if necessary */
-          progbar = delayed_create_progress_dlg("Loading", load_msg,
+          progbar = delayed_create_progress_dlg("Loading", name_ptr,
             &stop_flag, &start_time, prog_val);
-          if (progbar != NULL)
-            g_free(load_msg);
         }
         if (progbar != NULL) {
           g_snprintf(status_str, sizeof(status_str),
@@ -426,9 +422,7 @@ cf_read(capture_file *cf)
   }
 
   /* We're done reading the file; destroy the progress bar if it was created. */
-  if (progbar == NULL)
-    g_free(load_msg);
-  else
+  if (progbar != NULL)
     destroy_progress_dlg(progbar);
 
   /* We're done reading sequentially through the file. */
