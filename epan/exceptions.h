@@ -46,7 +46,13 @@
 #define TypeError		3
 
 /**
-    A bug was detected in a dissector 
+    A bug was detected in a dissector.
+
+    DO NOT throw this with THROW(); the handler expects there to be a
+    message, and even if it didn't, the developers expect there to be
+    a message to make it easier to figure out what the problem is.
+
+    Instead, use the DISSECTOR_ASSERT(), etc. macros in epan/proto.h.
 **/
 #define DissectorError		4	
 
@@ -195,7 +201,7 @@
 		/* user's code goes here */
 
 #define THROW(x) \
-	except_throw(XCEPT_GROUP_ETHEREAL, (x), "XCEPT_GROUP_ETHEREAL")
+	except_throw(XCEPT_GROUP_ETHEREAL, (x), NULL)
 
 #define THROW_MESSAGE(x, y) \
 	except_throw(XCEPT_GROUP_ETHEREAL, (x), (y))

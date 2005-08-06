@@ -288,6 +288,7 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    pinfo->current_proto, exception_message);
 		g_warning("Dissector bug, protocol %s, in packet %u: %s",
 		    pinfo->current_proto, pinfo->fd->num, exception_message);
+		g_free(exception_message);
 		break;
 
 	default:

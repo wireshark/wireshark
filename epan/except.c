@@ -17,6 +17,15 @@
  * $Name:  $
  */
 
+/*
+ * Modified to support throwing an exception with a null message pointer,
+ * and to have the message not be const (as we generate messages with
+ * "g_strdup_sprintf()", which means they need to be freed; using
+ * a null message means that we don't have to use a special string
+ * for exceptions with no message, and don't have to worry about
+ * not freeing that).
+ */
+
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -194,9 +203,15 @@ static void do_throw(except_t *except)
 
 static void unhandled_catcher(except_t *except)
 {
-    fprintf(stderr, "Unhandled exception (\"%s\", group=%ld, code=%ld)\n",
-	    except->except_message, except->except_id.except_group,
-	    except->except_id.except_code);
+    if (except->except_message == NULL) {
+        fprintf(stderr, "Unhandled exception (group=%ld, code=%ld)\n",
+		except->except_id.except_group,
+		except->except_id.except_code);
+    } else {
+        fprintf(stderr, "Unhandled exception (\"%s\", group=%ld, code=%ld)\n",
+		except->except_message, except->except_id.except_group,
+		except->except_id.except_code);
+    }
     abort();
 }
 
@@ -244,7 +259,7 @@ void except_rethrow(except_t *except)
     do_throw(except);
 }
 
-void except_throw(long group, long code, const char *msg)
+void except_throw(long group, long code, char *msg)
 {
     except_t except;
 
@@ -256,7 +271,7 @@ void except_throw(long group, long code, const char *msg)
     do_throw(&except);
 }
 
-void except_throwd(long group, long code, const char *msg, void *data)
+void except_throwd(long group, long code, char *msg, void *data)
 {
     except_t except;
 
@@ -268,6 +283,11 @@ void except_throwd(long group, long code, const char *msg, void *data)
     do_throw(&except);
 }
 
+/*
+ * XXX - should we use g_strdup_sprintf() here, so we're not limited by
+ * XCEPT_BUFFER_SIZE?  We could then just use this to generate formatted
+ * messages.
+ */
 void except_throwf(long group, long code, const char *fmt, ...)
 {
     char *buf = except_alloc(XCEPT_BUFFER_SIZE);
@@ -301,7 +321,7 @@ unsigned long except_group(except_t *ex)
     return ex->except_id.except_group;
 }
 
-const char *except_message(except_t *ex)
+char *except_message(except_t *ex)
 {
     return ex->except_message;
 }
@@ -369,6 +389,7 @@ int main(int argc, char **argv)
 {
     static const except_id_t catch[] = { { 1, 1 }, { 1, 2 } };
     except_t *ex;
+    char *msg;
 
     /*
      * Nested exception ``try blocks''
@@ -383,15 +404,27 @@ int main(int argc, char **argv)
 	    top_level();
 	} else {
 	    /* inner catch */
-	    printf("caught exception (inner): \"%s\", s=%ld, c=%ld\n",
-		    except_message(ex), except_group(ex), except_code(ex));
+	    msg = except_message(ex);
+	    if (msg == NULL) {
+		printf("caught exception (inner): s=%ld, c=%ld\n",
+		       except_group(ex), except_code(ex));
+	    } else {
+		printf("caught exception (inner): \"%s\", s=%ld, c=%ld\n",
+		       msg, except_group(ex), except_code(ex));
+	    }
 	    except_rethrow(ex);
 	}
 	except_try_pop();
     } else {
 	/* outer catch */
-	printf("caught exception (outer): \"%s\", s=%ld, c=%ld\n",
-		except_message(ex), except_group(ex), except_code(ex));
+	msg = except_message(ex);
+	if (msg == NULL) {
+	    printf("caught exception (outer): s=%ld, c=%ld\n",
+		   except_group(ex), except_code(ex));
+	} else {
+	    printf("caught exception (outer): \"%s\", s=%ld, c=%ld\n",
+		   except_message(ex), except_group(ex), except_code(ex));
+	}
     }
     except_try_pop();
     except_throw(99, 99, "exception in main");
