@@ -84,8 +84,8 @@ const char *voip_protocol_name[6]={
 	};
 
 typedef struct {
-	const gchar *frame_label;
-	const gchar *comment;
+	gchar *frame_label;
+	gchar *comment;
 } graph_str;
 
 #define H245_MAX 6
@@ -2518,4 +2518,3 @@ remove_tap_listener_prot__calls(void)
 	have_prot__tap_listener=FALSE;
 }
 */
-
