@@ -160,7 +160,7 @@ static GtkWidget *color_display_button, *prefs_button, *help_button;
 #if GTK_MAJOR_VERSION >= 2
 typedef struct stock_pixmap_tag{
     const char *    name;
-    char **         xpm_data;
+    const char **   xpm_data;
 } stock_pixmap_t;
 
 /* generate application specific stock items */

@@ -304,10 +304,10 @@ wsp_init_table(wspstat_t *sp)
 /* When called, this function will create a new instance of gtk2-wspstat.
  */
 static void
-gtk_wspstat_init(char *optarg)
+gtk_wspstat_init(const char *optarg)
 {
 	wspstat_t *sp;
-	char 		*filter=NULL;
+	const char 	*filter=NULL;
 	char 		*title=NULL;
 	GString		*error_string;
 	GtkWidget	*main_vb, *pdutypes_fr, *statuscode_fr ;

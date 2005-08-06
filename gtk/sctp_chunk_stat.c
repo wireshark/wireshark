@@ -2,7 +2,7 @@
  * SCTP chunk counter for ethereal
  * Copyright 2005 Oleg Terletsky oleg.terletsky@comverse.com
  *
- * $Id:$
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,7 +55,7 @@
 #include "ui_util.h"
 
 
-static void sctpstat_init(char *optarg);
+static void sctpstat_init(const char *optarg);
 
 static tap_dfilter_dlg sctp_stat_dlg = {
 	"SCTP Statistics",
@@ -263,7 +263,8 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 
-static gchar *titles[]={"Source IP",
+static const gchar *titles[]={
+			"Source IP",
 			"Source Port",
 			"Dest IP",
 			"Dest Port",
@@ -279,10 +280,10 @@ static gchar *titles[]={"Source IP",
 			"ERROR" };
 
 static void
-sctpstat_init(char *optarg)
+sctpstat_init(const char *optarg)
 {
 	sctpstat_t *hs;
-	char *filter=NULL;
+	const char *filter=NULL;
 	GString *error_string;
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
@@ -290,8 +291,7 @@ sctpstat_init(char *optarg)
 	if(strncmp(optarg,"sctp,stat,",11) == 0){
 		filter=optarg+11;
 	} else {
-		filter=g_malloc(1);
-		*filter='\0';
+		filter="";
 	}
 
 	hs=g_malloc(sizeof(sctpstat_t));

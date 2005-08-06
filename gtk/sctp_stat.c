@@ -1445,7 +1445,7 @@ const sctp_allassocs_info_t* sctp_stat_get_info(void)
 
 
 static void
-gtk_sctpstat_init(char *dummy _U_)
+gtk_sctpstat_init(const char *dummy _U_)
 {
 
 }

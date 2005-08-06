@@ -658,7 +658,7 @@ register_tap_menu_item(
 {
     /*static const char toolspath[] = "/Statistics/";*/
     const char *toolspath;
-    char *p;
+    const char *p;
     char *menupath;
     size_t menupathlen;
     menu_item_t *child;

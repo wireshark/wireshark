@@ -215,7 +215,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 /* When called, this function will create a new instance of gtk2-rpcstat.
  */
 static void
-gtk_rpcstat_init(char *optarg)
+gtk_rpcstat_init(const char *optarg)
 {
 	rpcstat_t *rs;
 	guint32 i;
@@ -227,7 +227,7 @@ gtk_rpcstat_init(char *optarg)
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
 	int program, version, pos;
-	char *filter=NULL;
+	const char *filter=NULL;
 	GString *error_string;
 	int hf_index;
 	header_field_info *hfi;

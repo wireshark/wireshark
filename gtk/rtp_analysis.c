@@ -3641,7 +3641,7 @@ void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 
 /****************************************************************************/
 static void
-rtp_analysis_init(char *dummy _U_)
+rtp_analysis_init(const char *dummy _U_)
 {
 	rtp_analysis_cb(NULL, NULL);
 }

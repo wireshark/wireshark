@@ -181,18 +181,17 @@ mgcpstat_draw(void *pms)
 
 
 static void
-mgcpstat_init(char *optarg)
+mgcpstat_init(const char *optarg)
 {
 	mgcpstat_t *ms;
 	int i;
-	char *filter=NULL;
+	const char *filter=NULL;
 	GString *error_string;
 
 	if(!strncmp(optarg,"mgcp,rtd,",9)){
 		filter=optarg+9;
 	} else {
-		filter=g_malloc(1);
-		*filter='\0';
+		filter="";
 	}
 
 	ms=g_malloc(sizeof(mgcpstat_t));

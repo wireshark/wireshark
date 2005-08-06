@@ -38,7 +38,8 @@ typedef void (*tap_draw_cb)(void *tapdata);
 
 
 extern void tap_init(void);
-extern void register_tap_listener_cmd_arg(const char *cmd, void (*func)(char *arg));
+extern void register_tap_listener_cmd_arg(const char *cmd,
+    void (*func)(const char *arg));
 extern gboolean process_tap_cmd_arg(char *optarg);
 extern void list_tap_cmd_args(void);
 extern void start_requested_taps(void);

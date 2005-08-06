@@ -97,7 +97,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
                 *main_vb, *bbox, *close_bt, *help_bt;
   GtkWidget     *table;
   GtkWidget     *list;
-  char          *titles[] = { "Traffic", "Captured", "Displayed" };
+  static const char *titles[] = { "Traffic", "Captured", "Displayed" };
 
   gchar         string_buff[SUM_STR_MAX];
   gchar         string_buff2[SUM_STR_MAX];

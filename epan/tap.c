@@ -85,7 +85,7 @@ static volatile tap_listener_t *tap_listener_queue=NULL;
 typedef struct _tap_cmd_arg {
 	struct _tap_cmd_arg *next;
 	const char *cmd;
-	void (*func)(char *arg);
+	void (*func)(const char *arg);
 } tap_cmd_arg;
 static tap_cmd_arg *tap_cmd_arg_list=NULL;
 
@@ -117,7 +117,7 @@ tap_init(void)
  * and initialization routine
  * ********************************************************************** */
 void
-register_tap_listener_cmd_arg(const char *cmd, void (*func)(char *arg))
+register_tap_listener_cmd_arg(const char *cmd, void (*func)(const char *arg))
 {
 	tap_cmd_arg *newtca;
 

@@ -579,9 +579,9 @@ iousers_draw(void *arg)
 }
 
 void
-iousers_init(char *optarg)
+iousers_init(const char *optarg)
 {
-	char *filter=NULL;
+	const char *filter=NULL;
 	const char *tap_type, *tap_type_name;
 	tap_packet_cb packet_func;
 	io_users_t *iu=NULL;

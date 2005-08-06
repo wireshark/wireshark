@@ -186,7 +186,7 @@ dcerpcstat_draw(void *prs)
 
 
 static void
-dcerpcstat_init(char *optarg)
+dcerpcstat_init(const char *optarg)
 {
 	rpcstat_t *rs;
 	guint32 i, max_procs;
@@ -196,7 +196,7 @@ dcerpcstat_init(char *optarg)
 	int major, minor;
 	guint16 ver;
 	int pos=0;
-        char *filter=NULL;
+        const char *filter=NULL;
         GString *error_string;
     
 	/*

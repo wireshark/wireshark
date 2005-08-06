@@ -366,11 +366,9 @@ ansi_a_stat_gtk_win_create(
  */
 static void
 ansi_a_stat_gtk_init(
-    char		*optarg)
+    const char		*optarg _U_)
 {
     /* does not appear to be called */
-
-    optarg = optarg;
 }
 
 

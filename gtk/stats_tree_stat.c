@@ -196,7 +196,7 @@ static void free_gtk_tree(GtkWindow *win _U_, stats_tree *st)
 
 
 /* initializes the stats_tree window */
-static void init_gtk_tree(char* optarg) {
+static void init_gtk_tree(const char* optarg) {
 	guint8* abbr = stats_tree_get_abbr(optarg);
 	stats_tree* st = NULL;
 	stats_tree_cfg* cfg = NULL;

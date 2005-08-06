@@ -575,13 +575,13 @@ CALC_TYPE_AVG	5
 }
 
 void
-iostat_init(char *optarg)
+iostat_init(const char *optarg)
 {
 	float interval_float;
 	gint32 interval; 
 	int pos=0;
 	io_stat_t *io;
-	char *filter=NULL;
+	const char *filter=NULL;
 
 	if(sscanf(optarg,"io,stat,%f,%n",&interval_float,&pos)==1){
 		if(pos){
@@ -611,7 +611,8 @@ iostat_init(char *optarg)
 
 		register_io_tap(io, 0, NULL);
 	} else {
-		char *str,*pos,*tmp;
+		const char *str,*pos;
+		char *tmp;
 		int i;
 		/* find how many ',' separated filters we have */
 		str=filter;

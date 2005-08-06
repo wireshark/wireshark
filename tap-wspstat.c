@@ -213,10 +213,10 @@ wspstat_draw(void *psp)
  * new instance for the wsp tap.
  */
 static void
-wspstat_init(char *optarg)
+wspstat_init(const char *optarg)
 {
 	wspstat_t *sp;
-	char *filter=NULL;
+	const char *filter=NULL;
 	guint32 i;
 	GString	*error_string;
 	wsp_status_code_t *sc;

@@ -191,16 +191,16 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 /* When called, this function will create a new instance of gtk2-dhcpstat.
  */
 static void
-dhcpstat_init(char *optarg)
+dhcpstat_init(const char *optarg)
 {
 	dhcpstat_t *sp;
-	char 		*filter=NULL;
+	const char	*filter=NULL;
 	char 		*title=NULL;
 	GString		*error_string;
 	GtkWidget	*message_type_fr;
-    GtkWidget	*vbox;
-    GtkWidget	*bt_close;
-    GtkWidget	*bbox;
+	GtkWidget	*vbox;
+	GtkWidget	*bt_close;
+	GtkWidget	*bbox;
 	
 	if (strncmp (optarg, "bootp,stat,", 11) == 0){
 		filter=optarg+11;
@@ -222,9 +222,9 @@ dhcpstat_init(char *optarg)
 	sp->win = window_new(GTK_WINDOW_TOPLEVEL, title);
 	g_free(title);
 
-    vbox = gtk_vbox_new(FALSE, 3);
+	vbox = gtk_vbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(sp->win), vbox);
-    gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
 	/* Status Codes frame */
 	message_type_fr = gtk_frame_new("DHCP Message Type");
@@ -255,20 +255,20 @@ dhcpstat_init(char *optarg)
 	}
 
 	/* Button row. */
-    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
-    gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+	gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-    bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    window_set_cancel_button(sp->win, bt_close, window_cancel_button_cb);
+	bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	window_set_cancel_button(sp->win, bt_close, window_cancel_button_cb);
 
-    SIGNAL_CONNECT(sp->win, "delete_event", window_delete_event_cb, NULL);
-    SIGNAL_CONNECT(sp->win, "destroy", win_destroy_cb, sp);
+	SIGNAL_CONNECT(sp->win, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(sp->win, "destroy", win_destroy_cb, sp);
 
-    gtk_widget_show_all(sp->win);
+	gtk_widget_show_all(sp->win);
 
-    window_present(sp->win);
+	window_present(sp->win);
 
-    cf_retap_packets(&cfile);
+	cf_retap_packets(&cfile);
 }
 
 static tap_dfilter_dlg dhcp_stat_dlg = {

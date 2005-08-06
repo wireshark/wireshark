@@ -269,13 +269,10 @@ gsm_a_stat_draw(
 
 
 static void
-gsm_a_stat_init(char *optarg)
+gsm_a_stat_init(const char *optarg _U_)
 {
     gsm_a_stat_t	*stat_p;
     GString		*err_p;
-
-
-    optarg = optarg;
 
     stat_p = g_malloc(sizeof(gsm_a_stat_t));
 

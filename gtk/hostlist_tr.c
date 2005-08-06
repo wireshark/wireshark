@@ -58,9 +58,9 @@ tr_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const
 
 
 static void
-gtk_tr_hostlist_init(char *optarg)
+gtk_tr_hostlist_init(const char *optarg)
 {
-	char *filter=NULL;
+	const char *filter=NULL;
 
 	if(!strncmp(optarg,"hosts,tr,",9)){
 		filter=optarg+9;
@@ -88,5 +88,5 @@ register_tap_listener_tr_hostlist(void)
 	register_tap_menu_item("Token Ring", REGISTER_TAP_GROUP_ENDPOINT_LIST,
 	    gtk_tr_hostlist_cb, NULL, NULL, NULL);
 
-    register_hostlist_table(TRUE, "Token Ring", "tr", NULL /*filter*/, tr_hostlist_packet);
+	register_hostlist_table(TRUE, "Token Ring", "tr", NULL /*filter*/, tr_hostlist_packet);
 }

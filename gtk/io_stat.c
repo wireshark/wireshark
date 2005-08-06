@@ -1048,7 +1048,7 @@ disable_graph(io_stat_graph_t *gio)
 }
 
 static void
-gtk_iostat_init(char *optarg _U_)
+gtk_iostat_init(const char *optarg _U_)
 {
 	io_stat_t *io;
 	int i=0;
@@ -1071,7 +1071,7 @@ gtk_iostat_init(char *optarg _U_)
 	io->scrollbar_adjustment=NULL;
 	io->pixmap_width=500;
 	io->pixmap_height=200;
-    io->pixels_per_tick=pixels_per_tick[DEFAULT_PIXELS_PER_TICK];
+	io->pixels_per_tick=pixels_per_tick[DEFAULT_PIXELS_PER_TICK];
 	io->max_y_units=AUTO_MAX_YSCALE;
 	io->count_type=0;
 	io->last_interval=0xffffffff;

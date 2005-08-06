@@ -280,10 +280,10 @@ httpstat_draw(void *psp  )
 /* When called, this function will create a new instance of gtk_httpstat.
  */
 static void
-gtk_httpstat_init(char *optarg)
+gtk_httpstat_init(const char *optarg)
 {
 	httpstat_t *sp;
-	char *filter=NULL;
+	const char *filter=NULL;
 	GString	*error_string;
 	
 	if (!strncmp (optarg, "http,stat,", 10)){

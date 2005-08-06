@@ -87,11 +87,11 @@ protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const vo
 
 
 static void
-protocolinfo_init(char *optarg)
+protocolinfo_init(const char *optarg)
 {
 	pci_t *rs;
-	char *field=NULL;
-	char *filter=NULL;
+	const char *field=NULL;
+	const char *filter=NULL;
 	header_field_info *hfi;
 	GString *error_string;
 

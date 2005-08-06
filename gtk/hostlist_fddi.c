@@ -58,9 +58,9 @@ fddi_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
 
 static void
-gtk_fddi_hostlist_init(char *optarg)
+gtk_fddi_hostlist_init(const char *optarg)
 {
-	char *filter=NULL;
+	const char *filter=NULL;
 
 	if(!strncmp(optarg,"hosts,fddi,",11)){
 		filter=optarg+11;

@@ -184,7 +184,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 /* When called, this function will create a new instance of gtk-dcerpcstat.
  */
 static void
-gtk_dcerpcstat_init(char *optarg)
+gtk_dcerpcstat_init(const char *optarg)
 {
 	rpcstat_t *rs;
 	guint32 i, max_procs;
@@ -201,7 +201,7 @@ gtk_dcerpcstat_init(char *optarg)
 	int major, minor;
 	guint16 ver;
 	int pos=0;
-        char *filter=NULL;
+        const char *filter=NULL;
         GString *error_string;
 	int hf_opnum;
 
@@ -323,15 +323,15 @@ gtk_dcerpcstat_init(char *optarg)
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
 	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    window_set_cancel_button(rs->win, close_bt, window_cancel_button_cb);
+	window_set_cancel_button(rs->win, close_bt, window_cancel_button_cb);
 
-    SIGNAL_CONNECT(rs->win, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(rs->win, "delete_event", window_delete_event_cb, NULL);
 	SIGNAL_CONNECT(rs->win, "destroy", win_destroy_cb, rs);
 
-    gtk_widget_show_all(rs->win);
-    window_present(rs->win);
+	gtk_widget_show_all(rs->win);
+	window_present(rs->win);
 
-    cf_retap_packets(&cfile);
+	cf_retap_packets(&cfile);
 }
 
 

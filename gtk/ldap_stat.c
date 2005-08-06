@@ -143,16 +143,16 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 
 static void
-gtk_ldapstat_init(char *optarg)
+gtk_ldapstat_init(const char *optarg)
 {
 	ldapstat_t *ldap;
-	char *filter=NULL;
+	const char *filter=NULL;
 	GtkWidget *label;
 	char filter_string[256];
 	GString *error_string;
 	GtkWidget *vbox;
-    GtkWidget *bbox;
-    GtkWidget *close_bt;
+	GtkWidget *bbox;
+	GtkWidget *close_bt;
 
 	if(!strncmp(optarg,"ldap,srt,",9)){
 		filter=optarg+9;
@@ -223,15 +223,15 @@ gtk_ldapstat_init(char *optarg)
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
 	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    window_set_cancel_button(ldap->win, close_bt, window_cancel_button_cb);
+	window_set_cancel_button(ldap->win, close_bt, window_cancel_button_cb);
 
-    SIGNAL_CONNECT(ldap->win, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(ldap->win, "delete_event", window_delete_event_cb, NULL);
 	SIGNAL_CONNECT(ldap->win, "destroy", win_destroy_cb, ldap);
 
-    gtk_widget_show_all(ldap->win);
-    window_present(ldap->win);
+	gtk_widget_show_all(ldap->win);
+	window_present(ldap->win);
 	
-    cf_retap_packets(&cfile);
+	cf_retap_packets(&cfile);
 }
 
 

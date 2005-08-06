@@ -387,17 +387,16 @@ h225counter_draw(void *phs)
 
 
 static void
-h225counter_init(char *optarg)
+h225counter_init(const char *optarg)
 {
 	h225counter_t *hs;
-	char *filter=NULL;
+	const char *filter=NULL;
 	GString *error_string;
 
 	if(!strncmp(optarg,"h225,counter,",13)){
 		filter=optarg+13;
 	} else {
-		filter=g_malloc(1);
-		*filter='\0';
+		filter="";
 	}
 
 	hs = g_malloc(sizeof(h225counter_t));

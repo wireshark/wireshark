@@ -150,17 +150,17 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 
 static void
-gtk_smbstat_init(char *optarg)
+gtk_smbstat_init(const char *optarg)
 {
 	smbstat_t *ss;
-	char *filter=NULL;
+	const char *filter=NULL;
 	GtkWidget *label;
 	char filter_string[256];
 	GString *error_string;
 	int i;
 	GtkWidget *vbox;
-    GtkWidget *bbox;
-    GtkWidget *close_bt;
+	GtkWidget *bbox;
+	GtkWidget *close_bt;
 
 	if(!strncmp(optarg,"smb,srt,",8)){
 		filter=optarg+8;
@@ -226,15 +226,15 @@ gtk_smbstat_init(char *optarg)
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
 	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    window_set_cancel_button(ss->win, close_bt, window_cancel_button_cb);
+	window_set_cancel_button(ss->win, close_bt, window_cancel_button_cb);
 
-    SIGNAL_CONNECT(ss->win, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(ss->win, "delete_event", window_delete_event_cb, NULL);
 	SIGNAL_CONNECT(ss->win, "destroy", win_destroy_cb, ss);
 
-    gtk_widget_show_all(ss->win);
-    window_present(ss->win);
+	gtk_widget_show_all(ss->win);
+	window_present(ss->win);
 	
-    cf_retap_packets(&cfile);
+	cf_retap_packets(&cfile);
 }
 
 

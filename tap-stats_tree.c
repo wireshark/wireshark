@@ -67,7 +67,7 @@ static void draw_stats_tree(void *psp) {
 	
 }
 
-static void  init_stats_tree(char *optarg) {
+static void  init_stats_tree(const char *optarg) {
 	guint8* abbr = stats_tree_get_abbr(optarg);
 	GString	*error_string;
 	stats_tree_cfg *cfg = NULL;

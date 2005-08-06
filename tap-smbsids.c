@@ -68,7 +68,7 @@ smbsids_draw(void *pss _U_)
 
 
 static void
-smbsids_init(char *optarg _U_)
+smbsids_init(const char *optarg _U_)
 {
 	GString *error_string;
 

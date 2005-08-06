@@ -44,7 +44,7 @@ typedef struct _hostlist_talker_t {
 
 /** Hostlist widget */
 typedef struct _hostlist_table {
-	char                *name;              /**< the name of the table */
+	const char          *name;              /**< the name of the table */
 	GtkWidget           *win;               /**< GTK window */
 	GtkWidget           *page_lb;           /**< label */
 	GtkWidget           *scrolled_window;   /**< the scrolled window */

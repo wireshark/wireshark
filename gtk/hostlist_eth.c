@@ -60,7 +60,7 @@ eth_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 static void
 gtk_eth_hostlist_init(const char *optarg)
 {
-	char *filter=NULL;
+	const char *filter=NULL;
 
 	if(!strncmp(optarg,"hosts,eth,",10)){
 		filter=optarg+10;

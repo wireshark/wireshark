@@ -55,7 +55,7 @@
 #include "ui_util.h"
 
 
-static void gtk_h225rassrt_init(char *optarg);
+static void gtk_h225rassrt_init(const char *optarg);
 
 static tap_dfilter_dlg h225_rassrt_dlg = {
 	"H.225 RAS Service Response Time",
@@ -268,7 +268,8 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 
-static const gchar *titles[]={"RAS-Type",
+static const gchar *titles[]={
+			"RAS-Type",
 			"Measurements",
 			"Min RTT",
 			"Max RTT",
@@ -281,19 +282,18 @@ static const gchar *titles[]={"RAS-Type",
 			"Repeated Responses" };
 
 static void
-gtk_h225rassrt_init(char *optarg)
+gtk_h225rassrt_init(const char *optarg)
 {
 	h225rassrt_t *hs;
-	char *filter=NULL;
+	const char *filter=NULL;
 	GString *error_string;
-    GtkWidget *bbox;
-    GtkWidget *close_bt;
+	GtkWidget *bbox;
+	GtkWidget *close_bt;
 
 	if(strncmp(optarg,"h225,srt,",9) == 0){
 		filter=optarg+9;
 	} else {
-		filter=g_malloc(1);
-		*filter='\0';
+		filter="";
 	}
 
 	hs=g_malloc(sizeof(h225rassrt_t));
@@ -328,15 +328,15 @@ gtk_h225rassrt_init(char *optarg)
 	gtk_box_pack_end(GTK_BOX(hs->vbox), bbox, FALSE, FALSE, 0);
 
 	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    window_set_cancel_button(hs->win, close_bt, window_cancel_button_cb);
+	window_set_cancel_button(hs->win, close_bt, window_cancel_button_cb);
 
-    SIGNAL_CONNECT(hs->win, "delete_event", window_delete_event_cb, NULL);
-    SIGNAL_CONNECT(hs->win, "destroy", win_destroy_cb, hs);
+	SIGNAL_CONNECT(hs->win, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(hs->win, "destroy", win_destroy_cb, hs);
 
 	gtk_widget_show_all(hs->win);
-    window_present(hs->win);
+	window_present(hs->win);
 
-    cf_retap_packets(&cfile);
+	cf_retap_packets(&cfile);
 }
 
 void

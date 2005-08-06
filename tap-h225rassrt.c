@@ -211,17 +211,16 @@ h225rassrt_draw(void *phs)
 
 
 static void
-h225rassrt_init(char *optarg)
+h225rassrt_init(const char *optarg)
 {
 	h225rassrt_t *hs;
-	char *filter=NULL;
+	const char *filter=NULL;
 	GString *error_string;
 
 	if(!strncmp(optarg,"h225,srt,",9)){
 		filter=optarg+9;
 	} else {
-		filter=g_malloc(1);
-		*filter='\0';
+		filter="";
 	}
 
 	hs = g_malloc(sizeof(h225rassrt_t));

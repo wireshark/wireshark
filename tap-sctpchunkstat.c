@@ -2,7 +2,7 @@
  * SCTP chunk counter for ethereal
  * Copyright 2005 Oleg Terletsky <oleg.terletsky@comverse.com>
  *
- * $Id:$
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -219,17 +219,16 @@ sctpstat_draw(void *phs)
 
 
 static void
-sctpstat_init(char *optarg)
+sctpstat_init(const char *optarg)
 {
 	sctpstat_t *hs;
-	char *filter=NULL;
+	const char *filter=NULL;
 	GString *error_string;
 
 	if(!strncmp(optarg,"sctp,stat,",11)){
 		filter=optarg+11;
 	} else {
-		filter=g_malloc(1);
-		*filter='\0';
+		filter="";
 	}
 
 	hs = g_malloc(sizeof(sctpstat_t));

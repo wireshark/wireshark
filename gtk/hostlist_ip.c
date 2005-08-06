@@ -57,9 +57,9 @@ ip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const
 }
 
 static void
-gtk_ip_hostlist_init(char *optarg)
+gtk_ip_hostlist_init(const char *optarg)
 {
-	char *filter=NULL;
+	const char *filter=NULL;
 
 	if(!strncmp(optarg,"hosts,ip,",9)){
 		filter=optarg+9;

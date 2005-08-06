@@ -128,17 +128,17 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 
 static void
-gtk_fcstat_init(char *optarg)
+gtk_fcstat_init(const char *optarg)
 {
 	fcstat_t *fc;
-	char *filter=NULL;
+	const char *filter=NULL;
 	GtkWidget *label;
 	char filter_string[256];
 	GString *error_string;
 	int i;
 	GtkWidget *vbox;
-    GtkWidget *bbox;
-    GtkWidget *close_bt;
+	GtkWidget *bbox;
+	GtkWidget *close_bt;
 
 	if(!strncmp(optarg,"fc,srt,",7)){
 		filter=optarg+7;
@@ -188,15 +188,15 @@ gtk_fcstat_init(char *optarg)
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
 	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    window_set_cancel_button(fc->win, close_bt, window_cancel_button_cb);
+	window_set_cancel_button(fc->win, close_bt, window_cancel_button_cb);
 
-    SIGNAL_CONNECT(fc->win, "delete_event", window_delete_event_cb, NULL);
-    SIGNAL_CONNECT(fc->win, "destroy", win_destroy_cb, fc);
+	SIGNAL_CONNECT(fc->win, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(fc->win, "destroy", win_destroy_cb, fc);
 
 	gtk_widget_show_all(fc->win);
-    window_present(fc->win);
+	window_present(fc->win);
 
-    cf_retap_packets(&cfile);
+	cf_retap_packets(&cfile);
 }
 
 

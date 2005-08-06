@@ -58,9 +58,9 @@ udpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, co
 
 
 static void
-gtk_udpip_hostlist_init(char *optarg)
+gtk_udpip_hostlist_init(const char *optarg)
 {
-	char *filter=NULL;
+	const char *filter=NULL;
 
 	if(!strncmp(optarg,"endpoints,udp,",14)){
 		filter=optarg+14;

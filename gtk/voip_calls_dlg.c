@@ -741,7 +741,7 @@ void voip_calls_dlg_reset(void *ptr _U_)
 
 /* init function for tap */
 static void
-voip_calls_init_tap(char *dummy _U_)
+voip_calls_init_tap(const char *dummy _U_)
 {
 	gint c;
 	gchar *data[NUM_COLS];

@@ -58,9 +58,9 @@ ipx_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 
 
 static void
-gtk_ipx_hostlist_init(char *optarg)
+gtk_ipx_hostlist_init(const char *optarg)
 {
-	char *filter=NULL;
+	const char *filter=NULL;
 
 	if(!strncmp(optarg,"hosts,ipx,",10)){
 		filter=optarg+10;

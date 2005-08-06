@@ -134,13 +134,10 @@ ansi_a_stat_draw(
 
 
 static void
-ansi_a_stat_init(char *optarg)
+ansi_a_stat_init(const char *optarg _U_)
 {
     ansi_a_stat_t	*stat_p;
     GString		*err_p;
-
-
-    optarg = optarg;
 
     stat_p = g_malloc(sizeof(ansi_a_stat_t));
 

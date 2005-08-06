@@ -166,11 +166,11 @@ protohierstat_draw(void *prs)
 
 
 static void
-protohierstat_init(char *optarg)
+protohierstat_init(const char *optarg)
 {
 	phs_t *rs;
 	int pos=0;
-	char *filter=NULL;
+	const char *filter=NULL;
 	GString *error_string;
 
 	if(!strcmp("io,phs",optarg)){

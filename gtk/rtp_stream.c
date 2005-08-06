@@ -407,7 +407,7 @@ const rtpstream_tapinfo_t* rtpstream_get_info(void)
 
 /****************************************************************************/
 static void
-rtpstream_init_tap(char *dummy _U_)
+rtpstream_init_tap(const char *dummy _U_)
 {
 	/* XXX: never called? */
 }

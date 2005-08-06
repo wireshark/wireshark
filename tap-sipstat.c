@@ -344,10 +344,10 @@ sipstat_draw(void *psp  )
 }
 
 static void
-sipstat_init(char *optarg)
+sipstat_init(const char *optarg)
 {
 	sipstat_t *sp;
-	char *filter=NULL;
+	const char *filter=NULL;
 	GString	*error_string;
 
 	if (strncmp (optarg, "sip,stat,", 9) == 0){

@@ -247,7 +247,8 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 	g_free(ms);
 }
 
-static gchar *titles[]={"Type",
+static const gchar *titles[]={
+			"Type",
 			"Messages",
 			"Min SRT",
 			"Max SRT",
@@ -256,19 +257,18 @@ static gchar *titles[]={"Type",
 			"Max in Frame" };
 
 void
-gtk_mgcpstat_init(char *optarg)
+gtk_mgcpstat_init(const char *optarg)
 {
 	mgcpstat_t *ms;
-	char *filter=NULL;
+	const char *filter=NULL;
 	GString *error_string;
-    GtkWidget		*bt_close;
-    GtkWidget		*bbox;
+	GtkWidget *bt_close;
+	GtkWidget *bbox;
 
 	if(strncmp(optarg,"mgcp,srt,",9) == 0){
 		filter=optarg+9;
 	} else {
-		filter=g_malloc(1);
-		*filter='\0';
+		filter="";
 	}
 
 	ms=g_malloc(sizeof(mgcpstat_t));
@@ -299,19 +299,19 @@ gtk_mgcpstat_init(char *optarg)
 	}
 
 	/* Button row. */
-    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
-    gtk_box_pack_start(GTK_BOX(ms->vbox), bbox, FALSE, FALSE, 0);
+	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+	gtk_box_pack_start(GTK_BOX(ms->vbox), bbox, FALSE, FALSE, 0);
 
-    bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    window_set_cancel_button(ms->win, bt_close, window_cancel_button_cb);
+	bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	window_set_cancel_button(ms->win, bt_close, window_cancel_button_cb);
 
-    SIGNAL_CONNECT(ms->win, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(ms->win, "delete_event", window_delete_event_cb, NULL);
 	SIGNAL_CONNECT(ms->win, "destroy", win_destroy_cb, ms);
 
-    gtk_widget_show_all(ms->win);
-    window_present(ms->win);
+	gtk_widget_show_all(ms->win);
+	window_present(ms->win);
 	
-    cf_retap_packets(&cfile);
+	cf_retap_packets(&cfile);
 }
 
 static tap_dfilter_dlg mgcp_srt_dlg = {

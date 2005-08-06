@@ -55,9 +55,9 @@ jxta_hostlist_packet(void *pit, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
 }
 
 static void
-gtk_jxta_hostlist_init(char *optarg)
+gtk_jxta_hostlist_init(const char *optarg)
 {
-	char *filter=NULL;
+	const char *filter=NULL;
 
 	if(!strncmp(optarg,"hosts,jxta,",11)){
 		filter=optarg+11;

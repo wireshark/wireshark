@@ -209,11 +209,11 @@ smbstat_draw(void *pss)
 
 
 static void
-smbstat_init(char *optarg)
+smbstat_init(const char *optarg)
 {
 	smbstat_t *ss;
 	guint32 i;
-	char *filter=NULL;
+	const char *filter=NULL;
 	GString *error_string;
 
 	if(!strncmp(optarg,"smb,rtt,",8)){
