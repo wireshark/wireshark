@@ -78,7 +78,7 @@ static GList *display_filters = NULL;
 #define INIT_BUF_SIZE	128
 
 void
-read_filter_list(filter_list_type_t list, const char **pref_path_return,
+read_filter_list(filter_list_type_t list, char **pref_path_return,
     int *errno_return)
 {
   const char *ff_name;
@@ -423,7 +423,7 @@ remove_from_filter_list(filter_list_type_t list, GList *fl_entry)
  * and "*errno_return" is set to the error.
  */
 void
-save_filter_list(filter_list_type_t list, const char **pref_path_return,
+save_filter_list(filter_list_type_t list, char **pref_path_return,
     int *errno_return)
 {
   const gchar *ff_name;
