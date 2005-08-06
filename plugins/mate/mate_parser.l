@@ -246,7 +246,7 @@ blk_cmnt_stop  "*/"
 %%
 
 extern gboolean mate_load_config(const gchar* filename, mate_config* matecfg) {
-	gboolean state = TRUE;
+	volatile gboolean state = TRUE;
 	mc = matecfg;
 
 	yyin = fopen(filename,"r");
