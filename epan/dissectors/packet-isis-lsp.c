@@ -689,12 +689,12 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
 	proto_tree *subtree = NULL;
 	proto_tree *subtree2 = NULL;
 	guint8     ctrl_info;
-	guint8     bit_length, byte_length;
+	guint      bit_length, byte_length;
 	guint8     prefix [4];
 	guint32    metric;
-	guint8     len,i;
-	guint8     subclvs_len;
-	guint8     clv_code, clv_len;
+	guint      len,i;
+	guint      subclvs_len;
+	guint      clv_code, clv_len;
 
 	if (!tree) return;
 
@@ -792,12 +792,12 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	proto_tree        *subtree = NULL;
 	proto_tree        *subtree2 = NULL;
 	guint8            ctrl_info;
-	guint8            bit_length, byte_length;
+	guint             bit_length, byte_length;
 	struct e_in6_addr prefix;
 	guint32           metric;
-	guint8            len,i;
-	guint8            subclvs_len;
-	guint8            clv_code, clv_len;
+	guint             len,i;
+	guint             subclvs_len;
+	guint             clv_code, clv_len;
 
 	if (!tree) return;
 
@@ -1431,9 +1431,9 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
 {
 	proto_item *ti;
 	proto_tree *ntree = NULL;
-	guint8     subclvs_len;
-	guint8     len, i;
-	guint8     clv_code, clv_len;
+	guint      subclvs_len;
+	guint      len, i;
+	guint      clv_code, clv_len;
 
 	if (!tree) return;
 
