@@ -140,7 +140,7 @@ typedef gboolean (*heur_dissector_t)(tvbuff_t *tvb, packet_info *pinfo,
 
 typedef void (*DATFunc) (gchar *table_name, ftenum_t selector_type,
     gpointer key, gpointer value, gpointer user_data);
-typedef void (*DATFunc_handle) (gchar *table_name, gpointer value,
+typedef void (*DATFunc_handle) (const gchar *table_name, gpointer value,
     gpointer user_data);
 typedef void (*DATFunc_table) (gchar *table_name, const gchar *ui_name,
     gpointer user_data);

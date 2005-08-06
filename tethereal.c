@@ -280,7 +280,7 @@ display_dissector_table_names(char *table_name, const char *ui_name,
  * name for the protocol that corresponds to this handle.
  */
 static void
-display_dissector_names(gchar *table _U_, gpointer handle, gpointer output)
+display_dissector_names(const gchar *table _U_, gpointer handle, gpointer output)
 {
   int                proto_id;
   const gchar*       proto_filter_name;
@@ -321,7 +321,7 @@ typedef struct protocol_name_search *protocol_name_search_t;
  * whole list of dissectors.
  */
 static void
-find_protocol_name_func(gchar *table _U_, gpointer handle, gpointer user_data)
+find_protocol_name_func(const gchar *table _U_, gpointer handle, gpointer user_data)
 
 {
   int                         proto_id;

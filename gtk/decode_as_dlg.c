@@ -1278,7 +1278,7 @@ decode_add_to_list (const gchar *table_name, const gchar *proto_name, gpointer v
 }
 
 static void
-decode_proto_add_to_list (gchar *table_name, gpointer value, gpointer user_data)
+decode_proto_add_to_list (const gchar *table_name, gpointer value, gpointer user_data)
 {
     const gchar     *proto_name;
     gint       i;
