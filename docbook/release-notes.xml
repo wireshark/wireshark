@@ -87,6 +87,12 @@ Gnu info
 	  Versions affected: 0.9.4 to 0.10.12.
 	</para></listitem>
 
+	<listitem><para>
+	  The ISIS LSP dissector could exhaust system memory.
+	  <!-- Fixed in  r15245 -->
+	  Versions affected: 0.8.18 to 0.10.12.
+	</para></listitem>
+
       </itemizedlist>
     </para>
   </section>
