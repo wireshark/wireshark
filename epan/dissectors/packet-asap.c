@@ -1,10 +1,17 @@
 /* packet-asap.c
- * Routines for Aggregate Server Access Protocol
+ * Routines for Aggregate Server Access Protocol (ASAP)
  * It is hopefully (needs testing) compilant to
- * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-common-param-06.txt
- * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-asap-09.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-common-param-09.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-asap-12.txt
  *
- * Copyright 2004, Michael Tuexen <tuexen [AT] fh-muenster.de>
+ * The code is not as simple as possible for the current protocol
+ * but allows to be easily adopted to future versions of the protocol.
+ * I will reconsider this after the protocol is an RFC.
+ *
+ * TODO:
+ *   - check message lengths
+ *
+ * Copyright 2004, 2005 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
  * $Id$
  *
@@ -68,14 +75,22 @@ static int hf_reserved = -1;
 static int hf_cookie = -1;
 static int hf_pe_identifier = -1;
 static int hf_pe_checksum = -1;
+static int hf_pe_checksum_reserved = -1;
+static int hf_home_enrp_server_bit = -1;
+static int hf_reject_bit = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_asap = -1;
 static gint ett_asap_parameter = -1;
 static gint ett_asap_cause = -1;
+static gint ett_asap_flags = -1;
 
 static void
 dissect_parameters(tvbuff_t *, proto_tree *);
+static void
+dissect_parameter(tvbuff_t *, proto_tree *);
+static void
+dissect_asap_message(tvbuff_t *, packet_info *, proto_tree *);
 
 #define NETWORK_BYTE_ORDER     FALSE
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
@@ -83,7 +98,8 @@ dissect_parameters(tvbuff_t *, proto_tree *);
 #define ASAP_UDP_PORT 3863
 #define ASAP_TCP_PORT 3863
 
-/* Dissectors for error causes */
+/* Dissectors for error causes. This is common for ASAP and ENRP. */
+
 #define CAUSE_CODE_LENGTH   2
 #define CAUSE_LENGTH_LENGTH 2
 #define CAUSE_HEADER_LENGTH (CAUSE_CODE_LENGTH + CAUSE_LENGTH_LENGTH)
@@ -115,6 +131,7 @@ dissect_unknown_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *c
 #define LACK_OF_RESOURCES_CAUSE_CODE                       6
 #define INCONSISTENT_TRANSPORT_TYPE_CAUSE_CODE             7
 #define INCONSISTENT_DATA_CONTROL_CONFIGURATION_CAUSE_CODE 8
+#define UNKNOWN_POOL_HANDLE                                9
 
 static const value_string cause_code_values[] = {
   { UNRECOGNIZED_PARAMETER_CAUSE_CODE,                  "Unrecognized parameter"         },
@@ -125,6 +142,7 @@ static const value_string cause_code_values[] = {
   { LACK_OF_RESOURCES_CAUSE_CODE,                       "Lack of resources"              },
   { INCONSISTENT_TRANSPORT_TYPE_CAUSE_CODE,             "Inconsistent transport type"    },
   { INCONSISTENT_DATA_CONTROL_CONFIGURATION_CAUSE_CODE, "Inconsistent data/control type" },
+  { UNKNOWN_POOL_HANDLE,                                "Unknown pool handle"            },
   { 0,                                                  NULL                             } };
 
 static void
@@ -133,6 +151,7 @@ dissect_error_cause(tvbuff_t *cause_tvb, proto_tree *parameter_tree)
   guint16 code, length, padding_length;
   proto_item *cause_item;
   proto_tree *cause_tree;
+  tvbuff_t *parameter_tvb, *message_tvb;
 
   code           = tvb_get_ntohs(cause_tvb, CAUSE_CODE_OFFSET);
   length         = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
@@ -145,6 +164,35 @@ dissect_error_cause(tvbuff_t *cause_tvb, proto_tree *parameter_tree)
   proto_tree_add_item(cause_tree, hf_cause_length, cause_tvb, CAUSE_LENGTH_OFFSET, CAUSE_LENGTH_LENGTH, NETWORK_BYTE_ORDER);
 
   switch(code) {
+  case UNRECOGNIZED_PARAMETER_CAUSE_CODE:
+    parameter_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, -1, -1);
+    dissect_parameter(parameter_tvb, parameter_tree);
+    break;
+  case UNRECONGNIZED_MESSAGE_CAUSE_CODE:
+    message_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, -1, -1);
+    dissect_asap_message(message_tvb, NULL, parameter_tree);
+    break;
+    break;
+  case INVALID_VALUES:
+    parameter_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, -1, -1);
+    dissect_parameter(parameter_tvb, parameter_tree);
+    break;
+  case NON_UNIQUE_PE_IDENTIFIER:
+    break;
+  case POOLING_POLICY_INCONSISTENT_CAUSE_CODE:
+    parameter_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, -1, -1);
+    dissect_parameter(parameter_tvb, parameter_tree);
+    break;
+  case LACK_OF_RESOURCES_CAUSE_CODE:
+    break;
+  case INCONSISTENT_TRANSPORT_TYPE_CAUSE_CODE:
+    parameter_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, -1, -1);
+    dissect_parameter(parameter_tvb, parameter_tree);
+    break;
+  case INCONSISTENT_DATA_CONTROL_CONFIGURATION_CAUSE_CODE:
+    break;
+  case UNKNOWN_POOL_HANDLE:
+    break;
   default:
     dissect_unknown_cause(cause_tvb, cause_tree, cause_item);
     break;
@@ -170,7 +218,7 @@ dissect_error_causes(tvbuff_t *error_causes_tvb, proto_tree *parameter_tree)
   }
 }
 
-/* Dissectors for parameters. This is common for ASAP and ENRP */
+/* Dissectors for parameters. This is common for ASAP and ENRP. */
 
 #define PARAMETER_TYPE_LENGTH   2
 #define PARAMETER_LENGTH_LENGTH 2
@@ -378,14 +426,18 @@ dissect_pe_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
   proto_item_append_text(parameter_item, " (0x%x)", tvb_get_ntohl(parameter_tvb, PE_IDENTIFIER_OFFSET));
 }
 
-#define PE_CHECKSUM_LENGTH 4
+#define PE_CHECKSUM_LENGTH 2
+#define PE_CHECKSUM_RESERVED_LENGTH 2
+
 #define PE_CHECKSUM_OFFSET PARAMETER_VALUE_OFFSET
+#define PE_CHECKSUM_RESERVED_OFFSET (PE_CHECKSUM_OFFSET + PE_CHECKSUM_LENGTH)
 
 static void
 dissect_pe_checksum_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_pe_checksum, parameter_tvb, PE_CHECKSUM_OFFSET, PE_CHECKSUM_LENGTH, NETWORK_BYTE_ORDER);
-  proto_item_append_text(parameter_item, " (0x%x)", tvb_get_ntohl(parameter_tvb, PE_CHECKSUM_OFFSET));
+  proto_tree_add_item(parameter_tree, hf_pe_checksum,          parameter_tvb, PE_CHECKSUM_OFFSET,          PE_CHECKSUM_LENGTH,          NETWORK_BYTE_ORDER);
+  proto_tree_add_item(parameter_tree, hf_pe_checksum_reserved, parameter_tvb, PE_CHECKSUM_RESERVED_OFFSET, PE_CHECKSUM_RESERVED_LENGTH, NETWORK_BYTE_ORDER);
+  proto_item_append_text(parameter_item, " (0x%x)", tvb_get_ntohs(parameter_tvb, PE_CHECKSUM_OFFSET));
 }
 
 static void
@@ -522,6 +574,8 @@ dissect_parameters(tvbuff_t *parameters_tvb, proto_tree *tree)
   }
 }
 
+/* Dissectors for messages. This is specific to ASAP */
+
 #define MESSAGE_TYPE_LENGTH   1
 #define MESSAGE_FLAGS_LENGTH  1
 #define MESSAGE_LENGTH_LENGTH 2
@@ -531,51 +585,85 @@ dissect_parameters(tvbuff_t *parameters_tvb, proto_tree *tree)
 #define MESSAGE_LENGTH_OFFSET (MESSAGE_FLAGS_OFFSET  + MESSAGE_FLAGS_LENGTH)
 #define MESSAGE_VALUE_OFFSET  (MESSAGE_LENGTH_OFFSET + MESSAGE_LENGTH_LENGTH)
 
-#define REGISTRATION_MESSAGE_TYPE             0x01
-#define DEREGISTRATION_MESSAGE_TYPE           0x02
-#define REGISTRATION_RESPONSE_MESSAGE_TYPE    0x03
-#define DEREGISTRATION_RESPONSE_MESSAGE_TYPE  0x04
-#define NAME_RESOLUTION_MESSAGE_TYPE          0x05
-#define NAME_RESOLUTION_RESPONSE_MESSAGE_TYPE 0x06
-#define ENDPOINT_KEEP_ALIVE_MESSAGE_TYPE      0x07
-#define ENDPOINT_KEEP_ALIVE_ACK_MESSAGE_TYPE  0x08
-#define ENDPOINT_UNREACHABLE_MESSAGE_TYPE     0x09
-#define SERVER_ANNOUNCE_MESSAGE_TYPE          0x0a
-#define COOKIE_MESSAGE_TYPE                   0x0b
-#define COOKIE_ECHO_MESSAGE_TYPE              0x0c
-#define BUSINESS_CARD_MESSAGE_TYPE            0x0d
-#define PEER_ERROR_MESSAGE_TYPE               0x0e
+#define REGISTRATION_MESSAGE_TYPE               0x01
+#define DEREGISTRATION_MESSAGE_TYPE             0x02
+#define REGISTRATION_RESPONSE_MESSAGE_TYPE      0x03
+#define DEREGISTRATION_RESPONSE_MESSAGE_TYPE    0x04
+#define HANDLE_RESOLUTION_MESSAGE_TYPE          0x05
+#define HANDLE_RESOLUTION_RESPONSE_MESSAGE_TYPE 0x06
+#define ENDPOINT_KEEP_ALIVE_MESSAGE_TYPE        0x07
+#define ENDPOINT_KEEP_ALIVE_ACK_MESSAGE_TYPE    0x08
+#define ENDPOINT_UNREACHABLE_MESSAGE_TYPE       0x09
+#define SERVER_ANNOUNCE_MESSAGE_TYPE            0x0a
+#define COOKIE_MESSAGE_TYPE                     0x0b
+#define COOKIE_ECHO_MESSAGE_TYPE                0x0c
+#define BUSINESS_CARD_MESSAGE_TYPE              0x0d
+#define ERROR_MESSAGE_TYPE                      0x0e
 
 static const value_string message_type_values[] = {
-  { REGISTRATION_MESSAGE_TYPE,             "Registration" },
-  { DEREGISTRATION_MESSAGE_TYPE,           "Deregistration" },
-  { REGISTRATION_RESPONSE_MESSAGE_TYPE,    "Registration response" },
-  { DEREGISTRATION_RESPONSE_MESSAGE_TYPE,  "Deregistration response" },
-  { NAME_RESOLUTION_MESSAGE_TYPE,          "Name resolution" },
-  { NAME_RESOLUTION_RESPONSE_MESSAGE_TYPE, "Name resolution response" },
-  { ENDPOINT_KEEP_ALIVE_MESSAGE_TYPE,      "Endpoint keep alive" },
-  { ENDPOINT_KEEP_ALIVE_ACK_MESSAGE_TYPE,  "Endpoint keep alive acknowledgement" },
-  { ENDPOINT_UNREACHABLE_MESSAGE_TYPE,     "Endpoint unreachable" },
-  { SERVER_ANNOUNCE_MESSAGE_TYPE,          "Server announce" },
-  { COOKIE_MESSAGE_TYPE,                   "Cookie" },
-  { COOKIE_ECHO_MESSAGE_TYPE,              "Cookie echo" },
-  { BUSINESS_CARD_MESSAGE_TYPE,            "Business card" },
-  { PEER_ERROR_MESSAGE_TYPE,               "Peer error" },
-  { 0,                                     NULL } };
+  { REGISTRATION_MESSAGE_TYPE,               "ASAP Registration" },
+  { DEREGISTRATION_MESSAGE_TYPE,             "ASAP Deregistration" },
+  { REGISTRATION_RESPONSE_MESSAGE_TYPE,      "ASAP Registration response" },
+  { DEREGISTRATION_RESPONSE_MESSAGE_TYPE,    "ASAP Deregistration response" },
+  { HANDLE_RESOLUTION_MESSAGE_TYPE,          "ASAP Name resolution" },
+  { HANDLE_RESOLUTION_RESPONSE_MESSAGE_TYPE, "ASAP Name resolution response" },
+  { ENDPOINT_KEEP_ALIVE_MESSAGE_TYPE,        "ASAP Endpoint keep alive" },
+  { ENDPOINT_KEEP_ALIVE_ACK_MESSAGE_TYPE,    "ASAP Endpoint keep alive acknowledgement" },
+  { ENDPOINT_UNREACHABLE_MESSAGE_TYPE,       "ASAP Endpoint unreachable" },
+  { SERVER_ANNOUNCE_MESSAGE_TYPE,            "ASAP Server announce" },
+  { COOKIE_MESSAGE_TYPE,                     "ASAP Cookie" },
+  { COOKIE_ECHO_MESSAGE_TYPE,                "ASAP Cookie echo" },
+  { BUSINESS_CARD_MESSAGE_TYPE,              "ASAP Business card" },
+  { ERROR_MESSAGE_TYPE,                      "ASAP Peer error" },
+  { 0,                                       NULL } };
+
+#define SERVER_IDENTIFIER_OFFSET MESSAGE_VALUE_OFFSET
+#define SERVER_IDENTIFIER_LENGTH 4
+
+#define HOME_ENRP_SERVER_BIT_MASK 0x01
+#define REJECT_BIT_MASK           0x01
+
+static const true_false_string home_enrp_server_bit_value = {
+  "Want to be new ENRP server",
+  "Do not want to be new ENRP server"
+};
+
+static const true_false_string reject_bit_value = {
+  "Rejected",
+  "Accepted"
+};
 
 static void
 dissect_asap_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *asap_tree)
 {
   tvbuff_t *parameters_tvb;
-
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET), message_type_values, "Unknown ASAP type"));
+  proto_item *flags_item;
+  proto_tree *flags_tree;
+  guint8 type;
+  
+  /* pinfo is NULL only if dissect_enrp_message is called from dissect_error cause */
+  
+  type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
+  if (pinfo && (check_col(pinfo->cinfo, COL_INFO)))
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, message_type_values, "Unknown ASAP type"));
     
   if (asap_tree) {
     proto_tree_add_item(asap_tree, hf_message_type,   message_tvb, MESSAGE_TYPE_OFFSET,   MESSAGE_TYPE_LENGTH,   NETWORK_BYTE_ORDER);
-    proto_tree_add_item(asap_tree, hf_message_flags,  message_tvb, MESSAGE_FLAGS_OFFSET,  MESSAGE_FLAGS_LENGTH,  NETWORK_BYTE_ORDER);
+    flags_item = proto_tree_add_item(asap_tree, hf_message_flags,  message_tvb, MESSAGE_FLAGS_OFFSET,  MESSAGE_FLAGS_LENGTH,  NETWORK_BYTE_ORDER);
+    flags_tree = proto_item_add_subtree(flags_item, ett_asap_flags);
+    if (type == REGISTRATION_RESPONSE_MESSAGE_TYPE) {
+      proto_tree_add_item(flags_tree, hf_reject_bit, message_tvb, MESSAGE_FLAGS_OFFSET, MESSAGE_FLAGS_LENGTH, NETWORK_BYTE_ORDER);
+    }
+    if (type == ENDPOINT_KEEP_ALIVE_MESSAGE_TYPE) {
+      proto_tree_add_item(flags_tree, hf_home_enrp_server_bit, message_tvb, MESSAGE_FLAGS_OFFSET, MESSAGE_FLAGS_LENGTH, NETWORK_BYTE_ORDER);
+    }
     proto_tree_add_item(asap_tree, hf_message_length, message_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, NETWORK_BYTE_ORDER);
-    parameters_tvb    = tvb_new_subset(message_tvb, MESSAGE_VALUE_OFFSET, -1, -1);
+    if (type == SERVER_ANNOUNCE_MESSAGE_TYPE) {
+      proto_tree_add_item(asap_tree, hf_server_identifier, message_tvb, SERVER_IDENTIFIER_OFFSET, SERVER_IDENTIFIER_LENGTH, NETWORK_BYTE_ORDER);
+      parameters_tvb = tvb_new_subset(message_tvb, MESSAGE_VALUE_OFFSET + SERVER_IDENTIFIER_LENGTH, -1, -1);
+    } else {
+      parameters_tvb = tvb_new_subset(message_tvb, MESSAGE_VALUE_OFFSET, -1, -1);
+    }
     dissect_parameters(parameters_tvb, asap_tree);
     }
 }
@@ -586,8 +674,8 @@ dissect_asap(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *asap_item;
   proto_tree *asap_tree;
 
-  /* make entry in the Protocol column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+  /* pinfo is NULL only if dissect_asap_message is called from dissect_error cause */
+  if (pinfo && (check_col(pinfo->cinfo, COL_PROTOCOL)))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ASAP");
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
@@ -610,41 +698,45 @@ proto_register_asap(void)
 
   /* Setup list of header fields */
   static hf_register_info hf[] = {
-    { &hf_message_type,           { "Type",                        "asap.message_type",                             FT_UINT8,   BASE_DEC,  VALS(message_type_values),   0x0,           "", HFILL } },
-    { &hf_message_flags,          { "Flags",                       "asap.message_flags",                            FT_UINT8,   BASE_HEX,  NULL,                        0x0,           "", HFILL } },
-    { &hf_message_length,         { "Length",                      "asap.message_length",                           FT_UINT16,  BASE_DEC,  NULL,                        0x0,           "", HFILL } },
-    { &hf_cause_code,             { "Cause code",                  "asap.cause_code",                               FT_UINT16,  BASE_HEX,  VALS(cause_code_values),     0x0,           "", HFILL } },
-    { &hf_cause_length,           { "Cause length",                "asap.cause_length",                             FT_UINT16,  BASE_DEC,  NULL,                        0x0,           "", HFILL } },
-    { &hf_cause_info,             { "Cause info",                  "asap.cause_info",                               FT_BYTES,   BASE_NONE, NULL,                        0x0,           "", HFILL } },
-    { &hf_cause_padding,          { "Padding",                     "asap.cause_padding",                            FT_BYTES,   BASE_NONE, NULL,                        0x0,           "", HFILL } },
-    { &hf_parameter_type,         { "Parameter Type",              "asap.parameter_type",                           FT_UINT16,  BASE_HEX,  VALS(parameter_type_values), 0x0,           "", HFILL } },
-    { &hf_parameter_length,       { "Parameter length",            "asap.parameter_length",                         FT_UINT16,  BASE_DEC,  NULL,                        0x0,           "", HFILL } },
-    { &hf_parameter_value,        { "Parameter value",             "asap.parameter_value",                          FT_BYTES,   BASE_NONE, NULL,                        0x0,           "", HFILL } },
-    { &hf_parameter_padding,      { "Padding",                     "asap.parameter_padding",                        FT_BYTES,   BASE_NONE, NULL,                        0x0,           "", HFILL } },
-    { &hf_parameter_ipv4_address, { "IP Version 4 address",        "asap.ipv4_address",                             FT_IPv4,    BASE_NONE, NULL,                        0x0,           "", HFILL } },
-    { &hf_parameter_ipv6_address, { "IP Version 6 address",        "asap.ipv6_address",                             FT_IPv6,    BASE_NONE, NULL,                        0x0,           "", HFILL } },
-    { &hf_sctp_port,              { "Port",                        "asap.sctp_transport_port",                      FT_UINT16,  BASE_DEC,  NULL,                        0x0,           "", HFILL } },
-    { &hf_transport_use,          { "Transport use",               "asap.transport_use",                            FT_UINT16,  BASE_DEC,  VALS(transport_use_values),  0x0,           "", HFILL } },
-    { &hf_tcp_port,               { "Port",                        "asap.tcp_transport_port",                       FT_UINT16,  BASE_DEC,  NULL,                        0x0,           "", HFILL } },
-    { &hf_udp_port,               { "Port",                        "asap.udp_transport_port",                       FT_UINT16,  BASE_DEC,  NULL,                        0x0,           "", HFILL } },
-    { &hf_udp_reserved,           { "Reserved",                    "asap.udp_transport_reserved",                   FT_UINT16,  BASE_DEC,  NULL,                        0x0,           "", HFILL } },
-    { &hf_policy_type,            { "Policy type",                 "asap.pool_member_slection_policy_type",         FT_UINT8,   BASE_DEC,  VALS(policy_type_values),    0x0,           "", HFILL } },
-    { &hf_policy_value,           { "Policy value",                "asap.pool_member_slection_policy_value",        FT_INT24,   BASE_DEC,  NULL,                        0x0,           "", HFILL } },
-    { &hf_pool_handle,            { "Pool handle",                 "asap.pool_handle_pool_handle",                  FT_BYTES,   BASE_HEX,  NULL,                        0x0,           "", HFILL } },
-    { &hf_pe_pe_identifier,       { "PE identifier",               "asap.pool_element_pe_identifier",               FT_UINT32,  BASE_HEX,  NULL,                        0x0,           "", HFILL } },
-    { &hf_home_enrp_id,           { "Home ENRP server identifier", "asap.pool_element_home_enrp_server_identifier", FT_UINT32,  BASE_HEX,  NULL,                        0x0,           "", HFILL } },
-    { &hf_reg_life,               { "Registration life",           "asap.pool_element_registration_life",           FT_INT32,   BASE_DEC,  NULL,                        0x0,           "", HFILL } },
-    { &hf_server_identifier,      { "Server identifier",           "asap.server_information_server_identifier",     FT_UINT32,  BASE_HEX,  NULL,                        0x0,           "", HFILL } },
-    { &hf_m_bit,                  { "M-Bit",                       "asap.server_information_m_bit",                 FT_BOOLEAN, 32,        NULL,                        M_BIT_MASK,    "", HFILL } },
-    { &hf_reserved,               { "Reserved",                    "asap.server_information_reserved",              FT_UINT32,  BASE_HEX,  NULL,                        RESERVED_MASK, "", HFILL } },
-    { &hf_cookie,                 { "Cookie",                      "asap.cookie",                                   FT_BYTES,   BASE_HEX,  NULL,                        0x0,           "", HFILL } },
-    { &hf_pe_identifier,          { "PE identifier",               "asap.pe_identifier",                            FT_UINT32,  BASE_HEX,  NULL,                        0x0,           "", HFILL } },
-    { &hf_pe_checksum,            { "PE checksum",                 "asap.pe_checksum",                              FT_UINT32,  BASE_HEX,  NULL,                        0x0,           "", HFILL } },
+    { &hf_message_type,           { "Type",                        "asap.message_type",                             FT_UINT8,   BASE_DEC,  VALS(message_type_values),        0x0,                       "", HFILL } },
+    { &hf_message_flags,          { "Flags",                       "asap.message_flags",                            FT_UINT8,   BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_message_length,         { "Length",                      "asap.message_length",                           FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_cause_code,             { "Cause code",                  "asap.cause_code",                               FT_UINT16,  BASE_HEX,  VALS(cause_code_values),          0x0,                       "", HFILL } },
+    { &hf_cause_length,           { "Cause length",                "asap.cause_length",                             FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_cause_info,             { "Cause info",                  "asap.cause_info",                               FT_BYTES,   BASE_NONE, NULL,                             0x0,                       "", HFILL } },
+    { &hf_cause_padding,          { "Padding",                     "asap.cause_padding",                            FT_BYTES,   BASE_NONE, NULL,                             0x0,                       "", HFILL } },
+    { &hf_parameter_type,         { "Parameter Type",              "asap.parameter_type",                           FT_UINT16,  BASE_HEX,  VALS(parameter_type_values),      0x0,                       "", HFILL } },
+    { &hf_parameter_length,       { "Parameter length",            "asap.parameter_length",                         FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_parameter_value,        { "Parameter value",             "asap.parameter_value",                          FT_BYTES,   BASE_NONE, NULL,                             0x0,                       "", HFILL } },
+    { &hf_parameter_padding,      { "Padding",                     "asap.parameter_padding",                        FT_BYTES,   BASE_NONE, NULL,                             0x0,                       "", HFILL } },
+    { &hf_parameter_ipv4_address, { "IP Version 4 address",        "asap.ipv4_address",                             FT_IPv4,    BASE_NONE, NULL,                             0x0,                       "", HFILL } },
+    { &hf_parameter_ipv6_address, { "IP Version 6 address",        "asap.ipv6_address",                             FT_IPv6,    BASE_NONE, NULL,                             0x0,                       "", HFILL } },
+    { &hf_sctp_port,              { "Port",                        "asap.sctp_transport_port",                      FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_transport_use,          { "Transport use",               "asap.transport_use",                            FT_UINT16,  BASE_DEC,  VALS(transport_use_values),       0x0,                       "", HFILL } },
+    { &hf_tcp_port,               { "Port",                        "asap.tcp_transport_port",                       FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_udp_port,               { "Port",                        "asap.udp_transport_port",                       FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_udp_reserved,           { "Reserved",                    "asap.udp_transport_reserved",                   FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_policy_type,            { "Policy type",                 "asap.pool_member_slection_policy_type",         FT_UINT8,   BASE_DEC,  VALS(policy_type_values),         0x0,                       "", HFILL } },
+    { &hf_policy_value,           { "Policy value",                "asap.pool_member_slection_policy_value",        FT_INT24,   BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_pool_handle,            { "Pool handle",                 "asap.pool_handle_pool_handle",                  FT_BYTES,   BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_pe_pe_identifier,       { "PE identifier",               "asap.pool_element_pe_identifier",               FT_UINT32,  BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_home_enrp_id,           { "Home ENRP server identifier", "asap.pool_element_home_enrp_server_identifier", FT_UINT32,  BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_reg_life,               { "Registration life",           "asap.pool_element_registration_life",           FT_INT32,   BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_m_bit,                  { "M-Bit",                       "asap.server_information_m_bit",                 FT_BOOLEAN, 32,        NULL,                             M_BIT_MASK,                "", HFILL } },
+    { &hf_reserved,               { "Reserved",                    "asap.server_information_reserved",              FT_UINT32,  BASE_HEX,  NULL,                             RESERVED_MASK,             "", HFILL } },
+    { &hf_cookie,                 { "Cookie",                      "asap.cookie",                                   FT_BYTES,   BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_pe_identifier,          { "PE identifier",               "asap.pe_identifier",                            FT_UINT32,  BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_pe_checksum,            { "PE checksum",                 "asap.pe_checksum",                              FT_UINT32,  BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_pe_checksum_reserved,   { "Reserved",                    "asap.pe_checksum_reserved",                     FT_UINT16,  BASE_HEX,  NULL,                             0x0,                       "", HFILL } },  
+    { &hf_server_identifier,      { "Server identifier",           "asap.server_identifier",                        FT_UINT32,  BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_home_enrp_server_bit,   { "H bit",                       "asap.h_bit",                                    FT_BOOLEAN, 8,         TFS(&home_enrp_server_bit_value), HOME_ENRP_SERVER_BIT_MASK, "", HFILL } },
+    { &hf_reject_bit,             { "R bit",                       "asap.r_bit",                                    FT_BOOLEAN, 8,         TFS(&reject_bit_value),           REJECT_BIT_MASK,           "", HFILL } },
   };
 
   /* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_asap,
+    &ett_asap_flags,
     &ett_asap_parameter,
     &ett_asap_cause,
   };

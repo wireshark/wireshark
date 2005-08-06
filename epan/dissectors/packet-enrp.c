@@ -1,8 +1,8 @@
 /* packet-enrp.c
  * Routines for Endpoint Name Resolution Protocol (ENRP)
  * It is hopefully (needs testing) compilant to
- * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-common-param-06.txt
- * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-enrp-09.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-common-param-09.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-enrp-12.txt
  *
  * The code is not as simple as possible for the current protocol
  * but allows to be easily adopted to future versions of the protocol.
@@ -11,7 +11,7 @@
  * TODO:
  *   - check message lengths
  *
- * Copyright 2004, Michael Tuexen <tuexen [AT] fh-muenster.de>
+ * Copyright 2004, 2005 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
  * $Id$
  *
@@ -76,6 +76,7 @@ static int hf_reserved = -1;
 static int hf_cookie = -1;
 static int hf_pe_identifier = -1;
 static int hf_pe_checksum = -1;
+static int hf_pe_checksum_reserved = -1;
 static int hf_sender_servers_id = -1;
 static int hf_receiver_servers_id = -1;
 static int hf_target_servers_id = -1;
@@ -94,9 +95,17 @@ static gint ett_enrp_flags = -1;
 
 static void
 dissect_parameters(tvbuff_t *, proto_tree *);
+static void
+dissect_parameter(tvbuff_t *, proto_tree *);
+static void
+dissect_enrp_message(tvbuff_t *, packet_info *, proto_tree *);
 
 #define NETWORK_BYTE_ORDER     FALSE
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
+
+/* These following ports are NOT reserved. */
+#define ENRP_UDP_PORT  3864
+#define ASAP_SCTP_PORT 3864
 
 /* Dissectors for error causes. This is common for ASAP and ENRP. */
 
@@ -131,6 +140,7 @@ dissect_unknown_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *c
 #define LACK_OF_RESOURCES_CAUSE_CODE                       6
 #define INCONSISTENT_TRANSPORT_TYPE_CAUSE_CODE             7
 #define INCONSISTENT_DATA_CONTROL_CONFIGURATION_CAUSE_CODE 8
+#define UNKNOWN_POOL_HANDLE                                9
 
 static const value_string cause_code_values[] = {
   { UNRECOGNIZED_PARAMETER_CAUSE_CODE,                  "Unrecognized parameter"         },
@@ -141,6 +151,7 @@ static const value_string cause_code_values[] = {
   { LACK_OF_RESOURCES_CAUSE_CODE,                       "Lack of resources"              },
   { INCONSISTENT_TRANSPORT_TYPE_CAUSE_CODE,             "Inconsistent transport type"    },
   { INCONSISTENT_DATA_CONTROL_CONFIGURATION_CAUSE_CODE, "Inconsistent data/control type" },
+  { UNKNOWN_POOL_HANDLE,                                "Unknown pool handle"            },
   { 0,                                                  NULL                             } };
 
 static void
@@ -149,6 +160,7 @@ dissect_error_cause(tvbuff_t *cause_tvb, proto_tree *parameter_tree)
   guint16 code, length, padding_length;
   proto_item *cause_item;
   proto_tree *cause_tree;
+  tvbuff_t *parameter_tvb, *message_tvb;
 
   code           = tvb_get_ntohs(cause_tvb, CAUSE_CODE_OFFSET);
   length         = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
@@ -161,6 +173,35 @@ dissect_error_cause(tvbuff_t *cause_tvb, proto_tree *parameter_tree)
   proto_tree_add_item(cause_tree, hf_cause_length, cause_tvb, CAUSE_LENGTH_OFFSET, CAUSE_LENGTH_LENGTH, NETWORK_BYTE_ORDER);
 
   switch(code) {
+  case UNRECOGNIZED_PARAMETER_CAUSE_CODE:
+    parameter_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, -1, -1);
+    dissect_parameter(parameter_tvb, parameter_tree);
+    break;
+  case UNRECONGNIZED_MESSAGE_CAUSE_CODE:
+    message_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, -1, -1);
+    dissect_enrp_message(message_tvb, NULL, parameter_tree);
+    break;
+    break;
+  case INVALID_VALUES:
+    parameter_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, -1, -1);
+    dissect_parameter(parameter_tvb, parameter_tree);
+    break;
+  case NON_UNIQUE_PE_IDENTIFIER:
+    break;
+  case POOLING_POLICY_INCONSISTENT_CAUSE_CODE:
+    parameter_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, -1, -1);
+    dissect_parameter(parameter_tvb, parameter_tree);
+    break;
+  case LACK_OF_RESOURCES_CAUSE_CODE:
+    break;
+  case INCONSISTENT_TRANSPORT_TYPE_CAUSE_CODE:
+    parameter_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, -1, -1);
+    dissect_parameter(parameter_tvb, parameter_tree);
+    break;
+  case INCONSISTENT_DATA_CONTROL_CONFIGURATION_CAUSE_CODE:
+    break;
+  case UNKNOWN_POOL_HANDLE:
+    break;
   default:
     dissect_unknown_cause(cause_tvb, cause_tree, cause_item);
     break;
@@ -394,14 +435,18 @@ dissect_pe_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
   proto_item_append_text(parameter_item, " (0x%x)", tvb_get_ntohl(parameter_tvb, PE_IDENTIFIER_OFFSET));
 }
 
-#define PE_CHECKSUM_LENGTH 4
+#define PE_CHECKSUM_LENGTH 2
+#define PE_CHECKSUM_RESERVED_LENGTH 2
+
 #define PE_CHECKSUM_OFFSET PARAMETER_VALUE_OFFSET
+#define PE_CHECKSUM_RESERVED_OFFSET (PE_CHECKSUM_OFFSET + PE_CHECKSUM_LENGTH)
 
 static void
 dissect_pe_checksum_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_pe_checksum, parameter_tvb, PE_CHECKSUM_OFFSET, PE_CHECKSUM_LENGTH, NETWORK_BYTE_ORDER);
-  proto_item_append_text(parameter_item, " (0x%x)", tvb_get_ntohl(parameter_tvb, PE_CHECKSUM_OFFSET));
+  proto_tree_add_item(parameter_tree, hf_pe_checksum,          parameter_tvb, PE_CHECKSUM_OFFSET,          PE_CHECKSUM_LENGTH,          NETWORK_BYTE_ORDER);
+  proto_tree_add_item(parameter_tree, hf_pe_checksum_reserved, parameter_tvb, PE_CHECKSUM_RESERVED_OFFSET, PE_CHECKSUM_RESERVED_LENGTH, NETWORK_BYTE_ORDER);
+  proto_item_append_text(parameter_item, " (0x%x)", tvb_get_ntohs(parameter_tvb, PE_CHECKSUM_OFFSET));
 }
 
 static void
@@ -565,7 +610,7 @@ static const true_false_string reply_required_bit_value = {
 };
 
 static void
-dissect_peer_presence_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree)
+dissect_enrp_presence_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree)
 {
   tvbuff_t *parameters_tvb;
   
@@ -585,7 +630,7 @@ static const true_false_string own_children_only_bit_value = {
 
 
 static void
-dissect_peer_name_table_request_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree)
+dissect_enrp_handle_table_request_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree)
 {
   /* FIXME: ensure that the length is 12 bytes. */
   proto_tree_add_item(flags_tree,   hf_own_children_only_bit,  message_tvb, MESSAGE_FLAGS_OFFSET,       MESSAGE_FLAGS_LENGTH,       NETWORK_BYTE_ORDER);
@@ -607,7 +652,7 @@ static const true_false_string more_to_send_bit_value = {
 };
 
 static void
-dissect_peer_name_table_response_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree)
+dissect_enrp_handle_table_response_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree)
 {
   tvbuff_t *parameters_tvb;
   
@@ -632,7 +677,7 @@ static const value_string update_action_values[] = {
   { 0, NULL                  } };
 
 static void
-dissect_peer_name_update_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree _U_)
+dissect_enrp_handle_update_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree _U_)
 {  
   tvbuff_t *parameters_tvb;
   
@@ -645,7 +690,7 @@ dissect_peer_name_update_message(tvbuff_t *message_tvb, proto_tree *message_tree
 }
 
 static void
-dissect_peer_list_request_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree _U_)
+dissect_enrp_list_request_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree _U_)
 {  
   /* FIXME: ensure that the length is 12 bytes. */
   proto_tree_add_item(message_tree, hf_sender_servers_id,   message_tvb, SENDER_SERVERS_ID_OFFSET,   SENDER_SERVERS_ID_LENGTH,   NETWORK_BYTE_ORDER);
@@ -653,7 +698,7 @@ dissect_peer_list_request_message(tvbuff_t *message_tvb, proto_tree *message_tre
 }
 
 static void
-dissect_peer_list_response_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree)
+dissect_enrp_list_response_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree)
 {
   tvbuff_t *parameters_tvb;
   
@@ -668,7 +713,7 @@ dissect_peer_list_response_message(tvbuff_t *message_tvb, proto_tree *message_tr
 #define TARGET_SERVERS_ID_OFFSET (RECEIVER_SERVERS_ID_OFFSET + RECEIVER_SERVERS_ID_LENGTH)
 
 static void
-dissect_peer_init_takeover_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree _U_)
+dissect_enrp_init_takeover_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree _U_)
 {  
   /* FIXME: ensure that the length is 16 bytes. */
   proto_tree_add_item(message_tree, hf_sender_servers_id,   message_tvb, SENDER_SERVERS_ID_OFFSET,   SENDER_SERVERS_ID_LENGTH,   NETWORK_BYTE_ORDER);
@@ -677,7 +722,7 @@ dissect_peer_init_takeover_message(tvbuff_t *message_tvb, proto_tree *message_tr
 }
 
 static void
-dissect_peer_init_takeover_ack_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree _U_)
+dissect_enrp_init_takeover_ack_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree _U_)
 {  
   /* FIXME: ensure that the length is 16 bytes. */
   proto_tree_add_item(message_tree, hf_sender_servers_id,   message_tvb, SENDER_SERVERS_ID_OFFSET,   SENDER_SERVERS_ID_LENGTH,   NETWORK_BYTE_ORDER);
@@ -686,7 +731,7 @@ dissect_peer_init_takeover_ack_message(tvbuff_t *message_tvb, proto_tree *messag
 }
 
 static void
-dissect_peer_init_takeover_server_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree _U_)
+dissect_enrp_init_takeover_server_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree _U_)
 {  
   /* FIXME: ensure that the length is 16 bytes. */
   proto_tree_add_item(message_tree, hf_sender_servers_id,   message_tvb, SENDER_SERVERS_ID_OFFSET,   SENDER_SERVERS_ID_LENGTH,   NETWORK_BYTE_ORDER);
@@ -695,18 +740,7 @@ dissect_peer_init_takeover_server_message(tvbuff_t *message_tvb, proto_tree *mes
 }
 
 static void
-dissect_peer_ownership_change_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree _U_)
-{
-  tvbuff_t *parameters_tvb;
-  
-  proto_tree_add_item(message_tree, hf_sender_servers_id,   message_tvb, SENDER_SERVERS_ID_OFFSET,   SENDER_SERVERS_ID_LENGTH,   NETWORK_BYTE_ORDER);
-  proto_tree_add_item(message_tree, hf_receiver_servers_id, message_tvb, RECEIVER_SERVERS_ID_OFFSET, RECEIVER_SERVERS_ID_LENGTH, NETWORK_BYTE_ORDER);
-  parameters_tvb = tvb_new_subset(message_tvb, MESSAGE_PARAMETERS_OFFSET, -1, -1);
-  dissect_parameters(parameters_tvb, message_tree);
-}
-
-static void
-dissect_peer_error_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree _U_)
+dissect_enrp_error_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_tree *flags_tree _U_)
 {
   tvbuff_t *parameters_tvb;
   
@@ -722,31 +756,29 @@ dissect_unknown_message(tvbuff_t *message_tvb, proto_tree *message_tree, proto_t
   proto_tree_add_item(message_tree, hf_message_value, message_tvb, MESSAGE_VALUE_OFFSET, tvb_length(message_tvb) - MESSAGE_HEADER_LENGTH, NETWORK_BYTE_ORDER);
 }
 
-#define PEER_PRESENCE_MESSAGE_TYPE            0x01
-#define PEER_NAME_TABLE_REQUEST_MESSAGE_TYPE  0x02
-#define PEER_NAME_TABLE_RESPONSE_MESSAGE_TYPE 0x03
-#define PEER_NAME_UPDATE_MESSAGE_TYPE         0x04
-#define PEER_LIST_REQUEST_MESSAGE_TYPE        0x05
-#define PEER_LIST_RESPONSE_MESSAGE_TYPE       0x06
-#define PEER_INIT_TAKEOVER_MESSAGE_TYPE       0x07
-#define PEER_INIT_TAKEOVER_ACK_MESSAGE_TYPE   0x08
-#define PEER_TAKEOVER_SERVER_MESSAGE_TYPE     0x09
-#define PEER_OWNERSHIP_CHANGE_MESSAGE_TYPE    0x0a
-#define PEER_ERROR_MESSAGE_TYPE               0x0b
+#define ENRP_PRESENCE_MESSAGE_TYPE              0x01
+#define ENRP_HANDLE_TABLE_REQUEST_MESSAGE_TYPE  0x02
+#define ENRP_HANDLE_TABLE_RESPONSE_MESSAGE_TYPE 0x03
+#define ENRP_HANDLE_UPDATE_MESSAGE_TYPE         0x04
+#define ENRP_LIST_REQUEST_MESSAGE_TYPE          0x05
+#define ENRP_LIST_RESPONSE_MESSAGE_TYPE         0x06
+#define ENRP_INIT_TAKEOVER_MESSAGE_TYPE         0x07
+#define ENRP_INIT_TAKEOVER_ACK_MESSAGE_TYPE     0x08
+#define ENRP_TAKEOVER_SERVER_MESSAGE_TYPE       0x09
+#define ENRP_ERROR_MESSAGE_TYPE                 0x0a
 
 static const value_string message_type_values[] = {
-  { PEER_PRESENCE_MESSAGE_TYPE,            "Peer presence" },
-  { PEER_NAME_TABLE_REQUEST_MESSAGE_TYPE,  "Peer name table request" },
-  { PEER_NAME_TABLE_RESPONSE_MESSAGE_TYPE, "Peer name table response" },
-  { PEER_NAME_UPDATE_MESSAGE_TYPE,         "Peer name update" },
-  { PEER_LIST_REQUEST_MESSAGE_TYPE,        "Peer list request" },
-  { PEER_LIST_RESPONSE_MESSAGE_TYPE,       "Peer list response" },
-  { PEER_INIT_TAKEOVER_MESSAGE_TYPE,       "Peer init takeover" },
-  { PEER_INIT_TAKEOVER_ACK_MESSAGE_TYPE,   "Peer init takeover ack" },
-  { PEER_TAKEOVER_SERVER_MESSAGE_TYPE,     "Peer takeover server" },
-  { PEER_OWNERSHIP_CHANGE_MESSAGE_TYPE,    "Peer ownership change" },
-  { PEER_ERROR_MESSAGE_TYPE,               "Peer error" },
-  { 0,                                     NULL } };
+  { ENRP_PRESENCE_MESSAGE_TYPE,              "ENRP presence" },
+  { ENRP_HANDLE_TABLE_REQUEST_MESSAGE_TYPE,  "ENRP handle table request" },
+  { ENRP_HANDLE_TABLE_RESPONSE_MESSAGE_TYPE, "ENRP handle table response" },
+  { ENRP_HANDLE_UPDATE_MESSAGE_TYPE,         "ENRP handle update" },
+  { ENRP_LIST_REQUEST_MESSAGE_TYPE,          "ENRP list request" },
+  { ENRP_LIST_RESPONSE_MESSAGE_TYPE,         "ENRP list response" },
+  { ENRP_INIT_TAKEOVER_MESSAGE_TYPE,         "ENRP init takeover" },
+  { ENRP_INIT_TAKEOVER_ACK_MESSAGE_TYPE,     "ENRP init takeover ack" },
+  { ENRP_TAKEOVER_SERVER_MESSAGE_TYPE,       "ENRP takeover server" },
+  { ENRP_ERROR_MESSAGE_TYPE,                 "ENRP error" },
+  { 0,                                       NULL } };
 
 static void
 dissect_enrp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *enrp_tree)
@@ -756,7 +788,8 @@ dissect_enrp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *enrp
   guint8 type;
   
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
-  if (check_col(pinfo->cinfo, COL_INFO))
+  /* pinfo is NULL only if dissect_enrp_message is called from dissect_error cause */
+  if (pinfo && (check_col(pinfo->cinfo, COL_INFO)))
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, message_type_values, "Unknown ENRP type"));
     
   if (enrp_tree) {
@@ -765,38 +798,35 @@ dissect_enrp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *enrp
     flags_tree  = proto_item_add_subtree(flags_item, ett_enrp_flags);
     proto_tree_add_item(enrp_tree, hf_message_length, message_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, NETWORK_BYTE_ORDER);
     switch (type) {
-      case PEER_PRESENCE_MESSAGE_TYPE:
-        dissect_peer_presence_message(message_tvb, enrp_tree, flags_tree);
+      case ENRP_PRESENCE_MESSAGE_TYPE:
+        dissect_enrp_presence_message(message_tvb, enrp_tree, flags_tree);
         break;
-      case PEER_NAME_TABLE_REQUEST_MESSAGE_TYPE:
-        dissect_peer_name_table_request_message(message_tvb, enrp_tree, flags_tree);
+      case ENRP_HANDLE_TABLE_REQUEST_MESSAGE_TYPE:
+        dissect_enrp_handle_table_request_message(message_tvb, enrp_tree, flags_tree);
         break;
-      case PEER_NAME_TABLE_RESPONSE_MESSAGE_TYPE:
-        dissect_peer_name_table_response_message(message_tvb, enrp_tree, flags_tree);
+      case ENRP_HANDLE_TABLE_RESPONSE_MESSAGE_TYPE:
+        dissect_enrp_handle_table_response_message(message_tvb, enrp_tree, flags_tree);
         break;
-      case PEER_NAME_UPDATE_MESSAGE_TYPE:
-        dissect_peer_name_update_message(message_tvb, enrp_tree, flags_tree);
+      case ENRP_HANDLE_UPDATE_MESSAGE_TYPE:
+        dissect_enrp_handle_update_message(message_tvb, enrp_tree, flags_tree);
         break;
-      case PEER_LIST_REQUEST_MESSAGE_TYPE:
-        dissect_peer_list_request_message(message_tvb, enrp_tree, flags_tree);
+      case ENRP_LIST_REQUEST_MESSAGE_TYPE:
+        dissect_enrp_list_request_message(message_tvb, enrp_tree, flags_tree);
         break;
-      case PEER_LIST_RESPONSE_MESSAGE_TYPE:
-        dissect_peer_list_response_message(message_tvb, enrp_tree, flags_tree);
+      case ENRP_LIST_RESPONSE_MESSAGE_TYPE:
+        dissect_enrp_list_response_message(message_tvb, enrp_tree, flags_tree);
         break;
-      case PEER_INIT_TAKEOVER_MESSAGE_TYPE:
-        dissect_peer_init_takeover_message(message_tvb, enrp_tree, flags_tree);
+      case ENRP_INIT_TAKEOVER_MESSAGE_TYPE:
+        dissect_enrp_init_takeover_message(message_tvb, enrp_tree, flags_tree);
         break;
-      case PEER_INIT_TAKEOVER_ACK_MESSAGE_TYPE:
-        dissect_peer_init_takeover_ack_message(message_tvb, enrp_tree, flags_tree);
+      case ENRP_INIT_TAKEOVER_ACK_MESSAGE_TYPE:
+        dissect_enrp_init_takeover_ack_message(message_tvb, enrp_tree, flags_tree);
         break;
-      case PEER_TAKEOVER_SERVER_MESSAGE_TYPE:
-        dissect_peer_init_takeover_server_message(message_tvb, enrp_tree, flags_tree);
+      case ENRP_TAKEOVER_SERVER_MESSAGE_TYPE:
+        dissect_enrp_init_takeover_server_message(message_tvb, enrp_tree, flags_tree);
         break;
-      case PEER_OWNERSHIP_CHANGE_MESSAGE_TYPE:
-        dissect_peer_ownership_change_message(message_tvb, enrp_tree, flags_tree);
-        break;
-      case PEER_ERROR_MESSAGE_TYPE:
-        dissect_peer_error_message(message_tvb, enrp_tree, flags_tree);
+      case ENRP_ERROR_MESSAGE_TYPE:
+        dissect_enrp_error_message(message_tvb, enrp_tree, flags_tree);
         break;
       default:
         dissect_unknown_message(message_tvb, enrp_tree, flags_tree);
@@ -865,7 +895,8 @@ proto_register_enrp(void)
     { &hf_reserved,               { "Reserved",                    "enrp.server_information_reserved",              FT_UINT32,  BASE_HEX,  NULL,                              RESERVED_MASK,              "", HFILL } },
     { &hf_cookie,                 { "Cookie",                      "enrp.cookie",                                   FT_BYTES,   BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
     { &hf_pe_identifier,          { "PE identifier",               "enrp.pe_identifier",                            FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_pe_checksum,            { "PE checksum",                 "enrp.pe_checksum",                              FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_pe_checksum,            { "PE checksum",                 "enrp.pe_checksum",                              FT_UINT16,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_pe_checksum_reserved,   { "Reserved",                    "enrp.pe_checksum_reserved",                     FT_UINT16,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },  
     { &hf_sender_servers_id,      { "Sender server's ID",          "enrp.sender_servers_id",                        FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
     { &hf_receiver_servers_id,    { "Receiver server's ID",        "enrp.receiver_servers_id",                      FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
     { &hf_target_servers_id,      { "Target server's ID",          "enrp.target_servers_id",                        FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
@@ -901,4 +932,6 @@ proto_reg_handoff_enrp(void)
 
   enrp_handle = create_dissector_handle(dissect_enrp, proto_enrp);
   dissector_add("sctp.ppi", ENRP_PAYLOAD_PROTOCOL_ID, enrp_handle);
+/* The following line will be uncommented AFTER a port number is assinged. */
+/* dissector_add("udp.port", ENRP_UDP_PORT,            enrp_handle);       */
 }
