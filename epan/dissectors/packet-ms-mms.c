@@ -40,6 +40,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/strutil.h>
 
 static dissector_handle_t msmms_handle;
 static gint               proto_msmms                      = -1;
@@ -765,7 +766,7 @@ gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                    guint offset, guint length_remaining)
 {
-    char    *transport_info = "";
+    char    *transport_info;
     guint   ipaddr[4];
     char    protocol[3];
     guint   port;
@@ -794,7 +795,8 @@ void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", transport_info);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
+                        format_text(transport_info, length_remaining - 20));
     }
 
 
@@ -836,10 +838,7 @@ void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     }
 
     /* Can now free this string */
-    if (transport_info != NULL && strlen(transport_info))
-    {
-        g_free(transport_info);
-    }
+    g_free(transport_info);
 }
 
 /* Dissect server data */
@@ -850,10 +849,10 @@ void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint32 tool_version_length = 0;
     guint32 download_update_player_length = 0;
     guint32 password_encryption_type_length = 0;
-    const char    *server_version = "";
-    const char    *tool_version = "";
-    const char    *download_update_player = "";
-    const char    *password_encryption_type = "";
+    char    *server_version;
+    char    *tool_version;
+    char    *download_update_player;
+    char    *password_encryption_type;
 
     /* ErrorCode */
     proto_tree_add_item(tree, hf_msmms_command_prefix1_error, tvb, offset, 4, TRUE);
@@ -903,24 +902,22 @@ void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Server version string */
     if (server_version_length > 1)
     {
-        server_version = tvb_fake_unicode(tvb, offset, server_version_length*2, TRUE);
+        server_version = tvb_fake_unicode(tvb, offset, server_version_length, TRUE);
 
         /* Server version string */
-        proto_tree_add_string_format(tree, hf_msmms_command_server_version, tvb,
-                                     offset, server_version_length*2,
-                                     server_version, "Server version: %s", server_version);
+        proto_tree_add_string(tree, hf_msmms_command_server_version, tvb,
+                              offset, server_version_length*2,
+                              server_version);
 
         if (check_col(pinfo->cinfo, COL_INFO))
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, " (version='%s')", server_version);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (version='%s')",
+	                    format_text(server_version, server_version_length));
         }
 
 
         /* Can now free this string */
-        if (server_version != NULL && strlen(server_version))
-        {
-            g_free(server_version);
-        }
+        g_free(server_version);
     }
     offset += (server_version_length*2);
 
@@ -928,54 +925,43 @@ void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Tool version string */
     if (tool_version_length > 1)
     {
-        tool_version = tvb_fake_unicode(tvb, offset, tool_version_length*2, TRUE);
+        tool_version = tvb_fake_unicode(tvb, offset, tool_version_length, TRUE);
 
         /* Server version string */
-        proto_tree_add_string_format(tree, hf_msmms_command_tool_version, tvb,
-                                     offset, tool_version_length*2,
-                                     server_version, "Tool version: %s", tool_version);
+        proto_tree_add_string(tree, hf_msmms_command_tool_version, tvb,
+                              offset, tool_version_length*2,
+                              format_text(tool_version, tool_version_length));
 
         /* Can now free this string */
-        if (tool_version != NULL && strlen(tool_version))
-        {
-            g_free(tool_version);
-        }
+        g_free(tool_version);
     }
     offset += (tool_version_length*2);
 
     /* Download update player url string */
     if (download_update_player_length > 1)
     {
-        download_update_player = tvb_fake_unicode(tvb, offset, download_update_player_length*2, TRUE);
+        download_update_player = tvb_fake_unicode(tvb, offset, download_update_player_length, TRUE);
 
-        proto_tree_add_string_format(tree, hf_msmms_command_update_url_length, tvb,
-                                     offset, download_update_player_length*2,
-                                     download_update_player, "Download update player URL: (%s)",
-                                     download_update_player);
+        proto_tree_add_string(tree, hf_msmms_command_update_url, tvb,
+                              offset, download_update_player_length*2,
+                              download_update_player);
 
         /* Can now free this string */
-        if (download_update_player != NULL && strlen(download_update_player))
-        {
-            g_free(download_update_player);
-        }
+        g_free(download_update_player);
     }
     offset += (download_update_player_length*2);
 
     /* Password encryption type string */
     if (password_encryption_type_length > 1)
     {
-        password_encryption_type = tvb_fake_unicode(tvb, offset, password_encryption_type_length*2, TRUE);
+        password_encryption_type = tvb_fake_unicode(tvb, offset, password_encryption_type_length, TRUE);
 
-        proto_tree_add_string_format(tree, hf_msmms_command_password_type, tvb,
-                                     offset, password_encryption_type_length*2,
-                                     password_encryption_type, "Password encryption type: (%s)",
-                                     password_encryption_type);
+        proto_tree_add_string(tree, hf_msmms_command_password_type, tvb,
+                              offset, password_encryption_type_length*2,
+                              password_encryption_type);
 
         /* Can now free this string */
-        if (password_encryption_type != NULL && strlen(password_encryption_type))
-        {
-            g_free(password_encryption_type);
-        }
+        g_free(password_encryption_type);
     }
     offset += (password_encryption_type_length*2);
 
@@ -985,7 +971,7 @@ void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 void dissect_client_player_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 guint offset, guint length_remaining)
 {
-    const char *player_info = "";
+    char *player_info;
 
     /* Flags */
     proto_tree_add_item(tree, hf_msmms_command_prefix1, tvb, offset, 4, TRUE);
@@ -1000,20 +986,18 @@ void dissect_client_player_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     /* Extract and show the string in tree and info column */
     player_info = tvb_fake_unicode(tvb, offset, (length_remaining - 12)/2, TRUE);
 
-    proto_tree_add_string_format(tree, hf_msmms_command_client_player_info, tvb,
-                                 offset, length_remaining-12,
-                                 player_info, "Player details: (%s)", player_info);
+    proto_tree_add_string(tree, hf_msmms_command_client_player_info, tvb,
+                          offset, length_remaining-12,
+                          player_info);
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", player_info);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
+                        format_text(player_info, (length_remaining - 12)/2));
     }
 
     /* Can now free this string */
-    if (player_info != NULL && strlen(player_info))
-    {
-        g_free(player_info);
-    }
+    g_free(player_info);
 }
 
 /* Dissect info about where client wants to start playing from */
@@ -1103,7 +1087,7 @@ void dissect_timing_test_response(tvbuff_t *tvb, proto_tree *tree, guint offset)
 void dissect_request_server_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                  guint offset, guint length_remaining)
 {
-    const char *server_file = "";
+    char *server_file;
 
     /* Command Level */
     proto_tree_add_item(tree, hf_msmms_command_prefix1_command_level, tvb, offset, 4, TRUE);
@@ -1119,20 +1103,18 @@ void dissect_request_server_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     /* File path on server */
     server_file = tvb_fake_unicode(tvb, offset, (length_remaining - 16)/2, TRUE);
 
-    proto_tree_add_string_format(tree, hf_msmms_command_server_file, tvb,
-                                 offset, length_remaining-16,
-                                 server_file, "Server file: (%s)", server_file);
+    proto_tree_add_string(tree, hf_msmms_command_server_file, tvb,
+                          offset, length_remaining-16,
+                          server_file);
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", server_file);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
+                        format_text(server_file, (length_remaining - 16)/2));
     }
 
     /* Can now free this string */
-    if (server_file != NULL && strlen(server_file))
-    {
-        g_free(server_file);
-    }
+    g_free(server_file);
 }
 
 /* Dissect media details from server */
@@ -1212,7 +1194,7 @@ void dissect_network_timer_test_response(tvbuff_t *tvb, proto_tree *tree, guint 
 void dissect_transport_info_response(tvbuff_t *tvb, proto_tree *tree,
                                      guint offset, guint length_remaining)
 {
-    char *strange_string = "";
+    char *strange_string;
 
     /* Command Level */
     proto_tree_add_item(tree, hf_msmms_command_prefix1_command_level, tvb, offset, 4, TRUE);
@@ -1227,15 +1209,12 @@ void dissect_transport_info_response(tvbuff_t *tvb, proto_tree *tree,
     /* Read this strange string */
     strange_string = tvb_fake_unicode(tvb, offset, (length_remaining - 12)/2, TRUE);
 
-    proto_tree_add_string_format(tree, hf_msmms_command_strange_string, tvb,
-                                 offset, length_remaining-12,
-                                 strange_string, "Strange string: \"%s\"", strange_string);
+    proto_tree_add_string(tree, hf_msmms_command_strange_string, tvb,
+                          offset, length_remaining-12,
+                          strange_string);
 
     /* Can now free this string */
-    if (strange_string != NULL && strlen(strange_string))
-    {
-        g_free(strange_string);
-    }
+    g_free(strange_string);
 }
 
 /* Media stream MBR selector */
