@@ -556,7 +556,7 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	unsigned int i, command;
 	guint temp;
-	char *AuthMethodStr;
+	const char *AuthMethodStr;
 	guint8 auth_status;
 
 	proto_tree_add_item( tree, hf_socks_ver, tvb, offset, 1, FALSE);
