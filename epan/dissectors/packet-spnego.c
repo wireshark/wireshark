@@ -1150,7 +1150,7 @@ dissect_spnego_mechToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree *subtree;
 	gboolean def;
 	int ret;
-	guint cls, con, tag, nbytes;
+	guint cls, con, tag, nbytes = 0;
 	gint length_remaining, reported_length_remaining;
 	tvbuff_t *token_tvb;
 

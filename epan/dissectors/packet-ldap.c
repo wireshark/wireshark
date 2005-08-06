@@ -353,7 +353,7 @@ static int read_sequence(ASN1_SCK *a, guint *len)
 {
   guint cls, con, tag;
   gboolean def;
-  guint length;
+  guint length = 0;
   int ret;
 
   ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
@@ -588,8 +588,9 @@ static int read_bytestring_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
   else
     string = "(null)";
 
-  if (tree)
+  if (tree && length > 0) {
     temp_item = proto_tree_add_bytes(tree, hf_id, a->tvb, start, a->offset - start, string);
+}
   if (new_item)
     *new_item = temp_item;
 
@@ -2338,10 +2339,10 @@ dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
   guint length_remaining;
   ASN1_SCK a;
   int ret;
-  guint msg_len;
-  int messageOffset;
-  guint headerLength;
-  guint length;
+  guint msg_len = 0;
+  int messageOffset = 0;
+  guint headerLength = 0;
+  guint length = 0;
   tvbuff_t *msg_tvb = NULL;
   proto_item *msg_item = NULL;
   proto_tree *msg_tree = NULL;

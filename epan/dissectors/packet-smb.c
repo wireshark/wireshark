@@ -14762,7 +14762,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	nstime_t ns;
 
 	si_counter++;
-	if(si_counter==20){
+	if(si_counter>=20){
 		si_counter=0;
 	}
 	si=&si_arr[si_counter];
@@ -14838,6 +14838,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		si->ct->tid_service=g_hash_table_new(
 			smb_saved_info_hash_unmatched,
 			smb_saved_info_equal_unmatched);
+		si->ct->raw_ntlmssp = 0;
 		conversation_add_proto_data(conversation, proto_smb, si->ct);
 	}
 

@@ -3837,7 +3837,12 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 4;
     }
 
-    offset=dissect_ber_choice(pinfo, kerberos_tree, tvb, offset, kerberos_applications_choice, -1, -1, NULL);
+    TRY {
+	offset=dissect_ber_choice(pinfo, kerberos_tree, tvb, offset, kerberos_applications_choice, -1, -1, NULL);
+    } CATCH_ALL {
+	pinfo->private_data=saved_private_data;
+	RETHROW;
+    } ENDTRY;
 
     proto_item_set_len(item, offset);
     pinfo->private_data=saved_private_data;
