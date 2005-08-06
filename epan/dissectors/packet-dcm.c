@@ -164,7 +164,7 @@ struct dcmItem {
     int valid;
     guint8 id;		/* 0x20 Presentation Context */
     const guint8 *abs;	/* 0x30 Abstract syntax */
-    const char *xfer;	/* 0x40 Transfer syntax */
+    char *xfer;		/* 0x40 Transfer syntax */
     guint8 syntax;
 #define DCM_ILE  0x01		/* implicit, little endian */
 #define DCM_EBE  0x02           /* explicit, big endian */
@@ -172,7 +172,6 @@ struct dcmItem {
 #define DCM_UNK  0xf0
 };
 typedef struct dcmItem dcmItem_t;
-static const char *dcm_xfer_unk = "not found - click on ASSOC Request";
 
 struct dcmState {
     dcmItem_t *first, *last;
@@ -489,7 +488,7 @@ static void
 dcm_setSyntax(dcmItem_t *di, char *name)
 {
     if (NULL == di) return;
-    if (di->xfer != dcm_xfer_unk)
+    if (di->xfer != NULL)
 	g_free(di->xfer);	/* free prev allocated xfer */
     di->syntax = 0;
     di->xfer = g_strdup(name);
@@ -673,7 +672,7 @@ dissect_dcm_assoc(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb, int offse
 		di = g_chunk_new(dcmItem_t, dcm_pdus);
 		di->id = id;
 		di->valid = 1;
-		di->xfer = dcm_xfer_unk;
+		di->xfer = NULL;
 		di->syntax = DCM_UNK;
 		di->next = di->prev = NULL;
 		if (dcm_data->last) {
@@ -780,8 +779,20 @@ dissect_dcm_data(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb)
     proto_tree_add_item(dcm_tree, hf_dcm_data_len, tvb, 6, 4, FALSE);
     ctx = tvb_get_guint8(tvb, 10);
     di = lookupCtx(dcm_data, ctx);
+    /*
+     * XXX - telling the user to "click on ASSOC request" is bogus if we
+     * have already identified the ASSOC request and can connect it to
+     * this mnessage; if clicking on a request prior to this one causes
+     * additional state information to be set up that would affect the
+     * dissection of this request, we should set up that state *at the
+     * time we dissect that request*, if possible, and if clicking on it
+     * doesn't change any state, clicking on the request doesn't convey
+     * any additional information.
+     */
     proto_tree_add_uint_format(dcm_tree, hf_dcm_data_ctx, tvb, 10, 1, 
-	ctx, "Context 0x%x (%s)", ctx, di->xfer);
+	ctx, "Context 0x%x (%s)", ctx,
+	di->xfer == NULL ? "not found - click on ASSOC Request" :
+			   di->xfer);
     if (DCM_UNK == di->syntax)
 	return;
     len = offset = toffset = 11;
