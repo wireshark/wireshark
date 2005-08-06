@@ -178,14 +178,14 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	  item = proto_tree_add_time(fh_tree, hf_frame_time_delta, tvb,
 		0, 0, &ts);
-      PROTO_ITEM_SET_GENERATED(item);
+	  PROTO_ITEM_SET_GENERATED(item);
 
 	  ts.secs = pinfo->fd->rel_secs;
 	  ts.nsecs = pinfo->fd->rel_usecs*1000;
 
 	  item = proto_tree_add_time(fh_tree, hf_frame_time_relative, tvb,
 		0, 0, &ts);
-      PROTO_ITEM_SET_GENERATED(item);
+	  PROTO_ITEM_SET_GENERATED(item);
 
 	  proto_tree_add_uint(fh_tree, hf_frame_number, tvb,
 		0, 0, pinfo->fd->num);
@@ -198,18 +198,18 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		0, 0, cap_len, "Capture Length: %d byte%s", cap_len,
 		plurality(cap_len, "", "s"));
 
-      /* we are going to be using proto_item_append_string() on
-       * hf_frame_protocols, and we must therefore disable the
-       * TRY_TO_FAKE_THIS_ITEM() optimisation for the tree by
-       * setting it as visible.
-       *
-       * See proto.h for details.
-       */
-      PTREE_DATA(fh_tree)->visible=1;
+	  /* we are going to be using proto_item_append_string() on
+	   * hf_frame_protocols, and we must therefore disable the
+	   * TRY_TO_FAKE_THIS_ITEM() optimisation for the tree by
+	   * setting it as visible.
+	   *
+	   * See proto.h for details.
+	   */
+	  PTREE_DATA(fh_tree)->visible=1;
 
 	  ti = proto_tree_add_string(fh_tree, hf_frame_protocols, tvb,
 	  	0, 0, "");
-      PROTO_ITEM_SET_GENERATED(ti);
+	  PROTO_ITEM_SET_GENERATED(ti);
 	  pinfo->layer_names = g_string_new("");
 
 	  /* Check for existences of P2P pseudo header */
@@ -263,8 +263,11 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 void
 show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    unsigned long exception, const char *exception_message)
+    unsigned long exception, char *exception_message)
 {
+	static const char dissector_error_nomsg[] =
+	    "Dissector writer didn't bother saying what the error was";
+
 	switch (exception) {
 
 	case BoundsError:
@@ -282,13 +285,20 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 			    "[Dissector bug, protocol %s: %s]",
-			    pinfo->current_proto, exception_message);
+			    pinfo->current_proto,
+			    exception_message == NULL ?
+			        dissector_error_nomsg : exception_message);
 		proto_tree_add_protocol_format(tree, proto_malformed, tvb, 0, 0,
 		    "[Dissector bug, protocol %s: %s]",
-		    pinfo->current_proto, exception_message);
+		    pinfo->current_proto,
+		    exception_message == NULL ?
+		        dissector_error_nomsg : exception_message);
 		g_warning("Dissector bug, protocol %s, in packet %u: %s",
-		    pinfo->current_proto, pinfo->fd->num, exception_message);
-		g_free(exception_message);
+		    pinfo->current_proto, pinfo->fd->num,
+		    exception_message == NULL ?
+		        dissector_error_nomsg : exception_message);
+		if (exception_message != NULL)
+			g_free(exception_message);
 		break;
 
 	default:

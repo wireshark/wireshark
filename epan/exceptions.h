@@ -48,9 +48,9 @@
 /**
     A bug was detected in a dissector.
 
-    DO NOT throw this with THROW(); the handler expects there to be a
-    message, and even if it didn't, the developers expect there to be
-    a message to make it easier to figure out what the problem is.
+    DO NOT throw this with THROW(); that means that no details about
+    the dissector error will be reported.  (Instead, the message will
+    blame you for not providing details.)
 
     Instead, use the DISSECTOR_ASSERT(), etc. macros in epan/proto.h.
 **/
