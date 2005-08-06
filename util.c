@@ -111,22 +111,22 @@ get_args_as_string(int argc, char **argv, int optind)
 	return argstring;
 }
 
-static char *
+static const char *
 setup_tmpdir(const char *dir)
 {
-	int len = strlen(dir);
+	size_t len = strlen(dir);
 	char *newdir;
 
 	/* Append path separator if necessary */
-	if (dir[len - 1] == G_DIR_SEPARATOR) {
-		newdir = dir;
+	if (len != 0 && dir[len - 1] == G_DIR_SEPARATOR) {
+		return dir;
 	}
 	else {
 		newdir = g_malloc(len + 2);
 		strcpy(newdir, dir);
 		strcat(newdir, G_DIR_SEPARATOR_S);
+		return newdir;
 	}
-	return newdir;
 }
 
 static int
@@ -161,11 +161,11 @@ try_tempfile(char *namebuf, int namebuflen, const char *dir, const char *pfx)
 	return tmp_fd;
 }
 
-static char *tmpdir = NULL;
+static const char *tmpdir = NULL;
 #ifdef _WIN32
 static char *temp = NULL;
 #endif
-static char *E_tmpdir;
+static const char *E_tmpdir;
 
 #ifndef P_tmpdir
 #define P_tmpdir "/var/tmp"
