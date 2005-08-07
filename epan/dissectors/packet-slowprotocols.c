@@ -194,8 +194,8 @@
 #define OAMPDU_VARS_ATTRIBUTE           0x7
 
 /* OAMPDU Loopback Control bits */
-#define OAMPDU_LPBK_ENABLE              0x02
-#define OAMPDU_LPBK_DISABLE             0x04
+#define OAMPDU_LPBK_ENABLE              0x01
+#define OAMPDU_LPBK_DISABLE             0x02
 
 
 static const value_string subtype_vals[] = {
