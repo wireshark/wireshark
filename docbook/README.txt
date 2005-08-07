@@ -75,6 +75,30 @@ HTML help compiler (for chm file generation only)
 hhc compiler from Microsoft:
 http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html/hwMicrosoftHTMLHelpDownloads.asp 
 
+Packages for Suse 9.3
+---------------------
+Tool/File	Package
+---------	-------
+xsltproc:	libxslt
+xmllint:	libxml2
+fop:		fop
+docbook.xsl:	docbook-xsl-stylesheets
+chunk.xsl:	docbook-xsl-stylesheets
+htmlhelp.xsl:	docbook-xsl-stylesheets
+docbookx.dtd:	docbook_4
+jimi:		N/A - build yourself - see above
+
+Packages for Gentoo
+-------------------
+TODO
+
+Packages for Fedora Core
+------------------------
+TODO
+
+Packages for Debian
+-------------------
+TODO
 
 Makefile:
 ---------
