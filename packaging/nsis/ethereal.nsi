@@ -531,16 +531,17 @@ StrCmp $0 "0" SecRequired_skip_Winpcap
 ; Uinstall old WinPcap first
 ReadRegStr $WINPCAP_UNINSTALL HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "UninstallString"
 IfErrors lbl_winpcap_notinstalled ;if RegKey is unavailable, WinPcap is not installed
-ExecWait '$WINPCAP_UNINSTALL' $0
-DetailPrint "WinPcap uninstaller returned $0"
+; from released version 3.1, WinPcap will uninstall an old version by itself
+;ExecWait '$WINPCAP_UNINSTALL' $0
+;DetailPrint "WinPcap uninstaller returned $0"
 lbl_winpcap_notinstalled:
 SetOutPath $INSTDIR
-File "WinPcap_3_1_beta4.exe"
-ExecWait '"$INSTDIR\WinPcap_3_1_beta4.exe"' $0
+File "WinPcap_3_1.exe"
+ExecWait '"$INSTDIR\WinPcap_3_1.exe"' $0
 DetailPrint "WinPcap installer returned $0"
 SecRequired_skip_Winpcap:
 
-; Load Winpcap NPF service at startup (depending on additional tasks page)
+; Load Winpcap NPF service at startup (depending on winpcap page)
 ReadINIStr $0 "$PLUGINSDIR\WinPcapPage.ini" "Field 8" "State"
 StrCmp $0 "0" SecRequired_no_WinpcapService
 WriteRegDWORD HKEY_LOCAL_MACHINE "SYSTEM\CurrentControlSet\Services\NPF" "Start" 2 ;set NPF to (SERVICE_AUTO_START)
@@ -1060,7 +1061,7 @@ lbl_ignore_wimp:
 !endif
 
 	; detect if WinPcap should be installed
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap 3.1 beta 4"
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap 3.1"
 	ReadRegStr $WINPCAP_VERSION HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName"
 	IfErrors 0 lbl_winpcap_installed ;if RegKey is available, WinPcap is already installed
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "WinPcap is currently not installed"
@@ -1080,6 +1081,7 @@ lbl_winpcap_installed:
 	StrCmp "$WINPCAP_VERSION" "WinPcap 3.1 beta" lbl_winpcap_do_install
 	StrCmp "$WINPCAP_VERSION" "WinPcap 3.1 beta2" lbl_winpcap_do_install
 	StrCmp "$WINPCAP_VERSION" "WinPcap 3.1 beta3" lbl_winpcap_do_install
+	StrCmp "$WINPCAP_VERSION" "WinPcap 3.1 beta4" lbl_winpcap_do_install
 
 ; lbl_winpcap_dont_install:
 	; seems to be the current or even a newer version, so don't install
