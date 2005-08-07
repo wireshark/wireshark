@@ -71,7 +71,7 @@ static int hf_dhcpfo_binding_status = -1;
 static int hf_dhcpfo_server_state = -1;
 static int hf_dhcpfo_assigned_ip_address = -1;
 static int hf_dhcpfo_sending_server_ip_address = -1;
-static int hf_dhcpfo_addresses_transfered = -1;
+static int hf_dhcpfo_addresses_transferred = -1;
 static int hf_dhcpfo_client_identifier = -1;
 static int hf_dhcpfo_client_hw_type = -1;
 static int hf_dhcpfo_client_hardware_address = -1;
@@ -183,7 +183,7 @@ static const value_string option_code_vals[] =
 	{DHCP_FO_PD_BINDING_STATUS,			"binding-status"},
 	{DHCP_FO_PD_ASSIGNED_IP_ADDRESS,		"assigned-IP-address"},
 	{DHCP_FO_PD_SENDING_SERVER_IP_ADDRESS,		"sending-server-IP-address"},
-	{DHCP_FO_PD_ADDRESSES_TRANSFERED,		"addresses-transfered"},
+	{DHCP_FO_PD_ADDRESSES_TRANSFERED,		"addresses-transferred"},
 	{DHCP_FO_PD_CLIENT_IDENTIFIER,			"client-identifier"},
 	{DHCP_FO_PD_CLIENT_HARDWARE_ADDRESS,		"client-hardware-address"},
 	{DHCP_FO_PD_FTDDNS,				"FTDDNS"},
@@ -353,7 +353,7 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const guint8 *chaddr;
 	guint8 binding_status;
 	gchar *assigned_ip_address_str, *sending_server_ip_address_str;
-	guint32 addresses_transfered;
+	guint32 addresses_transferred;
 	const guint8 *client_identifier_str, *vendor_class_str;
 	const gchar *htype_str;
 	const gchar *chaddr_str;
@@ -367,6 +367,8 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Make entries in Protocol column and Info column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCPFO");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
     
 	length = tvb_get_ntohs(tvb, 0);
         type = tvb_get_guint8(tvb, 2);
@@ -510,6 +512,14 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         			case DHCP_FO_PD_ASSIGNED_IP_ADDRESS:
 
+					if (helpliste->length != 4) {
+						proto_tree_add_text(option_tree,
+							tvb,
+							helpliste->actualpoffset + 4, 
+							helpliste->length,
+							"assigned ip address is not 4 bytes long");
+							break;
+					}
 					assigned_ip_address_str = ip_to_str(
 						tvb_get_ptr(tvb,
 							helpliste->actualpoffset+4,
@@ -518,8 +528,6 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_item_append_text(oi, ", %s ",
 						assigned_ip_address_str);
 
-					if (helpliste->length != 4)
-						THROW(ReportedBoundsError);
 					proto_tree_add_item(option_tree,
 						hf_dhcpfo_assigned_ip_address, tvb,
 						helpliste->actualpoffset + 4, 
@@ -528,12 +536,18 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         			case DHCP_FO_PD_SENDING_SERVER_IP_ADDRESS:
 
+					if (helpliste->length != 4) {
+						proto_tree_add_text(option_tree,
+							tvb,
+							helpliste->actualpoffset + 4, 
+							helpliste->length,
+							"sending server ip address is not 4 bytes long");
+							break;
+					}
 					sending_server_ip_address_str = ip_to_str(tvb_get_ptr(tvb,helpliste->actualpoffset+4,helpliste->length));
 					
 					proto_item_append_text(oi, ", %s ",
 							sending_server_ip_address_str); 
-					if (helpliste->length != 4)
-						THROW(ReportedBoundsError);
 					proto_tree_add_item(option_tree,
 						hf_dhcpfo_sending_server_ip_address, tvb,
 						helpliste->actualpoffset + 4, 
@@ -542,14 +556,20 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         			case DHCP_FO_PD_ADDRESSES_TRANSFERED:
 
-					addresses_transfered = tvb_get_ntohl(tvb,
+					if (helpliste->length != 4) {
+						proto_tree_add_text(option_tree,
+							tvb,
+							helpliste->actualpoffset + 4, 
+							helpliste->length,
+							"addresses transferred is not 4 bytes long");
+						break;
+					}
+					addresses_transferred = tvb_get_ntohl(tvb,
 								helpliste->actualpoffset+4);
 
-					proto_item_append_text(oi,", %d",addresses_transfered);	
-					if (helpliste->length != 1)
-						THROW(ReportedBoundsError);
+					proto_item_append_text(oi,", %d",addresses_transferred);	
 					proto_tree_add_item(option_tree,
-						hf_dhcpfo_addresses_transfered, tvb,
+						hf_dhcpfo_addresses_transferred, tvb,
 						helpliste->actualpoffset + 4, 
 						helpliste->length , FALSE); 
 					break; 
@@ -599,6 +619,14 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         			case DHCP_FO_PD_REJECT_REASON:
 
+					if (helpliste->length != 1) {
+						proto_tree_add_text(option_tree,
+							tvb,
+							helpliste->actualpoffset + 4, 
+							helpliste->length,
+							"Reject reason is not 1 byte long");
+						break;
+					}
 					reject_reason = tvb_get_guint8(tvb, 
 								helpliste->actualpoffset +4);
 
@@ -608,8 +636,6 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                             "Unknown Packet"),
 							reject_reason);
 
-					if (helpliste->length != 1)
-						THROW(ReportedBoundsError);
 					proto_tree_add_item(option_tree,
 						hf_dhcpfo_reject_reason, tvb,
 						helpliste->actualpoffset +4,
@@ -626,10 +652,16 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         			case DHCP_FO_PD_MCLT:
 
+					if (helpliste->length != 4) {
+						proto_tree_add_text(option_tree,
+							tvb,
+							helpliste->actualpoffset + 4, 
+							helpliste->length,
+							"MCLT is not 4 bytes long");
+						break;
+					}
 					mclt = tvb_get_ntohl(tvb, helpliste->actualpoffset+4);
 					proto_item_append_text(oi,", %d seconds",mclt);
-					if (helpliste->length != 4)
-						THROW(ReportedBoundsError);
 					proto_tree_add_item(option_tree,
 						hf_dhcpfo_mclt, tvb,
 						helpliste->actualpoffset +4,
@@ -801,12 +833,18 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         			case DHCP_FO_PD_MAX_UNACKED_BNDUPD:
 
+					if (helpliste->length != 4) {
+						proto_tree_add_text(option_tree,
+							tvb,
+							helpliste->actualpoffset + 4, 
+							helpliste->length,
+							"Max unacked BNDUPD is not 4 bytes long");
+						break;
+					}
 					max_unacked_bndupd = 
 						tvb_get_ntohl(tvb,helpliste->actualpoffset+4);
 					proto_item_append_text(oi,", %d", max_unacked_bndupd);
 
-					if (helpliste->length != 1)
-						THROW(ReportedBoundsError);
 					proto_tree_add_item(option_tree,
 						hf_dhcpfo_max_unacked_bndupd, tvb,
 						helpliste->actualpoffset + 4, 
@@ -815,12 +853,18 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         			case DHCP_FO_PD_RECEIVE_TIMER:
 
+					if (helpliste->length != 4) {
+						proto_tree_add_text(option_tree,
+							tvb,
+							helpliste->actualpoffset + 4, 
+							helpliste->length,
+							"Receive timer is not 4 bytes long");
+						break;
+					}
 					receive_timer = 
 						tvb_get_ntohl(tvb,helpliste->actualpoffset+4);
 					proto_item_append_text(oi,", %d seconds", receive_timer);
 
-					if (helpliste->length != 1)
-						THROW(ReportedBoundsError);
 					receive_timer_item = proto_tree_add_item(option_tree,
 						hf_dhcpfo_receive_timer, tvb,
 						helpliste->actualpoffset + 4, 
@@ -858,13 +902,19 @@ dissect_dhcpfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         			case DHCP_FO_PD_PROTOCOL_VERSION:
 
+					if (helpliste->length != 1) {
+						proto_tree_add_text(option_tree,
+							tvb,
+							helpliste->actualpoffset + 4, 
+							helpliste->length,
+							"Protocol version is not 1 byte long");
+						break;
+					}
 					protocol_version = 
 						tvb_get_guint8(tvb, helpliste->actualpoffset+4);
 
 					proto_item_append_text(oi, ", version: %d", 
 									protocol_version);
-					if (helpliste->length != 1)
-						THROW(ReportedBoundsError);
 					proto_tree_add_item(option_tree,
 						hf_dhcpfo_protocol_version, tvb,
 						helpliste->actualpoffset + 4, 
@@ -1027,9 +1077,9 @@ proto_register_dhcpfo(void)
 		},
 
 
-		{&hf_dhcpfo_addresses_transfered,
-			{"addresses transfered", "dhcpfo.addressestransfered",
-			FT_UINT8, BASE_DEC, NULL, 0,
+		{&hf_dhcpfo_addresses_transferred,
+			{"addresses transferred", "dhcpfo.addressestransferred",
+			FT_UINT32, BASE_DEC, NULL, 0,
 			"", HFILL }
 		},
 
@@ -1120,7 +1170,7 @@ proto_register_dhcpfo(void)
 
 		{&hf_dhcpfo_max_unacked_bndupd,
 			{"Max unacked BNDUPD", "dhcpfo.maxunackedbndupd",
-			FT_UINT8, BASE_DEC, NULL, 0,
+			FT_UINT32, BASE_DEC, NULL, 0,
 			"", HFILL }
 		},
 
@@ -1132,7 +1182,7 @@ proto_register_dhcpfo(void)
 
 		{&hf_dhcpfo_receive_timer,
 			{"Receive timer", "dhcpfo.receivetimer",
-			FT_UINT8, BASE_DEC, NULL, 0,
+			FT_UINT32, BASE_DEC, NULL, 0,
 			"", HFILL }
 		},
 
