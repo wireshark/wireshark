@@ -84,7 +84,7 @@ exntest: exntest.o except.o
 	$(LINK) $^ $(GLIB_LIBS)
 
 radius_dict.c: radius_dict.l
-	$(LEX) $(srcdir)/epan/radius_dict.l
+	$(LEX) $^
 
 tvbtest.o exntest.o: exceptions.h
 
