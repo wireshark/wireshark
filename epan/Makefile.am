@@ -84,12 +84,12 @@ exntest: exntest.o except.o
 	$(LINK) $^ $(GLIB_LIBS)
 
 radius_dict.c: radius_dict.l
-	$(LEX) radius_dict.l
+	$(LEX) $(srcdir)/epan/radius_dict.l
 
 tvbtest.o exntest.o: exceptions.h
 
 sminmpec.c: enterprise-numbers make-sminmpec.pl
-	$(PERL) make-sminmpec.pl enterprise-numbers sminmpec.c
+	$(PERL) $(srcdir)/make-sminmpec.pl $(srcdir)/enterprise-numbers sminmpec.c
 
 if HAVE_PLUGINS
 
