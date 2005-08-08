@@ -73,6 +73,10 @@ static gboolean rpc_defragment = FALSE;
  */
 static gboolean rpc_dissect_unknown_programs = FALSE;
 
+/* try to find RPC fragment start if normal decode fails 
+ * (good when starting decode of mid-stream capture)
+ */
+static gboolean rpc_find_fragment_start = FALSE;
 
 static struct true_false_string yesno = { "Yes", "No" };
 
@@ -1628,6 +1632,45 @@ dissect_rpc_continuation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
+
+/**
+ *  Produce a dummy RPC program entry for the given RPC program key 
+ *  and version values.
+ */
+
+static void  make_fake_rpc_prog_if_needed (rpc_prog_info_key *prpc_prog_key,
+														 guint prog_ver)
+{
+
+rpc_prog_info_value *rpc_prog = NULL;
+
+
+	if( (rpc_prog = g_hash_table_lookup(rpc_progs, prpc_prog_key)) == NULL) {
+		/* ok this is not a known rpc program so we
+		 * will have to fake it.
+		 */
+		int proto_rpc_unknown_program;
+		char *NAME, *Name, *name;
+		static const vsff unknown_proc[] = {
+			{ 0,"NULL",NULL,NULL },
+			{ 0,NULL,NULL,NULL }
+		};
+
+		NAME=g_malloc(36);
+		Name=g_malloc(32);
+		name=g_malloc(32);
+		sprintf(NAME, "Unknown RPC Program:%d",prpc_prog_key->prog);
+		sprintf(Name, "RPC:%d",prpc_prog_key->prog);
+		sprintf(name, "rpc%d",prpc_prog_key->prog);
+		proto_rpc_unknown_program = proto_register_protocol(NAME, Name, name);
+
+		rpc_init_prog(proto_rpc_unknown_program, prpc_prog_key->prog, ett_rpc_unknown_program);
+		rpc_init_proc_table(prpc_prog_key->prog, prog_ver, unknown_proc, hf_rpc_procedure);
+
+	}
+}
+
+
 static gboolean
 dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tvbuff_t *frag_tvb, fragment_data *ipfd_head, gboolean is_tcp,
@@ -1744,29 +1787,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if(rpc_prog_key.prog==0 || rpc_prog_key.prog==0xffffffff){
 				return FALSE;
 			}
-			if( (rpc_prog = g_hash_table_lookup(rpc_progs, &rpc_prog_key)) == NULL) {
-				/* ok this is not a known rpc program so we
-				 * will have to fake it.
-				 */
-				int proto_rpc_unknown_program;
-				char *NAME, *Name, *name;
-				static const vsff unknown_proc[] = {
-					{ 0,"NULL",NULL,NULL },
-					{ 0,NULL,NULL,NULL }
-				};
-
-				NAME=g_malloc(36);
-				Name=g_malloc(32);
-				name=g_malloc(32);
-				sprintf(NAME, "Unknown RPC Program:%d",rpc_prog_key.prog);
-				sprintf(Name, "RPC:%d",rpc_prog_key.prog);
-				sprintf(name, "rpc%d",rpc_prog_key.prog);
-				proto_rpc_unknown_program = proto_register_protocol(NAME, Name, name);
-
-				rpc_init_prog(proto_rpc_unknown_program, rpc_prog_key.prog, ett_rpc_unknown_program);
-				rpc_init_proc_table(rpc_prog_key.prog, tvb_get_ntohl(tvb, offset + 16), unknown_proc, hf_rpc_procedure);
-
-			}
+			make_fake_rpc_prog_if_needed (&rpc_prog_key, tvb_get_ntohl(tvb, offset + 16));
 		}
 		if( (rpc_prog = g_hash_table_lookup(rpc_progs, &rpc_prog_key)) == NULL) {
 			/* They're not, so it's probably not an RPC call. */
@@ -1823,8 +1844,39 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (rpc_call == NULL) {
 			/* The XID doesn't match a call from that
 			   conversation, so it's probably not an RPC reply. */
+
+			/* unless we're permitted to scan for embedded records
+			 * and this is a connection-oriented transport, give up */
+			if ((! rpc_find_fragment_start) || (pinfo->ptype != PT_TCP)) {
 			return FALSE;
 		}
+
+			/* in parse-partials, so define a dummy conversation for this reply */
+			new_rpc_call_key = g_mem_chunk_alloc(rpc_call_info_key_chunk);
+			*new_rpc_call_key = rpc_call_key;
+			rpc_call = g_mem_chunk_alloc(rpc_call_info_value_chunk);
+			rpc_call->req_num = 0;
+			rpc_call->rep_num = pinfo->fd->num;
+			rpc_call->prog = 0;
+			rpc_call->vers = 0;
+			rpc_call->proc = 0;
+			rpc_call->private_data = NULL;
+			rpc_call->xid = rpc_call_key.xid;
+			rpc_call->flavor = FLAVOR_NOT_GSSAPI;  /* total punt */
+			rpc_call->gss_proc = 0;
+			rpc_call->gss_svc = 0;
+			rpc_call->proc_info = value;
+			rpc_call->req_time.secs=pinfo->fd->abs_secs;
+			rpc_call->req_time.nsecs=pinfo->fd->abs_usecs*1000;
+
+			/* store it */
+			g_hash_table_insert(rpc_calls, new_rpc_call_key, rpc_call);
+
+			/* and fake up a matching program */
+			rpc_prog_key.prog = rpc_call->prog;
+			make_fake_rpc_prog_if_needed (&rpc_prog_key, rpc_call->vers);
+		}
+
 		/* pass rpc_info to subdissectors */
 		rpc_call->request=FALSE;
 		pinfo->private_data=rpc_call;
@@ -2994,29 +3046,36 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * we've seen, and the "last fragment" bit wasn't
 			 * set on it.
 			 */
-			DISSECTOR_ASSERT(ipfd_head == NULL);
-
-			new_rfk = g_mem_chunk_alloc(rpc_fragment_key_chunk);
-			new_rfk->conv_id = rfk->conv_id;
-			new_rfk->seq = seq + len;
-			new_rfk->offset = rfk->offset + len - 4;
-			new_rfk->start_seq = rfk->start_seq;
-			g_hash_table_insert(rpc_reassembly_table, new_rfk,
-			    new_rfk);
-
-			/*
-			 * This is part of a fragmented record,
-			 * but it's not the first part.
-			 * Show it as a record marker plus data, under
-			 * a top-level tree for this protocol.
-			 */
-			make_frag_tree(frag_tvb, tree, proto, ett,rpc_rm);
-
-			/*
-			 * No more processing need be done, as we don't
-			 * have a complete record.
-			 */
-			return len;
+			if (ipfd_head == NULL) {
+				new_rfk = g_mem_chunk_alloc(rpc_fragment_key_chunk);
+				new_rfk->conv_id = rfk->conv_id;
+				new_rfk->seq = seq + len;
+				new_rfk->offset = rfk->offset + len - 4;
+				new_rfk->start_seq = rfk->start_seq;
+				g_hash_table_insert(rpc_reassembly_table, new_rfk,
+					new_rfk);
+            
+				/*
+				 * This is part of a fragmented record,
+				 * but it's not the first part.
+				 * Show it as a record marker plus data, under
+				 * a top-level tree for this protocol.
+				 */
+				make_frag_tree(frag_tvb, tree, proto, ett,rpc_rm);
+            
+				/*
+				 * No more processing need be done, as we don't
+				 * have a complete record.
+				 */
+				return len;
+			} else {
+				/* oddly, we have a first fragment, not marked as last,
+				 * but which the defragmenter thinks is complete.
+				 * So rather than creating a fragment reassembly tree,
+				 * we simply throw away the partial fragment structure
+				 * and fall though to our "sole fragment" processing below.
+				 */  
+			}
 		}
 
 		/*
@@ -3141,7 +3200,202 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    frag_tvb, dissector, ipfd_head, rpc_rm, first_pdu))
 		return 0;	/* not RPC */
 	return len;
-}
+}  /* end of dissect_rpc_fragment() */
+
+/**
+ * Scans tvb, starting at given offset, to see if we can find
+ * what looks like a valid RPC-over-TCP reply header.
+ * 
+ * @param tvb Buffer to inspect for RPC reply header.
+ * @param offset Offset to begin search of tvb at.
+ * 
+ * @return -1 if no reply header found, else offset to start of header
+ *         (i.e., to the RPC record mark field).
+ */
+
+int
+find_rpc_over_tcp_reply_start(tvbuff_t *tvb, int offset)
+{
+
+/*
+ * Looking for partial header sequence.  From beginning of
+ * stream-style header, including "record mark", full ONC-RPC
+ * looks like:
+ *    BE int32    record mark (rfc 1831 sec. 10)
+ *    ?  int32    XID (rfc 1831 sec. 8)
+ *    BE int32    msg_type (ibid sec. 8, call = 0, reply = 1)
+ *
+ * -------------------------------------------------------------
+ * Then reply-specific fields are
+ *    BE int32    reply_stat (ibid, accept = 0, deny = 1)
+ *
+ * Then, assuming accepted,
+ *   opaque_auth
+ *    BE int32    auth_flavor (ibid, none = 0)
+ *    BE int32    ? auth_len (ibid, none = 0)
+ *
+ *    BE int32    accept_stat (ibid, success = 0, errs are 1..5 in rpc v2)
+ *
+ * -------------------------------------------------------------
+ * Or, call-specific fields are
+ *    BE int32    rpc_vers (rfc 1831 sec 8, always == 2)
+ *    BE int32    prog (NFS == 000186A3)
+ *    BE int32    prog_ver (NFS v2/3 == 2 or 3)
+ *    BE int32    proc_id (NFS, <= 256 ???)
+ *   opaque_auth
+ *    ...
+ */
+
+/* Initially, we search only for something matching the template
+ * of a successful reply with no auth verifier.
+ * Our first qualification test is search for a string of zero bytes,
+ * corresponding the four guint32 values
+ *    reply_stat
+ *    auth_flavor
+ *    auth_len
+ *    accept_stat
+ *
+ * If this string of zeros matches, then we go back and check the
+ * preceding msg_type and record_mark fields.
+ */
+
+const gint     cbZeroTail = 4 * 4;     /* four guint32s of zeros */
+const gint     ibPatternStart = 3 * 4;    /* offset of zero fill from reply start */
+const guint8 * pbWholeBuf;    /* all of tvb, from offset onwards */
+const int      NoMatch = -1;
+
+gint     ibSearchStart;       /* offset of search start, in case of false hits. */
+
+const    guint8 * pbBuf;
+
+gint     cbInBuf;       /* bytes in tvb, from offset onwards */
+
+guint32  ulMsgType;
+guint32  ulRecMark;
+
+int      i;
+
+   
+	cbInBuf = tvb_reported_length_remaining(tvb, offset);
+
+	/* start search at first possible location */
+	ibSearchStart = ibPatternStart;
+
+	if (cbInBuf < (cbZeroTail + ibSearchStart)) {
+		/* nothing to search, so claim no RPC */
+		return (NoMatch);
+	}
+
+	pbWholeBuf = tvb_get_ptr(tvb, offset, cbInBuf);
+	if (pbWholeBuf == NULL) {
+		/* probably never take this, as get_ptr seems to assert */
+		return (NoMatch);
+	}
+
+	while ((cbInBuf - ibSearchStart) > cbZeroTail) {
+		/* First test for long tail of zeros, starting at the back.
+		 * A failure lets us skip the maximum possible buffer amount.
+		 */
+		pbBuf = pbWholeBuf + ibSearchStart + cbZeroTail - 1;
+		for (i = cbZeroTail; i > 0;  i --)
+			{
+			if (*pbBuf != 0)
+				{
+				/* match failure.  Since we need N contiguous zeros,
+				 * we can increment next match start so zero testing
+				 * begins right after this failure spot.
+				 */
+				ibSearchStart += i;
+				pbBuf = NULL;
+				break;
+				}
+
+			pbBuf --;
+			}
+
+		if (pbBuf == NULL) {
+			continue;
+		}
+
+		/* got a match in zero-fill region, verify reply ID and
+		 * record mark fields */
+		ulMsgType = pntohl (pbWholeBuf + ibSearchStart - 4);
+		ulRecMark = pntohl (pbWholeBuf + ibSearchStart - ibPatternStart);
+
+		if ((ulMsgType == RPC_REPLY) &&
+			 ((ulRecMark & ~0x80000000) <= (unsigned) max_rpc_tcp_pdu_size)) {
+			/* looks ok, try dissect */
+			return (offset + ibSearchStart - ibPatternStart);
+		}
+
+		/* no match yet, nor egregious miss either.  Inch along to next try */
+		ibSearchStart ++;
+	}
+
+	return (NoMatch);
+
+}  /* end of find_rpc_over_tcp_reply_start() */
+
+/**
+ * Scans tvb for what looks like a valid RPC call / reply header.
+ * If found, calls standard dissect_rpc_fragment() logic to digest
+ * the (hopefully valid) fragment.
+ *
+ * With any luck, one invocation of this will be sufficient to get
+ * us back in alignment with the stream, and no further calls to
+ * this routine will be needed for a given conversation.  As if.  :-)
+ *
+ * Can return:
+ *       Same as dissect_rpc_fragment().  Will return zero (no frame)
+ *       if no valid RPC header is found.
+ */
+
+int
+find_and_dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
+							  proto_tree *tree, rec_dissector_t dissector,
+							  gboolean is_heur,
+							  int proto, int ett, gboolean defragment)
+{
+
+	int   offReply;
+	int   len;
+
+
+	offReply = find_rpc_over_tcp_reply_start(tvb, offset);
+	if (offReply < 0) {
+		/* could search for request, but not needed (or testable) thus far */
+		return (0);    /* claim no RPC */
+	}
+
+	len = dissect_rpc_fragment(tvb, offReply,
+							   pinfo, tree,
+							   dissector, is_heur, proto, ett,
+							   defragment,
+							   TRUE /* force first-pdu state */);
+
+	/* misses are reported as-is */
+	if (len == 0)
+		{
+		return (0);
+		}
+
+	/* returning a non-zero length, correct it to reflect the extra offset
+	 * we found necessary
+	 */
+	if (len > 0) {
+		len += offReply - offset;
+	}
+	else {
+		/* negative length seems to only be used as a flag,
+		 * don't mess it up until found necessary
+		 */
+/*      len -= offReply - offset; */
+	}
+
+	return (len);
+
+}  /* end of find_and_dissect_rpc_fragment */
+
 
 /*
  * Can return:
@@ -3175,6 +3429,17 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		len = dissect_rpc_fragment(tvb, offset, pinfo, tree,
 		    dissect_rpc_message, is_heur, proto_rpc, ett_rpc,
 		    rpc_defragment, first_pdu);
+
+		if ((len == 0) && first_pdu && rpc_find_fragment_start) {
+			/*
+			 * Try discarding some leading bytes from tvb, on assumption
+			 * that we are looking at the middle of a stream-based transfer
+			 */
+			len = find_and_dissect_rpc_fragment(tvb, offset, pinfo, tree,
+				 dissect_rpc_message, is_heur, proto_rpc, ett_rpc,
+				 rpc_defragment);
+		}
+
 		first_pdu = FALSE;
 		if (len < 0) {
 			/*
@@ -3532,6 +3797,11 @@ proto_register_rpc(void)
 		"Dissect unknown RPC program numbers",
 		"Whether the RPC dissector should attempt to dissect RPC PDUs containing programs that are not known to Ethereal. This will make the heuristics significantly weaker and elevate the risk for falsely identifying and misdissecting packets significantly.",
 		&rpc_dissect_unknown_programs);
+
+	prefs_register_bool_preference(rpc_module, "find_fragment_start",
+		"Attempt to locate start-of-fragment in partial RPC-over-TCP captures",
+		"Whether the RPC dissector should attempt to locate RPC PDU boundaries when initial fragment alignment is not known.  This may cause false positives, or slow operation.",
+		&rpc_find_fragment_start);
 
 	register_dissector("rpc", dissect_rpc, proto_rpc);
 	rpc_handle = find_dissector("rpc");
