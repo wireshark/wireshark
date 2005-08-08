@@ -1134,6 +1134,88 @@ static inline int rsvp_class_to_filter_num(int classnum)
     }
 }
 
+static inline int rsvp_class_to_tree_type(int classnum)
+{
+    switch(classnum) {
+    case RSVP_CLASS_SESSION :
+	return TT_SESSION;
+    case RSVP_CLASS_HOP :
+	return TT_HOP;
+    case RSVP_CLASS_INTEGRITY :
+	return TT_INTEGRITY;
+    case RSVP_CLASS_TIME_VALUES :
+	return TT_TIME_VALUES;
+    case RSVP_CLASS_ERROR :
+	return TT_ERROR;
+    case RSVP_CLASS_SCOPE :
+	return TT_SCOPE;
+    case RSVP_CLASS_STYLE :
+	return TT_STYLE;
+    case RSVP_CLASS_FLOWSPEC :
+	return TT_FLOWSPEC;
+    case RSVP_CLASS_FILTER_SPEC :
+	return TT_FILTER_SPEC;
+    case RSVP_CLASS_SENDER_TEMPLATE :
+	return TT_SENDER_TEMPLATE;
+    case RSVP_CLASS_SENDER_TSPEC :
+	return TT_TSPEC;
+    case RSVP_CLASS_ADSPEC :
+	return TT_ADSPEC;
+    case RSVP_CLASS_POLICY :
+	return TT_POLICY;
+    case RSVP_CLASS_CONFIRM :
+	return TT_CONFIRM;
+    case RSVP_CLASS_UPSTREAM_LABEL :
+    case RSVP_CLASS_SUGGESTED_LABEL :
+    case RSVP_CLASS_LABEL :
+	return TT_LABEL;
+    case RSVP_CLASS_LABEL_REQUEST :
+	return TT_LABEL_REQUEST;
+    case RSVP_CLASS_HELLO :
+	return TT_HELLO_OBJ;
+    case RSVP_CLASS_EXPLICIT_ROUTE :
+	return TT_EXPLICIT_ROUTE;
+    case RSVP_CLASS_RECORD_ROUTE :
+	return TT_RECORD_ROUTE;
+    case RSVP_CLASS_MESSAGE_ID :
+	return TT_MESSAGE_ID;
+    case RSVP_CLASS_MESSAGE_ID_ACK :
+	return TT_MESSAGE_ID_ACK;
+    case RSVP_CLASS_MESSAGE_ID_LIST :
+	return TT_MESSAGE_ID_LIST;
+    case RSVP_CLASS_RECOVERY_LABEL :
+	return TT_UNKNOWN_CLASS;
+    case RSVP_CLASS_LABEL_SET :
+	return TT_LABEL_SET;
+    case RSVP_CLASS_PROTECTION :
+	return TT_PROTECTION_INFO;
+    case RSVP_CLASS_ACCEPTABLE_LABEL_SET :
+	return TT_UNKNOWN_CLASS;
+    case RSVP_CLASS_RESTART_CAP :
+	return TT_RESTART_CAP;
+    case RSVP_CLASS_DIFFSERV :
+	return TT_DIFFSERV;
+    case RSVP_CLASS_NOTIFY_REQUEST :
+	return TT_UNKNOWN_CLASS;
+    case RSVP_CLASS_ADMIN_STATUS :
+	return TT_ADMIN_STATUS;
+    case RSVP_CLASS_ASSOCIATION :
+	return TT_ASSOCIATION;
+    case RSVP_CLASS_SESSION_ATTRIBUTE :
+	return TT_SESSION_ATTRIBUTE;
+    case RSVP_CLASS_GENERALIZED_UNI :
+	return TT_GEN_UNI;
+    case RSVP_CLASS_CALL_ID :
+	return TT_CALL_ID;
+    case RSVP_CLASS_DCLASS :
+	return TT_DCLASS;
+    case RSVP_CLASS_LSP_TUNNEL_IF_ID :
+	return TT_LSP_TUNNEL_IF_ID;
+    default:
+	return TT_UNKNOWN_CLASS;
+    }
+}
+
 static void
 find_rsvp_session_tempfilt(tvbuff_t *tvb, int hdr_offset, int *session_offp, int *tempfilt_offp)
 {
@@ -1237,20 +1319,13 @@ static char *summary_template (tvbuff_t *tvb, int offset)
  * SESSION
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_session (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_session (proto_item *ti, proto_tree *rsvp_object_tree,
+		      tvbuff_t *tvb,
 		      int offset, int obj_length,
-		      int class, int type,
-		      const char *type_str)
+		      int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_SESSION));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     proto_item_set_text(ti, "%s", summary_session(tvb, offset));
 
     switch(type) {
@@ -1446,21 +1521,13 @@ dissect_rsvp_ifid_tlv (proto_tree *ti, proto_tree *rsvp_object_tree,
  * HOP
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_hop (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_hop (proto_item *ti, proto_tree *rsvp_object_tree,
+		  tvbuff_t *tvb,
 		  int offset, int obj_length,
-		  int class, int type,
-		  const char *type_str)
+		  int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
 
-    rsvp_object_tree= proto_item_add_subtree(ti, TREE(TT_HOP));
-
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     switch(type) {
     case 1:
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
@@ -1517,20 +1584,13 @@ dissect_rsvp_hop (proto_tree *ti, tvbuff_t *tvb,
  * TIME VALUES
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_time_values (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_time_values (proto_item *ti, proto_tree *rsvp_object_tree,
+			  tvbuff_t *tvb,
 			  int offset, int obj_length,
-			  int class, int type,
-			  const char *type_str)
+			  int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_TIME_VALUES));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     switch(type) {
     case 1:
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
@@ -1603,24 +1663,18 @@ dissect_rsvp_error_value (proto_tree *ti, tvbuff_t *tvb,
  * ERROR
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_error (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_error (proto_item *ti, proto_tree *rsvp_object_tree,
+		    tvbuff_t *tvb,
 		    int offset, int obj_length,
-		    int class, int type,
-		    const char *type_str)
+		    int class _U_, int type)
 {
     int offset2 = offset + 4;
     int offset3;
     guint8 error_flags;
     guint8 error_code;
     guint16 error_val;
-    proto_tree *ti2, *rsvp_object_tree, *rsvp_error_subtree;
+    proto_tree *ti2, *rsvp_error_subtree;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_ERROR));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     switch(type) {
     case 1: {
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
@@ -1707,21 +1761,14 @@ dissect_rsvp_error (proto_tree *ti, tvbuff_t *tvb,
  * SCOPE
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_scope (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_scope (proto_item *ti _U_, proto_tree *rsvp_object_tree,
+		    tvbuff_t *tvb,
 		    int offset, int obj_length,
-		    int class, int type,
-		    const char *type_str)
+		    int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
     int mylen;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_SCOPE));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     mylen = obj_length - 4;
     switch(type) {
     case 1: {
@@ -1763,20 +1810,13 @@ dissect_rsvp_scope (proto_tree *ti, tvbuff_t *tvb,
  * STYLE
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_style (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_style (proto_item *ti, proto_tree *rsvp_object_tree,
+		    tvbuff_t *tvb,
 		    int offset, int obj_length,
-		    int class, int type,
-		    const char *type_str)
+		    int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_STYLE));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     switch(type) {
     case 1: {
 	guint32 style;
@@ -1810,20 +1850,13 @@ dissect_rsvp_style (proto_tree *ti, tvbuff_t *tvb,
  * CONFIRM
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_confirm (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_confirm (proto_item *ti, proto_tree *rsvp_object_tree,
+		      tvbuff_t *tvb,
 		      int offset, int obj_length,
-		      int class, int type,
-		      const char *type_str)
+		      int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_CONFIRM));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     switch(type) {
     case 1: {
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
@@ -1858,38 +1891,16 @@ dissect_rsvp_confirm (proto_tree *ti, tvbuff_t *tvb,
  * SENDER TEMPLATE and FILTERSPEC
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_template_filter (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_template_filter (proto_item *ti, proto_tree *rsvp_object_tree,
+			      tvbuff_t *tvb,
 			      int offset, int obj_length,
-			      int class, int type,
-			      const char *type_str)
+			      int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
 
-    switch(class) {
-    case RSVP_CLASS_SENDER_TEMPLATE :
-	rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_SENDER_TEMPLATE));
-	proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			    "Length: %u", obj_length);
-	proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			    "Class number: %u - %s",
-			    class, type_str);
-	break;
-
-    default:
-    case RSVP_CLASS_FILTER_SPEC :
-	rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_FILTER_SPEC));
-	proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			    "Length: %u", obj_length);
-	proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			    "Class number: %u - %s",
-			    class, type_str);
-	break;
-    }
-
-     proto_item_set_text(ti, "%s", summary_template(tvb, offset));
-     switch(type) {
-     case 1:
+    proto_item_set_text(ti, "%s", summary_template(tvb, offset));
+    switch(type) {
+    case 1:
 	 proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			     "C-type: 1 - IPv4");
 	 proto_tree_add_item(rsvp_object_tree,
@@ -1935,23 +1946,16 @@ dissect_rsvp_template_filter (proto_tree *ti, tvbuff_t *tvb,
  * SENDER TSPEC
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_tspec (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_tspec (proto_item *ti, proto_tree *rsvp_object_tree,
+		    tvbuff_t *tvb,
 		    int offset, int obj_length,
-		    int class, int type,
-		    const char *type_str)
+		    int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
     int mylen;
     proto_tree *tspec_tree, *ti2;
     guint8 signal_type;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_TSPEC));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     mylen = obj_length - 4;
 
     switch(type) {
@@ -2231,22 +2235,16 @@ dissect_rsvp_tspec (proto_tree *ti, tvbuff_t *tvb,
  * FLOWSPEC
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_flowspec (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_flowspec (proto_item *ti, proto_tree *rsvp_object_tree,
+		       tvbuff_t *tvb,
 		       int offset, int obj_length,
-		       int class, int type,
-		       const char *type_str)
+		       int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
     int mylen, signal_type;
     proto_tree *flowspec_tree, *ti2;
+    proto_item *item;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_FLOWSPEC));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			"C-type: %u", type);
     mylen = obj_length - 4;
@@ -2254,6 +2252,12 @@ dissect_rsvp_flowspec (proto_tree *ti, tvbuff_t *tvb,
     switch(type) {
 
     case 2:
+	if (mylen < 4) {
+	    item = proto_tree_add_text(rsvp_object_tree, tvb, 0, 0,
+				       "Object length %u < 8", obj_length);
+	    PROTO_ITEM_SET_GENERATED(item);
+	    return;
+	}
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
 			    "Message format version: %u",
 			    tvb_get_guint8(tvb, offset2)>>4);
@@ -2272,6 +2276,13 @@ dissect_rsvp_flowspec (proto_tree *ti, tvbuff_t *tvb,
 	    guint param_len;
 	    guint param_len_processed;
 
+	    if (mylen < 4) {
+		item = proto_tree_add_text(rsvp_object_tree, tvb, 0, 0,
+					   "Object length %u not large enough",
+					   obj_length);
+		PROTO_ITEM_SET_GENERATED(item);
+		return;
+	    }
 	    service_num = tvb_get_guint8(tvb, offset2);
 	    proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
 				"Service header: %u - %s",
@@ -2528,22 +2539,15 @@ dissect_rsvp_flowspec (proto_tree *ti, tvbuff_t *tvb,
  * ADSPEC
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_adspec (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_adspec (proto_item *ti, proto_tree *rsvp_object_tree,
+		     tvbuff_t *tvb,
 		     int offset, int obj_length,
-		     int class, int type,
-		     const char *type_str)
+		     int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
     int mylen, i;
     proto_tree *adspec_tree;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_ADSPEC));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			"C-type: %u", type);
     mylen = obj_length - 4;
@@ -2641,22 +2645,15 @@ dissect_rsvp_adspec (proto_tree *ti, tvbuff_t *tvb,
  * INTEGRITY
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_integrity (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_integrity (proto_item *ti _U_, proto_tree *rsvp_object_tree,
+			tvbuff_t *tvb,
 			int offset, int obj_length,
-			int class, int type,
-			const char *type_str)
+			int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
     proto_tree *ti2, *rsvp_integ_flags_tree;
     int flags;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_INTEGRITY));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			"C-type: %u", type);
     flags = tvb_get_guint8(tvb, offset2);
@@ -2677,20 +2674,13 @@ dissect_rsvp_integrity (proto_tree *ti, tvbuff_t *tvb,
  * POLICY
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_policy (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_policy (proto_item *ti _U_, proto_tree *rsvp_object_tree,
+		     tvbuff_t *tvb,
 		     int offset, int obj_length,
-		     int class, int type,
-		     const char *type_str)
+		     int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_POLICY));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
 			"C-type: %u", type);
     proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
@@ -2701,20 +2691,13 @@ dissect_rsvp_policy (proto_tree *ti, tvbuff_t *tvb,
  * LABEL_REQUEST
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_label_request (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_label_request (proto_item *ti, proto_tree *rsvp_object_tree,
+			    tvbuff_t *tvb,
 			    int offset, int obj_length,
-			    int class, int type,
-			    const char *type_str)
+			    int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_LABEL_REQUEST));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     switch(type) {
     case 1: {
 	unsigned short l3pid = tvb_get_ntohs(tvb, offset2+2);
@@ -2847,25 +2830,18 @@ dissect_rsvp_label_request (proto_tree *ti, tvbuff_t *tvb,
  * LABEL
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_label (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_label (proto_tree *ti, proto_tree *rsvp_object_tree,
+		    tvbuff_t *tvb,
 		    int offset, int obj_length,
-		    int class, int type,
-		    const char *type_str)
+		    int class, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
     int mylen, i;
     const char *name;
 
     name = (class==RSVP_CLASS_SUGGESTED_LABEL ? "SUGGESTED LABEL":
 	    (class==RSVP_CLASS_UPSTREAM_LABEL ? "UPSTREAM LABEL":
 	     "LABEL"));
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_LABEL));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     mylen = obj_length - 4;
     switch(type) {
     case 1:
@@ -2910,13 +2886,12 @@ dissect_rsvp_label (proto_tree *ti, tvbuff_t *tvb,
  * LABEL_SET
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_label_set (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_label_set (proto_item *ti, proto_tree *rsvp_object_tree,
+			tvbuff_t *tvb,
 		        int offset, int obj_length,
-		        int class, int type,
-		        const char *type_str)
+		        int class _U_, int type)
 {
     int offset2 = offset + 8;
-    proto_tree *rsvp_object_tree;
     guint8 label_type;
     int len, i;
 
@@ -2928,12 +2903,6 @@ dissect_rsvp_label_set (proto_tree *ti, tvbuff_t *tvb,
       {0xff, NULL}
    };
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_LABEL_SET));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     len = obj_length - 8;
     proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, "C-type: %u", type);
     proto_tree_add_text(rsvp_object_tree, tvb, offset+4, 1, "Action: %s", 
@@ -2967,23 +2936,16 @@ dissect_rsvp_label_set (proto_tree *ti, tvbuff_t *tvb,
  * SESSION ATTRIBUTE
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_session_attribute (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_session_attribute (proto_item *ti, proto_tree *rsvp_object_tree,
+				tvbuff_t *tvb,
 				int offset, int obj_length,
-				int class, int type,
-				const char *type_str)
+				int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
     guint8 flags;
     guint8 name_len;
     proto_tree *ti2, *rsvp_sa_flags_tree;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_SESSION_ATTRIBUTE));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     switch(type) {
     case 1:
     case 7:
@@ -3398,22 +3360,15 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
  * EXPLICIT ROUTE OBJECT
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_explicit_route (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_explicit_route (proto_item *ti, proto_tree *rsvp_object_tree,
+			     tvbuff_t *tvb,
 			     int offset, int obj_length,
-			     int class, int type,
-			     const char *type_str)
+			     int class, int type)
 {
     /* int offset2 = offset + 4; */
-    proto_tree *rsvp_object_tree;
     /* int mylen, i, j, k, l; */
     /* proto_tree *ti2, *rsvp_ero_subtree; */
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_EXPLICIT_ROUTE));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     /* mylen = obj_length - 4; */
     switch(type) {
     case 1: 
@@ -3439,22 +3394,15 @@ dissect_rsvp_explicit_route (proto_tree *ti, tvbuff_t *tvb,
  * RECORD ROUTE OBJECT
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_record_route (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_record_route (proto_item *ti, proto_tree *rsvp_object_tree,
+			   tvbuff_t *tvb,
 			   int offset, int obj_length,
-			   int class, int type,
-			   const char *type_str)
+			   int class, int type)
 {
     /* int offset2 = offset + 4; */
-    proto_tree *rsvp_object_tree;
     /* int mylen, i, j, l; */
     /* proto_tree *ti2, *rsvp_rro_subtree; */
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_RECORD_ROUTE));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     proto_item_set_text(ti, "RECORD ROUTE: ");
     /* mylen = obj_length - 4; */
     switch(type) {
@@ -3480,20 +3428,13 @@ dissect_rsvp_record_route (proto_tree *ti, tvbuff_t *tvb,
  * MESSAGE ID
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_message_id (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_message_id (proto_tree *ti, proto_tree *rsvp_object_tree,
+			 tvbuff_t *tvb,
 			 int offset, int obj_length,
-			 int class, int type,
-			 const char *type_str)
+			 int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_MESSAGE_ID));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     switch(type) {
     case 1:
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
@@ -3523,20 +3464,13 @@ dissect_rsvp_message_id (proto_tree *ti, tvbuff_t *tvb,
  * MESSAGE ID ACK
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_message_id_ack (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_message_id_ack (proto_tree *ti, proto_tree *rsvp_object_tree,
+			     tvbuff_t *tvb,
 			     int offset, int obj_length,
-			     int class, int type,
-			     const char *type_str)
+			     int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_MESSAGE_ID_ACK));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     switch(type) {
     case 1:
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
@@ -3576,21 +3510,14 @@ dissect_rsvp_message_id_ack (proto_tree *ti, tvbuff_t *tvb,
  * MESSAGE ID LIST
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_message_id_list (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_message_id_list (proto_tree *ti, proto_tree *rsvp_object_tree,
+			      tvbuff_t *tvb,
 			      int offset, int obj_length,
-			      int class, int type,
-			      const char *type_str)
+			      int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
     int mylen;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_MESSAGE_ID_LIST));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     switch(type) {
     case 1:
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
@@ -3621,19 +3548,11 @@ dissect_rsvp_message_id_list (proto_tree *ti, tvbuff_t *tvb,
  * HELLO
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_hello (proto_tree *ti, tvbuff_t *tvb,
-		    int offset, int obj_length,
-		    int class, int type,
-		    const char *type_str)
+dissect_rsvp_hello (proto_tree *ti, proto_tree *rsvp_object_tree,
+		    tvbuff_t *tvb,
+		    int offset, int obj_length _U_,
+		    int class _U_, int type)
 {
-    proto_tree *rsvp_object_tree;
-
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_HELLO_OBJ));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     switch(type) {
     case 1:
     case 2:
@@ -3660,21 +3579,14 @@ dissect_rsvp_hello (proto_tree *ti, tvbuff_t *tvb,
  * DCLASS
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_dclass (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_dclass (proto_tree *ti, proto_tree *rsvp_object_tree,
+		     tvbuff_t *tvb,
 		     int offset, int obj_length,
-		     int class, int type,
-		     const char *type_str)
+		     int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
     int mylen;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_DCLASS));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     proto_item_set_text(ti, "DCLASS: ");
     switch(type) {
     case 1:
@@ -3708,22 +3620,16 @@ dissect_rsvp_dclass (proto_tree *ti, tvbuff_t *tvb,
  * ADMINISTRATIVE STATUS
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_admin_status (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_admin_status (proto_tree *ti, proto_tree *rsvp_object_tree,
+			   tvbuff_t *tvb,
 			   int offset, int obj_length,
-			   int class, int type,
-			   const char *type_str)
+			   int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
     proto_tree *ti2, *rsvp_admin_subtree;
     int mylen;
     guint32 status;
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_ADMIN_STATUS));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
+
     proto_item_set_text(ti, "ADMIN STATUS: ");
     switch(type) {
     case 1:
@@ -3772,12 +3678,11 @@ dissect_rsvp_admin_status (proto_tree *ti, tvbuff_t *tvb,
  * ASSOCIATION
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_association (proto_tree *ti, tvbuff_t *tvb,
-			   int offset, int obj_length,
-			   int class, int type,
-			   const char *type_str)
+dissect_rsvp_association (proto_tree *ti, proto_tree *rsvp_object_tree,
+			  tvbuff_t *tvb,
+			  int offset, int obj_length,
+			  int class _U_, int type)
 {
-    proto_tree *rsvp_object_tree;
     guint16 association_type;
     guint16 association_id;
     static value_string association_type_vals[] = {
@@ -3785,12 +3690,6 @@ dissect_rsvp_association (proto_tree *ti, tvbuff_t *tvb,
       {1, "Recovery"},
     };
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_ASSOCIATION));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     proto_item_set_text(ti, "ASSOCIATION ");
     association_type = tvb_get_ntohs (tvb, offset + 4);
     association_id = tvb_get_ntohs (tvb, offset + 6);
@@ -3844,20 +3743,13 @@ dissect_rsvp_association (proto_tree *ti, tvbuff_t *tvb,
  * LSP TUNNEL INTERFACE ID
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_lsp_tunnel_if_id (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_lsp_tunnel_if_id (proto_tree *ti, proto_tree *rsvp_object_tree,
+			       tvbuff_t *tvb,
 			       int offset, int obj_length,
-			       int class, int type,
-			       const char *type_str)
+			       int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_LSP_TUNNEL_IF_ID));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     proto_item_set_text(ti, "LSP INTERFACE-ID: ");
     switch(type) {
     case 1:
@@ -3887,23 +3779,17 @@ dissect_rsvp_lsp_tunnel_if_id (proto_tree *ti, tvbuff_t *tvb,
  * GENERALIZED UNI
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_gen_uni (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
+		      tvbuff_t *tvb,
 		      int offset, int obj_length,
-		      int class, int type,
-		      const char *type_str)
+		      int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
     int mylen, i, j, k, l, m;
-    proto_tree *ti2, *rsvp_gen_uni_subtree;
+    proto_item *ti2;
+    proto_tree *rsvp_gen_uni_subtree, *rsvp_session_subtree, *rsvp_template_subtree;
     int s_len, s_class, s_type;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_GEN_UNI));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     proto_item_set_text(ti, "GENERALIZED UNI: ");
 
     mylen = obj_length - 4;
@@ -4037,16 +3923,38 @@ dissect_rsvp_gen_uni (proto_tree *ti, tvbuff_t *tvb,
 		    s_type = tvb_get_guint8(tvb, offset2+l+11);
 		    ti2 = proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+8,
 					      s_len, "Session");
-		    dissect_rsvp_session(ti2, tvb, offset2+l+8, s_len, s_class, s_type,
-					 val_to_str(s_class, rsvp_class_vals, "Unknown"));
+		    rsvp_session_subtree =
+		        proto_item_add_subtree(ti2, TREE(rsvp_class_to_tree_type(s_class)));
+		    if (s_len < 4) {
+			proto_tree_add_text(rsvp_object_tree, tvb, offset2+l+8, 2,
+			    "Length: %u (bogus, must be >= 4)", s_len);
+			break;
+		    }
+		    proto_tree_add_text(rsvp_session_subtree, tvb, offset2+l+8, 2,
+				"Length: %u", s_len);
+		    proto_tree_add_uint(rsvp_session_subtree, rsvp_filter[RSVPF_OBJECT], tvb,
+				offset2+8+l+10, 1, s_class);
+		    dissect_rsvp_session(ti2, rsvp_session_subtree, tvb, offset2+l+8,
+					 s_len, s_class, s_type);
 		    offset2 += s_len;
 		    s_len = tvb_get_ntohs(tvb, offset2+l+8);
 		    s_class = tvb_get_guint8(tvb, offset2+l+10);
 		    s_type = tvb_get_guint8(tvb, offset2+l+11);
 		    ti2 = proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+8,
 					      s_len, "Template");
-		    dissect_rsvp_template_filter(ti2, tvb, offset2+l+8, s_len, s_class, s_type,
-						 val_to_str(s_class, rsvp_class_vals, "Unknown"));
+		    rsvp_template_subtree =
+		        proto_item_add_subtree(ti2, TREE(rsvp_class_to_tree_type(s_class)));
+		    if (s_len < 4) {
+			proto_tree_add_text(rsvp_object_tree, tvb, offset2+l+8, 2,
+			    "Length: %u (bogus, must be >= 4)", s_len);
+			break;
+		    }
+		    proto_tree_add_text(rsvp_template_subtree, tvb, offset2+l+8, 2,
+				"Length: %u", s_len);
+		    proto_tree_add_uint(rsvp_template_subtree, rsvp_filter[RSVPF_OBJECT], tvb,
+				offset2+8+l+10, 1, s_class);
+		    dissect_rsvp_template_filter(ti2, rsvp_template_subtree, tvb, offset2+l+8,
+						 s_len, s_class, s_type);
 
 		    if (i < 4) {
 			proto_item_append_text(ti, "Diversity");
@@ -4179,16 +4087,15 @@ dissect_rsvp_gen_uni (proto_tree *ti, tvbuff_t *tvb,
  * CALL_ID
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_call_id (proto_tree *ti, tvbuff_t *tvb,
-			  int offset, int obj_length,
-			  int class, int c_type,
-			  const char *type_str)
+dissect_rsvp_call_id (proto_tree *ti, proto_tree *rsvp_object_tree,
+		      tvbuff_t *tvb,
+		      int offset, int obj_length,
+		      int class _U_, int c_type)
 {
     int type;
     char *str;
     int offset2 = offset + 4;
     int offset3, offset4, len;
-    proto_tree *rsvp_object_tree;
 
     static value_string address_type_vals[] = {
       {1, "1 (IPv4)"},
@@ -4199,12 +4106,6 @@ dissect_rsvp_call_id (proto_tree *ti, tvbuff_t *tvb,
       {0, NULL}
     };
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_CALL_ID));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     proto_item_set_text(ti, "CALL-ID: ");
     type = tvb_get_guint8 (tvb, offset2);
     switch(c_type) {
@@ -4309,20 +4210,13 @@ dissect_rsvp_call_id (proto_tree *ti, tvbuff_t *tvb,
  * RESTART CAPABILITY
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_restart_cap (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_restart_cap (proto_tree *ti, proto_tree *rsvp_object_tree,
+			  tvbuff_t *tvb,
 			  int offset, int obj_length,
-			  int class, int type,
-			  const char *type_str)
+			  int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_RESTART_CAP));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     proto_item_set_text(ti, "RESTART CAPABILITY: ");
     switch(type) {
     case 1:
@@ -4352,20 +4246,13 @@ dissect_rsvp_restart_cap (proto_tree *ti, tvbuff_t *tvb,
  * PROTECTION INFORMATION
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_protection_info (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_protection_info (proto_tree *ti, proto_tree *rsvp_object_tree,
+			      tvbuff_t *tvb,
 			      int offset, int obj_length,
-			      int class, int type,
-			      const char *type_str)
+			      int class _U_, int type)
 {
     int offset2 = offset + 4;
-    proto_tree *rsvp_object_tree;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_PROTECTION_INFO));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     proto_item_set_text(ti, "PROTECTION_INFO: ");
     switch(type) {
     case 1:
@@ -4395,21 +4282,14 @@ dissect_rsvp_protection_info (proto_tree *ti, tvbuff_t *tvb,
  * FAST REROUTE
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_fast_reroute (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_fast_reroute (proto_tree *ti, proto_tree *rsvp_object_tree,
+			   tvbuff_t *tvb,
 			   int offset, int obj_length,
-			   int class, int type,
-			   const char *type_str)
+			   int class _U_, int type)
 {
-    proto_tree *rsvp_object_tree;
     guint8 flags;
     proto_tree *ti2, *rsvp_frr_flags_tree;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_FAST_REROUTE));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     proto_item_set_text(ti, "FAST_REROUTE: ");
     switch(type) {
     case 1:
@@ -4472,21 +4352,14 @@ dissect_rsvp_fast_reroute (proto_tree *ti, tvbuff_t *tvb,
  * DETOUR
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_detour (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_detour (proto_tree *ti, proto_tree *rsvp_object_tree,
+		     tvbuff_t *tvb,
 		     int offset, int obj_length,
-		     int class, int type,
-		     const char *type_str)
+		     int class _U_, int type)
 {
-    proto_tree *rsvp_object_tree;
     int remaining_length, count;
     int iter;
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_DETOUR));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     proto_item_set_text(ti, "DETOUR: ");
     switch(type) {
     case 7:
@@ -4527,13 +4400,11 @@ dissect_rsvp_detour (proto_tree *ti, tvbuff_t *tvb,
  * DIFFSERV
  *------------------------------------------------------------------------------*/
 static void
-dissect_rsvp_diffserv (proto_tree *ti, tvbuff_t *tvb,
+dissect_rsvp_diffserv (proto_tree *ti, proto_tree *rsvp_object_tree,
+		       tvbuff_t *tvb,
 		       int offset, int obj_length,
-		       int class, int type,
-		       const char *type_str
-		       )
+		       int class _U_, int type)
 {
-    proto_tree *rsvp_object_tree;
     int mapnb, count;
     int *hfindexes[] = {
 	&rsvp_filter[RSVPF_DIFFSERV_MAP],
@@ -4549,12 +4420,6 @@ dissect_rsvp_diffserv (proto_tree *ti, tvbuff_t *tvb,
 	&TREE(TT_DIFFSERV_MAP_PHBID)
     };
 
-    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_DIFFSERV));
-    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-			"Length: %u", obj_length);
-    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-			"Class number: %u - %s",
-			class, type_str);
     proto_item_set_text(ti, "DIFFSERV: ");
     offset += 3;
     switch (type) {
@@ -4717,175 +4582,173 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     while (len < msg_length) {
 	guint8 class;
 	guint8 type;
-	const char *type_str;
 
 	obj_length = tvb_get_ntohs(tvb, offset);
 	class = tvb_get_guint8(tvb, offset+2);
 	type = tvb_get_guint8(tvb, offset+3);
-	type_str = val_to_str(class, rsvp_class_vals, "Unknown");
-	proto_tree_add_uint_hidden(rsvp_tree, rsvp_filter[RSVPF_OBJECT], tvb,
-				   offset, obj_length, class);
 	ti = proto_tree_add_item(rsvp_tree, rsvp_filter[rsvp_class_to_filter_num(class)],
 				 tvb, offset, obj_length, FALSE);
+	rsvp_object_tree = proto_item_add_subtree(ti, TREE(rsvp_class_to_tree_type(class)));
+	if (obj_length < 4) {
+	    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+				"Length: %u (bogus, must be >= 4)", obj_length);
+	    break;
+	}
+	proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+			    "Length: %u", obj_length);
+	proto_tree_add_uint(rsvp_object_tree, rsvp_filter[RSVPF_OBJECT], tvb,
+			    offset+2, 1, class);
 
 	offset2 = offset+4;
 
 	switch(class) {
 
 	case RSVP_CLASS_SESSION:
-	    dissect_rsvp_session(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_session(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_HOP:
-	    dissect_rsvp_hop(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_hop(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_TIME_VALUES:
-	    dissect_rsvp_time_values(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_time_values(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_ERROR:
-	    dissect_rsvp_error(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_error(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_SCOPE:
-	    dissect_rsvp_scope(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_scope(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_STYLE:
-	    dissect_rsvp_style(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_style(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_CONFIRM:
-	    dissect_rsvp_confirm(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_confirm(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_SENDER_TEMPLATE:
 	case RSVP_CLASS_FILTER_SPEC:
-	    dissect_rsvp_template_filter(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_template_filter(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_SENDER_TSPEC:
-	    dissect_rsvp_tspec(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_tspec(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_FLOWSPEC:
-	    dissect_rsvp_flowspec(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_flowspec(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_ADSPEC:
-	    dissect_rsvp_adspec(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_adspec(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_INTEGRITY:
-	    dissect_rsvp_integrity(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_integrity(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_POLICY:
-	    dissect_rsvp_policy(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_policy(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_LABEL_REQUEST:
-	    dissect_rsvp_label_request(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_label_request(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_UPSTREAM_LABEL:
 	case RSVP_CLASS_SUGGESTED_LABEL:
 	case RSVP_CLASS_LABEL:
-	    dissect_rsvp_label(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_label(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_LABEL_SET:
-	    dissect_rsvp_label_set(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_label_set(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_SESSION_ATTRIBUTE:
-	    dissect_rsvp_session_attribute(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_session_attribute(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_EXPLICIT_ROUTE:
-	    dissect_rsvp_explicit_route(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_explicit_route(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_RECORD_ROUTE:
-	    dissect_rsvp_record_route(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_record_route(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_MESSAGE_ID:
-	    dissect_rsvp_message_id(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_message_id(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_MESSAGE_ID_ACK:
-	    dissect_rsvp_message_id_ack(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_message_id_ack(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_MESSAGE_ID_LIST:
-	    dissect_rsvp_message_id_list(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_message_id_list(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_HELLO:
-	    dissect_rsvp_hello(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_hello(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_DCLASS:
-	    dissect_rsvp_dclass(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_dclass(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_ADMIN_STATUS:
-	    dissect_rsvp_admin_status(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_admin_status(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_ASSOCIATION:
-	    dissect_rsvp_association(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_association(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_LSP_TUNNEL_IF_ID:
-	    dissect_rsvp_lsp_tunnel_if_id(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_lsp_tunnel_if_id(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_GENERALIZED_UNI:
-	    dissect_rsvp_gen_uni(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_gen_uni(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_CALL_ID:
-	    dissect_rsvp_call_id(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_call_id(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_RESTART_CAP:
-	    dissect_rsvp_restart_cap(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_restart_cap(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_PROTECTION:
-	    dissect_rsvp_protection_info(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_protection_info(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_FAST_REROUTE:
-	    dissect_rsvp_fast_reroute(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_fast_reroute(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_DETOUR:
-	    dissect_rsvp_detour(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_detour(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_DIFFSERV:
-	    dissect_rsvp_diffserv(ti, tvb, offset, obj_length, class, type, type_str);
+	    dissect_rsvp_diffserv(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
 	    break;
 
 	case RSVP_CLASS_NULL:
 	default:
-	    rsvp_object_tree = proto_item_add_subtree(ti, TREE(TT_UNKNOWN_CLASS));
-	    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
-				"Length: %u", obj_length);
-	    proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
-				"Class number: %u - %s",
-				class, type_str);
 	    proto_tree_add_text(rsvp_object_tree, tvb, offset2, obj_length - 4,
 				"Data (%d bytes)", obj_length - 4);
 	    break;
 	}
 
-	if (obj_length == 0)
-	    break;
 	offset += obj_length;
 	len += obj_length;
     }
