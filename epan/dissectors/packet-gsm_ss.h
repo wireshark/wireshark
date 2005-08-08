@@ -1,10 +1,24 @@
-/* packet-gsm_ss.h
- *
- * $Id$
- *
- * Copyright 2004, Michael Lum <mlum [AT] telostech.com>,
+/* Do not modify this file.                                                   */
+/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
+/* ./packet-gsm_ss.h                                                          */
+/* ../../tools/asn2eth.py -X -b -e -p gsm_ss -c gsm_ss.cnf -s packet-gsm_ss-template SS-Operations.asn */
+
+/* Input file: packet-gsm_ss-template.h */
+
+/* packet-gsm_map-template.h
+ * Routines for GSM Supplementary Services dissection
+ * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
+ * Based on the dissector by:
+ * Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
+ * Title		3GPP			Other
+ *
+ *   Reference [1]
+ *   Mobile radio Layer 3 supplementary service specification;
+ *   Formats and coding
+ *   (3GPP TS 24.080 version )
+ * $Id$ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
@@ -21,25 +35,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-typedef enum
-{
-    GSM_SS_ETT_SEQUENCE,
-    GSM_SS_ETT_PARAM
-}
-gsm_ss_ett_e;
-#define	NUM_GSM_SS_ETT	sizeof(gsm_ss_ett_e)
-extern gint gsm_ss_ett[];
+#ifndef PACKET_GSM_SS_H
+#define PACKET_GSM_SS_H
+int gsm_ss_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint32 opcode, gint comp_type_tag);
 
 extern const value_string gsm_ss_opr_code_strings[];
 extern const value_string gsm_ss_err_code_strings[];
+/* #include "packet-gsm_map-exp.h"*/
 
-extern void param_AddressString(ASN1_SCK *asn1, proto_tree *tree, guint len, int hf_field);
-extern void gsm_ss_dissect(ASN1_SCK *asn1, proto_tree *tree, guint exp_len, guint opr_code, guint comp_type_tag);
-
-extern int tcap_find_eoc(ASN1_SCK *asn1);
-
-extern gboolean tcap_check_tag(ASN1_SCK *asn1, guint tag);
-
+#endif  /* PACKET_GSM_SS_H */

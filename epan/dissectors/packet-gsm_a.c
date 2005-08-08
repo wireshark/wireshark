@@ -95,11 +95,11 @@
 #include <epan/prefs.h>
 #include <epan/ipv6-utils.h>
 #include <epan/tap.h>
-#include <epan/asn1.h>
 
 #include "packet-tcap.h"
 #include "packet-bssap.h"
 #include "packet-gsm_ss.h"
+#include "packet-ber.h"
 #include "packet-gsm_a.h"
 
 #include "packet-ppp.h"
@@ -1129,6 +1129,30 @@ static int hf_gsm_a_rr_cdma200_cm_cng_msg_req = -1;
 static int hf_gsm_a_rr_geran_iu_cm_cng_msg_req = -1;
 static int hf_gsm_a_rr_suspension_cause = -1;
 
+static int hf_ROS_component = -1;
+static int hf_ROS_invoke = -1;                    /* Invoke */
+static int hf_ROS_returnResultLast = -1;          /* ReturnResult */
+static int hf_ROS_returnError = -1;               /* ReturnError */
+static int hf_ROS_reject = -1;                    /* Reject */
+static int hf_ROS_invokeID = -1;                  /* InvokeIdType */
+static int hf_ROS_linkedID = -1;                  /* InvokeIdType */
+static int hf_ROS_opCode = -1;                    /* OPERATION */
+static int hf_ROS_parameter = -1;                 /* Parameter */
+static int hf_ROS_resultretres = -1;              /* T_resultretres */
+static int hf_ROS_errorCode = -1;                 /* ErrorCode */
+static int hf_ROS_invokeIDRej = -1;               /* T_invokeIDRej */
+static int hf_ROS_derivable = -1;                 /* InvokeIdType */
+static int hf_ROS_not_derivable = -1;             /* NULL */
+static int hf_ROS_problem = -1;                   /* T_problem */
+static int hf_ROS_generalProblem = -1;            /* GeneralProblem */
+static int hf_ROS_invokeProblem = -1;             /* InvokeProblem */
+static int hf_ROS_returnResultProblem = -1;       /* ReturnResultProblem */
+static int hf_ROS_returnErrorProblem = -1;        /* ReturnErrorProblem */
+static int hf_ROS_localValue = -1;                /* INTEGER */
+static int hf_ROS_globalValue = -1;               /* OBJECT_IDENTIFIER */
+static int hf_ROS_nationaler = -1;                /* INTEGER_M32768_32767 */
+static int hf_ROS_privateer = -1;                 /* INTEGER */
+
 /* Initialize the subtree pointers */
 static gint ett_bssmap_msg = -1;
 static gint ett_dtap_msg = -1;
@@ -1170,6 +1194,18 @@ static gint ett_gmm_context_stat = -1;
 static gint ett_gmm_update_type = -1;
 static gint ett_gmm_radio_cap = -1;
 
+static gint ett_ros = -1;
+static gint ett_ROS_Component = -1;
+static gint ett_ROS_Invoke = -1;
+static gint ett_ROS_ReturnResult = -1;
+static gint ett_ROS_T_resultretres = -1;
+static gint ett_ROS_ReturnError = -1;
+static gint ett_ROS_Reject = -1;
+static gint ett_ROS_T_invokeIDRej = -1;
+static gint ett_ROS_T_problem = -1;
+static gint ett_ROS_OPERATION = -1;
+static gint ett_ROS_ERROR = -1;
+static gint ett_ROS_ErrorCode = -1;
 
 static gint ett_sm_tft = -1;
 
@@ -1185,6 +1221,9 @@ static dissector_table_t gprs_sm_pco_subdissector_table; /* GPRS SM PCO PPP Prot
 
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
+static gint comp_type_tag;
+static guint32 localValue;
+
 
 /*
  * this should be set on a per message basis, if possible
@@ -7208,362 +7247,452 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 }
 
 
-#define	GSM_A_TC_START_SUBTREE(_Gtree, _Gsaved_offset, _Gtag, _Gstr1, _Gett, _Gdef_len_p, _Glen_p, _Gsubtree_p) \
-    { \
-	guint		_len_offset; \
-	proto_item	*_item; \
- \
-	_len_offset = asn1->offset; \
-	asn1_length_decode(asn1, _Gdef_len_p, _Glen_p); \
- \
-	_item = \
-	    proto_tree_add_text(_Gtree, asn1->tvb, _Gsaved_offset, -1, _Gstr1); \
- \
-	_Gsubtree_p = proto_item_add_subtree(_item, _Gett); \
- \
-	proto_tree_add_text(_Gsubtree_p, asn1->tvb, \
-	    _Gsaved_offset, _len_offset - _Gsaved_offset, "Tag: 0x%02x", _Gtag); \
- \
-	if (*_Gdef_len_p) \
-	{ \
-	    proto_tree_add_text(_Gsubtree_p, asn1->tvb, \
-		_len_offset, asn1->offset - _len_offset, "Length: %d", *_Glen_p); \
-	} \
-	else \
-	{ \
-	    proto_tree_add_text(_Gsubtree_p, asn1->tvb, \
-		_len_offset, asn1->offset - _len_offset, "Length: Indefinite"); \
- \
-	    *_Glen_p = tcap_find_eoc(asn1); \
-	} \
- \
-	proto_item_set_len(_item, (asn1->offset - _Gsaved_offset) + *_Glen_p + \
-	    (*_Gdef_len_p ? 0 : TCAP_EOC_LEN)); \
-    }
-
 /*
  * [6] 3.6
  */
+ static int
+dissect_ROS_InvokeIdType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_invokeID(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ROS_InvokeIdType(FALSE, tvb, offset, pinfo, tree, hf_ROS_invokeID);
+}
+static int dissect_linkedID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ROS_InvokeIdType(TRUE, tvb, offset, pinfo, tree, hf_ROS_linkedID);
+}
+static int dissect_derivable(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ROS_InvokeIdType(FALSE, tvb, offset, pinfo, tree, hf_ROS_derivable);
+}
+
+
+
+static int
+dissect_ROS_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  &localValue);
+
+  return offset;
+}
+static int dissect_localValue(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ROS_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_ROS_localValue);
+}
+static int dissect_privateer_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ROS_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_ROS_privateer);
+}
+
+
+
+static int
+dissect_ROS_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+static int dissect_globalValue(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ROS_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_ROS_globalValue);
+}
+
+
+static const value_string ROS_OPERATION_vals[] = {
+  {   0, "localValue" },
+  {   1, "globalValue" },
+  { 0, NULL }
+};
+
+static const ber_choice_t OPERATION_choice[] = {
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_localValue },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_globalValue },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ROS_OPERATION(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                              OPERATION_choice, hf_index, ett_ROS_OPERATION, NULL);
+
+  return offset;
+}
+static int dissect_opCode(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ROS_OPERATION(FALSE, tvb, offset, pinfo, tree, hf_ROS_opCode);
+}
+
+
+
+static int
+dissect_ROS_Parameter(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = gsm_ss_dissect(tvb, pinfo, tree, offset, localValue, comp_type_tag);
+	
+  return offset;
+}
+static int dissect_parameter(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ROS_Parameter(FALSE, tvb, offset, pinfo, tree, hf_ROS_parameter);
+}
+
+static const ber_sequence_t Invoke_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeID },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_linkedID_impl },
+  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_opCode },
+  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_parameter },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_ROS_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                Invoke_sequence, hf_index, ett_ROS_Invoke);
+
+  return offset;
+}
+static int dissect_invoke_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ROS_Invoke(TRUE, tvb, offset, pinfo, tree, hf_ROS_invoke);
+}
+
+static const ber_sequence_t T_resultretres_sequence[] = {
+  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_opCode },
+  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_parameter },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_ROS_T_resultretres(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                T_resultretres_sequence, hf_index, ett_ROS_T_resultretres);
+
+  return offset;
+}
+static int dissect_resultretres(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ROS_T_resultretres(FALSE, tvb, offset, pinfo, tree, hf_ROS_resultretres);
+}
+
+static const ber_sequence_t ReturnResult_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeID },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_resultretres },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_ROS_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                ReturnResult_sequence, hf_index, ett_ROS_ReturnResult);
+
+  return offset;
+}
+static int dissect_returnResultLast_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ROS_ReturnResult(TRUE, tvb, offset, pinfo, tree, hf_ROS_returnResultLast);
+}
+
+
+
+static int
+dissect_ROS_INTEGER_M32768_32767(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_nationaler_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ROS_INTEGER_M32768_32767(TRUE, tvb, offset, pinfo, tree, hf_ROS_nationaler);
+}
+
+
+static const value_string ROS_ErrorCode_vals[] = {
+  {  19, "nationaler" },
+  {  20, "privateer" },
+  { 0, NULL }
+};
+
+static const ber_choice_t ErrorCode_choice[] = {
+  {  19, BER_CLASS_PRI, 19, BER_FLAGS_IMPLTAG, dissect_nationaler_impl },
+  {  20, BER_CLASS_PRI, 20, BER_FLAGS_IMPLTAG, dissect_privateer_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ROS_ErrorCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                              ErrorCode_choice, hf_index, ett_ROS_ErrorCode, NULL);
+
+  return offset;
+}
+static int dissect_errorCode(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ROS_ErrorCode(FALSE, tvb, offset, pinfo, tree, hf_ROS_errorCode);
+}
+
+static const ber_sequence_t ReturnError_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeID },
+  { BER_CLASS_PRI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_errorCode },
+  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_parameter },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_ROS_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                ReturnError_sequence, hf_index, ett_ROS_ReturnError);
+
+  return offset;
+}
+static int dissect_returnError_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ROS_ReturnError(TRUE, tvb, offset, pinfo, tree, hf_ROS_returnError);
+}
+
+
+
+static int
+dissect_ROS_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_null(implicit_tag, pinfo, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+static int dissect_not_derivable(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ROS_NULL(FALSE, tvb, offset, pinfo, tree, hf_ROS_not_derivable);
+}
+
+
+static const value_string ROS_T_invokeIDRej_vals[] = {
+  {   0, "derivable" },
+  {   1, "not-derivable" },
+  { 0, NULL }
+};
+
+static const ber_choice_t T_invokeIDRej_choice[] = {
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_derivable },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_not_derivable },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ROS_T_invokeIDRej(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                              T_invokeIDRej_choice, hf_index, ett_ROS_T_invokeIDRej, NULL);
+
+  return offset;
+}
+static int dissect_invokeIDRej(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ROS_T_invokeIDRej(FALSE, tvb, offset, pinfo, tree, hf_ROS_invokeIDRej);
+}
+
+
+static const value_string ROS_GeneralProblem_vals[] = {
+  {   0, "unrecognizedComponent" },
+  {   1, "mistypedComponent" },
+  {   2, "badlyStructuredComponent" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_ROS_GeneralProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_generalProblem_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ROS_GeneralProblem(TRUE, tvb, offset, pinfo, tree, hf_ROS_generalProblem);
+}
+
+
+static const value_string ROS_InvokeProblem_vals[] = {
+  {   0, "duplicateInvokeID" },
+  {   1, "unrecognizedOperation" },
+  {   2, "mistypedParameter" },
+  {   3, "resourceLimitation" },
+  {   4, "initiatingRelease" },
+  {   5, "unrecognizedLinkedID" },
+  {   6, "linkedResponseUnexpected" },
+  {   7, "unexpectedLinkedOperation" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_ROS_InvokeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_invokeProblem_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ROS_InvokeProblem(TRUE, tvb, offset, pinfo, tree, hf_ROS_invokeProblem);
+}
+
+
+static const value_string ROS_ReturnResultProblem_vals[] = {
+  {   0, "unrecognizedInvokeID" },
+  {   1, "returnResultUnexpected" },
+  {   2, "mistypedParameter" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_ROS_ReturnResultProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_returnResultProblem_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ROS_ReturnResultProblem(TRUE, tvb, offset, pinfo, tree, hf_ROS_returnResultProblem);
+}
+
+
+static const value_string ROS_ReturnErrorProblem_vals[] = {
+  {   0, "unrecognizedInvokeID" },
+  {   1, "returnErrorUnexpected" },
+  {   2, "unrecognizedError" },
+  {   3, "unexpectedError" },
+  {   4, "mistypedParameter" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_ROS_ReturnErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_returnErrorProblem_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ROS_ReturnErrorProblem(TRUE, tvb, offset, pinfo, tree, hf_ROS_returnErrorProblem);
+}
+
+
+static const value_string ROS_T_problem_vals[] = {
+  {   0, "generalProblem" },
+  {   1, "invokeProblem" },
+  {   2, "returnResultProblem" },
+  {   3, "returnErrorProblem" },
+  { 0, NULL }
+};
+
+static const ber_choice_t T_problem_choice[] = {
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_generalProblem_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_invokeProblem_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_returnResultProblem_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_returnErrorProblem_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ROS_T_problem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                              T_problem_choice, hf_index, ett_ROS_T_problem, NULL);
+
+  return offset;
+}
+static int dissect_problem(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ROS_T_problem(FALSE, tvb, offset, pinfo, tree, hf_ROS_problem);
+}
+
+static const ber_sequence_t Reject_sequence[] = {
+  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_invokeIDRej },
+  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_problem },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_ROS_Reject(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                Reject_sequence, hf_index, ett_ROS_Reject);
+
+  return offset;
+}
+static int dissect_reject_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ROS_Reject(TRUE, tvb, offset, pinfo, tree, hf_ROS_reject);
+}
+
+
+static const value_string ROS_Component_vals[] = {
+  {   1, "invoke" },
+  {   2, "returnResultLast" },
+  {   3, "returnError" },
+  {   4, "reject" },
+  { 0, NULL }
+};
+
+static const ber_choice_t Component_choice[] = {
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_invoke_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_returnResultLast_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_returnError_impl },
+  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_reject_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ROS_Component(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                              Component_choice, hf_index, ett_ROS_Component, NULL);
+  /* branch taken will be component type -1 */
+
+  return offset;
+}
+
+
+static const value_string ROS_ERROR_vals[] = {
+  {   0, "localValue" },
+  {   1, "globalValue" },
+  { 0, NULL }
+};
+
+static const ber_choice_t ERROR_choice[] = {
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_localValue },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_globalValue },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_ROS_ERROR(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                              ERROR_choice, hf_index, ett_ROS_ERROR, NULL);
+
+  return offset;
+}
+
 static guint8
-de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
+de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint fac_len, gchar *add_string _U_)
 {
-    ASN1_SCK	asn1_real, *asn1;
-    proto_item	*item;
-    proto_tree	*subtree, *temp_subtree, *seq_subtree;
-    guint	saved_offset, comp_saved_offset, comp_len_offset, comp_data_offset;
-    guint	comp_len, temp_len;
-    gboolean	def_len[3];
-    guint	comp_tag, tag;
-    const gchar	*str;
-    gint32	int_val;
+    guint	saved_offset;
+	gint8 class;
+	gboolean pc;
+	gboolean ind = FALSE;
+	guint32 component_len = 0;
+	guint32 header_end_offset;
+	guint32 header_len;
+	tvbuff_t *next_tvb;
 
+	
+	saved_offset = offset;
+	while ( fac_len > (offset - saved_offset)){ 
 
-    asn1 = &asn1_real;
-    asn1_open(asn1, tvb, offset);
-
-    /* call next dissector for EACH component */
-
-    while ((len - (asn1->offset - offset)) > 0)
-    {
-	comp_saved_offset = asn1->offset;
-	saved_offset = asn1->offset;
-	asn1_id_decode1(asn1, &comp_tag);
-
-	comp_len_offset = asn1->offset;
-	comp_len = 0;
-	def_len[0] = FALSE;
-	asn1_length_decode(asn1, &def_len[0], &comp_len);
-	comp_data_offset = asn1->offset;
-
-	if (def_len[0])
-	{
-	    temp_len = comp_len + (asn1->offset - saved_offset);
-	}
-	else
-	{
-	    comp_len = tcap_find_eoc(asn1);
-	    temp_len = comp_len + (asn1->offset - saved_offset) + TCAP_EOC_LEN;
-	}
-
-	item =
-	    proto_tree_add_text(tree, asn1->tvb, comp_saved_offset, temp_len, "Component");
-
-	subtree = proto_item_add_subtree(item, ett_tc_component);
-
-	str = match_strval((guint32) comp_tag, tcap_component_type_str);
-
-	if (str == NULL)
-	{
-	    proto_tree_add_text(subtree, asn1->tvb, comp_saved_offset, temp_len,
-		"Unknown component type tag, ignoring component");
-
-	    asn1->offset = comp_saved_offset + temp_len;
-	    continue;
-	}
-
-	proto_tree_add_text(subtree, asn1->tvb, comp_saved_offset,
-	    comp_len_offset - comp_saved_offset,
-	    "%s Type Tag: 0x%02x", str, comp_tag);
-
-	if (def_len[0])
-	{
-	    proto_tree_add_text(subtree, asn1->tvb,
-		comp_len_offset, asn1->offset - comp_len_offset, "Length: %d", comp_len);
-	}
-	else
-	{
-	    proto_tree_add_text(subtree, asn1->tvb,
-		comp_len_offset, asn1->offset - comp_len_offset, "Length: Indefinite");
-	}
-
-	saved_offset = asn1->offset;
-	asn1_id_decode1(asn1, &tag);
-
-	GSM_A_TC_START_SUBTREE(subtree, saved_offset, tag, "Invoke ID",
-	    ett_tc_invoke_id, &def_len[1], &temp_len, temp_subtree);
-
-	if (temp_len > 0)
-	{
-	    saved_offset = asn1->offset;
-	    asn1_int32_value_decode(asn1, temp_len, &int_val);
-
-	    proto_tree_add_text(temp_subtree, asn1->tvb,
-		saved_offset, temp_len, "Invoke ID: %d", int_val);
-	}
-
-	if (!def_len[1])
-	{
-	    saved_offset = asn1->offset;
-	    asn1_eoc_decode(asn1, -1);
-
-	    proto_tree_add_text(subtree, asn1->tvb,
-		saved_offset, asn1->offset - saved_offset, "End of Contents");
-	}
-
-	switch (comp_tag)
-	{
-	case TCAP_COMP_INVOKE:
-	    saved_offset = asn1->offset;
-	    asn1_id_decode1(asn1, &tag);
-
-	    if (tag == TCAP_LINKED_ID_TAG)
-	    {
-		GSM_A_TC_START_SUBTREE(subtree, saved_offset, tag, "Linked ID",
-		    ett_tc_linked_id, &def_len[1], &temp_len, temp_subtree);
-
-		if (temp_len > 0)
-		{
-		    saved_offset = asn1->offset;
-		    asn1_int32_value_decode(asn1, temp_len, &int_val);
-
-		    proto_tree_add_text(temp_subtree, asn1->tvb,
-			saved_offset, temp_len, "Linked ID: %d", int_val);
+		/* Get the length of the component there can be more tnan one component in a facility message */
+	  
+		header_end_offset = get_ber_identifier(tvb, offset, &class, &pc, &comp_type_tag);
+		header_end_offset = get_ber_length(tree, tvb, header_end_offset, &component_len, &ind);
+		if (ind){
+			proto_tree_add_text(tree, tvb, offset+1, 1,
+				"Indefinte length, ignoring component");
+			return (fac_len);
 		}
-
-		if (!def_len[1])
-		{
-		    saved_offset = asn1->offset;
-		    asn1_eoc_decode(asn1, -1);
-
-		    proto_tree_add_text(subtree, asn1->tvb,
-			saved_offset, asn1->offset - saved_offset, "End of Contents");
-		}
-
-		saved_offset = asn1->offset;
-		asn1_id_decode1(asn1, &tag);
-	    }
-
-	    GSM_A_TC_START_SUBTREE(subtree, saved_offset, tag, "Operation Code",
-		ett_tc_opr_code, &def_len[1], &temp_len, temp_subtree);
-
-	    if (temp_len > 0)
-	    {
-		saved_offset = asn1->offset;
-		asn1_int32_value_decode(asn1, temp_len, &int_val);
-
-		proto_tree_add_text(temp_subtree, asn1->tvb,
-		    saved_offset, temp_len, "Operation Code: %s (%d)",
-		    val_to_str(int_val, gsm_ss_opr_code_strings, "Unknown Operation Code"),
-		    int_val);
-	    }
-
-	    if (!def_len[1])
-	    {
-		saved_offset = asn1->offset;
-		asn1_eoc_decode(asn1, -1);
-
-		proto_tree_add_text(subtree, asn1->tvb,
-		    saved_offset, asn1->offset - saved_offset, "End of Contents");
-	    }
-
-	    if ((comp_len - (asn1->offset - comp_data_offset)) > 0)
-	    {
-		gsm_ss_dissect(asn1, subtree,
-		    comp_len - (asn1->offset - comp_data_offset), int_val, comp_tag);
-	    }
-	    break;
-
-	case TCAP_COMP_RRL:
-	    if ((len - (asn1->offset - offset)) > 0)
-	    {
-		saved_offset = asn1->offset;
-		asn1_id_decode1(asn1, &tag);
-
-		GSM_A_TC_START_SUBTREE(subtree, saved_offset, tag, "Sequence",
-		    ett_tc_sequence, &def_len[1], &temp_len, seq_subtree);
-
-		saved_offset = asn1->offset;
-		asn1_id_decode1(asn1, &tag);
-
-		GSM_A_TC_START_SUBTREE(seq_subtree, saved_offset, tag, "Operation Code",
-		    ett_tc_opr_code, &def_len[2], &temp_len, temp_subtree);
-
-		if (temp_len > 0)
-		{
-		    saved_offset = asn1->offset;
-		    asn1_int32_value_decode(asn1, temp_len, &int_val);
-
-		    proto_tree_add_text(temp_subtree, asn1->tvb,
-			saved_offset, temp_len, "Operation Code: %s (%d)",
-			val_to_str(int_val, gsm_ss_opr_code_strings, "Unknown Operation Code"),
-			int_val);
-		}
-
-		if (!def_len[2])
-		{
-		    saved_offset = asn1->offset;
-		    asn1_eoc_decode(asn1, -1);
-
-		    proto_tree_add_text(subtree, asn1->tvb,
-			saved_offset, asn1->offset - saved_offset, "End of Contents");
-		}
-
-		if ((comp_len - (asn1->offset - comp_data_offset)) > 0)
-		{
-		    gsm_ss_dissect(asn1, seq_subtree,
-			comp_len - (asn1->offset - comp_data_offset), int_val, comp_tag);
-		}
-
-		if (!def_len[1])
-		{
-		    saved_offset = asn1->offset;
-		    asn1_eoc_decode(asn1, -1);
-
-		    proto_tree_add_text(subtree, asn1->tvb,
-			saved_offset, asn1->offset - saved_offset, "End of Contents");
-		}
-	    }
-	    break;
-
-	case TCAP_COMP_RE:
-	    saved_offset = asn1->offset;
-	    asn1_id_decode1(asn1, &tag);
-
-	    switch (tag)
-	    {
-	    case 0x02:
-		GSM_A_TC_START_SUBTREE(subtree, saved_offset, tag, "Local Error Code",
-		    ett_tc_err_code, &def_len[1], &temp_len, temp_subtree);
-
-		if (temp_len > 0)
-		{
-		    saved_offset = asn1->offset;
-		    asn1_int32_value_decode(asn1, temp_len, &int_val);
-
-		    proto_tree_add_text(temp_subtree, asn1->tvb,
-			saved_offset, temp_len, "Error Code: %s (%d)",
-			val_to_str(int_val, gsm_ss_err_code_strings, "Unknown Error Code"),
-			int_val);
-		}
-		break;
-
-	    case 0x06:
-		GSM_A_TC_START_SUBTREE(subtree, saved_offset, tag, "Global Error Code",
-		    ett_tc_err_code, &def_len[1], &temp_len, temp_subtree);
-
-		if (temp_len > 0)
-		{
-		    saved_offset = asn1->offset;
-		    asn1_int32_value_decode(asn1, temp_len, &int_val);
-
-		    proto_tree_add_text(temp_subtree, asn1->tvb,
-			saved_offset, temp_len, "Error Code: %d",
-			int_val);
-		}
-		break;
-
-	    default:
-		GSM_A_TC_START_SUBTREE(subtree, saved_offset, tag, "Unknown Error Code",
-		    ett_tc_err_code, &def_len[1], &temp_len, temp_subtree);
-
-		if (temp_len > 0)
-		{
-		    saved_offset = asn1->offset;
-		    asn1_int32_value_decode(asn1, temp_len, &int_val);
-
-		    proto_tree_add_text(temp_subtree, asn1->tvb,
-			saved_offset, temp_len, "Error Code: %d",
-			int_val);
-		}
-		break;
-	    }
-
-	    if (!def_len[1])
-	    {
-		saved_offset = asn1->offset;
-		asn1_eoc_decode(asn1, -1);
-
-		proto_tree_add_text(subtree, asn1->tvb,
-		    saved_offset, asn1->offset - saved_offset, "End of Contents");
-	    }
-
-	    if ((comp_len - (asn1->offset - comp_data_offset)) > 0)
-	    {
+		header_len = header_end_offset - offset;
+		component_len = header_len + component_len;
 		/*
-		 * XXX need conversations to determine 'opr_code'
-		 */
-		gsm_ss_dissect(asn1, subtree,
-		    comp_len - (asn1->offset - comp_data_offset), 0, comp_tag);
-	    }
-	    break;
+		next_tvb=tvb_new_subset(tvb, offset, component_len, component_len);
+		*/
+		dissect_ROS_Component(FALSE, tvb, offset, g_pinfo, tree, hf_ROS_component);
+		offset = offset + component_len;
 
-	case TCAP_COMP_REJECT:
-	    saved_offset = asn1->offset;
-	    asn1_id_decode1(asn1, &tag);
+	} 
+	return(fac_len);
 
-	    GSM_A_TC_START_SUBTREE(subtree, saved_offset, tag, "Problem Code",
-		ett_tc_prob_code, &def_len[1], &temp_len, temp_subtree);
 
-	    if (temp_len > 0)
-	    {
-		proto_tree_add_text(temp_subtree, asn1->tvb,
-		    asn1->offset, temp_len, "Problem Code");
-
-		asn1->offset += temp_len;
-	    }
-
-	    if (!def_len[1])
-	    {
-		saved_offset = asn1->offset;
-		asn1_eoc_decode(asn1, -1);
-
-		proto_tree_add_text(subtree, asn1->tvb,
-		    saved_offset, asn1->offset - saved_offset, "End of Contents");
-	    }
-	    break;
-	}
-
-	if (!def_len[0])
-	{
-	    saved_offset = asn1->offset;
-	    asn1_eoc_decode(asn1, -1);
-
-	    proto_tree_add_text(subtree, asn1->tvb,
-		saved_offset, asn1->offset - saved_offset, "End of Contents");
-	}
-    }
-
-    return(len);
 }
 
 /*
@@ -10897,32 +11026,29 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
     guint	curr_len;
     guchar	oct;
     struct e_in6_addr ipv6_addr;
-
+    
     curr_len = len;
     curr_offset = offset;
-	
+
     oct = tvb_get_guint8(tvb, curr_offset);
     curr_len--;
     curr_offset++;
 
-	/* MLT - Possible bugs here */
-	/* made it (curr_offset - 1) instead of curr_offset in display since the line */
-	/* right before moves the current index */
-    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Ext: 0x%02x (%u)",oct>>7,oct>>7);
-    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Configuration Protocol: PPP (%u)",oct&0x0f);
+    proto_tree_add_text(tree,tvb, curr_offset, 1, "Ext: 0x%02x (%u)",oct>>7,oct>>7);
+    proto_tree_add_text(tree,tvb, curr_offset, 1, "Configuration Protocol: PPP (%u)",oct&0x0f);
 
     while ( curr_len > 0 )
     {
     	guchar e_len;
     	guint16 prot;
-		tvbuff_t *l3_tvb;
-		dissector_handle_t handle = NULL;
-		static packet_info p_info;
-
-		prot = tvb_get_guint8(tvb, curr_offset);
-		prot <<= 8;
-		prot |= tvb_get_guint8(tvb, curr_offset+1);
-		e_len = tvb_get_guint8(tvb, curr_offset+2);
+	tvbuff_t *l3_tvb;
+	dissector_handle_t handle = NULL;
+	static packet_info p_info;
+	
+	prot = tvb_get_guint8(tvb, curr_offset);
+	prot <<= 8;
+	prot |= tvb_get_guint8(tvb, curr_offset+1);
+	e_len = tvb_get_guint8(tvb, curr_offset+2);
     	curr_len-=3;
     	curr_offset+=3;
 
@@ -18372,17 +18498,108 @@ proto_register_gsm_a(void)
 		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_suspension_cause_vals), 0x0,          
 		"Suspension cause value", HFILL }
 	},
+    { &hf_ROS_component,
+      { "component", "ROS.component",
+        FT_UINT8, BASE_DEC, VALS(ROS_Component_vals), 0,
+        "Component", HFILL }},
+    { &hf_ROS_invoke,
+      { "invoke", "ROS.invoke",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Component/invoke", HFILL }},
+    { &hf_ROS_returnResultLast,
+      { "returnResultLast", "ROS.returnResultLast",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Component/returnResultLast", HFILL }},
+    { &hf_ROS_returnError,
+      { "returnError", "ROS.returnError",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Component/returnError", HFILL }},
+    { &hf_ROS_reject,
+      { "reject", "ROS.reject",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Component/reject", HFILL }},
+    { &hf_ROS_invokeID,
+      { "invokeID", "ROS.invokeID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "", HFILL }},
+    { &hf_ROS_linkedID,
+      { "linkedID", "ROS.linkedID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Invoke/linkedID", HFILL }},
+    { &hf_ROS_opCode,
+      { "opCode", "ROS.opCode",
+        FT_UINT32, BASE_DEC, VALS(ROS_OPERATION_vals), 0,
+        "", HFILL }},
+    { &hf_ROS_parameter,
+      { "parameter", "ROS.parameter",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "", HFILL }},
+    { &hf_ROS_resultretres,
+      { "resultretres", "ROS.resultretres",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ReturnResult/resultretres", HFILL }},
+    { &hf_ROS_errorCode,
+      { "errorCode", "ROS.errorCode",
+        FT_UINT32, BASE_DEC, VALS(ROS_ErrorCode_vals), 0,
+        "ReturnError/errorCode", HFILL }},
+    { &hf_ROS_invokeIDRej,
+      { "invokeIDRej", "ROS.invokeIDRej",
+        FT_UINT32, BASE_DEC, VALS(ROS_T_invokeIDRej_vals), 0,
+        "Reject/invokeIDRej", HFILL }},
+    { &hf_ROS_derivable,
+      { "derivable", "ROS.derivable",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Reject/invokeIDRej/derivable", HFILL }},
+    { &hf_ROS_not_derivable,
+      { "not-derivable", "ROS.not_derivable",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Reject/invokeIDRej/not-derivable", HFILL }},
+    { &hf_ROS_problem,
+      { "problem", "ROS.problem",
+        FT_UINT32, BASE_DEC, VALS(ROS_T_problem_vals), 0,
+        "Reject/problem", HFILL }},
+    { &hf_ROS_generalProblem,
+      { "generalProblem", "ROS.generalProblem",
+        FT_INT32, BASE_DEC, VALS(ROS_GeneralProblem_vals), 0,
+        "Reject/problem/generalProblem", HFILL }},
+    { &hf_ROS_invokeProblem,
+      { "invokeProblem", "ROS.invokeProblem",
+        FT_INT32, BASE_DEC, VALS(ROS_InvokeProblem_vals), 0,
+        "Reject/problem/invokeProblem", HFILL }},
+    { &hf_ROS_returnResultProblem,
+      { "returnResultProblem", "ROS.returnResultProblem",
+        FT_INT32, BASE_DEC, VALS(ROS_ReturnResultProblem_vals), 0,
+        "Reject/problem/returnResultProblem", HFILL }},
+    { &hf_ROS_returnErrorProblem,
+      { "returnErrorProblem", "ROS.returnErrorProblem",
+        FT_INT32, BASE_DEC, VALS(ROS_ReturnErrorProblem_vals), 0,
+        "Reject/problem/returnErrorProblem", HFILL }},
+    { &hf_ROS_localValue,
+      { "localValue", "ROS.localValue",
+        FT_INT32, BASE_DEC, VALS(gsm_ss_opr_code_strings), 0,
+        "", HFILL }},
+    { &hf_ROS_globalValue,
+      { "globalValue", "ROS.globalValue",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "", HFILL }},
+    { &hf_ROS_nationaler,
+      { "nationaler", "ROS.nationaler",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ErrorCode/nationaler", HFILL }},
+    { &hf_ROS_privateer,
+      { "privateer", "ROS.privateer",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "ErrorCode/privateer", HFILL }},
 
     };
 
     /* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_ELEMS	38
+#define	NUM_INDIVIDUAL_ELEMS	50
     static gint *ett[NUM_INDIVIDUAL_ELEMS + NUM_GSM_BSSMAP_MSG +
 			NUM_GSM_DTAP_MSG_MM + NUM_GSM_DTAP_MSG_RR + NUM_GSM_DTAP_MSG_CC +
 			NUM_GSM_DTAP_MSG_GMM + NUM_GSM_DTAP_MSG_SMS +
 			NUM_GSM_DTAP_MSG_SM + NUM_GSM_DTAP_MSG_SS + NUM_GSM_RP_MSG +
-			NUM_GSM_BSSMAP_ELEM + NUM_GSM_DTAP_ELEM +
-			NUM_GSM_SS_ETT];
+			NUM_GSM_BSSMAP_ELEM + NUM_GSM_DTAP_ELEM];
 
     ett[0] = &ett_bssmap_msg;
     ett[1] = &ett_dtap_msg;
@@ -18425,6 +18642,19 @@ proto_register_gsm_a(void)
     ett[36] = &ett_gmm_radio_cap;
 
     ett[37] = &ett_sm_tft;
+
+    ett[38] = &ett_ros,
+    ett[39] = &ett_ROS_Component,
+    ett[40] = &ett_ROS_Invoke,
+    ett[41] = &ett_ROS_ReturnResult,
+    ett[42] = &ett_ROS_T_resultretres,
+    ett[43] = &ett_ROS_ReturnError,
+    ett[44] = &ett_ROS_Reject,
+    ett[45] = &ett_ROS_T_invokeIDRej,
+    ett[46] = &ett_ROS_T_problem,
+    ett[47] = &ett_ROS_OPERATION,
+    ett[48] = &ett_ROS_ERROR,
+    ett[49] = &ett_ROS_ErrorCode,
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
@@ -18494,11 +18724,6 @@ proto_register_gsm_a(void)
 	ett[last_offset] = &ett_gsm_dtap_elem[i];
     }
 
-    for (i=0; i < NUM_GSM_SS_ETT; i++, last_offset++)
-    {
-	gsm_ss_ett[i] = -1;
-	ett[last_offset] = &gsm_ss_ett[i];
-    }
 
     /* Register the protocol name and description */
 
@@ -18541,23 +18766,6 @@ proto_reg_handoff_gsm_a(void)
     dissector_add("bssap.pdu_type",  BSSAP_PDU_TYPE_DTAP, dtap_handle);
     dissector_add("ranap.nas_pdu",  BSSAP_PDU_TYPE_DTAP, dtap_handle);
     dissector_add("llcgprs.sapi", 1 , dtap_handle);
-	/* MLT CHANGES - add other GPRS subprotocols */
-	dissector_add("llcgprs.sapi", 0, dtap_handle); /* Reserved */
-	dissector_add("llcgprs.sapi", 2, dtap_handle); /* TOM2 */
-	dissector_add("llcgprs.sapi", 3, dtap_handle); /* LL3 */
-	dissector_add("llcgprs.sapi", 4, dtap_handle); /* Reserved */
-	dissector_add("llcgprs.sapi", 5, dtap_handle); /* LL5 */
-	dissector_add("llcgprs.sapi", 6, dtap_handle); /* Reserved */
-	dissector_add("llcgprs.sapi", 7, dtap_handle); /* LLSMS */
-	dissector_add("llcgprs.sapi", 8, dtap_handle); /* TOM8 */
-	dissector_add("llcgprs.sapi", 9, dtap_handle); /* LL9 */
-	dissector_add("llcgprs.sapi", 10, dtap_handle); /* Reserved */
-	dissector_add("llcgprs.sapi", 11, dtap_handle); /* LL 11 */
-	dissector_add("llcgprs.sapi", 12, dtap_handle); /* Reserved */
-	dissector_add("llcgprs.sapi", 13, dtap_handle); /* Reserved */
-	dissector_add("llcgprs.sapi", 14, dtap_handle); /* Reserved */
-	dissector_add("llcgprs.sapi", 15, dtap_handle); /* Reserved */
-	/* END MLT CHANGES */
-
     data_handle = find_dissector("data");
 }
+
