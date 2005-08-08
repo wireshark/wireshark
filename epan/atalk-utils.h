@@ -49,6 +49,6 @@ struct atalk_ddp_addr {
  */
 extern gchar *atalk_addr_to_str(const struct atalk_ddp_addr *addrp);
 extern void atalk_addr_to_str_buf(const struct atalk_ddp_addr *addrp,
-				  gchar *buf);
+				  gchar *buf, int buf_len);
 
 #endif

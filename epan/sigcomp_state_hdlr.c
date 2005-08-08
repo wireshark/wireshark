@@ -45,10 +45,6 @@
 #include <glib.h>
 #include "strutil.h"
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include "packet.h"
 #include "sigcomp_state_hdlr.h"
 /*

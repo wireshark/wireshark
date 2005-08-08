@@ -44,10 +44,6 @@
 #include <epan/conversation.h>
 #include <epan/xdlc.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include "irda-appl.h"
 
 /*
@@ -838,7 +834,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
                         }
 
                         ti = proto_tree_add_item(tree, hf_iap_list_entry, tvb, offset, 2 + 1 + attr_len, FALSE);
-                        snprintf(buf, sizeof(buf) - 1, "%d", n + 1);
+                        g_snprintf(buf, sizeof(buf) - 1, "%d", n + 1);
                         proto_item_append_text(ti, buf);
                         entry_tree = proto_item_add_subtree(ti, ett_iap_entry[n]);
 
@@ -1770,7 +1766,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
     pinfo->circuit_id = a;
 
     /* initially set address columns to connection address */
-    snprintf(addr, sizeof(addr)-1, "0x%02X", a >> 1);
+    g_snprintf(addr, sizeof(addr)-1, "0x%02X", a >> 1);
     if (check_col(pinfo->cinfo, COL_DEF_SRC))
         col_add_str(pinfo->cinfo, COL_DEF_SRC, addr);
     if (check_col(pinfo->cinfo, COL_DEF_DST))

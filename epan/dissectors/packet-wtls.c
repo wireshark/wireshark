@@ -34,10 +34,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
@@ -804,22 +800,22 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
                                {
                                        if (valMac != NULL)
                                        {
-                                               snprintf(valStr,1024,"%s, %s",valBulk,valMac);
+                                               g_snprintf(valStr,1024,"%s, %s",valBulk,valMac);
                                        }
                                        else
                                        {
-                                               snprintf(valStr,1024,"%s, Unknown MAC (0x%02x)",valBulk,tvb_get_guint8 (tvb, offset));
+                                               g_snprintf(valStr,1024,"%s, Unknown MAC (0x%02x)",valBulk,tvb_get_guint8 (tvb, offset));
                                        }
                                }
                                else
                                {
                                        if (valMac != NULL)
                                        {
-                                               snprintf(valStr,1024,"Unknown Bulk (0x%02x), %s",value,valMac);
+                                               g_snprintf(valStr,1024,"Unknown Bulk (0x%02x), %s",value,valMac);
                                        }
                                        else
                                        {
-                                               snprintf(valStr,1024,"Unknown Bulk (0x%02x), Unknown MAC (0x%02x)",value,
+                                               g_snprintf(valStr,1024,"Unknown Bulk (0x%02x), Unknown MAC (0x%02x)",value,
                                                                tvb_get_guint8 (tvb, offset));
                                        }
                                 }

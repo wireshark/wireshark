@@ -205,7 +205,7 @@ rpcprogs_draw(void *dummy _U_)
 			td=0;
 		}
 
-		sprintf(str,"%s(%d)",rpc_prog_name(rp->program),rp->program);
+		g_snprintf(str, sizeof(str), "%s(%d)",rpc_prog_name(rp->program),rp->program);
 		printf("%-15s %2d %6d %3d.%05d %3d.%05d %3d.%05d\n",
 			str,
 			rp->version,

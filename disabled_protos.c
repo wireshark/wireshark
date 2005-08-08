@@ -333,8 +333,7 @@ save_disabled_protos_list(char **pref_path_return, int *errno_return)
   /* Write to "XXX.new", and rename if that succeeds.
      That means we don't trash the file if we fail to write it out
      completely. */
-  ff_path_new = (gchar *) g_malloc(strlen(ff_path) + 5);
-  sprintf(ff_path_new, "%s.new", ff_path);
+  ff_path_new = g_strdup_printf("%s.new", ff_path);
 
   if ((ff = fopen(ff_path_new, "w")) == NULL) {
     *pref_path_return = ff_path;

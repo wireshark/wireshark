@@ -66,10 +66,6 @@
 
 #include <glib.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <epan/tvbuff.h>
 #include <epan/asn1.h>
 
@@ -1077,7 +1073,7 @@ asn1_err_to_str(int err)
 	break;
 
     default:
-	snprintf(errstrbuf, sizeof errstrbuf, "Unknown error (%d)", err);
+	g_snprintf(errstrbuf, sizeof errstrbuf, "Unknown error (%d)", err);
 	errstr = errstrbuf;
 	break;
     }

@@ -80,12 +80,12 @@ follow_tcp_stats(follow_tcp_stats_t* stats)
    very good one */
 char*
 build_follow_filter( packet_info *pi ) {
-  char* buf = g_malloc(1024);
+  char* buf;
   int len;
   if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
 	&& pi->ipproto == 6 ) {
     /* TCP over IPv4 */
-    sprintf( buf,
+    buf = g_strdup_printf(
 	     "(ip.addr eq %s and ip.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
 	     ip_to_str( pi->net_src.data),
 	     ip_to_str( pi->net_dst.data),
@@ -96,7 +96,7 @@ build_follow_filter( packet_info *pi ) {
   else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6
 	&& pi->ipproto == 6 ) {
     /* TCP over IPv6 */
-    sprintf( buf,
+    buf = g_strdup_printf(
 	     "(ipv6.addr eq %s and ipv6.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
 	     ip6_to_str((const struct e_in6_addr *)pi->net_src.data),
 	     ip6_to_str((const struct e_in6_addr *)pi->net_dst.data),
@@ -105,7 +105,6 @@ build_follow_filter( packet_info *pi ) {
     is_ipv6 = TRUE;
   }
   else {
-    g_free( buf );
     return NULL;
   }
   memcpy(ip_address[0], pi->net_src.data, len);

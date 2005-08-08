@@ -39,12 +39,12 @@ atalk_addr_to_str(const struct atalk_ddp_addr *addrp)
   } else {
     cur = &str[0][0];
   }
-  atalk_addr_to_str_buf(addrp, cur);
+  atalk_addr_to_str_buf(addrp, cur, 14);
   return cur;
 }
 
 void
-atalk_addr_to_str_buf(const struct atalk_ddp_addr *addrp, gchar *buf)
+atalk_addr_to_str_buf(const struct atalk_ddp_addr *addrp, gchar *buf, int buf_len)
 {
-  sprintf(buf, "%u.%u", addrp->net, addrp->node );
+  g_snprintf(buf, buf_len, "%u.%u", addrp->net, addrp->node );
 }

@@ -74,14 +74,14 @@ dissect_pimv1_addr(tvbuff_t *tvb, int offset) {
 
     flags_masklen = tvb_get_ntohs(tvb, offset);
     if (flags_masklen & 0x0180) {
-	(void)snprintf(buf, sizeof(buf),
+	g_snprintf(buf, sizeof(buf),
 	    "(%s%s%s) ",
 	    flags_masklen & 0x0100 ? "S" : "",
 	    flags_masklen & 0x0080 ? "W" : "",
 	    flags_masklen & 0x0040 ? "R" : "");
     } else
 	buf[0] = '\0';
-    (void)snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s/%u",
+    g_snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s/%u",
 	ip_to_str(tvb_get_ptr(tvb, offset + 2, 4)), flags_masklen & 0x3f);
 
     return buf;
@@ -520,13 +520,13 @@ dissect_pim_addr(tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
 	switch (af) {
 	case AFNUM_INET:
 	    len = 4;
-	    (void)snprintf(buf, sizeof(buf), "%s",
+	    g_snprintf(buf, sizeof(buf), "%s",
 	        ip_to_str(tvb_get_ptr(tvb, offset + 2, len)));
 	    break;
 
 	case AFNUM_INET6:
 	    len = 16;
-	    (void)snprintf(buf, sizeof(buf), "%s",
+	    g_snprintf(buf, sizeof(buf), "%s",
 		ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset + 2, len)));
 	    break;
 	}
@@ -539,13 +539,13 @@ dissect_pim_addr(tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
 	switch (af) {
 	case AFNUM_INET:
 	    len = 4;
-	    (void)snprintf(buf, sizeof(buf), "%s/%u",
+	    g_snprintf(buf, sizeof(buf), "%s/%u",
 		ip_to_str(tvb_get_ptr(tvb, offset + 4, len)), mask_len);
 	    break;
 
 	case AFNUM_INET6:
 	    len = 16;
-	    (void)snprintf(buf, sizeof(buf), "%s/%u",
+	    g_snprintf(buf, sizeof(buf), "%s/%u",
 		ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset + 4, len)), mask_len);
 	    break;
 	}
@@ -559,18 +559,18 @@ dissect_pim_addr(tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
 	switch (af) {
 	case AFNUM_INET:
 	    len = 4;
-	    (void)snprintf(buf, sizeof(buf), "%s/%u",
+	    g_snprintf(buf, sizeof(buf), "%s/%u",
 		ip_to_str(tvb_get_ptr(tvb, offset + 4, len)), mask_len);
 	    break;
 
 	case AFNUM_INET6:
 	    len = 16;
-	    (void)snprintf(buf, sizeof(buf), "%s/%u",
+	    g_snprintf(buf, sizeof(buf), "%s/%u",
 		ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset + 4, len)), mask_len);
 	    break;
 	}
 	if (flags) {
-	    (void)snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf),
+	    g_snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf),
 		" (%s%s%s)",
 		flags & 0x04 ? "S" : "",
 		flags & 0x02 ? "W" : "",

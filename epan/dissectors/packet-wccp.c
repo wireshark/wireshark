@@ -33,10 +33,6 @@
 #include <epan/strutil.h>
 #include "packet-wccp.h"
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 static int proto_wccp = -1;
 static int hf_wccp_message_type = -1;	/* the message type */
 static int hf_wccp_version = -1;	/* protocol version */
@@ -1228,10 +1224,10 @@ dissect_32_bit_capability_flags(tvbuff_t *tvb, int curr_offset,
 	for (i = 0; flags[i].short_name != NULL; i++) {
 		if (capability_val & flags[i].value) {
 			if (p != &flags_string[0]) {
-				snprintf(p, space_left, ",");
+				g_snprintf(p, space_left, ",");
 				p = &flags_string[strlen(flags_string)];
 			}
-			snprintf(p, space_left, "%s", flags[i].short_name);
+			g_snprintf(p, space_left, "%s", flags[i].short_name);
 			p = &flags_string[strlen(flags_string)];
 		}
 	}

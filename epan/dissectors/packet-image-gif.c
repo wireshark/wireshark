@@ -45,10 +45,6 @@
 
 #include <glib.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <epan/packet.h>
 
 /* General-purpose debug logger.

@@ -29,10 +29,6 @@
 #include <string.h>
 #include <time.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include "column-utils.h"
 #include "timestamp.h"
 #include "sna-utils.h"
@@ -480,7 +476,7 @@ col_set_abs_date_time(frame_data *fd, column_info *cinfo, int col)
   then = fd->abs_secs;
   tmp = localtime(&then);
   if (tmp != NULL) {
-    snprintf(cinfo->col_buf[col], COL_MAX_LEN,
+    g_snprintf(cinfo->col_buf[col], COL_MAX_LEN,
              "%04d-%02d-%02d %02d:%02d:%02d.%06ld",
              tmp->tm_year + 1900,
              tmp->tm_mon + 1,
@@ -528,7 +524,7 @@ col_set_abs_time(frame_data *fd, column_info *cinfo, int col)
   then = fd->abs_secs;
   tmp = localtime(&then);
   if (tmp != NULL) {
-    snprintf(cinfo->col_buf[col], COL_MAX_LEN, "%02d:%02d:%02d.%06ld",
+    g_snprintf(cinfo->col_buf[col], COL_MAX_LEN, "%02d:%02d:%02d.%06ld",
              tmp->tm_hour,
              tmp->tm_min,
              tmp->tm_sec,
@@ -596,7 +592,7 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
       break;
 
     default:
-      address_to_str_buf(addr, pinfo->cinfo->col_buf[col]);
+      address_to_str_buf(addr, pinfo->cinfo->col_buf[col], COL_MAX_LEN);
       break;
     }
   }
@@ -669,19 +665,19 @@ col_set_port(packet_info *pinfo, int col, gboolean is_res, gboolean is_src)
     if (is_res)
       strncpy(pinfo->cinfo->col_buf[col], get_sctp_port(port), COL_MAX_LEN);
     else
-      snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", port);
+      g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", port);
     break;
 
   case PT_TCP:
     if (is_res)
       strncpy(pinfo->cinfo->col_buf[col], get_tcp_port(port), COL_MAX_LEN);
     else
-      snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", port);
+      g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", port);
     if (is_src)
       strcpy(pinfo->cinfo->col_expr[col], "tcp.srcport");
     else
       strcpy(pinfo->cinfo->col_expr[col], "tcp.dstport");
-    snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "%u", port);
+    g_snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "%u", port);
     pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
     break;
 
@@ -689,12 +685,12 @@ col_set_port(packet_info *pinfo, int col, gboolean is_res, gboolean is_src)
     if (is_res)
       strncpy(pinfo->cinfo->col_buf[col], get_udp_port(port), COL_MAX_LEN);
     else
-      snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", port);
+      g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", port);
     if (is_src)
       strcpy(pinfo->cinfo->col_expr[col], "udp.srcport");
     else
       strcpy(pinfo->cinfo->col_expr[col], "udp.dstport");
-    snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "%u", port);
+    g_snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "%u", port);
     pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
     break;
 
@@ -703,30 +699,30 @@ col_set_port(packet_info *pinfo, int col, gboolean is_res, gboolean is_src)
       strcpy(pinfo->cinfo->col_expr[col], "ddp.src_socket");
     else
       strcpy(pinfo->cinfo->col_expr[col], "ddp.dst_socket");
-    snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", port);
-    snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "%u", port);
+    g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", port);
+    g_snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "%u", port);
     pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
     break;
 
   case PT_IPX:
     /* XXX - resolve IPX socket numbers */
-    snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "0x%04x", port);
+    g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "0x%04x", port);
     if (is_src)
       strcpy(pinfo->cinfo->col_expr[col], "ipx.src.socket");
     else
       strcpy(pinfo->cinfo->col_expr[col], "ipx.dst.socket");
-    snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "0x%04x", port);
+    g_snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "0x%04x", port);
     pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
     break;
 
   case PT_IDP:
     /* XXX - resolve IDP socket numbers */
-    snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "0x%04x", port);
+    g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "0x%04x", port);
     if (is_src)
       strcpy(pinfo->cinfo->col_expr[col], "idp.src.socket");
     else
       strcpy(pinfo->cinfo->col_expr[col], "idp.dst.socket");
-    snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "0x%04x", port);
+    g_snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "0x%04x", port);
     pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
     break;
 
@@ -784,28 +780,28 @@ col_set_circuit_id(packet_info *pinfo, int col)
   switch (pinfo->ctype) {
 
   case CT_DLCI:
-    snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
+    g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
     strcpy(pinfo->cinfo->col_expr[col], "fr.dlci");
-    snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
+    g_snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
     pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
     break;
 
   case CT_ISDN:
-    snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%s",
+    g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%s",
 	     val_to_str(pinfo->circuit_id, channel_vals, "Unknown (%u)"));
     strcpy(pinfo->cinfo->col_expr[col], "isdn.channel");
-    snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
+    g_snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
     pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
     break;
 
   case CT_X25:
-    snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
+    g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
     break;
 
   case CT_ISUP:
-    snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
+    g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
     strcpy(pinfo->cinfo->col_expr[col], "isup.cic");
-    snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
+    g_snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
     pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
     break;
 
@@ -825,7 +821,7 @@ fill_in_columns(packet_info *pinfo)
     switch (pinfo->cinfo->col_fmt[i]) {
 
     case COL_NUMBER:
-      snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "%u", pinfo->fd->num);
+      g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "%u", pinfo->fd->num);
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
       strcpy(pinfo->cinfo->col_expr[i], "frame.number");
       strcpy(pinfo->cinfo->col_expr_val[i], pinfo->cinfo->col_buf[i]);
@@ -833,7 +829,7 @@ fill_in_columns(packet_info *pinfo)
 
     case COL_CLS_TIME:
       if(pinfo->fd->flags.ref_time){
-         snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "*REF*");
+         g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "*REF*");
          pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
       } else {
          col_set_cls_time(pinfo->fd, pinfo->cinfo, i);
@@ -842,7 +838,7 @@ fill_in_columns(packet_info *pinfo)
 
     case COL_ABS_TIME:
       if(pinfo->fd->flags.ref_time){
-         snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "*REF*");
+         g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "*REF*");
          pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
       } else {
          col_set_abs_time(pinfo->fd, pinfo->cinfo, i);
@@ -851,7 +847,7 @@ fill_in_columns(packet_info *pinfo)
 
     case COL_ABS_DATE_TIME:
       if(pinfo->fd->flags.ref_time){
-         snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "*REF*");
+         g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "*REF*");
          pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
       } else {
          col_set_abs_date_time(pinfo->fd, pinfo->cinfo, i);
@@ -860,7 +856,7 @@ fill_in_columns(packet_info *pinfo)
 
     case COL_REL_TIME:
       if(pinfo->fd->flags.ref_time){
-         snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "*REF*");
+         g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "*REF*");
          pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
       } else {
          col_set_rel_time(pinfo->fd, pinfo->cinfo, i);
@@ -869,7 +865,7 @@ fill_in_columns(packet_info *pinfo)
 
     case COL_DELTA_TIME:
       if(pinfo->fd->flags.ref_time){
-         snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "*REF*");
+         g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "*REF*");
          pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
       } else {
          col_set_delta_time(pinfo->fd, pinfo->cinfo, i);
@@ -953,25 +949,25 @@ fill_in_columns(packet_info *pinfo)
       break;
 
     case COL_PACKET_LENGTH:
-      snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "%u", pinfo->fd->pkt_len);
+      g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "%u", pinfo->fd->pkt_len);
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
       strcpy(pinfo->cinfo->col_expr[i], "frame.pkt_len");
       strcpy(pinfo->cinfo->col_expr_val[i], pinfo->cinfo->col_buf[i]);
       break;
 
     case COL_CUMULATIVE_BYTES:
-      snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "%u", pinfo->fd->cum_bytes);
+      g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "%u", pinfo->fd->cum_bytes);
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
       break;
 
     case COL_OXID:
-      snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x", pinfo->oxid);
+      g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x", pinfo->oxid);
       pinfo->cinfo->col_buf[i][COL_MAX_LEN - 1] = '\0';
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
       break;
 
     case COL_RXID:
-      snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x", pinfo->rxid);
+      g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x", pinfo->rxid);
       pinfo->cinfo->col_buf[i][COL_MAX_LEN - 1] = '\0';
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
       break;
@@ -984,19 +980,19 @@ fill_in_columns(packet_info *pinfo)
       break;
 
     case COL_SRCIDX:
-      snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x", pinfo->src_idx);
+      g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x", pinfo->src_idx);
       pinfo->cinfo->col_buf[i][COL_MAX_LEN - 1] = '\0';
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
       break;
 
     case COL_DSTIDX:
-      snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x", pinfo->dst_idx);
+      g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x", pinfo->dst_idx);
       pinfo->cinfo->col_buf[i][COL_MAX_LEN - 1] = '\0';
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
       break;
 
     case COL_VSAN:
-      snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "%u", pinfo->vsan);
+      g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "%u", pinfo->vsan);
       pinfo->cinfo->col_buf[i][COL_MAX_LEN - 1] = '\0';
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
       break;

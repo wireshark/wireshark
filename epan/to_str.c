@@ -33,10 +33,6 @@
 # include <sys/types.h>		/* needed for <netinet/in.h> */
 #endif
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>	/* needed for <arpa/inet.h> on some platforms */
 #endif
@@ -512,15 +508,15 @@ display_signed_time(gchar *buf, int buflen, gint32 sec, gint32 frac,
 	switch (units) {
 
 	case MSECS:
-		snprintf(buf, buflen, "%s%d.%03d", sign, sec, frac);
+		g_snprintf(buf, buflen, "%s%d.%03d", sign, sec, frac);
 		break;
 
 	case USECS:
-		snprintf(buf, buflen, "%s%d.%06d", sign, sec, frac);
+		g_snprintf(buf, buflen, "%s%d.%06d", sign, sec, frac);
 		break;
 
 	case NSECS:
-		snprintf(buf, buflen, "%s%d.%09d", sign, sec, frac);
+		g_snprintf(buf, buflen, "%s%d.%09d", sign, sec, frac);
 		break;
 	}
 }
@@ -624,7 +620,7 @@ fcwwn_to_str (const guint8 *ad)
     case FC_NH_NAA_IEEE:
     case FC_NH_NAA_IEEE_E:
         memcpy (oui, &ad[2], 6);
-        sprintf (ethstr, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x (%s)", ad[0], 
+        g_snprintf (ethstr, 512, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x (%s)", ad[0], 
                  ad[1], ad[2], ad[3], ad[4], ad[5], ad[6], ad[7],
                  get_manuf_name (oui));
         break;
@@ -637,13 +633,13 @@ fcwwn_to_str (const guint8 *ad)
         oui[4] = ((ad[4] & 0x0F) << 4) | ((ad[5] & 0xF0) >> 4);
         oui[5] = ((ad[5] & 0x0F) << 4) | ((ad[6] & 0xF0) >> 4);
 
-        sprintf (ethstr, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x (%s)", ad[0],
+        g_snprintf (ethstr, 512, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x (%s)", ad[0],
                  ad[1], ad[2], ad[3], ad[4], ad[5], ad[6], ad[7],
                  get_manuf_name (oui));
         break;
 
     default:
-        sprintf (ethstr, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", ad[0],
+        g_snprintf (ethstr, 512, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x", ad[0],
                  ad[1], ad[2], ad[3], ad[4], ad[5], ad[6], ad[7]);
         break;
     }
@@ -753,18 +749,18 @@ address_to_str(const address *addr)
   gchar *str;
 
   str=ep_alloc(256);
-  address_to_str_buf(addr, str);
+  address_to_str_buf(addr, str, 256);
   return str;
 }
 
 void
-address_to_str_buf(const address *addr, gchar *buf)
+address_to_str_buf(const address *addr, gchar *buf, int buf_len)
 {
   struct atalk_ddp_addr ddp_addr;
 
   switch(addr->type){
   case AT_ETHER:
-    sprintf(buf, "%02x:%02x:%02x:%02x:%02x:%02x", addr->data[0], addr->data[1], addr->data[2], addr->data[3], addr->data[4], addr->data[5]);
+    g_snprintf(buf, buf_len, "%02x:%02x:%02x:%02x:%02x:%02x", addr->data[0], addr->data[1], addr->data[2], addr->data[3], addr->data[4], addr->data[5]);
     break;
   case AT_IPv4:
     ip_to_str_buf(addr->data, buf);
@@ -773,14 +769,14 @@ address_to_str_buf(const address *addr, gchar *buf)
     inet_ntop(AF_INET6, addr->data, buf, INET6_ADDRSTRLEN);
     break;
   case AT_IPX:
-    sprintf(buf, "%02x%02x%02x%02x.%02x%02x%02x%02x%02x%02x", addr->data[0], addr->data[1], addr->data[2], addr->data[3], addr->data[4], addr->data[5], addr->data[6], addr->data[7], addr->data[8], addr->data[9]);
+    g_snprintf(buf, buf_len, "%02x%02x%02x%02x.%02x%02x%02x%02x%02x%02x", addr->data[0], addr->data[1], addr->data[2], addr->data[3], addr->data[4], addr->data[5], addr->data[6], addr->data[7], addr->data[8], addr->data[9]);
     break;
   case AT_SNA:
     sna_fid_to_str_buf(addr, buf);
     break;
   case AT_ATALK:
     memcpy(&ddp_addr, addr->data, sizeof ddp_addr);
-    atalk_addr_to_str_buf(&ddp_addr, buf);
+    atalk_addr_to_str_buf(&ddp_addr, buf, buf_len);
     break;
   case AT_VINES:
     vines_addr_to_str_buf(addr->data, buf);
@@ -789,10 +785,10 @@ address_to_str_buf(const address *addr, gchar *buf)
     print_nsap_net_buf(addr->data, addr->len, buf);
     break;
   case AT_ARCNET:
-    sprintf(buf, "0x%02X", addr->data[0]);
+    g_snprintf(buf, buf_len, "0x%02X", addr->data[0]);
     break;
   case AT_FC:
-    sprintf(buf, "%02x.%02x.%02x", addr->data[0], addr->data[1], addr->data[2]);
+    g_snprintf(buf, buf_len, "%02x.%02x.%02x", addr->data[0], addr->data[1], addr->data[2]);
     break;
   case AT_SS7PC:
     mtp3_addr_to_str_buf(addr->data, buf);
@@ -801,7 +797,7 @@ address_to_str_buf(const address *addr, gchar *buf)
     strcpy(buf, addr->data);
     break;
   case AT_EUI64:
-    sprintf(buf, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x",
+    g_snprintf(buf, buf_len, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x",
             addr->data[0], addr->data[1], addr->data[2], addr->data[3],
             addr->data[4], addr->data[5], addr->data[6], addr->data[7]);
     break;

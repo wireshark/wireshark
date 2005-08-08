@@ -1629,7 +1629,7 @@ static int dissect_krb5_address(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 		int netbios_name_type;
 
 		netbios_name_type = process_netbios_name(tvb_get_ptr(tvb, offset, 16), netbios_name);
-		snprintf(address_str, 255, "%s<%02x>", netbios_name, netbios_name_type);
+		g_snprintf(address_str, 255, "%s<%02x>", netbios_name, netbios_name_type);
 		it=proto_tree_add_string_format(tree, hf_krb_address_netbios, tvb, offset, 16, netbios_name, "NetBIOS Name: %s (%s)", address_str, netbios_name_type_descr(netbios_name_type));
 		}
 		break;

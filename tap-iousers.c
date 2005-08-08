@@ -79,20 +79,20 @@ iousers_udpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
 	if(udph->uh_sport>udph->uh_dport){
 		direction=0;
-		snprintf(name1,256,"%s:%s",address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
-		snprintf(name2,256,"%s:%s",address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
+		g_snprintf(name1,256,"%s:%s",address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
+		g_snprintf(name2,256,"%s:%s",address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
 	} else if(udph->uh_sport<udph->uh_dport){
 		direction=1;
-		snprintf(name2,256,"%s:%s",address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
-		snprintf(name1,256,"%s:%s",address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
+		g_snprintf(name2,256,"%s:%s",address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
+		g_snprintf(name1,256,"%s:%s",address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
 	} else if(CMP_ADDRESS(&udph->ip_src, &udph->ip_dst)>0){
 		direction=0;
-		snprintf(name1,256,"%s:%s",address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
-		snprintf(name2,256,"%s:%s",address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
+		g_snprintf(name1,256,"%s:%s",address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
+		g_snprintf(name2,256,"%s:%s",address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
 	} else {
 		direction=1;
-		snprintf(name2,256,"%s:%s",address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
-		snprintf(name1,256,"%s:%s",address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
+		g_snprintf(name2,256,"%s:%s",address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
+		g_snprintf(name1,256,"%s:%s",address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
 	}
 
 	for(iui=iu->items;iui;iui=iui->next){
@@ -137,21 +137,21 @@ iousers_sctp_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 	io_users_item_t *iui;
 	int direction=0;
 
-	sprintf(s_sport,"%d",sctph->sport);
-	sprintf(s_dport,"%d",sctph->dport);
+	g_snprintf(s_sport, sizeof s_sport, "%d",sctph->sport);
+	g_snprintf(s_dport, sizeof s_dport, "%d",sctph->dport);
 	
 	if(sctph->sport > sctph->dport) {
 		direction=0;
-		snprintf(name1,256,"%s:%s",address_to_str(&sctph->ip_src),s_sport);	
-		snprintf(name2,256,"%s:%s",address_to_str(&sctph->ip_dst),s_dport);	
+		g_snprintf(name1,256,"%s:%s",address_to_str(&sctph->ip_src),s_sport);	
+		g_snprintf(name2,256,"%s:%s",address_to_str(&sctph->ip_dst),s_dport);	
 	} else if(sctph->sport < sctph->dport) {
 		direction=1;
-		snprintf(name1,256,"%s:%s",address_to_str(&sctph->ip_src),s_sport);	
-		snprintf(name2,256,"%s:%s",address_to_str(&sctph->ip_dst),s_dport);	
+		g_snprintf(name1,256,"%s:%s",address_to_str(&sctph->ip_src),s_sport);	
+		g_snprintf(name2,256,"%s:%s",address_to_str(&sctph->ip_dst),s_dport);	
 	} else {
 		direction=0;
-		snprintf(name1,256,"%s:%s",address_to_str(&sctph->ip_src),s_sport);	
-		snprintf(name2,256,"%s:%s",address_to_str(&sctph->ip_dst),s_dport);	
+		g_snprintf(name1,256,"%s:%s",address_to_str(&sctph->ip_src),s_sport);	
+		g_snprintf(name2,256,"%s:%s",address_to_str(&sctph->ip_dst),s_dport);	
 	}
 
 	for(iui=iu->items;iui;iui=iui->next){
@@ -198,20 +198,20 @@ iousers_tcpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
 	if(tcph->th_sport>tcph->th_dport){
 		direction=0;
-		snprintf(name1,256,"%s:%s",address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
-		snprintf(name2,256,"%s:%s",address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
+		g_snprintf(name1,256,"%s:%s",address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
+		g_snprintf(name2,256,"%s:%s",address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
 	} else if(tcph->th_sport<tcph->th_dport){
 		direction=1;
-		snprintf(name2,256,"%s:%s",address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
-		snprintf(name1,256,"%s:%s",address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
+		g_snprintf(name2,256,"%s:%s",address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
+		g_snprintf(name1,256,"%s:%s",address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
 	} else if(CMP_ADDRESS(&tcph->ip_src, &tcph->ip_dst)>0){
 		direction=0;
-		snprintf(name1,256,"%s:%s",address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
-		snprintf(name2,256,"%s:%s",address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
+		g_snprintf(name1,256,"%s:%s",address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
+		g_snprintf(name2,256,"%s:%s",address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
 	} else {
 		direction=1;
-		snprintf(name2,256,"%s:%s",address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
-		snprintf(name1,256,"%s:%s",address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
+		g_snprintf(name2,256,"%s:%s",address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
+		g_snprintf(name1,256,"%s:%s",address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
 	}
 
 	for(iui=iu->items;iui;iui=iui->next){

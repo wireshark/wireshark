@@ -26,10 +26,6 @@
 # include "config.h"
 #endif
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include "plugins.h"
 
 #ifdef HAVE_PLUGINS
@@ -187,7 +183,7 @@ plugins_scan_dir(const char *dirname)
             dot = strrchr(file->d_name, '.');
             if (dot == NULL || strcmp(dot, lt_lib_ext) != 0) continue;
 
-	    snprintf(filename, FILENAME_LEN, "%s" G_DIR_SEPARATOR_S "%s",
+	    g_snprintf(filename, FILENAME_LEN, "%s" G_DIR_SEPARATOR_S "%s",
 	        dirname, file->d_name);
 	    name = (gchar *)file->d_name;
 #else /* GLIB 2 */
@@ -205,7 +201,7 @@ plugins_scan_dir(const char *dirname)
             dot = strrchr(name, '.');
             if (dot == NULL || strcmp(dot+1, G_MODULE_SUFFIX) != 0) continue;
 
-	    snprintf(filename, FILENAME_LEN, "%s" G_DIR_SEPARATOR_S "%s",
+	    g_snprintf(filename, FILENAME_LEN, "%s" G_DIR_SEPARATOR_S "%s",
 	        dirname, name);
 #endif
 	    if ((handle = g_module_open(filename, 0)) == NULL)

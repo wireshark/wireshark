@@ -73,10 +73,6 @@
 #include <string.h>
 #include <glib.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <epan/packet.h>
 
 #include <epan/asn1.h>
@@ -1808,7 +1804,7 @@ static void dissect_ldap_request_compare(ASN1_SCK *a, proto_tree *tree)
   s2 = (string2 == NULL) ? "(null)" : string2;
   length = 2 + strlen(s1) + strlen(s2);
   compare = g_malloc0(length);
-  snprintf(compare, length, "%s=%s", s1, s2);
+  g_snprintf(compare, length, "%s=%s", s1, s2);
   proto_tree_add_string(tree, hf_ldap_message_compare, a->tvb, start,
       a->offset-start, compare);
 

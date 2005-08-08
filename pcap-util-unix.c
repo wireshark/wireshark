@@ -93,7 +93,7 @@ get_interface_list(int *err, char *err_str)
 
 	if (sock < 0) {
 		*err = CANT_GET_INTERFACE_LIST;
-		sprintf(err_str, "Error opening socket: %s",
+		g_snprintf(err_str, PCAP_ERRBUF_SIZE, "Error opening socket: %s",
 		    strerror(errno));
 		return NULL;
 	}
@@ -111,14 +111,14 @@ get_interface_list(int *err, char *err_str)
 		memset (buf, 0, len);
 		if (ioctl(sock, SIOCGIFCONF, &ifc) < 0) {
 			if (errno != EINVAL || lastlen != 0) {
-				sprintf(err_str,
+				g_snprintf(err_str, PCAP_ERRBUF_SIZE,
 					"SIOCGIFCONF ioctl error getting list of interfaces: %s",
 					strerror(errno));
 				goto fail;
 			}
 		} else {
 			if ((unsigned) ifc.ifc_len < sizeof(struct ifreq)) {
-				sprintf(err_str,
+				g_snprintf(err_str, PCAP_ERRBUF_SIZE,
 					"SIOCGIFCONF ioctl gave too small return buffer");
 				goto fail;
 			}
@@ -165,7 +165,8 @@ get_interface_list(int *err, char *err_str)
 		if (ioctl(sock, SIOCGIFFLAGS, (char *)&ifrflags) < 0) {
 			if (errno == ENXIO)
 				goto next;
-			sprintf(err_str, "SIOCGIFFLAGS error getting flags for interface %s: %s",
+			g_snprintf(err_str, PCAP_ERRBUF_SIZE,
+				"SIOCGIFFLAGS error getting flags for interface %s: %s",
 			    ifr->ifr_name, strerror(errno));
 			goto fail;
 		}

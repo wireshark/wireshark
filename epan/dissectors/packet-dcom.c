@@ -675,7 +675,7 @@ const gchar* dcom_uuid_to_str(e_uuid_t *uuid) {
   } else {  
     cur = &str[0][0];
   }
-  snprintf(cur, 64, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+  g_snprintf(cur, 64, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                       uuid->Data1, uuid->Data2, uuid->Data3,
                       uuid->Data4[0], uuid->Data4[1],
                       uuid->Data4[2], uuid->Data4[3],

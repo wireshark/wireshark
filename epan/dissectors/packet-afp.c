@@ -33,10 +33,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>

@@ -624,7 +624,7 @@ checklength(int len, int def, int cls, int tag, char *lenstr, int strmax)
 	int newlen = len;
 
 	if ( ! def) {
-		snprintf(lenstr, strmax, "indefinite");
+		g_snprintf(lenstr, strmax, "indefinite");
 		return len;
 	}
 
@@ -694,9 +694,9 @@ checklength(int len, int def, int cls, int tag, char *lenstr, int strmax)
 
 	if (newlen != len) {
 		/* a change was needed.... */
-		snprintf(lenstr, strmax, "%d(changed from %d)", newlen, len);
+		g_snprintf(lenstr, strmax, "%d(changed from %d)", newlen, len);
 	} else {
-		snprintf(lenstr, strmax, "%d", len);
+		g_snprintf(lenstr, strmax, "%d", len);
 	}
 	return newlen;
 }
@@ -750,7 +750,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   offstr[0] = 0;
   if ((first_pdu_offset > 0) && !reassembled) {
 	  boffset = first_pdu_offset;
-	  snprintf(offstr, sizeof(offstr), " at %d", boffset);
+	  g_snprintf(offstr, sizeof(offstr), " at %d", boffset);
   }
 
   /* open BER decoding */
@@ -769,9 +769,9 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   if (asn1_debug) {
 
-	  snprintf(tagstr, sizeof(tagstr), "%ctag%d", tag_class[cls], tag);
+	  g_snprintf(tagstr, sizeof(tagstr), "%ctag%d", tag_class[cls], tag);
 
-	  snprintf(headstr, sizeof(headstr), "first%s: (%s)%s %d %s, %s, %s, len=%s, off=%d, size=%d ",
+	  g_snprintf(headstr, sizeof(headstr), "first%s: (%s)%s %d %s, %s, %s, len=%s, off=%d, size=%d ",
 		   offstr,
 		   tname,
 		   name,   
@@ -785,10 +785,10 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		  );
   } else {
 	  if (props.flags & OUT_FLAG_noname) {
-		  snprintf(tagstr, sizeof(tagstr), "%ctag%d", tag_class[cls], tag);
+		  g_snprintf(tagstr, sizeof(tagstr), "%ctag%d", tag_class[cls], tag);
 		  name = ((cls == ASN1_UNI) && (tag < 32)) ? asn1_tag[tag] : tagstr;
 	  }
-	  snprintf(headstr, sizeof(headstr), "first pdu%s: (%s)%s ", offstr, tname, name );
+	  g_snprintf(headstr, sizeof(headstr), "first pdu%s: (%s)%s ", offstr, tname, name );
   }
 
   /* Set the info column */
@@ -837,9 +837,9 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	    if (asn1_debug) {
 
-		    snprintf(tagstr, sizeof(tagstr), "%ctag%d", tag_class[cls], tag);
+		    g_snprintf(tagstr, sizeof(tagstr), "%ctag%d", tag_class[cls], tag);
 
-		    snprintf(headstr, sizeof(headstr), "%s, %s, %s, len=%s, off=%d, remaining=%d",
+		    g_snprintf(headstr, sizeof(headstr), "%s, %s, %s, len=%s, off=%d, remaining=%d",
 			     asn1_cls[cls],
 			     asn1_con[con],
 			     ((cls == ASN1_UNI) && (tag < 32)) ? asn1_tag[tag] : tagstr,
@@ -865,7 +865,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	 	    }
 	    } else {
 		    if (props.flags & OUT_FLAG_noname) {
-			    snprintf(tagstr, sizeof(tagstr), "%ctag%d", tag_class[cls], tag);
+			    g_snprintf(tagstr, sizeof(tagstr), "%ctag%d", tag_class[cls], tag);
 			    name = ((cls == ASN1_UNI) && (tag < 32)) ? asn1_tag[tag] : tagstr;
 		    }
 		    if (props.value_id == -1)
@@ -985,14 +985,14 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 	  if ((cls == ASN1_UNI) && ( tag < 32 )) {
 		  tagstr = asn1_tag[tag];
 	  } else {
-		  snprintf(tagbuf, sizeof(tagbuf), "%ctag%d", tag_class[cls], tag);
+		  g_snprintf(tagbuf, sizeof(tagbuf), "%ctag%d", tag_class[cls], tag);
 		  tagstr = tagbuf;
 	  }
 
 	  len = checklength(len, def, cls, tag, lenbuf, sizeof(lenbuf));
 
 	  if (def) {
-		  snprintf(nnbuf, sizeof(nnbuf), "NN%d", len);
+		  g_snprintf(nnbuf, sizeof(nnbuf), "NN%d", len);
 	  } else {
 		  strncpy(nnbuf, "NN-", sizeof(nnbuf));
 		  		/* make sure we get an exception if we run off the end! */
@@ -1737,11 +1737,11 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 		if ((cls == ASN1_UNI) && ( tag < 32 )) {
 			tagstr = asn1_tag[tag];
 		} else {
-			snprintf(tagbuf, sizeof(tagbuf), "tag%d", tag);
+			g_snprintf(tagbuf, sizeof(tagbuf), "tag%d", tag);
 			tagstr = tagbuf;
 		}
 		if (def) {
-			snprintf(lenbuf, sizeof(lenbuf), "%d", len);
+			g_snprintf(lenbuf, sizeof(lenbuf), "%d", len);
 		} else {
 			strncpy(lenbuf, "indefinite", sizeof(lenbuf));
 			len = tvb_length_remaining(tvb, offset);
@@ -1817,7 +1817,7 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 
 		case ASN1_CTX:		/* fprintf(stderr, "Context\n"); */
 			tagstr = tagbuf;
-			snprintf(tagbuf, sizeof(tagbuf), "TAG%d", tag);
+			g_snprintf(tagbuf, sizeof(tagbuf), "TAG%d", tag);
 			if (def && !con) {
 				/* defined length, not constructed, must be a string.... */
 				asn1_string_value_decode(&asn1, len, &octets); /* read value */
@@ -1863,11 +1863,11 @@ myLeaf(GNode *node, gpointer data)
 	if ((cls == ASN1_UNI) && ( tag < 32 )) {
 		tagstr = asn1_tag[tag];
 	} else {
-		snprintf(tagbuf, sizeof(tagbuf), "tag%d", tag);
+		g_snprintf(tagbuf, sizeof(tagbuf), "tag%d", tag);
 		tagstr = tagbuf;
 	}
 	if (def) {
-		snprintf(lenbuf, sizeof(lenbuf), "%d", len);
+		g_snprintf(lenbuf, sizeof(lenbuf), "%d", len);
 	} else {
 		strncpy(lenbuf, "indefinite", sizeof(lenbuf));
 	}
@@ -2907,7 +2907,7 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 
 		ss[0] = 0;
 		if (p->tclass==CLASSREF)
-			snprintf(ss, 128, ", CLASSREF %d", p->tag);
+			g_snprintf(ss, 128, ", CLASSREF %d", p->tag);
 		if (asn1_verbose) g_message("%*sno typeref tag%s", n*2, empty, ss);
 		
 		if (p->tclass==CLASSREF) {
@@ -4863,13 +4863,13 @@ proto_register_asn1(void) {
 				 "ASN.1 messages will be read",
 				 10, &global_sctp_port_asn1);
 #else
-  snprintf(tmpstr, sizeof(tmpstr), "%u", TCP_PORT_ASN1);
+  g_snprintf(tmpstr, sizeof(tmpstr), "%u", TCP_PORT_ASN1);
   range_convert_str(&global_tcp_ports_asn1, tmpstr, 65535);
   
-  snprintf(tmpstr, sizeof(tmpstr), "%u", UDP_PORT_ASN1);
+  g_snprintf(tmpstr, sizeof(tmpstr), "%u", UDP_PORT_ASN1);
   range_convert_str(&global_udp_ports_asn1, tmpstr, 65535);
   
-  snprintf(tmpstr, sizeof(tmpstr), "%u", SCTP_PORT_ASN1);
+  g_snprintf(tmpstr, sizeof(tmpstr), "%u", SCTP_PORT_ASN1);
   range_convert_str(&global_sctp_ports_asn1, tmpstr, 65535);
   
   prefs_register_range_preference(asn1_module, "tcp_ports",

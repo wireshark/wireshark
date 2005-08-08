@@ -50,10 +50,6 @@ G_MODULE_EXPORT const gchar version[] = VERSION;
 #include "sctpppids.h"      /* include V5UA payload protocol ID */
 
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <epan/packet.h>
 
 

@@ -34,10 +34,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>

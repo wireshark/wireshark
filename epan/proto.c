@@ -1575,8 +1575,7 @@ proto_item_append_string(proto_item *pi, const char *str)
 	hfinfo = fi->hfinfo;
 	DISSECTOR_ASSERT(hfinfo->type == FT_STRING || hfinfo->type == FT_STRINGZ);
 	old_str = fvalue_get(&fi->value);
-	new_str = g_malloc(strlen(old_str) + strlen(str) + 1);
-	sprintf(new_str, "%s%s", old_str, str);
+	new_str = g_strdup_printf("%s%s", old_str, str);
 	fvalue_set(&fi->value, new_str, TRUE);
 }
 

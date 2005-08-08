@@ -36,10 +36,6 @@
 #include <math.h>
 #include <glib.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 

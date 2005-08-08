@@ -443,7 +443,7 @@ dns_type_description (guint type)
 
   short_name = dns_type_name(type);
   if (short_name == NULL) {
-    snprintf(strbuf, sizeof strbuf, "Unknown (%u)", type);
+    g_snprintf(strbuf, sizeof strbuf, "Unknown (%u)", type);
     return strbuf;
   }
   if (type < sizeof(type_names)/sizeof(type_names[0]))
@@ -482,9 +482,9 @@ dns_type_description (guint type)
   }
 
   if (long_name != NULL)
-    snprintf(strbuf, sizeof strbuf, "%s (%s)", short_name, long_name);
+    g_snprintf(strbuf, sizeof strbuf, "%s (%s)", short_name, long_name);
   else
-    snprintf(strbuf, sizeof strbuf, "%s", short_name);
+    g_snprintf(strbuf, sizeof strbuf, "%s", short_name);
   return strbuf;
 }
 

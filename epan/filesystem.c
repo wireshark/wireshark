@@ -374,9 +374,8 @@ get_persconffile_dir(void)
 		/*
 		 * Concatenate %APPDATA% with "\Ethereal".
 		 */
-		pf_dir = g_malloc(strlen(appdatadir) + strlen(PF_DIR) + 2);
-		sprintf(pf_dir, "%s" G_DIR_SEPARATOR_S "%s", appdatadir,
-		    PF_DIR);
+		pf_dir = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", 
+			appdatadir, PF_DIR);
 	} else {
 		/*
 		 * OK, %APPDATA% wasn't set, so use
@@ -384,17 +383,14 @@ get_persconffile_dir(void)
 		 */
 		userprofiledir = getenv("USERPROFILE");
 		if (userprofiledir != NULL) {
-			pf_dir = g_malloc(strlen(userprofiledir) +
-			    strlen("Application Data") + strlen(PF_DIR) + 3);
-			sprintf(pf_dir,
+			pf_dir = g_strdup_printf(
 			    "%s" G_DIR_SEPARATOR_S "Application Data" G_DIR_SEPARATOR_S "%s",
 			    userprofiledir, PF_DIR);
 		} else {
 			/*
 			 * Give up and use "C:".
 			 */
-			pf_dir = g_malloc(strlen("C:") + strlen(PF_DIR) + 2);
-			sprintf(pf_dir, "C:" G_DIR_SEPARATOR_S "%s", PF_DIR);
+			pf_dir = g_strdup_printf("C:" G_DIR_SEPARATOR_S "%s", PF_DIR);
 		}
 	}
 #else
@@ -418,8 +414,7 @@ get_persconffile_dir(void)
 		} else
 			homedir = "/tmp";
 	}
-	pf_dir = g_malloc(strlen(homedir) + strlen(PF_DIR) + 2);
-	sprintf(pf_dir, "%s" G_DIR_SEPARATOR_S "%s", homedir, PF_DIR);
+	pf_dir = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", homedir, PF_DIR);
 #endif
 
 	return pf_dir;
@@ -573,9 +568,7 @@ get_persconffile_path(const char *filename, gboolean for_writing
 	char *old_path;
 #endif
 
-	path = (gchar *) g_malloc(strlen(get_persconffile_dir()) +
-	    strlen(filename) + 2);
-	sprintf(path, "%s" G_DIR_SEPARATOR_S "%s", get_persconffile_dir(),
+	path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", get_persconffile_dir(),
 	    filename);
 #ifdef _WIN32
 	if (!for_writing) {
@@ -585,9 +578,7 @@ get_persconffile_path(const char *filename, gboolean for_writing
 			 * directory; is it in the ".ethereal" subdirectory
 			 * of their home directory?
 			 */
-			old_path = (gchar *) g_malloc(strlen(get_home_dir()) +
-			    strlen(".ethereal") + strlen(filename) + 3);
-			sprintf(old_path,
+			old_path = g_strdup_printf(
 			    "%s" G_DIR_SEPARATOR_S ".ethereal" G_DIR_SEPARATOR_S "%s",
 			    get_home_dir(), filename);
 			if (stat(old_path, &s_buf) == 0) {
@@ -611,14 +602,9 @@ get_persconffile_path(const char *filename, gboolean for_writing
 char *
 get_datafile_path(const char *filename)
 {
-	char *path;
 
-	path = (gchar *) g_malloc(strlen(get_datafile_dir()) +
-	    strlen(filename) + 2);
-	sprintf(path, "%s" G_DIR_SEPARATOR_S "%s", get_datafile_dir(),
+	return g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", get_datafile_dir(),
 	    filename);
-
-	return path;
 }
 
 /* Delete a file */
@@ -634,13 +620,8 @@ deletefile(const char *path)
  */
 char *get_tempfile_path(const char *filename)
 {
-	char *path;
 
-	path = (gchar *) g_malloc(strlen(g_get_tmp_dir()) +
-	    strlen(filename) + 2);
-	sprintf(path, "%s" G_DIR_SEPARATOR_S "%s", g_get_tmp_dir(), filename);
-
-	return path;
+	return g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", g_get_tmp_dir(), filename);
 }
 
 /*
@@ -684,7 +665,7 @@ file_open_error_message(int err, gboolean for_writing)
 #endif
 
 	default:
-		snprintf(errmsg_errno, sizeof(errmsg_errno),
+		g_snprintf(errmsg_errno, sizeof(errmsg_errno),
 				"The file \"%%s\" could not be %s: %s.",
 				for_writing ? "created" : "opened",
 				strerror(err));
@@ -717,7 +698,7 @@ file_write_error_message(int err)
 #endif
 
 	default:
-		snprintf(errmsg_errno, sizeof(errmsg_errno),
+		g_snprintf(errmsg_errno, sizeof(errmsg_errno),
 		    "An error occurred while writing to the file \"%%s\": %s.",
 		    strerror(err));
 		errmsg = errmsg_errno;

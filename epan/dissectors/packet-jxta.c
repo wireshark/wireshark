@@ -1056,8 +1056,8 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         gchar src_addr[256];
         gchar dst_addr[256];
      
-        address_to_str_buf( &pinfo->src, src_addr );
-        address_to_str_buf( &pinfo->dst, dst_addr );
+        address_to_str_buf( &pinfo->src, src_addr, sizeof src_addr );
+        address_to_str_buf( &pinfo->dst, dst_addr, sizeof dst_addr );
         
         if( PT_NONE != pinfo->ptype ) {
            size_t len = strlen( src_addr );
@@ -1088,8 +1088,8 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         gchar dst_addr[256];
         proto_item * tree_item;
         
-        address_to_str_buf( &pinfo->src, src_addr );
-        address_to_str_buf( &pinfo->dst, dst_addr );
+        address_to_str_buf( &pinfo->src, src_addr, sizeof src_addr );
+        address_to_str_buf( &pinfo->dst, dst_addr, sizeof dst_addr );
         
         if( PT_NONE != pinfo->ptype ) {
            size_t len = strlen( src_addr );

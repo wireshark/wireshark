@@ -69,10 +69,6 @@
 #include <time.h>
 #include <errno.h>
 
-#ifdef NEED_SNPRINTF_H
-#include "snprintf.h"
-#endif
-
 #include "wiretap/wtap.h"
 #include "ringbuffer.h"
 
@@ -127,7 +123,7 @@ static int ringbuf_open_file(rb_file *rfile, int *err)
 #endif
   current_time = time(NULL);
 
-  snprintf(filenum, sizeof(filenum), "%05d", rb_data.curr_file_num + 1 /*.number*/);
+  g_snprintf(filenum, sizeof(filenum), "%05d", rb_data.curr_file_num + 1 /*.number*/);
   strftime(timestr, sizeof(timestr), "%Y%m%d%H%M%S", localtime(&current_time));
   rfile->name = g_strconcat(rb_data.fprefix, "_", filenum, "_", timestr,
 			    rb_data.fsuffix, NULL);

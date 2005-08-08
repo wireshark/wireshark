@@ -261,7 +261,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		u8DataStatus = tvb_get_guint8(tvb, tvb_len - 2);
 	    u8TransferStatus = tvb_get_guint8(tvb, tvb_len - 1);
 
-		snprintf (szFieldSummary, sizeof(szFieldSummary),
+		g_snprintf (szFieldSummary, sizeof(szFieldSummary),
 				  "%sFrameID: 0x%04x, DataLen: %4u, Cycle: %5u (%s,%s,%s,%s)",
 				pszProtAddInfo, u16FrameID, tvb_len - 2 - 4, u16CycleCounter,
 			    (u8DataStatus & 0x04) ? "Valid" : "Invalid",
@@ -278,7 +278,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    u8TransferStatus    = 0;
 
         /* acyclic transfer has no fields at the end */
-		snprintf (szFieldSummary, sizeof(szFieldSummary),
+		g_snprintf (szFieldSummary, sizeof(szFieldSummary),
 				  "%sFrameID: 0x%04x, DataLen: %4u",
 				pszProtAddInfo, u16FrameID, tvb_len - 2);
 

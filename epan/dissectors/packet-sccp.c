@@ -41,10 +41,6 @@
 
 #include <glib.h>
 
-#ifdef NEED_SNPRINTF_H
-#include "snprintf.h"
-#endif
-
 #include <epan/packet.h>
 #include "packet-mtp3.h"
 #include <epan/prefs.h>
@@ -863,7 +859,7 @@ dissect_sccp_3byte_pc(tvbuff_t *tvb, proto_tree *call_tree, guint offset,
 
   /* create the DPC tree; modified from that in packet-mtp3.c */
   dpc = tvb_get_ntoh24(tvb, offset);
-  snprintf(pc, sizeof(pc), "%d-%d-%d", (dpc & ANSI_NETWORK_MASK),
+  g_snprintf(pc, sizeof(pc), "%d-%d-%d", (dpc & ANSI_NETWORK_MASK),
 				       ((dpc & ANSI_CLUSTER_MASK) >> 8),
 				       ((dpc & ANSI_MEMBER_MASK) >> 16));
 

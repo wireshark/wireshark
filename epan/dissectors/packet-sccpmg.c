@@ -39,10 +39,6 @@
 
 #include <glib.h>
 
-#ifdef NEED_SNPRINTF_H
-#include "snprintf.h"
-#endif
-
 #include <epan/packet.h>
 #include "packet-mtp3.h"
 
@@ -170,7 +166,7 @@ dissect_sccpmg_affected_pc(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 
 		/* create the DPC tree; modified from that in packet-sccp.c */
 		dpc = tvb_get_ntoh24(tvb, offset);
-		snprintf(pc, sizeof(pc), "%d-%d-%d",
+		g_snprintf(pc, sizeof(pc), "%d-%d-%d",
 			 (dpc & ANSI_NETWORK_MASK),
 			 ((dpc & ANSI_CLUSTER_MASK) >> 8),
 			 ((dpc & ANSI_MEMBER_MASK) >> 16));

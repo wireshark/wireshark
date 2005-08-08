@@ -47,10 +47,6 @@
 
 #include <glib.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <epan/value_string.h>
 #include <etypes.h>
 #include <epan/packet.h>

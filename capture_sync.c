@@ -303,21 +303,6 @@ sync_pipe_add_arg(const char **args, int *argc, const char *arg)
   return args;
 }
 
-#ifdef _WIN32
-/* Given a string, return a pointer to a quote-encapsulated version of
-   the string, so we can pass it as an argument with "spawnvp" even
-   if it contains blanks. */
-char *
-sync_pipe_quote_encapsulate(const char *string)
-{
-  char *encapsulated_string;
-
-  encapsulated_string = g_new(char, strlen(string) + 3);
-  sprintf(encapsulated_string, "\"%s\"", string);
-  return encapsulated_string;
-}
-#endif
-
 
 
 #define ARGV_NUMBER_LEN 24
@@ -370,17 +355,17 @@ sync_pipe_start(capture_options *capture_opts) {
 
     if (capture_opts->has_snaplen) {
       argv = sync_pipe_add_arg(argv, &argc, "-s");
-      sprintf(ssnap,"%d",capture_opts->snaplen);
+      g_snprintf(ssnap, ARGV_NUMBER_LEN, "%d",capture_opts->snaplen);
       argv = sync_pipe_add_arg(argv, &argc, ssnap);
     }
 
     if (capture_opts->linktype != -1) {
       argv = sync_pipe_add_arg(argv, &argc, "-y");
 #ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
-      sprintf(ssnap,"%s",pcap_datalink_val_to_name(capture_opts->linktype));
+      g_snprintf(ssnap, ARGV_NUMBER_LEN, "%s",pcap_datalink_val_to_name(capture_opts->linktype));
 #else
       /* XXX - just treat it as a number */
-      sprintf(ssnap,"%d",capture_opts->linktype);
+      g_snprintf(ssnap, ARGV_NUMBER_LEN, "%d",capture_opts->linktype);
 #endif
       argv = sync_pipe_add_arg(argv, &argc, ssnap);
     }
@@ -388,44 +373,44 @@ sync_pipe_start(capture_options *capture_opts) {
     if(capture_opts->multi_files_on) {
       if (capture_opts->has_autostop_filesize) {
         argv = sync_pipe_add_arg(argv, &argc, "-b");
-        sprintf(sfilesize,"filesize:%d",capture_opts->autostop_filesize);
+        g_snprintf(sfilesize, ARGV_NUMBER_LEN, "filesize:%d",capture_opts->autostop_filesize);
         argv = sync_pipe_add_arg(argv, &argc, sfilesize);
       }
 
       if (capture_opts->has_file_duration) {
         argv = sync_pipe_add_arg(argv, &argc, "-b");
-        sprintf(sfile_duration,"duration:%d",capture_opts->file_duration);
+        g_snprintf(sfile_duration, ARGV_NUMBER_LEN, "duration:%d",capture_opts->file_duration);
         argv = sync_pipe_add_arg(argv, &argc, sfile_duration);
       }
 
       if (capture_opts->has_ring_num_files) {
         argv = sync_pipe_add_arg(argv, &argc, "-b");
-        sprintf(sring_num_files,"files:%d",capture_opts->ring_num_files);
+        g_snprintf(sring_num_files, ARGV_NUMBER_LEN, "files:%d",capture_opts->ring_num_files);
         argv = sync_pipe_add_arg(argv, &argc, sring_num_files);
       }
 
       if (capture_opts->has_autostop_files) {
         argv = sync_pipe_add_arg(argv, &argc, "-a");
-        sprintf(sautostop_files,"files:%d",capture_opts->autostop_files);
+        g_snprintf(sautostop_files, ARGV_NUMBER_LEN, "files:%d",capture_opts->autostop_files);
         argv = sync_pipe_add_arg(argv, &argc, sautostop_files);
       }
     } else {
         if (capture_opts->has_autostop_filesize) {
           argv = sync_pipe_add_arg(argv, &argc, "-a");
-          sprintf(sautostop_filesize,"filesize:%d",capture_opts->autostop_filesize);
+          g_snprintf(sautostop_filesize, ARGV_NUMBER_LEN, "filesize:%d",capture_opts->autostop_filesize);
           argv = sync_pipe_add_arg(argv, &argc, sautostop_filesize);
         }
     }
 
     if (capture_opts->has_autostop_packets) {
       argv = sync_pipe_add_arg(argv, &argc, "-c");
-      sprintf(scount,"%d",capture_opts->autostop_packets);
+      g_snprintf(scount, ARGV_NUMBER_LEN, "%d",capture_opts->autostop_packets);
       argv = sync_pipe_add_arg(argv, &argc, scount);
     }
 
     if (capture_opts->has_autostop_duration) {
       argv = sync_pipe_add_arg(argv, &argc, "-a");
-      sprintf(sautostop_duration,"duration:%d",capture_opts->autostop_duration);
+      g_snprintf(sautostop_duration, ARGV_NUMBER_LEN, "duration:%d",capture_opts->autostop_duration);
       argv = sync_pipe_add_arg(argv, &argc, sautostop_duration);
     }
 
@@ -461,29 +446,29 @@ sync_pipe_start(capture_options *capture_opts) {
     capture_opts->signal_pipe_fd = signal_pipe[PIPE_WRITE];
 
     argv = sync_pipe_add_arg(argv, &argc, "-B");
-    sprintf(buffer_size,"%d",capture_opts->buffer_size);
+    g_snprintf(buffer_size, ARGV_NUMBER_LEN, "%d",capture_opts->buffer_size);
     argv = sync_pipe_add_arg(argv, &argc, buffer_size);
 
     /* Convert font name to a quote-encapsulated string and pass to child */
     argv = sync_pipe_add_arg(argv, &argc, "-m");
-    fontstring = sync_pipe_quote_encapsulate(prefs.PREFS_GUI_FONT_NAME);
+    fontstring = g_strdup_printf("\"%s\"", prefs.PREFS_GUI_FONT_NAME);
     argv = sync_pipe_add_arg(argv, &argc, fontstring);
 
     /* Convert sync pipe write handle to a string and pass to child */
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
-    sprintf(sync_pipe_fd,"sync:%d",sync_pipe[PIPE_WRITE]);
+    g_snprintf(sync_pipe_fd, ARGV_NUMBER_LEN, "sync:%d",sync_pipe[PIPE_WRITE]);
     argv = sync_pipe_add_arg(argv, &argc, sync_pipe_fd);
 
     /* Convert signal pipe read handle to a string and pass to child */
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
-    sprintf(signal_pipe_fd,"signal:%d",signal_pipe[PIPE_READ]);
+    g_snprintf(signal_pipe_fd, ARGV_NUMBER_LEN, "signal:%d",signal_pipe[PIPE_READ]);
     argv = sync_pipe_add_arg(argv, &argc, signal_pipe_fd);
 
     /* Convert filter string to a quote delimited string and pass to child */
     filterstring = NULL;
     if (capture_opts->cfilter != NULL && strlen(capture_opts->cfilter) != 0) {
       argv = sync_pipe_add_arg(argv, &argc, "-f");
-      filterstring = sync_pipe_quote_encapsulate(capture_opts->cfilter);
+      filterstring = g_strdup_printf("\"%s\"", capture_opts->cfilter);
       argv = sync_pipe_add_arg(argv, &argc, filterstring);
     }
 
@@ -491,7 +476,7 @@ sync_pipe_start(capture_options *capture_opts) {
     savefilestring = NULL;
     if(capture_opts->save_file) {
       argv = sync_pipe_add_arg(argv, &argc, "-w");
-      savefilestring = sync_pipe_quote_encapsulate(capture_opts->save_file);
+      savefilestring = g_strdup_printf("\"%s\"", capture_opts->save_file);
       argv = sync_pipe_add_arg(argv, &argc, savefilestring);
     }
 
@@ -547,7 +532,7 @@ sync_pipe_start(capture_options *capture_opts) {
       dup(sync_pipe[PIPE_WRITE]);
       close(sync_pipe[PIPE_READ]);
       execvp(ethereal_path, argv);
-      snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
+      g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
 		ethereal_path, strerror(errno));
       sync_pipe_errmsg_to_parent(errmsg);
 
@@ -812,7 +797,8 @@ sync_pipe_signame(int sig)
     break;
 
   default:
-    sprintf(sigmsg_buf, "Signal %d", sig);
+	/* XXX - returning a static buffer is ok in the context we use it here */
+    g_snprintf(sigmsg_buf, sizeof sigmsg_buf, "Signal %d", sig);
     sigmsg = sigmsg_buf;
     break;
   }

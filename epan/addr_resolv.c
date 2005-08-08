@@ -1413,9 +1413,7 @@ static void initialize_ipxnets(void)
    * directory as well?
    */
   if (g_ipxnets_path == NULL) {
-    g_ipxnets_path = g_malloc(strlen(get_systemfile_dir()) +
-			      strlen(ENAME_IPXNETS) + 2);
-    sprintf(g_ipxnets_path, "%s" G_DIR_SEPARATOR_S "%s",
+	g_ipxnets_path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
 	    get_systemfile_dir(), ENAME_IPXNETS);
   }
 
@@ -1698,7 +1696,7 @@ host_name_lookup_process(gpointer data _U_) {
     almsg = (adns_queue_msg_t *) cur->data;
     if (! almsg->submitted && almsg->type == AF_INET) {
       addr_bytes = (guint8 *) &almsg->ip4_addr;
-      sprintf(addr_str, "%u.%u.%u.%u.in-addr.arpa.", addr_bytes[3],
+      g_snprintf(addr_str, sizeof addr_str, "%u.%u.%u.%u.in-addr.arpa.", addr_bytes[3],
           addr_bytes[2], addr_bytes[1], addr_bytes[0]);
       /* XXX - what if it fails? */
       adns_submit (ads, addr_str, adns_r_ptr, 0, NULL, &almsg->query);
@@ -1881,7 +1879,7 @@ extern gchar *get_udp_port(guint port)
     } else {
       cur = &str[0][0];
     }
-    sprintf(cur, "%u", port);
+    g_snprintf(cur, MAXNAMELEN, "%u", port);
     return cur;
   }
 
@@ -1902,7 +1900,7 @@ extern gchar *get_tcp_port(guint port)
     } else {
       cur = &str[0][0];
     }
-    sprintf(cur, "%u", port);
+    g_snprintf(cur, MAXNAMELEN, "%u", port);
     return cur;
   }
 
@@ -1923,7 +1921,7 @@ extern gchar *get_sctp_port(guint port)
     } else {
       cur = &str[0][0];
     }
-    sprintf(cur, "%u", port);
+    g_snprintf(cur, MAXNAMELEN, "%u", port);
     return cur;
   }
 
@@ -2125,7 +2123,7 @@ extern const gchar *get_manuf_name(const guint8 *addr)
     } else {
       cur = &str[0][0];
     }
-    sprintf(cur, "%02x:%02x:%02x", addr[0], addr[1], addr[2]);
+    g_snprintf(cur, MAXMANUFLEN, "%02x:%02x:%02x", addr[0], addr[1], addr[2]);
     return cur;
   }
 

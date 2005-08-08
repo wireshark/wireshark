@@ -30,10 +30,6 @@
 #include <string.h>
 #include <glib.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <epan/packet.h>
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>

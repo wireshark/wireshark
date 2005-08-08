@@ -180,10 +180,10 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   hdrlen = BPF_WORDALIGN(pflogh.length);
 
   if (pflogh.subrulenr == (guint32) -1)
-    snprintf(rulestr, sizeof(rulestr), "%u",
+    g_snprintf(rulestr, sizeof(rulestr), "%u",
              pflogh.rulenr);
   else
-    snprintf(rulestr, sizeof(rulestr), "%u.%s.%u",
+    g_snprintf(rulestr, sizeof(rulestr), "%u.%s.%u",
              pflogh.rulenr, pflogh.ruleset, pflogh.subrulenr);
 
   if (hdrlen < MIN_PFLOG_HDRLEN) {

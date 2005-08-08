@@ -101,10 +101,6 @@
 
 #include "isprint.h"
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/conversation.h>
@@ -530,7 +526,7 @@ dcm_tag2str(guint16 grp, guint16 elm, guint8 syntax, tvbuff_t *tvb, int offset, 
 	if (DCM_ILE & syntax) 
 	     val32 = tvb_get_letohl(tvb, offset); 
 	else val32 = tvb_get_ntohl(tvb, offset); 
-	snprintf(buf, sizeof(buf), "Group Length 0x%x (%d)", val32, val32);
+	g_snprintf(buf, sizeof(buf), "Group Length 0x%x (%d)", val32, val32);
 	return buf;
     }
     tag = (grp << 16) | elm;
@@ -1042,14 +1038,14 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvb_memcpy(tvb, dcm_data->targ, 26, 16);
 	dcm_data->orig[AEEND] = dcm_data->targ[AEEND] = 0;
 	buf = g_malloc(128);
-	snprintf(buf, 128, "DCM ASSOC Request %s <-- %s",
+	g_snprintf(buf, 128, "DCM ASSOC Request %s <-- %s",
 	    dcm_data->orig, dcm_data->targ);
 	offset = 74;
 	break;
     case 2: 				/* ASSOC Accept */
 	tvb_memcpy(tvb, dcm_data->resp, 26, 16);
 	buf = g_malloc(128);
-	snprintf(buf, 128, "DCM ASSOC Accept %s <-- %s (%s)",
+	g_snprintf(buf, 128, "DCM ASSOC Accept %s <-- %s (%s)",
 	    dcm_data->orig, dcm_data->targ, dcm_data->resp);
 	offset = 74; 
 	break;
@@ -1058,7 +1054,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dcm_data->source = tvb_get_guint8(tvb, 8);
 	dcm_data->reason = tvb_get_guint8(tvb, 9);
 	buf = g_malloc(128);
-	snprintf(buf, 128, "DCM ASSOC Reject %s <-- %s %s %s %s",
+	g_snprintf(buf, 128, "DCM ASSOC Reject %s <-- %s %s %s %s",
 	    dcm_data->orig, dcm_data->targ,
 	    dcm_result2str(dcm_data->result),
 	    dcm_source2str(dcm_data->source),
@@ -1084,7 +1080,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dcm_data->source = tvb_get_guint8(tvb, 8);
 	dcm_data->reason = tvb_get_guint8(tvb, 9);
 	buf = g_malloc(128);
-	snprintf(buf, 128, "DCM ABORT %s <-- %s %s %s", 
+	g_snprintf(buf, 128, "DCM ABORT %s <-- %s %s %s", 
 	    dcm_data->orig, dcm_data->targ,
 	    (dcm_data->source == 1) ? "USER" :
 		(dcm_data->source == 2) ? "PROVIDER" : "",

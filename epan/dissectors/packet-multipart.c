@@ -67,10 +67,6 @@
 #include <glib.h>
 #include <ctype.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <epan/packet.h>
 
 /* Dissector table for media requiring special attention in multipart

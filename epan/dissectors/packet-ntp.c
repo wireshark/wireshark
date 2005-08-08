@@ -36,10 +36,6 @@
 #include <math.h>
 #include <glib.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include "packet-ntp.h"
@@ -392,7 +388,7 @@ ntp_fmt_ts(const guint8 *reftime, char* buff)
 		bd = gmtime(&temptime);
 		if (bd != NULL) {
 			fractime = bd->tm_sec + tempfrac / 4294967296.0;
-			snprintf(buff, NTP_TS_SIZE,
+			g_snprintf(buff, NTP_TS_SIZE,
                                  "%s %2d, %d %02d:%02d:%07.4f UTC",
 				 mon_names[bd->tm_mon],
 				 bd->tm_mday,
@@ -550,7 +546,7 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	 */
 	refid = tvb_get_ptr(tvb, 12, 4);
 	if (stratum <= 1) {
-		snprintf (buff, sizeof buff,
+		g_snprintf (buff, sizeof buff,
 		    "Unindentified reference source '%.4s'",
 		    refid);
 		for (i = 0; primary_sources[i].id; i++) {

@@ -37,10 +37,6 @@
 #include <glib.h>
 #include <math.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <epan/packet.h>
 #include "packet-ipdc.h"
 #include "packet-tcp.h"

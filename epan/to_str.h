@@ -50,7 +50,7 @@ typedef enum {
 struct     e_in6_addr;
 
 extern gchar*	address_to_str(const address *);
-extern void     address_to_str_buf(const address *, gchar *);
+extern void     address_to_str_buf(const address *addr, gchar *buf, int buf_len);
 extern gchar*	ether_to_str(const guint8 *);
 extern gchar*	ip_to_str(const guint8 *);
 extern void	ip_to_str_buf(const guint8 *, gchar *);

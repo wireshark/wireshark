@@ -39,10 +39,6 @@
 #include <string.h>
 #include <glib.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include "packet.h"
 #include "strutil.h"
 #include "sigcomp-udvm.h"

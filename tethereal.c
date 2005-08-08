@@ -51,10 +51,6 @@
 # include <sys/stat.h>
 #endif
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #ifdef NEED_STRERROR_H
 #include "strerror.h"
 #endif
@@ -1503,7 +1499,7 @@ capture(char *save_file, int out_file_type)
       set_linktype_err_str = set_pcap_linktype(ld.pch, capture_opts.iface,
 	capture_opts.linktype);
       if (set_linktype_err_str != NULL) {
-	snprintf(errmsg, sizeof errmsg, "Unable to set data link type (%s).",
+	g_snprintf(errmsg, sizeof errmsg, "Unable to set data link type (%s).",
 	  set_linktype_err_str);
 	goto error;
       }
@@ -1517,7 +1513,7 @@ capture(char *save_file, int out_file_type)
        users; don't warn about permissions problems.
 
        Do, however, warn that WAN devices aren't supported. */
-    snprintf(errmsg, sizeof errmsg,
+    g_snprintf(errmsg, sizeof errmsg,
 	"The capture session could not be initiated (%s).\n"
 	"Please check that you have the proper interface specified.\n"
 	"\n"
@@ -1556,7 +1552,7 @@ capture(char *save_file, int out_file_type)
 	    "at the URL lists a number of mirror sites.";
 	else
 	  libpcap_warn = "";
-	snprintf(errmsg, sizeof errmsg,
+	g_snprintf(errmsg, sizeof errmsg,
 	  "The capture session could not be initiated (%s).\n"
 	  "Please check to make sure you have sufficient permissions, and that\n"
 	  "you have the proper interface or pipe specified.%s", open_err_str,
@@ -1604,20 +1600,20 @@ capture(char *save_file, int out_file_type)
     }
     if (pcap_compile(ld.pch, &fcode, capture_opts.cfilter, 1, netmask) < 0) {
       if (dfilter_compile(capture_opts.cfilter, &rfcode)) {
-        snprintf(errmsg, sizeof errmsg,
+        g_snprintf(errmsg, sizeof errmsg,
 	  "Unable to parse capture filter string (%s).\n"
           "  Interestingly enough, this looks like a valid display filter\n"
 	  "  Are you sure you didn't mix them up?",
 	  pcap_geterr(ld.pch));
       } else {
-        snprintf(errmsg, sizeof errmsg,
+        g_snprintf(errmsg, sizeof errmsg,
 	  "Unable to parse capture filter string (%s).",
 	  pcap_geterr(ld.pch));
       }
       goto error;
     }
     if (pcap_setfilter(ld.pch, &fcode) < 0) {
-      snprintf(errmsg, sizeof errmsg, "Can't install filter (%s).",
+      g_snprintf(errmsg, sizeof errmsg, "Can't install filter (%s).",
 	pcap_geterr(ld.pch));
 #ifdef HAVE_PCAP_FREECODE
       pcap_freecode(&fcode);
@@ -1665,7 +1661,7 @@ capture(char *save_file, int out_file_type)
     }
 
     if (ld.pdh == NULL) {
-      snprintf(errmsg, sizeof errmsg,
+      g_snprintf(errmsg, sizeof errmsg,
 	       cf_open_error_message(err, NULL, TRUE, out_file_type),
 	       *save_file == '\0' ? "stdout" : save_file);
       goto error;
@@ -2876,7 +2872,7 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 
     case WTAP_ERR_UNSUPPORTED:
       /* Seen only when opening a capture file for reading. */
-      snprintf(errmsg_errno, sizeof(errmsg_errno),
+      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                "The file \"%%s\" isn't a capture file in a format Tethereal understands.\n"
                "(%s)", err_info);
       g_free(err_info);
@@ -2885,7 +2881,7 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 
     case WTAP_ERR_CANT_WRITE_TO_PIPE:
       /* Seen only when opening a capture file for writing. */
-      snprintf(errmsg_errno, sizeof(errmsg_errno),
+      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
 	       "The file \"%%s\" is a pipe, and %s capture files can't be "
 	       "written to a pipe.", wtap_file_type_string(file_type));
       errmsg = errmsg_errno;
@@ -2900,7 +2896,7 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
       if (for_writing)
         errmsg = "Tethereal can't save this capture in that format.";
       else {
-        snprintf(errmsg_errno, sizeof(errmsg_errno),
+        g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                  "The file \"%%s\" is a capture for a network type that Tethereal doesn't support.\n"
                  "(%s)", err_info);
         g_free(err_info);
@@ -2917,7 +2913,7 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 
     case WTAP_ERR_BAD_RECORD:
       /* Seen only when opening a capture file for reading. */
-      snprintf(errmsg_errno, sizeof(errmsg_errno),
+      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                "The file \"%%s\" appears to be damaged or corrupt.\n"
                "(%s)", err_info);
       g_free(err_info);
@@ -2941,7 +2937,7 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
       break;
 
     default:
-      snprintf(errmsg_errno, sizeof(errmsg_errno),
+      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
 	       "The file \"%%s\" could not be %s: %s.",
 	       for_writing ? "created" : "opened",
 	       wtap_strerror(err));
@@ -3014,7 +3010,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   return CF_OK;
 
 fail:
-  snprintf(err_msg, sizeof err_msg,
+  g_snprintf(err_msg, sizeof err_msg,
            cf_open_error_message(*err, err_info, FALSE, 0), fname);
   fprintf(stderr, "tethereal: %s\n", err_msg);
   return CF_ERROR;
@@ -3078,7 +3074,7 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ldat,
       if (errno == ENOENT || errno == ENOTDIR)
         ldat->pipe_err = PIPNEXIST;
       else {
-        snprintf(errmsg, errmsgl,
+        g_snprintf(errmsg, errmsgl,
           "The capture session could not be initiated "
           "due to error on pipe: %s", strerror(errno));
         ldat->pipe_err = PIPERR;
@@ -3093,7 +3089,7 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ldat,
          */
          ldat->pipe_err = PIPNEXIST;
       } else {
-        snprintf(errmsg, errmsgl,
+        g_snprintf(errmsg, errmsgl,
             "The capture session could not be initiated because\n"
             "\"%s\" is neither an interface nor a pipe", pipename);
         ldat->pipe_err = PIPERR;
@@ -3102,7 +3098,7 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ldat,
     }
     fd = open(pipename, O_RDONLY);
     if (fd == -1) {
-      snprintf(errmsg, errmsgl,
+      g_snprintf(errmsg, errmsgl,
           "The capture session could not be initiated "
           "due to error on pipe open: %s", strerror(errno));
       ldat->pipe_err = PIPERR;
@@ -3118,9 +3114,9 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ldat,
     b = read(fd, ((char *)&magic)+bytes_read, sizeof magic-bytes_read);
     if (b <= 0) {
       if (b == 0)
-        snprintf(errmsg, errmsgl, "End of file on pipe during open");
+        g_snprintf(errmsg, errmsgl, "End of file on pipe during open");
       else
-        snprintf(errmsg, errmsgl, "Error on pipe during open: %s",
+        g_snprintf(errmsg, errmsgl, "Error on pipe during open: %s",
           strerror(errno));
       goto error;
     }
@@ -3156,7 +3152,7 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ldat,
     break;
   default:
     /* Not a "libpcap" type we know about. */
-    snprintf(errmsg, errmsgl, "Unrecognized libpcap format");
+    g_snprintf(errmsg, errmsgl, "Unrecognized libpcap format");
     goto error;
   }
 
@@ -3167,9 +3163,9 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ldat,
           sizeof(struct pcap_hdr) - bytes_read);
     if (b <= 0) {
       if (b == 0)
-        snprintf(errmsg, errmsgl, "End of file on pipe during open");
+        g_snprintf(errmsg, errmsgl, "End of file on pipe during open");
       else
-        snprintf(errmsg, errmsgl, "Error on pipe during open: %s",
+        g_snprintf(errmsg, errmsgl, "Error on pipe during open: %s",
           strerror(errno));
       goto error;
     }
@@ -3185,7 +3181,7 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ldat,
   }
 
   if (hdr->version_major < 2) {
-    snprintf(errmsg, errmsgl, "Unable to read old libpcap format");
+    g_snprintf(errmsg, errmsgl, "Unable to read old libpcap format");
     goto error;
   }
 
@@ -3256,7 +3252,7 @@ pipe_dispatch(int fd, loop_data *ldat, struct pcap_hdr *hdr,
     break;
 
   default:
-    snprintf(errmsg, errmsgl, "pipe_dispatch: invalid state");
+    g_snprintf(errmsg, errmsgl, "pipe_dispatch: invalid state");
     result = PD_ERR;
 
   } /* switch (ldat->pipe_state) */
@@ -3270,7 +3266,7 @@ pipe_dispatch(int fd, loop_data *ldat, struct pcap_hdr *hdr,
     /* We've read the header. Take care of byte order. */
     adjust_header(ldat, hdr, &rechdr->hdr);
     if (rechdr->hdr.incl_len > WTAP_MAX_PACKET_SIZE) {
-      snprintf(errmsg, errmsgl, "Frame %u too long (%d bytes)",
+      g_snprintf(errmsg, errmsgl, "Frame %u too long (%d bytes)",
         ldat->packet_count+1, rechdr->hdr.incl_len);
       break;
     }
@@ -3294,7 +3290,7 @@ pipe_dispatch(int fd, loop_data *ldat, struct pcap_hdr *hdr,
     return -1;
 
   case PD_PIPE_ERR:
-    snprintf(errmsg, errmsgl, "Error reading from pipe: %s",
+    g_snprintf(errmsg, errmsgl, "Error reading from pipe: %s",
       strerror(errno));
     /* Fall through */
   case PD_ERR:

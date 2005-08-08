@@ -43,10 +43,6 @@
 #include <epan/prefs.h>
 
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #define LWAPP_FLAGS_T 0x04
 #define LWAPP_FLAGS_F 0x02
 #define LWAPP_FLAGS_FT 0x01

@@ -70,10 +70,6 @@
 
 #include <glib.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <epan/tvbuff.h>
 #include <epan/packet.h>
 #include <prefs.h>
@@ -1257,31 +1253,31 @@ static char *summary_session (tvbuff_t *tvb, int offset)
 
     switch(tvb_get_guint8(tvb, offset+3)) {
     case RSVP_SESSION_TYPE_IPV4:
-	snprintf(buf, 100, "SESSION: IPv4, Destination %s, Protocol %d, Port %d. ",
+	g_snprintf(buf, 100, "SESSION: IPv4, Destination %s, Protocol %d, Port %d. ",
 		 ip_to_str(tvb_get_ptr(tvb, offset+4, 4)),
 		 tvb_get_guint8(tvb, offset+8),
 		 tvb_get_ntohs(tvb, offset+10));
 	break;
     case RSVP_SESSION_TYPE_IPV4_LSP:
-	snprintf(buf, 100, "SESSION: IPv4-LSP, Destination %s, Tunnel ID %d, Ext ID %0x. ",
+	g_snprintf(buf, 100, "SESSION: IPv4-LSP, Destination %s, Tunnel ID %d, Ext ID %0x. ",
 		 ip_to_str(tvb_get_ptr(tvb, offset+4, 4)),
 		 tvb_get_ntohs(tvb, offset+10),
 		 tvb_get_ntohl(tvb, offset+12));
 	break;
     case RSVP_SESSION_TYPE_IPV4_UNI:
-	snprintf(buf, 100, "SESSION: IPv4-UNI, Destination %s, Tunnel ID %d, Ext Address %s. ",
+	g_snprintf(buf, 100, "SESSION: IPv4-UNI, Destination %s, Tunnel ID %d, Ext Address %s. ",
 		 ip_to_str(tvb_get_ptr(tvb, offset+4, 4)),
 		 tvb_get_ntohs(tvb, offset+10),
 		 ip_to_str(tvb_get_ptr(tvb, offset+12, 4)));
 	break;
     case RSVP_SESSION_TYPE_IPV4_E_NNI:
-	snprintf(buf, 100, "SESSION: IPv4-E-NNI, Destination %s, Tunnel ID %d, Ext Address %s. ",
+	g_snprintf(buf, 100, "SESSION: IPv4-E-NNI, Destination %s, Tunnel ID %d, Ext Address %s. ",
 		 ip_to_str(tvb_get_ptr(tvb, offset+4, 4)),
 		 tvb_get_ntohs(tvb, offset+10),
 		 ip_to_str(tvb_get_ptr(tvb, offset+12, 4)));
 	break;
     default:
-	snprintf(buf, 100, "SESSION: Type %d. ", tvb_get_guint8(tvb, offset+3));
+	g_snprintf(buf, 100, "SESSION: Type %d. ", tvb_get_guint8(tvb, offset+3));
     }
 
     return buf;
@@ -1299,17 +1295,17 @@ static char *summary_template (tvbuff_t *tvb, int offset)
 
     switch(tvb_get_guint8(tvb, offset+3)) {
     case 1:
-	snprintf(buf, 80, "%s: IPv4, Sender %s, Port %d. ", objtype,
+	g_snprintf(buf, 80, "%s: IPv4, Sender %s, Port %d. ", objtype,
 		 ip_to_str(tvb_get_ptr(tvb, offset+4, 4)),
 		 tvb_get_ntohs(tvb, offset+10));
 	break;
     case 7:
-	snprintf(buf, 80, "%s: IPv4-LSP, Tunnel Source: %s, LSP ID: %d. ", objtype,
+	g_snprintf(buf, 80, "%s: IPv4-LSP, Tunnel Source: %s, LSP ID: %d. ", objtype,
 		 ip_to_str(tvb_get_ptr(tvb, offset+4, 4)),
 		 tvb_get_ntohs(tvb, offset+10));
 	break;
     default:
-	snprintf(buf, 80, "%s: Type %d. ", objtype, tvb_get_guint8(tvb, offset+3));
+	g_snprintf(buf, 80, "%s: Type %d. ", objtype, tvb_get_guint8(tvb, offset+3));
     }
 
     return buf;

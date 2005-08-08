@@ -769,7 +769,7 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
     case FIELD_TIMESTAMP:
       dataptr = tvb_get_ptr (tvb, offset, 8);
       memset (out_buff, 0, SHORT_STR);
-      snprintf (out_buff, SHORT_STR, "0x%02X%02X%02X%02X%02X%02X%02X%02X",
+      g_snprintf (out_buff, SHORT_STR, "0x%02X%02X%02X%02X%02X%02X%02X%02X",
 		dataptr[7],
 		dataptr[6],
 		dataptr[5],

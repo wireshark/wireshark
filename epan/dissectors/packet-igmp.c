@@ -103,10 +103,6 @@
 #include <string.h>
 #include <glib.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <epan/packet.h>
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
@@ -663,7 +659,7 @@ dissect_igmp_mtrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int typ
 	 */
 	if (type == IGMP_TRACEROUTE_RESPONSE) {
 		int i = (tvb_reported_length_remaining(tvb, offset) - IGMP_TRACEROUTE_HDR_LEN) / IGMP_TRACEROUTE_RSP_LEN;
-		snprintf(buf, sizeof buf, ", %d block%s", i, plurality(i, "", "s"));
+		g_snprintf(buf, sizeof buf, ", %d block%s", i, plurality(i, "", "s"));
 		typestr = "Traceroute Response";
 		blocks = buf;
 	} else if (tvb_reported_length_remaining(tvb, offset) == IGMP_TRACEROUTE_HDR_LEN)

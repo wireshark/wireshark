@@ -38,10 +38,6 @@
 #include <glib.h>
 #include <epan/conversation.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <epan/packet.h>
 #include "prefs.h"
 

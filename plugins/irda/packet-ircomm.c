@@ -39,9 +39,6 @@
 #include <epan/packet.h>
 #include <epan/proto.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 
 /*
  * See

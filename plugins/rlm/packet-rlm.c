@@ -55,10 +55,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <gmodule.h>
 #include <epan/packet.h>
 

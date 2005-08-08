@@ -57,10 +57,6 @@
 #include "packet-tcp.h"
 #include "packet-sip.h"
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 /* This must be defined before we include packet-diameter-defs.h */
 
 /* Valid data types */
@@ -923,7 +919,7 @@ diameter_vendor_to_str(guint32 vendorId, gboolean longName) {
 	}
   }
 
-  snprintf(buffer, sizeof(buffer),
+  g_snprintf(buffer, sizeof(buffer),
 		   "Vendor 0x%08x", vendorId);
   return buffer;
 } /*diameter_vendor_to_str */
@@ -965,7 +961,7 @@ diameter_command_to_str(guint32 commandCode, guint32 vendorId)
   if ( suppress_console_output == FALSE )
 	  g_warning("Diameter: Unable to find name for command code 0x%08x, Vendor \"%u\"!",
 			commandCode, vendorId);
-  snprintf(buffer, sizeof(buffer),
+  g_snprintf(buffer, sizeof(buffer),
 		   "Cmd-0x%08x", commandCode);
     break;
     case DIAMETER_RFC:
@@ -980,7 +976,7 @@ diameter_command_to_str(guint32 commandCode, guint32 vendorId)
     if ( suppress_console_output == FALSE )
           g_warning("Diameter: Unable to find name for command code 0x%08x!",
                         commandCode);
-    snprintf(buffer, sizeof(buffer),
+    g_snprintf(buffer, sizeof(buffer),
                    "Cmd-0x%08x", commandCode);
     break;
   }
@@ -999,7 +995,7 @@ diameter_app_to_str(guint32 appId) {
 	}
   }
 
-  snprintf(buffer, sizeof(buffer), "Unknown");
+  g_snprintf(buffer, sizeof(buffer), "Unknown");
   return buffer;
 } /*diameter_app_to_str */
 

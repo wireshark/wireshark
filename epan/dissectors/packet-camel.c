@@ -3161,7 +3161,7 @@ dissect_camel_DateAndTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
   guint8 digit_pair;
   guint8 i = 0, curr_offset; 
-  char *time = (char *)(calloc (2*7 + 5 + 1, sizeof(char))); 
+  char *time = (char *)(g_malloc0 ( (2*7 + 5 + 1) * sizeof(char))); 
   
   char c[ 2*7 + 5] = ""; /*temporary container*/
   time[ 2*7 + 5 +1 ] = '\0';
@@ -3234,7 +3234,7 @@ dissect_camel_DateAndTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 		      0, 
 		      7, 
 		      time);
-  free (time); 
+  g_free (time); 
   return 7; /* 7  octetes eaten*/
 
 

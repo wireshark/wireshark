@@ -37,10 +37,6 @@
 #include <epan/addr_resolv.h>
 #include <epan/dissectors/packet-ip.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 static const value_string ipproto_val[] = {
 #if 0
     { IP_PROTO_IP,	"IPv4" },
@@ -210,6 +206,6 @@ const char *ipprotostr(int proto) {
     s = "Unknown";
 
 ok:
-    snprintf(buf, sizeof(buf), "%s", s);
+    g_snprintf(buf, sizeof(buf), "%s", s);
     return buf;
 }

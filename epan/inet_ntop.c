@@ -56,11 +56,9 @@ static char rcsid[] = "$Id$";
 #include <stdio.h>
 #include <string.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include "inet_v6defs.h"
+
+#include <glib.h>
 
 #ifndef NS_INADDRSZ
 #define NS_INADDRSZ	4
@@ -128,9 +126,9 @@ inet_ntop4(src, dst, size)
 	char tmp[sizeof "255.255.255.255"];
 	int nprinted;
 
-	nprinted = snprintf(tmp, sizeof(tmp), fmt, src[0], src[1], src[2], src[3]);
+	nprinted = g_snprintf(tmp, sizeof(tmp), fmt, src[0], src[1], src[2], src[3]);
 	if (nprinted < 0)
-		return (NULL);	/* we assume "errno" was set by "snprintf()" */
+		return (NULL);	/* we assume "errno" was set by "g_snprintf()" */
 	if ((size_t)nprinted > size) {
 		errno = ENOSPC;
 		return (NULL);

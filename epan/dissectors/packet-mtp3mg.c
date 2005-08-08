@@ -39,10 +39,6 @@
 
 #include <glib.h>
 
-#ifdef NEED_SNPRINTF_H
-#include "snprintf.h"
-#endif
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
@@ -506,7 +502,7 @@ dissect_mtp3mg_3byte_pc(tvbuff_t *tvb, proto_tree *tree, gint *ett_pc,
 
     apc = tvb_get_ntoh24(tvb, 0);
 
-    snprintf(pc, sizeof(pc), "%d-%d-%d",
+    g_snprintf(pc, sizeof(pc), "%d-%d-%d",
 	     (apc & ANSI_NETWORK_MASK),
 	     ((apc & ANSI_CLUSTER_MASK) >> 8),
 	     ((apc & ANSI_MEMBER_MASK) >> 16));

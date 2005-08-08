@@ -27,10 +27,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef NEED_SNPRINTF_H
-#include "snprintf.h"
-#endif
-
 #include "dfilter-int.h"
 #include "syntax-tree.h"
 #include "gencode.h"

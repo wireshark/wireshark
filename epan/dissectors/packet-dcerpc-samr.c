@@ -40,10 +40,6 @@
 #include "packet-windows-common.h"
 #include "packet-smb-common.h"
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 static int proto_dcerpc_samr = -1;
 
 static int hf_samr_opnum = -1;
@@ -2793,7 +2789,7 @@ samr_dissect_INDEX_ARRAY(tvbuff_t *tvb, int offset,
 	di=pinfo->private_data;
 
 	field_name = proto_registrar_get_name(di->hf_index);
-	snprintf(str, 255, "INDEX_ARRAY: %s%s:", field_name,
+	g_snprintf(str, 255, "INDEX_ARRAY: %s%s:", field_name,
 	    plural_ending(field_name));
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
@@ -2854,7 +2850,7 @@ samr_dissect_IDX_AND_NAME(tvbuff_t *tvb, int offset,
 
 	di=pinfo->private_data;
 
-	snprintf(str, 255, "IDX_AND_NAME: %s:",proto_registrar_get_name(di->hf_index));
+	g_snprintf(str, 255, "IDX_AND_NAME: %s:",proto_registrar_get_name(di->hf_index));
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
 				"%s",str);
@@ -2909,7 +2905,7 @@ samr_dissect_IDX_AND_NAME_ARRAY(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_count, &count);
-	snprintf(str, 255, "IDX_AND_NAME pointer: %s%s:", field_name,
+	g_snprintf(str, 255, "IDX_AND_NAME pointer: %s%s:", field_name,
 	    plural_ending(field_name));
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_IDX_AND_NAME_entry, NDR_POINTER_UNIQUE,
@@ -2931,7 +2927,7 @@ samr_dissect_IDX_AND_NAME_ARRAY_ptr(tvbuff_t *tvb, int offset,
 	di=pinfo->private_data;
 
 	field_name = proto_registrar_get_name(di->hf_index);
-	snprintf(str, 255, "IDX_AND_NAME_ARRAY pointer: %s%s:", field_name,
+	g_snprintf(str, 255, "IDX_AND_NAME_ARRAY pointer: %s%s:", field_name,
 	    plural_ending(field_name));
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_IDX_AND_NAME_ARRAY, NDR_POINTER_UNIQUE,

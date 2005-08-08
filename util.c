@@ -41,10 +41,6 @@
 #include <sys/stat.h>
 #endif
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #ifdef NEED_MKSTEMP
 #include "mkstemp.h"
 #endif
@@ -141,7 +137,7 @@ try_tempfile(char *namebuf, int namebuflen, const char *dir, const char *pfx)
 		/* Stick in a truncated name, so that if this error is
 		   reported with the file name, you at least get
 		   something. */
-		snprintf(namebuf, namebuflen, "%s%s%s", dir, pfx, suffix);
+		g_snprintf(namebuf, namebuflen, "%s%s%s", dir, pfx, suffix);
 		errno = ENAMETOOLONG;
 		return -1;
 	}

@@ -28,9 +28,6 @@
 
 #include <stdio.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
 #include "to_str.h"
 #include "value_string.h"
 
@@ -56,7 +53,7 @@ val_to_str(guint32 val, const value_string *vs, const char *fmt) {
   } else {
     cur = &str[0][0];
   }
-  snprintf(cur, 64, fmt, val);
+  g_snprintf(cur, 64, fmt, val);
   return cur;
 }
 

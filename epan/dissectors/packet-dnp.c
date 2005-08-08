@@ -37,10 +37,6 @@
 #include <glib.h>
 #include <time.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
@@ -1124,10 +1120,10 @@ dnp3_al_decode_timestamp(tvbuff_t *tvb, int temp_pos, char* buff)
   alts_noms = (const long) al_timestamp;
   ptm = gmtime(&alts_noms);
 
-  /*snprintf(buff, 25,"%02d/%02d/%4d %02d:%02d:%02d.%03d",(ptm->tm_mon + 1), ptm->tm_mday,
+  /*g_snprintf(buff, 25,"%02d/%02d/%4d %02d:%02d:%02d.%03d",(ptm->tm_mon + 1), ptm->tm_mday,
           (ptm->tm_year+1900), ptm->tm_hour, ptm->tm_min, ptm->tm_sec, time_ms); */
   /* Time-stamp in ISO format - perhaps an option should be added for different locales? */
-  snprintf(buff, 25,"%04d/%02d/%02d %02d:%02d:%02d.%03"PRIu64,(ptm->tm_year+1900),ptm->tm_mday,
+  g_snprintf(buff, 25,"%04d/%02d/%02d %02d:%02d:%02d.%03"PRIu64,(ptm->tm_year+1900),ptm->tm_mday,
           (ptm->tm_mon + 1), ptm->tm_hour, ptm->tm_min, ptm->tm_sec, time_ms);
 
 
