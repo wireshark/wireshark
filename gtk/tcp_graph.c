@@ -1727,7 +1727,7 @@ static void graph_destroy (struct graph *g)
 	gdk_pixmap_unref (g->pixmap[1]);
 	g_free (g->x_axis);
 	g_free (g->y_axis);
-	g_free (g->title);
+	g_free ( (gpointer) (g->title) );
 	graph_segment_list_free (g);
 	graph_element_lists_free (g);
 #if 0
@@ -2210,7 +2210,7 @@ static void axis_destroy (struct axis *axis)
 {
 	gdk_pixmap_unref (axis->pixmap[0]);
 	gdk_pixmap_unref (axis->pixmap[1]);
-	g_free (axis->label);
+	g_free ( (gpointer) (axis->label) );
 }
 
 static void axis_display (struct axis *axis)

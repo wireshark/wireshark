@@ -848,7 +848,7 @@ tree_view_new(GtkTreeModel *model)
 
 #if GTK_MAJOR_VERSION < 2
 GtkWidget *
-ctree_new_with_titles(gint columns, gint tree_column, gchar *titles[])
+ctree_new_with_titles(gint columns, gint tree_column, const gchar *titles[])
 {
   GtkWidget *tree;
 

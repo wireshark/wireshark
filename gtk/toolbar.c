@@ -424,7 +424,7 @@ static void toolbar_append_separator(GtkWidget *toolbar) {
 
 
 #define toolbar_icon(new_icon, window, xpm) { \
-    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask, &window->style->white, xpm); \
+    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask, &window->style->white, (gchar **) xpm); \
     new_icon = gtk_pixmap_new(icon, mask); \
     }
 

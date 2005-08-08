@@ -246,7 +246,7 @@ extern GtkWidget *ctree_new(gint columns, gint tree_column);
  * @return the newly created GtkCTree
  */
 extern GtkWidget *ctree_new_with_titles(gint columns, gint tree_column,
-				 gchar *titles[]);
+				 const gchar *titles[]);
 #else
 /** Create a GtkTreeView, give it the right styles, and remember it.
  *

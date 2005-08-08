@@ -69,7 +69,7 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   GdkBitmap   *mask;
   GtkStyle    *style;
   GdkColormap *cmap;
-  gchar      **icon;
+  const gchar **icon;
 
   /* Main window */
   switch (type) {
@@ -146,7 +146,7 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   style = gtk_widget_get_style(win);
   cmap  = gdk_colormap_get_system();
   pixmap = gdk_pixmap_colormap_create_from_xpm_d(NULL, cmap,  &mask,
-    &style->bg[GTK_STATE_NORMAL], icon);
+    &style->bg[GTK_STATE_NORMAL], (gchar **) icon);
   type_pm = gtk_pixmap_new(pixmap, mask);
   gtk_misc_set_alignment (GTK_MISC (type_pm), 0.5, 0.0);
   gtk_container_add(GTK_CONTAINER(top_hb), type_pm);
