@@ -1020,7 +1020,7 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
   GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(bv));
   GtkTextIter    iter;
   const char    *revstyle;
-  const gchar   *convline;
+  gchar         *convline;
   gsize          newsize;
   GtkTextMark   *mark = NULL;
 #endif
