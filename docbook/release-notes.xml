@@ -83,14 +83,20 @@ Gnu info
 
 	<listitem><para>
 	  The RSVP dissector could exhaust system memory.
-	  <!-- Fixed in  r15206 -->
+	  <!-- Fixed in r15206 -->
 	  Versions affected: 0.9.4 to 0.10.12.
 	</para></listitem>
 
 	<listitem><para>
 	  The ISIS LSP dissector could exhaust system memory.
-	  <!-- Fixed in  r15245 -->
+	  <!-- Fixed in r15245 -->
 	  Versions affected: 0.8.18 to 0.10.12.
+	</para></listitem>
+
+	<listitem><para>
+	  The IrDA dissector could crash.
+	  <!-- Fixed in r15265, r15267 -->
+	  Versions affected: 0.10.0 to 0.10.12.
 	</para></listitem>
 
       </itemizedlist>
