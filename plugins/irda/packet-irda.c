@@ -592,14 +592,14 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
                 char    attr_name[256];
 
 
+                iap_conv->pnext           = NULL;
+                iap_conv->iap_query_frame = pinfo->fd->num;
+                iap_conv->pattr_dissector = NULL;
+
                 tvb_memcpy(tvb, class_name, offset + 1 + 1, clen);
                 class_name[clen] = 0;
                 tvb_memcpy(tvb, attr_name, offset + 1 + 1 + clen + 1, alen);
                 attr_name[alen] = 0;
-
-                iap_conv->pnext           = NULL;
-                iap_conv->iap_query_frame = pinfo->fd->num;
-                iap_conv->pattr_dissector = NULL;
 
                 /* Find the attribute dissector */
                 for (i = 0; class_dissector[i].class_name != NULL; i++)
