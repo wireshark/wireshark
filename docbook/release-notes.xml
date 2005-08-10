@@ -99,6 +99,12 @@ Gnu info
 	  Versions affected: 0.10.0 to 0.10.12.
 	</para></listitem>
 
+	<listitem><para>
+	  The SLIMP3 dissector could overlfow a buffer.
+	  <!-- Fixed in r15279 -->
+	  Versions affected: 0.9.1 to 0.10.12.
+	</para></listitem>
+
       </itemizedlist>
     </para>
   </section>
