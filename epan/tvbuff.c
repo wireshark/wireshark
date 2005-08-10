@@ -1839,6 +1839,32 @@ tvb_get_stringz(tvbuff_t *tvb, gint offset, gint *lengthp)
 	*lengthp = size;
 	return strptr;
 }
+/*
+ * Given a tvbuff and an offset, with the offset assumed to refer to
+ * a null-terminated string, find the length of that string (and throw
+ * an exception if the tvbuff ends before we find the null), allocate
+ * a buffer big enough to hold the string, copy the string into it,
+ * and return a pointer to the string.  Also return the length of the
+ * string (including the terminating null) through a pointer.
+ *
+ * This function allocates memory from a buffer with packet lifetime.
+ * You do not have to free this buffer, it will be automatically freed
+ * when ethereal starts decoding the next packet.
+ * Do not use this function if you want the allocated memory to be persistent
+ * after the current packet has been dissected.
+ */
+guint8 *
+tvb_get_ephemeral_stringz(tvbuff_t *tvb, gint offset, gint *lengthp)
+{
+	guint size;
+	guint8 *strptr;
+
+	size = tvb_strsize(tvb, offset);
+	strptr = ep_alloc(size);
+	tvb_memcpy(tvb, strptr, offset, size);
+	*lengthp = size;
+	return strptr;
+}
 
 /* Looks for a stringz (NUL-terminated string) in tvbuff and copies
  * no more than bufsize number of bytes, including terminating NUL, to buffer.

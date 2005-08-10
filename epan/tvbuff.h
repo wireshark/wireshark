@@ -444,8 +444,17 @@ extern guint8 *tvb_get_ephemeral_string(tvbuff_t *tvb, gint offset, gint length)
  * a buffer big enough to hold the string, copy the string into it,
  * and return a pointer to the string.  Also return the length of the
  * string (including the terminating null) through a pointer.
+ *
+ * tvb_get_stringz() returns a string allocated by g_malloc() and therefore
+ *                   MUST be g_free() by the caller in order not to leak
+ *                   memory.
+ *
+ * tvb_get_ephemeral_stringz() returns a string that does not need to be freed,
+ *                   instead it will automatically be freed once the next
+ *                   packet is dissected.
  */
 extern guint8 *tvb_get_stringz(tvbuff_t *tvb, gint offset, gint *lengthp);
+extern guint8 *tvb_get_ephemeral_stringz(tvbuff_t *tvb, gint offset, gint *lengthp);
 
 /** Looks for a stringz (NUL-terminated string) in tvbuff and copies
  * no more than bufsize number of bytes, including terminating NUL, to buffer.
