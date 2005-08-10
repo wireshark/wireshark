@@ -78,30 +78,35 @@ Gnu info
 	<listitem><para>
 	  The FC-FCS dissector could exhaust system memory.
 	  <!-- Fixed in r15204 -->
+	  <!-- Bug: 312 -->
 	  Versions affected: 0.9.0 to 0.10.12.
 	</para></listitem>
 
 	<listitem><para>
 	  The RSVP dissector could exhaust system memory.
 	  <!-- Fixed in r15206 -->
+	  <!-- Bugs: 311, 314 -->
 	  Versions affected: 0.9.4 to 0.10.12.
 	</para></listitem>
 
 	<listitem><para>
 	  The ISIS LSP dissector could exhaust system memory.
 	  <!-- Fixed in r15245 -->
+	  <!-- Bugs: 320, 326 -->
 	  Versions affected: 0.8.18 to 0.10.12.
 	</para></listitem>
 
 	<listitem><para>
 	  The IrDA dissector could crash.
 	  <!-- Fixed in r15265, r15267 -->
+	  <!-- Bugs: 328, 329, 330, 334, 335, 336 -->
 	  Versions affected: 0.10.0 to 0.10.12.
 	</para></listitem>
 
 	<listitem><para>
 	  The SLIMP3 dissector could overflow a buffer.
 	  <!-- Fixed in r15279 -->
+	  <!-- Bug: 327 -->
 	  Versions affected: 0.9.1 to 0.10.12.
 	</para></listitem>
 
