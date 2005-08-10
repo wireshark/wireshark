@@ -327,8 +327,6 @@ dissect_smb_pdc_query(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, i
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " from %s", name);
 
-	g_free(name);
-
 	/* mailslot name */
 	offset = display_ms_string(tvb, tree, offset, hf_mailslot_name, NULL);
 
