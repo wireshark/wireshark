@@ -51,10 +51,6 @@
 #include <fcntl.h>
 #endif
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #ifdef NEED_STRERROR_H
 #include "strerror.h"
 #endif
@@ -458,7 +454,7 @@ cf_read(capture_file *cf)
     switch (err) {
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
-      snprintf(errmsg_errno, sizeof(errmsg_errno),
+      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                "The capture file has a packet with a network type that Ethereal doesn't support.\n(%s)",
                err_info);
       g_free(err_info);
@@ -476,7 +472,7 @@ cf_read(capture_file *cf)
       break;
 
     case WTAP_ERR_BAD_RECORD:
-      snprintf(errmsg_errno, sizeof(errmsg_errno),
+      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                "The capture file appears to be damaged or corrupt.\n(%s)",
                err_info);
       g_free(err_info);
@@ -484,13 +480,13 @@ cf_read(capture_file *cf)
       break;
 
     default:
-      snprintf(errmsg_errno, sizeof(errmsg_errno),
+      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
 	       "An error occurred while reading the"
 	       " capture file: %s.", wtap_strerror(err));
       errmsg = errmsg_errno;
       break;
     }
-    snprintf(err_str, sizeof err_str, errmsg);
+    g_snprintf(err_str, sizeof err_str, errmsg);
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, err_str);
     return CF_READ_ERROR;
   } else
@@ -1072,7 +1068,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
 	switch (read_err) {
 
 	case WTAP_ERR_UNSUPPORTED_ENCAP:
-	  snprintf(errmsg_errno, sizeof(errmsg_errno),
+	  g_snprintf(errmsg_errno, sizeof(errmsg_errno),
 		   "The capture file %%s has a packet with a network type that Ethereal doesn't support.\n(%s)",
 		   err_info);
 	  g_free(err_info);
@@ -1090,7 +1086,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
 	  break;
 
 	case WTAP_ERR_BAD_RECORD:
-	  snprintf(errmsg_errno, sizeof(errmsg_errno),
+	  g_snprintf(errmsg_errno, sizeof(errmsg_errno),
 		   "The capture file %%s appears to be damaged or corrupt.\n(%s)",
 		   err_info);
 	  g_free(err_info);
@@ -1098,13 +1094,13 @@ cf_merge_files(char **out_filenamep, int in_file_count,
 	  break;
 
 	default:
-	  snprintf(errmsg_errno, sizeof(errmsg_errno),
+	  g_snprintf(errmsg_errno, sizeof(errmsg_errno),
 		   "An error occurred while reading the"
 		   " capture file %%s: %s.", wtap_strerror(read_err));
 	  errmsg = errmsg_errno;
 	  break;
 	}
-	snprintf(err_str, sizeof err_str, errmsg, in_files[i].filename);
+	g_snprintf(err_str, sizeof err_str, errmsg, in_files[i].filename);
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, err_str);
       }
     }
@@ -1702,7 +1698,7 @@ print_packet(capture_file *cf, frame_data *fdata,
    * We generate bookmarks, if the output format supports them.
    * The name is "__frameN__".
    */
-  sprintf(bookmark_name, "__frame%u__", fdata->num);
+  g_snprintf(bookmark_name, sizeof bookmark_name, "__frame%u__", fdata->num);
 
   if (args->print_args->print_summary) {
     if (args->print_header_line) {
@@ -1753,7 +1749,7 @@ print_packet(capture_file *cf, frame_data *fdata,
      * Generate a bookmark, using "Frame N" as the title, as we're not
      * printing the summary line.
      */
-    sprintf(bookmark_title, "Frame %u", fdata->num);
+    g_snprintf(bookmark_title, sizeof bookmark_title, "Frame %u", fdata->num);
     if (!print_bookmark(args->print_args->stream, bookmark_name,
                         bookmark_title))
       goto fail;
@@ -3379,7 +3375,7 @@ file_rename_error_message(int err)
     break;
 
   default:
-    snprintf(errmsg_errno, sizeof(errmsg_errno),
+    g_snprintf(errmsg_errno, sizeof(errmsg_errno),
 		    "The file \"%%s\" could not be moved: %s.",
 				wtap_strerror(err));
     errmsg = errmsg_errno;
@@ -3396,19 +3392,19 @@ cf_read_error_message(int err, const gchar *err_info)
   switch (err) {
 
   case WTAP_ERR_UNSUPPORTED_ENCAP:
-      snprintf(errmsg_errno, sizeof(errmsg_errno),
+      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                "The file \"%%s\" has a packet with a network type that Ethereal doesn't support.\n(%s)",
                err_info);
       break;
 
   case WTAP_ERR_BAD_RECORD:
-    snprintf(errmsg_errno, sizeof(errmsg_errno),
+    g_snprintf(errmsg_errno, sizeof(errmsg_errno),
 	     "An error occurred while reading from the file \"%%s\": %s.\n(%s)",
 	     wtap_strerror(err), err_info);
     break;
 
   default:
-    snprintf(errmsg_errno, sizeof(errmsg_errno),
+    g_snprintf(errmsg_errno, sizeof(errmsg_errno),
 	     "An error occurred while reading from the file \"%%s\": %s.",
 	     wtap_strerror(err));
     break;
