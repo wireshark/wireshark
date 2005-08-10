@@ -674,13 +674,12 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		offset += 1;
 
 		/* name of computer to which to send reply */
-		computer_name = tvb_get_stringz(tvb, offset, &namelen);
+		computer_name = tvb_get_ephemeral_stringz(tvb, offset, &namelen);
 		proto_tree_add_string(tree, hf_response_computer_name,
 			tvb, offset, namelen, computer_name);
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_fstr(
 				pinfo->cinfo, COL_INFO, " %s", computer_name);
-		g_free(computer_name);
 		offset += namelen;
 		break;
 	}

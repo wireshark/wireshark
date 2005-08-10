@@ -510,10 +510,9 @@ process_app0_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 
 	proto_tree_add_item(subtree, hf_len, tvb, 2, 2, FALSE);
 
-	str = tvb_get_stringz(tvb, 4, &str_size);
+	str = tvb_get_ephemeral_stringz(tvb, 4, &str_size);
 	ti = proto_tree_add_item(subtree, hf_identifier, tvb, 4, str_size, FALSE);
 	if (strcmp(str, "JFIF") == 0) {
-		g_free(str);
 		/* Version */
 		ti = proto_tree_add_none_format(subtree, hf_version,
 				tvb, 9, 2, "Version: %u.%u",
@@ -551,7 +550,6 @@ process_app0_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 			}
 		}
 	} else if (strcmp(str, "JFXX") == 0) {
-		g_free(str);
 		proto_tree_add_item(subtree, hf_extension_code,
 				tvb, 9, 1, FALSE);
 		{
@@ -568,7 +566,6 @@ process_app0_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 			}
 		}
 	} else { /* Unknown */
-		g_free(str);
 		proto_item_append_text(ti, " (unknown identifier)");
 		offset = 4 + str_size;
 
@@ -607,7 +604,7 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 	proto_tree_add_item(subtree, hf_len, tvb, offset, 2, FALSE);
 	offset += 2;
 
-	str = tvb_get_stringz(tvb, offset, &str_size);
+	str = tvb_get_ephemeral_stringz(tvb, offset, &str_size);
 	ti = proto_tree_add_item(subtree, hf_identifier, tvb, offset, str_size, FALSE);
 	offset += str_size;
 	if (strcmp(str, "Exif") == 0) {
@@ -618,8 +615,6 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 		guint16 val_16;
 		guint32 val_32;
 		guint16 num_fields;
-
-		g_free(str);
 
 		offset++; /* Skip a byte supposed to be 0x00 */
 
@@ -734,7 +729,6 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 				break;
 		}
 	} else {
-		g_free(str);
 		proto_tree_add_text(subtree, tvb, offset, -1,
 				"Remaining segment data (%u bytes)", len - 2 - str_size);
 		proto_item_append_text(ti, " (Unknown identifier)");
@@ -766,13 +760,11 @@ process_app2_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 
 	proto_tree_add_item(subtree, hf_len, tvb, 2, 2, FALSE);
 
-	str = tvb_get_stringz(tvb, 4, &str_size);
+	str = tvb_get_ephemeral_stringz(tvb, 4, &str_size);
 	ti = proto_tree_add_item(subtree, hf_identifier, tvb, 4, str_size, FALSE);
 	if (strcmp(str, "FPXR") == 0) {
-		g_free(str);
 		proto_tree_add_text(tree, tvb, 0, -1, "Exif FlashPix APP2 application marker");
 	} else {
-		g_free(str);
 		proto_tree_add_text(subtree, tvb, 4 + str_size, -1,
 				"Remaining segment data (%u bytes)", len - 2 - str_size);
 		proto_item_append_text(ti, " (Unknown identifier)");

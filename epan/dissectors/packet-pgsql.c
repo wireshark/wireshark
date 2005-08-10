@@ -492,28 +492,24 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
     switch (type) {
     /* Password */
     case 'p':
-        s = tvb_get_stringz(tvb, n, &l);
+        s = tvb_get_ephemeral_stringz(tvb, n, &l);
         proto_tree_add_string(tree, hf_passwd, tvb, n, l, s);
-        g_free(s);
         break;
 
     /* Simple query */
     case 'Q':
-        s = tvb_get_stringz(tvb, n, &l);
+        s = tvb_get_ephemeral_stringz(tvb, n, &l);
         proto_tree_add_string(tree, hf_query, tvb, n, l, s);
-        g_free(s);
         break;
 
     /* Parse */
     case 'P':
-        s = tvb_get_stringz(tvb, n, &l);
+        s = tvb_get_ephemeral_stringz(tvb, n, &l);
         proto_tree_add_string(tree, hf_statement, tvb, n, l, s);
-        g_free(s);
         n += l;
 
-        s = tvb_get_stringz(tvb, n, &l);
+        s = tvb_get_ephemeral_stringz(tvb, n, &l);
         proto_tree_add_string(tree, hf_query, tvb, n, l, s);
-        g_free(s);
         n += l;
 
         i = tvb_get_ntohs(tvb, n);
@@ -528,14 +524,12 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
 
     /* Bind */
     case 'B':
-        s = tvb_get_stringz(tvb, n, &l);
+        s = tvb_get_ephemeral_stringz(tvb, n, &l);
         proto_tree_add_string(tree, hf_portal, tvb, n, l, s);
-        g_free(s);
         n += l;
 
-        s = tvb_get_stringz(tvb, n, &l);
+        s = tvb_get_ephemeral_stringz(tvb, n, &l);
         proto_tree_add_string(tree, hf_statement, tvb, n, l, s);
-        g_free(s);
         n += l;
 
         i = tvb_get_ntohs(tvb, n);
@@ -573,9 +567,8 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
 
     /* Execute */
     case 'E':
-        s = tvb_get_stringz(tvb, n, &l);
+        s = tvb_get_ephemeral_stringz(tvb, n, &l);
         proto_tree_add_string(tree, hf_portal, tvb, n, l, s);
-        g_free(s);
         n += l;
 
         ti = proto_tree_add_text(tree, tvb, n, 4, "Returns: ");
@@ -599,13 +592,12 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
 
         if (i != 0) {
             n += 1;
-            s = tvb_get_stringz(tvb, n, &l);
+            s = tvb_get_ephemeral_stringz(tvb, n, &l);
             proto_tree_add_string_hidden(tree, i, tvb, n, l, s);
             proto_tree_add_text(
                 tree, tvb, n-1, l, "%s: %s",
                 (c == 'P' ? "Portal" : "Statement"), s
             );
-            g_free(s);
         }
         break;
 
@@ -618,16 +610,13 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
         /* Startup message */
         case 196608:
             while (length > 0) {
-                s = tvb_get_stringz(tvb, n, &l);
+                s = tvb_get_ephemeral_stringz(tvb, n, &l);
                 length -= l;
                 if (length <= 0) {
-                    g_free(s);
                     break;
                 }
-                t = tvb_get_stringz(tvb, n+l, &i);
+                t = tvb_get_ephemeral_stringz(tvb, n+l, &i);
                 proto_tree_add_text(tree, tvb, n, l+i, "%s: %s", s, t);
-                g_free(s);
-                g_free(t);
                 n += l+i;
                 length -= i;
                 if (length == 1 && tvb_get_guint8(tvb, n) == 0)
@@ -656,9 +645,8 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
 
     /* Copy failure */
     case 'f':
-        s = tvb_get_stringz(tvb, n, &l);
+        s = tvb_get_ephemeral_stringz(tvb, n, &l);
         proto_tree_add_string(tree, hf_error, tvb, n, l, s);
-        g_free(s);
         break;
 
     /* Function call */
@@ -725,14 +713,12 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
 
     /* Parameter status */
     case 'S':
-        s = tvb_get_stringz(tvb, n, &l);
+        s = tvb_get_ephemeral_stringz(tvb, n, &l);
         proto_tree_add_string_hidden(tree, hf_parameter_name, tvb, n, l, s);
         n += l;
-        t = tvb_get_stringz(tvb, n, &i);
+        t = tvb_get_ephemeral_stringz(tvb, n, &i);
         proto_tree_add_string_hidden(tree, hf_parameter_value, tvb, n, i, t);
         proto_tree_add_text(tree, tvb, n-l, l+i, "%s: %s", s, t);
-        g_free(s);
-        g_free(t);
         break;
 
     /* Parameter description */
@@ -754,10 +740,9 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
         n += 2;
         while (i-- > 0) {
             proto_tree *twig;
-            s = tvb_get_stringz(tvb, n, &l);
+            s = tvb_get_ephemeral_stringz(tvb, n, &l);
             ti = proto_tree_add_string(shrub, hf_val_name, tvb, n, l, s);
             twig = proto_item_add_subtree(ti, ett_values);
-            g_free(s);
             n += l;
             proto_tree_add_item(twig, hf_tableoid, tvb, n, 4, FALSE);
             n += 4;
@@ -793,9 +778,8 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
 
     /* Command completion */
     case 'C':
-        s = tvb_get_stringz(tvb, n, &l);
+        s = tvb_get_ephemeral_stringz(tvb, n, &l);
         proto_tree_add_string(tree, hf_tag, tvb, n, l, s);
-        g_free(s);
         break;
 
     /* Ready */
@@ -811,7 +795,7 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
             c = tvb_get_guint8(tvb, n);
             if (c == '\0')
                 break;
-            s = tvb_get_stringz(tvb, n+1, &l);
+            s = tvb_get_ephemeral_stringz(tvb, n+1, &l);
             i = hf_text;
             switch (c) {
             case 'S': i = hf_severity; break;
@@ -826,7 +810,6 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
             case 'R': i = hf_routine; break;
             }
             proto_tree_add_string(tree, i, tvb, n, l+1, s);
-            g_free(s);
             n += l+1;
         }
         break;
@@ -835,14 +818,12 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
     case 'A':
         proto_tree_add_item(tree, hf_pid, tvb, n, 4, FALSE);
         n += 4;
-        s = tvb_get_stringz(tvb, n, &l);
+        s = tvb_get_ephemeral_stringz(tvb, n, &l);
         proto_tree_add_string(tree, hf_condition, tvb, n, l, s);
-        g_free(s);
         n += l;
-        s = tvb_get_stringz(tvb, n, &l);
+        s = tvb_get_ephemeral_stringz(tvb, n, &l);
         if (l > 1)
             proto_tree_add_string(tree, hf_text, tvb, n, l, s);
-        g_free(s);
         break;
 
     /* Copy in/out */
