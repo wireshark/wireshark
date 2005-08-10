@@ -578,13 +578,12 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * we need to dissect it as such.
 			 */
 			client_identifier_str =
-			    tvb_get_string(tvb, offset, option_length);
+			    ep_tvb_get_string(tvb, offset, option_length);
 			proto_item_append_text(oi,", \"%s\"",
 			    format_text(client_identifier_str, option_length));
 			proto_tree_add_string(option_tree,
 			    hf_dhcpfo_client_identifier, tvb, offset,
 			    option_length, client_identifier_str);
-			g_free(client_identifier_str);
 			break;
 
 		case DHCP_FO_PD_CLIENT_HARDWARE_ADDRESS:
@@ -656,13 +655,12 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_VENDOR_CLASS:
 			vendor_class_str =
-			    tvb_get_string(tvb, offset, option_length);
+			    ep_tvb_get_string(tvb, offset, option_length);
 			proto_item_append_text(oi,", \"%s\"",
 			    format_text(vendor_class_str, option_length));
 			proto_tree_add_string(option_tree,
 			    hf_dhcpfo_vendor_class, tvb, offset,
 			    option_length, vendor_class_str);
-			g_free(vendor_class_str);
 			break;
 
 		case DHCP_FO_PD_LEASE_EXPIRATION_TIME:
