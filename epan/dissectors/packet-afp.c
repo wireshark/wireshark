@@ -3741,7 +3741,7 @@ dissect_reply_afp_list_ext_attrs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		item = proto_tree_add_text(tree, tvb, offset, remain , "Attributes");
 		sub_tree = proto_item_add_subtree(item, ett_afp_extattr_names);
 		while ( remain > 0) {
-			tvb_get_stringz(tvb, offset, &length);  
+			tvb_get_ephemeral_stringz(tvb, offset, &length);  
  			proto_tree_add_item(sub_tree, hf_afp_extattr_name, tvb, offset, length, FALSE);
 			offset += length;
 			remain -= length;
