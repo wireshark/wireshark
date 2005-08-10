@@ -85,7 +85,7 @@ static void build_enum_values(GtkWidget *value_list_scrolled_win,
                               GtkWidget *value_list,
                               const value_string *values);
 static void add_value_list_item(GtkWidget *value_list, const gchar *string,
-                                gpointer data);
+                                const gpointer data);
 static void display_value_fields(header_field_info *hfinfo,
                                  gboolean is_comparison, GtkWidget *value_label,
                                  GtkWidget *value_entry, 
@@ -431,7 +431,7 @@ build_boolean_values(GtkWidget *value_list_scrolled_win, GtkWidget *value_list,
      */
     if (values == NULL)
         values = &true_false;
-    add_value_list_item(value_list, values->true_string, values);
+    add_value_list_item(value_list, values->true_string, (const gpointer) values);
     add_value_list_item(value_list, values->false_string, NULL);
 
     /*
@@ -488,7 +488,7 @@ build_enum_values(GtkWidget *value_list_scrolled_win _U_, GtkWidget *value_list,
      */
     while (values->strptr != NULL) {
         add_value_list_item(value_list, values->strptr,
-                            values);
+                            (const gpointer) values);
         values++;
     }
 
@@ -503,7 +503,7 @@ build_enum_values(GtkWidget *value_list_scrolled_win _U_, GtkWidget *value_list,
 }
 
 static void
-add_value_list_item(GtkWidget *value_list, const gchar *string, gpointer data)
+add_value_list_item(GtkWidget *value_list, const gchar *string, const gpointer data)
 {
 #if GTK_MAJOR_VERSION < 2
     GtkWidget *label, *item;
@@ -1078,7 +1078,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 #if GTK_MAJOR_VERSION < 2
     int len;
     void *cookie;
-    gchar *name;
+    const gchar *name;
     GHashTable *proto_array;
     GtkCTreeNode *protocol_node, *item_node;
 #else
@@ -1326,7 +1326,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
         name = proto_get_protocol_short_name(protocol); /* name, short_name or filter name ? */
         protocol_node = gtk_ctree_insert_node(GTK_CTREE(field_tree),
                                               NULL, NULL,
-                                              &name, 5,
+                                              (gchar **) &name, 5,
                                               NULL, NULL, NULL, NULL,
                                               FALSE, FALSE);
         gtk_ctree_node_set_row_data(GTK_CTREE(field_tree), protocol_node,

@@ -558,10 +558,10 @@ packet_list_set_column_titles(void)
     win_style = gtk_widget_get_style(top_level);
     ascend_pm = gdk_pixmap_create_from_xpm_d(top_level->window, &ascend_bm,
                                              &win_style->bg[GTK_STATE_NORMAL],
-                                             clist_ascend_xpm);
+                                             (gchar **) clist_ascend_xpm);
     descend_pm = gdk_pixmap_create_from_xpm_d(top_level->window, &descend_bm,
                                               &win_style->bg[GTK_STATE_NORMAL],
-                                              clist_descend_xpm);
+                                              (gchar **) clist_descend_xpm);
 
     col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) *
                                             cfile.cinfo.num_cols);
@@ -702,7 +702,7 @@ packet_list_append(const gchar *text[], gpointer data)
 {
     gint row;
 
-    row = eth_clist_append(ETH_CLIST(packet_list), text);
+    row = eth_clist_append(ETH_CLIST(packet_list), (gchar **) text);
     eth_clist_set_row_data(ETH_CLIST(packet_list), row, data);
     return row;
 }

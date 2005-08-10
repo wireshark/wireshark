@@ -3113,11 +3113,11 @@ column_arrows* add_sort_by_column(GtkWidget* window, GtkWidget* clist,
 	ascend_pm = gdk_pixmap_create_from_xpm_d(window->window,
 			&ascend_bm,
 			&win_style->bg[GTK_STATE_NORMAL],
-			(const gchar **)clist_ascend_xpm);
+			(gchar **)clist_ascend_xpm);
 	descend_pm = gdk_pixmap_create_from_xpm_d(window->window,
 			&descend_bm,
 			&win_style->bg[GTK_STATE_NORMAL],
-			(const gchar **)clist_descend_xpm);
+			(gchar **)clist_descend_xpm);
 
 	for (i=0; i<NUM_COLS; i++) {
 		col_arrows[i].table = gtk_table_new(2, 2, FALSE);

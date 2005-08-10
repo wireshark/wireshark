@@ -145,7 +145,7 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_widget_show(proto_sw);
 
 #if GTK_MAJOR_VERSION < 2
-  proto_list = gtk_clist_new_with_titles(3, titles);
+  proto_list = gtk_clist_new_with_titles(3, (gchar **) titles);
   gtk_container_add(GTK_CONTAINER(proto_sw), proto_list);
   gtk_clist_set_selection_mode(GTK_CLIST(proto_list), GTK_SELECTION_BROWSE);
   gtk_clist_column_titles_passive(GTK_CLIST(proto_list));
@@ -540,7 +540,7 @@ show_proto_selection(GtkListStore *proto_store)
   protocol_t *protocol;
   protocol_data_t *p;
 #if GTK_MAJOR_VERSION < 2
-  gchar *proto_text[3];
+  const gchar *proto_text[3];
 #endif
 
   /* Iterate over all the protocols */
@@ -572,7 +572,7 @@ show_proto_selection(GtkListStore *proto_store)
     proto_text[0] = STATUS_TXT (p->enabled);
     proto_text[1] = p->abbrev;
     proto_text[2] = p->name;
-    p->row = gtk_clist_append(proto_list, proto_text);
+    p->row = gtk_clist_append(proto_list, (gchar **) proto_text);
     gtk_clist_set_row_data(proto_list, p->row, p);
 #else
     gtk_list_store_append(proto_store, &p->iter);

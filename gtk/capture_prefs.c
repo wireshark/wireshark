@@ -288,7 +288,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	/*
 	 * Create current options CList.
 	 */
-	cur_clist = gtk_clist_new_with_titles(IFOPTS_CLIST_COLS, cur_titles);
+	cur_clist = gtk_clist_new_with_titles(IFOPTS_CLIST_COLS, (gchar **) cur_titles);
 	gtk_clist_set_column_width(GTK_CLIST(cur_clist), 1, 230);
 	gtk_clist_set_column_width(GTK_CLIST(cur_clist), 2, 260);
 	gtk_clist_set_column_width(GTK_CLIST(cur_clist), 3, 40);

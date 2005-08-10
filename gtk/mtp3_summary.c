@@ -222,7 +222,7 @@ mtp3_sum_draw(
 
 	entries[5] = (seconds) ? g_strdup_printf("%.2f", num_bytes/seconds) : "N/A";
 
-	gtk_clist_insert(GTK_CLIST(table), i, entries);
+	gtk_clist_insert(GTK_CLIST(table), i, (gchar **) entries);
     }
 
     gtk_clist_sort(GTK_CLIST(table));

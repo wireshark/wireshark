@@ -79,7 +79,7 @@ column_prefs_show() {
   gint               i;
   const gchar       *column_titles[] = {"Title", "Format"};
 #if GTK_MAJOR_VERSION < 2
-  gchar             *col_ent[2];
+  const gchar       *col_ent[2];
   gint               row;
 #else
   GtkListStore      *store;
@@ -154,7 +154,7 @@ column_prefs_show() {
   gtk_widget_show(list_sc);
 
 #if GTK_MAJOR_VERSION < 2
-  column_l = gtk_clist_new_with_titles(2, column_titles);
+  column_l = gtk_clist_new_with_titles(2, (gchar **) column_titles);
   /* XXX - make this match the packet list prefs? */
   gtk_clist_set_selection_mode(GTK_CLIST(column_l), GTK_SELECTION_SINGLE);
   gtk_clist_column_titles_passive(GTK_CLIST(column_l));
@@ -196,7 +196,7 @@ column_prefs_show() {
 #if GTK_MAJOR_VERSION < 2
     col_ent[0] = cfmt->title;
     col_ent[1] = col_format_desc(get_column_format_from_str(cfmt->fmt));
-    row = gtk_clist_append(GTK_CLIST(column_l), col_ent);
+    row = gtk_clist_append(GTK_CLIST(column_l), (gchar **) col_ent);
     gtk_clist_set_row_data(GTK_CLIST(column_l), row, clp);
 #else
     gtk_list_store_append(store, &iter);
@@ -425,7 +425,7 @@ column_list_new_cb(GtkWidget *w _U_, gpointer data _U_) {
     fmt_data     *cfmt;
     const gchar  *title = "New Column";
 #if GTK_MAJOR_VERSION < 2
-    gchar        *col_ent[2];
+    const gchar  *col_ent[2];
 #else
     GtkTreeModel *model;
     GtkTreeIter   iter;
@@ -442,7 +442,7 @@ column_list_new_cb(GtkWidget *w _U_, gpointer data _U_) {
 #if GTK_MAJOR_VERSION < 2
     col_ent[0] = title;
     col_ent[1] = col_format_desc(cur_fmt);
-    cur_row = gtk_clist_append(GTK_CLIST(column_l), col_ent);
+    cur_row = gtk_clist_append(GTK_CLIST(column_l), (gchar **) col_ent);
     gtk_clist_set_row_data(GTK_CLIST(column_l), cur_row,
                            g_list_last(prefs.col_list));
 

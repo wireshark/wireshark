@@ -852,7 +852,7 @@ ctree_new_with_titles(gint columns, gint tree_column, const gchar *titles[])
 {
   GtkWidget *tree;
 
-  tree = gtk_ctree_new_with_titles(columns, tree_column, titles);
+  tree = gtk_ctree_new_with_titles(columns, tree_column, (gchar **) titles);
   setup_tree(tree);
   return tree;
 }
@@ -968,7 +968,7 @@ simple_list_new(gint cols, const gchar **titles) {
 
 
 #if GTK_MAJOR_VERSION < 2
-    plugins_list = gtk_clist_new_with_titles(cols, titles);
+    plugins_list = gtk_clist_new_with_titles(cols, (gchar **) titles);
     gtk_clist_set_selection_mode(GTK_CLIST(plugins_list), GTK_SELECTION_SINGLE);
     gtk_clist_column_titles_passive(GTK_CLIST(plugins_list));
     if(titles) {

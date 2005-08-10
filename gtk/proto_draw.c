@@ -1378,7 +1378,7 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
         convline = g_locale_to_utf8(line, cur, NULL, &newsize, NULL);
         gtk_text_buffer_insert_with_tags_by_name(buf, &iter, convline, newsize,
                                                  revstyle, NULL);
-        g_free(convline);
+        g_free( (gpointer) convline);
         cur = 0;
       }
       if (i < k) {
@@ -1392,7 +1392,7 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
         convline = g_locale_to_utf8(line, cur, NULL, &newsize, NULL);
         gtk_text_buffer_insert_with_tags_by_name(buf, &iter, convline, newsize,
                                                  "plain", NULL);
-        g_free(convline);
+        g_free( (gpointer) convline);
         cur = 0;
       }
       reverse = newreverse;
@@ -1402,7 +1402,7 @@ packet_hex_print_common(GtkTextView *bv, const guint8 *pd, int len, int bstart,
     gtk_text_buffer_insert_with_tags_by_name(buf, &iter, convline, newsize,
                                              reverse ? revstyle : "plain",
                                              NULL);
-    g_free(convline);
+    g_free( (gpointer) convline);
     cur = 0;
     line[cur++] = '\n';
     gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,

@@ -74,8 +74,8 @@ fill_in_tree_node(GNode *node, gpointer data)
     ph_stats_t      *ps = di->ps;
     gboolean        is_leaf;
     draw_info_t     child_di;
-    double	    seconds;
-    const gchar     *text[NUM_STAT_COLUMNS];
+    double          seconds;
+    gchar           *text[NUM_STAT_COLUMNS];
 #if GTK_MAJOR_VERSION < 2
     GtkCTree        *tree = di->tree;
     GtkCTreeNode    *parent = di->parent;
@@ -96,7 +96,7 @@ fill_in_tree_node(GNode *node, gpointer data)
 
     seconds = ps->last_time - ps->first_time;
 
-    text[0] = stats->hfinfo->name;
+    text[0] = (gchar *) (stats->hfinfo->name);
     text[1] = g_strdup_printf("%6.2f%%",
                               PCT(stats->num_pkts_total, ps->tot_packets));
     text[2] = g_strdup_printf("%u", stats->num_pkts_total);

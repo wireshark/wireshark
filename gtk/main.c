@@ -343,7 +343,7 @@ selected_ptree_info_cb(GtkWidget *widget _U_, gpointer data _U_)
                     "Hint 2: If you want to add a new protocol page, you should use the ProtocolTemplate,\n"
                     "which will save you a lot of editing and will give a consistent look over the pages.",
                     proto_abbrev, proto_abbrev);
-        simple_dialog_set_cb(dialog, selected_ptree_info_answered_cb, proto_abbrev);
+        simple_dialog_set_cb(dialog, selected_ptree_info_answered_cb, (gpointer) proto_abbrev);
     }
 }
 

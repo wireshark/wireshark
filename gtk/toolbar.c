@@ -410,7 +410,7 @@ static void toolbar_append_separator(GtkWidget *toolbar) {
 
 #if GTK_MAJOR_VERSION < 2
 #define toolbar_item(new_item, window, toolbar, stock, tooltip, xpm, callback, user_data) { \
-    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask, &window->style->white, xpm); \
+    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask, &window->style->white, (gchar **) xpm); \
     iconw = gtk_pixmap_new(icon, mask); \
     new_item = gtk_toolbar_append_item(GTK_TOOLBAR (toolbar), \
         stock, tooltip, "Private", iconw, GTK_SIGNAL_FUNC(callback), user_data);\

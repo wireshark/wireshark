@@ -107,7 +107,7 @@ create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, cons
 	int i;
 
 	/* create table */
-	table = GTK_CLIST(gtk_clist_new_with_titles(columns, titles));
+	table = GTK_CLIST(gtk_clist_new_with_titles(columns, (gchar **) titles));
 
 	gtk_box_pack_start(GTK_BOX(vbox), scrolled_window, TRUE, TRUE, 0);
 

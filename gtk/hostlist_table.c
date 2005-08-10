@@ -1041,7 +1041,7 @@ add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, g
 
     /* if this was a new talker we have to create a clist row for it */
     if(new_talker){
-        const char *entries[NUM_COLS];
+        char *entries[NUM_COLS];
         char frames[16],bytes[16],txframes[16],txbytes[16],rxframes[16],rxbytes[16];
 
         /* these values will be filled by call to draw_hostlist_table_addresses() below */

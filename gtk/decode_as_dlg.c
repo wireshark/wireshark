@@ -285,7 +285,7 @@ const gchar *current_proto_name)
     text[E_LIST_D_INITIAL] = initial_proto_name;
     text[E_LIST_D_CURRENT] = current_proto_name;
 #if GTK_MAJOR_VERSION < 2
-    row = gtk_clist_prepend(clist, text);
+    row = gtk_clist_prepend(clist, (gchar **) text);
 #else
     gtk_list_store_append(store, &iter);
     gtk_list_store_set(store, &iter, E_LIST_D_TABLE, text[E_LIST_D_TABLE],
@@ -555,7 +555,7 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
     {
 	/* Initialize list */
 #if GTK_MAJOR_VERSION < 2
-	list = GTK_CLIST(gtk_clist_new_with_titles(E_LIST_D_COLUMNS, titles));
+	list = GTK_CLIST(gtk_clist_new_with_titles(E_LIST_D_COLUMNS, (gchar **) titles));
 	gtk_clist_column_titles_passive(list);
 	for (column = 0; column < E_LIST_D_COLUMNS; column++)
 	    gtk_clist_set_column_auto_resize(list, column, TRUE);
@@ -1266,7 +1266,7 @@ decode_add_to_list (const gchar *table_name, const gchar *proto_name, gpointer v
     text[E_LIST_S_PROTO_NAME] = proto_name;
     text[E_LIST_S_TABLE] = table_name;
 #if GTK_MAJOR_VERSION < 2
-    row = gtk_clist_prepend(list, text);
+    row = gtk_clist_prepend(list, (gchar **) text);
     gtk_clist_set_row_data(list, row, value);
 #else
     gtk_list_store_append(store, &iter);
@@ -1398,7 +1398,7 @@ decode_list_menu_finish(GtkWidget *list)
     text[E_LIST_S_PROTO_NAME] = "(default)";
     text[E_LIST_S_TABLE] = "(none)";
 #if GTK_MAJOR_VERSION < 2
-    row = gtk_clist_prepend(GTK_CLIST(list), text);
+    row = gtk_clist_prepend(GTK_CLIST(list), (gchar **) text);
     gtk_clist_set_row_data(GTK_CLIST(list), row, NULL);
 
     gtk_clist_select_row(GTK_CLIST(list), 0, -1);
@@ -1476,8 +1476,8 @@ decode_add_simple_page (const gchar *prompt, const gchar *title, const gchar *ta
 
     page = gtk_hbox_new(FALSE, 5);
     OBJECT_SET_DATA(page, E_PAGE_ACTION, decode_simple);
-    OBJECT_SET_DATA(page, E_PAGE_TABLE, table_name);
-    OBJECT_SET_DATA(page, E_PAGE_TITLE, title);
+    OBJECT_SET_DATA(page, E_PAGE_TABLE, (gchar *) table_name);
+    OBJECT_SET_DATA(page, E_PAGE_TITLE, (gchar *) title);
     OBJECT_SET_DATA(page, E_PAGE_VALUE, GUINT_TO_POINTER(value));
 
     /* Always enabled */
@@ -1526,7 +1526,7 @@ decode_add_tcpudp_page (const gchar *prompt, const gchar *table_name)
 
     page = gtk_hbox_new(FALSE, 5);
     OBJECT_SET_DATA(page, E_PAGE_ACTION, decode_transport);
-    OBJECT_SET_DATA(page, E_PAGE_TABLE, table_name);
+    OBJECT_SET_DATA(page, E_PAGE_TABLE, (gchar *) table_name);
     OBJECT_SET_DATA(page, E_PAGE_TITLE, "Transport");
 
     /* Always enabled */
@@ -1729,7 +1729,7 @@ decode_add_sctp_page (const gchar *prompt, const gchar *table_name)
 
     page = gtk_hbox_new(FALSE, 5);
     OBJECT_SET_DATA(page, E_PAGE_ACTION, decode_transport);
-    OBJECT_SET_DATA(page, E_PAGE_TABLE, table_name);
+    OBJECT_SET_DATA(page, E_PAGE_TABLE, (gchar *) table_name);
     OBJECT_SET_DATA(page, E_PAGE_TITLE, "Transport");
 
     vbox = gtk_vbox_new(FALSE, 5);

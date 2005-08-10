@@ -317,7 +317,7 @@ colorize_dialog_new (char *filter)
   gtk_box_pack_start (GTK_BOX (list_vbox), scrolledwindow1, TRUE, TRUE, 0);
 
 #if GTK_MAJOR_VERSION < 2
-  color_filters = gtk_clist_new_with_titles(2, titles);
+  color_filters = gtk_clist_new_with_titles(2, (gchar **) titles);
 #else
   /* the list store contains : filter name, filter string, foreground
    * color, background color, pointer to color filter */
