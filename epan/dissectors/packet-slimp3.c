@@ -35,6 +35,8 @@
 #include <string.h>
 #include <epan/packet.h>
 
+#include "isprint.h"
+
 static int proto_slimp3 = -1;
 static int hf_slimp3_opcode = -1;
 static int hf_slimp3_ir = -1;
@@ -219,6 +221,7 @@ static const value_string slimp3_mpg_control[] = {
     { 0, NULL }
 };
 
+#define MAX_LCD_STR_LEN 128
 static void
 dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -227,11 +230,13 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint		i1;
     gint		offset = 0;
     guint16		opcode;
-    char addc_str[101];
-    char *addc_strp;
+    char		lcd_char;
+    char		lcd_str[MAX_LCD_STR_LEN + 1];
     int			to_server = FALSE;
     int			old_protocol = FALSE;
     address		tmp_addr;
+    gboolean		in_str;
+    int			lcd_strlen;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SliMP3");
@@ -245,7 +250,6 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     }
 
-    addc_strp = addc_str;
     if (tree) {
 
 	ti = proto_tree_add_item(tree, proto_slimp3, tvb, offset, -1, FALSE);
@@ -345,8 +349,6 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case SLIMP3_DISPLAY:
 	if (tree) {
-	    gboolean in_str;
-	    int str_len;
 
 	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_display,
 				       tvb, offset, 1, FALSE);
@@ -354,35 +356,35 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    /* Loop through the commands */
 	    i1 = 18;
 	    in_str = FALSE;
-	    str_len = 0;
+	    lcd_strlen = 0;
 	    while (i1 < tvb_reported_length_remaining(tvb, offset)) {
 		switch(tvb_get_guint8(tvb, offset + i1)) {
 		case 0:
 		    in_str = FALSE;
-		    str_len = 0;
+		    lcd_strlen = 0;
 		    proto_tree_add_text(slimp3_tree, tvb, offset + i1, 2,
 					"Delay (%d ms)", tvb_get_guint8(tvb, offset + i1 + 1));
 		    i1 += 2;
 		    break;
 		case 3:
+		    lcd_char = tvb_get_guint8(tvb, offset + i1 + 1);
+		    if (!isprint(lcd_char)) lcd_char = '.';
 		    if (ti && in_str) {
-		    	str_len += 2;
-			proto_item_append_text(ti, "%c",
-					       tvb_get_guint8(tvb, offset + i1 + 1));
-			proto_item_set_len(ti, str_len);
+		    	lcd_strlen += 2;
+			proto_item_append_text(ti, "%c", lcd_char);
+			proto_item_set_len(ti, lcd_strlen);
 		    } else {
 			ti = proto_tree_add_text(slimp3_tree, tvb, offset + i1, 2,
-						 "String: %c",
-						 tvb_get_guint8(tvb, offset + i1 + 1));
+						 "String: %c", lcd_char);
 			in_str = TRUE;
-			str_len = 2;
+			lcd_strlen = 2;
 		    }
 		    i1 += 2;
 		    break;
 
 		case 2:
 		    in_str = FALSE;
-		    str_len = 0;
+		    lcd_strlen = 0;
 		    ti = proto_tree_add_text(slimp3_tree, tvb, offset + i1, 2,
 					     "Command: %s",
 					     val_to_str(tvb_get_guint8(tvb, offset + i1 + 1),
@@ -411,16 +413,17 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    i1 = 18;
-	    addc_strp = addc_str;
-	    while (tvb_offset_exists(tvb, offset + i1)) {
+	    lcd_strlen = 0;
+	    while (tvb_offset_exists(tvb, offset + i1) && 
+		    lcd_strlen < MAX_LCD_STR_LEN) {
 		switch (tvb_get_guint8(tvb, offset + i1)) {
 
 		case 0:
-		    *addc_strp++ = '.';
+		    lcd_str[lcd_strlen++] = '.';
 		    break;
 
 		case 2:
-		    *addc_strp++ = '|';
+		    lcd_str[lcd_strlen++] = '|';
 		    if (tvb_offset_exists(tvb, offset + i1 + 1) &&
 			  (tvb_get_guint8(tvb, offset + i1 + 1) & 0xf0) == 0x30)
 			i1 += 2;
@@ -428,17 +431,19 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case 3:
 		    if (tvb_offset_exists(tvb, offset + i1 + 1)) {
-			if (addc_strp == addc_str ||
-			      *(addc_strp-1) != ' ' ||
-			      tvb_get_guint8(tvb, offset + i1 + 1) != ' ')
-			    *addc_strp++ = tvb_get_guint8(tvb, offset + i1 + 1);
+			if (lcd_strlen < 1 ||
+			      lcd_str[lcd_strlen-1] != ' ' ||
+			      tvb_get_guint8(tvb, offset + i1 + 1) != ' ') {
+			    lcd_char = tvb_get_guint8(tvb, offset + i1 + 1);
+			    lcd_str[lcd_strlen++] = isprint(lcd_char) ? lcd_char : '.';
+			}
 		    }
 		}
 		i1 += 2;
 	    }
-	    *addc_strp = 0;
-	    if (addc_strp - addc_str > 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", addc_str);
+	    lcd_str[lcd_strlen] = '\0';
+	    if (lcd_strlen > 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", lcd_str);
 	}
 
 	break;
