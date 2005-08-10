@@ -364,7 +364,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tokenoffset = 2;
 		if (hf == hf_unknown)
 			tokenoffset = 0;
-		string = ep_tvb_get_string(tvb, offset + tokenoffset,
+		string = tvb_get_ephemeral_string(tvb, offset + tokenoffset,
 		    linelen - tokenoffset);
 		sub_ti = proto_tree_add_string_format(sdp_tree,hf,tvb, offset,
 					       linelen, string,
@@ -602,7 +602,7 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
     return;
   tokenlen = next_offset - offset;
   /* Save connection address type */
-  transport_info->connection_type = ep_tvb_get_string(tvb, offset, tokenlen);
+  transport_info->connection_type = tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
 
   proto_tree_add_item(sdp_connection_info_tree,
@@ -617,11 +617,11 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
     tokenlen = -1;	/* end of tvbuff */
     /* Save connection address */
     transport_info->connection_address =
-        ep_tvb_get_string(tvb, offset, tvb_length_remaining(tvb, offset));
+        tvb_get_ephemeral_string(tvb, offset, tvb_length_remaining(tvb, offset));
   } else {
     tokenlen = next_offset - offset;
     /* Save connection address */
-    transport_info->connection_address = ep_tvb_get_string(tvb, offset, tokenlen);
+    transport_info->connection_address = tvb_get_ephemeral_string(tvb, offset, tokenlen);
   }
 
   proto_tree_add_item(sdp_connection_info_tree,
@@ -827,7 +827,7 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, proto_item * ti){
 		      hf_session_attribute_field,
 		      tvb, offset, tokenlen, FALSE);
 
-  field_name = ep_tvb_get_string(tvb, offset, tokenlen);
+  field_name = tvb_get_ephemeral_string(tvb, offset, tokenlen);
   
   offset = next_offset + 1;
 
@@ -901,7 +901,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
   if(next_offset != -1){
     tokenlen = next_offset - offset;
     /* Save port info */
-    transport_info->media_port[transport_info->media_count] = ep_tvb_get_string(tvb, offset, tokenlen);
+    transport_info->media_port[transport_info->media_count] = tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
     proto_tree_add_item(sdp_media_tree, hf_media_port, tvb,
 			offset, tokenlen, FALSE);
@@ -920,7 +920,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
       return;
     tokenlen = next_offset - offset;
     /* Save port info */
-    transport_info->media_port[transport_info->media_count] = ep_tvb_get_string(tvb, offset, tokenlen);
+    transport_info->media_port[transport_info->media_count] = tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
     /* XXX Remember Port */
     proto_tree_add_item(sdp_media_tree, hf_media_port, tvb,
@@ -935,7 +935,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 
   tokenlen = next_offset - offset;
   /* Save port protocol */
-  transport_info->media_proto[transport_info->media_count] = ep_tvb_get_string(tvb, offset, tokenlen);
+  transport_info->media_proto[transport_info->media_count] = tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
   /* XXX Remember Protocol */
   proto_tree_add_item(sdp_media_tree, hf_media_proto, tvb,
@@ -955,7 +955,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
     
     if (strcmp(transport_info->media_proto[transport_info->media_count],
                "RTP/AVP") == 0) {
-      media_format = ep_tvb_get_string(tvb, offset, tokenlen);
+      media_format = tvb_get_ephemeral_string(tvb, offset, tokenlen);
       proto_tree_add_string(sdp_media_tree, hf_media_format, tvb, offset,
                              tokenlen, val_to_str(atol(media_format), rtp_payload_type_vals, "%u"));
 	  index = transport_info->media[transport_info->media_count].pt_count;
@@ -1008,7 +1008,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
 		      hf_media_attribute_field,
 		      tvb, offset, tokenlen, FALSE);
 
-  field_name = ep_tvb_get_string(tvb, offset, tokenlen);
+  field_name = tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
   offset = next_offset + 1;
   proto_tree_add_item(sdp_media_attribute_tree,
@@ -1026,7 +1026,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti, transpor
 
     tokenlen = next_offset - offset;
 
-    payload_type = ep_tvb_get_string(tvb, offset, tokenlen);
+    payload_type = tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
     offset = next_offset + 1;
 

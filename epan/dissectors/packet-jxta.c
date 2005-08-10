@@ -698,7 +698,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     }
 
     {
-        gchar * welcomeline = ep_tvb_get_string( tvb, offset, first_linelen );
+        gchar * welcomeline = tvb_get_ephemeral_string( tvb, offset, first_linelen );
         gchar** tokens = g_strsplit( welcomeline, " ", 6 );
         gchar** current_token = tokens;
         guint token_offset = offset;
@@ -853,7 +853,7 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
 
         if (content_type && (sizeof("content-type") - 1) == headername_len) {
             if (0 == tvb_strncaseeql(tvb, headername_offset, "content-type", sizeof("content-type") - 1)) {
-                *content_type = ep_tvb_get_string(tvb, headervalue_offset, headervalue_len);
+                *content_type = tvb_get_ephemeral_string(tvb, headervalue_offset, headervalue_len);
             }
         }
 
@@ -1139,7 +1139,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         for (each_namespace = 0; each_namespace < msg_ns_count; each_namespace++) {
             guint16 namespace_len = tvb_get_ntohs(tvb, tree_offset);
 
-            namespaces[2 + each_namespace] = ep_tvb_get_string(tvb, tree_offset + sizeof(namespace_len), namespace_len);
+            namespaces[2 + each_namespace] = tvb_get_ephemeral_string(tvb, tree_offset + sizeof(namespace_len), namespace_len);
             proto_tree_add_item(jxta_msg_tree, hf_jxta_message_namespace_name, tvb, tree_offset, sizeof(namespace_len), FALSE);
             tree_offset += sizeof(namespace_len) + namespace_len;
         }
@@ -1383,7 +1383,7 @@ static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, pro
             proto_tree_add_item(jxta_elem_tree, hf_jxta_element_type, tvb, tree_offset, sizeof(guint16), FALSE);
             tree_offset += sizeof(guint16);
 
-            mediatype = ep_tvb_get_string(tvb, tree_offset, type_len);
+            mediatype = tvb_get_ephemeral_string(tvb, tree_offset, type_len);
 
             /* remove any params */
             {

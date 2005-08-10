@@ -574,7 +574,7 @@ dissect_tacplus_body_authen_req_cont( tvbuff_t *tvb, proto_tree *tree )
 	val=tvb_get_ntohs( tvb, AUTHEN_C_USER_LEN_OFF ); 
 	proto_tree_add_text( tree, tvb, AUTHEN_C_USER_LEN_OFF, 2 , "User length: %d", val );
 	if( val ){
-		buff=ep_tvb_get_string( tvb, var_off, val );
+		buff=tvb_get_ephemeral_string( tvb, var_off, val );
 		proto_tree_add_text( tree, tvb, var_off, val, "User: %s", buff );
 		var_off+=val;
 	}
@@ -611,7 +611,7 @@ dissect_tacplus_body_authen_rep( tvbuff_t *tvb, proto_tree *tree )
 	proto_tree_add_text( tree, tvb, AUTHEN_R_SRV_MSG_LEN_OFF, 2 ,
 				"Server message length: %d", val );
 	if( val ) {
-		buff=ep_tvb_get_string(tvb, var_off, val );
+		buff=tvb_get_ephemeral_string(tvb, var_off, val );
 		proto_tree_add_text(tree, tvb, var_off, val, "Server message: %s", buff );
 		var_off+=val;
 	}
@@ -735,7 +735,7 @@ dissect_tacplus_body_acct_rep( tvbuff_t* tvb, proto_tree *tree )
 	proto_tree_add_text( tree, tvb, ACCT_R_SRV_MSG_LEN_OFF, 2 ,
 				"Server message length: %d", val );
 	if( val ) {
-		buff=ep_tvb_get_string( tvb, var_off, val );
+		buff=tvb_get_ephemeral_string( tvb, var_off, val );
 		proto_tree_add_text( tree, tvb, var_off,
 				val, "Server message: %s", buff );
 		var_off+=val;
@@ -746,7 +746,7 @@ dissect_tacplus_body_acct_rep( tvbuff_t* tvb, proto_tree *tree )
 	proto_tree_add_text( tree, tvb, ACCT_R_DATA_LEN_OFF, 2 ,
 				"Data length: %d", val );
 	if( val ) {
-		buff= ep_tvb_get_string( tvb, var_off, val );
+		buff= tvb_get_ephemeral_string( tvb, var_off, val );
 		proto_tree_add_text( tree, tvb, var_off,
 				val, "Data: %s", buff );
 	}

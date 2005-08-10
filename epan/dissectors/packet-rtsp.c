@@ -940,7 +940,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					e164_info.e164_number_type = CALLING_PARTY_NUMBER;
 					e164_info.nature_of_address = 0;
 
-					e164_info.E164_number_str = ep_tvb_get_string(tvb, value_offset,
+					e164_info.E164_number_str = tvb_get_ephemeral_string(tvb, value_offset,
 					                                              value_len);
 					e164_info.E164_number_length = value_len;
 					dissect_e164_number(tvb, sub_tree, value_offset,

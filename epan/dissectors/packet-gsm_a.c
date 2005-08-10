@@ -3486,7 +3486,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 	a_bigbuf[0] = Dgt_msid.out[(oct & 0xf0) >> 4];
 	curr_offset++;
 
-	poctets = ep_tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
+	poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
 
 	my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
 	    &Dgt_msid);
@@ -3533,7 +3533,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 	a_bigbuf[0] = Dgt_msid.out[(oct & 0xf0) >> 4];
 	curr_offset++;
 
-	poctets = ep_tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
+	poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
 
 	my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
 	    &Dgt_msid);
@@ -6760,7 +6760,7 @@ de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 
     NO_MORE_DATA_CHECK(len);
 
-    poctets = ep_tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
+    poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
 
     my_dgt_tbcd_unpack(a_bigbuf, poctets, len - (curr_offset - offset),
 	&Dgt_mbcd);
@@ -6975,7 +6975,7 @@ de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 
     NO_MORE_DATA_CHECK(len);
 
-    poctets = ep_tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
+    poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
 
     my_dgt_tbcd_unpack(a_bigbuf, poctets, len - (curr_offset - offset),
 	&Dgt_mbcd);

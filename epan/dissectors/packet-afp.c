@@ -1594,7 +1594,7 @@ name_in_bitmap(tvbuff_t *tvb, gint offset, guint16 bitmap, int isdir)
 			tp_ofs = nameoff +org_offset;
 			len = tvb_get_guint8(tvb, tp_ofs);
 			tp_ofs++;
-			name = ep_tvb_get_string(tvb, tp_ofs, len);
+			name = tvb_get_ephemeral_string(tvb, tp_ofs, len);
 			return name;
 		}
 		offset += 2;
@@ -1632,7 +1632,7 @@ name_in_bitmap(tvbuff_t *tvb, gint offset, guint16 bitmap, int isdir)
 			tp_ofs = nameoff +org_offset +4;
 			len16 = tvb_get_ntohs(tvb, tp_ofs);
 			tp_ofs += 2;
-			name = ep_tvb_get_string(tvb, tp_ofs, len16);
+			name = tvb_get_ephemeral_string(tvb, tp_ofs, len16);
 			return name;
 		}
 	}

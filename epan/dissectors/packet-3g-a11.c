@@ -390,7 +390,7 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
       /**** ad-hoc ***/
       if(radius_type == 31)
       {
-      	str_val = ep_tvb_get_string(tvb,offset+2,radius_len-2);
+      	str_val = tvb_get_ephemeral_string(tvb,offset+2,radius_len-2);
         proto_tree_add_text(radius_tree, tvb, offset, radius_len,
             "MSID: %s", str_val);
       }
@@ -478,7 +478,7 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
             a11_airlink_types,"Unknown"));
           break;
         case ATTR_TYPE_STR:
-          str_val = ep_tvb_get_string(tvb,offset+radius_offset+2,attribute_len-2);
+          str_val = tvb_get_ephemeral_string(tvb,offset+radius_offset+2,attribute_len-2);
           proto_tree_add_text(radius_tree, tvb, offset+radius_offset,
              attribute_len,
             "3GPP2: %s (%s)", attrs[attribute_type].attrname, str_val);

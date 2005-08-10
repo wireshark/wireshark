@@ -5890,7 +5890,7 @@ add_post_variable (proto_tree *tree, tvbuff_t *tvb, guint variableStart, guint v
 	char *variableBuffer;
 	char *valueBuffer;
 
-	variableBuffer = ep_tvb_get_string(tvb, variableStart, variableLength);
+	variableBuffer = tvb_get_ephemeral_string(tvb, variableStart, variableLength);
 
 	if (valueEnd < valueStart)
 	{
@@ -5903,7 +5903,7 @@ add_post_variable (proto_tree *tree, tvbuff_t *tvb, guint variableStart, guint v
 		valueLength = valueEnd-valueStart;
 		/* XXX - if this throws an exception, "variableBuffer"
 		   is leaked */
-		valueBuffer = ep_tvb_get_string(tvb, valueStart, valueLength);
+		valueBuffer = tvb_get_ephemeral_string(tvb, valueStart, valueLength);
 	}
 
 	/* Check for variables with no value */

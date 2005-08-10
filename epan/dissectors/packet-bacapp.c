@@ -2203,7 +2203,7 @@ fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *la
 			 * other dissectors need to handle various
 			 * character encodings.
 			 */
-			str_val = ep_tvb_get_string(tvb, offset, l);
+			str_val = tvb_get_ephemeral_string(tvb, offset, l);
 			/** this decoding may be not correct for multi-byte characters, Lka */
 			switch (character_set) {
 			case 0x00:	/* ANSI_X3.4 */

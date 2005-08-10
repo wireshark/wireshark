@@ -1417,7 +1417,7 @@ elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 	a_bigbuf[0] = Dgt_msid.out[(oct & 0xf0) >> 4];
 	curr_offset++;
 
-	poctets = ep_tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
+	poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
 
 	my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
 	    &Dgt_msid);
@@ -2745,7 +2745,7 @@ elem_clg_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 	curr_offset++;
     }
 
-    poctets = ep_tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
+    poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
 
     proto_tree_add_string_format(tree, hf_ansi_a_clg_party_ascii_num,
 	tvb, curr_offset, len - (curr_offset - offset),
@@ -3256,7 +3256,7 @@ elem_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 
     curr_offset++;
 
-    poctets = ep_tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
+    poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
 
     my_dgt_tbcd_unpack(a_bigbuf, poctets, len - (curr_offset - offset),
 	&Dgt_tbcd);
@@ -3393,7 +3393,7 @@ elem_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 	curr_offset++;
     }
 
-    poctets = ep_tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
+    poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
 
     my_dgt_tbcd_unpack(a_bigbuf, poctets, len - (curr_offset - offset),
 	&Dgt_tbcd);
@@ -5282,7 +5282,7 @@ elem_cld_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 
     curr_offset++;
 
-    poctets = ep_tvb_get_string(tvb, curr_offset, len - (curr_offset - offset));
+    poctets = tvb_get_ephemeral_string(tvb, curr_offset, len - (curr_offset - offset));
 
     proto_tree_add_string_format(tree, hf_ansi_a_cld_party_ascii_num,
 	tvb, curr_offset, len - (curr_offset - offset),

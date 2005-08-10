@@ -1062,7 +1062,7 @@ dissect_mq_gmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean bLi
 				if (check_col(pinfo->cinfo, COL_INFO)) 
 				{
 					guint8* sQueue;
-					sQueue = ep_tvb_get_string(tvb, offset + 24, 48);
+					sQueue = tvb_get_ephemeral_string(tvb, offset + 24, 48);
 					if (strip_trailing_blanks(sQueue, 48) != 0)
 					{
 						col_append_fstr(pinfo->cinfo, COL_INFO, " Q=%s", sQueue);
@@ -1138,7 +1138,7 @@ dissect_mq_pmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean bLi
 				if (check_col(pinfo->cinfo, COL_INFO)) 
 				{
 					guint8* sQueue;
-					sQueue = ep_tvb_get_string(tvb, offset + 32, 48);
+					sQueue = tvb_get_ephemeral_string(tvb, offset + 32, 48);
 					if (strip_trailing_blanks(sQueue, 48) != 0)
 					{
 						col_append_fstr(pinfo->cinfo, COL_INFO, " Q=%s", sQueue);
@@ -1434,12 +1434,12 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							{
 								guint8* sApplicationName;
 								guint8* sQueueManager;
-								sApplicationName = ep_tvb_get_string(tvb, offset + 48, 28);
+								sApplicationName = tvb_get_ephemeral_string(tvb, offset + 48, 28);
 								if (strip_trailing_blanks(sApplicationName, 28) != 0)
 								{
 									col_append_fstr(pinfo->cinfo, COL_INFO, ": App=%s", sApplicationName);
 								}
-								sQueueManager = ep_tvb_get_string(tvb, offset, 48);
+								sQueueManager = tvb_get_ephemeral_string(tvb, offset, 48);
 								if (strip_trailing_blanks(sQueueManager, 48) != 0)
 								{
 									col_append_fstr(pinfo->cinfo, COL_INFO, " QM=%s", sQueueManager);
@@ -1559,7 +1559,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							if (tree)
 							{
 								guint8* sStructId;
-								sStructId = ep_tvb_get_string(tvb, offset, 4);
+								sStructId = tvb_get_ephemeral_string(tvb, offset, 4);
 								ti = proto_tree_add_text(mqroot_tree, tvb, offset, 12, (const char*)sStructId);
 								mq_tree = proto_item_add_subtree(ti, ett_mq_spi_base);
 	
@@ -1601,7 +1601,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								{
 									/* Dissect the common part of these structures */
 									guint8* sStructId;
-									sStructId = ep_tvb_get_string(tvb, offset, 4);
+									sStructId = tvb_get_ephemeral_string(tvb, offset, 4);
 									ti = proto_tree_add_text(mqroot_tree, tvb, offset, -1, "%s", (const char*)sStructId);
 									mq_tree = proto_item_add_subtree(ti, ett_mq_spi_base);
 	
@@ -1783,7 +1783,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							if (check_col(pinfo->cinfo, COL_INFO)) 
 							{
 								guint8* sChannel;
-								sChannel = ep_tvb_get_string(tvb, offset + 24, 20);
+								sChannel = tvb_get_ephemeral_string(tvb, offset + 24, 20);
 								if (strip_trailing_blanks(sChannel, 20) != 0)
 								{
 									col_append_fstr(pinfo->cinfo, COL_INFO, ": CHL=%s", sChannel);
@@ -1849,7 +1849,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								if (check_col(pinfo->cinfo, COL_INFO)) 
 								{
 									guint8* sQueueManager;
-									sQueueManager = ep_tvb_get_string(tvb, offset + 48, 48);
+									sQueueManager = tvb_get_ephemeral_string(tvb, offset + 48, 48);
 									if (strip_trailing_blanks(sQueueManager,48) != 0)
 									{
 										col_append_fstr(pinfo->cinfo, COL_INFO, " QM=%s", sQueueManager);
@@ -1883,7 +1883,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							if (check_col(pinfo->cinfo, COL_INFO)) 
 							{
 								guint8* sUserId;
-								sUserId = ep_tvb_get_string(tvb, offset + 4, 12);
+								sUserId = tvb_get_ephemeral_string(tvb, offset + 4, 12);
 								if (strip_trailing_blanks(sUserId, 12) != 0)
 								{
 									col_append_fstr(pinfo->cinfo, COL_INFO, ": User=%s", sUserId);
@@ -1934,7 +1934,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							if (check_col(pinfo->cinfo, COL_INFO)) 
 							{
 								guint8* sQueue;
-								sQueue = ep_tvb_get_string(tvb, offset + 12, 48);
+								sQueue = tvb_get_ephemeral_string(tvb, offset + 12, 48);
 								if (strip_trailing_blanks(sQueue,48) != 0)
 								{
 									col_append_fstr(pinfo->cinfo, COL_INFO, " Obj=%s", sQueue);
@@ -2235,7 +2235,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							if (tMsgProps.iOffsetFormat != 0)
 							{
 									guint8* sFormat = NULL;
-									sFormat = ep_tvb_get_string(tvb, tMsgProps.iOffsetFormat, 8);
+									sFormat = tvb_get_ephemeral_string(tvb, tMsgProps.iOffsetFormat, 8);
 									if (strip_trailing_blanks(sFormat, 8) == 0)	sFormat = (guint8*)g_strdup("MQNONE");
 									if (check_col(pinfo->cinfo, COL_INFO)) 
 									{

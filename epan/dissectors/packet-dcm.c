@@ -655,7 +655,7 @@ dissect_dcm_assoc(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb, int offse
 	    if (ti)
 		proto_tree_add_item(dcm_tree, hf_dcm_pdi_syntax, tvb, offset, len > 65 ? 65 : len, FALSE);
 	    if (reply && di && di->valid) {
-		name = ep_tvb_get_string(tvb, offset, len);
+		name = tvb_get_ephemeral_string(tvb, offset, len);
 		dcm_setSyntax(di, name);
 	    }
 	    reply = 0;

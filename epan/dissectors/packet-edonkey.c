@@ -292,7 +292,7 @@ static guint8 edonkey_metatag_name_get_type(tvbuff_t *tvb, gint start, gint leng
 
     if (match_strval(special_tagtype, edonkey_special_tags) == NULL) {
         gint index;
-	tag_name = ep_tvb_get_string(tvb, start, length);
+	tag_name = tvb_get_ephemeral_string(tvb, start, length);
         index = lookup_str_index(tag_name, length, edonkey_special_tags);
         if (index < 0)
             return EDONKEY_STAG_UNKNOWN;

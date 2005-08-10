@@ -538,7 +538,7 @@ get_encoded_strval(tvbuff_t *tvb, guint offset, char **strval)
 	    *strval = "";
 	} else {
 	    /* \todo	Something with "Char-set", skip for now	*/
-	    *strval = (char *)ep_tvb_get_string(tvb, offset + count + 1, length - 1);
+	    *strval = (char *)tvb_get_ephemeral_string(tvb, offset + count + 1, length - 1);
 	}
 	return count + length;
     } else

@@ -624,7 +624,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 
 	if (string_data) {
 		char *tmpstr;
-		tmpstr = ep_tvb_get_string(tvb, data_offset, string_length_copy);
+		tmpstr = tvb_get_ephemeral_string(tvb, data_offset, string_length_copy);
 		string_buffer = memcpy(ep_alloc(string_length_copy), tmpstr, string_length_copy);
 	} else {
 		string_buffer = tvb_memcpy(tvb, ep_alloc(string_length_copy), data_offset, string_length_copy);

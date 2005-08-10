@@ -1114,7 +1114,7 @@ int dissect_aim_tlv_value_string (proto_item *ti, guint16 valueid _U_, tvbuff_t 
    gint string_len;
 
    string_len = tvb_length(tvb);
-   buf = ep_tvb_get_string(tvb, 0, string_len);
+   buf = tvb_get_ephemeral_string(tvb, 0, string_len);
    proto_item_set_text(ti, "Value: %s", format_text(buf, string_len));
    return string_len;
 }
@@ -1204,7 +1204,7 @@ int dissect_aim_tlv_value_messageblock (proto_item *ti, guint16 valueid _U_, tvb
     offset += 2;
 
     /* The actual message */
-    buf = ep_tvb_get_string(tvb, offset, blocklen - 4 );
+    buf = tvb_get_ephemeral_string(tvb, offset, blocklen - 4 );
     proto_item_set_text(ti, "Message: %s",
                         format_text(buf, blocklen - 4));
     proto_tree_add_item(entry, hf_aim_messageblock_message, tvb, offset, 

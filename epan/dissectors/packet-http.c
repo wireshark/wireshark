@@ -1143,7 +1143,7 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	tokenlen = get_token_len(line, lineend, &next_token);
 	if (tokenlen == 0)
 		return;
-	stat_info->request_uri = (gchar*) ep_tvb_get_string(tvb, offset, tokenlen);
+	stat_info->request_uri = (gchar*) tvb_get_ephemeral_string(tvb, offset, tokenlen);
 	proto_tree_add_string(tree, hf_http_request_uri, tvb, offset, tokenlen,
 	    stat_info->request_uri);
 	offset += next_token - line;
@@ -1234,7 +1234,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			break;
 		}
 
-		chunk_string = ep_tvb_get_string(tvb, offset, linelen);
+		chunk_string = tvb_get_ephemeral_string(tvb, offset, linelen);
 
 		if (chunk_string == NULL) {
 			/* Can't get the chunk size line */

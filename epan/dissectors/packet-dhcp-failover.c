@@ -578,7 +578,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * we need to dissect it as such.
 			 */
 			client_identifier_str =
-			    ep_tvb_get_string(tvb, offset, option_length);
+			    tvb_get_ephemeral_string(tvb, offset, option_length);
 			proto_item_append_text(oi,", \"%s\"",
 			    format_text(client_identifier_str, option_length));
 			proto_tree_add_string(option_tree,
@@ -655,7 +655,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_VENDOR_CLASS:
 			vendor_class_str =
-			    ep_tvb_get_string(tvb, offset, option_length);
+			    tvb_get_ephemeral_string(tvb, offset, option_length);
 			proto_item_append_text(oi,", \"%s\"",
 			    format_text(vendor_class_str, option_length));
 			proto_tree_add_string(option_tree,

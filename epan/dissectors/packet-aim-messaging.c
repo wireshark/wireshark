@@ -410,7 +410,7 @@ static int dissect_aim_rendezvous_extended_message(tvbuff_t *tvb, proto_tree *ms
 	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_priority_code, tvb, offset, 2, TRUE); offset+=2;
 	text_length = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_text_length, tvb, offset, 2, TRUE); offset+=2;
-	text = ep_tvb_get_string(tvb, offset, text_length);
+	text = tvb_get_ephemeral_string(tvb, offset, text_length);
 	proto_tree_add_text(msg_tree, tvb, offset, text_length, "Text: %s", text); offset+=text_length;
 	offset = tvb->length;
 	

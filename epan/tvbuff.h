@@ -413,6 +413,7 @@ extern gchar * tvb_format_text(tvbuff_t *tvb, gint offset, gint size);
  */
 extern gchar *tvb_format_stringzpad(tvbuff_t *tvb, gint offset, gint size);
 
+
 /**
  * Given a tvbuff, an offset, and a length, allocate a buffer big enough
  * to hold a non-null-terminated string of that length at that offset,
@@ -420,13 +421,18 @@ extern gchar *tvb_format_stringzpad(tvbuff_t *tvb, gint offset, gint size);
  * to the string.
  *
  * Throws an exception if the tvbuff ends before the string does.
+ *
+ * tvb_get_string()  returns a string allocated by g_malloc() and therefore
+ *                   MUST be g_free() by the caller in order not to leak
+ *                   memory.
+ *
+ * tvb_get_ephemeral_string() returns a string that does not need to be freed,
+ *                   instead it will automatically be freed once the next
+ *                   packet is dissected.
  */
 extern guint8 *tvb_get_string(tvbuff_t *tvb, gint offset, gint length);
-/* Same as above but the buffer returned from this function does not have to
- * be freed. It will be automatically freed after the packet is dissected.
- * Buffers allocated by this function are NOT persistent.
- */
-extern guint8 *ep_tvb_get_string(tvbuff_t *tvb, gint offset, gint length);
+extern guint8 *tvb_get_ephemeral_string(tvbuff_t *tvb, gint offset, gint length);
+
 
 /**
  * Given a tvbuff and an offset, with the offset assumed to refer to

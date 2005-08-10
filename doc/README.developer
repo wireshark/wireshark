@@ -353,7 +353,7 @@ and
 	   memory if the size field has a bogus large value.
 
 If you're fetching into such a chunk of memory a string from the buffer,
-and the string has a specified size, you can use "tvb_get_string()",
+and the string has a specified size, you can use "tvb_get_*_string()",
 which will check whether the entire string is present before allocating
 a buffer for the string, and will also put a trailing '\0' at the end of
 the buffer.
@@ -386,9 +386,9 @@ protocol specifications can't ensure only packets that conform to the
 specification will be transmitted or that only packets for the protocol
 in question will be interpreted as packets for that protocol by
 Ethereal).  If there's no maximum length of string data to be fetched,
-routines such as "tvb_get_string()" are safer, as they allocate a buffer
-large enough to hold the string.  (Note that you should free the string
-once you're finished with it.)
+routines such as "tvb_get_*_string()" are safer, as they allocate a buffer
+large enough to hold the string.  (Note that some variants of this call 
+require you to free the string once you're finished with it.)
 
 If you have gotten a pointer using "tvb_get_ptr()", you must make sure
 that you do not refer to any data past the length passed as the last
@@ -889,12 +889,21 @@ answer on big-endian machines.
 String accessors:
 
 guint8 *tvb_get_string(tvbuff_t*, gint offset, gint length);
+guint8 *tvb_get_ephemeral_string(tvbuff_t*, gint offset, gint length);
 
-Returns a null-terminated buffer, allocated with "g_malloc()" (so it
-must be freed with "g_free()"), containing data from the specified
+Returns a null-terminated buffer containing data from the specified
 tvbuff, starting at the specified offset, and containing the specified
 length worth of characters (the length of the buffer will be length+1,
 as it includes a null character to terminate the string).
+
+tvb_get_string() returns a bugger allocated by g_malloc() so you must
+g_free() it when you are finished with the string. Failure to g_free() this
+buffer will lead to memory leaks.
+tvb_get_ephemeral_string() returns a buffer allocated from a special heap
+with a lifetime until the next packet is dissected. You do not need to
+free() this buffer, it will happen automatically once the next packet is 
+dissected.
+
 
 guint8 *tvb_get_stringz(tvbuff_t *tvb, gint offset, gint *lengthp);
 

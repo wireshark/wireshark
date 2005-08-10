@@ -3144,7 +3144,7 @@ decode_apn(tvbuff_t *tvb, int offset, guint16 length, proto_tree *tree) {
 		name_len = tvb_get_guint8 (tvb, offset);
 
 		if (name_len < 0x20) {
-			apn = ep_tvb_get_string(tvb, offset + 1, length - 1);
+			apn = tvb_get_ephemeral_string(tvb, offset + 1, length - 1);
 			for (;;) {
 				if (name_len >= length - 1) break;
 				tmp = name_len;
@@ -3152,7 +3152,7 @@ decode_apn(tvbuff_t *tvb, int offset, guint16 length, proto_tree *tree) {
 				apn[tmp] = '.';
 			}
 		} else
-			apn = ep_tvb_get_string(tvb, offset, length);
+			apn = tvb_get_ephemeral_string(tvb, offset, length);
 
 		proto_tree_add_string (tree, hf_gtp_apn, tvb, offset, length, apn);
 	}

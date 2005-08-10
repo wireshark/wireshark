@@ -1805,7 +1805,7 @@ tvb_get_string(tvbuff_t *tvb, gint offset, gint length)
  * after the current packet has been dissected.
  */
 guint8 *
-ep_tvb_get_string(tvbuff_t *tvb, gint offset, gint length)
+tvb_get_ephemeral_string(tvbuff_t *tvb, gint offset, gint length)
 {
 	const guint8 *ptr;
 	guint8 *strbuf = NULL;

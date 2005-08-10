@@ -417,7 +417,7 @@ dissect_comport_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
     if (len == 0) {
         proto_tree_add_text(tree, tvb, offset, 1, "%s Requests Signature",source);
     } else {
-        guint8 *sig = ep_tvb_get_string(tvb, offset + 1, len);
+        guint8 *sig = tvb_get_ephemeral_string(tvb, offset + 1, len);
         proto_tree_add_text(tree, tvb, offset, 1 + len, "%s Signature: %s",source, sig);
     }
     break;

@@ -337,7 +337,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	space_offset = tvb_find_guint8(tvb, token_2_start, linelen, ' ');
 	token_2_len = space_offset - token_2_start;
 	/* Transaction ID found store it for later use */
-	transaction_id_str = ep_tvb_get_string(tvb, token_2_start, token_2_len);
+	transaction_id_str = tvb_get_ephemeral_string(tvb, token_2_start, token_2_len);
 
 	token_3_start = space_offset + 1;
 	space_offset = tvb_find_guint8(tvb, token_3_start,linelen, ' ');
@@ -468,7 +468,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 * Fetch the value.
 					 */
 					value_len = line_end_offset - value_offset;
-					value = ep_tvb_get_string(tvb, value_offset,
+					value = tvb_get_ephemeral_string(tvb, value_offset,
 				                       value_len);
 
 					/*
@@ -498,10 +498,10 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 									parameter_offset++;
 								content_type_len = semi_colon_offset - value_offset;
 								content_type_parameter_str_len = line_end_offset - parameter_offset;
-								content_type_parameter_str = ep_tvb_get_string(tvb, parameter_offset,
+								content_type_parameter_str = tvb_get_ephemeral_string(tvb, parameter_offset,
 							                             content_type_parameter_str_len);
 							}
-							media_type_str = ep_tvb_get_string(tvb, value_offset, content_type_len);
+							media_type_str = tvb_get_ephemeral_string(tvb, value_offset, content_type_len);
 #if GLIB_MAJOR_VERSION < 2
 							media_type_str_lower_case = g_strdup(media_type_str);
 							g_strdown(media_type_str_lower_case);

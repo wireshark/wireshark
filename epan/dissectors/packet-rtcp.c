@@ -698,7 +698,7 @@ dissect_rtcp_bye( tvbuff_t *tvb, int offset, proto_tree *tree,
 		proto_tree_add_item( tree, hf_rtcp_ssrc_length, tvb, offset, 1, FALSE );
 		offset++;
 
-		reason_text = ep_tvb_get_string(tvb, offset, reason_length);
+		reason_text = tvb_get_ephemeral_string(tvb, offset, reason_length);
 		proto_tree_add_string( tree, hf_rtcp_ssrc_text, tvb, offset, reason_length, reason_text );
 		offset += reason_length;
 	}
