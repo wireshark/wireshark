@@ -100,7 +100,7 @@ Gnu info
 	</para></listitem>
 
 	<listitem><para>
-	  The SLIMP3 dissector could overlfow a buffer.
+	  The SLIMP3 dissector could overflow a buffer.
 	  <!-- Fixed in r15279 -->
 	  Versions affected: 0.9.1 to 0.10.12.
 	</para></listitem>
