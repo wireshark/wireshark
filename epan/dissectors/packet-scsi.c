@@ -3583,8 +3583,10 @@ dissect_mmc4_reportkey (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             proto_tree_add_item (tree, hf_scsi_report_key_rpc_scheme, tvb, offset+6, 1, 0);
             break;
         default:
-            str=g_strdup_printf("SCSI/MMC Unknown Format:0x%02x/Class:0x%02x combination",cdata->flags>>8,cdata->flags&0xff);
-            REPORT_DISSECTOR_BUG(str);
+	    proto_tree_add_text (tree, tvb, 0, 0, 
+		"[SCSI/MMC Unknown Format:0x%02x/Class:0x%02x combination]",
+		cdata->flags>>8,cdata->flags&0xff);
+	    THROW(ReportedBoundsError);
         }
     }
 }
@@ -3630,8 +3632,9 @@ dissect_mmc4_setstreaming (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
             proto_tree_add_item (tree, hf_scsi_setstreaming_write_time, tvb, offset+24, 4, 0);
             break;
         default:
-            str=g_strdup_printf("SCSI/MMC Unknown SetStreaming Type:0x%02x",cdata->flags);
-            REPORT_DISSECTOR_BUG(str);
+	    proto_tree_add_text (tree, tvb, 0, 0, 
+		"[SCSI/MMC Unknown SetStreaming Type:0x%02x]",cdata->flags);
+	    THROW(ReportedBoundsError);
         }
     }
 }
@@ -3822,8 +3825,9 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
                     proto_tree_add_item (tree, hf_scsi_feature_lun_sn, tvb, offset, additional_length, 0);
                     break;
                 default:
-                    str=g_strdup_printf("SCSI/MMC Unknown Feature:0x%04x",feature);
-                    REPORT_DISSECTOR_BUG(str);
+		    proto_tree_add_text (tree, tvb, 0, 0, 
+			"[SCSI/MMC Unknown Feature:0x%04x]",feature);
+		    THROW(ReportedBoundsError);
                 }
                 old_offset+=additional_length;
                 len-=4+additional_length;
@@ -3932,8 +3936,9 @@ dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
             }
             break;
         default:
-            str=g_strdup_printf("SCSI/MMC Unknown READ TOC Format:0x%04x",cdata->flags&0x000f);
-            REPORT_DISSECTOR_BUG(str);
+	    proto_tree_add_text (tree, tvb, 0, 0, 
+		"[SCSI/MMC Unknown READ TOC Format:0x%04x]",cdata->flags&0x000f);
+	    THROW(ReportedBoundsError);
         }
     }
 }
@@ -6673,6 +6678,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         cdata->opcode = opcode;
         cdata->cmd = cmd;
         cdata->devtype = devtype;
+	cdata->flags = 0;
 	cdata->cdb_table = cdb_table;
 	cdata->cdb_vals = cdb_vals;
     }
