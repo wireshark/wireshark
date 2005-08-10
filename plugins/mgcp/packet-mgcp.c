@@ -1271,7 +1271,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 
                        /* set the observedEvents or signalReq used in Voip Calls analysis */
                        if (buf != NULL) {
-                               *buf = ep_tvb_get_string(tvb, tvb_current_offset, (len - tvb_current_offset + offset));
+                               *buf = tvb_get_ephemeral_string(tvb, tvb_current_offset, (len - tvb_current_offset + offset));
                        }
 		}
 	}
@@ -1782,7 +1782,7 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offse
 
 	/* The P: line */
 	offset += param_type_len; /* skip the P: */
-	tokenline = ep_tvb_get_string(tvb, offset, param_val_len);
+	tokenline = tvb_get_ephemeral_string(tvb, offset, param_val_len);
 
 	/* Split into type=value pairs separated by comma */
 	tokens = ep_strsplit(tokenline, ",", -1);
@@ -1894,7 +1894,7 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint
 
 	/* The L: line */
 	offset += param_type_len; /* skip the L: */
-	tokenline = ep_tvb_get_string(tvb, offset, param_val_len);
+	tokenline = tvb_get_ephemeral_string(tvb, offset, param_val_len);
 
 	/* Split into type=value pairs separated by comma */
 	tokens = ep_strsplit(tokenline, ",", -1);
