@@ -683,7 +683,7 @@ dissect_tds_query_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		is_unicode = FALSE;
 	
 	if (is_unicode)
-		msg = ep_tvb_fake_unicode(tvb, offset, len/2, TRUE);
+		msg = tvb_get_ephemeral_faked_unicode(tvb, offset, len/2, TRUE);
 	else
 		msg = tvb_get_ephemeral_string(tvb, offset, len);
 	
@@ -702,7 +702,7 @@ dissect_tds5_lang_token(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree
     len    -= 1;
 
     if (is_unicode)
-        msg = ep_tvb_fake_unicode(tvb, offset, (len)/2, TRUE);
+        msg = tvb_get_ephemeral_faked_unicode(tvb, offset, (len)/2, TRUE);
     else
         msg = tvb_get_ephemeral_string(tvb, offset, len);
 	
@@ -866,7 +866,7 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (len != 0) {
 			if( i != 2) {
 				if (is_unicode == TRUE) {
-					val = ep_tvb_fake_unicode(tvb, offset2, len, TRUE);
+					val = tvb_get_ephemeral_faked_unicode(tvb, offset2, len, TRUE);
 					len *= 2;
 				} else
 					val = tvb_get_ephemeral_string(tvb, offset2, len);
@@ -1163,7 +1163,7 @@ dissect_tds_env_chg(tvbuff_t *tvb, guint offset, guint token_sz,
 		if (env_type != 7) { /* if it's not 'Collation Info - which is not textual! */
 			string_offset = offset + 2;
 			if (is_unicode == TRUE) {
-				new_val = ep_tvb_fake_unicode(tvb, string_offset,
+				new_val = tvb_get_ephemeral_faked_unicode(tvb, string_offset,
 					new_len, TRUE);
 				new_len *= 2;
 			} else
@@ -1190,7 +1190,7 @@ dissect_tds_env_chg(tvbuff_t *tvb, guint offset, guint token_sz,
 	if (old_len) {
 		string_offset = old_len_offset + 1;
 		if (is_unicode == TRUE) {
-			old_val = ep_tvb_fake_unicode(tvb, string_offset,
+			old_val = tvb_get_ephemeral_faked_unicode(tvb, string_offset,
 			    old_len, TRUE);
 			old_len *= 2;
 		} else
@@ -1223,7 +1223,7 @@ dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz _U_, proto_tre
 		is_unicode = TRUE;
 
 	if(is_unicode) {
-		msg = ep_tvb_fake_unicode(tvb, offset, msg_len, TRUE);
+		msg = tvb_get_ephemeral_faked_unicode(tvb, offset, msg_len, TRUE);
 		msg_len *= 2;
 	} else {
 		msg = tvb_get_ephemeral_string(tvb, offset, msg_len);
@@ -1237,7 +1237,7 @@ dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz _U_, proto_tre
 	offset +=1;
 	if(srvr_len) {
 		if (is_unicode) {
-			msg = ep_tvb_fake_unicode(tvb, offset, srvr_len, TRUE);
+			msg = tvb_get_ephemeral_faked_unicode(tvb, offset, srvr_len, TRUE);
 			srvr_len *=2;
 		} else {
 			msg = tvb_get_ephemeral_string(tvb, offset, srvr_len);
@@ -1252,7 +1252,7 @@ dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz _U_, proto_tre
 	offset +=1;
 	if(proc_len) {
 		if (is_unicode) {
-			msg = ep_tvb_fake_unicode(tvb, offset, proc_len, TRUE);
+			msg = tvb_get_ephemeral_faked_unicode(tvb, offset, proc_len, TRUE);
 			proc_len *=2;
 		} else {
 			msg = tvb_get_ephemeral_string(tvb, offset, proc_len);
@@ -1288,7 +1288,7 @@ dissect_tds_login_ack_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_t
 		is_unicode = TRUE;
 	proto_tree_add_text(tree, tvb, offset, 0, "msg_len: %d, token_sz: %d, total: %d",msg_len, token_sz, msg_len + 6U + 3U);
 	if(is_unicode) {
-		msg = ep_tvb_fake_unicode(tvb, offset, msg_len, TRUE);
+		msg = tvb_get_ephemeral_faked_unicode(tvb, offset, msg_len, TRUE);
 		msg_len *= 2;
 	} else {
 		msg = tvb_get_ephemeral_string(tvb, offset, msg_len);
@@ -1341,7 +1341,7 @@ dissect_tds7_results_token(tvbuff_t *tvb, guint offset, proto_tree *tree)
 			table_len = tvb_get_letohs(tvb, offset);
 			offset +=2;
 			if(table_len != 0) {
-				msg = ep_tvb_fake_unicode(tvb, offset, table_len, TRUE);
+				msg = tvb_get_ephemeral_faked_unicode(tvb, offset, table_len, TRUE);
 				proto_tree_add_text(tree, tvb, offset, table_len*2, "Table name: %s", msg);
 				offset += table_len*2;
 			}
@@ -1367,7 +1367,7 @@ dissect_tds7_results_token(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		proto_tree_add_text(tree, tvb, offset, 1, "message length: %d",msg_len);
 		offset += 1;
 		if(msg_len != 0) {
-			msg = ep_tvb_fake_unicode(tvb, offset, msg_len, TRUE);
+			msg = tvb_get_ephemeral_faked_unicode(tvb, offset, msg_len, TRUE);
 			proto_tree_add_text(tree, tvb, offset, msg_len*2, "Text: %s", msg);
 			offset += msg_len*2;
 		}
@@ -1421,7 +1421,7 @@ dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 				offset += 2;
 			}
 			else if (len != 0) {
-				val = ep_tvb_fake_unicode(tvb, offset, len, TRUE);
+				val = tvb_get_ephemeral_faked_unicode(tvb, offset, len, TRUE);
 				len *= 2;
 				proto_tree_add_text(tree, tvb, offset, len, "RPC Name: %s", val);
 				offset += len;

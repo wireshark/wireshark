@@ -360,10 +360,10 @@ the buffer.
 
 If you're fetching into such a chunk of memory a 2-byte Unicode string
 from the buffer, and the string has a specified size, you can use
-"tvb_fake_unicode()", which will check whether the entire string is
-present before allocating a buffer for the string, and will also put a
-trailing '\0' at the end of the buffer.  The resulting string will be a
-sequence of single-byte characters; the only Unicode characters that
+"tvb_get_ephemeral_faked_unicode()", which will check whether the entire 
+string is present before allocating a buffer for the string, and will also 
+put a trailing '\0' at the end of the buffer.  The resulting string will be 
+a sequence of single-byte characters; the only Unicode characters that
 will be handled correctly are those in the ASCII range.  (Ethereal's
 ability to handle non-ASCII strings is limited; it needs to be
 improved.)
@@ -896,7 +896,7 @@ tvbuff, starting at the specified offset, and containing the specified
 length worth of characters (the length of the buffer will be length+1,
 as it includes a null character to terminate the string).
 
-tvb_get_string() returns a bugger allocated by g_malloc() so you must
+tvb_get_string() returns a buffer allocated by g_malloc() so you must
 g_free() it when you are finished with the string. Failure to g_free() this
 buffer will lead to memory leaks.
 tvb_get_ephemeral_string() returns a buffer allocated from a special heap
@@ -912,6 +912,25 @@ containing data from the specified tvbuff, starting with at the
 specified offset, and containing all characters from the tvbuff up to
 and including a terminating null character in the tvbuff.  "*lengthp"
 will be set to the length of the string, including the terminating null.
+
+
+guint8 *tvb_fake_unicode(tvbuff_t*, gint offset, gint length);
+guint8 *tvb_get_ephemeral_faked_unicode(tvbuff_t*, gint offset, gint length);
+
+Converts a 2-byte unicode string to an ASCII string.
+Returns a null-terminated buffer containing data from the specified
+tvbuff, starting at the specified offset, and containing the specified
+length worth of characters (the length of the buffer will be length+1,
+as it includes a null character to terminate the string).
+
+tvb_fake_unicode() returns a buffer allocated by g_malloc() so you must
+g_free() it when you are finished with the string. Failure to g_free() this
+buffer will lead to memory leaks.
+tvb_get_ephemeral_faked_unicode() returns a buffer allocated from a special 
+heap with a lifetime until the next packet is dissected. You do not need to
+free() this buffer, it will happen automatically once the next packet is 
+dissected.
+
 
 Copying memory:
 guint8* tvb_memcpy(tvbuff_t*, guint8* target, gint offset, gint length);

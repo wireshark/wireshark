@@ -390,16 +390,19 @@ extern guint tvb_strsize(tvbuff_t *tvb, gint offset);
 extern gint tvb_strnlen(tvbuff_t*, gint offset, guint maxlength);
 
 /** Convert a string from Unicode to ASCII.  At the moment we fake it by
- * assuming all characters are ASCII  )-:  The caller must free the
- * result returned.  The len parameter is the number of guint16's to
- * convert from Unicode. */
+ * assuming all characters are ASCII  )-:  The len parameter is the number 
+ * of guint16's to convert from Unicode. 
+ *
+ * tvb_fake_unicode() returns a buffer allocated by g_malloc() and must
+ *                    be g_free() by the caller.
+ * tvb_get_ephemeral_faked_unicode() returns a buffer that does not need
+ *                    to be explicitely freed. Instead this buffer is
+ *                    automatically freed when ethereal starts dissecting
+ *                    the next packet.
+ */
 extern char *tvb_fake_unicode(tvbuff_t *tvb, int offset, int len,
                               gboolean little_endian);
-/* Same as above but the buffer returned from this function does not have to
- * be freed. It will be automatically freed after the packet is dissected.
- * Buffers allocated by this function are NOT persistent.
- */
-extern char *ep_tvb_fake_unicode(tvbuff_t *tvb, int offset, int len,
+extern char *tvb_get_ephemeral_faked_unicode(tvbuff_t *tvb, int offset, int len,
                               gboolean little_endian);
 
 /**

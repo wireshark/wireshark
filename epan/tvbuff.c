@@ -1684,18 +1684,15 @@ tvb_fake_unicode(tvbuff_t *tvb, int offset, int len, gboolean little_endian)
 }
 
 /* Convert a string from Unicode to ASCII.  At the moment we fake it by
- * replacing all non-ASCII characters with a '.' )-:  The caller must
- * free the result returned.  The len parameter is the number of guint16's
- * to convert from Unicode.
+ * replacing all non-ASCII characters with a '.' )-:   The len parameter is 
+ * the number of guint16's to convert from Unicode.
  *
  * This function allocates memory from a buffer with packet lifetime.
  * You do not have to free this buffer, it will be automatically freed
  * when ethereal starts decoding the next packet.
- * Do not use this function if you want the allocated memory to be persistent
- * after the current packet has been dissected.
  */
 char *
-ep_tvb_fake_unicode(tvbuff_t *tvb, int offset, int len, gboolean little_endian)
+tvb_get_ephemeral_faked_unicode(tvbuff_t *tvb, int offset, int len, gboolean little_endian)
 {
 	char *buffer;
 	int i;
