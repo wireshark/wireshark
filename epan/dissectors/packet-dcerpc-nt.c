@@ -986,7 +986,6 @@ dissect_ndr_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 /*
  * Helper routines for dissecting NDR strings
  */
-
 void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 			proto_item *item, tvbuff_t *tvb, 
 			int start_offset, int end_offset,
@@ -1014,7 +1013,7 @@ void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	 * some way we can get that string, rather than duplicating the
 	 * efforts of that routine?
 	 */
-	s = tvb_fake_unicode(
+	s = tvb_get_ephemeral_faked_unicode(
 		tvb, start_offset + 12, (end_offset - start_offset - 12) / 2,
 		TRUE);
 
@@ -1049,10 +1048,9 @@ void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 		dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 		dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 		
+/* FIXME EPHEMERAL need to get rid of the g_strdup() and later g_free() */
 		dcv->private_data = g_strdup(s);
 	}
-
-	g_free(s);
 }
 
 void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,

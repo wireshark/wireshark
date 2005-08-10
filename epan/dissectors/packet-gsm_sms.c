@@ -1852,10 +1852,9 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 		}
 		else if (ucs2)
 			{
-			/* tvb_fake_unicode takes the lengt in number of guint16's */
-			ustr = tvb_fake_unicode(tvb, offset, (length>>1), FALSE);
+			/* tvb_get_ephemeral_faked_unicode takes the lengt in number of guint16's */
+			ustr = tvb_get_ephemeral_faked_unicode(tvb, offset, (length>>1), FALSE);
 			proto_tree_add_text(subtree, tvb, offset, length, "%s", ustr);
-			g_free(ustr);
 		}
     }
 }

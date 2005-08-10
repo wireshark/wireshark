@@ -414,10 +414,9 @@ add_v1_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
         switch (encoding) {
 
         case CHARSET_ISO_10646_UCS_2:
-                unicode_str = tvb_fake_unicode(tvb, offset, length/2, FALSE);
+                unicode_str = tvb_get_ephemeral_faked_unicode(tvb, offset, length/2, FALSE);
                 proto_tree_add_string(tree, hf, tvb, offset, length,
                                     unicode_str);
-                g_free(unicode_str);
                 break;
 
         default:
@@ -508,12 +507,10 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
 
     case CHARSET_ISO_10646_UCS_2:
 
-        tmp = tvb_fake_unicode(tvb, offset, length/2, FALSE);
+        tmp = tvb_get_ephemeral_faked_unicode(tvb, offset, length/2, FALSE);
         type_len = strcspn(tmp, "=");
-        g_free(tmp);
-        attr_type = tvb_fake_unicode(tvb, offset+2, type_len-1, FALSE);
+        attr_type = tvb_get_ephemeral_faked_unicode(tvb, offset+2, type_len-1, FALSE);
         proto_tree_add_string(tree, hf, tvb, offset, type_len*2, attr_type);
-        g_free(attr_type);
         i=1;
         for (foffset = offset + ((type_len*2)+2); foffset<length; foffset += 2) {
 

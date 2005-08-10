@@ -484,10 +484,9 @@ dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_t
 		length=1024;
 	}
 
-	str = tvb_fake_unicode(tvb, offset>>3, length, FALSE);
+	str = tvb_get_ephemeral_faked_unicode(tvb, offset>>3, length, FALSE);
 
 	proto_tree_add_string(tree, hf_index, tvb, offset>>3, length*2, str);
-	g_free(str);
 
 	offset+=(length<<3)*2;
 

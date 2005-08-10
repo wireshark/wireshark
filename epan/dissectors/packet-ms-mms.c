@@ -787,7 +787,7 @@ void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     offset += 4;
 
     /* Extract and show the string in tree and info column */
-    transport_info = tvb_fake_unicode(tvb, offset, (length_remaining - 20)/2, TRUE);
+    transport_info = tvb_get_ephemeral_faked_unicode(tvb, offset, (length_remaining - 20)/2, TRUE);
 
     proto_tree_add_string_format(tree, hf_msmms_command_client_transport_info, tvb,
                                  offset, length_remaining-20,
@@ -836,9 +836,6 @@ void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             msmms_data_add_address(pinfo, &addr, pt, port);
         }
     }
-
-    /* Can now free this string */
-    g_free(transport_info);
 }
 
 /* Dissect server data */
@@ -902,7 +899,7 @@ void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Server version string */
     if (server_version_length > 1)
     {
-        server_version = tvb_fake_unicode(tvb, offset, server_version_length, TRUE);
+        server_version = tvb_get_ephemeral_faked_unicode(tvb, offset, server_version_length, TRUE);
 
         /* Server version string */
         proto_tree_add_string(tree, hf_msmms_command_server_version, tvb,
@@ -914,10 +911,6 @@ void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             col_append_fstr(pinfo->cinfo, COL_INFO, " (version='%s')",
 	                    format_text(server_version, server_version_length));
         }
-
-
-        /* Can now free this string */
-        g_free(server_version);
     }
     offset += (server_version_length*2);
 
@@ -925,43 +918,34 @@ void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Tool version string */
     if (tool_version_length > 1)
     {
-        tool_version = tvb_fake_unicode(tvb, offset, tool_version_length, TRUE);
+        tool_version = tvb_get_ephemeral_faked_unicode(tvb, offset, tool_version_length, TRUE);
 
         /* Server version string */
         proto_tree_add_string(tree, hf_msmms_command_tool_version, tvb,
                               offset, tool_version_length*2,
                               format_text(tool_version, tool_version_length));
-
-        /* Can now free this string */
-        g_free(tool_version);
     }
     offset += (tool_version_length*2);
 
     /* Download update player url string */
     if (download_update_player_length > 1)
     {
-        download_update_player = tvb_fake_unicode(tvb, offset, download_update_player_length, TRUE);
+        download_update_player = tvb_get_ephemeral_faked_unicode(tvb, offset, download_update_player_length, TRUE);
 
         proto_tree_add_string(tree, hf_msmms_command_update_url, tvb,
                               offset, download_update_player_length*2,
                               download_update_player);
-
-        /* Can now free this string */
-        g_free(download_update_player);
     }
     offset += (download_update_player_length*2);
 
     /* Password encryption type string */
     if (password_encryption_type_length > 1)
     {
-        password_encryption_type = tvb_fake_unicode(tvb, offset, password_encryption_type_length, TRUE);
+        password_encryption_type = tvb_get_ephemeral_faked_unicode(tvb, offset, password_encryption_type_length, TRUE);
 
         proto_tree_add_string(tree, hf_msmms_command_password_type, tvb,
                               offset, password_encryption_type_length*2,
                               password_encryption_type);
-
-        /* Can now free this string */
-        g_free(password_encryption_type);
     }
     offset += (password_encryption_type_length*2);
 
@@ -984,7 +968,7 @@ void dissect_client_player_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     offset += 4;
 
     /* Extract and show the string in tree and info column */
-    player_info = tvb_fake_unicode(tvb, offset, (length_remaining - 12)/2, TRUE);
+    player_info = tvb_get_ephemeral_faked_unicode(tvb, offset, (length_remaining - 12)/2, TRUE);
 
     proto_tree_add_string(tree, hf_msmms_command_client_player_info, tvb,
                           offset, length_remaining-12,
@@ -995,9 +979,6 @@ void dissect_client_player_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
                         format_text(player_info, (length_remaining - 12)/2));
     }
-
-    /* Can now free this string */
-    g_free(player_info);
 }
 
 /* Dissect info about where client wants to start playing from */
@@ -1101,7 +1082,7 @@ void dissect_request_server_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     offset += 4;
 
     /* File path on server */
-    server_file = tvb_fake_unicode(tvb, offset, (length_remaining - 16)/2, TRUE);
+    server_file = tvb_get_ephemeral_faked_unicode(tvb, offset, (length_remaining - 16)/2, TRUE);
 
     proto_tree_add_string(tree, hf_msmms_command_server_file, tvb,
                           offset, length_remaining-16,
@@ -1112,9 +1093,6 @@ void dissect_request_server_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
                         format_text(server_file, (length_remaining - 16)/2));
     }
-
-    /* Can now free this string */
-    g_free(server_file);
 }
 
 /* Dissect media details from server */
@@ -1207,14 +1185,11 @@ void dissect_transport_info_response(tvbuff_t *tvb, proto_tree *tree,
     offset += 4;
 
     /* Read this strange string */
-    strange_string = tvb_fake_unicode(tvb, offset, (length_remaining - 12)/2, TRUE);
+    strange_string = tvb_get_ephemeral_faked_unicode(tvb, offset, (length_remaining - 12)/2, TRUE);
 
     proto_tree_add_string(tree, hf_msmms_command_strange_string, tvb,
                           offset, length_remaining-12,
                           strange_string);
-
-    /* Can now free this string */
-    g_free(strange_string);
 }
 
 /* Media stream MBR selector */

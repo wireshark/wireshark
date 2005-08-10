@@ -694,14 +694,14 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 		/* Dissect name */
 
 		if (name_len > 0) {
-			name = tvb_fake_unicode(
+			name = tvb_get_ephemeral_faked_unicode(
 				tvb, offset, name_len / 2, TRUE);
 
 			proto_tree_add_text(
 				name_tree, tvb, offset, name_len, 
 				"Name: %s", name);
 		} else
-			name = g_strdup("NULL");
+			name = "NULL";
 
 		if (name_type == 0)
 			proto_item_append_text(
@@ -713,8 +713,6 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 				name_item, "%s, %s",
 				val_to_str(name_type, ntlm_name_types,
 					   "Unknown"), name);
-
-		g_free(name);
 
 		offset += name_len;
 
