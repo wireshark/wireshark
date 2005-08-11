@@ -538,6 +538,7 @@ guint offset=0;
 					proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, offset), "H.248: Dissector for Package/ID:0x%04x not implemented (yet).", name_major);
 					break;
 			}
+			break;
 		case 0x001e: /* Bearer Characteristics Q.1950 Annex A */
 			offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_h248_package_bcp_BNCChar_PDU, NULL);
 			break;
