@@ -803,11 +803,10 @@ smpp_handle_string_return(proto_tree *tree, tvbuff_t *tvb, int field, int *offse
 
     len = tvb_strsize(tvb, *offset);
     if (len > 1) {
-	str = (char *)tvb_get_stringz(tvb, *offset, &len);
+	str = (char *)tvb_get_ephemeral_stringz(tvb, *offset, &len);
 	proto_tree_add_string(tree, field, tvb, *offset, len, str);
     } else {
-	str = g_malloc(1 * sizeof(char));
-	str[0] = '\0';
+	str = "";
     }
     (*offset) += len;
     return str;
@@ -867,7 +866,7 @@ smpp_handle_time(proto_tree *tree, tvbuff_t *tvb,
     gint	 len;
     nstime_t	 tmptime;
 
-    strval = (char *) tvb_get_stringz(tvb, *offset, &len);
+    strval = (char *) tvb_get_ephemeral_stringz(tvb, *offset, &len);
     if (*strval)
     {
 	if (smpp_mktime(strval, &tmptime.secs, &tmptime.nsecs))
@@ -875,7 +874,6 @@ smpp_handle_time(proto_tree *tree, tvbuff_t *tvb,
 	else
 	    proto_tree_add_time(tree, field, tvb, *offset, len, &tmptime);
     }
-    g_free(strval);
     *offset += len;
 }
 
@@ -1411,8 +1409,6 @@ submit_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     	offset += length;
     }
     /* Get rid of SMPP text string addresses */
-    g_free(src_str);
-    g_free(dst_str);
     smpp_handle_tlv(tree, tvb, &offset);
 }
 

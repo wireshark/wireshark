@@ -1783,17 +1783,16 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 			offset += 2;
 		} else if (hdr_id >= 0x20) { /* Textual header */
 			/* Header name MUST be NUL-ended string ==> tvb_get_stringz() */
-			hdr_str = (gchar *)tvb_get_stringz(tvb, hdr_start, (gint *)&hdr_len);
+			hdr_str = (gchar *)tvb_get_ephemeral_stringz(tvb, hdr_start, (gint *)&hdr_len);
 			val_start = hdr_start + hdr_len;
 			val_id = tvb_get_guint8(tvb, val_start);
 			/* Call header value dissector for given header */
 			if (val_id >= 0x20 && val_id <=0x7E) { /* OK! */
-				val_str = (gchar *)tvb_get_stringz(tvb, val_start, (gint *)&val_len);
+				val_str = (gchar *)tvb_get_ephemeral_stringz(tvb, val_start, (gint *)&val_len);
 				offset = val_start + val_len;
 				tvb_ensure_bytes_exist(tvb, hdr_start, offset-hdr_start);
 				proto_tree_add_text(wsp_headers,tvb,hdr_start,offset-hdr_start,
 						"%s: %s", hdr_str, val_str);
-				g_free (val_str);
 			} else {
 				/* Old-style X-WAP-TOD uses a non-textual value
 				 * after a textual header. */
@@ -1909,7 +1908,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 #define wkh_2_TextualValue					/* Parse Textual Value */ \
 		/* END */ \
 	} else if ((val_id == 0) || (val_id >= 0x20)) { /* Textual value */ \
-		val_str = (gchar *)tvb_get_stringz (tvb, val_start, (gint *)&val_len); \
+		val_str = (gchar *)tvb_get_ephemeral_stringz (tvb, val_start, (gint *)&val_len); \
 		offset = val_start + val_len; \
 		/* Textual value processing starts HERE \
 		 * \
@@ -1917,7 +1916,6 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 
 #define wkh_3_ValueWithLength				/* Parse Value With Length */ \
 		/* END */ \
-		g_free(val_str); \
 	} else { /* val_start points to 1st byte of length field */ \
 		if (val_id == 0x1F) { /* Value Length = guintvar */ \
 			val_len = tvb_get_guintvar(tvb, val_start + 1, &val_len_len); \
