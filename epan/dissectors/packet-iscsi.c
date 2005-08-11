@@ -997,6 +997,15 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
                 /* we have seen this one before,   pick it up from the matched table */
                 cdata = (iscsi_conv_data_t *)g_hash_table_lookup (iscsi_req_matched, &ckey);
+            
+                /* We have seen this CDB before but could not find it in the
+                 * matching table, meaning we never saw any DATA or RESPONSES
+                 * to it, so instead pick up the original one from the
+                 * unmatched table.
+                 */
+                if(!cdata){
+                    cdata = (iscsi_conv_data_t *)g_hash_table_lookup (iscsi_req_unmatched, &ckey);
+                }
         }
 
 
