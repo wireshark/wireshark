@@ -876,7 +876,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered length_is_indefinite:%d\n",nam
 		gboolean pc;
 		gint32 tag;
 		guint32 len;
-		int hoffset, eoffset, count;
+		int orig_offset = offset, hoffset, eoffset, count;
 
 		if(ind){ /* this sequence was of indefinite length, so check for EOC */
 #ifdef DEBUG_BER
@@ -1056,6 +1056,12 @@ printf("SEQUENCE dissect_ber_sequence(%s) subdissector ate %d bytes\n",name,coun
 		/* supposed to (len<>0), just try again. */
 		if((len!=0)&&(count==0)&&(seq->flags&BER_FLAGS_OPTIONAL)){
 			goto ber_sequence_try_again;
+		}
+
+		/* Check for an infinite loop */
+		if (offset <= orig_offset) {
+			proto_tree_add_text(tree, tvb, 0, 0, "BER Error: Invalid sequence length");
+			THROW(ReportedBoundsError);
 		}
 	}
 
@@ -1497,6 +1503,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered length_is_indefinite:%d\n",name,leng
 	hoffset = offset;
 	while (offset < end_offset){
 		guint32 len;
+		int orig_offset = offset;
 
 		if(ind){ /* this sequence of was of indefinite length, so check for EOC */
 
@@ -1510,6 +1517,12 @@ printf("SQ OF dissect_ber_sq_of(%s) entered length_is_indefinite:%d\n",name,leng
 		offset = get_ber_length(tree, tvb, offset, &len, NULL);
 		offset += len;
 		cnt++;
+
+		/* Check for an infinite loop */
+		if (offset <= orig_offset) {
+			proto_tree_add_text(tree, tvb, 0, 0, "BER Error: Invalid length");
+			THROW(ReportedBoundsError);
+		}
 	}
 	offset = hoffset;
 
@@ -1535,7 +1548,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered length_is_indefinite:%d\n",name,leng
 		gint32 tag;
 		guint32 len;
 		int eoffset;
-		int hoffset, count;
+		int orig_offset = offset, hoffset, count;
 
 		if(ind){ /* this sequence of was of indefinite length, so check for EOC */
 #ifdef DEBUG_BER
@@ -1654,6 +1667,12 @@ printf("SQ OF dissect_ber_sq_of(%s) subdissector ate %d bytes\n",name,count);
 		} else {
 			cnt++;
 			offset = eoffset;
+		}
+
+		/* Check for an infinite loop */
+		if (offset <= orig_offset) {
+			proto_tree_add_text(tree, tvb, 0, 0, "BER Error: Invalid length");
+			THROW(ReportedBoundsError);
 		}
 	}
 
