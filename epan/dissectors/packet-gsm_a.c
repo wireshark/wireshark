@@ -10396,12 +10396,15 @@ de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
     len = len;
     curr_offset = offset;
 
-    mcc = tvb_get_guint8(tvb, curr_offset);
-    mcc |= (tvb_get_guint8(tvb, curr_offset+1)&0x0f)<<8;
-    mnc = tvb_get_guint8(tvb, curr_offset+2);
-    mnc |= (tvb_get_guint8(tvb, curr_offset+1)<<4)&0x0f00;
-    if ((mnc&0x0f00) == 0x0f00 )
-    	mnc&=0xff;
+    mcc = (tvb_get_guint8(tvb, curr_offset) & 0x0f) <<8;
+	mcc |= (tvb_get_guint8(tvb, curr_offset) & 0xf0);
+	mcc |= (tvb_get_guint8(tvb, curr_offset+1) & 0x0f);
+	mnc = (tvb_get_guint8(tvb, curr_offset+2) & 0x0f) <<8;
+	mnc |= (tvb_get_guint8(tvb, curr_offset+2) & 0xf0);
+	mnc |= (tvb_get_guint8(tvb, curr_offset+1) & 0xf0) >>4;
+	if ((mnc&0x000f) == 0x000f) 
+		mnc>>4;
+
     lac = tvb_get_guint8(tvb, curr_offset+3);
     lac <<= 8;
     lac |= tvb_get_guint8(tvb, curr_offset+4);
