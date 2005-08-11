@@ -436,6 +436,9 @@ static int hf_giop_iiop_port = -1;
 static int hf_giop_iop_vscid = -1;
 static int hf_giop_iop_scid = -1;
 
+static int hf_giop_reply_status = -1;
+static int hf_giop_exception_id = -1;
+
 /*
  * (sub)Tree declares
  */
@@ -720,6 +723,7 @@ static GSList *giop_sub_list = NULL;
 static const char  giop_op_resolve[]           = "resolve";
 static const char  giop_op_bind_new_context[]  = "bind_new_context";
 static const char  giop_op_bind[]              = "bind";
+static const char  giop_op_is_a[]              = "_is_a";
 
 /*
  * Enums  for interesting local operations, that we may need to monitor
@@ -1871,7 +1875,7 @@ static gboolean try_explicit_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, p
  * Caller must free the new string.
  */
 
-static gchar * make_printable_string (gchar *in, guint32 len) {
+gchar * make_printable_string (gchar *in, guint32 len) {
   guint32 i = 0;
   gchar *print_string = NULL;
 
@@ -2877,12 +2881,6 @@ dissect_reply_body (tvbuff_t *tvb, guint offset, packet_info *pinfo,
       }
       if (sequence_length != 0)
 	{
-          if (tree)
-          {
-	      proto_tree_add_text(tree, tvb, offset, sequence_length,
-			   "Exception id: %s",
-			   tvb_format_text(tvb, offset, sequence_length));
-          }
 #if 1
 
           header->exception_id = g_new0(gchar,sequence_length ); /* allocate buffer */
@@ -2891,6 +2889,11 @@ dissect_reply_body (tvbuff_t *tvb, guint offset, packet_info *pinfo,
 
           tvb_get_nstringz0(tvb,offset,sequence_length, header->exception_id );
 
+          if (tree)
+          {
+	      proto_tree_add_string(tree, hf_giop_exception_id, tvb,
+			   offset, sequence_length, header->exception_id);
+          }
 
 #endif
 
@@ -2955,9 +2958,15 @@ dissect_reply_body (tvbuff_t *tvb, guint offset, packet_info *pinfo,
 	exres = try_heuristic_giop_dissector(tvb,pinfo,clnp_tree,&offset,header,entry->operation);
       }
 
+      if (!exres && !strcmp(giop_op_is_a, entry->operation) && tree) {
+		  proto_tree_add_text(tree, tvb, offset - 1, 1, "Type Id%s matched",
+			    get_CDR_boolean(tvb, &offset) ? "" : " not");
+      }
+
       if(! exres) {
         gint stub_length = tvb_reported_length_remaining(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, -1,
+		if (stub_length >0)
+			proto_tree_add_text(tree, tvb, offset, -1,
                                  "Stub data (%d byte%s)", stub_length,
                                  plurality(stub_length, "", "s"));
       }
@@ -3059,9 +3068,8 @@ static void dissect_giop_reply (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
   }
 
   if (tree) {
-    proto_tree_add_text (reply_tree, tvb, offset-4, 4,
-                         "Reply status: %s",
-                         val_to_str(reply_status, reply_status_types, "Unknown (%u)"));
+    proto_tree_add_uint(reply_tree, hf_giop_reply_status, tvb,
+                         offset-4, 4, reply_status);
 
   }
 
@@ -3133,10 +3141,8 @@ static void dissect_giop_reply_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   }
 
   if (tree) {
-    proto_tree_add_text (reply_tree, tvb, offset-4, 4,
-                         "Reply status: %s",
-                         val_to_str(reply_status, reply_status_types, "Unknown (%u)"));
-
+    proto_tree_add_uint(reply_tree, hf_giop_reply_status, tvb,
+                         offset-4, 4, reply_status);
   }
 
   /*
@@ -3413,12 +3419,22 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
   /* Only call heuristic if no explicit dissector was found */
 
   if (! exres) {
-    try_heuristic_giop_dissector(tvb,pinfo,tree,&offset,header,operation);
+    exres = try_heuristic_giop_dissector(tvb,pinfo,tree,&offset,header,operation);
+  }
+
+  if (!exres && !strcmp(giop_op_is_a, operation) && request_tree) {
+    gchar *type_id;
+    len = get_CDR_string(tvb, &type_id, &offset, stream_is_big_endian, 0);
+    proto_tree_add_text(request_tree, tvb, offset - len - 4, 4,
+			"Type Id length: %d", len);
+    proto_tree_add_text(request_tree, tvb, offset - len, len,
+			"Type Id: %s", type_id);
   }
 
   if(! exres) {
     gint stub_length = tvb_reported_length_remaining(tvb, offset);
-    proto_tree_add_text(request_tree, tvb, offset, -1,
+	if (stub_length >0)
+		proto_tree_add_text(request_tree, tvb, offset, -1,
 			"Stub data (%d byte%s)", stub_length,
 			plurality(stub_length, "", "s"));
   }
@@ -3571,12 +3587,22 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   /* Only call heuristic if no explicit dissector was found */
 
   if (! exres) {
-    try_heuristic_giop_dissector(tvb,pinfo,tree,&offset,header,operation);
+    exres = try_heuristic_giop_dissector(tvb,pinfo,tree,&offset,header,operation);
+  }
+
+  if (!exres && !strcmp(giop_op_is_a, operation) && request_tree) {
+    gchar *type_id;
+    len = get_CDR_string(tvb, &type_id, &offset, stream_is_big_endian, 0);
+    proto_tree_add_text(request_tree, tvb, offset - len - 4, 4,
+			"Type Id length: %d", len);
+    proto_tree_add_text(request_tree, tvb, offset - len, len,
+			"Type Id: %s", type_id);
   }
 
   if(! exres) {
     gint stub_length = tvb_reported_length_remaining(tvb, offset);
-    proto_tree_add_text(request_tree, tvb, offset, -1,
+	if (stub_length >0)
+		proto_tree_add_text(request_tree, tvb, offset, -1,
 			"Stub data (%d byte%s)", stub_length,
 			plurality(stub_length, "", "s"));
   }
@@ -4209,8 +4235,14 @@ proto_register_giop (void)
   { "Request operation", "giop.request_op",
 	  FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }
   },
-	  
-
+  { &hf_giop_reply_status,
+  { "Reply status", "giop.replystatus",
+	  FT_UINT32, BASE_DEC, VALS(reply_status_types), 0x0, "", HFILL }
+  },
+  { &hf_giop_exception_id,
+  { "Exception id", "giop.exceptionid",
+	  FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }
+  },
   };
 	
 		
@@ -4464,7 +4496,7 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
   guint32 i;			/* loop index */
 
-  guint8 v_major,v_minor;	/* IIOP sersion */
+  guint8 v_major,v_minor;	/* IIOP version */
   gchar *buf;
   guint32 u_octet4;		/* u long */
   guint16 u_octet2;		/* u short */

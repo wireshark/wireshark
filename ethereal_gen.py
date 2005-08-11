@@ -1001,6 +1001,9 @@ class ethereal_gen_C:
             self.get_CDR_struct(type,pn)
         elif pt ==  idltype.tk_TypeCode: # will I ever get here ?
             self.get_CDR_TypeCode(pn)
+        elif pt == idltype.tk_sequence and \
+                 type.unalias().seqType().kind() == idltype.tk_octet:
+            self.get_CDR_sequence_octet(type,pn)
         elif pt == idltype.tk_sequence:
             self.get_CDR_sequence(type,pn)
         elif pt == idltype.tk_objref:
@@ -1416,6 +1419,17 @@ class ethereal_gen_C:
 
         self.st.out(self.template_get_CDR_sequence_loop_end)
 
+
+    #
+    # Generate code to access a sequence of octet
+    #
+
+    def get_CDR_sequence_octet(self,type, pn):
+        self.st.out(self.template_get_CDR_sequence_length, seqname=pn)
+        self.st.out(self.template_get_CDR_sequence_octet, seqname=pn)
+        self.addvar(self.c_i_lim + pn + ";")
+        self.addvar("gchar * binary_seq_" + pn + ";")
+        self.addvar("gchar * text_seq_" + pn + ";")
 
 
     #
@@ -2085,7 +2099,18 @@ for (i_@seqname@=0; i_@seqname@ < u_octet4_loop_@seqname@; i_@seqname@++) {
 }
 """
 
-
+    template_get_CDR_sequence_octet = """\
+if (u_octet4_loop_@seqname@ > 0 and tree) {
+    get_CDR_octet_seq(tvb, &binary_seq_@seqname@, offset,
+        u_octet4_loop_@seqname@);
+    text_seq_@seqname@ = make_printable_string(binary_seq_@seqname@,
+        u_octet4_loop_@seqname@);
+    proto_tree_add_text(tree, tvb, *offset - u_octet4_loop_@seqname@,
+        u_octet4_loop_@seqname@, \"@seqname@: %s\", text_seq_@seqname@);
+    g_free(binary_seq_@seqname@);
+    g_free(text_seq_@seqname@);
+}
+"""
 
     template_get_CDR_array_start = """\
 for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {

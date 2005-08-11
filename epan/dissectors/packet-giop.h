@@ -534,7 +534,16 @@ extern guint32 get_CDR_encap_info(tvbuff_t *tvb, proto_tree *tree, gint *offset,
 			   gboolean old_stream_is_big_endian, guint32 old_boundary,
 			   gboolean *new_stream_is_big_endian_ptr, guint32 *new_boundary_ptr );
 
+/* Take in an array of char and create a new string.
+ * Replace non-printable characters with periods.
+ *
+ * The array may contain \0's so dont use strdup
+ * The string is \0 terminated, and thus longer than
+ * the initial sequence.
+ * Caller must free the new string.
+ */
 
+extern gchar * make_printable_string (gchar *in, guint32 len);
 
 /*
  * Enums for TCkind
