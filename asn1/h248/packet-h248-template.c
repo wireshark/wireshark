@@ -363,23 +363,18 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 			offset++;
 		}
 		
-		switch(context_id) {
-			case 0x0000000:
-				strncpy(context_string,"Ctx 0",sizeof(context_string));
-				strncpy(context_string_long,"0 (Null Context)",sizeof(context_string));
-				break;
-			case 0xFFFFFFFF:
-				strncpy(context_string,"Ctx *",sizeof(context_string));
-				strncpy(context_string_long,"* (All Contexts)",sizeof(context_string));
-				break;
-			case 0xFFFFFFFE:
-				strncpy(context_string,"Ctx $",sizeof(context_string));
-				strncpy(context_string_long,"$ (Choose One)",sizeof(context_string));
-				break;
-			default:
-				g_snprintf(context_string,sizeof(context_string),"Ctx 0x%" PRIx64, context_id);
-				g_snprintf(context_string_long,sizeof(context_string),"0x%" PRIx64, context_id);
-				break;
+		if (context_id == 0x0000000 ) {
+			strncpy(context_string,"Ctx 0",sizeof(context_string));
+			strncpy(context_string_long,"0 (Null Context)",sizeof(context_string));
+		} else if (context_id == 0xFFFFFFFF ) {
+			strncpy(context_string,"Ctx *",sizeof(context_string));
+			strncpy(context_string_long,"* (All Contexts)",sizeof(context_string));
+		} else if (context_id == 0xFFFFFFFE ) {
+			strncpy(context_string,"Ctx $",sizeof(context_string));
+			strncpy(context_string_long,"$ (Choose One)",sizeof(context_string));
+		} else {
+			g_snprintf(context_string,sizeof(context_string),"Ctx 0x%" PRIx64, context_id);
+			g_snprintf(context_string_long,sizeof(context_string),"0x%" PRIx64, context_id);
 		}
 		
 		if (context_id > 0xffffffff) {
