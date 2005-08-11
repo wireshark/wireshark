@@ -1993,8 +1993,13 @@ static gboolean
 dissect_scsi_blockdescs (tvbuff_t *tvb, packet_info *pinfo _U_,
                         proto_tree *scsi_tree, guint offset,
                         guint payload_len, guint desclen,
-                        scsi_device_type devtype, gboolean longlba)
+                        scsi_task_data_t *cdata, gboolean longlba)
 {
+
+    /* without cdata there is no point in continuing */
+    if (!cdata)
+        return FALSE;
+
     while (desclen != 0) {
         if (longlba) {
             if (payload_len < 8)
@@ -2045,7 +2050,7 @@ dissect_scsi_blockdescs (tvbuff_t *tvb, packet_info *pinfo _U_,
             payload_len -= 4;
             desclen -= 4;
         } else {
-            if (devtype == SCSI_DEV_SBC) {
+            if (cdata->devtype == SCSI_DEV_SBC) {
                 if (payload_len < 4)
                     return FALSE;
                 if (desclen < 4) {
@@ -2715,7 +2720,7 @@ dissect_spc3_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         payload_len -= 1;
 
         if (!dissect_scsi_blockdescs (tvb, pinfo, tree, offset, payload_len,
-                                     desclen, cdata->devtype, FALSE))
+                                     desclen, cdata, FALSE))
             return;
         offset += desclen;
         payload_len -= desclen;
@@ -2818,7 +2823,7 @@ dissect_spc3_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         payload_len -= 2;
 
         if (!dissect_scsi_blockdescs (tvb, pinfo, tree, offset, payload_len,
-                                     desclen, cdata->devtype, longlba))
+                                     desclen, cdata, longlba))
             return;
         offset += desclen;
         payload_len -= desclen;
@@ -2835,11 +2840,15 @@ dissect_spc3_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_scsi_pagecode (tvbuff_t *tvb, packet_info *pinfo _U_,
                        proto_tree *tree, guint offset,
-                       scsi_device_type devtype)
+                       scsi_task_data_t *cdata)
 {
     guint8 pcode;
     const gchar *valstr;
     int hf_pagecode;
+
+    /* unless we have cdata there is not much point in continuing */
+    if (!cdata)
+        return;
 
     pcode = tvb_get_guint8 (tvb, offset);
     if ((valstr = match_strval (pcode & SCSI_MS_PCODE_BITS,
@@ -2849,7 +2858,7 @@ dissect_scsi_pagecode (tvbuff_t *tvb, packet_info *pinfo _U_,
          * device types; try to interpret it based on what we deduced,
          * or were told, the device type is.
          */
-        switch (devtype) {
+        switch (cdata->devtype) {
         case SCSI_DEV_SBC:
             hf_pagecode = hf_scsi_sbcpagecode;
             break;
@@ -2889,7 +2898,7 @@ dissect_spc3_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_uint_format (tree, hf_scsi_modesns_flags, tvb, offset, 1,
                                     flags, "DBD = %u", flags & 0x8);
         proto_tree_add_item (tree, hf_scsi_modesns_pc, tvb, offset+1, 1, 0);
-        dissect_scsi_pagecode (tvb, pinfo, tree, offset+1, cdata->devtype);
+        dissect_scsi_pagecode (tvb, pinfo, tree, offset+1, cdata);
         proto_tree_add_item (tree, hf_scsi_alloclen, tvb, offset+3, 1, 0);
 
         flags = tvb_get_guint8 (tvb, offset+4);
@@ -2947,7 +2956,7 @@ dissect_spc3_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         tot_len -= 1;
 
         if (!dissect_scsi_blockdescs (tvb, pinfo, tree, offset, tot_len,
-                                     desclen, cdata->devtype, FALSE))
+                                     desclen, cdata, FALSE))
             return;
         offset += desclen;
         tot_len -= desclen;
@@ -2980,7 +2989,7 @@ dissect_spc3_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                     flags, "LLBAA = %u, DBD = %u", flags & 0x10,
                                     flags & 0x8);
         proto_tree_add_item (tree, hf_scsi_modesns_pc, tvb, offset+1, 1, 0);
-        dissect_scsi_pagecode (tvb, pinfo, tree, offset+1, cdata->devtype);
+        dissect_scsi_pagecode (tvb, pinfo, tree, offset+1, cdata);
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, 0);
 
         flags = tvb_get_guint8 (tvb, offset+8);
@@ -3044,7 +3053,7 @@ dissect_spc3_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         tot_len -= 2;
 
         if (!dissect_scsi_blockdescs (tvb, pinfo, tree, offset, tot_len,
-                                     desclen, cdata->devtype, longlba))
+                                     desclen, cdata, longlba))
             return;
         offset += desclen;
         tot_len -= desclen;
