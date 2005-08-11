@@ -168,18 +168,19 @@ const value_string sap_vals[] = {
  */
 const value_string oui_vals[] = {
 	{ OUI_ENCAP_ETHER, "Encapsulated Ethernet" },
+	{ OUI_APPLE_ATALK, "Apple (AppleTalk)" },
+	{ OUI_ATM_FORUM,   "ATM Forum" },
+	/* RFC 2427, RFC 2684 */
+	{ OUI_BRIDGED,     "Frame Relay or ATM bridged frames" },
+	{ OUI_CABLE_BPDU,  "DOCSIS Spanning Tree" }, /* DOCSIS spanning tree BPDU */
 /*
 http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r/brprt1/brsrb.htm
 */
 	{ OUI_CISCO,       "Cisco" },
 	{ OUI_CISCO_90,    "Cisco IOS 9.0 Compatible" },
-	{ OUI_BRIDGED,     "Frame Relay or ATM bridged frames" },
-				/* RFC 2427, RFC 2684 */
-	{ OUI_ATM_FORUM,   "ATM Forum" },
-	{ OUI_CABLE_BPDU,  "DOCSIS Spanning Tree" }, /* DOCSIS spanning tree BPDU */
-	{ OUI_APPLE_ATALK, "Apple (AppleTalk)" },
-	{ OUI_NORTEL,      "Nortel Networks SONMP" },
+	{ OUI_EXTREME,     "Extreme Networks" },
 	{ OUI_HP,          "Hewlett-Packard" },
+	{ OUI_NORTEL,      "Nortel Networks SONMP" },
 	{ 0,               NULL }
 };
 
