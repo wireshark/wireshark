@@ -1645,6 +1645,11 @@ static void  make_fake_rpc_prog_if_needed (rpc_prog_info_key *prpc_prog_key,
 rpc_prog_info_value *rpc_prog = NULL;
 
 
+	/* sanity check: no one uses versions > 10 */
+	if(prog_ver>10){
+		return;
+	}
+
 	if( (rpc_prog = g_hash_table_lookup(rpc_progs, prpc_prog_key)) == NULL) {
 		/* ok this is not a known rpc program so we
 		 * will have to fake it.
@@ -1778,6 +1783,8 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * to ethereal.
 		 */
 		if(rpc_dissect_unknown_programs){
+			guint32 version;
+
 			/* if the user has specified that he wants to try to 
 			 * dissect even completely unknown RPC program numbers
 			 * then let him do that.
@@ -1787,7 +1794,8 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if(rpc_prog_key.prog==0 || rpc_prog_key.prog==0xffffffff){
 				return FALSE;
 			}
-			make_fake_rpc_prog_if_needed (&rpc_prog_key, tvb_get_ntohl(tvb, offset + 16));
+			version=tvb_get_ntohl(tvb, offset+16);
+			make_fake_rpc_prog_if_needed (&rpc_prog_key, version);
 		}
 		if( (rpc_prog = g_hash_table_lookup(rpc_progs, &rpc_prog_key)) == NULL) {
 			/* They're not, so it's probably not an RPC call. */
@@ -1874,7 +1882,6 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 			/* and fake up a matching program */
 			rpc_prog_key.prog = rpc_call->prog;
-			make_fake_rpc_prog_if_needed (&rpc_prog_key, rpc_call->vers);
 		}
 
 		/* pass rpc_info to subdissectors */
