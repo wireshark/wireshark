@@ -39,6 +39,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
+#include <epan/emem.h>
 
 #define TCP_PORT_SMTP 25
 
@@ -70,8 +71,6 @@ struct smtp_proto_data {
   guint16 pdu_type;
 };
 
-static int smtp_packet_init_count = 100;
-
 /*
  * State information stored with a conversation.
  */
@@ -79,26 +78,6 @@ struct smtp_request_val {
   gboolean reading_data; /* Reading message data, not commands */
   guint16 crlf_seen;     /* Have we seen a CRLF on the end of a packet */
 };
-
-static GMemChunk  *smtp_request_vals = NULL;
-static GMemChunk  *smtp_packet_infos = NULL;
-
-static void
-smtp_init_protocol(void)
-{
-  if (smtp_request_vals)
-    g_mem_chunk_destroy(smtp_request_vals);
-  if (smtp_packet_infos)
-    g_mem_chunk_destroy(smtp_packet_infos);
-
-  smtp_request_vals = g_mem_chunk_new("smtp_request_vals",
-				      sizeof(struct smtp_request_val),
-				      smtp_packet_init_count * sizeof(struct smtp_request_val), G_ALLOC_AND_FREE);
-  smtp_packet_infos = g_mem_chunk_new("smtp_packet_infos",
-				      sizeof(struct smtp_proto_data),
-				      smtp_packet_init_count * sizeof(struct smtp_proto_data), G_ALLOC_AND_FREE);
-
-}
 
 static void
 dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -195,7 +174,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /*
          * No - create one and attach it.
          */
-	request_val = g_mem_chunk_alloc(smtp_request_vals);
+	request_val = se_alloc(sizeof(struct smtp_request_val));
 	request_val->reading_data = FALSE;
 	request_val->crlf_seen = 0;
 
@@ -246,7 +225,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       if (request) {
 
-	frame_data = g_mem_chunk_alloc(smtp_packet_infos);
+	frame_data = se_alloc(sizeof(struct smtp_proto_data));
 
 	if (request_val->reading_data) {
 	  /*
@@ -577,7 +556,6 @@ proto_register_smtp(void)
 
   proto_register_field_array(proto_smtp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  register_init_routine(&smtp_init_protocol);
 
   smtp_module = prefs_register_protocol(proto_smtp, NULL);
   prefs_register_bool_preference(smtp_module, "desegment_lines",

@@ -3516,7 +3516,6 @@ dissect_mmc4_reportkey (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 {
     guint8 flags, agid, key_format, key_class;
-    char *str;
 
     if (tree && isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_lba, tvb, offset+1,
@@ -3578,7 +3577,6 @@ dissect_mmc4_setstreaming (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 {
     guint8 flags, type;
-    char *str;
 
     if (tree && isreq && iscdb) {
         type=tvb_get_guint8(tvb, offset+7);
@@ -3697,7 +3695,6 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 {
     guint8 flags;
     gint32 len;
-    char *str;
     guint old_offset;
 
     if (tree && isreq && iscdb) {
@@ -3841,7 +3838,6 @@ dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 {
     guint8 flags, format;
     gint16 len;
-    char *str;
 
     if (tree && isreq && iscdb) {
         format=tvb_get_guint8(tvb, offset+1)&0x0f;
