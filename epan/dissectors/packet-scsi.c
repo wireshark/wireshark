@@ -1440,14 +1440,9 @@ typedef struct _scsi_devtype_data {
 } scsi_devtype_data_t;
 
 static GHashTable *scsi_req_hash = NULL;
-static GMemChunk *scsi_req_keys = NULL;
-static GMemChunk *scsi_req_vals = NULL;
-static guint32 scsi_init_count = 25;
 
 static GHashTable *scsidev_req_hash = NULL;
 static GMemChunk *scsidev_req_keys = NULL;
-static GMemChunk *scsidev_req_vals = NULL;
-static guint32 scsidev_init_count = 25;
 
 static dissector_handle_t data_handle;
 
@@ -1513,10 +1508,10 @@ scsi_new_task (packet_info *pinfo)
         cdata = (scsi_task_data_t *)g_hash_table_lookup (scsi_req_hash,
                                                          &ckey);
         if (!cdata) {
-            req_key = g_mem_chunk_alloc (scsi_req_keys);
+            req_key = se_alloc (sizeof(scsi_task_id_t));
             *req_key = *(scsi_task_id_t *)pinfo->private_data;
 
-            cdata = g_mem_chunk_alloc (scsi_req_vals);
+            cdata = se_alloc (sizeof(scsi_task_data_t));
 
             g_hash_table_insert (scsi_req_hash, req_key, cdata);
         }
@@ -1550,7 +1545,6 @@ scsi_end_task (packet_info *pinfo)
         cdata = (scsi_task_data_t *)g_hash_table_lookup (scsi_req_hash,
                                                          &ckey);
         if (cdata) {
-            g_mem_chunk_free (scsi_req_vals, cdata);
             g_hash_table_remove (scsi_req_hash, &ckey);
         }
     }
@@ -1587,41 +1581,13 @@ scsi_init_protocol(void)
 		    NULL);
 	}
 
-	if (scsi_req_keys)
-            g_mem_chunk_destroy(scsi_req_keys);
-	if (scsi_req_vals)
-            g_mem_chunk_destroy(scsi_req_vals);
-        if (scsidev_req_keys)
-            g_mem_chunk_destroy (scsidev_req_keys);
-        if (scsidev_req_vals)
-            g_mem_chunk_destroy (scsidev_req_vals);
 	if (scsi_req_hash)
             g_hash_table_destroy(scsi_req_hash);
         if (scsidev_req_hash)
             g_hash_table_destroy (scsidev_req_hash);
 
 	scsi_req_hash = g_hash_table_new(scsi_hash, scsi_equal);
-	scsi_req_keys = g_mem_chunk_new("scsi_req_keys",
-                                        sizeof(scsi_task_id_t),
-                                        scsi_init_count *
-                                        sizeof(scsi_task_id_t),
-                                        G_ALLOC_AND_FREE);
-	scsi_req_vals = g_mem_chunk_new("scsi_req_vals",
-                                        sizeof(scsi_task_data_t),
-                                        scsi_init_count *
-                                        sizeof(scsi_task_data_t),
-                                        G_ALLOC_AND_FREE);
         scsidev_req_hash = g_hash_table_new (scsidev_hash, scsidev_equal);
-        scsidev_req_keys = g_mem_chunk_new("scsidev_req_keys",
-                                           sizeof(scsi_devtype_key_t),
-                                           scsidev_init_count *
-                                           sizeof(scsi_devtype_key_t),
-                                           G_ALLOC_AND_FREE);
-        scsidev_req_vals = g_mem_chunk_new("scsidev_req_vals",
-                                           sizeof(scsi_devtype_data_t),
-                                           scsidev_init_count *
-                                           sizeof(scsi_devtype_data_t),
-                                           G_ALLOC_AND_FREE);
 }
 
 static void
@@ -1805,10 +1771,10 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         devdata = (scsi_devtype_data_t *)g_hash_table_lookup (scsidev_req_hash,
                                                               &dkey);
         if (!devdata) {
-            req_key = g_mem_chunk_alloc (scsidev_req_keys);
+            req_key = se_alloc (sizeof(scsi_devtype_key_t));
             COPY_ADDRESS (&(req_key->devid), &(pinfo->src));
 
-            devdata = g_mem_chunk_alloc (scsidev_req_vals);
+            devdata = se_alloc (sizeof(scsi_devtype_data_t));
             devdata->devtype = tvb_get_guint8 (tvb, offset) & SCSI_DEV_BITS;
 
             g_hash_table_insert (scsidev_req_hash, req_key, devdata);
