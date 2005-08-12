@@ -658,7 +658,7 @@ dissect_asap_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *asap
       proto_tree_add_item(flags_tree, hf_home_enrp_server_bit, message_tvb, MESSAGE_FLAGS_OFFSET, MESSAGE_FLAGS_LENGTH, NETWORK_BYTE_ORDER);
     }
     proto_tree_add_item(asap_tree, hf_message_length, message_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, NETWORK_BYTE_ORDER);
-    if (type == SERVER_ANNOUNCE_MESSAGE_TYPE) {
+    if ((type == SERVER_ANNOUNCE_MESSAGE_TYPE) || (type == ENDPOINT_KEEP_ALIVE_MESSAGE_TYPE)) {
       proto_tree_add_item(asap_tree, hf_server_identifier, message_tvb, SERVER_IDENTIFIER_OFFSET, SERVER_IDENTIFIER_LENGTH, NETWORK_BYTE_ORDER);
       parameters_tvb = tvb_new_subset(message_tvb, MESSAGE_VALUE_OFFSET + SERVER_IDENTIFIER_LENGTH, -1, -1);
     } else {
