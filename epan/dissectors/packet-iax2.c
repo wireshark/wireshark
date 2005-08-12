@@ -1136,14 +1136,16 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 	    /* these come from linux/socket.h */
 	    case 2: /* AF_INET */
 	    {
-	      /* the ip address is big-endian, but then so is address.data */
-	      SET_ADDRESS(&ie_data->peer_address,AT_IPv4,4,tvb_get_ptr(tvb,offset+6,4));
+	      guint32 addr;
 	      
 	      /* IAX is always over UDP */
 	      ie_data->peer_ptype = PT_UDP;
 	      ie_data->peer_port = tvb_get_ntohs(tvb, offset+4);
 	      proto_tree_add_uint(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINPORT, tvb, offset + 4, 2, ie_data->peer_port);
-	      proto_tree_add_ipv4(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINADDR, tvb, offset + 6, 4, *(guint32 *)(&ie_data->peer_address.data));
+	      /* the ip address is big-endian, but then so is address.data */
+	      SET_ADDRESS(&ie_data->peer_address,AT_IPv4,4,tvb_get_ptr(tvb,offset+6,4));
+	      memcpy(&addr, ie_data->peer_address.data, 4);
+	      proto_tree_add_ipv4(sockaddr_tree, hf_IAX_IE_APPARENTADDR_SINADDR, tvb, offset + 6, 4, addr);
 	      break;
 	    }
 
