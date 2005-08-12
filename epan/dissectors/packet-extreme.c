@@ -1,6 +1,6 @@
 /* packet-extreme.c
  * Routines for the disassembly of Extreme Networks specific
- * protocols (EDP/ESRP)
+ * protocols (EDP/ESRP/EAPS)
  *
  * $Id$
  *
@@ -26,14 +26,66 @@
  */
 
 /* Specs:
-   EAPS v1 is specified in rfc 3619
+
+   EAPS v1 is specified in RFC3619
+
+  TODO:
+   EAPS v2 is not supported (no spec)
+   Lots of stuff in the EDP Info field (no spec)
+   The Display string is probably incomplete
+   Look for FIXME in the code :-)
+
+ESRP Packet Format
+
+ 0                               1
+ 0 1 2 3 4 5 6 7 8 9 A B C D E F 0 1 2 3 4 5 6 7 8 9 A B C D E F
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 0000
+|                       SOURCE MAC ADDRESS                      |
++-------------------------------+-------------------------------+ 0004
+|   SOURCE MAC ADDRESS (CONT)   |        DEST MAC ADDRESS       |
++-------------------------------+-------------------------------+ 0008
+|                    DEST MAC ADDRESS (CONT)                    |
++-------------------------------+---------------+---------------+ 000C
+|            LENGTH             |  DSAP = AA    |  SSAP = AA    |
++---------------+---------------+---------------+---------------+ 0010
+| LLC TYPE = UI |                  UID = 00E02B                 |
++---------------+---------------+---------------+---------------+ 0014
+|         SNAP TYPE = 00BB      |   EDP VERSION |   RESERVED    |
++-------------------------------+---------------+---------------+ 0018
+|            LENGTH             |           CHECKSUM            |
++-------------------------------+-------------------------------+ 001C
+|        SEQUENCE NUMBER        |          MACHINE ID           |
++-------------------------------+-------------------------------+ 0020
+|                      MACHINE ID (CONT.)                       |
++-------------------------------+---------------+---------------+ 0024
+|      MACHINE ID (CONT.)       | MARKER=99(EDP)| TYPE=08 (ESRP)|
++-------------------------------+---------------+---------------+ 0028
+|         LENGTH = 001C         |0=IP 1=IPX 2=L2|   GROUP = 0   |
++-------------------------------+-------------------------------+ 002C
+|           PRIORITY            |  STATE: 0=?? 1=MSTR 2=SLAVE   |
++-------------------------------+-------------------------------+ 0030
+|    NUMBER OF ACTIVE PORTS     |      VIRTUAL IP ADDRESS       |
++-------------------------------+-------------------------------+ 0034
+|  VIRTUAL IP ADDRESS (CONT)    |     SYSTEM MAC ADDRESS        |
++-------------------------------+-------------------------------+ 0038
+|                   SYSTEM MAC ADDRESS (CONT.)                  |
++-------------------------------+-------------------------------+ 003C
+|         HELLO TIMER           |           RESERVED            |
++-------------------------------+-------------------------------+ 0040
+
+
+******************************************************************************
+
+
+EDP is a SNAP encapsulated frame.  The top level looks like this:
+The top level format is like this:
+[ SNAP header ] [ EDP header] [ TLV 0 ] [ TLV 1 ] ... [ TLV N ]
+
  */
 
 #ifdef HAVE_CONFIG_H
 #  include "config.h"
 #endif
-
-#include <string.h>
 
 #include <glib.h>
 #include <epan/packet.h>
@@ -63,6 +115,10 @@ static int hf_edp_info_port = -1;
 static int hf_edp_info_vchassid = -1;
 static int hf_edp_info_reserved = -1;
 static int hf_edp_info_version = -1;
+static int hf_edp_info_version_major1 = -1;
+static int hf_edp_info_version_major2 = -1;
+static int hf_edp_info_version_sustaining = -1;
+static int hf_edp_info_version_internal = -1;
 static int hf_edp_info_vchassconn = -1;
 /* Vlan element */
 static int hf_edp_vlan_flags = -1;
@@ -174,6 +230,10 @@ dissect_display_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int lengt
 static void
 dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length _U_, proto_tree *tree)
 {
+	proto_item *tlvi;
+	proto_tree *ver_tree;
+	guint8 major1, major2, sustaining, internal;
+
 	proto_tree_add_uint(tree, hf_edp_info_slot, tvb, offset, 2,
 		tvb_get_ntohs(tvb, offset));
 	offset += 2;
@@ -190,10 +250,37 @@ dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length _
 		tvb_get_ptr(tvb, offset, 6));
 	offset += 6;
 
-	/* FIXME: Split into major.minor.patch.00 */
-	proto_tree_add_uint(tree, hf_edp_info_version, tvb, offset, 4,
+	/* Begin version subtree */
+	major1 = tvb_get_guint8(tvb, offset);
+	major2 = tvb_get_guint8(tvb, offset + 1);
+	sustaining = tvb_get_guint8(tvb, offset + 2);
+	internal = tvb_get_guint8(tvb, offset + 3);
+
+	tlvi = proto_tree_add_text(tree, tvb, offset, 4,
+		"Version: %u.%u.%u Internal: %u", major1, major2,
+		sustaining, internal);
+
+	ver_tree = proto_item_add_subtree(tlvi, ett_edp_tlv);
+
+	proto_tree_add_uint(ver_tree, hf_edp_info_version, tvb, offset, 4,
 		tvb_get_ntohl(tvb, offset));
-	offset += 4;
+
+	proto_tree_add_uint(ver_tree, hf_edp_info_version_major1, tvb, offset, 1,
+		major1);
+	offset += 1;
+
+	proto_tree_add_uint(ver_tree, hf_edp_info_version_major2, tvb, offset, 1,
+		major2);
+	offset += 1;
+
+	proto_tree_add_uint(ver_tree, hf_edp_info_version_sustaining, tvb, offset, 1,
+		sustaining);
+	offset += 1;
+
+	proto_tree_add_uint(ver_tree, hf_edp_info_version_internal, tvb, offset, 1,
+		internal);
+	offset += 1;
+	/* End of version subtree */
 
 	proto_tree_add_bytes(tree, hf_edp_info_vchassconn, tvb, offset, 16,
 		tvb_get_ptr(tvb, offset, 16));
@@ -204,26 +291,26 @@ static void
 dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, proto_tree *tree)
 {
 	/* FIXME: properly decode the bit(s):
-		bit 8 = 1 -> has ip interface  */
+		bit 2^7 = 1 -> has ip interface
+		bit 2^0 = ? */
 	proto_tree_add_uint(tree, hf_edp_vlan_flags, tvb, offset, 1,
 		tvb_get_guint8(tvb, offset));
 	offset += 1;
 
-	proto_tree_add_bytes(tree, hf_edp_vlan_reserved1, tvb, offset, 3,
-		tvb_get_ptr(tvb, offset, 3));
-	offset += 3;
+	proto_tree_add_bytes(tree, hf_edp_vlan_reserved1, tvb, offset, 1,
+		tvb_get_ptr(tvb, offset, 1));
+	offset += 1;
 
-	/* FIXME: Looks like the vlan number might be in the reserved2 part */
 	proto_tree_add_uint(tree, hf_edp_vlan_id, tvb, offset, 2,
 		tvb_get_ntohs(tvb, offset));
 	offset += 2;
 
-	proto_tree_add_bytes(tree, hf_edp_vlan_reserved2, tvb, offset, 2,
-		tvb_get_ptr(tvb, offset, 2));
-	offset += 2;
+	proto_tree_add_bytes(tree, hf_edp_vlan_reserved2, tvb, offset, 4,
+		tvb_get_ptr(tvb, offset, 4));
+	offset += 4;
 
 	proto_tree_add_ipv4(tree, hf_edp_vlan_ip, tvb, offset, 4,
-		tvb_get_ntohl(tvb, offset));
+		*((guint32*)ep_tvb_memdup(tvb, offset, 4))); 
 	offset += 4;
 
 	proto_tree_add_string(tree, hf_edp_vlan_name, tvb, offset, length - 12,
@@ -258,7 +345,7 @@ dissect_esrp_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, 
 	offset += 2;
 
 	proto_tree_add_ipv4(tree, hf_edp_esrp_virtip, tvb, offset, 4,
-		tvb_get_ntohl(tvb, offset));
+                *((guint32*)ep_tvb_memdup(tvb, offset, 4)));
 	offset += 4;
 
 	proto_tree_add_ether(tree, hf_edp_esrp_sysmac, tvb, offset, 6,
@@ -402,6 +489,7 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				last = 1;
 				break;
 			}
+			/* FIXME: Show type specific information */
 			tlvi = proto_tree_add_text(edp_tree, tvb, offset,
 				tlv_length, "Type: %s, length: %d bytes",
 				val_to_str(tlv_type, edp_type_vals, "Unknown (0x%02x)"),
@@ -412,10 +500,6 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				tlv_marker);
 			offset += 1;
 
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-					val_to_str(tlv_type, edp_type_vals, "[0x%02x]"));
-
 			proto_tree_add_uint(tlv_tree, hf_edp_tlv_type, tvb, offset, 1,
 				tlv_type);
 			offset += 1;
@@ -423,6 +507,10 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_uint(tlv_tree, hf_edp_tlv_length, tvb, offset, 2,
 				tlv_length);
 			offset += 2;
+
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+					val_to_str(tlv_type, edp_type_vals, "[0x%02x]"));
 
 			switch (tlv_type) {
 			case EDP_TYPE_NULL: /* Last TLV */
@@ -523,10 +611,25 @@ proto_register_edp(void)
 		{ "Reserved",	"edp.info.reserved", FT_BYTES, BASE_NONE, NULL,
 			0x0, "", HFILL }},
 
-		/* FIXME: Split into major.minor.patch.00 */
 		{ &hf_edp_info_version,
 		{ "Version",	"edp.info.version", FT_UINT32, BASE_HEX, NULL,
 			0x0, "Software version", HFILL }},
+
+		{ &hf_edp_info_version_major1,
+		{ "Version (major1)",	"edp.info.version.major1", FT_UINT8, BASE_DEC, NULL,
+			0x0, "Software version (major1)", HFILL }},
+
+		{ &hf_edp_info_version_major2,
+		{ "Version (major2)",	"edp.info.version.major2", FT_UINT8, BASE_DEC, NULL,
+			0x0, "Software version (major2)", HFILL }},
+
+		{ &hf_edp_info_version_sustaining,
+		{ "Version (sustaining)",	"edp.info.version.sustaining", FT_UINT8, BASE_DEC, NULL,
+			0x0, "Software version (sustaining)", HFILL }},
+
+		{ &hf_edp_info_version_internal,
+		{ "Version (internal)",	"edp.info.version.internal", FT_UINT8, BASE_DEC, NULL,
+			0x0, "Software version (internal)", HFILL }},
 
 		{ &hf_edp_info_vchassconn,
 		{ "Connections",	"edp.info.vchassconn", FT_BYTES, BASE_NONE, NULL,
