@@ -1442,7 +1442,6 @@ typedef struct _scsi_devtype_data {
 static GHashTable *scsi_req_hash = NULL;
 
 static GHashTable *scsidev_req_hash = NULL;
-static GMemChunk *scsidev_req_keys = NULL;
 
 static dissector_handle_t data_handle;
 
