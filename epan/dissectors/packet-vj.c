@@ -71,6 +71,7 @@
 #include "ppptypes.h"
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
+#include <epan/emem.h>
 
 /* Define relevant IP/TCP parameters */
 #define IP_FIELD_TOT_LEN      2 /* Total length field in IP hdr           */
@@ -112,7 +113,6 @@
 
 /* VJ Mem Chunk defines */
 #define VJ_DATA_SIZE  128 /* Max IP hdr(64)+Max TCP hdr(64) */
-#define VJ_ATOM_COUNT 250 /* Number of Atoms per block      */
 
 /* IP and TCP header types */
 typedef struct {
@@ -189,7 +189,6 @@ static dissector_handle_t data_handle;
 static slcompress *rx_tx_state[RX_TX_STATE_COUNT] = {NULL, NULL};
 
 /* Mem Chunks for storing decompressed headers */
-static GMemChunk *vj_header_memchunk = NULL;
 typedef struct {
 	int	offset;			/* uppermost bit is "can't dissect" flag */
 	guint8	data[VJ_DATA_SIZE];
@@ -526,16 +525,8 @@ static void
 vj_init(void)
 {
   gint i           = ZERO;
-  slcompress *pslc = NULL;
 
-  if(vj_header_memchunk != NULL)
-    g_mem_chunk_destroy(vj_header_memchunk);
-  vj_header_memchunk = g_mem_chunk_new("vj header store", sizeof (vj_header_t),
-                                       sizeof (vj_header_t) * VJ_ATOM_COUNT,
-                                       G_ALLOC_ONLY);
   for(i = 0; i < RX_TX_STATE_COUNT; i++) {
-    if((pslc = rx_tx_state[i]) != NULL)
-      g_free(pslc);
     rx_tx_state[i] = slhc_init();
   }
   return;
@@ -545,7 +536,7 @@ vj_init(void)
 static slcompress *
 slhc_init(void)
 {
-  slcompress *comp = g_malloc(sizeof(slcompress));
+  slcompress *comp = se_alloc(sizeof(slcompress));
   int         i;
 
   memset(comp, ZERO, sizeof(slcompress));
@@ -813,7 +804,7 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
     return VJ_ERROR;
   }
 
-  if(cs != NULL) {
+  if((cs != NULL) && (!pinfo->fd->flags.visited)) {
     len += hdrlen;
     ip->tot_len = g_htons(len);
     /* Compute IP check sum */
@@ -821,7 +812,7 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
     ip->cksum = ip_csum((guint8 *)ip, lo_nibble(ip->ihl_version) * 4);
 
     /* Store the reconstructed header in frame data area */
-    buf_hdr = g_mem_chunk_alloc(vj_header_memchunk);
+    buf_hdr = se_alloc(sizeof (vj_header_t));
     buf_hdr->offset = offset;  /* Offset in tvbuff is also stored */
     data_ptr = buf_hdr->data;
     memcpy(data_ptr, ip, IP_HDR_LEN);

@@ -80,6 +80,7 @@
 #include "packet-tcp.h"
 #include "packet-udp.h"
 #include <epan/strutil.h>
+#include <epan/emem.h>
 
 
 #define compare_packet(X) (X == (pinfo->fd->num))
@@ -225,11 +226,6 @@ static const value_string cmd_strings[] = {
 	{0x81, "Traceroute"},
 	{0, NULL}
 };
-
-#define socks_hash_init_count 20
-#define socks_hash_val_length (sizeof(socks_hash_entry_t))
-
-static GMemChunk *socks_vals = NULL;
 
 
 /************************* Support routines ***************************/
@@ -1009,7 +1005,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	}
 	hash_info = conversation_get_proto_data(conversation,proto_socks);
 	if ( !hash_info){
-    		hash_info = g_mem_chunk_alloc(socks_vals);
+    		hash_info = se_alloc(sizeof(socks_hash_entry_t));
 		hash_info->start_done_row = G_MAXINT;
     		hash_info->state = None;
 		hash_info->port = 0;
@@ -1115,21 +1111,6 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 
 
-static void socks_reinit( void){
-
-/* Do the cleanup work when a new pass through the packet list is	*/
-/* performed. Reset the highest row seen counter and re-initialize the	*/
-/* conversation memory chunks.						*/
-
-  	if (socks_vals)
-    		g_mem_chunk_destroy(socks_vals);
-
-  	socks_vals = g_mem_chunk_new("socks_vals", socks_hash_val_length,
-		socks_hash_init_count * socks_hash_val_length,
-		G_ALLOC_AND_FREE);
-}
-
-
 void
 proto_register_socks( void){
 
@@ -1207,8 +1188,6 @@ proto_register_socks( void){
 
 	proto_register_field_array(proto_socks, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	register_init_routine( &socks_reinit);	/* register re-init routine */
 
 	socks_udp_handle = create_dissector_handle(socks_udp_dissector,
 	    proto_socks);
