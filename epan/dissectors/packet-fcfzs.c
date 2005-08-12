@@ -48,6 +48,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <epan/conversation.h>
 #include "etypes.h"
 #include "packet-fc.h"
@@ -92,9 +93,6 @@ typedef struct _fcfzs_conv_data {
 } fcfzs_conv_data_t;
 
 GHashTable *fcfzs_req_hash = NULL;
-GMemChunk *fcfzs_req_keys = NULL;
-GMemChunk *fcfzs_req_vals = NULL;
-guint32 fcfzs_init_count = 25;
 
 static dissector_handle_t data_handle;
 
@@ -127,24 +125,10 @@ fcfzs_hash (gconstpointer v)
 static void
 fcfzs_init_protocol(void)
 {
-	if (fcfzs_req_keys)
-            g_mem_chunk_destroy (fcfzs_req_keys);
-	if (fcfzs_req_vals)
-            g_mem_chunk_destroy (fcfzs_req_vals);
 	if (fcfzs_req_hash)
             g_hash_table_destroy (fcfzs_req_hash);
 
 	fcfzs_req_hash = g_hash_table_new (fcfzs_hash, fcfzs_equal);
-	fcfzs_req_keys = g_mem_chunk_new ("fcfzs_req_keys",
-                                          sizeof(fcfzs_conv_key_t),
-                                          fcfzs_init_count *
-                                          sizeof(fcfzs_conv_key_t),
-                                          G_ALLOC_AND_FREE);
-	fcfzs_req_vals = g_mem_chunk_new ("fcfzs_req_vals",
-                                          sizeof(fcfzs_conv_data_t),
-                                          fcfzs_init_count *
-                                          sizeof(fcfzs_conv_data_t),
-                                          G_ALLOC_AND_FREE);
 }
 
 /* Code to actually dissect the packets */
@@ -681,10 +665,10 @@ dissect_fcfzs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             cdata->opcode = opcode;
         }
         else {
-            req_key = g_mem_chunk_alloc (fcfzs_req_keys);
+            req_key = se_alloc (sizeof(fcfzs_conv_key_t));
             req_key->conv_idx = conversation->index;
             
-            cdata = g_mem_chunk_alloc (fcfzs_req_vals);
+            cdata = se_alloc (sizeof(fcfzs_conv_data_t));
             cdata->opcode = opcode;
             
             g_hash_table_insert (fcfzs_req_hash, req_key, cdata);

@@ -44,10 +44,9 @@
 #include "arcnet_pids.h"
 #include <epan/conversation.h>
 #include <epan/tap.h>
+#include <epan/emem.h>
 
 static int ipx_tap = -1;
-
-#define SPX_PACKET_INIT_COUNT	200
 
 /* The information in this module (IPX, SPX, NCP) comes from:
 	NetWare LAN Analysis, Second Edition
@@ -434,9 +433,6 @@ typedef struct {
 } spx_rexmit_info;
 
 static GHashTable *spx_hash = NULL;
-static GMemChunk *spx_hash_keys = NULL;
-static GMemChunk *spx_hash_values = NULL;
-static GMemChunk *spx_rexmit_infos = NULL;
 
 /* Hash Functions */
 static gint
@@ -468,26 +464,8 @@ spx_init_protocol(void)
 
 	if (spx_hash)
 		g_hash_table_destroy(spx_hash);
-	if (spx_hash_keys)
-		g_mem_chunk_destroy(spx_hash_keys);
-	if (spx_hash_values)
-		g_mem_chunk_destroy(spx_hash_values);
-	if (spx_rexmit_infos)
-		g_mem_chunk_destroy(spx_rexmit_infos);
 
 	spx_hash = g_hash_table_new(spx_hash_func, spx_equal);
-	spx_hash_keys = g_mem_chunk_new("spx_hash_keys",
-			sizeof(spx_hash_key),
-			SPX_PACKET_INIT_COUNT * sizeof(spx_hash_key),
-			G_ALLOC_ONLY);
-	spx_hash_values = g_mem_chunk_new("spx_hash_values",
-			sizeof(spx_hash_value),
-			SPX_PACKET_INIT_COUNT * sizeof(spx_hash_value),
-			G_ALLOC_ONLY);
-	spx_rexmit_infos = g_mem_chunk_new("spx_rexmit_infos",
-			sizeof(spx_rexmit_infos),
-			SPX_PACKET_INIT_COUNT * sizeof(spx_rexmit_infos),
-			G_ALLOC_ONLY);
 }
 
 /* After the sequential run, we don't need the spx hash table, or
@@ -502,16 +480,6 @@ spx_postseq_cleanup(void)
 		g_hash_table_destroy(spx_hash);
 		spx_hash = NULL;
 	}
-	if (spx_hash_keys) {
-		g_mem_chunk_destroy(spx_hash_keys);
-		spx_hash_keys = NULL;
-	}
-	if (spx_hash_values) {
-		g_mem_chunk_destroy(spx_hash_values);
-		spx_hash_values = NULL;
-	}
-	/* Don't free the spx_rexmit_infos, as they're
-	 * needed during random-access processing of the proto_tree.*/
 }
 
 static spx_hash_value*
@@ -521,12 +489,12 @@ spx_hash_insert(conversation_t *conversation, guint32 spx_src, guint16 spx_seq)
 	spx_hash_value		*value;
 
 	/* Now remember the packet, so we can find it if we later. */
-	key = g_mem_chunk_alloc(spx_hash_keys);
+	key = se_alloc(sizeof(spx_hash_key));
 	key->conversation = conversation;
 	key->spx_src = spx_src;
 	key->spx_seq = spx_seq;
 
-	value = g_mem_chunk_alloc(spx_hash_values);
+	value = se_alloc(sizeof(spx_hash_value));
 	value->spx_ack = 0;
 	value->spx_all = 0;
 	value->num = 0;
@@ -766,7 +734,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 * Found in the hash table.  Mark this frame as
 				 * a retransmission.
 				 */
-				spx_rexmit_info = g_mem_chunk_alloc(spx_rexmit_infos);
+				spx_rexmit_info = se_alloc(sizeof(spx_rexmit_info));
 				spx_rexmit_info->num = pkt_value->num;
 				p_add_proto_data(pinfo->fd, proto_spx,
 				    spx_rexmit_info);

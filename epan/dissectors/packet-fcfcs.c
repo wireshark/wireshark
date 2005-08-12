@@ -42,6 +42,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <epan/conversation.h>
 #include "etypes.h"
 #include "packet-fc.h"
@@ -99,9 +100,6 @@ typedef struct _fcfcs_conv_data {
 } fcfcs_conv_data_t;
 
 GHashTable *fcfcs_req_hash = NULL;
-GMemChunk *fcfcs_req_keys = NULL;
-GMemChunk *fcfcs_req_vals = NULL;
-guint32 fcfcs_init_count = 25;
 
 static dissector_handle_t data_handle;
 
@@ -134,24 +132,10 @@ fcfcs_hash (gconstpointer v)
 static void
 fcfcs_init_protocol(void)
 {
-	if (fcfcs_req_keys)
-            g_mem_chunk_destroy (fcfcs_req_keys);
-	if (fcfcs_req_vals)
-            g_mem_chunk_destroy (fcfcs_req_vals);
 	if (fcfcs_req_hash)
             g_hash_table_destroy (fcfcs_req_hash);
 
 	fcfcs_req_hash = g_hash_table_new(fcfcs_hash, fcfcs_equal);
-	fcfcs_req_keys = g_mem_chunk_new ("fcfcs_req_keys",
-                                          sizeof(fcfcs_conv_key_t),
-                                          fcfcs_init_count *
-                                          sizeof(fcfcs_conv_key_t),
-                                                        G_ALLOC_AND_FREE);
-	fcfcs_req_vals = g_mem_chunk_new ("fcfcs_req_vals",
-                                          sizeof(fcfcs_conv_data_t),
-                                          fcfcs_init_count *
-                                          sizeof(fcfcs_conv_data_t),
-                                          G_ALLOC_AND_FREE);
 }
 
 /* Code to actually dissect the packets */
@@ -855,10 +839,10 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             cdata->opcode = opcode;
         }
         else {
-            req_key = g_mem_chunk_alloc (fcfcs_req_keys);
+            req_key = se_alloc (sizeof(fcfcs_conv_key_t));
             req_key->conv_idx = conversation->index;
             
-            cdata = g_mem_chunk_alloc (fcfcs_req_vals);
+            cdata = se_alloc (sizeof(fcfcs_conv_data_t));
             cdata->opcode = opcode;
             
             g_hash_table_insert (fcfcs_req_hash, req_key, cdata);

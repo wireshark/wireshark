@@ -42,6 +42,7 @@
 #include <glib.h>
 
 #include <epan/prefs.h>
+#include <epan/emem.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include "etypes.h"
@@ -88,9 +89,6 @@ typedef struct _fcp_conv_data {
 } fcp_conv_data_t;
 
 GHashTable *fcp_req_hash = NULL;
-GMemChunk *fcp_req_keys = NULL;
-GMemChunk *fcp_req_vals = NULL;
-guint32 fcp_init_count = 25;
 
 /*
  * Hash Functions
@@ -121,22 +119,10 @@ fcp_hash (gconstpointer v)
 static void
 fcp_init_protocol(void)
 {
-    if (fcp_req_keys)
-        g_mem_chunk_destroy(fcp_req_keys);
-    if (fcp_req_vals)
-        g_mem_chunk_destroy(fcp_req_vals);
     if (fcp_req_hash)
         g_hash_table_destroy(fcp_req_hash);
 
     fcp_req_hash = g_hash_table_new(fcp_hash, fcp_equal);
-    fcp_req_keys = g_mem_chunk_new("fcp_req_keys",
-                                   sizeof(fcp_conv_key_t),
-                                   fcp_init_count * sizeof(fcp_conv_key_t),
-                                   G_ALLOC_AND_FREE);
-    fcp_req_vals = g_mem_chunk_new("fcp_req_vals",
-                                   sizeof(fcp_conv_data_t),
-                                   fcp_init_count * sizeof(fcp_conv_data_t),
-                                   G_ALLOC_AND_FREE);
 }
 
 static gchar *
@@ -294,10 +280,10 @@ dissect_fcp_cmnd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         cdata->abs_secs = pinfo->fd->abs_secs;
     }
     else {
-        req_key = g_mem_chunk_alloc (fcp_req_keys);
+        req_key = se_alloc (sizeof(fcp_conv_key_t));
         req_key->conv_idx = conversation->index;
 
-        cdata = g_mem_chunk_alloc (fcp_req_vals);
+        cdata = se_alloc (sizeof(fcp_conv_data_t));
         cdata->fcp_dl = tvb_get_ntohl (tvb, offset+12+16+add_len);
         cdata->abs_usecs = pinfo->fd->abs_usecs;
         cdata->abs_secs = pinfo->fd->abs_secs;
@@ -498,7 +484,6 @@ dissect_fcp_rsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /*
              * XXX - this isn't done if an exception is thrown.
              */
-            g_mem_chunk_free (fcp_req_vals, cdata);
             g_hash_table_remove (fcp_req_hash, &ckey);
         }
     }
@@ -535,10 +520,10 @@ dissect_fcp_xfer_rdy (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             cdata->fcp_dl = tvb_get_ntohl (tvb, offset+4);
         }
         else {
-            req_key = g_mem_chunk_alloc (fcp_req_keys);
+            req_key = se_alloc (sizeof(fcp_conv_key_t));
             req_key->conv_idx = conversation->index;
 
-            cdata = g_mem_chunk_alloc (fcp_req_vals);
+            cdata = se_alloc (sizeof(fcp_conv_data_t));
             cdata->fcp_dl = tvb_get_ntohl (tvb, offset+4);
             cdata->fcp_lun = -1;
 

@@ -47,6 +47,7 @@
 #include <epan/conversation.h>
 #include "packet-scsi.h"
 #include "epan/nstime.h"
+#include <epan/emem.h>
 
 /* the absolute values of these constants don't matter as long as
  * latter revisions of the protocol are assigned a larger number */
@@ -213,7 +214,6 @@ typedef struct _iscsi_session_t {
 	guint32 header_digest;
 } iscsi_session_t;
 static GHashTable *iscsi_session_table = NULL;
-static GMemChunk *iscsi_sessions = NULL;
 static gint
 iscsi_session_equal(gconstpointer v, gconstpointer w)
 {
@@ -641,8 +641,6 @@ typedef struct _iscsi_conv_data {
 } iscsi_conv_data_t;
 static GHashTable *iscsi_req_unmatched = NULL;
 static GHashTable *iscsi_req_matched = NULL;
-static GMemChunk *iscsi_req_vals = NULL;
-static guint32 iscsi_init_count = 200;
 
 static gint
 iscsi_equal_unmatched(gconstpointer v, gconstpointer w)
@@ -706,14 +704,6 @@ iscsi_hash_matched (gconstpointer v)
 static void
 iscsi_init_protocol(void)
 {
-    if (iscsi_sessions) {
-        g_mem_chunk_destroy(iscsi_sessions);
-	iscsi_sessions=NULL;
-    }
-    if (iscsi_req_vals) {
-        g_mem_chunk_destroy(iscsi_req_vals);
-	iscsi_req_vals=NULL;
-    }
     if (iscsi_req_unmatched) {
         g_hash_table_destroy(iscsi_req_unmatched);
 	iscsi_req_unmatched=NULL;
@@ -730,14 +720,6 @@ iscsi_init_protocol(void)
     iscsi_req_unmatched = g_hash_table_new(iscsi_hash_unmatched, iscsi_equal_unmatched);
     iscsi_req_matched = g_hash_table_new(iscsi_hash_matched, iscsi_equal_matched);
     iscsi_session_table = g_hash_table_new(iscsi_session_hash, iscsi_session_equal);
-    iscsi_req_vals = g_mem_chunk_new("iscsi_req_vals",
-                                   sizeof(iscsi_conv_data_t),
-                                   iscsi_init_count * sizeof(iscsi_conv_data_t),
-                                   G_ALLOC_AND_FREE);
-    iscsi_sessions = g_mem_chunk_new("iscsi_sessions",
-                                   sizeof(iscsi_session_t),
-                                   iscsi_init_count * sizeof(iscsi_session_t),
-                                   G_ALLOC_AND_FREE);
 }
 
 static int
@@ -974,7 +956,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             }
 
             /* add this new transaction to the unmatched table */
-            cdata = g_mem_chunk_alloc (iscsi_req_vals);
+            cdata = se_alloc (sizeof(iscsi_conv_data_t));
             cdata->conv_idx = iscsi_session->conv_idx;
             cdata->itt = tvb_get_ntohl (tvb, offset+16);
             cdata->lun=lun;
@@ -1891,7 +1873,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
             conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                              pinfo->ptype, pinfo->srcport,
                                              pinfo->destport, 0);
-            iscsi_session=g_mem_chunk_alloc(iscsi_sessions);
+            iscsi_session=se_alloc(sizeof(iscsi_session_t));
             iscsi_session->conv_idx=conversation->index;
             iscsi_session->header_digest=ISCSI_HEADER_DIGEST_AUTO;
             g_hash_table_insert(iscsi_session_table, iscsi_session, iscsi_session);
@@ -1902,7 +1884,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
             /* this should never return NULL */
             iscsi_session = (iscsi_session_t *)g_hash_table_lookup (iscsi_session_table, &key);
             if(!iscsi_session){
-                iscsi_session=g_mem_chunk_alloc(iscsi_sessions);
+                iscsi_session=se_alloc(sizeof(iscsi_session_t));
                 iscsi_session->conv_idx=conversation->index;
                 iscsi_session->header_digest=ISCSI_HEADER_DIGEST_AUTO;
                 g_hash_table_insert(iscsi_session_table, iscsi_session, iscsi_session);

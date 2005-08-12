@@ -296,6 +296,7 @@
 
 #include <epan/packet.h>
 #include "packet-giop.h"
+#include <epan/emem.h>
 
 /*
  * Set to 1 for DEBUG output - TODO make this a runtime option
@@ -648,9 +649,6 @@ typedef struct comp_req_list_entry comp_req_list_entry_t;
  * Maps reply FN to request MFN
  */
 
-static int complete_reply_hash_count = 1000; /* storage size for our permanent data */
-                                             /* ie: 1000 entries -- needs tweaking -- FS */
-
 struct complete_reply_hash_key {
   guint32 fn;			/* reply frame number  */
 };
@@ -660,9 +658,6 @@ struct complete_reply_hash_val {
 };
 
 GHashTable *giop_complete_reply_hash = NULL; /* hash */
-GMemChunk  *giop_complete_reply_keys = NULL; /* key storage */
-GMemChunk  *giop_complete_reply_vals = NULL; /* val storage */
-
 
 /*
  * DATA - Module Hash stuff to store data from register_giop_user_module
@@ -777,9 +772,6 @@ typedef enum collection_data collection_data_t;
 
 
 
-static int giop_objkey_init_count = 100; /* storage size for our permanent data */
-                                         /* ie: 100 entries -- needs tweaking -- FS */
-
 struct giop_object_key {
   guint8 *objkey;		/* ptr to object key */
   guint32 objkey_len;		/* length */
@@ -791,9 +783,6 @@ struct giop_object_val {
 };
 
 GHashTable *giop_objkey_hash = NULL; /* hash */
-GMemChunk  *giop_objkey_keys = NULL; /* key storage */
-GMemChunk  *giop_objkey_vals = NULL; /* val storage */
-
 
 
 /*
@@ -918,10 +907,10 @@ static void insert_in_complete_reply_hash(guint32 fn, guint32 mfn) {
     return;			/* FN collision */
   }
 
-  new_key = g_mem_chunk_alloc(giop_complete_reply_keys);
+  new_key = se_alloc(sizeof(struct complete_reply_hash_key));
   new_key->fn = fn;		/* save FN */
 
-  val = g_mem_chunk_alloc(giop_complete_reply_vals);
+  val = se_alloc(sizeof(struct complete_reply_hash_val));
   val->mfn = mfn;		/* and MFN */
 
   g_hash_table_insert(giop_complete_reply_hash, new_key, val);
@@ -1167,11 +1156,11 @@ static void insert_in_objkey_hash(GHashTable *hash, gchar *obj, guint32 len, gch
 
   /* So, passed key should NOT exist in hash at this point.*/
 
-  new_objkey_key = g_mem_chunk_alloc(giop_objkey_keys);
+  new_objkey_key = se_alloc(sizeof(struct giop_object_key));
   new_objkey_key->objkey_len = len; /* save it */
   new_objkey_key->objkey = (guint8 *) g_memdup(obj,len);	/* copy from object and allocate ptr */
 
-  objkey_val = g_mem_chunk_alloc(giop_objkey_vals);
+  objkey_val = se_alloc(sizeof(struct giop_object_val));
   objkey_val->repo_id = g_strdup(repoid); /* duplicate and store Respository ID string */
   objkey_val->src = src; /* where IOR came from */
 
@@ -1371,11 +1360,6 @@ static void giop_init(void) {
 
   if (giop_objkey_hash)
     g_hash_table_destroy(giop_objkey_hash);
-  if (giop_objkey_keys)
-    g_mem_chunk_destroy(giop_objkey_keys);
-  if (giop_objkey_vals)
-    g_mem_chunk_destroy(giop_objkey_vals);
-
 
   /*
    * Create hash, use my "equal" and "hash" functions.
@@ -1384,17 +1368,6 @@ static void giop_init(void) {
 
   giop_objkey_hash = g_hash_table_new(giop_hash_objkey_hash, giop_hash_objkey_equal);
 
-  giop_objkey_keys = g_mem_chunk_new("giop_objkey_keys",
-					 sizeof(struct giop_object_key),
-					 giop_objkey_init_count * sizeof(struct giop_object_key),
-					 G_ALLOC_AND_FREE);
-
-  giop_objkey_vals = g_mem_chunk_new("giop_objkey_vals",
-					 sizeof(struct giop_object_val),
-					 giop_objkey_init_count * sizeof(struct giop_object_val),
-					 G_ALLOC_AND_FREE);
-
-
   /*
    * Create complete_reply_hash, use my "equal" and "hash" functions.
    *
@@ -1402,10 +1375,6 @@ static void giop_init(void) {
 
   if (giop_complete_reply_hash)
     g_hash_table_destroy(giop_complete_reply_hash);
-  if (giop_complete_reply_keys)
-    g_mem_chunk_destroy(giop_complete_reply_keys);
-  if (giop_complete_reply_vals)
-    g_mem_chunk_destroy(giop_complete_reply_vals);
 
 
   /*
@@ -1414,17 +1383,6 @@ static void giop_init(void) {
    */
 
   giop_complete_reply_hash = g_hash_table_new(complete_reply_hash_fn, complete_reply_equal_fn);
-
-  giop_complete_reply_keys = g_mem_chunk_new("giop_complete_reply_keys",
-					 sizeof(struct complete_reply_hash_key),
-					 complete_reply_hash_count * sizeof(struct complete_reply_hash_key),
-					 G_ALLOC_AND_FREE);
-
-  giop_complete_reply_vals = g_mem_chunk_new("giop_complete_reply_vals",
-					 sizeof(struct complete_reply_hash_val),
-					 complete_reply_hash_count * sizeof(struct complete_reply_hash_val),
-					 G_ALLOC_AND_FREE);
-
 
 
   read_IOR_strings_from_file("IOR.txt", 600); /* testing */
