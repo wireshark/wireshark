@@ -37,6 +37,7 @@
 #include "packet-rpc.h"
 #include "packet-nfs.h"
 #include <epan/prefs.h>
+#include <epan/emem.h>
 
 static int proto_nfs = -1;
 
@@ -413,8 +414,6 @@ static gint ett_nfs_acemask4 = -1;
 /* fhandle displayfilters to match also corresponding request/response
    packet in addition to the one containing the actual filehandle */
 gboolean nfs_fhandle_reqrep_matching = FALSE;
-static GMemChunk *nfs_fhandle_data_chunk = NULL;
-static int nfs_fhandle_data_init_count = 100;
 static GHashTable *nfs_fhandle_data_table = NULL;
 GHashTable *nfs_fhandle_frame_table = NULL;
 
@@ -495,18 +494,6 @@ nfs_fhandle_reqrep_matching_init(void)
 			nfs_fhandle_data_equal);
 	}
 
-	if(nfs_fhandle_data_chunk){
-		g_mem_chunk_destroy(nfs_fhandle_data_chunk);
-		nfs_fhandle_data_chunk = NULL;
-	}
-
-	if(nfs_fhandle_reqrep_matching){
-		nfs_fhandle_data_chunk = g_mem_chunk_new("nfs_fhandle_data_chunk",
-			sizeof(nfs_fhandle_data_t),
-			nfs_fhandle_data_init_count * sizeof(nfs_fhandle_data_t),
-			G_ALLOC_ONLY);
-	}
-
 }
 
 
@@ -530,12 +517,8 @@ typedef struct nfs_name_snoop_key {
 	const unsigned char *fh;
 } nfs_name_snoop_key_t;
 
-static GMemChunk *nfs_name_snoop_chunk = NULL;
-static int nfs_name_snoop_init_count = 100;
 static GHashTable *nfs_name_snoop_unmatched = NULL;
 
-static GMemChunk *nfs_name_snoop_key_chunk = NULL;
-static int nfs_name_snoop_key_init_count = 100;
 static GHashTable *nfs_name_snoop_matched = NULL;
 
 static GHashTable *nfs_name_snoop_known = NULL;
@@ -634,26 +617,6 @@ nfs_name_snoop_init(void)
 			nfs_name_snoop_matched_equal);
 	}
 
-	if(nfs_name_snoop_chunk){
-		g_mem_chunk_destroy(nfs_name_snoop_chunk);
-		nfs_name_snoop_chunk = NULL;
-	}
-	if(nfs_name_snoop_key_chunk){
-		g_mem_chunk_destroy(nfs_name_snoop_key_chunk);
-		nfs_name_snoop_key_chunk = NULL;
-	}
-
-	if(nfs_file_name_snooping){
-		nfs_name_snoop_chunk = g_mem_chunk_new("nfs_name_snoop_chunk",
-			sizeof(nfs_name_snoop_t),
-			nfs_name_snoop_init_count * sizeof(nfs_name_snoop_t),
-			G_ALLOC_ONLY);
-		nfs_name_snoop_key_chunk = g_mem_chunk_new("nfs_name_snoop_key_chunk",
-			sizeof(nfs_name_snoop_key_t),
-			nfs_name_snoop_key_init_count * sizeof(nfs_name_snoop_key_t),
-			G_ALLOC_ONLY);
-	}
-
 }
 
 void
@@ -677,7 +640,7 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, i
 		}
 	}
 
-	nns=g_mem_chunk_alloc(nfs_name_snoop_chunk);
+	nns=se_alloc(sizeof(nfs_name_snoop_t));
 
 	nns->fh_length=0;
 	nns->fh=NULL;
@@ -716,8 +679,6 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, i
 			g_free(old_nns->parent);
 			old_nns->parent=NULL;
 			old_nns->parent_len=0;
-
-			g_mem_chunk_free(nfs_name_snoop_chunk, old_nns);
 		}
 		g_hash_table_remove(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid));
 	}
@@ -749,7 +710,7 @@ nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 	nns->fh=fh;
 	nns->fh_length=fh_length;
 
-	key=g_mem_chunk_alloc(nfs_name_snoop_key_chunk);
+	key=se_alloc(sizeof(nfs_name_snoop_key_t));
 	key->key=0;
 	key->fh_length=nns->fh_length;
 	key->fh    =nns->fh;
@@ -827,7 +788,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 		nns=g_hash_table_lookup(nfs_name_snoop_matched, &key);
 		if(nns){
 			nfs_name_snoop_key_t *k;
-			k=g_mem_chunk_alloc(nfs_name_snoop_key_chunk);
+			k=se_alloc(sizeof(nfs_name_snoop_key_t));
 			k->key=pinfo->fd->num;
 			k->fh_length=nns->fh_length;
 			k->fh=nns->fh;
@@ -1490,7 +1451,7 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				(gconstpointer)&fhd);
 			if(!old_fhd){
 				/* oh, a new fhandle, alloc struct and store it in the table*/
-				old_fhd=g_mem_chunk_alloc(nfs_fhandle_data_chunk);
+				old_fhd=se_alloc(sizeof(nfs_fhandle_data_t));
 				old_fhd->len=fhlen;
 				fh=g_malloc(fhlen);
 				memcpy(fh, fhd.fh, fhlen);

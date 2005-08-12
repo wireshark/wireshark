@@ -37,8 +37,8 @@
 #include <epan/conversation.h>
 #include "packet-ndps.h"
 #include <epan/reassemble.h>
+#include <epan/emem.h>
 
-#define NDPS_PACKET_INIT_COUNT	200
 /* Limit the number of items we can add to the tree. */
 #define NDPS_MAX_ITEMS 50
 
@@ -3680,8 +3680,6 @@ typedef struct {
 } ndps_req_hash_value;
 
 static GHashTable *ndps_req_hash = NULL;
-static GMemChunk *ndps_req_hash_keys = NULL;
-static GMemChunk *ndps_req_hash_values = NULL;
 
 /* Hash Functions */
 static gint
@@ -3715,20 +3713,8 @@ ndps_init_protocol(void)
 
 	if (ndps_req_hash)
 		g_hash_table_destroy(ndps_req_hash);
-	if (ndps_req_hash_keys)
-		g_mem_chunk_destroy(ndps_req_hash_keys);
-	if (ndps_req_hash_values)
-		g_mem_chunk_destroy(ndps_req_hash_values);
 
 	ndps_req_hash = g_hash_table_new(ndps_hash, ndps_equal);
-	ndps_req_hash_keys = g_mem_chunk_new("ndps_req_hash_keys",
-			sizeof(ndps_req_hash_key),
-			NDPS_PACKET_INIT_COUNT * sizeof(ndps_req_hash_key),
-			G_ALLOC_ONLY);
-	ndps_req_hash_values = g_mem_chunk_new("ndps_req_hash_values",
-			sizeof(ndps_req_hash_value),
-			NDPS_PACKET_INIT_COUNT * sizeof(ndps_req_hash_value),
-			G_ALLOC_ONLY);
 }
 
 /* After the sequential run, we don't need the ncp_request hash and keys
@@ -3742,10 +3728,6 @@ ndps_postseq_cleanup(void)
 		g_hash_table_destroy(ndps_req_hash);
 		ndps_req_hash = NULL;
 	}
-	if (ndps_req_hash_keys) {
-		g_mem_chunk_destroy(ndps_req_hash_keys);
-		ndps_req_hash_keys = NULL;
-	}
 	/* Don't free the ncp_req_hash_values, as they're
 	 * needed during random-access processing of the proto_tree.*/
 }
@@ -3758,11 +3740,11 @@ ndps_hash_insert(conversation_t *conversation, guint32 ndps_xport)
 
 	/* Now remember the request, so we can find it if we later
 	   a reply to it. */
-	request_key = g_mem_chunk_alloc(ndps_req_hash_keys);
+	request_key = se_alloc(sizeof(ndps_req_hash_key));
 	request_key->conversation = conversation;
 	request_key->ndps_xport = ndps_xport;
 
-	request_value = g_mem_chunk_alloc(ndps_req_hash_values);
+	request_value = se_alloc(sizeof(ndps_req_hash_value));
 	request_value->ndps_prog = 0;
 	request_value->ndps_func = 0;
 	request_value->ndps_frame_num = 0;
