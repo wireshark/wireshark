@@ -82,6 +82,7 @@
 #include <epan/tap.h>
 #include "packet-ber.h"
 #include "packet-ldap.h"
+#include <epan/emem.h>
 
 static int proto_ldap = -1;
 static int proto_cldap = -1;
@@ -202,12 +203,7 @@ typedef struct ldap_conv_info_t {
   GHashTable *unmatched;
   GHashTable *matched;
 } ldap_conv_info_t;
-static GMemChunk *ldap_conv_info_chunk = NULL;
-static guint ldap_conv_info_chunk_count = 20;
 static ldap_conv_info_t *ldap_info_items;
-
-static GMemChunk *ldap_call_response_chunk = NULL;
-static guint ldap_call_response_chunk_count = 200;
 
 static guint
 ldap_info_hash_matched(gconstpointer k)
@@ -2032,7 +2028,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ld
         }
         /* if we cant reuse the old one, grab a new chunk */
         if(!lcrp){
-          lcrp=g_mem_chunk_alloc(ldap_call_response_chunk);
+          lcrp=se_alloc(sizeof(ldap_call_response_t));
         }
         lcrp->messageId=messageId;
         lcrp->req_frame=pinfo->fd->num;
@@ -2498,7 +2494,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
     /* No.  Attach that information to the conversation, and add
      * it to the list of information structures.
      */
-    ldap_info = g_mem_chunk_alloc(ldap_conv_info_chunk);
+    ldap_info = se_alloc(sizeof(ldap_conv_info_t));
     ldap_info->auth_type = 0;
     ldap_info->auth_mech = 0;
     ldap_info->first_auth_frame = 0;
@@ -2819,23 +2815,8 @@ ldap_reinit(void)
     ldap_info->unmatched=NULL;
   }
 
-  if (ldap_conv_info_chunk != NULL)
-    g_mem_chunk_destroy(ldap_conv_info_chunk);
-
   ldap_info_items = NULL;
 
-  ldap_conv_info_chunk = g_mem_chunk_new("ldap_conv_info_chunk",
-		sizeof(ldap_conv_info_t),
-		ldap_conv_info_chunk_count * sizeof(ldap_conv_info_t),
-		G_ALLOC_ONLY);
-
-  if (ldap_call_response_chunk != NULL)
-    g_mem_chunk_destroy(ldap_call_response_chunk);
-
-  ldap_call_response_chunk = g_mem_chunk_new("ldap_call_response_chunk",
-		sizeof(ldap_call_response_t),
-		ldap_call_response_chunk_count * sizeof(ldap_call_response_t),
-		G_ALLOC_ONLY);
 }
 
 void
