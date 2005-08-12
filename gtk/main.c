@@ -1640,6 +1640,7 @@ main(int argc, char *argv[])
 
   /* initialize memory allocation subsystem */
   ep_init_chunk();
+  se_init_chunk();
 
   /*** create the compile and runtime version strings ***/
 #ifdef _WIN32

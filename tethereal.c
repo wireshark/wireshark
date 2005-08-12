@@ -654,6 +654,7 @@ main(int argc, char *argv[])
 
   /* initialize memory allocation subsystem */
   ep_init_chunk();
+  se_init_chunk();
   
 #ifdef HAVE_LIBPCAP
   capture_opts_init(&capture_opts, NULL /* cfile */);

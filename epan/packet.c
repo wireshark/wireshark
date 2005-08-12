@@ -52,6 +52,7 @@
 #include "tvbuff.h"
 #include "plugins.h"
 #include "epan_dissect.h"
+#include "emem.h"
 
 #include <epan/reassemble.h>
 
@@ -129,6 +130,9 @@ call_init_routine(gpointer routine, gpointer dummy _U_)
 void
 init_dissection(void)
 {
+	/* Reclaim and reinitialize all memory of seasonal scope */
+	se_free_all();
+
 	/* Initialize the table of conversations. */
 	epan_conversation_init();
 

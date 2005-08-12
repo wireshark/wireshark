@@ -49,7 +49,8 @@ typedef struct _emem_header_t {
   emem_chunk_t *used_list;
 } emem_header_t;
 
-static emem_header_t emem_packet_mem;
+static emem_header_t ep_packet_mem;
+static emem_header_t se_packet_mem;
 
 /* Initialize the packet-lifetime memory allocation pool.
  * This function should be called only once when Etehreal or Tethereal starts
@@ -58,8 +59,18 @@ static emem_header_t emem_packet_mem;
 void
 ep_init_chunk(void)
 {
-	emem_packet_mem.free_list=NULL;	
-	emem_packet_mem.used_list=NULL;	
+	ep_packet_mem.free_list=NULL;	
+	ep_packet_mem.used_list=NULL;	
+}
+/* Initialize the capture-lifetime memory allocation pool.
+ * This function should be called only once when Etehreal or Tethereal starts
+ * up.
+ */
+void
+se_init_chunk(void)
+{
+	se_packet_mem.free_list=NULL;	
+	se_packet_mem.used_list=NULL;	
 }
 
 /* allocate 'size' amount of memory with an allocation lifetime until the
@@ -79,46 +90,104 @@ ep_alloc(size_t size)
 	DISSECTOR_ASSERT(size<(EMEM_PACKET_CHUNK_SIZE>>2));
 
 	/* we dont have any free data, so we must allocate a new one */
-	if(!emem_packet_mem.free_list){
+	if(!ep_packet_mem.free_list){
 		emem_chunk_t *npc;
 		npc=g_malloc(sizeof(emem_chunk_t));
 		npc->next=NULL;
 		npc->amount_free=EMEM_PACKET_CHUNK_SIZE;
 		npc->free_offset=0;
 		npc->buf=g_malloc(EMEM_PACKET_CHUNK_SIZE);
-		emem_packet_mem.free_list=npc;
+		ep_packet_mem.free_list=npc;
 	}
 
 	/* oops, we need to allocate more memory to serve this request
          * than we have free. move this node to the used list and try again
 	 */
-	if(size>emem_packet_mem.free_list->amount_free){
+	if(size>ep_packet_mem.free_list->amount_free){
 		emem_chunk_t *npc;
-		npc=emem_packet_mem.free_list;
-		emem_packet_mem.free_list=emem_packet_mem.free_list->next;
-		npc->next=emem_packet_mem.used_list;
-		emem_packet_mem.used_list=npc;
+		npc=ep_packet_mem.free_list;
+		ep_packet_mem.free_list=ep_packet_mem.free_list->next;
+		npc->next=ep_packet_mem.used_list;
+		ep_packet_mem.used_list=npc;
 	}
 
 	/* we dont have any free data, so we must allocate a new one */
-	if(!emem_packet_mem.free_list){
+	if(!ep_packet_mem.free_list){
 		emem_chunk_t *npc;
 		npc=g_malloc(sizeof(emem_chunk_t));
 		npc->next=NULL;
 		npc->amount_free=EMEM_PACKET_CHUNK_SIZE;
 		npc->free_offset=0;
 		npc->buf=g_malloc(EMEM_PACKET_CHUNK_SIZE);
-		emem_packet_mem.free_list=npc;
+		ep_packet_mem.free_list=npc;
 	}
 
 
-	buf=emem_packet_mem.free_list->buf+emem_packet_mem.free_list->free_offset;
+	buf=ep_packet_mem.free_list->buf+ep_packet_mem.free_list->free_offset;
 
-	emem_packet_mem.free_list->amount_free-=size;
-	emem_packet_mem.free_list->free_offset+=size;
+	ep_packet_mem.free_list->amount_free-=size;
+	ep_packet_mem.free_list->free_offset+=size;
 
 	return buf;
 }
+/* allocate 'size' amount of memory with an allocation lifetime until the
+ * next capture.
+ */
+void *
+se_alloc(size_t size)
+{
+	void *buf;
+
+	/* round up to 8 byte boundary */
+	if(size&0x07){
+		size=(size+7)&0xfffffff8;
+	}
+
+	/* make sure we dont try to allocate too much (arbitrary limit) */
+	DISSECTOR_ASSERT(size<(EMEM_PACKET_CHUNK_SIZE>>2));
+
+	/* we dont have any free data, so we must allocate a new one */
+	if(!se_packet_mem.free_list){
+		emem_chunk_t *npc;
+		npc=g_malloc(sizeof(emem_chunk_t));
+		npc->next=NULL;
+		npc->amount_free=EMEM_PACKET_CHUNK_SIZE;
+		npc->free_offset=0;
+		npc->buf=g_malloc(EMEM_PACKET_CHUNK_SIZE);
+		se_packet_mem.free_list=npc;
+	}
+
+	/* oops, we need to allocate more memory to serve this request
+         * than we have free. move this node to the used list and try again
+	 */
+	if(size>se_packet_mem.free_list->amount_free){
+		emem_chunk_t *npc;
+		npc=se_packet_mem.free_list;
+		se_packet_mem.free_list=se_packet_mem.free_list->next;
+		npc->next=se_packet_mem.used_list;
+		se_packet_mem.used_list=npc;
+	}
+
+	/* we dont have any free data, so we must allocate a new one */
+	if(!se_packet_mem.free_list){
+		emem_chunk_t *npc;
+		npc=g_malloc(sizeof(emem_chunk_t));
+		npc->next=NULL;
+		npc->amount_free=EMEM_PACKET_CHUNK_SIZE;
+		npc->free_offset=0;
+		npc->buf=g_malloc(EMEM_PACKET_CHUNK_SIZE);
+		se_packet_mem.free_list=npc;
+	}
+
+
+	buf=se_packet_mem.free_list->buf+se_packet_mem.free_list->free_offset;
+
+	se_packet_mem.free_list->amount_free-=size;
+	se_packet_mem.free_list->free_offset+=size;
+
+	return buf;
+}
+
 
 void* ep_alloc0(size_t size) {
 	return memset(ep_alloc(size),'\0',size);
@@ -251,15 +320,36 @@ ep_free_all(void)
 	emem_chunk_t *npc;
 
 	/* move all used chunks ove to the free list */
-	while(emem_packet_mem.used_list){
-		npc=emem_packet_mem.used_list;
-		emem_packet_mem.used_list=emem_packet_mem.used_list->next;
-		npc->next=emem_packet_mem.free_list;
-		emem_packet_mem.free_list=npc;
+	while(ep_packet_mem.used_list){
+		npc=ep_packet_mem.used_list;
+		ep_packet_mem.used_list=ep_packet_mem.used_list->next;
+		npc->next=ep_packet_mem.free_list;
+		ep_packet_mem.free_list=npc;
 	}
 
 	/* clear them all out */
-	for(npc=emem_packet_mem.free_list;npc;npc=npc->next){
+	for(npc=ep_packet_mem.free_list;npc;npc=npc->next){
+		npc->amount_free=EMEM_PACKET_CHUNK_SIZE;
+		npc->free_offset=0;
+	}
+}
+/* release all allocated memory back to the pool.
+ */
+void
+se_free_all(void)
+{
+	emem_chunk_t *npc;
+
+	/* move all used chunks ove to the free list */
+	while(se_packet_mem.used_list){
+		npc=se_packet_mem.used_list;
+		se_packet_mem.used_list=se_packet_mem.used_list->next;
+		npc->next=se_packet_mem.free_list;
+		se_packet_mem.free_list=npc;
+	}
+
+	/* clear them all out */
+	for(npc=se_packet_mem.free_list;npc;npc=npc->next){
 		npc->amount_free=EMEM_PACKET_CHUNK_SIZE;
 		npc->free_offset=0;
 	}

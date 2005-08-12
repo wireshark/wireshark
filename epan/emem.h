@@ -74,4 +74,30 @@ gchar** ep_strsplit(const gchar* string, const gchar* delimiter, int max_tokens)
 /* release all memory allocated in the previous packet dissector */
 void ep_free_all(void);
 
+
+
+
+
+/* Functions for handling memory allocation and garbage collection with 
+ * a capture lifetime scope.
+ * These functions are used to allocate memory that will only remain persistent
+ * until ethereal opens a new capture or capture file.
+ * Everytime ethereal starts a new capture or opens a new capture file
+ * all the data allocated through these functions will be released back 
+ * to the free pool.
+ *
+ * These functions are very fast and offer automatic garbage collection.
+ */
+/* Initialize capture-lifetime memory allocation pool. This function is called 
+ * once when [t]ethereal is initialized to set up the required structures.
+ */
+void se_init_chunk(void);
+
+/* Allocate memory with a capture lifetime scope */
+void *se_alloc(size_t size);
+
+/* release all memory allocated */
+void se_free_all(void);
+
+
 #endif /* emem.h */
