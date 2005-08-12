@@ -67,6 +67,7 @@
 #include <epan/tap.h>
 
 #include <epan/prefs.h>
+#include <epan/emem.h>
 
 static dissector_handle_t rtp_handle;
 static dissector_handle_t stun_handle;
@@ -133,9 +134,6 @@ static gboolean global_rtp_show_setup_info = TRUE;
 
 /* Try heuristic RTP decode */
 static gboolean global_rtp_heur = FALSE;
-
-/* Memory chunk for storing conversation and per-packet info */
-static GMemChunk *rtp_conversations = NULL;
 
 /*
  * Fields in the first octet of the RTP header.
@@ -303,7 +301,7 @@ void rtp_add_address(packet_info *pinfo,
 	 */
 	if ( ! p_conv_data ) {
 		/* Create conversation data */
-		p_conv_data = g_mem_chunk_alloc(rtp_conversations);
+		p_conv_data = se_alloc(sizeof(struct _rtp_conversation_info));
 		p_conv_data->rtp_dyn_payload = NULL;
 
 		conversation_add_proto_data(p_conv, proto_rtp, p_conv_data);
@@ -319,19 +317,6 @@ void rtp_add_address(packet_info *pinfo,
 	p_conv_data->method[MAX_RTP_SETUP_METHOD_SIZE] = '\0';
 	p_conv_data->frame_number = setup_frame_number;
 	p_conv_data->rtp_dyn_payload = rtp_dyn_payload;
-}
-
-static void rtp_init( void )
-{
-	/* (Re)allocate mem chunk for conversations */
-	if (rtp_conversations)
-	{
-		g_mem_chunk_destroy(rtp_conversations);
-	}
-	rtp_conversations = g_mem_chunk_new("rtp_conversations",
-	                                    sizeof(struct _rtp_conversation_info),
-	                                    20 * sizeof(struct _rtp_conversation_info),
-	                                    G_ALLOC_ONLY);
 }
 
 static gboolean
@@ -777,7 +762,7 @@ static void get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
 
 			if (p_conv_data) {
 				/* Save this conversation info into packet info */
-				p_conv_packet_data = g_mem_chunk_alloc(rtp_conversations);
+				p_conv_packet_data = se_alloc(sizeof(struct _rtp_conversation_info));
 				strcpy(p_conv_packet_data->method, p_conv_data->method);
 				p_conv_packet_data->frame_number = p_conv_data->frame_number;
 				p_conv_packet_data->rtp_dyn_payload = p_conv_data->rtp_dyn_payload;
@@ -1104,7 +1089,6 @@ proto_register_rtp(void)
 	                               "If an RTP version 0 packet is encountered, it can be treated as an invalid packet or a STUN packet",
 	                               &global_rtp_version0_type,
 	                               rtp_version0_types, FALSE);
-	register_init_routine( &rtp_init );
 }
 
 void

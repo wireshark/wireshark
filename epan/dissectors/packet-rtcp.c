@@ -63,6 +63,7 @@
 #include <epan/conversation.h>
 
 #include <epan/prefs.h>
+#include <epan/emem.h>
 
 
 /* Version is the first 2 bits of the first octet*/
@@ -354,9 +355,6 @@ static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo,
                                      proto_tree *tree, guint frame, guint delay);
 
 
-/* Memory chunk for storing conversation and per-packet info */
-static GMemChunk *rtcp_conversations = NULL;
-
 /* Set up an RTCP conversation using the info given */
 void rtcp_add_address( packet_info *pinfo,
                        address *addr, int port,
@@ -408,7 +406,7 @@ void rtcp_add_address( packet_info *pinfo,
 	 */
 	if ( ! p_conv_data ) {
 		/* Create conversation data */
-		p_conv_data = g_mem_chunk_alloc(rtcp_conversations);
+		p_conv_data = se_alloc(sizeof(struct _rtcp_conversation_info));
 		if (!p_conv_data)
 		{
 			return;
@@ -424,19 +422,6 @@ void rtcp_add_address( packet_info *pinfo,
 	strncpy(p_conv_data->setup_method, setup_method, MAX_RTCP_SETUP_METHOD_SIZE);
 	p_conv_data->setup_method[MAX_RTCP_SETUP_METHOD_SIZE] = '\0';
 	p_conv_data->setup_frame_number = setup_frame_number;
-}
-
-static void rtcp_init( void )
-{
-	/* (Re)allocate mem chunk for conversations */
-	if (rtcp_conversations)
-	{
-		g_mem_chunk_destroy(rtcp_conversations);
-	}
-	rtcp_conversations = g_mem_chunk_new("rtcp_conversations",
-	                                     sizeof(struct _rtcp_conversation_info),
-	                                     20 * sizeof(struct _rtcp_conversation_info),
-	                                     G_ALLOC_ONLY);
 }
 
 static gboolean
@@ -1363,7 +1348,7 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (p_conv_data)
 			{
 				/* Save this conversation info into packet info */
-				p_conv_packet_data = g_mem_chunk_alloc(rtcp_conversations);
+				p_conv_packet_data = se_alloc(sizeof(struct _rtcp_conversation_info));
 				if (!p_conv_packet_data)
 				{
 					return;
@@ -1457,7 +1442,7 @@ static void remember_outgoing_sr(packet_info *pinfo, long lsr)
 	if (!p_conv_data)
 	{
 		/* Allocate memory for data */
-		p_conv_data = g_mem_chunk_alloc(rtcp_conversations);
+		p_conv_data = se_alloc(sizeof(struct _rtcp_conversation_info));
 		if (!p_conv_data)
 		{
 			/* Give up if couldn't allocate space for memory */
@@ -1484,7 +1469,7 @@ static void remember_outgoing_sr(packet_info *pinfo, long lsr)
 	/* Will use/create packet info */
 	if (!p_packet_data)
 	{
-		p_packet_data = g_mem_chunk_alloc(rtcp_conversations);
+		p_packet_data = se_alloc(sizeof(struct _rtcp_conversation_info));
 		if (!p_packet_data)
 		{
 			/* Give up if allocation fails */
@@ -1560,7 +1545,7 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
 		if (!p_packet_data)
 		{
 			/* Create packet info if it doesn't exist */
-			p_packet_data = g_mem_chunk_alloc(rtcp_conversations);
+			p_packet_data = se_alloc(sizeof(struct _rtcp_conversation_info));
 			if (!p_packet_data)
 			{
 				/* Give up if allocation fails */
@@ -2994,7 +2979,6 @@ proto_register_rtcp(void)
 		MIN_ROUNDTRIP_TO_REPORT_DEFAULT, &global_rtcp_show_roundtrip_calculation_minimum);
 
 
-	register_init_routine( &rtcp_init );
 }
 
 void

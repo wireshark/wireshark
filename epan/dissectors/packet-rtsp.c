@@ -46,6 +46,7 @@
 #include <epan/conversation.h>
 #include <epan/strutil.h>
 #include "packet-e164.h"
+#include <epan/emem.h>
 
 static int proto_rtsp		= -1;
 
@@ -70,9 +71,6 @@ static dissector_handle_t rtcp_handle;
 static dissector_handle_t rdt_handle;
 
 void proto_reg_handoff_rtsp(void);
-
-static GMemChunk *rtsp_vals = NULL;
-#define rtsp_hash_init_count 20
 
 /*
  * desegmentation of RTSP headers
@@ -447,7 +445,7 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 		}
 		data = conversation_get_proto_data(conv, proto_rtsp);
 		if (!data) {
-			data = g_mem_chunk_alloc(rtsp_vals);
+			data = se_alloc(sizeof(rtsp_conversation_data_t));
 			conversation_add_proto_data(conv, proto_rtsp, data);
 		}
 
@@ -1200,21 +1198,6 @@ dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
-static void
-rtsp_init(void)
-{
-/* Routine to initialize rtsp protocol before each capture or filter pass. */
-/* Release any memory if needed.  Then setup the memory chunks.		*/
-
-  	if (rtsp_vals)
-   		g_mem_chunk_destroy(rtsp_vals);
-
-  	rtsp_vals = g_mem_chunk_new("rtsp_vals",
-		sizeof(rtsp_conversation_data_t),
-		rtsp_hash_init_count * sizeof(rtsp_conversation_data_t),
-		G_ALLOC_AND_FREE);
-}
-
 void
 proto_register_rtsp(void)
 {
@@ -1289,7 +1272,6 @@ proto_register_rtsp(void)
 	    "of a request spanning multiple TCP segments",
 	    &rtsp_desegment_body);
 
-	register_init_routine(rtsp_init);	/* register re-init routine */
 }
 
 void
