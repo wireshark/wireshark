@@ -34,6 +34,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <epan/conversation.h>
 #include "packet-tcp.h"
 
@@ -222,15 +223,9 @@ typedef struct ajp13_conv_data {
   gboolean was_get_body_chunk;	/* XXX - not used */
 } ajp13_conv_data;
 
-static GMemChunk *ajp13_conv_data_chunk = NULL;
-
 typedef struct ajp13_frame_data {
   gboolean is_request_body;
 } ajp13_frame_data;
-
-static GMemChunk  *ajp13_frame_data_chunk = NULL;
-
-static int ajp13_packet_init_count = 100;
 
 /* ajp13, in sort of a belt-and-suspenders move, encodes strings with
  * both a leading length field, and a trailing null. Mostly, see
@@ -648,7 +643,7 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   cd = (ajp13_conv_data*)conversation_get_proto_data(conv, proto_ajp13);
   if (!cd) {
-    cd = (ajp13_conv_data*)g_mem_chunk_alloc(ajp13_conv_data_chunk);
+    cd = se_alloc(sizeof(ajp13_conv_data));
     cd->content_length = 0;
     cd->was_get_body_chunk = FALSE;
     conversation_add_proto_data(conv, proto_ajp13, cd);
@@ -665,7 +660,7 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * time we've see the packet, and it must be the first "in order"
      * pass through the data.
      */
-    fd = (ajp13_frame_data*)g_mem_chunk_alloc(ajp13_frame_data_chunk);
+    fd = se_alloc(sizeof(ajp13_frame_data));
     p_add_proto_data(pinfo->fd, proto_ajp13, fd);
     fd->is_request_body = FALSE;
     if (cd->content_length) {
@@ -750,25 +745,6 @@ dissect_ajp13(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-
-static void
-ajp13_init_protocol(void)
-{
-  if (ajp13_conv_data_chunk)
-    g_mem_chunk_destroy(ajp13_conv_data_chunk);
-  if (ajp13_frame_data_chunk)
-    g_mem_chunk_destroy(ajp13_frame_data_chunk);
-
-  ajp13_conv_data_chunk = g_mem_chunk_new("ajp13_conv_data_chunk",
-					  sizeof(ajp13_conv_data),
-					  ajp13_packet_init_count * sizeof(ajp13_conv_data),
-					  G_ALLOC_ONLY);
-
-  ajp13_frame_data_chunk = g_mem_chunk_new("ajp13_frame_data_chunk",
-					   sizeof(ajp13_frame_data),
-					   ajp13_packet_init_count * sizeof(ajp13_frame_data),
-					   G_ALLOC_ONLY);
-}
 
 void
 proto_register_ajp13(void)
@@ -863,7 +839,6 @@ proto_register_ajp13(void)
   proto_register_field_array(proto_ajp13, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_init_routine(&ajp13_init_protocol);
 }
 
 

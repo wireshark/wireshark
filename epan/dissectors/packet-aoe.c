@@ -28,6 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <epan/conversation.h>
 #include <etypes.h>
 
@@ -178,8 +179,6 @@ typedef struct ata_info_t {
   nstime_t req_time;
   guint8 cmd;
 } ata_info_t;
-static GMemChunk *ata_info_chunk = NULL;
-static guint ata_info_chunk_count = 50;
 static GHashTable *ata_cmd_unmatched;
 static GHashTable *ata_cmd_matched;
 
@@ -237,7 +236,7 @@ dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
       ata_info_t *tmp_ata_info;
       /* first time we see this request so add a struct for request/response
          matching */
-      ata_info=g_mem_chunk_alloc(ata_info_chunk);
+      ata_info=se_alloc(sizeof(ata_info_t));
       ata_info->tag=tag;
       ata_info->conversation=conversation;
       ata_info->request_frame=pinfo->fd->num;
@@ -428,14 +427,6 @@ dissect_aoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 static void
 ata_init(void)
 {
-  if (ata_info_chunk != NULL){
-    g_mem_chunk_destroy(ata_info_chunk);
-    ata_info_chunk=NULL;
-  }
-  ata_info_chunk = g_mem_chunk_new("ata_info_chunk",
-		sizeof(ata_info_t),
-		ata_info_chunk_count * sizeof(ata_info_t),
-		G_ALLOC_ONLY);
   if(ata_cmd_unmatched){
     g_hash_table_destroy(ata_cmd_unmatched);
     ata_cmd_unmatched=NULL;
