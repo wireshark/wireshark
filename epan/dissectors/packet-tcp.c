@@ -44,6 +44,7 @@
 #include <epan/strutil.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
+#include <epan/emem.h>
 
 static int tcp_tap = -1;
 
@@ -179,8 +180,6 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 static gboolean tcp_analyze_seq = TRUE;
 static gboolean tcp_relative_seq = TRUE;
 
-static GMemChunk *tcp_unacked_chunk = NULL;
-static int tcp_unacked_count = 500;	/* one for each packet until it is acked*/
 struct tcp_unacked {
 	struct tcp_unacked *next;
 	guint32 frame;
@@ -201,8 +200,6 @@ struct tcp_unacked {
 #define LE_SEQ(x, y) ((gint32)((x) - (y)) <= 0)
 #define EQ_SEQ(x, y) ((x) == (y))
 
-static GMemChunk *tcp_acked_chunk = NULL;
-static int tcp_acked_count = 5000;	/* one for almost every other segment in the capture */
 #define TCP_A_RETRANSMISSION		0x0001
 #define TCP_A_LOST_PACKET		0x0002
 #define TCP_A_ACK_LOST_PACKET		0x0004
@@ -229,8 +226,6 @@ struct tcp_acked {
 };
 static GHashTable *tcp_analyze_acked_table = NULL;
 
-static GMemChunk *tcp_rel_seq_chunk = NULL;
-static int tcp_rel_seq_count = 10000; /* one for each segment in the capture */
 struct tcp_rel_seq {
 	guint32 seq_base;
 	guint32 ack_base;
@@ -238,8 +233,6 @@ struct tcp_rel_seq {
 };
 static GHashTable *tcp_rel_seq_table = NULL;
 
-static GMemChunk *tcp_analysis_chunk = NULL;
-static int tcp_analysis_count = 20;	/* one for each conversation */
 struct tcp_analysis {
 	/* These two structs are managed based on comparing the source
 	 * and destination addresses and, if they're equal, comparing
@@ -273,8 +266,6 @@ struct tcp_analysis {
 };
 
 
-static GMemChunk *tcp_next_pdu_chunk = NULL;
-static int tcp_next_pdu_count = 20;
 struct tcp_next_pdu {
 	struct tcp_next_pdu *next;
 	guint32 seq;
@@ -304,7 +295,7 @@ get_tcp_conversation_data(packet_info *pinfo)
 	tcpd=conversation_get_proto_data(conv, proto_tcp);
 	if(!tcpd){
 		/* No no such data yet. Allocate and init it */
-		tcpd=g_mem_chunk_alloc(tcp_analysis_chunk);
+		tcpd=se_alloc(sizeof(struct tcp_analysis));
 		tcpd->ual1=NULL;
 		tcpd->base_seq1=0;
 		tcpd->win1=-1;
@@ -506,7 +497,7 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nx
  	/* find(or create if needed) the conversation for this tcp session */
 	tcpd=get_tcp_conversation_data(pinfo);
 
-	tnp=g_mem_chunk_alloc(tcp_next_pdu_chunk);
+	tnp=se_alloc(sizeof(struct tcp_next_pdu));
 	tnp->nxtpdu=nxtpdu;
 	tnp->seq=seq;
 	tnp->first_frame=pinfo->fd->num;
@@ -601,7 +592,7 @@ tcp_analyze_get_acked_struct(guint32 frame, gboolean createflag)
 
 	ta=g_hash_table_lookup(tcp_analyze_acked_table, GUINT_TO_POINTER(frame));
 	if((!ta) && createflag){
-		ta=g_mem_chunk_alloc(tcp_acked_chunk);
+		ta=se_alloc(sizeof(struct tcp_acked));
 		ta->frame_acked=0;
 		ta->ts.secs=0;
 		ta->ts.nsecs=0;
@@ -722,13 +713,12 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 
 	/* handle the sequence numbers */
 	/* if this was a SYN packet, then remove existing list and
-	 * put SEQ+1 first the list */
+	 * put SEQ+1 first the list, just "forget" the existing nodes */
 	if(flags&TH_SYN){
 		for(ual=ual1;ual1;ual1=ual){
 			ual=ual1->next;
-			g_mem_chunk_free(tcp_unacked_chunk, ual1);
 		}
-		ual1=g_mem_chunk_alloc(tcp_unacked_chunk);
+		ual1=se_alloc(sizeof(struct tcp_unacked));
 		ual1->next=NULL;
 		ual1->frame=pinfo->fd->num;
 		ack1_frame=0;
@@ -759,7 +749,7 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 
 	/* if this is the first segment we see then just add it */
 	if( !ual1 ){
-		ual1=g_mem_chunk_alloc(tcp_unacked_chunk);
+		ual1=se_alloc(sizeof(struct tcp_unacked));
 		ual1->next=NULL;
 		ual1->frame=pinfo->fd->num;
 		ual1->seq=seq;
@@ -786,7 +776,7 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 		ta->flags|=TCP_A_LOST_PACKET;
 
 		/* just add the segment to the beginning of the list */
-		ual=g_mem_chunk_alloc(tcp_unacked_chunk);
+		ual=se_alloc(sizeof(struct tcp_unacked));
 		ual->next=ual1;
 		ual->frame=pinfo->fd->num;
 		ual->seq=seq;
@@ -992,7 +982,7 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 	}
 
 	/* just add the segment to the beginning of the list */
-	ual=g_mem_chunk_alloc(tcp_unacked_chunk);
+	ual=se_alloc(sizeof(struct tcp_unacked));
 	ual->next=ual1;
 	ual->frame=pinfo->fd->num;
 	ual->seq=seq;
@@ -1032,7 +1022,7 @@ seq_finished:
 
 	/* if we are acking beyong what we have seen in the other direction
 	 * we must have lost packets. Not much point in keeping the segments
-	 * in the other direction either.
+	 * in the other direction either. Just "forget" the old nodes.
 	 */
 	if( GT_SEQ(ack, ual2->nextseq )){
 		struct tcp_acked *ta;
@@ -1041,7 +1031,6 @@ seq_finished:
 		ta->flags|=TCP_A_ACK_LOST_PACKET;
 		for(ual=ual2;ual2;ual2=ual){
 			ual=ual2->next;
-			g_mem_chunk_free(tcp_unacked_chunk, ual2);
 		}
 		prune_next_pdu_list(tnp, ack-base_ack);
 		goto ack_finished;
@@ -1064,7 +1053,6 @@ seq_finished:
 		/* its all been ACKed so we dont need to keep them anymore */
 		for(ual=ual2;ual2;ual2=ual){
 			ual=ual2->next;
-			g_mem_chunk_free(tcp_unacked_chunk, ual2);
 		}
 		prune_next_pdu_list(tnp, ack-base_ack);
 		goto ack_finished;
@@ -1100,7 +1088,6 @@ seq_finished:
 		ual->next=NULL;
 		for(ual=tmpual;ual;ual=tmpual){
 			tmpual=ual->next;
-			g_mem_chunk_free(tcp_unacked_chunk, ual);
 		}
 		prune_next_pdu_list(tnp, ack-base_ack);
 	}
@@ -1109,7 +1096,7 @@ ack_finished:
 	/* we might have deleted the entire ual2 list, if this is an ACK,
 	   make sure ual2 at least has a dummy entry for the current ACK */
 	if( (!ual2) && (flags&TH_ACK) ){
-		ual2=g_mem_chunk_alloc(tcp_unacked_chunk);
+		ual2=se_alloc(sizeof(struct tcp_unacked));
 		ual2->next=NULL;
 		ual2->frame=0;
 		ual2->seq=ack;
@@ -1284,7 +1271,7 @@ ack_finished:
 	if(tcp_relative_seq){
 		struct tcp_rel_seq *trs;
 		/* remember relative seq/ack number base for this packet */
-		trs=g_mem_chunk_alloc(tcp_rel_seq_chunk);
+		trs=se_alloc(sizeof(struct tcp_rel_seq));
 		trs->seq_base=base_seq;
 		trs->ack_base=base_ack;
 		trs->win_scale=win_scale1;
@@ -1504,31 +1491,6 @@ tcp_analyze_seq_init(void)
 		tcp_pdu_skipping_table = NULL;
 	}
 
-	/*
-	 * Now destroy the chunk from which the conversation table
-	 * structures were allocated.
-	 */
-	if (tcp_next_pdu_chunk) {
-		g_mem_chunk_destroy(tcp_next_pdu_chunk);
-		tcp_next_pdu_chunk = NULL;
-	}
-	if (tcp_analysis_chunk) {
-		g_mem_chunk_destroy(tcp_analysis_chunk);
-		tcp_analysis_chunk = NULL;
-	}
-	if (tcp_unacked_chunk) {
-		g_mem_chunk_destroy(tcp_unacked_chunk);
-		tcp_unacked_chunk = NULL;
-	}
-	if (tcp_acked_chunk) {
-		g_mem_chunk_destroy(tcp_acked_chunk);
-		tcp_acked_chunk = NULL;
-	}
-	if (tcp_rel_seq_chunk) {
-		g_mem_chunk_destroy(tcp_rel_seq_chunk);
-		tcp_rel_seq_chunk = NULL;
-	}
-
 	if(tcp_analyze_seq){
 		tcp_analyze_acked_table = g_hash_table_new(tcp_acked_hash,
 			tcp_acked_equal);
@@ -1540,28 +1502,6 @@ tcp_analyze_seq_init(void)
 			tcp_acked_equal);
 		tcp_pdu_skipping_table = g_hash_table_new(tcp_acked_hash,
 			tcp_acked_equal);
-		tcp_next_pdu_chunk = g_mem_chunk_new("tcp_next_pdu_chunk",
-			sizeof(struct tcp_next_pdu),
-			tcp_next_pdu_count * sizeof(struct tcp_next_pdu),
-			G_ALLOC_ONLY);
-		tcp_analysis_chunk = g_mem_chunk_new("tcp_analysis_chunk",
-			sizeof(struct tcp_analysis),
-			tcp_analysis_count * sizeof(struct tcp_analysis),
-			G_ALLOC_ONLY);
-		tcp_unacked_chunk = g_mem_chunk_new("tcp_unacked_chunk",
-			sizeof(struct tcp_unacked),
-			tcp_unacked_count * sizeof(struct tcp_unacked),
-			G_ALLOC_ONLY);
-		tcp_acked_chunk = g_mem_chunk_new("tcp_acked_chunk",
-			sizeof(struct tcp_acked),
-			tcp_acked_count * sizeof(struct tcp_acked),
-			G_ALLOC_ONLY);
-		if(tcp_relative_seq){
-			tcp_rel_seq_chunk = g_mem_chunk_new("tcp_rel_seq_chunk",
-				sizeof(struct tcp_rel_seq),
-				tcp_rel_seq_count * sizeof(struct tcp_rel_seq),
-				G_ALLOC_ONLY);
-		}
 	}
 
 }
