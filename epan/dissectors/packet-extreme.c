@@ -31,11 +31,12 @@
 
   TODO:
    EAPS v2 is not supported (no spec)
-   Lots of stuff in the EDP Info field (no spec)
-   The Display string is probably incomplete
+   Some stuff in the EDP Info field (no spec)
+   The Display string may be incomplete (no spec)
    Look for FIXME in the code :-)
 
-ESRP Packet Format
+ESRP Packet Format:
+-------------------
 
  0                               1
  0 1 2 3 4 5 6 7 8 9 A B C D E F 0 1 2 3 4 5 6 7 8 9 A B C D E F
@@ -198,6 +199,12 @@ static const value_string edp_type_vals[] = {
 	{ 0,	NULL }
 };
 
+static const value_string edp_midtype_vals[] = {
+	{ 0,	"MAC" },
+
+	{ 0,	NULL }
+};
+
 static const value_string eaps_type_vals[] = {
 	{ 5,	"Health" },
 	{ 6,	"Ring up flush fdb" },
@@ -356,8 +363,8 @@ dissect_esrp_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, 
 		tvb_get_ntohs(tvb, offset));
 	offset += 2;
 
-	proto_tree_add_uint(tree, hf_edp_esrp_reserved, tvb, offset, 2,
-		tvb_get_ntohs(tvb, offset));
+	proto_tree_add_bytes(tree, hf_edp_esrp_reserved, tvb, offset, 2,
+		tvb_get_ptr(tvb, offset, 2));
 	offset += 2;
 }
 
@@ -569,7 +576,7 @@ proto_register_edp(void)
 			0x0, "", HFILL }},
 
 		{ &hf_edp_midtype,
-		{ "Machine ID type",	"edp.midtype", FT_UINT16, BASE_DEC, NULL,
+		{ "Machine ID type",	"edp.midtype", FT_UINT16, BASE_DEC, VALS(edp_midtype_vals),
 			0x0, "", HFILL }},
 
 		{ &hf_edp_midmac,
