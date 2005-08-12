@@ -42,6 +42,7 @@
 
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
+#include <epan/emem.h>
 
 #include "packet-afp.h"
 
@@ -256,8 +257,6 @@ static gint ett_asp_directory = -1;
 static gint ett_asp_utf8_name = -1;
 static gint ett_asp_status_server_flag = -1;
 
-static guint asp_packet_init_count = 200;
-
 typedef struct {
 	guint32 conversation;
 	guint8  src[4];
@@ -269,8 +268,6 @@ typedef struct {
 } asp_request_val;
 
 static GHashTable *asp_request_hash = NULL;
-static GMemChunk *asp_request_keys = NULL;
-static GMemChunk *asp_request_vals = NULL;
 
 /* Hash Functions */
 static gint  asp_equal (gconstpointer v, gconstpointer v2)
@@ -294,8 +291,6 @@ static guint asp_hash  (gconstpointer v)
 
 /* ------------------------------------ */
 static GHashTable *atp_request_hash = NULL;
-static GMemChunk *atp_request_keys = NULL;
-static GMemChunk *atp_request_vals = NULL;
 
 
 /* ------------------------------------ */
@@ -774,10 +769,10 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   request_val = (asp_request_val *) g_hash_table_lookup(atp_request_hash, &request_key);
 
   if (!request_val && query )  {
-	 new_request_key = g_mem_chunk_alloc(atp_request_keys);
+	 new_request_key = se_alloc(sizeof(asp_request_key));
 	 *new_request_key = request_key;
 
-	 request_val = g_mem_chunk_alloc(atp_request_vals);
+	 request_val = se_alloc(sizeof(asp_request_val));
 	 request_val->value = nbe;
 
 	 g_hash_table_insert(atp_request_hash, new_request_key,request_val);
@@ -1131,10 +1126,10 @@ get_transaction(tvbuff_t *tvb, packet_info *pinfo)
 								asp_request_hash, &request_key);
   if (!request_val && !aspinfo->reply )  {
 	 fn = tvb_get_guint8(tvb, 0);
-	 new_request_key = g_mem_chunk_alloc(asp_request_keys);
+	 new_request_key = se_alloc(sizeof(asp_request_key));
 	 *new_request_key = request_key;
 
-	 request_val = g_mem_chunk_alloc(asp_request_vals);
+	 request_val = se_alloc(sizeof(asp_request_val));
 	 request_val->value = fn;
 
 	 g_hash_table_insert(asp_request_hash, new_request_key,
@@ -1720,21 +1715,9 @@ atp_init(void)
   	/* bitmap */
 	if (atp_request_hash)
 		g_hash_table_destroy(atp_request_hash);
-	if (atp_request_keys)
-		g_mem_chunk_destroy(atp_request_keys);
-	if (atp_request_vals)
-		g_mem_chunk_destroy(atp_request_vals);
 
 	atp_request_hash = g_hash_table_new(asp_hash, asp_equal);
 
-	atp_request_keys = g_mem_chunk_new("atp_request_keys",
-		sizeof(asp_request_key),
-		asp_packet_init_count * sizeof(asp_request_key),
-		G_ALLOC_AND_FREE);
-	atp_request_vals = g_mem_chunk_new("atp_request_vals",
-		sizeof(asp_request_val),
-		asp_packet_init_count * sizeof(asp_request_val),
-		G_ALLOC_AND_FREE);
 }
 
 static void
@@ -1743,21 +1726,8 @@ asp_reinit( void)
 
 	if (asp_request_hash)
 		g_hash_table_destroy(asp_request_hash);
-	if (asp_request_keys)
-		g_mem_chunk_destroy(asp_request_keys);
-	if (asp_request_vals)
-		g_mem_chunk_destroy(asp_request_vals);
 
 	asp_request_hash = g_hash_table_new(asp_hash, asp_equal);
-
-	asp_request_keys = g_mem_chunk_new("asp_request_keys",
-		sizeof(asp_request_key),
-		asp_packet_init_count * sizeof(asp_request_key),
-		G_ALLOC_AND_FREE);
-	asp_request_vals = g_mem_chunk_new("asp_request_vals",
-		sizeof(asp_request_val),
-		asp_packet_init_count * sizeof(asp_request_val),
-		G_ALLOC_AND_FREE);
 
 }
 
