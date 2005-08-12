@@ -35,6 +35,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/emem.h>
 
 #include "packet-tcp.h"
 
@@ -73,10 +74,6 @@ typedef struct {
 #define DONE		2
 #define BAD		2
 
-static GMemChunk *rlogin_vals = NULL;
-
-#define rlogin_hash_init_count 20
-
 static guint32 last_abs_sec = 0;
 static guint32 last_abs_usec= 0;
 
@@ -85,18 +82,10 @@ rlogin_init(void)
 {
 
 /* Routine to initialize rlogin protocol before each capture or filter pass. */
-/* Release any memory if needed.  Then setup the memory chunks.		*/
 
 	last_abs_sec = 0;
 	last_abs_usec= 0;
 
-	if (rlogin_vals)
-		g_mem_chunk_destroy(rlogin_vals);
-
-	rlogin_vals = g_mem_chunk_new("rlogin_vals",
-		sizeof( rlogin_hash_entry_t),
-		rlogin_hash_init_count * sizeof( rlogin_hash_entry_t),
-		G_ALLOC_AND_FREE);
 }
 
 
@@ -347,7 +336,7 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	hash_info = conversation_get_proto_data(conversation, proto_rlogin);
 	if ( !hash_info) {
-		hash_info = g_mem_chunk_alloc(rlogin_vals);
+		hash_info = se_alloc(sizeof( rlogin_hash_entry_t));
 		hash_info->state = NONE;
 		hash_info->info_framenum = 0;	/* no frame has the number 0 */
 		hash_info->name[ 0] = 0;

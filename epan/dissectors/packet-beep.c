@@ -42,6 +42,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
+#include <epan/emem.h>
 
 #define TCP_PORT_BEEP 10288
 void proto_reg_handoff_beep(void);
@@ -123,7 +124,6 @@ struct beep_proto_data {
 /*
  * Conversation stuff
  */
-static int beep_packet_init_count = 100;
 
 struct beep_request_key {
   guint32 conversation;
@@ -139,9 +139,6 @@ struct beep_request_val {
 };
 
 static GHashTable *beep_request_hash = NULL;
-static GMemChunk  *beep_request_keys = NULL;
-static GMemChunk  *beep_request_vals = NULL;
-static GMemChunk  *beep_packet_infos = NULL;
 
 /* Hash Functions */
 static gint
@@ -187,23 +184,8 @@ beep_init_protocol(void)
 
   if (beep_request_hash)
     g_hash_table_destroy(beep_request_hash);
-  if (beep_request_keys)
-    g_mem_chunk_destroy(beep_request_keys);
-  if (beep_request_vals)
-    g_mem_chunk_destroy(beep_request_vals);
-  if (beep_packet_infos)
-    g_mem_chunk_destroy(beep_packet_infos);
 
   beep_request_hash = g_hash_table_new(beep_hash, beep_equal);
-  beep_request_keys = g_mem_chunk_new("beep_request_keys",
-				       sizeof(struct beep_request_key),
-				       beep_packet_init_count * sizeof(struct beep_request_key), G_ALLOC_AND_FREE);
-  beep_request_vals = g_mem_chunk_new("beep_request_vals",
-				      sizeof(struct beep_request_val),
-				      beep_packet_init_count * sizeof(struct beep_request_val), G_ALLOC_AND_FREE);
-  beep_packet_infos = g_mem_chunk_new("beep_packet_infos",
-				      sizeof(struct beep_proto_data),
-				      beep_packet_init_count * sizeof(struct beep_proto_data), G_ALLOC_AND_FREE);
 }
 
 /*
@@ -887,10 +869,10 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       if (!request_val) { /* Create one */
 
-	new_request_key = g_mem_chunk_alloc(beep_request_keys);
+	new_request_key = se_alloc(sizeof(struct beep_request_key));
 	new_request_key->conversation = conversation->index;
 
-	request_val = g_mem_chunk_alloc(beep_request_vals);
+	request_val = se_alloc(sizeof(struct beep_request_val));
 	request_val->processed = 0;
 	request_val->size = 0;
 
@@ -963,7 +945,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * elsewhere for other frames
      */
 
-    frame_data = g_mem_chunk_alloc(beep_packet_infos);
+    frame_data = se_alloc(sizeof(struct beep_proto_data));
 
     frame_data->pl_left = pl_left;
     frame_data->pl_size = 0;
@@ -979,7 +961,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (frame_data == NULL) {
 
-    frame_data = g_mem_chunk_alloc(beep_packet_infos);
+    frame_data = se_alloc(sizeof(struct beep_proto_data));
 
     frame_data->pl_left = 0;
     frame_data->pl_size = 0;
