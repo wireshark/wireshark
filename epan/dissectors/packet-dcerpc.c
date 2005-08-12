@@ -4137,7 +4137,7 @@ dissect_dcerpc_cn_bs_body (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * Desegmentation required - bail now, but give the user a hint that desegmentation might be done later.
              */
             proto_tree_add_uint_format(tree, hf_dcerpc_cn_deseg_req, tvb, offset, 
-                tvb_reported_length_remaining(tvb, offset), 
+                0, 
                 tvb_reported_length_remaining(tvb, offset), 
                 "[DCE RPC: %u byte%s left, desegmentation might follow]", 
                 tvb_reported_length_remaining(tvb, offset), 
