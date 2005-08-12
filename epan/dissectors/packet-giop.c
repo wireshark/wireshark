@@ -2879,10 +2879,11 @@ dissect_reply_body (tvbuff_t *tvb, guint offset, packet_info *pinfo,
 	  proto_tree_add_text(tree, tvb, offset-4, 4,
 			   "Exception length: %u", sequence_length);
       }
-      if (sequence_length != 0)
+      if (sequence_length != 0 && sequence_length < ITEM_LABEL_LENGTH)
 	{
 #if 1
 
+          tvb_ensure_bytes_exist(tvb, offset, sequence_length);
           header->exception_id = g_new0(gchar,sequence_length ); /* allocate buffer */
 
           /* read exception id from buffer and store in*/
