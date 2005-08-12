@@ -184,7 +184,9 @@ dtbl_entry_get_initial_handle
 EBCDIC_to_ASCII
 EBCDIC_to_ASCII1
 ep_init_chunk
+se_init_chunk
 ep_alloc
+se_alloc
 ep_alloc0
 ep_strdup
 ep_strdup_printf
