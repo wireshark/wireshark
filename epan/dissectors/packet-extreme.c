@@ -55,6 +55,8 @@ static int hf_edp_midmac = -1;
 static int hf_edp_tlv_marker = -1;
 static int hf_edp_tlv_type = -1;
 static int hf_edp_tlv_length = -1;
+/* Display string */
+static int hf_edp_display = -1;
 /* Info element */
 static int hf_edp_info_slot = -1;
 static int hf_edp_info_port = -1;
@@ -79,6 +81,18 @@ static int hf_edp_esrp_virtip = -1;
 static int hf_edp_esrp_sysmac = -1;
 static int hf_edp_esrp_hello = -1;
 static int hf_edp_esrp_reserved = -1;
+/* EAPS element */
+static int hf_edp_eaps_ver = -1;
+static int hf_edp_eaps_type = -1;
+static int hf_edp_eaps_ctrlvlanid = -1;
+static int hf_edp_eaps_reserved0 = -1;
+static int hf_edp_eaps_sysmac = -1;
+static int hf_edp_eaps_hello = -1;
+static int hf_edp_eaps_fail = -1;
+static int hf_edp_eaps_state = -1;
+static int hf_edp_eaps_reserved1 = -1;
+static int hf_edp_eaps_helloseq = -1;
+static int hf_edp_eaps_reserved2 = -1;
 
 static gint ett_edp = -1;
 static gint ett_edp_tlv = -1;
@@ -120,23 +134,45 @@ typedef enum {
 static const value_string edp_type_vals[] = {
 	{ EDP_TYPE_NULL,	"Null"},
 	{ EDP_TYPE_DISPLAY,	"Display"},
-	{ EDP_TYPE_INFO,	"Basic system info"},
-	{ EDP_TYPE_VLAN,	"Vlan info"},
+	{ EDP_TYPE_INFO,	"System"},
+	{ EDP_TYPE_VLAN,	"Vlan"},
 	{ EDP_TYPE_ESRP,	"ESRP"},
 	{ EDP_TYPE_EAPS,	"EAPS"},
 
 	{ 0,	NULL }
 };
 
+static const value_string eaps_type_vals[] = {
+	{ 5,	"Health" },
+	{ 6,	"Ring up flush fdb" },
+	{ 7,	"Ring down flush fdb" },
+	{ 8,	"Link down" },
+
+	{ 0,	NULL }
+};
+
+static const value_string eaps_state_vals[] = {
+	{ 0,	"Idle" },
+	{ 1,	"Complete" },
+	{ 2,	"Failed" },
+	{ 3,	"Links up" },
+	{ 4,	"Links down" },
+	{ 5,	"Pre Forwarding" },
+
+	{ 0,	NULL }
+};
+
 static void
-dissect_display_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+dissect_display_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, proto_tree *tree)
 {
-	/* FIXME: todo */
-	proto_tree_add_text(tree, tvb, offset, length, "2do: data");
+	/* FIXME: I don't think that this is the right solution but don't
+	 	know what is */
+        proto_tree_add_string(tree, hf_edp_display, tvb, offset, length,
+                tvb_format_stringzpad(tvb, offset, length));
 }
 
 static void
-dissect_info_tlv(tvbuff_t *tvb, int offset, int length _U_, proto_tree *tree)
+dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length _U_, proto_tree *tree)
 {
 	proto_tree_add_uint(tree, hf_edp_info_slot, tvb, offset, 2,
 		tvb_get_ntohs(tvb, offset));
@@ -165,7 +201,7 @@ dissect_info_tlv(tvbuff_t *tvb, int offset, int length _U_, proto_tree *tree)
 }
 
 static void
-dissect_vlan_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, proto_tree *tree)
 {
 	/* FIXME: properly decode the bit(s):
 		bit 8 = 1 -> has ip interface  */
@@ -177,6 +213,7 @@ dissect_vlan_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 		tvb_get_ptr(tvb, offset, 3));
 	offset += 3;
 
+	/* FIXME: Looks like the vlan number might be in the reserved2 part */
 	proto_tree_add_uint(tree, hf_edp_vlan_id, tvb, offset, 2,
 		tvb_get_ntohs(tvb, offset));
 	offset += 2;
@@ -195,9 +232,11 @@ dissect_vlan_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 }
 
 static void
-dissect_esrp_tlv(tvbuff_t *tvb, int offset, int length _U_, proto_tree *tree)
+dissect_esrp_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, proto_tree *tree)
 {
-	/* FIXME: Set COLPROTO */
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESRP");
+
 	proto_tree_add_uint(tree, hf_edp_esrp_proto, tvb, offset, 1,
 		tvb_get_guint8(tvb, offset));
 	offset += 1;
@@ -236,10 +275,54 @@ dissect_esrp_tlv(tvbuff_t *tvb, int offset, int length _U_, proto_tree *tree)
 }
 
 static void
-dissect_eaps_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+dissect_eaps_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, proto_tree *tree)
 {
-	/* FIXME: todo */
-	proto_tree_add_text(tree, tvb, offset, length, "2do: data");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAPS");
+
+	proto_tree_add_uint(tree, hf_edp_eaps_ver, tvb, offset, 1,
+		tvb_get_guint8(tvb, offset));
+	offset += 1;
+
+	proto_tree_add_uint(tree, hf_edp_eaps_type, tvb, offset, 1,
+		tvb_get_guint8(tvb, offset));
+	offset += 1;
+
+	proto_tree_add_uint(tree, hf_edp_eaps_ctrlvlanid, tvb, offset, 2,
+		tvb_get_ntohs(tvb, offset));
+	offset += 2;
+
+	proto_tree_add_bytes(tree, hf_edp_eaps_reserved0, tvb, offset, 4,
+		tvb_get_ptr(tvb, offset, 4));
+	offset += 4;
+
+	proto_tree_add_ether(tree, hf_edp_eaps_sysmac, tvb, offset, 6,
+		tvb_get_ptr(tvb, offset, 6));
+	offset += 6;
+
+	proto_tree_add_uint(tree, hf_edp_eaps_hello, tvb, offset, 2,
+		tvb_get_ntohs(tvb, offset));
+	offset += 2;
+
+	proto_tree_add_uint(tree, hf_edp_eaps_fail, tvb, offset, 2,
+		tvb_get_ntohs(tvb, offset));
+	offset += 2;
+
+	proto_tree_add_uint(tree, hf_edp_eaps_state, tvb, offset, 1,
+		tvb_get_guint8(tvb, offset));
+	offset += 1;
+
+	proto_tree_add_bytes(tree, hf_edp_eaps_reserved1, tvb, offset, 1,
+		tvb_get_ptr(tvb, offset, 1));
+	offset += 1;
+
+	proto_tree_add_uint(tree, hf_edp_eaps_helloseq, tvb, offset, 2,
+		tvb_get_ntohs(tvb, offset));
+	offset += 2;
+
+	proto_tree_add_bytes(tree, hf_edp_eaps_reserved2, tvb, offset, 38,
+		tvb_get_ptr(tvb, offset, 38));
+	offset += 38;
 }
 
 static void
@@ -260,7 +343,7 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, PROTO_LONG_NAME);
+		col_set_str(pinfo->cinfo, COL_INFO, PROTO_SHORT_NAME ":");
 
 	if (tree) {
 		length_remaining = tvb_reported_length_remaining(tvb, offset);
@@ -329,7 +412,10 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				tlv_marker);
 			offset += 1;
 
-			/* FIXME: Set COLINFO */
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+					val_to_str(tlv_type, edp_type_vals, "[0x%02x]"));
+
 			proto_tree_add_uint(tlv_tree, hf_edp_tlv_type, tvb, offset, 1,
 				tlv_type);
 			offset += 1;
@@ -341,22 +427,21 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			switch (tlv_type) {
 			case EDP_TYPE_NULL: /* Last TLV */
 				last = 1;
-				/* FIXME: consistency check: tlv_length == 4 */
 				break;
 			case EDP_TYPE_DISPLAY: /* MIB II display string */
-				dissect_display_tlv(tvb, offset, tlv_length - 4, tlv_tree);
+				dissect_display_tlv(tvb, pinfo, offset, tlv_length - 4, tlv_tree);
 				break;
 			case EDP_TYPE_INFO: /* Basic system information */
-				dissect_info_tlv(tvb, offset, tlv_length - 4, tlv_tree);
+				dissect_info_tlv(tvb, pinfo, offset, tlv_length - 4, tlv_tree);
 				break;
 			case EDP_TYPE_VLAN: /* VLAN info */
-				dissect_vlan_tlv(tvb, offset, tlv_length - 4, tlv_tree);
+				dissect_vlan_tlv(tvb, pinfo, offset, tlv_length - 4, tlv_tree);
 				break;
 			case EDP_TYPE_ESRP: /* Extreme Standby Router Protocol */
-				dissect_esrp_tlv(tvb, offset, tlv_length - 4, tlv_tree);
+				dissect_esrp_tlv(tvb, pinfo, offset, tlv_length - 4, tlv_tree);
 				break;
 			case EDP_TYPE_EAPS: /* Ethernet Automatic Protection Swtiching */
-				dissect_eaps_tlv(tvb, offset, tlv_length - 4, tlv_tree);
+				dissect_eaps_tlv(tvb, pinfo, offset, tlv_length - 4, tlv_tree);
 				break;
 			default:
 				proto_tree_add_text(tlv_tree, tvb, offset,
@@ -405,7 +490,7 @@ proto_register_edp(void)
 
 	/* TLV header */
 		{ &hf_edp_tlv_marker,
-		{ "Marker",	"edp.tlv.marker", FT_UINT8, BASE_HEX, NULL,
+		{ "TLV Marker",	"edp.tlv.marker", FT_UINT8, BASE_HEX, NULL,
 			0x0, "", HFILL }},
 
 		{ &hf_edp_tlv_type,
@@ -415,6 +500,11 @@ proto_register_edp(void)
 		{ &hf_edp_tlv_length,
 		{ "TLV length",	"edp.tlv.length", FT_UINT16, BASE_DEC, NULL,
 			0x0, "", HFILL }},
+
+	/* Display string */
+		{ &hf_edp_display,
+		{ "Display",	"edp.display", FT_STRING, BASE_NONE, NULL,
+			0x0, "MIB II display string", HFILL }},
 
 	/* Info element */
 		{ &hf_edp_info_slot,
@@ -502,8 +592,53 @@ proto_register_edp(void)
 			0x0, "Hello timer", HFILL }},
 
 		{ &hf_edp_esrp_reserved,
-		{ "Reserved",	"edp.esrp.reserved", FT_UINT16, BASE_DEC, NULL,
-			0x0, "Reserved", HFILL }},
+		{ "Reserved",	"edp.esrp.reserved", FT_BYTES, BASE_NONE, NULL,
+			0x0, "", HFILL }},
+
+	/* EAPS element */
+		{ &hf_edp_eaps_ver,
+		{ "Version",	"edp.eaps.ver", FT_UINT8, BASE_DEC, NULL,
+			0x0, "", HFILL }},
+
+		{ &hf_edp_eaps_type,
+		{ "Type",	"edp.eaps.type", FT_UINT8, BASE_DEC, VALS(eaps_type_vals),
+			0x0, "", HFILL }},
+
+		{ &hf_edp_eaps_ctrlvlanid,
+		{ "Vlan ID",	"edp.eaps.vlanid", FT_UINT16, BASE_DEC, NULL,
+			0x0, "Control Vlan ID", HFILL }},
+
+		{ &hf_edp_eaps_reserved0,
+		{ "Reserved0",	"edp.eaps.reserved0", FT_BYTES, BASE_NONE, NULL,
+			0x0, "", HFILL }},
+
+		{ &hf_edp_eaps_sysmac,
+		{ "Sys MAC",	"edp.eaps.sysmac", FT_ETHER, BASE_NONE, NULL,
+			0x0, "System MAC address", HFILL }},
+
+		{ &hf_edp_eaps_hello,
+		{ "Hello",	"edp.eaps.hello", FT_UINT16, BASE_DEC, NULL,
+			0x0, "Hello timer", HFILL }},
+
+		{ &hf_edp_eaps_fail,
+		{ "Fail",	"edp.eaps.fail", FT_UINT16, BASE_DEC, NULL,
+			0x0, "Fail timer", HFILL }},
+
+		{ &hf_edp_eaps_state,
+		{ "State",	"edp.eaps.state", FT_UINT8, BASE_DEC, VALS(eaps_state_vals),
+			0x0, "", HFILL }},
+
+		{ &hf_edp_eaps_reserved1,
+		{ "Reserved1",	"edp.eaps.reserved1", FT_BYTES, BASE_NONE, NULL,
+			0x0, "", HFILL }},
+
+		{ &hf_edp_eaps_helloseq,
+		{ "Helloseq",	"edp.eaps.helloseq", FT_UINT16, BASE_DEC, NULL,
+			0x0, "Hello sequence", HFILL }},
+
+		{ &hf_edp_eaps_reserved2,
+		{ "Reserved2",	"edp.eaps.reserved2", FT_BYTES, BASE_NONE, NULL,
+			0x0, "", HFILL }},
 
         };
 	static gint *ett[] = {
