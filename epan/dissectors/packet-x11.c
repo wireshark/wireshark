@@ -67,6 +67,7 @@
 #include <epan/prefs.h>
 #include "packet-frame.h"
 #include "packet-x11-keysymdef.h"
+#include <epan/emem.h>
 
 #define cVALS(x) (const value_string*)(x)
 
@@ -147,7 +148,6 @@ typedef struct _x11_conv_data {
       } request;
 } x11_conv_data_t;
 
-static GMemChunk *x11_state_chunk = NULL;
 static x11_conv_data_t *x11_conv_data_list;
 
 /* Initialize the protocol and registered fields */
@@ -2494,13 +2494,6 @@ static void x11_init_protocol(void)
 	    g_hash_table_destroy(state->valtable);
       }
       x11_conv_data_list = NULL;
-      if (x11_state_chunk != NULL)
-	    g_mem_chunk_destroy(x11_state_chunk);
-
-      x11_state_chunk = g_mem_chunk_new("x11_state_chunk",
-					sizeof (x11_conv_data_t),
-					128 * sizeof (x11_conv_data_t),
-					G_ALLOC_ONLY);
 }
 
 /************************************************************************
@@ -4374,7 +4367,7 @@ x11_stateinit(conversation_t *conversation)
 	static x11_conv_data_t stateinit;
 	int i = 0;
 
-	state = g_mem_chunk_alloc(x11_state_chunk);
+	state = se_alloc(sizeof (x11_conv_data_t));
 	*state = stateinit; 
 	state->next = x11_conv_data_list;
 	x11_conv_data_list = state;

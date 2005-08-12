@@ -61,6 +61,7 @@
 #include "packet-per.h"
 #include <epan/prefs.h>
 #include "packet-tpkt.h"
+#include <epan/emem.h>
 
 #define PORT_T38 6004  
 static guint global_t38_tcp_port = PORT_T38;
@@ -161,9 +162,6 @@ static gint ett_t38_setup = -1;
 static gboolean primary_part = TRUE;
 static guint32 seq_number = 0;
 
-/* Memory chunk for storing conversation and per-packet info */
-static GMemChunk *t38_conversations = NULL;
-
 /* RTP Version is the first 2 bits of the first octet in the UDP payload*/
 #define RTP_VERSION(octet)	((octet) >> 6)
 
@@ -224,7 +222,7 @@ void t38_add_address(packet_info *pinfo,
          */
         if ( ! p_conv_data ) {
                 /* Create conversation data */
-                p_conv_data = g_mem_chunk_alloc(t38_conversations);
+                p_conv_data = se_alloc(sizeof(struct _t38_conversation_info));
 
                 conversation_add_proto_data(p_conv, proto_t38, p_conv_data);
         }
@@ -235,19 +233,6 @@ void t38_add_address(packet_info *pinfo,
         strncpy(p_conv_data->method, setup_method, MAX_T38_SETUP_METHOD_SIZE);
         p_conv_data->method[MAX_T38_SETUP_METHOD_SIZE] = '\0';
         p_conv_data->frame_number = setup_frame_number;
-}
-
-static void t38_init( void )
-{
-        /* (Re)allocate mem chunk for conversations */
-        if (t38_conversations)
-        {
-                g_mem_chunk_destroy(t38_conversations);
-        }
-        t38_conversations = g_mem_chunk_new("t38_conversations",
-                                            sizeof(struct _t38_conversation_info),
-                                            20 * sizeof(struct _t38_conversation_info),
-                                            G_ALLOC_ONLY);
 }
 
 
@@ -917,7 +902,7 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                         if (p_conv_data) {
                                 /* Save this conversation info into packet info */
-                                p_conv_packet_data = g_mem_chunk_alloc(t38_conversations);
+                                p_conv_packet_data = se_alloc(sizeof(struct _t38_conversation_info));
                                 strcpy(p_conv_packet_data->method, p_conv_data->method);
                                 p_conv_packet_data->frame_number = p_conv_data->frame_number;
                                 p_add_proto_data(pinfo->fd, proto_t38, p_conv_packet_data);
@@ -1089,7 +1074,6 @@ proto_register_t38(void)
                 "this T.38 stream to be created",
                 &global_t38_show_setup_info);
 
-	register_init_routine( &t38_init );
 }
 
 void
