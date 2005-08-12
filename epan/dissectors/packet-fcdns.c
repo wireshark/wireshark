@@ -48,6 +48,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <epan/conversation.h>
 #include "etypes.h"
 #include "packet-fc.h"
@@ -125,9 +126,6 @@ typedef struct _fcdns_conv_data {
 } fcdns_conv_data_t;
 
 GHashTable *fcdns_req_hash = NULL;
-GMemChunk *fcdns_req_keys = NULL;
-GMemChunk *fcdns_req_vals = NULL;
-guint32 fcdns_init_count = 25;
 
 static dissector_handle_t data_handle;
 
@@ -160,24 +158,10 @@ fcdns_hash (gconstpointer v)
 static void
 fcdns_init_protocol(void)
 {
-	if (fcdns_req_keys)
-            g_mem_chunk_destroy (fcdns_req_keys);
-	if (fcdns_req_vals)
-            g_mem_chunk_destroy (fcdns_req_vals);
 	if (fcdns_req_hash)
             g_hash_table_destroy(fcdns_req_hash);
 
 	fcdns_req_hash = g_hash_table_new(fcdns_hash, fcdns_equal);
-	fcdns_req_keys = g_mem_chunk_new ("fcdns_req_keys",
-                                          sizeof(fcdns_conv_key_t),
-                                          fcdns_init_count *
-                                          sizeof(fcdns_conv_key_t),
-                                          G_ALLOC_AND_FREE);
-	fcdns_req_vals = g_mem_chunk_new ("fcdns_req_vals",
-                                          sizeof(fcdns_conv_data_t),
-                                          fcdns_init_count *
-                                          sizeof(fcdns_conv_data_t),
-                                          G_ALLOC_AND_FREE);
 }
 
 static gchar *
@@ -1525,10 +1509,10 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             cdata->opcode = opcode;
         }
         else {
-            req_key = g_mem_chunk_alloc (fcdns_req_keys);
+            req_key = se_alloc (sizeof(fcdns_conv_key_t));
             req_key->conv_idx = conversation->index;
             
-            cdata = g_mem_chunk_alloc (fcdns_req_vals);
+            cdata = se_alloc (sizeof(fcdns_conv_data_t));
             cdata->opcode = opcode;
             
             g_hash_table_insert (fcdns_req_hash, req_key, cdata);

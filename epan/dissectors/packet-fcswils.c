@@ -42,6 +42,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <epan/conversation.h>
 #include "etypes.h"
 #include "packet-fc.h"
@@ -381,9 +382,6 @@ typedef struct _fcswils_conv_data {
 } fcswils_conv_data_t;
 
 GHashTable *fcswils_req_hash = NULL;
-GMemChunk *fcswils_req_keys = NULL;
-GMemChunk *fcswils_req_vals = NULL;
-guint32 fcswils_init_count = 25;
 
 static dissector_handle_t data_handle, fcsp_handle;
 
@@ -418,22 +416,10 @@ fcswils_hash (gconstpointer v)
 static void
 fcswils_init_protocol(void)
 {
-	if (fcswils_req_keys)
-            g_mem_chunk_destroy (fcswils_req_keys);
-	if (fcswils_req_vals)
-            g_mem_chunk_destroy (fcswils_req_vals);
 	if (fcswils_req_hash)
             g_hash_table_destroy (fcswils_req_hash);
 
 	fcswils_req_hash = g_hash_table_new(fcswils_hash, fcswils_equal);
-	fcswils_req_keys = g_mem_chunk_new("fcswils_req_keys",
-                                           sizeof(fcswils_conv_key_t),
-                                           fcswils_init_count * sizeof(fcswils_conv_key_t),
-                                           G_ALLOC_AND_FREE);
-	fcswils_req_vals = g_mem_chunk_new("fcswils_req_vals",
-                                           sizeof(fcswils_conv_data_t),
-                                           fcswils_init_count * sizeof(fcswils_conv_data_t),
-                                           G_ALLOC_AND_FREE);
 }
 
 static guint8 *
@@ -1489,10 +1475,10 @@ dissect_fcswils (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             cdata->opcode = opcode;
         }
         else {
-            req_key = g_mem_chunk_alloc (fcswils_req_keys);
+            req_key = se_alloc (sizeof(fcswils_conv_key_t));
             req_key->conv_idx = conversation->index;
             
-            cdata = g_mem_chunk_alloc (fcswils_req_vals);
+            cdata = se_alloc (sizeof(fcswils_conv_data_t));
             cdata->opcode = opcode;
             
             g_hash_table_insert (fcswils_req_hash, req_key, cdata);

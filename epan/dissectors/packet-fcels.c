@@ -47,6 +47,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <epan/conversation.h>
 #include "etypes.h"
 #include "packet-fc.h"
@@ -212,9 +213,6 @@ typedef struct _fcels_conv_data {
 } fcels_conv_data_t;
 
 GHashTable *fcels_req_hash = NULL;
-GMemChunk *fcels_req_keys = NULL;
-GMemChunk *fcels_req_vals = NULL;
-guint32 fcels_init_count = 25;
 
 static dissector_handle_t data_handle, fcsp_handle;
 
@@ -247,24 +245,10 @@ fcels_hash (gconstpointer v)
 static void
 fcels_init_protocol(void)
 {
-	if (fcels_req_keys)
-            g_mem_chunk_destroy(fcels_req_keys);
-	if (fcels_req_vals)
-            g_mem_chunk_destroy(fcels_req_vals);
 	if (fcels_req_hash)
             g_hash_table_destroy(fcels_req_hash);
 
 	fcels_req_hash = g_hash_table_new(fcels_hash, fcels_equal);
-	fcels_req_keys = g_mem_chunk_new ("fcels_req_keys",
-                                          sizeof(fcels_conv_key_t),
-                                          fcels_init_count *
-                                          sizeof(fcels_conv_key_t),
-                                          G_ALLOC_AND_FREE);
-	fcels_req_vals = g_mem_chunk_new ("fcels_req_vals",
-                                          sizeof(fcels_conv_data_t),
-                                          fcels_init_count *
-                                          sizeof(fcels_conv_data_t),
-                                          G_ALLOC_AND_FREE);
 }
 
 static void
@@ -1671,10 +1655,10 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             cdata->opcode = opcode;
         }
         else {
-            req_key = g_mem_chunk_alloc (fcels_req_keys);
+            req_key = se_alloc (sizeof(fcels_conv_key_t));
             req_key->conv_idx = conversation->index;
             
-            cdata = g_mem_chunk_alloc (fcels_req_vals);
+            cdata = se_alloc (sizeof(fcels_conv_data_t));
             cdata->opcode = opcode;
             
             g_hash_table_insert (fcels_req_hash, req_key, cdata);

@@ -53,6 +53,7 @@
 #include "packet-fclctl.h"
 #include "packet-fcbls.h"
 #include <epan/tap.h>
+#include <epan/emem.h>
 
 #define FC_HEADER_SIZE         24
 #define FC_RCTL_EISL           0x50
@@ -147,14 +148,9 @@ typedef struct _fcseq_conv_data {
 } fcseq_conv_data_t;
 
 GHashTable *fcseq_req_hash = NULL;
-GMemChunk *fcseq_req_keys = NULL;
-GMemChunk *fcseq_req_vals = NULL;
-guint32 fcseq_init_count = 25;
 
 static GHashTable *fc_exchange_unmatched = NULL;
 static GHashTable *fc_exchange_matched = NULL;
-static GMemChunk *fc_exchange_vals = NULL;
-static guint32 fc_exchange_init_count = 200;
 
 /*
  * Hash Functions
@@ -248,10 +244,6 @@ fc_exchange_equal_matched(gconstpointer v1, gconstpointer v2)
 static void
 fc_exchange_init_protocol(void)
 {
-    if(fc_exchange_vals){
-        g_mem_chunk_destroy(fc_exchange_vals);
-        fc_exchange_vals=NULL;
-    }
     if(fc_exchange_unmatched){
         g_hash_table_destroy(fc_exchange_unmatched);
         fc_exchange_unmatched=NULL;
@@ -263,28 +255,13 @@ fc_exchange_init_protocol(void)
 
     fc_exchange_unmatched=g_hash_table_new(fc_exchange_hash_unmatched, fc_exchange_equal_unmatched);
     fc_exchange_matched=g_hash_table_new(fc_exchange_hash_matched, fc_exchange_equal_matched);
-    fc_exchange_vals=g_mem_chunk_new("fc_exchange_vals", sizeof(fc_exchange_data), fc_exchange_init_count*sizeof(fc_exchange_data), G_ALLOC_AND_FREE);
 
     fragment_table_init(&fc_fragment_table);
 
-    if (fcseq_req_keys)
-        g_mem_chunk_destroy (fcseq_req_keys);
-    if (fcseq_req_vals)
-        g_mem_chunk_destroy (fcseq_req_vals);
     if (fcseq_req_hash)
         g_hash_table_destroy(fcseq_req_hash);
     
     fcseq_req_hash = g_hash_table_new(fcseq_hash, fcseq_equal);
-    fcseq_req_keys = g_mem_chunk_new ("fcseq_req_keys",
-                                      sizeof(fcseq_conv_key_t),
-                                      fcseq_init_count *
-                                      sizeof(fcseq_conv_key_t),
-                                      G_ALLOC_AND_FREE);
-    fcseq_req_vals = g_mem_chunk_new ("fcseq_req_vals",
-                                      sizeof(fcseq_conv_data_t),
-                                      fcseq_init_count *
-                                      sizeof(fcseq_conv_data_t),
-                                      G_ALLOC_AND_FREE);
 }
 
 
@@ -885,7 +862,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
             if(old_fced){
                 g_hash_table_remove(fc_exchange_unmatched, old_fced);
             }
-            old_fced=g_mem_chunk_alloc(fc_exchange_vals);
+            old_fced=se_alloc(sizeof(fc_exchange_data));
             old_fced->oxid=fchdr.oxid;
             COPY_ADDRESS(&old_fced->s_id, &fchdr.s_id);
             COPY_ADDRESS(&old_fced->d_id, &fchdr.d_id);
@@ -1205,10 +1182,10 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                 cdata->seq_cnt = fchdr.seqcnt;
             }
             else {
-                req_key = g_mem_chunk_alloc (fcseq_req_keys);
+                req_key = se_alloc (sizeof(fcseq_conv_key_t));
                 req_key->conv_idx = conversation->index;
                 
-                cdata = g_mem_chunk_alloc (fcseq_req_vals);
+                cdata = se_alloc (sizeof(fcseq_conv_data_t));
                 cdata->seq_cnt = fchdr.seqcnt;
                 
                 g_hash_table_insert (fcseq_req_hash, req_key, cdata);
