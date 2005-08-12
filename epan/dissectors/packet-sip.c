@@ -66,9 +66,6 @@
 static gint sip_tap = -1;
 static dissector_handle_t sigcomp_handle;
 
-/* Initial size of hash table tracking state of calls */
-#define SIP_INIT_HASH_TABLE_SIZE 50
-
 /* Initialize the protocol and registered fields */
 static gint proto_sip				= -1;
 static gint proto_raw_sip			= -1;
@@ -452,8 +449,6 @@ static sip_info_value_t *stat_info;
  ****************************************************************************/
 
 static GHashTable *sip_hash = NULL;           /* Hash table */
-static GMemChunk  *sip_hash_keys = NULL;      /* Hash key chunk */
-static GMemChunk  *sip_hash_values = NULL;    /* Hash value chunk */
 
 /* Types for hash table keys and values */
 #define MAX_CALL_ID_SIZE 128
@@ -530,24 +525,12 @@ static guint sip_hash_func(gconstpointer v)
 static void
 sip_init_protocol(void)
 {
-	/* Destroy any existing memory chunks / hashes. */
+	/* Destroy any existing hashes. */
 	if (sip_hash)
 		g_hash_table_destroy(sip_hash);
-	if (sip_hash_keys)
-		g_mem_chunk_destroy(sip_hash_keys);
-	if (sip_hash_values)
-		g_mem_chunk_destroy(sip_hash_values);
 
 	/* Now create them over */
 	sip_hash = g_hash_table_new(sip_hash_func, sip_equal);
-	sip_hash_keys = g_mem_chunk_new("sip_hash_keys",
-					sizeof(sip_hash_key),
-					SIP_INIT_HASH_TABLE_SIZE * sizeof(sip_hash_key),
-					G_ALLOC_ONLY);
-	sip_hash_values = g_mem_chunk_new("sip_hash_values",
-					sizeof(sip_hash_value),
-					SIP_INIT_HASH_TABLE_SIZE * sizeof(sip_hash_value),
-					G_ALLOC_ONLY);
 }
 
 /*
@@ -1994,8 +1977,8 @@ guint sip_is_packet_resend(packet_info *pinfo,
 		/* Need to create a new table entry */
 
 		/* Allocate a new key and value */
-		p_key = g_mem_chunk_alloc(sip_hash_keys);
-		p_val = g_mem_chunk_alloc(sip_hash_values);
+		p_key = se_alloc(sizeof(sip_hash_key));
+		p_val = se_alloc(sizeof(sip_hash_value));
 
 		/* Just give up if allocations failed */
 		if (!p_key || !p_val)

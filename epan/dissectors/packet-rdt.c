@@ -43,6 +43,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
+#include <epan/emem.h>
 
 #include "packet-rdt.h"
 
@@ -202,10 +203,6 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Preferences bool to control whether or not setup info should be shown */
 static gboolean global_rdt_show_setup_info = TRUE;
 
-/* Memory chunk for storing conversation and per-packet info */
-static GMemChunk *rdt_conversations = NULL;
-
-
 /* Packet types */
 #define RDT_ASMACTIION_PACKET               0xff00
 #define RDT_BANDWIDTHREPORT_PACKET          0xff01
@@ -281,7 +278,7 @@ void rdt_add_address(packet_info *pinfo,
     if (!p_conv_data)
     {
         /* Create conversation data */
-        p_conv_data = g_mem_chunk_alloc(rdt_conversations);
+        p_conv_data = se_alloc(sizeof(struct _rdt_conversation_info));
         conversation_add_proto_data(p_conv, proto_rdt, p_conv_data);
     }
 
@@ -289,21 +286,6 @@ void rdt_add_address(packet_info *pinfo,
     strncpy(p_conv_data->method, setup_method, MAX_RDT_SETUP_METHOD_SIZE);
     p_conv_data->method[MAX_RDT_SETUP_METHOD_SIZE] = '\0';
     p_conv_data->frame_number = setup_frame_number;
-}
-
-/* Initialise dissector-global storage */
-static void rdt_init(void)
-{
-    /* (Re)allocate mem chunk for conversations */
-    if (rdt_conversations)
-    {
-        g_mem_chunk_destroy(rdt_conversations);
-    }
-
-    rdt_conversations = g_mem_chunk_new("rdt_conversations",
-                                        sizeof(struct _rdt_conversation_info),
-                                        20 * sizeof(struct _rdt_conversation_info),
-                                        G_ALLOC_ONLY);
 }
 
 
@@ -1341,7 +1323,7 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (p_conv_data)
             {
                 /* Save this conversation info into packet info */
-                p_conv_packet_data = g_mem_chunk_alloc(rdt_conversations);
+                p_conv_packet_data = se_alloc(sizeof(struct _rdt_conversation_info));
                 strcpy(p_conv_packet_data->method, p_conv_data->method);
                 p_conv_packet_data->frame_number = p_conv_data->frame_number;
                 p_add_proto_data(pinfo->fd, proto_rdt, p_conv_packet_data);
@@ -2246,7 +2228,6 @@ void proto_register_rdt(void)
                                    "Set the UDP port for clients",
                                    10, &global_rdt_udp_port);
 
-    register_init_routine(&rdt_init);
 }
 
 void proto_reg_handoff_rdt(void)
