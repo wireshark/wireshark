@@ -35,20 +35,24 @@
 #include "ppptypes.h"
 #include "packet-ppp.h"
 #include "packet-ip.h"
+#include "nlpid.h"
 
 #define JUNIPER_FLAG_PKT_OUT        0x00     /* Outgoing packet */
 #define JUNIPER_FLAG_PKT_IN         0x01     /* Incoming packet */
 #define JUNIPER_FLAG_NO_L2          0x02     /* L2 header stripped */
+#define JUNIPER_FLAG_EXT            0x80     /* extensions present */
 #define JUNIPER_ATM2_PKT_TYPE_MASK  0x70
 #define JUNIPER_ATM2_GAP_COUNT_MASK 0x3F
 #define JUNIPER_PCAP_MAGIC          0x4d4743
 
-#define JUNIPER_ATM1   1
-#define JUNIPER_ATM2   2
+#define JUNIPER_PIC_ATM1   1
+#define JUNIPER_PIC_ATM2   2
+#define JUNIPER_PIC_MLPPP  3
+#define JUNIPER_PIC_MLFR   4
 
 #define JUNIPER_HDR_SNAP   0xaaaa03
 #define JUNIPER_HDR_NLPID  0xfefe03
-#define JUNIPER_HDR_CNLPID 0x03
+#define JUNIPER_HDR_LLC_UI 0x03
 #define JUNIPER_HDR_PPP    0xff03
 
 #define ML_PIC_COOKIE_LEN 2
@@ -58,10 +62,10 @@
 #define GSP_SVC_REQ_APOLLO 0x40
 #define GSP_SVC_REQ_LSQ    0x47
 
-#define LSQ_COOKIE_RE         (1 << 3)
-#define LSQ_COOKIE_DIR        (1 << 2)
+#define LSQ_COOKIE_RE         0x2
+#define LSQ_COOKIE_DIR        0x1
 #define LSQ_L3_PROTO_SHIFT     4
-#define LSQ_L3_PROTO_MASK     (0x17 << LSQ_L3_PROTO_SHIFT)
+#define LSQ_L3_PROTO_MASK     0xf0
 #define LSQ_L3_PROTO_IPV4     (0 << LSQ_L3_PROTO_SHIFT)
 #define LSQ_L3_PROTO_IPV6     (1 << LSQ_L3_PROTO_SHIFT)
 #define LSQ_L3_PROTO_MPLS     (2 << LSQ_L3_PROTO_SHIFT)
@@ -84,6 +88,7 @@ static int proto_juniper = -1;
 static int hf_juniper_magic = -1;
 static int hf_juniper_direction = -1;
 static int hf_juniper_l2hdr_presence = -1;
+static int hf_juniper_ext_len = -1;
 static int hf_juniper_atm1_cookie = -1;
 static int hf_juniper_atm2_cookie = -1;
 static int hf_juniper_mlpic_cookie = -1;
@@ -98,6 +103,8 @@ static dissector_handle_t mpls_handle;
 static dissector_handle_t llc_handle;
 static dissector_handle_t eth_handle;
 static dissector_handle_t ppp_handle;
+static dissector_handle_t q933_handle;
+static dissector_handle_t frelay_handle;
 static dissector_handle_t data_handle;
 
 static dissector_table_t osinl_subdissector_table;
@@ -109,31 +116,51 @@ static void dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 static gboolean ppp_heuristic_guess(guint16 proto);
 static guint ip_heuristic_guess(guint8 ip_header_byte);
 static guint juniper_svc_cookie_len (guint64 cookie);
-static guint juniper_svc_cookie_proto (guint64 cookie);
+static guint juniper_svc_cookie_proto (guint64 cookie, guint16 pictype, guint8 flags);
 
+/* values < 200 are JUNOS internal proto values
+ * found in frames containing no link-layer header */
 enum {
     PROTO_UNKNOWN = 0,
-    PROTO_IP,
-    PROTO_IP6,
-    PROTO_PPP,
-    PROTO_ISO,
-    PROTO_MPLS,
-    PROTO_LLC,
-    PROTO_LLC_SNAP,
-    PROTO_ETHER,
-    PROTO_OAM
+    PROTO_IP = 2,
+    PROTO_MPLS_IP = 3,
+    PROTO_IP_MPLS = 4,
+    PROTO_MPLS = 5,
+    PROTO_IP6 = 6,
+    PROTO_MPLS_IP6 = 7,
+    PROTO_IP6_MPLS = 8,
+    PROTO_CLNP = 10,
+    PROTO_CLNP_MPLS = 32,
+    PROTO_MPLS_CLNP = 33,
+    PROTO_PPP = 200,
+    PROTO_ISO = 201,
+    PROTO_LLC = 202,
+    PROTO_LLC_SNAP = 203,
+    PROTO_ETHER = 204,
+    PROTO_OAM = 205,
+    PROTO_Q933 = 206,
+    PROTO_FRELAY = 207
 };
 
 static const value_string juniper_proto_vals[] = {
     {PROTO_IP, "IPv4"},
+    {PROTO_MPLS_IP, "MPLS->IPv4"},
+    {PROTO_IP_MPLS, "IPv4->MPLS"},
     {PROTO_IP6, "IPv6"},
+    {PROTO_MPLS_IP6, "MPLS->IPv6"},
+    {PROTO_IP6_MPLS, "IPv6->MPLS"},
     {PROTO_PPP, "PPP"},
+    {PROTO_CLNP, "CLNP"},
+    {PROTO_MPLS_CLNP, "MPLS->CLNP"},
+    {PROTO_CLNP_MPLS, "CLNP->MPLS"},
     {PROTO_ISO, "OSI"},
     {PROTO_MPLS, "MPLS"},
     {PROTO_LLC, "LLC"},
     {PROTO_LLC_SNAP, "LLC/SNAP"},
     {PROTO_ETHER, "Ethernet"},
     {PROTO_OAM, "ATM OAM Cell"},
+    {PROTO_Q933, "Q.933"},
+    {PROTO_FRELAY, "Frame-Relay"},
     {0,                    NULL}
 };
 
@@ -146,9 +173,11 @@ dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
 {
   proto_item *tisub;
   guint8     direction,l2hdr_presence,proto;
+  guint16    ext_len,hdr_len;
   guint32    magic_number;
 
   tvbuff_t   *next_tvb;
+  proto_tree *juniper_ext_subtree = NULL;
 
   magic_number = tvb_get_ntoh24(tvb, 0);
   *flags = tvb_get_guint8(tvb, 3);
@@ -172,16 +201,30 @@ dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
                             l2hdr_presence, "L2-header: %s",
                             val_to_str(l2hdr_presence,juniper_l2hdr_presence_vals,"Unknown"));
 
+  /* calculate hdr_len before cookie, payload */
+
+  /* meta-info extensions (JUNOS >= 7.5) ? */
+  if ((*flags & JUNIPER_FLAG_EXT) == JUNIPER_FLAG_EXT) {
+      ext_len = tvb_get_ntohs(tvb,4);
+      hdr_len = 6 + ext_len; /* MGC,flags,ext_len */
+
+      tisub = proto_tree_add_uint (juniper_subtree, hf_juniper_ext_len, tvb, 4, 2, ext_len);
+      juniper_ext_subtree = proto_item_add_subtree(tisub, ett_juniper);          
+
+      /* FIXME add TLV parser for extensions */
+      tisub = proto_tree_add_text (juniper_ext_subtree, tvb, 6, ext_len, "unparsed Extensions");
+
+  } else
+      hdr_len = 4; /* MGC,flags */
+
   if ((*flags & JUNIPER_FLAG_NO_L2) == JUNIPER_FLAG_NO_L2) { /* no link header present ? */
-      next_tvb = tvb_new_subset(tvb, 8, -1, -1);
-      proto = ip_heuristic_guess(tvb_get_guint8(tvb, 8)); /* try IP */
-      if (proto != PROTO_UNKNOWN) {
-          dissect_juniper_payload_proto(tvb, pinfo, tree, ti, proto, 8);
-      }
+      proto = tvb_get_letohl(tvb,hdr_len); /* proto is stored in host-order */
+      next_tvb = tvb_new_subset(tvb, hdr_len + 4, -1, -1);
+      dissect_juniper_payload_proto(tvb, pinfo, tree, ti, proto, hdr_len + 4);
       return -1;
   }
 
-  return 4; /* 4 bytes parsed */
+  return hdr_len; /* bytes parsed */
 
 }
 
@@ -194,17 +237,25 @@ dissect_juniper_payload_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     tvbuff_t   *next_tvb;
     guint8     nlpid; 
 
-    ti = proto_tree_add_text (juniper_subtree, tvb, offset, 0, "Payload Type: %s",
+    ti = proto_tree_add_text (juniper_subtree, tvb, offset, 0, "[Payload Type: %s]",
                             val_to_str(proto,juniper_proto_vals,"Unknown"));
 
     next_tvb = tvb_new_subset(tvb, offset, -1, -1);  
   
     switch (proto) {
     case PROTO_IP:
+    case PROTO_MPLS_IP:
         call_dissector(ipv4_handle, next_tvb, pinfo, tree);
         break;
     case PROTO_IP6:
+    case PROTO_MPLS_IP6:
         call_dissector(ipv6_handle, next_tvb, pinfo, tree);  
+        break;
+    case PROTO_MPLS:
+    case PROTO_IP_MPLS:
+    case PROTO_IP6_MPLS:
+    case PROTO_CLNP_MPLS:
+        call_dissector(mpls_handle, next_tvb, pinfo, tree);
         break;
     case PROTO_PPP:
         call_dissector(ppp_handle, next_tvb, pinfo, tree);
@@ -217,12 +268,20 @@ dissect_juniper_payload_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         call_dissector(llc_handle, next_tvb, pinfo, tree);
         break;
     case PROTO_ISO:
+    case PROTO_CLNP:
+    case PROTO_MPLS_CLNP:
         nlpid = tvb_get_guint8(tvb, offset);
         if(dissector_try_port(osinl_subdissector_table, nlpid, next_tvb, pinfo, tree))
             return 0;
         next_tvb = tvb_new_subset(tvb, offset+1, -1, -1);
         if(dissector_try_port(osinl_excl_subdissector_table, nlpid, next_tvb, pinfo, tree))
             return 0;
+        break;
+    case PROTO_Q933:
+        call_dissector(q933_handle, next_tvb, pinfo, tree);
+        break;
+    case PROTO_FRELAY:
+        call_dissector(frelay_handle, next_tvb, pinfo, tree);
         break;
     case PROTO_OAM: /* FIXME call OAM disector without leading HEC byte */
     default:
@@ -232,6 +291,111 @@ dissect_juniper_payload_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     return 0;
 }
+
+/* MLFR dissector */
+static void
+dissect_juniper_mlfr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_item *ti;
+  guint      offset;
+  int        bytes_processed;
+  guint8     flags;
+  guint64    aspic_cookie;
+  guint32    lspic_cookie;
+  guint16    mlpic_cookie;
+  guint      proto,cookie_len;
+
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper MLFR");
+  if (check_col(pinfo->cinfo, COL_INFO))
+      col_clear(pinfo->cinfo, COL_INFO);
+
+  offset = 0;
+
+  ti = proto_tree_add_text (tree, tvb, offset, 4, "Juniper Multi-Link Frame-Relay (FRF.15)");
+
+  /* parse header, match mgc, extract flags and build first tree */
+  bytes_processed = dissect_juniper_header(tvb, pinfo, tree, ti, &flags);
+
+  if(bytes_processed == -1)
+      return;
+  else
+      offset+=bytes_processed;
+
+  aspic_cookie = tvb_get_ntoh64(tvb,offset);
+  proto = juniper_svc_cookie_proto(aspic_cookie, JUNIPER_PIC_MLFR, flags);
+  cookie_len = juniper_svc_cookie_len(aspic_cookie);
+
+  if (cookie_len == AS_PIC_COOKIE_LEN)
+      ti = proto_tree_add_uint64(juniper_subtree, hf_juniper_aspic_cookie,
+                                 tvb, offset, AS_PIC_COOKIE_LEN, aspic_cookie);
+  if (cookie_len == LS_PIC_COOKIE_LEN) {
+      lspic_cookie = tvb_get_ntohl(tvb,offset);
+      ti = proto_tree_add_uint(juniper_subtree, hf_juniper_lspic_cookie,
+                               tvb, offset, LS_PIC_COOKIE_LEN, lspic_cookie);
+  }
+
+  offset += cookie_len;
+
+  mlpic_cookie = tvb_get_ntohs(tvb, offset);
+
+  /* AS-PIC IS-IS */
+  if (cookie_len == AS_PIC_COOKIE_LEN &&
+      proto == PROTO_UNKNOWN &&
+      tvb_get_guint8(tvb,offset) == JUNIPER_HDR_LLC_UI) {
+      offset += 1;
+      proto = PROTO_ISO;
+  }
+
+  /* LS-PIC IS-IS */
+  if (cookie_len == LS_PIC_COOKIE_LEN) {
+      if ( tvb_get_ntohs(tvb,offset) == JUNIPER_HDR_LLC_UI ||
+           tvb_get_ntohs(tvb,offset) == (JUNIPER_HDR_LLC_UI<<8)) {
+          offset += 2;
+      }
+  }
+
+  /* LS-PIC ? */
+  if (cookie_len == LS_PIC_COOKIE_LEN && tvb_get_guint8(tvb,offset) == JUNIPER_HDR_LLC_UI) {
+      offset += 1;
+  }
+
+  /* child link of an LS-PIC bundle ? */
+  if (cookie_len == 0 && tvb_get_ntohs(tvb,offset+ML_PIC_COOKIE_LEN) == 
+      (JUNIPER_HDR_LLC_UI<<8 | NLPID_Q_933)) {
+      cookie_len = ML_PIC_COOKIE_LEN;
+      ti = proto_tree_add_uint(juniper_subtree, hf_juniper_mlpic_cookie,
+                               tvb, offset, ML_PIC_COOKIE_LEN, mlpic_cookie);
+      offset += 3;
+      proto = PROTO_Q933;
+  }
+
+  /* child link of an ML-, LS-, AS-PIC bundle / ML-PIC bundle ? */
+  if (cookie_len == 0) {
+      if (tvb_get_ntohs(tvb,offset+ML_PIC_COOKIE_LEN) == JUNIPER_HDR_LLC_UI ||
+          tvb_get_ntohs(tvb,offset+ML_PIC_COOKIE_LEN) == (JUNIPER_HDR_LLC_UI<<8)) {
+          cookie_len = ML_PIC_COOKIE_LEN;
+          ti = proto_tree_add_uint(juniper_subtree, hf_juniper_mlpic_cookie,
+                               tvb, offset, ML_PIC_COOKIE_LEN, mlpic_cookie);
+          offset += 4;
+          proto = PROTO_ISO;
+  }
+  }
+
+  /* ML-PIC bundle ? */
+  if (cookie_len == 0 && tvb_get_guint8(tvb,offset+ML_PIC_COOKIE_LEN) == JUNIPER_HDR_LLC_UI) {
+      cookie_len = ML_PIC_COOKIE_LEN;
+      ti = proto_tree_add_uint(juniper_subtree, hf_juniper_mlpic_cookie,
+                               tvb, offset, ML_PIC_COOKIE_LEN, mlpic_cookie);
+      offset += 3;
+      proto = PROTO_ISO;
+  }
+
+  ti = proto_tree_add_text (juniper_subtree, tvb, offset, 0, "[Cookie length: %u]",cookie_len);
+  dissect_juniper_payload_proto(tvb, pinfo, tree, ti, proto, offset);
+      
+}
+
 
 
 /* MLPPP dissector */
@@ -265,7 +429,7 @@ dissect_juniper_mlppp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset+=bytes_processed;
 
   aspic_cookie = tvb_get_ntoh64(tvb,offset);
-  proto = juniper_svc_cookie_proto(aspic_cookie);
+  proto = juniper_svc_cookie_proto(aspic_cookie, JUNIPER_PIC_MLPPP, flags);
   cookie_len = juniper_svc_cookie_len(aspic_cookie);
 
   if (cookie_len == AS_PIC_COOKIE_LEN)
@@ -299,7 +463,7 @@ dissect_juniper_mlppp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto = PROTO_PPP;
   }
 
-  ti = proto_tree_add_text (juniper_subtree, tvb, offset, 0, "Cookie length %u",cookie_len);
+  ti = proto_tree_add_text (juniper_subtree, tvb, offset, 0, "[Cookie length: %u]",cookie_len);
   offset += cookie_len;
 
   dissect_juniper_payload_proto(tvb, pinfo, tree, ti, proto, offset);
@@ -342,14 +506,14 @@ dissect_juniper_pppoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_juniper_atm1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 { 
-    dissect_juniper_atm(tvb,pinfo,tree, JUNIPER_ATM1);
+    dissect_juniper_atm(tvb,pinfo,tree, JUNIPER_PIC_ATM1);
 }
 
 /* wrapper for passing the PIC type to the generic ATM dissector */
 static void
 dissect_juniper_atm2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 { 
-    dissect_juniper_atm(tvb,pinfo,tree, JUNIPER_ATM2);
+    dissect_juniper_atm(tvb,pinfo,tree, JUNIPER_PIC_ATM2);
 }
 
 /* generic ATM dissector */
@@ -365,11 +529,11 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
   tvbuff_t   *next_tvb;
 
   switch (atm_pictype) {
-  case JUNIPER_ATM1:
+  case JUNIPER_PIC_ATM1:
       if (check_col(pinfo->cinfo, COL_PROTOCOL))
           col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper ATM1");
       break;
-  case JUNIPER_ATM2:
+  case JUNIPER_PIC_ATM2:
       if (check_col(pinfo->cinfo, COL_PROTOCOL))
           col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper ATM2");
       break;
@@ -384,10 +548,10 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
       col_clear(pinfo->cinfo, COL_INFO);
 
   switch (atm_pictype) {
-  case JUNIPER_ATM1:
+  case JUNIPER_PIC_ATM1:
       ti = proto_tree_add_text (tree, tvb, 0, 4 , "Juniper ATM1 PIC");
       break;
-  case JUNIPER_ATM2:
+  case JUNIPER_PIC_ATM2:
       ti = proto_tree_add_text (tree, tvb, 0, 4 , "Juniper ATM2 PIC");
       break;
   default: /* should not happen */
@@ -415,13 +579,13 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
   cookie2 = tvb_get_ntoh64(tvb,4);
 
   switch (atm_pictype) {
-  case JUNIPER_ATM1:
+  case JUNIPER_PIC_ATM1:
       tisub = proto_tree_add_uint(juniper_subtree, hf_juniper_atm1_cookie, tvb, 4, 4, cookie1);
       offset += atm1_header_len;
       if (cookie1 & 0x80000000) /* OAM cell ? */
           next_proto = PROTO_OAM;
       break;
-  case JUNIPER_ATM2:
+  case JUNIPER_PIC_ATM2:
       tisub = proto_tree_add_uint64(juniper_subtree, hf_juniper_atm2_cookie, tvb, 4, 8, cookie2);
       offset += atm2_header_len;
       if (cookie2 & 0x7000) /* OAM cell ? */
@@ -460,7 +624,7 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
 
   if ((flags & JUNIPER_FLAG_PKT_IN) != JUNIPER_FLAG_PKT_IN && /* ether-over-1483 encaps ? */
       (cookie1 & JUNIPER_ATM2_GAP_COUNT_MASK) &&
-      atm_pictype != JUNIPER_ATM1) {
+      atm_pictype != JUNIPER_PIC_ATM1) {
       dissect_juniper_payload_proto(tvb, pinfo, tree, ti, PROTO_ETHER, offset);
       return;
   }
@@ -468,7 +632,7 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
   proto = tvb_get_ntohs(tvb, offset); /* second try: 16-Bit guess */
 
   if ( ppp_heuristic_guess( (guint16) proto) && 
-       atm_pictype != JUNIPER_ATM1) {
+       atm_pictype != JUNIPER_PIC_ATM1) {
       /*
        * This begins with something that appears to be a PPP protocol
        * type; is this VC-multiplexed PPPoA?
@@ -481,7 +645,7 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
 
   proto = tvb_get_guint8(tvb, offset); /* third try: 8-Bit guess */
 
-  if ( proto == JUNIPER_HDR_CNLPID ) {
+  if ( proto == JUNIPER_HDR_LLC_UI ) {
       /*
        * Cisco style NLPID encaps?
        * Is the 0x03 an LLC UI control field?
@@ -598,7 +762,7 @@ guint juniper_svc_cookie_len (guint64 cookie) {
 
 /* return the next-level protocol based on cookie input */
 static guint
-juniper_svc_cookie_proto (guint64 cookie) {
+juniper_svc_cookie_proto (guint64 cookie, guint16 pictype, guint8 flags) {
 
     guint8 svc_cookie_id;
     guint16 lsq_proto;
@@ -606,23 +770,41 @@ juniper_svc_cookie_proto (guint64 cookie) {
 
     svc_cookie_id = (guint8)(cookie >> 56) & 0xff;
     lsq_proto = (guint16)((cookie >> 16) & LSQ_L3_PROTO_MASK);
-    lsq_dir = (guint8)(cookie >> 24) & 0xff;
+    lsq_dir = (guint8)(cookie >> 24) & 0x3;
 
 
     switch (svc_cookie_id) {
     case 0x54:
-        return PROTO_PPP;
+        switch (pictype) {
+        case JUNIPER_PIC_MLPPP:
+            return PROTO_PPP;
+        case JUNIPER_PIC_MLFR:
+            return PROTO_ISO;
+        default:
+            return PROTO_UNKNOWN;
+        }
     case GSP_SVC_REQ_APOLLO:
     case GSP_SVC_REQ_LSQ:
         switch(lsq_proto) {
         case LSQ_L3_PROTO_IPV4:
-            /* IP traffic going to the RE would not have a cookie
-             * -> this must be incoming IS-IS over PPP
-             */
-            if (lsq_dir == (LSQ_COOKIE_RE|LSQ_COOKIE_DIR))
-                return PROTO_PPP;
-            else
-                return PROTO_IP;
+            switch(pictype) {
+            case JUNIPER_PIC_MLPPP:
+                /* incoming traffic would have the direction bits set
+                 * -> this must be IS-IS over PPP
+                 */
+                if ((flags & JUNIPER_FLAG_PKT_IN) == JUNIPER_FLAG_PKT_IN &&
+                    lsq_dir != (LSQ_COOKIE_RE|LSQ_COOKIE_DIR))
+                    return PROTO_PPP;
+                else
+                    return PROTO_IP;
+            case JUNIPER_PIC_MLFR:
+                if (lsq_dir == (LSQ_COOKIE_RE|LSQ_COOKIE_DIR))
+                    return PROTO_UNKNOWN;
+                else
+                    return PROTO_IP;
+            default:
+                return PROTO_UNKNOWN;
+            }
         case LSQ_L3_PROTO_IPV6:
             return PROTO_IP6;
         case LSQ_L3_PROTO_MPLS:
@@ -651,6 +833,9 @@ proto_register_juniper(void)
     { &hf_juniper_l2hdr_presence,
       { "L2 header presence", "juniper.l2hdr", FT_UINT8, BASE_HEX,
         VALS(juniper_l2hdr_presence_vals), 0x0, "", HFILL }},
+    { &hf_juniper_ext_len,
+      { "Extension length", "juniper.ext_len", FT_UINT16, BASE_DEC,
+        NULL, 0x0, "", HFILL }},
     { &hf_juniper_atm2_cookie,
       { "Cookie", "juniper.atm2.cookie", FT_UINT64, BASE_HEX,
         NULL, 0x0, "", HFILL }},
@@ -685,6 +870,7 @@ proto_reg_handoff_juniper(void)
   dissector_handle_t juniper_atm2_handle;
   dissector_handle_t juniper_pppoe_handle;
   dissector_handle_t juniper_mlppp_handle;
+  dissector_handle_t juniper_mlfr_handle;
 
   osinl_subdissector_table = find_dissector_table("osinl");
   osinl_excl_subdissector_table = find_dissector_table("osinl.excl");
@@ -694,15 +880,19 @@ proto_reg_handoff_juniper(void)
   ipv4_handle = find_dissector("ip");
   ipv6_handle = find_dissector("ipv6");
   mpls_handle = find_dissector("mpls");
+  q933_handle = find_dissector("q933");
+  frelay_handle = find_dissector("fr");
   data_handle = find_dissector("data");
 
   juniper_atm2_handle = create_dissector_handle(dissect_juniper_atm2, proto_juniper);
   juniper_atm1_handle = create_dissector_handle(dissect_juniper_atm1, proto_juniper);
   juniper_pppoe_handle = create_dissector_handle(dissect_juniper_pppoe, proto_juniper);
   juniper_mlppp_handle = create_dissector_handle(dissect_juniper_mlppp, proto_juniper);
+  juniper_mlfr_handle = create_dissector_handle(dissect_juniper_mlfr, proto_juniper);
   dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_ATM2, juniper_atm2_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_ATM1, juniper_atm1_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_PPPOE, juniper_pppoe_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_MLPPP, juniper_mlppp_handle);
+  dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_MLFR, juniper_mlfr_handle);
 }
 

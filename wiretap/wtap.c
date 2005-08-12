@@ -303,6 +303,9 @@ static const struct encap_type_info {
 	/* WTAP_ENCAP_JUNIPER_MLPPP */
 	{ "Juniper MLPPP", "juniper-mlppp" },
 
+	/* WTAP_ENCAP_JUNIPER_MLFR */
+	{ "Juniper MLFR", "juniper-mlfr" },
+
 };
 
 /* Name that should be somewhat descriptive. */
