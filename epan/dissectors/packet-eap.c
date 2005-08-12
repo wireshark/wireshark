@@ -32,6 +32,7 @@
 #include <epan/conversation.h>
 #include "ppptypes.h"
 #include <epan/reassemble.h>
+#include <epan/emem.h>
 
 static int proto_eap = -1;
 static int hf_eap_code = -1;
@@ -163,15 +164,12 @@ static const value_string eap_type_vals[] = {
  * Attach to all conversations both pieces of information, to keep
  * track of EAP-TLS reassembly and the LEAP state machine.
  */
-static GMemChunk *conv_state_chunk = NULL;
 
 typedef struct {
 	int	eap_tls_seq;
 	guint32	eap_reass_cookie;
 	int	leap_state;
 } conv_state_t;
-
-static GMemChunk *frame_state_chunk = NULL;
 
 typedef struct {
 	int	info;	/* interpretation depends on EAP message type */
@@ -248,25 +246,6 @@ static void
 eaptls_defragment_init(void)
 {
   fragment_table_init(&eaptls_fragment_table);
-}
-
-static void
-eap_init_protocol(void)
-{
-  if (conv_state_chunk != NULL)
-    g_mem_chunk_destroy(conv_state_chunk);
-  if (frame_state_chunk != NULL)
-    g_mem_chunk_destroy(frame_state_chunk);
-
-  conv_state_chunk = g_mem_chunk_new("conv_state_chunk",
-				     sizeof (conv_state_t),
-				     10 * sizeof (conv_state_t),
-				     G_ALLOC_ONLY);
-
-  frame_state_chunk = g_mem_chunk_new("frame_state_chunk",
-				      sizeof (frame_state_t),
-				     100 * sizeof (frame_state_t),
-				     G_ALLOC_ONLY);
 }
 
 static void
@@ -675,7 +654,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * Attach state information to the conversation.
      */
-    conversation_state = g_mem_chunk_alloc(conv_state_chunk);
+    conversation_state = se_alloc(sizeof (conv_state_t));
     conversation_state->eap_tls_seq = -1;
     conversation_state->eap_reass_cookie = 0;
     conversation_state->leap_state = -1;
@@ -934,7 +913,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * This frame requires reassembly; remember the reassembly
 		 * ID for subsequent accesses to it.
 		 */
-		packet_state = g_mem_chunk_alloc(frame_state_chunk);
+		packet_state = se_alloc(sizeof (frame_state_t));
 		packet_state->info = eap_reass_cookie;
 		p_add_proto_data(pinfo->fd, proto_eap, packet_state);
 	      }
@@ -1078,7 +1057,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	     * Remember the state for subsequent accesses to this
 	     * frame.
 	     */
-	    packet_state = g_mem_chunk_alloc(frame_state_chunk);
+	    packet_state = se_alloc(sizeof (frame_state_t));
 	    packet_state->info = leap_state;
 	    p_add_proto_data(pinfo->fd, proto_eap, packet_state);
 
@@ -1237,7 +1216,6 @@ proto_register_eap(void)
 				      "EAP", "eap");
   proto_register_field_array(proto_eap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  register_init_routine(&eap_init_protocol);
 
   new_register_dissector("eap", dissect_eap, proto_eap);
   register_init_routine(eaptls_defragment_init);

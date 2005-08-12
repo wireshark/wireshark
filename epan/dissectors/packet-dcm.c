@@ -102,6 +102,7 @@
 #include "isprint.h"
 
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <epan/strutil.h>
 #include <epan/conversation.h>
 
@@ -198,8 +199,6 @@ struct dcmTag {
 };
 typedef struct dcmTag dcmTag_t;
 
-/* static GMemChunk *dcm_assocs = NULL; */
-static GMemChunk *dcm_pdus = NULL;
 static GHashTable *dcm_tagTable = NULL;
 
 dcmItem_t * lookupCtx(dcmState_t *dd, guint8 ctx);
@@ -276,14 +275,6 @@ static dcmTag_t tagData[] = {
 static void
 dcm_init(void)
 {
-#ifdef notdef
-    if (dcm_assocs) g_mem_chunk_destroy(dcm_assocs);
-    dcm_assocs = g_mem_chunk_new("dcm_assocs", sizeof(struct dcmState),
-	100 * sizeof(struct dcmState), G_ALLOC_AND_FREE);
-#endif
-    if (dcm_pdus) g_mem_chunk_destroy(dcm_pdus);
-    dcm_pdus = g_mem_chunk_new("dcm_pdus", sizeof(struct dcmItem),
-	128 * sizeof(struct dcmItem), G_ALLOC_AND_FREE);
     if (NULL == dcm_tagTable) {
 	unsigned int i;
 	dcm_tagTable = g_hash_table_new(NULL, NULL);
@@ -665,7 +656,7 @@ dissect_dcm_assoc(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb, int offse
 	    id = tvb_get_guint8(tvb, offset);
 	    di = lookupCtx(dcm_data, id);
 	    if (!di->valid) {
-		di = g_chunk_new(dcmItem_t, dcm_pdus);
+		di = se_alloc(sizeof(struct dcmItem));
 		di->id = id;
 		di->valid = 1;
 		di->xfer = NULL;
