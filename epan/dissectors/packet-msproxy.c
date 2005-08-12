@@ -52,6 +52,7 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/conversation.h>
+#include <epan/emem.h>
 
 #include "packet-tcp.h"
 #include "packet-udp.h"
@@ -166,11 +167,6 @@ typedef struct {
 
 /************** conversation hash stuff ***************/
 
-#define hash_init_count 20
-#define hash_val_length (sizeof(hash_entry_t))
-
-static GMemChunk *vals = NULL;
-
 typedef struct {
 	guint32	remote_addr;
 	guint32	clnt_port;
@@ -181,11 +177,6 @@ typedef struct {
 
 
 /************** negotiated conversation hash stuff ***************/
-
-#define redirect_init_count 20
-#define redirect_val_length (sizeof(redirect_entry_t))
-
-static GMemChunk *redirect_vals = NULL;
 
 
 static guint32 last_row= 0;	/* used to see if packet is new */
@@ -290,7 +281,7 @@ static void add_msproxy_conversation( packet_info *pinfo,
 	}
 	conversation_set_dissector(conversation, msproxy_sub_handle);
 
-	new_conv_info = g_mem_chunk_alloc(redirect_vals);
+	new_conv_info = se_alloc(sizeof(redirect_entry_t));
 
 	new_conv_info->remote_addr = hash_info->dst_addr;
 	new_conv_info->clnt_port = hash_info->clnt_port;
@@ -1108,7 +1099,7 @@ static void dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	hash_info = conversation_get_proto_data(conversation, proto_msproxy);
 	if ( !hash_info) {
-    		hash_info = g_mem_chunk_alloc(vals);
+    		hash_info = se_alloc(sizeof(hash_entry_t));
 		conversation_add_proto_data(conversation, proto_msproxy,
 			hash_info);
 	}
@@ -1144,24 +1135,9 @@ static void dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void msproxy_reinit( void){
 
 /* Do the cleanup work when a new pass through the packet list is	*/
-/* performed. Reset the highest row seen counter and re-initialize the	*/
-/* conversation memory chunks.						*/
+/* performed. Reset the highest row seen counter			*/
 
 	last_row = 0;
-
-  	if (vals)
-    		g_mem_chunk_destroy(vals);
-
-  	vals = g_mem_chunk_new("msproxy_vals", hash_val_length,
-		hash_init_count * hash_val_length,
-		G_ALLOC_AND_FREE);
-
-  	if (redirect_vals)
-    		g_mem_chunk_destroy(redirect_vals);
-
-  	redirect_vals = g_mem_chunk_new("msproxy_redirect_vals", redirect_val_length,
-		redirect_init_count * redirect_val_length,
-		G_ALLOC_AND_FREE);
 }
 
 
