@@ -1,3 +1,87 @@
+ethereal (0.10.12-3) unstable; urgency=low
+
+  * debian/patches/04_drop-capabilities.dpatch: don't exit on failure, simply
+    skip the capabilities part; use g_warning to output messages.
+    (closes: #321204)
+
+ -- Frederic Peters <fpeters@debian.org>  Thu,  4 Aug 2005 09:41:24 +0200
+
+ethereal (0.10.12-2) unstable; urgency=low
+
+  * debian/patches/04_drop-capabilities.dpatch: preserves CAP_DAC_READ_SEARCH
+    which seems necessary for sudo usage (closes: #320453)
+
+ -- Frederic Peters <fpeters@debian.org>  Sun, 31 Jul 2005 12:56:50 +0200
+
+ethereal (0.10.12-1) unstable; urgency=high
+
+  * New upstream release; urgency high since it fixes security issues in many
+    dissectors; see http://www.ethereal.com/appnotes/enpa-sa-00020.html
+
+ -- Frederic Peters <fpeters@debian.org>  Wed, 27 Jul 2005 09:57:17 +0200
+
+ethereal (0.10.11-5) unstable; urgency=low
+
+  * debian/patches/11_diameter_vendors.dpatch: correctly add diameter vendors
+    (patch by Joost Yervante Damad) (closes: #316082)
+
+ -- Frederic Peters <fpeters@debian.org>  Mon, 18 Jul 2005 20:18:43 +0200
+
+ethereal (0.10.11-4) unstable; urgency=low
+
+  * debian/: now using dpatch, started from Ubuntu patch, merged with current
+    package patches.
+
+ -- Frederic Peters <fpeters@debian.org>  Sun, 17 Jul 2005 18:58:05 +0200
+
+ethereal (0.10.11-3) unstable; urgency=low
+
+  * Modified capabilities patch so it doesn't try to keep CAP_NET_RAW if it
+    doesn't have it. (closes: #318689)
+
+ -- Frederic Peters <fpeters@debian.org>  Sun, 17 Jul 2005 10:29:31 +0200
+
+ethereal (0.10.11-2) unstable; urgency=low
+
+  * Use capabilities to mitigate security risk, patch from J.H.M. Dassen (Ray)
+    (closes: #315670)
+  * debian/control: build-depends on libcap-dev
+  * epan/dissectors/packet-cmip.c: fixed dissect_cmip_InvokeIDType declaration
+    mismatch.
+
+ -- Frederic Peters <fpeters@debian.org>  Sat, 16 Jul 2005 10:58:03 +0200
+
+ethereal (0.10.11-1) unstable; urgency=high
+
+  * New upstream release; urgency high since it fixes security issues in the
+    following dissectors:
+    * format string vulnerabilities: ANSI A, DHCP
+    * segmentation faults: GSM MAP, AIM, TZSP, Bittorrent, SMB, GSM, SMB
+      NETLOGON
+    * buffer overflows: DISTCC, FCELS, SIP, ISIS, CMIP, CMP, CMS, CRMF, ESS,
+      OCSP, PKIX1Explitit, PKIX Qualified, X.509, NCP, ISUP, TCAP,
+      Presentation
+    * null pointer exception: KINK, WSP, SMB Mailslot, H.245, MGCP, RPC
+    * infinite loops: LMP, EIGRP, MEGACO, L2TP
+    * uncaught assertions: Telnet, 802.3, BER, IAX2, RADIUS, SMB PIPE, MRDISC
+    * memory exhaustion: DICOM
+    * unclassified: Fibre Channel, LDAP, NTLMSSP
+
+ -- Frederic Peters <fpeters@debian.org>  Thu,  5 May 2005 08:43:00 +0200
+
+ethereal (0.10.10-2) unstable; urgency=high
+
+  * Several security fixes from upstream subversion tree for the following
+    dissectors:
+    * DLSw (infinite loop)
+    * ICEP (double free)
+    * NDPS (memory exhaustion)
+    * Q931 (buffer overflow)
+    * RSVP (infinite loop) (CAN-2005-1281)
+    * SRVLOC (infinite loop)
+
+ -- Frederic Peters <fpeters@debian.org>  Mon, 25 Apr 2005 15:30:55 +0200
+
 ethereal (0.10.10-1) unstable; urgency=high
 
   * New upstream release; urgency high since it fixes security issues.

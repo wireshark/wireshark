@@ -1,0 +1,183 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 04_drop-capabilities.dpatch by  <fpeters@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Drop all capabilities but CAP_NET_RAW
+
+@DPATCH@
+diff -urNad --exclude=CVS --exclude=.svn ./config.h.in /tmp/dpep-work.rT2mW8/ethereal-0.10.12/config.h.in
+--- ./config.h.in	2005-07-31 12:50:13.000000000 +0200
++++ /tmp/dpep-work.rT2mW8/ethereal-0.10.12/config.h.in	2005-07-31 12:54:13.000000000 +0200
+@@ -55,6 +55,9 @@
+ /* Define if krb5.h defines KEYTYPE_ARCFOUR_56 */
+ #undef HAVE_KEYTYPE_ARCFOUR_56
+ 
++/* Define if libcap is available to restrict process capabilities */
++#undef HAVE_LIBCAP
++
+ /* Define to use libpcap library */
+ #undef HAVE_LIBPCAP
+ 
+diff -urNad --exclude=CVS --exclude=.svn ./configure.in /tmp/dpep-work.rT2mW8/ethereal-0.10.12/configure.in
+--- ./configure.in	2005-07-31 12:50:26.000000000 +0200
++++ /tmp/dpep-work.rT2mW8/ethereal-0.10.12/configure.in	2005-07-31 12:54:13.000000000 +0200
+@@ -737,6 +737,47 @@
+ fi
+ 
+ 
++dnl libcap check
++AC_MSG_CHECKING(whether to use libcap to improve security)
++
++AC_ARG_WITH(cap,
++[  --with-cap[[=DIR]]       use libcap (located in directory DIR, if supplied) to improve security.  [[default=yes, if available]]],
++[
++	if test $withval = no
++	then
++		want_cap=no
++	elif test $withval = yes
++	then
++		want_cap=yes
++	else
++		want_cap=yes
++		cap_dir=$withval
++	fi
++],[
++	#
++	# Use libcap if it's present, otherwise don't.
++	#
++	want_cap=ifavailable
++	cap_dir=
++])
++if test "x$want_cap" = "xno" ; then
++        AC_MSG_RESULT(no)
++	cap_message="no (disabled by explicit request)"
++else
++        AC_MSG_RESULT(yes)
++        AC_CHECK_LIB(cap, cap_init, [
++		AC_DEFINE(HAVE_LIBCAP, 1, [
++			Define if libcap is available to restrict process capabilities
++		])
++		LIBS="$LIBS -lcap"
++		cap_message="yes"
++	], [
++		AC_MSG_WARN([libcap check failed])
++		cap_message="no (check failed)"
++	])
++fi
++
++
+ dnl Check if ethereal should be installed setuid
+ AC_ARG_ENABLE(setuid-install,
+ [  --enable-setuid-install install ethereal as setuid. DANGEROUS!!! [default=no]],enable_setuid_install=$enableval,enable_setuid_install=no)
+@@ -1322,3 +1363,4 @@
+ echo "            Use SSL crypto library : $ssl_message"
+ echo "          Use IPv6 name resolution : $enable_ipv6"
+ echo "     Use UCD SNMP/Net-SNMP library : $snmp_libs_message"
++echo "                   Use cap library : $cap_message"
+diff -urNad --exclude=CVS --exclude=.svn ./gtk/main.c /tmp/dpep-work.rT2mW8/ethereal-0.10.12/gtk/main.c
+--- ./gtk/main.c	2005-07-31 12:50:37.000000000 +0200
++++ /tmp/dpep-work.rT2mW8/ethereal-0.10.12/gtk/main.c	2005-07-31 12:54:13.000000000 +0200
+@@ -1671,6 +1671,9 @@
+   runtime_info_str = g_string_new("Running ");
+   get_runtime_version_info(runtime_info_str);
+ 
++#ifdef HAVE_LIBCAP
++  dropexcesscapabilities();
++#endif
+ 
+   /*** "pre-scan" the command line parameters, if we have "console only" parameters ***/
+   /* (e.g. don't start GTK+, if we only have to show the command line help) */
+diff -urNad --exclude=CVS --exclude=.svn ./tethereal.c /tmp/dpep-work.rT2mW8/ethereal-0.10.12/tethereal.c
+--- ./tethereal.c	2005-07-31 12:49:37.000000000 +0200
++++ /tmp/dpep-work.rT2mW8/ethereal-0.10.12/tethereal.c	2005-07-31 12:54:13.000000000 +0200
+@@ -663,6 +663,10 @@
+   capture_opts_init(&capture_opts, NULL /* cfile */);
+ #endif
+ 
++#ifdef HAVE_LIBCAP
++  dropexcesscapabilities();
++#endif
++
+   set_timestamp_setting(TS_RELATIVE);
+ 
+   /* Register all dissectors; we must do this before checking for the
+diff -urNad --exclude=CVS --exclude=.svn ./util.c /tmp/dpep-work.rT2mW8/ethereal-0.10.12/util.c
+--- ./util.c	2005-07-31 12:49:42.000000000 +0200
++++ /tmp/dpep-work.rT2mW8/ethereal-0.10.12/util.c	2005-07-31 12:56:35.000000000 +0200
+@@ -69,6 +69,10 @@
+ #include <windows.h>
+ #endif
+ 
++#ifdef HAVE_LIBCAP
++#include <sys/capability.h>
++#endif
++
+ #include "util.h"
+ 
+ /*
+@@ -311,3 +315,46 @@
+ 	}
+ 	return "";
+ }
++
++
++#ifdef HAVE_LIBCAP
++void dropexcesscapabilities(void)
++{
++	cap_t cap_d;
++	cap_value_t cap_values[] = {
++		/* capabilities we need to keep */
++		CAP_NET_RAW,
++		CAP_DAC_READ_SEARCH
++	};
++	cap_flag_value_t current_cap;
++
++	cap_d = cap_get_proc();
++	if (!cap_d) {
++		g_warning("Could not get capabilities\n");
++		return;
++	}
++
++	cap_get_flag(cap_d, CAP_NET_RAW, CAP_EFFECTIVE, &current_cap);
++	cap_free(&cap_d);
++	if (current_cap == CAP_CLEAR) {
++		return;
++	}
++
++	cap_d = cap_init();
++	if (!cap_d) {
++		g_warning("Could not alloc cap struct\n");
++		return;
++	}
++
++	cap_clear(cap_d);
++	cap_set_flag(cap_d, CAP_PERMITTED, 2, cap_values, CAP_SET);
++	cap_set_flag(cap_d, CAP_EFFECTIVE, 2, cap_values, CAP_SET);
++
++	if (cap_set_proc(cap_d) != 0) {
++		g_warning("Could not set capabilities: %s\n", strerror(errno));
++		cap_free(&cap_d);
++		return;
++	}
++	cap_free(&cap_d);
++}
++#endif /* HAVE_LIBCAP */
+diff -urNad --exclude=CVS --exclude=.svn ./util.h /tmp/dpep-work.rT2mW8/ethereal-0.10.12/util.h
+--- ./util.h	2005-07-31 12:49:42.000000000 +0200
++++ /tmp/dpep-work.rT2mW8/ethereal-0.10.12/util.h	2005-07-31 12:54:13.000000000 +0200
+@@ -43,6 +43,15 @@
+ /* Create a capture filter for the connection */
+ char *get_conn_cfilter(void);
+ 
++#ifdef HAVE_LIBCAP
++/*
++ * Limit the potential impact of undiscovered security vulnerabilities by
++ * dropping all capabilities except the sniffer capability we need to do our
++ * job.
++ */
++void dropexcesscapabilities(void);
++#endif /* HAVE_LIBCAP */
++
+ #ifdef __cplusplus
+ }
+ #endif /* __cplusplus */

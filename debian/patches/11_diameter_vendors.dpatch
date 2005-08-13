@@ -1,0 +1,19 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 11_diameter_vendors.dpatch by  <fpeters@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad --exclude=CVS --exclude=.svn ./epan/dissectors/packet-diameter.c /tmp/dpep-work.Xqh7hj/ethereal-0.10.11/epan/dissectors/packet-diameter.c
+--- ./epan/dissectors/packet-diameter.c	2005-05-02 23:28:44.000000000 +0200
++++ /tmp/dpep-work.Xqh7hj/ethereal-0.10.11/epan/dissectors/packet-diameter.c	2005-07-18 20:18:26.000000000 +0200
+@@ -690,7 +690,7 @@
+ 	return -1;
+   }
+ 
+-  return (addVendor(atoi(code), id, name));
++  return (addVendor(atoi(id), code, name));
+ 
+ } /* addVendor */
+ 

@@ -1,0 +1,32 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 07_gcc4.dpatch by  <fpeters@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad --exclude=CVS --exclude=.svn ./epan/dissectors/packet-cmip.c /tmp/dpep-work.5KBC28/ethereal-0.10.11/epan/dissectors/packet-cmip.c
+--- ./epan/dissectors/packet-cmip.c	2005-07-17 18:52:24.000000000 +0200
++++ /tmp/dpep-work.5KBC28/ethereal-0.10.11/epan/dissectors/packet-cmip.c	2005-07-17 18:53:53.000000000 +0200
+@@ -1895,7 +1895,8 @@
+   return offset;
+ }
+ 
+-
++int
++dissect_cmip_InvokeIDType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_);
+ 
+ static int
+ dissect_cmip_Argument(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+diff -urNad --exclude=CVS --exclude=.svn ./epan/dissectors/packet-cms.c /tmp/dpep-work.5KBC28/ethereal-0.10.11/epan/dissectors/packet-cms.c
+--- ./epan/dissectors/packet-cms.c	2005-07-17 18:51:59.000000000 +0200
++++ /tmp/dpep-work.5KBC28/ethereal-0.10.11/epan/dissectors/packet-cms.c	2005-07-17 18:53:59.000000000 +0200
+@@ -330,6 +330,8 @@
+   return dissect_cms_T_eContentType(FALSE, tvb, offset, pinfo, tree, hf_cms_eContentType);
+ }
+ 
++static int
++dissect_cms_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_);
+ 
+ static int
+ dissect_cms_T_eContent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {

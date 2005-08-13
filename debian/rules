@@ -8,11 +8,14 @@
 
 export DH_COMPAT=3
 
+include /usr/share/dpatch/dpatch.make 
 DB2MAN=/usr/share/xml/docbook/stylesheet/nwalsh/manpages/docbook.xsl
 
 
 DEB_HOST_GNU_TYPE       ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE      ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+
+PYTHON_VERSION=python2.3
 
 # Enable IEEE-conformant floating point math on alphas (not the default)
 ifeq (alpha-linux,$(DEB_HOST_GNU_TYPE))
@@ -26,14 +29,15 @@ asn2deb.1: asn2deb.dbk
 	xsltproc --nonet --novalid $(DB2MAN) $<
 
 configure: configure-stamp
-configure-stamp:
+configure-stamp: patch
 	dh_testdir
 
 	cp /usr/share/misc/config.guess /usr/share/misc/config.sub .
 	libtoolize --force --copy
+	autoconf
 	-mkdir aclocal-missing
 	(if [ ! -x ./configure ]; then \
-	   ./autogen.sh --prefix=/usr --sysconfdir=/usr/share/ethereal --disable-static --disable-ssl --without-ucdsnmp --enable-gtk2 --libdir=/usr/lib/ethereal --CFLAGS="$(CFLAGS)"; \
+	   ./autogen.sh --prefix=/usr --sysconfdir=/usr/share/ethereal --disable-static --disable-ssl --without-ucdsnmp --enable-gtk2 --libdir=/usr/lib/ethereal CFLAGS="$(CFLAGS)"; \
 	fi)
 
 	./configure --prefix=/usr --sysconfdir=/usr/share/ethereal --disable-static --disable-ssl --without-ucdsnmp --enable-gtk2 --libdir=/usr/lib/ethereal CFLAGS="$(CFLAGS)"
@@ -46,7 +50,12 @@ build-stamp: configure-stamp
 
 	touch build-stamp
 
-clean:
+patch: patch-stamp
+patch-stamp:
+	dpatch apply-all
+
+
+clean: unpatch-stamp
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp
@@ -58,6 +67,11 @@ clean:
 	rm -f config.guess config.sub config.log
 
 	dh_clean
+
+unpatch: unpatch-stamp
+unpatch-stamp:
+	dpatch deapply-all
+	rm -rf patch-stamp debian/patched
 
 # Build architecture-independent files here.
 binary-indep: build
@@ -78,11 +92,11 @@ binary-arch: build
 	mkdir -p `pwd`/debian/tmp/usr/share/pixmaps/
 	cp image/hi48-app-ethereal.png `pwd`/debian/tmp/usr/share/pixmaps/
 	cp image/eicon3d32.xpm `pwd`/debian/tmp/usr/share/pixmaps/
-	mkdir -p `pwd`/debian/tmp/usr/lib/python2.3/site-packages/
+	mkdir -p `pwd`/debian/tmp/usr/lib/$(PYTHON_VERSION)/site-packages/
 	install -m 755 `pwd`/idl2deb `pwd`/debian/tmp/usr/bin/
 	install -m 755 `pwd`/asn2deb `pwd`/debian/tmp/usr/bin/
 	cp `pwd`/ethereal_be.py `pwd`/ethereal_gen.py \
-			`pwd`/debian/tmp/usr/lib/python2.3/site-packages/
+			`pwd`/debian/tmp/usr/lib/$(PYTHON_VERSION)/site-packages/
 	mkdir -p `pwd`/debian/tmp/usr/include/ethereal/
 	for F in `cat debian/ethereal-dev.header-files`; do \
 		cp --parents $$F `pwd`/debian/tmp/usr/include/ethereal; \

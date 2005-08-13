@@ -3,7 +3,7 @@ Section: net
 Priority: optional
 Maintainer: Frederic Peters <fpeters@debian.org>
 Standards-Version: 3.6.1.0
-Build-Depends: libgtk2.0-dev (>=2.4.0-0), libpcap0.8-dev, flex, libz-dev, debhelper (>= 3.0), libtool, python, automake, autoconf, autotools-dev, libadns1-dev, xsltproc, docbook-xsl (>= 1.64.1.0-0), libpcre3-dev
+Build-Depends: libgtk2.0-dev (>=2.4.0-0), libpcap0.8-dev, flex, libz-dev, dpatch, debhelper (>= 3.0), libtool, python, automake, autoconf, autotools-dev, libadns1-dev, xsltproc, docbook-xsl (>= 1.64.1.0-0), libpcre3-dev, libcap-dev
 Build-Conflicts: libsnmp4.2-dev, libsnmp5-dev
 
 Package: ethereal-common

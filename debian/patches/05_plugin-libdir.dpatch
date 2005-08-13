@@ -1,0 +1,28 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 05_plugin-libdir.dpatch by  <fpeters@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad --exclude=CVS --exclude=.svn ./configure.in /tmp/dpep-work.avwGQ1/ethereal-0.10.11/configure.in
+--- ./configure.in	2005-05-02 23:28:53.000000000 +0200
++++ /tmp/dpep-work.avwGQ1/ethereal-0.10.11/configure.in	2005-07-17 18:46:26.000000000 +0200
+@@ -1130,7 +1130,7 @@
+ dnl check whether plugins should be enabled and, if they should be,
+ dnl check for plugins directory - stolen from Amanda's configure.in
+ dnl
+-plugindir="$libdir/ethereal/plugins/$VERSION"
++plugindir="$libdir/plugins/$VERSION"
+ AC_ARG_WITH(plugins,
+ [  --with-plugins[[=DIR]]    support plugins (installed in DIR, if supplied).],
+ [
+@@ -1172,7 +1172,7 @@
+ #
+ # The plugin dissectors reside in ./plugins/PROTO/
+ #
+-PLUGIN_LIBS="-L../../epan -lethereal $GLIB_LIBS"
++PLUGIN_LIBS="-L../../epan $GLIB_LIBS"
+ AC_SUBST(PLUGIN_LIBS)
+ 
+ dnl libtool defs

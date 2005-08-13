@@ -1,0 +1,46 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 09_idl2eth.dpatch by  <fpeters@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad --exclude=CVS --exclude=.svn ./idl2eth.sh /tmp/dpep-work.ZF6eGD/ethereal-0.10.11/idl2eth.sh
+--- ./idl2eth.sh	2005-07-17 19:40:44.000000000 +0200
++++ /tmp/dpep-work.ZF6eGD/ethereal-0.10.11/idl2eth.sh	2005-07-17 19:41:12.000000000 +0200
+@@ -48,34 +48,5 @@
+     exit 1;
+ fi
+ 
+-#
+-# Run ethereal backend, looking for ethereal_be.py and ethereal_gen.py
+-# in pythons's "site-packages" directory. If cannot find that, then
+-# try looking in current directory. If still cannot, then exit with
+-# error.
+-
+-if [ -f $PYTHONPATH/site-packages/ethereal_be.py ] && [ -f $PYTHONPATH/site-packages/ethereal_gen.py ]; then
+-    omniidl  -p $PYTHONPATH/site-packages -b ethereal_be $1
+-    exit $?
+-fi
+-
+-# Try current directory.
+-
+-if [ -f ./ethereal_be.py ] && [ -f ./ethereal_gen.py ]; then
+-    omniidl  -p ./ -b ethereal_be $1
+-    exit $?
+-fi
+-
+-# Could not find both ethereal_be.py AND ethereal_gen.py
+-
+-echo "idl2eth Error: Could not find both ethereal_be.py AND ethereal_gen.py."
+-echo "Please ensure you have the PYTHONPATH variable set, or that ethereal_be.py "
+-echo "and ethereal_gen.py exist in the current directory. "
+-echo
+-echo "On this system, PYTHONPATH is : $PYTHONPATH"
+-echo
+-
+-exit 2
+-
+-
++omniidl -b ethereal_be $1
+ 

@@ -9,6 +9,16 @@
 /usr/include/ethereal/*
 
 /usr/bin/idl2eth
+/usr/bin/idl2deb
+/usr/bin/asn2deb
+/usr/lib/ethereal/libethereal.so
+/usr/lib/ethereal/libethereal.la
+/usr/lib/ethereal/libwiretap.so
+/usr/lib/ethereal/libwiretap.la
+/usr/lib/python2.3/*
+/usr/include/ethereal/*
+
+/usr/bin/idl2eth
 /usr/lib/python2.2/*
 /usr/include/ethereal/*
 /usr/lib/libwiretap.a

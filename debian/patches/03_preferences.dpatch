@@ -1,0 +1,28 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 03_preferences.dpatch by  <fpeters@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: use known working monospace font and Debian sensible-browser
+
+@DPATCH@
+diff -urNad --exclude=CVS --exclude=.svn ./epan/prefs.c /tmp/dpep-work.b0Uwke/ethereal-0.10.11/epan/prefs.c
+--- ./epan/prefs.c	2005-07-17 18:36:36.000000000 +0200
++++ /tmp/dpep-work.b0Uwke/ethereal-0.10.11/epan/prefs.c	2005-07-17 18:38:45.000000000 +0200
+@@ -1026,7 +1026,7 @@
+      */
+     prefs.gui_font_name1 = g_strdup("-misc-fixed-medium-r-semicondensed-*-*-120-*-*-*-*-iso8859-1");
+     /* XXX- is this the correct default font name for GTK2 none win32? */
+-    prefs.gui_font_name2 = g_strdup("fixed medium 12");
++    prefs.gui_font_name2 = g_strdup("monospace 10");
+ #endif
+     prefs.gui_marked_fg.pixel        =     65535;
+     prefs.gui_marked_fg.red          =     65535;
+@@ -1046,7 +1046,7 @@
+     prefs.gui_fileopen_preview       = 3;
+     prefs.gui_ask_unsaved            = TRUE;
+     prefs.gui_find_wrap              = TRUE;
+-    prefs.gui_webbrowser             = g_strdup("mozilla %s");
++    prefs.gui_webbrowser             = g_strdup("sensible-browser %s");
+     prefs.gui_window_title           = g_strdup("");
+     prefs.gui_layout_type            = layout_type_5;
+     prefs.gui_layout_content_1       = layout_pane_content_plist;
