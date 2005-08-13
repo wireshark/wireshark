@@ -10403,7 +10403,7 @@ de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	mnc |= (tvb_get_guint8(tvb, curr_offset+2) & 0xf0);
 	mnc |= (tvb_get_guint8(tvb, curr_offset+1) & 0xf0) >>4;
 	if ((mnc&0x000f) == 0x000f) 
-		mnc>>4;
+		 mnc = mnc>>4;
 
     lac = tvb_get_guint8(tvb, curr_offset+3);
     lac <<= 8;
