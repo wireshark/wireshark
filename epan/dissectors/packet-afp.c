@@ -38,6 +38,7 @@
 #include <epan/packet.h>
 /* #include <epan/strutil.h> */
 #include <epan/conversation.h>
+#include <epan/emem.h>
 
 #include "packet-afp.h"
 
@@ -950,8 +951,6 @@ static int hf_afp_acl_access_bitmap_generic_read    = -1;
 static gint  afp_equal (gconstpointer v, gconstpointer v2);
 static guint afp_hash  (gconstpointer v);
 
-static guint afp_packet_init_count = 200;
-
 typedef struct {
 	guint32 conversation;
 	guint16	seq;
@@ -962,8 +961,6 @@ typedef struct {
 } afp_request_val;
 
 static GHashTable *afp_request_hash = NULL;
-static GMemChunk *afp_request_keys = NULL;
-static GMemChunk *afp_request_vals = NULL;
 
 static guint Vol;      /* volume */
 static guint Did;      /* parent directory ID */
@@ -4036,10 +4033,10 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (!request_val && !aspinfo->reply)  {
 		afp_command = tvb_get_guint8(tvb, offset);
-		new_request_key = g_mem_chunk_alloc(afp_request_keys);
+		new_request_key = se_alloc(sizeof(afp_request_key));
 		*new_request_key = request_key;
 
-		request_val = g_mem_chunk_alloc(afp_request_vals);
+		request_val = se_alloc(sizeof(afp_request_val));
 		request_val->command = tvb_get_guint8(tvb, offset);
 
 		g_hash_table_insert(afp_request_hash, new_request_key,
@@ -4300,21 +4297,8 @@ static void afp_reinit( void)
 
 	if (afp_request_hash)
 		g_hash_table_destroy(afp_request_hash);
-	if (afp_request_keys)
-		g_mem_chunk_destroy(afp_request_keys);
-	if (afp_request_vals)
-		g_mem_chunk_destroy(afp_request_vals);
 
 	afp_request_hash = g_hash_table_new(afp_hash, afp_equal);
-
-	afp_request_keys = g_mem_chunk_new("afp_request_keys",
-		sizeof(afp_request_key),
-		afp_packet_init_count * sizeof(afp_request_key),
-		G_ALLOC_AND_FREE);
-	afp_request_vals = g_mem_chunk_new("afp_request_vals",
-		sizeof(afp_request_val),
-		afp_packet_init_count * sizeof(afp_request_val),
-		G_ALLOC_AND_FREE);
 
 }
 

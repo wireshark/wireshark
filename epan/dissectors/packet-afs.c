@@ -42,6 +42,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/addr_resolv.h>
+#include <epan/emem.h>
 
 #include "packet-rx.h"
 #include "packet-afs.h"
@@ -53,8 +54,6 @@
 #define VALID_OPCODE(opcode) ((opcode >= OPCODE_LOW && opcode <= OPCODE_HIGH) || \
 		(opcode >= VOTE_LOW && opcode <= VOTE_HIGH) || \
 		(opcode >= DISK_LOW && opcode <= DISK_HIGH))
-
-static int afs_packet_init_count = 100;
 
 struct afs_request_key {
   guint32 conversation, callnumber;
@@ -69,9 +68,6 @@ struct afs_request_val {
 };
 
 static GHashTable *afs_request_hash = NULL;
-static GMemChunk *afs_request_keys = NULL;
-static GMemChunk *afs_request_vals = NULL;
-
 
 
 /*
@@ -154,20 +150,8 @@ afs_init_protocol(void)
 {
 	if (afs_request_hash)
 		g_hash_table_destroy(afs_request_hash);
-	if (afs_request_keys)
-		g_mem_chunk_destroy(afs_request_keys);
-	if (afs_request_vals)
-		g_mem_chunk_destroy(afs_request_vals);
 
 	afs_request_hash = g_hash_table_new(afs_hash, afs_equal);
-	afs_request_keys = g_mem_chunk_new("afs_request_keys",
-		sizeof(struct afs_request_key),
-		afs_packet_init_count * sizeof(struct afs_request_key),
-		G_ALLOC_AND_FREE);
-	afs_request_vals = g_mem_chunk_new("afs_request_vals",
-		sizeof(struct afs_request_val),
-		afs_packet_init_count * sizeof(struct afs_request_val),
-		G_ALLOC_AND_FREE);
 }
 
 
@@ -235,10 +219,10 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	opcode = 0;
 	if(!pinfo->fd->flags.visited){
 		if ( !request_val && !reply) {
-			new_request_key = g_mem_chunk_alloc(afs_request_keys);
+			new_request_key = se_alloc(sizeof(struct afs_request_key));
 			*new_request_key = request_key;
 
-			request_val = g_mem_chunk_alloc(afs_request_vals);
+			request_val = se_alloc(sizeof(struct afs_request_val));
 			request_val -> opcode = tvb_get_ntohl(tvb, offset);
 			request_val -> req_num = pinfo->fd->num;
 			request_val -> rep_num = 0;
