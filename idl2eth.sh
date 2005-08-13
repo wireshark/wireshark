@@ -55,15 +55,15 @@ fi
 # error.
 
 if [ -f $PYTHONPATH/site-packages/ethereal_be.py ] && [ -f $PYTHONPATH/site-packages/ethereal_gen.py ]; then
-    omniidl  -p $PYTHONPATH/site-packages -b ethereal_be $1
-    exit $?
+    exec omniidl  -p $PYTHONPATH/site-packages -b ethereal_be $1
+    /* not reached */
 fi
 
 # Try current directory.
 
 if [ -f ./ethereal_be.py ] && [ -f ./ethereal_gen.py ]; then
-    omniidl  -p ./ -b ethereal_be $1
-    exit $?
+    exec omniidl  -p ./ -b ethereal_be $1
+    /* not reached */
 fi
 
 # Could not find both ethereal_be.py AND ethereal_gen.py
