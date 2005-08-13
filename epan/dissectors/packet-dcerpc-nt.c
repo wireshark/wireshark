@@ -34,6 +34,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
@@ -411,12 +412,7 @@ typedef struct {
 	pol_value *list;                 /* List of policy handle entries */
 } pol_hash_value;
 
-#define POL_HASH_INIT_COUNT 100
-
 static GHashTable *pol_hash;
-static GMemChunk *pol_hash_key_chunk;
-static GMemChunk *pol_value_chunk;
-static GMemChunk *pol_hash_value_chunk;
 
 /* Hash function */
 
@@ -510,10 +506,10 @@ static void add_pol_handle(e_ctx_hnd *policy_hnd, guint32 frame,
 		 * and put the hash value in the policy handle hash
 		 * table.
 		 */
-		value = g_mem_chunk_alloc(pol_hash_value_chunk);
+		value = se_alloc(sizeof(pol_hash_value));
 		value->list = pol;
 		pol->next = NULL;
-		key = g_mem_chunk_alloc(pol_hash_key_chunk);
+		key = se_alloc(sizeof(pol_hash_key));
 		memcpy(&key->policy_hnd, policy_hnd, sizeof(key->policy_hnd));
 		g_hash_table_insert(pol_hash, key, value);
 	} else {
@@ -610,7 +606,7 @@ void dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 
 	/* Create a new value */
 
-	pol = g_mem_chunk_alloc(pol_value_chunk);
+	pol = se_alloc(sizeof(pol_value));
 
 	pol->open_frame = is_open ? pinfo->fd->num : 0;
 	pol->close_frame = is_close ? pinfo->fd->num : 0;
@@ -664,7 +660,7 @@ void dcerpc_smb_store_pol_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 
 	/* Create a new value */
 
-	pol = g_mem_chunk_alloc(pol_value_chunk);
+	pol = se_alloc(sizeof(pol_value));
 
 	pol->open_frame = 0;
 	pol->close_frame = 0;
@@ -744,29 +740,6 @@ static void free_pol_keyvalue(gpointer key _U_, gpointer value_arg,
 
 static void init_pol_hash(void)
 {
-	/* Initialise memory chunks */
-
-	if (pol_hash_key_chunk)
-		g_mem_chunk_destroy(pol_hash_key_chunk);
-
-	pol_hash_key_chunk = g_mem_chunk_new(
-		"Policy handle hash keys", sizeof(pol_hash_key),
-		POL_HASH_INIT_COUNT * sizeof(pol_hash_key), G_ALLOC_ONLY);
-
-	if (pol_value_chunk)
-		g_mem_chunk_destroy(pol_value_chunk);
-
-	pol_value_chunk = g_mem_chunk_new(
-		"Policy handle values", sizeof(pol_value),
-		POL_HASH_INIT_COUNT * sizeof(pol_value), G_ALLOC_ONLY);
-
-	if (pol_hash_value_chunk)
-		g_mem_chunk_destroy(pol_hash_value_chunk);
-
-	pol_hash_value_chunk = g_mem_chunk_new(
-		"Policy handle hash values", sizeof(pol_hash_value),
-		POL_HASH_INIT_COUNT * sizeof(pol_hash_value), G_ALLOC_ONLY);
-
 	/* Initialise hash table */
 
 	if (pol_hash) {

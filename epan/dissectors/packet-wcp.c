@@ -106,6 +106,7 @@
 #include <epan/packet.h>
 #include "packet-frame.h"
 #include <epan/circuit.h>
+#include <epan/emem.h>
 #include "etypes.h"
 #include "nlpid.h"
 
@@ -133,15 +134,6 @@ typedef struct {
 
 }wcp_pdata_t;
 
-
-#define wcp_win_init_count 4
-#define wcp_packet_init_count 10
-
-#define wcp_circuit_length (sizeof(wcp_circuit_data_t))
-#define wcp_packet_length (sizeof(wcp_pdata_t))
-
-static GMemChunk *wcp_circuit = NULL;
-static GMemChunk *wcp_pdata = NULL;
 
 static int proto_wcp = -1;
 static int hf_wcp_cmd = -1;
@@ -466,7 +458,7 @@ wcp_window_t *get_wcp_window_ptr( packet_info *pinfo){
 	}
 	wcp_circuit_data = circuit_get_proto_data(circuit, proto_wcp);
 	if ( !wcp_circuit_data){
-		wcp_circuit_data = g_mem_chunk_alloc( wcp_circuit);
+		wcp_circuit_data = se_alloc(sizeof(wcp_circuit_data_t));
 		wcp_circuit_data->recv.buf_cur = wcp_circuit_data->recv.buffer;
 		wcp_circuit_data->send.buf_cur = wcp_circuit_data->send.buffer;
 		circuit_add_proto_data(circuit, proto_wcp, wcp_circuit_data);
@@ -583,7 +575,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 	} else {
 
 	/* save the new data as per packet data */
-		pdata_ptr = g_mem_chunk_alloc( wcp_pdata);
+		pdata_ptr = se_alloc(sizeof(wcp_pdata_t));
 		memcpy( &pdata_ptr->buffer, buf_ptr->buf_cur,  len);
 		pdata_ptr->len = len;
 
@@ -614,28 +606,6 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 	/* Add new data to the data source list */
 	add_new_data_source( pinfo, tvb, "Uncompressed WCP");
 	return tvb;
-
-}
-
-
-static void wcp_reinit( void){
-
-/* Do the cleanup work when a new pass through the packet list is       */
-/* performed. re-initialize the  memory chunks.                         */
-
-        if (wcp_circuit)
-                g_mem_chunk_destroy(wcp_circuit);
-
-        wcp_circuit = g_mem_chunk_new("wcp_circuit", wcp_circuit_length,
-                wcp_win_init_count * wcp_circuit_length,
-                G_ALLOC_AND_FREE);
-
-        if (wcp_pdata)
-                g_mem_chunk_destroy(wcp_pdata);
-
-        wcp_pdata = g_mem_chunk_new("wcp_pdata", wcp_packet_length,
-                wcp_packet_init_count * wcp_packet_length,
-                G_ALLOC_AND_FREE);
 
 }
 
@@ -731,7 +701,6 @@ proto_register_wcp(void)
     proto_wcp = proto_register_protocol ("Wellfleet Compression", "WCP", "wcp");
     proto_register_field_array (proto_wcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    register_init_routine(&wcp_reinit);
 }
 
 

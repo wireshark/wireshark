@@ -42,6 +42,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
+#include <epan/emem.h>
 #include <epan/dissectors/packet-frame.h>
 #include <epan/dissectors/packet-dcerpc-nt.h>
 
@@ -800,9 +801,6 @@ typedef struct _dcerpc_bind_value {
 	guint16 ver;
 } dcerpc_bind_value;
 
-static GMemChunk *dcerpc_bind_key_chunk=NULL;
-static GMemChunk *dcerpc_bind_value_chunk=NULL;
-
 static gint
 dcerpc_bind_equal (gconstpointer k1, gconstpointer k2)
 {
@@ -842,12 +840,6 @@ typedef struct _dcerpc_dg_call_key {
     guint32 seqnum;
     e_uuid_t act_id ;
 } dcerpc_dg_call_key;
-
-static GMemChunk *dcerpc_cn_call_key_chunk=NULL;
-
-static GMemChunk *dcerpc_dg_call_key_chunk=NULL;
-
-static GMemChunk *dcerpc_call_value_chunk=NULL;
 
 
 static gint
@@ -902,8 +894,6 @@ typedef struct _dcerpc_matched_key {
     guint32 frame;
     guint32 call_id;
 } dcerpc_matched_key;
-
-static GMemChunk *dcerpc_matched_key_chunk=NULL;
 
 static gint
 dcerpc_matched_equal (gconstpointer k1, gconstpointer k2)
@@ -2676,12 +2666,12 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		dcerpc_bind_key *key;
 		dcerpc_bind_value *value;
 
-	        key = g_mem_chunk_alloc (dcerpc_bind_key_chunk);
+	        key = se_alloc (sizeof (dcerpc_bind_key));
         	key->conv = conv;
         	key->ctx_id = ctx_id;
         	key->smb_fid = dcerpc_get_transport_salt(pinfo);
 
-        	value = g_mem_chunk_alloc (dcerpc_bind_value_chunk);
+        	value = se_alloc (sizeof (dcerpc_bind_value));
         	value->uuid = if_id;
         	value->ver = if_ver;
 
@@ -3231,11 +3221,11 @@ dcerpc_add_conv_to_bind_table(decode_dcerpc_bind_values_t *binding)
             0);
     }
     
-    bind_value = g_mem_chunk_alloc (dcerpc_bind_value_chunk);
+    bind_value = se_alloc (sizeof (dcerpc_bind_value));
     bind_value->uuid = binding->uuid;
     bind_value->ver = binding->ver;
 
-    key = g_mem_chunk_alloc(dcerpc_bind_key_chunk);
+    key = se_alloc(sizeof (dcerpc_bind_key));
     key->conv = conv;
     key->ctx_id = binding->ctx_id;
     key->smb_fid = binding->smb_fid;
@@ -3351,7 +3341,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				call_key.call_id=hdr->call_id;
 				call_key.smb_fid=dcerpc_get_transport_salt(pinfo);
 				if((call_value=g_hash_table_lookup(dcerpc_cn_calls, &call_key))){
-					new_matched_key = g_mem_chunk_alloc(dcerpc_matched_key_chunk);
+					new_matched_key = se_alloc(sizeof (dcerpc_matched_key));
 					*new_matched_key = matched_key;
 					g_hash_table_insert (dcerpc_matched, new_matched_key, call_value);
 					value = call_value;
@@ -3365,7 +3355,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				   the call to both the call table and the 
 				   matched table
 				*/
-				call_key=g_mem_chunk_alloc (dcerpc_cn_call_key_chunk);
+				call_key=se_alloc (sizeof (dcerpc_cn_call_key));
 				call_key->conv=conv;
 				call_key->call_id=hdr->call_id;
 				call_key->smb_fid=dcerpc_get_transport_salt(pinfo);
@@ -3376,7 +3366,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 					g_hash_table_remove(dcerpc_cn_calls, call_key);
 				}
 
-				call_value=g_mem_chunk_alloc (dcerpc_call_value_chunk);
+				call_value=se_alloc (sizeof (dcerpc_call_value));
 				call_value->uuid = bind_value->uuid;
 				call_value->ver = bind_value->ver;
 				call_value->opnum = opnum;
@@ -3388,7 +3378,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				call_value->private_data = NULL;
 				g_hash_table_insert (dcerpc_cn_calls, call_key, call_value);
 
-				new_matched_key = g_mem_chunk_alloc(dcerpc_matched_key_chunk);
+				new_matched_key = se_alloc(sizeof (dcerpc_matched_key));
 				*new_matched_key = matched_key;
 				g_hash_table_insert (dcerpc_matched, new_matched_key, call_value);
 				value = call_value;
@@ -3499,7 +3489,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			/* extra sanity check,  only match them if the reply
 			   came after the request */
 			if(call_value->req_frame<pinfo->fd->num){
-				new_matched_key = g_mem_chunk_alloc(dcerpc_matched_key_chunk);
+				new_matched_key = se_alloc(sizeof (dcerpc_matched_key));
 				*new_matched_key = matched_key;
 				g_hash_table_insert (dcerpc_matched, new_matched_key, call_value);
 				value = call_value;
@@ -3620,7 +3610,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		call_key.smb_fid=dcerpc_get_transport_salt(pinfo);
 
 		if((call_value=g_hash_table_lookup(dcerpc_cn_calls, &call_key))){
-			new_matched_key = g_mem_chunk_alloc(dcerpc_matched_key_chunk);
+			new_matched_key = se_alloc(sizeof (dcerpc_matched_key));
 			*new_matched_key = matched_key;
 			g_hash_table_insert (dcerpc_matched, new_matched_key, call_value);
 			value = call_value;
@@ -4477,12 +4467,12 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_call_value *call_value;
 	dcerpc_dg_call_key *call_key;
 
-	call_key=g_mem_chunk_alloc (dcerpc_dg_call_key_chunk);
+	call_key=se_alloc (sizeof (dcerpc_dg_call_key));
 	call_key->conv=conv;
 	call_key->seqnum=hdr->seqnum;
 	call_key->act_id=hdr->act_id;
 
-	call_value=g_mem_chunk_alloc (dcerpc_call_value_chunk);
+	call_value=se_alloc (sizeof (dcerpc_call_value));
 	call_value->uuid = hdr->if_id;
 	call_value->ver = hdr->if_ver;
 	call_value->opnum = hdr->opnum;
@@ -4494,7 +4484,7 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	call_value->private_data = NULL;
 	g_hash_table_insert (dcerpc_dg_calls, call_key, call_value);
 
-	new_matched_key = g_mem_chunk_alloc(dcerpc_matched_key_chunk);
+	new_matched_key = se_alloc(sizeof (dcerpc_matched_key));
 	new_matched_key->frame = pinfo->fd->num;
 	new_matched_key->call_id = hdr->seqnum;
 	g_hash_table_insert (dcerpc_matched, new_matched_key, call_value);
@@ -4553,7 +4543,7 @@ dissect_dcerpc_dg_resp (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	call_key.act_id=hdr->act_id;
 
 	if((call_value=g_hash_table_lookup(dcerpc_dg_calls, &call_key))){
-	    new_matched_key = g_mem_chunk_alloc(dcerpc_matched_key_chunk);
+	    new_matched_key = se_alloc(sizeof (dcerpc_matched_key));
 	    new_matched_key->frame = pinfo->fd->num;
 	    new_matched_key->call_id = hdr->seqnum;
 	    g_hash_table_insert (dcerpc_matched, new_matched_key, call_value);
@@ -5047,20 +5037,6 @@ dcerpc_init_protocol (void)
 		dcerpc_binds = g_hash_table_new (dcerpc_bind_hash, dcerpc_bind_equal);
 	}
 
-	if (dcerpc_bind_key_chunk){
-		g_mem_chunk_destroy (dcerpc_bind_key_chunk);
-	}
-	dcerpc_bind_key_chunk = g_mem_chunk_new ("dcerpc_bind_key_chunk",
-                                             sizeof (dcerpc_bind_key),
-                                             200 * sizeof (dcerpc_bind_key),
-                                             G_ALLOC_ONLY);
-	if (dcerpc_bind_value_chunk){
-		g_mem_chunk_destroy (dcerpc_bind_value_chunk);
-	}
-	dcerpc_bind_value_chunk = g_mem_chunk_new ("dcerpc_bind_value_chunk",
-                                             sizeof (dcerpc_bind_value),
-                                             200 * sizeof (dcerpc_bind_value),
-                                             G_ALLOC_ONLY);
 	/* structures and data for CALL */
 	if (dcerpc_cn_calls){
 		g_hash_table_destroy (dcerpc_cn_calls);
@@ -5070,41 +5046,12 @@ dcerpc_init_protocol (void)
 		g_hash_table_destroy (dcerpc_dg_calls);
 	}
 	dcerpc_dg_calls = g_hash_table_new (dcerpc_dg_call_hash, dcerpc_dg_call_equal);
-	if (dcerpc_cn_call_key_chunk){
-		g_mem_chunk_destroy (dcerpc_cn_call_key_chunk);
-	}
-	dcerpc_cn_call_key_chunk = g_mem_chunk_new ("dcerpc_cn_call_key_chunk",
-		sizeof (dcerpc_cn_call_key),
-		200 * sizeof (dcerpc_cn_call_key),
-		G_ALLOC_ONLY);
-	if (dcerpc_dg_call_key_chunk){
-		g_mem_chunk_destroy (dcerpc_dg_call_key_chunk);
-	}
-	dcerpc_dg_call_key_chunk = g_mem_chunk_new ("dcerpc_dg_call_key_chunk",
-		sizeof (dcerpc_dg_call_key),
-		200 * sizeof (dcerpc_dg_call_key),
-		G_ALLOC_ONLY);
-
-	if (dcerpc_call_value_chunk){
-		g_mem_chunk_destroy (dcerpc_call_value_chunk);
-	}
-	dcerpc_call_value_chunk = g_mem_chunk_new ("dcerpc_call_value_chunk",
-                                             sizeof (dcerpc_call_value),
-                                             200 * sizeof (dcerpc_call_value),
-                                             G_ALLOC_ONLY);
 
 	/* structure and data for MATCHED */
 	if (dcerpc_matched){
 		g_hash_table_destroy (dcerpc_matched);
 	}
 	dcerpc_matched = g_hash_table_new (dcerpc_matched_hash, dcerpc_matched_equal);
-	if (dcerpc_matched_key_chunk){
-		g_mem_chunk_destroy (dcerpc_matched_key_chunk);
-	}
-	dcerpc_matched_key_chunk = g_mem_chunk_new ("dcerpc_matched_key_chunk",
-                                             sizeof (dcerpc_matched_key),
-                                             200 * sizeof (dcerpc_matched_key),
-                                             G_ALLOC_ONLY);
 
     /* call the registered hooks */
     g_hook_list_invoke(&dcerpc_hooks_init_protos, FALSE /* not may_recurse */);

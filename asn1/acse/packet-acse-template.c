@@ -40,6 +40,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <epan/conversation.h>
 
 #include <stdio.h>
@@ -72,8 +73,6 @@ static guint32 indir_ref=0;
 static proto_tree *top_tree=NULL;
 
 /* to keep track of presentation context identifiers and protocol-oids */
-static GMemChunk *acse_ctx_oid_chunk = NULL;
-static int acse_ctx_oid_count = 500;
 typedef struct _acse_ctx_oid_t {
 	/* XXX here we should keep track of ADDRESS/PORT as well */
 	guint32 ctx_id;
@@ -118,21 +117,13 @@ acse_init(void)
 	acse_ctx_oid_table = g_hash_table_new(acse_ctx_oid_hash,
 			acse_ctx_oid_equal);
 
-	if (acse_ctx_oid_chunk) {
-		g_mem_chunk_destroy(acse_ctx_oid_chunk);
-		acse_ctx_oid_chunk = NULL;
-	}
-	acse_ctx_oid_chunk = g_mem_chunk_new("acse_ctx_oid_chunk",
-			sizeof(acse_ctx_oid_t),
-			acse_ctx_oid_count * sizeof(acse_ctx_oid_t),
-			G_ALLOC_ONLY);
 }
 
 static void
 register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, char *oid)
 {
 	acse_ctx_oid_t *aco, *tmpaco;
-	aco=g_mem_chunk_alloc(acse_ctx_oid_chunk);
+	aco=se_alloc(sizeof(acse_ctx_oid_t));
 	aco->ctx_id=idx;
 	aco->oid=g_strdup(oid);
 
@@ -142,7 +133,6 @@ register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, char *oid)
 		g_hash_table_remove(acse_ctx_oid_table, tmpaco);
 		g_free(tmpaco->oid);
 		tmpaco->oid=NULL;
-		g_mem_chunk_free(acse_ctx_oid_chunk, tmpaco);
 	}
 	g_hash_table_insert(acse_ctx_oid_table, aco, aco);
 }

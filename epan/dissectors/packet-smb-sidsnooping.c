@@ -33,6 +33,7 @@
 #include "epan/epan_dissect.h"
 #include "epan/proto.h"
 #include <epan/tap.h>
+#include <epan/emem.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "register.h"
@@ -52,13 +53,8 @@ static int hf_samr_level = -1;
 
 
 GHashTable *sid_name_table = NULL;
-static GMemChunk *sid_name_chunk = NULL;
-static int sid_name_init_count = 200;
 
 
-
-static GMemChunk *ctx_handle_chunk = NULL;
-static int ctx_handle_init_count = 200;
 static GHashTable *ctx_handle_table = NULL;
 
 
@@ -92,7 +88,7 @@ add_sid_name_mapping(char *sid, char *name)
 		return;
 	}
 
-	sn=g_mem_chunk_alloc(sid_name_chunk);
+	sn=se_alloc(sizeof(sid_name));
 	sn->sid=g_strdup(sid);
 	sn->name=g_strdup(name);
 	g_hash_table_insert(sid_name_table, sn, sn);
@@ -152,7 +148,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
 			g_hash_table_remove(ctx_handle_table, GINT_TO_POINTER(pinfo->fd->num));
 		}
 		if(!old_ctx){
-			old_ctx=g_mem_chunk_alloc(ctx_handle_chunk);
+			old_ctx=se_alloc(20);
 			memcpy(old_ctx, fi->value.value.bytes->data, 20);
 		}
 		g_hash_table_insert(ctx_handle_table, GINT_TO_POINTER(pinfo->fd->num), old_ctx);
@@ -347,17 +343,9 @@ sid_snooping_init(void)
 		g_hash_table_foreach_remove(sid_name_table, free_all_sid_names, NULL);
 		sid_name_table=NULL;
 	}
-	if(sid_name_chunk){
-		g_mem_chunk_destroy(sid_name_chunk);
-		sid_name_chunk=NULL;
-	}
 	if(ctx_handle_table){
 		g_hash_table_foreach_remove(ctx_handle_table, free_all_ctx_handle, NULL);
 		ctx_handle_table=NULL;
-	}
-	if(ctx_handle_chunk){
-		g_mem_chunk_destroy(ctx_handle_chunk);
-		ctx_handle_chunk=NULL;
 	}
 
 
@@ -367,17 +355,9 @@ sid_snooping_init(void)
 
 
 	sid_name_table=g_hash_table_new(sid_name_hash, sid_name_equal);
-	sid_name_chunk = g_mem_chunk_new("sid_name_chunk",
-	    sizeof(sid_name),
-	    sid_name_init_count * sizeof(sid_name),
-	    G_ALLOC_ONLY);
 
 
 	ctx_handle_table=g_hash_table_new(ctx_handle_hash, ctx_handle_equal);
-	ctx_handle_chunk = g_mem_chunk_new("ctx_handle_chunk",
-	    20,  /* our dcerpc context handles are 20 bytes */
-	    ctx_handle_init_count * 20,
-	    G_ALLOC_ONLY);
 
 
 	hf_lsa=proto_get_id_by_filter_name("lsa");

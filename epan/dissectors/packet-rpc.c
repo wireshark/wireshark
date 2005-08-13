@@ -455,10 +455,6 @@ typedef struct _rpc_call_info_key {
 	conversation_t *conversation;
 } rpc_call_info_key;
 
-static GMemChunk *rpc_call_info_key_chunk;
-
-static GMemChunk *rpc_call_info_value_chunk;
-
 static GHashTable *rpc_calls;
 
 static GHashTable *rpc_indir_calls;
@@ -1440,9 +1436,9 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			   Prepare the value data.
 			   Not all of it is needed for handling indirect
 			   calls, so we set a bunch of items to 0. */
-			new_rpc_call_key = g_mem_chunk_alloc(rpc_call_info_key_chunk);
+			new_rpc_call_key = se_alloc(sizeof(rpc_call_info_key));
 			*new_rpc_call_key = rpc_call_key;
-			rpc_call = g_mem_chunk_alloc(rpc_call_info_value_chunk);
+			rpc_call = se_alloc(sizeof(rpc_call_info_value));
 			rpc_call->req_num = 0;
 			rpc_call->rep_num = 0;
 			rpc_call->prog = prog;
@@ -1860,9 +1856,9 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 			/* in parse-partials, so define a dummy conversation for this reply */
-			new_rpc_call_key = g_mem_chunk_alloc(rpc_call_info_key_chunk);
+			new_rpc_call_key = se_alloc(sizeof(rpc_call_info_key));
 			*new_rpc_call_key = rpc_call_key;
-			rpc_call = g_mem_chunk_alloc(rpc_call_info_value_chunk);
+			rpc_call = se_alloc(sizeof(rpc_call_info_value));
 			rpc_call->req_num = 0;
 			rpc_call->rep_num = pinfo->fd->num;
 			rpc_call->prog = 0;
@@ -2156,9 +2152,9 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			   frame numbers are 1-origin, so we use 0
 			   to mean "we don't yet know in which frame
 			   the reply for this call appears". */
-			new_rpc_call_key = g_mem_chunk_alloc(rpc_call_info_key_chunk);
+			new_rpc_call_key = se_alloc(sizeof(rpc_call_info_key));
 			*new_rpc_call_key = rpc_call_key;
-			rpc_call = g_mem_chunk_alloc(rpc_call_info_value_chunk);
+			rpc_call = se_alloc(sizeof(rpc_call_info_value));
 			rpc_call->req_num = pinfo->fd->num;
 			rpc_call->rep_num = 0;
 			rpc_call->prog = prog;
@@ -2689,8 +2685,6 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static GHashTable *rpc_fragment_table = NULL;
 
 static GHashTable *rpc_reassembly_table = NULL;
-static GMemChunk *rpc_fragment_key_chunk = NULL;
-static int rpc_fragment_init_count = 200;
 
 typedef struct _rpc_fragment_key {
 	guint32 conv_id;
@@ -3033,7 +3027,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * We must remember this fragment.
 			 */
 
-			rfk = g_mem_chunk_alloc(rpc_fragment_key_chunk);
+			rfk = se_alloc(sizeof(rpc_fragment_key));
 			rfk->conv_id = conversation->index;
 			rfk->seq = seq;
 			rfk->offset = 0;
@@ -3054,7 +3048,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * set on it.
 			 */
 			if (ipfd_head == NULL) {
-				new_rfk = g_mem_chunk_alloc(rpc_fragment_key_chunk);
+				new_rfk = se_alloc(sizeof(rpc_fragment_key));
 				new_rfk->conv_id = rfk->conv_id;
 				new_rfk->seq = seq + len;
 				new_rfk->offset = rfk->offset + len - 4;
@@ -3119,7 +3113,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * RPC fragments aren't guaranteed to be provided
 			 * in order, either.
 			 */
-			new_rfk = g_mem_chunk_alloc(rpc_fragment_key_chunk);
+			new_rfk = se_alloc(sizeof(rpc_fragment_key));
 			new_rfk->conv_id = rfk->conv_id;
 			new_rfk->seq = seq + len;
 			new_rfk->offset = rfk->offset + len - 4;
@@ -3519,18 +3513,6 @@ rpc_init_protocol(void)
 		g_hash_table_destroy(rpc_indir_calls);
 		rpc_indir_calls = NULL;
 	}
-	if (rpc_call_info_key_chunk != NULL) {
-		g_mem_chunk_destroy(rpc_call_info_key_chunk);
-		rpc_call_info_key_chunk = NULL;
-	}
-	if (rpc_call_info_value_chunk != NULL) {
-		g_mem_chunk_destroy(rpc_call_info_value_chunk);
-		rpc_call_info_value_chunk = NULL;
-	}
-	if (rpc_fragment_key_chunk != NULL) {
-		g_mem_chunk_destroy(rpc_fragment_key_chunk);
-		rpc_fragment_key_chunk = NULL;
-	}
 	if (rpc_reassembly_table != NULL) {
 		g_hash_table_destroy(rpc_reassembly_table);
 		rpc_reassembly_table = NULL;
@@ -3538,18 +3520,6 @@ rpc_init_protocol(void)
 
 	rpc_calls = g_hash_table_new(rpc_call_hash, rpc_call_equal);
 	rpc_indir_calls = g_hash_table_new(rpc_call_hash, rpc_call_equal);
-	rpc_call_info_key_chunk = g_mem_chunk_new("call_info_key_chunk",
-	    sizeof(rpc_call_info_key),
-	    200 * sizeof(rpc_call_info_key),
-	    G_ALLOC_ONLY);
-	rpc_call_info_value_chunk = g_mem_chunk_new("call_info_value_chunk",
-	    sizeof(rpc_call_info_value),
-	    200 * sizeof(rpc_call_info_value),
-	    G_ALLOC_ONLY);
-	rpc_fragment_key_chunk = g_mem_chunk_new("rpc_fragment_key_chunk",
-	    sizeof(rpc_fragment_key),
-	    rpc_fragment_init_count*sizeof(rpc_fragment_key),
-	    G_ALLOC_ONLY);
 	rpc_reassembly_table = g_hash_table_new(rpc_fragment_hash,
 	    rpc_fragment_equal);
 

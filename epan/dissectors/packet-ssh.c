@@ -41,6 +41,7 @@
 #include "packet-tcp.h"
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
+#include <epan/emem.h>
 
 /* get from openssh ssh2.h */
 #define SSH2_MSG_DISCONNECT				1
@@ -93,8 +94,6 @@ struct ssh_flow_data {
 	guint	rsp_counter;
 	guint 	version;
 };
-static GMemChunk *ssh_this_data=NULL;
-static GMemChunk *ssh_global_data = NULL;
 
 static int proto_ssh = -1;
 static int hf_ssh_packet_length= -1;
@@ -186,22 +185,6 @@ static int ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 proto_item * ssh_proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     gint start, gint length, gboolean little_endian);
 
-static void
-ssh_init_protocol(void)
-{
-  	if (ssh_global_data)
-    		g_mem_chunk_destroy(ssh_global_data);
-  	if (ssh_this_data)
-    		g_mem_chunk_destroy(ssh_this_data);
-
-  	ssh_global_data = g_mem_chunk_new("ssh_global_datas",
-				      sizeof(struct ssh_flow_data),
-				      100* sizeof(struct ssh_flow_data), G_ALLOC_AND_FREE);
-  	ssh_this_data = g_mem_chunk_new("ssh_pku_data",
-				      sizeof(struct ssh_pdu_data),
-				      100* sizeof(struct ssh_pdu_data), G_ALLOC_AND_FREE);
-
-}
 
 static void
 dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -238,7 +221,7 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	global_data = conversation_get_proto_data(conversation,proto_ssh);
 	if(!global_data ) {
-		global_data = g_mem_chunk_alloc(ssh_global_data);
+		global_data = se_alloc(sizeof(struct ssh_flow_data));
 		global_data->req_counter=0;
 		global_data->rsp_counter=0;
 		global_data->version=SSH_VERSION_UNKNOWN;
@@ -251,7 +234,7 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (pinfo->destport == pinfo->match_port) {
 	  	is_response=FALSE;
 		if(!this_data) {
-			this_data = g_mem_chunk_alloc(ssh_this_data);
+			this_data = se_alloc(sizeof(struct ssh_pdu_data));
 			this_data->counter = global_data->req_counter++;
 			p_add_proto_data(pinfo->fd, proto_ssh, this_data);
 			is_newdata = TRUE;
@@ -259,7 +242,7 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}else {
 		is_response=TRUE;
 		if(!this_data) {
-			this_data = g_mem_chunk_alloc(ssh_global_data);
+			this_data = se_alloc(sizeof(struct ssh_flow_data));
 			this_data->counter = global_data->rsp_counter++;
 			p_add_proto_data(pinfo->fd, proto_ssh, this_data);
 			is_newdata = TRUE;
@@ -919,7 +902,6 @@ proto_register_ssh(void)
 				       "SSH", "ssh");
  	 proto_register_field_array(proto_ssh, hf, array_length(hf));
   	proto_register_subtree_array(ett, array_length(ett));
-	register_init_routine(&ssh_init_protocol);
 
   	ssh_module = prefs_register_protocol(proto_ssh, NULL);
 	prefs_register_bool_preference(ssh_module, "desegment_buffers",

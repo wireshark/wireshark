@@ -282,9 +282,6 @@ struct jxta_stream_conversation_data {
 
 typedef struct jxta_stream_conversation_data jxta_stream_conversation_data;
 
-static GMemChunk *my_conv_structs = NULL;
-static GMemChunk *my_tap_structs = NULL;
-
 /**
 *   Prototypes
 **/
@@ -505,7 +502,7 @@ static int dissect_jxta_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
     tpt_conv_data = (jxta_stream_conversation_data*) conversation_get_proto_data(tpt_conversation, proto_jxta);
     
     if( NULL == tpt_conv_data ) {
-        tpt_conv_data = (jxta_stream_conversation_data*) g_mem_chunk_alloc(my_conv_structs);
+        tpt_conv_data = se_alloc(sizeof( jxta_stream_conversation_data ));
         tpt_conv_data->tpt_ptype = PT_NONE;
         tpt_conv_data->initiator_welcome_frame = 0;
         tpt_conv_data->initiator_address.type = AT_NONE;
@@ -1163,7 +1160,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     }
 
     if ((offset > 0) && (AT_URI == pinfo->src.type) && (AT_URI == pinfo->dst.type)) {
-        jxta_tap_header * tap_header = (jxta_tap_header *) g_mem_chunk_alloc(my_tap_structs);
+        jxta_tap_header * tap_header = se_alloc(sizeof( jxta_tap_header ));
         
         tap_header->src_address = pinfo->src;
         tap_header->dest_address = pinfo->dst;
@@ -1455,30 +1452,6 @@ static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, pro
     return offset;
 }
 
-static void jxta_dissector_init( void)
-{
-    /* destroy memory chunks if needed */
-
-    if ( NULL != my_tap_structs )
-	g_mem_chunk_destroy( my_tap_structs );
-
-
-    if ( NULL != my_conv_structs )
-	g_mem_chunk_destroy( my_conv_structs );
-
-    /* now create memory chunks */
-
-    my_tap_structs = g_mem_chunk_new( "my_tap_structs",
-	    sizeof( jxta_tap_header ),
-	    10 * sizeof( jxta_tap_header ),
-	    G_ALLOC_ONLY);
-
-    my_conv_structs = g_mem_chunk_new( "my_conv_structs",
-	    sizeof( jxta_stream_conversation_data ),
-	    10 * sizeof( jxta_stream_conversation_data ),
-	    G_ALLOC_ONLY);
-}
-
 /**
 *    Register jxta protocol and jxta message protocol, header fields, subtree types, preferences.
 **/
@@ -1487,8 +1460,6 @@ void proto_register_jxta(void)
     module_t *jxta_module;
 
     /* register re-init routine */
-
-    register_init_routine( &jxta_dissector_init);
 
     proto_jxta = proto_register_protocol("JXTA P2P", "JXTA", "jxta");
 

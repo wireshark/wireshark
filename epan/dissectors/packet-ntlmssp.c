@@ -38,6 +38,7 @@
 #include "packet-smb-common.h"
 #include "packet-frame.h"
 #include <epan/prefs.h>
+#include <epan/emem.h>
 #include <epan/crypt-rc4.h>
 #include <epan/crypt-md4.h>
 #include <epan/crypt-des.h>
@@ -232,12 +233,6 @@ typedef struct _ntlmssp_info {
   ntlmssp_blob lm_response;
 } ntlmssp_info;
 
-/*
- * GMemChunk from which ntlmssp_info structures are allocated.
- */
-static GMemChunk  *ntlmssp_info_chunk;
-static int ntlmssp_info_count = 10;
-
 /* If this struct exists in the payload_decrypt, then we have already
    decrypted it once */
 typedef struct _ntlmssp_packet_info {
@@ -248,11 +243,6 @@ typedef struct _ntlmssp_packet_info {
   gboolean verifier_decrypted;
 } ntlmssp_packet_info;
 
-/*
- * GMemChunk from which ntlmssp_packet_info structures are allocated.
- */
-static GMemChunk  *ntlmssp_packet_info_chunk;
-static int ntlmssp_packet_info_count = 10;
 
 /*
  * GSlist of decrypted payloads.
@@ -937,7 +927,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
   }
 
   if (!conversation_get_proto_data(conversation, proto_ntlmssp)) {
-    conv_ntlmssp_info = g_mem_chunk_alloc(ntlmssp_info_chunk);
+    conv_ntlmssp_info = se_alloc(sizeof(ntlmssp_info));
     /* Insert the flags into the conversation */
     conv_ntlmssp_info->flags = negotiate_flags;
     /* Insert the RC4 state information into the conversation */
@@ -1439,7 +1429,7 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
   packet_ntlmssp_info = p_get_proto_data(pinfo->fd, proto_ntlmssp);
   if (packet_ntlmssp_info == NULL) {
     /* We don't have any packet state, so create one */
-    packet_ntlmssp_info = g_mem_chunk_alloc(ntlmssp_packet_info_chunk);
+    packet_ntlmssp_info = se_alloc(sizeof(ntlmssp_packet_info));
     memset(packet_ntlmssp_info, 0, sizeof(ntlmssp_packet_info));
     p_add_proto_data(pinfo->fd, proto_ntlmssp, packet_ntlmssp_info);
   }
@@ -1520,11 +1510,6 @@ free_payload(gpointer decrypted_payload, gpointer user_data _U_)
 static void
 ntlmssp_init_protocol(void)
 {
-	if (ntlmssp_info_chunk != NULL)
-		g_mem_chunk_destroy(ntlmssp_info_chunk);
-	if (ntlmssp_packet_info_chunk != NULL)
-		g_mem_chunk_destroy(ntlmssp_packet_info_chunk);
-
 	/*
 	 * Free the decrypted payloads, and then free the list of decrypted
 	 * payloads.
@@ -1535,14 +1520,6 @@ ntlmssp_init_protocol(void)
 		decrypted_payloads = NULL;
 	}
 
-	ntlmssp_info_chunk = g_mem_chunk_new("ntlmssp_info_chunk",
-	    sizeof(ntlmssp_info),
-	    ntlmssp_info_count * sizeof(ntlmssp_info),
-	    G_ALLOC_ONLY);
-	ntlmssp_packet_info_chunk = g_mem_chunk_new("ntlmssp_packet_info_chunk",
-	    sizeof(ntlmssp_packet_info),
-	    ntlmssp_packet_info_count * sizeof(ntlmssp_packet_info),
-	    G_ALLOC_ONLY);
 }
 
 void

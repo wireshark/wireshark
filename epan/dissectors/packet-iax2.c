@@ -38,6 +38,7 @@
 #include <epan/circuit.h>
 #include <epan/packet.h>
 #include <epan/to_str.h>
+#include <epan/emem.h>
 
 #include "packet-iax2.h"
 #include "iax2_codec_type.h"
@@ -391,8 +392,6 @@ typedef struct {
 
 /* tables */
 static GHashTable *iax_circuit_hashtab = NULL;
-static GMemChunk *iax_circuit_keys = NULL;
-static GMemChunk *iax_circuit_vals = NULL;
 static guint circuitcount = 0;
 
 /* the number of keys and values to reserve space for in each memory chunk.
@@ -482,7 +481,7 @@ static guint iax_circuit_lookup(const address *address,
   if( ! circuit_id_p ) {
     iax_circuit_key *new_key;
 
-    new_key = g_mem_chunk_alloc(iax_circuit_keys);
+    new_key = se_alloc(sizeof(iax_circuit_key));
     new_key->addr.type = address->type;
     new_key->addr.len = MIN(address->len,MAX_ADDRESS);
     new_key->addr.data = new_key->address_data;
@@ -491,7 +490,7 @@ static guint iax_circuit_lookup(const address *address,
     new_key->port = port;
     new_key->callno = callno;
 
-    circuit_id_p = g_mem_chunk_alloc(iax_circuit_vals);
+    circuit_id_p = se_alloc(sizeof(iax_circuit_key));
     *circuit_id_p = ++circuitcount;
 
     g_hash_table_insert(iax_circuit_hashtab, new_key, circuit_id_p);
@@ -540,32 +539,13 @@ typedef struct iax_call_data {
   nstime_t start_time;
 } iax_call_data;
 
-static GMemChunk *iax_call_datas = NULL;
-
 static void iax_init_hash( void )
 {
   if (iax_circuit_hashtab)
     g_hash_table_destroy(iax_circuit_hashtab);
 
-  if (iax_circuit_keys)
-    g_mem_chunk_destroy(iax_circuit_keys);
-  if (iax_circuit_vals)
-    g_mem_chunk_destroy(iax_circuit_vals);
-  if (iax_call_datas)
-    g_mem_chunk_destroy(iax_call_datas);
-
   iax_circuit_hashtab = g_hash_table_new(iax_circuit_hash, iax_circuit_equal);
 
-  iax_circuit_keys = g_mem_chunk_create(iax_circuit_key,
-					2*IAX_INIT_PACKET_COUNT,
-					G_ALLOC_ONLY);
-  iax_circuit_vals = g_mem_chunk_create(iax_circuit_key,
-					2*IAX_INIT_PACKET_COUNT,
-					G_ALLOC_ONLY);
-
-  iax_call_datas = g_mem_chunk_create(iax_call_data,
-				      IAX_INIT_PACKET_COUNT,
-				      G_ALLOC_ONLY);
   circuitcount = 0;
 }
 
@@ -829,7 +809,7 @@ static iax_call_data *iax_new_call( packet_info *pinfo,
   circuit_id = iax_circuit_lookup(&pinfo->src,pinfo->ptype,
                                   pinfo->srcport,scallno);
     
-  call = g_mem_chunk_alloc(iax_call_datas);
+  call = se_alloc(sizeof(iax_call_data));
   call -> dataformat = 0;
   call -> src_codec = 0;
   call -> dst_codec = 0;
@@ -859,11 +839,9 @@ typedef struct iax_packet_data {
                         * timestamp and the NEW packet's time (-1 if unknown) */
 } iax_packet_data;
 
-static GMemChunk *iax_packets = NULL;
-
 static iax_packet_data *iax_new_packet_data(iax_call_data *call, gboolean reversed)
 {
-  iax_packet_data *p = g_mem_chunk_alloc(iax_packets);
+  iax_packet_data *p = se_alloc(sizeof(iax_packet_data));
   p->first_time=TRUE;
   p->call_data=call;
   p->codec=0;
@@ -1721,9 +1699,6 @@ iax_init_protocol(void)
 {
   iax_init_hash();
 
-  if (iax_packets)
-    g_mem_chunk_destroy(iax_packets);
-  iax_packets = g_mem_chunk_create(iax_packet_data,128,G_ALLOC_ONLY);
 }
 
 

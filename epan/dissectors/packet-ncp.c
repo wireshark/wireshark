@@ -45,6 +45,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <epan/prefs.h>
 #include "packet-ipx.h"
 #include "packet-tcp.h"
@@ -203,8 +204,6 @@ typedef struct {
 } mncp_rhash_value;
 
 static GHashTable *mncp_rhash = NULL;
-static GMemChunk *mncp_rhash_keys = NULL;
-static GMemChunk *mncp_rhash_values = NULL;
 
 /* Hash Functions */
 static gint
@@ -233,20 +232,8 @@ mncp_init_protocol(void)
 {
 	if (mncp_rhash)
 		g_hash_table_destroy(mncp_rhash);
-	if (mncp_rhash_keys)
-		g_mem_chunk_destroy(mncp_rhash_keys);
-	if (mncp_rhash_values)
-		g_mem_chunk_destroy(mncp_rhash_values);
 
 	mncp_rhash = g_hash_table_new(mncp_hash, mncp_equal);
-	mncp_rhash_keys = g_mem_chunk_new("mncp_rhash_keys",
-			sizeof(mncp_rhash_key),
-			200 * sizeof(mncp_rhash_key),
-			G_ALLOC_ONLY);
-	mncp_rhash_values = g_mem_chunk_new("mncp_rhash_values",
-			sizeof(mncp_rhash_value),
-			200 * sizeof(mncp_rhash_value),
-			G_ALLOC_ONLY);
 }
 
 /* After the sequential run, we don't need the ncp_request hash and keys
@@ -265,10 +252,10 @@ mncp_hash_insert(conversation_t *conversation)
 
 	/* Now remember the request, so we can find it if we later
 	   a reply to it. */
-	key = g_mem_chunk_alloc(mncp_rhash_keys);
+	key = se_alloc(sizeof(mncp_rhash_key));
 	key->conversation = conversation;
 
-	value = g_mem_chunk_alloc(mncp_rhash_values);
+	value = se_alloc(sizeof(mncp_rhash_value));
 	value->packet_signature = FALSE;
        
 	g_hash_table_insert(mncp_rhash, key, value);

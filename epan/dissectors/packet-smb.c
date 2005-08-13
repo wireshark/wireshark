@@ -43,6 +43,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
+#include <epan/emem.h>
 #include "packet-ipx.h"
 #include "packet-idp.h"
 
@@ -895,10 +896,6 @@ typedef struct  {
 	guint32 pid_mid;
 } smb_saved_info_key_t;
 
-static GMemChunk *smb_saved_info_key_chunk = NULL;
-static GMemChunk *smb_saved_info_chunk = NULL;
-static int smb_saved_info_init_count = 200;
-
 /* unmatched smb_saved_info structures.
    For unmatched smb_saved_info structures we store the smb_saved_info
    structure using the MID and the PID as the key.
@@ -948,23 +945,7 @@ smb_saved_info_hash_matched(gconstpointer k)
 	return key->frame + key->pid_mid;
 }
 
-static GMemChunk *smb_nt_transact_info_chunk = NULL;
-static int smb_nt_transact_info_init_count = 200;
-
-static GMemChunk *smb_transact2_info_chunk = NULL;
-static int smb_transact2_info_init_count = 200;
-
-/*
- * The information we need to save about a Transaction request in order
- * to dissect the reply; this includes information for use by the
- * Remote API dissector.
- */
-static GMemChunk *smb_transact_info_chunk = NULL;
-static int smb_transact_info_init_count = 200;
-
-static GMemChunk *conv_tables_chunk = NULL;
 static GSList *conv_tables = NULL;
-static int conv_tables_count = 10;
 
 
 /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -7684,7 +7665,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 				 * Allocate a new smb_nt_transact_info_t
 				 * structure.
 				 */
-				nti = g_mem_chunk_alloc(smb_nt_transact_info_chunk);
+				nti = se_alloc(sizeof(smb_nt_transact_info_t));
 				nti->subcmd = subcmd;
 				sip->extra_info = nti;
 				sip->extra_info_type = SMB_EI_NTI;
@@ -11496,7 +11477,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						 * smb_transact2_info_t
 						 * structure.
 						 */
-						t2i = g_mem_chunk_alloc(smb_transact2_info_chunk);
+						t2i = se_alloc(sizeof(smb_transact2_info_t));
 						t2i->subcmd = subcmd;
 						t2i->info_level = -1;
 						t2i->resume_keys = FALSE;
@@ -11647,7 +11628,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					 * Allocate a new smb_transact_info_t
 					 * structure.
 					 */
-					tri = g_mem_chunk_alloc(smb_transact_info_chunk);
+					tri = se_alloc(sizeof(smb_transact_info_t));
 					tri->subcmd = -1;
 					tri->trans_subcmd = -1;
 					tri->function = -1;
@@ -14435,17 +14416,6 @@ free_hash_tables(gpointer ctarg, gpointer user_data _U_)
 static void
 smb_init_protocol(void)
 {
-	if (smb_saved_info_key_chunk)
-		g_mem_chunk_destroy(smb_saved_info_key_chunk);
-	if (smb_saved_info_chunk)
-		g_mem_chunk_destroy(smb_saved_info_chunk);
-	if (smb_nt_transact_info_chunk)
-		g_mem_chunk_destroy(smb_nt_transact_info_chunk);
-	if (smb_transact2_info_chunk)
-		g_mem_chunk_destroy(smb_transact2_info_chunk);
-	if (smb_transact_info_chunk)
-		g_mem_chunk_destroy(smb_transact_info_chunk);
-
 	/*
 	 * Free the hash tables attached to the conversation table
 	 * structures, and then free the list of conversation table
@@ -14458,38 +14428,6 @@ smb_init_protocol(void)
 		g_slist_free(conv_tables);
 		conv_tables = NULL;
 	}
-
-	/*
-	 * Now destroy the chunk from which the conversation table
-	 * structures were allocated.
-	 */
-	if (conv_tables_chunk)
-		g_mem_chunk_destroy(conv_tables_chunk);
-
-	smb_saved_info_chunk = g_mem_chunk_new("smb_saved_info_chunk",
-	    sizeof(smb_saved_info_t),
-	    smb_saved_info_init_count * sizeof(smb_saved_info_t),
-	    G_ALLOC_ONLY);
-	smb_saved_info_key_chunk = g_mem_chunk_new("smb_saved_info_key_chunk",
-	    sizeof(smb_saved_info_key_t),
-	    smb_saved_info_init_count * sizeof(smb_saved_info_key_t),
-	    G_ALLOC_ONLY);
-	smb_nt_transact_info_chunk = g_mem_chunk_new("smb_nt_transact_info_chunk",
-	    sizeof(smb_nt_transact_info_t),
-	    smb_nt_transact_info_init_count * sizeof(smb_nt_transact_info_t),
-	    G_ALLOC_ONLY);
-	smb_transact2_info_chunk = g_mem_chunk_new("smb_transact2_info_chunk",
-	    sizeof(smb_transact2_info_t),
-	    smb_transact2_info_init_count * sizeof(smb_transact2_info_t),
-	    G_ALLOC_ONLY);
-	smb_transact_info_chunk = g_mem_chunk_new("smb_transact_info_chunk",
-	    sizeof(smb_transact_info_t),
-	    smb_transact_info_init_count * sizeof(smb_transact_info_t),
-	    G_ALLOC_ONLY);
-	conv_tables_chunk = g_mem_chunk_new("conv_tables_chunk",
-	    sizeof(conv_tables_t),
-	    conv_tables_count * sizeof(conv_tables_t),
-	    G_ALLOC_ONLY);
 }
 
 static const value_string errcls_types[] = {
@@ -14829,7 +14767,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	si->ct=conversation_get_proto_data(conversation, proto_smb);
 	if(!si->ct){
 		/* No, not yet. create it and attach it to the conversation */
-		si->ct = g_mem_chunk_alloc(conv_tables_chunk);
+		si->ct = se_alloc(sizeof(conv_tables_t));
 		conv_tables = g_slist_prepend(conv_tables, si->ct);
 		si->ct->matched= g_hash_table_new(smb_saved_info_hash_matched,
 			smb_saved_info_equal_matched);
@@ -14889,7 +14827,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			*/
 			sip=g_hash_table_lookup(si->ct->unmatched, GUINT_TO_POINTER(pid_mid));
 			if(sip!=NULL){
-				new_key = g_mem_chunk_alloc(smb_saved_info_key_chunk);
+				new_key = se_alloc(sizeof(smb_saved_info_key_t));
 				new_key->frame = pinfo->fd->num;
 				new_key->pid_mid = pid_mid;
 				g_hash_table_insert(si->ct->matched, new_key,
@@ -15012,7 +14950,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 						   or it's a continuation of
 						   a response we've seen. */
 						sip->frame_res = pinfo->fd->num;
-						new_key = g_mem_chunk_alloc(smb_saved_info_key_chunk);
+						new_key = se_alloc(sizeof(smb_saved_info_key_t));
 						new_key->frame = sip->frame_res;
 						new_key->pid_mid = pid_mid;
 						g_hash_table_insert(si->ct->matched, new_key, sip);
@@ -15041,7 +14979,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				}
 			}
 			if(si->request){
-				sip = g_mem_chunk_alloc(smb_saved_info_chunk);
+				sip = se_alloc(sizeof(smb_saved_info_t));
 				sip->frame_req = pinfo->fd->num;
 				sip->frame_res = 0;
 				sip->req_time.secs=pinfo->fd->abs_secs;
@@ -15055,7 +14993,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				sip->extra_info = NULL;
 				sip->extra_info_type = SMB_EI_NONE;
 				g_hash_table_insert(si->ct->unmatched, GUINT_TO_POINTER(pid_mid), sip);
-				new_key = g_mem_chunk_alloc(smb_saved_info_key_chunk);
+				new_key = se_alloc(sizeof(smb_saved_info_key_t));
 				new_key->frame = sip->frame_req;
 				new_key->pid_mid = pid_mid;
 				g_hash_table_insert(si->ct->matched, new_key, sip);
