@@ -32,18 +32,14 @@
 #include <glib.h>
 #include "packet.h"
 #include "circuit.h"
+#include "emem.h"
 
 /*
  * Hash table for circuits.
  */
 static GHashTable *circuit_hashtable = NULL;
 
-static GMemChunk *circuit_key_chunk = NULL;
-static GMemChunk *circuit_chunk = NULL;
-
 static guint32 new_index;
-
-static int circuit_init_count = 200;
 
 /*
  * Protocol-specific data attached to a circuit_t structure - protocol
@@ -53,8 +49,6 @@ typedef struct _circuit_proto_data {
 	int	proto;
 	void	*proto_data;
 } circuit_proto_data;
-
-static GMemChunk *circuit_proto_data_area = NULL;
 
 /*
  * Compute the hash value for a circuit.
@@ -89,10 +83,6 @@ circuit_init(void)
 {
 	if (circuit_hashtable != NULL)
 		g_hash_table_destroy(circuit_hashtable);
-	if (circuit_key_chunk != NULL)
-		g_mem_chunk_destroy(circuit_key_chunk);
-	if (circuit_chunk != NULL)
-		g_mem_chunk_destroy(circuit_chunk);
 
 	/*
 	 * Free up any space allocated for circuit protocol data
@@ -102,25 +92,8 @@ circuit_init(void)
 	 * pointed to by circuit data structures that were freed
 	 * above.
 	 */
-	if (circuit_proto_data_area != NULL)
-		g_mem_chunk_destroy(circuit_proto_data_area);
 
 	circuit_hashtable = g_hash_table_new(circuit_hash, circuit_match);
-	circuit_key_chunk = g_mem_chunk_new("circuit_key_chunk",
-	    sizeof(circuit_key),
-	    circuit_init_count * sizeof(struct circuit_key),
-	    G_ALLOC_AND_FREE);
-	circuit_chunk = g_mem_chunk_new("circuit_chunk",
-	    sizeof(circuit_t),
-	    circuit_init_count * sizeof(circuit_t),
-	    G_ALLOC_AND_FREE);
-
-	/*
-	 * Allocate a new area for circuit protocol data items.
-	 */
-	circuit_proto_data_area = g_mem_chunk_new("circuit_proto_data_area",
-	    sizeof(circuit_proto_data), 20 * sizeof(circuit_proto_data), /* FIXME*/
-	    G_ALLOC_ONLY);
 
 	/*
 	 * Start the circuit indices over at 0.
@@ -138,11 +111,11 @@ circuit_new(circuit_type ctype, guint32 circuit_id, guint32 first_frame)
 	circuit_t *circuit, *old_circuit;
 	circuit_key *new_key;
 
-	new_key = g_mem_chunk_alloc(circuit_key_chunk);
+	new_key = se_alloc(sizeof(struct circuit_key));
 	new_key->ctype = ctype;
 	new_key->circuit_id = circuit_id;
 
-	circuit = g_mem_chunk_alloc(circuit_chunk);
+	circuit = se_alloc(sizeof(circuit_t));
 	circuit->next = NULL;
 	circuit->first_frame = first_frame;
 	circuit->last_frame = 0;	/* not known yet */
@@ -250,7 +223,7 @@ p_compare(gconstpointer a, gconstpointer b)
 void
 circuit_add_proto_data(circuit_t *conv, int proto, void *proto_data)
 {
-	circuit_proto_data *p1 = g_mem_chunk_alloc(circuit_proto_data_area);
+	circuit_proto_data *p1 = se_alloc(sizeof(circuit_proto_data));
 
 	p1->proto = proto;
 	p1->proto_data = proto_data;
