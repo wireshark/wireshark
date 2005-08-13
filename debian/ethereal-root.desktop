@@ -1,5 +1,5 @@
 [Desktop Entry]
-# $Id: ethereal.desktop 11808 2004-08-22 09:22:15Z jmayer $
+# $Id$
 # The format of this file is specified at
 # http://freedesktop.org/Standards/desktop-entry-spec/
 # The entries are in the order they are listed in version 0.9.4
@@ -65,8 +65,8 @@ GenericName[zh_CN]=网络分析程序
 GenericName[zh_TW]=網路分析程式
 GenericName[zu]=Umhloli Woxhumano olusakazekile
 Comment=Network traffic analyzer
-Comment[fr]=Analyseur de trafic réseau
 Comment[fi]=Verkkoliikenne analysaattori
+Comment[fr]=Analyseur de trafic réseau
 Comment[sv]=Nätverkstrafikanalysator
 Icon=hi48-app-ethereal.png
 TryExec=gksu
