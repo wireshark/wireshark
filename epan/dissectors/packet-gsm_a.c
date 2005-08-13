@@ -96,7 +96,6 @@
 #include <epan/ipv6-utils.h>
 #include <epan/tap.h>
 
-#include "packet-tcap.h"
 #include "packet-bssap.h"
 #include "packet-gsm_ss.h"
 #include "packet-ber.h"
@@ -7666,7 +7665,6 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint fac_len, gcha
 	guint32 component_len = 0;
 	guint32 header_end_offset;
 	guint32 header_len;
-	tvbuff_t *next_tvb;
 
 	
 	saved_offset = offset;
@@ -7683,9 +7681,6 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint fac_len, gcha
 		}
 		header_len = header_end_offset - offset;
 		component_len = header_len + component_len;
-		/*
-		next_tvb=tvb_new_subset(tvb, offset, component_len, component_len);
-		*/
 		dissect_ROS_Component(FALSE, tvb, offset, g_pinfo, tree, hf_ROS_component);
 		offset = offset + component_len;
 
