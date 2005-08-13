@@ -4,7 +4,7 @@
  *
  * $Id$
  *
- * Copyright 2005 Joerg Mayer (see AUTJORS file)
+ * Copyright 2005 Joerg Mayer (see AUTHORS file)
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -230,8 +230,8 @@ dissect_display_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int lengt
 {
 	/* FIXME: I don't think that this is the right solution but don't
 	 	know what is */
-        proto_tree_add_string(tree, hf_edp_display, tvb, offset, length,
-                tvb_format_stringzpad(tvb, offset, length));
+	proto_tree_add_item(tree, hf_edp_display, tvb, offset, length,
+		FALSE);
 }
 
 static void
@@ -241,20 +241,20 @@ dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length _
 	proto_tree *ver_tree;
 	guint8 major1, major2, sustaining, internal;
 
-	proto_tree_add_uint(tree, hf_edp_info_slot, tvb, offset, 2,
-		tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(tree, hf_edp_info_slot, tvb, offset, 2,
+		FALSE);
 	offset += 2;
 
-	proto_tree_add_uint(tree, hf_edp_info_port, tvb, offset, 2,
-		tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(tree, hf_edp_info_port, tvb, offset, 2,
+		FALSE);
 	offset += 2;
 
-	proto_tree_add_uint(tree, hf_edp_info_vchassid, tvb, offset, 2,
-		tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(tree, hf_edp_info_vchassid, tvb, offset, 2,
+		FALSE);
 	offset += 2;
 
-	proto_tree_add_bytes(tree, hf_edp_info_reserved, tvb, offset, 6,
-		tvb_get_ptr(tvb, offset, 6));
+	proto_tree_add_item(tree, hf_edp_info_reserved, tvb, offset, 6,
+		FALSE);
 	offset += 6;
 
 	/* Begin version subtree */
@@ -269,8 +269,8 @@ dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length _
 
 	ver_tree = proto_item_add_subtree(tlvi, ett_edp_tlv);
 
-	proto_tree_add_uint(ver_tree, hf_edp_info_version, tvb, offset, 4,
-		tvb_get_ntohl(tvb, offset));
+	proto_tree_add_item(ver_tree, hf_edp_info_version, tvb, offset, 4,
+		FALSE);
 
 	proto_tree_add_uint(ver_tree, hf_edp_info_version_major1, tvb, offset, 1,
 		major1);
@@ -289,8 +289,8 @@ dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length _
 	offset += 1;
 	/* End of version subtree */
 
-	proto_tree_add_bytes(tree, hf_edp_info_vchassconn, tvb, offset, 16,
-		tvb_get_ptr(tvb, offset, 16));
+	proto_tree_add_item(tree, hf_edp_info_vchassconn, tvb, offset, 16,
+		FALSE);
 	offset += 16;
 }
 
@@ -300,28 +300,28 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, 
 	/* FIXME: properly decode the bit(s):
 		bit 2^7 = 1 -> has ip interface
 		bit 2^0 = ? */
-	proto_tree_add_uint(tree, hf_edp_vlan_flags, tvb, offset, 1,
-		tvb_get_guint8(tvb, offset));
+	proto_tree_add_item(tree, hf_edp_vlan_flags, tvb, offset, 1,
+		FALSE);
 	offset += 1;
 
-	proto_tree_add_bytes(tree, hf_edp_vlan_reserved1, tvb, offset, 1,
-		tvb_get_ptr(tvb, offset, 1));
+	proto_tree_add_item(tree, hf_edp_vlan_reserved1, tvb, offset, 1,
+		FALSE);
 	offset += 1;
 
-	proto_tree_add_uint(tree, hf_edp_vlan_id, tvb, offset, 2,
-		tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(tree, hf_edp_vlan_id, tvb, offset, 2,
+		FALSE);
 	offset += 2;
 
-	proto_tree_add_bytes(tree, hf_edp_vlan_reserved2, tvb, offset, 4,
-		tvb_get_ptr(tvb, offset, 4));
+	proto_tree_add_item(tree, hf_edp_vlan_reserved2, tvb, offset, 4,
+		FALSE);
 	offset += 4;
 
-	proto_tree_add_ipv4(tree, hf_edp_vlan_ip, tvb, offset, 4,
-		*((guint32*)ep_tvb_memdup(tvb, offset, 4))); 
+	proto_tree_add_item(tree, hf_edp_vlan_ip, tvb, offset, 4,
+		FALSE); 
 	offset += 4;
 
-	proto_tree_add_string(tree, hf_edp_vlan_name, tvb, offset, length - 12,
-		tvb_format_stringzpad(tvb, offset, length - 12));
+	proto_tree_add_item(tree, hf_edp_vlan_name, tvb, offset, length - 12,
+		FALSE);
 	offset += (length - 12);
 }
 
@@ -331,40 +331,40 @@ dissect_esrp_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESRP");
 
-	proto_tree_add_uint(tree, hf_edp_esrp_proto, tvb, offset, 1,
-		tvb_get_guint8(tvb, offset));
+	proto_tree_add_item(tree, hf_edp_esrp_proto, tvb, offset, 1,
+		FALSE);
 	offset += 1;
 
-	proto_tree_add_uint(tree, hf_edp_esrp_group, tvb, offset, 1,
-		tvb_get_guint8(tvb, offset));
+	proto_tree_add_item(tree, hf_edp_esrp_group, tvb, offset, 1,
+		FALSE);
 	offset += 1;
 
-	proto_tree_add_uint(tree, hf_edp_esrp_prio, tvb, offset, 2,
-		tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(tree, hf_edp_esrp_prio, tvb, offset, 2,
+		FALSE);
 	offset += 2;
 	
-	proto_tree_add_uint(tree, hf_edp_esrp_state, tvb, offset, 2,
-		tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(tree, hf_edp_esrp_state, tvb, offset, 2,
+		FALSE);
 	offset += 2;
 
-	proto_tree_add_uint(tree, hf_edp_esrp_ports, tvb, offset, 2,
-		tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(tree, hf_edp_esrp_ports, tvb, offset, 2,
+		FALSE);
 	offset += 2;
 
-	proto_tree_add_ipv4(tree, hf_edp_esrp_virtip, tvb, offset, 4,
-                *((guint32*)ep_tvb_memdup(tvb, offset, 4)));
+	proto_tree_add_item(tree, hf_edp_esrp_virtip, tvb, offset, 4,
+		FALSE);
 	offset += 4;
 
-	proto_tree_add_ether(tree, hf_edp_esrp_sysmac, tvb, offset, 6,
-		tvb_get_ptr(tvb, offset, 6));
+	proto_tree_add_item(tree, hf_edp_esrp_sysmac, tvb, offset, 6,
+		FALSE);
 	offset += 6;
 
-	proto_tree_add_uint(tree, hf_edp_esrp_hello, tvb, offset, 2,
-		tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(tree, hf_edp_esrp_hello, tvb, offset, 2,
+		FALSE);
 	offset += 2;
 
-	proto_tree_add_bytes(tree, hf_edp_esrp_reserved, tvb, offset, 2,
-		tvb_get_ptr(tvb, offset, 2));
+	proto_tree_add_item(tree, hf_edp_esrp_reserved, tvb, offset, 2,
+		FALSE);
 	offset += 2;
 }
 
@@ -374,48 +374,48 @@ dissect_eaps_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAPS");
 
-	proto_tree_add_uint(tree, hf_edp_eaps_ver, tvb, offset, 1,
-		tvb_get_guint8(tvb, offset));
+	proto_tree_add_item(tree, hf_edp_eaps_ver, tvb, offset, 1,
+		FALSE);
 	offset += 1;
 
-	proto_tree_add_uint(tree, hf_edp_eaps_type, tvb, offset, 1,
-		tvb_get_guint8(tvb, offset));
+	proto_tree_add_item(tree, hf_edp_eaps_type, tvb, offset, 1,
+		FALSE);
 	offset += 1;
 
-	proto_tree_add_uint(tree, hf_edp_eaps_ctrlvlanid, tvb, offset, 2,
-		tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(tree, hf_edp_eaps_ctrlvlanid, tvb, offset, 2,
+		FALSE);
 	offset += 2;
 
-	proto_tree_add_bytes(tree, hf_edp_eaps_reserved0, tvb, offset, 4,
-		tvb_get_ptr(tvb, offset, 4));
+	proto_tree_add_item(tree, hf_edp_eaps_reserved0, tvb, offset, 4,
+		FALSE);
 	offset += 4;
 
-	proto_tree_add_ether(tree, hf_edp_eaps_sysmac, tvb, offset, 6,
-		tvb_get_ptr(tvb, offset, 6));
+	proto_tree_add_item(tree, hf_edp_eaps_sysmac, tvb, offset, 6,
+		FALSE);
 	offset += 6;
 
-	proto_tree_add_uint(tree, hf_edp_eaps_hello, tvb, offset, 2,
-		tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(tree, hf_edp_eaps_hello, tvb, offset, 2,
+		FALSE);
 	offset += 2;
 
-	proto_tree_add_uint(tree, hf_edp_eaps_fail, tvb, offset, 2,
-		tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(tree, hf_edp_eaps_fail, tvb, offset, 2,
+		FALSE);
 	offset += 2;
 
-	proto_tree_add_uint(tree, hf_edp_eaps_state, tvb, offset, 1,
-		tvb_get_guint8(tvb, offset));
+	proto_tree_add_item(tree, hf_edp_eaps_state, tvb, offset, 1,
+		FALSE);
 	offset += 1;
 
-	proto_tree_add_bytes(tree, hf_edp_eaps_reserved1, tvb, offset, 1,
-		tvb_get_ptr(tvb, offset, 1));
+	proto_tree_add_item(tree, hf_edp_eaps_reserved1, tvb, offset, 1,
+		FALSE);
 	offset += 1;
 
-	proto_tree_add_uint(tree, hf_edp_eaps_helloseq, tvb, offset, 2,
-		tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(tree, hf_edp_eaps_helloseq, tvb, offset, 2,
+		FALSE);
 	offset += 2;
 
-	proto_tree_add_bytes(tree, hf_edp_eaps_reserved2, tvb, offset, 38,
-		tvb_get_ptr(tvb, offset, 38));
+	proto_tree_add_item(tree, hf_edp_eaps_reserved2, tvb, offset, 38,
+		FALSE);
 	offset += 38;
 }
 
@@ -427,12 +427,10 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *tlv_tree;
 	proto_tree *edp_tree = NULL;
 	guint32 offset = 0;
-	guint last = 0;
-	guint8 tlv_marker;
+	gboolean last = FALSE;
 	guint8 tlv_type;
 	guint16 tlv_length;
 	guint16 data_length;
-	guint16 length_remaining;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
@@ -440,18 +438,16 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_set_str(pinfo->cinfo, COL_INFO, PROTO_SHORT_NAME ":");
 
 	if (tree) {
-		length_remaining = tvb_reported_length_remaining(tvb, offset);
-
 		ti = proto_tree_add_item(tree, proto_edp, tvb, offset, -1,
 		    FALSE);
 		edp_tree = proto_item_add_subtree(ti, ett_edp);
 
 		proto_tree_add_item(edp_tree, hf_edp_version, tvb, offset, 1,
-		    TRUE);
+			FALSE);
 		offset += 1;
 
 		proto_tree_add_item(edp_tree, hf_edp_reserved, tvb, offset, 1,
-			TRUE);
+			FALSE);
 		offset += 1;
 
 		data_length = tvb_get_ntohs(tvb, offset);
@@ -459,26 +455,26 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			data_length);
 		offset += 2;
 
-		proto_tree_add_uint(edp_tree, hf_edp_chksum, tvb, offset, 2,
-			tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item(edp_tree, hf_edp_chksum, tvb, offset, 2,
+			FALSE);
 		offset += 2;
 
-		proto_tree_add_uint(edp_tree, hf_edp_seqno, tvb, offset, 2,
-			tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item(edp_tree, hf_edp_seqno, tvb, offset, 2,
+			FALSE);
 		offset += 2;
 
 		/* Machine ID is 8 bytes, if it starts with 0000, the remaining
 		   6 bytes are a MAC */
-		proto_tree_add_uint(edp_tree, hf_edp_midtype, tvb, offset, 2,
-			tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item(edp_tree, hf_edp_midtype, tvb, offset, 2,
+			FALSE);
 		offset += 2;
 
-		proto_tree_add_ether(edp_tree, hf_edp_midmac, tvb, offset, 6,
-			tvb_get_ptr(tvb, offset, 6));
+		proto_tree_add_item(edp_tree, hf_edp_midmac, tvb, offset, 6,
+			FALSE);
 		offset += 6;
 
 		/* Decode the individual TLVs */
-		while (offset < data_length && last == 0) {
+		while (offset < data_length && !last) {
 			if (data_length - offset < 4) {
 	                	tlvi = proto_tree_add_text(edp_tree, tvb, offset, 4,
                     			"Too few bytes left for TLV: %u (< 4)",
@@ -486,14 +482,13 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset += 4;
 				break;
 			}
-			tlv_marker = tvb_get_guint8(tvb, offset);
 			tlv_type = tvb_get_guint8(tvb, offset + 1);
 			tlv_length = tvb_get_ntohs(tvb, offset + 2);
 
 			if ((tlv_length < 4) || (tlv_length > (data_length - offset))) {
 	                	tlvi = proto_tree_add_text(edp_tree, tvb, offset, 0,
                     			"TLV with invalid length: %u", tlv_length);
-				last = 1;
+				last = TRUE;
 				break;
 			}
 			/* FIXME: Show type specific information */
@@ -503,8 +498,8 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				tlv_length);
 
 			tlv_tree = proto_item_add_subtree(tlvi, ett_edp_tlv);
-			proto_tree_add_uint(tlv_tree, hf_edp_tlv_marker, tvb, offset, 1,
-				tlv_marker);
+			proto_tree_add_item(tlv_tree, hf_edp_tlv_marker, tvb, offset, 1,
+				FALSE);
 			offset += 1;
 
 			proto_tree_add_uint(tlv_tree, hf_edp_tlv_type, tvb, offset, 1,
@@ -782,4 +777,3 @@ proto_register_extreme_oui(void)
 
 	llc_add_oui(OUI_EXTREME, "llc.extreme_pid", "Extreme OUI PID", &hf);
 }
-
