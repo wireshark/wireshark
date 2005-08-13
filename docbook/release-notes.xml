@@ -134,6 +134,13 @@ Gnu info
 	  Versions affected: 0.7.7 to 0.10.12.
 	</para></listitem>
 
+	<listitem><para>
+	  The CSM_ENCAPS dissector could exhaust system memory.
+	  <!-- Fixed in r15339 -->
+	  <!-- Bug IDs: none -->
+	  Versions affected: 0.10.12.
+	</para></listitem>
+
       </itemizedlist>
     </para>
   </section>
