@@ -1598,7 +1598,6 @@ dissect_scsi_evpd (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     proto_item *ti;
     guint pcode, plen, i, idlen;
     guint8 codeset, flags;
-    const char *str;
 
     if (tree) {
         pcode = tvb_get_guint8 (tvb, offset+1);
@@ -1707,10 +1706,9 @@ dissect_scsi_evpd (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             break;
         case SCSI_EVPD_DEVSERNUM:
             if (plen > 0) {
-                str = tvb_get_ptr (tvb, offset, plen);
                 proto_tree_add_text (evpd_tree, tvb, offset, plen,
-                                     "Product Serial Number: %.*s", (int)plen,
-                                     str);
+                                     "Product Serial Number: %s",
+                                     tvb_format_text (tvb, offset, plen));
             }
             break;
         }
@@ -1752,7 +1750,6 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       guint32 payload_len, scsi_task_data_t *cdata)
 {
     guint8 flags, i, devtype;
-    gchar str[32];
     guint tot_len;
     scsi_devtype_data_t *devdata = NULL;
     scsi_devtype_key_t dkey, *req_key;
@@ -1854,16 +1851,12 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                              "RelAdr: %u, Linked: %u, CmdQue: %u",
                              (flags & 0x80) >> 7, (flags & 0x08) >> 3,
                              (flags & 0x02) >> 1);
-        tvb_memcpy (tvb, str, offset+8, 8);
-        str[8] = '\0';
-        proto_tree_add_text (tree, tvb, offset+8, 8, "Vendor Id: %s", str);
-        tvb_memcpy (tvb, str, offset+16, 16);
-        str[16] = '\0';
-        proto_tree_add_text (tree, tvb, offset+16, 16, "Product ID: %s", str);
-        tvb_memcpy (tvb, str, offset+32, 4);
-        str[4] = '\0';
+        proto_tree_add_text (tree, tvb, offset+8, 8, "Vendor Id: %s",
+                             tvb_format_stringzpad (tvb, offset+8, 8));
+        proto_tree_add_text (tree, tvb, offset+16, 16, "Product ID: %s",
+                             tvb_format_stringzpad (tvb, offset+16, 16));
         proto_tree_add_text (tree, tvb, offset+32, 4, "Product Revision: %s",
-                             str);
+                             tvb_format_stringzpad (tvb, offset+32, 4));
 
         offset += 58;
         if ((tot_len > 58) && tvb_bytes_exist (tvb, offset, 16)) {
@@ -3516,6 +3509,7 @@ dissect_mmc4_reportkey (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 {
     guint8 flags, agid, key_format, key_class;
+    proto_item *ti;
 
     if (tree && isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_lba, tvb, offset+1,
@@ -3557,10 +3551,11 @@ dissect_mmc4_reportkey (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             proto_tree_add_item (tree, hf_scsi_report_key_rpc_scheme, tvb, offset+6, 1, 0);
             break;
         default:
-	    proto_tree_add_text (tree, tvb, 0, 0, 
-		"[SCSI/MMC Unknown Format:0x%02x/Class:0x%02x combination]",
+	    ti = proto_tree_add_text (tree, tvb, 0, 0, 
+		"SCSI/MMC Unknown Format:0x%02x/Class:0x%02x combination",
 		cdata->flags>>8,cdata->flags&0xff);
-	    THROW(ReportedBoundsError);
+	    PROTO_ITEM_SET_GENERATED(ti);
+	    break;
         }
     }
 }
@@ -3577,6 +3572,7 @@ dissect_mmc4_setstreaming (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 {
     guint8 flags, type;
+    proto_item *ti;
 
     if (tree && isreq && iscdb) {
         type=tvb_get_guint8(tvb, offset+7);
@@ -3605,9 +3601,10 @@ dissect_mmc4_setstreaming (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
             proto_tree_add_item (tree, hf_scsi_setstreaming_write_time, tvb, offset+24, 4, 0);
             break;
         default:
-	    proto_tree_add_text (tree, tvb, 0, 0, 
-		"[SCSI/MMC Unknown SetStreaming Type:0x%02x]",cdata->flags);
-	    THROW(ReportedBoundsError);
+	    ti = proto_tree_add_text (tree, tvb, 0, 0, 
+		"SCSI/MMC Unknown SetStreaming Type:0x%02x",cdata->flags);
+	    PROTO_ITEM_SET_GENERATED(ti);
+	    break;
         }
     }
 }
@@ -3797,9 +3794,9 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
                     proto_tree_add_item (tree, hf_scsi_feature_lun_sn, tvb, offset, additional_length, 0);
                     break;
                 default:
-		    proto_tree_add_text (tree, tvb, 0, 0, 
-			"[SCSI/MMC Unknown Feature:0x%04x]",feature);
-		    THROW(ReportedBoundsError);
+		    proto_tree_add_text (tree, tvb, offset, additional_length, 
+			"SCSI/MMC Unknown Feature:0x%04x",feature);
+		    break;
                 }
                 old_offset+=additional_length;
                 len-=4+additional_length;
@@ -3907,9 +3904,9 @@ dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
             }
             break;
         default:
-	    proto_tree_add_text (tree, tvb, 0, 0, 
-		"[SCSI/MMC Unknown READ TOC Format:0x%04x]",cdata->flags&0x000f);
-	    THROW(ReportedBoundsError);
+	    proto_tree_add_text (tree, tvb, offset, len, 
+		"SCSI/MMC Unknown READ TOC Format:0x%04x",cdata->flags&0x000f);
+	    break;
         }
     }
 }
@@ -5774,7 +5771,7 @@ static scsi_cdb_table_t ssc[256] = {
 /*SSC 0x0d*/{NULL},
 /*SSC 0x0e*/{NULL},
 /*SSC 0x0f*/{NULL},
-/*SSC 0x10*/{NULL},
+/*SSC 0x10*/{dissect_ssc2_writefilemarks6},
 /*SSC 0x11*/{NULL},
 /*SSC 0x12*/{NULL},
 /*SSC 0x13*/{NULL},
