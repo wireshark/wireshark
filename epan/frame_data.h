@@ -84,10 +84,4 @@ extern void p_add_proto_data(frame_data *, int, void *);
 extern void *p_get_proto_data(frame_data *, int);
 extern void p_rem_proto_data(frame_data *fd, int proto);
 
-/* An init routine to be called by epan_init */
-extern void frame_data_init(void);
-
-/* A cleanup routine to be called by epan_cleanup */
-extern void frame_data_cleanup(void);
-
 #endif  /* __FRAME_DATA__ */

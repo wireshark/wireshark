@@ -29,6 +29,7 @@
 
 #include "frame_data.h"
 #include "packet.h"
+#include "emem.h"
 
 #include <glib.h>
 
@@ -38,41 +39,6 @@ typedef struct _frame_proto_data {
   int proto;
   void *proto_data;
 } frame_proto_data;
-
-static GMemChunk *frame_proto_data_area = NULL;
-
-/*
- * Free up any space allocated for frame proto data areas and then
- * allocate a new area.
- *
- * We can free the area, as the structures it contains are pointed to by
- * frames, that will be freed as well.
- */
-static void
-packet_init_protocol(void)
-{
-
-  if (frame_proto_data_area)
-    g_mem_chunk_destroy(frame_proto_data_area);
-
-  frame_proto_data_area = g_mem_chunk_new("frame_proto_data_area",
-					  sizeof(frame_proto_data),
-					  20 * sizeof(frame_proto_data), /* FIXME*/
-					  G_ALLOC_ONLY);
-
-}
-
-void
-frame_data_init(void)
-{
-  	register_init_routine(&packet_init_protocol);
-}
-
-void
-frame_data_cleanup(void)
-{
-  /* this function intentionally left blank :) */
-}
 
 /* XXX - I declared this static, because it only seems to be used by
  * p_get_proto_data and p_add_proto_data
@@ -95,7 +61,7 @@ static gint p_compare(gconstpointer a, gconstpointer b)
 void
 p_add_proto_data(frame_data *fd, int proto, void *proto_data)
 {
-  frame_proto_data *p1 = g_mem_chunk_alloc(frame_proto_data_area);
+  frame_proto_data *p1 = se_alloc(sizeof(frame_proto_data));
 
   g_assert(p1 != NULL);
 
