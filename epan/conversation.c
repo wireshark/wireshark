@@ -31,6 +31,7 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
+#include "emem.h"
 #include "conversation.h"
 
 /*
@@ -53,8 +54,6 @@ static GHashTable *conversation_hashtable_no_port2 = NULL;
  */
 static GHashTable *conversation_hashtable_no_addr2_or_port2 = NULL;
 
-static GMemChunk *conversation_key_chunk = NULL;
-static GMemChunk *conversation_chunk = NULL;
 
 #ifdef __NOT_USED__
 typedef struct conversation_key {
@@ -74,8 +73,6 @@ static conversation_key *conversation_keys;
 
 static guint32 new_index;
 
-static int conversation_init_count = 200;
-
 /*
  * Protocol-specific data attached to a conversation_t structure - protocol
  * index and opaque pointer.
@@ -84,8 +81,6 @@ typedef struct _conv_proto_data {
 	int	proto;
 	void	*proto_data;
 } conv_proto_data;
-
-static GMemChunk *conv_proto_data_area = NULL;
 
 /*
  * Creates a new conversation with known endpoints based on a conversation
@@ -472,10 +467,6 @@ conversation_init(void)
 		g_hash_table_destroy(conversation_hashtable_no_port2);
 	if (conversation_hashtable_no_addr2_or_port2 != NULL)
 		g_hash_table_destroy(conversation_hashtable_no_addr2_or_port2);
-	if (conversation_key_chunk != NULL)
-		g_mem_chunk_destroy(conversation_key_chunk);
-	if (conversation_chunk != NULL)
-		g_mem_chunk_destroy(conversation_chunk);
 
 	/*
 	 * Free up any space allocated for conversation protocol data
@@ -485,9 +476,6 @@ conversation_init(void)
 	 * pointed to by conversation data structures that were freed
 	 * above.
 	 */
-	if (conv_proto_data_area != NULL)
-		g_mem_chunk_destroy(conv_proto_data_area);
-
 	conversation_hashtable_exact =
 	    g_hash_table_new(conversation_hash_exact,
 	      conversation_match_exact);
@@ -500,21 +488,6 @@ conversation_init(void)
 	conversation_hashtable_no_addr2_or_port2 =
 	    g_hash_table_new(conversation_hash_no_addr2_or_port2,
 	      conversation_match_no_addr2_or_port2);
-	conversation_key_chunk = g_mem_chunk_new("conversation_key_chunk",
-	    sizeof(conversation_key),
-	    conversation_init_count * sizeof(struct conversation_key),
-	    G_ALLOC_AND_FREE);
-	conversation_chunk = g_mem_chunk_new("conversation_chunk",
-	    sizeof(conversation_t),
-	    conversation_init_count * sizeof(conversation_t),
-	    G_ALLOC_AND_FREE);
-
-	/*
-	 * Allocate a new area for conversation protocol data items.
-	 */
-	conv_proto_data_area = g_mem_chunk_new("conv_proto_data_area",
-	    sizeof(conv_proto_data), 20 * sizeof(conv_proto_data), /* FIXME*/
-	    G_ALLOC_ONLY);
 
 	/*
 	 * Start the conversation indices over at 0.
@@ -567,7 +540,7 @@ conversation_new(guint32 setup_frame, address *addr1, address *addr2, port_type 
 	conversation = g_hash_table_lookup(hashtable, &existing_key);
 	tc = conversation; /* Remember if lookup was successful */
 
-	new_key = g_mem_chunk_alloc(conversation_key_chunk);
+	new_key = se_alloc(sizeof(struct conversation_key));
 	new_key->next = conversation_keys;
 	conversation_keys = new_key;
 	COPY_ADDRESS(&new_key->addr1, addr1);
@@ -579,10 +552,10 @@ conversation_new(guint32 setup_frame, address *addr1, address *addr2, port_type 
 	if (conversation) {
 		for (; conversation->next; conversation = conversation->next)
 			;
-		conversation->next = g_mem_chunk_alloc(conversation_chunk);
+		conversation->next = se_alloc(sizeof(conversation_t));
 		conversation = conversation->next;
 	} else {
-		conversation = g_mem_chunk_alloc(conversation_chunk);
+		conversation = se_alloc(sizeof(conversation_t));
 	}
 
 	conversation->next = NULL;
@@ -1071,7 +1044,7 @@ p_compare(gconstpointer a, gconstpointer b)
 void
 conversation_add_proto_data(conversation_t *conv, int proto, void *proto_data)
 {
-	conv_proto_data *p1 = g_mem_chunk_alloc(conv_proto_data_area);
+	conv_proto_data *p1 = se_alloc(sizeof(conv_proto_data));
 
 	p1->proto = proto;
 	p1->proto_data = proto_data;
