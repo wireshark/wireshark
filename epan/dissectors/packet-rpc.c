@@ -44,6 +44,7 @@
 #include "packet-nfs.h"
 #include <epan/tap.h>
 #include <epan/emem.h>
+#include <epan/strutil.h>
 
 /*
  * See:
@@ -621,20 +622,22 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 	if (string_data) {
 		char *tmpstr;
 		tmpstr = tvb_get_ephemeral_string(tvb, data_offset, string_length_copy);
-		string_buffer = memcpy(ep_alloc(string_length_copy), tmpstr, string_length_copy);
+		string_buffer = memcpy(ep_alloc(string_length_copy+1), tmpstr, string_length_copy);
 	} else {
-		string_buffer = tvb_memcpy(tvb, ep_alloc(string_length_copy), data_offset, string_length_copy);
+		string_buffer = tvb_memcpy(tvb, ep_alloc(string_length_copy+1), data_offset, string_length_copy);
 	}
+	string_buffer[string_length_copy] = '\0';
 	/* calculate a nice printable string */
 	if (string_length) {
 		if (string_length != string_length_copy) {
 			if (string_data) {
+				char *formatted;
+
+				formatted = format_text(string_buffer, strlen(string_buffer));
 				/* alloc maximum data area */
-				string_buffer_print = (char*)ep_alloc(string_length_copy + 12 + 1);
+				string_buffer_print = (char*)ep_alloc(strlen(formatted) + 12 + 1);
 				/* copy over the data */
-				memcpy(string_buffer_print,string_buffer,string_length_copy);
-				/* append a 0 byte for sure printing */
-				string_buffer_print[string_length_copy] = '\0';
+				strcpy(string_buffer_print,formatted);
 				/* append <TRUNCATED> */
 				/* This way, we get the TRUNCATED even
 				   in the case of totally wrong packets,
@@ -649,7 +652,8 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 			}
 		} else {
 			if (string_data) {
-				string_buffer_print = string_buffer;
+				string_buffer_print =
+				    ep_strdup(format_text(string_buffer, strlen(string_buffer)));
 			} else {
 				string_buffer_print="<DATA>";
 			}
