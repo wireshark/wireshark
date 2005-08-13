@@ -44,48 +44,31 @@ dissect_802_3(int length, gboolean is_802_2, tvbuff_t *tvb,
   tvbuff_t		*volatile next_tvb = NULL;
   tvbuff_t		*volatile trailer_tvb = NULL;
   const char		*saved_proto;
+  gint			captured_length;
 
   if (fh_tree)
     proto_tree_add_uint(fh_tree, length_id, tvb, offset_after_length - 2, 2,
 			length);
 
   /* Give the next dissector only 'length' number of bytes */
+  captured_length = tvb_length_remaining(tvb, offset_after_length);
+  if (captured_length > length)
+    captured_length = length;
+  next_tvb = tvb_new_subset(tvb, offset_after_length, captured_length, length);
   TRY {
-    next_tvb = tvb_new_subset(tvb, offset_after_length, length, length);
     trailer_tvb = tvb_new_subset(tvb, offset_after_length + length, -1, -1);
   }
   CATCH2(BoundsError, ReportedBoundsError) {
-    /* Either:
+    /* The packet has exactly "length" bytes worth of captured data
+       left in it, so the "tvb_new_subset()" creating "trailer_tvb"
+       threw an exception.
 
-	  the packet doesn't have "length" bytes worth of
-	  captured data left in it - or it may not even have
-	  "length" bytes worth of data in it, period -
-	  so the "tvb_new_subset()" creating "next_tvb"
-	  threw an exception
-
-       or
-
-	  the packet has exactly "length" bytes worth of
-	  captured data left in it, so the "tvb_new_subset()"
-	  creating "trailer_tvb" threw an exception.
-
-       In either case, this means that all the data in the frame
-       is within the length value (assuming our offset isn't past
-       the end of the tvb), so we give all the data to the next
-       protocol and have no trailer. */
-
-    if (tvb_length_remaining(tvb, offset_after_length) > 0) {
-      next_tvb = tvb_new_subset(tvb, offset_after_length, -1, length);
-    } else {
-      next_tvb = NULL;
-    }
+       This means that all the data in the frame is within the length
+       value (assuming our offset isn't past the end of the tvb), so
+       we give all the data to the next protocol and have no trailer. */
     trailer_tvb = NULL;
   }
   ENDTRY;
-
-  if (next_tvb == NULL) {
-    THROW(ReportedBoundsError);
-  }
 
   /* Dissect the payload either as IPX or as an LLC frame.
      Catch BoundsError and ReportedBoundsError, so that if the
