@@ -1292,7 +1292,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 	}
 
 	item=proto_tree_add_text(parent_tree, tvb, 0, 0, "SEQ/ACK analysis");
-    PROTO_ITEM_SET_GENERATED(item);
+	PROTO_ITEM_SET_GENERATED(item);
 	tree=proto_item_add_subtree(item, ett_tcp_analysis);
 
 	/* encapsulate all proto_tree_add_xxx in ifs so we only print what
@@ -2627,13 +2627,6 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 			/*
 			 * It's from a TCP segment.
 			 *
-			 * Handle TCP seq# analysis, print any extra SEQ/ACK
-			 * data for this segment.
-			 */
-			if(tcp_analyze_seq){
-				tcp_print_sequence_number_analysis(pinfo, tvb, tcp_tree);
-			}
-			/*
 			 * if !visited, check want_pdu_tracking and store it
 			 * in table 
 			 */
@@ -3069,6 +3062,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
+  /* handle TCP seq# analysis, print any extra SEQ/ACK data for this segment*/
+  if(tcp_analyze_seq){
+      tcp_print_sequence_number_analysis(pinfo, tvb, tcp_tree);
+  }
+  tap_queue_packet(tcp_tap, pinfo, tcph);
+
   /*
    * XXX - what, if any, of this should we do if this is included in an
    * error packet?  It might be nice to see the details of the packet
@@ -3098,15 +3097,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    tvb_format_text(tvb, offset, length_remaining));
     } else {
       dissect_tcp_payload(tvb, pinfo, offset, tcph->th_seq, nxtseq,
-          tcph->th_sport, tcph->th_dport, tree, tcp_tree);
+                          tcph->th_sport, tcph->th_dport, tree, tcp_tree);
     }
   }
-
-  /* handle TCP seq# analysis, print any extra SEQ/ACK data for this segment*/
-  if(tcp_analyze_seq){
-      tcp_print_sequence_number_analysis(pinfo, tvb, tcp_tree);
-  }
-  tap_queue_packet(tcp_tap, pinfo, tcph);
 }
 
 void
