@@ -38,6 +38,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <prefs.h>
 #include "packet-tcp.h"
 #include "packet-cip.h"
@@ -385,7 +386,7 @@ add_byte_array_text_to_proto_tree( proto_tree *tree, tvbuff_t *tvb, gint start, 
    }
 
    tmp = tvb_get_ptr( tvb, start, tmp_length );
-   tmp2 = (char*)g_malloc( tmp2_length );
+   tmp2 = (char*)ep_alloc( tmp2_length );
 
    tmp2start = tmp2;
 
@@ -408,8 +409,6 @@ add_byte_array_text_to_proto_tree( proto_tree *tree, tvbuff_t *tvb, gint start, 
    *tmp2 = 0;
 
    pi = proto_tree_add_text( tree, tvb, start, length, "%s%s", str, tmp2start );
-
-   g_free( tmp2start );
 
    return( pi );
 
