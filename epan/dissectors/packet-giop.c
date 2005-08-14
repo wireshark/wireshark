@@ -684,8 +684,6 @@ struct giop_module_val {
 };
 
 GHashTable *giop_module_hash = NULL; /* hash */
-GMemChunk  *giop_module_keys = NULL; /* key storage */
-GMemChunk  *giop_module_vals = NULL; /* val storage */
 
 
 /*
@@ -1061,10 +1059,10 @@ void register_giop_user_module(giop_sub_dissector_t *sub, gchar *name, gchar *mo
   printf("giop:register_module: Module sub dissector name is %s \n", name);
 #endif
 
-  new_module_key = g_mem_chunk_alloc(giop_module_keys);
+  new_module_key = g_malloc(sizeof(struct giop_module_key));
   new_module_key->module = module; /* save Module or interface name from IDL */
 
-  module_val = g_mem_chunk_alloc(giop_module_vals);
+  module_val = g_malloc(sizeof(struct giop_module_val));
 
   module_val->subh = g_malloc(sizeof (giop_sub_handle_t)); /* init subh  */
 
@@ -4236,16 +4234,6 @@ proto_register_giop (void)
    */
 
   giop_module_hash = g_hash_table_new(giop_hash_module_hash, giop_hash_module_equal);
-
-  giop_module_keys = g_mem_chunk_new("giop_module_keys",
-				     sizeof(struct giop_module_key),
-				     giop_module_init_count * sizeof(struct giop_module_key),
-				     G_ALLOC_AND_FREE);
-
-  giop_module_vals = g_mem_chunk_new("giop_module_vals",
-				     sizeof(struct giop_module_val),
-				     giop_module_init_count * sizeof(struct giop_module_val),
-				     G_ALLOC_AND_FREE);
 
 }
 
