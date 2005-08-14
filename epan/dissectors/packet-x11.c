@@ -2005,29 +2005,16 @@ static void listOfString8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       ti = proto_tree_add_item(t, hf, tvb, *offsetp, scanning_offset - *offsetp, little_endian);
       tt = proto_item_add_subtree(ti, ett_x11_list_of_string8);
 
-      /*
-       * In case we throw an exception, clean up whatever stuff we've
-       * allocated (if any).
-       */
-      CLEANUP_PUSH(g_free, s);
-
       while(length--) {
 	    unsigned l = VALUE8(tvb, *offsetp);
 	    if (allocated < (l + 1)) {
-		  /* g_realloc doesn't work ??? */
-		  g_free(s);
-		  s = g_malloc(l + 1);
+		  s = ep_alloc(l + 1);
 		  allocated = l + 1;
 	    }
 	    stringCopy(s, tvb_get_ptr(tvb, *offsetp + 1, l), l); /* Nothing better for now. We need a better string handling API. */
 	    proto_tree_add_string_format(tt, hf_item, tvb, *offsetp, l + 1, s, "\"%s\"", s);
 	    *offsetp += l + 1;
       }
-
-      /*
-       * Call the cleanup handler to free the string and pop the handler.
-       */
-      CLEANUP_CALL_AND_POP;
 }
 
 #define STRING16_MAX_DISPLAYED_LENGTH 150
@@ -2062,8 +2049,7 @@ static void string16_with_buffer_preallocated(tvbuff_t *tvb, proto_tree *t,
 		  l = STRING16_MAX_DISPLAYED_LENGTH;
 	    }
 	    if (*sLength < (int) l + 3) {
-		  g_free(*s);
-		  *s = g_malloc(l + 3);
+		  *s = ep_alloc(l + 3);
 		  *sLength = l + 3;
 	    }
 	    dp = *s;
@@ -2114,12 +2100,6 @@ static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       ti = proto_tree_add_item(t, hf, tvb, *offsetp, scanning_offset - *offsetp, little_endian);
       tt = proto_item_add_subtree(ti, ett_x11_list_of_text_item);
 
-      /*
-       * In case we throw an exception, clean up whatever stuff we've
-       * allocated (if any).
-       */
-      CLEANUP_PUSH(g_free, s);
-
       while(n--) {
 	    unsigned l = VALUE8(tvb, *offsetp);
 	    if (l == 255) { /* Item is a font */
@@ -2132,9 +2112,7 @@ static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 		  gint8 delta = VALUE8(tvb, *offsetp + 1);
 		  if (sizeIs16) l += l;
 		  if ((unsigned) allocated < l + 1) {
-			/* g_realloc doesn't work ??? */
-			g_free(s);
-			s = g_malloc(l + 1);
+			s = ep_alloc(l + 1);
 			allocated = l + 1;
 		  }
 		  stringCopy(s, tvb_get_ptr(tvb, *offsetp + 2, l), l);
@@ -2155,11 +2133,6 @@ static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 		  *offsetp += l + 2;
 	    }
       }
-
-      /*
-       * Call the cleanup handler to free the string and pop the handler.
-       */
-      CLEANUP_CALL_AND_POP;
 }
 
 static guint32 field8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
@@ -2417,10 +2390,9 @@ static void string8(tvbuff_t *tvb, int *offsetp, proto_tree *t,
       char *s;
 
       p = tvb_get_ptr(tvb, *offsetp, length);
-      s = g_malloc(length + 1);
+      s = ep_alloc(length + 1);
       stringCopy(s, p, length);
       proto_tree_add_string(t, hf, tvb, *offsetp, length, s);
-      g_free(s);
       *offsetp += length;
 }
 
@@ -2432,20 +2404,9 @@ static void string16(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       char *s = NULL;
       unsigned l = 0;
 
-      /*
-       * In case we throw an exception, clean up whatever stuff we've
-       * allocated (if any).
-       */
-      CLEANUP_PUSH(g_free, s);
-
       length += length;
       string16_with_buffer_preallocated(tvb, t, hf, hf_bytes, *offsetp, length,
 					&s, &l, little_endian);
-
-      /*
-       * Call the cleanup handler to free the string and pop the handler.
-       */
-      CLEANUP_CALL_AND_POP;
 
       *offsetp += length;
 }
@@ -3005,7 +2966,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 		/* necessary processing even if tree == NULL */
 
 		v16 = VALUE16(tvb, 4);
-		name = g_malloc(v16 + 1);
+		name = se_alloc(v16 + 1);
 		stringCopy(name, tvb_get_ptr(tvb, 8, v16), v16);
 
 		/* store string of extension, opcode will be set at reply */
