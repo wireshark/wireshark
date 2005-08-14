@@ -159,6 +159,7 @@
 #include "packet-frame.h"
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
+#include <epan/emem.h>
 
 #define TDS_QUERY_PKT        1
 #define TDS_LOGIN_PKT        2
@@ -556,12 +557,6 @@ struct tds7_login_packet_hdr {
 	guint32	time_zone;
 	guint32	collation;
 };
-
-/* all the standard memory management stuff */
-#define tds_column_length (sizeof(struct _tds_col))
-#define tds_column_init_count 40
-
-static GMemChunk *tds_column = NULL;
 
 /* support routines */
 
@@ -989,7 +984,7 @@ dissect_tds_col_info_token(tvbuff_t *tvb, struct _netlib_data *nl_data, guint of
             return FALSE;
         }
         
-        nl_data->columns[col] = g_mem_chunk_alloc(tds_column);
+        nl_data->columns[col] = ep_alloc(sizeof(struct _tds_col));
 
         nl_data->columns[col]->name[0] ='\0'; 
 
@@ -1047,7 +1042,7 @@ read_results_tds5(tvbuff_t *tvb, struct _netlib_data *nl_data, guint offset, gui
 	cur += 2;
 
 	for (i = 0; i < nl_data->num_cols; i++) {
-		nl_data->columns[i] = g_mem_chunk_alloc(tds_column);
+		nl_data->columns[i] = ep_alloc(sizeof(struct _tds_col));
 		name_len = tvb_get_guint8(tvb,cur);
 		cur ++;
 		cur += name_len;
@@ -1444,8 +1439,6 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	struct _netlib_data nl_data;
 	gint length_remaining;
 
-	g_mem_chunk_reset(tds_column);   /* in case exception thrown the previous time thru this code */
-
 	memset(&nl_data, '\0', sizeof nl_data);
 
 	/*
@@ -1551,9 +1544,6 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* and step to the end of the token, rinse, lather, repeat */
 		pos += token_sz;
 	}
-	/* reset tds_column mem_chunk since finished processing response */
-	/*  (pointers to atoms in nl_data being discarded) */
-	g_mem_chunk_reset(tds_column);
 }
 
 static void
@@ -1944,16 +1934,6 @@ tds_init(void)
 	fragment_table_init(&tds_fragment_table);
 	reassembled_table_init(&tds_reassembled_table);
 
-	/*
-	 * Reinitialize the chunks of data for remembering row
-	 * information.
-	 */
-        if (tds_column)
-                g_mem_chunk_destroy(tds_column);
-
-        tds_column = g_mem_chunk_new("tds_column", tds_column_length,
-                tds_column_init_count * tds_column_length,
-                G_ALLOC_AND_FREE);
 }
 
 /* Register the protocol with Ethereal */
