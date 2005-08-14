@@ -239,7 +239,7 @@ struct access_mask_info samr_connect_access_mask_info = {
 };
 
 
-int
+static int
 sam_dissect_SAM_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
                              guint8 *drep)
@@ -267,7 +267,7 @@ sam_dissect_SAM_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset,
        return offset;
 }
 
-int
+static int
 sam_dissect_SAM_SECURITY_DESCRIPTOR(tvbuff_t *tvb, int offset,
                        packet_info *pinfo, proto_tree *parent_tree,
                        guint8 *drep)

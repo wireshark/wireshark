@@ -3218,7 +3218,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
  *         (i.e., to the RPC record mark field).
  */
 
-int
+static int
 find_rpc_over_tcp_reply_start(tvbuff_t *tvb, int offset)
 {
 
@@ -3355,7 +3355,7 @@ int      i;
  *       if no valid RPC header is found.
  */
 
-int
+static int
 find_and_dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 							  proto_tree *tree, rec_dissector_t dissector,
 							  gboolean is_heur,

@@ -172,7 +172,7 @@ fileset_is_file_in_set(const char *fname1, const char *fname2)
 
 
 /* we know this file is part of the set, so add it */
-fileset_entry *
+static fileset_entry *
 fileset_add_file(const char *dirname, const char *fname, gboolean current)
 {
     int fh, result;
@@ -213,7 +213,7 @@ fileset_add_file(const char *dirname, const char *fname, gboolean current)
 
 
 /* compare two list entries by creation date/time */
-gint
+static gint
 fileset_compare_creation(gconstpointer a, gconstpointer b)
 {
     const fileset_entry *entry_a = a;
@@ -319,7 +319,7 @@ fileset_get_dirname(void)
 
 
 /* get the current list entry, or NULL */
-GList *
+static GList *
 fileset_get_current(void)
 {
     GList         *le;
@@ -383,7 +383,7 @@ fileset_get_previous(void)
 
 
 /* delete a single entry */
-void fileset_entry_delete(gpointer data, gpointer user_data _U_)
+static void fileset_entry_delete(gpointer data, gpointer user_data _U_)
 {
     fileset_entry *entry = data;
 

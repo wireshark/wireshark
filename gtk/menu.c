@@ -976,7 +976,7 @@ update_menu_recent_capture_file1(GtkWidget *widget, gpointer cnt) {
 
 
 /* update the menu */
-void
+static void
 update_menu_recent_capture_file(GtkWidget *submenu_recent_files) {
     guint cnt = 0;
 
@@ -989,7 +989,7 @@ update_menu_recent_capture_file(GtkWidget *submenu_recent_files) {
 
 
 /* remove the capture filename from the "Recent Files" menu */
-void
+static void
 remove_menu_recent_capture_file(GtkWidget *widget, gpointer unused _U_) {
     GtkWidget *submenu_recent_files;
     gchar *widget_cf_name;
@@ -1068,7 +1068,7 @@ static void menu_open_recent_file_answered_cb(gpointer dialog _U_, gint btn, gpo
     }
 }
 
-void
+static void
 menu_open_recent_file_cmd_cb(GtkWidget *widget, gpointer data _U_) {
   gpointer  dialog;
 
@@ -1086,7 +1086,7 @@ menu_open_recent_file_cmd_cb(GtkWidget *widget, gpointer data _U_) {
 }
 
 /* add the capture filename (with an absolute path) to the "Recent Files" menu */
-void
+static void
 add_menu_recent_capture_file_absolute(gchar *cf_name) {
 	GtkWidget *submenu_recent_files;
 	GList *menu_item_list;

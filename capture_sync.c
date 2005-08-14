@@ -165,7 +165,7 @@ pipe_write_block(int pipe, char indicator, int len, const char *msg)
 /* read a message from the sending pipe in the standard format 
    (3 digit message length (excluding length and indicator field), 
    1 byte message indicator and the rest is the message) */
-int
+static int
 pipe_read_block(int pipe, char *indicator, int len, char *msg) {
     int required;
     int newly;

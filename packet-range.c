@@ -41,7 +41,7 @@
 #include "packet-range.h"
 
 /* (re-)calculate the packet counts (except the user specified range) */
-void packet_range_calc(packet_range_t *range) {
+static void packet_range_calc(packet_range_t *range) {
   guint32       current_count;
   guint32       mark_low;
   guint32       mark_high;

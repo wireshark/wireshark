@@ -26,6 +26,8 @@
  * Mountain View, California  94043
  */
 
+#include "g711.h"
+
 /*
  * g711.c
  *
@@ -265,21 +267,23 @@ ulaw2linear(
 }
 
 /* A-law to u-law conversion */
-unsigned char
-alaw2ulaw(
-	unsigned char	aval)
-{
-	aval &= 0xff;
-	return ((aval & 0x80) ? (0xFF ^ _a2u[aval ^ 0xD5]) :
-	    (0x7F ^ _a2u[aval ^ 0x55]));
-}
+/* unsigned char
+ * alaw2ulaw(
+ * 	unsigned char	aval)
+ * {
+ * 	aval &= 0xff;
+ * 	return ((aval & 0x80) ? (0xFF ^ _a2u[aval ^ 0xD5]) :
+ * 	    (0x7F ^ _a2u[aval ^ 0x55]));
+ * }
+ */
 
 /* u-law to A-law conversion */
-unsigned char
-ulaw2alaw(
-	unsigned char	uval)
-{
-	uval &= 0xff;
-	return ((uval & 0x80) ? (0xD5 ^ (_u2a[0xFF ^ uval] - 1)) :
-	    (0x55 ^ (_u2a[0x7F ^ uval] - 1)));
-}
+/* unsigned char
+ * ulaw2alaw(
+ * 	unsigned char	uval)
+ * {
+ * 	uval &= 0xff;
+ * 	return ((uval & 0x80) ? (0xD5 ^ (_u2a[0xFF ^ uval] - 1)) :
+ * 	    (0x55 ^ (_u2a[0x7F ^ uval] - 1)));
+ * }
+ */

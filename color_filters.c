@@ -456,7 +456,7 @@ write_filter(gpointer filter_arg, gpointer data_arg)
 }
 
 /* save filters in a filter file */
-gboolean
+static gboolean
 write_filters_file(FILE *f, gboolean only_marked)
 {
 	struct write_filter_data data;

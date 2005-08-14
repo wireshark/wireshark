@@ -6341,7 +6341,7 @@ static int hf_nds_segment_error = -1;
 
 	# final_registration_ncp2222()
 	print """
-void
+static void
 final_registration_ncp2222(void)
 {
 	int i;

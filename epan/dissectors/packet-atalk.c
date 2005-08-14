@@ -44,6 +44,7 @@
 #include <epan/reassemble.h>
 #include <epan/emem.h>
 
+#include "packet-atalk.h"
 #include "packet-afp.h"
 
 /* Tables for reassembly of fragments. */

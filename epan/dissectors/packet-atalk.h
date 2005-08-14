@@ -21,33 +21,6 @@
 #ifndef __PACKET_ATALK_H__
 #define __PACKET_ATALK_H__
 
-/*
- * Structure used to represent a DDP address; gives the layout of the
- * data pointed to by an AT_ATALK "address" structure.
- */
-struct atalk_ddp_addr {
-	guint16	net;
-	guint8	node;
-	guint8	port;
-};
-
-/*
- * DDP packet types.
- */
-#define DDP_RTMPDATA	0x01
-#define DDP_NBP		0x02
-#define DDP_ATP		0x03
-#define DDP_AEP		0x04
-#define DDP_RTMPREQ	0x05
-#define DDP_ZIP		0x06
-#define DDP_ADSP	0x07
-#define DDP_EIGRP	0x58
-
-/*
- * Routine to take a DDP address and generate a string.
- */
-extern gchar *atalk_addr_to_str(const struct atalk_ddp_addr *addrp);
-
 extern void capture_llap(packet_counts *ld);
 
 #endif

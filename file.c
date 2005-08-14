@@ -1476,7 +1476,7 @@ typedef enum {
   PSP_FAILED
 } psp_return_t;
 
-psp_return_t
+static psp_return_t
 process_specified_packets(capture_file *cf, packet_range_t *range,
     const char *string1, const char *string2,
     gboolean (*callback)(capture_file *, frame_data *,
