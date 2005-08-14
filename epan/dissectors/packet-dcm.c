@@ -105,6 +105,7 @@
 #include <epan/emem.h>
 #include <epan/strutil.h>
 #include <epan/conversation.h>
+#include <epan/emem.h>
 
 #include "packet-tcp.h"
 
@@ -998,7 +999,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dcmState_t *dcm_data;
     proto_tree *dcm_tree;
     conversation_t *conv;
-    char *buf;
+    char *buf=NULL;
     int offset = 0;
 
     if (NULL == (conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
@@ -1028,14 +1029,14 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvb_memcpy(tvb, dcm_data->orig, 10, 16);
 	tvb_memcpy(tvb, dcm_data->targ, 26, 16);
 	dcm_data->orig[AEEND] = dcm_data->targ[AEEND] = 0;
-	buf = g_malloc(128);
+	buf = ep_alloc(128);
 	g_snprintf(buf, 128, "DCM ASSOC Request %s <-- %s",
 	    dcm_data->orig, dcm_data->targ);
 	offset = 74;
 	break;
     case 2: 				/* ASSOC Accept */
 	tvb_memcpy(tvb, dcm_data->resp, 26, 16);
-	buf = g_malloc(128);
+	buf = ep_alloc(128);
 	g_snprintf(buf, 128, "DCM ASSOC Accept %s <-- %s (%s)",
 	    dcm_data->orig, dcm_data->targ, dcm_data->resp);
 	offset = 74; 
@@ -1044,7 +1045,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dcm_data->result = tvb_get_guint8(tvb, 7);
 	dcm_data->source = tvb_get_guint8(tvb, 8);
 	dcm_data->reason = tvb_get_guint8(tvb, 9);
-	buf = g_malloc(128);
+	buf = ep_alloc(128);
 	g_snprintf(buf, 128, "DCM ASSOC Reject %s <-- %s %s %s %s",
 	    dcm_data->orig, dcm_data->targ,
 	    dcm_result2str(dcm_data->result),
@@ -1054,23 +1055,23 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
     case 4:					/* DATA */
 	offset = 6; 
-	buf = g_malloc(128);
+	buf = ep_alloc(128);
 	strcpy(buf, "DCM Data");
 	break;
     case 5:					/* RELEASE Request */
-	buf = g_malloc(128);
+	buf = ep_alloc(128);
 	strcpy(buf, "DCM RELEASE Request");
 	offset = 6; 
 	break;
     case 6:					/* RELEASE Response */
-	buf = g_malloc(128);
+	buf = ep_alloc(128);
 	strcpy(buf, "DCM RELEASE Response");
 	offset = 6; 
 	break;
     case 7:					/* ABORT */
 	dcm_data->source = tvb_get_guint8(tvb, 8);
 	dcm_data->reason = tvb_get_guint8(tvb, 9);
-	buf = g_malloc(128);
+	buf = ep_alloc(128);
 	g_snprintf(buf, 128, "DCM ABORT %s <-- %s %s %s", 
 	    dcm_data->orig, dcm_data->targ,
 	    (dcm_data->source == 1) ? "USER" :
@@ -1078,7 +1079,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    dcm_data->source == 1 ? dcm_abort2str(dcm_data->reason) : "");
 	break;
     default:
-	buf = g_malloc(128);
+	buf = ep_alloc(128);
 	strcpy(buf, "DCM Continuation");
 	offset = -1;				/* cannot continue parsing */
 	break;
