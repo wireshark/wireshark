@@ -183,9 +183,6 @@ postseq_cleanup_all_protocols(void)
 			&call_postseq_cleanup_routine, NULL);
 }
 
-/* Contains information about data sources. */
-static GMemChunk *data_source_chunk = NULL;
-
 /*
  * Add a new data source to the list of data sources for a frame, given
  * the tvbuff for the data source and its name.
@@ -195,19 +192,14 @@ add_new_data_source(packet_info *pinfo, tvbuff_t *tvb, const char *name)
 {
 	data_source *src;
 
-	if (data_source_chunk == NULL) {
-		data_source_chunk = g_mem_chunk_new("data_source_chunk",
-		    sizeof (data_source), 10 * sizeof (data_source),
-		    G_ALLOC_AND_FREE);
-	}
-	src = g_mem_chunk_alloc(data_source_chunk);
+	src = ep_alloc(sizeof (data_source));
 	src->tvb = tvb;
 	/*
 	 * XXX - if we require this argument to be a string constant,
 	 * we don't need to allocate a buffer for a copy and make a
 	 * copy, and wouldn't need to free the buffer, either.
 	 */
-	src->name = g_strdup_printf("%s (%u bytes)", name, tvb_length(tvb));
+	src->name = ep_strdup_printf("%s (%u bytes)", name, tvb_length(tvb));
 	pinfo->data_src = g_slist_append(pinfo->data_src, src);
 }
 
@@ -217,14 +209,6 @@ add_new_data_source(packet_info *pinfo, tvbuff_t *tvb, const char *name)
 void
 free_data_sources(packet_info *pinfo)
 {
-	GSList *src_le;
-	data_source *src;
-
-	for (src_le = pinfo->data_src; src_le != NULL; src_le = src_le->next) {
-	    	src = src_le->data;
-	    	g_free(src->name);
-	    	g_mem_chunk_free(data_source_chunk, src);
-	}
 	g_slist_free(pinfo->data_src);
 	pinfo->data_src = NULL;
 }
