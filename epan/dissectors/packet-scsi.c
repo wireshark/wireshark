@@ -512,62 +512,6 @@ static const value_string scsi_mmc_val[] = {
     {0, NULL},
 };
 
-/* SSC2 Commands */
-#define SCSI_SSC2_ERASE_16                      0x93
-#define SCSI_SSC2_FORMAT_MEDIUM                 0x04
-#define SCSI_SSC2_LOAD_UNLOAD                   0x1B
-#define SCSI_SSC2_LOCATE_16                     0x92
-#define SCSI_SSC2_READ_16                       0x88
-#define SCSI_SSC2_READ_BLOCK_LIMITS             0x05
-#define SCSI_SSC2_READ_POSITION                 0x34
-#define SCSI_SSC2_READ_REVERSE_16               0x81
-#define SCSI_SSC2_RECOVER_BUFFERED_DATA         0x14
-#define SCSI_SSC2_REPORT_DENSITY_SUPPORT        0x44
-#define SCSI_SSC2_REWIND                        0x01
-#define SCSI_SSC2_SET_CAPACITY                  0x0B
-#define SCSI_SSC2_SPACE_16                      0x91
-#define SCSI_SSC2_VERIFY_16                     0x8F
-#define SCSI_SSC2_WRITE_16                      0x8A
-#define SCSI_SSC2_WRITE_FILEMARKS_16            0x80
-#define SCSI_SSC2_ERASE_6                       0x19
-#define SCSI_SSC2_LOCATE_10                     0x2B
-#define SCSI_SSC2_LOCATE_16                     0x92
-#define SCSI_SSC2_READ6                         0x08
-#define SCSI_SSC2_READ_REVERSE_6                0x0F
-#define SCSI_SSC2_SPACE_6                       0x11
-#define SCSI_SSC2_VERIFY_6                      0x13
-#define SCSI_SSC2_WRITE6                        0x0A
-#define SCSI_SSC2_WRITE_FILEMARKS_6             0x10
-
-static const value_string scsi_ssc2_val[] = {
-    {SCSI_SSC2_ERASE_16                    , "Erase(16)"},
-    {SCSI_SSC2_FORMAT_MEDIUM               , "Format Medium"},
-    {SCSI_SSC2_LOAD_UNLOAD                 , "Load Unload"},
-    {SCSI_SSC2_LOCATE_16                   , "Locate(16)"},
-    {SCSI_SSC2_READ_16                     , "Read(16)"},
-    {SCSI_SSC2_READ_BLOCK_LIMITS           , "Read Block Limits"},
-    {SCSI_SSC2_READ_POSITION               , "Read Position"},
-    {SCSI_SSC2_READ_REVERSE_16             , "Read Reverse(16)"},
-    {SCSI_SSC2_RECOVER_BUFFERED_DATA       , "Recover Buffered Data"},
-    {SCSI_SSC2_REPORT_DENSITY_SUPPORT      , "Report Density Support"},
-    {SCSI_SSC2_REWIND                      , "Rewind"},
-    {SCSI_SSC2_SET_CAPACITY                , "Set Capacity"},
-    {SCSI_SSC2_SPACE_16                    , "Space(16)"},
-    {SCSI_SSC2_VERIFY_16                   , "Verify(16)"},
-    {SCSI_SSC2_WRITE_16                    , "Write(16)"},
-    {SCSI_SSC2_WRITE_FILEMARKS_16          , "Write Filemarks(16)"},
-    {SCSI_SSC2_ERASE_6                     , "Erase(6)"},
-    {SCSI_SSC2_LOCATE_10                   , "Locate(10)"},
-    {SCSI_SSC2_LOCATE_16                   , "Locate(16)"},
-    {SCSI_SSC2_READ6                       , "Read(6)"},
-    {SCSI_SSC2_READ_REVERSE_6              , "Read Reverse(6)"},
-    {SCSI_SSC2_SPACE_6                     , "Space(6)"},
-    {SCSI_SSC2_VERIFY_6                    , "Verify(6)"},
-    {SCSI_SSC2_WRITE6                      , "Write(6)"},
-    {SCSI_SSC2_WRITE_FILEMARKS_6           , "Write Filemarks(6)"},
-    {0, NULL},
-};
-
 /* SMC2 Commands */
 #define SCSI_SMC2_EXCHANGE_MEDIUM                 0x40
 #define SCSI_SMC2_INITIALIZE_ELEMENT_STATUS       0x07
@@ -595,6 +539,70 @@ static const value_string scsi_smc2_val[] = {
     {SCSI_SMC2_REQUEST_VOLUME_ELEMENT_ADDRESS , "Request Volume Element Address"},
     {SCSI_SMC2_SEND_VOLUME_TAG                , "Send Volume Tag"},
     {SCSI_SMC2_WRITE_ATTRIBUTE                , "Write Attribute"},
+    {0, NULL},
+};
+
+
+/* SSC2 Commands */
+#define SCSI_SSC2_REWIND                        0x01
+#define SCSI_SSC2_FORMAT_MEDIUM                 0x04
+#define SCSI_SSC2_READ_BLOCK_LIMITS             0x05
+#define SCSI_SSC2_READ6                         0x08
+#define SCSI_SSC2_WRITE6                        0x0A
+#define SCSI_SSC2_SET_CAPACITY                  0x0B
+#define SCSI_SSC2_READ_REVERSE_6                0x0F
+#define SCSI_SSC2_WRITE_FILEMARKS_6             0x10
+#define SCSI_SSC2_SPACE_6                       0x11
+#define SCSI_SSC2_VERIFY_6                      0x13
+#define SCSI_SSC2_RECOVER_BUFFERED_DATA         0x14
+#define SCSI_SSC2_ERASE_6                       0x19
+#define SCSI_SSC2_LOAD_UNLOAD                   0x1B
+#define SCSI_SSC2_LOCATE_10                     0x2B
+#define SCSI_SSC2_READ_POSITION                 0x34
+#define SCSI_SSC2_REPORT_DENSITY_SUPPORT        0x44
+#define SCSI_SSC2_WRITE_FILEMARKS_16            0x80
+#define SCSI_SSC2_READ_REVERSE_16               0x81
+#define SCSI_SSC2_READ_16                       0x88
+#define SCSI_SSC2_WRITE_16                      0x8A
+#define SCSI_SSC2_VERIFY_16                     0x8F
+#define SCSI_SSC2_SPACE_16                      0x91
+#define SCSI_SSC2_LOCATE_16                     0x92
+#define SCSI_SSC2_ERASE_16                      0x93
+
+/* For commands from SPC we have automatic fallback, for all
+ * commands not in SSC and not from SPC we must add them to this
+ * value string for proper prettyprinting.
+ */ 
+static const value_string scsi_ssc2_val[] = {
+    {SCSI_SSC2_ERASE_16                    , "Erase(16)"},
+    {SCSI_SSC2_FORMAT_MEDIUM               , "Format Medium"},
+    {SCSI_SSC2_LOAD_UNLOAD                 , "Load Unload"},
+    {SCSI_SSC2_LOCATE_16                   , "Locate(16)"},
+    {SCSI_SSC2_READ_16                     , "Read(16)"},
+    {SCSI_SSC2_READ_BLOCK_LIMITS           , "Read Block Limits"},
+    {SCSI_SSC2_READ_POSITION               , "Read Position"},
+    {SCSI_SSC2_READ_REVERSE_16             , "Read Reverse(16)"},
+    {SCSI_SSC2_RECOVER_BUFFERED_DATA       , "Recover Buffered Data"},
+    {SCSI_SSC2_REPORT_DENSITY_SUPPORT      , "Report Density Support"},
+    {SCSI_SSC2_REWIND                      , "Rewind"},
+    {SCSI_SSC2_SET_CAPACITY                , "Set Capacity"},
+    {SCSI_SSC2_SPACE_16                    , "Space(16)"},
+    {SCSI_SSC2_VERIFY_16                   , "Verify(16)"},
+    {SCSI_SSC2_WRITE_16                    , "Write(16)"},
+    {SCSI_SSC2_WRITE_FILEMARKS_16          , "Write Filemarks(16)"},
+    {SCSI_SSC2_ERASE_6                     , "Erase(6)"},
+    {SCSI_SSC2_LOCATE_10                   , "Locate(10)"},
+    {SCSI_SSC2_LOCATE_16                   , "Locate(16)"},
+    {SCSI_SSC2_READ6                       , "Read(6)"},
+    {SCSI_SSC2_READ_REVERSE_6              , "Read Reverse(6)"},
+    {SCSI_SSC2_SPACE_6                     , "Space(6)"},
+    {SCSI_SSC2_VERIFY_6                    , "Verify(6)"},
+    {SCSI_SSC2_WRITE6                      , "Write(6)"},
+    {SCSI_SSC2_WRITE_FILEMARKS_6           , "Write Filemarks(6)"},
+    {SCSI_SMC2_MOVE_MEDIUM                 , "Move Medium"},
+    {SCSI_SMC2_MOVE_MEDIUM_ATTACHED        , "Move Medium Attached"},
+    {SCSI_SMC2_READ_ELEMENT_STATUS         , "Read Element Status"},
+    {SCSI_SMC2_READ_ELEMENT_STATUS_ATTACHED, "Read Element Status Attached"},
     {0, NULL},
 };
 
@@ -4729,6 +4737,7 @@ dissect_ssc2_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     }
 }
 
+
 static void
 dissect_ssc2_rewind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
@@ -4746,6 +4755,77 @@ dissect_ssc2_rewind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
         proto_tree_add_text (tree, tvb, offset, 1,
                              "Immed: %u", tvb_get_guint8 (tvb, offset) & 0x01);
+        flags = tvb_get_guint8 (tvb, offset+4);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_ssc2_erase16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    guint8 flags;
+
+    if (isreq && iscdb) {
+        if (!tree)
+            return;
+
+        flags = tvb_get_guint8 (tvb, offset);
+        proto_tree_add_text (tree, tvb, offset, 1,
+                             "FCS: %u, LCS: %u, IMMED: %u, LONG: %u",
+                             (flags & 0x08) >> 3, 
+                             (flags & 0x04) >> 2, 
+                             (flags & 0x02) >> 1, 
+                             flags & 0x01);
+
+        proto_tree_add_text (tree, tvb, offset+2, 1,
+                             "Partition: %u", tvb_get_guint8(tvb,offset+2));
+
+        proto_tree_add_text (tree, tvb, offset+3, 8,
+                             "Logical Object Identifier: 0x%02x%02x%02x%02x%02x%02x%02x%02x", 
+                             tvb_get_guint8(tvb,offset+3),
+                             tvb_get_guint8(tvb,offset+4),
+                             tvb_get_guint8(tvb,offset+5),
+                             tvb_get_guint8(tvb,offset+6),
+                             tvb_get_guint8(tvb,offset+7),
+                             tvb_get_guint8(tvb,offset+8),
+                             tvb_get_guint8(tvb,offset+9),
+                             tvb_get_guint8(tvb,offset+10));
+
+        flags = tvb_get_guint8 (tvb, offset+14);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+14, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_ssc2_formatmedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    guint8 flags;
+
+    if (isreq && iscdb) {
+        if (!tree)
+            return;
+
+        flags = tvb_get_guint8 (tvb, offset);
+        proto_tree_add_text (tree, tvb, offset, 1,
+                             "VERIFY: %u, IMMED: %u",
+                             (flags & 0x02) >> 1, 
+                             flags & 0x01);
+
+        proto_tree_add_text (tree, tvb, offset+1, 1,
+                             "Format: 0x%02x", tvb_get_guint8(tvb,offset+1)&0x0f);
+
+        proto_tree_add_item (tree, hf_scsi_rdwr10_xferlen, tvb, offset+2, 2, 0);
+
         flags = tvb_get_guint8 (tvb, offset+4);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
                                     flags,
@@ -5759,7 +5839,7 @@ static scsi_cdb_table_t ssc[256] = {
 /*SSC 0x01*/{dissect_ssc2_rewind},
 /*SSC 0x02*/{NULL},
 /*SSC 0x03*/{NULL},
-/*SSC 0x04*/{NULL},
+/*SSC 0x04*/{dissect_ssc2_formatmedium},
 /*SSC 0x05*/{dissect_ssc2_readblocklimits},
 /*SSC 0x06*/{NULL},
 /*SSC 0x07*/{NULL},
@@ -5902,7 +5982,7 @@ static scsi_cdb_table_t ssc[256] = {
 /*SSC 0x90*/{NULL},
 /*SSC 0x91*/{NULL},
 /*SSC 0x92*/{NULL},
-/*SSC 0x93*/{NULL},
+/*SSC 0x93*/{dissect_ssc2_erase16},
 /*SSC 0x94*/{NULL},
 /*SSC 0x95*/{NULL},
 /*SSC 0x96*/{NULL},
@@ -5920,9 +6000,9 @@ static scsi_cdb_table_t ssc[256] = {
 /*SSC 0xa2*/{NULL},
 /*SSC 0xa3*/{NULL},
 /*SSC 0xa4*/{NULL},
-/*SSC 0xa5*/{NULL},
+/*SSC 0xa5*/{dissect_smc2_movemedium},
 /*SSC 0xa6*/{NULL},
-/*SSC 0xa7*/{NULL},
+/*SSC 0xa7*/{dissect_smc2_movemedium},
 /*SSC 0xa8*/{NULL},
 /*SSC 0xa9*/{NULL},
 /*SSC 0xaa*/{NULL},
@@ -5935,11 +6015,11 @@ static scsi_cdb_table_t ssc[256] = {
 /*SSC 0xb1*/{NULL},
 /*SSC 0xb2*/{NULL},
 /*SSC 0xb3*/{NULL},
-/*SSC 0xb4*/{NULL},
+/*SSC 0xb4*/{dissect_smc2_readelementstatus},
 /*SSC 0xb5*/{NULL},
 /*SSC 0xb6*/{NULL},
 /*SSC 0xb7*/{NULL},
-/*SSC 0xb8*/{NULL},
+/*SSC 0xb8*/{dissect_smc2_readelementstatus},
 /*SSC 0xb9*/{NULL},
 /*SSC 0xba*/{NULL},
 /*SSC 0xbb*/{NULL},
