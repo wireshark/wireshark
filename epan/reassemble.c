@@ -32,6 +32,8 @@
 
 #include <epan/reassemble.h>
 
+#include <epan/emem.h>
+
 #include <epan/dissectors/packet-dcerpc.h>
 
 typedef struct _fragment_key {
@@ -48,7 +50,6 @@ typedef struct _dcerpc_fragment_key {
 } dcerpc_fragment_key;
 
 static GMemChunk *fragment_key_chunk = NULL;
-static GMemChunk *dcerpc_fragment_key_chunk = NULL;
 static GMemChunk *fragment_data_chunk = NULL;
 static int fragment_init_count = 200;
 
@@ -143,8 +144,6 @@ typedef struct _reassembled_key {
 	guint32	id;
 	guint32 frame;
 } reassembled_key;
-
-static GMemChunk *reassembled_key_chunk = NULL;
 
 static gint
 reassembled_equal(gconstpointer k1, gconstpointer k2)
@@ -308,28 +307,16 @@ reassemble_init(void)
 {
 	if (fragment_key_chunk != NULL)
 		g_mem_chunk_destroy(fragment_key_chunk);
-	if (dcerpc_fragment_key_chunk != NULL)
-		g_mem_chunk_destroy(dcerpc_fragment_key_chunk);
 	if (fragment_data_chunk != NULL)
 		g_mem_chunk_destroy(fragment_data_chunk);
-	if (reassembled_key_chunk != NULL)
-		g_mem_chunk_destroy(reassembled_key_chunk);
 	fragment_key_chunk = g_mem_chunk_new("fragment_key_chunk",
 	    sizeof(fragment_key),
 	    fragment_init_count * sizeof(fragment_key),
-	    G_ALLOC_AND_FREE);
-	dcerpc_fragment_key_chunk = g_mem_chunk_new("dcerpc_fragment_key_chunk",
-	    sizeof(dcerpc_fragment_key),
-	    fragment_init_count * sizeof(dcerpc_fragment_key),
 	    G_ALLOC_AND_FREE);
 	fragment_data_chunk = g_mem_chunk_new("fragment_data_chunk",
 	    sizeof(fragment_data),
 	    fragment_init_count * sizeof(fragment_data),
 	    G_ALLOC_ONLY);
-	reassembled_key_chunk = g_mem_chunk_new("reassembled_key_chunk",
-	    sizeof(reassembled_key),
-	    fragment_init_count * sizeof(reassembled_key),
-	    G_ALLOC_AND_FREE);
 }
 
 /* This function cleans up the stored state and removes the reassembly data and
@@ -535,7 +522,7 @@ fragment_reassembled(fragment_data *fd_head, packet_info *pinfo,
 		 * This was not fragmented, so there's no fragment
 		 * table; just hash it using the current frame number.
 		 */
-		new_key = g_mem_chunk_alloc(reassembled_key_chunk);
+		new_key = se_alloc(sizeof(reassembled_key));
 		new_key->frame = pinfo->fd->num;
 		new_key->id = id;
 		g_hash_table_insert(reassembled_table, new_key, fd_head);
@@ -544,7 +531,7 @@ fragment_reassembled(fragment_data *fd_head, packet_info *pinfo,
 		 * Hash it with the frame numbers for all the frames.
 		 */
 		for (fd = fd_head->next; fd != NULL; fd = fd->next){
-			new_key = g_mem_chunk_alloc(reassembled_key_chunk);
+			new_key = se_alloc(sizeof(reassembled_key));
 			new_key->frame = fd->frame;
 			new_key->id = id;
 			g_hash_table_insert(reassembled_table, new_key,
@@ -1385,7 +1372,7 @@ fragment_add_dcerpc(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
                 * addresses, allocating new buffers for the address
                 * data.
                 */
-               new_key = g_mem_chunk_alloc(dcerpc_fragment_key_chunk);
+               new_key = se_alloc(sizeof(dcerpc_fragment_key));
                COPY_ADDRESS(&new_key->src, &key.src);
                COPY_ADDRESS(&new_key->dst, &key.dst);
                new_key->id = key.id;
