@@ -59,6 +59,7 @@
 
 #include "packet-sip.h"
 #include <epan/tap.h>
+#include <epan/emem.h>
 
 #define TCP_PORT_SIP 5060
 #define UDP_PORT_SIP 5060
@@ -992,7 +993,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int strlen_to_copy;
 
 	/* Initialise stat info for passing to tap */
-	stat_info = g_malloc(sizeof(sip_info_value_t));
+	stat_info = ep_alloc(sizeof(sip_info_value_t));
 	stat_info->response_code = 0;
 	stat_info->request_method = NULL;
 	stat_info->reason_phrase = NULL;
