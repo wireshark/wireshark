@@ -3837,7 +3837,7 @@
 00:0E:EF	Private
 00:0E:F0	Festo                  # Festo AG & Co. KG
 00:0E:F1	Ezquest                # EZQUEST INC.
-00:0E:F2	WorldAxle              # World Axle Corporation
+00:0E:F2	Infinico               # Infinico Corporation
 00:0E:F3	Smarthome
 00:0E:F4	ShenzhenKa             # Shenzhen Kasda Digital Technology Co.,Ltd
 00:0E:F5	IpacTechno             # iPAC Technology Co., Ltd.
@@ -5458,6 +5458,58 @@
 00:15:45	Seecode                # SEECODE Co., Ltd.
 00:15:46	ItgWorldwi             # ITG Worldwide Sdn Bhd
 00:15:47	AizenSolut             # AiZen Solutions Inc.
+00:15:48	CubeTechno             # CUBE TECHNOLOGIES
+00:15:49	DixtalBiom             # Dixtal Biomedica Ind. Com. Ltda
+00:15:4A	WanshihEle             # WANSHIH ELECTRONIC CO., LTD
+00:15:4B	WondeProud             # Wonde Proud Technology Co., Ltd
+00:15:4C	SaundersEl             # Saunders Electronics
+00:15:4D	Netronome              # Netronome Systems, Inc.
+00:15:4E	Hirschmann             # Hirschmann Automation and Control GmbH
+00:15:4F	OneRfTechn             # one RF Technology
+00:15:50	NitsTechno             # Nits Technology Inc
+00:15:51	Radiopulse             # RadioPulse Inc.
+00:15:52	Wi-Gear                # Wi-Gear Inc.
+00:15:53	Cytyc                  # Cytyc Corporation
+00:15:54	AtalumWire             # Atalum Wireless S.A.
+00:15:55	Dfm                    # DFM GmbH
+00:15:56	SagemSa                # SAGEM SA
+00:15:57	Olivetti
+00:15:58	Foxconn
+00:15:59	Securaplan             # Securaplane Technologies, Inc.
+00:15:5A	DainipponP             # DAINIPPON PHARMACEUTICAL CO., LTD.
+00:15:5B	Sampo                  # Sampo Corporation
+00:15:5C	DresserWay             # Dresser Wayne
+00:15:5D	Microsoft              # Microsoft Corporation
+00:15:5E	MorganStan             # Morgan Stanley
+00:15:5F	Ubiwave
+00:15:60	HewlettPac             # Hewlett Packard
+00:15:61	Jjplus                 # JJPlus Corporation
+00:15:62	Cisco                  # Cisco Systems
+00:15:63	Cisco                  # Cisco Systems
+00:15:64	BehringerS             # BEHRINGER Spezielle Studiotechnik GmbH
+00:15:65	XiamenYeal             # XIAMEN YEALINK NETWORK TECHNOLOGY CO.,LTD
+00:15:66	A-FirstTec             # A-First Technology Co., Ltd.
+00:15:67	Radwin                 # RADWIN Inc.
+00:15:68	DilithiumN             # Dilithium Networks
+00:15:69	PecoIi                 # PECO II, Inc.
+00:15:6A	Dg2lTechno             # DG2L Technologies Pvt. Ltd.
+00:15:6B	PerfisansN             # Perfisans Networks Corp.
+00:15:6C	SaneSystem             # SANE SYSTEM CO., LTD
+00:15:6D	UbiquitiNe             # Ubiquiti Networks
+00:15:6E	AWCommunic             # A. W. Communication Systems Ltd
+00:15:6F	XiranetCom             # Xiranet Communications GmbH
+00:15:70	SymbolTech             # Symbol Technologies
+00:15:71	Nolan                  # Nolan Systems
+00:15:72	Red-Lemon
+00:15:73	NewsoftTec             # NewSoft  Technology Corporation
+00:15:74	HorizonSem             # Horizon Semiconductors Ltd.
+00:15:75	NevisNetwo             # Nevis Networks Inc.
+00:15:76	ScilAnimal             # scil animal care company GmbH
+00:15:77	AlliedTele             # Allied Telesyn, Inc.
+00:15:78	Audio/Vide             # Audio / Video Innovations
+00:15:79	LunatoneIn             # Lunatone Industrielle Elektronik GmbH
+00:15:7A	TelefinSPA             # Telefin S.p.A.
+00:15:7B	LeuzeElect             # Leuze electronic GmbH + Co. KG
 00:17:00	Kabel
 00:1C:7C	Perq                   # PERQ SYSTEMS CORPORATION
 00:20:00	LexmarkInt             # LEXMARK INTERNATIONAL, INC.
@@ -8567,6 +8619,10 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 #
 00-00-0C-07-AC/40	All-HSRP-routers
 00-00-5E-00-01/40	IETF-VRRP-virtual-router-VRID
+00-E0-2B-00-00-00	Extreme-EDP
+00-E0-2B-00-00-02	Extreme-ESRP-Client
+00-E0-2B-00-00-04	Extreme-EAPS-Host
+00-E0-2B-00-00-08	Extreme-ESRP-Master
 01-00-0C-CC-CC-CC	CDP/VTP
 01-00-0C-DD-DD-DD	CGMP
 01-00-10-00-00-20	Hughes-Lan-Systems-Terminal-Server-S/W-download
