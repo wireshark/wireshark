@@ -2351,6 +2351,15 @@ dis_msg_status_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     dis_field_st(tvb, tree, offset, oct);
 
     offset++;
+	/* Parameter indicating the presence of any of
+	 * the optional parameters which follow
+	 * 4) Mandatory if any of the optional parameters following TP-PI is present, 
+	 * otherwise optional.
+	 */
+	if (length <= (offset - saved_offset))
+	{
+	    return;
+	}
     pi = tvb_get_guint8(tvb, offset);
 
     dis_field_pi(tvb, tree, offset, pi);
