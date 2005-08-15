@@ -55,18 +55,24 @@ fi
 # error.
 
 if [ -f $PYTHONPATH/site-packages/ethereal_be.py ] && [ -f $PYTHONPATH/site-packages/ethereal_gen.py ]; then
-    exec omniidl  -p $PYTHONPATH/site-packages -b ethereal_be $1
+    exec omniidl  -p $PYTHONPATH/site-packages -b ethereal_be $@
     /* not reached */
 fi
 
 # Try current directory.
 
 if [ -f ./ethereal_be.py ] && [ -f ./ethereal_gen.py ]; then
-    exec omniidl  -p ./ -b ethereal_be $1
+    exec omniidl  -p ./ -b ethereal_be $@
     /* not reached */
 fi
 
 # Could not find both ethereal_be.py AND ethereal_gen.py
+# So let's just try to run it without -p, hoping that the installation
+# set up a valid path.
+
+exec omniidl -b ethereal_be $@
+
+old code: not reached
 
 echo "idl2eth Error: Could not find both ethereal_be.py AND ethereal_gen.py."
 echo "Please ensure you have the PYTHONPATH variable set, or that ethereal_be.py "
