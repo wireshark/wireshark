@@ -35,6 +35,13 @@
    The Display string may be incomplete (no spec)
    Look for FIXME in the code :-)
 
+The following information is taken from the Extreme knowledge base
+(login required). Search for ESRP.
+Note: The information seems to be incorrect in at least one place
+      (position of Vlan ID).
+
+================================ snip ================================
+
 ESRP Packet Format:
 -------------------
 
@@ -81,6 +88,49 @@ ESRP Packet Format:
 EDP is a SNAP encapsulated frame.  The top level looks like this:
 The top level format is like this:
 [ SNAP header ] [ EDP header] [ TLV 0 ] [ TLV 1 ] ... [ TLV N ]
+
+Header format:
+1 octet: EDP version
+1 octet: reserved
+2 octets: length
+2 octets: checksum
+2 octets: sequence #
+8 octets: device id (currently 2 0 octets followed by system mac address)
+
+TLV stands for Type, Length, Value.
+Format of a TLV entry:
+marker ( 1 octet): Hex 99
+type ( 1 octet):
+        The following types are used:
+              Null (used as an end signal): 0
+              Display (Mib II display string): 1
+              Info (Basic system information): 2
+              Vlan Info                      : 5
+              ESRP                           : 8
+Length: Length of subsequent data(2 octets)
+Value: Length octets of data.
+
+Format for Info TLV:
+two octets: originating slot #
+two octets: originating port #
+two octets: Virtual Chassis Id (If originating port is connected to a virtual chassis).
+six octets: reserved
+four octets: software version
+16 octets: Virtual Chassis Id connections
+
+Format for Vlan info:
+octet 0: Flags (bit 8 = 1 means this vlan has an IP interface)
+octets 1,2,3: reserved.
+octets 4,5: vlan Id (0 if untagged)
+octets 6,7: reserved.
+octets 8 - 11: Vlan IP address.
+Rest of value: VLAN name.
+
+Display string is merely length octets of the MIBII display string.
+
+These are the structures you will see most often in EDP frames.
+
+================================ snap ================================
 
  */
 
@@ -240,13 +290,18 @@ dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length _
 	proto_item *tlvi;
 	proto_tree *ver_tree;
 	guint8 major1, major2, sustaining, internal;
+	guint16 port, slot;
 
-	proto_tree_add_item(tree, hf_edp_info_slot, tvb, offset, 2,
-		FALSE);
+	/* The slot and port numbers printed on the chassis are 1
+	   bigger than the transmitted values indicate */
+	slot = tvb_get_ntohs(tvb, offset) + 1;
+	proto_tree_add_uint(tree, hf_edp_info_slot, tvb, offset, 2,
+		slot);
 	offset += 2;
 
-	proto_tree_add_item(tree, hf_edp_info_port, tvb, offset, 2,
-		FALSE);
+	port = tvb_get_ntohs(tvb, offset) + 1;
+	proto_tree_add_uint(tree, hf_edp_info_port, tvb, offset, 2,
+		port);
 	offset += 2;
 
 	proto_tree_add_item(tree, hf_edp_info_vchassid, tvb, offset, 2,
