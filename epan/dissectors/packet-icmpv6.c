@@ -51,6 +51,7 @@
 #include <epan/in_cksum.h>
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
+#include <epan/emem.h>
 
 #ifndef offsetof
 #define	offsetof(type, member)	((size_t)(&((type *)0)->member))
@@ -224,7 +225,7 @@ again:
 	p = offset + sizeof(*opt);
 	len = (opt->nd_opt_len << 3) - sizeof(*opt);
 	a = tvb_get_ptr(tvb, p, len);
-	t = g_malloc(len * 3);
+	t = ep_alloc(len * 3);
 	memset(t, 0, len * 3);
 	for (i = 0; i < len; i++) {
 	    if (i)
@@ -233,7 +234,6 @@ again:
 	}
 	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + sizeof(*opt), len, "Link-layer address: %s", t);
-	g_free(t);
 	break;
       }
     case ND_OPT_PREFIX_INFORMATION:

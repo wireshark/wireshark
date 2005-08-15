@@ -54,6 +54,7 @@
 
 #include <epan/packet.h>
 #include <epan/dissectors/packet-tcp.h>
+#include <epan/emem.h>
 
 #if 0
 #define DBG(str, args...)       do {\
@@ -326,12 +327,11 @@ static void dissect_ice_facet(proto_tree *tree, int hf_icep,
 	if ( Size == 0 ) {
 		
 		if (tree) {
-			s = g_malloc( strlen("(empty)") + 1 );
+			s = ep_alloc( strlen("(empty)") + 1 );
 			sprintf(s, "(empty)");
 			s[strlen("(empty)")] = '\0';
 			/* display the 0x00 Size byte when click on a empty ice_string */
 			proto_tree_add_string(tree, hf_icep, tvb, offset - 1, 1, s);
-			g_free(s);
 		}
 		return;
 	}
@@ -453,13 +453,12 @@ static void dissect_ice_context(proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 	}
 	
 	if (Size == 0) {
-		s = g_malloc( strlen("(empty)") + 1 );
+		s = ep_alloc( strlen("(empty)") + 1 );
 		sprintf(s, "(empty)");
 		s[strlen("(empty)")] = '\0';
 		/* display the 0x00 Size byte when click on a empty context */
 		if (tree)
 			proto_tree_add_string(tree, hf_icep_context, tvb, offset - 1, 1, s);
-		g_free(s);
 		return;
 	}
 	
