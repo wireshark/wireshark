@@ -41,6 +41,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/afn.h>
+#include <epan/emem.h>
 
 #include "packet-frame.h"
 #include "packet-diffserv-mpls-common.h"
@@ -790,7 +791,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 					break;
 				}
 
-				if( (addr=g_malloc0(addr_size)) == NULL ){
+				if( (addr=ep_alloc0(addr_size)) == NULL ){
 					/*big big trouble, no mem or bad addr_size*/
 					fprintf(stderr, "packet-ldp: dissect_tlv_fec() malloc failed\n");
 					return;
@@ -806,7 +807,6 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 				offset += prefix_len_octets;
 				rem -= 4+prefix_len_octets;
-				g_free(addr);
 				break;
 
 			case HOST_FEC:
@@ -868,7 +868,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 					break;
 				}
 
-				if( (addr=g_malloc0(addr_size)) == NULL ){
+				if( (addr=ep_alloc0(addr_size)) == NULL ){
 					/*big big xtrouble, no mem or bad addr_size*/
 					fprintf(stderr, "packet-ldp: dissect_tlv_fec() malloc failed\n");
 					return;
@@ -882,7 +882,6 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 				offset += host_len;
 				rem -= 4+host_len;
-				g_free(addr);
 				break;
 
 			case VC_FEC:
@@ -1088,7 +1087,7 @@ dissect_tlv_address_list(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 		val_tree=proto_item_add_subtree(ti, ett_ldp_tlv_val);
 
 		if(val_tree == NULL) return;
-		if( (addr=g_malloc(addr_size)) == NULL ){
+		if( (addr=ep_alloc(addr_size)) == NULL ){
 			/*big big trouble*/
 			fprintf(stderr, "packet-ldp: dissect_tlv_address_list() malloc failed\n");
 			return;
@@ -1108,7 +1107,6 @@ dissect_tlv_address_list(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 		if(rem)
 			proto_tree_add_text(val_tree, tvb, offset, rem,
 			    "Error processing TLV: Extra data at end of address list");
-		g_free(addr);
 	}
 }
 
