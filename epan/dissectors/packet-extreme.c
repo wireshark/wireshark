@@ -30,10 +30,16 @@
    EAPS v1 is specified in RFC3619
 
   TODO:
+   Look for FIXME in the code :-)
    EAPS v2 is not supported (no spec)
    Some stuff in the EDP Info field (no spec)
-   The Display string may be incomplete (no spec)
-   Look for FIXME in the code :-)
+   Flags in the EDP Vlan field
+   Meaning of speical MAC adresses:
+	ExtremeN:00:00:01
+	ExtremeN:00:00:04
+	ExtremeN:00:00:06
+   TLV type 0x0e (XOS only?)
+   TLV type 0x15 (XOS only?)
 
 The following information is taken from the Extreme knowledge base
 (login required). Search for ESRP.
@@ -173,6 +179,9 @@ static int hf_edp_info_version_internal = -1;
 static int hf_edp_info_vchassconn = -1;
 /* Vlan element */
 static int hf_edp_vlan_flags = -1;
+static int hf_edp_vlan_flags_ip = -1;
+static int hf_edp_vlan_flags_reserved = -1;
+static int hf_edp_vlan_flags_unknown = -1;
 static int hf_edp_vlan_reserved1 = -1;
 static int hf_edp_vlan_id = -1;
 static int hf_edp_vlan_reserved2 = -1;
@@ -203,6 +212,7 @@ static int hf_edp_eaps_reserved2 = -1;
 
 static gint ett_edp = -1;
 static gint ett_edp_tlv = -1;
+static gint ett_edp_vlan_flags = -1;
 
 #define PROTO_SHORT_NAME "EDP"
 #define PROTO_LONG_NAME "Extreme Discovery Protocol"
@@ -278,8 +288,6 @@ static const value_string eaps_state_vals[] = {
 static void
 dissect_display_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, proto_tree *tree)
 {
-	/* FIXME: I don't think that this is the right solution but don't
-	 	know what is */
 	proto_tree_add_item(tree, hf_edp_display, tvb, offset, length,
 		FALSE);
 }
@@ -352,10 +360,19 @@ dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length _
 static void
 dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, proto_tree *tree)
 {
-	/* FIXME: properly decode the bit(s):
-		bit 2^7 = 1 -> has ip interface
-		bit 2^0 = ? */
-	proto_tree_add_item(tree, hf_edp_vlan_flags, tvb, offset, 1,
+	proto_item *flags_item;
+	proto_tree *flags_tree;
+
+	flags_item = proto_tree_add_item(tree, hf_edp_vlan_flags, tvb, offset, 1,
+		FALSE);
+
+	flags_tree = proto_item_add_subtree(flags_item, ett_edp_vlan_flags);
+
+	proto_tree_add_item(flags_tree, hf_edp_vlan_flags_ip, tvb, offset, 1,
+		FALSE);
+	proto_tree_add_item(flags_tree, hf_edp_vlan_flags_reserved, tvb, offset, 1,
+		FALSE);
+	proto_tree_add_item(flags_tree, hf_edp_vlan_flags_unknown, tvb, offset, 1,
 		FALSE);
 	offset += 1;
 
@@ -692,11 +709,22 @@ proto_register_edp(void)
 		{ "Connections",	"edp.info.vchassconn", FT_BYTES, BASE_NONE, NULL,
 			0x0, "Virtual chassis connections", HFILL }},
 
-	/* Vlan element */
-		/* FIXME: properly decode the bit(s) */
+	/* VLAN element */
 		{ &hf_edp_vlan_flags,
-		{ "Flags",	"edp.vlan.flags", FT_UINT8, BASE_DEC, NULL,
+		{ "Flags",	"edp.vlan.flags", FT_UINT8, BASE_HEX, NULL,
 			0x0, "", HFILL }},
+
+		{ &hf_edp_vlan_flags_ip,
+		{ "Flags-IP",	"edp.vlan.flags.ip", FT_BOOLEAN, 8, TFS(&flags_set_truth),
+			0x80, "Vlan has IP address configured", HFILL }},
+
+		{ &hf_edp_vlan_flags_reserved,
+		{ "Flags-reserved",	"edp.vlan.flags.reserved", FT_UINT8, BASE_HEX, NULL,
+			0x7e, "", HFILL }},
+
+		{ &hf_edp_vlan_flags_unknown,
+		{ "Flags-Unknown",	"edp.vlan.flags.unknown", FT_BOOLEAN, 8, TFS(&flags_set_truth),
+			0x01, "", HFILL }},
 
 		{ &hf_edp_vlan_reserved1,
 		{ "Reserved1",	"edp.vlan.reserved1", FT_BYTES, BASE_NONE, NULL,
@@ -804,6 +832,7 @@ proto_register_edp(void)
 	static gint *ett[] = {
 		&ett_edp,
 		&ett_edp_tlv,
+		&ett_edp_vlan_flags,
 	};
 
         proto_edp = proto_register_protocol(PROTO_LONG_NAME,
