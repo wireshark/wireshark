@@ -3254,6 +3254,7 @@ proto_register_ieee80211 (void)
     {0x00, NULL}
   };
 
+  /* XXX - Table 20e, IEEE 802.11h.  Why aren't we using it? */
   static const value_string spec_man_action[] ={
     {0x00, "Measurement Request"},
     {0x01, "Measurement Report"},
