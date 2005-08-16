@@ -67,7 +67,6 @@
 #include <epan/addr_resolv.h>
 
 /* general (not GTK specific) */
-#include "svnversion.h"
 #include "file.h"
 #include "summary.h"
 #include "filters.h"
@@ -1082,13 +1081,10 @@ print_usage(gboolean print_ver) {
 
   if (print_ver) {
     output = stdout;
-    fprintf(output, "This is "PACKAGE " " VERSION
-#ifdef SVNVERSION
-	" (" SVNVERSION ")"
-#endif
+    fprintf(output, "This is "PACKAGE " " VERSION "%s"
         "\n (C) 1998-2005 Gerald Combs <gerald@ethereal.com>"
 	"\n\n%s\n\n%s\n",
-	comp_info_str->str, runtime_info_str->str);
+	svnversion, comp_info_str->str, runtime_info_str->str);
   } else {
     output = stderr;
   }

@@ -40,10 +40,9 @@
 #include "text_page.h"
 #endif
 
-#include "svnversion.h"
-
 #include "../image/eicon3d64.xpm"
 #include "gtkglobals.h"
+#include "version_info.h"
 
 extern GString *comp_info_str, *runtime_info_str;
 
@@ -156,10 +155,7 @@ about_ethereal_page_new(void)
 
   /* Construct the message string */
   message = g_strdup_printf(
-       "Version " VERSION
-#ifdef SVNVERSION
-       " (" SVNVERSION ")"
-#endif
+       "Version " VERSION "%s"
        " (C) 1998-2005 Gerald Combs <gerald@ethereal.com>\n\n"
        "%s\n\n"
        "%s\n\n"
@@ -167,7 +163,7 @@ about_ethereal_page_new(void)
        "Ethereal is Open Source Software released under the GNU General Public License.\n\n"
 
        "Check the man page and http://www.ethereal.com for more information.",
-       comp_info_str->str, runtime_info_str->str);
+       svnversion, comp_info_str->str, runtime_info_str->str);
 
   msg_label = gtk_label_new(message);
   g_free(message);

@@ -73,6 +73,15 @@
 #include "version_info.h"
 #include "pcap-util.h"
 
+#include "svnversion.h"
+
+#ifdef SVNVERSION
+	const char *svnversion = " (" SVNVERSION ")";
+#else
+	const char *svnversion = "";
+#endif
+
+
 /*
  * See whether the last line in the string goes past column 80; if so,
  * replace the blank at the specified point with a newline.
