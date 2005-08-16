@@ -135,10 +135,10 @@ Gnu info
 	</para></listitem>
 
 	<listitem><para>
-	  The CSM_ENCAPS dissector could exhaust system memory.
-	  <!-- Fixed in r15339 -->
-	  <!-- Bug IDs: none -->
-	  Versions affected: 0.10.12.
+	  The sFlow dissector could dereference a null pointer and crash.
+	  <!-- Fixed in r15375 -->
+	  <!-- Bug IDs: 356 -->
+	  Versions affected: 0.9.14 to 0.10.12.
 	</para></listitem>
 
       </itemizedlist>
