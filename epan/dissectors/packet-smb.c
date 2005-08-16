@@ -617,6 +617,7 @@ static int hf_smb_unix_file_link_dest = -1;
 static int hf_smb_unix_find_file_nextoffset = -1;
 static int hf_smb_unix_find_file_resumekey = -1;
 static int hf_smb_network_unknown = -1;
+static int hf_smb_disposition_delete_on_close = -1;
 
 static gint ett_smb = -1;
 static gint ett_smb_hdr = -1;
@@ -1267,6 +1268,11 @@ dissect_smb_datetime(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 
 	return offset;
 }
+
+static const true_false_string tfs_disposition_delete_on_close = {
+	"DELETE this file when closed",
+	"Normal access, do not delete on close"
+};
 
 
 static const value_string da_access_vals[] = {
@@ -10842,6 +10848,26 @@ dissect_rename_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	return offset;
 }
 
+static int
+dissect_disposition_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+		    int offset, guint16 *bcp, gboolean *trunc)
+{
+	smb_info_t *si = pinfo->private_data;
+	const char *fn;
+	guint32 target_name_len;
+	int fn_len;
+
+	DISSECTOR_ASSERT(si);
+
+	/* Disposition flags */
+	CHECK_BYTE_COUNT_SUBR(1);
+	proto_tree_add_item(tree, hf_smb_disposition_delete_on_close, tvb, offset, 1, TRUE);
+	COUNT_BYTES_SUBR(1);
+
+	*trunc = FALSE;
+	return offset;
+}
+
 /*dissect the data block for TRANS2_QUERY_PATH_INFORMATION and
   TRANS2_QUERY_FILE_INFORMATION*/
 static int
@@ -10999,7 +11025,10 @@ dissect_spi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		offset = dissect_rename_info(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
-	case 1013:
+	case 1013: /* Set Disposition Information */
+		offset = dissect_disposition_info(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
 	case 1014:
 	case 1016:
 	case 1019:
@@ -17350,6 +17379,11 @@ proto_register_smb(void)
         { &hf_smb_network_unknown,
           { "Unknown field", "smb.unknown", FT_UINT32, BASE_HEX,
             NULL, 0, "", HFILL }},
+
+	{ &hf_smb_disposition_delete_on_close,
+	  { "Delete on close", "smb.disposition.delete_on_close", FT_BOOLEAN, 8,
+		TFS(&tfs_disposition_delete_on_close), 0x01, "", HFILL }},
+
 	};
 
 	static gint *ett[] = {
