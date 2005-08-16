@@ -1766,7 +1766,7 @@ dissector_dump_decodes_display(gchar *table_name, ftenum_t selector_type _U_,
 			if (proto_id != -1) {
 				decode_as = proto_get_protocol_filter_name(proto_id);
 				g_assert(decode_as != NULL);
-				printf("%s\t%d\t%s\n", table_name, selector, decode_as);
+				printf("%s\t%u\t%s\n", table_name, selector, decode_as);
 			}
 			break;
 
