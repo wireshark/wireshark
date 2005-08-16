@@ -113,7 +113,7 @@ guint8* se_memdup(const guint8* src, size_t len);
 gchar* se_strdup_printf(const gchar* fmt, ...);
 
 /* allocates with a capture lifetime scope an array of type made of num elements */
-#define se_alloc_array(type,num) (type*)ep_alloc(sizeof(type)*(num))
+#define se_alloc_array(type,num) (type*)se_alloc(sizeof(type)*(num))
 
 /* release all memory allocated */
 void se_free_all(void);
