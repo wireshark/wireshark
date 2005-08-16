@@ -283,6 +283,8 @@ static int hf_sflow_pri_in = -1;   /* incominging 802.1p priority */
 static int hf_sflow_pri_out = -1;   /* outgoing 802.1p priority */
 static int hf_sflow_nexthop_v4 = -1;   /* nexthop address */
 static int hf_sflow_nexthop_v6 = -1;   /* nexthop address */
+static int hf_sflow_nexthop_src_mask = -1;
+static int hf_sflow_nexthop_dst_mask = -1;
 static int hf_sflow_ifindex = -1;
 static int hf_sflow_iftype = -1;
 static int hf_sflow_ifspeed = -1;
@@ -462,33 +464,31 @@ dissect_sflow_extended_router(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	guint32 address_type, mask_bits;
 
 	address_type = tvb_get_ntohl(tvb, offset);
+	len += 4;
 	switch (address_type) {
 	case ADDRESS_IPV4:
-		proto_tree_add_ipv4(tree, hf_sflow_nexthop_v4, tvb, offset + len,
-							8, FALSE);
-		len += 8;
+		proto_tree_add_item(tree, hf_sflow_nexthop_v4, tvb, offset + len,
+							4, FALSE);
+		len += 4;
 		break;
 	case ADDRESS_IPV6:
-		proto_tree_add_ipv6(tree, hf_sflow_nexthop_v6, tvb, offset + len,
-							20, FALSE);
-		len += 20;
+		proto_tree_add_item(tree, hf_sflow_nexthop_v6, tvb, offset + len,
+							16, FALSE);
+		len += 16;
 		break;
 	default:
-		proto_tree_add_text(tree, tvb, offset + len, 4,
+		proto_tree_add_text(tree, tvb, offset + len - 4, 4,
 							"Unknown address type (%d)", address_type);
 		len += 4;  /* not perfect, but what else to do? */
 		return len;  /* again, this is wrong.  but... ? */
 		break;
 	};
 	
-	mask_bits = tvb_get_ntohl(tvb, offset + len);
-	proto_tree_add_text(tree, tvb, offset + len, 4,
-						"Source address prefix is %d bits long", mask_bits);
+	proto_tree_add_item(tree, hf_sflow_nexthop_src_mask, tvb, offset + len,
+							4, FALSE);
 	len += 4;
-	mask_bits = tvb_get_ntohl(tvb, offset + len);
-	proto_tree_add_text(tree, tvb, offset + len, 4,
-						"Destination address prefix is %d bits long", 
-						mask_bits);
+	proto_tree_add_item(tree, hf_sflow_nexthop_dst_mask, tvb, offset + len,
+							4, FALSE);
 	len += 4;
 	return len;
 }
@@ -953,14 +953,24 @@ proto_register_sflow(void)
 			"Outgoing 802.1p priority", HFILL }
 		},
 		{ &hf_sflow_nexthop_v4,
-			{ "Next Hop", "sflow.nexthop",
+			{ "Next hop", "sflow.nexthop",
 			FT_IPv4, BASE_DEC, NULL, 0x0,
-			"Next Hop address", HFILL }
+			"Next hop address", HFILL }
 		},
 		{ &hf_sflow_nexthop_v6,
-			{ "Next Hop", "sflow.nexthop",
+			{ "Next hop", "sflow.nexthop",
 			FT_IPv6, BASE_HEX, NULL, 0x0,
-			"Next Hop address", HFILL }
+			"Next hop address", HFILL }
+		},
+		{ &hf_sflow_nexthop_src_mask,
+		  { "Next hop source mask", "sflow.nexthop.src_mask",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			"Next hop source mask bits", HFILL }
+		},
+		{ &hf_sflow_nexthop_dst_mask,
+		  { "Next hop destination mask", "sflow.nexthop.dst_mask",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			"Next hop destination mask bits", HFILL }
 		},
 		{ &hf_sflow_ifindex,
 		  { "Interface index", "sflow.ifindex",

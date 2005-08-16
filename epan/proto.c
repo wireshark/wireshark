@@ -1201,6 +1201,7 @@ proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 static void
 proto_tree_set_time(field_info *fi, nstime_t *value_ptr)
 {
+	DISSECTOR_ASSERT(value_ptr != NULL);
 	fvalue_set(&fi->value, value_ptr, FALSE);
 }
 
@@ -1390,6 +1391,7 @@ proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 static void
 proto_tree_set_ipv6(field_info *fi, const guint8* value_ptr)
 {
+	DISSECTOR_ASSERT(value_ptr != NULL);
 	fvalue_set(&fi->value, (gpointer) value_ptr, FALSE);
 }
 
@@ -1459,6 +1461,7 @@ proto_tree_add_guid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 static void
 proto_tree_set_guid(field_info *fi, const guint8* value_ptr)
 {
+	DISSECTOR_ASSERT(value_ptr != NULL);
 	fvalue_set(&fi->value, (gpointer) value_ptr, FALSE);
 }
 
