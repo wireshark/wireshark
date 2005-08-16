@@ -390,6 +390,19 @@ static const char *wme_acs[4] = {
 	"Voice",
 };
 
+
+#define CAT_SPECTRUM_MGMT	0
+#define CAT_QOS			1
+#define CAT_DLS			2
+#define CAT_BLOCK_ACK		3
+#define CAT_MGMT_NOTIFICATION	17
+
+#define SM_ACTION_MEASUREMENT_REQUEST	0
+#define SM_ACTION_MEASUREMENT_REPORT	1
+#define SM_ACTION_TPC_REQUEST		2
+#define SM_ACTION_TPC_REPORT		3
+#define SM_ACTION_CHAN_SWITCH_ANNC	4
+
 static int proto_wlan = -1;
 static packet_info * g_pinfo;
 
@@ -1687,13 +1700,12 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 4);
 	  add_fixed_field (fixed_tree, tvb, 0, FIELD_CAP_INFO);
 	  add_fixed_field (fixed_tree, tvb, 2, FIELD_LISTEN_IVAL);
-
 	  offset = 4;	/* Size of fixed fields */
+
 	  tagged_parameter_tree_len =
 	      tvb_reported_length_remaining(tvb, offset);
 	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
 						   tagged_parameter_tree_len);
-
 	  ieee_80211_add_tagged_parameters (tvb, offset, pinfo, tagged_tree,
 	      tagged_parameter_tree_len);
 	  break;
@@ -1704,14 +1716,12 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	  add_fixed_field (fixed_tree, tvb, 0, FIELD_CAP_INFO);
 	  add_fixed_field (fixed_tree, tvb, 2, FIELD_STATUS_CODE);
 	  add_fixed_field (fixed_tree, tvb, 4, FIELD_ASSOC_ID);
-
 	  offset = 6;	/* Size of fixed fields */
 
 	  tagged_parameter_tree_len =
 	      tvb_reported_length_remaining(tvb, offset);
 	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
 						   tagged_parameter_tree_len);
-
 	  ieee_80211_add_tagged_parameters (tvb, offset, pinfo, tagged_tree,
 	      tagged_parameter_tree_len);
 	  break;
@@ -1722,29 +1732,27 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	  add_fixed_field (fixed_tree, tvb, 0, FIELD_CAP_INFO);
 	  add_fixed_field (fixed_tree, tvb, 2, FIELD_LISTEN_IVAL);
 	  add_fixed_field (fixed_tree, tvb, 4, FIELD_CURRENT_AP_ADDR);
-
 	  offset = 10;	/* Size of fixed fields */
+
 	  tagged_parameter_tree_len =
 	      tvb_reported_length_remaining(tvb, offset);
 	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
 						   tagged_parameter_tree_len);
-
 	  ieee_80211_add_tagged_parameters (tvb, offset, pinfo, tagged_tree,
 	      tagged_parameter_tree_len);
 	  break;
 
 	case MGT_REASSOC_RESP:
-	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 10);
+	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 6);
 	  add_fixed_field (fixed_tree, tvb, 0, FIELD_CAP_INFO);
 	  add_fixed_field (fixed_tree, tvb, 2, FIELD_STATUS_CODE);
 	  add_fixed_field (fixed_tree, tvb, 4, FIELD_ASSOC_ID);
-
 	  offset = 6;	/* Size of fixed fields */
+
 	  tagged_parameter_tree_len =
 	      tvb_reported_length_remaining(tvb, offset);
 	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
 						   tagged_parameter_tree_len);
-
 	  ieee_80211_add_tagged_parameters (tvb, offset, pinfo, tagged_tree,
 	      tagged_parameter_tree_len);
 	  break;
@@ -1756,7 +1764,6 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	      tvb_reported_length_remaining(tvb, offset);
 	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
 						   tagged_parameter_tree_len);
-
 	  ieee_80211_add_tagged_parameters (tvb, offset, pinfo, tagged_tree,
 	      tagged_parameter_tree_len);
 	  break;
@@ -1767,13 +1774,12 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	  add_fixed_field (fixed_tree, tvb, 0, FIELD_TIMESTAMP);
 	  add_fixed_field (fixed_tree, tvb, 8, FIELD_BEACON_INTERVAL);
 	  add_fixed_field (fixed_tree, tvb, 10, FIELD_CAP_INFO);
-
 	  offset = 12;	/* Size of fixed fields */
+
 	  tagged_parameter_tree_len =
 	      tvb_reported_length_remaining(tvb, offset);
 	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
 						   tagged_parameter_tree_len);
-
 	  ieee_80211_add_tagged_parameters (tvb, offset, pinfo, tagged_tree,
 	      tagged_parameter_tree_len);
 	  break;
@@ -1781,17 +1787,15 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 
 	case MGT_BEACON:		/* Dissect protocol payload fields  */
 	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 12);
-
 	  add_fixed_field (fixed_tree, tvb, 0, FIELD_TIMESTAMP);
 	  add_fixed_field (fixed_tree, tvb, 8, FIELD_BEACON_INTERVAL);
 	  add_fixed_field (fixed_tree, tvb, 10, FIELD_CAP_INFO);
-
 	  offset = 12;	/* Size of fixed fields */
+
 	  tagged_parameter_tree_len =
 	      tvb_reported_length_remaining(tvb, offset);
 	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
 						   tagged_parameter_tree_len);
-
 	  ieee_80211_add_tagged_parameters (tvb, offset, pinfo, tagged_tree,
 	      tagged_parameter_tree_len);
 	  break;
@@ -1812,7 +1816,6 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	  add_fixed_field (fixed_tree, tvb, 0, FIELD_AUTH_ALG);
 	  add_fixed_field (fixed_tree, tvb, 2, FIELD_AUTH_TRANS_SEQ);
 	  add_fixed_field (fixed_tree, tvb, 4, FIELD_STATUS_CODE);
-
 	  offset = 6;	/* Size of fixed fields */
 
 	  tagged_parameter_tree_len =
@@ -1823,7 +1826,6 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 						       tvb,
 						       offset,
 						       tagged_parameter_tree_len);
-
 	      ieee_80211_add_tagged_parameters (tvb, offset, pinfo, tagged_tree,
 		tagged_parameter_tree_len);
 	    }
@@ -1837,36 +1839,62 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 
 
 	case MGT_ACTION:
-	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 3);
-	  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
-
 	  switch (tvb_get_guint8(tvb, 0))
 	    {
 
-	    case 17:	/* Management notification frame */
-	      add_fixed_field (fixed_tree, tvb, 1, FIELD_WME_ACTION_CODE);
-	      add_fixed_field (fixed_tree, tvb, 2, FIELD_DIALOG_TOKEN);
-	      add_fixed_field (fixed_tree, tvb, 3, FIELD_WME_STATUS_CODE);
-
-	      offset = 4;	/* Size of fixed fields */
-
-	      tagged_parameter_tree_len =
-		tvb_reported_length_remaining(tvb, offset);
-	      if (tagged_parameter_tree_len != 0)
+	    case CAT_SPECTRUM_MGMT:
+	      switch (tvb_get_guint8(tvb, 1))
 		{
-		  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
-							   tagged_parameter_tree_len);
+		case SM_ACTION_MEASUREMENT_REQUEST:
+		case SM_ACTION_MEASUREMENT_REPORT:
+		case SM_ACTION_TPC_REQUEST:
+		case SM_ACTION_TPC_REPORT:
+		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 3);
+		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  add_fixed_field (fixed_tree, tvb, 1, FIELD_ACTION_CODE);
+		  add_fixed_field (fixed_tree, tvb, 2, FIELD_DIALOG_TOKEN);
+		  offset = 3;	/* Size of fixed fields */
+		  break;
 
-		  ieee_80211_add_tagged_parameters (tvb, offset, pinfo, tagged_tree,
-						    tagged_parameter_tree_len);
+		case SM_ACTION_CHAN_SWITCH_ANNC:
+		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 2);
+		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  offset = 2;	/* Size of fixed fields */
+		  break;
+
+		default:
+		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 2);
+		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  offset = 2;	/* Size of fixed fields */
+		  break;
 		}
 	      break;
 
-	    default:	/* Management action frame */
-	      add_fixed_field (fixed_tree, tvb, 1, FIELD_ACTION_CODE);
+	    case CAT_MGMT_NOTIFICATION:	/* Management notification frame */
+	      fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 4);
+	      add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+	      add_fixed_field (fixed_tree, tvb, 1, FIELD_WME_ACTION_CODE);
 	      add_fixed_field (fixed_tree, tvb, 2, FIELD_DIALOG_TOKEN);
+	      add_fixed_field (fixed_tree, tvb, 3, FIELD_WME_STATUS_CODE);
+	      offset = 4;	/* Size of fixed fields */
+	      break;
+
+	    default:
+	      fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 1);
+	      add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+	      offset = 1;	/* Size of fixed fields */
 	      break;
 	    }
+
+	    tagged_parameter_tree_len =
+	      tvb_reported_length_remaining(tvb, offset);
+	    if (tagged_parameter_tree_len != 0)
+	      {
+		tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
+							 tagged_parameter_tree_len);
+		ieee_80211_add_tagged_parameters (tvb, offset, pinfo, tagged_tree,
+						  tagged_parameter_tree_len);
+	      }
 	  break;
 	}
 }
@@ -3242,26 +3270,21 @@ proto_register_ieee80211 (void)
   };
 
   static const value_string category_codes[] = {
-    {0x11, "Management notification frame"},
-    {0x00, NULL}
+    {CAT_SPECTRUM_MGMT, "Spectrum Management"},
+    {CAT_QOS, "QoS"},
+    {CAT_QOS, "DLS"},
+    {CAT_BLOCK_ACK, "Block Ack"},
+    {CAT_MGMT_NOTIFICATION, "Management notification frame"},
+    {0, NULL}
   };
 
-  static const value_string action_codes[] = {
-    {0x00, "Spectrum Management"},
-    {0x01, "QoS"},
-    {0x02, "DLS"},
-    {0x03, "Block Ack"},
-    {0x00, NULL}
-  };
-
-  /* XXX - Table 20e, IEEE 802.11h.  Why aren't we using it? */
-  static const value_string spec_man_action[] ={
-    {0x00, "Measurement Request"},
-    {0x01, "Measurement Report"},
-    {0x02, "TPC Request"},
-    {0x03, "TPC Report"},
-    {0x04, "Channel Switch Announcement"},
-    {0x00, NULL}
+  static const value_string action_codes[] ={
+    {SM_ACTION_MEASUREMENT_REQUEST, "Measurement Request"},
+    {SM_ACTION_MEASUREMENT_REPORT, "Measurement Report"},
+    {SM_ACTION_TPC_REQUEST, "TPC Request"},
+    {SM_ACTION_TPC_REPORT, "TPC Report"},
+    {SM_ACTION_CHAN_SWITCH_ANNC, "Channel Switch Announcement"},
+    {0, NULL}
   };
     
   static const value_string wme_action_codes[] = {
@@ -3628,12 +3651,12 @@ proto_register_ieee80211 (void)
 
     {&ff_category_code,
      {"Category code", "wlan_mgt.fixed.category_code",
-      FT_UINT16, BASE_HEX, VALS (&category_codes), 0,
+      FT_UINT16, BASE_DEC, VALS (&category_codes), 0,
       "Management action category", HFILL }},
 
     {&ff_action_code,
      {"Action code", "wlan_mgt.fixed.action_code",
-      FT_UINT16, BASE_HEX, VALS (&action_codes), 0,
+      FT_UINT16, BASE_DEC, VALS (&action_codes), 0,
       "Management action code", HFILL }},
 
     {&ff_dialog_token,
