@@ -137,6 +137,8 @@ static int
 dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *tree)
 {
+	char *mountpoint=NULL;
+
 	if((!pinfo->fd->flags.visited) && nfs_file_name_snooping){
 		rpc_call_info_value *civ=pinfo->private_data;
 
@@ -165,10 +167,11 @@ dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
-	if ( tree )
-	{
-		offset = dissect_rpc_string(tvb,tree,hf_mount_path,offset,NULL);
+	offset = dissect_rpc_string(tvb,tree,hf_mount_path,offset,&mountpoint);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO," %s", mountpoint);
 	}
+
 
 	return offset;
 }
