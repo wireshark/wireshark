@@ -36,10 +36,10 @@
    Flags in the EDP Vlan field
    Meaning of speical MAC adresses:
 	ExtremeN:00:00:01
-	ExtremeN:00:00:04
 	ExtremeN:00:00:06
    TLV type 0x0e (XOS only?)
    TLV type 0x15 (XOS only?)
+   EAPS type 0x10
 
 The following information is taken from the Extreme knowledge base
 (login required). Search for ESRP.
@@ -211,8 +211,15 @@ static int hf_edp_eaps_helloseq = -1;
 static int hf_edp_eaps_reserved2 = -1;
 
 static gint ett_edp = -1;
-static gint ett_edp_tlv = -1;
+static gint ett_edp_tlv_header = -1;
+static gint ett_edp_display = -1;
+static gint ett_edp_info = -1;
+static gint ett_edp_info_version = -1;
+static gint ett_edp_vlan = -1;
 static gint ett_edp_vlan_flags = -1;
+static gint ett_edp_esrp = -1;
+static gint ett_edp_eaps = -1;
+static gint ett_edp_unknown = -1;
 
 #define PROTO_SHORT_NAME "EDP"
 #define PROTO_LONG_NAME "Extreme Discovery Protocol"
@@ -286,51 +293,113 @@ static const value_string eaps_state_vals[] = {
 };
 
 static void
-dissect_display_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, proto_tree *tree)
+dissect_tlv_header(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length _U_, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_edp_display, tvb, offset, length,
+	proto_item	*tlv_item;
+	proto_tree	*tlv_tree;
+	guint8		tlv_marker;
+	guint8		tlv_type;
+	guint16		tlv_length;
+	
+	tlv_marker = tvb_get_guint8(tvb, offset),
+	tlv_type = tvb_get_guint8(tvb, offset + 1);
+	tlv_length = tvb_get_ntohs(tvb, offset + 2);
+
+	tlv_item = proto_tree_add_text(tree, tvb, offset, 4,
+		"L: %d M: 0x%02x T: %d = %s",
+		tlv_length, tlv_marker, tlv_type,
+		val_to_str(tlv_type, edp_type_vals, "Unknown (0x%02x)"));
+
+	tlv_tree = proto_item_add_subtree(tlv_item, ett_edp_tlv_header);
+	proto_tree_add_item(tlv_tree, hf_edp_tlv_marker, tvb, offset, 1,
+		FALSE);
+	offset += 1;
+
+	proto_tree_add_uint(tlv_tree, hf_edp_tlv_type, tvb, offset, 1,
+		tlv_type);
+	offset += 1;
+
+	proto_tree_add_uint(tlv_tree, hf_edp_tlv_length, tvb, offset, 2,
+		tlv_length);
+	offset += 2;
+}
+
+static void
+dissect_display_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
+{
+	proto_item	*display_item;
+	proto_tree	*display_tree;
+
+	display_item = proto_tree_add_text(tree, tvb, offset, length,
+		"Display: \"%s\"", tvb_get_ephemeral_string(tvb, offset + 0 + 4, length));
+
+	display_tree = proto_item_add_subtree(display_item, ett_edp_display);
+
+	dissect_tlv_header(tvb, pinfo, offset, 4, display_tree);
+	offset += 4;
+	proto_tree_add_item(display_tree, hf_edp_display, tvb, offset, length,
 		FALSE);
 }
 
 static void
-dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length _U_, proto_tree *tree)
+dissect_null_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, proto_tree *tree)
 {
-	proto_item *tlvi;
+	dissect_tlv_header(tvb, pinfo, offset, 4, tree);
+	offset += 4;
+}
+
+static void
+dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
+{
+	proto_item *ver_item;
 	proto_tree *ver_tree;
 	guint8 major1, major2, sustaining, internal;
 	guint16 port, slot;
+	proto_item	*info_item;
+	proto_tree	*info_tree;
 
 	/* The slot and port numbers printed on the chassis are 1
 	   bigger than the transmitted values indicate */
-	slot = tvb_get_ntohs(tvb, offset) + 1;
-	proto_tree_add_uint(tree, hf_edp_info_slot, tvb, offset, 2,
+	slot = tvb_get_ntohs(tvb, offset + 0 + 4) + 1;
+	port = tvb_get_ntohs(tvb, offset + 1 + 4) + 1;
+
+	/* version */
+	major1 = tvb_get_guint8(tvb, offset + 12 + 4);
+	major2 = tvb_get_guint8(tvb, offset + 13 + 4);
+	sustaining = tvb_get_guint8(tvb, offset + 14 + 4);
+	internal = tvb_get_guint8(tvb, offset + 15 + 4);
+
+	info_item = proto_tree_add_text(tree, tvb, offset, length,
+		"Info: P: %d/%d V: %d.%d.%d",
+		slot, port, major1, major2, sustaining);
+
+	info_tree = proto_item_add_subtree(info_item, ett_edp_info);
+
+	dissect_tlv_header(tvb, pinfo, offset, 4, info_tree);
+	offset += 4;
+
+	proto_tree_add_uint(info_tree, hf_edp_info_slot, tvb, offset, 2,
 		slot);
 	offset += 2;
 
-	port = tvb_get_ntohs(tvb, offset) + 1;
-	proto_tree_add_uint(tree, hf_edp_info_port, tvb, offset, 2,
+	proto_tree_add_uint(info_tree, hf_edp_info_port, tvb, offset, 2,
 		port);
 	offset += 2;
 
-	proto_tree_add_item(tree, hf_edp_info_vchassid, tvb, offset, 2,
+	proto_tree_add_item(info_tree, hf_edp_info_vchassid, tvb, offset, 2,
 		FALSE);
 	offset += 2;
 
-	proto_tree_add_item(tree, hf_edp_info_reserved, tvb, offset, 6,
+	proto_tree_add_item(info_tree, hf_edp_info_reserved, tvb, offset, 6,
 		FALSE);
 	offset += 6;
 
 	/* Begin version subtree */
-	major1 = tvb_get_guint8(tvb, offset);
-	major2 = tvb_get_guint8(tvb, offset + 1);
-	sustaining = tvb_get_guint8(tvb, offset + 2);
-	internal = tvb_get_guint8(tvb, offset + 3);
-
-	tlvi = proto_tree_add_text(tree, tvb, offset, 4,
+	ver_item = proto_tree_add_text(info_tree, tvb, offset, 4,
 		"Version: %u.%u.%u Internal: %u", major1, major2,
 		sustaining, internal);
 
-	ver_tree = proto_item_add_subtree(tlvi, ett_edp_tlv);
+	ver_tree = proto_item_add_subtree(ver_item, ett_edp_info_version);
 
 	proto_tree_add_item(ver_tree, hf_edp_info_version, tvb, offset, 4,
 		FALSE);
@@ -352,18 +421,33 @@ dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length _
 	offset += 1;
 	/* End of version subtree */
 
-	proto_tree_add_item(tree, hf_edp_info_vchassconn, tvb, offset, 16,
+	proto_tree_add_item(info_tree, hf_edp_info_vchassconn, tvb, offset, 16,
 		FALSE);
 	offset += 16;
 }
 
 static void
-dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, proto_tree *tree)
+dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
 {
-	proto_item *flags_item;
-	proto_tree *flags_tree;
+	proto_item	*flags_item;
+	proto_tree	*flags_tree;
+	proto_item	*vlan_item;
+	proto_tree	*vlan_tree;
+	guint16		vlan_id;
 
-	flags_item = proto_tree_add_item(tree, hf_edp_vlan_flags, tvb, offset, 1,
+	vlan_id = tvb_get_ntohs(tvb, offset + 2 + 4);
+
+	vlan_item = proto_tree_add_text(tree, tvb, offset, length,
+		"Vlan: ID: %d Name: %s", vlan_id,
+		tvb_get_ephemeral_string(tvb, offset + 12 + 4, length - (12 + 4)));
+
+	vlan_tree = proto_item_add_subtree(vlan_item, ett_edp_vlan);
+
+	dissect_tlv_header(tvb, pinfo, offset, 4, vlan_tree);
+	offset += 4;
+
+	/* Begin flags subtree */
+	flags_item = proto_tree_add_item(vlan_tree, hf_edp_vlan_flags, tvb, offset, 1,
 		FALSE);
 
 	flags_tree = proto_item_add_subtree(flags_item, ett_edp_vlan_flags);
@@ -375,120 +459,169 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, 
 	proto_tree_add_item(flags_tree, hf_edp_vlan_flags_unknown, tvb, offset, 1,
 		FALSE);
 	offset += 1;
+	/* End of flags subtree */
 
-	proto_tree_add_item(tree, hf_edp_vlan_reserved1, tvb, offset, 1,
+	proto_tree_add_item(vlan_tree, hf_edp_vlan_reserved1, tvb, offset, 1,
 		FALSE);
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_edp_vlan_id, tvb, offset, 2,
+	proto_tree_add_item(vlan_tree, hf_edp_vlan_id, tvb, offset, 2,
 		FALSE);
 	offset += 2;
 
-	proto_tree_add_item(tree, hf_edp_vlan_reserved2, tvb, offset, 4,
+	proto_tree_add_item(vlan_tree, hf_edp_vlan_reserved2, tvb, offset, 4,
 		FALSE);
 	offset += 4;
 
-	proto_tree_add_item(tree, hf_edp_vlan_ip, tvb, offset, 4,
+	proto_tree_add_item(vlan_tree, hf_edp_vlan_ip, tvb, offset, 4,
 		FALSE); 
 	offset += 4;
 
-	proto_tree_add_item(tree, hf_edp_vlan_name, tvb, offset, length - 12,
+	proto_tree_add_item(vlan_tree, hf_edp_vlan_name, tvb, offset, length - 12,
 		FALSE);
 	offset += (length - 12);
 }
 
 static void
-dissect_esrp_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, proto_tree *tree)
+dissect_esrp_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
 {
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESRP");
+	proto_item	*esrp_item;
+	proto_tree	*esrp_tree;
+	guint16		group;
 
-	proto_tree_add_item(tree, hf_edp_esrp_proto, tvb, offset, 1,
+	group = tvb_get_guint8(tvb, offset + 1 + 4);
+	esrp_item = proto_tree_add_text(tree, tvb, offset, length,
+		"ESRP: G: %d", group);
+
+	esrp_tree = proto_item_add_subtree(esrp_item, ett_edp_esrp);
+
+	dissect_tlv_header(tvb, pinfo, offset, 4, esrp_tree);
+	offset += 4;
+
+	proto_tree_add_item(esrp_tree, hf_edp_esrp_proto, tvb, offset, 1,
 		FALSE);
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_edp_esrp_group, tvb, offset, 1,
+	proto_tree_add_item(esrp_tree, hf_edp_esrp_group, tvb, offset, 1,
 		FALSE);
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_edp_esrp_prio, tvb, offset, 2,
+	proto_tree_add_item(esrp_tree, hf_edp_esrp_prio, tvb, offset, 2,
 		FALSE);
 	offset += 2;
 	
-	proto_tree_add_item(tree, hf_edp_esrp_state, tvb, offset, 2,
+	proto_tree_add_item(esrp_tree, hf_edp_esrp_state, tvb, offset, 2,
 		FALSE);
 	offset += 2;
 
-	proto_tree_add_item(tree, hf_edp_esrp_ports, tvb, offset, 2,
+	proto_tree_add_item(esrp_tree, hf_edp_esrp_ports, tvb, offset, 2,
 		FALSE);
 	offset += 2;
 
-	proto_tree_add_item(tree, hf_edp_esrp_virtip, tvb, offset, 4,
+	proto_tree_add_item(esrp_tree, hf_edp_esrp_virtip, tvb, offset, 4,
 		FALSE);
 	offset += 4;
 
-	proto_tree_add_item(tree, hf_edp_esrp_sysmac, tvb, offset, 6,
+	proto_tree_add_item(esrp_tree, hf_edp_esrp_sysmac, tvb, offset, 6,
 		FALSE);
 	offset += 6;
 
-	proto_tree_add_item(tree, hf_edp_esrp_hello, tvb, offset, 2,
+	proto_tree_add_item(esrp_tree, hf_edp_esrp_hello, tvb, offset, 2,
 		FALSE);
 	offset += 2;
 
-	proto_tree_add_item(tree, hf_edp_esrp_reserved, tvb, offset, 2,
+	proto_tree_add_item(esrp_tree, hf_edp_esrp_reserved, tvb, offset, 2,
 		FALSE);
 	offset += 2;
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESRP");
 }
 
 static void
 dissect_eaps_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, proto_tree *tree)
 {
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAPS");
+	proto_item	*eaps_item;
+	proto_tree	*eaps_tree;
+	guint16		ctrlvlanid;
 
-	proto_tree_add_item(tree, hf_edp_eaps_ver, tvb, offset, 1,
+	ctrlvlanid = tvb_get_ntohs(tvb, offset + 2 + 4);
+
+	eaps_item = proto_tree_add_text(tree, tvb, offset, length,
+		"EAPS: C: %d", ctrlvlanid);
+
+	eaps_tree = proto_item_add_subtree(eaps_item, ett_edp_eaps);
+
+	dissect_tlv_header(tvb, pinfo, offset, 4, eaps_tree);
+	offset += 4;
+
+	proto_tree_add_item(eaps_tree, hf_edp_eaps_ver, tvb, offset, 1,
 		FALSE);
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_edp_eaps_type, tvb, offset, 1,
+	proto_tree_add_item(eaps_tree, hf_edp_eaps_type, tvb, offset, 1,
 		FALSE);
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_edp_eaps_ctrlvlanid, tvb, offset, 2,
+	proto_tree_add_item(eaps_tree, hf_edp_eaps_ctrlvlanid, tvb, offset, 2,
 		FALSE);
 	offset += 2;
 
-	proto_tree_add_item(tree, hf_edp_eaps_reserved0, tvb, offset, 4,
+	proto_tree_add_item(eaps_tree, hf_edp_eaps_reserved0, tvb, offset, 4,
 		FALSE);
 	offset += 4;
 
-	proto_tree_add_item(tree, hf_edp_eaps_sysmac, tvb, offset, 6,
+	proto_tree_add_item(eaps_tree, hf_edp_eaps_sysmac, tvb, offset, 6,
 		FALSE);
 	offset += 6;
 
-	proto_tree_add_item(tree, hf_edp_eaps_hello, tvb, offset, 2,
+	proto_tree_add_item(eaps_tree, hf_edp_eaps_hello, tvb, offset, 2,
 		FALSE);
 	offset += 2;
 
-	proto_tree_add_item(tree, hf_edp_eaps_fail, tvb, offset, 2,
+	proto_tree_add_item(eaps_tree, hf_edp_eaps_fail, tvb, offset, 2,
 		FALSE);
 	offset += 2;
 
-	proto_tree_add_item(tree, hf_edp_eaps_state, tvb, offset, 1,
+	proto_tree_add_item(eaps_tree, hf_edp_eaps_state, tvb, offset, 1,
 		FALSE);
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_edp_eaps_reserved1, tvb, offset, 1,
+	proto_tree_add_item(eaps_tree, hf_edp_eaps_reserved1, tvb, offset, 1,
 		FALSE);
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_edp_eaps_helloseq, tvb, offset, 2,
+	proto_tree_add_item(eaps_tree, hf_edp_eaps_helloseq, tvb, offset, 2,
 		FALSE);
 	offset += 2;
 
-	proto_tree_add_item(tree, hf_edp_eaps_reserved2, tvb, offset, 38,
+	proto_tree_add_item(eaps_tree, hf_edp_eaps_reserved2, tvb, offset, 38,
 		FALSE);
 	offset += 38;
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAPS");
+}
+
+static void
+dissect_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, proto_tree *tree)
+{
+	proto_item	*unknown_item;
+	proto_tree	*unknown_tree;
+	guint8		tlv_type;
+
+	tlv_type = tvb_get_guint8(tvb, offset + 1);
+
+	unknown_item = proto_tree_add_text(tree, tvb, offset, length,
+		"Unknown element [0x%02x]", tlv_type);
+
+	unknown_tree = proto_item_add_subtree(unknown_item, ett_edp_unknown);
+
+	dissect_tlv_header(tvb, pinfo, offset, 4, unknown_tree);
+	offset += 4;
+
+	proto_tree_add_text(unknown_tree, tvb, offset + 0, length -4,
+		"Unknown data");
 }
 
 static void
@@ -496,7 +629,6 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_item *tlvi;
-	proto_tree *tlv_tree;
 	proto_tree *edp_tree = NULL;
 	guint32 offset = 0;
 	gboolean last = FALSE;
@@ -563,54 +695,35 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				last = TRUE;
 				break;
 			}
-			/* FIXME: Show type specific information */
-			tlvi = proto_tree_add_text(edp_tree, tvb, offset,
-				tlv_length, "Type: %s, length: %d bytes",
-				val_to_str(tlv_type, edp_type_vals, "Unknown (0x%02x)"),
-				tlv_length);
-
-			tlv_tree = proto_item_add_subtree(tlvi, ett_edp_tlv);
-			proto_tree_add_item(tlv_tree, hf_edp_tlv_marker, tvb, offset, 1,
-				FALSE);
-			offset += 1;
-
-			proto_tree_add_uint(tlv_tree, hf_edp_tlv_type, tvb, offset, 1,
-				tlv_type);
-			offset += 1;
-
-			proto_tree_add_uint(tlv_tree, hf_edp_tlv_length, tvb, offset, 2,
-				tlv_length);
-			offset += 2;
-
 			if (check_col(pinfo->cinfo, COL_INFO))
 				col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
 					val_to_str(tlv_type, edp_type_vals, "[0x%02x]"));
 
 			switch (tlv_type) {
 			case EDP_TYPE_NULL: /* Last TLV */
+				dissect_null_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
 				last = 1;
 				break;
 			case EDP_TYPE_DISPLAY: /* MIB II display string */
-				dissect_display_tlv(tvb, pinfo, offset, tlv_length - 4, tlv_tree);
+				dissect_display_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
 				break;
 			case EDP_TYPE_INFO: /* Basic system information */
-				dissect_info_tlv(tvb, pinfo, offset, tlv_length - 4, tlv_tree);
+				dissect_info_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
 				break;
 			case EDP_TYPE_VLAN: /* VLAN info */
-				dissect_vlan_tlv(tvb, pinfo, offset, tlv_length - 4, tlv_tree);
+				dissect_vlan_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
 				break;
 			case EDP_TYPE_ESRP: /* Extreme Standby Router Protocol */
-				dissect_esrp_tlv(tvb, pinfo, offset, tlv_length - 4, tlv_tree);
+				dissect_esrp_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
 				break;
 			case EDP_TYPE_EAPS: /* Ethernet Automatic Protection Swtiching */
-				dissect_eaps_tlv(tvb, pinfo, offset, tlv_length - 4, tlv_tree);
+				dissect_eaps_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
 				break;
 			default:
-				proto_tree_add_text(tlv_tree, tvb, offset,
-					tlv_length - 4, "Unknown data");
+				dissect_unknown_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
 				break;
 			}
-			offset += (tlv_length - 4);
+			offset += tlv_length;
 		}
 
 	}
@@ -831,8 +944,15 @@ proto_register_edp(void)
         };
 	static gint *ett[] = {
 		&ett_edp,
-		&ett_edp_tlv,
+		&ett_edp_tlv_header,
 		&ett_edp_vlan_flags,
+		&ett_edp_display,
+		&ett_edp_info,
+		&ett_edp_info_version,
+		&ett_edp_vlan,
+		&ett_edp_esrp,
+		&ett_edp_eaps,
+		&ett_edp_unknown,
 	};
 
         proto_edp = proto_register_protocol(PROTO_LONG_NAME,
