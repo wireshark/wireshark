@@ -1006,9 +1006,9 @@ init_prefs(void) {
    * protocol-tree, and hex-dump windows involves a lot more than, say,
    * just using font sets rather than fonts.
    */
-  prefs.gui_font_name1 = g_strdup("-misc-fixed-medium-r-semicondensed-*-*-120-*-*-*-*-iso8859-1");
+  prefs.gui_font_name1 = g_strdup("-misc-fixed-medium-r-semicondensed-*-*-100-*-*-*-*-iso8859-1");
   /* XXX- is this the correct default font name for GTK2 none win32? */
-  prefs.gui_font_name2 = g_strdup("fixed medium 12");
+  prefs.gui_font_name2 = g_strdup("Monospace 10");
 #endif
   prefs.gui_marked_fg.pixel        =     65535;
   prefs.gui_marked_fg.red          =     65535;
