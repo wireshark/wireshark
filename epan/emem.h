@@ -60,13 +60,14 @@ guint8* ep_memdup(const guint8* src, size_t len);
 /* Create a formated string with a packet lifetime scope */
 gchar* ep_strdup_printf(const gchar* fmt, ...);
 
-/* allocates with a packet lifetime scope a array of type made of num elements */
+/* allocates with a packet lifetime scope an array of type made of num elements */
 #define ep_alloc_array(type,num) (type*)ep_alloc(sizeof(type)*(num))
 
 /* 
  * Splits a string into a maximum of max_tokens pieces, using the given
  * delimiter. If max_tokens is reached, the remainder of string is appended
- * to the last token.
+ * to the last token. Consecutive delimiters are treated as a single delimiter.
+ *
  * the vector and all the strings are allocated with packet lifetime scope
  */
 gchar** ep_strsplit(const gchar* string, const gchar* delimiter, int max_tokens);
@@ -95,6 +96,24 @@ void se_init_chunk(void);
 
 /* Allocate memory with a capture lifetime scope */
 void *se_alloc(size_t size);
+
+/* Allocate memory with a capture lifetime scope and fill it with zeros*/
+void* se_alloc0(size_t size);
+
+/* Duplicate a string with a capture lifetime scope */
+gchar* se_strdup(const gchar* src);
+
+/* Duplicate at most n characters of a string with a capture lifetime scope */
+gchar* se_strndup(const gchar* src, size_t len);
+
+/* Duplicate a buffer with a capture lifetime scope */
+guint8* se_memdup(const guint8* src, size_t len);
+
+/* Create a formated string with a capture lifetime scope */
+gchar* se_strdup_printf(const gchar* fmt, ...);
+
+/* allocates with a capture lifetime scope an array of type made of num elements */
+#define se_alloc_array(type,num) (type*)ep_alloc(sizeof(type)*(num))
 
 /* release all memory allocated */
 void se_free_all(void);

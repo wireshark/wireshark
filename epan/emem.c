@@ -312,6 +312,56 @@ gchar** ep_strsplit(const gchar* string, const gchar* sep, int max_tokens) {
 	return vec;
 }
 
+
+
+void* se_alloc0(size_t size) {
+	return memset(se_alloc(size),'\0',size);
+}
+
+gchar* se_strdup(const gchar* src) {
+	guint len = strlen(src);
+	gchar* dst;
+	
+	dst = strncpy(se_alloc(len+1), src, len);
+	
+	dst[len] = '\0';
+	
+	return dst;
+}
+
+gchar* se_strndup(const gchar* src, size_t len) {
+	guint actual_len = strlen(src);
+	gchar* dst;
+	
+	if (len > actual_len)
+		len = actual_len;
+	
+	dst = strncpy(se_alloc(len+1), src, len);
+	
+	dst[len] = '\0';
+	
+	return dst;
+}
+
+guint8* se_memdup(const guint8* src, size_t len) {
+	return memcpy(se_alloc(len), src, len);
+}
+
+gchar* se_strdup_printf(const gchar* fmt, ...) {
+	va_list ap;
+	guint len;
+	gchar* dst;
+	
+	va_start(ap,fmt);
+	len = g_printf_string_upper_bound (fmt, ap);
+	
+	dst = se_alloc(len+1);
+	g_vsnprintf (dst, len, fmt, ap);
+	
+	va_end(ap);
+	return dst;
+}
+
 /* release all allocated memory back to the pool.
  */
 void
