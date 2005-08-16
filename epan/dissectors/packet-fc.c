@@ -569,31 +569,24 @@ fc_get_ftype (guint8 r_ctl, guint8 type)
         default:
             return FC_FTYPE_UNDEF;
         }
-        break;
     case FC_RCTL_ELS:
         if (((r_ctl & 0x0F) == 0x2) || ((r_ctl & 0x0F) == 0x3))
             return FC_FTYPE_ELS;
         else
             return FC_FTYPE_UNDEF;
-        break;
     case FC_RCTL_LINK_DATA:
         return FC_FTYPE_LINKDATA;
-        break;
     case FC_RCTL_VIDEO:
         return FC_FTYPE_VDO;
-        break;
     case FC_RCTL_BLS:
         if (type == 0)
             return FC_FTYPE_BLS;
         else
             return FC_FTYPE_UNDEF;
-        break;
     case FC_RCTL_LINK_CTL:
         return FC_FTYPE_LINKCTL;
-        break;
     default:
         return FC_FTYPE_UNDEF;
-        break;
     }
 }
 
