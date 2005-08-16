@@ -151,7 +151,8 @@ dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "DAAP");
 
    /*
-    * XXX - what about the music itself?  Check for bogus tag values?
+    * XXX - what if the body is gzipped?  This isn't the only protocol
+    * running atop HTTP that might have a problem with that....
     */
    if (check_col(pinfo->cinfo, COL_INFO)) {
       if (is_request) {
