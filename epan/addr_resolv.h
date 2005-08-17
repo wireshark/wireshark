@@ -23,6 +23,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+/* The buffers returned by these functions are all allocated with a 
+ * packet lifetime and does not have have to be freed. 
+ * However, take into account that when the packet dissection
+ * completes, these buffers will be automatically reclaimed/freed.
+ * If you need the buffer to remain for a longer scope than packet lifetime
+ * you must copy the content to an se_alloc() buffer.
+ */
 
 #ifndef __RESOLV_H__
 #define __RESOLV_H__
@@ -88,10 +95,6 @@ extern gchar *get_sctp_port(guint port);
 /*  - if the address is of any other type, the result of address_to_str on the argument, */
 /*    which should be a string representation for the answer -e.g. "10.10.10.10" for IPv4 */
 /*    address 10.10.10.10 */
-/* take into account that get_addr_name might eventually call address_to_str and return */
-/* its result; this means that the returned pointer is only guaranteed to point to a valid */
-/* string immediately after return, because address_to_str overwrites its previous results */
-/* and it must not be g_free'd */
 
 const gchar *get_addr_name(address *addr);
 
