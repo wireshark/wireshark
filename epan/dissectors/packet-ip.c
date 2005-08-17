@@ -36,10 +36,6 @@
 #include <string.h>
 #include <glib.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
@@ -706,7 +702,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
       optp = NULL;	/* indicate that we don't know this option */
       len_type = VARIABLE_LENGTH;
       optlen = 2;
-      snprintf(name_str, sizeof name_str, "Unknown (0x%02x)", opt);
+      g_snprintf(name_str, sizeof name_str, "Unknown (0x%02x)", opt);
       name = name_str;
       dissect = NULL;
     } else {
