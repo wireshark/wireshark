@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-gsm_map.c                                                         */
+/* .\packet-gsm_map.c                                                         */
 /* ../../tools/asn2eth.py -X -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
 
 /* Input file: packet-gsm_map-template.c */
@@ -14208,15 +14208,14 @@ static guint8 gsm_map_pdu_size = 0;
 static int
 dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo , proto_tree *tree, int hf_index) {
 
-  char *version_ptr, *version_str;
+  char *version_ptr;
 
   opcode = 0;
   application_context_version = 0;
   if (pinfo->private_data != NULL){
     version_ptr = strrchr(pinfo->private_data,'.');
 	if (version_ptr) {
-		version_str = g_strdup(version_ptr+1);
-		application_context_version = atoi(version_str);
+		application_context_version = atoi(version_ptr+1);
 	}
   }
 
