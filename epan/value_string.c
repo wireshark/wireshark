@@ -29,6 +29,7 @@
 #include <stdio.h>
 
 #include "to_str.h"
+#include "emem.h"
 #include "value_string.h"
 
 /* Tries to match val against each element in the value_string array vs.
@@ -37,8 +38,7 @@
 const gchar*
 val_to_str(guint32 val, const value_string *vs, const char *fmt) {
   const gchar *ret;
-  static gchar  str[3][64];
-  static gchar *cur;
+  gchar *cur;
 
   g_assert(fmt != NULL);
 
@@ -46,13 +46,7 @@ val_to_str(guint32 val, const value_string *vs, const char *fmt) {
   if (ret != NULL)
     return ret;
 
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {
-    cur = &str[2][0];
-  } else {
-    cur = &str[0][0];
-  }
+  cur=ep_alloc(64);
   g_snprintf(cur, 64, fmt, val);
   return cur;
 }

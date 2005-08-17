@@ -32,20 +32,14 @@
 #include "packet_info.h"
 #include "pint.h"
 #include "sna-utils.h"
+#include "emem.h"
 
 gchar *
 sna_fid_to_str(const address *addr)
 {
-  static gchar	str[3][14];
-  static gchar	*cur;
+  gchar	*cur;
 
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {
-    cur = &str[2][0];
-  } else {
-    cur = &str[0][0];
-  }
+  cur=ep_alloc(14);
   sna_fid_to_str_buf(addr, cur);
   return cur;
 }
