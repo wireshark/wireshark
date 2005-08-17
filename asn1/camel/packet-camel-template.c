@@ -509,9 +509,7 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
   if (pinfo->private_data != NULL){
     version_ptr = strrchr(pinfo->private_data,'.');
     if (version_ptr) {
-      version_str = g_strdup(version_ptr+1);
-      application_context_version = atoi(version_str);
-      g_free(version_str);
+      application_context_version = atoi(version_ptr+1);
     }
   }
 
