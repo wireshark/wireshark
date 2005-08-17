@@ -32,6 +32,7 @@
 #include <epan/strutil.h>
 #include <epan/arptypes.h>
 #include <epan/addr_resolv.h>
+#include <epan/emem.h>
 #include "packet-arp.h"
 #include "etypes.h"
 #include "arcnet_pids.h"
@@ -165,15 +166,12 @@ arpproaddr_to_str(const guint8 *ad, int ad_len, guint16 type)
   return bytes_to_str(ad, ad_len);
 }
 
-#define	N_ATMARPNUM_TO_STR_STRINGS	2
 #define	MAX_E164_STR_LEN		20
 
 static const gchar *
 atmarpnum_to_str(const guint8 *ad, int ad_tl)
 {
   int           ad_len = ad_tl & ATMARP_LEN_MASK;
-  static gchar  str[N_ATMARPNUM_TO_STR_STRINGS][MAX_E164_STR_LEN+3+1];
-  static int    cur_idx;
   gchar        *cur;
 
   if (ad_len == 0)
@@ -183,10 +181,7 @@ atmarpnum_to_str(const guint8 *ad, int ad_tl)
     /*
      * I'm assuming this means it's an ASCII (IA5) string.
      */
-    cur_idx++;
-    if (cur_idx >= N_ATMARPNUM_TO_STR_STRINGS)
-      cur_idx = 0;
-    cur = &str[cur_idx][0];
+    cur = ep_alloc(MAX_E164_STR_LEN+3+1);
     if (ad_len > MAX_E164_STR_LEN) {
       /* Can't show it all. */
       memcpy(cur, ad, MAX_E164_STR_LEN);

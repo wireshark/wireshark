@@ -34,6 +34,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include "packet-smb-common.h"
 
 /*
@@ -142,21 +143,14 @@ static gchar *
 unicode_to_str(tvbuff_t *tvb, int offset, int *us_lenp, gboolean exactlen,
 		   guint16 bc)
 {
-  static gchar  str[3][MAX_UNICODE_STR_LEN+3+1];
-  static gchar *cur;
+  gchar *cur;
   gchar        *p;
   guint16       uchar;
   int           len;
   int           us_len;
   gboolean      overflow = FALSE;
 
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {
-    cur = &str[2][0];
-  } else {
-    cur = &str[0][0];
-  }
+  cur=ep_alloc(MAX_UNICODE_STR_LEN+3+1);
   p = cur;
   len = MAX_UNICODE_STR_LEN;
   us_len = 0;
@@ -212,8 +206,7 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
     gboolean useunicode, int *len, gboolean nopad, gboolean exactlen,
     guint16 *bcp)
 {
-  static gchar  str[3][MAX_UNICODE_STR_LEN+3+1];
-  static gchar *cur;
+  gchar *cur;
   const gchar *string;
   int string_len;
   int copylen;
@@ -247,13 +240,7 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
       /*
        * The string we return must be null-terminated.
        */
-      if (cur == &str[0][0]) {
-        cur = &str[1][0];
-      } else if (cur == &str[1][0]) {
-        cur = &str[2][0];
-      } else {
-        cur = &str[0][0];
-      }
+      cur=ep_alloc(MAX_UNICODE_STR_LEN+3+1);
       copylen = *len;
       if (copylen < 0) {
         /* This probably means it's a very large unsigned number; just set

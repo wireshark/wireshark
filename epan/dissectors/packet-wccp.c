@@ -31,6 +31,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include <epan/emem.h>
 #include "packet-wccp.h"
 
 static int proto_wccp = -1;
@@ -377,17 +378,9 @@ wccp_bucket_info(guint8 bucket_info, proto_tree *bucket_tree, guint32 start,
 static gchar *
 bucket_name(guint8 bucket)
 {
-	static gchar str[4][10+1];
-	static gchar *cur;
+	gchar *cur;
 
-	if (cur == &str[0][0])
-		cur = &str[1][0];
-	else if (cur == &str[1][0])
-		cur = &str[2][0];
-	else if (cur == &str[2][0])
-		cur = &str[3][0];
-	else
-		cur = &str[0][0];
+	cur=ep_alloc(10+1);
 	if (bucket == 0xff)
 		strcpy(cur, "Unassigned");
 	else
@@ -968,17 +961,9 @@ dissect_wccp2_router_assignment_element(tvbuff_t *tvb, int offset,
 static gchar *
 assignment_bucket_name(guint8 bucket)
 {
-	static gchar str[4][10+1];
-	static gchar *cur;
+	gchar *cur;
 
-	if (cur == &str[0][0])
-		cur = &str[1][0];
-	else if (cur == &str[1][0])
-		cur = &str[2][0];
-	else if (cur == &str[2][0])
-		cur = &str[3][0];
-	else
-		cur = &str[0][0];
+	cur=ep_alloc(10+1);
 	if (bucket == 0xff)
 		strcpy(cur, "Unassigned");
 	else {

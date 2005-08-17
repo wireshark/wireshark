@@ -34,6 +34,7 @@
 #include <epan/prefs.h>
 #include <epan/packet.h>
 #include <epan/reassemble.h>
+#include <epan/emem.h>
 #include "packet-osi.h"
 #include "packet-osi-options.h"
 #include "packet-isis.h"
@@ -408,20 +409,11 @@ static gboolean is_all_printable(const guchar *stringtocheck, int length)
 static gchar *print_tsap(const guchar *tsap, int length)
 {
 
-  static gchar  str[3][MAX_TSAP_LEN * 2 + 3];	/* TSAP in hex + '0x' + NULL */
-  static gchar *cur;
+  gchar *cur;
   gchar tmp[3];
   gboolean allprintable;
 
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {
-    cur = &str[2][0];
-  } else {
-    cur = &str[0][0];
-  }
-
-
+  cur=ep_alloc(MAX_TSAP_LEN * 2 + 3);
   cur[0] = '\0';
   if (length <= 0 || length > MAX_TSAP_LEN)
     sprintf(cur, "<unsupported TSAP length>");

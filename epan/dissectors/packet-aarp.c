@@ -32,6 +32,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include <epan/emem.h>
 #include "etypes.h"
 
 static int proto_aarp = -1;
@@ -105,17 +106,9 @@ static const value_string hrd_vals[] = {
 static gchar *
 atalkid_to_str(const guint8 *ad) {
   gint node;
-  static gchar  str[3][16];
-  static gchar *cur;
+  gchar *cur;
 
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {
-    cur = &str[2][0];
-  } else {
-    cur = &str[0][0];
-  }
-
+  cur=ep_alloc(16);
   node=ad[1]<<8|ad[2];
   sprintf(cur, "%d.%d",node,ad[3]);
   return cur;
