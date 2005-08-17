@@ -25,12 +25,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* Specs:
-
-   EAPS v1 is specified in RFC3619
-
+/*
   TODO:
-   Look for FIXME in the code :-)
    EAPS v2 is not supported (no spec)
    Some stuff in the EDP Info field (no spec)
    Flags in the EDP Vlan field
@@ -40,6 +36,10 @@
    TLV type 0x0e (XOS only?)
    TLV type 0x15 (XOS only?)
    EAPS type 0x10
+
+Specs:
+
+EAPS v1 is specified in RFC3619
 
 The following information is taken from the Extreme knowledge base
 (login required). Search for ESRP.
