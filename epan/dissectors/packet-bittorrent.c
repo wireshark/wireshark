@@ -156,13 +156,13 @@ static guint get_bittorrent_pdu_length(tvbuff_t *tvb, int offset)
                of this TCP segment as "continuation data"; if this is
                a real BitTorrent connection, we probably didn't get some
                data before this segment. */
-            DISSECTOR_ASSERT(!"Reassemble error?");
+            THROW(ReportedBoundsError);
             return 0;
          }
       } else {
          /* For now, we just give up, so we don't end up dissecting
             a message with a bogus length. */
-         DISSECTOR_ASSERT(!"Reassemble error?");
+         THROW(ReportedBoundsError);
          return 0;
       }
    }
