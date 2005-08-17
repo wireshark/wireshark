@@ -67,6 +67,7 @@
 
 #include <epan/prefs.h>
 #include <epan/crypt-md5.h>
+#include <epan/emem.h>
 #include "packet-tacacs.h"
 
 static void md5_xor( guint8 *data, const char *key, int data_len, guint8 *session_id, guint8 version, guint8 seq_no );
@@ -1121,7 +1122,7 @@ md5_xor( guint8 *data, const char *key, int data_len, guint8 *session_id, guint8
 	md5_len = 4 /* sizeof(session_id) */ + strlen(key)
 			+ sizeof(version) + sizeof(seq_no);
 	
-	md5_buff = (md5_byte_t*)g_malloc(md5_len+MD5_LEN);
+	md5_buff = (md5_byte_t*)ep_alloc(md5_len+MD5_LEN);
 
 
 	mdp = md5_buff;
@@ -1151,5 +1152,4 @@ md5_xor( guint8 *data, const char *key, int data_len, guint8 *session_id, guint8
 		md5_append(&mdcontext, md5_buff, md5_len);
 		md5_finish(&mdcontext,hash);
 	}
-	g_free( md5_buff );
 }

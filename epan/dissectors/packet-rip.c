@@ -32,6 +32,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 
 #define UDP_PORT_RIP    520
 
@@ -237,8 +238,8 @@ dissect_ip_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
 
 static gchar *
 rip_bytestring_to_str(const guint8 *ad, guint32 len, char punct) {
-  static gchar  *str=NULL;
-  static guint   str_len;
+  gchar  *str=NULL;
+  guint   str_len;
   gchar        *p;
   int          i;
   guint32      octet;
@@ -252,16 +253,8 @@ rip_bytestring_to_str(const guint8 *ad, guint32 len, char punct) {
       { '0', '1', '2', '3', '4', '5', '6', '7',
         '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
-	if( !str ) {
-		str_len=sizeof(gchar)*len*(punct?3:2);
-		str=g_malloc(str_len);
-	} else {
-		if( str_len < (sizeof(gchar)*len*(punct?3:2)) ) {
-			g_free(str);
-			str_len=sizeof(gchar)*len*(punct?3:2);
-			str=g_malloc(str_len);
-		}
-	}
+  str_len=sizeof(gchar)*len*(punct?3:2);
+  str=ep_alloc(str_len);
   len--;
 
   p = &str[str_len];
