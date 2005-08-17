@@ -760,24 +760,22 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 				proto_tree_add_item( sdes_item_tree, hf_rtcp_ssrc_prefix_len, tvb, offset, 1, FALSE );
 				offset++;
 
-				prefix_string = g_malloc( prefix_len + 1 );
+				prefix_string = ep_alloc( prefix_len + 1 );
 				for ( counter = 0; counter < prefix_len; counter++ )
 					prefix_string[ counter ] =
 					    tvb_get_guint8( tvb, offset + counter );
 				/* strncpy( prefix_string, pd + offset, prefix_len ); */
 				prefix_string[ prefix_len ] = '\0';
 				proto_tree_add_string( sdes_item_tree, hf_rtcp_ssrc_prefix_string, tvb, offset, prefix_len, prefix_string );
-				g_free( prefix_string );
 				offset += prefix_len;
 			}
-			prefix_string = g_malloc( item_len + 1 );
+			prefix_string = ep_alloc( item_len + 1 );
 			for ( counter = 0; counter < item_len; counter++ )
 			    prefix_string[ counter ] =
 			        tvb_get_guint8( tvb, offset + counter );
 			/* strncpy( prefix_string, pd + offset, item_len ); */
 			prefix_string[ item_len] = 0;
 			proto_tree_add_string( sdes_item_tree, hf_rtcp_ssrc_text, tvb, offset, item_len, prefix_string );
-			g_free( prefix_string );
 			offset += item_len;
 		}
 
