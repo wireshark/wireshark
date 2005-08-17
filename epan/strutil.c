@@ -31,6 +31,7 @@
 #include <ctype.h>
 #include <glib.h>
 #include "strutil.h"
+#include "emem.h"
 
 
 /*
@@ -274,18 +275,13 @@ bytes_to_str(const guint8 *bd, int bd_len) {
  */
 gchar *
 bytes_to_str_punct(const guint8 *bd, int bd_len, gchar punct) {
-  static gchar  str[N_BYTES_TO_STR_STRINGS][MAX_BYTE_STR_LEN+3+1];
-  static int    cur_idx;
   gchar        *cur;
   gchar        *p;
   int           len;
   static const char hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
                                 '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
-  cur_idx++;
-  if (cur_idx >= N_BYTES_TO_STR_STRINGS)
-    cur_idx = 0;
-  cur = &str[cur_idx][0];
+  cur=ep_alloc(MAX_BYTE_STR_LEN+3+1);
   p = cur;
   len = MAX_BYTE_STR_LEN;
   while (bd_len > 0 && len > 0) {

@@ -25,20 +25,14 @@
 #endif
 
 #include "atalk-utils.h"
+#include "emem.h"
 
 gchar *
 atalk_addr_to_str(const struct atalk_ddp_addr *addrp)
 {
-  static gchar	str[3][14];
-  static gchar	*cur;
+  gchar	*cur;
 
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {
-    cur = &str[2][0];
-  } else {
-    cur = &str[0][0];
-  }
+  cur=ep_alloc(14);
   atalk_addr_to_str_buf(addrp, cur, 14);
   return cur;
 }

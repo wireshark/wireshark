@@ -118,6 +118,7 @@
 #include "addr_resolv.h"
 #include "filesystem.h"
 #include <epan/prefs.h>
+#include <epan/emem.h>
 
 #define ENAME_HOSTS		"hosts"
 #define ENAME_ETHERS 		"ethers"
@@ -1868,17 +1869,10 @@ extern void add_ipv6_name(struct e_in6_addr *addrp, const gchar *name)
 
 extern gchar *get_udp_port(guint port)
 {
-  static gchar  str[3][MAXNAMELEN];
-  static gchar *cur;
+  gchar *cur;
 
   if (!(g_resolv_flags & RESOLV_TRANSPORT)) {
-    if (cur == &str[0][0]) {
-      cur = &str[1][0];
-    } else if (cur == &str[1][0]) {
-      cur = &str[2][0];
-    } else {
-      cur = &str[0][0];
-    }
+    cur=ep_alloc(MAXNAMELEN);
     g_snprintf(cur, MAXNAMELEN, "%u", port);
     return cur;
   }
@@ -1889,17 +1883,10 @@ extern gchar *get_udp_port(guint port)
 
 extern gchar *get_tcp_port(guint port)
 {
-  static gchar  str[3][MAXNAMELEN];
-  static gchar *cur;
+  gchar *cur;
 
   if (!(g_resolv_flags & RESOLV_TRANSPORT)) {
-    if (cur == &str[0][0]) {
-      cur = &str[1][0];
-    } else if (cur == &str[1][0]) {
-      cur = &str[2][0];
-    } else {
-      cur = &str[0][0];
-    }
+    cur=ep_alloc(MAXNAMELEN);
     g_snprintf(cur, MAXNAMELEN, "%u", port);
     return cur;
   }
@@ -1910,17 +1897,10 @@ extern gchar *get_tcp_port(guint port)
 
 extern gchar *get_sctp_port(guint port)
 {
-  static gchar  str[3][MAXNAMELEN];
-  static gchar *cur;
+  gchar *cur;
 
   if (!(g_resolv_flags & RESOLV_TRANSPORT)) {
-    if (cur == &str[0][0]) {
-      cur = &str[1][0];
-    } else if (cur == &str[1][0]) {
-      cur = &str[2][0];
-    } else {
-      cur = &str[0][0];
-    }
+    cur=ep_alloc(MAXNAMELEN);
     g_snprintf(cur, MAXNAMELEN, "%u", port);
     return cur;
   }
@@ -2106,8 +2086,7 @@ extern guint32 get_ipxnet_addr(const gchar *name, gboolean *known)
 
 extern const gchar *get_manuf_name(const guint8 *addr)
 {
-  static gchar  str[3][MAXMANUFLEN];
-  static gchar *cur;
+  gchar *cur;
   hashmanuf_t  *manufp;
 
   if ((g_resolv_flags & RESOLV_MAC) && !eth_resolution_initialized) {
@@ -2116,13 +2095,7 @@ extern const gchar *get_manuf_name(const guint8 *addr)
   }
 
   if (!(g_resolv_flags & RESOLV_MAC) || ((manufp = manuf_name_lookup(addr)) == NULL)) {
-    if (cur == &str[0][0]) {
-      cur = &str[1][0];
-    } else if (cur == &str[1][0]) {
-      cur = &str[2][0];
-    } else {
-      cur = &str[0][0];
-    }
+    cur=ep_alloc(MAXMANUFLEN);
     g_snprintf(cur, MAXMANUFLEN, "%02x:%02x:%02x", addr[0], addr[1], addr[2]);
     return cur;
   }

@@ -34,14 +34,14 @@
 #include <glib.h>
 
 #include "osi-utils.h"
+#include "emem.h"
 
 gchar *
 print_nsap_net( const guint8 *ad, int length )
 {
-  static gchar  str[MAX_NSAP_LEN * 3 + 50]; /* reserve space for nice layout */
   gchar *cur;
 
-  cur = str;
+  cur = ep_alloc(MAX_NSAP_LEN * 3 + 50);
   print_nsap_net_buf( ad, length, cur );
   return( cur );
 }
@@ -77,10 +77,9 @@ print_nsap_net_buf( const guint8 *ad, int length, gchar *buf )
 gchar *
 print_system_id( const guint8 *ad, int length )
 {
-  static gchar  str[MAX_SYSTEMID_LEN * 3 + 5]; /* Don't trust exact matching */
   gchar        *cur;
 
-  cur = str;
+  cur = ep_alloc(MAX_SYSTEMID_LEN * 3 + 5);
   print_system_id_buf(ad, length, cur );
   return( cur );
 }
@@ -132,10 +131,9 @@ print_system_id_buf( const guint8 *ad, int length, gchar *buf )
 gchar *
 print_area(const guint8 *ad, int length)
 {
-  static gchar  str[MAX_AREA_LEN * 3 + 20]; /* reserve space for nice layout */
   gchar *cur;
 
-  cur = str;
+  cur = ep_alloc(MAX_AREA_LEN * 3 + 20);
   print_area_buf( ad, length, cur );
   return cur;
 }
