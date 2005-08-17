@@ -361,7 +361,7 @@ dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	/* The slot and port numbers printed on the chassis are 1
 	   bigger than the transmitted values indicate */
 	slot = tvb_get_ntohs(tvb, offset + 0 + 4) + 1;
-	port = tvb_get_ntohs(tvb, offset + 1 + 4) + 1;
+	port = tvb_get_ntohs(tvb, offset + 2 + 4) + 1;
 
 	/* version */
 	major1 = tvb_get_guint8(tvb, offset + 12 + 4);
@@ -370,8 +370,8 @@ dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	internal = tvb_get_guint8(tvb, offset + 15 + 4);
 
 	info_item = proto_tree_add_text(tree, tvb, offset, length,
-		"Info: P: %d/%d V: %d.%d.%d",
-		slot, port, major1, major2, sustaining);
+		"Info: Port/Slot: %d/%d, Version: %d.%d.%d.%d",
+		slot, port, major1, major2, sustaining, internal);
 
 	info_tree = proto_item_add_subtree(info_item, ett_edp_info);
 
