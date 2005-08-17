@@ -123,13 +123,15 @@ static int proto_snmp = -1;
 
 /* Default MIB modules to load */
 /*
- * XXX - Should we try to be clever and replace colons for semicolons under
- * Windows and the converse on non-Windows systems?
+ * XXX - According to Wes Hardaker, we shouldn't do this:
+ *       http://www.ethereal.com/lists/ethereal-dev/200412/msg00222.html
  */
 #ifdef _WIN32
 # define DEF_MIB_MODULES "IP-MIB;IF-MIB;TCP-MIB;UDP-MIB;SNMPv2-MIB;RFC1213-MIB;UCD-SNMP-MIB"
+# define IMPORT_SEPARATOR ":"
 #else
 # define DEF_MIB_MODULES "IP-MIB:IF-MIB:TCP-MIB:UDP-MIB:SNMPv2-MIB:RFC1213-MIB:UCD-SNMP-MIB"
+# define IMPORT_SEPARATOR ";"
 #endif /* _WIN32 */
 
 static const gchar *mib_modules = DEF_MIB_MODULES;
@@ -2586,6 +2588,14 @@ process_prefs(void)
 	 */
 	if (mib_modules != NULL) {
 		tmp_mib_modules = g_strconcat("MIBS=", mib_modules, NULL);
+		/*
+		 * Try to be clever and replace colons for semicolons under
+		 * Windows.  Do the converse on non-Windows systems.  This
+		 * handles cases where we've copied a preferences file
+		 * between a non-Windows box and a Windows box or upgraded
+		 * from an older version of Ethereal under Windows.
+		 */
+		g_strdelimit(tmp_mib_modules, IMPORT_SEPARATOR, ENV_SEPARATOR_CHAR);
 
 #ifdef _WIN32
 		_putenv(tmp_mib_modules);
