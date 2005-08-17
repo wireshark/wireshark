@@ -20,7 +20,7 @@ DOCUMENT SECTION
 <!--
 Ethereal Info
 -->
-  <!ENTITY EtherealCurrentVersion "0.10.12">
+  <!ENTITY EtherealCurrentVersion "0.10.13 (preliminary)">
   <!ENTITY EtherealWebSite "http://www.ethereal.com">
   <!ENTITY EtherealUsersGuidePage "&EtherealWebSite;/docs/#usersguide">
   <!ENTITY EtherealDownloadPage "&EtherealWebSite;/download.html">
@@ -65,6 +65,7 @@ Gnu info
   </section>
 
   <section id="WhatsNew"><title>What's New</title>
+    <section><title>Bugfixes</title>
     <para>
       The following bugs have been fixed since the previous release:
       <itemizedlist>
@@ -143,6 +144,22 @@ Gnu info
 
       </itemizedlist>
     </para>
+    </section>
+
+    <section><title>New and Updated Features</title>
+    <para>
+      The following features are new (or have been significantly updated) since 
+	  the last release:
+      <itemizedlist>
+
+	<listitem><para>
+	  The Ethereal Windows installer has been updated and now includes the 
+	  latest WinPcap released version 3.1 instead of the former 3.1 beta 4.
+	</para></listitem>
+
+      </itemizedlist>
+    </para>
+    </section>
   </section>
 
   <section id="GettingEthereal"><title>Getting Ethereal</title>
