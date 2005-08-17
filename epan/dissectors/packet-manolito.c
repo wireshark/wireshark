@@ -36,6 +36,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/emem.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_manolito = -1;
@@ -191,7 +192,7 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * widen it past 8 bits, so there shouldn't
 			 * be an overflow.
 			 */
-			data = g_malloc((guint)length + 1);
+			data = ep_alloc((guint)length + 1);
 			tvb_memcpy(tvb, data, ++offset, length);
 			offset += length; 
 
@@ -226,7 +227,6 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_text(manolito_tree, tvb, start,
 					offset - start, "unknown type %d", dtype);
 			}
-			g_free(data);
 
 		} while(offset < tvb_reported_length(tvb));
 
