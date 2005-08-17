@@ -56,6 +56,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/strutil.h>
+#include <epan/emem.h>
 
 #include "tap.h"
 #include "packet-sdp.h"
@@ -72,7 +73,6 @@ static dissector_handle_t rtcp_handle=NULL;
 static dissector_handle_t t38_handle=NULL;
 
 static int sdp_tap = -1;
-static sdp_packet_info *sdp_pi;
 
 static int proto_sdp = -1;
 
@@ -229,9 +229,10 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean	is_ipv6_addr=FALSE;
     guint32 	ipaddr[4];
 	gint		n,i;
+	sdp_packet_info *sdp_pi;
 
     /* Initialise packet info for passing to tap */
-    sdp_pi = g_malloc(sizeof(sdp_packet_info));
+    sdp_pi = ep_alloc(sizeof(sdp_packet_info));
     sdp_pi->summary_str[0] = '\0';
 
 	/* Initialise RTP channel info */

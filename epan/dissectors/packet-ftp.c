@@ -39,6 +39,7 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/conversation.h>
+#include <epan/emem.h>
 
 static int proto_ftp = -1;
 static int proto_ftp_data = -1;
@@ -176,7 +177,7 @@ parse_port_pasv(const guchar *line, int linelen, guint32 *ftp_ip,
 	/*
 	 * Copy the rest of the line into a null-terminated buffer.
 	 */
-	args = g_malloc(linelen + 1);
+	args = ep_alloc(linelen + 1);
 	memcpy(args, line, linelen);
 	args[linelen] = '\0';
 	p = args;
@@ -219,7 +220,6 @@ parse_port_pasv(const guchar *line, int linelen, guint32 *ftp_ip,
 			p++;
 	}
 
-	g_free(args);
 	return ret;
 }
 
