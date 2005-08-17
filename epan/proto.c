@@ -32,10 +32,6 @@
 #include <glib.h>
 #include <float.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include "packet.h"
 #include "strutil.h"
 #include "addr_resolv.h"
@@ -3073,7 +3069,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 	switch(hfinfo->type) {
 		case FT_NONE:
 		case FT_PROTOCOL:
-			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s", hfinfo->name);
 			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
@@ -3087,14 +3083,14 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_UINT_BYTES:
 			bytes = fvalue_get(&fi->value);
 			if (bytes) {
-				ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+				ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 					"%s: %s", hfinfo->name,
 					 bytes_to_str(bytes, fvalue_length(&fi->value)));
 				if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 					label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			}
 			else {
-				ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+				ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 					"%s: <MISSING>", hfinfo->name);
 				if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 					label_str[ITEM_LABEL_LENGTH - 1] = '\0';
@@ -3152,7 +3148,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_FLOAT:
-			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %." STRINGIFY(FLT_DIG) "f",
 				hfinfo->name, fvalue_get_floating(&fi->value));
 			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
@@ -3160,7 +3156,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_DOUBLE:
-			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %." STRINGIFY(DBL_DIG) "g",
 				hfinfo->name, fvalue_get_floating(&fi->value));
 			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
@@ -3168,7 +3164,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_ABSOLUTE_TIME:
-			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s", hfinfo->name,
 				abs_time_to_str(fvalue_get(&fi->value)));
 			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
@@ -3176,7 +3172,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_RELATIVE_TIME:
-			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s seconds", hfinfo->name,
 				rel_time_to_secs_str(fvalue_get(&fi->value)));
 			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
@@ -3185,7 +3181,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_IPXNET:
 			integer = fvalue_get_integer(&fi->value);
-			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s (0x%08X)", hfinfo->name,
 				get_ipxnet_name(integer), integer);
 			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
@@ -3194,7 +3190,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_ETHER:
 			bytes = fvalue_get(&fi->value);
-			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s (%s)", hfinfo->name,
 				get_ether_name(bytes),
 				ether_to_str(bytes));
@@ -3205,7 +3201,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_IPv4:
 			ipv4 = fvalue_get(&fi->value);
 			n_addr = ipv4_get_net_order_addr(ipv4);
-			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s (%s)", hfinfo->name,
 				get_hostname(n_addr),
 				ip_to_str((guint8*)&n_addr));
@@ -3215,7 +3211,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_IPv6:
 			bytes = fvalue_get(&fi->value);
-			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s (%s)", hfinfo->name,
 				get_hostname6((struct e_in6_addr *)bytes),
 				ip6_to_str((struct e_in6_addr*)bytes));
@@ -3225,7 +3221,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_GUID:
 			bytes = fvalue_get(&fi->value);
-			ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s", hfinfo->name,
 				 guid_to_str(bytes));
 			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
@@ -3237,11 +3233,11 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_UINT_STRING:
 			bytes = fvalue_get(&fi->value);
             if(strlen(bytes) > ITEM_LABEL_LENGTH) {
-			    ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+			    ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				    "%s [truncated]: %s", hfinfo->name,
 				    format_text(bytes, strlen(bytes)));
             } else {
-			    ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+			    ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				    "%s: %s", hfinfo->name,
 				    format_text(bytes, strlen(bytes)));
             }
@@ -3292,7 +3288,7 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 	}
 
 	/* Fill in the textual info */
-	ret = snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
+	ret = g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
 		"%s: %s",  hfinfo->name,
 		value ? tfstring->true_string : tfstring->false_string);
 	if ((ret == -1) || (ret >= (ITEM_LABEL_LENGTH - bitfield_byte_length)))
@@ -3331,7 +3327,7 @@ fill_label_enumerated_bitfield(field_info *fi, gchar *label_str)
 	bitfield_byte_length = p - label_str;
 
 	/* Fill in the textual info using stored (shifted) value */
-	ret = snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
+	ret = g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
 			format,  hfinfo->name,
 			val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
 	if ((ret == -1) || (ret >= (ITEM_LABEL_LENGTH - bitfield_byte_length)))
@@ -3368,7 +3364,7 @@ fill_label_numeric_bitfield(field_info *fi, gchar *label_str)
 	bitfield_byte_length = p - label_str;
 
 	/* Fill in the textual info using stored (shifted) value */
-	ret = snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
+	ret = g_snprintf(p, ITEM_LABEL_LENGTH - bitfield_byte_length,
 			format,  hfinfo->name, value);
 	if ((ret == -1) || (ret >= (ITEM_LABEL_LENGTH - bitfield_byte_length)))
 		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
@@ -3389,7 +3385,7 @@ fill_label_enumerated_uint(field_info *fi, gchar *label_str)
 	value = fvalue_get_integer(&fi->value);
 
 	/* Fill in the textual info */
-	ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+	ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 			format,  hfinfo->name,
 			val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
 	if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
@@ -3409,7 +3405,7 @@ fill_label_uint(field_info *fi, gchar *label_str)
 	value = fvalue_get_integer(&fi->value);
 
 	/* Fill in the textual info */
-	ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+	ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 			format,  hfinfo->name, value);
 	if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
@@ -3428,7 +3424,7 @@ fill_label_uint64(field_info *fi, gchar *label_str)
 	value = fvalue_get_integer64(&fi->value);
 
 	/* Fill in the textual info */
-	ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+	ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 			format,  hfinfo->name, value);
 	if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
@@ -3447,7 +3443,7 @@ fill_label_enumerated_int(field_info *fi, gchar *label_str)
 	value = fvalue_get_integer(&fi->value);
 
 	/* Fill in the textual info */
-	ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+	ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 			format,  hfinfo->name,
 			val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
 	if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
@@ -3467,7 +3463,7 @@ fill_label_int(field_info *fi, gchar *label_str)
 	value = fvalue_get_integer(&fi->value);
 
 	/* Fill in the textual info */
-	ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+	ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 			format,  hfinfo->name, value);
 	if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
@@ -3486,7 +3482,7 @@ fill_label_int64(field_info *fi, gchar *label_str)
 	value = fvalue_get_integer64(&fi->value);
 
 	/* Fill in the textual info */
-	ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+	ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 			format,  hfinfo->name, value);
 	if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
@@ -4442,7 +4438,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			dfilter_len = abbrev_len + 4 + 11 + 1;
 			buf = g_malloc0(dfilter_len);
 			format = hfinfo_numeric_format(hfinfo);
-			snprintf(buf, dfilter_len, format, hfinfo->abbrev, fvalue_get_integer(&finfo->value));
+			g_snprintf(buf, dfilter_len, format, hfinfo->abbrev, fvalue_get_integer(&finfo->value));
 			break;
 
 		case FT_INT64:
@@ -4466,7 +4462,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			dfilter_len = abbrev_len + 4 + 22 + 1;
 			buf = g_malloc0(dfilter_len);
 			format = hfinfo_numeric_format(hfinfo);
-			snprintf(buf, dfilter_len, format, hfinfo->abbrev, fvalue_get_integer64(&finfo->value));
+			g_snprintf(buf, dfilter_len, format, hfinfo->abbrev, fvalue_get_integer64(&finfo->value));
 			break;
 
 		case FT_IPXNET:
@@ -4478,7 +4474,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			 */
 			dfilter_len = abbrev_len + 4 + 2 + 8 + 1;
 			buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s == 0x%08x", hfinfo->abbrev,
+			g_snprintf(buf, dfilter_len, "%s == 0x%08x", hfinfo->abbrev,
 					fvalue_get_integer(&finfo->value));
 			break;
 
@@ -4491,7 +4487,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			stringified = ip6_to_str((struct e_in6_addr*) fvalue_get(&finfo->value));
 			dfilter_len = abbrev_len + 4 + strlen(stringified) + 1;
 			buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s == %s", hfinfo->abbrev,
+			g_snprintf(buf, dfilter_len, "%s == %s", hfinfo->abbrev,
 					stringified);
 			break;
 
@@ -4518,7 +4514,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			buf = g_malloc0(dfilter_len);
 
 			/* Create the string */
-			snprintf(buf, dfilter_len, "%s == ", hfinfo->abbrev);
+			g_snprintf(buf, dfilter_len, "%s == ", hfinfo->abbrev);
 			fvalue_to_string_repr(&finfo->value,
 					FTREPR_DFILTER,
 					&buf[abbrev_len + 4]);

@@ -945,7 +945,7 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 	
       /* Wi-Fi Protected Access (WPA) Information Element */
       if (tag_val_off + 6 <= tag_len && !memcmp(tag_val, WPA_OUI"\x01", 4)) {
-        snprintf(out_buff, SHORT_STR, "WPA IE, type %u, version %u",
+        g_snprintf(out_buff, SHORT_STR, "WPA IE, type %u, version %u",
                   tag_val[tag_val_off + 3], pletohs(&tag_val[tag_val_off + 4]));
         proto_tree_add_string(tree, tag_interpretation, tvb, offset, 6, out_buff);
         offset += 6;
@@ -953,14 +953,14 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
         if (tag_val_off + 4 <= tag_len) {
           /* multicast cipher suite */
           if (!memcmp(&tag_val[tag_val_off], WPA_OUI, 3)) {
-            snprintf(out_buff, SHORT_STR, "Multicast cipher suite: %s", 
+            g_snprintf(out_buff, SHORT_STR, "Multicast cipher suite: %s", 
                       wpa_cipher_idx2str(tag_val[tag_val_off + 3]));
             proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
             offset += 4;
             tag_val_off += 4;
             /* unicast cipher suites */
             if (tag_val_off + 2 <= tag_len) {
-              snprintf(out_buff, SHORT_STR, "# of unicast cipher suites: %u",
+              g_snprintf(out_buff, SHORT_STR, "# of unicast cipher suites: %u",
                         pletohs(tag_val + tag_val_off));
               proto_tree_add_string(tree, tag_interpretation, tvb, offset, 2, out_buff);
               offset += 2;
@@ -968,7 +968,7 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
               i = 1;
               while (tag_val_off + 4 <= tag_len) {
                 if (!memcmp(&tag_val[tag_val_off], WPA_OUI, 3)) {
-                  snprintf(out_buff, SHORT_STR, "Unicast cipher suite %u: %s", 
+                  g_snprintf(out_buff, SHORT_STR, "Unicast cipher suite %u: %s", 
                             i, wpa_cipher_idx2str(tag_val[tag_val_off + 3]));
                   proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
                   offset += 4;
@@ -980,7 +980,7 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
               }
 	      /* authenticated key management suites */
               if (tag_val_off + 2 <= tag_len) {
-                snprintf(out_buff, SHORT_STR, "# of auth key management suites: %u",
+                g_snprintf(out_buff, SHORT_STR, "# of auth key management suites: %u",
                           pletohs(tag_val + tag_val_off));
                 proto_tree_add_string(tree, tag_interpretation, tvb, offset, 2, out_buff);
                 offset += 2;
@@ -988,7 +988,7 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
                 i = 1;
                 while (tag_val_off + 4 <= tag_len) {
                   if (!memcmp(&tag_val[tag_val_off], WPA_OUI, 3)) {
-                    snprintf(out_buff, SHORT_STR, "auth key management suite %u: %s", 
+                    g_snprintf(out_buff, SHORT_STR, "auth key management suite %u: %s", 
                               i, wpa_keymgmt_idx2str(tag_val[tag_val_off + 3]));
                     proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
                     offset += 4;
@@ -1007,20 +1007,20 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
                                  offset, tag_len - tag_val_off, "Not interpreted");
       } else if (tag_val_off + 7 <= tag_len && !memcmp(tag_val, WME_OUI"\x02\x00", 5)) {
       /* Wireless Multimedia Enhancements (WME) Information Element */
-        snprintf(out_buff, SHORT_STR, "WME IE: type %u, subtype %u, version %u, parameter set %u",
+        g_snprintf(out_buff, SHORT_STR, "WME IE: type %u, subtype %u, version %u, parameter set %u",
 		 tag_val[tag_val_off + 3], tag_val[tag_val_off + 4], tag_val[tag_val_off + 5],
 		 tag_val[tag_val_off + 6]);
         proto_tree_add_string(tree, tag_interpretation, tvb, offset, 7, out_buff);
       } else if (tag_val_off + 24 <= tag_len && !memcmp(tag_val, WME_OUI"\x02\x01", 5)) {
       /* Wireless Multimedia Enhancements (WME) Parameter Element */
-        snprintf(out_buff, SHORT_STR, "WME PE: type %u, subtype %u, version %u, parameter set %u",
+        g_snprintf(out_buff, SHORT_STR, "WME PE: type %u, subtype %u, version %u, parameter set %u",
 		 tag_val[tag_val_off + 3], tag_val[tag_val_off + 4], tag_val[tag_val_off + 5],
 		 tag_val[tag_val_off + 6]);
         proto_tree_add_string(tree, tag_interpretation, tvb, offset, 7, out_buff);
 	offset += 8;
 	tag_val_off += 8;
 	for (i = 0; i < 4; i++) {
-	  snprintf(out_buff, SHORT_STR, "WME AC Parameters: ACI %u (%s), Admission Control %sMandatory, AIFSN %u, ECWmin %u, ECWmax %u, TXOP %u",
+	  g_snprintf(out_buff, SHORT_STR, "WME AC Parameters: ACI %u (%s), Admission Control %sMandatory, AIFSN %u, ECWmin %u, ECWmax %u, TXOP %u",
 		   (tag_val[tag_val_off] & 0x60) >> 5,
 		   wme_acs[(tag_val[tag_val_off] & 0x60) >> 5],
 		   (tag_val[tag_val_off] & 0x10) ? "" : "not ",
@@ -1051,14 +1051,14 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 	};
 	const char *field;
 
-        snprintf(out_buff, SHORT_STR, "WME TSPEC: type %u, subtype %u, version %u",
+        g_snprintf(out_buff, SHORT_STR, "WME TSPEC: type %u, subtype %u, version %u",
 		 tag_val[tag_val_off + 3], tag_val[tag_val_off + 4], tag_val[tag_val_off + 5]);
         proto_tree_add_string(tree, tag_interpretation, tvb, offset, 6, out_buff);
 	offset += 6;
 	tag_val_off += 6;
 
 	ts_info = tvb_get_letohs(tvb, offset);
-	snprintf(out_buff, SHORT_STR, "WME TS Info: Priority %u (%s) (%s), Contention-based access %sset, %s",
+	g_snprintf(out_buff, SHORT_STR, "WME TS Info: Priority %u (%s) (%s), Contention-based access %sset, %s",
 		 (ts_info >> 11) & 0x7, qos_tags[(ts_info >> 11) & 0x7], qos_acs[(ts_info >> 11) & 0x7],
 		 (ts_info & 0x0080) ? "" : "not ",
 		 direction[(ts_info >> 5) & 0x3]);
@@ -1067,19 +1067,19 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 	tag_val_off += 2;
 
 	msdu_size = tvb_get_letohs(tvb, offset);
-	snprintf(out_buff, SHORT_STR, "WME TSPEC: %s MSDU Size %u",
+	g_snprintf(out_buff, SHORT_STR, "WME TSPEC: %s MSDU Size %u",
 		 (msdu_size & 0x8000) ? "Fixed" : "Nominal", msdu_size & 0x7fff);
 	proto_tree_add_string(tree, tag_interpretation, tvb, offset, 2, out_buff);
 	offset += 2;
 	tag_val_off += 2;
 
-	snprintf(out_buff, SHORT_STR, "WME TSPEC: Maximum MSDU Size %u", tvb_get_letohs(tvb, offset));
+	g_snprintf(out_buff, SHORT_STR, "WME TSPEC: Maximum MSDU Size %u", tvb_get_letohs(tvb, offset));
 	proto_tree_add_string(tree, tag_interpretation, tvb, offset, 2, out_buff);
 	offset += 2;
 	tag_val_off += 2;
 
 	while ((field = val_to_str(tag_val_off, fields, "Unknown"))) {
-	  snprintf(out_buff, SHORT_STR, "WME TSPEC: %s %u", field, tvb_get_letohl(tvb, offset));
+	  g_snprintf(out_buff, SHORT_STR, "WME TSPEC: %s %u", field, tvb_get_letohl(tvb, offset));
 	  proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
 	  offset += 4;
 	  tag_val_off += 4;
@@ -1088,12 +1088,12 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 	}
 
 	surplus_bandwidth = tvb_get_letohs(tvb, offset);
-	snprintf(out_buff, SHORT_STR, "WME TSPEC: Surplus Bandwidth Allowance Factor %u.%u",
+	g_snprintf(out_buff, SHORT_STR, "WME TSPEC: Surplus Bandwidth Allowance Factor %u.%u",
 		 (surplus_bandwidth >> 13) & 0x7, (surplus_bandwidth & 0x1fff));
 	offset += 2;
 	tag_val_off += 2;
 
-	snprintf(out_buff, SHORT_STR, "WME TSPEC: Medium Time %u", tvb_get_letohs(tvb, offset));
+	g_snprintf(out_buff, SHORT_STR, "WME TSPEC: Medium Time %u", tvb_get_letohs(tvb, offset));
 	proto_tree_add_string(tree, tag_interpretation, tvb, offset, 2, out_buff);
 	offset += 2;
 	tag_val_off += 2;		 
@@ -1136,7 +1136,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
     return;
   }
 
-  snprintf(out_buff, SHORT_STR, "RSN IE, version %u",
+  g_snprintf(out_buff, SHORT_STR, "RSN IE, version %u",
 	   pletohs(&tag_val[tag_val_off]));
   proto_tree_add_string(tree, tag_interpretation, tvb, offset, 2, out_buff);
 
@@ -1148,7 +1148,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 
   /* multicast cipher suite */
   if (!memcmp(&tag_val[tag_val_off], RSN_OUI, 3)) {
-    snprintf(out_buff, SHORT_STR, "Multicast cipher suite: %s", 
+    g_snprintf(out_buff, SHORT_STR, "Multicast cipher suite: %s", 
 	     wpa_cipher_idx2str(tag_val[tag_val_off + 3]));
     proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
     offset += 4;
@@ -1160,7 +1160,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 
   /* unicast cipher suites */
   count = pletohs(tag_val + tag_val_off);
-  snprintf(out_buff, SHORT_STR, "# of unicast cipher suites: %u", count);
+  g_snprintf(out_buff, SHORT_STR, "# of unicast cipher suites: %u", count);
   proto_tree_add_string(tree, tag_interpretation, tvb, offset, 2, out_buff);
   offset += 2;
   tag_val_off += 2;
@@ -1168,7 +1168,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
   while (tag_val_off + 4 <= tag_len && i <= count) {
     if (memcmp(&tag_val[tag_val_off], RSN_OUI, 3) != 0)
       goto done;
-    snprintf(out_buff, SHORT_STR, "Unicast cipher suite %u: %s",
+    g_snprintf(out_buff, SHORT_STR, "Unicast cipher suite %u: %s",
 	     i, wpa_cipher_idx2str(tag_val[tag_val_off + 3]));
     proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
     offset += 4;
@@ -1181,7 +1181,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 
   /* authenticated key management suites */
   count = pletohs(tag_val + tag_val_off);
-  snprintf(out_buff, SHORT_STR, "# of auth key management suites: %u", count);
+  g_snprintf(out_buff, SHORT_STR, "# of auth key management suites: %u", count);
   proto_tree_add_string(tree, tag_interpretation, tvb, offset, 2, out_buff);
   offset += 2;
   tag_val_off += 2;
@@ -1189,7 +1189,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
   while (tag_val_off + 4 <= tag_len && i <= count) {
     if (memcmp(&tag_val[tag_val_off], RSN_OUI, 3) != 0)
       goto done;
-    snprintf(out_buff, SHORT_STR, "auth key management suite %u: %s", 
+    g_snprintf(out_buff, SHORT_STR, "auth key management suite %u: %s", 
 	     i, wpa_keymgmt_idx2str(tag_val[tag_val_off + 3]));
     proto_tree_add_string(tree, tag_interpretation, tvb, offset, 4, out_buff);
     offset += 4;
@@ -1201,7 +1201,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
     goto done;
 
   rsn_capab = pletohs(&tag_val[tag_val_off]);
-  snprintf(out_buff, SHORT_STR, "RSN Capabilities 0x%04x", rsn_capab);
+  g_snprintf(out_buff, SHORT_STR, "RSN Capabilities 0x%04x", rsn_capab);
   cap_item = proto_tree_add_uint_format(tree, rsn_cap, tvb,
 					offset, 2, rsn_capab,
 					"RSN Capabilities: 0x%04X", rsn_capab);
@@ -1221,7 +1221,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
     goto done;
 
   count = pletohs(tag_val + tag_val_off);
-  snprintf(out_buff, SHORT_STR, "# of PMKIDs: %u", count);
+  g_snprintf(out_buff, SHORT_STR, "# of PMKIDs: %u", count);
   proto_tree_add_string(tree, tag_interpretation, tvb, offset, 2, out_buff);
   offset += 2;
   tag_val_off += 2;
@@ -1376,7 +1376,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         }
         n += ret;
       }
-      snprintf (out_buff, SHORT_STR, "Supported rates: %s [Mbit/sec]", print_buff);
+      g_snprintf (out_buff, SHORT_STR, "Supported rates: %s [Mbit/sec]", print_buff);
       out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
 			     tag_len, out_buff);
@@ -1390,7 +1390,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
                              tag_len);
         break;
       }
-      snprintf (out_buff, SHORT_STR,
+      g_snprintf (out_buff, SHORT_STR,
 		"Dwell time 0x%04X, Hop Set %2d, Hop Pattern %2d, Hop Index %2d",
 		tvb_get_letohs(tvb, offset + 2),
 		tvb_get_guint8(tvb, offset + 4),
@@ -1408,7 +1408,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
                              tag_len);
         break;
       }
-      snprintf (out_buff, SHORT_STR, "Current Channel: %u",
+      g_snprintf (out_buff, SHORT_STR, "Current Channel: %u",
                 tvb_get_guint8(tvb, offset + 2));
       out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
@@ -1423,22 +1423,22 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
                              tag_len);
         break;
       }
-      snprintf (out_buff, SHORT_STR, "CFP count: %u",
+      g_snprintf (out_buff, SHORT_STR, "CFP count: %u",
                 tvb_get_guint8(tvb, offset + 2));
       out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 2,
                                    1, out_buff, "%s", out_buff);
-      snprintf (out_buff, SHORT_STR, "CFP period: %u",
+      g_snprintf (out_buff, SHORT_STR, "CFP period: %u",
                 tvb_get_guint8(tvb, offset + 3));
       out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 3,
                                    1, out_buff, "%s", out_buff);
-      snprintf (out_buff, SHORT_STR, "CFP max duration: %u",
+      g_snprintf (out_buff, SHORT_STR, "CFP max duration: %u",
                 tvb_get_letohs(tvb, offset + 4));
       out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 4,
                                    2, out_buff, "%s", out_buff);
-      snprintf (out_buff, SHORT_STR, "CFP Remaining: %u",
+      g_snprintf (out_buff, SHORT_STR, "CFP Remaining: %u",
                 tvb_get_letohs(tvb, offset + 6));
       out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string_format(tree, tag_interpretation, tvb, offset + 6,
@@ -1516,7 +1516,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
                              tag_len);
         break;
       }
-      snprintf (out_buff, SHORT_STR, "ATIM window 0x%X",
+      g_snprintf (out_buff, SHORT_STR, "ATIM window 0x%X",
                 tvb_get_letohs(tvb, offset + 2));
       out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
@@ -1536,7 +1536,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         }
         tvb_memcpy(tvb, ccode, offset + 2, 2);
         ccode[2] = '\0';
-        snprintf (out_buff, SHORT_STR, "Country Code: %s, %s Environment",
+        g_snprintf (out_buff, SHORT_STR, "Country Code: %s, %s Environment",
                  format_text(ccode, 2), 
                  val_to_str(tvb_get_guint8(tvb, offset + 4), environment_vals,"Unknown (0x%02x)"));
         out_buff[SHORT_STR-1] = '\0';
@@ -1570,7 +1570,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
                              tag_len);
         break;
       }
-      snprintf (out_buff, SHORT_STR, "Prime Radix: %u, Number of Channels: %u", 
+      g_snprintf (out_buff, SHORT_STR, "Prime Radix: %u, Number of Channels: %u", 
                 tvb_get_guint8(tvb, offset + 2),
                 tvb_get_guint8(tvb, offset + 3));
       out_buff[SHORT_STR-1] = '\0';
@@ -1579,7 +1579,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       break;
 
     case TAG_CHALLENGE_TEXT:
-      snprintf (out_buff, SHORT_STR, "Challenge text: %s",
+      g_snprintf (out_buff, SHORT_STR, "Challenge text: %s",
                 tvb_bytes_to_str(tvb, offset + 2, tag_len));
       out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
@@ -1598,12 +1598,12 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
           break;
         }
         erp_info = tvb_get_guint8 (tvb, offset + 2);
-        snprintf (print_buff, SHORT_STR, "%sNon-ERP STAs, %suse protection, %s preambles",
+        g_snprintf (print_buff, SHORT_STR, "%sNon-ERP STAs, %suse protection, %s preambles",
                   erp_info & 0x01 ? "" : "no ",
                   erp_info & 0x02 ? "" : "do not ",
                   erp_info & 0x04 ? "short or long": "long");
         print_buff[SHORT_STR-1] = '\0';
-        snprintf (out_buff, SHORT_STR,
+        g_snprintf (out_buff, SHORT_STR,
                   "ERP info: 0x%x (%s)",erp_info,print_buff);
         out_buff[SHORT_STR-1] = '\0';
         proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
@@ -1621,7 +1621,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
                              tag_len);
         break;
       }
-      snprintf (out_buff, SHORT_STR, "%.16s",
+      g_snprintf (out_buff, SHORT_STR, "%.16s",
                 tvb_format_stringzpad(tvb, offset + 12, 16));
       out_buff[SHORT_STR-1] = '\0';
       proto_tree_add_string_format (tree, tag_interpretation, tvb, offset + 2,
@@ -2644,7 +2644,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	 * determined to be possible only with one of the encryption protocols.
 	 */
 	if (tvb_get_guint8(tvb, hdr_len + 1) & 0x20) {
-	  snprintf(out_buff, SHORT_STR, "0x%08X%02X%02X",
+	  g_snprintf(out_buff, SHORT_STR, "0x%08X%02X%02X",
 		   tvb_get_letohl(tvb, hdr_len + 4),
 		   tvb_get_guint8(tvb, hdr_len),
 		   tvb_get_guint8(tvb, hdr_len + 2));
@@ -2652,7 +2652,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 				EXTIV_LEN, out_buff);
 	} 
 	if (tvb_get_guint8(tvb, hdr_len + 2) == 0) {
-	  snprintf(out_buff, SHORT_STR, "0x%08X%02X%02X",
+	  g_snprintf(out_buff, SHORT_STR, "0x%08X%02X%02X",
 		   tvb_get_letohl(tvb, hdr_len + 4),
 		   tvb_get_guint8(tvb, hdr_len + 1),
 		   tvb_get_guint8(tvb, hdr_len));

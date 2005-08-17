@@ -41,10 +41,6 @@
 
 #include <glib.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <epan/packet.h>
 #include "packet-ipv6.h"
 #include "packet-dns.h"
@@ -478,9 +474,9 @@ bitrange0(guint32 v, int s, char *buf, int buflen)
 				break;
 		}
 		if (i == 1)
-			l = snprintf(p, ep - p, ",%d", s + off);
+			l = g_snprintf(p, ep - p, ",%d", s + off);
 		else {
-			l = snprintf(p, ep - p, ",%d-%d", s + off,
+			l = g_snprintf(p, ep - p, ",%d-%d", s + off,
 			    s + off + i - 1);
 		}
 		if (l == -1 || l > ep - p) {
@@ -1214,12 +1210,12 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	char typebuf[256], codebuf[256];
 
 	if (coltypename && strcmp(coltypename, "Unknown") == 0) {
-	    snprintf(typebuf, sizeof(typebuf), "Unknown (0x%02x)",
+	    g_snprintf(typebuf, sizeof(typebuf), "Unknown (0x%02x)",
 		dp->icmp6_type);
 	    coltypename = typebuf;
 	}
 	if (colcodename && strcmp(colcodename, "Unknown") == 0) {
-	    snprintf(codebuf, sizeof(codebuf), "Unknown (0x%02x)",
+	    g_snprintf(codebuf, sizeof(codebuf), "Unknown (0x%02x)",
 		dp->icmp6_code);
 	    colcodename = codebuf;
 	}

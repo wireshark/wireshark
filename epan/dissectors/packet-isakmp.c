@@ -38,10 +38,6 @@
 
 #include <glib.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <epan/packet.h>
 #include <epan/ipv6-utils.h>
 #include <epan/ipproto.h>
@@ -1989,7 +1985,7 @@ situation2str(guint32 type)
   int		ret;
 
   if (type & SIT_IDENTITY) {
-    ret = snprintf(msg, SIT_MSG_NUM-n, "%sIDENTITY", sep);
+    ret = g_snprintf(msg, SIT_MSG_NUM-n, "%sIDENTITY", sep);
     if (ret == -1 || ret >= SIT_MSG_NUM-n) {
       /* Truncated. */
       msg[SIT_MSG_NUM-1] = '\0';
@@ -2003,7 +1999,7 @@ situation2str(guint32 type)
       /* No more room. */
       return msg;
     }
-    ret = snprintf(msg, SIT_MSG_NUM-n, "%sSECRECY", sep);
+    ret = g_snprintf(msg, SIT_MSG_NUM-n, "%sSECRECY", sep);
     if (ret == -1 || ret >= SIT_MSG_NUM-n) {
       /* Truncated. */
       msg[SIT_MSG_NUM-1] = '\0';
@@ -2017,7 +2013,7 @@ situation2str(guint32 type)
       /* No more room. */
       return msg;
     }
-    ret = snprintf(msg, SIT_MSG_NUM-n, "%sINTEGRITY", sep);
+    ret = g_snprintf(msg, SIT_MSG_NUM-n, "%sINTEGRITY", sep);
     if (ret == -1 || ret >= SIT_MSG_NUM-n) {
       /* Truncated. */
       msg[SIT_MSG_NUM-1] = '\0';

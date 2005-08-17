@@ -2614,7 +2614,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
       if (ctx_tree) {
 	  proto_item *iface_item;
 
-	  uuid_str_len = snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
+	  uuid_str_len = g_snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
 			          "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                                   if_id.Data1, if_id.Data2, if_id.Data3,
                                   if_id.Data4[0], if_id.Data4[1],
@@ -2622,7 +2622,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                   if_id.Data4[4], if_id.Data4[5],
                                   if_id.Data4[6], if_id.Data4[7]);
 
-	  if (uuid_str_len >= DCERPC_UUID_STR_LEN)
+	  if (uuid_str_len == -1 || uuid_str_len >= DCERPC_UUID_STR_LEN)
 		  memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
 #ifdef _WIN32
 	  if(ResolveWin32UUID(if_id, UUID_NAME, MAX_PATH))
@@ -2723,14 +2723,14 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         /* XXX - use "dissect_ndr_uuid_t()"? */
         dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &trans_id);
         if (iface_tree) {
-	    uuid_str_len = snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
+	    uuid_str_len = g_snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
                                   "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                                   trans_id.Data1, trans_id.Data2, trans_id.Data3,
                                   trans_id.Data4[0], trans_id.Data4[1],
                                   trans_id.Data4[2], trans_id.Data4[3],
                                   trans_id.Data4[4], trans_id.Data4[5],
                                   trans_id.Data4[6], trans_id.Data4[7]);
-            if (uuid_str_len >= DCERPC_UUID_STR_LEN)
+            if (uuid_str_len == -1 || uuid_str_len >= DCERPC_UUID_STR_LEN)
                 memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
             proto_tree_add_string_format (iface_tree, hf_dcerpc_cn_bind_trans_id, tvb,
                                           offset, 16, uuid_str, "Transfer Syntax: %s", uuid_str);
@@ -2813,14 +2813,14 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         /* XXX - use "dissect_ndr_uuid_t()"? */
         dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &trans_id);
         if (dcerpc_tree) {
-	    uuid_str_len = snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
+	    uuid_str_len = g_snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
                                   "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                                   trans_id.Data1, trans_id.Data2, trans_id.Data3,
                                   trans_id.Data4[0], trans_id.Data4[1],
                                   trans_id.Data4[2], trans_id.Data4[3],
                                   trans_id.Data4[4], trans_id.Data4[5],
                                   trans_id.Data4[6], trans_id.Data4[7]);
-	    if (uuid_str_len >= DCERPC_UUID_STR_LEN)
+	    if (uuid_str_len == -1 || uuid_str_len >= DCERPC_UUID_STR_LEN)
 		  memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
             proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_cn_ack_trans_id, tvb,
                                           offset, 16, uuid_str, "Transfer Syntax: %s", uuid_str);
@@ -3283,7 +3283,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         /* XXX - use "dissect_ndr_uuid_t()"? */
         dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &obj_id);
         if (dcerpc_tree) {
-	    uuid_str_len = snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
+	    uuid_str_len = g_snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
                                     "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                                     obj_id.Data1, obj_id.Data2, obj_id.Data3,
                                     obj_id.Data4[0],
@@ -3294,7 +3294,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                     obj_id.Data4[5],
                                     obj_id.Data4[6],
                                     obj_id.Data4[7]);
-	    if (uuid_str_len >= DCERPC_UUID_STR_LEN)
+	    if (uuid_str_len == -1 || uuid_str_len >= DCERPC_UUID_STR_LEN)
 		  memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
             proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_obj_id, tvb,
                                           offset, 16, uuid_str, "Object UUID: %s", uuid_str);
@@ -4806,7 +4806,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree) {
         /* XXX - use "dissect_ndr_uuid_t()"? */
-	uuid_str_len = snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
+	uuid_str_len = g_snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
                                 "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                                 hdr.obj_id.Data1, hdr.obj_id.Data2, hdr.obj_id.Data3,
                                 hdr.obj_id.Data4[0],
@@ -4817,7 +4817,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 hdr.obj_id.Data4[5],
                                 hdr.obj_id.Data4[6],
                                 hdr.obj_id.Data4[7]);
-        if (uuid_str_len >= DCERPC_UUID_STR_LEN)
+        if (uuid_str_len == -1 || uuid_str_len >= DCERPC_UUID_STR_LEN)
 		memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
         proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_obj_id, tvb,
                                       offset, 16, uuid_str, "Object UUID: %s", uuid_str);
@@ -4826,7 +4826,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree) {
         /* XXX - use "dissect_ndr_uuid_t()"? */
-	uuid_str_len = snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
+	uuid_str_len = g_snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
                                 "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                                 hdr.if_id.Data1, hdr.if_id.Data2, hdr.if_id.Data3,
                                 hdr.if_id.Data4[0],
@@ -4837,7 +4837,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 hdr.if_id.Data4[5],
                                 hdr.if_id.Data4[6],
                                 hdr.if_id.Data4[7]);
-        if (uuid_str_len >= DCERPC_UUID_STR_LEN)
+        if (uuid_str_len == -1 || uuid_str_len >= DCERPC_UUID_STR_LEN)
 		memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
         proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_dg_if_id, tvb,
                                       offset, 16, uuid_str, "Interface: %s", uuid_str);
@@ -4846,7 +4846,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree) {
         /* XXX - use "dissect_ndr_uuid_t()"? */
-	uuid_str_len = snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
+	uuid_str_len = g_snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
                                 "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                                 hdr.act_id.Data1, hdr.act_id.Data2, hdr.act_id.Data3,
                                 hdr.act_id.Data4[0],
@@ -4857,7 +4857,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 hdr.act_id.Data4[5],
                                 hdr.act_id.Data4[6],
                                 hdr.act_id.Data4[7]);
-        if (uuid_str_len >= DCERPC_UUID_STR_LEN)
+        if (uuid_str_len == -1 || uuid_str_len >= DCERPC_UUID_STR_LEN)
 		memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
         proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_dg_act_id, tvb,
                                       offset, 16, uuid_str, "Activity: %s", uuid_str);

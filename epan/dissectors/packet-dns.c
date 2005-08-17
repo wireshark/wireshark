@@ -34,10 +34,6 @@
 #include <string.h>
 #include <memory.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <glib.h>
 #include <epan/ipv6-utils.h>
 #include <epan/packet.h>
@@ -567,9 +563,9 @@ get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
 	  label_len = (bit_count - 1) / 8 + 1;
 
 	  if (maxname > 0) {
-	    print_len = snprintf(np, maxname + 1, "\\[x");
+	    print_len = g_snprintf(np, maxname + 1, "\\[x");
 	    if (print_len != -1 && print_len <= maxname) {
-	      /* Some versions of snprintf return -1 if they'd truncate
+	      /* Some versions of g_snprintf return -1 if they'd truncate
 	         the output.  Others return <buf_size> or greater. */
 	      np += print_len;
 	      maxname -= print_len;
@@ -581,10 +577,10 @@ get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
 	  }
 	  while(label_len--) {
 	    if (maxname > 0) {
-	      print_len = snprintf(np, maxname + 1, "%02x",
+	      print_len = g_snprintf(np, maxname + 1, "%02x",
 	        tvb_get_guint8(tvb, offset));
 	      if (print_len != -1 && print_len <= maxname) {
-		/* Some versions of snprintf return -1 if they'd truncate
+		/* Some versions of g_snprintf return -1 if they'd truncate
 		 the output.  Others return <buf_size> or greater. */
 		np += print_len;
 		maxname -= print_len;
@@ -597,9 +593,9 @@ get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
 	    offset++;
 	  }
 	  if (maxname > 0) {
-	    print_len = snprintf(np, maxname + 1, "/%d]", bit_count);
+	    print_len = g_snprintf(np, maxname + 1, "/%d]", bit_count);
 	    if (print_len != -1 && print_len <= maxname) {
-	      /* Some versions of snprintf return -1 if they'd truncate
+	      /* Some versions of g_snprintf return -1 if they'd truncate
 	         the output.  Others return <buf_size> or greater. */
 	      np += print_len;
 	      maxname -= print_len;

@@ -460,7 +460,7 @@ extern guint8 *tvb_get_ephemeral_stringz(tvbuff_t *tvb, gint offset, gint *lengt
  * no more than bufsize number of bytes, including terminating NUL, to buffer.
  * Returns length of string (not including terminating NUL), or -1 if the string was
  * truncated in the buffer due to not having reached the terminating NUL.
- * In this way, it acts like snprintf().
+ * In this way, it acts like g_snprintf().
  *
  * When processing a packet where the remaining number of bytes is less
  * than bufsize, an exception is not thrown if the end of the packet

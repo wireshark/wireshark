@@ -12986,14 +12986,13 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	case 1008: /* Query Object ID is GUID plus unknown data */ {
 		e_uuid_t fs_id;
 		char uuid_str[DCERPC_UUID_STR_LEN]; 
-		int uuid_str_len;
 		guint8 drep = 0x10;
 		
 		CHECK_BYTE_COUNT_TRANS_SUBR(16);
 
 		dcerpc_tvb_get_uuid (tvb, offset, &drep, &fs_id);
 
-		uuid_str_len = snprintf(
+		g_snprintf(
 			uuid_str, DCERPC_UUID_STR_LEN, 
 			"%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
 			fs_id.Data1, fs_id.Data2, fs_id.Data3,

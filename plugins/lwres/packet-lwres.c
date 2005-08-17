@@ -276,9 +276,9 @@ lwres_get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
 
 
 	  if (maxname > 0) {
-	    print_len = snprintf(np, maxname + 1, "\\[x");
-	    if (print_len != -1) {
-	      /* Some versions of snprintf return -1 if they'd truncate
+	    print_len = g_snprintf(np, maxname + 1, "\\[x");
+	    if (print_len != -1 && print_len < maxname + 1) {
+	      /* Some versions of g_snprintf return -1 if they'd truncate
 	         the output. */
 	      np += print_len;
 	      maxname -= print_len;
@@ -290,10 +290,10 @@ lwres_get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
 	  }
 	  while(label_len--) {
 	    if (maxname > 0) {
-	      print_len = snprintf(np, maxname + 1, "%02x",
+	      print_len = g_snprintf(np, maxname + 1, "%02x",
 	        tvb_get_guint8(tvb, offset));
-	      if (print_len != -1) {
-		/* Some versions of snprintf return -1 if they'd truncate
+	      if (print_len != -1 && print_len < maxname + 1) {
+		/* Some versions of g_snprintf return -1 if they'd truncate
 		 the output. */
 		np += print_len;
 		maxname -= print_len;
@@ -306,9 +306,9 @@ lwres_get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
 	    offset++;
 	  }
 	  if (maxname > 0) {
-	    print_len = snprintf(np, maxname + 1, "/%d]", bit_count);
-	    if (print_len != -1) {
-	      /* Some versions of snprintf return -1 if they'd truncate
+	    print_len = g_snprintf(np, maxname + 1, "/%d]", bit_count);
+	    if (print_len != -1 && print_len < maxname + 1) {
+	      /* Some versions of g_snprintf return -1 if they'd truncate
 	         the output. */
 	      np += print_len;
 	      maxname -= print_len;
