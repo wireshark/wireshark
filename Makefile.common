@@ -133,7 +133,7 @@ TETHEREAL_TAP_SRC =	\
 	tap-stats_tree.c	\
 	tap-wspstat.c
 
-# helpers alraedy available on some platforms (and on others not)
+# helpers already available on some platforms (and on others not)
 EXTRA_ethereal_SOURCES =	\
 	snprintf.c	\
 	strerror.c	\
