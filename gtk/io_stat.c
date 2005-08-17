@@ -1132,7 +1132,7 @@ quit(GtkWidget *widget, GdkEventExpose *event _U_)
 			remove_tap_listener(&io->graphs[i]);
 			unprotect_thread_critical_region();
 
-			free(io->graphs[i].args->title);
+			g_free( (gpointer) (io->graphs[i].args->title) );
 			io->graphs[i].args->title=NULL;
 
 			g_free(io->graphs[i].args);
@@ -1796,9 +1796,9 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 
 	g_snprintf(str, 256, "Ethereal: Display Filter  IO-Stat (Filter:%d)", num);
 	if(gio->args->title){
-		free(gio->args->title);
+		g_free( (gpointer) (gio->args->title) );
 	}
-	gio->args->title=strdup(str);	
+	gio->args->title=g_strdup(str);	
 
 	SIGNAL_CONNECT(gio->filter_bt, "clicked", filter_button_clicked, gio);
 	SIGNAL_CONNECT(gio->filter_bt, "destroy", filter_button_destroy_cb, NULL);
