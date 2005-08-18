@@ -44,27 +44,27 @@ typedef int (*ber_callback)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 #define BER_CLASS_PRI	3
 #define BER_CLASS_ANY   99			/* dont check class nor tag */
 
-#define BER_UNI_TAG_EOC			     0	/* 'end-of-content' */
-#define BER_UNI_TAG_BOOLEAN		     1
-#define BER_UNI_TAG_INTEGER		     2
-#define BER_UNI_TAG_BITSTRING		     3
-#define BER_UNI_TAG_OCTETSTRING		     4
-#define BER_UNI_TAG_NULL		     5
-#define BER_UNI_TAG_OID			     6	/* OBJECT IDENTIFIER */
-#define BER_UNI_TAG_ObjectDescriptor	     7
-#define BER_UNI_TAG_REAL		     9
+#define BER_UNI_TAG_EOC					0	/* 'end-of-content' */
+#define BER_UNI_TAG_BOOLEAN				1
+#define BER_UNI_TAG_INTEGER				2
+#define BER_UNI_TAG_BITSTRING		    3
+#define BER_UNI_TAG_OCTETSTRING		    4
+#define BER_UNI_TAG_NULL				5
+#define BER_UNI_TAG_OID					6	/* OBJECT IDENTIFIER */
+#define BER_UNI_TAG_ObjectDescriptor	7
+#define BER_UNI_TAG_REAL				9
 #define BER_UNI_TAG_ENUMERATED		    10
 #define BER_UNI_TAG_EMBEDDED_PDV	    11
 #define BER_UNI_TAG_UTF8String		    12
 #define BER_UNI_TAG_RELATIVE_OID	    13
 #define BER_UNI_TAG_SEQUENCE		    16	/* SEQUENCE, SEQUENCE OF */
-#define BER_UNI_TAG_SET			    17	/* SET, SET OF */
+#define BER_UNI_TAG_SET					17	/* SET, SET OF */
 #define BER_UNI_TAG_NumericString	    18
 #define BER_UNI_TAG_PrintableString	    19
 #define BER_UNI_TAG_TeletexString	    20  /* TeletextString, T61String */
 #define BER_UNI_TAG_VideotexString	    21
 #define BER_UNI_TAG_IA5String		    22
-#define BER_UNI_TAG_UTCTime		    23
+#define BER_UNI_TAG_UTCTime				23
 #define BER_UNI_TAG_GeneralizedTime	    24
 #define BER_UNI_TAG_GraphicString	    25
 #define BER_UNI_TAG_VisibleString	    26  /* VisibleString, ISO64String */
@@ -111,6 +111,7 @@ typedef struct _ber_sequence_t {
 /* this function dissects a BER sequence 
  */
 extern int dissect_ber_sequence(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id);
+extern int dissect_ber_set(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id);
 
 
 typedef struct _ber_choice_t {
@@ -173,3 +174,4 @@ void dissect_ber_oid_NULL_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 char * get_ber_oid_name(char *str);
 
 #endif  /* __PACKET_BER_H__ */
+
