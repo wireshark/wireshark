@@ -59,7 +59,7 @@ dfilter_fail(const char *format, ...)
 
 	va_start(args, format);
 
-	vsnprintf(dfilter_error_msg_buf, sizeof(dfilter_error_msg_buf),
+	g_vsnprintf(dfilter_error_msg_buf, sizeof(dfilter_error_msg_buf),
 			format, args);
 	dfilter_error_msg = dfilter_error_msg_buf;
 	va_end(args);

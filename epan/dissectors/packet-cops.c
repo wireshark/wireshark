@@ -1309,7 +1309,7 @@ static guchar*format_asn_value (struct variable_list *variable, subid_t *variabl
     variable->type=mib_to_asn_type(subtree->type);
 
   if (!sprint_realloc_by_type(&buf, &buf_len, &out_len, TRUE, variable, subtree->enums, subtree->hint, NULL))
-    sprintf(buf,"%s","sprint_realloc_by_type failed");
+    g_snprintf(buf,SPRINT_MAX_LEN,"%s","sprint_realloc_by_type failed");
 
   return buf;
 }
@@ -1486,8 +1486,8 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
              * to the end of the string.
              */
             vb_display_string = g_malloc(4*vb_length);
-            buf = &vb_display_string[0];
-            len = sprintf(buf, "%03u", vb_octet_string[0]);
+            buf = vb_display_string;
+            len = g_snprintf(buf, 4*vb_length, "%03u", vb_octet_string[0]);
             buf += len;
             for (i = 1; i < vb_length; i++) {
               len = sprintf(buf, ".%03u", vb_octet_string[i]);
@@ -2657,7 +2657,7 @@ cops_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8 op
             val_to_str(code16,table_cops_dqos_transaction_id, "Unknown (0x%04x)"),code16);
 
      /* Write the right data into the 'info field' on the Gui */
-     sprintf(info,"COPS %-20s - ",val_to_str(op_code,cops_op_code_vals, "Unknown"));
+     g_snprintf(info,sizeof(info),"COPS %-20s - ",val_to_str(op_code,cops_op_code_vals, "Unknown"));
      strcat(info,val_to_str(code16,table_cops_dqos_transaction_id, "Unknown"));
 
      if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -3053,7 +3053,7 @@ cops_mm_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8
             val_to_str(code16,table_cops_mm_transaction_id, "Unknown (0x%04x)"),code16);
 
      /* Write the right data into the 'info field' on the Gui */
-     sprintf(info,"COPS %-20s - ",val_to_str(op_code,cops_op_code_vals, "Unknown"));
+     g_snprintf(info,sizeof(info),"COPS %-20s - ",val_to_str(op_code,cops_op_code_vals, "Unknown"));
      strcat(info,val_to_str(code16,table_cops_mm_transaction_id, "Unknown"));
 
      if (check_col(pinfo->cinfo, COL_INFO)) {

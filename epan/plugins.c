@@ -403,7 +403,7 @@ char *get_plugins_global_dir(const char *plugin_dir)
 	/*
 	 * Scan the plugin directory.
 	 */
-	return strdup(plugin_dir);
+	return g_strdup(plugin_dir);
 #endif
 }
 

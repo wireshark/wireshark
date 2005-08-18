@@ -414,7 +414,8 @@ static gchar *key_to_str( const iax_circuit_key *key )
   /* why doesn't address_to_str take a const pointer?
      cast the warnings into oblivion. */
 
-  sprintf(strp,"{%s:%i,%i}",
+  /* XXX - is this a case for ep_alloc? */
+  g_snprintf(strp, 80, "{%s:%i,%i}",
 	  address_to_str((address *)&key->addr),
 	  key->port,
 	  key->callno);

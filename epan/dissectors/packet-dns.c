@@ -734,7 +734,7 @@ rfc1867_angle(tvbuff_t *tvb, int offset, const char *nsew)
   angle = angle / 60;
   minutes = angle % 60;
   degrees = angle / 60;
-  sprintf(buf, "%u deg %u min %u.%03u sec %c", degrees, minutes, secs,
+  g_snprintf(buf, sizeof(buf), "%u deg %u min %u.%03u sec %c", degrees, minutes, secs,
 		tsecs, direction);
   return buf;
 }

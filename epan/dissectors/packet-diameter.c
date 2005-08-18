@@ -1069,7 +1069,7 @@ diameter_avp_get_name(guint32 avpCode, guint32 vendorId)
 			avpCode, vendorId);
 
   /* If we don't find it, build a name string */
-  sprintf(buffer, "Unknown AVP:0x%08x", avpCode);
+  g_snprintf(buffer, sizeof(buffer), "Unknown AVP:0x%08x", avpCode);
   return buffer;
 } /* diameter_avp_get_name */
 static const gchar *

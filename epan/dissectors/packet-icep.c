@@ -327,9 +327,7 @@ static void dissect_ice_facet(proto_tree *tree, int hf_icep,
 	if ( Size == 0 ) {
 		
 		if (tree) {
-			s = ep_alloc( strlen("(empty)") + 1 );
-			sprintf(s, "(empty)");
-			s[strlen("(empty)")] = '\0';
+			s = ep_strdup( "(empty)" );
 			/* display the 0x00 Size byte when click on a empty ice_string */
 			proto_tree_add_string(tree, hf_icep, tvb, offset - 1, 1, s);
 		}

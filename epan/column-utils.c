@@ -252,7 +252,7 @@ col_add_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
          */
         cinfo->col_data[i] = cinfo->col_buf[i];
       }
-      vsnprintf(&cinfo->col_buf[i][fence], max_len - fence, format, ap);
+      g_vsnprintf(&cinfo->col_buf[i][fence], max_len - fence, format, ap);
       cinfo->col_buf[i][max_len - 1] = '\0';
     }
   }
@@ -294,7 +294,7 @@ col_do_append_sep_va_fstr(column_info *cinfo, gint el, const gchar *separator,
           len += sep_len;
         }
       }
-      vsnprintf(&cinfo->col_buf[i][len], max_len - len, format, ap);
+      g_vsnprintf(&cinfo->col_buf[i][len], max_len - len, format, ap);
       cinfo->col_buf[i][max_len-1] = 0;
     }
   }
@@ -357,7 +357,7 @@ col_prepend_fstr(column_info *cinfo, gint el, const gchar *format, ...)
         orig_buf[max_len - 1] = '\0';
         orig = orig_buf;
       }
-      vsnprintf(cinfo->col_buf[i], max_len, format, ap);
+      g_vsnprintf(cinfo->col_buf[i], max_len, format, ap);
       cinfo->col_buf[i][max_len - 1] = '\0';
 
       /*

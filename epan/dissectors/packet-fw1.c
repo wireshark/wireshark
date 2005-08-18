@@ -151,7 +151,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
 
-  /* sprintf(header, fw1_header); */
+  /* g_snprintf(header, sizeof(header), fw1_header); */
 
   /* fetch info to local variable */
   direction = tvb_get_guint8(tvb, 0);

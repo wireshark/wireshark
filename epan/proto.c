@@ -525,7 +525,7 @@ proto_tree_free_node(proto_node *node, gpointer data _U_)
 
 /* Is the parsing being done for a visible proto_tree or an invisible one?
  * By setting this correctly, the proto_tree creation is sped up by not
- * having to call vsnprintf and copy strings around.
+ * having to call g_vsnprintf and copy strings around.
  */
 void
 proto_tree_set_visible(proto_tree *tree, gboolean visible)
@@ -2359,7 +2359,7 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 
 	if (!PROTO_ITEM_IS_HIDDEN(pi)) {
 		ITEM_LABEL_NEW(fi->rep);
-		ret = vsnprintf(fi->rep->representation, ITEM_LABEL_LENGTH, format, ap);
+		ret = g_vsnprintf(fi->rep->representation, ITEM_LABEL_LENGTH, format, ap);
 		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 			fi->rep->representation[ITEM_LABEL_LENGTH - 1] = '\0';
 	}
@@ -2416,7 +2416,7 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 
 		curlen = strlen(fi->rep->representation);
 		if (ITEM_LABEL_LENGTH > curlen) {
-			ret = vsnprintf(fi->rep->representation + curlen,
+			ret = g_vsnprintf(fi->rep->representation + curlen,
 			    ITEM_LABEL_LENGTH - curlen, format, ap);
 			if ((ret == -1) || (ret >= (int)(ITEM_LABEL_LENGTH - curlen)))
 				fi->rep->representation[ITEM_LABEL_LENGTH - 1] = '\0';

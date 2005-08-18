@@ -22837,6 +22837,6 @@ static void reset_h245_packet_info(h245_packet_info *pi)
 
         pi->msg_type = H245_OTHER;
 		pi->frame_label[0] = '\0';
-		sprintf(pi->comment, "H245 ");
+		g_snprintf(pi->comment, sizeof(pi->comment), "H245 ");
 }
 

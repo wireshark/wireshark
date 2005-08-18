@@ -198,7 +198,6 @@
 #define NEED_GETOPT_H		1
 #define NEED_STRPTIME_H		1
 #define snprintf 		_snprintf
-#define vsnprintf 		_vsnprintf
 #define strcasecmp		stricmp
 #define strncasecmp		strnicmp
 #define open			_open

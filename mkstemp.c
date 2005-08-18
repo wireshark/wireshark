@@ -41,6 +41,8 @@
 #include <process.h>    /* For spawning child process */
 #endif
 
+#include <glib.h>
+
 #ifndef __set_errno
 #define __set_errno(x) errno=(x)
 #endif
@@ -65,7 +67,7 @@ mkstemp (template)
       return -1;
     }
 
-  if (sprintf (&template[len - 5], "%.5u",
+  if (g_snprintf (&template[len - 5], 6, "%.5u",
 	       (unsigned int) getpid () % 100000) != 5)
     /* Inconceivable lossage.  */
     return -1;

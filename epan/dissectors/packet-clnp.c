@@ -416,16 +416,16 @@ static gchar *print_tsap(const guchar *tsap, int length)
   cur=ep_alloc(MAX_TSAP_LEN * 2 + 3);
   cur[0] = '\0';
   if (length <= 0 || length > MAX_TSAP_LEN)
-    sprintf(cur, "<unsupported TSAP length>");
+    g_snprintf(cur, MAX_TSAP_LEN * 2 + 3, "<unsupported TSAP length>");
   else {
     allprintable = is_all_printable(tsap,length);
     if (!allprintable)
       strcat(cur,"0x");
     while (length != 0) {
       if (allprintable)
-	sprintf(tmp, "%c", *tsap ++);
+	g_snprintf(tmp, sizeof(tmp), "%c", *tsap ++);
       else
-	sprintf(tmp, "%02x", *tsap ++);
+	g_snprintf(tmp, sizeof(tmp), "%02x", *tsap ++);
       strcat(cur, tmp);
       length --;
     }

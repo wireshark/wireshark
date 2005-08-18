@@ -1009,7 +1009,7 @@ dissect_swils_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
                                                           8)));
         break;
     case FC_SWILS_ZONEMBR_DP:
-        sprintf(dpbuf, "0x%08x", tvb_get_ntohl (tvb, offset+4));
+        g_snprintf(dpbuf, sizeof(dpbuf), "0x%08x", tvb_get_ntohl (tvb, offset+4));
         proto_tree_add_string (zmbr_tree, hf_swils_zone_mbrid, tvb,
                                offset+4, 4, dpbuf);
         break;
@@ -1035,7 +1035,7 @@ dissect_swils_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
                              offset+12, 8, 0);
         break;
     case FC_SWILS_ZONEMBR_DP_LUN:
-        sprintf(dpbuf, "0x%08x", tvb_get_ntohl (tvb, offset+4));
+        g_snprintf(dpbuf, sizeof(dpbuf), "0x%08x", tvb_get_ntohl (tvb, offset+4));
         proto_tree_add_string (zmbr_tree, hf_swils_zone_mbrid, tvb,
                                offset+4, 4, dpbuf);
         proto_tree_add_item (zmbr_tree, hf_swils_zone_mbrid_lun, tvb,
