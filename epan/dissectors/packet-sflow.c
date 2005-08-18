@@ -461,7 +461,7 @@ static gint
 dissect_sflow_extended_router(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
 	gint32 	len = 0;
-	guint32 address_type, mask_bits;
+	guint32 address_type;
 
 	address_type = tvb_get_ntohl(tvb, offset);
 	len += 4;
