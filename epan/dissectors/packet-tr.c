@@ -35,6 +35,7 @@
 #include "packet-llc.h"
 #include <epan/prefs.h>
 #include <epan/tap.h>
+#include <epan/emem.h>
 
 static int proto_tr = -1;
 static int hf_tr_dst = -1;
@@ -596,8 +597,10 @@ add_ring_bridge_pairs(int rcf_len, tvbuff_t *tvb, proto_tree *tree)
 #define RIF_OFFSET		16
 #define RIF_BYTES_TO_PROCESS	30
 
-	char	buffer[3 + (RIF_BYTES_TO_PROCESS / 2) * 6 + 1];
+	char	*buffer;
+#define MAX_BUF_LEN 3 + (RIF_BYTES_TO_PROCESS / 2) * 6 + 1
 
+	buffer=ep_alloc(MAX_BUF_LEN);
 	/* Only process so many  bytes of RIF, as per TR spec, and not overflow
 	 * static buffer above */
 	unprocessed_rif = rcf_len - RIF_BYTES_TO_PROCESS;
@@ -609,13 +612,13 @@ add_ring_bridge_pairs(int rcf_len, tvbuff_t *tvb, proto_tree *tree)
 	for(j = 1; j < rcf_len - 1; j += 2) {
 		if (j==1) {
 			segment = tvb_get_ntohs(tvb, RIF_OFFSET) >> 4;
-			size = sprintf(buffer, "%03X",segment);
+			size = g_snprintf(buffer, MAX_BUF_LEN, "%03X",segment);
 			proto_tree_add_uint_hidden(tree, hf_tr_rif_ring, tvb, TR_MIN_HEADER_LEN + 2, 2, segment);
 			buff_offset += size;
 		}
 		segment = tvb_get_ntohs(tvb, RIF_OFFSET + 1 + j) >> 4;
 		brdgnmb = tvb_get_guint8(tvb, RIF_OFFSET + j) & 0x0f;
-		size = sprintf(buffer+buff_offset, "-%01X-%03X",brdgnmb,segment);
+		size = g_snprintf(buffer+buff_offset, MAX_BUF_LEN-buff_offset, "-%01X-%03X",brdgnmb,segment);
 		proto_tree_add_uint_hidden(tree, hf_tr_rif_ring, tvb, TR_MIN_HEADER_LEN + 3 + j, 2, segment);
 		proto_tree_add_uint_hidden(tree, hf_tr_rif_bridge, tvb, TR_MIN_HEADER_LEN + 2 + j, 1, brdgnmb);
 		buff_offset += size;
