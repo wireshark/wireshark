@@ -100,37 +100,71 @@ struct netxray_hdr {
 #define WAN_CAPTYPE_BROUTER4	11	/* Bridge/router captured with pod */
 #define WAN_CAPTYPE_BROUTER5	12	/* Bridge/router captured with pod */
 
-#define CAPTYPE_ATM	15	/* ATM captured with pod */
+#define CAPTYPE_ATM		15	/* ATM captured with pod */
 
 /*
- * # of ticks that equal 1 second, in version 002.xxx files with a zero
- * hdr.realtick value; the index into this array is hdr.timeunit.
+ * # of ticks that equal 1 second, in version 002.xxx files other
+ * than Ethernet captures with a captype other than CAPTYPE_NDIS;
+ * the index into this array is hdr.timeunit.
  *
- * XXX - the third item was 1193180.0, presumably because somebody found
+ * DO NOT SEND IN PATCHES THAT CHANGE ANY OF THE NON-ZERO VALUES IN
+ * ANY OF THE TpS TABLES.  THOSE VALUES ARE CORRECT FOR AT LEAST ONE
+ * CAPTURE, SO CHANGING THEM WILL BREAK AT LEAST SOME CAPTURES.  WE
+ * WILL NOT CHECK IN PATCHES THAT CHANGE THESE VALUES.
+ *
+ * Instead, if a value in TpS is wrong, check whether captype has a
+ * non-zero value; if so, perhaps we need a new TpS table for the
+ * corresponding network type and captype.
+ *
+ * Note that the "realtick" value is wrong in many captures, so
+ * we no longer use it.  We don't know what significance it has.
+ *
+ * XXX - the third item is 1193180.0, presumably because somebody found
  * it gave the right answer for some captures, but 3 times that, i.e.
  * 3579540.0, appears to give the right answer for some other captures.
- * In at least some captures, 3579540.0 is what's in the hdr.realtick
- * field, but hdr.timeunit is 0, giving a TpS value of 1000000.0.
+ * Some captures have realtick of 1193182, some have 3579545, and some
+ * have 1193000.  Most of those, in one set of captures somebody has,
+ * are wrong.
  *
- * Which of 1193180.0 or 1193000.0 is right for captures with no
- * hdr.realtick value (i.e., hdr.realtick is 0) and a hdr.timeunit value
- * of 1?  In at least one ATM capture, hdr.realtick is 1193180.0
- * and hdr.timeunit is 0.  However, in at least one Ethernet capture,
- * hdr.realtick is 1193000.0 and hdr.timeunit is 1, so both of those
- * values appear in hdr.realtick; perhaps whatever capture provoked
- * us to change from 1193180.0 to 1193000.0 has a hdr.realtick value
- * of 1193000.0 - or vice versa.
- *
- * XXX - what's the significance of hdr.timeunit if hdr.realticks is
- * non-zero?  It's different in different captures; does it signify
- * anything?
- *
- * XXX - what's the range of hdr.timeunit in files with hdr.realticks
- * 0?  Does it ever have a value of 2 in any of those captures, or is
- * it either 0 or 1?
+ * XXX - in at least one ATM capture, hdr.realtick is 1193180.0
+ * and hdr.timeunit is 0.  Does that capture have a captype of
+ * CAPTYPE_ATM?  If so, what should the table for ATM captures with
+ * that captype be?
  */
-static double TpS[] = { 1e6, 1193000.0, 3579540.0 };
+static double TpS[] = { 1e6, 1193000.0, 1193182.0 };
 #define NUM_NETXRAY_TIMEUNITS (sizeof TpS / sizeof TpS[0])
+
+/*
+ * Table of time units for Ethernet captures with captype ETH_CAPTYPE_GIGPOD.
+ * 0.0 means "unknown.
+ *
+ * It appears that, at least for Ethernet captures, if captype is
+ * ETH_CAPTYPE_GIGPOD, that indicates that it's a gigabit Ethernet
+ * capture, possibly from a special whizzo gigabit pod, and also
+ * indicates that the time stamps have some higher resolution than
+ * in other captures, possibly thanks to a high-resolution timer
+ * on the pod.
+ *
+ * It also appears that the time units might differ for gigabit pod
+ * captures between version 002.001 and 002.002.  For 002.001,
+ * the values below are correct; for 002.002, it's claimed that
+ * the right value for TpS_gigpod[2] is 1250000.0, but at least one
+ * 002.002 gigabit pod capture has 31250000.0 as the right value.
+ */
+static double TpS_gigpod[] = { 1e9, 0.0, 31250000.0 };
+#define NUM_NETXRAY_TIMEUNITS_GIGPOD (sizeof TpS_gigpod / sizeof TpS_gigpod[0])
+
+/*
+ * Table of time units for Ethernet captures with captype ETH_CAPTYPE_OTHERPOD.
+ */
+static double TpS_otherpod[] = { 1e6, 0.0, 1250000.0 }; 
+#define NUM_NETXRAY_TIMEUNITS_OTHERPOD (sizeof TpS_otherpod / sizeof TpS_otherpod[0])
+
+/*
+ * Table of time units for Ethernet captures with captype ETH_CAPTYPE_GIGPOD2. 
+ */
+static double TpS_gigpod2[] = { 1e9, 0.0, 0.0 };
+#define NUM_NETXRAY_TIMEUNITS_GIGPOD2 (sizeof TpS_gigpod2 / sizeof TpS_gigpod2[0])
 
 /* Version number strings. */
 static const char vers_1_0[] = {
@@ -388,34 +422,102 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 
 	case WTAP_FILE_NETXRAY_2_00x:
 		/*
-		 * In version 2.x files, there appears to be a time stamp
-		 * value in the file header for at least some captures.
-		 * In others, the time stamp value is 0; if that's the case,
-		 * use the hdr.timeunit value.
+		 * Get the time stamp value from the appropriate TpS
+		 * table.
 		 */
-		timeunit = pletohl(&hdr.realtick);
-		if (timeunit == 0) {
-			if (hdr.timeunit >= NUM_NETXRAY_TIMEUNITS) {
+		switch (network_type) {
+
+		case 1:
+			/*
+			 * Ethernet - the table to use depends on whether
+			 * this is an NDIS or pod capture.
+			 */
+			switch (hdr.xxc[4]) {
+
+			case CAPTYPE_NDIS:
+				if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS) {
+					*err = WTAP_ERR_UNSUPPORTED;
+					*err_info = g_strdup_printf(
+					    "netxray: Unknown timeunit %u for Ethernet/CAPTYPE_NDIS version %.8s capture",
+					    hdr.timeunit, hdr.version);
+					return -1;
+				}
+				timeunit = TpS[hdr.timeunit];
+				break;
+
+			case ETH_CAPTYPE_GIGPOD:
+				if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS_GIGPOD
+				    || TpS_gigpod[hdr.timeunit] == 0.0) {
+					*err = WTAP_ERR_UNSUPPORTED;
+					*err_info = g_strdup_printf(
+					    "netxray: Unknown timeunit %u for Ethernet/ETH_CAPTYPE_GIGPOD version %.8s capture",
+					    hdr.timeunit, hdr.version);
+					return -1;
+				}
+				timeunit = TpS_gigpod[hdr.timeunit];
+
+				/*
+				 * At least for 002.002 and 002.003
+				 * captures, the start time stamp is 0,
+				 * not the value in the file.
+				 */
+				if (version_minor == 2 || version_minor == 3)
+					start_timestamp = 0.0;
+				break;
+
+			case ETH_CAPTYPE_OTHERPOD:
+				if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS_OTHERPOD
+				    || TpS_otherpod[hdr.timeunit] == 0.0) {
+					*err = WTAP_ERR_UNSUPPORTED;
+					*err_info = g_strdup_printf(
+					    "netxray: Unknown timeunit %u for Ethernet/ETH_CAPTYPE_OTHERPOD version %.8s capture",
+					    hdr.timeunit, hdr.version);
+					return -1;
+				}
+				timeunit = TpS_otherpod[hdr.timeunit];
+
+				/*
+				 * At least for 002.002 and 002.003
+				 * captures, the start time stamp is 0,
+				 * not the value in the file.
+				 */
+				if (version_minor == 2 || version_minor == 3)
+					start_timestamp = 0.0;
+				break;
+
+			case ETH_CAPTYPE_GIGPOD2:
+				if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS_GIGPOD2
+				    || TpS_gigpod2[hdr.timeunit] == 0.0) {
+					*err = WTAP_ERR_UNSUPPORTED;
+					*err_info = g_strdup_printf(
+					    "netxray: Unknown timeunit %u for Ethernet/ETH_CAPTYPE_GIGPOD2 version %.8s capture",
+					    hdr.timeunit, hdr.version);
+					return -1;
+				}
+				timeunit = TpS_gigpod2[hdr.timeunit];
+				break;
+
+			default:
 				*err = WTAP_ERR_UNSUPPORTED;
-				*err_info = g_strdup_printf("netxray: Unknown timeunit %u",
-				    hdr.timeunit);
+				*err_info = g_strdup_printf(
+				    "netxray: Unknown capture type %u for Ethernet version %.8s capture",
+				    hdr.xxc[4], hdr.version);
+				return -1;
+			}
+			break;
+
+		default:
+			if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS) {
+				*err = WTAP_ERR_UNSUPPORTED;
+				*err_info = g_strdup_printf(
+				    "netxray: Unknown timeunit %u for %u/%u version %.8s capture",
+				    hdr.timeunit, network_type, hdr.xxc[4],
+				    hdr.version);
 				return -1;
 			}
 			timeunit = TpS[hdr.timeunit];
+			break;
 		}
-
-		/*
-		 * For gigabit pod captures, the start timestamp appears
-		 * to be 0.
-		 *
-		 * XXX - is that true for other types of captures, such
-		 * as gigabit pod captures with hdr.xxc[4] = 6, or
-		 * for other pod captures?  Is it true for *all* pod
-		 * captures?
-		 */
-		if (network_type == 1 && hdr.xxc[4] == ETH_CAPTYPE_GIGPOD &&
-		    (version_minor == 2 || version_minor == 3))
-			start_timestamp = 0.0;
 		break;
 
 	default:
