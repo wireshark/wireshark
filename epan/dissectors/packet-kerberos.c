@@ -3732,8 +3732,7 @@ dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
 
-    (void)dissect_kerberos_common(tvb, pinfo, tree, TRUE, FALSE, NULL);
-    return tvb_length(tvb);
+    return dissect_kerberos_common(tvb, pinfo, tree, TRUE, FALSE, NULL);
 }
 
 static gint
@@ -3834,6 +3833,43 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	show_krb_recordmark(kerberos_tree, tvb, offset, krb_rm);
 	offset += 4;
+    }
+
+    /* Do some sanity checking here, 
+     * All krb5 packets start with a TAG class that is BER_CLASS_APP
+     * and a tag value that is either of the values below:
+     * If it doesnt look like kerberos, return 0 and let someone else have
+     * a go at it.
+     */
+    if (!have_rm) {
+        gint8 tmp_class;
+        gboolean tmp_pc;
+        gint32 tmp_tag;
+
+	get_ber_identifier(tvb, offset, &tmp_class, &tmp_pc, &tmp_tag);
+        if(tmp_class!=BER_CLASS_APP){
+            return 0;
+        }
+        switch(tmp_tag){
+            case KRB5_MSG_AUTHENTICATOR:
+            case KRB5_MSG_ENC_TICKET_PART:
+            case KRB5_MSG_AS_REQ:
+            case KRB5_MSG_AS_REP:
+            case KRB5_MSG_TGS_REQ:
+            case KRB5_MSG_TGS_REP:
+            case KRB5_MSG_AP_REQ:
+            case KRB5_MSG_AP_REP:
+            case KRB5_MSG_ENC_AS_REP_PART:
+            case KRB5_MSG_ENC_TGS_REP_PART:
+            case KRB5_MSG_ENC_AP_REP_PART:
+            case KRB5_MSG_ENC_KRB_PRIV_PART:
+            case KRB5_MSG_SAFE:
+            case KRB5_MSG_PRIV:
+            case KRB5_MSG_ERROR:
+                break;
+            default:
+                return 0;
+        }
     }
 
     TRY {
