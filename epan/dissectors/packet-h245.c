@@ -1555,7 +1555,7 @@ static int hf_h245_iv = -1;                       /* OCTET_STRING */
 static int hf_h245_alphanumeric = -1;             /* GeneralString */
 static int hf_h245_userInputSupportIndication = -1;  /* T_userInputSupportIndication */
 static int hf_h245_signal = -1;                   /* T_signal */
-static int hf_h245_signalType = -1;               /* IA5String_SIZE_1 */
+static int hf_h245_signalType = -1;               /* T_signalType */
 static int hf_h245_duration = -1;                 /* INTEGER_1_65535 */
 static int hf_h245_rtp = -1;                      /* Rtp */
 static int hf_h245_rtpPayloadIndication = -1;     /* NULL */
@@ -3407,10 +3407,11 @@ static int dissect_availableBitRates(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 
+
 static int
 dissect_h245_NumericString_SIZE_1_16(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_NumericString(tvb, offset, pinfo, tree, hf_index,
-                                     1, 16);
+                                          1, 16);
 
   return offset;
 }
@@ -5256,10 +5257,11 @@ static int dissect_conferenceIdentifier(tvbuff_t *tvb, int offset, packet_info *
 }
 
 
+
 static int
 dissect_h245_IA5String_SIZE_1_64(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_IA5String(tvb, offset, pinfo, tree, hf_index,
-                                 1, 64);
+                                          1, 64);
 
   return offset;
 }
@@ -7737,6 +7739,7 @@ dissect_h245_VBDCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
 static int dissect_vbd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_VBDCapability(tvb, offset, pinfo, tree, hf_h245_vbd);
 }
+
 
 
 static int
@@ -10239,10 +10242,12 @@ static int dissect_distribution(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 }
 
 
+
 static int
 dissect_h245_T_e164Address(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_IA5String(tvb, offset, pinfo, tree, hf_index,
-                                 -1, -1);
+  offset = dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index,
+                                                      1, 128, "0123456789#*,", strlen("0123456789#*,"),
+                                                      NULL);
 
   return offset;
 }
@@ -10358,10 +10363,11 @@ static int dissect_certificateResponse(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 
+
 static int
 dissect_h245_BIT_STRING_SIZE_1_65535(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, pinfo, tree, hf_index,
-                                  1, 65535);
+                                     1, 65535);
 
   return offset;
 }
@@ -12207,10 +12213,11 @@ static int dissect_callInformationReq(tvbuff_t *tvb, int offset, packet_info *pi
 }
 
 
+
 static int
 dissect_h245_NumericString_SIZE_0_40(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_NumericString(tvb, offset, pinfo, tree, hf_index,
-                                     0, 40);
+                                          0, 40);
 
   return offset;
 }
@@ -12219,10 +12226,11 @@ static int dissect_networkAddressNum(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 
+
 static int
 dissect_h245_IA5String_SIZE_1_40(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_IA5String(tvb, offset, pinfo, tree, hf_index,
-                                 1, 40);
+                                          1, 40);
 
   return offset;
 }
@@ -13547,10 +13555,11 @@ static int dissect_maintenanceLoopReject(tvbuff_t *tvb, int offset, packet_info 
 }
 
 
+
 static int
 dissect_h245_BMPString_SIZE_1_128(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_BMPString(tvb, offset, pinfo, tree, hf_index,
-                                 1, 128);
+                                          1, 128);
 
   return offset;
 }
@@ -16174,15 +16183,17 @@ static int dissect_userInputSupportIndication(tvbuff_t *tvb, int offset, packet_
 }
 
 
+
 static int
-dissect_h245_IA5String_SIZE_1(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_IA5String(tvb, offset, pinfo, tree, hf_index,
-                                 1, 1);
+dissect_h245_T_signalType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index,
+                                                      1, 1, "0123456789#*ABCD!", strlen("0123456789#*ABCD!"),
+                                                      NULL);
 
   return offset;
 }
 static int dissect_signalType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_IA5String_SIZE_1(tvb, offset, pinfo, tree, hf_h245_signalType);
+  return dissect_h245_T_signalType(tvb, offset, pinfo, tree, hf_h245_signalType);
 }
 
 

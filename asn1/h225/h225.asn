@@ -656,7 +656,7 @@ AliasAddress ::= CHOICE {
   partyNumber   PartyNumber,
   mobileUIM     MobileUIM
 }
-DialedDigits ::= IA5String(SIZE (1..128)) -- (FROM ("0123456789#*,"))
+DialedDigits ::= IA5String(SIZE (1..128))(FROM ("0123456789#*,"))
 AddressPattern ::= CHOICE {
   wildcard  AliasAddress,
   range     SEQUENCE {startOfRange  PartyNumber,

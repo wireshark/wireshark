@@ -2231,14 +2231,24 @@ static int dissect_h245Address(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 
+
 static int
 dissect_h225_DialedDigits(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  tvbuff_t *value_tvb = NULL;
+  guint len = 0;
+
+  offset = dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index,
+                                                      1, 128, "0123456789#*,", strlen("0123456789#*,"),
+                                                      &value_tvb);
+
   if (h225_pi->is_destinationInfo == TRUE) {
-    offset = dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13, (char *)&h225_pi->dialedDigits , 64);  
+    if (value_tvb) {
+      len = tvb_length(value_tvb);
+      tvb_memcpy(value_tvb, h225_pi->dialedDigits, 0, len);
+    }
+    h225_pi->dialedDigits[len] = '\0';
 	h225_pi->is_destinationInfo = FALSE;
   }
-  else
-	offset = dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13, NULL, 0);
 
   return offset;
 }
@@ -2247,10 +2257,11 @@ static int dissect_dialedDigits(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 }
 
 
+
 static int
 dissect_h225_BMPString_SIZE_1_256(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_BMPString(tvb, offset, pinfo, tree, hf_index,
-                                 1, 256);
+                                          1, 256);
 
   return offset;
 }
@@ -2259,10 +2270,11 @@ static int dissect_h323_ID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 
+
 static int
 dissect_h225_IA5String_SIZE_1_512(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_IA5String(tvb, offset, pinfo, tree, hf_index,
-                                 1, 512);
+                                          1, 512);
 
   return offset;
 }
@@ -2525,10 +2537,12 @@ static int dissect_publicTypeOfNumber(tvbuff_t *tvb, int offset, packet_info *pi
 }
 
 
+
 static int
 dissect_h225_NumberDigits(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-
-	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index, 1, 128, "#,*0123456789", 13, NULL, 0);
+  offset = dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index,
+                                                      1, 128, "0123456789#*,", strlen("0123456789#*,"),
+                                                      NULL);
 
   return offset;
 }
@@ -2661,11 +2675,12 @@ static int dissect_routeCalltoSCN_item(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 
+
 static int
 dissect_h225_TBCD_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_index,
-                                                   -1, -1, "0123456789#*abc", strlen("0123456789#*abc"),
-                                                   NULL, 0);
+                                                      -1, -1, "0123456789#*abc", strlen("0123456789#*abc"),
+                                                      NULL);
 
   return offset;
 }
@@ -3719,10 +3734,11 @@ static int dissect_almostOutOfResources(tvbuff_t *tvb, int offset, packet_info *
 }
 
 
+
 static int
 dissect_h225_BIT_STRING_SIZE_32(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, pinfo, tree, hf_index,
-                                  32, 32);
+                                     32, 32);
 
   return offset;
 }
@@ -3744,10 +3760,11 @@ static int dissect_tunnelledProtocolObjectID(tvbuff_t *tvb, int offset, packet_i
 }
 
 
+
 static int
 dissect_h225_IA5String_SIZE_1_64(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_IA5String(tvb, offset, pinfo, tree, hf_index,
-                                 1, 64);
+                                          1, 64);
 
   return offset;
 }
@@ -4227,10 +4244,11 @@ static int dissect_cryptoEPPwdHash(tvbuff_t *tvb, int offset, packet_info *pinfo
 }
 
 
+
 static int
 dissect_h225_GatekeeperIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_BMPString(tvb, offset, pinfo, tree, hf_index,
-                                 1, 128);
+                                          1, 128);
 
   return offset;
 }
@@ -4359,10 +4377,11 @@ static int dissect_fastStart(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 }
 
 
+
 static int
 dissect_h225_EndpointIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_BMPString(tvb, offset, pinfo, tree, hf_index,
-                                 1, 128);
+                                          1, 128);
 
   return offset;
 }
@@ -4458,10 +4477,11 @@ static int dissect_connectionParameters(tvbuff_t *tvb, int offset, packet_info *
 }
 
 
+
 static int
 dissect_h225_IA5String_SIZE_1_32(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_IA5String(tvb, offset, pinfo, tree, hf_index,
-                                 1, 32);
+                                          1, 32);
 
   return offset;
 }
@@ -4553,10 +4573,11 @@ static int dissect_number8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 
+
 static int
 dissect_h225_IA5String_SIZE_0_512(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_IA5String(tvb, offset, pinfo, tree, hf_index,
-                                 0, 512);
+                                          0, 512);
 
   return offset;
 }
@@ -4578,10 +4599,11 @@ static int dissect_signal(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 }
 
 
+
 static int
 dissect_h225_BMPString_SIZE_1_512(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_BMPString(tvb, offset, pinfo, tree, hf_index,
-                                 1, 512);
+                                          1, 512);
 
   return offset;
 }
@@ -4784,10 +4806,11 @@ static int dissect_number32(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 }
 
 
+
 static int
 dissect_h225_IA5String_SIZE_1_128(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_IA5String(tvb, offset, pinfo, tree, hf_index,
-                                 1, 128);
+                                          1, 128);
 
   return offset;
 }
@@ -5155,10 +5178,11 @@ static int dissect_messageNotUnderstood(tvbuff_t *tvb, int offset, packet_info *
 }
 
 
+
 static int
 dissect_h225_IA5String(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_IA5String(tvb, offset, pinfo, tree, hf_index,
-                                 -1, -1);
+                                          -1, -1);
 
   return offset;
 }
@@ -5167,10 +5191,11 @@ static int dissect_text(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 }
 
 
+
 static int
 dissect_h225_BMPString(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_BMPString(tvb, offset, pinfo, tree, hf_index,
-                                 -1, -1);
+                                          -1, -1);
 
   return offset;
 }
@@ -6808,10 +6833,11 @@ static int dissect_integrity_item(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
+
 static int
 dissect_h225_BIT_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, pinfo, tree, hf_index,
-                                  -1, -1);
+                                     -1, -1);
 
   return offset;
 }
@@ -7110,10 +7136,11 @@ static int dissect_callCreditCapability(tvbuff_t *tvb, int offset, packet_info *
 }
 
 
+
 static int
 dissect_h225_PrintableString(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_PrintableString(tvb, offset, pinfo, tree, hf_index,
-                                       -1, -1);
+                                          -1, -1);
 
   return offset;
 }

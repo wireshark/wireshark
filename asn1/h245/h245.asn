@@ -3032,11 +3032,10 @@ UserInputIndication ::= CHOICE {
             encryptedIA5String      NULL,
             -- indicates encrypted general string
             encryptedGeneralString  NULL},
---                 IA5String(SIZE (1) ^ FROM ("0123456789#*ABCD!")),
 
   signal
     SEQUENCE {signalType
-                IA5String(SIZE (1) ),
+                IA5String(SIZE (1))(FROM ("0123456789#*ABCD!")),
               -- holds dummy "!" if encryptedSignalType is being used
               duration                 INTEGER(1..65535) OPTIONAL, -- milliseconds--
               rtp		       Rtp OPTIONAL,
