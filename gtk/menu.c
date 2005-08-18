@@ -578,6 +578,7 @@ menus_init(void) {
     set_menus_for_selected_packet(&cfile);
     set_menus_for_selected_tree_row(&cfile);
     set_menus_for_capture_in_progress(FALSE);
+	set_menus_for_file_set(/* dialog */TRUE, /* previous file */ FALSE, /* next_file */ FALSE);
 
     /* init with an empty recent files list */
     clear_menu_recent_capture_file_cmd_cb(NULL, NULL);
