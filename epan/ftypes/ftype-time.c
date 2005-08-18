@@ -170,9 +170,15 @@ static gboolean
 relative_val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	char    *curptr, *endptr;
-
+        gboolean negative = FALSE;
+        
 	curptr = s;
 
+        if(*curptr == '-') {
+            negative = TRUE;
+            curptr++;
+        }
+        
 	/*
 	 * If it doesn't begin with ".", it should contain a seconds
 	 * value.
@@ -212,9 +218,10 @@ relative_val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _
 		fv->value.time.nsecs = 0;
 	}
 
-	/*
-	 * XXX - what about negative values?
-	 */
+        if(negative) {
+            fv->value.time.secs = -fv->value.time.secs;
+            fv->value.time.nsecs = -fv->value.time.nsecs;
+        }
 	return TRUE;
 
 fail:
