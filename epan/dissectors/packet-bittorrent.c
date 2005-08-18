@@ -153,17 +153,18 @@ static guint get_bittorrent_pdu_length(tvbuff_t *tvb, int offset)
             /* The type is not known, so this message cannot be decoded
                properly by this dissector.  We assume it's continuation
                data from the middle of a message, and just return the
-               length of the tvbuff so the entire tvbuff is displayed
-               as continuation data. */
-            return tvb_length(tvb);
+               remaining length in the tvbuff so the rest of the tvbuff
+               is displayed as continuation data. */
+            return tvb_length_remaining(tvb, offset);
          }
       } else {
          /* We don't have the type field, so we can't determine
             whether this is a valid message.  For now, we assume
             it's continuation data from the middle of a message,
-            and just return the length of the tvbuff so the entire
-            tvbuff is displayed as continuation data. */
-         return tvb_length(tvb);
+            and just return the remaining length in the tvbuff so
+            the rest of the tvbuff is displayed as continuation
+            data. */
+         return tvb_length_remaining(tvb, offset);
       }
    }
 }
