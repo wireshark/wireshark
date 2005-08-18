@@ -130,6 +130,36 @@ fs_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 }
 
 
+/* get creation date (converted from filename) */
+/* */
+char *
+fileset_dlg_name2date_dup(const char * name) {
+    char        *pfx;
+    char        *filename;
+    int         pos;
+
+
+    /* just to be sure ... */
+	g_assert(fileset_filename_match_pattern(name));
+
+	/* find char position behind the last underscore */
+    pfx = strrchr(name, '_');
+	pfx++;
+	pos = pfx - name;
+
+	/* start conversion behind that underscore */
+	filename = g_strdup_printf("%c%c%c%c.%c%c.%c%c %c%c:%c%c:%c%c",
+		/* year  */  name[pos]  ,  name[pos+1], name[pos+2], name[pos+3],
+		/* month */  name[pos+4],  name[pos+5],
+		/* day   */  name[pos+6],  name[pos+7],
+		/* hour */   name[pos+8],  name[pos+9],
+		/* min */    name[pos+10], name[pos+11],
+		/* second */ name[pos+12], name[pos+13]);
+
+	return filename;
+}
+
+
 /* this file is a part of the current file set, add it to the dialog */
 void
 fileset_dlg_add_file(fileset_entry *entry) {
@@ -146,10 +176,12 @@ fileset_dlg_add_file(fileset_entry *entry) {
         return;
     }
 
-    local = localtime(&entry->ctime);
+    /*local = localtime(&entry->ctime);
     created = g_strdup_printf("%04u.%02u.%02u %02u:%02u:%02u", 
         local->tm_year+1900, local->tm_mon+1, local->tm_mday,
-        local->tm_hour, local->tm_min, local->tm_sec);
+        local->tm_hour, local->tm_min, local->tm_sec);*/
+	created = fileset_dlg_name2date_dup(entry->name);
+
     local = localtime(&entry->mtime);
     modified = g_strdup_printf("%04u.%02u.%02u %02u:%02u:%02u", 
         local->tm_year+1900, local->tm_mon+1, local->tm_mday,
