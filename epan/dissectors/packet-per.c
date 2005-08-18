@@ -303,7 +303,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	if(max_len==0){
 		if (value_tvb) {
 			*value_tvb = tvb_new_real_data(NULL, 0, 0); 
-			tvb_set_child_real_data_tvbuff(tvb, value_tvb);
+			tvb_set_child_real_data_tvbuff(tvb, *value_tvb);
 		}
 		return offset;
 	}
@@ -423,8 +423,8 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	proto_tree_add_string(tree, hf_index, tvb, (old_offset>>3), (offset>>3)-(old_offset>>3), buf);
 	if (value_tvb) {
 		*value_tvb = tvb_new_real_data(buf, length, length); 
-		tvb_set_free_cb(value_tvb, g_free);
-		tvb_set_child_real_data_tvbuff(tvb, value_tvb);
+		tvb_set_free_cb(*value_tvb, g_free);
+		tvb_set_child_real_data_tvbuff(tvb, *value_tvb);
 	} else {
 		g_free(buf);
 	}
