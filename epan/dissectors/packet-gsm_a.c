@@ -32,6 +32,7 @@
  *   Core network protocols;
  *   Stage 3
  *   (3GPP TS 24.008 version 4.7.0 Release 4)
+ *   (ETSI TS 124 008 V6.8.0 (2005-03))
  *
  *   Reference [4]
  *   Mobile radio interface layer 3 specification;
@@ -1127,7 +1128,6 @@ static int hf_gsm_a_rr_utran_cm_cng_msg_req = -1;
 static int hf_gsm_a_rr_cdma200_cm_cng_msg_req = -1;
 static int hf_gsm_a_rr_geran_iu_cm_cng_msg_req = -1;
 static int hf_gsm_a_rr_suspension_cause = -1;
-
 static int hf_ROS_component = -1;
 static int hf_ROS_invoke = -1;                    /* Invoke */
 static int hf_ROS_returnResultLast = -1;          /* ReturnResult */
@@ -1151,6 +1151,19 @@ static int hf_ROS_localValue = -1;                /* INTEGER */
 static int hf_ROS_globalValue = -1;               /* OBJECT_IDENTIFIER */
 static int hf_ROS_nationaler = -1;                /* INTEGER_M32768_32767 */
 static int hf_ROS_privateer = -1;                 /* INTEGER */
+static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b8 = -1;
+static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b7 = -1;
+static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b6 = -1;
+static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b5 = -1;
+static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b4 = -1;
+static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b3 = -1;
+static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b2 = -1;
+static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b1 = -1;
+static int hf_gsm_a_rr_set_of_amr_codec_modes_v2_b5 = -1;
+static int hf_gsm_a_rr_set_of_amr_codec_modes_v2_b4 = -1;
+static int hf_gsm_a_rr_set_of_amr_codec_modes_v2_b3 = -1;
+static int hf_gsm_a_rr_set_of_amr_codec_modes_v2_b2 = -1;
+static int hf_gsm_a_rr_set_of_amr_codec_modes_v2_b1 = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_bssmap_msg = -1;
@@ -4440,6 +4453,16 @@ static const value_string ICMI_vals[] = {
 	{ 1,		"The initial codec mode is defined by the Start Mode field"},
 	{ 0,	NULL }
 };
+/*
+Table 10.5.2.21aa.2: Set of adaptive multirate codec modes field (octet 4)
+for the Multirate speech version 1
+*/
+static const true_false_string gsm_a_rr_set_of_amr_codec_modes  = {
+  "is part of the subset",
+  "is not part of the subset"
+};
+
+
 
 static guint8
 de_rr_multirate_conf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_)
@@ -4461,11 +4484,29 @@ de_rr_multirate_conf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 	case 1:
 		/* Adaptive Multirate speech version 1 */
 		/* Set of AMR codec modes */
-		proto_tree_add_text(tree,tvb, curr_offset, len-1 ,"Data(Not decoded)");
+		proto_tree_add_item(tree, hf_gsm_a_rr_set_of_amr_codec_modes_v1_b8, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_rr_set_of_amr_codec_modes_v1_b7, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_rr_set_of_amr_codec_modes_v1_b6, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_rr_set_of_amr_codec_modes_v1_b5, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_rr_set_of_amr_codec_modes_v1_b4, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_rr_set_of_amr_codec_modes_v1_b3, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_rr_set_of_amr_codec_modes_v1_b2, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_rr_set_of_amr_codec_modes_v1_b1, tvb, curr_offset, 1, FALSE);
+		curr_offset++;
+
+		proto_tree_add_text(tree,tvb, curr_offset, len-2 ,"Parameters for multirate speech field(Not decoded)");
+
 		break;
 	case 2:
 		/* Adaptive Multirate speech version 2 */
-		proto_tree_add_text(tree,tvb, curr_offset, len-1 ,"Data(Not decoded)");
+		proto_tree_add_item(tree, hf_gsm_a_rr_set_of_amr_codec_modes_v2_b5, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_rr_set_of_amr_codec_modes_v2_b4, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_rr_set_of_amr_codec_modes_v2_b3, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_rr_set_of_amr_codec_modes_v2_b2, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_rr_set_of_amr_codec_modes_v2_b1, tvb, curr_offset, 1, FALSE);
+		curr_offset++;
+
+		proto_tree_add_text(tree,tvb, curr_offset, len-2 ,"Parameters for multirate speech field(Not decoded)");
 		break;
 	default:
 		proto_tree_add_text(tree,tvb,offset,1,"Unknown version");
@@ -18588,6 +18629,71 @@ proto_register_gsm_a(void)
       { "privateer", "ROS.privateer",
         FT_INT32, BASE_DEC, NULL, 0,
         "ErrorCode/privateer", HFILL }},
+	{ &hf_gsm_a_rr_set_of_amr_codec_modes_v1_b8,
+      { "12,2 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v1b8",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x80,          
+		"12,2 kbit/s codec rate", HFILL }
+	},
+	{ &hf_gsm_a_rr_set_of_amr_codec_modes_v1_b7,
+      { "10,2 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v1b7",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x40,          
+		"10,2 kbit/s codec rate", HFILL }
+	},
+	{ &hf_gsm_a_rr_set_of_amr_codec_modes_v1_b6,
+      { "7,95 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v1b6",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x20,          
+		"7,95 kbit/s codec rate", HFILL }
+	},
+	{ &hf_gsm_a_rr_set_of_amr_codec_modes_v1_b5,
+      { "7,40 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v1b5",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x10,          
+		"7,40 kbit/s codec rate", HFILL }
+	},
+	{ &hf_gsm_a_rr_set_of_amr_codec_modes_v1_b4,
+      { "6,70 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v1b4",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x08,          
+		"6,70 kbit/s codec rate", HFILL }
+	},
+	{ &hf_gsm_a_rr_set_of_amr_codec_modes_v1_b3,
+      { "5,90 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v1b3",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x04,          
+		"5,90 kbit/s codec rate", HFILL }
+	},
+	{ &hf_gsm_a_rr_set_of_amr_codec_modes_v1_b2,
+      { "5,15 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v1b2",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x02,          
+		"5,15 kbit/s codec rate", HFILL }
+	},
+	{ &hf_gsm_a_rr_set_of_amr_codec_modes_v1_b1,
+      { "4,75 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v1b1",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x01,          
+		"4,75 kbit/s codec rate", HFILL }
+	},
+	{ &hf_gsm_a_rr_set_of_amr_codec_modes_v2_b5,
+      { "23,85 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v2b5",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x10,          
+		"23,85 kbit/s codec rate", HFILL }
+	},
+	{ &hf_gsm_a_rr_set_of_amr_codec_modes_v2_b4,
+      { "15,85 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v2b4",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x08,          
+		"15,85 kbit/s codec rate", HFILL }
+	},
+	{ &hf_gsm_a_rr_set_of_amr_codec_modes_v2_b3,
+      { "12,65 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v2b3",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x04,          
+		"12,65 kbit/s codec rate", HFILL }
+	},
+	{ &hf_gsm_a_rr_set_of_amr_codec_modes_v2_b2,
+      { "8,85 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v2b2",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x02,          
+		"8,85 kbit/s codec rate", HFILL }
+	},
+	{ &hf_gsm_a_rr_set_of_amr_codec_modes_v2_b1,
+      { "6,60 kbit/s codec rate", "gsm_a.rr.set_of_amr_codec_modes_v2b1",
+		FT_BOOLEAN,8,  TFS(&gsm_a_rr_set_of_amr_codec_modes), 0x01,          
+		"6,60 kbit/s codec rate", HFILL }
+	},
 
     };
 
