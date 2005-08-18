@@ -47,6 +47,7 @@ int proto_tcap = -1;
 static int hf_tcap_tag = -1; 
 static int hf_tcap_length = -1; 
 static int hf_tcap_data = -1;
+static int hf_tcap_tid = -1;
 #include "packet-tcap-hf.c"
 static guint tcap_itu_ssn = 106;
 
@@ -55,6 +56,10 @@ static guint global_tcap_itu_ssn = 1;
 /* Initialize the subtree pointers */
 static gint ett_tcap = -1;
 static gint ett_param = -1;
+
+static gint ett_otid = -1;
+static gint ett_dtid = -1;
+
 
 #include "packet-tcap-ett.c"
 
@@ -127,6 +132,8 @@ void proto_reg_handoff_tcap(void);
 /* this format is require because a script is used to build the C function
    that calls all the protocol registration.
 */
+
+
 void
 proto_register_tcap(void)
 {
@@ -148,6 +155,11 @@ proto_register_tcap(void)
 		FT_BYTES, BASE_HEX, NULL, 0,
 		"", HFILL }
 	},
+		{ &hf_tcap_tid,
+		{ "Transaction Id", "tcap.tid",
+		FT_BYTES, BASE_HEX, NULL, 0,
+		"", HFILL }
+	},
 #include "packet-tcap-hfarr.c"	
     };
 
@@ -155,6 +167,8 @@ proto_register_tcap(void)
     static gint *ett[] = {
 	&ett_tcap,
 	&ett_param,
+	&ett_otid,
+	&ett_dtid,
 	#include "packet-tcap-ettarr.c"
     };
 
@@ -294,9 +308,13 @@ dissect_tcap_param(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 
 	    proto_tree_add_uint(subtree, hf_tcap_length, tvb,
 		tag_offset, len_offset-tag_offset, len);
-	    /* need to handle indefinite length */
-	    next_tvb = tvb_new_subset(tvb, offset, len, len);		
-	    dissect_tcap_param(pinfo, subtree,next_tvb,0);
+		if (len-(2*ind_field)) /*should always be positive unless we get an empty contructor pointless? */
+		{
+	    	next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));		
+	    		dissect_tcap_param(pinfo, subtree,next_tvb,0);
+	    }		
+	    	if (ind_field)
+	    		proto_tree_add_text(subtree, tvb, offset+len-2, 2, "CONSTRUCTOR EOC");
 	    offset += len;
 	}
 	else
@@ -311,9 +329,12 @@ dissect_tcap_param(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 
 	    proto_tree_add_uint(subtree, hf_tcap_length, tvb,
 		saved_offset+1, 1, len);
-	    next_tvb = tvb_new_subset(tvb, offset, len, len);		
-	    dissect_ber_octet_string(TRUE, pinfo, tree, next_tvb, 0, hf_tcap_data,
-                                    NULL);
+		if (len) /* check for NULLS */
+			{
+	    	next_tvb = tvb_new_subset(tvb, offset, len, len);		
+	    	dissect_ber_octet_string(TRUE, pinfo, tree, next_tvb, 0, hf_tcap_data,
+        	                        NULL);
+        	}
 	    offset += len;
 	}
     }

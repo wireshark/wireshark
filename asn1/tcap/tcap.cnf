@@ -18,130 +18,121 @@
 #.FIELD_RENAME
 
 #.FN_BODY DialogueOC
-tvbuff_t	*parameter_tvb;
 tvbuff_t	*next_tvb;
-gint8 class;
+guint8 class;
 	gboolean pc;
-	gint32 tag;
+	guint32 tag;
 	guint32 len;
-	gboolean ind_field;
+	guint32 ind_field;
 	
 
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
-next_tvb = tvb_new_subset(tvb, offset, len, len);		
-offset = dissect_ber_octet_string(TRUE, pinfo, tree, next_tvb, 0, hf_index,
-                                  &parameter_tvb);
+	next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));
                                     
  
-if (!parameter_tvb)
- return offset;
-dissect_tcap_ExternalPDU(TRUE, parameter_tvb, 2, pinfo, tree, -1);
+ if (!next_tvb)
+	return offset;
 
-return offset+2;
+  dissect_tcap_ExternalPDU(TRUE, next_tvb, 2, pinfo, tree, -1);
+
+
+return offset+len;
 
 #.FN_BODY Dialog1
-tvbuff_t	*parameter_tvb;
-tvbuff_t	*next_tvb;
-gint8 class;
+guint8 class;
 	gboolean pc;
-	gint32 tag;
+	guint32 tag;
 	guint32 len;
-	gboolean ind_field;
+	guint32 ind_field;
 	
 
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
-next_tvb = tvb_new_subset(tvb, offset, len, len);		
-offset = dissect_ber_octet_string(TRUE, pinfo, tree, tvb, 0, hf_index,
-                                  &parameter_tvb);
-                                    
- /*offset = dissect_ber_octet_string(TRUE, pinfo, tree, tvb, offset, hf_index,
-  *                                 &parameter_tvb);
-  */
-if (!parameter_tvb)
- return offset;
-dissect_tcap_DialoguePDU(TRUE, parameter_tvb, 0, pinfo, tree, -1);
+ dissect_tcap_DialoguePDU(TRUE, tvb, 0, pinfo, tree, -1);
+
+return offset+len;
 
 #.FN_BODY Parameter
 tvbuff_t	*next_tvb;
-gint8 class;
+guint8 class;
 	gboolean pc;
-	gint32 tag;
+	guint32 tag;
 	guint32 len;
-	gboolean ind_field;
+	guint32 ind_field;
 
 
-  offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-  offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
-  offset = dissect_ber_octet_string(TRUE, pinfo, tree, tvb, 0, hf_index,
-                                    &next_tvb);
- 
-  if (!next_tvb)
-    return offset;
-  dissect_tcap_param(pinfo,tree,next_tvb,0);
+ offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+ offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
+	/* need to strip the EOC off the next_tvb */
+	next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));		
+
+if (!next_tvb)
+	return offset; 
+ dissect_tcap_param(pinfo,tree,tvb,0);
+ offset += len;
+  return offset;
 
 #.FN_BODY User_information
-tvbuff_t	*parameter_tvb;
 tvbuff_t	*next_tvb;
-gint8 class;
+guint8 class;
 	gboolean pc;
-	gint32 tag;
+	guint32 tag;
 	guint32 len;
-	gboolean ind_field; 
+	guint32 ind_field;
 
 
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
-next_tvb = tvb_new_subset(tvb, offset, len, len);		
-dissect_ber_octet_string(TRUE, pinfo, tree, next_tvb, 0, hf_index,
-                                    &parameter_tvb);
- 
-if (parameter_tvb)
-    dissect_tcap_UserInformation(TRUE, parameter_tvb, 0, pinfo, tree, -1);
+next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));		
+if (!next_tvb)
+	return offset+len; 
+dissect_tcap_UserInformation(TRUE, next_tvb, 0, pinfo, tree, -1);
  
  
 return offset+len;
 #.FN_BODY Component
 tvbuff_t	*next_tvb;
-gint8 class;
+guint8 class;
 	gboolean pc;
-	gint32 tag;
-	guint32 len;
-	gboolean ind_field;
+	guint32 tag;
+	guint32 len, s_offset;
+	guint32 ind_field;
 /* 
  * ok lets look at the oid and ssn and try and find a dissector, otherwise lets decode it.
  */
 ber_oid_dissector_table = find_dissector_table("ber.oid");
 tcap_itu_ssn_dissector_table = find_dissector_table("tcap.itu_ssn");
-
-next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+s_offset = offset;
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
+/* we can believe the length now */
+next_tvb = tvb_new_subset(tvb, s_offset, len+(offset-s_offset), len+(offset-s_offset));		
+if (!next_tvb)
+	return offset+len;
+	
+dissect_ber_choice(pinfo, tree, next_tvb, 0,
+                        Component_choice, hf_index, ett_tcap_Component,NULL);
+
 if (ber_oid_dissector_table && cur_oid){
 if(!dissector_try_string(ber_oid_dissector_table, cur_oid, next_tvb, pinfo, tcap_top_tree))	
 	{
-	if (!dissector_try_port(tcap_itu_ssn_dissector_table, pinfo->match_port, next_tvb,pinfo, tcap_top_tree))
-			 	dissect_ber_choice(pinfo, tree, next_tvb, 0,
-                        Component_choice, hf_index, ett_tcap_Component, NULL);
+	dissector_try_port(tcap_itu_ssn_dissector_table, pinfo->match_port, next_tvb,pinfo, tcap_top_tree);
 	}
 }
 else
-	 if (!dissector_try_port(tcap_itu_ssn_dissector_table, pinfo->match_port, next_tvb, pinfo, tcap_top_tree))
-			dissect_ber_choice(pinfo, tree, next_tvb, 0,
-                        Component_choice, hf_index, ett_tcap_Component, NULL);
-
-offset+=len;
+	 dissector_try_port(tcap_itu_ssn_dissector_table, pinfo->match_port, next_tvb, pinfo, tcap_top_tree);
+return offset+len;
 
 #.FN_BODY Applicationcontext
-	static char buffer[MAX_OID_STR_LEN];
+	static char buffer[128];
 	cur_oid = buffer;
 	pinfo->private_data = buffer;
   offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
                                          hf_index, cur_oid);
 
 #.FN_BODY UserInfoOID
-	static char buffer[MAX_OID_STR_LEN];
+	static char buffer[128];
 	tcapext_oid = buffer;
 	pinfo->private_data = buffer;
   offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
@@ -149,11 +140,11 @@ offset+=len;
 
 #.FN_BODY ExternUserInfo
 tvbuff_t	*next_tvb;
-gint8 class;
+guint8 class;
 	gboolean pc;
-	gint32 tag;
+	guint32 tag;
 	guint32 len, start_offset;
-	gboolean ind_field;
+	guint32 ind_field;
 /* 
  * ok lets look at the oid and ssn and try and find a dissector, otherwise lets decode it.
  */
@@ -161,14 +152,17 @@ ber_oid_dissector_table = find_dissector_table("ber.oid");
 start_offset = offset;
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
-/* Use the recived length, XXX What if it was indefenet? */
+/* Use the recived length, XXX What if it was indefenet? length is good now */
 next_tvb = tvb_new_subset(tvb, start_offset, len +(offset - start_offset), len+(offset - start_offset));		
+if (!next_tvb)
+	return offset+len;
 if (ber_oid_dissector_table && tcapext_oid){
 if(!dissector_try_string(ber_oid_dissector_table, tcapext_oid, next_tvb, pinfo, tcap_top_tree))	
 	{
 	}
 	}
-offset+=len;
+dissect_tcap_param(pinfo,tree,next_tvb,0);
+	offset+=len;
 
 
 #.FN_BODY ANSIParameters
@@ -185,19 +179,21 @@ offset = dissect_ber_octet_string(TRUE, pinfo, tree, tvb, 0, hf_index,
 #.FN_BODY ComponentPDU 	
 tvbuff_t *next_tvb;
 
-next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));		
 
-if (!dissector_try_port(tcap_ansi_ssn_dissector_table, pinfo->match_port, next_tvb, pinfo, tcap_top_tree))
-    {
-	offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              ComponentPDU_choice, hf_index, ett_tcap_ComponentPDU, NULL);
-	}
-	
+dissector_try_port(tcap_ansi_ssn_dissector_table, pinfo->match_port, next_tvb, pinfo, tcap_top_tree);
+
+offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                              ComponentPDU_choice, hf_index, ett_tcap_ComponentPDU,NULL);
 	
 #.FN_BODY OrigTransactionID
 tvbuff_t *parameter_tvb;
 guint8 len, i;
-offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+proto_item *tid_item;
+proto_tree *subtree;
+tid_item = proto_tree_add_text(tree, tvb, offset, -1, "Source Transaction ID");
+subtree = proto_item_add_subtree(tid_item, ett_otid);
+offset = dissect_ber_octet_string(implicit_tag, pinfo, subtree, tvb, offset, hf_tcap_tid,
                                     &parameter_tvb);
 
 if (parameter_tvb){
@@ -209,12 +205,19 @@ if (parameter_tvb){
         	col_append_fstr(pinfo->cinfo, COL_INFO, ") ");
 	}
 
-}
+}	
+
+
 #.FN_BODY DestTransactionID
 tvbuff_t *parameter_tvb;
 guint8 len , i;
-offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+proto_item *tid_item;
+proto_tree *subtree;
+tid_item = proto_tree_add_text(tree, tvb, offset, -1, "Destination Transaction ID");
+subtree = proto_item_add_subtree(tid_item, ett_otid);
+offset = dissect_ber_octet_string(implicit_tag, pinfo, subtree, tvb, offset, hf_tcap_tid,
                                     &parameter_tvb);
+
 if (parameter_tvb){
 	len = tvb_length_remaining(parameter_tvb, 0);
 	if ((len)&&(check_col(pinfo->cinfo, COL_INFO))){
@@ -269,5 +272,3 @@ if ((hf_index == hf_tcap_ansiconversationWithoutPerm)&&(check_col(pinfo->cinfo, 
                 TransactionPDU_sequence, hf_index, ett_tcap_TransactionPDU);  
           
 #.END
-
-

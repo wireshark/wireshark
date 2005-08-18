@@ -951,16 +951,6 @@ printf("SEQUENCE dissect_ber_sequence(%s) calling subdissector\n",name);
 }
 #endif
 		count=seq->func(pinfo, tree, next_tvb, 0);
-		if(!(seq->flags & BER_FLAGS_NOOWNTAG) ) {
-			/* if we stripped the tag and length we should also strip the EOC is ind_len */
-			if(ind_field == 1)
-			{
-				/* skip over EOC */
-				if(show_internal_ber_fields){
-					proto_tree_add_text(tree, tvb, offset, count, "SEQ FIELD EOC");
-				}
-			}
-			}
 		
 #ifdef DEBUG_BER
 {
@@ -984,6 +974,17 @@ printf("SEQUENCE dissect_ber_sequence(%s) subdissector ate %d bytes\n",name,coun
 		}
 	offset = eoffset;
 	seq++;
+	if(!(seq->flags & BER_FLAGS_NOOWNTAG) ) {
+			/* if we stripped the tag and length we should also strip the EOC is ind_len */
+			if(ind_field == 1)
+			{
+				/* skip over EOC */
+				if(show_internal_ber_fields){
+					proto_tree_add_text(tree, tvb, offset, count, "SEQ FIELD EOC");
+				}
+			}
+			}
+
 	}
 
 	/* if we didnt end up at exactly offset, then we ate too many bytes */
@@ -1213,16 +1214,6 @@ printf("SEQUENCE dissect_ber_sequence(%s) calling subdissector\n",name);
 }
 #endif
 		count=seq->func(pinfo, tree, next_tvb, 0);
-		if(!(seq->flags & BER_FLAGS_NOOWNTAG) ) {
-			/* if we stripped the tag and length we should also strip the EOC is ind_len */
-			if(ind_field == 1)
-			{
-				/* skip over EOC */
-				if(show_internal_ber_fields){
-					proto_tree_add_text(tree, tvb, offset, count, "SEQ FIELD EOC");
-				}
-			}
-			}
 		
 #ifdef DEBUG_BER
 {
@@ -1246,6 +1237,17 @@ printf("SEQUENCE dissect_ber_sequence(%s) subdissector ate %d bytes\n",name,coun
 		}
 	offset = eoffset;
 	seq++;
+	if(!(seq->flags & BER_FLAGS_NOOWNTAG) ) {
+			/* if we stripped the tag and length we should also strip the EOC is ind_len */
+			if(ind_field == 1)
+			{
+				/* skip over EOC */
+				if(show_internal_ber_fields){
+					proto_tree_add_text(tree, tvb, offset, count, "SEQ FIELD EOC");
+				}
+			}
+			}
+
 	}
 
 	/* if we didnt end up at exactly offset, then we ate too many bytes */
