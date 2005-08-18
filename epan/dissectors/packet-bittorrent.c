@@ -128,7 +128,7 @@ static guint get_bittorrent_pdu_length(tvbuff_t *tvb, int offset)
    guint32 length;
 
    if (tvb_get_guint8(tvb, offset) == 19 &&
-       tvb_memeql(tvb, offset + 1, "BitTorrent protocol", 19) == 0) {
+      tvb_memeql(tvb, offset + 1, "BitTorrent protocol", 19) == 0) {
       /* Return the length of a Handshake message */
       return 1 + /* pstrlen */
          19 +    /* pstr */
@@ -150,20 +150,20 @@ static guint get_bittorrent_pdu_length(tvbuff_t *tvb, int offset)
                type identifier */
             return BITTORRENT_HEADER_LENGTH + length;
          } else {
-            /* The type is not known, this message cannot be decoded
-               properly by this dissector. */
-            /* XXX - what we want to do here is to just dissect the rest
-               of this TCP segment as "continuation data"; if this is
-               a real BitTorrent connection, we probably didn't get some
-               data before this segment. */
-            THROW(ReportedBoundsError);
-            return 0;
+            /* The type is not known, so this message cannot be decoded
+               properly by this dissector.  We assume it's continuation
+               data from the middle of a message, and just return the
+               length of the tvbuff so the entire tvbuff is displayed
+               as continuation data. */
+            return tvb_length(tvb);
          }
       } else {
-         /* For now, we just give up, so we don't end up dissecting
-            a message with a bogus length. */
-         THROW(ReportedBoundsError);
-         return 0;
+         /* We don't have the type field, so we can't determine
+            whether this is a valid message.  For now, we assume
+            it's continuation data from the middle of a message,
+            and just return the length of the tvbuff so the entire
+            tvbuff is displayed as continuation data. */
+         return tvb_length(tvb);
       }
    }
 }
@@ -172,34 +172,48 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
 {
    int offset = 0;
    proto_tree *mtree;
-   guint8 type;
+   guint8 type = 0;
    guint32 length;
+   const char *msgtype = NULL;
    proto_item *ti;
+
+   if (tvb_bytes_exist(tvb, offset + BITTORRENT_HEADER_LENGTH, 1)) {
+      /* Check for data from the middle of a message. */
+      type = tvb_get_guint8(tvb, offset + BITTORRENT_HEADER_LENGTH);
+      msgtype = match_strval(type, bittorrent_messages);
+      if (msgtype == NULL) {
+         proto_tree_add_text(tree, tvb, offset, -1, "Continuation data"); 
+         if (check_col(pinfo->cinfo, COL_INFO)) {
+            col_add_str(pinfo->cinfo, COL_INFO, "Continuation");
+         }
+         return;
+      }
+   }
 
    length = tvb_get_ntohl(tvb, offset);
    ti = proto_tree_add_text(tree, tvb, offset, length + BITTORRENT_HEADER_LENGTH, "BitTorrent Message");
    mtree = proto_item_add_subtree(ti, ett_bittorrent_msg);
 
-   proto_tree_add_item(mtree, hf_bittorrent_msg_len, tvb, offset, BITTORRENT_HEADER_LENGTH, FALSE);
-   offset += BITTORRENT_HEADER_LENGTH;
-
    /* Keepalive message */
    if (length == 0) {
+      proto_tree_add_item(mtree, hf_bittorrent_msg_len, tvb, offset, BITTORRENT_HEADER_LENGTH, FALSE);
       if (check_col(pinfo->cinfo, COL_INFO)) {
          col_set_str(pinfo->cinfo, COL_INFO, "BitTorrent KeepAlive message");
       }
       return;
    }
-   
-   type = tvb_get_guint8(tvb, offset);
+
+   proto_tree_add_item(mtree, hf_bittorrent_msg_len, tvb, offset, BITTORRENT_HEADER_LENGTH, FALSE);
+   offset += BITTORRENT_HEADER_LENGTH;
+
+   /* If the tvb_bytes_exist() call above returned FALSE, this will
+      throw an exception, so we won't use msgtype or type. */
    proto_tree_add_item(mtree, hf_bittorrent_msg_type, tvb, offset, 1, FALSE);
+   if (check_col(pinfo->cinfo, COL_INFO)) {
+      col_add_str(pinfo->cinfo, COL_INFO, msgtype);
+   }
    offset += 1;
    length -= 1;
-   
-   if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_add_str(pinfo->cinfo, COL_INFO,
-                  val_to_str(type, bittorrent_messages, "Unknown message type %u"));
-   }
 
    switch (type) {
    case BITTORRENT_MESSAGE_CHOKE:
