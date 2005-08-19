@@ -81,8 +81,8 @@ typedef struct _rb_file {
 /* Ringbuffer data structure */
 typedef struct _ringbuf_data {
   rb_file      *files;
-  guint         num_files;           /* Number of ringbuffer files */
-  guint         curr_file_num;       /* Number of the current file */
+  guint         num_files;           /* Number of ringbuffer files (1 to ...) */
+  guint         curr_file_num;       /* Number of the current file (ever increasing) */
   gchar        *fprefix;             /* Filename prefix */
   gchar        *fsuffix;             /* Filename suffix */
   gboolean      unlimited;           /* TRUE if unlimited number of files */
@@ -269,7 +269,8 @@ ringbuf_switch_file(wtap_dumper **pdh, gchar **save_file, int *save_file_fd, int
 
   /* get the next file number and open it */
 
-  next_file_num = (rb_data.curr_file_num + 1) % rb_data.num_files;  
+  rb_data.curr_file_num++ /* = next_file_num*/;
+  next_file_num = (rb_data.curr_file_num) % rb_data.num_files;  
   next_rfile = &rb_data.files[next_file_num];
 
   if (ringbuf_open_file(next_rfile, err) == -1) {
@@ -282,7 +283,6 @@ ringbuf_switch_file(wtap_dumper **pdh, gchar **save_file, int *save_file_fd, int
   }
 
   /* switch to the new file */
-  rb_data.curr_file_num = next_file_num;
   *save_file = next_rfile->name;
   *save_file_fd = rb_data.fd;
   (*pdh) = rb_data.pdh;
@@ -310,7 +310,7 @@ ringbuf_wtap_dump_close(gchar **save_file, int *err)
   }
 
   /* set the save file name to the current file */
-  *save_file = rb_data.files[rb_data.curr_file_num].name;
+  *save_file = rb_data.files[rb_data.curr_file_num % rb_data.num_files].name;
   return ret_val;
 }
 
