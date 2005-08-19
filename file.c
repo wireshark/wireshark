@@ -3076,7 +3076,7 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
   wtap_dumper  *pdh;
   save_callback_args_t callback_args;
 
-  cf_callback_invoke(cf_cb_file_safe_started, fname);
+  cf_callback_invoke(cf_cb_file_safe_started, (gpointer) fname);
 
   /* don't write over an existing file. */
   /* this should've been already checked by our caller, just to be sure... */
