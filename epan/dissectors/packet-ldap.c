@@ -1276,15 +1276,9 @@ static void dissect_ldap_response_bind(ASN1_SCK *a, proto_tree *tree,
         a->offset += cred_length;
       } else {
         if (read_bytestring(a, tree, hf_ldap_message_bind_server_credentials,
-                            NULL, NULL, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+                            NULL, NULL, ASN1_CTX, 7) != ASN1_ERR_NOERROR)
           return;
       }
-      break;
-
-    default:
-      if (read_bytestring(a, tree, hf_ldap_message_bind_server_credentials,
-                          NULL, NULL, ASN1_CTX, 7) != ASN1_ERR_NOERROR)
-        return;
       break;
     }
   }
