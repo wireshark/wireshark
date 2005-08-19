@@ -174,7 +174,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
   if (!found && interface_anzahl < MAX_INTERFACES) {
-    p_interfaces[interface_anzahl] = strdup(interface_name);
+    p_interfaces[interface_anzahl] = g_strdup(interface_name);
     interface_anzahl++;
   }
 

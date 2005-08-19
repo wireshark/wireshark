@@ -32,6 +32,8 @@
 #include <string.h>
 
 #include <epan/packet.h>
+#include <epan/emem.h>
+
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-lsa.h"
@@ -650,17 +652,15 @@ lsa_dissect_lsaropenpolicy2_reply(tvbuff_t *tvb, int offset,
 
 	if (status == 0) {
 		if (dcv->private_data)
-			pol_name = g_strdup_printf(
+			pol_name = ep_strdup_printf(
 				"OpenPolicy2(%s)", (char *)dcv->private_data);
 		else
-			pol_name = g_strdup("OpenPolicy2 handle");
+			pol_name = ep_strdup("OpenPolicy2 handle");
 
 		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
 
 		if (hnd_item != NULL)
 			proto_item_append_text(hnd_item, ": %s", pol_name);
-
-		g_free(pol_name);
 	}
 
 	return offset;

@@ -39,6 +39,7 @@
 #include "packet-dcerpc-samr.h"
 #include "packet-windows-common.h"
 #include "packet-smb-common.h"
+#include <epan/emem.h>
 
 static int proto_dcerpc_samr = -1;
 
@@ -574,16 +575,14 @@ samr_dissect_open_user_reply(tvbuff_t *tvb, int offset,
 
 	if (status == 0) {
 		if (rid)
-			pol_name = g_strdup_printf("OpenUser(rid 0x%x)", rid);
+			pol_name = ep_strdup_printf("OpenUser(rid 0x%x)", rid);
 		else
-			pol_name = g_strdup("OpenUser handle");
+			pol_name = ep_strdup("OpenUser handle");
 
 		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
 
 		if (hnd_item != NULL)
 			proto_item_append_text(hnd_item, ": %s", pol_name);
-
-		g_free(pol_name);
 	}
 
 	return offset;
@@ -1156,27 +1155,25 @@ samr_dissect_connect2_3_4_reply(tvbuff_t *tvb, int offset,
 	if (status == 0) {
                 if (server) {
                         if (dcv->opnum == SAMR_CONNECT2)
-                                pol_name = g_strdup_printf("Connect2(%s)", server);
+                                pol_name = ep_strdup_printf("Connect2(%s)", server);
                         else if (dcv->opnum == SAMR_CONNECT3)
-                                pol_name = g_strdup_printf("Connect3(%s)", server);
+                                pol_name = ep_strdup_printf("Connect3(%s)", server);
                         else if (dcv->opnum == SAMR_CONNECT4)
-                                pol_name = g_strdup_printf("Connect4(%s)", server);
+                                pol_name = ep_strdup_printf("Connect4(%s)", server);
                 }
                 else {
                         if (dcv->opnum == SAMR_CONNECT2)
-                                pol_name = g_strdup("Connect2 handle");
+                                pol_name = ep_strdup("Connect2 handle");
                         else if (dcv->opnum == SAMR_CONNECT3)
-                                pol_name = g_strdup("Connect3 handle");
+                                pol_name = ep_strdup("Connect3 handle");
                         else if (dcv->opnum == SAMR_CONNECT4)
-                                pol_name = g_strdup("Connect4 handle");
+                                pol_name = ep_strdup("Connect4 handle");
                 }
 
 		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
 
 		if (hnd_item != NULL)
 			proto_item_append_text(hnd_item, ": %s", pol_name);
-
-		g_free(pol_name);
 	}
 
 	return offset;
@@ -1378,17 +1375,15 @@ samr_dissect_open_domain_reply(tvbuff_t *tvb, int offset,
 
 	if (status == 0) {
 		if (sid_str) {
-			pol_name = g_strdup_printf("OpenDomain(%s)", sid_str);
+			pol_name = ep_strdup_printf("OpenDomain(%s)", sid_str);
 		} else {
-			pol_name = g_strdup("OpenDomain handle");
+			pol_name = ep_strdup("OpenDomain handle");
 		}
 
 		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
 
 		if (hnd_item != NULL)
 			proto_item_append_text(hnd_item, ": %s", pol_name);
-
-		g_free(pol_name);
 	}
 
 	return offset;
@@ -4550,16 +4545,15 @@ samr_dissect_open_group_reply(tvbuff_t *tvb, int offset,
 
 	if (status == 0) {
 		if (rid)
-			pol_name = g_strdup_printf("OpenGroup(rid 0x%x)", rid);
+			pol_name = ep_strdup_printf("OpenGroup(rid 0x%x)", rid);
 		else
-			pol_name = g_strdup("OpenGroup handle");
+			pol_name = ep_strdup("OpenGroup handle");
 
 		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
 
 		if (hnd_item != NULL)
 			proto_item_append_text(hnd_item, ": %s", pol_name);
 
-		g_free(pol_name);
 	}
 
 	return offset;
@@ -4615,16 +4609,15 @@ samr_dissect_open_alias_reply(tvbuff_t *tvb, int offset,
 		rid = GPOINTER_TO_INT(dcv->private_data);
 
 		if (rid)
-			pol_name = g_strdup_printf("OpenAlias(rid 0x%x)", rid);
+			pol_name = ep_strdup_printf("OpenAlias(rid 0x%x)", rid);
 		else
-			pol_name = g_strdup_printf("OpenAlias handle");
+			pol_name = ep_strdup_printf("OpenAlias handle");
 
 		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
 
 		if (hnd_item != NULL)
 			proto_item_append_text(hnd_item, ": %s", pol_name);
 
-		g_free(pol_name);
 	}
 
 	return offset;
@@ -4697,14 +4690,13 @@ samr_dissect_create_user_in_domain_reply(tvbuff_t *tvb, int offset,
 				  hf_samr_rc, &status);
 
 	if (status == 0) {
-		pol_name = g_strdup_printf("CreateUser(rid 0x%x)", rid);
+		pol_name = ep_strdup_printf("CreateUser(rid 0x%x)", rid);
 
 		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
 
 		if (hnd_item != NULL)
 			proto_item_append_text(hnd_item, ": %s", pol_name);
 
-		g_free(pol_name);
 	}
 
 	return offset;
@@ -4895,16 +4887,14 @@ samr_dissect_connect5_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
        if (status == 0) {
                if (server)
-                       pol_name = g_strdup_printf("Connect5(%s)", server);
+                       pol_name = ep_strdup_printf("Connect5(%s)", server);
                else
-                       pol_name = g_strdup("Connect5 handle");
+                       pol_name = ep_strdup("Connect5 handle");
 
                dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
 
                if (hnd_item != NULL)
                        proto_item_append_text(hnd_item, ": %s", pol_name);
-
-               g_free(pol_name);
        }
 
        return offset;
