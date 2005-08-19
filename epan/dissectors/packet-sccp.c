@@ -45,6 +45,7 @@
 #include "packet-mtp3.h"
 #include <epan/prefs.h>
 
+static Standard_Type decode_mtp3_standard;
 #define SCCP_SI 3
 
 #define MESSAGE_TYPE_OFFSET 0
@@ -844,7 +845,7 @@ dissect_sccp_3byte_pc(tvbuff_t *tvb, proto_tree *call_tree, guint offset,
   char pc[ANSI_PC_STRING_LENGTH];
   int *hf_pc;
 
-  if (mtp3_standard == ANSI_STANDARD)
+  if (decode_mtp3_standard == ANSI_STANDARD)
   {
     if (called)
       hf_pc = &hf_sccp_called_ansi_pc;
@@ -925,7 +926,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
   call_ai_tree = proto_item_add_subtree(call_ai_item, called ? ett_sccp_called_ai
 							     : ett_sccp_calling_ai);
 
-  if (mtp3_standard == ANSI_STANDARD)
+  if (decode_mtp3_standard == ANSI_STANDARD)
   {
     national = tvb_get_guint8(tvb, 0) & ANSI_NATIONAL_MASK;
     proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_national_indicator
@@ -940,8 +941,8 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 
   gti = tvb_get_guint8(tvb, 0) & GTI_MASK;
 
-  if (mtp3_standard == ITU_STANDARD ||
-      mtp3_standard == CHINESE_ITU_STANDARD ||
+  if (decode_mtp3_standard == ITU_STANDARD ||
+      decode_mtp3_standard == CHINESE_ITU_STANDARD ||
       national == 0) {
 
     proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_itu_global_title_indicator
@@ -962,7 +963,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 
     /* Dissect PC (if present) */
     if (pci) {
-      if (mtp3_standard == ITU_STANDARD)
+      if (decode_mtp3_standard == ITU_STANDARD)
       {
 
 	dpc = tvb_get_letohs(tvb, offset) & ITU_PC_MASK;
@@ -1009,7 +1010,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 				called);
     }
 
-  } else if (mtp3_standard == ANSI_STANDARD) {
+  } else if (decode_mtp3_standard == ANSI_STANDARD) {
 
     proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_ansi_global_title_indicator
 					     : hf_sccp_calling_ansi_global_title_indicator,
@@ -1426,7 +1427,7 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       break;
 
     case PARAMETER_IMPORTANCE:
-      if (mtp3_standard != ANSI_STANDARD)
+      if (decode_mtp3_standard != ANSI_STANDARD)
 	dissect_sccp_importance_param(parameter_tvb, sccp_tree, parameter_length);
       else
 	dissect_sccp_unknown_param(parameter_tvb, sccp_tree, parameter_type,
@@ -1434,7 +1435,7 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       break;
 
     case PARAMETER_LONG_DATA:
-      if (mtp3_standard != ANSI_STANDARD)
+      if (decode_mtp3_standard != ANSI_STANDARD)
 	dissect_sccp_data_param(parameter_tvb, pinfo, tree);
       else
 	dissect_sccp_unknown_param(parameter_tvb, sccp_tree, parameter_type,
@@ -1442,7 +1443,7 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       break;
 
     case PARAMETER_ISNI:
-      if (mtp3_standard != ANSI_STANDARD)
+      if (decode_mtp3_standard != ANSI_STANDARD)
 	dissect_sccp_unknown_param(parameter_tvb, sccp_tree, parameter_type,
 				   parameter_length);
       else
@@ -1846,7 +1847,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     break;
 
   case MESSAGE_TYPE_LUDT:
-    if (mtp3_standard != ANSI_STANDARD)
+    if (decode_mtp3_standard != ANSI_STANDARD)
     {
       offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				       PARAMETER_CLASS, offset,
@@ -1873,7 +1874,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     break;
 
   case MESSAGE_TYPE_LUDTS:
-    if (mtp3_standard != ANSI_STANDARD)
+    if (decode_mtp3_standard != ANSI_STANDARD)
     {
       offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				       PARAMETER_RETURN_CAUSE, offset,
@@ -1916,9 +1917,27 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *sccp_tree = NULL;
   const mtp3_addr_pc_t *mtp3_addr_p;
 
+  if ((pinfo->net_src.type == AT_SS7PC) &&
+    ((mtp3_addr_p = (const mtp3_addr_pc_t *)pinfo->net_src.data)->type <= CHINESE_ITU_STANDARD))
+  {
+    /*
+	 * Allow a protocol beneath to specify how the SCCP layer should be dissected.
+	 *
+	 * It is possible to have multiple sets of SCCP traffic some of which is ITU
+	 * and some of which is ANSI.
+	 * An example is A-interface traffic having ANSI MTP3/ANSI SCCP/3GPP2 IOS
+	 * and at the same time ITU MTP3/ITU SCCP/ANSI TCAP/ANSI MAP.
+	 */
+    decode_mtp3_standard = mtp3_addr_p->type;
+  }
+  else
+  {
+    decode_mtp3_standard = mtp3_standard;
+  }
+
   /* Make entry in the Protocol column on summary display */
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    switch(mtp3_standard) {
+    switch(decode_mtp3_standard) {
       case ITU_STANDARD:
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (Int. ITU)");
         break;
