@@ -6012,6 +6012,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		THROW(ReportedBoundsError);
 
 	/* call AndXCommand (if there are any) */
+	pinfo->private_data = si;
 	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
 	return offset;
@@ -6137,6 +6138,7 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		THROW(ReportedBoundsError);
 
 	/* call AndXCommand (if there are any) */
+	pinfo->private_data = si;
 	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
 	return offset;
