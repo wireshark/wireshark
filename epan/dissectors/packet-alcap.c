@@ -47,7 +47,8 @@
 
 #include "epan/packet.h"
 #include <epan/emem.h>
-
+#include <epan/strutil.h>
+#include "packet-alcap.h"
 
 #define	ALCAP_MSG_HEADER_LEN	6
 #define	ALCAP_PARM_HEADER_LEN	3
@@ -101,6 +102,7 @@ static const char *alcap_proto_name_short = "ALCAP";
 /* Initialize the subtree pointers */
 static gint ett_alcap = -1;
 static gint ett_parm = -1;
+static gint ett_leg = -1;
 
 /* Initialize the protocol and registered fields */
 static int proto_alcap = -1;
@@ -115,6 +117,15 @@ static int hf_alcap_channel_id = -1;
 static int hf_alcap_organizational_unique_id = -1;
 static int hf_alcap_served_user_gen_ref = -1;
 static int hf_alcap_nsap_address = -1;
+
+static int hf_alcap_leg_dsaid = -1;
+static int hf_alcap_leg_osaid = -1;
+static int hf_alcap_leg_pathid = -1;
+static int hf_alcap_leg_cid = -1;
+static int hf_alcap_leg_sugr = -1;
+static int hf_alcap_leg_nsap = -1;
+static int hf_alcap_leg_erq = -1;
+static int hf_alcap_leg_rlc = -1;
 
 static char* bigbuf;
 static char* bigbuf2;
@@ -181,6 +192,11 @@ static const value_string msg_type_strings[] = {
     { 11,	"Unblock request (UBL)" },
     { 0, NULL },
 };
+
+
+alcap_message_info_t* msg_info;
+GHashTable* legs_by_dsaid = NULL;
+GHashTable* legs_by_osaid = NULL;
 
 /* FUNCTIONS */
 
@@ -332,11 +348,13 @@ dis_field_signalling_assoc_id(tvbuff_t *tvb, proto_tree *tree, guint *len, guint
 	    "Destination signalling association identifier: %u%s",
 	    value,
 	    value ? "" : " (unknown)");
+		msg_info->dsaid = value;
     }
     else
     {
 	proto_tree_add_uint(tree, hf_alcap_osaid, tvb,
 	    curr_offset, FIELD_SIGNALLING_ASSOC_ID_LEN, value);
+		msg_info->osaid = value;
     }
 
     curr_offset += FIELD_SIGNALLING_ASSOC_ID_LEN;
@@ -372,6 +390,8 @@ dis_field_aal2_path_id(tvbuff_t *tvb, proto_tree *tree, guint *len, guint32 *off
 	value,
 	value ? "" : " (Null)");
 
+	msg_info->pathid = value;
+
     curr_offset += FIELD_AAL2_PATH_ID_LEN;
 
     *len -= (curr_offset - *offset);
@@ -402,6 +422,8 @@ dis_field_channel_id(tvbuff_t *tvb, proto_tree *tree, guint *len, guint32 *offse
 	"Channel identifier (CID): %d%s",
 	oct,
 	oct ? "" : " (Null)");
+
+	msg_info->cid = oct;
 
     curr_offset++;
 
@@ -800,6 +822,8 @@ dis_field_served_user_gen_ref(tvbuff_t *tvb, proto_tree *tree, guint *len, guint
     proto_tree_add_uint(tree, hf_alcap_served_user_gen_ref, tvb,
 	curr_offset, FIELD_SERVED_USER_GEN_REF_LEN, value);
 
+	msg_info->sugr = value;
+
     curr_offset += FIELD_SERVED_USER_GEN_REF_LEN;
 
     *len -= (curr_offset - *offset);
@@ -1051,8 +1075,11 @@ dis_field_nsap_address(tvbuff_t *tvb, proto_tree *tree, guint *len, guint32 *off
     proto_tree_add_item(tree, hf_alcap_nsap_address, tvb,
 						curr_offset, FIELD_NSAP_ADDRESS_LEN,FALSE);
 
+	msg_info->nsap = ep_tvb_memdup(tvb,curr_offset,FIELD_NSAP_ADDRESS_LEN);
+	
     curr_offset += FIELD_NSAP_ADDRESS_LEN;
 
+	
     *len -= (curr_offset - *offset);
     *offset = curr_offset;
 }
@@ -1598,6 +1625,7 @@ dissect_alcap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *alcap_tree)
 	return;
     }
 
+	
     if (check_col(pinfo->cinfo, COL_INFO))
     {
 	col_set_str(pinfo->cinfo, COL_INFO, str);
@@ -1606,6 +1634,8 @@ dissect_alcap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *alcap_tree)
     proto_tree_add_uint(alcap_tree, hf_alcap_msg_type, tvb,
 	offset, 1, msg_type);
 
+	msg_info->msg_type = msg_type;
+	
     offset++;
 
     dis_field_compatibility(tvb, alcap_tree, &offset, TRUE);
@@ -1616,48 +1646,162 @@ dissect_alcap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *alcap_tree)
     }
 }
 
+
+static alcap_message_info_t* new_msg_info() {
+	alcap_message_info_t* mi = ep_alloc(sizeof(alcap_message_info_t));
+	
+	mi->msg_type = 0;
+	mi->dsaid = 0;
+	mi->osaid = 0;
+	mi->pathid = 0;
+	mi->cid = 0;
+	mi->sugr = 0;
+	mi->nsap = NULL;
+	
+	return mi;
+}
+
 static void
 dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item	*alcap_item;
     proto_tree	*alcap_tree = NULL;
+	alcap_leg_info_t* leg = NULL;
 
 	bigbuf = ep_alloc(1024);
 	bigbuf2 = ep_alloc(1024);
+	msg_info = new_msg_info();
 	
     g_pinfo = pinfo;
-
+	
     /*
      * Don't change the Protocol column on summary display
      */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, alcap_proto_name_short);
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, alcap_proto_name_short);
     }
-
+	
     /* In the interest of speed, if "tree" is NULL, don't do any work not
-     * necessary to generate protocol tree items.
-     */
+		* necessary to generate protocol tree items.
+		*/
     if (tree)
     {
-	g_tree = tree;
-
-	/*
-	 * create the ALCAP protocol tree
-	 */
-	alcap_item =
-	    proto_tree_add_protocol_format(tree, proto_alcap, tvb, 0, -1,
-		alcap_proto_name);
-
-	alcap_tree =
-	    proto_item_add_subtree(alcap_item, ett_alcap);
-
+		g_tree = tree;
+		
+		/*
+		 * create the ALCAP protocol tree
+		 */
+		alcap_item =
+			proto_tree_add_protocol_format(tree, proto_alcap, tvb, 0, -1,
+										   alcap_proto_name);
+		
+		alcap_tree =
+			proto_item_add_subtree(alcap_item, ett_alcap);
+		
     }
 	
 	dissect_alcap_message(tvb, pinfo, alcap_tree);
-
+	
+	switch (msg_info->msg_type) {
+		case 5: /* ERQ */
+			if( ! ( leg = g_hash_table_lookup(legs_by_osaid,GUINT_TO_POINTER(msg_info->osaid)) )) { 
+				leg = se_alloc(sizeof(alcap_leg_info_t));
+				
+				leg->dsaid = 0;
+				leg->osaid = msg_info->osaid;
+				leg->pathid = msg_info->pathid;
+				leg->cid = msg_info->cid;
+				leg->sugr = msg_info->sugr;
+				leg->nsap = msg_info->nsap ? se_strdup(bytes_to_str(msg_info->nsap,FIELD_NSAP_ADDRESS_LEN)) : NULL;
+				leg->erq = g_pinfo->fd->num;
+				leg->rlc = 0;
+				
+				g_hash_table_insert(legs_by_osaid,GUINT_TO_POINTER(leg->osaid),leg);
+			}
+			break;
+		case 4: /* ECF */
+			if(( leg = g_hash_table_lookup(legs_by_osaid,GUINT_TO_POINTER(msg_info->dsaid)) )) { 
+				leg->dsaid = msg_info->osaid;
+				g_hash_table_insert(legs_by_dsaid,GUINT_TO_POINTER(leg->dsaid),leg);	
+			}
+			break;
+		case 6: /* RLC */
+			if(( leg = g_hash_table_lookup(legs_by_osaid,GUINT_TO_POINTER(msg_info->dsaid)) )) { 
+				leg->rlc = g_pinfo->fd->num;
+			}
+			break;
+		case 7: /* REL */
+			leg = g_hash_table_lookup(legs_by_osaid,GUINT_TO_POINTER(msg_info->dsaid));
+			break;
+		case 1: /* BLC */
+		case 2: /* BLO */
+		case 3: /* CFN */
+		case 8: /* RSC */
+		case 9: /* RES */
+		case 10: /* UBC */
+			break;			
+	}
+	
+	if (tree && leg) {
+		proto_item* pi = proto_tree_add_text(alcap_tree,tvb,0,0,"[Call Leg Info]");
+		proto_tree* tree = proto_item_add_subtree(pi,ett_leg);
+		
+		if (leg->dsaid) {
+			pi = proto_tree_add_uint(tree,hf_alcap_leg_dsaid,tvb,0,0,leg->dsaid);
+			PROTO_ITEM_SET_GENERATED(pi);
+		}
+		
+		if (leg->osaid) {
+			pi = proto_tree_add_uint(tree,hf_alcap_leg_osaid,tvb,0,0,leg->osaid);
+			PROTO_ITEM_SET_GENERATED(pi);
+		}
+		
+		if (leg->pathid) {
+			pi = proto_tree_add_uint(tree,hf_alcap_leg_pathid,tvb,0,0,leg->pathid);
+			PROTO_ITEM_SET_GENERATED(pi);
+		}
+		
+		if (leg->cid) {
+			pi = proto_tree_add_uint(tree,hf_alcap_leg_cid,tvb,0,0,leg->cid);
+			PROTO_ITEM_SET_GENERATED(pi);
+		}
+		
+		if (leg->sugr) {
+			pi = proto_tree_add_uint(tree,hf_alcap_leg_sugr,tvb,0,0,leg->sugr);
+			PROTO_ITEM_SET_GENERATED(pi);
+		}
+		
+		if (leg->nsap) {
+			pi = proto_tree_add_string(tree,hf_alcap_leg_nsap,tvb,0,0,leg->nsap);
+			PROTO_ITEM_SET_GENERATED(pi);
+		}
+		
+		if (leg->erq) {
+			pi = proto_tree_add_uint(tree,hf_alcap_leg_erq,tvb,0,0,leg->erq);
+			PROTO_ITEM_SET_GENERATED(pi);
+		}
+		
+		if (leg->rlc) {
+			pi = proto_tree_add_uint(tree,hf_alcap_leg_rlc,tvb,0,0,leg->rlc);
+			PROTO_ITEM_SET_GENERATED(pi);
+		}
+		
+	}
+	
 }
 
+gboolean just_do_it(gpointer k _U_, gpointer v _U_, gpointer p _U_) { return TRUE; }
+
+void alcap_init(void) {
+	if (legs_by_dsaid == NULL) {
+		legs_by_dsaid = g_hash_table_new(g_direct_hash,g_direct_equal);
+		legs_by_osaid = g_hash_table_new(g_direct_hash,g_direct_equal);
+	} else {
+		g_hash_table_foreach_remove(legs_by_dsaid,just_do_it,NULL);
+		g_hash_table_foreach_remove(legs_by_osaid,just_do_it,NULL);
+	}
+}
 
 /* Register the protocol with Ethereal */
 void
@@ -1726,31 +1870,72 @@ proto_register_alcap(void)
 	    "", HFILL }
 	},
 	{ &hf_alcap_none,
-	    { "Subtree",	"alcap.none",
+	{ "Subtree",	"alcap.none",
 	    FT_NONE, 0, 0, 0,
 	    "", HFILL }
 	},
+	{ &hf_alcap_leg_osaid,
+	{ "Leg's ERQ OSA id",	"alcap.leg.osaid",
+	    FT_UINT32, BASE_DEC, NULL, 0,
+	    "", HFILL }
+	},
+	{ &hf_alcap_leg_dsaid,
+	{ "Leg's ECF OSA id",	"alcap.leg.dsaid",
+	    FT_UINT32, BASE_DEC, NULL, 0,
+	    "", HFILL }
+	},
+	{ &hf_alcap_leg_pathid,
+	{ "Leg's path id",	"alcap.leg.pathid",
+	    FT_UINT32, BASE_DEC, NULL, 0,
+	    "", HFILL }
+	},
+	{ &hf_alcap_leg_cid,
+	{ "Leg's channel id",	"alcap.leg.cid",
+	    FT_UINT32, BASE_DEC, NULL, 0,
+	    "", HFILL }
+	},
+	{ &hf_alcap_leg_sugr,
+	{ "Leg's SUGR",	"alcap.leg.sugr",
+	    FT_UINT32, BASE_DEC, NULL, 0,
+	    "", HFILL }
+	},
+	{ &hf_alcap_leg_nsap,
+	{ "Leg's destination NSAP",	"alcap.leg.nsap",
+	    FT_STRING, BASE_NONE, NULL, 0,
+	    "", HFILL }
+	},
+	{ &hf_alcap_leg_erq,
+	{ "Leg's ERQ in Frame",	"alcap.leg.erq",
+	    FT_FRAMENUM, BASE_DEC, NULL, 0,
+	    "", HFILL }
+	},
+	{ &hf_alcap_leg_rlc,
+	{ "Leg's REL in Frame",	"alcap.leg.rel",
+	    FT_FRAMENUM, BASE_DEC, NULL, 0,
+	    "", HFILL }
+	}
     };
 
     /* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_PARMS	2
-    static gint *ett[NUM_INDIVIDUAL_PARMS+NUM_PARMS+NUM_FIELDS];
+    static gint *ett[NUM_INDIVIDUAL_PARMS+NUM_PARMS+NUM_FIELDS+1];
 
     memset((void *) ett, 0, sizeof(ett));
 
     ett[0] = &ett_alcap;
     ett[1] = &ett_parm;
-
+	ett[2] = &ett_leg;
+	
     for (i=0; i < NUM_PARMS; i++)
     {
 	ett_parms[i] = -1;
-	ett[NUM_INDIVIDUAL_PARMS+i] = &ett_parms[i];
+	ett[NUM_INDIVIDUAL_PARMS+i+1] = &ett_parms[i];
     }
 
     for (i=0; i < NUM_FIELDS; i++)
     {
 	ett_fields[i] = -1;
-	ett[NUM_INDIVIDUAL_PARMS+NUM_PARMS+i] = &ett_fields[i];
+	ett[NUM_INDIVIDUAL_PARMS+NUM_PARMS+i+1] = &ett_fields[i];
     }
 
     /* Register the protocol name and description */
@@ -1762,6 +1947,8 @@ proto_register_alcap(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_alcap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+	
+	register_init_routine( &alcap_init);
 }
 
 
