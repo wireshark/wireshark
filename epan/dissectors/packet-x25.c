@@ -36,6 +36,7 @@
 #include <epan/circuit.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
+#include <epan/emem.h>
 #include "nlpid.h"
 #include "x264_prt_id.h"
 
@@ -271,7 +272,7 @@ x25_hash_add_proto_end(guint16 vc, guint32 frame)
 
 static const char *clear_code(unsigned char code)
 {
-    static char buffer[25];
+    static char *buffer;
 
     if (code == 0x00 || (code & 0x80) == 0x80)
 	return "DTE Originated";
@@ -302,14 +303,15 @@ static const char *clear_code(unsigned char code)
     if (code == 0x39)
 	return "Destination Absent";
 
-    sprintf(buffer, "Unknown %02X", code);
+    buffer=ep_alloc(32);
+    g_snprintf(buffer, 32, "Unknown %02X", code);
 
     return buffer;
 }
 
 static const char *clear_diag(unsigned char code)
 {
-    static char buffer[25];
+    static char *buffer;
 
     if (code == 0)
 	return "No additional information";
@@ -529,14 +531,15 @@ static const char *clear_diag(unsigned char code)
     if (code == 250)
 	return "Reset - user resynchronization";
 
-    sprintf(buffer, "Unknown %d", code);
+    buffer=ep_alloc(32);
+    g_snprintf(buffer, 32, "Unknown %d", code);
 
     return buffer;
 }
 
 static const char *reset_code(unsigned char code)
 {
-    static char buffer[25];
+    static char *buffer;
 
     if (code == 0x00 || (code & 0x80) == 0x80)
 	return "DTE Originated";
@@ -557,14 +560,15 @@ static const char *reset_code(unsigned char code)
     if (code == 0x1D)
 	return "Network out of order";
 
-    sprintf(buffer, "Unknown %02X", code);
+    buffer=ep_alloc(32);
+    g_snprintf(buffer, 32, "Unknown %02X", code);
 
     return buffer;
 }
 
 static const char *restart_code(unsigned char code)
 {
-    static char buffer[25];
+    static char *buffer;
 
     if (code == 0x00 || (code & 0x80) == 0x80)
 	return "DTE Originated";
@@ -577,14 +581,15 @@ static const char *restart_code(unsigned char code)
     if (code == 0x7F)
 	return "Registration/cancellation confirmed";
 
-    sprintf(buffer, "Unknown %02X", code);
+    buffer=ep_alloc(32);
+    g_snprintf(buffer, 32, "Unknown %02X", code);
 
     return buffer;
 }
 
 static const char *registration_code(unsigned char code)
 {
-    static char buffer[25];
+    static char *buffer;
 
     if (code == 0x03)
 	return "Invalid facility request";
@@ -595,7 +600,8 @@ static const char *registration_code(unsigned char code)
     if (code == 0x7F)
 	return "Registration/cancellation confirmed";
 
-    sprintf(buffer, "Unknown %02X", code);
+    buffer=ep_alloc(32);
+    g_snprintf(buffer, 32, "Unknown %02X", code);
 
     return buffer;
 }
@@ -688,8 +694,9 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		break;
 	    case X25_FAC_THROUGHPUT:
 		if (fac_tree) {
-		    char tmpbuf[80];
+		    char *tmpbuf;
 
+		    tmpbuf=ep_alloc(80);
 		    ti = proto_tree_add_text(fac_tree, tvb, *offset, 1, "Code : %02X "
 			    "(Throughput class negociation)", fac);
 		    fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_throughput);
@@ -705,17 +712,17 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    case 9:
 		    case 10:
 		    case 11:
-			sprintf(tmpbuf, "From the called DTE : %%u (%d bps)",
+			g_snprintf(tmpbuf, 80, "From the called DTE : %%u (%d bps)",
 				75*(1<<((byte1 >> 4)-3)));
 			break;
 		    case 12:
-			sprintf(tmpbuf, "From the called DTE : %%u (48000 bps)");
+			g_snprintf(tmpbuf, 80, "From the called DTE : %%u (48000 bps)");
 			break;
 		    case 13:
-			sprintf(tmpbuf, "From the called DTE : %%u (64000 bps)");
+			g_snprintf(tmpbuf, 80, "From the called DTE : %%u (64000 bps)");
 			break;
 		    default:
-			sprintf(tmpbuf, "From the called DTE : %%u (Reserved)");
+			g_snprintf(tmpbuf, 80, "From the called DTE : %%u (Reserved)");
 		    }
 		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
 			    decode_numeric_bitfield(byte1, 0xF0, 1*8, tmpbuf));
@@ -730,17 +737,17 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    case 9:
 		    case 10:
 		    case 11:
-			sprintf(tmpbuf, "From the calling DTE : %%u (%d bps)",
+			g_snprintf(tmpbuf, 80, "From the calling DTE : %%u (%d bps)",
 				75*(1<<((byte1 & 0x0F)-3)));
 			break;
 		    case 12:
-			sprintf(tmpbuf, "From the calling DTE : %%u (48000 bps)");
+			g_snprintf(tmpbuf, 80, "From the calling DTE : %%u (48000 bps)");
 			break;
 		    case 13:
-			sprintf(tmpbuf, "From the calling DTE : %%u (64000 bps)");
+			g_snprintf(tmpbuf, 80, "From the calling DTE : %%u (64000 bps)");
 			break;
 		    default:
-			sprintf(tmpbuf, "From the calling DTE : %%u (Reserved)");
+			g_snprintf(tmpbuf, 80, "From the calling DTE : %%u (Reserved)");
 		    }
 		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
 			    decode_numeric_bitfield(byte1, 0x0F, 1*8, tmpbuf));
@@ -825,8 +832,9 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 	    case X25_FAC_PACKET_SIZE:
 		if (fac_tree)
 		{
-		    char tmpbuf[80];
+		    char *tmpbuf;
 
+		    tmpbuf=ep_alloc(80);
 		    ti = proto_tree_add_text(fac_tree, tvb, *offset, 1, "Code : %02X "
 			    "(Packet size)", fac);
 		    fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_packet_size);
@@ -834,34 +842,34 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    switch (byte1)
 		    {
 		    case 0x04:
-			sprintf(tmpbuf, "From the called DTE : %%u (16)");
+			g_snprintf(tmpbuf, 80, "From the called DTE : %%u (16)");
 			break;
 		    case 0x05:
-			sprintf(tmpbuf, "From the called DTE : %%u (32)");
+			g_snprintf(tmpbuf, 80, "From the called DTE : %%u (32)");
 			break;
 		    case 0x06:
-			sprintf(tmpbuf, "From the called DTE : %%u (64)");
+			g_snprintf(tmpbuf, 80, "From the called DTE : %%u (64)");
 			break;
 		    case 0x07:
-			sprintf(tmpbuf, "From the called DTE : %%u (128)");
+			g_snprintf(tmpbuf, 80, "From the called DTE : %%u (128)");
 			break;
 		    case 0x08:
-			sprintf(tmpbuf, "From the called DTE : %%u (256)");
+			g_snprintf(tmpbuf, 80, "From the called DTE : %%u (256)");
 			break;
 		    case 0x0D:
-			sprintf(tmpbuf, "From the called DTE : %%u (512)");
+			g_snprintf(tmpbuf, 80, "From the called DTE : %%u (512)");
 			break;
 		    case 0x0C:
-			sprintf(tmpbuf, "From the called DTE : %%u (1024)");
+			g_snprintf(tmpbuf, 80, "From the called DTE : %%u (1024)");
 			break;
 		    case 0x0E:
-			sprintf(tmpbuf, "From the called DTE : %%u (2048)");
+			g_snprintf(tmpbuf, 80, "From the called DTE : %%u (2048)");
 			break;
 		    case 0x0F:
-			sprintf(tmpbuf, "From the called DTE : %%u (4096)");
+			g_snprintf(tmpbuf, 80, "From the called DTE : %%u (4096)");
 			break;
 		    default:
-			sprintf(tmpbuf, "From the called DTE : %%u (Unknown)");
+			g_snprintf(tmpbuf, 80, "From the called DTE : %%u (Unknown)");
 			break;
 		    }
 		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
@@ -871,34 +879,34 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    switch (byte2)
 		    {
 		    case 0x04:
-			sprintf(tmpbuf, "From the calling DTE : %%u (16)");
+			g_snprintf(tmpbuf, 80, "From the calling DTE : %%u (16)");
 			break;
 		    case 0x05:
-			sprintf(tmpbuf, "From the calling DTE : %%u (32)");
+			g_snprintf(tmpbuf, 80, "From the calling DTE : %%u (32)");
 			break;
 		    case 0x06:
-			sprintf(tmpbuf, "From the calling DTE : %%u (64)");
+			g_snprintf(tmpbuf, 80, "From the calling DTE : %%u (64)");
 			break;
 		    case 0x07:
-			sprintf(tmpbuf, "From the calling DTE : %%u (128)");
+			g_snprintf(tmpbuf, 80, "From the calling DTE : %%u (128)");
 			break;
 		    case 0x08:
-			sprintf(tmpbuf, "From the calling DTE : %%u (256)");
+			g_snprintf(tmpbuf, 80, "From the calling DTE : %%u (256)");
 			break;
 		    case 0x0D:
-			sprintf(tmpbuf, "From the calling DTE : %%u (512)");
+			g_snprintf(tmpbuf, 80, "From the calling DTE : %%u (512)");
 			break;
 		    case 0x0C:
-			sprintf(tmpbuf, "From the calling DTE : %%u (1024)");
+			g_snprintf(tmpbuf, 80, "From the calling DTE : %%u (1024)");
 			break;
 		    case 0x0E:
-			sprintf(tmpbuf, "From the calling DTE : %%u (2048)");
+			g_snprintf(tmpbuf, 80, "From the calling DTE : %%u (2048)");
 			break;
 		    case 0x0F:
-			sprintf(tmpbuf, "From the calling DTE : %%u (4096)");
+			g_snprintf(tmpbuf, 80, "From the calling DTE : %%u (4096)");
 			break;
 		    default:
-			sprintf(tmpbuf, "From the calling DTE : %%u (Unknown)");
+			g_snprintf(tmpbuf, 80, "From the calling DTE : %%u (Unknown)");
 			break;
 		    }
 		    proto_tree_add_text(fac_subtree, tvb, *offset+2, 1,
@@ -970,8 +978,9 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 	    case X25_FAC_CALL_TRANSFER:
 		if (fac_tree) {
 		    int i;
-		    char tmpbuf[256];
+		    char *tmpbuf;
 
+		    tmpbuf=ep_alloc(258);
 		    ti = proto_tree_add_text(fac_tree, tvb, *offset, 1, "Code : %02X "
 			    "(Call redirection or deflection notification)", fac);
 		    fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_call_transfer);
@@ -1018,7 +1027,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    proto_tree_add_text(fac_subtree, tvb, *offset+3, 1,
 			    "Number of semi-octets in DTE address : %u",
 			    byte3);
-		    for (i = 0; i < byte3; i++) {
+		    for (i = 0; (i<byte3)&&(i<256); i++) {
 			if (i % 2 == 0) {
 			    tmpbuf[i] = ((tvb_get_guint8(tvb, *offset+4+i/2) >> 4)
 				    & 0x0F) + '0';
@@ -1039,8 +1048,9 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 	    case X25_FAC_CALLING_ADDR_EXT:
 		if (fac_tree) {
 		    int i;
-		    char tmpbuf[256];
+		    char *tmpbuf;
 
+		    tmpbuf=ep_alloc(258);
 		    ti = proto_tree_add_text(fac_tree, tvb, *offset, 1, "Code : %02X "
 			    "(Calling address extension)", fac);
 		    fac_subtree = proto_item_add_subtree(ti,
@@ -1057,7 +1067,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    byte2 = tvb_get_guint8(tvb, *offset+2) & 0x3F;
 		    proto_tree_add_text(fac_subtree, tvb, *offset+2, 1,
 			    "Number of semi-octets in DTE address : %u", byte2);
-		    for (i = 0; i < byte2; i++) {
+		    for (i = 0; (i<byte2)&&(i<256) ; i++) {
 			if (i % 2 == 0) {
 			    tmpbuf[i] = ((tvb_get_guint8(tvb, *offset+3+i/2) >> 4)
 				    & 0x0F) + '0';
@@ -1078,8 +1088,9 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 	    case X25_FAC_CALLED_ADDR_EXT:
 		if (fac_tree) {
 		    int i;
-		    char tmpbuf[256];
+		    char *tmpbuf;
 
+		    tmpbuf=ep_alloc(258);
 		    ti = proto_tree_add_text(fac_tree, tvb, *offset, 1, "Code : %02X "
 			    "(Called address extension)", fac);
 		    fac_subtree = proto_item_add_subtree(ti,
@@ -1096,7 +1107,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    byte2 = tvb_get_guint8(tvb, *offset+2) & 0x3F;
 		    proto_tree_add_text(fac_subtree, tvb, *offset+2, 1,
 			    "Number of semi-octets in DTE address : %u", byte2);
-		    for (i = 0; i < byte2; i++) {
+		    for (i = 0; (i<byte2)&&(i<256) ; i++) {
 			if (i % 2 == 0) {
 			    tmpbuf[i] = ((tvb_get_guint8(tvb, *offset+3+i/2) >> 4)
 				    & 0x0F) + '0';
@@ -1129,8 +1140,9 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 	    case X25_FAC_CALL_DEFLECT:
 		if (fac_tree) {
 		    int i;
-		    char tmpbuf[256];
+		    char *tmpbuf;
 
+		    tmpbuf=ep_alloc(258);
 		    ti = proto_tree_add_text(fac_tree, tvb, *offset, 1, "Code : %02X "
 			    "(Call deflection selection)", fac);
 		    fac_subtree = proto_item_add_subtree(ti,
@@ -1155,7 +1167,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    proto_tree_add_text(fac_subtree, tvb, *offset+3, 1,
 			    "Number of semi-octets in the alternative DTE address : %u",
 			    byte3);
-		    for (i = 0; i < byte3; i++) {
+		    for (i = 0; (i<byte3)&&(i<256) ; i++) {
 			if (i % 2 == 0) {
 			    tmpbuf[i] = ((tvb_get_guint8(tvb, *offset+4+i/2) >> 4)
 				    & 0x0F) + '0';
@@ -1209,10 +1221,13 @@ x25_ntoa(proto_tree *tree, int *offset, tvbuff_t *tvb,
 {
     int len1, len2;
     int i;
-    char addr1[16], addr2[16];
+    char *addr1, *addr2;
     char *first, *second;
     guint8 byte;
     int localoffset;
+
+    addr1=ep_alloc(16);
+    addr2=ep_alloc(16);
 
     byte = tvb_get_guint8(tvb, *offset);
     len1 = (byte >> 0) & 0x0F;
@@ -1291,10 +1306,13 @@ x25_toa(proto_tree *tree, int *offset, tvbuff_t *tvb,
 {
     int len1, len2;
     int i;
-    char addr1[256], addr2[256];
+    char *addr1, *addr2;
     char *first, *second;
     guint8 byte;
     int localoffset;
+
+    addr1=ep_alloc(256);
+    addr2=ep_alloc(256);
 
     len1 = tvb_get_guint8(tvb, *offset);
     if (tree) {

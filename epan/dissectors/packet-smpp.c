@@ -51,6 +51,7 @@
 #include <epan/packet.h>
 
 #include <epan/prefs.h>
+#include <epan/emem.h>
 #include "packet-tcp.h"
 
 /* General-purpose debug logger.
@@ -966,7 +967,7 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
     guint	 length;
     guint8	 field;
     guint8	 major, minor;
-    char	 strval[BUFSIZ];
+    char	 *strval=NULL;
 
     if (tvb_reported_length_remaining(tvb, *offset) >= 4)
     {
@@ -1086,7 +1087,8 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
 		field = tvb_get_guint8(tvb, *offset);
 		minor = field & 0x0F;
 		major = (field & 0xF0) >> 4;
-		sprintf(strval, "%u.%u", major, minor);
+                strval=ep_alloc(BUFSIZ);
+		g_snprintf(strval, BUFSIZ, "%u.%u", major, minor);
 		proto_tree_add_string(sub_tree, hf_smpp_SC_interface_version,
 			    	      tvb, *offset, 1, strval);
 		(*offset)++;
@@ -1292,15 +1294,16 @@ bind_receiver(proto_tree *tree, tvbuff_t *tvb)
     int		 offset = 0;
     guint8	 field;
     guint8	 major, minor;
-    char	 strval[BUFSIZ];
+    char	 *strval;
 
+    strval=ep_alloc(BUFSIZ);
     smpp_handle_string(tree, tvb, hf_smpp_system_id, &offset);
     smpp_handle_string(tree, tvb, hf_smpp_password, &offset);
     smpp_handle_string(tree, tvb, hf_smpp_system_type, &offset);
     field = tvb_get_guint8(tvb, offset++);
     minor = field & 0x0F;
     major = (field & 0xF0) >> 4;
-    sprintf(strval, "%u.%u", major, minor);
+    g_snprintf(strval, BUFSIZ, "%u.%u", major, minor);
     proto_tree_add_string(tree, hf_smpp_interface_version, tvb,
 			  offset - 1, 1, strval);
     smpp_handle_int1(tree, tvb, hf_smpp_addr_ton, &offset);
