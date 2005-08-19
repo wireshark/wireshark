@@ -215,20 +215,20 @@ static const value_string ansi_param_2_strings[] = {
     { 0x9F56,	"Carrier Digits" },
     { 0x9F57,	"Destination Digits" },
     { 0x9F58,	"DMH Redirection Indicator" },
-    { 0x9F59,	"Inter System Termination" },
+    { 0xBF59,	"Inter System Termination" },
     { 0x9F5A,	"Availability Type" },
-    { 0x9F5B,	"Local Termination" },
+    { 0xBF5B,	"Local Termination" },
     { 0x9F5C,	"Message Waiting Notification Count" },
     { 0x9F5D,	"Mobile Directory Number" },
     { 0x9F5E,	"MSCID Number" },
-    { 0x9F5F,	"PSTN Termination" },
+    { 0xBF5F,	"PSTN Termination" },
     { 0x9F60,	"No Answer Time" },
     { 0x9F61,	"One Time Feature Indicator" },
     { 0x9F62,	"Origination Triggers" },
     { 0x9F63,	"RANDC" },
     { 0x9F64,	"Redirecting Number Digits" },
     { 0x9F65,	"Redirecting Number String" },
-    { 0x9F66,	"Redirecting Number Subaddress" },
+    { 0x9F66,	"Redirecting Subaddress" },
     { 0x9F67,	"Sender Identification Number" },
     { 0x9F68,	"SMS Address" },
     { 0x9F69,	"SMS Bearer Data" },
@@ -246,7 +246,7 @@ static const value_string ansi_param_2_strings[] = {
     { 0x9F75,	"SMS Termination Restrictions" },
     { 0x9F76,	"SMS Message Waiting Indicator" },
     { 0x9F77,	"Termination Access Type" },
-    { 0x9F78,	"Termination List" },
+    { 0xBF78,	"Termination List" },
     { 0x9F79,	"Termination Treatment" },
     { 0x9F7A,	"Termination Triggers" },
     { 0x9F7B,	"Transaction Capability" },
@@ -284,8 +284,8 @@ static const value_string ansi_param_3_strings[] = {
     { 0x9F811A,	"SPINI PIN" },
     { 0x9F811B,	"SPINI Triggers" },
     { 0x9F811C,	"SSD Update Report" },
-    { 0x9F811D,	"Target Measurement Information" },
-    { 0x9F811E,	"Target Measurement List" },
+    { 0xBF811D,	"Target Measurement Information" },
+    { 0xBF811E,	"Target Measurement List" },
     { 0x9F811F,	"Voice Mailbox PIN" },
     { 0x9F8120,	"Voice Mailbox Number" },
     { 0x9F8121,	"Authentication Data" },
@@ -298,20 +298,12 @@ static const value_string ansi_param_3_strings[] = {
     { 0x9F8128,	"Pilot Number" },
     { 0x9F8129,	"Pilot Billing ID" },
     { 0x9F812A,	"CDMA Band Class" },
-    { 0x9F8172,	"International Mobile Subscriber Identity" },
-    { 0x9F8173,	"Calling Party Name" },
-    { 0x9F8174,	"Display Text" },
-    { 0x9F8175,	"Redirecting Party Name" },
-    { 0x9F8176,	"Service ID" },
-    { 0x9F8177,	"All Or None" },
-    { 0x9F8178,	"Change" },
-    { 0xBF8179,	"Data Access Element" },
-    { 0xBF817A,	"Data Access Element List" },
-    { 0xBF817E,	"Data Update Result" },
-    { 0xBF817F,	"Data Update Result List" },
+    { 0xBF812B,	"CDMA Band Class Information" },
+    { 0xBF812C,	"CDMA Band Class List" },
     { 0x9F812D,	"CDMA Pilot PN" },
     { 0x9F812E,	"CDMA Service Configuration Record" },
     { 0x9F812F,	"CDMA Service Option" },
+    { 0xBF8130,	"CDMA Service Option List" },
     { 0x9F8131,	"CDMA Station Class Mark 2" },
     { 0x9F8132,	"TDMA Service Code" },
     { 0x9F8133,	"TDMA Terminal Capability" },
@@ -331,44 +323,38 @@ static const value_string ansi_param_3_strings[] = {
     { 0x9F8142,	"Signaling Message Encryption Report" },
     { 0x9F8143,	"Temporary Reference Number" },
     { 0x9F8144,	"Voice Privacy Report" },
+    { 0x9F8145,	"Base Station Manufacturer Code" },
+    { 0x9F8146,	"BSMC Status" },
     { 0x9F8147,	"Control Channel Mode" },
+    { 0x9F8148,	"Non Public Data" },
+    { 0x9F8149,	"Paging Frame Class" },
+    { 0x9F814A,	"PSID RSID Information" },
+    { 0xBF814B,	"PSID RSID List" },
+    { 0x9F814C,	"Services Result" },
+    { 0x9F814D,	"SOC Status" },
+    { 0x9F814E,	"System Operator Code" },
+    { 0xBF814F,	"Target Cell ID List" },
+    { 0x9F8150,	"User Group" },
+    { 0x9F8151,	"User Zone Data" },
     { 0x9F8152,	"CDMA Connection Reference" },
-    { 0x9F8153,	"CDMA Connection Reference Information" },
-    { 0x9F8154,	"CDMA Connection Reference List" },
+    { 0xBF8153,	"CDMA Connection Reference Information" },
+    { 0xBF8154,	"CDMA Connection Reference List" },
+    { 0x9F8155,	"CDMA State" },
     { 0x9F8156,	"Change Service Attributes" },
     { 0x9F8157,	"Data Key" },
     { 0x9F8158,	"Data Privacy Parameters" },
     { 0x9F8159,	"ISLP Information" }, /* IS-737 *SPEC CONFLICT* */
     { 0x9F815A,	"Reason List" },
+    { 0x9F815B,	"Second Inter MSC Circuit ID" },
     { 0x9F815C,	"TDMA Bandwidth" },
     { 0x9F815D,	"TDMA Data Features Indicator" },
     { 0x9F815E,	"TDMA Data Mode" },
     { 0x9F815F,	"TDMA Voice Mode" },
     { 0x9F8160,	"Analog Redirect Info" },
-    { 0xBF812B,	"CDMA Band Class Information" },
-    { 0xBF812C,	"CDMA Band Class List" },
-    { 0xBF8130,	"CDMA Service Option List" },
-    { 0xBF8153,	"CDMA Connection Reference Information" },
-    { 0xBF8154,	"CDMA Connection Reference List" },
     { 0xBF8161,	"Analog Redirect Record" },
-    { 0xBF8202,	"Execute Script" },
-    { 0xBF8206,	"Modification Request" },
-    { 0xBF8207,	"Modification Request List" },
-    { 0xBF8208,	"Modification Result List" },
-    { 0xBF820E,	"Service Data Access Element" },
-    { 0xBF820F,	"Service Data Access Element List" },
-    { 0xBF8210,	"Service Data Result" },
-    { 0xBF8211,	"Service Data Result List" },
-    { 0xBF8214,	"Trigger Address List" },
-    { 0xBF8216,	"Trigger List" },
-    { 0xBF8218,	"WIN Capability" },
-    { 0xBF822F,	"Call Recovery ID" },
-    { 0xBF8230,	"Call Recovery ID List" },
-    { 0xBF8250,	"Position Information" },
-    { 0xBF825A,	"CDMA PSMM List" },
     { 0x9F8162,	"CDMA Channel Number" },
     { 0xBF8163,	"CDMA Channel Number List" },
-    { 0x9F8164,	"CDMA Power Combined Indicator" },
+    { 0xBF8164,	"CDMA Power Combined Indicator" },
     { 0x9F8165,	"CDMA Redirect Record" },
     { 0x9F8166,	"CDMA Search Parameters" },
     { 0x9F8168,	"CDMA Network Identification" },
@@ -379,23 +365,45 @@ static const value_string ansi_param_3_strings[] = {
     { 0x9F816D,	"Service Redirection Cause" },
     { 0x9F816E,	"Service Redirection Info" },
     { 0x9F816F,	"Roaming Indication" },
-    { 0x9F8170,	"MSID" },
+    { 0x9F8170,	"Emergency Services Routing Digits" },
+    { 0x9F8171,	"Special Handling" },
+    { 0x9F8172,	"International Mobile Subscriber Identity" },
+    { 0x9F8173,	"Calling Party Name" },
+    { 0x9F8174,	"Display Text" },
+    { 0x9F8175,	"Redirecting Party Name" },
+    { 0x9F8176,	"Service ID" },
+    { 0x9F8177,	"All Or None" },
+    { 0x9F8178,	"Change" },
+    { 0xBF8179,	"Data Access Element" },
+    { 0xBF817A,	"Data Access Element List" },
     { 0x9F817B,	"Data ID" },
     { 0x9F817C,	"Database Key" },
     { 0x9F817D,	"Data Result" },
+    { 0xBF817E,	"Data Update Result" },
+    { 0xBF817F,	"Data Update Result List" },
     { 0x9F8200,	"Data Value" },
+    { 0xBF8202,	"Execute Script" },
     { 0x9F8203,	"Failure Cause" },
     { 0x9F8204,	"Failure Type" },
     { 0x9F8205,	"Global Title" },
+    { 0xBF8206,	"Modification Request" },
+    { 0xBF8207,	"Modification Request List" },
+    { 0xBF8208,	"Modification Result List" },
     { 0x9F8209,	"Private Specialized Resource" },
-    { 0x9F820A,	"Resume PIC" },
     { 0x9F820B,	"Script Argument" },
     { 0x9F820C,	"Script Name" },
     { 0x9F820D,	"Script Result" },
+    { 0xBF820E,	"Service Data Access Element" },
+    { 0xBF820F,	"Service Data Access Element List" },
+    { 0xBF8210,	"Service Data Result" },
+    { 0xBF8211,	"Service Data Result List" },
     { 0x9F8212,	"Specialized Resource" },
     { 0x9F8213,	"Time Date Offset" },
+    { 0xBF8214,	"Trigger Address List" },
     { 0x9F8215,	"Trigger Capability" },
+    { 0xBF8216,	"Trigger List" },
     { 0x9F8217,	"Trigger Type" },
+    { 0xBF8218,	"WIN Capability" },
     { 0x9F8219,	"WIN Operations Capability" },
     { 0x9F821B,	"WIN Trigger List" },
     { 0x9F821C,	"MSC Address" },
@@ -407,6 +415,23 @@ static const value_string ansi_param_3_strings[] = {
     { 0x9F822C,	"Page Count" },
     { 0x9F822D,	"Page Response Time" },
     { 0x9F822E,	"SMS Transaction ID" },
+    { 0x9F823C,	"CAVE Key" },
+    { 0x9F8241,	"CDMA2000 Mobile Supported Capabilities" },
+    { 0x9F8245,	"Enhanced Privacy Encryption Report" },
+    { 0x9F8246,	"Inter Message Time" },
+    { 0x9F8247,	"MSID Usage" },
+    { 0x9F8248,	"New MIN Extension" },
+    { 0x9F825C,	"QoS Priority" },
+    { 0x9F825F,	"CDMA MS Measured Channel Identity" },
+    { 0x9F8264,	"CDMA2000 Handoff Invoke IOS Data" },
+    { 0x9F8265,	"CDMA2000 Handoff Response IOS Data" },
+    { 0x9F8304,	"MIN Extension" },
+
+    { 0xBF822F,	"Call Recovery ID" },
+    { 0xBF8230,	"Call Recovery ID List" },
+    { 0xBF8250,	"Position Information" },
+    { 0xBF825A,	"CDMA PSMM List" },
+    { 0x9F820A,	"Resume PIC" },
     { 0x9F8231,	"DMH Service ID" },
     { 0x9F8232,	"Feature Indicator" },
     { 0x9F8233,	"Control Network ID" },
@@ -417,9 +442,6 @@ static const value_string ansi_param_3_strings[] = {
     { 0x9F8238,	"DMH Billing Indicator" },
     { 0x9F8239,	"MS Status" },
     { 0x9F823B,	"Position Information Code" },
-    { 0x9F8246,	"Inter Message Time" },
-    { 0x9F8247,	"MSID Usage" },
-    { 0x9F8248,	"New MIN Extension" },
     { 0x9F8249,	"DTX Indication" },
     { 0x9F824A,	"CDMA Mobile Capabilities" },
     { 0x9F824B,	"Generalized Time" },
@@ -431,20 +453,16 @@ static const value_string ansi_param_3_strings[] = {
     { 0x9F8252,	"Position Result" },
     { 0x9F8253,	"Position Source" },
     { 0x9F8254,	"ACG Encountered" },
-    { 0x9F8255,	"CDMA State/Control Type *" },	/* PN-3590 (ANSI-41-E)/ACG *SPEC CONFLICT* */
+    { 0x9F8255,	"Control Type" },
     { 0x9F8256,	"Gap Duration" },
     { 0x9F8257,	"SCF Overload Gap Interval" },
     { 0x9F8258,	"Service Management System Gap Interval" },
     { 0x9F8259,	"CDMA PSMM Count" },
     { 0x9F825B,	"CDMA Serving One Way Delay 2" },
-    { 0x9F825C,	"QoS Priority" },
     { 0x9F825D,	"PDSN Address" },
     { 0x9F825E,	"PDSN Protocol Type" },
-    { 0x9F825F,	"CDMA MS Measured Channel Identity" },
     { 0x9F8261,	"Range" },
     { 0x9F8263,	"Calling Party Category" },
-    { 0x9F8264,	"cdma2000 Handoff Invoke IOS Data" },
-    { 0x9F8265,	"cdma2000 Handoff Response IOS Data" },
     { 0x9F8266,	"LCS Client ID" },
     { 0x9F8267,	"TDMA MAHO Cell ID" },
     { 0x9F8268,	"TDMA MAHO Channel" },
@@ -645,6 +663,8 @@ static int hf_ansi_map_id = -1;
 static int hf_ansi_map_opr_code = -1;
 static int hf_ansi_map_param_id = -1;
 static int hf_ansi_map_ios401_elem_id = -1;
+static int hf_ansi_map_min = -1;
+static int hf_ansi_map_number = -1;
 
 static int hf_ansi_map_billing_id = -1;
 
@@ -678,6 +698,7 @@ static gint32 ansi_map_sms_tele_id = -1;
 static gboolean is683_ota;
 static gboolean is801_pld;
 static gboolean ansi_map_is_invoke;
+static tvbuff_t *bd_tvb;
 
 
 typedef struct dgt_set_t
@@ -6011,7 +6032,7 @@ param_sub_addr(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_digits(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_digits_basic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, gboolean searchable _U_)
 {
     gint32 value, b1, b2, b3, b4, enc, plan;
     guint saved_offset;
@@ -6195,12 +6216,35 @@ param_digits(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 	    my_dgt_tbcd_unpack(bigbuf, poctets, (value+1)/2, &Dgt_tbcd);
 	    g_free(poctets);
 
-	    proto_tree_add_text(tree, asn1->tvb,
-		saved_offset, (value+1)/2,
-		"BCD Digits: %s",
-		bigbuf);
+	    if (searchable)
+	    {
+			proto_tree_add_string_format(tree, hf_ansi_map_number, asn1->tvb,
+				saved_offset, (value+1)/2,
+				bigbuf,
+				"BCD Digits: %s",
+				bigbuf);
+	    }
+	    else
+	    {
+			proto_tree_add_text(tree, asn1->tvb,
+				saved_offset, (value+1)/2,
+				"BCD Digits: %s",
+				bigbuf);
+		}
 	}
-    }
+	}
+}
+
+static void
+param_digits(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+{
+    param_digits_basic(asn1, tree, len, add_string, FALSE);
+}
+
+static void
+param_mdn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+{
+    param_digits_basic(asn1, tree, len, add_string, TRUE);
 }
 
 static void
@@ -8280,7 +8324,7 @@ param_imsi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 }
 
 static void
-param_min(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_min_basic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, gboolean true_min)
 {
     guint saved_offset;
     guchar *poctets;
@@ -8293,12 +8337,41 @@ param_min(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
     my_dgt_tbcd_unpack(bigbuf, poctets, len, &Dgt_msid);
     g_free(poctets);
 
+    if (true_min)
+    {
+	proto_tree_add_string_format(tree, hf_ansi_map_min, asn1->tvb,
+	    saved_offset, len,
+	    bigbuf,
+	    "MIN %s",
+	    bigbuf);
+    }
+    else
+    {
     proto_tree_add_text(tree, asn1->tvb,
-	saved_offset, len,
-	"MIN %s",
-	bigbuf);
+		saved_offset, len,
+		"MIN %s",
+		bigbuf);
+	}
 
     sprintf(add_string, " - %s", bigbuf);
+}
+
+static void
+param_ms_min(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+{
+    param_min_basic(asn1, tree, len, add_string, FALSE);
+}
+
+static void
+param_new_min(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+{
+    param_min_basic(asn1, tree, len, add_string, FALSE);
+}
+
+static void
+param_min(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+{
+    param_min_basic(asn1, tree, len, add_string, TRUE);
 }
 
 static void
@@ -11523,23 +11596,8 @@ param_sms_acc_den_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 static void
 param_sms_bd(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
-    tvbuff_t *next_tvb;
 
-    next_tvb = tvb_new_subset(asn1->tvb, asn1->offset, len, len);
-
-    if (ansi_map_sms_tele_id != -1)
-    {
-	dissector_try_port(is637_tele_id_dissector_table, ansi_map_sms_tele_id, next_tvb, g_pinfo, g_tree);
-	ansi_map_sms_tele_id = -1;
-    }
-    else if (is683_ota)
-    {
-	dissector_try_port(is683_dissector_table, ansi_map_is_invoke ? 0 : 1, next_tvb, g_pinfo, g_tree);
-    }
-    else if (is801_pld)
-    {
-	dissector_try_port(is801_dissector_table, ansi_map_is_invoke ? 0 : 1, next_tvb, g_pinfo, g_tree);
-    }
+    bd_tvb = tvb_new_subset(asn1->tvb, asn1->offset, len, len);
 
     proto_tree_add_text(tree, asn1->tvb,
 	asn1->offset, len,
@@ -11851,7 +11909,7 @@ static void (*param_2_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar 
     param_avail_type,	/* Availability Type */
     param_list,	/* Local Termination */
     param_mw_noti_count,	/* Message Waiting Notification Count */
-    param_digits,	/* Mobile Directory Number */
+    param_mdn,	/* Mobile Directory Number */
     param_digits,	/* MSCID Number */
     param_list,	/* PSTN Termination */
     param_no_ans_time,	/* No Answer Time */
@@ -11933,20 +11991,12 @@ static void (*param_3_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar 
     param_digits,	/* Pilot Number */
     param_bill_id,	/* Pilot Billing ID */
     param_cdma_band_class,	/* CDMA Band Class */
-    param_imsi,	/* International Mobile Subscriber Identity */
-    param_calling_party_name,	/* Calling Party Name */
-    param_dis_text,	/* Display Text */
-    param_red_party_name,	/* Redirecting Party Name */
-    param_srvc_id,	/* Service ID */
-    param_all_or_none,	/* All Or None */
-    param_change,	/* Change */
-    param_list,	/* Data Access Element */
-    param_list,	/* Data Access Element List */
-    param_list,	/* Data Update Result */
-    param_list,	/* Data Update Result List */
+    param_list,	/* CDMA Band Class Information */
+    param_list,	/* CDMA Band Class List */
     param_cdma_pilot_pn,	/* CDMA Pilot PN */
     NULL/* no special handling */,	/* CDMA Service Configuration Record */
     param_cdma_so,	/* CDMA Service Option */
+    param_list,	/* CDMA Service Option List */
     param_cdma_scm2,	/* CDMA Station Class Mark 2 */
     param_tdma_sc,	/* TDMA Service Code */
     param_tdma_term_cap,	/* TDMA Terminal Capability */
@@ -11954,10 +12004,10 @@ static void (*param_3_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar 
     param_a_key_ver,	/* A-Key Protocol Version */
     NULL/* XXX what spec ? */,	/* Authentication Response Reauthentication */
     NULL/* no special handling */,	/* Base Station Partial Key */
-    param_min,	/* Mobile Station MIN */
+    param_ms_min,	/* Mobile Station MIN */
     NULL/* no special handling */,	/* Mobile Station Partial Key */
     NULL/* no special handling */,	/* Modulus Value */
-    param_min,	/* Newly Assigned MIN */
+    param_new_min,	/* Newly Assigned MIN */
     param_ota_result_code,	/* OTASP Result Code */
     NULL/* no special handling */,	/* Primitive Value */
     NULL/* XXX what spec ? */,	/* Random Variable Reauthentication */
@@ -11966,41 +12016,35 @@ static void (*param_3_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar 
     param_sme_report,	/* Signaling Message Encryption Report */
     param_trn,	/* Temporary Reference Number */
     param_vp_report,	/* Voice Privacy Report */
+    NULL/* XXX */,	/* Base Station Manufacturer Code */
+    NULL/* XXX */,	/* BSMC Status */
     param_ctrl_chan_mode,	/* Control Channel Mode */
+    NULL/* XXX */,	/* Non Public Data */
+    NULL/* XXX */,	/* Paging Frame Class */
+    NULL/* XXX */,	/* PSID RSID Information */
+    NULL/* XXX */,	/* PSID RSID List */
+    NULL/* XXX */,	/* Service Result */
+    NULL/* XXX */,	/* SOC Status */
+    NULL/* XXX */,	/* System Operator Code */
+    NULL/* XXX */,	/* Target Cell ID List */
+    NULL/* XXX */,	/* User Group */
+    NULL/* XXX */,	/* User Zone Data */
     NULL/* no special handling */,	/* CDMA Connection Reference */
     param_list,	/* CDMA Connection Reference Information */
     param_list,	/* CDMA Connection Reference List */
+    NULL/* XXX */,	/* CDMA State */
     param_change_srvc_attr,	/* Change Service Attributes */
     NULL/* no special handling */,	/* Data Key */
     param_dp_params,	/* Data Privacy Parameters */
     param_islp_info,	/* ISLP Information */
     param_reason_list,	/* Reason List */
+    NULL/* XXX */,	/* Second Inter MSC Circuit ID */
     param_tdma_bandwidth,	/* TDMA Bandwidth */
     param_tdma_data_feat_ind,	/* TDMA Data Features Indicator */
     param_tdma_data_mode,	/* TDMA Data Mode */
     param_tdma_voice_mode,	/* TDMA Voice Mode */
     param_ana_red_info,	/* Analog Redirect Info */
-    param_list,	/* CDMA Band Class Information */
-    param_list,	/* CDMA Band Class List */
-    param_list,	/* CDMA Service Option List */
-    param_list,	/* CDMA Connection Reference Information */
-    param_list,	/* CDMA Connection Reference List */
     param_list,	/* Analog Redirect Record */
-    param_list,	/* Execute Script */
-    param_list,	/* Modification Request */
-    param_list,	/* Modification Request List */
-    param_list,	/* Modification Result List */
-    param_list,	/* Service Data Access Element */
-    param_list,	/* Service Data Access Element List */
-    param_list,	/* Service Data Result */
-    param_list,	/* Service Data Result List */
-    param_list,	/* Trigger Address List */
-    param_list,	/* Trigger List */
-    param_list,	/* WIN Capability */
-    param_list,	/* Call Recovery ID */
-    param_list,	/* Call Recovery ID List */
-    param_list,	/* Position Information */
-    param_list,	/* CDMA PSMM List */
     param_cdma_chan_num,	/* CDMA Channel Number */
     param_list,	/* CDMA Channel Number List */
     param_cdma_pci,	/* CDMA Power Combined Indicator */
@@ -12014,23 +12058,45 @@ static void (*param_3_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar 
     param_srvc_red_cause,	/* Service Redirection Cause */
     param_srvc_red_info,	/* Service Redirection Info */
     param_roaming_ind,	/* Roaming Indication */
-    NULL/* XXX what spec ? */,	/* MSID */
+    NULL/* XXX */,	/* Emergency Services Routing Digits */
+    NULL/* XXX */,	/* Special Handling */
+    param_imsi,	/* International Mobile Subscriber Identity */
+    param_calling_party_name,	/* Calling Party Name */
+    param_dis_text,	/* Display Text */
+    param_red_party_name,	/* Redirecting Party Name */
+    param_srvc_id,	/* Service ID */
+    param_all_or_none,	/* All Or None */
+    param_change,	/* Change */
+    param_list,	/* Data Access Element */
+    param_list,	/* Data Access Element List */
     NULL/* no special handling */,	/* Data ID */
     NULL/* no special handling */,	/* Database Key */
     param_data_result,	/* Data Result */
+    param_list,	/* Data Update Result */
+    param_list,	/* Data Update Result List */
     NULL/* no special handling */,	/* Data Value */
+    param_list,	/* Execute Script */
     param_fail_cause,	/* Failure Cause */
     param_fail_type,	/* Failure Type */
     NULL/* no special handling */,	/* Global Title */
+    param_list,	/* Modification Request */
+    param_list,	/* Modification Request List */
+    param_list,	/* Modification Result List */
     NULL/* no special handling */,	/* Private Specialized Resource */
-    param_resume_pic,	/* Resume PIC */
     NULL/* no special handling */,	/* Script Argument */
     NULL/* no special handling */,	/* Script Name */
     NULL/* no special handling */,	/* Script Result */
+    param_list,	/* Service Data Access Element */
+    param_list,	/* Service Data Access Element List */
+    param_list,	/* Service Data Result */
+    param_list,	/* Service Data Result List */
     param_special_rsc,	/* Specialized Resource */
     param_time_date_offset,	/* Time Date Offset */
+    param_list,	/* Trigger Address List */
     param_trig_cap,	/* Trigger Capability */
+    param_list,	/* Trigger List */
     param_trig_type,	/* Trigger Type */
+    param_list,	/* WIN Capability */
     param_win_op_cap,	/* WIN Operations Capability */
     param_win_trig_list,	/* WIN Trigger List */
     param_digits,	/* MSC Address */
@@ -12042,6 +12108,23 @@ static void (*param_3_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar 
     NULL/* XXX what spec ? */,	/* Page Count */
     NULL/* XXX what spec ? */,	/* Page Response Time */
     NULL/* XXX what spec ? */,	/* SMS Transaction ID */
+    NULL/* XXX what spec ? */,	/* CAVE Key */
+    NULL/* XXX what spec ? */,	/* CDMA2000 Mobile Supported Capabilities */
+    NULL/* XXX what spec ? */,	/* Enhanced Privacy Encryption Report */
+    param_inter_msg_time,	/* Inter Message Time */
+    param_msid_usage,	/* MSID Usage */
+    param_new_min_ext,	/* New MIN Extension */
+    param_qos_pri,	/* QoS Priority */
+    param_cdma_ms_meas_chan_id,	/* CDMA MS Measured Channel Identity */
+    param_cdma2000_ho_ivk_ios,	/* CDMA2000 Handoff Invoke IOS Data */
+    param_cdma2000_ho_rsp_ios,	/* CDMA2000 Handoff Response IOS Data */
+    NULL/* XXX */,	/* MIN Extension */
+
+    param_list,	/* Call Recovery ID */
+    param_list,	/* Call Recovery ID List */
+    param_list,	/* Position Information */
+    param_list,	/* CDMA PSMM List */
+    param_resume_pic,	/* Resume PIC */
     param_dmh_srvc_id,	/* DMH Service ID */
     param_feat_ind,	/* Feature Indicator */
     param_mscid,	/* Control Network ID */
@@ -12052,9 +12135,6 @@ static void (*param_3_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar 
     NULL/* no special handling */,	/* DMH Billing Indicator */
     param_ms_status,	/* MS Status */
     param_pos_info_code,	/* Position Information Code */
-    param_inter_msg_time,	/* Inter Message Time */
-    param_msid_usage,	/* MSID Usage */
-    param_new_min_ext,	/* New MIN Extension */
     param_dtx_ind,	/* DTX Indication */
     param_cdma_mob_cap,	/* CDMA Mobile Capabilities */
     param_gen_time,	/* Generalized Time */
@@ -12066,20 +12146,16 @@ static void (*param_3_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar 
     param_pos_result,	/* Position Result */
     param_pos_source,	/* Position Source */
     param_acg_encounter,	/* ACG Encountered */
-    param_ctrl_type,	/* CDMA State/Control Type */
+    param_ctrl_type,	/* Control Type */
     param_gap_duration,	/* Gap Duration */
     param_scf_overload_gap_int,	/* SCF Overload Gap Interval */
     param_sm_gap_int,	/* Service Management System Gap Interval */
     param_cdma_psmm_count,	/* CDMA PSMM Count */
     param_cdma_sowd2,	/* CDMA Serving One Way Delay 2 */
-    param_qos_pri,	/* QoS Priority */
     NULL/* no special handling */,	/* PDSN Address */
     NULL/* no special handling */,	/* PDSN Protocol Type */
-    param_cdma_ms_meas_chan_id,	/* CDMA MS Measured Channel Identity */
     NULL/* no special handling */,	/* Range */
     param_calling_party_cat,	/* Calling Party Category */
-    param_cdma2000_ho_ivk_ios,	/* cdma2000 Handoff Invoke IOS Data */
-    param_cdma2000_ho_rsp_ios,	/* cdma2000 Handoff Response IOS Data */
     param_digits,	/* LCS Client ID */
     param_tdma_maho_cell_id,	/* TDMA MAHO Cell ID */
     param_tdma_maho_chan,	/* TDMA MAHO Channel */
@@ -12588,7 +12664,7 @@ dissect_ansi_param(ASN1_SCK *asn1, proto_tree *tree)
 
 	    if (ansi_map_add_string[0] != '\0')
 	    {
-		proto_item_append_text(item, "%s", ansi_map_add_string);
+		proto_item_append_text(item, ansi_map_add_string);
 		ansi_map_add_string[0] = '\0';
 	    }
 	}
@@ -12646,7 +12722,7 @@ dissect_ansi_params(ASN1_SCK *asn1, proto_tree *tree)
 
     if (ansi_map_add_string[0] != '\0')
     {
-	proto_item_append_text(item, "%s", ansi_map_add_string);
+	proto_item_append_text(item, ansi_map_add_string);
 	ansi_map_add_string[0] = '\0';
     }
 }
@@ -12832,6 +12908,23 @@ dissect_ansi_map_message(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *ansi_ma
 	break;
     }
 
+    if (bd_tvb != NULL)
+    {
+	if (ansi_map_sms_tele_id != -1)
+	{
+	    dissector_try_port(is637_tele_id_dissector_table, ansi_map_sms_tele_id, bd_tvb, g_pinfo, g_tree);
+	    ansi_map_sms_tele_id = -1;
+	}
+	else if (is683_ota)
+	{
+	    dissector_try_port(is683_dissector_table, ansi_map_is_invoke ? 0 : 1, bd_tvb, g_pinfo, g_tree);
+	}
+	else if (is801_pld)
+	{
+	    dissector_try_port(is801_dissector_table, ansi_map_is_invoke ? 0 : 1, bd_tvb, g_pinfo, g_tree);
+	}
+    }
+
     proto_item_set_len(item, asn1->offset - saved_offset);
 
     if (opr_code != -1)
@@ -12882,6 +12975,7 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ansi_map_is_invoke = FALSE;
 	is683_ota = FALSE;
 	is801_pld = FALSE;
+	bd_tvb = NULL;
 	dissect_ansi_map_message(&asn1, pinfo, ansi_map_tree);
 
 	asn1_close(&asn1, &offset);
@@ -12932,6 +13026,16 @@ proto_register_ansi_map(void)
 	{ &hf_ansi_map_ios401_elem_id,
 	    { "IOS 4.0.1 Element ID",	"ansi_map.ios401_elem_id",
 	    FT_NONE, 0, NULL, 0,
+	    "", HFILL }
+	},
+	{ &hf_ansi_map_min,
+	    { "MIN",		"ansi_map.min",
+	    FT_STRING, BASE_DEC, 0, 0,
+	    "", HFILL }
+	},
+	{ &hf_ansi_map_number,
+	    { "Number",		"ansi_map.number",
+	    FT_STRING, BASE_DEC, 0, 0,
 	    "", HFILL }
 	},
     };
@@ -13020,6 +13124,8 @@ proto_reg_handoff_ansi_map(void)
     dissector_add("tcap.ansi_ssn", 10 , ansi_map_handle);
     dissector_add("tcap.ansi_ssn", 11 , ansi_map_handle);
     dissector_add("tcap.ansi_ssn", 12 , ansi_map_handle);
+    dissector_add("tcap.ansi_ssn", 13 , ansi_map_handle);
+    dissector_add("tcap.ansi_ssn", 14 , ansi_map_handle);
 
     data_handle = find_dissector("data");
 }
