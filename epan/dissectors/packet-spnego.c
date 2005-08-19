@@ -49,6 +49,7 @@
 #include "packet-kerberos.h"
 #include <epan/crypt-rc4.h>
 #include <epan/conversation.h>
+#include <epan/emem.h>
 
 #define SPNEGO_negTokenInit 0
 #define SPNEGO_negTokenTarg 1
@@ -167,17 +168,16 @@ gssapi_lookup_oid(subid_t *oid, guint oid_len)
 	 * Convert the OID to a string, as text strings are used as
 	 * keys in the OID hash table.
 	 */
-	oid_key = g_malloc(oid_len * 22 + 1);
+	oid_key = ep_alloc(oid_len * 22 + 1);
 	p = oid_key;
-	len = sprintf(p, "%lu", (unsigned long)oid[0]);
+	len = g_snprintf(p, oid_len * 22 + 1, "%lu", (unsigned long)oid[0]);
 	p += len;
 	for (i = 1; i < oid_len;i++) {
-		len = sprintf(p, ".%lu", (unsigned long)oid[i]);
+		len = g_snprintf(p, oid_len * 22 + 1 -(p-oid_key),".%lu", (unsigned long)oid[i]);
 		p += len;
 	}
 
 	value = gssapi_lookup_oid_str(oid_key);
-	g_free(oid_key);
 	return value;
 }
 
@@ -731,11 +731,7 @@ decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *
 	/* XXX we should only do this for first time, then store somewhere */
 	/* XXX We also need to re-read the keytab when the preference changes */
 
-	if(cryptocopy){
-		g_free(cryptocopy);
-		cryptocopy=NULL;
-	}		
-	cryptocopy=g_malloc(length);
+	cryptocopy=ep_alloc(length);
 	if(output_message_buffer){
 		g_free(output_message_buffer);
 		output_message_buffer=NULL;
