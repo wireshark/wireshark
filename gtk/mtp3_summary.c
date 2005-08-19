@@ -39,7 +39,7 @@
 #include "epan/packet_info.h"
 #include "epan/epan.h"
 #include "epan/value_string.h"
-#include "tap_menu.h"
+#include "stat_menu.h"
 #include "globals.h"
 #include "file.h"
 #include "summary.h"
@@ -430,6 +430,6 @@ mtp3_sum_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtkmtp3_summary(void)
 {
-    register_tap_menu_item("MTP3/MSU Summary",  REGISTER_TAP_GROUP_TELEPHONY,
+    register_stat_menu_item("MTP3/MSU Summary",  REGISTER_STAT_GROUP_TELEPHONY,
         mtp3_sum_gtk_sum_cb, NULL, NULL, NULL);
 }

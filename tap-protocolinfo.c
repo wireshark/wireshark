@@ -39,6 +39,7 @@
 #include "epan/column-utils.h"
 #include "epan/proto.h"
 #include <epan/tap.h>
+#include "stat.h"
 #include "register.h"
 
 typedef struct _pci_t {
@@ -142,6 +143,6 @@ protocolinfo_init(const char *optarg)
 void
 register_tap_listener_protocolinfo(void)
 {
-	register_tap_listener_cmd_arg("proto,colinfo,", protocolinfo_init);
+	register_stat_cmd_arg("proto,colinfo,", protocolinfo_init);
 }
 

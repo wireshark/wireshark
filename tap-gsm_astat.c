@@ -44,6 +44,7 @@
 #include <epan/tap.h>
 #include <epan/dissectors/packet-bssap.h>
 #include <epan/dissectors/packet-gsm_a.h>
+#include "stat.h"
 #include "register.h"
 
 
@@ -297,5 +298,5 @@ gsm_a_stat_init(const char *optarg _U_)
 void
 register_tap_listener_gsm_astat(void)
 {
-    register_tap_listener_cmd_arg("gsm_a,", gsm_a_stat_init);
+    register_stat_cmd_arg("gsm_a,", gsm_a_stat_init);
 }

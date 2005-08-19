@@ -36,7 +36,7 @@
  *    on the start button in the display filter dialog.
  * 4) the index with "-1"
  *
- * Within register_tap_menu_yourtap(void), call register_tap_menu_item() with gtk_tap_dfilter_dlg_cb as callback and a pointer 
+ * Within register_tap_menu_yourtap(void), call register_stat_menu_item() with gtk_tap_dfilter_dlg_cb as callback and a pointer 
  * to the global tap_dfilter_dlg structure .
  *
  * Usage:
@@ -44,7 +44,7 @@
  * tap_dfilter_dlg my_tap_dfilter_dlg = {"My Title", "myproto,mytap", gtk_mytap_init, -1};
  *
  * register_tap_menu_mytap(void) {
- *   register_tap_menu_item(char *menu_string, gtk_tap_dfilter_dlg_cb, NULL, NULL, &(my_tap_dfilter_dlg));
+ *   register_stat_menu_item(char *menu_string, gtk_tap_dfilter_dlg_cb, NULL, NULL, &(my_tap_dfilter_dlg));
  * }
  *
  * See also: h225_ras_srt.c or h225_counter.c

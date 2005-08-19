@@ -89,11 +89,11 @@ noinst_HEADERS = \
 	sat.h		\
 	sctp_stat.h	\
 	service_response_time_table.h	\
+	stat_menu.h	\
 	stream_prefs.h	\
 	summary_dlg.h   \
 	supported_protos_dlg.h   \
 	tap_dfilter_dlg.h \
-	tap_menu.h	\
 	text_page.h	\
 	toolbar.h	\
 	ui_util.h	\

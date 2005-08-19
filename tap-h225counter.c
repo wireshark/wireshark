@@ -37,6 +37,7 @@
 #include "epan/packet_info.h"
 #include <epan/tap.h>
 #include "epan/value_string.h"
+#include "stat.h"
 #include "register.h"
 #include <epan/dissectors/packet-h225.h>
 
@@ -422,5 +423,5 @@ h225counter_init(const char *optarg)
 void
 register_tap_listener_h225counter(void)
 {
-	register_tap_listener_cmd_arg("h225,counter", h225counter_init);
+	register_stat_cmd_arg("h225,counter", h225counter_init);
 }

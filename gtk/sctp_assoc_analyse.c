@@ -33,7 +33,7 @@
 #include <epan/epan_dissect.h>
 #include "epan/filesystem.h"
 #include "register.h"
-#include "tap_menu.h"
+#include "stat_menu.h"
 #include "dlg_utils.h"
 #include "ui_util.h"
 #include "main.h"
@@ -875,6 +875,6 @@ void sctp_analyse_start(GtkWidget *w _U_, gpointer data _U_)
 void
 register_tap_listener_sctp_analyse(void)
 {
-	register_tap_menu_item("SCTP/Analyse Association", REGISTER_TAP_GROUP_TELEPHONY,
+	register_stat_menu_item("SCTP/Analyse Association", REGISTER_STAT_GROUP_TELEPHONY,
 	                       sctp_analyse_start, NULL, NULL, NULL);
 }

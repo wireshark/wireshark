@@ -38,6 +38,7 @@
 #include "epan/addr_resolv.h"
 #include <epan/tap.h>
 #include "epan/value_string.h"
+#include "stat.h"
 #include "register.h"
 #include <epan/dissectors/packet-sctp.h>
 
@@ -256,5 +257,5 @@ sctpstat_init(const char *optarg)
 void
 register_tap_listener_sctpstat(void)
 {
-	register_tap_listener_cmd_arg("sctp,stat", sctpstat_init);
+	register_stat_cmd_arg("sctp,stat", sctpstat_init);
 }

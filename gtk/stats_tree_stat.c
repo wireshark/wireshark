@@ -34,7 +34,8 @@
 
 #include "simple_dialog.h"
 #include "globals.h"
-#include "tap_menu.h"
+#include "../stat.h"
+#include "stat_menu.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
 #include "compat_macros.h"
@@ -370,7 +371,7 @@ static void register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p 
 
 	s = g_strdup_printf("%s,tree",cfg->abbr);
 	
-	register_tap_listener_cmd_arg(s, init_gtk_tree);
+	register_stat_cmd_arg(s, init_gtk_tree);
 	
 	cfg->pr = g_malloc(sizeof(tree_pres));
 	
@@ -381,7 +382,7 @@ static void register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p 
 	cfg->pr->stat_dlg->tap_init_cb = init_gtk_tree;
 	cfg->pr->stat_dlg->index = -1;
 	
-	register_tap_menu_item(cfg->name, REGISTER_TAP_GROUP_NONE,
+	register_stat_menu_item(cfg->name, REGISTER_STAT_GROUP_NONE,
 						   gtk_tap_dfilter_dlg_cb, NULL, NULL, cfg->pr->stat_dlg);
 }
 

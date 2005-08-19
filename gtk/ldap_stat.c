@@ -38,7 +38,8 @@
 #include <epan/epan.h>
 #include <epan/value_string.h>
 
-#include "tap_menu.h"
+#include "../stat.h"
+#include "stat_menu.h"
 #include <epan/tap.h>
 #include <epan/dissectors/packet-ldap.h>
 #include "../register.h"
@@ -347,8 +348,8 @@ gtk_ldapstat_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtkldapstat(void)
 {
-	register_tap_listener_cmd_arg("ldap,srt", gtk_ldapstat_init);
+	register_stat_cmd_arg("ldap,srt", gtk_ldapstat_init);
 
-	register_tap_menu_item("LDAP...", REGISTER_TAP_GROUP_RESPONSE_TIME,
+	register_stat_menu_item("LDAP...", REGISTER_STAT_GROUP_RESPONSE_TIME,
 	    gtk_ldapstat_cb, NULL, NULL, NULL);
 }

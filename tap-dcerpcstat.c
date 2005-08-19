@@ -36,6 +36,7 @@
 #include "epan/packet_info.h"
 #include <epan/tap.h>
 #include <epan/dissectors/packet-dcerpc.h>
+#include "stat.h"
 #include "register.h"
 
 /* used to keep track of statistics for a specific procedure */
@@ -305,5 +306,5 @@ dcerpcstat_init(const char *optarg)
 void
 register_tap_listener_dcerpcstat(void)
 {
-	register_tap_listener_cmd_arg("dcerpc,rtt,", dcerpcstat_init);
+	register_stat_cmd_arg("dcerpc,rtt,", dcerpcstat_init);
 }

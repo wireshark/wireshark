@@ -82,6 +82,7 @@ ETHEREAL_COMMON_SRC =	\
 	print.c	\
 	ps.c	\
 	ringbuffer.c	\
+	stat.c	\
 	timestats.c	\
 	util.c	\
 	version_info.c
@@ -106,6 +107,7 @@ ETHEREAL_COMMON_INCLUDES =	\
 	ps.h	\
 	register.h	\
 	ringbuffer.h	\
+	stat.h	\
 	timestats.h	\
 	util.h	\
 	version_info.h

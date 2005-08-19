@@ -27,11 +27,12 @@
 #endif
 
 #include <stdio.h>
+#include <string.h>
 
 #include "epan/packet_info.h"
 #include <epan/tap.h>
+#include "stat.h"
 #include "register.h"
-#include <string.h>
 
 
 typedef const char* bootp_info_value_t;
@@ -181,6 +182,6 @@ dhcpstat_init(const char *optarg)
 void
 register_tap_listener_gtkdhcpstat(void)
 {
-	register_tap_listener_cmd_arg("bootp,stat,", dhcpstat_init);
+	register_stat_cmd_arg("bootp,stat,", dhcpstat_init);
 }
 

@@ -38,7 +38,8 @@
 #include <epan/epan.h>
 #include <epan/value_string.h>
 
-#include "tap_menu.h"
+#include "../stat.h"
+#include "stat_menu.h"
 #include <epan/tap.h>
 #include "../smb.h"
 #include "../register.h"
@@ -351,8 +352,8 @@ gtk_smbstat_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtksmbstat(void)
 {
-	register_tap_listener_cmd_arg("smb,srt", gtk_smbstat_init);
+	register_stat_cmd_arg("smb,srt", gtk_smbstat_init);
 
-	register_tap_menu_item("SMB...", REGISTER_TAP_GROUP_RESPONSE_TIME,
+	register_stat_menu_item("SMB...", REGISTER_STAT_GROUP_RESPONSE_TIME,
 	    gtk_smbstat_cb, NULL, NULL, NULL);
 }

@@ -45,7 +45,7 @@
 #include "ppptypes.h"
 #include "dlg_utils.h"
 #include <epan/epan_dissect.h>
-#include "tap_menu.h"
+#include "stat_menu.h"
 #include "../epan/dissectors/packet-tcp.h"
 #include "../epan/address.h"
 #include "../epan/tap.h"
@@ -4050,12 +4050,12 @@ gboolean tcp_graph_selected_packet_enabled(frame_data *current_frame, epan_disse
 void
 register_tap_listener_tcp_graph(void)
 {
-    register_tap_menu_item("TCP Stream Graph/Time-Sequence Graph (Stevens)", REGISTER_TAP_GROUP_NONE,
+    register_stat_menu_item("TCP Stream Graph/Time-Sequence Graph (Stevens)", REGISTER_STAT_GROUP_NONE,
         tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(0));
-    register_tap_menu_item("TCP Stream Graph/Time-Sequence Graph (tcptrace)", REGISTER_TAP_GROUP_NONE,
+    register_stat_menu_item("TCP Stream Graph/Time-Sequence Graph (tcptrace)", REGISTER_STAT_GROUP_NONE,
         tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(1));
-    register_tap_menu_item("TCP Stream Graph/Throughput Graph", REGISTER_TAP_GROUP_NONE,
+    register_stat_menu_item("TCP Stream Graph/Throughput Graph", REGISTER_STAT_GROUP_NONE,
         tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(2));
-    register_tap_menu_item("TCP Stream Graph/Round Trip Time Graph", REGISTER_TAP_GROUP_NONE,
+    register_stat_menu_item("TCP Stream Graph/Round Trip Time Graph", REGISTER_STAT_GROUP_NONE,
         tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(3));
 }

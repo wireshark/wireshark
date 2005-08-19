@@ -34,7 +34,8 @@
 #include <gtk/gtk.h>
 #include <string.h>
 #include "epan/packet.h"
-#include "tap_menu.h"
+#include "../stat.h"
+#include "stat_menu.h"
 #include <epan/tap.h>
 #include "../register.h"
 #include "conversations_table.h"
@@ -86,10 +87,10 @@ jxta_conversation_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_jxta_conversation(void)
 {
-	register_tap_listener_cmd_arg("conv,jxta", jxta_conversation_init);
+	register_stat_cmd_arg("conv,jxta", jxta_conversation_init);
 
-	register_tap_menu_item("JXTA", REGISTER_TAP_GROUP_CONVERSATION_LIST,
+	register_stat_menu_item("JXTA", REGISTER_STAT_GROUP_CONVERSATION_LIST,
 	    jxta_conversation_cb, NULL, NULL, NULL);
 
-    register_conversation_table(TRUE, "JXTA", "jxta", NULL /*filter*/, jxta_conversation_packet);
+	register_conversation_table(TRUE, "JXTA", "jxta", NULL /*filter*/, jxta_conversation_packet);
 }

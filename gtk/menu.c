@@ -32,7 +32,7 @@
 
 #include "main.h"
 #include "menu.h"
-#include "tap_menu.h"
+#include "stat_menu.h"
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
@@ -649,9 +649,9 @@ static GList * tap_menu_item_add(
  * is selected and, if one is, on the tree row) and FALSE if not.
  */
 void
-register_tap_menu_item(
+register_stat_menu_item(
     const char *name, 
-    REGISTER_TAP_GROUP_E group,
+    REGISTER_STAT_GROUP_E group,
     GtkItemFactoryCallback callback,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *),
     gboolean (*selected_tree_row_enabled)(field_info *),
@@ -672,12 +672,12 @@ register_tap_menu_item(
     g_assert(*name != '/');
 
     switch(group) {
-    case(REGISTER_TAP_GROUP_GENERIC): toolspath = "/Statistics/"; break;
-    case(REGISTER_TAP_GROUP_CONVERSATION_LIST): toolspath = "/Statistics/_Conversation List/"; break;
-    case(REGISTER_TAP_GROUP_ENDPOINT_LIST): toolspath = "/Statistics/_Endpoint List/"; break;
-    case(REGISTER_TAP_GROUP_RESPONSE_TIME): toolspath = "/Statistics/Service _Response Time/"; break;
-    case(REGISTER_TAP_GROUP_TELEPHONY): toolspath = "/Statistics/"; break;
-    case(REGISTER_TAP_GROUP_NONE): toolspath = "/Statistics/"; break;
+    case(REGISTER_STAT_GROUP_GENERIC): toolspath = "/Statistics/"; break;
+    case(REGISTER_STAT_GROUP_CONVERSATION_LIST): toolspath = "/Statistics/_Conversation List/"; break;
+    case(REGISTER_STAT_GROUP_ENDPOINT_LIST): toolspath = "/Statistics/_Endpoint List/"; break;
+    case(REGISTER_STAT_GROUP_RESPONSE_TIME): toolspath = "/Statistics/Service _Response Time/"; break;
+    case(REGISTER_STAT_GROUP_TELEPHONY): toolspath = "/Statistics/"; break;
+    case(REGISTER_STAT_GROUP_NONE): toolspath = "/Statistics/"; break;
     default:
         g_assert(0);
         toolspath = NULL;
@@ -781,23 +781,23 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
             entry->callback = node_data->callback;
 #if GTK_MAJOR_VERSION >= 2
             switch(group) {
-            case(REGISTER_TAP_GROUP_NONE):
+            case(REGISTER_STAT_GROUP_NONE):
                 break;
-            case(REGISTER_TAP_GROUP_GENERIC):
+            case(REGISTER_STAT_GROUP_GENERIC):
                 break;
-            case(REGISTER_TAP_GROUP_CONVERSATION_LIST):
+            case(REGISTER_STAT_GROUP_CONVERSATION_LIST):
                 entry->item_type = "<StockItem>";
                 entry->extra_data = ETHEREAL_STOCK_CONVERSATIONS;
                 break;
-            case(REGISTER_TAP_GROUP_ENDPOINT_LIST):
+            case(REGISTER_STAT_GROUP_ENDPOINT_LIST):
                 entry->item_type = "<StockItem>";
                 entry->extra_data = ETHEREAL_STOCK_ENDPOINTS;
                 break;
-            case(REGISTER_TAP_GROUP_RESPONSE_TIME):
+            case(REGISTER_STAT_GROUP_RESPONSE_TIME):
                 entry->item_type = "<StockItem>";
                 entry->extra_data = ETHEREAL_STOCK_TIME;
                 break;
-            case(REGISTER_TAP_GROUP_TELEPHONY):
+            case(REGISTER_STAT_GROUP_TELEPHONY):
                 entry->item_type = "<StockItem>";
                 entry->extra_data = ETHEREAL_STOCK_TELEPHONY;
                 break;
@@ -851,22 +851,22 @@ void merge_all_tap_menus(GList *node) {
      * merge only the menu items of the specific group,
      * and then append a seperator
      */
-    if (merge_tap_menus_layered(node, REGISTER_TAP_GROUP_GENERIC)) {
+    if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_GENERIC)) {
         gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
     }
-    if (merge_tap_menus_layered(node, REGISTER_TAP_GROUP_CONVERSATION_LIST)) {
+    if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_CONVERSATION_LIST)) {
         /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
     }
-    if (merge_tap_menus_layered(node, REGISTER_TAP_GROUP_ENDPOINT_LIST)) {
+    if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_ENDPOINT_LIST)) {
         /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
     }
-    if (merge_tap_menus_layered(node, REGISTER_TAP_GROUP_RESPONSE_TIME)) {
+    if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_RESPONSE_TIME)) {
         gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
     }
-    if (merge_tap_menus_layered(node, REGISTER_TAP_GROUP_TELEPHONY)) {
+    if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_TELEPHONY)) {
         gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
     }
-    if (merge_tap_menus_layered(node, REGISTER_TAP_GROUP_NONE)) {
+    if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_NONE)) {
         /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
     }
 }

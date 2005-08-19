@@ -32,7 +32,8 @@
 #include "globals.h"
 #include "epan/packet_info.h"   /* Needed for packet_info */
 #include <epan/tap.h>           /* Needed for register_tap_listener */
-#include "tap_menu.h"
+#include "../stat.h"
+#include "stat_menu.h"
 #include "dlg_utils.h"
 #include "compat_macros.h"
 #include "register.h"
@@ -1463,7 +1464,7 @@ register_tap_listener_sctp_stat(void)
 
 	if (!sctp_tapinfo_struct.is_registered)
 	{
-		register_tap_listener_cmd_arg("sctp",gtk_sctpstat_init);
+		register_stat_cmd_arg("sctp",gtk_sctpstat_init);
 		if ((error_string = register_tap_listener("sctp", &sctp_tapinfo_struct, NULL, reset, packet, sctp_update))) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
 			g_string_free(error_string, TRUE);

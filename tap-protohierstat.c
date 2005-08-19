@@ -39,6 +39,7 @@
 #include "epan/epan_dissect.h"
 #include "epan/proto.h"
 #include <epan/tap.h>
+#include "stat.h"
 #include "register.h"
 
 typedef struct _phs_t {
@@ -216,6 +217,6 @@ protohierstat_init(const char *optarg)
 void
 register_tap_listener_protohierstat(void)
 {
-	register_tap_listener_cmd_arg("io,phs", protohierstat_init);
+	register_stat_cmd_arg("io,phs", protohierstat_init);
 }
 

@@ -79,25 +79,6 @@ typedef struct _tap_listener_t {
 } tap_listener_t;
 static volatile tap_listener_t *tap_listener_queue=NULL;
 
-/* structure to keep track of what tap listeners have registered
-   command-line arguments.
- */
-typedef struct _tap_cmd_arg {
-	struct _tap_cmd_arg *next;
-	const char *cmd;
-	void (*func)(const char *arg);
-} tap_cmd_arg;
-static tap_cmd_arg *tap_cmd_arg_list=NULL;
-
-/* structure to keep track of what taps have been specified on the
-   command line.
- */
-typedef struct {
-	tap_cmd_arg *tca;
-	char *arg;
-} tap_requested;
-static GSList *taps_requested = NULL;
-
 /* **********************************************************************
  * Init routine only called from epan at application startup
  * ********************************************************************** */
@@ -110,73 +91,6 @@ tap_init(void)
 	tap_packet_index=0;
 
 	return;
-}
-
-/* **********************************************************************
- * Function called from tap to register the tap's command-line argument
- * and initialization routine
- * ********************************************************************** */
-void
-register_tap_listener_cmd_arg(const char *cmd, void (*func)(const char *arg))
-{
-	tap_cmd_arg *newtca;
-
-	newtca=g_malloc(sizeof(tap_cmd_arg));
-	newtca->next=tap_cmd_arg_list;
-	tap_cmd_arg_list=newtca;
-	newtca->cmd=cmd;
-	newtca->func=func;
-}
-
-/* **********************************************************************
- * Function called for a tap command-line argument
- * ********************************************************************** */
-gboolean
-process_tap_cmd_arg(char *optarg)
-{
-	tap_cmd_arg *tca;
-	tap_requested *tr;
-
-	for(tca=tap_cmd_arg_list;tca;tca=tca->next){
-		if(!strncmp(tca->cmd,optarg,strlen(tca->cmd))){
-			tr=g_malloc(sizeof (tap_requested));
-			tr->tca = tca;
-			tr->arg=g_strdup(optarg);
-			taps_requested=g_slist_append(taps_requested, tr);
-			return TRUE;
-		}
-	}
-	return FALSE;
-}
-
-/* **********************************************************************
- * Function to list all possible tap command-line arguments
- * ********************************************************************** */
-void
-list_tap_cmd_args(void)
-{
-	tap_cmd_arg *tca;
-
-	for(tca=tap_cmd_arg_list;tca;tca=tca->next){
-		fprintf(stderr,"     %s\n",tca->cmd);
-	}
-}
-
-/* **********************************************************************
- * Function to process taps requested with command-line arguments
- * ********************************************************************** */
-void
-start_requested_taps(void)
-{
-	tap_requested *tr;
-
-	while(taps_requested){
-		tr=taps_requested->data;
-		(*tr->tca->func)(tr->arg);
-		g_free(tr->arg);
-		g_free(tr);
-		taps_requested=g_slist_remove(taps_requested, tr);
-	}
 }
 
 /* **********************************************************************

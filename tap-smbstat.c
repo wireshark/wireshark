@@ -36,6 +36,7 @@
 #include "epan/packet_info.h"
 #include <epan/tap.h>
 #include "epan/value_string.h"
+#include "stat.h"
 #include "smb.h"
 #include "register.h"
 #include "timestats.h"
@@ -279,6 +280,6 @@ smbstat_init(const char *optarg)
 void
 register_tap_listener_smbstat(void)
 {
-	register_tap_listener_cmd_arg("smb,rtt", smbstat_init);
+	register_stat_cmd_arg("smb,rtt", smbstat_init);
 }
 

@@ -63,11 +63,12 @@
 #include <gtk/gtk.h>
 #include "gtkglobals.h"
 
+#include "../stat.h"
 #include "dlg_utils.h"
 #include "ui_util.h"
 #include "alert_box.h"
 #include "simple_dialog.h"
-#include "tap_menu.h"
+#include "stat_menu.h"
 #include "main.h"
 #include "progress_dlg.h"
 #include "compat_macros.h"
@@ -3650,8 +3651,8 @@ rtp_analysis_init(const char *dummy _U_)
 void
 register_tap_listener_rtp_analysis(void)
 {
-	register_tap_listener_cmd_arg("rtp", rtp_analysis_init);
+	register_stat_cmd_arg("rtp", rtp_analysis_init);
 
-	register_tap_menu_item("RTP/Stream Analysis...", REGISTER_TAP_GROUP_TELEPHONY,
+	register_stat_menu_item("RTP/Stream Analysis...", REGISTER_STAT_GROUP_TELEPHONY,
 	    rtp_analysis_cb, NULL, NULL, NULL);
 }

@@ -36,6 +36,7 @@
 #include "epan/epan_dissect.h"
 #include "epan/packet_info.h"
 #include <epan/tap.h>
+#include "stat.h"
 #include "register.h"
 
 
@@ -651,5 +652,5 @@ iostat_init(const char *optarg)
 void
 register_tap_listener_iostat(void)
 {
-	register_tap_listener_cmd_arg("io,stat,", iostat_init);
+	register_stat_cmd_arg("io,stat,", iostat_init);
 }

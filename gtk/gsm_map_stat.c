@@ -40,7 +40,8 @@
 #include "epan/packet_info.h"
 #include "epan/epan.h"
 #include "epan/value_string.h"
-#include "tap_menu.h"
+#include "../stat.h"
+#include "stat_menu.h"
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 #include "simple_dialog.h"
@@ -454,7 +455,7 @@ register_tap_listener_gtkgsm_map_stat(void)
     GString		*err_p;
 
 
-    register_tap_listener_cmd_arg("gsm_map,", gsm_map_stat_gtk_init);
+    register_stat_cmd_arg("gsm_map,", gsm_map_stat_gtk_init);
 
     memset((void *) &gsm_map_stat, 0, sizeof(gsm_map_stat_t));
 
@@ -472,6 +473,6 @@ register_tap_listener_gtkgsm_map_stat(void)
 	exit(1);
     }
 
-    register_tap_menu_item("GSM/MAP Operation",  REGISTER_TAP_GROUP_TELEPHONY,
+    register_stat_menu_item("GSM/MAP Operation",  REGISTER_STAT_GROUP_TELEPHONY,
         gsm_map_stat_gtk_cb, NULL, NULL, NULL);
 }

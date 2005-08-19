@@ -33,7 +33,8 @@
 #include "epan/filesystem.h"
 
 #include "graph_analysis.h"
-#include "tap_menu.h"
+#include "../stat.h"
+#include "stat_menu.h"
 #include "dlg_utils.h"
 #include "ui_util.h"
 #include "compat_macros.h"
@@ -556,8 +557,8 @@ void flow_graph_launch(GtkWidget *w _U_, gpointer data _U_)
 void
 register_tap_listener_flow_graph(void)
 {
-	register_tap_listener_cmd_arg("flow_graph",flow_graph_init_tap);
-	register_tap_menu_item("Flow graph", REGISTER_TAP_GROUP_NONE,
+	register_stat_cmd_arg("flow_graph",flow_graph_init_tap);
+	register_stat_menu_item("Flow graph", REGISTER_STAT_GROUP_NONE,
 	    flow_graph_launch, NULL, NULL, NULL);
 	    
 }

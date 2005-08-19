@@ -63,7 +63,7 @@
 #include <epan/filesystem.h>
 #include "compat_macros.h"
 #include <epan/ipproto.h>
-#include "tap_menu.h"
+#include "stat_menu.h"
 #include "print_mswin.h"
 #include "font_utils.h"
 

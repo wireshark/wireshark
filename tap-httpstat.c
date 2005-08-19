@@ -32,6 +32,7 @@
 #include "epan/packet_info.h"
 #include "epan/value_string.h"
 #include <epan/tap.h>
+#include "stat.h"
 #include "register.h"
 #include <epan/dissectors/packet-http.h>
 
@@ -325,5 +326,5 @@ gtk_httpstat_init(const char *optarg)
 void
 register_tap_listener_gtkhttpstat(void)
 {
-	register_tap_listener_cmd_arg("http,stat,", gtk_httpstat_init);
+	register_stat_cmd_arg("http,stat,", gtk_httpstat_init);
 }

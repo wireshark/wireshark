@@ -36,6 +36,7 @@
 #include "epan/packet_info.h"
 #include <epan/tap.h>
 #include "epan/value_string.h"
+#include "stat.h"
 #include "register.h"
 #include "plugins/mgcp/packet-mgcp.h"
 #include "timestats.h"
@@ -234,7 +235,7 @@ register_tap_listener_mgcpstat(void)
 {
 	/* We don't register this tap, if we don't have the mgcp plugin loaded.*/
 	if (find_tap_id("mgcp")) {
-		register_tap_listener_cmd_arg("mgcp,rtd", mgcpstat_init);
+		register_stat_cmd_arg("mgcp,rtd", mgcpstat_init);
 	}
 }
 

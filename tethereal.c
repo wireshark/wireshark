@@ -1009,15 +1009,15 @@ main(int argc, char *argv[])
         print_hex = TRUE;
         break;
       case 'z':
-        /* We won't call the init function for the tap this soon
+        /* We won't call the init function for the stat this soon
            as it would disallow MATE's fields (which are registered
            by the preferences set callback) from being used as
            part of a tap filter.  Instead, we just add the argument
-           to a list of tap arguments. */
-        if (!process_tap_cmd_arg(optarg)) {
+           to a list of stat arguments. */
+        if (!process_stat_cmd_arg(optarg)) {
 	  fprintf(stderr,"tethereal: invalid -z argument.\n");
 	  fprintf(stderr,"  -z argument must be one of :\n");
-	  list_tap_cmd_args();
+	  list_stat_cmd_args();
 	  exit(1);
 	}
         break;
@@ -1196,9 +1196,9 @@ main(int argc, char *argv[])
   prefs_apply_all();
 
   /* At this point MATE will have registered its field array so we can
-     have a filter with one of MATE's late-registered fields as part
-     of the tap's filter.  We can now process all the "-z" arguments. */
-  start_requested_taps();
+     have a tap filter with one of MATE's late-registered fields as part
+     of the filter.  We can now process all the "-z" arguments. */
+  start_requested_stats();
   
   /* disabled protocols as per configuration file */
   if (gdp_path == NULL && dp_path == NULL) {

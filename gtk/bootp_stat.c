@@ -33,7 +33,8 @@
 #include <epan/packet_info.h>
 #include <epan/epan.h>
 
-#include "tap_menu.h"
+#include "../stat.h"
+#include "stat_menu.h"
 #include "simple_dialog.h"
 #include "ui_util.h"
 #include "dlg_utils.h"
@@ -281,8 +282,8 @@ static tap_dfilter_dlg dhcp_stat_dlg = {
 void
 register_tap_listener_gtkdhcpstat(void)
 {
-	register_tap_listener_cmd_arg("bootp,stat", dhcpstat_init);
+	register_stat_cmd_arg("bootp,stat", dhcpstat_init);
 
-	register_tap_menu_item("BOOTP-DHCP", REGISTER_TAP_GROUP_NONE,
+	register_stat_menu_item("BOOTP-DHCP", REGISTER_STAT_GROUP_NONE,
 	    gtk_tap_dfilter_dlg_cb, NULL, NULL, &(dhcp_stat_dlg));
 }

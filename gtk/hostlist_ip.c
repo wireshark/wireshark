@@ -35,7 +35,8 @@
 #include <gtk/gtk.h>
 #include <string.h>
 #include "epan/packet.h"
-#include "tap_menu.h"
+#include "../stat.h"
+#include "stat_menu.h"
 #include <epan/tap.h>
 #include "../register.h"
 #include "hostlist_table.h"
@@ -82,9 +83,9 @@ gtk_ip_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_ip_hostlist(void)
 {
-	register_tap_listener_cmd_arg("hosts,ip", gtk_ip_hostlist_init);
+	register_stat_cmd_arg("hosts,ip", gtk_ip_hostlist_init);
 
-	register_tap_menu_item("IPv4", REGISTER_TAP_GROUP_ENDPOINT_LIST,
+	register_stat_menu_item("IPv4", REGISTER_STAT_GROUP_ENDPOINT_LIST,
 		gtk_ip_hostlist_cb, NULL, NULL, NULL);
 
 	register_hostlist_table(TRUE, "IPv4", "ip", NULL /*filter*/, ip_hostlist_packet);

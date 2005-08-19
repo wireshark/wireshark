@@ -44,6 +44,7 @@
 #include <epan/tap.h>
 #include <epan/dissectors/packet-bssap.h>
 #include <epan/dissectors/packet-ansi_a.h>
+#include "stat.h"
 #include "register.h"
 
 
@@ -162,5 +163,5 @@ ansi_a_stat_init(const char *optarg _U_)
 void
 register_tap_listener_ansi_astat(void)
 {
-    register_tap_listener_cmd_arg("ansi_a,", ansi_a_stat_init);
+    register_stat_cmd_arg("ansi_a,", ansi_a_stat_init);
 }

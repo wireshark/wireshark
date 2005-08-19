@@ -33,7 +33,8 @@
 #include <gtk/gtk.h>
 #include <string.h>
 #include "epan/packet.h"
-#include "tap_menu.h"
+#include "../stat.h"
+#include "stat_menu.h"
 #include <epan/tap.h>
 #include "../register.h"
 #include "conversations_table.h"
@@ -78,9 +79,9 @@ eth_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_eth_conversation(void)
 {
-	register_tap_listener_cmd_arg("conv,eth", eth_conversation_init);
+	register_stat_cmd_arg("conv,eth", eth_conversation_init);
 
-	register_tap_menu_item("Ethernet", REGISTER_TAP_GROUP_CONVERSATION_LIST,
+	register_stat_menu_item("Ethernet", REGISTER_STAT_GROUP_CONVERSATION_LIST,
 	    eth_endpoints_cb, NULL, NULL, NULL);
 
 	register_conversation_table(TRUE, "Ethernet", "eth", NULL /*filter*/, eth_conversation_packet);

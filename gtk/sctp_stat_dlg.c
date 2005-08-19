@@ -35,7 +35,7 @@
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 
-#include "tap_menu.h"
+#include "stat_menu.h"
 #include "dlg_utils.h"
 #include "ui_util.h"
 #include "main.h"
@@ -607,7 +607,7 @@ void sctp_stat_start(GtkWidget *w _U_, gpointer data _U_)
 void
 register_tap_listener_sctp_stat_dlg(void)
 {
-	register_tap_menu_item("SCTP/Show All Associations...", REGISTER_TAP_GROUP_TELEPHONY,
+	register_stat_menu_item("SCTP/Show All Associations...", REGISTER_STAT_GROUP_TELEPHONY,
 	    sctp_stat_start, NULL, NULL, NULL);
 }
 

@@ -40,6 +40,7 @@
 #include "epan/packet_info.h"
 #include <epan/tap.h>
 #include <epan/dissectors/packet-rpc.h>
+#include "stat.h"
 #include "register.h"
 
 /* used to keep track of statistics for a specific program/version */
@@ -242,7 +243,7 @@ rpcprogs_init(const char *optarg _U_)
 void
 register_tap_listener_rpcprogs(void)
 {
-	register_tap_listener_cmd_arg("rpc,programs", rpcprogs_init);
+	register_stat_cmd_arg("rpc,programs", rpcprogs_init);
 }
 
 

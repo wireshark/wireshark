@@ -37,7 +37,8 @@
 #include <epan/packet_info.h>
 #include <epan/epan.h>
 
-#include "tap_menu.h"
+#include "../stat.h"
+#include "stat_menu.h"
 #include <epan/tap.h>
 #include "../register.h"
 #include <epan/dissectors/packet-rpc.h>
@@ -418,8 +419,8 @@ gtk_rpcprogs_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtkrpcprogs(void)
 {
-	register_tap_listener_cmd_arg("rpc,programs", gtk_rpcprogs_init);
+	register_stat_cmd_arg("rpc,programs", gtk_rpcprogs_init);
 
-	register_tap_menu_item("ONC-RPC Programs", REGISTER_TAP_GROUP_NONE,
+	register_stat_menu_item("ONC-RPC Programs", REGISTER_STAT_GROUP_NONE,
 	gtk_rpcprogs_cb, NULL, NULL, NULL);
 }

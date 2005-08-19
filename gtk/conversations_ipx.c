@@ -33,7 +33,8 @@
 #include <gtk/gtk.h>
 #include <string.h>
 #include "epan/packet.h"
-#include "tap_menu.h"
+#include "../stat.h"
+#include "stat_menu.h"
 #include <epan/tap.h>
 #include "../register.h"
 #include "conversations_table.h"
@@ -78,9 +79,9 @@ ipx_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_ipx_conversation(void)
 {
-	register_tap_listener_cmd_arg("conv,ipx", ipx_conversation_init);
+	register_stat_cmd_arg("conv,ipx", ipx_conversation_init);
 
-	register_tap_menu_item("IPX", REGISTER_TAP_GROUP_CONVERSATION_LIST,
+	register_stat_menu_item("IPX", REGISTER_STAT_GROUP_CONVERSATION_LIST,
 	    ipx_endpoints_cb, NULL, NULL, NULL);
 
 	register_conversation_table(TRUE, "IPX", "ipx", NULL /*filter*/, ipx_conversation_packet);

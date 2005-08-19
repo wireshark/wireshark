@@ -42,6 +42,7 @@
 #include "epan/packet_info.h"
 #include <epan/tap.h>
 #include <epan/dissectors/packet-rpc.h>
+#include "stat.h"
 #include "register.h"
 
 /* used to keep track of statistics for a specific procedure */
@@ -360,6 +361,6 @@ rpcstat_init(const char *optarg)
 void
 register_tap_listener_rpcstat(void)
 {
-	register_tap_listener_cmd_arg("rpc,rtt,", rpcstat_init);
+	register_stat_cmd_arg("rpc,rtt,", rpcstat_init);
 }
 

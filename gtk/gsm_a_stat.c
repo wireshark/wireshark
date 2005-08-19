@@ -40,7 +40,8 @@
 #include "epan/packet_info.h"
 #include "epan/epan.h"
 #include "epan/value_string.h"
-#include "tap_menu.h"
+#include "../stat.h"
+#include "stat_menu.h"
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 #include "simple_dialog.h"
@@ -618,7 +619,7 @@ register_tap_listener_gtkgsm_a_stat(void)
     GString		*err_p;
 
 
-    register_tap_listener_cmd_arg("gsm_a,", gsm_a_stat_gtk_init);
+    register_stat_cmd_arg("gsm_a,", gsm_a_stat_gtk_init);
 
     memset((void *) &stat, 0, sizeof(gsm_a_stat_t));
 
@@ -636,27 +637,27 @@ register_tap_listener_gtkgsm_a_stat(void)
 	exit(1);
     }
 
-    register_tap_menu_item("GSM/A-Interface BSSMAP", REGISTER_TAP_GROUP_TELEPHONY,
+    register_stat_menu_item("GSM/A-Interface BSSMAP", REGISTER_STAT_GROUP_TELEPHONY,
 	gsm_a_stat_gtk_bssmap_cb, NULL, NULL, NULL);
 
-    register_tap_menu_item("GSM/A-Interface DTAP/Mobility Management", REGISTER_TAP_GROUP_TELEPHONY,
+    register_stat_menu_item("GSM/A-Interface DTAP/Mobility Management", REGISTER_STAT_GROUP_TELEPHONY,
 	gsm_a_stat_gtk_dtap_mm_cb, NULL, NULL, NULL);
 
-    register_tap_menu_item("GSM/A-Interface DTAP/Radio Resource Management", REGISTER_TAP_GROUP_TELEPHONY,
+    register_stat_menu_item("GSM/A-Interface DTAP/Radio Resource Management", REGISTER_STAT_GROUP_TELEPHONY,
 	gsm_a_stat_gtk_dtap_rr_cb, NULL, NULL, NULL);
 
-    register_tap_menu_item("GSM/A-Interface DTAP/Call Control", REGISTER_TAP_GROUP_TELEPHONY,
+    register_stat_menu_item("GSM/A-Interface DTAP/Call Control", REGISTER_STAT_GROUP_TELEPHONY,
 	gsm_a_stat_gtk_dtap_cc_cb, NULL, NULL, NULL);
 
-    register_tap_menu_item("GSM/A-Interface DTAP/GPRS Mobility Management", REGISTER_TAP_GROUP_TELEPHONY,
+    register_stat_menu_item("GSM/A-Interface DTAP/GPRS Mobility Management", REGISTER_STAT_GROUP_TELEPHONY,
 	gsm_a_stat_gtk_dtap_gmm_cb, NULL, NULL, NULL);
 
-    register_tap_menu_item("GSM/A-Interface DTAP/Short Message Service", REGISTER_TAP_GROUP_TELEPHONY,
+    register_stat_menu_item("GSM/A-Interface DTAP/Short Message Service", REGISTER_STAT_GROUP_TELEPHONY,
 	gsm_a_stat_gtk_dtap_sms_cb, NULL, NULL, NULL);
 
-    register_tap_menu_item("GSM/A-Interface DTAP/GPRS Session Management", REGISTER_TAP_GROUP_TELEPHONY,
+    register_stat_menu_item("GSM/A-Interface DTAP/GPRS Session Management", REGISTER_STAT_GROUP_TELEPHONY,
 	gsm_a_stat_gtk_dtap_sm_cb, NULL, NULL, NULL);
 
-    register_tap_menu_item("GSM/A-Interface DTAP/Supplementary Services", REGISTER_TAP_GROUP_TELEPHONY,
+    register_stat_menu_item("GSM/A-Interface DTAP/Supplementary Services", REGISTER_STAT_GROUP_TELEPHONY,
 	gsm_a_stat_gtk_dtap_ss_cb, NULL, NULL, NULL);
 }

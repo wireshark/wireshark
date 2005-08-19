@@ -42,7 +42,8 @@
 
 #include "gtkglobals.h"
 #include "ui_util.h"
-#include "tap_menu.h"
+#include "../stat.h"
+#include "stat_menu.h"
 #include <epan/tap.h>
 #include "../register.h"
 #include "alert_box.h"
@@ -1935,8 +1936,8 @@ gtk_iostat_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtk_iostat(void)
 {
-	register_tap_listener_cmd_arg("io,stat", gtk_iostat_init);
+	register_stat_cmd_arg("io,stat", gtk_iostat_init);
 
-	register_tap_menu_item("_IO Graphs", REGISTER_TAP_GROUP_GENERIC,
+	register_stat_menu_item("_IO Graphs", REGISTER_STAT_GROUP_GENERIC,
         gtk_iostat_cb, NULL, NULL, NULL);
 }

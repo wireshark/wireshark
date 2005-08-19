@@ -33,7 +33,8 @@
 #include <gtk/gtk.h>
 #include <string.h>
 #include "epan/packet.h"
-#include "tap_menu.h"
+#include "../stat.h"
+#include "stat_menu.h"
 #include <epan/tap.h>
 #include "../register.h"
 #include "conversations_table.h"
@@ -78,9 +79,9 @@ fddi_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_fddi_conversation(void)
 {
-	register_tap_listener_cmd_arg("conv,fddi", fddi_conversation_init);
+	register_stat_cmd_arg("conv,fddi", fddi_conversation_init);
 
-	register_tap_menu_item("FDDI", REGISTER_TAP_GROUP_CONVERSATION_LIST,
+	register_stat_menu_item("FDDI", REGISTER_STAT_GROUP_CONVERSATION_LIST,
 	    fddi_endpoints_cb, NULL, NULL, NULL);
 
 	register_conversation_table(TRUE, "FDDI", "fddi", NULL /*filter*/, fddi_conversation_packet);

@@ -38,7 +38,8 @@
 #include <epan/epan.h>
 #include <epan/value_string.h>
 
-#include "tap_menu.h"
+#include "../stat.h"
+#include "stat_menu.h"
 #include <epan/tap.h>
 #include <epan/dissectors/packet-fc.h>
 #include "../register.h"
@@ -312,8 +313,8 @@ gtk_fcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtkfcstat(void)
 {
-	register_tap_listener_cmd_arg("fc,srt", gtk_fcstat_init);
+	register_stat_cmd_arg("fc,srt", gtk_fcstat_init);
 
-	register_tap_menu_item("Fibre Channel...", REGISTER_TAP_GROUP_RESPONSE_TIME,
+	register_stat_menu_item("Fibre Channel...", REGISTER_STAT_GROUP_RESPONSE_TIME,
 	    gtk_fcstat_cb, NULL, NULL, NULL);
 }

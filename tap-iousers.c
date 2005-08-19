@@ -37,6 +37,7 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/tap.h>
+#include "stat.h"
 #include "register.h"
 #include <epan/dissectors/packet-ip.h>
 #include <epan/dissectors/packet-ipx.h>
@@ -47,7 +48,6 @@
 #include <epan/dissectors/packet-tr.h>
 #include <epan/dissectors/packet-fc.h>
 #include <epan/dissectors/packet-fddi.h>
-#include <string.h>
 
 typedef struct _io_users_t {
 	const char *type;
@@ -710,5 +710,5 @@ iousers_init(const char *optarg)
 void
 register_tap_listener_iousers(void)
 {
-	register_tap_listener_cmd_arg("conv,", iousers_init);
+	register_stat_cmd_arg("conv,", iousers_init);
 }

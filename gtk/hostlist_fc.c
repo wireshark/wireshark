@@ -33,7 +33,8 @@
 #include <gtk/gtk.h>
 #include <string.h>
 #include "epan/packet.h"
-#include "tap_menu.h"
+#include "../stat.h"
+#include "stat_menu.h"
 #include <epan/tap.h>
 #include "../register.h"
 #include "hostlist_table.h"
@@ -83,9 +84,9 @@ gtk_fc_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_fc_hostlist(void)
 {
-	register_tap_listener_cmd_arg("hosts,fc", gtk_fc_hostlist_init);
+	register_stat_cmd_arg("hosts,fc", gtk_fc_hostlist_init);
 
-	register_tap_menu_item("Fibre Channel", REGISTER_TAP_GROUP_ENDPOINT_LIST,
+	register_stat_menu_item("Fibre Channel", REGISTER_STAT_GROUP_ENDPOINT_LIST,
 	    gtk_fc_hostlist_cb, NULL, NULL, NULL);
 
 	register_hostlist_table(TRUE, "Fibre Channel", "fc", NULL /*filter*/, fc_hostlist_packet);

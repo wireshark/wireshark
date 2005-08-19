@@ -83,6 +83,7 @@
 #include "ringbuffer.h"
 #include "../ui_util.h"     /* beware: ui_util.h exists twice! */
 #include <epan/tap.h>
+#include "../stat.h"
 #include "util.h"
 #include "clopts_common.h"
 #include "version_info.h"
@@ -2098,15 +2099,15 @@ main(int argc, char *argv[])
         }
         break;
       case 'z':
-        /* We won't call the init function for the tap this soon
+        /* We won't call the init function for the stat this soon
            as it would disallow MATE's fields (which are registered
            by the preferences set callback) from being used as
            part of a tap filter.  Instead, we just add the argument
-           to a list of tap arguments. */
-        if (!process_tap_cmd_arg(optarg)) {
+           to a list of stat arguments. */
+        if (!process_stat_cmd_arg(optarg)) {
 	  fprintf(stderr,"ethereal: invalid -z argument.\n");
 	  fprintf(stderr,"  -z argument must be one of :\n");
-	  list_tap_cmd_args();
+	  list_stat_cmd_args();
 	  exit(1);
 	}
         break;
@@ -2446,14 +2447,14 @@ main(int argc, char *argv[])
            attached to "cf". */
 
         cfile.rfcode = rfcode;
-        /* Open tap windows; we do so after creating the main window,
+        /* Open stat windows; we do so after creating the main window,
            to avoid GTK warnings, and after successfully opening the
-           capture file, so we know we have something to tap, and
-           after registering all dissectors, so that MATE will have
-           registered its field array and we can have a filter with
-           one of MATE's late-registered fields as part of the tap's
+           capture file, so we know we have something to compute stats
+           on, and after registering all dissectors, so that MATE will
+           have registered its field array and we can have a tap filter
+           with one of MATE's late-registered fields as part of the
            filter. */
-        start_requested_taps();
+        start_requested_stats();
 
         /* Read the capture file. */
         switch (cf_read(&cfile)) {
@@ -2504,14 +2505,13 @@ main(int argc, char *argv[])
       /* "-k" was specified; start a capture. */
       show_main_window(TRUE);
       if (capture_start(capture_opts)) {
-        /* The capture started.  Open tap windows; we do so after creating
+        /* The capture started.  Open stat windows; we do so after creating
 	   the main window, to avoid GTK warnings, and after successfully
-	   opening the capture file, so we know we have something to tap,
-	   and after registering all dissectors, so that MATE will have
-           registered its field array and we can have a filter with
-           one of MATE's late-registered fields as part of the tap's
-           filter. */
-        start_requested_taps();
+	   opening the capture file, so we know we have something to compute
+	   stats on, and after registering all dissectors, so that MATE will
+	   have registered its field array and we can have a tap filter with
+           one of MATE's late-registered fields as part of the filter. */
+        start_requested_stats();
       }
     }
     else {

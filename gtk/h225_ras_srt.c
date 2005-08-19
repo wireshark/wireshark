@@ -39,7 +39,8 @@
 #include <epan/epan.h>
 #include <epan/value_string.h>
 
-#include "tap_menu.h"
+#include "../stat.h"
+#include "stat_menu.h"
 #include <epan/tap.h>
 #include "../register.h"
 #include <epan/dissectors/packet-h225.h>
@@ -342,8 +343,8 @@ gtk_h225rassrt_init(const char *optarg)
 void
 register_tap_listener_gtk_h225rassrt(void)
 {
-	register_tap_listener_cmd_arg("h225,srt", gtk_h225rassrt_init);
+	register_stat_cmd_arg("h225,srt", gtk_h225rassrt_init);
 
-	register_tap_menu_item("H.225 RAS...", REGISTER_TAP_GROUP_RESPONSE_TIME,
+	register_stat_menu_item("H.225 RAS...", REGISTER_STAT_GROUP_RESPONSE_TIME,
 	    gtk_tap_dfilter_dlg_cb, NULL, NULL, &(h225_rassrt_dlg));
 }

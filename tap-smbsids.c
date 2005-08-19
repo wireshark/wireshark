@@ -35,6 +35,7 @@
 #include <string.h>
 #include "epan/packet_info.h"
 #include <epan/dissectors/packet-smb-sidsnooping.h>
+#include "stat.h"
 #include "register.h"
 #include <epan/tap.h>
 #include "epan/value_string.h"
@@ -95,6 +96,6 @@ smbsids_init(const char *optarg _U_)
 void
 register_tap_listener_smbsids(void)
 {
-	register_tap_listener_cmd_arg("smb,sids", smbsids_init);
+	register_stat_cmd_arg("smb,sids", smbsids_init);
 }
 

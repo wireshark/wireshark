@@ -40,7 +40,8 @@
 #include <epan/packet_info.h>
 #include <epan/epan.h>
 
-#include "tap_menu.h"
+#include "../stat.h"
+#include "stat_menu.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "ui_util.h"
@@ -675,8 +676,8 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtkdcerpcstat(void)
 {
-	register_tap_listener_cmd_arg("dcerpc,srt,", gtk_dcerpcstat_init);
+	register_stat_cmd_arg("dcerpc,srt,", gtk_dcerpcstat_init);
 
-	register_tap_menu_item("DCE-RPC...", REGISTER_TAP_GROUP_RESPONSE_TIME,
+	register_stat_menu_item("DCE-RPC...", REGISTER_STAT_GROUP_RESPONSE_TIME,
 	    gtk_dcerpcstat_cb, NULL, NULL, NULL);
 }
