@@ -4,6 +4,12 @@
  * Copyright 2004, Dominic Béchaz <bdo@zhwin.ch> , ZHW/InES
  * Copyright 2004, Markus Seehofer <mseehofe@nt.hirschmann.de>
  *
+ * Revisions:
+ * - Markus Seehofer 09.08.2005 <mseehofe@nt.hirschmann.de>
+ *   - Included the "startingBoundaryHops" field in
+ *     ptp_management messages.
+ * -
+ * 
  * $Id$
  *
  * A plugin for:
@@ -36,6 +42,10 @@
 #include <string.h>
 
 #include <glib.h>
+
+#ifdef NEED_SNPRINTF_H
+# include "snprintf.h"
+#endif
 
 #include <epan/packet.h>
 
@@ -117,6 +127,7 @@
 #define	PTP_MM_TARGETCOMMUNICATIONTECHNOLOGY_OFFSET			41
 #define	PTP_MM_TARGETUUID_OFFSET							42
 #define	PTP_MM_TARGETPORTID_OFFSET							48
+#define	PTP_MM_STARTINGBOUNDARYHOPS_OFFSET					50
 #define	PTP_MM_BOUNDARYHOPS_OFFSET							52
 #define	PTP_MM_MANAGEMENTMESSAGEKEY_OFFSET					55
 #define	PTP_MM_PARAMETERLENGTH_OFFSET						58
@@ -512,6 +523,7 @@ static int hf_ptp_dr_requestingsourcesequenceid = -1;
 static int hf_ptp_mm_targetcommunicationtechnology = -1;
 static int hf_ptp_mm_targetuuid = -1;
 static int hf_ptp_mm_targetportid = -1;
+static int hf_ptp_mm_startingboundaryhops = -1;
 static int hf_ptp_mm_boundaryhops = -1;
 static int hf_ptp_mm_managementmessagekey = -1;
 static int hf_ptp_mm_parameterlength = -1;
@@ -660,7 +672,7 @@ dissect_ptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PTP");
 
 
-/* Get control field (what kind of message is this? (Sync, DelayReq, ....) */
+/* Get control field (what kind of message is this? (Sync, DelayReq, ...) */
 
 	ptp_control = tvb_get_guint8 (tvb, PTP_CONTROL_OFFSET);
 	/* MGMT packet? */
@@ -928,7 +940,11 @@ dissect_ptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    		    hf_ptp_mm_targetportid, tvb, PTP_MM_TARGETPORTID_OFFSET, 2, FALSE);
 
 				proto_tree_add_item(ptp_tree,
+		    		    hf_ptp_mm_startingboundaryhops, tvb, PTP_MM_STARTINGBOUNDARYHOPS_OFFSET, 2, FALSE);
+
+				proto_tree_add_item(ptp_tree,
 		    		    hf_ptp_mm_boundaryhops, tvb, PTP_MM_BOUNDARYHOPS_OFFSET, 2, FALSE);
+
 
 				proto_tree_add_item(ptp_tree,
 		    		    hf_ptp_mm_managementmessagekey, tvb, PTP_MM_MANAGEMENTMESSAGEKEY_OFFSET, 1, FALSE);
@@ -1599,6 +1615,11 @@ proto_register_ptp(void)
 		{ &hf_ptp_mm_targetportid,
 			{ "targetPortId",           "ptp.mm.targetportid",
 			FT_UINT16, BASE_DEC, NULL, 0x00,
+			"", HFILL }
+		},
+		{ &hf_ptp_mm_startingboundaryhops,
+			{ "startingBoundaryHops",           "ptp.mm.startingboundaryhops",
+			FT_INT16, BASE_DEC, NULL, 0x00,
 			"", HFILL }
 		},
 		{ &hf_ptp_mm_boundaryhops,
