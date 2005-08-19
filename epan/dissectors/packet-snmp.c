@@ -56,6 +56,7 @@
 #include "etypes.h"
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
+#include <epan/emem.h>
 #include "packet-ipx.h"
 #include "packet-hpext.h"
 #include "packet-frame.h"
@@ -726,7 +727,6 @@ gchar *
 format_oid(subid_t *oid, guint oid_length)
 {
 	char *result;
-	int result_len;
 	int len;
 	unsigned int i;
 	char *buf;
@@ -736,8 +736,6 @@ format_oid(subid_t *oid, guint oid_length)
 	size_t oid_out_len;
 #endif
 
-	result_len = oid_length * 22;
-
 #ifdef HAVE_SOME_SNMP
 	/*
 	 * Get the decoded form of the OID, and add its length to the
@@ -746,20 +744,19 @@ format_oid(subid_t *oid, guint oid_length)
 	 * XXX - check for "sprint_realloc_objid()" failure.
 	 */
 	oid_string_len = 256;
-	oid_string = g_malloc(oid_string_len);
+	oid_string = ep_alloc(oid_string_len);
 	*oid_string = '\0';
 	oid_out_len = 0;
 	sprint_realloc_objid(&oid_string, &oid_string_len, &oid_out_len, 1,
 	    oid, oid_length);
-	result_len += strlen(oid_string) + 3;
 #endif
 
-	result = g_malloc(result_len + 1);
+	result = ep_alloc(512);
 	buf = result;
-	len = sprintf(buf, "%lu", (unsigned long)oid[0]);
+	len = g_snprintf(buf, 511, "%lu", (unsigned long)oid[0]);
 	buf += len;
 	for (i = 1; i < oid_length;i++) {
-		len = sprintf(buf, ".%lu", (unsigned long)oid[i]);
+		len = g_snprintf(buf, 511-(buf-result),".%lu", (unsigned long)oid[i]);
 		buf += len;
 	}
 
@@ -767,8 +764,7 @@ format_oid(subid_t *oid, guint oid_length)
 	/*
 	 * Append the decoded form of the OID.
 	 */
-	sprintf(buf, " (%s)", oid_string);
-	g_free(oid_string);
+	g_snprintf(buf, 511-(buf-result), " (%s)", oid_string);
 #endif
 
 	return result;
@@ -1143,7 +1139,6 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
 			    "Value: %s: %s", vb_type_name, vb_display_string);
-			g_free(vb_display_string);
 #endif /* HAVE_SOME_SNMP */
 		}
 		g_free(vb_oid);
@@ -1319,7 +1314,6 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			oid_string = format_oid(enterprise, enterprise_length);
 			proto_tree_add_string(tree, hf_snmp_enterprise, tvb,
 			    offset, length, oid_string);
-			g_free(oid_string);
 		}
 		g_free(enterprise);
 		offset += length;
@@ -2294,7 +2288,6 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			oid_string = format_oid(regid, regid_length);
 			proto_tree_add_text(smux_tree, tvb, offset, length,
 			    "Registration: %s", oid_string);
-			g_free(oid_string);
 		}
 		g_free(regid);
 		offset += length;
@@ -2377,7 +2370,6 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			oid_string = format_oid(regid, regid_length);
 			proto_tree_add_text(smux_tree, tvb, offset, length,
 			    "Registration: %s", oid_string);
-			g_free(oid_string);
 		}
 		g_free(regid);
 		offset += length;
