@@ -791,7 +791,7 @@ new_format_oid(subid_t *oid, guint oid_length,
 	 */
 
 	oid_string_len = 256;
-	oid_string = g_malloc(oid_string_len);
+	oid_string = ep_alloc(oid_string_len);
 	*oid_string = '\0';
 	oid_out_len = 0;
 	sprint_realloc_objid(&oid_string, &oid_string_len, &oid_out_len, 1,
@@ -801,12 +801,12 @@ new_format_oid(subid_t *oid, guint oid_length,
 	*decoded = NULL;
 #endif
 
-	*non_decoded = g_malloc(oid_length * 22 + 1);
+	*non_decoded = ep_alloc(512);
 	buf = *non_decoded;
-	len = sprintf(buf, "%lu", (unsigned long)oid[0]);
+	len = g_snprintf(buf, 511-(buf-*non_decoded), "%lu", (unsigned long)oid[0]);
 	buf += len;
 	for (i = 1; i < oid_length; i++) {
-	  len = sprintf(buf, ".%lu", (unsigned long)oid[i]);
+	  len = g_snprintf(buf, 511-(buf-*non_decoded), ".%lu", (unsigned long)oid[i]);
 	  buf += len;
 	}
 }
@@ -1082,7 +1082,7 @@ snmp_variable_decode(proto_tree *snmp_tree,
 				 * character, before we got to the end
 				 * of the string.
 				 */
-				vb_display_string = g_malloc(4*vb_length);
+				vb_display_string = ep_alloc(4*vb_length);
 				buf = &vb_display_string[0];
 				len = sprintf(buf, "%03u", vb_octet_string[0]);
 				buf += len;
@@ -1095,7 +1095,6 @@ snmp_variable_decode(proto_tree *snmp_tree,
 				    length,
 				    "Value: %s: %s", vb_type_name,
 				    vb_display_string);
-				g_free(vb_display_string);
 			} else {
 				proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 				    length,
@@ -1496,10 +1495,6 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 						   non_decoded_oid);
 		    }
 		  }
-		  
-		  if (decoded_oid) g_free(decoded_oid);
-		  g_free(non_decoded_oid);
-
 		}
 
 		offset += sequence_length;
@@ -1521,9 +1516,6 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    &non_decoded_oid, &decoded_oid);
 			dissector_try_string(variable_oid_dissector_table,
 			    non_decoded_oid, next_tvb, pinfo, root_tree);
-			if (decoded_oid)
-				g_free(decoded_oid);
-			g_free(non_decoded_oid);
 		}
 
 		/*
@@ -1875,13 +1867,12 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			return message_length;
 		}
 		if (tree) {
-			commustr = g_malloc(community_length+1);
+			commustr = ep_alloc(community_length+1);
 			memcpy(commustr, community, community_length);
 			commustr[community_length] = '\0';
 
 			proto_tree_add_string(snmp_tree, hf_snmp_community,
 			    tvb, offset, length, commustr);
-			g_free(commustr);
 		}
 		g_free(community);
 		offset += length;
@@ -2713,12 +2704,11 @@ proto_register_snmp(void)
 	/* Set MIBDIRS so that the SNMP library can find its mibs. */
 	/* XXX - Should we set MIBS or MIBFILES as well? */
 
-	mib_path = g_malloc (strlen(get_datafile_dir()) + strlen(MIB_PATH_APPEND) + 20);
+	mib_path = ep_alloc (strlen(get_datafile_dir()) + strlen(MIB_PATH_APPEND) + 20);
 	sprintf (mib_path, "MIBDIRS=%s\\%s", get_datafile_dir(), MIB_PATH_APPEND);
 	/* Amazingly enough, Windows does not provide setenv(). */
 	if (getenv("MIBDIRS") == NULL)
 		_putenv(mib_path);
-	g_free(mib_path);
 
 #endif	/* _WIN32 */
 
