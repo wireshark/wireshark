@@ -31,7 +31,7 @@
 #include <stdio.h>
 #include <glib.h>
 #include <epan/stats_tree_priv.h>
-#include "stat.h"
+#include <epan/stat.h>
 
 /* actually unused */
 struct _st_node_pres {

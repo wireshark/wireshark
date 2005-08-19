@@ -39,8 +39,8 @@
 #include <string.h>
 #include "epan/packet_info.h"
 #include <epan/tap.h>
+#include <epan/stat.h>
 #include <epan/dissectors/packet-rpc.h>
-#include "stat.h"
 #include "register.h"
 
 /* used to keep track of statistics for a specific program/version */

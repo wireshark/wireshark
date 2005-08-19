@@ -34,7 +34,7 @@
 #include <epan/packet_info.h>
 #include <epan/epan.h>
 
-#include "../stat.h"
+#include <epan/stat.h>
 #include "stat_menu.h"
 #include "simple_dialog.h"
 #include "ui_util.h"

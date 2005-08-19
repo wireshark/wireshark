@@ -35,8 +35,8 @@
 #include <string.h>
 #include "epan/packet_info.h"
 #include <epan/tap.h>
+#include <epan/stat.h>
 #include "epan/value_string.h"
-#include "stat.h"
 #include "smb.h"
 #include "register.h"
 #include "timestats.h"

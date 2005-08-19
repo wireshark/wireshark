@@ -84,6 +84,7 @@
 #include "capture_ui_utils.h"
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
+#include <epan/stat.h>
 #include <epan/timestamp.h>
 
 #ifdef HAVE_LIBPCAP

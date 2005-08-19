@@ -50,7 +50,7 @@
 #include "epan/filesystem.h"
 
 #include <epan/tap.h>
-#include "../stat.h"
+#include <epan/stat.h>
 #include "stat_menu.h"
 #include "dlg_utils.h"
 #include "ui_util.h"

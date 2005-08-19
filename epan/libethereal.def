@@ -339,6 +339,7 @@ isup_message_type_value         DATA
 isup_message_type_value_acro    DATA
 is_big_endian
 is_tpkt
+list_stat_cmd_args
 LocationRejectReason_vals       DATA
 match_strval
 match_strval_idx
@@ -369,6 +370,7 @@ prefs_register_string_preference
 prefs_register_uint_preference
 prefs_set_pref
 process_reassembled_data
+process_stat_cmd_arg
 protocols_module                DATA
 proto_can_match_selected
 proto_can_toggle_protocol
@@ -488,6 +490,7 @@ register_giop_user_module
 register_heur_dissector_list
 register_init_routine
 register_postseq_cleanup_routine
+register_stat_cmd_arg
 register_tap
 register_tap_listener
 RegistrationRejectReason_vals   DATA
@@ -519,6 +522,7 @@ sid_name_snooping               DATA
 sid_name_table                  DATA
 smb_cmd_vals                    DATA
 sminmpec_values                 DATA
+start_requested_stats
 stats_tree_branch_max_namelen
 stats_tree_branch_to_str
 stats_tree_create_node

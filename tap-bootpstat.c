@@ -31,7 +31,7 @@
 
 #include "epan/packet_info.h"
 #include <epan/tap.h>
-#include "stat.h"
+#include <epan/stat.h>
 #include "register.h"
 
 

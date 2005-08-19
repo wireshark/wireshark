@@ -33,7 +33,7 @@
 #include "rtp_stream_dlg.h"
 
 #include "globals.h"
-#include "../stat.h"
+#include <epan/stat.h>
 
 #include <epan/tap.h>
 #include "register.h"

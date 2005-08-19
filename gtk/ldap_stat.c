@@ -38,7 +38,7 @@
 #include <epan/epan.h>
 #include <epan/value_string.h>
 
-#include "../stat.h"
+#include <epan/stat.h>
 #include "stat_menu.h"
 #include <epan/tap.h>
 #include <epan/dissectors/packet-ldap.h>

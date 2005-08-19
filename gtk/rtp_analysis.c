@@ -63,7 +63,7 @@
 #include <gtk/gtk.h>
 #include "gtkglobals.h"
 
-#include "../stat.h"
+#include <epan/stat.h>
 #include "dlg_utils.h"
 #include "ui_util.h"
 #include "alert_box.h"

@@ -33,7 +33,7 @@
 
 #include <glib.h>
 
-#include "stat.h"
+#include <epan/stat.h>
 
 /* structure to keep track of what stats have registered command-line
    arguments.

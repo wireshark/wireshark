@@ -69,6 +69,7 @@ LIBETHEREAL_SRC = 		\
 	sigcomp-udvm.c	\
 	sminmpec.c		\
 	sna-utils.c		\
+	stat.c	\
 	stats_tree.c		\
 	strutil.c		\
 	t35.c			\
@@ -136,6 +137,7 @@ LIBETHEREAL_INCLUDES = 		\
 	slab.h			\
 	sminmpec.h		\
 	sna-utils.h		\
+	stat.h	\
 	stats_tree.h		\
 	stats_tree_priv.h	\
 	strutil.h		\

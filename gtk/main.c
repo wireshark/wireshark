@@ -83,7 +83,7 @@
 #include "ringbuffer.h"
 #include "../ui_util.h"     /* beware: ui_util.h exists twice! */
 #include <epan/tap.h>
-#include "../stat.h"
+#include <epan/stat.h>
 #include "util.h"
 #include "clopts_common.h"
 #include "version_info.h"
