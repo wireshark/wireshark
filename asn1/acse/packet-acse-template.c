@@ -83,11 +83,6 @@ static GHashTable *acse_ctx_oid_table = NULL;
 static gboolean
 free_all_ctx_oid_strings(gpointer key_arg, gpointer value _U_, gpointer user_data _U_)
 {
-	acse_ctx_oid_t *aco=(acse_ctx_oid_t *)key_arg;
-	if(aco->oid){
-		g_free(aco->oid);
-		aco->oid=NULL;
-	}
 	return TRUE;
 }
 static guint
@@ -125,14 +120,12 @@ register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, char *oid)
 	acse_ctx_oid_t *aco, *tmpaco;
 	aco=se_alloc(sizeof(acse_ctx_oid_t));
 	aco->ctx_id=idx;
-	aco->oid=g_strdup(oid);
+	aco->oid=se_strdup(oid);
 
 	/* if this ctx already exists, remove the old one first */
 	tmpaco=(acse_ctx_oid_t *)g_hash_table_lookup(acse_ctx_oid_table, aco);
 	if(tmpaco){
 		g_hash_table_remove(acse_ctx_oid_table, tmpaco);
-		g_free(tmpaco->oid);
-		tmpaco->oid=NULL;
 	}
 	g_hash_table_insert(acse_ctx_oid_table, aco, aco);
 }

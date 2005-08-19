@@ -241,11 +241,6 @@ static GHashTable *acse_ctx_oid_table = NULL;
 static gboolean
 free_all_ctx_oid_strings(gpointer key_arg, gpointer value _U_, gpointer user_data _U_)
 {
-	acse_ctx_oid_t *aco=(acse_ctx_oid_t *)key_arg;
-	if(aco->oid){
-		g_free(aco->oid);
-		aco->oid=NULL;
-	}
 	return TRUE;
 }
 static guint
@@ -283,14 +278,12 @@ register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, char *oid)
 	acse_ctx_oid_t *aco, *tmpaco;
 	aco=se_alloc(sizeof(acse_ctx_oid_t));
 	aco->ctx_id=idx;
-	aco->oid=g_strdup(oid);
+	aco->oid=se_strdup(oid);
 
 	/* if this ctx already exists, remove the old one first */
 	tmpaco=(acse_ctx_oid_t *)g_hash_table_lookup(acse_ctx_oid_table, aco);
 	if(tmpaco){
 		g_hash_table_remove(acse_ctx_oid_table, tmpaco);
-		g_free(tmpaco->oid);
-		tmpaco->oid=NULL;
 	}
 	g_hash_table_insert(acse_ctx_oid_table, aco, aco);
 }
@@ -342,11 +335,12 @@ static int dissect_indirect_reference(packet_info *pinfo, proto_tree *tree, tvbu
 }
 
 
+
 static int
 dissect_acse_ObjectDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_ObjectDescriptor,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -381,11 +375,12 @@ static int dissect_octet_aligned_impl(packet_info *pinfo, proto_tree *tree, tvbu
 }
 
 
+
 static int
 dissect_acse_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 NULL, hf_index, -1,
-                                 NULL);
+                                    NULL, hf_index, -1,
+                                    NULL);
 
   return offset;
 }
@@ -428,7 +423,7 @@ static const ber_sequence_t EXTERNAL_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_direct_reference },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_indirect_reference },
   { BER_CLASS_UNI, BER_UNI_TAG_ObjectDescriptor, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_data_value_descriptor },
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_encoding },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_encoding },
   { 0, 0, 0, NULL }
 };
 
@@ -458,6 +453,7 @@ static int dissect_external_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_acse_EXTERNAL(TRUE, tvb, offset, pinfo, tree, hf_acse_external);
 }
 
+
 static const asn_namedbit T_AARQ_protocol_version_bits[] = {
   {  0, &hf_acse_T_AARQ_protocol_version_version1, -1, -1, "version1", NULL },
   { 0, NULL, 0, 0, NULL, NULL }
@@ -466,8 +462,8 @@ static const asn_namedbit T_AARQ_protocol_version_bits[] = {
 static int
 dissect_acse_T_AARQ_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 T_AARQ_protocol_version_bits, hf_index, ett_acse_T_AARQ_protocol_version,
-                                 NULL);
+                                    T_AARQ_protocol_version_bits, hf_index, ett_acse_T_AARQ_protocol_version,
+                                    NULL);
 
   return offset;
 }
@@ -528,11 +524,12 @@ static int dissect_ap_title_form2(packet_info *pinfo, proto_tree *tree, tvbuff_t
 }
 
 
+
 static int
 dissect_acse_AP_title_form3(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -602,11 +599,12 @@ static int dissect_aso_qualifier_form2(packet_info *pinfo, proto_tree *tree, tvb
 }
 
 
+
 static int
 dissect_acse_ASO_qualifier_form3(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -703,6 +701,7 @@ static int dissect_responding_AE_invocation_identifier(packet_info *pinfo, proto
   return dissect_acse_AE_invocation_identifier(FALSE, tvb, offset, pinfo, tree, hf_acse_responding_AE_invocation_identifier);
 }
 
+
 static const asn_namedbit ACSE_requirements_bits[] = {
   {  0, &hf_acse_ACSE_requirements_authentication, -1, -1, "authentication", NULL },
   {  1, &hf_acse_ACSE_requirements_aSO_context_negotiation, -1, -1, "aSO-context-negotiation", NULL },
@@ -714,8 +713,8 @@ static const asn_namedbit ACSE_requirements_bits[] = {
 static int
 dissect_acse_ACSE_requirements(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 ACSE_requirements_bits, hf_index, ett_acse_ACSE_requirements,
-                                 NULL);
+                                    ACSE_requirements_bits, hf_index, ett_acse_ACSE_requirements,
+                                    NULL);
 
   return offset;
 }
@@ -740,11 +739,12 @@ static int dissect_mechanism_name_impl(packet_info *pinfo, proto_tree *tree, tvb
 }
 
 
+
 static int
 dissect_acse_GraphicString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_GraphicString,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -846,11 +846,12 @@ static int dissect_aSO_context_name_list_impl(packet_info *pinfo, proto_tree *tr
 }
 
 
+
 static int
 dissect_acse_Implementation_data(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_GraphicString,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -1135,6 +1136,7 @@ static int dissect_aarq_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
   return dissect_acse_AARQ_apdu(TRUE, tvb, offset, pinfo, tree, hf_acse_aarq);
 }
 
+
 static const asn_namedbit T_AARE_protocol_version_bits[] = {
   {  0, &hf_acse_T_AARE_protocol_version_version1, -1, -1, "version1", NULL },
   { 0, NULL, 0, 0, NULL, NULL }
@@ -1143,8 +1145,8 @@ static const asn_namedbit T_AARE_protocol_version_bits[] = {
 static int
 dissect_acse_T_AARE_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 T_AARE_protocol_version_bits, hf_index, ett_acse_T_AARE_protocol_version,
-                                 NULL);
+                                    T_AARE_protocol_version_bits, hf_index, ett_acse_T_AARE_protocol_version,
+                                    NULL);
 
   return offset;
 }
@@ -1599,7 +1601,7 @@ static int dissect_presentation_data_values(packet_info *pinfo, proto_tree *tree
 static const ber_sequence_t PDV_list_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_transfer_syntax_name },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_presentation_context_identifier },
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_presentation_data_values },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_presentation_data_values },
   { 0, 0, 0, NULL }
 };
 
