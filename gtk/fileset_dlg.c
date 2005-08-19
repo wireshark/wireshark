@@ -26,6 +26,8 @@
 # include "config.h"
 #endif
 
+#include <string.h>
+
 #ifdef HAVE_IO_H
 #include <io.h>
 #endif
@@ -140,23 +142,23 @@ fileset_dlg_name2date_dup(const char * name) {
 
 
     /* just to be sure ... */
-	g_assert(fileset_filename_match_pattern(name));
+    g_assert(fileset_filename_match_pattern(name));
 
-	/* find char position behind the last underscore */
+    /* find char position behind the last underscore */
     pfx = strrchr(name, '_');
-	pfx++;
-	pos = pfx - name;
+    pfx++;
+    pos = pfx - name;
 
-	/* start conversion behind that underscore */
-	filename = g_strdup_printf("%c%c%c%c.%c%c.%c%c %c%c:%c%c:%c%c",
-		/* year  */  name[pos]  ,  name[pos+1], name[pos+2], name[pos+3],
-		/* month */  name[pos+4],  name[pos+5],
-		/* day   */  name[pos+6],  name[pos+7],
-		/* hour */   name[pos+8],  name[pos+9],
-		/* min */    name[pos+10], name[pos+11],
-		/* second */ name[pos+12], name[pos+13]);
+    /* start conversion behind that underscore */
+    filename = g_strdup_printf("%c%c%c%c.%c%c.%c%c %c%c:%c%c:%c%c",
+        /* year  */  name[pos]  ,  name[pos+1], name[pos+2], name[pos+3],
+        /* month */  name[pos+4],  name[pos+5],
+        /* day   */  name[pos+6],  name[pos+7],
+        /* hour */   name[pos+8],  name[pos+9],
+        /* min */    name[pos+10], name[pos+11],
+        /* second */ name[pos+12], name[pos+13]);
 
-	return filename;
+    return filename;
 }
 
 
@@ -180,7 +182,7 @@ fileset_dlg_add_file(fileset_entry *entry) {
     created = g_strdup_printf("%04u.%02u.%02u %02u:%02u:%02u", 
         local->tm_year+1900, local->tm_mon+1, local->tm_mday,
         local->tm_hour, local->tm_min, local->tm_sec);*/
-	created = fileset_dlg_name2date_dup(entry->name);
+    created = fileset_dlg_name2date_dup(entry->name);
 
     local = localtime(&entry->mtime);
     modified = g_strdup_printf("%04u.%02u.%02u %02u:%02u:%02u", 
