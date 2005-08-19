@@ -495,7 +495,7 @@ gsm_a_stat_gtk_bssmap_cb(
 	i++;
     }
 
-    gsm_a_stat_draw(NULL);
+    gsm_a_stat_draw(&stat);
 }
 
 
@@ -538,7 +538,7 @@ gsm_a_stat_gtk_dtap_cb(
 	i++;
     }
 
-    gsm_a_stat_draw(NULL);
+    gsm_a_stat_draw(&stat);
 }
 
 static void

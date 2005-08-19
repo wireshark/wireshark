@@ -412,7 +412,7 @@ ansi_map_stat_gtk_cb(
 	i++;
     }
 
-    ansi_map_stat_draw(NULL);
+    ansi_map_stat_draw(&stat);
 }
 
 

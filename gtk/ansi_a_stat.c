@@ -408,7 +408,7 @@ ansi_a_stat_gtk_bsmap_cb(
 	i++;
     }
 
-    ansi_a_stat_draw(NULL);
+    ansi_a_stat_draw(&stat);
 }
 
 
@@ -448,7 +448,7 @@ ansi_a_stat_gtk_dtap_cb(
 	i++;
     }
 
-    ansi_a_stat_draw(NULL);
+    ansi_a_stat_draw(&stat);
 }
 
 

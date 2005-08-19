@@ -430,15 +430,13 @@ gsm_map_stat_gtk_cb(
 
 	dlg.entries[1] = g_strdup(gsm_map_opr_code_strings[i].strptr);
 
-	dlg.entries[2] = g_strdup("0");
-	dlg.entries[3] = g_strdup("0");
-	dlg.entries[4] = g_strdup("0");
-	dlg.entries[5] = g_strdup("0");
-	dlg.entries[6] = g_strdup("0");
-	dlg.entries[7] = g_strdup("0");
-	dlg.entries[8] = g_strdup("0");
-	dlg.entries[9] = g_strdup("0");
-	dlg.entries[10] = g_strdup("0");
+        /*
+         * set the rest of the columns
+         */
+        for (i = 2; i < GSM_MAP_INIT_TABLE_NUM_COLUMNS; i++)
+        {
+            dlg.entries[i] = g_strdup("0");
+        }
 
 	gtk_clist_insert(GTK_CLIST(dlg.table), i, dlg.entries);
 	gtk_clist_set_row_data(GTK_CLIST(dlg.table), i, (gpointer) i);
@@ -446,7 +444,7 @@ gsm_map_stat_gtk_cb(
 	i++;
     }
 
-    gsm_map_stat_draw(NULL);
+    gsm_map_stat_draw(&gsm_map_stat);
 }
 
 
