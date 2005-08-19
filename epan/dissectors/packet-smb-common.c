@@ -101,7 +101,7 @@ int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_i
 	 * Allocate a buffer for the string; "len" is the length in
 	 * bytes, not the length in characters.
 	 */
-	str = g_malloc(len/2);
+	str = ep_alloc(len/2);
 
 	/*
 	 * XXX - this assumes the string is just ISO 8859-1; we need
@@ -121,8 +121,6 @@ int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_i
 
 	if (data)
 		*data = str;
-	else
-		g_free(str);
 
 	return 	offset+len;
 }

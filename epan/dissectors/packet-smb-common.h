@@ -28,6 +28,10 @@
 #ifndef __PACKET_SMB_COMMON_H__
 #define __PACKET_SMB_COMMON_H__
 
+/* **data is allocated with ephemeral scope and will be automatically freed
+ * when packet dissection completes.
+ * You do NOT need to g_free() that string.
+ */
 int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index, char **data);
 
 int display_ms_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index, char **data);

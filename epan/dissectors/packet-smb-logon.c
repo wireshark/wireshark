@@ -381,7 +381,6 @@ dissect_smb_pdc_startup(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	  if (name && check_col(pinfo->cinfo, COL_INFO)) {
 		  col_append_fstr(pinfo->cinfo, COL_INFO, ": host %s", name);
-		  g_free(name);
 		  name = NULL;
 	  }
 
@@ -392,7 +391,6 @@ dissect_smb_pdc_startup(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	  if (name && check_col(pinfo->cinfo, COL_INFO)) {
 		  col_append_fstr(pinfo->cinfo, COL_INFO, ", domain %s", name);
-		  g_free(name);
 		  name = NULL;
 	  }
 
