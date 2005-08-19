@@ -1721,6 +1721,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 		int eoffset;
 		int hoffset, count;
 
+		hoffset = offset;
 	 	if(ind){ /*this sequence of was of indefinite length, so check for EOC */
 			if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0)){
 				if(show_internal_ber_fields){
@@ -1729,7 +1730,6 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 				return offset+2;
 			}
 		}
-		hoffset = offset;
 		/* read header and len for next field */
 		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 		offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
