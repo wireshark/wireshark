@@ -199,6 +199,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 
   cf->wth = wth;
   cf->filed = fd;
+  cf->f_datalen = 0;
   cf->f_len = cf_stat.st_size;
 
   /* Set the file name because we need it to set the follow stream filter.
@@ -297,6 +298,7 @@ cf_reset_state(capture_file *cf)
   packet_list_clear();
   packet_list_thaw();
 
+  cf->f_datalen = 0;
   cf->f_len = 0;
   cf->count = 0;
   cf->esec  = 0;
@@ -891,7 +893,7 @@ read_packet(capture_file *cf, long offset)
     cf->plist_end = fdata;
 
     cf->count++;
-    cf->f_len = offset + phdr->caplen;
+    cf->f_datalen = offset + phdr->caplen;
     fdata->num = cf->count;
     add_packet_to_packet_list(fdata, cf, pseudo_header, buf, TRUE);
   } else {

@@ -1209,12 +1209,12 @@ set_display_filename(capture_file *cf)
   }
 
   /* convert file size */
-  if (cf->f_len/1024/1024 > 10) {
-    size_str = g_strdup_printf("%ld MB", cf->f_len/1024/1024);
-  } else if (cf->f_len/1024 > 10) {
-    size_str = g_strdup_printf("%ld KB", cf->f_len/1024);
+  if (cf->f_datalen/1024/1024 > 10) {
+    size_str = g_strdup_printf("%ld MB", cf->f_datalen/1024/1024);
+  } else if (cf->f_datalen/1024 > 10) {
+    size_str = g_strdup_printf("%ld KB", cf->f_datalen/1024);
   } else {
-    size_str = g_strdup_printf("%ld Bytes", cf->f_len);
+    size_str = g_strdup_printf("%ld Bytes", cf->f_datalen);
   }
 
   /* statusbar */
@@ -1352,21 +1352,21 @@ main_cf_cb_live_capture_update_continue(capture_file *cf)
 
     statusbar_pop_file_msg();
 
-    if (cf->f_len/1024/1024 > 10) {
+    if (cf->f_datalen/1024/1024 > 10) {
         capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld MB", 
             get_interface_descriptive_name(capture_opts->iface), 
             capture_opts->save_file,
-            cf->f_len/1024/1024);
-    } else if (cf->f_len/1024 > 10) {
+            cf->f_datalen/1024/1024);
+    } else if (cf->f_datalen/1024 > 10) {
         capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld KB", 
             get_interface_descriptive_name(capture_opts->iface), 
             capture_opts->save_file,
-            cf->f_len/1024);
+            cf->f_datalen/1024);
     } else {
         capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %ld Bytes", 
             get_interface_descriptive_name(capture_opts->iface), 
             capture_opts->save_file,
-            cf->f_len);
+            cf->f_datalen);
     }
 
     statusbar_push_file_msg(capture_msg);

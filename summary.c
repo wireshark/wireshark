@@ -106,7 +106,7 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   }
 
   st->filename = cf->filename;
-  st->file_length = cf->f_len;
+  st->file_length = cf->f_datalen;
   st->encap_type = cf->cd_t;
   st->has_snap = cf->has_snap;
   st->snap = cf->snap;

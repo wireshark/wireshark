@@ -2970,6 +2970,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 
   cf->wth = wth;
   cf->filed = -1;	/* not used, but set it anyway */
+  cf->f_datalen = 0;	/* not used, but set it anyway */
   cf->f_len = 0;	/* not used, but set it anyway */
 
   /* Set the file name because we need it to set the follow stream filter.
