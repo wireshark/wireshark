@@ -49,6 +49,7 @@
 #include "packet-tpkt.h"
 #include "packet-per.h"
 #include <epan/t35.h>
+#include <epan/emem.h>
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
 #include "packet-ber.h"
@@ -72,8 +73,6 @@ static int hf_h245Manufacturer = -1;
 static int h245_tap = -1;
 static int ett_h245 = -1;
 static int h245dg_tap = -1;
-static h245_packet_info pi_arr[5]; /* We assuming a maximum of 5 H245 messaages per packet */
-static int pi_current=0;
 h245_packet_info *h245_pi=NULL;
 
 static gboolean h245_reassembly = TRUE;
@@ -234,18 +233,11 @@ int proto_h245 = -1;
 static void
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-    pi_current++;
-    if(pi_current==5){
-        pi_current=0;
-    }
-    h245_pi=&pi_arr[pi_current];
-
-    reset_h245_packet_info(h245_pi);
-       h245_pi->msg_type = H245_OTHER;
-
+	/*
+	 * MultimediaSystemControlMessage_handle is the handle for
+	 * dissect_h245_h245, so we don't want to do any h245_pi or tap stuff here.
+	 */
 	dissect_tpkt_encap(tvb, pinfo, parent_tree, h245_reassembly, MultimediaSystemControlMessage_handle);
-
-	tap_queue_packet(h245_tap, pinfo, h245_pi);
 }
 
 static void
@@ -255,23 +247,20 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree *tr;
 	guint32 offset=0;
 
-    pi_current++;
-    if(pi_current==5){
-      pi_current=0;
-    }
-    h245_pi=&pi_arr[pi_current];
-
-    reset_h245_packet_info(h245_pi);
-    h245_pi->msg_type = H245_OTHER;
-
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.245");
 	}
 
 	it=proto_tree_add_protocol_format(parent_tree, proto_h245, tvb, 0, tvb_length(tvb), "H.245");
 	tr=proto_item_add_subtree(it, ett_h245);
-	dissect_h245_MultimediaSystemControlMessage(tvb, offset, pinfo ,tr, hf_h245_pdu_type);
-	tap_queue_packet(h245dg_tap, pinfo, h245_pi);
+
+	/* assume that whilst there is more tvb data, there are more h245 commands */
+	while ( tvb_length_remaining( tvb, offset>>3 )>0 ){
+		h245_pi=ep_alloc(sizeof(h245_packet_info));
+		offset = dissect_h245_MultimediaSystemControlMessage(tvb, offset, pinfo ,tr, hf_h245_pdu_type);
+		tap_queue_packet(h245dg_tap, pinfo, h245_pi);
+		offset = (offset+0x07) & 0xfffffff8;
+	}
 }
 
 int
