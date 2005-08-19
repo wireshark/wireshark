@@ -822,8 +822,8 @@ check_var_length(guint vb_length, guint required_length)
 		/* Enough room for the largest "Length is XXX,
 		   should be XXX" message - 10 digits for each
 		   XXX. */
-		buf = g_malloc(sizeof badlen_fmt + 10 + 10);
-		sprintf(buf, badlen_fmt, vb_length, required_length);
+		buf = ep_alloc(sizeof badlen_fmt + 10 + 10);
+		g_snprintf(buf, sizeof badlen_fmt + 10 + 10, badlen_fmt, vb_length, required_length);
 		return buf;
 	}
 	return NULL;	/* length is OK */
@@ -914,7 +914,7 @@ format_var(struct variable_list *variable, subid_t *variable_oid,
 	 * XXX - check for "sprint_realloc_objid()" failure.
 	 */
 	buf_len = 256;
-	buf = g_malloc(buf_len);
+	buf = ep_alloc(buf_len);
 	*buf = '\0';
 	out_len = 0;
 	sprint_realloc_value(&buf, &buf_len, &out_len, 1,  variable_oid,
@@ -1004,7 +1004,6 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
 			    "Value: %s", vb_display_string);
-			g_free(vb_display_string);
 #else /* HAVE_SOME_SNMP */
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
@@ -1032,7 +1031,6 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
 			    "Value: %s", vb_display_string);
-			g_free(vb_display_string);
 #else /* HAVE_SOME_SNMP */
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
@@ -1065,7 +1063,6 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
 			    "Value: %s", vb_display_string);
-			g_free(vb_display_string);
 #else /* HAVE_SOME_SNMP */
 			/*
 			 * If some characters are not printable, display
@@ -1083,11 +1080,11 @@ snmp_variable_decode(proto_tree *snmp_tree,
 				 * of the string.
 				 */
 				vb_display_string = ep_alloc(4*vb_length);
-				buf = &vb_display_string[0];
-				len = sprintf(buf, "%03u", vb_octet_string[0]);
+				buf = vb_display_string;
+				len = g_snprintf(buf, 4*vb_length, "%03u", vb_octet_string[0]);
 				buf += len;
 				for (i = 1; i < vb_length; i++) {
-					len = sprintf(buf, ".%03u",
+					len = g_snprintf(buf, 4*vb_length-(buf-vb_display_string), ".%03u",
 					    vb_octet_string[i]);
 					buf += len;
 				}
@@ -1132,7 +1129,6 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
 			    "Value: %s", vb_display_string);
-			g_free(vb_display_string);
 #else /* HAVE_SOME_SNMP */
 			vb_display_string = format_oid(vb_oid, vb_oid_length);
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
@@ -2609,6 +2605,7 @@ proto_register_snmp(void)
 {
 #if defined(_WIN32) && defined(HAVE_SOME_SNMP)
 	char *mib_path;
+	int mib_path_len;
 #define MIB_PATH_APPEND "snmp\\mibs"
 #endif
 	gchar *tmp_mib_modules;
@@ -2703,9 +2700,9 @@ proto_register_snmp(void)
 #ifdef _WIN32
 	/* Set MIBDIRS so that the SNMP library can find its mibs. */
 	/* XXX - Should we set MIBS or MIBFILES as well? */
-
-	mib_path = ep_alloc (strlen(get_datafile_dir()) + strlen(MIB_PATH_APPEND) + 20);
-	sprintf (mib_path, "MIBDIRS=%s\\%s", get_datafile_dir(), MIB_PATH_APPEND);
+	mib_path_len=strlen(get_datafile_dir()) + strlen(MIB_PATH_APPEND) + 20;
+	mib_path = ep_alloc (mib_path_len);
+	g_snprintf (mib_path, mib_path_len, "MIBDIRS=%s\\%s", get_datafile_dir(), MIB_PATH_APPEND);
 	/* Amazingly enough, Windows does not provide setenv(). */
 	if (getenv("MIBDIRS") == NULL)
 		_putenv(mib_path);
