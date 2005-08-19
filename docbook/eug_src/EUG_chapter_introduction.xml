@@ -232,10 +232,29 @@
 	
 	<section><title>Microsoft Windows</title>
     <para>
+	Maintained: 
 	<itemizedlist>
-	<listitem><para>Windows Me / 98 / 95</para></listitem>
 	<listitem><para>Windows Server 2003 / XP / 2000 / NT 4.0</para></listitem>
+	<listitem><para>Windows Me / 98</para></listitem>
 	</itemizedlist>
+    </para>
+    <para>
+	Unsupported/Unmaintained (because lack of required libraries):
+	<itemizedlist>
+	<listitem><para>Windows CE</para></listitem>
+	<listitem><para>Windows NT / XP Embedded</para></listitem>
+	<listitem><para>Windows 95 is no longer actively maintained by WinPcap,
+	but still may work perfectly</para></listitem>
+	</itemizedlist>
+    </para>
+    <para>
+	No experiences (fresh versions):
+	<itemizedlist>
+	<listitem><para>Windows XP 64-bit Edition</para></listitem>
+	<listitem><para>Windows Vista (aka Longhorn)</para></listitem>
+	</itemizedlist>
+	Please provide your experiences about these fresh versions to: 
+	<ulink url="mailto:&EtherealDevMailList;">&EtherealDevMailList;</ulink>.
     </para>
 	</section>
 	
