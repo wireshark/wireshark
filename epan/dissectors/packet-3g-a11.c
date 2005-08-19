@@ -309,6 +309,7 @@ static const struct radius_attribute attrs[]={
   {"Mobile Orig/Term Ind.",   26, 45,  4, ATTR_TYPE_INT},
   {"SDB Octet Count (Term.)", 26, 31,  4, ATTR_TYPE_INT},
   {"SDB Octet Count (Orig.)", 26, 32,  4, ATTR_TYPE_INT},
+  {"ESN (Integer)",           26, 48,  4, ATTR_TYPE_INT},
   {"Unknown",                 -1, -1, -1, ATTR_TYPE_NULL},
 };
 #define NUM_ATTR (sizeof(attrs)/sizeof(struct radius_attribute))
@@ -459,11 +460,24 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
         }
       }
 
-      if(attribute_type >= 0) {
+      if ((radius_subtype == 48) &&
+	(attribute_len == 0x0a))
+      {
+	/*
+	 * trying to compensate for Spec. screwups where
+	 * certain versions had subtype 48 being a 4 octet integer
+	 * and others had it being a 15 octet string!
+	 */
+        str_val = tvb_get_ephemeral_string(tvb,offset+radius_offset+2,attribute_len-2);
+	proto_tree_add_text(radius_tree, tvb, offset+radius_offset,
+	   attribute_len,
+	  "3GPP2: ESN-48 (String) (%s)", str_val);
+      }
+      else if(attribute_type >= 0) {
         switch(attrs[attribute_type].data_type) {
         case ATTR_TYPE_INT:
           proto_tree_add_text(radius_tree, tvb, offset + radius_offset,
-            attribute_len, "3GPP2: %s (%04x)", attrs[attribute_type].attrname,
+            attribute_len, "3GPP2: %s (0x%04x)", attrs[attribute_type].attrname,
             tvb_get_ntohl(tvb,offset + radius_offset + 2));
           break;
         case ATTR_TYPE_IPV4:
