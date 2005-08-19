@@ -43,10 +43,6 @@
 #include <errno.h>
 #include <signal.h>
 
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
@@ -171,18 +167,15 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 {
   wtap       *wth;
   gchar       *err_info;
-  int         fd;
-  struct stat cf_stat;
-
+  gint64      size;
 
   wth = wtap_open_offline(fname, err, &err_info, TRUE);
   if (wth == NULL)
     goto fail;
 
   /* Find the size of the file. */
-  fd = wtap_fd(wth);
-  if (fstat(fd, &cf_stat) < 0) {
-    *err = errno;
+  size = wtap_file_size(wth, err);
+  if (size == -1) {
     wtap_close(wth);
     goto fail;
   }
@@ -198,9 +191,8 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   cf->state = FILE_READ_IN_PROGRESS;
 
   cf->wth = wth;
-  cf->filed = fd;
   cf->f_datalen = 0;
-  cf->f_len = cf_stat.st_size;
+  cf->f_len = size;
 
   /* Set the file name because we need it to set the follow stream filter.
      XXX - is that still true?  We need it for other reasons, though,
@@ -335,15 +327,8 @@ cf_read(capture_file *cf)
   long         data_offset;
   progdlg_t   *progbar = NULL;
   gboolean     stop_flag;
-  /*
-   * XXX - should be "off_t", but Wiretap would need more work to handle
-   * the full size of "off_t" on platforms where it's more than a "long"
-   * as well.
-   */
-  long         file_pos;
+  gint64       size, file_pos;
   float        prog_val;
-  int          fd;
-  struct stat  cf_stat;
   GTimeVal     start_time;
   gchar        status_str[100];
   int          progbar_nextstep;
@@ -376,17 +361,17 @@ cf_read(capture_file *cf)
        to see if there's any pending input from an X server, and doing
        that for every packet can be costly, especially on a big file. */
     if (data_offset >= progbar_nextstep) {
-        file_pos = lseek(cf->filed, 0, SEEK_CUR);
+        file_pos = wtap_read_so_far(cf->wth, NULL);
         prog_val = (gfloat) file_pos / (gfloat) cf->f_len;
         if (prog_val > 1.0) {
           /* The file probably grew while we were reading it.
              Update "cf->f_len", and try again. */
-          fd = wtap_fd(cf->wth);
-          if (fstat(fd, &cf_stat) >= 0) {
-            cf->f_len = cf_stat.st_size;
+          size = wtap_file_size(cf->wth, NULL);
+          if (size != -1) {
+            cf->f_len = size;
             prog_val = (gfloat) file_pos / (gfloat) cf->f_len;
           }
-          /* If it's still > 1, either the "fstat()" failed (in which
+          /* If it's still > 1, either "wtap_file_size()" failed (in which
              case there's not much we can do about it), or the file
              *shrank* (in which case there's not much we can do about
              it); just clip the progress value at 1.0. */
@@ -400,7 +385,8 @@ cf_read(capture_file *cf)
         }
         if (progbar != NULL) {
           g_snprintf(status_str, sizeof(status_str),
-                     "%luKB of %luKB", file_pos / 1024, cf->f_len / 1024);
+                     "%" PRId64 "KB of %" PRId64 "KB",
+                     file_pos / 1024, cf->f_len / 1024);
           update_progress_dlg(progbar, prog_val, status_str);
         }
         progbar_nextstep += progbar_quantum;
@@ -553,9 +539,7 @@ cf_finish_tail(capture_file *cf, int *err)
 {
   gchar *err_info;
   long data_offset;
-  int         fd;
-  struct stat cf_stat;
-
+  gint64 size;
 
   if(cf->wth == NULL) {
     cf_close(cf);
@@ -595,10 +579,9 @@ cf_finish_tail(capture_file *cf, int *err)
 
   /* we have to update the f_len field */
   /* Find the size of the file. */
-  fd = wtap_fd(cf->wth);
-  if (fstat(fd, &cf_stat) >= 0) {
-      cf->f_len = cf_stat.st_size;
-  }
+  size = wtap_file_size(cf->wth, NULL);
+  if (size != -1)
+  	cf->f_len = size;
 
   /* We're done reading sequentially through the file; close the
      sequential I/O side, to free up memory it requires. */
@@ -930,17 +913,12 @@ cf_merge_files(char **out_filenamep, int in_file_count,
   long              data_offset;
   progdlg_t        *progbar = NULL;
   gboolean          stop_flag;
-  /*
-   * XXX - should be "off_t", but Wiretap would need more work to handle
-   * the full size of "off_t" on platforms where it's more than a "long"
-   * as well.
-   */
-  long        f_len, file_pos;
-  float       prog_val;
-  GTimeVal    start_time;
-  gchar       status_str[100];
-  int         progbar_nextstep;
-  int         progbar_quantum;
+  gint64            f_len, file_pos;
+  float             prog_val;
+  GTimeVal          start_time;
+  gchar             status_str[100];
+  int               progbar_nextstep;
+  int               progbar_quantum;
 
   /* open the input files */
   if (!merge_open_in_files(in_file_count, in_filenames, &in_files,
@@ -1020,7 +998,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
         /* Get the sum of the seek positions in all of the files. */
         file_pos = 0;
         for (i = 0; i < in_file_count; i++)
-          file_pos += lseek(wtap_fd(in_files[i].wth), 0, SEEK_CUR);
+          file_pos += wtap_read_so_far(in_files[i].wth, NULL);
         prog_val = (gfloat) file_pos / (gfloat) f_len;
         if (prog_val > 1.0) {
           /* Some file probably grew while we were reading it.
@@ -1035,7 +1013,8 @@ cf_merge_files(char **out_filenamep, int in_file_count,
         }
         if (progbar != NULL) {
           g_snprintf(status_str, sizeof(status_str),
-                     "%luKB of %luKB", file_pos / 1024, f_len / 1024);
+                     "%" PRId64 "KB of %" PRId64 "KB",
+                     file_pos / 1024, f_len / 1024);
           update_progress_dlg(progbar, prog_val, status_str);
         }
         progbar_nextstep += progbar_quantum;

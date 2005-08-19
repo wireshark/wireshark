@@ -56,10 +56,6 @@
 #include <fcntl.h>
 #endif
 
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -69,7 +65,7 @@
 #include <time.h>
 #include <errno.h>
 
-#include "wiretap/wtap.h"
+#include <wiretap/wtap.h>
 #include "ringbuffer.h"
 
 /* Win32 needs the O_BINARY flag for open() */

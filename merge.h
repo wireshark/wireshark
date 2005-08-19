@@ -44,7 +44,7 @@ typedef struct merge_in_file_s {
   wtap           *wth;
   long            data_offset;
   in_file_state_e state;
-  long            size;		/* file size */
+  gint64          size;		/* file size */
 } merge_in_file_t;
 
 /** Open a number of input files to merge.

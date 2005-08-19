@@ -218,7 +218,7 @@ int ascend_open(wtap *wth, int *err, gchar **err_info _U_)
      packet's timestamp from the capture file's ctime, which gives us an
      offset that we can apply to each packet.
    */
-  if (fstat(wtap_fd(wth), &statbuf) == -1) {
+  if (fstat(wth->fd, &statbuf) == -1) {
     *err = errno;
     g_free(wth->capture.ascend);
     return -1;

@@ -27,14 +27,41 @@
 #include <string.h>
 #include <errno.h>
 
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
+#ifdef HAVE_IO_H
+#include <io.h>
+#endif
+
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
 
-int
-wtap_fd(wtap *wth)
+/*
+ * Return the size of the file, as reported by the OS.
+ * (gint64, in case that's 64 bits.)
+ */
+gint64
+wtap_file_size(wtap *wth, int *err)
 {
-	return wth->fd;
+	struct stat statb;
+
+	if (fstat(wth->fd, &statb) == -1) {
+		if (err != NULL)
+			*err = errno;
+		return -1;
+	}
+	return statb.st_size;
 }
 
 int
@@ -463,6 +490,24 @@ wtap_read(wtap *wth, int *err, gchar **err_info, long *data_offset)
 	g_assert(wth->phdr.pkt_encap != WTAP_ENCAP_PER_PACKET);
 
 	return TRUE;	/* success */
+}
+
+/*
+ * Return an approximation of the amount of data we've read sequentially
+ * from the file so far.  (gint64, in case that's 64 bits.)
+ */
+gint64
+wtap_read_so_far(wtap *wth, int *err)
+{
+	off_t file_pos;
+
+	file_pos = lseek(wth->fd, 0, SEEK_CUR);
+	if (file_pos == -1) {
+		if (err != NULL)
+			*err = errno;
+		return -1;
+	}
+	return file_pos;
 }
 
 struct wtap_pkthdr*

@@ -24,10 +24,6 @@
 #include <sys/time.h>
 #endif
 
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-
 #include <string.h>
 #include "wtap.h"
 #include "merge.h"
@@ -43,7 +39,7 @@ merge_open_in_files(int in_file_count, char *const *in_file_names,
   int i, j;
   int files_size = in_file_count * sizeof(merge_in_file_t);
   merge_in_file_t *files;
-  struct stat statb;
+  gint64 size;
 
   files = g_malloc(files_size);
   *in_files = files;
@@ -60,14 +56,14 @@ merge_open_in_files(int in_file_count, char *const *in_file_names,
       *err_fileno = i;
       return FALSE;
     }
-    if (fstat(wtap_fd(files[i].wth), &statb) < 0) {
-      *err = errno;
+    size = wtap_file_size(files[i].wth, err);
+    if (size == -1) {
       for (j = 0; j <= i; j++)
         wtap_close(files[j].wth);
       *err_fileno = i;
       return FALSE;
     }
-    files[i].size = statb.st_size;
+    files[i].size = size;
   }
   return TRUE;
 }

@@ -41,10 +41,6 @@
 #include <sys/time.h>
 #endif
 
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -70,7 +66,7 @@ static gboolean cap_packet_size = FALSE;
 typedef struct _capture_info {
 	const char		*filename;
 	guint16			file_type;
-	guint64			filesize;
+	gint64			filesize;
 	guint64			packet_bytes;
 	double			start_time;
 	double			stop_time;
@@ -106,7 +102,7 @@ print_stats(capture_info *cf_info)
 
   if (cap_file_type) printf("File type: %s\n", file_type_string);
   if (cap_packet_count) printf("Number of packets: %u \n", cf_info->packet_count);
-  if (cap_file_size) printf("File size: %" PRIu64 " bytes\n", cf_info->filesize);
+  if (cap_file_size) printf("File size: %" PRId64 " bytes\n", cf_info->filesize);
   if (cap_data_size) printf("Data size: %" PRIu64 " bytes\n", cf_info->packet_bytes);
   if (cap_duration) printf("Capture duration: %f seconds\n", cf_info->duration);
   if (cap_start_time) printf("Start time: %s", ctime (&start_time_t));
@@ -121,7 +117,7 @@ process_cap_file(wtap *wth, const char *filename)
 {
   int			err;
   gchar			*err_info;
-  struct stat   cf_stat;
+  gint64		size;
   long  		data_offset;
   
   guint32		packet = 0;
@@ -166,14 +162,15 @@ process_cap_file(wtap *wth, const char *filename)
   }
 
   /* File size */
-  if (fstat(wtap_fd(wth), &cf_stat) < 0) {
+  size = wtap_file_size(wth, &err);
+  if (size == -1) {
     fprintf(stderr,
-            "capinfos: Can't fstat \"%s\": %s.\n",
-	    filename, strerror(errno));
+            "capinfos: Can't get size of \"%s\": %s.\n",
+	    filename, strerror(err));
     return 1;
   }
   
-  cf_info.filesize = cf_stat.st_size;
+  cf_info.filesize = size;
   
   /* File Type */
   cf_info.file_type = wtap_file_type(wth);

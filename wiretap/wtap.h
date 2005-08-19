@@ -523,11 +523,17 @@ struct wtap* wtap_open_offline(const char *filename, int *err,
 gboolean wtap_read(wtap *wth, int *err, gchar **err_info,
     long *data_offset);
 
+/*
+ * Return an approximation of the amount of data we've read sequentially
+ * from the file so far.  (gint64, in case that's 64 bits.)
+ */
+gint64 wtap_read_so_far(wtap *wth, int *err);
+
 struct wtap_pkthdr *wtap_phdr(wtap *wth);
 union wtap_pseudo_header *wtap_pseudoheader(wtap *wth);
 guint8 *wtap_buf_ptr(wtap *wth);
 
-int wtap_fd(wtap *wth);
+gint64 wtap_file_size(wtap *wth, int *err);
 int wtap_snapshot_length(wtap *wth); /* per file */
 int wtap_file_type(wtap *wth);
 int wtap_file_encap(wtap *wth);

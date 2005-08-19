@@ -116,10 +116,6 @@ static GtkWidget *cfmark_cb;
 static GtkWidget *ft_om;
 static GtkWidget *range_tb;
 
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-
 #define PREVIEW_STR_MAX         200
 
 static double
@@ -137,9 +133,8 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     wtap       *wth;
     int         err = 0;
     gchar      *err_info;
-    struct stat cf_stat;
     gchar       string_buff[PREVIEW_STR_MAX];
-    guint64     filesize;
+    gint64      filesize;
 
 
     /* init preview labels */
@@ -181,14 +176,13 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     }
 
     /* Find the size of the file. */
-    if (fstat(wtap_fd(wth), &cf_stat) < 0) {
+    filesize = wtap_file_size(wth, &err);
+    if (filesize == -1) {
+        gtk_label_set_text(GTK_LABEL(label), "error getting file size");
         wtap_close(wth);
         return NULL;
     }
-
-    /* size */
-    filesize = cf_stat.st_size;
-    g_snprintf(string_buff, PREVIEW_STR_MAX, "%" PRIu64 " bytes", filesize);
+    g_snprintf(string_buff, PREVIEW_STR_MAX, "%" PRId64 " bytes", filesize);
     label = OBJECT_GET_DATA(prev, PREVIEW_SIZE_KEY);
     gtk_label_set_text(GTK_LABEL(label), string_buff);
 
