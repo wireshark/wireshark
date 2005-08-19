@@ -454,24 +454,25 @@ apt-get install ethereal
       binary packages.  
 	</para>
   <section id="ChBuildInstallComponents">
-    <title>Ethereal Installer</title>
+    <title>Install Ethereal</title>
 	<para>
-		You may acquire a binary installer of Ethereal at 
-	    <ulink url="&EtherealBinariesPage;">&EtherealBinariesPage;</ulink>.  
+		You may acquire a binary installer of Ethereal named something like: 
+		<filename>ethereal-setup-x.y.z.exe</filename>.
 	</para>
 	<para>
-	    Simply download the installer and execute it.
+	    Simply download the Ethereal installer from:
+	    <ulink url="&EtherealBinariesPage;">&EtherealBinariesPage;</ulink> 
+		and execute it.
 	</para>
 	<note><title>Note!</title>
 	<para>
-	Since Ethereal Version 0.10.12, the WinPcap installer has become part of 
-	the main Ethereal installer, so you don't need to download and install 
-	two separate packages any longer.
+	<command>Since Ethereal Version 0.10.12, the WinPcap installer has become 
+	part of the main Ethereal installer, so you don't need to download and 
+	install two separate packages any longer!</command>
     </para>
 	</note>
-  </section>
   <section id="ChBuildWinInstaller">
-    <title>Ethereal Installer Settings</title>
+    <title>Components</title>
     <para>
 	Beside the usual installer options like where to install the program, 
 	there are several optional components.
@@ -559,67 +560,137 @@ apt-get install ethereal
 	</itemizedlist>
     </para>
   </section>
+  </section>
   <section id="ChBuildInstallWinPcap">
     <title>Install WinPcap</title>
-    <para>
-	As mentioned above, the Ethereal installer includes WinPcap. 
-    </para>
-    <para>
-	While running, the 
-	Ethereal installer detects which WinPcap version is currently 
-	running and will install WinPcap, if none or an older version is 
-	detected. So the following is only necessary if you want to 
-	try a different than the recommended WinPcap version, e.g. because a new 
-	WinPcap beta version was released.	
-    </para>
-    <para>
-	You will find a single installer exe called something 
-	like "auto-installer", which can be installed under various Windows 
-	systems, including 9x/Me/NT4.0/2000/XP. This installer is located at: 
-	<ulink url="&WinPcapDownloadWebsite;">&WinPcapDownloadWebsite;</ulink>.
-	</para>
+    <note><title>Note!</title>
 	<para>
-	Current information about the Ethereal related usage of WinPcap can be 
-	found at:
+	<command>As mentioned above, the Ethereal installer 
+	(since version 0.10.12) takes care of the installation of WinPcap, 
+	so usually you don't have to worry about WinPcap at all!</command> 
+    </para>
+	</note>
+    <para>
+	If you do not have WinPcap installed you will be able to open saved 
+	capture files, but you will not be able to capture live network traffic.
+    </para>
+    <para>
+	While running, the Ethereal installer detects which WinPcap version is 
+	currently installed and will install WinPcap, if none or an older version is 
+	detected. 
+    </para>
+	<para>
+	More WinPcap info:
+	<itemizedlist>
+	<listitem><para>
+	Ethereal related:
 	<ulink url="http://wiki.ethereal.com/WinPcap">http://wiki.ethereal.com/WinPcap</ulink>
+	</para></listitem>
+	<listitem><para>
+	General WinPcap info: 
+	<ulink url="&WinPcapWebsite;">&WinPcapWebsite;</ulink>
+	</para></listitem>
+	</itemizedlist>
 	</para>
+  	<section id="ChBuildInstallWinPcapManually">
+    <title>Manual WinPcap Installation</title>
+    <para>
+	The following is only necessary if you want to 
+	try a different version than the one included in the Ethereal installer, 
+	e.g. because a new WinPcap (beta) version was released.
+    </para>
+    <para>
+	Additional WinPcap versions (including newer alpha or beta releases)
+	can be downloaded from the following locations:
+	<itemizedlist>
+	<listitem><para>
+    The main WinPcap site: 
+	<ulink url="&WinPcapWebsite;">&WinPcapWebsite;</ulink>
+	</para></listitem>
+	<listitem><para>
+    The ethereal.com mirror:
+	<ulink url="http://winpcap.mirror.ethereal.com">
+	http://winpcap.mirror.ethereal.com</ulink>
+	</para></listitem>
+	<listitem><para>
+    The Wiretapped.net mirror:
+	<ulink url="http://www.mirrors.wiretapped.net/security/packet-capture/winpcap">
+	http://www.mirrors.wiretapped.net/security/packet-capture/winpcap</ulink>
+	</para></listitem>
+	</itemizedlist>
+    </para>
+    <para>
+	At the download page you will find a single installer exe called something 
+	like "auto-installer", which can be installed under various Windows 
+	systems, including 9x/Me/NT4.0/2000/XP.
+	</para>
+	</section>
   </section>
-  <section id="ChBuildInstallWinUpdate">
-    <title>Update</title>
+  
+  <section id="ChBuildInstallWinEtherealUpdate">
+    <title>Update Ethereal</title>
 	<para>
 	From time to time you may want to update your installed Ethereal to a more
 	recent version. If you join Ethereal's announce mailing list, you will be 
 	informed about new Ethereal versions, see <xref 
 	linkend="ChIntroMailingLists"/> for details how to subscribe to this list.
-      <itemizedlist>
-	<listitem>
+    </para>
     <para>
-    <command>Update Ethereal</command>.
 	New versions of Ethereal usually become available every 4-8 weeks.
 	Updating Ethereal is done the same way as installing it, you simply 
 	download and start the installer exe. A reboot is usually not required and
 	all your personal settings remain unchanged.
     </para>
-	</listitem>
-	<listitem>
+  </section>
+  
+  <section id="ChBuildInstallWinPcapUpdate">
+    <title>Update WinPcap</title>
     <para>
-    <command>Update WinPcap</command>.
-	New versions of WinPcap are less frequently available, maybe only once a 
+	New versions of WinPcap are less frequently available, maybe only once in a 
 	year. You will find WinPcap update instructions where you can download new 
-	versions. Usually you have to reboot the machine after installing a new 
-	WinPcap version.
+	WinPcap versions. Usually you have to reboot the machine after installing 
+	a new WinPcap version.
     </para>
-	</listitem>
-      </itemizedlist>
+	<warning><title>Warning!</title>
+	<para>
+	If you have an older version of WinPcap installed, you must un-install it 
+	before installing the current version. Recent versions of the WinPcap 
+	installer will take care of this.
 	</para>
+	</warning>
   </section>
   
   <section id="ChBuildInstallWinUninstall">
     <title>Uninstall Ethereal</title>
     <para>
-	You can uninstall Ethereal the usual way, using the "Add or Remove Programs"
-	option inside the Control Panel. You will find two entries, one for Ethereal 
-	itself and one for WinPcap.
+	You can uninstall Ethereal the usual way, using the "Add or Remove 
+	Programs" option inside the Control Panel. Select the "Ethereal" entry to 
+	start the uninstallation procedure.
+    </para>
+    <para>
+	The Ethereal uninstaller will provide several options which things to be 
+	uninstalled, the default is to remove the core components but keep the personal 
+	settings, WinPcap and alike.
+    </para>
+    <para>
+	WinPcap won't be uninstalled by default, as other programs than Ethereal 
+	may use it as well.
+    </para>
+  </section>
+  
+  <section id="ChBuildInstallWinPcapUninstall">
+    <title>Uninstall WinPcap</title>
+    <para>
+	You can uninstall WinPcap independantly of Ethereal, using the "WinPcap" 
+	entry in the "Add or Remove Programs" of the Control Panel.
+    </para>
+	<note><title>Note!</title>
+    <para>
+	After uninstallation of WinPcap you can't capture anything with Ethereal.
+    </para>
+	</note>
+    <para>
+	It might be a good idea to reboot Windows afterwards.
     </para>
   </section>
   </section>
