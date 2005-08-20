@@ -58,7 +58,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/charsets.h>
 #include "util.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include <epan/epan_dissect.h>
 #include <epan/filesystem.h>
 #include "compat_macros.h"

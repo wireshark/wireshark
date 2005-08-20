@@ -45,7 +45,7 @@
 #include "layout_prefs.h"
 #include "capture_prefs.h"
 #include "nameres_prefs.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "dlg_utils.h"
 #include "simple_dialog.h"
 #include "compat_macros.h"

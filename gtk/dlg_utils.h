@@ -80,7 +80,7 @@
 
 /** @file
  * Utilities for dialog boxes. Depending on the window functions in 
- * ui_util.h, see: @ref howto_window_page for details.
+ * gui_utils.h, see: @ref howto_window_page for details.
  * @ingroup dialog_group
  */
 
@@ -164,7 +164,7 @@ extern void set_last_open_dir(char *dirname);
  * @param stock_id_first the first button (e.g. GTK_STOCK_OK)
  * @param ... the next buttons, just like stock_id_first
  * @return the new button row
- * @todo move this to ui_util.h
+ * @todo move this to gui_utils.h
  */
 extern GtkWidget *dlg_button_row_new(const gchar *stock_id_first, ...);
 
@@ -173,7 +173,7 @@ extern GtkWidget *dlg_button_row_new(const gchar *stock_id_first, ...);
  *
  * @param widget a widget which should be connected (usually a GtkEntry)
  * @param ok_button the button to be activated
- * @todo move this to ui_util.h
+ * @todo move this to gui_utils.h
  */
 extern void dlg_set_activate(GtkWidget *widget, GtkWidget *ok_button);
 

@@ -38,7 +38,7 @@
 #include <epan/packet.h>	/* frame_data */
 #include "gtkglobals.h"		/* packet_list */
 #include "simple_dialog.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "color.h"
 #include "compat_macros.h"
 #include "etypes.h"

@@ -34,11 +34,7 @@
 #include <epan/prefs.h>
 #include <epan/column.h>
 #include "compat_macros.h"
-#include "ui_util.h"
-
-#if GTK_MAJOR_VERSION >= 2
-#include "ui_util.h"
-#endif
+#include "gui_utils.h"
 
 static GtkWidget *column_l, *del_bt, *title_te, *fmt_m, *up_bt, *dn_bt;
 static gint       cur_fmt, cur_row;

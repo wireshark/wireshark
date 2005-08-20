@@ -56,7 +56,7 @@
 #include "proto_draw.h"
 #include "keys.h"
 #include "gtkglobals.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include <epan/plugins.h>
 #include <epan/epan_dissect.h>
 #include "compat_macros.h"

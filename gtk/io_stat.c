@@ -41,7 +41,7 @@
 #include <epan/packet_info.h>
 
 #include "gtkglobals.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include <epan/stat.h>
 #include "stat_menu.h"
 #include <epan/tap.h>

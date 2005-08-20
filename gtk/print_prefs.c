@@ -36,7 +36,7 @@
 #include <epan/prefs.h>
 #include "prefs_dlg.h"
 #include "util.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "dlg_utils.h"
 #include "file_dlg.h"
 #include "compat_macros.h"

@@ -37,7 +37,7 @@
 #include "globals.h"
 #include <epan/addr_resolv.h>
 #include "main.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "capture.h"
 #include "capture_dlg.h"
 #include "filter_dlg.h"

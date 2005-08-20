@@ -53,7 +53,7 @@
 #include "../globals.h"
 #include "filter_dlg.h"
 #include "compat_macros.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 
 
 typedef struct column_arrows {

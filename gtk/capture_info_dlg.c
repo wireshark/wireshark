@@ -41,7 +41,7 @@
 #include "globals.h"
 #include "capture_ui_utils.h"
 #include "dlg_utils.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "main.h"
 #include "pcap-util.h"
 

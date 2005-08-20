@@ -64,7 +64,7 @@
 #include "proto_draw.h"
 #include "packet_win.h"
 #include "dlg_utils.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "gtkglobals.h"
 #include "compat_macros.h"
 #include "alert_box.h"

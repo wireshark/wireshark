@@ -52,7 +52,7 @@
 #include "filter_dlg.h"
 #include "compat_macros.h"
 #include <epan/dissectors/packet-ansi_map.h>
-#include "ui_util.h"
+#include "gui_utils.h"
 
 
 typedef struct column_arrows {

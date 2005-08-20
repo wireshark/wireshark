@@ -37,7 +37,7 @@
 #include "supported_protos_dlg.h"
 #include <epan/prefs.h>
 #include "prefs_dlg.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "proto_draw.h"

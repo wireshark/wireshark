@@ -43,7 +43,7 @@
 #include "../register.h"
 #include <epan/dissectors/packet-rpc.h>
 #include "../globals.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "dlg_utils.h"
 #include "compat_macros.h"
 

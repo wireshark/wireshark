@@ -64,6 +64,7 @@ noinst_HEADERS = \
 	gtkglobals.h	\
 	gtk_stat_util.h \
 	gui_prefs.h	\
+	gui_utils.h	\
 	help_dlg.h	\
 	hostlist_table.h \
 	isprint.h	\
@@ -96,7 +97,6 @@ noinst_HEADERS = \
 	tap_dfilter_dlg.h \
 	text_page.h	\
 	toolbar.h	\
-	ui_util.h	\
 	voip_calls.h	\
 	voip_calls_dlg.h \
 	webbrowser.h

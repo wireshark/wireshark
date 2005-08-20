@@ -40,7 +40,7 @@
 #include <epan/stat.h>
 #include "stat_menu.h"
 #include "simple_dialog.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "dlg_utils.h"
 #include <epan/tap.h>
 #include "../register.h"

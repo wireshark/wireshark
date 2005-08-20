@@ -33,7 +33,7 @@
 #include "gtkglobals.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "compat_macros.h"
 
 #include <epan/strutil.h>

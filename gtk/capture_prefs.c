@@ -37,7 +37,7 @@
 #include "gtkglobals.h"
 #include <epan/prefs.h>
 #include "prefs_dlg.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "dlg_utils.h"
 #include "simple_dialog.h"
 #include "pcap-util.h"

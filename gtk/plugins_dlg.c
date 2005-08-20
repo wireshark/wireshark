@@ -31,7 +31,7 @@
 #include "globals.h"
 #include <epan/plugins.h>
 #include "dlg_utils.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "compat_macros.h"
 
 #ifdef HAVE_PLUGINS

@@ -44,7 +44,7 @@
 #include "compat_macros.h"
 #include "simple_dialog.h"
 
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "dlg_utils.h"
 
 #include "main.h"

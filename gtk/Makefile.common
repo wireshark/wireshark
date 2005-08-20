@@ -67,6 +67,7 @@ ETHEREAL_GTK_SRC = \
 	graph_analysis.c \
 	gtk_stat_util.c	\
 	gui_prefs.c	\
+	gui_utils.c \
 	help_dlg.c	\
 	hostlist_table.c \
 	layout_prefs.c	\
@@ -99,7 +100,6 @@ ETHEREAL_GTK_SRC = \
 	tap_dfilter_dlg.c	\
 	text_page.c	\
 	toolbar.c	\
-	ui_util.c \
 	voip_calls.c \
 	webbrowser.c
 

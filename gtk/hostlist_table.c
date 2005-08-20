@@ -50,7 +50,7 @@
 #include "gtk/color_dlg.h"
 #include "gtkglobals.h"
 #include "main.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "dlg_utils.h"
 #include "help_dlg.h"
 

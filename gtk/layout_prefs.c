@@ -31,10 +31,8 @@
 #include "globals.h"
 #include "layout_prefs.h"
 #include "gtkglobals.h"
-/*#include <epan/resolv.h>*/
 #include <epan/prefs.h>
-/*#include "prefs_dlg.h"*/
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "main.h"
 #include "compat_macros.h"
 #include "dlg_utils.h"

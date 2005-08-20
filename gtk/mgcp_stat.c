@@ -53,7 +53,7 @@
 #include "../globals.h"
 #include "../tap_dfilter_dlg.h"
 #include "tap_dfilter_dlg.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 
 
 #define NUM_TIMESTATS 10

@@ -34,7 +34,7 @@
 
 #include "epan/filesystem.h"
 #include "text_page.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "compat_macros.h"
 #include "simple_dialog.h"
 #include "font_utils.h"

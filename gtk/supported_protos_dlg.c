@@ -34,7 +34,7 @@
 #include <epan/prefs.h>
 #include "globals.h"
 #include "gtkglobals.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "compat_macros.h"
 #include "dlg_utils.h"
 #include "font_utils.h"

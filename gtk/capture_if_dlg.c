@@ -54,7 +54,7 @@
 #include "capture_dlg.h"
 #include "capture_if_details_dlg.h"
 
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "dlg_utils.h"
 
 #include "wtap.h"

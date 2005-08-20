@@ -49,7 +49,7 @@
 
 #include "globals.h"
 #include "main.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "proto_dlg.h"

@@ -39,7 +39,7 @@
 #include "main.h"
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "dlg_utils.h"
 #include "cfilter_combo_utils.h"
 #include "simple_dialog.h"

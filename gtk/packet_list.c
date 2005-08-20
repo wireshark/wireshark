@@ -35,7 +35,7 @@
 #include "color.h"
 #include "color_filters.h"
 #include "../ui_util.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "main.h"
 #include "menu.h"
 #include "colors.h"

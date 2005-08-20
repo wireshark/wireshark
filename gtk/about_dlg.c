@@ -32,7 +32,7 @@
 #include <epan/filesystem.h>
 #include <epan/plugins.h>
 #include "about_dlg.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "dlg_utils.h"
 #include "compat_macros.h"
 #include "globals.h"

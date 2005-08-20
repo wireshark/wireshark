@@ -81,7 +81,7 @@
 #include "register.h"
 #include <epan/prefs-int.h>
 #include "ringbuffer.h"
-#include "../ui_util.h"     /* beware: ui_util.h exists twice! */
+#include "../ui_util.h"
 #include <epan/tap.h>
 #include <epan/stat.h>
 #include "util.h"
@@ -110,7 +110,7 @@
 #include "dlg_utils.h"
 #include "gtkglobals.h"
 #include "colors.h"
-#include "ui_util.h"        /* beware: ui_util.h exists twice! */
+#include "gui_utils.h"
 #include "compat_macros.h"
 
 #include "main.h"

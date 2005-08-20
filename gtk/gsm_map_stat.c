@@ -46,7 +46,7 @@
 #include "image/clist_descend.xpm"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include <epan/tap.h>
 #include "../register.h"
 #include "../globals.h"

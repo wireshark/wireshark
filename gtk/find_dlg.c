@@ -36,7 +36,7 @@
 #include <epan/strutil.h>
 #include "globals.h"
 
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "find_dlg.h"
 #include "filter_dlg.h"
 #include "alert_box.h"

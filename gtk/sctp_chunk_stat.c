@@ -53,7 +53,7 @@
 #include "../globals.h"
 #include "../tap_dfilter_dlg.h"
 #include "tap_dfilter_dlg.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 
 
 static void sctpstat_init(const char *optarg);

@@ -38,7 +38,7 @@
 #include <epan/addr_resolv.h>
 #include "keys.h"
 #include "filter_dlg.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "alert_box.h"
 #include "simple_dialog.h"
 #include "menu.h"

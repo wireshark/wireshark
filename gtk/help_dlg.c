@@ -37,7 +37,7 @@
 #include "text_page.h"
 #include <epan/prefs.h>
 #include "gtkglobals.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "compat_macros.h"
 #include "dlg_utils.h"
 #include "simple_dialog.h"

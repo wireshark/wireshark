@@ -34,7 +34,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include "prefs_dlg.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "main.h"
 #include "menu.h"
 #include "compat_macros.h"

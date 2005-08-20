@@ -31,7 +31,7 @@
 #include <gtk/gtk.h>
 #include "gtkglobals.h"
 #include "dlg_utils.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "progress_dlg.h"
 #include "compat_macros.h"
 

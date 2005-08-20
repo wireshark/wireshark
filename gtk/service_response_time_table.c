@@ -44,7 +44,7 @@
 #include "color.h"
 #include "gtk/color_dlg.h"
 #include "main.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "gtkglobals.h"
 
 

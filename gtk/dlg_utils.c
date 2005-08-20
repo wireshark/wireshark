@@ -34,7 +34,7 @@
 #include "globals.h"
 
 #include "gtkglobals.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "dlg_utils.h"
 #include "keys.h"
 #include "compat_macros.h"

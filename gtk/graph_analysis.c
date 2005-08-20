@@ -52,7 +52,7 @@
 #include "gtkglobals.h"
 
 #include "dlg_utils.h"
-#include "ui_util.h"
+#include "gui_utils.h"
 #include "main.h"
 #include "compat_macros.h"
 #include "../color.h"
