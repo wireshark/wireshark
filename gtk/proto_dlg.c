@@ -518,7 +518,7 @@ revert_proto_selection(void)
 
 } /* revert_proto_selection */
 
-gint
+static gint
 protocol_data_compare(gconstpointer a, gconstpointer b)
 {
   const protocol_data_t *ap = (const protocol_data_t *)a;

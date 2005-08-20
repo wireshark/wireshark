@@ -75,7 +75,7 @@ void flow_graph_data_init(void);
 /****************************************************************************/
 /* free up memory and initialize the pointers */
 
-void flow_graph_reset(void *ptr _U_)
+static void flow_graph_reset(void *ptr _U_)
 {
 
 	graph_analysis_item_t *graph_item;
@@ -114,7 +114,7 @@ void protect_thread_critical_region(void);
 void unprotect_thread_critical_region(void);
 
 /****************************************************************************/
-void
+static void
 remove_tap_listener_flow_graph(void)
 {
 	protect_thread_critical_region();
@@ -186,7 +186,7 @@ toggle_select_tcp(GtkWidget *widget _U_, gpointer user_data _U_)
 
 /****************************************************************************/
 /* Add a new frame into the graph */
-int flow_graph_frame_add_to_graph(packet_info *pinfo)
+static int flow_graph_frame_add_to_graph(packet_info *pinfo)
 {
 	graph_analysis_item_t *gai;
 	int i;
@@ -238,7 +238,7 @@ int flow_graph_frame_add_to_graph(packet_info *pinfo)
 
 /****************************************************************************/
 /* Add a new tcp frame into the graph */
-int flow_graph_tcp_add_to_graph(packet_info *pinfo, const struct tcpheader *tcph)
+static int flow_graph_tcp_add_to_graph(packet_info *pinfo, const struct tcpheader *tcph)
 {
 	graph_analysis_item_t *gai;
 	/* copied from packet-tcp */
@@ -316,7 +316,7 @@ flow_graph_tcp_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U
 }
 
 
-void flow_graph_packet_draw(void *prs _U_)
+static void flow_graph_packet_draw(void *prs _U_)
 {
 	return; 
 }
@@ -548,7 +548,7 @@ flow_graph_init_tap(const char *dummy _U_)
 
 /****************************************************************************/
 /* entry point when called via the GTK menu */
-void flow_graph_launch(GtkWidget *w _U_, gpointer data _U_)
+static void flow_graph_launch(GtkWidget *w _U_, gpointer data _U_)
 {
 	flow_graph_init_tap("");
 }

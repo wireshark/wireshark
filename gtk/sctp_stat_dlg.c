@@ -42,6 +42,7 @@
 #include "compat_macros.h"
 
 #include "sctp_stat.h"
+#include "gtkglobals.h"
 
 
 static GtkWidget *sctp_stat_dlg=NULL;
@@ -49,7 +50,6 @@ static GtkWidget *clist = NULL;
 static GList *last_list = NULL;
 static gchar *filter_string = NULL;
 static sctp_assoc_info_t* selected_stream = NULL;  /* current selection */
-extern GtkWidget *main_display_filter_widget;
 static sctp_allassocs_info_t *sctp_assocs=NULL;
 static guint16 n_children=0;
 static GtkWidget *bt_afilter = NULL, *bt_unselect=NULL, *bt_analyse=NULL, *bt_filter=NULL;
@@ -568,7 +568,7 @@ gtk_sctpstat_dlg(void)
 
 }
 
-void sctp_stat_dlg_show(void)
+static void sctp_stat_dlg_show(void)
 {
 	if (sctp_stat_dlg != NULL)
 	{
@@ -587,7 +587,7 @@ void sctp_stat_dlg_show(void)
 }
 
 
-void sctp_stat_start(GtkWidget *w _U_, gpointer data _U_)
+static void sctp_stat_start(GtkWidget *w _U_, gpointer data _U_)
 {
 
 	sctp_assocs = g_malloc(sizeof(sctp_allassocs_info_t));

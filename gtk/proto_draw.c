@@ -804,7 +804,7 @@ savehex_dlg_destroy_cb(void)
         savehex_dlg = NULL;
 }
 
-extern void
+void
 copy_hex_cb(GtkWidget * w _U_, gpointer data _U_)  
 {
 	GtkWidget *bv;
@@ -1603,7 +1603,7 @@ set_ptree_font_all(FONT_TYPE *font)
 
 
 #if GTK_MAJOR_VERSION >= 2
-void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
+static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
                                              GtkCellRenderer *cell,
                                              GtkTreeModel *tree_model,
                                              GtkTreeIter *iter,
@@ -1826,7 +1826,7 @@ main_proto_tree_draw(proto_tree *protocol_tree)
 }
 
 
-void
+static void
 tree_view_follow_link(field_info   *fi)
 {
     if(fi->hfinfo->type == FT_FRAMENUM) {

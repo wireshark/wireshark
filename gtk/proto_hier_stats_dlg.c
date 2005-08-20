@@ -309,7 +309,7 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
     gtk_container_add(GTK_CONTAINER(sw), tree);
 }
 
-void
+static void
 proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	ph_stats_t	*ps;

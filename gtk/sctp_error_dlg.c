@@ -46,8 +46,6 @@ static GtkWidget *clist = NULL;
 static GList *last_list = NULL;
 static sctp_error_info_t* selected_packet = NULL;/* current selection */
 /*static sctp_assoc_info_t* selected_assoc = NULL; */
-extern GtkWidget *main_display_filter_widget;
-
 
 #define NUM_COLS 3
 
@@ -91,7 +89,7 @@ sctp_error_on_unselect(GtkButton *button _U_, gpointer user_data _U_)
 	gtk_clist_unselect_all(GTK_CLIST(clist));
 }
 
-void sctp_error_dlg_update(GList *list)
+static void sctp_error_dlg_update(GList *list)
 {
 	GList *ilist=NULL;
 

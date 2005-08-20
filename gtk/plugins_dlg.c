@@ -33,6 +33,7 @@
 #include "dlg_utils.h"
 #include "gui_utils.h"
 #include "compat_macros.h"
+#include "plugins_dlg.h"
 
 #ifdef HAVE_PLUGINS
 
@@ -105,7 +106,7 @@ about_plugins_page_new(void)
     return scrolledwindow;
 }
 
-void
+static void
 tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
     GtkWidget *main_vbox;

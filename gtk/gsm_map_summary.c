@@ -64,7 +64,7 @@ add_string_to_box(gchar *str, GtkWidget *box)
 }
 
 
-void
+static void
 gsm_map_stat_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   summary_tally summary;

@@ -3146,7 +3146,7 @@ column_arrows* add_sort_by_column(GtkWidget* window, GtkWidget* clist,
 
 /****************************************************************************/
 /* Create the dialog box with all widgets */
-void create_rtp_dialog(user_data_t* user_data)
+static void create_rtp_dialog(user_data_t* user_data)
 {
 	GtkWidget *window = NULL;
 	GtkWidget *clist_fwd;
@@ -3501,7 +3501,7 @@ void rtp_analysis(
 
 /****************************************************************************/
 /* entry point from main menu */
-void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_) 
+static void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_) 
 {
 	address ip_src_fwd;
 	guint16 port_src_fwd;

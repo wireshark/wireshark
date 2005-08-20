@@ -229,7 +229,7 @@ mtp3_sum_draw(
 }
 
 
-void
+static void
 mtp3_sum_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   summary_tally summary;

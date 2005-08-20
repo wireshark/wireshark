@@ -48,7 +48,6 @@ static GtkWidget *sctp_chunk_stat_dlg=NULL;
 static GtkWidget *clist = NULL;
 static GList *last_list = NULL;
 static sctp_assoc_info_t* selected_stream = NULL;  /* current selection */
-extern GtkWidget *main_display_filter_widget;
 
 #define NUM_COLS   14
 #define FRAME_LIMIT 8
@@ -68,7 +67,7 @@ enum chunk_types {
 	COOKIE_ACK    = 11
 };
 
-const char *chunk_name(int type)
+static const char *chunk_name(int type)
 {
 #define CASE(x) case x: s=#x; break
 	const char *s = "unknown";
@@ -343,7 +342,7 @@ static void chunk_window_set_title(struct sctp_udata *u_data)
 	g_free(title);
 }
 
-void sctp_chunk_dlg(struct sctp_udata *u_data)
+static void sctp_chunk_dlg(struct sctp_udata *u_data)
 {
 	GtkWidget *main_vb, *table;
 	GtkWidget *label, *h_button_box;

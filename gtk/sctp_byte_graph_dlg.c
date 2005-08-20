@@ -113,7 +113,7 @@ static void sctp_graph_set_title(struct sctp_udata *u_data);
 static void create_draw_area(GtkWidget *box, struct sctp_udata *u_data);
 
 
-gint tsn_cmp(gconstpointer aa, gconstpointer bb)
+static gint tsn_cmp(gconstpointer aa, gconstpointer bb)
 {
 	const struct tsn_sort* a = aa;
 	const struct tsn_sort* b = bb;
@@ -1082,7 +1082,7 @@ static void create_draw_area(GtkWidget *box, struct sctp_udata *u_data)
 	gtk_box_pack_start(GTK_BOX(box), u_data->io->draw_area, TRUE, TRUE, 0);
 }
 
-void insertion(GPtrArray *array, guint32 N)
+static void insertion(GPtrArray *array, guint32 N)
 {
 	guint32 i, j;
 	guint32 v;
@@ -1103,7 +1103,7 @@ void insertion(GPtrArray *array, guint32 N)
 	}
 }
 
-void set_arw_offsets(struct sctp_udata *u_data)
+static void set_arw_offsets(struct sctp_udata *u_data)
 {
 	GPtrArray *s_array=NULL, *t_array=NULL;
 	guint32 i, j=0;
@@ -1146,7 +1146,7 @@ void set_arw_offsets(struct sctp_udata *u_data)
 	}
 }
 
-void compute_offsets(struct sctp_udata *u_data)
+static void compute_offsets(struct sctp_udata *u_data)
 {
 	struct tsn_sort t_sort;
 	GPtrArray *array=NULL;

@@ -63,7 +63,7 @@ static rtpstream_tapinfo_t the_tapinfo_struct =
 
 /****************************************************************************/
 /* GCompareFunc style comparison function for _rtp_stream_info */
-gint rtp_stream_info_cmp(gconstpointer aa, gconstpointer bb)
+static gint rtp_stream_info_cmp(gconstpointer aa, gconstpointer bb)
 {
 	const struct _rtp_stream_info* a = aa;
 	const struct _rtp_stream_info* b = bb;
@@ -115,7 +115,7 @@ static void rtpstream_reset_cb(void *arg)
 
 /****************************************************************************/
 /* redraw the output */
-void rtpstream_draw(void *arg _U_)
+static void rtpstream_draw(void *arg _U_)
 {
 /* XXX: see rtpstream_on_update in rtp_streams_dlg.c for comments
 	gtk_signal_emit_by_name(top_level, "signal_rtpstream_update");

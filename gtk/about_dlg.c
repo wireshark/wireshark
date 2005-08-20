@@ -43,12 +43,8 @@
 #include "../image/eicon3d64.xpm"
 #include "gtkglobals.h"
 #include "version_info.h"
-
-extern GString *comp_info_str, *runtime_info_str;
-
-#ifdef HAVE_PLUGINS
-extern GtkWidget *about_plugins_page_new(void);
-#endif
+#include "main.h"
+#include "plugins_dlg.h"
 
 static void about_ethereal_destroy_cb(GtkWidget *, gpointer);
 

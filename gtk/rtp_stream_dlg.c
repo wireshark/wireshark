@@ -213,7 +213,7 @@ rtpstream_on_unselect                  (GtkButton       *button _U_,
 
 
 /****************************************************************************/
-gint rtp_stream_info_cmp_reverse(gconstpointer aa, gconstpointer bb)
+static gint rtp_stream_info_cmp_reverse(gconstpointer aa, gconstpointer bb)
 {
 	const struct _rtp_stream_info* a = aa;
 	const struct _rtp_stream_info* b = bb;
@@ -866,7 +866,7 @@ void rtpstream_dlg_show(GList *list)
 
 /****************************************************************************/
 /* entry point when called via the GTK menu */
-void rtpstream_launch(GtkWidget *w _U_, gpointer data _U_)
+static void rtpstream_launch(GtkWidget *w _U_, gpointer data _U_)
 {
 	/* Register the tap listener */
 	register_tap_listener_rtp_stream();

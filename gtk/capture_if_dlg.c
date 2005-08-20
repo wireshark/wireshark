@@ -60,9 +60,7 @@
 #include "wtap.h"
 #include "main.h"
 #include "help_dlg.h"
-
-
-extern gboolean is_capture_in_progress(void);
+#include "toolbar.h"
 
 /*
  * Keep a static pointer to the current "Capture Interfaces" window, if

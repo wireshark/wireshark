@@ -494,7 +494,7 @@ static char helptext[] =
 ";
 #endif
 
-void tcp_graph_cb (GtkWidget *w _U_, gpointer data, guint callback_action /*graph_type*/ _U_)
+static void tcp_graph_cb (GtkWidget *w _U_, gpointer data, guint callback_action /*graph_type*/ _U_)
 {
 	struct segment current;
 	struct graph *g;
@@ -4041,7 +4041,7 @@ static int rint (double x)
 #endif
 
 
-gboolean tcp_graph_selected_packet_enabled(frame_data *current_frame, epan_dissect_t *edt) 
+static gboolean tcp_graph_selected_packet_enabled(frame_data *current_frame, epan_dissect_t *edt) 
 {
     return current_frame != NULL ? (edt->pi.ipproto == IP_PROTO_TCP) : FALSE;
 }

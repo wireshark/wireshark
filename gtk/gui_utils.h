@@ -1,7 +1,7 @@
 /* gui_utils.h
  * Definitions for UI utility routines
  *
- * $Id: ui_util.h 15263 2005-08-08 17:22:55Z ulfl $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

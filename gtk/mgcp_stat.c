@@ -257,7 +257,7 @@ static const gchar *titles[]={
 			"Min in Frame",
 			"Max in Frame" };
 
-void
+static void
 gtk_mgcpstat_init(const char *optarg)
 {
 	mgcpstat_t *ms;

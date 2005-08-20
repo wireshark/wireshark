@@ -29,6 +29,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
+extern void add_menu_recent_capture_file(gchar *cf_name);
+
 /** @file
  *  Menubar and context menus.
  *  @ingroup main_window_group

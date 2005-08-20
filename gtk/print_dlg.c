@@ -113,7 +113,7 @@ static print_args_t  print_args;
 static gboolean print_prefs_init = FALSE;
 
 
-void
+static void
 file_print_cmd(gboolean print_selected)
 {
   print_args_t *args = &print_args;

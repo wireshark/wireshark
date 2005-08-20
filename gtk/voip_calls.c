@@ -190,7 +190,7 @@ void graph_analysis_data_init(void){
 
 /****************************************************************************/
 /* Add a new item into the graph */
-int add_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, const gchar *frame_label, gchar *comment, guint16 call_num, address *src_addr, address *dst_addr)
+static int add_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, const gchar *frame_label, gchar *comment, guint16 call_num, address *src_addr, address *dst_addr)
 {
 	graph_analysis_item_t *gai;
 
@@ -224,7 +224,7 @@ int add_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, const gc
 /****************************************************************************/
 /* Append str to frame_label and comment in a graph item */
 /* return 0 if the frame_num is not in the graph list */
-int append_to_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 frame_num, const gchar *new_frame_label, const gchar *new_comment)
+static int append_to_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 frame_num, const gchar *new_frame_label, const gchar *new_comment)
 {
 	graph_analysis_item_t *gai;
 	GList* list;
@@ -261,7 +261,7 @@ int append_to_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 frame_num, 
 /****************************************************************************/
 /* Change the frame_label and comment in a graph item if not NULL*/
 /* return 0 if the frame_num is not in the graph list */
-int change_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 frame_num, const gchar *new_frame_label, const gchar *new_comment)
+static int change_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 frame_num, const gchar *new_frame_label, const gchar *new_comment)
 {
 	graph_analysis_item_t *gai;
 	GList* list;
@@ -296,7 +296,7 @@ int change_frame_graph(voip_calls_tapinfo_t *tapinfo _U_, guint32 frame_num, con
 
 /****************************************************************************/
 /* Change all the graph items with call_num to new_call_num */
-guint change_call_num_graph(voip_calls_tapinfo_t *tapinfo _U_, guint16 call_num, guint16 new_call_num)
+static guint change_call_num_graph(voip_calls_tapinfo_t *tapinfo _U_, guint16 call_num, guint16 new_call_num)
 {
 	graph_analysis_item_t *gai;
 	GList* list;
@@ -404,7 +404,7 @@ remove_tap_listener_rtp_event(void)
 
 /****************************************************************************/
 /* when there is a [re]reading of RTP packet's */
-void voip_rtp_reset(void *ptr _U_)
+static void voip_rtp_reset(void *ptr _U_)
 {
 	voip_rtp_tapinfo_t *tapinfo = &the_tapinfo_rtp_struct;
 	GList* list;
@@ -500,7 +500,7 @@ RTP_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 
 /****************************************************************************/
 /* whenever a redraw in the RTP tap listener */
-void RTP_packet_draw(void *prs _U_)
+static void RTP_packet_draw(void *prs _U_)
 {
 	voip_rtp_tapinfo_t *rtp_tapinfo = &the_tapinfo_rtp_struct;
 	GList* rtp_streams_list;
@@ -1429,7 +1429,7 @@ remove_tap_listener_q931_calls(void)
 /****************************TAP for H323 ***********************************/
 /****************************************************************************/
 
-void add_h245_Address(h323_calls_info_t *h323info,  h245_address_t *h245_address)
+static void add_h245_Address(h323_calls_info_t *h323info,  h245_address_t *h245_address)
 {
 	h323info->h245_list = g_list_append(h323info->h245_list, h245_address);				
 }
@@ -1725,7 +1725,7 @@ void h245_add_to_graph(guint32 new_frame_num)
 }
 
 /* free the h245_labels if the frame number is different */ 
-void h245_free_labels(guint32 new_frame_num)
+static void h245_free_labels(guint32 new_frame_num)
 {
 	gint8 n;
 	
@@ -1742,7 +1742,7 @@ void h245_free_labels(guint32 new_frame_num)
 }
 
 /* add the frame_label and comment to h245_labels and free the actual one if it is different frame num */ 
-void h245_add_label(guint32 new_frame_num, gchar *frame_label, gchar *comment)
+static void h245_add_label(guint32 new_frame_num, gchar *frame_label, gchar *comment)
 {
 	h245_free_labels(new_frame_num);
 
@@ -1960,7 +1960,7 @@ remove_tap_listener_sdp_calls(void)
    This function will look for a signal/event in the SignalReq/ObsEvent string
    and return true if it is found 
 */
-gboolean isSignal(const gchar *signal, const gchar *signalStr)
+static gboolean isSignal(const gchar *signal, const gchar *signalStr)
 {
 	gint i; 
 	gchar **resultArray;
@@ -1988,7 +1988,7 @@ gboolean isSignal(const gchar *signal, const gchar *signalStr)
    This function will get the Caller ID info and replace the current string
    This is how it looks the caller Id: rg, ci(02/16/08/29, "3035550002","Ale Sipura 2")
 */
-void mgcpCallerID(gchar *signalStr, gchar **callerId)
+static void mgcpCallerID(gchar *signalStr, gchar **callerId)
 {
 	gchar **arrayStr;
 	
@@ -2015,7 +2015,7 @@ void mgcpCallerID(gchar *signalStr, gchar **callerId)
    This function will get the Dialed Digits and replace the current string
    This is how it looks the dialed digits 5,5,5,0,0,0,2,#,*
 */
-void mgcpDialedDigits(gchar *signalStr, gchar **dialedDigits)
+static void mgcpDialedDigits(gchar *signalStr, gchar **dialedDigits)
 {
 	gchar *tmpStr;
 	gchar resultStr[50];

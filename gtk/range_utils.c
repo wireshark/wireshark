@@ -37,6 +37,7 @@
 #include "dlg_utils.h"
 #include "compat_macros.h"
 #include "simple_dialog.h"
+#include "range_utils.h"
 
 
 #define RANGE_VALUES_KEY                "range_values"

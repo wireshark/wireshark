@@ -331,7 +331,7 @@ win_destroy_cb(void *dummy _U_, gpointer data _U_)
 
 /* When called, this function will start rpcprogs
  */
-void
+static void
 gtk_rpcprogs_init(const char *optarg _U_)
 {
 	char *title_string;

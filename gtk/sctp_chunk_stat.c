@@ -130,7 +130,7 @@ sctpstat_reset(void *phs)
 	sctp_stat->number_of_packets = 0;
 }
 
-sctp_ep_t* alloc_sctp_ep(struct _sctp_info *si)
+static sctp_ep_t* alloc_sctp_ep(struct _sctp_info *si)
 {
 	sctp_ep_t* ep;
 	guint16 chunk_type;

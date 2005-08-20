@@ -179,7 +179,7 @@ static void add_to_clist(voip_calls_info_t* strinfo)
 }
 
 
-void voip_calls_remove_tap_listener(void)
+static void voip_calls_remove_tap_listener(void)
 {
 	/* Remove the calls tap listener */
 	remove_tap_listener_sip_calls();
@@ -801,7 +801,7 @@ voip_calls_init_tap(const char *dummy _U_)
 
 /****************************************************************************/
 /* entry point when called via the GTK menu */
-void voip_calls_launch(GtkWidget *w _U_, gpointer data _U_)
+static void voip_calls_launch(GtkWidget *w _U_, gpointer data _U_)
 {
 	voip_calls_init_tap("");
 }

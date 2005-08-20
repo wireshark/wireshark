@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c 15286 2005-08-10 19:49:45Z ulfl $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -998,7 +998,7 @@ simple_list_new(gint cols, const gchar **titles) {
     return plugins_list;
 }
 
-extern void
+void
 copy_to_clipboard(GString *str)  
 {
 #if (GTK_MAJOR_VERSION >= 2)

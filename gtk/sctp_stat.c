@@ -139,7 +139,7 @@ void free_first(gpointer data, gpointer user_data _U_)
 	g_free(data);
 }
 
-void tsn_free(gpointer data, gpointer user_data _U_)
+static void tsn_free(gpointer data, gpointer user_data _U_)
 {
 	tsn_t *tsn;
 
@@ -293,7 +293,7 @@ static sctp_assoc_info_t *calc_checksum(struct _sctp_info *check_data, sctp_asso
 }
 
 
-gint sctp_assoc_vtag_cmp(gconstpointer aa, gconstpointer bb)
+static gint sctp_assoc_vtag_cmp(gconstpointer aa, gconstpointer bb)
 {
 
 	const struct _sctp_assoc_info* a = aa;
@@ -349,7 +349,7 @@ gint sctp_assoc_vtag_cmp(gconstpointer aa, gconstpointer bb)
 }
 
 
-gint sctp_assoc_address_cmp(gconstpointer aa, gconstpointer bb)
+static gint sctp_assoc_address_cmp(gconstpointer aa, gconstpointer bb)
 {
 	GList *srclist, *dstlist;
 	const struct _sctp_tmp_info* a = aa;
@@ -578,7 +578,7 @@ gint sctp_assoc_address_cmp(gconstpointer aa, gconstpointer bb)
 
 
 
-sctp_assoc_info_t * find_assoc(sctp_tmp_info_t * needle)
+static sctp_assoc_info_t * find_assoc(sctp_tmp_info_t * needle)
 {
 	sctp_allassocs_info_t *assoc_info;
 	sctp_assoc_info_t *info = NULL;
@@ -656,7 +656,7 @@ sctp_assoc_info_t * find_assoc(sctp_tmp_info_t * needle)
 	return NULL;
 }
 
-sctp_assoc_info_t * add_chunk_count(address * vadd, sctp_assoc_info_t * info, guint32 direction, guint32 type)
+static sctp_assoc_info_t * add_chunk_count(address * vadd, sctp_assoc_info_t * info, guint32 direction, guint32 type)
 {
 	GList *list;
 	address *v=NULL;
@@ -701,7 +701,7 @@ sctp_assoc_info_t * add_chunk_count(address * vadd, sctp_assoc_info_t * info, gu
 	return info;
 }
 
-sctp_assoc_info_t * add_address(address * vadd, sctp_assoc_info_t *info, guint8 direction)
+static sctp_assoc_info_t * add_address(address * vadd, sctp_assoc_info_t *info, guint8 direction)
 {
 	GList *list;
 	address *v=NULL;

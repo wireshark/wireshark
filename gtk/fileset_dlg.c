@@ -125,7 +125,7 @@ fs_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 
 /* get creation date (converted from filename) */
 /* */
-char *
+static char *
 fileset_dlg_name2date_dup(const char * name) {
     char        *pfx;
     char        *filename;

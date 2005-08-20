@@ -361,7 +361,7 @@ module_prefs_show(module_t *module, gpointer user_data)
 #endif
 
 /* add a page to the tree */
-prefs_tree_iter
+static prefs_tree_iter
 prefs_tree_page_add(const gchar *title, gint page_nr, 
                     gpointer store, prefs_tree_iter *parent_iter,
                     gboolean has_child
@@ -388,7 +388,7 @@ prefs_tree_page_add(const gchar *title, gint page_nr,
 }
 
 /* add a page to the notebook */
-GtkWidget *
+static GtkWidget *
 prefs_nb_page_add(GtkWidget *notebook, const gchar *title, GtkWidget *page, const char *page_key)
 {
   GtkWidget         *frame;

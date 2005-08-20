@@ -51,6 +51,8 @@
   @enddot
  */
 
+extern GString *comp_info_str, *runtime_info_str;
+
 /** @file
  *  The main window, filter toolbar, program start/stop and a lot of other things
  *  @ingroup main_window_group

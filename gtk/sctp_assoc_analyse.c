@@ -354,7 +354,7 @@ static void analyse_window_set_title(struct sctp_analyse *u_data)
 	g_free(title);
 }
 
-void create_analyse_window(struct sctp_analyse* u_data)
+static void create_analyse_window(struct sctp_analyse* u_data)
 {
 	GtkWidget *window = NULL;
 	GtkWidget *notebook;
@@ -698,7 +698,7 @@ void assoc_analyse(sctp_assoc_info_t* assoc)
 }
 
 
-void sctp_analyse_cb(struct sctp_analyse* u_data)
+static void sctp_analyse_cb(struct sctp_analyse* u_data)
 {
 	guint8* ip_src;
 	guint16 srcport;

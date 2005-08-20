@@ -66,10 +66,6 @@
 
 #define RECENT_FILE_NAME "recent"
 
-
-/* #include "../menu.h" */
-extern void add_menu_recent_capture_file(gchar *file);
-
 recent_settings_t recent;
 
 static const char *ts_type_text[] =
