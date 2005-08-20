@@ -28,6 +28,8 @@
 #include <glib.h>
 #include "../slab.h"
 
+#include "ftypes.h"
+
 /* Keep track of ftype_t's via their ftenum number */
 static ftype_t* type_list[FT_NUM_TYPES];
 

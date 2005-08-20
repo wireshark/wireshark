@@ -29,6 +29,8 @@
 
 #include <glib.h>
 
+#include "bitswap.h"
+
 /* "swaptab[i]" is the value of "i" with the bits reversed. */
 guint8 swaptab[256] = {
   0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0,

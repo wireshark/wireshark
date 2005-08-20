@@ -31,6 +31,8 @@
 #include <epan/stats_tree_priv.h>
 #include <string.h>
 
+#include "stats_tree.h"
+
 /*
 TODO: 
    - sort out the sorting issue

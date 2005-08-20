@@ -43,6 +43,8 @@
 
 #include <glib.h>
 
+#include "mkstemp.h"
+
 #ifndef __set_errno
 #define __set_errno(x) errno=(x)
 #endif

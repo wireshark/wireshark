@@ -33,6 +33,7 @@
 #include "semcheck.h"
 #include "dfvm.h"
 #include <epan/epan_dissect.h>
+#include "dfilter.h"
 
 #define DFILTER_TOKEN_ID_OFFSET	1
 

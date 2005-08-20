@@ -27,6 +27,7 @@
 */
 
 #include "mate.h"
+#include "mate_grammar.h"
 
 #define DUMMY void*
 

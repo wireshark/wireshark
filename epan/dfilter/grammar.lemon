@@ -11,6 +11,8 @@
 #include "sttype-test.h"
 #include "drange.h"
 
+#include "grammar.h"
+
 /* End of C code */
 }
 

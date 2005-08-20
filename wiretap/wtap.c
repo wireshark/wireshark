@@ -44,6 +44,8 @@
 #endif
 
 #include "wtap-int.h"
+#include "wtap.h"
+
 #include "file_wrappers.h"
 #include "buffer.h"
 
