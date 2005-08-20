@@ -165,7 +165,7 @@ Cmd_Argc(void)
 }
 
 
-static char*
+static const char*
 Cmd_Argv(int arg)
 {
 	if ( arg >= cmd_argc )
@@ -397,8 +397,8 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
         }
 
 	if (direction == DIR_C2S) {
-		/* client to sever commands */
-		char *c;
+		/* client to server commands */
+		const char *c;
 
 		Cmd_TokenizeString(text);
 		c = Cmd_Argv(0);
@@ -417,7 +417,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 			int version;
 			int qport;
 			int challenge;
-			char *infostring;
+			const char *infostring;
 			proto_item *argument_item = NULL;
 			proto_tree *argument_tree = NULL;
 			proto_item *info_item = NULL;
@@ -467,7 +467,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 					info_tree = proto_item_add_subtree(
 						info_item, ett_quakeworld_connectionless_connect_infostring);
 				dissect_id_infostring(tvb, info_tree, offset + Cmd_Argv_start(4),
-					infostring,
+					/* XXX - this cast is ugly! */ (char *) infostring,
 					ett_quakeworld_connectionless_connect_infostring_key_value,
 					hf_quakeworld_connectionless_connect_infostring_key_value,
 					hf_quakeworld_connectionless_connect_infostring_key,
@@ -477,7 +477,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 			strcpy(command, "Get Challenge");
 			command_len = Cmd_Argv_length(0);
 		} else if (strcmp(c,"rcon") == 0) {
-			char* password;
+			const char* password;
 			int i;
 			char remaining[MAX_TEXT_SIZE+1];
 			proto_item *argument_item = NULL;

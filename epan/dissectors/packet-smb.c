@@ -10855,9 +10855,9 @@ dissect_disposition_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		    int offset, guint16 *bcp, gboolean *trunc)
 {
 	smb_info_t *si = pinfo->private_data;
-	const char *fn;
-	guint32 target_name_len;
-	int fn_len;
+/*	const char *fn;*/
+/*	guint32 target_name_len;*/
+/*	int fn_len;*/
 
 	DISSECTOR_ASSERT(si);
 

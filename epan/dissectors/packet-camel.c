@@ -6826,7 +6826,7 @@ static guint8 camel_pdu_size = 0;
 static int
 dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
 
-  char *version_ptr, *version_str;
+  char *version_ptr /*, *version_str*/;
 
   opcode = 0;
   application_context_version = 0;
