@@ -49,6 +49,7 @@
 #include <string.h>
 
 #include "epan/packet.h"
+#include "epan/emem.h"
 
 
 static const char *ansi_proto_name_tele = "ANSI IS-637-A (SMS) Teleservice Layer";
@@ -182,7 +183,6 @@ static gint ett_params = -1;
 
 static guint32 ansi_637_trans_tele_id;
 static char ansi_637_bigbuf[1024];
-static gchar ansi_637_add_string[1024];
 /* static dissector_handle_t data_handle; */
 static dissector_table_t tele_dissector_table;
 static packet_info *g_pinfo;
@@ -901,7 +901,7 @@ static void (*ansi_637_tele_param_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint 
 };
 
 static void
-trans_param_tele_id(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string)
+trans_param_tele_id(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string, int string_len)
 {
     guint32	value;
     const gchar	*str = NULL;
@@ -921,11 +921,11 @@ trans_param_tele_id(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, 
 	str,
 	value);
 
-    sprintf(add_string, " - %s (%d)", str, value);
+    g_snprintf(add_string, string_len, " - %s (%d)", str, value);
 }
 
 static void
-trans_param_srvc_cat(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string)
+trans_param_srvc_cat(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string, int string_len)
 {
     guint32	value;
     const gchar	*str = NULL;
@@ -941,11 +941,11 @@ trans_param_srvc_cat(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset,
     proto_tree_add_text(tree, tvb, offset, 2,
 	str);
 
-    sprintf(add_string, " - %s (%d)", str, value);
+    g_snprintf(add_string, string_len, " - %s (%d)", str, value);
 }
 
 static void
-trans_param_address(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string)
+trans_param_address(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string _U_, int string_len _U_)
 {
     guint8	oct, oct2, num_fields, odd;
     gboolean	email_addr;
@@ -956,7 +956,6 @@ trans_param_address(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, 
 
     SHORT_DATA_CHECK(len, 2);
 
-    add_string = add_string;
     email_addr = FALSE;
 
     oct = tvb_get_guint8(tvb, offset);
@@ -1220,15 +1219,13 @@ trans_param_address(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, 
 }
 
 static void
-trans_param_subaddress(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string)
+trans_param_subaddress(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string _U_, int string_len)
 {
     guint8	oct, oct2, num_fields;
     guint32	i;
     const gchar	*str;
 
     SHORT_DATA_CHECK(len, 2);
-
-    add_string = add_string;
 
     oct = tvb_get_guint8(tvb, offset);
 
@@ -1313,7 +1310,7 @@ trans_param_subaddress(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offse
 }
 
 static void
-trans_param_bearer_reply_opt(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string)
+trans_param_bearer_reply_opt(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string, int string_len)
 {
     guint8	oct;
 
@@ -1326,7 +1323,7 @@ trans_param_bearer_reply_opt(tvbuff_t *tvb, proto_tree *tree, guint len, guint32
 	ansi_637_bigbuf,
 	(oct & 0xfc) >> 2);
 
-    sprintf(add_string, " - Reply Sequence Number (%d)", (oct & 0xfc) >> 2);
+    g_snprintf(add_string, string_len, " - Reply Sequence Number (%d)", (oct & 0xfc) >> 2);
 
     other_decode_bitfield_value(ansi_637_bigbuf, oct, 0x03, 8);
     proto_tree_add_text(tree, tvb, offset, 1,
@@ -1335,7 +1332,7 @@ trans_param_bearer_reply_opt(tvbuff_t *tvb, proto_tree *tree, guint len, guint32
 }
 
 static void
-trans_param_cause_codes(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string)
+trans_param_cause_codes(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string, int string_len)
 {
     guint8	oct;
     const gchar	*str = NULL;
@@ -1358,7 +1355,7 @@ trans_param_cause_codes(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offs
 	break;
     }
 
-    sprintf(add_string, " - Reply Sequence Number (%d)", (oct & 0xfc) >> 2);
+    g_snprintf(add_string, string_len, " - Reply Sequence Number (%d)", (oct & 0xfc) >> 2);
 
     other_decode_bitfield_value(ansi_637_bigbuf, oct, 0x03, 8);
     proto_tree_add_text(tree, tvb, offset, 1,
@@ -1423,11 +1420,9 @@ trans_param_cause_codes(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offs
 }
 
 static void
-trans_param_bearer_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string)
+trans_param_bearer_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string _U_, int string_len)
 {
     tvbuff_t	*tele_tvb;
-
-    add_string = add_string;
 
     proto_tree_add_text(tree, tvb, offset, len,
 	"Bearer Data");
@@ -1443,7 +1438,7 @@ trans_param_bearer_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offs
 
 #define	NUM_TRANS_PARAM (sizeof(ansi_trans_param_strings)/sizeof(value_string))
 static gint ett_ansi_637_trans_param[NUM_TRANS_PARAM];
-static void (*ansi_637_trans_param_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string) = {
+static void (*ansi_637_trans_param_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string, int string_len) = {
     trans_param_tele_id,	/* Teleservice Identifier */
     trans_param_srvc_cat,	/* Service Category */
     trans_param_address,	/* Originating Address */
@@ -1640,7 +1635,7 @@ dissect_ansi_637_tele(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 dissect_ansi_637_trans_param(tvbuff_t *tvb, proto_tree *tree, guint32 *offset)
 {
-    void (*param_fcn)(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string) = NULL;
+    void (*param_fcn)(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string, int string_len) = NULL;
     guint8	oct;
     guint8	len;
     guint32	curr_offset;
@@ -1690,8 +1685,11 @@ dissect_ansi_637_trans_param(tvbuff_t *tvb, proto_tree *tree, guint32 *offset)
 	}
 	else
 	{
+            gchar *ansi_637_add_string;
+
+	    ansi_637_add_string[0] = ep_alloc(1024);
 	    ansi_637_add_string[0] = '\0';
-	    (*param_fcn)(tvb, subtree, len, curr_offset, ansi_637_add_string);
+	    (*param_fcn)(tvb, subtree, len, curr_offset, ansi_637_add_string, 1024);
 
 	    if (ansi_637_add_string[0] != '\0')
 	    {
