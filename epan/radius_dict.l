@@ -213,7 +213,7 @@ void add_attribute(gchar* name, gchar* code, radius_attr_dissector_t type, gchar
 	a->ett = -1;
 	
 	g_hash_table_insert(by_id,GUINT_TO_POINTER(a->code),a);
-	g_hash_table_insert(dict->attrs_by_name,a->name,a);
+	g_hash_table_insert(dict->attrs_by_name,(gpointer) (a->name),a);
 }
 
 void add_value(gchar* attrib_name, gchar* value_repr, long value) {
@@ -265,7 +265,7 @@ static gboolean destroy_attrs(gpointer k _U_, gpointer v, gpointer p _U_) {
 	radius_attr_info_t* a = v;
 	int i;
 	
-	g_free(a->name);
+	g_free((gpointer) (a->name));
 	if (a->vs) {
 		for(i=0; a->vs[i].strptr; i++) {
 			g_free((void *)a->vs[i].strptr);
