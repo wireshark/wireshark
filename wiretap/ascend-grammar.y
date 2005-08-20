@@ -142,8 +142,6 @@ XMIT-Max7:20: (task "_brouterControlTask" at 0xb094ac20, time: 1481.51) 20 octet
 #include "ascend-int.h"
 #include "file_wrappers.h"
 
-#include "ascend-grammar.h"
-
 #define NO_USER "<none>"
 
 int yyparse(void);
