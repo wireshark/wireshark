@@ -1,5 +1,7 @@
-/* ui_util.c
- * UI utility routines
+/* gui_utils.c
+ * UI utility routines, some GTK+-specific (declared in gtk/gui_utils.h)
+ * and some with GUI-independent APIs, with this file containing the GTK+
+ * implementations of them (declared in ui_util.h)
  *
  * $Id$
  *

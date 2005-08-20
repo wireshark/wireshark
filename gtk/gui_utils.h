@@ -1,5 +1,5 @@
 /* gui_utils.h
- * Definitions for UI utility routines
+ * Declarations of GTK+-specific UI utility routines
  *
  * $Id$
  *
