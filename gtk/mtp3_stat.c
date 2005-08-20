@@ -410,17 +410,6 @@ mtp3_stat_gtk_win_create(
 }
 
 
-/*
- * Never gets called ?
- */
-static void
-mtp3_stat_gtk_init(
-    const char		*optarg _U_)
-{
-    /* does not appear to be called */
-}
-
-
 static void
 mtp3_stat_gtk_cb(
     GtkWidget		*w _U_,
@@ -442,13 +431,19 @@ mtp3_stat_gtk_cb(
 }
 
 
+static void
+mtp3_stat_gtk_init(
+    const char		*optarg _U_)
+{
+    mtp3_stat_gtk_cb(NULL, NULL);
+}
+
+
 void
 register_tap_listener_gtkmtp3_stat(void)
 {
     GString		*err_p;
 
-
-    register_stat_cmd_arg("mtp3,", mtp3_stat_gtk_init);
 
     memset((void *) &mtp3_stat, 0, sizeof(mtp3_stat_t));
 
@@ -468,4 +463,5 @@ register_tap_listener_gtkmtp3_stat(void)
 
     register_stat_menu_item("MTP3/MSUs",  REGISTER_STAT_GROUP_TELEPHONY,
         mtp3_stat_gtk_cb, NULL, NULL, NULL);
+    register_stat_cmd_arg("mtp3,msus", mtp3_stat_gtk_init);
 }

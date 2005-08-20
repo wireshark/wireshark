@@ -362,24 +362,12 @@ ansi_a_stat_gtk_win_create(
 }
 
 
-/*
- * Never gets called ?
- */
-static void
-ansi_a_stat_gtk_init(
-    const char		*optarg _U_)
-{
-    /* does not appear to be called */
-}
-
-
 static void
 ansi_a_stat_gtk_bsmap_cb(
     GtkWidget		*w _U_,
     gpointer		d _U_)
 {
     int			i;
-    char		str[100];
 
 
     /*
@@ -396,8 +384,8 @@ ansi_a_stat_gtk_bsmap_cb(
     i = 0;
     while (ansi_a_ios401_bsmap_strings[i].strptr)
     {
-	g_snprintf(str, 100, "0x%02x", ansi_a_ios401_bsmap_strings[i].value);
-	dlg_bsmap.entries[0] = g_strdup(str);
+	dlg_bsmap.entries[0] = g_strdup_printf("0x%02x",
+					       ansi_a_ios401_bsmap_strings[i].value);
 
 	dlg_bsmap.entries[1] = g_strdup(ansi_a_ios401_bsmap_strings[i].strptr);
 
@@ -414,12 +402,19 @@ ansi_a_stat_gtk_bsmap_cb(
 
 
 static void
+ansi_a_stat_gtk_bsmap_init(
+    const char		*optarg _U_)
+{
+    ansi_a_stat_gtk_bsmap_cb(NULL, NULL);
+}
+
+
+static void
 ansi_a_stat_gtk_dtap_cb(
     GtkWidget		*w _U_,
     gpointer		d _U_)
 {
     int			i;
-    char		str[100];
 
 
     /*
@@ -436,8 +431,8 @@ ansi_a_stat_gtk_dtap_cb(
     i = 0;
     while (ansi_a_ios401_dtap_strings[i].strptr)
     {
-	g_snprintf(str, 100, "0x%02x", ansi_a_ios401_dtap_strings[i].value);
-	dlg_dtap.entries[0] = g_strdup(str);
+	dlg_dtap.entries[0] = g_strdup_printf("0x%02x",
+					      ansi_a_ios401_dtap_strings[i].value);
 
 	dlg_dtap.entries[1] = g_strdup(ansi_a_ios401_dtap_strings[i].strptr);
 
@@ -453,13 +448,19 @@ ansi_a_stat_gtk_dtap_cb(
 }
 
 
+static void
+ansi_a_stat_gtk_dtap_init(
+    const char		*optarg _U_)
+{
+    ansi_a_stat_gtk_dtap_cb(NULL, NULL);
+}
+
+
 void
 register_tap_listener_gtkansi_a_stat(void)
 {
     GString		*err_p;
 
-
-    register_stat_cmd_arg("ansi_a,", ansi_a_stat_gtk_init);
 
     memset((void *) &stat, 0, sizeof(ansi_a_stat_t));
 
@@ -479,6 +480,9 @@ register_tap_listener_gtkansi_a_stat(void)
 
     register_stat_menu_item("ANSI/A-Interface BSMAP", REGISTER_STAT_GROUP_TELEPHONY, 
         ansi_a_stat_gtk_bsmap_cb, NULL, NULL ,NULL);
+    register_stat_cmd_arg("ansi_a,bsmap", ansi_a_stat_gtk_bsmap_init);
+
     register_stat_menu_item("ANSI/A-Interface DTAP", REGISTER_STAT_GROUP_TELEPHONY,
         ansi_a_stat_gtk_dtap_cb, NULL, NULL ,NULL);
+    register_stat_cmd_arg("ansi_a,dtap", ansi_a_stat_gtk_dtap_init);
 }

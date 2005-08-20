@@ -362,24 +362,12 @@ ansi_map_stat_gtk_win_create(
 }
 
 
-/*
- * Never gets called ?
- */
-static void
-ansi_map_stat_gtk_init(
-    const char		*optarg _U_)
-{
-    /* does not appear to be called */
-}
-
-
 static void
 ansi_map_stat_gtk_cb(
     GtkWidget		*w _U_,
     gpointer		d _U_)
 {
     int			i;
-    char		str[100];
 
 
     /*
@@ -396,8 +384,8 @@ ansi_map_stat_gtk_cb(
     i = 0;
     while (ansi_map_opr_code_strings[i].strptr)
     {
-	g_snprintf(str, 100, "0x%02x", ansi_map_opr_code_strings[i].value);
-	dlg.entries[0] = g_strdup(str);
+	dlg.entries[0] = g_strdup_printf("0x%02x",
+					 ansi_map_opr_code_strings[i].value);
 
 	dlg.entries[1] = g_strdup(ansi_map_opr_code_strings[i].strptr);
 
@@ -417,13 +405,19 @@ ansi_map_stat_gtk_cb(
 }
 
 
+static void
+ansi_map_stat_gtk_init(
+    const char		*optarg _U_)
+{
+    ansi_map_stat_gtk_cb(NULL, NULL);
+}
+
+
 void
 register_tap_listener_gtkansi_map_stat(void)
 {
     GString		*err_p;
 
-
-    register_stat_cmd_arg("ansi_map,", ansi_map_stat_gtk_init);
 
     memset((void *) &stat, 0, sizeof(ansi_map_stat_t));
 
@@ -443,4 +437,5 @@ register_tap_listener_gtkansi_map_stat(void)
 
     register_stat_menu_item("ANSI/MAP Operation", REGISTER_STAT_GROUP_TELEPHONY,
         ansi_map_stat_gtk_cb, NULL, NULL, NULL);
+    register_stat_cmd_arg("ansi_map", ansi_map_stat_gtk_init);
 }

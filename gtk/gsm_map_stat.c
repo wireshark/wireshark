@@ -392,24 +392,12 @@ gsm_map_stat_gtk_win_create(
 }
 
 
-/*
- * Never gets called ?
- */
-static void
-gsm_map_stat_gtk_init(
-    const char		*optarg _U_)
-{
-    /* does not appear to be called */
-}
-
-
 static void
 gsm_map_stat_gtk_cb(
     GtkWidget		*w _U_,
     gpointer		d _U_)
 {
     int			i;
-    char		str[100];
 
 
     /*
@@ -426,8 +414,8 @@ gsm_map_stat_gtk_cb(
     i = 0;
     while (gsm_map_opr_code_strings[i].strptr)
     {
-	g_snprintf(str, 100, "%u", gsm_map_opr_code_strings[i].value);
-	dlg.entries[0] = g_strdup(str);
+	dlg.entries[0] = g_strdup_printf("%u",
+					 gsm_map_opr_code_strings[i].value);
 
 	dlg.entries[1] = g_strdup(gsm_map_opr_code_strings[i].strptr);
 
@@ -449,13 +437,19 @@ gsm_map_stat_gtk_cb(
 }
 
 
+static void
+gsm_map_stat_gtk_init(
+    const char		*optarg _U_)
+{
+    gsm_map_stat_gtk_cb(NULL, NULL);
+}
+
+
 void
 register_tap_listener_gtkgsm_map_stat(void)
 {
     GString		*err_p;
 
-
-    register_stat_cmd_arg("gsm_map,", gsm_map_stat_gtk_init);
 
     memset((void *) &gsm_map_stat, 0, sizeof(gsm_map_stat_t));
 
@@ -475,4 +469,5 @@ register_tap_listener_gtkgsm_map_stat(void)
 
     register_stat_menu_item("GSM/MAP Operation",  REGISTER_STAT_GROUP_TELEPHONY,
         gsm_map_stat_gtk_cb, NULL, NULL, NULL);
+    register_stat_cmd_arg("gsm_map", gsm_map_stat_gtk_init);
 }
