@@ -54,6 +54,7 @@
 #include <epan/report_err.h>
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
+#include <epan/emem.h>
 #include "packet-tcp.h"
 #include "packet-sip.h"
 
@@ -908,7 +909,7 @@ initializeDictionary(void)
 static gchar *
 diameter_vendor_to_str(guint32 vendorId, gboolean longName) {
   VendorId *probe;
-  static gchar buffer[64];
+  gchar *buffer;
 
   for (probe=vendorListHead; probe; probe=probe->next) {
 	if (vendorId == probe->id) {
@@ -919,8 +920,8 @@ diameter_vendor_to_str(guint32 vendorId, gboolean longName) {
 	}
   }
 
-  g_snprintf(buffer, sizeof(buffer),
-		   "Vendor 0x%08x", vendorId);
+  buffer=ep_alloc(64);
+  g_snprintf(buffer, 64, "Vendor 0x%08x", vendorId);
   return buffer;
 } /*diameter_vendor_to_str */
 
@@ -929,7 +930,7 @@ static gchar *
 diameter_command_to_str(guint32 commandCode, guint32 vendorId)
 {
   CommandCode *probe;
-  static gchar buffer[64];
+  gchar *buffer=NULL;
   gchar *vendorName=NULL;
 
   switch(gbl_version) {
@@ -961,7 +962,8 @@ diameter_command_to_str(guint32 commandCode, guint32 vendorId)
   if ( suppress_console_output == FALSE )
 	  g_warning("Diameter: Unable to find name for command code 0x%08x, Vendor \"%u\"!",
 			commandCode, vendorId);
-  g_snprintf(buffer, sizeof(buffer),
+  buffer=ep_alloc(64);
+  g_snprintf(buffer, 64,
 		   "Cmd-0x%08x", commandCode);
     break;
     case DIAMETER_RFC:
@@ -976,7 +978,8 @@ diameter_command_to_str(guint32 commandCode, guint32 vendorId)
     if ( suppress_console_output == FALSE )
           g_warning("Diameter: Unable to find name for command code 0x%08x!",
                         commandCode);
-    g_snprintf(buffer, sizeof(buffer),
+    buffer=ep_alloc(64);
+    g_snprintf(buffer, 64,
                    "Cmd-0x%08x", commandCode);
     break;
   }
@@ -987,7 +990,7 @@ diameter_command_to_str(guint32 commandCode, guint32 vendorId)
 static gchar *
 diameter_app_to_str(guint32 appId) {
   ApplicationId *probe;
-  static gchar buffer[64];
+  gchar *buffer;
 
   for (probe=ApplicationIdHead; probe; probe=probe->next) {
 	if (appId == probe->id) {
@@ -995,7 +998,8 @@ diameter_app_to_str(guint32 appId) {
 	}
   }
 
-  g_snprintf(buffer, sizeof(buffer), "Unknown");
+  buffer=ep_alloc(64);
+  g_snprintf(buffer, 64, "Unknown");
   return buffer;
 } /*diameter_app_to_str */
 
@@ -1039,7 +1043,7 @@ diameter_avp_get_type(guint32 avpCode, guint32 vendorId){
 static gchar *
 diameter_avp_get_name(guint32 avpCode, guint32 vendorId)
 {
-  static gchar buffer[64];
+  gchar *buffer;
   avpInfo *probe;
   gchar *vendorName=NULL;
 
@@ -1069,7 +1073,8 @@ diameter_avp_get_name(guint32 avpCode, guint32 vendorId)
 			avpCode, vendorId);
 
   /* If we don't find it, build a name string */
-  g_snprintf(buffer, sizeof(buffer), "Unknown AVP:0x%08x", avpCode);
+  buffer=ep_alloc(64);
+  g_snprintf(buffer, 64, "Unknown AVP:0x%08x", avpCode);
   return buffer;
 } /* diameter_avp_get_name */
 static const gchar *
@@ -1521,7 +1526,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
   proto_tree *group_tree;
   proto_item *grouptf;
   proto_item *avptf;
-  char buffer[1024];
+  char *buffer;
   int BadPacket = FALSE;
   guint32 avpLength;
   guint8 flags;
@@ -1707,7 +1712,8 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 
 	  switch(avpType) {
 	  case DIAMETER_GROUPED:
-		sprintf(buffer, "%s Grouped AVPs", avpNameString);
+		buffer=ep_alloc(256);
+		g_snprintf(buffer, 256, "%s Grouped AVPs", avpNameString);
 		/* Recursively call ourselves */
 		grouptf = proto_tree_add_text(avpi_tree,
 									  tvb, offset, tvb_length(tvb),
@@ -1841,7 +1847,6 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 	  case DIAMETER_TIME:
 		if (avpDataLength == 4) {
 		  nstime_t data;
-		  gchar buffer[64];
 		  struct tm *gmtp;
 
 		  data.secs = tvb_get_ntohl(tvb, offset);
@@ -1851,6 +1856,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 				data.nsecs = 0;
 
 				gmtp = gmtime(&data.secs);
+				buffer=ep_alloc(64);
 				strftime(buffer, 64,
 				"%a, %d %b %Y %H:%M:%S UTC", gmtp);
 

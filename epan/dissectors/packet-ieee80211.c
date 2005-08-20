@@ -69,6 +69,7 @@
 #include "etypes.h"
 #include <epan/crc32.h>
 #include <epan/tap.h>
+#include <epan/emem.h>
 
 #include <ctype.h>
 #include "isprint.h"
@@ -3978,7 +3979,7 @@ static void init_wepkeys(void) {
   gboolean res;
 
 #ifdef USE_ENV
-  guint8 buf[128];
+  guint8 *buf;
 
   tmp = getenv("ETHEREAL_WEPKEYNUM");
   if (!tmp) {
@@ -4009,7 +4010,8 @@ static void init_wepkeys(void) {
     wep_keylens[i] = 0;
 
 #ifdef USE_ENV
-    sprintf(buf, "ETHEREAL_WEPKEY%d", i+1);
+    buf=ep_alloc(128);
+    sprintf(buf, 128, "ETHEREAL_WEPKEY%d", i+1);
     tmp = getenv(buf);
 #else
     tmp = wep_keystr[i];

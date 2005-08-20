@@ -211,7 +211,7 @@ fccos_to_str (tvbuff_t *tvb, int offset, gchar *cosstr)
 
 /* The feature routines just decode FCP's FC-4 features field */
 static gchar *
-fc4feature_to_str (guint8 fc4feature, guint8 fc4type, gchar *str)
+fc4feature_to_str (guint8 fc4feature, guint8 fc4type, gchar *str, int len)
 {
     int stroff = 0;
     
@@ -228,7 +228,7 @@ fc4feature_to_str (guint8 fc4feature, guint8 fc4type, gchar *str)
         }
     }
     else {
-        sprintf (str, "0x%x", fc4feature);
+        g_snprintf (str, len, "0x%x", fc4feature);
     }
     return (str);
 }
@@ -875,8 +875,9 @@ dissect_fcdns_gidff (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 {
     int offset = 16;            /* past the fc_ct header */
     guint8 islast;
-    gchar str[64];
+    gchar *str;
 
+    str=ep_alloc(64);
     if (req_tree) {
         if (isreq) {
             proto_tree_add_item (req_tree, hf_fcdns_req_domainscope, tvb,
@@ -887,7 +888,7 @@ dissect_fcdns_gidff (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
                                    offset+6, 1,
                                    fc4feature_to_str (tvb_get_guint8 (tvb, offset+6),
                                                       tvb_get_guint8 (tvb, offset+7),
-                                                      str));
+                                                      str, 64));
             proto_tree_add_item (req_tree, hf_fcdns_req_fc4type, tvb,
                                  offset+7, 1, 0);
         }
@@ -1061,8 +1062,9 @@ static void
 dissect_fcdns_rffid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    gchar fc4str[64];
+    gchar *fc4str;
 
+    fc4str=ep_alloc(64);
     if (req_tree && isreq) {
         proto_tree_add_string (req_tree, hf_fcdns_req_portid, tvb, offset+1, 3,
                                fc_to_str (tvb_get_ptr (tvb, offset+1, 3)));
@@ -1072,7 +1074,7 @@ dissect_fcdns_rffid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
                                                                   offset+6),
                                                   tvb_get_guint8 (tvb,
                                                                   offset+7),
-                                                  fc4str));
+                                                  fc4str, 64));
         proto_tree_add_item (req_tree, hf_fcdns_req_fc4type, tvb, offset+7,
                              1, 0);
     }

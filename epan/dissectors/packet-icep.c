@@ -451,9 +451,7 @@ static void dissect_ice_context(proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 	}
 	
 	if (Size == 0) {
-		s = ep_alloc( strlen("(empty)") + 1 );
-		sprintf(s, "(empty)");
-		s[strlen("(empty)")] = '\0';
+		s = "(empty)";
 		/* display the 0x00 Size byte when click on a empty context */
 		if (tree)
 			proto_tree_add_string(tree, hf_icep_context, tvb, offset - 1, 1, s);
