@@ -60,16 +60,16 @@ LIBETHEREAL_SRC = 		\
 	prefs.c			\
 	proto.c			\
 	ptvcursor.c		\
-	radius_dict.c   \
+	radius_dict.c		\
 	range.c			\
 	reassemble.c		\
 	req_resp_hdrs.c		\
 	sha1.c			\
 	sigcomp_state_hdlr.c	\
-	sigcomp-udvm.c	\
+	sigcomp-udvm.c		\
 	sminmpec.c		\
 	sna-utils.c		\
-	stat.c	\
+	stat_cmd_args.c		\
 	stats_tree.c		\
 	strutil.c		\
 	t35.c			\
@@ -133,11 +133,11 @@ LIBETHEREAL_INCLUDES = 		\
 	req_resp_hdrs.h		\
 	sha1.h			\
 	sigcomp_state_hdlr.h	\
-	sigcomp-udvm.h	\
+	sigcomp-udvm.h		\
 	slab.h			\
 	sminmpec.h		\
 	sna-utils.h		\
-	stat.h	\
+	stat_cmd_args.h		\
 	stats_tree.h		\
 	stats_tree_priv.h	\
 	strutil.h		\

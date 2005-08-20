@@ -40,7 +40,7 @@
 #include <string.h>
 #include "epan/packet_info.h"
 #include <epan/tap.h>
-#include <epan/stat.h>
+#include <epan/stat_cmd_args.h>
 #include "register.h"
 #include "epan/value_string.h"
 #include <epan/dissectors/packet-wsp.h>

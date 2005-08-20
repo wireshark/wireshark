@@ -42,7 +42,7 @@
 #include "epan/packet_info.h"
 #include "epan/value_string.h"
 #include <epan/tap.h>
-#include <epan/stat.h>
+#include <epan/stat_cmd_args.h>
 #include <epan/dissectors/packet-bssap.h>
 #include <epan/dissectors/packet-ansi_a.h>
 #include "register.h"

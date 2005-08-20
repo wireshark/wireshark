@@ -83,7 +83,7 @@
 #include "ringbuffer.h"
 #include "../ui_util.h"
 #include <epan/tap.h>
-#include <epan/stat.h>
+#include <epan/stat_cmd_args.h>
 #include "util.h"
 #include "clopts_common.h"
 #include "version_info.h"

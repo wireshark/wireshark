@@ -1,6 +1,5 @@
-/* stat.c
- * Routines to register "-z" command-line argument or Statistics menu item
- * handlers
+/* stat_cmd_args.c
+ * Routines to register "-z" command-line argument handlers for stats
  *
  * $Id$
  *
@@ -33,7 +32,7 @@
 
 #include <glib.h>
 
-#include <epan/stat.h>
+#include <epan/stat_cmd_args.h>
 
 /* structure to keep track of what stats have registered command-line
    arguments.

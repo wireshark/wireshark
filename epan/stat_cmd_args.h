@@ -1,6 +1,6 @@
-/* stat.h
- * Declarations of routines to register "-z" command-line argument or
- * Statistics menu item handlers
+/* stat_cmd_args.h
+ * Declarations of routines to register "-z" command-line argument handlers
+ * for stats
  *
  * $Id$
  *

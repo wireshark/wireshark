@@ -34,7 +34,7 @@
 
 #include "simple_dialog.h"
 #include "globals.h"
-#include <epan/stat.h>
+#include <epan/stat_cmd_args.h>
 #include "stat_menu.h"
 #include "gui_utils.h"
 #include "dlg_utils.h"

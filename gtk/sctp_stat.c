@@ -32,7 +32,7 @@
 #include "globals.h"
 #include "epan/packet_info.h"   /* Needed for packet_info */
 #include <epan/tap.h>           /* Needed for register_tap_listener */
-#include <epan/stat.h>
+#include <epan/stat_cmd_args.h>
 #include "stat_menu.h"
 #include "dlg_utils.h"
 #include "compat_macros.h"

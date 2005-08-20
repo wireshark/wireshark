@@ -42,7 +42,7 @@
 
 #include "gtkglobals.h"
 #include "gui_utils.h"
-#include <epan/stat.h>
+#include <epan/stat_cmd_args.h>
 #include "stat_menu.h"
 #include <epan/tap.h>
 #include "../register.h"

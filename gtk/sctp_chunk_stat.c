@@ -40,7 +40,7 @@
 #include <epan/epan.h>
 #include <epan/value_string.h>
 
-#include <epan/stat.h>
+#include <epan/stat_cmd_args.h>
 #include "stat_menu.h"
 #include <epan/tap.h>
 #include "../register.h"

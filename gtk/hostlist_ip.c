@@ -35,7 +35,7 @@
 #include <gtk/gtk.h>
 #include <string.h>
 #include "epan/packet.h"
-#include <epan/stat.h>
+#include <epan/stat_cmd_args.h>
 #include "stat_menu.h"
 #include <epan/tap.h>
 #include "../register.h"

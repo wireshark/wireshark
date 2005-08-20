@@ -39,7 +39,7 @@
 #include "epan/epan_dissect.h"
 #include "epan/proto.h"
 #include <epan/tap.h>
-#include <epan/stat.h>
+#include <epan/stat_cmd_args.h>
 #include "register.h"
 
 typedef struct _phs_t {
