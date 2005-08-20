@@ -2686,7 +2686,7 @@ param_bill_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_cdma_so(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cdma_so(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 {
     gint32 so;
     guint saved_offset;
@@ -2888,7 +2888,7 @@ param_dmh_red_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_cic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 {
     gint32 tg, mem;
     guint saved_offset;
@@ -6032,7 +6032,7 @@ param_sub_addr(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_digits_basic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, gboolean searchable _U_)
+param_digits_basic(ASN1_SCK *asn1, proto_tree *tree, guint len, gboolean searchable)
 {
     gint32 value, b1, b2, b3, b4, enc, plan;
     guint saved_offset;
@@ -6238,17 +6238,17 @@ param_digits_basic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 static void
 param_digits(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
-    param_digits_basic(asn1, tree, len, add_string, FALSE);
+    param_digits_basic(asn1, tree, len, FALSE);
 }
 
 static void
-param_mdn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_mdn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 {
-    param_digits_basic(asn1, tree, len, add_string, TRUE);
+    param_digits_basic(asn1, tree, len, TRUE);
 }
 
 static void
-param_esn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_esn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 {
     gint32 value;
     guint saved_offset;
@@ -6581,7 +6581,7 @@ param_calling_party_cat(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_
  * Dissect IOS data parameters expected to be in TLV format
  */
 static void
-dissect_cdma2000_ios_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+dissect_cdma2000_ios_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 {
     gint32	value;
     guint	num_elems;
@@ -8304,7 +8304,7 @@ param_reason_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_imsi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_imsi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 {
     guint saved_offset;
     guchar *poctets;
@@ -8347,11 +8347,11 @@ param_min_basic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, 
     }
     else
     {
-    proto_tree_add_text(tree, asn1->tvb,
-		saved_offset, len,
-		"MIN %s",
-		bigbuf);
-	}
+	proto_tree_add_text(tree, asn1->tvb,
+	    saved_offset, len,
+	    "MIN %s",
+	    bigbuf);
+    }
 
     sprintf(add_string, " - %s", bigbuf);
 }
@@ -11780,7 +11780,7 @@ param_lai(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 }
 
 static void
-param_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 {
     guint saved_offset;
     guint num_parms;
@@ -11809,7 +11809,7 @@ param_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 
 #define	NUM_PARAM_1 (sizeof(ansi_param_1_strings)/sizeof(value_string))
 static gint ett_ansi_param_1[NUM_PARAM_1];
-static void (*param_1_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_) = {
+static void (*param_1_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string) = {
     param_bill_id,	/* Billing ID */
     param_int,	/* Serving Cell ID */
     param_int,	/* Target Cell ID */
@@ -11846,7 +11846,7 @@ static void (*param_1_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar 
 
 #define	NUM_PARAM_2 (sizeof(ansi_param_2_strings)/sizeof(value_string))
 static gint ett_ansi_param_2[NUM_PARAM_2];
-static void (*param_2_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_) = {
+static void (*param_2_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string) = {
     param_tdma_burst_ind,	/* TDMA Burst Indicator */
     param_pc_ssn,	/* PC_SSN */
     param_lai,	/* Location Area ID */
@@ -11947,7 +11947,7 @@ static void (*param_2_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar 
 
 #define	NUM_PARAM_3 (sizeof(ansi_param_3_strings)/sizeof(value_string))
 static gint ett_ansi_param_3[NUM_PARAM_3];
-static void (*param_3_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_) = {
+static void (*param_3_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string) = {
     param_act_code,	/* Action Code */
     param_alert_res,	/* Alert Result */
     param_list,	/* Announcement List */
@@ -12567,7 +12567,7 @@ dissect_ansi_error(ASN1_SCK *asn1, proto_tree *tree)
 static gboolean
 dissect_ansi_param(ASN1_SCK *asn1, proto_tree *tree)
 {
-    void (*param_fcn)(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_) = NULL;
+    void (*param_fcn)(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string) = NULL;
     guint saved_offset = 0;
     guint len;
     proto_tree *subtree;
