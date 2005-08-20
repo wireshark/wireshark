@@ -287,7 +287,7 @@ sync_pipe_add_arg(const char **args, int *argc, const char *arg)
      pointers, *not* counting the NULL pointer at the end, so we have
      to add 2 in order to get the new size of the array, including the
      new pointer and the terminating NULL pointer. */
-  args = g_realloc(args, (*argc + 2) * sizeof (char *));
+  args = g_realloc( (gpointer) args, (*argc + 2) * sizeof (char *));
 
   /* Stuff the pointer into the penultimate element of the array, which
      is the one at the index specified by "*argc". */
@@ -428,7 +428,7 @@ sync_pipe_start(capture_options *capture_opts) {
       /* Couldn't create the pipe between parent and child. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't create sync pipe: %s",
                         strerror(errno));
-      g_free(argv);
+      g_free( (gpointer) argv);
       return FALSE;
     }
 
@@ -439,7 +439,7 @@ sync_pipe_start(capture_options *capture_opts) {
                         strerror(errno));
       close(sync_pipe[PIPE_READ]);
       close(sync_pipe[PIPE_WRITE]);
-      g_free(argv);
+      g_free( (gpointer) argv);
       return FALSE;
     }
 
@@ -546,7 +546,7 @@ sync_pipe_start(capture_options *capture_opts) {
 
     /* Parent process - read messages from the child process over the
        sync pipe. */
-    g_free(argv);	/* free up arg array */
+    g_free( (gpointer) argv);	/* free up arg array */
 
     /* Close the write side of the pipe, so that only the child has it
        open, and thus it completely closes, and thus returns to us
