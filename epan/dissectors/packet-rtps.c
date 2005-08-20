@@ -47,6 +47,7 @@
 #include  <epan/packet.h>
 #include  <epan/addr_resolv.h>
 #include  <epan/conversation.h>
+#include  <epan/emem.h>
 
 
 /* *********************************************************************** *
@@ -156,16 +157,16 @@ static void dissect_INFO_DST(tvbuff_t *tvb,gint offset,guint8 flags,
 static guint16  get_guint16(tvbuff_t *tvb, gint offset, gboolean little_endian);
 static guint32  get_guint32(tvbuff_t *tvb, gint offset, gboolean little_endian);
 
-static char *protocol_version_to_string(gint offset,tvbuff_t *tvb,char *buff);
-static char *vendor_id_to_string(gint offset, tvbuff_t *tvb, char *buff);
+static char *protocol_version_to_string(gint offset,tvbuff_t *tvb,char *buff,int buff_len);
+static char *vendor_id_to_string(gint offset, tvbuff_t *tvb, char *buff, int buff_len);
 
-static char *host_id_to_string(gint offset,tvbuff_t *tvb, char buff[]);
-static char *app_id_to_string(gint offset,tvbuff_t *tvb,char buff[]);
-static char *object_id_to_string(gint offset, tvbuff_t *tvb, char buff[]);
+static char *host_id_to_string(gint offset,tvbuff_t *tvb, char *buff, int buff_len);
+static char *app_id_to_string(gint offset,tvbuff_t *tvb,char *buff,int buff_len);
+static char *object_id_to_string(gint offset, tvbuff_t *tvb, char *buff, int buff_len);
 
-static char *IP_to_string(gint offset,tvbuff_t *tvb,gboolean little_endian,char buff[]);
-static char *port_to_string(gint offset,tvbuff_t *tvb,gboolean little_endian,char buff[]);
-static char *get_NtpTime(gint offset,tvbuff_t *tvb,gboolean little_endian,char buff[]);
+static char *IP_to_string(gint offset,tvbuff_t *tvb,gboolean little_endian,char *buff, int buff_len);
+static char *port_to_string(gint offset,tvbuff_t *tvb,gboolean little_endian,char *buff, int buff_len);
+static char *get_NtpTime(gint offset,tvbuff_t *tvb,gboolean little_endian,char *buff, int buff_len);
 
 static void  get_bitmap(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
                         gint next_submsg, proto_tree *tree);
@@ -245,8 +246,11 @@ dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gboolean         little_endian;
   int              next_submsg;
   int              count_msg_type[11];
-  char             buff[200], buff_tmp[30];/* buffers */
+  char             *buff;
+  int buff_len;
 
+  buff=ep_alloc(200);
+  buff[0]=0;
   /*  offset is the byte offset of 'tvb' at which the new tvbuff
       should start.  The first byte is the 0th byte.             */
 
@@ -275,25 +279,25 @@ dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    /*  Protocol Version */
    proto_tree_add_text(rtps_tree, tvb, offset, 2,
                        "Protocol  RTPS, version %s",
-                       protocol_version_to_string(offset, tvb, buff));
+                       protocol_version_to_string(offset, tvb, buff, 200));
    offset +=2;
 
    /*  Vendor Id  */
    proto_tree_add_text(rtps_tree, tvb, offset, 2,
                        "VendorId: %s",
-                       vendor_id_to_string(offset, tvb, buff));
+                       vendor_id_to_string(offset, tvb, buff, 200));
    offset +=2;
 
    /*  Host Id  */
    proto_tree_add_text(rtps_tree, tvb, offset, 4,
                        "HostId:   %s",
-                       host_id_to_string(offset,tvb,buff));
+                       host_id_to_string(offset, tvb, buff, 200));
    offset +=4;
 
    /*  App Id  */
    proto_tree_add_text(rtps_tree, tvb, offset, 4,
                        "App ID:   %s",
-                       app_id_to_string(offset, tvb, buff));
+                       app_id_to_string(offset, tvb, buff, 200));
 
   }
 
@@ -413,67 +417,67 @@ dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   {
     appKind = tvb_get_guint8(tvb, APP_KIND_BYTE);
 
-    if (appKind == MANAGEDAPPLICATION ) {sprintf(buff,"App: ");}
-    if (appKind == MANAGER)             {sprintf(buff,"Man: ");}
-    if (appKind == AID_UNKNOWN)         {sprintf(buff,"Unknown:");}
+    if (appKind == MANAGEDAPPLICATION ) {g_snprintf(buff, 200, "App: ");}
+    if (appKind == MANAGER)             {g_snprintf(buff, 200, "Man: ");}
+    if (appKind == AID_UNKNOWN)         {g_snprintf(buff, 200, "Unknown:");}
 
     if (appKind != MANAGEDAPPLICATION  && appKind != MANAGER &&
-        appKind != AID_UNKNOWN)         {sprintf(buff,"ERROR in APP type");}
+        appKind != AID_UNKNOWN)         {g_snprintf(buff, 200, "ERROR in APP type");}
 
    /* -- counts of submessages - for Information Frame */
    if (count_msg_type[0]>0) {
-       sprintf(buff_tmp,"PAD(%d) ",count_msg_type[0]);
-       strcat(buff,buff_tmp);
+       buff_len=strlen(buff);
+       g_snprintf(buff+buff_len, 200-buff_len, "PAD(%d) ",count_msg_type[0]);
    }
 
    if (count_msg_type[1]>0) {
-       sprintf(buff_tmp,"VAR(%d) ",count_msg_type[1]);
-       strcat(buff,buff_tmp);
+       buff_len=strlen(buff);
+       g_snprintf(buff+buff_len, 200-buff_len, "VAR(%d) ",count_msg_type[1]);
    }
 
    if (count_msg_type[2]>0) {
-       sprintf(buff_tmp,"ISSUE(%d) ",count_msg_type[2]);
-       strcat(buff,buff_tmp);
+       buff_len=strlen(buff);
+       g_snprintf(buff+buff_len, 200-buff_len, "ISSUE(%d) ",count_msg_type[2]);
    }
 
    if (count_msg_type[3]>0) {
-       sprintf(buff_tmp,"ACK(%d) ",count_msg_type[3]);
-       strcat(buff,buff_tmp);
+       buff_len=strlen(buff);
+       g_snprintf(buff+buff_len, 200-buff_len, "ACK(%d) ",count_msg_type[3]);
    }
 
    if (count_msg_type[4]>0) {
-       sprintf(buff_tmp,"HEARTBEAT(%d) ",count_msg_type[4]);
-       strcat(buff,buff_tmp);
+       buff_len=strlen(buff);
+       g_snprintf(buff+buff_len, 200-buff_len, "HEARTBEAT(%d) ",count_msg_type[4]);
    }
 
    if (count_msg_type[5]>0) {
-       sprintf(buff_tmp,"GAP(%d) ",count_msg_type[5]);
-       strcat(buff,buff_tmp);
+       buff_len=strlen(buff);
+       g_snprintf(buff+buff_len, 200-buff_len, "GAP(%d) ",count_msg_type[5]);
    }
 
    if (count_msg_type[6]>0) {
-       sprintf(buff_tmp,"INFO_TS(%d) ",count_msg_type[6]);
-       strcat(buff,buff_tmp);
+       buff_len=strlen(buff);
+       g_snprintf(buff+buff_len, 200-buff_len, "INFO_TS(%d) ",count_msg_type[6]);
    }
 
    if (count_msg_type[7]>0) {
-       sprintf(buff_tmp, "INFO_SRC(%d) ",count_msg_type[7]);
-       strcat(buff,buff_tmp);
+       buff_len=strlen(buff);
+       g_snprintf(buff+buff_len, 200-buff_len,  "INFO_SRC(%d) ",count_msg_type[7]);
    }
 
    if (count_msg_type[8]>0) {
-       sprintf(buff_tmp,"INFO_REPLY(%d) ",count_msg_type[8]);
-       strcat(buff,buff_tmp);
+       buff_len=strlen(buff);
+       g_snprintf(buff+buff_len, 200-buff_len, "INFO_REPLY(%d) ",count_msg_type[8]);
    }
 
    if (count_msg_type[9]>0) {
-       sprintf(buff_tmp,"INFO_DST(%d) ",count_msg_type[9]);
-       strcat(buff,buff_tmp);
+       buff_len=strlen(buff);
+       g_snprintf(buff+buff_len, 200-buff_len, "INFO_DST(%d) ",count_msg_type[9]);
    }
 
    if (count_msg_type[10]>0) {
-       sprintf(buff_tmp,"vendor specific(%d) ",count_msg_type[10]);
-       strcat(buff,buff_tmp);
+       buff_len=strlen(buff);
+       g_snprintf(buff+buff_len, 200-buff_len, "vendor specific(%d) ",count_msg_type[10]);
    }
 
    col_add_fstr(pinfo->cinfo, COL_INFO, buff);
@@ -537,7 +541,7 @@ static guint32  get_guint32(tvbuff_t *tvb, gint offset, gboolean little_endian)
  * *********************************************************************** */
 
 static char *
-protocol_version_to_string(gint offset,tvbuff_t *tvb,char *buff)
+protocol_version_to_string(gint offset,tvbuff_t *tvb,char *buff, int buff_len)
 {
   guint8            major, minor;
 
@@ -545,7 +549,7 @@ protocol_version_to_string(gint offset,tvbuff_t *tvb,char *buff)
    major = tvb_get_guint8(tvb, offset);
    minor = tvb_get_guint8(tvb, (offset+1));
 
-   sprintf(buff,"%d.%d", major, minor);
+   g_snprintf(buff, buff_len, "%d.%d", major, minor);
    return(buff);
 
 }
@@ -560,7 +564,7 @@ protocol_version_to_string(gint offset,tvbuff_t *tvb,char *buff)
  * *********************************************************************** */
 
 static char *
-vendor_id_to_string(gint offset, tvbuff_t *tvb, char *buff)
+vendor_id_to_string(gint offset, tvbuff_t *tvb, char *buff, int buff_len)
 {
   guint8              major, minor;
   VendorId            vendorId_rti;
@@ -572,10 +576,10 @@ vendor_id_to_string(gint offset, tvbuff_t *tvb, char *buff)
 
   if (major == vendorId_rti.major &&
       minor == vendorId_rti.minor)
-  { sprintf(buff,"Real-Time Innovations,Inc.,CA,USA");
+  { g_snprintf(buff, buff_len, "Real-Time Innovations,Inc.,CA,USA");
     return(buff); }
 
-  sprintf(buff,"Vendor unknown");
+  g_snprintf(buff, buff_len, "Vendor unknown");
   return(buff);
 }
 
@@ -589,7 +593,7 @@ vendor_id_to_string(gint offset, tvbuff_t *tvb, char *buff)
  * *********************************************************************** */
 
 static char *
-IP_to_string(gint offset,tvbuff_t *tvb,gboolean little_endian,char buff[])
+IP_to_string(gint offset,tvbuff_t *tvb,gboolean little_endian,char *buff, int buff_len)
 {
   IPAddress         ip;
   guint8  a = 0, b = 0, c = 0, d = 0; /* IP Adresss = a.b.c.d */
@@ -601,7 +605,7 @@ IP_to_string(gint offset,tvbuff_t *tvb,gboolean little_endian,char buff[])
   c = (ip >>  8) & 0xff;
   d =  ip & 0xff;
 
-  sprintf(buff,"%d.%d.%d.%d", a, b, c, d);
+  g_snprintf(buff, buff_len, "%d.%d.%d.%d", a, b, c, d);
   return(buff);
 }
 
@@ -615,15 +619,15 @@ IP_to_string(gint offset,tvbuff_t *tvb,gboolean little_endian,char buff[])
  * *********************************************************************** */
 
 static char *
-port_to_string(gint offset,tvbuff_t *tvb,gboolean little_endian,char buff[])
+port_to_string(gint offset,tvbuff_t *tvb,gboolean little_endian,char *buff, int buff_len)
 {
   Port port = get_guint32(tvb, offset, little_endian);
             /* get_guint32() - reads + endian conversion */
 
   if (port == PORT_INVALID)
-    sprintf(buff,"PORT_INVALID");
+    g_snprintf(buff, buff_len, "PORT_INVALID");
   else
-    sprintf(buff,"0x%X",port);
+    g_snprintf(buff, buff_len, "0x%X",port);
 
   return(buff);
 }
@@ -638,7 +642,7 @@ port_to_string(gint offset,tvbuff_t *tvb,gboolean little_endian,char buff[])
  * *********************************************************************** */
 
 static char *
-get_NtpTime(gint offset,tvbuff_t *tvb,gboolean little_endian,char buff[])
+get_NtpTime(gint offset,tvbuff_t *tvb,gboolean little_endian,char *buff, int buff_len)
 {
   NtpTime         ntpTime;
   float           time;
@@ -648,7 +652,7 @@ get_NtpTime(gint offset,tvbuff_t *tvb,gboolean little_endian,char buff[])
   ntpTime.fraction =  get_guint32(tvb, (offset + 4), little_endian);
   time = (float) ntpTime.seconds + (ntpTime.fraction / 2^(32));
 
-  sprintf(buff,"%f", time);
+  g_snprintf(buff, buff_len, "%f", time);
   return(buff);
 }
 
@@ -662,12 +666,12 @@ get_NtpTime(gint offset,tvbuff_t *tvb,gboolean little_endian,char buff[])
  * *********************************************************************** */
 
 static char *
-host_id_to_string(gint offset,tvbuff_t *tvb, char buff[])
+host_id_to_string(gint offset,tvbuff_t *tvb, char *buff, int buff_len)
 {
   guint32       hostId = tvb_get_ntohl(tvb, offset);
   /* get_ntohl() automaticaly convert data to BIG ENDIAN */
 
-  sprintf(buff,"0x%X", hostId);
+  g_snprintf(buff, buff_len, "0x%X", hostId);
   return(buff);
 }
 
@@ -681,7 +685,7 @@ host_id_to_string(gint offset,tvbuff_t *tvb, char buff[])
  * *********************************************************************** */
 
 static char *
-app_id_to_string(gint offset,tvbuff_t *tvb,char buff[])
+app_id_to_string(gint offset,tvbuff_t *tvb,char *buff, int buff_len)
 {
   guint32        appId = tvb_get_ntohl(tvb, offset);
   /* get_ntohl() automaticaly convert data to BIG ENDIAN */
@@ -693,17 +697,17 @@ app_id_to_string(gint offset,tvbuff_t *tvb,char buff[])
 
   if (appKind == MANAGEDAPPLICATION)
   {
-    sprintf(buff,"Managed App, InstanceId: 0x%X",instanceId);
+    g_snprintf(buff, buff_len, "Managed App, InstanceId: 0x%X",instanceId);
     return(buff);
   }
 
   if (appKind == MANAGER)
   {
-    sprintf(buff,"Manager, InstanceId: 0x%X",instanceId);
+    g_snprintf(buff, buff_len, "Manager, InstanceId: 0x%X",instanceId);
     return(buff);
   }
 
-  sprintf(buff,"Unknown");
+  g_snprintf(buff, buff_len, "Unknown");
   return(buff);
 
 }
@@ -718,36 +722,36 @@ app_id_to_string(gint offset,tvbuff_t *tvb,char buff[])
  * *********************************************************************** */
 
 static char *
-object_id_to_string(gint offset, tvbuff_t *tvb, char buff[])
+object_id_to_string(gint offset, tvbuff_t *tvb, char *buff, int buff_len)
 {
   guint32        objectId = tvb_get_ntohl(tvb, offset);
   /* get_ntohl() automaticaly convert data to BIG ENDIAN */
 
-  if (objectId == OID_UNKNOWN)      { sprintf(buff,"Unknown ObjectId");
+  if (objectId == OID_UNKNOWN)      { g_snprintf(buff, buff_len, "Unknown ObjectId");
                                       return(buff);}
-  if (objectId == OID_APP)          { sprintf(buff,"applicationSelf");
+  if (objectId == OID_APP)          { g_snprintf(buff, buff_len, "applicationSelf");
                                       return(buff);}
-  if (objectId == OID_WRITE_APPSELF){ sprintf(buff,"writerApplicationSelf");
+  if (objectId == OID_WRITE_APPSELF){ g_snprintf(buff, buff_len, "writerApplicationSelf");
                                       return(buff);}
-  if (objectId == OID_WRITE_APP)    { sprintf(buff,"writerApplications");
+  if (objectId == OID_WRITE_APP)    { g_snprintf(buff, buff_len, "writerApplications");
                                       return(buff);}
-  if (objectId == OID_READ_APP)     { sprintf(buff,"readerApplications");
+  if (objectId == OID_READ_APP)     { g_snprintf(buff, buff_len, "readerApplications");
                                       return(buff);}
-  if (objectId == OID_WRITE_MGR)    { sprintf(buff,"writerManagers");
+  if (objectId == OID_WRITE_MGR)    { g_snprintf(buff, buff_len, "writerManagers");
                                       return(buff);}
-  if (objectId == OID_READ_MGR)     { sprintf(buff,"readerManagers ");
+  if (objectId == OID_READ_MGR)     { g_snprintf(buff, buff_len, "readerManagers ");
                                       return(buff);}
-  if (objectId == OID_WRITE_PUBL)   { sprintf(buff,"writerPublications");
+  if (objectId == OID_WRITE_PUBL)   { g_snprintf(buff, buff_len, "writerPublications");
                                       return(buff);}
-  if (objectId == OID_READ_PUBL)    { sprintf(buff,"readerPublications");
+  if (objectId == OID_READ_PUBL)    { g_snprintf(buff, buff_len, "readerPublications");
                                       return(buff);}
-  if (objectId == OID_WRITE_SUBS)   { sprintf(buff,"writerSubscriptions");
+  if (objectId == OID_WRITE_SUBS)   { g_snprintf(buff, buff_len, "writerSubscriptions");
                                       return(buff);}
-  if (objectId == OID_READ_SUBS)    { sprintf(buff,"readerSubscriptions");
+  if (objectId == OID_READ_SUBS)    { g_snprintf(buff, buff_len, "readerSubscriptions");
                                       return(buff);}
 
   /* nothing from the possibilites above */
-  sprintf(buff,"instanceId: 0x%X, objKind: 0x%X",
+  g_snprintf(buff, buff_len, "instanceId: 0x%X, objKind: 0x%X",
                (objectId >> 8),(objectId & 0xff));
   return(buff);
 
@@ -885,9 +889,10 @@ dissect_VAR(tvbuff_t *tvb, gint offset, guint8 flags, gboolean little_endian,
             int next_submsg_offset, proto_tree *rtps_submessage_tree)
 {
   int                min_len;
-  char               buff[200];
+  char               *buff;
   SequenceNumber     writerSeqNumber;
 
+  buff=ep_alloc(200);
   proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
                       tvb, offset, 1, flags);
   offset +=1;
@@ -913,13 +918,13 @@ dissect_VAR(tvbuff_t *tvb, gint offset, guint8 flags, gboolean little_endian,
   /*  readerObjectId*/
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                       "Reader Object ID:   %s ",
-                       object_id_to_string(offset, tvb, buff));
+                       object_id_to_string(offset, tvb, buff, 200));
   offset +=4;
 
   /*  writerObjectId*/
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                       "Writer Object ID:   %s ",
-                      object_id_to_string(offset, tvb, buff));
+                      object_id_to_string(offset, tvb, buff, 200));
   offset+=4;
 
   /*  H flag |XXXX|HAPE| => masks with 00001000b = 8 */
@@ -928,20 +933,20 @@ dissect_VAR(tvbuff_t *tvb, gint offset, guint8 flags, gboolean little_endian,
     /*  HostId */
     proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                         "Host ID:            %s",
-                        host_id_to_string(offset,tvb,buff));
+                        host_id_to_string(offset, tvb, buff, 200));
     offset+=4;
 
     /*  App Id  */
     proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                         "App ID:             %s",
-                        app_id_to_string(offset, tvb, buff));
+                        app_id_to_string(offset, tvb, buff, 200));
     offset +=4;
   }
 
   /* Object Id */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                       "Object ID:          %s ",
-                      object_id_to_string(offset, tvb, buff));
+                      object_id_to_string(offset, tvb, buff, 200));
   offset +=4;
 
   /*  WriterSequence Number */
@@ -979,9 +984,11 @@ get_parameter_sequence(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
   guint16                 parameter, param_length;
   gint                    str_length;
   SequenceNumber          seqNumber;
-  char                    buff_tmp[MAX_PATHNAME];
+  char                    *buff_tmp;
   int                     i;
   char                    sep;
+
+  buff_tmp=ep_alloc(MAX_PATHNAME);
 
   ti = proto_tree_add_text(tree, tvb, offset, (next_submsg_offset - offset),
                       "Parameters:");
@@ -1055,7 +1062,7 @@ get_parameter_sequence(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
         {
           char *ntp_time_str;
 
-          ntp_time_str = get_NtpTime(offset, tvb, little_endian,buff_tmp);
+          ntp_time_str = get_NtpTime(offset, tvb, little_endian, buff_tmp, MAX_PATHNAME);
           proto_item_append_text(ti, ": %s", ntp_time_str);
           proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
                               "Expiration time: %s", ntp_time_str);
@@ -1072,7 +1079,7 @@ get_parameter_sequence(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
         {
           char *ntp_time_str;
 
-          ntp_time_str = get_NtpTime(offset, tvb, little_endian,buff_tmp);
+          ntp_time_str = get_NtpTime(offset, tvb, little_endian, buff_tmp, MAX_PATHNAME);
           proto_item_append_text(ti, ": %s", ntp_time_str);
           proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
                               "Persistence: %s", ntp_time_str);
@@ -1089,7 +1096,7 @@ get_parameter_sequence(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
         {
           char *ntp_time_str;
 
-          ntp_time_str = get_NtpTime(offset, tvb, little_endian,buff_tmp);
+          ntp_time_str = get_NtpTime(offset, tvb, little_endian, buff_tmp, MAX_PATHNAME);
           proto_item_append_text(ti, ": %s", ntp_time_str);
           proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
                               "Minimum separation: %s", ntp_time_str);
@@ -1184,7 +1191,7 @@ get_parameter_sequence(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
       	{
       	  char *ip_string;
 
-          ip_string = IP_to_string(offset, tvb, little_endian,buff_tmp);
+          ip_string = IP_to_string(offset, tvb, little_endian, buff_tmp, MAX_PATHNAME);
           proto_item_append_text(ti, "%c %s", sep, ip_string);
           proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
                               "Address[%d]: %s", i, ip_string);
@@ -1203,7 +1210,7 @@ get_parameter_sequence(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
       	{
       	  char *ip_string;
 
-          ip_string = IP_to_string(offset, tvb, little_endian,buff_tmp);
+          ip_string = IP_to_string(offset, tvb, little_endian, buff_tmp, MAX_PATHNAME);
           proto_item_append_text(ti, "%c %s", sep, ip_string);
           proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
                               "Address[%d]: %s", i, ip_string);
@@ -1225,7 +1232,7 @@ get_parameter_sequence(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
         {
           char *port_str;
 
-          port_str = port_to_string(offset, tvb, little_endian,buff_tmp);
+          port_str = port_to_string(offset, tvb, little_endian, buff_tmp, MAX_PATHNAME);
           proto_item_append_text(ti, ": %s", port_str);
           proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
                               "Port: %s", port_str);
@@ -1242,7 +1249,7 @@ get_parameter_sequence(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
         {
           char *port_str;
 
-          port_str = port_to_string(offset, tvb, little_endian,buff_tmp);
+          port_str = port_to_string(offset, tvb, little_endian, buff_tmp, MAX_PATHNAME);
           proto_item_append_text(ti, ": %s", port_str);
           proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
                               "Port: %s", port_str);
@@ -1279,7 +1286,7 @@ get_parameter_sequence(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
       	{
       	  char *ip_string;
 
-          ip_string = IP_to_string(offset, tvb, little_endian,buff_tmp);
+          ip_string = IP_to_string(offset, tvb, little_endian, buff_tmp, MAX_PATHNAME);
           proto_item_append_text(ti, "%c %s", sep, ip_string);
           proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
                               "Address[%d]: %s", i, ip_string);
@@ -1336,7 +1343,7 @@ get_parameter_sequence(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
         {
           char *protocol_version_str;
 
-          protocol_version_str = protocol_version_to_string(offset, tvb, buff_tmp);
+          protocol_version_str = protocol_version_to_string(offset, tvb, buff_tmp, MAX_PATHNAME);
           proto_item_append_text(ti, ": %s", protocol_version_str);
           proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
                               "Protocol version: %s", protocol_version_str);
@@ -1353,7 +1360,7 @@ get_parameter_sequence(tvbuff_t *tvb, gint *p_offset, gboolean little_endian,
         {
           char *vendor_id_str;
 
-          vendor_id_str = vendor_id_to_string(offset, tvb, buff_tmp);
+          vendor_id_str = vendor_id_to_string(offset, tvb, buff_tmp, MAX_PATHNAME);
           proto_item_append_text(ti, ": %s", vendor_id_str);
           proto_tree_add_text(rtps_parameter_tree, tvb, offset, param_length,
                               "Vendor ID: %s", vendor_id_str);
@@ -1455,9 +1462,10 @@ dissect_ISSUE(tvbuff_t *tvb, gint offset, guint8 flags,
               proto_tree *rtps_submessage_tree)
 {
   int                       min_len;
-  char                      buff[40];
+  char                      *buff;
   SequenceNumber            sequenceNumber;      /*  type struct  */
 
+  buff=ep_alloc(40);
   proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
                       tvb, offset, 1, flags);
   offset +=1;
@@ -1481,13 +1489,13 @@ dissect_ISSUE(tvbuff_t *tvb, gint offset, guint8 flags,
   /*  Reader Object ID  */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                       "Reader Object ID: %s ",
-                      object_id_to_string(offset, tvb, buff));
+                      object_id_to_string(offset, tvb, buff, 40));
   offset +=4;
 
   /*  Writer Object ID */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                       "Writer Object ID: %s ",
-                      object_id_to_string(offset, tvb, buff));
+                      object_id_to_string(offset, tvb, buff, 40));
   offset +=4;
 
   /*  Sequence Number */
@@ -1530,8 +1538,9 @@ dissect_ACK(tvbuff_t *tvb, gint offset, guint8 flags,
             gboolean little_endian, int next_submsg_offset,
             proto_tree *rtps_submessage_tree)
 {
-  char                    buff[40];
+  char *buff;
 
+  buff=ep_alloc(40);
   proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
                       tvb, offset, 1, flags);
   offset +=1;
@@ -1552,13 +1561,13 @@ dissect_ACK(tvbuff_t *tvb, gint offset, guint8 flags,
   /*  Reader Object ID  */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                       "Reader Object ID:   %s ",
-                      object_id_to_string(offset, tvb, buff));
+                      object_id_to_string(offset, tvb, buff, 40));
   offset +=4;
 
   /*  Writer Object ID  */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                       "Writer Object ID:   %s ",
-                      object_id_to_string(offset, tvb, buff));
+                      object_id_to_string(offset, tvb, buff, 40));
   offset +=4;
 
   get_bitmap(tvb,&offset,little_endian,next_submsg_offset,rtps_submessage_tree);
@@ -1579,9 +1588,10 @@ dissect_HEARTBEAT(tvbuff_t *tvb, gint offset, guint8 flags,
                   gboolean little_endian, int next_submsg_offset,
                   proto_tree *rtps_submessage_tree)
 {
-  char                buff[40];
+  char *buff;
   SequenceNumber     sequenceNumber;      /* type struct  */
 
+  buff=ep_alloc(40);
   proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
                       tvb, offset, 1, flags);
   offset +=1;
@@ -1602,13 +1612,13 @@ dissect_HEARTBEAT(tvbuff_t *tvb, gint offset, guint8 flags,
   /* Reader Object ID */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                       "Reader Object ID:   %s ",
-                      object_id_to_string(offset, tvb, buff));
+                      object_id_to_string(offset, tvb, buff, 40));
   offset +=4;
 
   /* Writer Object ID */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                       "Writer Object ID:   %s ",
-                          object_id_to_string(offset, tvb, buff));
+                          object_id_to_string(offset, tvb, buff, 40));
   offset +=4;
 
   /*  firstSeqNumber */
@@ -1641,9 +1651,10 @@ dissect_GAP(tvbuff_t *tvb, gint offset, guint8 flags,
             gboolean little_endian, int next_submsg_offset,
             proto_tree *rtps_submessage_tree)
 {
-  char                    buff[40];
+  char *buff;
   SequenceNumber          sequenceNumber;      /* type struct  */
 
+  buff=ep_alloc(40);
   proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
                       tvb, offset, 1, flags);
   offset +=1;
@@ -1664,13 +1675,13 @@ dissect_GAP(tvbuff_t *tvb, gint offset, guint8 flags,
   /*  Reader Object ID  */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                       "Reader Object ID:          %s ",
-                      object_id_to_string(offset, tvb, buff));
+                      object_id_to_string(offset, tvb, buff, 40));
   offset +=4;
 
   /*  Writer Object ID  */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                       "Writer Object ID:          %s ",
-                      object_id_to_string(offset, tvb, buff));
+                      object_id_to_string(offset, tvb, buff, 40));
   offset +=4;
 
   /*  Sequence Number */
@@ -1699,8 +1710,9 @@ dissect_INFO_TS(tvbuff_t *tvb, gint offset, guint8 flags,
                 gboolean little_endian, int next_submsg_offset,
                 proto_tree *rtps_submessage_tree)
 {
-  char                     buff[10];
+  char *buff;
 
+  buff=ep_alloc(10);
   proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
                       tvb, offset, 1, flags);
   offset +=1;
@@ -1729,7 +1741,7 @@ dissect_INFO_TS(tvbuff_t *tvb, gint offset, guint8 flags,
   {
     proto_tree_add_text(rtps_submessage_tree, tvb, offset, 8,
                         "ntpTimestamp: %s (sec)",
-                        get_NtpTime(offset, tvb, little_endian,buff));
+                        get_NtpTime(offset, tvb, little_endian, buff, 10));
     offset +=8;
   }
 
@@ -1749,8 +1761,9 @@ dissect_INFO_SRC(tvbuff_t *tvb, gint offset, guint8 flags,
                  gboolean little_endian, int next_submsg_offset,
                  proto_tree *rtps_submessage_tree)
 {
-  char                    buff[200];
+  char *buff;
 
+  buff=ep_alloc(200);
   proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
                       tvb, offset, 1, flags);
   offset +=1;
@@ -1771,31 +1784,31 @@ dissect_INFO_SRC(tvbuff_t *tvb, gint offset, guint8 flags,
   /*  IPAddress */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                       "appIP address: %s",
-                      IP_to_string(offset, tvb, little_endian,buff));
+                      IP_to_string(offset, tvb, little_endian, buff, 200));
   offset +=4;
 
   /*  Protocol Version */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 2,
                       "Protocol  RTPS  version %s -new",
-                      protocol_version_to_string(offset, tvb, buff));
+                      protocol_version_to_string(offset, tvb, buff, 200));
   offset +=2;
 
   /*  Vendor Id */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 2,
                       "VendorId: %s -new",
-                      vendor_id_to_string(offset, tvb, buff));
+                      vendor_id_to_string(offset, tvb, buff, 200));
   offset +=2;
 
   /*  Host Id */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                       "Host ID:            %s",
-                      host_id_to_string(offset,tvb,buff));
+                      host_id_to_string(offset, tvb, buff, 200));
   offset+=4;
 
   /*  App Id */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                       "App ID:             %s-new",
-                      app_id_to_string(offset, tvb, buff));
+                      app_id_to_string(offset, tvb, buff, 200));
   offset +=4;
 
 }
@@ -1815,8 +1828,10 @@ dissect_INFO_REPLY(tvbuff_t *tvb, gint offset, guint8 flags,
                    proto_tree *rtps_submessage_tree)
 {
   int                     min_len;
-  char                    buff_ip[10], buff_port[10];
+  char                    *buff_ip, *buff_port;
 
+  buff_port=ep_alloc(10);
+  buff_ip=ep_alloc(200);
   proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
                       tvb, offset, 1, flags);
   offset +=1;
@@ -1845,14 +1860,14 @@ dissect_INFO_REPLY(tvbuff_t *tvb, gint offset, guint8 flags,
   /* Unicat Reply IPAddress */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                       "Unicast Reply IP Adress: %s",
-                      IP_to_string(offset, tvb, little_endian,buff_ip));
+                      IP_to_string(offset, tvb, little_endian, buff_ip, 200));
   offset +=4;
 
 
   /* Unicast Reply Port */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                       "Unicast Reply IP Port: %s",
-                      port_to_string(offset, tvb, little_endian,buff_port));
+                      port_to_string(offset, tvb, little_endian, buff_port, 10));
   offset +=4;
 
 
@@ -1865,13 +1880,13 @@ dissect_INFO_REPLY(tvbuff_t *tvb, gint offset, guint8 flags,
     /* Multicast Reply IPAddress */
     proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                         "Multicast Reply IP Adress: %s",
-                        IP_to_string(offset, tvb, little_endian,buff_ip));
+                        IP_to_string(offset, tvb, little_endian, buff_ip, 200));
     offset +=4;
 
     /* Multicast Reply Port */
     proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                         "Multicast Reply IP Port: %s",
-                        port_to_string(offset, tvb, little_endian,buff_port));
+                        port_to_string(offset, tvb, little_endian, buff_port, 10));
     offset +=4;
 
   }
@@ -1891,8 +1906,9 @@ dissect_INFO_DST(tvbuff_t *tvb, gint offset, guint8 flags,
                  int next_submsg_offset,
                  proto_tree *rtps_submessage_tree)
 {
-  char                    buff[200];
+  char *buff;
 
+  buff=ep_alloc(200);
   proto_tree_add_uint(rtps_submessage_tree, hf_rtps_submessage_flags,
                       tvb, offset, 1, flags);
   offset +=1;
@@ -1913,13 +1929,13 @@ dissect_INFO_DST(tvbuff_t *tvb, gint offset, guint8 flags,
   /*  Host Id */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                       "Host ID:            %s",
-                      host_id_to_string(offset,tvb,buff));
+                      host_id_to_string(offset, tvb, buff, 200));
   offset+=4;
 
   /*  App Id */
   proto_tree_add_text(rtps_submessage_tree, tvb, offset, 4,
                       "App ID:             %s-new",
-                      app_id_to_string(offset, tvb, buff));
+                      app_id_to_string(offset, tvb, buff, 200));
   offset +=4;
 
 }
