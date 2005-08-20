@@ -52,6 +52,7 @@
 #include <epan/packet.h>
 
 #include <epan/prefs.h>
+#include <epan/emem.h>
 
 /* We need the function tvb_get_guintvar() */
 #include "packet-wap.h"
@@ -5764,8 +5765,8 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 	guint8 tag_new_known = 0; /* Will contain peek & 0x3F (tag identity) */
 	const char *tag_save_literal; /* Will contain the LITERAL tag identity */
 	const char *tag_new_literal; /* Will contain the LITERAL tag identity */
-	char tag_save_buf[10]; /* Will contain "tag_0x%02X" */
-	char tag_new_buf[10]; /* Will contain "tag_0x%02X" */
+	char *tag_save_buf=NULL; /* Will contain "tag_0x%02X" */
+	char *tag_new_buf=NULL; /* Will contain "tag_0x%02X" */
 	guint8 parsing_tag_content = FALSE; /* Are we parsing content from a
 										   tag with content: <x>Content</x>
 										   
@@ -5952,7 +5953,8 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				tag_new_known = 0; /* invalidate known tag_new */
 			} else { /* Known tag */
 				tag_new_known = peek & 0x3F;
-				sprintf (tag_new_buf, "Tag_0x%02X",
+				tag_new_buf=ep_alloc(10);
+				g_snprintf (tag_new_buf, 10, "Tag_0x%02X",
 						tag_new_known);
 				tag_new_literal = tag_new_buf;
 				/* Stored looked up tag name string */
@@ -5980,7 +5982,8 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 						tag_save_known = 0;
 					} else { /* Known tag */
 						tag_save_known = tag_new_known;
-						sprintf (tag_save_buf, "Tag_0x%02X",
+						tag_save_buf=ep_alloc(10);
+						g_snprintf (tag_save_buf, 10, "Tag_0x%02X",
 								tag_new_known);
 						tag_save_literal = tag_save_buf;
 						/* The last statement avoids needless lookups */
