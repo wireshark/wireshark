@@ -307,6 +307,7 @@ get_plugins_pers_dir
 get_systemfile_dir
 get_tcp_port
 get_tempfile_path
+get_timedelta
 get_timestamp_setting
 get_udp_port
 gsm_a_bssmap_msg_strings        DATA
