@@ -123,7 +123,7 @@ struct aspinfo {
 /*
  * value_string table for AFP command codes.
  */
-extern const value_string CommandCode_vals[];
+ETH_VAR_IMPORT const value_string CommandCode_vals[];
 
 /*
  * Value from table matching requests and responses; also passed to AFP
