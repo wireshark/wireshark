@@ -40,6 +40,7 @@ proper helper routines
 
 #include <epan/to_str.h>
 #include <epan/prefs.h>
+#include <epan/emem.h>
 #include "packet-per.h"
 #include "packet-ber.h"
 
@@ -584,19 +585,20 @@ guint32
 dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, char *value_string)
 {
 	gint length;
-	char str[MAX_OID_STR_LEN], *name;
+	char *str, *name;
 	proto_tree *etr=NULL;
 	proto_item *item;
 
 DEBUG_ENTRY("dissect_per_object_identifier");
 
+	str=ep_alloc(MAX_OID_STR_LEN);
 	if(display_internal_per_fields){
 		etr=tree;
 	}
 
 	offset = dissect_per_length_determinant(tvb, offset, pinfo, etr, hf_per_object_identifier_length, &length);
 
-	oid_to_str_buf(tvb_get_ptr(tvb, offset>>3, length), length, str);
+	oid_to_str_buf(tvb_get_ptr(tvb, offset>>3, length), length, str, MAX_OID_STR_LEN);
 	item = proto_tree_add_string(tree, hf_index, tvb, offset>>3, length, str);
 	offset += 8 * length;
 

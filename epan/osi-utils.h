@@ -48,10 +48,10 @@
 #define NSAP_IDI_GOSIP2       0x47
 
 gchar*     print_nsap_net ( const guint8 *, int );
-void       print_nsap_net_buf( const guint8 *, int, gchar * );
+void       print_nsap_net_buf( const guint8 *, int, gchar *, int);
 gchar*     print_area     ( const guint8 *, int );
-void       print_area_buf ( const guint8 *, int, gchar * );
+void       print_area_buf ( const guint8 *, int, gchar *, int);
 gchar*     print_system_id( const guint8 *, int );
-void       print_system_id_buf( const guint8 *, int, gchar * );
+void       print_system_id_buf( const guint8 *, int, gchar *, int);
 
 #endif /* __OSI_UTILS_H__ */

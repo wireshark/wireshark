@@ -36,6 +36,6 @@ struct sna_fid_type_4_addr {
 };
 
 extern gchar *sna_fid_to_str(const address *addr);
-extern void sna_fid_to_str_buf(const address *addr, gchar *buf);
+extern void sna_fid_to_str_buf(const address *addr, gchar *buf, int buf_len);
 
 #endif

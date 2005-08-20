@@ -243,10 +243,10 @@ ipx_addr_to_str(guint32 net, const guint8 *ad)
 	name = get_ether_name_if_known(ad);
 
 	if (name) {
-		sprintf(buf, "%s.%s", get_ipxnet_name(net), name);
+		g_snprintf(buf, 8+1+MAXNAMELEN+1, "%s.%s", get_ipxnet_name(net), name);
 	}
 	else {
-		sprintf(buf, "%s.%s", get_ipxnet_name(net),
+		g_snprintf(buf, 8+1+MAXNAMELEN+1, "%s.%s", get_ipxnet_name(net),
 		    bytestring_to_str(ad, 6, '\0'));
 	}
 	return buf;
@@ -303,14 +303,14 @@ vines_addr_to_str(const guint8 *addrp)
 
   buf=ep_alloc(214);
 
-  vines_addr_to_str_buf(addrp, buf);
+  vines_addr_to_str_buf(addrp, buf, 214);
   return buf;
 }
 
 void
-vines_addr_to_str_buf(const guint8 *addrp, gchar *buf)
+vines_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len)
 {
-  sprintf(buf, "%08x.%04x", pntohl(&addrp[0]), pntohs(&addrp[4]));
+  g_snprintf(buf, buf_len, "%08x.%04x", pntohl(&addrp[0]), pntohs(&addrp[4]));
 }
 
 #define	PLURALIZE(n)	(((n) > 1) ? "s" : "")
@@ -333,7 +333,7 @@ vines_addr_to_str_buf(const guint8 *addrp, gchar *buf)
  */
 static void
 time_secs_to_str_buf(gint32 time, guint32 frac, gboolean is_nsecs,
-			   gchar *buf)
+			   gchar *buf, int buf_len)
 {
   static gchar *p;
   int hours, mins, secs;
@@ -346,7 +346,7 @@ time_secs_to_str_buf(gint32 time, guint32 frac, gboolean is_nsecs,
   }
 
   if(time<0){	/* We've overflowed. */
-    sprintf(buf, "Unable to cope with time value %d", time);
+    g_snprintf(buf, buf_len, "Unable to cope with time value %d", time);
     return;
   }
 
@@ -360,28 +360,25 @@ time_secs_to_str_buf(gint32 time, guint32 frac, gboolean is_nsecs,
   /* This would probably be cleaner if we used GStrings instead. */
   p = buf;
   if (time != 0) {
-    sprintf(p, "%s%u day%s", time?msign:"", time, PLURALIZE(time));
-    p += strlen(p);
+    p += g_snprintf(p, buf_len, "%s%u day%s", time?msign:"", time, PLURALIZE(time));
     do_comma = TRUE;
   }
   if (hours != 0) {
-    sprintf(p, "%s%s%u hour%s", COMMA(do_comma), hours?msign:"", hours, PLURALIZE(hours));
-    p += strlen(p);
+    p += g_snprintf(p, buf_len-(p-buf), "%s%s%u hour%s", COMMA(do_comma), hours?msign:"", hours, PLURALIZE(hours));
     do_comma = TRUE;
   }
   if (mins != 0) {
-    sprintf(p, "%s%s%u minute%s", COMMA(do_comma), mins?msign:"", mins, PLURALIZE(mins));
-    p += strlen(p);
+    p += g_snprintf(p, buf_len-(p-buf), "%s%s%u minute%s", COMMA(do_comma), mins?msign:"", mins, PLURALIZE(mins));
     do_comma = TRUE;
   }
   if (secs != 0 || frac != 0) {
     if (frac != 0) {
       if (is_nsecs)
-        sprintf(p, "%s%s%u.%09u seconds", COMMA(do_comma), msign, secs, frac);
+        p += g_snprintf(p, buf_len-(p-buf), "%s%s%u.%09u seconds", COMMA(do_comma), msign, secs, frac);
       else
-        sprintf(p, "%s%s%u.%03u seconds", COMMA(do_comma), msign, secs, frac);
+        p += g_snprintf(p, buf_len-(p-buf), "%s%s%u.%03u seconds", COMMA(do_comma), msign, secs, frac);
     } else
-      sprintf(p, "%s%s%u second%s", COMMA(do_comma), msign, secs, PLURALIZE(secs));
+      p += g_snprintf(p, buf_len-(p-buf), "%s%s%u second%s", COMMA(do_comma), msign, secs, PLURALIZE(secs));
   }
 }
 
@@ -393,11 +390,11 @@ time_secs_to_str(gint32 time)
   buf=ep_alloc(TIME_SECS_LEN+1);
 
   if (time == 0) {
-    sprintf(buf, "0 time");
+    g_snprintf(buf, TIME_SECS_LEN+1, "0 time");
     return buf;
   }
 
-  time_secs_to_str_buf(time, 0, FALSE, buf);
+  time_secs_to_str_buf(time, 0, FALSE, buf, TIME_SECS_LEN+1);
   return buf;
 }
 
@@ -410,7 +407,7 @@ time_msecs_to_str(gint32 time)
   buf=ep_alloc(TIME_SECS_LEN+1+3+1);
 
   if (time == 0) {
-    sprintf(buf, "0 time");
+    g_snprintf(buf, TIME_SECS_LEN+1+3+1, "0 time");
     return buf;
   }
 
@@ -425,7 +422,7 @@ time_msecs_to_str(gint32 time)
     time /= 1000;
   }
 
-  time_secs_to_str_buf(time, msecs, FALSE, buf);
+  time_secs_to_str_buf(time, msecs, FALSE, buf, TIME_SECS_LEN+1+3+1);
   return buf;
 }
 
@@ -454,7 +451,8 @@ abs_time_to_str(nstime_t *abs_time)
 
         tmp = localtime(&abs_time->secs);
         if (tmp) {
-		sprintf(buf, "%s %2d, %d %02d:%02d:%02d.%09ld",
+		g_snprintf(buf, 3+1+2+2+4+1+2+1+2+1+2+1+9+1,
+		    "%s %2d, %d %02d:%02d:%02d.%09ld",
 		    mon_names[tmp->tm_mon],
 		    tmp->tm_mday,
 		    tmp->tm_year + 1900,
@@ -477,7 +475,8 @@ abs_time_secs_to_str(time_t abs_time)
 
         tmp = localtime(&abs_time);
         if (tmp) {
-		sprintf(buf, "%s %2d, %d %02d:%02d:%02d",
+		g_snprintf(buf, 3+1+2+2+4+1+2+1+2+1+2+1,
+		    "%s %2d, %d %02d:%02d:%02d",
 		    mon_names[tmp->tm_mon],
 		    tmp->tm_mday,
 		    tmp->tm_year + 1900,
@@ -544,7 +543,7 @@ rel_time_to_str(nstime_t *rel_time)
 	time = rel_time->secs;
 	nsec = rel_time->nsecs;
 	if (time == 0 && nsec == 0) {
-		sprintf(buf, "0.000000000 seconds");
+		g_snprintf(buf, 1+TIME_SECS_LEN+1+6+1, "0.000000000 seconds");
 		return buf;
 	}
 	if (nsec < 0) {
@@ -559,7 +558,7 @@ rel_time_to_str(nstime_t *rel_time)
 		time = -rel_time->secs;
 	}
 
-	time_secs_to_str_buf(time, nsec, TRUE, p);
+	time_secs_to_str_buf(time, nsec, TRUE, p, 1+TIME_SECS_LEN+1+6+1);
 	return buf;
 }
 
@@ -648,6 +647,7 @@ fcwwn_to_str (const guint8 *ad)
 
 /* Generate, into "buf", a string showing the bits of a bitfield.
    Return a pointer to the character after that string. */
+/*XXX this needs a buf_len check */
 char *
 other_decode_bitfield_value(char *buf, guint32 val, guint32 mask, int width)
 {
@@ -726,7 +726,7 @@ decode_numeric_bitfield(guint32 val, guint32 mask, int width,
     shift++;
 
   p = decode_bitfield_value(buf, val, mask, width);
-  sprintf(p, fmt, (val & mask) >> shift);
+  g_snprintf(p, 1025-(p-buf), fmt, (val & mask) >> shift);
   return buf;
 }
 
@@ -772,17 +772,17 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
     g_snprintf(buf, buf_len, "%02x%02x%02x%02x.%02x%02x%02x%02x%02x%02x", addr->data[0], addr->data[1], addr->data[2], addr->data[3], addr->data[4], addr->data[5], addr->data[6], addr->data[7], addr->data[8], addr->data[9]);
     break;
   case AT_SNA:
-    sna_fid_to_str_buf(addr, buf);
+    sna_fid_to_str_buf(addr, buf, buf_len);
     break;
   case AT_ATALK:
     memcpy(&ddp_addr, addr->data, sizeof ddp_addr);
     atalk_addr_to_str_buf(&ddp_addr, buf, buf_len);
     break;
   case AT_VINES:
-    vines_addr_to_str_buf(addr->data, buf);
+    vines_addr_to_str_buf(addr->data, buf, buf_len);
     break;
   case AT_OSI:
-    print_nsap_net_buf(addr->data, addr->len, buf);
+    print_nsap_net_buf(addr->data, addr->len, buf, buf_len);
     break;
   case AT_ARCNET:
     g_snprintf(buf, buf_len, "0x%02X", addr->data[0]);
@@ -814,10 +814,10 @@ gchar* oid_to_str(const guint8 *oid, gint oid_len) {
   gchar *buf;
 
   buf=ep_alloc(MAX_OID_STR_LEN);
-  return oid_to_str_buf(oid, oid_len, buf);
+  return oid_to_str_buf(oid, oid_len, buf, MAX_OID_STR_LEN);
 }
 
-gchar* oid_to_str_buf(const guint8 *oid, gint oid_len, gchar *buf) {
+gchar* oid_to_str_buf(const guint8 *oid, gint oid_len, gchar *buf, int buf_len) {
   gint i;
   guint8 byte;
   guint32 value;
@@ -827,18 +827,18 @@ gchar* oid_to_str_buf(const guint8 *oid, gint oid_len, gchar *buf) {
   for (i=0; i<oid_len; i++){
     byte = oid[i];
     if ((bufp - buf) > (MAX_OID_STR_LEN - 16)) {    /* "4294967295" + ".>>>" + '\0' + 1 */
-      bufp += sprintf(bufp, ".>>>");
+      bufp += g_snprintf(bufp, buf_len-(bufp-buf), ".>>>");
       break;
     }
     if (i == 0) {
-      bufp += sprintf(bufp, "%u.%u", byte/40, byte%40);
+      bufp += g_snprintf(bufp, buf_len-(bufp-buf), "%u.%u", byte/40, byte%40);
       continue;
     }
     value = (value << 7) | (byte & 0x7F);
     if (byte & 0x80) {
       continue;
     }
-    bufp += sprintf(bufp, ".%u", value);
+    bufp += g_snprintf(bufp, buf_len-(bufp-buf), ".%u", value);
     value = 0;
   }
   *bufp = '\0';
@@ -850,11 +850,11 @@ gchar* guid_to_str(const guint8 *guid) {
   gchar *buf;
 
   buf=ep_alloc(GUID_STR_LEN);
-  return guid_to_str_buf(guid, buf);
+  return guid_to_str_buf(guid, buf, GUID_STR_LEN);
 }
 
-gchar* guid_to_str_buf(const guint8 *guid, gchar *buf) {
-  sprintf(buf, "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+gchar* guid_to_str_buf(const guint8 *guid, gchar *buf, int buf_len) {
+  g_snprintf(buf, buf_len, "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
           guid[0], guid[1], guid[2], guid[3],
           guid[4], guid[5],
           guid[6], guid[7],

@@ -69,6 +69,7 @@
 #include <epan/strutil.h>
 #include <epan/to_str.h>
 #include <epan/prefs.h>
+#include <epan/emem.h>
 #include "packet-ber.h"
 
 
@@ -1554,9 +1555,10 @@ int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, pro
 	gint32 tag;
 	guint32 len;
 	int eoffset;
-	char str[MAX_OID_STR_LEN], *name;
+	char *str, *name;
 	proto_item *item;
 
+	str=ep_alloc(MAX_OID_STR_LEN);
 #ifdef DEBUG_BER
 {
 char *name;
@@ -1595,7 +1597,7 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 		eoffset=offset+len;
 	}
 
-	oid_to_str_buf(tvb_get_ptr(tvb, offset, len), len, str);
+	oid_to_str_buf(tvb_get_ptr(tvb, offset, len), len, str, MAX_OID_STR_LEN);
 	offset += len;
 
 	if(hf_id != -1) {

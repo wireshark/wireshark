@@ -62,7 +62,7 @@ extern gchar*	ipx_addr_to_str(guint32, const guint8 *);
 extern gchar*	ipxnet_to_string(const guint8 *ad);
 extern gchar*	ipxnet_to_str_punct(const guint32 ad, char punct);
 extern gchar*	vines_addr_to_str(const guint8 *addrp);
-extern void	vines_addr_to_str_buf(const guint8 *addrp, gchar *buf);
+extern void	vines_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len);
 extern gchar*	time_secs_to_str(gint32);
 extern gchar*	time_msecs_to_str(gint32);
 extern gchar*	abs_time_to_str(nstime_t*);
@@ -71,9 +71,9 @@ extern void	display_signed_time(gchar *, int, gint32, gint32, time_res_t);
 extern gchar*	rel_time_to_str(nstime_t*);
 extern gchar*	rel_time_to_secs_str(nstime_t*);
 extern gchar*	oid_to_str(const guint8*, gint);
-extern gchar*	oid_to_str_buf(const guint8*, gint, gchar*);
+extern gchar*	oid_to_str_buf(const guint8*, gint, gchar*, int);
 extern gchar*	guid_to_str(const guint8*);
-extern gchar*	guid_to_str_buf(const guint8*, gchar*);
+extern gchar*	guid_to_str_buf(const guint8*, gchar*, int);
 
 
 extern char	*other_decode_bitfield_value(char *buf, guint32 val, guint32 mask,

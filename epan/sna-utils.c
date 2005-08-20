@@ -40,29 +40,29 @@ sna_fid_to_str(const address *addr)
   gchar	*cur;
 
   cur=ep_alloc(14);
-  sna_fid_to_str_buf(addr, cur);
+  sna_fid_to_str_buf(addr, cur, 14);
   return cur;
 }
 
 void
-sna_fid_to_str_buf(const address *addr, gchar *buf)
+sna_fid_to_str_buf(const address *addr, gchar *buf, int buf_len)
 {
   struct sna_fid_type_4_addr sna_fid_type_4_addr;
 
   switch (addr->len) {
 
   case 1:
-    sprintf(buf, "%04X", addr->data[0]);
+    g_snprintf(buf, buf_len, "%04X", addr->data[0]);
     break;
 
   case 2:
-    sprintf(buf, "%04X", pntohs(&addr->data[0]));
+    g_snprintf(buf, buf_len, "%04X", pntohs(&addr->data[0]));
     break;
 
   case SNA_FID_TYPE_4_ADDR_LEN:
     /* FID Type 4 */
     memcpy(&sna_fid_type_4_addr, addr->data, SNA_FID_TYPE_4_ADDR_LEN);
-    sprintf(buf, "%08X.%04X", sna_fid_type_4_addr.saf,
+    g_snprintf(buf, buf_len, "%08X.%04X", sna_fid_type_4_addr.saf,
 	    sna_fid_type_4_addr.ef);
     break;
   }

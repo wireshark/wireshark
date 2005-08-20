@@ -33,6 +33,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/xdlc.h>
+#include <epan/emem.h>
 
 const value_string ftype_vals[] = {
     { XDLC_I, "Information frame" },
@@ -182,11 +183,12 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
     const xdlc_cf_items *cf_items;
     const char *control_format;
     guint16 poll_final;
-    char info[80];
+    char *info;
     proto_tree *tc, *control_tree;
     const gchar *frame_type = NULL;
     const gchar *modifier;
 
+    info=ep_alloc(80);
     switch (tvb_get_guint8(tvb, offset) & 0x03) {
 
     case XDLC_S:
@@ -223,7 +225,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	if (is_extended) {
 	    poll_final = (control & XDLC_P_F_EXT);
-	    sprintf(info, "S%s, func=%s, N(R)=%u",
+	    g_snprintf(info, 80, "S%s, func=%s, N(R)=%u",
 		 	(poll_final ?
 		 	    (is_response ? " F" : " P") :
 		 	    ""),
@@ -231,7 +233,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			(control & XDLC_N_R_EXT_MASK) >> XDLC_N_R_EXT_SHIFT);
 	} else {
 	    poll_final = (control & XDLC_P_F);
-	    sprintf(info, "S%s, func=%s, N(R)=%u",
+	    g_snprintf(info, 80, "S%s, func=%s, N(R)=%u",
 		 	(poll_final ?
 		 	    (is_response ? " F" : " P") :
 		 	    ""),
@@ -292,7 +294,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			u_modifier_short_vals_cmd, "Unknown");
 	}
 	poll_final = (control & XDLC_P_F);
-	sprintf(info, "U%s, func=%s",
+	g_snprintf(info, 80, "U%s, func=%s",
 		(poll_final ?
 		    (is_response ? " F" : " P") :
 		    ""),
@@ -334,7 +336,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    cf_items = cf_items_ext;
 	    control_format = "Control field: %s (0x%04X)";
 	    poll_final = (control & XDLC_P_F_EXT);
-	    sprintf(info, "I%s, N(R)=%u, N(S)=%u",
+	    g_snprintf(info, 80, "I%s, N(R)=%u, N(S)=%u",
 			((control & XDLC_P_F_EXT) ? " P" : ""),
 			(control & XDLC_N_R_EXT_MASK) >> XDLC_N_R_EXT_SHIFT,
 			(control & XDLC_N_S_EXT_MASK) >> XDLC_N_S_EXT_SHIFT);
@@ -344,7 +346,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    cf_items = cf_items_nonext;
 	    control_format = "Control field: %s (0x%02X)";
 	    poll_final = (control & XDLC_P_F);
-	    sprintf(info, "I%s, N(R)=%u, N(S)=%u",
+	    g_snprintf(info, 80, "I%s, N(R)=%u, N(S)=%u",
 			((control & XDLC_P_F) ? " P" : ""),
 			(control & XDLC_N_R_MASK) >> XDLC_N_R_SHIFT,
 			(control & XDLC_N_S_MASK) >> XDLC_N_S_SHIFT);
