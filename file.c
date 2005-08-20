@@ -321,8 +321,8 @@ cf_read(capture_file *cf)
   float        prog_val;
   GTimeVal     start_time;
   gchar        status_str[100];
-  int          progbar_nextstep;
-  int          progbar_quantum;
+  gint64       progbar_nextstep;
+  gint64       progbar_quantum;
 
   cum_bytes=0;
 
@@ -906,8 +906,8 @@ cf_merge_files(char **out_filenamep, int in_file_count,
   float             prog_val;
   GTimeVal          start_time;
   gchar             status_str[100];
-  int               progbar_nextstep;
-  int               progbar_quantum;
+  gint64            progbar_nextstep;
+  gint64            progbar_quantum;
 
   /* open the input files */
   if (!merge_open_in_files(in_file_count, in_filenames, &in_files,
