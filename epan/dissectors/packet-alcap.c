@@ -1647,7 +1647,7 @@ dissect_alcap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *alcap_tree)
 }
 
 
-static alcap_message_info_t* new_msg_info() {
+static alcap_message_info_t* new_msg_info(void) {
 	alcap_message_info_t* mi = ep_alloc(sizeof(alcap_message_info_t));
 	
 	mi->msg_type = 0;
@@ -1791,9 +1791,9 @@ dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	
 }
 
-gboolean just_do_it(gpointer k _U_, gpointer v _U_, gpointer p _U_) { return TRUE; }
+static gboolean just_do_it(gpointer k _U_, gpointer v _U_, gpointer p _U_) { return TRUE; }
 
-void alcap_init(void) {
+static void alcap_init(void) {
 	if (legs_by_dsaid == NULL) {
 		legs_by_dsaid = g_hash_table_new(g_direct_hash,g_direct_equal);
 		legs_by_osaid = g_hash_table_new(g_direct_hash,g_direct_equal);
