@@ -1,7 +1,7 @@
 #.IMPORT_TAG
 EXTERNAL                 BER_CLASS_UNI 8
-AP_title                 BER_CLASS_UNI -1/*choice*/
-AE_qualifier             BER_CLASS_UNI -1/*choice*/
+AP_title                 BER_CLASS_ANY/*choice*/ -1/*choice*/
+AE_qualifier             BER_CLASS_ANY/*choice*/ -1/*choice*/
 AE_invocation_identifier BER_CLASS_UNI BER_UNI_TAG_INTEGER
 AP_invocation_identifier BER_CLASS_UNI BER_UNI_TAG_INTEGER
 #.END

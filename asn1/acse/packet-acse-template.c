@@ -80,11 +80,6 @@ typedef struct _acse_ctx_oid_t {
 } acse_ctx_oid_t;
 static GHashTable *acse_ctx_oid_table = NULL;
 
-static gboolean
-free_all_ctx_oid_strings(gpointer key_arg, gpointer value _U_, gpointer user_data _U_)
-{
-	return TRUE;
-}
 static guint
 acse_ctx_oid_hash(gconstpointer k)
 {
@@ -104,8 +99,6 @@ static void
 acse_init(void)
 {
 	if( acse_ctx_oid_table ){
-		g_hash_table_foreach_remove(acse_ctx_oid_table,
-			free_all_ctx_oid_strings, NULL);
 		g_hash_table_destroy(acse_ctx_oid_table);
 		acse_ctx_oid_table = NULL;
 	}
