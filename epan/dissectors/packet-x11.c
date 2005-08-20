@@ -1308,29 +1308,32 @@ static void colorFlags(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 
       if (do_red_green_blue) {
 	    int sep = FALSE;
-	    char buffer[512];
-	    char *bp = buffer + sprintf(buffer, "flags: ");
+	    char *buffer, *bp;
+
+	    buffer=ep_alloc(512);
+
+	    bp = buffer + g_snprintf(buffer, 512, "flags: ");
 
 	    if (do_red_green_blue & 0x1) {
-		  bp += sprintf(bp, "DoRed");
+		  bp += g_snprintf(bp, 512-(bp-buffer), "DoRed");
 		  sep = TRUE;
 	    }
 
 	    if (do_red_green_blue & 0x2) {
-		  if (sep) bp += sprintf(bp, " | ");
-		  bp += sprintf(bp, "DoGreen");
+		  if (sep) bp += g_snprintf(bp, 512-(bp-buffer), " | ");
+		  bp += g_snprintf(bp, 512-(bp-buffer), "DoGreen");
 		  sep = TRUE;
 	    }
 
 	    if (do_red_green_blue & 0x4) {
-		  if (sep) bp += sprintf(bp, " | ");
-		  bp += sprintf(bp, "DoBlue");
+		  if (sep) bp += g_snprintf(bp, 512-(bp-buffer), " | ");
+		  bp += g_snprintf(bp, 512-(bp-buffer), "DoBlue");
 		  sep = TRUE;
 	    }
 
 	    if (do_red_green_blue & 0xf8) {
-		  if (sep) bp += sprintf(bp, " + ");
-		  sprintf(bp, "trash");
+		  if (sep) bp += g_snprintf(bp, 512-(bp-buffer), " + ");
+		  g_snprintf(bp, 512-(bp-buffer), "trash");
 	    }
 
 	    ti = proto_tree_add_uint_format(t, hf_x11_coloritem_flags, tvb, *offsetp, 1, do_red_green_blue,
@@ -1439,27 +1442,28 @@ static void listOfColorItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 	    proto_tree *ttt;
 	    unsigned do_red_green_blue;
 	    guint16 red, green, blue;
-	    char buffer[1024];
+	    char *buffer;
 	    char *bp;
 	    const char *sep;
 
+	    buffer=ep_alloc(1024);
 	    red = VALUE16(tvb, *offsetp + 4);
 	    green = VALUE16(tvb, *offsetp + 6);
 	    blue = VALUE16(tvb, *offsetp + 8);
 	    do_red_green_blue = VALUE8(tvb, *offsetp + 10);
 
-	    bp = buffer + sprintf(buffer, "colorItem: ");
+	    bp = buffer + g_snprintf(buffer, 1024, "colorItem: ");
 	    sep = "";
 	    if (do_red_green_blue & 0x1) {
-		bp += sprintf(bp, "red = %d", red);
+		bp += g_snprintf(bp, 1024-(bp-buffer), "red = %d", red);
 		sep = ", ";
 	    }
 	    if (do_red_green_blue & 0x2) {
-		bp += sprintf(bp, "%sgreen = %d", sep, green);
+		bp += g_snprintf(bp, 1024-(bp-buffer), "%sgreen = %d", sep, green);
 		sep = ", ";
 	    }
 	    if (do_red_green_blue & 0x4)
-		bp += sprintf(bp, "%sblue = %d", sep, blue);
+		bp += g_snprintf(bp, 1024-(bp-buffer), "%sblue = %d", sep, blue);
 
 	    tti = proto_tree_add_none_format(tt, hf_x11_coloritem, tvb, *offsetp, 12, "%s", buffer);
 	    ttt = proto_item_add_subtree(tti, ett_x11_color_item);
@@ -1592,7 +1596,7 @@ keycode2keysymString(int *keycodemap[256], int first_keycode,
 		     int keycodes_per_modifier,
 		     guint32 keycode, guint32 bitmask)
 {
-	static char buf[32];
+	static char *buf;
 	int *syms;
 	int groupmodkc, numlockkc, numlockmod, groupmod;
 	int lockmod_is_capslock = 0, lockmod_is_shiftlock = 0;
@@ -1762,7 +1766,8 @@ keycode2keysymString(int *keycodemap[256], int first_keycode,
 	if (keysym == XK_VoidSymbol)
 		keysym = NoSymbol;
 
-	sprintf(buf, "%d, \"%s\"", keysym, keysymString(keysym));
+	buf=ep_alloc(32);
+	g_snprintf(buf, 32, "%d, \"%s\"", keysym, keysymString(keysym));
 	return buf;
 #endif
 }

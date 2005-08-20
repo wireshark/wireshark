@@ -42,6 +42,7 @@
 #include <epan/prefs.h>
 
 #include <epan/proto.h>
+#include <epan/emem.h>
 
 /*
  * Flag to control whether to check the PGM checksum.
@@ -487,70 +488,50 @@ static dissector_handle_t data_handle;
 static const char *
 optsstr(nchar_t opts)
 {
-	static char msg[256];
-	char *p = msg;
-	const char *str;
+	char *msg;
+	char *p;
 
+	msg=ep_alloc(256);
+	p=msg;
 	if (opts == 0)
 		return("");
 
 	if (opts & PGM_OPT){
-		sprintf(p, "Present");
-		p += strlen("Present");
+		p += g_snprintf(p, 256-(p-msg), "Present");
 	}
 	if (opts & PGM_OPT_NETSIG){
-		if (p != msg)
-			str = ",NetSig";
-		else
-			str = "NetSig";
-		sprintf(p, str);
-		p += strlen(str);
+		p += g_snprintf(p, 256-(p-msg), "%sNetSig", (p==msg)?"":",");
 	}
 	if (opts & PGM_OPT_VAR_PKTLEN){
-		if (p != msg)
-			str = ",VarLen";
-		else
-			str = "VarLen";
-		sprintf(p, str);
-		p += strlen(str);
+		p += g_snprintf(p, 256-(p-msg), "%sVarLen", (p==msg)?"":",");
 	}
 	if (opts & PGM_OPT_PARITY){
-		if (p != msg)
-			str = ",Parity";
-		else
-			str = "Parity";
-		sprintf(p, str);
-		p += strlen(str);
+		p += g_snprintf(p, 256-(p-msg), "%sParity", (p==msg)?"":",");
 	}
 	if (p == msg) {
-		sprintf(p, "0x%x", opts);
+		p += g_snprintf(p, 256-(p-msg), "0x%x", opts);
 	}
 	return(msg);
 }
 static const char *
 paritystr(nchar_t parity)
 {
-	static char msg[256];
-	char *p = msg;
-	const char *str;
+	char *msg;
+	char *p;
 
+	msg=ep_alloc(256);
+	p=msg;
 	if (parity == 0)
 		return("");
 
 	if (parity & PGM_OPT_PARITY_PRM_PRO){
-		sprintf(p, "Pro-active");
-		p += strlen("Pro-active");
+		p += g_snprintf(p, 256-(p-msg), "Pro-active");
 	}
 	if (parity & PGM_OPT_PARITY_PRM_OND){
-		if (p != msg)
-			str = ",On-demand";
-		else
-			str = "On-demand";
-		sprintf(p, str);
-		p += strlen(str);
+		p += g_snprintf(p, 256-(p-msg), "%sOn-demand", (p==msg)?"":",");
 	}
 	if (p == msg) {
-		sprintf(p, "0x%x", parity);
+		g_snprintf(p, 256-(p-msg), "%s0x%x", (p==msg)?"":" ", parity);
 	}
 	return(msg);
 }
@@ -754,7 +735,7 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 		case PGM_OPT_NAK_LIST:{
 			pgm_opt_nak_list_t optdata;
 			nlong_t naklist[PGM_MAX_NAK_LIST_SZ+1];
-			char nakbuf[8192], *ptr;
+			char *nakbuf, *ptr;
 			int i, j, naks, soffset = 0;
 
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_naklist);
@@ -784,15 +765,17 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			optdata.len -= sizeof(pgm_opt_nak_list_t);
 			tvb_memcpy(tvb, (guint8 *)naklist, offset+4, optdata.len);
 			naks = (optdata.len/sizeof(nlong_t));
+			nakbuf=ep_alloc(8192);
+			nakbuf[0]=0;
+			soffset=0;
 			ptr = nakbuf;
 			j = 0;
 			/*
 			 * Print out 8 per line
 			 */
 			for (i=0; i < naks; i++) {
-				sprintf(nakbuf+soffset, "0x%lx ",
+				soffset += g_snprintf(nakbuf+soffset, 8192-soffset, "0x%lx ",
 				    (unsigned long)g_ntohl(naklist[i]));
-				soffset = strlen(nakbuf);
 				if ((++j % 8) == 0) {
 					if (firsttime) {
 						proto_tree_add_bytes_format(opt_tree,
