@@ -72,6 +72,7 @@ col_set_cls_time
 col_set_fence
 col_set_str
 col_set_writable
+CommandCode_vals	DATA
 conversation_add_proto_data
 conversation_delete_proto_data
 conversation_get_proto_data
