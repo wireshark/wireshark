@@ -42,6 +42,7 @@
 #include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/prefs.h>
+#include <epan/emem.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_mtp3  = -1;
@@ -190,22 +191,22 @@ static dissector_handle_t data_handle;
  */
 
 void 
-mtp3_pc_to_str_buf(const guint32 pc, gchar *buf)
+mtp3_pc_to_str_buf(const guint32 pc, gchar *buf, int buf_len)
 {
   switch (mtp3_standard)
   {
     case ITU_STANDARD:
       switch (itu_pc_structure) {
         case ITU_PC_STRUCTURE_NONE:
-          sprintf(buf, "%u", pc);
+          g_snprintf(buf, buf_len, "%u", pc);
           break;
         case ITU_PC_STRUCTURE_3_8_3:
           /* this format is used in international ITU networks */
-          sprintf(buf, "%u-%u-%u", (pc & 0x3800)>>11, (pc & 0x7f8) >> 3, (pc & 0x07) >> 0);
+          g_snprintf(buf, buf_len, "%u-%u-%u", (pc & 0x3800)>>11, (pc & 0x7f8) >> 3, (pc & 0x07) >> 0);
           break;
         case ITU_PC_STRUCTURE_4_3_4_3:
           /* this format is used in some national ITU networks, the German one for example. */
-          sprintf(buf, "%u-%u-%u-%u", (pc & 0x3c00) >>10, (pc & 0x0380) >> 7, (pc & 0x0078) >> 3, (pc & 0x0007) >> 0);
+          g_snprintf(buf, buf_len, "%u-%u-%u-%u", (pc & 0x3c00) >>10, (pc & 0x0380) >> 7, (pc & 0x0078) >> 3, (pc & 0x0007) >> 0);
           break;
         default:
           DISSECTOR_ASSERT_NOT_REACHED();
@@ -213,7 +214,7 @@ mtp3_pc_to_str_buf(const guint32 pc, gchar *buf)
       break;
     case ANSI_STANDARD:
     case CHINESE_ITU_STANDARD:
-      sprintf(buf, "%u-%u-%u", (pc & ANSI_NETWORK_MASK), (pc & ANSI_CLUSTER_MASK) >> 8, (pc & ANSI_MEMBER_MASK) >> 16);
+      g_snprintf(buf, buf_len, "%u-%u-%u", (pc & ANSI_NETWORK_MASK), (pc & ANSI_CLUSTER_MASK) >> 8, (pc & ANSI_MEMBER_MASK) >> 16);
       break;
     default:
       DISSECTOR_ASSERT_NOT_REACHED();
@@ -225,9 +226,10 @@ mtp3_pc_to_str_buf(const guint32 pc, gchar *buf)
 gchar *
 mtp3_pc_to_str(const guint32 pc)
 {
-  static gchar str[MAX_STRUCTURED_PC_LENGTH];
+  gchar *str;
   
-  mtp3_pc_to_str_buf(pc, str);
+  str=ep_alloc(MAX_STRUCTURED_PC_LENGTH);
+  mtp3_pc_to_str_buf(pc, str, MAX_STRUCTURED_PC_LENGTH);
   return str;
 }
 
@@ -247,7 +249,8 @@ mtp3_pc_structured(void)
 void
 mtp3_addr_to_str_buf(
   const guint8          *data,
-  gchar                 *buf)
+  gchar                 *buf,
+  int                   buf_len)
 {
   const mtp3_addr_pc_t  *addr_pc_p = (const mtp3_addr_pc_t *)data;
 
@@ -257,11 +260,11 @@ mtp3_addr_to_str_buf(
     switch (addr_pc_p->type)
     {
     case ITU_STANDARD:
-      sprintf(buf, "%u", addr_pc_p->pc & ITU_PC_MASK);
+      g_snprintf(buf, buf_len, "%u", addr_pc_p->pc & ITU_PC_MASK);
       break;
     default:
       /* assuming 24-bit */
-      sprintf(buf, "%u", addr_pc_p->pc & ANSI_PC_MASK);
+      g_snprintf(buf, buf_len, "%u", addr_pc_p->pc & ANSI_PC_MASK);
       break;
     }
     break;
@@ -270,11 +273,11 @@ mtp3_addr_to_str_buf(
     switch (addr_pc_p->type)
     {
     case ITU_STANDARD:
-      sprintf(buf, "%x", addr_pc_p->pc & ITU_PC_MASK);
+      g_snprintf(buf, buf_len, "%x", addr_pc_p->pc & ITU_PC_MASK);
       break;
     default:
       /* assuming 24-bit */
-      sprintf(buf, "%x", addr_pc_p->pc & ANSI_PC_MASK);
+      g_snprintf(buf, buf_len, "%x", addr_pc_p->pc & ANSI_PC_MASK);
       break;
     }
     break;
@@ -283,11 +286,11 @@ mtp3_addr_to_str_buf(
     switch (addr_pc_p->type)
     {
     case ITU_STANDARD:
-      sprintf(buf, "%u:%u", addr_pc_p->ni, addr_pc_p->pc & ITU_PC_MASK);
+      g_snprintf(buf, buf_len, "%u:%u", addr_pc_p->ni, addr_pc_p->pc & ITU_PC_MASK);
       break;
     default:
       /* assuming 24-bit */
-      sprintf(buf, "%u:%u", addr_pc_p->ni, addr_pc_p->pc & ANSI_PC_MASK);
+      g_snprintf(buf, buf_len, "%u:%u", addr_pc_p->ni, addr_pc_p->pc & ANSI_PC_MASK);
       break;
     }
     break;
@@ -296,11 +299,11 @@ mtp3_addr_to_str_buf(
     switch (addr_pc_p->type)
     {
     case ITU_STANDARD:
-      sprintf(buf, "%u:%x", addr_pc_p->ni, addr_pc_p->pc & ITU_PC_MASK);
+      g_snprintf(buf, buf_len, "%u:%x", addr_pc_p->ni, addr_pc_p->pc & ITU_PC_MASK);
       break;
     default:
       /* assuming 24-bit */
-      sprintf(buf, "%u:%x", addr_pc_p->ni, addr_pc_p->pc & ANSI_PC_MASK);
+      g_snprintf(buf, buf_len, "%u:%x", addr_pc_p->ni, addr_pc_p->pc & ANSI_PC_MASK);
       break;
     }
     break;
@@ -309,7 +312,7 @@ mtp3_addr_to_str_buf(
     /* FALLTHRU */
 
   case MTP3_NET_ADDR_FMT_DASHED:
-    mtp3_pc_to_str_buf(addr_pc_p->pc, buf);
+    mtp3_pc_to_str_buf(addr_pc_p->pc, buf, buf_len);
     break;
   }
 }

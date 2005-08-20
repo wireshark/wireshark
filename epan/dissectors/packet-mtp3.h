@@ -64,8 +64,8 @@ typedef struct _mtp3_tap_rec_t {
 #define ANSI_MEMBER_MASK  0xFF0000
 #define ANSI_PC_STRING_LENGTH 16
 
-extern void     mtp3_addr_to_str_buf(const guint8 *data, gchar *buf);
-extern void     mtp3_pc_to_str_buf(const guint32 pc, gchar *buf);
+extern void     mtp3_addr_to_str_buf(const guint8 *data, gchar *buf, int buf_len);
+extern void     mtp3_pc_to_str_buf(const guint32 pc, gchar *buf, int buf_len);
 extern gchar*   mtp3_pc_to_str(const guint32 pc);
 extern gboolean mtp3_pc_structured(void);
 

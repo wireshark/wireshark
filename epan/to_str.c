@@ -791,7 +791,7 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
     g_snprintf(buf, buf_len, "%02x.%02x.%02x", addr->data[0], addr->data[1], addr->data[2]);
     break;
   case AT_SS7PC:
-    mtp3_addr_to_str_buf(addr->data, buf);
+    mtp3_addr_to_str_buf(addr->data, buf, buf_len);
     break;
   case AT_STRINGZ:
     strcpy(buf, addr->data);

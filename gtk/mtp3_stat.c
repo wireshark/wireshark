@@ -47,6 +47,7 @@
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include <epan/tap.h>
+#include <epan/emem.h>
 #include "../register.h"
 #include "../globals.h"
 #include "filter_dlg.h"
@@ -173,23 +174,24 @@ mtp3_stat_draw(
 {
     mtp3_stat_t		(*stat_p)[MTP3_MAX_NUM_OPC_DPC] = tapdata;
     int			i, j, row_offset;
-    char		str[256];
+    char		*str;
 
     if (!dlg.win || !tapdata)
     {
 	return;
     }
 
+    str=ep_alloc(256);
     i = 0;
 
     while (i < mtp3_num_used)
     {
 	row_offset = i * MTP3_NUM_SI_CODE;
 
-	mtp3_addr_to_str_buf((guint8 *) &(*stat_p)[i].addr_opc, str);
+	mtp3_addr_to_str_buf((guint8 *) &(*stat_p)[i].addr_opc, str, 256);
 	dlg.entries[0] = g_strdup(str);
 
-	mtp3_addr_to_str_buf((guint8 *) &(*stat_p)[i].addr_dpc, str);
+	mtp3_addr_to_str_buf((guint8 *) &(*stat_p)[i].addr_dpc, str, 256);
 	dlg.entries[1] = g_strdup(str);
 
 	for (j=0; j < MTP3_NUM_SI_CODE; j++)
