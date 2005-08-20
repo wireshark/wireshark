@@ -139,6 +139,7 @@ static const value_string req_header_codes[] = {
   { 0x0C, "pragma" },
   { 0x0D, "referer" },
   { 0x0E, "user-agent" },
+  { 0, NULL}
 };
 
 
@@ -154,6 +155,7 @@ static const value_string rsp_header_codes[] = {
   { 0x09, "Servlet-Engine" },
   { 0x0A, "Status" },
   { 0x0B, "WWW-Authenticate" },
+  { 0, NULL}
 };
 
 
@@ -166,6 +168,7 @@ static const value_string mtype_codes[] = {
   { 5, "END RESPONSE" },
   { 6, "GET BODY CHUNK" },
   { 7, "SHUTDOWN" },
+  { 0, NULL }
 };
 
 
@@ -191,6 +194,7 @@ static const value_string http_method_codes[] = {
   { 19, "CHECKOUT" },
   { 20, "UNCHECKOUT" },
   { 21, "SEARCH" },
+  { 0, NULL }
 };
 
 
@@ -266,7 +270,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree)
   const gchar* msg_code = NULL;
   int pos = 0;
   guint8 mcode = 0;
-  char mcode_buf[1024];
+  char *mcode_buf;
   int i;
 
   /* MAGIC
@@ -285,7 +289,8 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree)
    */
   mcode = tvb_get_guint8(tvb, pos);
   msg_code = val_to_str(mcode, mtype_codes, "UNKNOWN");
-  sprintf(mcode_buf, "(%d) %s", mcode, msg_code);
+  mcode_buf=ep_alloc(32);
+  g_snprintf(mcode_buf, 32, "(%d) %s", mcode, msg_code);
   if (ajp13_tree)
     proto_tree_add_string(ajp13_tree, hf_ajp13_code, tvb, pos, 1, mcode_buf);
   pos+=1;
@@ -345,7 +350,6 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree)
       int dp = 0;
       int cl = 0;
       guint8 hname_bytes[1024];
-      gchar hname_value[8*1024];
 
       /* HEADER CODE/NAME
        */
@@ -377,7 +381,9 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree)
       pos+=hval_len+2;
       dp = pos - orig_pos;
       if (ajp13_tree) {
-        sprintf(hname_value, "%s : %s", hname, hval);
+        gchar *hname_value;
+        hname_value=ep_alloc(512);
+        g_snprintf(hname_value, 512, "%s : %s", hname, hval);
         proto_tree_add_string(ajp13_tree, hf_ajp13_hval, tvb, orig_pos, dp, hname_value);
       }
     }
@@ -474,9 +480,10 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   cod = tvb_get_guint8(tvb, 4);
   if (ajp13_tree) {
     const gchar* msg_code = NULL;
-    char mcode_buf[1024];
+    char *mcode_buf;
     msg_code = val_to_str(cod, mtype_codes, "UNKNOWN");
-    sprintf(mcode_buf, "(%d) %s", cod, msg_code);
+    mcode_buf=ep_alloc(32);
+    g_snprintf(mcode_buf, 32, "(%d) %s", cod, msg_code);
     proto_tree_add_string(ajp13_tree, hf_ajp13_code, tvb, pos, 1, mcode_buf);
   }
   pos+=1;
@@ -488,8 +495,9 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
     meth = tvb_get_guint8(tvb, pos);
     meth_code = val_to_str(meth, http_method_codes, "UNKNOWN");
     if (ajp13_tree) {
-      char mcode_buf[1024];
-      sprintf(mcode_buf, "(%d) %s", meth, meth_code);
+      char *mcode_buf;
+      mcode_buf=ep_alloc(32);
+      g_snprintf(mcode_buf, 32, "(%d) %s", meth, meth_code);
       proto_tree_add_string(ajp13_tree, hf_ajp13_method, tvb, pos, 1, mcode_buf);
     }
     if(check_col(pinfo->cinfo, COL_INFO))
@@ -569,13 +577,12 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
     guint8 hcd;
     guint8 hid;
-    char hval[8192];
-    guint16 hval_len;
     int orig_pos = pos;
     const gchar* hname = NULL;
     int dp = 0;
     int cl = 0;
-    guint8 hname_bytes[1024];
+    char *hval;
+    guint16 hval_len;
 
     /* HEADER CODE/NAME
      */
@@ -590,10 +597,13 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
       if (hid == 0x08)
         cl = 1;
     } else {
-      int hname_len = get_nstring(tvb, pos, hname_bytes, sizeof hname_bytes);
+      guint8 *hname_bytes;
+      int hname_len;
 
+      hname_bytes=ep_alloc(1024);
+      hname_len = get_nstring(tvb, pos, hname_bytes, 1024);
       pos+=hname_len+2;
-      hname = (gchar*)hname_bytes; /* VERY EVIL */
+      hname = (gchar*)hname_bytes;
     }
 
     dp = pos-orig_pos;
@@ -601,7 +611,8 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
     /* HEADER VALUE
      */
     orig_pos = pos;
-    hval_len = get_nstring(tvb, pos, hval, sizeof hval);
+    hval=ep_alloc(8192);
+    hval_len = get_nstring(tvb, pos, hval, 8192);
 
     pos+=hval_len+2;
     dp = pos - orig_pos;
