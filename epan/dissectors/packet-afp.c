@@ -39,6 +39,7 @@
 /* #include <epan/strutil.h> */
 #include <epan/conversation.h>
 #include <epan/emem.h>
+#include <epan/tap.h>
 
 #include "packet-afp.h"
 
@@ -165,6 +166,10 @@ static int hf_afp_UAM = -1;
 static int hf_afp_user = -1;
 static int hf_afp_passwd = -1;
 static int hf_afp_random = -1;
+
+static int hf_afp_response_to = -1;
+static int hf_afp_time = -1;
+static int hf_afp_response_in = -1;
 
 static int hf_afp_login_flags = -1;
 static int hf_afp_pad = -1;
@@ -332,6 +337,8 @@ static int hf_afp_extattr_start_index	  = -1;
 static int hf_afp_extattr_reply_size	  = -1;
 static int ett_afp_extattr_names	  = -1;
 
+static int afp_tap = -1;
+
 static dissector_handle_t data_handle;
 
 static const value_string vol_signature_vals[] = {
@@ -341,7 +348,7 @@ static const value_string vol_signature_vals[] = {
 	{0, NULL }
 };
 
-static const value_string CommandCode_vals[] = {
+const value_string CommandCode_vals[] = {
   {AFP_BYTELOCK,	"FPByteRangeLock" },
   {AFP_CLOSEVOL,	"FPCloseVol" },
   {AFP_CLOSEDIR,	"FPCloseDir" },
@@ -955,10 +962,6 @@ typedef struct {
 	guint32 conversation;
 	guint16	seq;
 } afp_request_key;
-
-typedef struct {
-	guint8	command;
-} afp_request_val;
 
 static GHashTable *afp_request_hash = NULL;
 
@@ -3999,14 +4002,15 @@ dissect_reply_afp_get_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 static void
 dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	struct aspinfo *aspinfo = pinfo->private_data;
-	proto_tree      *afp_tree = NULL;
+	struct aspinfo	*aspinfo = pinfo->private_data;
+	proto_tree	*afp_tree = NULL;
 	proto_item	*ti;
 	conversation_t	*conversation;
 	gint		offset = 0;
 	afp_request_key request_key, *new_request_key;
 	afp_request_val *request_val;
-	guint8	afp_command;
+	guint8		afp_command;
+	nstime_t	t, deltat;
 
 	int     len =  tvb_reported_length_remaining(tvb,0);
 	gint col_info = check_col(pinfo->cinfo, COL_INFO);
@@ -4037,7 +4041,11 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		*new_request_key = request_key;
 
 		request_val = se_alloc(sizeof(afp_request_val));
-		request_val->command = tvb_get_guint8(tvb, offset);
+		request_val->command = afp_command;
+		request_val->frame_req = pinfo->fd->num;
+		request_val->frame_res = 0;
+		request_val->req_time.secs=pinfo->fd->abs_secs;
+		request_val->req_time.nsecs=pinfo->fd->abs_usecs*1000;
 
 		g_hash_table_insert(afp_request_hash, new_request_key,
 								request_val);
@@ -4084,6 +4092,18 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				return;
 			}
 		}
+
+		/*
+		 * Put in a field for the frame number of the frame to which
+		 * this is a response if we know that frame number (i.e.,
+		 * it's not 0).
+		 */
+		if (request_val->frame_res != 0) {
+			ti = proto_tree_add_uint(afp_tree, hf_afp_response_in,
+			    tvb, 0, 0, request_val->frame_res);
+			PROTO_ITEM_SET_GENERATED(ti);
+		}
+
 		offset++;
 		switch(afp_command) {
 		case AFP_BYTELOCK:
@@ -4219,11 +4239,42 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
  	else {
 		proto_tree_add_uint(afp_tree, hf_afp_command, tvb, 0, 0, afp_command);
+
+		/*
+		 * Put in fields for the frame with the response to this
+		 * frame - if we know the frame number (i.e., it's not 0).
+		 */
+		if (request_val->frame_req != 0) {
+			ti = proto_tree_add_uint(afp_tree, hf_afp_response_to,
+			    tvb, 0, 0, request_val->frame_req);
+			PROTO_ITEM_SET_GENERATED(ti);
+			t.secs = pinfo->fd->abs_secs;
+			t.nsecs = pinfo->fd->abs_usecs*1000;
+			get_timedelta(&deltat, &t, &request_val->req_time);
+			ti = proto_tree_add_time(afp_tree, hf_afp_time, tvb,
+			    0, 0, &deltat);
+			PROTO_ITEM_SET_GENERATED(ti);
+		}
+
+		/*
+		 * Set "frame_res" if it's not already known.
+		 */
+		if (request_val->frame_res == 0)
+			request_val->frame_res = pinfo->fd->num;
+
  		if (!len) {
  			/* for some calls if the reply is an error there's no data
  			*/
  			return;
  		}
+
+		/*
+		 * Tap the packet before the dissectors are called so we
+		 * still get the tap listener called even if there is an
+		 * exception.
+		 */
+		tap_queue_packet(afp_tap, pinfo, request_val);
+
  		switch(afp_command) {
 		case AFP_BYTELOCK:
 			offset = dissect_reply_afp_byte_lock(tvb, pinfo, afp_tree, offset);break;
@@ -4354,6 +4405,21 @@ proto_register_afp(void)
       { "Random number",         "afp.random",
 		FT_BYTES, BASE_HEX, NULL, 0x0,
       	"UAM random number", HFILL }},
+
+    { &hf_afp_response_to,
+      { "Response to",	"afp.response_to",
+		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        "This packet is a response to the packet in this frame", HFILL }},
+
+    { &hf_afp_time,
+      { "Time from request",	"afp.time",
+		FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+        "Time between Request and Response for AFP cmds", HFILL }},
+
+    { &hf_afp_response_in,
+      { "Response in",	"afp.response_in",
+		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        "The response to this packet is in this packet", HFILL }},
 
     { &hf_afp_login_flags,
       { "Flags",         "afp.afp_login_flags",
@@ -5768,6 +5834,8 @@ proto_register_afp(void)
 
   register_dissector("afp", dissect_afp, proto_afp);
   data_handle = find_dissector("data");
+
+  afp_tap = register_tap("afp");
 }
 
 void

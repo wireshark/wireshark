@@ -112,6 +112,7 @@ ETHEREAL_COMMON_INCLUDES =	\
 
 # sources for Tethereal taps
 TETHEREAL_TAP_SRC =	\
+	tap-afpstat.c	\
 	tap-ansi_astat.c	\
 	tap-bootpstat.c	\
 	tap-dcerpcstat.c	\

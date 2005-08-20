@@ -105,6 +105,7 @@ ETHEREAL_GTK_SRC = \
 
 
 ETHEREAL_TAP_SRC = \
+	afp_stat.c	\
 	ansi_a_stat.c	\
 	ansi_map_stat.c	\
 	bootp_stat.c	\

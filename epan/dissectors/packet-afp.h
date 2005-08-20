@@ -120,4 +120,19 @@ struct aspinfo {
 	gint32  code;			/* error code/ offset NU */
 };
 
+/*
+ * value_string table for AFP command codes.
+ */
+extern const value_string CommandCode_vals[];
+
+/*
+ * Value from table matching requests and responses; also passed to AFP
+ * tap for responses.
+ */
+typedef struct {
+	guint8	command;
+	guint32 frame_req, frame_res;
+	nstime_t req_time;
+} afp_request_val;
+
 #endif
