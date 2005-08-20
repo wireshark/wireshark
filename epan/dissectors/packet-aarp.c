@@ -110,7 +110,7 @@ atalkid_to_str(const guint8 *ad) {
 
   cur=ep_alloc(16);
   node=ad[1]<<8|ad[2];
-  sprintf(cur, "%d.%d",node,ad[3]);
+  g_snprintf(cur, 16, "%d.%d",node,ad[3]);
   return cur;
 }
 
