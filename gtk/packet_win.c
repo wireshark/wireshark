@@ -61,6 +61,8 @@
 #include <epan/epan_dissect.h>
 #include "compat_macros.h"
 
+#include "../ui_util.h"
+
 /* Data structure holding information about a packet-detail window. */
 struct PacketWinData {
 	frame_data *frame;	   /* The frame being displayed */

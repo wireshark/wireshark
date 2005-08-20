@@ -72,6 +72,7 @@
 #include "progress_dlg.h"
 #include "font_utils.h"
 
+#include "../ui_util.h"
 
 /* Win32 needs the O_BINARY flag for open() */
 #ifndef O_BINARY
