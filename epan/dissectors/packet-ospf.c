@@ -46,6 +46,7 @@
 #include <epan/packet.h>
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
+#include <epan/emem.h>
 #include "packet-rsvp.h"
 
 #define OSPF_VERSION_2 2
@@ -2323,8 +2324,8 @@ static void dissect_ospf_v3_address_prefix(tvbuff_t *tvb, int offset, int prefix
     guint8 value;
     guint8 position;
     guint8 bufpos;
-    gchar  buffer[32+7];
-    gchar  bytebuf[3];
+    gchar  *buffer;
+    gchar  *bytebuf;
     guint8 bytes_to_process;
     int start_offset;
 
@@ -2333,6 +2334,7 @@ static void dissect_ospf_v3_address_prefix(tvbuff_t *tvb, int offset, int prefix
     bufpos=0;
     bytes_to_process=((prefix_length+31)/32)*4;
 
+    buffer=ep_alloc(32+7);
     while (bytes_to_process > 0 ) {
 
         value=tvb_get_guint8(tvb, offset);
@@ -2340,7 +2342,8 @@ static void dissect_ospf_v3_address_prefix(tvbuff_t *tvb, int offset, int prefix
         if ( (position > 0) && ( (position%2) == 0 ) )
 	    buffer[bufpos++]=':';
 
-        sprintf(bytebuf,"%02x",value);
+	bytebuf=ep_alloc(3);
+        g_snprintf(bytebuf, 3, "%02x",value);
         buffer[bufpos++]=bytebuf[0];
         buffer[bufpos++]=bytebuf[1];
 
