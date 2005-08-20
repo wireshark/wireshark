@@ -639,9 +639,10 @@ DEBUG_ENTRY("dissect_per_boolean");
 		value=0;
 	}
 	if(hf_index!=-1){
-		char str[256];
+		char *str;
 		hfi = proto_registrar_get_nth(hf_index);
-		sprintf(str,"%c%c%c%c %c%c%c%c %s: %s",
+		str=ep_alloc(256);
+		g_snprintf(str, 256, "%c%c%c%c %c%c%c%c %s: %s",
 			mask&0x80?'0'+value:'.',
 			mask&0x40?'0'+value:'.',
 			mask&0x20?'0'+value:'.',
@@ -790,7 +791,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		val = min; 
 	} else if(range<=255) {
 		/* 10.5.7.1 */
-		char str[256];
+		char *str;
 		int i, bit, length;
 
 		length=1;
@@ -812,7 +813,8 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 			num_bits=8;
 		}
 		/* prepare the string */
-		sprintf(str, "%s: ", hfi->name);
+		str=ep_alloc(256);
+		g_snprintf(str, 256, "%s: ", hfi->name);
 		for(bit=0;bit<((int)(offset&0x07));bit++){
 			if(bit&&(!(bit%4))){
 				strcat(str, " ");

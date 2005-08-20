@@ -912,9 +912,10 @@ static int get_size_by_coltype(int servertype)
  */
 static char *data_to_string(void *data, guint col_type, guint col_size)
 {
-   static char  result[256];
+   char *result;
    guint i;
 
+   result=ep_alloc(256);
    switch(col_type) {
       case SYBVARCHAR:
          /* strncpy(result, (char *)data, col_size); */
@@ -924,13 +925,13 @@ static char *data_to_string(void *data, guint col_type, guint col_size)
          result[i] = '\0';
          break;
       case SYBINT2:
-         sprintf(result, "%d", *(short *)data);
+         g_snprintf(result, 256, "%d", *(short *)data);
          break;
       case SYBINT4:
-         sprintf(result, "%d", *(int *)data);
+         g_snprintf(result, 256, "%d", *(int *)data);
          break;
       default:
-         sprintf(result, "Unexpected column_type %d", col_type);
+         g_snprintf(result, 256, "Unexpected column_type %d", col_type);
          break;
    }
    return result;
