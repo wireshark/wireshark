@@ -167,18 +167,10 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 {
   wtap       *wth;
   gchar       *err_info;
-  gint64      size;
 
   wth = wtap_open_offline(fname, err, &err_info, TRUE);
   if (wth == NULL)
     goto fail;
-
-  /* Find the size of the file. */
-  size = wtap_file_size(wth, err);
-  if (size == -1) {
-    wtap_close(wth);
-    goto fail;
-  }
 
   /* The open succeeded.  Close whatever capture file we had open,
      and fill in the information for this file. */
@@ -192,7 +184,6 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 
   cf->wth = wth;
   cf->f_datalen = 0;
-  cf->f_len = size;
 
   /* Set the file name because we need it to set the follow stream filter.
      XXX - is that still true?  We need it for other reasons, though,
@@ -291,7 +282,6 @@ cf_reset_state(capture_file *cf)
   packet_list_thaw();
 
   cf->f_datalen = 0;
-  cf->f_len = 0;
   cf->count = 0;
   cf->esec  = 0;
   cf->eusec = 0;
@@ -343,11 +333,17 @@ cf_read(capture_file *cf)
 
   name_ptr = get_basename(cf->filename);
 
+  /* Find the size of the file. */
+  size = wtap_file_size(cf->wth, NULL);
+
   /* Update the progress bar when it gets to this value. */
   progbar_nextstep = 0;
   /* When we reach the value that triggers a progress bar update,
      bump that value by this amount. */
-  progbar_quantum = cf->f_len/N_PROGBAR_UPDATES;
+  if (size >= 0)     
+    progbar_quantum = size/N_PROGBAR_UPDATES;
+  else
+    progbar_quantum = 0;
 
   packet_list_freeze();
 
@@ -355,41 +351,41 @@ cf_read(capture_file *cf)
   g_get_current_time(&start_time);
 
   while ((wtap_read(cf->wth, &err, &err_info, &data_offset))) {
-    /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
-       when we update it, we have to run the GTK+ main loop to get it
-       to repaint what's pending, and doing so may involve an "ioctl()"
-       to see if there's any pending input from an X server, and doing
-       that for every packet can be costly, especially on a big file. */
-    if (data_offset >= progbar_nextstep) {
-        file_pos = wtap_read_so_far(cf->wth, NULL);
-        prog_val = (gfloat) file_pos / (gfloat) cf->f_len;
-        if (prog_val > 1.0) {
-          /* The file probably grew while we were reading it.
-             Update "cf->f_len", and try again. */
-          size = wtap_file_size(cf->wth, NULL);
-          if (size != -1) {
-            cf->f_len = size;
-            prog_val = (gfloat) file_pos / (gfloat) cf->f_len;
+    if (size >= 0) {
+      /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
+         when we update it, we have to run the GTK+ main loop to get it
+         to repaint what's pending, and doing so may involve an "ioctl()"
+         to see if there's any pending input from an X server, and doing
+         that for every packet can be costly, especially on a big file. */
+      if (data_offset >= progbar_nextstep) {
+          file_pos = wtap_read_so_far(cf->wth, NULL);
+          prog_val = (gfloat) file_pos / (gfloat) size;
+          if (prog_val > 1.0) {
+            /* The file probably grew while we were reading it.
+               Update file size, and try again. */
+            size = wtap_file_size(cf->wth, NULL);
+            if (size >= 0)
+              prog_val = (gfloat) file_pos / (gfloat) size;
+            /* If it's still > 1, either "wtap_file_size()" failed (in which
+               case there's not much we can do about it), or the file
+               *shrank* (in which case there's not much we can do about
+               it); just clip the progress value at 1.0. */
+            if (prog_val > 1.0)
+              prog_val = 1.0;
           }
-          /* If it's still > 1, either "wtap_file_size()" failed (in which
-             case there's not much we can do about it), or the file
-             *shrank* (in which case there's not much we can do about
-             it); just clip the progress value at 1.0. */
-          if (prog_val > 1.0)
-            prog_val = 1.0;
-        }
-        if (progbar == NULL) {
-          /* Create the progress bar if necessary */
-          progbar = delayed_create_progress_dlg("Loading", name_ptr,
-            &stop_flag, &start_time, prog_val);
-        }
-        if (progbar != NULL) {
-          g_snprintf(status_str, sizeof(status_str),
-                     "%" PRId64 "KB of %" PRId64 "KB",
-                     file_pos / 1024, cf->f_len / 1024);
-          update_progress_dlg(progbar, prog_val, status_str);
-        }
-        progbar_nextstep += progbar_quantum;
+          if (progbar == NULL) {
+            /* Create the progress bar if necessary */
+            progbar = delayed_create_progress_dlg("Loading", name_ptr,
+              &stop_flag, &start_time, prog_val);
+          }
+          if (progbar != NULL) {
+            g_snprintf(status_str, sizeof(status_str),
+                       "%" PRId64 "KB of %" PRId64 "KB",
+                       file_pos / 1024, size / 1024);
+            update_progress_dlg(progbar, prog_val, status_str);
+          }
+         progbar_nextstep += progbar_quantum;
+      }
     }
 
     if (stop_flag) {
@@ -539,7 +535,6 @@ cf_finish_tail(capture_file *cf, int *err)
 {
   gchar *err_info;
   long data_offset;
-  gint64 size;
 
   if(cf->wth == NULL) {
     cf_close(cf);
@@ -576,12 +571,6 @@ cf_finish_tail(capture_file *cf, int *err)
 
   /* We're done reading sequentially through the file. */
   cf->state = FILE_READ_DONE;
-
-  /* we have to update the f_len field */
-  /* Find the size of the file. */
-  size = wtap_file_size(cf->wth, NULL);
-  if (size != -1)
-  	cf->f_len = size;
 
   /* We're done reading sequentially through the file; close the
      sequential I/O side, to free up memory it requires. */
