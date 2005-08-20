@@ -406,14 +406,6 @@ const rtpstream_tapinfo_t* rtpstream_get_info(void)
 /* TAP INTERFACE */
 /****************************************************************************/
 
-/****************************************************************************/
-static void
-rtpstream_init_tap(const char *dummy _U_)
-{
-	/* XXX: never called? */
-}
-
-
 /* XXX just copied from gtk/rpc_stat.c */
 void protect_thread_critical_region(void);
 void unprotect_thread_critical_region(void);
@@ -439,8 +431,6 @@ register_tap_listener_rtp_stream(void)
 	GString *error_string;
 
 	if (!the_tapinfo_struct.is_registered) {
-		register_stat_cmd_arg("rtp", rtpstream_init_tap);
-
 		error_string = register_tap_listener("rtp", &the_tapinfo_struct,
 			NULL, rtpstream_reset_cb, rtpstream_packet,
 			rtpstream_draw);
