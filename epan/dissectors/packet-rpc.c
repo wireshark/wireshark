@@ -343,20 +343,19 @@ rpc_proc_name(guint32 prog, guint32 vers, guint32 proc)
 {
 	rpc_proc_info_key key;
 	rpc_proc_info_value *value;
-	const char *procname;
-	static char procname_static[20];
+	char *procname;
 
+	procname=ep_alloc(20);
 	key.prog = prog;
 	key.vers = vers;
 	key.proc = proc;
 
 	if ((value = g_hash_table_lookup(rpc_procs,&key)) != NULL)
-		procname = value->name;
+		procname = (char *)value->name;
 	else {
 		/* happens only with strange program versions or
 		   non-existing dissectors */
-		sprintf(procname_static, "proc-%u", key.proc);
-		procname = procname_static;
+		g_snprintf(procname, 20, "proc-%u", key.proc);
 	}
 	return procname;
 }
@@ -1499,8 +1498,7 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	static address null_address = { AT_NONE, 0, NULL };
 	rpc_call_info_key rpc_call_key;
 	rpc_call_info_value *rpc_call;
-	const char *procname = NULL;
-	char procname_static[20];
+	char *procname=NULL;
 	dissect_function_t *dissect_function = NULL;
 
 	/* Look for the matching call in the hash table of indirect
@@ -1561,19 +1559,19 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (rpc_call->proc_info != NULL) {
 		dissect_function = rpc_call->proc_info->dissect_reply;
 		if (rpc_call->proc_info->name != NULL) {
-			procname = rpc_call->proc_info->name;
+			procname = (char *)rpc_call->proc_info->name;
 		}
 		else {
-			sprintf(procname_static, "proc-%u", rpc_call->proc);
-			procname = procname_static;
+			procname=ep_alloc(20);
+			g_snprintf(procname, 20, "proc-%u", rpc_call->proc);
 		}
 	}
 	else {
 #if 0
 		dissect_function = NULL;
 #endif
-		sprintf(procname_static, "proc-%u", rpc_call->proc);
-		procname = procname_static;
+		procname=ep_alloc(20);
+		g_snprintf(procname, 20, "proc-%u", rpc_call->proc);
 	}
 
 	if ( tree )
@@ -1664,9 +1662,9 @@ rpc_prog_info_value *rpc_prog = NULL;
 		NAME=g_malloc(36);
 		Name=g_malloc(32);
 		name=g_malloc(32);
-		sprintf(NAME, "Unknown RPC Program:%d",prpc_prog_key->prog);
-		sprintf(Name, "RPC:%d",prpc_prog_key->prog);
-		sprintf(name, "rpc%d",prpc_prog_key->prog);
+		g_snprintf(NAME, 36, "Unknown RPC Program:%d",prpc_prog_key->prog);
+		g_snprintf(Name, 32, "RPC:%d",prpc_prog_key->prog);
+		g_snprintf(name, 32, "rpc%d",prpc_prog_key->prog);
 		proto_rpc_unknown_program = proto_register_protocol(NAME, Name, name);
 
 		rpc_init_prog(proto_rpc_unknown_program, prpc_prog_key->prog, ett_rpc_unknown_program);
@@ -1706,8 +1704,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	const char *msg_type_name = NULL;
 	const char *progname = NULL;
-	const char *procname = NULL;
-	static char procname_static[20];
+	char *procname = NULL;
 
 	unsigned int vers_low;
 	unsigned int vers_high;
@@ -1987,7 +1984,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		if ((value = g_hash_table_lookup(rpc_procs,&key)) != NULL) {
 			dissect_function = value->dissect_call;
-			procname = value->name;
+			procname = (char *)value->name;
 		}
 		else {
 			/* happens only with strange program versions or
@@ -1995,8 +1992,8 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #if 0
 			dissect_function = NULL;
 #endif
-			sprintf(procname_static, "proc-%u", proc);
-			procname = procname_static;
+			procname=ep_alloc(20);
+			g_snprintf(procname, 20, "proc-%u", proc);
 		}
 
 		/* Check for RPCSEC_GSS and AUTH_GSSAPI */
@@ -2034,7 +2031,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					if (tvb_get_ntohl(tvb, offset+28)) {
 						flavor = FLAVOR_AUTHGSSAPI_MSG;
 						gss_proc = proc;
-						procname =
+						procname = (char *)
 						    match_strval(gss_proc,
 						    rpc_authgssapi_proc);
 					} else {
@@ -2211,19 +2208,19 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (rpc_call->proc_info != NULL) {
 			dissect_function = rpc_call->proc_info->dissect_reply;
 			if (rpc_call->proc_info->name != NULL) {
-				procname = rpc_call->proc_info->name;
+				procname = (char *)rpc_call->proc_info->name;
 			}
 			else {
-				sprintf(procname_static, "proc-%u", proc);
-				procname = procname_static;
+				procname=ep_alloc(20);
+				g_snprintf(procname, 20, "proc-%u", proc);
 			}
 		}
 		else {
 #if 0
 			dissect_function = NULL;
 #endif
-			sprintf(procname_static, "proc-%u", proc);
-			procname = procname_static;
+			procname=ep_alloc(20);
+			g_snprintf(procname, 20, "proc-%u", proc);
 		}
 
 		/*
@@ -2234,7 +2231,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * AUTH_GSSAPI procname.
 		 */
 		if (flavor == FLAVOR_AUTHGSSAPI_MSG) {
-			procname = match_strval(gss_proc, rpc_authgssapi_proc);
+			procname = (char *)match_strval(gss_proc, rpc_authgssapi_proc);
 		}
 
 		rpc_prog_key.prog = prog;
