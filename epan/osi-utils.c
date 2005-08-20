@@ -118,7 +118,8 @@ print_system_id_buf( const guint8 *ad, int length, gchar *buf, int buf_len)
       cur += g_snprintf(cur, buf_len-(cur-buf), "%02x.", ad[tmp++] );
     }
     if ( 1 == tmp ) {   /* Special case for Designated IS */
-      g_snprintf(--cur, buf_len-(cur-buf), ".%02x", ad[tmp] );
+      cur--;
+      g_snprintf(cur, buf_len-(cur-buf), ".%02x", ad[tmp] );
     }
     else {
       for ( ; tmp < length; ) {  /* print the rest without dot */
@@ -188,7 +189,8 @@ print_area_buf(const guint8 *ad, int length, gchar *buf, int buf_len)
         cur += g_snprintf(cur, buf_len-(cur-buf), "%02x.", ad[tmp++] );
       }
       if ( 1 == tmp ) {                     /* Special case for Designated IS */
-        g_snprintf(--cur, buf_len-(cur-buf), "-%02x", ad[tmp] );
+        cur--;
+        g_snprintf(cur, buf_len-(cur-buf), "-%02x", ad[tmp] );
       }
       else {
         for ( ; tmp < length; ) {  /* print the rest without dot */
