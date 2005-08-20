@@ -37,7 +37,7 @@ AC_ARG_WITH(extra-gcc-checks,
 [
 	if test $withval != no
 	then
-		ethereal_extra_gcc_flags=" -Wcast-qual -Wcast-align -Wbad-function-cast -pedantic"
+		ethereal_extra_gcc_flags=" -Wcast-qual -Wcast-align -Wbad-function-cast -pedantic -Wmissing-declarations -Wwrite-strings"
 	fi
 ],)
 AC_MSG_CHECKING(to see if we can add '-Wall -W -Wcast-qual $ethereal_extra_gcc_flags' to CFLAGS)
