@@ -29,9 +29,10 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/* gui_utils.c */
+
 /* Set the name of the top-level window and its icon. */
 void set_main_window_name(gchar *);
-
 /* update the main window */
 extern void main_window_update(void);
 /* exit the main window */
@@ -40,10 +41,11 @@ extern void main_window_exit(void);
 extern void main_window_nested_quit(void);
 /* quit the main window */
 extern void main_window_quit(void);
-
 /* read from a pipe */
 typedef gboolean (*pipe_input_cb_t) (gint source, gpointer user_data);
 extern void pipe_input_set_handler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb);
+
+/* packet_list.c */
 
 /* packet list related functions */
 void packet_list_clear(void);
@@ -60,15 +62,20 @@ gpointer packet_list_get_row_data(gint);
 void packet_list_set_selected_row(gint);
 gint packet_list_get_sort_column(void);
 
+/* proto_draw.c */
+
 /* create byte views in the main window */
 void add_main_byte_views(epan_dissect_t *edt);
 /* display the protocol tree in the main window */
 void main_proto_tree_draw(proto_tree *protocol_tree);
-
 void clear_tree_and_hex_views(void);
+
+/* packet_win.c */
 
 /* Destroy all popup packet windows. */
 void destroy_packet_wins(void);
+
+/* file_dlg.c */
 
 /* Destroy the save as dialog */
 void file_save_as_destroy(void);
