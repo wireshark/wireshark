@@ -14727,7 +14727,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	guint16 errcode = 0;
 	guint32 pid_mid;
 	conversation_t *conversation;
-	nstime_t ns;
+	nstime_t t, deltat;
 
 	si_counter++;
 	if(si_counter>=20){
@@ -15063,14 +15063,11 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			if (sip->frame_req != 0) {
 				tmp_item=proto_tree_add_uint(htree, hf_smb_response_to, tvb, 0, 0, sip->frame_req);
 				PROTO_ITEM_SET_GENERATED(tmp_item);
-				ns.secs = pinfo->fd->abs_secs - sip->req_time.secs;
-				ns.nsecs = pinfo->fd->abs_usecs*1000 - sip->req_time.nsecs;
-				if(ns.nsecs<0){
-					ns.nsecs+=1000000000;
-					ns.secs--;
-				}
+				t.secs = pinfo->fd->abs_secs;
+				t.nsecs = pinfo->fd->abs_usecs*1000;
+				get_timedelta(&deltat, &t, &sip->req_time);
 				tmp_item=proto_tree_add_time(htree, hf_smb_time, tvb,
-				    0, 0, &ns);
+				    0, 0, &deltat);
 				PROTO_ITEM_SET_GENERATED(tmp_item);
 			}
 		}

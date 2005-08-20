@@ -56,7 +56,7 @@ smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 {
 	smbstat_t *ss=(smbstat_t *)pss;
 	const smb_info_t *si=psi;
-	nstime_t delta;
+	nstime_t t, deltat;
 	timestat_t *sp=NULL;
 
 	/* we are only interested in reply packets */
@@ -87,15 +87,12 @@ smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 	}
 
 	/* calculate time delta between request and reply */
-	delta.secs=pinfo->fd->abs_secs-si->sip->req_time.secs;
-	delta.nsecs=pinfo->fd->abs_usecs*1000-si->sip->req_time.nsecs;
-	if(delta.nsecs<0){
-		delta.nsecs+=1000000000;
-		delta.secs--;
-	}
+	t.secs=pinfo->fd->abs_secs;
+	t.nsecs=pinfo->fd->abs_usecs*1000;
+	get_timedelta(&deltat, &t, &si->sip->req_time);
 
 	if(sp){
-		time_stat_update(sp,&delta, pinfo);
+		time_stat_update(sp,&deltat, pinfo);
 	}
 
 	return 1;
