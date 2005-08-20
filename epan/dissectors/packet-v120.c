@@ -32,6 +32,7 @@
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/xdlc.h>
+#include <epan/emem.h>
 
 static int proto_v120 = -1;
 static int hf_v120_address = -1;
@@ -92,12 +93,13 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item	*ti;
     int		is_response;
     int		addr;
-    char	info[80];
+    char	*info;
     int		v120len;
     guint8	byte0, byte1;
     guint16	control;
     tvbuff_t	*next_tvb;
 
+    info=ep_alloc(80);
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "V.120");
     if (check_col(pinfo->cinfo, COL_INFO))
@@ -139,7 +141,7 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti = proto_tree_add_protocol_format(tree, proto_v120, tvb, 0, -1, "V.120");
 	v120_tree = proto_item_add_subtree(ti, ett_v120);
 	addr = byte1 << 8 | byte0;
-	sprintf(info, "LLI: %d C/R: %s",
+	g_snprintf(info, 80, "LLI: %d C/R: %s",
 			((byte0 & 0xfc) << 5) | ((byte1 & 0xfe) >> 1),
 			byte0 & 0x02 ? "R" : "C");
 	tc = proto_tree_add_text(v120_tree, tvb,
@@ -149,7 +151,7 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_text(address_tree, tvb, 0, 2,
 		    decode_boolean_bitfield(addr, 0x0002, 2*8,
 			"Response", "Command"), NULL);
-	sprintf(info, "LLI: %d", ((byte0 & 0xfc) << 5) | ((byte1 & 0xfe) >> 1));
+	g_snprintf(info, 80, "LLI: %d", ((byte0 & 0xfc) << 5) | ((byte1 & 0xfe) >> 1));
 	proto_tree_add_text(address_tree, tvb, 0, 2,
 		    decode_numeric_bitfield(addr, 0xfefc, 2*8, info));
 	proto_tree_add_text(address_tree, tvb, 0, 2,
@@ -179,12 +181,13 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_v120_header(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	char info[80];
+	char *info;
 	int header_len, nbits;
 	int header;
 	proto_tree *h_tree, *tc;
 	guint8	byte0;
 
+	info=ep_alloc(80);
 	byte0 = tvb_get_guint8(tvb, offset);
 
 	if (byte0 & 0x80) {
@@ -195,7 +198,7 @@ dissect_v120_header(tvbuff_t *tvb, int offset, proto_tree *tree)
 		header = byte0 | tvb_get_guint8(tvb, offset + 1) << 8;
 	}
 	nbits = header_len * 8;
-	sprintf(info, "Header: B: %d F: %d", byte0 & 0x02 ? 1:0,
+	g_snprintf(info, 80, "Header: B: %d F: %d", byte0 & 0x02 ? 1:0,
 			byte0 & 0x01 ? 1:0);
 	tc = proto_tree_add_text(tree, tvb,
 			offset, header_len,
@@ -207,7 +210,7 @@ dissect_v120_header(tvbuff_t *tvb, int offset, proto_tree *tree)
 	proto_tree_add_text(h_tree, tvb, offset, header_len,
 		    decode_boolean_bitfield(header, 0x40, nbits,
 			"Break condition", "No break condition"), NULL);
-	sprintf(info, "Error control C1/C2: %d", (header & 0x0c) >> 2);
+	g_snprintf(info, 80, "Error control C1/C2: %d", (header & 0x0c) >> 2);
 	proto_tree_add_text(h_tree, tvb, offset, header_len,
 		    decode_numeric_bitfield(header, 0x0c, nbits, info));
 	proto_tree_add_text(h_tree, tvb, offset, header_len,

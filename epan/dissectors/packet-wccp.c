@@ -384,7 +384,7 @@ bucket_name(guint8 bucket)
 	if (bucket == 0xff)
 		strcpy(cur, "Unassigned");
 	else
-		sprintf(cur, "%u", bucket);
+		g_snprintf(cur, 10+1, "%u", bucket);
 	return cur;
 }
 
@@ -967,7 +967,7 @@ assignment_bucket_name(guint8 bucket)
 	if (bucket == 0xff)
 		strcpy(cur, "Unassigned");
 	else {
-		sprintf(cur, "%u%s", bucket >> 1,
+		g_snprintf(cur, 10+1, "%u%s", bucket >> 1,
 		    (bucket & 0x01) ? " (Alt)" : "");
 	}
 	return cur;
