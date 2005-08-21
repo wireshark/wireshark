@@ -38,9 +38,6 @@
 #include <epan/epan.h>
 #include <epan/value_string.h>
 
-#include <epan/stat_cmd_args.h>
-#include "../stat_menu.h"
-#include "gui_stat_menu.h"
 #include <epan/tap.h>
 #include <epan/dissectors/packet-fc.h>
 #include "../register.h"
@@ -53,6 +50,8 @@
 #include "../globals.h"
 #include "filter_dlg.h"
 #include "service_response_time_table.h"
+#include "../stat_menu.h"
+#include "../tap_dfilter_dlg.h"
 #include "gtkglobals.h"
 
 
@@ -201,121 +200,16 @@ gtk_fcstat_init(const char *optarg)
 	cf_retap_packets(&cfile);
 }
 
-
-
-static GtkWidget *dlg=NULL;
-static GtkWidget *filter_entry;
-
-static void
-dlg_destroy_cb(void)
-{
-	dlg=NULL;
-}
-
-static void
-fcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
-{
-	GString *str;
-	const char *filter;
-
-	str = g_string_new("fc,srt");
-	filter=gtk_entry_get_text(GTK_ENTRY(filter_entry));
-	if(filter[0]!=0){
-		g_string_sprintfa(str,",%s", filter);
-	}
-	gtk_fcstat_init(str->str);
-	g_string_free(str, TRUE);
-}
-
-static void
-gtk_fcstat_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-	GtkWidget *dlg_box;
-	GtkWidget *filter_box, *filter_bt;
-	GtkWidget *bbox, *start_button, *cancel_button;
-	const char *filter;
-	static construct_args_t args = {
-	  "Service Response Time Statistics Filter",
-	  TRUE,
-	  FALSE
-	};
-
-	/* if the window is already open, bring it to front */
-	if(dlg){
-		gdk_window_raise(dlg->window);
-		return;
-	}
-
-	dlg=dlg_window_new("Ethereal: Compute Fibre Channel Service Response Time statistics");
-	gtk_window_set_default_size(GTK_WINDOW(dlg), 400, -1);
-
-	dlg_box=gtk_vbox_new(FALSE, 10);
-	gtk_container_border_width(GTK_CONTAINER(dlg_box), 10);
-	gtk_container_add(GTK_CONTAINER(dlg), dlg_box);
-	gtk_widget_show(dlg_box);
-
-	/* Filter box */
-	filter_box=gtk_hbox_new(FALSE, 3);
-
-	/* Filter button */
-	filter_bt=BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_DISPLAY_FILTER_ENTRY);
-	SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
-	gtk_box_pack_start(GTK_BOX(filter_box), filter_bt, FALSE, FALSE, 0);
-	gtk_widget_show(filter_bt);
-
-	/* Filter entry */
-	filter_entry=gtk_entry_new();
-    SIGNAL_CONNECT(filter_entry, "changed", filter_te_syntax_check_cb, NULL);
-
-	/* filter prefs dialog */
-	OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_entry);
-	/* filter prefs dialog */
-
-	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, TRUE, TRUE, 0);
-	filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
-	if(filter){
-		gtk_entry_set_text(GTK_ENTRY(filter_entry), filter);
-	}
-	gtk_widget_show(filter_entry);
-
-	gtk_box_pack_start(GTK_BOX(dlg_box), filter_box, TRUE, TRUE, 0);
-	gtk_widget_show(filter_box);
-
-	/* button box */
-    bbox = dlg_button_row_new(ETHEREAL_STOCK_CREATE_STAT, GTK_STOCK_CANCEL, NULL);
-	gtk_box_pack_start(GTK_BOX(dlg_box), bbox, FALSE, FALSE, 0);
-    gtk_widget_show(bbox);
-
-    start_button = OBJECT_GET_DATA(bbox, ETHEREAL_STOCK_CREATE_STAT);
-    gtk_widget_grab_default(start_button );
-    SIGNAL_CONNECT_OBJECT(start_button, "clicked",
-                              fcstat_start_button_clicked, NULL);
-
-    cancel_button = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
-    window_set_cancel_button(dlg, cancel_button, window_cancel_button_cb);
-
-	/* Catch the "activate" signal on the filter text entry, so that
-	   if the user types Return there, we act as if the "Create Stat"
-	   button had been selected, as happens if Return is typed if some
-	   widget that *doesn't* handle the Return key has the input
-	   focus. */
-	dlg_set_activate(filter_entry, start_button);
-
-	/* Give the initial focus to the "Filter" entry box. */
-	gtk_widget_grab_focus(filter_entry);
-
-    SIGNAL_CONNECT(dlg, "delete_event", window_delete_event_cb, NULL);
-	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
-
-	gtk_widget_show_all(dlg);
-    window_present(dlg);
-}
+static tap_dfilter_dlg fc_stat_dlg = {
+	"Fibre Channel Service Response Time statistics",
+	"fc,srt",
+	gtk_fcstat_init,
+	-1
+};
 
 void
 register_tap_listener_gtkfcstat(void)
 {
-	register_stat_cmd_arg("fc,srt", gtk_fcstat_init);
-
-	register_stat_menu_item("Fibre Channel...", REGISTER_STAT_GROUP_RESPONSE_TIME,
-	    gtk_fcstat_cb, NULL, NULL, NULL);
+	register_dfilter_stat(&fc_stat_dlg, "Fibre Channel",
+	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
