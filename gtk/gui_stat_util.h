@@ -1,4 +1,4 @@
-/* gtk_stat_util.h
+/* gui_stat_util.h
  * gui functions used by stats
  * Copyright 2003 Lars Roland
  *

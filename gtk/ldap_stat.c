@@ -40,7 +40,7 @@
 
 #include <epan/stat_cmd_args.h>
 #include "../stat_menu.h"
-#include "gtk_stat_menu.h"
+#include "gui_stat_menu.h"
 #include <epan/tap.h>
 #include <epan/dissectors/packet-ldap.h>
 #include "../register.h"

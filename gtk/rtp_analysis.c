@@ -69,7 +69,7 @@
 #include "alert_box.h"
 #include "simple_dialog.h"
 #include "../stat_menu.h"
-#include "gtk_stat_menu.h"
+#include "gui_stat_menu.h"
 #include "main.h"
 #include "progress_dlg.h"
 #include "compat_macros.h"

@@ -46,7 +46,7 @@
 #include "dlg_utils.h"
 #include <epan/epan_dissect.h>
 #include "../stat_menu.h"
-#include "gtk_stat_menu.h"
+#include "gui_stat_menu.h"
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/address.h>
 #include <epan/tap.h>

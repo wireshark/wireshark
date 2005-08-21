@@ -33,7 +33,7 @@
 #include "main.h"
 #include "menu.h"
 #include "../stat_menu.h"
-#include "gtk_stat_menu.h"
+#include "gui_stat_menu.h"
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>

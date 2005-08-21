@@ -65,7 +65,7 @@ ETHEREAL_GTK_SRC = \
 	font_utils.c	\
 	goto_dlg.c	\
 	graph_analysis.c \
-	gtk_stat_util.c	\
+	gui_stat_util.c	\
 	gui_prefs.c	\
 	gui_utils.c \
 	help_dlg.c	\

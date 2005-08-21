@@ -44,7 +44,7 @@
 #include "gui_utils.h"
 #include <epan/stat_cmd_args.h>
 #include "../stat_menu.h"
-#include "gtk_stat_menu.h"
+#include "gui_stat_menu.h"
 #include <epan/tap.h>
 #include "../register.h"
 #include "alert_box.h"

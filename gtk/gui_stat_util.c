@@ -1,4 +1,4 @@
-/* gtk_stat_util.c
+/* gui_stat_util.c
  * gui functions used by stats
  * Copyright 2003 Lars Roland
  *
@@ -35,7 +35,7 @@
 
 #include <gtk/gtk.h>
 #include <string.h>
-#include "gtk_stat_util.h"
+#include "gui_stat_util.h"
 #include "compat_macros.h"
 #include "../simple_dialog.h"
 #include "../file.h"

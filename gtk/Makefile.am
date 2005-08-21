@@ -62,7 +62,7 @@ noinst_HEADERS = \
 	graph_analysis.h \
 	gsm_map_stat.h	\
 	gtkglobals.h	\
-	gtk_stat_util.h \
+	gui_stat_util.h \
 	gui_prefs.h	\
 	gui_utils.h	\
 	help_dlg.h	\
@@ -91,7 +91,7 @@ noinst_HEADERS = \
 	sat.h		\
 	sctp_stat.h	\
 	service_response_time_table.h	\
-	gtk_stat_menu.h	\
+	gui_stat_menu.h	\
 	stream_prefs.h	\
 	summary_dlg.h   \
 	supported_protos_dlg.h   \

@@ -1,4 +1,4 @@
-/* gtk_stat_menu.h
+/* gui_stat_menu.h
  * GTK+-specific menu definitions for use by stats
  *
  * $Id$

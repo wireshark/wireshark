@@ -40,7 +40,7 @@
 #include "epan/epan.h"
 #include "epan/value_string.h"
 #include "../stat_menu.h"
-#include "gtk_stat_menu.h"
+#include "gui_stat_menu.h"
 #include "globals.h"
 #include "file.h"
 #include "summary.h"

@@ -43,7 +43,7 @@
 #include "../register.h"
 #include "../plugins/mgcp/packet-mgcp.h"
 #include "../timestats.h"
-#include "gtk_stat_util.h"
+#include "gui_stat_util.h"
 #include "compat_macros.h"
 #include "../simple_dialog.h"
 #include "dlg_utils.h"
