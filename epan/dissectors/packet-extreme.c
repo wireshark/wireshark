@@ -166,7 +166,9 @@ static int hf_edp_tlv_type = -1;
 static int hf_edp_tlv_length = -1;
 /* Display string */
 static int hf_edp_display = -1;
+static int hf_edp_display_string = -1;
 /* Info element */
+static int hf_edp_info = -1;
 static int hf_edp_info_slot = -1;
 static int hf_edp_info_port = -1;
 static int hf_edp_info_vchassid = -1;
@@ -178,6 +180,7 @@ static int hf_edp_info_version_sustaining = -1;
 static int hf_edp_info_version_internal = -1;
 static int hf_edp_info_vchassconn = -1;
 /* Vlan element */
+static int hf_edp_vlan = -1;
 static int hf_edp_vlan_flags = -1;
 static int hf_edp_vlan_flags_ip = -1;
 static int hf_edp_vlan_flags_reserved = -1;
@@ -188,6 +191,7 @@ static int hf_edp_vlan_reserved2 = -1;
 static int hf_edp_vlan_ip = -1;
 static int hf_edp_vlan_name = -1;
 /* ESRP element */
+static int hf_edp_esrp = -1;
 static int hf_edp_esrp_proto = -1;
 static int hf_edp_esrp_group = -1;
 static int hf_edp_esrp_prio = -1;
@@ -198,6 +202,7 @@ static int hf_edp_esrp_sysmac = -1;
 static int hf_edp_esrp_hello = -1;
 static int hf_edp_esrp_reserved = -1;
 /* EAPS element */
+static int hf_edp_eaps = -1;
 static int hf_edp_eaps_ver = -1;
 static int hf_edp_eaps_type = -1;
 static int hf_edp_eaps_ctrlvlanid = -1;
@@ -209,6 +214,10 @@ static int hf_edp_eaps_state = -1;
 static int hf_edp_eaps_reserved1 = -1;
 static int hf_edp_eaps_helloseq = -1;
 static int hf_edp_eaps_reserved2 = -1;
+/* Unknown element */
+static int hf_edp_unknown = -1;
+/* Null element */
+static int hf_edp_null = -1;
 
 static gint ett_edp = -1;
 static gint ett_edp_tlv_header = -1;
@@ -220,6 +229,7 @@ static gint ett_edp_vlan_flags = -1;
 static gint ett_edp_esrp = -1;
 static gint ett_edp_eaps = -1;
 static gint ett_edp_unknown = -1;
+static gint ett_edp_null = -1;
 
 #define PROTO_SHORT_NAME "EDP"
 #define PROTO_LONG_NAME "Extreme Discovery Protocol"
@@ -258,7 +268,7 @@ typedef enum {
 static const value_string edp_type_vals[] = {
 	{ EDP_TYPE_NULL,	"Null"},
 	{ EDP_TYPE_DISPLAY,	"Display"},
-	{ EDP_TYPE_INFO,	"System"},
+	{ EDP_TYPE_INFO,	"Info"},
 	{ EDP_TYPE_VLAN,	"VL"},
 	{ EDP_TYPE_ESRP,	"ESRP"},
 	{ EDP_TYPE_EAPS,	"EAPS"},
@@ -306,8 +316,8 @@ dissect_tlv_header(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length
 	tlv_length = tvb_get_ntohs(tvb, offset + 2);
 
 	tlv_item = proto_tree_add_text(tree, tvb, offset, 4,
-		"L: %d M: 0x%02x T: %d = %s",
-		tlv_length, tlv_marker, tlv_type,
+		"Marker 0x%02x, length %d, type %d = %s",
+		tlv_marker, tlv_length, tlv_type,
 		val_to_str(tlv_type, edp_type_vals, "Unknown (0x%02x)"));
 
 	tlv_tree = proto_item_add_subtree(tlv_item, ett_edp_tlv_header);
@@ -330,21 +340,30 @@ dissect_display_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, p
 	proto_item	*display_item;
 	proto_tree	*display_tree;
 
-	display_item = proto_tree_add_text(tree, tvb, offset, length,
-		"Display: \"%s\"", tvb_get_ephemeral_string(tvb, offset + 0 + 4, length));
+	display_item = proto_tree_add_protocol_format(tree, hf_edp_display,
+		tvb, offset, length, "Display: \"%s\"",
+		tvb_get_ephemeral_string(tvb, offset + 0 + 4, length));
 
 	display_tree = proto_item_add_subtree(display_item, ett_edp_display);
 
 	dissect_tlv_header(tvb, pinfo, offset, 4, display_tree);
 	offset += 4;
-	proto_tree_add_item(display_tree, hf_edp_display, tvb, offset, length - 4,
+	proto_tree_add_item(display_tree, hf_edp_display_string, tvb, offset, length - 4,
 		FALSE);
 }
 
 static void
 dissect_null_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, proto_tree *tree)
 {
-	dissect_tlv_header(tvb, pinfo, offset, 4, tree);
+	proto_item	*null_item;
+	proto_tree	*null_tree;
+
+	null_item = proto_tree_add_protocol_format(tree, hf_edp_null,
+		tvb, offset, length, "Null");
+
+	null_tree = proto_item_add_subtree(null_item, ett_edp_null);
+
+	dissect_tlv_header(tvb, pinfo, offset, 4, null_tree);
 	offset += 4;
 }
 
@@ -369,7 +388,8 @@ dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	sustaining = tvb_get_guint8(tvb, offset + 14 + 4);
 	internal = tvb_get_guint8(tvb, offset + 15 + 4);
 
-	info_item = proto_tree_add_text(tree, tvb, offset, length,
+	info_item = proto_tree_add_protocol_format(tree, hf_edp_info,
+		tvb, offset, length,
 		"Info: Slot/Port: %d/%d, Version: %d.%d.%d.%d",
 		slot, port, major1, major2, sustaining, internal);
 
@@ -440,8 +460,8 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%d", vlan_id);
 
-	vlan_item = proto_tree_add_text(tree, tvb, offset, length,
-		"Vlan: ID: %d Name: %s", vlan_id,
+	vlan_item = proto_tree_add_protocol_format(tree, hf_edp_vlan, tvb,
+		offset, length, "Vlan: ID %d, Name \"%s\"", vlan_id,
 		tvb_get_ephemeral_string(tvb, offset + 12 + 4, length - (12 + 4)));
 
 	vlan_tree = proto_item_add_subtree(vlan_item, ett_edp_vlan);
@@ -493,8 +513,8 @@ dissect_esrp_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	guint16		group;
 
 	group = tvb_get_guint8(tvb, offset + 1 + 4);
-	esrp_item = proto_tree_add_text(tree, tvb, offset, length,
-		"ESRP: G: %d", group);
+	esrp_item = proto_tree_add_protocol_format(tree, hf_edp_esrp,
+		tvb, offset, length, "ESRP: Group %d", group);
 
 	esrp_tree = proto_item_add_subtree(esrp_item, ett_edp_esrp);
 
@@ -550,8 +570,8 @@ dissect_eaps_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, 
 
 	ctrlvlanid = tvb_get_ntohs(tvb, offset + 2 + 4);
 
-	eaps_item = proto_tree_add_text(tree, tvb, offset, length,
-		"EAPS: C: %d", ctrlvlanid);
+	eaps_item = proto_tree_add_protocol_format(tree, hf_edp_eaps,
+		tvb, offset, length, "EAPS: Ctrlvlan %d", ctrlvlanid);
 
 	eaps_tree = proto_item_add_subtree(eaps_item, ett_edp_eaps);
 
@@ -615,8 +635,8 @@ dissect_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U
 
 	tlv_type = tvb_get_guint8(tvb, offset + 1);
 
-	unknown_item = proto_tree_add_text(tree, tvb, offset, length,
-		"Unknown element [0x%02x]", tlv_type);
+	unknown_item = proto_tree_add_protocol_format(tree, hf_edp_unknown,
+		tvb, offset, length, "Unknown element [0x%02x]", tlv_type);
 
 	unknown_tree = proto_item_add_subtree(unknown_item, ett_edp_unknown);
 
@@ -779,12 +799,20 @@ proto_register_edp(void)
 		{ "TLV length",	"edp.tlv.length", FT_UINT16, BASE_DEC, NULL,
 			0x0, "", HFILL }},
 
-	/* Display string */
+	/* Display element */
 		{ &hf_edp_display,
-		{ "Display",	"edp.display", FT_STRING, BASE_NONE, NULL,
+		{ "Display",	"edp.display", FT_PROTOCOL, BASE_NONE, NULL,
+			0x0, "Display Element", HFILL }},
+
+		{ &hf_edp_display_string,
+		{ "Name",	"edp.display.string", FT_STRING, BASE_NONE, NULL,
 			0x0, "MIB II display string", HFILL }},
 
 	/* Info element */
+		{ &hf_edp_info,
+		{ "Info",	"edp.info", FT_PROTOCOL, BASE_NONE, NULL,
+			0x0, "Info Element", HFILL }},
+
 		{ &hf_edp_info_slot,
 		{ "Slot",	"edp.info.slot", FT_UINT16, BASE_DEC, NULL,
 			0x0, "Originating slot #", HFILL }},
@@ -826,6 +854,10 @@ proto_register_edp(void)
 			0x0, "Virtual chassis connections", HFILL }},
 
 	/* VLAN element */
+		{ &hf_edp_vlan,
+		{ "Vlan",	"edp.vlan", FT_PROTOCOL, BASE_NONE, NULL,
+			0x0, "Vlan Element", HFILL }},
+
 		{ &hf_edp_vlan_flags,
 		{ "Flags",	"edp.vlan.flags", FT_UINT8, BASE_HEX, NULL,
 			0x0, "", HFILL }},
@@ -863,6 +895,10 @@ proto_register_edp(void)
 			0x0, "VLAN name", HFILL }},
 
 	/* ESRP element */
+		{ &hf_edp_esrp,
+		{ "ESRP",	"edp.esrp", FT_PROTOCOL, BASE_NONE, NULL,
+			0x0, "ESRP Element", HFILL }},
+
 		{ &hf_edp_esrp_proto,
 		{ "Protocol",	"edp.esrp.proto", FT_UINT8, BASE_DEC, VALS(esrp_proto_vals),
 			0x0, "", HFILL }},
@@ -900,6 +936,10 @@ proto_register_edp(void)
 			0x0, "", HFILL }},
 
 	/* EAPS element */
+		{ &hf_edp_eaps,
+		{ "EAPS",	"edp.eaps", FT_PROTOCOL, BASE_NONE, NULL,
+			0x0, "EAPS Element", HFILL }},
+
 		{ &hf_edp_eaps_ver,
 		{ "Version",	"edp.eaps.ver", FT_UINT8, BASE_DEC, NULL,
 			0x0, "", HFILL }},
@@ -944,6 +984,15 @@ proto_register_edp(void)
 		{ "Reserved2",	"edp.eaps.reserved2", FT_BYTES, BASE_NONE, NULL,
 			0x0, "", HFILL }},
 
+	/* Unknown element */
+		{ &hf_edp_unknown,
+		{ "Unknown",	"edp.unknown", FT_PROTOCOL, BASE_NONE, NULL,
+			0x0, "Element unknown to Ethereal", HFILL }},
+
+	/* Null element */
+		{ &hf_edp_null,
+		{ "End",	"edp.null", FT_PROTOCOL, BASE_NONE, NULL,
+			0x0, "Null Element", HFILL }},
         };
 	static gint *ett[] = {
 		&ett_edp,
@@ -956,6 +1005,7 @@ proto_register_edp(void)
 		&ett_edp_esrp,
 		&ett_edp_eaps,
 		&ett_edp_unknown,
+		&ett_edp_null,
 	};
 
         proto_edp = proto_register_protocol(PROTO_LONG_NAME,
