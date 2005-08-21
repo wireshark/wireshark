@@ -259,7 +259,7 @@ static const value_string edp_type_vals[] = {
 	{ EDP_TYPE_NULL,	"Null"},
 	{ EDP_TYPE_DISPLAY,	"Display"},
 	{ EDP_TYPE_INFO,	"System"},
-	{ EDP_TYPE_VLAN,	"Vlan"},
+	{ EDP_TYPE_VLAN,	"VL"},
 	{ EDP_TYPE_ESRP,	"ESRP"},
 	{ EDP_TYPE_EAPS,	"EAPS"},
 
@@ -300,7 +300,7 @@ dissect_tlv_header(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length
 	guint8		tlv_marker;
 	guint8		tlv_type;
 	guint16		tlv_length;
-	
+
 	tlv_marker = tvb_get_guint8(tvb, offset),
 	tlv_type = tvb_get_guint8(tvb, offset + 1);
 	tlv_length = tvb_get_ntohs(tvb, offset + 2);
@@ -337,7 +337,7 @@ dissect_display_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, p
 
 	dissect_tlv_header(tvb, pinfo, offset, 4, display_tree);
 	offset += 4;
-	proto_tree_add_item(display_tree, hf_edp_display, tvb, offset, length,
+	proto_tree_add_item(display_tree, hf_edp_display, tvb, offset, length - 4,
 		FALSE);
 }
 
@@ -370,7 +370,7 @@ dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	internal = tvb_get_guint8(tvb, offset + 15 + 4);
 
 	info_item = proto_tree_add_text(tree, tvb, offset, length,
-		"Info: Port/Slot: %d/%d, Version: %d.%d.%d.%d",
+		"Info: Slot/Port: %d/%d, Version: %d.%d.%d.%d",
 		slot, port, major1, major2, sustaining, internal);
 
 	info_tree = proto_item_add_subtree(info_item, ett_edp_info);
@@ -437,6 +437,9 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 
 	vlan_id = tvb_get_ntohs(tvb, offset + 2 + 4);
 
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%d", vlan_id);
+
 	vlan_item = proto_tree_add_text(tree, tvb, offset, length,
 		"Vlan: ID: %d Name: %s", vlan_id,
 		tvb_get_ephemeral_string(tvb, offset + 12 + 4, length - (12 + 4)));
@@ -474,7 +477,7 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	offset += 4;
 
 	proto_tree_add_item(vlan_tree, hf_edp_vlan_ip, tvb, offset, 4,
-		FALSE); 
+		FALSE);
 	offset += 4;
 
 	proto_tree_add_item(vlan_tree, hf_edp_vlan_name, tvb, offset, length - 12,
@@ -509,7 +512,7 @@ dissect_esrp_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	proto_tree_add_item(esrp_tree, hf_edp_esrp_prio, tvb, offset, 2,
 		FALSE);
 	offset += 2;
-	
+
 	proto_tree_add_item(esrp_tree, hf_edp_esrp_state, tvb, offset, 2,
 		FALSE);
 	offset += 2;
