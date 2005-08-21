@@ -100,6 +100,7 @@ static int hf_ip_frag_offset = -1;
 static int hf_ip_ttl = -1;
 static int hf_ip_proto = -1;
 static int hf_ip_checksum = -1;
+static int hf_ip_checksum_good = -1;
 static int hf_ip_checksum_bad = -1;
 static int hf_ip_fragments = -1;
 static int hf_ip_fragment = -1;
@@ -120,6 +121,7 @@ static gint ett_ip_option_route = -1;
 static gint ett_ip_option_timestamp = -1;
 static gint ett_ip_fragments = -1;
 static gint ett_ip_fragment  = -1;
+static gint ett_ip_checksum = -1;
 
 static const fragment_items ip_frag_items = {
 	&ett_ip_fragment,
@@ -862,6 +864,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   guint32 		src32, dst32;
   proto_tree *tree;
   proto_item *item;
+  proto_tree *checksum_tree;
 
   tree=parent_tree;
 
@@ -1000,22 +1003,34 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     ipsum = ip_checksum(tvb_get_ptr(tvb, offset, hlen), hlen);
     if (tree) {
       if (ipsum == 0) {
-	proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum,
+	item = proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum,
               "Header checksum: 0x%04x [correct]", iph->ip_sum);
-      }
-      else {
-	proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum,
+	checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
+	item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb, offset + 10, 2, TRUE);
+	PROTO_ITEM_SET_GENERATED(item);
+	item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, FALSE);
+	PROTO_ITEM_SET_GENERATED(item);
+      } else {
+	item = proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum,
           "Header checksum: 0x%04x [incorrect, should be 0x%04x]", iph->ip_sum,
 	  in_cksum_shouldbe(iph->ip_sum, ipsum));
-	item = proto_tree_add_boolean(ip_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, TRUE);
+	checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
+	item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb, offset + 10, 2, FALSE);
 	PROTO_ITEM_SET_GENERATED(item);
-    PROTO_ITEM_SET_HIDDEN(item);
+	item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, TRUE);
+	PROTO_ITEM_SET_GENERATED(item);
       }
     }
   } else {
     ipsum = 0;
-    if (tree)
-      proto_tree_add_uint(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum);
+    if (tree) {
+      item = proto_tree_add_uint(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum);
+      checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
+      item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb, offset + 10, 2, FALSE);
+      PROTO_ITEM_SET_GENERATED(item);
+      item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, FALSE);
+      PROTO_ITEM_SET_GENERATED(item);
+    }
   }
   src_addr = tvb_get_ptr(tvb, offset + IPH_SRC, 4);
   src32 = tvb_get_ntohl(tvb, offset + IPH_SRC);
@@ -2039,9 +2054,13 @@ proto_register_ip(void)
 		{ "Header checksum",	"ip.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
 			"", HFILL }},
 
+		{ &hf_ip_checksum_good,
+		{ "Good",	"ip.checksum_good", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"True: checksum matches packet content; False: doesn't match content or not checked", HFILL }},
+
 		{ &hf_ip_checksum_bad,
-		{ "Bad Header checksum",	"ip.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+		{ "Bad ",	"ip.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"True: checksum doesn't match packet content; False: matches content or not checked", HFILL }},
 
 		{ &hf_ip_fragment_overlap,
 		{ "Fragment overlap",	"ip.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
@@ -2086,6 +2105,7 @@ proto_register_ip(void)
 		&ett_ip_option_timestamp,
 		&ett_ip_fragments,
 		&ett_ip_fragment,
+        &ett_ip_checksum,
 	};
 	module_t *ip_module;
 
