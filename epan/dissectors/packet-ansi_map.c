@@ -112,6 +112,7 @@
 #include "epan/packet.h"
 #include <epan/asn1.h>
 #include <epan/tap.h>
+#include <epan/emem.h>
 
 #include "packet-ansi_a.h"
 #include "packet-ansi_map.h"
@@ -687,7 +688,6 @@ static gint ett_all_dig_mask = -1;
 
 
 static char bigbuf[1024];
-static gchar ansi_map_add_string[1024];
 static dissector_handle_t data_handle;
 static dissector_table_t is637_tele_id_dissector_table; /* IS-637 Teleservice ID */
 static dissector_table_t is683_dissector_table; /* IS-683-A (OTA) */
@@ -797,7 +797,7 @@ my_dgt_tbcd_unpack(
     }
 
 static void
-param_mscid(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_mscid(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 market_id, switch_num;
     guint saved_offset;
@@ -816,7 +816,7 @@ param_mscid(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 }
 
 static void
-param_page_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_page_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -845,7 +845,7 @@ param_page_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_srvc_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_srvc_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -879,7 +879,7 @@ param_srvc_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_sme_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_sme_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -912,7 +912,7 @@ param_sme_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string 
 }
 
 static void
-param_alert_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_alert_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -996,7 +996,7 @@ param_alert_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string 
 }
 
 static void
-param_term_acc_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_term_acc_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -1028,7 +1028,7 @@ param_term_acc_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_term_treat(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_term_treat(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -1059,7 +1059,7 @@ param_term_treat(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string 
 }
 
 static void
-param_term_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_term_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -1152,7 +1152,7 @@ param_term_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 }
 
 static void
-param_aav(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_aav(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -1170,7 +1170,7 @@ param_aav(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 }
 
 static void
-param_ann_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_ann_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -1364,7 +1364,7 @@ param_ann_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_alert_res(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_alert_res(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -1396,7 +1396,7 @@ param_alert_res(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 }
 
 static void
-param_conf_call_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_conf_call_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -1425,7 +1425,7 @@ param_conf_call_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_count_upd_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_count_upd_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -1455,7 +1455,7 @@ param_count_upd_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 }
 
 static void
-param_ssd_upd_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_ssd_upd_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -1486,7 +1486,7 @@ param_ssd_upd_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_cond_den_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cond_den_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -1514,7 +1514,7 @@ param_cond_den_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 }
 
 static void
-param_den_auth_per(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_den_auth_per(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -1561,7 +1561,7 @@ param_den_auth_per(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_ho_state(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_ho_state(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -1587,7 +1587,7 @@ param_ho_state(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_geo_auth(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_geo_auth(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -1620,7 +1620,7 @@ param_geo_auth(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_mw_noti_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_mw_noti_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -1669,7 +1669,7 @@ param_mw_noti_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_paca_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_paca_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -1723,7 +1723,7 @@ param_paca_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_digit_collect_ctrl(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_digit_collect_ctrl(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -2377,7 +2377,7 @@ param_digit_collect_ctrl(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 }
 
 static void
-param_no_ans_time(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_no_ans_time(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -2395,11 +2395,12 @@ param_no_ans_time(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_mw_noti_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_mw_noti_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset, orig_offset;
     const gchar *str = NULL;
+    char *buf;
 
     SHORT_DATA_CHECK(len, 2);
 
@@ -2436,8 +2437,9 @@ param_mw_noti_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 	case 254: str = "254 or more messages are waiting"; break;
 	case 255: str = "An unknown number of messages are waiting (greater than zero)"; break;
 	default:
-	    sprintf(bigbuf, "%u messages are waiting", value);
-	    str = bigbuf;
+	    buf=ep_alloc(512);
+	    g_snprintf(buf, 512, "%u messages are waiting", value);
+	    str = buf;
 	    break;
 	}
 
@@ -2453,7 +2455,7 @@ param_mw_noti_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_otfi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_otfi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -2590,7 +2592,7 @@ param_otfi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
  *	Authentication Response Unique Challenge
  */
 static void
-param_auth_resp_all(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_auth_resp_all(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -2635,14 +2637,14 @@ param_auth_resp_all(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_sys_acc_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_sys_acc_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
 
     EXACT_DATA_CHECK(len, 5);
 
-    param_mscid(asn1, tree, 3, add_string);
+    param_mscid(asn1, tree, 3, add_string, string_len);
 
     saved_offset = asn1->offset;
     asn1_int32_value_decode(asn1, 2, &value);
@@ -2654,7 +2656,7 @@ param_sys_acc_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_bill_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_bill_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, int string_len)
 {
     gint32 id, segcount;
     guint saved_offset;
@@ -2662,7 +2664,7 @@ param_bill_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 
     EXACT_DATA_CHECK(len, 7);
 
-    param_mscid(asn1, tree, 3, add_string);
+    param_mscid(asn1, tree, 3, add_string, string_len);
 
     saved_offset = asn1->offset;
     asn1_int32_value_decode(asn1, 3, &id);
@@ -2686,7 +2688,7 @@ param_bill_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 }
 
 static void
-param_cdma_so(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma_so(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, int string_len)
 {
     gint32 so;
     guint saved_offset;
@@ -2790,13 +2792,13 @@ param_cdma_so(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	"%s %u/0x%04x",
 	str, so, so);
 
-    sprintf(add_string, " - (SO=0x%04x)", so);
+    g_snprintf(add_string, string_len, " - (SO=0x%04x)", so);
 
     EXTRANEOUS_DATA_CHECK(len, 2);
 }
 
 static void
-param_tdma_sc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_tdma_sc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -2830,7 +2832,7 @@ param_tdma_sc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_
 }
 
 static void
-param_dmh_red_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_dmh_red_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 redind;
     guint saved_offset;
@@ -2888,7 +2890,7 @@ param_dmh_red_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_cic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, int string_len)
 {
     gint32 tg, mem;
     guint saved_offset;
@@ -2905,11 +2907,11 @@ param_cic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	"Trunk Group %u  Member %u",
 	tg, mem);
 
-    sprintf(add_string, "- (%u/%u)", tg, mem);
+    g_snprintf(add_string, string_len, "- (%u/%u)", tg, mem);
 }
 
 static void
-param_qic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_qic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 qic;
     guint saved_offset;
@@ -2946,7 +2948,7 @@ param_qic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 }
 
 static void
-param_feat_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_feat_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -2984,7 +2986,7 @@ const gchar *calling_feat_ind_str[] = {
 };
 
 static void
-param_calling_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_calling_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -3180,7 +3182,7 @@ param_calling_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 }
 
 static void
-param_usage_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_usage_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -3217,7 +3219,7 @@ const gchar *tdma_data_feat_ind_str[] = {
 };
 
 static void
-param_tdma_data_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_tdma_data_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -3291,7 +3293,7 @@ param_tdma_data_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 }
 
 static void
-param_faulty(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_faulty(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -3361,7 +3363,7 @@ param_faulty(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 }
 
 static void
-param_sys_type_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_sys_type_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 sys_type_code;
     guint saved_offset;
@@ -3422,7 +3424,7 @@ param_sys_type_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_ext_sys_type_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_ext_sys_type_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, int string_len)
 {
     gint32 type;
     guint saved_offset;
@@ -3458,11 +3460,11 @@ param_ext_sys_type_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_
 	type,
 	str);
 
-    param_sys_type_code(asn1, tree, len-1, add_string);
+    param_sys_type_code(asn1, tree, len-1, add_string, string_len);
 }
 
 static void
-param_cdma_sea_win(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cdma_sea_win(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -3488,7 +3490,7 @@ param_cdma_sea_win(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_cdma_sea_param(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cdma_sea_param(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -3568,7 +3570,7 @@ param_cdma_sea_param(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_cdma_code_chan(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cdma_code_chan(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -3594,7 +3596,7 @@ param_cdma_code_chan(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -3655,7 +3657,7 @@ param_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 }
 
 static void
-param_cdma_plcm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cdma_plcm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -3688,7 +3690,7 @@ param_cdma_plcm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 }
 
 static void
-param_ctrl_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_ctrl_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -3750,7 +3752,7 @@ param_ctrl_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_cdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value, temp_int;
     guint saved_offset;
@@ -3903,7 +3905,7 @@ param_cdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_namps_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_namps_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -3957,7 +3959,7 @@ param_namps_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 }
 
 static void
-param_cdma_ms_meas_chan_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cdma_ms_meas_chan_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value, temp_int;
     guint saved_offset;
@@ -4003,7 +4005,7 @@ param_cdma_ms_meas_chan_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *a
 }
 
 static void
-param_tdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_tdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -4106,7 +4108,7 @@ param_tdma_chan_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_tdma_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_tdma_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -4167,7 +4169,7 @@ param_tdma_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_cdma_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cdma_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -4296,7 +4298,7 @@ param_cdma_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_namps_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_namps_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -4335,7 +4337,7 @@ param_namps_call_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 }
 
 static void
-param_mob_rev(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_mob_rev(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -4353,7 +4355,7 @@ param_mob_rev(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_
 }
 
 static void
-param_cdma_band_class(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cdma_band_class(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value, temp_int;
     guint saved_offset;
@@ -4390,7 +4392,7 @@ param_cdma_band_class(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 }
 
 static void
-param_calling_party_name(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_calling_party_name(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -4448,7 +4450,7 @@ param_calling_party_name(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 }
 
 static void
-param_red_party_name(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_red_party_name(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -4506,7 +4508,7 @@ param_red_party_name(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_srvc_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_srvc_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     proto_tree_add_text(tree, asn1->tvb,
 	asn1->offset, len,
@@ -4516,7 +4518,7 @@ param_srvc_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_
 }
 
 static void
-param_all_or_none(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_all_or_none(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -4545,7 +4547,7 @@ param_all_or_none(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_change(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_change(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -4576,7 +4578,7 @@ param_change(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 }
 
 static void
-param_data_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_data_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -4608,7 +4610,7 @@ param_data_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_fail_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_fail_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint saved_offset;
 
@@ -4624,7 +4626,7 @@ param_fail_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string 
 }
 
 static void
-param_fail_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_fail_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -4655,7 +4657,7 @@ param_fail_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 }
 
 static void
-param_resume_pic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_resume_pic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -4703,7 +4705,7 @@ param_resume_pic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string 
 }
 
 static void
-param_special_rsc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_special_rsc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value, i;
     guint saved_offset;
@@ -4741,7 +4743,7 @@ param_special_rsc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_time_date_offset(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_time_date_offset(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -4759,7 +4761,7 @@ param_time_date_offset(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 }
 
 static void
-param_network_tmsi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_network_tmsi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value, addr_type, first_dig;
     guint saved_offset;
@@ -4829,7 +4831,7 @@ param_network_tmsi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_reqd_param_mask(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_reqd_param_mask(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -4883,7 +4885,7 @@ param_reqd_param_mask(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 }
 
 static void
-param_srvc_red_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_srvc_red_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -4916,7 +4918,7 @@ param_srvc_red_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_srvc_red_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_srvc_red_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -4949,7 +4951,7 @@ param_srvc_red_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_roaming_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_roaming_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -4989,7 +4991,7 @@ param_roaming_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_cdma_pci(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cdma_pci(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -5014,7 +5016,7 @@ param_cdma_pci(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_cdma_chan_num(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cdma_chan_num(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -5048,7 +5050,7 @@ param_cdma_chan_num(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_cdma_sci(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cdma_sci(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -5074,7 +5076,7 @@ param_cdma_sci(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_vp_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_vp_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -5107,7 +5109,7 @@ param_vp_report(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 }
 
 static void
-param_cdma_scm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cdma_scm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -5169,7 +5171,7 @@ param_cdma_scm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_ota_result_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_ota_result_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -5204,7 +5206,7 @@ param_ota_result_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 }
 
 static void
-param_cdma_scm2(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cdma_scm2(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -5222,7 +5224,7 @@ param_cdma_scm2(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 }
 
 static void
-param_tdma_term_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_tdma_term_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -5401,7 +5403,7 @@ param_tdma_term_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_tdma_voice_coder(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_tdma_voice_coder(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value, vc;
     guint orig_offset, saved_offset;
@@ -5449,7 +5451,7 @@ param_tdma_voice_coder(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 }
 
 static void
-param_cdma_pilot_pn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cdma_pilot_pn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -5482,7 +5484,7 @@ param_cdma_pilot_pn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_cdma_pilot_strength(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cdma_pilot_strength(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -5508,7 +5510,7 @@ param_cdma_pilot_strength(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *ad
 }
 
 static void
-param_trunk_stat(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_trunk_stat(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -5537,7 +5539,7 @@ param_trunk_stat(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string 
 }
 
 static void
-param_pref_lang_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_pref_lang_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -5569,11 +5571,12 @@ param_pref_lang_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_rand_valtime(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_rand_valtime(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
     const gchar *str = NULL;
+    char *buf;
 
     saved_offset = asn1->offset;
 
@@ -5585,8 +5588,9 @@ param_rand_valtime(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
     }
     else
     {
-	sprintf(bigbuf, "RAND may be used for %u minutes", value);
-	str = bigbuf;
+	buf=ep_alloc(64);
+	g_snprintf(buf, 64, "RAND may be used for %u minutes", value);
+	str = buf;
     }
 
     proto_tree_add_text(tree, asn1->tvb,
@@ -5597,7 +5601,7 @@ param_rand_valtime(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_tdma_burst_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_tdma_burst_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -5639,7 +5643,7 @@ param_tdma_burst_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_orig_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_orig_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -5675,7 +5679,7 @@ param_orig_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_ms_loc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_ms_loc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -5713,7 +5717,7 @@ param_ms_loc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 }
 
 static void
-param_unique_chal_rep(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_unique_chal_rep(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -5744,7 +5748,7 @@ param_unique_chal_rep(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 }
 
 static void
-param_rand_unique(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_rand_unique(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint saved_offset;
 
@@ -5760,7 +5764,7 @@ param_rand_unique(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_vpmask(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_vpmask(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -5817,7 +5821,7 @@ param_vpmask(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 }
 
 static void
-param_ssd(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_ssd(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint saved_offset;
 
@@ -5837,7 +5841,7 @@ param_ssd(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 }
 
 static void
-param_upd_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_upd_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -5866,7 +5870,7 @@ param_upd_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 }
 
 static void
-param_sme_key(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_sme_key(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint saved_offset;
 
@@ -5882,7 +5886,7 @@ param_sme_key(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_
 }
 
 static void
-param_rand_ssd(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_rand_ssd(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint saved_offset;
 
@@ -5898,7 +5902,7 @@ param_rand_ssd(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_setup_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_setup_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -5926,7 +5930,7 @@ param_setup_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_randc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_randc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint saved_offset;
 
@@ -5942,7 +5946,7 @@ param_randc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 }
 
 static void
-param_ext_mscid(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_ext_mscid(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, int string_len)
 {
     gint32 type;
     guint saved_offset;
@@ -5978,11 +5982,11 @@ param_ext_mscid(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	type,
 	str);
 
-    param_mscid(asn1, tree, len-1, add_string);
+    param_mscid(asn1, tree, len-1, add_string, string_len);
 }
 
 static void
-param_sub_addr(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_sub_addr(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -6236,19 +6240,19 @@ param_digits_basic(ASN1_SCK *asn1, proto_tree *tree, guint len, gboolean searcha
 }
 
 static void
-param_digits(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_digits(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     param_digits_basic(asn1, tree, len, FALSE);
 }
 
 static void
-param_mdn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_mdn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     param_digits_basic(asn1, tree, len, TRUE);
 }
 
 static void
-param_esn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_esn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, int string_len)
 {
     gint32 value;
     guint saved_offset;
@@ -6264,11 +6268,11 @@ param_esn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	"ESN 0x%04x",
 	value);
 
-    sprintf(add_string, " - 0x%04x", value);
+    g_snprintf(add_string, string_len, " - 0x%04x", value);
 }
 
 static void
-param_sms_noti(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_sms_noti(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -6300,7 +6304,7 @@ param_sms_noti(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_sms_orig_restric(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_sms_orig_restric(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -6364,7 +6368,7 @@ param_sms_orig_restric(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 }
 
 static void
-param_seizure(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_seizure(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -6392,7 +6396,7 @@ param_seizure(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_
 }
 
 static void
-param_sms_tele(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_sms_tele(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -6436,7 +6440,7 @@ param_sms_tele(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_sms_term_restric(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_sms_term_restric(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -6486,11 +6490,12 @@ param_sms_term_restric(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 }
 
 static void
-param_sms_msg_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_sms_msg_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
     const gchar *str = NULL;
+    char *buf;
 
     saved_offset = asn1->offset;
 
@@ -6500,8 +6505,9 @@ param_sms_msg_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
     {
     case 0: str = "No more pending SMS messages"; break;
     default:
-	sprintf(bigbuf, "%u pending SMS messages", value);
-	str = bigbuf;
+        buf=ep_alloc(64);
+	g_snprintf(buf, 64, "%u pending SMS messages", value);
+	str = buf;
 	break;
     }
 
@@ -6513,7 +6519,7 @@ param_sms_msg_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_qos_pri(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_qos_pri(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value, temp_int;
     guint saved_offset;
@@ -6561,7 +6567,7 @@ param_qos_pri(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_
 }
 
 static void
-param_calling_party_cat(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_calling_party_cat(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -6581,7 +6587,7 @@ param_calling_party_cat(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_
  * Dissect IOS data parameters expected to be in TLV format
  */
 static void
-dissect_cdma2000_ios_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+dissect_cdma2000_ios_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, int string_len)
 {
     gint32	value;
     guint	num_elems;
@@ -6630,27 +6636,27 @@ dissect_cdma2000_ios_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *ad
 	saved_offset += elem_len + 2;
     }
 
-    sprintf(add_string, " - (%u)", num_elems);
+    g_snprintf(add_string, string_len, " - (%u)", num_elems);
 
     EXTRANEOUS_DATA_CHECK((len - (saved_offset - orig_offset)), 0);
 }
 
 static void
-param_cdma2000_ho_ivk_ios(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma2000_ho_ivk_ios(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, int string_len)
 {
 
-    dissect_cdma2000_ios_data(asn1, tree, len, add_string);
+    dissect_cdma2000_ios_data(asn1, tree, len, add_string, string_len);
 }
 
 static void
-param_cdma2000_ho_rsp_ios(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_cdma2000_ho_rsp_ios(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, int string_len)
 {
 
-    dissect_cdma2000_ios_data(asn1, tree, len, add_string);
+    dissect_cdma2000_ios_data(asn1, tree, len, add_string, string_len);
 }
 
 static void
-param_msid_usage(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_msid_usage(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -6685,7 +6691,7 @@ param_msid_usage(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string 
 }
 
 static void
-param_new_min_ext(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_new_min_ext(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -6752,7 +6758,7 @@ param_new_min_ext(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_dtx_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_dtx_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -6785,7 +6791,7 @@ param_dtx_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_
 }
 
 static void
-param_cdma_mob_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cdma_mob_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -6818,7 +6824,7 @@ param_cdma_mob_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_gen_time(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_gen_time(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     gint32 h, m, s, ts;
@@ -6875,7 +6881,7 @@ param_gen_time(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_geo_pos(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_geo_pos(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint saved_offset;
 
@@ -6887,7 +6893,7 @@ param_geo_pos(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_
 }
 
 static void
-param_mob_call_status(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_mob_call_status(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value, auth;
     guint saved_offset;
@@ -6943,7 +6949,7 @@ param_mob_call_status(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 }
 
 static void
-param_pos_req_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_pos_req_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -6975,7 +6981,7 @@ param_pos_req_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_pos_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_pos_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -7022,7 +7028,7 @@ param_pos_result(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string 
 }
 
 static void
-param_pos_source(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_pos_source(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -7064,7 +7070,7 @@ param_pos_source(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string 
 }
 
 static void
-param_acg_encounter(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_acg_encounter(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -7123,7 +7129,7 @@ param_acg_encounter(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_ctrl_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_ctrl_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -7182,7 +7188,7 @@ param_ctrl_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 }
 
 static void
-param_gap_duration(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_gap_duration(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -7221,7 +7227,7 @@ param_gap_duration(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_scf_overload_gap_int(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_scf_overload_gap_int(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -7268,7 +7274,7 @@ param_scf_overload_gap_int(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *a
 }
 
 static void
-param_tdma_time_align(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_tdma_time_align(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -7338,7 +7344,7 @@ dump_rssi(ASN1_SCK *asn1, proto_tree *tree, const gchar *leader)
 }
 
 static void
-param_tdma_maho_cell_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_tdma_maho_cell_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, int string_len)
 {
     gint32 value, num_rssi, num_msc;
     guint saved_offset, orig_offset;
@@ -7404,7 +7410,7 @@ param_tdma_maho_cell_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_
 	    return;
 	}
 
-	param_mscid(asn1, tree, 3, add_string);
+	param_mscid(asn1, tree, 3, add_string, string_len);
 
 	saved_offset = asn1->offset;
 
@@ -7444,7 +7450,7 @@ param_tdma_maho_cell_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_
 }
 
 static void
-param_tdma_maho_chan(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_tdma_maho_chan(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, int string_len)
 {
     gint32 value, num_rssi, num_msc;
     guint saved_offset, orig_offset;
@@ -7518,7 +7524,7 @@ param_tdma_maho_chan(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 	    return;
 	}
 
-	param_mscid(asn1, tree, 3, add_string);
+	param_mscid(asn1, tree, 3, add_string, string_len);
 
 	saved_offset = asn1->offset;
 
@@ -7566,7 +7572,7 @@ param_tdma_maho_chan(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_tdma_maho_req(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_tdma_maho_req(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -7593,7 +7599,7 @@ param_tdma_maho_req(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_sm_gap_int(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_sm_gap_int(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -7634,7 +7640,7 @@ param_sm_gap_int(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string 
 }
 
 static void
-param_mob_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_mob_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset, i;
@@ -7678,7 +7684,7 @@ param_mob_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_
 }
 
 static void
-param_cdma_psmm_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cdma_psmm_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -7696,7 +7702,7 @@ param_cdma_psmm_count(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 }
 
 static void
-param_cdma_sowd2(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cdma_sowd2(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -7751,7 +7757,7 @@ param_cdma_sowd2(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string 
 }
 
 static void
-param_sms_charge_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_sms_charge_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -7782,7 +7788,7 @@ param_sms_charge_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_auth_per(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_auth_per(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -7827,7 +7833,7 @@ param_auth_per(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_ctrl_chan_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_ctrl_chan_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -7857,7 +7863,7 @@ param_ctrl_chan_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_tdma_data_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_tdma_data_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -7958,7 +7964,7 @@ param_tdma_data_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_tdma_voice_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_tdma_voice_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -8009,7 +8015,7 @@ param_tdma_voice_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_st
 }
 
 static void
-param_tdma_bandwidth(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_tdma_bandwidth(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -8049,7 +8055,7 @@ param_tdma_bandwidth(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_change_srvc_attr(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_change_srvc_attr(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -8099,7 +8105,7 @@ param_change_srvc_attr(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_s
 }
 
 static void
-param_dp_params(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_dp_params(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -8162,7 +8168,7 @@ param_dp_params(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 }
 
 static void
-param_trn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_trn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint saved_offset;
     guchar *poctets;
@@ -8179,7 +8185,7 @@ param_trn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 }
 
 static void
-param_islp_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_islp_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -8209,7 +8215,7 @@ param_islp_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 }
 
 static void
-param_ana_red_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_ana_red_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -8258,7 +8264,7 @@ param_ana_red_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_reason_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_reason_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     gint i;
@@ -8304,7 +8310,7 @@ param_reason_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_imsi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_imsi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, int string_len)
 {
     guint saved_offset;
     guchar *poctets;
@@ -8320,11 +8326,11 @@ param_imsi(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	"IMSI %s",
 	bigbuf);
 
-    sprintf(add_string, " - %s", bigbuf);
+    g_snprintf(add_string, string_len, " - %s", bigbuf);
 }
 
 static void
-param_min_basic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, gboolean true_min)
+param_min_basic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, int string_len, gboolean true_min)
 {
     guint saved_offset;
     guchar *poctets;
@@ -8347,35 +8353,35 @@ param_min_basic(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, 
     }
     else
     {
-	proto_tree_add_text(tree, asn1->tvb,
-	    saved_offset, len,
-	    "MIN %s",
-	    bigbuf);
-    }
+    proto_tree_add_text(tree, asn1->tvb,
+		saved_offset, len,
+		"MIN %s",
+		bigbuf);
+	}
 
-    sprintf(add_string, " - %s", bigbuf);
+    g_snprintf(add_string, string_len, " - %s", bigbuf);
 }
 
 static void
-param_ms_min(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_ms_min(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, int string_len)
 {
-    param_min_basic(asn1, tree, len, add_string, FALSE);
+    param_min_basic(asn1, tree, len, add_string, string_len, FALSE);
 }
 
 static void
-param_new_min(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_new_min(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, int string_len)
 {
-    param_min_basic(asn1, tree, len, add_string, FALSE);
+    param_min_basic(asn1, tree, len, add_string, string_len, FALSE);
 }
 
 static void
-param_min(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_min(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, int string_len)
 {
-    param_min_basic(asn1, tree, len, add_string, TRUE);
+    param_min_basic(asn1, tree, len, add_string, string_len, TRUE);
 }
 
 static void
-param_auth_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_auth_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -8407,7 +8413,7 @@ param_auth_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_sus_acc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_sus_acc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -8438,7 +8444,7 @@ param_sus_acc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_
 }
 
 static void
-param_dis_text(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_dis_text(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -8471,7 +8477,7 @@ param_dis_text(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_dis_text2(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_dis_text2(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint orig_offset, saved_offset;
@@ -8565,7 +8571,7 @@ param_dis_text2(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 }
 
 static void
-param_dmh_srvc_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_dmh_srvc_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint orig_offset, saved_offset;
@@ -8610,7 +8616,7 @@ param_dmh_srvc_id(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint orig_offset, saved_offset;
@@ -8655,7 +8661,7 @@ param_feat_ind(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_a_key_ver(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_a_key_ver(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     gint i;
@@ -8695,7 +8701,7 @@ param_a_key_ver(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 }
 
 static void
-param_inter_msg_time(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_inter_msg_time(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -8716,7 +8722,7 @@ param_inter_msg_time(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_str
 }
 
 static void
-param_rel_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_rel_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -8752,7 +8758,7 @@ param_rel_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 }
 
 static void
-param_time_day(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_time_day(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     gint32 h, m, s, ts;
@@ -8780,7 +8786,7 @@ param_time_day(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_call_status(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_call_status(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -8817,7 +8823,7 @@ param_call_status(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_ms_status(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_ms_status(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -8933,7 +8939,7 @@ param_ms_status(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 }
 
 static void
-param_pos_info_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_pos_info_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -8987,7 +8993,7 @@ param_pos_info_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_rel_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_rel_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -9028,7 +9034,7 @@ param_rel_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string 
 }
 
 static void
-param_ho_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_ho_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -9059,7 +9065,7 @@ param_ho_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 }
 
 static void
-param_red_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_red_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -9097,7 +9103,7 @@ param_red_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string 
 }
 
 static void
-param_confid_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_confid_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -9137,7 +9143,7 @@ param_confid_mode(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_sys_acc_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_sys_acc_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -9173,7 +9179,7 @@ param_sys_acc_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_scm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_scm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value, temp_int;
     guint saved_offset;
@@ -9227,7 +9233,7 @@ param_scm(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 }
 
 static void
-param_deny_acc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_deny_acc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -9264,7 +9270,7 @@ param_deny_acc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_cdma_sig_qual(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cdma_sig_qual(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -9290,7 +9296,7 @@ param_cdma_sig_qual(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_rec_sig_qual(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_rec_sig_qual(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -9319,7 +9325,7 @@ param_rec_sig_qual(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_sig_qual(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_sig_qual(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -9348,7 +9354,7 @@ param_sig_qual(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_ssd_no_share(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_ssd_no_share(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -9375,7 +9381,7 @@ param_ssd_no_share(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_strin
 }
 
 static void
-param_report_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_report_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -9418,7 +9424,7 @@ param_report_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string
 }
 
 static void
-param_term_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_term_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -9465,7 +9471,7 @@ param_term_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 }
 
 static void
-param_term_res(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_term_res(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -9495,7 +9501,7 @@ param_term_res(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_dereg(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_dereg(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -9525,7 +9531,7 @@ param_dereg(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 }
 
 static void
-param_group_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_group_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -9545,7 +9551,7 @@ param_group_info(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string 
 }
 
 static void
-param_auth_den(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_auth_den(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -9656,7 +9662,7 @@ find_trig_type(gint32 value)
 }
 
 static void
-param_trig_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_trig_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -9675,7 +9681,7 @@ param_trig_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 }
 
 static void
-param_win_op_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_win_op_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -9737,7 +9743,7 @@ param_win_op_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string 
 }
 
 static void
-param_win_trig_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_win_trig_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value, i, j;
     guint saved_offset;
@@ -9803,13 +9809,15 @@ param_win_trig_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_stri
 }
 
 static void
-param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
     const gchar *str = NULL;
     char *p;
+    char *buf;
 
+    buf=ep_alloc(1024);
     saved_offset = asn1->offset;
 
     asn1_int32_value_decode(asn1, 1, &value);
@@ -9822,11 +9830,11 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 	break;
     }
 
-    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(buf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
-	bigbuf, str);
+	buf, str);
 
     switch ((value & 0x40) >> 6)
     {
@@ -9836,11 +9844,11 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 	break;
     }
 
-    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(buf, value, 0x40, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
-	bigbuf, str);
+	buf, str);
 
     switch ((value & 0x20) >> 5)
     {
@@ -9850,11 +9858,11 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 	break;
     }
 
-    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(buf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
-	bigbuf, str);
+	buf, str);
 
     switch ((value & 0x10) >> 4)
     {
@@ -9864,11 +9872,11 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 	break;
     }
 
-    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(buf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
-	bigbuf, str);
+	buf, str);
 
     switch ((value & 0x08) >> 3)
     {
@@ -9878,11 +9886,11 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 	break;
     }
 
-    other_decode_bitfield_value(bigbuf, value, 0x08, 8);
+    other_decode_bitfield_value(buf, value, 0x08, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
-	bigbuf, str);
+	buf, str);
 
     switch ((value & 0x04) >> 2)
     {
@@ -9892,11 +9900,11 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 	break;
     }
 
-    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(buf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
-	bigbuf, str);
+	buf, str);
 
     switch ((value & 0x02) >> 1)
     {
@@ -9906,11 +9914,11 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 	break;
     }
 
-    other_decode_bitfield_value(bigbuf, value, 0x02, 8);
+    other_decode_bitfield_value(buf, value, 0x02, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
-	bigbuf, str);
+	buf, str);
 
     switch (value & 0x01)
     {
@@ -9920,11 +9928,11 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 	break;
     }
 
-    other_decode_bitfield_value(bigbuf, value, 0x01, 8);
+    other_decode_bitfield_value(buf, value, 0x01, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
-	bigbuf, str);
+	buf, str);
 
     if (len == 1) return;
 
@@ -9940,11 +9948,11 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 	break;
     }
 
-    other_decode_bitfield_value(bigbuf, value, 0x80, 8);
+    other_decode_bitfield_value(buf, value, 0x80, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
-	bigbuf, str);
+	buf, str);
 
     switch ((value & 0x40) >> 6)
     {
@@ -9954,11 +9962,11 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 	break;
     }
 
-    other_decode_bitfield_value(bigbuf, value, 0x40, 8);
+    other_decode_bitfield_value(buf, value, 0x40, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
-	bigbuf, str);
+	buf, str);
 
     switch ((value & 0x20) >> 5)
     {
@@ -9968,11 +9976,11 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 	break;
     }
 
-    other_decode_bitfield_value(bigbuf, value, 0x20, 8);
+    other_decode_bitfield_value(buf, value, 0x20, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
-	bigbuf, str);
+	buf, str);
 
     switch ((value & 0x10) >> 4)
     {
@@ -9982,25 +9990,25 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 	break;
     }
 
-    other_decode_bitfield_value(bigbuf, value, 0x10, 8);
+    other_decode_bitfield_value(buf, value, 0x10, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
-	bigbuf, str);
+	buf, str);
 
-    p = other_decode_bitfield_value(bigbuf, value, 0x0f, 8);
+    p = other_decode_bitfield_value(buf, value, 0x0f, 8);
     switch (value & 0x0f)
     {
     case 0x00: strcat(p, " :  System cannot accept a termination at this time"); break;
     default:
-	sprintf(p, " :  System supports %u call leg(s)", value & 0x0f);
+	g_snprintf(p, 1024-(p-buf), " :  System supports %u call leg(s)", value & 0x0f);
 	break;
     }
 
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s",
-	bigbuf);
+	buf);
 
     if (len == 2) return;
 
@@ -10008,11 +10016,11 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 
     asn1_int32_value_decode(asn1, 1, &value);
 
-    other_decode_bitfield_value(bigbuf, value, 0xf8, 8);
+    other_decode_bitfield_value(buf, value, 0xf8, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
-	bigbuf);
+	buf);
 
     switch ((value & 0x04) >> 2)
     {
@@ -10022,23 +10030,23 @@ param_trans_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 	break;
     }
 
-    other_decode_bitfield_value(bigbuf, value, 0x04, 8);
+    other_decode_bitfield_value(buf, value, 0x04, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  %s",
-	bigbuf, str);
+	buf, str);
 
-    other_decode_bitfield_value(bigbuf, value, 0x03, 8);
+    other_decode_bitfield_value(buf, value, 0x03, 8);
     proto_tree_add_text(tree, asn1->tvb,
 	saved_offset, asn1->offset - saved_offset,
 	"%s :  Reserved",
-	bigbuf);
+	buf);
 
     EXTRANEOUS_DATA_CHECK(len, 3);
 }
 
 static void
-param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -10478,7 +10486,7 @@ param_spini_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string 
 }
 
 static void
-param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -10918,7 +10926,7 @@ param_orig_trig(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 }
 
 static void
-param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -11244,7 +11252,7 @@ param_trig_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_sys_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_sys_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -11348,7 +11356,7 @@ param_sys_cap(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_
 }
 
 static void
-param_act_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_act_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -11400,7 +11408,7 @@ param_act_code(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_border_acc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_border_acc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -11430,7 +11438,7 @@ param_border_acc(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string 
 }
 
 static void
-param_avail_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_avail_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -11458,7 +11466,7 @@ param_avail_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string 
 }
 
 static void
-param_can_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_can_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -11488,7 +11496,7 @@ param_can_type(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U
 }
 
 static void
-param_can_den(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_can_den(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -11519,7 +11527,7 @@ param_can_den(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_
 }
 
 static void
-param_acc_den(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_acc_den(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -11559,7 +11567,7 @@ param_acc_den(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_
 }
 
 static void
-param_sms_acc_den_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_sms_acc_den_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -11594,7 +11602,7 @@ param_sms_acc_den_reason(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add
 }
 
 static void
-param_sms_bd(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_sms_bd(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
 
     bd_tvb = tvb_new_subset(asn1->tvb, asn1->offset, len, len);
@@ -11607,7 +11615,7 @@ param_sms_bd(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 }
 
 static void
-param_sms_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_sms_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -11671,7 +11679,7 @@ param_sms_cause(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 }
 
 static void
-param_cdma_soci(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_cdma_soci(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -11689,7 +11697,7 @@ param_cdma_soci(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _
 }
 
 static void
-param_int(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_int(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -11713,7 +11721,7 @@ param_int(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 }
 
 static void
-param_pc_ssn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_pc_ssn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value, b1, b2, b3, b4;
     guint saved_offset;
@@ -11761,7 +11769,7 @@ param_pc_ssn(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 }
 
 static void
-param_lai(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
+param_lai(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_, int string_len _U_)
 {
     gint32 value;
     guint saved_offset;
@@ -11780,7 +11788,7 @@ param_lai(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string _U_)
 }
 
 static void
-param_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
+param_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, int string_len)
 {
     guint saved_offset;
     guint num_parms;
@@ -11803,13 +11811,13 @@ param_list(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string)
 	}
     }
 
-    sprintf(add_string, " - (%u)", num_parms);
+    g_snprintf(add_string, string_len, " - (%u)", num_parms);
 }
 
 
 #define	NUM_PARAM_1 (sizeof(ansi_param_1_strings)/sizeof(value_string))
 static gint ett_ansi_param_1[NUM_PARAM_1];
-static void (*param_1_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string) = {
+static void (*param_1_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, int string_len) = {
     param_bill_id,	/* Billing ID */
     param_int,	/* Serving Cell ID */
     param_int,	/* Target Cell ID */
@@ -11846,7 +11854,7 @@ static void (*param_1_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar 
 
 #define	NUM_PARAM_2 (sizeof(ansi_param_2_strings)/sizeof(value_string))
 static gint ett_ansi_param_2[NUM_PARAM_2];
-static void (*param_2_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string) = {
+static void (*param_2_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, int string_len) = {
     param_tdma_burst_ind,	/* TDMA Burst Indicator */
     param_pc_ssn,	/* PC_SSN */
     param_lai,	/* Location Area ID */
@@ -11947,7 +11955,7 @@ static void (*param_2_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar 
 
 #define	NUM_PARAM_3 (sizeof(ansi_param_3_strings)/sizeof(value_string))
 static gint ett_ansi_param_3[NUM_PARAM_3];
-static void (*param_3_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string) = {
+static void (*param_3_fcn[])(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, int string_len) = {
     param_act_code,	/* Action Code */
     param_alert_res,	/* Alert Result */
     param_list,	/* Announcement List */
@@ -12567,7 +12575,7 @@ dissect_ansi_error(ASN1_SCK *asn1, proto_tree *tree)
 static gboolean
 dissect_ansi_param(ASN1_SCK *asn1, proto_tree *tree)
 {
-    void (*param_fcn)(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string) = NULL;
+    void (*param_fcn)(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *add_string, int string_len) = NULL;
     guint saved_offset = 0;
     guint len;
     proto_tree *subtree;
@@ -12658,14 +12666,16 @@ dissect_ansi_param(ASN1_SCK *asn1, proto_tree *tree)
 	}
 	else
 	{
+            gchar *ansi_map_add_string;
+
+	    ansi_map_add_string=ep_alloc(1024);
 	    ansi_map_add_string[0] = '\0';
 
-	    (*param_fcn)(asn1, subtree, len, ansi_map_add_string);
+	    (*param_fcn)(asn1, subtree, len, ansi_map_add_string, 1024);
 
 	    if (ansi_map_add_string[0] != '\0')
 	    {
 		proto_item_append_text(item, ansi_map_add_string);
-		ansi_map_add_string[0] = '\0';
 	    }
 	}
     }
@@ -12684,6 +12694,7 @@ dissect_ansi_params(ASN1_SCK *asn1, proto_tree *tree)
     proto_item *item = NULL;
     const gchar *str = NULL;
     gboolean def_len;
+    gchar *ansi_map_add_string;
 
 #define TCAP_PARAM_SET_TAG 0xf2
     if (check_ansi_map_tag(asn1, TCAP_PARAM_SET_TAG))
@@ -12716,14 +12727,14 @@ dissect_ansi_params(ASN1_SCK *asn1, proto_tree *tree)
     dissect_ansi_map_len(asn1, subtree, &def_len, &len);
     proto_item_set_len(item, (asn1->offset - saved_offset) + len);
 
+    ansi_map_add_string = ep_alloc(1024);
     ansi_map_add_string[0] = '\0';
 
-    param_list(asn1, subtree, len, ansi_map_add_string);
+    param_list(asn1, subtree, len, ansi_map_add_string, 1024);
 
     if (ansi_map_add_string[0] != '\0')
     {
 	proto_item_append_text(item, ansi_map_add_string);
-	ansi_map_add_string[0] = '\0';
     }
 }
 
