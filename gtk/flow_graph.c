@@ -34,7 +34,8 @@
 
 #include "graph_analysis.h"
 #include <epan/stat_cmd_args.h>
-#include "stat_menu.h"
+#include "../stat_menu.h"
+#include "gtk_stat_menu.h"
 #include "dlg_utils.h"
 #include "gui_utils.h"
 #include "compat_macros.h"

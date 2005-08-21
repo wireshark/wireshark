@@ -34,11 +34,10 @@
 
 #include "simple_dialog.h"
 #include "globals.h"
-#include <epan/stat_cmd_args.h>
-#include "stat_menu.h"
 #include "gui_utils.h"
 #include "dlg_utils.h"
 #include "compat_macros.h"
+#include "../stat_menu.h"
 #include "tap_dfilter_dlg.h"
 #include "../tap_dfilter_dlg.h"
 
@@ -367,12 +366,7 @@ static void init_gtk_tree(const char* optarg) {
 
 static void register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_) {
 	stats_tree_cfg* cfg = v;
-	guint8* s;
 
-	s = g_strdup_printf("%s,tree",cfg->abbr);
-	
-	register_stat_cmd_arg(s, init_gtk_tree);
-	
 	cfg->pr = g_malloc(sizeof(tree_pres));
 	
 	cfg->pr->stat_dlg = g_malloc(sizeof(tap_dfilter_dlg));
@@ -382,8 +376,8 @@ static void register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p 
 	cfg->pr->stat_dlg->tap_init_cb = init_gtk_tree;
 	cfg->pr->stat_dlg->index = -1;
 	
-	register_stat_menu_item(cfg->name, REGISTER_STAT_GROUP_NONE,
-						   gtk_tap_dfilter_dlg_cb, NULL, NULL, cfg->pr->stat_dlg);
+	register_dfilter_stat(cfg->pr->stat_dlg, cfg->name,
+	    REGISTER_STAT_GROUP_NONE);
 }
 
 static void free_tree_presentation(stats_tree* st) {

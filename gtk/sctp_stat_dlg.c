@@ -35,7 +35,8 @@
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 
-#include "stat_menu.h"
+#include "../stat_menu.h"
+#include "gtk_stat_menu.h"
 #include "dlg_utils.h"
 #include "gui_utils.h"
 #include "main.h"

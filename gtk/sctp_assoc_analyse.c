@@ -33,7 +33,8 @@
 #include <epan/epan_dissect.h>
 #include "epan/filesystem.h"
 #include "register.h"
-#include "stat_menu.h"
+#include "../stat_menu.h"
+#include "gtk_stat_menu.h"
 #include "dlg_utils.h"
 #include "gui_utils.h"
 #include "main.h"

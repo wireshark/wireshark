@@ -42,6 +42,9 @@
 #include "../file.h"
 #include "../globals.h"
 #include "filter_dlg.h"
+#include <epan/stat_cmd_args.h>
+#include "../stat_menu.h"
+#include "gtk_stat_menu.h"
 #include "../tap_dfilter_dlg.h"
 #include "tap_dfilter_dlg.h"
 #include "gui_utils.h"
@@ -59,6 +62,20 @@ typedef struct _tap_dfilter_dlg_list_item {
 static tap_dfilter_dlg_list_item *start_dlg_list=NULL;
 static tap_dfilter_dlg_list_item *end_dlg_list=NULL;
 static tap_dfilter_dlg_list_item *current_dlg = NULL;
+
+/*
+ * Register a stat that has a display filter dialog.
+ * We register it both as a command-line stat and a menu item stat.
+ */
+void
+register_dfilter_stat(tap_dfilter_dlg *info, const char *name,
+    REGISTER_STAT_GROUP_E group)
+{
+	register_stat_cmd_arg(info->init_string, info->tap_init_cb);
+
+	register_stat_menu_item(name, group, gtk_tap_dfilter_dlg_cb, NULL,
+	    NULL, info);
+}              
 
 void tap_dfilter_dlg_update (void)
 {

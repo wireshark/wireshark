@@ -34,8 +34,6 @@
 #include <epan/packet_info.h>
 #include <epan/epan.h>
 
-#include <epan/stat_cmd_args.h>
-#include "stat_menu.h"
 #include "simple_dialog.h"
 #include "gui_utils.h"
 #include "dlg_utils.h"
@@ -44,6 +42,7 @@
 #include "../globals.h"
 #include "compat_macros.h"
 #include <epan/dissectors/packet-wsp.h>
+#include "../stat_menu.h"
 #include "../tap_dfilter_dlg.h"
 #include "tap_dfilter_dlg.h"
 
@@ -426,8 +425,6 @@ static tap_dfilter_dlg wsp_stat_dlg = {
 void
 register_tap_listener_gtkwspstat(void)
 {
-	register_stat_cmd_arg("wsp,stat", gtk_wspstat_init);
-
-	register_stat_menu_item("WAP-WSP...", REGISTER_STAT_GROUP_TELEPHONY,
-	    gtk_tap_dfilter_dlg_cb, NULL, NULL, &(wsp_stat_dlg));
+	register_dfilter_stat(&wsp_stat_dlg, "WAP-WSP...",
+	    REGISTER_STAT_GROUP_TELEPHONY);
 }

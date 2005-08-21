@@ -39,8 +39,6 @@
 #include <epan/epan.h>
 #include <epan/value_string.h>
 
-#include <epan/stat_cmd_args.h>
-#include "stat_menu.h"
 #include <epan/tap.h>
 #include "../register.h"
 #include "../plugins/mgcp/packet-mgcp.h"
@@ -51,6 +49,7 @@
 #include "dlg_utils.h"
 #include "../file.h"
 #include "../globals.h"
+#include "../stat_menu.h"
 #include "../tap_dfilter_dlg.h"
 #include "tap_dfilter_dlg.h"
 #include "gui_utils.h"
@@ -327,9 +326,7 @@ register_tap_listener_gtkmgcpstat(void)
 {
 	/* We don't register this tap, if we don't have the mgcp plugin loaded.*/
 	if (find_tap_id("mgcp")) {
-		register_stat_cmd_arg("mgcp,srt", gtk_mgcpstat_init);
-
-		register_stat_menu_item("MGCP...", REGISTER_STAT_GROUP_RESPONSE_TIME,
-		    gtk_tap_dfilter_dlg_cb, NULL, NULL, &(mgcp_srt_dlg));
+		register_dfilter_stat(&mgcp_srt_dlg, "MGCP...",
+		    REGISTER_STAT_GROUP_RESPONSE_TIME);
 	}
 }

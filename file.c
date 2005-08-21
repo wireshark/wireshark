@@ -73,6 +73,7 @@
 #include <epan/conversation.h>
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
+#include "stat_menu.h"
 #include "tap_dfilter_dlg.h"
 #include <epan/dissectors/packet-data.h>
 

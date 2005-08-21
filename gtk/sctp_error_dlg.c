@@ -31,7 +31,6 @@
 #include "globals.h"
 #include "epan/filesystem.h"
 #include "simple_dialog.h"
-#include "stat_menu.h"
 #include "dlg_utils.h"
 #include "gui_utils.h"
 #include "main.h"

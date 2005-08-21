@@ -1,5 +1,5 @@
-/* stat_menu.h
- * Menu definitions for use by stats
+/* gtk_stat_menu.h
+ * GTK+-specific menu definitions for use by stats
  *
  * $Id$
  *
@@ -32,17 +32,6 @@ extern "C" {
 /** @file
  * Add a new menu item for a stat.
  */
-
-/** The menu group this stat should be registered in. */
-typedef enum {
-    REGISTER_STAT_GROUP_NONE,
-    REGISTER_STAT_GROUP_GENERIC,
-    REGISTER_STAT_GROUP_CONVERSATION_LIST,
-    REGISTER_STAT_GROUP_ENDPOINT_LIST,
-    REGISTER_STAT_GROUP_RESPONSE_TIME,
-    REGISTER_STAT_GROUP_TELEPHONY
-    /* XXX - split into telephony and VoIP? */
-} REGISTER_STAT_GROUP_E;
 
 /**
  * Add a new menu item for a stat.

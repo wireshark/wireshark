@@ -39,7 +39,8 @@
 #include <epan/value_string.h>
 
 #include <epan/stat_cmd_args.h>
-#include "stat_menu.h"
+#include "../stat_menu.h"
+#include "gtk_stat_menu.h"
 #include <epan/tap.h>
 #include <epan/dissectors/packet-fc.h>
 #include "../register.h"

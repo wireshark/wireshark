@@ -91,7 +91,7 @@ noinst_HEADERS = \
 	sat.h		\
 	sctp_stat.h	\
 	service_response_time_table.h	\
-	stat_menu.h	\
+	gtk_stat_menu.h	\
 	stream_prefs.h	\
 	summary_dlg.h   \
 	supported_protos_dlg.h   \

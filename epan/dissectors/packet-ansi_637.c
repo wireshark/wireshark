@@ -1687,7 +1687,7 @@ dissect_ansi_637_trans_param(tvbuff_t *tvb, proto_tree *tree, guint32 *offset)
 	{
             gchar *ansi_637_add_string;
 
-	    ansi_637_add_string[0] = ep_alloc(1024);
+	    ansi_637_add_string = ep_alloc(1024);
 	    ansi_637_add_string[0] = '\0';
 	    (*param_fcn)(tvb, subtree, len, curr_offset, ansi_637_add_string, 1024);
 
