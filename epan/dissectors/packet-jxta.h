@@ -38,10 +38,9 @@
 /**
 *   Stream Conversation data
 **/
-typedef struct jxta_tap_header{
+typedef struct jxta_tap_header {
     address src_address;
     address dest_address;
     guint32 size;
-}jxta_tap_header;
+} jxta_tap_header;
 #endif
-
