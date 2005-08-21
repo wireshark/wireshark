@@ -885,6 +885,6 @@ static void rtpstream_launch(GtkWidget *w _U_, gpointer data _U_)
 void
 register_tap_listener_rtp_stream_dlg(void)
 {
-	register_stat_menu_item("RTP/Show All Streams...", REGISTER_STAT_GROUP_TELEPHONY,
+	register_stat_menu_item("RTP/Show All Streams", REGISTER_STAT_GROUP_TELEPHONY,
 	    rtpstream_launch, NULL, NULL, NULL);
 }

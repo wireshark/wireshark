@@ -326,7 +326,7 @@ register_tap_listener_gtkmgcpstat(void)
 {
 	/* We don't register this tap, if we don't have the mgcp plugin loaded.*/
 	if (find_tap_id("mgcp")) {
-		register_dfilter_stat(&mgcp_srt_dlg, "MGCP...",
+		register_dfilter_stat(&mgcp_srt_dlg, "MGCP",
 		    REGISTER_STAT_GROUP_RESPONSE_TIME);
 	}
 }

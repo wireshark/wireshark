@@ -71,10 +71,18 @@ void
 register_dfilter_stat(tap_dfilter_dlg *info, const char *name,
     REGISTER_STAT_GROUP_E group)
 {
+	char *full_name;
+
 	register_stat_cmd_arg(info->init_string, info->tap_init_cb);
 
-	register_stat_menu_item(name, group, gtk_tap_dfilter_dlg_cb, NULL,
+	/*
+	 * This menu item will pop up a dialog box, so append "..."
+	 * to it.
+	 */
+	full_name = g_strdup_printf("%s...", name);
+	register_stat_menu_item(full_name, group, gtk_tap_dfilter_dlg_cb, NULL,
 	    NULL, info);
+	g_free(full_name);
 }              
 
 void tap_dfilter_dlg_update (void)

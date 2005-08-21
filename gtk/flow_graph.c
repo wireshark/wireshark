@@ -559,7 +559,7 @@ void
 register_tap_listener_flow_graph(void)
 {
 	register_stat_cmd_arg("flow_graph",flow_graph_init_tap);
-	register_stat_menu_item("Flow graph", REGISTER_STAT_GROUP_NONE,
+	register_stat_menu_item("Flow graph...", REGISTER_STAT_GROUP_NONE,
 	    flow_graph_launch, NULL, NULL, NULL);
 	    
 }
