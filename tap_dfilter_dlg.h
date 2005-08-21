@@ -31,20 +31,24 @@
  * Initiate it with:
  * 1) a title string for the Dialog Window
  * 2) the init string, which is the same as the string after "-z" option without 
- *    the filter string and without the seperating comma.
+ *    the filter string and without the separating comma.
  * 3) a pointer to the init function of the tap, which will be called when you click
  *    on the start button in the display filter dialog.
  * 4) the index with "-1"
  *
- * Within register_tap_menu_yourtap(void), call register_stat_menu_item() with gtk_tap_dfilter_dlg_cb as callback and a pointer 
- * to the global tap_dfilter_dlg structure .
+ * Within register_tap_menu_yourtap(void), call register_dfilter_stat()
+ * with a pointer to the tap_dfilter_dlg structure, a string for the
+ * menu item (don't put "..." at the end, register_dfilter_stat() will
+ * add it for you), and the REGISTER_STAT_GROUP_ value for the stat
+ * group to which your stat should belong.
  *
  * Usage:
  *
  * tap_dfilter_dlg my_tap_dfilter_dlg = {"My Title", "myproto,mytap", gtk_mytap_init, -1};
  *
  * register_tap_menu_mytap(void) {
- *   register_stat_menu_item(char *menu_string, gtk_tap_dfilter_dlg_cb, NULL, NULL, &(my_tap_dfilter_dlg));
+ *   register_dfilter_stat(&my_tap_dfilter_dlg, "My Menu Item",
+ *       REGISTER_STAT_GROUP_my_group);
  * }
  *
  * See also: h225_ras_srt.c or h225_counter.c

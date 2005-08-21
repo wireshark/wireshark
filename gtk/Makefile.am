@@ -95,7 +95,6 @@ noinst_HEADERS = \
 	stream_prefs.h	\
 	summary_dlg.h   \
 	supported_protos_dlg.h   \
-	tap_dfilter_dlg.h \
 	text_page.h	\
 	toolbar.h	\
 	voip_calls.h	\

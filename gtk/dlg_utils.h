@@ -55,7 +55,7 @@
  * - "RTP Streams" rtpstream_dlg_create()
  * - "Simple Dialog" display_simple_dialog()
  * - "Compute SMB SRT statistics" gtk_smbstat_cb()
- * - "Compute ..." gtk_tap_dfilter_dlg_cb()
+ * - "Compute ..." tap_dfilter_dlg_cb()
  * - "Tcp Graph" create_drawing_area()
  * - "Tcp Graph Control" control_panel_create()
  * - "Help for TCP graphing" callback_create_help()

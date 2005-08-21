@@ -44,7 +44,6 @@
 #include <epan/dissectors/packet-wsp.h>
 #include "../stat_menu.h"
 #include "../tap_dfilter_dlg.h"
-#include "tap_dfilter_dlg.h"
 
 /* used to keep track of the stats for a specific PDU type*/
 typedef struct _wsp_pdu_t {

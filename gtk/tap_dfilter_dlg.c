@@ -46,7 +46,6 @@
 #include "../stat_menu.h"
 #include "gtk_stat_menu.h"
 #include "../tap_dfilter_dlg.h"
-#include "tap_dfilter_dlg.h"
 #include "gui_utils.h"
 #include "gtkglobals.h"
 
@@ -62,6 +61,9 @@ typedef struct _tap_dfilter_dlg_list_item {
 static tap_dfilter_dlg_list_item *start_dlg_list=NULL;
 static tap_dfilter_dlg_list_item *end_dlg_list=NULL;
 static tap_dfilter_dlg_list_item *current_dlg = NULL;
+
+static void
+tap_dfilter_dlg_cb(GtkWidget *w, gpointer data);
 
 /*
  * Register a stat that has a display filter dialog.
@@ -80,7 +82,7 @@ register_dfilter_stat(tap_dfilter_dlg *info, const char *name,
 	 * to it.
 	 */
 	full_name = g_strdup_printf("%s...", name);
-	register_stat_menu_item(full_name, group, gtk_tap_dfilter_dlg_cb, NULL,
+	register_stat_menu_item(full_name, group, tap_dfilter_dlg_cb, NULL,
 	    NULL, info);
 	g_free(full_name);
 }              
@@ -125,8 +127,8 @@ tap_dfilter_dlg_start_button_clicked(GtkWidget *item _U_, gpointer dialog_data)
 }
 
 
-void
-gtk_tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
+static void
+tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 {
 	const char *filter;
 	char *title;
