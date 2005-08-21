@@ -429,8 +429,6 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *
 void
 init_srt_table_row(srt_stat_table *rst, int index, const char *procedure)
 {
-	char str[10];
-
 	/* we have discovered a new procedure. Extend the table accordingly */
 	if(index>=rst->num_procs){
 		int old_num_procs=rst->num_procs;
@@ -450,8 +448,7 @@ init_srt_table_row(srt_stat_table *rst, int index, const char *procedure)
 			}
 		}
 	}
-	g_snprintf(str, 10, "%d",index);
-	rst->procedures[index].entries[0]=g_strdup(str);
+	rst->procedures[index].entries[0]=g_strdup_printf("%d", index);
 
 	rst->procedures[index].entries[1]=g_strdup(procedure);
 
@@ -459,58 +456,58 @@ init_srt_table_row(srt_stat_table *rst, int index, const char *procedure)
 	rst->procedures[index].entries[3]=g_strdup("0");
 	rst->procedures[index].entries[4]=g_strdup("0");
 	rst->procedures[index].entries[5]=g_strdup("0");
-
-	gtk_clist_insert(rst->table, index, rst->procedures[index].entries);
-	gtk_clist_set_row_data(rst->table, index, (gpointer) index);
 }
 
 void
 add_srt_table_data(srt_stat_table *rst, int index, const nstime_t *req_time, packet_info *pinfo)
 {
 	srt_procedure_t *rp;
-	nstime_t delta;
+	nstime_t t, delta;
+	gint row;
 
 	rp=&rst->procedures[index];
 
 	/* calculate time delta between request and reply */
-	delta.secs=pinfo->fd->abs_secs-req_time->secs;
-	delta.nsecs=pinfo->fd->abs_usecs*1000-req_time->nsecs;
-	if(delta.nsecs<0){
-		delta.nsecs+=1000000000;
-		delta.secs--;
+	t.secs=pinfo->fd->abs_secs;
+	t.nsecs=pinfo->fd->abs_usecs*1000;
+	get_timedelta(&delta, &t, req_time);
+
+	if(rp->num==0){
+		rp->max=delta;
 	}
 
 	if(rp->num==0){
-		rp->max.secs=delta.secs;
-		rp->max.nsecs=delta.nsecs;
-	}
-
-	if(rp->num==0){
-		rp->min.secs=delta.secs;
-		rp->min.nsecs=delta.nsecs;
+		rp->min=delta;
 	}
 
 	if( (delta.secs<rp->min.secs)
 	||( (delta.secs==rp->min.secs)
 	  &&(delta.nsecs<rp->min.nsecs) ) ){
-		rp->min.secs=delta.secs;
-		rp->min.nsecs=delta.nsecs;
+		rp->min=delta;
 	}
 
 	if( (delta.secs>rp->max.secs)
 	||( (delta.secs==rp->max.secs)
 	  &&(delta.nsecs>rp->max.nsecs) ) ){
-		rp->max.secs=delta.secs;
-		rp->max.nsecs=delta.nsecs;
+		rp->max=delta;
 	}
 
-	rp->tot.secs += delta.secs;
-	rp->tot.nsecs += delta.nsecs;
-	if(rp->tot.nsecs>1000000000){
-		rp->tot.nsecs-=1000000000;
-		rp->tot.secs++;
-	}
+	get_timesum(&rp->tot, &rp->tot, &delta);
 
+	/*
+	 * If the count of calls for this procedure is currently zero, it's
+	 * going to become non-zero, so add a row for it (we don't want
+	 * rows for procedures that have no calls - especially if the
+	 * procedure has no calls because the index doesn't correspond
+	 * to a procedure, but is an unused/reserved value).
+	 *
+	 * (Yes, this means that the rows aren't in order by anything
+	 * interesting.  That's why we have the table sorted by a column.)
+	 */
+	if (rp->num==0){
+		row=gtk_clist_append(rst->table, rst->procedures[index].entries);
+		gtk_clist_set_row_data(rst->table, row, (gpointer) index);
+	}
 	rp->num++;
 }
 
@@ -518,47 +515,45 @@ void
 draw_srt_table_data(srt_stat_table *rst)
 {
 	int i,j;
-#ifdef G_HAVE_UINT64
 	guint64 td;
-#else
-	guint32 td;
-#endif
-	char str[256], *strp;
+	char *strp;
 
 	for(i=0;i<rst->num_procs;i++){
+		/* ignore procedures with no calls (they don't have CList rows) */
+		if(rst->procedures[i].num==0){
+			continue;
+		}
+
 		/* scale it to units of 10us.*/
 		/* for long captures with a large tot time, this can overflow on 32bit */
 		td=(int)rst->procedures[i].tot.secs;
 		td=td*100000+(int)rst->procedures[i].tot.nsecs/10000;
-		if(rst->procedures[i].num){
-			td/=rst->procedures[i].num;
-		} else {
-			td=0;
-		}
+		td/=rst->procedures[i].num;
 
 		j=gtk_clist_find_row_from_data(rst->table, (gpointer)i);
-		g_snprintf(str, 256, "%d", rst->procedures[i].num);
-		strp=g_strdup(str);
+		strp=g_strdup_printf("%d", rst->procedures[i].num);
 		gtk_clist_set_text(rst->table, j, 2, strp);
 		g_free(rst->procedures[i].entries[2]);
 		rst->procedures[i].entries[2]=strp;
 
 
-		g_snprintf(str, 256, "%3d.%05d", (int)rst->procedures[i].min.secs,rst->procedures[i].min.nsecs/10000);
-		strp=g_strdup(str);
+		strp=g_strdup_printf("%3d.%05d",
+		    (int)rst->procedures[i].min.secs,
+		    rst->procedures[i].min.nsecs/10000);
 		gtk_clist_set_text(rst->table, j, 3, strp);
 		g_free(rst->procedures[i].entries[3]);
 		rst->procedures[i].entries[3]=strp;
 
 
-		g_snprintf(str, 256, "%3d.%05d", (int)rst->procedures[i].max.secs,rst->procedures[i].max.nsecs/10000);
-		strp=g_strdup(str);
+		strp=g_strdup_printf("%3d.%05d",
+		    (int)rst->procedures[i].max.secs,
+		    rst->procedures[i].max.nsecs/10000);
 		gtk_clist_set_text(rst->table, j, 4, strp);
 		g_free(rst->procedures[i].entries[4]);
 		rst->procedures[i].entries[4]=strp;
 
-		g_snprintf(str, 256, "%3d.%05d", td/100000, td%100000);
-		strp=g_strdup(str);
+		strp=g_strdup_printf("%3" PRId64 ".%05" PRId64,
+		    td/100000, td%100000);
 		gtk_clist_set_text(rst->table, j, 5, strp);
 		g_free(rst->procedures[i].entries[5]);
 		rst->procedures[i].entries[5]=strp;
