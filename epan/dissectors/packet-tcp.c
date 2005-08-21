@@ -1414,6 +1414,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 		if( ta->flags&TCP_A_ZERO_WINDOW ){
 			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_zero_window, tvb, 0, 0, "This is a ZeroWindow segment");
 			PROTO_ITEM_SET_GENERATED(flags_item);
+			PROTO_ITEM_SET_SEQUENCE_WARNING(flags_item);
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP ZeroWindow] ");
 			}

@@ -1613,8 +1613,22 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
 
     gtk_tree_model_get(tree_model, iter, 1, &fi, -1);
 
+	/* for the various possible attributes, see:
+	 * http://developer.gnome.org/doc/API/2.0/gtk/GtkCellRendererText.html
+	 *
+	 * color definitions can be found at:
+	 * http://cvs.gnome.org/viewcvs/gtk+/gdk-pixbuf/io-xpm.c?rev=1.42
+	 * 
+	 * some experiences:
+	 * background-gdk: doesn't seem to work (probably the GdkColor must be allocated)
+	 * weight/style: doesn't take any effect
+	 */
+
     /* for each field, we have to reset the renderer attributes */
     g_object_set (cell, "foreground-set", FALSE, NULL);
+
+    g_object_set (cell, "background", "white", NULL);
+    g_object_set (cell, "background-set", TRUE, NULL);
 
     g_object_set (cell, "underline", PANGO_UNDERLINE_NONE, NULL);
     g_object_set (cell, "underline-set", FALSE, NULL);
@@ -1625,6 +1639,21 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
     /*g_object_set (cell, "weight", PANGO_WEIGHT_NORMAL, NULL);
     g_object_set (cell, "weight-set", FALSE, NULL);*/
 
+	if(FI_GET_FLAG(fi, FI_CHECKSUM_ERROR)) {
+        g_object_set (cell, "background", "red", NULL);
+        g_object_set (cell, "background-set", TRUE, NULL);
+	}
+
+	if(FI_GET_FLAG(fi, FI_SEQUENCE_WARNING)) {
+        g_object_set (cell, "background", "yellow", NULL);
+        g_object_set (cell, "background-set", TRUE, NULL);
+	}	
+
+	if(FI_GET_FLAG(fi, FI_SEQUENCE_ERROR)) {
+        g_object_set (cell, "background", "red", NULL);
+        g_object_set (cell, "background-set", TRUE, NULL);
+	}	
+
     if(FI_GET_FLAG(fi, FI_GENERATED)) {
         /* as some fonts don't support italic, don't use this */
         /*g_object_set (cell, "style", PANGO_STYLE_ITALIC, NULL);
@@ -1633,6 +1662,13 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
         /*g_object_set (cell, "weight", PANGO_WEIGHT_BOLD, NULL);
         g_object_set (cell, "weight-set", TRUE, NULL);*/
     }
+
+    if(fi->hfinfo->type == FT_PROTOCOL) {
+        g_object_set (cell, "background", "gray90", NULL);
+        g_object_set (cell, "background-set", TRUE, NULL);
+        /*g_object_set (cell, "weight", PANGO_WEIGHT_BOLD, NULL);
+        g_object_set (cell, "weight-set", TRUE, NULL);*/
+	}
 
     if(fi->hfinfo->type == FT_FRAMENUM) {
         g_object_set (cell, "foreground", "blue", NULL);
@@ -1899,6 +1935,7 @@ tree_view_select(GtkWidget *widget, GdkEventButton *event)
     return TRUE;
 }
 
+/* fill the whole protocol tree with the string values */
 void
 proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view)
 {
@@ -1937,6 +1974,8 @@ proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view)
 #endif
 }
 
+
+/* fill a single protocol tree item with the string value */
 static void
 proto_tree_draw_node(proto_node *node, gpointer data)
 {
