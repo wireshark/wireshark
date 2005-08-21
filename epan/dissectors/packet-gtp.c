@@ -2837,7 +2837,7 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 /*
  * 3GPP TS 24.008 10.5.5.6 ( see packet-gsm_a.c )
  */
-	de_gmm_drx_param(tvb, ext_tree_mm, offset, 2, NULL);
+	de_gmm_drx_param(tvb, ext_tree_mm, offset, 2, NULL, 0);
 	offset = offset +2;
 
 	len	= tvb_get_guint8(tvb, offset);
@@ -2853,7 +2853,7 @@ decode_gtp_mm_cntxt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 /*
  * GPP TS 24.008 10.5.5.12 ( see packet-gsm_a.c )
  */
-	de_gmm_ms_net_cap(tvb, tf_tree, offset, len, NULL);
+	de_gmm_ms_net_cap(tvb, tf_tree, offset, len, NULL, 0);
 	offset = offset +len;
 
 /* Container contains one or several optional information elements as described in the clause 'Overview', 

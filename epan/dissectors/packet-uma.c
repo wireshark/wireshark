@@ -878,7 +878,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	 * The rest of the IE is coded as in [TS 24.008] not including IEI and
 	 * length, if present.(10.5.1.4)
 	 */
-		de_mid(tvb, urr_ie_tree, offset, ie_len, NULL);
+		de_mid(tvb, urr_ie_tree, offset, ie_len, NULL, 0);
 		break;
 
 	case 2:			
@@ -907,7 +907,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * The rest of the IE is coded as in [TS 24.008] not including IEI and
 		 * length, if present.
 		 */
-		de_lai(tvb, urr_ie_tree, offset, ie_len, NULL);
+		de_lai(tvb, urr_ie_tree, offset, ie_len, NULL, 0);
 		break;
 	case 6:			
 		/* GSM Coverage Indicator */
@@ -961,7 +961,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* UMA Cell Description 
 		 * The rest of the IE is coded as in [TS 44.018], Cell Description IE, not including IEI and length, if present
 		 */
-		de_rr_cell_dsc(tvb, urr_ie_tree, ie_offset, ie_len, NULL);
+		de_rr_cell_dsc(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
 		break;
 	case 14:		
 		/* UMA Control Channel Description 
@@ -993,7 +993,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* Cell Identifier List 
 		 * The rest of the IE is coded as in [TS 48.008], not including IEI and length, if present
 		 */
-		be_cell_id_list(tvb, urr_ie_tree, offset, ie_len, NULL);
+		be_cell_id_list(tvb, urr_ie_tree, offset, ie_len, NULL, 0);
 		break;
 	case 16:		/* TU3907 Timer */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU3907_timer, tvb, ie_offset, 2, FALSE);
@@ -1003,7 +1003,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		break;
 	case 18:		/* Routing Area Identification */
 		/* The rest of the IE is coded as in [TS 24.008] not including IEI and length, if present.*/
-		de_gmm_rai(tvb, urr_ie_tree, offset, ie_len, NULL);
+		de_gmm_rai(tvb, urr_ie_tree, offset, ie_len, NULL, 0);
 		break;
 	case 19:		/* UMA Band */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_UMA_band, tvb, ie_offset, 1, FALSE);
@@ -1040,26 +1040,26 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* Channel Mode 
 		 * The rest of the IE is coded as in [TS 44.018], not including IEI and length, if present
 		 */
-		de_rr_ch_mode(tvb, urr_ie_tree, offset, ie_len, NULL);
+		de_rr_ch_mode(tvb, urr_ie_tree, offset, ie_len, NULL, 0);
 		break;
 	case 28:		
 		/* Mobile Station Classmark 2 
 		 * The rest of the IE is coded as in [TS 24.008], not including IEI and length, if present
 		 */
-		de_ms_cm_2(tvb, urr_ie_tree, ie_offset, ie_len, NULL);
+		de_ms_cm_2(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
 		break;
 	case 29:		
 		/* RR Cause
 		 * The rest of the IE is coded as in [TS 44.018], not including IEI and length, if present
 		 */
-		de_rr_cause(tvb, urr_ie_tree, ie_offset, 1, NULL);
+		de_rr_cause(tvb, urr_ie_tree, ie_offset, 1, NULL, 0);
 		break;
 	case 30:		
 		/* Cipher Mode Setting
 		 * Note: The coding of fields SC and algorithm identifier is defined in [44.018] 
 		 * as part of the Cipher Mode Setting IE.
 		 */
-		de_rr_cip_mode_set(tvb, urr_ie_tree, offset, ie_len, NULL);
+		de_rr_cip_mode_set(tvb, urr_ie_tree, offset, ie_len, NULL, 0);
 		break;
 	case 31:		
 		/* GPRS Resumption 
@@ -1087,19 +1087,19 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * [TS 44.018]:10.5.2.41a
 		 * The TLLI is encoded as a binary number with a length of 4 octets. TLLI is defined in 3GPP TS 23.003
 		 */
-		de_rr_tlli(tvb, urr_ie_tree, offset, ie_len, NULL);
+		de_rr_tlli(tvb, urr_ie_tree, offset, ie_len, NULL, 0);
 		break;
 	case 35:		
 		/* Packet Flow Identifier 
 		 * The rest of the IE is coded as in [TS 24.008], not including IEI and length, if present.
 		 */
-		de_sm_pflow_id(tvb, urr_ie_tree, offset, ie_len, NULL);
+		de_sm_pflow_id(tvb, urr_ie_tree, offset, ie_len, NULL, 0);
 		break;
 	case 36:		
 		/* Suspension Cause 
 		 * The rest of the IE is coded as in [TS 44.018], not including IEI and length, if present.
 		 */		
-		de_rr_sus_cau(tvb, urr_ie_tree, offset, ie_len, NULL);
+		de_rr_sus_cau(tvb, urr_ie_tree, offset, ie_len, NULL, 0);
 		break;
 	case 37:		/* TU3920 Timer */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU3920_timer, tvb, ie_offset, 2, FALSE);
@@ -1276,7 +1276,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* Classmark Enquiry Mask 
 		 * The rest of the IE is the Classmark Enquiry Mask coded as in [TS 44.018], not including IEI and length, if present
 		 */
-		de_rr_cm_enq_mask(tvb, urr_ie_tree, offset, ie_len, NULL);
+		de_rr_cm_enq_mask(tvb, urr_ie_tree, offset, ie_len, NULL, 0);
 		break;
 	case 66:
 		/* UTRAN Cell Identifier List 

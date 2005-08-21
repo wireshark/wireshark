@@ -6185,7 +6185,7 @@ dissect_gsm_map_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
 	 if (!parameter_tvb)
 		return offset;
-	de_sm_qos(parameter_tvb, tree, 0, 3, NULL);
+	de_sm_qos(parameter_tvb, tree, 0, 3, NULL, 0);
 
 
   return offset;
@@ -6230,7 +6230,7 @@ dissect_gsm_map_Ext_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 
 	 if (!parameter_tvb)
 		return offset;
-	de_sm_qos(parameter_tvb, tree, 0, 9, NULL);
+	de_sm_qos(parameter_tvb, tree, 0, 9, NULL, 0);
 
 
   return offset;
