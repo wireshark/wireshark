@@ -87,6 +87,7 @@
 #include <epan/asn1.h>
 #include "format-oid.h"
 #include <epan/prefs.h>
+#include <epan/emem.h>
 
 /* XXX - The "plain" COPS port (3288) can be overridden in the prefs.
    The PacketCable port cannot - should this be the case? */
@@ -1300,7 +1301,7 @@ static guchar*format_asn_value (struct variable_list *variable, subid_t *variabl
     variable->type= type_from_packet;
 
   buf_len = SPRINT_MAX_LEN; /*defined in NET-SNMP's snmp-impl.h*/
-  buf = g_malloc(buf_len);
+  buf = ep_alloc(buf_len);
   *buf = '\0';
   out_len = 0;
 
@@ -1353,7 +1354,6 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
 
   unsigned int i;
   gchar *buf;
-  int len;
 
   while (asnlen > 0) { /*while there is ASN stuff to be decoded*/
 
@@ -1406,7 +1406,6 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
 
           proto_tree_add_text(tree, asn1.tvb, offset, length,
                               "Value: %s", vb_display_string);
-          g_free(vb_display_string);
         }
         else
 #endif /* HAVE_NET_SNMP */
@@ -1436,7 +1435,6 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
 
           proto_tree_add_text(tree, asn1.tvb, offset, length, "Value %s: %s",vb_type_name, vb_display_string);
 
-          g_free(vb_display_string);
         }
         else
 #endif /* HAVE_NET_SNMP */
@@ -1467,7 +1465,6 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
           proto_tree_add_text(tree, asn1.tvb, offset, length,
                               "Value: %s (ASN.1 type from packet: %s)", vb_display_string, vb_type_name);
 
-          g_free(vb_display_string);
         }
         else
         {
@@ -1485,17 +1482,14 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
              * We stopped, due to a non-printable character, before we got
              * to the end of the string.
              */
-            vb_display_string = g_malloc(4*vb_length);
+            vb_display_string = ep_alloc(4*vb_length);
             buf = vb_display_string;
-            len = g_snprintf(buf, 4*vb_length, "%03u", vb_octet_string[0]);
-            buf += len;
+            buf += g_snprintf(buf, 4*vb_length, "%03u", vb_octet_string[0]);
             for (i = 1; i < vb_length; i++) {
-              len = sprintf(buf, ".%03u", vb_octet_string[i]);
-              buf += len;
+              buf += g_snprintf(buf, 4*vb_length-(buf-vb_display_string), ".%03u", vb_octet_string[i]);
             }
             proto_tree_add_text(tree, asn1.tvb, offset, length,
                                 "Value: %s: %s", vb_type_name, vb_display_string);
-            g_free(vb_display_string);
           } else {
             proto_tree_add_text(tree, asn1.tvb, offset, length,
                                 "Value: %s: %.*s", vb_type_name, (int)vb_length,
