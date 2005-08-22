@@ -90,3 +90,14 @@ void get_timesum(nstime_t *sum, const nstime_t *a, const nstime_t *b)
         sum->secs--;
     }    
 }
+
+/*
+ * function: nstime_to_msec
+ * converts nstime to double, time base is milli seconds
+ */
+
+double nstime_to_msec(const nstime_t *time)
+{
+    return ((double)time->secs*1000 + (double)time->nsecs/1000000);
+}
+

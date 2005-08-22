@@ -43,10 +43,12 @@ typedef struct _timestat_t {
 
 /* functions */
 
-/* converts nstime to gdouble, time base is milli seconds*/
-extern gdouble nstime_to_msec(const nstime_t *time);
+/* Initialize a timestat_t struct */
+extern void time_stat_init(timestat_t *stats);
 
+/* Update a timestat_t struct with a new sample */
 extern void time_stat_update(timestat_t *stats, const nstime_t *delta, packet_info *pinfo);
+
 extern gdouble get_average(const nstime_t *sum, guint32 num);
 
 #endif

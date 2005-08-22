@@ -53,6 +53,9 @@ extern void get_timedelta(nstime_t *delta, const nstime_t *b, const nstime_t *a 
 extern void get_timesum(nstime_t *sum, const nstime_t *b, const nstime_t *a );
 
 /* sum += a */
-#define addtime(sum, a) get_timesum(sum, sum, b)
+#define addtime(sum, a) get_timesum(sum, sum, a)
+
+/* converts nstime to double, time base is milli seconds*/
+extern double nstime_to_msec(const nstime_t *time);
 
 #endif /* __NSTIME_H__  */

@@ -351,6 +351,7 @@ mtp3_addr_to_str_buf
 mtp3_service_indicator_code_short_vals DATA
 new_create_dissector_handle
 new_register_dissector
+nstime_to_msec
 nt_cmd_vals                     DATA
 num_tap_filters                 DATA
 num_tree_types                  DATA

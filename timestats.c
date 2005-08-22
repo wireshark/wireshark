@@ -25,55 +25,45 @@
 
 #include "timestats.h"
 
-/*
- * function: nstime_to_msec
- * converts nstime to gdouble, time base is milli seconds
- */
-
-gdouble nstime_to_msec(const nstime_t *time)
+/* Initialize a timestat_t struct */
+void
+time_stat_init(timestat_t *stats)
 {
-	return ((double)time->secs*1000 + (double)time->nsecs/1000000);
+	stats->num = 0;
+	stats->min.secs = 0;
+	stats->min.nsecs = 0;
+	stats->max.secs = 0;
+	stats->max.nsecs = 0;
+	stats->tot.secs = 0;
+	stats->tot.nsecs = 0;
 }
 
-/* A Function to update a timestat_t struct with a new sample*/
-
+/* Update a timestat_t struct with a new sample */
 void
 time_stat_update(timestat_t *stats, const nstime_t *delta, packet_info *pinfo)
 {
 	if(stats->num==0){
-		stats->max.secs=delta->secs;
-		stats->max.nsecs=delta->nsecs;
+		stats->max=*delta;
 		stats->max_num=pinfo->fd->num;
-	}
-
-	if(stats->num==0){
-		stats->min.secs=delta->secs;
-		stats->min.nsecs=delta->nsecs;
+		stats->min=*delta;
 		stats->min_num=pinfo->fd->num;
 	}
 
 	if( (delta->secs<stats->min.secs)
 	||( (delta->secs==stats->min.secs)
 	  &&(delta->nsecs<stats->min.nsecs) ) ){
-		stats->min.secs=delta->secs;
-		stats->min.nsecs=delta->nsecs;
+		stats->min=*delta;
 		stats->min_num=pinfo->fd->num;
 	}
 
 	if( (delta->secs>stats->max.secs)
 	||( (delta->secs==stats->max.secs)
 	  &&(delta->nsecs>stats->max.nsecs) ) ){
-		stats->max.secs=delta->secs;
-		stats->max.nsecs=delta->nsecs;
+		stats->max=*delta;
 		stats->max_num=pinfo->fd->num;
 	}
 
-	stats->tot.secs += delta->secs;
-	stats->tot.nsecs += delta->nsecs;
-	if(stats->tot.nsecs>1000000000){
-		stats->tot.nsecs-=1000000000;
-		stats->tot.secs++;
-	}
+	addtime(&stats->tot, delta);
 
 	stats->num++;
 }

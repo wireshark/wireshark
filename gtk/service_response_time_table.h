@@ -26,6 +26,7 @@
 
 #include <gtk/gtk.h>
 #include "epan/nstime.h"
+#include "../timestats.h"
 
 /** @file
  *  Helper routines common to all service response time statistics tap.
@@ -34,10 +35,7 @@
 /** Procedure data */
 typedef struct _srt_procedure_t {
 	char *entries[6];   /**< column entries */
-	int num;            /**< number of calls seen */
-	nstime_t min;       /**< minimum srt */
-	nstime_t max;       /**< maximum srt */
-	nstime_t tot;       /**< average srt */
+	timestat_t stats;   /**< stats */
 } srt_procedure_t;
 
 /** Statistics table */

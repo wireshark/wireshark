@@ -408,13 +408,13 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *
 	rst->num_procs=num_procs;
 	rst->procedures=g_malloc(sizeof(srt_procedure_t)*num_procs);
 	for(i=0;i<num_procs;i++){
-		rst->procedures[i].num=0;
-		rst->procedures[i].min.secs=0;
-		rst->procedures[i].min.nsecs=0;
-		rst->procedures[i].max.secs=0;
-		rst->procedures[i].max.nsecs=0;
-		rst->procedures[i].tot.secs=0;
-		rst->procedures[i].tot.nsecs=0;
+		rst->procedures[i].stats.num=0;
+		rst->procedures[i].stats.min.secs=0;
+		rst->procedures[i].stats.min.nsecs=0;
+		rst->procedures[i].stats.max.secs=0;
+		rst->procedures[i].stats.max.nsecs=0;
+		rst->procedures[i].stats.tot.secs=0;
+		rst->procedures[i].stats.tot.nsecs=0;
 		for(j=0;j<6;j++){
 			rst->procedures[i].entries[j]=NULL;
 		}
@@ -436,13 +436,13 @@ init_srt_table_row(srt_stat_table *rst, int index, const char *procedure)
 		rst->num_procs=index+1;
 		rst->procedures=g_realloc(rst->procedures, sizeof(srt_procedure_t)*(rst->num_procs));
 		for(i=old_num_procs;i<rst->num_procs;i++){
-			rst->procedures[i].num=0;
-			rst->procedures[i].min.secs=0;
-			rst->procedures[i].min.nsecs=0;
-			rst->procedures[i].max.secs=0;
-			rst->procedures[i].max.nsecs=0;
-			rst->procedures[i].tot.secs=0;
-			rst->procedures[i].tot.nsecs=0;
+			rst->procedures[i].stats.num=0;
+			rst->procedures[i].stats.min.secs=0;
+			rst->procedures[i].stats.min.nsecs=0;
+			rst->procedures[i].stats.max.secs=0;
+			rst->procedures[i].stats.max.nsecs=0;
+			rst->procedures[i].stats.tot.secs=0;
+			rst->procedures[i].stats.tot.nsecs=0;
 			for(j=0;j<6;j++){
 				rst->procedures[i].entries[j]=NULL;
 			}
@@ -467,33 +467,6 @@ add_srt_table_data(srt_stat_table *rst, int index, const nstime_t *req_time, pac
 
 	rp=&rst->procedures[index];
 
-	/* calculate time delta between request and reply */
-	t.secs=pinfo->fd->abs_secs;
-	t.nsecs=pinfo->fd->abs_usecs*1000;
-	get_timedelta(&delta, &t, req_time);
-
-	if(rp->num==0){
-		rp->max=delta;
-	}
-
-	if(rp->num==0){
-		rp->min=delta;
-	}
-
-	if( (delta.secs<rp->min.secs)
-	||( (delta.secs==rp->min.secs)
-	  &&(delta.nsecs<rp->min.nsecs) ) ){
-		rp->min=delta;
-	}
-
-	if( (delta.secs>rp->max.secs)
-	||( (delta.secs==rp->max.secs)
-	  &&(delta.nsecs>rp->max.nsecs) ) ){
-		rp->max=delta;
-	}
-
-	get_timesum(&rp->tot, &rp->tot, &delta);
-
 	/*
 	 * If the count of calls for this procedure is currently zero, it's
 	 * going to become non-zero, so add a row for it (we don't want
@@ -504,11 +477,17 @@ add_srt_table_data(srt_stat_table *rst, int index, const nstime_t *req_time, pac
 	 * (Yes, this means that the rows aren't in order by anything
 	 * interesting.  That's why we have the table sorted by a column.)
 	 */
-	if (rp->num==0){
+	if (rp->stats.num==0){
 		row=gtk_clist_append(rst->table, rst->procedures[index].entries);
 		gtk_clist_set_row_data(rst->table, row, (gpointer) index);
 	}
-	rp->num++;
+
+	/* calculate time delta between request and reply */
+	t.secs=pinfo->fd->abs_secs;
+	t.nsecs=pinfo->fd->abs_usecs*1000;
+	get_timedelta(&delta, &t, req_time);
+
+	time_stat_update(&rp->stats, &delta, pinfo);
 }
 
 void
@@ -520,34 +499,34 @@ draw_srt_table_data(srt_stat_table *rst)
 
 	for(i=0;i<rst->num_procs;i++){
 		/* ignore procedures with no calls (they don't have CList rows) */
-		if(rst->procedures[i].num==0){
+		if(rst->procedures[i].stats.num==0){
 			continue;
 		}
 
 		/* scale it to units of 10us.*/
 		/* for long captures with a large tot time, this can overflow on 32bit */
-		td=(int)rst->procedures[i].tot.secs;
-		td=td*100000+(int)rst->procedures[i].tot.nsecs/10000;
-		td/=rst->procedures[i].num;
+		td=(int)rst->procedures[i].stats.tot.secs;
+		td=td*100000+(int)rst->procedures[i].stats.tot.nsecs/10000;
+		td/=rst->procedures[i].stats.num;
 
 		j=gtk_clist_find_row_from_data(rst->table, (gpointer)i);
-		strp=g_strdup_printf("%d", rst->procedures[i].num);
+		strp=g_strdup_printf("%d", rst->procedures[i].stats.num);
 		gtk_clist_set_text(rst->table, j, 2, strp);
 		g_free(rst->procedures[i].entries[2]);
 		rst->procedures[i].entries[2]=strp;
 
 
 		strp=g_strdup_printf("%3d.%05d",
-		    (int)rst->procedures[i].min.secs,
-		    rst->procedures[i].min.nsecs/10000);
+		    (int)rst->procedures[i].stats.min.secs,
+		    rst->procedures[i].stats.min.nsecs/10000);
 		gtk_clist_set_text(rst->table, j, 3, strp);
 		g_free(rst->procedures[i].entries[3]);
 		rst->procedures[i].entries[3]=strp;
 
 
 		strp=g_strdup_printf("%3d.%05d",
-		    (int)rst->procedures[i].max.secs,
-		    rst->procedures[i].max.nsecs/10000);
+		    (int)rst->procedures[i].stats.max.secs,
+		    rst->procedures[i].stats.max.nsecs/10000);
 		gtk_clist_set_text(rst->table, j, 4, strp);
 		g_free(rst->procedures[i].entries[4]);
 		rst->procedures[i].entries[4]=strp;
@@ -569,13 +548,7 @@ reset_srt_table_data(srt_stat_table *rst)
 	int i;
 
 	for(i=0;i<rst->num_procs;i++){
-		rst->procedures[i].num=0;
-		rst->procedures[i].min.secs=0;
-		rst->procedures[i].min.nsecs=0;
-		rst->procedures[i].max.secs=0;
-		rst->procedures[i].max.nsecs=0;
-		rst->procedures[i].tot.secs=0;
-		rst->procedures[i].tot.nsecs=0;
+		time_stat_init(&rst->procedures[i].stats);
 	}
 }
 
