@@ -195,6 +195,12 @@ static const value_string rtcp_app_poc1_floor_cnt_type_vals[] =
 	{  4,   "Floor Release"},
 	{  5,   "Floor Idle"},
 	{  6,   "Floor Revoke"},
+	{  7,	"TBCP Ack"},
+	{  8,	"TBCP Queue Status Request"},
+	{  9,	"TBCP Queue Status Response"},
+	{ 11,	"TBCP Disconnect"},
+	{ 15,	"TBCP Connect"},
+	{ 18,	"Floor Taken (ack expected)"},
 	{  0,   NULL },
 };
 
@@ -202,7 +208,9 @@ static const value_string rtcp_app_poc1_reason_code1_vals[] =
 {
 	{  1,   "Floor already in use"},
 	{  2,   "Internal PoC server error"},
-	{  3,	"Only one participant in the group "},
+	{  3,	"Only one participant in the group"},
+	{  4,	"Retry-after timer has not expired"},
+	{  5,	"Listen only"},
 	{  0,   NULL },
 };
 
@@ -210,9 +218,30 @@ static const value_string rtcp_app_poc1_reason_code2_vals[] =
 {
 	{  1,   "Only one user"},
 	{  2,   "Talk burst too long"},
-	{  3,	"No access to floor"},
+	{  3,	"No permission"},
+	{  4,	"Talk burst pre-empted"},
 	{  0,   NULL },
 };
+
+static const value_string rtcp_app_poc1_conn_sess_type_vals[] =
+{
+	{  0,	"None"},
+	{  1,	"1-to-1"},
+	{  2,	"Ad-hoc"},
+	{  3,	"Pre-arranged"},
+	{  4,	"Chat"},
+	{  0,	NULL },
+};
+
+static const value_string rtcp_app_poc1_qsresp_priority_vals[] =
+{
+	{  0,	"No priority (un-queued)"},
+	{  1,	"Normal priority"},
+	{  2,	"High priority"},
+	{  3,	"Pre-emptive priority"},
+	{  0,	NULL },
+};
+
 /* RTCP header fields                   */
 static int proto_rtcp                = -1;
 static int hf_rtcp_version           = -1;
@@ -261,6 +290,14 @@ static int hf_rtcp_app_poc1_item_len		= -1;
 static int hf_rtcp_app_poc1_reason1_phrase	= -1;
 static int hf_rtcp_app_poc1_reason_code2	= -1;
 static int hf_rtcp_app_poc1_additionalinfo	= -1;
+static int hf_rtcp_app_poc1_ack_subtype		= -1;
+static int hf_rtcp_app_poc1_ack_reason_code	= -1;
+static int hf_rtcp_app_poc1_qsresp_priority	= -1;
+static int hf_rtcp_app_poc1_qsresp_position	= -1;
+static int hf_rtcp_app_poc1_conn_content_1st_byte[5] = { -1, };
+static int hf_rtcp_app_poc1_conn_session_type	= -1;
+static int hf_rtcp_app_poc1_conn_add_ind_mao	= -1;
+static int hf_rtcp_app_poc1_conn_sdes_items[5] = { -1, };
 static int hf_rtcp_xr_block_type     = -1;
 static int hf_rtcp_xr_block_specific = -1;
 static int hf_rtcp_xr_block_length   = -1;
@@ -330,6 +367,7 @@ static gint ett_xr_block                = -1;
 static gint ett_xr_block_contents       = -1;
 static gint ett_xr_ssrc                 = -1;
 static gint  ett_xr_loss_chunk = -1;
+static gint ett_poc1_conn_contents	= -1;
 
 /* Main dissection function */
 static void dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo,
@@ -601,6 +639,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 		proto_tree_add_item( PoC1_tree, hf_rtcp_app_data, tvb, offset, packet_len, FALSE );
 		switch ( rtcp_subtype ) {
 			case 2:
+			case 18:
 				sdes_type = tvb_get_guint8( tvb, offset );
 				proto_tree_add_item( PoC1_tree, hf_rtcp_ssrc_type, tvb, offset, 1, FALSE );
 				offset++;
@@ -653,6 +692,62 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				offset += 4;
 				packet_len-=4;
 				break;
+
+			case 7:
+			    proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_ack_subtype, tvb, offset, 1, FALSE );
+			    proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_ack_reason_code, tvb, offset, 2, FALSE );
+			    proto_tree_add_text( PoC1_tree, tvb, offset + 2, 2, "Padding 2 bytes" );
+			    offset += 4;
+			    packet_len -= 4;
+			    break;
+
+			case 9:
+			    proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_qsresp_priority, tvb, offset, 1, FALSE );
+			    proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_qsresp_position, tvb, offset + 1, 2, FALSE );
+			    proto_tree_add_text( PoC1_tree, tvb, offset + 3, 1, "Padding 1 byte" );
+			    offset += 4;
+			    packet_len -= 4;
+			    break;
+
+			case 15: {
+			    proto_item *content = proto_tree_add_text(PoC1_tree, tvb, offset, 2, "SDES item content");
+			    gboolean contents[5];
+			    unsigned int i;
+
+			    proto_tree *content_tree = proto_item_add_subtree(content, ett_poc1_conn_contents);
+			    guint temp_byte = tvb_get_guint8( tvb, offset );
+
+			    for ( i = 0; i < sizeof(contents) /
+				      sizeof(contents[0]) &&
+				      i < sizeof(hf_rtcp_app_poc1_conn_content_1st_byte) /
+				      sizeof(hf_rtcp_app_poc1_conn_content_1st_byte[0]);
+				  ++i ) {
+				proto_tree_add_item( content_tree, hf_rtcp_app_poc1_conn_content_1st_byte[i], tvb, offset, 1, FALSE );
+				contents[i] = temp_byte & (1 << (7-i));
+			    }
+
+			    proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_conn_session_type, tvb, offset + 2, 1, FALSE );
+
+			    proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_conn_add_ind_mao, tvb, offset + 3, 1, FALSE );
+			    
+			    offset += 4;
+			    packet_len -= 4;
+
+			    for ( i = 0; i < sizeof(contents) /
+				      sizeof(contents[0]); ++i ) {
+				if ( contents[i] ) {
+				    guint sdes_type, sdes_len;
+				    sdes_type = tvb_get_guint8( tvb, offset++ );
+				    sdes_len = tvb_get_guint8( tvb, offset );
+
+				    proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_conn_sdes_items[i], tvb, offset, 1, FALSE );
+
+				    offset += sdes_len + 1;
+				    packet_len -= (sdes_len + 2);
+				}
+			    }
+			    break;
+			}    
 			default:
 				break;
 		}
@@ -2287,6 +2382,198 @@ proto_register_rtcp(void)
 			}
 		},
 		{
+			&hf_rtcp_app_poc1_ack_subtype,
+			{
+				"Subtype",
+				"rtcp.app.poc1.ack.subtype",
+				FT_UINT8,
+				BASE_DEC,
+				VALS(rtcp_app_poc1_floor_cnt_type_vals),
+				0xf8,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_ack_reason_code,
+			{
+				"Reason code",
+				"rtcp.app.poc1.ack.reason.code",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x07ff,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_qsresp_priority,
+			{
+				"Priority",
+				"rtcp.app.poc1.qsresp.priority",
+				FT_UINT8,
+				BASE_DEC,
+				VALS(rtcp_app_poc1_qsresp_priority_vals),
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_qsresp_position,
+			{
+				"Position",
+				"rtcp.app.poc1.qsresp.position",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_conn_content_1st_byte[0],
+			{
+				"Identity of inviting client",
+				"rtcp.app.poc1.conn.content.a.id",
+				FT_BOOLEAN,
+				8,
+				NULL,
+				0x80,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_conn_content_1st_byte[1],
+			{
+				"Nick name of inviting client",
+				"rtcp.app.poc1.conn.content.a.dn",
+				FT_BOOLEAN,
+				8,
+				NULL,
+				0x40,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_conn_content_1st_byte[2],
+			{
+				"Session identity",
+				"rtcp.app.poc1.conn.content.sess.id",
+				FT_BOOLEAN,
+				8,
+				NULL,
+				0x20,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_conn_content_1st_byte[3],
+			{
+				"Group name",
+				"rtcp.app.poc1.conn.content.grp.dn",
+				FT_BOOLEAN,
+				8,
+				NULL,
+				0x10,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_conn_content_1st_byte[4],
+			{
+				"Group identity",
+				"rtcp.app.poc1.conn.content.grp.id",
+				FT_BOOLEAN,
+				8,
+				NULL,
+				0x08,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_conn_session_type,
+			{
+				"Session type",
+				"rtcp.app.poc1.conn.session.type",
+				FT_BOOLEAN,
+				8,
+				VALS(rtcp_app_poc1_conn_sess_type_vals),
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_conn_add_ind_mao,
+			{
+				"Manual answer override",
+				"rtcp.app.poc1.conn.add.ind.mao",
+				FT_BOOLEAN,
+				8,
+				NULL,
+				0x80,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_conn_sdes_items[0],
+			{
+				"Identity of inviting client",
+				"rtcp.app.poc1.conn.sdes.a.id",
+				FT_UINT_STRING,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_conn_sdes_items[1],
+			{
+				"Nick name of inviting client",
+				"rtcp.app.poc1.conn.sdes.a.dn",
+				FT_UINT_STRING,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_conn_sdes_items[2],
+			{
+				"Session identity",
+				"rtcp.app.poc1.conn.sdes.sess.id",
+				FT_UINT_STRING,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_conn_sdes_items[3],
+			{
+				"Group Name",
+				"rtcp.app.poc1.conn.sdes.grp.dn",
+				FT_UINT_STRING,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_app_poc1_conn_sdes_items[4],
+			{
+				"Group identity",
+				"rtcp.app.poc1.conn.sdes.grp.id",
+				FT_UINT_STRING,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
 			&hf_rtcp_fsn,
 			{
 				"First sequence number",
@@ -2938,7 +3225,8 @@ proto_register_rtcp(void)
 		&ett_xr_block,
 		&ett_xr_block_contents,
  		&ett_xr_ssrc,
-		&ett_xr_loss_chunk
+		&ett_xr_loss_chunk,
+		&ett_poc1_conn_contents
 	};
 
 	module_t *rtcp_module;
