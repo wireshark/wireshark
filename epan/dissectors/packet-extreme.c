@@ -342,7 +342,7 @@ dissect_display_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, p
 
 	display_item = proto_tree_add_protocol_format(tree, hf_edp_display,
 		tvb, offset, length, "Display: \"%s\"",
-		tvb_get_ephemeral_string(tvb, offset + 0 + 4, length));
+		tvb_get_ephemeral_string(tvb, offset + 0 + 4, length - (0 + 4)));
 
 	display_tree = proto_item_add_subtree(display_item, ett_edp_display);
 
