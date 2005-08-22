@@ -432,7 +432,7 @@ get_ber_length(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 *length, gbo
 			tmp_offset = offset;
 			/* ok in here we can traverse the BER to find the length, this will fix most indefinite length issues */
 			/* Assumption here is that indefinite length is always used on constructed types*/ 
-			while ((tvb_reported_length_remaining(tvb,offset)>0) && ( tvb_get_guint8(tvb, offset)) && (tvb_get_guint8(tvb,offset+1)))
+			while ((tvb_reported_length_remaining(tvb,offset)>0) && ( tvb_get_guint8(tvb, offset)) || (tvb_get_guint8(tvb,offset+1)))
 			/* check for EOC */
 				{
 				s_offset=offset;
@@ -869,7 +869,7 @@ ber_sequence_try_again:
 		  &&  (seq->tag!=-1)  
 		  &&( (seq->class!=class)
 		    ||(seq->tag!=tag) ) ){
-			/* it was not,  move to the enxt one and try again */
+			/* it was not,  move to the next one and try again */
 			if(seq->flags&BER_FLAGS_OPTIONAL){
 				/* well this one was optional so just skip to the next one and try again. */
 				seq++;
@@ -1044,9 +1044,9 @@ name=hfinfo->name;
 name="unnamed";
 }
 if(tvb_length_remaining(tvb,offset)>3){
-printf("SEQUENCE dissect_ber_sequence(%s) entered offset:%d len:%d %02x:%02x:%02x\n",name,offset,tvb_length_remaining(tvb,offset),tvb_get_guint8(tvb,offset),tvb_get_guint8(tvb,offset+1),tvb_get_guint8(tvb,offset+2));
+printf("SET dissect_ber_set(%s) entered offset:%d len:%d %02x:%02x:%02x\n",name,offset,tvb_length_remaining(tvb,offset),tvb_get_guint8(tvb,offset),tvb_get_guint8(tvb,offset+1),tvb_get_guint8(tvb,offset+2));
 }else{
-printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
+printf("SET dissect_ber_set(%s) entered\n",name);
 }
 }
 #endif
@@ -1068,7 +1068,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
 		||(!implicit_tag&&((class!=BER_CLASS_UNI)
 							||(tag!=BER_UNI_TAG_SEQUENCE)))) {
 			tvb_ensure_bytes_exist(tvb, offset-2, 2);
-			proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: Sequence expected but Class:%d(%s) PC:%d Tag:%d was unexpected", class,val_to_str(class,ber_class_codes,"Unknown"), pc, tag);
+			proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: set expected but Class:%d(%s) PC:%d Tag:%d was unexpected", class,val_to_str(class,ber_class_codes,"Unknown"), pc, tag);
 			return end_offset;
 		}
 	} else {
@@ -1107,13 +1107,15 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
 		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 		offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 		eoffset = offset + len;
+		seq = seq_start;
 
-ber_sequence_try_again:
+ber_set_try_again:
 		/* have we run out of known entries in the sequence ?*/
 		if(!seq->func) {
 			/* it was not,  move to the enxt one and try again */
-			proto_tree_add_text(tree, tvb, offset, len, "BER Error: This field lies beyond the end of the known sequence definition.");
+			proto_tree_add_text(tree, tvb, offset, len, "BER Error: This field lies beyond the end of the known set definition: class:%d tag:%d",class,tag);
 			offset = eoffset;
+			seq = seq_start;
 			continue;
 		}
 
@@ -1132,21 +1134,21 @@ ber_sequence_try_again:
 		  &&  (seq->tag!=-1)  
 		  &&( (seq->class!=class)
 		    ||(seq->tag!=tag) ) ){
-			/* it was not,  move to the enxt one and try again */
-			if(seq->flags&BER_FLAGS_OPTIONAL){
+			/* it was not,  move to the next one and try again */
+			/* if(seq->flags&BER_FLAGS_OPTIONAL){ */
 				/* well this one was optional so just skip to the next one and try again. */
 				seq++;
-				goto ber_sequence_try_again;
-			}
+				goto ber_set_try_again;
+			/*}*/
 			if( seq->class == BER_CLASS_UNI){
 				proto_tree_add_text(tree, tvb, offset, len,
-				    "BER Error: Wrong field in SEQUENCE  expected class:%d (%s) tag:%d (%s) but found class:%d tag:%d",
+				    "BER Error: Wrong field in SET  expected class:%d (%s) tag:%d (%s) but found class:%d tag:%d",
 				    seq->class,val_to_str(seq->class,ber_class_codes,"Unknown"),
 				    seq->tag,val_to_str(seq->tag,ber_uni_tag_codes,"Unknown"),
 				    class,tag);
 			}else{
 				proto_tree_add_text(tree, tvb, offset, len,
-				    "BER Error: Wrong field in SEQUENCE  expected class:%d (%s) tag:%d but found class:%d tag:%d",
+				    "BER Error: Wrong field in SET  expected class:%d (%s) tag:%d but found class:%d tag:%d",
 				    seq->class,val_to_str(seq->class,ber_class_codes,"Unknown"),
 				    seq->tag,class,tag);
 			}
@@ -1159,12 +1161,12 @@ ber_sequence_try_again:
 		  &&  (seq->tag!=-1)  
 		  &&( (seq->class!=class)
 		    ||(seq->tag!=tag) ) ){
-			/* it was not,  move to the enxt one and try again */
-			if(seq->flags&BER_FLAGS_OPTIONAL){
+			/* it was not,  move to the next one and try again */
+			/* if(seq->flags&BER_FLAGS_OPTIONAL){ */
 				/* well this one was optional so just skip to the next one and try again. */
 				seq++;
-				goto ber_sequence_try_again;
-			}
+				goto ber_set_try_again;
+		/*	}*/
 
 			if( seq->class == BER_CLASS_UNI){
 				proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in sequence  expected class:%d (%s) tag:%d(%s) but found class:%d(%s) tag:%d",seq->class,val_to_str(seq->class,ber_class_codes,"Unknown"),seq->tag,val_to_str(seq->tag,ber_uni_tag_codes,"Unknown"),class,val_to_str(class,ber_class_codes,"Unknown"),tag);
@@ -1208,9 +1210,9 @@ name=hfinfo->name;
 name="unnamed";
 }
 if(tvb_length_remaining(next_tvb,0)>3){
-printf("SEQUENCE dissect_ber_sequence(%s) calling subdissector offset:%d len:%d %02x:%02x:%02x\n",name,offset,tvb_length_remaining(next_tvb,0),tvb_get_guint8(next_tvb,0),tvb_get_guint8(next_tvb,1),tvb_get_guint8(next_tvb,2));
+printf("SET dissect_ber_set(%s) calling subdissector offset:%d len:%d %02x:%02x:%02x\n",name,offset,tvb_length_remaining(next_tvb,0),tvb_get_guint8(next_tvb,0),tvb_get_guint8(next_tvb,1),tvb_get_guint8(next_tvb,2));
 }else{
-printf("SEQUENCE dissect_ber_sequence(%s) calling subdissector\n",name);
+printf("SET dissect_ber_set(%s) calling subdissector\n",name);
 }
 }
 #endif
@@ -1226,14 +1228,14 @@ name=hfinfo->name;
 } else {
 name="unnamed";
 }
-printf("SEQUENCE dissect_ber_sequence(%s) subdissector ate %d bytes\n",name,count);
+printf("SET dissect_ber_set(%s) subdissector ate %d bytes\n",name,count);
 }
 #endif
 		/* if it was optional and no bytes were eaten and it was */
 		/* supposed to (len<>0), just try again. */
 		if((len!=0)&&(count==0)&&(seq->flags&BER_FLAGS_OPTIONAL)){
 			seq++;
-			goto ber_sequence_try_again;
+			goto ber_set_try_again;
 		/* move the offset to the beginning of the next sequenced item */
 		}
 	offset = eoffset;
@@ -1254,7 +1256,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) subdissector ate %d bytes\n",name,coun
 	/* if we didnt end up at exactly offset, then we ate too many bytes */
 	if(offset != end_offset) {
 		tvb_ensure_bytes_exist(tvb, offset-2, 2);
-		proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: Sequence ate %d too many bytes", offset-end_offset);
+		proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: Set ate %d too many bytes", offset-end_offset);
 	}
 	if(ind){
 		/*  need to eat this EOC
