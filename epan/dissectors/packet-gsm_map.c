@@ -1554,6 +1554,7 @@ dissect_gsm_map_SignalInfo2(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
   return offset;
 }
 
+
 static const asn_namedbit SupportedCamelPhases_bits[] = {
   {  0, &hf_gsm_map_SupportedCamelPhases_phase1, -1, -1, "phase1", NULL },
   {  1, &hf_gsm_map_SupportedCamelPhases_phase2, -1, -1, "phase2", NULL },
@@ -1565,8 +1566,8 @@ static const asn_namedbit SupportedCamelPhases_bits[] = {
 static int
 dissect_gsm_map_SupportedCamelPhases(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 SupportedCamelPhases_bits, hf_index, ett_gsm_map_SupportedCamelPhases,
-                                 NULL);
+                                    SupportedCamelPhases_bits, hf_index, ett_gsm_map_SupportedCamelPhases,
+                                    NULL);
 
   return offset;
 }
@@ -2189,6 +2190,7 @@ static int dissect_superChargerSupportedInServingNetworkEntity_impl(packet_info 
   return dissect_gsm_map_SuperChargerInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_superChargerSupportedInServingNetworkEntity);
 }
 
+
 static const asn_namedbit SupportedLCS_CapabilitySets_bits[] = {
   {  0, &hf_gsm_map_SupportedLCS_CapabilitySets_lcsCapabilitySet1, -1, -1, "lcsCapabilitySet1", NULL },
   {  1, &hf_gsm_map_SupportedLCS_CapabilitySets_lcsCapabilitySet2, -1, -1, "lcsCapabilitySet2", NULL },
@@ -2200,8 +2202,8 @@ static const asn_namedbit SupportedLCS_CapabilitySets_bits[] = {
 static int
 dissect_gsm_map_SupportedLCS_CapabilitySets(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 SupportedLCS_CapabilitySets_bits, hf_index, ett_gsm_map_SupportedLCS_CapabilitySets,
-                                 NULL);
+                                    SupportedLCS_CapabilitySets_bits, hf_index, ett_gsm_map_SupportedLCS_CapabilitySets,
+                                    NULL);
 
   return offset;
 }
@@ -2211,6 +2213,7 @@ static int dissect_supportedLCS_CapabilitySets_impl(packet_info *pinfo, proto_tr
 static int dissect_additional_LCS_CapabilitySets_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_SupportedLCS_CapabilitySets(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_additional_LCS_CapabilitySets);
 }
+
 
 static const asn_namedbit OfferedCamel4CSIs_bits[] = {
   {  0, &hf_gsm_map_OfferedCamel4CSIs_o_csi, -1, -1, "o-csi", NULL },
@@ -2226,8 +2229,8 @@ static const asn_namedbit OfferedCamel4CSIs_bits[] = {
 static int
 dissect_gsm_map_OfferedCamel4CSIs(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 OfferedCamel4CSIs_bits, hf_index, ett_gsm_map_OfferedCamel4CSIs,
-                                 NULL);
+                                    OfferedCamel4CSIs_bits, hf_index, ett_gsm_map_OfferedCamel4CSIs,
+                                    NULL);
 
   return offset;
 }
@@ -2531,7 +2534,7 @@ static int dissect_cancellationType(packet_info *pinfo, proto_tree *tree, tvbuff
 
 
 static const ber_sequence_t CancelLocationArg_sequence[] = {
-  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_identity },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_identity },
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_cancellationType },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -2949,7 +2952,7 @@ static int dissect_currentSecurityContext_impl(packet_info *pinfo, proto_tree *t
 
 static const ber_sequence_t SendIdentificationRes_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_imsi },
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_authenticationSetList },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_authenticationSetList },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_currentSecurityContext_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -3472,11 +3475,12 @@ static int dissect_iuSupportedCodecsList_impl(packet_info *pinfo, proto_tree *tr
 }
 
 
+
 static int
 dissect_gsm_map_UESBI_IuA(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 NULL, hf_index, -1,
-                                 NULL);
+                                    NULL, hf_index, -1,
+                                    NULL);
 
   return offset;
 }
@@ -3485,11 +3489,12 @@ static int dissect_uesbi_IuA_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
 }
 
 
+
 static int
 dissect_gsm_map_UESBI_IuB(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 NULL, hf_index, -1,
-                                 NULL);
+                                    NULL, hf_index, -1,
+                                    NULL);
 
   return offset;
 }
@@ -4036,7 +4041,7 @@ dissect_gsm_map_SendAuthenticationInfoRes(gboolean implicit_tag _U_, tvbuff_t *t
 
 
 static const ber_sequence_t SendAuthenticationInfoResV3_sequence[] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_authenticationSetList },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_authenticationSetList },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
 };
@@ -4058,6 +4063,7 @@ dissect_gsm_map_CheckIMEIArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
   return offset;
 }
 
+
 static const asn_namedbit RequestedEquipmentInfo_bits[] = {
   {  0, &hf_gsm_map_RequestedEquipmentInfo_equipmentStatus, -1, -1, "equipmentStatus", NULL },
   {  1, &hf_gsm_map_RequestedEquipmentInfo_bmuef, -1, -1, "bmuef", NULL },
@@ -4067,8 +4073,8 @@ static const asn_namedbit RequestedEquipmentInfo_bits[] = {
 static int
 dissect_gsm_map_RequestedEquipmentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 RequestedEquipmentInfo_bits, hf_index, ett_gsm_map_RequestedEquipmentInfo,
-                                 NULL);
+                                    RequestedEquipmentInfo_bits, hf_index, ett_gsm_map_RequestedEquipmentInfo,
+                                    NULL);
 
   return offset;
 }
@@ -4174,7 +4180,7 @@ static int dissect_BasicServiceGroupList_item(packet_info *pinfo, proto_tree *tr
 
 
 static const ber_sequence_t BasicServiceGroupList_sequence_of[1] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_BasicServiceGroupList_item },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_BasicServiceGroupList_item },
 };
 
 static int
@@ -4190,6 +4196,7 @@ static int dissect_ext_basicServiceGroupList(packet_info *pinfo, proto_tree *tre
 static int dissect_ext_basicServiceGroupList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_BasicServiceGroupList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ext_basicServiceGroupList);
 }
+
 
 static const asn_namedbit ODB_GeneralData_bits[] = {
   {  0, &hf_gsm_map_ODB_GeneralData_allOG_CallsBarred, -1, -1, "allOG-CallsBarred", NULL },
@@ -4227,8 +4234,8 @@ static const asn_namedbit ODB_GeneralData_bits[] = {
 static int
 dissect_gsm_map_ODB_GeneralData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 ODB_GeneralData_bits, hf_index, ett_gsm_map_ODB_GeneralData,
-                                 NULL);
+                                    ODB_GeneralData_bits, hf_index, ett_gsm_map_ODB_GeneralData,
+                                    NULL);
 
   return offset;
 }
@@ -4238,6 +4245,7 @@ static int dissect_odb_GeneralData(packet_info *pinfo, proto_tree *tree, tvbuff_
 static int dissect_odb_GeneralData_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_ODB_GeneralData(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_odb_GeneralData);
 }
+
 
 static const asn_namedbit ODB_HPLMN_Data_bits[] = {
   {  0, &hf_gsm_map_ODB_HPLMN_Data_plmn_SpecificBarringType1, -1, -1, "plmn-SpecificBarringType1", NULL },
@@ -4250,8 +4258,8 @@ static const asn_namedbit ODB_HPLMN_Data_bits[] = {
 static int
 dissect_gsm_map_ODB_HPLMN_Data(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 ODB_HPLMN_Data_bits, hf_index, ett_gsm_map_ODB_HPLMN_Data,
-                                 NULL);
+                                    ODB_HPLMN_Data_bits, hf_index, ett_gsm_map_ODB_HPLMN_Data,
+                                    NULL);
 
   return offset;
 }
@@ -4775,7 +4783,7 @@ static int dissect_longForwardedToNumber_impl(packet_info *pinfo, proto_tree *tr
 
 
 static const ber_sequence_t Ext_ForwFeature_sequence[] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ext_basicService },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ext_basicService },
   { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_ext_ss_Status_impl },
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_forwardedToNumber_impl },
   { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_forwardedToSubaddress_impl },
@@ -4837,7 +4845,7 @@ static int dissect_ext_forwardingInfo_impl(packet_info *pinfo, proto_tree *tree,
 
 
 static const ber_sequence_t Ext_CallBarringFeature_sequence[] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ext_basicService },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ext_basicService },
   { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_ext_ss_Status_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { 0, 0, 0, NULL }
@@ -4943,7 +4951,7 @@ static int dissect_intraCUG_Options(packet_info *pinfo, proto_tree *tree, tvbuff
 
 
 static const ber_sequence_t Ext_BasicServiceGroupList_sequence_of[1] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_Ext_BasicServiceGroupList_item },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_Ext_BasicServiceGroupList_item },
 };
 
 static int
@@ -5009,7 +5017,7 @@ static int dissect_interCUG_Restrictions(packet_info *pinfo, proto_tree *tree, t
 
 
 static const ber_sequence_t CUG_Feature_sequence[] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ext_basicService },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ext_basicService },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_preferentialCUG_Indicator },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_interCUG_Restrictions },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -5114,7 +5122,7 @@ static int dissect_ss_SubscriptionOption(packet_info *pinfo, proto_tree *tree, t
 static const ber_sequence_t Ext_SS_Data_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_Code },
   { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_ext_ss_Status_impl },
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ss_SubscriptionOption },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ss_SubscriptionOption },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_basicServiceGroupList },
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensionContainer_impl },
   { 0, 0, 0, NULL }
@@ -5208,7 +5216,7 @@ static int dissect_Ext_SS_InfoList_item(packet_info *pinfo, proto_tree *tree, tv
 
 
 static const ber_sequence_t Ext_SS_InfoList_sequence_of[1] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_Ext_SS_InfoList_item },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_Ext_SS_InfoList_item },
 };
 
 static int
@@ -5503,7 +5511,7 @@ static int dissect_destinationNumberCriteria_impl(packet_info *pinfo, proto_tree
 
 
 static const ber_sequence_t BasicServiceCriteria_sequence_of[1] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_BasicServiceCriteria_item },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_BasicServiceCriteria_item },
 };
 
 static int
@@ -6185,7 +6193,7 @@ dissect_gsm_map_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
 	 if (!parameter_tvb)
 		return offset;
-	de_sm_qos(parameter_tvb, tree, 0, 3, NULL, 0);
+	de_sm_qos(parameter_tvb, tree, 0, 3, NULL,0);
 
 
   return offset;
@@ -7019,6 +7027,7 @@ static int dissect_sgsn_CAMEL_SubscriptionInfo_impl(packet_info *pinfo, proto_tr
   return dissect_gsm_map_SGSN_CAMEL_SubscriptionInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sgsn_CAMEL_SubscriptionInfo);
 }
 
+
 static const asn_namedbit AccessRestrictionData_bits[] = {
   {  0, &hf_gsm_map_AccessRestrictionData_utranNotAllowed, -1, -1, "utranNotAllowed", NULL },
   {  1, &hf_gsm_map_AccessRestrictionData_geranNotAllowed, -1, -1, "geranNotAllowed", NULL },
@@ -7028,8 +7037,8 @@ static const asn_namedbit AccessRestrictionData_bits[] = {
 static int
 dissect_gsm_map_AccessRestrictionData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 AccessRestrictionData_bits, hf_index, ett_gsm_map_AccessRestrictionData,
-                                 NULL);
+                                    AccessRestrictionData_bits, hf_index, ett_gsm_map_AccessRestrictionData,
+                                    NULL);
 
   return offset;
 }
@@ -7141,7 +7150,7 @@ dissect_gsm_map_InsertSubscriberDataRes(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 
 static const ber_sequence_t BasicServiceList_sequence_of[1] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_BasicServiceList_item },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_BasicServiceList_item },
 };
 
 static int
@@ -7237,6 +7246,7 @@ static int dissect_lsaInformationWithdraw_impl(packet_info *pinfo, proto_tree *t
   return dissect_gsm_map_LSAInformationWithdraw(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lsaInformationWithdraw);
 }
 
+
 static const asn_namedbit SpecificCSI_Withdraw_bits[] = {
   {  0, &hf_gsm_map_SpecificCSI_Withdraw_o_csi, -1, -1, "o-csi", NULL },
   {  1, &hf_gsm_map_SpecificCSI_Withdraw_ss_csi, -1, -1, "ss-csi", NULL },
@@ -7258,8 +7268,8 @@ static const asn_namedbit SpecificCSI_Withdraw_bits[] = {
 static int
 dissect_gsm_map_SpecificCSI_Withdraw(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 SpecificCSI_Withdraw_bits, hf_index, ett_gsm_map_SpecificCSI_Withdraw,
-                                 NULL);
+                                    SpecificCSI_Withdraw_bits, hf_index, ett_gsm_map_SpecificCSI_Withdraw,
+                                    NULL);
 
   return offset;
 }
@@ -7406,7 +7416,7 @@ static int dissect_basicServiceGroup_impl(packet_info *pinfo, proto_tree *tree, 
 
 
 static const ber_sequence_t CallBarringFeature_sequence[] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_basicService },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_basicService },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_Status_impl },
   { 0, 0, 0, NULL }
 };
@@ -7471,7 +7481,7 @@ static int dissect_noReplyConditionTime_impl(packet_info *pinfo, proto_tree *tre
 
 
 static const ber_sequence_t ForwardingFeature_sequence[] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_basicService },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_basicService },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_Status_impl },
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_forwardedToNumber_impl },
   { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_forwardedToSubaddress_impl },
@@ -8145,7 +8155,7 @@ static const value_string gsm_map_ExtendedRoutingInfo_vals[] = {
 };
 
 static const ber_choice_t ExtendedRoutingInfo_choice[] = {
-  {   0, BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_routingInfo },
+  {   0, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_routingInfo },
   {   1, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_camelRoutingInfo_impl },
   { 0, 0, 0, 0, NULL }
 };
@@ -8689,6 +8699,7 @@ static int dissect_ccbs_Indicators_impl(packet_info *pinfo, proto_tree *tree, tv
   return dissect_gsm_map_CCBS_Indicators(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ccbs_Indicators);
 }
 
+
 static const asn_namedbit AllowedServices_bits[] = {
   {  0, &hf_gsm_map_AllowedServices_firstServiceAllowed, -1, -1, "firstServiceAllowed", NULL },
   {  1, &hf_gsm_map_AllowedServices_secondServiceAllowed, -1, -1, "secondServiceAllowed", NULL },
@@ -8698,8 +8709,8 @@ static const asn_namedbit AllowedServices_bits[] = {
 static int
 dissect_gsm_map_AllowedServices(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 AllowedServices_bits, hf_index, ett_gsm_map_AllowedServices,
-                                 NULL);
+                                    AllowedServices_bits, hf_index, ett_gsm_map_AllowedServices,
+                                    NULL);
 
   return offset;
 }
@@ -8733,7 +8744,7 @@ static int dissect_unavailabilityCause_impl(packet_info *pinfo, proto_tree *tree
 
 static const ber_sequence_t SendRoutingInfoRes_sequence[] = {
   { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_imsi_impl },
-  { -1/*choice*/ , -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_extendedRoutingInfo },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_extendedRoutingInfo },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cug_CheckInfo_impl },
   { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cugSubscriptionFlag_impl },
   { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_subscriberInfo_impl },
@@ -9510,7 +9521,7 @@ dissect_gsm_map_TranslatedB_Number(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 static const ber_sequence_t SS_Data_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ss_Code },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_Status_impl },
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ss_SubscriptionOption },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ss_SubscriptionOption },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ext_basicServiceGroupList },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_defaultPriority },
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nbrUser_impl },
@@ -9531,7 +9542,7 @@ static int dissect_ss_Data_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static const ber_sequence_t RegisterSS_Arg_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_Code },
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_basicService },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_basicService },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_forwardedToNumber_addr_impl },
   { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_forwardedToSubaddress_impl },
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_noReplyConditionTime_impl },
@@ -9808,11 +9819,12 @@ dissect_gsm_map_AuthenticationFailureReportRes(gboolean implicit_tag _U_, tvbuff
 }
 
 
+
 int
 dissect_gsm_map_NewPassword(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -9835,14 +9847,16 @@ dissect_gsm_map_GetPasswordArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 }
 
 
+
 int
 dissect_gsm_map_CurrentPassword(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
+
 
 static const asn_namedbit ServiceIndicator_bits[] = {
   {  0, &hf_gsm_map_ServiceIndicator_clir_invoked, -1, -1, "clir-invoked", NULL },
@@ -9853,8 +9867,8 @@ static const asn_namedbit ServiceIndicator_bits[] = {
 static int
 dissect_gsm_map_ServiceIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 ServiceIndicator_bits, hf_index, ett_gsm_map_ServiceIndicator,
-                                 NULL);
+                                    ServiceIndicator_bits, hf_index, ett_gsm_map_ServiceIndicator,
+                                    NULL);
 
   return offset;
 }
@@ -10175,8 +10189,8 @@ static int dissect_sm_RP_UI(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 
 static const ber_sequence_t Mo_forwardSM_Arg_sequence[] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_sm_RP_DA },
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_sm_RP_OA },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_sm_RP_DA },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_sm_RP_OA },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_sm_RP_UI },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_imsi },
@@ -10208,8 +10222,8 @@ dissect_gsm_map_Mo_forwardSM_Res(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 
 
 static const ber_sequence_t Mt_forwardSM_Arg_sequence[] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_sm_RP_DA },
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_sm_RP_OA },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_sm_RP_DA },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_sm_RP_OA },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_sm_RP_UI },
   { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_moreMessagesToSend },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_extensionContainer },
@@ -10333,6 +10347,7 @@ dissect_gsm_map_ReportSM_DeliveryStatusRes(gboolean implicit_tag _U_, tvbuff_t *
   return offset;
 }
 
+
 static const asn_namedbit T_mw_Status_bits[] = {
   {  0, &hf_gsm_map_T_mw_Status_scAddressNotIncluded, -1, -1, "scAddressNotIncluded", NULL },
   {  1, &hf_gsm_map_T_mw_Status_mnrfSet, -1, -1, "mnrfSet", NULL },
@@ -10344,8 +10359,8 @@ static const asn_namedbit T_mw_Status_bits[] = {
 static int
 dissect_gsm_map_T_mw_Status(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 T_mw_Status_bits, hf_index, ett_gsm_map_T_mw_Status,
-                                 NULL);
+                                    T_mw_Status_bits, hf_index, ett_gsm_map_T_mw_Status,
+                                    NULL);
 
   return offset;
 }
@@ -10544,7 +10559,7 @@ dissect_gsm_map_AnyTimeInterrogationRes(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static const ber_sequence_t SS_ForBS_Code_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_ss_Code },
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_basicService },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_basicService },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_longFTN_Supported_impl },
   { 0, 0, 0, NULL }
 };
@@ -10672,11 +10687,12 @@ static int dissect_callForwardingData_impl(packet_info *pinfo, proto_tree *tree,
 }
 
 
+
 static int
 dissect_gsm_map_Password(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -10804,6 +10820,7 @@ dissect_gsm_map_AnyTimeSubscriptionInterrogationRes(gboolean implicit_tag _U_, t
   return offset;
 }
 
+
 static const asn_namedbit OfferedCamel4Functionalities_bits[] = {
   {  0, &hf_gsm_map_OfferedCamel4Functionalities_initiateCallAttempt, -1, -1, "initiateCallAttempt", NULL },
   {  1, &hf_gsm_map_OfferedCamel4Functionalities_splitLeg, -1, -1, "splitLeg", NULL },
@@ -10830,8 +10847,8 @@ static const asn_namedbit OfferedCamel4Functionalities_bits[] = {
 static int
 dissect_gsm_map_OfferedCamel4Functionalities(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 OfferedCamel4Functionalities_bits, hf_index, ett_gsm_map_OfferedCamel4Functionalities,
-                                 NULL);
+                                    OfferedCamel4Functionalities_bits, hf_index, ett_gsm_map_OfferedCamel4Functionalities,
+                                    NULL);
 
   return offset;
 }
@@ -11548,9 +11565,10 @@ dissect_gsm_map_LocationEstimateType(gboolean implicit_tag _U_, tvbuff_t *tvb, i
 
   return offset;
 }
-static int dissect_locationEstimateType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_gsm_map_LocationEstimateType(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_locationEstimateType);
+static int dissect_locationEstimateType_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_LocationEstimateType(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_locationEstimateType);
 }
+
 
 static const asn_namedbit DeferredLocationEventType_bits[] = {
   {  0, &hf_gsm_map_DeferredLocationEventType_msAvailable, -1, -1, "msAvailable", NULL },
@@ -11563,19 +11581,22 @@ static const asn_namedbit DeferredLocationEventType_bits[] = {
 int
 dissect_gsm_map_DeferredLocationEventType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 DeferredLocationEventType_bits, hf_index, ett_gsm_map_DeferredLocationEventType,
-                                 NULL);
+                                    DeferredLocationEventType_bits, hf_index, ett_gsm_map_DeferredLocationEventType,
+                                    NULL);
 
   return offset;
 }
 static int dissect_deferredLocationEventType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_gsm_map_DeferredLocationEventType(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_deferredLocationEventType);
 }
+static int dissect_deferredLocationEventType_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_gsm_map_DeferredLocationEventType(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_deferredLocationEventType);
+}
 
 
 static const ber_sequence_t LocationType_sequence[] = {
-  { BER_CLASS_CON, 0, 0, dissect_locationEstimateType },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_deferredLocationEventType },
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_locationEstimateType_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_deferredLocationEventType_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -11817,6 +11838,7 @@ static int dissect_lcs_QoS_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_gsm_map_LCS_QoS(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcs_QoS);
 }
 
+
 static const asn_namedbit SupportedGADShapes_bits[] = {
   {  0, &hf_gsm_map_SupportedGADShapes_ellipsoidPoint, -1, -1, "ellipsoidPoint", NULL },
   {  1, &hf_gsm_map_SupportedGADShapes_ellipsoidPointWithUncertaintyCircle, -1, -1, "ellipsoidPointWithUncertaintyCircle", NULL },
@@ -11831,8 +11853,8 @@ static const asn_namedbit SupportedGADShapes_bits[] = {
 int
 dissect_gsm_map_SupportedGADShapes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 SupportedGADShapes_bits, hf_index, ett_gsm_map_SupportedGADShapes,
-                                 NULL);
+                                    SupportedGADShapes_bits, hf_index, ett_gsm_map_SupportedGADShapes,
+                                    NULL);
 
   return offset;
 }
@@ -12488,7 +12510,7 @@ static int dissect_initialisationVector(packet_info *pinfo, proto_tree *tree, tv
 
 static const ber_sequence_t SecurityHeader_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_securityParametersIndex },
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_originalComponentIdentifier },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_originalComponentIdentifier },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_initialisationVector },
   { 0, 0, 0, NULL }
 };
@@ -13096,7 +13118,7 @@ dissect_gsm_map_NoGroupCallNbParam(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 
 static const ber_sequence_t SS_IncompatibilityCause_sequence[] = {
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_Code_impl },
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_basicService },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_basicService },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ss_Status_impl },
   { 0, 0, 0, NULL }
 };
@@ -13720,7 +13742,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_DeactivateTraceModeArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 55: /*sendIdentification*/
-    offset=dissect_gsm_map_TMSI(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_SendIdentificationArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 56: /*sendAuthenticationInfo*/
 	  if (application_context_version < 3 ){
@@ -13805,8 +13827,6 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_SecureTransportArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 83: /*provideSubscriberLocation*/
-    offset=dissect_gsm_map_EraseCC_EntryArg(FALSE, tvb, offset, pinfo, tree, -1);
-    break;
     offset=dissect_gsm_map_ProvideSubscriberLocation_Arg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 85: /*sendRoutingInfoForLCS*/
@@ -13947,8 +13967,15 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
   case 51: /*deactivateTraceMode*/
     offset=dissect_gsm_map_DeactivateTraceModeRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
-  case 55: /*sendIdentification*/
-    offset=dissect_gsm_map_SendIdentificationRes(FALSE, tvb, offset, pinfo, tree, -1);
+  case 55: /*sendIdentification
+			* In newer versions IMSI and authenticationSetList is OPTIONAL and two new parameters added
+			* however if the tag (3) is stripped of it should work wit the 'new' def.(?) 
+			*/
+	octet = tvb_get_guint8(tvb,0) & 0xf;
+	if ( octet == 3){ /* This is a V3 message ??? */
+		offset = offset +2;
+	}
+	offset=dissect_gsm_map_SendIdentificationRes(TRUE, tvb, offset, pinfo, tree, -1);
     break;
   case 56: /*sendAuthenticationInfo*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
@@ -14584,7 +14611,9 @@ void proto_reg_handoff_gsm_map(void) {
   register_ber_oid_dissector_handle("0.4.0.0.1.0.14.3", map_handle, proto_gsm_map,"itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) infoRetrieval(14) version3(3)" );
   register_ber_oid_dissector_handle("0.4.0.0.1.0.14.2", map_handle, proto_gsm_map,"itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) infoRetrieval(14) version2(2)" );
   register_ber_oid_dissector_handle("0.4.0.0.1.0.14.1", map_handle, proto_gsm_map,"itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) infoRetrieval(14) version1(1)" );
-  register_ber_oid_dissector_handle("0.4.0.0.1.0.15.1", map_handle, proto_gsm_map,"itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) interVlrInfoRetrieval(15) version2(2)" );
+  register_ber_oid_dissector_handle("0.4.0.0.1.0.15.1", map_handle, proto_gsm_map,"itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) interVlrInfoRetrieval(15) version1(1)" );
+  register_ber_oid_dissector_handle("0.4.0.0.1.0.15.2", map_handle, proto_gsm_map,"itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) interVlrInfoRetrieval(15) version2(2)" );
+  register_ber_oid_dissector_handle("0.4.0.0.1.0.15.3", map_handle, proto_gsm_map,"itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) interVlrInfoRetrieval(15) version3(3)" );
   register_ber_oid_dissector_handle("0.4.0.0.1.0.16.3", map_handle, proto_gsm_map,"itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) subscriberDataMngt(16) version3(3)" );
   register_ber_oid_dissector_handle("0.4.0.0.1.0.16.2", map_handle, proto_gsm_map,"itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) subscriberDataMngt(16) version2(2)" );
   register_ber_oid_dissector_handle("0.4.0.0.1.0.16.1", map_handle, proto_gsm_map,"itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) subscriberDataMngt(16) version1(1)" );

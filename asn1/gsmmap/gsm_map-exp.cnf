@@ -7,8 +7,8 @@ AlertingPattern          BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
 LCSClientExternalID      BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 LCSServiceTypeID         BER_CLASS_UNI BER_UNI_TAG_INTEGER
 RegisterSS_Arg           BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-SS_Info                  BER_CLASS_CON -1/*choice*/
-InterrogateSS_Res        BER_CLASS_CON -1/*choice*/
+SS_Info                  BER_CLASS_ANY/*choice*/ -1/*choice*/
+InterrogateSS_Res        BER_CLASS_ANY/*choice*/ -1/*choice*/
 Ussd_Arg                 BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 Ussd_Res                 BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 USSD_DataCodingScheme    BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
