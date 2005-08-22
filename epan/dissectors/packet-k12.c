@@ -139,11 +139,13 @@ static GHashTable* k12_load_config(const gchar* filename) {
 	}
 
 	if (len > 0) {
+		
 		lines = g_strsplit(buffer,"\n",0);
 		
 		for (i = 0 ; lines[i]; i++) {
 			g_strstrip(lines[i]);
-			
+			g_strdown(lines[i]);
+
 			if(*(lines[i]) == '#' || *(lines[i]) == '\0')
 				continue;
 			

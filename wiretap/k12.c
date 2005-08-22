@@ -77,6 +77,9 @@ typedef struct _k12_src_desc_t {
 #define K12_REC_20030		0x00020030 /* human readable start time  */ 
 #define K12_REC_20032		0x00020031 /* human readable stop time */
 
+#define K12_MASK_PACKET		0xfffffff0
+
+
 #define K12_RECORD_LEN         0x0
 #define K12_RECORD_TYPE        0x4
 #define K12_RECORD_FRAME_LEN   0x8
@@ -203,7 +206,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, long *data_o
 		
 		offset += len;
 		
-	} while ( type != K12_REC_PACKET );
+	} while ( (type & K12_MASK_PACKET) != K12_REC_PACKET );
 	
 	wth->data_offset = offset;
 	
@@ -351,7 +354,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
 
 		type = pntohl( read_buffer + K12_RECORD_TYPE );
 		
-		if ( type == K12_REC_PACKET) {
+		if ( (type & K12_MASK_PACKET) == K12_REC_PACKET) {
 			/*
 			 * we are at the first packet record, rewind and leave.
 			 */
@@ -395,6 +398,8 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
 			rec->input_name = g_memdup(read_buffer + K12_SRCDESC_EXTRATYPE + extra_len, name_len);
 			rec->stack_file = g_memdup(read_buffer + K12_SRCDESC_EXTRATYPE + extra_len + name_len, stack_len);
 			
+			g_strdown(rec->stack_file);
+				
 			g_hash_table_insert(file_data->src_by_id,GUINT_TO_POINTER(rec->input),rec);
 			g_hash_table_insert(file_data->src_by_name,rec->stack_file,rec);
 			
