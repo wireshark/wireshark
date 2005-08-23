@@ -144,8 +144,10 @@ These are the structures you will see most often in EDP frames.
 #  include "config.h"
 #endif
 
+#include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/strutil.h>
 #include "packet-llc.h"
 #include "oui.h"
 
@@ -342,7 +344,7 @@ dissect_display_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, p
 
 	display_item = proto_tree_add_protocol_format(tree, hf_edp_display,
 		tvb, offset, length, "Display: \"%s\"",
-		tvb_get_ephemeral_string(tvb, offset + 0 + 4, length - (0 + 4)));
+		tvb_format_text(tvb, offset + 0 + 4, length - (0 + 4)));
 
 	display_tree = proto_item_add_subtree(display_item, ett_edp_display);
 
@@ -453,23 +455,26 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	proto_tree	*flags_tree;
 	proto_item	*vlan_item;
 	proto_tree	*vlan_tree;
+	proto_item	*too_short_item;
 	guint16		vlan_id;
+	guint8		*vlan_name;
 
-	vlan_id = tvb_get_ntohs(tvb, offset + 2 + 4);
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%d", vlan_id);
-
-	vlan_item = proto_tree_add_protocol_format(tree, hf_edp_vlan, tvb,
-		offset, length, "Vlan: ID %d, Name \"%s\"", vlan_id,
-		tvb_get_ephemeral_string(tvb, offset + 12 + 4, length - (12 + 4)));
+	vlan_item = proto_tree_add_item(tree, hf_edp_vlan, tvb,
+		offset, length, FALSE);
 
 	vlan_tree = proto_item_add_subtree(vlan_item, ett_edp_vlan);
 
 	dissect_tlv_header(tvb, pinfo, offset, 4, vlan_tree);
 	offset += 4;
+	length -= 4;
 
 	/* Begin flags subtree */
+	if (length < 1) {
+		too_short_item = proto_tree_add_text(vlan_tree, tvb, 0, 0,
+		    "TLV is too short");
+		PROTO_ITEM_SET_GENERATED(too_short_item);
+		return;
+	}
 	flags_item = proto_tree_add_item(vlan_tree, hf_edp_vlan_flags, tvb, offset, 1,
 		FALSE);
 
@@ -482,27 +487,69 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	proto_tree_add_item(flags_tree, hf_edp_vlan_flags_unknown, tvb, offset, 1,
 		FALSE);
 	offset += 1;
+	length -= 1;
 	/* End of flags subtree */
 
+	if (length < 1) {
+		too_short_item = proto_tree_add_text(vlan_tree, tvb, 0, 0,
+		    "TLV is too short");
+		PROTO_ITEM_SET_GENERATED(too_short_item);
+		return;
+	}
 	proto_tree_add_item(vlan_tree, hf_edp_vlan_reserved1, tvb, offset, 1,
 		FALSE);
 	offset += 1;
+	length -= 1;
 
-	proto_tree_add_item(vlan_tree, hf_edp_vlan_id, tvb, offset, 2,
-		FALSE);
+	if (length < 2) {
+		too_short_item = proto_tree_add_text(vlan_tree, tvb, 0, 0,
+		    "TLV is too short");
+		PROTO_ITEM_SET_GENERATED(too_short_item);
+		return;
+	}
+	vlan_id = tvb_get_ntohs(tvb, offset);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%d", vlan_id);
+	proto_item_append_text(vlan_item, ": ID %d", vlan_id);
+	proto_tree_add_uint(vlan_tree, hf_edp_vlan_id, tvb, offset, 2,
+		vlan_id);
 	offset += 2;
+	length -= 2;
 
+	if (length < 4) {
+		too_short_item = proto_tree_add_text(vlan_tree, tvb, 0, 0,
+		    "TLV is too short");
+		PROTO_ITEM_SET_GENERATED(too_short_item);
+		return;
+	}
 	proto_tree_add_item(vlan_tree, hf_edp_vlan_reserved2, tvb, offset, 4,
 		FALSE);
 	offset += 4;
+	length -= 4;
 
+	if (length < 4) {
+		too_short_item = proto_tree_add_text(vlan_tree, tvb, 0, 0,
+		    "TLV is too short");
+		PROTO_ITEM_SET_GENERATED(too_short_item);
+		return;
+	}
 	proto_tree_add_item(vlan_tree, hf_edp_vlan_ip, tvb, offset, 4,
 		FALSE);
 	offset += 4;
+	length -= 4;
 
-	proto_tree_add_item(vlan_tree, hf_edp_vlan_name, tvb, offset, length - 12,
-		FALSE);
-	offset += (length - 12);
+	if (length < 1) {
+		too_short_item = proto_tree_add_text(vlan_tree, tvb, 0, 0,
+		    "TLV is too short");
+		PROTO_ITEM_SET_GENERATED(too_short_item);
+		return;
+	}
+	vlan_name = tvb_get_ephemeral_string(tvb, offset, length);
+	proto_item_append_text(vlan_item, ", Name \"%s\"",
+		format_text(vlan_name, strlen(vlan_name)));
+	proto_tree_add_string(vlan_tree, hf_edp_vlan_name, tvb, offset, length,
+		vlan_name);
+	offset += length;
 }
 
 static void
@@ -642,8 +689,9 @@ dissect_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U
 
 	dissect_tlv_header(tvb, pinfo, offset, 4, unknown_tree);
 	offset += 4;
+	length -= 4;
 
-	proto_tree_add_text(unknown_tree, tvb, offset + 0, length -4,
+	proto_tree_add_text(unknown_tree, tvb, offset + 0, length,
 		"Unknown data");
 }
 
