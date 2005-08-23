@@ -341,17 +341,22 @@ dissect_display_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, p
 {
 	proto_item	*display_item;
 	proto_tree	*display_tree;
+	guint8		*display_name;
 
-	display_item = proto_tree_add_protocol_format(tree, hf_edp_display,
-		tvb, offset, length, "Display: \"%s\"",
-		tvb_format_text(tvb, offset + 0 + 4, length - (0 + 4)));
+	display_item = proto_tree_add_item(tree, hf_edp_display,
+		tvb, offset, length, FALSE);
 
 	display_tree = proto_item_add_subtree(display_item, ett_edp_display);
 
 	dissect_tlv_header(tvb, pinfo, offset, 4, display_tree);
 	offset += 4;
-	proto_tree_add_item(display_tree, hf_edp_display_string, tvb, offset, length - 4,
-		FALSE);
+	length -= 4;
+
+	display_name = tvb_get_ephemeral_string(tvb, offset, length);
+	proto_item_append_text(display_item, ": \"%s\"",
+		format_text(display_name, strlen(display_name)));
+	proto_tree_add_string(display_tree, hf_edp_display_string, tvb, offset, length,
+		display_name);
 }
 
 static void
@@ -538,12 +543,6 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	offset += 4;
 	length -= 4;
 
-	if (length < 1) {
-		too_short_item = proto_tree_add_text(vlan_tree, tvb, 0, 0,
-		    "TLV is too short");
-		PROTO_ITEM_SET_GENERATED(too_short_item);
-		return;
-	}
 	vlan_name = tvb_get_ephemeral_string(tvb, offset, length);
 	proto_item_append_text(vlan_item, ", Name \"%s\"",
 		format_text(vlan_name, strlen(vlan_name)));
