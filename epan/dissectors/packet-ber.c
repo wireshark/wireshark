@@ -432,9 +432,10 @@ get_ber_length(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 *length, gbo
 			tmp_offset = offset;
 			/* ok in here we can traverse the BER to find the length, this will fix most indefinite length issues */
 			/* Assumption here is that indefinite length is always used on constructed types*/ 
-			while ((tvb_reported_length_remaining(tvb,offset)>0) && ( tvb_get_guint8(tvb, offset)) || (tvb_get_guint8(tvb,offset+1)))
 			/* check for EOC */
+			while ((tvb_reported_length_remaining(tvb,offset)>0) && ( tvb_get_guint8(tvb, offset) || tvb_get_guint8(tvb,offset+1)))
 				{
+				/* not an EOC at offset */
 				s_offset=offset;
 				offset= get_ber_identifier(tvb, offset, &tclass, &tpc, &ttag);
 				offset= get_ber_length(tree,tvb,offset, &tmp_len, NULL);
