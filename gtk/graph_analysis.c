@@ -757,8 +757,9 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 #endif
 
 		/* resize the "time" draw area */
-#if GTK_MAJOR_VERSION >= 2
-               /* in GTK 1 it causes a loop of configure events */
+/* XXX is this version late enough? Fails on 2.2.1; is OK on 2.6.4 */
+#if GTK_CHECK_VERSION(2,4,0)
+               /* in GTK 1 and early GTK 2 it causes a loop of configure events */
         WIDGET_SET_SIZE(user_data->dlg.draw_area_time, label_width + 6, user_data->dlg.pixmap_height);
 		gtk_widget_show(user_data->dlg.draw_area_time);
 #endif
