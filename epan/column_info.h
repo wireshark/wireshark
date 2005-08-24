@@ -42,7 +42,7 @@ typedef struct _column_info {
   int         *col_fence;    /* Stuff in column buffer before this index is immutable */
   gchar      **col_expr;     /* Filter expression */
   gchar      **col_expr_val; /* Value for filter expression */
-  gboolean     writable;     /* Are we stil writing to the columns? */
+  gboolean     writable;     /* Are we still writing to the columns? */
 } column_info;
 
 /*
