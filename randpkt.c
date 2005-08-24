@@ -477,8 +477,8 @@ main(int argc, char **argv)
 
 	example = find_example(produce_type);
 
-	pkthdr.ts.tv_sec = 0;
-	pkthdr.ts.tv_usec = 0;
+	pkthdr.ts.secs = 0;
+	pkthdr.ts.nsecs = 0;
 	pkthdr.pkt_encap = example->sample_wtap_encap;
 
 	dump = wtap_dump_open(produce_filename, WTAP_FILE_PCAP,
@@ -513,7 +513,7 @@ main(int argc, char **argv)
 
 		pkthdr.caplen = len_this_pkt;
 		pkthdr.len = len_this_pkt;
-		pkthdr.ts.tv_sec = i; /* just for variety */
+		pkthdr.ts.secs = i; /* just for variety */
 
 		for (j = example->sample_length; j < len_this_pkt; j++) {
 			/* Add format strings here and there */
