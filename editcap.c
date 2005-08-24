@@ -406,32 +406,32 @@ int main(int argc, char *argv[])
 
         /* assume that if the frame's tv_sec is 0, then
          * the timestamp isn't supported */
-        if (phdr->ts.tv_sec > 0 && time_adj.tv.tv_sec != 0) {
+        if (phdr->ts.secs > 0 && time_adj.tv.tv_sec != 0) {
           snap_phdr = *phdr;
           if (time_adj.is_negative)
-            snap_phdr.ts.tv_sec -= time_adj.tv.tv_sec;
+            snap_phdr.ts.secs -= time_adj.tv.tv_sec;
           else
-            snap_phdr.ts.tv_sec += time_adj.tv.tv_sec;
+            snap_phdr.ts.secs += time_adj.tv.tv_sec;
           phdr = &snap_phdr;
         }
 
         /* assume that if the frame's tv_sec is 0, then
          * the timestamp isn't supported */
-        if (phdr->ts.tv_sec > 0 && time_adj.tv.tv_usec != 0) {
+        if (phdr->ts.secs > 0 && time_adj.tv.tv_usec != 0) {
           snap_phdr = *phdr;
           if (time_adj.is_negative) { /* subtract */
-            if (snap_phdr.ts.tv_usec < time_adj.tv.tv_usec) { /* borrow */
-              snap_phdr.ts.tv_sec--;
-              snap_phdr.ts.tv_usec += ONE_MILLION;
+            if (snap_phdr.ts.nsecs/1000 < time_adj.tv.tv_usec) { /* borrow */
+              snap_phdr.ts.secs--;
+              snap_phdr.ts.nsecs += ONE_MILLION * 1000;
             }
-            snap_phdr.ts.tv_usec -= time_adj.tv.tv_usec;
+            snap_phdr.ts.nsecs -= time_adj.tv.tv_usec * 1000;
           } else {                  /* add */
-            if (snap_phdr.ts.tv_usec + time_adj.tv.tv_usec > ONE_MILLION) {
+            if (snap_phdr.ts.nsecs + time_adj.tv.tv_usec * 1000 > ONE_MILLION * 1000) {
               /* carry */
-              snap_phdr.ts.tv_sec++;
-              snap_phdr.ts.tv_usec += time_adj.tv.tv_usec - ONE_MILLION;
+              snap_phdr.ts.secs++;
+              snap_phdr.ts.nsecs += (time_adj.tv.tv_usec - ONE_MILLION) * 1000;
             } else {
-              snap_phdr.ts.tv_usec += time_adj.tv.tv_usec;
+              snap_phdr.ts.nsecs += time_adj.tv.tv_usec * 1000;
             }
           }
           phdr = &snap_phdr;
