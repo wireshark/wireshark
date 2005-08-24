@@ -355,8 +355,8 @@ pppdump_read(wtap *wth, int *err, gchar **err_info, long *data_offset)
 
 	wth->phdr.len		= num_bytes;
 	wth->phdr.caplen	= num_bytes;
-	wth->phdr.ts.tv_sec	= state->timestamp;
-	wth->phdr.ts.tv_usec	= state->tenths * 100000;
+	wth->phdr.ts.secs	= state->timestamp;
+	wth->phdr.ts.nsecs	= state->tenths * 100000000;
 	wth->phdr.pkt_encap	= WTAP_ENCAP_PPP_WITH_PHDR;
 
 	wth->pseudo_header.p2p.sent = (direction == DIRECTION_SENT ? TRUE : FALSE);

@@ -180,8 +180,8 @@ static gboolean csids_read(wtap *wth, int *err, gchar **err_info _U_,
 
   wth->phdr.len = hdr.caplen;
   wth->phdr.caplen = hdr.caplen;
-  wth->phdr.ts.tv_sec = hdr.seconds;
-  wth->phdr.ts.tv_usec = 0;
+  wth->phdr.ts.secs = hdr.seconds;
+  wth->phdr.ts.nsecs = 0;
 
   if( wth->capture.csids->byteswapped == TRUE ) {
     guint16* swap = (guint16*)buf;

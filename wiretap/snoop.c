@@ -501,8 +501,8 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
-	wth->phdr.ts.tv_sec = g_ntohl(hdr.ts_sec);
-	wth->phdr.ts.tv_usec = g_ntohl(hdr.ts_usec);
+	wth->phdr.ts.secs = g_ntohl(hdr.ts_sec);
+	wth->phdr.ts.nsecs = g_ntohl(hdr.ts_usec) * 1000;
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = orig_size;
 
@@ -808,8 +808,8 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 	rec_hdr.incl_len = g_htonl(phdr->caplen + atm_hdrsize);
 	rec_hdr.rec_len = g_htonl(reclen);
 	rec_hdr.cum_drops = 0;
-	rec_hdr.ts_sec = g_htonl(phdr->ts.tv_sec);
-	rec_hdr.ts_usec = g_htonl(phdr->ts.tv_usec);
+	rec_hdr.ts_sec = g_htonl(phdr->ts.secs);
+	rec_hdr.ts_usec = g_htonl(phdr->ts.nsecs) / 1000;
 	nwritten = fwrite(&rec_hdr, 1, sizeof rec_hdr, wdh->fh);
 	if (nwritten != sizeof rec_hdr) {
 		if (nwritten == 0 && ferror(wdh->fh))

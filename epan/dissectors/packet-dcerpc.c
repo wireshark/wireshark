@@ -3371,8 +3371,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				call_value->ver = bind_value->ver;
 				call_value->opnum = opnum;
 				call_value->req_frame=pinfo->fd->num;
-				call_value->req_time.secs=pinfo->fd->abs_secs;
-				call_value->req_time.nsecs=pinfo->fd->abs_usecs*1000;
+				call_value->req_time=pinfo->fd->abs_ts;
 				call_value->rep_frame=0;
 				call_value->max_ptr=0;
 				call_value->private_data = NULL;
@@ -3513,20 +3512,15 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	    proto_tree_add_uint (dcerpc_tree, hf_dcerpc_opnum, tvb, 0, 0, value->opnum);
 	    if(value->req_frame!=0){
-		nstime_t ns;
+		nstime_t delta_ts;
 		pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in,
 				    tvb, 0, 0, value->req_frame);
         PROTO_ITEM_SET_GENERATED(pi);
         if(parent_pi != NULL) {
             proto_item_append_text(parent_pi, ", [Req: #%u]", value->req_frame);
         }
-		ns.secs= pinfo->fd->abs_secs-value->req_time.secs;
-		ns.nsecs=pinfo->fd->abs_usecs*1000-value->req_time.nsecs;
-		if(ns.nsecs<0){
-			ns.nsecs+=1000000000;
-			ns.secs--;
-		}
-		pi = proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &ns);
+		nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &value->req_time);
+		pi = proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &delta_ts);
         PROTO_ITEM_SET_GENERATED(pi);
 	    }
 
@@ -3636,7 +3630,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	    proto_tree_add_uint (dcerpc_tree, hf_dcerpc_opnum, tvb, 0, 0, value->opnum);
 	    if(value->req_frame!=0){
-		nstime_t ns;
+		nstime_t delta_ts;
 		pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in,
 				    tvb, 0, 0, value->req_frame);
         PROTO_ITEM_SET_GENERATED(pi);
@@ -3644,13 +3638,8 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         if(parent_pi != NULL) {
             proto_item_append_text(parent_pi, ", [Req: #%u]", value->req_frame);
         }
-		ns.secs= pinfo->fd->abs_secs-value->req_time.secs;
-		ns.nsecs=pinfo->fd->abs_usecs*1000-value->req_time.nsecs;
-		if(ns.nsecs<0){
-			ns.nsecs+=1000000000;
-			ns.secs--;
-		}
-		pi = proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &ns);
+		nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &value->req_time);
+		pi = proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &delta_ts);
         PROTO_ITEM_SET_GENERATED(pi);
 	    }
 
@@ -4477,8 +4466,7 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	call_value->ver = hdr->if_ver;
 	call_value->opnum = hdr->opnum;
 	call_value->req_frame=pinfo->fd->num;
-	call_value->req_time.secs=pinfo->fd->abs_secs;
-	call_value->req_time.nsecs=pinfo->fd->abs_usecs*1000;
+	call_value->req_time=pinfo->fd->abs_ts;
 	call_value->rep_frame=0;
 	call_value->max_ptr=0;
 	call_value->private_data = NULL;
@@ -4573,7 +4561,7 @@ dissect_dcerpc_dg_resp (tvbuff_t *tvb, int offset, packet_info *pinfo,
     di->call_data = value;
 
     if(value->req_frame!=0){
-	nstime_t ns;
+	nstime_t delta_ts;
 	pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in,
 			    tvb, 0, 0, value->req_frame);
     PROTO_ITEM_SET_GENERATED(pi);
@@ -4581,13 +4569,8 @@ dissect_dcerpc_dg_resp (tvbuff_t *tvb, int offset, packet_info *pinfo,
     if(parent_pi != NULL) {
         proto_item_append_text(parent_pi, ", [Req: #%u]", value->req_frame);
     }
-	ns.secs= pinfo->fd->abs_secs-value->req_time.secs;
-	ns.nsecs=pinfo->fd->abs_usecs*1000-value->req_time.nsecs;
-	if(ns.nsecs<0){
-		ns.nsecs+=1000000000;
-		ns.secs--;
-	}
-	pi = proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &ns);
+	nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &value->req_time);
+	pi = proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &delta_ts);
     PROTO_ITEM_SET_GENERATED(pi);
     }
     dissect_dcerpc_dg_stub (tvb, offset, pinfo, dcerpc_tree, tree, hdr, di);
@@ -4609,7 +4592,7 @@ dissect_dcerpc_dg_ping_ack (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if((call_value=g_hash_table_lookup(dcerpc_dg_calls, &call_key))){
         proto_item *pi;
-		nstime_t ns;
+		nstime_t delta_ts;
 
 		pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in,
 				    tvb, 0, 0, call_value->req_frame);
@@ -4622,13 +4605,8 @@ dissect_dcerpc_dg_ping_ack (tvbuff_t *tvb, int offset, packet_info *pinfo,
         if (check_col (pinfo->cinfo, COL_INFO))
             col_append_fstr(pinfo->cinfo, COL_INFO, " [req: #%u]", call_value->req_frame);
 
-		ns.secs= pinfo->fd->abs_secs-call_value->req_time.secs;
-		ns.nsecs=pinfo->fd->abs_usecs*1000-call_value->req_time.nsecs;
-		if(ns.nsecs<0){
-			ns.nsecs+=1000000000;
-			ns.secs--;
-		}
-		pi = proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &ns);
+		nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &call_value->req_time);
+		pi = proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &delta_ts);
         PROTO_ITEM_SET_GENERATED(pi);
 /*    }*/
     }

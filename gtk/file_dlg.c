@@ -118,12 +118,6 @@ static GtkWidget *range_tb;
 
 #define PREVIEW_STR_MAX         200
 
-static double
-secs_usecs( guint32 s, guint32 us)
-{
-  return (us / 1000000.0) + (double)s;
-}
-
 
 /* set a new filename for the preview widget */
 static wtap *
@@ -207,8 +201,8 @@ preview_do(GtkWidget *prev, wtap *wth)
     gchar      *err_info;
     long        data_offset;
     const struct wtap_pkthdr *phdr;
-    double      start_time = 0;	/* seconds, with msec resolution */
-    double      stop_time = 0;	/* seconds, with msec resolution */
+    double      start_time = 0;	/* seconds, with nsec resolution */
+    double      stop_time = 0;	/* seconds, with nsec resolution */
     double      cur_time;
     unsigned int packets = 0;
     gboolean    is_breaked = FALSE;
@@ -220,7 +214,7 @@ preview_do(GtkWidget *prev, wtap *wth)
     time(&time_preview);
     while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
         phdr = wtap_phdr(wth);        
-        cur_time = secs_usecs(phdr->ts.tv_sec, phdr->ts.tv_usec);
+        cur_time = nstime_to_sec( (const nstime_t *) &phdr->ts );
         if(packets == 0) {
             start_time 	= cur_time;
             stop_time = cur_time;

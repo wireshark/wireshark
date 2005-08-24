@@ -370,9 +370,9 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 	t = t/1000000.0 * 0.5; /* t = # of secs */
 	t += wth->capture.lanalyzer->start;
 
-	wth->phdr.ts.tv_sec = (long)t;
-	wth->phdr.ts.tv_usec = (unsigned long)((t-(double)(wth->phdr.ts.tv_sec))
-			*1.0e6);
+	wth->phdr.ts.secs = (long)t;
+	wth->phdr.ts.nsecs = (unsigned long)((t-(double)(wth->phdr.ts.secs))
+			*1.0e9);
 
 	if (true_size - 4 >= packet_size) {
 		/*
@@ -556,6 +556,7 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
       double x;
       int    i;
       int    len;
+	  struct timeval tv;
 
       LA_TmpInfo *itmp = (LA_TmpInfo*)(wdh->dump.opaque);
       struct timeval td;
@@ -576,19 +577,22 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
       if (*err)
             return FALSE;
 
+	  tv.tv_sec  = phdr->ts.secs;
+	  tv.tv_usec = phdr->ts.nsecs / 1000;
 
       if (!itmp->init) {
             /* collect some information for the
              * finally written header
              */
-            itmp->start   = phdr->ts;
+		    /* XXX - this conversion could probably improved, if the start uses ns */
+            itmp->start   = tv;
             itmp->pkts    = 0;
             itmp->init    = TRUE;
             itmp->encap   = wdh->encap;
             itmp->lastlen = 0;
             }
 
-      my_timersub(&(phdr->ts),&(itmp->start),&td);
+      my_timersub(&(tv),&(itmp->start),&td);
 
       x   = (double) td.tv_usec;
       x  += (double) td.tv_sec * 1000000;

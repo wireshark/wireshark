@@ -34,18 +34,12 @@
 #endif
 
 
-static double
-secs_usecs( guint32 s, guint32 us)
-{
-  return (us / 1000000.0) + (double)s;
-}
-
 static void
 tally_frame_data(frame_data *cur_frame, summary_tally *sum_tally)
 {
   double cur_time;
 
-  cur_time = secs_usecs(cur_frame->abs_secs, cur_frame->abs_usecs);
+  cur_time = nstime_to_sec(&cur_frame->abs_ts);
 
   if (cur_time < sum_tally->start_time) {
     sum_tally->start_time = cur_time;
@@ -94,8 +88,8 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   /* initialize the tally */
   if (cf->plist != NULL) {
     first_frame = cf->plist;
-    st->start_time 	= secs_usecs(first_frame->abs_secs,first_frame->abs_usecs);
-    st->stop_time = secs_usecs(first_frame->abs_secs,first_frame->abs_usecs);
+    st->start_time 	= nstime_to_sec(&first_frame->abs_ts);
+    st->stop_time = nstime_to_sec(&first_frame->abs_ts);
     cur_glist = cf->plist;
 
     for (i = 0; i < cf->count; i++) {
@@ -110,7 +104,7 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   st->encap_type = cf->cd_t;
   st->has_snap = cf->has_snap;
   st->snap = cf->snap;
-  st->elapsed_time = secs_usecs(cf->esec, cf->eusec);
+  st->elapsed_time = nstime_to_sec(&cf->elapsed_time);
   st->packet_count = cf->count;
   st->drops_known = cf->drops_known;
   st->drops = cf->drops;

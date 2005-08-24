@@ -452,8 +452,8 @@ static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
 	}
 	secs = (time_t)(t/1000000);
 	usecs = (guint32)(t - (double)secs*1000000);
-	wth->phdr.ts.tv_sec = netmon->start_secs + secs;
-	wth->phdr.ts.tv_usec = usecs;
+	wth->phdr.ts.secs = netmon->start_secs + secs;
+	wth->phdr.ts.nsecs = usecs * 1000;
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = orig_size;
 
@@ -681,8 +681,8 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
 	case WTAP_FILE_NETMON_1_x:
 		rec_1_x_hdr.ts_delta = htolel(
-		    (phdr->ts.tv_sec - netmon->first_record_time.tv_sec)*1000
-		  + (phdr->ts.tv_usec - netmon->first_record_time.tv_usec + 500)/1000);
+		    (phdr->ts.secs - netmon->first_record_time.secs)*1000
+		  + (phdr->ts.nsecs - netmon->first_record_time.nsecs + 500000)/1000000);
 		rec_1_x_hdr.orig_len = htoles(phdr->len + atm_hdrsize);
 		rec_1_x_hdr.incl_len = htoles(phdr->caplen + atm_hdrsize);
 		hdrp = (char *)&rec_1_x_hdr;
@@ -696,8 +696,8 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		 * (even on 32-bit processors), so we do it in floating
 		 * point.
 		 */
-		t = (phdr->ts.tv_sec - netmon->first_record_time.tv_sec)*1000000.0
-		  + (phdr->ts.tv_usec - netmon->first_record_time.tv_usec);
+		t = (phdr->ts.secs - netmon->first_record_time.secs)*1000000.0
+		  + (phdr->ts.nsecs - netmon->first_record_time.nsecs) / 1000;
 		time_high = (guint32) (t/4294967296.0);
 		time_low  = (guint32) (t - (time_high*4294967296.0));
 		rec_2_x_hdr.ts_delta_lo = htolel(time_low);
@@ -848,7 +848,7 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 	}
 
 	file_hdr.network = htoles(wtap_encap[wdh->encap]);
-	tm = localtime(&netmon->first_record_time.tv_sec);
+	tm = localtime(&netmon->first_record_time.secs);
 	if (tm != NULL) {
 		file_hdr.ts_year  = htoles(1900 + tm->tm_year);
 		file_hdr.ts_month = htoles(tm->tm_mon + 1);
@@ -866,7 +866,7 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 		file_hdr.ts_min   = htoles(0);
 		file_hdr.ts_sec   = htoles(0);
 	}
-	file_hdr.ts_msec  = htoles(netmon->first_record_time.tv_usec/1000);
+	file_hdr.ts_msec  = htoles(netmon->first_record_time.nsecs/1000000);
 		/* XXX - what about rounding? */
 	file_hdr.frametableoffset = htolel(netmon->frame_table_offset);
 	file_hdr.frametablelength =

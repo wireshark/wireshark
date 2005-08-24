@@ -106,8 +106,8 @@
  */
 static const gchar decode_as_arg_template[] = "<layer_type>==<selector>,<decode_as_protocol>";
 
-static guint32 firstsec, firstusec;
-static guint32 prevsec, prevusec;
+static nstime_t first_ts;
+static nstime_t prev_ts;
 static GString *comp_info_str, *runtime_info_str;
 
 static gboolean print_packet_info;	/* TRUE if we're to print packet information */
@@ -2225,8 +2225,7 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
   fdata->cap_len = phdr->caplen;
   fdata->file_off = offset;
   fdata->lnk_t = phdr->pkt_encap;
-  fdata->abs_secs  = phdr->ts.tv_sec;
-  fdata->abs_usecs = phdr->ts.tv_usec;
+  fdata->abs_ts = *((nstime_t *) &phdr->ts);
   fdata->flags.passed_dfilter = 0;
   fdata->flags.encoding = CHAR_ASCII;
   fdata->flags.visited = 0;
@@ -2236,39 +2235,33 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
   /* If we don't have the time stamp of the first packet in the
      capture, it's because this is the first packet.  Save the time
      stamp of this packet as the time stamp of the first packet. */
-  if (!firstsec && !firstusec) {
-    firstsec  = fdata->abs_secs;
-    firstusec = fdata->abs_usecs;
+  if (nstime_is_zero(&first_ts)) {
+    first_ts = fdata->abs_ts;
   }
 
   /* If we don't have the time stamp of the previous displayed packet,
      it's because this is the first displayed packet.  Save the time
      stamp of this packet as the time stamp of the previous displayed
      packet. */
-  if (!prevsec && !prevusec) {
-    prevsec  = fdata->abs_secs;
-    prevusec = fdata->abs_usecs;
+  if (nstime_is_zero(&prev_ts)) {
+    prev_ts = fdata->abs_ts;
   }
 
   /* Get the time elapsed between the first packet and this packet. */
-  compute_timestamp_diff(&fdata->rel_secs, &fdata->rel_usecs,
-		fdata->abs_secs, fdata->abs_usecs, firstsec, firstusec);
+  nstime_delta(&fdata->rel_ts, &fdata->abs_ts, &first_ts);
 
   /* If it's greater than the current elapsed time, set the elapsed time
      to it (we check for "greater than" so as not to be confused by
      time moving backwards). */
-  if ((gint32)cf->esec < fdata->rel_secs
-	|| ((gint32)cf->esec == fdata->rel_secs && (gint32)cf->eusec < fdata->rel_usecs)) {
-    cf->esec = fdata->rel_secs;
-    cf->eusec = fdata->rel_usecs;
+  if ((gint32)cf->elapsed_time.secs < fdata->rel_ts.secs
+	|| ((gint32)cf->elapsed_time.secs == fdata->rel_ts.secs && (gint32)cf->elapsed_time.nsecs < fdata->rel_ts.nsecs)) {
+    cf->elapsed_time = fdata->rel_ts;
   }
 
   /* Get the time elapsed between the previous displayed packet and
      this packet. */
-  compute_timestamp_diff(&fdata->del_secs, &fdata->del_usecs,
-		fdata->abs_secs, fdata->abs_usecs, prevsec, prevusec);
-  prevsec = fdata->abs_secs;
-  prevusec = fdata->abs_usecs;
+  nstime_delta(&fdata->del_ts, &fdata->abs_ts, &prev_ts);
+  prev_ts = fdata->abs_ts;
 }
 
 /* Free up all data attached to a "frame_data" structure. */
@@ -2987,8 +2980,6 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   cf->count     = 0;
   cf->drops_known = FALSE;
   cf->drops     = 0;
-  cf->esec      = 0;
-  cf->eusec     = 0;
   cf->snap      = wtap_snapshot_length(cf->wth);
   if (cf->snap == 0) {
     /* Snapshot length not known. */
@@ -2996,8 +2987,9 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
     cf->snap = WTAP_MAX_PACKET_SIZE;
   } else
     cf->has_snap = TRUE;
-  firstsec = 0, firstusec = 0;
-  prevsec = 0, prevusec = 0;
+  nstime_set_zero(&cf->elapsed_time);
+  nstime_set_zero(&first_ts);
+  nstime_set_zero(&prev_ts);
 
   return CF_OK;
 

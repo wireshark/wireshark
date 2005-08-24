@@ -84,6 +84,12 @@ wtap_file_encap(wtap *wth)
 	return wth->file_encap;
 }
 
+int
+wtap_file_tsprecision(wtap *wth)
+{
+	return wth->tsprecision;
+}
+
 /* Table of the encapsulation types we know about. */
 static const struct encap_type_info {
 	const char *name;

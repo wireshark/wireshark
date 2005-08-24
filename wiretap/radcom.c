@@ -314,8 +314,8 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info _U_,
 	tm.tm_min = (sec%3600)/60;
 	tm.tm_sec = sec%60;
 	tm.tm_isdst = -1;
-	wth->phdr.ts.tv_sec = mktime(&tm);
-	wth->phdr.ts.tv_usec = pletohl(&hdr.date.usec);
+	wth->phdr.ts.secs = mktime(&tm);
+	wth->phdr.ts.nsecs = pletohl(&hdr.date.usec) * 1000;
 
 	switch (wth->file_encap) {
 

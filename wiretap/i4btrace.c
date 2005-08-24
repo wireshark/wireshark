@@ -142,8 +142,8 @@ static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
 	wth->phdr.len = length;
 	wth->phdr.caplen = length;
 
-	wth->phdr.ts.tv_sec = hdr.ts_sec;
-	wth->phdr.ts.tv_usec = hdr.ts_usec;
+	wth->phdr.ts.secs = hdr.ts_sec;
+	wth->phdr.ts.nsecs = hdr.ts_usec * 1000;
 
 	/*
 	 * Read the packet data.

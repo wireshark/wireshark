@@ -80,8 +80,8 @@ static gboolean hcidump_read(wtap *wth, int *err, gchar **err_info,
 	}
 	wth->data_offset += packet_size;
 
-	wth->phdr.ts.tv_sec = GUINT32_FROM_LE(dh.ts_sec);
-	wth->phdr.ts.tv_usec = GUINT32_FROM_LE(dh.ts_usec);
+	wth->phdr.ts.secs = GUINT32_FROM_LE(dh.ts_sec);
+	wth->phdr.ts.nsecs = GUINT32_FROM_LE(dh.ts_usec) * 1000;
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = packet_size;
 

@@ -104,12 +104,7 @@ dcerpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	rp=&(rs->procedures[ri->call_data->opnum]);
 
 	/* calculate time delta between request and reply */
-	delta.secs=pinfo->fd->abs_secs-ri->call_data->req_time.secs;
-	delta.nsecs=pinfo->fd->abs_usecs*1000-ri->call_data->req_time.nsecs;
-	if(delta.nsecs<0){
-		delta.nsecs+=1000000000;
-		delta.secs--;
-	}
+	nstime_delta(&delta, &pinfo->fd->abs_ts, &ri->call_data->req_time);
 
 	if(rp->num==0){
 		rp->max.secs=delta.secs;

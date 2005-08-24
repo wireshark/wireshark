@@ -135,12 +135,7 @@ rpcprogs_packet(void *dummy1 _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 	}
 
 	/* calculate time delta between request and reply */
-	delta.secs=pinfo->fd->abs_secs-ri->req_time.secs;
-	delta.nsecs=pinfo->fd->abs_usecs*1000-ri->req_time.nsecs;
-	if(delta.nsecs<0){
-		delta.nsecs+=1000000000;
-		delta.secs--;
-	}
+	nstime_delta(&delta, &pinfo->fd->abs_ts, &ri->req_time);
 
 	if((rp->max.secs==0)
 	&& (rp->max.nsecs==0) ){

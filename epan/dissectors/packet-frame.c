@@ -167,21 +167,18 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		proto_tree_add_item(fh_tree, hf_frame_ref_time, tvb, 0, 0, FALSE);
 	  }
 
-	  ts.secs = pinfo->fd->abs_secs;
-	  ts.nsecs = pinfo->fd->abs_usecs*1000;
+	  ts = pinfo->fd->abs_ts;
 
 	  proto_tree_add_time(fh_tree, hf_frame_arrival_time, tvb,
 		0, 0, &ts);
 
-	  ts.secs = pinfo->fd->del_secs;
-	  ts.nsecs = pinfo->fd->del_usecs*1000;
+	  ts = pinfo->fd->del_ts;
 
 	  item = proto_tree_add_time(fh_tree, hf_frame_time_delta, tvb,
 		0, 0, &ts);
 	  PROTO_ITEM_SET_GENERATED(item);
 
-	  ts.secs = pinfo->fd->rel_secs;
-	  ts.nsecs = pinfo->fd->rel_usecs*1000;
+	  ts = pinfo->fd->rel_ts;
 
 	  item = proto_tree_add_time(fh_tree, hf_frame_time_relative, tvb,
 		0, 0, &ts);

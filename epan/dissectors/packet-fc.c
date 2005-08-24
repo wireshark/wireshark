@@ -860,8 +860,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
             COPY_ADDRESS(&old_fced->s_id, &fchdr.s_id);
             COPY_ADDRESS(&old_fced->d_id, &fchdr.d_id);
 	    old_fced->first_exchange_frame=pinfo->fd->num;
-            old_fced->fc_time.nsecs = pinfo->fd->abs_usecs*1000;
-            old_fced->fc_time.secs = pinfo->fd->abs_secs;
+            old_fced->fc_time = pinfo->fd->abs_ts;
             g_hash_table_insert(fc_exchange_unmatched, old_fced, old_fced);
             fc_ex=old_fced;
         } else {
@@ -901,15 +900,10 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
             proto_tree_add_uint(fc_tree, hf_fc_exchange_last_frame, tvb, 0, 0, fc_ex->last_exchange_frame);
         }
         if(fchdr.fctl&FC_FCTL_EXCHANGE_LAST){
-            nstime_t delta_time;
+            nstime_t delta_ts;
             proto_tree_add_uint(fc_tree, hf_fc_exchange_first_frame, tvb, 0, 0, fc_ex->first_exchange_frame);
-            delta_time.secs = pinfo->fd->abs_secs - fc_ex->fc_time.secs;
-            delta_time.nsecs = pinfo->fd->abs_usecs*1000 - fc_ex->fc_time.nsecs;
-            if (delta_time.nsecs<0){
-                delta_time.nsecs+=1000000000;
-                delta_time.secs--;
-            }
-            proto_tree_add_time(ti, hf_fc_time, tvb, 0, 0, &delta_time);
+            nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &fc_ex->fc_time);
+            proto_tree_add_time(ti, hf_fc_time, tvb, 0, 0, &delta_ts);
         }
     }
     fchdr.fced=fc_ex;

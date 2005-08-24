@@ -1073,9 +1073,9 @@ found:
 
 	t = t/1000000.0 * wth->capture.ngsniffer->timeunit; /* t = # of secs */
 	t += wth->capture.ngsniffer->start;
-	wth->phdr.ts.tv_sec = (long)t;
-	wth->phdr.ts.tv_usec = (unsigned long)((t-(double)(wth->phdr.ts.tv_sec))
-			*1.0e6);
+	wth->phdr.ts.secs = (long)t;
+	wth->phdr.ts.nsecs = (unsigned long)((t-(double)(wth->phdr.ts.secs))
+			*1.0e9);
 	return TRUE;
 }
 
@@ -1917,13 +1917,13 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
        date. */
     if (priv->first_frame) {
 	priv->first_frame=FALSE;
-	tm = localtime(&phdr->ts.tv_sec);
+	tm = localtime(&phdr->ts.secs);
 	if (tm != NULL) {
 	  start_date = (tm->tm_year - (1980 - 1900)) << 9;
 	  start_date |= (tm->tm_mon + 1) << 5;
 	  start_date |= tm->tm_mday;
 	  /* record the start date, not the start time */
-	  priv->start = phdr->ts.tv_sec - (3600*tm->tm_hour + 60*tm->tm_min + tm->tm_sec);
+	  priv->start = phdr->ts.secs - (3600*tm->tm_hour + 60*tm->tm_min + tm->tm_sec);
 	} else {
 	  start_date = 0;
 	  priv->start = 0;
@@ -1968,7 +1968,7 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	    *err = WTAP_ERR_SHORT_WRITE;
 	return FALSE;
     }
-    t = (double)phdr->ts.tv_sec + (double)phdr->ts.tv_usec/1.0e6; /* # of secs */
+    t = (double)phdr->ts.secs + (double)phdr->ts.nsecs/1.0e9; /* # of secs */
     t = (t - priv->start)*1.0e6 / Usec[1]; /* timeunit = 1 */
     t_low = (guint16)(t-(double)((guint32)(t/65536.0))*65536.0);
     t_med = (guint16)((guint32)(t/65536.0) % 65536);

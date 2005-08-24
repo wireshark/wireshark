@@ -298,8 +298,8 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
     t += ((double)pletohl(&vpkt_hdr.ts_delta))*1000;
     secs = (time_t)(t/1000000);
     usecs = (guint32)(t - secs*1000000);
-    wth->phdr.ts.tv_sec = secs;
-    wth->phdr.ts.tv_usec = usecs;
+    wth->phdr.ts.secs = secs;
+    wth->phdr.ts.nsecs = usecs * 1000;
     wth->phdr.caplen = packet_size;
     wth->phdr.len = pletohs(&vpkt_hdr.orig_len);
 
@@ -489,7 +489,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     if (visual->index_table_index == 0)
     {
         /* This is the first packet.  Save its start time as the file time. */
-        visual->start_time = phdr->ts.tv_sec;
+        visual->start_time = phdr->ts.secs;
 
         /* Initialize the index table */
         visual->index_table = g_malloc(1024 * sizeof *visual->index_table);
@@ -497,8 +497,8 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     }
 
     /* Calculate milliseconds since capture start. */
-    delta_msec = phdr->ts.tv_usec / 1000;
-    delta_msec += (phdr->ts.tv_sec - visual->start_time) * 1000;
+    delta_msec = phdr->ts.nsecs / 1000000;
+    delta_msec += (phdr->ts.secs - visual->start_time) * 1000;
     vpkt_hdr.ts_delta = htolel(delta_msec);
 
     /* Fill in the length fields. */

@@ -194,7 +194,7 @@ static int flow_graph_frame_add_to_graph(packet_info *pinfo)
 
 	gai = g_malloc(sizeof(graph_analysis_item_t));
 	gai->frame_num = pinfo->fd->num;
-	gai->time= (double)pinfo->fd->rel_secs + (double) pinfo->fd->rel_usecs/1000000;
+	gai->time= nstime_to_sec(&pinfo->fd->rel_ts);
 	COPY_ADDRESS(&(gai->src_addr),&(pinfo->src));
 	COPY_ADDRESS(&(gai->dst_addr),&(pinfo->dst));
 	gai->port_src=pinfo->srcport;
@@ -250,7 +250,7 @@ static int flow_graph_tcp_add_to_graph(packet_info *pinfo, const struct tcpheade
 
 	gai = g_malloc(sizeof(graph_analysis_item_t));
 	gai->frame_num = pinfo->fd->num;
-	gai->time= (double)pinfo->fd->rel_secs + (double) pinfo->fd->rel_usecs/1000000;
+	gai->time= nstime_to_sec(&pinfo->fd->rel_ts);
 	COPY_ADDRESS(&(gai->src_addr),&(pinfo->src));
 	COPY_ADDRESS(&(gai->dst_addr),&(pinfo->dst));
 	gai->port_src=pinfo->srcport;

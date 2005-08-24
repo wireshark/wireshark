@@ -87,9 +87,8 @@ smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 	}
 
 	/* calculate time delta between request and reply */
-	t.secs=pinfo->fd->abs_secs;
-	t.nsecs=pinfo->fd->abs_usecs*1000;
-	get_timedelta(&deltat, &t, &si->sip->req_time);
+	t=pinfo->fd->abs_ts;
+	nstime_delta(&deltat, &t, &si->sip->req_time);
 
 	if(sp){
 		time_stat_update(sp,&deltat, pinfo);

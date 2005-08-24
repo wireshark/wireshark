@@ -208,14 +208,8 @@ nlm_print_msgres_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
 	if(md){
 		nstime_t ns;
 		proto_tree_add_uint(tree, hf_nlm_request_in, tvb, 0, 0, md->req_frame);
-		ns.secs= pinfo->fd->abs_secs-md->ns.secs;
-		ns.nsecs=pinfo->fd->abs_usecs*1000-md->ns.nsecs;
-		if(ns.nsecs<0){
-			ns.nsecs+=1000000000;
-			ns.secs--;
-		}
+		nstime_delta(&ns, &pinfo->fd->abs_ts, &md->ns);
 		proto_tree_add_time(tree, hf_nlm_time, tvb, 0, 0, &ns);
-
 	}
 }
 
@@ -300,8 +294,7 @@ nlm_register_unmatched_msg(packet_info *pinfo, tvbuff_t *tvb, int offset)
 	/* allocate and build the unmatched structure for this request */
 	umd=g_malloc(sizeof(nlm_msg_res_unmatched_data));
 	umd->req_frame=pinfo->fd->num;
-	umd->ns.secs=pinfo->fd->abs_secs;
-	umd->ns.nsecs=pinfo->fd->abs_usecs*1000;
+	umd->ns=pinfo->fd->abs_ts;
 	umd->cookie_len=tvb_get_ntohl(tvb, offset);
 	umd->cookie=tvb_memdup(tvb, offset+4, umd->cookie_len);
 

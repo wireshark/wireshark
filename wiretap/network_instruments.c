@@ -240,8 +240,8 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
 	wth->phdr.pkt_encap = observer_encap[packet_header.network_type];
 	wth->phdr.len    = packet_header.network_size-4; /* neglect frame markers for wiretap */
 	wth->phdr.caplen = MIN(packet_header.captured_size, wth->phdr.len);
-	wth->phdr.ts.tv_sec  = seconds;
-	wth->phdr.ts.tv_usec = useconds;
+	wth->phdr.ts.secs  = seconds;
+	wth->phdr.ts.nsecs = useconds * 1000;
 
 	/* get to the frame data */
 	packet_header.offset_to_frame =
@@ -430,14 +430,14 @@ static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	size_t nwritten;
 	guint64 capture_nanoseconds = 0;
 
-	if(phdr->ts.tv_sec<(long)seconds1970to2000) {
-		if(phdr->ts.tv_sec<0)
+	if(phdr->ts.secs<(long)seconds1970to2000) {
+		if(phdr->ts.secs<0)
 			capture_nanoseconds = 0;
 		else
-			capture_nanoseconds = phdr->ts.tv_sec;
+			capture_nanoseconds = phdr->ts.secs;
 	} else
-		capture_nanoseconds = phdr->ts.tv_sec - seconds1970to2000;
-	capture_nanoseconds = ((capture_nanoseconds*1000000) + (guint64)phdr->ts.tv_usec)*1000;
+		capture_nanoseconds = phdr->ts.secs - seconds1970to2000;
+	capture_nanoseconds = ((capture_nanoseconds*1000000) + (guint64)phdr->ts.nsecs);
 
 	memset(&packet_header, 0x00, sizeof(packet_entry_header));
 	packet_header.packet_magic = GUINT32_TO_LE(observer_packet_magic);

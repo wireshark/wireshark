@@ -179,8 +179,8 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info _U_,
 
 	wth->phdr.len = packet_size;
 	wth->phdr.caplen = packet_size;
-	wth->phdr.ts.tv_sec = pntohl(&header[4]);
-	wth->phdr.ts.tv_usec = 0;
+	wth->phdr.ts.secs = pntohl(&header[4]);
+	wth->phdr.ts.nsecs = 0;
 
 	if (wth->phdr.pkt_encap == WTAP_ENCAP_UNKNOWN) {
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
@@ -362,8 +362,8 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info _U_,
 
 	wth->phdr.len = packet_size;
 	wth->phdr.caplen = packet_size;
-	wth->phdr.ts.tv_sec = pntohl(&header[32]);
-	wth->phdr.ts.tv_usec = pntohl(&header[36]) / 1000;
+	wth->phdr.ts.secs = pntohl(&header[32]);
+	wth->phdr.ts.nsecs = pntohl(&header[36]);
 
 	if (wth->phdr.pkt_encap == WTAP_ENCAP_UNKNOWN) {
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;

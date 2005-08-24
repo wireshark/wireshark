@@ -41,8 +41,7 @@ struct _rtcp_conversation_info
     /* Info used for roundtrip calculations */
     guchar  last_received_set;
     guint32 last_received_frame_number;
-    guint32 last_received_time_secs;
-    guint32 last_received_time_usecs;
+    nstime_t last_received_timestamp;
     guint32 last_received_ts;
 
     /* Stored result of calculation (ms) */

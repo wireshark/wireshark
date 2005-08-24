@@ -473,7 +473,7 @@ col_set_abs_date_time(frame_data *fd, column_info *cinfo, int col)
   struct tm *tmp;
   time_t then;
 
-  then = fd->abs_secs;
+  then = fd->abs_ts.secs;
   tmp = localtime(&then);
   if (tmp != NULL) {
     g_snprintf(cinfo->col_buf[col], COL_MAX_LEN,
@@ -484,7 +484,7 @@ col_set_abs_date_time(frame_data *fd, column_info *cinfo, int col)
              tmp->tm_hour,
              tmp->tm_min,
              tmp->tm_sec,
-             (long)fd->abs_usecs);
+             (long)fd->abs_ts.nsecs / 1000);	/* XXX - this has to be improved */
   } else {
     cinfo->col_buf[col][0] = '\0';
   }
@@ -497,7 +497,7 @@ static void
 col_set_rel_time(frame_data *fd, column_info *cinfo, int col)
 {
   display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
-	fd->rel_secs, fd->rel_usecs, USECS);
+	  fd->rel_ts.secs, fd->rel_ts.nsecs / 1000, USECS);		/* XXX - this has to be improved */
   cinfo->col_data[col] = cinfo->col_buf[col];
   strcpy(cinfo->col_expr[col],"frame.time_relative");
   strcpy(cinfo->col_expr_val[col],cinfo->col_buf[col]);
@@ -507,7 +507,7 @@ static void
 col_set_delta_time(frame_data *fd, column_info *cinfo, int col)
 {
   display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
-	fd->del_secs, fd->del_usecs, USECS);
+	fd->del_ts.secs, fd->del_ts.nsecs / 1000, USECS);
   cinfo->col_data[col] = cinfo->col_buf[col];
   strcpy(cinfo->col_expr[col],"frame.time_delta");
   strcpy(cinfo->col_expr_val[col],cinfo->col_buf[col]);
@@ -521,14 +521,14 @@ col_set_abs_time(frame_data *fd, column_info *cinfo, int col)
   struct tm *tmp;
   time_t then;
 
-  then = fd->abs_secs;
+  then = fd->abs_ts.secs;
   tmp = localtime(&then);
   if (tmp != NULL) {
     g_snprintf(cinfo->col_buf[col], COL_MAX_LEN, "%02d:%02d:%02d.%06ld",
              tmp->tm_hour,
              tmp->tm_min,
              tmp->tm_sec,
-             (long)fd->abs_usecs);
+             (long)fd->abs_ts.nsecs / 1000);	/* XXX - this has to be improved */
   } else {
     cinfo->col_buf[col][0] = '\0';
   }

@@ -474,9 +474,8 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 		tm.tm_year -= 1900;
 
 		tm.tm_isdst = -1;
-		wth->phdr.ts.tv_sec = mktime(&tm);
-
-		wth->phdr.ts.tv_usec = csec * 10000;
+		wth->phdr.ts.secs = mktime(&tm);
+		wth->phdr.ts.nsecs = csec * 10000000;
 		wth->phdr.caplen = eth_hdr_len + pkt_len;
 		wth->phdr.len = eth_hdr_len + pkt_len;
 	}

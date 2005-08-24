@@ -509,8 +509,8 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
 
     t *= 1.0e-9;
     t -= TIME_FIXUP_CONSTANT;
-    wth->phdr.ts.tv_sec  = (time_t) t;
-    wth->phdr.ts.tv_usec = (guint32) ((t - wth->phdr.ts.tv_sec)*1000000);
+    wth->phdr.ts.secs  = (time_t) t;
+    wth->phdr.ts.nsecs = (guint32) ((t - wth->phdr.ts.secs)*1000000000);
 
     switch (wth->file_encap) {
 

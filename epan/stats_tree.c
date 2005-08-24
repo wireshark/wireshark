@@ -52,7 +52,7 @@ extern void stats_tree_get_strs_from_node(const stat_node* node, guint8* value, 
 	if (rate) {
 		*rate = '\0';
 		if (node->st->elapsed > 0.0) {
-			f = ((float)node->counter) / node->st->elapsed;
+			f = ((float)node->counter) / (float)node->st->elapsed;
 			g_snprintf(rate,NUM_BUF_SIZE,"%f",f);
 		}
 	}
@@ -306,13 +306,13 @@ extern stats_tree* stats_tree_new(stats_tree_cfg* cfg, tree_pres* pr,char* filte
 /* will be the tap packet cb */
 extern int stats_tree_packet(void* p, packet_info* pinfo, epan_dissect_t *edt, const void *pri) {
 	stats_tree* st = p;
-	float now;
+	double now;
 	
 	if (st->highest_seen >= pinfo->fd->num) return 0;
 	
 	st->highest_seen = pinfo->fd->num;
-	
-	now = (((float)pinfo->fd->rel_secs) + (((float)pinfo->fd->rel_usecs)/1000000) );
+
+	now = nstime_to_msec(&pinfo->fd->rel_ts);
 	
 	if (st->start < 0.0) st->start = now;
 	

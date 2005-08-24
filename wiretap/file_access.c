@@ -279,6 +279,7 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 	wth->data_offset = 0;
 	wth->subtype_sequential_close = NULL;
 	wth->subtype_close = NULL;
+	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
 	/* Try all file types */
 	for (i = 0; i < N_FILE_TYPES; i++) {

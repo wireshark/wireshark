@@ -240,8 +240,7 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 	 * Find which interval this is supposed to to in and store the
 	 * interval index as idx
 	 */
-	time_delta.secs=pinfo->fd->rel_secs;
-	time_delta.nsecs=pinfo->fd->rel_usecs*1000;
+	time_delta=pinfo->fd->rel_ts;
 	if(time_delta.nsecs<0){
 		time_delta.secs--;
 		time_delta.nsecs+=1000000000;
@@ -328,7 +327,7 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 					t=t*1000000+new_time->nsecs/1000;
 					i=idx;
 					/* handle current interval */
-					pt=pinfo->fd->rel_secs*1000000+pinfo->fd->rel_usecs;
+					pt=pinfo->fd->rel_ts.secs*1000000+pinfo->fd->rel_ts.nsecs/1000;
 					pt=pt%(git->io->interval*1000);
 					if(pt>t){
 						pt=t;

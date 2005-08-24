@@ -298,8 +298,8 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
     if (wth->capture.ascend->inittime > header.secs)
       wth->capture.ascend->inittime -= header.secs;
   }
-  wth->phdr.ts.tv_sec = header.secs + wth->capture.ascend->inittime;
-  wth->phdr.ts.tv_usec = header.usecs;
+  wth->phdr.ts.secs = header.secs + wth->capture.ascend->inittime;
+  wth->phdr.ts.nsecs = header.usecs * 1000;
   wth->phdr.caplen = header.caplen;
   wth->phdr.len = header.len;
   wth->data_offset = offset;

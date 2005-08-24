@@ -95,8 +95,7 @@ h225ras_call_t * new_h225ras_call(h225ras_call_info_key *h225ras_call_key, packe
 	h225ras_call->requestSeqNum = h225ras_call_key->reqSeqNum;
 	h225ras_call->responded = FALSE;
 	h225ras_call->next_call = NULL;
-	h225ras_call->req_time.secs=pinfo->fd->abs_secs;
-	h225ras_call->req_time.nsecs=pinfo->fd->abs_usecs*1000;
+	h225ras_call->req_time=pinfo->fd->abs_ts;
 	memcpy(h225ras_call->guid, guid,16);
 	/* store it */
 	g_hash_table_insert(ras_calls[category], new_h225ras_call_key, h225ras_call);
@@ -119,8 +118,7 @@ h225ras_call_t * append_h225ras_call(h225ras_call_t *prev_call, packet_info *pin
 	h225ras_call->requestSeqNum = prev_call->requestSeqNum;
 	h225ras_call->responded = FALSE;
 	h225ras_call->next_call = NULL;
-	h225ras_call->req_time.secs=pinfo->fd->abs_secs;
-	h225ras_call->req_time.nsecs=pinfo->fd->abs_usecs*1000;
+	h225ras_call->req_time=pinfo->fd->abs_ts;
 	memcpy(h225ras_call->guid, guid,16);
 
 	prev_call->next_call = h225ras_call;

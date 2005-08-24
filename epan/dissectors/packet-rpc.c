@@ -1871,8 +1871,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			rpc_call->gss_proc = 0;
 			rpc_call->gss_svc = 0;
 			rpc_call->proc_info = value;
-			rpc_call->req_time.secs=pinfo->fd->abs_secs;
-			rpc_call->req_time.nsecs=pinfo->fd->abs_usecs*1000;
+			rpc_call->req_time = pinfo->fd->abs_ts;
 
 			/* store it */
 			g_hash_table_insert(rpc_calls, new_rpc_call_key, rpc_call);
@@ -2167,8 +2166,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			rpc_call->gss_proc = gss_proc;
 			rpc_call->gss_svc = gss_svc;
 			rpc_call->proc_info = value;
-			rpc_call->req_time.secs=pinfo->fd->abs_secs;
-			rpc_call->req_time.nsecs=pinfo->fd->abs_usecs*1000;
+			rpc_call->req_time = pinfo->fd->abs_ts;
 
 			/* store it */
 			g_hash_table_insert(rpc_calls, new_rpc_call_key,
@@ -2289,12 +2287,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    tvb, 0, 0, rpc_call->req_num,
 			    "This is a reply to a request in frame %u",
 			    rpc_call->req_num);
-			ns.secs= pinfo->fd->abs_secs-rpc_call->req_time.secs;
-			ns.nsecs=pinfo->fd->abs_usecs*1000-rpc_call->req_time.nsecs;
-			if(ns.nsecs<0){
-				ns.nsecs+=1000000000;
-				ns.secs--;
-			}
+			nstime_delta(&ns, &pinfo->fd->abs_ts, &rpc_call->req_time);
 			proto_tree_add_time(rpc_tree, hf_rpc_time, tvb, offset, 0,
 				&ns);
 

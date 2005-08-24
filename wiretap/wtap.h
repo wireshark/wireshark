@@ -33,6 +33,7 @@
 
 #include <glib.h>
 #include <stdio.h>
+#include <time.h>
 
 /* Encapsulation types. Choose names that truly reflect
  * what is contained in the packet trace file.
@@ -222,6 +223,10 @@
 
 /* last WTAP_FILE_ value + 1 */
 #define WTAP_NUM_FILE_TYPES			41
+
+/* timestamp accuracy (currently only these values are supported) */
+#define WTAP_FILE_TSPREC_USEC		6
+#define WTAP_FILE_TSPREC_NSEC		9
 
 /*
  * Maximum packet size we'll support.
@@ -492,8 +497,14 @@ union wtap_pseudo_header {
 	struct k12_phdr		k12;
 };
 
+struct wtap_nstime {
+	time_t	secs;
+	int	nsecs;
+};
+
+
 struct wtap_pkthdr {
-	struct timeval ts;
+	struct wtap_nstime ts;
 	guint32	caplen;
 	guint32 len;
 	int pkt_encap;
@@ -537,6 +548,7 @@ gint64 wtap_file_size(wtap *wth, int *err);
 int wtap_snapshot_length(wtap *wth); /* per file */
 int wtap_file_type(wtap *wth);
 int wtap_file_encap(wtap *wth);
+int wtap_file_tsprecision(wtap *wth);
 
 const char *wtap_file_type_string(int filetype);
 const char *wtap_file_type_short_string(int filetype);

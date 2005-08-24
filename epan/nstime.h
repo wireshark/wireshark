@@ -34,14 +34,20 @@ typedef struct {
 
 /* functions */
 
-/* calculate the delta between two times
+/* set the given nstime_t to zero */
+extern void nstime_set_zero(nstime_t *nstime);
+
+/* is the given nstime_t currently zero? */
+extern gboolean nstime_is_zero(nstime_t *nstime);
+
+/* calculate the delta between two times (can be negative!)
  *
  * delta = b-a
  *
  * Note that it is acceptable for two or more of the arguments to point at the
  * same structure.
  */
-extern void get_timedelta(nstime_t *delta, const nstime_t *b, const nstime_t *a );
+extern void nstime_delta(nstime_t *delta, const nstime_t *b, const nstime_t *a );
 
 /* calculate the sum of two times
  *
@@ -50,12 +56,15 @@ extern void get_timedelta(nstime_t *delta, const nstime_t *b, const nstime_t *a 
  * Note that it is acceptable for two or more of the arguments to point at the
  * same structure.
  */
-extern void get_timesum(nstime_t *sum, const nstime_t *b, const nstime_t *a );
+extern void nstime_sum(nstime_t *sum, const nstime_t *b, const nstime_t *a );
 
 /* sum += a */
-#define addtime(sum, a) get_timesum(sum, sum, a)
+#define nstime_add(sum, a) nstime_sum(sum, sum, a)
 
-/* converts nstime to double, time base is milli seconds*/
+/* converts nstime to double, time base is milli seconds */
 extern double nstime_to_msec(const nstime_t *time);
+
+/* converts nstime to double, time base is seconds */
+extern double nstime_to_sec(const nstime_t *time);
 
 #endif /* __NSTIME_H__  */

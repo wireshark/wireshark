@@ -121,13 +121,13 @@ GtkWidget *packet_list;
    a lower time stamp than any frame with a non-reference time;
    if both packets' times are reference times, we compare the
    times of the packets. */
-#define COMPARE_TS(secs, usecs) \
+#define COMPARE_TS(ts) \
 		((fdata1->flags.ref_time && !fdata2->flags.ref_time) ? -1 : \
 		 (!fdata1->flags.ref_time && fdata2->flags.ref_time) ? 1 : \
-		 (fdata1->secs < fdata2->secs) ? -1 : \
-		 (fdata1->secs > fdata2->secs) ? 1 : \
-		 (fdata1->usecs < fdata2->usecs) ? -1 :\
-		 (fdata1->usecs > fdata2->usecs) ? 1 : \
+		 (fdata1->ts.secs < fdata2->ts.secs) ? -1 : \
+		 (fdata1->ts.secs > fdata2->ts.secs) ? 1 : \
+		 (fdata1->ts.nsecs < fdata2->ts.nsecs) ? -1 :\
+		 (fdata1->ts.nsecs > fdata2->ts.nsecs) ? 1 : \
 		 COMPARE_FRAME_NUM())
 static gint
 packet_list_compare(EthCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
@@ -162,25 +162,25 @@ packet_list_compare(EthCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
 
     case TS_ABSOLUTE:
     case TS_ABSOLUTE_WITH_DATE:
-      return COMPARE_TS(abs_secs, abs_usecs);
+      return COMPARE_TS(abs_ts);
 
     case TS_RELATIVE:
-      return COMPARE_TS(rel_secs, rel_usecs);
+      return COMPARE_TS(rel_ts);
 
     case TS_DELTA:
-      return COMPARE_TS(del_secs, del_usecs);
+      return COMPARE_TS(del_ts);
     }
     return 0;
 
   case COL_ABS_TIME:
   case COL_ABS_DATE_TIME:
-    return COMPARE_TS(abs_secs, abs_usecs);
+    return COMPARE_TS(abs_ts);
 
   case COL_REL_TIME:
-    return COMPARE_TS(rel_secs, rel_usecs);
+    return COMPARE_TS(rel_ts);
 
   case COL_DELTA_TIME:
-    return COMPARE_TS(del_secs, del_usecs);
+    return COMPARE_TS(del_ts);
 
   case COL_PACKET_LENGTH:
     return COMPARE_NUM(pkt_len);

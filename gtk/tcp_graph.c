@@ -1778,10 +1778,10 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 			    ts->direction)) {
 		segment->next = NULL;
 		segment->num = pinfo->fd->num;
-		segment->rel_secs = pinfo->fd->rel_secs;
-		segment->rel_usecs = pinfo->fd->rel_usecs;
-		segment->abs_secs = pinfo->fd->abs_secs;
-		segment->abs_usecs = pinfo->fd->abs_usecs;
+		segment->rel_secs = pinfo->fd->rel_ts.secs;
+		segment->rel_usecs = pinfo->fd->rel_ts.nsecs/1000;
+		segment->abs_secs = pinfo->fd->abs_ts.secs;
+		segment->abs_usecs = pinfo->fd->abs_ts.nsecs/1000;
 		segment->th_seq=tcphdr->th_seq;
 		segment->th_ack=tcphdr->th_ack;
 		segment->th_win=tcphdr->th_win;
@@ -1929,10 +1929,10 @@ static struct tcpheader *select_tcpip_session (capture_file *cf, struct segment 
 	}
 
 	hdrs->num = fdata->num;
-	hdrs->rel_secs = fdata->rel_secs;
-	hdrs->rel_usecs = fdata->rel_usecs;
-	hdrs->abs_secs = fdata->abs_secs;
-	hdrs->abs_usecs = fdata->abs_usecs;
+	hdrs->rel_secs = fdata->rel_ts.secs;
+	hdrs->rel_usecs = fdata->rel_ts.nsecs/1000;
+	hdrs->abs_secs = fdata->abs_ts.secs;
+	hdrs->abs_usecs = fdata->abs_ts.nsecs/1000;
 	hdrs->th_seq=th.tcphdr->th_seq;
 	hdrs->th_ack=th.tcphdr->th_ack;
 	hdrs->th_win=th.tcphdr->th_win;

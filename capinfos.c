@@ -83,9 +83,9 @@ typedef struct _capture_info {
 } capture_info;
 
 static double
-secs_usecs(guint32 s, guint32 us)
+secs_nsecs(const struct wtap_nstime * nstime)
 {
-  return (us / 1000000.0) + (double)s;
+  return (nstime->nsecs / 1000000000.0) + (double)nstime->secs;
 }
 
 static void
@@ -131,7 +131,7 @@ process_cap_file(wtap *wth, const char *filename)
   /* Tally up data that we need to parse through the file to find */
   while (wtap_read(wth, &err, &err_info, &data_offset))  {
     phdr = wtap_phdr(wth);
-    cur_time = secs_usecs(phdr->ts.tv_sec, phdr->ts.tv_usec);
+    cur_time = secs_nsecs(&phdr->ts);
     if(packet==0) {
       start_time = cur_time;
       stop_time = cur_time;

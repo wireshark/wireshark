@@ -74,8 +74,7 @@ typedef struct {
 #define DONE		2
 #define BAD		2
 
-static guint32 last_abs_sec = 0;
-static guint32 last_abs_usec= 0;
+static nstime_t last_abs_ts = { 0, 0 };
 
 static void
 rlogin_init(void)
@@ -83,9 +82,7 @@ rlogin_init(void)
 
 /* Routine to initialize rlogin protocol before each capture or filter pass. */
 
-	last_abs_sec = 0;
-	last_abs_usec= 0;
-
+	nstime_set_zero(&last_abs_ts);
 }
 
 
@@ -110,13 +107,12 @@ rlogin_state_machine( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 		return;
 
 						/* test timestamp */
-	if (( last_abs_sec > pinfo->fd->abs_secs) ||
-	    (( last_abs_sec == pinfo->fd->abs_secs) &&
-	     ( last_abs_usec >= pinfo->fd->abs_usecs)))
+	if (( last_abs_ts.secs > pinfo->fd->abs_ts.secs) ||
+	    (( last_abs_ts.secs == pinfo->fd->abs_ts.secs) &&
+	     ( last_abs_ts.nsecs >= pinfo->fd->abs_ts.nsecs)))
 	    	return;
 
-	last_abs_sec = pinfo->fd->abs_secs;		/* save timestamp */
-	last_abs_usec = pinfo->fd->abs_usecs;
+	last_abs_ts = pinfo->fd->abs_ts;		/* save timestamp */
 
 	length = tvb_length(tvb);
 	if ( length == 0)				/* exit if no data */

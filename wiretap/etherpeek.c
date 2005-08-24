@@ -449,9 +449,9 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 	t =  (double) timestamp.lower +
 	     (double) timestamp.upper * 4294967296.0;
 	t -= (double) mac2unix * 1000000.0;
-	wth->phdr.ts.tv_sec  = (time_t)  (t/1000000.0);
-	wth->phdr.ts.tv_usec = (guint32) (t - (double) wth->phdr.ts.tv_sec *
-	                                               1000000.0);
+	wth->phdr.ts.secs  = (time_t)  (t/1000000.0);
+	wth->phdr.ts.nsecs = (guint32) (t - (double) wth->phdr.ts.secs *
+	                                               1000000000.0);
 
 	if (wth->file_encap == WTAP_ENCAP_IEEE_802_11_WITH_RADIO) {
 		/*
@@ -596,9 +596,9 @@ static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info _U_,
 	wth->phdr.len        = length;
 	wth->phdr.caplen     = sliceLength;
 	/* timestamp is in milliseconds since reference_time */
-	wth->phdr.ts.tv_sec  = wth->capture.etherpeek->reference_time.tv_sec
+	wth->phdr.ts.secs  = wth->capture.etherpeek->reference_time.tv_sec
 	    + (timestamp / 1000);
-	wth->phdr.ts.tv_usec = 1000 * (timestamp % 1000);
+	wth->phdr.ts.nsecs = 1000 * (timestamp % 1000) * 1000;
 
 	wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
 	for (i=0; i<NUM_ETHERPEEK_ENCAPS; i++) {

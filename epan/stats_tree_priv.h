@@ -85,8 +85,8 @@ struct _stats_tree {
 	guint32			highest_seen;
 	
 	/* times */
-	float			start;
-	float			elapsed;
+	double			start;
+	double			elapsed;
 
    /* used to lookup named parents:
 	*    key: parent node name

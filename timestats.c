@@ -63,7 +63,7 @@ time_stat_update(timestat_t *stats, const nstime_t *delta, packet_info *pinfo)
 		stats->max_num=pinfo->fd->num;
 	}
 
-	addtime(&stats->tot, delta);
+	nstime_add(&stats->tot, delta);
 
 	stats->num++;
 }

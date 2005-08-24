@@ -808,9 +808,9 @@ reread:
 		    + (double)pletohl(&hdr.old_hdr.timehi)*4294967296.0;
 		t /= wth->capture.netxray->timeunit;
 		t -= wth->capture.netxray->start_timestamp;
-		wth->phdr.ts.tv_sec = wth->capture.netxray->start_time + (long)t;
-		wth->phdr.ts.tv_usec = (unsigned long)((t-(double)(unsigned long)(t))
-			*1.0e6);
+		wth->phdr.ts.secs = wth->capture.netxray->start_time + (long)t;
+		wth->phdr.ts.nsecs = (unsigned long)((t-(double)(unsigned long)(t))
+			*1.0e9);
 		/*
 		 * We subtract the padding from the packet size, so our caller
 		 * doesn't see it.
@@ -822,9 +822,9 @@ reread:
 		    + (double)pletohl(&hdr.hdr_1_x.timehi)*4294967296.0;
 		t /= wth->capture.netxray->timeunit;
 		t -= wth->capture.netxray->start_timestamp;
-		wth->phdr.ts.tv_sec = wth->capture.netxray->start_time + (long)t;
-		wth->phdr.ts.tv_usec = (unsigned long)((t-(double)(unsigned long)(t))
-			*1.0e6);
+		wth->phdr.ts.secs = wth->capture.netxray->start_time + (long)t;
+		wth->phdr.ts.nsecs = (unsigned long)((t-(double)(unsigned long)(t))
+			*1.0e9);
 		/*
 		 * We subtract the padding from the packet size, so our caller
 		 * doesn't see it.
@@ -1302,8 +1302,8 @@ gboolean netxray_dump_open_1_1(wtap_dumper *wdh, gboolean cant_seek, int *err)
 
     wdh->dump.netxray = g_malloc(sizeof(netxray_dump_t));
     wdh->dump.netxray->first_frame = TRUE;
-    wdh->dump.netxray->start.tv_sec = 0;
-    wdh->dump.netxray->start.tv_usec = 0;
+    wdh->dump.netxray->start.secs = 0;
+    wdh->dump.netxray->start.nsecs = 0;
     wdh->dump.netxray->nframes = 0;
 
     return TRUE;
@@ -1338,8 +1338,8 @@ static gboolean netxray_dump_1_1(wtap_dumper *wdh,
 
     /* build the header for each packet */
     memset(&rec_hdr, '\0', sizeof(rec_hdr));
-    timestamp = (phdr->ts.tv_sec - netxray->start.tv_sec)*1000000 +
-        phdr->ts.tv_usec;
+    timestamp = (phdr->ts.secs - netxray->start.secs)*1000000 +
+        phdr->ts.nsecs / 1000;
     rec_hdr.timelo = htolel(timestamp);
     rec_hdr.timehi = htolel(0);
     rec_hdr.orig_len = htoles(phdr->len);
@@ -1399,7 +1399,7 @@ static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
     /* "sniffer" version ? */
     memset(&file_hdr, '\0', sizeof file_hdr);
     memcpy(file_hdr.version, vers_1_1, sizeof vers_1_1);
-    file_hdr.start_time = htolel(netxray->start.tv_sec);
+    file_hdr.start_time = htolel(netxray->start.secs);
     file_hdr.nframes = htolel(netxray->nframes);
     file_hdr.start_offset = htolel(CAPTUREFILE_HEADER_SIZE);
     file_hdr.end_offset = htolel(filelen);
@@ -1491,8 +1491,8 @@ gboolean netxray_dump_open_2_0(wtap_dumper *wdh, gboolean cant_seek, int *err)
 
     wdh->dump.netxray = g_malloc(sizeof(netxray_dump_t));
     wdh->dump.netxray->first_frame = TRUE;
-    wdh->dump.netxray->start.tv_sec = 0;
-    wdh->dump.netxray->start.tv_usec = 0;
+    wdh->dump.netxray->start.secs = 0;
+    wdh->dump.netxray->start.nsecs = 0;
     wdh->dump.netxray->nframes = 0;
 
     return TRUE;
@@ -1527,8 +1527,8 @@ static gboolean netxray_dump_2_0(wtap_dumper *wdh,
 
     /* build the header for each packet */
     memset(&rec_hdr, '\0', sizeof(rec_hdr));
-    timestamp = (phdr->ts.tv_sec - netxray->start.tv_sec)*1000000 +
-        phdr->ts.tv_usec;
+    timestamp = (phdr->ts.secs - netxray->start.secs)*1000000 +
+        phdr->ts.nsecs/1000;
     rec_hdr.timelo = htolel(timestamp);
     rec_hdr.timehi = htolel(0);
     rec_hdr.orig_len = htoles(phdr->len);
@@ -1606,7 +1606,7 @@ static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err)
     /* "sniffer" version ? */
     memset(&file_hdr, '\0', sizeof file_hdr);
     memcpy(file_hdr.version, vers_2_001, sizeof vers_2_001);
-    file_hdr.start_time = htolel(netxray->start.tv_sec);
+    file_hdr.start_time = htolel(netxray->start.secs);
     file_hdr.nframes = htolel(netxray->nframes);
     file_hdr.start_offset = htolel(CAPTUREFILE_HEADER_SIZE);
     file_hdr.end_offset = htolel(filelen);

@@ -418,8 +418,8 @@ parse_cosine_rec_hdr(wtap *wth, const char *line,
 		tm.tm_min = min;
 		tm.tm_sec = sec;
 		tm.tm_isdst = -1;
-		wth->phdr.ts.tv_sec = mktime(&tm);
-		wth->phdr.ts.tv_usec = csec * 10000;
+		wth->phdr.ts.secs = mktime(&tm);
+		wth->phdr.ts.nsecs = csec * 10000000;
 		wth->phdr.len = pkt_len;
 	}
 	/* XXX need to handle other encapsulations like Cisco HDLC,

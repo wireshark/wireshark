@@ -143,12 +143,7 @@ mgcpstat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 		else {
 			ms->open_req_num--;
 			/* calculate time delta between request and response */
-			delta.secs=pinfo->fd->abs_secs-mi->req_time.secs;
-			delta.nsecs=pinfo->fd->abs_usecs*1000-mi->req_time.nsecs;
-			if(delta.nsecs<0){
-				delta.nsecs+=1000000000;
-				delta.secs--;
-			}
+			nstime_delta(&delta, &pinfo->fd->abs_ts, &mi->req_time);
 
 			if (strncasecmp(mi->code, "EPCF", 4) == 0 ) {
 				time_stat_update(&(ms->rtd[0]),&delta, pinfo);

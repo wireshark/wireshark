@@ -1551,8 +1551,7 @@ static void remember_outgoing_sr(packet_info *pinfo, long lsr)
 	/* Update conversation data                            */
 	p_conv_data->last_received_set = TRUE;
 	p_conv_data->last_received_frame_number = pinfo->fd->num;
-	p_conv_data->last_received_time_secs = pinfo->fd->abs_secs;
-	p_conv_data->last_received_time_usecs = pinfo->fd->abs_usecs;
+	p_conv_data->last_received_timestamp = pinfo->fd->abs_ts;
 	p_conv_data->last_received_ts = lsr;
 
 
@@ -1576,8 +1575,7 @@ static void remember_outgoing_sr(packet_info *pinfo, long lsr)
 	/* Copy current conversation data into packet info */
 	p_packet_data->last_received_set = TRUE;
 	p_packet_data->last_received_frame_number = p_conv_data->last_received_frame_number;
-	p_packet_data->last_received_time_secs = p_conv_data->last_received_time_secs;
-	p_packet_data->last_received_time_usecs = p_conv_data->last_received_time_usecs;
+	p_packet_data->last_received_timestamp = p_conv_data->last_received_timestamp;
 }
 
 
@@ -1656,13 +1654,13 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
 		{
 			/* Look at time of since original packet was sent */
 			gint seconds_between_packets =
-			      pinfo->fd->abs_secs - p_conv_data->last_received_time_secs;
-			gint useconds_between_packets =
-			      pinfo->fd->abs_usecs - p_conv_data->last_received_time_usecs;
+			      pinfo->fd->abs_ts.secs - p_conv_data->last_received_timestamp.secs;
+			gint nseconds_between_packets =
+			      pinfo->fd->abs_ts.nsecs - p_conv_data->last_received_timestamp.nsecs;
 
 
 			gint total_gap = ((seconds_between_packets*1000000) +
-			                 useconds_between_packets) / 1000;
+			                 nseconds_between_packets) / 1000000;
 			gint delay = total_gap - (int)(((double)dlsr/(double)65536) * 1000.0);
 
 			/* No useful calculation can be done if dlsr not set... */

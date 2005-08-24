@@ -817,8 +817,7 @@ static iax_call_data *iax_new_call( packet_info *pinfo,
   call -> n_forward_circuit_ids = 0;
   call -> n_reverse_circuit_ids = 0;
   call -> subdissector = NULL;
-  call -> start_time.secs  = pinfo->fd->abs_secs;
-  call -> start_time.nsecs = (pinfo->fd->abs_usecs-1000) * 1000;
+  call -> start_time = pinfo->fd->abs_ts;
 
   iax2_new_circuit_for_call(circuit_id,pinfo->fd->num,call,FALSE);
 
@@ -1308,11 +1307,11 @@ static void iax2_add_ts_fields(packet_info * pinfo, proto_tree * iax2_tree, iax_
 
   if(iax_packet->abstime.secs == -1) {
     time_t start_secs = iax_packet->call_data->start_time.secs;
-    guint32 abs_secs = start_secs + longts/1000;
+    gint32 abs_secs = start_secs + longts/1000;
 
     /* deal with short timestamps by assuming that packets are never more than
      * 16 seconds late */
-    while(abs_secs < pinfo->fd->abs_secs - 16) {
+    while(abs_secs < pinfo->fd->abs_ts.secs - 16) {
       longts += 32768;
       abs_secs = start_secs + longts/1000;
     }
@@ -1328,9 +1327,8 @@ static void iax2_add_ts_fields(packet_info * pinfo, proto_tree * iax2_tree, iax_
   item = proto_tree_add_time(iax2_tree, hf_iax2_absts, NULL, 0, 0, &iax_packet->abstime);
   PROTO_ITEM_SET_GENERATED(item);
 
-  ts.secs  = pinfo->fd->abs_secs;
-  ts.nsecs = pinfo->fd->abs_usecs * 1000;
-  get_timedelta(&ts, &ts, &iax_packet->abstime);
+  ts  = pinfo->fd->abs_ts;
+  nstime_delta(&ts, &ts, &iax_packet->abstime);
   
   item = proto_tree_add_time(iax2_tree, hf_iax2_lateness, NULL, 0, 0, &ts);
   PROTO_ITEM_SET_GENERATED(item);

@@ -330,13 +330,13 @@ static int erf_read_header(
 #ifdef G_HAVE_GINT64
 		guint64 ts = pletohll(&erf_header->ts);
 
-		phdr->ts.tv_sec = (long) (ts >> 32);
+		phdr->ts.secs = (long) (ts >> 32);
 		ts = ((ts & 0xffffffff) * 1000 * 1000);
 		ts += (ts & 0x80000000) << 1; /* rounding */
-		phdr->ts.tv_usec = (long) (ts >> 32);		
-		if (phdr->ts.tv_usec >= 1000000) {
-			phdr->ts.tv_usec -= 1000000;
-			phdr->ts.tv_sec += 1;
+		phdr->ts.nsecs = ((long) (ts >> 32)) * 1000;
+		if (phdr->ts.nsecs >= 1000000000) {
+			phdr->ts.nsecs -= 1000000000;
+			phdr->ts.secs += 1;
 		}
 #else
 		phdr->ts.tv_sec = pletohl(&erf_header->ts[1]);

@@ -4010,7 +4010,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	afp_request_key request_key, *new_request_key;
 	afp_request_val *request_val;
 	guint8		afp_command;
-	nstime_t	t, deltat;
+	nstime_t	delta_ts;
 
 	int     len =  tvb_reported_length_remaining(tvb,0);
 	gint col_info = check_col(pinfo->cinfo, COL_INFO);
@@ -4044,8 +4044,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		request_val->command = afp_command;
 		request_val->frame_req = pinfo->fd->num;
 		request_val->frame_res = 0;
-		request_val->req_time.secs=pinfo->fd->abs_secs;
-		request_val->req_time.nsecs=pinfo->fd->abs_usecs*1000;
+		request_val->req_time=pinfo->fd->abs_ts;
 
 		g_hash_table_insert(afp_request_hash, new_request_key,
 								request_val);
@@ -4248,11 +4247,9 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			ti = proto_tree_add_uint(afp_tree, hf_afp_response_to,
 			    tvb, 0, 0, request_val->frame_req);
 			PROTO_ITEM_SET_GENERATED(ti);
-			t.secs = pinfo->fd->abs_secs;
-			t.nsecs = pinfo->fd->abs_usecs*1000;
-			get_timedelta(&deltat, &t, &request_val->req_time);
+			nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &request_val->req_time);
 			ti = proto_tree_add_time(afp_tree, hf_afp_time, tvb,
-			    0, 0, &deltat);
+			    0, 0, &delta_ts);
 			PROTO_ITEM_SET_GENERATED(ti);
 		}
 

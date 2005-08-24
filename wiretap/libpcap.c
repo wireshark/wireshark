@@ -601,6 +601,10 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 	gboolean aix;
 	int file_encap;
 
+	
+	/* XXX - this must be done depending on the magic number */
+	/*wth->tsrecision = WTAP_FILE_TSPREC_NSEC;*/
+	
 	/* Read in the number that should be at the start of a "libpcap" file */
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&magic, 1, sizeof magic, wth->fh);
@@ -1267,8 +1271,8 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
-	wth->phdr.ts.tv_sec = hdr.hdr.ts_sec;
-	wth->phdr.ts.tv_usec = hdr.hdr.ts_usec;
+	wth->phdr.ts.secs = hdr.hdr.ts_sec;
+	wth->phdr.ts.nsecs = hdr.hdr.ts_usec * 1000;
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = orig_size;
 
@@ -1819,8 +1823,8 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 	   be a "struct bpf_timeval", with member sizes wired to 32
 	   bits - and we may go that way ourselves in the future, so
 	   copy the members individually. */
-	whdr->ts.tv_sec = phdr->ts.tv_sec;
-	whdr->ts.tv_usec = phdr->ts.tv_usec;
+	whdr->ts.secs = phdr->ts.tv_sec;
+	whdr->ts.nsecs = phdr->ts.tv_usec * 1000;
 	whdr->caplen = phdr->caplen;
 	whdr->len = phdr->len;
 	whdr->pkt_encap = linktype;
@@ -2017,8 +2021,8 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 	else
 		hdrsize = 0;
 
-	rec_hdr.hdr.ts_sec = phdr->ts.tv_sec;
-	rec_hdr.hdr.ts_usec = phdr->ts.tv_usec;
+	rec_hdr.hdr.ts_sec = phdr->ts.secs;
+	rec_hdr.hdr.ts_usec = phdr->ts.nsecs / 1000;
 	rec_hdr.hdr.incl_len = phdr->caplen + hdrsize;
 	rec_hdr.hdr.orig_len = phdr->len + hdrsize;
 	switch (wdh->file_type) {

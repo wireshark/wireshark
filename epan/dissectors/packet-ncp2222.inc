@@ -4521,8 +4521,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		}
 		request_value = ncp_hash_insert(conversation, sequence, ncp_rec);
 		request_value->req_frame_num = pinfo->fd->num;
-		request_value->req_frame_time.secs=pinfo->fd->abs_secs;
-		request_value->req_frame_time.nsecs=pinfo->fd->abs_usecs*1000;
+		request_value->req_frame_time=pinfo->fd->abs_ts;
 
 		/* If this is the first time we're examining the packet,
 		 * check to see if this NCP type uses a "request condition".
@@ -4896,14 +4895,8 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 
 			proto_tree_add_uint(ncp_tree, hf_ncp_req_frame_num, tvb, 0, 0,
 				request_value->req_frame_num);
-			ns.secs=pinfo->fd->abs_secs-request_value->req_frame_time.secs;
-			ns.nsecs=pinfo->fd->abs_usecs*1000-request_value->req_frame_time.nsecs;
-			if(ns.nsecs<0){
-				ns.nsecs+=1000000000;
-				ns.secs--;
-			}
+			nstime_delta(&ns, &pinfo->fd->abs_ts, &request_value->req_frame_time);
 			proto_tree_add_time(ncp_tree, hf_ncp_req_frame_time, tvb, 0, 0, &ns);
-
 		}
 
 		/* Put the func (and maybe subfunc) from the request packet
@@ -8296,8 +8289,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 	if (!pinfo->fd->flags.visited) {
         	request_value = ncp_hash_insert(conversation, sequence, ncp_rec);
         	request_value->req_frame_num = pinfo->fd->num;
-		request_value->req_frame_time.secs=pinfo->fd->abs_secs;
-		request_value->req_frame_time.nsecs=pinfo->fd->abs_usecs*1000;
+		request_value->req_frame_time=pinfo->fd->abs_ts;
 
         	/* If this is the first time we're examining the packet,
         	 * check to see if this NCP type uses a "request condition".
@@ -8576,8 +8568,7 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
                 
        		request_value = ncp_hash_insert(conversation, sequence, ncp_rec);
        		request_value->req_frame_num = pinfo->fd->num;
-		request_value->req_frame_time.secs=pinfo->fd->abs_secs;
-		request_value->req_frame_time.nsecs=pinfo->fd->abs_usecs*1000;
+		request_value->req_frame_time=pinfo->fd->abs_ts;
         
        		/* If this is the first time we're examining the packet,
        		 * check to see if this NCP type uses a "request condition".

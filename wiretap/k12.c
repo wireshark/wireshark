@@ -212,8 +212,8 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, long *data_o
 	
 	ts = pntohll(buffer + K12_PACKET_TIMESTAMP);
 	
-	wth->phdr.ts.tv_usec = (guint32) ( (ts % 2000000) / 2);
-	wth->phdr.ts.tv_sec = (guint32) ((ts / 2000000) + 631152000);
+	wth->phdr.ts.secs = (guint32) ( (ts % 2000000) / 2);
+	wth->phdr.ts.nsecs = (guint32) ((ts / 2000000) + 631152000) * 1000;
 	
 	wth->phdr.len = wth->phdr.caplen = pntohl(buffer + K12_RECORD_FRAME_LEN) & 0x00001FFF;
 	
@@ -597,7 +597,7 @@ static gboolean k12_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	obj.record.frame_len = g_htonl(phdr->len);
 	obj.record.input = g_htonl(pseudo_header->k12.input);
 	
-	obj.record.ts = GUINT64_TO_BE((((guint64)phdr->ts.tv_sec - 631152000) * 2000000) + (phdr->ts.tv_usec * 2));
+	obj.record.ts = GUINT64_TO_BE((((guint64)phdr->ts.secs - 631152000) * 2000000) + (phdr->ts.nsecs / 1000 * 2));
 
 	memcpy(obj.record.frame,pd,phdr->len);
 	

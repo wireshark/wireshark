@@ -501,8 +501,8 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		phdr->caplen = pntohl(&ip_hdr.caplen);
 	    }
 
-	    phdr->ts.tv_sec = pntohl(&ip_hdr.sec);
-	    phdr->ts.tv_usec = pntohl(&ip_hdr.usec);
+	    phdr->ts.secs = pntohl(&ip_hdr.sec);
+	    phdr->ts.nsecs = pntohl(&ip_hdr.usec) * 1000;
 	    break;
 
 	case NETTL_SUBSYS_NS_LS_DRIVER :
@@ -546,8 +546,8 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    phdr->len = length;
 	    phdr->caplen = pntohs(&drv_eth_hdr.caplen);
 
-	    phdr->ts.tv_sec = pntohl(&ip_hdr.sec);
-	    phdr->ts.tv_usec = pntohl(&ip_hdr.usec);
+	    phdr->ts.secs = pntohl(&ip_hdr.sec);
+	    phdr->ts.nsecs = pntohl(&ip_hdr.usec) * 1000;
 	    break;
 
 	case NETTL_SUBSYS_SX25L2:
@@ -567,8 +567,8 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
             if (length <= 0) return 0;
             phdr->len = length - 24;
             phdr->caplen = pntohl(&ip_hdr.caplen) - 24;
-            phdr->ts.tv_sec = pntohl(&ip_hdr.sec);
-            phdr->ts.tv_usec = pntohl(&ip_hdr.usec);
+            phdr->ts.secs = pntohl(&ip_hdr.sec);
+            phdr->ts.nsecs = pntohl(&ip_hdr.usec) * 1000;
             if (wth->capture.nettl->is_hpux_11)
                 padlen = 28;
 	    else
@@ -596,8 +596,8 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
             if (length <= 0) return 0;
             phdr->len = length;
             phdr->caplen = pntohl(&ip_hdr.caplen);
-            phdr->ts.tv_sec = pntohl(&ip_hdr.sec);
-            phdr->ts.tv_usec = pntohl(&ip_hdr.usec);
+            phdr->ts.secs = pntohl(&ip_hdr.sec);
+            phdr->ts.nsecs = pntohl(&ip_hdr.usec) * 1000;
             if (wth->capture.nettl->is_hpux_11) {
 	       if (file_seek(fh, 4, SEEK_CUR, err) == -1) return -1;
                offset += 4;
@@ -737,8 +737,8 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 	memset(&rec_hdr,0,sizeof(rec_hdr));
 	rec_hdr.hdr_len = g_htons(sizeof(rec_hdr));
 	rec_hdr.hdr.kind = g_htonl(NETTL_HDR_PDUIN);
-	rec_hdr.hdr.sec = g_htonl(phdr->ts.tv_sec);
-	rec_hdr.hdr.usec = g_htonl(phdr->ts.tv_usec);
+	rec_hdr.hdr.sec = g_htonl(phdr->ts.secs);
+	rec_hdr.hdr.usec = g_htonl(phdr->ts.nsecs/1000);
 	rec_hdr.hdr.caplen = g_htonl(phdr->caplen);
 	rec_hdr.hdr.length = g_htonl(phdr->len);
 	rec_hdr.hdr.devid = -1;

@@ -353,8 +353,8 @@ parse_toshiba_rec_hdr(wtap *wth, FILE_T fh,
 	}
 
 	if (wth) {
-		wth->phdr.ts.tv_sec = hr * 3600 + min * 60 + sec;
-		wth->phdr.ts.tv_usec = csec * 10000;
+		wth->phdr.ts.secs = hr * 3600 + min * 60 + sec;
+		wth->phdr.ts.nsecs = csec * 10000000;
 		wth->phdr.caplen = pkt_len;
 		wth->phdr.len = pkt_len;
 	}

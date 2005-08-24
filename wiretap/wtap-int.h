@@ -176,6 +176,8 @@ struct wtap {
 						   file formats that have
 						   per-file encapsulation
 						   types */
+	int			tsprecision;	/* timestamp precision of the lower 32bits
+							 * 6 is microseconds, 9 is nanoseconds */
 };
 
 struct wtap_dumper;
@@ -192,13 +194,13 @@ typedef struct {
 
 typedef struct {
 	gboolean first_frame;
-	struct timeval start;
+	struct wtap_nstime start;
 	guint32	nframes;
 } netxray_dump_t;
 
 typedef struct {
 	gboolean got_first_record_time;
-	struct timeval first_record_time;
+	struct wtap_nstime first_record_time;
 	guint32	frame_table_offset;
 	guint32	*frame_table;
 	guint	frame_table_index;

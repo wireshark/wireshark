@@ -86,8 +86,8 @@
 gboolean auto_scroll_live;
 #endif
 
-static guint32 firstsec, firstusec;
-static guint32 prevsec, prevusec;
+static nstime_t first_ts;
+static nstime_t prev_ts;
 static guint32 cum_bytes = 0;
 
 static void cf_reset_state(capture_file *cf);
@@ -197,14 +197,13 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   /* If it's a temporary capture buffer file, mark it as not saved. */
   cf->user_saved = !is_tempfile;
 
-  cf->cd_t      = wtap_file_type(cf->wth);
+  cf->cd_t        = wtap_file_type(cf->wth);
+  cf->tsprecision = wtap_file_tsprecision(cf->wth);
   cf->count     = 0;
   cf->displayed_count = 0;
   cf->marked_count = 0;
   cf->drops_known = FALSE;
   cf->drops     = 0;
-  cf->esec      = 0;
-  cf->eusec     = 0;
   cf->snap      = wtap_snapshot_length(cf->wth);
   if (cf->snap == 0) {
     /* Snapshot length not known. */
@@ -212,8 +211,9 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
     cf->snap = WTAP_MAX_PACKET_SIZE;
   } else
     cf->has_snap = TRUE;
-  firstsec = 0, firstusec = 0;
-  prevsec = 0, prevusec = 0;
+  nstime_set_zero(&cf->elapsed_time);
+  nstime_set_zero(&first_ts);
+  nstime_set_zero(&prev_ts);
 
   cf->plist_chunk = g_mem_chunk_new("frame_data_chunk",
 	sizeof(frame_data),
@@ -284,8 +284,7 @@ cf_reset_state(capture_file *cf)
 
   cf->f_datalen = 0;
   cf->count = 0;
-  cf->esec  = 0;
-  cf->eusec = 0;
+  nstime_set_zero(&cf->elapsed_time);
 
   reset_tap_listeners();
 
@@ -682,43 +681,37 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   /* If we don't have the time stamp of the first packet in the
      capture, it's because this is the first packet.  Save the time
      stamp of this packet as the time stamp of the first packet. */
-  if (!firstsec && !firstusec) {
-    firstsec  = fdata->abs_secs;
-    firstusec = fdata->abs_usecs;
+  if (nstime_is_zero(&first_ts)) {
+    first_ts  = fdata->abs_ts;
   }
   /* if this frames is marked as a reference time frame, reset
      firstsec and firstusec to this frame */
   if(fdata->flags.ref_time){
-    firstsec  = fdata->abs_secs;
-    firstusec = fdata->abs_usecs;
+    first_ts = fdata->abs_ts;
   }
 
   /* If we don't have the time stamp of the previous displayed packet,
      it's because this is the first displayed packet.  Save the time
      stamp of this packet as the time stamp of the previous displayed
      packet. */
-  if (!prevsec && !prevusec) {
-    prevsec  = fdata->abs_secs;
-    prevusec = fdata->abs_usecs;
+  if (nstime_is_zero(&prev_ts)) {
+    prev_ts = fdata->abs_ts;
   }
 
   /* Get the time elapsed between the first packet and this packet. */
-  compute_timestamp_diff(&fdata->rel_secs, &fdata->rel_usecs,
-     fdata->abs_secs, fdata->abs_usecs, firstsec, firstusec);
+  nstime_delta(&fdata->rel_ts, &fdata->abs_ts, &first_ts);
 
   /* If it's greater than the current elapsed time, set the elapsed time
      to it (we check for "greater than" so as not to be confused by
      time moving backwards). */
-  if ((gint32)cf->esec < fdata->rel_secs
-  || ((gint32)cf->esec == fdata->rel_secs && (gint32)cf->eusec < fdata->rel_usecs)) {
-    cf->esec = fdata->rel_secs;
-    cf->eusec = fdata->rel_usecs;
+  if ((gint32)cf->elapsed_time.secs < fdata->rel_ts.secs
+  || ((gint32)cf->elapsed_time.secs == fdata->rel_ts.secs && (gint32)cf->elapsed_time.nsecs < fdata->rel_ts.nsecs)) {
+    cf->elapsed_time = fdata->rel_ts;
   }
 
   /* Get the time elapsed between the previous displayed packet and
      this packet. */
-  compute_timestamp_diff(&fdata->del_secs, &fdata->del_usecs,
-	fdata->abs_secs, fdata->abs_usecs, prevsec, prevusec);
+  nstime_delta(&fdata->del_ts, &fdata->abs_ts, &prev_ts);
 
   /* If either
 
@@ -807,8 +800,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
     /* Set the time of the previous displayed frame to the time of this
        frame. */
-    prevsec = fdata->abs_secs;
-    prevusec = fdata->abs_usecs;
+    prev_ts = fdata->abs_ts;
 
     cf->displayed_count++;
   } else {
@@ -841,12 +833,12 @@ read_packet(capture_file *cf, long offset)
   fdata->cap_len  = phdr->caplen;
   fdata->file_off = offset;
   fdata->lnk_t = phdr->pkt_encap;
-  fdata->abs_secs  = phdr->ts.tv_sec;
-  fdata->abs_usecs = phdr->ts.tv_usec;
   fdata->flags.encoding = CHAR_ASCII;
   fdata->flags.visited = 0;
   fdata->flags.marked = 0;
   fdata->flags.ref_time = 0;
+
+  fdata->abs_ts  = *((nstime_t *) &phdr->ts);
 
   passed = TRUE;
   if (cf->rfcode) {
@@ -1241,10 +1233,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   /* Iterate through the list of frames.  Call a routine for each frame
      to check whether it should be displayed and, if so, add it to
      the display list. */
-  firstsec = 0;
-  firstusec = 0;
-  prevsec = 0;
-  prevusec = 0;
+  nstime_set_zero(&first_ts);
+  nstime_set_zero(&prev_ts);
 
   /* Update the progress bar when it gets to this value. */
   progbar_nextstep = 0;
@@ -3022,8 +3012,7 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
   int           err;
 
   /* init the wtap header for saving */
-  hdr.ts.tv_sec  = fdata->abs_secs;
-  hdr.ts.tv_usec = fdata->abs_usecs;
+  hdr.ts         = *(struct wtap_nstime *) &fdata->abs_ts;
   hdr.caplen     = fdata->cap_len;
   hdr.len        = fdata->pkt_len;
   hdr.pkt_encap  = fdata->lnk_t;

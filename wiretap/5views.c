@@ -251,8 +251,8 @@ _5views_read(wtap *wth, int *err, gchar **err_info _U_, long *data_offset)
 	TimeStamped_Header.Utc = pletohl(&TimeStamped_Header.Utc);
 	TimeStamped_Header.NanoSecondes =
 	    pletohl(&TimeStamped_Header.NanoSecondes);
-	wth->phdr.ts.tv_sec = TimeStamped_Header.Utc;
-	wth->phdr.ts.tv_usec = TimeStamped_Header.NanoSecondes/1000;
+	wth->phdr.ts.secs = TimeStamped_Header.Utc;
+	wth->phdr.ts.nsecs = TimeStamped_Header.NanoSecondes;
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = orig_size;
 
@@ -414,8 +414,8 @@ static gboolean _5views_dump(wtap_dumper *wdh,
 	HeaderFrame.RecNb = htolel(1);
 
 	/* record-dependant fields */
-	HeaderFrame.Utc = htolel(phdr->ts.tv_sec);
-	HeaderFrame.NanoSecondes = htolel(phdr->ts.tv_usec*1000);
+	HeaderFrame.Utc = htolel(phdr->ts.secs);
+	HeaderFrame.NanoSecondes = htolel(phdr->ts.nsecs);
 	HeaderFrame.RecSize = htolel(phdr->len);
 	HeaderFrame.RecInfo = htolel(0);
 

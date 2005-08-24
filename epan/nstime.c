@@ -25,6 +25,7 @@
  *
  */
 
+#include <glib.h>
 #include "nstime.h"
 
 /* this is #defined so that we can clearly see that we have the right number of
@@ -32,12 +33,30 @@
    changing ;) */
 #define NS_PER_S 1000000000
 
+/* set the given nstime_t to zero */
+void nstime_set_zero(nstime_t *nstime)
+{
+	nstime->secs  = 0;
+	nstime->nsecs = 0;
+}
+
+/* is the given nstime_t currently zero? */
+gboolean nstime_is_zero(nstime_t *nstime)
+{
+	if(nstime->secs == 0 && nstime->nsecs == 0) {
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+}
+
+
 /*
- * function: get_timedelta
+ * function: nstime_delta
  * delta = b - a
  */
 
-void get_timedelta(nstime_t *delta, const nstime_t *b, const nstime_t *a )
+void nstime_delta(nstime_t *delta, const nstime_t *b, const nstime_t *a )
 {
     if (b->secs == a->secs) {
         /* The seconds part of b is the same as the seconds part of a, so if
@@ -74,11 +93,11 @@ void get_timedelta(nstime_t *delta, const nstime_t *b, const nstime_t *a )
 }
 
 /*
- * function: get_timesum
+ * function: nstime_sum
  * sum = a + b
  */
 
-void get_timesum(nstime_t *sum, const nstime_t *a, const nstime_t *b)
+void nstime_sum(nstime_t *sum, const nstime_t *a, const nstime_t *b)
 {
     sum->secs = a->secs + b->secs;
     sum->nsecs = a->nsecs + b->nsecs;
@@ -99,5 +118,15 @@ void get_timesum(nstime_t *sum, const nstime_t *a, const nstime_t *b)
 double nstime_to_msec(const nstime_t *time)
 {
     return ((double)time->secs*1000 + (double)time->nsecs/1000000);
+}
+
+/*
+ * function: nstime_to_sec
+ * converts nstime to double, time base is seconds
+ */
+
+double nstime_to_sec(const nstime_t *time)
+{
+    return ((double)time->secs + (double)time->nsecs/1000000000);
 }
 

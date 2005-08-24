@@ -917,8 +917,8 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 				addr = g_malloc(tmp_info.dst.len);
 				memcpy(addr, tmp_info.dst.data, tmp_info.dst.len);
 				sack->dst.data = addr;
-				sack->secs=tsn->secs   = (guint32)pinfo->fd->rel_secs;
-				sack->usecs=tsn->usecs = (guint32)pinfo->fd->rel_usecs;
+				sack->secs=tsn->secs   = (guint32)pinfo->fd->rel_ts.secs;
+				sack->usecs=tsn->usecs = (guint32)pinfo->fd->rel_ts.nsecs/1000;
 				if (((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_DATA_CHUNK_ID) ||
 					((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_SACK_CHUNK_ID))
 				{
@@ -1131,8 +1131,8 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 			addr = g_malloc(tmp_info.dst.len);
 			memcpy(addr, tmp_info.dst.data, tmp_info.dst.len);
 			sack->dst.data = addr;
-			sack->secs=tsn->secs = (guint32)pinfo->fd->rel_secs;
-			sack->usecs=tsn->usecs = (guint32)pinfo->fd->rel_usecs;
+			sack->secs=tsn->secs = (guint32)pinfo->fd->rel_ts.secs;
+			sack->usecs=tsn->usecs = (guint32)pinfo->fd->rel_ts.nsecs/1000;
 			if (((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_DATA_CHUNK_ID) ||
 			((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_SACK_CHUNK_ID))
 			{

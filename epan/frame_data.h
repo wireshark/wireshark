@@ -27,6 +27,7 @@
 
 #include "column_info.h"
 #include "tvbuff.h"
+#include <epan/nstime.h>
 
 #if 0
 /* Defined in color.h */
@@ -51,12 +52,9 @@ typedef struct _frame_data {
   guint32      pkt_len;     /* Packet length */
   guint32      cap_len;     /* Amount actually captured */
   guint32      cum_bytes;   /* Cumulative bytes into the capture */
-  gint32       rel_secs;    /* Relative seconds (yes, it can be negative) */
-  gint32       rel_usecs;   /* Relative microseconds (yes, it can be negative) */
-  guint32      abs_secs;    /* Absolute seconds */
-  guint32      abs_usecs;   /* Absolute microseconds */
-  gint32       del_secs;    /* Delta seconds (yes, it can be negative) */
-  gint32       del_usecs;   /* Delta microseconds (yes, it can be negative) */
+  nstime_t     abs_ts;      /* Absolute timestamp */
+  nstime_t     rel_ts;      /* Relative timestamp (yes, it can be negative) */
+  nstime_t     del_ts;      /* Delta timestamp (yes, it can be negative) */
   long         file_off;    /* File offset */
   int          lnk_t;       /* Per-packet encapsulation/data-link type */
   struct {

@@ -15012,8 +15012,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				sip = se_alloc(sizeof(smb_saved_info_t));
 				sip->frame_req = pinfo->fd->num;
 				sip->frame_res = 0;
-				sip->req_time.secs=pinfo->fd->abs_secs;
-				sip->req_time.nsecs=pinfo->fd->abs_usecs*1000;
+				sip->req_time = pinfo->fd->abs_ts;
 				sip->flags = 0;
 				if(g_hash_table_lookup(si->ct->tid_service, GUINT_TO_POINTER(si->tid))
 				    == (void *)TID_IPC) {
@@ -15063,9 +15062,8 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			if (sip->frame_req != 0) {
 				tmp_item=proto_tree_add_uint(htree, hf_smb_response_to, tvb, 0, 0, sip->frame_req);
 				PROTO_ITEM_SET_GENERATED(tmp_item);
-				t.secs = pinfo->fd->abs_secs;
-				t.nsecs = pinfo->fd->abs_usecs*1000;
-				get_timedelta(&deltat, &t, &sip->req_time);
+				t = pinfo->fd->abs_ts;
+				nstime_delta(&deltat, &t, &sip->req_time);
 				tmp_item=proto_tree_add_time(htree, hf_smb_time, tvb,
 				    0, 0, &deltat);
 				PROTO_ITEM_SET_GENERATED(tmp_item);

@@ -847,7 +847,7 @@ extern void mate_analyze_frame(packet_info *pinfo, proto_tree* tree) {
 	mate_pdu* pdu = NULL;
 	mate_pdu* last = NULL;
 
-	rd->now = (((float)pinfo->fd->rel_secs) + (((float)pinfo->fd->rel_usecs) / 1000000) );
+	rd->now = (float) nstime_to_sec(&pinfo->fd->rel_ts);
 
 	if ( tree->tree_data && tree->tree_data->interesting_hfids
 		 && rd->highest_analyzed_frame < pinfo->fd->num ) {

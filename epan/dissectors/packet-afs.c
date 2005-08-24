@@ -172,7 +172,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int port, node, typenode, opcode;
 	value_string const *vals;
 	int offset = 0;
-	nstime_t ns;
+	nstime_t delta_ts;
 
 	void (*dissector)(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode);
 
@@ -226,8 +226,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			request_val -> opcode = tvb_get_ntohl(tvb, offset);
 			request_val -> req_num = pinfo->fd->num;
 			request_val -> rep_num = 0;
-			request_val -> req_time.secs=pinfo->fd->abs_secs;
-			request_val -> req_time.nsecs=pinfo->fd->abs_usecs*1000;
+			request_val -> req_time = pinfo->fd->abs_ts;
 
 			g_hash_table_insert(afs_request_hash, new_request_key,
 				request_val);
@@ -370,14 +369,9 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    tvb, 0, 0, request_val->req_num,
 			    "This is a reply to a request in frame %u",
 			    request_val->req_num);
-			ns.secs= pinfo->fd->abs_secs-request_val->req_time.secs;
-			ns.nsecs=pinfo->fd->abs_usecs*1000-request_val->req_time.nsecs;
-			if(ns.nsecs<0){
-				ns.nsecs+=1000000000;
-				ns.secs--;
-			}
+			nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &request_val->req_time);
 			proto_tree_add_time(afs_tree, hf_afs_time, tvb, offset, 0,
-				&ns);
+				&delta_ts);
 		}
 
 

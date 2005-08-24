@@ -483,9 +483,8 @@ add_srt_table_data(srt_stat_table *rst, int index, const nstime_t *req_time, pac
 	}
 
 	/* calculate time delta between request and reply */
-	t.secs=pinfo->fd->abs_secs;
-	t.nsecs=pinfo->fd->abs_usecs*1000;
-	get_timedelta(&delta, &t, req_time);
+	t=pinfo->fd->abs_ts;
+	nstime_delta(&delta, &t, req_time);
 
 	time_stat_update(&rp->stats, &delta, pinfo);
 }

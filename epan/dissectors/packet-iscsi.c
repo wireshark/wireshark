@@ -964,8 +964,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             cdata->data_in_frame=0;
             cdata->data_out_frame=0;
             cdata->response_frame=0;
-            cdata->req_time.nsecs = pinfo->fd->abs_usecs*1000;
-            cdata->req_time.secs = pinfo->fd->abs_secs;
+            cdata->req_time = pinfo->fd->abs_ts;
 
             g_hash_table_insert (iscsi_req_unmatched, cdata, cdata);
         } else {
@@ -1608,14 +1607,8 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             if (cdata->request_frame){
                 nstime_t delta_time;
                 proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->request_frame);
-                delta_time.secs = pinfo->fd->abs_secs - cdata->req_time.secs;
-                delta_time.nsecs = pinfo->fd->abs_usecs*1000 - cdata->req_time.nsecs;
-                if (delta_time.nsecs<0){
-                    delta_time.nsecs+=1000000000;
-                    delta_time.secs--;
-                }
+				nstime_delta(&delta_time, &pinfo->fd->abs_ts, &cdata->req_time);
                 proto_tree_add_time(ti, hf_iscsi_time, tvb, 0, 0, &delta_time);
-                
             }
             if (cdata->data_in_frame)
                 proto_tree_add_uint(ti, hf_iscsi_data_in_frame, tvb, 0, 0, cdata->data_in_frame);
@@ -1634,14 +1627,8 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
                 if (cdata->request_frame){
                      nstime_t delta_time;
                      proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->request_frame);
-                     delta_time.secs = pinfo->fd->abs_secs - cdata->req_time.secs;
-                     delta_time.nsecs = pinfo->fd->abs_usecs*1000 - cdata->req_time.nsecs;
-                     if (delta_time.nsecs<0){
-                          delta_time.nsecs+=1000000000;
-                          delta_time.secs--;
-                     }
+					 nstime_delta(&delta_time, &pinfo->fd->abs_ts, &cdata->req_time);
                      proto_tree_add_time(ti, hf_iscsi_time, tvb, 0, 0, &delta_time);
-                
                 }
             }
             if (cdata->data_out_frame)

@@ -76,7 +76,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void
 	GPtrArray *gp;
 	guint i;
 
-	current_time=((pinfo->fd->rel_secs*1000)+(pinfo->fd->rel_usecs/1000));
+	current_time=((pinfo->fd->rel_ts.secs*1000)+(pinfo->fd->rel_ts.nsecs/1000000));
 
 	/* the prev item before the main one is always the last interval we saw packets for */
 	it=mit->prev;

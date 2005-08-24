@@ -430,8 +430,7 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 			 */
 			if(seq>tnp->seq && nxtseq<=tnp->nxtpdu){
 				tnp->last_frame=pinfo->fd->num;
-				tnp->last_frame_time.secs=pinfo->fd->abs_secs;
-				tnp->last_frame_time.nsecs=pinfo->fd->abs_usecs*1000;
+				tnp->last_frame_time=pinfo->fd->abs_ts;
 				g_hash_table_insert(tcp_pdu_skipping_table, 
 					GINT_TO_POINTER(pinfo->fd->num), (void *)tnp);
 				print_pdu_tracking_data(pinfo, tvb, tcp_tree, tnp);
@@ -456,16 +455,10 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 			item=proto_tree_add_uint(tcp_tree, hf_tcp_pdu_last_frame, tvb, 0, 0, tnp->last_frame);
 			PROTO_ITEM_SET_GENERATED(item);
 
-			ns.secs =tnp->last_frame_time.secs-pinfo->fd->abs_secs;
-			ns.nsecs=tnp->last_frame_time.nsecs-pinfo->fd->abs_usecs*1000;
-			if(ns.nsecs<0){
-				ns.nsecs+=1000000000;
-				ns.secs--;
-			}
+			nstime_delta(&ns, &tnp->last_frame_time, &pinfo->fd->abs_ts);
 			item = proto_tree_add_time(tcp_tree, hf_tcp_pdu_time,
 					tvb, 0, 0, &ns);
 			PROTO_ITEM_SET_GENERATED(item);
-
 		}
 
 		/* check if this is a segment in the middle of a pdu */
@@ -502,8 +495,7 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nx
 	tnp->seq=seq;
 	tnp->first_frame=pinfo->fd->num;
 	tnp->last_frame=pinfo->fd->num;
-	tnp->last_frame_time.secs=pinfo->fd->abs_secs;
-	tnp->last_frame_time.nsecs=pinfo->fd->abs_usecs*1000;
+	tnp->last_frame_time=pinfo->fd->abs_ts;
 
 	/* check direction and get pdu start list */
 	direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
@@ -673,14 +665,12 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		if(!ack2_frame){
 			ack2_frame=pinfo->fd->num;
 			ack2=ack;
-			ack2_time->secs=pinfo->fd->abs_secs;
-			ack2_time->nsecs=pinfo->fd->abs_usecs*1000;
+			*ack2_time=pinfo->fd->abs_ts;
 			num2_acks=0;
 		} else if(GT_SEQ(ack, ack2)){
 			ack2_frame=pinfo->fd->num;
 			ack2=ack;
-			ack2_time->secs=pinfo->fd->abs_secs;
-			ack2_time->nsecs=pinfo->fd->abs_usecs*1000;
+			*ack2_time=pinfo->fd->abs_ts;
 			num2_acks=0;
 		}
 	}
@@ -729,8 +719,7 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 		num2_acks=0;
 		ual1->seq=seq;
 		ual1->nextseq=seq+1;
-		ual1->ts.secs=pinfo->fd->abs_secs;
-		ual1->ts.nsecs=pinfo->fd->abs_usecs*1000;
+		ual1->ts=pinfo->fd->abs_ts;
 		ual1->window=window;
 		ual1->flags=0;
 		if(tcp_relative_seq){
@@ -754,8 +743,7 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 		ual1->frame=pinfo->fd->num;
 		ual1->seq=seq;
 		ual1->nextseq=seq+seglen;
-		ual1->ts.secs=pinfo->fd->abs_secs;
-		ual1->ts.nsecs=pinfo->fd->abs_usecs*1000;
+		ual1->ts=pinfo->fd->abs_ts;
 		ual1->window=window;
 		ual1->flags=0;
 		if(tcp_relative_seq){
@@ -781,8 +769,7 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 		ual->frame=pinfo->fd->num;
 		ual->seq=seq;
 		ual->nextseq=seq+seglen;
-		ual->ts.secs=pinfo->fd->abs_secs;
-		ual->ts.nsecs=pinfo->fd->abs_usecs*1000;
+		ual->ts=pinfo->fd->abs_ts;
 		ual->window=window;
 		ual->flags=0;
 		ual1=ual;
@@ -840,8 +827,8 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 		if( (num1_acks>=4) && (seq==ack1) ){
 			guint32 t;
 
-			t=(pinfo->fd->abs_secs-ack1_time->secs)*1000000000;
-			t=t+(pinfo->fd->abs_usecs*1000)-ack1_time->nsecs;
+			t=(pinfo->fd->abs_ts.secs-ack1_time->secs)*1000000000;
+			t=t+(pinfo->fd->abs_ts.nsecs)-ack1_time->nsecs;
 			if(t<10000000){
 				/* has to be a retransmission then */
 				struct tcp_acked *ta;
@@ -888,15 +875,15 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 			}
 		}
 		if(ntu){
-			if(pinfo->fd->abs_secs>(guint32)(ntu->ts.secs+2)){
+			if(pinfo->fd->abs_ts.secs > ntu->ts.secs+2){
 				outoforder=FALSE;
-			} else if((pinfo->fd->abs_secs+2)<(guint32)ntu->ts.secs){
+			} else if(pinfo->fd->abs_ts.secs+2 < ntu->ts.secs){
 				outoforder=FALSE;
 			} else {
 				guint32 t;
 
-				t=(ntu->ts.secs-pinfo->fd->abs_secs)*1000000000;
-				t=t+ntu->ts.nsecs-(pinfo->fd->abs_usecs*1000);
+				t=(ntu->ts.secs-pinfo->fd->abs_ts.secs)*1000000000;
+				t=t+ntu->ts.nsecs-(pinfo->fd->abs_ts.nsecs);
 
 				if(t>4000000){
 					outoforder=FALSE;
@@ -952,12 +939,7 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 				 * segment with an equal or lower sequence 
 				 * number.
 				 */
-				ta->rto_ts.secs=pinfo->fd->abs_secs-ntu->ts.secs;
-				ta->rto_ts.nsecs=pinfo->fd->abs_usecs*1000-ntu->ts.nsecs;
-				if(ta->rto_ts.nsecs<0){
-					ta->rto_ts.nsecs+=1000000000;
-					ta->rto_ts.secs--;
-				}
+				nstime_delta(&ta->rto_ts, &pinfo->fd->abs_ts, &ntu->ts);
 				ta->rto_frame=ntu->frame;
 			} else {
 				/* we didnt see any previous packet so we
@@ -974,8 +956,7 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 			if(GT_SEQ((seq+seglen), ual1->nextseq)){
 				ual1->nextseq=seq+seglen;
 				ual1->frame=pinfo->fd->num;
-				ual1->ts.secs=pinfo->fd->abs_secs;
-				ual1->ts.nsecs=pinfo->fd->abs_usecs*1000;
+				ual1->ts=pinfo->fd->abs_ts;
 			}
 		}
 		goto seq_finished;
@@ -987,8 +968,7 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 	ual->frame=pinfo->fd->num;
 	ual->seq=seq;
 	ual->nextseq=seq+seglen;
-	ual->ts.secs=pinfo->fd->abs_secs;
-	ual->ts.nsecs=pinfo->fd->abs_usecs*1000;
+	ual->ts=pinfo->fd->abs_ts;
 	ual->window=window;
 	ual->flags=0;
 	ual1=ual;
@@ -1043,12 +1023,7 @@ seq_finished:
 
 		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
 		ta->frame_acked=ual2->frame;
-		ta->ts.secs=pinfo->fd->abs_secs-ual2->ts.secs;
-		ta->ts.nsecs=pinfo->fd->abs_usecs*1000-ual2->ts.nsecs;
-		if(ta->ts.nsecs<0){
-			ta->ts.nsecs+=1000000000;
-			ta->ts.secs--;
-		}
+		nstime_delta(&ta->ts, &pinfo->fd->abs_ts, &ual2->ts);
 
 		/* its all been ACKed so we dont need to keep them anymore */
 		for(ual=ual2;ual2;ual2=ual){
@@ -1076,12 +1051,7 @@ seq_finished:
 
 		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
 		ta->frame_acked=ackedual->frame;
-		ta->ts.secs=pinfo->fd->abs_secs-ackedual->ts.secs;
-		ta->ts.nsecs=pinfo->fd->abs_usecs*1000-ackedual->ts.nsecs;
-		if(ta->ts.nsecs<0){
-			ta->ts.nsecs+=1000000000;
-			ta->ts.secs--;
-		}
+		nstime_delta(&ta->ts, &pinfo->fd->abs_ts, &ackedual->ts);
 
 		/* just delete all ACKed segments */
 		tmpual=ual->next;

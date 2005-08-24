@@ -442,7 +442,7 @@ static int rtp_packet_add_graph(dialog_graph_graph_t *dgg, tap_rtp_stat_t *stati
 	if (dgg->ud->dlg.dialog_graph.start_time == -1){ /* it is the first */
 		dgg->ud->dlg.dialog_graph.start_time = statinfo->start_time;
 	}
-	rtp_time = ((double)pinfo->fd->rel_secs + (double) pinfo->fd->rel_usecs/1000000) - dgg->ud->dlg.dialog_graph.start_time;
+	rtp_time = nstime_to_sec(&pinfo->fd->rel_ts) - dgg->ud->dlg.dialog_graph.start_time;
 	if(rtp_time<0){
 		return FALSE;
 	}
@@ -585,7 +585,7 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	clock_rate = get_clock_rate(statinfo->pt);
 
 	/* store the current time and calculate the current jitter */
-	current_time = (double)pinfo->fd->rel_secs + (double) pinfo->fd->rel_usecs/1000000;
+	current_time = nstime_to_sec(&pinfo->fd->rel_ts);
 	current_diff = fabs (current_time - (statinfo->time) - ((double)(rtpinfo->info_timestamp)-(double)(statinfo->timestamp))/clock_rate);
 	current_jitter = statinfo->jitter + ( current_diff - statinfo->jitter)/16;
 	statinfo->delta = current_time-(statinfo->time);
@@ -740,8 +740,8 @@ static int rtp_packet_add_info(GtkCList *clist,
 	time_t then;
 	gchar status[40];
 	GdkColor color = COLOR_DEFAULT;
-	then = pinfo->fd->abs_secs;
-	msecs = (guint16)(pinfo->fd->abs_usecs/1000);
+	then = pinfo->fd->abs_ts.secs;
+	msecs = (guint16)(pinfo->fd->abs_ts.nsecs/1000000);
 	tm_tmp = localtime(&then);
 	g_snprintf(timeStr,sizeof(timeStr),"%02d/%02d/%04d %02d:%02d:%02d.%03d",
 		tm_tmp->tm_mon + 1,

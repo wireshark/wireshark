@@ -42,11 +42,6 @@
 #define STAT_NODE_STATS(n)   ((ph_stats_node_t*)(n)->data)
 #define STAT_NODE_HFINFO(n)  (STAT_NODE_STATS(n)->hfinfo)
 
-static double
-secs_usecs(guint32 s, guint32 us)
-{
-  return (us / 1000000.0) + (double)s;
-}
 
 static GNode*
 find_stat_node(GNode *parent_stat_node, header_field_info *needle_hfinfo)
@@ -161,7 +156,7 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 	process_tree(edt->tree, ps, frame->pkt_len);
 
 	/* Update times */
-	cur_time = secs_usecs(frame->abs_secs, frame->abs_usecs);
+	cur_time = nstime_to_sec(&frame->abs_ts);
 	if (cur_time < ps->first_time) {
 	  ps->first_time = cur_time;
 	}
@@ -256,8 +251,7 @@ ph_stats_new(void)
 		if (frame->flags.passed_dfilter) {
 
 			if (tot_packets == 0) {
-				double cur_time = secs_usecs(frame->abs_secs,
-							     frame->abs_usecs);
+				double cur_time = nstime_to_sec(&frame->abs_ts);
 				ps->first_time = cur_time;
 				ps->last_time = cur_time;
 			}

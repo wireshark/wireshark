@@ -280,8 +280,8 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 	}
 
 	if (wth) {
-	        wth->phdr.ts.tv_sec = secs;
-		wth->phdr.ts.tv_usec = usecs;
+	        wth->phdr.ts.secs = secs;
+		wth->phdr.ts.nsecs = usecs * 1000;
 		wth->phdr.caplen = pkt_len;
 		wth->phdr.len = pkt_len;
 	}
