@@ -294,10 +294,10 @@ static int hf_rtcp_app_poc1_ack_subtype		= -1;
 static int hf_rtcp_app_poc1_ack_reason_code	= -1;
 static int hf_rtcp_app_poc1_qsresp_priority	= -1;
 static int hf_rtcp_app_poc1_qsresp_position	= -1;
-static int hf_rtcp_app_poc1_conn_content_1st_byte[5] = { -1, };
+static int hf_rtcp_app_poc1_conn_content_1st_byte[5] = { -1, -1, -1, -1, -1 };
 static int hf_rtcp_app_poc1_conn_session_type	= -1;
 static int hf_rtcp_app_poc1_conn_add_ind_mao	= -1;
-static int hf_rtcp_app_poc1_conn_sdes_items[5] = { -1, };
+static int hf_rtcp_app_poc1_conn_sdes_items[5] = { -1, -1, -1, -1, -1 };
 static int hf_rtcp_xr_block_type     = -1;
 static int hf_rtcp_xr_block_specific = -1;
 static int hf_rtcp_xr_block_length   = -1;
@@ -2494,8 +2494,8 @@ proto_register_rtcp(void)
 			{
 				"Session type",
 				"rtcp.app.poc1.conn.session.type",
-				FT_BOOLEAN,
-				8,
+				FT_UINT8,
+				BASE_DEC,
 				VALS(rtcp_app_poc1_conn_sess_type_vals),
 				0x0,
 				"", HFILL
