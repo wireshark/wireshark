@@ -398,6 +398,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_seek_read = snoop_seek_read;
 	wth->file_encap = file_encap;
 	wth->snapshot_length = 0;	/* not available in header */
+	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 	return 1;
 }
 

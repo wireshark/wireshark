@@ -2085,13 +2085,13 @@ main(int argc, char *argv[])
         break;
       case 't':        /* Time stamp type */
         if (strcmp(optarg, "r") == 0)
-          set_timestamp_setting(TS_RELATIVE);
+          timestamp_set_type(TS_RELATIVE);
         else if (strcmp(optarg, "a") == 0)
-          set_timestamp_setting(TS_ABSOLUTE);
+          timestamp_set_type(TS_ABSOLUTE);
         else if (strcmp(optarg, "ad") == 0)
-          set_timestamp_setting(TS_ABSOLUTE_WITH_DATE);
+          timestamp_set_type(TS_ABSOLUTE_WITH_DATE);
         else if (strcmp(optarg, "d") == 0)
-          set_timestamp_setting(TS_DELTA);
+          timestamp_set_type(TS_DELTA);
         else {
           fprintf(stderr, "ethereal: Invalid time stamp type \"%s\"\n",
             optarg);

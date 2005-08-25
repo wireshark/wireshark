@@ -197,6 +197,7 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_seek_read = _5views_seek_read;
 	wth->file_encap = encap;
 	wth->snapshot_length = 0;	/* not available in header */
+	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 
 	return 1;
 }

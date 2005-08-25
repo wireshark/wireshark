@@ -419,6 +419,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
 	wth->subtype_seek_read = k12_seek_read;
 	wth->subtype_close = k12_close;
 	wth->capture.k12 = file_data;
+	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 	
 	/* if we use just one encapsulation for all the file
 		we will use that for the whole file so we can

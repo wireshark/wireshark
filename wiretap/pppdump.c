@@ -295,6 +295,7 @@ pppdump_open(wtap *wth, int *err, gchar **err_info _U_)
 	wth->subtype_read = pppdump_read;
 	wth->subtype_seek_read = pppdump_seek_read;
 	wth->subtype_close = pppdump_close;
+	wth->tsprecision = WTAP_FILE_TSPREC_DSEC;
 
 	state->seek_state = g_malloc(sizeof(pppdump_t));
 

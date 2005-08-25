@@ -404,10 +404,12 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 
 	case WTAP_FILE_NETXRAY_OLD:
 		timeunit = 1000.0;
+		wth->tsprecision = WTAP_FILE_TSPREC_MSEC;
 		break;
 
 	case WTAP_FILE_NETXRAY_1_0:
 		timeunit = 1000.0;
+		wth->tsprecision = WTAP_FILE_TSPREC_MSEC;
 		break;
 
 	case WTAP_FILE_NETXRAY_1_1:
@@ -418,6 +420,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		 * and older versions of Windows Sniffer.
 		 */
 		timeunit = 1000000.0;
+		wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 		break;
 
 	case WTAP_FILE_NETXRAY_2_00x:
@@ -443,6 +446,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 					return -1;
 				}
 				timeunit = TpS[hdr.timeunit];
+				wth->tsprecision = WTAP_FILE_TSPREC_NSEC;	/* XXX */
 				break;
 
 			case ETH_CAPTYPE_GIGPOD:
@@ -455,6 +459,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 					return -1;
 				}
 				timeunit = TpS_gigpod[hdr.timeunit];
+				wth->tsprecision = WTAP_FILE_TSPREC_NSEC;	/* XXX */
 
 				/*
 				 * At least for 002.002 and 002.003
@@ -475,6 +480,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 					return -1;
 				}
 				timeunit = TpS_otherpod[hdr.timeunit];
+				wth->tsprecision = WTAP_FILE_TSPREC_NSEC;	/* XXX */
 
 				/*
 				 * At least for 002.002 and 002.003
@@ -495,6 +501,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 					return -1;
 				}
 				timeunit = TpS_gigpod2[hdr.timeunit];
+				wth->tsprecision = WTAP_FILE_TSPREC_NSEC;	/* XXX */
 				break;
 
 			default:
@@ -516,6 +523,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 				return -1;
 			}
 			timeunit = TpS[hdr.timeunit];
+			wth->tsprecision = WTAP_FILE_TSPREC_NSEC;	/* XXX */
 			break;
 		}
 		break;

@@ -32,16 +32,34 @@ typedef enum {
 	TS_RELATIVE,
 	TS_ABSOLUTE,
 	TS_ABSOLUTE_WITH_DATE,
-	TS_DELTA
-} ts_type;
-
+	TS_DELTA,
 /*
  * Special value used for the command-line setting in Ethereal, to indicate
  * that no value has been set from the command line.
  */
-#define TS_NOT_SET	((ts_type)-1)
+	TS_NOT_SET
+} ts_type;
 
-extern ts_type get_timestamp_setting(void);
-extern void set_timestamp_setting(ts_type);
+typedef enum {
+	TS_PREC_AUTO,		/* recent */
+	TS_PREC_FIXED_SEC,	/* recent and internal */
+	TS_PREC_FIXED_DSEC,	/* recent and internal */
+	TS_PREC_FIXED_CSEC,	/* recent and internal */
+	TS_PREC_FIXED_MSEC, /* recent and internal */
+	TS_PREC_FIXED_USEC,	/* recent and internal */
+	TS_PREC_FIXED_NSEC,	/* recent and internal */
+	TS_PREC_AUTO_SEC,	/* internal */
+	TS_PREC_AUTO_DSEC,	/* internal */
+	TS_PREC_AUTO_CSEC,	/* internal */
+	TS_PREC_AUTO_MSEC,	/* internal */
+	TS_PREC_AUTO_USEC,	/* internal */
+	TS_PREC_AUTO_NSEC	/* internal */
+} ts_precision;
+
+extern ts_type timestamp_get_type(void);
+extern void timestamp_set_type(ts_type);
+
+extern int timestamp_get_precision(void);
+extern void timestamp_set_precision(int tsp);
 
 #endif /* timestamp.h */

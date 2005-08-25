@@ -506,6 +506,18 @@ display_signed_time(gchar *buf, int buflen, gint32 sec, gint32 frac,
 	}
 	switch (units) {
 
+	case SECS:
+		g_snprintf(buf, buflen, "%s%d", sign, sec);
+		break;
+
+	case DSECS:
+		g_snprintf(buf, buflen, "%s%d.%01d", sign, sec, frac);
+		break;
+
+	case CSECS:
+		g_snprintf(buf, buflen, "%s%d.%02d", sign, sec, frac);
+		break;
+
 	case MSECS:
 		g_snprintf(buf, buflen, "%s%d.%03d", sign, sec, frac);
 		break;

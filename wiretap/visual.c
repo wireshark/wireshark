@@ -215,6 +215,7 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
     wth->subtype_read = visual_read;
     wth->subtype_seek_read = visual_seek_read;
     wth->subtype_close = visual_close;
+	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
     /* Add Visual-specific information to the wiretap struct for later use. */
     visual = g_malloc(sizeof(struct visual_read_info));

@@ -54,14 +54,15 @@ typedef struct _capture_file {
   int          displayed_count; /* Number of displayed frames */
   int          marked_count; /* Number of marked frames */
   gboolean     drops_known; /* TRUE if we know how many packets were dropped */
-  guint32      drops;     /* Dropped packets */
-  nstime_t     elapsed_time;/* Elapsed time (see: tsaccur below!) */
+  guint32      drops;       /* Dropped packets */
+  nstime_t     elapsed_time;/* Elapsed time */
   gboolean     has_snap;  /* TRUE if maximum capture packet length is known */
   int          snap;      /* Maximum captured packet length */
   wtap        *wth;       /* Wiretap session */
   dfilter_t   *rfcode;    /* Compiled read (display) filter program */
   gchar       *dfilter;   /* Display filter string */
   dfilter_t   *dfcode;    /* Compiled display filter program */
+  /* search */
   gchar       *sfilter;   /* Search filter string */
   gboolean     sbackward; /* TRUE if search is backward, FALSE if forward */
   gboolean     hex;       /* TRUE is raw data search is being performed */
@@ -70,6 +71,7 @@ typedef struct _capture_file {
   gboolean     case_type; /* TRUE if case-insensitive text search */
   gboolean     decode_data; /* TRUE if searching protocol tree text */
   gboolean     summary_data; /* TRUE if searching Info column text */
+  /* packet data */
   union wtap_pseudo_header pseudo_header;      /* Packet pseudo_header */
   guint8       pd[WTAP_MAX_PACKET_SIZE];  /* Packet data */
   GMemChunk   *plist_chunk; /* Memory chunk for frame_data structures */
@@ -82,8 +84,6 @@ typedef struct _capture_file {
   epan_dissect_t *edt; /* Protocol dissection for currently selected packet */
   field_info  *finfo_selected;	/* Field info for currently selected field */
   struct ph_stats_s* pstats; /* accumulated stats (reset on redisplay in GUI)*/
-  int          tsprecision;		/* timestamp precision
-                               (WTAP_FILE_TSPREC_USEC or WTAP_FILE_TSPREC_NSEC) */
 } capture_file;
 
 void init_cap_file(capture_file *);

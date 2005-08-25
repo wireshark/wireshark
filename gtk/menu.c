@@ -114,6 +114,13 @@ static void timestamp_absolute_cb(GtkWidget *w _U_, gpointer d _U_);
 static void timestamp_absolute_date_cb(GtkWidget *w _U_, gpointer d _U_);
 static void timestamp_relative_cb(GtkWidget *w _U_, gpointer d _U_);
 static void timestamp_delta_cb(GtkWidget *w _U_, gpointer d _U_);
+static void timestamp_auto_cb(GtkWidget *w _U_, gpointer d _U_);
+static void timestamp_sec_cb(GtkWidget *w _U_, gpointer d _U_);
+static void timestamp_dsec_cb(GtkWidget *w _U_, gpointer d _U_);
+static void timestamp_csec_cb(GtkWidget *w _U_, gpointer d _U_);
+static void timestamp_msec_cb(GtkWidget *w _U_, gpointer d _U_);
+static void timestamp_usec_cb(GtkWidget *w _U_, gpointer d _U_);
+static void timestamp_nsec_cb(GtkWidget *w _U_, gpointer d _U_);
 static void name_resolution_mac_cb(GtkWidget *w _U_, gpointer d _U_);
 static void name_resolution_network_cb(GtkWidget *w _U_, gpointer d _U_);
 static void name_resolution_transport_cb(GtkWidget *w _U_, gpointer d _U_);
@@ -247,14 +254,29 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/View/Packet _Bytes", NULL, byte_view_show_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/View/_Time Display Format", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Time of Day", NULL, timestamp_absolute_cb, 
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL, timestamp_absolute_date_cb, 
                         0, "<RadioItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Date and Time of Day", NULL, timestamp_absolute_date_cb, 
-                        0, "/View/Time Display Format/Time of Day", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds Since Beginning of Capture", NULL, timestamp_relative_cb, 
-                        0, "/View/Time Display Format/Time of Day", NULL),
-    ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds Since Previous Packet", NULL, timestamp_delta_cb, 
-                        0, "/View/Time Display Format/Time of Day", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Time of Day:   01:02:03.123456", NULL, timestamp_absolute_cb, 
+                        0, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds Since Beginning of Capture:   123.123456", NULL, timestamp_relative_cb, 
+                        0, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds Since Previous Packet:   1.123456", NULL, timestamp_delta_cb, 
+                        0, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Automatic (File Format Precision)", NULL, timestamp_auto_cb, 
+                        0, "<RadioItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds:   0", NULL, timestamp_sec_cb, 
+                        0, "/View/Time Display Format/Automatic (File Format Precision)", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Deciseconds:   0.1", NULL, timestamp_dsec_cb, 
+                        0, "/View/Time Display Format/Automatic (File Format Precision)", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Centiseconds:   0.12", NULL, timestamp_csec_cb, 
+                        0, "/View/Time Display Format/Automatic (File Format Precision)", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Milliseconds:   0.123", NULL, timestamp_msec_cb, 
+                        0, "/View/Time Display Format/Automatic (File Format Precision)", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Microseconds:   0.123456", NULL, timestamp_usec_cb, 
+                        0, "/View/Time Display Format/Automatic (File Format Precision)", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Nanoseconds:   0.123456789", NULL, timestamp_nsec_cb, 
+                        0, "/View/Time Display Format/Automatic (File Format Precision)", NULL),
     ITEM_FACTORY_ENTRY("/View/Name Resol_ution", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/View/Name Resolution/_Resolve Name", NULL, resolve_name_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/View/Name Resolution/<separator>", NULL, NULL, 0, "<Separator>", NULL),
@@ -1294,7 +1316,7 @@ static void
 timestamp_absolute_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (recent.gui_time_format != TS_ABSOLUTE) {
-        set_timestamp_setting(TS_ABSOLUTE);
+        timestamp_set_type(TS_ABSOLUTE);
         recent.gui_time_format  = TS_ABSOLUTE;
         cf_change_time_formats(&cfile);
     }
@@ -1304,7 +1326,7 @@ static void
 timestamp_absolute_date_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (recent.gui_time_format != TS_ABSOLUTE_WITH_DATE) {
-        set_timestamp_setting(TS_ABSOLUTE_WITH_DATE);
+        timestamp_set_type(TS_ABSOLUTE_WITH_DATE);
         recent.gui_time_format  = TS_ABSOLUTE_WITH_DATE;
         cf_change_time_formats(&cfile);
     }
@@ -1314,7 +1336,7 @@ static void
 timestamp_relative_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (recent.gui_time_format != TS_RELATIVE) {
-        set_timestamp_setting(TS_RELATIVE);
+        timestamp_set_type(TS_RELATIVE);
         recent.gui_time_format  = TS_RELATIVE;
         cf_change_time_formats(&cfile);
     }
@@ -1324,11 +1346,83 @@ static void
 timestamp_delta_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (recent.gui_time_format != TS_DELTA) {
-        set_timestamp_setting(TS_DELTA);
+        timestamp_set_type(TS_DELTA);
         recent.gui_time_format  = TS_DELTA;
         cf_change_time_formats(&cfile);
     }
 }
+
+static void 
+timestamp_auto_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    if (recent.gui_time_precision != TS_PREC_AUTO) {
+		/* the actual precision will be set in cf_change_time_formats() below */
+        timestamp_set_precision(TS_PREC_AUTO_SEC);
+        recent.gui_time_precision  = TS_PREC_AUTO;
+        cf_change_time_formats(&cfile);
+    }
+}
+
+static void 
+timestamp_sec_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    if (recent.gui_time_precision != TS_PREC_FIXED_SEC) {
+        timestamp_set_precision(TS_PREC_FIXED_SEC);
+        recent.gui_time_precision  = TS_PREC_FIXED_SEC;
+        cf_change_time_formats(&cfile);
+    }
+}
+
+static void 
+timestamp_dsec_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    if (recent.gui_time_precision != TS_PREC_FIXED_DSEC) {
+        timestamp_set_precision(TS_PREC_FIXED_DSEC);
+        recent.gui_time_precision  = TS_PREC_FIXED_DSEC;
+        cf_change_time_formats(&cfile);
+    }
+}
+
+static void 
+timestamp_csec_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    if (recent.gui_time_precision != TS_PREC_FIXED_CSEC) {
+        timestamp_set_precision(TS_PREC_FIXED_CSEC);
+        recent.gui_time_precision  = TS_PREC_FIXED_CSEC;
+        cf_change_time_formats(&cfile);
+    }
+}
+
+static void 
+timestamp_msec_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    if (recent.gui_time_precision != TS_PREC_FIXED_MSEC) {
+        timestamp_set_precision(TS_PREC_FIXED_MSEC);
+        recent.gui_time_precision  = TS_PREC_FIXED_MSEC;
+        cf_change_time_formats(&cfile);
+    }
+}
+
+static void 
+timestamp_usec_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    if (recent.gui_time_precision != TS_PREC_FIXED_USEC) {
+        timestamp_set_precision(TS_PREC_FIXED_USEC);
+        recent.gui_time_precision  = TS_PREC_FIXED_USEC;
+        cf_change_time_formats(&cfile);
+    }
+}
+
+static void 
+timestamp_nsec_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    if (recent.gui_time_precision != TS_PREC_FIXED_NSEC) {
+        timestamp_set_precision(TS_PREC_FIXED_NSEC);
+        recent.gui_time_precision  = TS_PREC_FIXED_NSEC;
+        cf_change_time_formats(&cfile);
+    }
+}
+
 
 void
 menu_name_resolution_changed(void)
@@ -1469,35 +1563,85 @@ menu_recent_read_finished(void) {
     main_widgets_rearrange();
 
     /* don't change the time format, if we had a command line value */
-    if (get_timestamp_setting() != TS_NOT_SET) {
-        recent.gui_time_format = get_timestamp_setting();
+    if (timestamp_get_type() != TS_NOT_SET) {
+        recent.gui_time_format = timestamp_get_type();
     }
 
     switch(recent.gui_time_format) {
-    case(TS_ABSOLUTE):
+    case(TS_ABSOLUTE_WITH_DATE):
         menu = gtk_item_factory_get_widget(main_menu_factory, 
-            "/View/Time Display Format/Time of Day");
+            "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456");
         /* set_active will not trigger the callback when activating an active item! */
         recent.gui_time_format = -1;
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), FALSE);
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
-    case(TS_ABSOLUTE_WITH_DATE):
+    case(TS_ABSOLUTE):
         menu = gtk_item_factory_get_widget(main_menu_factory, 
-            "/View/Time Display Format/Date and Time of Day");
+            "/View/Time Display Format/Time of Day:   01:02:03.123456");
+        /* set_active will not trigger the callback when activating an active item! */
         recent.gui_time_format = -1;
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_RELATIVE):
         menu = gtk_item_factory_get_widget(main_menu_factory, 
-            "/View/Time Display Format/Seconds Since Beginning of Capture");
+            "/View/Time Display Format/Seconds Since Beginning of Capture:   123.123456");
         recent.gui_time_format = -1;
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     case(TS_DELTA):
         menu = gtk_item_factory_get_widget(main_menu_factory, 
-            "/View/Time Display Format/Seconds Since Previous Packet");
+            "/View/Time Display Format/Seconds Since Previous Packet:   1.123456");
         recent.gui_time_format = -1;
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
+        break;
+    default:
+        g_assert_not_reached();
+    }
+
+    switch(recent.gui_time_precision) {
+    case(TS_PREC_AUTO):
+        menu = gtk_item_factory_get_widget(main_menu_factory, 
+            "/View/Time Display Format/Automatic (File Format Precision)");
+        /* set_active will not trigger the callback when activating an active item! */
+        recent.gui_time_precision = -1;
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), FALSE);
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
+        break;
+    case(TS_PREC_FIXED_SEC):
+        menu = gtk_item_factory_get_widget(main_menu_factory, 
+            "/View/Time Display Format/Seconds:   0");
+        recent.gui_time_precision = -1;
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
+        break;
+    case(TS_PREC_FIXED_DSEC):
+        menu = gtk_item_factory_get_widget(main_menu_factory, 
+            "/View/Time Display Format/Deciseconds:   0.1");
+        recent.gui_time_precision = -1;
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
+        break;
+    case(TS_PREC_FIXED_CSEC):
+        menu = gtk_item_factory_get_widget(main_menu_factory, 
+            "/View/Time Display Format/Centiseconds:   0.12");
+        recent.gui_time_precision = -1;
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
+        break;
+    case(TS_PREC_FIXED_MSEC):
+        menu = gtk_item_factory_get_widget(main_menu_factory, 
+            "/View/Time Display Format/Milliseconds:   0.123");
+        recent.gui_time_precision = -1;
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
+        break;
+    case(TS_PREC_FIXED_USEC):
+        menu = gtk_item_factory_get_widget(main_menu_factory, 
+            "/View/Time Display Format/Microseconds:   0.123456");
+        recent.gui_time_precision = -1;
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
+        break;
+    case(TS_PREC_FIXED_NSEC):
+        menu = gtk_item_factory_get_widget(main_menu_factory, 
+            "/View/Time Display Format/Nanoseconds:   0.123456789");
+        recent.gui_time_precision = -1;
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;
     default:

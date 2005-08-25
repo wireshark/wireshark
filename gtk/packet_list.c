@@ -158,7 +158,7 @@ packet_list_compare(EthCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
     return COMPARE_FRAME_NUM();
 
   case COL_CLS_TIME:
-    switch (get_timestamp_setting()) {
+    switch (timestamp_get_type()) {
 
     case TS_ABSOLUTE:
     case TS_ABSOLUTE_WITH_DATE:

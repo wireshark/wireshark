@@ -178,6 +178,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_close = NULL;
 	wth->subtype_sequential_close = NULL;
 	wth->snapshot_length = 0;
+	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
 	/* reset the pointer to the first packet */
 	if (file_seek(wth->fh, file_header.offset_to_first_packet, SEEK_SET,

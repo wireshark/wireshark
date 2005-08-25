@@ -138,6 +138,7 @@ int csids_open(wtap *wth, int *err, gchar **err_info _U_)
   wth->subtype_read = csids_read;
   wth->subtype_seek_read = csids_seek_read;
   wth->subtype_close = csids_close;
+  wth->tsprecision = WTAP_FILE_TSPREC_SEC;
 
   return 1;
 }

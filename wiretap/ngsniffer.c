@@ -628,6 +628,8 @@ int ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	 * isn't stored in the capture file.
 	 */
 
+	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;	/* XXX */
+
 	return 1;
 }
 

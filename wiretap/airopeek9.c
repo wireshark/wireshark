@@ -301,6 +301,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
     wth->subtype_read = airopeekv9_read;
     wth->subtype_seek_read = airopeekv9_seek_read;
     wth->subtype_close = airopeekv9_close;
+	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 
     wth->capture.airopeek9 = g_malloc(sizeof(airopeek9_t));
     switch (mediaSubType) {

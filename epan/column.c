@@ -214,6 +214,115 @@ get_column_format_matches(gboolean *fmt_list, gint format) {
   }
 }
 
+/* Returns a string representing the longest possible value for 
+   a timestamp column type. */
+static const char *
+get_timestamp_column_longest_string(gint type, gint precision)
+{
+
+	switch(type) {
+	case(TS_ABSOLUTE_WITH_DATE):
+		switch(precision) {
+			case(TS_PREC_AUTO_SEC):
+			case(TS_PREC_FIXED_SEC):
+				return "0000-00-00 00:00:00";
+				break;
+			case(TS_PREC_AUTO_DSEC):
+			case(TS_PREC_FIXED_DSEC):
+				return "0000-00-00 00:00:00.0";
+				break;
+			case(TS_PREC_AUTO_CSEC):
+			case(TS_PREC_FIXED_CSEC):
+				return "0000-00-00 00:00:00.00";
+				break;
+			case(TS_PREC_AUTO_MSEC):
+			case(TS_PREC_FIXED_MSEC):
+				return "0000-00-00 00:00:00.000";
+				break;
+			case(TS_PREC_AUTO_USEC):
+			case(TS_PREC_FIXED_USEC):
+				return "0000-00-00 00:00:00.000000";
+				break;
+			case(TS_PREC_AUTO_NSEC):
+			case(TS_PREC_FIXED_NSEC):
+				return "0000-00-00 00:00:00.000000000";
+				break;
+			default:
+				g_assert_not_reached();
+		}
+			break;
+	case(TS_ABSOLUTE):
+		switch(precision) {
+			case(TS_PREC_AUTO_SEC):
+			case(TS_PREC_FIXED_SEC):
+				return "00:00:00";
+				break;
+			case(TS_PREC_AUTO_DSEC):
+			case(TS_PREC_FIXED_DSEC):
+				return "00:00:00.0";
+				break;
+			case(TS_PREC_AUTO_CSEC):
+			case(TS_PREC_FIXED_CSEC):
+				return "00:00:00.00";
+				break;
+			case(TS_PREC_AUTO_MSEC):
+			case(TS_PREC_FIXED_MSEC):
+				return "00:00:00.000";
+				break;
+			case(TS_PREC_AUTO_USEC):
+			case(TS_PREC_FIXED_USEC):
+				return "00:00:00.000000";
+				break;
+			case(TS_PREC_AUTO_NSEC):
+			case(TS_PREC_FIXED_NSEC):
+				return "00:00:00.000000000";
+				break;
+			default:
+				g_assert_not_reached();
+		}
+		break;
+	case(TS_RELATIVE):	/* fallthrough */
+	case(TS_DELTA):
+		switch(precision) {
+			case(TS_PREC_AUTO_SEC):
+			case(TS_PREC_FIXED_SEC):
+				return "0000";
+				break;
+			case(TS_PREC_AUTO_DSEC):
+			case(TS_PREC_FIXED_DSEC):
+				return "0000.0";
+				break;
+			case(TS_PREC_AUTO_CSEC):
+			case(TS_PREC_FIXED_CSEC):
+				return "0000.00";
+				break;
+			case(TS_PREC_AUTO_MSEC):
+			case(TS_PREC_FIXED_MSEC):
+				return "0000.000";
+				break;
+			case(TS_PREC_AUTO_USEC):
+			case(TS_PREC_FIXED_USEC):
+				return "0000.000000";
+				break;
+			case(TS_PREC_AUTO_NSEC):
+			case(TS_PREC_FIXED_NSEC):
+				return "0000.000000000";
+				break;
+			default:
+				g_assert_not_reached();
+		}
+		break;
+	case(TS_NOT_SET):
+		return "0000.000000";
+		break;
+	default:
+		g_assert_not_reached();
+	}
+
+	/* never reached, satisfy compiler */
+	return "";
+}
+
 /* Returns a string representing the longest possible value for a
    particular column type.
 
@@ -234,22 +343,19 @@ get_column_longest_string(gint format)
       return "0000000";
       break;
     case COL_CLS_TIME:
-      if (get_timestamp_setting() == TS_ABSOLUTE)
-        return "00:00:00.000000";
-      else if (get_timestamp_setting() == TS_ABSOLUTE_WITH_DATE)
-        return "0000-00-00 00:00:00.000000";
-      else
-        return "0000.000000";
-      break;
-    case COL_ABS_TIME:
-      return "00:00:00.000000";
+      return get_timestamp_column_longest_string(timestamp_get_type(), timestamp_get_precision());
       break;
     case COL_ABS_DATE_TIME:
-      return "0000-00-00 00:00:00.000000";
+      return get_timestamp_column_longest_string(TS_ABSOLUTE_WITH_DATE, timestamp_get_precision());
+      break;
+    case COL_ABS_TIME:
+      return get_timestamp_column_longest_string(TS_ABSOLUTE, timestamp_get_precision());
       break;
     case COL_REL_TIME:
+      return get_timestamp_column_longest_string(TS_RELATIVE, timestamp_get_precision());
+      break;
     case COL_DELTA_TIME:
-      return "0000.000000";
+      return get_timestamp_column_longest_string(TS_DELTA, timestamp_get_precision());
       break;
     case COL_DEF_SRC:
     case COL_RES_SRC:

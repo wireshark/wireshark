@@ -65,7 +65,7 @@ main(int argc, char **argv)
 	e_prefs		*prefs;
 	dfilter_t	*df;
 
-	set_timestamp_setting(TS_RELATIVE);
+	timestamp_set_type(TS_RELATIVE);
 
 	/* register all dissectors; we must do this before checking for the
 	"-g" flag, as the "-g" flag dumps a list of fields registered

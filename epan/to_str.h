@@ -37,6 +37,9 @@
  * Resolution of a time stamp.
  */
 typedef enum {
+	SECS,	/* seconds */
+	DSECS,	/* deciseconds */
+	CSECS,	/* centiseconds */
 	MSECS,	/* milliseconds */
 	USECS,	/* microseconds */
 	NSECS	/* nanoseconds */

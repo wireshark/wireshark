@@ -299,6 +299,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Set up to start reading at the first frame. */
 	wth->capture.netmon->current_frame = 0;
+	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
 	return 1;
 }

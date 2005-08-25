@@ -177,7 +177,7 @@ struct wtap {
 						   per-file encapsulation
 						   types */
 	int			tsprecision;	/* timestamp precision of the lower 32bits
-							 * 6 is microseconds, 9 is nanoseconds */
+							 * e.g. WTAP_FILE_TSPREC_USEC */
 };
 
 struct wtap_dumper;

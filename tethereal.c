@@ -656,7 +656,8 @@ main(int argc, char *argv[])
   capture_opts_init(&capture_opts, NULL /* cfile */);
 #endif
 
-  set_timestamp_setting(TS_RELATIVE);
+  timestamp_set_type(TS_RELATIVE);
+  timestamp_set_precision(TS_PREC_AUTO);
 
   /* Register all dissectors; we must do this before checking for the
      "-G" flag, as the "-G" flag dumps information registered by the
@@ -961,13 +962,13 @@ main(int argc, char *argv[])
         break;
       case 't':        /* Time stamp type */
         if (strcmp(optarg, "r") == 0)
-          set_timestamp_setting(TS_RELATIVE);
+          timestamp_set_type(TS_RELATIVE);
         else if (strcmp(optarg, "a") == 0)
-          set_timestamp_setting(TS_ABSOLUTE);
+          timestamp_set_type(TS_ABSOLUTE);
         else if (strcmp(optarg, "ad") == 0)
-          set_timestamp_setting(TS_ABSOLUTE_WITH_DATE);
+          timestamp_set_type(TS_ABSOLUTE_WITH_DATE);
         else if (strcmp(optarg, "d") == 0)
-          set_timestamp_setting(TS_DELTA);
+          timestamp_set_type(TS_DELTA);
         else {
           fprintf(stderr, "tethereal: Invalid time stamp type \"%s\"\n",
             optarg);

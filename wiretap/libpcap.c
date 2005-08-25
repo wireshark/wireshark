@@ -602,9 +602,6 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 	int file_encap;
 
 	
-	/* XXX - this must be done depending on the magic number */
-	/*wth->tsrecision = WTAP_FILE_TSPREC_NSEC;*/
-	
 	/* Read in the number that should be at the start of a "libpcap" file */
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&magic, 1, sizeof magic, wth->fh);
@@ -623,6 +620,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		   a program using either standard or ss990417 libpcap. */
 		byte_swapped = FALSE;
 		modified = FALSE;
+		wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 		break;
 
 	case PCAP_MODIFIED_MAGIC:
@@ -630,6 +628,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		   a program using either ss990915 or ss991029 libpcap. */
 		byte_swapped = FALSE;
 		modified = TRUE;
+		wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 		break;
 
 	case PCAP_SWAPPED_MAGIC:
@@ -638,6 +637,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		   ss990417 libpcap. */
 		byte_swapped = TRUE;
 		modified = FALSE;
+		wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 		break;
 
 	case PCAP_SWAPPED_MODIFIED_MAGIC:
@@ -646,6 +646,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		   or ss991029 libpcap. */
 		byte_swapped = TRUE;
 		modified = TRUE;
+		wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 		break;
 
 	default:

@@ -307,7 +307,6 @@ get_plugins_pers_dir
 get_systemfile_dir
 get_tcp_port
 get_tempfile_path
-get_timestamp_setting
 get_udp_port
 gsm_a_bssmap_msg_strings        DATA
 gsm_a_dtap_msg_cc_strings       DATA
@@ -522,7 +521,6 @@ rtp_free_hash_dyn_payload
 rtp_payload_type_vals           DATA
 rtp_payload_type_short_vals    DATA
 set_actual_length
-set_timestamp_setting
 show_fragment_seq_tree
 show_fragment_tree
 sid_name_snooping               DATA
@@ -563,6 +561,10 @@ test_for_directory
 test_for_fifo
 time_msecs_to_str
 time_secs_to_str
+timestamp_get_precision
+timestamp_get_type
+timestamp_set_precision
+timestamp_set_type
 trans2_cmd_vals                 DATA
 tree_is_expanded                DATA
 tvb_bytes_exist

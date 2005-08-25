@@ -76,6 +76,8 @@
 #include "stat_menu.h"
 #include "tap_dfilter_dlg.h"
 #include <epan/dissectors/packet-data.h>
+#include <epan/timestamp.h>
+
 
 /* Win32 needs the O_BINARY flag for open() */
 #ifndef O_BINARY
@@ -162,6 +164,51 @@ cf_callback_remove(cf_callback_t func _U_)
     cf_cb_user_data = NULL;
 }
 
+void
+cf_timestamp_auto_precision(capture_file *cf)
+{
+	int prec = timestamp_get_precision();
+
+
+	/* don't try to get the file's precision if none is opened */
+	if(cf->state == FILE_CLOSED) {
+		return;
+	}
+
+	/* if we are in auto mode, set precision of current file */
+	if(prec == TS_PREC_AUTO ||
+	  prec == TS_PREC_AUTO_SEC ||
+	  prec == TS_PREC_AUTO_DSEC ||
+	  prec == TS_PREC_AUTO_CSEC ||
+	  prec == TS_PREC_AUTO_MSEC ||
+	  prec == TS_PREC_AUTO_USEC ||
+	  prec == TS_PREC_AUTO_NSEC)
+	{
+		switch(wtap_file_tsprecision(cf->wth)) {
+		case(WTAP_FILE_TSPREC_SEC):
+			timestamp_set_precision(TS_PREC_AUTO_SEC);
+			break;
+		case(WTAP_FILE_TSPREC_DSEC):
+			timestamp_set_precision(TS_PREC_AUTO_DSEC);
+			break;
+		case(WTAP_FILE_TSPREC_CSEC):
+			timestamp_set_precision(TS_PREC_AUTO_CSEC);
+			break;
+		case(WTAP_FILE_TSPREC_MSEC):
+			timestamp_set_precision(TS_PREC_AUTO_MSEC);
+			break;
+		case(WTAP_FILE_TSPREC_USEC):
+			timestamp_set_precision(TS_PREC_AUTO_USEC);
+			break;
+		case(WTAP_FILE_TSPREC_NSEC):
+			timestamp_set_precision(TS_PREC_AUTO_NSEC);
+			break;
+		default:
+			g_assert_not_reached();
+		}
+	}
+}
+
 
 cf_status_t
 cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
@@ -198,7 +245,6 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   cf->user_saved = !is_tempfile;
 
   cf->cd_t        = wtap_file_type(cf->wth);
-  cf->tsprecision = wtap_file_tsprecision(cf->wth);
   cf->count     = 0;
   cf->displayed_count = 0;
   cf->marked_count = 0;
@@ -220,6 +266,9 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 	FRAME_DATA_CHUNK_SIZE * sizeof(frame_data),
 	G_ALLOC_AND_FREE);
   g_assert(cf->plist_chunk);
+
+  /* change the time formats now, as we might have a new precision */
+  cf_change_time_formats(cf);
 
   fileset_file_opened(fname);
 
@@ -2123,6 +2172,10 @@ cf_change_time_formats(capture_file *cf)
   int         progbar_quantum;
   int         first, last;
   gboolean    sorted_by_frame_column;
+
+
+  /* adjust timestamp precision if auto is selected */
+  cf_timestamp_auto_precision(cf);
 
   /* Are there any columns with time stamps in the "command-line-specified"
      format?

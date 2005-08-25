@@ -263,6 +263,7 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
 	return -1;
     }
     wth->data_offset = FILE_HDR_SIZE;
+	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
     return 1;
 }

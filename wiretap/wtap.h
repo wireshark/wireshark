@@ -224,7 +224,11 @@
 /* last WTAP_FILE_ value + 1 */
 #define WTAP_NUM_FILE_TYPES			41
 
-/* timestamp accuracy (currently only these values are supported) */
+/* timestamp precision (currently only these values are supported) */
+#define WTAP_FILE_TSPREC_SEC		0
+#define WTAP_FILE_TSPREC_DSEC		1
+#define WTAP_FILE_TSPREC_CSEC		2
+#define WTAP_FILE_TSPREC_MSEC		3
 #define WTAP_FILE_TSPREC_USEC		6
 #define WTAP_FILE_TSPREC_NSEC		9
 

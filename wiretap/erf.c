@@ -214,6 +214,7 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 	wth->subtype_read = erf_read;
 	wth->subtype_seek_read = erf_seek_read;
 	wth->subtype_close = erf_close;
+    wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 
 	return 1;
 }
