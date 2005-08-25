@@ -30,6 +30,7 @@
 #endif
 
 #include <string.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -323,27 +324,30 @@ ct_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 	switch(clist->sort_column){
 	case 0:
 	case 2:
+		/* Addresses */
+                /* XXX - We should sort addresses numerically. */
 		return strcmp (text1, text2);
 	case 1:
 	case 3:
-	case 4:
-	case 5:
-	case 6:
-	case 7:
-	case 8:
-	case 9:
+		/* Ports */
+		/* If we have two numbers, do a numeric compare.  Otherwise,
+		 * use strcmp. */
+                if (text1 && text2 && isdigit(text1[0]) && isdigit(text2[0])) {
+			sscanf(text1, "%" PRIu64, &i1);
+			sscanf(text2, "%" PRIu64, &i2);
+			/* XXX - See overflow comment below */
+			return (gint) (i1-i2);
+		} else {
+			return strcmp (text1, text2);
+		}
+	default:
 		sscanf(text1, "%" PRIu64, &i1);
 		sscanf(text2, "%" PRIu64, &i2);
         /* XXX - this might cause trouble because of overflow problems */
         /* XXX - is this correct anyway? Subtracting two unsigned values will still be an unsigned value, which will never become negative */
 		return (gint) (i1-i2);
 	}
-	g_assert_not_reached();
-	
-	/* Allow clist to redraw */
-	
-	gtk_clist_thaw(clist);
-	gtk_clist_freeze(clist);
+        g_assert_not_reached();
 	
 	return 0;
 }
