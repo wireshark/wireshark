@@ -44,6 +44,7 @@
 #include "sigcomp-udvm.h"
 #include "sigcomp_state_hdlr.h"
 #include "sha1.h"
+#include "crc16.h"
 
 #define	SIGCOMP_INSTR_DECOMPRESSION_FAILURE     0
 #define SIGCOMP_INSTR_AND                       1
@@ -125,7 +126,8 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 						   proto_tree *udvm_tree, gint udvm_mem_dest, 
 						   gint print_flags, gint hf_id,
 						   gint header_len,
-						   gint byte_code_state_len, gint byte_code_id_len)
+						   gint byte_code_state_len, gint byte_code_id_len,
+						   gint udvm_start_ip)
 {
 	tvbuff_t	*decomp_tvb;
 	guint8		buff[UDVM_MEMORY_SIZE];
@@ -325,12 +327,12 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 	/* Largest allowed size for a message is 65535  */
 	out_buff = g_malloc(65535);
 	/* Start executing code */
-	current_address = udvm_mem_dest;
+	current_address = udvm_start_ip;
 	input_address = 0;
 	operand_address = 0;
 	
 	proto_tree_add_text(udvm_tree, bytecode_tvb, offset, 1,"UDVM EXECUTION STARTED at Address: %u Message size %u",
-		udvm_mem_dest,msg_end);
+		current_address, msg_end);
 
 execute_next_instruction:
 
@@ -856,7 +858,62 @@ execute_next_instruction:
 		}
 		current_address = next_operand_address; 
 		used_udvm_cycles = used_udvm_cycles + 1 + length;
-		proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Execution of this instruction is NOT implemented");
+
+		n = 0;
+		k = position;
+		byte_copy_right = buff[66] << 8;
+		byte_copy_right = byte_copy_right | buff[67];
+		byte_copy_left = buff[64] << 8;
+		byte_copy_left = byte_copy_left | buff[65];
+
+		if (print_level_2 ){
+			proto_tree_add_text(udvm_tree, message_tvb, 0, -1,
+					"byte_copy_right = %u", byte_copy_right);
+		}
+
+		sha1_starts( &ctx );
+
+		while (n<length) {
+			guint16 handle_now = length;
+
+			if ( k < byte_copy_right && byte_copy_right <= k + (length-n) ){
+				handle_now = byte_copy_right - position;
+			}
+
+			sha1_update( &ctx, &buff[k], handle_now );
+
+			k = ( k + handle_now ) & 0xffff;
+			n = ( n + handle_now ) & 0xffff;
+
+			if ( k >= byte_copy_right ) {
+				k = byte_copy_left;
+			}
+		}
+
+		sha1_finish( &ctx, sha1_digest_buf );
+
+		k = ref_destination; 
+
+		for ( n=0; n<20; n++ ) {
+
+			buff[k] = sha1_digest_buf[n];
+
+			k = ( k + 1 ) & 0xffff;
+			n++;
+
+			if ( k == byte_copy_right ){
+				k = byte_copy_left;
+			}
+		}
+
+		if (print_level_2 ){
+			proto_tree_add_text(udvm_tree, message_tvb, 0, -1,
+					"Calculated SHA-1: %s",
+					bytes_to_str(sha1_digest_buf, 20));
+		}
+
+		current_address = next_operand_address;
+		goto execute_next_instruction;
 		break;
 
 	case SIGCOMP_INSTR_LOAD: /* 14 LOAD (%address, %value) */
@@ -946,8 +1003,8 @@ execute_next_instruction:
 			length = next_operand_address - operand_address;
 
 			if (print_level_1 ){
-				proto_tree_add_text(udvm_tree, bytecode_tvb, operand_address - 128, length,"Addr: %u      Value %5u      - Loading bytes at %5u Value %5u 0x%x",
-					operand_address, value, address, value, value);
+				proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1, "Addr: %u      Value %5u      - Loading bytes at %5u Value %5u 0x%x",
+				operand_address, value, address, value, value);
 			}
 			address = address + 2;
 			operand_address = next_operand_address; 
@@ -1677,12 +1734,17 @@ execute_next_instruction:
 				"Addr: %u ## CRC (value, position, length, @address)",
 				current_address);
 		}
+
+		operand_address = current_address + 1;
+
 		/* %value */
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &value);
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Value %u",
 				operand_address, value);
 		}
+		operand_address = next_operand_address; 
+
 		/* %position */
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &position);
 		if (print_level_1 ){
@@ -1708,8 +1770,50 @@ execute_next_instruction:
 		}
 		 /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
 		used_udvm_cycles = used_udvm_cycles + 1 + length;
+		
+		n = 0;
+		k = position;
+		byte_copy_right = buff[66] << 8;
+		byte_copy_right = byte_copy_right | buff[67];
+		byte_copy_left = buff[64] << 8;
+		byte_copy_left = byte_copy_left | buff[65];
+		result = 0;
 
-		proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Execution of this instruction is NOT implemented");
+		if (print_level_2 ){
+			proto_tree_add_text(udvm_tree, message_tvb, 0, -1,
+					"byte_copy_right = %u", byte_copy_right);
+		}
+
+		while (n<length) {
+
+			guint16 handle_now = length - n;
+
+			if ( k < byte_copy_right && byte_copy_right <= k + (length-n) ){
+				handle_now = byte_copy_right - k;
+			}
+
+			result = crc16_ccitt_seed(&buff[k], handle_now, result ^ 0xffff);
+
+			k = ( k + handle_now ) & 0xffff;
+			n = ( n + handle_now ) & 0xffff;
+
+			if ( k >= byte_copy_right ) {
+				k = byte_copy_left;
+			}
+		}
+
+		result = result ^ 0xffff;
+
+		if (print_level_1 ){
+			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1, "Calculated CRC %u", result);
+		}
+		if (result != value){
+			current_address = at_address;
+		}
+		else {
+			current_address = next_operand_address;
+		}
+		goto execute_next_instruction;
 		break;
 
 
@@ -2515,7 +2619,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      state_instruction %u",
 				operand_address, state_instruction);
 		}
-		operand_address = next_operand_address;
+
 		/*
 		 * %minimum_access_length
 		 */
@@ -2525,7 +2629,6 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      minimum_access_length %u",
 				operand_address, minimum_access_length);
 		}
-		operand_address = next_operand_address;
 
 		/*
 		 * %state_retention_priority

@@ -461,7 +461,7 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				return tvb_length(tvb);
 			}
 
-			udvm_tvb = tvb_new_real_data(buff,state_length+128,state_length+128);
+			udvm_tvb = tvb_new_real_data(buff,state_length+state_address,state_length+state_address);
 			/* Arrange that the allocated packet data copy be freed when the
 			 * tvbuff is freed. 
 			 */
@@ -473,7 +473,7 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tvb_set_child_real_data_tvbuff( tvb, udvm_tvb );
 
 
-			udvm2_tvb = tvb_new_subset(udvm_tvb, 128, state_length, state_length);
+			udvm2_tvb = tvb_new_subset(udvm_tvb, state_address, state_length, state_length);
 			/* TODO Check if buff needs to be free'd */
 			udvm_exe_item = proto_tree_add_text(sigcomp_tree, udvm2_tvb, 0, state_length, 
 				"UDVM execution trace");
@@ -482,7 +482,7 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			decomp_tvb = decompress_sigcomp_message(udvm2_tvb, msg_tvb, pinfo,
 						   sigcomp_udvm_exe_tree, state_address, 
 						   udvm_print_detail_level, hf_sigcomp_partial_state,
-						   offset, state_length, partial_state_len);
+						   offset, state_length, partial_state_len, state_instruction);
 		
 
 			if ( decomp_tvb ){
@@ -555,7 +555,7 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			decomp_tvb = decompress_sigcomp_message(udvm_tvb, msg_tvb, pinfo,
 						   sigcomp_udvm_exe_tree, destination, 
 						   udvm_print_detail_level, hf_sigcomp_partial_state,
-						   offset, 0, 0);
+						   offset, 0, 0, destination);
 			if ( decomp_tvb ){
 				proto_tree_add_text(sigcomp_tree, decomp_tvb, 0, -1,"SigComp message Decompressed WOHO!!");
 				if ( display_raw_txt )
