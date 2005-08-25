@@ -1473,8 +1473,6 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	  proto_tree_add_text(tree, tvb, offset, nbytes, "supportedMech: %s",
 			      oid_string);
 
-	g_free(oid_string);
-
 	offset += nbytes;
 
 	/* Should check for an unrecognized OID ... */
