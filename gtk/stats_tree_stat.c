@@ -31,6 +31,7 @@
 #include <gtk/gtk.h>
 
 #include <epan/stats_tree_priv.h>
+#include <epan/report_err.h>
 
 #include "simple_dialog.h"
 #include "globals.h"
@@ -236,12 +237,12 @@ static void init_gtk_tree(const char* optarg) {
 				st = stats_tree_new(cfg,pr,NULL);
 			}
 		} else {
-			g_error("no such stats_tree (%s) found in stats_tree registry",abbr);
+			report_failure("no such stats_tree (%s) found in stats_tree registry",abbr);
 		}
 		g_free(abbr);
 		
 	} else {
-		g_error("could not obtain stats_tree abbr from optarg");		
+		report_failure("could not obtain stats_tree abbr from optarg");		
 	}
 
 	window_name = g_strdup_printf("%s Stats Tree", cfg->name);
@@ -336,7 +337,7 @@ static void init_gtk_tree(const char* optarg) {
 		/* error, we failed to attach to the tap. clean up */
 		simple_dialog( ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str );
 		/* destroy_stat_tree_window(st); */
-		g_error("stats_tree for: %s failed to attach to the tap: %s",cfg->name,error_string->str);
+		report_failure("stats_tree for: %s failed to attach to the tap: %s",cfg->name,error_string->str);
 		g_string_free(error_string, TRUE);
 	}
 		

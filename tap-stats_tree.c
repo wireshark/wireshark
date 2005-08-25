@@ -32,6 +32,7 @@
 #include <glib.h>
 #include <epan/stats_tree_priv.h>
 #include <epan/stat_cmd_args.h>
+#include <epan/report_err.h>
 
 /* actually unused */
 struct _st_node_pres {
@@ -84,13 +85,15 @@ static void  init_stats_tree(const char *optarg) {
 				st->filter=NULL;
 			}
 		} else {
-			g_error("no such stats_tree (%s) found in stats_tree registry",abbr);
+			report_failure("no such stats_tree (%s) found in stats_tree registry",abbr);
+			return;
 		}
 		
 		g_free(abbr);
 		
 	} else {
-		g_error("could not obtain stats_tree abbr (%s) from optarg '%s'",abbr,optarg);		
+		report_failure("could not obtain stats_tree abbr (%s) from optarg '%s'",abbr,optarg);		
+		return;
 	}
 	
 	error_string = register_tap_listener( st->cfg->tapname,
@@ -101,7 +104,8 @@ static void  init_stats_tree(const char *optarg) {
 										  draw_stats_tree);
 	
 	if (error_string) {
-		g_error("stats_tree for: %s failed to attach to the tap: %s",cfg->name,error_string->str);
+		report_failure("stats_tree for: %s failed to attach to the tap: %s",cfg->name,error_string->str);
+		return;
 	}
 
 	if (cfg->init) cfg->init(st);
