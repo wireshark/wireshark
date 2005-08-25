@@ -26,6 +26,7 @@
 #define __OUI_H__
 
 #define	OUI_ENCAP_ETHER	0x000000	/* encapsulated Ethernet */
+#define	OUI_XEROX	0x000006	/* Xerox */
 #define	OUI_CISCO	0x00000C	/* Cisco (future use) */
 #define OUI_NORTEL	0x000081	/* Nortel SONMP */
 #define	OUI_CISCO_90	0x0000F8	/* Cisco (IOS 9.0 and above?) */
@@ -34,6 +35,7 @@
 #define	OUI_ATM_FORUM	0x00A03E	/* ATM Forum */
 #define OUI_EXTREME	0x00E02B	/* Extreme EDP/ESRP */
 #define OUI_CABLE_BPDU	0x00E02F	/* DOCSIS spanning tree BPDU */
+#define	OUI_SIEMENS	0x080006	/* Siemens AG */
 #define	OUI_APPLE_ATALK	0x080007	/* Appletalk */
 #define	OUI_HP		0x080009	/* Hewlett-Packard */
 

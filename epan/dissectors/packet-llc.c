@@ -162,6 +162,8 @@ const value_string sap_vals[] = {
 /*
  * See
  *
+ * http://standards.ieee.org/regauth/oui/oui.txt
+ *
  * http://www.cisco.com/univercd/cc/td/doc/product/lan/trsrb/vlan.htm
  *
  * for the PIDs for VTP and DRiP that go with an OUI of OUI_CISCO.
@@ -173,6 +175,8 @@ const value_string oui_vals[] = {
 	/* RFC 2427, RFC 2684 */
 	{ OUI_BRIDGED,     "Frame Relay or ATM bridged frames" },
 	{ OUI_CABLE_BPDU,  "DOCSIS Spanning Tree" }, /* DOCSIS spanning tree BPDU */
+	{ OUI_SIEMENS,     "Siemens AG" },
+	{ OUI_XEROX,       "Xerox" },
 /*
 http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r/brprt1/brsrb.htm
 */
