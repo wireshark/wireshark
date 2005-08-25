@@ -439,7 +439,6 @@ print_oid_value(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t *tvb,int
 		display_string = format_oid(oid, len);
 		proto_tree_add_text(pres_tree, tvb, *offset,length,"Value:%s", 
 display_string);
-		g_free(display_string);
 		(*offset)=start+item_len;
 		asn->offset = (*offset);
 }
@@ -465,7 +464,6 @@ item_len)
 		display_string = format_oid(oid, len);
 		proto_tree_add_text(pres_tree, tvb, *offset,length,"Value:%s", 
 display_string);
-		g_free(display_string);
 		(*offset)=start+item_len;
 		asn->offset = (*offset);
 }

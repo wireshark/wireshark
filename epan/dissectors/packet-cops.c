@@ -1558,10 +1558,6 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
           last_decoded_prid_oid_length=vb_oid_length;
         }
 #endif /* HAVE_NET_SNMP */
-
-      g_free(vb_display_string);
-      if(vb_display_string2)
-        g_free(vb_display_string2);
       }
       g_free(vb_oid);
       break;

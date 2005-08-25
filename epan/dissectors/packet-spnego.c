@@ -366,8 +366,6 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					"OID: %s",
 					oid_string);
 	  
-		g_free(oid_string);
-
 		offset += nbytes;
 
 		/* Next, the token ID ... */
