@@ -727,6 +727,7 @@ gchar *
 format_oid(subid_t *oid, guint oid_length)
 {
 	char *result;
+	int result_len;
 	int len;
 	unsigned int i;
 	char *buf;
@@ -736,6 +737,8 @@ format_oid(subid_t *oid, guint oid_length)
 	size_t oid_out_len;
 #endif
 
+	result_len = oid_length * 22;
+
 #ifdef HAVE_SOME_SNMP
 	/*
 	 * Get the decoded form of the OID, and add its length to the
@@ -744,19 +747,22 @@ format_oid(subid_t *oid, guint oid_length)
 	 * XXX - check for "sprint_realloc_objid()" failure.
 	 */
 	oid_string_len = 256;
-	oid_string = ep_alloc(oid_string_len);
+	oid_string = malloc(oid_string_len);
+	if (oid_string == NULL)
+		return NULL;
 	*oid_string = '\0';
 	oid_out_len = 0;
 	sprint_realloc_objid(&oid_string, &oid_string_len, &oid_out_len, 1,
 	    oid, oid_length);
+	result_len += strlen(oid_string) + 3;
 #endif
 
-	result = ep_alloc(512);
+	result = ep_alloc(result_len + 1);
 	buf = result;
-	len = g_snprintf(buf, 511, "%lu", (unsigned long)oid[0]);
+	len = g_snprintf(buf, result_len + 1 - (buf-result), "%lu", (unsigned long)oid[0]);
 	buf += len;
 	for (i = 1; i < oid_length;i++) {
-		len = g_snprintf(buf, 511-(buf-result),".%lu", (unsigned long)oid[i]);
+		len = g_snprintf(buf, result_len + 1 - (buf-result), ".%lu", (unsigned long)oid[i]);
 		buf += len;
 	}
 
@@ -764,7 +770,8 @@ format_oid(subid_t *oid, guint oid_length)
 	/*
 	 * Append the decoded form of the OID.
 	 */
-	g_snprintf(buf, 511-(buf-result), " (%s)", oid_string);
+	g_snprintf(buf, result_len + 1 -(buf-result), " (%s)", oid_string);
+	g_free(oid_string);
 #endif
 
 	return result;
@@ -776,6 +783,7 @@ void
 new_format_oid(subid_t *oid, guint oid_length, 
 	       gchar **non_decoded, gchar **decoded)
 {
+	int non_decoded_len;
 	int len;
 	unsigned int i;
 	char *buf;
@@ -791,22 +799,25 @@ new_format_oid(subid_t *oid, guint oid_length,
 	 */
 
 	oid_string_len = 256;
-	oid_string = ep_alloc(oid_string_len);
-	*oid_string = '\0';
-	oid_out_len = 0;
-	sprint_realloc_objid(&oid_string, &oid_string_len, &oid_out_len, 1,
-			     oid, oid_length);
+	oid_string = malloc(oid_string_len);
+	if (oid_string != NULL) {
+		*oid_string = '\0';
+		oid_out_len = 0;
+		sprint_realloc_objid(&oid_string, &oid_string_len, &oid_out_len, 1,
+				     oid, oid_length);
+	}
 	*decoded = oid_string;
 #else
 	*decoded = NULL;
 #endif
 
-	*non_decoded = ep_alloc(512);
+	non_decoded_len = oid_length * 22 + 1;
+	*non_decoded = ep_alloc(non_decoded_len);
 	buf = *non_decoded;
-	len = g_snprintf(buf, 511-(buf-*non_decoded), "%lu", (unsigned long)oid[0]);
+	len = g_snprintf(buf, non_decoded_len-(buf-*non_decoded), "%lu", (unsigned long)oid[0]);
 	buf += len;
 	for (i = 1; i < oid_length; i++) {
-	  len = g_snprintf(buf, 511-(buf-*non_decoded), ".%lu", (unsigned long)oid[i]);
+	  len = g_snprintf(buf, non_decoded_len-(buf-*non_decoded), ".%lu", (unsigned long)oid[i]);
 	  buf += len;
 	}
 }
@@ -914,11 +925,13 @@ format_var(struct variable_list *variable, subid_t *variable_oid,
 	 * XXX - check for "sprint_realloc_objid()" failure.
 	 */
 	buf_len = 256;
-	buf = ep_alloc(buf_len);
-	*buf = '\0';
-	out_len = 0;
-	sprint_realloc_value(&buf, &buf_len, &out_len, 1,  variable_oid,
-	    variable_oid_length, variable);
+	buf = malloc(buf_len);
+	if (buf != NULL) {
+		*buf = '\0';
+		out_len = 0;
+		sprint_realloc_value(&buf, &buf_len, &out_len, 1,
+		    variable_oid, variable_oid_length, variable);
+	}
 	return buf;
 }
 #endif
@@ -959,11 +972,10 @@ snmp_variable_decode(proto_tree *snmp_tree,
 #ifdef HAVE_SOME_SNMP
 	struct variable_list variable;
 	long value;
-#else /* HAVE_SOME_SNMP */
+#endif
 	unsigned int i;
 	gchar *buf;
 	int len;
-#endif	/* HAVE_SOME_SNMP */
 
 	/* parse the type of the object */
 	start = asn1->offset;
@@ -1001,15 +1013,20 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			vb_display_string = format_var(&variable,
 			    variable_oid, variable_oid_length, vb_type,
 			    vb_length);
-			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
-			    length,
-			    "Value: %s", vb_display_string);
-#else /* HAVE_SOME_SNMP */
-			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
-			    length,
-			    "Value: %s: %d (%#x)", vb_type_name,
-			    vb_integer_value, vb_integer_value);
-#endif /* HAVE_SOME_SNMP */
+#else
+			vb_display_string = NULL;
+#endif
+			if (vb_display_string != NULL) {
+				proto_tree_add_text(snmp_tree, asn1->tvb,
+				    offset, length,
+				    "Value: %s", vb_display_string);
+				free(vb_display_string);
+			} else {
+				proto_tree_add_text(snmp_tree, asn1->tvb,
+				    offset, length,
+				    "Value: %s: %d (%#x)", vb_type_name,
+				    vb_integer_value, vb_integer_value);
+			}
 		}
 		break;
 
@@ -1028,15 +1045,19 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			vb_display_string = format_var(&variable,
 			    variable_oid, variable_oid_length, vb_type,
 			    vb_length);
-			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
-			    length,
-			    "Value: %s", vb_display_string);
-#else /* HAVE_SOME_SNMP */
-			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
-			    length,
-			    "Value: %s: %u (%#x)", vb_type_name,
-			    vb_uinteger_value, vb_uinteger_value);
-#endif /* HAVE_SOME_SNMP */
+#else
+			vb_display_string = NULL;
+#endif
+			if (vb_display_string != NULL) {
+				proto_tree_add_text(snmp_tree, asn1->tvb,
+				    offset, length,
+				    "Value: %s", vb_display_string);
+			} else {
+				proto_tree_add_text(snmp_tree, asn1->tvb,
+				    offset, length,
+				    "Value: %s: %u (%#x)", vb_type_name,
+				    vb_uinteger_value, vb_uinteger_value);
+			}
 		}
 		break;
 
@@ -1060,45 +1081,50 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			vb_display_string = format_var(&variable,
 			    variable_oid, variable_oid_length, vb_type,
 			    vb_length);
-			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
-			    length,
-			    "Value: %s", vb_display_string);
-#else /* HAVE_SOME_SNMP */
-			/*
-			 * If some characters are not printable, display
-			 * the string as bytes.
-			 */
-			for (i = 0; i < vb_length; i++) {
-				if (!(isprint(vb_octet_string[i])
-				    || isspace(vb_octet_string[i])))
-					break;
-			}
-			if (i < vb_length) {
-				/*
-				 * We stopped, due to a non-printable
-				 * character, before we got to the end
-				 * of the string.
-				 */
-				vb_display_string = ep_alloc(4*vb_length);
-				buf = vb_display_string;
-				len = g_snprintf(buf, 4*vb_length, "%03u", vb_octet_string[0]);
-				buf += len;
-				for (i = 1; i < vb_length; i++) {
-					len = g_snprintf(buf, 4*vb_length-(buf-vb_display_string), ".%03u",
-					    vb_octet_string[i]);
-					buf += len;
-				}
-				proto_tree_add_text(snmp_tree, asn1->tvb, offset,
-				    length,
-				    "Value: %s: %s", vb_type_name,
-				    vb_display_string);
+#else
+			vb_display_string = NULL;
+#endif
+			if (vb_display_string != NULL) {
+				proto_tree_add_text(snmp_tree, asn1->tvb,
+				    offset, length,
+				    "Value: %s", vb_display_string);
+				free(vb_display_string);
 			} else {
-				proto_tree_add_text(snmp_tree, asn1->tvb, offset,
-				    length,
-				    "Value: %s: %s", vb_type_name,
-				    SAFE_STRING(vb_octet_string, vb_length));
+				/*
+				 * If some characters are not printable,
+				 * display the string as bytes.
+				 */
+				for (i = 0; i < vb_length; i++) {
+					if (!(isprint(vb_octet_string[i])
+					    || isspace(vb_octet_string[i])))
+						break;
+				}
+				if (i < vb_length) {
+					/*
+					 * We stopped, due to a non-printable
+					 * character, before we got to the end
+					 * of the string.
+					 */
+					vb_display_string = ep_alloc(4*vb_length);
+					buf = vb_display_string;
+					len = g_snprintf(buf, 4*vb_length, "%03u", vb_octet_string[0]);
+					buf += len;
+					for (i = 1; i < vb_length; i++) {
+						len = g_snprintf(buf, 4*vb_length-(buf-vb_display_string), ".%03u",
+						    vb_octet_string[i]);
+						buf += len;
+					}
+					proto_tree_add_text(snmp_tree, asn1->tvb, offset,
+					    length,
+					    "Value: %s: %s", vb_type_name,
+					    vb_display_string);
+				} else {
+					proto_tree_add_text(snmp_tree, asn1->tvb, offset,
+					    length,
+					    "Value: %s: %s", vb_type_name,
+					    SAFE_STRING(vb_octet_string, vb_length));
+				}
 			}
-#endif /* HAVE_SOME_SNMP */
 		}
 		g_free(vb_octet_string);
 		break;
@@ -1126,14 +1152,29 @@ snmp_variable_decode(proto_tree *snmp_tree,
 			vb_display_string = format_var(&variable,
 			    variable_oid, variable_oid_length, vb_type,
 			    vb_oid_length * sizeof (subid_t));
-			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
-			    length,
-			    "Value: %s", vb_display_string);
+			if (vb_display_string != NULL) {
+				proto_tree_add_text(snmp_tree, asn1->tvb,
+				    offset, length,
+				    "Value: %s", vb_display_string);
+				free(vb_display_string);
+			} else {
+				proto_tree_add_text(snmp_tree, asn1->tvb,
+				    offset, length,
+				    "Value: [Out of memory]");
+			}
 #else /* HAVE_SOME_SNMP */
 			vb_display_string = format_oid(vb_oid, vb_oid_length);
-			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
-			    length,
-			    "Value: %s: %s", vb_type_name, vb_display_string);
+			if (vb_display_string != NULL) {
+				proto_tree_add_text(snmp_tree, asn1->tvb,
+				    offset, length,
+				    "Value: %s: %s", vb_type_name,
+				    vb_display_string);
+				free(vb_display_string);
+			} else {
+				proto_tree_add_text(snmp_tree, asn1->tvb,
+				    offset, length,
+				    "Value: %s: [Out of memory]", vb_type_name);
+			}
 #endif /* HAVE_SOME_SNMP */
 		}
 		g_free(vb_oid);
