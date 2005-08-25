@@ -1436,7 +1436,14 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * somewhere in the middle of a segment.
 	 */
 	if(!pinfo->fd->flags.visited){
-		if((length+4)>tvb_reported_length_remaining(tvb, offset)){
+		/* 'Only' SMB is transported ontop of this  so make sure
+		 * there is an SMB header there ...
+		 */
+		if( ((length+4)>tvb_reported_length_remaining(tvb, offset))
+		  &&(tvb_length_remaining(tvb, offset)>=8)
+		  &&(tvb_get_guint8(tvb,offset+5)=='S')
+		  &&(tvb_get_guint8(tvb,offset+6)=='M')
+		  &&(tvb_get_guint8(tvb,offset+7)=='B') ){
 			pinfo->want_pdu_tracking=2;
 			pinfo->bytes_until_next_pdu=(length+4)-tvb_reported_length_remaining(tvb, offset);
 		}
