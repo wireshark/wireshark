@@ -134,8 +134,10 @@ static int hf_radiotap_channel_frequency = -1;
 static int hf_radiotap_channel_flags = -1;
 static int hf_radiotap_datarate = -1;
 static int hf_radiotap_antenna = -1;
-static int hf_radiotap_antsignal = -1;
-static int hf_radiotap_antnoise = -1;
+static int hf_radiotap_dbm_antsignal = -1;
+static int hf_radiotap_db_antsignal = -1;
+static int hf_radiotap_dbm_antnoise = -1;
+static int hf_radiotap_db_antnoise = -1;
 static int hf_radiotap_txpower = -1;
 static int hf_radiotap_preamble = -1;
 
@@ -221,12 +223,18 @@ proto_register_radiotap(void)
     { &hf_radiotap_antenna,
       { "Antenna", "radiotap.antenna",
 	FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
-    { &hf_radiotap_antsignal,
-      { "SSI Signal", "radiotap.antsignal",
+    { &hf_radiotap_dbm_antsignal,
+      { "SSI Signal (dBm)", "radiotap.dbm_antsignal",
 	FT_INT32, BASE_DEC, NULL, 0x0, "", HFILL } },
-    { &hf_radiotap_antnoise,
-      { "SSI Noise", "radiotap.antnoise",
+    { &hf_radiotap_db_antsignal,
+      { "SSI Signal (dB)", "radiotap.db_antsignal",
+	FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
+    { &hf_radiotap_dbm_antnoise,
+      { "SSI Noise (dBm)", "radiotap.dbm_antnoise",
 	FT_INT32, BASE_DEC, NULL, 0x0, "", HFILL } },
+    { &hf_radiotap_db_antnoise,
+      { "SSI Noise (dB)", "radiotap.db_antnoise",
+	FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_radiotap_txpower,
       { "Transmit power", "radiotap.txpower",
 	FT_INT32, BASE_DEC, NULL, 0x0, "", HFILL } },
@@ -388,24 +396,38 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    offset++;
 	    break;
 	case IEEE80211_RADIOTAP_DBM_ANTSIGNAL:
-	case IEEE80211_RADIOTAP_DB_ANTSIGNAL:
-	    /* XXX distinguish units */
 	    if (check_col(pinfo->cinfo, COL_RSSI)) {
-		col_add_fstr(pinfo->cinfo, COL_RSSI, "%d",
+		col_add_fstr(pinfo->cinfo, COL_RSSI, "%d (dBm)",
 		    tvb_get_guint8(tvb, offset));
 	    }
 	    if (tree) {
-		proto_tree_add_int(radiotap_tree, hf_radiotap_antsignal,
+		proto_tree_add_int(radiotap_tree, hf_radiotap_dbm_antsignal,
 				   tvb, offset, 1, (gint8) tvb_get_guint8(tvb, offset));
 	    }
 	    offset++;
 	    break;
-	case IEEE80211_RADIOTAP_DBM_ANTNOISE:
-	case IEEE80211_RADIOTAP_DB_ANTNOISE:
-	    /* XXX distinguish units */
+	case IEEE80211_RADIOTAP_DB_ANTSIGNAL:
+	    if (check_col(pinfo->cinfo, COL_RSSI)) {
+		col_add_fstr(pinfo->cinfo, COL_RSSI, "%u (dB)",
+		    tvb_get_guint8(tvb, offset));
+	    }
 	    if (tree) {
-		proto_tree_add_int(radiotap_tree, hf_radiotap_antnoise,
+		proto_tree_add_uint(radiotap_tree, hf_radiotap_db_antsignal,
+				   tvb, offset, 1, tvb_get_guint8(tvb, offset));
+	    }
+	    offset++;
+	    break;
+	case IEEE80211_RADIOTAP_DBM_ANTNOISE:
+	    if (tree) {
+		proto_tree_add_int(radiotap_tree, hf_radiotap_dbm_antnoise,
 				   tvb, offset, 1, (gint8) tvb_get_guint8(tvb, offset));
+	    }
+	    offset++;
+	    break;
+	case IEEE80211_RADIOTAP_DB_ANTNOISE:
+	    if (tree) {
+		proto_tree_add_uint(radiotap_tree, hf_radiotap_db_antnoise,
+				   tvb, offset, 1, tvb_get_guint8(tvb, offset));
 	    }
 	    offset++;
 	    break;
