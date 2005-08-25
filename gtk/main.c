@@ -1219,9 +1219,11 @@ set_display_filename(capture_file *cf)
   }
 
   /* statusbar */
-  status_msg = g_strdup_printf(" File: \"%s\" %s %02u:%02u:%02u", 
+  status_msg = g_strdup_printf(" File: \"%s\" %s %02lu:%02lu:%02lu", 
     (cf->filename) ? cf->filename : "", size_str,
-    cf->elapsed_time.secs/3600, cf->elapsed_time.secs%3600/60, cf->elapsed_time.secs%60);
+    (long)cf->elapsed_time.secs/3600,
+    (long)cf->elapsed_time.secs%3600/60,
+    (long)cf->elapsed_time.secs%60);
   g_free(size_str);
   statusbar_push_file_msg(status_msg);
   g_free(status_msg);
