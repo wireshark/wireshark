@@ -153,8 +153,18 @@ Gnu info
       <itemizedlist>
 
 	<listitem><para>
-	  The Ethereal Windows installer has been updated and now includes the 
-	  latest WinPcap released version 3.1 instead of the former 3.1 beta 4.
+	  The version of WinPcap included with the Ethereal Windows
+          installer has been updated from 3.1 beta 4 to 3.1.  If you
+          want to upgrade WinPcap separately or install a different 
+          version you can download it from the WinPcap web site at
+          <a href="http://www.winpcap.org/">http://www.winpcap.org</a>.
+	</para></listitem>
+
+	<listitem><para>
+	  The behavior of the display filter "ip.checksum_bad" has changed.
+          Instead of merely checking for its presence you must now make sure
+          it is set, e.g. instead of using "ip.checksum_bad" you must now
+          use "ip.checksum_bad == 1".
 	</para></listitem>
 
       </itemizedlist>
