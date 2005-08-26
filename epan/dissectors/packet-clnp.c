@@ -1023,7 +1023,8 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
       }
     }
     if (fragment && reassembled_tvb == NULL) {
-      proto_tree_add_text(cotp_tree, tvb, offset, -1,
+    	/* don't use -1 if fragment length is zero (throws Exception) */
+		proto_tree_add_text(cotp_tree, tvb, offset, (fragment_length) ? -1 : 0,
 			  "User data (%u byte%s)", fragment_length,
 			  plurality(fragment_length, "", "s"));
     } 
