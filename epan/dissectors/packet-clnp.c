@@ -1006,7 +1006,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 				     cotp_reassembled_table,
 				     fragment_length, fragment);
     if (fd_head) {
-      if (fd_head->next) {
+      if (fd_head->next && !fragment) {
 	/* This is the last packet */
 	reassembled_tvb = tvb_new_real_data(fd_head->data,
 					    fd_head->len,
@@ -1016,7 +1016,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 	
 	show_fragment_seq_tree(fd_head,
 			       &cotp_frag_items,
-			       cotp_tree,
+			       tree,
 			       pinfo, reassembled_tvb, &ti);
 	pinfo->fragmented = fragment;
 	next_tvb = reassembled_tvb;
