@@ -72,7 +72,7 @@ typedef struct _h225_packet_info {
 	gboolean is_h245Tunneling;
 	guint32 h245_address;
 	guint16 h245_port;
-	gchar dialedDigits[64]; /* Dialed Digits in the LRQ and LCF used for voip analysis */
+	gchar dialedDigits[129]; /* Dialed Digits in the LRQ and LCF used for voip analysis */
 	gboolean is_destinationInfo;
 	gchar frame_label[50]; /* the Fram label used by graph_analysis, what is a abreviation of cinfo */
 } h225_packet_info;
