@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-cmip.c                                                            */
+/* ./packet-cmip.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p cmip -c cmip.cnf -s packet-cmip-template CMIP.asn */
 
 /* Input file: packet-cmip-template.c */
@@ -2770,58 +2770,58 @@ dissect_cmip_CMIPUserInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
 
 
-static int
-dissect_cmip_atribute_31(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static void
+dissect_cmip_attribute_31(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 
-	return dissect_cmip_AdministrativeState(FALSE, tvb, 0, pinfo, parent_tree, hf_AdministrativeState);
+	dissect_cmip_AdministrativeState(FALSE, tvb, 0, pinfo, parent_tree, hf_AdministrativeState);
 
 }
-static int
-dissect_cmip_atribute_35(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static void
+dissect_cmip_attribute_35(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 
-	return dissect_cmip_OperationalState(FALSE, tvb, 0, pinfo, parent_tree, hf_OperationalState);
-
-}
-
-static int
-dissect_cmip_atribute_55(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	return dissect_cmip_Destination(FALSE, tvb, 0, pinfo, parent_tree,hf_Destination);
+	dissect_cmip_OperationalState(FALSE, tvb, 0, pinfo, parent_tree, hf_OperationalState);
 
 }
 
-static int
-dissect_cmip_atribute_56(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static void
+dissect_cmip_attribute_55(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 
-	return dissect_cmip_DiscriminatorConstruct(FALSE, tvb, 0, pinfo, parent_tree, hf_DiscriminatorConstruct);
+	dissect_cmip_Destination(FALSE, tvb, 0, pinfo, parent_tree,hf_Destination);
 
 }
 
-static int
-dissect_cmip_atribute_63(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static void
+dissect_cmip_attribute_56(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 
-	return dissect_cmip_NameBinding(FALSE, tvb, 0, pinfo, parent_tree, hf_NameBinding);
+	dissect_cmip_DiscriminatorConstruct(FALSE, tvb, 0, pinfo, parent_tree, hf_DiscriminatorConstruct);
 
 }
 
-static int
-dissect_cmip_atribute_65(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static void
+dissect_cmip_attribute_63(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 
-	return dissect_cmip_ObjectClass(FALSE, tvb, 0, pinfo, parent_tree, hf_ObjectClass);
+	dissect_cmip_NameBinding(FALSE, tvb, 0, pinfo, parent_tree, hf_NameBinding);
 
 }
 
-static int
-dissect_cmip_M3100_atribute_NameType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static void
+dissect_cmip_attribute_65(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 
-	return dissect_cmip_NameType(FALSE, tvb, 0, pinfo, parent_tree, -1);
+	dissect_cmip_ObjectClass(FALSE, tvb, 0, pinfo, parent_tree, hf_ObjectClass);
+
+}
+
+static void
+dissect_cmip_M3100_attribute_NameType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+{
+
+	dissect_cmip_NameType(FALSE, tvb, 0, pinfo, parent_tree, -1);
 
 }
 
@@ -3578,15 +3578,15 @@ void proto_register_cmip(void) {
 /*--- proto_reg_handoff_cmip -------------------------------------------*/
 void proto_reg_handoff_cmip(void) {
 	register_ber_oid_dissector("2.9.0.0.2", dissect_cmip, proto_cmip, "cmip");
-	register_ber_oid_dissector("2.9.3.2.7.31", dissect_cmip_atribute_31, proto_cmip, "smi2AttributeID (7) administrativeState(31)");
-	register_ber_oid_dissector("2.9.3.2.7.35", dissect_cmip_atribute_35, proto_cmip, "smi2AttributeID (7) operationalState(35)");
-	register_ber_oid_dissector("2.9.3.2.7.55", dissect_cmip_atribute_55, proto_cmip, "smi2AttributeID (7) destination(55)");
-	register_ber_oid_dissector("2.9.3.2.7.56", dissect_cmip_atribute_56, proto_cmip, "smi2AttributeID (7) discriminatorConstruct(56)");
-	register_ber_oid_dissector("2.9.3.2.7.63", dissect_cmip_atribute_63, proto_cmip, "smi2AttributeID (7) nameBinding(63)");
-	register_ber_oid_dissector("2.9.3.2.7.65", dissect_cmip_atribute_65, proto_cmip, "smi2AttributeID (7) objectClass(65)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.20", dissect_cmip_M3100_atribute_NameType, proto_cmip, "equipmentId(20)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.28", dissect_cmip_M3100_atribute_NameType, proto_cmip, "managedElementId(28)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.30", dissect_cmip_M3100_atribute_NameType, proto_cmip, "networkId(30)");
+	register_ber_oid_dissector("2.9.3.2.7.31", dissect_cmip_attribute_31, proto_cmip, "smi2AttributeID (7) administrativeState(31)");
+	register_ber_oid_dissector("2.9.3.2.7.35", dissect_cmip_attribute_35, proto_cmip, "smi2AttributeID (7) operationalState(35)");
+	register_ber_oid_dissector("2.9.3.2.7.55", dissect_cmip_attribute_55, proto_cmip, "smi2AttributeID (7) destination(55)");
+	register_ber_oid_dissector("2.9.3.2.7.56", dissect_cmip_attribute_56, proto_cmip, "smi2AttributeID (7) discriminatorConstruct(56)");
+	register_ber_oid_dissector("2.9.3.2.7.63", dissect_cmip_attribute_63, proto_cmip, "smi2AttributeID (7) nameBinding(63)");
+	register_ber_oid_dissector("2.9.3.2.7.65", dissect_cmip_attribute_65, proto_cmip, "smi2AttributeID (7) objectClass(65)");
+	register_ber_oid_dissector("0.0.13.3100.0.7.20", dissect_cmip_M3100_attribute_NameType, proto_cmip, "equipmentId(20)");
+	register_ber_oid_dissector("0.0.13.3100.0.7.28", dissect_cmip_M3100_attribute_NameType, proto_cmip, "managedElementId(28)");
+	register_ber_oid_dissector("0.0.13.3100.0.7.30", dissect_cmip_M3100_attribute_NameType, proto_cmip, "networkId(30)");
 
 	register_ber_oid_name("2.9.3.2.3.4","eventForwardingDiscriminator(4)");
 
