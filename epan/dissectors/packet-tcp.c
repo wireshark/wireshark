@@ -45,6 +45,7 @@
 #include <epan/reassemble.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
+#include <epan/slab.h>
 
 static int tcp_tap = -1;
 
@@ -180,8 +181,8 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 static gboolean tcp_analyze_seq = TRUE;
 static gboolean tcp_relative_seq = TRUE;
 
-struct tcp_unacked {
-	struct tcp_unacked *next;
+typedef struct _tcp_unacked_t {
+	struct _tcp_unacked_t *next;
 	guint32 frame;
 	guint32	seq;
 	guint32 nextseq;
@@ -191,7 +192,18 @@ struct tcp_unacked {
 	guint32 window;
 
 	guint32 flags;
-};
+} tcp_unacked_t;
+
+/* SLAB allocator for tcp_unacked structures
+ */
+SLAB_ITEM_TYPE_DEFINE(tcp_unacked_t)
+static SLAB_FREE_LIST_DEFINE(tcp_unacked_t)
+static field_info *field_info_tmp=NULL;
+#define TCP_UNACKED_NEW(fi)					\
+	SLAB_ALLOC(fi, tcp_unacked_t)
+#define TCP_UNACKED_FREE(fi)					\
+	SLAB_FREE(fi, tcp_unacked_t)
+
 
 /* Idea for gt: either x > y, or y is much bigger (assume wrap) */
 #define GT_SEQ(x, y) ((gint32)((y) - (x)) < 0)
@@ -247,9 +259,9 @@ struct tcp_analysis {
 	 * XXX - if the addresses and ports are equal, we don't guarantee
 	 * the behavior.
 	 */
-	struct tcp_unacked *ual1;	/* UnAcked List 1*/
+	tcp_unacked_t *ual1;		/* UnAcked List 1*/
 	guint32 base_seq1;
-	struct tcp_unacked *ual2;	/* UnAcked List 2*/
+	tcp_unacked_t *ual2;		/* UnAcked List 2*/
 	guint32 base_seq2;
 	gint16 win_scale1, win_scale2;
 	gint32 win1, win2;
@@ -601,9 +613,9 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 {
 	struct tcp_analysis *tcpd=NULL;
 	int direction;
-	struct tcp_unacked *ual1=NULL;
-	struct tcp_unacked *ual2=NULL;
-	struct tcp_unacked *ual=NULL;
+	tcp_unacked_t *ual1=NULL;
+	tcp_unacked_t *ual2=NULL;
+	tcp_unacked_t *ual=NULL;
 	guint32 base_seq;
 	guint32 base_ack;
 	guint32 ack1, ack2;
@@ -680,7 +692,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
  * it prints the two lists of the sliding window emulation 
  */
 {
-struct tcp_unacked *u=NULL;
+tcp_unacked_t *u=NULL;
 printf("\n");
 printf("analyze_sequence_number(frame:%d seq:%d nextseq:%d ack:%d  baseseq:0x%08x baseack:0x%08x)\n",pinfo->fd->num,seq,seq+seglen,ack,base_seq,base_ack);
 printf("UAL1:\n");
@@ -707,8 +719,9 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 	if(flags&TH_SYN){
 		for(ual=ual1;ual1;ual1=ual){
 			ual=ual1->next;
+			TCP_UNACKED_FREE(ual1);
 		}
-		ual1=se_alloc(sizeof(struct tcp_unacked));
+		TCP_UNACKED_NEW(ual1);
 		ual1->next=NULL;
 		ual1->frame=pinfo->fd->num;
 		ack1_frame=0;
@@ -738,7 +751,7 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 
 	/* if this is the first segment we see then just add it */
 	if( !ual1 ){
-		ual1=se_alloc(sizeof(struct tcp_unacked));
+		TCP_UNACKED_NEW(ual1);
 		ual1->next=NULL;
 		ual1->frame=pinfo->fd->num;
 		ual1->seq=seq;
@@ -764,7 +777,7 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 		ta->flags|=TCP_A_LOST_PACKET;
 
 		/* just add the segment to the beginning of the list */
-		ual=se_alloc(sizeof(struct tcp_unacked));
+		TCP_UNACKED_NEW(ual);
 		ual->next=ual1;
 		ual->frame=pinfo->fd->num;
 		ual->seq=seq;
@@ -814,7 +827,7 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 	 */
 	if( LT_SEQ(seq, ual1->nextseq )){
 		gboolean outoforder;
-		struct tcp_unacked *tu,*ntu;
+		tcp_unacked_t *tu,*ntu;
 
 		/* assume it is a fast retransmission if
 		 * 1 we have seen >=3 dupacks in the other direction for this 
@@ -963,7 +976,7 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 	}
 
 	/* just add the segment to the beginning of the list */
-	ual=se_alloc(sizeof(struct tcp_unacked));
+	TCP_UNACKED_NEW(ual);
 	ual->next=ual1;
 	ual->frame=pinfo->fd->num;
 	ual->seq=seq;
@@ -1011,6 +1024,7 @@ seq_finished:
 		ta->flags|=TCP_A_ACK_LOST_PACKET;
 		for(ual=ual2;ual2;ual2=ual){
 			ual=ual2->next;
+			TCP_UNACKED_FREE(ual2);
 		}
 		prune_next_pdu_list(tnp, ack-base_ack);
 		goto ack_finished;
@@ -1028,6 +1042,7 @@ seq_finished:
 		/* its all been ACKed so we dont need to keep them anymore */
 		for(ual=ual2;ual2;ual2=ual){
 			ual=ual2->next;
+			TCP_UNACKED_FREE(ual2);
 		}
 		prune_next_pdu_list(tnp, ack-base_ack);
 		goto ack_finished;
@@ -1042,8 +1057,8 @@ seq_finished:
 		}
 	}
 	if(ual->next){
-		struct tcp_unacked *tmpual=NULL;
-		struct tcp_unacked *ackedual=NULL;
+		tcp_unacked_t *tmpual=NULL;
+		tcp_unacked_t *ackedual=NULL;
 		struct tcp_acked *ta;
 
 		/* XXX normal ACK*/
@@ -1058,6 +1073,7 @@ seq_finished:
 		ual->next=NULL;
 		for(ual=tmpual;ual;ual=tmpual){
 			tmpual=ual->next;
+			TCP_UNACKED_FREE(ual);
 		}
 		prune_next_pdu_list(tnp, ack-base_ack);
 	}
@@ -1066,7 +1082,7 @@ ack_finished:
 	/* we might have deleted the entire ual2 list, if this is an ACK,
 	   make sure ual2 at least has a dummy entry for the current ACK */
 	if( (!ual2) && (flags&TH_ACK) ){
-		ual2=se_alloc(sizeof(struct tcp_unacked));
+		TCP_UNACKED_NEW(ual2);
 		ual2->next=NULL;
 		ual2->frame=0;
 		ual2->seq=ack;
