@@ -525,6 +525,9 @@ pop $R0
 !insertmacro UpdateIcons
 SecRequired_skip_FileExtensions:
 
+; if running as a silent installer, don't try to install winpcap
+IfSilent SecRequired_skip_Winpcap
+
 ; Install WinPcap (depending on winpcap page setting)
 ReadINIStr $0 "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State"
 StrCmp $0 "0" SecRequired_skip_Winpcap
@@ -1060,6 +1063,7 @@ lbl_select_wimp:
 lbl_ignore_wimp:
 !endif
 
+
 	; detect if WinPcap should be installed
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap 3.1"
 	ReadRegStr $WINPCAP_VERSION HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName"
@@ -1083,7 +1087,7 @@ lbl_winpcap_installed:
 	StrCmp "$WINPCAP_VERSION" "WinPcap 3.1 beta3" lbl_winpcap_do_install
 	StrCmp "$WINPCAP_VERSION" "WinPcap 3.1 beta4" lbl_winpcap_do_install
 
-; lbl_winpcap_dont_install:
+lbl_winpcap_dont_install:
 	; seems to be the current or even a newer version, so don't install
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "0"
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If selected, the currently installed $WINPCAP_VERSION will be uninstalled first."
