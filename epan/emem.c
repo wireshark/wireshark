@@ -37,6 +37,14 @@
 /* When required, allocate more memory from the OS in this size chunks */
 #define EMEM_PACKET_CHUNK_SIZE 10485760
 
+/*
+ * Tools like Valgrind and ElectricFence don't work well with memchunks. 
+ * Uncomment the defines below to make {ep|se}_alloc() allocate each
+ * object individually.
+ */
+/* #define EP_DEBUG_FREE 1 */
+/* #define SE_DEBUG_FREE 1 */
+
 typedef struct _emem_chunk_t {
 	struct _emem_chunk_t *next;
 	unsigned int	amount_free;
@@ -81,6 +89,7 @@ ep_alloc(size_t size)
 {
 	void *buf;
 
+#ifndef EP_DEBUG_FREE
 	/* round up to 8 byte boundary */
 	if(size&0x07){
 		size=(size+7)&0xfffffff8;
@@ -128,6 +137,18 @@ ep_alloc(size_t size)
 	ep_packet_mem.free_list->amount_free-=size;
 	ep_packet_mem.free_list->free_offset+=size;
 
+#else /* EP_DEBUG_FREE */
+	emem_chunk_t *npc;
+
+	npc=g_malloc(sizeof(emem_chunk_t));
+	npc->next=ep_packet_mem.used_list;
+	npc->amount_free=size;
+	npc->free_offset=0;
+	npc->buf=g_malloc(size);
+	buf = npc->buf;
+	ep_packet_mem.used_list=npc;
+#endif /* EP_DEBUG_FREE */
+
 	return buf;
 }
 /* allocate 'size' amount of memory with an allocation lifetime until the
@@ -138,6 +159,7 @@ se_alloc(size_t size)
 {
 	void *buf;
 
+#ifndef SE_DEBUG_FREE
 	/* round up to 8 byte boundary */
 	if(size&0x07){
 		size=(size+7)&0xfffffff8;
@@ -184,6 +206,18 @@ se_alloc(size_t size)
 
 	se_packet_mem.free_list->amount_free-=size;
 	se_packet_mem.free_list->free_offset+=size;
+
+#else /* SE_DEBUG_FREE */
+	emem_chunk_t *npc;
+
+	npc=g_malloc(sizeof(emem_chunk_t));
+	npc->next=se_packet_mem_used_list;
+	npc->amount_free=size;
+	npc->free_offset=0;
+	npc->buf=g_malloc(size);
+	buf = npc->buf;
+	se_packet_mem.used_list=npc;
+#endif /* SE_DEBUG_FREE */
 
 	return buf;
 }
@@ -369,7 +403,7 @@ ep_free_all(void)
 {
 	emem_chunk_t *npc;
 
-	/* move all used chunks ove to the free list */
+	/* move all used chunks over to the free list */
 	while(ep_packet_mem.used_list){
 		npc=ep_packet_mem.used_list;
 		ep_packet_mem.used_list=ep_packet_mem.used_list->next;
@@ -378,10 +412,24 @@ ep_free_all(void)
 	}
 
 	/* clear them all out */
-	for(npc=ep_packet_mem.free_list;npc;npc=npc->next){
+	npc = ep_packet_mem.free_list;
+	while (npc != NULL) {
+#ifndef EP_DEBUG_FREE
 		npc->amount_free=EMEM_PACKET_CHUNK_SIZE;
 		npc->free_offset=0;
+		npc = npc->next;
+#else /* EP_DEBUG_FREE */
+		emem_chunk_t *next = npc->next;
+
+		g_free(npc->buf);
+		g_free(npc);
+		npc = next;
+#endif /* EP_DEBUG_FREE */
 	}
+
+#ifdef EP_DEBUG_FREE
+	ep_init_chunk();
+#endif
 }
 /* release all allocated memory back to the pool.
  */
@@ -399,10 +447,24 @@ se_free_all(void)
 	}
 
 	/* clear them all out */
-	for(npc=se_packet_mem.free_list;npc;npc=npc->next){
+	npc = se_packet_mem.free_list;
+	while (npc != NULL) {
+#ifndef SE_DEBUG_FREE
 		npc->amount_free=EMEM_PACKET_CHUNK_SIZE;
 		npc->free_offset=0;
+		npc = npc->next;
+#else /* SE_DEBUG_FREE */
+		emem_chunk_t *next = npc->next;
+
+		g_free(npc->buf);
+		g_free(npc);
+		npc = next;
+#endif /* SE_DEBUG_FREE */
 	}
+
+#ifdef SE_DEBUG_FREE
+		se_init_chunk();
+#endif
 }
 		
 
