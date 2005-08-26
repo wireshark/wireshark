@@ -376,9 +376,9 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 					/* if end of list is reached, exit loop and decide if request is duplicate or not. */
 					if (h225ras_call->next_call == NULL) {
 						if ( (pinfo->fd->num > h225ras_call->rsp_num && h225ras_call->rsp_num != 0
-						   && pinfo->fd->abs_secs > (guint) (h225ras_call->req_time.secs + THRESHOLD_REPEATED_RESPONDED_CALL) )
+						   && pinfo->fd->abs_ts.secs > (h225ras_call->req_time.secs + THRESHOLD_REPEATED_RESPONDED_CALL) )
 						   ||(pinfo->fd->num > h225ras_call->req_num && h225ras_call->rsp_num == 0
-						   && pinfo->fd->abs_secs > (guint) (h225ras_call->req_time.secs + THRESHOLD_REPEATED_NOT_RESPONDED_CALL) ) )
+						   && pinfo->fd->abs_ts.secs > (h225ras_call->req_time.secs + THRESHOLD_REPEATED_NOT_RESPONDED_CALL) ) )
 						{
 							/* if last request has been responded
 							   and this request appears after last response (has bigger frame number)
@@ -474,14 +474,8 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 						PROTO_ITEM_SET_GENERATED(ti);
 
 						/* Calculate RAS Service Response Time */
-						delta.secs= pinfo->fd->abs_secs-h225ras_call->req_time.secs;
-						delta.nsecs=pinfo->fd->abs_usecs*1000-h225ras_call->req_time.nsecs;
-						if(delta.nsecs<0){
-							delta.nsecs+=1000000000;
-							delta.secs--;
-						}
-						pi->delta_time.secs = delta.secs; /* give it to tap */
-						pi->delta_time.nsecs = delta.nsecs;
+						nstime_delta(&delta, &pinfo->fd->abs_ts, &h225ras_call->req_time);
+						pi->delta_time = delta; /* give it to tap */
 
 						/* display Ras Service Response Time and make it filterable */
 						ti = proto_tree_add_time(tree, hf_h225_ras_deltatime, tvb, 0, 0, &(pi->delta_time));
