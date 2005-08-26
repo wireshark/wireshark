@@ -138,24 +138,12 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 			return 0;
 		}
 
-#ifdef G_HAVE_GINT64
 		if ((ts = pletohll(&header.ts)) < prevts) {
 			/* reassembled AAL5 records may not be in time order, so allow 1 sec fudge */
 			if (header.type != TYPE_AAL5 || ((prevts-ts)>>32) > 1) {
 				return 0;
 			}
 		}
-#else
-		ts[0] = pletohl(&header.ts[0]); /* frac */
-		ts[1] = pletohl(&header.ts[1]); /* sec */
-		if ((ts[1] < prevts[1]) ||
-				(ts[1] == prevts[1] && ts[0] < prevts[0])) {
-			/* reassembled AAL5 records may not be in time order, so allow 1 sec fudge */
-			if (header.type != TYPE_AAL5 || (prevts[1]-ts[1]) > 1) {
-				return 0;
-			}
-		}
-#endif
 		memcpy(&prevts, &ts, sizeof(prevts));
 
 		if (common_type == 0) {
@@ -327,8 +315,7 @@ static int erf_read_header(
 		return FALSE;
 	}
 
-	if (phdr != NULL ) {
-#ifdef G_HAVE_GINT64
+	if (phdr != NULL) {
 		guint64 ts = pletohll(&erf_header->ts);
 
 		phdr->ts.secs = (long) (ts >> 32);
@@ -339,11 +326,6 @@ static int erf_read_header(
 			phdr->ts.nsecs -= 1000000000;
 			phdr->ts.secs += 1;
 		}
-#else
-		phdr->ts.tv_sec = pletohl(&erf_header->ts[1]);
-		phdr->ts.tv_usec =
-			(unsigned long)((pletohl(&erf_header->ts[0])*1000000.0)/0xffffffffUL);
-#endif
 	}
 
 	switch (erf_header->type) {

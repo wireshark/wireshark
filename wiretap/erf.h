@@ -47,14 +47,9 @@
 
  /*
   * The timestamp is 64bit unsigned fixed point little-endian value with
-  * 32 bits for second and 32 bits for fraction. For portablility it is
-  * given as two 32 bit valies here, ts[1] == secs, ts[0] == fraction
+  * 32 bits for second and 32 bits for fraction.
   */
-#ifdef G_HAVE_GINT64
 typedef guint64 erf_timestamp_t;
-#else
-typedef guint32	erf_timestamp_t[2];
-#endif
 
 typedef struct erf_record {
 	erf_timestamp_t	ts;

@@ -258,17 +258,13 @@ struct wtap_dumper {
 /* Turn host-byte-order values into little-endian values. */
 #define htoles(s) GUINT16_TO_LE(s)
 #define htolel(l) GUINT32_TO_LE(l)
-#ifdef G_HAVE_GINT64
 #define htolell(ll) GUINT64_TO_LE(ll)
-#endif /* G_HAVE_GINT64 */
 
 /* Pointer versions of ntohs and ntohl.  Given a pointer to a member of a
  * byte array, returns the value of the two or four bytes at the pointer.
  * The pletoh[sl] versions return the little-endian representation.
- *
- * If G_HAVE_GINT64 is defined, so we can use "gint64" and "guint64" to
- * refer to 64-bit integral quantities, we also provide pntohll and
- * phtolell, which extract 64-bit integral quantities.
+ * We also provide pntohll and phtolell, which extract 64-bit integral
+ * quantities.
  */
 
 #ifndef pntohs
@@ -290,7 +286,6 @@ struct wtap_dumper {
                     (guint32)*((const guint8 *)(p)+3)<<0)
 #endif
 
-#ifdef G_HAVE_GINT64
 #ifndef pntohll
 #define pntohll(p)  ((guint64)*((const guint8 *)(p)+0)<<56|  \
                      (guint64)*((const guint8 *)(p)+1)<<48|  \
@@ -300,7 +295,6 @@ struct wtap_dumper {
                      (guint64)*((const guint8 *)(p)+5)<<16|  \
                      (guint64)*((const guint8 *)(p)+6)<<8|   \
                      (guint64)*((const guint8 *)(p)+7)<<0)
-#endif
 #endif
 
 
@@ -338,7 +332,6 @@ struct wtap_dumper {
 #endif
 
 
-#ifdef G_HAVE_GINT64
 #ifndef pletohll
 #define pletohll(p) ((guint64)*((const guint8 *)(p)+7)<<56|  \
                      (guint64)*((const guint8 *)(p)+6)<<48|  \
@@ -348,7 +341,6 @@ struct wtap_dumper {
                      (guint64)*((const guint8 *)(p)+2)<<16|  \
                      (guint64)*((const guint8 *)(p)+1)<<8|   \
                      (guint64)*((const guint8 *)(p)+0)<<0)
-#endif
 #endif
 
 #define wtap_file_read_unknown_bytes(target, num_bytes, fh, err) \

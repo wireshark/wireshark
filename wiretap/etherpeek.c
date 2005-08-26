@@ -117,8 +117,7 @@ typedef struct etherpeek_utime {
 #define ETHERPEEK_V7_SLICE_LENGTH_OFFSET	4
 #define ETHERPEEK_V7_FLAGS_OFFSET		6
 #define ETHERPEEK_V7_STATUS_OFFSET		7
-#define ETHERPEEK_V7_TIMESTAMP_UPPER_OFFSET	8
-#define ETHERPEEK_V7_TIMESTAMP_LOWER_OFFSET	12
+#define ETHERPEEK_V7_TIMESTAMP_OFFSET		8
 #define ETHERPEEK_V7_PKT_SIZE			16
 
 /*
@@ -372,8 +371,9 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 	guint16 sliceLength;
 	guint8  flags;
 	guint8  status;
-	etherpeek_utime timestamp;
-	double  t;
+	guint64 timestamp;
+	time_t tsecs;
+	guint32 tusecs;
 	airopeek_radio_hdr_t radio_hdr;
 
 	*data_offset = wth->data_offset;
@@ -387,8 +387,7 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 	sliceLength = pntohs(&ep_pkt[ETHERPEEK_V7_SLICE_LENGTH_OFFSET]);
 	flags = ep_pkt[ETHERPEEK_V7_FLAGS_OFFSET];
 	status = ep_pkt[ETHERPEEK_V7_STATUS_OFFSET];
-	timestamp.upper = pntohl(&ep_pkt[ETHERPEEK_V7_TIMESTAMP_UPPER_OFFSET]);
-	timestamp.lower = pntohl(&ep_pkt[ETHERPEEK_V7_TIMESTAMP_LOWER_OFFSET]);
+	timestamp = pntohll(&ep_pkt[ETHERPEEK_V7_TIMESTAMP_OFFSET]);
 
 	/* force sliceLength to be the actual length of the packet */
 	if (0 == sliceLength) {
@@ -447,12 +446,10 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 	wth->data_offset += sliceLength;
 
 	/* fill in packet header values */
-	t =  (double) timestamp.lower +
-	     (double) timestamp.upper * 4294967296.0;
-	t -= (double) mac2unix * 1000000.0;
-	wth->phdr.ts.secs  = (time_t)  (t/1000000.0);
-	wth->phdr.ts.nsecs = (guint32) (t - (double) wth->phdr.ts.secs *
-	                                               1000000000.0);
+	tsecs = (time_t) (timestamp/1000000);
+	tusecs = (guint32) (timestamp - tsecs*1000000);
+	wth->phdr.ts.secs  = tsecs - mac2unix;
+	wth->phdr.ts.nsecs = tusecs * 1000;
 
 	if (wth->file_encap == WTAP_ENCAP_IEEE_802_11_WITH_RADIO) {
 		/*
