@@ -156,8 +156,8 @@ Gnu info
 	  The version of WinPcap included with the Ethereal Windows
           installer has been updated from 3.1 beta 4 to 3.1.  If you
           want to upgrade WinPcap separately or install a different 
-          version you can download it from the WinPcap web site at
-          <a href="http://www.winpcap.org/">http://www.winpcap.org</a>.
+          version you can download it from 
+          <ulink url="http://www.winpcap.org">the WinPcap web site</ulink>.
 	</para></listitem>
 
 	<listitem><para>
