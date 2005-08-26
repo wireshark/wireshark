@@ -301,7 +301,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
     wth->subtype_read = airopeekv9_read;
     wth->subtype_seek_read = airopeekv9_seek_read;
     wth->subtype_close = airopeekv9_close;
-	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+    wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 
     wth->capture.airopeek9 = g_malloc(sizeof(airopeek9_t));
     switch (mediaSubType) {
@@ -470,7 +470,7 @@ airopeekv9_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
  *
  * This magic number came from "nt_time_to_nstime()" in "packet-smb.c".
  * 1970-1601 is 369; I'm not sure what the extra 3 days and 6 hours are
- 8 that are being subtracted.
+ * that are being subtracted.
  */
 #define TIME_FIXUP_CONSTANT (369.0*365.25*24*60*60-(3.0*24*60*60+6.0*60*60))
 
