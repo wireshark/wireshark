@@ -771,7 +771,7 @@ format_oid(subid_t *oid, guint oid_length)
 	 * Append the decoded form of the OID.
 	 */
 	g_snprintf(buf, result_len + 1 -(buf-result), " (%s)", oid_string);
-	g_free(oid_string);
+	free(oid_string);
 #endif
 
 	return result;
@@ -1169,7 +1169,6 @@ snmp_variable_decode(proto_tree *snmp_tree,
 				    offset, length,
 				    "Value: %s: %s", vb_type_name,
 				    vb_display_string);
-				free(vb_display_string);
 			} else {
 				proto_tree_add_text(snmp_tree, asn1->tvb,
 				    offset, length,
