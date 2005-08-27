@@ -45,11 +45,11 @@ sub shorten
   my $origmanuf = shift; 
   my $manuf = " " . $origmanuf . " ";
   # Remove any punctuation
-  $manuf =~ tr/,.()/    /;
+  $manuf =~ tr/',.()/    /;
   # & isn't needed when Standalone
   $manuf =~ s/ \& / /g;
   # Remove any "the", "inc", "plc" ...
-  $manuf =~ s/\s(the|inc|incorporated|plc||systems|corp|corporation|a\/s|ab|ag|kg|gmbh|co|company|limited|ltd)(?= )//gi;
+  $manuf =~ s/\s(the|inc|incorporated|plc||systems|corp|corporation|s\/a|a\/s|ab|ag|kg|gmbh|co|company|limited|ltd)(?= )//gi;
   # Convert to consistent case
   $manuf =~ s/(\w+)/\u\L$1/g;
   # Remove all spaces
