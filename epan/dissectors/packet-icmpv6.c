@@ -226,7 +226,7 @@ again:
 	for (i = 0; i < len; i++) {
 	    if (i)
 		t[i * 3 - 1] = ':';
-	    sprintf(&t[i * 3], "%02x", a[i]);
+	    g_snprintf(t+i*3, 2, "%02x", a[i]);
 	}
 	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + sizeof(*opt), len, "Link-layer address: %s", t);
