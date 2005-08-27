@@ -252,39 +252,33 @@ fcels_init_protocol(void)
 }
 
 static void
-construct_cmnsvc_string (guint16 flag, gchar *flagstr, guint8 opcode)
+construct_cmnsvc_string (guint16 flag, gchar *flagstr, int len, guint8 opcode)
 {
     int stroff = 0;
-    gchar punc[3];
-
-    punc[0] = '\0';
+    int punc=0;
     
     if (flag & 0x8000) {
         strcpy (flagstr, "Cont. Incr. Offset Supported");
         stroff += 28;
-        strcpy (punc, ", ");
+	punc=1;
     }
     if (flag & 0x4000) {
-        sprintf (&flagstr[stroff], "%sRRO Supported", punc);
-        stroff += 15;
-        strcpy (punc, ", ");
+        stroff += g_snprintf (flagstr+stroff, len-stroff, "%sRRO Supported", punc?", ":"");
+	punc=1;
     }
     
     if (flag & 0x2000) {
-        sprintf (flagstr, "%sValid Vendor Version Level", punc);
-        strcpy (punc, ", ");
-        stroff += 28;
+        stroff += g_snprintf (flagstr+stroff, len-stroff, "%sValid Vendor Version Level", punc?", ":"");
+	punc=1;
     }
     
     if (flag & 0x0800) {
-        sprintf (&flagstr[stroff], "%sAlt B2B Credit Mgmt", punc);
-        strcpy (punc, ", ");
-        stroff += 24;
+        stroff += g_snprintf (flagstr+stroff, len-stroff, "%sAlt B2B Credit Mgmt", punc?", ":"");
+	punc=1;
     }
     else {
-        sprintf (&flagstr[stroff], "%sNormal B2B Credit Mgmt", punc);
-        strcpy (punc, ", ");
-        stroff += 22;
+        stroff += g_snprintf (flagstr+stroff, len-stroff, "%sNormal B2B Credit Mgmt", punc?", ":"");
+	punc=1;
     }
 
     if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
@@ -338,10 +332,10 @@ construct_cmnsvc_string (guint16 flag, gchar *flagstr, guint8 opcode)
     }
 
     if (flag & 0x0001) {
-        sprintf (&flagstr[stroff], ", Payload Len=256 bytes");
+        g_snprintf (flagstr+stroff, len-stroff, ", Payload Len=256 bytes");
     }
     else {
-        sprintf (&flagstr[stroff], ", Payload Len=116 bytes");
+        g_snprintf (flagstr+stroff, len-stroff, ", Payload Len=116 bytes");
     }
 }
 
@@ -427,9 +421,6 @@ static void
 construct_rcptctl_string (guint16 flag, gchar *flagstr, guint8 opcode)
 {
     int stroff = 0;
-    gchar punc[3];
-
-    punc[0] = '\0';
 
     if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
         if (flag & 0x8000) {
@@ -505,9 +496,10 @@ dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         class;
     proto_tree *logi_tree, *cmnsvc_tree;
     proto_item *subti;
-    gchar flagstr[FCELS_LOGI_MAXSTRINGLEN];
+    gchar *flagstr;
     guint16 flag;
-    
+
+    flagstr=ep_alloc(FCELS_LOGI_MAXSTRINGLEN);    
     if (tree) {
         logi_tree = proto_item_add_subtree (ti, ett_fcels_logi);
         proto_tree_add_item (logi_tree, hf_fcels_opcode, tvb, offset, 1, FALSE);
@@ -522,7 +514,7 @@ dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             svcvld = 1;
         }
 
-        construct_cmnsvc_string (flag, flagstr, opcode);
+        construct_cmnsvc_string (flag, flagstr, FCELS_LOGI_MAXSTRINGLEN, opcode);
         proto_tree_add_uint_format (cmnsvc_tree, hf_fcels_cmnfeatures, tvb,
                                     offset+8, 2, flag,
                                     "Common Svc Parameters: 0x%x (%s)",
