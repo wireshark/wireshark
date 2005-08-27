@@ -1930,15 +1930,18 @@ int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree 
 				proto_tree_add_boolean(tree, *(nb->p_id), tvb, offset + len, 0, 0x00);
 			}
 			if(val) {
-				if(item && nb->tstr)
+				if(item && nb->tstr) {
 					proto_item_append_text(item, "%s%s", sep, nb->tstr);
+					term = TRUE;
+				}
 			} else {
-				if(item && nb->fstr)
+				if(item && nb->fstr) {
 					proto_item_append_text(item, "%s%s", sep, nb->fstr);
+					term = TRUE;
+				}
 			}
 			nb++;
 			sep = ", ";
-			term = TRUE;
 		}
 		if(term)
 			proto_item_append_text(item, ")");
