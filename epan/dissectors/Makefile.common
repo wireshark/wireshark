@@ -124,6 +124,7 @@ DISSECTOR_SRC =	\
 	packet-cgmp.c	\
 	packet-chdlc.c	\
 	packet-cip.c	\
+	packet-cisco-wireless.c	\
 	packet-cisco-oui.c	\
 	packet-clearcase.c	\
 	packet-clip.c	\
