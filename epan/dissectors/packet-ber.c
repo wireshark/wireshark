@@ -1932,16 +1932,17 @@ int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree 
 			if(val) {
 				if(item && nb->tstr) {
 					proto_item_append_text(item, "%s%s", sep, nb->tstr);
+					sep = ", ";
 					term = TRUE;
 				}
 			} else {
 				if(item && nb->fstr) {
 					proto_item_append_text(item, "%s%s", sep, nb->fstr);
+					sep = ", ";
 					term = TRUE;
 				}
 			}
 			nb++;
-			sep = ", ";
 		}
 		if(term)
 			proto_item_append_text(item, ")");
