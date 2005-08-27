@@ -1316,7 +1316,7 @@
 00:04:EF	Polestar               # Polestar Corp.
 00:04:F0	Internatio             # International Computers, Ltd
 00:04:F1	Wherenet
-00:04:F2	CircaCommu             # Circa Communications, Ltd.
+00:04:F2	Polycom
 00:04:F3	FsForth-Sy             # FS FORTH-SYSTEME GmbH
 00:04:F4	InfiniteEl             # Infinite Electronics Inc.
 00:04:F5	SnowshoreN             # SnowShore Networks, Inc.
@@ -1727,7 +1727,7 @@
 00:06:8A	NeuronnetR             # NeuronNet Co. Ltd. R&D Center
 00:06:8B	AirrunnerT             # AirRunner Technologies, Inc.
 00:06:8C	3com                   # 3Com Corporation
-00:06:8D	Sangate                # SANgate Systems
+00:06:8D	Sepaton                # SEPATON, Inc.
 00:06:8E	Hid                    # HID Corporation
 00:06:8F	Telemonito             # Telemonitor, Inc.
 00:06:90	EuracomCom             # Euracom Communication GmbH
@@ -2653,7 +2653,7 @@
 00:0A:4F	BrainBoxes             # Brain Boxes Limited
 00:0A:50	Remotek                # REMOTEK CORPORATION
 00:0A:51	Gyrosignal             # GyroSignal Technology Co., Ltd.
-00:0A:52	Venitek                # Venitek Co. Ltd.
+00:0A:52	Asiarf                 # AsiaRF Ltd.
 00:0A:53	Intronics              # Intronics, Incorporated
 00:0A:54	LagunaHill             # Laguna Hills, Inc.
 00:0A:55	Markem                 # MARKEM Corporation
@@ -5510,6 +5510,57 @@
 00:15:79	LunatoneIn             # Lunatone Industrielle Elektronik GmbH
 00:15:7A	TelefinSPA             # Telefin S.p.A.
 00:15:7B	LeuzeElect             # Leuze electronic GmbH + Co. KG
+00:15:7C	DaveNetwor             # Dave Networks, Inc.
+00:15:7D	Posdata                # POSDATA CO., LTD.
+00:15:7E	HeyfraElec             # HEYFRA ELECTRONIC gmbH
+00:15:7F	ChuangInte             # ChuanG International Holding CO.,LTD.
+00:15:80	U-Way                  # U-WAY CORPORATION
+00:15:81	Makus                  # MAKUS Inc.
+00:15:82	Tvonics                # TVonics Ltd
+00:15:83	Ivt                    # IVT corporation
+00:15:84	SchenckPro             # Schenck Process GmbH
+00:15:85	AonvisionT             # Aonvision Technolopy Corp.
+00:15:86	XiamenOver             # Xiamen Overseas Chinese Electronic Co., Ltd.
+00:15:87	TakenakaSe             # Takenaka Seisakusho Co.,Ltd
+00:15:88	Balda-Thon             # Balda-Thong Fook Solutions Sdn. Bhd.
+00:15:89	D-MaxTechn             # D-MAX Technology Co.,Ltd
+00:15:8A	SurecomTec             # SURECOM Technology Corp.
+00:15:8B	ParkAir                # Park Air Systems Ltd
+00:15:8C	LiabAps                # Liab ApS
+00:15:8D	Jennic                 # Jennic Ltd
+00:15:8E	Plustek                # Plustek.INC
+00:15:8F	NttAdvance             # NTT Advanced Technology Corporation
+00:15:90	Hectronic              # Hectronic GmbH
+00:15:91	Rlw                    # RLW Inc.
+00:15:92	FacomUkMel             # Facom UK Ltd (Melksham)
+00:15:93	U4eaTechno             # U4EA Technologies Inc.
+00:15:94	Bixolon                # BIXOLON CO.,LTD
+00:15:95	QuesterTan             # Quester Tangent Corporation
+00:15:96	ArrisInter             # ARRIS International
+00:15:97	AetaAudio              # AETA AUDIO SYSTEMS
+00:15:98	KolektorGr             # Kolektor group
+00:15:99	SamsungEle             # Samsung Electronics Co., LTD
+00:15:9A	MotorolaCh             # Motorola CHS
+00:15:9B	Nortel
+00:15:9C	B-KyungSys             # B-KYUNG SYSTEM Co.,Ltd.
+00:15:9D	MinicomAdv             # Minicom Advanced Systems ltd
+00:15:9E	Saitek                 # Saitek plc
+00:15:9F	Terascala              # Terascala, Inc.
+00:15:A0	NokiaDanma             # Nokia Danmark A/S
+00:15:A1	SintersSas             # SINTERS SAS
+00:15:A2	ArrisInter             # ARRIS International
+00:15:A3	ArrisInter             # ARRIS International
+00:15:A4	ArrisInter             # ARRIS International
+00:15:A5	Dci                    # DCI Co., Ltd.
+00:15:A6	DigitalEle             # Digital Electronics Products Ltd.
+00:15:A7	Robatech               # Robatech AG
+00:15:A8	MotorolaMo             # Motorola Mobile Devices
+00:15:A9	KwangWooI&             # KWANG WOO I&C CO.,LTD
+00:15:AA	Rextechnik             # Rextechnik International Co.,
+00:15:AB	ProSound               # PRO CO SOUND INC
+00:15:AC	Capelon                # Capelon AB
+00:15:AD	AccedianNe             # Accedian Networks
+00:15:AE	KyungIl                # kyung il
 00:17:00	Kabel
 00:1C:7C	Perq                   # PERQ SYSTEMS CORPORATION
 00:20:00	LexmarkInt             # LEXMARK INTERNATIONAL, INC.
@@ -7652,7 +7703,7 @@
 00:C0:36	RaytechEle             # RAYTECH ELECTRONIC CORP.
 00:C0:37	Dynatem
 00:C0:38	RasterImag             # RASTER IMAGE PROCESSING SYSTEM
-00:C0:39	TdkSemicon             # TDK SEMICONDUCTOR CORPORATION
+00:C0:39	TeridianSe             # Teridian Semiconductor Corporation
 00:C0:3A	Men-MikroE             # MEN-MIKRO ELEKTRONIK GMBH
 00:C0:3B	Multiacces             # MULTIACCESS COMPUTING CORP.
 00:C0:3C	TowerTechS             # TOWER TECH S.R.L.
@@ -8620,8 +8671,9 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 00-00-0C-07-AC/40	All-HSRP-routers
 00-00-5E-00-01/40	IETF-VRRP-virtual-router-VRID
 00-E0-2B-00-00-00	Extreme-EDP
+00-E0-2B-00-00-01	Extreme-EAPS-Source
 00-E0-2B-00-00-02	Extreme-ESRP-Client
-00-E0-2B-00-00-04	Extreme-EAPS-Host
+00-E0-2B-00-00-04	Extreme-EAPSv1
 00-E0-2B-00-00-08	Extreme-ESRP-Master
 01-00-0C-CC-CC-CC	CDP/VTP
 01-00-0C-DD-DD-DD	CGMP

@@ -255,15 +255,16 @@
 
    Q 1.5: What protocols are currently supported?
 
-   A: There are currently 683 supported protocols and media, listed below.
+   A: There are currently 706 supported protocols and media, listed below.
    Descriptions can be found in the ethereal(1) man page.
 
             3Com XNS Encapsulation
             3GPP2 A11
-            802.1q Virtual LAN
-            802.1x Authentication
+            802.1Q Virtual LAN
+            802.1X Authentication
             AAL type 2 signalling protocol - Capability set 1 (Q.2630.1)
             ACN
+            ACSE
             AFS (4.0) Replication Server call declarations
             AIM Administrative
             AIM Advertisements
@@ -314,8 +315,8 @@
             Alteon - Transparent Proxy Cache Protocol
             Andrew File System (AFS)
             Apache JServ Protocol v1.3
+            Apple Filing Protocol
             Apple IP-over-IEEE 1394
-            AppleTalk Filing Protocol
             AppleTalk Session Protocol
             AppleTalk Transaction Protocol packet
             Appletalk Address Resolution Protocol
@@ -324,6 +325,7 @@
             Aruba - Aruba Discovery Protocol
             Async data over ISDN (V.120)
             Asynchronous Layered Coding
+            AudioCodes Trunk Trace
             Authentication Header
             BACnet Virtual Link Control
             BEA Tuxedo
@@ -353,6 +355,7 @@
             CBAPhysicalDevice
             CCSDS
             CDS Clerk Server Calls
+            CSM_ENCAPS
             Camel
             Cast Client Control Protocol
             Certificate Management Protocol
@@ -421,12 +424,17 @@ cies
             DCOM IDispatch
             DCOM IRemoteActivation
             DCOM OXID Resolver
+            DEC DNA Routing Protocol
             DEC Spanning Tree Protocol
             DFS Calls
             DG Gryphon Protocol
             DHCP Failover
             DHCPv6
             DICOM
+            DLT_USER_A
+            DLT_USER_B
+            DLT_USER_C
+            DLT_USER_D
             DNS Control Program Server
             DOCSIS 1.1
             DOCSIS Appendix C TLV's
@@ -466,6 +474,7 @@ cies
             Distance Vector Multicast Routing Protocol
             Distcc Distributed Compiler
             Distributed Checksum Clearinghouse Protocol
+            Distributed Interactive Simulation
             Distributed Network Protocol 3.0
             Domain Name Service
             Dynamic DNS Tools Protocol
@@ -484,6 +493,7 @@ cies
             FC Extended Link Svc
             FC Fabric Configuration Server
             FCIP
+            FTAM
             FTP Data
             FTServer Operations
             Fiber Distributed Data Interface
@@ -507,14 +517,15 @@ cies
             GSM A-I/F BSSMAP
             GSM A-I/F DTAP
             GSM A-I/F RP
+            GSM Mobile Application
             GSM SMS TPDU (GSM 03.40)
             GSM Short Message Service User Data
-            GSM_MobileAPplication
+            GSS-API Generic Security Service Application Program Interface
             General Inter-ORB Protocol
             Generic Routing Encapsulation
-            Generic Security Service Application Program Interface
             Gnutella Protocol
             H.248 MEGACO
+            H221NonStandard
             H235-SECURITY-MESSAGES
             HP Extended Local-Link Control
             HP Remote Maintenance Protocol
@@ -575,6 +586,7 @@ cies
             ISO 8602 CLTP ConnectionLess Transport Protocol
             ISO 8823 OSI Presentation Protocol
             ISO 9542 ESIS Routeing Information Exchange Protocol
+            ISUP Thin Protocol
             ISystemActivator ISystemActivator Resolver
             ITU-T E.164 number
             ITU-T Recommendation H.261
@@ -606,11 +618,16 @@ cies
             IrDA Link Access Protocol
             IrDA Link Management Protocol
             JPEG File Interchange Format
+            JXTA Connection Welcome Message
+            JXTA Message
+            JXTA Message Framing
             JXTA P2P
+            JXTA UDP
             Jabber XML Messaging
             Java RMI
             Java Serialization
             Juniper
+            K12xx
             Kerberized Internet Negotiation of Key
             Kerberos
             Kerberos Administration
@@ -643,6 +660,7 @@ cies
             MDS Header
             MEGACO
             MIME Multipart Media Encapsulation
+            MMS
             MMS Message Encapsulation
             MS Kpasswd
             MS Proxy Protocol
@@ -654,8 +672,8 @@ cies
             MTP2 Peer Adaptation Layer
             Media Gateway Control Protocol
             Media Type
-            Media Type: application/x-jxta-msg
             Media Type: message/http
+            Message Session Relay Protocol
             Message Transfer Part Level 2
             Message Transfer Part Level 3
             Message Transfer Part Level 3 Management
@@ -668,6 +686,7 @@ cies
             Microsoft File Replication Service
             Microsoft File Replication Service API
             Microsoft Local Security Architecture
+            Microsoft Media Server
             Microsoft Messenger Service
             Microsoft Network Logon
             Microsoft Plug and Play service
@@ -723,8 +742,6 @@ cies
             Novell Distributed Print System
             Novell Modular Authentication Service
             Null/Loopback
-            OSI ISO 8571 FTAM Protocol
-            OSI ISO/IEC 10035-1 ACSE Protocol
             Online Certificate Status Protocol
             Open Policy Service Interface
             Open Shortest Path First
@@ -767,6 +784,7 @@ cies
             Packed Encoding Rules (ASN.1 X.691)
             Packet Cable Lawful Intercept
             PacketCable
+            Parlay Dissector Using GIOP API
             Plan 9 9P
             Point-to-Point Protocol
             Point-to-Point Tunnelling Protocol
@@ -871,6 +889,7 @@ cies
             Subnetwork Dependent Convergence Protocol
             Symantec Enterprise Firewall
             Synchronous Data Link Control (SDLC)
+            Synergy
             Syslog message
             Systems Network Architecture
             Systems Network Architecture XID
@@ -879,11 +898,13 @@ cies
             TACACS+
             TDMA RTmac Discipline
             TEI Management Procedure, Channel D (LAPD)
-            TPKT
+            TPKT - ISO on TCP - RFC1006
             Tabular Data Stream
+            Tango Dissector Using GIOP API
             Tazmen Sniffer Protocol
             Telnet
             Teredo IPv6 over UDP tunneling
+            The Armagetron Advanced OpenGL Tron clone
             Time Protocol
             Time Synchronization Protocol
             Tiny Transport Protocol
@@ -915,6 +936,7 @@ cies
             Wireless Session Protocol
             Wireless Transaction Protocol
             Wireless Transport Layer Security
+            Wlan Certificate Extension
             X Display Manager Control Protocol
             X.25
             X.25 over TCP
@@ -940,6 +962,7 @@ cies
             h225
             h245
             h450
+            iFCP
             iSCSI
             iSNS
 
@@ -2149,4 +2172,4 @@ cies
    ethereal-users[AT]ethereal.com mailing list.
    For corrections/additions/suggestions for this web page (and not Ethereal
    support questions), please send email to ethereal-web[AT]ethereal.com .
-   Last modified: Wed, May 25 2005.
+   Last modified: Thu, August 25 2005.
