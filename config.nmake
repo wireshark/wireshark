@@ -20,8 +20,8 @@ VERSION=0.10.12
 RC_VERSION=0,10,12
 
 # The version of the wiretap library
-WTAP_VERSION=0.2
-RC_WTAP_VERSION=0,2
+WTAP_VERSION=0.3
+RC_WTAP_VERSION=0,3
 
 #
 # If you're building with WinPcap 2.3, set WINPCAP_VERSION to 2.3; if
