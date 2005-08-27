@@ -95,6 +95,7 @@
 #include <epan/dissectors/packet-dcerpc.h>
 
 #include <epan/dissectors/packet-gssapi.h>
+#include <epan/emem.h>
 
 #define UDP_PORT_KERBEROS		88
 #define TCP_PORT_KERBEROS		88
@@ -340,7 +341,7 @@ add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *k
 printf("added key in %d\n",pinfo->fd->num);
 
 	new_key=g_malloc(sizeof(enc_key_t));
-	sprintf(new_key->key_origin, "%s learnt from frame %d",origin,pinfo->fd->num);
+	g_snprintf(new_key->key_origin, KRB_MAX_ORIG_LEN, "%s learnt from frame %d",origin,pinfo->fd->num);
 	new_key->next=enc_key_list;
 	enc_key_list=new_key;
 	new_key->keytype=keytype;
@@ -386,11 +387,11 @@ read_keytab_file(const char *filename, krb5_context *context)
 
 			/* generate origin string, describing where this key came from */
 			pos=new_key->key_origin;
-			pos+=sprintf(pos, "keytab principal ");
+			pos+=g_snprintf(pos, KRB_MAX_ORIG_LEN, "keytab principal ");
 			for(i=0;i<key.principal->length;i++){
-				pos+=sprintf(pos,"%s%s",(i?"/":""),(key.principal->data[i]).data);
+				pos+=g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "%s%s",(i?"/":""),(key.principal->data[i]).data);
 			}
-			pos+=sprintf(pos,"@%s",key.principal->realm.data);
+			pos+=g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "@%s",key.principal->realm.data);
 			*pos=0;
 /*printf("added key for principal :%s\n", new_key->key_origin);*/
 			new_key->keytype=key.key.enctype;
@@ -506,11 +507,11 @@ read_keytab_file(const char *filename, krb5_context *context)
 
 			/* generate origin string, describing where this key came from */
 			pos=new_key->key_origin;
-			pos+=sprintf(pos, "keytab principal ");
+			pos+=g_snprintf(pos, KRB_MAX_ORIG_LEN, "keytab principal ");
 			for(i=0;i<key.principal->name.name_string.len;i++){
-				pos+=sprintf(pos,"%s%s",(i?"/":""),key.principal->name.name_string.val[i]);
+				pos+=g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "%s%s",(i?"/":""),key.principal->name.name_string.val[i]);
 			}
-			pos+=sprintf(pos,"@%s",key.principal->realm);
+			pos+=g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "@%s",key.principal->realm);
 			*pos=0;
 			new_key->keytype=key.keyblock.keytype;
 			new_key->keylength=key.keyblock.keyvalue.length;
@@ -631,7 +632,7 @@ printf("added key in %d\n",pinfo->fd->num);
 	new_key->length = keylength;
 	new_key->contents = g_malloc(keylength);
 	memcpy(new_key->contents, keyvalue, keylength);
-	sprintf(new_key->origin, "%s learnt from frame %d", origin, pinfo->fd->num);
+	g_snprintf(new_key->origin, KRB_MAX_ORIG_LEN, "%s learnt from frame %d", origin, pinfo->fd->num);
 	service_key_list = g_slist_append(service_key_list, (gpointer) new_key);
 }
 
@@ -686,7 +687,7 @@ read_keytab_file(const char *service_key_file)
 			sk->length = DES3_KEY_SIZE;
 			sk->contents = g_malloc(DES3_KEY_SIZE);
 			memcpy(sk->contents, buf + 2, DES3_KEY_SIZE);
-			sprintf(sk->origin, "3DES service key file, key #%d, offset %ld", count, ftell(skf));
+			g_snprintf(sk->origin, KRB_MAX_ORIG_LEN, "3DES service key file, key #%d, offset %ld", count, ftell(skf));
 			service_key_list = g_slist_append(service_key_list, (gpointer) sk);
 			fseek(skf, newline_skip, SEEK_CUR);
 			count++;
@@ -1608,20 +1609,20 @@ static int dissect_krb5_address(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 	gboolean pc;
 	gint32 tag;
 	guint32 len;
-	char address_str[256];
+	char *address_str;
 	proto_item *it=NULL;
 
 	/* read header and len for the octet string */
 	offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
 	offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
 
-
+	address_str=ep_alloc(256);
 	address_str[0]=0;
 	address_str[255]=0;
 	switch(addr_type){
 	case KRB5_ADDR_IPv4:
 		it=proto_tree_add_item(tree, hf_krb_address_ip, tvb, offset, 4, FALSE);
-		sprintf(address_str,"%d.%d.%d.%d",tvb_get_guint8(tvb, offset),tvb_get_guint8(tvb, offset+1),tvb_get_guint8(tvb, offset+2),tvb_get_guint8(tvb, offset+3));
+		g_snprintf(address_str,256,"%d.%d.%d.%d",tvb_get_guint8(tvb, offset),tvb_get_guint8(tvb, offset+1),tvb_get_guint8(tvb, offset+2),tvb_get_guint8(tvb, offset+3));
 		break;
 	case KRB5_ADDR_NETBIOS:
 		{
