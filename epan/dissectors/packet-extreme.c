@@ -27,10 +27,12 @@
 
 /*
   TODO:
+  - General
    EAPS v2 is not supported (no spec)
    Some stuff in the EDP Info field (no spec)
+  - Things seen in traces
    Flags in the EDP Vlan field (value 0x01)
-   Meaning of speical MAC adresses:
+   Meaning of special MAC adresses:
 	ExtremeN:00:00:06
    TLV type 0x0e (XOS only?) (EAPSv2?)
    TLV type 0x15 (XOS only?)
@@ -44,7 +46,7 @@ EAPS v1 is specified in RFC3619
 The following information is taken from the Extreme knowledge base
 (login required). Search for ESRP.
 Note: The information seems to be incorrect in at least one place
-      (position of Vlan ID).
+      (position of edp.vlan.id).
 
 ================================ snip ================================
 
