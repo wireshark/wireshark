@@ -30,6 +30,8 @@
  * what it's good for nor what the elements do. This is purely
  * reverse engineered by looking at the hex dump of the packets.
  *
+ * Sample capture in wiki (ciscowl.pcap.gz)
+ *
  * TODO
  *	- Find out more about unknown fields
  *	- Currently only one type of packet is really handled at all
@@ -39,10 +41,16 @@
  *
  * Header (Eth V2 or SNAP)
  * Length (2 bytes)
- * Unknown1 (2 bytes)
+ * Type (2 bytes)
+ *	0202: Unknown, Length 36 (14 + 20 + 2)
+ *	4001: Unknown, Length 48 (14 + 32 + 2)
+ *	4601: Unknown, Length 34 (14 + 18 + 2)
+ *	4081 on Eth V2: Name, Version Length 84 (14 + 48 + 20 + 2)
+ *	4081 on 802.3: Name Length 72 (14 + 56 + 2)
  * Dst MAC (6 bytes)
  * Src MAC (6 bytes)
- * Unknown2 (4 bytes)
+ * Unknown1 (2 bytes)  Unknown19 + Unknown2 may be a MAC address on type 0202
+ * Unknown2 (4 bytes)	see Unknown19
  * 0 (17 bytes)
  * Device IP (4 bytes)
  * 0 (2 bytes)
@@ -73,10 +81,11 @@ static int hf_llc_ciscowl_pid = -1;
 static int proto_ciscowl = -1;
 
 static int hf_ciscowl_length = -1;
-static int hf_ciscowl_unknown1 = -1;
+static int hf_ciscowl_type = -1;
 static int hf_ciscowl_srcmac = -1;
 static int hf_ciscowl_dstmac = -1;
-static int hf_ciscowl_unknown19 = -1;
+static int hf_ciscowl_somemac = -1;
+static int hf_ciscowl_unknown1 = -1;
 static int hf_ciscowl_unknown2 = -1;
 static int hf_ciscowl_null1 = -1;
 static int hf_ciscowl_ip = -1;
@@ -85,7 +94,7 @@ static int hf_ciscowl_name = -1;
 static int hf_ciscowl_unknown3 = -1;
 static int hf_ciscowl_unknown4 = -1;
 static int hf_ciscowl_version = -1;
-static int hf_ciscowl_null3 = -1;
+static int hf_ciscowl_rest = -1;
 
 static gint ett_ciscowl = -1;
 
@@ -104,6 +113,7 @@ dissect_ciscowl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	proto_tree *ciscowl_tree = NULL;
 	guint32 offset = 0;
+	guint32 length, type;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
@@ -115,11 +125,13 @@ dissect_ciscowl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    FALSE);
 		ciscowl_tree = proto_item_add_subtree(ti, ett_ciscowl);
 
+		length = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(ciscowl_tree, hf_ciscowl_length, tvb, offset, 2,
 			FALSE);
 		offset += 2;
 
-		proto_tree_add_item(ciscowl_tree, hf_ciscowl_unknown1, tvb, offset, 2,
+		type = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_item(ciscowl_tree, hf_ciscowl_type, tvb, offset, 2,
 			FALSE);
 		offset += 2;
 
@@ -131,45 +143,58 @@ dissect_ciscowl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			FALSE);
 		offset += 6;
 
-		proto_tree_add_item(ciscowl_tree, hf_ciscowl_unknown19, tvb, offset, 2,
-			FALSE);
-		offset += 2;
+		if (type == 0x0202) {
+			proto_tree_add_item(ciscowl_tree, hf_ciscowl_somemac, tvb,
+			offset, 6, FALSE);
+			offset += 6;
+		} else {
+			proto_tree_add_item(ciscowl_tree, hf_ciscowl_unknown1, tvb,
+				offset, 2, FALSE);
+			offset += 2;
 
-		proto_tree_add_item(ciscowl_tree, hf_ciscowl_unknown2, tvb, offset, 4,
-			FALSE);
-		offset += 4;
+			proto_tree_add_item(ciscowl_tree, hf_ciscowl_unknown2, tvb,
+				offset, 4, FALSE);
+			offset += 4;
+		}
+		if (type == 0x4081) {
+			proto_tree_add_item(ciscowl_tree, hf_ciscowl_null1, tvb,
+				offset, 16, FALSE);
+			offset += 16;
 
-		proto_tree_add_item(ciscowl_tree, hf_ciscowl_null1, tvb, offset, 16,
-			FALSE);
-		offset += 16;
+			proto_tree_add_item(ciscowl_tree, hf_ciscowl_ip, tvb,
+				offset, 4, FALSE);
+			offset += 4;
 
-		proto_tree_add_item(ciscowl_tree, hf_ciscowl_ip, tvb, offset, 4,
-			FALSE);
-		offset += 4;
+			proto_tree_add_item(ciscowl_tree, hf_ciscowl_null2, tvb,
+				offset, 2, FALSE);
+			offset += 2;
 
-		proto_tree_add_item(ciscowl_tree, hf_ciscowl_null2, tvb, offset, 2,
-			FALSE);
-		offset += 2;
+			proto_tree_add_item(ciscowl_tree, hf_ciscowl_name, tvb,
+				offset, 28, FALSE);
+			offset += 28;
 
-		proto_tree_add_item(ciscowl_tree, hf_ciscowl_name, tvb, offset, 28,
-			FALSE);
-		offset += 28;
+			proto_tree_add_item(ciscowl_tree, hf_ciscowl_unknown3, tvb,
+				offset, 2, FALSE);
+			offset += 2;
 
-		proto_tree_add_item(ciscowl_tree, hf_ciscowl_unknown3, tvb, offset, 2,
-			FALSE);
-		offset += 2;
+			/* Frames in IEEE 802.3 format don't have a version field? */
+			if (length > offset) {
+				proto_tree_add_item(ciscowl_tree, hf_ciscowl_unknown4, tvb,
+					offset, 4, FALSE);
+				offset += 4;
 
-		proto_tree_add_item(ciscowl_tree, hf_ciscowl_unknown4, tvb, offset, 4,
-			FALSE);
-		offset += 4;
-
-		proto_tree_add_item(ciscowl_tree, hf_ciscowl_version, tvb, offset, 14,
-			FALSE);
-		offset += 14;
-
-		proto_tree_add_item(ciscowl_tree, hf_ciscowl_null3, tvb, offset, 2,
-			FALSE);
-		offset += 2;
+				proto_tree_add_item(ciscowl_tree, hf_ciscowl_version, tvb,
+					offset, 14, FALSE);
+				offset += 14;
+			}
+			proto_tree_add_item(ciscowl_tree, hf_ciscowl_rest, tvb,
+				offset, length - offset, FALSE);
+			offset = length;
+		} else {
+			proto_tree_add_item(ciscowl_tree, hf_ciscowl_rest, tvb,
+				offset, length - offset, FALSE);
+			offset = length;
+		}
 
 	}
 }
@@ -183,9 +208,9 @@ proto_register_ciscowl(void)
 		{ "Length",	"ciscowl.length", FT_UINT16, BASE_DEC, NULL,
 			0x0, "", HFILL }},
 
-		{ &hf_ciscowl_unknown1,
-		{ "Unknown1",	"ciscowl.unknown1", FT_BYTES, BASE_HEX, NULL,
-			0x0, "", HFILL }},
+		{ &hf_ciscowl_type,
+		{ "Type",	"ciscowl.type", FT_UINT16, BASE_HEX, NULL,
+			0x0, "Type(?)", HFILL }},
 
 		{ &hf_ciscowl_srcmac,
 		{ "Src MAC",	"ciscowl.srcmac", FT_ETHER, BASE_NONE, NULL,
@@ -195,8 +220,12 @@ proto_register_ciscowl(void)
 		{ "Dst MAC",	"ciscowl.dstmac", FT_ETHER, BASE_NONE, NULL,
 			0x0, "Destination MAC", HFILL }},
 
-		{ &hf_ciscowl_unknown19,
-		{ "Unknown19",	"ciscowl.unknown19", FT_BYTES, BASE_HEX, NULL,
+		{ &hf_ciscowl_somemac,
+		{ "Some MAC",	"ciscowl.somemac", FT_ETHER, BASE_NONE, NULL,
+			0x0, "Some unknown MAC", HFILL }},
+
+		{ &hf_ciscowl_unknown1,
+		{ "Unknown1",	"ciscowl.unknown1", FT_BYTES, BASE_HEX, NULL,
 			0x0, "", HFILL }},
 
 		{ &hf_ciscowl_unknown2,
@@ -231,9 +260,9 @@ proto_register_ciscowl(void)
 		{ "Version",	"ciscowl.version", FT_STRING, BASE_NONE, NULL,
 			0x0, "Device Version String", HFILL }},
 
-		{ &hf_ciscowl_null3,
-		{ "Null3",	"ciscowl.null3", FT_BYTES, BASE_HEX, NULL,
-			0x0, "", HFILL }},
+		{ &hf_ciscowl_rest,
+		{ "Rest",	"ciscowl.rest", FT_BYTES, BASE_HEX, NULL,
+			0x0, "Unknown remaining data", HFILL }},
 
         };
 	static gint *ett[] = {
