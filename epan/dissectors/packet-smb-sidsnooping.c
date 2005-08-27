@@ -209,7 +209,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
 		fi_name=gp_names->pdata[num_rids-1];
 		strncpy(sid_name, sid, len);
 		sid_name[len++]='-';
-		len+=sprintf(sid_name+len,"%d",fi_rid->value.value.integer);
+		len+=g_snprintf(sid_name+len, 256-len, "%d",fi_rid->value.value.integer);
 		sid_name[len]=0;
 		add_sid_name_mapping(sid_name, fi_name->value.value.string);
 	}
