@@ -187,7 +187,7 @@ static const gchar* dissect_cosine_vpvc(proto_tree* tree, tvbuff_t* tvb) {
 }
 
 static void
-radius_decrypt_avp(gchar *dest,tvbuff_t *tvb,int offset,int length)
+radius_decrypt_avp(gchar *dest,int dest_len,tvbuff_t *tvb,int offset,int length)
 {
     md5_state_t md_ctx;
     md5_byte_t digest[16];
@@ -212,8 +212,7 @@ radius_decrypt_avp(gchar *dest,tvbuff_t *tvb,int offset,int length)
 			dest[totlen] = c;
 			totlen++;
 		} else {
-			sprintf(&(dest[totlen]),"\\%03o",c);
-			totlen += strlen(&(dest[totlen]));
+			totlen += g_snprintf(dest+totlen, dest_len-totlen, "\\%03o",c);
 		}
     }
     while(i<length) {
@@ -221,8 +220,7 @@ radius_decrypt_avp(gchar *dest,tvbuff_t *tvb,int offset,int length)
 			dest[totlen] = (gchar)pd[i];
 			totlen++;
 		} else {
-			sprintf(&(dest[totlen]), "\\%03o", pd[i]);
-			totlen=totlen+strlen(&(dest[totlen]));
+			totlen += g_snprintf(dest+totlen, dest_len-totlen, "\\%03o", pd[i]);
 		}
 		i++;
     }
@@ -270,8 +268,9 @@ void radius_string(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _
 			proto_item_append_text(avp_item, "Encrypted");
 			proto_tree_add_item(tree, a->hf, tvb, offset, len, FALSE);
 		} else {
-			gchar buffer[1024]; /* an AVP value can be at most 253 bytes */
-			radius_decrypt_avp(buffer,tvb,offset,len);
+			gchar *buffer; 
+			buffer=ep_alloc(1024); /* an AVP value can be at most 253 bytes */
+			radius_decrypt_avp(buffer,1024,tvb,offset,len);
 			proto_item_append_text(avp_item, "Decrypted: %s", buffer);
 			proto_tree_add_string(tree, a->hf, tvb, offset, len, buffer);
 		}
