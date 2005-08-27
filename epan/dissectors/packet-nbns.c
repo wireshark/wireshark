@@ -38,6 +38,7 @@
 #include "packet-tcp.h"
 #include "packet-frame.h"
 #include <epan/prefs.h>
+#include <epan/emem.h>
 
 static int proto_nbns = -1;
 static int hf_nbns_flags = -1;
@@ -269,20 +270,25 @@ add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
 
 static int
 get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
-    char *name_ret, int *name_type_ret)
+    char *name_ret, int name_ret_len, int *name_type_ret)
 {
 	int name_len;
-	char name[MAXDNAME];
-	char nbname[NBNAME_BUF_LEN];
+	char *name;
+	char *nbname;
 	char *pname, *pnbname, cname, cnbname;
 	int name_type;
+	char *pname_ret;
 
+	name=ep_alloc(MAXDNAME);
+	nbname=ep_alloc(NBNAME_BUF_LEN);
 	name_len = get_dns_name(tvb, offset, nbns_data_offset, name,
-	    sizeof(name));
+	    MAXDNAME);
 
 	/* OK, now undo the first-level encoding. */
 	pname = &name[0];
 	pnbname = &nbname[0];
+	pname_ret=name_ret;
+
 	for (;;) {
 		/* Every two characters of the first level-encoded name
 		 * turn into one character in the decoded name. */
@@ -340,13 +346,12 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
 
 	/* This one is; make its name printable. */
 	name_type = process_netbios_name(nbname, name_ret);
-	name_ret += strlen(name_ret);
-	sprintf(name_ret, "<%02x>", name_type);
-	name_ret += 4;
+	pname_ret += strlen(name_ret);
+	pname_ret += g_snprintf(pname_ret, name_ret_len-(pname_ret-name_ret), "<%02x>", name_type);
 	if (cname == '.') {
 		/* We have a scope ID, starting at "pname"; append that to
 		 * the decoded host name. */
-		strcpy(name_ret, pname);
+		strcpy(pname_ret, pname);
 	}
 	if (name_type_ret != NULL)
 		*name_type_ret = name_type;
@@ -355,7 +360,7 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
 bad:
 	if (name_type_ret != NULL)
 		*name_type_ret = -1;
-	strcpy (name_ret, nbname);
+	strcpy (pname_ret, nbname);
 	return name_len;
 }
 
@@ -369,8 +374,8 @@ get_nbns_name_type_class(tvbuff_t *tvb, int offset, int nbns_data_offset,
 	int type;
 	int class;
 
-	name_len = get_nbns_name(tvb, offset, nbns_data_offset, name_ret,
-	   name_type_ret);
+	name_len = get_nbns_name(tvb, offset, nbns_data_offset, name_ret, 
+			*name_len_ret, name_type_ret);
 	offset += name_len;
 
 	type = tvb_get_ntohs(tvb, offset);
@@ -398,12 +403,14 @@ add_name_and_type(proto_tree *tree, tvbuff_t *tvb, int offset, int len,
 	}
 }
 
+#define MAX_NAME_LEN (NETBIOS_NAME_LEN - 1)*4 + MAXDNAME + 64
+
 static int
 dissect_nbns_query(tvbuff_t *tvb, int offset, int nbns_data_offset,
     column_info *cinfo, proto_tree *nbns_tree)
 {
 	int len;
-	char name[(NETBIOS_NAME_LEN - 1)*4 + MAXDNAME];
+	char *name;
 	int name_len;
 	int name_type;
 	int type;
@@ -414,8 +421,10 @@ dissect_nbns_query(tvbuff_t *tvb, int offset, int nbns_data_offset,
 	proto_tree *q_tree;
 	proto_item *tq;
 
+	name=ep_alloc(MAX_NAME_LEN);
 	data_start = data_offset = offset;
 
+	name_len=MAX_NAME_LEN;
 	len = get_nbns_name_type_class(tvb, offset, nbns_data_offset, name,
 	    &name_len, &name_type, &type, &class);
 	data_offset += len;
@@ -449,11 +458,12 @@ static void
 nbns_add_nbns_flags(column_info *cinfo, proto_tree *nbns_tree, tvbuff_t *tvb, int offset,
 		    gushort flags, int is_wack)
 {
-	char buf[128+1];
+	char *buf;
 	guint16 opcode;
 	proto_tree *field_tree;
 	proto_item *tf;
 
+	buf=ep_alloc(128+1);
 	opcode = (guint16) ((flags & F_OPCODE) >> OPCODE_SHIFT);
 	strcpy(buf, val_to_str(opcode, opcode_vals, "Unknown operation"));
 	if (flags & F_RESPONSE && !is_wack) {
@@ -497,7 +507,7 @@ nbns_add_nbns_flags(column_info *cinfo, proto_tree *nbns_tree, tvbuff_t *tvb, in
 static void
 nbns_add_nb_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset, gushort flags)
 {
-	char buf[128+1];
+	char *buf;
 	proto_tree *field_tree;
 	proto_item *tf;
 	static const value_string nb_flags_ont_vals[] = {
@@ -508,6 +518,7 @@ nbns_add_nb_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset, gushort flags)
 		  { 0,                   NULL     }
 	};
 
+	buf=ep_alloc(128+1);
 	strcpy(buf, val_to_str(flags & NB_FLAGS_ONT, nb_flags_ont_vals,
 	    "Unknown"));
 	strcat(buf, ", ");
@@ -532,7 +543,7 @@ static void
 nbns_add_name_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset,
     gushort flags)
 {
-	char buf[128+1];
+	char *buf;
 	proto_item *field_tree;
 	proto_item *tf;
 	static const value_string name_flags_ont_vals[] = {
@@ -542,6 +553,7 @@ nbns_add_name_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset,
 		  { 0,                     NULL     }
 	};
 
+	buf=ep_alloc(128+1);
 	strcpy(buf, val_to_str(flags & NAME_FLAGS_ONT, name_flags_ont_vals,
 	    "Unknown"));
 	strcat(buf, ", ");
@@ -595,7 +607,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
     column_info *cinfo, proto_tree *nbns_tree, int opcode)
 {
 	int len;
-	char name[(NETBIOS_NAME_LEN - 1)*4 + MAXDNAME + 64];
+	char *name;
 	int name_len;
 	int name_type;
 	int type;
@@ -610,14 +622,19 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 	gushort flags;
 	proto_tree *rr_tree;
 	proto_item *trr;
-	char name_str[(NETBIOS_NAME_LEN - 1)*4 + 1];
+	char *name_str;
 	guint num_names;
-	char nbname[16+4+1];	/* 4 for [<last char>] */
+	char *nbname;	
 	gushort name_flags;
 
 	data_start = data_offset = offset;
 	cur_offset = offset;
 
+	name=ep_alloc(MAX_NAME_LEN);
+	name_str=ep_alloc(MAX_NAME_LEN);
+	nbname=ep_alloc(16+4+1);	/* 4 for [<last char>] */
+
+	name_len=MAX_NAME_LEN;
 	len = get_nbns_name_type_class(tvb, offset, nbns_data_offset, name,
 	    &name_len, &name_type, &type, &class);
 	data_offset += len;
@@ -1189,9 +1206,11 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		{ 0x00,	NULL }
 	};
 
-	char name[(NETBIOS_NAME_LEN - 1)*4 + MAXDNAME];
+	char *name;
 	int name_type;
 	int len;
+
+	name=ep_alloc(MAX_NAME_LEN);
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBDS");
@@ -1278,7 +1297,7 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 4;
 
 		/* Source name */
-		len = get_nbns_name(tvb, offset, offset, name, &name_type);
+		len = get_nbns_name(tvb, offset, offset, name, MAX_NAME_LEN, &name_type);
 
 		if (tree) {
 			add_name_and_type(nbdgm_tree, tvb, offset, len,
@@ -1287,7 +1306,7 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += len;
 
 		/* Destination name */
-		len = get_nbns_name(tvb, offset, offset, name, &name_type);
+		len = get_nbns_name(tvb, offset, offset, name, MAX_NAME_LEN, &name_type);
 
 		if (tree) {
 			add_name_and_type(nbdgm_tree, tvb, offset, len,
@@ -1320,7 +1339,7 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case NBDS_POS_QUERY_RESPONSE:
 	case NBDS_NEG_QUERY_RESPONSE:
 		/* Destination name */
-		len = get_nbns_name(tvb, offset, offset, name, &name_type);
+		len = get_nbns_name(tvb, offset, offset, name, MAX_NAME_LEN, &name_type);
 
 		if (tree) {
 			add_name_and_type(nbdgm_tree, tvb, offset, len,
@@ -1393,11 +1412,13 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	volatile int	length;
 	int		length_remaining;
 	int		len;
-	char		name[(NETBIOS_NAME_LEN - 1)*4 + MAXDNAME];
+	char		*name;
 	int		name_type;
 	gint		reported_len;
 	tvbuff_t	*next_tvb;
 	const char	*saved_proto;
+
+	name=ep_alloc(MAX_NAME_LEN);
 
 	/* Desegmentation */
 	length_remaining = tvb_length_remaining(tvb, offset);
@@ -1506,7 +1527,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	switch (msg_type) {
 
 	case SESSION_REQUEST:
-	  len = get_nbns_name(tvb, offset, offset, name, &name_type);
+	  len = get_nbns_name(tvb, offset, offset, name, MAX_NAME_LEN, &name_type);
 	  if (tree)
 	    add_name_and_type(nbss_tree, tvb, offset, len,
 				"Called name", name, name_type);
@@ -1515,7 +1536,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	  if (check_col(pinfo->cinfo, COL_INFO))
 		  col_append_fstr(pinfo->cinfo, COL_INFO, ", to %s ", name);
 
-	  len = get_nbns_name(tvb, offset, offset, name, &name_type);
+	  len = get_nbns_name(tvb, offset, offset, name, MAX_NAME_LEN, &name_type);
 
 	  if (tree)
 	    add_name_and_type(nbss_tree, tvb, offset, len,
