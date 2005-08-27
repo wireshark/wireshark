@@ -4011,7 +4011,7 @@ static void init_wepkeys(void) {
 
 #ifdef USE_ENV
     buf=ep_alloc(128);
-    sprintf(buf, 128, "ETHEREAL_WEPKEY%d", i+1);
+    g_snprintf(buf, 128, "ETHEREAL_WEPKEY%d", i+1);
     tmp = getenv(buf);
 #else
     tmp = wep_keystr[i];
