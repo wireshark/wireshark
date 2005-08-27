@@ -1325,6 +1325,33 @@ main(int argc, char *argv[])
       epan_cleanup();
       exit(2);
     }
+
+    /* Set timestamp precision; there should arguably be a command-line
+       option to let the user set this. */
+    switch(wtap_file_tsprecision(cfile.wth)) {
+    case(WTAP_FILE_TSPREC_SEC):
+      timestamp_set_precision(TS_PREC_AUTO_SEC);
+      break;
+    case(WTAP_FILE_TSPREC_DSEC):
+      timestamp_set_precision(TS_PREC_AUTO_DSEC);
+      break;
+    case(WTAP_FILE_TSPREC_CSEC):
+      timestamp_set_precision(TS_PREC_AUTO_CSEC);
+      break;
+    case(WTAP_FILE_TSPREC_MSEC):
+      timestamp_set_precision(TS_PREC_AUTO_MSEC);
+      break;
+    case(WTAP_FILE_TSPREC_USEC):
+      timestamp_set_precision(TS_PREC_AUTO_USEC);
+      break;
+    case(WTAP_FILE_TSPREC_NSEC):
+      timestamp_set_precision(TS_PREC_AUTO_NSEC);
+      break;
+    default:
+      g_assert_not_reached();
+    }
+
+    /* Process the packets in the file */
     err = load_cap_file(&cfile, save_file, out_file_type);
     if (err != 0) {
       epan_cleanup();
@@ -1339,45 +1366,44 @@ main(int argc, char *argv[])
 
 #ifdef _WIN32
     if (!has_wpcap) {
-	fprintf(stderr, "tethereal: Could not load wpcap.dll.\n");
-	exit(2);
+      fprintf(stderr, "tethereal: Could not load wpcap.dll.\n");
+      exit(2);
     }
 #endif
 
     /* Yes; did the user specify an interface to use? */
     if (capture_opts.iface == NULL) {
-        /* No - is a default specified in the preferences file? */
-        if (prefs->capture_device != NULL) {
-            /* Yes - use it. */
-	    if_text = strrchr(prefs->capture_device, ' ');
-	    if (if_text == NULL) {
-            	capture_opts.iface = g_strdup(prefs->capture_device);
-	    } else {
-            	capture_opts.iface = g_strdup(if_text + 1); /* Skip over space */
-	    }
-        } else {
-            /* No - pick the first one from the list of interfaces. */
-            if_list = get_interface_list(&err, err_str);
-            if (if_list == NULL) {
-                switch (err) {
+      /* No - is a default specified in the preferences file? */
+      if (prefs->capture_device != NULL) {
+        /* Yes - use it. */
+        if_text = strrchr(prefs->capture_device, ' ');
+	if (if_text == NULL) {
+          capture_opts.iface = g_strdup(prefs->capture_device);
+	} else {
+          capture_opts.iface = g_strdup(if_text + 1); /* Skip over space */
+	}
+      } else {
+        /* No - pick the first one from the list of interfaces. */
+        if_list = get_interface_list(&err, err_str);
+        if (if_list == NULL) {
+          switch (err) {
 
-                case CANT_GET_INTERFACE_LIST:
-                    cant_get_if_list_errstr =
-                        cant_get_if_list_error_message(err_str);
-                    fprintf(stderr, "tethereal: %s\n", cant_get_if_list_errstr);
-                    g_free(cant_get_if_list_errstr);
-                    break;
+          case CANT_GET_INTERFACE_LIST:
+            cant_get_if_list_errstr = cant_get_if_list_error_message(err_str);
+            fprintf(stderr, "tethereal: %s\n", cant_get_if_list_errstr);
+            g_free(cant_get_if_list_errstr);
+            break;
 
-                case NO_INTERFACES_FOUND:
-                    fprintf(stderr, "tethereal: There are no interfaces on which a capture can be done\n");
-                    break;
-                }
-                exit(2);
-            }
-	    if_info = if_list->data;	/* first interface */
-	    capture_opts.iface = g_strdup(if_info->name);
-            free_interface_list(if_list);
-        }
+          case NO_INTERFACES_FOUND:
+            fprintf(stderr, "tethereal: There are no interfaces on which a capture can be done\n");
+            break;
+	  }
+          exit(2);
+	}
+        if_info = if_list->data;	/* first interface */
+	capture_opts.iface = g_strdup(if_info->name);
+        free_interface_list(if_list);
+      }
     }
 
     if (list_link_layer_types) {
@@ -1415,6 +1441,9 @@ main(int argc, char *argv[])
        */
       print_packet_counts = TRUE;
     }
+
+    /* For now, assume libpcap gives microsecond precision. */
+    timestamp_set_precision(TS_PREC_AUTO_USEC);
 
     capture(save_file, out_file_type);
 
