@@ -182,6 +182,7 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 */
 	{ OUI_CISCO,       "Cisco" },
 	{ OUI_CISCO_90,    "Cisco IOS 9.0 Compatible" },
+	{ OUI_CISCOWL,     "Cisco Wireless (Aironet) L2" },
 	{ OUI_EXTREME,     "Extreme Networks" },
 	{ OUI_HP,          "Hewlett-Packard" },
 	{ OUI_NORTEL,      "Nortel Networks SONMP" },

@@ -188,6 +188,10 @@
 #define ETHERTYPE_IPv6		0x86dd
 #endif
 
+#ifndef ETHERTYPE_CISCOWL
+#define ETHERTYPE_CISCOWL	0x872d	/* Cisco Wireless (Aironet) */
+#endif
+
 #ifndef ETHERTYPE_MAC_CONTROL
 #define ETHERTYPE_MAC_CONTROL	0x8808
 #endif

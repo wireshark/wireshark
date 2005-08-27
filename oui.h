@@ -30,6 +30,7 @@
 #define	OUI_CISCO	0x00000C	/* Cisco (future use) */
 #define OUI_NORTEL	0x000081	/* Nortel SONMP */
 #define	OUI_CISCO_90	0x0000F8	/* Cisco (IOS 9.0 and above?) */
+#define OUI_CISCOWL	0x004096	/* Cisco Wireless (Aironet) */
 #define OUI_BRIDGED	0x0080C2	/* Bridged Frame-Relay, RFC 2427 */
 					/* and Bridged ATM, RFC 2684 */
 #define	OUI_ATM_FORUM	0x00A03E	/* ATM Forum */
