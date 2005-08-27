@@ -503,7 +503,7 @@ dcm_setSyntax(dcmItem_t *di, char *name)
 static char *
 dcm_tag2str(guint16 grp, guint16 elm, guint8 syntax, tvbuff_t *tvb, int offset, guint32 len, int vr, int tr)
 {
-    static char buf[512+1];	/* bad form ??? */
+    char *buf;
     const guint8 *vval;
     size_t vval_len;
     char *p;
@@ -513,21 +513,23 @@ dcm_tag2str(guint16 grp, guint16 elm, guint8 syntax, tvbuff_t *tvb, int offset, 
     size_t pl;
     static dcmTag_t utag = { 0, 0, "(unknown)" };
 
+#define MAX_BUF_LEN 1024
+    buf=ep_alloc(MAX_BUF_LEN);
     *buf = 0;
     if (0 == elm) {
 	if (DCM_ILE & syntax) 
 	     val32 = tvb_get_letohl(tvb, offset); 
 	else val32 = tvb_get_ntohl(tvb, offset); 
-	g_snprintf(buf, sizeof(buf), "Group Length 0x%x (%d)", val32, val32);
+	g_snprintf(buf, MAX_BUF_LEN, "Group Length 0x%x (%d)", val32, val32);
 	return buf;
     }
     tag = (grp << 16) | elm;
     if (NULL == (dtag = g_hash_table_lookup(dcm_tagTable, GUINT_TO_POINTER(tag))))
 	dtag = &utag;
 
-    DISSECTOR_ASSERT(sizeof(buf) > strlen(dtag->desc));
+    DISSECTOR_ASSERT(MAX_BUF_LEN > strlen(dtag->desc));
     strcpy(buf, dtag->desc);
-    pl = sizeof(buf) - strlen(buf);
+    pl = MAX_BUF_LEN - strlen(buf);
     p = buf + strlen(buf);
     if (vr > 0) {
 	vval = tvb_format_text(tvb, vr, 2);
@@ -560,39 +562,39 @@ dcm_tag2str(guint16 grp, guint16 elm, guint8 syntax, tvbuff_t *tvb, int offset, 
 	if (DCM_ILE & syntax) 
 	     val16 = tvb_get_letohs(tvb, offset);
 	else val16 = tvb_get_ntohs(tvb, offset);
-	sprintf(p, " 0x%x (%d)", val16, val16);
+	g_snprintf(p, MAX_BUF_LEN-(p-buf), " 0x%x (%d)", val16, val16);
 	break;
     case DCM_TINT4:
 	if (DCM_ILE & syntax) 
 	     val32 = tvb_get_letohl(tvb, offset); 
 	else val32 = tvb_get_ntohl(tvb, offset); 
-	sprintf(p, " 0x%x (%d)", val32, val32);
+	g_snprintf(p, MAX_BUF_LEN-(p-buf), " 0x%x (%d)", val32, val32);
 	break;
     case DCM_TFLT: {
 	gfloat valf;
 	if (DCM_ILE & syntax) 
 	     valf = tvb_get_letohieee_float(tvb, offset); 
 	else valf = tvb_get_ntohieee_float(tvb, offset); 
-	sprintf(p, " (%f)", valf);
+	g_snprintf(p, MAX_BUF_LEN-(p-buf), " (%f)", valf);
 	} break;
     case DCM_TDBL: {
 	gdouble vald;
 	if (DCM_ILE & syntax) 
 	     vald = tvb_get_letohieee_double(tvb, offset); 
 	else vald = tvb_get_ntohieee_double(tvb, offset); 
-	sprintf(p, " (%f)", vald);
+	g_snprintf(p, MAX_BUF_LEN-(p-buf), " (%f)", vald);
 	} break;
     case DCM_TSTAT: /* call dcm_rsp2str() on TINT2 */
 	if (DCM_ILE & syntax) 
 	     val16 = tvb_get_letohs(tvb, offset);
 	else val16 = tvb_get_ntohs(tvb, offset);
-	sprintf(p, " 0x%x '%s'", val16, dcm_rsp2str(val16));
+	g_snprintf(p, MAX_BUF_LEN-(p-buf), " 0x%x '%s'", val16, dcm_rsp2str(val16));
 	break;
     case DCM_TCMD:   /* call dcm_cmd2str() on TINT2 */
 	if (DCM_ILE & syntax) 
 	     val16 = tvb_get_letohs(tvb, offset);
 	else val16 = tvb_get_ntohs(tvb, offset);
-	sprintf(p, " 0x%x '%s'", val16, dcm_cmd2str(val16));
+	g_snprintf(p, MAX_BUF_LEN-(p-buf), " 0x%x '%s'", val16, dcm_cmd2str(val16));
 	break;
     case DCM_SQ:	/* Sequence */
     case DCM_OTH:	/* Other BYTE, WORD, ... */

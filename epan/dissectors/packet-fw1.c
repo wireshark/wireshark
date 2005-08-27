@@ -91,6 +91,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/emem.h>
 #include "etypes.h"
 
 /* Place FW1 summary in proto tree */
@@ -135,14 +136,18 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree    *volatile fh_tree = NULL;
   char		direction;
   char	chain;
-  char		interface_name[10+1];
+  char		*interface_name;
   guint32	iface_len = 10;
   guint16	etype;
-  char		header[1000] = "FW1 Monitor";
+  char		*header; 
   char		*p_header;
   int		i;
   gboolean	found;
   static const char	fw1_header[] = "FW1 Monitor";
+
+#define MAX_HEADER_LEN 1000
+  header=ep_alloc(MAX_HEADER_LEN);
+  g_snprintf(header, MAX_HEADER_LEN, "FW1 Monitor");
 
   /* Make entries in Protocol column and Info column on summary display */
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -163,6 +168,8 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (fw1_with_uuid)
   	iface_len = 6;
+  
+  interface_name=ep_alloc(iface_len+1);
   tvb_get_nstringz0(tvb, 2, iface_len, interface_name);
 
   /* Known interface name - if not, remember it */
@@ -182,7 +189,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   for (i=0; i<interface_anzahl; i++) {
     p_header = header + strlen(header);
     if ( strcmp(p_interfaces[i], interface_name) == 0 ) {
-       	sprintf(p_header, "  %c%c %s %c%c",
+       	g_snprintf(p_header, MAX_HEADER_LEN-(p_header-header), "  %c%c %s %c%c",
  			direction == 'i' ? 'i' : (direction == 'O' ? 'O' : ' '),
 			(direction == 'i' || direction == 'O') ? chain : ' ',
 			p_interfaces[i],
@@ -190,7 +197,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			(direction == 'I' || direction == 'o') ? chain : ' '
 		);
     } else {
-    	sprintf(p_header, "    %s  ", p_interfaces[i]);
+    	g_snprintf(p_header, MAX_HEADER_LEN-(p_header-header), "    %s  ", p_interfaces[i]);
     }
   }
 
