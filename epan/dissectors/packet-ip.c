@@ -53,6 +53,7 @@
 #include <epan/in_cksum.h>
 #include "nlpid.h"
 #include <epan/tap.h>
+#include <epan/emem.h>
 
 static int ip_tap = -1;
 
@@ -685,11 +686,13 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
   opt_len_type      len_type;
   unsigned int      optlen;
   const char       *name;
-  char              name_str[7+1+1+2+2+1+1];	/* "Unknown (0x%02x)" */
+#define NAME_STR_LEN 7+1+1+2+2+1+1	/* "Unknown (0x%02x)" */
+  char             *name_str;
   void            (*dissect)(const struct ip_tcp_opt *, tvbuff_t *,
 				int, guint, packet_info *, proto_tree *);
   guint             len;
 
+  name_str=ep_alloc(NAME_STR_LEN);
   while (length > 0) {
     opt = tvb_get_guint8(tvb, offset);
     for (optp = &opttab[0]; optp < &opttab[nopts]; optp++) {
@@ -704,7 +707,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
       optp = NULL;	/* indicate that we don't know this option */
       len_type = VARIABLE_LENGTH;
       optlen = 2;
-      g_snprintf(name_str, sizeof name_str, "Unknown (0x%02x)", opt);
+      g_snprintf(name_str, NAME_STR_LEN, "Unknown (0x%02x)", opt);
       name = name_str;
       dissect = NULL;
     } else {
@@ -1660,13 +1663,16 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8     icmp_code;
   guint      length, reported_length;
   guint16    cksum, computed_cksum;
-  gchar      type_str[64], code_str[64] = "";
+  gchar      type_str[64], *code_str;
   guint8     num_addrs = 0;
   guint8     addr_entry_size = 0;
   int        i;
   gboolean   save_in_error_pkt;
   tvbuff_t   *next_tvb;
   proto_item *item;
+
+  code_str=ep_alloc(64);
+  code_str[0]=0;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICMP");
@@ -1685,7 +1691,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ICMP_UNREACH:
       strcpy(type_str, "Destination unreachable");
       if (icmp_code < N_UNREACH) {
-        sprintf(code_str, "(%s)", unreach_str[icmp_code]);
+        g_snprintf(code_str, 64, "(%s)", unreach_str[icmp_code]);
       } else {
         strcpy(code_str, "(Unknown - error?)");
       }
@@ -1696,7 +1702,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ICMP_REDIRECT:
       strcpy(type_str, "Redirect");
       if (icmp_code < N_REDIRECT) {
-        sprintf(code_str, "(%s)", redir_str[icmp_code]);
+        g_snprintf(code_str, 64, "(%s)", redir_str[icmp_code]);
       } else {
         strcpy(code_str, "(Unknown - error?)");
       }
@@ -1720,7 +1726,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ICMP_TIMXCEED:
       strcpy(type_str, "Time-to-live exceeded");
       if (icmp_code < N_TIMXCEED) {
-        sprintf(code_str, "(%s)", ttl_str[icmp_code]);
+        g_snprintf(code_str, 64, "(%s)", ttl_str[icmp_code]);
       } else {
         strcpy(code_str, "(Unknown - error?)");
       }
@@ -1728,7 +1734,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ICMP_PARAMPROB:
       strcpy(type_str, "Parameter problem");
       if (icmp_code < N_PARAMPROB) {
-        sprintf(code_str, "(%s)", par_str[icmp_code]);
+        g_snprintf(code_str, 64, "(%s)", par_str[icmp_code]);
       } else {
         strcpy(code_str, "(Unknown - error?)");
       }
