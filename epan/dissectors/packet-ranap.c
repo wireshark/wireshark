@@ -38,6 +38,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/emem.h>
 
 
 #define SCCP_SSN_RANAP 0x8E
@@ -1096,27 +1097,33 @@ proto_tree_add_bitstring(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint offs
    guint16		alligned_2bytes;
    guint8		one_byte;
    char			*maskstr;
-   char			maskstr_buf[56] = "\0";
+   char			*maskstr_buf;
    guint		length;
    int			i;
    guint8		bitstr[128];
-   char			buf[256] = "\0";
+   char			*buf;
    header_field_info	*hf_info_p;
    gint			byte_span;
    gint			initial_offset = offset;
 
    memset(bitstr, 0, 128);
 
+   maskstr_buf=ep_alloc(56);
+   maskstr_buf[0]=0;
+
+   buf=ep_alloc(256);
+   buf[0]=0;
+
    /* create bitmask string for first byte */
    read_2bytes = tvb_get_ntohs(tvb, offset);
    maskstr = bitmaskstr(bitoffset, (bitoffset+bitlength >8) ? 8-bitoffset : bitlength, read_2bytes, &length);
    if (bitoffset+bitlength > 8)
    {
-      sprintf(maskstr_buf, "%s + %d Bits = ", maskstr, bitlength - (8-bitoffset));
+      g_snprintf(maskstr_buf, 56, "%s + %d Bits = ", maskstr, bitlength - (8-bitoffset));
    }
    else
    {
-      sprintf(maskstr_buf, "%s = ", maskstr);
+      g_snprintf(maskstr_buf, 56, "%s = ", maskstr);
    }
 
 
@@ -1129,7 +1136,7 @@ proto_tree_add_bitstring(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint offs
       one_byte = alligned_2bytes >> 8;			/* move to low byte */
 
       bitstr[i]=one_byte;
-      sprintf(&(buf[2*i]), "%02X", one_byte);
+      g_snprintf(buf+2*i, 256-2*i, "%02X", one_byte);
    }
 
    /* add last byte if it contains bits which have not yet been shifted in */
@@ -1142,7 +1149,7 @@ proto_tree_add_bitstring(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint offs
       one_byte <<= (8 - (bitlength%8));			/* allign to MSB in low byte*/
 
       bitstr[i]=one_byte;
-      sprintf(&(buf[2*i]), "%02X", one_byte);
+      g_snprintf(buf+2*i, 256-2*i, "%02X", one_byte);
    }
 
    /* get header field info */
