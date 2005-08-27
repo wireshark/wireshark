@@ -753,7 +753,7 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (checksum_good) {
 				checksum_item = proto_tree_add_uint_format(edp_tree,
 					hf_edp_checksum, tvb, offset, 2, packet_checksum,
-					"Cchecksum: 0x%04x [correct]",
+					"Checksum: 0x%04x [correct]",
 					packet_checksum);
 			} else {
 				checksum_item = proto_tree_add_uint_format(edp_tree,
