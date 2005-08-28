@@ -46,7 +46,9 @@ static const char netxray_magic[] = {	/* magic header */
 	'X', 'C', 'P', '\0'
 };
 
+#if 0
 /* NetXRay file header (minus magic number). */
+/* See below for updated;                    */
 struct netxray_hdr {
 	char	version[8];	/* version number */
 	guint32	start_time;	/* UNIX time when capture started */
@@ -66,12 +68,61 @@ struct netxray_hdr {
 	guint8	realtick[4];	/* in version 2, units of the timestamps  */
 	guint8	xxc[48];	/* other unknown stuff */
 };
+#endif
+
+/* NetXRay file header (minus magic number).			*/
+/*								*/
+/* As field usages are identified, please revise as needed	*/
+/* Please do *not* use netxray_hdr xxx... names in the code	*/
+/* (Placeholder names for all 'unknown' fields are		*/
+/*   of form xxx_x<hex_hdr_offset>				*/
+/*   where <hex_hdr_offset> *includes* the magic number)	*/
+
+struct netxray_hdr {
+	char	version[8];	/* version number				*/
+	guint32	start_time;	/* UNIX [UTC] time when capture started		*/
+
+	guint32	nframes;	/* number of packets				*/
+	guint32	xxx_x14;	/* unknown [some kind of file offset]		*/
+	guint32	start_offset;	/* offset of first packet in capture		*/
+	guint32	end_offset;	/* offset after last packet in capture		*/
+
+	guint32 xxx_x20;	/* unknown [some kind of file offset]		*/
+	guint32 xxx_x24;	/* unknown [unused ?]				*/
+	guint32 xxx_x28;	/* unknown [some kind of file offset]		*/
+	guint8	network;	/* datalink type				*/
+	guint8	network_plus;	/* [See code]					*/
+	guint8	xxx_x2E[2];	/* unknown					*/
+
+	guint8	timeunit;	/* encodes length of a tick			*/
+	guint8	xxx_x31[3];	/* XXX - upper 3 bytes of timeunit ?		*/
+	guint32	timelo;		/* lower 32 bits of capture start time stamp	*/
+	guint32	timehi;		/* upper 32 bits of capture start time stamp	*/
+	guint32 linespeed;	/* speed of network, in bits/second		*/
+
+	guint8	xxx_x40[12];	/* unknown [other stuff]			*/
+	guint8	realtick[4];	/* in v2, means ???                     	*/
+
+	guint8	xxx_x50[4];	/* unknown [other stuff]			*/
+	guint8	captype;	/* capture type					*/
+	guint8  xxx_x55[3];	/* unknown [other stuff]			*/
+	guint8  xxx_x58[4];	/* unknown [other stuff]			*/
+	guint8  wan_hdlc_subsub_captype; /* WAN HDLC subsub_captype		*/
+	guint8  xxx_x5D[3];	/* unknown [other stuff]			*/
+
+	guint8	xxx_x60[16];	/* unknown [other stuff]			*/
+
+	guint8  xxx_x70[14];    /* unknown [other stuff]			*/
+	guint16 timezone_hrs;	/* timezone hours [at least for version 2...];	*/
+				/*  positive values = west of UTC:		*/
+				/*  e.g. +5 is American Eastern			*/
+};
 
 /*
- * Capture type, in xxc[4].
+ * Capture type, in hdr.captype.
  *
  * XXX - S6040-model Sniffers with gigabit blades store 6 here for
- * Etherneet captures, and some other Ethernet captures had a capture
+ * Ethernet captures, and some other Ethernet captures had a capture
  * type of 3, so presumably the interpretation of the capture type
  * depends on the network type.  We prefix all the capture types
  * for WAN captures with WAN_.
@@ -112,12 +163,17 @@ struct netxray_hdr {
  * CAPTURE, SO CHANGING THEM WILL BREAK AT LEAST SOME CAPTURES.  WE
  * WILL NOT CHECK IN PATCHES THAT CHANGE THESE VALUES.
  *
- * Instead, if a value in TpS is wrong, check whether captype has a
- * non-zero value; if so, perhaps we need a new TpS table for the
+ * Instead, if a value in a TpS table is wrong, check whether captype
+ * has a non-zero value; if so, perhaps we need a new TpS table for the
  * corresponding network type and captype.
  *
  * Note that the "realtick" value is wrong in many captures, so
  * we no longer use it.  We don't know what significance it has.
+ * In at least one capture where "realtick" doesn't correspond
+ * to the value from the appropriate TpS table, the per-packet header's
+ * "xxx" field is all zero, so it's not as if a 2.x header includes
+ * a "compatibility" time stamp corresponding to the value from the
+ * TpS table and a "real" time stamp corresponding to "realtick".
  *
  * XXX - the third item is 1193180.0, presumably because somebody found
  * it gave the right answer for some captures, but 3 times that, i.e.
@@ -271,15 +327,15 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		 * pods use the same network type value but aren't
 		 * shaped like Ethernet.  We handle that below.
 		 */
-		WTAP_ENCAP_ETHERNET,	/* WAN(PPP), but shaped like Ethernet */
-		WTAP_ENCAP_UNKNOWN,	/* LocalTalk */
-		WTAP_ENCAP_UNKNOWN,	/* "DIX" - should not occur */
-		WTAP_ENCAP_UNKNOWN,	/* ARCNET raw */
-		WTAP_ENCAP_UNKNOWN,	/* ARCNET 878.2 */
-		WTAP_ENCAP_ATM_PDUS_UNTRUNCATED,	/* ATM */
+		WTAP_ENCAP_ETHERNET,		/* WAN(PPP), but shaped like Ethernet */
+		WTAP_ENCAP_UNKNOWN,		/* LocalTalk */
+		WTAP_ENCAP_UNKNOWN,		/* "DIX" - should not occur */
+		WTAP_ENCAP_UNKNOWN,		/* ARCNET raw */
+		WTAP_ENCAP_UNKNOWN,		/* ARCNET 878.2 */
+		WTAP_ENCAP_ATM_PDUS_UNTRUNCATED,/* ATM */
 		WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
-					/* Wireless WAN with radio information */
-		WTAP_ENCAP_UNKNOWN	/* IrDA */
+						/* Wireless WAN with radio information */
+		WTAP_ENCAP_UNKNOWN		/* IrDA */
 	};
 	#define NUM_NETXRAY_ENCAPS (sizeof netxray_encap / sizeof netxray_encap[0])
 	int file_encap;
@@ -359,7 +415,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		}
 	}
 
-	switch (hdr.xxz[0]) {
+	switch (hdr.network_plus) {
 
 	case 0:
 		/*
@@ -383,7 +439,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 	default:
 		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("netxray: the byte after the network type has the value %u, which I don't understand",
-		    hdr.xxz[0]);
+		    hdr.network_plus);
 		return -1;
 	}
 
@@ -391,7 +447,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 	    || netxray_encap[network_type] == WTAP_ENCAP_UNKNOWN) {
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		*err_info = g_strdup_printf("netxray: network type %u (%u) unknown or unsupported",
-		    network_type, hdr.xxz[0]);
+		    network_type, hdr.network_plus);
 		return -1;
 	}
 
@@ -435,7 +491,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 			 * Ethernet - the table to use depends on whether
 			 * this is an NDIS or pod capture.
 			 */
-			switch (hdr.xxc[4]) {
+			switch (hdr.captype) {
 
 			case CAPTYPE_NDIS:
 				if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS) {
@@ -446,7 +502,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 					return -1;
 				}
 				timeunit = TpS[hdr.timeunit];
-				wth->tsprecision = WTAP_FILE_TSPREC_NSEC;	/* XXX */
+				wth->tsprecision = WTAP_FILE_TSPREC_USEC;	/* XXX */
 				break;
 
 			case ETH_CAPTYPE_GIGPOD:
@@ -480,7 +536,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 					return -1;
 				}
 				timeunit = TpS_otherpod[hdr.timeunit];
-				wth->tsprecision = WTAP_FILE_TSPREC_NSEC;	/* XXX */
+				wth->tsprecision = WTAP_FILE_TSPREC_USEC;	/* XXX */
 
 				/*
 				 * At least for 002.002 and 002.003
@@ -508,7 +564,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 				*err = WTAP_ERR_UNSUPPORTED;
 				*err_info = g_strdup_printf(
 				    "netxray: Unknown capture type %u for Ethernet version %.8s capture",
-				    hdr.xxc[4], hdr.version);
+				    hdr.captype, hdr.version);
 				return -1;
 			}
 			break;
@@ -518,12 +574,12 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 				*err = WTAP_ERR_UNSUPPORTED;
 				*err_info = g_strdup_printf(
 				    "netxray: Unknown timeunit %u for %u/%u version %.8s capture",
-				    hdr.timeunit, network_type, hdr.xxc[4],
+				    hdr.timeunit, network_type, hdr.captype,
 				    hdr.version);
 				return -1;
 			}
 			timeunit = TpS[hdr.timeunit];
-			wth->tsprecision = WTAP_FILE_TSPREC_NSEC;	/* XXX */
+			wth->tsprecision = WTAP_FILE_TSPREC_USEC;	/* XXX */
 			break;
 		}
 		break;
@@ -541,12 +597,12 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		 * frames (as a result, presumably, of having passed
 		 * through NDISWAN).
 		 *
-		 * In version 2, it looks as if there's stuff in the "xxc"
-		 * words of the file header to specify what particular
+		 * In version 2, it looks as if there's stuff in the 
+		 * file header to specify what particular
 		 * type of WAN capture we have.
 		 */
 		if (version_major == 2) {
-			switch (hdr.xxc[4]) {
+			switch (hdr.captype) {
 
 			case WAN_CAPTYPE_PPP:
 				/*
@@ -572,6 +628,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 				 * and hdr.xxc[46:47] is 0xff 0xff in the
 				 * Cisco HDLC capture and 0x05 0x00 in the
 				 * Frame Relay capture.
+				 *  [XXX: xxc[46:47] appear to be Timezone]
 				 */
 				file_encap = WTAP_ENCAP_FRELAY_WITH_PHDR;
 				break;
@@ -581,7 +638,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 				/*
 				 * Various HDLC flavors?
 				 */
-				switch (hdr.xxc[12]) {
+				switch (hdr.wan_hdlc_subsub_captype) {
 
 				case 0:	/* LAPB/X.25 */
 					file_encap = WTAP_ENCAP_LAPB;
@@ -591,13 +648,13 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 				case 2:	/* T1 PRI */
 				case 3:	/* BRI */
 					file_encap = WTAP_ENCAP_ISDN;
-					isdn_type = hdr.xxc[12];
+					isdn_type = hdr.wan_hdlc_subsub_captype;
 					break;
 
 				default:
 					*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 					*err_info = g_strdup_printf("netxray: WAN HDLC capture subsubtype 0x%02x unknown or unsupported",
-					   hdr.xxc[12]);
+					   hdr.wan_hdlc_subsub_captype);
 					return -1;
 				}
 				break;
@@ -612,7 +669,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 			default:
 				*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 				*err_info = g_strdup_printf("netxray: WAN capture subtype 0x%02x unknown or unsupported",
-				   hdr.xxc[4]);
+				   hdr.captype);
 				return -1;
 			}
 		} else
@@ -1624,24 +1681,24 @@ static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err)
     switch (wdh->encap) {
 
     case WTAP_ENCAP_PPP_WITH_PHDR:
-	file_hdr.xxc[4] = WAN_CAPTYPE_PPP;
+	file_hdr.captype = WAN_CAPTYPE_PPP;
 	break;
 
     case WTAP_ENCAP_FRELAY_WITH_PHDR:
-	file_hdr.xxc[4] = WAN_CAPTYPE_FRELAY;
+	file_hdr.captype = WAN_CAPTYPE_FRELAY;
 	break;
 
     case WTAP_ENCAP_LAPB:
-	file_hdr.xxc[4] = WAN_CAPTYPE_HDLC;
-	file_hdr.xxc[12] = 0;
+	file_hdr.captype = WAN_CAPTYPE_HDLC;
+	file_hdr.wan_hdlc_subsub_captype = 0;
 	break;
 
     case WTAP_ENCAP_SDLC:
-	file_hdr.xxc[4] = WAN_CAPTYPE_SDLC;
+	file_hdr.captype = WAN_CAPTYPE_SDLC;
 	break;
 
     default:
-	file_hdr.xxc[4] = CAPTYPE_NDIS;
+	file_hdr.captype = CAPTYPE_NDIS;
 	break;
     }
 
