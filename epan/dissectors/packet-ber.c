@@ -294,7 +294,7 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 {
 	tvbuff_t *next_tvb;
 
-	next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
+	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 	if(!dissector_try_string(ber_oid_dissector_table, oid, next_tvb, pinfo, tree)){
 		proto_item *item=NULL;
 		proto_tree *next_tree=NULL;
@@ -303,7 +303,7 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 		if(item){
 			next_tree=proto_item_add_subtree(item, ett_ber_unknown);
 		}
-		dissect_unknown_ber(pinfo, next_tvb, offset, next_tree);
+		dissect_unknown_ber(pinfo, next_tvb, 0, next_tree);
 	}
 
 	/*XXX until we change the #.REGISTER signature for _PDU()s 
@@ -451,8 +451,8 @@ get_ber_length(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 *length, gbo
 	/* check that the length is sane */
 	if(tmp_length>(guint32)tvb_reported_length_remaining(tvb,offset)){
 		proto_tree_add_text(tree, tvb, old_offset, offset-old_offset, "BER: Error length:%d longer than tvb_reported_length_remaining:%d",tmp_length, tvb_reported_length_remaining(tvb, offset));
-		/* the ignorant mans way to generate [malformed packet] */
-		tvb_get_guint8(tvb, 99999999);
+		/* force the appropriate exception */
+		tvb_ensure_bytes_exist(tvb, offset, tmp_length);
 		/*tmp_length = (guint32)tvb_reported_length_remaining(tvb,offset);*/
 	}
 
@@ -572,7 +572,7 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 			if(len<=(guint32)tvb_length_remaining(tvb, offset)){
 				*out_tvb = tvb_new_subset(tvb, offset, len, len);
 			} else {
-				*out_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset),  tvb_reported_length_remaining(tvb, offset));
+				*out_tvb = tvb_new_subset(tvb, offset, -1, -1);
 			}
 		}
 	}
@@ -769,6 +769,7 @@ int dissect_ber_sequence(gboolean implicit_tag, packet_info *pinfo, proto_tree *
 	proto_tree *tree = parent_tree;
 	proto_item *item = NULL;
 	int end_offset, s_offset;
+	gint length_remaining;
 	tvbuff_t *next_tvb;
 s_offset = offset;
 #ifdef DEBUG_BER
@@ -919,18 +920,25 @@ ber_sequence_try_again:
 			/* dissect header and len for field */
 			hoffset = dissect_ber_identifier(pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
 			hoffset = dissect_ber_length(pinfo, tree, tvb, hoffset, NULL, NULL);
-			next_tvb = tvb_new_subset(tvb, hoffset, eoffset-hoffset-(2*ind_field), eoffset-hoffset-(2*ind_field));
+			length_remaining=tvb_length_remaining(tvb, hoffset);
+			if (length_remaining>eoffset-hoffset-(2*ind_field))
+				length_remaining=eoffset-hoffset-(2*ind_field);
+			next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, eoffset-hoffset-(2*ind_field));
 		}
-		else
-			next_tvb = tvb_new_subset(tvb, hoffset, eoffset-hoffset, eoffset-hoffset);
+		else {
+			length_remaining=tvb_length_remaining(tvb, hoffset);
+			if (length_remaining>eoffset-hoffset)
+				length_remaining=eoffset-hoffset;
+			next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, eoffset-hoffset);
+		}
 		
 		/* call the dissector for this field */
-		/*if 	((eoffset-hoffset)>tvb_length_remaining(tvb, hoffset)) {*/
+		/*if 	((eoffset-hoffset)>length_remaining) {*/
 			/* If the field is indefinite (i.e. we dont know the
 			 * length) of if the tvb is short, then just
 			 * give it all of the tvb and hope for the best.
 			 */
-			/*next_tvb = tvb_new_subset(tvb, hoffset, tvb_length_remaining(tvb,hoffset), tvb_length_remaining(tvb,hoffset));*/
+			/*next_tvb = tvb_new_subset(tvb, hoffset, -1, -1);*/
 		/*} else {*/
 			
 		/*}*/
@@ -1017,6 +1025,7 @@ dissect_ber_set(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tr
 	proto_tree *tree = parent_tree;
 	proto_item *item = NULL;
 	int end_offset, s_offset;
+	gint length_remaining;
 	tvbuff_t *next_tvb;
 	const ber_sequence_t *seq_start;
 	guint8 number_of_tags=0;
@@ -1184,18 +1193,25 @@ ber_set_try_again:
 			/* dissect header and len for field */
 			hoffset = dissect_ber_identifier(pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
 			hoffset = dissect_ber_length(pinfo, tree, tvb, hoffset, NULL, NULL);
-			next_tvb = tvb_new_subset(tvb, hoffset, eoffset-hoffset-(2*ind_field), eoffset-hoffset-(2*ind_field));
+			length_remaining=tvb_length_remaining(tvb, hoffset);
+			if (length_remaining>eoffset-hoffset-(2*ind_field))
+				length_remaining=eoffset-hoffset-(2*ind_field);
+			next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, eoffset-hoffset-(2*ind_field));
 		}
-		else
-			next_tvb = tvb_new_subset(tvb, hoffset, eoffset-hoffset, eoffset-hoffset);
+		else {
+			length_remaining=tvb_length_remaining(tvb, hoffset);
+			if (length_remaining>eoffset-hoffset)
+				length_remaining=eoffset-hoffset;
+			next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, eoffset-hoffset);
+		}
 		
 		/* call the dissector for this field */
-		/*if 	((eoffset-hoffset)>tvb_length_remaining(tvb, hoffset)) {*/
+		/*if 	((eoffset-hoffset)>length_remaining) {*/
 			/* If the field is indefinite (i.e. we dont know the
 			 * length) of if the tvb is short, then just
 			 * give it all of the tvb and hope for the best.
 			 */
-			/*next_tvb = tvb_new_subset(tvb, hoffset, tvb_length_remaining(tvb,hoffset), tvb_length_remaining(tvb,hoffset));*/
+			/*next_tvb = tvb_new_subset(tvb, hoffset, -1, -1);*/
 		/*} else {*/
 			
 		/*}*/
@@ -1288,7 +1304,7 @@ dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, i
 	int end_offset, start_offset, count;
 	int hoffset = offset;
 	header_field_info	*hfinfo;
-	gint length;
+	gint length, length_remaining;
 	tvbuff_t *next_tvb;
 
 #ifdef DEBUG_BER
@@ -1370,7 +1386,10 @@ printf("CHOICE testing potential subdissector class:%d:(expected)%d  tag:%d:(exp
 					tree = proto_item_add_subtree(item, ett_id);
 				}
 			}
-			next_tvb=tvb_new_subset(tvb, hoffset, length, length);
+			length_remaining=tvb_length_remaining(tvb, hoffset);
+			if(length_remaining>length)
+				length_remaining=length;
+			next_tvb=tvb_new_subset(tvb, hoffset, length_remaining, length);
 
 #ifdef DEBUG_BER
 {
@@ -1907,7 +1926,7 @@ int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree 
 			if(len<=(guint32)tvb_length_remaining(tvb, offset)){
 				*out_tvb = tvb_new_subset(tvb, offset, len, len);
 			} else {
-				*out_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));
+				*out_tvb = tvb_new_subset(tvb, offset, -1, -1);
 			}
 		}
 	}
