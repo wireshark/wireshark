@@ -292,7 +292,7 @@ guint32 krb5_errorcode;
 
 dissector_handle_t krb4_handle=NULL;
 
-static int do_col_info;
+static gboolean do_col_info;
 
 
 static void
@@ -799,6 +799,7 @@ g_warning("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
 #define	KRB_RM_RESERVED	0x80000000L
 #define	KRB_RM_RECLEN	0x7fffffffL
 
+#define KRB5_MSG_TICKET			1	/* Ticket */
 #define KRB5_MSG_AUTHENTICATOR		2	/* Authenticator */
 #define KRB5_MSG_ENC_TICKET_PART	3	/* EncTicketPart */
 #define KRB5_MSG_AS_REQ   		10	/* AS-REQ type */
@@ -1278,6 +1279,7 @@ static const value_string krb5_address_types[] = {
 };
 
 static const value_string krb5_msg_types[] = {
+	{ KRB5_MSG_TICKET,		"Ticket" },
 	{ KRB5_MSG_AUTHENTICATOR,	"Authenticator" },
 	{ KRB5_MSG_ENC_TICKET_PART,	"EncTicketPart" },
 	{ KRB5_MSG_TGS_REQ,		"TGS-REQ" },
@@ -1301,6 +1303,7 @@ static const value_string krb5_msg_types[] = {
 
 
 static int dissect_krb5_application_choice(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
+static int dissect_krb5_Application_1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_Authenticator(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_EncTicketPart(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_EncAPRepPart(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
@@ -1315,6 +1318,7 @@ static int dissect_krb5_PRIV(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 static int dissect_krb5_ERROR(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 
 static const ber_choice_t kerberos_applications_choice[] = {
+	{ KRB5_MSG_TICKET, 	BER_CLASS_APP,	KRB5_MSG_TICKET,	0, dissect_krb5_Application_1 },
 	{ KRB5_MSG_AUTHENTICATOR, 	BER_CLASS_APP,	KRB5_MSG_AUTHENTICATOR,	0, dissect_krb5_Authenticator },
 	{ KRB5_MSG_ENC_TICKET_PART, BER_CLASS_APP,	KRB5_MSG_ENC_TICKET_PART, 0, dissect_krb5_EncTicketPart },
 	{ KRB5_MSG_AS_REQ,	BER_CLASS_APP,	KRB5_MSG_AS_REQ,	0,	dissect_krb5_KDC_REQ },
@@ -3689,7 +3693,8 @@ static gint dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_kerberos_tcp(tvbuff_t *tvb, packet_info *pinfo,
 				 proto_tree *tree);
 static gint dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo,
-					proto_tree *tree, int do_col_info,
+					proto_tree *tree, gboolean do_col_info,
+					gboolean do_col_protocol,
 					gboolean have_rm,
 					kerberos_callbacks *cb);
 static gint kerberos_rm_to_reclen(guint krb_rm);
@@ -3702,7 +3707,7 @@ static guint get_krb_pdu_len(tvbuff_t *tvb, int offset);
 gint
 dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int do_col_info, kerberos_callbacks *cb)
 {
-    return (dissect_kerberos_common(tvb, pinfo, tree, do_col_info, FALSE, cb));
+    return (dissect_kerberos_common(tvb, pinfo, tree, do_col_info, FALSE, FALSE, cb));
 }
 
 guint32 
@@ -3730,10 +3735,7 @@ dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
-
-    return dissect_kerberos_common(tvb, pinfo, tree, TRUE, FALSE, NULL);
+    return dissect_kerberos_common(tvb, pinfo, tree, TRUE, TRUE, FALSE, NULL);
 }
 
 static gint
@@ -3757,7 +3759,7 @@ static void
 dissect_kerberos_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     pinfo->fragmented = TRUE;
-    if (dissect_kerberos_common(tvb, pinfo, tree, TRUE, TRUE, NULL) < 0) {
+    if (dissect_kerberos_common(tvb, pinfo, tree, TRUE, TRUE, TRUE, NULL) < 0) {
 	/*
 	 * The dissector failed to recognize this as a valid
 	 * Kerberos message.  Mark it as a continuation packet.
@@ -3773,6 +3775,8 @@ dissect_kerberos_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_clear(pinfo->cinfo, COL_INFO);
 
     tcp_dissect_pdus(tvb, pinfo, tree, krb_desegment, 4, get_krb_pdu_len,
 	dissect_kerberos_tcp_pdu);
@@ -3802,7 +3806,8 @@ show_krb_recordmark(proto_tree *tree, tvbuff_t *tvb, gint start, guint32 krb_rm)
 
 static gint
 dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int dci, gboolean have_rm, kerberos_callbacks *cb)
+    gboolean dci, gboolean do_col_protocol, gboolean have_rm,
+    kerberos_callbacks *cb)
 {
     int offset = 0;
     proto_tree *kerberos_tree = NULL;
@@ -3817,11 +3822,6 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     pinfo->private_data=cb;
     do_col_info=dci;
 
-    if (tree) {
-        item = proto_tree_add_item(tree, proto_kerberos, tvb, 0, -1, FALSE);
-        kerberos_tree = proto_item_add_subtree(item, ett_krb_kerberos);
-    }
-
     if (have_rm) {
 	krb_rm = tvb_get_ntohl(tvb, offset);
 	krb_reclen = kerberos_rm_to_reclen(krb_rm);
@@ -3832,17 +3832,23 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    pinfo->private_data=saved_private_data;
 	    return (-1);
 	}
+	if (do_col_protocol) {
+            if (check_col(pinfo->cinfo, COL_PROTOCOL))
+                col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
+	}
+        if (tree) {
+            item = proto_tree_add_item(tree, proto_kerberos, tvb, 0, -1, FALSE);
+            kerberos_tree = proto_item_add_subtree(item, ett_krb_kerberos);
+        }
 	show_krb_recordmark(kerberos_tree, tvb, offset, krb_rm);
 	offset += 4;
-    }
-
-    /* Do some sanity checking here, 
-     * All krb5 packets start with a TAG class that is BER_CLASS_APP
-     * and a tag value that is either of the values below:
-     * If it doesnt look like kerberos, return 0 and let someone else have
-     * a go at it.
-     */
-    if (!have_rm) {
+    } else {
+        /* Do some sanity checking here, 
+         * All krb5 packets start with a TAG class that is BER_CLASS_APP
+         * and a tag value that is either of the values below:
+         * If it doesnt look like kerberos, return 0 and let someone else have
+         * a go at it.
+         */
         gint8 tmp_class;
         gboolean tmp_pc;
         gint32 tmp_tag;
@@ -3852,6 +3858,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             return 0;
         }
         switch(tmp_tag){
+            case KRB5_MSG_TICKET:
             case KRB5_MSG_AUTHENTICATOR:
             case KRB5_MSG_ENC_TICKET_PART:
             case KRB5_MSG_AS_REQ:
@@ -3870,6 +3877,18 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
             default:
                 return 0;
+        }
+	if (do_col_protocol) {
+            if (check_col(pinfo->cinfo, COL_PROTOCOL))
+                col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
+	}
+	if (do_col_info) {
+            if (check_col(pinfo->cinfo, COL_INFO))
+                col_clear(pinfo->cinfo, COL_INFO);
+        }
+        if (tree) {
+            item = proto_tree_add_item(tree, proto_kerberos, tvb, 0, -1, FALSE);
+            kerberos_tree = proto_item_add_subtree(item, ett_krb_kerberos);
         }
     }
 
@@ -4659,4 +4678,3 @@ proto_reg_handoff_kerberos(void)
       }
 
 */
-
