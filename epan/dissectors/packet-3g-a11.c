@@ -166,6 +166,7 @@ static const value_string a11_reply_codes[]= {
   {138, "Reg Deny (HA)- Reverse Tunnel is Mandatory and 'T' Bit Not Set"},
   {139, "Reg Deny (HA)- Requested Encapsulation Unavailable"},
   {141, "Reg Deny (HA)- unsupported Vendor ID / Application Type in CVSE"},
+  {0, NULL},
 };
 
 
@@ -176,6 +177,7 @@ static const value_string a11_ack_status[]= {
   {133, "Update Deny - Registration ID Mismatch"},
   {134, "Update Deny - Poorly Formed Request"},
   {201, "Update Deny - Session Parameter Not Updated"},
+  {0, NULL},
 };
 
 typedef enum {
