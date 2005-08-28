@@ -293,6 +293,8 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32 version, pad;
     guint32 length;
     guint32 rate, freq, flags;
+    gint8 dbm;
+    guint8 db;
     guint32 present, next_present;
     int bit;
 
@@ -396,38 +398,48 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    offset++;
 	    break;
 	case IEEE80211_RADIOTAP_DBM_ANTSIGNAL:
+	    dbm = (gint8) tvb_get_guint8(tvb, offset);
 	    if (check_col(pinfo->cinfo, COL_RSSI)) {
-		col_add_fstr(pinfo->cinfo, COL_RSSI, "%d (dBm)",
-		    tvb_get_guint8(tvb, offset));
+		col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", dbm);
 	    }
 	    if (tree) {
-		proto_tree_add_int(radiotap_tree, hf_radiotap_dbm_antsignal,
-				   tvb, offset, 1, (gint8) tvb_get_guint8(tvb, offset));
+		proto_tree_add_int_format(radiotap_tree,
+					  hf_radiotap_dbm_antsignal,
+					  tvb, offset, 1, dbm,
+					  "SSI Signal: %d dBm", dbm);
 	    }
 	    offset++;
 	    break;
 	case IEEE80211_RADIOTAP_DB_ANTSIGNAL:
+	    db = tvb_get_guint8(tvb, offset);
 	    if (check_col(pinfo->cinfo, COL_RSSI)) {
-		col_add_fstr(pinfo->cinfo, COL_RSSI, "%u (dB)",
-		    tvb_get_guint8(tvb, offset));
+		col_add_fstr(pinfo->cinfo, COL_RSSI, "%u dB", db);
 	    }
 	    if (tree) {
-		proto_tree_add_uint(radiotap_tree, hf_radiotap_db_antsignal,
-				   tvb, offset, 1, tvb_get_guint8(tvb, offset));
+		proto_tree_add_uint_format(radiotap_tree,
+					   hf_radiotap_db_antsignal,
+					   tvb, offset, 1, db,
+					   "SSI Signal: %u dB", db);
 	    }
 	    offset++;
 	    break;
 	case IEEE80211_RADIOTAP_DBM_ANTNOISE:
+	    dbm = (gint8) tvb_get_guint8(tvb, offset);
 	    if (tree) {
-		proto_tree_add_int(radiotap_tree, hf_radiotap_dbm_antnoise,
-				   tvb, offset, 1, (gint8) tvb_get_guint8(tvb, offset));
+		proto_tree_add_int_format(radiotap_tree,
+					  hf_radiotap_dbm_antnoise,
+					  tvb, offset, 1, dbm,
+					  "SSI Noise: %d dBm", dbm);
 	    }
 	    offset++;
 	    break;
 	case IEEE80211_RADIOTAP_DB_ANTNOISE:
+	    db = tvb_get_guint8(tvb, offset);
 	    if (tree) {
-		proto_tree_add_uint(radiotap_tree, hf_radiotap_db_antnoise,
-				   tvb, offset, 1, tvb_get_guint8(tvb, offset));
+		proto_tree_add_uint_format(radiotap_tree,
+					   hf_radiotap_db_antnoise,
+					   tvb, offset, 1, db,
+					   "SSI Noise: %u dB", db);
 	    }
 	    offset++;
 	    break;
