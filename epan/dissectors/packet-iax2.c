@@ -802,6 +802,7 @@ static iax_call_data *iax_new_call( packet_info *pinfo,
 {
   iax_call_data *call;
   guint circuit_id;
+  static const nstime_t millisecond = {0, 1000000};
     
 #ifdef DEBUG_HASHING
   g_message( "+ new_circuit: Handling NEW packet, frame %u", pinfo->fd->num );
@@ -818,6 +819,7 @@ static iax_call_data *iax_new_call( packet_info *pinfo,
   call -> n_reverse_circuit_ids = 0;
   call -> subdissector = NULL;
   call -> start_time = pinfo->fd->abs_ts;
+  nstime_delta(&call -> start_time, &call -> start_time, &millisecond);
 
   iax2_new_circuit_for_call(circuit_id,pinfo->fd->num,call,FALSE);
 
