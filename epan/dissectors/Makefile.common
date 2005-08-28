@@ -282,6 +282,7 @@ DISSECTOR_SRC =	\
 	packet-gift.c	\
 	packet-giop.c	\
 	packet-gmrp.c	\
+	packet-gnm.c	\
 	packet-gnutella.c	\
 	packet-gprs-llc.c	\
 	packet-gprs-ns.c	\
@@ -709,6 +710,7 @@ DISSECTOR_INCLUDES =	\
 	packet-frame.h	\
 	packet-ftam.h	\
 	packet-giop.h	\
+	packet-gnm.h	\
 	packet-gnutella.h	\
 	packet-gsm_a.h	\
 	packet-gsm_map.h	\
