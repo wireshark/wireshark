@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-cmip.c                                                            */
+/* .\packet-cmip.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p cmip -c cmip.cnf -s packet-cmip-template CMIP.asn */
 
 /* Input file: packet-cmip-template.c */
@@ -9,7 +9,7 @@
  * Routines for X.711 CMIP packet dissection
  *   Ronnie Sahlberg 2004
  *
- * $Id$
+ * $Id:$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,7 +60,6 @@ static int hf_cmip_actionType_OID = -1;
 static int hf_cmip_eventType_OID = -1;
 static int hf_cmip_attributeId_OID = -1;
 static int hf_cmip_errorId_OID = -1;
-static int hf_AdministrativeState = -1;
 static int hf_DiscriminatorConstruct = -1;
 static int hf_Destination = -1;
 static int hf_NameBinding = -1;
@@ -85,6 +84,8 @@ static int hf_cmip_setInfoList = -1;              /* SET_OF_SetInfoStatus */
 static int hf_cmip_setInfoList_item = -1;         /* SetInfoStatus */
 static int hf_cmip_actionErrorInfo = -1;          /* ActionErrorInfo */
 static int hf_cmip_specificErrorInfo = -1;        /* SpecificErrorInfo */
+static int hf_cmip_RDNSequence_item = -1;         /* RelativeDistinguishedName */
+static int hf_cmip_RelativeDistinguishedName_item = -1;  /* AttributeValueAssertion */
 static int hf_cmip_deleteErrorInfo = -1;          /* T_deleteErrorInfo */
 static int hf_cmip_attributeError = -1;           /* AttributeError */
 static int hf_cmip_errorId = -1;                  /* T_errorId */
@@ -148,6 +149,8 @@ static int hf_cmip_globalForm = -1;               /* T_globalForm */
 static int hf_cmip_localForm = -1;                /* T_localForm */
 static int hf_cmip_id = -1;                       /* AttributeId */
 static int hf_cmip_value = -1;                    /* T_value */
+static int hf_cmip_id1 = -1;                      /* T_id */
+static int hf_cmip_value1 = -1;                   /* T_value1 */
 static int hf_cmip_equality = -1;                 /* Attribute */
 static int hf_cmip_substrings = -1;               /* T_substrings */
 static int hf_cmip_substrings_item = -1;          /* T_substrings_item */
@@ -163,8 +166,6 @@ static int hf_cmip_nonNullSetIntersection = -1;   /* Attribute */
 static int hf_cmip_single = -1;                   /* AE_title */
 static int hf_cmip_multiple = -1;                 /* SET_OF_AE_title */
 static int hf_cmip_multiple_item = -1;            /* AE_title */
-static int hf_cmip_numericName = -1;              /* INTEGER */
-static int hf_cmip_pString = -1;                  /* GraphicString */
 static int hf_cmip_ae_title_form1 = -1;           /* AE_title_form1 */
 static int hf_cmip_ae_title_form2 = -1;           /* AE_title_form2 */
 static int hf_cmip_rdnSequence = -1;              /* RDNSequence */
@@ -226,6 +227,8 @@ static gint ett_cmip_SetListError = -1;
 static gint ett_cmip_SET_OF_SetInfoStatus = -1;
 static gint ett_cmip_ActionError = -1;
 static gint ett_cmip_ProcessingFailure = -1;
+static gint ett_cmip_RDNSequence = -1;
+static gint ett_cmip_RelativeDistinguishedName = -1;
 static gint ett_cmip_DeleteError = -1;
 static gint ett_cmip_SetInfoStatus = -1;
 static gint ett_cmip_SpecificErrorInfo = -1;
@@ -259,12 +262,12 @@ static gint ett_cmip_ObjectInstance = -1;
 static gint ett_cmip_BaseManagedObjectId = -1;
 static gint ett_cmip_AttributeId = -1;
 static gint ett_cmip_Attribute = -1;
+static gint ett_cmip_AttributeValueAssertion = -1;
 static gint ett_cmip_FilterItem = -1;
 static gint ett_cmip_T_substrings = -1;
 static gint ett_cmip_T_substrings_item = -1;
 static gint ett_cmip_Destination = -1;
 static gint ett_cmip_SET_OF_AE_title = -1;
-static gint ett_cmip_NameType = -1;
 static gint ett_cmip_AE_title = -1;
 static gint ett_cmip_Name = -1;
 static gint ett_cmip_CMISFilter = -1;
@@ -302,6 +305,8 @@ static int attributeform;
 #define ATTRIBUTE_GLOBAL_FORM 1
 static char attribute_identifier_id[BER_MAX_OID_STR_LEN];
 
+static char attributevalueassertion_id[BER_MAX_OID_STR_LEN];
+
 static char object_identifier_id[BER_MAX_OID_STR_LEN];
 
 static int objectclassform;
@@ -334,15 +339,6 @@ static int dissect_not(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 
 /*--- Fields for imported types ---*/
 
-static int dissect_distinguishedName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509if_DistinguishedName(TRUE, tvb, offset, pinfo, tree, hf_cmip_distinguishedName);
-}
-static int dissect_localDistinguishedName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509if_RDNSequence(TRUE, tvb, offset, pinfo, tree, hf_cmip_localDistinguishedName);
-}
-static int dissect_rdnSequence(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509if_RDNSequence(FALSE, tvb, offset, pinfo, tree, hf_cmip_rdnSequence);
-}
 static int dissect_userInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_acse_EXTERNAL(FALSE, tvb, offset, pinfo, tree, hf_cmip_userInfo);
 }
@@ -448,7 +444,7 @@ static int dissect_oclocalForm_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 }
 
 
-static const value_string cmip_ObjectClass_vals[] = {
+const value_string cmip_ObjectClass_vals[] = {
   {   0, "ocglobalForm" },
   {   1, "oclocalForm" },
   { 0, NULL }
@@ -460,7 +456,7 @@ static const ber_choice_t ObjectClass_choice[] = {
   { 0, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_cmip_ObjectClass(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  ObjectClass_choice, hf_index, ett_cmip_ObjectClass,
@@ -478,6 +474,97 @@ static int dissect_baseManagedObjectClass(packet_info *pinfo, proto_tree *tree, 
 
 
 static int
+dissect_cmip_T_id(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                            attributevalueassertion_id);
+
+  return offset;
+}
+static int dissect_id1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_id(FALSE, tvb, offset, pinfo, tree, hf_cmip_id1);
+}
+
+
+
+static int
+dissect_cmip_T_value1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+    offset=call_ber_oid_callback(attributevalueassertion_id, tvb, offset, pinfo, tree);
+
+
+  return offset;
+}
+static int dissect_value1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_T_value1(FALSE, tvb, offset, pinfo, tree, hf_cmip_value1);
+}
+
+
+static const ber_sequence_t AttributeValueAssertion_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_id1 },
+  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_value1 },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_cmip_AttributeValueAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   AttributeValueAssertion_sequence, hf_index, ett_cmip_AttributeValueAssertion);
+
+  return offset;
+}
+static int dissect_RelativeDistinguishedName_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_AttributeValueAssertion(FALSE, tvb, offset, pinfo, tree, hf_cmip_RelativeDistinguishedName_item);
+}
+
+
+static const ber_sequence_t RelativeDistinguishedName_set_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_RelativeDistinguishedName_item },
+};
+
+static int
+dissect_cmip_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                                 RelativeDistinguishedName_set_of, hf_index, ett_cmip_RelativeDistinguishedName);
+
+  return offset;
+}
+static int dissect_RDNSequence_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_RelativeDistinguishedName(FALSE, tvb, offset, pinfo, tree, hf_cmip_RDNSequence_item);
+}
+
+
+static const ber_sequence_t RDNSequence_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_RDNSequence_item },
+};
+
+int
+dissect_cmip_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      RDNSequence_sequence_of, hf_index, ett_cmip_RDNSequence);
+
+  return offset;
+}
+static int dissect_localDistinguishedName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_RDNSequence(TRUE, tvb, offset, pinfo, tree, hf_cmip_localDistinguishedName);
+}
+static int dissect_rdnSequence(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_RDNSequence(FALSE, tvb, offset, pinfo, tree, hf_cmip_rdnSequence);
+}
+
+
+
+static int
+dissect_cmip_DistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_cmip_RDNSequence(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_distinguishedName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cmip_DistinguishedName(TRUE, tvb, offset, pinfo, tree, hf_cmip_distinguishedName);
+}
+
+
+
+static int
 dissect_cmip_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
@@ -489,7 +576,7 @@ static int dissect_nonSpecificForm_impl(packet_info *pinfo, proto_tree *tree, tv
 }
 
 
-static const value_string cmip_ObjectInstance_vals[] = {
+const value_string cmip_ObjectInstance_vals[] = {
   {   2, "distinguishedName" },
   {   3, "nonSpecificForm" },
   {   4, "localDistinguishedName" },
@@ -503,7 +590,7 @@ static const ber_choice_t ObjectInstance_choice[] = {
   { 0, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_cmip_ObjectInstance(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  ObjectInstance_choice, hf_index, ett_cmip_ObjectInstance,
@@ -563,8 +650,9 @@ static int dissect_errorStatus(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 static int
 dissect_cmip_T_globalForm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   attributeform = ATTRIBUTE_GLOBAL_FORM;
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
-                                         hf_cmip_globalForm, attribute_identifier_id);
+    offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                            attribute_identifier_id);
+
 
 
   return offset;
@@ -648,7 +736,6 @@ dissect_cmip_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
     offset=call_ber_oid_callback(attribute_identifier_id, tvb, offset, pinfo, tree);
   }
 
-
   return offset;
 }
 static int dissect_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -662,7 +749,7 @@ static const ber_sequence_t Attribute_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_cmip_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    Attribute_sequence, hf_index, ett_cmip_Attribute);
@@ -1401,9 +1488,6 @@ dissect_cmip_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
 
   return offset;
 }
-static int dissect_numericName(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_cmip_numericName);
-}
 static int dissect_individualLevels_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_cmip_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_cmip_individualLevels);
 }
@@ -2125,42 +2209,6 @@ dissect_cmip_NameBinding(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 }
 
 
-
-static int
-dissect_cmip_GraphicString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_GraphicString,
-                                            pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
-
-  return offset;
-}
-static int dissect_pString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cmip_GraphicString(FALSE, tvb, offset, pinfo, tree, hf_cmip_pString);
-}
-
-
-static const value_string cmip_NameType_vals[] = {
-  {   0, "numericName" },
-  {   1, "pString" },
-  { 0, NULL }
-};
-
-static const ber_choice_t NameType_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_numericName },
-  {   1, BER_CLASS_UNI, BER_UNI_TAG_GraphicString, BER_FLAGS_NOOWNTAG, dissect_pString },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_cmip_NameType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 NameType_choice, hf_index, ett_cmip_NameType,
-                                 NULL);
-
-  return offset;
-}
-
-
 static const ber_sequence_t SET_OF_AttributeId_set_of[1] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_attributeIdList_item },
 };
@@ -2299,7 +2347,9 @@ static const value_string cmip_Opcode_vals[] = {
 
 static int
 dissect_cmip_Opcode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, &opcode);
+    offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  &opcode);
+
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(opcode, cmip_Opcode_vals, " Unknown Opcode:%d"));
   }
@@ -2675,7 +2725,10 @@ static const value_string cmip_CMIPAbortSource_vals[] = {
 static int
 dissect_cmip_CMIPAbortSource(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   guint32 value;
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, &value);
+
+    offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  &value);
+
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_append_fstr(pinfo->cinfo, COL_INFO, " AbortSource:%s", val_to_str(value, cmip_CMIPAbortSource_vals, " Unknown AbortSource:%d"));
   }
@@ -2771,13 +2824,6 @@ dissect_cmip_CMIPUserInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
 
 static void
-dissect_cmip_attribute_31(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_cmip_AdministrativeState(FALSE, tvb, 0, pinfo, parent_tree, hf_AdministrativeState);
-
-}
-static void
 dissect_cmip_attribute_35(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 
@@ -2817,13 +2863,6 @@ dissect_cmip_attribute_65(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_
 
 }
 
-static void
-dissect_cmip_M3100_attribute_NameType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_cmip_NameType(FALSE, tvb, 0, pinfo, parent_tree, -1);
-
-}
 
 /* XXX this one should be broken out later and moved into the conformance file */
 static void
@@ -2901,10 +2940,6 @@ void proto_register_cmip(void) {
       { "errorId", "cmip.errorId_OID",
         FT_STRING, BASE_NONE, NULL, 0,
         "errorId", HFILL }},
-    { &hf_AdministrativeState,
-      { "AdministrativeState", "cmip.AdministrativeState",
-        FT_UINT32, BASE_DEC, VALS(cmip_AdministrativeState_vals), 0,
-        "", HFILL }},
    { &hf_DiscriminatorConstruct,
       { "DiscriminatorConstruct", "cmip.DiscriminatorConstruct",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -2993,6 +3028,14 @@ void proto_register_cmip(void) {
       { "specificErrorInfo", "cmip.specificErrorInfo",
         FT_NONE, BASE_NONE, NULL, 0,
         "ProcessingFailure/specificErrorInfo", HFILL }},
+    { &hf_cmip_RDNSequence_item,
+      { "Item", "cmip.RDNSequence_item",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "RDNSequence/_item", HFILL }},
+    { &hf_cmip_RelativeDistinguishedName_item,
+      { "Item", "cmip.RelativeDistinguishedName_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RelativeDistinguishedName/_item", HFILL }},
     { &hf_cmip_deleteErrorInfo,
       { "deleteErrorInfo", "cmip.deleteErrorInfo",
         FT_UINT32, BASE_DEC, VALS(cmip_T_deleteErrorInfo_vals), 0,
@@ -3245,6 +3288,14 @@ void proto_register_cmip(void) {
       { "value", "cmip.value",
         FT_NONE, BASE_NONE, NULL, 0,
         "Attribute/value", HFILL }},
+    { &hf_cmip_id1,
+      { "id", "cmip.id",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "AttributeValueAssertion/id", HFILL }},
+    { &hf_cmip_value1,
+      { "value", "cmip.value",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AttributeValueAssertion/value", HFILL }},
     { &hf_cmip_equality,
       { "equality", "cmip.equality",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -3305,17 +3356,9 @@ void proto_register_cmip(void) {
       { "Item", "cmip.multiple_item",
         FT_UINT32, BASE_DEC, VALS(cmip_AE_title_vals), 0,
         "Destination/multiple/_item", HFILL }},
-    { &hf_cmip_numericName,
-      { "numericName", "cmip.numericName",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "NameType/numericName", HFILL }},
-    { &hf_cmip_pString,
-      { "pString", "cmip.pString",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "NameType/pString", HFILL }},
     { &hf_cmip_ae_title_form1,
       { "ae-title-form1", "cmip.ae_title_form1",
-        FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(cmip_Name_vals), 0,
         "AE-title/ae-title-form1", HFILL }},
     { &hf_cmip_ae_title_form2,
       { "ae-title-form2", "cmip.ae_title_form2",
@@ -3501,6 +3544,8 @@ void proto_register_cmip(void) {
     &ett_cmip_SET_OF_SetInfoStatus,
     &ett_cmip_ActionError,
     &ett_cmip_ProcessingFailure,
+    &ett_cmip_RDNSequence,
+    &ett_cmip_RelativeDistinguishedName,
     &ett_cmip_DeleteError,
     &ett_cmip_SetInfoStatus,
     &ett_cmip_SpecificErrorInfo,
@@ -3534,12 +3579,12 @@ void proto_register_cmip(void) {
     &ett_cmip_BaseManagedObjectId,
     &ett_cmip_AttributeId,
     &ett_cmip_Attribute,
+    &ett_cmip_AttributeValueAssertion,
     &ett_cmip_FilterItem,
     &ett_cmip_T_substrings,
     &ett_cmip_T_substrings_item,
     &ett_cmip_Destination,
     &ett_cmip_SET_OF_AE_title,
-    &ett_cmip_NameType,
     &ett_cmip_AE_title,
     &ett_cmip_Name,
     &ett_cmip_CMISFilter,
@@ -3578,15 +3623,11 @@ void proto_register_cmip(void) {
 /*--- proto_reg_handoff_cmip -------------------------------------------*/
 void proto_reg_handoff_cmip(void) {
 	register_ber_oid_dissector("2.9.0.0.2", dissect_cmip, proto_cmip, "cmip");
-	register_ber_oid_dissector("2.9.3.2.7.31", dissect_cmip_attribute_31, proto_cmip, "smi2AttributeID (7) administrativeState(31)");
 	register_ber_oid_dissector("2.9.3.2.7.35", dissect_cmip_attribute_35, proto_cmip, "smi2AttributeID (7) operationalState(35)");
 	register_ber_oid_dissector("2.9.3.2.7.55", dissect_cmip_attribute_55, proto_cmip, "smi2AttributeID (7) destination(55)");
 	register_ber_oid_dissector("2.9.3.2.7.56", dissect_cmip_attribute_56, proto_cmip, "smi2AttributeID (7) discriminatorConstruct(56)");
 	register_ber_oid_dissector("2.9.3.2.7.63", dissect_cmip_attribute_63, proto_cmip, "smi2AttributeID (7) nameBinding(63)");
 	register_ber_oid_dissector("2.9.3.2.7.65", dissect_cmip_attribute_65, proto_cmip, "smi2AttributeID (7) objectClass(65)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.20", dissect_cmip_M3100_attribute_NameType, proto_cmip, "equipmentId(20)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.28", dissect_cmip_M3100_attribute_NameType, proto_cmip, "managedElementId(28)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.30", dissect_cmip_M3100_attribute_NameType, proto_cmip, "networkId(30)");
 
 	register_ber_oid_name("2.9.3.2.3.4","eventForwardingDiscriminator(4)");
 

@@ -5,9 +5,8 @@ CMIP-A-ASSOCIATE-Information {joint-iso-itu-t ms(9) cmip(1) modules(0)
   aAssociateUserInfo(1)} DEFINITIONS ::=
 BEGIN
 
-IMPORTS
-  DistinguishedName, RDNSequence
-    FROM InformationFramework
+	IMPORTS
+
   EXTERNAL
     FROM ACSE-1 {joint-iso-itu-t association-control(2) modules(0) acse1(1) version1(1)};
 
@@ -63,6 +62,10 @@ ProcessingFailure ::= SEQUENCE {
   specificErrorInfo      [5]  SpecificErrorInfo,
   ...
 }
+
+RDNSequence ::= SEQUENCE OF RelativeDistinguishedName
+
+RelativeDistinguishedName ::= SET OF AttributeValueAssertion
 
 DeleteError ::= SEQUENCE {
   managedObjectClass     ObjectClass OPTIONAL,
@@ -177,6 +180,8 @@ EventReply ::= SEQUENCE {
   eventReplyInfo  [8] ANY OPTIONAL
 }
 
+DistinguishedName ::= RDNSequence
+
 EventReportResult ::= SEQUENCE {
   managedObjectClass     ObjectClass OPTIONAL,
   managedObjectInstance  ObjectInstance OPTIONAL,
@@ -285,6 +290,11 @@ Attribute ::= SEQUENCE {
   value      ANY
 }
 
+AttributeValueAssertion ::= SEQUENCE {
+  id     OBJECT IDENTIFIER,
+  value  ANY
+}
+
 -- This Recommendation | International Standard does not allocate any values for localForm.
 -- Where this alternative is used, the permissible values for the integers and their meanings shall be defined
 -- as part of the application context in which they are used
@@ -317,11 +327,6 @@ OperationalState ::= ENUMERATED {disabled(0), enabled(1)}
 
 NameBinding ::= OBJECT IDENTIFIER
 
--- IMPORTED FROM ASN1DefinedTypesModule {itu-t recommendation m gnm(3100) informationModel(0) asn1Modules(2) asn1DefinedTypesModule(0)} 
-
-NameType ::= CHOICE {numericName  INTEGER,
-                     pString      GraphicString
-}
 
 -- FROM ACSE
 AE-title ::= CHOICE {

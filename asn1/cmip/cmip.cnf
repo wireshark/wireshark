@@ -4,10 +4,8 @@
 # $Id$
 
 #.MODULE_IMPORT
-InformationFramework x509if
 ACSE-1 acse
 
-#.INCLUDE ../x509if/x509if-exp.cnf
 #.INCLUDE ../acse/acse-exp.cnf
 
 #.EXPORTS
@@ -15,6 +13,10 @@ CMIPAbortInfo
 CMIPUserInfo
 ROS
 InvokeIDType
+ObjectInstance
+ObjectClass
+Attribute
+RDNSequence
 
 #.NO_EMIT
 
@@ -36,16 +38,23 @@ InvokeIDType
   }
 #.END
 
+#.FN_PARS CMIPAbortSource
+
+VAL_PTR = &value
+
 #.FN_BODY CMIPAbortSource
   guint32 value;
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, &value);
+
+  %(DEFAULT_BODY)s
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_append_fstr(pinfo->cinfo, COL_INFO, " AbortSource:%%s", val_to_str(value, cmip_CMIPAbortSource_vals, " Unknown AbortSource:%%d"));
   }
 #.END
+#.FN_PARS Opcode
+	VAL_PTR = &opcode
 
 #.FN_BODY Opcode
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index, &opcode);
+  %(DEFAULT_BODY)s
   if(check_col(pinfo->cinfo, COL_INFO)){
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "%%s", val_to_str(opcode, cmip_Opcode_vals, " Unknown Opcode:%%d"));
   }
@@ -79,10 +88,12 @@ InvokeIDType
   }
 #.END
 
+#.FN_PARS AttributeId/globalForm
+	VAL_PTR = attribute_identifier_id
+
 #.FN_BODY AttributeId/globalForm
   attributeform = ATTRIBUTE_GLOBAL_FORM;
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
-                                         hf_cmip_globalForm, attribute_identifier_id);
+  %(DEFAULT_BODY)s
 
 #.FN_BODY AttributeId/localForm
   attributeform = ATTRIBUTE_LOCAL_FORM;
@@ -93,6 +104,11 @@ InvokeIDType
   if(attributeform==ATTRIBUTE_GLOBAL_FORM){
     offset=call_ber_oid_callback(attribute_identifier_id, tvb, offset, pinfo, tree);
   }
+#.FN_PARS AttributeValueAssertion/id
+	VAL_PTR = attributevalueassertion_id
+
+#.FN_BODY AttributeValueAssertion/value
+    offset=call_ber_oid_callback(attributevalueassertion_id, tvb, offset, pinfo, tree);
 
 #.FN_BODY Argument
   switch(opcode_type){
