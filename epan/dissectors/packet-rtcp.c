@@ -156,6 +156,7 @@ static const value_string rtcp_xr_type_vals[] =
 	{ RTCP_XR_DLRR,         "DLRR Report Block" },
 	{ RTCP_XR_STATS_SUMRY,  "Statistics Summary Report Block" },
 	{ RTCP_XR_VOIP_METRCS,  "VoIP Metrics Report Block" },
+	{ 0, NULL}
 };
 
 /* XR VoIP Metrics Block - PLC Algorithms */
@@ -165,6 +166,7 @@ static const value_string rtcp_xr_plc_algo_vals[] =
 	{ 1, "Disabled" },
 	{ 2, "Enhanced" },
 	{ 3, "Standard" },
+	{ 0, NULL }
 };
 
 /* XR VoIP Metrics Block - JB Adaptive */
@@ -174,6 +176,7 @@ static const value_string rtcp_xr_jb_adaptive_vals[] =
 	{ 1, "Reserved" },
 	{ 2, "Non-Adaptive" },
 	{ 3, "Adaptive" },
+	{ 0, NULL }
 };
 
 /* XR Stats Summary Block - IP TTL or Hop Limit */
@@ -183,6 +186,7 @@ static const value_string rtcp_xr_ip_ttl_vals[] =
 	{ 1, "IPv4" },
 	{ 2, "IPv6" },
 	{ 3, "Undefined" },
+	{ 0, NULL }
 };
 
 /* RTCP Application PoC1 Value strings */

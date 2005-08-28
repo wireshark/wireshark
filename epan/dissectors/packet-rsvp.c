@@ -658,6 +658,7 @@ const value_string gmpls_sonet_signal_type_str[] = {
     {21, "STS-12c SPE / VC-4-4c"},
     {22, "STS-48c SPE / VC-4-16c"},
     {23, "STS-192c SPE / VC-4-64c"},
+    {0, NULL}
 };
 
 static const value_string ouni_guni_diversity_str[] = {
@@ -665,6 +666,7 @@ static const value_string ouni_guni_diversity_str[] = {
     {2, "Link Diverse"},
     {3, "Shared-Risk Link Group Diverse"},
     {4, "Shared Path"},
+    {0, NULL}
 };
 
 /* -------------------- Stuff for MPLS/TE objects -------------------- */
@@ -2896,7 +2898,7 @@ dissect_rsvp_label_set (proto_item *ti, proto_tree *rsvp_object_tree,
       {1, "Exclusive list"},
       {2, "Inclusive range"},
       {3, "Exclusive range"},
-      {0xff, NULL}
+      {0, NULL}
    };
 
     len = obj_length - 8;
@@ -3684,6 +3686,7 @@ dissect_rsvp_association (proto_tree *ti, proto_tree *rsvp_object_tree,
     static value_string association_type_vals[] = {
       {0, "Reserved"},
       {1, "Recovery"},
+      { 0, NULL}
     };
 
     proto_item_set_text(ti, "ASSOCIATION ");
