@@ -12260,6 +12260,9 @@ dissect_ansi_map_component(ASN1_SCK *asn1, proto_tree *tree, guint *len_p)
 
     dissect_ansi_map_len(asn1, subtree, &def_len, len_p);
 
+    if ((gint) (asn1->offset - saved_offset + *len_p) < 0)
+	THROW (ReportedBoundsError);
+
     proto_item_set_len(item, (asn1->offset - saved_offset) + *len_p);
 
     return(subtree);
@@ -12311,6 +12314,10 @@ dissect_ansi_opr_code(ASN1_SCK *asn1, packet_info *pinfo, proto_tree *tree, gint
 	saved_offset, asn1->offset - saved_offset, tag, str);
 
     dissect_ansi_map_len(asn1, subtree, &def_len, &len);
+
+    if ((gint) (asn1->offset - saved_offset + len) < 0)
+	THROW (ReportedBoundsError);
+
     proto_item_set_len(item, (asn1->offset - saved_offset) + len);
 
     if (len > 0)
@@ -12384,6 +12391,10 @@ dissect_ansi_problem(ASN1_SCK *asn1, proto_tree *tree)
 	saved_offset, asn1->offset - saved_offset, tag, str);
 
     dissect_ansi_map_len(asn1, subtree, &def_len, &len);
+
+    if ((gint) (asn1->offset - saved_offset + len) < 0)
+	THROW (ReportedBoundsError);
+
     proto_item_set_len(item, (asn1->offset - saved_offset) + len);
 
     if (len != 2)
@@ -12531,6 +12542,10 @@ dissect_ansi_error(ASN1_SCK *asn1, proto_tree *tree)
 	saved_offset, asn1->offset - saved_offset, tag, str);
 
     dissect_ansi_map_len(asn1, subtree, &def_len, &len);
+
+    if ((gint) (asn1->offset - saved_offset + len) < 0)
+	THROW (ReportedBoundsError);
+
     proto_item_set_len(item, (asn1->offset - saved_offset) + len);
 
     if ((tag == TCAP_PRIV_ERR_CODE_TAG) &&
@@ -12654,6 +12669,9 @@ dissect_ansi_param(ASN1_SCK *asn1, proto_tree *tree)
 
     dissect_ansi_map_len(asn1, subtree, &def_len, &len);
 
+    if ((gint) (asn1->offset - saved_offset + len) < 0)
+	THROW (ReportedBoundsError);
+
     proto_item_set_len(item, asn1->offset - saved_offset + len);
 
     if (len > 0)
@@ -12725,6 +12743,10 @@ dissect_ansi_params(ASN1_SCK *asn1, proto_tree *tree)
 	saved_offset, asn1->offset - saved_offset, tag, str);
 
     dissect_ansi_map_len(asn1, subtree, &def_len, &len);
+
+    if ((gint) (asn1->offset - saved_offset + len) < 0)
+	THROW (ReportedBoundsError);
+
     proto_item_set_len(item, (asn1->offset - saved_offset) + len);
 
     ansi_map_add_string = ep_alloc(1024);
