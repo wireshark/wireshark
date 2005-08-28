@@ -108,7 +108,7 @@ static const value_string rendezvous_msg_types[] = {
 	{ RENDEZVOUS_MSG_REQUEST, "Request" },
 	{ RENDEZVOUS_MSG_CANCEL, "Cancel" },
 	{ RENDEZVOUS_MSG_ACCEPT, "Accept" },
-	{ 0, "Unknown" },
+	{ 0, NULL },
 };
 
 #define CLIENTAUTORESP_REASON_BUSTED_PAYLOAD	2
@@ -117,7 +117,7 @@ static const value_string rendezvous_msg_types[] = {
 static const value_string clientautoresp_reason_types[] = {
 	{ CLIENTAUTORESP_REASON_BUSTED_PAYLOAD, "Busted Payload" },
 	{ CLIENTAUTORESP_REASON_CHANNEL_SPECIFIC, "Channel-specific" },
-	{ 0, "Unknown" },
+	{ 0, NULL },
 };
 
 #define EXTENDED_DATA_MTYPE_PLAIN 0x01
@@ -158,7 +158,7 @@ static const value_string extended_data_message_types[] = {
 	{EXTENDED_DATA_MTYPE_AUTONA, "Auto not available message"},
 	{EXTENDED_DATA_MTYPE_AUTODND, "Auto do not disturb message"},
 	{EXTENDED_DATA_MTYPE_AUTOFFC, "Auto free for chat message"},
-	{ 0, "Unknown" },
+	{ 0, NULL },
 };
 
 #define EXTENDED_DATA_MFLAG_NORMAL 0x01
