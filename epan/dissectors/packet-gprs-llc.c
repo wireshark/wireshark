@@ -167,6 +167,7 @@ static const value_string sapi_abrv[] = {
 	{ 13, "Reserved 13" },
 	{ 14, "Reserved 14" },
 	{ 15, "Reserved 15" },
+	{ 0, NULL }
 };
 static const true_false_string a_bit = {
 	"To solicit an acknowledgement from the peer LLE. ",
@@ -213,6 +214,7 @@ static const value_string xid_param_type_str[] = {
 	{0xA, "kU (window size in the UL direction)"},
 	{0xB, "Layer-3 Parameters"},
 	{0xC, "Reset"},
+	{0, NULL}
 };
 
 static const value_string tompd_formats[] = {
@@ -232,6 +234,7 @@ static const value_string tompd_formats[] = {
 	{0xD, "Reserved value 13"},
 	{0xE, "Reserved value 14"},
 	{0xF, "Reserved for extension"},
+	{0, NULL}
 };
 /* END MLT CHANGES */
 
