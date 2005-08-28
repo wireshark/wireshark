@@ -792,6 +792,7 @@ static const value_string scsi_qualifier_val[] = {
     {0x0, "Device type is connected to logical unit"},
     {0x1, "Device type is supported by server but is not connected to logical unit"},
     {0x3, "Device type is not supported by server"},
+    { 0, NULL }
 };
 
 static const value_string scsi_devtype_val[] = {
