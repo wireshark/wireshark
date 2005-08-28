@@ -192,6 +192,7 @@ static const value_string slsk_tcp_msgs[] = {
 	{ 111, "Get Recommendations for Item"},
 	{ 112, "Get Similar Users for Item"},
 	{ 1001, "Can't Connect To Peer"},
+	{ 0, NULL }
 };
 
 static const value_string slsk_status_codes[] = {
@@ -199,22 +200,26 @@ static const value_string slsk_status_codes[] = {
 	{ 0, "Offline"},
 	{ 1, "Away"},
 	{ 2, "Online"},
+	{ 0, NULL }
 };
 
 static const value_string slsk_transfer_direction[] = {
 	{ 0, "Download"},
 	{ 1, "Upload"},
+	{ 0, NULL }
 };
 
 static const value_string slsk_yes_no[] = {
 	{ 0, "No"},
 	{ 1, "Yes"},
+	{ 0, NULL }
 };
 
 static const value_string slsk_attr_type[] = {
 	{ 0, "Bitrate"},
 	{ 1, "Length"},
 	{ 2, "VBR"},
+	{ 0, NULL }
 };
 
 static const char* connection_type(char con_type[]) {

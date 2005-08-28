@@ -591,7 +591,7 @@ static const value_string indication_vals[] = {
     { 0x62, "Package->Unable to return because it is not supported" },
     { 0x63, "Package->May have been corrupted due to reset" },
     { 0x64, "Package->Unable to return due to a hardware failure" },
-
+    { 0, NULL }
 };
 
 static const true_false_string yesno = {
