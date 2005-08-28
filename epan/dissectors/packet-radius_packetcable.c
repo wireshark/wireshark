@@ -233,6 +233,7 @@ static value_string packetcable_state_indication_vals[] =
 	{1,  "Resource Reserved but not Activated"},
 	{2,  "Resource Activated"},
 	{3,  "Resource Reserved & Activated"},
+	{ 0, NULL }
 };
 
 
