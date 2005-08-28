@@ -110,6 +110,7 @@ static const value_string names_router_pref[] = {
         { ND_RA_FLAG_RTPREF_MEDIUM,	"Medium" },
         { ND_RA_FLAG_RTPREF_LOW,	"Low" },
         { ND_RA_FLAG_RTPREF_RSV,	"Reserved" },
+	{ 0, NULL}
 };
 
 static void
