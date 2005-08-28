@@ -296,6 +296,7 @@ static const value_string capability_vals[] = {
     { BGP_CAPABILITY_DYNAMIC_CAPABILITY, "Support for Dynamic capability" },
     { BGP_CAPABILITY_ROUTE_REFRESH_CISCO, "Route refresh capability" },
     { BGP_CAPABILITY_ORF_CISCO, "Cooperative route filtering capability" },
+    { 0, NULL}
 };
 
 /* Capability Message action code */
