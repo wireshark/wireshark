@@ -174,7 +174,8 @@ static const value_string dlsw_pri_vals[] = {
         { 4        , "Highest Priority" },
         { 5        , "Reserved" },
         { 6        , "Reserved" },
-        { 7        , "Reserved" }
+        { 7        , "Reserved" },
+	{ 0, NULL }
 };
 
 
