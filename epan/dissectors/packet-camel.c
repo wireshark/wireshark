@@ -1532,7 +1532,7 @@ static int dissect_value_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 
 static const ber_sequence_t ExtensionField_sequence[] = {
-  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_type },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_type },
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_criticality },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_value_impl },
   { 0, 0, 0, NULL }
@@ -3750,7 +3750,7 @@ static const value_string camel_GapCriteria_vals[] = {
 };
 
 static const ber_choice_t GapCriteria_choice[] = {
-  {   0, BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_basicGapCriteria },
+  {   0, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_basicGapCriteria },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_compoundGapCriteria },
   { 0, 0, 0, 0, NULL }
 };
@@ -3846,11 +3846,12 @@ static int dissect_originationReference(packet_info *pinfo, proto_tree *tree, tv
 }
 
 
+
 static int
 dissect_camel_IA5String_SIZE_1_127(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -3967,7 +3968,7 @@ static int dissect_VariablePartsArray_item(packet_info *pinfo, proto_tree *tree,
 
 
 static const ber_sequence_t VariablePartsArray_sequence_of[1] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_VariablePartsArray_item },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_VariablePartsArray_item },
 };
 
 static int
@@ -5919,7 +5920,7 @@ static int dissect_resourceAddress(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 
 static const ber_sequence_t ConnectToResourceArg_sequence[] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_resourceAddress },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_resourceAddress },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
   { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceInteractionIndicatorsTwo_impl },
   { 0, 0, 0, NULL }
@@ -6533,7 +6534,8 @@ const value_string camel_opr_code_strings[] = {
   {80, "EventReportGPRS"},
   {81, "RequestReportGPRSEvent"},
   {82, "ResetTimerGPRS"},
-  {83, "SendChargingInformationGPRS"}
+  {83, "SendChargingInformationGPRS"},
+  {0, NULL}
 };
 
 char camel_number_to_char(int number)
@@ -6826,7 +6828,7 @@ static guint8 camel_pdu_size = 0;
 static int
 dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
 
-  char *version_ptr /*, *version_str*/;
+  char *version_ptr, *version_str;
 
   opcode = 0;
   application_context_version = 0;

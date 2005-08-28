@@ -209,7 +209,8 @@ const value_string camel_opr_code_strings[] = {
   {80, "EventReportGPRS"},
   {81, "RequestReportGPRSEvent"},
   {82, "ResetTimerGPRS"},
-  {83, "SendChargingInformationGPRS"}
+  {83, "SendChargingInformationGPRS"},
+  {0, NULL}
 };
 
 char camel_number_to_char(int number)

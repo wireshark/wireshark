@@ -2002,7 +2002,7 @@ static const value_string pkt_cm_type_vals[] = {
 	{ PKT_CM_TET,		"Number of Transmit Equalizer Taps" },
 	{ PKT_CM_TET_LC,	"Number of Transmit Equalizer Taps" },
 	{ PKT_CM_DCC_SUP,	"DCC Support" },
-	{ PKT_CM_DCC_SUP_LC,	"DCC Support" }
+	{ PKT_CM_DCC_SUP_LC,	"DCC Support" },
 	{ 0, NULL }
 };
 
