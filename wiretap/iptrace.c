@@ -358,10 +358,6 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info _U_,
 		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
-	/* AIX saves time in nsec, not usec. It's easier to make iptrace
-	 * files more Unix-compliant here than try to get the calling
-	 * program to know when to use nsec or usec */
-
 	wth->phdr.len = packet_size;
 	wth->phdr.caplen = packet_size;
 	wth->phdr.ts.secs = pntohl(&header[32]);
