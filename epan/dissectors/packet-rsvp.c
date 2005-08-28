@@ -4056,12 +4056,12 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 
 	    }
 
-	    l += tvb_get_guint8(tvb, offset2+l+1);
-	    if (l < 1) {
+	    if (tvb_get_guint8(tvb, offset2+l+1) < 1) {
 		proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+1, 1,
 		    "Invalid length: %u", tvb_get_guint8(tvb, offset2+l+1));
 		return;
 	    }
+	    l += tvb_get_guint8(tvb, offset2+l+1);
 	    if (l < mylen) {
 		if (i < 4)
 		    proto_item_append_text(ti, ", ");
