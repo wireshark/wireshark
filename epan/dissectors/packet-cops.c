@@ -457,7 +457,7 @@ static const value_string table_cops_dqos_transaction_id[] =
   { 0xc,  "Gate Delete Err" },
   { 0xd,  "Gate Open" },
   { 0xe,  "Gate Close" },
-  { 0xFF, NULL },
+  { 0, NULL },
 };
 
 /* Direction */
@@ -465,7 +465,7 @@ static const value_string table_cops_direction[] =
 {
   { 0x0,  "Downstream gate" },
   { 0x1,  "Upstream gate" },
-  { 0xFF, NULL },
+  { 0, NULL },
 };
 
 /* Session Class */
@@ -475,7 +475,7 @@ static const value_string table_cops_session_class[] =
   { 0x1,  "Normal priority VoIP session" },
   { 0x2,  "High priority VoIP session" },
   { 0x3,  "Reserved" },
-  { 0xFF, NULL },
+  { 0, NULL },
 };
 
 /* Reason Code */
@@ -483,7 +483,7 @@ static const value_string table_cops_reason_code[] =
 {
   { 0x0,  "Gate Delete Operation" },
   { 0x1,  "Gate Close Operation" },
-  { 0xFF, NULL },
+  { 0, NULL },
 };
 
 /* Reason Sub Code - Delete */
@@ -496,7 +496,7 @@ static const value_string table_cops_reason_subcode_delete[] =
   { 0x4,  "Unexpected Gate-Open" },
   { 0x5,  "Local Gate-Close failure" },
   { 0x127,"Unspecified error" },
-  { 0xFF, NULL },
+  { 0, NULL },
 };
 
 /* Reason Sub Code - Close */
@@ -511,7 +511,7 @@ static const value_string table_cops_reason_subcode_close[] =
   { 0x6,  "Timer T7 expiration; Service Flow reservation timeout" },
   { 0x7,  "Timer T8 expiration; Service Flow inactivity in the upstream direction" },
   { 0x127,"Unspecified error" },
-  { 0xFF, NULL },
+  { 0, NULL },
 };
 
 /* PacketCable Error */
@@ -525,7 +525,7 @@ static const value_string table_cops_packetcable_error[] =
   { 0x6,  "Missing Required Object" },
   { 0x7,  "Invalid Object" },
   { 0x127,"Unspecified error" },
-  { 0xFF, NULL },
+  { 0, NULL },
 };
 
 
