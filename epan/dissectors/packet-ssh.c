@@ -159,6 +159,7 @@ static const value_string ssh1_msg_vals[] = {
 	{SSH_SMSG_PUBLIC_KEY,"Public Key"},
 	{SSH_CMSG_SESSION_KEY,"Session Key"},
 	{SSH_CMSG_USER,"User"},
+	{0, NULL}
 };
 
 
