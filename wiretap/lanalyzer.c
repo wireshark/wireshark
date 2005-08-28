@@ -283,7 +283,8 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 	guint16		record_type, record_length;
 	gchar		descriptor[DESCRIPTOR_LEN];
 	guint16		time_low, time_med, time_high, true_size;
-	double		t;
+	guint64		t;
+	time_t		tsecs;
 
 	/* read the record type and length. */
 	errno = WTAP_ERR_CANT_READ;
@@ -349,9 +350,6 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 
 	true_size = pletohs(&descriptor[4]);
 	packet_size = pletohs(&descriptor[6]);
-	time_low = pletohs(&descriptor[8]);
-	time_med = pletohs(&descriptor[10]);
-	time_high = pletohs(&descriptor[12]);
 
 	/*
 	 * OK, is the frame data size greater than than what's left of the
@@ -366,14 +364,14 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;
 	}
 
-	t = (double)time_low+(double)(time_med)*65536.0 +
-		(double)time_high*4294967296.0;
-	t = t/1000000.0 * 0.5; /* t = # of secs */
-	t += wth->capture.lanalyzer->start;
-
-	wth->phdr.ts.secs = (long)t;
-	wth->phdr.ts.nsecs = (unsigned long)((t-(double)(wth->phdr.ts.secs))
-			*1.0e9);
+	time_low = pletohs(&descriptor[8]);
+	time_med = pletohs(&descriptor[10]);
+	time_high = pletohs(&descriptor[12]);
+	t = (((guint64)time_low) << 0) + (((guint64)time_med) << 16) +
+	    (((guint64)time_high) << 32);
+	tsecs = (time_t) (t/2000000);
+	wth->phdr.ts.secs = tsecs + wth->capture.lanalyzer->start;
+	wth->phdr.ts.nsecs = ((guint32) (t - tsecs*2000000)) * 500;
 
 	if (true_size - 4 >= packet_size) {
 		/*
