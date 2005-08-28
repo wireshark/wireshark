@@ -86,8 +86,8 @@ Gnu info
 
 	<listitem><para>
 	  The RSVP dissector could exhaust system memory.
-	  <!-- Fixed in r15206 -->
-	  <!-- Bug IDs: 311, 314 -->
+	  <!-- Fixed in r15206, r15600 -->
+	  <!-- Bug IDs: 311, 314, 382 -->
 	  Versions affected: 0.9.4 to 0.10.12.
 	</para></listitem>
 
