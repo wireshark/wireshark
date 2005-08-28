@@ -474,6 +474,7 @@ static int dissect_targetCallID_impl(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_inap_CallID(TRUE, tvb, offset, pinfo, tree, hf_inap_targetCallID);
 }
 
+
 static const ber_sequence_t AddPartyArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_originalCallID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationCallID_impl },
@@ -483,7 +484,7 @@ static const ber_sequence_t AddPartyArg_sequence[] = {
 static int
 dissect_inap_AddPartyArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                AddPartyArg_sequence, hf_index, ett_inap_AddPartyArg);
+                                   AddPartyArg_sequence, hf_index, ett_inap_AddPartyArg);
 
   return offset;
 }
@@ -666,6 +667,7 @@ static int dissect_sCIBillingChargingCharacteristics_impl(packet_info *pinfo, pr
   return dissect_inap_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_inap_sCIBillingChargingCharacteristics);
 }
 
+
 static const ber_sequence_t AttachArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_newLegID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_correlationidentifier_impl },
@@ -675,7 +677,7 @@ static const ber_sequence_t AttachArg_sequence[] = {
 static int
 dissect_inap_AttachArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                AttachArg_sequence, hf_index, ett_inap_AttachArg);
+                                   AttachArg_sequence, hf_index, ett_inap_AttachArg);
 
   return offset;
 }
@@ -721,7 +723,8 @@ static const ber_choice_t LegID_choice[] = {
 static int
 dissect_inap_LegID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              LegID_choice, hf_index, ett_inap_LegID, NULL);
+                                 LegID_choice, hf_index, ett_inap_LegID,
+                                 NULL);
 
   return offset;
 }
@@ -756,6 +759,7 @@ static int dissect_legStatus_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_inap_LegStatus(TRUE, tvb, offset, pinfo, tree, hf_inap_legStatus);
 }
 
+
 static const ber_sequence_t LegInformation_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_legID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_legStatus_impl },
@@ -765,7 +769,7 @@ static const ber_sequence_t LegInformation_sequence[] = {
 static int
 dissect_inap_LegInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                LegInformation_sequence, hf_index, ett_inap_LegInformation);
+                                   LegInformation_sequence, hf_index, ett_inap_LegInformation);
 
   return offset;
 }
@@ -786,6 +790,7 @@ dissect_inap_CallPartyHandlingResultsArg(gboolean implicit_tag _U_, tvbuff_t *tv
   return offset;
 }
 
+
 static const ber_sequence_t ChangePartiesArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_targetCallID_impl },
@@ -796,10 +801,11 @@ static const ber_sequence_t ChangePartiesArg_sequence[] = {
 static int
 dissect_inap_ChangePartiesArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                ChangePartiesArg_sequence, hf_index, ett_inap_ChangePartiesArg);
+                                   ChangePartiesArg_sequence, hf_index, ett_inap_ChangePartiesArg);
 
   return offset;
 }
+
 
 static const ber_sequence_t DetachArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_legToBeDetached_impl },
@@ -810,10 +816,11 @@ static const ber_sequence_t DetachArg_sequence[] = {
 static int
 dissect_inap_DetachArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                DetachArg_sequence, hf_index, ett_inap_DetachArg);
+                                   DetachArg_sequence, hf_index, ett_inap_DetachArg);
 
   return offset;
 }
+
 
 static const ber_sequence_t HoldCallPartyConnectionArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callID_impl },
@@ -824,10 +831,11 @@ static const ber_sequence_t HoldCallPartyConnectionArg_sequence[] = {
 static int
 dissect_inap_HoldCallPartyConnectionArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                HoldCallPartyConnectionArg_sequence, hf_index, ett_inap_HoldCallPartyConnectionArg);
+                                   HoldCallPartyConnectionArg_sequence, hf_index, ett_inap_HoldCallPartyConnectionArg);
 
   return offset;
 }
+
 
 static const ber_sequence_t ReconnectArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callID_impl },
@@ -838,7 +846,7 @@ static const ber_sequence_t ReconnectArg_sequence[] = {
 static int
 dissect_inap_ReconnectArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                ReconnectArg_sequence, hf_index, ett_inap_ReconnectArg);
+                                   ReconnectArg_sequence, hf_index, ett_inap_ReconnectArg);
 
   return offset;
 }
@@ -862,6 +870,7 @@ static int dissect_initialCallSegment(packet_info *pinfo, proto_tree *tree, tvbu
   return dissect_inap_Cause(FALSE, tvb, offset, pinfo, tree, hf_inap_initialCallSegment);
 }
 
+
 static const ber_sequence_t ReleaseCallPartyConnectionArg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_legToBeReleased_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callID_impl },
@@ -872,7 +881,7 @@ static const ber_sequence_t ReleaseCallPartyConnectionArg_sequence[] = {
 static int
 dissect_inap_ReleaseCallPartyConnectionArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                ReleaseCallPartyConnectionArg_sequence, hf_index, ett_inap_ReleaseCallPartyConnectionArg);
+                                   ReleaseCallPartyConnectionArg_sequence, hf_index, ett_inap_ReleaseCallPartyConnectionArg);
 
   return offset;
 }
@@ -942,7 +951,8 @@ static const ber_choice_t VariableParts_item_choice[] = {
 static int
 dissect_inap_VariableParts_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              VariableParts_item_choice, hf_index, ett_inap_VariableParts_item, NULL);
+                                 VariableParts_item_choice, hf_index, ett_inap_VariableParts_item,
+                                 NULL);
 
   return offset;
 }
@@ -952,7 +962,7 @@ static int dissect_VariableParts_item(packet_info *pinfo, proto_tree *tree, tvbu
 
 
 static const ber_sequence_t VariableParts_sequence_of[1] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_VariableParts_item },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_VariableParts_item },
 };
 
 static int
@@ -966,6 +976,7 @@ static int dissect_variableParts_impl(packet_info *pinfo, proto_tree *tree, tvbu
   return dissect_inap_VariableParts(TRUE, tvb, offset, pinfo, tree, hf_inap_variableParts);
 }
 
+
 static const ber_sequence_t VariableMessage_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_elementaryMessageID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_variableParts_impl },
@@ -975,7 +986,7 @@ static const ber_sequence_t VariableMessage_sequence[] = {
 static int
 dissect_inap_VariableMessage(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                VariableMessage_sequence, hf_index, ett_inap_VariableMessage);
+                                   VariableMessage_sequence, hf_index, ett_inap_VariableMessage);
 
   return offset;
 }
@@ -1019,6 +1030,7 @@ static int dissect_triggerType_impl(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_inap_TriggerType(TRUE, tvb, offset, pinfo, tree, hf_inap_triggerType);
 }
 
+
 static const ber_sequence_t Tone_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_toneID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tduration_impl },
@@ -1028,7 +1040,7 @@ static const ber_sequence_t Tone_sequence[] = {
 static int
 dissect_inap_Tone(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                Tone_sequence, hf_index, ett_inap_Tone);
+                                   Tone_sequence, hf_index, ett_inap_Tone);
 
   return offset;
 }
@@ -1037,11 +1049,12 @@ static int dissect_tone_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 }
 
 
+
 static int
 dissect_inap_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -1055,6 +1068,7 @@ static int dissect_iA5Response_impl(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_inap_IA5String(TRUE, tvb, offset, pinfo, tree, hf_inap_iA5Response);
 }
 
+
 static const ber_sequence_t Text_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_messageContent_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_attributes_impl },
@@ -1064,7 +1078,7 @@ static const ber_sequence_t Text_sequence[] = {
 static int
 dissect_inap_Text(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                Text_sequence, hf_index, ett_inap_Text);
+                                   Text_sequence, hf_index, ett_inap_Text);
 
   return offset;
 }
@@ -1108,7 +1122,8 @@ static const ber_choice_t MessageID_choice[] = {
 static int
 dissect_inap_MessageID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              MessageID_choice, hf_index, ett_inap_MessageID, NULL);
+                                 MessageID_choice, hf_index, ett_inap_MessageID,
+                                 NULL);
 
   return offset;
 }
@@ -1157,6 +1172,7 @@ static int dissect_interval_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_inap_INTEGER_0_32767(TRUE, tvb, offset, pinfo, tree, hf_inap_interval);
 }
 
+
 static const ber_sequence_t T_inbandInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_messageID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_numberOfRepetitions_impl },
@@ -1168,7 +1184,7 @@ static const ber_sequence_t T_inbandInfo_sequence[] = {
 static int
 dissect_inap_T_inbandInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_inbandInfo_sequence, hf_index, ett_inap_T_inbandInfo);
+                                   T_inbandInfo_sequence, hf_index, ett_inap_T_inbandInfo);
 
   return offset;
 }
@@ -1194,13 +1210,15 @@ static const ber_choice_t InformationToSend_choice[] = {
 static int
 dissect_inap_InformationToSend(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              InformationToSend_choice, hf_index, ett_inap_InformationToSend, NULL);
+                                 InformationToSend_choice, hf_index, ett_inap_InformationToSend,
+                                 NULL);
 
   return offset;
 }
 static int dissect_informationToSend_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_InformationToSend(TRUE, tvb, offset, pinfo, tree, hf_inap_informationToSend);
 }
+
 
 static const ber_sequence_t T_addressAndService_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_calledAddressValue_impl },
@@ -1213,7 +1231,7 @@ static const ber_sequence_t T_addressAndService_sequence[] = {
 static int
 dissect_inap_T_addressAndService(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_addressAndService_sequence, hf_index, ett_inap_T_addressAndService);
+                                   T_addressAndService_sequence, hf_index, ett_inap_T_addressAndService);
 
   return offset;
 }
@@ -1241,7 +1259,8 @@ static const ber_choice_t FilteringCriteria_choice[] = {
 static int
 dissect_inap_FilteringCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              FilteringCriteria_choice, hf_index, ett_inap_FilteringCriteria, NULL);
+                                 FilteringCriteria_choice, hf_index, ett_inap_FilteringCriteria,
+                                 NULL);
 
   return offset;
 }
@@ -1299,6 +1318,7 @@ static int dissect_criticality(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_inap_T_criticality(FALSE, tvb, offset, pinfo, tree, hf_inap_criticality);
 }
 
+
 static const ber_sequence_t Extensions_item_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_type },
   { BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_criticality },
@@ -1309,7 +1329,7 @@ static const ber_sequence_t Extensions_item_sequence[] = {
 static int
 dissect_inap_Extensions_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                Extensions_item_sequence, hf_index, ett_inap_Extensions_item);
+                                   Extensions_item_sequence, hf_index, ett_inap_Extensions_item);
 
   return offset;
 }
@@ -1333,6 +1353,7 @@ static int dissect_extensions_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_inap_Extensions(TRUE, tvb, offset, pinfo, tree, hf_inap_extensions);
 }
 
+
 static const ber_sequence_t T_filteredCallTreatment_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sFBillingChargingCharacteristics_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_informationToSend_impl },
@@ -1344,7 +1365,7 @@ static const ber_sequence_t T_filteredCallTreatment_sequence[] = {
 static int
 dissect_inap_T_filteredCallTreatment(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_filteredCallTreatment_sequence, hf_index, ett_inap_T_filteredCallTreatment);
+                                   T_filteredCallTreatment_sequence, hf_index, ett_inap_T_filteredCallTreatment);
 
   return offset;
 }
@@ -1368,7 +1389,8 @@ static const ber_choice_t T_filteringCharacteristics_choice[] = {
 static int
 dissect_inap_T_filteringCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_filteringCharacteristics_choice, hf_index, ett_inap_T_filteringCharacteristics, NULL);
+                                 T_filteringCharacteristics_choice, hf_index, ett_inap_T_filteringCharacteristics,
+                                 NULL);
 
   return offset;
 }
@@ -1430,13 +1452,15 @@ static const ber_choice_t T_filteringTimeOut_choice[] = {
 static int
 dissect_inap_T_filteringTimeOut(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_filteringTimeOut_choice, hf_index, ett_inap_T_filteringTimeOut, NULL);
+                                 T_filteringTimeOut_choice, hf_index, ett_inap_T_filteringTimeOut,
+                                 NULL);
 
   return offset;
 }
 static int dissect_filteringTimeOut_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_T_filteringTimeOut(TRUE, tvb, offset, pinfo, tree, hf_inap_filteringTimeOut);
 }
+
 
 static const ber_sequence_t ActivateServiceFilteringarg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_filteredCallTreatment_impl },
@@ -1451,7 +1475,7 @@ static const ber_sequence_t ActivateServiceFilteringarg_sequence[] = {
 static int
 dissect_inap_ActivateServiceFilteringarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                ActivateServiceFilteringarg_sequence, hf_index, ett_inap_ActivateServiceFilteringarg);
+                                   ActivateServiceFilteringarg_sequence, hf_index, ett_inap_ActivateServiceFilteringarg);
 
   return offset;
 }
@@ -1495,6 +1519,7 @@ static int dissect_dpAssignment_impl(packet_info *pinfo, proto_tree *tree, tvbuf
   return dissect_inap_T_dpAssignment(TRUE, tvb, offset, pinfo, tree, hf_inap_dpAssignment);
 }
 
+
 static const ber_sequence_t MiscCallInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_messageType_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dpAssignment_impl },
@@ -1504,13 +1529,14 @@ static const ber_sequence_t MiscCallInfo_sequence[] = {
 static int
 dissect_inap_MiscCallInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                MiscCallInfo_sequence, hf_index, ett_inap_MiscCallInfo);
+                                   MiscCallInfo_sequence, hf_index, ett_inap_MiscCallInfo);
 
   return offset;
 }
 static int dissect_miscCallInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_MiscCallInfo(TRUE, tvb, offset, pinfo, tree, hf_inap_miscCallInfo);
 }
+
 
 static const ber_sequence_t ServiceAddressInformation_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceKey_impl },
@@ -1522,7 +1548,7 @@ static const ber_sequence_t ServiceAddressInformation_sequence[] = {
 static int
 dissect_inap_ServiceAddressInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                ServiceAddressInformation_sequence, hf_index, ett_inap_ServiceAddressInformation);
+                                   ServiceAddressInformation_sequence, hf_index, ett_inap_ServiceAddressInformation);
 
   return offset;
 }
@@ -1605,13 +1631,15 @@ static const ber_choice_t BearerCapability_choice[] = {
 static int
 dissect_inap_BearerCapability(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              BearerCapability_choice, hf_index, ett_inap_BearerCapability, NULL);
+                                 BearerCapability_choice, hf_index, ett_inap_BearerCapability,
+                                 NULL);
 
   return offset;
 }
 static int dissect_bearerCapability_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_BearerCapability(TRUE, tvb, offset, pinfo, tree, hf_inap_bearerCapability);
 }
+
 
 static const ber_sequence_t DpSpecificCommonParameters_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_serviceAddressInformation_impl },
@@ -1635,7 +1663,7 @@ static const ber_sequence_t DpSpecificCommonParameters_sequence[] = {
 static int
 dissect_inap_DpSpecificCommonParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                DpSpecificCommonParameters_sequence, hf_index, ett_inap_DpSpecificCommonParameters);
+                                   DpSpecificCommonParameters_sequence, hf_index, ett_inap_DpSpecificCommonParameters);
 
   return offset;
 }
@@ -1663,7 +1691,8 @@ static const ber_choice_t CallingFacilityGroup_choice[] = {
 static int
 dissect_inap_CallingFacilityGroup(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              CallingFacilityGroup_choice, hf_index, ett_inap_CallingFacilityGroup, NULL);
+                                 CallingFacilityGroup_choice, hf_index, ett_inap_CallingFacilityGroup,
+                                 NULL);
 
   return offset;
 }
@@ -1690,6 +1719,7 @@ static int dissect_forwardCallIndicators_impl(packet_info *pinfo, proto_tree *tr
   return dissect_inap_OCTET_STRING_SIZE_2(TRUE, tvb, offset, pinfo, tree, hf_inap_forwardCallIndicators);
 }
 
+
 static const ber_sequence_t AnalysedInformationarg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dialledDigits_impl },
@@ -1713,7 +1743,7 @@ static const ber_sequence_t AnalysedInformationarg_sequence[] = {
 static int
 dissect_inap_AnalysedInformationarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                AnalysedInformationarg_sequence, hf_index, ett_inap_AnalysedInformationarg);
+                                   AnalysedInformationarg_sequence, hf_index, ett_inap_AnalysedInformationarg);
 
   return offset;
 }
@@ -1760,6 +1790,7 @@ static int dissect_alertingPattern_impl(packet_info *pinfo, proto_tree *tree, tv
   return dissect_inap_OCTET_STRING_SIZE_3(TRUE, tvb, offset, pinfo, tree, hf_inap_alertingPattern);
 }
 
+
 static const ber_sequence_t AnalyseInformationarg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_destinationRoutingAddress_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertingPattern_impl },
@@ -1778,7 +1809,7 @@ static const ber_sequence_t AnalyseInformationarg_sequence[] = {
 static int
 dissect_inap_AnalyseInformationarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                AnalyseInformationarg_sequence, hf_index, ett_inap_AnalyseInformationarg);
+                                   AnalyseInformationarg_sequence, hf_index, ett_inap_AnalyseInformationarg);
 
   return offset;
 }
@@ -1799,13 +1830,15 @@ static const ber_choice_t PartyToCharge_choice[] = {
 static int
 dissect_inap_PartyToCharge(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              PartyToCharge_choice, hf_index, ett_inap_PartyToCharge, NULL);
+                                 PartyToCharge_choice, hf_index, ett_inap_PartyToCharge,
+                                 NULL);
 
   return offset;
 }
 static int dissect_partyToCharge_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_PartyToCharge(TRUE, tvb, offset, pinfo, tree, hf_inap_partyToCharge);
 }
+
 
 static const ber_sequence_t ApplyChargingarg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_aChBillingChargingCharacteristics_impl },
@@ -1817,7 +1850,7 @@ static const ber_sequence_t ApplyChargingarg_sequence[] = {
 static int
 dissect_inap_ApplyChargingarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                ApplyChargingarg_sequence, hf_index, ett_inap_ApplyChargingarg);
+                                   ApplyChargingarg_sequence, hf_index, ett_inap_ApplyChargingarg);
 
   return offset;
 }
@@ -1832,6 +1865,7 @@ dissect_inap_ApplyChargingReportarg(gboolean implicit_tag _U_, tvbuff_t *tvb, in
   return offset;
 }
 
+
 static const ber_sequence_t AssistRequestInstructionsarg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_correlationID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_iPAvailable_impl },
@@ -1843,7 +1877,7 @@ static const ber_sequence_t AssistRequestInstructionsarg_sequence[] = {
 static int
 dissect_inap_AssistRequestInstructionsarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                AssistRequestInstructionsarg_sequence, hf_index, ett_inap_AssistRequestInstructionsarg);
+                                   AssistRequestInstructionsarg_sequence, hf_index, ett_inap_AssistRequestInstructionsarg);
 
   return offset;
 }
@@ -1882,6 +1916,7 @@ static int dissect_dpCriteria_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_inap_T_dpCriteria(TRUE, tvb, offset, pinfo, tree, hf_inap_dpCriteria);
 }
 
+
 static const ber_sequence_t T_gapOnService_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_serviceKey_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dpCriteria_impl },
@@ -1891,13 +1926,14 @@ static const ber_sequence_t T_gapOnService_sequence[] = {
 static int
 dissect_inap_T_gapOnService(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_gapOnService_sequence, hf_index, ett_inap_T_gapOnService);
+                                   T_gapOnService_sequence, hf_index, ett_inap_T_gapOnService);
 
   return offset;
 }
 static int dissect_gapOnService_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_T_gapOnService(TRUE, tvb, offset, pinfo, tree, hf_inap_gapOnService);
 }
+
 
 static const ber_sequence_t T_calledAddressAndService_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_calledAddressValue_impl },
@@ -1908,13 +1944,14 @@ static const ber_sequence_t T_calledAddressAndService_sequence[] = {
 static int
 dissect_inap_T_calledAddressAndService(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_calledAddressAndService_sequence, hf_index, ett_inap_T_calledAddressAndService);
+                                   T_calledAddressAndService_sequence, hf_index, ett_inap_T_calledAddressAndService);
 
   return offset;
 }
 static int dissect_calledAddressAndService_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_T_calledAddressAndService(TRUE, tvb, offset, pinfo, tree, hf_inap_calledAddressAndService);
 }
+
 
 static const ber_sequence_t T_callingAddressAndService_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_callingAddressValue_impl },
@@ -1926,7 +1963,7 @@ static const ber_sequence_t T_callingAddressAndService_sequence[] = {
 static int
 dissect_inap_T_callingAddressAndService(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_callingAddressAndService_sequence, hf_index, ett_inap_T_callingAddressAndService);
+                                   T_callingAddressAndService_sequence, hf_index, ett_inap_T_callingAddressAndService);
 
   return offset;
 }
@@ -1954,7 +1991,8 @@ static const ber_choice_t T_gapCriteria_choice[] = {
 static int
 dissect_inap_T_gapCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_gapCriteria_choice, hf_index, ett_inap_T_gapCriteria, NULL);
+                                 T_gapCriteria_choice, hf_index, ett_inap_T_gapCriteria,
+                                 NULL);
 
   return offset;
 }
@@ -1975,6 +2013,7 @@ static int dissect_gapInterval_impl(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_inap_INTEGER_M1_60000(TRUE, tvb, offset, pinfo, tree, hf_inap_gapInterval);
 }
 
+
 static const ber_sequence_t T_gapIndicators_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_cgduration_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gapInterval_impl },
@@ -1984,7 +2023,7 @@ static const ber_sequence_t T_gapIndicators_sequence[] = {
 static int
 dissect_inap_T_gapIndicators(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_gapIndicators_sequence, hf_index, ett_inap_T_gapIndicators);
+                                   T_gapIndicators_sequence, hf_index, ett_inap_T_gapIndicators);
 
   return offset;
 }
@@ -2012,6 +2051,7 @@ static int dissect_controlType_impl(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_inap_T_controlType(TRUE, tvb, offset, pinfo, tree, hf_inap_controlType);
 }
 
+
 static const ber_sequence_t Both_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_informationToSend_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_releaseCause_impl },
@@ -2021,7 +2061,7 @@ static const ber_sequence_t Both_sequence[] = {
 static int
 dissect_inap_Both(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                Both_sequence, hf_index, ett_inap_Both);
+                                   Both_sequence, hf_index, ett_inap_Both);
 
   return offset;
 }
@@ -2047,13 +2087,15 @@ static const ber_choice_t T_gapTreatment_choice[] = {
 static int
 dissect_inap_T_gapTreatment(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_gapTreatment_choice, hf_index, ett_inap_T_gapTreatment, NULL);
+                                 T_gapTreatment_choice, hf_index, ett_inap_T_gapTreatment,
+                                 NULL);
 
   return offset;
 }
 static int dissect_gapTreatment_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_T_gapTreatment(TRUE, tvb, offset, pinfo, tree, hf_inap_gapTreatment);
 }
+
 
 static const ber_sequence_t CallGaparg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gapCriteria_impl },
@@ -2067,7 +2109,7 @@ static const ber_sequence_t CallGaparg_sequence[] = {
 static int
 dissect_inap_CallGaparg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                CallGaparg_sequence, hf_index, ett_inap_CallGaparg);
+                                   CallGaparg_sequence, hf_index, ett_inap_CallGaparg);
 
   return offset;
 }
@@ -2129,13 +2171,15 @@ static const ber_choice_t T_requestedInformationValue_choice[] = {
 static int
 dissect_inap_T_requestedInformationValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_requestedInformationValue_choice, hf_index, ett_inap_T_requestedInformationValue, NULL);
+                                 T_requestedInformationValue_choice, hf_index, ett_inap_T_requestedInformationValue,
+                                 NULL);
 
   return offset;
 }
 static int dissect_requestedInformationValue_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_T_requestedInformationValue(TRUE, tvb, offset, pinfo, tree, hf_inap_requestedInformationValue);
 }
+
 
 static const ber_sequence_t T_requestedInformationList_item_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_requestedInformationType_impl },
@@ -2146,7 +2190,7 @@ static const ber_sequence_t T_requestedInformationList_item_sequence[] = {
 static int
 dissect_inap_T_requestedInformationList_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_requestedInformationList_item_sequence, hf_index, ett_inap_T_requestedInformationList_item);
+                                   T_requestedInformationList_item_sequence, hf_index, ett_inap_T_requestedInformationList_item);
 
   return offset;
 }
@@ -2170,6 +2214,7 @@ static int dissect_requestedInformationList_impl(packet_info *pinfo, proto_tree 
   return dissect_inap_T_requestedInformationList(TRUE, tvb, offset, pinfo, tree, hf_inap_requestedInformationList);
 }
 
+
 static const ber_sequence_t CallInformationReportarg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_requestedInformationList_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_correlationID_impl },
@@ -2180,7 +2225,7 @@ static const ber_sequence_t CallInformationReportarg_sequence[] = {
 static int
 dissect_inap_CallInformationReportarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                CallInformationReportarg_sequence, hf_index, ett_inap_CallInformationReportarg);
+                                   CallInformationReportarg_sequence, hf_index, ett_inap_CallInformationReportarg);
 
   return offset;
 }
@@ -2223,6 +2268,7 @@ static int dissect_requestedInformationTypeList_impl(packet_info *pinfo, proto_t
   return dissect_inap_T_requestedInformationTypeList(TRUE, tvb, offset, pinfo, tree, hf_inap_requestedInformationTypeList);
 }
 
+
 static const ber_sequence_t CallInformationRequestarg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_requestedInformationTypeList_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_correlationID_impl },
@@ -2234,7 +2280,7 @@ static const ber_sequence_t CallInformationRequestarg_sequence[] = {
 static int
 dissect_inap_CallInformationRequestarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                CallInformationRequestarg_sequence, hf_index, ett_inap_CallInformationRequestarg);
+                                   CallInformationRequestarg_sequence, hf_index, ett_inap_CallInformationRequestarg);
 
   return offset;
 }
@@ -2292,7 +2338,8 @@ static const ber_choice_t Cancelarg_choice[] = {
 static int
 dissect_inap_Cancelarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Cancelarg_choice, hf_index, ett_inap_Cancelarg, NULL);
+                                 Cancelarg_choice, hf_index, ett_inap_Cancelarg,
+                                 NULL);
 
   return offset;
 }
@@ -2317,7 +2364,8 @@ static const ber_choice_t FacilityGroupID_choice[] = {
 static int
 dissect_inap_FacilityGroupID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              FacilityGroupID_choice, hf_index, ett_inap_FacilityGroupID, NULL);
+                                 FacilityGroupID_choice, hf_index, ett_inap_FacilityGroupID,
+                                 NULL);
 
   return offset;
 }
@@ -2345,13 +2393,15 @@ static const ber_choice_t ResourceID_choice[] = {
 static int
 dissect_inap_ResourceID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              ResourceID_choice, hf_index, ett_inap_ResourceID, NULL);
+                                 ResourceID_choice, hf_index, ett_inap_ResourceID,
+                                 NULL);
 
   return offset;
 }
 static int dissect_resourceID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_ResourceID(TRUE, tvb, offset, pinfo, tree, hf_inap_resourceID);
 }
+
 
 static const ber_sequence_t CancelStatusReportRequestarg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_resourceID_impl },
@@ -2362,10 +2412,11 @@ static const ber_sequence_t CancelStatusReportRequestarg_sequence[] = {
 static int
 dissect_inap_CancelStatusReportRequestarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                CancelStatusReportRequestarg_sequence, hf_index, ett_inap_CancelStatusReportRequestarg);
+                                   CancelStatusReportRequestarg_sequence, hf_index, ett_inap_CancelStatusReportRequestarg);
 
   return offset;
 }
+
 
 static const ber_sequence_t CollectedInformationarg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
@@ -2389,10 +2440,11 @@ static const ber_sequence_t CollectedInformationarg_sequence[] = {
 static int
 dissect_inap_CollectedInformationarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                CollectedInformationarg_sequence, hf_index, ett_inap_CollectedInformationarg);
+                                   CollectedInformationarg_sequence, hf_index, ett_inap_CollectedInformationarg);
 
   return offset;
 }
+
 
 static const ber_sequence_t CollectInformationarg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertingPattern_impl },
@@ -2408,7 +2460,7 @@ static const ber_sequence_t CollectInformationarg_sequence[] = {
 static int
 dissect_inap_CollectInformationarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                CollectInformationarg_sequence, hf_index, ett_inap_CollectInformationarg);
+                                   CollectInformationarg_sequence, hf_index, ett_inap_CollectInformationarg);
 
   return offset;
 }
@@ -2445,6 +2497,7 @@ static int dissect_forwardingCondition_impl(packet_info *pinfo, proto_tree *tree
   return dissect_inap_T_forwardingCondition(TRUE, tvb, offset, pinfo, tree, hf_inap_forwardingCondition);
 }
 
+
 static const ber_sequence_t Connectarg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_destinationRoutingAddress_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertingPattern_impl },
@@ -2469,7 +2522,7 @@ static const ber_sequence_t Connectarg_sequence[] = {
 static int
 dissect_inap_Connectarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                Connectarg_sequence, hf_index, ett_inap_Connectarg);
+                                   Connectarg_sequence, hf_index, ett_inap_Connectarg);
 
   return offset;
 }
@@ -2494,7 +2547,8 @@ static const ber_choice_t T_resourceAddress_choice[] = {
 static int
 dissect_inap_T_resourceAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_resourceAddress_choice, hf_index, ett_inap_T_resourceAddress, NULL);
+                                 T_resourceAddress_choice, hf_index, ett_inap_T_resourceAddress,
+                                 NULL);
 
   return offset;
 }
@@ -2502,8 +2556,9 @@ static int dissect_resourceAddress(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_inap_T_resourceAddress(FALSE, tvb, offset, pinfo, tree, hf_inap_resourceAddress);
 }
 
+
 static const ber_sequence_t ConnectToResource_sequence[] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_resourceAddress },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_resourceAddress },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
   { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceInteractionIndicators_impl },
   { 0, 0, 0, NULL }
@@ -2512,10 +2567,11 @@ static const ber_sequence_t ConnectToResource_sequence[] = {
 static int
 dissect_inap_ConnectToResource(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                ConnectToResource_sequence, hf_index, ett_inap_ConnectToResource);
+                                   ConnectToResource_sequence, hf_index, ett_inap_ConnectToResource);
 
   return offset;
 }
+
 
 static const ber_sequence_t EstablishTemporaryConnection_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_assistingSSPIPRoutingAddress_impl },
@@ -2531,7 +2587,7 @@ static const ber_sequence_t EstablishTemporaryConnection_sequence[] = {
 static int
 dissect_inap_EstablishTemporaryConnection(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                EstablishTemporaryConnection_sequence, hf_index, ett_inap_EstablishTemporaryConnection);
+                                   EstablishTemporaryConnection_sequence, hf_index, ett_inap_EstablishTemporaryConnection);
 
   return offset;
 }
@@ -2556,6 +2612,7 @@ static int dissect_monitorMode_impl(packet_info *pinfo, proto_tree *tree, tvbuff
   return dissect_inap_MonitorMode(TRUE, tvb, offset, pinfo, tree, hf_inap_monitorMode);
 }
 
+
 static const ber_sequence_t EventNotificationChargingarg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_eventTypeCharging_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_eventSpecificInformationCharging_impl },
@@ -2568,7 +2625,7 @@ static const ber_sequence_t EventNotificationChargingarg_sequence[] = {
 static int
 dissect_inap_EventNotificationChargingarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                EventNotificationChargingarg_sequence, hf_index, ett_inap_EventNotificationChargingarg);
+                                   EventNotificationChargingarg_sequence, hf_index, ett_inap_EventNotificationChargingarg);
 
   return offset;
 }
@@ -2607,6 +2664,7 @@ static int dissect_eventTypeBCSM_impl(packet_info *pinfo, proto_tree *tree, tvbu
   return dissect_inap_EventTypeBCSM(TRUE, tvb, offset, pinfo, tree, hf_inap_eventTypeBCSM);
 }
 
+
 static const ber_sequence_t T_collectedInfoSpecificInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_calledPartynumber_impl },
   { 0, 0, 0, NULL }
@@ -2615,13 +2673,14 @@ static const ber_sequence_t T_collectedInfoSpecificInfo_sequence[] = {
 static int
 dissect_inap_T_collectedInfoSpecificInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_collectedInfoSpecificInfo_sequence, hf_index, ett_inap_T_collectedInfoSpecificInfo);
+                                   T_collectedInfoSpecificInfo_sequence, hf_index, ett_inap_T_collectedInfoSpecificInfo);
 
   return offset;
 }
 static int dissect_collectedInfoSpecificInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_T_collectedInfoSpecificInfo(TRUE, tvb, offset, pinfo, tree, hf_inap_collectedInfoSpecificInfo);
 }
+
 
 static const ber_sequence_t T_analyzedInfoSpecificInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_calledPartynumber_impl },
@@ -2631,7 +2690,7 @@ static const ber_sequence_t T_analyzedInfoSpecificInfo_sequence[] = {
 static int
 dissect_inap_T_analyzedInfoSpecificInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_analyzedInfoSpecificInfo_sequence, hf_index, ett_inap_T_analyzedInfoSpecificInfo);
+                                   T_analyzedInfoSpecificInfo_sequence, hf_index, ett_inap_T_analyzedInfoSpecificInfo);
 
   return offset;
 }
@@ -2655,6 +2714,7 @@ static int dissect_busyCause_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_inap_OCTET_STRING_SIZE_2_10(TRUE, tvb, offset, pinfo, tree, hf_inap_busyCause);
 }
 
+
 static const ber_sequence_t T_routeSelectFailureSpecificInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_failureCause_impl },
   { 0, 0, 0, NULL }
@@ -2663,13 +2723,14 @@ static const ber_sequence_t T_routeSelectFailureSpecificInfo_sequence[] = {
 static int
 dissect_inap_T_routeSelectFailureSpecificInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_routeSelectFailureSpecificInfo_sequence, hf_index, ett_inap_T_routeSelectFailureSpecificInfo);
+                                   T_routeSelectFailureSpecificInfo_sequence, hf_index, ett_inap_T_routeSelectFailureSpecificInfo);
 
   return offset;
 }
 static int dissect_routeSelectFailureSpecificInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_T_routeSelectFailureSpecificInfo(TRUE, tvb, offset, pinfo, tree, hf_inap_routeSelectFailureSpecificInfo);
 }
+
 
 static const ber_sequence_t T_oCalledPartyBusySpecificInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_busyCause_impl },
@@ -2679,13 +2740,14 @@ static const ber_sequence_t T_oCalledPartyBusySpecificInfo_sequence[] = {
 static int
 dissect_inap_T_oCalledPartyBusySpecificInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_oCalledPartyBusySpecificInfo_sequence, hf_index, ett_inap_T_oCalledPartyBusySpecificInfo);
+                                   T_oCalledPartyBusySpecificInfo_sequence, hf_index, ett_inap_T_oCalledPartyBusySpecificInfo);
 
   return offset;
 }
 static int dissect_oCalledPartyBusySpecificInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_T_oCalledPartyBusySpecificInfo(TRUE, tvb, offset, pinfo, tree, hf_inap_oCalledPartyBusySpecificInfo);
 }
+
 
 static const ber_sequence_t T_oNoAnswerSpecificInfo_sequence[] = {
   { 0, 0, 0, NULL }
@@ -2694,13 +2756,14 @@ static const ber_sequence_t T_oNoAnswerSpecificInfo_sequence[] = {
 static int
 dissect_inap_T_oNoAnswerSpecificInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_oNoAnswerSpecificInfo_sequence, hf_index, ett_inap_T_oNoAnswerSpecificInfo);
+                                   T_oNoAnswerSpecificInfo_sequence, hf_index, ett_inap_T_oNoAnswerSpecificInfo);
 
   return offset;
 }
 static int dissect_oNoAnswerSpecificInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_T_oNoAnswerSpecificInfo(TRUE, tvb, offset, pinfo, tree, hf_inap_oNoAnswerSpecificInfo);
 }
+
 
 static const ber_sequence_t T_oAnswerSpecificInfo_sequence[] = {
   { 0, 0, 0, NULL }
@@ -2709,13 +2772,14 @@ static const ber_sequence_t T_oAnswerSpecificInfo_sequence[] = {
 static int
 dissect_inap_T_oAnswerSpecificInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_oAnswerSpecificInfo_sequence, hf_index, ett_inap_T_oAnswerSpecificInfo);
+                                   T_oAnswerSpecificInfo_sequence, hf_index, ett_inap_T_oAnswerSpecificInfo);
 
   return offset;
 }
 static int dissect_oAnswerSpecificInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_T_oAnswerSpecificInfo(TRUE, tvb, offset, pinfo, tree, hf_inap_oAnswerSpecificInfo);
 }
+
 
 static const ber_sequence_t T_oMidCallSpecificInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_connectTime_impl },
@@ -2725,13 +2789,14 @@ static const ber_sequence_t T_oMidCallSpecificInfo_sequence[] = {
 static int
 dissect_inap_T_oMidCallSpecificInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_oMidCallSpecificInfo_sequence, hf_index, ett_inap_T_oMidCallSpecificInfo);
+                                   T_oMidCallSpecificInfo_sequence, hf_index, ett_inap_T_oMidCallSpecificInfo);
 
   return offset;
 }
 static int dissect_oMidCallSpecificInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_T_oMidCallSpecificInfo(TRUE, tvb, offset, pinfo, tree, hf_inap_oMidCallSpecificInfo);
 }
+
 
 static const ber_sequence_t T_oDisconnectSpecificInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_releaseCause_impl },
@@ -2742,13 +2807,14 @@ static const ber_sequence_t T_oDisconnectSpecificInfo_sequence[] = {
 static int
 dissect_inap_T_oDisconnectSpecificInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_oDisconnectSpecificInfo_sequence, hf_index, ett_inap_T_oDisconnectSpecificInfo);
+                                   T_oDisconnectSpecificInfo_sequence, hf_index, ett_inap_T_oDisconnectSpecificInfo);
 
   return offset;
 }
 static int dissect_oDisconnectSpecificInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_T_oDisconnectSpecificInfo(TRUE, tvb, offset, pinfo, tree, hf_inap_oDisconnectSpecificInfo);
 }
+
 
 static const ber_sequence_t T_tBusySpecificInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_busyCause_impl },
@@ -2758,13 +2824,14 @@ static const ber_sequence_t T_tBusySpecificInfo_sequence[] = {
 static int
 dissect_inap_T_tBusySpecificInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_tBusySpecificInfo_sequence, hf_index, ett_inap_T_tBusySpecificInfo);
+                                   T_tBusySpecificInfo_sequence, hf_index, ett_inap_T_tBusySpecificInfo);
 
   return offset;
 }
 static int dissect_tBusySpecificInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_T_tBusySpecificInfo(TRUE, tvb, offset, pinfo, tree, hf_inap_tBusySpecificInfo);
 }
+
 
 static const ber_sequence_t T_tNoAnswerSpecificInfo_sequence[] = {
   { 0, 0, 0, NULL }
@@ -2773,13 +2840,14 @@ static const ber_sequence_t T_tNoAnswerSpecificInfo_sequence[] = {
 static int
 dissect_inap_T_tNoAnswerSpecificInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_tNoAnswerSpecificInfo_sequence, hf_index, ett_inap_T_tNoAnswerSpecificInfo);
+                                   T_tNoAnswerSpecificInfo_sequence, hf_index, ett_inap_T_tNoAnswerSpecificInfo);
 
   return offset;
 }
 static int dissect_tNoAnswerSpecificInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_T_tNoAnswerSpecificInfo(TRUE, tvb, offset, pinfo, tree, hf_inap_tNoAnswerSpecificInfo);
 }
+
 
 static const ber_sequence_t T_tAnswerSpecificInfo_sequence[] = {
   { 0, 0, 0, NULL }
@@ -2788,13 +2856,14 @@ static const ber_sequence_t T_tAnswerSpecificInfo_sequence[] = {
 static int
 dissect_inap_T_tAnswerSpecificInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_tAnswerSpecificInfo_sequence, hf_index, ett_inap_T_tAnswerSpecificInfo);
+                                   T_tAnswerSpecificInfo_sequence, hf_index, ett_inap_T_tAnswerSpecificInfo);
 
   return offset;
 }
 static int dissect_tAnswerSpecificInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_T_tAnswerSpecificInfo(TRUE, tvb, offset, pinfo, tree, hf_inap_tAnswerSpecificInfo);
 }
+
 
 static const ber_sequence_t T_tMidCallSpecificInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_connectTime_impl },
@@ -2804,13 +2873,14 @@ static const ber_sequence_t T_tMidCallSpecificInfo_sequence[] = {
 static int
 dissect_inap_T_tMidCallSpecificInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_tMidCallSpecificInfo_sequence, hf_index, ett_inap_T_tMidCallSpecificInfo);
+                                   T_tMidCallSpecificInfo_sequence, hf_index, ett_inap_T_tMidCallSpecificInfo);
 
   return offset;
 }
 static int dissect_tMidCallSpecificInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_T_tMidCallSpecificInfo(TRUE, tvb, offset, pinfo, tree, hf_inap_tMidCallSpecificInfo);
 }
+
 
 static const ber_sequence_t T_tDisconnectSpecificInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_releaseCause_impl },
@@ -2821,7 +2891,7 @@ static const ber_sequence_t T_tDisconnectSpecificInfo_sequence[] = {
 static int
 dissect_inap_T_tDisconnectSpecificInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_tDisconnectSpecificInfo_sequence, hf_index, ett_inap_T_tDisconnectSpecificInfo);
+                                   T_tDisconnectSpecificInfo_sequence, hf_index, ett_inap_T_tDisconnectSpecificInfo);
 
   return offset;
 }
@@ -2867,13 +2937,15 @@ static const ber_choice_t T_eventSpecificInformationBCSM_choice[] = {
 static int
 dissect_inap_T_eventSpecificInformationBCSM(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_eventSpecificInformationBCSM_choice, hf_index, ett_inap_T_eventSpecificInformationBCSM, NULL);
+                                 T_eventSpecificInformationBCSM_choice, hf_index, ett_inap_T_eventSpecificInformationBCSM,
+                                 NULL);
 
   return offset;
 }
 static int dissect_eventSpecificInformationBCSM_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_T_eventSpecificInformationBCSM(TRUE, tvb, offset, pinfo, tree, hf_inap_eventSpecificInformationBCSM);
 }
+
 
 static const ber_sequence_t EventReportBCSM_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_eventTypeBCSM_impl },
@@ -2888,7 +2960,7 @@ static const ber_sequence_t EventReportBCSM_sequence[] = {
 static int
 dissect_inap_EventReportBCSM(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                EventReportBCSM_sequence, hf_index, ett_inap_EventReportBCSM);
+                                   EventReportBCSM_sequence, hf_index, ett_inap_EventReportBCSM);
 
   return offset;
 }
@@ -2919,10 +2991,12 @@ static const ber_choice_t HoldCallInNetworkarg_choice[] = {
 static int
 dissect_inap_HoldCallInNetworkarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              HoldCallInNetworkarg_choice, hf_index, ett_inap_HoldCallInNetworkarg, NULL);
+                                 HoldCallInNetworkarg_choice, hf_index, ett_inap_HoldCallInNetworkarg,
+                                 NULL);
 
   return offset;
 }
+
 
 static const ber_sequence_t InitialDP_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceKey_impl },
@@ -2956,10 +3030,11 @@ static const ber_sequence_t InitialDP_sequence[] = {
 static int
 dissect_inap_InitialDP(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                InitialDP_sequence, hf_index, ett_inap_InitialDP);
+                                   InitialDP_sequence, hf_index, ett_inap_InitialDP);
 
   return offset;
 }
+
 
 static const ber_sequence_t InitiateCallAttempt_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_destinationRoutingAddress_impl },
@@ -2975,10 +3050,11 @@ static const ber_sequence_t InitiateCallAttempt_sequence[] = {
 static int
 dissect_inap_InitiateCallAttempt(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                InitiateCallAttempt_sequence, hf_index, ett_inap_InitiateCallAttempt);
+                                   InitiateCallAttempt_sequence, hf_index, ett_inap_InitiateCallAttempt);
 
   return offset;
 }
+
 
 static const ber_sequence_t OAnswer_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
@@ -2998,10 +3074,11 @@ static const ber_sequence_t OAnswer_sequence[] = {
 static int
 dissect_inap_OAnswer(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                OAnswer_sequence, hf_index, ett_inap_OAnswer);
+                                   OAnswer_sequence, hf_index, ett_inap_OAnswer);
 
   return offset;
 }
+
 
 static const ber_sequence_t OCalledPartyBusy_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
@@ -3024,10 +3101,11 @@ static const ber_sequence_t OCalledPartyBusy_sequence[] = {
 static int
 dissect_inap_OCalledPartyBusy(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                OCalledPartyBusy_sequence, hf_index, ett_inap_OCalledPartyBusy);
+                                   OCalledPartyBusy_sequence, hf_index, ett_inap_OCalledPartyBusy);
 
   return offset;
 }
+
 
 static const ber_sequence_t ODisconnect_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
@@ -3046,7 +3124,7 @@ static const ber_sequence_t ODisconnect_sequence[] = {
 static int
 dissect_inap_ODisconnect(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                ODisconnect_sequence, hf_index, ett_inap_ODisconnect);
+                                   ODisconnect_sequence, hf_index, ett_inap_ODisconnect);
 
   return offset;
 }
@@ -3073,6 +3151,7 @@ static int dissect_featureRequestIndicator_impl(packet_info *pinfo, proto_tree *
   return dissect_inap_FeatureRequestIndicator(TRUE, tvb, offset, pinfo, tree, hf_inap_featureRequestIndicator);
 }
 
+
 static const ber_sequence_t OMidCall_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_calledPartyBusinessGroupID_impl },
@@ -3088,10 +3167,11 @@ static const ber_sequence_t OMidCall_sequence[] = {
 static int
 dissect_inap_OMidCall(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                OMidCall_sequence, hf_index, ett_inap_OMidCall);
+                                   OMidCall_sequence, hf_index, ett_inap_OMidCall);
 
   return offset;
 }
+
 
 static const ber_sequence_t ONoAnswer_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
@@ -3113,10 +3193,11 @@ static const ber_sequence_t ONoAnswer_sequence[] = {
 static int
 dissect_inap_ONoAnswer(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                ONoAnswer_sequence, hf_index, ett_inap_ONoAnswer);
+                                   ONoAnswer_sequence, hf_index, ett_inap_ONoAnswer);
 
   return offset;
 }
+
 
 static const ber_sequence_t OriginationAttemptAuthorized_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
@@ -3134,7 +3215,7 @@ static const ber_sequence_t OriginationAttemptAuthorized_sequence[] = {
 static int
 dissect_inap_OriginationAttemptAuthorized(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                OriginationAttemptAuthorized_sequence, hf_index, ett_inap_OriginationAttemptAuthorized);
+                                   OriginationAttemptAuthorized_sequence, hf_index, ett_inap_OriginationAttemptAuthorized);
 
   return offset;
 }
@@ -3166,6 +3247,7 @@ static int dissect_iA5Information_impl(packet_info *pinfo, proto_tree *tree, tvb
   return dissect_inap_BOOLEAN(TRUE, tvb, offset, pinfo, tree, hf_inap_iA5Information);
 }
 
+
 static const ber_sequence_t PlayAnnouncement_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_informationToSend_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_disconnectFromIPForbidden_impl },
@@ -3177,7 +3259,7 @@ static const ber_sequence_t PlayAnnouncement_sequence[] = {
 static int
 dissect_inap_PlayAnnouncement(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                PlayAnnouncement_sequence, hf_index, ett_inap_PlayAnnouncement);
+                                   PlayAnnouncement_sequence, hf_index, ett_inap_PlayAnnouncement);
 
   return offset;
 }
@@ -3221,6 +3303,7 @@ static int dissect_errorTreatment_impl(packet_info *pinfo, proto_tree *tree, tvb
   return dissect_inap_T_errorTreatment(TRUE, tvb, offset, pinfo, tree, hf_inap_errorTreatment);
 }
 
+
 static const ber_sequence_t T_collectedDigits_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_minimumNbOfDigits_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_maximumNbOfDigits_impl },
@@ -3239,7 +3322,7 @@ static const ber_sequence_t T_collectedDigits_sequence[] = {
 static int
 dissect_inap_T_collectedDigits(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_collectedDigits_sequence, hf_index, ett_inap_T_collectedDigits);
+                                   T_collectedDigits_sequence, hf_index, ett_inap_T_collectedDigits);
 
   return offset;
 }
@@ -3263,13 +3346,15 @@ static const ber_choice_t T_collectedInfo_choice[] = {
 static int
 dissect_inap_T_collectedInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_collectedInfo_choice, hf_index, ett_inap_T_collectedInfo, NULL);
+                                 T_collectedInfo_choice, hf_index, ett_inap_T_collectedInfo,
+                                 NULL);
 
   return offset;
 }
 static int dissect_collectedInfo_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_T_collectedInfo(TRUE, tvb, offset, pinfo, tree, hf_inap_collectedInfo);
 }
+
 
 static const ber_sequence_t PromptAndCollectUserInformationarg_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_collectedInfo_impl },
@@ -3282,7 +3367,7 @@ static const ber_sequence_t PromptAndCollectUserInformationarg_sequence[] = {
 static int
 dissect_inap_PromptAndCollectUserInformationarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                PromptAndCollectUserInformationarg_sequence, hf_index, ett_inap_PromptAndCollectUserInformationarg);
+                                   PromptAndCollectUserInformationarg_sequence, hf_index, ett_inap_PromptAndCollectUserInformationarg);
 
   return offset;
 }
@@ -3303,7 +3388,8 @@ static const ber_choice_t PromptAndCollectUserInformationres_choice[] = {
 static int
 dissect_inap_PromptAndCollectUserInformationres(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              PromptAndCollectUserInformationres_choice, hf_index, ett_inap_PromptAndCollectUserInformationres, NULL);
+                                 PromptAndCollectUserInformationres_choice, hf_index, ett_inap_PromptAndCollectUserInformationres,
+                                 NULL);
 
   return offset;
 }
@@ -3337,6 +3423,7 @@ dissect_inap_ReleaseCall(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
   return offset;
 }
 
+
 static const ber_sequence_t T_allCallSegments_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_releaseCause_impl },
   { 0, 0, 0, NULL }
@@ -3345,7 +3432,7 @@ static const ber_sequence_t T_allCallSegments_sequence[] = {
 static int
 dissect_inap_T_allCallSegments(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_allCallSegments_sequence, hf_index, ett_inap_T_allCallSegments);
+                                   T_allCallSegments_sequence, hf_index, ett_inap_T_allCallSegments);
 
   return offset;
 }
@@ -3369,7 +3456,8 @@ static const ber_choice_t ReleaseCallArg_choice[] = {
 static int
 dissect_inap_ReleaseCallArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              ReleaseCallArg_choice, hf_index, ett_inap_ReleaseCallArg, NULL);
+                                 ReleaseCallArg_choice, hf_index, ett_inap_ReleaseCallArg,
+                                 NULL);
 
   return offset;
 }
@@ -3394,10 +3482,12 @@ static const ber_choice_t RequestCurrentStatusReportarg_choice[] = {
 static int
 dissect_inap_RequestCurrentStatusReportarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              RequestCurrentStatusReportarg_choice, hf_index, ett_inap_RequestCurrentStatusReportarg, NULL);
+                                 RequestCurrentStatusReportarg_choice, hf_index, ett_inap_RequestCurrentStatusReportarg,
+                                 NULL);
 
   return offset;
 }
+
 
 static const ber_sequence_t RequestCurrentStatusReportres_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_resourceStatus_impl },
@@ -3409,10 +3499,11 @@ static const ber_sequence_t RequestCurrentStatusReportres_sequence[] = {
 static int
 dissect_inap_RequestCurrentStatusReportres(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                RequestCurrentStatusReportres_sequence, hf_index, ett_inap_RequestCurrentStatusReportres);
+                                   RequestCurrentStatusReportres_sequence, hf_index, ett_inap_RequestCurrentStatusReportres);
 
   return offset;
 }
+
 
 static const ber_sequence_t RequestEveryStatusChangeReport_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_resourceID_impl },
@@ -3425,10 +3516,11 @@ static const ber_sequence_t RequestEveryStatusChangeReport_sequence[] = {
 static int
 dissect_inap_RequestEveryStatusChangeReport(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                RequestEveryStatusChangeReport_sequence, hf_index, ett_inap_RequestEveryStatusChangeReport);
+                                   RequestEveryStatusChangeReport_sequence, hf_index, ett_inap_RequestEveryStatusChangeReport);
 
   return offset;
 }
+
 
 static const ber_sequence_t RequestFirstStatusMatchReport_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_resourceID_impl },
@@ -3443,10 +3535,11 @@ static const ber_sequence_t RequestFirstStatusMatchReport_sequence[] = {
 static int
 dissect_inap_RequestFirstStatusMatchReport(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                RequestFirstStatusMatchReport_sequence, hf_index, ett_inap_RequestFirstStatusMatchReport);
+                                   RequestFirstStatusMatchReport_sequence, hf_index, ett_inap_RequestFirstStatusMatchReport);
 
   return offset;
 }
+
 
 static const ber_sequence_t RequestNotificationChargingEvent_item_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_eventTypeCharging_impl },
@@ -3458,7 +3551,7 @@ static const ber_sequence_t RequestNotificationChargingEvent_item_sequence[] = {
 static int
 dissect_inap_RequestNotificationChargingEvent_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                RequestNotificationChargingEvent_item_sequence, hf_index, ett_inap_RequestNotificationChargingEvent_item);
+                                   RequestNotificationChargingEvent_item_sequence, hf_index, ett_inap_RequestNotificationChargingEvent_item);
 
   return offset;
 }
@@ -3521,13 +3614,15 @@ static const ber_choice_t T_dpSpecificCriteria_choice[] = {
 static int
 dissect_inap_T_dpSpecificCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_dpSpecificCriteria_choice, hf_index, ett_inap_T_dpSpecificCriteria, NULL);
+                                 T_dpSpecificCriteria_choice, hf_index, ett_inap_T_dpSpecificCriteria,
+                                 NULL);
 
   return offset;
 }
 static int dissect_dpSpecificCriteria_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_T_dpSpecificCriteria(TRUE, tvb, offset, pinfo, tree, hf_inap_dpSpecificCriteria);
 }
+
 
 static const ber_sequence_t T_bcsmEvents_item_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_eventTypeBCSM_impl },
@@ -3540,7 +3635,7 @@ static const ber_sequence_t T_bcsmEvents_item_sequence[] = {
 static int
 dissect_inap_T_bcsmEvents_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_bcsmEvents_item_sequence, hf_index, ett_inap_T_bcsmEvents_item);
+                                   T_bcsmEvents_item_sequence, hf_index, ett_inap_T_bcsmEvents_item);
 
   return offset;
 }
@@ -3564,6 +3659,7 @@ static int dissect_bcsmEvents_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
   return dissect_inap_T_bcsmEvents(TRUE, tvb, offset, pinfo, tree, hf_inap_bcsmEvents);
 }
 
+
 static const ber_sequence_t RequestReportBCSMEvent_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_bcsmEvents_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_bcsmEventCorrelationID_impl },
@@ -3574,7 +3670,7 @@ static const ber_sequence_t RequestReportBCSMEvent_sequence[] = {
 static int
 dissect_inap_RequestReportBCSMEvent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                RequestReportBCSMEvent_sequence, hf_index, ett_inap_RequestReportBCSMEvent);
+                                   RequestReportBCSMEvent_sequence, hf_index, ett_inap_RequestReportBCSMEvent);
 
   return offset;
 }
@@ -3597,6 +3693,7 @@ static int dissect_timerID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_inap_T_timerID(TRUE, tvb, offset, pinfo, tree, hf_inap_timerID);
 }
 
+
 static const ber_sequence_t ResetTimer_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_timerID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_timervalue_impl },
@@ -3607,10 +3704,11 @@ static const ber_sequence_t ResetTimer_sequence[] = {
 static int
 dissect_inap_ResetTimer(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                ResetTimer_sequence, hf_index, ett_inap_ResetTimer);
+                                   ResetTimer_sequence, hf_index, ett_inap_ResetTimer);
 
   return offset;
 }
+
 
 static const ber_sequence_t RouteSelectFailure_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
@@ -3634,7 +3732,7 @@ static const ber_sequence_t RouteSelectFailure_sequence[] = {
 static int
 dissect_inap_RouteSelectFailure(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                RouteSelectFailure_sequence, hf_index, ett_inap_RouteSelectFailure);
+                                   RouteSelectFailure_sequence, hf_index, ett_inap_RouteSelectFailure);
 
   return offset;
 }
@@ -3659,13 +3757,15 @@ static const ber_choice_t CalledFacilityGroup_choice[] = {
 static int
 dissect_inap_CalledFacilityGroup(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              CalledFacilityGroup_choice, hf_index, ett_inap_CalledFacilityGroup, NULL);
+                                 CalledFacilityGroup_choice, hf_index, ett_inap_CalledFacilityGroup,
+                                 NULL);
 
   return offset;
 }
 static int dissect_calledFacilityGroup_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_inap_CalledFacilityGroup(TRUE, tvb, offset, pinfo, tree, hf_inap_calledFacilityGroup);
 }
+
 
 static const ber_sequence_t SelectFacility_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_alertingPattern_impl },
@@ -3681,10 +3781,11 @@ static const ber_sequence_t SelectFacility_sequence[] = {
 static int
 dissect_inap_SelectFacility(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                SelectFacility_sequence, hf_index, ett_inap_SelectFacility);
+                                   SelectFacility_sequence, hf_index, ett_inap_SelectFacility);
 
   return offset;
 }
+
 
 static const ber_sequence_t SelectRoute_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_destinationRoutingAddress_impl },
@@ -3703,10 +3804,11 @@ static const ber_sequence_t SelectRoute_sequence[] = {
 static int
 dissect_inap_SelectRoute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                SelectRoute_sequence, hf_index, ett_inap_SelectRoute);
+                                   SelectRoute_sequence, hf_index, ett_inap_SelectRoute);
 
   return offset;
 }
+
 
 static const ber_sequence_t SendChargingInformation_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sCIBillingChargingCharacteristics_impl },
@@ -3718,7 +3820,7 @@ static const ber_sequence_t SendChargingInformation_sequence[] = {
 static int
 dissect_inap_SendChargingInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                SendChargingInformation_sequence, hf_index, ett_inap_SendChargingInformation);
+                                   SendChargingInformation_sequence, hf_index, ett_inap_SendChargingInformation);
 
   return offset;
 }
@@ -3736,6 +3838,7 @@ static int dissect_counterID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
   return dissect_inap_INTEGER_0_99(TRUE, tvb, offset, pinfo, tree, hf_inap_counterID);
 }
 
+
 static const ber_sequence_t T_countersValue_item_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_counterID_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_counterValue_impl },
@@ -3745,7 +3848,7 @@ static const ber_sequence_t T_countersValue_item_sequence[] = {
 static int
 dissect_inap_T_countersValue_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_countersValue_item_sequence, hf_index, ett_inap_T_countersValue_item);
+                                   T_countersValue_item_sequence, hf_index, ett_inap_T_countersValue_item);
 
   return offset;
 }
@@ -3788,6 +3891,7 @@ static int dissect_responseCondition_impl(packet_info *pinfo, proto_tree *tree, 
   return dissect_inap_T_responseCondition(TRUE, tvb, offset, pinfo, tree, hf_inap_responseCondition);
 }
 
+
 static const ber_sequence_t ServiceFilteringResponse_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_countersValue_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_filteringCriteria_impl },
@@ -3799,7 +3903,7 @@ static const ber_sequence_t ServiceFilteringResponse_sequence[] = {
 static int
 dissect_inap_ServiceFilteringResponse(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                ServiceFilteringResponse_sequence, hf_index, ett_inap_ServiceFilteringResponse);
+                                   ServiceFilteringResponse_sequence, hf_index, ett_inap_ServiceFilteringResponse);
 
   return offset;
 }
@@ -3824,6 +3928,7 @@ static int dissect_reportCondition_impl(packet_info *pinfo, proto_tree *tree, tv
   return dissect_inap_T_reportCondition(TRUE, tvb, offset, pinfo, tree, hf_inap_reportCondition);
 }
 
+
 static const ber_sequence_t StatusReport_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_resourceStatus_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_correlationID_impl },
@@ -3836,10 +3941,11 @@ static const ber_sequence_t StatusReport_sequence[] = {
 static int
 dissect_inap_StatusReport(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                StatusReport_sequence, hf_index, ett_inap_StatusReport);
+                                   StatusReport_sequence, hf_index, ett_inap_StatusReport);
 
   return offset;
 }
+
 
 static const ber_sequence_t TAnswer_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
@@ -3854,10 +3960,11 @@ static const ber_sequence_t TAnswer_sequence[] = {
 static int
 dissect_inap_TAnswer(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                TAnswer_sequence, hf_index, ett_inap_TAnswer);
+                                   TAnswer_sequence, hf_index, ett_inap_TAnswer);
 
   return offset;
 }
+
 
 static const ber_sequence_t TBusy_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
@@ -3876,10 +3983,11 @@ static const ber_sequence_t TBusy_sequence[] = {
 static int
 dissect_inap_TBusy(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                TBusy_sequence, hf_index, ett_inap_TBusy);
+                                   TBusy_sequence, hf_index, ett_inap_TBusy);
 
   return offset;
 }
+
 
 static const ber_sequence_t TDisconnect_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
@@ -3896,10 +4004,11 @@ static const ber_sequence_t TDisconnect_sequence[] = {
 static int
 dissect_inap_TDisconnect(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                TDisconnect_sequence, hf_index, ett_inap_TDisconnect);
+                                   TDisconnect_sequence, hf_index, ett_inap_TDisconnect);
 
   return offset;
 }
+
 
 static const ber_sequence_t TermAttemptAuthorized_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
@@ -3918,10 +4027,11 @@ static const ber_sequence_t TermAttemptAuthorized_sequence[] = {
 static int
 dissect_inap_TermAttemptAuthorized(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                TermAttemptAuthorized_sequence, hf_index, ett_inap_TermAttemptAuthorized);
+                                   TermAttemptAuthorized_sequence, hf_index, ett_inap_TermAttemptAuthorized);
 
   return offset;
 }
+
 
 static const ber_sequence_t TMidCall_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
@@ -3938,10 +4048,11 @@ static const ber_sequence_t TMidCall_sequence[] = {
 static int
 dissect_inap_TMidCall(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                TMidCall_sequence, hf_index, ett_inap_TMidCall);
+                                   TMidCall_sequence, hf_index, ett_inap_TMidCall);
 
   return offset;
 }
+
 
 static const ber_sequence_t TNoAnswer_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dpSpecificCommonParameters_impl },
@@ -3960,7 +4071,7 @@ static const ber_sequence_t TNoAnswer_sequence[] = {
 static int
 dissect_inap_TNoAnswer(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                TNoAnswer_sequence, hf_index, ett_inap_TNoAnswer);
+                                   TNoAnswer_sequence, hf_index, ett_inap_TNoAnswer);
 
   return offset;
 }
@@ -3985,6 +4096,7 @@ static int dissect_problem_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_inap_T_problem(TRUE, tvb, offset, pinfo, tree, hf_inap_problem);
 }
 
+
 static const ber_sequence_t CancelFailed_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_problem_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_operation_impl },
@@ -3994,7 +4106,7 @@ static const ber_sequence_t CancelFailed_sequence[] = {
 static int
 dissect_inap_CancelFailed(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                CancelFailed_sequence, hf_index, ett_inap_CancelFailed);
+                                   CancelFailed_sequence, hf_index, ett_inap_CancelFailed);
 
   return offset;
 }
@@ -4080,7 +4192,8 @@ static const ber_choice_t T_rinvokeID_choice[] = {
 static int
 dissect_inap_T_rinvokeID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_rinvokeID_choice, hf_index, ett_inap_T_rinvokeID, NULL);
+                                 T_rinvokeID_choice, hf_index, ett_inap_T_rinvokeID,
+                                 NULL);
 
   return offset;
 }
@@ -4195,7 +4308,8 @@ static const ber_choice_t T_rproblem_choice[] = {
 static int
 dissect_inap_T_rproblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_rproblem_choice, hf_index, ett_inap_T_rproblem, NULL);
+                                 T_rproblem_choice, hf_index, ett_inap_T_rproblem,
+                                 NULL);
 
   return offset;
 }
@@ -4203,16 +4317,17 @@ static int dissect_rproblem(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_inap_T_rproblem(FALSE, tvb, offset, pinfo, tree, hf_inap_rproblem);
 }
 
+
 static const ber_sequence_t RejectPDU_sequence[] = {
-  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_rinvokeID },
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_rproblem },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_rinvokeID },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_rproblem },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_inap_RejectPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                RejectPDU_sequence, hf_index, ett_inap_RejectPDU);
+                                   RejectPDU_sequence, hf_index, ett_inap_RejectPDU);
 
   return offset;
 }
@@ -4241,7 +4356,8 @@ const value_string inap_opr_code_strings[] = {
 	{33,"ResetTimer"},
 	{23,"RequestReportBCSMEvent"},
 	{49,"SpecializedResourceReport"},
-	{22,"ReleaseCall"}
+	{22,"ReleaseCall"},
+{0, NULL}
 };
 
 const value_string inap_error_code_strings[] = {
@@ -4260,13 +4376,15 @@ const value_string inap_error_code_strings[] = {
 {14,"UnexpectedComponentSequence"},
 {15,"UnexpectedDataValue"},
 {16,"UnexpectedParameter"},
-{17,"UnknownLegID"}
+{17,"UnknownLegID"},
+{0, NULL}
 };
 
 const value_string inap_general_problem_strings[] = {
 {0,"General Problem Unrecognized Component"},
 {1,"General Problem Mistyped Component"},
 {3,"General Problem Badly Structured Component"},
+{0, NULL}
 };
 
 

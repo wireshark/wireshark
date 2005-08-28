@@ -102,7 +102,8 @@ const value_string inap_opr_code_strings[] = {
 	{33,"ResetTimer"},
 	{23,"RequestReportBCSMEvent"},
 	{49,"SpecializedResourceReport"},
-	{22,"ReleaseCall"}
+	{22,"ReleaseCall"},
+{0, NULL}
 };
 
 const value_string inap_error_code_strings[] = {
@@ -121,13 +122,15 @@ const value_string inap_error_code_strings[] = {
 {14,"UnexpectedComponentSequence"},
 {15,"UnexpectedDataValue"},
 {16,"UnexpectedParameter"},
-{17,"UnknownLegID"}
+{17,"UnknownLegID"},
+{0, NULL}
 };
 
 const value_string inap_general_problem_strings[] = {
 {0,"General Problem Unrecognized Component"},
 {1,"General Problem Mistyped Component"},
 {3,"General Problem Badly Structured Component"},
+{0, NULL}
 };
 
 
