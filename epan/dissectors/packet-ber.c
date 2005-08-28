@@ -1013,11 +1013,9 @@ printf("SEQUENCE dissect_ber_sequence(%s) subdissector ate %d bytes\n",name,coun
 	return end_offset;
 }
 
-int 
-dissect_ber_set(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id)
-{
-	/* XXX This function does NOT WORK properly as*/
-	/* In SET Tag:s can come in any order */
+/* This function dissects a BER set
+ */
+int dissect_ber_set(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *set, gint hf_id, gint ett_id) {
 	gint8 class;
 	gboolean pc, ind = 0, ind_field;
 	gint32 tag;
@@ -1027,24 +1025,14 @@ dissect_ber_set(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tr
 	int end_offset, s_offset;
 	gint length_remaining;
 	tvbuff_t *next_tvb;
-	const ber_sequence_t *seq_start;
-	guint8 number_of_tags=0;
-	/*
-	guint8 loop_count;
-	gboolean tag_found;
-	*/
-
-	/* find the number of entries in the ber_sequence_t structure */
-	seq_start = seq;
-	while (seq->func){
-		number_of_tags++;
-		seq++;
-	}
-	seq = seq_start;
-
+	const ber_sequence_t *cset = NULL;
+# define MAX_SET_ELEMENTS 32
+	guint32   mandatory_fields = 0;
+	guint8   set_idx;
+	gboolean first_pass;
 	s_offset = offset;
 #ifdef DEBUG_BER
-{
+	{
 char *name;
 header_field_info *hfinfo;
 if(hf_id>0){
@@ -1060,6 +1048,7 @@ printf("SET dissect_ber_set(%s) entered\n",name);
 }
 }
 #endif
+
 	if(!implicit_tag){
 		/* first we must read the sequence header */
 		offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
@@ -1072,14 +1061,14 @@ printf("SET dissect_ber_set(%s) entered\n",name);
 		  end_offset = offset + len;
 		}
 
-		/* sanity check: we only handle Constructed Universal Sequences */
-		if((class!=BER_CLASS_APP)&&(class!=BER_CLASS_PRI))
-		if((!pc)
+		/* sanity check: we only handle Constructed Universal Sets */
+		if ((class!=BER_CLASS_APP)&&(class!=BER_CLASS_PRI))
+		if ((!pc)
 		||(!implicit_tag&&((class!=BER_CLASS_UNI)
-							||(tag!=BER_UNI_TAG_SEQUENCE)))) {
-			tvb_ensure_bytes_exist(tvb, offset-2, 2);
-			proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: set expected but Class:%d(%s) PC:%d Tag:%d was unexpected", class,val_to_str(class,ber_class_codes,"Unknown"), pc, tag);
-			return end_offset;
+							||(tag!=BER_UNI_TAG_SET)))) {
+		  tvb_ensure_bytes_exist(tvb, offset-2, 2);
+		  proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: SET expected but Class:%d(%s) PC:%d Tag:%d was found", class,val_to_str(class,ber_class_codes,"Unknown"), pc, tag);
+		  return end_offset;
 		}
 	} else {
 		/* was implicit tag so just use the length of the tvb */
@@ -1088,14 +1077,23 @@ printf("SET dissect_ber_set(%s) entered\n",name);
 	}
 
 	/* create subtree */
-	if(hf_id != -1) {
+	if (hf_id != -1) {
 		if(parent_tree){
 			item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, FALSE);
 			tree = proto_item_add_subtree(item, ett_id);
 		}
 	}
 
-	/* loop over all entries until we reach the end of the sequence */
+	/* record the mandatory elements of the set so we can check we founf everything at the end
+	   we can only record 32 elements for now ... */
+	for(set_idx = 0; (cset=&set[set_idx])->func && (set_idx < MAX_SET_ELEMENTS); set_idx++) {
+
+	  if(!(cset->flags & BER_FLAGS_OPTIONAL)) 
+	      mandatory_fields |= 1 << set_idx;
+
+	}
+
+	/* loop over all entries until we reach the end of the set */
 	while (offset < end_offset){
 		gint8 class;
 		gboolean pc;
@@ -1104,117 +1102,69 @@ printf("SET dissect_ber_set(%s) entered\n",name);
 		int hoffset, eoffset, count;
 
 		/*if(ind){  this sequence was of indefinite length, if this is implicit indefinite impossible maybe
-					but tcap dissector uses this to eat the tag length then pass into here... EOC still on there...*/
+		  but tcap dissector uses this to eat the tag length then pass into here... EOC still on there...*/
+
 			if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0)){
 				if(show_internal_ber_fields){
-					proto_tree_add_text(tree, tvb, s_offset, offset+2, "ERROR WRONG SEQ EOC");
+					proto_tree_add_text(tree, tvb, s_offset, offset+2, "SEQ EOC");
 				}
 				return end_offset;
 			}
-		/*}*/
+			/* } */
 		hoffset = offset;
 		/* read header and len for next field */
 		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 		offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 		eoffset = offset + len;
-		seq = seq_start;
 
-ber_set_try_again:
-		/* have we run out of known entries in the sequence ?*/
-		if(!seq->func) {
-			/* it was not,  move to the enxt one and try again */
-			proto_tree_add_text(tree, tvb, offset, len, "BER Error: This field lies beyond the end of the known set definition: class:%d tag:%d",class,tag);
-			offset = eoffset;
-			seq = seq_start;
-			continue;
-		}
-
-		/* Verify that this one is the one we want.
+		/* Look through the Set to see if this class/id exists and 
+		 * hasn't been seen before
 		 * Skip check completely if class==ANY
 		 * of if NOCHKTAG is set
 		 */
-/* XXX Bug in asn2eth,
- * for   scope            [7]  Scope OPTIONAL,
- * it generates 	
- *   { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_scope },
- * and there should not be a NOTCHKTAG here
- */
-		if( ((seq->class==BER_CLASS_CON)||(seq->class==BER_CLASS_APP)||(seq->class==BER_CLASS_PRI)) && (!(seq->flags&BER_FLAGS_NOOWNTAG)) ){
-		  if( (seq->class!=BER_CLASS_ANY) 
-		  &&  (seq->tag!=-1)  
-		  &&( (seq->class!=class)
-		    ||(seq->tag!=tag) ) ){
-			/* it was not,  move to the next one and try again */
-			/* if(seq->flags&BER_FLAGS_OPTIONAL){ */
-				/* well this one was optional so just skip to the next one and try again. */
-				seq++;
-				goto ber_set_try_again;
-			/*}*/
-			if( seq->class == BER_CLASS_UNI){
-				proto_tree_add_text(tree, tvb, offset, len,
-				    "BER Error: Wrong field in SET  expected class:%d (%s) tag:%d (%s) but found class:%d tag:%d",
-				    seq->class,val_to_str(seq->class,ber_class_codes,"Unknown"),
-				    seq->tag,val_to_str(seq->tag,ber_uni_tag_codes,"Unknown"),
-				    class,tag);
-			}else{
-				proto_tree_add_text(tree, tvb, offset, len,
-				    "BER Error: Wrong field in SET  expected class:%d (%s) tag:%d but found class:%d tag:%d",
-				    seq->class,val_to_str(seq->class,ber_class_codes,"Unknown"),
-				    seq->tag,class,tag);
-			}
-			seq++;
-			offset=eoffset;
-			continue;
-		  }
-	        } else if(!(seq->flags & BER_FLAGS_NOTCHKTAG)) {
-		  if( (seq->class!=BER_CLASS_ANY) 
-		  &&  (seq->tag!=-1)  
-		  &&( (seq->class!=class)
-		    ||(seq->tag!=tag) ) ){
-			/* it was not,  move to the next one and try again */
-			/* if(seq->flags&BER_FLAGS_OPTIONAL){ */
-				/* well this one was optional so just skip to the next one and try again. */
-				seq++;
-				goto ber_set_try_again;
-		/*	}*/
 
-			if( seq->class == BER_CLASS_UNI){
-				proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in sequence  expected class:%d (%s) tag:%d(%s) but found class:%d(%s) tag:%d",seq->class,val_to_str(seq->class,ber_class_codes,"Unknown"),seq->tag,val_to_str(seq->tag,ber_uni_tag_codes,"Unknown"),class,val_to_str(class,ber_class_codes,"Unknown"),tag);
-			}else{
-				proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in sequence  expected class:%d (%s) tag:%d but found class:%d(%s) tag:%d",seq->class,val_to_str(seq->class,ber_class_codes,"Unknown"),seq->tag,class,val_to_str(class,ber_class_codes,"Unknown"),tag);
-			}
-			seq++;
-			offset=eoffset;
-			continue;
-		  }
-		}
 
-		if(!(seq->flags & BER_FLAGS_NOOWNTAG) ) {
-			/* dissect header and len for field */
-			hoffset = dissect_ber_identifier(pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
-			hoffset = dissect_ber_length(pinfo, tree, tvb, hoffset, NULL, NULL);
-			length_remaining=tvb_length_remaining(tvb, hoffset);
-			if (length_remaining>eoffset-hoffset-(2*ind_field))
-				length_remaining=eoffset-hoffset-(2*ind_field);
-			next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, eoffset-hoffset-(2*ind_field));
-		}
-		else {
-			length_remaining=tvb_length_remaining(tvb, hoffset);
-			if (length_remaining>eoffset-hoffset)
-				length_remaining=eoffset-hoffset;
-			next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, eoffset-hoffset);
-		}
+		for(first_pass=TRUE, cset = set, set_idx = 0; cset->func || first_pass; cset++, set_idx++) {
+
+		  /* we reset for a second pass when we will look for choices */
+		  if(!cset->func) {
+		    first_pass = FALSE;
+
+		    cset=set; /* reset to the beginning */
+		    set_idx = 0;
+		  }
+		  
+		  if((first_pass && ((cset->class==class) && (cset->tag==tag))) ||
+		     (!first_pass && ((cset->class== BER_CLASS_ANY) && (cset->tag == -1))) ) /* choices */
+		  {
+
+			if (!(cset->flags & BER_FLAGS_NOOWNTAG) ) {
+		      /* dissect header and len for field */
+				hoffset = dissect_ber_identifier(pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
+				hoffset = dissect_ber_length(pinfo, tree, tvb, hoffset, NULL, NULL);
+				length_remaining=tvb_length_remaining(tvb, hoffset);
+				if (length_remaining>eoffset-hoffset-(2*ind_field))
+					length_remaining=eoffset-hoffset-(2*ind_field);
+				next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, eoffset-hoffset-(2*ind_field));
+		    }
+			else {
+				length_remaining=tvb_length_remaining(tvb, hoffset);
+				if (length_remaining>eoffset-hoffset)
+					length_remaining=eoffset-hoffset;
+				next_tvb = tvb_new_subset(tvb, hoffset, length_remaining, eoffset-hoffset);
+			}
+
 		
-		/* call the dissector for this field */
-		/*if 	((eoffset-hoffset)>length_remaining) {*/
-			/* If the field is indefinite (i.e. we dont know the
-			 * length) of if the tvb is short, then just
-			 * give it all of the tvb and hope for the best.
-			 */
-			/*next_tvb = tvb_new_subset(tvb, hoffset, -1, -1);*/
-		/*} else {*/
+			/* call the dissector for this field */
+			/*if 	((eoffset-hoffset)>length_remaining) {*/
+				/* If the field is indefinite (i.e. we dont know the
+				 * length) of if the tvb is short, then just
+				 * give it all of the tvb and hope for the best.
+				 */
+				/*next_tvb = tvb_new_subset(tvb, hoffset, -1, -1);*/
+			/*} else {*/
 			
-		/*}*/
+			/*}*/
 
 #ifdef DEBUG_BER
 {
@@ -1233,57 +1183,75 @@ printf("SET dissect_ber_set(%s) calling subdissector\n",name);
 }
 }
 #endif
-		count=seq->func(pinfo, tree, next_tvb, 0);
-		
-#ifdef DEBUG_BER
-{
-char *name;
-header_field_info *hfinfo;
-if(hf_id>0){
-hfinfo = proto_registrar_get_nth(hf_id);
-name=hfinfo->name;
-} else {
-name="unnamed";
-}
-printf("SET dissect_ber_set(%s) subdissector ate %d bytes\n",name,count);
-}
-#endif
-		/* if it was optional and no bytes were eaten and it was */
-		/* supposed to (len<>0), just try again. */
-		if((len!=0)&&(count==0)&&(seq->flags&BER_FLAGS_OPTIONAL)){
-			seq++;
-			goto ber_set_try_again;
-		/* move the offset to the beginning of the next sequenced item */
-		}
-	offset = eoffset;
-	seq++;
-	if(!(seq->flags & BER_FLAGS_NOOWNTAG) ) {
-			/* if we stripped the tag and length we should also strip the EOC is ind_len */
-			if(ind_field == 1)
-			{
-				/* skip over EOC */
-				if(show_internal_ber_fields){
-					proto_tree_add_text(tree, tvb, offset, count, "SEQ FIELD EOC");
-				}
-			}
-			}
+		count=cset->func(pinfo, tree, next_tvb, 0);
 
+		if(count) {
+		    /* we found it! */
+		    if(set_idx < MAX_SET_ELEMENTS)
+		      mandatory_fields &= ~(1 << set_idx);
+
+		    offset = eoffset;
+
+		    if(!(cset->flags & BER_FLAGS_NOOWNTAG) ) {
+		      /* if we stripped the tag and length we should also strip the EOC is ind_len */
+		      if(ind_field == 1)
+			{
+			  /* skip over EOC */
+			  if(show_internal_ber_fields){
+			    proto_tree_add_text(tree, tvb, offset, count, "SET FIELD EOC");
+			  }
+			}
+		    }
+
+		    break;
+
+		}
+		  }
+		}
+
+		if(!cset->func) {
+		  /* we didn't find a match */
+		  proto_tree_add_text(tree, tvb, offset, len, "BER Error: Unknown field in SET class:%d(%s) tag:%d",class,val_to_str(class,ber_class_codes,"Unknown"),tag);
+
+		} 
+	}
+
+	if(mandatory_fields) {
+
+	  /* OK - we didn't find some of the elements we expected */
+
+	  for(set_idx = 0;  (cset = &set[set_idx])->func && (set_idx < MAX_SET_ELEMENTS); set_idx++) {
+
+	    if(mandatory_fields & (1 << set_idx)) {
+
+	      /* here is something we should have seen - but didn't! */
+	      proto_tree_add_text(tree, tvb, offset, len,
+				  "BER Error: Missing field in SET class:%d (%s) tag:%d expected",
+				  cset->class,val_to_str(cset->class,ber_class_codes,"Unknown"),
+				  cset->tag);
+
+	    }
+
+	  }
 	}
 
 	/* if we didnt end up at exactly offset, then we ate too many bytes */
-	if(offset != end_offset) {
+	if (offset != end_offset) {
 		tvb_ensure_bytes_exist(tvb, offset-2, 2);
-		proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: Set ate %d too many bytes", offset-end_offset);
+		proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: SET ate %d too many bytes", offset-end_offset);
 	}
+	
 	if(ind){
 		/*  need to eat this EOC
 		  end_offset = tvb_length(tvb);*/
 		  end_offset += 2; 
 		  if(show_internal_ber_fields){
-					proto_tree_add_text(tree, tvb, end_offset-2,2 , "SEQ EOC");
-				}
-		}
+					proto_tree_add_text(tree, tvb, end_offset-2,2 , "SET EOC");
+		  }
+	}
+
 	return end_offset;
+
 }
 
 
@@ -1306,7 +1274,7 @@ dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, i
 	header_field_info	*hfinfo;
 	gint length, length_remaining;
 	tvbuff_t *next_tvb;
-
+	gboolean first_pass;
 #ifdef DEBUG_BER
 {
 char *name;
@@ -1354,13 +1322,22 @@ printf("CHOICE dissect_ber_choice(%s) entered len:%d\n",name,tvb_length_remainin
 	/* loop over all entries until we find the right choice or 
 	   run out of entries */
 	ch = choice;
-	while(ch->func){
+	first_pass = TRUE;
+	while(ch->func || first_pass){
+
+	  /* we reset for a second pass when we will look for choices */
+	  if(!ch->func) {
+	    first_pass = FALSE;
+	    ch = choice; /* reset to the beginning */
+	  }
+
 choice_try_again:
 #ifdef DEBUG_BER
 printf("CHOICE testing potential subdissector class:%d:(expected)%d  tag:%d:(expected)%d flags:%d\n",class,ch->class,tag,ch->tag,ch->flags);
 #endif
-		if( ((ch->class==class)&&(ch->tag==tag))
-		||  ((ch->class==class)&&(ch->tag==-1)&&(ch->flags&BER_FLAGS_NOOWNTAG))
+		if( (first_pass && (((ch->class==class)&&(ch->tag==tag))
+		     ||  ((ch->class==class)&&(ch->tag==-1)&&(ch->flags&BER_FLAGS_NOOWNTAG)))) ||
+		    (!first_pass && (((ch->class == BER_CLASS_ANY) && (ch->tag == -1)))) /* we failed on the first pass so now try any choices */
 		){
 			if(!(ch->flags & BER_FLAGS_NOOWNTAG)){
 				/* dissect header and len for field */
