@@ -38,6 +38,7 @@ BandRejectReason_vals           DATA
 build_follow_filter
 bytes_to_str_punct
 bytes_to_str
+bytestring_to_str
 call_dissector
 capture_ap1394
 capture_arcnet

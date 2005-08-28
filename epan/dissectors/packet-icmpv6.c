@@ -215,22 +215,13 @@ again:
     case ND_OPT_SOURCE_LINKADDR:
     case ND_OPT_TARGET_LINKADDR:
       {
-	int len, i, p;
-	const guint8 *a;
-	char *t;
+	int len, p;
 
 	p = offset + sizeof(*opt);
 	len = (opt->nd_opt_len << 3) - sizeof(*opt);
-	a = tvb_get_ptr(tvb, p, len);
-	t = ep_alloc(len * 3);
-	memset(t, 0, len * 3);
-	for (i = 0; i < len; i++) {
-	    if (i)
-		t[i * 3 - 1] = ':';
-	    g_snprintf(t+i*3, 2, "%02x", a[i]);
-	}
 	proto_tree_add_text(icmp6opt_tree, tvb,
-	    offset + sizeof(*opt), len, "Link-layer address: %s", t);
+	    offset + sizeof(*opt), len, "Link-layer address: %s",
+	    bytestring_to_str(tvb_get_ptr(tvb, p, len), len, ':'));
 	break;
       }
     case ND_OPT_PREFIX_INFORMATION:

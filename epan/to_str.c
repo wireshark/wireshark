@@ -65,22 +65,20 @@
 #include <time.h>
 #include "emem.h"
 
-#define MAX_BYTESTRING_LEN	6
-
 /* Routine to convert a sequence of bytes to a hex string, one byte/two hex
  * digits at at a time, with a specified punctuation character between
- * the bytes.  The sequence of bytes must be no longer than
- * MAX_BYTESTRING_LEN.
+ * the bytes.
  *
  * If punct is '\0', no punctuation is applied (and thus
  * the resulting string is (len-1) bytes shorter)
  */
-static gchar *
+gchar *
 bytestring_to_str(const guint8 *ad, guint32 len, char punct) {
   gchar *buf;
   gchar        *p;
   int          i;
   guint32      octet;
+  size_t       buflen;
   /* At least one version of Apple's C compiler/linker is buggy, causing
      a complaint from the linker about the "literal C string section"
      not ending with '\0' if we initialize a 16-element "char" array with
@@ -91,13 +89,16 @@ bytestring_to_str(const guint8 *ad, guint32 len, char punct) {
       { '0', '1', '2', '3', '4', '5', '6', '7',
         '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
-  g_assert(len > 0 && len <= MAX_BYTESTRING_LEN);
-  len--;
+  g_assert(len > 0);
 
-  buf=ep_alloc(MAX_BYTESTRING_LEN*3+1);
-  p = &buf[MAX_BYTESTRING_LEN*3];
+  if (punct)
+    buflen=len*3;
+  else
+    buflen=len*2 + 1;
+  buf=ep_alloc(buflen);
+  p = &buf[buflen - 1];
   *p = '\0';
-  i = len;
+  i = len - 1;
   for (;;) {
     octet = ad[i];
     *--p = hex_digits[octet&0xF];
