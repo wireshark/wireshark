@@ -1,0 +1,29 @@
+# gnm.cnf
+
+# gnm conformation file
+
+
+# $Id$
+
+
+#.MODULE_IMPORT
+CMIP-1 cmip
+
+#.INCLUDE ../cmip/cmip-exp.cnf
+#.EXPORTS
+
+
+#.PDU
+
+
+#.NO_EMIT
+
+
+#.TYPE_RENAME
+
+
+#.FIELD_RENAME
+
+#.FN_BODY ManagementExtension/information
+/* FIX ME */
+#.END
