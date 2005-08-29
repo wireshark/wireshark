@@ -1928,7 +1928,7 @@ proto_register_fldb (void)
       "hf_fldb_getentrybyname_resp_key_t", FT_STRING, BASE_NONE, NULL, 0x0,
       "", HFILL}},
     {&hf_fldb_getentrybyname_resp_key_size,
-     {"hf_fldb_getentrybyname_resp_size",
+     {"hf_fldb_getentrybyname_resp_key_size",
       "hf_fldb_getentrybyname_resp_key_size", FT_UINT32, BASE_DEC, NULL, 0x0,
       "", HFILL}},
     {&hf_fldb_getentrybyname_resp_test,
