@@ -1,10 +1,3 @@
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-pres.h                                                            */
-/* ../../tools/asn2eth.py -X -b -e -p pres -c pres.cnf -s packet-pres-template ISO8823-PRESENTATION.asn */
-
-/* Input file: packet-pres-template.h */
-
 /* packet-pres.h
  * Routines for pres packet dissection
  *

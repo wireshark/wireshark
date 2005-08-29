@@ -266,5 +266,10 @@ void proto_register_acse(void) {
 /*--- proto_reg_handoff_acse -------------------------------------------*/
 void proto_reg_handoff_acse(void) {
 /*#include "packet-acse-dis-tab.c"*/
+
+	register_ber_oid_name("2.2.3.1.1","aCSE-id");
+	register_ber_oid_name("2.2.1.0.1","acse-as-id");
+
+
 }
 

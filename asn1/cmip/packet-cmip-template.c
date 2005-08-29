@@ -2,7 +2,7 @@
  * Routines for X.711 CMIP packet dissection
  *   Ronnie Sahlberg 2004
  *
- * $Id:$
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -256,6 +256,7 @@ void proto_reg_handoff_cmip(void) {
 	register_ber_oid_dissector("2.9.3.2.7.65", dissect_cmip_attribute_65, proto_cmip, "smi2AttributeID (7) objectClass(65)");
 
 	register_ber_oid_name("2.9.3.2.3.4","eventForwardingDiscriminator(4)");
+	register_ber_oid_name("2.9.1.1.4","joint-iso-itu-t(2) ms(9) cmip(1) cmip-pci(1) abstractSyntax(4)");
 
 }
 

@@ -1,0 +1,478 @@
+-- $Id:$
+-- Module ISO8823-PRESENTATION (X.226:07/1994)
+ISO8823-PRESENTATION DEFINITIONS ::=
+BEGIN
+
+-- 
+--  In X.410-1984 mode, the value of the SS-user data parameter of the S-CONNECT request and
+--  indication session-service primitives shall be a CP-type value.
+-- 
+--  In normal mode, the value of the SS-user data parameter of the S-CONNECT request and
+--  indication session-service primitives shall be a CP-type value, followed as a requestor's
+--  option by zero or more CPC-type values.
+--IMPORTS
+--  RTORQapdu, RTOACapdu, RTORJapdu, RTABapdu
+--    FROM Reliable-Transfer-APDU {joint-iso-itu-t(2) reliable-transfer(3)
+--      apdus(0)};
+-- Importd done localy
+--  RTORQapdu, RTOACapdu, RTORJapdu, RTABapdu
+--    FROM Reliable-Transfer-APDU {joint-iso-itu-t(2) reliable-transfer(3)
+--      apdus(0)};
+
+RTORQapdu ::= SET {
+  checkpointSize       [0] IMPLICIT INTEGER DEFAULT 0,
+  windowSize           [1] IMPLICIT INTEGER DEFAULT 3,
+  dialogueMode
+    [2] IMPLICIT INTEGER {monologue(0), twa(1)} DEFAULT monologue,
+  connectionDataRQ     [3]  ConnectionData,
+  applicationProtocol
+    [4] IMPLICIT INTEGER OPTIONAL --solely in X.410-1984 mode--
+}
+
+RTOACapdu ::= SET {
+  checkpointSize    [0] IMPLICIT INTEGER DEFAULT 0,
+  windowSize        [1] IMPLICIT INTEGER DEFAULT 3,
+  connectionDataAC  [2]  ConnectionData
+}
+
+RTORJapdu ::= SET {
+  refuseReason  [0] IMPLICIT RefuseReason OPTIONAL, -- only in X.410-1984 mode
+  userDataRJ
+--    [1]  OPEN.&Type OPTIONAL 
+-- RTSE user data, only in normal mode
+--
+     [1]  OPEN
+}
+
+RTABapdu ::= SET {
+  abortReason         [0] IMPLICIT AbortReason OPTIONAL,
+  reflectedParameter  [1] IMPLICIT BIT STRING OPTIONAL,
+  -- 8 bits maximum, only if abortReason is invalidParameter
+  userdataAB
+--    [2]  OPEN.&Type OPTIONAL 
+-- only in normal mode and if abortReason
+--
+    [2]  OPEN
+  -- is userError 
+}
+
+OPEN ::= ANY
+
+ConnectionData ::= CHOICE {
+--  open     [0]  OPEN.&Type, 
+-- RTSE user data
+  open     [0]  OPEN, 
+  
+  -- this alternative is encoded as [0] IMPLICIT NULL
+  -- in the case of absence of RTSE user data,
+  recover  [1] IMPLICIT SessionConnectionIdentifier
+}
+
+SessionConnectionIdentifier ::= SEQUENCE {
+  callingSSuserReference          CallingSSuserReference,
+  commonReference                 CommonReference,
+  additionalReferenceInformation
+    [0] IMPLICIT AdditionalReferenceInformation OPTIONAL
+}
+
+RefuseReason ::= INTEGER {
+  rtsBusy(0), cannotRecover(1), validationFailure(2),
+  unacceptableDialogueMode(3)}
+
+CallingSSuserReference ::= CHOICE {
+  t61String    T61String -- solely in X.410-1984 --,
+  octetString  OCTET STRING -- solely in normal mode --
+}
+
+CommonReference ::= UTCTime
+
+AdditionalReferenceInformation ::= T61String
+
+AbortReason ::= INTEGER {
+  localSystemProblem(0),
+  invalidParameter(1), -- reflectedParameter supplied
+  unrecognizedActivity(2),
+  temporaryProblem(3),
+  -- the RTSE cannot accept a session for a period of time
+  protocolError(4), -- RTSE level protocol error
+  permanentProblem(5), --provider-abort solely in normal mode 
+  userError(6), -- user-abort solely in normal mode
+  transferCompleted(7) -- activity can't be discarded--}
+
+-- end local imports
+-- 
+CP-type ::= SET {
+  mode-selector           [0] IMPLICIT Mode-selector,
+  x410-mode-parameters
+--    [1] IMPLICIT SET {COMPONENTS OF Reliable-Transfer-APDU.RTORQapdu} OPTIONAL  This OPTIONAL element shall be absent for a 
+    [1] IMPLICIT RTORQapdu OPTIONAL,  
+--	This OPTIONAL element shall be absent for a 
+  --  nested presentation connection.
+  --  Shall be used for X.410 mode only. Shall be bitwise
+  --  compatible with CCITT Recommendation X.410-1984.
+  --  This shall be the User data parameter of the CP PPDU1) --
+  normal-mode-parameters
+    [2] IMPLICIT SEQUENCE {protocol-version
+                             [0] IMPLICIT Protocol-version DEFAULT {version-1},
+                           calling-presentation-selector
+                             [1] IMPLICIT Calling-presentation-selector
+                               OPTIONAL,
+                           called-presentation-selector
+                             [2] IMPLICIT Called-presentation-selector OPTIONAL,
+                           presentation-context-definition-list
+                             [4] IMPLICIT Presentation-context-definition-list
+                               OPTIONAL,
+                           default-context-name
+                             [6] IMPLICIT Default-context-name OPTIONAL,
+                           presentation-requirements
+                             [8] IMPLICIT Presentation-requirements OPTIONAL,
+                           user-session-requirements
+                             [9] IMPLICIT User-session-requirements OPTIONAL-- shall not be present if equal to the Revised session
+                           -- requirements parameter --,
+                           protocol-options
+                             [11]  Protocol-options DEFAULT {},
+                           --  shall be absent if no options are offered
+                           initiators-nominated-context
+                             [12]  Presentation-context-identifier OPTIONAL,
+                           --  shall only be present if nominated-context is
+                           --  offered in protocol-options
+                           extensions
+                             [14]  SEQUENCE {...} OPTIONAL,
+                           --  to allow for future extensions
+                           user-data
+                             User-data OPTIONAL} OPTIONAL
+  -- Shall be used for normal mode only.
+  -- Shall be the parameters of the CP PPDU.
+}
+
+--
+--  As an initiator's option, the presentation data values contained in a CP PPDU may be
+--  encoded more than once, using CPC-type values, to allow the transfer of the same
+--  presentation data values using a number of different transfer syntaxes.
+--
+CPC-type ::=
+  User-data
+
+--  Shall be used for normal mode only.
+--  Shall not be present if the Presentation context definition list parameter is not present
+--  in the CP PPDU. Each instance of this data type shall contain all of the presentation data
+--  values which were contained in the User data parameter of the CP PPDU.
+--  This shall be the same set of presentation data values which were contained in the CP-type.
+-- 
+--  The SS-user data parameter value of the S-CONNECT response 
+--  and confirm session-service primitives shall be a CPA-PPDU 
+--  value when the Result parameter value is "accept". 
+--
+--
+CPA-PPDU ::= SET {
+  mode-selector           [0] IMPLICIT Mode-selector,
+  x410-mode-parameters
+--    [1] IMPLICIT SET {COMPONENTS OF Reliable-Transfer-APDU.RTOACapdu} OPTIONAL
+--  This OPTIONAL element shall be absent for a 
+    [1] IMPLICIT RTOACapdu OPTIONAL,
+--  This OPTIONAL element shall be absent for a 
+  --  nested presentation connection.
+  --  Shall be used for X.410 mode only. Shall be bitwise
+  --  compatible with CCITT Recommendation X.410-1984.
+  --  This shall be the User data parameter of the CPA PPDU1) --
+  normal-mode-parameters
+    [2] IMPLICIT SEQUENCE {protocol-version
+                             [0] IMPLICIT Protocol-version DEFAULT {version-1},
+                           responding-presentation-selector
+                             [3] IMPLICIT Responding-presentation-selector
+                               OPTIONAL,
+                           presentation-context-definition-result-list
+                             [5] IMPLICIT Presentation-context-definition-result-list
+                               OPTIONAL,
+                           presentation-requirements
+                             [8] IMPLICIT Presentation-requirements OPTIONAL,
+                           user-session-requirements
+                             [9] IMPLICIT User-session-requirements OPTIONAL,
+                           --  shall not be present if equal to the Revised session
+                           --  requirements parameter 
+                           protocol-options
+                             [11]  Protocol-options DEFAULT {},
+                           --  shall be absent if no options are selected
+                           responders-nominated-context
+                             [13]  Presentation-context-identifier OPTIONAL,
+                           --  shall only be present if nominated-context is 
+                           --  selected in protocol-options
+                           user-data
+                             User-data OPTIONAL} OPTIONAL
+  --  Shall be used for normal mode only.
+}
+
+--
+--
+--  The SS-user data parameter value of the S-CONNECT response 
+--  and confirm session-service primitives shall be a CPR-PPDU 
+--  value when the Result parameter value is "reject by SS-provider" 
+--  or "reject by called SS-user". 
+--
+CPR-PPDU ::= CHOICE {
+--  x400-mode-parameters    SET {COMPONENTS OF Reliable-Transfer-APDU.RTORJapdu}
+--  This OPTIONAL element shall be absent for a 
+  x400-mode-parameters    RTORJapdu,
+  --  This OPTIONAL element shall be absent for a 
+  --  nested presentation connection.
+  --  Shall be used for X.410 mode only. Shall be bitwise
+  --  compatible with CCITT Recommendation X.410-1984.
+  --  This shall be the User data parameter of the CPR PPDU2) --
+  normal-mode-parameters
+    SEQUENCE {protocol-version
+                [0] IMPLICIT Protocol-version DEFAULT {version-1},
+              responding-presentation-selector
+                [3] IMPLICIT Responding-presentation-selector OPTIONAL,
+              presentation-context-definition-result-list
+                [5] IMPLICIT Presentation-context-definition-result-list
+                  OPTIONAL,
+              default-context-result
+                [7] IMPLICIT Default-context-result OPTIONAL,
+              provider-reason
+                [10] IMPLICIT Provider-reason OPTIONAL,
+              user-data                                    User-data OPTIONAL
+  }
+  --  Shall be used for normal mode only. 
+}
+
+--
+--
+--  The SS-user data parameter of the S-U-ABORT request and indication 
+--  service primitives shall be an Abort-type value. 
+--
+Abort-type ::= CHOICE {
+  aru-ppdu  ARU-PPDU--  for a P-U-ABORT -- ,
+  arp-ppdu  ARP-PPDU --  for a P-P-ABORT 
+}
+
+--
+ARU-PPDU ::= CHOICE {
+--  x400-mode-parameters    SET {COMPONENTS OF Reliable-Transfer-APDU.RTABapdu}
+--  Shall be used for X.410 mode only. Shall be bitwise
+  x400-mode-parameters    RTABapdu,
+--  Shall be used for X.410 mode only. Shall be bitwise
+  --  compatible with CCITT Recommendation X.410-1984.
+  --  This shall be the User data parameter of the ARU PPDU3. --
+  normal-mode-parameters
+    [0] IMPLICIT SEQUENCE {presentation-context-identifier-list
+                             [0] IMPLICIT Presentation-context-identifier-list
+                               OPTIONAL,
+                           user-data
+                             User-data OPTIONAL}
+  --  Shall be used for normal mode only.
+}
+
+--
+ARP-PPDU ::= SEQUENCE {
+  provider-reason   [0] IMPLICIT Abort-reason OPTIONAL,
+  event-identifier  [1] IMPLICIT Event-identifier OPTIONAL
+}
+
+--
+--
+--  The SS-user data parameter value of the S-TYPED-DATA request 
+--  and indication service primitives shall be a Typed-data-type value. 
+--
+Typed-data-type ::= CHOICE {
+  acPPDU   [0] IMPLICIT AC-PPDU--  P-ALTER-CONTEXT request and indication -- ,
+  acaPPDU  [1] IMPLICIT ACA-PPDU--  P-ALTER-CONTEXT response and confirm -- ,
+  ttdPPDU  User-data --  P-TYPED-DATA request and indication
+}
+
+--
+AC-PPDU ::= SEQUENCE {
+  presentation-context-addition-list
+    [0] IMPLICIT Presentation-context-addition-list OPTIONAL,
+  presentation-context-deletion-list
+    [1] IMPLICIT Presentation-context-deletion-list OPTIONAL,
+  user-data                           User-data OPTIONAL
+}
+
+--
+ACA-PPDU ::= SEQUENCE {
+  presentation-context-addition-result-list
+    [0] IMPLICIT Presentation-context-addition-result-list OPTIONAL,
+  presentation-context-deletion-result-list
+    [1] IMPLICIT Presentation-context-deletion-result-list OPTIONAL,
+  user-data                                  User-data OPTIONAL
+}
+
+--
+--
+--  The SS-user data parameter value of the S-RESYNCHRONIZE request and 
+--  indication service primitives shall be an RS-PPDU value. 
+--
+RS-PPDU ::= SEQUENCE {
+  presentation-context-identifier-list
+    [0] IMPLICIT Presentation-context-identifier-list OPTIONAL,
+  user-data                             User-data OPTIONAL
+}
+
+--
+--  The SS-user data parameter value of the S-RESYNCHRONIZE response and 
+--  confirm service primitives shall be an RSA-PPDU value. 
+-- 
+RSA-PPDU ::= SEQUENCE {
+  presentation-context-identifier-list
+    [0] IMPLICIT Presentation-context-identifier-list OPTIONAL,
+  user-data                             User-data OPTIONAL
+}
+
+--
+--
+--  The SS-user data parameter values of the S-DATA, S-CAPABILITY-DATA, 
+--  S-EXPEDITED-DATA request and indication session-service primitives 
+--  and S-CAPABILITY-DATA response and confirm session-service primitives 
+--  shall be of type User-data. 
+--
+--  The SS-user data parameter values of all other session-service 
+--  primitives not described above shall be of type User-data. 
+--
+--
+--
+Abort-reason ::= INTEGER {
+  reason-not-specified(0), unrecognized-ppdu(1), unexpected-ppdu(2),
+  unexpected-session-service-primitive(3), unrecognized-ppdu-parameter(4),
+  unexpected-ppdu-parameter(5), invalid-ppdu-parameter-value(6)}
+
+Abstract-syntax-name ::= OBJECT IDENTIFIER
+
+Called-presentation-selector ::= Presentation-selector
+
+Calling-presentation-selector ::= Presentation-selector
+
+Context-list ::=
+--  SEQUENCE SIZE (0..7, ..., 8..MAX) OF
+  SEQUENCE  OF
+    SEQUENCE {presentation-context-identifier  Presentation-context-identifier,
+              abstract-syntax-name             Abstract-syntax-name,
+              transfer-syntax-name-list        SEQUENCE OF Transfer-syntax-name
+    }
+
+Default-context-name ::= SEQUENCE {
+  abstract-syntax-name  [0] IMPLICIT Abstract-syntax-name,
+  transfer-syntax-name  [1] IMPLICIT Transfer-syntax-name
+}
+
+Default-context-result ::= Result
+
+Event-identifier ::= INTEGER {
+  cp-PPDU(0), cpa-PPDU(1), cpr-PPDU(2), aru-PPDU(3), arp-PPDU(4), ac-PPDU(5),
+  aca-PPDU(6), td-PPDU(7), ttd-PPDU(8), te-PPDU(9), tc-PPDU(10), tcc-PPDU(11),
+  rs-PPDU(12), rsa-PPDU(13), s-release-indication(14), s-release-confirm(15),
+  s-token-give-indication(16), s-token-please-indication(17),
+  s-control-give-indication(18), s-sync-minor-indication(19),
+  s-sync-minor-confirm(20), s-sync-major-indication(21),
+  s-sync-major-confirm(22), s-p-exception-report-indication(23),
+  s-u-exception-report-indication(24), s-activity-start-indication(25),
+  s-activity-resume-indication(26), s-activity-interrupt-indication(27),
+  s-activity-interrupt-confirm(28), s-activity-discard-indication(29),
+  s-activity-discard-confirm(30), s-activity-end-indication(31),
+  s-activity-end-confirm(32)}
+
+Mode-selector ::= SET {
+  mode-value  [0] IMPLICIT INTEGER {x410-1984-mode(0), normal-mode(1)}
+}
+
+Presentation-context-addition-list ::= Context-list
+
+Presentation-context-addition-result-list ::= Result-list
+
+Presentation-context-definition-list ::= Context-list
+
+Presentation-context-definition-result-list ::= Result-list
+
+Presentation-context-deletion-list ::=
+--  SEQUENCE SIZE (0..7, ..., 8..MAX) OF Presentation-context-identifier
+	SEQUENCE  OF Presentation-context-identifier
+
+Presentation-context-deletion-result-list ::=
+--  SEQUENCE SIZE (0..7, ..., 8..MAX) OF
+  SEQUENCE OF
+    INTEGER {acceptance(0), user-rejection(1)}
+
+--Presentation-context-identifier ::= INTEGER(1..127, ..., 128..MAX)
+Presentation-context-identifier ::= INTEGER
+
+Presentation-context-identifier-list ::=
+--  SEQUENCE SIZE (0..7, ..., 8..MAX) OF
+  SEQUENCE  OF
+    SEQUENCE {presentation-context-identifier  Presentation-context-identifier,
+              transfer-syntax-name             Transfer-syntax-name}
+
+Presentation-requirements ::= BIT STRING {context-management(0), restoration(1)
+}
+
+--Presentation-selector ::= OCTET STRING(SIZE (1..4, ..., 5..MAX))
+Presentation-selector ::= OCTET STRING
+
+Protocol-options ::= BIT STRING {
+  nominated-context(0), short-encoding(1), packed-encoding-rules(2)}
+
+Protocol-version ::= BIT STRING {version-1(0)}
+
+Provider-reason ::= INTEGER {
+  reason-not-specified(0), temporary-congestion(1), local-limit-exceeded(2),
+  called-presentation-address-unknown(3), protocol-version-not-supported(4),
+  default-context-not-supported(5), user-data-not-readable(6),
+  no-PSAP-available(7)}
+
+Responding-presentation-selector ::= Presentation-selector
+
+Result ::= INTEGER {acceptance(0), user-rejection(1), provider-rejection(2)}
+
+Result-list ::=
+--  SEQUENCE SIZE (0..7, ..., 8..MAX) OF
+  SEQUENCE  OF
+    SEQUENCE {result                [0] IMPLICIT Result,
+              transfer-syntax-name  [1] IMPLICIT Transfer-syntax-name OPTIONAL,
+              provider-reason
+                [2] IMPLICIT INTEGER {reason-not-specified(0),
+                                      abstract-syntax-not-supported(1),
+                                      proposed-transfer-syntaxes-not-supported(2),
+                                      local-limit-on-DCS-exceeded(3)} OPTIONAL
+    }
+
+Transfer-syntax-name ::= OBJECT IDENTIFIER
+
+User-data ::= CHOICE {
+  simply-encoded-data  [APPLICATION 0] IMPLICIT Simply-encoded-data,
+  fully-encoded-data   [APPLICATION 1] IMPLICIT Fully-encoded-data,
+  ...
+}
+
+--  Subclause 8.4 defines when each of the two alternatives shall be used.
+Simply-encoded-data ::= OCTET STRING
+
+--  See 8.4.1.
+--Fully-encoded-data ::= SEQUENCE SIZE (1, ..., 2..MAX) OF PDV-list
+Fully-encoded-data ::= SEQUENCE OF PDV-list
+
+--  contains one or more PDV-list values.
+--  See 8.4.2.
+PDV-list ::= SEQUENCE {
+  transfer-syntax-name             Transfer-syntax-name OPTIONAL,
+  presentation-context-identifier  Presentation-context-identifier,
+  presentation-data-values
+    CHOICE {single-ASN1-type	[0] IMPLICIT OCTET STRING,
+--              [0]  ABSTRACT-SYNTAX.&Type
+--                     (CONSTRAINED BY {
+                        
+                        --  Type corresponding to presentation context identifier  }),
+            octet-aligned     [1] IMPLICIT OCTET STRING,
+            arbitrary         [2] IMPLICIT BIT STRING}
+  --  Contains one or more presentation data values from the same
+  --  presentation context.
+  --  See 8.4.2.
+}
+
+User-session-requirements ::= BIT STRING {
+  half-duplex(0), duplex(1), expedited-data(2), minor-synchronize(3),
+  major-synchronize(4), resynchronize(5), activity-management(6),
+  negotiated-release(7), capability-data(8), exceptions(9), typed-data(10),
+  symmetric-synchronize(11), data-separation(12)}
+
+END
+
+-- Generated by Asnp, the ASN.1 pretty-printer of France Telecom R&D
+

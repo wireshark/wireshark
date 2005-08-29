@@ -1,29 +1,35 @@
+/* Do not modify this file.                                                   */
+/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
+/* .\packet-pres.c                                                            */
+/* ../../tools/asn2eth.py -X -b -e -p pres -c pres.cnf -s packet-pres-template ISO8823-PRESENTATION.asn */
+
+/* Input file: packet-pres-template.c */
+
 /* packet-pres.c
-*
-* Routine to dissect ISO 8823 OSI Presentation Protocol packets
-*
-* $Id$
-*
-* Yuriy Sidelnikov <YSidelnikov@hotmail.com>
-*
-* Ethereal - Network traffic analyzer
-* By Gerald Combs <gerald@ethereal.com>
-* Copyright 1998 Gerald Combs
-*
-* This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 2
-* of the License, or (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-*/
+ * Routine to dissect ISO 8823 OSI Presentation Protocol packets
+ * Based on the dissector by 
+ * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
+ *
+ * $Id$
+ *
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@ethereal.com>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -31,1360 +37,1594 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/conversation.h>
 
 #include <stdio.h>
 #include <string.h>
 
-#include "packet-pres.h"
-#include "packet-frame.h"
-#include <epan/prefs.h>
-
-#include <epan/strutil.h>
-
-#include <epan/asn1.h>
-#include "format-oid.h"
-
+#include "packet-ber.h"
 #include "packet-ses.h"
-extern const value_string ses_vals[];
+#include "packet-pres.h"
 
-/* pres header fields             */
-static int proto_pres          = -1;
+
+#define PNAME  "ISO 8823 OSI Presentation Protocol"
+#define PSNAME "PRES"
+#define PFNAME "pres"
+
+/* Initialize the protocol and registered fields */
+int proto_pres = -1;
 /*   type of session envelop */
 static struct SESSION_DATA_STRUCTURE* session = NULL;
-static int hf_pres_rc_type			= -1;
-static int hf_pres_ms_type			= -1;
-static int hf_pres_seq_type			= -1;
-static int hf_pres_protocol_version =-1;
-/* pres fields defining a sub tree */
-static gint ett_pres           = -1;
-static gint ett_pres_param     = -1;
-static gint ett_pres_rc           = -1;
-static gint ett_pres_ms           = -1;
-static gint ett_pres_itm           = -1;
 
-/*
-----------------------------------------------------------------------------------------------------------*/
-static dissector_handle_t acse_handle = NULL;
-
-static int hf_pres_type        = -1;
-static int hf_pres_length      = -1;
-static int hf_value			   = -1;
-
-
-static int hf_cp_type_message_length = -1;
-
-static int hf_protocol_version       = -1;
-static int hf_context_management       = -1;
-static int hf_restoration       = -1;
-
-
-static const value_string pres_vals[] =
-{
-  {PRES_CONNECTION_REQUEST_CONFIRM,  "Connection request/confirm PDU" },
-  {PRES_CONNECTION_REFUSE,    "Connection refuse PDU"   },
-  {0,             NULL           }
-};
-
-static const value_string cr_vals[] =
-{
-  {MODE_SELECTOR, "Mode Selector"},
-  {SEQUENCE_TOP, "Sequence"},
-  {SET_TOP, "Set"},
-  {0, NULL}
-};
-
-static const value_string sequence_top_vals[] =
-{
-  {CALLED_PRESENTATION_SELECTOR, "Called presentation selector"},
-  {CALLING_PRESENTATION_SELECTOR, "Calling presentation selector"},
-  {PRESENTATION_CONTEXT_DEFINITION_LIST, "Presentation context definition list"},
-  {RESPONDING_PRESENTATION_SELECTOR, "Responding presentation selector"},
-  {PROTOCOL_VERSION, "Protocol version"},
-  {PRESENTATION_CONTEXT_DEFINITION_RESULT_LIST, "Presentation context definition result list"},
-  {PRESENTATION_REQUIREMENTS,"Presentation requirements"},
-  {DEFAULT_CONTEXT_NAME,"Default context name"},
-  {USER_SESSION_REQUIREMENTS,"User session requirements"},
-  {DEFAULT_CONTEXT_RESULT,"Default context result"},
-  {PROVIDER_REASON,"Provider reason"},
-  {0, NULL}
-};
-static const value_string sequence_list_vals[] =
-{
-  {PRESENTATION_CONTEXT_IDENTIFIER,"Presentation context identifier"},
-  {ABSTRACT_SYNTAX_NAME,"Abstract syntax name"},
-  {TRANSFER_SYNTAX_NAMES,"Transfer syntax names"},
-  {0, NULL}
-};
-static const value_string sequence_list_result_vals[] =
-{
-  {PRESENTATION_RESULT,"Result"},
-  {PRESENTATION_RESULT_INTEGER,"Integer"},
-  {PRESENTATION_RESULT_TRANSFER_SYNTAX_NAME,"Transfer syntax name"},
-  {0, NULL}
-};
-static const value_string presentation_context_definition_vals[] =
-{
-  {SEQUENCE, "Sequence"},
-  {0, NULL}
-};
-static const value_string sequence_list_result_values_vals[] =
-{
-  {PRESENTATION_RESULT_ACCEPTANCE,"Acceptance"},
-  {PRESENTATION_RESULT_USER_REJECTION,"User rejection"},
-  {PRESENTATION_RESULT_PROVIDER_REJECTION,"Provider rejection"},
-  {0, NULL}
-};
-static const value_string provider_reason_values_vals[] =
-{
-  {REASON_NOT_SPECIFIED,"Reason not specified"},
-  {TEMPORARY_CONGESTION,"Temporary congestion"},
-  {LOCAL_LIMIT_EXCEEDED,"Local limit exceeded"},
-  {CALLED_PRESENTATION_ADDRESS_UNKNOWN,"Called presentation address unknown"},
-  {PROTOCOL_VERSION_NOT_SUPPORTED,"Protocol version not supported"},
-  {DEFAULT_CONTEXT_NOT_SUPPORTED,"Default context not supported"},
-  {USER_DATA_NOT_READABLE,"User data not readable"},
-  {NO_PSAP_AVAILABLE,"No PSAP available"},
-  {0, NULL}
-};
-
-static const value_string user_data_values_vals[] =
-{
-  {SIMPLY_ENCODED_DATA,"Simply encoded data"},
-  {FULLY_ENCODED_DATA,"Fully encoded data "},
-  {0, NULL}
-};
-static const value_string presentation_data_values[] =
-{
-  {PRESENTATION_CONTEXT_IDENTIFIER,"Presentation context identifier"},
-  {SINGLE_ASN1_TYPE,"Single ASN.1 type"},
-  {OCTET_ALIGNED,"Octet aligned"},
-  {ARBITRARY,"Arbitrary"},
-  {DATA_BLOCK,"Data block"},
-  {0, NULL}
-};
-static const value_string provider_abort_values_vals[] =
-{
-  {PR_REASON_NOT_SPECIFIED,"Reason not specified"},
-  {UNRECOGNIZED_PDU,"Unrecognized ppdu"},
-  {UNEXPECTED_PDU,"Unexpected ppdu"},
-  {UNEXPECTED_SESSION_SERVICE_PRIMITIVE,"Unexpected session service primitive"},
-  {UNRECOGNIZED_PPDU_PARAMETER,"Unrecognized ppdu parameter"},
-  {UNEXPECTED_PPDU_PARAMETER,"Unexpected ppdu parameter"},
-  {INVALID_PPDU_PARAMETER_VALUE,"Invalid ppdu parameter value"},
-  {0, NULL}
-};
-static const value_string event_identifier_values_vals[] =
-{
-  {REASON_CP_PPDU,"cp PPDU"},
-  {REASON_CPA_PPDU,"cpa PPDU"},
-  {REASON_CPR_PPDU,"cpr PPDU"},
-  {REASON_ARU_PPDU,"aru PPDU"},
-  {REASON_ARP_PPDU,"arp PPDU"},
-  {REASON_AC_PPDU,"ac PPDU"},
-  {REASON_ACA_PPDU,"aca PPDU"},
-  {REASON_TD_PPDU,"td PPDU"},
-  {REASON_TTD_PPDU,"td PPDU"},
-  {REASON_TE_PPDU,"te PPDU"},
-  {REASON_TC_PPDU,"tc PPDU"},
-  {REASON_TCC_PPDU,"tcc PPDU"},
-  {REASON_RS_PPDU,"rs PPDU"},
-  {REASON_RSA_PPDU,"rsa PPDU"},
-  {S_RELEASE_INDICATION,"s release indication"},
-  {S_RELEASE_CONFIRM,"s release confirm"},
-  {S_TOKEN_GIVE_INDICATION,"s token give indication"},
-  {S_TOKEN_PLEASE_INDICATION,"s token please indication"},
-  {S_CONTROL_GIVE_INDICATION,"s control give indication"},
-  {S_SYNC_MINOR_INDICATION,"s sync minor indication"},
-  {S_SYNC_MINOR_CONFIRM,"s sync minor confirm"},
-  {S_SYNC_MAJOR_INDICATION,"s sync major indication"},
-  {S_SYNC_MAJOR_CONFIRM,"s sync major confirm"},
-  {S_P_EXCEPTION_REPORT_INDICATION,"s p exception report indication"},
-  {S_U_EXCEPTION_REPORT_INDICATION,"s u exception report indication"},
-  {S_ACTIVITY_START_INDICATION,"s activity start indication"},
-  {S_ACTIVITY_RESUME_INDICATION,"s activity resume indication"},
-  {S_ACTIVITY_INTERRUPT_INDICATION,"s activity interrupt indication"},
-  {S_ACTIVITY_INTERRUPT_CONFIRM,"s activity interrupt confirm"},
-  {S_ACTIVITY_DISCARD_INDICATION,"s activity discard indication"},
-  {S_ACTIVITY_DISCARD_CONFIRM,"s activity discard confirm"},
-  {S_ACTIVITY_END_INDICATION,"s activity end indication"},
-  {S_ACTIVITY_END_CONFIRM,"s activity end confirm"},
-  {0, NULL}
-};
 /*      pointers for acse dissector  */
 proto_tree *global_tree  = NULL;
 packet_info *global_pinfo = NULL;
 /* dissector for data */
 static dissector_handle_t data_handle;
+static dissector_handle_t acse_handle;
 
-static void
-call_acse_dissector(tvbuff_t *tvb, gint offset, gint param_len,
-    packet_info *pinfo, proto_tree *tree, proto_tree *param_tree)
-{
-	/* do we have OSI acse/rose packet dissector ? */
-	if(!acse_handle)
-	{
-		/* No - display as data */
-		if (tree)
-		{
-			proto_tree_add_text(param_tree, tvb, offset, param_len,
-			    "No ACSE dissector available");
-		}
-	}
-	else
-	{
-		/* Yes - call app dissector */
-		tvbuff_t *next_tvb;
 
-		next_tvb = tvb_new_subset(tvb, offset, param_len, param_len);
-		TRY
-		{
-			call_dissector(acse_handle, next_tvb, pinfo, tree);
-		}
-		CATCH_ALL
-		{
-			show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
-		}
-		ENDTRY;
-	}
-}
+/*--- Included file: packet-pres-hf.c ---*/
 
-static int read_length(ASN1_SCK *a, proto_tree *tree, int hf_id, guint *len)
-{
-  guint length = 0;
-  gboolean def = FALSE;
-  int start = a->offset;
-  int ret;
+static int hf_pres_checkpointSize = -1;           /* INTEGER */
+static int hf_pres_windowSize = -1;               /* INTEGER */
+static int hf_pres_dialogueMode = -1;             /* T_dialogueMode */
+static int hf_pres_connectionDataRQ = -1;         /* ConnectionData */
+static int hf_pres_applicationProtocol = -1;      /* INTEGER */
+static int hf_pres_connectionDataAC = -1;         /* ConnectionData */
+static int hf_pres_refuseReason = -1;             /* RefuseReason */
+static int hf_pres_userDataRJ = -1;               /* OPEN */
+static int hf_pres_abortReason = -1;              /* AbortReason */
+static int hf_pres_reflectedParameter = -1;       /* BIT_STRING */
+static int hf_pres_userdataAB = -1;               /* OPEN */
+static int hf_pres_open = -1;                     /* OPEN */
+static int hf_pres_recover = -1;                  /* SessionConnectionIdentifier */
+static int hf_pres_callingSSuserReference = -1;   /* CallingSSuserReference */
+static int hf_pres_commonReference = -1;          /* CommonReference */
+static int hf_pres_additionalReferenceInformation = -1;  /* AdditionalReferenceInformation */
+static int hf_pres_t61String = -1;                /* T61String */
+static int hf_pres_octetString = -1;              /* OCTET_STRING */
+static int hf_pres_mode_selector = -1;            /* Mode_selector */
+static int hf_pres_x410_mode_parameters = -1;     /* RTORQapdu */
+static int hf_pres_normal_mode_parameters = -1;   /* T_normal_mode_parameters */
+static int hf_pres_protocol_version = -1;         /* Protocol_version */
+static int hf_pres_calling_presentation_selector = -1;  /* Calling_presentation_selector */
+static int hf_pres_called_presentation_selector = -1;  /* Called_presentation_selector */
+static int hf_pres_presentation_context_definition_list = -1;  /* Presentation_context_definition_list */
+static int hf_pres_default_context_name = -1;     /* Default_context_name */
+static int hf_pres_presentation_requirements = -1;  /* Presentation_requirements */
+static int hf_pres_user_session_requirements = -1;  /* User_session_requirements */
+static int hf_pres_protocol_options = -1;         /* Protocol_options */
+static int hf_pres_initiators_nominated_context = -1;  /* Presentation_context_identifier */
+static int hf_pres_extensions = -1;               /* T_extensions */
+static int hf_pres_user_data = -1;                /* User_data */
+static int hf_pres_x410_mode_parameters1 = -1;    /* RTOACapdu */
+static int hf_pres_normal_mode_parameters1 = -1;  /* T_normal_mode_parameters1 */
+static int hf_pres_responding_presentation_selector = -1;  /* Responding_presentation_selector */
+static int hf_pres_presentation_context_definition_result_list = -1;  /* Presentation_context_definition_result_list */
+static int hf_pres_responders_nominated_context = -1;  /* Presentation_context_identifier */
+static int hf_pres_x400_mode_parameters = -1;     /* RTORJapdu */
+static int hf_pres_normal_mode_parameters2 = -1;  /* T_normal_mode_parameters2 */
+static int hf_pres_default_context_result = -1;   /* Default_context_result */
+static int hf_pres_provider_reason = -1;          /* Provider_reason */
+static int hf_pres_aru_ppdu = -1;                 /* ARU_PPDU */
+static int hf_pres_arp_ppdu = -1;                 /* ARP_PPDU */
+static int hf_pres_x400_mode_parameters1 = -1;    /* RTABapdu */
+static int hf_pres_normal_mode_parameters3 = -1;  /* T_normal_mode_parameters3 */
+static int hf_pres_presentation_context_identifier_list = -1;  /* Presentation_context_identifier_list */
+static int hf_pres_provider_reason1 = -1;         /* Abort_reason */
+static int hf_pres_event_identifier = -1;         /* Event_identifier */
+static int hf_pres_acPPDU = -1;                   /* AC_PPDU */
+static int hf_pres_acaPPDU = -1;                  /* ACA_PPDU */
+static int hf_pres_ttdPPDU = -1;                  /* User_data */
+static int hf_pres_presentation_context_addition_list = -1;  /* Presentation_context_addition_list */
+static int hf_pres_presentation_context_deletion_list = -1;  /* Presentation_context_deletion_list */
+static int hf_pres_presentation_context_addition_result_list = -1;  /* Presentation_context_addition_result_list */
+static int hf_pres_presentation_context_deletion_result_list = -1;  /* Presentation_context_deletion_result_list */
+static int hf_pres_Context_list_item = -1;        /* Context_list_item */
+static int hf_pres_presentation_context_identifier = -1;  /* Presentation_context_identifier */
+static int hf_pres_abstract_syntax_name = -1;     /* Abstract_syntax_name */
+static int hf_pres_transfer_syntax_name_list = -1;  /* SEQUENCE_OF_Transfer_syntax_name */
+static int hf_pres_transfer_syntax_name_list_item = -1;  /* Transfer_syntax_name */
+static int hf_pres_transfer_syntax_name = -1;     /* Transfer_syntax_name */
+static int hf_pres_mode_value = -1;               /* T_mode_value */
+static int hf_pres_Presentation_context_deletion_list_item = -1;  /* Presentation_context_identifier */
+static int hf_pres_Presentation_context_deletion_result_list_item = -1;  /* Presentation_context_deletion_result_list_item */
+static int hf_pres_Presentation_context_identifier_list_item = -1;  /* Presentation_context_identifier_list_item */
+static int hf_pres_Result_list_item = -1;         /* Result_list_item */
+static int hf_pres_result = -1;                   /* Result */
+static int hf_pres_provider_reason2 = -1;         /* T_provider_reason */
+static int hf_pres_simply_encoded_data = -1;      /* Simply_encoded_data */
+static int hf_pres_fully_encoded_data = -1;       /* Fully_encoded_data */
+static int hf_pres_Fully_encoded_data_item = -1;  /* PDV_list */
+static int hf_pres_presentation_data_values = -1;  /* T_presentation_data_values */
+static int hf_pres_single_ASN1_type = -1;         /* T_single_ASN1_type */
+static int hf_pres_octet_aligned = -1;            /* OCTET_STRING */
+static int hf_pres_arbitrary = -1;                /* BIT_STRING */
+/* named bits */
+static int hf_pres_Presentation_requirements_context_management = -1;
+static int hf_pres_Presentation_requirements_restoration = -1;
+static int hf_pres_Protocol_options_nominated_context = -1;
+static int hf_pres_Protocol_options_short_encoding = -1;
+static int hf_pres_Protocol_options_packed_encoding_rules = -1;
+static int hf_pres_Protocol_version_version_1 = -1;
+static int hf_pres_User_session_requirements_half_duplex = -1;
+static int hf_pres_User_session_requirements_duplex = -1;
+static int hf_pres_User_session_requirements_expedited_data = -1;
+static int hf_pres_User_session_requirements_minor_synchronize = -1;
+static int hf_pres_User_session_requirements_major_synchronize = -1;
+static int hf_pres_User_session_requirements_resynchronize = -1;
+static int hf_pres_User_session_requirements_activity_management = -1;
+static int hf_pres_User_session_requirements_negotiated_release = -1;
+static int hf_pres_User_session_requirements_capability_data = -1;
+static int hf_pres_User_session_requirements_exceptions = -1;
+static int hf_pres_User_session_requirements_typed_data = -1;
+static int hf_pres_User_session_requirements_symmetric_synchronize = -1;
+static int hf_pres_User_session_requirements_data_separation = -1;
 
-  ret = asn1_length_decode(a, &def, &length);
-  if (ret != ASN1_ERR_NOERROR)
-  {
-    if (tree)
-	{
-      proto_tree_add_text(tree, a->tvb, start, 0,
-        "%s: ERROR: Couldn't parse length: %s",
-        proto_registrar_get_name(hf_id), asn1_err_to_str(ret));
-    }
-    return ret;
-  }
+/*--- End of included file: packet-pres-hf.c ---*/
 
-  if (len)
-    *len = length;
 
-  if (hf_id)
-    proto_tree_add_uint(tree, hf_id, a->tvb, start, a->offset-start, 
-length);
+/* Initialize the subtree pointers */
+static gint ett_pres           = -1;
 
-  return ASN1_ERR_NOERROR;
-}
-static int read_integer_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
-	proto_item **new_item, guint *i, int start, guint length)
-{
-  guint integer = 0;
-  proto_item *temp_item = NULL;
-  int ret;
 
-  ret = asn1_uint32_value_decode(a, length, &integer);
-  if (ret != ASN1_ERR_NOERROR)
-  {
-    if (tree)
-	{
-      proto_tree_add_text(tree, a->tvb, start, 0,
-       "%s: ERROR: Couldn't parse value: %s",
-        proto_registrar_get_name(hf_id), asn1_err_to_str(ret));
-    }
-    return ret;
-  }
+/*--- Included file: packet-pres-ett.c ---*/
 
-  if (i)
-    *i = integer;
+static gint ett_pres_RTORQapdu = -1;
+static gint ett_pres_RTOACapdu = -1;
+static gint ett_pres_RTORJapdu = -1;
+static gint ett_pres_RTABapdu = -1;
+static gint ett_pres_ConnectionData = -1;
+static gint ett_pres_SessionConnectionIdentifier = -1;
+static gint ett_pres_CallingSSuserReference = -1;
+static gint ett_pres_CP_type = -1;
+static gint ett_pres_T_normal_mode_parameters = -1;
+static gint ett_pres_T_extensions = -1;
+static gint ett_pres_CPA_PPDU = -1;
+static gint ett_pres_T_normal_mode_parameters1 = -1;
+static gint ett_pres_CPR_PPDU = -1;
+static gint ett_pres_T_normal_mode_parameters2 = -1;
+static gint ett_pres_Abort_type = -1;
+static gint ett_pres_ARU_PPDU = -1;
+static gint ett_pres_T_normal_mode_parameters3 = -1;
+static gint ett_pres_ARP_PPDU = -1;
+static gint ett_pres_Typed_data_type = -1;
+static gint ett_pres_AC_PPDU = -1;
+static gint ett_pres_ACA_PPDU = -1;
+static gint ett_pres_RS_PPDU = -1;
+static gint ett_pres_RSA_PPDU = -1;
+static gint ett_pres_Context_list = -1;
+static gint ett_pres_Context_list_item = -1;
+static gint ett_pres_SEQUENCE_OF_Transfer_syntax_name = -1;
+static gint ett_pres_Default_context_name = -1;
+static gint ett_pres_Mode_selector = -1;
+static gint ett_pres_Presentation_context_deletion_list = -1;
+static gint ett_pres_Presentation_context_deletion_result_list = -1;
+static gint ett_pres_Presentation_context_identifier_list = -1;
+static gint ett_pres_Presentation_context_identifier_list_item = -1;
+static gint ett_pres_Presentation_requirements = -1;
+static gint ett_pres_Protocol_options = -1;
+static gint ett_pres_Protocol_version = -1;
+static gint ett_pres_Result_list = -1;
+static gint ett_pres_Result_list_item = -1;
+static gint ett_pres_User_data = -1;
+static gint ett_pres_Fully_encoded_data = -1;
+static gint ett_pres_PDV_list = -1;
+static gint ett_pres_T_presentation_data_values = -1;
+static gint ett_pres_User_session_requirements = -1;
 
-  if (hf_id)
-    temp_item = proto_tree_add_uint(tree, hf_id, a->tvb, start, 
-a->offset-start, integer);
+/*--- End of included file: packet-pres-ett.c ---*/
 
-  if (new_item)
-    *new_item = temp_item;
 
-  return ASN1_ERR_NOERROR;
-}
 
-static int read_integer(ASN1_SCK *a, proto_tree *tree, int hf_id,
-	proto_item **new_item, guint *i)
-{
-  guint cls, con, tag;
-  gboolean def;
-  guint length;
-  int start = a->offset;
-  int ret;
+/*--- Included file: packet-pres-fn.c ---*/
 
-  ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
-  if (ret != ASN1_ERR_NOERROR)
-  {
-    if (tree)
-	{
-      proto_tree_add_text(tree, a->tvb, start, 0,
-        "%s: ERROR: Couldn't parse header: %s",
-        (hf_id != -1) ? proto_registrar_get_name(hf_id) : "LDAP message",
-        asn1_err_to_str(ret));
-    }
-    return ret;
-  }
+/*--- Fields for imported types ---*/
 
-  return read_integer_value(a, tree, hf_id, new_item, i, start, length);
-}
-/*   display asn.1 Integer type */
-static void
-show_integer(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t *tvb,int 
-*offset,int item_len)
-{
-	  proto_tree *pres_tree_itm = NULL;
-	  proto_item *itm;
-	  int       ret;
-	  int		save_len = item_len;
-	  int		off      = *offset;
-	  itm = proto_tree_add_text(pres_tree, tvb, *offset, item_len,
-										"Integer");
-	  pres_tree_itm = proto_item_add_subtree(itm, ett_pres_itm);
-	  ret = read_integer(asn,pres_tree_itm,0,NULL,&item_len);
-	  if (ret == ASN1_ERR_NOERROR )
-			{
-				*offset = asn->offset;
-				itm = proto_tree_add_text(pres_tree_itm, tvb, (*offset)-item_len, 
-item_len,
-											"Integer value: %u",item_len);
-			}
-	  else
-			{
-		  /* can't dissect item. Skip it. */
-		  *offset = off+ save_len;
-			}
 
-}
-static void
-show_presentation_requirements(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t 
-*tvb,int *offset,int item_len,int tag)
-{
-	  proto_tree *pres_tree_itm = NULL;
-	  proto_item *itm;
-	  guint16       flags;
-	  gint length;
-/* do we have enough bytes to dissect this item ? */
-			if( ( length = tvb_reported_length_remaining(tvb, *offset))  < 
-(asn->offset -*offset)+ item_len )
-			{
-					proto_tree_add_text(pres_tree, tvb, *offset, item_len,
-							"Wrong Item.Need %u bytes but have %u", item_len,length);
-					return;
-			}
 
-	  itm = proto_tree_add_text(pres_tree, tvb, *offset,(asn->offset -*offset)+ 
-item_len,
-											val_to_str(tag, sequence_top_vals,"Unknown item (0x%02x)"));
-	  pres_tree_itm = proto_item_add_subtree(itm, ett_pres_itm);
-	  *offset = asn->offset;
-	  flags = tvb_get_ntohs(tvb, *offset);
-	  proto_tree_add_boolean(pres_tree_itm,hf_context_management, tvb, *offset, 
-2, flags);
-	  proto_tree_add_boolean(pres_tree_itm,hf_restoration, tvb, *offset, 2, 
-flags);
-	  *offset = *offset + item_len;
-	  asn->offset = *offset;
-}
-
-static void
-show_protocol_version(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t *tvb,int 
-*offset,int item_len,int tag)
-{
-	  proto_tree *pres_tree_itm = NULL;
-	  proto_item *itm;
-	  guint16       flags;
-	  gint length;
-/* do we have enough bytes to dissect this item ? */
-			if( ( length = tvb_reported_length_remaining(tvb, *offset))  < 
-(asn->offset -*offset)+ item_len )
-			{
-					proto_tree_add_text(pres_tree, tvb, *offset, item_len,
-							"Wrong Item.Need %u bytes but have %u", item_len,length);
-					return;
-			}
-
-	  itm = proto_tree_add_text(pres_tree, tvb, *offset,(asn->offset -*offset)+ 
-item_len,
-											val_to_str(tag, sequence_top_vals,"Unknown item (0x%02x)"));
-	  pres_tree_itm = proto_item_add_subtree(itm, ett_pres_itm);
-	  *offset = asn->offset;
-	  flags = tvb_get_ntohs(tvb, *offset);
-	  proto_tree_add_boolean(pres_tree_itm,hf_protocol_version, tvb, *offset, 
-2, flags);
-	  *offset = *offset + item_len;
-	  asn->offset = *offset;
-}
-static void
-print_oid_value(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t *tvb,int 
-*offset,int item_len)
-{
-	guint		ret;
-	subid_t		*oid;
-	guint		len;
-	gchar		*display_string;
-	guint		length;
-	guint		start=*offset;
-
-		ret = asn1_oid_value_decode (asn, item_len, &oid, &len);
-		if (ret != ASN1_ERR_NOERROR)
-		{
-			return ;
-		}
-		length = asn->offset - start;
-		display_string = format_oid(oid, len);
-		proto_tree_add_text(pres_tree, tvb, *offset,length,"Value:%s", 
-display_string);
-		(*offset)=start+item_len;
-		asn->offset = (*offset);
-}
-static void
-print_oid(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t *tvb,int *offset,int 
-item_len)
-{
-	guint		ret;
-	subid_t		*oid;
-	guint		len;
-	guint		nbytes;
-	gchar		*display_string;
-	guint		length;
-	guint		start=*offset;
-
-		ret = asn1_oid_decode ( asn, &oid, &len, &nbytes);
-
-		if (ret != ASN1_ERR_NOERROR)
-		{
-			return ;
-		}
-		length = asn->offset - start;
-		display_string = format_oid(oid, len);
-		proto_tree_add_text(pres_tree, tvb, *offset,length,"Value:%s", 
-display_string);
-		(*offset)=start+item_len;
-		asn->offset = (*offset);
-}
-
-static void
-print_value(ASN1_SCK *asn,proto_tree *pres_tree, tvbuff_t *tvb, int *offset, int item_len)
-{
-    gint    start = *offset;
-    gchar  *tmp;
-
-    *offset = asn->offset;  /* align to data*/
-    tmp = tvb_bytes_to_str(tvb, *offset, item_len);
-    proto_tree_add_text(pres_tree, tvb, *offset, item_len, tmp);
-    (*offset) = start+item_len;
-    asn->offset = (*offset);
-}
 
 static int
-get_integer_value(ASN1_SCK *asn,int length,int *offset)
-{
-	int off = *offset;
-	int asn_off = asn->offset;
-	int item_len = -1;
-	int ret;
-	/* align   pointers */
-	*offset=asn->offset;
-	ret = asn1_uint32_value_decode(asn, length, &item_len);
-	/* return to present position */
-	*offset = off;
-	asn->offset = asn_off;
+dissect_pres_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
 
-    if (ret != ASN1_ERR_NOERROR )
-	{
-		return -1;
-	}
-	else
-	{
-		return item_len;
-	}
-
+  return offset;
 }
-static void
-show_presentation_context_definition_result_seq(ASN1_SCK *asn,proto_tree 
-*pres_tree,tvbuff_t *tvb,int *offset,int item_len)
-{
-	  proto_tree *pres_tree_ms = NULL;
-	  guint length;
-	  guint   type;
-	  proto_item *ms;
-	  guint   new_item_len;
-	  guint   start = *offset;
-	  guint   header_len;
-	  int		old_offset;
-
-			/*  print seq */
-			while ( item_len > 0 && tvb_reported_length_remaining(tvb, *offset) > 0 )
-			{
-				old_offset = *offset ;
-			/*  get item type  */
-			type = tvb_get_guint8(tvb, *offset);
-			/* skip type */
-			(*offset)++;
-			asn->offset = *offset;
-			/* get length  */
-				if (read_length(asn, pres_tree, 0, &new_item_len) != ASN1_ERR_NOERROR)
-				{
-					(*offset)=start+item_len;
-					asn->offset = (*offset);
-					return  ;
-				}
-
-			/* do we have enough bytes to dissect ? */
-			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < 
-new_item_len )
-			{
-					proto_tree_add_text(pres_tree, tvb, *offset, new_item_len,
-							"Wrong item.Need %u bytes but have %u", new_item_len,length);
-					(*offset)=start+item_len;
-					asn->offset = (*offset);
-				    return ;
-			}
-				header_len = asn->offset - (*offset) +1;
-				ms = proto_tree_add_text(pres_tree, tvb, *offset-1, 
-new_item_len+(asn->offset-*offset)+1,
-										val_to_str(type, sequence_list_result_vals,
-										"Unknown item (0x%02x)"));
-				pres_tree_ms = proto_item_add_subtree(ms, ett_pres_ms);
-				*offset = asn->offset;
-
-
-			switch(type)
-				{
-			case PRESENTATION_RESULT:
-				{
-					proto_tree *pres_tree_pr = NULL;
-					proto_item *pr;
-					int        value	=	get_integer_value(asn,new_item_len,offset);
-				pr = proto_tree_add_text(pres_tree_ms, tvb, *offset, 
-new_item_len+(asn->offset-*offset),
-								val_to_str(value ,sequence_list_result_values_vals,
-								"Unknown item (0x%02x)"));
-				pres_tree_pr = proto_item_add_subtree(pr, ett_pres_ms);
-
-				print_value(asn,pres_tree_pr,tvb,offset,new_item_len);
-				}
-					break;
-			case PRESENTATION_RESULT_INTEGER:
-				print_value(asn,pres_tree_ms,tvb,offset,new_item_len);
-					break;
-			case PRESENTATION_RESULT_TRANSFER_SYNTAX_NAME:
-				print_oid_value(asn,pres_tree_ms,tvb,offset,new_item_len);
-					break;
-
-			default:
-					proto_tree_add_text(pres_tree, tvb, *offset, 
-new_item_len+(asn->offset-*offset),
-					"Unknown asn.1 parameter: (0x%02x)", type);
-				}
-				*offset = old_offset+new_item_len+header_len;
-				item_len-=new_item_len+header_len;
-			}
-			/*   align the pointer */
-			(*offset)=start+item_len;
-			asn->offset = (*offset);
+static int dissect_checkpointSize_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_pres_checkpointSize);
+}
+static int dissect_windowSize_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_pres_windowSize);
+}
+static int dissect_applicationProtocol_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_pres_applicationProtocol);
 }
 
-static void
-show_presentation_context_definition_seq(ASN1_SCK *asn,proto_tree 
-*pres_tree,tvbuff_t *tvb,int *offset,int item_len)
-{
-	  proto_tree *pres_tree_ms = NULL;
-	  guint length;
-	  guint   type;
-	  proto_item *ms;
-	  guint   new_item_len;
-	  guint   start = *offset;
-	  guint   header_len;
-	  int		old_offset;
 
-			/*  print seq */
-			while ( item_len > 0 && tvb_reported_length_remaining(tvb, *offset) > 0 )
-			{
-				old_offset = *offset ;
-			/*  get item type  */
-			type = tvb_get_guint8(tvb, *offset);
-			/* skip type */
-			(*offset)++;
-			asn->offset = *offset;
-			/* get length  */
-				if (read_length(asn, pres_tree, 0, &new_item_len) != ASN1_ERR_NOERROR)
-				{
-					(*offset)=start+item_len;
-					asn->offset = (*offset);
-					return  ;
-				}
-
-			/* do we have enough bytes to dissect ? */
-			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < 
-new_item_len )
-			{
-					proto_tree_add_text(pres_tree, tvb, *offset, new_item_len,
-							"Wrong item.Need %u bytes but have %u", new_item_len,length);
-					(*offset)=start+item_len;
-					asn->offset = (*offset);
-				    return ;
-			}
-				header_len = asn->offset - (*offset) +1;
-				ms = proto_tree_add_text(pres_tree, tvb, *offset-1, 
-new_item_len+(asn->offset-*offset)+1,
-										val_to_str(type, sequence_list_vals,
-										"Unknown item (0x%02x)"));
-				pres_tree_ms = proto_item_add_subtree(ms, ett_pres_ms);
-				*offset = asn->offset;
+static const value_string pres_T_dialogueMode_vals[] = {
+  {   0, "monologue" },
+  {   1, "twa" },
+  { 0, NULL }
+};
 
 
-			switch(type)
-				{
-			case PRESENTATION_CONTEXT_IDENTIFIER:
-				print_value(asn,pres_tree_ms,tvb,offset,new_item_len);
-					break;
-			case ABSTRACT_SYNTAX_NAME:
-				print_oid_value(asn,pres_tree_ms,tvb,offset,new_item_len);
-					break;
-			case TRANSFER_SYNTAX_NAMES:
-				print_oid(asn,pres_tree_ms,tvb,offset,new_item_len);
-					break;
-			default:
-					proto_tree_add_text(pres_tree, tvb, *offset, 
-new_item_len+(asn->offset-*offset),
-					"Unknown asn.1 parameter: (0x%02x)", type);
-				}
-				*offset = old_offset+new_item_len+header_len;
-				item_len-=new_item_len+header_len;
-			}
-			/*   align the pointer */
-			(*offset)=start+item_len;
-			asn->offset = (*offset);
+static int
+dissect_pres_T_dialogueMode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
 }
-static void
-show_fully_encoded_seq(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t *tvb,int 
-*offset,int item_len)
-{
-	  proto_tree *pres_tree_ms = NULL;
-	  guint length;
-	  guint   type;
-	  proto_item *ms;
-	  guint   new_item_len;
-	  guint   start = *offset;
-	  guint   header_len;
-	  guint   acse = 0;      /*   no acse   id   */
-	  int		old_offset;
-			/*  print seq */
-			while ( item_len > 0 && tvb_reported_length_remaining(tvb, *offset) > 0 )
-			{
-				old_offset = *offset ;
-			/*  get item type  */
-			type = tvb_get_guint8(tvb, *offset);
-			/* skip type */
-			(*offset)++;
-			asn->offset = *offset;
-			/* get length  */
-				if (read_length(asn, pres_tree, 0, &new_item_len) != ASN1_ERR_NOERROR)
-				{
-					(*offset)=start+item_len;
-					asn->offset = (*offset);
-					return  ;
-				}
-			/* do we have enough bytes to dissect ? */
-			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < 
-new_item_len )
-			{
-					proto_tree_add_text(pres_tree, tvb, *offset, new_item_len,
-							"Wrong item.Need %u bytes but have %u", new_item_len,length);
-					(*offset)=start+item_len;
-					asn->offset = (*offset);
-				    return ;
-			}
-			if(!new_item_len && length>2)
-			{
-					new_item_len = length-1;  /* can't get length from asn1 tag. Use rest of the pdu len. */
-			}
-				header_len = asn->offset - (*offset) +1;
-				ms = proto_tree_add_text(pres_tree, tvb, *offset-1, 
-new_item_len+(asn->offset-*offset)+1,
-										val_to_str(type, presentation_data_values,
-										"Unknown item (0x%02x)"));
-				pres_tree_ms = proto_item_add_subtree(ms, ett_pres_ms);
-				*offset = asn->offset;
-
-
-			switch(type)
-				{
-			case PRESENTATION_CONTEXT_IDENTIFIER:
-				{
-				acse	=	get_integer_value(asn,new_item_len,offset);
-				print_value(asn,pres_tree_ms,tvb,offset,new_item_len);
-				if(session){
-					session->pres_ctx_id=acse;
-				}
-				}
-					break;
-			case OCTET_ALIGNED:
-			case DATA_BLOCK:
-				{
-						proto_item *acse_ms;
-					/*  yes, we have to call ACSE dissector    */
-				acse_ms = proto_tree_add_text(pres_tree_ms, tvb, *offset,new_item_len+(asn->offset-*offset),
-										"User data");
-
-				session->abort_type = DATA_BLOCK;
-					/*  call acse dissector  */
-				call_acse_dissector(tvb,*offset,new_item_len,global_pinfo,global_tree,pres_tree_ms);
-				}
-					break;
-			case SINGLE_ASN1_TYPE:
-
-				{
-						proto_item *acse_ms;
-					/*  yes, we have to call ACSE dissector    */
-				acse_ms = proto_tree_add_text(pres_tree_ms, tvb, *offset, 
-new_item_len+(asn->offset-*offset),
-										"User data");
-					/*  call acse dissector  */
-				call_acse_dissector(tvb,*offset,new_item_len,global_pinfo,global_tree,pres_tree_ms);
-				acse = 0;
-				}
-					break;
-			case ARBITRARY:
-				print_value(asn,pres_tree_ms,tvb,offset,new_item_len);
-					break;
-			default:
-					proto_tree_add_text(pres_tree, tvb, *offset, 
-new_item_len+(asn->offset-*offset),
-					"Unknown asn.1 parameter: (0x%02x)", type);
-				}
-				*offset = old_offset+new_item_len+header_len;
-				item_len-=new_item_len+header_len;
-			}
-			/*   align the pointer */
-			(*offset)=start+item_len;
-			asn->offset = (*offset);
-
-}
-static void
-show_fully_encoded_data(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t 
-*tvb,int *offset,int item_len)
-{
-	  proto_tree *pres_tree_ms = NULL;
-	  proto_tree *pres_tree_pc = NULL;
-	  gint    length;
-	  guint   type;
-	  guint   header_len;
-	  proto_item *ms;
-	  gint   new_item_len;
-	  guint   start = asn->offset;
-	  guint	  item_length = item_len;
-	  pres_tree_pc = pres_tree;
-
-/* do we have enough bytes to dissect ? */
-			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < item_len )
-			{
-					proto_tree_add_text(pres_tree_pc, tvb, *offset, item_len,
-							"Wrong item.Need %u bytes but have %u", item_len,length);
-					/*   align the pointer */
-					(*offset)=start+item_length;
-					asn->offset = (*offset);
-					return ;
-			}
-			*offset =asn->offset;
-			start = *offset;
-			/*  read the rest */
-			while ( item_len > 0 && tvb_reported_length_remaining(tvb, *offset) > 0 )
-			{
-				int old_offset = *offset;
-			/*  get item type  */
-			type = tvb_get_guint8(tvb, *offset);
-			/* skip type */
-			(*offset)++;
-			asn->offset = *offset;
-			/* get length  */
-				if (read_length(asn, pres_tree_pc, 0, &new_item_len) != 
-ASN1_ERR_NOERROR)
-				{
-					/*   align the pointer */
-					(*offset)=start+item_length;
-					asn->offset = (*offset);
-					return  ;
-				}
-				header_len = asn->offset - (*offset) +1;
-			/* do we have enough bytes to dissect ? */
-			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < 
-new_item_len )
-			{
-					proto_tree_add_text(pres_tree_pc, tvb, *offset, new_item_len,
-							"Wrong item.Need %u bytes but have %u", new_item_len,length);
-					/*   align the pointer */
-					(*offset)=start+item_length;
-					asn->offset = (*offset);
-					return ;
-			}
-			if(!new_item_len && length>2)
-			{
-				/* check if really do have what to dissect */
-				new_item_len = length-1;
-			}
-				ms = proto_tree_add_text(pres_tree_pc, tvb, *offset-1, 
-new_item_len+(asn->offset-*offset)+1,
-										val_to_str(type, presentation_context_definition_vals,
-										"Unknown item (0x%02x)"));
-				pres_tree_ms = proto_item_add_subtree(ms, ett_pres_ms);
-				*offset = asn->offset;
-
-
-			switch(type)
-				{
-
-			case SEQUENCE:
-			show_fully_encoded_seq(asn,pres_tree_ms,tvb,offset,new_item_len);
-			*offset = old_offset+(new_item_len+header_len);
-					break;
-
-			default:
-					proto_tree_add_text(pres_tree_ms, tvb, *offset, 
-new_item_len+(asn->offset-*offset),
-					"Unknown asn.1 parameter: (0x%02x)", type);
-					*offset = old_offset+(new_item_len+header_len);
-				}
-				item_len = item_len -  (new_item_len+header_len);
-
-			}
-
-
-					/*   align the pointer */
-					(*offset)=start+item_length;
-					asn->offset = (*offset);
-}
-static void
-show_session_provider_abort(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t 
-*tvb,int *offset,int item_len)
-{
-	gint length;
-	gint		value;
-    proto_tree *pres_tree_pc = NULL;
-    proto_tree *pres_tree_pp = NULL;
-	proto_item *itu;
-	gint   new_item_len;
-
-
-/* do we have enough bytes to dissect this item ? */
-			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < item_len )
-			{
-					proto_tree_add_text(pres_tree, tvb, *offset, item_len,
-							"Wrong Item.Need %u bytes but have %u", item_len,length);
-							*offset = asn->offset;
-							return;
-			}
-			itu = proto_tree_add_text(pres_tree, tvb, *offset,item_len,
-					"Provider abort");
-			pres_tree_pp = proto_item_add_subtree(itu, ett_pres_ms);
-
-			if(item_len <= 0)
-			{
-					proto_tree_add_text(pres_tree_pc, tvb, *offset, item_len,
-							"Provider reason not specified");
-							*offset = asn->offset;
-							return;
-			}
-			itu = proto_tree_add_text(pres_tree_pp, tvb, *offset,ABORT_REASON_LEN,
-					"Abort reason");
-			pres_tree_pc = proto_item_add_subtree(itu, ett_pres_ms);
-			(*offset)++; /* skip type  */
-			asn->offset =  *offset;
-			item_len--;
-			/* get length  */
-				if (read_length(asn, pres_tree_pc, 0, &new_item_len) != 
-ASN1_ERR_NOERROR)
-				{
-							*offset = asn->offset;
-							return;
-				}
-			/*  try to get Abort reason  */
-			value	=	get_integer_value(asn,new_item_len,offset);
-
-
-			proto_tree_add_text(pres_tree_pc, tvb, *offset+1,new_item_len,
-					val_to_str(value, provider_abort_values_vals,"Unknown item (0x%02x)"));
-			item_len-=(asn->offset-*offset)+new_item_len;
-			*offset = asn->offset+new_item_len;
-			asn->offset = *offset;
-			/*  do we have Event identifier  ?  */
-			if(item_len > 0)
-			{
-			itu = proto_tree_add_text(pres_tree_pp, tvb, *offset,item_len,
-					"Event identifier");
-			pres_tree_pc = proto_item_add_subtree(itu, ett_pres_ms);
-
-			(*offset)++; /* skip type  */
-			asn->offset = *offset;
-			item_len--;
-			/* get length  */
-				if (read_length(asn, pres_tree_pc, 0, &new_item_len) != 
-ASN1_ERR_NOERROR)
-				{
-							*offset = asn->offset;
-							return;
-				}
-			/*  try to get Event identifier  */
-			value	=	get_integer_value(asn,new_item_len,offset);
-
-			proto_tree_add_text(pres_tree_pc, tvb, *offset+1,new_item_len,
-					val_to_str(value, event_identifier_values_vals,"Unknown item (0x%02x)"));
-			item_len-=(asn->offset-*offset)+new_item_len;
-			*offset = asn->offset+new_item_len;
-						asn->offset = *offset;
-			}
-}
-static void
-show_user_data(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t *tvb,int 
-*offset,int item_len,int tag)
-{
-	  proto_tree *pres_tree_ud = NULL;
-	  proto_tree *pres_tree_pc = NULL;
-	  proto_item *itm;
-	  proto_item *itu;
-	  guint   start = asn->offset;
-	  guint	  item_length = item_len;
-
-			itm = proto_tree_add_text(pres_tree, tvb, *offset,(asn->offset -*offset)+ 
-item_len,	"User data");
-			pres_tree_ud = proto_item_add_subtree(itm, ett_pres_ms);
-			itu = proto_tree_add_text(pres_tree_ud, tvb, 
-*offset,item_len+(asn->offset-*offset),
-					val_to_str(tag, user_data_values_vals,"Unknown item (0x%02x)"));
-			pres_tree_pc = proto_item_add_subtree(itu, ett_pres_ms);
-			switch(tag)
-			{
-			case SIMPLY_ENCODED_DATA:
-				break;
-			case FULLY_ENCODED_DATA:
-				show_fully_encoded_data(asn,pres_tree_pc,tvb,offset,item_len);
-				break;
-			default:
-				break;
-			}
-
-
-			/*   align the pointer */
-			(*offset)=start+item_length;
-			asn->offset = (*offset);
-
+static int dissect_dialogueMode_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_T_dialogueMode(TRUE, tvb, offset, pinfo, tree, hf_pres_dialogueMode);
 }
 
-static void
-show_presentation_context_definition(ASN1_SCK *asn,proto_tree 
-*pres_tree,tvbuff_t *tvb,int *offset,int item_len,int tag)
-{
-	  proto_tree *pres_tree_ms = NULL;
-	  proto_tree *pres_tree_pc = NULL;
-	  proto_item *itm;
-	  gint    length;
-	  guint   type;
-	  guint   header_len;
-	  proto_item *ms;
-	  gint   new_item_len;
-	  guint   start = asn->offset;
-	  guint	  item_length = item_len;
-
-			itm = proto_tree_add_text(pres_tree, tvb, 
-*offset,item_len+(asn->offset-*offset),
-					val_to_str(tag, sequence_top_vals,"Unknown item (0x%02x)"));
-			pres_tree_pc = proto_item_add_subtree(itm, ett_pres_ms);
-
-/* do we have enough bytes to dissect ? */
-			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < item_len )
-			{
-					proto_tree_add_text(pres_tree_pc, tvb, *offset, item_len,
-							"Wrong item.Need %u bytes but have %u", item_len,length);
-					/*   align the pointer */
-					(*offset)=start+item_length;
-					asn->offset = (*offset);
-					return ;
-			}
-			*offset =asn->offset;
-			start = *offset;
-			/*  read the rest */
-			while ( item_len > 0 && tvb_reported_length_remaining(tvb, *offset) > 0 )
-			{
-				int old_offset = *offset;
-			/*  get item type  */
-			type = tvb_get_guint8(tvb, *offset);
-			/* skip type */
-			(*offset)++;
-			asn->offset = *offset;
-			/* get length  */
-				if (read_length(asn, pres_tree_pc, 0, &new_item_len) != 
-ASN1_ERR_NOERROR)
-				{
-					/*   align the pointer */
-					(*offset)=start+item_length;
-					asn->offset = (*offset);
-					return  ;
-				}
-				header_len = asn->offset - (*offset) +1;
-			/* do we have enough bytes to dissect ? */
-			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < 
-new_item_len )
-			{
-					proto_tree_add_text(pres_tree_pc, tvb, *offset, new_item_len,
-							"Wrong item.Need %u bytes but have %u", new_item_len,length);
-					/*   align the pointer */
-					(*offset)=start+item_length;
-					asn->offset = (*offset);
-					return ;
-			}
-				ms = proto_tree_add_text(pres_tree_pc, tvb, *offset-1, 
-new_item_len+(asn->offset-*offset)+1,
-										val_to_str(type, presentation_context_definition_vals,
-										"Unknown item (0x%02x)"));
-				pres_tree_ms = proto_item_add_subtree(ms, ett_pres_ms);
-				*offset = asn->offset;
 
 
-			switch(type)
-				{
-
-			case SEQUENCE:
-				if(tag == PRESENTATION_CONTEXT_DEFINITION_RESULT_LIST
-					|| tag == DEFAULT_CONTEXT_RESULT)
-				{
-			show_presentation_context_definition_result_seq(asn,pres_tree_ms,tvb,offset,new_item_len);
-				}
-				else
-				{
-			show_presentation_context_definition_seq(asn,pres_tree_ms,tvb,offset,new_item_len);
-				}
-			*offset = old_offset+(new_item_len+header_len);
-					break;
-
-			default:
-					proto_tree_add_text(pres_tree_ms, tvb, *offset, 
-new_item_len+(asn->offset-*offset),
-					"Unknown asn.1 parameter: (0x%02x)", type);
-					*offset = old_offset+(new_item_len+header_len);
-				}
-				item_len = item_len -  (new_item_len+header_len);
-
-			}
+static int
+dissect_pres_OPEN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+/* FIX ME*/
 
 
-					/*   align the pointer */
-					(*offset)=start+item_length;
-					asn->offset = (*offset);
+  return offset;
 }
-/* if we can't dissect */
-static void
-dissect_parse_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		    proto_tree *tree, const char *field_name, int ret)
-{
-	const char *errstr;
-	errstr = asn1_err_to_str(ret);
-
-	if (tree != NULL)
-	{
-		proto_tree_add_text(tree, tvb, offset, 0,
-		    "ERROR: Couldn't parse %s: %s", field_name, errstr);
-		call_dissector(data_handle,
-		    tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
-	}
+static int dissect_userDataRJ(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_OPEN(FALSE, tvb, offset, pinfo, tree, hf_pres_userDataRJ);
+}
+static int dissect_userdataAB(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_OPEN(FALSE, tvb, offset, pinfo, tree, hf_pres_userdataAB);
+}
+static int dissect_open(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_OPEN(FALSE, tvb, offset, pinfo, tree, hf_pres_open);
 }
 
-static int read_string_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
-	proto_item **new_item, char **s, int start, guint length)
-{
-  guchar *string;
-  proto_item *temp_item = NULL;
-  int ret;
 
-  if (length)
-  {
-    ret = asn1_string_value_decode(a, length, &string);
-    if (ret != ASN1_ERR_NOERROR)
-	{
-      if (tree)
-	  {
-        proto_tree_add_text(tree, a->tvb, start, 0,
-          "%s: ERROR: Couldn't parse value: %s",
-          proto_registrar_get_name(hf_id), asn1_err_to_str(ret));
-      }
-      return ret;
-    }
-    string = g_realloc(string, length + 1);
-    string[length] = '\0';
-  }
-  else
-    string = "(null)";
 
-  if (hf_id)
-    temp_item = proto_tree_add_string(tree, hf_id, a->tvb, start, a->offset 
-- start, string);
-  if (new_item)
-    *new_item = temp_item;
+static int
+dissect_pres_T61String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
-  if (s && length)
-    *s = string;
-  else
-	  if (length)
-			g_free(string);
-  return ASN1_ERR_NOERROR;
+  return offset;
 }
-static void
-show_provider_reason(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t *tvb,int 
-*offset,int item_len,int type)
-{
-	  proto_item *ms;
-	  proto_item *pr;
-	  proto_tree *pres_tree_ms = NULL;
-	  proto_tree *pres_tree_pr = NULL;
-	  int		off      = *offset;
-	  int		value=0;
-	  int		new_item_len = item_len+(asn->offset-*offset);
-
-				ms = proto_tree_add_text(pres_tree, tvb, *offset, new_item_len,
-										val_to_str(type, sequence_top_vals,
-										"Unknown item (0x%02x)"));
-				pres_tree_ms = proto_item_add_subtree(ms, ett_pres_ms);
-				value	=	get_integer_value(asn,item_len,offset);
-				pr = proto_tree_add_text(pres_tree_ms, tvb, *offset, new_item_len,
-										val_to_str(value, provider_reason_values_vals,
-										"Unknown item (0x%02x)"));
-				pres_tree_pr = proto_item_add_subtree(pr, ett_pres_ms);
-				print_value(asn,pres_tree_pr,tvb,offset,item_len);
-				asn->offset = *offset = off+new_item_len;
+static int dissect_t61String(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_T61String(FALSE, tvb, offset, pinfo, tree, hf_pres_t61String);
 }
-static void
-show_presentation_selector (ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t 
-*tvb,int *offset,int item_len,int type)
-{
-	  proto_item *ms;
-	  proto_tree *pres_tree_ms = NULL;
-	  int ret;
-	  char *s;
-
-				ms = proto_tree_add_text(pres_tree, tvb, *offset, 
-item_len+(asn->offset-*offset),
-										val_to_str(type, sequence_top_vals,
-										"Unknown item (0x%02x)"));
-
-
-				pres_tree_ms = proto_item_add_subtree(ms, ett_pres_ms);
-
-				ret = read_string_value(asn, pres_tree,0,NULL, &s, 
-*offset+(asn->offset-*offset), item_len);
-				if(ret == ASN1_ERR_NOERROR)
-				{
-					if( item_len)
-					{
-							proto_tree_add_text(pres_tree_ms, tvb, *offset+2, item_len,
-											"String:%s",s);
-							g_free(s);
-					}
-					else
-					{
-							proto_tree_add_text(pres_tree_ms, tvb, *offset+2, item_len,
-											"Zero selector length");
-
-					}
-				}
 
 
 
+static int
+dissect_pres_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
 }
-/* display top sequence  */
-static void
-show_sequence_top(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t 
-*tvb,packet_info *pinfo,int *offset,int item_len)
-{
-	int ret;
-	guint cls, con, tag,len1;
-	gint  type;
-	gboolean def;
-	proto_item *itm;
-	gint length;
-	while(item_len > 0 )
-	{
-/* do we have enough bytes to dissect this item ? */
-			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < item_len )
-			{
-					proto_tree_add_text(pres_tree, tvb, *offset, item_len,
-							"Wrong Item.Need %u bytes but have %u", item_len,length);
-					break;
-			}
-		/*   get  tag     */
-			type = tvb_get_guint8(tvb, *offset);
-		/* decode header  */
-			ret = asn1_header_decode(asn, &cls, &con, &tag, &def, &len1);
+static int dissect_octetString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_pres_octetString);
+}
+static int dissect_octet_aligned_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_pres_octet_aligned);
+}
 
-			if (ret != ASN1_ERR_NOERROR)
-			{
-							dissect_parse_error(tvb, *offset, pinfo, pres_tree,
-									"sequence error", ret);
-				break;
-			}
-			item_len = item_len - (asn->offset - *offset);
-						/*
-						* [APPLICATION <tag>]
-						*/
-						switch (tag)
-							{
-								case TAG_01:
-									/* Calling-presentation-selector and
-									   User data have the same tag number
-									   Try to recognize which one do we really have */
-									if( con == ASN1_CON)
-									{
-										/* it is User data */
-										/* print it                 */
-										show_user_data(asn,pres_tree,tvb,offset,len1,type);
-										break;
-									}
-									/*  it is Calling-presentation-selector  */
-									/*  simply go below, we don't need to break here */
 
-								case CALLED_PRESENTATION_SELECTOR:
-								case RESPONDING_PRESENTATION_SELECTOR:
-								/*case CALLING_PRESENTATION_SELECTOR:*/
-								/*
-								* [Called-presentation-selector]
-								* [Calling-presentation-selector]
-								* [Responding-presentation-selector]
-								*/
-									show_presentation_selector(asn,pres_tree,tvb,offset,len1,tag);
-									break;
-								case DEFAULT_CONTEXT_NAME:
-								case PRESENTATION_CONTEXT_DEFINITION_LIST:
-									show_presentation_context_definition(asn,pres_tree,tvb,offset,len1,tag);
-									break;
-								case PROTOCOL_VERSION:
-								/*case TAG_00:  */
-									if(cls == ASN1_APL)
-									{
-										/* yes, it is application */
-											 *offset = asn->offset;
-											item_len = len1;
-											continue;
-									}
-									show_protocol_version(asn,pres_tree,tvb,offset,len1,tag);
-									break;
-								case PRESENTATION_CONTEXT_DEFINITION_RESULT_LIST:
-								case DEFAULT_CONTEXT_RESULT:
-									show_presentation_context_definition(asn,pres_tree,tvb,offset,len1,tag);
-									break;
-								case PRESENTATION_REQUIREMENTS:
-									show_presentation_requirements(asn,pres_tree,tvb,offset,len1,tag);
-									break;
-								case PROVIDER_REASON:
-									show_provider_reason(asn,pres_tree,tvb,offset,len1,tag);
-									break;
-								/* to do */
+static const value_string pres_CallingSSuserReference_vals[] = {
+  {   0, "t61String" },
+  {   1, "octetString" },
+  { 0, NULL }
+};
 
-								case USER_SESSION_REQUIREMENTS:
+static const ber_choice_t CallingSSuserReference_choice[] = {
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_t61String },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_octetString },
+  { 0, 0, 0, 0, NULL }
+};
 
-									itm = proto_tree_add_text(pres_tree, tvb, *offset,(asn->offset 
--*offset)+ len1,
-											val_to_str(tag, sequence_top_vals,"Unknown item (0x%02x)"));
-								(asn->offset)+=len1;
-									break;
+static int
+dissect_pres_CallingSSuserReference(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 CallingSSuserReference_choice, hf_index, ett_pres_CallingSSuserReference,
+                                 NULL);
 
-								default:
-									itm = proto_tree_add_text(pres_tree, tvb, *offset,(asn->offset 
--*offset)+ len1,
-											"Unknown tag: %x",tag);
-									(asn->offset)+=len1;
-							}
+  return offset;
+}
+static int dissect_callingSSuserReference(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_CallingSSuserReference(FALSE, tvb, offset, pinfo, tree, hf_pres_callingSSuserReference);
+}
 
-		item_len-=len1;
-		*offset = asn->offset;
+
+
+static int
+dissect_pres_CommonReference(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+static int dissect_commonReference(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_CommonReference(FALSE, tvb, offset, pinfo, tree, hf_pres_commonReference);
+}
+
+
+
+static int
+dissect_pres_AdditionalReferenceInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+static int dissect_additionalReferenceInformation_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_AdditionalReferenceInformation(TRUE, tvb, offset, pinfo, tree, hf_pres_additionalReferenceInformation);
+}
+
+
+static const ber_sequence_t SessionConnectionIdentifier_sequence[] = {
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_callingSSuserReference },
+  { BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_commonReference },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_additionalReferenceInformation_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_SessionConnectionIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   SessionConnectionIdentifier_sequence, hf_index, ett_pres_SessionConnectionIdentifier);
+
+  return offset;
+}
+static int dissect_recover_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_SessionConnectionIdentifier(TRUE, tvb, offset, pinfo, tree, hf_pres_recover);
+}
+
+
+static const value_string pres_ConnectionData_vals[] = {
+  {   0, "open" },
+  {   1, "recover" },
+  { 0, NULL }
+};
+
+static const ber_choice_t ConnectionData_choice[] = {
+  {   0, BER_CLASS_CON, 0, 0, dissect_open },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_recover_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_ConnectionData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 ConnectionData_choice, hf_index, ett_pres_ConnectionData,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_connectionDataRQ(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_ConnectionData(FALSE, tvb, offset, pinfo, tree, hf_pres_connectionDataRQ);
+}
+static int dissect_connectionDataAC(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_ConnectionData(FALSE, tvb, offset, pinfo, tree, hf_pres_connectionDataAC);
+}
+
+
+static const ber_sequence_t RTORQapdu_set[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_checkpointSize_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_windowSize_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dialogueMode_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_NOTCHKTAG, dissect_connectionDataRQ },
+  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_applicationProtocol_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_RTORQapdu(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
+                              RTORQapdu_set, hf_index, ett_pres_RTORQapdu);
+
+  return offset;
+}
+static int dissect_x410_mode_parameters_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_RTORQapdu(TRUE, tvb, offset, pinfo, tree, hf_pres_x410_mode_parameters);
+}
+
+
+static const ber_sequence_t RTOACapdu_set[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_checkpointSize_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_windowSize_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_NOTCHKTAG, dissect_connectionDataAC },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_RTOACapdu(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
+                              RTOACapdu_set, hf_index, ett_pres_RTOACapdu);
+
+  return offset;
+}
+static int dissect_x410_mode_parameters1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_RTOACapdu(TRUE, tvb, offset, pinfo, tree, hf_pres_x410_mode_parameters1);
+}
+
+
+static const value_string pres_RefuseReason_vals[] = {
+  {   0, "rtsBusy" },
+  {   1, "cannotRecover" },
+  {   2, "validationFailure" },
+  {   3, "unacceptableDialogueMode" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_pres_RefuseReason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_refuseReason_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_RefuseReason(TRUE, tvb, offset, pinfo, tree, hf_pres_refuseReason);
+}
+
+
+static const ber_sequence_t RTORJapdu_set[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_refuseReason_impl },
+  { BER_CLASS_CON, 1, 0, dissect_userDataRJ },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_RTORJapdu(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
+                              RTORJapdu_set, hf_index, ett_pres_RTORJapdu);
+
+  return offset;
+}
+static int dissect_x400_mode_parameters(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_RTORJapdu(FALSE, tvb, offset, pinfo, tree, hf_pres_x400_mode_parameters);
+}
+
+
+static const value_string pres_AbortReason_vals[] = {
+  {   0, "localSystemProblem" },
+  {   1, "invalidParameter" },
+  {   2, "unrecognizedActivity" },
+  {   3, "temporaryProblem" },
+  {   4, "protocolError" },
+  {   5, "permanentProblem" },
+  {   6, "userError" },
+  {   7, "transferCompleted" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_pres_AbortReason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_abortReason_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_AbortReason(TRUE, tvb, offset, pinfo, tree, hf_pres_abortReason);
+}
+
+
+
+static int
+dissect_pres_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
+                                    NULL, hf_index, -1,
+                                    NULL);
+
+  return offset;
+}
+static int dissect_reflectedParameter_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_BIT_STRING(TRUE, tvb, offset, pinfo, tree, hf_pres_reflectedParameter);
+}
+static int dissect_arbitrary_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_BIT_STRING(TRUE, tvb, offset, pinfo, tree, hf_pres_arbitrary);
+}
+
+
+static const ber_sequence_t RTABapdu_set[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_abortReason_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reflectedParameter_impl },
+  { BER_CLASS_CON, 2, 0, dissect_userdataAB },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_RTABapdu(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
+                              RTABapdu_set, hf_index, ett_pres_RTABapdu);
+
+  return offset;
+}
+static int dissect_x400_mode_parameters1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_RTABapdu(FALSE, tvb, offset, pinfo, tree, hf_pres_x400_mode_parameters1);
+}
+
+
+static const value_string pres_T_mode_value_vals[] = {
+  {   0, "x410-1984-mode" },
+  {   1, "normal-mode" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_pres_T_mode_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_mode_value_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_T_mode_value(TRUE, tvb, offset, pinfo, tree, hf_pres_mode_value);
+}
+
+
+static const ber_sequence_t Mode_selector_set[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mode_value_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_Mode_selector(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
+                              Mode_selector_set, hf_index, ett_pres_Mode_selector);
+
+  return offset;
+}
+static int dissect_mode_selector_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Mode_selector(TRUE, tvb, offset, pinfo, tree, hf_pres_mode_selector);
+}
+
+
+static const asn_namedbit Protocol_version_bits[] = {
+  {  0, &hf_pres_Protocol_version_version_1, -1, -1, "version-1", NULL },
+  { 0, NULL, 0, 0, NULL, NULL }
+};
+
+static int
+dissect_pres_Protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
+                                    Protocol_version_bits, hf_index, ett_pres_Protocol_version,
+                                    NULL);
+
+  return offset;
+}
+static int dissect_protocol_version_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Protocol_version(TRUE, tvb, offset, pinfo, tree, hf_pres_protocol_version);
+}
+
+
+
+static int
+dissect_pres_Presentation_selector(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pres_Calling_presentation_selector(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_pres_Presentation_selector(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_calling_presentation_selector_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Calling_presentation_selector(TRUE, tvb, offset, pinfo, tree, hf_pres_calling_presentation_selector);
+}
+
+
+
+static int
+dissect_pres_Called_presentation_selector(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_pres_Presentation_selector(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_called_presentation_selector_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Called_presentation_selector(TRUE, tvb, offset, pinfo, tree, hf_pres_called_presentation_selector);
+}
+
+
+
+static int
+dissect_pres_Presentation_context_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_initiators_nominated_context(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Presentation_context_identifier(FALSE, tvb, offset, pinfo, tree, hf_pres_initiators_nominated_context);
+}
+static int dissect_responders_nominated_context(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Presentation_context_identifier(FALSE, tvb, offset, pinfo, tree, hf_pres_responders_nominated_context);
+}
+static int dissect_presentation_context_identifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Presentation_context_identifier(FALSE, tvb, offset, pinfo, tree, hf_pres_presentation_context_identifier);
+}
+static int dissect_Presentation_context_deletion_list_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Presentation_context_identifier(FALSE, tvb, offset, pinfo, tree, hf_pres_Presentation_context_deletion_list_item);
+}
+
+
+
+static int
+dissect_pres_Abstract_syntax_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+static int dissect_abstract_syntax_name(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Abstract_syntax_name(FALSE, tvb, offset, pinfo, tree, hf_pres_abstract_syntax_name);
+}
+static int dissect_abstract_syntax_name_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Abstract_syntax_name(TRUE, tvb, offset, pinfo, tree, hf_pres_abstract_syntax_name);
+}
+
+
+
+static int
+dissect_pres_Transfer_syntax_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+static int dissect_transfer_syntax_name_list_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Transfer_syntax_name(FALSE, tvb, offset, pinfo, tree, hf_pres_transfer_syntax_name_list_item);
+}
+static int dissect_transfer_syntax_name(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Transfer_syntax_name(FALSE, tvb, offset, pinfo, tree, hf_pres_transfer_syntax_name);
+}
+static int dissect_transfer_syntax_name_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Transfer_syntax_name(TRUE, tvb, offset, pinfo, tree, hf_pres_transfer_syntax_name);
+}
+
+
+static const ber_sequence_t SEQUENCE_OF_Transfer_syntax_name_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_transfer_syntax_name_list_item },
+};
+
+static int
+dissect_pres_SEQUENCE_OF_Transfer_syntax_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      SEQUENCE_OF_Transfer_syntax_name_sequence_of, hf_index, ett_pres_SEQUENCE_OF_Transfer_syntax_name);
+
+  return offset;
+}
+static int dissect_transfer_syntax_name_list(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_SEQUENCE_OF_Transfer_syntax_name(FALSE, tvb, offset, pinfo, tree, hf_pres_transfer_syntax_name_list);
+}
+
+
+static const ber_sequence_t Context_list_item_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_presentation_context_identifier },
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_abstract_syntax_name },
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_transfer_syntax_name_list },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_Context_list_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   Context_list_item_sequence, hf_index, ett_pres_Context_list_item);
+
+  return offset;
+}
+static int dissect_Context_list_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Context_list_item(FALSE, tvb, offset, pinfo, tree, hf_pres_Context_list_item);
+}
+
+
+static const ber_sequence_t Context_list_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Context_list_item },
+};
+
+static int
+dissect_pres_Context_list(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      Context_list_sequence_of, hf_index, ett_pres_Context_list);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pres_Presentation_context_definition_list(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_pres_Context_list(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_presentation_context_definition_list_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Presentation_context_definition_list(TRUE, tvb, offset, pinfo, tree, hf_pres_presentation_context_definition_list);
+}
+
+
+static const ber_sequence_t Default_context_name_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_abstract_syntax_name_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_transfer_syntax_name_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_Default_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   Default_context_name_sequence, hf_index, ett_pres_Default_context_name);
+
+  return offset;
+}
+static int dissect_default_context_name_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Default_context_name(TRUE, tvb, offset, pinfo, tree, hf_pres_default_context_name);
+}
+
+
+static const asn_namedbit Presentation_requirements_bits[] = {
+  {  0, &hf_pres_Presentation_requirements_context_management, -1, -1, "context-management", NULL },
+  {  1, &hf_pres_Presentation_requirements_restoration, -1, -1, "restoration", NULL },
+  { 0, NULL, 0, 0, NULL, NULL }
+};
+
+static int
+dissect_pres_Presentation_requirements(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
+                                    Presentation_requirements_bits, hf_index, ett_pres_Presentation_requirements,
+                                    NULL);
+
+  return offset;
+}
+static int dissect_presentation_requirements_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Presentation_requirements(TRUE, tvb, offset, pinfo, tree, hf_pres_presentation_requirements);
+}
+
+
+static const asn_namedbit User_session_requirements_bits[] = {
+  {  0, &hf_pres_User_session_requirements_half_duplex, -1, -1, "half-duplex", NULL },
+  {  1, &hf_pres_User_session_requirements_duplex, -1, -1, "duplex", NULL },
+  {  2, &hf_pres_User_session_requirements_expedited_data, -1, -1, "expedited-data", NULL },
+  {  3, &hf_pres_User_session_requirements_minor_synchronize, -1, -1, "minor-synchronize", NULL },
+  {  4, &hf_pres_User_session_requirements_major_synchronize, -1, -1, "major-synchronize", NULL },
+  {  5, &hf_pres_User_session_requirements_resynchronize, -1, -1, "resynchronize", NULL },
+  {  6, &hf_pres_User_session_requirements_activity_management, -1, -1, "activity-management", NULL },
+  {  7, &hf_pres_User_session_requirements_negotiated_release, -1, -1, "negotiated-release", NULL },
+  {  8, &hf_pres_User_session_requirements_capability_data, -1, -1, "capability-data", NULL },
+  {  9, &hf_pres_User_session_requirements_exceptions, -1, -1, "exceptions", NULL },
+  { 10, &hf_pres_User_session_requirements_typed_data, -1, -1, "typed-data", NULL },
+  { 11, &hf_pres_User_session_requirements_symmetric_synchronize, -1, -1, "symmetric-synchronize", NULL },
+  { 12, &hf_pres_User_session_requirements_data_separation, -1, -1, "data-separation", NULL },
+  { 0, NULL, 0, 0, NULL, NULL }
+};
+
+static int
+dissect_pres_User_session_requirements(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
+                                    User_session_requirements_bits, hf_index, ett_pres_User_session_requirements,
+                                    NULL);
+
+  return offset;
+}
+static int dissect_user_session_requirements_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_User_session_requirements(TRUE, tvb, offset, pinfo, tree, hf_pres_user_session_requirements);
+}
+
+
+static const asn_namedbit Protocol_options_bits[] = {
+  {  0, &hf_pres_Protocol_options_nominated_context, -1, -1, "nominated-context", NULL },
+  {  1, &hf_pres_Protocol_options_short_encoding, -1, -1, "short-encoding", NULL },
+  {  2, &hf_pres_Protocol_options_packed_encoding_rules, -1, -1, "packed-encoding-rules", NULL },
+  { 0, NULL, 0, 0, NULL, NULL }
+};
+
+static int
+dissect_pres_Protocol_options(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
+                                    Protocol_options_bits, hf_index, ett_pres_Protocol_options,
+                                    NULL);
+
+  return offset;
+}
+static int dissect_protocol_options(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Protocol_options(FALSE, tvb, offset, pinfo, tree, hf_pres_protocol_options);
+}
+
+
+static const ber_sequence_t T_extensions_sequence[] = {
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_T_extensions(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   T_extensions_sequence, hf_index, ett_pres_T_extensions);
+
+  return offset;
+}
+static int dissect_extensions(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_T_extensions(FALSE, tvb, offset, pinfo, tree, hf_pres_extensions);
+}
+
+
+
+static int
+dissect_pres_Simply_encoded_data(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_simply_encoded_data_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Simply_encoded_data(TRUE, tvb, offset, pinfo, tree, hf_pres_simply_encoded_data);
+}
+
+
+
+static int
+dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+
+ tvbuff_t	*next_tvb;
+
+	if(!acse_handle){
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+	}else{
+		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		call_dissector(acse_handle, next_tvb, pinfo, global_tree);
 	}
 
-}
-static void
-show_connection_request_confirm(ASN1_SCK *asn,proto_tree *pres_tree,tvbuff_t 
-*tvb,packet_info *pinfo,int *offset,int* item_len)
-{
-  guint8 type;
-  guint length;
-  proto_tree *pres_tree_ms = NULL;
-  proto_item *ms;
-			/*  get type of set  */
-			while ( tvb_reported_length_remaining(tvb, *offset) > 0 )
-			{
-				int asn1_tag;
-			/*  get item type  */
-			type = tvb_get_guint8(tvb, *offset);
-			asn1_tag = type & 0x1f;
-			/* skip type */
-			(*offset)++;
-			asn->offset = *offset;
-			/* get length  */
-				if (read_length(asn, pres_tree, 0, item_len) != ASN1_ERR_NOERROR)
-				{
-					return;
-				}
-			/* do we have enough bytes to dissect ? */
-			if( ( length =tvb_reported_length_remaining(tvb, *offset))  < 
-(guint)*item_len )
-			{
-					proto_tree_add_text(pres_tree, tvb, *offset, -1,
-							"Wrong item.Need %u bytes but have %u", *item_len,length);
-				return;
-			}
-				ms = proto_tree_add_text(pres_tree, tvb, *offset-1, 
-*item_len+(asn->offset-*offset)+1,
-										val_to_str(asn1_tag, cr_vals,
-										"Unknown item (0x%02x)"));
-				pres_tree_ms = proto_item_add_subtree(ms, ett_pres_ms);
 
-			switch(asn1_tag)
-				{
-			case MODE_SELECTOR:
-				proto_tree_add_uint(pres_tree_ms, hf_pres_ms_type, tvb, (*offset)-1, 1, 
-type);
-				proto_tree_add_text(pres_tree_ms, tvb, *offset, (asn->offset-*offset),
-										"Length:%u",*item_len);
-				*offset=asn->offset;
-				show_integer(asn,pres_tree_ms,tvb,offset,*item_len);
-					break;
-			case SET_TOP:
-			case SEQUENCE_TOP:
-				proto_tree_add_uint(pres_tree_ms, hf_pres_seq_type, tvb, (*offset)-1, 1, 
-type);
-				proto_tree_add_text(pres_tree_ms, tvb, *offset, (asn->offset-*offset),
-										"Length:%u",*item_len);
-				*offset=asn->offset;
-				show_sequence_top(asn,pres_tree_ms,tvb,pinfo,offset,*item_len);
-					break;
-			default:
-					proto_tree_add_text(pres_tree, tvb, (*offset)-1, 
-*item_len+(asn->offset-*offset)+1,
-					"Unknown asn.1 parameter: (0x%02x).Tag :(0x%02x)", type,asn1_tag);
-					(*offset)+=*item_len+(asn->offset-*offset);
-					asn->offset = *offset;
-				}
-
-			}
+  return offset;
 }
+static int dissect_single_ASN1_type_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_T_single_ASN1_type(TRUE, tvb, offset, pinfo, tree, hf_pres_single_ASN1_type);
+}
+
+
+static const value_string pres_T_presentation_data_values_vals[] = {
+  {   0, "single-ASN1-type" },
+  {   1, "octet-aligned" },
+  {   2, "arbitrary" },
+  { 0, NULL }
+};
+
+static const ber_choice_t T_presentation_data_values_choice[] = {
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_single_ASN1_type_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_octet_aligned_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_arbitrary_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_T_presentation_data_values(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 T_presentation_data_values_choice, hf_index, ett_pres_T_presentation_data_values,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_presentation_data_values(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_T_presentation_data_values(FALSE, tvb, offset, pinfo, tree, hf_pres_presentation_data_values);
+}
+
+
+static const ber_sequence_t PDV_list_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_transfer_syntax_name },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_presentation_context_identifier },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_presentation_data_values },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_PDV_list(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   PDV_list_sequence, hf_index, ett_pres_PDV_list);
+
+  return offset;
+}
+static int dissect_Fully_encoded_data_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_PDV_list(FALSE, tvb, offset, pinfo, tree, hf_pres_Fully_encoded_data_item);
+}
+
+
+static const ber_sequence_t Fully_encoded_data_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Fully_encoded_data_item },
+};
+
+static int
+dissect_pres_Fully_encoded_data(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      Fully_encoded_data_sequence_of, hf_index, ett_pres_Fully_encoded_data);
+
+  return offset;
+}
+static int dissect_fully_encoded_data_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Fully_encoded_data(TRUE, tvb, offset, pinfo, tree, hf_pres_fully_encoded_data);
+}
+
+
+static const value_string pres_User_data_vals[] = {
+  {   0, "simply-encoded-data" },
+  {   1, "fully-encoded-data" },
+  { 0, NULL }
+};
+
+static const ber_choice_t User_data_choice[] = {
+  {   0, BER_CLASS_APP, 0, BER_FLAGS_IMPLTAG, dissect_simply_encoded_data_impl },
+  {   1, BER_CLASS_APP, 1, BER_FLAGS_IMPLTAG, dissect_fully_encoded_data_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_User_data(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 User_data_choice, hf_index, ett_pres_User_data,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_user_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_User_data(FALSE, tvb, offset, pinfo, tree, hf_pres_user_data);
+}
+static int dissect_ttdPPDU(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_User_data(FALSE, tvb, offset, pinfo, tree, hf_pres_ttdPPDU);
+}
+
+
+static const ber_sequence_t T_normal_mode_parameters_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_protocol_version_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_calling_presentation_selector_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_called_presentation_selector_impl },
+  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_presentation_context_definition_list_impl },
+  { BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_default_context_name_impl },
+  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_presentation_requirements_impl },
+  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_user_session_requirements_impl },
+  { BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL, dissect_protocol_options },
+  { BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL, dissect_initiators_nominated_context },
+  { BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL, dissect_extensions },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_user_data },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_T_normal_mode_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   T_normal_mode_parameters_sequence, hf_index, ett_pres_T_normal_mode_parameters);
+
+  return offset;
+}
+static int dissect_normal_mode_parameters_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_T_normal_mode_parameters(TRUE, tvb, offset, pinfo, tree, hf_pres_normal_mode_parameters);
+}
+
+
+static const ber_sequence_t CP_type_set[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mode_selector_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x410_mode_parameters_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_normal_mode_parameters_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_CP_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
+                              CP_type_set, hf_index, ett_pres_CP_type);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pres_CPC_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_pres_User_data(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pres_Responding_presentation_selector(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_pres_Presentation_selector(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_responding_presentation_selector_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Responding_presentation_selector(TRUE, tvb, offset, pinfo, tree, hf_pres_responding_presentation_selector);
+}
+
+
+static const value_string pres_Result_vals[] = {
+  {   0, "acceptance" },
+  {   1, "user-rejection" },
+  {   2, "provider-rejection" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_pres_Result(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_result_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Result(TRUE, tvb, offset, pinfo, tree, hf_pres_result);
+}
+
+
+static const value_string pres_T_provider_reason_vals[] = {
+  {   0, "reason-not-specified" },
+  {   1, "abstract-syntax-not-supported" },
+  {   2, "proposed-transfer-syntaxes-not-supported" },
+  {   3, "local-limit-on-DCS-exceeded" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_pres_T_provider_reason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_provider_reason2_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_T_provider_reason(TRUE, tvb, offset, pinfo, tree, hf_pres_provider_reason2);
+}
+
+
+static const ber_sequence_t Result_list_item_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_result_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_transfer_syntax_name_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_provider_reason2_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_Result_list_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   Result_list_item_sequence, hf_index, ett_pres_Result_list_item);
+
+  return offset;
+}
+static int dissect_Result_list_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Result_list_item(FALSE, tvb, offset, pinfo, tree, hf_pres_Result_list_item);
+}
+
+
+static const ber_sequence_t Result_list_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Result_list_item },
+};
+
+static int
+dissect_pres_Result_list(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      Result_list_sequence_of, hf_index, ett_pres_Result_list);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pres_Presentation_context_definition_result_list(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_pres_Result_list(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_presentation_context_definition_result_list_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Presentation_context_definition_result_list(TRUE, tvb, offset, pinfo, tree, hf_pres_presentation_context_definition_result_list);
+}
+
+
+static const ber_sequence_t T_normal_mode_parameters1_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_protocol_version_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_responding_presentation_selector_impl },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_presentation_context_definition_result_list_impl },
+  { BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_presentation_requirements_impl },
+  { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_user_session_requirements_impl },
+  { BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL, dissect_protocol_options },
+  { BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL, dissect_responders_nominated_context },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_user_data },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_T_normal_mode_parameters1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   T_normal_mode_parameters1_sequence, hf_index, ett_pres_T_normal_mode_parameters1);
+
+  return offset;
+}
+static int dissect_normal_mode_parameters1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_T_normal_mode_parameters1(TRUE, tvb, offset, pinfo, tree, hf_pres_normal_mode_parameters1);
+}
+
+
+static const ber_sequence_t CPA_PPDU_set[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mode_selector_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x410_mode_parameters1_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_normal_mode_parameters1_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_CPA_PPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
+                              CPA_PPDU_set, hf_index, ett_pres_CPA_PPDU);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pres_Default_context_result(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_pres_Result(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_default_context_result_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Default_context_result(TRUE, tvb, offset, pinfo, tree, hf_pres_default_context_result);
+}
+
+
+static const value_string pres_Provider_reason_vals[] = {
+  {   0, "reason-not-specified" },
+  {   1, "temporary-congestion" },
+  {   2, "local-limit-exceeded" },
+  {   3, "called-presentation-address-unknown" },
+  {   4, "protocol-version-not-supported" },
+  {   5, "default-context-not-supported" },
+  {   6, "user-data-not-readable" },
+  {   7, "no-PSAP-available" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_pres_Provider_reason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_provider_reason_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Provider_reason(TRUE, tvb, offset, pinfo, tree, hf_pres_provider_reason);
+}
+
+
+static const ber_sequence_t T_normal_mode_parameters2_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_protocol_version_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_responding_presentation_selector_impl },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_presentation_context_definition_result_list_impl },
+  { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_default_context_result_impl },
+  { BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_provider_reason_impl },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_user_data },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_T_normal_mode_parameters2(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   T_normal_mode_parameters2_sequence, hf_index, ett_pres_T_normal_mode_parameters2);
+
+  return offset;
+}
+static int dissect_normal_mode_parameters2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_T_normal_mode_parameters2(FALSE, tvb, offset, pinfo, tree, hf_pres_normal_mode_parameters2);
+}
+
+
+static const value_string pres_CPR_PPDU_vals[] = {
+  {   0, "x400-mode-parameters" },
+  {   1, "normal-mode-parameters" },
+  { 0, NULL }
+};
+
+static const ber_choice_t CPR_PPDU_choice[] = {
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x400_mode_parameters },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_normal_mode_parameters2 },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_CPR_PPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 CPR_PPDU_choice, hf_index, ett_pres_CPR_PPDU,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t Presentation_context_identifier_list_item_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_presentation_context_identifier },
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_transfer_syntax_name },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_Presentation_context_identifier_list_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   Presentation_context_identifier_list_item_sequence, hf_index, ett_pres_Presentation_context_identifier_list_item);
+
+  return offset;
+}
+static int dissect_Presentation_context_identifier_list_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Presentation_context_identifier_list_item(FALSE, tvb, offset, pinfo, tree, hf_pres_Presentation_context_identifier_list_item);
+}
+
+
+static const ber_sequence_t Presentation_context_identifier_list_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Presentation_context_identifier_list_item },
+};
+
+static int
+dissect_pres_Presentation_context_identifier_list(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      Presentation_context_identifier_list_sequence_of, hf_index, ett_pres_Presentation_context_identifier_list);
+
+  return offset;
+}
+static int dissect_presentation_context_identifier_list_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Presentation_context_identifier_list(TRUE, tvb, offset, pinfo, tree, hf_pres_presentation_context_identifier_list);
+}
+
+
+static const ber_sequence_t T_normal_mode_parameters3_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_presentation_context_identifier_list_impl },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_user_data },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_T_normal_mode_parameters3(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   T_normal_mode_parameters3_sequence, hf_index, ett_pres_T_normal_mode_parameters3);
+
+  return offset;
+}
+static int dissect_normal_mode_parameters3_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_T_normal_mode_parameters3(TRUE, tvb, offset, pinfo, tree, hf_pres_normal_mode_parameters3);
+}
+
+
+static const value_string pres_ARU_PPDU_vals[] = {
+  {   0, "x400-mode-parameters" },
+  {   1, "normal-mode-parameters" },
+  { 0, NULL }
+};
+
+static const ber_choice_t ARU_PPDU_choice[] = {
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x400_mode_parameters1 },
+  {   1, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_normal_mode_parameters3_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_ARU_PPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 ARU_PPDU_choice, hf_index, ett_pres_ARU_PPDU,
+                                 NULL);
+
+  return offset;
+}
+static int dissect_aru_ppdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_ARU_PPDU(FALSE, tvb, offset, pinfo, tree, hf_pres_aru_ppdu);
+}
+
+
+static const value_string pres_Abort_reason_vals[] = {
+  {   0, "reason-not-specified" },
+  {   1, "unrecognized-ppdu" },
+  {   2, "unexpected-ppdu" },
+  {   3, "unexpected-session-service-primitive" },
+  {   4, "unrecognized-ppdu-parameter" },
+  {   5, "unexpected-ppdu-parameter" },
+  {   6, "invalid-ppdu-parameter-value" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_pres_Abort_reason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_provider_reason1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Abort_reason(TRUE, tvb, offset, pinfo, tree, hf_pres_provider_reason1);
+}
+
+
+static const value_string pres_Event_identifier_vals[] = {
+  {   0, "cp-PPDU" },
+  {   1, "cpa-PPDU" },
+  {   2, "cpr-PPDU" },
+  {   3, "aru-PPDU" },
+  {   4, "arp-PPDU" },
+  {   5, "ac-PPDU" },
+  {   6, "aca-PPDU" },
+  {   7, "td-PPDU" },
+  {   8, "ttd-PPDU" },
+  {   9, "te-PPDU" },
+  {  10, "tc-PPDU" },
+  {  11, "tcc-PPDU" },
+  {  12, "rs-PPDU" },
+  {  13, "rsa-PPDU" },
+  {  14, "s-release-indication" },
+  {  15, "s-release-confirm" },
+  {  16, "s-token-give-indication" },
+  {  17, "s-token-please-indication" },
+  {  18, "s-control-give-indication" },
+  {  19, "s-sync-minor-indication" },
+  {  20, "s-sync-minor-confirm" },
+  {  21, "s-sync-major-indication" },
+  {  22, "s-sync-major-confirm" },
+  {  23, "s-p-exception-report-indication" },
+  {  24, "s-u-exception-report-indication" },
+  {  25, "s-activity-start-indication" },
+  {  26, "s-activity-resume-indication" },
+  {  27, "s-activity-interrupt-indication" },
+  {  28, "s-activity-interrupt-confirm" },
+  {  29, "s-activity-discard-indication" },
+  {  30, "s-activity-discard-confirm" },
+  {  31, "s-activity-end-indication" },
+  {  32, "s-activity-end-confirm" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_pres_Event_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_event_identifier_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Event_identifier(TRUE, tvb, offset, pinfo, tree, hf_pres_event_identifier);
+}
+
+
+static const ber_sequence_t ARP_PPDU_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_provider_reason1_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_event_identifier_impl },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_ARP_PPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   ARP_PPDU_sequence, hf_index, ett_pres_ARP_PPDU);
+
+  return offset;
+}
+static int dissect_arp_ppdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_ARP_PPDU(FALSE, tvb, offset, pinfo, tree, hf_pres_arp_ppdu);
+}
+
+
+static const value_string pres_Abort_type_vals[] = {
+  {   0, "aru-ppdu" },
+  {   1, "arp-ppdu" },
+  { 0, NULL }
+};
+
+static const ber_choice_t Abort_type_choice[] = {
+  {   0, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_aru_ppdu },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_arp_ppdu },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_Abort_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 Abort_type_choice, hf_index, ett_pres_Abort_type,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pres_Presentation_context_addition_list(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_pres_Context_list(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_presentation_context_addition_list_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Presentation_context_addition_list(TRUE, tvb, offset, pinfo, tree, hf_pres_presentation_context_addition_list);
+}
+
+
+static const ber_sequence_t Presentation_context_deletion_list_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_Presentation_context_deletion_list_item },
+};
+
+static int
+dissect_pres_Presentation_context_deletion_list(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      Presentation_context_deletion_list_sequence_of, hf_index, ett_pres_Presentation_context_deletion_list);
+
+  return offset;
+}
+static int dissect_presentation_context_deletion_list_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Presentation_context_deletion_list(TRUE, tvb, offset, pinfo, tree, hf_pres_presentation_context_deletion_list);
+}
+
+
+static const ber_sequence_t AC_PPDU_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_presentation_context_addition_list_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_presentation_context_deletion_list_impl },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_user_data },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_AC_PPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   AC_PPDU_sequence, hf_index, ett_pres_AC_PPDU);
+
+  return offset;
+}
+static int dissect_acPPDU_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_AC_PPDU(TRUE, tvb, offset, pinfo, tree, hf_pres_acPPDU);
+}
+
+
+
+static int
+dissect_pres_Presentation_context_addition_result_list(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_pres_Result_list(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_presentation_context_addition_result_list_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Presentation_context_addition_result_list(TRUE, tvb, offset, pinfo, tree, hf_pres_presentation_context_addition_result_list);
+}
+
+
+static const value_string pres_Presentation_context_deletion_result_list_item_vals[] = {
+  {   0, "acceptance" },
+  {   1, "user-rejection" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_pres_Presentation_context_deletion_result_list_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_Presentation_context_deletion_result_list_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Presentation_context_deletion_result_list_item(FALSE, tvb, offset, pinfo, tree, hf_pres_Presentation_context_deletion_result_list_item);
+}
+
+
+static const ber_sequence_t Presentation_context_deletion_result_list_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_Presentation_context_deletion_result_list_item },
+};
+
+static int
+dissect_pres_Presentation_context_deletion_result_list(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      Presentation_context_deletion_result_list_sequence_of, hf_index, ett_pres_Presentation_context_deletion_result_list);
+
+  return offset;
+}
+static int dissect_presentation_context_deletion_result_list_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Presentation_context_deletion_result_list(TRUE, tvb, offset, pinfo, tree, hf_pres_presentation_context_deletion_result_list);
+}
+
+
+static const ber_sequence_t ACA_PPDU_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_presentation_context_addition_result_list_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_presentation_context_deletion_result_list_impl },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_user_data },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_ACA_PPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   ACA_PPDU_sequence, hf_index, ett_pres_ACA_PPDU);
+
+  return offset;
+}
+static int dissect_acaPPDU_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_ACA_PPDU(TRUE, tvb, offset, pinfo, tree, hf_pres_acaPPDU);
+}
+
+
+static const value_string pres_Typed_data_type_vals[] = {
+  {   0, "acPPDU" },
+  {   1, "acaPPDU" },
+  {   2, "ttdPPDU" },
+  { 0, NULL }
+};
+
+static const ber_choice_t Typed_data_type_choice[] = {
+  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_acPPDU_impl },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_acaPPDU_impl },
+  {   2, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_ttdPPDU },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_Typed_data_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 Typed_data_type_choice, hf_index, ett_pres_Typed_data_type,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t RS_PPDU_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_presentation_context_identifier_list_impl },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_user_data },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_RS_PPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   RS_PPDU_sequence, hf_index, ett_pres_RS_PPDU);
+
+  return offset;
+}
+
+
+static const ber_sequence_t RSA_PPDU_sequence[] = {
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_presentation_context_identifier_list_impl },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_user_data },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_pres_RSA_PPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   RSA_PPDU_sequence, hf_index, ett_pres_RSA_PPDU);
+
+  return offset;
+}
+
+
+/*--- End of included file: packet-pres-fn.c ---*/
 
 
 /*
-* Dissect an Ppdu.
-*/
+ * Dissect an PPDU.
+ */
 static int
-dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
-*tree)
+dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
   proto_tree *pres_tree = NULL;
-  guint length;
-  guint       rest_len;
-  guint  s_type;
-  ASN1_SCK asn;
-  guint cp_type_len;
+  guint s_type;
 /* do we have spdu type from the session dissector?  */
 	if( !pinfo->private_data )
 				{
@@ -1420,167 +1660,40 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 		    FALSE);
 		pres_tree = proto_item_add_subtree(ti, ett_pres);
 	}
-	offset++;
-/*    open asn.1 stream    */
-	asn1_open(&asn, tvb, offset);
 
 	switch(session->spdu_type)
 	{
 		case SES_REFUSE:
-			proto_tree_add_uint(pres_tree, hf_pres_type, tvb, offset-1, 1, s_type);
-		if (read_length(&asn, pres_tree, hf_cp_type_message_length, &cp_type_len) 
-!= ASN1_ERR_NOERROR)
-					{
-					return  FALSE;
-					}
-			/* skip length   */
-			offset = asn.offset;
-			/* do we have enough bytes to dissect ? */
-			if( ( length =tvb_reported_length_remaining(tvb, offset))  < cp_type_len 
-)
-			{
-				if(tree)
-				{
-					proto_tree_add_text(pres_tree, tvb, offset, -1,
-							"Wrong Ppdu.Need %u bytes but have %u", cp_type_len,length);
-				}
-			return FALSE;
-			}
-				{
-				asn.offset = offset;
-				show_sequence_top(&asn,pres_tree,tvb,pinfo,&offset,cp_type_len);
-				offset=asn.offset;
-				}
 			break;
 		case SES_CONNECTION_REQUEST:
+			offset = dissect_pres_CP_type(FALSE, tvb, offset, pinfo, pres_tree, -1);
+			break;
 		case SES_CONNECTION_ACCEPT:
-			proto_tree_add_uint(pres_tree, hf_pres_type, tvb, offset-1, 1, s_type);
-
-			if (read_length(&asn, pres_tree, hf_cp_type_message_length, &cp_type_len) 
-!= ASN1_ERR_NOERROR)
-					{
-					return  FALSE;
-					}
-			/* skip length   */
-			offset = asn.offset;
-			/* do we have enough bytes to dissect ? */
-			if( ( length =tvb_reported_length_remaining(tvb, offset))  < cp_type_len 
-)
-			{
-				if(tree)
-				{
-					proto_tree_add_text(pres_tree, tvb, offset, -1,
-							"Wrong Ppdu.Need %u bytes but have %u", cp_type_len,length);
-				}
-			return FALSE;
-			}
-			{
-			show_connection_request_confirm(&asn,pres_tree,tvb,pinfo,&offset,&cp_type_len);
-			}
-				break;
+			offset = dissect_pres_CPA_PPDU(FALSE, tvb, offset, pinfo, pres_tree, -1);
+			break;
 		case SES_ABORT:
-	  			/* get length  */
-				if (read_length(&asn, pres_tree, 0, &rest_len) != ASN1_ERR_NOERROR)
-						{
-					return  FALSE;
-						}
-				/* skip length   */
-				offset = asn.offset;
-				/* do we have enough bytes to dissect ? */
-				if( ( length =tvb_reported_length_remaining(tvb, offset))  < rest_len )
-				{
-					if(tree)
-					{
-					proto_tree_add_text(pres_tree, tvb, offset, -1,
-							"Wrong Ppdu.Need %u bytes but have %u", rest_len,length);
-					}
-				return FALSE;
-				}
-				if(session->abort_type == SESSION_USER_ABORT )
-				{
-					/* is it PC */
-					if(s_type == ASN1_CLASS_PC+ASN1_CLASS_CONTEXT_SPECIFIC)
-					{
-							{
-							offset=asn.offset;
-							show_sequence_top(&asn,pres_tree,tvb,pinfo,&offset,rest_len);
-							offset=asn.offset;
-							}
-					}
-					else
-					{
-							{
-							offset=asn.offset;
-							show_session_provider_abort(&asn,pres_tree,tvb,&offset,rest_len);
-							offset=asn.offset;
-							}
-					}
-				}
-				else
-				{
-							{
-							offset=asn.offset;
-							show_sequence_top(&asn,pres_tree,tvb,pinfo,&offset,rest_len);
-							offset=asn.offset;
-							}
-				}
+			offset = dissect_pres_Abort_type(FALSE, tvb, offset, pinfo, pres_tree, -1);
+			break;
+		case SES_DATA_TRANSFER:
+			offset = dissect_pres_CPC_type(FALSE, tvb, offset, pinfo, pres_tree, -1);
 			break;
 		default:
-			{
-				proto_item *ms;
-				proto_tree *pres_tree_ms = NULL;
-				/* back to length  */
-				  offset--;
-	  			/* get length  */
-				if (read_length(&asn, pres_tree, 0, &rest_len) != ASN1_ERR_NOERROR)
-						{
-					return  FALSE;
-						}
-				if(!rest_len)
-				{
-					guint       rest_pdu_len = 0;
-					/* do we really haven't any more bytes ? */
-					if(	(rest_pdu_len = tvb_reported_length_remaining(tvb, offset)) )
-					{
-						/*
-						 * we have but can't say how many from asn1 information.
-						 * use pdu len instead
-						 */
-						if(rest_pdu_len > 2)
-						{
-						rest_len = rest_pdu_len;
-						}
-					}
-				}
-                if( ((gint)rest_len) > 0) {
-				ms = proto_tree_add_text(pres_tree, tvb, offset, rest_len,
-										val_to_str(session->spdu_type, ses_vals, "Unknown Ppdu type (0x%02x)"));
-				pres_tree_ms = proto_item_add_subtree(ms, ett_pres_ms);
-				show_user_data(&asn,pres_tree_ms,tvb,&offset,rest_len,s_type);
-                }
-			}
+			break;
 	}
-/*    close asn.1 stream    */
-	  asn1_close(&asn, &offset);
 
 	return offset;
 }
 
-/*
-* Dissect PPDUs inside a SPDU.
-*/
-static void
-dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+void
+dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	int offset = 0;
 /* first, try to check length   */
 /* do we have at least 4 bytes  */
-	if (!tvb_bytes_exist(tvb, 0, 4))
-	{
-			proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, 
-offset),
-								"User data");
-			return;  /* no, it isn't a presentation PDU */
+	if (!tvb_bytes_exist(tvb, 0, 4)){
+		proto_tree_add_text(parent_tree, tvb, offset, 
+			tvb_reported_length_remaining(tvb,offset),"User data");
+		return;  /* no, it isn't a presentation PDU */
 	}
 
 	/*  we can't make any additional checking here   */
@@ -1591,202 +1704,480 @@ offset),
   	if (check_col(pinfo->cinfo, COL_INFO))
   		col_clear(pinfo->cinfo, COL_INFO);
 	/* save pointers for calling the acse dissector  */
-	global_tree = tree;
+	global_tree = parent_tree;
 	global_pinfo = pinfo;
 
-	while (tvb_reported_length_remaining(tvb, offset) > 0)
-			{
-		offset = dissect_ppdu(tvb, offset, pinfo, tree);
-		if(offset == FALSE )
-							{
-									proto_tree_add_text(tree, tvb, offset, -1,"Internal error");
-									offset = tvb_length(tvb);
-									break;
-							}
-			}
+	while (tvb_reported_length_remaining(tvb, offset) > 0){
+
+		offset = dissect_ppdu(tvb, offset, pinfo, parent_tree);
+		if(offset == FALSE ){
+			proto_tree_add_text(parent_tree, tvb, offset, -1,"Internal error");
+			offset = tvb_length(tvb);
+			break;
+		}
+	}
 }
 
-void
-proto_register_pres(void)
-{
-	static hf_register_info hf[] =
-	{
-		{
-			&hf_pres_type,
-			{
-				"PPDU Type",
-				"pres.type",
-				FT_UINT8,
-				BASE_DEC,
-				VALS(pres_vals),
-				0x0,
-				"", HFILL
-			}
-		},
-		{
-			&hf_pres_length,
-			{
-				"Length",
-				"pres.length",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0,
-				"", HFILL
-			}
-		},
-		{
-			&hf_cp_type_message_length,
-			{
-				"Message Length",
-				"cp_type.message_length",
-				FT_UINT32,
-				BASE_DEC,
-				NULL,
-				0x0,
-				"CP type Message Length",
-				HFILL
-			}
-		},
-		{
-			&hf_pres_rc_type,
-			{
-				"Connection reqiest/confirm",
-				"pres.type",
-				FT_UINT8,
-				BASE_DEC,
-				VALS(pres_vals),
-				0x0,
-				"Connection reqiest/confirm",
-				HFILL
-			}
-		},
 
-		{
-			&hf_pres_ms_type,
-			{
-				"Mode selector",
-				"pres.mode.selector",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				"Mode select",
-				HFILL
-			}
-		},
-		{
-			&hf_pres_protocol_version,
-			{
-				"Protocol version",
-				"pres.protocol.version",
-				FT_UINT16,
-				BASE_HEX,
-				NULL,
-				0x0,
-				"Protocol version",
-				HFILL
-			}
-		},
-		{
-			&hf_value,
-			{
-				"Value",
-				"pres.value",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				"Value",
-				HFILL
-			}
-		},
+/*--- proto_register_pres -------------------------------------------*/
+void proto_register_pres(void) {
 
-		{
-			&hf_pres_seq_type,
-			{
-				"Sequence",
-				"pres.sequence",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				"Mode select",
-				HFILL
-			}
-		},
-
-		{
-			&hf_protocol_version,
-			{
-				"Protocol version 1",
-				"pres.protocol.version",
-				FT_BOOLEAN, 16,
-				NULL,
-				PRES_PROTOCOL_VERGION,
-				"Protocol version 1",
-				HFILL
-			}
-		},
-		{
-			&hf_context_management,
-			{
-				"Context management",
-				"pres.context.management",
-				FT_BOOLEAN, 16,
-				NULL,
-				PRES_CONTEXT_MANAGEMENT,
-				"Context management",
-				HFILL
-			}
-		},
-		{
-			&hf_restoration,
-			{
-				"Restoration",
-				"pres.restoration",
-				FT_BOOLEAN, 16,
-				NULL,
-				PRES_RESTORATION,
-				"Restoration",
-				HFILL
-			}
-		},
+  /* List of fields */
+  static hf_register_info hf[] = {
 
 
-	};
+/*--- Included file: packet-pres-hfarr.c ---*/
 
-	static gint *ett[] =
-	{
+    { &hf_pres_checkpointSize,
+      { "checkpointSize", "pres.checkpointSize",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "", HFILL }},
+    { &hf_pres_windowSize,
+      { "windowSize", "pres.windowSize",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "", HFILL }},
+    { &hf_pres_dialogueMode,
+      { "dialogueMode", "pres.dialogueMode",
+        FT_INT32, BASE_DEC, VALS(pres_T_dialogueMode_vals), 0,
+        "RTORQapdu/dialogueMode", HFILL }},
+    { &hf_pres_connectionDataRQ,
+      { "connectionDataRQ", "pres.connectionDataRQ",
+        FT_UINT32, BASE_DEC, VALS(pres_ConnectionData_vals), 0,
+        "RTORQapdu/connectionDataRQ", HFILL }},
+    { &hf_pres_applicationProtocol,
+      { "applicationProtocol", "pres.applicationProtocol",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "RTORQapdu/applicationProtocol", HFILL }},
+    { &hf_pres_connectionDataAC,
+      { "connectionDataAC", "pres.connectionDataAC",
+        FT_UINT32, BASE_DEC, VALS(pres_ConnectionData_vals), 0,
+        "RTOACapdu/connectionDataAC", HFILL }},
+    { &hf_pres_refuseReason,
+      { "refuseReason", "pres.refuseReason",
+        FT_INT32, BASE_DEC, VALS(pres_RefuseReason_vals), 0,
+        "RTORJapdu/refuseReason", HFILL }},
+    { &hf_pres_userDataRJ,
+      { "userDataRJ", "pres.userDataRJ",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RTORJapdu/userDataRJ", HFILL }},
+    { &hf_pres_abortReason,
+      { "abortReason", "pres.abortReason",
+        FT_INT32, BASE_DEC, VALS(pres_AbortReason_vals), 0,
+        "RTABapdu/abortReason", HFILL }},
+    { &hf_pres_reflectedParameter,
+      { "reflectedParameter", "pres.reflectedParameter",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "RTABapdu/reflectedParameter", HFILL }},
+    { &hf_pres_userdataAB,
+      { "userdataAB", "pres.userdataAB",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RTABapdu/userdataAB", HFILL }},
+    { &hf_pres_open,
+      { "open", "pres.open",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ConnectionData/open", HFILL }},
+    { &hf_pres_recover,
+      { "recover", "pres.recover",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ConnectionData/recover", HFILL }},
+    { &hf_pres_callingSSuserReference,
+      { "callingSSuserReference", "pres.callingSSuserReference",
+        FT_UINT32, BASE_DEC, VALS(pres_CallingSSuserReference_vals), 0,
+        "SessionConnectionIdentifier/callingSSuserReference", HFILL }},
+    { &hf_pres_commonReference,
+      { "commonReference", "pres.commonReference",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "SessionConnectionIdentifier/commonReference", HFILL }},
+    { &hf_pres_additionalReferenceInformation,
+      { "additionalReferenceInformation", "pres.additionalReferenceInformation",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "SessionConnectionIdentifier/additionalReferenceInformation", HFILL }},
+    { &hf_pres_t61String,
+      { "t61String", "pres.t61String",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "CallingSSuserReference/t61String", HFILL }},
+    { &hf_pres_octetString,
+      { "octetString", "pres.octetString",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "CallingSSuserReference/octetString", HFILL }},
+    { &hf_pres_mode_selector,
+      { "mode-selector", "pres.mode_selector",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "", HFILL }},
+    { &hf_pres_x410_mode_parameters,
+      { "x410-mode-parameters", "pres.x410_mode_parameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CP-type/x410-mode-parameters", HFILL }},
+    { &hf_pres_normal_mode_parameters,
+      { "normal-mode-parameters", "pres.normal_mode_parameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CP-type/normal-mode-parameters", HFILL }},
+    { &hf_pres_protocol_version,
+      { "protocol-version", "pres.protocol_version",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
+    { &hf_pres_calling_presentation_selector,
+      { "calling-presentation-selector", "pres.calling_presentation_selector",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "CP-type/normal-mode-parameters/calling-presentation-selector", HFILL }},
+    { &hf_pres_called_presentation_selector,
+      { "called-presentation-selector", "pres.called_presentation_selector",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "CP-type/normal-mode-parameters/called-presentation-selector", HFILL }},
+    { &hf_pres_presentation_context_definition_list,
+      { "presentation-context-definition-list", "pres.presentation_context_definition_list",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CP-type/normal-mode-parameters/presentation-context-definition-list", HFILL }},
+    { &hf_pres_default_context_name,
+      { "default-context-name", "pres.default_context_name",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CP-type/normal-mode-parameters/default-context-name", HFILL }},
+    { &hf_pres_presentation_requirements,
+      { "presentation-requirements", "pres.presentation_requirements",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
+    { &hf_pres_user_session_requirements,
+      { "user-session-requirements", "pres.user_session_requirements",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
+    { &hf_pres_protocol_options,
+      { "protocol-options", "pres.protocol_options",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
+    { &hf_pres_initiators_nominated_context,
+      { "initiators-nominated-context", "pres.initiators_nominated_context",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "CP-type/normal-mode-parameters/initiators-nominated-context", HFILL }},
+    { &hf_pres_extensions,
+      { "extensions", "pres.extensions",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CP-type/normal-mode-parameters/extensions", HFILL }},
+    { &hf_pres_user_data,
+      { "user-data", "pres.user_data",
+        FT_UINT32, BASE_DEC, VALS(pres_User_data_vals), 0,
+        "", HFILL }},
+    { &hf_pres_x410_mode_parameters1,
+      { "x410-mode-parameters", "pres.x410_mode_parameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CPA-PPDU/x410-mode-parameters", HFILL }},
+    { &hf_pres_normal_mode_parameters1,
+      { "normal-mode-parameters", "pres.normal_mode_parameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CPA-PPDU/normal-mode-parameters", HFILL }},
+    { &hf_pres_responding_presentation_selector,
+      { "responding-presentation-selector", "pres.responding_presentation_selector",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "", HFILL }},
+    { &hf_pres_presentation_context_definition_result_list,
+      { "presentation-context-definition-result-list", "pres.presentation_context_definition_result_list",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "", HFILL }},
+    { &hf_pres_responders_nominated_context,
+      { "responders-nominated-context", "pres.responders_nominated_context",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "CPA-PPDU/normal-mode-parameters/responders-nominated-context", HFILL }},
+    { &hf_pres_x400_mode_parameters,
+      { "x400-mode-parameters", "pres.x400_mode_parameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CPR-PPDU/x400-mode-parameters", HFILL }},
+    { &hf_pres_normal_mode_parameters2,
+      { "normal-mode-parameters", "pres.normal_mode_parameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CPR-PPDU/normal-mode-parameters", HFILL }},
+    { &hf_pres_default_context_result,
+      { "default-context-result", "pres.default_context_result",
+        FT_INT32, BASE_DEC, VALS(pres_Result_vals), 0,
+        "CPR-PPDU/normal-mode-parameters/default-context-result", HFILL }},
+    { &hf_pres_provider_reason,
+      { "provider-reason", "pres.provider_reason",
+        FT_INT32, BASE_DEC, VALS(pres_Provider_reason_vals), 0,
+        "CPR-PPDU/normal-mode-parameters/provider-reason", HFILL }},
+    { &hf_pres_aru_ppdu,
+      { "aru-ppdu", "pres.aru_ppdu",
+        FT_UINT32, BASE_DEC, VALS(pres_ARU_PPDU_vals), 0,
+        "Abort-type/aru-ppdu", HFILL }},
+    { &hf_pres_arp_ppdu,
+      { "arp-ppdu", "pres.arp_ppdu",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Abort-type/arp-ppdu", HFILL }},
+    { &hf_pres_x400_mode_parameters1,
+      { "x400-mode-parameters", "pres.x400_mode_parameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ARU-PPDU/x400-mode-parameters", HFILL }},
+    { &hf_pres_normal_mode_parameters3,
+      { "normal-mode-parameters", "pres.normal_mode_parameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ARU-PPDU/normal-mode-parameters", HFILL }},
+    { &hf_pres_presentation_context_identifier_list,
+      { "presentation-context-identifier-list", "pres.presentation_context_identifier_list",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "", HFILL }},
+    { &hf_pres_provider_reason1,
+      { "provider-reason", "pres.provider_reason",
+        FT_INT32, BASE_DEC, VALS(pres_Abort_reason_vals), 0,
+        "ARP-PPDU/provider-reason", HFILL }},
+    { &hf_pres_event_identifier,
+      { "event-identifier", "pres.event_identifier",
+        FT_INT32, BASE_DEC, VALS(pres_Event_identifier_vals), 0,
+        "ARP-PPDU/event-identifier", HFILL }},
+    { &hf_pres_acPPDU,
+      { "acPPDU", "pres.acPPDU",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Typed-data-type/acPPDU", HFILL }},
+    { &hf_pres_acaPPDU,
+      { "acaPPDU", "pres.acaPPDU",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Typed-data-type/acaPPDU", HFILL }},
+    { &hf_pres_ttdPPDU,
+      { "ttdPPDU", "pres.ttdPPDU",
+        FT_UINT32, BASE_DEC, VALS(pres_User_data_vals), 0,
+        "Typed-data-type/ttdPPDU", HFILL }},
+    { &hf_pres_presentation_context_addition_list,
+      { "presentation-context-addition-list", "pres.presentation_context_addition_list",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "AC-PPDU/presentation-context-addition-list", HFILL }},
+    { &hf_pres_presentation_context_deletion_list,
+      { "presentation-context-deletion-list", "pres.presentation_context_deletion_list",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "AC-PPDU/presentation-context-deletion-list", HFILL }},
+    { &hf_pres_presentation_context_addition_result_list,
+      { "presentation-context-addition-result-list", "pres.presentation_context_addition_result_list",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ACA-PPDU/presentation-context-addition-result-list", HFILL }},
+    { &hf_pres_presentation_context_deletion_result_list,
+      { "presentation-context-deletion-result-list", "pres.presentation_context_deletion_result_list",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ACA-PPDU/presentation-context-deletion-result-list", HFILL }},
+    { &hf_pres_Context_list_item,
+      { "Item", "pres.Context_list_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Context-list/_item", HFILL }},
+    { &hf_pres_presentation_context_identifier,
+      { "presentation-context-identifier", "pres.presentation_context_identifier",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "", HFILL }},
+    { &hf_pres_abstract_syntax_name,
+      { "abstract-syntax-name", "pres.abstract_syntax_name",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "", HFILL }},
+    { &hf_pres_transfer_syntax_name_list,
+      { "transfer-syntax-name-list", "pres.transfer_syntax_name_list",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Context-list/_item/transfer-syntax-name-list", HFILL }},
+    { &hf_pres_transfer_syntax_name_list_item,
+      { "Item", "pres.transfer_syntax_name_list_item",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Context-list/_item/transfer-syntax-name-list/_item", HFILL }},
+    { &hf_pres_transfer_syntax_name,
+      { "transfer-syntax-name", "pres.transfer_syntax_name",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "", HFILL }},
+    { &hf_pres_mode_value,
+      { "mode-value", "pres.mode_value",
+        FT_INT32, BASE_DEC, VALS(pres_T_mode_value_vals), 0,
+        "Mode-selector/mode-value", HFILL }},
+    { &hf_pres_Presentation_context_deletion_list_item,
+      { "Item", "pres.Presentation_context_deletion_list_item",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "Presentation-context-deletion-list/_item", HFILL }},
+    { &hf_pres_Presentation_context_deletion_result_list_item,
+      { "Item", "pres.Presentation_context_deletion_result_list_item",
+        FT_INT32, BASE_DEC, VALS(pres_Presentation_context_deletion_result_list_item_vals), 0,
+        "Presentation-context-deletion-result-list/_item", HFILL }},
+    { &hf_pres_Presentation_context_identifier_list_item,
+      { "Item", "pres.Presentation_context_identifier_list_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Presentation-context-identifier-list/_item", HFILL }},
+    { &hf_pres_Result_list_item,
+      { "Item", "pres.Result_list_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Result-list/_item", HFILL }},
+    { &hf_pres_result,
+      { "result", "pres.result",
+        FT_INT32, BASE_DEC, VALS(pres_Result_vals), 0,
+        "Result-list/_item/result", HFILL }},
+    { &hf_pres_provider_reason2,
+      { "provider-reason", "pres.provider_reason",
+        FT_INT32, BASE_DEC, VALS(pres_T_provider_reason_vals), 0,
+        "Result-list/_item/provider-reason", HFILL }},
+    { &hf_pres_simply_encoded_data,
+      { "simply-encoded-data", "pres.simply_encoded_data",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "User-data/simply-encoded-data", HFILL }},
+    { &hf_pres_fully_encoded_data,
+      { "fully-encoded-data", "pres.fully_encoded_data",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "User-data/fully-encoded-data", HFILL }},
+    { &hf_pres_Fully_encoded_data_item,
+      { "Item", "pres.Fully_encoded_data_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Fully-encoded-data/_item", HFILL }},
+    { &hf_pres_presentation_data_values,
+      { "presentation-data-values", "pres.presentation_data_values",
+        FT_UINT32, BASE_DEC, VALS(pres_T_presentation_data_values_vals), 0,
+        "PDV-list/presentation-data-values", HFILL }},
+    { &hf_pres_single_ASN1_type,
+      { "single-ASN1-type", "pres.single_ASN1_type",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "PDV-list/presentation-data-values/single-ASN1-type", HFILL }},
+    { &hf_pres_octet_aligned,
+      { "octet-aligned", "pres.octet_aligned",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "PDV-list/presentation-data-values/octet-aligned", HFILL }},
+    { &hf_pres_arbitrary,
+      { "arbitrary", "pres.arbitrary",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "PDV-list/presentation-data-values/arbitrary", HFILL }},
+    { &hf_pres_Presentation_requirements_context_management,
+      { "context-management", "pres.context-management",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        "", HFILL }},
+    { &hf_pres_Presentation_requirements_restoration,
+      { "restoration", "pres.restoration",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        "", HFILL }},
+    { &hf_pres_Protocol_options_nominated_context,
+      { "nominated-context", "pres.nominated-context",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        "", HFILL }},
+    { &hf_pres_Protocol_options_short_encoding,
+      { "short-encoding", "pres.short-encoding",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        "", HFILL }},
+    { &hf_pres_Protocol_options_packed_encoding_rules,
+      { "packed-encoding-rules", "pres.packed-encoding-rules",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        "", HFILL }},
+    { &hf_pres_Protocol_version_version_1,
+      { "version-1", "pres.version-1",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        "", HFILL }},
+    { &hf_pres_User_session_requirements_half_duplex,
+      { "half-duplex", "pres.half-duplex",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        "", HFILL }},
+    { &hf_pres_User_session_requirements_duplex,
+      { "duplex", "pres.duplex",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        "", HFILL }},
+    { &hf_pres_User_session_requirements_expedited_data,
+      { "expedited-data", "pres.expedited-data",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        "", HFILL }},
+    { &hf_pres_User_session_requirements_minor_synchronize,
+      { "minor-synchronize", "pres.minor-synchronize",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        "", HFILL }},
+    { &hf_pres_User_session_requirements_major_synchronize,
+      { "major-synchronize", "pres.major-synchronize",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        "", HFILL }},
+    { &hf_pres_User_session_requirements_resynchronize,
+      { "resynchronize", "pres.resynchronize",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        "", HFILL }},
+    { &hf_pres_User_session_requirements_activity_management,
+      { "activity-management", "pres.activity-management",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        "", HFILL }},
+    { &hf_pres_User_session_requirements_negotiated_release,
+      { "negotiated-release", "pres.negotiated-release",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        "", HFILL }},
+    { &hf_pres_User_session_requirements_capability_data,
+      { "capability-data", "pres.capability-data",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        "", HFILL }},
+    { &hf_pres_User_session_requirements_exceptions,
+      { "exceptions", "pres.exceptions",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        "", HFILL }},
+    { &hf_pres_User_session_requirements_typed_data,
+      { "typed-data", "pres.typed-data",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        "", HFILL }},
+    { &hf_pres_User_session_requirements_symmetric_synchronize,
+      { "symmetric-synchronize", "pres.symmetric-synchronize",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        "", HFILL }},
+    { &hf_pres_User_session_requirements_data_separation,
+      { "data-separation", "pres.data-separation",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        "", HFILL }},
+
+/*--- End of included file: packet-pres-hfarr.c ---*/
+
+  };
+
+  /* List of subtrees */
+  static gint *ett[] = {
 		&ett_pres,
-		&ett_pres_param,
-		&ett_pres_rc,
-		&ett_pres_ms,
-		&ett_pres_itm,
-	};
-	module_t *pres_module;
 
+/*--- Included file: packet-pres-ettarr.c ---*/
 
-	proto_pres = proto_register_protocol(PROTO_STRING_PRES, "PRES", "pres");
-	proto_register_field_array(proto_pres, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
+    &ett_pres_RTORQapdu,
+    &ett_pres_RTOACapdu,
+    &ett_pres_RTORJapdu,
+    &ett_pres_RTABapdu,
+    &ett_pres_ConnectionData,
+    &ett_pres_SessionConnectionIdentifier,
+    &ett_pres_CallingSSuserReference,
+    &ett_pres_CP_type,
+    &ett_pres_T_normal_mode_parameters,
+    &ett_pres_T_extensions,
+    &ett_pres_CPA_PPDU,
+    &ett_pres_T_normal_mode_parameters1,
+    &ett_pres_CPR_PPDU,
+    &ett_pres_T_normal_mode_parameters2,
+    &ett_pres_Abort_type,
+    &ett_pres_ARU_PPDU,
+    &ett_pres_T_normal_mode_parameters3,
+    &ett_pres_ARP_PPDU,
+    &ett_pres_Typed_data_type,
+    &ett_pres_AC_PPDU,
+    &ett_pres_ACA_PPDU,
+    &ett_pres_RS_PPDU,
+    &ett_pres_RSA_PPDU,
+    &ett_pres_Context_list,
+    &ett_pres_Context_list_item,
+    &ett_pres_SEQUENCE_OF_Transfer_syntax_name,
+    &ett_pres_Default_context_name,
+    &ett_pres_Mode_selector,
+    &ett_pres_Presentation_context_deletion_list,
+    &ett_pres_Presentation_context_deletion_result_list,
+    &ett_pres_Presentation_context_identifier_list,
+    &ett_pres_Presentation_context_identifier_list_item,
+    &ett_pres_Presentation_requirements,
+    &ett_pres_Protocol_options,
+    &ett_pres_Protocol_version,
+    &ett_pres_Result_list,
+    &ett_pres_Result_list_item,
+    &ett_pres_User_data,
+    &ett_pres_Fully_encoded_data,
+    &ett_pres_PDV_list,
+    &ett_pres_T_presentation_data_values,
+    &ett_pres_User_session_requirements,
 
-	pres_module = prefs_register_protocol(proto_pres, NULL);
+/*--- End of included file: packet-pres-ettarr.c ---*/
 
-	/*
-	 * Register the dissector by name, so other dissectors can
-	 * grab it by name rather than just referring to it directly
-	 * (you can't refer to it directly from a plugin dissector
-	 * on Windows without stuffing it into the Big Transfer Vector).
-	 */
-	register_dissector("pres", dissect_pres, proto_pres);
+  };
+
+  /* Register protocol */
+  proto_pres = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  register_dissector("pres", dissect_pres, proto_pres);
+  /* Register fields and subtrees */
+  proto_register_field_array(proto_pres, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
+
 }
 
-void
-proto_reg_handoff_pres(void)
-{
-	/*   find data dissector  */
+
+/*--- proto_reg_handoff_pres ---------------------------------------*/
+void proto_reg_handoff_pres(void) {
+
+/*	register_ber_oid_dissector("0.4.0.0.1.1.1.1", dissect_pres, proto_pres, 
+	  "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) abstractSyntax(1) pres(1) version1(1)"); */
+
 	data_handle = find_dissector("data");
-	/* define acse sub dissector */
 	acse_handle = find_dissector("acse");
 }

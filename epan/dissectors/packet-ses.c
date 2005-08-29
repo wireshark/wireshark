@@ -1,6 +1,6 @@
 /* packet-ses.c
 *
-* Routine to dissect ISO 8327-1 OSI Session Protocol packets
+* Routine to dissect ITU-T Rec. X.225 (1995 E)/ISO 8327-1 OSI Session Protocol packets
 *
 * $Id$
 *
@@ -163,37 +163,37 @@ static int hf_large_second_initial_serial_number = -1;
 
 const value_string ses_vals[] =
 {
-  {SES_CONNECTION_REQUEST,  "Connection request PDU" },
-  {SES_CONNECTION_ACCEPT,    "Connection accept PDU"   },
-  {SES_EXCEPTION_REPORT,    "Exception report PDU"   },
-  {SES_DATA_TRANSFER,  "Data transfer PDU" },
-  {SES_PLEASE_TOKENS,    "Please tokens PDU"   },
-  {SES_EXPEDITED,    "Expedited PDU"   },
-  {SES_PREPARE,    "Prepare PDU"   },
-  {SES_NOT_FINISHED,    "Not finished PDU"   },
-  {SES_FINISH,    "Finish PDU"   },
-  {SES_DISCONNECT,    "Disconnect PDU"   },
-  {SES_REFUSE,    "Refuse PDU"   },
-  {SES_CONNECTION_DATA_OVERFLOW,    "Data overflow PDU"   },
-  {SES_OVERFLOW_ACCEPT,    "Overflow accept PDU"   },
-  {SES_GIVE_TOKENS_CONFIRM,    "Tokens confirm PDU"   },
-  {SES_GIVE_TOKENS_ACK,    "Give tokens ACK PDU"   },
-  {SES_ABORT,    "Abort PDU"   },
-  {SES_ABORT_ACCEPT,    "Abort accept PDU"   },
-  {SES_ACTIVITY_RESUME,    "Activity resume PDU"   },
-  {SES_TYPED_DATA,    "Typed data PDU"   },
-  {SES_RESYNCHRONIZE_ACK,    "Resynchronize ACK PDU"   },
-  {SES_MAJOR_SYNC_POINT,    "Session major sync point PDU"   },
-  {SES_MAJOR_SYNC_ACK,    "Session major sync ACK PDU"   },
-  {SES_ACTIVITY_START,    "Activity start PDU"   },
-  {SES_EXCEPTION_DATA,    "Exception data PDU"   },
-  {SES_MINOR_SYNC_POINT,    "Minor sync point PDU"   },
-  {SES_MINOR_SYNC_ACK,    "Minor sync ACK PDU"   },
-  {SES_RESYNCHRONIZE,    "Resynchronize PDU"   },
-  {SES_ACTIVITY_DISCARD,    "Activity discard PDU"   },
-  {SES_ACTIVITY_DISCARD_ACK,    "Activity discard ACK PDU"   },
-  {SES_CAPABILITY,    "Capability PDU"   },
-  {SES_CAPABILITY_DATA_ACK,    "Capability data ACK PDU"   },
+  {SES_CONNECTION_REQUEST,			"CONNECT (CN) SPDU" },				/* 13 */
+  {SES_CONNECTION_ACCEPT,			"ACCEPT (AC) SPDU" },				/* 14 */
+  {SES_EXCEPTION_REPORT,			"EXCEPTION REPORT (ER) SPDU"   },	/*  0 */
+  {SES_DATA_TRANSFER,				"DATA TRANSFER (DT) SPDU" },		/*  1 */
+  {SES_PLEASE_TOKENS,				"PLEASE TOKENS (PT) SPDU"   },		/*  2 */
+  {SES_EXPEDITED,					"EXPEDITED (EX) SPDU"   },			/*  5 */
+  {SES_PREPARE,						"PREPARE (PR) SPDU"   },			/*  7 */
+  {SES_NOT_FINISHED,				"NOT FINISHED (NF) SPDU"   },		/*  8 */
+  {SES_FINISH,						"FINISH (FN) SPDU"   },				/*  9 */
+  {SES_DISCONNECT,					"DISCONNECT (DN) SPDU"   },			/* 10 */
+  {SES_REFUSE,						"REFUSE (RF) SPDU"   },				/* 12 */
+  {SES_CONNECTION_DATA_OVERFLOW,	"CONNECT DATA OVERFLOW (CDO) SPDU"},/* 15 */
+  {SES_OVERFLOW_ACCEPT,				"OVERFLOW ACCEPT (OA) SPDU"   },	/* 16 */
+  {SES_GIVE_TOKENS_CONFIRM,			"GIVE TOKENS CONFIRM (GTC) SPDU"},	/* 21 */
+  {SES_GIVE_TOKENS_ACK,				"GIVE TOKENS ACK (GTA) SPDU"   },	/* 22 */
+  {SES_ABORT,						"ABORT (AB) SPDU"   },				/* 25 */
+  {SES_ABORT_ACCEPT,				"ABORT ACCEPT (AA) SPDU"   },		/* 26 */
+  {SES_ACTIVITY_RESUME,				"ACTIVITY RESUME (AR) SPDU"   },	/* 29 */
+  {SES_TYPED_DATA,					"TYPED DATA (TD) SPDU"   },			/* 33 */
+  {SES_RESYNCHRONIZE_ACK,			"RESYNCHRONIZE ACK (RA) SPDU"   },	/* 34 */
+  {SES_MAJOR_SYNC_POINT,			"MAJOR SYNC POINT (MAP) SPDU"   },	/* 41 */
+  {SES_MAJOR_SYNC_ACK,				"MAJOR SYNC ACK (MAA) SPDU"   },	/* 42 */
+  {SES_ACTIVITY_START,				"ACTIVITY START (AS) SPDU"   },		/* 45 */
+  {SES_EXCEPTION_DATA,				"EXCEPTION DATA (ED) SPDU"   },		/* 48 */
+  {SES_MINOR_SYNC_POINT,			"MINOR SYNC POINT (MIP) SPDU"   },	/* 49 */
+  {SES_MINOR_SYNC_ACK,				"MINOR SYNC ACK (MIA) SPDU"   },	/* 50 */
+  {SES_RESYNCHRONIZE,				"RESYNCHRONIZE (RS) SPDU"   },		/* 53 */
+  {SES_ACTIVITY_DISCARD,			"ACTIVITY DISCARD (AD) SPDU"   },	/* 57 */
+  {SES_ACTIVITY_DISCARD_ACK,		"ACTIVITY DISCARD ACK (ADA) SPDU" },/* 58 */
+  {SES_CAPABILITY,					"CAPABILITY DATA (CD) SPDU"   },	/* 61 */
+  {SES_CAPABILITY_DATA_ACK,			"CAPABILITY DATA ACK (CDA) SPDU" }, /* 62 */
   {0,             NULL           }
 };
 

@@ -197,3 +197,6 @@ struct SESSION_DATA_STRUCTURE
 	guint8  pres_ctx_id;
 };
 #define		implementation_restriction		0x10
+
+const value_string ses_vals[];
+

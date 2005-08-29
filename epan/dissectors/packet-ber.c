@@ -2080,5 +2080,7 @@ proto_register_ber(void)
 void
 proto_reg_handoff_ber(void)
 {
+		register_ber_oid_name("2.1.1","joint-iso-itu-t(2) asn1(1) basic-encoding(1)");
+
 }
 

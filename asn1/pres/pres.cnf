@@ -1,0 +1,32 @@
+# pres.cnf
+# pres conformation file
+
+# $Id$
+
+#.MODULE_IMPORT
+
+#.EXPORTS
+
+#.PDU
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.FN_BODY OPEN
+/* FIX ME*/
+
+#.FN_BODY PDV-list/presentation-data-values/single-ASN1-type
+
+ tvbuff_t	*next_tvb;
+
+	if(!acse_handle){
+%(DEFAULT_BODY)s
+	}else{
+		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		call_dissector(acse_handle, next_tvb, pinfo, global_tree);
+	}
+
+#.END
