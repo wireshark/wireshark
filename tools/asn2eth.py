@@ -2882,7 +2882,7 @@ class T61StringType (RestrictedCharacterStringType):
   def eth_tsname(self):
     return 'T61String'
   def GetTTag(self, ectx):
-    return ('BER_CLASS_UNI', 'BER_UNI_TAG_Teletext')
+    return ('BER_CLASS_UNI', 'BER_UNI_TAG_TeletexString')
 
 class UniversalStringType (RestrictedCharacterStringType):
   def eth_tsname(self):
