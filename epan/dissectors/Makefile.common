@@ -621,9 +621,6 @@ DISSECTOR_INCLUDES =	\
 	packet-acse.h	\
 	packet-actrace.h	\
 	packet-afp.h	\
-	packet-afs-defs.h	\
-	packet-afs-macros.h	\
-	packet-afs-register-info.h	\
 	packet-afs.h	\
 	packet-aim.h	\
 	packet-alcap.h	\
