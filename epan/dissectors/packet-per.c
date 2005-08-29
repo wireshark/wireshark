@@ -174,7 +174,7 @@ DEBUG_ENTRY("dissect_per_normally_small_nonnegative_whole_number");
 			} else {
 				pi = proto_tree_add_uint(tree, hf_index, tvb, (offset>>3), 1, *length);
 			}
-			if (!display_internal_per_fields && internal) PROTO_ITEM_SET_HIDDEN(pi);
+			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
 		}
 		return offset;
 	}
