@@ -74,7 +74,7 @@ printf("#%d  %s   tvb:0x%08x\n",pinfo->fd->num,x,(int)tvb);
 /* whether the PER helpers should put the internal PER fields into the tree
    or not.
 */
-static guint display_internal_per_fields = FALSE;
+static gboolean display_internal_per_fields = FALSE;
 
 
 
@@ -212,7 +212,7 @@ dissect_per_GeneralString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, pro
 
 /* 17 Encoding the null type */
 guint32
-dissect_per_null(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+dissect_per_null(tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   proto_item *ti_tmp;
 
   ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>8, 0, FALSE);
@@ -292,7 +292,7 @@ dissect_per_restricted_character_string_sorted(tvbuff_t *tvb, guint32 offset, pa
 {
 	guint32 length;
 	gboolean byte_aligned;
-	guchar *buf;
+	char *buf;
 	guint char_pos;
 	int bits_per_char;
 	guint32 old_offset;
@@ -428,7 +428,7 @@ sort_alphabet(char *sorted_alphabet, const char *alphabet, int alphabet_length)
   c_min = c_max = alphabet[0];
   for (i=0; i<alphabet_length; i++) {
     c = alphabet[i];
-    tmp_buf[c] = 1;
+    tmp_buf[(int)c] = 1;
     if (c > c_max) c_max = c;
     else if (c < c_min) c_min = c;
   }
@@ -604,7 +604,7 @@ DEBUG_ENTRY("dissect_per_set_of");
 guint32
 dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, char *value_string)
 {
-	gint length;
+	guint length;
 	char *str, *name;
 	proto_item *item;
 
@@ -770,7 +770,7 @@ dissect_per_constrained_integer(tvbuff_t *tvb, guint32 offset, packet_info *pinf
 	header_field_info *hfi;
 	int num_bits;
 	int pad;
-	guint32 tmp;
+	gboolean tmp;
 
 DEBUG_ENTRY("dissect_per_constrained_integer");
 	if(has_extension){
@@ -848,7 +848,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 			offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &tmp, NULL);
 			val<<=1;
 			if(tmp){
-				val|=tmp;
+				val|=1;
 				strcat(str, "1");
 			} else {
 				strcat(str, "0");
@@ -1321,7 +1321,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 
 	/* 15.9 if length is fixed and less than or equal to sixteen bits*/
 	if((min_len==max_len)&&(max_len<=16)){
-		static char bytes[4];
+		static guint8 bytes[4];
 		int i;
 		guint32 old_offset=offset;
 		gboolean bit;
@@ -1404,8 +1404,8 @@ dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, prot
 	gint val_start, val_length;
 	guint32 length;
 	header_field_info *hfi;
-	static char bytes[4];
-	char *pbytes = NULL;
+	static guint8 bytes[4];
+	guint8 *pbytes = NULL;
 	proto_item *pi;
 
 	hfi = (hf_index==-1) ? NULL : proto_registrar_get_nth(hf_index);
