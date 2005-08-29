@@ -1679,22 +1679,29 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 	/* count number of items */
 	cnt = 0;
 	hoffset = offset;
-	while (offset < end_offset){
-		guint32 len;
-
-		if(ind){ /* this sequence of was of indefinite length, so check for EOC */
-			if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0)){				
-				break;
+	/* only count the number of items IFF we have the full blob,
+	 * else this will just generate a [short frame] before we even start
+	 * dissecting a single item.
+	 */
+	/* XXX Do we really need to count them at all ?  ronnie */
+	if(tvb_length_remaining(tvb, offset)==tvb_reported_length_remaining(tvb, offset)){
+		while (offset < end_offset){
+			guint32 len;
+	
+			if(ind){ /* this sequence of was of indefinite length, so check for EOC */
+				if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0)){				
+					break;
+				}
 			}
-		}
 
-		/* read header and len for next field */
-		offset = get_ber_identifier(tvb, offset, NULL, NULL, NULL);
-		offset = get_ber_length(tree, tvb, offset, &len, NULL);
-		/* best place to get real length of implicit sequence of or set of is here... */
-		/* adjust end_offset if we find somthing that doesnt match */
-		offset += len;
-		cnt++;
+			/* read header and len for next field */
+			offset = get_ber_identifier(tvb, offset, NULL, NULL, NULL);
+			offset = get_ber_length(tree, tvb, offset, &len, NULL);
+			/* best place to get real length of implicit sequence of or set of is here... */
+			/* adjust end_offset if we find somthing that doesnt match */
+			offset += len;
+			cnt++;
+		}
 	}
 	offset = hoffset;
 
@@ -1768,16 +1775,15 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 				/* hold on if we are implicit and the result is zero, i.e. the item in the sequence of 
 				doesnt match the next item, thus this implicit sequence is over, return the number of bytes
 				we have eaten to allow the possible upper sequence continue... */
+		cnt++; /* rubbish*/
 		if(ind_field){
 			/* previous field was of indefinite length so we have
 			 * no choice but use whatever the subdissector told us
 			 * as size for the field.
 			 * not any more the length should be correct
 			 */
-			cnt++; /* rubbish*/
 			offset = eoffset;
 		} else {
-			cnt++; /* more rusbbish */
 			offset = eoffset;
 		}
 	}
