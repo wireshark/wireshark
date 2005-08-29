@@ -46,30 +46,6 @@ static const char netxray_magic[] = {	/* magic header */
 	'X', 'C', 'P', '\0'
 };
 
-#if 0
-/* NetXRay file header (minus magic number). */
-/* See below for updated;                    */
-struct netxray_hdr {
-	char	version[8];	/* version number */
-	guint32	start_time;	/* UNIX time when capture started */
-	guint32	nframes;	/* number of packets */
-	guint32	xxx;		/* unknown */
-	guint32	start_offset;	/* offset of first packet in capture */
-	guint32	end_offset;	/* offset after last packet in capture */
-	guint32 xxy[3];		/* unknown */
-	guint8	network;	/* datalink type */
-	guint8	xxz[3];		/* XXX - is this the upper 3 bytes of the datalink type? */
-	guint8	timeunit;	/* encodes length of a tick */
-	guint8	xxa[3];		/* XXX - is this the upper 3 bytes of the time units? */
-	guint32	timelo;		/* lower 32 bits of time stamp of capture start */
-	guint32	timehi;		/* upper 32 bits of time stamp of capture start */
-	guint32 linespeed;	/* speed of network, in bits/second */
-	guint8	xxb[12];	/* other stuff */
-	guint8	realtick[4];	/* in version 2, units of the timestamps  */
-	guint8	xxc[48];	/* other unknown stuff */
-};
-#endif
-
 /* NetXRay file header (minus magic number).			*/
 /*								*/
 /* As field usages are identified, please revise as needed	*/
@@ -502,7 +478,6 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 					return -1;
 				}
 				timeunit = TpS[hdr.timeunit];
-				wth->tsprecision = WTAP_FILE_TSPREC_USEC;	/* XXX */
 				break;
 
 			case ETH_CAPTYPE_GIGPOD:
@@ -515,7 +490,6 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 					return -1;
 				}
 				timeunit = TpS_gigpod[hdr.timeunit];
-				wth->tsprecision = WTAP_FILE_TSPREC_NSEC;	/* XXX */
 
 				/*
 				 * At least for 002.002 and 002.003
@@ -536,7 +510,6 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 					return -1;
 				}
 				timeunit = TpS_otherpod[hdr.timeunit];
-				wth->tsprecision = WTAP_FILE_TSPREC_USEC;	/* XXX */
 
 				/*
 				 * At least for 002.002 and 002.003
@@ -557,7 +530,6 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 					return -1;
 				}
 				timeunit = TpS_gigpod2[hdr.timeunit];
-				wth->tsprecision = WTAP_FILE_TSPREC_NSEC;	/* XXX */
 				break;
 
 			default:
@@ -579,9 +551,22 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 				return -1;
 			}
 			timeunit = TpS[hdr.timeunit];
-			wth->tsprecision = WTAP_FILE_TSPREC_USEC;	/* XXX */
 			break;
 		}
+
+		/*
+		 * If the number of ticks per second is greater than
+		 * 1 million, make the precision be nanoseconds rather
+		 * than microseconds.
+		 *
+		 * XXX - do values only slightly greater than one million
+		 * correspond to a resolution sufficiently better than
+		 * 1 microsecond to display more digits of precision?
+		 */
+		if (timeunit > 1e6)
+			wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+		else
+			wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 		break;
 
 	default:
@@ -598,8 +583,8 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		 * through NDISWAN).
 		 *
 		 * In version 2, it looks as if there's stuff in the 
-		 * file header to specify what particular
-		 * type of WAN capture we have.
+		 * file header to specify what particular type of WAN
+		 * capture we have.
 		 */
 		if (version_major == 2) {
 			switch (hdr.captype) {
@@ -629,6 +614,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 				 * Cisco HDLC capture and 0x05 0x00 in the
 				 * Frame Relay capture.
 				 *  [XXX: xxc[46:47] appear to be Timezone]
+				 *  [Does 0xff 0xff mean "time zone unknown?]
 				 */
 				file_encap = WTAP_ENCAP_FRELAY_WITH_PHDR;
 				break;
