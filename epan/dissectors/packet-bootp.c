@@ -77,6 +77,7 @@
 #include <epan/tap.h>
 #include <epan/strutil.h>
 #include <epan/arptypes.h>
+#include <epan/emem.h>
 
 static int bootp_dhcp_tap = -1;
 static int proto_bootp = -1;
@@ -2037,13 +2038,15 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 	guint tlv_len;
 	guint i;
 	guint8 asc_val[3] = "  ", flow_val_str[5];
-	static GString *tlv_str = NULL;
+	char *tlv_str, *strptr;
 	char bit_fld[64];
 	proto_item *ti;
 	proto_tree *subtree;
 
-	if (! tlv_str)
-		tlv_str = g_string_new("");
+#define TLV_STR_LEN 256
+	tlv_str=ep_alloc(TLV_STR_LEN);
+	tlv_str[0]=0;
+	strptr=tlv_str;
 
 	tvb_memcpy (tvb, asc_val, off, 2);
 	if (sscanf(asc_val, "%x", &tlv_len) != 1 || tlv_len < 1) {
@@ -2058,7 +2061,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 		while (off - voff < len) {
 			/* Type */
 			raw_val = tvb_get_ntohs (tvb, off);
-			g_string_sprintf(tlv_str, "0x%.2s: %s = ",
+			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "0x%.2s: %s = ",
 					tvb_get_ptr(tvb, off, 2),
 					val_to_str(raw_val, pkt_mdc_type_vals, "unknown"));
 
@@ -2070,18 +2073,17 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 				return;
 			} else {
 				/* Value(s) */
-				/*g_string_sprintfa(tlv_str, "Length: %d, Value: ", tlv_len);*/
 
 				switch (raw_val) {
 					case PKT_MDC_VERSION:
 						raw_val = tvb_get_ntohs(tvb, off + 4);
-						g_string_sprintfa(tlv_str, "%s (%.2s)",
+						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%s (%.2s)",
 								val_to_str(raw_val, pkt_mdc_version_vals, "Reserved"),
 								tvb_get_ptr(tvb, off + 4, 2) );
 						break;
 					case PKT_MDC_TEL_END:
 					case PKT_MDC_IF_INDEX:
-						g_string_sprintfa(tlv_str, "%.2s",
+						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%.2s",
 								tvb_get_ptr(tvb, off + 4, 2) );
 						break;
 					case PKT_MDC_TGT:
@@ -2104,7 +2106,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 					case PKT_MDC_RFC2833_DTMF:
 					case PKT_MDC_VOICE_METRICS:
 						raw_val = tvb_get_ntohs(tvb, off + 4);
-						g_string_sprintfa(tlv_str, "%s (%.2s)",
+						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%s (%.2s)",
 								val_to_str(raw_val, pkt_mdc_boolean_vals, "unknown"),
 								tvb_get_ptr(tvb, off + 4, 2) );
 						break;
@@ -2112,7 +2114,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 					case PKT_MDC_SUPP_CODECS_LC:
 						for (i = 0; i < tlv_len; i++) {
 							raw_val = tvb_get_ntohs(tvb, off + 4 + (i * 2) );
-							g_string_sprintfa(tlv_str, "%s%s (%.2s)",
+							strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%s%s (%.2s)",
 									plurality(i + 1, "", ", "),
 									val_to_str(raw_val, pkt_mdc_codec_vals, "unknown"),
 									tvb_get_ptr(tvb, off + 4 + (i * 2), 2) );
@@ -2122,34 +2124,34 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 						tvb_memcpy(tvb, flow_val_str, off + 4, 4);
 						flow_val_str[4] = '\0';
 						flow_val = strtoul(flow_val_str, NULL, 16);
-						g_string_sprintfa(tlv_str, "0x%04lx", flow_val);
+						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "0x%04lx", flow_val);
 						break;
 					case PKT_MDC_T38_VERSION:
 						raw_val = tvb_get_ntohs(tvb, off + 4);
-						g_string_sprintfa(tlv_str, "%s (%.2s)",
+						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%s (%.2s)",
 								val_to_str(raw_val, pkt_mdc_t38_version_vals, "unknown"),
 								tvb_get_ptr(tvb, off + 4, 2) );
 						break;
 					case PKT_MDC_T38_EC:
 						raw_val = tvb_get_ntohs(tvb, off + 4);
-						g_string_sprintfa(tlv_str, "%s (%.2s)",
+						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%s (%.2s)",
 								val_to_str(raw_val, pkt_mdc_t38_ec_vals, "unknown"),
 								tvb_get_ptr(tvb, off + 4, 2) );
 						break;
 					case PKT_MDC_MIBS:
 						raw_val = tvb_get_ntohs(tvb, off + 4);
-						g_string_sprintfa(tlv_str, "%s (%.2s)",
+						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%s (%.2s)",
 								val_to_str(raw_val, pkt_mdc_mibs_vals, "unknown"),
 								tvb_get_ptr(tvb, off + 4, 2) );
 						break;
 					case PKT_MDC_VENDOR_TLV:
 					default:
-						g_string_sprintfa(tlv_str, "%s",
+						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%s",
 								tvb_format_stringzpad(tvb, off + 4, tlv_len * 2) );
 						break;
 				}
 			}
-			ti = proto_tree_add_text(v_tree, tvb, off, (tlv_len * 2) + 4, "%s", tlv_str->str);
+			ti = proto_tree_add_text(v_tree, tvb, off, (tlv_len * 2) + 4, "%s", tlv_str);
 			subtree = proto_item_add_subtree(ti, ett_bootp_option);
 			if (raw_val == PKT_MDC_PROV_FLOWS) {
 				for (i = 0 ; i < 3; i++) {
