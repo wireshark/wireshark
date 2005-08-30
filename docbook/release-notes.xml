@@ -153,18 +153,37 @@ Gnu info
       <itemizedlist>
 
 	<listitem><para>
-	  The version of WinPcap included with the Ethereal Windows
-          installer has been updated from 3.1 beta 4 to 3.1.  If you
-          want to upgrade WinPcap separately or install a different 
-          version you can download it from 
+	  The <command>timestamp display precision</command> of the Packet List 
+	  can be adjusted now. The precision will be automatically adjusted 
+	  depending on the file format loaded, e.g. libpcap typically uses 
+	  microsecond resolution displayed like "0.000000". In addition you can 
+	  adjust the precision manually through the View/Time Display Format menu 
+	  items.
+	</para></listitem>
+
+	<listitem><para>
+	  The <command>WinPcap version 3.1</command> installer was released since 
+	  the last Ethereal release. The version included in the Ethereal Windows 
+	  installer has been updated from 3.1 beta 4 to 3.1. 
+	  If you want to upgrade WinPcap separately or install a 
+	  different version you can download it from:
           <ulink url="http://www.winpcap.org">the WinPcap web site</ulink>.
 	</para></listitem>
 
 	<listitem><para>
-	  The behavior of the display filter "ip.checksum_bad" has changed.
-          Instead of merely checking for its presence you must now make sure
-          it is set, e.g. instead of using "ip.checksum_bad" you must now
-          use "ip.checksum_bad == 1".
+	  The behavior of the display filter
+	  <command>"ip.checksum_bad" has changed</command>.
+      Instead of merely checking for its presence you must now make sure
+      it is set, e.g. instead of using "ip.checksum_bad" you must now
+      use "ip.checksum_bad == 1".
+	</para></listitem>
+
+	<listitem><para>
+	  A new capture file format 
+	  <command>"Nanosecond libpcap (Ethereal)"</command> was added. It is 
+	  very similar to the common libpcap file format but is capable of keeping 
+	  nanosecond resolution timestamps. This format is currently supported only
+	  by Ethereal.
 	</para></listitem>
 
       </itemizedlist>
