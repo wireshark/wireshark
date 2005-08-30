@@ -480,7 +480,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 	int len=0, i = -1;
 	int cnt = tvb_reported_length( src_tvb)-1;	/* don't include check byte */
 
-	guint8 *buf = 0, *dst, *src, *buf_start, *buf_end,  *tmp, comp_flag_bits = 0;
+	guint8 *dst, *src, *buf_start, *buf_end,  *tmp, comp_flag_bits = 0;
 	guint8 src_buf[ MAX_WCP_BUF_LEN];
 	tvbuff_t *volatile tvb = 0;
 	wcp_window_t *buf_ptr = 0;
@@ -591,11 +591,9 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
         }
         CATCH(BoundsError) {
 		DISSECTOR_ASSERT_NOT_REACHED();
-		g_free(buf);
 		return NULL;
         }
         CATCH(ReportedBoundsError) {
-		g_free(buf);
 		return NULL;
         }
         ENDTRY;
