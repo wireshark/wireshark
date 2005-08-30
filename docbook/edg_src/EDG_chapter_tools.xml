@@ -15,13 +15,13 @@
 	</para>
 	<para>
 	All these tools have
-	their roots on unix like platforms, but win32 ports are also
+	their roots on UNIX like platforms, but Win32 ports are also
 	available. Therefore the tools are available in different "flavours":
 	<itemizedlist>
   	<listitem>
 	<para>
-	Unix: as described above, the tools should be commonly available on the
-	supported unix platforms, and for win32 platforms by the cygwin unix 
+	UNIX: as described above, the tools should be commonly available on the
+	supported UNIX platforms, and for Win32 platforms by the Cygwin UNIX 
 	emulation
 	</para>
   	</listitem>
@@ -34,7 +34,7 @@
 	</itemizedlist>
 	</para>
 	<para>
-	The following sections will only do a very brief description of 
+	The following sections give a very brief description of 
 	what the particular tool is doing, how it is used in the Ethereal project 
 	and how it can be installed and tested.
 	</para>
@@ -52,7 +52,7 @@
 	</para>
 	<para>
 	Some recommendations are given for the
-	easiest way to get a win32 development platform up and running, see 
+	easiest way to get a Win32 development platform up and running, see 
 	<xref linkend="ChToolsWin32Recommended"/>.
 	</para>
   </section>
@@ -64,9 +64,9 @@
 	</para>
 	
 	<section id="ChToolsInstallUnix">
-	<title>Unix</title>
+	<title>UNIX</title>
 	<para>
-	All the tools required are usually installed on a unix developer machine.
+	All the tools required are usually installed on a UNIX developer machine.
 	</para>
 	<para>
 	If a tool is not already installed on your system, you will typically use 
@@ -75,19 +75,19 @@
 	<para>
 	If an install package is not available, or you have a reason not to use 
 	it (maybe because it's simply too old), you can install that tool 
-	from source code, the following sections will provide you with the webpage
+	from source code. The following sections will provide you with the webpage
 	addresses where you can get these sources. 
 	</para>
 	</section>
 	
 	<section id="ChToolsInstallWin32Native">
-	<title>Win32 Native</title>
+	<title>Win32 native</title>
 	<para>
 	The native tools will typically be a bit faster, but more complicated to 
 	install. You will have to download a lot of tools from different webpages, 
 	and install them in the ways they have to be installed. The default 
 	installation location will typically not be the 
-	<filename>c:\program files</filename> folder. Have a look at 
+	<filename>C:\Program Files</filename> folder. Have a look at 
 	<xref linkend="ChToolsWin32Recommended"/> for an overview of the 
 	recommended tools.
 	</para>
@@ -96,22 +96,22 @@
 	<section id="ChToolsInstallCygwin">
 	<title>Win32 Cygwin</title>
 	<para>
-	Installation of the cygwin tools is very simple. As cygwin uses an 
-	unix emulation layer,
+	Installation of the Cygwin tools is very simple. As Cygwin uses an 
+	UNIX emulation layer,
 	it might be a bit slower compared to the native tools, but at an 
 	acceptable level. All tools will be installed into one base folder, the 
-	default is <filename>c:\cygwin</filename>.
+	default is <filename>C:\cygwin</filename>.
 	</para>
 	<para>
-	Cygwin provides a unix emulation layer with a lot of unix based tools
-	on the win32 platform. Although cygwin consists of several
-	seperate packages, the installation and update is done through only a
-	single setup.exe, which acts similar like other web based installers.
+	Cygwin provides a UNIX emulation layer with a lot of UNIX based tools
+	on the Win32 platform. Although Cygwin consists of several
+	seperate packages, the installation and update is done through a
+	single setup.exe, which acts similar to other web based installers.
 	</para>
 	<para>
 	You will find this network based setup.exe at: <ulink 
-	url="http://www.cygwin.com/"/> click on one
-	of the "Install Cygwin now" appearances, this will start the download
+	url="http://www.cygwin.com/"/>. Click on one
+	of the "Install Cygwin now" appearances. This will start the download
 	of the setup.exe.
 	</para>
 	<para>
@@ -122,8 +122,8 @@
 	</para>
 	<para>
 	Under: "Start -&gt; Programs -&gt; Cygwin -&gt; Cygwin Bash Shell" you
-	should now be able to start a new cygwin bash shell, which is similar to 
-	the command line (command.exe/cmd.exe) in win32, but much more powerful.
+	should now be able to start a new Cygwin bash shell, which is similar to 
+	the command line (command.exe/cmd.exe) in Win32, but much more powerful.
 	</para>
 	<para>
 	If you want to add additional, update installed or remove packages, you 
@@ -162,12 +162,13 @@
 	</listitem>
 	</itemizedlist>
 	</para>
+	<!--
 	<para>
 	You will find a list of required / recommended packages needed to develop 
 	Ethereal in <xref linkend="ChToolsWin32Recommended"/>.
 	</para>	
+	-->
 	</section>
-	
   </section>
 
 	<section id="ChToolsWin32Recommended">
@@ -185,7 +186,7 @@
 	<thead>
 	<row>
 	  <entry>Tool</entry>
-	  <entry><link linkend="ChToolsInstallCygwin">Cygwin</link> packet</entry>
+	  <entry><link linkend="ChToolsInstallCygwin">Cygwin</link> package</entry>
 	  <entry>Win32 native</entry>
 	</row>
 	</thead>
@@ -222,18 +223,18 @@
 	</row>
 	<row>
 	  <entry><xref linkend="ChToolsSed"/></entry>
-	  <entry><command>sed</command></entry>
-	  <entry>-</entry>
+	  <entry><command>sed (default installed)</command></entry>
+	  <entry><ulink url="http://gnuwin32.sourceforge.net/"/></entry>
 	</row>
 	<row>
 	  <entry><xref linkend="ChToolsYacc"/></entry>
 	  <entry><command>yacc</command></entry>
-	  <entry>-</entry>
+	  <entry><ulink url="http://gnuwin32.sourceforge.net/"/></entry>
 	</row>
 	<row>
 	  <entry><xref linkend="ChToolsLexx"/></entry>
 	  <entry><command>lexx</command></entry>
-	  <entry>-</entry>
+	  <entry><ulink url="http://gnuwin32.sourceforge.net/"/></entry>
 	</row>
 	</tbody>
 	</tgroup>
@@ -247,7 +248,7 @@
 	<thead>
 	<row>
 	  <entry>Tool</entry>
-	  <entry><link linkend="ChToolsInstallCygwin">Cygwin</link> packet</entry>
+	  <entry><link linkend="ChToolsInstallCygwin">Cygwin</link> package</entry>
 	  <entry>Win32 native</entry>
 	</row>
 	</thead>
@@ -259,18 +260,18 @@
 	</row>
 	<row>
 	  <entry><xref linkend="ChToolsDiff"/></entry>
-	  <entry><command>diff</command></entry>
-	  <entry>-</entry>
+	  <entry><command>diff (default installed)</command></entry>
+	  <entry><ulink url="http://gnuwin32.sourceforge.net/"/></entry>
 	</row>
 	<row>
 	  <entry><xref linkend="ChToolsPatch"/></entry>
-	  <entry><command>patch</command></entry>
-	  <entry>-</entry>
+	  <entry><command>patch (default installed)</command></entry>
+	  <entry><ulink url="http://gnuwin32.sourceforge.net/"/></entry>
 	</row>
 	<row>
 	  <entry><xref linkend="ChToolsWget"/></entry>
 	  <entry><command>wget</command></entry>
-	  <entry>-</entry>
+	  <entry><ulink url="http://gnuwin32.sourceforge.net/"/></entry>
 	</row>
 	<row>
 	  <entry><xref linkend="ChToolsNSIS"/></entry>
@@ -282,7 +283,6 @@
 	</tbody>
 	</tgroup>
 	</table>	
-	XXX - mark, which cygwin packages are installed by default.
 	</para>
 	</section>
 
@@ -293,9 +293,9 @@
 	</para>
 	
 	<section id="ChToolsGNUBash">
-	<title>Unix: GNU bash</title>
+	<title>UNIX: GNU bash</title>
 	<para>
-	The bash is available for most of the unix-like platforms and as the 
+	The bash is available for most of the UNIX-like platforms and as the 
 	<application>bash</application> package from the <link 
 	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
@@ -323,7 +323,7 @@ Copyright (C) 2002 Free Software Foundation, Inc.]]>
 	<section id="ChToolsWin32Bash">
 	<title>Win32 native: -</title>
 	<para>
-	The authors don't know of any working win32 native bash implementation.
+	The authors don't know of any working Win32 native bash implementation.
 	</para>
 	</section>
 
@@ -333,21 +333,21 @@ Copyright (C) 2002 Free Software Foundation, Inc.]]>
 	<title>C compiler</title>
 	
 	<section id="ChToolsGCC">
-	<title>Unix: GCC (GNU compiler collection)</title>
+	<title>UNIX: GCC (GNU compiler collection)</title>
 	<note><title>Win32 Note!</title>
 	<para>
-	Although some effort is currently made to use gcc from the cygwin
+	Although some effort is currently made to use gcc from the Cygwin
 	environment, the mainline for several reasons is still using Microsoft 
 	Visual Studio's C compiler.
 	</para>
 	</note>
 	<para>
-	The gcc C compiler is available for most of the unix-like platforms and 
+	The GCC C compiler is available for most of the UNIX-like platforms and 
 	as the <application>gcc</application> package from the <link 
 	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
 	<para>
-	If gcc isn't already installed and also not available as a package 
+	If GCC isn't already installed and also not available as a package 
 	for your platform, you can get it at: 
 	<ulink url="http://gcc.gnu.org/"/>.
 	</para>
@@ -393,10 +393,10 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	<para>
 	should result in something like:
 	<programlisting>
-<![CDATA[Optimierender Microsoft (R) 32-Bit C/C++-Compiler, Version 12.00.8804, fuer x86
-Copyright (C) Microsoft Corp 1984-1998. Alle Rechte vorbehalten.
+<![CDATA[Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
+Copyright (C) Microsoft Corp 1984-1998. All rights reserved.
 
-Verwendung: cl [ Option... ] Dateiname... [ /link Linker-Option... ]]]>
+usage: cl [ option... ] filename... [ /link linkoption... ]]]>
 	</programlisting>
 	However, the version string may vary.
 	</para>
@@ -476,10 +476,10 @@ Verwendung: cl [ Option... ] Dateiname... [ /link Linker-Option... ]]]>
 	</para>
 
 	<section id="ChToolsGDB">
-	<title>Unix: GNU gdb</title>
+	<title>UNIX: GDB (GNU project debugger)</title>
 	<para>
-	gdb is the debugger for the gcc compiler. It is available for many (if 
-	not all) unix-like platforms and as the <application>gdb</application> 
+	GDB is the debugger for the GCC compiler. It is available for many (if 
+	not all) UNIX-like platforms and as the <application>gdb</application> 
 	package from the <link 
 	linkend="ChToolsInstallCygwin">Cygwin setup</link>	
 	</para>
@@ -501,8 +501,7 @@ Verwendung: cl [ Option... ] Dateiname... [ /link Linker-Option... ]]]>
 	<para>
 	should result in something like:
 	<programlisting>
-<![CDATA[
-GNU gdb 2003-09-20-cvs (cygwin-special)
+<![CDATA[GNU gdb 2003-09-20-cvs (cygwin-special)
 Copyright 2003 Free Software Foundation, Inc.
 GDB is free software, covered by the GNU General Public License, and you are
 welcome to change it and/or distribute copies of it under certain conditions.
@@ -515,11 +514,11 @@ This GDB was configured as "i686-pc-cygwin".]]>
 	</section>
 
 	<section id="ChToolsDDD">
-	<title>Unix: GNU DDD</title>
+	<title>UNIX: DDD (GNU Data Display Debugger)</title>
 	<para>
-	The GNU Data Display Debugger is a good GUI frontend for gdb (and a lot of 
-	other command line debuggers), so you have to install gdb first. It is 
-	available for many unix-like platforms and as the 
+	The GNU Data Display Debugger is a good GUI frontend for GDB (and a lot of 
+	other command line debuggers), so you have to install GDB first. It is 
+	available for many UNIX-like platforms and as the 
 	<application>ddd</application> package from the <link 
 	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
@@ -537,7 +536,7 @@ This GDB was configured as "i686-pc-cygwin".]]>
 	</para>
 	<para>
 	However, setting up 
-	the environment is a bit tricky, as the win32 build process is using 
+	the environment is a bit tricky, as the Win32 build process is using 
 	makefiles instead of the .dsp/.dsw files usually used. 
 	XXX - add instructions how to do it.
 	</para>
@@ -547,7 +546,7 @@ This GDB was configured as "i686-pc-cygwin".]]>
 	<title>Win32 native: Microsoft Debugging Tools for Windows</title>
 	<para>
 	You could also use the Microsoft debugging tools, which is a GUI debugger. 
-	As it's not that comfortable compared to debugging in visual studio, it 
+	As it's not that comfortable compared to debugging in Visual Studio, it 
 	can be helpful if you have to debug on a different machine.
 	</para>
 	<para>	
@@ -564,20 +563,20 @@ This GDB was configured as "i686-pc-cygwin".]]>
 	<title>make</title>
 
 	<section id="ChToolsGNUmake">
-	<title>Unix: GNU make</title>
+	<title>Unix: GNU Make</title>
 	<note><title>Win32 Note!</title>
 	<para>
-	Although some effort is made to use make from the cygwin environment,
+	Although some effort is made to use make from the Cygwin environment,
 	the mainline is still using Microsoft Visual Studio's nmake.
 	</para>
 	</note>
 	<para>
-	GNU make is available for most of the unix-like platforms and 
+	GNU Make is available for most of the UNIX-like platforms and 
 	also as the <application>make</application> package from the <link 
 	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
 	<para>
-	If GNU make isn't already installed and also not available as a package 
+	If GNU Make isn't already installed and also not available as a package 
 	for your platform, you can get it at: 
 	<ulink url="http://www.gnu.org/software/make/"/>.
 	</para>
@@ -607,8 +606,8 @@ PARTICULAR PURPOSE.]]>
 	</para>
 	<para>
 	Instead of using the the workspace (.dsw) and projects (.dsp) files,
-	the	traditional nmake makefiles are used. This has one main reason: it
-	makes it much easier to maintain changes simultaneous with the gcc
+	the traditional nmake makefiles are used. This has one main reason: it
+	makes it much easier to maintain changes simultaneous with the GCC
 	toolchain makefile.am files as both file formats are similar. However, as
 	no Visual Studio workspace/project files are available, this makes it
 	hard to use the Visual Studio IDE e.g. for using the integrated
@@ -623,11 +622,11 @@ PARTICULAR PURPOSE.]]>
 	<para>
 	should result in something like:
 	<programlisting>
-<![CDATA[Microsoft (R) Program Maintenance-Dienstprogramm: Version 6.00.9782.0
-Copyright (C) Microsoft Corp 1988-1998. Alle Rechte vorbehalten.
+<![CDATA[Microsoft (R) Program Maintenance Utility   Version 6.00.8168.0
+Copyright (C) Microsoft Corp 1988-1998. All rights reserved.
 
-NMAKE : fatal error U1064: MAKEFILE nicht gefunden und kein Ziel angegeben
-Stop.]]]>
+NMAKE : fatal error U1064: MAKEFILE not found and no target specified
+Stop.]]>
 	</programlisting>
 	However, the version string may vary.
 	</para>
@@ -670,14 +669,14 @@ Stop.]]]>
 	<para>
 	Python is an interpreter based programming language. The homepage of
 	the python project is: <ulink url="http://python.org/"/>.
-	Python is used to XXX. Python version 2.2 and above should be working
-	fine.
+	Python is used to generate some source files. 
+	Python version 2.2 and above should be working fine.
 	</para>
 
 	<section id="ChToolsUnixPython">
-	<title>Unix: python</title>
+	<title>UNIX: python</title>
 	<para>
-	Python is available for most of the unix-like platforms and as the 
+	Python is available for most of the UNIX-like platforms and as the 
 	<application>python</application> package from the <link 
 	linkend="ChToolsInstallCygwin">Cygwin setup</link>
 	</para>
@@ -708,8 +707,8 @@ Stop.]]]>
 	<para>
 	Have a look at <ulink url="http://python.org/download/"/>
 	to download the latest stable release. You can download a setup there,
-	which will install the python system typically into:
-	C:\python23 or similiar.
+	which will install the python system typically into
+	<filename>C:\python23</filename> or similiar.
 	</para>
 	</section>
 
@@ -721,18 +720,19 @@ Stop.]]]>
 	<para>
 	Perl is an interpreter based programming language. The homepage of the
 	perl project is: <ulink url="http://www.perl.com"/>.
-	Perl is used to XXX. Perl version XXX and above should be working fine.
+	Perl is used to convert various text files into usable source code. 
+	Perl version 5.6 and above should be working fine.
 	</para>
 
 	<section id="ChToolsUnixPerl">
-	<title>Unix: perl</title>
+	<title>UNIX: perl</title>
 	<para>
-	Perl is available for most of the unix-like platforms and as the 
+	Perl is available for most of the UNIX-like platforms and as the 
 	<application>perl</application> package from the <link 
 	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
 	<para>
-	If Perl isn't already installed and also not available as a package 
+	If perl isn't already installed and also not available as a package 
 	for your platform, you can get it at: 
 	<ulink url="http://www.perl.com/"/>.
 	</para>
@@ -802,17 +802,16 @@ Built 18:08:02 Feb  4 2003
 	</para>
 
 	<section id="ChToolsUnixSed">
-	<title>Unix: sed</title>
+	<title>UNIX: sed</title>
 	<para>
-	Sed is available for most of the unix-like platforms and as the 
+	Sed is available for most of the UNIX-like platforms and as the 
 	<application>sed</application> package from the <link 
 	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
 	<para>
-	If Sed isn't already installed and also not available as a package 
+	If sed isn't already installed and also not available as a package 
 	for your platform, you can get it at: 
-	<ulink url="http://sed.sourceforge.net/"/> 
-	(XXX - is this the official home?).
+	<ulink url="http://directory.fsf.org/GNU/sed.html"/> 
 	</para>
 	<para>
 	After correct installation, typing inside the bash:
@@ -834,9 +833,11 @@ to the extent permitted by law.]]>
 	</section>
 
 	<section id="ChToolsWin32Sed">
-	<title>Win32 native: -</title>
+	<title>Win32 native: sed</title>
 	<para>
-	The authors don't know of any working win32 native sed implementation.
+	A native Win32 sed package can be obtained from 
+	<ulink url="http://gnuwin32.sourceforge.net/"/>. The
+	installation should be straightforward.
 	</para>
 	</section>
 
@@ -849,9 +850,9 @@ to the extent permitted by law.]]>
 	</para>
 
 	<section id="ChToolsUnixYacc">
-	<title>Unix: bison</title>
+	<title>UNIX: bison</title>
 	<para>
-	Bison is available for most of the unix-like platforms and as the 
+	Bison is available for most of the UNIX-like platforms and as the 
 	<application>bison</application> package from the <link 
 	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
@@ -881,10 +882,11 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	</section>
 
 	<section id="ChToolsWin32Yacc">
-	<title>Win32 native: -</title>
+	<title>Win32 native: bison</title>
 	<para>
-	The authors don't know of any working win32 native yacc/bison 
-	implementation.
+	A native Win32 yacc/bison package can be obtained from 
+	<ulink url="http://gnuwin32.sourceforge.net/"/>. The
+	installation should be straightforward.
 	</para>
 	</section>
 	</section>
@@ -897,14 +899,14 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	</para>
 	
 	<section id="ChToolsUnixLexx">
-	<title>Unix: flex</title>
+	<title>UNIX: flex</title>
 	<para>
-	Flex is available for most of the unix-like platforms and as the 
+	Flex is available for most of the UNIX-like platforms and as the 
 	<application>flex</application> package from the <link 
 	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
 	<para>
-	If GNU Flex isn't already installed and also not available as a package 
+	If GNU flex isn't already installed and also not available as a package 
 	for your platform, you can get it at: 
 	<ulink url="http://www.gnu.org/software/flex/"/>.
 	</para>
@@ -912,7 +914,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	After correct installation, typing inside the bash:
 	</para>
 	<para>
-	<prompt>$</prompt> <userinput>flexx --version</userinput>
+	<prompt>$</prompt> <userinput>flex --version</userinput>
 	</para>
 	<para>
 	should result in something like:
@@ -924,10 +926,11 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	</section>
 
 	<section id="ChToolsWin32Lexx">
-	<title>Win32 native: -</title>
+	<title>Win32 native: flex</title>
 	<para>
-	The authors don't know of any working win32 native lexx/flex 
-	implementation.
+	A native Win32 lexx/flex package can be obtained from 
+	<ulink url="http://gnuwin32.sourceforge.net/"/>. The
+	installation should be straightforward.
 	</para>
 	</section>
 	</section>
@@ -959,9 +962,9 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	</para>
 
 	<section id="ChToolsUnixSVN">
-	<title>Unix: svn</title>
+	<title>UNIX: svn</title>
 	<para>
-	SVN is available for most of the unix-like platforms and as the 
+	SVN is available for most of the UNIX-like platforms and as the 
 	<application>SVN</application> package from the <link 
 	linkend="ChToolsInstallCygwin">Cygwin setup</link>
 	</para>
@@ -998,7 +1001,7 @@ This product includes software developed by CollabNet (http://www.Collab.Net/).
 	<para>
 	A good subversion client for Win32 can be found at: 
 	<ulink url="http://tortoisesvn.tigris.org/"/>. It will nicely integrate 
-	into the windows Explorer window.
+	into the Windows Explorer window.
 	</para>
 	</section>
 
@@ -1009,8 +1012,8 @@ This product includes software developed by CollabNet (http://www.Collab.Net/).
 	<para>
 	Diff is used to get a file of all differences between two source
 	files/trees (sometimes called a patch). The diff tool isn't needed for 
-	building ethereal, but it's needed if you are going to commit your changes 
-	back to the ethereal community.
+	building Ethereal, but it's needed if you are going to commit your changes 
+	back to the Ethereal community.
 	</para>
 	<note><title>Note!</title>
 	<para>
@@ -1024,9 +1027,9 @@ This product includes software developed by CollabNet (http://www.Collab.Net/).
 	</para>
 
 	<section id="ChToolsGNUDiff">
-	<title>Unix: GNU diff</title>
+	<title>UNIX: GNU diff</title>
 	<para>
-	Diff is available for most of the unix-like platforms and as the 
+	Diff is available for most of the UNIX-like platforms and as the 
 	<application>diffutils</application> package from the <link 
 	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
@@ -1057,10 +1060,11 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	</section>
 
 	<section id="ChToolsWin32Diff">
-	<title>Win32 native: -</title>
+	<title>Win32 native: diff</title>
 	<para>
-	The authors don't know of any win32 native command line diff 
-	implementation. 
+	A native Win32 diff package can be obtained from 
+	<ulink url="http://gnuwin32.sourceforge.net/"/>. The
+	installation should be straightforward.
 	</para>
 	<para>
 	The subversion client TortoiseSVN has a build in diff feature, see 
@@ -1093,9 +1097,9 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	</para>
 
 	<section id="ChToolsUnixPatch">
-	<title>Unix: patch</title>
+	<title>UNIX: patch</title>
 	<para>
-	Patch is available for most of the unix-like platforms and as the 
+	Patch is available for most of the UNIX-like platforms and as the 
 	<application>patch</application> package from the <link 
 	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
@@ -1129,9 +1133,11 @@ written by Larry Wall and Paul Eggert]]>
 	</section>
 
 	<section id="ChToolsWin32Patch">
-	<title>Win32 native: -</title>
+	<title>Win32 native: patch</title>
 	<para>
-	The authors don't know of any working win32 native patch implementation.
+	A native Win32 patch package can be obtained from 
+	<ulink url="http://gnuwin32.sourceforge.net/"/>. The
+	installation should be straightforward.
 	</para>
 	<para>
 	The subversion client TortoiseSVN has a build in patch feature, see 
@@ -1149,23 +1155,23 @@ written by Larry Wall and Paul Eggert]]>
 	GNU wget is used to download files from the internet using the command line.
 	</para>
 	<para>
-	GNU wget is available for most of the unix-like platforms and as the 
+	GNU wget is available for most of the UNIX-like platforms and as the 
 	<application>wget</application> package from the <link 
 	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
 	</para>
 	<para>
-	You will only need wget, if you want to use the win32 automated library 
+	You will only need wget, if you want to use the Win32 automated library 
 	download, see <xref linkend="ChLibsSetup"/> for details.
 	</para>
 	<para>
 	If GNU wget isn't already installed and also not available as a package 
-	for your platform (well, for win32 it is available as a cygwin package), 
+	for your platform (well, for Win32 it is available as a Cygwin package), 
 	you can get it at: 
 	<ulink url="http://www.gnu.org/software/wget/wget.html"/>.
 	</para>
 	<para>
 	If wget is trying to download files but fails to do so, your internet 
-	connection might use a HTTP proxy. Some internet providers using such a 
+	connection might use a HTTP proxy. Some Internet providers using such a 
 	proxy and it is common for company networks today. In this case, you 
 	must set the environment variable 
 	http_proxy before using wget. For example, if you are behind proxy.com 
