@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/reassemble.h>
+#include <epan/emem.h>
 #include "packet-wap.h"
 #include "packet-wtp.h"
 #include "packet-wsp.h"
@@ -306,7 +307,7 @@ wtp_handle_tpi(proto_tree *tree, tvbuff_t *tvb)
 static void
 dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    static GString *szInfo = NULL;
+    char *szInfo, *buf;
     int		offCur		= 0; /* current offset from start of WTP data */
 
     unsigned char  b0;
@@ -333,8 +334,8 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int			dataOffset;
     gint		dataLen;
 
-    if (szInfo == NULL)
-    	szInfo = g_string_sized_new(32);
+#define SZINFO_SIZE 256
+    szInfo=ep_alloc(SZINFO_SIZE);
 
     b0 = tvb_get_guint8 (tvb, offCur + 0);
     /* Discover Concatenated PDUs */
@@ -397,7 +398,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif
 
     /* Develop the string to put in the Info column */
-    g_string_sprintf(szInfo, "WTP %s",
+    buf = szInfo + g_snprintf(szInfo, SZINFO_SIZE, "WTP %s",
 		    val_to_str(pdut, vals_wtp_pdu_type, "Unknown PDU type 0x%x"));
 
     switch (pdut) {
@@ -406,7 +407,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    TID = tvb_get_ntohs(tvb, offCur + 1);
 	    psn = 0;
 	    clsTransaction = transaction_class(tvb_get_guint8(tvb, offCur + 3));
-	    g_string_sprintfa(szInfo, " Class %d", clsTransaction);
+	    buf += g_snprintf(buf, SZINFO_SIZE-(buf-szInfo), " Class %d", clsTransaction);
 	    cbHeader = 4;
 	    break;
 
@@ -416,7 +417,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    TID = tvb_get_ntohs(tvb, offCur + 1);
 	    psn = tvb_get_guint8(tvb, offCur + 3);
 	    if (psn != 0)
-		g_string_sprintfa(szInfo, " (%u)", psn);
+		buf += g_snprintf(buf, SZINFO_SIZE-(buf-szInfo), " (%u)", psn);
 	    cbHeader = 4;
 	    break;
 
@@ -445,7 +446,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    break;
     };
     if (fRID) {
-	g_string_append( szInfo, " R" );
+	buf += g_snprintf(buf, SZINFO_SIZE-(buf-szInfo), " R" );
     };
     /* In the interest of speed, if "tree" is NULL, don't do any work not
        necessary to generate protocol tree items. */
@@ -725,7 +726,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					if (check_col(pinfo->cinfo, COL_INFO)) {
 						col_append_fstr(pinfo->cinfo, COL_INFO,
 								"%s (WTP payload reassembled in packet %u)",
-								szInfo->str, fd_wtp->reassembled_in);
+								szInfo, fd_wtp->reassembled_in);
 					}
 					if (tree) {
 						proto_tree_add_text(wtp_tree, tvb, dataOffset, -1,
@@ -737,7 +738,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				if (check_col(pinfo->cinfo, COL_INFO)) {
 					col_append_fstr(pinfo->cinfo, COL_INFO,
 								"%s (Unreassembled fragment %u)",
-								szInfo->str, psn);
+								szInfo, psn);
 				}
 				if (tree) {
 					proto_tree_add_text(wtp_tree, tvb, dataOffset, -1,
@@ -758,14 +759,14 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		{
 			/* Nothing to hand to subdissector */
 			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_str(pinfo->cinfo, COL_INFO, szInfo->str);
+				col_append_str(pinfo->cinfo, COL_INFO, szInfo);
 		}
 	}
 	else
 	{
 		/* Nothing to hand to subdissector */
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO, szInfo->str);
+			col_append_str(pinfo->cinfo, COL_INFO, szInfo);
 	}
 }
 
