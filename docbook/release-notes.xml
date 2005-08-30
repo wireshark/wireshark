@@ -243,7 +243,11 @@ Gnu info
 
   <section id="KnownProblems"><title>Known Problems</title>
     <para>
-  <!-- XXX needs to be written -->
+    On Windows systems the packet list scroll bar can sometimes disappear
+    or become unusable.  Until the problem is fixed you can work around it
+    by resizing the packet list or the main window.
+    (<ulink url="http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=220">Bug
+    #220</ulink>)
     </para>
   </section>
 
