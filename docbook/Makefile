@@ -241,7 +241,7 @@ svn_version.xml: FORCE
 	echo '">'   >> svn_version.xml
 
 
-eug: user-guide-a4.pdf user-guide-us.pdf user-guide.html eug_html_chunked user-guide.chm
+eug: eug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf user-guide.chm
 
 # validate the content
 eug.validated: $(EUG_SOURCE)
@@ -298,7 +298,7 @@ ifdef HHC
 endif
 
 
-edg: developer-guide-a4.pdf developer-guide-us.pdf developer-guide.html edg_html_chunked developer-guide.chm
+edg: edg_html_chunked developer-guide.html developer-guide-a4.pdf developer-guide-us.pdf developer-guide.chm
 
 # validate the content
 edg.validated: $(EDG_SOURCE)
@@ -353,7 +353,7 @@ ifdef HHC
 endif
 
 
-release_notes: release-notes-a4.pdf release-notes-us.pdf release-notes.html release-notes.chm
+release_notes: release-notes.html release-notes-a4.pdf release-notes-us.pdf release-notes.chm
 
 # validate the content
 release_notes.validated: $(RELEASE_NOTES_SOURCE)
