@@ -29,6 +29,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include "packet-dcerpc.h"
 #include "packet-smb-sidsnooping.h"
 #include "packet-windows-common.h"
@@ -1225,12 +1226,6 @@ dissect_nt_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date)
 	return offset;
 }
 
-static void
-free_g_string(void *arg)
-{
-	g_string_free(arg, TRUE);
-}
-
 /* Dissect a NT SID.  Label it with 'name' and return a string version of
    the SID in the 'sid_str' parameter which must be freed by the caller.
    hf_sid can be -1 if the caller doesnt care what name is used and then 
@@ -1254,10 +1249,12 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	int na_offset;
         guint auth = 0;   /* FIXME: What if it is larger than 32-bits */
 	int i;
-	GString *gstr;
-	char sid_string[245];
+#define MAX_STR_LEN 256
+	char *str, *strptr;
+	char *sid_string;
 	char *sid_name;
 
+	sid_string=ep_alloc(MAX_STR_LEN);
 	if(hf_sid==-1){
 		hf_sid=hf_nt_sid;
 	}
@@ -1287,9 +1284,9 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 
           sa_offset = offset;
 
-          gstr = g_string_new("");
-
-	  CLEANUP_PUSH(free_g_string, gstr);
+          str = ep_alloc(MAX_STR_LEN);
+          str[0]=0;
+          strptr=str;
 
 	  /* sub authorities, leave RID to last */
 	  for(i=0; i < (num_auth > 4?(num_auth - 1):num_auth); i++){
@@ -1302,7 +1299,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	     * and IA-64 runs little-endian, as does x86-64), we can (?)
 	     * assume that non le byte encodings will be "uncommon"?
 	     */
-             g_string_sprintfa(gstr, (i>0 ? "-%u" : "%u"),
+             strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), (i>0 ? "-%u" : "%u"),
                   tvb_get_letohl(tvb, offset));
              offset+=4;
 	  }
@@ -1313,10 +1310,10 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
             rid_present=TRUE;
             rid_offset=offset;
 	    offset+=4;
-            g_snprintf(sid_string, sizeof(sid_string), "S-1-%u-%s-%u", auth, gstr->str, rid);
+            g_snprintf(sid_string, MAX_STR_LEN, "S-1-%u-%s-%u", auth, str, rid);
 	  } else {
             rid_present=FALSE;
-            g_snprintf(sid_string, sizeof(sid_string), "S-1-%u-%s", auth, gstr->str);
+            g_snprintf(sid_string, MAX_STR_LEN, "S-1-%u-%s", auth, str);
           }
 
           sid_name=NULL;
@@ -1336,7 +1333,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
           proto_tree_add_item(tree, hf_nt_sid_revision, tvb, rev_offset, 1, TRUE);
           proto_tree_add_item(tree, hf_nt_sid_num_auth, tvb, na_offset, 1, TRUE);
           proto_tree_add_text(tree, tvb, na_offset+1, 6, "Authority: %u", auth);
-          proto_tree_add_text(tree, tvb, sa_offset, num_auth * 4, "Sub-authorities: %s", gstr->str);
+          proto_tree_add_text(tree, tvb, sa_offset, num_auth * 4, "Sub-authorities: %s", str);
 
           if(rid_present){
             proto_tree_add_text(tree, tvb, rid_offset, 4, "RID: %u", rid);
@@ -1349,8 +1346,6 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
               *sid_str = g_strdup(sid_string);
             }
           }
-
-	  CLEANUP_CALL_AND_POP;
 	}
 
 
