@@ -373,6 +373,10 @@ static const struct file_type_info {
 	{ "AIX libpcap (tcpdump)", NULL,
 	  NULL, NULL },
 
+	/* WTAP_FILE_PCAP_NSEC */
+	{ "Nanosecond libpcap (Ethereal)", "nseclibpcap",
+	  libpcap_dump_can_write_encap, libpcap_dump_open },
+
 	/* WTAP_FILE_LANALYZER */
 	{ "Novell LANalyzer","lanalyzer",
 	  lanalyzer_dump_can_write_encap, lanalyzer_dump_open },

@@ -649,6 +649,23 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 		break;
 
+	case PCAP_NSEC_MAGIC:
+		/* Host that wrote it has our byte order, and was running
+		   a program using either standard or ss990417 libpcap. */
+		byte_swapped = FALSE;
+		modified = FALSE;
+		wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+		break;
+
+	case PCAP_SWAPPED_NSEC_MAGIC:
+		/* Host that wrote it out has a byte order opposite to
+		   ours, and was running a program using either ss990915 
+		   or ss991029 libpcap. */
+		byte_swapped = TRUE;
+		modified = FALSE;
+		wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+		break;
+
 	default:
 		/* Not a "libpcap" type we know about. */
 		return 0;
@@ -904,7 +921,11 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 *
 		 * Try the standard format first.
 		 */
-		wth->file_type = WTAP_FILE_PCAP;
+		if(wth->tsprecision == WTAP_FILE_TSPREC_NSEC) {
+			wth->file_type = WTAP_FILE_PCAP_NSEC;
+		} else {
+			wth->file_type = WTAP_FILE_PCAP;
+		}
 		switch (libpcap_try(wth, err)) {
 
 		case BAD_READ:
@@ -1273,7 +1294,11 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 	wth->data_offset += packet_size;
 
 	wth->phdr.ts.secs = hdr.hdr.ts_sec;
-	wth->phdr.ts.nsecs = hdr.hdr.ts_usec * 1000;
+	if(wth->tsprecision == WTAP_FILE_TSPREC_NSEC) {
+		wth->phdr.ts.nsecs = hdr.hdr.ts_usec;
+	} else {
+		wth->phdr.ts.nsecs = hdr.hdr.ts_usec * 1000;
+	}
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = orig_size;
 
@@ -1416,6 +1441,7 @@ static int libpcap_read_header(wtap *wth, int *err, gchar **err_info,
 
 	case WTAP_FILE_PCAP:
 	case WTAP_FILE_PCAP_AIX:
+	case WTAP_FILE_PCAP_NSEC:
 		bytes_to_read = sizeof (struct pcaprec_hdr);
 		break;
 
@@ -1944,11 +1970,18 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 	case WTAP_FILE_PCAP_SS990417:	/* modified, but with the old magic, sigh */
 	case WTAP_FILE_PCAP_NOKIA:	/* Nokia libpcap of some sort */
 		magic = PCAP_MAGIC;
+		wdh->tsprecision = WTAP_FILE_TSPREC_USEC;
 		break;
 
 	case WTAP_FILE_PCAP_SS990915:	/* new magic, extra crap */
 	case WTAP_FILE_PCAP_SS991029:
 		magic = PCAP_MODIFIED_MAGIC;
+		wdh->tsprecision = WTAP_FILE_TSPREC_USEC;
+		break;
+
+	case WTAP_FILE_PCAP_NSEC:		/* same as WTAP_FILE_PCAP, but nsec precision */
+		magic = PCAP_NSEC_MAGIC;
+		wdh->tsprecision = WTAP_FILE_TSPREC_NSEC;
 		break;
 
 	default:
@@ -2023,12 +2056,17 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		hdrsize = 0;
 
 	rec_hdr.hdr.ts_sec = phdr->ts.secs;
-	rec_hdr.hdr.ts_usec = phdr->ts.nsecs / 1000;
+	if(wdh->tsprecision == WTAP_FILE_TSPREC_NSEC) {
+		rec_hdr.hdr.ts_usec = phdr->ts.nsecs;
+	} else {
+		rec_hdr.hdr.ts_usec = phdr->ts.nsecs / 1000;
+	}
 	rec_hdr.hdr.incl_len = phdr->caplen + hdrsize;
 	rec_hdr.hdr.orig_len = phdr->len + hdrsize;
 	switch (wdh->file_type) {
 
 	case WTAP_FILE_PCAP:
+	case WTAP_FILE_PCAP_NSEC:
 		hdr_size = sizeof (struct pcaprec_hdr);
 		break;
 

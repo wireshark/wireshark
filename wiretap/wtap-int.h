@@ -242,6 +242,9 @@ struct wtap_dumper {
 
 	subtype_write_func	subtype_write;
 	subtype_close_func	subtype_close;
+
+	int			tsprecision;	/* timestamp precision of the lower 32bits
+							 * e.g. WTAP_FILE_TSPREC_USEC */
 };
 
 

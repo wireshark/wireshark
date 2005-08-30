@@ -37,11 +37,18 @@
 
 	http://ftp.sunet.se/pub/os/Linux/ip-routing/lbl-tools/
 
-   applied; PCAP_SWAPPED_MODIFIED_MAGIC is the byte-swapped version. */
+   applied; PCAP_SWAPPED_MODIFIED_MAGIC is the byte-swapped version. 
+
+   PCAP_NSEC_MAGIC is for Ulf Lamping's modified "libpcap" format,
+   which uses the same common file format as PCAP_MAGIC, but the 
+   timestamps are saved in nanosecond resolution instead of microseconds.
+   PCAP_SWAPPED_NSEC_MAGIC is a byte-swapped version of that. */
 #define	PCAP_MAGIC			0xa1b2c3d4
 #define	PCAP_SWAPPED_MAGIC		0xd4c3b2a1
 #define	PCAP_MODIFIED_MAGIC		0xa1b2cd34
 #define	PCAP_SWAPPED_MODIFIED_MAGIC	0x34cdb2a1
+#define	PCAP_NSEC_MAGIC			0xa1b23c4d
+#define	PCAP_SWAPPED_NSEC_MAGIC		0x4d3cb2a1
 
 /* "libpcap" file header (minus magic number). */
 struct pcap_hdr {
@@ -56,7 +63,7 @@ struct pcap_hdr {
 /* "libpcap" record header. */
 struct pcaprec_hdr {
 	guint32	ts_sec;		/* timestamp seconds */
-	guint32	ts_usec;	/* timestamp microseconds */
+	guint32	ts_usec;	/* timestamp microseconds (nsecs for PCAP_NSEC_MAGIC) */
 	guint32	incl_len;	/* number of octets of packet saved in file */
 	guint32	orig_len;	/* actual length of packet */
 };
