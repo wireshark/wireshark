@@ -32,16 +32,11 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include "packet-osi.h"
 #include "packet-isis.h"
 #include "packet-isis-clv.h"
 #include "nlpid.h"
-
-static void
-free_g_string(void *arg)
-{
-	g_string_free(arg, TRUE);
-}
 
 /*
  * Name: isis_dissect_area_address_clv()
@@ -64,7 +59,7 @@ isis_dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int length)
 {
 	int		arealen,area_idx;
-	GString		*gstr;
+#define MAX_STR_LEN	256
 
 	while ( length > 0 ) {
 		arealen = tvb_get_guint8(tvb, offset);
@@ -82,40 +77,31 @@ isis_dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		}
 
 		if ( tree ) {
+			char		*str, *strptr;
+	
+			str=ep_alloc(MAX_STR_LEN);
+			str[0]=0;
+			strptr=str;
+
 			/*
 			 * Lets turn the area address into "standard"
 			 * xx.xxxx.xxxx.xxxx.xxxx.xxxx.xxxx format string.
 	                 * this is a private routine as the print_nsap_net in
 			 * epan/osi_utils.c is incomplete and we need only
 			 * a subset - actually some nice placing of dots ....
-			 *
-			 * We pick an initial size of 32 bytes.
 			 */
-			gstr = g_string_sized_new(32);
-
-			/*
-			 * Free the GString if we throw an exception.
-			 */
-			CLEANUP_PUSH(free_g_string, gstr);
-
 			for (area_idx = 0; area_idx < arealen; area_idx++) {
-				g_string_sprintfa(gstr, "%02x",
+				strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), "%02x",
 				    tvb_get_guint8(tvb, offset+area_idx+1));
 				if (((area_idx & 1) == 0) &&
 				    (area_idx + 1 < arealen)) {
-					g_string_sprintfa(gstr, ".");
+					strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), ".");
 				}
 			}
 
 			/* and spit it out */
 			proto_tree_add_text ( tree, tvb, offset, arealen + 1,
-				"Area address (%d): %s", arealen, gstr->str );
-
-			/*
-			 * We're done with the GString, so delete it and
-			 * get rid of the cleanup handler.
-			 */
-			CLEANUP_CALL_AND_POP;
+				"Area address (%d): %s", arealen, str );
 		}
 		offset += arealen + 1;
 		length -= arealen;	/* length already adjusted for len fld*/
@@ -148,7 +134,7 @@ isis_dissect_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 {
 	guchar pw_type;
 	int auth_unsupported;
-	GString	*gstr;
+	char	*str, *strptr;
 
 	if ( length <= 0 ) {
 		return;
@@ -159,55 +145,46 @@ isis_dissect_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	length--;
 	auth_unsupported = FALSE;
 
-	gstr = g_string_new("");
-
-	/*
-	 * Free the GString if we throw an exception.
-	 */
-	CLEANUP_PUSH(free_g_string, gstr);
+	str=ep_alloc(MAX_STR_LEN);
+	str[0]=0;
+	strptr=str;
 
 	switch (pw_type) {
 	case 1:
-		g_string_sprintfa(gstr,
+		strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str),
 		    "clear text (1), password (length %d) = ", length);
 		if ( length > 0 ) {
-		  g_string_sprintfa(gstr, "%s",
+		  strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), "%s",
 		    tvb_format_text(tvb, offset, length));
                 } else {
-		  g_string_append(gstr, "no clear-text password found!!!");
+		  strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), "no clear-text password found!!!");
 		}
 		break;
 	case 54:
-		g_string_sprintfa(gstr,
+		strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), 
 		    "hmac-md5 (54), password (length %d) = ", length);
 
 		if ( length == 16 ) {
-		  g_string_sprintfa(gstr, "0x%02x", tvb_get_guint8(tvb, offset));
+		  strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), "0x%02x", tvb_get_guint8(tvb, offset));
 		  offset += 1;
 		  length--;
 		  while (length > 0) {
-		    g_string_sprintfa(gstr, "%02x", tvb_get_guint8(tvb, offset));
+		    strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), "%02x", tvb_get_guint8(tvb, offset));
 		    offset += 1;
 		    length--;
 		  }
 		} else {
-		  g_string_append(gstr,
+		  strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), 
 		      "illegal hmac-md5 digest format (must be 16 bytes)");
 		}
 		break;
 	default:
-		g_string_sprintfa(gstr, "type 0x%02x (0x%02x): ", pw_type, length );
+		strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), "type 0x%02x (0x%02x): ", pw_type, length );
 		auth_unsupported=TRUE;
 		break;
 	}
 
-	proto_tree_add_text ( tree, tvb, offset - 1, length + 1, "%s", gstr->str );
-
-	/*
-	 * We're done with the GString, so delete it and get rid of
-	 * the cleanup handler.
-	 */
-	CLEANUP_CALL_AND_POP;
+	proto_tree_add_text ( tree, tvb, offset - 1, length + 1, "%s", str );
 
        	if ( auth_unsupported ) {
 		isis_dissect_unknown(tvb, tree, offset,
@@ -482,44 +459,31 @@ isis_dissect_te_router_id_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 void
 isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length)
 {
-	GString *gstr;
+	char *str, *strptr;
 	int old_offset = offset, old_len = length;
 
 	if ( !tree ) return;		/* nothing to do! */
 
-	gstr = g_string_new("NLPID(s): ");
-
-	/*
-	 * Free the GString if we throw an exception.
-	 */
-	CLEANUP_PUSH(free_g_string, gstr);
+	str=ep_alloc(MAX_STR_LEN);
+	str[0]=0;
+	strptr=str;
 
 	if (length <= 0) {
-		g_string_append(gstr, "--none--");
+		strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), "--none--");
 	} else {
-		while (length-- > 0 && gstr->len < ITEM_LABEL_LENGTH) {
-			if (gstr->len > 10) {
-				g_string_append(gstr, ", ");
+		while (length-- > 0 ) {
+			if (strptr != str) {
+				strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), ", ");
 			}
-			g_string_sprintfa(gstr, "%s (0x%02x)",
+			strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), "%s (0x%02x)",
 				val_to_str(tvb_get_guint8(tvb, offset), nlpid_vals,
 				"Unknown"), tvb_get_guint8(tvb, offset));
 			offset++;
 		}
 	}
 
-	if (gstr->len >= ITEM_LABEL_LENGTH) {
-		g_string_truncate(gstr, ITEM_LABEL_LENGTH - strlen(TRUNCATED_TEXT) - 1);
-		g_string_append(gstr, TRUNCATED_TEXT);
-	}
-
 	proto_tree_add_text (tree, tvb, old_offset, old_len,
-			"%s", gstr->str);
-	/*
-	 * We're done with the GString, so delete it and get rid of
-	 * the cleanup handler.
-	 */
-	CLEANUP_CALL_AND_POP;
+			"%s", str);
 }
 
 /*
