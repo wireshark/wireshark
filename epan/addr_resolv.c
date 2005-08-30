@@ -327,7 +327,7 @@ static gchar *serv_name_lookup(guint port, port_type proto)
   if (!(g_resolv_flags & RESOLV_TRANSPORT) ||
       (servp = getservbyport(g_htons(port), serv_proto)) == NULL) {
     /* unknown port */
-    sprintf(tp->name, "%d", port);
+    g_snprintf(tp->name, MAXNAMELEN, "%d", port);
   } else {
     strncpy(tp->name, servp->s_name, MAXNAMELEN);
     tp->name[MAXNAMELEN-1] = '\0';
@@ -1132,7 +1132,7 @@ static gchar *eth_name_lookup(const guint8 *addr)
     for (;;) {
       /* Only the topmost 5 bytes participate fully */
       if ((etp = wka_name_lookup(addr, mask+40)) != NULL) {
-	sprintf(tp->name, "%s_%02x",
+	g_snprintf(tp->name, MAXNAMELEN, "%s_%02x",
 	      etp->name, addr[5] & (0xFF >> mask));
 	tp->is_dummy_entry = TRUE;
 	return (tp->name);
@@ -1146,7 +1146,7 @@ static gchar *eth_name_lookup(const guint8 *addr)
     for (;;) {
       /* Only the topmost 4 bytes participate fully */
       if ((etp = wka_name_lookup(addr, mask+32)) != NULL) {
-	sprintf(tp->name, "%s_%02x:%02x",
+	g_snprintf(tp->name, MAXNAMELEN, "%s_%02x:%02x",
 	      etp->name, addr[4] & (0xFF >> mask), addr[5]);
 	tp->is_dummy_entry = TRUE;
 	return (tp->name);
@@ -1160,7 +1160,7 @@ static gchar *eth_name_lookup(const guint8 *addr)
     for (;;) {
       /* Only the topmost 3 bytes participate fully */
       if ((etp = wka_name_lookup(addr, mask+24)) != NULL) {
-	sprintf(tp->name, "%s_%02x:%02x:%02x",
+	g_snprintf(tp->name, MAXNAMELEN, "%s_%02x:%02x:%02x",
 	      etp->name, addr[3] & (0xFF >> mask), addr[4], addr[5]);
 	tp->is_dummy_entry = TRUE;
 	return (tp->name);
@@ -1172,7 +1172,7 @@ static gchar *eth_name_lookup(const guint8 *addr)
 
     /* Now try looking in the manufacturer table. */
     if ((manufp = manuf_name_lookup(addr)) != NULL) {
-      sprintf(tp->name, "%s_%02x:%02x:%02x",
+      g_snprintf(tp->name, MAXNAMELEN, "%s_%02x:%02x:%02x",
 	      manufp->name, addr[3], addr[4], addr[5]);
       tp->is_dummy_entry = TRUE;
       return (tp->name);
@@ -1184,7 +1184,7 @@ static gchar *eth_name_lookup(const guint8 *addr)
     for (;;) {
       /* Only the topmost 2 bytes participate fully */
       if ((etp = wka_name_lookup(addr, mask+16)) != NULL) {
-	sprintf(tp->name, "%s_%02x:%02x:%02x:%02x",
+	g_snprintf(tp->name, MAXNAMELEN, "%s_%02x:%02x:%02x:%02x",
 	      etp->name, addr[2] & (0xFF >> mask), addr[3], addr[4],
 	      addr[5]);
 	tp->is_dummy_entry = TRUE;
@@ -1199,7 +1199,7 @@ static gchar *eth_name_lookup(const guint8 *addr)
     for (;;) {
       /* Only the topmost byte participates fully */
       if ((etp = wka_name_lookup(addr, mask+8)) != NULL) {
-	sprintf(tp->name, "%s_%02x:%02x:%02x:%02x:%02x",
+	g_snprintf(tp->name, MAXNAMELEN, "%s_%02x:%02x:%02x:%02x:%02x",
 	      etp->name, addr[1] & (0xFF >> mask), addr[2], addr[3],
 	      addr[4], addr[5]);
 	tp->is_dummy_entry = TRUE;
@@ -1213,7 +1213,7 @@ static gchar *eth_name_lookup(const guint8 *addr)
     for (mask = 7; mask > 0; mask--) {
       /* Not even the topmost byte participates fully */
       if ((etp = wka_name_lookup(addr, mask)) != NULL) {
-	sprintf(tp->name, "%s_%02x:%02x:%02x:%02x:%02x:%02x",
+	g_snprintf(tp->name, MAXNAMELEN, "%s_%02x:%02x:%02x:%02x:%02x:%02x",
 	      etp->name, addr[0] & (0xFF >> mask), addr[1], addr[2],
 	      addr[3], addr[4], addr[5]);
 	tp->is_dummy_entry = TRUE;
@@ -1222,7 +1222,7 @@ static gchar *eth_name_lookup(const guint8 *addr)
     }
 
     /* No match whatsoever. */
-    sprintf(tp->name, "%s", ether_to_str(addr));
+    g_snprintf(tp->name, MAXNAMELEN, "%s", ether_to_str(addr));
     tp->is_dummy_entry = TRUE;
 
   } else {
@@ -1490,7 +1490,7 @@ static gchar *ipxnet_name_lookup(const guint addr)
 
   if ( (ipxnet = get_ipxnetbyaddr(addr)) == NULL) {
     /* unknown name */
-      sprintf(tp->name, "%X", addr);
+      g_snprintf(tp->name, MAXNAMELEN, "%X", addr);
 
   } else {
     strncpy(tp->name, ipxnet->name, MAXNAMELEN);
