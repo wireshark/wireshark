@@ -266,7 +266,7 @@ isis_dissect_mt_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length,
 	int tree_id)
 {
 	guint16 mt_block;
-	char mt_desc[60];
+	char *mt_desc;
 
 	while (length>0) {
 	    /* length can only be a multiple of 2, otherwise there is
@@ -278,22 +278,22 @@ isis_dissect_mt_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length,
 		/* mask out the lower 12 bits */
 		switch(mt_block&0x0fff) {
 		case 0:
-		    strcpy(mt_desc,"IPv4 unicast");
+		    mt_desc="IPv4 unicast";
 		    break;
 		case 1:
-		    strcpy(mt_desc,"In-Band Management");
+		    mt_desc="In-Band Management";
 		    break;
 		case 2:
-		    strcpy(mt_desc,"IPv6 unicast");
+		    mt_desc="IPv6 unicast";
 		    break;
 		case 3:
-		    strcpy(mt_desc,"Multicast");
+		    mt_desc="Multicast";
 		    break;
 		case 4095:
-		    strcpy(mt_desc,"Development, Experimental or Proprietary");
+		    mt_desc="Development, Experimental or Proprietary";
 		    break;
 		default:
-		    strcpy(mt_desc,"Reserved for IETF Consensus");
+		    mt_desc="Reserved for IETF Consensus";
 		    break;
 		}
 		proto_tree_add_uint_format ( tree, tree_id, tvb, offset, 2,
@@ -379,19 +379,20 @@ void
 isis_dissect_ipv6_int_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int length, int tree_id)
 {
-	guint8 addr [16];
+	guint8 *addr;
 
 	if ( length <= 0 ) {
 		return;
 	}
 
+	addr=ep_alloc(16);
 	while ( length > 0 ) {
 		if ( length < 16 ) {
 			isis_dissect_unknown(tvb, tree, offset,
 				"Short IPv6 interface address (%d vs 16)",length );
 			return;
 		}
-		tvb_memcpy(tvb, addr, offset, sizeof(addr));
+		tvb_memcpy(tvb, addr, offset, 16);
 		if ( tree ) {
 			proto_tree_add_ipv6(tree, tree_id, tvb, offset, 16, addr);
 		}
