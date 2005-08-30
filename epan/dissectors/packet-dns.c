@@ -43,6 +43,7 @@
 #include "packet-tcp.h"
 #include <epan/prefs.h>
 #include <epan/strutil.h>
+#include <epan/emem.h>
 
 static int proto_dns = -1;
 static int hf_dns_length = -1;
@@ -435,11 +436,13 @@ dns_type_description (guint type)
   };
   const char *short_name;
   const char *long_name;
-  static char strbuf[1024+1];
+#define MAX_STRBUF_LEN 1024
+  char *strbuf;
 
+  strbuf=ep_alloc(MAX_STRBUF_LEN);
   short_name = dns_type_name(type);
   if (short_name == NULL) {
-    g_snprintf(strbuf, sizeof strbuf, "Unknown (%u)", type);
+    g_snprintf(strbuf, MAX_STRBUF_LEN, "Unknown (%u)", type);
     return strbuf;
   }
   if (type < sizeof(type_names)/sizeof(type_names[0]))
@@ -478,9 +481,9 @@ dns_type_description (guint type)
   }
 
   if (long_name != NULL)
-    g_snprintf(strbuf, sizeof strbuf, "%s (%s)", short_name, long_name);
+    g_snprintf(strbuf, MAX_STRBUF_LEN, "%s (%s)", short_name, long_name);
   else
-    g_snprintf(strbuf, sizeof strbuf, "%s", short_name);
+    g_snprintf(strbuf, MAX_STRBUF_LEN, "%s", short_name);
   return strbuf;
 }
 
@@ -1124,10 +1127,12 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       int mask;
       int port_num;
       int i;
-      static GString *bitnames = NULL;
+      char *bitnames, *strptr;
 
-      if (bitnames == NULL)
-	bitnames = g_string_sized_new(128);
+#define MAX_STR_LEN 128
+      bitnames=ep_alloc(MAX_STR_LEN);
+      bitnames[0]=0;
+      strptr=bitnames;
 
       if (rr_len < 4) {
 	if (dns_tree != NULL)
@@ -1157,23 +1162,24 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	  bits = tvb_get_guint8(tvb, cur_offset);
 	  if (bits != 0) {
 	    mask = 1<<7;
-	    g_string_truncate(bitnames, 0);
+            bitnames[0]=0;
+            strptr=bitnames;
 	    for (i = 0; i < 8; i++) {
 	      if (bits & mask) {
-		if (bitnames->len != 0)
-		  g_string_append(bitnames, ", ");
+		if (strptr!=bitnames)
+		  strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-bitnames), ", ");
 		switch (protocol) {
 
 		case IP_PROTO_TCP:
-		  g_string_append(bitnames, get_tcp_port(port_num));
+		  strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-bitnames), get_tcp_port(port_num));
 		  break;
 
 		case IP_PROTO_UDP:
-		  g_string_append(bitnames, get_udp_port(port_num));
+		  strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-bitnames), get_udp_port(port_num));
 		  break;
 
 		default:
-		  g_string_sprintfa(bitnames, "%u", port_num);
+		  strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-bitnames), "%u", port_num);
 		  break;
 	        }
 	      }
@@ -1181,7 +1187,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	      port_num++;
 	    }
 	    proto_tree_add_text(rr_tree, tvb, cur_offset, 1,
-		"Bits: 0x%02x (%s)", bits, bitnames->str);
+		"Bits: 0x%02x (%s)", bits, bitnames);
 	  } else
 	    port_num += 8;
 	  cur_offset += 1;
