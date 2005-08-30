@@ -1,4 +1,4 @@
-# $Id: Makefile 15178 2005-08-02 05:21:19Z jmayer $
+# $Id$
 
 DISSECTOR_FILES=packet-pres.c packet-pres.h
 
