@@ -136,7 +136,7 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 void
 dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-	int offset = 0;
+	int offset = 0, old_offset;
 /* first, try to check length   */
 /* do we have at least 4 bytes  */
 	if (!tvb_bytes_exist(tvb, 0, 4)){
@@ -157,12 +157,11 @@ dissect_pres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	global_pinfo = pinfo;
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
-
+		old_offset = offset;
 		offset = dissect_ppdu(tvb, offset, pinfo, parent_tree);
-		if(offset == FALSE ){
-			proto_tree_add_text(parent_tree, tvb, offset, -1,"Internal error");
-			offset = tvb_length(tvb);
-			break;
+		if(offset <= old_offset){
+			proto_tree_add_text(parent_tree, tvb, offset, -1,"Invalid offset");
+			THROW(ReportedBoundsError);
 		}
 	}
 }
