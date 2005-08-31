@@ -198,5 +198,5 @@ struct SESSION_DATA_STRUCTURE
 };
 #define		implementation_restriction		0x10
 
-const value_string ses_vals[];
+extern const value_string ses_vals[];
 
