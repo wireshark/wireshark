@@ -184,6 +184,13 @@ col_clear(column_info *cinfo, gint el)
     cinfo->col_data[i] = cinfo->col_buf[i];			\
   }
 
+#define COL_CHECK_REF_TIME(fd, cinfo, col)	\
+  if(fd->flags.ref_time){					\
+    g_snprintf(cinfo->col_buf[col], COL_MAX_LEN, "*REF*");	\
+    cinfo->col_data[col] = cinfo->col_buf[col];			\
+    return;							\
+  }
+
 /* Use this if "str" points to something that will stay around (and thus
    needn't be copied). */
 void
@@ -473,6 +480,8 @@ col_set_abs_date_time(frame_data *fd, column_info *cinfo, int col)
   struct tm *tmp;
   time_t then;
 
+  COL_CHECK_REF_TIME(fd, cinfo, col);
+
   then = fd->abs_ts.secs;
   tmp = localtime(&then);
   if (tmp != NULL) {
@@ -562,6 +571,8 @@ col_set_abs_date_time(frame_data *fd, column_info *cinfo, int col)
 static void
 col_set_rel_time(frame_data *fd, column_info *cinfo, int col)
 {
+  COL_CHECK_REF_TIME(fd, cinfo, col);
+
   switch(timestamp_get_precision()) {
 	  case(TS_PREC_FIXED_SEC):
 	  case(TS_PREC_AUTO_SEC):
@@ -604,6 +615,8 @@ col_set_rel_time(frame_data *fd, column_info *cinfo, int col)
 static void
 col_set_delta_time(frame_data *fd, column_info *cinfo, int col)
 {
+  COL_CHECK_REF_TIME(fd, cinfo, col);
+
   switch(timestamp_get_precision()) {
 	  case(TS_PREC_FIXED_SEC):
 	  case(TS_PREC_AUTO_SEC):
@@ -650,6 +663,8 @@ col_set_abs_time(frame_data *fd, column_info *cinfo, int col)
 {
   struct tm *tmp;
   time_t then;
+
+  COL_CHECK_REF_TIME(fd, cinfo, col);
 
   then = fd->abs_ts.secs;
   tmp = localtime(&then);
@@ -1010,48 +1025,23 @@ fill_in_columns(packet_info *pinfo)
       break;
 
     case COL_CLS_TIME:
-      if(pinfo->fd->flags.ref_time){
-         g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "*REF*");
-         pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
-      } else {
-         col_set_cls_time(pinfo->fd, pinfo->cinfo, i);
-      }
+       col_set_cls_time(pinfo->fd, pinfo->cinfo, i);
       break;
 
     case COL_ABS_TIME:
-      if(pinfo->fd->flags.ref_time){
-         g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "*REF*");
-         pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
-      } else {
-         col_set_abs_time(pinfo->fd, pinfo->cinfo, i);
-      }
+      col_set_abs_time(pinfo->fd, pinfo->cinfo, i);
       break;
 
     case COL_ABS_DATE_TIME:
-      if(pinfo->fd->flags.ref_time){
-         g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "*REF*");
-         pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
-      } else {
-         col_set_abs_date_time(pinfo->fd, pinfo->cinfo, i);
-      }
+      col_set_abs_date_time(pinfo->fd, pinfo->cinfo, i);
       break;
 
     case COL_REL_TIME:
-      if(pinfo->fd->flags.ref_time){
-         g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "*REF*");
-         pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
-      } else {
-         col_set_rel_time(pinfo->fd, pinfo->cinfo, i);
-      }
+      col_set_rel_time(pinfo->fd, pinfo->cinfo, i);
       break;
 
     case COL_DELTA_TIME:
-      if(pinfo->fd->flags.ref_time){
-         g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "*REF*");
-         pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
-      } else {
-         col_set_delta_time(pinfo->fd, pinfo->cinfo, i);
-      }
+      col_set_delta_time(pinfo->fd, pinfo->cinfo, i);
       break;
 
     case COL_DEF_SRC:
