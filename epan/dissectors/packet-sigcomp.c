@@ -1,6 +1,6 @@
 /* packet-sigcomp.c
  * Routines for Signaling Compression (SigComp) dissection.
- * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2004-2005, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -24,6 +24,7 @@
  * References:
  * http://www.ietf.org/rfc/rfc3320.txt?number=3320
  * http://www.ietf.org/rfc/rfc3321.txt?number=3321
+ * http://www.ietf.org/rfc/rfc4077.txt?number=4077
  * Useful links :
  * http://www.ietf.org/internet-drafts/draft-ietf-rohc-sigcomp-impl-guide-03.txt
  * http://www.ietf.org/internet-drafts/draft-ietf-rohc-sigcomp-sip-01.txt
@@ -99,6 +100,14 @@ static int hf_udvm_uncompressed						= -1;
 static int hf_udvm_offset							= -1;
 static int hf_udvm_addr_offset						= -1;
 static int hf_udvm_start_value						= -1;
+static int hf_sigcomp_nack_ver						= -1;
+static int hf_sigcomp_nack_reason_code				= -1;
+static int hf_sigcomp_nack_failed_op_code			= -1;
+static int hf_sigcomp_nack_pc						= -1;
+static int hf_sigcomp_nack_sha1						= -1;
+static int hf_sigcomp_nack_state_id					= -1;
+static int hf_sigcomp_nack_memory_size				= -1;
+static int hf_sigcomp_nack_cycles_per_bit			= -1;				
 
 /* Initialize the subtree pointers */
 static gint ett_sigcomp				= -1;
@@ -254,6 +263,42 @@ static const value_string display_lit_bytecode_vals[] = {
 	{ 0,	NULL }
 };
 
+#define SIGCOMP_NACK_STATE_NOT_FOUND              1
+#define SIGCOMP_NACK_CYCLES_EXHAUSTED             2
+#define SIGCOMP_NACK_BYTECODES_TOO_LARGE         18  
+#define SIGCOMP_NACK_ID_NOT_UNIQUE               21  
+#define SIGCOMP_NACK_STATE_TOO_SHORT             23  
+
+static const value_string sigcomp_nack_reason_code_vals[] = {
+	{ 0x01,	"STATE_NOT_FOUND" },			/*1  State ID (6 - 20 bytes) */
+	{ 0x02,	"CYCLES_EXHAUSTED" },			/*2  Cycles Per Bit (1 byte) */
+	{ 0x03,	"USER_REQUESTED" },
+	{ 0x04,	"SEGFAULT" },
+	{ 0x05,	"TOO_MANY_STATE_REQUESTS" },
+	{ 0x06,	"INVALID_STATE_ID_LENGTH" },
+	{ 0x07,	"INVALID_STATE_PRIORITY" },
+	{ 0x08,	"OUTPUT_OVERFLOW" },
+	{ 0x09,	"STACK_UNDERFLOW" },
+	{ 0x10,	"BAD_INPUT_BITORDER" },
+	{ 0x11,	"DIV_BY_ZERO" },
+	{ 0x12,	"SWITCH_VALUE_TOO_HIGH" },
+	{ 0x13,	"TOO_MANY_BITS_REQUESTED" },
+	{ 0x14,	"INVALID_OPERAND" },
+	{ 0x15,	"HUFFMAN_NO_MATCH" },
+	{ 0x16,	"MESSAGE_TOO_SHORT" },
+	{ 0x17,	"INVALID_CODE_LOCATION" },
+	{ 0x18,	"BYTECODES_TOO_LARGE" },		/*18  Memory size (2 bytes) */
+	{ 0x19,	"INVALID_OPCODE" },
+	{ 0x20,	"INVALID_STATE_PROBE" },
+	{ 0x21,	"ID_NOT_UNIQUE" },				/*21  State ID (6 - 20 bytes) */
+	{ 0x22,	"MULTILOAD_OVERWRITTEN" },
+	{ 0x23,	"STATE_TOO_SHORT" },			/*23  State ID (6 - 20 bytes) */
+	{ 0x24,	"INTERNAL_ERROR" },
+	{ 0x25,	"FRAMING_ERROR" },
+	{ 0,	NULL }
+};
+
+
 static void dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree, guint destination);
 
 static int dissect_udvm_multitype_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree, 
@@ -352,6 +397,38 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *                                     |                               |
  *                                     +---+---+---+---+---+---+---+---+
  *
+ * RFC 4077:
+ * The format of the NACK message and the use of the fields within it
+ * are shown in Figure 1.
+ *
+ *                     0   1   2   3   4   5   6   7
+ *                  +---+---+---+---+---+---+---+---+
+ *                  | 1   1   1   1   1 | T |   0   |
+ *                  +---+---+---+---+---+---+---+---+
+ *                  |                               |
+ *                  :    returned feedback item     :
+ *                  |                               |
+ *                  +---+---+---+---+---+---+---+---+
+ *                  |         code_len = 0          |
+ *                  +---+---+---+---+---+---+---+---+
+ *                  | code_len = 0  |  version = 1  |
+ *                  +---+---+---+---+---+---+---+---+
+ *                  |          Reason Code          |
+ *                  +---+---+---+---+---+---+---+---+
+ *                  |  OPCODE of failed instruction |
+ *                  +---+---+---+---+---+---+---+---+
+ *                  |   PC of failed instruction    |
+ *                  |                               |
+ *                  +---+---+---+---+---+---+---+---+
+ *                  |                               |
+ *                  : SHA-1 Hash of failed message  :
+ *                  |                               |
+ *                  +---+---+---+---+---+---+---+---+
+ *                  |                               |
+ *                  :         Error Details         :
+ *                  |                               |
+ *                  +---+---+---+---+---+---+---+---+
+ *                  Figure 1: SigComp NACK Message Format
  */
 
 	proto_tree_add_item(sigcomp_tree,hf_sigcomp_t_bit, tvb, offset, 1, FALSE);
@@ -522,51 +599,85 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = offset + len;
 		}
 		len = tvb_get_ntohs(tvb, offset) >> 4;
-		octet =  tvb_get_guint8(tvb, (offset + 1));
-		destination = (octet & 0x0f);
-		if ( destination != 0 )
-			destination = 64 + ( destination * 64 );
-		proto_tree_add_uint(sigcomp_tree,hf_sigcomp_code_len, tvb, offset, 2, len);
-		proto_tree_add_item(sigcomp_tree,hf_sigcomp_destination, tvb, (offset+ 1), 1, FALSE);
-		offset = offset +2;
+		if (len == 0){
+			offset++;
+			/* NACK MESSAGE */
+			proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_ver, tvb, offset, 1, FALSE);
+			offset++;
+			octet = tvb_get_guint8(tvb, offset);
+			proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_reason_code, tvb, offset, 1, FALSE);
+			offset++;
+			proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_failed_op_code, tvb, offset, 1, FALSE);
+			offset++;
+			proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_pc, tvb, offset, 2, FALSE);
+			offset = offset +2;
+			proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_sha1, tvb, offset, 20, FALSE);
+			offset = offset +20;
+			switch ( octet){
+			case SIGCOMP_NACK_STATE_NOT_FOUND:
+			case SIGCOMP_NACK_ID_NOT_UNIQUE:
+			case SIGCOMP_NACK_STATE_TOO_SHORT:
+				/* State ID (6 - 20 bytes) */
+				proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_state_id, tvb, offset, -1, FALSE);
+				break;
+			case SIGCOMP_NACK_CYCLES_EXHAUSTED:
+				/* Cycles Per Bit (1 byte) */
+				proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_cycles_per_bit, tvb, offset, 1, FALSE);
+				break;
+			case SIGCOMP_NACK_BYTECODES_TOO_LARGE:
+				/* Memory size (2 bytes) */
+				proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_memory_size, tvb, offset, 2, FALSE);
+				break;
+			default:
+				break;
+			}
+		}else{
+			octet = tvb_get_guint8(tvb, (offset + 1));
+			destination = (octet & 0x0f);
+			if ( destination != 0 )
+				destination = 64 + ( destination * 64 );
+			proto_tree_add_uint(sigcomp_tree,hf_sigcomp_code_len, tvb, offset, 2, len);
+			proto_tree_add_item(sigcomp_tree,hf_sigcomp_destination, tvb, (offset+ 1), 1, FALSE);
+			offset = offset +2;
 
-		bytecode_len = len;
-		bytecode_offset = offset;
-		udvm_bytecode_item = proto_tree_add_text(sigcomp_tree, tvb, bytecode_offset, bytecode_len, 
-			"Uploaded UDVM bytecode %u (0x%x) bytes", bytecode_len, bytecode_len);
-		sigcomp_udvm_tree = proto_item_add_subtree( udvm_bytecode_item, ett_sigcomp_udvm);
+			bytecode_len = len;
+			bytecode_offset = offset;
+			udvm_bytecode_item = proto_tree_add_text(sigcomp_tree, tvb, bytecode_offset, bytecode_len, 
+				"Uploaded UDVM bytecode %u (0x%x) bytes", bytecode_len, bytecode_len);
+			sigcomp_udvm_tree = proto_item_add_subtree( udvm_bytecode_item, ett_sigcomp_udvm);
 
-		udvm_tvb = tvb_new_subset(tvb, offset, len, len);
-		if ( dissect_udvm_code )
-			dissect_udvm_bytecode(udvm_tvb, sigcomp_udvm_tree, destination); 
+			udvm_tvb = tvb_new_subset(tvb, offset, len, len);
+			if ( dissect_udvm_code )
+				dissect_udvm_bytecode(udvm_tvb, sigcomp_udvm_tree, destination); 
 
-		offset = offset + len;
-		msg_len = tvb_reported_length_remaining(tvb, offset);
-		if(msg_len>0)
-			proto_tree_add_text(sigcomp_tree, tvb, offset, -1, "Remaining SigComp message %u bytes",
-				tvb_reported_length_remaining(tvb, offset));
-		if ( decompress ){
+			offset = offset + len;
+			msg_len = tvb_reported_length_remaining(tvb, offset);
+			if(msg_len>0)
+				proto_tree_add_text(sigcomp_tree, tvb, offset, -1, "Remaining SigComp message %u bytes",
+					tvb_reported_length_remaining(tvb, offset));
+			if ( decompress ){
 
-			msg_tvb = tvb_new_subset(tvb, offset, msg_len, msg_len);
+				msg_tvb = tvb_new_subset(tvb, offset, msg_len, msg_len);
 	
-			udvm_exe_item = proto_tree_add_text(sigcomp_tree, tvb, bytecode_offset, bytecode_len, 
-				"UDVM execution trace");
-			sigcomp_udvm_exe_tree = proto_item_add_subtree( udvm_exe_item, ett_sigcomp_udvm_exe);
-			decomp_tvb = decompress_sigcomp_message(udvm_tvb, msg_tvb, pinfo,
+				udvm_exe_item = proto_tree_add_text(sigcomp_tree, tvb, bytecode_offset, bytecode_len, 
+					"UDVM execution trace");
+				sigcomp_udvm_exe_tree = proto_item_add_subtree( udvm_exe_item, ett_sigcomp_udvm_exe);
+				decomp_tvb = decompress_sigcomp_message(udvm_tvb, msg_tvb, pinfo,
 						   sigcomp_udvm_exe_tree, destination, 
 						   udvm_print_detail_level, hf_sigcomp_partial_state,
 						   offset, 0, 0, destination);
-			if ( decomp_tvb ){
-				proto_tree_add_text(sigcomp_tree, decomp_tvb, 0, -1,"SigComp message Decompressed WOHO!!");
-				if ( display_raw_txt )
-					tvb_raw_text_add(decomp_tvb, tree);
-				if (check_col(pinfo->cinfo, COL_PROTOCOL)){
-					col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
-					col_set_fence(pinfo->cinfo,COL_PROTOCOL);
+				if ( decomp_tvb ){
+					proto_tree_add_text(sigcomp_tree, decomp_tvb, 0, -1,"SigComp message Decompressed WOHO!!");
+					if ( display_raw_txt )
+						tvb_raw_text_add(decomp_tvb, tree);
+					if (check_col(pinfo->cinfo, COL_PROTOCOL)){
+						col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
+						col_set_fence(pinfo->cinfo,COL_PROTOCOL);
+					}
+					call_dissector(sip_handle, decomp_tvb, pinfo, tree);
 				}
-				call_dissector(sip_handle, decomp_tvb, pinfo, tree);
-			}
-		} /* if decompress */
+			} /* if decompress */
+		}/*if len==0 */
 
 	}
 	return tvb_length(tvb);
@@ -2188,6 +2299,46 @@ proto_register_sigcomp(void)
 			{ " %Offset[memory address]", "sigcomp.udvm.addr.offset",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
 			"Offset", HFILL }
+		},
+		{ &hf_sigcomp_nack_ver,
+			{ "NACK Version", "sigcomp.nack.ver",
+			FT_UINT8, BASE_DEC, NULL, 0x0f,          
+			"NACK Version", HFILL }
+		},
+		{ &hf_sigcomp_nack_reason_code,
+			{ "Reason Code", "sigcomp.nack.reason",
+			FT_UINT8, BASE_DEC, VALS(sigcomp_nack_reason_code_vals), 0x0,          
+			"NACK Reason Code", HFILL }
+		},
+		{ &hf_sigcomp_nack_failed_op_code,
+			{ "OPCODE of failed instruction", "sigcomp.nack.failed_op_code",
+			FT_UINT8, BASE_DEC, VALS(udvm_instruction_code_vals), 0x0,          
+			"NACK OPCODE of failed instruction", HFILL }
+		},
+		{ &hf_sigcomp_nack_pc,
+			{ "PC of failed instruction", "sigcomp.nack.pc",
+			FT_UINT16, BASE_DEC, NULL, 0x0,          
+			"NACK PC of failed instruction", HFILL }
+		},
+		{ &hf_sigcomp_nack_sha1,
+			{ "SHA-1 Hash of failed message", "sigcomp.nack.sha1",
+			FT_BYTES, BASE_HEX, NULL, 0x0,          
+			"NACK SHA-1 Hash of failed message", HFILL }
+		},
+		{ &hf_sigcomp_nack_state_id,
+			{ "State ID (6 - 20 bytes)", "sigcomp.nack.tate_id",
+			FT_BYTES, BASE_HEX, NULL, 0x0,          
+			"NACK State ID (6 - 20 bytes)", HFILL }
+		},
+		{ &hf_sigcomp_nack_cycles_per_bit,
+			{ "Cycles Per Bit ", "sigcomp.nack.cycles_per_bit",
+			FT_UINT8, BASE_DEC, NULL, 0x0,          
+			"NACK Cycles Per Bit", HFILL }
+		},
+		{ &hf_sigcomp_nack_memory_size,
+			{ "Memory size", "sigcomp.memory_size",
+			FT_UINT16, BASE_DEC, NULL, 0x0,          
+			"Memory size", HFILL }
 		},
 	};
 

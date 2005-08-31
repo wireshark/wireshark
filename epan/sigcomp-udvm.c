@@ -26,7 +26,7 @@
  * http://www.ietf.org/rfc/rfc3320.txt?number=3320
  * http://www.ietf.org/rfc/rfc3321.txt?number=3321
  * Useful links :
- * http://www.ietf.org/internet-drafts/draft-ietf-rohc-sigcomp-impl-guide-03.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-rohc-sigcomp-impl-guide-05.txt
  * http://www.ietf.org/internet-drafts/draft-ietf-rohc-sigcomp-sip-01.txt
  */
 
@@ -159,7 +159,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 	guint16		stack_fill;
 	guint16		result;
 	guint 		msg_end = tvb_reported_length_remaining(message_tvb, 0);
-	guint16		result_code;
+	guint16		result_code = 0;
 	guint16		old_input_bit_order = 0;
 	guint16		remaining_bits = 0;
 	guint16		input_bits = 0;
