@@ -5,7 +5,7 @@
 #endif
 
 /* Name of package */
-#define PACKAGE "mate"
+#define PACKAGE "xml"
 
 #ifdef VERSION
 #undef VERSION
