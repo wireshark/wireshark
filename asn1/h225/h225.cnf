@@ -166,25 +166,22 @@ CallIdentifier/guid guid
 
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_PARS FastStart/_item
+  VAL_PTR = &value_tvb
 #.FN_BODY FastStart/_item
-	guint32 newoffset;
-	guint32 length;
+	tvbuff_t *value_tvb = NULL;
 	char codec_str[50];
 
-	offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_h225_fastStart_item_length, &length);
-	newoffset=offset + (length<<3);	/* please note that offset is in bits in
-					   PER dissectors, but the item length
-					   is in octets */
-	offset=dissect_h245_OpenLogicalChannelCodec(tvb,offset, pinfo, tree, hf_index, codec_str);
+%(DEFAULT_BODY)s
+	if (value_tvb && tvb_length(value_tvb)) {
+		dissect_h245_OpenLogicalChannelCodec(value_tvb, pinfo, tree, codec_str);
+	}
 
     /* Add to packet info */
     g_snprintf(h225_pi->frame_label, 50, "%%s %%s", h225_pi->frame_label, codec_str);
 
 	contains_faststart = TRUE;
 	h225_pi->is_faststart = TRUE;
-
-	return newoffset;
-
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_PARS RasMessage
@@ -575,6 +572,7 @@ VendorIdentifier/versionId TYPE = FT_STRING DISPLAY = BASE_HEX STRINGS = NULL
 H323-UserInformation/user-data/protocol-discriminator TYPE = FT_UINT32 DISPLAY = BASE_DEC STRINGS = VALS(q931_protocol_discriminator_vals)
 H323-UU-PDU/tunnelledSignallingMessage/messageContent/_item  TYPE = FT_UINT32 DISPLAY = BASE_DEC
 NonStandardParameter/data  TYPE = FT_UINT32 DISPLAY = BASE_DEC
+FastStart/_item  TYPE = FT_UINT32 DISPLAY = BASE_DEC
 ParallelH245Control/_item  TYPE = FT_UINT32 DISPLAY = BASE_DEC
 H245Control/_item  TYPE = FT_UINT32 DISPLAY = BASE_DEC
 GloballyUniqueID  TYPE = FT_GUID  DISPLAY = BASE_NONE

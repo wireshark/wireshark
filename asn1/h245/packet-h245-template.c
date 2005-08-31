@@ -54,8 +54,8 @@
 #include "packet-rtcp.h"
 #include "packet-ber.h"
 
-#define PNAME  "h245"
-#define PSNAME "h245"
+#define PNAME  "MULTIMEDIA-SYSTEM-CONTROL"
+#define PSNAME "H.245"
 #define PFNAME "h245"
 
 static dissector_handle_t rtp_handle=NULL;
@@ -248,10 +248,10 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	guint32 offset=0;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.245");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 	}
 
-	it=proto_tree_add_protocol_format(parent_tree, proto_h245, tvb, 0, tvb_length(tvb), "H.245");
+	it=proto_tree_add_protocol_format(parent_tree, proto_h245, tvb, 0, tvb_length(tvb), PSNAME);
 	tr=proto_item_add_subtree(it, ett_h245);
 
 	/* assume that whilst there is more tvb data, there are more h245 commands */
@@ -264,11 +264,9 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 }
 
-int
-dissect_h245_OpenLogicalChannelCodec(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, char *codec_str) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
-                                ett_h245_OpenLogicalChannel, OpenLogicalChannel_sequence);
-
+void
+dissect_h245_OpenLogicalChannelCodec(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str) {
+  dissect_OpenLogicalChannel_PDU(tvb, pinfo, tree);
 
   if (h245_pi != NULL) h245_pi->msg_type = H245_OpenLogChn;
 
@@ -276,7 +274,6 @@ dissect_h245_OpenLogicalChannelCodec(tvbuff_t *tvb, int offset, packet_info *pin
         strncpy(codec_str, codec_type, 50);
   }
 
-  return offset;
 }
 
 /*--- proto_register_h245 -------------------------------------------*/

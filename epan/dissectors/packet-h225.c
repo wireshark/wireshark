@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-h225.c                                                            */
+/* .\packet-h225.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h225 -c h225.cnf -s packet-h225-template h225.asn */
 
 /* Input file: packet-h225-template.c */
@@ -62,8 +62,8 @@
 #include "packet-h245.h"
 #include "packet-q931.h"
 
-#define PNAME  "h225"
-#define PSNAME "H225"
+#define PNAME  "H323-MESSAGES"
+#define PSNAME "H.225.0"
 #define PFNAME "h225"
 
 #define UDP_PORT_RAS1 1718
@@ -4335,24 +4335,21 @@ static int dissect_cryptoTokens(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 static int
 dissect_h225_FastStart_item(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-	guint32 newoffset;
-	guint32 length;
+	tvbuff_t *value_tvb = NULL;
 	char codec_str[50];
 
-	offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_h225_fastStart_item_length, &length);
-	newoffset=offset + (length<<3);	/* please note that offset is in bits in
-					   PER dissectors, but the item length
-					   is in octets */
-	offset=dissect_h245_OpenLogicalChannelCodec(tvb,offset, pinfo, tree, hf_index, codec_str);
+  offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
+                                       -1, -1, &value_tvb);
+
+	if (value_tvb && tvb_length(value_tvb)) {
+		dissect_h245_OpenLogicalChannelCodec(value_tvb, pinfo, tree, codec_str);
+	}
 
     /* Add to packet info */
     g_snprintf(h225_pi->frame_label, 50, "%s %s", h225_pi->frame_label, codec_str);
 
 	contains_faststart = TRUE;
 	h225_pi->is_faststart = TRUE;
-
-	return newoffset;
-
 
   return offset;
 }
@@ -9276,13 +9273,13 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     h225_pi->msg_type = H225_CS;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.225.0");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)){
 		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
-	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, 0, tvb_length(tvb), "H.225.0 CS");
+	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, 0, tvb_length(tvb), PSNAME" CS");
 	tr=proto_item_add_subtree(it, ett_h225);
 
 	offset = dissect_h225_H323_UserInformation(tvb, offset,pinfo, tr, hf_h225_H323_UserInformation);
@@ -9308,10 +9305,10 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     h225_pi->msg_type = H225_RAS;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.225.0");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 	}
 
-	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, offset, tvb_length(tvb), "H.225.0 RAS");
+	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, offset, tvb_length(tvb), PSNAME" RAS");
 	tr=proto_item_add_subtree(it, ett_h225);
 
 	offset = dissect_h225_RasMessage(tvb, 0, pinfo,tr, hf_h225_RasMessage );
@@ -10042,7 +10039,7 @@ void proto_register_h225(void) {
         "FacilityReason/transportedInformation", HFILL }},
     { &hf_h225_FastStart_item,
       { "Item", "h225.FastStart_item",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "FastStart/_item", HFILL }},
     { &hf_h225_ipAddress,
       { "ipAddress", "h225.ipAddress",

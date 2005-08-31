@@ -51,7 +51,7 @@ typedef struct _h245_packet_info {
 
 
 #include "packet-h245-exp.h"*/
-int dissect_h245_OpenLogicalChannelCodec(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, char *codec_str);
+void dissect_h245_OpenLogicalChannelCodec(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str);
 
 
 #endif  /* PACKET_H245_H */

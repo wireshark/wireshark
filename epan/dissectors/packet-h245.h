@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-h245.h                                                            */
+/* .\packet-h245.h                                                            */
 /* ../../tools/asn2eth.py -X -e -p h245 -c h245.cnf -s packet-h245-template h245.asn */
 
 /* Input file: packet-h245-template.h */
@@ -67,7 +67,7 @@ int dissect_h245_OpenLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinf
 
 /*--- End of included file: packet-h245-exp.h ---*/
 
-int dissect_h245_OpenLogicalChannelCodec(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, char *codec_str);
+void dissect_h245_OpenLogicalChannelCodec(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str);
 
 
 #endif  /* PACKET_H245_H */

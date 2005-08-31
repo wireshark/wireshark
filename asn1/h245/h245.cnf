@@ -8,6 +8,9 @@ T38FaxProfile
 DataProtocolCapability NO_PROT_PREFIX
 OpenLogicalChannel
 
+#.PDU
+OpenLogicalChannel
+
 #----------------------------------------------------------------------------------------
 #.FN_PARS RequestMessage
   VAL_PTR = &value
@@ -797,6 +800,7 @@ MulticastAddress/iPAddress/tsapIdentifier multicast_tsapIdentifier
 MulticastAddress/iP6Address/tsapIdentifier multicast_IPv6_tsapIdentifier
 CommunicationModeTableEntry/mediaChannel cm_mediaChannel
 CommunicationModeTableEntry/mediaControlChannel cm_mediaControlChannel
+
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR
 UnicastAddress/iPAddress/network  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
@@ -807,4 +811,8 @@ RTPPayloadType/payloadDescriptor/rfc-number TYPE = FT_UINT32  DISPLAY = BASE_DEC
 NonStandardIdentifier/h221NonStandard/t35CountryCode TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(T35CountryCode_vals)
 VendorIdentification/productNumber TYPE = FT_STRING DISPLAY = BASE_HEX STRINGS = NULL
 VendorIdentification/versionNumber TYPE = FT_STRING DISPLAY = BASE_HEX STRINGS = NULL
+
+#----------------------------------------------------------------------------------------
+#.FIELD_ATTR
+AlternativeCapabilitySet/_item NAME = "alternativeCapability"
 #----------------------------------------------------------------------------------------

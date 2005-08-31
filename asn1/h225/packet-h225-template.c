@@ -55,8 +55,8 @@
 #include "packet-h245.h"
 #include "packet-q931.h"
 
-#define PNAME  "h225"
-#define PSNAME "H225"
+#define PNAME  "H323-MESSAGES"
+#define PSNAME "H.225.0"
 #define PFNAME "h225"
 
 #define UDP_PORT_RAS1 1718
@@ -145,13 +145,13 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     h225_pi->msg_type = H225_CS;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.225.0");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)){
 		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
-	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, 0, tvb_length(tvb), "H.225.0 CS");
+	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, 0, tvb_length(tvb), PSNAME" CS");
 	tr=proto_item_add_subtree(it, ett_h225);
 
 	offset = dissect_h225_H323_UserInformation(tvb, offset,pinfo, tr, hf_h225_H323_UserInformation);
@@ -177,10 +177,10 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     h225_pi->msg_type = H225_RAS;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.225.0");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 	}
 
-	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, offset, tvb_length(tvb), "H.225.0 RAS");
+	it=proto_tree_add_protocol_format(tree, proto_h225, tvb, offset, tvb_length(tvb), PSNAME" RAS");
 	tr=proto_item_add_subtree(it, ett_h225);
 
 	offset = dissect_h225_RasMessage(tvb, 0, pinfo,tr, hf_h225_RasMessage );

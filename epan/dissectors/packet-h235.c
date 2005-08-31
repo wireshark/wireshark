@@ -45,7 +45,7 @@
 #include "packet-h235.h"
 
 #define PNAME  "H235-SECURITY-MESSAGES"
-#define PSNAME "H235"
+#define PSNAME "H.235"
 #define PFNAME "h235"
 
 /* Initialize the protocol and registered fields */

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-h245.c                                                            */
+/* .\packet-h245.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h245 -c h245.cnf -s packet-h245-template h245.asn */
 
 /* Input file: packet-h245-template.c */
@@ -61,8 +61,8 @@
 #include "packet-rtcp.h"
 #include "packet-ber.h"
 
-#define PNAME  "h245"
-#define PSNAME "h245"
+#define PNAME  "MULTIMEDIA-SYSTEM-CONTROL"
+#define PSNAME "H.245"
 #define PFNAME "h245"
 
 static dissector_handle_t rtp_handle=NULL;
@@ -233,6 +233,7 @@ int proto_h245 = -1;
 
 /*--- Included file: packet-h245-hf.c ---*/
 
+static int hf_h245_OpenLogicalChannel_PDU = -1;   /* OpenLogicalChannel */
 static int hf_h245_request = -1;                  /* RequestMessage */
 static int hf_h245_response = -1;                 /* ResponseMessage */
 static int hf_h245_command = -1;                  /* CommandMessage */
@@ -16864,6 +16865,12 @@ dissect_h245_Moderfc2733(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
   return offset;
 }
 
+/*--- PDUs ---*/
+
+static void dissect_OpenLogicalChannel_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_h245_OpenLogicalChannel(tvb, 0, pinfo, tree, hf_h245_OpenLogicalChannel_PDU);
+}
+
 
 /*--- End of included file: packet-h245-fn.c ---*/
 
@@ -16886,10 +16893,10 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	guint32 offset=0;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.245");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 	}
 
-	it=proto_tree_add_protocol_format(parent_tree, proto_h245, tvb, 0, tvb_length(tvb), "H.245");
+	it=proto_tree_add_protocol_format(parent_tree, proto_h245, tvb, 0, tvb_length(tvb), PSNAME);
 	tr=proto_item_add_subtree(it, ett_h245);
 
 	/* assume that whilst there is more tvb data, there are more h245 commands */
@@ -16902,11 +16909,9 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 }
 
-int
-dissect_h245_OpenLogicalChannelCodec(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, char *codec_str) {
-  offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
-                                ett_h245_OpenLogicalChannel, OpenLogicalChannel_sequence);
-
+void
+dissect_h245_OpenLogicalChannelCodec(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str) {
+  dissect_OpenLogicalChannel_PDU(tvb, pinfo, tree);
 
   if (h245_pi != NULL) h245_pi->msg_type = H245_OpenLogChn;
 
@@ -16914,7 +16919,6 @@ dissect_h245_OpenLogicalChannelCodec(tvbuff_t *tvb, int offset, packet_info *pin
         strncpy(codec_str, codec_type, 50);
   }
 
-  return offset;
 }
 
 /*--- proto_register_h245 -------------------------------------------*/
@@ -16931,6 +16935,10 @@ void proto_register_h245(void) {
 
 /*--- Included file: packet-h245-hfarr.c ---*/
 
+    { &hf_h245_OpenLogicalChannel_PDU,
+      { "OpenLogicalChannel", "h245.OpenLogicalChannel",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "OpenLogicalChannel", HFILL }},
     { &hf_h245_request,
       { "request", "h245.request",
         FT_UINT32, BASE_DEC, VALS(h245_RequestMessage_vals), 0,
@@ -17372,7 +17380,7 @@ void proto_register_h245(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "CapabilityDescriptor/simultaneousCapabilities/_item", HFILL }},
     { &hf_h245_AlternativeCapabilitySet_item,
-      { "Item", "h245.AlternativeCapabilitySet_item",
+      { "alternativeCapability", "h245.AlternativeCapabilitySet_item",
         FT_UINT32, BASE_DEC, NULL, 0,
         "AlternativeCapabilitySet/_item", HFILL }},
     { &hf_h245_tcs_rej_cause,
