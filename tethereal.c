@@ -236,7 +236,7 @@ print_usage(gboolean print_ver)
   fprintf(output, "\t[ -N <name resolving flags> ] [ -o <preference setting> ] ... [ -r <infile> ]\n");
   fprintf(output, "\t[ -R <read (display) filter> ] [ -s <capture snaplen> ] [ -t <time stamp format> ]\n");
   fprintf(output, "\t[ -T pdml|ps|psml|text ] [ -w <savefile> ] [ -y <capture link type> ]\n");
-  fprintf(output, "\t[ -z <statistics ]\n");
+  fprintf(output, "\t[ -z <statistics> ]\n");
 #else
   fprintf(output, "\nt%s [ -vh ] [ -lnVx ]\n", PACKAGE);
   fprintf(output, "\t[ -d %s ] ...\n", decode_as_arg_template);
