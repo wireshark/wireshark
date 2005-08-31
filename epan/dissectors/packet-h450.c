@@ -199,6 +199,8 @@ static int hf_h4508_CallingNameArg = -1;
 static int hf_h4508_AlertingNameArg = -1;
 static int hf_h4508_ConnectedNameArg = -1;
 static int hf_h4508_BusyNameArg = -1;
+static int hf_h45012_CmnRequest = -1;
+static int hf_h45012_CmnInform = -1;
 
 static int hf_h4501_Invoke = -1;
 static int hf_h4501_ROS = -1;
@@ -662,7 +664,9 @@ static const value_string localOpcode_vals[] = {
    { CallIntrusionNotification, "callIntrusionNotification"},
 
    /* TODO - add other H.450.x invoke opcodes here */
-
+/* H.450.12 Common Information Operations constants */
+   { CmnRequest,				"CmnRequest"},
+   { CmnInform,					"CmnInform"},
 	{  0, NULL }
 };
 
@@ -1544,10 +1548,11 @@ dissect_h450_CallTransferSetup(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 }
 
 
+
 static int
 dissect_h450_BMPString_SIZE_1_128(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_BMPString(tvb, offset, pinfo, tree, hf_index,
-                                 1, 128);
+                                          1, 128);
 
   return offset;
 }
@@ -1769,10 +1774,11 @@ dissect_h450_CallTransferActive(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 }
 
 
+
 static int
 dissect_h450_CallIdentity(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_NumericString(tvb, offset, pinfo, tree, hf_index,
-                                     0, 4);
+                                          0, 4);
 
   return offset;
 }
@@ -3190,10 +3196,11 @@ static int dissect_integer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 
+
 static int
 dissect_h450_NumericString_SIZE_1_10(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_NumericString(tvb, offset, pinfo, tree, hf_index,
-                                     1, 10);
+                                          1, 10);
 
   return offset;
 }
@@ -3242,10 +3249,11 @@ static int dissect_nbOfMessages(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 }
 
 
+
 static int
 dissect_h450_TimeStamp(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_VisibleString(tvb, offset, pinfo, tree, hf_index,
-                                     12, 19);
+                                        12, 19);
 
   return offset;
 }
@@ -3441,10 +3449,11 @@ static int dissect_simpleName(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 }
 
 
+
 static int
 dissect_h450_ExtendedName(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_BMPString(tvb, offset, pinfo, tree, hf_index,
-                                 1, 256);
+                                          1, 256);
 
   return offset;
 }
@@ -4621,10 +4630,15 @@ PER_NOT_DECODED_YET("Unrecognized H.450.x operation");
 		  case CallIntrusionWOBRequest:     /* Localvalue 47 */
 		  case CallIntrusionSilentMonitor:  /* Localvalue 116 */
 		  case CallIntrusionNotification:   /* Localvalue 117 */
-
+PER_NOT_DECODED_YET("Unrecognized H.450.x operation");
+break;
 /* H.450.12 Common Information Operations constants */
 		  case CmnRequest:					/* Localvalue 84 */
+			  dissect_h450_CmnRequestArg(argument_tvb, 0, pinfo , tree, hf_h45012_CmnRequest);
+			  break;
 		  case CmnInform:					/* Localvalue 85 */
+			  dissect_h450_CmnArg(argument_tvb, 0, pinfo , tree, hf_h45012_CmnInform);
+			  break;
 
 	      /* TODO - decode other H.450.x invoke arguments here */
 	     default:
@@ -4829,6 +4843,12 @@ void proto_register_h450(void) {
    { &hf_h4508_BusyNameArg,
       { "BusyNameArg", "h4508.BusyNameArg", FT_NONE, BASE_NONE,
       NULL, 0, "BusyNameArg sequence of", HFILL }},
+   { &hf_h45012_CmnRequest,
+      { "CmnRequest", "h4508.CmnRequest", FT_NONE, BASE_NONE,
+      NULL, 0, "CmnRequest sequence of", HFILL }},
+   { &hf_h45012_CmnInform,
+      { "CmnRequest", "h4508.CmnRequest", FT_NONE, BASE_NONE,
+      NULL, 0, "CmnRequest sequence of", HFILL }},
 
 
 /*--- Included file: packet-h450-hfarr.c ---*/

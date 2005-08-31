@@ -192,6 +192,8 @@ static int hf_h4508_CallingNameArg = -1;
 static int hf_h4508_AlertingNameArg = -1;
 static int hf_h4508_ConnectedNameArg = -1;
 static int hf_h4508_BusyNameArg = -1;
+static int hf_h45012_CmnRequest = -1;
+static int hf_h45012_CmnInform = -1;
 
 static int hf_h4501_Invoke = -1;
 static int hf_h4501_ROS = -1;
@@ -297,7 +299,9 @@ static const value_string localOpcode_vals[] = {
    { CallIntrusionNotification, "callIntrusionNotification"},
 
    /* TODO - add other H.450.x invoke opcodes here */
-
+/* H.450.12 Common Information Operations constants */
+   { CmnRequest,				"CmnRequest"},
+   { CmnInform,					"CmnInform"},
 	{  0, NULL }
 };
 
@@ -823,10 +827,15 @@ PER_NOT_DECODED_YET("Unrecognized H.450.x operation");
 		  case CallIntrusionWOBRequest:     /* Localvalue 47 */
 		  case CallIntrusionSilentMonitor:  /* Localvalue 116 */
 		  case CallIntrusionNotification:   /* Localvalue 117 */
-
+PER_NOT_DECODED_YET("Unrecognized H.450.x operation");
+break;
 /* H.450.12 Common Information Operations constants */
 		  case CmnRequest:					/* Localvalue 84 */
+			  dissect_h450_CmnRequestArg(argument_tvb, 0, pinfo , tree, hf_h45012_CmnRequest);
+			  break;
 		  case CmnInform:					/* Localvalue 85 */
+			  dissect_h450_CmnArg(argument_tvb, 0, pinfo , tree, hf_h45012_CmnInform);
+			  break;
 
 	      /* TODO - decode other H.450.x invoke arguments here */
 	     default:
@@ -1031,6 +1040,12 @@ void proto_register_h450(void) {
    { &hf_h4508_BusyNameArg,
       { "BusyNameArg", "h4508.BusyNameArg", FT_NONE, BASE_NONE,
       NULL, 0, "BusyNameArg sequence of", HFILL }},
+   { &hf_h45012_CmnRequest,
+      { "CmnRequest", "h4508.CmnRequest", FT_NONE, BASE_NONE,
+      NULL, 0, "CmnRequest sequence of", HFILL }},
+   { &hf_h45012_CmnInform,
+      { "CmnRequest", "h4508.CmnRequest", FT_NONE, BASE_NONE,
+      NULL, 0, "CmnRequest sequence of", HFILL }},
 
 #include "packet-h450-hfarr.c"
   };
