@@ -118,6 +118,8 @@ static gint ett_bootp_flags = -1;
 static gint ett_bootp_option = -1;
 static gint ett_bootp_fqdn = -1;
 
+#define TLV_STR_LEN 256
+
 gboolean novell_string = FALSE;
 
 #define UDP_PORT_BOOTPS  67
@@ -2043,7 +2045,6 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 	proto_item *ti;
 	proto_tree *subtree;
 
-#define TLV_STR_LEN 256
 	tlv_str=ep_alloc(TLV_STR_LEN);
 	tlv_str[0]=0;
 	strptr=tlv_str;
@@ -2174,10 +2175,11 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 	int off = PKT_CM_TLV_OFF + voff;
 	int tlv_len, i;
 	guint8 asc_val[3] = "  ";
-	static GString *tlv_str = NULL;
+	char *tlv_str, *strptr;
 
-	if (! tlv_str)
-		tlv_str = g_string_new("");
+	tlv_str=ep_alloc(TLV_STR_LEN);
+	tlv_str[0]=0;
+	strptr=tlv_str;
 
 	tvb_memcpy (tvb, asc_val, off, 2);
 	if (sscanf(asc_val, "%x", &tlv_len) != 1 || tlv_len < 1) {
@@ -2192,7 +2194,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 		while (off - voff < len) {
 			/* Type */
 			raw_val = tvb_get_ntohs (tvb, off);
-			g_string_sprintf(tlv_str, "0x%.2s: %s = ",
+			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "0x%.2s: %s = ",
 					tvb_get_ptr(tvb, off, 2),
 					val_to_str(raw_val, pkt_cm_type_vals, "unknown"));
 
@@ -2204,7 +2206,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 				return;
 			} else {
 				/* Value(s) */
-				/*g_string_sprintfa(tlv_str, "Length: %d, Value%s: ", tlv_len,
+				/*strptr+=g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "Length: %d, Value%s: ", tlv_len,
 						plurality(tlv_len, "", "s") );*/
 
 				switch (raw_val) {
@@ -2216,7 +2218,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 					case PKT_CM_DCC_SUP_LC:
 						for (i = 0; i < tlv_len; i++) {
 							raw_val = tvb_get_ntohs(tvb, off + 4 + (i * 2) );
-							g_string_sprintfa(tlv_str, "%s%s (%.2s)",
+							strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%s%s (%.2s)",
 									plurality(i + 1, "", ", "),
 									val_to_str(raw_val, pkt_mdc_boolean_vals, "unknown"),
 									tvb_get_ptr(tvb, off + 4 + (i * 2), 2) );
@@ -2224,13 +2226,13 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 						break;
 					case PKT_CM_DOCSIS_VER:
 						raw_val = tvb_get_ntohs(tvb, off + 4);
-						g_string_sprintfa(tlv_str, "%s (%.2s)",
+						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%s (%.2s)",
 								val_to_str(raw_val, pkt_cm_version_vals, "Reserved"),
 								tvb_get_ptr(tvb, off + 4, 2) );
 						break;
 					case PKT_CM_PRIV_SUP:
 						raw_val = tvb_get_ntohs(tvb, off + 4);
-						g_string_sprintfa(tlv_str, "%s (%.2s)",
+						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%s (%.2s)",
 								val_to_str(raw_val, pkt_cm_privacy_vals, "Reserved"),
 								tvb_get_ptr(tvb, off + 4, 2) );
 						break;
@@ -2242,25 +2244,25 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 					case PKT_CM_TET_LC:
 						tvb_memcpy (tvb, asc_val, off + 4, 2);
 						raw_val = strtoul(asc_val, NULL, 16);
-						g_string_sprintfa(tlv_str, "%lu", raw_val);
+						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%lu", raw_val);
 						break;
 					case PKT_CM_FILT_SUP:
 						tvb_memcpy (tvb, asc_val, off + 4, 2);
 						raw_val = strtoul(asc_val, NULL, 16);
 						if (raw_val & 0x01)
-							g_string_append(tlv_str, "802.1p filtering");
+							strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "802.1p filtering");
 						if (raw_val & 0x02) {
 							if (raw_val & 0x01)
-								g_string_append(tlv_str, ", ");
-							g_string_append(tlv_str, "802.1Q filtering");
+								strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), ", ");
+							strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "802.1Q filtering");
 						}
 						if (! raw_val & 0x03)
-							g_string_append(tlv_str, "None");
-						g_string_sprintfa(tlv_str, " (0x%02lx)", raw_val);
+							strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "None");
+						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), " (0x%02lx)", raw_val);
 						break;
 				}
 			}
-			proto_tree_add_text(v_tree, tvb, off, (tlv_len * 2) + 4, "%s", tlv_str->str);
+			proto_tree_add_text(v_tree, tvb, off, (tlv_len * 2) + 4, "%s", tlv_str);
 			off += (tlv_len * 2) + 4;
 		}
 	}
@@ -2332,10 +2334,11 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	guint8 subopt, subopt_len, fetch_tgt, timer_val, ticket_ctl;
 	proto_tree *pkt_s_tree;
 	proto_item *vti;
-	static GString *opt_str = NULL;
+	char *opt_str, *strptr;
 
-	if (! opt_str)
-		opt_str = g_string_new("");
+	opt_str=ep_alloc(TLV_STR_LEN);
+	opt_str[0]=0;
+	strptr=opt_str;
 
 	subopt = tvb_get_guint8(tvb, optoff);
 	suboptoff++;
@@ -2349,7 +2352,7 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	subopt_len = tvb_get_guint8(tvb, optoff);
 	suboptoff++;
 
-	g_string_sprintf(opt_str, "Suboption %u: %s: ", subopt,
+	strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "Suboption %u: %s: ", subopt,
 			val_to_str(subopt, pkt_i05_ccc_opt_vals, "unknown/reserved") );
 
 	switch (subopt) {
@@ -2360,11 +2363,11 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 		case PKT_CCC_I05_SEC_DNS:
 		case PKT_CCC_KRB_REALM:
 		case PKT_CCC_CMS_FQDN:
-			g_string_sprintfa(opt_str, "%s (%u byte%s)",
+			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "%s (%u byte%s)",
 					tvb_format_stringzpad(tvb, suboptoff, subopt_len),
 					subopt_len,
 					plurality(subopt_len, "", "s") );
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str->str);
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			suboptoff += subopt_len;
 			break;
 
@@ -2376,12 +2379,12 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 			 	return (optend);
 			}
 			fetch_tgt = tvb_get_guint8(tvb, suboptoff);
-			g_string_sprintfa(opt_str, "%s (%u byte%s%s)",
+			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "%s (%u byte%s%s)",
 					fetch_tgt ? "Yes" : "No",
 					subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 1 ? " [Invalid]" : "");
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str->str);
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			suboptoff += subopt_len;
 			break;
 
@@ -2393,12 +2396,12 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 			 	return (optend);
 			}
 			timer_val = tvb_get_guint8(tvb, suboptoff);
-			g_string_sprintfa(opt_str, "%u%s (%u byte%s%s)", timer_val,
+			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "%u%s (%u byte%s%s)", timer_val,
 					timer_val > 30 ? " [Invalid]" : "",
 					subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 1 ? " [Invalid]" : "");
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str->str);
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			suboptoff += subopt_len;
 			break;
 
@@ -2409,10 +2412,10 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 				    subopt);
 			 	return (optend);
 			}
-			g_string_sprintfa(opt_str, "(%u byte%s%s)", subopt_len,
+			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "(%u byte%s%s)", subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 12 ? " [Invalid]" : "");
-			vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str->str);
+			vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			if (subopt_len == 12) {
 				pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
 				proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
@@ -2435,10 +2438,10 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 				    subopt);
 			 	return (optend);
 			}
-			g_string_sprintfa(opt_str, "(%u byte%s%s)", subopt_len,
+			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "(%u byte%s%s)", subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 12 ? " [Invalid]" : "");
-			vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str->str);
+			vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			if (subopt_len == 12) {
 				pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
 				proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
@@ -2462,18 +2465,18 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 			 	return (optend);
 			}
 			ticket_ctl = tvb_get_guint8(tvb, suboptoff);
-			g_string_sprintfa(opt_str, "%s (%u) (%u byte%s%s)",
+			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "%s (%u) (%u byte%s%s)",
 					val_to_str (ticket_ctl, pkt_i05_ccc_ticket_ctl_vals, "unknown/invalid"),
 					ticket_ctl,
 					subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 1 ? " [Invalid]" : "");
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str->str);
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			suboptoff += subopt_len;
 			break;
 
 		default:
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str->str);
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			suboptoff += subopt_len;
 			break;
 
@@ -2498,12 +2501,13 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	guint16 sec_tcm;
 	proto_tree *pkt_s_tree;
 	proto_item *vti;
-	static GString *opt_str = NULL;
+	char *opt_str, *strptr;
 	int max_timer_val = 255, i;
 	char dns_name[255], bit_fld[24];
 
-	if (! opt_str)
-		opt_str = g_string_new("");
+	opt_str=ep_alloc(TLV_STR_LEN);
+	opt_str[0]=0;
+	strptr=opt_str;
 
 	subopt = tvb_get_guint8(tvb, suboptoff);
 	suboptoff++;
@@ -2517,7 +2521,7 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
 	suboptoff++;
 
-	g_string_sprintf(opt_str, "Suboption %u: %s: ", subopt,
+	strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "Suboption %u: %s: ", subopt,
 			val_to_str(subopt, pkt_draft5_ccc_opt_vals, "unknown/reserved") );
 
 	switch (subopt) {
@@ -2530,12 +2534,12 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 			 	return (optend);
 			}
 			tvb_memcpy(tvb, ipv4_addr, suboptoff, 4);
-			g_string_sprintfa(opt_str, "%u.%u.%u.%u (%u byte%s%s)",
+			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "%u.%u.%u.%u (%u byte%s%s)",
 					ipv4_addr[0], ipv4_addr[1], ipv4_addr[2], ipv4_addr[3],
 					subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 4 ? " [Invalid]" : "");
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str->str);
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			suboptoff += subopt_len;
 			break;
 
@@ -2553,9 +2557,9 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 					/* XXX - check suboption length */
 					get_dns_name(tvb, suboptoff, suboptoff, dns_name,
 						sizeof(dns_name));
-					g_string_sprintfa(opt_str, "%s (%u byte%s)", dns_name,
+					strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "%s (%u byte%s)", dns_name,
 							subopt_len - 1, plurality(subopt_len, "", "s") );
-					proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str->str);
+					proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 					break;
 				case 1:
 					if (suboptoff+4 > optend) {
@@ -2565,19 +2569,19 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 					 	return (optend);
 					}
 					tvb_memcpy(tvb, ipv4_addr, suboptoff, 4);
-					g_string_sprintfa(opt_str, "%u.%u.%u.%u (%u byte%s%s)",
+					strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "%u.%u.%u.%u (%u byte%s%s)",
 							ipv4_addr[0], ipv4_addr[1], ipv4_addr[2], ipv4_addr[3],
 							subopt_len,
 							plurality(subopt_len, "", "s"),
 							subopt_len != 5 ? " [Invalid]" : "");
-					proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str->str);
+					proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 					break;
 				default:
-					g_string_sprintfa(opt_str, "Invalid type: %u (%u byte%s)",
+					strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "Invalid type: %u (%u byte%s)",
 							prov_type,
 							subopt_len,
 							plurality(subopt_len, "", "s") );
-					proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str->str);
+					proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 					break;
 			}
 			suboptoff += subopt_len - 1;
@@ -2590,10 +2594,10 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 				    subopt);
 			 	return (optend);
 			}
-			g_string_sprintfa(opt_str, "(%u byte%s%s)", subopt_len,
+			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "(%u byte%s%s)", subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 12 ? " [Invalid]" : "");
-			vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str->str);
+			vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			if (subopt_len == 12) {
 				pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
 				proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
@@ -2610,10 +2614,10 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 			break;
 
 		case PKT_CCC_IETF_AP_KRB:
-			g_string_sprintfa(opt_str, "(%u byte%s%s)", subopt_len,
+			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "(%u byte%s%s)", subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 12 ? " [Invalid]" : "");
-			vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str->str);
+			vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			if (subopt_len == 12) {
 				pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
 				proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
@@ -2632,9 +2636,9 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 		case PKT_CCC_KRB_REALM: /* String values */
 			/* XXX - check suboption length */
 			get_dns_name(tvb, suboptoff, suboptoff, dns_name, sizeof(dns_name));
-			g_string_sprintfa(opt_str, "%s (%u byte%s)", dns_name,
+			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "%s (%u byte%s)", dns_name,
 					subopt_len, plurality(subopt_len, "", "s") );
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str->str);
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			suboptoff += subopt_len;
 			break;
 
@@ -2646,12 +2650,12 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 			 	return (optend);
 			}
 			fetch_tgt = tvb_get_guint8(tvb, suboptoff);
-			g_string_sprintfa(opt_str, "%s (%u byte%s%s)",
+			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "%s (%u byte%s%s)",
 					fetch_tgt ? "Yes" : "No",
 					subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 1 ? " [Invalid]" : "");
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str->str);
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			suboptoff += 1;
 			break;
 
@@ -2665,12 +2669,12 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 			if (revision == PACKETCABLE_CCC_DRAFT5)
 				max_timer_val = 30;
 			timer_val = tvb_get_guint8(tvb, suboptoff);
-			g_string_sprintfa(opt_str, "%u%s (%u byte%s%s)", timer_val,
+			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "%u%s (%u byte%s%s)", timer_val,
 					timer_val > max_timer_val ? " [Invalid]" : "",
 					subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 1 ? " [Invalid]" : "");
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str->str);
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			suboptoff += 1;
 			break;
 
@@ -2682,10 +2686,10 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 			 	return (optend);
 			}
 			sec_tcm = tvb_get_ntohs(tvb, suboptoff);
-			g_string_sprintfa(opt_str, "0x%04x (%u byte%s%s)", sec_tcm, subopt_len,
+			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "0x%04x (%u byte%s%s)", sec_tcm, subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 2 ? " [Invalid]" : "");
-			vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str->str);
+			vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			if (subopt_len == 2) {
 				pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
 				for (i = 0; i < 2; i++) {
@@ -2700,7 +2704,7 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 			break;
 
 		default:
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str->str);
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			suboptoff += subopt_len;
 			break;
 	}
