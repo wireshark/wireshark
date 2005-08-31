@@ -58,6 +58,9 @@
 #include "packet-frame.h"
 #include <epan/afn.h>
 #include <epan/prefs.h>
+#include <epan/emem.h>
+
+#define MAX_STR_LEN 256
 
 static const value_string bgptypevals[] = {
     { BGP_OPEN, "OPEN Message" },
@@ -504,12 +507,16 @@ decode_MPLS_stack(tvbuff_t *tvb, gint offset, char *buf, size_t buflen)
  */
 
 static int
-mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, GString *buf)
+mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf, int buf_len)
 {
     int                 length;                         /* length of the address in byte */
     guint8              ip4addr[4],ip4addr2[4];         /* IPv4 address                 */
     guint16             rd_type;                        /* Route Distinguisher type     */
     struct e_in6_addr   ip6addr;                        /* IPv6 address                 */
+    char *strptr;
+
+    buf[0]=0;
+    strptr=buf;
 
     length = 0 ;
     switch (afi) {
@@ -522,7 +529,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, GString *b
 			case SAFNUM_TUNNEL:
                                 length = 4 ;
                                 tvb_memcpy(tvb, ip4addr, offset, sizeof(ip4addr));
-			        g_string_sprintf(buf, "%s", ip_to_str(ip4addr));
+			        strptr += g_snprintf(strptr, buf_len-(strptr-buf), "%s", ip_to_str(ip4addr));
                                 break;
                         case SAFNUM_LAB_VPNUNICAST:
                         case SAFNUM_LAB_VPNMULCAST:
@@ -532,7 +539,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, GString *b
                                         case FORMAT_AS2_LOC:
                                                 length = 8 + sizeof(ip4addr);
                                                 tvb_memcpy(tvb, ip4addr, offset + 8, sizeof(ip4addr));   /* Next Hop */
-                                                g_string_sprintf(buf, "Empty Label Stack RD=%u:%u IPv4=%s",
+                                                strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Empty Label Stack RD=%u:%u IPv4=%s",
                                                                 tvb_get_ntohs(tvb, offset + 2),
                                                                 tvb_get_ntohl(tvb, offset + 4),
                                                                 ip_to_str(ip4addr));
@@ -541,20 +548,20 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, GString *b
                                                 length = 8 + sizeof(ip4addr);
                                                 tvb_memcpy(tvb, ip4addr, offset + 2, sizeof(ip4addr));   /* IP part of the RD            */
                                                 tvb_memcpy(tvb, ip4addr2, offset + 8, sizeof(ip4addr));  /* Next Hop   */
-                                                g_string_sprintf(buf, "Empty Label Stack RD=%s:%u IPv4=%s",
+                                                strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Empty Label Stack RD=%s:%u IPv4=%s",
                                                                 ip_to_str(ip4addr),
                                                                 tvb_get_ntohs(tvb, offset + 6),
                                                                 ip_to_str(ip4addr2));
                                                 break ;
                                         default:
                                                 length = 0 ;
-                                                g_string_sprintf(buf, "Unknown (0x%04x) labeled VPN IPv4 address format",rd_type);
+                                                strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Unknown (0x%04x) labeled VPN IPv4 address format",rd_type);
                                                 break;
                                 }
                                 break;
                         default:
                             length = 0 ;
-                            g_string_sprintf(buf, "Unknown SAFI (%u) for AFI %u", safi, afi);
+                            strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Unknown SAFI (%u) for AFI %u", safi, afi);
                             break;
                 }
                 break;
@@ -567,7 +574,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, GString *b
 			case SAFNUM_TUNNEL:
                             length = 16 ;
                             tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8,offset, 16);
-                            g_string_sprintf(buf, "%s", ip6_to_str(&ip6addr));
+                            strptr += g_snprintf(strptr, buf_len-(strptr-buf), "%s", ip6_to_str(&ip6addr));
                             break;
                         case SAFNUM_LAB_VPNUNICAST:
                         case SAFNUM_LAB_VPNMULCAST:
@@ -577,7 +584,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, GString *b
                                         case FORMAT_AS2_LOC:
                                                 length = 8 + 16;
                                                 tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8, offset + 8, 16); /* Next Hop */
-                                                g_string_sprintf(buf, "Empty Label Stack RD=%u:%u IPv6=%s",
+                                                strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Empty Label Stack RD=%u:%u IPv6=%s",
                                                                 tvb_get_ntohs(tvb, offset + 2),
                                                                 tvb_get_ntohl(tvb, offset + 4),
                                                                 ip6_to_str(&ip6addr));
@@ -586,20 +593,20 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, GString *b
                                                 length = 8 + 16;
                                                 tvb_memcpy(tvb, ip4addr, offset + 2, sizeof(ip4addr));   /* IP part of the RD            */
                                                 tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8, offset + 8, 16); /* Next Hop */
-                                                g_string_sprintf(buf, "Empty Label Stack RD=%s:%u IPv6=%s",
+                                                strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Empty Label Stack RD=%s:%u IPv6=%s",
                                                                 ip_to_str(ip4addr),
                                                                 tvb_get_ntohs(tvb, offset + 6),
                                                                 ip6_to_str(&ip6addr));
                                                 break ;
                                         default:
                                                 length = 0 ;
-                                                g_string_sprintf(buf, "Unknown (0x%04x) labeled VPN IPv6 address format",rd_type);
+                                                strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Unknown (0x%04x) labeled VPN IPv6 address format",rd_type);
                                                 break;
                                 }
                                 break;
                         default:
                             length = 0 ;
-                            g_string_sprintf(buf, "Unknown SAFI (%u) for AFI %u", safi, afi);
+                            strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Unknown SAFI (%u) for AFI %u", safi, afi);
                             break;
                 }
                 break;
@@ -610,18 +617,18 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, GString *b
                         case SAFNUM_LAB_VPNUNIMULC:
                             length = 4; /* the next-hop is simply an ipv4 addr */
                             tvb_memcpy(tvb, ip4addr, offset + 0, 4);
-                            g_string_sprintf(buf, "IPv4=%s",
+                            strptr += g_snprintf(strptr, buf_len-(strptr-buf), "IPv4=%s",
                                      ip_to_str(ip4addr));
                             break;
                         default:
                             length = 0 ;
-                            g_string_sprintf(buf, "Unknown SAFI (%u) for AFI %u", safi, afi);
+                            strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Unknown SAFI (%u) for AFI %u", safi, afi);
                             break;
                 }
                 break;
         default:
                 length = 0 ;
-                g_string_sprintf(buf, "Unknown AFI (%u) value", afi);
+                strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Unknown AFI (%u) value", afi);
                 break;
     }
     return(length) ;
@@ -1440,7 +1447,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
     static GString  *as_path_gstr = NULL;       /* AS_PATH GString          */
     static GString  *communities_gstr = NULL;   /* COMMUNITIES GString      */
     static GString  *cluster_list_gstr = NULL;  /* CLUSTER_LIST GString     */
-    static GString  *junk_gbuf = NULL;	    	/* tmp                      */
+    char            *junk_gbuf, *junk_gbuf_ptr;	/* tmp                      */
     guint8          ipaddr[4];                  /* IPv4 address             */
     guint32         aggregator_as;
     guint16	    ssa_type;			/* SSA T + Type */
@@ -1449,8 +1456,9 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 
     hlen = tvb_get_ntohs(tvb, BGP_MARKER_SIZE);
     o = BGP_HEADER_SIZE;
-    if (junk_gbuf == NULL)
-	junk_gbuf = g_string_sized_new(0);
+    junk_gbuf=ep_alloc(MAX_STR_LEN);
+    junk_gbuf[0]=0;
+    junk_gbuf_ptr=junk_gbuf;
 
     /* check for withdrawals */
     len = tvb_get_ntohs(tvb, o);
@@ -1769,33 +1777,32 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 	    subtree2 = proto_item_add_subtree(ti, ett_bgp_attr);
 
             /* figure out flags */
-	    g_string_truncate(junk_gbuf, 0);
+            junk_gbuf[0]=0;
+            junk_gbuf_ptr=junk_gbuf;
             if (bgpa.bgpa_flags & BGP_ATTR_FLAG_OPTIONAL) {
-                 g_string_append(junk_gbuf, "Optional, ");
+                 junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), "Optional, ");
             }
             else {
-                 g_string_append(junk_gbuf, "Well-known, ");
+                 junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), "Well-known, ");
             }
             if (bgpa.bgpa_flags & BGP_ATTR_FLAG_TRANSITIVE) {
-                 g_string_append(junk_gbuf, "Transitive, ");
+                 junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), "Transitive, ");
             }
             else {
-                 g_string_append(junk_gbuf, "Non-transitive, ");
+                 junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), "Non-transitive, ");
             }
             if (bgpa.bgpa_flags & BGP_ATTR_FLAG_PARTIAL) {
-                 g_string_append(junk_gbuf, "Partial, ");
+                 junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), "Partial, ");
             }
             else {
-                 g_string_append(junk_gbuf, "Complete, ");
+                 junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), "Complete, ");
             }
             if (bgpa.bgpa_flags & BGP_ATTR_FLAG_EXTENDED_LENGTH) {
-                 g_string_append(junk_gbuf, "Extended Length, ");
+                 junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), "Extended Length, ");
             }
-            /* stomp last ", " */
-	    g_string_truncate(junk_gbuf, junk_gbuf->len - 2);
 	    ti = proto_tree_add_text(subtree2, tvb,
 		    o + i + offsetof(struct bgp_attr, bgpa_flags), 1,
-		    "Flags: 0x%02x (%s)", bgpa.bgpa_flags, junk_gbuf->str);
+		    "Flags: 0x%02x (%s)", bgpa.bgpa_flags, junk_gbuf);
 	    subtree3 = proto_item_add_subtree(ti, ett_bgp_attr_flags);
 
             /* add flag bitfield subtrees */
@@ -2083,13 +2090,13 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 		    j = 0;
 		    while (j < nexthop_len) {
 			advance = mp_addr_to_str(af, saf, tvb, o + i + aoff + 4 + j,
-				junk_gbuf) ;
+				junk_gbuf, MAX_STR_LEN) ;
 			if (advance == 0) /* catch if this is a unknown AFI type*/
 				break;
 			if (j + advance > nexthop_len)
 				break;
 			proto_tree_add_text(subtree3, tvb,o + i + aoff + 4 + j,
-				advance, "Next hop: %s (%u)", junk_gbuf->str, advance);
+				advance, "Next hop: %s (%u)", junk_gbuf, advance);
 			j += advance;
 		    }
 		}
@@ -2210,53 +2217,55 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 
                         while (q < end) {
                             ext_com = tvb_get_ntohs(tvb,q) ;
-                            g_string_sprintf(junk_gbuf, "%s",
+                            junk_gbuf[0]=0;
+                            junk_gbuf_ptr=junk_gbuf;
+                            junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), "%s",
                                                   val_to_str(ext_com,bgpext_com_type,"Unknown"));
                             switch (ext_com) {
                             case BGP_EXT_COM_RT_0:
                             case BGP_EXT_COM_RT_2:
                             case BGP_EXT_COM_RO_0:
                             case BGP_EXT_COM_RO_2:
-                                g_string_sprintfa(junk_gbuf, ": %u%s%d",
+                                junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ": %u%s%d",
                                                        tvb_get_ntohs(tvb,q+2),":",tvb_get_ntohl(tvb,q+4));
-                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf->str);
+                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
                                 break ;
                             case BGP_EXT_COM_RT_1:
                             case BGP_EXT_COM_RO_1:
                                 tvb_memcpy(tvb,ipaddr,q+2,4);
-                                g_string_sprintfa(junk_gbuf, ": %s%s%u",
+                                junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ": %s%s%u",
                                                        ip_to_str(ipaddr),":",tvb_get_ntohs(tvb,q+6));
-                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf->str);
+                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
                                 break;
                             case BGP_EXT_COM_VPN_ORIGIN:
                             case BGP_EXT_COM_OSPF_RID:
                                 tvb_memcpy(tvb,ipaddr,q+2,4);
-                                g_string_sprintfa(junk_gbuf, ": %s", ip_to_str(ipaddr));
-                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf->str);
+                                junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ": %s", ip_to_str(ipaddr));
+                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
                                 break;
                             case BGP_EXT_COM_OSPF_RTYPE:
                                 tvb_memcpy(tvb,ipaddr,q+2,4);
-                                g_string_sprintfa(junk_gbuf, ": Area: %s, Type: %s", ip_to_str(ipaddr),
+                                junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ": Area: %s, Type: %s", ip_to_str(ipaddr),
                                          val_to_str(tvb_get_guint8(tvb,q+6),bgpext_ospf_rtype,"Unknown"));
 				/* print OSPF Metric type if selected */
 				/* always print E2 even if not external route -- receiving router should ignore */
                                 if ( (tvb_get_guint8(tvb,q+7)) & BGP_OSPF_RTYPE_METRIC_TYPE ) {
-                                    g_string_sprintfa(junk_gbuf," E2");
+                                    junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), " E2");
                                 } else if (tvb_get_guint8(tvb,q+6)==(BGP_OSPF_RTYPE_EXT ||BGP_OSPF_RTYPE_NSSA ) ) {
-                                    g_string_sprintfa(junk_gbuf," E1");
+                                    junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), " E1");
                                 } else {
-				    g_string_sprintfa(junk_gbuf,", no options");
+				    junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ", no options");
 				}
-                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf->str);
+                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
                                 break;
                             case BGP_EXT_COM_LINKBAND:
                                 tvb_memcpy(tvb,ipaddr,q+2,4); /* need to check on IEEE format on all platforms */
-                                g_string_sprintfa(junk_gbuf, ": %.3f Mbps",
+                                junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ": %.3f Mbps",
                                                        ((double)*ipaddr)*8/1000000);
-                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf->str);
+                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
                                 break;
                             case BGP_EXT_COM_L2INFO:
-                                g_string_sprintfa(junk_gbuf,
+                                junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), 
                                                        ": %s, Control Flags: %s%s%s%s%s, MTU: %u %s",
                                                        val_to_str(tvb_get_guint8(tvb,q+2),bgp_l2vpn_encaps,"Unknown"),
                                                        tvb_get_guint8(tvb,q+3) ? "" : "none",
@@ -2266,7 +2275,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                                        tvb_get_ntohs(tvb,q+3)&0x01 ? "S" : "",
                                                        tvb_get_ntohs(tvb,q+4),
                                                        tvb_get_ntohs(tvb,q+4)==1 ? "byte" : "bytes");
-                                ti = proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf->str);
+                                ti = proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
 
                                 subtree4 = proto_item_add_subtree(ti,ett_bgp_extended_communities) ;
                                 proto_tree_add_text(subtree4,tvb,q+2,1, "Encapsulation: %s",
@@ -2281,7 +2290,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                                     tvb_get_ntohs(tvb,q+4)==1 ? "byte" : "bytes");
                                 break;
                             default:
-                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf->str);
+                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
                                 break ;
                             }
                             q = q + 8 ;
