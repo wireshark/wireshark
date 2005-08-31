@@ -31,6 +31,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/emem.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -56,6 +57,17 @@ packet_info *global_pinfo = NULL;
 static dissector_handle_t data_handle;
 static dissector_handle_t acse_handle;
 
+static char abstract_syntax_name_oid[BER_MAX_OID_STR_LEN];
+static guint32 presentation_context_identifier;
+
+/* to keep track of presentation context identifiers and protocol-oids */
+typedef struct _pres_ctx_oid_t {
+	/* XXX here we should keep track of ADDRESS/PORT as well */
+	guint32 ctx_id;
+	char *oid;
+} pres_ctx_oid_t;
+static GHashTable *pres_ctx_oid_table = NULL;
+
 #include "packet-pres-hf.c"
 
 /* Initialize the subtree pointers */
@@ -63,7 +75,64 @@ static gint ett_pres           = -1;
 
 #include "packet-pres-ett.c"
 
+
+static guint
+pres_ctx_oid_hash(gconstpointer k)
+{
+	pres_ctx_oid_t *aco=(pres_ctx_oid_t *)k;
+	return aco->ctx_id;
+}
+/* XXX this one should be made ADDRESS/PORT aware */
+static gint
+pres_ctx_oid_equal(gconstpointer k1, gconstpointer k2)
+{
+	pres_ctx_oid_t *aco1=(pres_ctx_oid_t *)k1;
+	pres_ctx_oid_t *aco2=(pres_ctx_oid_t *)k2;
+	return aco1->ctx_id==aco2->ctx_id;
+}
+
+static void
+pres_init(void)
+{
+	if( pres_ctx_oid_table ){
+		g_hash_table_destroy(pres_ctx_oid_table);
+		pres_ctx_oid_table = NULL;
+	}
+	pres_ctx_oid_table = g_hash_table_new(pres_ctx_oid_hash,
+			pres_ctx_oid_equal);
+
+}
+
+static void
+register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, char *oid)
+{
+	pres_ctx_oid_t *aco, *tmpaco;
+	aco=se_alloc(sizeof(pres_ctx_oid_t));
+	aco->ctx_id=idx;
+	aco->oid=se_strdup(oid);
+
+	/* if this ctx already exists, remove the old one first */
+	tmpaco=(pres_ctx_oid_t *)g_hash_table_lookup(pres_ctx_oid_table, aco);
+	if(tmpaco){
+		g_hash_table_remove(pres_ctx_oid_table, tmpaco);
+	}
+	g_hash_table_insert(pres_ctx_oid_table, aco, aco);
+}
+static char *
+find_oid_by_ctx_id(packet_info *pinfo _U_, guint32 idx)
+{
+	pres_ctx_oid_t aco, *tmpaco;
+	aco.ctx_id=idx;
+	tmpaco=(pres_ctx_oid_t *)g_hash_table_lookup(pres_ctx_oid_table, &aco);
+	if(tmpaco){
+		return tmpaco->oid;
+	}
+	return NULL;
+}
+
+
 #include "packet-pres-fn.c"
+
 
 /*
  * Dissect an PPDU.
@@ -75,43 +144,35 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
   proto_tree *pres_tree = NULL;
   guint s_type;
 /* do we have spdu type from the session dissector?  */
-	if( !pinfo->private_data )
-				{
-				if(tree)
-						{
-					proto_tree_add_text(tree, tvb, offset, -1,
-							"Internal error:can't get spdu type from session dissector.");
-					return  FALSE;
-						}
-				}
-	else
-				{
-					session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
-					if(session->spdu_type == 0 )
-					{
-						if(tree)
-						{
-					proto_tree_add_text(tree, tvb, offset, -1,
-							"Internal error:wrong spdu type %x from session dissector.",session->spdu_type);
-					return  FALSE;
-						}
-					}
-				}
+	if( !pinfo->private_data ){
+		if(tree){
+			proto_tree_add_text(tree, tvb, offset, -1,
+				"Internal error:can't get spdu type from session dissector.");
+			return  FALSE;
+		}
+	}else{
+		session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
+		if(session->spdu_type == 0 ){
+			if(tree){
+				proto_tree_add_text(tree, tvb, offset, -1,
+					"Internal error:wrong spdu type %x from session dissector.",session->spdu_type);
+				return  FALSE;
+			}
+		}
+	}
 /* get type of tag      */
 	s_type = tvb_get_guint8(tvb, offset);
 		/*  set up type of Ppdu */
   	if (check_col(pinfo->cinfo, COL_INFO))
 					col_add_str(pinfo->cinfo, COL_INFO,
 						val_to_str(session->spdu_type, ses_vals, "Unknown Ppdu type (0x%02x)"));
-  if (tree)
-	{
-		ti = proto_tree_add_item(tree, proto_pres, tvb, offset, -1,
+  if (tree){
+	  ti = proto_tree_add_item(tree, proto_pres, tvb, offset, -1,
 		    FALSE);
-		pres_tree = proto_item_add_subtree(ti, ett_pres);
-	}
+	  pres_tree = proto_item_add_subtree(ti, ett_pres);
+  }
 
-	switch(session->spdu_type)
-	{
+	switch(session->spdu_type){
 		case SES_REFUSE:
 			break;
 		case SES_CONNECTION_REQUEST:
@@ -188,6 +249,7 @@ void proto_register_pres(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_pres, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  register_init_routine(pres_init);
 
 }
 

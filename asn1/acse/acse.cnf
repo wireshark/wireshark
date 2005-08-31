@@ -13,22 +13,26 @@ AE-invocation-identifier
 #.TYPE_RENAME
 AARQ-apdu/protocol-version	T_AARQ_protocol_version
 AARE-apdu/protocol-version	T_AARE_protocol_version
+AARQ-apdu/aSO-context-name	T_AARQ_aSO_context_name		
+AARE-apdu/aSO-context-name	T_AARE_aSO_context_name
+ACRQ-apdu/aSO-context-name	T_ACRQ_aSO_context_name
+ACRP-apdu/aSO-context-name	T_ACRP_aSO_context_name
 
 #.FIELD_RENAME
-AARQ-apdu/user-information	AARQ_user_information
-AARE-apdu/user-information	AARE_user_information
-ABRT-apdu/user-information	ABRT_user_information
-RLRE-apdu/user-information	RLRE_user_information
-RLRQ-apdu/user-information	RLRQ_user_information
-AARE-apdu/result		AARE_result
-P-context-result-list/_item/result	Pcontext_result
-RLRE-apdu/reason		RLRE_reason
-RLRQ-apdu/reason		RLRQ_reason
-AARQ-apdu/protocol-version	AARQ_protocol_version
-AARE-apdu/protocol-version	AARE_protocol_version
-AARQ-apdu/aSO-context-name	AARQ_aSO_context_name
-AARE-apdu/aSO-context-name	AARE_aSO_context_name
-ACRQ-apdu/aSO-context-name	ACRQ_aSO_context_name
+AARQ-apdu/user-information	aARQ_user_information
+AARE-apdu/user-information	aARE_user_information
+ABRT-apdu/user-information	aBRT_user_information
+RLRE-apdu/user-information	rLRE_user_information
+RLRQ-apdu/user-information	rLRQ_user_information
+AARE-apdu/result		aARE_result
+P-context-result-list/_item/result	pcontext_result
+RLRE-apdu/reason		rLRE_reason
+RLRQ-apdu/reason		rLRQ_reason
+AARQ-apdu/protocol-version	aARQ_protocol_version
+AARE-apdu/protocol-version	aARE_protocol_version
+AARQ-apdu/aSO-context-name	aARQ_aSO_context_name
+AARE-apdu/aSO-context-name	aARE_aSO_context_name
+ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
 
 #.FN_BODY EXTERNAL
   gint8 class;

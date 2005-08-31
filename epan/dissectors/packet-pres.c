@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-pres.c                                                            */
+/* .\packet-pres.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p pres -c pres.cnf -s packet-pres-template ISO8823-PRESENTATION.asn */
 
 /* Input file: packet-pres-template.c */
@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/emem.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -62,6 +63,17 @@ packet_info *global_pinfo = NULL;
 /* dissector for data */
 static dissector_handle_t data_handle;
 static dissector_handle_t acse_handle;
+
+static char abstract_syntax_name_oid[BER_MAX_OID_STR_LEN];
+static guint32 presentation_context_identifier;
+
+/* to keep track of presentation context identifiers and protocol-oids */
+typedef struct _pres_ctx_oid_t {
+	/* XXX here we should keep track of ADDRESS/PORT as well */
+	guint32 ctx_id;
+	char *oid;
+} pres_ctx_oid_t;
+static GHashTable *pres_ctx_oid_table = NULL;
 
 
 /*--- Included file: packet-pres-hf.c ---*/
@@ -98,21 +110,21 @@ static int hf_pres_protocol_options = -1;         /* Protocol_options */
 static int hf_pres_initiators_nominated_context = -1;  /* Presentation_context_identifier */
 static int hf_pres_extensions = -1;               /* T_extensions */
 static int hf_pres_user_data = -1;                /* User_data */
-static int hf_pres_x410_mode_parameters1 = -1;    /* RTOACapdu */
-static int hf_pres_normal_mode_parameters1 = -1;  /* T_normal_mode_parameters1 */
+static int hf_pres_cPR_PPDU_x400_mode_parameters = -1;  /* RTOACapdu */
+static int hf_pres_cPU_PPDU_normal_mode_parameters = -1;  /* T_CPA_PPDU_normal_mode_parameters */
 static int hf_pres_responding_presentation_selector = -1;  /* Responding_presentation_selector */
 static int hf_pres_presentation_context_definition_result_list = -1;  /* Presentation_context_definition_result_list */
 static int hf_pres_responders_nominated_context = -1;  /* Presentation_context_identifier */
-static int hf_pres_x400_mode_parameters = -1;     /* RTORJapdu */
-static int hf_pres_normal_mode_parameters2 = -1;  /* T_normal_mode_parameters2 */
+static int hf_pres_cPU_PPDU_x400_mode_parameters = -1;  /* RTORJapdu */
+static int hf_pres_cPR_PPDU_normal_mode_parameters = -1;  /* T_CPR_PPDU_normal_mode_parameters */
 static int hf_pres_default_context_result = -1;   /* Default_context_result */
-static int hf_pres_provider_reason = -1;          /* Provider_reason */
+static int hf_pres_cPR_PPDU__provider_reason = -1;  /* Provider_reason */
 static int hf_pres_aru_ppdu = -1;                 /* ARU_PPDU */
 static int hf_pres_arp_ppdu = -1;                 /* ARP_PPDU */
-static int hf_pres_x400_mode_parameters1 = -1;    /* RTABapdu */
-static int hf_pres_normal_mode_parameters3 = -1;  /* T_normal_mode_parameters3 */
+static int hf_pres_aRU_PPDU_x400_mode_parameters = -1;  /* RTABapdu */
+static int hf_pres_aRU_PPDU_normal_mode_parameters = -1;  /* T_ARU_PPDU_normal_mode_parameters */
 static int hf_pres_presentation_context_identifier_list = -1;  /* Presentation_context_identifier_list */
-static int hf_pres_provider_reason1 = -1;         /* Abort_reason */
+static int hf_pres_aRU_PPDU_provider_reason = -1;  /* Abort_reason */
 static int hf_pres_event_identifier = -1;         /* Event_identifier */
 static int hf_pres_acPPDU = -1;                   /* AC_PPDU */
 static int hf_pres_acaPPDU = -1;                  /* ACA_PPDU */
@@ -133,7 +145,7 @@ static int hf_pres_Presentation_context_deletion_result_list_item = -1;  /* Pres
 static int hf_pres_Presentation_context_identifier_list_item = -1;  /* Presentation_context_identifier_list_item */
 static int hf_pres_Result_list_item = -1;         /* Result_list_item */
 static int hf_pres_result = -1;                   /* Result */
-static int hf_pres_provider_reason2 = -1;         /* T_provider_reason */
+static int hf_pres_provider_reason = -1;          /* T_provider_reason */
 static int hf_pres_simply_encoded_data = -1;      /* Simply_encoded_data */
 static int hf_pres_fully_encoded_data = -1;       /* Fully_encoded_data */
 static int hf_pres_Fully_encoded_data_item = -1;  /* PDV_list */
@@ -182,12 +194,12 @@ static gint ett_pres_CP_type = -1;
 static gint ett_pres_T_normal_mode_parameters = -1;
 static gint ett_pres_T_extensions = -1;
 static gint ett_pres_CPA_PPDU = -1;
-static gint ett_pres_T_normal_mode_parameters1 = -1;
+static gint ett_pres_T_CPA_PPDU_normal_mode_parameters = -1;
 static gint ett_pres_CPR_PPDU = -1;
-static gint ett_pres_T_normal_mode_parameters2 = -1;
+static gint ett_pres_T_CPR_PPDU_normal_mode_parameters = -1;
 static gint ett_pres_Abort_type = -1;
 static gint ett_pres_ARU_PPDU = -1;
-static gint ett_pres_T_normal_mode_parameters3 = -1;
+static gint ett_pres_T_ARU_PPDU_normal_mode_parameters = -1;
 static gint ett_pres_ARP_PPDU = -1;
 static gint ett_pres_Typed_data_type = -1;
 static gint ett_pres_AC_PPDU = -1;
@@ -215,6 +227,62 @@ static gint ett_pres_T_presentation_data_values = -1;
 static gint ett_pres_User_session_requirements = -1;
 
 /*--- End of included file: packet-pres-ett.c ---*/
+
+
+
+static guint
+pres_ctx_oid_hash(gconstpointer k)
+{
+	pres_ctx_oid_t *aco=(pres_ctx_oid_t *)k;
+	return aco->ctx_id;
+}
+/* XXX this one should be made ADDRESS/PORT aware */
+static gint
+pres_ctx_oid_equal(gconstpointer k1, gconstpointer k2)
+{
+	pres_ctx_oid_t *aco1=(pres_ctx_oid_t *)k1;
+	pres_ctx_oid_t *aco2=(pres_ctx_oid_t *)k2;
+	return aco1->ctx_id==aco2->ctx_id;
+}
+
+static void
+pres_init(void)
+{
+	if( pres_ctx_oid_table ){
+		g_hash_table_destroy(pres_ctx_oid_table);
+		pres_ctx_oid_table = NULL;
+	}
+	pres_ctx_oid_table = g_hash_table_new(pres_ctx_oid_hash,
+			pres_ctx_oid_equal);
+
+}
+
+static void
+register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, char *oid)
+{
+	pres_ctx_oid_t *aco, *tmpaco;
+	aco=se_alloc(sizeof(pres_ctx_oid_t));
+	aco->ctx_id=idx;
+	aco->oid=se_strdup(oid);
+
+	/* if this ctx already exists, remove the old one first */
+	tmpaco=(pres_ctx_oid_t *)g_hash_table_lookup(pres_ctx_oid_table, aco);
+	if(tmpaco){
+		g_hash_table_remove(pres_ctx_oid_table, tmpaco);
+	}
+	g_hash_table_insert(pres_ctx_oid_table, aco, aco);
+}
+static char *
+find_oid_by_ctx_id(packet_info *pinfo _U_, guint32 idx)
+{
+	pres_ctx_oid_t aco, *tmpaco;
+	aco.ctx_id=idx;
+	tmpaco=(pres_ctx_oid_t *)g_hash_table_lookup(pres_ctx_oid_table, &aco);
+	if(tmpaco){
+		return tmpaco->oid;
+	}
+	return NULL;
+}
 
 
 
@@ -446,8 +514,8 @@ dissect_pres_RTOACapdu(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 
   return offset;
 }
-static int dissect_x410_mode_parameters1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_RTOACapdu(TRUE, tvb, offset, pinfo, tree, hf_pres_x410_mode_parameters1);
+static int dissect_cPR_PPDU_x400_mode_parameters_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_RTOACapdu(TRUE, tvb, offset, pinfo, tree, hf_pres_cPR_PPDU_x400_mode_parameters);
 }
 
 
@@ -485,8 +553,8 @@ dissect_pres_RTORJapdu(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 
   return offset;
 }
-static int dissect_x400_mode_parameters(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_RTORJapdu(FALSE, tvb, offset, pinfo, tree, hf_pres_x400_mode_parameters);
+static int dissect_cPU_PPDU_x400_mode_parameters(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_RTORJapdu(FALSE, tvb, offset, pinfo, tree, hf_pres_cPU_PPDU_x400_mode_parameters);
 }
 
 
@@ -546,8 +614,8 @@ dissect_pres_RTABapdu(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
 
   return offset;
 }
-static int dissect_x400_mode_parameters1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_RTABapdu(FALSE, tvb, offset, pinfo, tree, hf_pres_x400_mode_parameters1);
+static int dissect_aRU_PPDU_x400_mode_parameters(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_RTABapdu(FALSE, tvb, offset, pinfo, tree, hf_pres_aRU_PPDU_x400_mode_parameters);
 }
 
 
@@ -643,7 +711,7 @@ static int dissect_called_presentation_selector_impl(packet_info *pinfo, proto_t
 static int
 dissect_pres_Presentation_context_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
+                                  &presentation_context_identifier);
 
   return offset;
 }
@@ -665,7 +733,7 @@ static int dissect_Presentation_context_deletion_list_item(packet_info *pinfo, p
 static int
 dissect_pres_Abstract_syntax_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+                                            abstract_syntax_name_oid);
 
   return offset;
 }
@@ -724,6 +792,7 @@ dissect_pres_Context_list_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    Context_list_item_sequence, hf_index, ett_pres_Context_list_item);
 
+	register_ctx_id_and_oid(pinfo, presentation_context_identifier, abstract_syntax_name_oid);
   return offset;
 }
 static int dissect_Context_list_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -877,15 +946,19 @@ static int
 dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 
  tvbuff_t	*next_tvb;
+ char *oid; 
 
-	if(!acse_handle){
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-	}else{
+	oid=find_oid_by_ctx_id(pinfo, presentation_context_identifier);
+	if(oid){
 		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-		call_dissector(acse_handle, next_tvb, pinfo, global_tree);
+		call_ber_oid_callback(oid, next_tvb, offset, pinfo, global_tree);
+	} else {
+		proto_tree_add_text(tree, tvb, offset, -1,"dissector is not available");
+		  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+	
 	}
+
 
 
   return offset;
@@ -1085,15 +1158,15 @@ dissect_pres_T_provider_reason(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
   return offset;
 }
-static int dissect_provider_reason2_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_T_provider_reason(TRUE, tvb, offset, pinfo, tree, hf_pres_provider_reason2);
+static int dissect_provider_reason_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_T_provider_reason(TRUE, tvb, offset, pinfo, tree, hf_pres_provider_reason);
 }
 
 
 static const ber_sequence_t Result_list_item_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_result_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_transfer_syntax_name_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_provider_reason2_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_provider_reason_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -1134,7 +1207,7 @@ static int dissect_presentation_context_definition_result_list_impl(packet_info 
 }
 
 
-static const ber_sequence_t T_normal_mode_parameters1_sequence[] = {
+static const ber_sequence_t T_CPA_PPDU_normal_mode_parameters_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_protocol_version_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_responding_presentation_selector_impl },
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_presentation_context_definition_result_list_impl },
@@ -1147,21 +1220,21 @@ static const ber_sequence_t T_normal_mode_parameters1_sequence[] = {
 };
 
 static int
-dissect_pres_T_normal_mode_parameters1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_pres_T_CPA_PPDU_normal_mode_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   T_normal_mode_parameters1_sequence, hf_index, ett_pres_T_normal_mode_parameters1);
+                                   T_CPA_PPDU_normal_mode_parameters_sequence, hf_index, ett_pres_T_CPA_PPDU_normal_mode_parameters);
 
   return offset;
 }
-static int dissect_normal_mode_parameters1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_T_normal_mode_parameters1(TRUE, tvb, offset, pinfo, tree, hf_pres_normal_mode_parameters1);
+static int dissect_cPU_PPDU_normal_mode_parameters_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_T_CPA_PPDU_normal_mode_parameters(TRUE, tvb, offset, pinfo, tree, hf_pres_cPU_PPDU_normal_mode_parameters);
 }
 
 
 static const ber_sequence_t CPA_PPDU_set[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mode_selector_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x410_mode_parameters1_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_normal_mode_parameters1_impl },
+  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cPR_PPDU_x400_mode_parameters_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cPU_PPDU_normal_mode_parameters_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -1206,30 +1279,30 @@ dissect_pres_Provider_reason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
   return offset;
 }
-static int dissect_provider_reason_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_Provider_reason(TRUE, tvb, offset, pinfo, tree, hf_pres_provider_reason);
+static int dissect_cPR_PPDU__provider_reason_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Provider_reason(TRUE, tvb, offset, pinfo, tree, hf_pres_cPR_PPDU__provider_reason);
 }
 
 
-static const ber_sequence_t T_normal_mode_parameters2_sequence[] = {
+static const ber_sequence_t T_CPR_PPDU_normal_mode_parameters_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_protocol_version_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_responding_presentation_selector_impl },
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_presentation_context_definition_result_list_impl },
   { BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_default_context_result_impl },
-  { BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_provider_reason_impl },
+  { BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cPR_PPDU__provider_reason_impl },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_user_data },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_pres_T_normal_mode_parameters2(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_pres_T_CPR_PPDU_normal_mode_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   T_normal_mode_parameters2_sequence, hf_index, ett_pres_T_normal_mode_parameters2);
+                                   T_CPR_PPDU_normal_mode_parameters_sequence, hf_index, ett_pres_T_CPR_PPDU_normal_mode_parameters);
 
   return offset;
 }
-static int dissect_normal_mode_parameters2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_T_normal_mode_parameters2(FALSE, tvb, offset, pinfo, tree, hf_pres_normal_mode_parameters2);
+static int dissect_cPR_PPDU_normal_mode_parameters(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_T_CPR_PPDU_normal_mode_parameters(FALSE, tvb, offset, pinfo, tree, hf_pres_cPR_PPDU_normal_mode_parameters);
 }
 
 
@@ -1240,8 +1313,8 @@ static const value_string pres_CPR_PPDU_vals[] = {
 };
 
 static const ber_choice_t CPR_PPDU_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x400_mode_parameters },
-  {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_normal_mode_parameters2 },
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_cPU_PPDU_x400_mode_parameters },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_cPR_PPDU_normal_mode_parameters },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -1289,21 +1362,21 @@ static int dissect_presentation_context_identifier_list_impl(packet_info *pinfo,
 }
 
 
-static const ber_sequence_t T_normal_mode_parameters3_sequence[] = {
+static const ber_sequence_t T_ARU_PPDU_normal_mode_parameters_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_presentation_context_identifier_list_impl },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_user_data },
   { 0, 0, 0, NULL }
 };
 
 static int
-dissect_pres_T_normal_mode_parameters3(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_pres_T_ARU_PPDU_normal_mode_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   T_normal_mode_parameters3_sequence, hf_index, ett_pres_T_normal_mode_parameters3);
+                                   T_ARU_PPDU_normal_mode_parameters_sequence, hf_index, ett_pres_T_ARU_PPDU_normal_mode_parameters);
 
   return offset;
 }
-static int dissect_normal_mode_parameters3_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_T_normal_mode_parameters3(TRUE, tvb, offset, pinfo, tree, hf_pres_normal_mode_parameters3);
+static int dissect_aRU_PPDU_normal_mode_parameters_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_T_ARU_PPDU_normal_mode_parameters(TRUE, tvb, offset, pinfo, tree, hf_pres_aRU_PPDU_normal_mode_parameters);
 }
 
 
@@ -1314,8 +1387,8 @@ static const value_string pres_ARU_PPDU_vals[] = {
 };
 
 static const ber_choice_t ARU_PPDU_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x400_mode_parameters1 },
-  {   1, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_normal_mode_parameters3_impl },
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_aRU_PPDU_x400_mode_parameters },
+  {   1, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_aRU_PPDU_normal_mode_parameters_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -1351,8 +1424,8 @@ dissect_pres_Abort_reason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
   return offset;
 }
-static int dissect_provider_reason1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_Abort_reason(TRUE, tvb, offset, pinfo, tree, hf_pres_provider_reason1);
+static int dissect_aRU_PPDU_provider_reason_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_Abort_reason(TRUE, tvb, offset, pinfo, tree, hf_pres_aRU_PPDU_provider_reason);
 }
 
 
@@ -1407,7 +1480,7 @@ static int dissect_event_identifier_impl(packet_info *pinfo, proto_tree *tree, t
 
 
 static const ber_sequence_t ARP_PPDU_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_provider_reason1_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_aRU_PPDU_provider_reason_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_event_identifier_impl },
   { 0, 0, 0, NULL }
 };
@@ -1616,6 +1689,7 @@ dissect_pres_RSA_PPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
 /*--- End of included file: packet-pres-fn.c ---*/
 
 
+
 /*
  * Dissect an PPDU.
  */
@@ -1626,43 +1700,35 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
   proto_tree *pres_tree = NULL;
   guint s_type;
 /* do we have spdu type from the session dissector?  */
-	if( !pinfo->private_data )
-				{
-				if(tree)
-						{
-					proto_tree_add_text(tree, tvb, offset, -1,
-							"Internal error:can't get spdu type from session dissector.");
-					return  FALSE;
-						}
-				}
-	else
-				{
-					session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
-					if(session->spdu_type == 0 )
-					{
-						if(tree)
-						{
-					proto_tree_add_text(tree, tvb, offset, -1,
-							"Internal error:wrong spdu type %x from session dissector.",session->spdu_type);
-					return  FALSE;
-						}
-					}
-				}
+	if( !pinfo->private_data ){
+		if(tree){
+			proto_tree_add_text(tree, tvb, offset, -1,
+				"Internal error:can't get spdu type from session dissector.");
+			return  FALSE;
+		}
+	}else{
+		session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
+		if(session->spdu_type == 0 ){
+			if(tree){
+				proto_tree_add_text(tree, tvb, offset, -1,
+					"Internal error:wrong spdu type %x from session dissector.",session->spdu_type);
+				return  FALSE;
+			}
+		}
+	}
 /* get type of tag      */
 	s_type = tvb_get_guint8(tvb, offset);
 		/*  set up type of Ppdu */
   	if (check_col(pinfo->cinfo, COL_INFO))
 					col_add_str(pinfo->cinfo, COL_INFO,
 						val_to_str(session->spdu_type, ses_vals, "Unknown Ppdu type (0x%02x)"));
-  if (tree)
-	{
-		ti = proto_tree_add_item(tree, proto_pres, tvb, offset, -1,
+  if (tree){
+	  ti = proto_tree_add_item(tree, proto_pres, tvb, offset, -1,
 		    FALSE);
-		pres_tree = proto_item_add_subtree(ti, ett_pres);
-	}
+	  pres_tree = proto_item_add_subtree(ti, ett_pres);
+  }
 
-	switch(session->spdu_type)
-	{
+	switch(session->spdu_type){
 		case SES_REFUSE:
 			break;
 		case SES_CONNECTION_REQUEST:
@@ -1855,11 +1921,11 @@ void proto_register_pres(void) {
       { "user-data", "pres.user_data",
         FT_UINT32, BASE_DEC, VALS(pres_User_data_vals), 0,
         "", HFILL }},
-    { &hf_pres_x410_mode_parameters1,
+    { &hf_pres_cPR_PPDU_x400_mode_parameters,
       { "x410-mode-parameters", "pres.x410_mode_parameters",
         FT_NONE, BASE_NONE, NULL, 0,
         "CPA-PPDU/x410-mode-parameters", HFILL }},
-    { &hf_pres_normal_mode_parameters1,
+    { &hf_pres_cPU_PPDU_normal_mode_parameters,
       { "normal-mode-parameters", "pres.normal_mode_parameters",
         FT_NONE, BASE_NONE, NULL, 0,
         "CPA-PPDU/normal-mode-parameters", HFILL }},
@@ -1875,11 +1941,11 @@ void proto_register_pres(void) {
       { "responders-nominated-context", "pres.responders_nominated_context",
         FT_INT32, BASE_DEC, NULL, 0,
         "CPA-PPDU/normal-mode-parameters/responders-nominated-context", HFILL }},
-    { &hf_pres_x400_mode_parameters,
+    { &hf_pres_cPU_PPDU_x400_mode_parameters,
       { "x400-mode-parameters", "pres.x400_mode_parameters",
         FT_NONE, BASE_NONE, NULL, 0,
         "CPR-PPDU/x400-mode-parameters", HFILL }},
-    { &hf_pres_normal_mode_parameters2,
+    { &hf_pres_cPR_PPDU_normal_mode_parameters,
       { "normal-mode-parameters", "pres.normal_mode_parameters",
         FT_NONE, BASE_NONE, NULL, 0,
         "CPR-PPDU/normal-mode-parameters", HFILL }},
@@ -1887,7 +1953,7 @@ void proto_register_pres(void) {
       { "default-context-result", "pres.default_context_result",
         FT_INT32, BASE_DEC, VALS(pres_Result_vals), 0,
         "CPR-PPDU/normal-mode-parameters/default-context-result", HFILL }},
-    { &hf_pres_provider_reason,
+    { &hf_pres_cPR_PPDU__provider_reason,
       { "provider-reason", "pres.provider_reason",
         FT_INT32, BASE_DEC, VALS(pres_Provider_reason_vals), 0,
         "CPR-PPDU/normal-mode-parameters/provider-reason", HFILL }},
@@ -1899,11 +1965,11 @@ void proto_register_pres(void) {
       { "arp-ppdu", "pres.arp_ppdu",
         FT_NONE, BASE_NONE, NULL, 0,
         "Abort-type/arp-ppdu", HFILL }},
-    { &hf_pres_x400_mode_parameters1,
+    { &hf_pres_aRU_PPDU_x400_mode_parameters,
       { "x400-mode-parameters", "pres.x400_mode_parameters",
         FT_NONE, BASE_NONE, NULL, 0,
         "ARU-PPDU/x400-mode-parameters", HFILL }},
-    { &hf_pres_normal_mode_parameters3,
+    { &hf_pres_aRU_PPDU_normal_mode_parameters,
       { "normal-mode-parameters", "pres.normal_mode_parameters",
         FT_NONE, BASE_NONE, NULL, 0,
         "ARU-PPDU/normal-mode-parameters", HFILL }},
@@ -1911,7 +1977,7 @@ void proto_register_pres(void) {
       { "presentation-context-identifier-list", "pres.presentation_context_identifier_list",
         FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
-    { &hf_pres_provider_reason1,
+    { &hf_pres_aRU_PPDU_provider_reason,
       { "provider-reason", "pres.provider_reason",
         FT_INT32, BASE_DEC, VALS(pres_Abort_reason_vals), 0,
         "ARP-PPDU/provider-reason", HFILL }},
@@ -1995,7 +2061,7 @@ void proto_register_pres(void) {
       { "result", "pres.result",
         FT_INT32, BASE_DEC, VALS(pres_Result_vals), 0,
         "Result-list/_item/result", HFILL }},
-    { &hf_pres_provider_reason2,
+    { &hf_pres_provider_reason,
       { "provider-reason", "pres.provider_reason",
         FT_INT32, BASE_DEC, VALS(pres_T_provider_reason_vals), 0,
         "Result-list/_item/provider-reason", HFILL }},
@@ -2125,12 +2191,12 @@ void proto_register_pres(void) {
     &ett_pres_T_normal_mode_parameters,
     &ett_pres_T_extensions,
     &ett_pres_CPA_PPDU,
-    &ett_pres_T_normal_mode_parameters1,
+    &ett_pres_T_CPA_PPDU_normal_mode_parameters,
     &ett_pres_CPR_PPDU,
-    &ett_pres_T_normal_mode_parameters2,
+    &ett_pres_T_CPR_PPDU_normal_mode_parameters,
     &ett_pres_Abort_type,
     &ett_pres_ARU_PPDU,
-    &ett_pres_T_normal_mode_parameters3,
+    &ett_pres_T_ARU_PPDU_normal_mode_parameters,
     &ett_pres_ARP_PPDU,
     &ett_pres_Typed_data_type,
     &ett_pres_AC_PPDU,
@@ -2167,6 +2233,7 @@ void proto_register_pres(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_pres, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  register_init_routine(pres_init);
 
 }
 

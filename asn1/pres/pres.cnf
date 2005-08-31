@@ -12,8 +12,21 @@
 #.NO_EMIT
 
 #.TYPE_RENAME
+CPA-PPDU/normal-mode-parameters	T_CPA_PPDU_normal_mode_parameters
+CPR-PPDU/normal-mode-parameters	T_CPR_PPDU_normal_mode_parameters	
+ARU-PPDU/normal-mode-parameters	T_ARU_PPDU_normal_mode_parameters
 
 #.FIELD_RENAME
+ARU-PPDU/normal-mode-parameters aRU_PPDU_normal_mode_parameters
+CPA-PPDU/normal-mode-parameters	cPU_PPDU_normal_mode_parameters
+CPR-PPDU/normal-mode-parameters	cPR_PPDU_normal_mode_parameters
+
+ARU-PPDU/x400-mode-parameters aRU_PPDU_x400_mode_parameters
+CPR-PPDU/x400-mode-parameters cPU_PPDU_x400_mode_parameters
+CPA-PPDU/x410-mode-parameters cPR_PPDU_x400_mode_parameters
+
+ARP-PPDU/provider-reason aRU_PPDU_provider-reason
+CPR-PPDU/normal-mode-parameters/provider-reason cPR_PPDU__provider-reason
 
 #.FN_BODY OPEN
 /* FIX ME*/
@@ -21,12 +34,24 @@
 #.FN_BODY PDV-list/presentation-data-values/single-ASN1-type
 
  tvbuff_t	*next_tvb;
+ char *oid; 
 
-	if(!acse_handle){
-%(DEFAULT_BODY)s
-	}else{
+	oid=find_oid_by_ctx_id(pinfo, presentation_context_identifier);
+	if(oid){
 		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-		call_dissector(acse_handle, next_tvb, pinfo, global_tree);
+		call_ber_oid_callback(oid, next_tvb, offset, pinfo, global_tree);
+	} else {
+		proto_tree_add_text(tree, tvb, offset, -1,"dissector is not available");
+		%(DEFAULT_BODY)s	
 	}
 
+
+#.FN_PARS Abstract_syntax_name
+ VAL_PTR = abstract_syntax_name_oid
+
+#.FN_PARS Presentation_context_identifier
+ VAL_PTR = &presentation_context_identifier
+
+#.FN_FTR Context-list/_item
+	register_ctx_id_and_oid(pinfo, presentation_context_identifier, abstract_syntax_name_oid);
 #.END

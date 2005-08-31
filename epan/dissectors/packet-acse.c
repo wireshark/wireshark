@@ -82,8 +82,8 @@ static int hf_acse_abrt = -1;                     /* ABRT_apdu */
 static int hf_acse_adt = -1;                      /* A_DT_apdu */
 static int hf_acse_acrq = -1;                     /* ACRQ_apdu */
 static int hf_acse_acrp = -1;                     /* ACRP_apdu */
-static int hf_acse_AARQ_protocol_version = -1;    /* T_AARQ_protocol_version */
-static int hf_acse_AARQ_aSO_context_name = -1;    /* T_aSO_context_name */
+static int hf_acse_aARQ_protocol_version = -1;    /* T_AARQ_protocol_version */
+static int hf_acse_aARQ_aSO_context_name = -1;    /* T_AARQ_aSO_context_name */
 static int hf_acse_called_AP_title = -1;          /* AP_title */
 static int hf_acse_called_AE_qualifier = -1;      /* AE_qualifier */
 static int hf_acse_called_AP_invocation_identifier = -1;  /* AP_invocation_identifier */
@@ -100,10 +100,10 @@ static int hf_acse_implementation_information = -1;  /* Implementation_data */
 static int hf_acse_p_context_definition_list = -1;  /* Syntactic_context_list */
 static int hf_acse_called_asoi_tag = -1;          /* ASOI_tag */
 static int hf_acse_calling_asoi_tag = -1;         /* ASOI_tag */
-static int hf_acse_AARQ_user_information = -1;    /* Association_data */
-static int hf_acse_AARE_protocol_version = -1;    /* T_AARE_protocol_version */
-static int hf_acse_AARE_aSO_context_name = -1;    /* T_aSO_context_name1 */
-static int hf_acse_AARE_result = -1;              /* Associate_result */
+static int hf_acse_aARQ_user_information = -1;    /* Association_data */
+static int hf_acse_aARE_protocol_version = -1;    /* T_AARE_protocol_version */
+static int hf_acse_aARE_aSO_context_name = -1;    /* T_AARE_aSO_context_name */
+static int hf_acse_aARE_result = -1;              /* Associate_result */
 static int hf_acse_result_source_diagnostic = -1;  /* Associate_source_diagnostic */
 static int hf_acse_responding_AP_title = -1;      /* AP_title */
 static int hf_acse_responding_AE_qualifier = -1;  /* AE_qualifier */
@@ -112,20 +112,20 @@ static int hf_acse_responding_AE_invocation_identifier = -1;  /* AE_invocation_i
 static int hf_acse_responder_acse_requirements = -1;  /* ACSE_requirements */
 static int hf_acse_responding_authentication_value = -1;  /* Authentication_value */
 static int hf_acse_p_context_result_list = -1;    /* P_context_result_list */
-static int hf_acse_AARE_user_information = -1;    /* Association_data */
-static int hf_acse_RLRQ_reason = -1;              /* Release_request_reason */
+static int hf_acse_aARE_user_information = -1;    /* Association_data */
+static int hf_acse_rLRQ_reason = -1;              /* Release_request_reason */
 static int hf_acse_aso_qualifier = -1;            /* ASO_qualifier */
 static int hf_acse_asoi_identifier = -1;          /* ASOI_identifier */
-static int hf_acse_RLRQ_user_information = -1;    /* Association_data */
-static int hf_acse_RLRE_reason = -1;              /* Release_response_reason */
-static int hf_acse_RLRE_user_information = -1;    /* Association_data */
+static int hf_acse_rLRQ_user_information = -1;    /* Association_data */
+static int hf_acse_rLRE_reason = -1;              /* Release_response_reason */
+static int hf_acse_rLRE_user_information = -1;    /* Association_data */
 static int hf_acse_abort_source = -1;             /* ABRT_source */
 static int hf_acse_abort_diagnostic = -1;         /* ABRT_diagnostic */
-static int hf_acse_ABRT_user_information = -1;    /* Association_data */
+static int hf_acse_aBRT_user_information = -1;    /* Association_data */
 static int hf_acse_a_user_data = -1;              /* User_Data */
-static int hf_acse_ACRQ_aSO_context_name = -1;    /* T_aSO_context_name2 */
+static int hf_acse_aCRQ_aSO_context_name = -1;    /* T_ACRQ_aSO_context_name */
 static int hf_acse_user_information = -1;         /* User_information */
-static int hf_acse_aSO_context_name = -1;         /* T_aSO_context_name3 */
+static int hf_acse_aSO_context_name = -1;         /* T_ACRP_aSO_context_name */
 static int hf_acse_ap_title_form1 = -1;           /* AP_title_form1 */
 static int hf_acse_ap_title_form2 = -1;           /* AP_title_form2 */
 static int hf_acse_ap_title_form3 = -1;           /* AP_title_form3 */
@@ -149,7 +149,7 @@ static int hf_acse_Default_Context_List_item = -1;  /* Default_Context_List_item
 static int hf_acse_abstract_syntax_name = -1;     /* Abstract_syntax_name */
 static int hf_acse_transfer_syntax_name = -1;     /* TransferSyntaxName */
 static int hf_acse_P_context_result_list_item = -1;  /* P_context_result_list_item */
-static int hf_acse_Pcontext_result = -1;          /* Result */
+static int hf_acse_pcontext_result = -1;          /* Result */
 static int hf_acse_concrete_syntax_name = -1;     /* Concrete_syntax_name */
 static int hf_acse_provider_reason = -1;          /* T_provider_reason */
 static int hf_acse_acse_service_user = -1;        /* T_acse_service_user */
@@ -460,8 +460,8 @@ dissect_acse_T_AARQ_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb, i
 
   return offset;
 }
-static int dissect_AARQ_protocol_version_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_acse_T_AARQ_protocol_version(TRUE, tvb, offset, pinfo, tree, hf_acse_AARQ_protocol_version);
+static int dissect_aARQ_protocol_version_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_acse_T_AARQ_protocol_version(TRUE, tvb, offset, pinfo, tree, hf_acse_aARQ_protocol_version);
 }
 
 
@@ -480,15 +480,15 @@ static int dissect_ASO_context_name_list_item(packet_info *pinfo, proto_tree *tr
 
 
 static int
-dissect_acse_T_aSO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_acse_T_AARQ_aSO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
                                          hf_index, object_identifier_id);
 
 
   return offset;
 }
-static int dissect_AARQ_aSO_context_name(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_acse_T_aSO_context_name(FALSE, tvb, offset, pinfo, tree, hf_acse_AARQ_aSO_context_name);
+static int dissect_aARQ_aSO_context_name(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_acse_T_AARQ_aSO_context_name(FALSE, tvb, offset, pinfo, tree, hf_acse_aARQ_aSO_context_name);
 }
 
 
@@ -1078,26 +1078,26 @@ dissect_acse_Association_data(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
   return offset;
 }
-static int dissect_AARQ_user_information_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_acse_Association_data(TRUE, tvb, offset, pinfo, tree, hf_acse_AARQ_user_information);
+static int dissect_aARQ_user_information_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_acse_Association_data(TRUE, tvb, offset, pinfo, tree, hf_acse_aARQ_user_information);
 }
-static int dissect_AARE_user_information_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_acse_Association_data(TRUE, tvb, offset, pinfo, tree, hf_acse_AARE_user_information);
+static int dissect_aARE_user_information_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_acse_Association_data(TRUE, tvb, offset, pinfo, tree, hf_acse_aARE_user_information);
 }
-static int dissect_RLRQ_user_information_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_acse_Association_data(TRUE, tvb, offset, pinfo, tree, hf_acse_RLRQ_user_information);
+static int dissect_rLRQ_user_information_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_acse_Association_data(TRUE, tvb, offset, pinfo, tree, hf_acse_rLRQ_user_information);
 }
-static int dissect_RLRE_user_information_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_acse_Association_data(TRUE, tvb, offset, pinfo, tree, hf_acse_RLRE_user_information);
+static int dissect_rLRE_user_information_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_acse_Association_data(TRUE, tvb, offset, pinfo, tree, hf_acse_rLRE_user_information);
 }
-static int dissect_ABRT_user_information_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_acse_Association_data(TRUE, tvb, offset, pinfo, tree, hf_acse_ABRT_user_information);
+static int dissect_aBRT_user_information_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_acse_Association_data(TRUE, tvb, offset, pinfo, tree, hf_acse_aBRT_user_information);
 }
 
 
 static const ber_sequence_t AARQ_apdu_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_AARQ_protocol_version_impl },
-  { BER_CLASS_CON, 1, 0, dissect_AARQ_aSO_context_name },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_aARQ_protocol_version_impl },
+  { BER_CLASS_CON, 1, 0, dissect_aARQ_aSO_context_name },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_called_AP_title },
   { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_called_AE_qualifier },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_called_AP_invocation_identifier },
@@ -1114,7 +1114,7 @@ static const ber_sequence_t AARQ_apdu_sequence[] = {
   { BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_p_context_definition_list },
   { BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_called_asoi_tag_impl },
   { BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_calling_asoi_tag_impl },
-  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_AARQ_user_information_impl },
+  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_aARQ_user_information_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -1143,22 +1143,22 @@ dissect_acse_T_AARE_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb, i
 
   return offset;
 }
-static int dissect_AARE_protocol_version_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_acse_T_AARE_protocol_version(TRUE, tvb, offset, pinfo, tree, hf_acse_AARE_protocol_version);
+static int dissect_aARE_protocol_version_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_acse_T_AARE_protocol_version(TRUE, tvb, offset, pinfo, tree, hf_acse_aARE_protocol_version);
 }
 
 
 
 static int
-dissect_acse_T_aSO_context_name1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_acse_T_AARE_aSO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
                                          hf_index, object_identifier_id);
 
 
   return offset;
 }
-static int dissect_AARE_aSO_context_name(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_acse_T_aSO_context_name1(FALSE, tvb, offset, pinfo, tree, hf_acse_AARE_aSO_context_name);
+static int dissect_aARE_aSO_context_name(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_acse_T_AARE_aSO_context_name(FALSE, tvb, offset, pinfo, tree, hf_acse_aARE_aSO_context_name);
 }
 
 
@@ -1177,8 +1177,8 @@ dissect_acse_Associate_result(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
   return offset;
 }
-static int dissect_AARE_result(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_acse_Associate_result(FALSE, tvb, offset, pinfo, tree, hf_acse_AARE_result);
+static int dissect_aARE_result(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_acse_Associate_result(FALSE, tvb, offset, pinfo, tree, hf_acse_aARE_result);
 }
 
 
@@ -1274,8 +1274,8 @@ dissect_acse_Result(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet
 
   return offset;
 }
-static int dissect_Pcontext_result_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_acse_Result(TRUE, tvb, offset, pinfo, tree, hf_acse_Pcontext_result);
+static int dissect_pcontext_result_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_acse_Result(TRUE, tvb, offset, pinfo, tree, hf_acse_pcontext_result);
 }
 
 
@@ -1313,7 +1313,7 @@ static int dissect_provider_reason_impl(packet_info *pinfo, proto_tree *tree, tv
 
 
 static const ber_sequence_t P_context_result_list_item_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_Pcontext_result_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_pcontext_result_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_concrete_syntax_name_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_provider_reason_impl },
   { 0, 0, 0, NULL }
@@ -1348,9 +1348,9 @@ static int dissect_p_context_result_list_impl(packet_info *pinfo, proto_tree *tr
 
 
 static const ber_sequence_t AARE_apdu_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_AARE_protocol_version_impl },
-  { BER_CLASS_CON, 1, 0, dissect_AARE_aSO_context_name },
-  { BER_CLASS_CON, 2, 0, dissect_AARE_result },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_aARE_protocol_version_impl },
+  { BER_CLASS_CON, 1, 0, dissect_aARE_aSO_context_name },
+  { BER_CLASS_CON, 2, 0, dissect_aARE_result },
   { BER_CLASS_CON, 3, BER_FLAGS_NOTCHKTAG, dissect_result_source_diagnostic },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_responding_AP_title },
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_responding_AE_qualifier },
@@ -1364,7 +1364,7 @@ static const ber_sequence_t AARE_apdu_sequence[] = {
   { BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_p_context_result_list_impl },
   { BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_called_asoi_tag_impl },
   { BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_calling_asoi_tag_impl },
-  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_AARE_user_information_impl },
+  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_aARE_user_information_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -1395,16 +1395,16 @@ dissect_acse_Release_request_reason(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 
   return offset;
 }
-static int dissect_RLRQ_reason_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_acse_Release_request_reason(TRUE, tvb, offset, pinfo, tree, hf_acse_RLRQ_reason);
+static int dissect_rLRQ_reason_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_acse_Release_request_reason(TRUE, tvb, offset, pinfo, tree, hf_acse_rLRQ_reason);
 }
 
 
 static const ber_sequence_t RLRQ_apdu_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_RLRQ_reason_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_rLRQ_reason_impl },
   { BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_aso_qualifier },
   { BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_asoi_identifier_impl },
-  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_RLRQ_user_information_impl },
+  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_rLRQ_user_information_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -1435,16 +1435,16 @@ dissect_acse_Release_response_reason(gboolean implicit_tag _U_, tvbuff_t *tvb, i
 
   return offset;
 }
-static int dissect_RLRE_reason_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_acse_Release_response_reason(TRUE, tvb, offset, pinfo, tree, hf_acse_RLRE_reason);
+static int dissect_rLRE_reason_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_acse_Release_response_reason(TRUE, tvb, offset, pinfo, tree, hf_acse_rLRE_reason);
 }
 
 
 static const ber_sequence_t RLRE_apdu_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_RLRE_reason_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_rLRE_reason_impl },
   { BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_aso_qualifier },
   { BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_asoi_identifier_impl },
-  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_RLRE_user_information_impl },
+  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_rLRE_user_information_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -1507,7 +1507,7 @@ static const ber_sequence_t ABRT_apdu_sequence[] = {
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_abort_diagnostic_impl },
   { BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_aso_qualifier },
   { BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_asoi_identifier_impl },
-  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ABRT_user_information_impl },
+  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_aBRT_user_information_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -1658,22 +1658,22 @@ static int dissect_adt_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 
 static int
-dissect_acse_T_aSO_context_name2(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_acse_T_ACRQ_aSO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
                                          hf_index, object_identifier_id);
 
 
   return offset;
 }
-static int dissect_ACRQ_aSO_context_name_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_acse_T_aSO_context_name2(TRUE, tvb, offset, pinfo, tree, hf_acse_ACRQ_aSO_context_name);
+static int dissect_aCRQ_aSO_context_name_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_acse_T_ACRQ_aSO_context_name(TRUE, tvb, offset, pinfo, tree, hf_acse_aCRQ_aSO_context_name);
 }
 
 
 static const ber_sequence_t ACRQ_apdu_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_aso_qualifier },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_asoi_identifier_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ACRQ_aSO_context_name_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_aCRQ_aSO_context_name_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_aSO_context_name_list_impl },
   { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_p_context_definition_list },
   { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_user_information_impl },
@@ -1694,7 +1694,7 @@ static int dissect_acrq_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 
 static int
-dissect_acse_T_aSO_context_name3(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_acse_T_ACRP_aSO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
                                          hf_index, object_identifier_id);
 
@@ -1702,7 +1702,7 @@ dissect_acse_T_aSO_context_name3(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
   return offset;
 }
 static int dissect_aSO_context_name_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_acse_T_aSO_context_name3(TRUE, tvb, offset, pinfo, tree, hf_acse_aSO_context_name);
+  return dissect_acse_T_ACRP_aSO_context_name(TRUE, tvb, offset, pinfo, tree, hf_acse_aSO_context_name);
 }
 
 
@@ -1874,11 +1874,11 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/*  data pdu is not ACSE pdu and has to go directly to app dissector */
 	switch(session->spdu_type){
 	case SES_CONNECTION_REQUEST:		/*   AARQ   */
-	case SES_CONNECTION_ACCEPT:		/*   AARE   */
-	case SES_REFUSE:			/*   RLRE   */
-	case SES_DISCONNECT:			/*   RLRQ   */
-	case SES_FINISH:			/*   RLRE   */
-	case SES_ABORT:				/*   ABRT   */
+	case SES_CONNECTION_ACCEPT:			/*   AARE   */
+	case SES_REFUSE:					/*   RLRE   */
+	case SES_DISCONNECT:				/*   RLRQ   */
+	case SES_FINISH:					/*   RLRE   */
+	case SES_ABORT:						/*   ABRT   */
 		break;
 	case SES_DATA_TRANSFER:
 		oid=find_oid_by_ctx_id(pinfo, indir_ref);
@@ -1917,7 +1917,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	switch(session->spdu_type){
 	case SES_CONNECTION_REQUEST:		/*   AARQ   */
-	case SES_CONNECTION_ACCEPT:		/*   AARE   */
+	case SES_CONNECTION_ACCEPT:			/*   AARE   */
 		/* these two functions are used to set up the association
 		   between a presentation identifier (indir_ref) and
 		   a protocol identified by a oid.
@@ -1997,11 +1997,11 @@ void proto_register_acse(void) {
       { "acrp", "acse.acrp",
         FT_NONE, BASE_NONE, NULL, 0,
         "ACSE-apdu/acrp", HFILL }},
-    { &hf_acse_AARQ_protocol_version,
+    { &hf_acse_aARQ_protocol_version,
       { "protocol-version", "acse.protocol_version",
         FT_BYTES, BASE_HEX, NULL, 0,
         "AARQ-apdu/protocol-version", HFILL }},
-    { &hf_acse_AARQ_aSO_context_name,
+    { &hf_acse_aARQ_aSO_context_name,
       { "aSO-context-name", "acse.aSO_context_name",
         FT_STRING, BASE_NONE, NULL, 0,
         "AARQ-apdu/aSO-context-name", HFILL }},
@@ -2069,19 +2069,19 @@ void proto_register_acse(void) {
       { "calling-asoi-tag", "acse.calling_asoi_tag",
         FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
-    { &hf_acse_AARQ_user_information,
+    { &hf_acse_aARQ_user_information,
       { "user-information", "acse.user_information",
         FT_UINT32, BASE_DEC, NULL, 0,
         "AARQ-apdu/user-information", HFILL }},
-    { &hf_acse_AARE_protocol_version,
+    { &hf_acse_aARE_protocol_version,
       { "protocol-version", "acse.protocol_version",
         FT_BYTES, BASE_HEX, NULL, 0,
         "AARE-apdu/protocol-version", HFILL }},
-    { &hf_acse_AARE_aSO_context_name,
+    { &hf_acse_aARE_aSO_context_name,
       { "aSO-context-name", "acse.aSO_context_name",
         FT_STRING, BASE_NONE, NULL, 0,
         "AARE-apdu/aSO-context-name", HFILL }},
-    { &hf_acse_AARE_result,
+    { &hf_acse_aARE_result,
       { "result", "acse.result",
         FT_UINT32, BASE_DEC, VALS(acse_Associate_result_vals), 0,
         "AARE-apdu/result", HFILL }},
@@ -2117,11 +2117,11 @@ void proto_register_acse(void) {
       { "p-context-result-list", "acse.p_context_result_list",
         FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
-    { &hf_acse_AARE_user_information,
+    { &hf_acse_aARE_user_information,
       { "user-information", "acse.user_information",
         FT_UINT32, BASE_DEC, NULL, 0,
         "AARE-apdu/user-information", HFILL }},
-    { &hf_acse_RLRQ_reason,
+    { &hf_acse_rLRQ_reason,
       { "reason", "acse.reason",
         FT_INT32, BASE_DEC, VALS(acse_Release_request_reason_vals), 0,
         "RLRQ-apdu/reason", HFILL }},
@@ -2133,15 +2133,15 @@ void proto_register_acse(void) {
       { "asoi-identifier", "acse.asoi_identifier",
         FT_UINT32, BASE_DEC, NULL, 0,
         "", HFILL }},
-    { &hf_acse_RLRQ_user_information,
+    { &hf_acse_rLRQ_user_information,
       { "user-information", "acse.user_information",
         FT_UINT32, BASE_DEC, NULL, 0,
         "RLRQ-apdu/user-information", HFILL }},
-    { &hf_acse_RLRE_reason,
+    { &hf_acse_rLRE_reason,
       { "reason", "acse.reason",
         FT_INT32, BASE_DEC, VALS(acse_Release_response_reason_vals), 0,
         "RLRE-apdu/reason", HFILL }},
-    { &hf_acse_RLRE_user_information,
+    { &hf_acse_rLRE_user_information,
       { "user-information", "acse.user_information",
         FT_UINT32, BASE_DEC, NULL, 0,
         "RLRE-apdu/user-information", HFILL }},
@@ -2153,7 +2153,7 @@ void proto_register_acse(void) {
       { "abort-diagnostic", "acse.abort_diagnostic",
         FT_UINT32, BASE_DEC, VALS(acse_ABRT_diagnostic_vals), 0,
         "ABRT-apdu/abort-diagnostic", HFILL }},
-    { &hf_acse_ABRT_user_information,
+    { &hf_acse_aBRT_user_information,
       { "user-information", "acse.user_information",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ABRT-apdu/user-information", HFILL }},
@@ -2161,7 +2161,7 @@ void proto_register_acse(void) {
       { "a-user-data", "acse.a_user_data",
         FT_UINT32, BASE_DEC, VALS(acse_User_Data_vals), 0,
         "A-DT-apdu/a-user-data", HFILL }},
-    { &hf_acse_ACRQ_aSO_context_name,
+    { &hf_acse_aCRQ_aSO_context_name,
       { "aSO-context-name", "acse.aSO_context_name",
         FT_STRING, BASE_NONE, NULL, 0,
         "ACRQ-apdu/aSO-context-name", HFILL }},
@@ -2265,7 +2265,7 @@ void proto_register_acse(void) {
       { "Item", "acse.P_context_result_list_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "P-context-result-list/_item", HFILL }},
-    { &hf_acse_Pcontext_result,
+    { &hf_acse_pcontext_result,
       { "result", "acse.result",
         FT_INT32, BASE_DEC, VALS(acse_Result_vals), 0,
         "P-context-result-list/_item/result", HFILL }},
@@ -2423,10 +2423,7 @@ void proto_register_acse(void) {
 /*--- proto_reg_handoff_acse -------------------------------------------*/
 void proto_reg_handoff_acse(void) {
 /*#include "packet-acse-dis-tab.c"*/
-
-	register_ber_oid_name("2.2.3.1.1","aCSE-id");
-	register_ber_oid_name("2.2.1.0.1","acse-as-id");
-
-
+	register_ber_oid_dissector("2.2.3.1.1", dissect_acse, proto_acse, "acse");
+	register_ber_oid_dissector("2.2.1.0.1", dissect_acse, proto_acse, "acse-as-id");
 }
 
