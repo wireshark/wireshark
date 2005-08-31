@@ -529,6 +529,7 @@ dissect_per_constrained_sequence_of(tvbuff_t *tvb, guint32 offset, packet_info *
 	guint32 old_offset=offset;
 	guint32 length;
 	header_field_info *hfi;
+	proto_item *pi;
 
 
 DEBUG_ENTRY("dissect_per_constrained_sequence_of");
@@ -544,16 +545,16 @@ DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 		guint32 start_offset=offset;
 		/* semi-constrained whole number for number of elements */
 		/* each element encoded as 10.9 */
-		offset=dissect_per_length_determinant(tvb, offset, pinfo, parent_tree, -1, &length);
+		offset=dissect_per_length_determinant(tvb, offset, pinfo, parent_tree, hf_per_sequence_of_length, &length);
 		length+=min_len;
-		proto_tree_add_uint(parent_tree, hf_per_sequence_of_length, tvb, start_offset>>3, (offset>>3)!=(start_offset>>3)?(offset>>3)-(start_offset>>3):1, length);
 		goto call_sohelper;
 	}
 
 	/* constrained whole number for number of elements */
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo,
 		parent_tree, hf_per_sequence_of_length, min_len, max_len,
-		&length, NULL, FALSE);
+		&length, &pi, FALSE);
+	if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
 
 call_sohelper:
 	hfi = proto_registrar_get_nth(hf_index);
