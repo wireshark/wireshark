@@ -49,10 +49,36 @@ import yacc
 # OID name -> number conversion table
 oid_names = {
   '/itu-t' : 0,
+  '/ccitt' : 0,
+  '/itu-r' : 0,
   '0/recommendation' : 0,
+  '0.0/a' : 1,
+  '0.0/b' : 2,
+  '0.0/c' : 3,
+  '0.0/d' : 4,
+  '0.0/e' : 5,
+  '0.0/f' : 6,
+  '0.0/g' : 7,
   '0.0/h' : 8,
+  '0.0/i' : 9,
+  '0.0/j' : 10,
+  '0.0/k' : 11,
+  '0.0/l' : 12,
+  '0.0/m' : 13,
+  '0.0/n' : 14,
+  '0.0/o' : 15,
+  '0.0/p' : 16,
   '0.0/q' : 17,
+  '0.0/r' : 18,
+  '0.0/s' : 19,
+  '0.0/t' : 20,
+  '0.0/tseries' : 20,
+  '0.0/u' : 21,
+  '0.0/v' : 22,
+  '0.0/w' : 23,
   '0.0/x' : 24,
+  '0.0/y' : 25,
+  '0.0/z' : 26,
   '0/question' : 1,
   '0/administration' : 2,
   '0/network-operator' : 3,
@@ -65,16 +91,48 @@ oid_names = {
   '1/member-body' : 2,
   '1/identified-organization' : 3,
   '/joint-iso-itu-t' : 2,
+  '/joint-iso-ccitt' : 2,
   '2/presentation' : 0,
   '2/asn1' : 1,
   '2/association-control' : 2,
   '2/reliable-transfer' : 3,
   '2/remote-operations' : 4,
   '2/ds' : 5,
+  '2/directory' : 5,
   '2/mhs' : 6,
+  '2/mhs-motis' : 6,
   '2/ccr' : 7,
   '2/oda' : 8,
   '2/ms' : 9,
+  '2/osi-management' : 9,
+  '2/transaction-processing' : 10,
+  '2/dor' : 11,
+  '2/distinguished-object-reference' : 11,
+  '2/reference-data-transfe' : 12,
+  '2/network-layer' : 13,
+  '2/network-layer-management' : 13,
+  '2/transport-layer' : 14,
+  '2/transport-layer-management' : 14,
+  '2/datalink-layer' : 15,
+  '2/datalink-layer-managemen' : 15,
+  '2/datalink-layer-management-information' : 15,
+  '2/country' : 16,
+  '2/registration-procedures' : 17,
+  '2/registration-procedure' : 17,
+  '2/physical-layer' : 18,
+  '2/physical-layer-management' : 18,
+  '2/mheg' : 19,
+  '2/genericULS' : 20,
+  '2/generic-upper-layers-security' : 20,
+  '2/guls' : 20,
+  '2/transport-layer-security-protocol' : 21,
+  '2/network-layer-security-protocol' : 22,
+  '2/international-organizations' : 23,
+  '2/internationalRA' : 23,
+  '2/sios' : 24,
+  '2/uuid' : 25,
+  '2/odp' : 26,
+  '2/upu' : 40,
 }
 
 def asn2c(id):
@@ -496,6 +554,13 @@ class EthCtx:
       raise "Duplicate field for " + ident
     self.field[ident] = {'type' : type, 'idx' : idx, 'impl' : impl, 'pdu' : pdu,
                          'modified' : '', 'attr' : {} }
+    name = ident.split('/')[-1]
+    if len(ident.split('/')) > 1 and name == '_item':  # Sequnce/Set of type
+      self.field[ident]['attr']['NAME'] = '"Item"'
+      self.field[ident]['attr']['ABBREV'] = asn2c(ident.split('/')[-2] + name)
+    else:
+      self.field[ident]['attr']['NAME'] = '"%s"' % name
+      self.field[ident]['attr']['ABBREV'] = asn2c(name)
     if self.conform.check_item('FIELD_ATTR', ident):
       self.field[ident]['modified'] = '#' + str(id(self))
       self.field[ident]['attr'].update(self.conform.use_item('FIELD_ATTR', ident))
@@ -629,15 +694,12 @@ class EthCtx:
     self.eth_hf_dupl = {}
 
     for f in (self.pdu_ord + self.field_ord):
-      if len(f.split('/')) > 1 and f.split('/')[-1] == '_item':  # Sequnce of type
+      if len(f.split('/')) > 1 and f.split('/')[-1] == '_item':  # Sequnce/Set of type
         nm = f.split('/')[-2] + f.split('/')[-1]
-        name = 'Item'
       else:
         nm = f.split('/')[-1]
-        name = nm
       if (self.NAPI()):
         name += self.field[f]['idx']
-      abbrev = asn2c(nm)
       nm = self.conform.use_item('FIELD_RENAME', f, val_dflt=nm)
       nm = asn2c(nm)
       if (self.field[f]['pdu']): 
@@ -682,8 +744,6 @@ class EthCtx:
       fullname = "hf_%s_%s" % (self.eproto, nm)
       attr = self.eth_get_type_attr(self.field[f]['type']).copy()
       attr.update(self.field[f]['attr'])
-      attr['NAME'] = '"%s"' % name
-      attr['ABBREV'] = abbrev
       attr.update(self.conform.use_item('EFIELD_ATTR', nm))
       self.eth_hf[nm] = {'fullname' : fullname, 'pdu' : self.field[f]['pdu'],
                          'ethtype' : ethtype, 'modified' : self.field[f]['modified'],
@@ -4002,6 +4062,11 @@ def p_ElementSetSpecs_1 (t):
 
 def p_ElementSetSpecs_2 (t):
     'ElementSetSpecs : RootElementSetSpec COMMA ELLIPSIS'
+    t[0] = t[1]
+    t[0].ext = True
+
+def p_ElementSetSpecs_3 (t):
+    'ElementSetSpecs : RootElementSetSpec COMMA ELLIPSIS COMMA ElementSetSpecs'
     t[0] = t[1]
     t[0].ext = True
 
