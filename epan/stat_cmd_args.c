@@ -38,11 +38,10 @@
    arguments.
  */
 typedef struct _stat_cmd_arg {
-	struct _stat_cmd_arg *next;
 	const char *cmd;
 	void (*func)(const char *arg);
 } stat_cmd_arg;
-static stat_cmd_arg *stat_cmd_arg_list=NULL;
+static GSList *stat_cmd_arg_list=NULL;
 
 /* structure to keep track of what stats have been specified on the
    command line.
@@ -57,16 +56,22 @@ static GSList *stats_requested = NULL;
  * Function called from stat to register the stat's command-line argument
  * and initialization routine
  * ********************************************************************** */
+static gint
+sort_by_name(gconstpointer a, gconstpointer b)
+{
+	return strcmp(((const stat_cmd_arg *)a)->cmd,
+	    ((const stat_cmd_arg *)b)->cmd);
+}
 void
 register_stat_cmd_arg(const char *cmd, void (*func)(const char *arg))
 {
 	stat_cmd_arg *newsca;
 
 	newsca=g_malloc(sizeof(stat_cmd_arg));
-	newsca->next=stat_cmd_arg_list;
-	stat_cmd_arg_list=newsca;
 	newsca->cmd=cmd;
 	newsca->func=func;
+	stat_cmd_arg_list=g_slist_insert_sorted(stat_cmd_arg_list, newsca,
+	    sort_by_name);
 }
 
 /* **********************************************************************
@@ -75,10 +80,12 @@ register_stat_cmd_arg(const char *cmd, void (*func)(const char *arg))
 gboolean
 process_stat_cmd_arg(char *optarg)
 {
+	GSList *entry;
 	stat_cmd_arg *sca;
 	stat_requested *tr;
 
-	for(sca=stat_cmd_arg_list;sca;sca=sca->next){
+	for(entry=stat_cmd_arg_list;entry;entry=g_slist_next(entry)){
+		sca=entry->data;
 		if(!strncmp(sca->cmd,optarg,strlen(sca->cmd))){
 			tr=g_malloc(sizeof (stat_requested));
 			tr->sca = sca;
@@ -96,9 +103,11 @@ process_stat_cmd_arg(char *optarg)
 void
 list_stat_cmd_args(void)
 {
+	GSList *entry;
 	stat_cmd_arg *sca;
 
-	for(sca=stat_cmd_arg_list;sca;sca=sca->next){
+	for(entry=stat_cmd_arg_list;entry;entry=g_slist_next(entry)){
+		sca=entry->data;
 		fprintf(stderr,"     %s\n",sca->cmd);
 	}
 }
