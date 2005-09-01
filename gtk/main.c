@@ -65,6 +65,7 @@
 #include <epan/dfilter/dfilter.h>
 #include <epan/strutil.h>
 #include <epan/addr_resolv.h>
+#include <epan/emem.h>
 
 /* general (not GTK specific) */
 #include "file.h"
@@ -266,9 +267,6 @@ match_selected_cb_do(gpointer data, int action, gchar *text)
 
     /* Free up the new filter text. */
     g_free(new_filter);
-
-    /* Free up the generated text we were handed. */
-    g_free(text);
 }
 
 void
@@ -404,7 +402,7 @@ get_text_from_packet_list(gpointer data)
 	    strlen(cfile.cinfo.col_expr_val[column]) != 0) {
 	    len = strlen(cfile.cinfo.col_expr[column]) +
 		  strlen(cfile.cinfo.col_expr_val[column]) + 5;
-	    buf = g_malloc0(len);
+	    buf = ep_alloc0(len);
 	    g_snprintf(buf, len, "%s == %s", cfile.cinfo.col_expr[column],
 		     cfile.cinfo.col_expr_val[column]);
     	}

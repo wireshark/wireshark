@@ -41,6 +41,7 @@
 #include "epan_dissect.h"
 #include "slab.h"
 #include "tvbuff.h"
+#include "emem.h"
 
 #define cVALS(x) (const value_string*)(x)
 
@@ -4370,6 +4371,10 @@ proto_can_match_selected(field_info *finfo, epan_dissect_t *edt)
 	}
 }
 
+/* This function returns a string allocated with packet lifetime scope.
+ * You do not need to [g_]free() this string since it willb e automatically 
+ * freed once the next packet is dissected.
+ */
 char*
 proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 {
@@ -4436,7 +4441,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			 * 1 byte for the trailing '\0'.
 			 */
 			dfilter_len = abbrev_len + 4 + 11 + 1;
-			buf = g_malloc0(dfilter_len);
+			buf = ep_alloc0(dfilter_len);
 			format = hfinfo_numeric_format(hfinfo);
 			g_snprintf(buf, dfilter_len, format, hfinfo->abbrev, fvalue_get_integer(&finfo->value));
 			break;
@@ -4460,7 +4465,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			 * 1 byte for the trailing '\0'.
 			 */
 			dfilter_len = abbrev_len + 4 + 22 + 1;
-			buf = g_malloc0(dfilter_len);
+			buf = ep_alloc0(dfilter_len);
 			format = hfinfo_numeric_format(hfinfo);
 			g_snprintf(buf, dfilter_len, format, hfinfo->abbrev, fvalue_get_integer64(&finfo->value));
 			break;
@@ -4473,7 +4478,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			 * 1 byte for the trailing '\0'.
 			 */
 			dfilter_len = abbrev_len + 4 + 2 + 8 + 1;
-			buf = g_malloc0(dfilter_len);
+			buf = ep_alloc0(dfilter_len);
 			g_snprintf(buf, dfilter_len, "%s == 0x%08x", hfinfo->abbrev,
 					fvalue_get_integer(&finfo->value));
 			break;
@@ -4486,7 +4491,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			 */
 			stringified = ip6_to_str((struct e_in6_addr*) fvalue_get(&finfo->value));
 			dfilter_len = abbrev_len + 4 + strlen(stringified) + 1;
-			buf = g_malloc0(dfilter_len);
+			buf = ep_alloc0(dfilter_len);
 			g_snprintf(buf, dfilter_len, "%s == %s", hfinfo->abbrev,
 					stringified);
 			break;
@@ -4511,7 +4516,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			dfilter_len = fvalue_string_repr_len(&finfo->value,
 					FTREPR_DFILTER);
 			dfilter_len += abbrev_len + 4 + 1;
-			buf = g_malloc0(dfilter_len);
+			buf = ep_alloc0(dfilter_len);
 
 			/* Create the string */
 			g_snprintf(buf, dfilter_len, "%s == ", hfinfo->abbrev);
@@ -4521,7 +4526,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			break;
 
 		case FT_PROTOCOL:
-			buf = g_strdup(finfo->hfinfo->abbrev);
+			buf = ep_strdup(finfo->hfinfo->abbrev);
 			break;
 
 		default:
@@ -4533,7 +4538,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			 * If "edt" is NULL, the answer is "no".
 			 */
 			if (edt == NULL)
-				return FALSE;
+				return NULL;
 
 			/*
 			 * Is this field part of the raw frame tvbuff?
@@ -4569,7 +4574,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 				return NULL;
 			
 			start = finfo->start;
-			buf = g_malloc0(32 + length * 3);
+			buf = ep_alloc0(32 + length * 3);
 			ptr = buf;
 
 			sprintf(ptr, "frame[%d:%d] == ", finfo->start, length);

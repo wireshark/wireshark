@@ -79,7 +79,6 @@ protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const vo
 		str=proto_construct_dfilter_string(gp->pdata[i], NULL);
 		if(str){
 			col_append_fstr(pinfo->cinfo, COL_INFO, "  %s",str);
-			g_free(str);
 		}
 	}
 	return 0;
