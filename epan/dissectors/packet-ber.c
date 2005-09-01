@@ -505,7 +505,7 @@ dissect_ber_octet_string(gboolean implicit_tag, packet_info *pinfo, proto_tree *
 {
 char *name;
 header_field_info *hfinfo;
-if(hf_id>0){
+if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
 name=hfinfo->name;
 } else {
@@ -553,7 +553,7 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
     printf("TODO: handle constructed type in packet-ber.c, dissect_ber_octet_string\n");
 	} else {
 		/* primitive */
-		if(hf_id != -1) {
+		if(hf_id >= 0) {
 			tvb_ensure_bytes_exist(tvb, offset, len);
 			it = proto_tree_add_item(tree, hf_id, tvb, offset, len, FALSE);
 			ber_last_created_item = it;
@@ -585,7 +585,7 @@ int dissect_ber_octet_string_wcb(gboolean implicit_tag, packet_info *pinfo, prot
 
 	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_id, (func)?&out_tvb:NULL);
 	if (func && out_tvb && (tvb_length(out_tvb)>0)) {
-		if (hf_id != -1)
+		if (hf_id >= 0)
 			tree = proto_item_add_subtree(ber_last_created_item, ett_ber_octet_string);
 		func(pinfo, tree, out_tvb, 0);
 	}
@@ -637,7 +637,7 @@ dissect_ber_integer(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree,
 {
 char *name;
 header_field_info *hfinfo;
-if(hf_id>0){
+if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
 name=hfinfo->name;
 } else {
@@ -662,15 +662,19 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n",name,impl
 	/* ok,  we cant handle >4 byte integers so lets fake them */
 	if(len>8){
 		header_field_info *hfinfo;
-		proto_item *pi;
+		proto_item *pi = NULL;
 
-		hfinfo = proto_registrar_get_nth(hf_id);
-		pi=proto_tree_add_text(tree, tvb, offset, len, "%s : 0x", hfinfo->name);
+		if (hf_id >= 0) {
+			hfinfo = proto_registrar_get_nth(hf_id);
+			pi=proto_tree_add_text(tree, tvb, offset, len, "%s : 0x", hfinfo->name);
+		}
 		if(pi){
 			for(i=0;i<len;i++){
 				proto_item_append_text(pi,"%02x",tvb_get_guint8(tvb, offset));
 				offset++;
 			}
+		} else {
+			offset += len;
 		}
 		return offset;
 	}
@@ -687,8 +691,10 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n",name,impl
 			val64=(val64<<8)|tvb_get_guint8(tvb, offset);
 			offset++;
 		}
-		hfinfo = proto_registrar_get_nth(hf_id);
-		proto_tree_add_text(tree, tvb, offset-len, len, "%s: %" PRIu64, hfinfo->name, val64);
+		if (hf_id >= 0) {
+			hfinfo = proto_registrar_get_nth(hf_id);
+			proto_tree_add_text(tree, tvb, offset-len, len, "%s: %" PRIu64, hfinfo->name, val64);
+		}
 		return offset;
 	}
 	
@@ -705,7 +711,7 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n",name,impl
 
 	ber_last_created_item=NULL;
 
-	if(hf_id!=-1){	
+	if(hf_id >= 0){	
 		/*  */
 		if(len < 1 || len > 4) {
 			proto_tree_add_text(tree, tvb, offset-len, len, "Can't handle integer length: %u", len);
@@ -744,7 +750,7 @@ dissect_ber_boolean(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree,
 
 	ber_last_created_item=NULL;
 
-	if(hf_id!=-1){
+	if(hf_id >= 0){
 		hfi = proto_registrar_get_nth(hf_id);
 		if(hfi->type == FT_BOOLEAN)
 			ber_last_created_item=proto_tree_add_boolean(tree, hf_id, tvb, offset-1, 1, val);
@@ -776,7 +782,7 @@ s_offset = offset;
 {
 char *name;
 header_field_info *hfinfo;
-if(hf_id>0){
+if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
 name=hfinfo->name;
 } else {
@@ -817,7 +823,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
 	}
 
 	/* create subtree */
-	if(hf_id != -1) {
+	if(hf_id >= 0) {
 		if(parent_tree){
 			item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, FALSE);
 			tree = proto_item_add_subtree(item, ett_id);
@@ -947,7 +953,7 @@ ber_sequence_try_again:
 {
 char *name;
 header_field_info *hfinfo;
-if(hf_id>0){
+if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
 name=hfinfo->name;
 } else {
@@ -966,7 +972,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) calling subdissector\n",name);
 {
 char *name;
 header_field_info *hfinfo;
-if(hf_id>0){
+if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
 name=hfinfo->name;
 } else {
@@ -1035,7 +1041,7 @@ int dissect_ber_set(gboolean implicit_tag, packet_info *pinfo, proto_tree *paren
 	{
 char *name;
 header_field_info *hfinfo;
-if(hf_id>0){
+if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
 name=hfinfo->name;
 } else {
@@ -1077,7 +1083,7 @@ printf("SET dissect_ber_set(%s) entered\n",name);
 	}
 
 	/* create subtree */
-	if (hf_id != -1) {
+	if (hf_id >= 0) {
 		if(parent_tree){
 			item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, FALSE);
 			tree = proto_item_add_subtree(item, ett_id);
@@ -1170,7 +1176,7 @@ printf("SET dissect_ber_set(%s) entered\n",name);
 {
 char *name;
 header_field_info *hfinfo;
-if(hf_id>0){
+if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
 name=hfinfo->name;
 } else {
@@ -1279,7 +1285,7 @@ dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, i
 {
 char *name;
 header_field_info *hfinfo;
-if(hf_id>0){
+if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
 name=hfinfo->name;
 } else {
@@ -1302,7 +1308,7 @@ printf("CHOICE dissect_ber_choice(%s) entered len:%d\n",name,tvb_length_remainin
 	/* Some sanity checks.  
 	 * The hf field passed to us MUST be an integer type 
 	 */
-	if(hf_id!=-1){
+	if(hf_id >= 0){
 		hfinfo=proto_registrar_get_nth(hf_id);
 		switch(hfinfo->type) {
 			case FT_UINT8:
@@ -1357,7 +1363,7 @@ printf("CHOICE testing potential subdissector class:%d:(expected)%d  tag:%d:(exp
 			else
 				length = end_offset- hoffset;
 			/* create subtree */
-			if(hf_id!=-1){
+			if(hf_id >= 0){
 				if(parent_tree){
 					item = proto_tree_add_uint(parent_tree, hf_id, tvb, hoffset, end_offset - hoffset, ch->value);
 					tree = proto_item_add_subtree(item, ett_id);
@@ -1372,7 +1378,7 @@ printf("CHOICE testing potential subdissector class:%d:(expected)%d  tag:%d:(exp
 {
 char *name;
 header_field_info *hfinfo;
-if(hf_id>0){
+if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
 name=hfinfo->name;
 } else {
@@ -1390,7 +1396,7 @@ printf("CHOICE dissect_ber_choice(%s) calling subdissector len:%d\n",name,tvb_le
 {
 char *name;
 header_field_info *hfinfo;
-if(hf_id>0){
+if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
 name=hfinfo->name;
 } else {
@@ -1476,7 +1482,7 @@ dissect_ber_GeneralString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 	tvb_memcpy(tvb, str, offset, len);
 	str[len]=0;
 
-	if(hf_id!=-1){
+	if(hf_id >= 0){
 		proto_tree_add_string(tree, hf_id, tvb, offset, len, str);
 	}
 
@@ -1495,7 +1501,7 @@ int dissect_ber_restricted_string(gboolean implicit_tag, gint32 type, packet_inf
 {
 char *name;
 header_field_info *hfinfo;
-if(hf_id>0){
+if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
 name=hfinfo->name;
 } else {
@@ -1562,7 +1568,7 @@ int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, pro
 {
 char *name;
 header_field_info *hfinfo;
-if(hf_id>0){
+if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
 name=hfinfo->name;
 } else {
@@ -1599,7 +1605,7 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 	oid_to_str_buf(tvb_get_ptr(tvb, offset, len), len, str, MAX_OID_STR_LEN);
 	offset += len;
 
-	if(hf_id != -1) {
+	if(hf_id >= 0) {
 		item=proto_tree_add_string(tree, hf_id, tvb, offset - len, len, str);
 		/* see if we know the name of this oid */
 		if(item){
@@ -1632,7 +1638,7 @@ static int dissect_ber_sq_of(gboolean implicit_tag, gint32 type, packet_info *pi
 {
 char *name;
 header_field_info *hfinfo;
-if(hf_id>0){
+if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
 name=hfinfo->name;
 } else {
@@ -1706,7 +1712,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 	offset = hoffset;
 
 	/* create subtree */
-	if(hf_id != -1) {
+	if(hf_id >= 0) {
 		hfi = proto_registrar_get_nth(hf_id);
 		if(parent_tree){
 			if(hfi->type == FT_NONE) {
@@ -1842,7 +1848,7 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, packet_info *pinfo, proto_tre
 		tmpstr+10, tmpstr+12, tmpstr+14);
 	str[31]=0; /* just in case ... */
 		
-	if(hf_id!=-1){
+	if(hf_id >= 0){
 		proto_tree_add_string(tree, hf_id, tvb, offset, len, str);
 	}
 
@@ -1898,7 +1904,7 @@ int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree 
 		proto_tree_add_item(parent_tree, hf_ber_bitstring_padding, tvb, offset, 1, FALSE);
 		offset++;
 		len--;
-		if( hf_id != -1) {
+		if( hf_id >= 0) {
 			item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, FALSE);
 			ber_last_created_item = item;
 			if(ett_id != -1) {
@@ -1985,11 +1991,13 @@ int dissect_ber_bitstring32(gboolean implicit_tag, packet_info *pinfo, proto_tre
 		term = FALSE;
 		while (*bf) {
 			proto_tree_add_boolean(tree, **bf, tmp_tvb, 0, tvb_len, val);
-			hfi = proto_registrar_get_nth(**bf);
-			if(val & hfi->bitmask) {
-				proto_item_append_text(ber_last_created_item, "%s%s", sep, hfi->name);
-				sep = ", ";
-				term = TRUE;
+			if (**bf >= 0) {
+				hfi = proto_registrar_get_nth(**bf);
+				if(val & hfi->bitmask) {
+					proto_item_append_text(ber_last_created_item, "%s%s", sep, hfi->name);
+					sep = ", ";
+					term = TRUE;
+				}
 			}
 			bf++;
 		}
