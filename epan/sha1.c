@@ -348,7 +348,7 @@ int main( int argc, char *argv[] )
 
             for( j = 0; j < 20; j++ )
             {
-                sprintf( output + j * 2, "%02x", sha1sum[j] );
+                g_snprintf( output + j * 2, 41-j*2, "%02x", sha1sum[j] );
             }
 
             if( memcmp( output, val[i], 40 ) )
