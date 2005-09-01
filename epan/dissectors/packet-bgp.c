@@ -1792,13 +1792,13 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                  junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), "Non-transitive, ");
             }
             if (bgpa.bgpa_flags & BGP_ATTR_FLAG_PARTIAL) {
-                 junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), "Partial, ");
+                 junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), "Partial");
             }
             else {
-                 junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), "Complete, ");
+                 junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), "Complete");
             }
             if (bgpa.bgpa_flags & BGP_ATTR_FLAG_EXTENDED_LENGTH) {
-                 junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), "Extended Length, ");
+                 junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ", Extended Length");
             }
 	    ti = proto_tree_add_text(subtree2, tvb,
 		    o + i + offsetof(struct bgp_attr, bgpa_flags), 1,
