@@ -118,8 +118,6 @@ static gint ett_bootp_flags = -1;
 static gint ett_bootp_option = -1;
 static gint ett_bootp_fqdn = -1;
 
-#define TLV_STR_LEN 256
-
 gboolean novell_string = FALSE;
 
 #define UDP_PORT_BOOTPS  67
