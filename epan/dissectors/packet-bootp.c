@@ -2040,14 +2040,9 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 	guint tlv_len;
 	guint i;
 	guint8 asc_val[3] = "  ", flow_val_str[5];
-	char *tlv_str, *strptr;
 	char bit_fld[64];
 	proto_item *ti;
 	proto_tree *subtree;
-
-	tlv_str=ep_alloc(TLV_STR_LEN);
-	tlv_str[0]=0;
-	strptr=tlv_str;
 
 	tvb_memcpy (tvb, asc_val, off, 2);
 	if (sscanf(asc_val, "%x", &tlv_len) != 1 || tlv_len < 1) {
@@ -2062,9 +2057,6 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 		while (off - voff < len) {
 			/* Type */
 			raw_val = tvb_get_ntohs (tvb, off);
-			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "0x%.2s: %s = ",
-					tvb_get_ptr(tvb, off, 2),
-					val_to_str(raw_val, pkt_mdc_type_vals, "unknown"));
 
 			/* Length */
 			tvb_memcpy(tvb, asc_val, off + 2, 2);
@@ -2075,17 +2067,24 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 			} else {
 				/* Value(s) */
 
+				ti = proto_tree_add_text(v_tree,
+				    tvb, off, (tlv_len * 2) + 4,
+				    "0x%s: %s = ",
+				    tvb_format_text(tvb, off, 2),
+				    val_to_str(raw_val, pkt_mdc_type_vals, "unknown"));
 				switch (raw_val) {
 					case PKT_MDC_VERSION:
 						raw_val = tvb_get_ntohs(tvb, off + 4);
-						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%s (%.2s)",
-								val_to_str(raw_val, pkt_mdc_version_vals, "Reserved"),
-								tvb_get_ptr(tvb, off + 4, 2) );
+						proto_item_append_text(ti,
+						    "%s (%s)",
+						    val_to_str(raw_val, pkt_mdc_version_vals, "Reserved"),
+						    tvb_format_stringzpad(tvb, off + 4, 2) );
 						break;
 					case PKT_MDC_TEL_END:
 					case PKT_MDC_IF_INDEX:
-						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%.2s",
-								tvb_get_ptr(tvb, off + 4, 2) );
+						proto_item_append_text(ti,
+						    "%s",
+						    tvb_format_stringzpad(tvb, off + 4, 2) );
 						break;
 					case PKT_MDC_TGT:
 					case PKT_MDC_HTTP_ACC:
@@ -2107,52 +2106,58 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 					case PKT_MDC_RFC2833_DTMF:
 					case PKT_MDC_VOICE_METRICS:
 						raw_val = tvb_get_ntohs(tvb, off + 4);
-						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%s (%.2s)",
-								val_to_str(raw_val, pkt_mdc_boolean_vals, "unknown"),
-								tvb_get_ptr(tvb, off + 4, 2) );
+						proto_item_append_text(ti,
+						    "%s (%s)",
+						    val_to_str(raw_val, pkt_mdc_boolean_vals, "unknown"),
+						    tvb_format_stringzpad(tvb, off + 4, 2) );
 						break;
 					case PKT_MDC_SUPP_CODECS:
 					case PKT_MDC_SUPP_CODECS_LC:
 						for (i = 0; i < tlv_len; i++) {
 							raw_val = tvb_get_ntohs(tvb, off + 4 + (i * 2) );
-							strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%s%s (%.2s)",
-									plurality(i + 1, "", ", "),
-									val_to_str(raw_val, pkt_mdc_codec_vals, "unknown"),
-									tvb_get_ptr(tvb, off + 4 + (i * 2), 2) );
+							proto_item_append_text(ti,
+							    "%s%s (%s)",
+							    plurality(i + 1, "", ", "),
+							    val_to_str(raw_val, pkt_mdc_codec_vals, "unknown"),
+							    tvb_format_stringzpad(tvb, off + 4 + (i * 2), 2) );
 						}
 						break;
 					case PKT_MDC_PROV_FLOWS:
 						tvb_memcpy(tvb, flow_val_str, off + 4, 4);
 						flow_val_str[4] = '\0';
 						flow_val = strtoul(flow_val_str, NULL, 16);
-						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "0x%04lx", flow_val);
+						proto_item_append_text(ti,
+						    "0x%04lx", flow_val);
 						break;
 					case PKT_MDC_T38_VERSION:
 						raw_val = tvb_get_ntohs(tvb, off + 4);
-						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%s (%.2s)",
-								val_to_str(raw_val, pkt_mdc_t38_version_vals, "unknown"),
-								tvb_get_ptr(tvb, off + 4, 2) );
+						proto_item_append_text(ti,
+						    "%s (%s)",
+						    val_to_str(raw_val, pkt_mdc_t38_version_vals, "unknown"),
+						    tvb_format_stringzpad(tvb, off + 4, 2) );
 						break;
 					case PKT_MDC_T38_EC:
 						raw_val = tvb_get_ntohs(tvb, off + 4);
-						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%s (%.2s)",
-								val_to_str(raw_val, pkt_mdc_t38_ec_vals, "unknown"),
-								tvb_get_ptr(tvb, off + 4, 2) );
+						proto_item_append_text(ti,
+						    "%s (%s)",
+						    val_to_str(raw_val, pkt_mdc_t38_ec_vals, "unknown"),
+						    tvb_format_stringzpad(tvb, off + 4, 2) );
 						break;
 					case PKT_MDC_MIBS:
 						raw_val = tvb_get_ntohs(tvb, off + 4);
-						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%s (%.2s)",
-								val_to_str(raw_val, pkt_mdc_mibs_vals, "unknown"),
-								tvb_get_ptr(tvb, off + 4, 2) );
+						proto_item_append_text(ti,
+						    "%s (%s)",
+						    val_to_str(raw_val, pkt_mdc_mibs_vals, "unknown"),
+						    tvb_format_stringzpad(tvb, off + 4, 2) );
 						break;
 					case PKT_MDC_VENDOR_TLV:
 					default:
-						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%s",
-								tvb_format_stringzpad(tvb, off + 4, tlv_len * 2) );
+						proto_item_append_text(ti,
+						    "%s",
+						    tvb_format_stringzpad(tvb, off + 4, tlv_len * 2) );
 						break;
 				}
 			}
-			ti = proto_tree_add_text(v_tree, tvb, off, (tlv_len * 2) + 4, "%s", tlv_str);
 			subtree = proto_item_add_subtree(ti, ett_bootp_option);
 			if (raw_val == PKT_MDC_PROV_FLOWS) {
 				for (i = 0 ; i < 3; i++) {
@@ -2175,11 +2180,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 	int off = PKT_CM_TLV_OFF + voff;
 	int tlv_len, i;
 	guint8 asc_val[3] = "  ";
-	char *tlv_str, *strptr;
-
-	tlv_str=ep_alloc(TLV_STR_LEN);
-	tlv_str[0]=0;
-	strptr=tlv_str;
+	proto_item *ti;
 
 	tvb_memcpy (tvb, asc_val, off, 2);
 	if (sscanf(asc_val, "%x", &tlv_len) != 1 || tlv_len < 1) {
@@ -2194,9 +2195,6 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 		while (off - voff < len) {
 			/* Type */
 			raw_val = tvb_get_ntohs (tvb, off);
-			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "0x%.2s: %s = ",
-					tvb_get_ptr(tvb, off, 2),
-					val_to_str(raw_val, pkt_cm_type_vals, "unknown"));
 
 			/* Length */
 			tvb_memcpy(tvb, asc_val, off + 2, 2);
@@ -2209,6 +2207,11 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 				/*strptr+=g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "Length: %d, Value%s: ", tlv_len,
 						plurality(tlv_len, "", "s") );*/
 
+				ti = proto_tree_add_text(v_tree, tvb, off,
+				    (tlv_len * 2) + 4,
+				    "0x%s: %s = ",
+				    tvb_format_text(tvb, off, 2),
+				    val_to_str(raw_val, pkt_cm_type_vals, "unknown"));
 				switch (raw_val) {
 					case PKT_CM_CONCAT_SUP:
 					case PKT_CM_FRAG_SUP:
@@ -2218,23 +2221,26 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 					case PKT_CM_DCC_SUP_LC:
 						for (i = 0; i < tlv_len; i++) {
 							raw_val = tvb_get_ntohs(tvb, off + 4 + (i * 2) );
-							strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%s%s (%.2s)",
-									plurality(i + 1, "", ", "),
-									val_to_str(raw_val, pkt_mdc_boolean_vals, "unknown"),
-									tvb_get_ptr(tvb, off + 4 + (i * 2), 2) );
+							proto_item_append_text(ti,
+							    "%s%s (%s)",
+							    plurality(i + 1, "", ", "),
+							    val_to_str(raw_val, pkt_mdc_boolean_vals, "unknown"),
+							    tvb_format_text(tvb, off + 4 + (i * 2), 2) );
 						}
 						break;
 					case PKT_CM_DOCSIS_VER:
 						raw_val = tvb_get_ntohs(tvb, off + 4);
-						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%s (%.2s)",
-								val_to_str(raw_val, pkt_cm_version_vals, "Reserved"),
-								tvb_get_ptr(tvb, off + 4, 2) );
+						proto_item_append_text(ti,
+						    "%s (%s)",
+						    val_to_str(raw_val, pkt_cm_version_vals, "Reserved"),
+						    tvb_format_text(tvb, off + 4, 2) );
 						break;
 					case PKT_CM_PRIV_SUP:
 						raw_val = tvb_get_ntohs(tvb, off + 4);
-						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%s (%.2s)",
-								val_to_str(raw_val, pkt_cm_privacy_vals, "Reserved"),
-								tvb_get_ptr(tvb, off + 4, 2) );
+						proto_item_append_text(ti,
+						    "%s (%s)",
+						    val_to_str(raw_val, pkt_cm_privacy_vals, "Reserved"),
+						    tvb_format_text(tvb, off + 4, 2) );
 						break;
 					case PKT_CM_DSAID_SUP:
 					case PKT_CM_USID_SUP:
@@ -2244,25 +2250,29 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 					case PKT_CM_TET_LC:
 						tvb_memcpy (tvb, asc_val, off + 4, 2);
 						raw_val = strtoul(asc_val, NULL, 16);
-						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "%lu", raw_val);
+						proto_item_append_text(ti,
+						    "%lu", raw_val);
 						break;
 					case PKT_CM_FILT_SUP:
 						tvb_memcpy (tvb, asc_val, off + 4, 2);
 						raw_val = strtoul(asc_val, NULL, 16);
 						if (raw_val & 0x01)
-							strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "802.1p filtering");
+							proto_item_append_text(ti,
+							    "802.1p filtering");
 						if (raw_val & 0x02) {
 							if (raw_val & 0x01)
-								strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), ", ");
-							strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "802.1Q filtering");
+								proto_item_append_text(ti, ", ");
+							proto_item_append_text(ti,
+							    "802.1Q filtering");
 						}
 						if (! raw_val & 0x03)
-							strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), "None");
-						strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-tlv_str), " (0x%02lx)", raw_val);
+							proto_item_append_text(ti,
+							    "None");
+						proto_item_append_text(ti,
+						    " (0x%02lx)", raw_val);
 						break;
 				}
 			}
-			proto_tree_add_text(v_tree, tvb, off, (tlv_len * 2) + 4, "%s", tlv_str);
 			off += (tlv_len * 2) + 4;
 		}
 	}
@@ -2334,11 +2344,6 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	guint8 subopt, subopt_len, fetch_tgt, timer_val, ticket_ctl;
 	proto_tree *pkt_s_tree;
 	proto_item *vti;
-	char *opt_str, *strptr;
-
-	opt_str=ep_alloc(TLV_STR_LEN);
-	opt_str[0]=0;
-	strptr=opt_str;
 
 	subopt = tvb_get_guint8(tvb, optoff);
 	suboptoff++;
@@ -2352,8 +2357,9 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	subopt_len = tvb_get_guint8(tvb, optoff);
 	suboptoff++;
 
-	strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "Suboption %u: %s: ", subopt,
-			val_to_str(subopt, pkt_i05_ccc_opt_vals, "unknown/reserved") );
+	vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
+	    "Suboption %u: %s: ", subopt,
+	    val_to_str(subopt, pkt_i05_ccc_opt_vals, "unknown/reserved") );
 
 	switch (subopt) {
 		case PKT_CCC_PRI_DHCP:	/* String values */
@@ -2363,59 +2369,52 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 		case PKT_CCC_I05_SEC_DNS:
 		case PKT_CCC_KRB_REALM:
 		case PKT_CCC_CMS_FQDN:
-			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "%s (%u byte%s)",
+			proto_item_append_text(vti, "%s (%u byte%s)",
 					tvb_format_stringzpad(tvb, suboptoff, subopt_len),
 					subopt_len,
 					plurality(subopt_len, "", "s") );
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			suboptoff += subopt_len;
 			break;
 
 		case PKT_CCC_TGT_FLAG:
 			if (suboptoff+1 > optend) {
-				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-				    "Suboption %d: no room left in option for suboption value",
-				    subopt);
+				proto_item_append_text(vti,
+				    "no room left in option for suboption value");
 			 	return (optend);
 			}
 			fetch_tgt = tvb_get_guint8(tvb, suboptoff);
-			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "%s (%u byte%s%s)",
+			proto_item_append_text(vti, "%s (%u byte%s%s)",
 					fetch_tgt ? "Yes" : "No",
 					subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 1 ? " [Invalid]" : "");
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			suboptoff += subopt_len;
 			break;
 
 		case PKT_CCC_PROV_TIMER:
 			if (suboptoff+1 > optend) {
-				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-				    "Suboption %d: no room left in option for suboption value",
-				    subopt);
+				proto_item_append_text(vti,
+				    "no room left in option for suboption value");
 			 	return (optend);
 			}
 			timer_val = tvb_get_guint8(tvb, suboptoff);
-			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "%u%s (%u byte%s%s)", timer_val,
+			proto_item_append_text(vti, "%u%s (%u byte%s%s)", timer_val,
 					timer_val > 30 ? " [Invalid]" : "",
 					subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 1 ? " [Invalid]" : "");
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			suboptoff += subopt_len;
 			break;
 
 		case PKT_CCC_AS_KRB:
 			if (suboptoff+12 > optend) {
-				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-				    "Suboption %d: no room left in option for suboption value",
-				    subopt);
+				proto_item_append_text(vti,
+				    "no room left in option for suboption value");
 			 	return (optend);
 			}
-			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "(%u byte%s%s)", subopt_len,
+			proto_item_append_text(vti, "(%u byte%s%s)", subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 12 ? " [Invalid]" : "");
-			vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			if (subopt_len == 12) {
 				pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
 				proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
@@ -2433,15 +2432,13 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 
 		case PKT_CCC_AP_KRB:
 			if (suboptoff+12 > optend) {
-				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-				    "Suboption %d: no room left in option for suboption value",
-				    subopt);
+				proto_item_append_text(vti,
+				    "no room left in option for suboption value");
 			 	return (optend);
 			}
-			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "(%u byte%s%s)", subopt_len,
+			proto_item_append_text(vti, "(%u byte%s%s)", subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 12 ? " [Invalid]" : "");
-			vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			if (subopt_len == 12) {
 				pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
 				proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
@@ -2459,24 +2456,21 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 
 		case PKT_CCC_MTA_KRB_CLEAR:
 			if (suboptoff+1 > optend) {
-				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-				    "Suboption %d: no room left in option for suboption value",
-				    subopt);
+				proto_item_append_text(vti,
+				    "no room left in option for suboption value");
 			 	return (optend);
 			}
 			ticket_ctl = tvb_get_guint8(tvb, suboptoff);
-			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "%s (%u) (%u byte%s%s)",
+			proto_item_append_text(vti, "%s (%u) (%u byte%s%s)",
 					val_to_str (ticket_ctl, pkt_i05_ccc_ticket_ctl_vals, "unknown/invalid"),
 					ticket_ctl,
 					subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 1 ? " [Invalid]" : "");
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			suboptoff += subopt_len;
 			break;
 
 		default:
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			suboptoff += subopt_len;
 			break;
 
@@ -2501,13 +2495,8 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	guint16 sec_tcm;
 	proto_tree *pkt_s_tree;
 	proto_item *vti;
-	char *opt_str, *strptr;
 	int max_timer_val = 255, i;
 	char dns_name[255], bit_fld[24];
-
-	opt_str=ep_alloc(TLV_STR_LEN);
-	opt_str[0]=0;
-	strptr=opt_str;
 
 	subopt = tvb_get_guint8(tvb, suboptoff);
 	suboptoff++;
@@ -2521,33 +2510,31 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
 	suboptoff++;
 
-	strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "Suboption %u: %s: ", subopt,
-			val_to_str(subopt, pkt_draft5_ccc_opt_vals, "unknown/reserved") );
+	vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
+	    "Suboption %u: %s: ", subopt,
+	    val_to_str(subopt, pkt_draft5_ccc_opt_vals, "unknown/reserved") );
 
 	switch (subopt) {
 		case PKT_CCC_PRI_DHCP:	/* IPv4 values */
 		case PKT_CCC_SEC_DHCP:
 			if (suboptoff+4 > optend) {
-				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-				    "Suboption %d: no room left in option for suboption value",
-				    subopt);
+				proto_item_append_text(vti,
+				    "no room left in option for suboption value");
 			 	return (optend);
 			}
 			tvb_memcpy(tvb, ipv4_addr, suboptoff, 4);
-			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "%u.%u.%u.%u (%u byte%s%s)",
+			proto_item_append_text(vti, "%u.%u.%u.%u (%u byte%s%s)",
 					ipv4_addr[0], ipv4_addr[1], ipv4_addr[2], ipv4_addr[3],
 					subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 4 ? " [Invalid]" : "");
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			suboptoff += subopt_len;
 			break;
 
 		case PKT_CCC_IETF_PROV_SRV:
 			if (suboptoff+1 > optend) {
-				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-				    "Suboption %d: no room left in option for suboption value",
-				    subopt);
+				proto_item_append_text(vti,
+				    "no room left in option for suboption value");
 			 	return (optend);
 			}
 			prov_type = tvb_get_guint8(tvb, suboptoff);
@@ -2557,31 +2544,27 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 					/* XXX - check suboption length */
 					get_dns_name(tvb, suboptoff, suboptoff, dns_name,
 						sizeof(dns_name));
-					strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "%s (%u byte%s)", dns_name,
+					proto_item_append_text(vti, "%s (%u byte%s)", dns_name,
 							subopt_len - 1, plurality(subopt_len, "", "s") );
-					proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 					break;
 				case 1:
 					if (suboptoff+4 > optend) {
-						proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-						    "Suboption %d: no room left in option for suboption value",
-						    subopt);
+						proto_item_append_text(vti,
+						    "no room left in option for suboption value");
 					 	return (optend);
 					}
 					tvb_memcpy(tvb, ipv4_addr, suboptoff, 4);
-					strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "%u.%u.%u.%u (%u byte%s%s)",
+					proto_item_append_text(vti, "%u.%u.%u.%u (%u byte%s%s)",
 							ipv4_addr[0], ipv4_addr[1], ipv4_addr[2], ipv4_addr[3],
 							subopt_len,
 							plurality(subopt_len, "", "s"),
 							subopt_len != 5 ? " [Invalid]" : "");
-					proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 					break;
 				default:
-					strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "Invalid type: %u (%u byte%s)",
+					proto_item_append_text(vti, "Invalid type: %u (%u byte%s)",
 							prov_type,
 							subopt_len,
 							plurality(subopt_len, "", "s") );
-					proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 					break;
 			}
 			suboptoff += subopt_len - 1;
@@ -2589,15 +2572,13 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 
 		case PKT_CCC_IETF_AS_KRB:
 			if (suboptoff+12 > optend) {
-				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-				    "Suboption %d: no room left in option for suboption value",
-				    subopt);
+				proto_item_append_text(vti,
+				    "no room left in option for suboption value");
 			 	return (optend);
 			}
-			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "(%u byte%s%s)", subopt_len,
+			proto_item_append_text(vti, "(%u byte%s%s)", subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 12 ? " [Invalid]" : "");
-			vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			if (subopt_len == 12) {
 				pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
 				proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
@@ -2614,10 +2595,9 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 			break;
 
 		case PKT_CCC_IETF_AP_KRB:
-			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "(%u byte%s%s)", subopt_len,
+			proto_item_append_text(vti, "(%u byte%s%s)", subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 12 ? " [Invalid]" : "");
-			vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			if (subopt_len == 12) {
 				pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
 				proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
@@ -2636,60 +2616,53 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 		case PKT_CCC_KRB_REALM: /* String values */
 			/* XXX - check suboption length */
 			get_dns_name(tvb, suboptoff, suboptoff, dns_name, sizeof(dns_name));
-			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "%s (%u byte%s)", dns_name,
+			proto_item_append_text(vti, "%s (%u byte%s)", dns_name,
 					subopt_len, plurality(subopt_len, "", "s") );
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			suboptoff += subopt_len;
 			break;
 
 		case PKT_CCC_TGT_FLAG:
 			if (suboptoff+1 > optend) {
-				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-				    "Suboption %d: no room left in option for suboption value",
-				    subopt);
+				proto_item_append_text(vti,
+				    "no room left in option for suboption value");
 			 	return (optend);
 			}
 			fetch_tgt = tvb_get_guint8(tvb, suboptoff);
-			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "%s (%u byte%s%s)",
+			proto_item_append_text(vti, "%s (%u byte%s%s)",
 					fetch_tgt ? "Yes" : "No",
 					subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 1 ? " [Invalid]" : "");
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			suboptoff += 1;
 			break;
 
 		case PKT_CCC_PROV_TIMER:
 			if (suboptoff+1 > optend) {
-				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-				    "Suboption %d: no room left in option for suboption value",
-				    subopt);
+				proto_item_append_text(vti,
+				    "no room left in option for suboption value");
 			 	return (optend);
 			}
 			if (revision == PACKETCABLE_CCC_DRAFT5)
 				max_timer_val = 30;
 			timer_val = tvb_get_guint8(tvb, suboptoff);
-			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "%u%s (%u byte%s%s)", timer_val,
+			proto_item_append_text(vti, "%u%s (%u byte%s%s)", timer_val,
 					timer_val > max_timer_val ? " [Invalid]" : "",
 					subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 1 ? " [Invalid]" : "");
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			suboptoff += 1;
 			break;
 
 		case PKT_CCC_IETF_SEC_TKT:
 			if (suboptoff+2 > optend) {
-				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
-				    "Suboption %d: no room left in option for suboption value",
-				    subopt);
+				proto_item_append_text(vti,
+				    "no room left in option for suboption value");
 			 	return (optend);
 			}
 			sec_tcm = tvb_get_ntohs(tvb, suboptoff);
-			strptr += g_snprintf(strptr, TLV_STR_LEN-(strptr-opt_str), "0x%04x (%u byte%s%s)", sec_tcm, subopt_len,
+			proto_item_append_text(vti, "0x%04x (%u byte%s%s)", sec_tcm, subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 2 ? " [Invalid]" : "");
-			vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			if (subopt_len == 2) {
 				pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
 				for (i = 0; i < 2; i++) {
@@ -2704,7 +2677,6 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 			break;
 
 		default:
-			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "%s", opt_str);
 			suboptoff += subopt_len;
 			break;
 	}
