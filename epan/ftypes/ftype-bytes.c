@@ -76,6 +76,18 @@ bytes_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
 	return fv->value.bytes->len * 3 - 1;
 }
 
+static int
+guid_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
+{
+	return GUID_STR_LEN;
+}
+
+static void
+guid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+{
+	guid_to_str_buf(fv->value.bytes->data, buf, GUID_STR_LEN);
+}
+
 static void
 bytes_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
@@ -227,8 +239,36 @@ ipv6_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogF
 }
 
 static gboolean
+get_guid(char *s, guint8 *buf)
+{
+	int i, n;
+	char *p, two_digits[3];
+	static const char fmt[] = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
+
+	n = strlen(s);
+	if (n != strlen(fmt)) return FALSE;
+	for (i=0; i<n; i++) {
+		if (fmt[i] == 'X') {
+			if (!isxdigit(s[i])) return FALSE;
+		} else {
+			if (s[i] != fmt[i]) return FALSE;
+		}
+	}
+	for (p=s,i=0; i<GUID_LEN; i++) {
+		if (*p == '-') p++;
+		two_digits[0] = *(p++);
+		two_digits[1] = *(p++);
+		two_digits[2] = '\0';
+		buf[i] = (guint8)strtoul(two_digits, NULL, 16);
+	}
+	return TRUE;
+}
+
+static gboolean
 guid_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
+	guint8	buffer[GUID_LEN];
+
 	/*
 	 * Don't log a message if this fails; we'll try looking it
 	 * up as an GUID if it does, and if that fails,
@@ -248,7 +288,14 @@ guid_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc 
 
 		return TRUE;
 	}
-	return FALSE;
+
+	if (!get_guid(s, buffer)) {
+		logfunc("\"%s\" is not a valid GUID.", s);
+		return FALSE;
+	}
+
+	guid_fvalue_set(fv, buffer, FALSE);
+	return TRUE;
 }
 
 static guint
@@ -588,8 +635,8 @@ ftype_register_bytes(void)
 		bytes_fvalue_free,		/* free_value */
 		guid_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
-		bytes_to_repr,		/* val_to_string_repr */
-		bytes_repr_len,		/* len_string_repr */
+		guid_to_repr,		/* val_to_string_repr */
+		guid_repr_len,		/* len_string_repr */
 
 		guid_fvalue_set,		/* set_value */
 		NULL,				/* set_value_integer */
