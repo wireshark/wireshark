@@ -59,7 +59,6 @@ isis_dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int length)
 {
 	int		arealen,area_idx;
-#define MAX_STR_LEN	256
 
 	while ( length > 0 ) {
 		arealen = tvb_get_guint8(tvb, offset);
@@ -77,11 +76,16 @@ isis_dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		}
 
 		if ( tree ) {
-			char		*str, *strptr;
+			proto_item *ti;
 	
-			str=ep_alloc(MAX_STR_LEN);
-			str[0]=0;
-			strptr=str;
+			/*
+			 * Throw an exception rather than putting in a
+			 * partial address.
+			 */
+			tvb_ensure_bytes_exist ( tvb, offset, arealen + 1 );
+
+			ti = proto_tree_add_text ( tree, tvb, offset, arealen + 1,
+				"Area address (%d): ", arealen );
 
 			/*
 			 * Lets turn the area address into "standard"
@@ -91,17 +95,13 @@ isis_dissect_area_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 			 * a subset - actually some nice placing of dots ....
 			 */
 			for (area_idx = 0; area_idx < arealen; area_idx++) {
-				strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), "%02x",
+				proto_item_append_text(ti, "%02x",
 				    tvb_get_guint8(tvb, offset+area_idx+1));
 				if (((area_idx & 1) == 0) &&
 				    (area_idx + 1 < arealen)) {
-					strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), ".");
+					proto_item_append_text(ti, ".");
 				}
 			}
-
-			/* and spit it out */
-			proto_tree_add_text ( tree, tvb, offset, arealen + 1,
-				"Area address (%d): %s", arealen, str );
 		}
 		offset += arealen + 1;
 		length -= arealen;	/* length already adjusted for len fld*/
@@ -134,7 +134,7 @@ isis_dissect_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 {
 	guchar pw_type;
 	int auth_unsupported;
-	char	*str, *strptr;
+	proto_item *ti;
 
 	if ( length <= 0 ) {
 		return;
@@ -145,46 +145,41 @@ isis_dissect_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	length--;
 	auth_unsupported = FALSE;
 
-	str=ep_alloc(MAX_STR_LEN);
-	str[0]=0;
-	strptr=str;
-
 	switch (pw_type) {
 	case 1:
-		strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str),
+		ti = proto_tree_add_text ( tree, tvb, offset - 1, length + 1,
 		    "clear text (1), password (length %d) = ", length);
 		if ( length > 0 ) {
-		  strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), "%s",
+		  proto_item_append_text(ti, "%s",
 		    tvb_format_text(tvb, offset, length));
                 } else {
-		  strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), "no clear-text password found!!!");
+		  proto_item_append_text(ti, "no clear-text password found!!!");
 		}
 		break;
 	case 54:
-		strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), 
+		ti = proto_tree_add_text ( tree, tvb, offset - 1, length + 1,
 		    "hmac-md5 (54), password (length %d) = ", length);
 
 		if ( length == 16 ) {
-		  strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), "0x%02x", tvb_get_guint8(tvb, offset));
+		  proto_item_append_text(ti, "0x%02x", tvb_get_guint8(tvb, offset));
 		  offset += 1;
 		  length--;
 		  while (length > 0) {
-		    strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), "%02x", tvb_get_guint8(tvb, offset));
+		    proto_item_append_text(ti, "%02x", tvb_get_guint8(tvb, offset));
 		    offset += 1;
 		    length--;
 		  }
 		} else {
-		  strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), 
+		  proto_item_append_text(ti,
 		      "illegal hmac-md5 digest format (must be 16 bytes)");
 		}
 		break;
 	default:
-		strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), "type 0x%02x (0x%02x): ", pw_type, length );
+		ti = proto_tree_add_text ( tree, tvb, offset - 1, length + 1,
+		    "type 0x%02x (0x%02x): ", pw_type, length );
 		auth_unsupported=TRUE;
 		break;
 	}
-
-	proto_tree_add_text ( tree, tvb, offset - 1, length + 1, "%s", str );
 
        	if ( auth_unsupported ) {
 		isis_dissect_unknown(tvb, tree, offset,
@@ -379,20 +374,19 @@ void
 isis_dissect_ipv6_int_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int length, int tree_id)
 {
-	guint8 *addr;
+	guint8 addr [16];
 
 	if ( length <= 0 ) {
 		return;
 	}
 
-	addr=ep_alloc(16);
 	while ( length > 0 ) {
 		if ( length < 16 ) {
 			isis_dissect_unknown(tvb, tree, offset,
 				"Short IPv6 interface address (%d vs 16)",length );
 			return;
 		}
-		tvb_memcpy(tvb, addr, offset, 16);
+		tvb_memcpy(tvb, addr, offset, sizeof(addr));
 		if ( tree ) {
 			proto_tree_add_ipv6(tree, tree_id, tvb, offset, 16, addr);
 		}
@@ -460,31 +454,35 @@ isis_dissect_te_router_id_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 void
 isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length)
 {
-	char *str, *strptr;
-	int old_offset = offset, old_len = length;
+	gboolean first;
+	proto_item *ti;
 
 	if ( !tree ) return;		/* nothing to do! */
 
-	str=ep_alloc(MAX_STR_LEN);
-	str[0]=0;
-	strptr=str;
+	/*
+	 * Throw an exception rather than putting in a
+	 * partial address.
+	 */
+	tvb_ensure_bytes_exist ( tvb, offset, length );
 
 	if (length <= 0) {
-		strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), "--none--");
+		proto_tree_add_text (tree, tvb, offset, length,
+			"NLPID(s): --none--");
 	} else {
+		first = TRUE;
+		ti = proto_tree_add_text (tree, tvb, offset, length,
+			"NLPID(s): ");
 		while (length-- > 0 ) {
-			if (strptr != str) {
-				strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), ", ");
+			if (!first) {
+				proto_item_append_text(ti, ", ");
 			}
-			strptr += g_snprintf(strptr, MAX_STR_LEN-(strptr-str), "%s (0x%02x)",
+			proto_item_append_text(ti, "%s (0x%02x)",
 				val_to_str(tvb_get_guint8(tvb, offset), nlpid_vals,
 				"Unknown"), tvb_get_guint8(tvb, offset));
 			offset++;
+			first = FALSE;
 		}
 	}
-
-	proto_tree_add_text (tree, tvb, old_offset, old_len,
-			"%s", str);
 }
 
 /*
