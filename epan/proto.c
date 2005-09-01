@@ -4381,6 +4381,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 	header_field_info	*hfinfo;
 	int			abbrev_len;
 	char			*buf, *stringified, *ptr;
+	int			buf_len;
 	const char		*format;
 	int			dfilter_len, i;
 	gint			start, length, length_remaining;
@@ -4574,22 +4575,20 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 				return NULL;
 			
 			start = finfo->start;
-			buf = ep_alloc0(32 + length * 3);
+			buf_len = 32 + length * 3;
+			buf = ep_alloc0(buf_len);
 			ptr = buf;
 
-			sprintf(ptr, "frame[%d:%d] == ", finfo->start, length);
-			ptr = buf+strlen(buf);
-
+			ptr += g_snprintf(ptr, buf_len-(ptr-buf), "frame[%d:%d] == ", finfo->start, length);
 			for (i=0;i<length; i++) {
 				c = tvb_get_guint8(finfo->ds_tvb, start);
 				start++;
 				if (i == 0 ) {
-					sprintf(ptr, "%02x", c);
+					ptr += g_snprintf(ptr, buf_len-(ptr-buf), "%02x", c);
 				}
 				else {
-					sprintf(ptr, ":%02x", c);
+					ptr += snprintf(ptr, buf_len-(ptr-buf), ":%02x", c);
 				}
-				ptr = buf+strlen(buf);
 			}
 			break;
 	}
