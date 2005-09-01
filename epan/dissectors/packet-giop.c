@@ -3051,8 +3051,10 @@ static void dissect_giop_reply (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
   header->req_id = request_id;	        /* save for sub dissector */
   header->rep_status = reply_status;   /* save for sub dissector */
 
-  dissect_reply_body(tvb, offset, pinfo, reply_tree, stream_is_big_endian,
-    reply_status, header,tree);
+  /* Do we have a body */
+  if (tvb_reported_length_remaining(tvb, offset))
+	  dissect_reply_body(tvb, offset, pinfo, reply_tree, stream_is_big_endian,
+			reply_status, header,tree);
 
 
 }
