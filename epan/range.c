@@ -38,6 +38,7 @@
 #include <epan/frame_data.h>
 
 #include <epan/range.h>
+#include <epan/emem.h>
 #include <stdio.h>
 
 /*
@@ -294,31 +295,26 @@ range_foreach(range_t *range, void (*callback)(guint32 val))
    }
 }
 
-/* This function converts a range_t to a (g_malloc()-allocated) string.  */
+/* This function converts a range_t to a (ep_alloc()-allocated) string.  */
 char *
 range_convert_range(range_t *range)
 {
-   GString *str;
    guint32 i;
    gboolean prepend_comma = FALSE;
-   char *string;
+   char *string, *str;
 
-   str = g_string_new("");
+   string=ep_alloc(128);
+   string[0]=0;
+   str=string;
 
    for (i=0; i < range->nranges; i++) {
-      if (prepend_comma)
-	 g_string_append_c(str, ',');
-
       if (range->ranges[i].low == range->ranges[i].high)
-	 g_string_sprintfa(str, "%u", range->ranges[i].low);
+	 str += g_snprintf(str, 128-(str-string), "%s%u", prepend_comma?",":"", range->ranges[i].low);
       else
-	 g_string_sprintfa(str, "%u-%u", range->ranges[i].low,
-			   range->ranges[i].high);
+	 str += g_snprintf(str, 128-(str-string), "%s%u-%u", prepend_comma?",":"", range->ranges[i].low, range->ranges[i].high);
       prepend_comma = TRUE;
    }
 
-   string = str->str;
-   g_string_free(str, FALSE);
    return string;
 }
 

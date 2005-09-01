@@ -2186,7 +2186,6 @@ write_pref(gpointer data, gpointer user_data)
 		fprintf(arg->pf, "# A string denoting an positive integer range (e.g., \"1-20,30-40\").\n");
 		fprintf(arg->pf, "%s.%s: %s\n", arg->module->name, pref->name,
 			range_string);
-		g_free(range_string);
 		break;
 	}
 

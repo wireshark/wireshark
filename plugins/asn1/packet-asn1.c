@@ -5002,9 +5002,6 @@ proto_reg_handoff_asn1(void) {
 		"asn1file=%s, pduname=%s, first_offset=%d, debug=%d, msg_win=%d, verbose=%d",
   	  tcp_ports_asn1_string, udp_ports_asn1_string, sctp_ports_asn1_string, asn1_desegment,
 	  asn1_filename, asn1_pduname, first_pdu_offset, asn1_debug, asn1_message_win, asn1_verbose);
-    g_free(tcp_ports_asn1_string);
-    g_free(udp_ports_asn1_string);
-    g_free(sctp_ports_asn1_string);
   }
 #endif /* JUST_ONE_PORT */
 

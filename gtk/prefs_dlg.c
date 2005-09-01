@@ -213,7 +213,6 @@ pref_show(pref_t *pref, gpointer user_data)
     pref->control = create_preference_entry(main_tb, pref->ordinal,
 					    label_string, pref->description,
 					    range_string);
-    g_free(range_string);
     break;
   }
 
