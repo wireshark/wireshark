@@ -32,11 +32,13 @@ struct _rdt_conversation_info
 {
     gchar   method[MAX_RDT_SETUP_METHOD_SIZE + 1];
     guint32 frame_number;
+    gint    feature_level;
 };
 
 /* Add an RDT conversation with the given details */
 void rdt_add_address(packet_info *pinfo,
                      address *addr, int port,
                      int other_port,
-                     const gchar *setup_method, guint32 setup_frame_number);
+                     const gchar *setup_method,
+                     gint  rdt_feature_level);
 

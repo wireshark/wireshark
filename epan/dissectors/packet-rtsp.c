@@ -63,6 +63,7 @@ static int hf_rtsp_url		= -1;
 static int hf_rtsp_status	= -1;
 static int hf_rtsp_session	= -1;
 static int hf_rtsp_transport	= -1;
+static int hf_rtsp_rdtfeaturelevel	= -1;
 static int hf_rtsp_X_Vig_Msisdn	= -1;
 
 static dissector_handle_t sdp_handle;
@@ -351,13 +352,14 @@ static const char rtsp_transport[] = "Transport:";
 static const char rtsp_sps[] = "server_port=";
 static const char rtsp_cps[] = "client_port=";
 static const char rtsp_rtp[] = "rtp/";
+static const char rtsp_rdt_feature_level[] = "RDTFeatureLevel";
 static const char rtsp_real_rdt[] = "x-real-rdt/";
 static const char rtsp_real_tng[] = "x-pn-tng/"; /* synonym for x-real-rdt */
 static const char rtsp_inter[] = "interleaved=";
 
 static void
 rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
-	size_t line_len)
+                         size_t line_len, gint rdt_feature_level)
 {
 	conversation_t	*conv;
 	guchar		buf[256];
@@ -367,10 +369,10 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 	guint		c_data_port, c_mon_port;
 	guint		s_data_port, s_mon_port;
 
-	if (line_len > sizeof(buf) - 1) {
-		/*
-		 * Don't overflow the buffer.
-		 */
+	/* Copy line into buf */
+	if (line_len > sizeof(buf) - 1)
+	{
+		/* Don't overflow the buffer. */
 		line_len = sizeof(buf) - 1;
 	}
 	memcpy(buf, line_begin, line_len);
@@ -390,6 +392,7 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 		rdt_transport = TRUE;
 	else
 	{
+		/* Give up on unknown transport types */
 		return;
 	}
 	
@@ -414,14 +417,15 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 			return;
 		}
 	}
+	
+	
+	/* Deal with RTSP TCP-interleaved conversations. */
 	if (!c_data_port) {
 		rtsp_conversation_data_t	*data;
 		guint				s_data_chan, s_mon_chan;
 		int				i;
 
-		/*
-		 * Deal with RTSP TCP-interleaved conversations.
-		 */
+		/* Search tranport line for interleaved string */
 		if ((tmp = strstr(buf, rtsp_inter)) == NULL) {
 			/*
 			 * No interleaved or server_port - probably a
@@ -429,26 +433,41 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 			 */
 			return;
 		}
+		
+		/* Move tmp to beyone interleaved string */
 		tmp += strlen(rtsp_inter);
+		/* Look for channel number(s) */
 		i = sscanf(tmp, "%u-%u", &s_data_chan, &s_mon_chan);
-		if (i < 1) {
-			g_warning("Frame %u: rtsp: bad interleaved",
-				pinfo->fd->num);
+		if (i < 1)
+		{
+			g_warning("Frame %u: rtsp: bad interleaved", pinfo->fd->num);
 			return;
 		}
+		
+		/* At least data channel present, look for conversation (presumably TCP) */
 		conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-			pinfo->srcport, pinfo->destport, 0);
-		if (!conv) {
+		                         pinfo->srcport, pinfo->destport, 0);
+
+		/* Create new conversation if necessary */
+		if (!conv)
+		{
 			conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-				pinfo->ptype, pinfo->srcport, pinfo->destport,
-				0);
+			                        pinfo->ptype, pinfo->srcport, pinfo->destport,
+			                        0);
 		}
+		
+		/* Look for previous data */
 		data = conversation_get_proto_data(conv, proto_rtsp);
-		if (!data) {
+
+		/* Create new data if necessary */
+		if (!data)
+		{
 			data = se_alloc(sizeof(rtsp_conversation_data_t));
 			conversation_add_proto_data(conv, proto_rtsp, data);
 		}
 
+		/* Now set the dissector handle of the interleaved channel
+		   according to the transport protocol used */
 		if (rtp_transport)
 		{
 			if (s_data_chan < RTSP_MAX_INTERLEAVED) {
@@ -479,20 +498,23 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 	 */
 	if (rtp_transport)
 	{
+		/* There is always data for RTP */
 		rtp_add_address(pinfo, &pinfo->dst, c_data_port, s_data_port,
-						"RTSP", pinfo->fd->num, NULL);
+		                "RTSP", pinfo->fd->num, NULL);
 	
-		if (!c_mon_port)
-			return;
-	
-		rtcp_add_address(pinfo, &pinfo->dst, c_mon_port, s_mon_port,
-						 "RTSP", pinfo->fd->num);
+		/* RTCP only if indicated */
+		if (c_mon_port)
+		{
+			rtcp_add_address(pinfo, &pinfo->dst, c_mon_port, s_mon_port,
+			                 "RTSP", pinfo->fd->num);
+		}
 	}
 	else
 	if (rdt_transport)
 	{
+		/* Real Data Transport */
 		rdt_add_address(pinfo, &pinfo->dst, c_data_port, s_data_port,
-						"RTSP", pinfo->fd->num);
+		                "RTSP", rdt_feature_level);
 	}
 }
 
@@ -556,6 +578,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int			value_offset;
 	int			value_len;
 	e164_info_t		e164_info;
+	gint		rdt_feature_level = 0;
 
 	/*
 	 * Is this a request or response?
@@ -875,7 +898,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * a conversation that will be dissected
 				 * with the appropriate dissector.
 				 */
-				rtsp_create_conversation(pinfo, line, linelen);
+				rtsp_create_conversation(pinfo, line, linelen, rdt_feature_level);
 			} else if (HDR_MATCHES(rtsp_content_type))
 			{
 				proto_tree_add_string(rtsp_tree, hf_rtsp_content_type,
@@ -944,6 +967,14 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					dissect_e164_number(tvb, sub_tree, value_offset,
 					                    value_len, e164_info);
 				}
+			} else if (HDR_MATCHES(rtsp_rdt_feature_level))
+			{
+				rdt_feature_level = atoi(tvb_format_text(tvb, value_offset,
+				                                         value_len));
+				proto_tree_add_uint(rtsp_tree, hf_rtsp_rdtfeaturelevel,
+				                    tvb, offset, linelen,
+				                    atoi(tvb_format_text(tvb, value_offset,
+				                                         value_len)));
 			}
 			else
 			{
@@ -1232,6 +1263,9 @@ proto_register_rtsp(void)
 			"", HFILL }},
 		{ &hf_rtsp_transport,
 			{ "Transport", "rtsp.transport", FT_STRING, BASE_NONE, NULL, 0,
+			"", HFILL }},
+		{ &hf_rtsp_rdtfeaturelevel,
+			{ "RDTFeatureLevel", "rtsp.rdt-feature-level", FT_UINT32, BASE_DEC, NULL, 0,
 			"", HFILL }},
 		{ &hf_rtsp_X_Vig_Msisdn,
 			{ "X-Vig-Msisdn", "X_Vig_Msisdn", FT_STRING, BASE_NONE, NULL, 0,

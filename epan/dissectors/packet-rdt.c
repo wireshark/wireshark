@@ -147,6 +147,7 @@ static gint    hf_rdt_unk_flags1                = -1;
 static gint    hf_rdt_setup                     = -1;
 static gint    hf_rdt_setup_frame               = -1;
 static gint    hf_rdt_setup_method              = -1;
+static gint    hf_rdt_feature_level             = -1;
 
 /* RDT fields defining a sub tree */
 static gint    ett_rdt                          = -1;
@@ -239,7 +240,8 @@ static const value_string packet_type_vals[] =
 void rdt_add_address(packet_info *pinfo,
                      address *addr, int port,
                      int other_port,
-                     const gchar *setup_method, guint32 setup_frame_number)
+                     const gchar *setup_method,
+                     gint  rdt_feature_level)
 {
     address null_addr;
     conversation_t* p_conv;
@@ -257,13 +259,13 @@ void rdt_add_address(packet_info *pinfo,
 
     /* Check if the ip address and port combination is not already registered
        as a conversation. */
-    p_conv = find_conversation(setup_frame_number, addr, &null_addr, PT_UDP, port, other_port,
+    p_conv = find_conversation(pinfo->fd->num, addr, &null_addr, PT_UDP, port, other_port,
                                NO_ADDR_B | (!other_port ? NO_PORT_B : 0));
 
     /* If not, create a new conversation. */
-    if ( !p_conv || p_conv->setup_frame != setup_frame_number)
+    if ( !p_conv || p_conv->setup_frame != pinfo->fd->num)
     {
-        p_conv = conversation_new(setup_frame_number, addr, &null_addr, PT_UDP,
+        p_conv = conversation_new(pinfo->fd->num, addr, &null_addr, PT_UDP,
                                   (guint32)port, (guint32)other_port,
                                   NO_ADDR2 | (!other_port ? NO_PORT2 : 0));
     }
@@ -285,7 +287,8 @@ void rdt_add_address(packet_info *pinfo,
     /* Update the conversation data. */
     strncpy(p_conv_data->method, setup_method, MAX_RDT_SETUP_METHOD_SIZE);
     p_conv_data->method[MAX_RDT_SETUP_METHOD_SIZE] = '\0';
-    p_conv_data->frame_number = setup_frame_number;
+    p_conv_data->frame_number = pinfo->fd->num;
+    p_conv_data->feature_level = rdt_feature_level;
 }
 
 
@@ -302,14 +305,14 @@ static void dissect_rdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree  *rdt_packet_tree = NULL;
     guint16     packet_type;
 
-    /* Set columns */
+    /* Set/clear columns */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RDT");
     }
     if (check_col(pinfo->cinfo, COL_INFO))
     {
-        col_set_str(pinfo->cinfo, COL_INFO, "RDT:");
+        col_clear(pinfo->cinfo, COL_INFO);
     }
 
     /* Create RDT protocol tree */
@@ -534,7 +537,7 @@ guint dissect_rdt_data_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
         col_append_fstr(pinfo->cinfo, COL_INFO,
-                        " DATA: stream-id=%02u asm-rule=%02u seq=%05u ts=%u",
+                        "DATA: stream-id=%02u asm-rule=%02u seq=%05u ts=%05u  ",
                         stream_id, asm_rule_number, sequence_number, timestamp);
     }
 
@@ -619,7 +622,7 @@ guint dissect_rdt_asm_action_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
         col_append_fstr(pinfo->cinfo, COL_INFO,
-                        " ASM-ACTION: stream-id=%02u rel-seqno=%05u",
+                        "ASM-ACTION: stream-id=%02u rel-seqno=%05u  ",
                         stream_id, rel_seqno);
     }
 
@@ -691,7 +694,7 @@ guint dissect_rdt_bandwidth_report_packet(tvbuff_t *tvb, packet_info *pinfo, pro
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
-        col_add_str(pinfo->cinfo, COL_INFO, " BANDWIDTH-REPORT: ");
+        col_append_str(pinfo->cinfo, COL_INFO, "BANDWIDTH-REPORT:  ");
     }
 
     if (packet_length < (offset - start_offset) ||
@@ -759,7 +762,7 @@ guint dissect_rdt_ack_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " ACK: lh=%u", lost_high_flag);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "ACK: lh=%u  ", lost_high_flag);
     }
 
     if (packet_length < (offset - start_offset) ||
@@ -787,7 +790,7 @@ guint dissect_rdt_rtt_request_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
-        col_add_str(pinfo->cinfo, COL_INFO, " RTT-REQUEST: ");
+        col_append_str(pinfo->cinfo, COL_INFO, "RTT-REQUEST:  ");
     }
 
     return offset;
@@ -813,7 +816,7 @@ guint dissect_rdt_rtt_response_packet(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
-        col_append_str(pinfo->cinfo, COL_INFO, " RTT-RESPONSE: ");
+        col_append_str(pinfo->cinfo, COL_INFO, "RTT-RESPONSE:  ");
     }
 
     return offset;
@@ -839,7 +842,7 @@ guint dissect_rdt_congestion_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
-        col_append_str(pinfo->cinfo, COL_INFO, " CONGESTION: ");
+        col_append_str(pinfo->cinfo, COL_INFO, "CONGESTION:  ");
     }
 
     return offset;
@@ -920,7 +923,7 @@ guint dissect_rdt_stream_end_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " STREAM-END: stream-id=%02u", stream_id);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "STREAM-END: stream-id=%02u  ", stream_id);
     }
 
     return offset;
@@ -974,7 +977,7 @@ guint dissect_rdt_report_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
-        col_append_str(pinfo->cinfo, COL_INFO, " REPORT: ");
+        col_append_str(pinfo->cinfo, COL_INFO, "REPORT:  ");
     }
 
     /* The remaining data is unparsed. */
@@ -1043,9 +1046,7 @@ guint dissect_rdt_latency_report_packet(tvbuff_t *tvb, packet_info *pinfo, proto
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO,
-                        " LATENCY-REPORT: t=%u",
-                        server_out_time);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "LATENCY-REPORT: t=%u  ", server_out_time);
     }
 
     if (packet_length < (offset - start_offset) ||
@@ -1101,7 +1102,7 @@ guint dissect_rdt_transport_info_request_packet(tvbuff_t *tvb, packet_info *pinf
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
-        col_append_str(pinfo->cinfo, COL_INFO, " TRANSPORT-INFO-REQUEST: ");
+        col_append_str(pinfo->cinfo, COL_INFO, "TRANSPORT-INFO-REQUEST:  ");
     }
 
     return offset;
@@ -1200,7 +1201,7 @@ guint dissect_rdt_transport_info_response_packet(tvbuff_t *tvb, packet_info *pin
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
-        col_append_str(pinfo->cinfo, COL_INFO, " RESPONSE: ");
+        col_append_str(pinfo->cinfo, COL_INFO, "RESPONSE:  ");
     }
 
     return offset;
@@ -1259,7 +1260,7 @@ guint dissect_rdt_bw_probing_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
-        col_append_str(pinfo->cinfo, COL_INFO, " BW-PROBING: ");
+        col_append_str(pinfo->cinfo, COL_INFO, "BW-PROBING:  ");
     }
 
     if (packet_length < (offset - start_offset) ||
@@ -1292,7 +1293,7 @@ guint dissect_rdt_unknown_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
-        col_append_str(pinfo->cinfo, COL_INFO, " UNKNOWN-CTL: ");
+        col_append_str(pinfo->cinfo, COL_INFO, "UNKNOWN-CTL:  ");
     }
 
     return offset;
@@ -1326,6 +1327,7 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 p_conv_packet_data = se_alloc(sizeof(struct _rdt_conversation_info));
                 strcpy(p_conv_packet_data->method, p_conv_data->method);
                 p_conv_packet_data->frame_number = p_conv_data->frame_number;
+                p_conv_packet_data->feature_level = p_conv_data->feature_level;
                 p_add_proto_data(pinfo->fd, proto_rdt, p_conv_packet_data);
             }
         }
@@ -1337,9 +1339,10 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree *rdt_setup_tree;
         proto_item *ti =  proto_tree_add_string_format(tree, hf_rdt_setup, tvb, 0, 0,
                                                        "",
-                                                       "Stream setup by %s (frame %u)",
+                                                       "Stream setup by %s (frame %u), feature level %d",
                                                        p_conv_data->method,
-                                                       p_conv_data->frame_number);
+                                                       p_conv_data->frame_number,
+                                                       p_conv_data->feature_level);
         PROTO_ITEM_SET_GENERATED(ti);
         rdt_setup_tree = proto_item_add_subtree(ti, ett_rdt_setup);
         if (rdt_setup_tree)
@@ -1350,6 +1353,9 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             PROTO_ITEM_SET_GENERATED(item);
             item = proto_tree_add_string(rdt_setup_tree, hf_rdt_setup_method,
                                          tvb, 0, 0, p_conv_data->method);
+            PROTO_ITEM_SET_GENERATED(item);
+            item = proto_tree_add_int(rdt_setup_tree, hf_rdt_feature_level,
+                                      tvb, 0, 0, p_conv_data->feature_level);
             PROTO_ITEM_SET_GENERATED(item);
         }
     }
@@ -2176,7 +2182,19 @@ void proto_register_rdt(void)
                 0x0,
                 "Method used to set up this stream", HFILL
             }
-        }
+        },
+        {
+            &hf_rdt_feature_level,
+            {
+                "RDT feature level",
+                "rdt.feature-level",
+                FT_INT32,
+                BASE_DEC,
+                NULL,
+                0x0,
+                "", HFILL
+            }
+        },
     };
 
     static gint *ett[] =
