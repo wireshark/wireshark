@@ -57,7 +57,6 @@ static char rcsid[] = "$Id$";
 #include <string.h>
 
 #include "inet_v6defs.h"
-#include "emem.h"
 
 #include <glib.h>
 
@@ -157,12 +156,11 @@ inet_ntop6(src, dst, size)
 	 * Keep this in mind if you think this function should have been coded
 	 * to use pointer overlays.  All the world's not a VAX.
 	 */
-	char *tmp, *tp;
+	char tmp[sizeof "ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255"], *tp;
 	struct { int base, len; } best, cur;
 	u_int words[NS_IN6ADDRSZ / NS_INT16SZ];
 	int i;
 
-	tmp=ep_alloc(128); /* large enough for "ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255"] */
 	/*
 	 * Preprocess:
 	 *	Copy the input (bytewise) array into a wordwise array.
@@ -212,12 +210,12 @@ inet_ntop6(src, dst, size)
 		/* Is this address an encapsulated IPv4? */
 		if (i == 6 && best.base == 0 &&
 		    (best.len == 6 || (best.len == 5 && words[5] == 0xffff))) {
-			if (!inet_ntop4(src+12, tp, 128 - (tp - tmp)))
+			if (!inet_ntop4(src+12, tp, sizeof tmp - (tp - tmp)))
 				return (NULL);
 			tp += strlen(tp);
 			break;
 		}
-		tp += g_snprintf(tp, 128-(tp-tmp), "%x", words[i]);
+		tp += g_snprintf(tp, sizeof tmp - (tp - tmp), "%x", words[i]);
 	}
 	/* Was it a trailing run of 0x00's? */
 	if (best.base != -1 && (best.base + best.len) ==
