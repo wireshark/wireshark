@@ -295,8 +295,12 @@
 #include "isprint.h"
 
 #include <epan/packet.h>
-#include "packet-giop.h"
+#include <epan/conversation.h>
 #include <epan/emem.h>
+#include <epan/prefs.h>
+
+#include "packet-giop.h"
+#include "packet-tcp.h"
 
 /*
  * Set to 1 for DEBUG output - TODO make this a runtime option
@@ -457,6 +461,7 @@ static gint ett_giop_scl_st1 = -1;
 static gint ett_giop_ior = -1;	/* IOR  */
 
 static dissector_handle_t data_handle;
+static dissector_handle_t giop_tcp_handle;
 /* GIOP endianess */
 
 static const value_string giop_endianess_vals[] = {
@@ -782,6 +787,8 @@ struct giop_object_val {
 
 GHashTable *giop_objkey_hash = NULL; /* hash */
 
+
+gboolean giop_desegment = TRUE;
 
 /*
  * ------------------------------------------------------------------------------------------+
@@ -3751,7 +3758,7 @@ dissect_giop_fragment( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 /* Main entry point */
 
-gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
+gboolean dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
   guint offset = 0;
   MessageHeader header;
   tvbuff_t *giop_header_tvb;
@@ -3762,7 +3769,7 @@ gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
   guint message_size;
   guint minor_version;
   gboolean stream_is_big_endian;
-  guint tot_len;
+
 
   /* DEBUG */
 
@@ -3776,20 +3783,6 @@ gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 
   header.exception_id = NULL;
 
-  /* check magic number and version */
-
-
-  /*define END_OF_GIOP_MESSAGE (offset - first_offset - GIOP_HEADER_SIZE) */
-
-  tot_len = tvb_length_remaining(tvb, 0);
-  
-  if (tot_len < GIOP_HEADER_SIZE)
-    {
-      /* Not enough data captured to hold the GIOP header; don't try
-         to interpret it as GIOP. */
-      return FALSE;
-    }
-
   giop_header_tvb = tvb_new_subset (tvb, 0, GIOP_HEADER_SIZE, -1);
   payload_tvb = tvb_new_subset (tvb, GIOP_HEADER_SIZE, -1, -1);
 
@@ -3800,12 +3793,6 @@ gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 
   tvb_memcpy (giop_header_tvb, (guint8 *)&header, 0, GIOP_HEADER_SIZE );
 
-  if (memcmp (header.magic, GIOP_MAGIC, sizeof (header.magic)) != 0)
-    {
-      /* Not a GIOP message. */
-
-      return FALSE;
-    }
 
   if (check_col (pinfo->cinfo, COL_PROTOCOL))
     {
@@ -3830,7 +3817,7 @@ gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 	}
       if (tree)
 	{
-	  ti = proto_tree_add_item (tree, proto_giop, tvb, 0, tot_len, FALSE);
+	  ti = proto_tree_add_item (tree, proto_giop, tvb, 0, -1, FALSE);
 	  clnp_tree = proto_item_add_subtree (ti, ett_giop);
 	  proto_tree_add_text (clnp_tree, giop_header_tvb, 0, -1,
 			       "Version %u.%u not supported",
@@ -3858,7 +3845,7 @@ gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 
   if (tree)
     {
-      ti = proto_tree_add_item (tree, proto_giop, tvb, 0, tot_len, FALSE);
+      ti = proto_tree_add_item (tree, proto_giop, tvb, 0, -1, FALSE);
       clnp_tree = proto_item_add_subtree (ti, ett_giop);
       proto_tree_add_text (clnp_tree, giop_header_tvb, offset, 4,
 			   "Magic number: %s", GIOP_MAGIC);
@@ -3967,6 +3954,86 @@ gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
     g_free(header.exception_id);
 
   return TRUE;
+}
+
+static guint
+get_giop_pdu_len(tvbuff_t *tvb, int offset)
+{
+
+	MessageHeader header;
+	guint message_size;
+	gboolean stream_is_big_endian;
+
+	tvb_memcpy (tvb, (guint8 *)&header, 0, GIOP_HEADER_SIZE );
+
+	stream_is_big_endian = is_big_endian (&header);
+
+	if (stream_is_big_endian)
+		message_size = pntohl (&header.message_size);
+	else
+		message_size = pletohl (&header.message_size);
+
+
+  return message_size + GIOP_HEADER_SIZE;
+}
+
+static void 
+dissect_giop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree){
+
+		tcp_dissect_pdus(tvb, pinfo, tree, giop_desegment, GIOP_HEADER_SIZE,
+		    get_giop_pdu_len, dissect_giop_common);
+
+
+}
+
+gboolean dissect_giop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
+
+  guint tot_len;
+
+  conversation_t *conversation;
+  /* check magic number and version */
+
+
+  /*define END_OF_GIOP_MESSAGE (offset - first_offset - GIOP_HEADER_SIZE) */
+
+  tot_len = tvb_length_remaining(tvb, 0);
+  
+  if (tot_len < GIOP_HEADER_SIZE) /* tot_len < 12 */
+    {
+      /* Not enough data captured to hold the GIOP header; don't try
+         to interpret it as GIOP. */
+      return FALSE;
+    }
+  if ( tvb_memeql(tvb, 0, GIOP_MAGIC ,4) != 0)
+	  return FALSE;
+
+  /*
+   * If this isn't the first time this packet has been processed,
+   * we've already done this work, so we don't need to do it
+   * again.
+   */
+  if (!pinfo->fd->flags.visited){
+	  g_warning("flags.visited");
+	  if ( pinfo->ptype == PT_TCP ){
+		  	g_warning("PT_TCP");
+			g_warning("pinfo->srcport %u",pinfo->srcport);
+			conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
+			pinfo->srcport, pinfo->destport, 0);
+			g_warning("conversation =%u",conversation);
+		  if (conversation == NULL){
+			  g_warning("conversation == NULL");
+			  conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+				  pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+
+		  }
+		  /* Set dissector */
+		  conversation_set_dissector(conversation, giop_tcp_handle);
+	  }
+  }
+  dissect_giop_common (tvb, pinfo, tree);
+
+  return TRUE;
+
 }
 
 void
@@ -4217,6 +4284,8 @@ proto_register_giop (void)
     &ett_giop_ior
 
   };
+    module_t *giop_module;
+
   proto_giop = proto_register_protocol("General Inter-ORB Protocol", "GIOP",
 				       "giop");
   proto_register_field_array (proto_giop, hf, array_length (hf));
@@ -4226,6 +4295,14 @@ proto_register_giop (void)
   /* register init routine */
 
   register_init_routine( &giop_init); /* any init stuff */
+
+  /* register preferences */
+  giop_module = prefs_register_protocol(proto_giop, NULL);
+  prefs_register_bool_preference(giop_module, "desegment_giop_messages",
+    "Reassemble GIOP messages spanning multiple TCP segments",
+    "Whether the GIOP dissector should reassemble messages spanning multiple TCP segments."
+    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+    &giop_desegment);
 
   /*
    * Init the giop user module hash tables here, as giop users
@@ -4241,9 +4318,12 @@ proto_register_giop (void)
 
 void proto_reg_handoff_giop (void) {
   data_handle = find_dissector("data");
-  heur_dissector_add("tcp", dissect_giop, proto_giop);
+  giop_tcp_handle = create_dissector_handle(dissect_giop_tcp, proto_giop);
+  heur_dissector_add("tcp", dissect_giop_heur, proto_giop);
   /* Support DIOP (GIOP/UDP) */
-  heur_dissector_add("udp", dissect_giop, proto_giop);
+  heur_dissector_add("udp", dissect_giop_heur, proto_giop);
+  /* Port will be set by conversation */
+  dissector_add("tcp.port", 0, giop_tcp_handle);
 }
 
 
