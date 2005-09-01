@@ -315,6 +315,13 @@ static const gchar *titles[9] =  {
 	"Length"
 };
 
+#define SAVE_FORWARD_DIRECTION_MASK 0x01
+#define SAVE_REVERSE_DIRECTION_MASK 0x02	
+#define SAVE_BOTH_DIRECTION_MASK	(SAVE_FORWARD_DIRECTION_MASK|SAVE_REVERSE_DIRECTION_MASK) 
+
+#define SAVE_AU_FORMAT	2
+#define SAVE_RAW_FORMAT	4
+
 
 static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_);
 /****************************************************************************/
@@ -616,7 +623,6 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		statinfo->diff = 0;
 		statinfo->flags |= STAT_FLAG_FIRST;
 		statinfo->first_packet = FALSE;
-		statinfo->timestamp = rtpinfo->info_timestamp;
 	}
 	/* is it a packet with the mark bit set? */
 	if (rtpinfo->info_marker_set) {
@@ -624,7 +630,7 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 			statinfo->delta_timestamp = rtpinfo->info_timestamp - statinfo->timestamp;
 			statinfo->flags |= STAT_FLAG_MARKER;
 		}
-		else if (!(statinfo->flags & STAT_FLAG_FIRST)) {
+		else{
 			statinfo->flags |= STAT_FLAG_WRONG_TIMESTAMP;
 		}
 	}
@@ -872,61 +878,29 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 		fflush(saveinfo->fp);
 	}
 
-	/* ulaw? */
-	if (rtpinfo->info_payload_type == PT_PCMU) {
-		if (!rtpinfo->info_all_data_present) {
-			/* Not all the data was captured. */
-			saveinfo->saved = FALSE;
-			saveinfo->error_type = TAP_RTP_SHORT_FRAME;
-			return 0;
-		}
-
-		/* we put the pointer at the beginning of the RTP
-		* payload, that is, at the beginning of the RTP data
-		* plus the offset of the payload from the beginning
-		* of the RTP data */
-		data = rtpinfo->info_data + rtpinfo->info_payload_offset;
-		for(i=0; i < (rtpinfo->info_payload_len - rtpinfo->info_padding_count); i++, data++) {
-			tmp = (gint16 )ulaw2linear((unsigned char)*data);
-			fwrite(&tmp, 2, 1, saveinfo->fp);
-			saveinfo->count++;
-		}
-		fflush(saveinfo->fp);
-		saveinfo->saved = TRUE;
-		return 0;
-	}
-
-	/* alaw? */
-	else if (rtpinfo->info_payload_type == PT_PCMA) {
-		if (!rtpinfo->info_all_data_present) {
-			/* Not all the data was captured. */
-			saveinfo->saved = FALSE;
-			saveinfo->error_type = TAP_RTP_SHORT_FRAME;
-			return 0;
-		}
-
-		/* we put the pointer at the beginning of the RTP
-		* payload, that is, at the beginning of the RTP data
-		* plus the offset of the payload from the beginning
-		* of the RTP data */
-		data = rtpinfo->info_data + rtpinfo->info_payload_offset;
-		for(i=0; i < (rtpinfo->info_payload_len - rtpinfo->info_padding_count); i++, data++) {
-			tmp = (gint16 )alaw2linear((unsigned char)*data);
-			fwrite(&tmp, 2, 1, saveinfo->fp);
-			saveinfo->count++;
-		}
-		fflush(saveinfo->fp);
-		saveinfo->saved = TRUE;
-		return 0;
-	}
-	/* comfort noise? - do nothing */
-	else if (rtpinfo->info_payload_type == PT_CN
+	
+	if (rtpinfo->info_payload_type == PT_CN
 		|| rtpinfo->info_payload_type == PT_CN_OLD) {
 	}
-	/* unsupported codec or XXX other error */
+	/*all other payloads*/
 	else {
-		saveinfo->saved = FALSE;
-		saveinfo->error_type = TAP_RTP_WRONG_CODEC;
+		if (!rtpinfo->info_all_data_present) {
+			/* Not all the data was captured. */
+			saveinfo->saved = FALSE;
+			saveinfo->error_type = TAP_RTP_SHORT_FRAME;
+			return 0;
+		}
+
+		/* we put the pointer at the beginning of the RTP
+		* payload, that is, at the beginning of the RTP data
+		* plus the offset of the payload from the beginning
+		* of the RTP data */
+		data = rtpinfo->info_data + rtpinfo->info_payload_offset;
+		fwrite(data, sizeof(unsigned char), (rtpinfo->info_payload_len - rtpinfo->info_padding_count), saveinfo->fp);
+		saveinfo->count+=(rtpinfo->info_payload_len - rtpinfo->info_padding_count);
+
+		fflush(saveinfo->fp);
+		saveinfo->saved = TRUE;
 		return 0;
 	}
 
@@ -2442,11 +2416,12 @@ static void save_voice_as_destroy_cb(GtkWidget *win _U_, user_data_t *user_data 
 /****************************************************************************/
 /* here we save it into a file that user specified */
 /* XXX what about endians here? could go something wrong? */
-static gboolean copy_file(gchar *dest, gint channels, /*gint format,*/ user_data_t *user_data)
+static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *user_data)
 {
 	int to_fd, forw_fd, rev_fd, fread = 0, rread = 0, fwritten, rwritten;
-	gint16 f_pd;
-	gint16 r_pd;
+	gchar f_pd[1];
+	gchar r_pd[1];
+	gint16 tmp;
 	gchar pd[1];
 	guint32 f_write_silence = 0;
 	guint32 r_write_silence = 0;
@@ -2473,144 +2448,251 @@ static gboolean copy_file(gchar *dest, gint channels, /*gint format,*/ user_data
 
 	progbar = create_progress_dlg("Saving voice in a file", dest, &stop_flag);
 
-	/* First we write the .au header. XXX Hope this is endian independant */
-	/* the magic word 0x2e736e64 == .snd */
-	*pd = (unsigned char)0x2e; write(to_fd, pd, 1);
-	*pd = (unsigned char)0x73; write(to_fd, pd, 1);
-	*pd = (unsigned char)0x6e; write(to_fd, pd, 1);
-	*pd = (unsigned char)0x64; write(to_fd, pd, 1);
-	/* header offset == 24 bytes */
-	*pd = (unsigned char)0x00; write(to_fd, pd, 1);
-	write(to_fd, pd, 1);
-	write(to_fd, pd, 1);
-	*pd = (unsigned char)0x18; write(to_fd, pd, 1);
-	/* total length, it is permited to set this to 0xffffffff */
-	*pd = (unsigned char)0xff; write(to_fd, pd, 1); 
-	write(to_fd, pd, 1); 
-	write(to_fd, pd, 1); 
-	write(to_fd, pd, 1);
-	/* encoding format == 8 bit ulaw */
-	*pd = (unsigned char)0x00; write(to_fd, pd, 1);
-	write(to_fd, pd, 1);
-	write(to_fd, pd, 1);
-	*pd = (unsigned char)0x01; write(to_fd, pd, 1);
-	/* sample rate == 8000 Hz */
-	*pd = (unsigned char)0x00; write(to_fd, pd, 1);
-	write(to_fd, pd, 1);
-	*pd = (unsigned char)0x1f; write(to_fd, pd, 1);
-	*pd = (unsigned char)0x40; write(to_fd, pd, 1);
-	/* channels == 1 */
-	*pd = (unsigned char)0x00; write(to_fd, pd, 1);
-	write(to_fd, pd, 1);
-	write(to_fd, pd, 1);
-	*pd = (unsigned char)0x01; write(to_fd, pd, 1);
+	if	(format == SAVE_AU_FORMAT) /* au format */
+	{
+		/* First we write the .au header. XXX Hope this is endian independant */
+		/* the magic word 0x2e736e64 == .snd */
+		*pd = (unsigned char)0x2e; write(to_fd, pd, 1);
+		*pd = (unsigned char)0x73; write(to_fd, pd, 1);
+		*pd = (unsigned char)0x6e; write(to_fd, pd, 1);
+		*pd = (unsigned char)0x64; write(to_fd, pd, 1);
+		/* header offset == 24 bytes */
+		*pd = (unsigned char)0x00; write(to_fd, pd, 1);
+		write(to_fd, pd, 1);
+		write(to_fd, pd, 1);
+		*pd = (unsigned char)0x18; write(to_fd, pd, 1);
+		/* total length, it is permited to set this to 0xffffffff */
+		*pd = (unsigned char)0xff; write(to_fd, pd, 1); 
+		write(to_fd, pd, 1); 
+		write(to_fd, pd, 1); 
+		write(to_fd, pd, 1);
+		/* encoding format == 8 bit ulaw */
+		*pd = (unsigned char)0x00; write(to_fd, pd, 1);
+		write(to_fd, pd, 1);
+		write(to_fd, pd, 1);
+		*pd = (unsigned char)0x01; write(to_fd, pd, 1);
+		/* sample rate == 8000 Hz */
+		*pd = (unsigned char)0x00; write(to_fd, pd, 1);
+		write(to_fd, pd, 1);
+		*pd = (unsigned char)0x1f; write(to_fd, pd, 1);
+		*pd = (unsigned char)0x40; write(to_fd, pd, 1);
+		/* channels == 1 */
+		*pd = (unsigned char)0x00; write(to_fd, pd, 1);
+		write(to_fd, pd, 1);
+		write(to_fd, pd, 1);
+		*pd = (unsigned char)0x01; write(to_fd, pd, 1);
 	
-	switch (channels) {
-		/* only forward direction */
-		case 1: {
-			progbar_count = user_data->forward.saveinfo.count;
-			progbar_quantum = user_data->forward.saveinfo.count/100;
-			while ((fread = read(forw_fd, &f_pd, 2)) > 0) {
-				if(stop_flag) 
-					break;
-				if((count > progbar_nextstep) && (count <= progbar_count)) {
-					update_progress_dlg(progbar, 
-						(gfloat) count/progbar_count, "Saving");
-					progbar_nextstep = progbar_nextstep + progbar_quantum;
+	
+		switch (channels) {
+			/* only forward direction */
+			case 1: {
+				progbar_count = user_data->forward.saveinfo.count;
+				progbar_quantum = user_data->forward.saveinfo.count/100;
+				while ((fread = read(forw_fd, f_pd, 1)) > 0) {
+					if(stop_flag) 
+						break;
+					if((count > progbar_nextstep) && (count <= progbar_count)) {
+						update_progress_dlg(progbar, 
+							(gfloat) count/progbar_count, "Saving");
+						progbar_nextstep = progbar_nextstep + progbar_quantum;
+					}
+					count++;
+
+					if (user_data->forward.statinfo.pt == PT_PCMU){
+						tmp = (gint16 )ulaw2linear(*f_pd);
+						*pd = (unsigned char)linear2ulaw(tmp);
+					}
+					else if(user_data->forward.statinfo.pt == PT_PCMA){
+						tmp = (gint16 )alaw2linear(*f_pd);
+						*pd = (unsigned char)linear2ulaw(tmp);
+					}
+					else{
+						close(forw_fd);
+						close(rev_fd);
+						close(to_fd);
+						destroy_progress_dlg(progbar);
+						return FALSE;
+					}
+					
+					fwritten = write(to_fd, pd, 1);
+					if ((fwritten < fread) || (fwritten < 0) || (fread < 0)) {
+						close(forw_fd);
+						close(rev_fd);
+						close(to_fd);
+						destroy_progress_dlg(progbar);
+						return FALSE;
+					}
 				}
-				count++;
-				*pd = (unsigned char)linear2ulaw(f_pd);
-				fwritten = write(to_fd, pd, 1);
-				if ((fwritten*2 < fread) || (fwritten < 0) || (fread < 0)) {
-					close(forw_fd);
-					close(rev_fd);
-					close(to_fd);
-					destroy_progress_dlg(progbar);
-					return FALSE;
-				}
+				break;
 			}
-			break;
-		}
-		/* only reversed direction */
-		case 2: {
-			progbar_count = user_data->reversed.saveinfo.count;
-			progbar_quantum = user_data->reversed.saveinfo.count/100;
-			while ((rread = read(rev_fd, &r_pd, 2)) > 0) {
-				if(stop_flag) 
-					break;
-				if((count > progbar_nextstep) && (count <= progbar_count)) {
-					update_progress_dlg(progbar, 
-						(gfloat) count/progbar_count, "Saving");
-					progbar_nextstep = progbar_nextstep + progbar_quantum;
+			/* only reversed direction */
+			case 2: {
+				progbar_count = user_data->reversed.saveinfo.count;
+				progbar_quantum = user_data->reversed.saveinfo.count/100;
+				while ((rread = read(rev_fd, r_pd, 1)) > 0) {
+					if(stop_flag) 
+						break;
+					if((count > progbar_nextstep) && (count <= progbar_count)) {
+						update_progress_dlg(progbar, 
+							(gfloat) count/progbar_count, "Saving");
+						progbar_nextstep = progbar_nextstep + progbar_quantum;
+					}
+					count++;
+
+					if (user_data->forward.statinfo.pt == PT_PCMU){
+						tmp = (gint16 )ulaw2linear(*r_pd);
+						*pd = (unsigned char)linear2ulaw(tmp);
+					}
+					else if(user_data->forward.statinfo.pt == PT_PCMA){
+						tmp = (gint16 )alaw2linear(*r_pd);
+						*pd = (unsigned char)linear2ulaw(tmp);
+					}
+					else{
+						close(forw_fd);
+						close(rev_fd);
+						close(to_fd);
+						destroy_progress_dlg(progbar);
+						return FALSE;
+					}
+					
+					rwritten = write(to_fd, pd, 1);
+					if ((rwritten < rread) || (rwritten < 0) || (rread < 0)) {
+						close(forw_fd);
+						close(rev_fd);
+						close(to_fd);
+						destroy_progress_dlg(progbar);
+						return FALSE;
+					}
 				}
-				count++;
-				*pd = (unsigned char)linear2ulaw(r_pd);
-				rwritten = write(to_fd, pd, 1);
-				if ((rwritten*2 < rread) || (rwritten < 0) || (rread < 0)) {
-					close(forw_fd);
-					close(rev_fd);
-					close(to_fd);
-					destroy_progress_dlg(progbar);
-					return FALSE;
-				}
+				break;
 			}
-			break;
-		}
-		/* both directions */
-		default: {
-			(user_data->forward.saveinfo.count > user_data->reversed.saveinfo.count) ? 
-					(progbar_count = user_data->forward.saveinfo.count) : 
-						(progbar_count = user_data->reversed.saveinfo.count);
-			progbar_quantum = progbar_count/100;
-			/* since conversation in one way can start later than in the other one, 
-			 * we have to write some silence information for one channel */
-			if (user_data->forward.statinfo.start_time > user_data->reversed.statinfo.start_time) {
-				f_write_silence = (guint32)
-					((user_data->forward.statinfo.start_time-user_data->reversed.statinfo.start_time)*8000);
-			}
-			else if (user_data->forward.statinfo.start_time < user_data->reversed.statinfo.start_time) {
-				r_write_silence = (guint32)
-					((user_data->reversed.statinfo.start_time-user_data->forward.statinfo.start_time)*8000);
-			}
-			for(;;) {
-				if(stop_flag) 
-					break;
-				if((count > progbar_nextstep) && (count <= progbar_count)) {
-					update_progress_dlg(progbar, 
-						(gfloat) count/progbar_count, "Saving");
-					progbar_nextstep = progbar_nextstep + progbar_quantum;
+			/* both directions */
+			default: {
+				(user_data->forward.saveinfo.count > user_data->reversed.saveinfo.count) ? 
+						(progbar_count = user_data->forward.saveinfo.count) : 
+							(progbar_count = user_data->reversed.saveinfo.count);
+				progbar_quantum = progbar_count/100;
+				/* since conversation in one way can start later than in the other one, 
+				 * we have to write some silence information for one channel */
+				if (user_data->forward.statinfo.start_time > user_data->reversed.statinfo.start_time) {
+					f_write_silence = (guint32)
+						((user_data->forward.statinfo.start_time-user_data->reversed.statinfo.start_time)*8000);
 				}
-				count++;
-				if(f_write_silence > 0) {
-					rread = read(rev_fd, &r_pd, 2);
-					f_pd = 0;
-					fread = 1;
-					f_write_silence--;
+				else if (user_data->forward.statinfo.start_time < user_data->reversed.statinfo.start_time) {
+					r_write_silence = (guint32)
+						((user_data->reversed.statinfo.start_time-user_data->forward.statinfo.start_time)*8000);
 				}
-				else if(r_write_silence > 0) {
-					fread = read(forw_fd, &f_pd, 2);
-					r_pd = 0;
-					rread = 1;
-					r_write_silence--;
-				}
-				else {
-					fread = read(forw_fd, &f_pd, 2); 
-					rread = read(rev_fd, &r_pd, 2);
-				}
-				if ((rread == 0) && (fread == 0)) 
-					break;
-				*pd = (unsigned char)linear2ulaw( (f_pd + r_pd)/2 );
-				rwritten = write(to_fd, pd, 1);
-				if ((rwritten < 0) || (rread < 0) || (fread < 0)) {
-					close(forw_fd);
-					close(rev_fd);
-					close(to_fd);
-					destroy_progress_dlg(progbar);
-					return FALSE;
+				for(;;) {
+					if(stop_flag) 
+						break;
+					if((count > progbar_nextstep) && (count <= progbar_count)) {
+						update_progress_dlg(progbar, 
+							(gfloat) count/progbar_count, "Saving");
+						progbar_nextstep = progbar_nextstep + progbar_quantum;
+					}
+					count++;
+					if(f_write_silence > 0) {
+						rread = read(rev_fd, r_pd, 1);
+						*f_pd = 0;
+						fread = 1;
+						f_write_silence--;
+					}
+					else if(r_write_silence > 0) {
+						fread = read(forw_fd, f_pd, 1);
+						*r_pd = 0;
+						rread = 1;
+						r_write_silence--;
+					}
+					else {
+						fread = read(forw_fd, f_pd, 1); 
+						rread = read(rev_fd, r_pd, 1);
+					}
+					if ((rread == 0) && (fread == 0)) 
+						break;
+					if ((user_data->forward.statinfo.pt == PT_PCMU) && (user_data->reversed.statinfo.pt == PT_PCMU)){
+						tmp = ulaw2linear(*r_pd);
+						tmp += ulaw2linear(*f_pd);
+						*pd = (unsigned char)linear2ulaw(tmp/2);
+					}
+					else if((user_data->forward.statinfo.pt == PT_PCMA) && (user_data->reversed.statinfo.pt == PT_PCMA)){
+						tmp = alaw2linear(*r_pd);
+						tmp += alaw2linear(*f_pd);
+						*pd = (unsigned char)linear2ulaw(tmp/2);
+					}
+					else
+					{
+						close(forw_fd);
+						close(rev_fd);
+						close(to_fd);
+						destroy_progress_dlg(progbar);
+						return FALSE;
+					}
+					
+					
+					rwritten = write(to_fd, pd, 1);
+					if ((rwritten < 0) || (rread < 0) || (fread < 0)) {
+						close(forw_fd);
+						close(rev_fd);
+						close(to_fd);
+						destroy_progress_dlg(progbar);
+						return FALSE;
+					}
 				}
 			}
 		}
 	}
+	else if (format == SAVE_RAW_FORMAT)	/* raw format */
+	{
+		int fd;
+		switch (channels) {
+			/* only forward direction */
+			case 1: {
+				progbar_count = user_data->forward.saveinfo.count;
+				progbar_quantum = user_data->forward.saveinfo.count/100;
+				fd = forw_fd;
+				break;
+			}
+			/* only reversed direction */
+			case 2: {
+				progbar_count = user_data->reversed.saveinfo.count;
+				progbar_quantum = user_data->reversed.saveinfo.count/100;
+				fd = rev_fd;
+				break;
+			}
+			default: {
+				close(forw_fd);
+				close(rev_fd);
+				close(to_fd);
+				destroy_progress_dlg(progbar);
+				return FALSE;
+			}
+		}
+
+		
+
+		/* XXX how do you just copy the file? */
+		while ((rread = read(fd, pd, 1)) > 0) {
+			if(stop_flag) 
+				break;
+			if((count > progbar_nextstep) && (count <= progbar_count)) {
+				update_progress_dlg(progbar, 
+					(gfloat) count/progbar_count, "Saving");
+				progbar_nextstep = progbar_nextstep + progbar_quantum;
+			}
+			count++;
+
+			rwritten = write(to_fd, pd, 1);
+
+			if ((rwritten < rread) || (rwritten < 0) || (rread < 0)) {
+				close(forw_fd);
+				close(rev_fd);
+				close(to_fd);
+				destroy_progress_dlg(progbar);
+				return FALSE;
+			}
+		}
+	}
+
 	destroy_progress_dlg(progbar);
 	close(forw_fd);
 	close(rev_fd);
@@ -2626,9 +2708,10 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 {
 	gchar *g_dest;
 	/*GtkWidget *wav, *au, *sw;*/
+	GtkWidget *au, *raw;
 	GtkWidget *rev, *forw, *both;
 	user_data_t *user_data;
-	gint channels /*, format*/;
+	gint channels , format;
 	
 	g_dest = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
 	
@@ -2643,8 +2726,9 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 	}
 	
 	/*wav = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "wav_rb");
-	au = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "au_rb");
 	sw = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "sw_rb");*/
+	au = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "au_rb");
+	raw = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "raw_rb");
 	rev = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "reversed_rb");
 	forw = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "forward_rb");
 	both = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "both_rb");
@@ -2658,7 +2742,7 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 	* the buttons. For now it is easier if we put the warning when the ok button is pressed.
 	*/
 	
-	/* we can not save in both dirctions */
+	/* we can not save in both directions */
 	if ((user_data->forward.saveinfo.saved == FALSE) && (user_data->reversed.saveinfo.saved == FALSE) && (GTK_TOGGLE_BUTTON (both)->active)) {
 		/* there are many combinations here, we just exit when first matches */
 		if ((user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_CODEC) || 
@@ -2677,7 +2761,7 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 			(user_data->reversed.saveinfo.error_type == TAP_RTP_SHORT_FRAME))
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save in a file: Not all data in all packets was captured!");
-		else  
+		else
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't save in a file: File I/O problem!");
 		return;
@@ -2728,19 +2812,59 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 	
 	/*if (GTK_TOGGLE_BUTTON (wav)->active)
 	format = 1;
-	else if (GTK_TOGGLE_BUTTON (au)->active)
-	format = 2;
+	else */if (GTK_TOGGLE_BUTTON (au)->active)
+	format = SAVE_AU_FORMAT;/*
 	else if (GTK_TOGGLE_BUTTON (sw)->active)
 	format = 3;*/
+	else if (GTK_TOGGLE_BUTTON (raw)->active)
+		format =SAVE_RAW_FORMAT;
+	
 	
 	if (GTK_TOGGLE_BUTTON (rev)->active)
-		channels = 2;
+		channels = SAVE_REVERSE_DIRECTION_MASK;
 	else if (GTK_TOGGLE_BUTTON (both)->active)
-		channels = 3;
+		channels = SAVE_BOTH_DIRECTION_MASK;
 	else 
-		channels = 1;
+		channels = SAVE_FORWARD_DIRECTION_MASK;
+
+	/* direction/format validity*/
+	if (format == SAVE_AU_FORMAT)
+	{
+		/* make sure streams are alaw/ulaw */
+		if ((channels & SAVE_FORWARD_DIRECTION_MASK) && (user_data->forward.statinfo.pt != PT_PCMA) && (user_data->forward.statinfo.pt != PT_PCMU)){
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+				"Can't save in a file: saving in au format supported only for alaw/ulaw streams");
+			return;
+		}
+		if ((channels & SAVE_REVERSE_DIRECTION_MASK) && (user_data->reversed.statinfo.pt != PT_PCMA) && (user_data->reversed.statinfo.pt != PT_PCMU)){
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+				"Can't save in a file: saving in au format supported only for alaw/ulaw streams");
+			return;
+		}
+		/* make sure pt's don't differ */
+		if ((channels == SAVE_REVERSE_DIRECTION_MASK) && (user_data->forward.statinfo.pt != user_data->forward.statinfo.pt)){
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+				"Can't save in a file: Forward and reverse direction differ in type");
+			return;
+		}
+	}
+	else if (format == SAVE_RAW_FORMAT)
+	{
+		/* can't save raw in both directions */
+		if (channels == SAVE_REVERSE_DIRECTION_MASK){
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+				"Can't save in a file: Unable to save raw data in both directions");
+			return;
+		}
+	}
+	else
+	{
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			"Can't save in a file: Invalid save format");
+		return;
+	}
 	
-	if(!copy_file(g_dest, channels/*, format*/, user_data)) {
+	if(!copy_file(g_dest, channels, format, user_data)) {
 		/* XXX - report the error type! */
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"An error occured while saving voice in a file!");
@@ -2759,12 +2883,14 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	GtkWidget *table1;
 	GtkWidget *label_format;
 	GtkWidget *channels_label;
-	/*GSList *format_group = NULL;*/
+	GSList *format_group = NULL;
 	GSList *channels_group = NULL;
 	GtkWidget *forward_rb;
 	GtkWidget *reversed_rb;
 	GtkWidget *both_rb;
-	/*GtkWidget *wav_rb; GtkWidget *au_rb; GtkWidget *sw_rb;*/
+	/*GtkWidget *wav_rb;  GtkWidget *sw_rb;*/
+	GtkWidget *au_rb;
+	GtkWidget *raw_rb;
 	GtkWidget *ok_bt;
 	
 	/* if we can't save in a file: wrong codec, cut packets or other errors */
@@ -2793,11 +2919,34 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	gtk_container_set_border_width (GTK_CONTAINER (table1), 10);
 	gtk_table_set_row_spacings (GTK_TABLE (table1), 20);
 	
-	label_format = gtk_label_new ("Format: .au (ulaw, 8 bit, 8000 Hz, mono) ");
+	/*label_format = gtk_label_new ("Format: .au (ulaw, 8 bit, 8000 Hz, mono) ");
+	gtk_widget_show (label_format);
+	gtk_table_attach (GTK_TABLE (table1), label_format, 0, 3, 0, 1,
+		(GtkAttachOptions) (GTK_FILL),
+		(GtkAttachOptions) (0), 0, 0);*/
+
+	label_format = gtk_label_new ("Format: ");
 	gtk_widget_show (label_format);
 	gtk_table_attach (GTK_TABLE (table1), label_format, 0, 3, 0, 1,
 		(GtkAttachOptions) (GTK_FILL),
 		(GtkAttachOptions) (0), 0, 0);
+
+	gtk_misc_set_alignment (GTK_MISC (label_format), 0, 0.5);
+
+	raw_rb = gtk_radio_button_new_with_label (format_group, ".raw");
+	format_group = gtk_radio_button_group (GTK_RADIO_BUTTON (raw_rb));
+	gtk_widget_show (raw_rb);
+	gtk_table_attach (GTK_TABLE (table1), raw_rb, 1, 2, 0, 1,
+	(GtkAttachOptions) (GTK_FILL),
+	(GtkAttachOptions) (0), 0, 0);
+	
+	  
+	au_rb = gtk_radio_button_new_with_label (format_group, ".au");
+	format_group = gtk_radio_button_group (GTK_RADIO_BUTTON (au_rb));
+	gtk_widget_show (au_rb);
+	gtk_table_attach (GTK_TABLE (table1), au_rb, 3, 4, 0, 1,
+	(GtkAttachOptions) (GTK_FILL),
+	(GtkAttachOptions) (0), 0, 0);
 	
 	/* we support .au - ulaw*/ 
 	/*	wav_rb = gtk_radio_button_new_with_label (format_group, ".wav");
@@ -2867,9 +3016,10 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	*/
 	
 	ok_bt = GTK_FILE_SELECTION(user_data->dlg.save_voice_as_w)->ok_button;
-	/*OBJECT_SET_DATA(ok_bt, "wav_rb", wav_rb);
+	/*OBJECT_SET_DATA(ok_bt, "wav_rb", wav_rb);*/
 	OBJECT_SET_DATA(ok_bt, "au_rb", au_rb);
-	OBJECT_SET_DATA(ok_bt, "sw_rb", sw_rb);*/
+	/*OBJECT_SET_DATA(ok_bt, "sw_rb", sw_rb);*/
+	OBJECT_SET_DATA(ok_bt, "raw_rb", raw_rb);
 	OBJECT_SET_DATA(ok_bt, "forward_rb", forward_rb);
 	OBJECT_SET_DATA(ok_bt, "reversed_rb", reversed_rb);
 	OBJECT_SET_DATA(ok_bt, "both_rb", both_rb);
