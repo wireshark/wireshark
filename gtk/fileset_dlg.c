@@ -133,7 +133,9 @@ fileset_dlg_name2date_dup(const char * name) {
 
 
     /* just to be sure ... */
-    g_assert(fileset_filename_match_pattern(name));
+	if(!fileset_filename_match_pattern(name)) {
+		return NULL;
+	}
 
     /* find char position behind the last underscore */
     pfx = strrchr(name, '_');
@@ -169,11 +171,15 @@ fileset_dlg_add_file(fileset_entry *entry) {
         return;
     }
 
-    /*local = localtime(&entry->ctime);
-    created = g_strdup_printf("%04u.%02u.%02u %02u:%02u:%02u", 
-        local->tm_year+1900, local->tm_mon+1, local->tm_mday,
-        local->tm_hour, local->tm_min, local->tm_sec);*/
     created = fileset_dlg_name2date_dup(entry->name);
+	if(!created) {
+		/* if this file doesn't follow the fiel set pattern, */
+		/* use the creation time of that file */
+		local = localtime(&entry->ctime);
+		created = g_strdup_printf("%04u.%02u.%02u %02u:%02u:%02u", 
+			local->tm_year+1900, local->tm_mon+1, local->tm_mday,
+			local->tm_hour, local->tm_min, local->tm_sec);
+	}
 
     local = localtime(&entry->mtime);
     modified = g_strdup_printf("%04u.%02u.%02u %02u:%02u:%02u", 
