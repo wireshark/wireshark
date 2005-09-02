@@ -1911,14 +1911,25 @@ static guint
 fOctetString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label, guint32 lvt)
 {
 	gchar *tmp;
+	guint start = offset;
+	guint8 tag_no, class_tag;
+	proto_tree* subtree = tree;
+	proto_item* ti = 0;
 
-	if (lvt == 0)
-		return offset;
+	offset += fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
+	if (lvt > 0)
+	{
+		tmp = tvb_bytes_to_str(tvb, offset, lvt);
+		ti = proto_tree_add_text(tree, tvb, offset, lvt, "%s %s", label, tmp);
+		offset += lvt;
+	}
 
-	tmp = tvb_bytes_to_str(tvb, offset, lvt);
-	proto_tree_add_text(tree, tvb, offset, lvt, "%s %s", label, tmp);
+	if (ti)
+		subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 
-	return offset + lvt;
+	fTagHeaderTree(tvb, subtree, start, &tag_no, &class_tag, &lvt);
+
+	return offset;
 }
 
 static guint
@@ -1958,7 +1969,7 @@ fObjectIdentifier (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	tag_length = fTagHeader(tvb, offset, &tag_no, &class_tag, &lvt);
 	object_id = tvb_get_ntohl(tvb,offset+tag_length);
 	ti = proto_tree_add_text(tree, tvb, offset, tag_length + 4,
-		"ObjectIdentifier: %s %u",
+		"ObjectIdentifier: %s, %u",
 		val_to_split_str(object_id_type(object_id),
 			128,
 			BACnetObjectType,
@@ -2131,60 +2142,26 @@ fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *la
 	guint8 tag_no, class_tag, character_set;
 	guint32 lvt, l;
 	size_t inbytesleft, outbytesleft = 512;
-	guint offs;
+	guint offs, extra = 1;
 	guint8 *str_val;
 	guint8 bf_arr[512], *out = &bf_arr[0];
 	proto_item *ti;
 	proto_tree *subtree;
+    guint start = offset;
 
 	if (tvb_length_remaining(tvb, offset) > 0) {
 
 		offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
 	
 		character_set = tvb_get_guint8(tvb, offset+offs);
-		if (character_set == 3) {
-			ti = proto_tree_add_text (tree, tvb, offset, 4+offs,
-				"String Character Set: %s",
-				val_to_str((guint) character_set,
-					BACnetCharacterSet,
-					ASHRAE_Reserved_Fmt));
-			subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
-			fTagHeaderTree (tvb, subtree, offset, &tag_no, &class_tag, &lvt);
-			proto_tree_add_item(subtree,
-				hf_BACnetCharacterSet,
-				tvb, offset + offs, 1, FALSE);
-			offset+=4+offs;
-			lvt-=4;
-		}
-		if (character_set == 4) {
-			ti = proto_tree_add_text (tree, tvb, offset, 1+offs,
-				"String Character Set: %s",
-				val_to_str((guint) character_set,
-					BACnetCharacterSet,
-					ASHRAE_Reserved_Fmt));
-			subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
-			fTagHeaderTree (tvb, subtree, offset, &tag_no, &class_tag, &lvt);
-			proto_tree_add_item(subtree,
-				hf_BACnetCharacterSet,
-				tvb, offset + offs, 1, FALSE);
-			offset+=1+offs;
-			lvt--;
-		}
-		if ((character_set != 3) && (character_set != 4)) {
-			ti = proto_tree_add_text (tree, tvb, offset, offs+1,
-				"String Character Set: %s",
-				val_to_str(
-					(guint) character_set,
-					BACnetCharacterSet,
-					ASHRAE_Reserved_Fmt));
-			subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
-			fTagHeaderTree (tvb, subtree, offset, &tag_no, &class_tag, &lvt);
-			proto_tree_add_item(subtree,
-				hf_BACnetCharacterSet,
-				tvb, offset + offs, 1, FALSE);
-			offset+=1+offs;
-			lvt--;
-		}
+        /* Account for code page if DBCS */
+        if (character_set == 1)
+        {
+            extra = 3;
+        }
+        offset += (offs+extra);
+        lvt -= (extra);
+
 		do {
 			l = inbytesleft = min(lvt, 255);
 			/*
@@ -2228,10 +2205,19 @@ fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *la
 				out = str_val;
 				break;
 			}
-			proto_tree_add_text(tree, tvb, offset, l, "%s'%s'", label, out);
+			ti = proto_tree_add_text(tree, tvb, offset, l, "%s'%s'", label, out);
 			lvt-=l;
 			offset+=l;
 		} while (lvt > 0);
+
+		subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
+
+        fTagHeaderTree (tvb, subtree, start, &tag_no, &class_tag, &lvt);
+		proto_tree_add_item(subtree, hf_BACnetCharacterSet, tvb, start+offs, 1, FALSE);
+        if (character_set == 1)
+        {
+            proto_tree_add_text(subtree, tvb, start+offs+1, 2, "Code Page: %d", tvb_get_ntohs(tvb, start+offs+1));
+        }
 	}
 	return offset;
 }
@@ -2241,17 +2227,20 @@ fBitStringTagVS (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *lab
 	const value_string *src)
 {
 	guint8 tag_no, class_tag, tmp;
-	gint j, unused;
+	gint j, unused, skip;
 	guint offs;
-	guint32 lvt, i;
+	guint32 lvt, i, numberOfBytes;
 	guint8 bf_arr[256];
 	
 	offs = fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
+	numberOfBytes = lvt-1; /* Ignore byte for unused bit count */
 	offset+=offs;
 	unused = tvb_get_guint8(tvb, offset); /* get the unused Bits */
-	for (i = 0; i < (lvt-2); i++) {
+	skip = 0;
+	for (i = 0; i < numberOfBytes; i++) {
 		tmp = tvb_get_guint8(tvb, (offset)+i+1);
-		for (j = 0; j < 8; j++) {
+		if (i == numberOfBytes-1) { skip = unused; }
+		for (j = 0; j < 8-skip; j++) {
 			if (src != NULL) {
 				if (tmp & (1 << (7 - j)))
 					proto_tree_add_text(tree, tvb,
@@ -2275,31 +2264,13 @@ fBitStringTagVS (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *lab
 			}
 		}
 	}
-	tmp = tvb_get_guint8(tvb, offset+lvt-1);	/* now the last Byte */
-	if (src == NULL) {
-		for (j = 0; j < (8 - unused); j++)
-			bf_arr[min(255,((lvt-2)*8)+j)] = tmp & (1 << (7 - j)) ? '1' : '0';
-		for (; j < 8; j++)
-			bf_arr[min(255,((lvt-2)*8)+j)] = 'x';
-		bf_arr[min(255,((lvt-2)*8)+j)] = '\0';
+
+	if (src == NULL)
+	{
+		bf_arr[min(255,numberOfBytes*8-unused)] = 0;
 		proto_tree_add_text(tree, tvb, offset, lvt, "%sB'%s'", label, bf_arr);
-	} else {
-		for (j = 0; j < (int) (8 - unused); j++) {
-			if (tmp & (1 << (7 - j)))
-				proto_tree_add_text(tree, tvb, offset+i+1, 1,
-					"%s%s = TRUE",
-					label,
-					val_to_str((guint) (i*8 +j),
-						src,
-						ASHRAE_Reserved_Fmt));
-			else
-				proto_tree_add_text(tree, tvb, offset+i+1, 1,
-					"%s%s = FALSE", label,
-					val_to_str((guint) (i*8 +j),
-						src,
-						ASHRAE_Reserved_Fmt));
-		}
 	}
+
 	offset+=lvt;
 	
 	return offset;
@@ -2320,8 +2291,6 @@ fApplicationTypesEnumeratedSplit (tvbuff_t *tvb, proto_tree *tree, guint offset,
 	guint8 tag_no, class_tag;
 	guint32 lvt;
 	guint tag_len;
-	proto_item *ti;
-	proto_tree *subtree;
 
 	if (tvb_length_remaining(tvb, offset) > 0) {
 
@@ -2347,10 +2316,7 @@ fApplicationTypesEnumeratedSplit (tvbuff_t *tvb, proto_tree *tree, guint offset,
 				offset = fDoubleTag(tvb, tree, offset, label);
 				break;
 			case 6: /** Octet String 20.2.8 */
-				ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len, "%s (%d Characters)", label, lvt);
-				subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
-				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &class_tag, &lvt);
-				offset = fOctetString (tvb, subtree, offset, label, lvt);
+				offset = fOctetString (tvb, tree, offset, label, lvt);
 				break;
 			case 7: /** Character String 20.2.9 */
 				offset = fCharacterString (tvb,tree,offset,label);
@@ -2405,11 +2371,15 @@ fContextTaggedValue(tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *
 	guint tag_len;
 	proto_item *ti;
 	proto_tree *subtree;
-	
+	gint tvb_len;
+
+	(void)label;
 	tag_len = fTagHeader(tvb, offset, &tag_no, &class_tag, &lvt);
-	if (tvb_length_remaining(tvb, offset+tag_len) < lvt)
+	/* cap the the suggested length in case of bad data */
+	tvb_len = tvb_length_remaining(tvb, offset+tag_len);
+	if ((tvb_len >= 0) && ((guint32)tvb_len < lvt))
 	{
-		lvt = tvb_length_remaining(tvb, offset+tag_len);
+		lvt = tvb_len;
 	}
 	ti = proto_tree_add_text(tree, tvb, offset+tag_len, lvt,
 		"Context Value (as %u DATA octets)", lvt);
@@ -4635,6 +4605,57 @@ fReadRangeAck (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	return offset;
 }
 
+static guint fAccessMethod(tvbuff_t *tvb, proto_tree *tree, guint offset)
+{
+	guint32 lvt;
+	guint8 tag_no, class_tag;
+	proto_item* tt;
+	proto_tree* subtree;
+
+	subtree = tree;
+	fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
+
+	switch (tag_no) {
+	case 0:	/* streamAccess */
+		if (lvt_is_opening_tag(lvt) && class_tag) {  
+			tt = proto_tree_add_text(tree, tvb, offset, 1, "stream Access");
+			subtree = proto_item_add_subtree(tt, ett_bacapp_value);
+			offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &class_tag, &lvt);
+			offset = fApplicationTypes (tvb, subtree, offset, "File Start Position: ");
+			offset = fApplicationTypes (tvb, subtree, offset, "file Data: ");
+		}
+		if (bacapp_flags & 0x04) { /* More Flag is set */
+			break;
+		}
+		fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
+		if (lvt_is_closing_tag(lvt) && class_tag) {
+			offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &class_tag, &lvt);
+		}
+		break;
+	case 1:	/* recordAccess */
+		if (lvt_is_opening_tag(lvt) && class_tag) {
+			tt = proto_tree_add_text(tree, tvb, offset, 1, "record Access");
+			subtree = proto_item_add_subtree(tt, ett_bacapp_value);
+			offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &class_tag, &lvt);
+			offset = fApplicationTypes (tvb, subtree, offset, "File Start Record: ");
+			offset = fApplicationTypes (tvb, subtree, offset, "Record Count: ");
+			offset = fApplicationTypes (tvb, subtree, offset, "Data: ");
+		}
+		if (bacapp_flags & 0x04) { /* More Flag is set */
+			break;
+		}
+		fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
+		if (lvt_is_closing_tag(lvt) && class_tag) {
+			offset += fTagHeaderTree (tvb, subtree, offset,	&tag_no, &class_tag, &lvt);
+		}
+		break;
+	default:
+		break;
+	}
+	
+	return offset;
+}
+
 static guint
 fAtomicReadFileRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
@@ -4689,67 +4710,10 @@ fAtomicReadFileRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 static guint
 fAtomicWriteFileRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-	guint8 tag_no, class_tag;
-	guint32 lvt;
-	proto_tree *subtree = tree;
-	proto_item *tt;
 
-	if ((bacapp_flags & 0x08) && (bacapp_seq != 0)) {	/* Segment of a Request */
-		if (bacapp_flags & 0x04) { /* More Flag is set */
-			/* This is not correct - doesn't do anything since the 0 causes immediate return */
-			offset = fOctetString (tvb, tree, offset, "file Data: ", 0);
-		} else {
-			offset = fOctetString (tvb, tree, offset, "file Data: ", tvb_length_remaining(tvb,offset) - 1);
-			fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
-			if (lvt_is_closing_tag(lvt) && class_tag) { 
-				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &class_tag, &lvt);
-			}
-		}
-	} else {
-		offset = fObjectIdentifier (tvb, tree, offset); /* file Identifier */
+	offset = fObjectIdentifier (tvb, tree, offset); /* file Identifier */
+	offset = fAccessMethod(tvb, tree, offset);
 
-		fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
-
-		switch (tag_no) {
-		case 0:	/* streamAccess */
-			if (lvt_is_opening_tag(lvt) && class_tag) {  
-				tt = proto_tree_add_text(tree, tvb, offset, 1, "stream Access");
-				subtree = proto_item_add_subtree(tt, ett_bacapp_value);
-				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &class_tag, &lvt);
-				offset = fApplicationTypes (tvb, subtree, offset, "File Start Position: ");
-				offset = fApplicationTypes (tvb, subtree, offset, "file Data: ");
-			}
-			if (bacapp_flags & 0x04) { /* More Flag is set */
-				break;
-			}
-			fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
-			if (lvt_is_closing_tag(lvt) && class_tag) {
-				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &class_tag, &lvt);
-				subtree = tree;
-			}
-			break;
-		case 1:	/* recordAccess */
-			if (lvt_is_opening_tag(lvt) && class_tag) {
-				tt = proto_tree_add_text(tree, tvb, offset, 1, "stream Access");
-				subtree = proto_item_add_subtree(tt, ett_bacapp_value);
-				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &class_tag, &lvt);
-				offset = fApplicationTypes (tvb, subtree, offset, "file Start Record: ");
-				offset = fApplicationTypes (tvb, subtree, offset, "Record Count: ");
-				offset = fApplicationTypes (tvb, subtree, offset, "file Data: ");
-			}
-			if (bacapp_flags & 0x04) { /* More Flag is set */
-				break;
-			}
-			fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
-			if (lvt_is_closing_tag(lvt) && class_tag) {
-				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &class_tag, &lvt);
-				subtree = tree;
-			}
-			break;
-		default:
-			return offset;
-		}
-	}
 	return offset;
 }
 
@@ -4775,69 +4739,11 @@ fAtomicReadFileAck (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	guint8 tag_no, class_tag;
 	guint32 lvt;
 	proto_tree *subtree = tree;
-	proto_item *tt;
 
 	fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
+	offset = fApplicationTypes (tvb, subtree, offset, "End Of File: ");
+	offset = fAccessMethod(tvb, tree, offset);
 
-	if ((bacapp_flags & 0x08) && (bacapp_seq != 0)) {	/* Segment of an Request */
-		if (bacapp_flags & 0x04) { /* More Flag is set */
-			/* This is not correct */
-			offset = fOctetString (tvb, tree, offset, "File Data: ", 0);
-		} else {
-			offset = fOctetString (tvb, tree, offset, "File Data: ", tvb_length_remaining(tvb,offset)-1);
-			fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
-			if (lvt_is_closing_tag(lvt) && class_tag) {  
-				offset += fTagHeaderTree (tvb, subtree, offset,
-					&tag_no, &class_tag, &lvt);
-			}
-		}
-	} else {
-		offset = fApplicationTypes (tvb, subtree, offset, "End Of File: ");
-
-		fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
-
-		switch (tag_no) {
-		case 0:	/* streamAccess */
-			if (lvt_is_opening_tag(lvt) && class_tag) {  
-				tt = proto_tree_add_text(tree, tvb, offset, 1, "stream Access");
-				subtree = proto_item_add_subtree(tt, ett_bacapp_value);
-				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &class_tag, &lvt);
-				offset = fApplicationTypes (tvb, subtree, offset, "File Start Position: ");
-				offset = fApplicationTypes (tvb, subtree, offset, "file Data: ");
-			}
-			if (bacapp_flags & 0x04) { /* More Flag is set */
-				break;
-			}
-			fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
-			if (lvt_is_closing_tag(lvt) && class_tag) {
-				offset += fTagHeaderTree (tvb, subtree, offset,
-					&tag_no, &class_tag, &lvt);
-				subtree = tree;
-			}
-			break;
-		case 1:	/* recordAccess */
-			if (lvt_is_opening_tag(lvt) && class_tag) {
-				tt = proto_tree_add_text(tree, tvb, offset, 1, "record Access");
-				subtree = proto_item_add_subtree(tt, ett_bacapp_value);
-				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &class_tag, &lvt);
-				offset = fApplicationTypes (tvb, subtree, offset, "File Start Record: ");
-				offset = fApplicationTypes (tvb, subtree, offset, "returned Record Count: ");
-				offset = fApplicationTypes (tvb, subtree, offset, "Data: ");
-			}
-			if (bacapp_flags & 0x04) { /* More Flag is set */
-				break;
-			}
-			fTagHeader (tvb, offset, &tag_no, &class_tag, &lvt);
-			if (lvt_is_closing_tag(lvt) && class_tag) {
-				offset += fTagHeaderTree (tvb, subtree, offset,
-					&tag_no, &class_tag, &lvt);
-				subtree = tree;
-			}
-		break;
-		default:
-			return offset;
-		}
-	}
 	return offset;
 }
 
@@ -5787,13 +5693,13 @@ fConvertXXXtoUTF8 (const guint8 *in, size_t *inbytesleft, guint8 *out, size_t *o
 	const guint8 **inpp = &inp;
 	guint8 **outpp = &outp;
      
-    if ((icd = iconv_open ("UTF-8", fromcoding)) != (iconv_t) -1) {
+	if ((icd = iconv_open ("UTF-8", fromcoding)) != (iconv_t) -1) {
 
-        i = iconv (icd, inpp, inbytesleft, (char**) outpp, outbytesleft);
+	i = iconv (icd, (char**) inpp, inbytesleft, (char**) outpp, outbytesleft);
 	*outpp[0] = '\0';
-        iconv_close (icd);
-        return i;
-    }
+	iconv_close (icd);
+	return i;
+}
 
 #endif
 #endif
