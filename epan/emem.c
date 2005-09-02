@@ -211,7 +211,7 @@ se_alloc(size_t size)
 	emem_chunk_t *npc;
 
 	npc=g_malloc(sizeof(emem_chunk_t));
-	npc->next=se_packet_mem_used_list;
+	npc->next=se_packet_mem.used_list;
 	npc->amount_free=size;
 	npc->free_offset=0;
 	npc->buf=g_malloc(size);
