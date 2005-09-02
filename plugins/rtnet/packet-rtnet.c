@@ -134,8 +134,8 @@ static const value_string tdma_msg_vals[] = {
   { 0, NULL }
 };
 
-static dissector_table_t ethertype_table;
-static dissector_handle_t data_handle;
+static dissector_table_t ethertype_table = NULL;
+static dissector_handle_t data_handle = NULL;
 
 void proto_reg_handoff_rtmac(void);
 void proto_reg_handoff_rtcfg(void);
@@ -590,16 +590,14 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     type_str = match_strval(type, rtmac_type_vals);
     if (!type_str) {
       dissector = dissector_get_port_handle(ethertype_table, type);
-      if (!dissector)
-        dissector = data_handle;
     }
   } else {
     if (flags & RTMAC_FLAG_TUNNEL) {
       dissector = dissector_get_port_handle(ethertype_table, type);
-      if (!dissector)
-        dissector = data_handle;
     }
   }
+  if (!dissector)
+    dissector = data_handle;
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_rtmac, tvb, offset, 4, FALSE);

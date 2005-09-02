@@ -142,6 +142,13 @@ Gnu info
 	  Versions affected: 0.9.14 to 0.10.12.
 	</para></listitem>
 
+	<listitem><para>
+	  The RTnet dissector could dereference a null pointer and crash.
+	  <!-- Fixed in r15673 -->
+	  <!-- Bug IDs: none -->
+	  Versions affected: 0.10.8 to 0.10.12.
+	</para></listitem>
+
       </itemizedlist>
     </para>
     </section>
