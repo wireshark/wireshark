@@ -458,6 +458,14 @@ dis_field_organizational_unique_id(tvbuff_t *tvb, proto_tree *tree, guint *len, 
     *offset = curr_offset;
 }
 
+static const value_string profile_strings[] = {
+	{ 0x00,	"Designates a profile specified by ITU-T Rec. I.366.2; ignore organizational unique identifier" },
+	{ 0x01,	"Designates a profile specified by organizational unique identifier" },
+	{ 0x02,	"Designates a custom profile; ignore organizational unique identifier" },
+	{ 0x03,	"Reserved" },
+	{ 0, NULL }
+};
+
 /*
  * Ref. ITU-T Q.2630.1 (12/1999)
  * Section 7.4.6
@@ -486,13 +494,7 @@ dis_field_audio_service(tvbuff_t *tvb, proto_tree *tree, guint *len, guint32 *of
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    switch ((oct & 0xc0) >> 6)
-    {
-    case 0x00: str = "Designates a profile specified by ITU-T Rec. I.366.2; ignore organizational unique identifier"; break;
-    case 0x01: str = "Designates a profile specified by organizational unique identifier"; break;
-    case 0x02: str = "Designates a custom profile; ignore organizational unique identifier"; break;
-    case 0x03: str = "Reserved"; break;
-    }
+    str=val_to_str((oct&0xc0)>>6, profile_strings, "Unknown");
 
     other_decode_bitfield_value(bigbuf, oct, 0xc0, 8);
     proto_tree_add_text(subtree, tvb,
@@ -1084,6 +1086,14 @@ dis_field_nsap_address(tvbuff_t *tvb, proto_tree *tree, guint *len, guint32 *off
     *offset = curr_offset;
 }
 
+static const value_string dis_field_cause_strings[] = {
+	{ 0x00,	"ITU-T standardized coding as described in ITU-T Rec. Q.850 and Q.2610" },
+	{ 0x01,	"ISO/IEC standard" },
+	{ 0x02,	"national standard" },
+	{ 0x03,	"standard defined for the network (either public or private) present on the network side of the interface" },
+	{ 0, NULL }
+};
+
 /*
  * Ref. ITU-T Q.2630.1 (12/1999)
  * Section 7.4.16
@@ -1118,13 +1128,7 @@ dis_field_cause_value(tvbuff_t *tvb, proto_tree *tree, guint *len, guint32 *offs
 	"%s :  Reserved",
 	bigbuf);
 
-    switch (oct & 0x3)
-    {
-    case 0x00: str = "ITU-T standardized coding as described in ITU-T Rec. Q.850 and Q.2610"; break;
-    case 0x01: str = "ISO/IEC standard"; break;
-    case 0x02: str = "national standard"; break;
-    case 0x03: str = "standard defined for the network (either public or private) present on the network side of the interface"; break;
-    }
+    str=val_to_str(oct&0x03, dis_field_cause_strings, "Unknown");
 
     other_decode_bitfield_value(bigbuf, oct, 0x03, 8);
     proto_tree_add_text(subtree, tvb,
