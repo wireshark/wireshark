@@ -3760,7 +3760,7 @@ dissect_giop_fragment( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 /* Main entry point */
 
-gboolean dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
+static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
   guint offset = 0;
   MessageHeader header;
   tvbuff_t *giop_header_tvb;
@@ -3805,9 +3805,11 @@ gboolean dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
       ((minor_version = header.GIOP_version.minor) > GIOP_MINOR))
     {
       /* Bad version number; should we note that and dissect the rest
-         as data, or should we return FALSE on the theory that it
-         might have been some other packet that happened to begin with
-         "GIOP"?  We shouldn't do *both*, so we return TRUE, for now.
+         as data, or should this be done outside dissect_giop_common()
+         (which is called as the PDU dissector for GIOP-over-TCP,
+         so it can't return anything), with the test returning FALSE
+         on the theory that it might have been some other packet that
+         happened to begin with "GIOP"?  We do the former, for now.
          If we should return FALSE, we should do so *without* setting
          the "Info" column, *without* setting the "Protocol" column,
          and *without* adding anything to the protocol tree. */
@@ -3827,7 +3829,7 @@ gboolean dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
 			       header.GIOP_version.minor);
 	}
       call_dissector(data_handle,payload_tvb, pinfo, tree);
-      return TRUE;
+      return;
     }
 
   if (check_col (pinfo->cinfo, COL_INFO))
@@ -3954,8 +3956,6 @@ gboolean dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
    */
   if (header.exception_id != NULL)
     g_free(header.exception_id);
-
-  return TRUE;
 }
 
 static guint
@@ -3966,7 +3966,7 @@ get_giop_pdu_len(tvbuff_t *tvb, int offset)
 	guint message_size;
 	gboolean stream_is_big_endian;
 
-	tvb_memcpy (tvb, (guint8 *)&header, 0, GIOP_HEADER_SIZE );
+	tvb_memcpy (tvb, (guint8 *)&header, offset, GIOP_HEADER_SIZE );
 
 	stream_is_big_endian = is_big_endian (&header);
 
@@ -3980,12 +3980,9 @@ get_giop_pdu_len(tvbuff_t *tvb, int offset)
 }
 
 static void 
-dissect_giop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree){
-
-		tcp_dissect_pdus(tvb, pinfo, tree, giop_desegment, GIOP_HEADER_SIZE,
-		    get_giop_pdu_len, dissect_giop_common);
-
-
+dissect_giop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
+	tcp_dissect_pdus(tvb, pinfo, tree, giop_desegment, GIOP_HEADER_SIZE,
+	    get_giop_pdu_len, dissect_giop_common);
 }
 
 gboolean dissect_giop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
@@ -4009,30 +4006,33 @@ gboolean dissect_giop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
   if ( tvb_memeql(tvb, 0, GIOP_MAGIC ,4) != 0)
 	  return FALSE;
 
-  /*
-   * If this isn't the first time this packet has been processed,
-   * we've already done this work, so we don't need to do it
-   * again.
-   */
-  if (!pinfo->fd->flags.visited){
-	  g_warning("flags.visited");
-	  if ( pinfo->ptype == PT_TCP ){
-		  	g_warning("PT_TCP");
-			g_warning("pinfo->srcport %u",pinfo->srcport);
-			conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
-			pinfo->srcport, pinfo->destport, 0);
-			g_warning("conversation =%u",conversation);
-		  if (conversation == NULL){
-			  g_warning("conversation == NULL");
-			  conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-				  pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-
-		  }
-		  /* Set dissector */
-		  conversation_set_dissector(conversation, giop_tcp_handle);
-	  }
-  }
-  dissect_giop_common (tvb, pinfo, tree);
+  if ( pinfo->ptype == PT_TCP )
+    {
+      /*
+       * Make the GIOP dissector the dissector for this conversation.
+       *
+       * If this isn't the first time this packet has been processed,
+       * we've already done this work, so we don't need to do it
+       * again.
+       */
+      if (!pinfo->fd->flags.visited)
+        {
+          conversation = find_conversation(pinfo->fd->num, &pinfo->src,
+              &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+          if (conversation == NULL)
+            {
+              conversation = conversation_new(pinfo->fd->num, &pinfo->src,
+                  &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+            }
+          /* Set dissector */
+          conversation_set_dissector(conversation, giop_tcp_handle);
+	}
+      dissect_giop_tcp (tvb, pinfo, tree);
+    }
+  else
+    {
+      dissect_giop_common (tvb, pinfo, tree);
+    }
 
   return TRUE;
 
