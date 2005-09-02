@@ -132,6 +132,7 @@ static int hf_gsm_map_slr_Arg_PCS_Extensions = -1;  /* SLR_Arg_PCS_Extensions */
 static int hf_gsm_map_na_ESRK_Request = -1;       /* NULL */
 static int hf_gsm_map_identity = -1;              /* Identity */
 static int hf_gsm_map_cancellationType = -1;      /* CancellationType */
+static int hf_gsm_map_imsi_WithLMSI = -1;         /* IMSI_WithLMSI */
 static int hf_gsm_map_sgsn_Number = -1;           /* ISDN_AddressString */
 static int hf_gsm_map_freezeTMSI = -1;            /* NULL */
 static int hf_gsm_map_freezeP_TMSI = -1;          /* NULL */
@@ -455,7 +456,6 @@ static int hf_gsm_map_ext_ProtocolId = -1;        /* Ext_ProtocolId */
 static int hf_gsm_map_accessNetworkProtocolId = -1;  /* AccessNetworkProtocolId */
 static int hf_gsm_map_longsignalInfo = -1;        /* LongSignalInfo */
 static int hf_gsm_map_suppress_T_CSI = -1;        /* NULL */
-static int hf_gsm_map_imsi_WithLMSI = -1;         /* IMSI_WithLMSI */
 static int hf_gsm_map_HLR_List_item = -1;         /* HLR_Id */
 static int hf_gsm_map_SS_List_item = -1;          /* SS_Code */
 static int hf_gsm_map_naea_PreferredCIC = -1;     /* NAEA_CIC */
@@ -924,6 +924,7 @@ static gint ett_gsm_map_SLR_ArgExtensionContainer = -1;
 static gint ett_gsm_map_PcsExtensions = -1;
 static gint ett_gsm_map_SLR_Arg_PCS_Extensions = -1;
 static gint ett_gsm_map_CancelLocationArg = -1;
+static gint ett_gsm_map_CancelLocationArgV2 = -1;
 static gint ett_gsm_map_CancelLocationRes = -1;
 static gint ett_gsm_map_PurgeMSArg = -1;
 static gint ett_gsm_map_PurgeMSRes = -1;
@@ -2544,6 +2545,28 @@ static int
 dissect_gsm_map_CancelLocationArg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    CancelLocationArg_sequence, hf_index, ett_gsm_map_CancelLocationArg);
+
+  return offset;
+}
+
+
+static const value_string gsm_map_CancelLocationArgV2_vals[] = {
+  {   0, "imsi" },
+  {   1, "imsi-WithLMSI" },
+  { 0, NULL }
+};
+
+static const ber_choice_t CancelLocationArgV2_choice[] = {
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_imsi },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_imsi_WithLMSI },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_CancelLocationArgV2(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 CancelLocationArgV2_choice, hf_index, ett_gsm_map_CancelLocationArgV2,
+                                 NULL);
 
   return offset;
 }
@@ -13606,7 +13629,7 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 		offset = offset +2;
 		offset=dissect_gsm_map_CancelLocationArg(TRUE, tvb, offset, pinfo, tree, -1);
 	}else{
-    offset=dissect_gsm_map_CancelLocationArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_CancelLocationArgV2(FALSE, tvb, offset, pinfo, tree, -1);
 	}
     break;
   case  4: /*provideRoamingNumber*/
@@ -13969,7 +13992,7 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     break;
   case 55: /*sendIdentification
 			* In newer versions IMSI and authenticationSetList is OPTIONAL and two new parameters added
-			* however if the tag (3) is stripped of it should work wit the 'new' def.(?) 
+			* however if the tag (3) is stripped of it should work with the 'new' def.(?) 
 			*/
 	octet = tvb_get_guint8(tvb,0) & 0xf;
 	if ( octet == 3){ /* This is a V3 message ??? */
@@ -14947,6 +14970,10 @@ void proto_register_gsm_map(void) {
       { "cancellationType", "gsm_map.cancellationType",
         FT_UINT32, BASE_DEC, VALS(gsm_map_CancellationType_vals), 0,
         "CancelLocationArg/cancellationType", HFILL }},
+    { &hf_gsm_map_imsi_WithLMSI,
+      { "imsi-WithLMSI", "gsm_map.imsi_WithLMSI",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "", HFILL }},
     { &hf_gsm_map_sgsn_Number,
       { "sgsn-Number", "gsm_map.sgsn_Number",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -16239,10 +16266,6 @@ void proto_register_gsm_map(void) {
       { "suppress-T-CSI", "gsm_map.suppress_T_CSI",
         FT_NONE, BASE_NONE, NULL, 0,
         "CamelInfo/suppress-T-CSI", HFILL }},
-    { &hf_gsm_map_imsi_WithLMSI,
-      { "imsi-WithLMSI", "gsm_map.imsi_WithLMSI",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "Identity/imsi-WithLMSI", HFILL }},
     { &hf_gsm_map_HLR_List_item,
       { "Item", "gsm_map.HLR_List_item",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -18019,6 +18042,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_PcsExtensions,
     &ett_gsm_map_SLR_Arg_PCS_Extensions,
     &ett_gsm_map_CancelLocationArg,
+    &ett_gsm_map_CancelLocationArgV2,
     &ett_gsm_map_CancelLocationRes,
     &ett_gsm_map_PurgeMSArg,
     &ett_gsm_map_PurgeMSRes,

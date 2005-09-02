@@ -136,6 +136,12 @@ CancelLocationArg ::= [3] IMPLICIT SEQUENCE {
 	extensionContainer	ExtensionContainer OPTIONAL,
 ...}
 
+--   V2 ARGUMENT
+
+CancelLocationArgV2 ::= CHOICE {
+	imsi			IMSI,
+	imsi-WithLMSI	IMSI-WithLMSI}
+
 --   RESULT
 
 CancelLocationRes ::= SEQUENCE {
