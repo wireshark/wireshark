@@ -136,11 +136,12 @@ static int dissect_hashAlg(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 }
 
 
+
 static int
 dissect_logotypecertextn_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -170,6 +171,7 @@ static int dissect_hashValue(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
   return dissect_logotypecertextn_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_hashValue);
 }
 
+
 static const ber_sequence_t HashAlgAndValue_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_hashAlg },
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_hashValue },
@@ -179,7 +181,7 @@ static const ber_sequence_t HashAlgAndValue_sequence[] = {
 static int
 dissect_logotypecertextn_HashAlgAndValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                HashAlgAndValue_sequence, hf_index, ett_logotypecertextn_HashAlgAndValue);
+                                   HashAlgAndValue_sequence, hf_index, ett_logotypecertextn_HashAlgAndValue);
 
   return offset;
 }
@@ -225,6 +227,7 @@ static int dissect_logotypeURI(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   return dissect_logotypecertextn_T_logotypeURI(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_logotypeURI);
 }
 
+
 static const ber_sequence_t LogotypeDetails_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_IA5String, BER_FLAGS_NOOWNTAG, dissect_mediaType },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_logotypeHash },
@@ -235,7 +238,7 @@ static const ber_sequence_t LogotypeDetails_sequence[] = {
 static int
 dissect_logotypecertextn_LogotypeDetails(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                LogotypeDetails_sequence, hf_index, ett_logotypecertextn_LogotypeDetails);
+                                   LogotypeDetails_sequence, hf_index, ett_logotypecertextn_LogotypeDetails);
 
   return offset;
 }
@@ -315,7 +318,8 @@ static const ber_choice_t LogotypeImageResolution_choice[] = {
 static int
 dissect_logotypecertextn_LogotypeImageResolution(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              LogotypeImageResolution_choice, hf_index, ett_logotypecertextn_LogotypeImageResolution, NULL);
+                                 LogotypeImageResolution_choice, hf_index, ett_logotypecertextn_LogotypeImageResolution,
+                                 NULL);
 
   return offset;
 }
@@ -323,12 +327,13 @@ static int dissect_resolution(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_logotypecertextn_LogotypeImageResolution(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_resolution);
 }
 
+
 static const ber_sequence_t LogotypeImageInfo_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_type_impl },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_fileSize },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_xSize },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_ySize },
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_resolution },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_resolution },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_language_impl },
   { 0, 0, 0, NULL }
 };
@@ -336,13 +341,14 @@ static const ber_sequence_t LogotypeImageInfo_sequence[] = {
 static int
 dissect_logotypecertextn_LogotypeImageInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                LogotypeImageInfo_sequence, hf_index, ett_logotypecertextn_LogotypeImageInfo);
+                                   LogotypeImageInfo_sequence, hf_index, ett_logotypecertextn_LogotypeImageInfo);
 
   return offset;
 }
 static int dissect_imageInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_logotypecertextn_LogotypeImageInfo(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_imageInfo);
 }
+
 
 static const ber_sequence_t LogotypeImage_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_imageDetails },
@@ -353,7 +359,7 @@ static const ber_sequence_t LogotypeImage_sequence[] = {
 static int
 dissect_logotypecertextn_LogotypeImage(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                LogotypeImage_sequence, hf_index, ett_logotypecertextn_LogotypeImage);
+                                   LogotypeImage_sequence, hf_index, ett_logotypecertextn_LogotypeImage);
 
   return offset;
 }
@@ -377,6 +383,7 @@ static int dissect_image(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
   return dissect_logotypecertextn_SEQUENCE_OF_LogotypeImage(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_image);
 }
 
+
 static const ber_sequence_t LogotypeAudioInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_fileSize },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_playTime },
@@ -389,13 +396,14 @@ static const ber_sequence_t LogotypeAudioInfo_sequence[] = {
 static int
 dissect_logotypecertextn_LogotypeAudioInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                LogotypeAudioInfo_sequence, hf_index, ett_logotypecertextn_LogotypeAudioInfo);
+                                   LogotypeAudioInfo_sequence, hf_index, ett_logotypecertextn_LogotypeAudioInfo);
 
   return offset;
 }
 static int dissect_audioInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_logotypecertextn_LogotypeAudioInfo(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_audioInfo);
 }
+
 
 static const ber_sequence_t LogotypeAudio_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_audioDetails },
@@ -406,7 +414,7 @@ static const ber_sequence_t LogotypeAudio_sequence[] = {
 static int
 dissect_logotypecertextn_LogotypeAudio(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                LogotypeAudio_sequence, hf_index, ett_logotypecertextn_LogotypeAudio);
+                                   LogotypeAudio_sequence, hf_index, ett_logotypecertextn_LogotypeAudio);
 
   return offset;
 }
@@ -430,6 +438,7 @@ static int dissect_audio_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_logotypecertextn_SEQUENCE_OF_LogotypeAudio(TRUE, tvb, offset, pinfo, tree, hf_logotypecertextn_audio);
 }
 
+
 static const ber_sequence_t LogotypeData_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_image },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_audio_impl },
@@ -439,7 +448,7 @@ static const ber_sequence_t LogotypeData_sequence[] = {
 static int
 dissect_logotypecertextn_LogotypeData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                LogotypeData_sequence, hf_index, ett_logotypecertextn_LogotypeData);
+                                   LogotypeData_sequence, hf_index, ett_logotypecertextn_LogotypeData);
 
   return offset;
 }
@@ -463,6 +472,7 @@ static int dissect_refStructURI(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_logotypecertextn_T_refStructURI(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_refStructURI);
 }
 
+
 static const ber_sequence_t LogotypeReference_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_refStructHash },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_refStructURI },
@@ -472,7 +482,7 @@ static const ber_sequence_t LogotypeReference_sequence[] = {
 static int
 dissect_logotypecertextn_LogotypeReference(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                LogotypeReference_sequence, hf_index, ett_logotypecertextn_LogotypeReference);
+                                   LogotypeReference_sequence, hf_index, ett_logotypecertextn_LogotypeReference);
 
   return offset;
 }
@@ -496,7 +506,8 @@ static const ber_choice_t LogotypeInfo_choice[] = {
 static int
 dissect_logotypecertextn_LogotypeInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              LogotypeInfo_choice, hf_index, ett_logotypecertextn_LogotypeInfo, NULL);
+                                 LogotypeInfo_choice, hf_index, ett_logotypecertextn_LogotypeInfo,
+                                 NULL);
 
   return offset;
 }
@@ -515,7 +526,7 @@ static int dissect_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 
 
 static const ber_sequence_t SEQUENCE_OF_LogotypeInfo_sequence_of[1] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_communityLogos_item },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_communityLogos_item },
 };
 
 static int
@@ -542,16 +553,17 @@ static int dissect_logotypeType(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_logotypecertextn_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_logotypeType);
 }
 
+
 static const ber_sequence_t OtherLogotypeInfo_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_logotypeType },
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_info },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_info },
   { 0, 0, 0, NULL }
 };
 
 static int
 dissect_logotypecertextn_OtherLogotypeInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                OtherLogotypeInfo_sequence, hf_index, ett_logotypecertextn_OtherLogotypeInfo);
+                                   OtherLogotypeInfo_sequence, hf_index, ett_logotypecertextn_OtherLogotypeInfo);
 
   return offset;
 }
@@ -575,6 +587,7 @@ static int dissect_otherLogos(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_logotypecertextn_SEQUENCE_OF_OtherLogotypeInfo(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_otherLogos);
 }
 
+
 static const ber_sequence_t LogotypeExtn_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_communityLogos },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_issuerLogo },
@@ -586,7 +599,7 @@ static const ber_sequence_t LogotypeExtn_sequence[] = {
 static int
 dissect_logotypecertextn_LogotypeExtn(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                LogotypeExtn_sequence, hf_index, ett_logotypecertextn_LogotypeExtn);
+                                   LogotypeExtn_sequence, hf_index, ett_logotypecertextn_LogotypeExtn);
 
   return offset;
 }

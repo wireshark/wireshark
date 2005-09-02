@@ -1,5 +1,5 @@
 #.IMPORT_TAG
-MMSpdu                   BER_CLASS_CON -1/*choice*/
+MMSpdu                   BER_CLASS_ANY/*choice*/ -1/*choice*/
 #.END
 
 #.TYPE_ATTR

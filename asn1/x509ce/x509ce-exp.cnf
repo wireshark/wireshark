@@ -11,7 +11,7 @@ PolicyInformation        BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 PolicyQualifierInfo      BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 PolicyMappingsSyntax     BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 GeneralNames             BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-GeneralName              BER_CLASS_CON -1/*choice*/
+GeneralName              BER_CLASS_ANY/*choice*/ -1/*choice*/
 EDIPartyName             BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 AttributesSyntax         BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 BasicConstraintsSyntax   BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
@@ -30,7 +30,7 @@ OnlyCertificateTypes     BER_CLASS_UNI BER_UNI_TAG_BITSTRING
 NumberRange              BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 BaseRevocationInfo       BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 StatusReferrals          BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-StatusReferral           BER_CLASS_CON -1/*choice*/
+StatusReferral           BER_CLASS_ANY/*choice*/ -1/*choice*/
 CRLReferral              BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 DeltaRefInfo             BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 CRLStreamIdentifier      BER_CLASS_UNI BER_UNI_TAG_INTEGER
@@ -38,13 +38,13 @@ OrderedListSyntax        BER_CLASS_UNI BER_UNI_TAG_ENUMERATED
 DeltaInformation         BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 CRLDistPointsSyntax      BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 DistributionPoint        BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-DistributionPointName    BER_CLASS_CON -1/*choice*/
+DistributionPointName    BER_CLASS_ANY/*choice*/ -1/*choice*/
 ReasonFlags              BER_CLASS_UNI BER_UNI_TAG_BITSTRING
 IssuingDistPointSyntax   BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 BaseCRLNumber            BER_CLASS_UNI BER_UNI_TAG_INTEGER
 CertificateExactAssertion BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 CertificateAssertion     BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-AltNameType              BER_CLASS_UNI -1/*choice*/
+AltNameType              BER_CLASS_ANY/*choice*/ -1/*choice*/
 CertPolicySet            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 CertificatePairExactAssertion BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 CertificatePairAssertion BER_CLASS_UNI BER_UNI_TAG_SEQUENCE

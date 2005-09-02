@@ -90,6 +90,7 @@ static int dissect_SSIDList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_wlancertextn_SSID(FALSE, tvb, offset, pinfo, tree, hf_wlancertextn_SSIDList_item);
 }
 
+
 static const ber_sequence_t SSIDList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_SSIDList_item },
 };
@@ -97,7 +98,7 @@ static const ber_sequence_t SSIDList_sequence_of[1] = {
 static int
 dissect_wlancertextn_SSIDList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                   SSIDList_sequence_of, hf_index, ett_wlancertextn_SSIDList);
+                                      SSIDList_sequence_of, hf_index, ett_wlancertextn_SSIDList);
 
   return offset;
 }
@@ -123,7 +124,7 @@ void proto_register_wlancertextn(void) {
 
     { &hf_wlancertextn_SSIDList_PDU,
       { "SSIDList", "wlancertextn.SSIDList",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "SSIDList", HFILL }},
     { &hf_wlancertextn_SSIDList_item,
       { "Item", "wlancertextn.SSIDList_item",

@@ -5,7 +5,7 @@ Context                  BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 AttributeValueAssertion  BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 ContextAssertion         BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 AttributeTypeAssertion   BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-Name                     BER_CLASS_UNI -1/*choice*/
+Name                     BER_CLASS_ANY/*choice*/ -1/*choice*/
 RDNSequence              BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 DistinguishedName        BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 RelativeDistinguishedName BER_CLASS_UNI BER_UNI_TAG_SET
@@ -14,7 +14,7 @@ SubtreeSpecification     BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 LocalName                BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 ChopSpecification        BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 BaseDistance             BER_CLASS_UNI BER_UNI_TAG_INTEGER
-Refinement               BER_CLASS_CON -1/*choice*/
+Refinement               BER_CLASS_ANY/*choice*/ -1/*choice*/
 AttributeUsage           BER_CLASS_UNI BER_UNI_TAG_ENUMERATED
 DITStructureRule         BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 RuleIdentifier           BER_CLASS_UNI BER_UNI_TAG_INTEGER
@@ -27,11 +27,11 @@ AllowedSubset            BER_CLASS_UNI BER_UNI_TAG_BITSTRING
 ImposedSubset            BER_CLASS_UNI BER_UNI_TAG_ENUMERATED
 RequestAttribute         BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 ContextProfile           BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-ContextCombination       BER_CLASS_CON -1/*choice*/
+ContextCombination       BER_CLASS_ANY/*choice*/ -1/*choice*/
 MatchingUse              BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-AttributeCombination     BER_CLASS_CON -1/*choice*/
+AttributeCombination     BER_CLASS_ANY/*choice*/ -1/*choice*/
 ResultAttribute          BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-OutputValues             BER_CLASS_UNI -1/*choice*/
+OutputValues             BER_CLASS_ANY/*choice*/ -1/*choice*/
 ControlOptions           BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 EntryLimit               BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 RelaxationPolicy         BER_CLASS_UNI BER_UNI_TAG_SEQUENCE

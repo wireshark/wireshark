@@ -6,7 +6,7 @@ DigestAlgorithmIdentifiers BER_CLASS_UNI BER_UNI_TAG_SET
 SignerInfos              BER_CLASS_UNI BER_UNI_TAG_SET
 EncapsulatedContentInfo  BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 SignerInfo               BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-SignerIdentifier         -1/*choice*/ -1/*choice*/
+SignerIdentifier         BER_CLASS_ANY/*choice*/ -1/*choice*/
 SignedAttributes         BER_CLASS_UNI BER_UNI_TAG_SET
 UnsignedAttributes       BER_CLASS_UNI BER_UNI_TAG_SET
 SignatureValue           BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING

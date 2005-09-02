@@ -5,7 +5,7 @@ CertificateSerialNumber  BER_CLASS_UNI BER_UNI_TAG_INTEGER
 AlgorithmIdentifier      BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 Validity                 BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 SubjectPublicKeyInfo     BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-Time                     BER_CLASS_UNI -1/*choice*/
+Time                     BER_CLASS_ANY/*choice*/ -1/*choice*/
 Extensions               BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 Extension                BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 Certificates             BER_CLASS_UNI BER_UNI_TAG_SEQUENCE

@@ -1292,11 +1292,12 @@ static int dissect_ip6Address_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 }
 
 
+
 static int
 dissect_h248_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -1326,11 +1327,12 @@ static int dissect_domainName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 }
 
 
+
 static int
 dissect_h248_PathName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -1390,11 +1392,12 @@ static int dissect_errorCode_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
 }
 
 
+
 static int
 dissect_h248_ErrorText(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -2240,11 +2243,12 @@ static int dissect_h221NonStandard_impl(packet_info *pinfo, proto_tree *tree, tv
 }
 
 
+
 static int
 dissect_h248_IA5String_SIZE_8(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -2519,6 +2523,7 @@ static int dissect_sigType_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_h248_SignalType(TRUE, tvb, offset, pinfo, tree, hf_h248_sigType);
 }
 
+
 static const asn_namedbit NotifyCompletion_bits[] = {
   {  0, &hf_h248_NotifyCompletion_onTimeOut, -1, -1, "onTimeOut", NULL },
   {  1, &hf_h248_NotifyCompletion_onInterruptByEvent, -1, -1, "onInterruptByEvent", NULL },
@@ -2530,8 +2535,8 @@ static const asn_namedbit NotifyCompletion_bits[] = {
 static int
 dissect_h248_NotifyCompletion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 NotifyCompletion_bits, hf_index, ett_h248_NotifyCompletion,
-                                 NULL);
+                                    NotifyCompletion_bits, hf_index, ett_h248_NotifyCompletion,
+                                    NULL);
 
   return offset;
 }
@@ -2683,7 +2688,7 @@ static int dissect_SignalsDescriptor_item(packet_info *pinfo, proto_tree *tree, 
 
 
 static const ber_sequence_t SignalsDescriptor_sequence_of[1] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_SignalsDescriptor_item },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_SignalsDescriptor_item },
 };
 
 static int
@@ -2935,6 +2940,7 @@ static int dissect_digitMapDescriptor_impl(packet_info *pinfo, proto_tree *tree,
   return dissect_h248_DigitMapDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_digitMapDescriptor);
 }
 
+
 static const asn_namedbit T_auditToken_bits[] = {
   {  0, &hf_h248_T_auditToken_muxToken, -1, -1, "muxToken", NULL },
   {  1, &hf_h248_T_auditToken_modemToken, -1, -1, "modemToken", NULL },
@@ -2952,8 +2958,8 @@ static const asn_namedbit T_auditToken_bits[] = {
 static int
 dissect_h248_T_auditToken(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 T_auditToken_bits, hf_index, ett_h248_T_auditToken,
-                                 NULL);
+                                    T_auditToken_bits, hf_index, ett_h248_T_auditToken,
+                                    NULL);
 
   return offset;
 }
@@ -3362,7 +3368,7 @@ static int dissect_auditPropertyToken_item(packet_info *pinfo, proto_tree *tree,
 
 
 static const ber_sequence_t SEQUENCE_OF_IndAuditParameter_sequence_of[1] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_auditPropertyToken_item },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_auditPropertyToken_item },
 };
 
 static int
@@ -3439,7 +3445,7 @@ static int dissect_descriptors_item(packet_info *pinfo, proto_tree *tree, tvbuff
 
 
 static const ber_sequence_t SEQUENCE_OF_AmmDescriptor_sequence_of[1] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_descriptors_item },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_descriptors_item },
 };
 
 static int
@@ -3740,11 +3746,12 @@ static int dissect_serviceChangeAddress(packet_info *pinfo, proto_tree *tree, tv
 }
 
 
+
 static int
 dissect_h248_IA5String_SIZE_1_67(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -4086,7 +4093,7 @@ static int dissect_TerminationAudit_item(packet_info *pinfo, proto_tree *tree, t
 
 
 static const ber_sequence_t TerminationAudit_sequence_of[1] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_TerminationAudit_item },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_TerminationAudit_item },
 };
 
 static int
@@ -4370,7 +4377,7 @@ static int dissect_commandReply_item(packet_info *pinfo, proto_tree *tree, tvbuf
 
 
 static const ber_sequence_t SEQUENCE_OF_CommandReply_sequence_of[1] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_commandReply_item },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_commandReply_item },
 };
 
 static int
@@ -4530,7 +4537,7 @@ static int dissect_transactions_item(packet_info *pinfo, proto_tree *tree, tvbuf
 
 
 static const ber_sequence_t SEQUENCE_OF_Transaction_sequence_of[1] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_transactions_item },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_transactions_item },
 };
 
 static int

@@ -2,7 +2,7 @@
 DirectoryString          BER_CLASS_UNI BER_UNI_TAG_PrintableString
 UniqueIdentifier         BER_CLASS_UNI BER_UNI_TAG_BITSTRING
 CountryName              BER_CLASS_UNI BER_UNI_TAG_PrintableString
-Criteria                 BER_CLASS_CON -1/*choice*/
+Criteria                 BER_CLASS_ANY/*choice*/ -1/*choice*/
 EnhancedGuide            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 PostalAddress            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 FacsimileTelephoneNumber BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
@@ -22,13 +22,13 @@ ZonalResult              BER_CLASS_UNI BER_UNI_TAG_ENUMERATED
 LanguageContextSyntax    BER_CLASS_UNI BER_UNI_TAG_PrintableString
 TimeSpecification        BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 Period                   BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-XDayOf                   BER_CLASS_CON -1/*choice*/
-NamedDay                 BER_CLASS_UNI -1/*choice*/
+XDayOf                   BER_CLASS_ANY/*choice*/ -1/*choice*/
+NamedDay                 BER_CLASS_ANY/*choice*/ -1/*choice*/
 DayTimeBand              BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 DayTime                  BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 TimeZone                 BER_CLASS_UNI BER_UNI_TAG_INTEGER
-TimeAssertion            BER_CLASS_UNI -1/*choice*/
-LocaleContextSyntax      BER_CLASS_UNI -1/*choice*/
+TimeAssertion            BER_CLASS_ANY/*choice*/ -1/*choice*/
+LocaleContextSyntax      BER_CLASS_ANY/*choice*/ -1/*choice*/
 #.END
 
 #.TYPE_ATTR

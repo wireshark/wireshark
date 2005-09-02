@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-acse.c                                                            */
+/* ./packet-acse.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p acse -c acse.cnf -s packet-acse-template acse.asn */
 
 /* Input file: packet-acse-template.c */
@@ -540,7 +540,7 @@ const value_string acse_AP_title_vals[] = {
 };
 
 static const ber_choice_t AP_title_choice[] = {
-  {   0, BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_ap_title_form1 },
+  {   0, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_ap_title_form1 },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_ap_title_form2 },
   {   2, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_ap_title_form3 },
   {   3, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_ap_title_form3 },
@@ -1811,7 +1811,7 @@ static const value_string acse_AE_title_vals[] = {
 };
 
 static const ber_choice_t AE_title_choice[] = {
-  {   0, BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_ae_title_form1 },
+  {   0, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_ae_title_form1 },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_ae_title_form2 },
   { 0, 0, 0, 0, NULL }
 };

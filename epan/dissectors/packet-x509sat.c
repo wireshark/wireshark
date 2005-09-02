@@ -290,6 +290,7 @@ static int dissect_ZonalSelect_item(packet_info *pinfo, proto_tree *tree, tvbuff
 }
 
 
+
 int
 dissect_x509sat_DirectoryString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
@@ -317,11 +318,12 @@ static int dissect_localeID2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 }
 
 
+
 int
 dissect_x509sat_UniqueIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 NULL, hf_index, -1,
-                                 NULL);
+                                    NULL, hf_index, -1,
+                                    NULL);
 
   return offset;
 }
@@ -330,11 +332,12 @@ static int dissect_uid(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 }
 
 
+
 int
 dissect_x509sat_CountryName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -361,7 +364,8 @@ static const ber_choice_t CriteriaItem_choice[] = {
 static int
 dissect_x509sat_CriteriaItem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              CriteriaItem_choice, hf_index, ett_x509sat_CriteriaItem, NULL);
+                                 CriteriaItem_choice, hf_index, ett_x509sat_CriteriaItem,
+                                 NULL);
 
   return offset;
 }
@@ -371,7 +375,7 @@ static int dissect_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 
 
 static const ber_sequence_t SET_OF_Criteria_set_of[1] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_and_item },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_and_item },
 };
 
 static int
@@ -408,7 +412,8 @@ static const ber_choice_t Criteria_choice[] = {
 int
 dissect_x509sat_Criteria(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Criteria_choice, hf_index, ett_x509sat_Criteria, NULL);
+                                 Criteria_choice, hf_index, ett_x509sat_Criteria,
+                                 NULL);
 
   return offset;
 }
@@ -455,6 +460,7 @@ static int dissect_subset(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
   return dissect_x509sat_T_subset(FALSE, tvb, offset, pinfo, tree, hf_x509sat_subset);
 }
 
+
 static const ber_sequence_t EnhancedGuide_sequence[] = {
   { BER_CLASS_CON, 0, 0, dissect_objectClass },
   { BER_CLASS_CON, 1, BER_FLAGS_NOTCHKTAG, dissect_criteria },
@@ -465,7 +471,7 @@ static const ber_sequence_t EnhancedGuide_sequence[] = {
 int
 dissect_x509sat_EnhancedGuide(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                EnhancedGuide_sequence, hf_index, ett_x509sat_EnhancedGuide);
+                                   EnhancedGuide_sequence, hf_index, ett_x509sat_EnhancedGuide);
 
   return offset;
 }
@@ -484,11 +490,12 @@ dissect_x509sat_PostalAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 }
 
 
+
 static int
 dissect_x509sat_TelephoneNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -497,11 +504,12 @@ static int dissect_telephoneNumber(packet_info *pinfo, proto_tree *tree, tvbuff_
 }
 
 
+
 static int
 dissect_x509sat_PrintableString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -515,6 +523,7 @@ static int dissect_answerback(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_x509sat_PrintableString(FALSE, tvb, offset, pinfo, tree, hf_x509sat_answerback);
 }
 
+
 static const ber_sequence_t TelexNumber_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_telexNumber },
   { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_countryCode },
@@ -525,10 +534,11 @@ static const ber_sequence_t TelexNumber_sequence[] = {
 static int
 dissect_x509sat_TelexNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                TelexNumber_sequence, hf_index, ett_x509sat_TelexNumber);
+                                   TelexNumber_sequence, hf_index, ett_x509sat_TelexNumber);
 
   return offset;
 }
+
 
 static const ber_sequence_t FacsimileTelephoneNumber_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_telephoneNumber },
@@ -538,37 +548,40 @@ static const ber_sequence_t FacsimileTelephoneNumber_sequence[] = {
 int
 dissect_x509sat_FacsimileTelephoneNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                FacsimileTelephoneNumber_sequence, hf_index, ett_x509sat_FacsimileTelephoneNumber);
+                                   FacsimileTelephoneNumber_sequence, hf_index, ett_x509sat_FacsimileTelephoneNumber);
 
   return offset;
 }
+
 
 
 int
 dissect_x509sat_X121Address(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
+
 
 
 int
 dissect_x509sat_InternationalISDNNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
 
 
+
 int
 dissect_x509sat_DestinationIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
@@ -663,6 +676,7 @@ static int dissect_nAddresses(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_x509sat_T_nAddresses(FALSE, tvb, offset, pinfo, tree, hf_x509sat_nAddresses);
 }
 
+
 static const ber_sequence_t PresentationAddress_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_pSelector },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_sSelector },
@@ -674,7 +688,7 @@ static const ber_sequence_t PresentationAddress_sequence[] = {
 int
 dissect_x509sat_PresentationAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                PresentationAddress_sequence, hf_index, ett_x509sat_PresentationAddress);
+                                   PresentationAddress_sequence, hf_index, ett_x509sat_PresentationAddress);
 
   return offset;
 }
@@ -695,6 +709,7 @@ static int dissect_profiles(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_x509sat_T_profiles(FALSE, tvb, offset, pinfo, tree, hf_x509sat_profiles);
 }
 
+
 static const ber_sequence_t ProtocolInformation_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_nAddress },
   { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_profiles },
@@ -704,10 +719,11 @@ static const ber_sequence_t ProtocolInformation_sequence[] = {
 int
 dissect_x509sat_ProtocolInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                ProtocolInformation_sequence, hf_index, ett_x509sat_ProtocolInformation);
+                                   ProtocolInformation_sequence, hf_index, ett_x509sat_ProtocolInformation);
 
   return offset;
 }
+
 
 static const ber_sequence_t NameAndOptionalUID_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_dn },
@@ -718,7 +734,7 @@ static const ber_sequence_t NameAndOptionalUID_sequence[] = {
 int
 dissect_x509sat_NameAndOptionalUID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                NameAndOptionalUID_sequence, hf_index, ett_x509sat_NameAndOptionalUID);
+                                   NameAndOptionalUID_sequence, hf_index, ett_x509sat_NameAndOptionalUID);
 
   return offset;
 }
@@ -739,6 +755,7 @@ static int dissect_attributeList(packet_info *pinfo, proto_tree *tree, tvbuff_t 
   return dissect_x509sat_SEQUENCE_OF_AttributeValueAssertion(FALSE, tvb, offset, pinfo, tree, hf_x509sat_attributeList);
 }
 
+
 static const ber_sequence_t MultipleMatchingLocalities_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_matchingRuleUsed },
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_attributeList },
@@ -748,7 +765,7 @@ static const ber_sequence_t MultipleMatchingLocalities_sequence[] = {
 int
 dissect_x509sat_MultipleMatchingLocalities(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                MultipleMatchingLocalities_sequence, hf_index, ett_x509sat_MultipleMatchingLocalities);
+                                   MultipleMatchingLocalities_sequence, hf_index, ett_x509sat_MultipleMatchingLocalities);
 
   return offset;
 }
@@ -773,7 +790,8 @@ static const ber_choice_t SubstringAssertion_item_choice[] = {
 static int
 dissect_x509sat_SubstringAssertion_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              SubstringAssertion_item_choice, hf_index, ett_x509sat_SubstringAssertion_item, NULL);
+                                 SubstringAssertion_item_choice, hf_index, ett_x509sat_SubstringAssertion_item,
+                                 NULL);
 
   return offset;
 }
@@ -783,7 +801,7 @@ static int dissect_SubstringAssertion_item(packet_info *pinfo, proto_tree *tree,
 
 
 static const ber_sequence_t SubstringAssertion_sequence_of[1] = {
-  { -1/*choice*/ , -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_SubstringAssertion_item },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_SubstringAssertion_item },
 };
 
 int
@@ -825,7 +843,8 @@ static const ber_choice_t OctetSubstringAssertion_item_choice[] = {
 static int
 dissect_x509sat_OctetSubstringAssertion_item(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              OctetSubstringAssertion_item_choice, hf_index, ett_x509sat_OctetSubstringAssertion_item, NULL);
+                                 OctetSubstringAssertion_item_choice, hf_index, ett_x509sat_OctetSubstringAssertion_item,
+                                 NULL);
 
   return offset;
 }
@@ -835,7 +854,7 @@ static int dissect_OctetSubstringAssertion_item(packet_info *pinfo, proto_tree *
 
 
 static const ber_sequence_t OctetSubstringAssertion_sequence_of[1] = {
-  { BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_OctetSubstringAssertion_item },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_OctetSubstringAssertion_item },
 };
 
 int
@@ -877,14 +896,16 @@ dissect_x509sat_ZonalResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 }
 
 
+
 int
 dissect_x509sat_LanguageContextSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
-                                         pinfo, tree, tvb, offset, hf_index,
-                                         NULL);
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
 
   return offset;
 }
+
 
 
 static int
@@ -903,6 +924,7 @@ static int dissect_at(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
   return dissect_x509sat_GeneralizedTime(FALSE, tvb, offset, pinfo, tree, hf_x509sat_at);
 }
 
+
 static const ber_sequence_t T_absolute_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_startTime },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_endTime },
@@ -912,7 +934,7 @@ static const ber_sequence_t T_absolute_sequence[] = {
 static int
 dissect_x509sat_T_absolute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_absolute_sequence, hf_index, ett_x509sat_T_absolute);
+                                   T_absolute_sequence, hf_index, ett_x509sat_T_absolute);
 
   return offset;
 }
@@ -951,6 +973,7 @@ static int dissect_second(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
   return dissect_x509sat_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_x509sat_second);
 }
 
+
 static const ber_sequence_t DayTime_sequence[] = {
   { BER_CLASS_CON, 0, 0, dissect_hour },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_minute },
@@ -961,7 +984,7 @@ static const ber_sequence_t DayTime_sequence[] = {
 int
 dissect_x509sat_DayTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                DayTime_sequence, hf_index, ett_x509sat_DayTime);
+                                   DayTime_sequence, hf_index, ett_x509sat_DayTime);
 
   return offset;
 }
@@ -972,6 +995,7 @@ static int dissect_endDayTime(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   return dissect_x509sat_DayTime(FALSE, tvb, offset, pinfo, tree, hf_x509sat_endDayTime);
 }
 
+
 static const ber_sequence_t DayTimeBand_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_startDayTime },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_endDayTime },
@@ -981,7 +1005,7 @@ static const ber_sequence_t DayTimeBand_sequence[] = {
 int
 dissect_x509sat_DayTimeBand(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                DayTimeBand_sequence, hf_index, ett_x509sat_DayTimeBand);
+                                   DayTimeBand_sequence, hf_index, ett_x509sat_DayTimeBand);
 
   return offset;
 }
@@ -1021,6 +1045,7 @@ static int dissect_intDay(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
   return dissect_x509sat_T_intDay(FALSE, tvb, offset, pinfo, tree, hf_x509sat_intDay);
 }
 
+
 static const asn_namedbit T_bitDay_bits[] = {
   {  0, &hf_x509sat_T_bitDay_sunday, -1, -1, "sunday", NULL },
   {  1, &hf_x509sat_T_bitDay_monday, -1, -1, "monday", NULL },
@@ -1035,8 +1060,8 @@ static const asn_namedbit T_bitDay_bits[] = {
 static int
 dissect_x509sat_T_bitDay(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 T_bitDay_bits, hf_index, ett_x509sat_T_bitDay,
-                                 NULL);
+                                    T_bitDay_bits, hf_index, ett_x509sat_T_bitDay,
+                                    NULL);
 
   return offset;
 }
@@ -1068,6 +1093,7 @@ static int dissect_intNamedDays(packet_info *pinfo, proto_tree *tree, tvbuff_t *
   return dissect_x509sat_T_intNamedDays(FALSE, tvb, offset, pinfo, tree, hf_x509sat_intNamedDays);
 }
 
+
 static const asn_namedbit T_bitNamedDays_bits[] = {
   {  0, &hf_x509sat_T_bitNamedDays_sunday, -1, -1, "sunday", NULL },
   {  1, &hf_x509sat_T_bitNamedDays_monday, -1, -1, "monday", NULL },
@@ -1082,8 +1108,8 @@ static const asn_namedbit T_bitNamedDays_bits[] = {
 static int
 dissect_x509sat_T_bitNamedDays(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 T_bitNamedDays_bits, hf_index, ett_x509sat_T_bitNamedDays,
-                                 NULL);
+                                    T_bitNamedDays_bits, hf_index, ett_x509sat_T_bitNamedDays,
+                                    NULL);
 
   return offset;
 }
@@ -1107,7 +1133,8 @@ static const ber_choice_t NamedDay_choice[] = {
 int
 dissect_x509sat_NamedDay(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              NamedDay_choice, hf_index, ett_x509sat_NamedDay, NULL);
+                                 NamedDay_choice, hf_index, ett_x509sat_NamedDay,
+                                 NULL);
 
   return offset;
 }
@@ -1149,7 +1176,8 @@ static const ber_choice_t XDayOf_choice[] = {
 int
 dissect_x509sat_XDayOf(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              XDayOf_choice, hf_index, ett_x509sat_XDayOf, NULL);
+                                 XDayOf_choice, hf_index, ett_x509sat_XDayOf,
+                                 NULL);
 
   return offset;
 }
@@ -1168,14 +1196,15 @@ static const value_string x509sat_T_days_vals[] = {
 static const ber_choice_t T_days_choice[] = {
   {   0, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_intDay },
   {   1, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_bitDay },
-  {   2, BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_dayOf },
+  {   2, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_dayOf },
   { 0, 0, 0, 0, NULL }
 };
 
 static int
 dissect_x509sat_T_days(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_days_choice, hf_index, ett_x509sat_T_days, NULL);
+                                 T_days_choice, hf_index, ett_x509sat_T_days,
+                                 NULL);
 
   return offset;
 }
@@ -1217,6 +1246,7 @@ static int dissect_intWeek(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
   return dissect_x509sat_T_intWeek(FALSE, tvb, offset, pinfo, tree, hf_x509sat_intWeek);
 }
 
+
 static const asn_namedbit T_bitWeek_bits[] = {
   {  0, &hf_x509sat_T_bitWeek_week1, -1, -1, "week1", NULL },
   {  1, &hf_x509sat_T_bitWeek_week2, -1, -1, "week2", NULL },
@@ -1229,8 +1259,8 @@ static const asn_namedbit T_bitWeek_bits[] = {
 static int
 dissect_x509sat_T_bitWeek(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 T_bitWeek_bits, hf_index, ett_x509sat_T_bitWeek,
-                                 NULL);
+                                    T_bitWeek_bits, hf_index, ett_x509sat_T_bitWeek,
+                                    NULL);
 
   return offset;
 }
@@ -1256,7 +1286,8 @@ static const ber_choice_t T_weeks_choice[] = {
 static int
 dissect_x509sat_T_weeks(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_weeks_choice, hf_index, ett_x509sat_T_weeks, NULL);
+                                 T_weeks_choice, hf_index, ett_x509sat_T_weeks,
+                                 NULL);
 
   return offset;
 }
@@ -1280,6 +1311,7 @@ static int dissect_intMonth(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_x509sat_T_intMonth(FALSE, tvb, offset, pinfo, tree, hf_x509sat_intMonth);
 }
 
+
 static const asn_namedbit T_bitMonth_bits[] = {
   {  0, &hf_x509sat_T_bitMonth_january, -1, -1, "january", NULL },
   {  1, &hf_x509sat_T_bitMonth_february, -1, -1, "february", NULL },
@@ -1299,8 +1331,8 @@ static const asn_namedbit T_bitMonth_bits[] = {
 static int
 dissect_x509sat_T_bitMonth(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                 T_bitMonth_bits, hf_index, ett_x509sat_T_bitMonth,
-                                 NULL);
+                                    T_bitMonth_bits, hf_index, ett_x509sat_T_bitMonth,
+                                    NULL);
 
   return offset;
 }
@@ -1326,7 +1358,8 @@ static const ber_choice_t T_months_choice[] = {
 static int
 dissect_x509sat_T_months(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_months_choice, hf_index, ett_x509sat_T_months, NULL);
+                                 T_months_choice, hf_index, ett_x509sat_T_months,
+                                 NULL);
 
   return offset;
 }
@@ -1350,6 +1383,7 @@ static int dissect_years(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
   return dissect_x509sat_T_years(FALSE, tvb, offset, pinfo, tree, hf_x509sat_years);
 }
 
+
 static const ber_sequence_t Period_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_timesOfDay },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_days },
@@ -1362,7 +1396,7 @@ static const ber_sequence_t Period_sequence[] = {
 int
 dissect_x509sat_Period(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                Period_sequence, hf_index, ett_x509sat_Period);
+                                   Period_sequence, hf_index, ett_x509sat_Period);
 
   return offset;
 }
@@ -1402,7 +1436,8 @@ static const ber_choice_t T_time_choice[] = {
 static int
 dissect_x509sat_T_time(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              T_time_choice, hf_index, ett_x509sat_T_time, NULL);
+                                 T_time_choice, hf_index, ett_x509sat_T_time,
+                                 NULL);
 
   return offset;
 }
@@ -1438,8 +1473,9 @@ static int dissect_timeZone(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   return dissect_x509sat_TimeZone(FALSE, tvb, offset, pinfo, tree, hf_x509sat_timeZone);
 }
 
+
 static const ber_sequence_t TimeSpecification_sequence[] = {
-  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_time },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_time },
   { BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_notThisTime },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_timeZone },
   { 0, 0, 0, NULL }
@@ -1448,10 +1484,11 @@ static const ber_sequence_t TimeSpecification_sequence[] = {
 int
 dissect_x509sat_TimeSpecification(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                TimeSpecification_sequence, hf_index, ett_x509sat_TimeSpecification);
+                                   TimeSpecification_sequence, hf_index, ett_x509sat_TimeSpecification);
 
   return offset;
 }
+
 
 static const ber_sequence_t T_between_sequence[] = {
   { BER_CLASS_CON, 0, 0, dissect_startTime },
@@ -1463,7 +1500,7 @@ static const ber_sequence_t T_between_sequence[] = {
 static int
 dissect_x509sat_T_between(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                T_between_sequence, hf_index, ett_x509sat_T_between);
+                                   T_between_sequence, hf_index, ett_x509sat_T_between);
 
   return offset;
 }
@@ -1489,7 +1526,8 @@ static const ber_choice_t TimeAssertion_choice[] = {
 int
 dissect_x509sat_TimeAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              TimeAssertion_choice, hf_index, ett_x509sat_TimeAssertion, NULL);
+                                 TimeAssertion_choice, hf_index, ett_x509sat_TimeAssertion,
+                                 NULL);
 
   return offset;
 }
@@ -1510,7 +1548,8 @@ static const ber_choice_t LocaleContextSyntax_choice[] = {
 int
 dissect_x509sat_LocaleContextSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              LocaleContextSyntax_choice, hf_index, ett_x509sat_LocaleContextSyntax, NULL);
+                                 LocaleContextSyntax_choice, hf_index, ett_x509sat_LocaleContextSyntax,
+                                 NULL);
 
   return offset;
 }
@@ -1673,7 +1712,7 @@ void proto_register_x509sat(void) {
         "ProtocolInformation/profiles/_item", HFILL }},
     { &hf_x509sat_dn,
       { "dn", "x509sat.dn",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "NameAndOptionalUID/dn", HFILL }},
     { &hf_x509sat_uid,
       { "uid", "x509sat.uid",

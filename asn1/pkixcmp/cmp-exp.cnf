@@ -2,7 +2,7 @@
 PKIMessage               BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 PKIHeader                BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 PKIFreeText              BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-PKIBody                  BER_CLASS_CON -1/*choice*/
+PKIBody                  BER_CLASS_ANY/*choice*/ -1/*choice*/
 PKIProtection            BER_CLASS_UNI BER_UNI_TAG_BITSTRING
 ProtectedPart            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 PasswordBasedMac         BER_CLASS_UNI BER_UNI_TAG_OID
@@ -21,7 +21,7 @@ POPODecKeyRespContent    BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 CertRepMessage           BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 CertResponse             BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 CertifiedKeyPair         BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-CertOrEncCert            BER_CLASS_CON -1/*choice*/
+CertOrEncCert            BER_CLASS_ANY/*choice*/ -1/*choice*/
 KeyRecRepContent         BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 RevReqContent            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 RevDetails               BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
