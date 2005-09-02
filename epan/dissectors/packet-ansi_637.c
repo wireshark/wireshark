@@ -550,6 +550,14 @@ tele_param_rel_timestamp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 off
     }
 }
 
+static const value_string tele_param_pri_ind_strings[] = {
+	{ 0,	"Normal" },
+	{ 1,	"Interactive" },
+	{ 2,	"Urgent" },
+	{ 3,	"Emergency" },
+	{ 0, NULL }
+};
+
 static void
 tele_param_pri_ind(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
@@ -560,13 +568,7 @@ tele_param_pri_ind(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     oct = tvb_get_guint8(tvb, offset);
 
-    switch ((oct & 0xc0) >> 6)
-    {
-    case 0: str = "Normal"; break;
-    case 1: str = "Interactive"; break;
-    case 2: str = "Urgent"; break;
-    case 3: str = "Emergency"; break;
-    }
+    str=val_to_str((oct&0xc0)>>6, tele_param_pri_ind_strings, "Unknown");
 
     other_decode_bitfield_value(ansi_637_bigbuf, oct, 0xc0, 8);
     proto_tree_add_text(tree, tvb, offset, 1,
