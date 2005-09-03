@@ -232,18 +232,19 @@ print_usage(gboolean print_ver)
 	  PACKAGE);
   fprintf(output, "\t[ -b <capture ring buffer option> ] ... [ -c <capture packet count> ]\n");
   fprintf(output, "\t[ -d %s ] ...\n", decode_as_arg_template);
-  fprintf(output, "\t[ -f <capture filter> ] [ -F <output file type> ] [ -i <capture interface> ]\n");
-  fprintf(output, "\t[ -N <name resolving flags> ] [ -o <preference setting> ] ... [ -r <infile> ]\n");
-  fprintf(output, "\t[ -R <read (display) filter> ] [ -s <capture snaplen> ] [ -t <time stamp format> ]\n");
-  fprintf(output, "\t[ -T pdml|ps|psml|text ] [ -w <savefile> ] [ -y <capture link type> ]\n");
-  fprintf(output, "\t[ -z <statistics> ]\n");
+  fprintf(output, "\t[ -f <capture filter> ] [ -F <output file type> ]\n");
+  fprintf(output, "\t[ -i <capture interface> ] [ -N <name resolving flags> ]\n");
+  fprintf(output, "\t[ -o <preference setting> ] ... [ -r <infile> ]\n");
+  fprintf(output, "\t[ -R <read (display) filter> ] [ -s <capture snaplen> ]\n");
+  fprintf(output, "\t[ -t <time stamp format> ] [ -T pdml|ps|psml|text ]\n");
+  fprintf(output, "\t[ -w <savefile> ] [ -y <capture link type> ] [ -z <statistics> ]\n");
 #else
   fprintf(output, "\nt%s [ -vh ] [ -lnVx ]\n", PACKAGE);
   fprintf(output, "\t[ -d %s ] ...\n", decode_as_arg_template);
   fprintf(output, "\t[ -F <output file type> ] [ -N <name resolving flags> ]\n");
-  fprintf(output, "\t[ -o <preference setting> ] ... [ -r <infile> ] [ -R <read (display) filter> ]\n");
-  fprintf(output, "\t[ -t <time stamp format> ] [ -T pdml|ps|psml|text ] [ -w <savefile> ]\n");
-  fprintf(output, "\t[ -z <statistics ]\n");
+  fprintf(output, "\t[ -o <preference setting> ] ... [ -r <infile> ]\n");
+  fprintf(output, "\t[ -R <read (display) filter> ] \t[ -t <time stamp format> ]\n");
+  fprintf(output, "\t[ -T pdml|ps|psml|text ] [ -w <savefile> ] [ -z <statistics ]\n");
 #endif
   fprintf(output, "Valid file type arguments to the \"-F\" flag:\n");
   for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
