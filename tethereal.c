@@ -219,7 +219,7 @@ print_usage(gboolean print_ver)
 
   if (print_ver) {
     output = stdout;
-    fprintf(output, "This is GNU t" PACKAGE " " VERSION "%s"
+    fprintf(output, "This is t" PACKAGE " " VERSION "%s"
         "\n (C) 1998-2005 Gerald Combs <gerald@ethereal.com>"
 	"\n%s\n%s\n",
 
