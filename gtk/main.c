@@ -1119,12 +1119,8 @@ show_version(void)
   create_console();
 #endif
 
-  printf(PACKAGE " " VERSION
-#ifdef SVNVERSION
-      " (" SVNVERSION ")"
-#endif
-      "\n\n%s\n\n%s\n",
-      comp_info_str->str, runtime_info_str->str);
+  printf(PACKAGE " " VERSION "%s\n\n%s\n\n%s\n",
+      svnversion, comp_info_str->str, runtime_info_str->str);
 
 #ifdef _WIN32
   destroy_console();
