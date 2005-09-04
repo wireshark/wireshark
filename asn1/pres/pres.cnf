@@ -36,7 +36,7 @@ CPR-PPDU/normal-mode-parameters/provider-reason cPR_PPDU__provider-reason
  tvbuff_t	*next_tvb;
  char *oid; 
 
-	oid=find_oid_by_ctx_id(pinfo, presentation_context_identifier);
+	oid=find_oid_by_pres_ctx_id(pinfo, presentation_context_identifier);
 	if(oid){
 		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 		call_ber_oid_callback(oid, next_tvb, offset, pinfo, global_tree);

@@ -76,9 +76,18 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
                                          hf_index, object_identifier_id);
 
 #.FN_BODY EXTERNAL/indirect-reference
+  char *oid;
   offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset,
                 hf_acse_indirect_reference,
                 &indir_ref);
+
+  /* look up the indirect reference */
+  if(oid = find_oid_by_pres_ctx_id(pinfo, indir_ref)) {
+    strcpy(object_identifier_id, oid);
+  }
+
+  if(session)
+	session->pres_ctx_id = indir_ref;
 
 #.FN_BODY EXTERNAL/encoding/single-ASN1-type
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, top_tree);

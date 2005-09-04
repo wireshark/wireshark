@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-acse.c                                                            */
+/* .\packet-acse.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p acse -c acse.cnf -s packet-acse-template acse.asn */
 
 /* Input file: packet-acse-template.c */
@@ -56,6 +56,7 @@
 #include "packet-ber.h"
 #include "packet-acse.h"
 #include "packet-ses.h"
+#include "packet-pres.h"
 #include "packet-x509if.h"
 
 #define PNAME  "ACSE"
@@ -230,6 +231,7 @@ static guint32 indir_ref=0;
 
 static proto_tree *top_tree=NULL;
 
+#if NOT_NEEDED
 /* to keep track of presentation context identifiers and protocol-oids */
 typedef struct _acse_ctx_oid_t {
 	/* XXX here we should keep track of ADDRESS/PORT as well */
@@ -292,6 +294,7 @@ find_oid_by_ctx_id(packet_info *pinfo _U_, guint32 idx)
 	return NULL;
 }
 
+# endif /* NOT_NEEDED */
 
 
 /*--- Included file: packet-acse-fn.c ---*/
@@ -316,9 +319,18 @@ static int dissect_direct_reference(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_acse_T_indirect_reference(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  char *oid;
   offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset,
                 hf_acse_indirect_reference,
                 &indir_ref);
+
+  /* look up the indirect reference */
+  if(oid = find_oid_by_pres_ctx_id(pinfo, indir_ref)) {
+    strcpy(object_identifier_id, oid);
+  }
+
+  if(session)
+	session->pres_ctx_id = indir_ref;
 
 
   return offset;
@@ -1874,14 +1886,14 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/*  data pdu is not ACSE pdu and has to go directly to app dissector */
 	switch(session->spdu_type){
 	case SES_CONNECTION_REQUEST:		/*   AARQ   */
-	case SES_CONNECTION_ACCEPT:			/*   AARE   */
-	case SES_REFUSE:					/*   RLRE   */
-	case SES_DISCONNECT:				/*   RLRQ   */
-	case SES_FINISH:					/*   RLRE   */
-	case SES_ABORT:						/*   ABRT   */
+	case SES_CONNECTION_ACCEPT:		/*   AARE   */
+	case SES_REFUSE:			/*   RLRE   */
+	case SES_DISCONNECT:			/*   RLRQ   */
+	case SES_FINISH:			/*   RLRE   */
+	case SES_ABORT:				/*   ABRT   */
 		break;
 	case SES_DATA_TRANSFER:
-		oid=find_oid_by_ctx_id(pinfo, indir_ref);
+		oid=find_oid_by_pres_ctx_id(pinfo, indir_ref);
 		if(oid){
 			call_ber_oid_callback(oid, tvb, offset, pinfo, parent_tree);
 		} else {
@@ -1915,18 +1927,6 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		}
 	}
 
-	switch(session->spdu_type){
-	case SES_CONNECTION_REQUEST:		/*   AARQ   */
-	case SES_CONNECTION_ACCEPT:			/*   AARE   */
-		/* these two functions are used to set up the association
-		   between a presentation identifier (indir_ref) and
-		   a protocol identified by a oid.
-		   it is ugly to handle it with global variables but
-		   better than nothing.
-		*/
-		register_ctx_id_and_oid(pinfo, indir_ref, object_identifier_id);
-		break;
-	}
 }
 
 /*--- proto_register_acse ----------------------------------------------*/
@@ -2416,14 +2416,16 @@ void proto_register_acse(void) {
   proto_register_field_array(proto_acse, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_init_routine(acse_init);
 }
 
 
 /*--- proto_reg_handoff_acse -------------------------------------------*/
 void proto_reg_handoff_acse(void) {
 /*#include "packet-acse-dis-tab.c"*/
-	register_ber_oid_dissector("2.2.3.1.1", dissect_acse, proto_acse, "acse");
+
+	register_ber_oid_name("2.2.3.1.1","aCSE-id");
 	register_ber_oid_dissector("2.2.1.0.1", dissect_acse, proto_acse, "acse-as-id");
+
+
 }
 

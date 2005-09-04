@@ -60,9 +60,9 @@ static struct SESSION_DATA_STRUCTURE* session = NULL;
 /*      pointers for acse dissector  */
 proto_tree *global_tree  = NULL;
 packet_info *global_pinfo = NULL;
+
 /* dissector for data */
 static dissector_handle_t data_handle;
-static dissector_handle_t acse_handle;
 
 static char abstract_syntax_name_oid[BER_MAX_OID_STR_LEN];
 static guint32 presentation_context_identifier;
@@ -233,16 +233,16 @@ static gint ett_pres_User_session_requirements = -1;
 static guint
 pres_ctx_oid_hash(gconstpointer k)
 {
-	pres_ctx_oid_t *aco=(pres_ctx_oid_t *)k;
-	return aco->ctx_id;
+	pres_ctx_oid_t *pco=(pres_ctx_oid_t *)k;
+	return pco->ctx_id;
 }
 /* XXX this one should be made ADDRESS/PORT aware */
 static gint
 pres_ctx_oid_equal(gconstpointer k1, gconstpointer k2)
 {
-	pres_ctx_oid_t *aco1=(pres_ctx_oid_t *)k1;
-	pres_ctx_oid_t *aco2=(pres_ctx_oid_t *)k2;
-	return aco1->ctx_id==aco2->ctx_id;
+	pres_ctx_oid_t *pco1=(pres_ctx_oid_t *)k1;
+	pres_ctx_oid_t *pco2=(pres_ctx_oid_t *)k2;
+	return pco1->ctx_id==pco2->ctx_id;
 }
 
 static void
@@ -260,26 +260,27 @@ pres_init(void)
 static void
 register_ctx_id_and_oid(packet_info *pinfo _U_, guint32 idx, char *oid)
 {
-	pres_ctx_oid_t *aco, *tmpaco;
-	aco=se_alloc(sizeof(pres_ctx_oid_t));
-	aco->ctx_id=idx;
-	aco->oid=se_strdup(oid);
+	pres_ctx_oid_t *pco, *tmppco;
+	pco=se_alloc(sizeof(pres_ctx_oid_t));
+	pco->ctx_id=idx;
+	pco->oid=se_strdup(oid);
 
 	/* if this ctx already exists, remove the old one first */
-	tmpaco=(pres_ctx_oid_t *)g_hash_table_lookup(pres_ctx_oid_table, aco);
-	if(tmpaco){
-		g_hash_table_remove(pres_ctx_oid_table, tmpaco);
+	tmppco=(pres_ctx_oid_t *)g_hash_table_lookup(pres_ctx_oid_table, pco);
+	if(tmppco){
+		g_hash_table_remove(pres_ctx_oid_table, tmppco);
+
 	}
-	g_hash_table_insert(pres_ctx_oid_table, aco, aco);
+	g_hash_table_insert(pres_ctx_oid_table, pco, pco);
 }
-static char *
-find_oid_by_ctx_id(packet_info *pinfo _U_, guint32 idx)
+char *
+find_oid_by_pres_ctx_id(packet_info *pinfo _U_, guint32 idx)
 {
-	pres_ctx_oid_t aco, *tmpaco;
-	aco.ctx_id=idx;
-	tmpaco=(pres_ctx_oid_t *)g_hash_table_lookup(pres_ctx_oid_table, &aco);
-	if(tmpaco){
-		return tmpaco->oid;
+	pres_ctx_oid_t pco, *tmppco;
+	pco.ctx_id=idx;
+	tmppco=(pres_ctx_oid_t *)g_hash_table_lookup(pres_ctx_oid_table, &pco);
+	if(tmppco){
+		return tmppco->oid;
 	}
 	return NULL;
 }
@@ -948,7 +949,7 @@ dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
  tvbuff_t	*next_tvb;
  char *oid; 
 
-	oid=find_oid_by_ctx_id(pinfo, presentation_context_identifier);
+	oid=find_oid_by_pres_ctx_id(pinfo, presentation_context_identifier);
 	if(oid){
 		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 		call_ber_oid_callback(oid, next_tvb, offset, pinfo, global_tree);
@@ -2245,5 +2246,5 @@ void proto_reg_handoff_pres(void) {
 	  "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) abstractSyntax(1) pres(1) version1(1)"); */
 
 	data_handle = find_dissector("data");
-	acse_handle = find_dissector("acse");
+
 }
