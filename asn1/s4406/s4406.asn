@@ -1,0 +1,264 @@
+MMSHeadingExtensions { iso(1) identified-organization(3) NATO(26)
+	STANAGS(0) MMHS(4406) object-identifiers(0) module(0) heading-extensions(6) }
+
+DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+-- Prologue
+-- Exports Everything
+IMPORTS
+
+-- IPMS information objects
+IPMS-EXTENSION, ORDescriptor
+---
+FROM IPMSInformationObjects { joint-iso-ccitt  mhs-motis(6) ipms(1)
+	modules(0) information-objects(2) }
+
+-- MMS upper bounds
+--lb-military-sic, ub-military-number-of-sics, ub-military-sic
+---
+--FROM MMSUpperBounds { iso(1) identified-organization(3) NATO(26)
+--	STANAGS(0) MMHS(4406) object-identifiers(0) module(0) upper-bounds(0) }
+
+-- MMS object identifiers
+--id-nato-mmhs-mm-acp127-message-identifier, 
+--id-nato-mmhs-mm-address-list-indicator,
+--id-nato-mmhs-mm-codress-message,
+--id-nato-mmhs-mm-copy-precedence, id-nato-mmhs-mm-distribution-codes, 
+--id-nato-mmhs-mm-exempted-address, 
+--id-nato-mmhs-mm-extended-authorisation-info, 
+--id-nato-mmhs-mm-handling-instructions, 
+--id-nato-mmhs-mm-information-labels,
+--id-nato-mmhs-mm-message-instructions, id-nato-mmhs-mm-message-type, 
+--id-nato-mmhs-mm-originator-reference, id-nato-mmhs-mm-originator-plad,
+--id-nato-mmhs-mm-other-recipients-indicator, 
+--id-nato-mmhs-mm-pilot-forwarding-info, 
+--id-nato-mmhs-mm-primary-precedence
+---
+--FROM MMSObjectIdentifiers { iso(1) identified-organization(3) NATO(26)
+--	STANAGS(0) MMHS(4406) object-identifiers(0) }
+
+-- MTS abstract service
+--Message--SecurityLabel
+---
+FROM MTSAbstractService {joint-iso-ccitt  mhs-motis(6) mts(3)
+	modules(0) mts-abstract-service(1) };
+
+-- exempted address
+
+--exempted-address IPMS-EXTENSION
+--	VALUE SEQUENCE OF ExemptedAddress
+--	::= id-nato-mmhs-mm-exempted-address
+
+ExemptedAddress ::= ORDescriptor
+
+
+-- extended authorisation information
+
+--extended-authorisation-info IPMS-EXTENSION
+--	VALUE ExtendedAuthorisationInfo
+--	::= id-nato-mmhs-mm-extended-authorisation-info
+
+ExtendedAuthorisationInfo ::= UTCTime
+		-- UTCTime as defined in 8.5.4 of ITU-T X.411
+
+
+-- Distribution codes
+-- will carry subject indicator codes and leave room for expansion.
+
+--distribution-codes IPMS-EXTENSION
+--	VALUE DistributionCodes
+--	::= id-nato-mmhs-mm-distribution-codes
+
+DistributionCodes ::= SET {
+	sics	[0]	SEQUENCE --SIZE
+--				(1..ub-military-number-of-sics)-- OF
+				Sic OPTIONAL,
+	dist-Extensions	[1]	SEQUENCE OF
+				DistributionExtensionField OPTIONAL }
+
+Sic ::= PrintableString --(SIZE (lb-military-sic..ub-military-sic))
+
+DistributionExtensionField ::= SEQUENCE {
+	dist-type	OBJECT IDENTIFIER,
+	dist-value	ANY --DEFINED BY dist-type-- }
+
+
+-- Handling instructions
+
+--handling-instructions IPMS-EXTENSION
+--	VALUE HandlingInstructions
+--	::= id-nato-mmhs-mm-handling-instructions
+
+HandlingInstructions ::= SEQUENCE OF MilitaryString
+
+MilitaryString ::= PrintableString --(SIZE(1..ub-military-string))
+
+
+-- Message instructions
+-- will carry operating signals
+
+--message-instructions IPMS-EXTENSION
+--	VALUE MessageInstructions
+--	::= id-nato-mmhs-mm-message-instructions
+
+MessageInstructions ::= SEQUENCE OF MilitaryString
+
+
+-- Codress message
+-- Needed for transition or as long as codress messages need to be carried.
+
+--codress-message IPMS-EXTENSION
+--	VALUE CodressMessage
+--	::= id-nato-mmhs-mm-codress-message
+
+CodressMessage ::= INTEGER
+
+
+-- Originator reference
+-- only used if a user designated identifier string becomes important.
+
+--originator-reference IPMS-EXTENSION
+--	VALUE OriginatorReference
+--	::= id-nato-mmhs-mm-originator-reference
+
+OriginatorReference ::= MilitaryString
+
+
+-- Primary reference
+
+--primary-precedence IPMS-EXTENSION
+--	VALUE MMHSPrecedence
+--	::= id-nato-mmhs-mm-primary-precedence
+
+MMHSPrecedence ::= INTEGER {deferred (0), routine (1), priority (2), immediate (3),
+	flash (4), override (5), 
+-- these are used by some National systems XXX need to verify
+	ecp(16), critic(17), override(18)}
+
+-- Note: Values 0 to 15 are reserved for NATO defined precedence levels.
+-- Values 16 to 31 are reserved for national user.
+
+
+-- Copy precedence
+
+--copy-precedence IPMS-EXTENSION
+--	VALUE MMHSPrecedence 
+--	::= id-nato-mmhs-mm-copy-precedence
+
+-- Note: Values 0 to 15 are reserved for NATO defined precedence levels. 
+-- Values 16 to 31 are reserved for national user.
+
+-- Message type
+
+--message-type IPMS-EXTENSION
+--	VALUE MessageType
+--	::=id-nato-mmhs-mm-message-type
+
+MessageType ::= SET{
+	type	[0]	TypeMessage,
+	identifier	[1]	MessageIdentifier OPTIONAL }
+
+TypeMessage ::= INTEGER {exercise(0), operation(1), project(2), drill(3) }
+
+-- Note: Values 0 to 127 are reserved for NATO defined Message Type
+-- identifiers. Values above 128 to 255 are not defined by NATO and may
+-- be used nationally or bilaterally.
+
+MessageIdentifier ::= MilitaryString
+
+
+-- Address list indicator
+
+--address-list-indicator IPMS-EXTENSION
+--	VALUE SEQUENCE OF AddressListDesignator
+--	::=id-nato-mmhs-mm-address-list-indicator
+
+AddressListDesignator ::=SET {
+	type	[0]	INTEGER
+				{ primaryAddressList(0), copyAddressList(1) },
+	listName	[1]	ORDescriptor,
+	notificationRequest	[2]	AddressListRequest OPTIONAL,
+	replyRequest	[3]	AddressListRequest OPTIONAL }
+
+AddressListRequest ::= INTEGER { action(0), info(1), both(2) }
+
+-- Other recipients indicator
+
+--other-recipients-indicator IPMS-EXTENSION
+--	VALUE SEQUENCE OF OtherRecipientDesignator
+--	::=id-nato-mmhs-mm-other-recipients-indicator
+
+OtherRecipientDesignator ::= SET {
+	type	[0]	INTEGER { primary(0), copy(1) },
+	designator	[1]	MilitaryString }
+
+
+-- pilot forwarding information
+
+--pilot-forwarding-info IPMS-EXTENSION
+--	VALUE SEQUENCE OF PilotInformation
+--	::= id-nato-mmhs-mm-pilot-forwarding-info
+
+PilotInformation ::= SEQUENCE {
+	pilotPrecedence	[0]	MMHSPrecedence OPTIONAL,
+		-- Note: Values 0 to 15 are reserved for NATO defined precedence levels.
+		-- Values 16 to 31 are reserved for national use.
+	pilotRecipient	[1]	SEQUENCE OF ORDescriptor OPTIONAL,
+	pilotSecurity	[2]	--Message--SecurityLabel OPTIONAL,
+	pilotHandling	[3]	SEQUENCE OF MilitaryString OPTIONAL}
+
+
+-- Acp127 message identifier
+-- a string to store routing indicator, station serial number and julian file 
+-- time seperated by spaces.
+
+--acp127-message-identifier IPMS-EXTENSION
+--	VALUE Acp127MessageIdentifier
+--	::= id-nato-mmhs-mm-acp127-message-identifier
+
+Acp127MessageIdentifier ::= MilitaryString
+
+
+-- Originator PLAD
+
+--originator-plad IPMS-EXTENSION
+--	VALUE OriginatorPlad
+--	::= id-nato-mmhs-mm-originator-plad
+
+OriginatorPlad ::= MilitaryString
+
+-- Information label
+
+--security-information-labels IPMS-EXTENSION
+--	VALUE SecurityInformationLabels
+--	::= id-nato-mmhs-mm-information-labels
+
+SecurityInformationLabels ::= SEQUENCE {
+	content-security-label	[0]	SecurityLabel,
+		-- SecurityLabel as defined in 8.5.9 of ITU-T X.411
+	heading-security-label	[1]	SecurityLabel OPTIONAL,
+	body-part-security-labels	[2]	SEQUENCE OF BodyPartSecurityLabel OPTIONAL }
+
+BodyPartSecurityLabel  ::= SET {
+	body-part-security-label	[0]	SecurityLabel,
+	body-part-sequence-number	[1]	BodyPartSequenceNumber OPTIONAL }
+
+BodyPartSequenceNumber ::= INTEGER
+
+--  Note: If all body parts of the message are labelled, each 
+--  element in the body sequence above shall correspond to the
+--  same numbered element of the Body sequence, and the body 
+--  part sequence number may be absent. (i.e. the first element
+--  of this field shall correspond to the first body part, etc.
+--  Otherwise the body part sequence number shall be present
+--  and shall correspond to the sequence of the body part
+--  to which the security label relates. (i.e. the value of the 
+--  body part sequence number shall correspond to sequence in which
+--  the originator encoded the body parts of the message).
+
+-- NOTE: The security-information-labels heading extension is now
+-- deprecated. Its use is, therefore, discouraged. See STANAG 4406
+-- Annex B for instruction on the use of its replacement, the
+-- ESSSecurityLabel.
+
+END -- of Military heading extensions used in MMS

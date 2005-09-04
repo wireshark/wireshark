@@ -1,0 +1,111 @@
+#.EXPORTS
+RTORQapdu
+RTOACapdu
+RTORJapdu
+RTABapdu
+
+#.FN_BODY RTORJapdu/userDataRJ
+/*XXX not implemented yet */
+
+#.FN_BODY RTABapdu/userdataAB
+/*XXX not implemented yet */
+
+#.FN_BODY RTORQapdu
+
+  if(session  = (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data))
+	session->ros_op = (ROS_OP_BIND | ROS_OP_ARGUMENT);
+
+  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
+                              RTORQapdu_set, hf_index, ett_rtse_RTORQapdu);
+
+
+#.FN_BODY RTOACapdu
+
+  if(session  = (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data))
+	session->ros_op = (ROS_OP_BIND | ROS_OP_RESULT);
+
+  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
+                              RTOACapdu_set, hf_index, ett_rtse_RTOACapdu);
+
+
+#.FN_BODY T_open
+
+	char *oid = NULL;
+
+	switch(app_proto)  {
+	case 1:		/* mts-transfer-protocol-1984 */
+		oid = "applicationProtocol.1";
+		break;
+	case 12: 	/* mts-transfer-protocol */
+		oid = "applicationProtocol.12";
+		break;
+	default:
+		if(session && session->pres_ctx_id)
+			oid = find_oid_by_pres_ctx_id(pinfo, session->pres_ctx_id);
+		break;
+	}
+	
+	if(!oid) /* XXX: problem here is we haven't decoded the applicationProtocol yet - so we make assumptions! */
+		oid = "applicationProtocol.12";
+
+	if(oid) {
+
+		offset = call_rtse_oid_callback(oid, tvb, offset, pinfo, top_tree ? top_tree : tree);
+	}
+
+	/* else XXX: need to flag we can't find the presentation context */
+
+#.FN_BODY RTTRapdu
+	tvbuff_t *next_tvb = NULL;
+
+	offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_index, &next_tvb);
+
+	if(next_tvb) {
+
+		/* XXX: we should check is this is an EXTERNAL first */
+
+		/* ROS won't do this for us */
+		if(session)
+			session->ros_op = (ROS_OP_INVOKE | ROS_OP_ARGUMENT);
+
+		offset = dissect_rtse_EXTERNAL(FALSE, next_tvb, 0, pinfo, tree, -1);
+
+	}
+
+#.FN_BODY EXTERNAL
+  gint8 class;
+  gboolean pc, ind_field;
+  gint32 tag;
+  guint32 len1;
+
+  /* XXX  asn2eth can not yet handle tagged assignment so for the
+   * time being  just remove this tag manually inside the EXTERNAL
+   * dissector.
+   */
+   offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+   offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+   offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
+                                EXTERNAL_sequence, hf_index, ett_rtse_EXTERNAL);
+
+#.FN_BODY EXTERNAL/indirect-reference
+  char *oid;
+
+  offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset,
+                hf_rtse_indirect_reference,
+                &indir_ref);
+
+  /* look up the indirect reference */
+  if(oid = find_oid_by_pres_ctx_id(pinfo, indir_ref)) {
+    strcpy(object_identifier_id, oid);
+  }
+	
+
+#.FN_BODY EXTERNAL/encoding/single-ASN1-type
+  offset=call_rtse_oid_callback(object_identifier_id, tvb, offset, pinfo, top_tree);
+
+
+#.FN_BODY T_applicationProtocol
+
+  offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_index, &app_proto);
+
+#.END

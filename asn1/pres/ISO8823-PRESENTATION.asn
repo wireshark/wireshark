@@ -1,4 +1,4 @@
--- $Id:$
+-- $Id$
 -- Module ISO8823-PRESENTATION (X.226:07/1994)
 ISO8823-PRESENTATION DEFINITIONS ::=
 BEGIN
@@ -10,97 +10,11 @@ BEGIN
 --  In normal mode, the value of the SS-user data parameter of the S-CONNECT request and
 --  indication session-service primitives shall be a CP-type value, followed as a requestor's
 --  option by zero or more CPC-type values.
---IMPORTS
---  RTORQapdu, RTOACapdu, RTORJapdu, RTABapdu
---    FROM Reliable-Transfer-APDU {joint-iso-itu-t(2) reliable-transfer(3)
---      apdus(0)};
--- Importd done localy
---  RTORQapdu, RTOACapdu, RTORJapdu, RTABapdu
---    FROM Reliable-Transfer-APDU {joint-iso-itu-t(2) reliable-transfer(3)
---      apdus(0)};
+IMPORTS
+  RTORQapdu, RTOACapdu, RTORJapdu, RTABapdu
+    FROM Reliable-Transfer-APDU {joint-iso-itu-t(2) reliable-transfer(3)
+      apdus(0)};
 
-RTORQapdu ::= SET {
-  checkpointSize       [0] IMPLICIT INTEGER DEFAULT 0,
-  windowSize           [1] IMPLICIT INTEGER DEFAULT 3,
-  dialogueMode
-    [2] IMPLICIT INTEGER {monologue(0), twa(1)} DEFAULT monologue,
-  connectionDataRQ     [3]  ConnectionData,
-  applicationProtocol
-    [4] IMPLICIT INTEGER OPTIONAL --solely in X.410-1984 mode--
-}
-
-RTOACapdu ::= SET {
-  checkpointSize    [0] IMPLICIT INTEGER DEFAULT 0,
-  windowSize        [1] IMPLICIT INTEGER DEFAULT 3,
-  connectionDataAC  [2]  ConnectionData
-}
-
-RTORJapdu ::= SET {
-  refuseReason  [0] IMPLICIT RefuseReason OPTIONAL, -- only in X.410-1984 mode
-  userDataRJ
---    [1]  OPEN.&Type OPTIONAL 
--- RTSE user data, only in normal mode
---
-     [1]  OPEN
-}
-
-RTABapdu ::= SET {
-  abortReason         [0] IMPLICIT AbortReason OPTIONAL,
-  reflectedParameter  [1] IMPLICIT BIT STRING OPTIONAL,
-  -- 8 bits maximum, only if abortReason is invalidParameter
-  userdataAB
---    [2]  OPEN.&Type OPTIONAL 
--- only in normal mode and if abortReason
---
-    [2]  OPEN
-  -- is userError 
-}
-
-OPEN ::= ANY
-
-ConnectionData ::= CHOICE {
---  open     [0]  OPEN.&Type, 
--- RTSE user data
-  open     [0]  OPEN, 
-  
-  -- this alternative is encoded as [0] IMPLICIT NULL
-  -- in the case of absence of RTSE user data,
-  recover  [1] IMPLICIT SessionConnectionIdentifier
-}
-
-SessionConnectionIdentifier ::= SEQUENCE {
-  callingSSuserReference          CallingSSuserReference,
-  commonReference                 CommonReference,
-  additionalReferenceInformation
-    [0] IMPLICIT AdditionalReferenceInformation OPTIONAL
-}
-
-RefuseReason ::= INTEGER {
-  rtsBusy(0), cannotRecover(1), validationFailure(2),
-  unacceptableDialogueMode(3)}
-
-CallingSSuserReference ::= CHOICE {
-  t61String    T61String -- solely in X.410-1984 --,
-  octetString  OCTET STRING -- solely in normal mode --
-}
-
-CommonReference ::= UTCTime
-
-AdditionalReferenceInformation ::= T61String
-
-AbortReason ::= INTEGER {
-  localSystemProblem(0),
-  invalidParameter(1), -- reflectedParameter supplied
-  unrecognizedActivity(2),
-  temporaryProblem(3),
-  -- the RTSE cannot accept a session for a period of time
-  protocolError(4), -- RTSE level protocol error
-  permanentProblem(5), --provider-abort solely in normal mode 
-  userError(6), -- user-abort solely in normal mode
-  transferCompleted(7) -- activity can't be discarded--}
-
--- end local imports
--- 
 CP-type ::= SET {
   mode-selector           [0] IMPLICIT Mode-selector,
   x410-mode-parameters

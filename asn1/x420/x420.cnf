@@ -1,0 +1,52 @@
+#.MODULE_IMPORT
+MTSAbstractService	x411
+AuthenticationFramework	x509af
+
+#.INCLUDE ../x411/x411-exp.cnf
+#.INCLUDE ../x509af/x509af-exp.cnf
+
+#.EXPORTS
+ORDescriptor
+
+#.FIELD_RENAME
+
+G3FacsimileBodyPart/data	g3facsimile_data
+VideotexBodyPart/data	videotex_data
+ExtendedBodyPart/data	extended_data
+TeletexBodyPart/data	teletex_data
+IA5TextBodyPart/data	ia5text_data
+MessageBodyPart/data	message_data
+EncryptedBodyPart/data	encrypted_data
+
+G3FacsimileBodyPart/parameters	g3facsimile_parameters
+VideotexBodyPart/parameters	videotex_parameters
+ExtendedBodyPart/parameters	extended_parameters
+TeletexBodyPart/parameters	teletex_parameters
+IA5TextBodyPart/parameters	ia5text_parameters
+MessageBodyPart/parameters	message_parameters
+EncryptedBodyPart/parameters	encrypted_parameters
+
+TeletexParameters/non-basic-parameters		teletex_non_basic_parameters
+G3FacsimileParameters/non-basic-parameters	g3facsimile_non_basic_parameters
+
+#.REGISTER
+OriginatingUA B "1.2.826.0.1004.10.1.1" "nexor-originating-ua"
+
+#.FN_BODY IPMSExtension/type
+
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                            object_identifier_id);
+
+#.FN_BODY T_value
+
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+#.FN_BODY T_data
+/* XXX Not implemented yet */
+
+#.FN_BODY Interchange_Data_Element
+/* XXX Not implemented yet */
+
+#.FN_BODY NationallyDefinedBodyPart
+/* XXX Not implemented yet */
+

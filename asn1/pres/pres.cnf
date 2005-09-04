@@ -4,6 +4,9 @@
 # $Id$
 
 #.MODULE_IMPORT
+Reliable-Transfer-APDU	rtse
+
+#.INCLUDE ../rtse/rtse-exp.cnf
 
 #.EXPORTS
 

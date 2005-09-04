@@ -1,0 +1,24 @@
+#.IMPORT_TAG
+OtherMessageDeliveryFields BER_CLASS_UNI BER_UNI_TAG_SET
+MessageDeliveryTime      BER_CLASS_UNI BER_UNI_TAG_UTCTime
+SupplementaryInformation BER_CLASS_UNI BER_UNI_TAG_PrintableString
+ExtendedCertificates     BER_CLASS_UNI BER_UNI_TAG_SET
+ORName                   BER_CLASS_APP 0
+EncodedInformationTypes  BER_CLASS_APP 5
+G3FacsimileNonBasicParameters BER_CLASS_UNI BER_UNI_TAG_BITSTRING
+TeletexNonBasicParameters BER_CLASS_UNI BER_UNI_TAG_SET
+SecurityLabel            BER_CLASS_UNI BER_UNI_TAG_SET
+#.END
+
+#.TYPE_ATTR
+OtherMessageDeliveryFields TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+MessageDeliveryTime      TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+SupplementaryInformation TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+ExtendedCertificates     TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+ORName                   TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+EncodedInformationTypes  TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+G3FacsimileNonBasicParameters TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+TeletexNonBasicParameters TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+SecurityLabel            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+#.END
+

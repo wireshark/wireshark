@@ -1,0 +1,10 @@
+#.IMPORT_TAG
+InvokeId                 BER_CLASS_ANY/*choice*/ -1/*choice*/
+Code                     BER_CLASS_ANY/*choice*/ -1/*choice*/
+#.END
+
+#.TYPE_ATTR
+InvokeId                 TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(ros_InvokeId_vals)  BITMASK = 0
+Code                     TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(ros_Code_vals)  BITMASK = 0
+#.END
+

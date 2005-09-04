@@ -1,0 +1,292 @@
+#.TYPE_ATTR
+CountryName 	   	TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x411_CountryName_vals)  BITMASK = 0
+Time			TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
+
+#.MODULE_IMPORT
+InformationFramework x509if
+CertificateExtensions x509ce
+SelectedAttributeTypes x509sat
+AuthenticationFramework x509af
+
+#.INCLUDE ../x509ce/x509ce-exp.cnf
+#.INCLUDE ../x509if/x509if-exp.cnf
+#.INCLUDE ../x509sat/x509sat-exp.cnf
+#.INCLUDE ../x509af/x509af-exp.cnf
+
+#.EXPORTS
+EncodedInformationTypes
+ExtendedCertificates
+G3FacsimileNonBasicParameters
+MessageDeliveryTime
+ORName
+OtherMessageDeliveryFields
+SupplementaryInformation
+TeletexNonBasicParameters
+SecurityLabel
+
+#.TYPE_RENAME
+MTABindArgument/authenticated	AuthenticatedArgument
+MTABindResult/authenticated	AuthenticatedResult
+
+ExtensionField/value		ExtensionValue
+SecurityCategory/value		CategoryValue
+
+#.FIELD_RENAME
+TeletexPersonalName/surname	teletex-surname
+PersonalName/surname		printable-surname
+UniversalPersonalName/surname	universal-surname
+
+TeletexPersonalName/given-name	teletex-given-name
+PersonalName/given-name		printable-given-name
+UniversalPersonalName/given-name	universal-given-name
+
+TeletexPersonalName/initials	teletex-initials
+PersonalName/initials		printable-initials
+UniversalPersonalName/initials	universal-initials
+
+TeletexPersonalName/generation-qualifier	teletex-generation-qualifier
+PersonalName/generation-qualifier		printable-generation-qualifier
+UniversalPersonalName/generation-qualifier	universal-generation-qualifier
+
+BuiltInDomainDefinedAttribute/type	printable-type
+UniversalDomainDefinedAttribute/type	universal-type
+SecurityCategory/type			category-type
+ExtensionField/type			extension-type
+
+TeletexDomainDefinedAttribute/value	teletex-value
+BuiltInDomainDefinedAttribute/value	printable-value
+UniversalDomainDefinedAttribute/value	universal-value
+SecurityCategory/value			category-value
+ExtensionField/value			extension-value
+
+LastTraceInformation/report-type	trace-report-type
+PerRecipientReportDeliveryFields/report-type	delivery-report-type
+PerRecipientReportFields/report-type/delivery		report-type-delivery
+
+PerRecipientMessageSubmissionFields/recipient-name	submission-recipient-name
+PerRecipientProbeSubmissionFields/recipient-name	probe-recipient-name
+
+PerRecipientReportTransferFields/actual-recipient-name	mta-actual-recipient-name
+
+MessageClass/priority			class-priority
+DeliveryQueue/octets			delivery-queue-octets
+PerRecipientReportFields/report-type/non-delivery	non-delivery-report
+
+MTABindResult/authenticated	authenticated-result
+MTABindArgument/authenticated	authenticated-argument
+
+MTABindResult/authenticated/responder-name	authenticated-responder-name
+MTABindArgument/authenticated/initiator-name	authenticated-initiator-name
+
+RegistrationTypes/extensions		type-extensions
+RegistrationTypes/extensions/_item	type-extensions-item
+
+MessageSubmissionArgument/envelope	message-submission-envelope
+
+OtherMessageDeliveryFields/content-type	delivered-content-type
+Report/content				report-content
+
+PerDomainBilateralInformation/domain	bilateral-domain
+
+Report/envelope				report-envelope
+Message/envelope			message-envelope
+
+PerRecipientReportTransferFields/originally-intended-recipient-name	report-originally-intended-recipient-name
+
+MessageSubmissionEnvelope/originator-name	mts-originator-name
+ProbeSubmissionEnvelope/originator-name		mts-originator-name
+
+MessageTransferEnvelope/originator-name		mta-originator-name
+ProbeTransferEnvelope/originator-name		mta-originator-name
+
+MessageSubmissionEnvelope/per-recipient-fields	per-recipient-message-submission-fields
+ProbeTransferEnvelope/per-recipient-fields	per-recipient-probe-transfer-fields
+ProbeSubmissionEnvelope/per-recipient-fields	per-recipient-probe-submission-fields
+ReportDeliveryArgument/per-recipient-fields	per-recipient-report-delivery-fields
+ReportDeliveryEnvelope/per-recipient-fields	per-recipient-report-delivery-fields
+
+MessageSubmissionEnvelope/per-recipient-fields/_item	per-recipient-message-submission-fields-item
+ProbeTransferEnvelope/per-recipient-fields/_item	per-recipient-probe-transfer-fields-item
+ProbeSubmissionEnvelope/per-recipient-fields/_item	per-recipient-probe-submission-fields-item
+ReportDeliveryArgument/per-recipient-fields/_item	per-recipient-report-delivery-fields-item
+ReportDeliveryEnvelope/per-recipient-fields/_item	per-recipient-report-delivery-fields-item
+
+MessageTransferEnvelope/per-recipient-fields/_item	per-recipient-message-fields-item
+
+
+
+MessageTransferEnvelope/per-recipient-fields		per-recipient-message-fields
+ReportTransferContent/per-recipient-fields		per-recipient-report-fields
+
+#.REGISTER
+RecipientReassignmentProhibited B "x411.extension.1" "recipient-reassignment-prohibited"
+MTSOriginatorRequestedAlternateRecipient B "x411.extension.2" "originator-requested-alternate-recipient"
+DLExpansionProhibited B "x411.extension.3" "dl-expansion-prohibited"
+ConversionWithLossProhibited B "x411.extension.4" "conversion-with-loss-prohibited"
+LatestDeliveryTime B "x411.extension.5" "latest-delivery-time"
+RequestedDeliveryMethod B "x411.extension.6" "requested-delivery-method"
+PhysicalForwardingProhibited B "x411.extension.7" "physical-forwarding-prohibited"
+PhysicalForwardingAddressRequest B "x411.extension.8" "physical-forwarding-address-request"
+PhysicalDeliveryModes B "x411.extension.9" "physical-delivery-modes"
+RegisteredMailType B "x411.extension.10" "registered-mail-type"
+RecipientNumberForAdvice B "x411.extension.11" "recipient-number-for-advice"
+PhysicalRenditionAttributes B "x411.extension.12" "physical-rendition-attributes"
+OriginatorReturnAddress B "x411.extension.13" "originator-return-address"
+PhysicalDeliveryReportRequest B "x411.extension.14" "physical-delivery-report-request"
+OriginatorCertificate B "x411.extension.15" "originator-certificate"
+
+ContentConfidentialityAlgorithmIdentifier B "x411.extension.17" "content-confidentiality-algorithm-identifier"
+
+
+MessageSecurityLabel B "x411.extension.20" "message-security-label"
+ProofOfSubmissionRequest B "x411.extension.21" "proof-of-submission-request"
+ProofOfDeliveryRequest B "x411.extension.22" "proof-of-delivery-request"
+ContentCorrelator B "x411.extension.23" "content-correlator"
+
+RedirectionHistory B "x411.extension.25" "redirection-history"
+DLExpansionHistory B "x411.extension.26" "dl-expansion-history"
+PhysicalForwardingAddress B "x411.extension.27" "physical-forwarding-address"
+
+
+OriginatorAndDLExpansionHistory B "x411.extension.30" "originator-and-DL-expansion-history"
+ReportingDLName B "x411.extension.31" "reporting-DL-name"
+ReportingMTACertificate B "x411.extension.32" "reporting-MTA-certificate"
+
+TraceInformation B "x411.extension.37" "trace-information"
+InternalTraceInformation B "x411.extension.38" "internal-trace-information"
+ReportingMTAName B "x411.extension.39" "reporting-MTA-name"
+ExtendedCertificates B "x411.extension.40" "multiple-originator-certificates"
+
+DLExemptedRecipients B "x411.extension.42" "dl-exempted-recipients"
+
+
+CertificateSelectors B "x411.extension.45" "certificate-selectors"
+
+CommonName B "x411.extension-attribute.1" "common-name"
+TeletexCommonName B "x411.extension-attribute.2" "teletex-common-name"
+TeletexOrganizationName B "x411.extension-attribute.3" "teletex-organization-name"
+TeletexPersonalName B "x411.extension-attribute.4" "teletex-personal-name"
+TeletexOrganizationalUnitNames B "x411.extension-attribute.5" "teletex-organizational-unit-names"
+
+PDSName B "x411.extension-attribute.7" "pds-name"
+PhysicalDeliveryCountryName B "x411.extension-attribute.8" "physical-delivery-country-name"
+PostalCode B "x411.extension-attribute.9" "postal-code"
+PhysicalDeliveryOfficeName B "x411.extension-attribute.10" "physical-delivery-office-name"
+
+
+UniversalCommonName B "x411.extension-attribute.24" "universal-common-name"
+UniversalOrganizationName B "x411.extension-attribute.25" "universal-organization-name"
+UniversalPersonalName B "x411.extension-attribute.26" "universal-personal-name"
+UniversalOrganizationalUnitNames B "x411.extension-attribute.27" "universal-organizational-unit-names"
+
+#.FN_BODY AdditionalInformation
+/*XXX not implemented yet */
+
+#.FN_BODY T_extensions_item
+/*XXX not implemented yet */
+
+#.FN_BODY ExtensionValue
+
+	offset=call_x411_oid_callback("x411.extension", tvb, offset, pinfo, tree);
+
+#.FN_BODY CategoryValue
+
+	offset = dissect_unknown_ber(pinfo, tvb, offset, tree);
+
+#.FN_BODY T_extension_attribute_value
+
+	offset=call_x411_oid_callback("x411.extension-attribute", tvb, offset, pinfo, tree);
+
+#.FN_BODY T_refused_extension
+/*XXX not implemented yet */
+
+#.FN_BODY CountryName
+ gint8 class;
+ gboolean pc, ind_field;
+ gint32 tag;
+ gint32 len1;
+
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                              CountryName_choice, hf_index, ett_x411_CountryName, NULL);
+
+#.FN_BODY AdministrationDomainName
+ gint8 class;
+ gboolean pc, ind_field;
+ gint32 tag;
+ gint32 len1;
+
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
+
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                              AdministrationDomainName_choice, hf_index, ett_x411_AdministrationDomainName, NULL);
+
+#.FN_BODY ContentIdentifier
+ gint8 class;
+ gboolean pc, ind_field;
+ gint32 tag;
+ gint32 len1;
+
+ if(!implicit_tag){
+   /* XXX  asn2eth can not yet handle tagged assignment yes so this
+    * XXX is some conformance file magic to work around that bug
+    */
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+    offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+ }
+
+  /* this is magic I haven't seen used before - I've stripped the tag - but now I'm going to say it is IMPLICIT! */
+  offset = dissect_ber_restricted_string(TRUE, BER_UNI_TAG_PrintableString,
+                                         pinfo, tree, tvb, offset, hf_index,
+                                         NULL);
+
+
+#.FN_BODY INTEGER
+
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  &extension_id);
+
+#.FN_BODY ExtendedContentType
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
+                                         hf_index, object_identifier_id);
+
+
+#.FN_BODY BuiltInContentType
+  guint32	ict = -1;	
+
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  &ict);
+
+  /* convert integer content type to oid for dispatch when the content is found */
+  switch(ict) {
+	case 2:
+	strcpy(object_identifier_id, "2.6.1.10.0");
+	break;
+	case 22:
+	strcpy(object_identifier_id, "2.6.1.10.1");
+	break;
+	default:
+	break;
+	}
+
+#.FN_BODY Content
+  tvbuff_t *next_tvb;
+
+  /* we can do this now constructed octet strings are supported */
+  offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_index, &next_tvb);
+
+  (void) call_ber_oid_callback(object_identifier_id, next_tvb, 0, pinfo, tree);
+
+#.END

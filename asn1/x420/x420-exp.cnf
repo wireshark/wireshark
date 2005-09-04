@@ -1,0 +1,8 @@
+#.IMPORT_TAG
+ORDescriptor             BER_CLASS_UNI BER_UNI_TAG_SET
+#.END
+
+#.TYPE_ATTR
+ORDescriptor             TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+#.END
+
