@@ -493,6 +493,7 @@ DISSECTOR_SRC =	\
 	packet-rmt-fec.c	\
 	packet-rmt-lct.c	\
 	packet-rmt-norm.c	\
+	packet-ros.c	\
 	packet-rpc.c	\
 	packet-rpl.c	\
 	packet-rquota.c	\
@@ -503,10 +504,12 @@ DISSECTOR_SRC =	\
 	packet-rtcp.c	\
 	packet-rtp-events.c	\
 	packet-rtp.c	\
-	packet-rtps.c \
+	packet-rtps.c	\
+	packet-rtse.c	\
 	packet-rtsp.c	\
 	packet-rwall.c	\
-	packet-rx.c	\
+	packet-rx.c		\
+	packet-s4406.c	\
 	packet-sadmind.c	\
 	packet-sap.c	\
 	packet-sccp.c	\
@@ -601,6 +604,8 @@ DISSECTOR_SRC =	\
 	packet-x11.c	\
 	packet-x25.c	\
 	packet-x29.c	\
+	packet-x411.c	\
+	packet-x420.c	\
 	packet-x509af.c	\
 	packet-x509ce.c	\
 	packet-x509if.c	\
@@ -801,6 +806,7 @@ DISSECTOR_INCLUDES =	\
 	packet-rmt-fec.h	\
 	packet-rmt-lct.h	\
 	packet-rmt-norm.h	\
+	packet-ros.h	\
 	packet-rpc.h	\
 	packet-rquota.h	\
 	packet-rsvp.h	\
@@ -808,8 +814,10 @@ DISSECTOR_INCLUDES =	\
 	packet-rtp.h	\
 	packet-rtps.h   \
 	packet-rtp-events.h	\
+	packet-rtse.h	\
 	packet-rwall.h	\
-	packet-rx.h	\
+	packet-rx.h		\
+	packet-s4406.c	\
 	packet-scsi.h	\
 	packet-sctp.h	\
 	packet-sdp.h	\
@@ -847,6 +855,8 @@ DISSECTOR_INCLUDES =	\
 	packet-wtp.h	\
 	packet-x11-keysym.h	\
 	packet-x11-keysymdef.h	\
+	packet-x411.h	\
+	packet-x420.h	\
 	packet-x509af.h	\
 	packet-x509ce.h	\
 	packet-x509if.h	\

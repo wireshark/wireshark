@@ -67,11 +67,9 @@ static void
 dissect_x420(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	int offset = 0;
-	int old_offset;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 	int (*x420_dissector)(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) = NULL;
-	char *x420_op_name;
 
 	if(parent_tree){
 		item = proto_tree_add_item(parent_tree, proto_x420, tvb, 0, -1, FALSE);

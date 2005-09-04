@@ -26,6 +26,6 @@
 #ifndef PACKET_X420_H
 #define PACKET_X420_H
 
-/*#include "packet-x420-exp.h"*/
+#include "packet-x420-exp.h"
 
 #endif  /* PACKET_X420_H */

@@ -35,7 +35,7 @@
 #include <string.h>
 
 #include "packet-ber.h"
-#include "packet-acse.h"
+#include "packet-pres.h"
 #include "packet-ros.h"
 
 #define PNAME  "X.880 OSI Remote Operations Service"
@@ -55,8 +55,6 @@ static guint32 opcode;
 /* Initialize the subtree pointers */
 static gint ett_ros = -1;
 #include "packet-ros-ett.c"
-
-#include "packet-ros-fn.c"
 
 static dissector_table_t ros_oid_dissector_table=NULL;
 static GHashTable *oid_table=NULL;
@@ -94,6 +92,9 @@ call_ros_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 
 	return offset;
 }
+
+#include "packet-ros-fn.c"
+
 
 /*
 * Dissect ROS PDUs inside a PPDU.

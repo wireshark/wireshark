@@ -1,3 +1,10 @@
+/* Do not modify this file.                                                   */
+/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
+/* .\packet-rtse.h                                                            */
+/* ../../tools/asn2eth.py -X -b -e -p rtse -c rtse.cnf -s packet-rtse-template rtse.asn */
+
+/* Input file: packet-rtse-template.h */
+
 /* packet-rtse.h
  * Routines for RTSE packet dissection
  * Graeme Lunt 2005
@@ -26,7 +33,16 @@
 #ifndef PACKET_RTSE_H
 #define PACKET_RTSE_H
 
-#include "packet-rtse-exp.h"
+
+/*--- Included file: packet-rtse-exp.h ---*/
+
+int dissect_rtse_RTORQapdu(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_rtse_RTOACapdu(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_rtse_RTORJapdu(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_rtse_RTABapdu(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+
+/*--- End of included file: packet-rtse-exp.h ---*/
+
 
 void register_rtse_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name);
 

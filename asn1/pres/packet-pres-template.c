@@ -39,6 +39,7 @@
 #include "packet-ber.h"
 #include "packet-ses.h"
 #include "packet-pres.h"
+#include "packet-rtse.h"
 
 
 #define PNAME  "ISO 8823 OSI Presentation Protocol"

@@ -1,5 +1,12 @@
-/* packet-rtse.h
- * Routines for RTSE packet dissection
+/* Do not modify this file.                                                   */
+/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
+/* .\packet-s4406.h                                                           */
+/* ../../tools/asn2eth.py -X -b -e -p s4406 -c s4406.cnf -s packet-s4406-template s4406.asn */
+
+/* Input file: packet-s4406-template.h */
+
+/* packet-s4406.h
+ * Routines for X.411 (X.400 Message Transfer) packet dissection
  * Graeme Lunt 2005
  *
  * $Id$
@@ -23,11 +30,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef PACKET_RTSE_H
-#define PACKET_RTSE_H
+#ifndef PACKET_S4406_H
+#define PACKET_S4406_H
 
-#include "packet-rtse-exp.h"
+/* #include "packet-s4406-exp.h" */
 
-void register_rtse_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name);
-
-#endif  /* PACKET_RTSE_H */
+#endif  /* PACKET_S4406_H */

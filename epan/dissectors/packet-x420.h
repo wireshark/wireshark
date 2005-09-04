@@ -1,5 +1,12 @@
-/* packet-rtse.h
- * Routines for RTSE packet dissection
+/* Do not modify this file.                                                   */
+/* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
+/* .\packet-x420.h                                                            */
+/* ../../tools/asn2eth.py -X -b -e -p x420 -c x420.cnf -s packet-x420-template x420.asn */
+
+/* Input file: packet-x420-template.h */
+
+/* packet-x420.h
+ * Routines for X.420 (X.400 Message Transfer) packet dissection
  * Graeme Lunt 2005
  *
  * $Id$
@@ -23,11 +30,15 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef PACKET_RTSE_H
-#define PACKET_RTSE_H
+#ifndef PACKET_X420_H
+#define PACKET_X420_H
 
-#include "packet-rtse-exp.h"
 
-void register_rtse_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name);
+/*--- Included file: packet-x420-exp.h ---*/
 
-#endif  /* PACKET_RTSE_H */
+int dissect_x420_ORDescriptor(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+
+/*--- End of included file: packet-x420-exp.h ---*/
+
+
+#endif  /* PACKET_X420_H */

@@ -39,6 +39,8 @@
 #include "packet-x509if.h"
 
 #include "packet-s4406.h"
+#include "packet-x411.h" 
+#include "packet-x420.h" 
 
 #define PNAME  "STANAG 4406 Military Message Extensions"
 #define PSNAME "STANAG 4406"

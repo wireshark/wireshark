@@ -57,6 +57,8 @@ static guint32 app_proto=0;
 
 static proto_tree *top_tree=NULL;
 
+static int dissect_rtse_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_);
+
 
 #include "packet-rtse-hf.c"
 
@@ -64,7 +66,6 @@ static proto_tree *top_tree=NULL;
 static gint ett_rtse = -1;
 #include "packet-rtse-ett.c"
 
-#include "packet-rtse-fn.c"
 
 static dissector_table_t rtse_oid_dissector_table=NULL;
 static GHashTable *oid_table=NULL;
@@ -102,6 +103,8 @@ call_rtse_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *
 
 	return offset;
 }
+
+#include "packet-rtse-fn.c"
 
 /*
 * Dissect RTSE PDUs inside a PPDU.

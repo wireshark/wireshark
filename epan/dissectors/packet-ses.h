@@ -195,6 +195,7 @@ struct SESSION_DATA_STRUCTURE
 	guint8  spdu_type;
 	guint8  abort_type;
 	guint8  pres_ctx_id;
+	guint32 ros_op;
 };
 #define		implementation_restriction		0x10
 

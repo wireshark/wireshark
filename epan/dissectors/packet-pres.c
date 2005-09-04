@@ -46,6 +46,7 @@
 #include "packet-ber.h"
 #include "packet-ses.h"
 #include "packet-pres.h"
+#include "packet-rtse.h"
 
 
 #define PNAME  "ISO 8823 OSI Presentation Protocol"
@@ -78,24 +79,6 @@ static GHashTable *pres_ctx_oid_table = NULL;
 
 /*--- Included file: packet-pres-hf.c ---*/
 
-static int hf_pres_checkpointSize = -1;           /* INTEGER */
-static int hf_pres_windowSize = -1;               /* INTEGER */
-static int hf_pres_dialogueMode = -1;             /* T_dialogueMode */
-static int hf_pres_connectionDataRQ = -1;         /* ConnectionData */
-static int hf_pres_applicationProtocol = -1;      /* INTEGER */
-static int hf_pres_connectionDataAC = -1;         /* ConnectionData */
-static int hf_pres_refuseReason = -1;             /* RefuseReason */
-static int hf_pres_userDataRJ = -1;               /* OPEN */
-static int hf_pres_abortReason = -1;              /* AbortReason */
-static int hf_pres_reflectedParameter = -1;       /* BIT_STRING */
-static int hf_pres_userdataAB = -1;               /* OPEN */
-static int hf_pres_open = -1;                     /* OPEN */
-static int hf_pres_recover = -1;                  /* SessionConnectionIdentifier */
-static int hf_pres_callingSSuserReference = -1;   /* CallingSSuserReference */
-static int hf_pres_commonReference = -1;          /* CommonReference */
-static int hf_pres_additionalReferenceInformation = -1;  /* AdditionalReferenceInformation */
-static int hf_pres_t61String = -1;                /* T61String */
-static int hf_pres_octetString = -1;              /* OCTET_STRING */
 static int hf_pres_mode_selector = -1;            /* Mode_selector */
 static int hf_pres_x410_mode_parameters = -1;     /* RTORQapdu */
 static int hf_pres_normal_mode_parameters = -1;   /* T_normal_mode_parameters */
@@ -183,13 +166,6 @@ static gint ett_pres           = -1;
 
 /*--- Included file: packet-pres-ett.c ---*/
 
-static gint ett_pres_RTORQapdu = -1;
-static gint ett_pres_RTOACapdu = -1;
-static gint ett_pres_RTORJapdu = -1;
-static gint ett_pres_RTABapdu = -1;
-static gint ett_pres_ConnectionData = -1;
-static gint ett_pres_SessionConnectionIdentifier = -1;
-static gint ett_pres_CallingSSuserReference = -1;
 static gint ett_pres_CP_type = -1;
 static gint ett_pres_T_normal_mode_parameters = -1;
 static gint ett_pres_T_extensions = -1;
@@ -291,332 +267,17 @@ find_oid_by_pres_ctx_id(packet_info *pinfo _U_, guint32 idx)
 
 /*--- Fields for imported types ---*/
 
-
-
-
-static int
-dissect_pres_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_checkpointSize_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_pres_checkpointSize);
-}
-static int dissect_windowSize_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_pres_windowSize);
-}
-static int dissect_applicationProtocol_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_pres_applicationProtocol);
-}
-
-
-static const value_string pres_T_dialogueMode_vals[] = {
-  {   0, "monologue" },
-  {   1, "twa" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_pres_T_dialogueMode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_dialogueMode_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_T_dialogueMode(TRUE, tvb, offset, pinfo, tree, hf_pres_dialogueMode);
-}
-
-
-
-static int
-dissect_pres_OPEN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-/* FIX ME*/
-
-
-  return offset;
-}
-static int dissect_userDataRJ(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_OPEN(FALSE, tvb, offset, pinfo, tree, hf_pres_userDataRJ);
-}
-static int dissect_userdataAB(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_OPEN(FALSE, tvb, offset, pinfo, tree, hf_pres_userdataAB);
-}
-static int dissect_open(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_OPEN(FALSE, tvb, offset, pinfo, tree, hf_pres_open);
-}
-
-
-
-static int
-dissect_pres_T61String(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
-                                            pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
-
-  return offset;
-}
-static int dissect_t61String(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_T61String(FALSE, tvb, offset, pinfo, tree, hf_pres_t61String);
-}
-
-
-
-static int
-dissect_pres_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-static int dissect_octetString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_pres_octetString);
-}
-static int dissect_octet_aligned_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_pres_octet_aligned);
-}
-
-
-static const value_string pres_CallingSSuserReference_vals[] = {
-  {   0, "t61String" },
-  {   1, "octetString" },
-  { 0, NULL }
-};
-
-static const ber_choice_t CallingSSuserReference_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_t61String },
-  {   1, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_octetString },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_pres_CallingSSuserReference(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 CallingSSuserReference_choice, hf_index, ett_pres_CallingSSuserReference,
-                                 NULL);
-
-  return offset;
-}
-static int dissect_callingSSuserReference(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_CallingSSuserReference(FALSE, tvb, offset, pinfo, tree, hf_pres_callingSSuserReference);
-}
-
-
-
-static int
-dissect_pres_CommonReference(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
-                                            pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
-
-  return offset;
-}
-static int dissect_commonReference(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_CommonReference(FALSE, tvb, offset, pinfo, tree, hf_pres_commonReference);
-}
-
-
-
-static int
-dissect_pres_AdditionalReferenceInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
-                                            pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
-
-  return offset;
-}
-static int dissect_additionalReferenceInformation_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_AdditionalReferenceInformation(TRUE, tvb, offset, pinfo, tree, hf_pres_additionalReferenceInformation);
-}
-
-
-static const ber_sequence_t SessionConnectionIdentifier_sequence[] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_callingSSuserReference },
-  { BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_commonReference },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_additionalReferenceInformation_impl },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_pres_SessionConnectionIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                   SessionConnectionIdentifier_sequence, hf_index, ett_pres_SessionConnectionIdentifier);
-
-  return offset;
-}
-static int dissect_recover_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_SessionConnectionIdentifier(TRUE, tvb, offset, pinfo, tree, hf_pres_recover);
-}
-
-
-static const value_string pres_ConnectionData_vals[] = {
-  {   0, "open" },
-  {   1, "recover" },
-  { 0, NULL }
-};
-
-static const ber_choice_t ConnectionData_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_open },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_recover_impl },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_pres_ConnectionData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 ConnectionData_choice, hf_index, ett_pres_ConnectionData,
-                                 NULL);
-
-  return offset;
-}
-static int dissect_connectionDataRQ(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_ConnectionData(FALSE, tvb, offset, pinfo, tree, hf_pres_connectionDataRQ);
-}
-static int dissect_connectionDataAC(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_ConnectionData(FALSE, tvb, offset, pinfo, tree, hf_pres_connectionDataAC);
-}
-
-
-static const ber_sequence_t RTORQapdu_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_checkpointSize_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_windowSize_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dialogueMode_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_NOTCHKTAG, dissect_connectionDataRQ },
-  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_applicationProtocol_impl },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_pres_RTORQapdu(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
-                              RTORQapdu_set, hf_index, ett_pres_RTORQapdu);
-
-  return offset;
-}
 static int dissect_x410_mode_parameters_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_RTORQapdu(TRUE, tvb, offset, pinfo, tree, hf_pres_x410_mode_parameters);
-}
-
-
-static const ber_sequence_t RTOACapdu_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_checkpointSize_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_windowSize_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_NOTCHKTAG, dissect_connectionDataAC },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_pres_RTOACapdu(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
-                              RTOACapdu_set, hf_index, ett_pres_RTOACapdu);
-
-  return offset;
+  return dissect_rtse_RTORQapdu(TRUE, tvb, offset, pinfo, tree, hf_pres_x410_mode_parameters);
 }
 static int dissect_cPR_PPDU_x400_mode_parameters_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_RTOACapdu(TRUE, tvb, offset, pinfo, tree, hf_pres_cPR_PPDU_x400_mode_parameters);
-}
-
-
-static const value_string pres_RefuseReason_vals[] = {
-  {   0, "rtsBusy" },
-  {   1, "cannotRecover" },
-  {   2, "validationFailure" },
-  {   3, "unacceptableDialogueMode" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_pres_RefuseReason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_refuseReason_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_RefuseReason(TRUE, tvb, offset, pinfo, tree, hf_pres_refuseReason);
-}
-
-
-static const ber_sequence_t RTORJapdu_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_refuseReason_impl },
-  { BER_CLASS_CON, 1, 0, dissect_userDataRJ },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_pres_RTORJapdu(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
-                              RTORJapdu_set, hf_index, ett_pres_RTORJapdu);
-
-  return offset;
+  return dissect_rtse_RTOACapdu(TRUE, tvb, offset, pinfo, tree, hf_pres_cPR_PPDU_x400_mode_parameters);
 }
 static int dissect_cPU_PPDU_x400_mode_parameters(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_RTORJapdu(FALSE, tvb, offset, pinfo, tree, hf_pres_cPU_PPDU_x400_mode_parameters);
-}
-
-
-static const value_string pres_AbortReason_vals[] = {
-  {   0, "localSystemProblem" },
-  {   1, "invalidParameter" },
-  {   2, "unrecognizedActivity" },
-  {   3, "temporaryProblem" },
-  {   4, "protocolError" },
-  {   5, "permanentProblem" },
-  {   6, "userError" },
-  {   7, "transferCompleted" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_pres_AbortReason(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-static int dissect_abortReason_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_AbortReason(TRUE, tvb, offset, pinfo, tree, hf_pres_abortReason);
-}
-
-
-
-static int
-dissect_pres_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
-                                    NULL, hf_index, -1,
-                                    NULL);
-
-  return offset;
-}
-static int dissect_reflectedParameter_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_BIT_STRING(TRUE, tvb, offset, pinfo, tree, hf_pres_reflectedParameter);
-}
-static int dissect_arbitrary_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_BIT_STRING(TRUE, tvb, offset, pinfo, tree, hf_pres_arbitrary);
-}
-
-
-static const ber_sequence_t RTABapdu_set[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_abortReason_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reflectedParameter_impl },
-  { BER_CLASS_CON, 2, 0, dissect_userdataAB },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_pres_RTABapdu(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
-                              RTABapdu_set, hf_index, ett_pres_RTABapdu);
-
-  return offset;
+  return dissect_rtse_RTORJapdu(FALSE, tvb, offset, pinfo, tree, hf_pres_cPU_PPDU_x400_mode_parameters);
 }
 static int dissect_aRU_PPDU_x400_mode_parameters(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_RTABapdu(FALSE, tvb, offset, pinfo, tree, hf_pres_aRU_PPDU_x400_mode_parameters);
+  return dissect_rtse_RTABapdu(FALSE, tvb, offset, pinfo, tree, hf_pres_aRU_PPDU_x400_mode_parameters);
 }
 
 
@@ -966,6 +627,33 @@ dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 }
 static int dissect_single_ASN1_type_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_pres_T_single_ASN1_type(TRUE, tvb, offset, pinfo, tree, hf_pres_single_ASN1_type);
+}
+
+
+
+static int
+dissect_pres_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+static int dissect_octet_aligned_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_pres_octet_aligned);
+}
+
+
+
+static int
+dissect_pres_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
+                                    NULL, hf_index, -1,
+                                    NULL);
+
+  return offset;
+}
+static int dissect_arbitrary_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_pres_BIT_STRING(TRUE, tvb, offset, pinfo, tree, hf_pres_arbitrary);
 }
 
 
@@ -1794,78 +1482,6 @@ void proto_register_pres(void) {
 
 /*--- Included file: packet-pres-hfarr.c ---*/
 
-    { &hf_pres_checkpointSize,
-      { "checkpointSize", "pres.checkpointSize",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "", HFILL }},
-    { &hf_pres_windowSize,
-      { "windowSize", "pres.windowSize",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "", HFILL }},
-    { &hf_pres_dialogueMode,
-      { "dialogueMode", "pres.dialogueMode",
-        FT_INT32, BASE_DEC, VALS(pres_T_dialogueMode_vals), 0,
-        "RTORQapdu/dialogueMode", HFILL }},
-    { &hf_pres_connectionDataRQ,
-      { "connectionDataRQ", "pres.connectionDataRQ",
-        FT_UINT32, BASE_DEC, VALS(pres_ConnectionData_vals), 0,
-        "RTORQapdu/connectionDataRQ", HFILL }},
-    { &hf_pres_applicationProtocol,
-      { "applicationProtocol", "pres.applicationProtocol",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "RTORQapdu/applicationProtocol", HFILL }},
-    { &hf_pres_connectionDataAC,
-      { "connectionDataAC", "pres.connectionDataAC",
-        FT_UINT32, BASE_DEC, VALS(pres_ConnectionData_vals), 0,
-        "RTOACapdu/connectionDataAC", HFILL }},
-    { &hf_pres_refuseReason,
-      { "refuseReason", "pres.refuseReason",
-        FT_INT32, BASE_DEC, VALS(pres_RefuseReason_vals), 0,
-        "RTORJapdu/refuseReason", HFILL }},
-    { &hf_pres_userDataRJ,
-      { "userDataRJ", "pres.userDataRJ",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "RTORJapdu/userDataRJ", HFILL }},
-    { &hf_pres_abortReason,
-      { "abortReason", "pres.abortReason",
-        FT_INT32, BASE_DEC, VALS(pres_AbortReason_vals), 0,
-        "RTABapdu/abortReason", HFILL }},
-    { &hf_pres_reflectedParameter,
-      { "reflectedParameter", "pres.reflectedParameter",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "RTABapdu/reflectedParameter", HFILL }},
-    { &hf_pres_userdataAB,
-      { "userdataAB", "pres.userdataAB",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "RTABapdu/userdataAB", HFILL }},
-    { &hf_pres_open,
-      { "open", "pres.open",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ConnectionData/open", HFILL }},
-    { &hf_pres_recover,
-      { "recover", "pres.recover",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ConnectionData/recover", HFILL }},
-    { &hf_pres_callingSSuserReference,
-      { "callingSSuserReference", "pres.callingSSuserReference",
-        FT_UINT32, BASE_DEC, VALS(pres_CallingSSuserReference_vals), 0,
-        "SessionConnectionIdentifier/callingSSuserReference", HFILL }},
-    { &hf_pres_commonReference,
-      { "commonReference", "pres.commonReference",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "SessionConnectionIdentifier/commonReference", HFILL }},
-    { &hf_pres_additionalReferenceInformation,
-      { "additionalReferenceInformation", "pres.additionalReferenceInformation",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "SessionConnectionIdentifier/additionalReferenceInformation", HFILL }},
-    { &hf_pres_t61String,
-      { "t61String", "pres.t61String",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "CallingSSuserReference/t61String", HFILL }},
-    { &hf_pres_octetString,
-      { "octetString", "pres.octetString",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "CallingSSuserReference/octetString", HFILL }},
     { &hf_pres_mode_selector,
       { "mode-selector", "pres.mode_selector",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2181,13 +1797,6 @@ void proto_register_pres(void) {
 
 /*--- Included file: packet-pres-ettarr.c ---*/
 
-    &ett_pres_RTORQapdu,
-    &ett_pres_RTOACapdu,
-    &ett_pres_RTORJapdu,
-    &ett_pres_RTABapdu,
-    &ett_pres_ConnectionData,
-    &ett_pres_SessionConnectionIdentifier,
-    &ett_pres_CallingSSuserReference,
     &ett_pres_CP_type,
     &ett_pres_T_normal_mode_parameters,
     &ett_pres_T_extensions,
