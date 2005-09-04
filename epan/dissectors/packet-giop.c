@@ -443,6 +443,7 @@ static int hf_giop_iop_scid = -1;
 
 static int hf_giop_reply_status = -1;
 static int hf_giop_exception_id = -1;
+static int hf_giop_objekt_key = -1;
 
 /*
  * (sub)Tree declares
@@ -3200,7 +3201,6 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
 
   guint32 objkey_len = 0;	/* object key length */
   gchar *objkey = NULL;		/* object key sequence */
-  gchar *print_objkey;		/* printable object key sequence */
   gboolean exres = FALSE;	/* result of trying explicit dissectors */
 
   gchar *operation;
@@ -3282,18 +3282,14 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
 
   if (objkey_len > 0)
   {
-       get_CDR_octet_seq(tvb, &objkey, &offset, objkey_len);
-
-       print_objkey = make_printable_string(objkey, objkey_len);
+	  get_CDR_octet_seq(tvb, &objkey, &offset, objkey_len);
 
        if(tree)
        {
-         proto_tree_add_text (request_tree, tvb, offset - objkey_len, objkey_len,
-         /**/                 "Object Key: %s", print_objkey);
+       proto_tree_add_item(request_tree, hf_giop_objekt_key, tvb, offset - objkey_len, objkey_len, FALSE);
 
        }
 
-       g_free( print_objkey );
   }
 
   /*
@@ -3588,8 +3584,6 @@ dissect_giop_locate_request( tvbuff_t * tvb, packet_info * pinfo,
   guint32 offset = 0;
   guint32 request_id;
   guint32 len = 0;
-  gchar *object_key;
-  gchar *p_object_key;
   proto_tree *locate_request_tree = NULL;
   proto_item *tf;
 
@@ -3625,19 +3619,13 @@ dissect_giop_locate_request( tvbuff_t * tvb, packet_info * pinfo,
 	  }
 
 	if (len > 0) {
-	  get_CDR_octet_seq(tvb, &object_key, &offset, len);
-
-	  p_object_key = make_printable_string(object_key, len);
-
+	  
 	  if(locate_request_tree)
 	    {
 
-	      proto_tree_add_text (locate_request_tree, tvb, offset-len, len,
-				   "Object Key: %s", p_object_key);
+	      proto_tree_add_item(locate_request_tree, hf_giop_objekt_key, tvb, offset-len, len, FALSE);
 	    }
 
-	  g_free(p_object_key);
-	  g_free(object_key);
 	}
   }
   else     /* GIOP 1.2 and higher */
@@ -4269,6 +4257,11 @@ proto_register_giop (void)
   { "Exception id", "giop.exceptionid",
 	  FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }
   },
+  { &hf_giop_objekt_key,
+  { "Object Key", "giop.objektkey",
+	  FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
+  },
+
   };
 	
 		
@@ -4612,16 +4605,9 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
       }
     }
 
-    /* Make a printable string */
-
-    p_chars = make_printable_string( objkey, seqlen );
-
     if(tree) {
-      proto_tree_add_text (tree, tvb, *offset -seqlen, seqlen,
-			 "Object Key: %s", p_chars);
+		proto_tree_add_item(tree, hf_giop_objekt_key, tvb, *offset -seqlen, seqlen, FALSE);
     }
-
-    g_free(p_chars);
     g_free(objkey);
   }
 
