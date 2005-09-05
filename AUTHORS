@@ -739,7 +739,7 @@ Hannes Gredler          <hannes[AT]juniper.net> {
 	Show the type value for OSI protocols symbolically in GRE
 	Support MPLS over CHDLC
 	Bi-directional Fault Detection (BFD) support
-	Support for Juniper's DLT_JUNIPER_ATM{1,2} values
+	Support for Juniper's DLT_JUNIPER_ATM1, DLT_JUNIPER_ATM2 values
 	Support for Juniper's PPPOE encapsulation
 }
 
