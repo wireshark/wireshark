@@ -141,8 +141,12 @@ typedef enum {
 	BASE_NONE,	/**< none */
 	BASE_DEC,	/**< decimal */
 	BASE_HEX,	/**< hexadecimal */
-	BASE_OCT	/**< octal */
+	BASE_OCT,	/**< octal */
+	BASE_DEC_HEX,	/**< decimal (hexadecimal) */
+	BASE_HEX_DEC,	/**< hexadecimal (decimal) */
 } base_display_e;
+
+#define IS_BASE_DUAL(b) ((b)==BASE_DEC_HEX||(b)==BASE_HEX_DEC)
 
 /** information describing a header field */
 typedef struct _header_field_info header_field_info;
