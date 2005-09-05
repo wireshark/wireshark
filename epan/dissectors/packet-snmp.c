@@ -833,7 +833,7 @@ check_var_length(guint vb_length, guint required_length)
 		/* Enough room for the largest "Length is XXX,
 		   should be XXX" message - 10 digits for each
 		   XXX. */
-		buf = ep_alloc(sizeof badlen_fmt + 10 + 10);
+		buf = malloc(sizeof badlen_fmt + 10 + 10);
 		g_snprintf(buf, sizeof badlen_fmt + 10 + 10, badlen_fmt, vb_length, required_length);
 		return buf;
 	}

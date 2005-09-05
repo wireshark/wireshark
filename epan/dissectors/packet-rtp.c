@@ -234,18 +234,10 @@ const value_string rtp_payload_type_short_vals[] =
        { 0,            NULL },
 };
 
-static void
-free_hash_item( gpointer key _U_ , gpointer value, gpointer user_data _U_ )
-{
-        g_free(value);
-		g_free(key);
-}
-
 void
 rtp_free_hash_dyn_payload(GHashTable *rtp_dyn_payload)
 {
 	if (rtp_dyn_payload == NULL) return;
-	g_hash_table_foreach(rtp_dyn_payload, (GHFunc)free_hash_item, NULL);
 	g_hash_table_destroy(rtp_dyn_payload);
 	rtp_dyn_payload = NULL;
 }
