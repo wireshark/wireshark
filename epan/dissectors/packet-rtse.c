@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-rtse.c                                                            */
+/* ./packet-rtse.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p rtse -c rtse.cnf -s packet-rtse-template rtse.asn */
 
 /* Input file: packet-rtse-template.c */
@@ -403,7 +403,7 @@ static const ber_sequence_t RTORQapdu_set[] = {
 int
 dissect_rtse_RTORQapdu(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 
-  if(session  = (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data))
+  if((session = (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data)) != NULL)
 	session->ros_op = (ROS_OP_BIND | ROS_OP_ARGUMENT);
 
   offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
@@ -428,7 +428,7 @@ static const ber_sequence_t RTOACapdu_set[] = {
 int
 dissect_rtse_RTOACapdu(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 
-  if(session  = (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data))
+  if((session = (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data)) != NULL)
 	session->ros_op = (ROS_OP_BIND | ROS_OP_RESULT);
 
   offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
@@ -662,7 +662,7 @@ dissect_rtse_T_indirect_reference(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
                 &indir_ref);
 
   /* look up the indirect reference */
-  if(oid = find_oid_by_pres_ctx_id(pinfo, indir_ref)) {
+  if((oid = find_oid_by_pres_ctx_id(pinfo, indir_ref)) != NULL) {
     strcpy(object_identifier_id, oid);
   }
 	

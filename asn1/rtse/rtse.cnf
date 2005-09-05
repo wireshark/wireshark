@@ -12,7 +12,7 @@ RTABapdu
 
 #.FN_BODY RTORQapdu
 
-  if(session  = (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data))
+  if((session = (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data)) != NULL)
 	session->ros_op = (ROS_OP_BIND | ROS_OP_ARGUMENT);
 
   offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
@@ -21,7 +21,7 @@ RTABapdu
 
 #.FN_BODY RTOACapdu
 
-  if(session  = (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data))
+  if((session = (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data)) != NULL)
 	session->ros_op = (ROS_OP_BIND | ROS_OP_RESULT);
 
   offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
@@ -95,7 +95,7 @@ RTABapdu
                 &indir_ref);
 
   /* look up the indirect reference */
-  if(oid = find_oid_by_pres_ctx_id(pinfo, indir_ref)) {
+  if((oid = find_oid_by_pres_ctx_id(pinfo, indir_ref)) != NULL) {
     strcpy(object_identifier_id, oid);
   }
 	
