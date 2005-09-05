@@ -44,7 +44,7 @@
 
 #define PNAME  "STANAG 4406 Military Message Extensions"
 #define PSNAME "STANAG 4406"
-#define PFNAME "MMHS"
+#define PFNAME "s4406"
 
 /* Initialize the protocol and registered fields */
 int proto_s4406 = -1;

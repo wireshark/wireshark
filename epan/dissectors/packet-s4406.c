@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-s4406.c                                                           */
+/* ./packet-s4406.c                                                           */
 /* ../../tools/asn2eth.py -X -b -e -p s4406 -c s4406.cnf -s packet-s4406-template s4406.asn */
 
 /* Input file: packet-s4406-template.c */
@@ -51,7 +51,7 @@
 
 #define PNAME  "STANAG 4406 Military Message Extensions"
 #define PSNAME "STANAG 4406"
-#define PFNAME "MMHS"
+#define PFNAME "s4406"
 
 /* Initialize the protocol and registered fields */
 int proto_s4406 = -1;
