@@ -77,7 +77,7 @@ bytes_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
 }
 
 static int
-guid_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
+guid_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
 {
 	return GUID_STR_LEN;
 }
@@ -241,17 +241,20 @@ ipv6_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogF
 static gboolean
 get_guid(char *s, guint8 *buf)
 {
-	int i, n;
+	size_t i, n;
 	char *p, two_digits[3];
 	static const char fmt[] = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
 
 	n = strlen(s);
-	if (n != strlen(fmt)) return FALSE;
+	if (n != strlen(fmt))
+		return FALSE;
 	for (i=0; i<n; i++) {
 		if (fmt[i] == 'X') {
-			if (!isxdigit(s[i])) return FALSE;
+			if (!isxdigit((guchar)s[i]))
+				return FALSE;
 		} else {
-			if (s[i] != fmt[i]) return FALSE;
+			if (s[i] != fmt[i])
+				return FALSE;
 		}
 	}
 	for (p=s,i=0; i<GUID_LEN; i++) {
