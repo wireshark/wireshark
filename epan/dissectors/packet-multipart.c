@@ -66,6 +66,7 @@
 #include <epan/prefs.h>
 #include <glib.h>
 #include <ctype.h>
+#include <epan/emem.h>
 
 #include <epan/packet.h>
 
