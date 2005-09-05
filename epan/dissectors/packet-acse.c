@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-acse.c                                                            */
+/* ./packet-acse.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p acse -c acse.cnf -s packet-acse-template acse.asn */
 
 /* Input file: packet-acse-template.c */
@@ -325,7 +325,7 @@ dissect_acse_T_indirect_reference(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
                 &indir_ref);
 
   /* look up the indirect reference */
-  if(oid = find_oid_by_pres_ctx_id(pinfo, indir_ref)) {
+  if((oid = find_oid_by_pres_ctx_id(pinfo, indir_ref)) != NULL) {
     strcpy(object_identifier_id, oid);
   }
 
