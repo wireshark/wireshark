@@ -1281,6 +1281,7 @@ dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, i
 	gint length, length_remaining;
 	tvbuff_t *next_tvb;
 	gboolean first_pass;
+
 #ifdef DEBUG_BER
 {
 char *name;
@@ -1328,13 +1329,21 @@ printf("CHOICE dissect_ber_choice(%s) entered len:%d\n",name,tvb_length_remainin
 	/* loop over all entries until we find the right choice or 
 	   run out of entries */
 	ch = choice;
+	if(branch_taken){
+		*branch_taken=-1;
+	}
 	first_pass = TRUE;
 	while(ch->func || first_pass){
-
+		if(branch_taken){
+			(*branch_taken)++;
+		}
 	  /* we reset for a second pass when we will look for choices */
 	  if(!ch->func) {
 	    first_pass = FALSE;
 	    ch = choice; /* reset to the beginning */
+		if(branch_taken){
+			*branch_taken=-1;
+		}
 	  }
 
 choice_try_again:
@@ -1425,6 +1434,12 @@ printf("CHOICE dissect_ber_choice(%s) subdissector ate %d bytes\n",name,count);
 		}
 		ch++;
 	}
+	if(branch_taken){
+		/* none of the branches were taken so set the param 
+		   back to -1 */
+		*branch_taken=-1;
+	}
+
 #ifdef REMOVED
 	/*XXX here we should have another flag to the CHOICE to distinguish
 	 * between teh case when we know it is a mandatory   or if the CHOICE is optional == no arm matched */
