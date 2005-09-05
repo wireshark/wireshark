@@ -403,6 +403,7 @@ static gboolean global_sip_raw_text = FALSE;
 /* strict_sip_version determines whether the SIP dissector enforces
  * the SIP version to be "SIP/2.0". */
 static gboolean strict_sip_version = TRUE;
+static gboolean sip_desegment = FALSE; 
 
 static gboolean dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, gboolean is_heur);
@@ -947,6 +948,65 @@ dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return tvb_length(tvb);
 }
 
+static guint 
+get_sip_pdu_len(tvbuff_t *tvb, int begin_offset) {
+	int offset;
+	gint next_offset, linelen, content_length;
+	line_type_t line_type;
+	guint tvb_len, token_1_len;
+
+	tvb_len = tvb_length_remaining(tvb, begin_offset);
+	offset = begin_offset;
+	linelen = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
+	line_type = sip_parse_line(tvb, linelen, &token_1_len);
+	if (line_type == OTHER_LINE) return tvb_len;
+	offset = next_offset;
+	content_length = -1;
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
+		gint line_end_offset;
+		gint colon_offset;
+		gint semi_colon_offset;
+		gint hf_index;
+		gint value_offset;
+		guchar c;
+		char *value;
+
+		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+		if (linelen == 0) {
+			/*
+			 * This is a blank line separating the
+			 * message header from the message body.
+			 */
+			if (content_length >= 0)
+				return next_offset + content_length;
+			else
+				return tvb_len;
+		}
+		line_end_offset = offset + linelen;
+		colon_offset = tvb_find_guint8(tvb, offset, linelen, ':');
+		if (colon_offset == -1) return tvb_len;
+		hf_index = sip_is_known_sip_header(tvb, offset, colon_offset - offset);
+		if (hf_index == POS_CONTENT_LENGTH) {
+			/* Skip whitespace after the colon. */
+			value_offset = colon_offset + 1;
+			while (value_offset < line_end_offset &&
+			       ((c = tvb_get_guint8(tvb, value_offset)) == ' ' || c == '\t'))
+				value_offset++;
+			/* Fetch the value. */
+			value = tvb_get_ephemeral_string(tvb, value_offset, line_end_offset - value_offset);
+			content_length = atoi(value);
+		}
+		offset = next_offset;
+	}
+	return tvb_len;
+}
+
+static void 
+dissect_sip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_sip_common(tvb, pinfo, tree, TRUE);
+}
+
 static void
 dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -957,7 +1017,15 @@ dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		call_dissector(sigcomp_handle, tvb, pinfo, tree);
 		return;
 	}
-	dissect_sip_common(tvb, pinfo, tree, TRUE);
+	if (sip_desegment) {
+		tcp_dissect_pdus(tvb, pinfo, tree,
+			sip_desegment,     /* desegment or not   */
+			36,                /* fixed-length part of the PDU */
+			get_sip_pdu_len,   /* routine to get the length of the PDU */
+			dissect_sip_pdu);  /* routine to dissect a PDU */
+	} else {
+		dissect_sip_common(tvb, pinfo, tree, TRUE);
+	}
 }
 
 static gboolean
@@ -2622,6 +2690,10 @@ void proto_register_sip(void)
 		"Disable it to allow SIP traffic with a different version "
 		"to be dissected as SIP.",
 		&strict_sip_version);
+	prefs_register_bool_preference(sip_module, "desegment",
+		"Desegment SIP messages",
+		"Whether the SIP dissector should desegment all messages spanning multiple TCP segments",
+		&sip_desegment); 
 
 	register_init_routine(&sip_init_protocol);
 
