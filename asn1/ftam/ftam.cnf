@@ -701,12 +701,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
  }
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Operation_Result_choice, hf_index, ett_ftam_Operation_Result, NULL);
+#.FN_PARS FTAM-Regime-PDU
+	VAL_PTR = &branch_taken
 
 #.FN_BODY FTAM-Regime-PDU
   gint branch_taken;
 
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              FTAM_Regime_PDU_choice, hf_index, ett_ftam_FTAM_Regime_PDU, &branch_taken);
+  %(DEFAULT_BODY)s
   
   if( (branch_taken!=-1) && ftam_FTAM_Regime_PDU_vals[branch_taken].strptr ){
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -714,11 +715,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
 	}
   }
 
+#.FN_PARS File-PDU
+	VAL_PTR = &branch_taken
+
 #.FN_BODY File-PDU
   gint branch_taken;
 
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              File_PDU_choice, hf_index, ett_ftam_File_PDU, &branch_taken);
+  %(DEFAULT_BODY)s
 
   if( (branch_taken!=-1) && ftam_File_PDU_vals[branch_taken].strptr ){
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -726,11 +729,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
 	}
   }
 
+#.FN_PARS Bulk-Data-PDU
+	VAL_PTR = &branch_taken
+
 #.FN_BODY Bulk-Data-PDU
   gint branch_taken;
 
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Bulk_Data_PDU_choice, hf_index, ett_ftam_Bulk_Data_PDU, &branch_taken);
+  %(DEFAULT_BODY)s
 
   if( (branch_taken!=-1) && ftam_Bulk_Data_PDU_vals[branch_taken].strptr ){
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -738,11 +743,13 @@ Legal-Qualification-Attribute/actual-values	actual_values9
 	}
   }
 
+#.FN_PARS FSM-PDU
+	VAL_PTR = &branch_taken
+
 #.FN_BODY FSM-PDU
   gint branch_taken;
 
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              FSM_PDU_choice, hf_index, ett_ftam_FSM_PDU, &branch_taken);
+  %(DEFAULT_BODY)s
 
   if( (branch_taken!=-1) && ftam_FSM_PDU_vals[branch_taken].strptr ){
 	if (check_col(pinfo->cinfo, COL_INFO)) {

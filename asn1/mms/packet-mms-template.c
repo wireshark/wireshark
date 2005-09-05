@@ -114,7 +114,7 @@ void proto_register_mms(void) {
 
 /*--- proto_reg_handoff_mms --- */
 void proto_reg_handoff_mms(void) {
-	register_ber_oid_dissector("1.0.9506.2.3", dissect_mms, proto_mms, 
-	  "mms");
+	register_ber_oid_dissector("1.0.9506.2.3", dissect_mms, proto_mms,"MMS");
+	register_ber_oid_dissector("1.0.9506.2.1", dissect_mms, proto_mms,"mms-abstract-syntax-version1(1)");
 
 }

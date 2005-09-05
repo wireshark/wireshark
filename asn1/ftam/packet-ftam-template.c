@@ -43,7 +43,7 @@
 #include "packet-acse.h"
 #include "packet-ftam.h"
 
-#define PNAME  "FTAM"
+#define PNAME  "ISO 8571 FTAM"
 #define PSNAME "FTAM"
 #define PFNAME "ftam"
 
@@ -121,7 +121,10 @@ void proto_register_ftam(void) {
 
 /*--- proto_reg_handoff_ftam --- */
 void proto_reg_handoff_ftam(void) {
-	register_ber_oid_dissector("1.0.8571.1.1", dissect_ftam, proto_ftam, 
-	  "ftam");
+	register_ber_oid_dissector("1.0.8571.1.1", dissect_ftam, proto_ftam,"iso-ftam(1)");
+	register_ber_oid_dissector("1.0.8571.2.1", dissect_ftam, proto_ftam,"ftam-pci(1)");
+	register_ber_oid_name("1.3.14.5.5.9","NBS-9 FTAM file directory file");
+	register_ber_oid_name("1.0.8571.3.1","FTAM hierarchical file model");
+	register_ber_oid_name("1.0.8571.4.1","FTAM unstructured constraint set");
 
 }
