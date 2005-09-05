@@ -180,18 +180,18 @@ void proto_reg_handoff_x411(void) {
   register_ber_oid_name("2.6.0.1.6", "id-ac-mts-transfer");
 
   /* we register RTSE with BER (which is used by ACSE) */
-  if(handle = find_dissector("rtse")) {
+  if((handle = find_dissector("rtse")) != NULL) {
     register_ber_oid_dissector_handle("2.6.0.2.12", handle, 0 , "id-as-mta-rtse");
     register_ber_oid_dissector_handle("2.6.0.2.7", handle, 0 , "id-as-mtse");
   }
 
   /* then register ROS with RTSE  */
-  if(handle = find_dissector("ros")) {
+  if((handle = find_dissector("ros")) != NULL) {
     register_rtse_oid_dissector_handle("2.6.0.2.12", handle, 0 , "id-as-mta-rtse");
   }
 
   /* and then finally X411 with ROS  and RTSE */
-  if(handle = find_dissector("x411")) {
+  if((handle = find_dissector("x411")) != NULL) {
     register_ros_oid_dissector_handle("2.6.0.2.12", handle, 0, "id-as-mta-rtse"); 
     register_rtse_oid_dissector_handle("2.6.0.2.7", handle, 0, "id-as-mtse");
 
