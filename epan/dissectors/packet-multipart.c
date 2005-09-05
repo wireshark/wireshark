@@ -599,7 +599,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 
 							if (semicolon_offset > 0) {
 								value_str[semicolon_offset] = '\0';
-								parameters = value_str + semicolon_offset + 1;
+								parameters = ep_strdup(value_str + semicolon_offset + 1);
 							} else {
 								parameters = NULL;
 							}
