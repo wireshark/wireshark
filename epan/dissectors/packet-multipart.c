@@ -661,17 +661,21 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 				dissected = dissector_try_string(media_type_dissector_table,
 						content_type_str, tmp_tvb, pinfo, subtree);
 			}
+			if (! dissected) {
+				const char *save_match_string = pinfo->match_string;
+				pinfo->match_string = content_type_str;
+				call_dissector(media_handle, tmp_tvb, pinfo, subtree);
+				pinfo->match_string = save_match_string;
+			}
 			pinfo->private_data = save_private_data;
 			g_free(content_type_str);
 			content_type_str = NULL;
 			parameters = NULL; /* Shares same memory as content_type_str */
-			if (! dissected) {
-				call_dissector(media_handle, tmp_tvb, pinfo, tree);
-			}
 		} else {
 			call_dissector(data_handle, tmp_tvb, pinfo, subtree);
 		}
 		if (tree) {
+			proto_item_set_len(ti, boundary_start - start);
 			if (*last_boundary == TRUE) {
 				proto_tree_add_text(tree, tvb,
 						boundary_start, boundary_line_len,
