@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-ftam.c                                                            */
+/* .\packet-ftam.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p ftam -c ftam.cnf -s packet-ftam-template ISO8571-FTAM.asn */
 
 /* Input file: packet-ftam-template.c */
@@ -50,7 +50,7 @@
 #include "packet-acse.h"
 #include "packet-ftam.h"
 
-#define PNAME  "FTAM"
+#define PNAME  "ISO 8571 FTAM"
 #define PSNAME "FTAM"
 #define PFNAME "ftam"
 
@@ -1690,8 +1690,10 @@ static int
 dissect_ftam_FTAM_Regime_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   gint branch_taken;
 
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              FTAM_Regime_PDU_choice, hf_index, ett_ftam_FTAM_Regime_PDU, &branch_taken);
+    offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 FTAM_Regime_PDU_choice, hf_index, ett_ftam_FTAM_Regime_PDU,
+                                 &branch_taken);
+
   
   if( (branch_taken!=-1) && ftam_FTAM_Regime_PDU_vals[branch_taken].strptr ){
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -4010,8 +4012,10 @@ static int
 dissect_ftam_File_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   gint branch_taken;
 
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              File_PDU_choice, hf_index, ett_ftam_File_PDU, &branch_taken);
+    offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 File_PDU_choice, hf_index, ett_ftam_File_PDU,
+                                 &branch_taken);
+
 
   if( (branch_taken!=-1) && ftam_File_PDU_vals[branch_taken].strptr ){
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -4360,8 +4364,10 @@ static int
 dissect_ftam_Bulk_Data_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   gint branch_taken;
 
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              Bulk_Data_PDU_choice, hf_index, ett_ftam_Bulk_Data_PDU, &branch_taken);
+    offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 Bulk_Data_PDU_choice, hf_index, ett_ftam_Bulk_Data_PDU,
+                                 &branch_taken);
+
 
   if( (branch_taken!=-1) && ftam_Bulk_Data_PDU_vals[branch_taken].strptr ){
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -5285,7 +5291,6 @@ dissect_ftam_Operation_Result(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                               Operation_Result_choice, hf_index, ett_ftam_Operation_Result, NULL);
 
-
   return offset;
 }
 static int dissect_operation_result(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -5896,8 +5901,10 @@ static int
 dissect_ftam_FSM_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   gint branch_taken;
 
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              FSM_PDU_choice, hf_index, ett_ftam_FSM_PDU, &branch_taken);
+    offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 FSM_PDU_choice, hf_index, ett_ftam_FSM_PDU,
+                                 &branch_taken);
+
 
   if( (branch_taken!=-1) && ftam_FSM_PDU_vals[branch_taken].strptr ){
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -7897,7 +7904,10 @@ void proto_register_ftam(void) {
 
 /*--- proto_reg_handoff_ftam --- */
 void proto_reg_handoff_ftam(void) {
-	register_ber_oid_dissector("1.0.8571.1.1", dissect_ftam, proto_ftam, 
-	  "ftam");
+	register_ber_oid_dissector("1.0.8571.1.1", dissect_ftam, proto_ftam,"iso-ftam(1)");
+	register_ber_oid_dissector("1.0.8571.2.1", dissect_ftam, proto_ftam,"ftam-pci(1)");
+	register_ber_oid_name("1.3.14.5.5.9","NBS-9 FTAM file directory file");
+	register_ber_oid_name("1.0.8571.3.1","FTAM hierarchical file model");
+	register_ber_oid_name("1.0.8571.4.1","FTAM unstructured constraint set");
 
 }
