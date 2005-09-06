@@ -276,14 +276,14 @@ OpenLogicalChannel
   VAL_PTR = &value_tvb
 #.FN_BODY UnicastAddress/iPAddress/network
 
-	tvbuff_t *value_tvb;
+  tvbuff_t *value_tvb;
 
 %(DEFAULT_BODY)s
   if ( media_channel )
-	tvb_memcpy(value_tvb, (char *)&ipv4_address, 0, 4);
+    tvb_memcpy(value_tvb, (guint8*)&ipv4_address, 0, 4);
 
   if ( media_control_channel )
-	tvb_memcpy(value_tvb, (char *)&rtcp_ipv4_address, 0, 4);
+    tvb_memcpy(value_tvb, (guint8*)&rtcp_ipv4_address, 0, 4);
 
 #.END
 #----------------------------------------------------------------------------------------
@@ -364,7 +364,7 @@ OpenLogicalChannel
 
 		src_addr.type=AT_IPv4;
 		src_addr.len=4;
-		src_addr.data=(char *)&ipv4_address;
+		src_addr.data=(guint8*)&ipv4_address;
 
 		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num, NULL);
 	}
@@ -373,7 +373,7 @@ OpenLogicalChannel
 
 		src_addr.type=AT_IPv4;
 		src_addr.len=4;
-		src_addr.data=(char *)&rtcp_ipv4_address;
+		src_addr.data=(guint8*)&rtcp_ipv4_address;
 
 		rtcp_add_address(pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", pinfo->fd->num);
 	}
@@ -394,7 +394,7 @@ OpenLogicalChannel
 
 		src_addr.type=AT_IPv4;
 		src_addr.len=4;
-		src_addr.data=(char *)&ipv4_address;
+		src_addr.data=(guint8*)&ipv4_address;
 
 		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num, NULL);
 	}
@@ -403,7 +403,7 @@ OpenLogicalChannel
 
 		src_addr.type=AT_IPv4;
 		src_addr.len=4;
-		src_addr.data=(char *)&rtcp_ipv4_address;
+		src_addr.data=(guint8*)&rtcp_ipv4_address;
 
 		rtcp_add_address(pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", pinfo->fd->num);
 	}

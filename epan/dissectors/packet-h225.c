@@ -1212,12 +1212,14 @@ static int dissect_protocolIdentifier(tvbuff_t *tvb, int offset, packet_info *pi
 
 static int
 dissect_h225_T_h245ipv4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-	tvbuff_t *value_tvb;
+  tvbuff_t *value_tvb;
 
+  ipv4_address = 0;
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
                                        4, 4, &value_tvb);
 
-	tvb_memcpy(value_tvb, (char *)&ipv4_address, 0, 4);
+  if (value_tvb)
+    tvb_memcpy(value_tvb, (guint8*)&ipv4_address, 0, 4);
 
   return offset;
 }
@@ -2244,7 +2246,7 @@ dissect_h225_DialedDigits(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
   if (h225_pi->is_destinationInfo == TRUE) {
     if (value_tvb) {
       len = tvb_length(value_tvb);
-      tvb_memcpy(value_tvb, h225_pi->dialedDigits, 0, len);
+      tvb_memcpy(value_tvb, (guint8*)h225_pi->dialedDigits, 0, len);
     }
     h225_pi->dialedDigits[len] = '\0';
 	h225_pi->is_destinationInfo = FALSE;

@@ -292,7 +292,7 @@ dissect_per_restricted_character_string_sorted(tvbuff_t *tvb, guint32 offset, pa
 {
 	guint32 length;
 	gboolean byte_aligned;
-	char *buf;
+	guint8 *buf;
 	guint char_pos;
 	int bits_per_char;
 	guint32 old_offset;
@@ -405,7 +405,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 		}
 	}
 	buf[char_pos]=0;
-	proto_tree_add_string(tree, hf_index, tvb, (old_offset>>3), (offset>>3)-(old_offset>>3), buf);
+	proto_tree_add_string(tree, hf_index, tvb, (old_offset>>3), (offset>>3)-(old_offset>>3), (char*)buf);
 	if (value_tvb) {
 		*value_tvb = tvb_new_real_data(buf, length, length); 
 		tvb_set_free_cb(*value_tvb, g_free);
@@ -542,7 +542,6 @@ DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 
 	/* 19.6 ub>=64k or unset */
 	if(max_len>=65536){
-		guint32 start_offset=offset;
 		/* semi-constrained whole number for number of elements */
 		/* each element encoded as 10.9 */
 		offset=dissect_per_length_determinant(tvb, offset, pinfo, parent_tree, hf_per_sequence_of_length, &length);
@@ -1473,11 +1472,11 @@ DEBUG_ENTRY("dissect_per_octet_string");
 				it = proto_tree_add_uint(tree, hf_index, tvb, val_start, val_length, val_length);
 			else
 				it = proto_tree_add_int(tree, hf_index, tvb, val_start, val_length, val_length);
-			proto_item_append_text(it, (val_length == 1) ? " octet" : " octets");
+			proto_item_append_text(it, plurality(val_length, " octet", " octets"));
 		} else {
 			if (pbytes) {
 				if(IS_FT_STRING(hfi->type)){
-					proto_tree_add_string(tree, hf_index, tvb, val_start, val_length, pbytes);
+					proto_tree_add_string(tree, hf_index, tvb, val_start, val_length, (char*)pbytes);
 				} else if (hfi->type==FT_BYTES) {
 					proto_tree_add_bytes(tree, hf_index, tvb, val_start, val_length, pbytes);
 				} else {

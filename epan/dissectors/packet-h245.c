@@ -9587,16 +9587,16 @@ static int dissect_v76LogicalChannelParameters(tvbuff_t *tvb, int offset, packet
 static int
 dissect_h245_Ipv4_network(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
 
-	tvbuff_t *value_tvb;
+  tvbuff_t *value_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
                                        4, 4, &value_tvb);
 
   if ( media_channel )
-	tvb_memcpy(value_tvb, (char *)&ipv4_address, 0, 4);
+    tvb_memcpy(value_tvb, (guint8*)&ipv4_address, 0, 4);
 
   if ( media_control_channel )
-	tvb_memcpy(value_tvb, (char *)&rtcp_ipv4_address, 0, 4);
+    tvb_memcpy(value_tvb, (guint8*)&rtcp_ipv4_address, 0, 4);
 
 
   return offset;
@@ -10176,7 +10176,7 @@ dissect_h245_OLC_rev_multiplexParameters(tvbuff_t *tvb, int offset, packet_info 
 
 		src_addr.type=AT_IPv4;
 		src_addr.len=4;
-		src_addr.data=(char *)&ipv4_address;
+		src_addr.data=(guint8*)&ipv4_address;
 
 		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num, NULL);
 	}
@@ -10185,7 +10185,7 @@ dissect_h245_OLC_rev_multiplexParameters(tvbuff_t *tvb, int offset, packet_info 
 
 		src_addr.type=AT_IPv4;
 		src_addr.len=4;
-		src_addr.data=(char *)&rtcp_ipv4_address;
+		src_addr.data=(guint8*)&rtcp_ipv4_address;
 
 		rtcp_add_address(pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", pinfo->fd->num);
 	}
@@ -12959,7 +12959,7 @@ dissect_h245_T_forwardMultiplexAckParameters(tvbuff_t *tvb, int offset, packet_i
 
 		src_addr.type=AT_IPv4;
 		src_addr.len=4;
-		src_addr.data=(char *)&ipv4_address;
+		src_addr.data=(guint8*)&ipv4_address;
 
 		rtp_add_address(pinfo, &src_addr, ipv4_port, 0, "H245", pinfo->fd->num, NULL);
 	}
@@ -12968,7 +12968,7 @@ dissect_h245_T_forwardMultiplexAckParameters(tvbuff_t *tvb, int offset, packet_i
 
 		src_addr.type=AT_IPv4;
 		src_addr.len=4;
-		src_addr.data=(char *)&rtcp_ipv4_address;
+		src_addr.data=(guint8*)&rtcp_ipv4_address;
 
 		rtcp_add_address(pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", pinfo->fd->num);
 	}

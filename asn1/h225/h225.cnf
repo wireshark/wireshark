@@ -213,7 +213,7 @@ CallIdentifier/guid guid
   if (h225_pi->is_destinationInfo == TRUE) {
     if (value_tvb) {
       len = tvb_length(value_tvb);
-      tvb_memcpy(value_tvb, h225_pi->dialedDigits, 0, len);
+      tvb_memcpy(value_tvb, (guint8*)h225_pi->dialedDigits, 0, len);
     }
     h225_pi->dialedDigits[len] = '\0';
 	h225_pi->is_destinationInfo = FALSE;
@@ -223,10 +223,12 @@ CallIdentifier/guid guid
 #.FN_PARS H245TransportAddress/h245ipAddress/h245ipv4
   VAL_PTR = &value_tvb
 #.FN_BODY H245TransportAddress/h245ipAddress/h245ipv4
-	tvbuff_t *value_tvb;
+  tvbuff_t *value_tvb;
 
+  ipv4_address = 0;
 %(DEFAULT_BODY)s
-	tvb_memcpy(value_tvb, (char *)&ipv4_address, 0, 4);
+  if (value_tvb)
+    tvb_memcpy(value_tvb, (guint8*)&ipv4_address, 0, 4);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_PARS H245TransportAddress/h245ipAddress/h245ipv4port

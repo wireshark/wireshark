@@ -143,7 +143,7 @@ typedef enum {
 	BASE_HEX,	/**< hexadecimal */
 	BASE_OCT,	/**< octal */
 	BASE_DEC_HEX,	/**< decimal (hexadecimal) */
-	BASE_HEX_DEC,	/**< hexadecimal (decimal) */
+	BASE_HEX_DEC	/**< hexadecimal (decimal) */
 } base_display_e;
 
 #define IS_BASE_DUAL(b) ((b)==BASE_DEC_HEX||(b)==BASE_HEX_DEC)
