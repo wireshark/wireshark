@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h225.c                                                            */
+/* ./packet-h225.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h225 -c h225.cnf -s packet-h225-template h225.asn */
 
 /* Input file: packet-h225-template.c */
@@ -2246,10 +2246,13 @@ dissect_h225_DialedDigits(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
   if (h225_pi->is_destinationInfo == TRUE) {
     if (value_tvb) {
       len = tvb_length(value_tvb);
+      /* XXX - should this be allocated as an ephemeral string? */
+      if (len > sizeof h225_pi->dialedDigits - 1)
+        len = sizeof h225_pi->dialedDigits - 1;
       tvb_memcpy(value_tvb, (guint8*)h225_pi->dialedDigits, 0, len);
     }
     h225_pi->dialedDigits[len] = '\0';
-	h225_pi->is_destinationInfo = FALSE;
+    h225_pi->is_destinationInfo = FALSE;
   }
 
   return offset;

@@ -213,10 +213,13 @@ CallIdentifier/guid guid
   if (h225_pi->is_destinationInfo == TRUE) {
     if (value_tvb) {
       len = tvb_length(value_tvb);
+      /* XXX - should this be allocated as an ephemeral string? */
+      if (len > sizeof h225_pi->dialedDigits - 1)
+        len = sizeof h225_pi->dialedDigits - 1;
       tvb_memcpy(value_tvb, (guint8*)h225_pi->dialedDigits, 0, len);
     }
     h225_pi->dialedDigits[len] = '\0';
-	h225_pi->is_destinationInfo = FALSE;
+    h225_pi->is_destinationInfo = FALSE;
   }
 #.END
 #----------------------------------------------------------------------------------------
