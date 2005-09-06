@@ -151,6 +151,13 @@ Gnu info
 
       </itemizedlist>
     </para>
+
+    <para>
+      The PCRE library that ships with the Windows installer has been upgraded
+      from version 4.4 to 6.3 in response to a
+      <ulink url="http://www.securityfocus.com/bid/14620">security
+      vulnerability</ulink>.
+    </para>
     </section>
 
     <section><title>New and Updated Features</title>
