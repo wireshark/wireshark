@@ -69,6 +69,7 @@
 #include <epan/strutil.h>
 #include <epan/to_str.h>
 #include <epan/prefs.h>
+#include <epan/reassemble.h>
 #include <epan/emem.h>
 #include "packet-ber.h"
 
@@ -489,6 +490,88 @@ dissect_ber_length(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int 
 		*ind = tmp_ind;
 	return offset;
 }
+static int 
+reassemble_octet_string(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32 con_len, gboolean ind, tvbuff_t **out_tvb) 
+{
+  static GHashTable *octet_segment_table = NULL;
+  static GHashTable *octet_reassembled_table = NULL;
+  fragment_data *fd_head = NULL;
+  tvbuff_t *next_tvb;
+  tvbuff_t *reassembled_tvb = NULL;
+  guint16 dst_ref = 0;
+  int start_offset = offset;
+  gboolean fragment = TRUE;
+  gboolean firstFragment = TRUE;
+
+  if(octet_segment_table == NULL) {
+    /* I assume I can take this late binding approach */
+    fragment_table_init(&octet_segment_table);
+    reassembled_table_init(&octet_reassembled_table);
+
+  }
+
+  /* so we need to consume octet strings for the given length */
+
+  /* not sure we need this */
+  pinfo->fragmented = TRUE;
+
+  while(!fd_head) {
+
+    offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_ber_unknown_OCTETSTRING, &next_tvb);
+
+    if(ind) {
+      /* this was indefinite length - so check for EOC */
+      
+      if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0)) {
+	fragment = FALSE;
+	/* skip past EOC */
+	offset +=2;
+      }
+    } else {
+      
+      if(offset - start_offset >= con_len)
+	fragment = FALSE;
+    }
+
+    if(!fragment && firstFragment) {
+      /* there is only one fragment (I'm sure there's a reason it was constructed) */
+      /* anyway, we can get out of here */
+      reassembled_tvb = next_tvb;
+      break;
+    }
+
+    fd_head = fragment_add_seq_next(next_tvb, 0, pinfo, dst_ref,
+				    octet_segment_table,
+				    octet_reassembled_table,
+				    tvb_length(next_tvb),
+				    fragment);
+
+    firstFragment = FALSE;
+  }
+
+  if(fd_head) {
+    if(fd_head->next) {
+      reassembled_tvb = tvb_new_real_data(fd_head->data,
+					  fd_head->len,
+					  fd_head->len);
+
+      tvb_set_child_real_data_tvbuff(next_tvb, reassembled_tvb);
+
+      /* not sure I really want to do this here - should be nearer the application where we can give it a better name*/
+      add_new_data_source(pinfo, reassembled_tvb, "Reassembled OCTET STRING");
+
+    }
+  }
+
+  if(out_tvb)
+    *out_tvb = reassembled_tvb;
+
+  /* again - not sure we need this */
+  pinfo->fragmented = FALSE;
+  
+  return offset;
+
+}
 
 /* 8.7 Encoding of an octetstring value */
 int 
@@ -546,11 +629,8 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 	ber_last_created_item = NULL;
 	if (pc) {
 		/* constructed */
-		/* TO DO */
-		if(out_tvb)
-			*out_tvb=NULL;
-			
-    printf("TODO: handle constructed type in packet-ber.c, dissect_ber_octet_string\n");
+	  end_offset = reassemble_octet_string(pinfo, tree, tvb, offset, len, ind, out_tvb);
+
 	} else {
 		/* primitive */
 		if(hf_id >= 0) {
@@ -1381,7 +1461,11 @@ printf("CHOICE testing potential subdissector class:%d:(expected)%d  tag:%d:(exp
 			length_remaining=tvb_length_remaining(tvb, hoffset);
 			if(length_remaining>length)
 				length_remaining=length;
+			
+			if(first_pass)
 			next_tvb=tvb_new_subset(tvb, hoffset, length_remaining, length);
+			else
+			  next_tvb = tvb; /* we didn't make selection on this class/tag so pass it on */
 
 #ifdef DEBUG_BER
 {
@@ -1414,7 +1498,7 @@ name="unnamed";
 printf("CHOICE dissect_ber_choice(%s) subdissector ate %d bytes\n",name,count);
 }
 #endif
-			if((count==0)&&(ch->class==class)&&(ch->tag==-1)&&(ch->flags&BER_FLAGS_NOOWNTAG)){
+			if((count==0)&&(((ch->class==class)&&(ch->tag==-1)&&(ch->flags&BER_FLAGS_NOOWNTAG)) || !first_pass)){
 				/* wrong one, break and try again */
 				ch++;
 				goto choice_try_again;
