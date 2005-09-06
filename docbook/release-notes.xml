@@ -244,7 +244,10 @@ Gnu info
 
   <section id="FileLocations"><title>File Locations</title>
     <para>
-  <!-- XXX needs to be written -->
+      Ethereal and Tethereal look in several different locations for
+      preference files, plugins, SNMP MIBS, and RADIUS dictionaries.
+      These locations vary from platform to platform.  You can use
+      About->Folders to find the default locations on your system.
     </para>
   </section>
 
