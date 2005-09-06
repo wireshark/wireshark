@@ -120,7 +120,7 @@ ADNS_DIR=$(ETHEREAL_LIBS)\adns-1.0-win32-04
 # If you don't have PCRE, comment this line out, so that PCRE_DIR
 # isn't defined.
 #
-PCRE_DIR=$(ETHEREAL_LIBS)\pcre-4.4
+PCRE_DIR=$(ETHEREAL_LIBS)\pcre-6.3
 
 #
 # If you have the Nettle encryption library, set this to the pathname

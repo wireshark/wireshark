@@ -459,7 +459,9 @@ setup: verify_tools
 !ENDIF
 !IFDEF PCRE_DIR
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		. pcre-4.4.zip
+		pcre-6.3 pcre-6.3-bin.zip
+	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+		pcre-6.3 pcre-6.3-lib.zip
 !ENDIF
 !IFDEF ZLIB_DIR
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
