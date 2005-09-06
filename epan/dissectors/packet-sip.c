@@ -409,7 +409,7 @@ static gboolean sip_desegment = FALSE;
 
 static gboolean dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, gboolean is_heur);
-static line_type_t sip_parse_line(tvbuff_t *tvb, gint linelen,
+static line_type_t sip_parse_line(tvbuff_t *tvb, int offset, gint linelen,
     guint *token_1_len);
 static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
     guint meth_len, guint *meth_idx);
@@ -959,28 +959,31 @@ get_sip_pdu_len(tvbuff_t *tvb, int begin_offset) {
 
 	tvb_len = tvb_length_remaining(tvb, begin_offset);
 	offset = begin_offset;
-	linelen = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
-	line_type = sip_parse_line(tvb, linelen, &token_1_len);
+	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+	line_type = sip_parse_line(tvb, offset, linelen, &token_1_len);
 	if (line_type == OTHER_LINE) return tvb_len;
 	offset = next_offset;
 	content_length = -1;
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		gint line_end_offset;
 		gint colon_offset;
-		gint semi_colon_offset;
 		gint hf_index;
 		gint value_offset;
 		guchar c;
 		char *value;
 
-		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, TRUE);
+		if (linelen == -1) {
+			/* end of the line has not been found, request more bytes */
+			return tvb_len + 2;
+		}
 		if (linelen == 0) {
 			/*
 			 * This is a blank line separating the
 			 * message header from the message body.
 			 */
 			if (content_length >= 0)
-				return next_offset + content_length;
+				return next_offset - begin_offset + content_length;
 			else
 				return tvb_len;
 		}
@@ -995,12 +998,12 @@ get_sip_pdu_len(tvbuff_t *tvb, int begin_offset) {
 			       ((c = tvb_get_guint8(tvb, value_offset)) == ' ' || c == '\t'))
 				value_offset++;
 			/* Fetch the value. */
-			value = tvb_get_ephemeral_string(tvb, value_offset, line_end_offset - value_offset);
+			value = (char*)tvb_get_ephemeral_string(tvb, value_offset, line_end_offset - value_offset);
 			content_length = atoi(value);
 		}
 		offset = next_offset;
 	}
-	return tvb_len;
+	return tvb_len + 2;  /* end of the message header has not been found, request more bytes */
 }
 
 static void 
@@ -1082,7 +1085,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 	offset = 0;
 	linelen = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
-	line_type = sip_parse_line(tvb, linelen, &token_1_len);
+	line_type = sip_parse_line(tvb, 0, linelen, &token_1_len);
 	if (line_type == OTHER_LINE) {
 		/*
 		 * This is neither a SIP request nor response.
@@ -1807,9 +1810,10 @@ void dfilter_store_sip_from_addr(tvbuff_t *tvb,proto_tree *tree,guint parameter_
  * In practice, this should make no difference.
  */
 static line_type_t
-sip_parse_line(tvbuff_t *tvb, gint linelen, guint *token_1_lenp)
+sip_parse_line(tvbuff_t *tvb, int offset, gint linelen, guint *token_1_lenp)
 {
 	gint space_offset;
+	gint token_1_start;
 	guint token_1_len;
 	gint token_2_start;
 	guint token_2_len;
@@ -1817,8 +1821,9 @@ sip_parse_line(tvbuff_t *tvb, gint linelen, guint *token_1_lenp)
 	guint token_3_len;
 	gint colon_pos;
 
-	space_offset = tvb_find_guint8(tvb, 0, -1, ' ');
-	if (space_offset <= 0) {
+	token_1_start = offset;
+	space_offset = tvb_find_guint8(tvb, token_1_start, -1, ' ');
+	if ((space_offset == -1) || (space_offset == token_1_start)) {
 		/*
 		 * Either there's no space in the line (which means
 		 * the line is empty or doesn't have a token followed
@@ -1830,7 +1835,7 @@ sip_parse_line(tvbuff_t *tvb, gint linelen, guint *token_1_lenp)
 		 */
 		return OTHER_LINE;
 	}
-	token_1_len = space_offset;
+	token_1_len = space_offset - token_1_start;
 	token_2_start = space_offset + 1;
 	space_offset = tvb_find_guint8(tvb, token_2_start, -1, ' ');
 	if (space_offset == -1) {
@@ -1842,7 +1847,7 @@ sip_parse_line(tvbuff_t *tvb, gint linelen, guint *token_1_lenp)
 	}
 	token_2_len = space_offset - token_2_start;
 	token_3_start = space_offset + 1;
-	token_3_len = linelen - token_3_start;
+	token_3_len = token_1_start + linelen - token_3_start;
 
 	*token_1_lenp = token_1_len;
 
@@ -1851,9 +1856,9 @@ sip_parse_line(tvbuff_t *tvb, gint linelen, guint *token_1_lenp)
 	 */
 	if ( (strict_sip_version && (
 		token_1_len == SIP2_HDR_LEN
-		&& tvb_strneql(tvb, 0, SIP2_HDR, SIP2_HDR_LEN) == 0)
+		&& tvb_strneql(tvb, token_1_start, SIP2_HDR, SIP2_HDR_LEN) == 0)
 	) || (! strict_sip_version && (
-		tvb_strneql(tvb, 0, "SIP/", 4) == 0)
+		tvb_strneql(tvb, token_1_start, "SIP/", 4) == 0)
 	)) {
 		/*
 		 * Yes, so this is either a Status-Line or something
