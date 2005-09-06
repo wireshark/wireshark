@@ -823,8 +823,8 @@ new_format_oid(subid_t *oid, guint oid_length,
 }
 
 #ifdef HAVE_SOME_SNMP
-static guchar *
-check_var_length(guint vb_length, guint required_length)
+static gboolean
+check_var_length(guint vb_length, guint required_length, guchar **errmsg)
 {
 	gchar *buf;
 	static const char badlen_fmt[] = "Length is %u, should be %u";
@@ -834,10 +834,14 @@ check_var_length(guint vb_length, guint required_length)
 		   should be XXX" message - 10 digits for each
 		   XXX. */
 		buf = malloc(sizeof badlen_fmt + 10 + 10);
-		g_snprintf(buf, sizeof badlen_fmt + 10 + 10, badlen_fmt, vb_length, required_length);
-		return buf;
+		if (buf != NULL) {
+			g_snprintf(buf, sizeof badlen_fmt + 10 + 10,
+			    badlen_fmt, vb_length, required_length);
+		}
+		*errmsg = buf;
+		return FALSE;
 	}
-	return NULL;	/* length is OK */
+	return TRUE;	/* length is OK */
 }
 
 static gchar *
@@ -852,8 +856,7 @@ format_var(struct variable_list *variable, subid_t *variable_oid,
 
 	case SNMP_IPADDR:
 		/* Length has to be 4 bytes. */
-		buf = check_var_length(val_len, 4);
-		if (buf != NULL)
+		if (!check_var_length(val_len, 4, &buf))
 			return buf;	/* it's not 4 bytes */
 		break;
 
@@ -861,8 +864,7 @@ format_var(struct variable_list *variable, subid_t *variable_oid,
 	/* not all counters are encoded as a full 64bit integer */
 	case SNMP_COUNTER64:
 		/* Length has to be 8 bytes. */
-		buf = check_var_length(val_len, 8);
-		if (buf != NULL)
+		if (!check_var_length(val_len, 8, &buf))
 			return buf;	/* it's not 8 bytes */
 		break;
 #endif
