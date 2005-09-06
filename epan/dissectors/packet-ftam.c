@@ -2699,9 +2699,8 @@ static int dissect_extension_set_identifier_impl(packet_info *pinfo, proto_tree 
 
 static int
 dissect_ftam_T_extension_attribute_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_index, object_identifier_id);
-
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                            object_identifier_id);
 
   return offset;
 }

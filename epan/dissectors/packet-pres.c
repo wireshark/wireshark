@@ -76,6 +76,12 @@ typedef struct _pres_ctx_oid_t {
 } pres_ctx_oid_t;
 static GHashTable *pres_ctx_oid_table = NULL;
 
+static int hf_pres_CP_type = -1;
+static int hf_pres_CPA_PPDU = -1;
+static int hf_pres_Abort_type = -1;
+static int hf_pres_CPR_PPDU = -1;
+static int hf_pres_Typed_data_type = -1;
+
 
 /*--- Included file: packet-pres-hf.c ---*/
 
@@ -1418,21 +1424,30 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
   }
 
 	switch(session->spdu_type){
-		case SES_REFUSE:
-			break;
 		case SES_CONNECTION_REQUEST:
-			offset = dissect_pres_CP_type(FALSE, tvb, offset, pinfo, pres_tree, -1);
+			offset = dissect_pres_CP_type(FALSE, tvb, offset, pinfo, pres_tree, hf_pres_CP_type);
 			break;
 		case SES_CONNECTION_ACCEPT:
-			offset = dissect_pres_CPA_PPDU(FALSE, tvb, offset, pinfo, pres_tree, -1);
+			offset = dissect_pres_CPA_PPDU(FALSE, tvb, offset, pinfo, pres_tree, hf_pres_CPA_PPDU);
 			break;
 		case SES_ABORT:
-			offset = dissect_pres_Abort_type(FALSE, tvb, offset, pinfo, pres_tree, -1);
+		case SES_ABORT_ACCEPT:
+			offset = dissect_pres_Abort_type(FALSE, tvb, offset, pinfo, pres_tree, hf_pres_Abort_type);
 			break;
 		case SES_DATA_TRANSFER:
-			offset = dissect_pres_CPC_type(FALSE, tvb, offset, pinfo, pres_tree, -1);
+			offset = dissect_pres_CPC_type(FALSE, tvb, offset, pinfo, pres_tree, hf_pres_user_data);
+			break;
+		case SES_TYPED_DATA:
+			offset = dissect_pres_Typed_data_type(FALSE, tvb, offset, pinfo, pres_tree, hf_pres_Typed_data_type);
+			break;
+		case SES_RESYNCHRONIZE:
+			offset = dissect_pres_RS_PPDU(FALSE, tvb, offset, pinfo, pres_tree, -1);
+			break;
+		case SES_RESYNCHRONIZE_ACK:
+			offset = dissect_pres_RSA_PPDU(FALSE, tvb, offset, pinfo, pres_tree, -1);
 			break;
 		default:
+			offset = dissect_pres_CPC_type(FALSE, tvb, offset, pinfo, pres_tree, hf_pres_user_data);
 			break;
 	}
 
@@ -1478,6 +1493,27 @@ void proto_register_pres(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
+    { &hf_pres_CP_type,
+      { "CP-type", "pres.cptype",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "", HFILL }},
+    { &hf_pres_CPA_PPDU,
+      { "CPA-PPDU", "pres.cpapdu",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "", HFILL }},
+    { &hf_pres_Abort_type,
+      { "Abort type", "pres.aborttype",
+        FT_UINT32, BASE_DEC, VALS(pres_Abort_type_vals), 0,
+        "", HFILL }},
+    { &hf_pres_CPR_PPDU,
+      { "CPR-PPDU", "pres.cprtype",
+        FT_UINT32, BASE_DEC, VALS(pres_CPR_PPDU_vals), 0,
+        "", HFILL }},
+    { &hf_pres_Typed_data_type,
+      { "Typed data type", "pres.Typed_data_type",
+        FT_UINT32, BASE_DEC, VALS(pres_Typed_data_type_vals), 0,
+        "", HFILL }},
+
 
 
 /*--- Included file: packet-pres-hfarr.c ---*/

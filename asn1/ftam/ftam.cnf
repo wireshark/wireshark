@@ -58,10 +58,10 @@ Object-Size-Attribute/actual-values	actual_values7
 Object-Availability-Attribute/actual-values	actual_values8
 Legal-Qualification-Attribute/actual-values	actual_values9
 
+#.FN_PARS Extension-Attribute/extension-attribute-identifier
+	VAL_PTR = object_identifier_id
 
-#.FN_BODY Extension-Attribute/extension-attribute-identifier
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_index, object_identifier_id);
+
 
 #.FN_BODY Contents-Type-Attribute/document-type/parameter
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
@@ -69,9 +69,8 @@ Legal-Qualification-Attribute/actual-values	actual_values9
 #.FN_BODY Extension-Attribute/extension-attribute
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
-#.FN_BODY Attribute-Extensions-Pattern/extension-set-attribute-Patterns/extension-attribute-identifier
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_index, object_identifier_id);
+#.FN_PARS Attribute-Extensions-Pattern/extension-set-attribute-Patterns/extension-attribute-identifier
+	VAL_PTR = object_identifier_id
 
 #.FN_BODY Attribute-Extensions-Pattern/_item/extension-set-attribute-Patterns/_item/extension-attribute-Pattern
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
