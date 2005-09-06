@@ -523,7 +523,7 @@ clean_setup:
 # to the source tree, so you can run (t)ethereal directly from there.
 # Note that the gtk2 version of ethereal is called ethereal-gtk2.exe
 
-install-deps: clean_deps install-gtk1-deps install-gtk2-deps
+install-deps: clean-deps install-gtk1-deps install-gtk2-deps
 	cd plugins
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-plugins
 	cd ..
@@ -580,12 +580,12 @@ install-required-deps:
 	xcopy $(PCRE_DIR)\bin\pcre.dll . /d /y
 !ENDIF
 
-clean_deps:
+clean-deps:
 	rm -f *.dll
 	rm -rf etc
 	rm -rf lib
 	cd plugins
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean_deps
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean-deps
 	cd ..
 
 

@@ -339,7 +339,7 @@ install-plugins:
 	xcopy xml\*.dll $(VERSION) /d /y
 !ENDIF
 
-clean_deps:
+clean-deps:
 	rm -rf $(VERSION)
 
 
