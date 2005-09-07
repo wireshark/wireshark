@@ -172,6 +172,7 @@ GString *comp_info_str, *runtime_info_str;
 gchar       *ethereal_path = NULL;
 gboolean have_capture_file = FALSE; /* XXX - is there an aquivalent in cfile? */
 
+gboolean             capture_child; /* True if this is the child for "-S" */
 #ifdef _WIN32
 static gboolean has_console;	/* TRUE if app has console */
 static void destroy_console(void);
@@ -1608,7 +1609,6 @@ main(int argc, char *argv[])
   e_prefs             *prefs;
   char                 badopt;
   GtkWidget           *splash_win = NULL;
-  gboolean             capture_child; /* True if this is the child for "-S" */
   GLogLevelFlags       log_flags;
   guint                go_to_packet = 0;
   int                  optind_initial;
@@ -2609,7 +2609,7 @@ create_console(void)
 static void
 destroy_console(void)
 {
-  if (has_console) {
+  if (has_console && !capture_child) {
     printf("\n\nPress any key to exit\n");
     _getch();
     FreeConsole();
