@@ -416,7 +416,8 @@ CLEANFILES =		\
 	svnversion.h	\
 	@rdps_bin@	\
 	idl2eth		\
-	*~
+	*~		\
+	vgcore.pid*
 
 #
 # XXX - "ps.c" is distributed in the source tarballs; why is it in the
