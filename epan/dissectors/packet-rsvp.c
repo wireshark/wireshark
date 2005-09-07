@@ -116,6 +116,7 @@ typedef struct rsvp_session_ipv4_info {
 typedef struct rsvp_session_ipv6_info {
     /* not supported yet */
 
+	guint8 dummy;
 } rsvp_session_ipv6_info;
 
 typedef struct rsvp_session_ipv4_lsp_info {
