@@ -519,6 +519,11 @@ reassemble_octet_string(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 
     offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_ber_unknown_OCTETSTRING, &next_tvb);
 
+    if (next_tvb == NULL) {
+      /* Assume that we have a malformed packet. */
+      THROW(ReportedBoundsError);
+    }
+
     if(ind) {
       /* this was indefinite length - so check for EOC */
       
