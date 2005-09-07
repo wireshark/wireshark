@@ -2278,6 +2278,7 @@ Peter Johansson		<Peter.Johansson [AT] contactor.se> {
 
 Stefan Metzmacher	<metze [AT] samba.org> {
 	LDAP Controls support in the LDAP dissector
+	WINS Replication protocol
 }
 
 Abhijit Menon-Sen	<ams [AT] oryx.com> {
