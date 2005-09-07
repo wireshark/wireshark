@@ -121,6 +121,9 @@ capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data)
     capture_opts->save_file = NULL;
   }
 
+  /* stop capturing from all interfaces, we are going to do real work now ... */
+  window_destroy(cap_if_w);
+
   capture_start_cb(NULL, NULL);
 }
 
@@ -135,6 +138,9 @@ capture_prepare_cb(GtkWidget *prepare_bt _U_, gpointer if_data)
     g_free(capture_opts->iface);
 
   capture_opts->iface = g_strdup(if_dlg_data->device);
+
+  /* stop capturing from all interfaces, we are going to do real work now ... */
+  window_destroy(cap_if_w);
 
   capture_prep_cb(NULL, NULL);
 }
