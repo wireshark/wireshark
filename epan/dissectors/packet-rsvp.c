@@ -52,6 +52,9 @@
  * July 25, 2005: improved ERROR and LABEL_SET objects dissector;
  * new ASSOCIATION object dissector (Roberto Morro)
  * <roberto.morro[AT]tilab.com>
+ *
+ * August 22, 2005: added support for tapping and conversations.
+ * (Manu Pathak) <mapathak[AT]cisco.com>
  */
 
 
@@ -76,6 +79,9 @@
 #include <epan/in_cksum.h>
 #include "etypes.h"
 #include <epan/ipproto.h>
+#include <epan/conversation.h>
+#include <epan/tap.h>
+#include <epan/emem.h>
 
 #include "packet-rsvp.h"
 #include "packet-ip.h"
@@ -83,6 +89,97 @@
 #include "packet-diffserv-mpls-common.h"
 
 static int proto_rsvp = -1;
+
+static dissector_table_t rsvp_dissector_table;
+static dissector_handle_t data_handle;
+
+static int rsvp_tap = -1;
+
+/*
+ * All RSVP packets belonging to a particular flow  belong to the same 
+ * conversation. The following structure definitions are for auxillary
+ * structures which have all the relevant flow information to make up the
+ * RSVP five-tuple. Note that the values of the five-tuple are determined
+ * from the session object and sender template/filter spec for PATH/RESV
+ * messages.
+ * Update rsvp_request_equal() when you add stuff here. You might also
+ * have to update rsvp_request_hash().
+ * TODO: Support for IPv6 conversations.
+ */
+
+typedef struct rsvp_session_ipv4_info {
+    address destination;
+    guint8 protocol;
+    guint16 udp_dest_port;
+} rsvp_session_ipv4_info;
+
+typedef struct rsvp_session_ipv6_info {
+    /* not supported yet */
+
+} rsvp_session_ipv6_info;
+
+typedef struct rsvp_session_ipv4_lsp_info {
+    address destination;
+    guint16 udp_dest_port;
+    guint32 ext_tunnel_id;
+} rsvp_session_ipv4_lsp_info;
+
+typedef struct rsvp_session_ipv4_uni_info {
+    address destination;
+    guint16 udp_dest_port;
+    guint32 ext_tunnel_id;
+} rsvp_session_ipv4_uni_info;
+
+typedef struct rsvp_session_ipv4_enni_info {
+    address destination;
+    guint16 udp_dest_port;
+    guint32 ext_tunnel_id;
+} rsvp_session_ipv4_enni_info;
+
+typedef struct rsvp_template_filter_info {
+    address source;
+    guint16 udp_source_port;
+} rsvp_template_filter_info;
+
+/* 
+ * The actual request key consists of a union of the various session objects
+ * (which are uniquely identified based on the session type), and the 
+ * source_info structure, which has the information derived from the sender 
+ * template or the filter spec.
+ * The request key is populated by copying the information from the 
+ * rsvp_conversation_info structure (rsvph), which in turn is populated when
+ * the session, filter and sender template objects are dissected.
+ */
+struct rsvp_request_key {
+    guint32 session_type;
+
+    union { /* differentiated by session_type field */
+	rsvp_session_ipv4_info session_ipv4;
+	rsvp_session_ipv6_info session_ipv6;
+	rsvp_session_ipv4_lsp_info session_ipv4_lsp;
+	rsvp_session_ipv4_uni_info session_ipv4_uni;
+	rsvp_session_ipv4_enni_info session_ipv4_enni;
+    } u;
+
+    rsvp_template_filter_info source_info;
+    guint32 conversation;
+};
+
+/*
+ * At present, there is nothing particularly important that we need to
+ * store for the request value for each rsvp_request_key, so we just
+ * store the unique 32-bit identifier internally allocated for the key
+ * (and stored in the conversation attribute of rsvp_request_key above.
+ * If this changes in the future, then other stuff can be added here.
+ */
+struct rsvp_request_val {
+    guint32 value;
+};
+
+/*
+ * Initialize the conversation related data structures.
+ */
+static GHashTable *rsvp_request_hash = NULL;
 
 /*
  * The list of tree types
@@ -1067,6 +1164,136 @@ static hf_register_info rsvpf_info[] = {
 
 };
 
+/* RSVP Conversation related Hash functions */
+
+/*
+ * Compare two RSVP request keys to see if they are equal. Return 1 if they
+ * are, 0 otherwise.
+ * Two RSVP request keys are equal if and only if they have the exactly the
+ * same internal conversation identifier, session type, and matching values in 
+ * the session info and source info structures.
+ */
+static gint 
+rsvp_equal (gconstpointer k1, gconstpointer k2)
+{
+    const struct rsvp_request_key *key1 = (const struct rsvp_request_key*) k1;
+    const struct rsvp_request_key *key2 = (const struct rsvp_request_key*) k2;
+
+    if (key1->conversation != key2->conversation) {
+	return 0;
+    }
+
+    if (key1->session_type != key2->session_type) {
+	return 0;
+    }
+
+    switch (key1->session_type) {
+    case RSVP_SESSION_TYPE_IPV4:
+	if (ADDRESSES_EQUAL(&key1->u.session_ipv4.destination,
+			    &key2->u.session_ipv4.destination) == FALSE)
+	    return 0;
+
+	if (key1->u.session_ipv4.protocol != key2->u.session_ipv4.protocol)
+	    return 0;
+	
+	if (key1->u.session_ipv4.udp_dest_port != key2->u.session_ipv4.udp_dest_port)
+	    return 0;
+	
+	break;
+
+    case RSVP_SESSION_TYPE_IPV6:
+	/* this is not supported yet for conversations */
+	break;
+
+    case RSVP_SESSION_TYPE_IPV4_LSP:
+	if (ADDRESSES_EQUAL(&key1->u.session_ipv4_lsp.destination,
+			    &key2->u.session_ipv4_lsp.destination) == FALSE)
+	    return 0;
+	
+	if (key1->u.session_ipv4_lsp.udp_dest_port != 
+	    key2->u.session_ipv4_lsp.udp_dest_port)
+	    return 0;
+
+	
+	if (key1->u.session_ipv4_lsp.ext_tunnel_id != 
+	    key2->u.session_ipv4_lsp.ext_tunnel_id)
+	    return 0;
+
+	break;
+
+    case RSVP_SESSION_TYPE_IPV4_UNI:
+	if (ADDRESSES_EQUAL(&key1->u.session_ipv4_uni.destination,
+			    &key2->u.session_ipv4_uni.destination) == FALSE)
+	    return 0;
+	
+	if (key1->u.session_ipv4_uni.udp_dest_port != 
+	    key2->u.session_ipv4_uni.udp_dest_port)
+	    return 0;
+
+	
+	if (key1->u.session_ipv4_uni.ext_tunnel_id != 
+	    key2->u.session_ipv4_uni.ext_tunnel_id)
+	    return 0;
+
+	break;
+
+    case RSVP_SESSION_TYPE_IPV4_E_NNI:
+	if (ADDRESSES_EQUAL(&key1->u.session_ipv4_enni.destination,
+			    &key2->u.session_ipv4_enni.destination) == FALSE)
+	    return 0;
+	
+	if (key1->u.session_ipv4_enni.udp_dest_port != 
+	    key2->u.session_ipv4_enni.udp_dest_port)
+	    return 0;
+
+	
+	if (key1->u.session_ipv4_enni.ext_tunnel_id != 
+	    key2->u.session_ipv4_enni.ext_tunnel_id)
+	    return 0;
+
+	break;
+
+    default:
+	/* This should never happen. */
+	break;
+    }
+
+    if (ADDRESSES_EQUAL(&key1->source_info.source, 
+			&key2->source_info.source) == FALSE)
+	return 0;
+
+    if (key1->source_info.udp_source_port != key2->source_info.udp_source_port)
+	return 0;
+
+    /* If we get here, the two keys are equal. */
+    return 1;
+}
+
+/*
+ * Calculate a hash key for the supplied RSVP request. The internally allocated 
+ * conversation-id is unique, so we just use that.
+ */
+static guint 
+rsvp_hash (gconstpointer k)
+{
+    const struct rsvp_request_key *key = (const struct rsvp_request_key*) k;
+    return key->conversation;
+}
+
+/*
+ * Conversation specific initialization code that deletes any unused memory that 
+ * might need to be freed, and allocates the memory for the various conversation
+ * hash tables.
+ */
+static void
+rsvp_init_protocol (void)
+{
+    if (rsvp_request_hash)
+	g_hash_table_destroy(rsvp_request_hash);
+
+    rsvp_request_hash = g_hash_table_new(rsvp_hash, rsvp_equal);
+}
+
 static inline int rsvp_class_to_filter_num(int classnum)
 {
     switch(classnum) {
@@ -1320,7 +1547,8 @@ static void
 dissect_rsvp_session (proto_item *ti, proto_tree *rsvp_object_tree,
 		      tvbuff_t *tvb,
 		      int offset, int obj_length,
-		      int class _U_, int type)
+		      int class _U_, int type,
+		      rsvp_conversation_info *rsvph)
 {
     int offset2 = offset + 4;
 
@@ -1343,6 +1571,17 @@ dissect_rsvp_session (proto_item *ti, proto_tree *rsvp_object_tree,
 	proto_tree_add_item(rsvp_object_tree,
 			    rsvp_filter[RSVPF_SESSION_PORT], tvb,
 			    offset2+6, 2, FALSE);
+
+	/*
+	 * Save this information to build the conversation request key
+	 * later.
+	 */
+	rsvph->session_type = RSVP_SESSION_TYPE_IPV4;
+	SET_ADDRESS(&rsvph->destination, AT_IPv4, 4,
+                    tvb_get_ptr(tvb, offset2, 4));
+	rsvph->protocol = tvb_get_guint8(tvb, offset2+4);
+	rsvph->udp_dest_port = tvb_get_ntohs(tvb, offset2+6);
+
 	break;
 
     case RSVP_SESSION_TYPE_IPV6:
@@ -1360,6 +1599,13 @@ dissect_rsvp_session (proto_item *ti, proto_tree *rsvp_object_tree,
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+18, 2,
 			    "Destination port: %u",
 			    tvb_get_ntohs(tvb, offset2+18));
+	/*
+	 * Save this information to build the conversation request key 
+	 * later. IPv6 conversatiuon support is not implemented yet, so only 
+	 * the session type is stored.
+	 */
+	rsvph->session_type = RSVP_SESSION_TYPE_IPV6;
+
 	break;
 
     case RSVP_SESSION_TYPE_IPV4_LSP:
@@ -1380,6 +1626,16 @@ dissect_rsvp_session (proto_item *ti, proto_tree *rsvp_object_tree,
 	proto_tree_add_item_hidden(rsvp_object_tree,
 				   rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
 				   tvb, offset2+8, 4, FALSE);
+
+	/* 
+	 * Save this information to build the conversation request key 
+	 * later.
+	 */
+	rsvph->session_type = RSVP_SESSION_TYPE_IPV4_LSP;
+	SET_ADDRESS(&rsvph->destination, AT_IPv4, 4, 
+		    tvb_get_ptr(tvb, offset2, 4));
+	rsvph->udp_dest_port = tvb_get_ntohs(tvb, offset2+6);
+	rsvph->ext_tunnel_id = tvb_get_ntohl(tvb, offset2 + 8);
 	break;
 
     case RSVP_SESSION_TYPE_IPV4_UNI:
@@ -1399,6 +1655,17 @@ dissect_rsvp_session (proto_item *ti, proto_tree *rsvp_object_tree,
 	proto_tree_add_item_hidden(rsvp_object_tree,
 				   rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
 				   tvb, offset2+8, 4, FALSE);
+
+	/* 
+	 * Save this information to build the conversation request key 
+	 * later.
+	 */
+	rsvph->session_type = RSVP_SESSION_TYPE_IPV4_UNI;
+	SET_ADDRESS(&rsvph->destination, AT_IPv4, 4, 
+		    tvb_get_ptr(tvb, offset2, 4));
+	rsvph->udp_dest_port = tvb_get_ntohs(tvb, offset2+6);
+	rsvph->ext_tunnel_id = tvb_get_ntohl(tvb, offset2 + 8);
+
 	break;
 
     case RSVP_SESSION_TYPE_IPV4_E_NNI:
@@ -1418,6 +1685,17 @@ dissect_rsvp_session (proto_item *ti, proto_tree *rsvp_object_tree,
 	proto_tree_add_item_hidden(rsvp_object_tree,
 				   rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
 				   tvb, offset2+8, 4, FALSE);
+
+	/* 
+	 * Save this information to build the conversation request key 
+	 * later.
+	 */
+	rsvph->session_type = RSVP_SESSION_TYPE_IPV4_E_NNI;
+	SET_ADDRESS(&rsvph->destination, AT_IPv4, 4, 
+		    tvb_get_ptr(tvb, offset2, 4));
+	rsvph->udp_dest_port = tvb_get_ntohs(tvb, offset2+6);
+	rsvph->ext_tunnel_id = tvb_get_ntohl(tvb, offset2 + 8);
+
 	break;
 
     default:
@@ -1892,7 +2170,8 @@ static void
 dissect_rsvp_template_filter (proto_item *ti, proto_tree *rsvp_object_tree,
 			      tvbuff_t *tvb,
 			      int offset, int obj_length,
-			      int class _U_, int type)
+			      int class _U_, int type,
+			      rsvp_conversation_info *rsvph)
 {
     int offset2 = offset + 4;
 
@@ -1907,6 +2186,12 @@ dissect_rsvp_template_filter (proto_item *ti, proto_tree *rsvp_object_tree,
 	 proto_tree_add_item(rsvp_object_tree,
 			     rsvp_filter[RSVPF_SENDER_PORT],
 			     tvb, offset2+6, 2, FALSE);
+
+	 /*
+	  * Save this information to build the conversation request key later.
+	  */
+	 SET_ADDRESS(&rsvph->source, AT_IPv4, 4, tvb_get_ptr(tvb, offset2, 4));
+	 rsvph->udp_source_port = tvb_get_ntohs(tvb, offset2+6);
 	 break;
 
      case 2:
@@ -1929,6 +2214,12 @@ dissect_rsvp_template_filter (proto_item *ti, proto_tree *rsvp_object_tree,
 	 proto_tree_add_item(rsvp_object_tree,
 			     rsvp_filter[RSVPF_SENDER_LSP_ID],
 			     tvb, offset2+6, 2, FALSE);
+
+	 /*
+	  * Save this information to build the conversation request key later.
+	  */
+	 SET_ADDRESS(&rsvph->source, AT_IPv4, 4, tvb_get_ptr(tvb, offset2, 4));
+	 rsvph->udp_source_port = tvb_get_ntohs(tvb, offset2+6);
 	 break;
 
      default:
@@ -3781,7 +4072,8 @@ static void
 dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 		      tvbuff_t *tvb,
 		      int offset, int obj_length,
-		      int class _U_, int type)
+		      int class _U_, int type,
+		      rsvp_conversation_info *rsvph)
 {
     int offset2 = offset + 4;
     int mylen, i, j, k, l, m;
@@ -3934,7 +4226,7 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 		    proto_tree_add_uint(rsvp_session_subtree, rsvp_filter[RSVPF_OBJECT], tvb,
 				offset2+8+l+10, 1, s_class);
 		    dissect_rsvp_session(ti2, rsvp_session_subtree, tvb, offset2+l+8,
-					 s_len, s_class, s_type);
+					 s_len, s_class, s_type, rsvph);
 		    offset2 += s_len;
 		    s_len = tvb_get_ntohs(tvb, offset2+l+8);
 		    s_class = tvb_get_guint8(tvb, offset2+l+10);
@@ -3953,7 +4245,7 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 		    proto_tree_add_uint(rsvp_template_subtree, rsvp_filter[RSVPF_OBJECT], tvb,
 				offset2+8+l+10, 1, s_class);
 		    dissect_rsvp_template_filter(ti2, rsvp_template_subtree, tvb, offset2+l+8,
-						 s_len, s_class, s_type);
+						 s_len, s_class, s_type, rsvph);
 
 		    if (i < 4) {
 			proto_item_append_text(ti, "Diversity");
@@ -4458,7 +4750,7 @@ dissect_rsvp_diffserv (proto_tree *ti, proto_tree *rsvp_object_tree,
  *------------------------------------------------------------------------------*/
 static void
 dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		      int tree_mode)
+		      int tree_mode, rsvp_conversation_info *rsvph)
 {
     proto_tree *rsvp_tree = NULL;
     proto_tree *rsvp_header_tree;
@@ -4568,7 +4860,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		tvbuff_t *tvb_sub;
 		sub_len = tvb_get_ntohs(tvb, len+6);
 		tvb_sub = tvb_new_subset(tvb, len, sub_len, sub_len);
-		dissect_rsvp_msg_tree(tvb_sub, pinfo, rsvp_tree, TREE(TT_BUNDLE_COMPMSG));
+		dissect_rsvp_msg_tree(tvb_sub, pinfo, rsvp_tree, TREE(TT_BUNDLE_COMPMSG), rsvph);
 		len += sub_len;
 	    }
 	} else {
@@ -4603,7 +4895,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	switch(class) {
 
 	case RSVP_CLASS_SESSION:
-	    dissect_rsvp_session(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_session(ti, rsvp_object_tree, tvb, offset, obj_length, class, type, rsvph);
 	    break;
 
 	case RSVP_CLASS_HOP:
@@ -4632,7 +4924,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	case RSVP_CLASS_SENDER_TEMPLATE:
 	case RSVP_CLASS_FILTER_SPEC:
-	    dissect_rsvp_template_filter(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_template_filter(ti, rsvp_object_tree, tvb, offset, obj_length, class, type, rsvph);
 	    break;
 
 	case RSVP_CLASS_SENDER_TSPEC:
@@ -4714,7 +5006,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    break;
 
 	case RSVP_CLASS_GENERALIZED_UNI:
-	    dissect_rsvp_gen_uni(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_gen_uni(ti, rsvp_object_tree, tvb, offset, obj_length, class, type, rsvph);
 	    break;
 
 	case RSVP_CLASS_CALL_ID:
@@ -4763,6 +5055,12 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 message_type;
     int msg_length;
     int session_off, tempfilt_off;
+    rsvp_conversation_info *rsvph;
+
+
+    conversation_t *conversation;
+    struct rsvp_request_key request_key, *new_request_key;
+    struct rsvp_request_val *request_val = NULL;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RSVP");
@@ -4772,6 +5070,12 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ver_flags = tvb_get_guint8(tvb, 0);
     message_type = tvb_get_guint8(tvb, 1);
     msg_length = tvb_get_ntohs(tvb, 6);
+
+    rsvph = ep_alloc(sizeof(rsvp_conversation_info));
+
+    /* Copy over the source and destination addresses from the pinfo strucutre */
+    SET_ADDRESS(&rsvph->source, pinfo->src.type, pinfo->src.len, pinfo->src.data);
+    SET_ADDRESS(&rsvph->destination, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_add_str(pinfo->cinfo, COL_INFO,
@@ -4801,8 +5105,88 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (tree) {
-	dissect_rsvp_msg_tree(tvb, pinfo, tree, TREE(TT_RSVP));
+	dissect_rsvp_msg_tree(tvb, pinfo, tree, TREE(TT_RSVP), rsvph);
     }
+
+    /* Find out what conversation this packet is part of. */
+    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+				     pinfo->ptype, pinfo->srcport, 
+				     pinfo->destport, 0);
+
+    if (conversation == NULL) {
+	/* Not part of any conversation; create a new one. */
+	conversation = 
+	    conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, 
+			     pinfo->ptype, pinfo->srcport, 
+			     pinfo->destport, 0);
+    }
+
+    /* Now build the request key */
+    request_key.conversation = conversation->index;
+    request_key.session_type = rsvph->session_type;
+
+    switch (request_key.session_type) {
+    case RSVP_SESSION_TYPE_IPV4:
+	SET_ADDRESS(&request_key.u.session_ipv4.destination, 
+		    rsvph->destination.type, rsvph->destination.len,
+		    rsvph->destination.data);
+	request_key.u.session_ipv4.protocol = rsvph->protocol;
+	request_key.u.session_ipv4.udp_dest_port = rsvph->udp_dest_port;
+	break;
+
+    case RSVP_SESSION_TYPE_IPV6:
+	/* Not supported yet */
+	break;
+
+    case RSVP_SESSION_TYPE_IPV4_LSP:
+	SET_ADDRESS(&request_key.u.session_ipv4_lsp.destination, 
+		    rsvph->destination.type, rsvph->destination.len,
+		    rsvph->destination.data);
+	request_key.u.session_ipv4_lsp.udp_dest_port = rsvph->udp_dest_port;
+	request_key.u.session_ipv4_lsp.ext_tunnel_id = rsvph->ext_tunnel_id;
+	break;
+
+    case RSVP_SESSION_TYPE_IPV4_UNI:
+	SET_ADDRESS(&request_key.u.session_ipv4_uni.destination, 
+		    rsvph->destination.type, rsvph->destination.len,
+		    rsvph->destination.data);
+	request_key.u.session_ipv4_uni.udp_dest_port = rsvph->udp_dest_port;
+	request_key.u.session_ipv4_uni.ext_tunnel_id = rsvph->ext_tunnel_id;
+	break;
+
+    case RSVP_SESSION_TYPE_IPV4_E_NNI:
+	SET_ADDRESS(&request_key.u.session_ipv4_enni.destination, 
+		    rsvph->destination.type, rsvph->destination.len,
+		    rsvph->destination.data);
+	request_key.u.session_ipv4_enni.udp_dest_port = rsvph->udp_dest_port;
+	request_key.u.session_ipv4_enni.ext_tunnel_id = rsvph->ext_tunnel_id;
+	break;
+    default:
+	/* This should never happen. */
+	break;
+    }
+
+    SET_ADDRESS(&request_key.source_info.source, 
+		rsvph->source.type, rsvph->source.len, rsvph->source.data);
+    request_key.source_info.udp_source_port = rsvph->udp_source_port;
+
+    /* See if a request with this key already exists */
+    request_val = 
+	(struct rsvp_request_val *) g_hash_table_lookup(rsvp_request_hash,
+							&request_key);
+
+    /* If not, insert the new request key into the hash table */
+    if (!request_val) {
+	new_request_key = se_alloc(sizeof(struct rsvp_request_key));
+	*new_request_key = request_key;
+
+	request_val = se_alloc(sizeof(struct rsvp_request_val));
+	request_val->value = conversation->index;
+
+	g_hash_table_insert(rsvp_request_hash, new_request_key, request_val);
+    }
+
+    tap_queue_packet(rsvp_tap, pinfo, rsvph);
 }
 
 static void
@@ -4832,6 +5216,12 @@ proto_register_rsvp(void)
     proto_register_field_array(proto_rsvp, rsvpf_info, array_length(rsvpf_info));
     proto_register_subtree_array(ett_tree, array_length(ett_tree));
     register_rsvp_prefs();
+
+    rsvp_dissector_table = register_dissector_table("rsvp.proto", "RSVP Protocol",
+						    FT_UINT8, BASE_DEC);
+						    
+    /* Initialization routine for RSVP conversations */
+    register_init_routine(&rsvp_init_protocol);
 }
 
 void
@@ -4841,4 +5231,6 @@ proto_reg_handoff_rsvp(void)
 
 	rsvp_handle = create_dissector_handle(dissect_rsvp, proto_rsvp);
 	dissector_add("ip.proto", IP_PROTO_RSVP, rsvp_handle);
+	data_handle = find_dissector("data");
+	rsvp_tap = register_tap("rsvp");
 }

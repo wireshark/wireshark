@@ -25,6 +25,18 @@
 #ifndef PACKET_RSVP_H
 #define PACKET_RSVP_H
 
+/* RSVP conversations support */
+typedef struct rsvp_conversation_info
+{
+    guint8 session_type;
+    address source;
+    address destination;
+    guint16 udp_source_port;
+    guint16 udp_dest_port;
+    guint8  protocol;
+    guint32 ext_tunnel_id; 
+} rsvp_conversation_info;
+
 extern const value_string gmpls_switching_type_str[];
 extern const value_string gmpls_lsp_enc_str[];
 extern const value_string gmpls_protection_cap_str[];

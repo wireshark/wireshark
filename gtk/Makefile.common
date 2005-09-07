@@ -120,6 +120,7 @@ ETHEREAL_TAP_SRC = \
 	conversations_tr.c	\
 	conversations_udpip.c	\
 	conversations_wlan.c	\
+	conversations_rsvp.c	\
 	dcerpc_stat.c	\
 	fc_stat.c	\
 	flow_graph.c	\
@@ -138,6 +139,7 @@ ETHEREAL_TAP_SRC = \
 	hostlist_tr.c \
 	hostlist_udpip.c \
 	hostlist_wlan.c \
+	hostlist_rsvp.c \
 	io_stat.c	\
 	ldap_stat.c	\
 	mgcp_stat.c	\
