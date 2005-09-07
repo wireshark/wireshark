@@ -360,9 +360,9 @@ gtk:: help config.h svnversion.h AUTHORS-SHORT doxygen
 gtk2:: help config.h svnversion.h AUTHORS-SHORT
 	if not exist gtk2.tmp mkdir gtk2.tmp
 	cd gtk
-	xcopy Makefile.* ..\gtk2.tmp /d /y
-	xcopy *.c        ..\gtk2.tmp /d /y
-	xcopy *.h        ..\gtk2.tmp /d /y
+	xcopy Makefile.* ..\gtk2.tmp /d
+	xcopy *.c        ..\gtk2.tmp /d
+	xcopy *.h        ..\gtk2.tmp /d
 	cd ..\gtk2.tmp
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake GTK_CFLAGS="$(GTK2_CFLAGS)" GTK_LIBS="$(GTK2_LIBS)" libui.lib
 	cd ..
@@ -532,12 +532,12 @@ install-deps: clean-deps install-gtk1-deps install-gtk2-deps
 
 install-gtk2-deps: install-required-deps
 !IFDEF GTK2_DIR
-	xcopy $(GTK2_DIR)\bin\libgdk-win32-2.0-0.dll . /d /y
-	xcopy $(GTK2_DIR)\bin\libgdk_pixbuf-2.0-0.dll . /d /y
-	xcopy $(GTK2_DIR)\bin\libgtk-win32-2.0-0.dll . /d /y
-	xcopy $(GTK2_DIR)\bin\libatk-1.0-0.dll . /d /y
-	xcopy $(GTK2_DIR)\bin\libpango-1.0-0.dll . /d /y
-	xcopy $(GTK2_DIR)\bin\libpangowin32-1.0-0.dll . /d /y
+	xcopy $(GTK2_DIR)\bin\libgdk-win32-2.0-0.dll . /d
+	xcopy $(GTK2_DIR)\bin\libgdk_pixbuf-2.0-0.dll . /d
+	xcopy $(GTK2_DIR)\bin\libgtk-win32-2.0-0.dll . /d
+	xcopy $(GTK2_DIR)\bin\libatk-1.0-0.dll . /d
+	xcopy $(GTK2_DIR)\bin\libpango-1.0-0.dll . /d
+	xcopy $(GTK2_DIR)\bin\libpangowin32-1.0-0.dll . /d
 	mkdir etc
 	mkdir etc\gtk-2.0
 	mkdir etc\pango
@@ -549,37 +549,37 @@ install-gtk2-deps: install-required-deps
 	mkdir lib\pango
 	mkdir lib\pango\$(PANGO_INST_VERSION).0
 	mkdir lib\pango\$(PANGO_INST_VERSION).0\modules
-	xcopy $(GTK2_DIR)\etc\gtk-2.0\*.* etc\gtk-2.0 /d /y
-	xcopy $(GTK2_DIR)\etc\pango\pango.* etc\pango /d /y
-	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_INST_VERSION).0\loaders\libpixbufloader-*.dll lib\gtk-2.0\$(GTK2_INST_VERSION).0\loaders /d /y
-	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_INST_VERSION).0\immodules\im-*.dll lib\gtk-2.0\$(GTK2_INST_VERSION).0\immodules /d /y
-	xcopy $(GTK2_DIR)\lib\pango\$(PANGO_INST_VERSION).0\modules\pango-*.dll lib\pango\$(PANGO_INST_VERSION).0\modules /d /y
+	xcopy $(GTK2_DIR)\etc\gtk-2.0\*.* etc\gtk-2.0 /d
+	xcopy $(GTK2_DIR)\etc\pango\pango.* etc\pango /d
+	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_INST_VERSION).0\loaders\libpixbufloader-*.dll lib\gtk-2.0\$(GTK2_INST_VERSION).0\loaders /d
+	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_INST_VERSION).0\immodules\im-*.dll lib\gtk-2.0\$(GTK2_INST_VERSION).0\immodules /d
+	xcopy $(GTK2_DIR)\lib\pango\$(PANGO_INST_VERSION).0\modules\pango-*.dll lib\pango\$(PANGO_INST_VERSION).0\modules /d
 !ENDIF
 
 install-gtk1-deps: install-required-deps
 !IFDEF GTK1_DIR
-	xcopy $(GTK1_DIR)\lib\libgtk-0.dll . /d /y
-	xcopy $(GTK1_DIR)\lib\libgdk-0.dll . /d /y
+	xcopy $(GTK1_DIR)\lib\libgtk-0.dll . /d
+	xcopy $(GTK1_DIR)\lib\libgdk-0.dll . /d
 !ENDIF
 
 install-required-deps:
-	xcopy wiretap\wiretap-$(WTAP_VERSION).dll . /d /y
+	xcopy wiretap\wiretap-$(WTAP_VERSION).dll . /d
 !IFDEF ENABLE_LIBETHEREAL
-	xcopy epan\libethereal.dll . /d /y
+	xcopy epan\libethereal.dll . /d
 !ENDIF
-	xcopy $(GLIB_DIR)\bin\libglib-2.0-0.dll . /d /y
-	xcopy $(GLIB_DIR)\bin\libgmodule-2.0-0.dll . /d /y
-	xcopy $(GLIB_DIR)\bin\libgobject-2.0-0.dll . /d /y
-	xcopy $(ICONV_DIR)\bin\iconv.dll . /d /y
-	xcopy $(GETTEXT_DIR)\bin\intl.dll . /d /y
+	xcopy $(GLIB_DIR)\bin\libglib-2.0-0.dll . /d
+	xcopy $(GLIB_DIR)\bin\libgmodule-2.0-0.dll . /d
+	xcopy $(GLIB_DIR)\bin\libgobject-2.0-0.dll . /d
+	xcopy $(ICONV_DIR)\bin\iconv.dll . /d
+	xcopy $(GETTEXT_DIR)\bin\intl.dll . /d
 !IFDEF ZLIB_DIR
-	xcopy $(ZLIB_DIR)\zlib1.dll . /d /y
+	xcopy $(ZLIB_DIR)\zlib1.dll . /d
 !ENDIF
 !IFDEF ADNS_DIR
-	xcopy $(ADNS_DIR)\adns_win32\LIB\adns_dll.dll . /d /y
+	xcopy $(ADNS_DIR)\adns_win32\LIB\adns_dll.dll . /d
 !ENDIF
 !IFDEF PCRE_DIR
-	xcopy $(PCRE_DIR)\bin\pcre.dll . /d /y
+	xcopy $(PCRE_DIR)\bin\pcre.dll . /d
 !ENDIF
 
 clean-deps:

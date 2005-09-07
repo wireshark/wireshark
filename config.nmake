@@ -228,6 +228,11 @@ MAKENSIS_MODERN_UI=USE
 #
 #HHC="C:/Program Files/HTML Help Workshop/hhc.exe"
 
+# According to http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=403
+# XCOPY under Windows NT doesn't support the "/Y" flag.  This works
+# around that bug.
+COPYCMD=/Y
+
 # If you don't want to build libethereal.dll, you should comment out the
 # following line. (Note: for plugin support this option must stay activated)
 ENABLE_LIBETHEREAL=USE

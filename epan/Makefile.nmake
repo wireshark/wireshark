@@ -143,10 +143,10 @@ doxygen: doxygen.cfg doxygen-run
 # and statically linking
 
 mkstemp.c: ..\mkstemp.c
-	xcopy ..\mkstemp.c . /d /y
+	xcopy ..\mkstemp.c . /d
 
 strptime.c: ..\strptime.c
-	xcopy ..\strptime.c . /d /y
+	xcopy ..\strptime.c . /d
 
 radius_dict.c : radius_dict.l
 	$(LEX) radius_dict.l

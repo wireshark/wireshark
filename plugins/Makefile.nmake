@@ -313,30 +313,30 @@ install-plugins:
 !IFDEF ENABLE_LIBETHEREAL
 	rm -rf $(VERSION)
 	mkdir $(VERSION)
-	xcopy acn\*.dll $(VERSION) /d /y
-	xcopy agentx\*.dll $(VERSION) /d /y
-	xcopy artnet\*.dll $(VERSION) /d /y
-	xcopy asn1\*.dll $(VERSION) /d /y
-	xcopy ciscosm\*.dll $(VERSION) /d /y
-	xcopy docsis\*.dll $(VERSION) /d /y
-	xcopy enttec\*.dll $(VERSION) /d /y
-	xcopy giop\*.dll $(VERSION) /d /y
-	xcopy gryphon\*.dll $(VERSION) /d /y
-	xcopy irda\*.dll $(VERSION) /d /y
-	xcopy lwres\*.dll $(VERSION) /d /y
-	xcopy mate\*.dll $(VERSION) /d /y
-	xcopy megaco\*.dll $(VERSION) /d /y
-	xcopy mgcp\*.dll $(VERSION) /d /y
-	xcopy opsi\*.dll $(VERSION) /d /y
-	xcopy pcli\*.dll $(VERSION) /d /y
-	xcopy profinet\*.dll $(VERSION) /d /y
-	xcopy rdm\*.dll $(VERSION) /d /y
-	xcopy rlm\*.dll $(VERSION) /d /y
-	xcopy rtnet\*.dll $(VERSION) /d /y
-	xcopy rudp\*.dll $(VERSION) /d /y
-	xcopy stats_tree\*.dll $(VERSION) /d /y
-	xcopy v5ua\*.dll $(VERSION) /d /y
-	xcopy xml\*.dll $(VERSION) /d /y
+	xcopy acn\*.dll $(VERSION) /d
+	xcopy agentx\*.dll $(VERSION) /d
+	xcopy artnet\*.dll $(VERSION) /d
+	xcopy asn1\*.dll $(VERSION) /d
+	xcopy ciscosm\*.dll $(VERSION) /d
+	xcopy docsis\*.dll $(VERSION) /d
+	xcopy enttec\*.dll $(VERSION) /d
+	xcopy giop\*.dll $(VERSION) /d
+	xcopy gryphon\*.dll $(VERSION) /d
+	xcopy irda\*.dll $(VERSION) /d
+	xcopy lwres\*.dll $(VERSION) /d
+	xcopy mate\*.dll $(VERSION) /d
+	xcopy megaco\*.dll $(VERSION) /d
+	xcopy mgcp\*.dll $(VERSION) /d
+	xcopy opsi\*.dll $(VERSION) /d
+	xcopy pcli\*.dll $(VERSION) /d
+	xcopy profinet\*.dll $(VERSION) /d
+	xcopy rdm\*.dll $(VERSION) /d
+	xcopy rlm\*.dll $(VERSION) /d
+	xcopy rtnet\*.dll $(VERSION) /d
+	xcopy rudp\*.dll $(VERSION) /d
+	xcopy stats_tree\*.dll $(VERSION) /d
+	xcopy v5ua\*.dll $(VERSION) /d
+	xcopy xml\*.dll $(VERSION) /d
 !ENDIF
 
 clean-deps:

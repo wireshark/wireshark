@@ -1,6 +1,6 @@
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake 13077 2005-01-16 23:26:02Z lroland $
+# $Id$
 
 include ../../config.nmake
 
@@ -37,5 +37,5 @@ fix_eol: generate_dissector
 	del /f packet-$(PROTOCOL_NAME).c.tmp packet-$(PROTOCOL_NAME).h.tmp
 
 copy_files: generate_dissector fix_eol
-	xcopy packet-$(PROTOCOL_NAME).c ..\..\epan\dissectors /d /y
-	xcopy packet-$(PROTOCOL_NAME).h ..\..\epan\dissectors /d /y
+	xcopy packet-$(PROTOCOL_NAME).c ..\..\epan\dissectors /d
+	xcopy packet-$(PROTOCOL_NAME).h ..\..\epan\dissectors /d
