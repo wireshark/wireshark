@@ -47,15 +47,17 @@
 
 #include "packet.h"
 #include "sigcomp_state_hdlr.h"
+#include "sigcomp-udvm.h"
+
 /*
  * Defenitions for:
  * The Session Initiation Protocol (SIP) and Session Description Protocol
  *    (SDP) Static Dictionary for Signaling Compression (SigComp)
  * http://www.ietf.org/rfc/rfc3485.txt?number=3485 
  */
-guint16 sip_sdp_state_length = 0x12e4;
+#define SIP_SDP_STATE_LENGTH 0x12e4
 
-static const guint8 sip_sdp_state_identifier[20] =
+static const guint8 sip_sdp_state_identifier[STATE_BUFFER_SIZE] =
 {
    /* -0000, */  0xfb, 0xe5, 0x07, 0xdf, 0xe5, 0xe6, 0xaa, 0x5a, 0xf2, 0xab, 0xb9, 0x14, 0xce, 0xaa, 0x05, 0xf9,
    /* -0010, */  0x9c, 0xe6, 0x1b, 0xa5
@@ -402,7 +404,7 @@ sigcomp_init_udvm(void){
 	/*
 	 * Store static dictionaries in hash table
 	 */
-	sip_sdp_buff = g_malloc(0x12e4+8);
+	sip_sdp_buff = g_malloc(SIP_SDP_STATE_LENGTH + 8);
 
 	partial_state_str = bytes_to_str(sip_sdp_state_identifier, 6);
 	
@@ -410,7 +412,7 @@ sigcomp_init_udvm(void){
 	 * Debug 	g_warning("Sigcomp init: Storing partial state =%s",partial_state_str);
 	 */
 	i = 0;
-	while ( i < sip_sdp_state_length ){
+	while ( i < SIP_SDP_STATE_LENGTH ){
 		sip_sdp_buff[i+8] = sip_sdp_static_dictionaty_for_sigcomp[i];
 		/* Debug
 		 * g_warning(" Loading 0x%x at address %u",sip_sdp_buff[i] , i);
@@ -437,7 +439,7 @@ int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint16 p_id_
 	guint16		k;
 	guint16		byte_copy_right;
 	guint16		byte_copy_left;
-	char		partial_state[20]; /* Size is 6 - 20 */
+	char		partial_state[STATE_BUFFER_SIZE]; /* Size is 6 - 20 */
 	guint8		*state_buff;
 	gchar		*partial_state_str;
 
@@ -461,7 +463,7 @@ int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint16 p_id_
 	}
 
 	n = 0;
-	while ( n < p_id_length ){
+	while ( n < p_id_length && n < STATE_BUFFER_SIZE && p_id_start + n < UDVM_MEMORY_SIZE ){
 		partial_state[n] = buff[p_id_start + n];
 		n++;
 	}
@@ -544,7 +546,7 @@ int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint16 p_id_
 	/* debug 
 	 *g_warning(" state_begin %u state_address %u",state_begin , *state_address);
 	 */
-	while ( n < (state_begin + *state_length + 8)){
+	while ( n < (state_begin + *state_length + 8) && n < STATE_BUFFER_SIZE ){
 		buff[k] = state_buff[n];
 		/*  debug 
 		 *	g_warning(" Loading 0x%x at address %u",buff[k] , k);
@@ -564,8 +566,8 @@ int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint16 p_id_
 
 void udvm_state_create(guint8 *state_buff,guint8 *state_identifier,guint16 p_id_length){
 
-	char partial_state[20];
-	guint8 i;
+	char partial_state[STATE_BUFFER_SIZE];
+	guint i;
 	gchar *partial_state_str;
 	gchar *dummy_buff;
 	/*
@@ -575,7 +577,7 @@ void udvm_state_create(guint8 *state_buff,guint8 *state_identifier,guint16 p_id_
 
 	 */
 	i = 0;
-	while ( i < p_id_length ){
+	while ( i < p_id_length && i < STATE_BUFFER_SIZE ){
 		partial_state[i] = state_identifier[i];
 		i++;
 	}
@@ -594,19 +596,19 @@ void udvm_state_create(guint8 *state_buff,guint8 *state_identifier,guint16 p_id_
 
 void udvm_state_free(guint8 buff[],guint16 p_id_start,guint16 p_id_length){
 
-	char partial_state[20];
-	guint8 i;
+	char partial_state[STATE_BUFFER_SIZE];
+	guint i;
 	gchar *partial_state_str;
 	/*
 	gchar *dummy_buff;
 	*/
 
 	i = 0;
-	while ( i < p_id_length ){
+	while ( i < p_id_length && i < STATE_BUFFER_SIZE && p_id_start + i < UDVM_MEMORY_SIZE ){
 		partial_state[i] = buff[p_id_start + i];
 		i++;
 	}
-	partial_state_str = bytes_to_str(partial_state, p_id_length);
+	/* partial_state_str = bytes_to_str(partial_state, p_id_length); */
 	/* TODO Implement a state create counter before actually freeing states 
 	 * Hmm is it a good idea to free the buffer at all?
 	g_warning("State-free on  %s ",partial_state_str);

@@ -177,7 +177,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 	guint		cycles_per_bit;
 	guint		maximum_UDVM_cycles;
 	guint8		*sha1buff;
-	unsigned char sha1_digest_buf[20];
+	unsigned char sha1_digest_buf[STATE_BUFFER_SIZE];
 	sha1_context ctx;
 
 
@@ -255,10 +255,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 
 
 	/* UDVM memory must be initialised to zero */
-	while ( i < UDVM_MEMORY_SIZE ) {
-		buff[i] = 0;
-		i++;
-	}
+	memset(buff, 0, UDVM_MEMORY_SIZE);
 	/* Set initial UDVM data 
 	 *  The first 32 bytes of UDVM memory are then initialized to special
 	 *  values as illustrated in Figure 5.
@@ -894,7 +891,7 @@ execute_next_instruction:
 
 		k = ref_destination; 
 
-		for ( n=0; n<20; n++ ) {
+		for ( n=0; n< STATE_BUFFER_SIZE; n++ ) {
 
 			buff[k] = sha1_digest_buf[n];
 
@@ -909,7 +906,7 @@ execute_next_instruction:
 		if (print_level_2 ){
 			proto_tree_add_text(udvm_tree, message_tvb, 0, -1,
 					"Calculated SHA-1: %s",
-					bytes_to_str(sha1_digest_buf, 20));
+					bytes_to_str(sha1_digest_buf, STATE_BUFFER_SIZE));
 		}
 
 		current_address = next_operand_address;
@@ -2403,7 +2400,7 @@ execute_next_instruction:
 			result_code = 12;
 			goto decompression_failure; 
 		}
-		if (( minimum_access_length < 6 ) || ( minimum_access_length > 20 )){
+		if (( minimum_access_length < 6 ) || ( minimum_access_length > STATE_BUFFER_SIZE )){
 			result_code = 1;
 			goto decompression_failure; 
 		}
@@ -2663,9 +2660,7 @@ execute_next_instruction:
 		 */
 		proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"no_of_state_create %u",no_of_state_create);
 		if ( no_of_state_create != 0 ){
-			for( x=0; x < 20; x++){
-				sha1_digest_buf[x]=0;
-			}
+			memset(sha1_digest_buf, 0, STATE_BUFFER_SIZE);
 			n = 1;
 			byte_copy_right = buff[66] << 8;
 			byte_copy_right = byte_copy_right | buff[67];
@@ -2701,7 +2696,7 @@ execute_next_instruction:
 				sha1_update( &ctx, (guint8 *) sha1buff, state_length_buff[n] + 8);
 				sha1_finish( &ctx, sha1_digest_buf );
 				if (print_level_3 ){
-					proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"SHA1 digest %s",bytes_to_str(sha1_digest_buf, 20));
+					proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"SHA1 digest %s",bytes_to_str(sha1_digest_buf, STATE_BUFFER_SIZE));
 
 				}
 				udvm_state_create(sha1buff, sha1_digest_buf, state_minimum_access_length_buff[n]);

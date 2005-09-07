@@ -41,5 +41,8 @@ extern void udvm_state_create(guint8 *state_buff,guint8 *state_identifier_buff,g
 extern void udvm_state_free(guint8 buff[],guint16 p_id_start,guint16 p_id_length);
 
 extern void sigcomp_init_udvm(void);
+
+#define STATE_BUFFER_SIZE 20
+
 #endif 
 /* SIGCOMP_STATE_HDLR_H */
