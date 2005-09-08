@@ -67,7 +67,9 @@ enum wrepl_replication_cmd {
 	WREPL_REPL_SEND_REQUEST=2,
 	WREPL_REPL_SEND_REPLY=3,
 	WREPL_REPL_UPDATE=4,
-	WREPL_REPL_INFORM=8
+	WREPL_REPL_5=5,
+	WREPL_REPL_INFORM=8,
+	WREPL_REPL_9=9
 };
 
 union wrepl_replication_info {
