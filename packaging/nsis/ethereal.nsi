@@ -656,7 +656,6 @@ File "..\..\plugins\rlm\rlm.dll"
 File "..\..\plugins\rtnet\rtnet.dll"
 File "..\..\plugins\rudp\rudp.dll"
 File "..\..\plugins\v5ua\v5ua.dll"
-File "..\..\plugins\xml\xml.dll"
 SectionEnd
 
 Section "Tree Statistics Plugin" SecStatsTree

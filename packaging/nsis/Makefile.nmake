@@ -86,8 +86,7 @@ PLUGINS=../../plugins/acn/acn.dll \
 	../../plugins/rtnet/rtnet.dll \
 	../../plugins/rudp/rudp.dll \
 	../../plugins/stats_tree/stats_tree.dll \
-	../../plugins/v5ua/v5ua.dll \
-	../../plugins/xml/xml.dll
+	../../plugins/v5ua/v5ua.dll
 
 NSI=ethereal.nsi \
 	GetWindowsVersion.nsh \
