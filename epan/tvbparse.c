@@ -2,7 +2,7 @@
 *
 * Copyright 2005, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
 *
-* $Id:  $
+* $Id$
 *
 * Ethereal - Network traffic analyzer
 * By Gerald Combs <gerald@ethereal.com>

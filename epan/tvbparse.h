@@ -5,7 +5,7 @@
 *
 * Copyright 2005, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
 *
-* $Id:  $
+* $Id$
 *
 * Ethereal - Network traffic analyzer
 * By Gerald Combs <gerald@ethereal.com>
@@ -94,8 +94,12 @@ typedef struct _tvbparse_elem_t {
 } tvbparse_elem_t;
 
 /*
- * a callback function to be called before or after an element has been successfuly extracted.
- * Note that if the token belongs to a composed token the callbacks of the components won't be called.
+ * a callback function to be called before or after an element has been
+ * successfuly extracted.
+ *
+ * Note that if the token belongs to a composed token the callbacks of the
+ * components won't be called unless the composed token is successfully
+ * extracted.
  *
  * tvbparse_data: the private data of the parser
  * wanted_data: the private data of the wanted element
@@ -205,6 +209,8 @@ tvbparse_wanted_t* tvbparse_casestring(int id,
  * found until the first match of the ending element if the ending element is
  * found.
  *
+ * When looking for until elements it calls tvbparse_find so it can be very slow. 
+ *
  * It won't have a subelement, the ending's callbacks won't get called.
  */
 tvbparse_wanted_t* tvbparse_until(int id,
@@ -307,21 +313,20 @@ tvbparse_t* tvbparse_init(tvbuff_t* tvb,
 /* reset the parser */
 gboolean tvbparse_reset(tvbparse_t* tt, int offset, int len);
 
-/* it will look for the wanted token at the current offset or after any given
-*   number of ignored tokens returning NULL if there's no match.
-*  if there is a match it will set the offset of the current parser after
-*  the end of the token 
-*/
+/*
+ * This ill look for the wanted token at the current offset or after any given
+ * number of ignored tokens returning NULL if there's no match.
+ * if there is a match it will set the offset of the current parser after
+ * the end of the token 
+ */
 tvbparse_elem_t* tvbparse_get(tvbparse_t* tt,
 							  const tvbparse_wanted_t* wanted);
 
-/* it will look for a wanted token even beyond the current offset
-* AVOID USING IT because:
-* is TOO slow,
-* if the wanted type is a composite type and is matched partially even more
-* times while looking for it the callbacks of the matched subtokens WILL be
-* called every time
-*/
+/*
+ * Like tvbparse_get but this will look for a wanted token even beyond the
+ * current offset.
+ * This function is slow.
+ */
 
 tvbparse_elem_t* tvbparse_find(tvbparse_t* tt,
 							   const tvbparse_wanted_t* wanted);
