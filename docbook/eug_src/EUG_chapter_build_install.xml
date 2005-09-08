@@ -453,7 +453,7 @@ apt-get install ethereal
       In this section we explore installing Ethereal under Windows from the 
       binary packages.  
 	</para>
-  <section id="ChBuildInstallComponents">
+  <section id="ChBuildInstallEthereal">
     <title>Install Ethereal</title>
 	<para>
 		You may acquire a binary installer of Ethereal named something like: 
@@ -471,7 +471,38 @@ apt-get install ethereal
 	install two separate packages any longer!</command>
     </para>
 	</note>
-  <section id="ChBuildWinInstaller">
+  <section id="ChBuildInstallEtherealCommandLine">
+    <title>Command line options</title>
+    <para>
+	You can simply start the Ethereal installer without any command line 
+	parameters, it will show you the usual interactive installer.
+    </para>
+    <para>
+	There are some command line parameters available:
+    </para>
+	<itemizedlist>
+	<listitem>
+		<para>
+		/NCRC disables the CRC check
+		</para>
+	</listitem>
+	<listitem>
+		<para>
+		/S runs the installer or uninstaller silently with default values. 
+		Please note: The silent installer won't install WinPCap!
+		</para>
+	</listitem>
+	<listitem>
+		<para>
+		/D sets the default installation directory ($INSTDIR), overriding 
+		InstallDir and InstallDirRegKey. It must be the last parameter used in 
+		the command line and must not contain any quotes, even if the path 
+		contains spaces.
+		</para>
+	</listitem>
+	</itemizedlist>
+  </section>
+  <section id="ChBuildInstallComponents">
     <title>Components</title>
     <para>
 	Beside the usual installer options like where to install the program, 
