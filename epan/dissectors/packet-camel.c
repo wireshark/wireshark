@@ -651,6 +651,7 @@ static const true_false_string camel_extension_value = {
 };
 #define EUROPEAN_DATE 1
 #define AMERICAN_DATE 2
+#define CAMEL_DATE_AND_TIME_LEN 20 /* 2*5 + 4 + 5 + 1 (HH:MM:SS;mm/dd/yyyy) */
 
 static enum_val_t date_options[] = {
   { "european",         "DD/MM/YYYY",       EUROPEAN_DATE },
@@ -3232,10 +3233,9 @@ dissect_camel_DateAndTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
   guint8 digit_pair;
   guint8 i = 0, curr_offset; 
-  char *time = (char *)(calloc (2*7 + 5 + 1, sizeof(char))); 
-  
-  char c[ 2*7 + 5] = ""; /*temporary container*/
-  time[ 2*7 + 5 +1 ] = '\0';
+  char time[CAMEL_DATE_AND_TIME_LEN];
+  char c[CAMEL_DATE_AND_TIME_LEN]; /*temporary container*/
+
   /* 2 digits per octet, 7 octets total + 5 delimiters */
     
   for (curr_offset = 0; curr_offset < 7 ; curr_offset++)    
@@ -3265,6 +3265,8 @@ dissect_camel_DateAndTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
   }
   
   /* Pretty print date */
+  /* XXX - Should we use sprintf here instead of assembling the string by
+   * hand? */
   
   time[0] = c[9];
   time[1] = c[8];
@@ -3296,6 +3298,8 @@ dissect_camel_DateAndTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
   time[16] = c[1];
   time[17] = c[2];
   time[18] = c[3];
+
+  time[CAMEL_DATE_AND_TIME_LEN - 1] = '\0';
  
 /*start = 0, length = 7*/
  
@@ -3305,8 +3309,8 @@ dissect_camel_DateAndTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 		      0, 
 		      7, 
 		      time);
-  free (time); 
-  return 7; /* 7  octetes eaten*/
+
+  return 7; /* 7  octets eaten*/
 
 
   return offset;
@@ -6830,7 +6834,7 @@ static guint8 camel_pdu_size = 0;
 static int
 dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
 
-  char *version_ptr, *version_str;
+  char *version_ptr;
 
   opcode = 0;
   application_context_version = 0;

@@ -375,6 +375,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
 			
 			if (extra_len == 0 || name_len == 0 || stack_len == 0
 				|| 0x20 + extra_len + name_len + stack_len > rec_len ) {
+				g_free(rec);
 				return 0;
 			}
 			

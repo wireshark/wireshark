@@ -3254,8 +3254,10 @@ remove_escape_chars(tvbuff_t *tvb, int offset, int length)
 	  scanned_len++;
 	  i++;
   }
-  if (i == 0)
+  if (i == 0) {
+	  g_free(buff);
 	  return NULL;
+  }
   next_tvb = tvb_new_real_data(buff,i,i);
 
   /* Arrange that the allocated packet data copy be freed when the

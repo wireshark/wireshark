@@ -131,10 +131,9 @@ tvbuff_t	*parameter_tvb;
 
   guint8 digit_pair;
   guint8 i = 0, curr_offset; 
-  char *time = (char *)(calloc (2*7 + 5 + 1, sizeof(char))); 
-  
-  char c[ 2*7 + 5] = ""; /*temporary container*/
-  time[ 2*7 + 5 +1 ] = '\0';
+  char time[CAMEL_DATE_AND_TIME_LEN];
+  char c[CAMEL_DATE_AND_TIME_LEN]; /*temporary container*/
+
   /* 2 digits per octet, 7 octets total + 5 delimiters */
     
   for (curr_offset = 0; curr_offset < 7 ; curr_offset++)    
@@ -164,6 +163,8 @@ tvbuff_t	*parameter_tvb;
   }
   
   /* Pretty print date */
+  /* XXX - Should we use sprintf here instead of assembling the string by
+   * hand? */
   
   time[0] = c[9];
   time[1] = c[8];
@@ -195,6 +196,8 @@ tvbuff_t	*parameter_tvb;
   time[16] = c[1];
   time[17] = c[2];
   time[18] = c[3];
+
+  time[CAMEL_DATE_AND_TIME_LEN - 1] = '\0';
  
 /*start = 0, length = 7*/
  
@@ -204,8 +207,8 @@ tvbuff_t	*parameter_tvb;
 		      0, 
 		      7, 
 		      time);
-  free (time); 
-  return 7; /* 7  octetes eaten*/
+
+  return 7; /* 7  octets eaten*/
 
 #.END
 

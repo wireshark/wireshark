@@ -109,6 +109,7 @@ static const true_false_string camel_extension_value = {
 };
 #define EUROPEAN_DATE 1
 #define AMERICAN_DATE 2
+#define CAMEL_DATE_AND_TIME_LEN 20 /* 2*5 + 4 + 5 + 1 (HH:MM:SS;mm/dd/yyyy) */
 
 static enum_val_t date_options[] = {
   { "european",         "DD/MM/YYYY",       EUROPEAN_DATE },
@@ -505,7 +506,7 @@ static guint8 camel_pdu_size = 0;
 static int
 dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
 
-  char *version_ptr, *version_str;
+  char *version_ptr;
 
   opcode = 0;
   application_context_version = 0;
