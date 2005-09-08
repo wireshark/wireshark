@@ -42,11 +42,13 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
+#include <epan/emem.h>
 
 #include "packet-windows-common.h"
 #include "packet-netbios.h"
 
 #include "packet-winsrepl.h"
+#include "packet-tcp.h"
 
 static gboolean winsrepl_reassemble = TRUE;
 
@@ -576,12 +578,16 @@ dissect_winsrepl_replication(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 static void
 dissect_winsrepl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-	int winsrepl_offset = 0;
-	tvbuff_t *winsrepl_tvb = NULL;
+	int offset = 0;
 	proto_item *winsrepl_item = NULL;
 	proto_tree *winsrepl_tree = NULL;
-	struct winsrepl_frame_data _winsrepl_frame;
-	struct winsrepl_frame_data *winsrepl = &_winsrepl_frame;
+	struct winsrepl_frame_data *winsrepl;
+
+
+	winsrepl = ep_alloc(sizeof(struct winsrepl_frame_data));
+
+	winsrepl->w.size = tvb_get_ntohl(tvb, offset);
+
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "WINS-Replication");
@@ -590,54 +596,49 @@ dissect_winsrepl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
-	winsrepl_tvb = tvb_new_subset(tvb, 0, -1, -1);
-
 	if (parent_tree) {
-		winsrepl_item = proto_tree_add_item(parent_tree, proto_winsrepl, winsrepl_tvb, winsrepl_offset, -1, FALSE);
+		winsrepl_item = proto_tree_add_item(parent_tree, proto_winsrepl, tvb, offset, winsrepl->w.size+4, FALSE);
 		winsrepl_tree = proto_item_add_subtree(winsrepl_item, ett_winsrepl);
 	}
 
 	/* SIZE */
-	winsrepl->w.size = tvb_get_ntohl(winsrepl_tvb, winsrepl_offset);
-	proto_tree_add_uint(winsrepl_tree, hf_winsrepl_size, winsrepl_tvb, winsrepl_offset, 4, winsrepl->w.size);
-	winsrepl_offset += 4;
-
-	proto_item_set_len(winsrepl_item, winsrepl->w.size + 4);
+	proto_tree_add_uint(winsrepl_tree, hf_winsrepl_size, tvb, offset, 4, winsrepl->w.size);
+	offset += 4;
 
 	/* OPCODE */
-	winsrepl->w.packet.opcode = tvb_get_ntohl(winsrepl_tvb, winsrepl_offset);
-	proto_tree_add_uint(winsrepl_tree, hf_winsrepl_opcode, winsrepl_tvb, winsrepl_offset, 4, winsrepl->w.packet.opcode);
-	winsrepl_offset += 4;
+	winsrepl->w.packet.opcode = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_uint(winsrepl_tree, hf_winsrepl_opcode, tvb, offset, 4, winsrepl->w.packet.opcode);
+	offset += 4;
 
 	/* ASSOC_CTX */
-	winsrepl->w.packet.assoc_ctx = tvb_get_ntohl(winsrepl_tvb, winsrepl_offset);
-	proto_tree_add_uint(winsrepl_tree, hf_winsrepl_assoc_ctx, winsrepl_tvb, winsrepl_offset, 4, winsrepl->w.packet.assoc_ctx);
-	winsrepl_offset += 4;
+	winsrepl->w.packet.assoc_ctx = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_uint(winsrepl_tree, hf_winsrepl_assoc_ctx, tvb, offset, 4, winsrepl->w.packet.assoc_ctx);
+	offset += 4;
 
 	/* MESSAGE_TYPE */
-	winsrepl->w.packet.mess_type = tvb_get_ntohl(winsrepl_tvb, winsrepl_offset);
-	proto_tree_add_uint(winsrepl_tree, hf_winsrepl_mess_type, winsrepl_tvb, winsrepl_offset, 4, winsrepl->w.packet.mess_type);
-	winsrepl_offset += 4;
+	winsrepl->w.packet.mess_type = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_uint(winsrepl_tree, hf_winsrepl_mess_type, tvb, offset, 4, winsrepl->w.packet.mess_type);
+	offset += 4;
 
 	switch (winsrepl->w.packet.mess_type) {
 		case WREPL_START_ASSOCIATION:
-			winsrepl_offset = dissect_winsrepl_start(winsrepl_tvb, pinfo,
-								 winsrepl_offset, winsrepl_tree,
+			offset = dissect_winsrepl_start(tvb, pinfo,
+								 offset, winsrepl_tree,
 								 winsrepl);
 			break;
 		case WREPL_START_ASSOCIATION_REPLY:
-			winsrepl_offset = dissect_winsrepl_start(winsrepl_tvb, pinfo,
-								 winsrepl_offset, winsrepl_tree,
+			offset = dissect_winsrepl_start(tvb, pinfo,
+								 offset, winsrepl_tree,
 								 winsrepl);
 			break;
 		case WREPL_STOP_ASSOCIATION:
-			winsrepl_offset = dissect_winsrepl_stop(winsrepl_tvb, pinfo,
-								winsrepl_offset, winsrepl_tree,
+			offset = dissect_winsrepl_stop(tvb, pinfo,
+								offset, winsrepl_tree,
 								winsrepl);
 			break;
 		case WREPL_REPLICATION:
-			winsrepl_offset = dissect_winsrepl_replication(winsrepl_tvb, pinfo,
-								       winsrepl_offset, winsrepl_tree,
+			offset = dissect_winsrepl_replication(tvb, pinfo,
+								       offset, winsrepl_tree,
 								       winsrepl);
 			break;
 	}
@@ -645,47 +646,21 @@ dissect_winsrepl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	return;
 }
 
-static void
+static guint
+get_winsrepl_pdu_len(tvbuff_t *tvb, int offset)
+{
+    guint pdu_len;
+ 
+    pdu_len=tvb_get_ntohl(tvb, offset);
+    return pdu_len+4;
+}
+
+static int
 dissect_winsrepl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-	int offset = 0;
+	tcp_dissect_pdus(tvb, pinfo, parent_tree, winsrepl_reassemble, 4, get_winsrepl_pdu_len, dissect_winsrepl_pdu);
 
-	if (!winsrepl_reassemble || !pinfo->can_desegment) {
-		dissect_winsrepl_pdu(tvb, pinfo, parent_tree);
-		return;
-	}
-
-	while (tvb_reported_length_remaining(tvb, offset) > 0) {
-		guint length_remaining = 0;
-		tvbuff_t *pdu_tvb = NULL;
-		guint32 pdu_size = 0;
-
-		length_remaining = tvb_ensure_length_remaining(tvb, offset);
-		if (length_remaining < 4) {
-			pinfo->desegment_offset	= offset;
-			pinfo->desegment_len	= 4 - length_remaining;
-			return;
-		}
-
-		pdu_size = tvb_get_ntohl(tvb, offset);
-		pdu_size += 4;
-
-		if (length_remaining < pdu_size) {
-			pinfo->want_pdu_tracking	= 2;
-			pinfo->bytes_until_next_pdu	= pdu_size - length_remaining;
-			pinfo->desegment_offset	= offset;
-			pinfo->desegment_len	= pdu_size - length_remaining;
-			return;
-		}
-
-		pdu_tvb = tvb_new_subset(tvb, offset, pdu_size, pdu_size);
-
-		dissect_winsrepl_pdu(pdu_tvb, pinfo, parent_tree);
-
-		offset += pdu_size;
-	}
-
-	return;
+	return tvb_length(tvb);
 }
 
 void
@@ -839,6 +814,6 @@ proto_register_winsrepl(void)
 void
 proto_reg_handoff_winsrepl(void)
 {
-	winsrepl_handle = create_dissector_handle(dissect_winsrepl, proto_winsrepl);
+	winsrepl_handle = new_create_dissector_handle(dissect_winsrepl, proto_winsrepl);
 	dissector_add("tcp.port", glb_winsrepl_tcp_port, winsrepl_handle);
 }
