@@ -2603,6 +2603,9 @@ create_console(void)
        disappear out from under them, giving the user no chance to see
        the message(s) we put in there). */
     atexit(destroy_console);
+
+	SetConsoleTitle("Ethereal Debug Console");
+
   }
 }
 
