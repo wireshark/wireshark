@@ -140,36 +140,13 @@ proto_reg_handoff_text_lines(void)
 	dissector_add_string("media_type", "text/plain", text_lines_handle);
 	/* W3C line-based textual media */
 	dissector_add_string("media_type", "text/html", text_lines_handle);
-	dissector_add_string("media_type", "text/xml", text_lines_handle);
 	dissector_add_string("media_type", "text/xml-external-parsed-entity", text_lines_handle);
 	dissector_add_string("media_type", "text/css", text_lines_handle);
-	dissector_add_string("media_type", "application/xml", text_lines_handle);
 	dissector_add_string("media_type", "application/xml-external-parsed-entity", text_lines_handle);
-	dissector_add_string("media_type", "application/xml-dtd", text_lines_handle);
-	dissector_add_string("media_type", "application/soap+xml", text_lines_handle);
 	dissector_add_string("media_type", "application/x-javascript", text_lines_handle);
 	dissector_add_string("media_type", "application/x-www-form-urlencoded", text_lines_handle);
 	dissector_add_string("media_type", "application/x-ns-proxy-autoconfig", text_lines_handle);
-	/* WAP and OMA line-based textual media */
-	dissector_add_string("media_type", "text/vnd.wap.wml", text_lines_handle);
-	dissector_add_string("media_type", "text/vnd.wap.si", text_lines_handle);
-	dissector_add_string("media_type", "text/vnd.wap.sl", text_lines_handle);
-	dissector_add_string("media_type", "text/vnd.wap.co", text_lines_handle);
-	dissector_add_string("media_type", "text/vnd.wap.emn", text_lines_handle);
-	dissector_add_string("media_type", "application/vnd.wv.csp+xml", text_lines_handle);
-	/* The Extensible Markup Language (XML) Configuration Access Protocol (XCAP)
-	 * draft-ietf-simple-xcap-06
-	 */
-	dissector_add_string("media_type", "application/xcap-el+xml", text_lines_handle);
-	dissector_add_string("media_type", "application/xcap-att+xml", text_lines_handle);
-	dissector_add_string("media_type", "application/xcap-error+xml", text_lines_handle);
-	dissector_add_string("media_type", "application/xcap-caps+xml", text_lines_handle);
-	/* draft-ietf-simple-presence-rules-02 */
-	dissector_add_string("media_type", "application/auth-policy+xml", text_lines_handle);
-	/* Other */
+
 	dissector_add_string("media_type", "text/vnd.sun.j2me.app-descriptor", text_lines_handle);
-	dissector_add_string("media_type", "application/smil", text_lines_handle);
 	dissector_add_string("media_type", "application/vnd.poc.refer-to", text_lines_handle);
-	dissector_add_string("media_type", "application/cpim-pidf+xml", text_lines_handle);
-	dissector_add_string("media_type", "application/vnd.wv.csp.xml", text_lines_handle);
 }
