@@ -65,7 +65,7 @@ The two functions to start or stop tapping are
 
 register_tap_listener(char *tapname, void *tapdata, char *fstring,
 	void (*reset)(void *tapdata),
-	int  (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, void *<pointer>),
+	int  (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *<pointer>),
 	void (*draw)(void *tapdata));
 
 remove_tap_listener(void *tapdata);
