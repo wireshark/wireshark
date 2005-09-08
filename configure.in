@@ -1251,7 +1251,6 @@ AC_OUTPUT(
   plugins/rudp/Makefile
   plugins/stats_tree/Makefile
   plugins/v5ua/Makefile
-  plugins/xml/Makefile
   tools/Makefile
   tools/lemon/Makefile
   ,)

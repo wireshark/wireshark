@@ -612,6 +612,7 @@ DISSECTOR_SRC =	\
 	packet-x509if.c	\
 	packet-x509sat.c	\
 	packet-xdmcp.c	\
+	packet-xml.c	\
 	packet-xot.c	\
 	packet-xyplex.c	\
 	packet-yhoo.c	\

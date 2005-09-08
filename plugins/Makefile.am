@@ -44,8 +44,7 @@ SUBDIRS = \
 	rtnet \
 	rudp \
 	stats_tree \
-	v5ua \
-	xml
+	v5ua
 
 
 plugindir = @plugindir@

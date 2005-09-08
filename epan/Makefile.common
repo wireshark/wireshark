@@ -76,6 +76,7 @@ LIBETHEREAL_SRC = 		\
 	tap.c			\
 	timestamp.c		\
 	to_str.c		\
+	tvbparse.c		\
 	tvbuff.c		\
 	value_string.c		\
 	xdlc.c			\
@@ -145,6 +146,7 @@ LIBETHEREAL_INCLUDES = 		\
 	tap.h			\
 	timestamp.h    		\
 	to_str.h		\
+	tvbparse.h		\
 	tvbuff.h		\
 	value_string.h		\
 	xdlc.h			\

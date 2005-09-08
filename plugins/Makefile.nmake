@@ -29,8 +29,7 @@ all: \
 	rtnet \
 	rudp \
 	stats_tree \
-	v5ua \
-	xml
+	v5ua
 
 
 acn:: 
@@ -147,11 +146,6 @@ v5ua::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
-xml:: 
-	cd xml
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
-
 clean:
 	rm -rf $(VERSION)
 	cd acn
@@ -199,8 +193,6 @@ clean:
 	cd ../stats_tree
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../v5ua
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../xml
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 
@@ -251,8 +243,6 @@ distclean: clean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../v5ua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../xml
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 
 maintainer-clean: distclean
@@ -300,8 +290,6 @@ maintainer-clean: distclean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../v5ua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../xml
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
 
 ################################################################################
@@ -336,7 +324,6 @@ install-plugins:
 	xcopy rudp\*.dll $(VERSION) /d
 	xcopy stats_tree\*.dll $(VERSION) /d
 	xcopy v5ua\*.dll $(VERSION) /d
-	xcopy xml\*.dll $(VERSION) /d
 !ENDIF
 
 clean-deps:
