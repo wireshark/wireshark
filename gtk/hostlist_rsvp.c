@@ -33,7 +33,9 @@
 #include <gtk/gtk.h>
 #include <string.h>
 #include "epan/packet.h"
-#include "stat_menu.h"
+#include <epan/stat_cmd_args.h>
+#include "../stat_menu.h"
+#include "gui_stat_menu.h"
 #include <epan/tap.h>
 #include "../register.h"
 #include "hostlist_table.h"
@@ -59,9 +61,9 @@ rsvp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
 }
 
 static void
-gtk_rsvp_hostlist_init(char *optarg)
+gtk_rsvp_hostlist_init(const char *optarg)
 {
-	char *filter=NULL;
+	const char *filter=NULL;
 
 	if(!strncmp(optarg,"hosts,rsvp,",11)){
 		filter=optarg+11;
