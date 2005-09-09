@@ -610,6 +610,35 @@ static const value_string SIP_user_data_already_available_vals[] = {
 
 };
 
+static const value_string Three_gpp_direction_vals[] = {
+	{0, "UPLINK"},
+	{1, "DOWNLINK"},
+	{0, NULL}
+
+};
+
+static const value_string Three_gpp_Node_Functionality_vals[] = {
+	{0, "S-CSCF"},
+	{1, "P-CSCF"},
+	{2, "I-CSCF"},
+	{3, "MRFC"},
+	{4, "MGCF"},
+	{5, "BGCF"},
+	{6, "AS"},
+	{7, "UE"},
+	{0, NULL}
+
+};
+
+static const value_string Three_gpp_Role_of_node_vals[] = {
+	{0, "ORIGINATING_ROLE"},
+	{1, "TERMINATING_ROLE"},
+	{2, "PROXY ROLE"},
+	{3, "B2BUA_ROLE"},
+	{0, NULL}
+
+};
+
 /*
  * The Result-Code data field contains an IANA-managed 32-bit address
  * space representing errors (see Section 11.4(RFC3588)).  Diameter provides the
@@ -982,6 +1011,48 @@ static struct old_avp_info old_diameter_avps[] = {
     { 485, "Accounting-Record-Number",			DIAMETER_UNSIGNED32,		(value_string *)NULL},
     { 487, "Accounting-Sub-Session-Id",			DIAMETER_ENUMERATED,		(value_string *)NULL},
 
+	/* 3GPP TS 32.299 version 6.3.0 Release 6 
+	 * Note not IANA allocated but should be OK anyway.
+	 */
+    { 823, "Event-Type",						DIAMETER_GROUPED,			(value_string *)NULL},
+    { 824, "SIP-Method",						DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 825, "Event",								DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 826, "Content-Type",						DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 827, "Content-Length",					DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 828, "Content-Disposition",				DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 829, "Role-of-node",						DIAMETER_ENUMERATED,		Three_gpp_Role_of_node_vals},
+    { 830, "User-Session-ID",					DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 831, "Calling-Party-Address",				DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 832, "Called-Party-Address",				DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 833, "Time-stamps",						DIAMETER_GROUPED,			(value_string *)NULL},
+    { 834, "SIP-Request-Timestamp",				DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 835, "SIP-Response-Timestamp",			DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 836, "Application-Server",				DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 837, "Application-provided-Called-Party-Address",	DIAMETER_UTF8STRING,			(value_string *)NULL},
+    { 838, "Inter-Operator-Identifier",			DIAMETER_GROUPED,			(value_string *)NULL},
+    { 839, "Originating-IOI",					DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 840, "Terminating-IOI",					DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 841, "IMS-Charging-Identifier (ICID)",	DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 842, "SDP-Session-Description",			DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 843, "SDP-Media-Component",				DIAMETER_GROUPED,			(value_string *)NULL},
+    { 844, "SDP-Media-Name",					DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 845, "SDP-Media-Description",				DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 846, "GPRS-Charging-ID",					DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 847, "GGSN-Address"	,					DIAMETER_IP_ADDRESS,		(value_string *)NULL},
+    { 848, "Served-Party-IP-Address",			DIAMETER_IP_ADDRESS,		(value_string *)NULL},
+    { 849, "Authorised-QoS",					DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 851, "Trunk-Group-ID",					DIAMETER_GROUPED,			(value_string *)NULL},
+    { 852, "Incoming-Trunk-Group-ID",			DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 853, "Outgoing-Trunk-Group-ID",			DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 854, "Bearer-Service",					DIAMETER_OCTET_STRING,		(value_string *)NULL},
+    { 855, "Service-ID",						DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 856, "UUS-Data",							DIAMETER_GROUPED,			(value_string *)NULL},
+    { 857, "Amount-of-UUS-Data",				DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 858, "Mime-Type",							DIAMETER_UTF8STRING,		(value_string *)NULL},
+    { 859, "Direction",							DIAMETER_ENUMERATED,		Three_gpp_direction_vals},
+    { 860, "Cause",								DIAMETER_GROUPED,			(value_string *)NULL},
+    { 861, "Cause-Code",						DIAMETER_ENUMERATED,		(value_string *)NULL},
+    { 862, "Node-Functionality",				DIAMETER_ENUMERATED,		Three_gpp_Node_Functionality_vals},
 
 /* draft-ietf-aaa-diameter-sip-app-01.txt AVP codes to be allocated
 	{ xx01, "SIP-Visited-Network-Id",			DIAMETER_UTF8STRING,		(value_string *)NULL},
