@@ -104,7 +104,9 @@ typedef struct {
 	double		timeunit;
 	double		start_timestamp;
 	gboolean	wrapped;
-	int		end_offset;
+	guint32		nframes;
+	long		start_offset;
+	long		end_offset;
 	int		version_major;
 	gboolean	fcs_valid;	/* if packets have valid FCS at the end */
 	guint		isdn_type;	/* 1 = E1 PRI, 2 = T1 PRI, 3 = BRI */

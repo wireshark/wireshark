@@ -89,9 +89,11 @@ struct netxray_hdr {
 	guint8	xxx_x60[16];	/* unknown [other stuff]			*/
 
 	guint8  xxx_x70[14];    /* unknown [other stuff]			*/
-	guint16 timezone_hrs;	/* timezone hours [at least for version 2...];	*/
+	gint16 timezone_hrs;	/* timezone hours [at least for version 2.2..];	*/
 				/*  positive values = west of UTC:		*/
+				/*  negative values = east of UTC:		*/
 				/*  e.g. +5 is American Eastern			*/
+				/* [Does not appear to be adjusted for DST ]	*/
 };
 
 /*
@@ -562,8 +564,9 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		 * XXX - do values only slightly greater than one million
 		 * correspond to a resolution sufficiently better than
 		 * 1 microsecond to display more digits of precision?
+		 * XXX - Seems reasonable to use nanosecs only if TPS >= 10M
 		 */
-		if (timeunit > 1e6)
+		if (timeunit >= 1e7)
 			wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 		else
 			wth->tsprecision = WTAP_FILE_TSPREC_USEC;
@@ -604,17 +607,13 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 				 * is Cisco HDLC, not Frame Relay, but
 				 * in another capture, it's Frame Relay.
 				 *
-				 * In the Cisco HDLC capture, hdr.xxc[22:26]
-				 * is 0x02 0x00 0x01 0x00 0x06, but it's
-				 * 0x00 0x00 0x00 0x00 0x00 in the Frame
-				 * Relay capture.  Also, hdr.xxc[30:31]
-				 * is 0xff 0xff in the Cisco HDLC capture
-				 * and 0x00 0x00 in the Frame Relay capture,
-				 * and hdr.xxc[46:47] is 0xff 0xff in the
-				 * Cisco HDLC capture and 0x05 0x00 in the
-				 * Frame Relay capture.
-				 *  [XXX: xxc[46:47] appear to be Timezone]
-				 *  [Does 0xff 0xff mean "time zone unknown?]
+				 * [Bytes in each capture:
+				 * Cisco HDLC:  hdr.xxx_x60[06:10]: 0x02 0x00 0x01 0x00 0x06
+				 * Frame Relay: hdr.xxx_x60[06:10]  0x00 0x00 0x00 0x00 0x00
+
+				 * Cisco HDLC:  hdr.xxx_x60[14:15]: 0xff 0xff
+				 * Frame Relay: hdr.xxx_x60[14:15]: 0x00 0x00
+				 * ]
 				 */
 				file_encap = WTAP_ENCAP_FRELAY_WITH_PHDR;
 				break;
@@ -737,20 +736,21 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		 *
 		 * All captures I've seen that have 0x34 and 0x12 *and*
 		 * have at least one frame with an FCS have a value of
-		 * 0x01 in xxb[4].  No captures I've seen with a network
+		 * 0x01 in xxx_x40[4].  No captures I've seen with a network
 		 * type of 0 (Ethernet) missing 0x34 0x12 have 0x01 there,
 		 * however.  However, there's at least one capture
 		 * without 0x34 and 0x12, with a network type of 0,
-		 * and with 0x01 in xxb[4], *without* FCSes in the
+		 * and with 0x01 in xxx_x40[4], *without* FCSes in the
 		 * frames - the 4 bytes at the end are all zero - so it's
-		 * not as simple as "xxb[4] = 0x01 means the 4 bytes at
+		 * not as simple as "xxx_x40[4] = 0x01 means the 4 bytes at
 		 * the end are FCSes".  Also, there's also at least one
-		 * 802.11 capture with an xxb[4] value of 0x01 with junk
-		 * rather than an FCS at the end of the frame, so xxb[4]
+		 * 802.11 capture with an xxx_x40[4] value of 0x01 with junk
+		 * rather than an FCS at the end of the frame, so xxx_x40[4]
 		 * isn't an obvious flag to determine whether the
 		 * capture has FCSes.
 		 *
-		 * There don't seem to be any other values in xxb or xxc
+		 * There don't seem to be any other values in any of the
+		 * xxx_x5..., xxx_x6...., xxx_x7.... fields
 		 * that obviously correspond to frames having an FCS.
 		 */
 		if (version_major == 2) {
@@ -768,9 +768,13 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Remember the offset after the last packet in the capture (which
 	 * isn't necessarily the last packet in the file), as it appears
-	 * there's sometimes crud after it. */
-	wth->capture.netxray->wrapped = FALSE;
-	wth->capture.netxray->end_offset = pletohl(&hdr.end_offset);
+	 * there's sometimes crud after it.
+	 * XXX: Remember 'start_offset' to help testing for 'short file' at EOF
+	 */
+	wth->capture.netxray->wrapped      = FALSE;
+	wth->capture.netxray->nframes      = pletohl(&hdr.nframes);
+	wth->capture.netxray->start_offset = pletohl(&hdr.start_offset);
+	wth->capture.netxray->end_offset   = pletohl(&hdr.end_offset);
 
 	/* Seek to the beginning of the data records. */
 	if (file_seek(wth->fh, pletohl(&hdr.start_offset), SEEK_SET, err) == -1) {
@@ -813,7 +817,31 @@ reread:
 			return FALSE;
 		}
 
-		/* We're at EOF.  Wrap? */
+		/* We're at EOF.  Wrap?
+		 * XXX: Need to handle 'short file' cases
+		 *      (Distributed Sniffer seems to have a 
+		 *	 certain small propensity to generate 'short' files
+		 *       i.e. [many] bytes are missing from the end of the file)
+		 *   case 1: start_offset < end_offset 
+		 *           wrap will read already read packets again;
+		 *           so: error with "short file"
+		 *   case 2: start_offset > end_offset ("circular" file)
+		 *           wrap will mean there's a gap (missing packets).
+		 *	     However, I don't see a good way to identify this
+		 *           case so we'll just have to allow the wrap.
+		 *           (Maybe there can be an error message after all
+		 *            packets are read since there'll be less packets than
+		 *            specified in the file header).
+		 * Note that these cases occur *only* if a 'short' eof occurs exactly 
+		 * at the expected beginning of a frame header record; If there is a
+		 * partial frame header (or partial frame data) record, then the
+		 * netxray_read... functions will detect the short record.
+		 */
+		if (wth->capture.netxray->start_offset < wth->capture.netxray->end_offset) {
+			*err = WTAP_ERR_SHORT_READ;
+			return FALSE;
+		}
+		
 		if (!wth->capture.netxray->wrapped) {
 			/* Yes.  Remember that we did. */
 			wth->capture.netxray->wrapped = TRUE;
