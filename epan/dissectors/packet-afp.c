@@ -4259,18 +4259,18 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (request_val->frame_res == 0)
 			request_val->frame_res = pinfo->fd->num;
 
- 		if (!len) {
- 			/* for some calls if the reply is an error there's no data
- 			*/
- 			return;
- 		}
-
 		/*
 		 * Tap the packet before the dissectors are called so we
 		 * still get the tap listener called even if there is an
 		 * exception.
 		 */
 		tap_queue_packet(afp_tap, pinfo, request_val);
+
+ 		if (!len) {
+ 			/* for some calls if the reply is an error there's no data
+ 			*/
+ 			return;
+ 		}
 
  		switch(afp_command) {
 		case AFP_BYTELOCK:
