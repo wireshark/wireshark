@@ -140,7 +140,7 @@ static int hf_pres_fully_encoded_data = -1;       /* Fully_encoded_data */
 static int hf_pres_Fully_encoded_data_item = -1;  /* PDV_list */
 static int hf_pres_presentation_data_values = -1;  /* T_presentation_data_values */
 static int hf_pres_single_ASN1_type = -1;         /* T_single_ASN1_type */
-static int hf_pres_octet_aligned = -1;            /* OCTET_STRING */
+static int hf_pres_octet_aligned = -1;            /* T_octet_aligned */
 static int hf_pres_arbitrary = -1;                /* BIT_STRING */
 /* named bits */
 static int hf_pres_Presentation_requirements_context_management = -1;
@@ -627,8 +627,6 @@ dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 	
 	}
 
-
-
   return offset;
 }
 static int dissect_single_ASN1_type_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -638,14 +636,28 @@ static int dissect_single_ASN1_type_impl(packet_info *pinfo, proto_tree *tree, t
 
 
 static int
-dissect_pres_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_pres_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+
+ tvbuff_t	*next_tvb;
+ char *oid; 
+
+	oid=find_oid_by_pres_ctx_id(pinfo, presentation_context_identifier);
+	if(oid){
+		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		call_ber_oid_callback(oid, next_tvb, offset, pinfo, global_tree);
+	} else {
+		proto_tree_add_text(tree, tvb, offset, -1,"dissector is not available");
+		  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
+	
+	}
+
+
 
   return offset;
 }
 static int dissect_octet_aligned_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_pres_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_pres_octet_aligned);
+  return dissect_pres_T_octet_aligned(TRUE, tvb, offset, pinfo, tree, hf_pres_octet_aligned);
 }
 
 

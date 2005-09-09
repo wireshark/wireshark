@@ -69,7 +69,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
 #.FN_BODY Extension-Attribute/extension-attribute
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
-#.FN_PARS Attribute-Extensions-Pattern/extension-set-attribute-Patterns/extension-attribute-identifier
+#.FN_PARS Attribute-Extensions-Pattern/_item/extension-set-attribute-Patterns/_item/extension-attribute-identifier
 	VAL_PTR = object_identifier_id
 
 #.FN_BODY Attribute-Extensions-Pattern/_item/extension-set-attribute-Patterns/_item/extension-attribute-Pattern

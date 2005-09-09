@@ -384,7 +384,7 @@ static int hf_ftam_abstract_Syntax_Pattern = -1;  /* Object_Identifier_Pattern *
 static int hf_ftam_Attribute_Extensions_Pattern_item = -1;  /* Attribute_Extensions_Pattern_item */
 static int hf_ftam_extension_set_attribute_Patterns = -1;  /* T_extension_set_attribute_Patterns */
 static int hf_ftam_extension_set_attribute_Patterns_item = -1;  /* T_extension_set_attribute_Patterns_item */
-static int hf_ftam_attribute_extension_attribute_identifier = -1;  /* OBJECT_IDENTIFIER */
+static int hf_ftam_attribute_extension_attribute_identifier = -1;  /* T_extension_attribute_identifier1 */
 static int hf_ftam_extension_attribute_Pattern = -1;  /* T_extension_attribute_Pattern */
 static int hf_ftam_Objects_Attributes_List_item = -1;  /* Read_Attributes */
 static int hf_ftam_success_Object_count = -1;     /* INTEGER */
@@ -4682,9 +4682,6 @@ dissect_ftam_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 static int dissect_object_identifier_value_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_ftam_OBJECT_IDENTIFIER(TRUE, tvb, offset, pinfo, tree, hf_ftam_object_identifier_value);
 }
-static int dissect_attribute_extension_attribute_identifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_ftam_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_ftam_attribute_extension_attribute_identifier);
-}
 
 
 static const ber_sequence_t Object_Identifier_Pattern_sequence[] = {
@@ -4817,6 +4814,19 @@ dissect_ftam_Boolean_Pattern(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 }
 static int dissect_object_availabiiity_Pattern_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_ftam_Boolean_Pattern(TRUE, tvb, offset, pinfo, tree, hf_ftam_object_availabiiity_Pattern);
+}
+
+
+
+static int
+dissect_ftam_T_extension_attribute_identifier1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                            object_identifier_id);
+
+  return offset;
+}
+static int dissect_attribute_extension_attribute_identifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ftam_T_extension_attribute_identifier1(FALSE, tvb, offset, pinfo, tree, hf_ftam_attribute_extension_attribute_identifier);
 }
 
 
@@ -7905,8 +7915,22 @@ void proto_register_ftam(void) {
 void proto_reg_handoff_ftam(void) {
 	register_ber_oid_dissector("1.0.8571.1.1", dissect_ftam, proto_ftam,"iso-ftam(1)");
 	register_ber_oid_dissector("1.0.8571.2.1", dissect_ftam, proto_ftam,"ftam-pci(1)");
-	register_ber_oid_name("1.3.14.5.5.9","NBS-9 FTAM file directory file");
+	register_ber_oid_dissector("1.3.14.5.2.2", dissect_ftam, proto_ftam,"NIST file directory entry abstract syntax");
+
+	/* Unstructured text file document type FTAM-1 */
+	register_ber_oid_name("1.0.8571.5.1","ISO FTAM unstructured text");
+	register_ber_oid_name("1.0.8571.2.3","FTAM unstructured text abstract syntax");
 	register_ber_oid_name("1.0.8571.3.1","FTAM hierarchical file model");
 	register_ber_oid_name("1.0.8571.4.1","FTAM unstructured constraint set");
 
+	/* Unstructured text file document type FTAM-3 */
+	register_ber_oid_name("1.0.8571.5.3","ISO FTAM unstructured binary");
+	register_ber_oid_name("1.0.8571.2.4","FTAM unstructured binary abstract syntax");
+
+	/* Filedirectory file document type NBS-9 */
+	register_ber_oid_name("1.3.14.5.5.9","NBS-9 FTAM file directory file");
+
+	/* Filedirectory file document type NBS-9 (WITH OLD NIST OIDs)*/
+	register_ber_oid_name("1.3.9999.1.5.9","NBS-9-OLD FTAM file directory file");
+	register_ber_oid_name("1.3.9999.1.2.2","NIST file directory entry abstract syntax");
 }

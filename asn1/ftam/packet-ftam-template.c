@@ -123,8 +123,22 @@ void proto_register_ftam(void) {
 void proto_reg_handoff_ftam(void) {
 	register_ber_oid_dissector("1.0.8571.1.1", dissect_ftam, proto_ftam,"iso-ftam(1)");
 	register_ber_oid_dissector("1.0.8571.2.1", dissect_ftam, proto_ftam,"ftam-pci(1)");
-	register_ber_oid_name("1.3.14.5.5.9","NBS-9 FTAM file directory file");
+	register_ber_oid_dissector("1.3.14.5.2.2", dissect_ftam, proto_ftam,"NIST file directory entry abstract syntax");
+
+	/* Unstructured text file document type FTAM-1 */
+	register_ber_oid_name("1.0.8571.5.1","ISO FTAM unstructured text");
+	register_ber_oid_name("1.0.8571.2.3","FTAM unstructured text abstract syntax");
 	register_ber_oid_name("1.0.8571.3.1","FTAM hierarchical file model");
 	register_ber_oid_name("1.0.8571.4.1","FTAM unstructured constraint set");
 
+	/* Unstructured text file document type FTAM-3 */
+	register_ber_oid_name("1.0.8571.5.3","ISO FTAM unstructured binary");
+	register_ber_oid_name("1.0.8571.2.4","FTAM unstructured binary abstract syntax");
+
+	/* Filedirectory file document type NBS-9 */
+	register_ber_oid_name("1.3.14.5.5.9","NBS-9 FTAM file directory file");
+
+	/* Filedirectory file document type NBS-9 (WITH OLD NIST OIDs)*/
+	register_ber_oid_name("1.3.9999.1.5.9","NBS-9-OLD FTAM file directory file");
+	register_ber_oid_name("1.3.9999.1.2.2","NIST file directory entry abstract syntax");
 }
