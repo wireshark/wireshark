@@ -49,7 +49,8 @@ static int proto_per = -1;
 static int hf_per_GeneralString_length = -1;
 static int hf_per_extension_bit = -1;
 static int hf_per_extension_present_bit = -1;
-static int hf_per_choice_extension = -1;
+static int hf_per_choice_index = -1;
+static int hf_per_choice_extension_index = -1;
 static int hf_per_num_sequence_extensions = -1;
 static int hf_per_small_number_bit = -1;
 static int hf_per_optional_field_bit = -1;
@@ -69,7 +70,7 @@ printf("#%d  %s   tvb:0x%08x\n",pinfo->fd->num,x,(int)tvb);
 #define DEBUG_ENTRY(x) \
 	;
 
-
+#define BLEN(old_offset, offset) (((offset)>>3)!=((old_offset)>>3)?((offset)>>3)-((old_offset)>>3):1)
 
 /* whether the PER helpers should put the internal PER fields into the tree
    or not.
@@ -927,153 +928,100 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	if (value) *value = val;
 	return offset;}
 
-/* this functions decodes a CHOICE
-   it can only handle CHOICE INDEX values that fits inside a 32 bit integer.
-	   22.1
-	   22.2
-	   22.3
-	   22.4
-	   22.5
-22.6 no extensions
-22.7 extension marker == 0
-	   22.8 extension marker == 1
-*/
+/* 22 Encoding the choice type */
 guint32
 dissect_per_choice(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, gint ett_index, const per_choice_t *choice, const char *name, guint32 *value)
 {
 	gboolean extension_present, extension_flag;
 	int extension_root_entries;
+	int extension_addition_entries;
 	guint32 choice_index;
-	int i;
-	proto_item *it=NULL;
-	proto_tree *tr=NULL;
-	guint32 old_offset=offset;
-	int min_choice=INT_MAX;
-	int max_choice=-1;
+	int i, index, cidx;
+	guint32 ext_length;
+	guint32 old_offset = offset;
+	proto_item *choice_item = NULL;
+	proto_tree *choice_tree = NULL;
 	proto_item *pi;
 
 DEBUG_ENTRY("dissect_per_choice");
 
-	it=proto_tree_add_text(tree, tvb, offset>>3, 0, name);
-	tr=proto_item_add_subtree(it, ett_index);
-
-
-	/* first check if there should be an extension bit for this CHOICE.
-	   we do this by just checking the first choice arm
-	 */
-	if(choice[0].extension==ASN1_NO_EXTENSIONS){
-		extension_present=0;
+	/* 22.5 */
+	if (choice[0].extension == ASN1_NO_EXTENSIONS){
+		extension_present = FALSE;
+		extension_flag = FALSE;
 	} else {
-		extension_present=1;
-		/* will be placed called again below to place it in the tree */
-		offset=dissect_per_boolean(tvb, offset, pinfo, tr, hf_per_extension_bit, &extension_flag, &pi);
+		extension_present = TRUE;
+		offset = dissect_per_boolean(tvb, offset, pinfo, tree, hf_per_extension_bit, &extension_flag, &pi);
 		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
 	}
 
-	/* count the number of entries in the extension_root */
-	extension_root_entries=0;
-	for(i=0;choice[i].name;i++){
+	/* count the number of entries in the extension root and extension addition */
+	extension_root_entries = 0;
+	extension_addition_entries = 0;
+	for (i=0; choice[i].func; i++) {
 		switch(choice[i].extension){
-		case ASN1_NO_EXTENSIONS:
-		case ASN1_EXTENSION_ROOT:
-         if(choice[i].value<min_choice){
-            min_choice=choice[i].value;
-         }
-         if(choice[i].value>max_choice){
-            max_choice=choice[i].value;
-         }
-			extension_root_entries++;
-			break;
+			case ASN1_NO_EXTENSIONS:
+			case ASN1_EXTENSION_ROOT:
+				extension_root_entries++;
+				break;
+			case ASN1_NOT_EXTENSION_ROOT:
+				extension_addition_entries++;
+				break;
 		}
 	}
 
-	if( (!extension_present)
-	||  (extension_present && (extension_flag==0)) ){
-		guint32 choice_offset=offset;
-		proto_tree *choicetree;
-		proto_item *choiceitem;
-
-		/* 22.6 */
-		/* 22.7 */
-/*qqq  make it similar to the section below instead */
-		offset=dissect_per_constrained_integer(tvb, offset, pinfo,
-			tr, hf_index, min_choice, max_choice,
-			&choice_index, &choiceitem, FALSE);
-		if(value){
-			*value=choice_index;
+	if (!extension_flag) {  /* 22.6, 22.7 */
+		if (extension_root_entries == 1) {  /* 22.5 */
+			choice_index = 0;
+		} else {
+			offset = dissect_per_constrained_integer(tvb, offset, pinfo,
+				tree, hf_per_choice_index, 0, extension_root_entries - 1,
+				&choice_index, &pi, FALSE);
+			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
 		}
 
-		choicetree=proto_item_add_subtree(choiceitem, ett_index);
-
-		/* find and call the appropriate callback */
-		for(i=0;choice[i].name;i++){
-			if(choice[i].value==(int)choice_index){
-				if(choice[i].func){
-					offset=choice[i].func(tvb, offset, pinfo, choicetree);
-					break;
-				} else {
-					PER_NOT_DECODED_YET(choice[i].name);
-					break;
-				}
-			}
-		}
-		proto_item_set_len(choiceitem, (offset>>3)!=(choice_offset>>3)?(offset>>3)-(choice_offset>>3):1);
-	} else {
-		guint32 length;
-		int i, index, cidx;
-		guint32 choice_offset;
-		proto_tree *choicetree;
-		proto_item *choiceitem;
-
-		/* 22.8 */
-		offset=dissect_per_normally_small_nonnegative_whole_number(tvb, offset, pinfo, tr, hf_per_choice_extension, &choice_index);
-		offset=dissect_per_length_determinant(tvb, offset, pinfo, tr, hf_per_open_type_length, &length);
-
-		index=-1; cidx = choice_index;
-		for(i=0;choice[i].name;i++){
-			if(choice[i].extension==ASN1_NOT_EXTENSION_ROOT){
-				if(!cidx){
-					index=i;
-					break;
-				}
+		index = -1; cidx = choice_index;
+		for (i=0; choice[i].func; i++) {
+			if(choice[i].extension != ASN1_NOT_EXTENSION_ROOT){
+				if (!cidx) { index = i; break; }
 				cidx--;
 			}
 		}
+	} else {  /* 22.8 */
+		offset = dissect_per_normally_small_nonnegative_whole_number(tvb, offset, pinfo, tree, hf_per_choice_extension_index, &choice_index);
+		offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_per_open_type_length, &ext_length);
 
-		if(index!=-1){
-			if(value){
-				*value=index;
+		index = -1; cidx = choice_index;
+		for (i=0; choice[i].func; i++) {
+			if(choice[i].extension == ASN1_NOT_EXTENSION_ROOT){
+				if (!cidx) { index = i; break; }
+				cidx--;
 			}
 		}
-
-		choice_offset=offset;
-		if (index != -1) {
-			choiceitem = proto_tree_add_uint(tr, hf_index, tvb, offset>>3, 0, choice[index].value);
-		} else {
-			choiceitem = proto_tree_add_text(tr, tvb, offset>>3, 0, "Choice no. %d in extension", choice_index);
-		}
-		choicetree=proto_item_add_subtree(choiceitem, ett_index);
-
-		if(index==-1){
-			/* if we dont know how to decode this one, just step offset to the next structure */
-			offset+=length*8;
-			PER_NOT_DECODED_YET("unknown choice extension");
-		} else {
-			guint32 new_offset;
-
-			new_offset=choice[index].func(tvb, offset, pinfo, choicetree);
-
-			if((new_offset>(offset+(length*8)))||((new_offset+8)<(offset+length*8))){
-printf("new_offset:%d  offset:%d  length*8:%d\n",new_offset,offset,length*8);
-/*				THROW(ReportedBoundsError)*/
-			}
-
-			offset+=length*8;
-		}
-		proto_item_set_len(choiceitem, (offset>>3)!=(choice_offset>>3)?(offset>>3)-(choice_offset>>3):1);
 	}
 
-	proto_item_set_len(it, (offset>>3)!=(old_offset>>3)?(offset>>3)-(old_offset>>3):1);
+	if (index != -1) {
+		choice_item = proto_tree_add_uint(tree, hf_index, tvb, old_offset>>3, 0, choice[index].value);
+		choice_tree = proto_item_add_subtree(choice_item, ett_index);
+		if (!extension_flag) {
+			offset = choice[index].func(tvb, offset, pinfo, choice_tree);
+		} else {
+			choice[index].func(tvb, offset, pinfo, choice_tree);
+			offset += ext_length * 8;
+		}
+		proto_item_set_len(choice_item, BLEN(old_offset, offset));
+	} else {
+		if (!extension_flag) {
+			PER_NOT_DECODED_YET("unknown extension root index in choice");
+		} else {
+			offset += ext_length * 8;
+			proto_tree_add_text(tree, tvb, old_offset>>3, BLEN(old_offset, offset), "Choice no. %d in extension", choice_index);
+			PER_NOT_DECODED_YET("unknown choice extension");
+		}
+	}
+
+	if (value) *value = choice[index].value;
+
 	return offset;
 }
 
@@ -1502,9 +1450,12 @@ proto_register_per(void)
 	{ &hf_per_num_sequence_extensions,
 		{ "Number of Sequence Extensions", "per.num_sequence_extensions", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of extensions encoded in this sequence", HFILL }},
-	{ &hf_per_choice_extension,
-		{ "Choice Extension", "per.choice_extension", FT_UINT32, BASE_DEC,
-		NULL, 0, "Which extension of the Choice is encoded", HFILL }},
+	{ &hf_per_choice_index,
+		{ "Choice Index", "per.choice_index", FT_UINT32, BASE_DEC,
+		NULL, 0, "Which index of the Choice within extension root is encoded", HFILL }},
+	{ &hf_per_choice_extension_index,
+		{ "Choice Extension Index", "per.choice_extension_index", FT_UINT32, BASE_DEC,
+		NULL, 0, "Which index of the Choice within extension addition is encoded", HFILL }},
 	{ &hf_per_GeneralString_length,
 		{ "GeneralString Length", "per.generalstring_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Length of the GeneralString", HFILL }},
