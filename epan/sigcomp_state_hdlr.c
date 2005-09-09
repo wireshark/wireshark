@@ -598,7 +598,7 @@ void udvm_state_free(guint8 buff[],guint16 p_id_start,guint16 p_id_length){
 
 	char partial_state[STATE_BUFFER_SIZE];
 	guint i;
-	gchar *partial_state_str;
+	/*gchar *partial_state_str;*/
 	/*
 	gchar *dummy_buff;
 	*/
