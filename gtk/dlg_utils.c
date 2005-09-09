@@ -79,7 +79,7 @@ dlg_button_new(GtkWidget *hbox, GtkWidget *button_hbox, const gchar *stock_id)
 /* create a button row for a dialog */
 
 /* The purpose of this is, to have one place available, where all button rows 
- * from all dialogs are layouted. This will:
+ * from all dialogs are laid out. This will:
  *
  * a.) keep the button layout more consistent over the different dialogs
  * b.) being able to switch between different button layouts, e.g.:
@@ -135,8 +135,10 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
             close = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_CLEAR) == 0) {
             clear = stock_id;
+#ifdef HAVE_LIBPCAP
         } else if (strcmp(stock_id, ETHEREAL_STOCK_CAPTURE_START) == 0) {
             start = stock_id;
+#endif /* HAVE_LIBPCAP */
         } else if (strcmp(stock_id, GTK_STOCK_STOP) == 0) {
             stop = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_HELP) == 0) {
