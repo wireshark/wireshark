@@ -34,7 +34,7 @@ libethereal_la_LDFLAGS = -version-info 0:1:0
 
 include Makefile.common
 
-INCLUDES = -I$(srcdir)/..
+INCLUDES = -I$(srcdir)/.. -I$(srcdir)/$(LEMON)
 
 libethereal_la_SOURCES = \
 	$(LIBETHEREAL_SRC)	\
@@ -104,8 +104,8 @@ dtd_grammar.h: dtd_grammar.c
 
 LEMON=../tools/lemon
 
-dtd_grammar.c: dtd_grammar.lemon
-	$(LEMON)/lemon t=$(srcdir)/$(LEMON)/lempar.c $^
+dtd_grammar.c: dtd_grammar.lemon $(LEMON)/lemon
+	$(LEMON)/lemon t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/dtd_grammar.lemon
 	
 tvbtest.o exntest.o: exceptions.h
 
