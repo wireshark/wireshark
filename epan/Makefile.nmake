@@ -164,6 +164,6 @@ dtd_grammar.h: dtd_grammar.c
 
 LEMON=../tools/lemon
 
-dtd_grammar.c: dtd_grammar.lemon
+dtd_grammar.c: dtd_grammar.lemon $(LEMON)\lemon.exe
 	$(LEMON)/lemon t=$(srcdir)/$(LEMON)/lempar.c dtd_grammar.lemon
 	
