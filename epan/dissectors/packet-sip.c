@@ -135,7 +135,7 @@ static const sip_header_t sip_headers[] = {
                 { "Accept-Contact",				"a"	 }, /* 2 RFC3841  */
                 { "Accept-Encoding", 			NULL }, /* 3 */
                 { "Accept-Language", 			NULL }, /* 4 */
-				{ "Accept-Resource-Priority",	NULL },	/* 5 draft-ietf-sip-resource-priority-05.txt */
+                { "Accept-Resource-Priority",		NULL },	/* 5 draft-ietf-sip-resource-priority-05.txt */
                 { "Alert-Info", 				NULL },
                 { "Allow", 						NULL },
                 { "Allow-Events", 				"u"  },	/* 8 RFC3265  */
@@ -191,7 +191,7 @@ static const sip_header_t sip_headers[] = {
                 { "Reply-To", 					NULL },  /*  58 RFC3261  */
                 { "Request-Disposition",		"d"  },  /*  59 RFC3841  */
                 { "Require", 					NULL },  /*  60 RFC3261  */
-				{ "Resource-Priority",			NULL },	 /*  61 draft-ietf-sip-resource-priority-05.txt */
+                { "Resource-Priority",			NULL },	 /*  61 draft-ietf-sip-resource-priority-05.txt */
                 { "Retry-After", 				NULL },  /*  62 RFC3261  */
                 { "Route", 						NULL },  /*  63 RFC3261  */
                 { "RSeq", 						NULL },  /*  64 RFC3841  */
@@ -948,6 +948,7 @@ static int
 dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 octet;
+	int len;
 
 	octet = tvb_get_guint8(tvb,0);
 	if ((octet  & 0xf8) == 0xf8){
@@ -955,8 +956,11 @@ dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return tvb_length(tvb);
 	}
 
-
-	return dissect_sip_common(tvb, 0, pinfo, tree, FALSE, FALSE);
+	len = dissect_sip_common(tvb, 0, pinfo, tree, FALSE, FALSE);
+	if (len < 0)
+		return 0;	/* not SIP */
+	else
+		return len;
 }
 
 static void
@@ -978,6 +982,33 @@ dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		offset += len;
 	}
+}
+
+static gboolean
+dissect_sip_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	int offset = 0;
+	int len;
+	gboolean first = TRUE;
+
+	while (tvb_reported_length_remaining(tvb, offset) != 0) {
+		len = dissect_sip_common(tvb, offset, pinfo, tree, !first, TRUE);
+		if (len == -2) {
+			if (first) {
+				/*
+				 * If the first packet doesn't start with
+				 * a valid SIP request or response, don't
+				 * treat this as SIP.
+				 */
+				return FALSE;
+			}
+			break;
+		}
+		if (len == -1)
+			break;	/* need more data */
+		offset += len;
+	}
+	return TRUE;
 }
 
 static gboolean
@@ -1042,7 +1073,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			/*
 			 * We were asked to reject this.
 			 */
-			return -1;
+			return -2;
 		}
 
 		/*
@@ -1069,30 +1100,30 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 	switch (line_type) {
 
-        case REQUEST_LINE:
-			is_known_request = sip_is_known_request(tvb, offset, token_1_len, &current_method_idx);
-			descr = is_known_request ? "Request" : "Unknown request";
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
-				             descr,
-				             tvb_format_text(tvb, offset, linelen - SIP2_HDR_LEN - 1));
-			}
+	case REQUEST_LINE:
+		is_known_request = sip_is_known_request(tvb, offset, token_1_len, &current_method_idx);
+		descr = is_known_request ? "Request" : "Unknown request";
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
+			             descr,
+			             tvb_format_text(tvb, offset, linelen - SIP2_HDR_LEN - 1));
+		}
 		break;
 
-		case STATUS_LINE:
-			descr = "Status";
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_add_fstr(pinfo->cinfo, COL_INFO, "Status: %s",
-				             tvb_format_text(tvb, offset + SIP2_HDR_LEN + 1, linelen - SIP2_HDR_LEN - 1));
-			}
-			stat_info->reason_phrase = tvb_get_ephemeral_string(tvb, offset + SIP2_HDR_LEN + 5, linelen - (SIP2_HDR_LEN + 5));
+	case STATUS_LINE:
+		descr = "Status";
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Status: %s",
+			             tvb_format_text(tvb, offset + SIP2_HDR_LEN + 1, linelen - SIP2_HDR_LEN - 1));
+		}
+		stat_info->reason_phrase = tvb_get_ephemeral_string(tvb, offset + SIP2_HDR_LEN + 5, linelen - (SIP2_HDR_LEN + 5));
 		break;
 
-		case OTHER_LINE:
-		default: /* Squelch compiler complaints */
-			descr = "Continuation";
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+	case OTHER_LINE:
+	default: /* Squelch compiler complaints */
+		descr = "Continuation";
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 		break;
 	}
 
@@ -1103,33 +1134,33 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 	switch (line_type) {
 
-		case REQUEST_LINE:
-			if (sip_tree) {
-				ti = proto_tree_add_string(sip_tree, hf_Request_Line, tvb, offset, linelen,
-				                           tvb_format_text(tvb, offset, linelen));
-				reqresp_tree = proto_item_add_subtree(ti, ett_sip_reqresp);
-			}
-			dfilter_sip_request_line(tvb, reqresp_tree, token_1_len);
+	case REQUEST_LINE:
+		if (sip_tree) {
+			ti = proto_tree_add_string(sip_tree, hf_Request_Line, tvb, offset, linelen,
+			                           tvb_format_text(tvb, offset, linelen));
+			reqresp_tree = proto_item_add_subtree(ti, ett_sip_reqresp);
+		}
+		dfilter_sip_request_line(tvb, reqresp_tree, token_1_len);
 		break;
 
-		case STATUS_LINE:
-			if (sip_tree) {
-				ti = proto_tree_add_string(sip_tree, hf_Status_Line, tvb, offset, linelen,
-				                           tvb_format_text(tvb, offset, linelen));
-				reqresp_tree = proto_item_add_subtree(ti, ett_sip_reqresp);
-			}
-			dfilter_sip_status_line(tvb, reqresp_tree);
+	case STATUS_LINE:
+		if (sip_tree) {
+			ti = proto_tree_add_string(sip_tree, hf_Status_Line, tvb, offset, linelen,
+			                           tvb_format_text(tvb, offset, linelen));
+			reqresp_tree = proto_item_add_subtree(ti, ett_sip_reqresp);
+		}
+		dfilter_sip_status_line(tvb, reqresp_tree);
 		break;
 
-		case OTHER_LINE:
-			if (sip_tree) {
-				ti = proto_tree_add_text(sip_tree, tvb, offset, next_offset,
-				                         "%s line: %s", descr,
-				                         tvb_format_text(tvb, offset, linelen));
-				reqresp_tree = proto_item_add_subtree(ti, ett_sip_reqresp);
-				proto_tree_add_text(sip_tree, tvb, offset, -1,
-				                    "Continuation data");
-			}
+	case OTHER_LINE:
+		if (sip_tree) {
+			ti = proto_tree_add_text(sip_tree, tvb, offset, next_offset,
+			                         "%s line: %s", descr,
+			                         tvb_format_text(tvb, offset, linelen));
+			reqresp_tree = proto_item_add_subtree(ti, ett_sip_reqresp);
+			proto_tree_add_text(sip_tree, tvb, offset, -1,
+			                    "Continuation data");
+		}
 		return tvb_length_remaining(tvb, offset);
 	}
 
