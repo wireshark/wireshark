@@ -60,6 +60,8 @@ gchar* dirname;
 gchar* filename;
 guint linenum;
 
+gchar* textstr;
+
 static gchar* replace_entity(gchar* s);
 static const gchar* location(void);
 static gchar* load_entity_file(gchar* filename);
@@ -126,7 +128,15 @@ newline    \n
 <IN_QUOTE>{escaped_quote}		g_string_append(current,yytext);
 <NAMED_ENTITY>{system}			{ BEGIN GET_FNAME_OPEN_QUOTE; }
 <GET_FNAME_OPEN_QUOTE>{quote}	{ BEGIN GET_FNAME; }
-<GET_FNAME>{filename}		    {  g_hash_table_insert(entities,entity_name,load_entity_file(yytext));  BEGIN GET_FNAME_CLOSE_QUOTE; }
+<GET_FNAME>{filename}		    {
+	if ((textstr = load_entity_file(yytext))) {
+		g_hash_table_insert(entities,entity_name,textstr); 
+	} else {
+		yyterminate();
+	}
+	
+	BEGIN GET_FNAME_CLOSE_QUOTE;
+}
 <GET_FNAME_CLOSE_QUOTE>{quote}  { BEGIN ENTITY_DONE; }
 <ENTITY_DONE>{special_stop}		{ current = output; g_string_append(current,"\n"); BEGIN OUTSIDE; }
 
@@ -145,7 +155,7 @@ static gchar* load_entity_file(gchar* fname) {
 	
 	if (!fp) {
 		g_string_sprintfa(error,"at %s:%u: could not load file %s: %s", filename, linenum, fname, strerror(errno));
-		return "";
+		return NULL;
 	}
 	
 	filename = fname;
@@ -153,20 +163,33 @@ static gchar* load_entity_file(gchar* fname) {
 	
 	filetext = g_string_new(location());
 	
-	while(( c = fgetc(fp) )) {
+	while( ! feof(fp)) {
+		
+		c = fgetc(fp);
+
+		if ( ferror(fp) ) {
+			g_string_sprintfa(error,"at %s:%u: problem reading file %s: %s", filename, linenum, fname, strerror(errno));
+
+			g_string_free(filetext,TRUE);
+			
+			filename = save_filename;
+			save_linenum = linenum;
+			
+			return NULL;
+		}
+		
+		
 		g_string_append_c(filetext,c);
+		
 		if(c == '\n') {
 			g_string_append(filetext,location());
 			linenum++;
 		}
+		
 	}
 
 	retstr = filetext->str;
 	g_string_free(filetext,FALSE);
-
-	if ( ferror(fp) ) {
-		g_string_sprintfa(error,"at %s:%u: problem reading file %s: %s", filename, linenum, fname, strerror(errno));
-	}
 
 	filename = save_filename;
 	save_linenum = linenum;
