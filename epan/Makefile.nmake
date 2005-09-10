@@ -155,15 +155,15 @@ sminmpec.c: enterprise-numbers make-sminmpec.pl
 	$(PERL) make-sminmpec.pl enterprise-numbers sminmpec.c
 
 dtd_parse.c : dtd_parse.l
-	$(LEX) -odtd_parse.c $(srcdir)/dtd_parse.l
+	$(LEX) -odtd_parse.c dtd_parse.l
 
 dtd_preparse.c : dtd_preparse.l
-	$(LEX) -odtd_preparse.c $(srcdir)/dtd_preparse.l
+	$(LEX) -odtd_preparse.c dtd_preparse.l
 
 dtd_grammar.h: dtd_grammar.c
 
-LEMON=../tools/lemon
+LEMON=..\tools\lemon
 
 dtd_grammar.c: dtd_grammar.lemon $(LEMON)\lemon.exe
-	$(LEMON)/lemon t=$(srcdir)/$(LEMON)/lempar.c dtd_grammar.lemon
+	$(LEMON)\lemon t=$(LEMON)\lempar.c dtd_grammar.lemon
 	
