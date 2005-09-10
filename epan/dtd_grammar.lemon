@@ -1,0 +1,151 @@
+%include {
+
+/* dtd_parser.lemon
+* XML dissector for ethereal 
+* XML's DTD grammar
+*
+* Copyright 2005, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+*
+* $Id $
+*
+* Ethereal - Network traffic analyzer
+* By Gerald Combs <gerald@ethereal.com>
+* Copyright 1998 Gerald Combs
+*
+* This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* as published by the Free Software Foundation; either version 2
+* of the License, or (at your option) any later version.
+* 
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+* 
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+*/
+
+#include <glib.h>
+#include "dtd.h"
+
+
+static dtd_named_list_t* dtd_named_list_new(gchar* name, GPtrArray* list) {
+	dtd_named_list_t* nl = g_malloc(sizeof(dtd_named_list_t));
+
+	nl->name = name;
+	nl->list = list;
+	
+	return nl;
+}
+
+static GPtrArray* g_ptr_array_join(GPtrArray* a, GPtrArray* b){
+	
+	while(b->len > 0) {
+		g_ptr_array_add(a,g_ptr_array_remove_index_fast(b,0));
+	}
+	
+	g_ptr_array_free(b,FALSE);
+
+	return a;
+}
+
+}
+
+%name DtdParse
+
+%extra_argument { dtd_build_data_t *bd }
+
+%token_destructor { 
+	if ($$) {
+		if ($$->text) g_free($$->text);
+		if ($$->location) g_free($$->location);
+		g_free($$);
+	}
+}
+
+%syntax_error {
+	if (!TOKEN)
+		g_string_sprintfa(bd->error,"syntax error at end of file");
+	else 
+		g_string_sprintfa(bd->error,"syntax error in %s at or before '%s': \n", bd->location,TOKEN->text);
+}
+
+%parse_failure {
+	g_string_sprintfa(bd->error,"DTD parsing failure at %s\n",bd->location);
+}
+
+%token_prefix TOKEN_
+
+%token_type { dtd_token_data_t* }
+
+dtd ::= doctype.
+dtd ::= dtd_parts.
+
+doctype ::= TAG_START DOCTYPE_KW NAME(Name) OPEN_BRACKET dtd_parts CLOSE_BRACKET TAG_STOP. {
+	bd->proto_name = g_strdown(g_strdup(Name->text));
+}
+
+dtd_parts ::= dtd_parts element(Element). { g_ptr_array_add(bd->elements,Element); }
+dtd_parts ::= dtd_parts attlist(Attlist). { g_ptr_array_add(bd->attributes,Attlist); }
+dtd_parts ::= element(Element). { g_ptr_array_add(bd->elements,Element); }
+dtd_parts ::= attlist(Attlist). { g_ptr_array_add(bd->attributes,Attlist); }
+
+%type   attlist				{ dtd_named_list_t* }
+attlist(A) ::= TAG_START ATTLIST_KW NAME(B) attrib_list(TheList) TAG_STOP. { A = dtd_named_list_new(B->text,TheList); }
+
+%type element { dtd_named_list_t* }
+element(A) ::= TAG_START ELEMENT_KW NAME(B) sub_elements(C) TAG_STOP. { A = dtd_named_list_new(B->text,C); }
+
+%type   attrib_list			{ GPtrArray* }
+attrib_list(A) ::= attrib_list(B) attrib(C). { g_ptr_array_add(B,C); A = B; }
+attrib_list(A) ::= attrib(B).  { A = g_ptr_array_new(); g_ptr_array_add(A,B);  }
+
+%type   attrib				{ gchar* }
+attrib(A) ::= NAME(B) att_type att_default. { A = g_strdown(g_strdup(B->text)); }
+
+att_type ::= ATT_TYPE.
+att_type ::= enumeration.
+
+att_default ::= ATT_DEF.
+att_default ::= ATT_DEF_WITH_VALUE QUOTED. 
+att_default ::= QUOTED.
+att_default ::= IMPLIED_KW.
+att_default ::= REQUIRED_KW.
+
+enumeration ::= OPEN_PARENS enum_list CLOSE_PARENS.
+
+enum_list ::= enum_list PIPE enum_item.
+enum_list ::= enum_item.
+enum_list ::= enumeration.
+enum_list ::= enum_list PIPE enumeration.
+
+enum_item ::= NAME.
+enum_item ::= QUOTED.
+
+
+%type   sub_elements		{ GPtrArray* }
+sub_elements(A) ::= sub_elements(B) STAR. {A=B;}
+sub_elements(A) ::= sub_elements(B) PLUS. {A=B;}
+sub_elements(A) ::= sub_elements(B) QUESTION. {A=B;}
+sub_elements(A) ::= OPEN_PARENS ELEM_DATA CLOSE_PARENS. { A = g_ptr_array_new(); }
+sub_elements(A) ::= OPEN_PARENS element_list(B) COMMA ELEM_DATA CLOSE_PARENS.	{ A = B; }
+sub_elements(A) ::= OPEN_PARENS element_list(B) PIPE ELEM_DATA CLOSE_PARENS.	{ A = B; }
+sub_elements(A) ::= OPEN_PARENS element_list(B) CLOSE_PARENS. { A = B; }
+sub_elements(A) ::= EMPTY_KW. { A = g_ptr_array_new(); }
+
+%type   element_list	{ GPtrArray* }
+element_list(A)	::= element_list(B) COMMA element_child(C).	{ g_ptr_array_add(B,C); A = B; }
+element_list(A)	::= element_list(B) PIPE element_child(C).	{ g_ptr_array_add(B,C); A = B; }
+element_list(A)	::= element_child(B).						{ A = g_ptr_array_new(); g_ptr_array_add(A,B); }
+element_list(A) ::= sub_elements(B).						{ A = B; }
+element_list(A) ::= element_list(B) COMMA sub_elements(C).   { A = g_ptr_array_join(B,C); }
+element_list(A) ::= element_list(B) PIPE sub_elements(C).   { A = g_ptr_array_join(B,C); }
+
+%type   element_child		{ gchar* }
+element_child(A) ::= NAME(B).			{ A = g_strdown(g_strdup(B->text)); }
+element_child(A) ::= NAME(B) STAR.		{ A = g_strdown(g_strdup(B->text)); }
+element_child(A) ::= NAME(B) QUESTION.	{ A = g_strdown(g_strdup(B->text)); }
+element_child(A) ::= NAME(B) PLUS.		{ A = g_strdown(g_strdup(B->text)); }
+

@@ -50,6 +50,9 @@ EXTRA_libethereal_la_SOURCES =	\
 	inet_v6defs.h
 
 EXTRA_DIST = \
+	dtd_grammar.lemon \
+	dtd_parse.l \
+	dtd_preparse.l \
 	enterprise-numbers  \
 	libethereal.def	\
 	Makefile.common	\
@@ -66,7 +69,12 @@ CLEANFILES = \
 	*~
 
 DISTCLEANFILES = \
+	dtd_grammar.c \
+	dtd_grammar.h \
+	dtd_parse.c		\
+	dtd_preparse.c  \
 	radius_dict.c
+	
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
@@ -85,7 +93,20 @@ exntest: exntest.o except.o
 
 radius_dict.c: radius_dict.l
 	$(LEX) $^
+	
+dtd_parse.c : dtd_parse.l
+	$(LEX) -odtd_parse.c $(srcdir)/dtd_parse.l
 
+dtd_preparse.c : dtd_preparse.l
+	$(LEX) -odtd_preparse.c $(srcdir)/dtd_preparse.l
+
+dtd_grammar.h: dtd_grammar.c
+
+LEMON=../tools/lemon
+
+dtd_grammar.c: dtd_grammar.lemon
+	$(LEMON)/lemon t=$(srcdir)/$(LEMON)/lempar.c $^
+	
 tvbtest.o exntest.o: exceptions.h
 
 sminmpec.c: enterprise-numbers make-sminmpec.pl

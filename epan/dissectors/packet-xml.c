@@ -36,34 +36,46 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include <stdio.h>
+
 #include <glib.h>
 #include <epan/emem.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/tvbparse.h>
+#include <epan/dtd.h>
+
+typedef struct _xml_names_t {
+	gchar* name;
+	gchar* longname;
+	gchar* blurb;
+	int hf_tag;
+	int hf_cdata;
+	gint ett;
+	
+	gboolean is_root;
+
+	GHashTable* attributes;
+	GHashTable* elements;
+} xml_names_t;
 
 typedef struct {
 	proto_tree* tree;
 	proto_item* item;
 	proto_item* last_item;
+	xml_names_t* ns;
 	int start_offset;
 } xml_frame_t;
 
-static int proto_xml = -1;
-
-static gint ett_i = -1;
-static gint ett_tag = -1;
 static gint ett_dtd = -1;
+static gint ett_xmpli = -1;
 
-static int hf_what = -1;
-static int hf_attrib = -1;
-static int hf_cdata = -1;
+static int hf_junk = -1;
+static int hf_unknowwn_attrib = -1;
 static int hf_comment = -1;
 static int hf_xmlpi = -1;
-static int hf_tag = -1;
 static int hf_dtd_tag = -1;
 static int hf_doctype = -1;
-static int hf_entity = -1;
 
 /* Dissector handles */
 static dissector_handle_t xml_handle;
@@ -72,11 +84,20 @@ static dissector_handle_t xml_handle;
 static tvbparse_wanted_t* want;
 static tvbparse_wanted_t* want_ignore;
 
+static GHashTable* xmpli_names;
+static GHashTable* media_types;
 
+static xml_names_t xml_ns = {"xml","eXtesible Markup Language","XML",-1,-1,-1,TRUE,NULL,NULL};
+static xml_names_t unknown_ns = {"","","",-1,-1,-1,TRUE,NULL,NULL};
+static xml_names_t* root_ns;
 
+#define XML_CDATA -1000
+
+GArray* hf;
+GArray* ett_arr;
 
 static void
-dissect_xml(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	tvbparse_t* tt;
 	tvbparse_elem_t* tok = NULL;
@@ -93,12 +114,20 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	g_ptr_array_add(stack,current_frame);
 
 	tt = tvbparse_init(tvb,0,-1,stack,want_ignore);
-	
-	current_frame->item = proto_tree_add_item(tree,proto_xml,tvb,0,-1,FALSE);
-	current_frame->tree = proto_item_add_subtree(current_frame->item,ett_i);
-	current_frame->last_item = current_frame->item;
 	current_frame->start_offset = 0;
-
+	
+	root_ns = g_hash_table_lookup(media_types,pinfo->match_string);
+	
+	if (! root_ns ) {
+		root_ns = &unknown_ns;
+	}
+	
+	current_frame->ns = root_ns;
+	
+	current_frame->item = proto_tree_add_item(tree,xml_ns.hf_tag,tvb,0,-1,FALSE);
+	current_frame->tree = proto_item_add_subtree(current_frame->item,xml_ns.ett);
+	current_frame->last_item = current_frame->item;
+	
 	while(( tok = tvbparse_get(tt, want) )) ;
 } 
 
@@ -109,15 +138,18 @@ static void after_token(void* tvbparse_data, const void* wanted_data _U_, tvbpar
 	int hfid;
 	proto_item* pi;
 
-	if (tok->id > 0)
+	if (tok->id == XML_CDATA) {
+		hfid = current_frame->ns->hf_cdata;
+	} else if ( tok->id > 0) {
 		hfid = tok->id;
-	else
-		hfid = hf_what;
+	} else {
+		hfid = hf_junk;
+	}
 	
 	pi = proto_tree_add_item(current_frame->tree, hfid, tok->tvb, tok->offset, tok->len, FALSE);
 	
 	proto_item_set_text(pi, "%s",
-						tvb_get_ephemeral_string(tok->tvb,tok->offset,tok->len));
+						tvb_format_text(tok->tvb,tok->offset,tok->len));
 }
 
 static void before_xmpli(void* tvbparse_data, const void* wanted_data _U_, tvbparse_elem_t* tok) {
@@ -126,18 +158,32 @@ static void before_xmpli(void* tvbparse_data, const void* wanted_data _U_, tvbpa
 	proto_item* pi;
 	proto_tree* pt;
 	tvbparse_elem_t* name_tok = tok->sub->next;
+	gchar* name = g_strdown(tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len));
+	xml_names_t* ns = g_hash_table_lookup(xmpli_names,name);
+	int hf_tag;
+	gint ett;
 	
-	pi = proto_tree_add_text(current_frame->tree,tok->tvb,tok->offset,-1,
-							 "<? %s",
-							 tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len));
-	pt = proto_item_add_subtree(pi,ett_tag);
+	if (!ns) {
+		hf_tag = hf_xmlpi;
+		ett = ett_xmpli;
+	} else {
+		hf_tag = ns->hf_tag;
+		ett = ns->ett;
+	}
+	
+	pi = proto_tree_add_item(current_frame->tree,hf_tag,tok->tvb,tok->offset,tok->len,FALSE);
+	
+	proto_item_set_text(pi,tvb_format_text(tok->tvb,tok->offset,(name_tok->offset - tok->offset) + name_tok->len));
+	
+	pt = proto_item_add_subtree(pi,ett);
 	
 	current_frame = ep_alloc(sizeof(xml_frame_t));
 	current_frame->item = pi;
 	current_frame->last_item = pi;
 	current_frame->tree = pt;
 	current_frame->start_offset = tok->offset;
-	
+	current_frame->ns = ns;
+
 	g_ptr_array_add(stack,current_frame);
 	
 }
@@ -146,42 +192,53 @@ static void after_xmlpi(void* tvbparse_data, const void* wanted_data _U_, tvbpar
 	GPtrArray* stack = tvbparse_data;
 	xml_frame_t* current_frame = g_ptr_array_index(stack,stack->len - 1);
 		
-	proto_item_set_len(current_frame->item, (tok->offset - current_frame->start_offset) + tok->len);
-	proto_item_append_text(current_frame->last_item," ?>");
+	proto_tree_add_text(current_frame->tree,
+						   tok->tvb, tok->offset, tok->len,
+						   tvb_format_text(tok->tvb,tok->offset,tok->len));
 	
 	if (stack->len > 1) {
 		g_ptr_array_remove_index_fast(stack,stack->len - 1);
 	} else {
-		proto_tree_add_text(current_frame->tree,tok->tvb,tok->offset,tok->len,"[ ERROR: Closing an unopened tag ]");
+		proto_tree_add_text(current_frame->tree,tok->tvb,tok->offset,tok->len,"[ ERROR: Closing an unopened xmpli tag ]");
 	}
 }
 
 static void before_tag(void* tvbparse_data, const void* wanted_data _U_, tvbparse_elem_t* tok) {
 	GPtrArray* stack = tvbparse_data;
 	xml_frame_t* current_frame = g_ptr_array_index(stack,stack->len - 1);
+	tvbparse_elem_t* name_tok = tok->sub->next;
+	gchar* name = g_strdown(tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len));
+	xml_names_t* ns = g_hash_table_lookup(current_frame->ns->elements,name);
+	xml_frame_t* new_frame;
 	proto_item* pi;
 	proto_tree* pt;
-	tvbparse_elem_t* name_tok = tok->sub->next;
-	gchar* name = tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len);
 	
-	pi = proto_tree_add_text(current_frame->tree,tok->tvb,tok->offset,-1,"<%s",name);
-	pt = proto_item_add_subtree(pi,ett_tag);
+	if (!ns) {
+		if (! ( ns = g_hash_table_lookup(root_ns->elements,name) ) ) {
+			ns = &unknown_ns;
+		}
+	}
 	
-	current_frame = ep_alloc(sizeof(xml_frame_t));
-	current_frame->item = pi;
-	current_frame->last_item = pi;
-	current_frame->tree = pt;
-	current_frame->start_offset = tok->offset;
+	pi = proto_tree_add_item(current_frame->tree,ns->hf_tag,tok->tvb,tok->offset,tok->len,FALSE);
+	proto_item_set_text(pi,tvb_format_text(tok->tvb,tok->offset,(name_tok->offset - tok->offset) + name_tok->len));
 	
-	g_ptr_array_add(stack,current_frame);
+	pt = proto_item_add_subtree(pi,ns->ett);
+	
+	new_frame = ep_alloc(sizeof(xml_frame_t));
+	new_frame->item = pi;
+	new_frame->last_item = pi;
+	new_frame->tree = pt;
+	new_frame->start_offset = tok->offset;
+	new_frame->ns = ns;
+
+	g_ptr_array_add(stack,new_frame);
 
 }
 
-static void after_open_tag(void* tvbparse_data, const void* wanted_data _U_, tvbparse_elem_t* tok) {
+static void after_open_tag(void* tvbparse_data, const void* wanted_data _U_, tvbparse_elem_t* tok _U_) {
 	GPtrArray* stack = tvbparse_data;
 	xml_frame_t* current_frame = g_ptr_array_index(stack,stack->len - 1);
 
-	proto_item_set_len(current_frame->item, (tok->offset - current_frame->start_offset) + tok->len);
 	proto_item_append_text(current_frame->last_item,">");
 }
 
@@ -189,7 +246,6 @@ static void after_closed_tag(void* tvbparse_data, const void* wanted_data _U_, t
 	GPtrArray* stack = tvbparse_data;
 	xml_frame_t* current_frame = g_ptr_array_index(stack,stack->len - 1);
 
-	proto_item_set_len(current_frame->item, (tok->offset - current_frame->start_offset) + tok->len);
 	proto_item_append_text(current_frame->last_item,"/>");					
 
 	if (stack->len > 1) {
@@ -206,7 +262,7 @@ void after_untag(void* tvbparse_data, const void* wanted_data _U_, tvbparse_elem
 	proto_item_set_len(current_frame->item, (tok->offset - current_frame->start_offset) + tok->len);
 	
 	proto_tree_add_text(current_frame->tree,tok->tvb,tok->offset,tok->len,"%s",
-						tvb_get_ephemeral_string(tok->tvb,tok->offset,tok->len));
+						tvb_format_text(tok->tvb,tok->offset,tok->len));
 
 	if (stack->len > 1) {
 		g_ptr_array_remove_index_fast(stack,stack->len - 1);
@@ -223,13 +279,14 @@ static void before_dtd_doctype(void* tvbparse_data, const void* wanted_data _U_,
 	proto_tree* dtd_item = proto_tree_add_item(current_frame->tree, hf_doctype,
 											   name_tok->tvb, name_tok->offset, name_tok->len, FALSE);
 											   
-	proto_item_set_text(dtd_item,"%s",tvb_get_ephemeral_string(tok->tvb,tok->offset,tok->len));
+	proto_item_set_text(dtd_item,"%s",tvb_format_text(tok->tvb,tok->offset,tok->len));
 
 	current_frame = ep_alloc(sizeof(xml_frame_t));
 	current_frame->item = dtd_item;
 	current_frame->last_item = dtd_item;
 	current_frame->tree = proto_item_add_subtree(dtd_item,ett_dtd);
 	current_frame->start_offset = tok->offset;
+	current_frame->ns = NULL;
 
 	g_ptr_array_add(stack,current_frame);
 }
@@ -251,7 +308,7 @@ static void after_dtd_close(void* tvbparse_data, const void* wanted_data _U_, tv
 	xml_frame_t* current_frame = g_ptr_array_index(stack,stack->len - 1);
 	
 	proto_tree_add_text(current_frame->tree,tok->tvb,tok->offset,tok->len,"%s",
-						tvb_get_ephemeral_string(tok->tvb,tok->offset,tok->len));
+						tvb_format_text(tok->tvb,tok->offset,tok->len));
 	if (stack->len > 1) {
 		g_ptr_array_remove_index_fast(stack,stack->len - 1);
 	} else {
@@ -266,13 +323,20 @@ static void get_attrib_value(void* tvbparse_data _U_, const void* wanted_data _U
 static void after_attrib(void* tvbparse_data, const void* wanted_data _U_, tvbparse_elem_t* tok) {
 	GPtrArray* stack = tvbparse_data;
 	xml_frame_t* current_frame = g_ptr_array_index(stack,stack->len - 1);
-	gchar* name = tvb_get_ephemeral_string(tok->sub->tvb,tok->sub->offset,tok->sub->len);
+	gchar* name = g_strdown(tvb_get_ephemeral_string(tok->sub->tvb,tok->sub->offset,tok->sub->len));
 	tvbparse_elem_t* value = tok->sub->next->next->data;
+	int* hfidp;
+	int hfid;
 
-	name = name;
+	if(current_frame->ns && (hfidp = g_hash_table_lookup(current_frame->ns->attributes,g_strdown(name)) )) {
+		hfid = *hfidp;
+	} else {
+		hfid = hf_unknowwn_attrib;
+		value = tok;
+	}
 	
-	current_frame->last_item = proto_tree_add_item(current_frame->tree,hf_attrib,value->tvb,value->offset,value->len,FALSE);
-	proto_item_set_text(current_frame->last_item, "%s", tvb_get_ephemeral_string(tok->tvb,tok->offset,tok->len));
+	current_frame->last_item = proto_tree_add_item(current_frame->tree,hfid,value->tvb,value->offset,value->len,FALSE);
+	proto_item_set_text(current_frame->last_item, "%s", tvb_format_text(tok->tvb,tok->offset,tok->len));
 
 }
 
@@ -287,10 +351,10 @@ static void unrecognized_token(void* tvbparse_data, const void* wanted_data _U_,
 
 
 void init_xml_parser(void) {	
-	tvbparse_wanted_t* want_name = tvbparse_chars(-1,0,0,"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-",NULL,NULL,NULL);
+	tvbparse_wanted_t* want_name = tvbparse_chars(-1,0,0,"abcdefghijklmnopqrstuvwxyz-_:ABCDEFGHIJKLMNOPQRSTUVWXYZ",NULL,NULL,NULL);
 
 	tvbparse_wanted_t* want_attributes = tvbparse_one_or_more(-1, NULL, NULL, NULL,
-															  tvbparse_set_seq(hf_attrib, NULL, NULL, after_attrib,
+															  tvbparse_set_seq(-1, NULL, NULL, after_attrib,
 																			   want_name,
 																			   tvbparse_char(-1,"=",NULL,NULL,NULL),
 																			   tvbparse_set_oneof(0, NULL, NULL, get_attrib_value,
@@ -306,7 +370,7 @@ void init_xml_parser(void) {
 														 tvbparse_string(-1, "/>", NULL, NULL, after_closed_tag),
 														 NULL);
 	
-	tvbparse_wanted_t* want_stopxmlpi = tvbparse_string(-1,"?>",NULL,NULL,NULL);
+	tvbparse_wanted_t* want_stopxmlpi = tvbparse_string(-1,"?>",NULL,NULL,after_xmlpi);
 	
 	want_ignore = tvbparse_chars(-1,0,0," \t\r\n",NULL,NULL,NULL);
 	
@@ -317,7 +381,7 @@ void init_xml_parser(void) {
 															  tvbparse_string(-1,"-->",NULL,NULL,NULL),
 															  TRUE),
 											   NULL),
-							  tvbparse_set_seq(hf_xmlpi,NULL,before_xmpli,after_xmlpi,
+							  tvbparse_set_seq(hf_xmlpi,NULL,before_xmpli,NULL,
 											   tvbparse_string(-1,"<?",NULL,NULL,NULL),
 											   want_name,
 											   tvbparse_set_oneof(-1,NULL,NULL,NULL,
@@ -377,12 +441,7 @@ void init_xml_parser(void) {
 																  want_stoptag,
 																  NULL),
 											   NULL),
-							  tvbparse_set_seq(hf_entity,NULL,NULL,after_token,
-											   tvbparse_char(4,"&",NULL,NULL,NULL),
-											   want_name,
-											   tvbparse_char(4,";",NULL,NULL,NULL),
-											   NULL),
-							  tvbparse_not_chars(hf_cdata,0,0,"<",NULL,NULL,after_token),
+							  tvbparse_not_chars(XML_CDATA,0,0,"<",NULL,NULL,after_token),
 							  tvbparse_not_chars(-1,0,0," \t\r\n",NULL,NULL,unrecognized_token),
 							  NULL);
 	
@@ -390,35 +449,139 @@ void init_xml_parser(void) {
 }
 
 
+xml_names_t* xml_new_namespace(GHashTable* hash, gchar* name, gchar* longname, gchar* blurb, ...) {
+	xml_names_t* ns = g_malloc(sizeof(xml_names_t));
+	va_list ap;
+	gchar* attr_name;
+	
+	ns->name = g_strdup(name);
+	ns->longname = g_strdup(longname);
+	ns->blurb = g_strdup(blurb);
+	ns->hf_tag = -1;
+	ns->hf_cdata = -1;
+	ns->ett = -1;
+	ns->attributes = g_hash_table_new(g_str_hash,g_str_equal);
+	ns->elements = g_hash_table_new(g_str_hash,g_str_equal);
+	
+	va_start(ap,blurb);
+	
+	while(( attr_name = va_arg(ap,gchar*) )) {
+		int* hfp = g_malloc(sizeof(int));
+		*hfp = -1;
+		g_hash_table_insert(ns->attributes,g_strdup(attr_name),hfp);
+	};
+	
+	va_end(ap);
+	
+	g_hash_table_insert(hash,ns->name,ns);
+	
+	return ns;
+}
+
+void add_xml_attribute_names(gpointer k, gpointer v, gpointer p) {
+	gchar* basename = g_strdup_printf("%s.%s",(gchar*)p,(gchar*)k);
+	hf_register_info hfri;
+	
+	hfri.p_id = (int*)v;
+	hfri.hfinfo.name = basename;
+	hfri.hfinfo.abbrev = basename;
+	hfri.hfinfo.type = FT_STRING;
+	hfri.hfinfo.display = BASE_NONE;
+	hfri.hfinfo.strings = NULL;
+	hfri.hfinfo.bitmask = 0x0;
+	hfri.hfinfo.blurb = basename;
+	hfri.hfinfo.id = 0;
+	hfri.hfinfo.parent = 0;
+	hfri.hfinfo.ref_count = 0;
+	hfri.hfinfo.bitshift = 0;
+	hfri.hfinfo.same_name_next = NULL;
+	hfri.hfinfo.same_name_prev = NULL;
+	
+	g_array_append_val(hf,hfri);
+}
+
+void add_xmlpi_namespace(gpointer k _U_, gpointer v, gpointer p) {
+	xml_names_t* ns = v;
+	hf_register_info hfri;
+	gchar* basename = g_strdup_printf("%s.%s",(gchar*)p,ns->name);
+	gint* ett_p = &(ns->ett);
+	
+	hfri.p_id = &(ns->hf_tag);
+	hfri.hfinfo.name = basename;
+	hfri.hfinfo.abbrev = basename;
+	hfri.hfinfo.type = FT_STRING;
+	hfri.hfinfo.display = BASE_NONE;
+	hfri.hfinfo.strings = NULL;
+	hfri.hfinfo.bitmask = 0x0;
+	hfri.hfinfo.blurb = basename;
+	hfri.hfinfo.id = 0;
+	hfri.hfinfo.parent = 0;
+	hfri.hfinfo.ref_count = 0;
+	hfri.hfinfo.bitshift = 0;
+	hfri.hfinfo.same_name_next = NULL;
+	hfri.hfinfo.same_name_prev = NULL;
+
+	g_array_append_val(hf,hfri);
+	g_array_append_val(ett_arr,ett_p);
+	
+	g_hash_table_foreach(ns->attributes,add_xml_attribute_names,basename);
+
+}
+
+void init_xml_names(void) {
+	xml_names_t* xmlpi_xml_ns;
+
+	xmpli_names = g_hash_table_new(g_str_hash,g_str_equal);
+	media_types = g_hash_table_new(g_str_hash,g_str_equal);
+	
+	unknown_ns.elements = g_hash_table_new(g_str_hash,g_str_equal);
+	unknown_ns.attributes = g_hash_table_new(g_str_hash,g_str_equal);
+	
+	xmlpi_xml_ns = xml_new_namespace(xmpli_names,"xml","XML XMLPI","XML XMLPI",
+									 "version","encoding","standalone",NULL);
+	
+	g_hash_table_destroy(xmlpi_xml_ns->elements);
+	xmlpi_xml_ns->elements = NULL;
+	
+	g_hash_table_foreach(xmpli_names,add_xmlpi_namespace,"xml.xmlpi");
+}
+
+
 void
 proto_register_xml(void) {
 	
-	static gint *ett[] = {
-		&ett_i,
-		&ett_tag,
+	static gint *ett_base[] = {
+		&unknown_ns.ett,
+		&xml_ns.ett,
 		&ett_dtd,
+		&ett_xmpli
 	};
 	
-	static hf_register_info hf[] = {
-		{ &hf_cdata, {"CDATA", "xml.cdata", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
+	static hf_register_info hf_base[] = {
 		{ &hf_xmlpi, {"XMLPI", "xml.xmlpi", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
-		{ &hf_entity, {"Entity", "xml.entity", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
-		{ &hf_attrib, {"Attribute", "xml.attribute", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
 		{ &hf_comment, {"Comment", "xml.comment", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
-		{ &hf_tag, {"Tag", "xml.tag", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
+		{ &hf_unknowwn_attrib, {"Attribute", "xml.attribute", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
 		{ &hf_doctype, {"Doctype", "xml.doctype", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
 		{ &hf_dtd_tag, {"DTD Tag", "xml.dtdtag", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
-		{ &hf_what, {"Unknown", "xml.unknown", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }}
+		{ &unknown_ns.hf_cdata, {"CDATA", "xml.cdata", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
+		{ &unknown_ns.hf_tag, {"Tag", "xml.tag", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
+		{ &hf_junk, {"Unknown", "xml.unknown", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }}
 	};
+
+	hf = g_array_new(FALSE,FALSE,sizeof(hf_register_info));
+	ett_arr = g_array_new(FALSE,FALSE,sizeof(gint*));
+
+	g_array_append_vals(hf,hf_base,array_length(hf_base));
+	g_array_append_vals(ett_arr,ett_base,array_length(ett_base));
 	
-	proto_xml = proto_register_protocol("eXtensible Markup Language",
-										"XML",
-										"xml");
+	init_xml_names();
+
+	xml_ns.hf_tag = proto_register_protocol(xml_ns.blurb, xml_ns.longname, xml_ns.name);
+
+	proto_register_field_array(xml_ns.hf_tag, (hf_register_info*)hf->data, hf->len);
+	proto_register_subtree_array((gint**)ett_arr->data, ett_arr->len);
 	
-	proto_register_field_array(proto_xml, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
-	
-	register_dissector("xml", dissect_xml, proto_xml);
+	register_dissector("xml", dissect_xml, xml_ns.hf_tag);
 	
 	init_xml_parser();
 }
