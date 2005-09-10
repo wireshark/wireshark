@@ -823,7 +823,7 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 		case FT_IPv4:
 			DISSECTOR_ASSERT(length == 4);
-			tvb_memcpy(tvb, (guint8 *)&value, start, 4);
+			value = tvb_get_ipv4(tvb, start);
 			proto_tree_set_ipv4(new_fi, little_endian ? GUINT32_SWAP_LE_BE(value) : value);
 			break;
 

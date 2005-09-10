@@ -213,7 +213,7 @@ dissect_winsrepl_wins_owner(tvbuff_t *winsrepl_tvb, _U_ packet_info *pinfo,
 
 	/* ADDRESS */
 	addr_ptr = tvb_get_ptr(winsrepl_tvb, winsrepl_offset, 4);
-	addr = tvb_get_letohl(winsrepl_tvb, winsrepl_offset);
+	addr = tvb_get_ipv4(winsrepl_tvb, winsrepl_offset);
 	SET_ADDRESS(&owner->address, AT_IPv4, 4, addr_ptr);
 	proto_tree_add_ipv4(owner_tree, hf_winsrepl_owner_address, winsrepl_tvb, winsrepl_offset, 4, addr);
 	winsrepl_offset += 4;
@@ -267,7 +267,7 @@ dissect_winsrepl_table_reply(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 
 	/* INITIATOR */
 	initiator_ptr= tvb_get_ptr(winsrepl_tvb, winsrepl_offset, 4);
-	initiator = tvb_get_letohl(winsrepl_tvb, winsrepl_offset);
+	initiator = tvb_get_ipv4(winsrepl_tvb, winsrepl_offset);
 	SET_ADDRESS(&table->initiator, AT_IPv4, 4, initiator_ptr);
 	proto_tree_add_ipv4(table_tree, hf_winsrepl_table_initiator, winsrepl_tvb, winsrepl_offset, 4, initiator);
 	winsrepl_offset += 4;
@@ -312,14 +312,14 @@ dissect_winsrepl_wins_ip(tvbuff_t *winsrepl_tvb, _U_ packet_info *pinfo,
 
 	/* OWNER */
 	addr_ptr= tvb_get_ptr(winsrepl_tvb, winsrepl_offset, 4);
-	addr = tvb_get_letohl(winsrepl_tvb, winsrepl_offset);
+	addr = tvb_get_ipv4(winsrepl_tvb, winsrepl_offset);
 	SET_ADDRESS(&ip->owner, AT_IPv4, 4, addr_ptr);
 	proto_tree_add_ipv4(ip_tree, hf_winsrepl_ip_owner, winsrepl_tvb, winsrepl_offset, 4, addr);
 	winsrepl_offset += 4;
 
 	/* IP */
 	addr_ptr= tvb_get_ptr(winsrepl_tvb, winsrepl_offset, 4);
-	addr = tvb_get_letohl(winsrepl_tvb, winsrepl_offset);
+	addr = tvb_get_ipv4(winsrepl_tvb, winsrepl_offset);
 	SET_ADDRESS(&ip->ip, AT_IPv4, 4, addr_ptr);
 	proto_tree_add_ipv4(ip_tree, hf_winsrepl_ip_ip, winsrepl_tvb, winsrepl_offset, 4, addr);
 	proto_item_append_text(ip_item, ": %s", ip_to_str(ip->ip.data));
@@ -428,7 +428,7 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 		case 0:
 			/* IP */
 			addr_ptr= tvb_get_ptr(winsrepl_tvb, winsrepl_offset, 4);
-			addr = tvb_get_letohl(winsrepl_tvb, winsrepl_offset);
+			addr = tvb_get_ipv4(winsrepl_tvb, winsrepl_offset);
 			SET_ADDRESS(&name->addresses.ip, AT_IPv4, 4, addr_ptr);
 			proto_tree_add_ipv4(name_tree, hf_winsrepl_ip_ip, winsrepl_tvb, winsrepl_offset, 4, addr);
 			proto_item_append_text(name_item, ": %s", ip_to_str(name->addresses.ip.data));
@@ -444,7 +444,7 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 
 	/* UNKNOWN, little or big endian??? */
 	addr_ptr= tvb_get_ptr(winsrepl_tvb, winsrepl_offset, 4);
-	addr = tvb_get_letohl(winsrepl_tvb, winsrepl_offset);
+	addr = tvb_get_ipv4(winsrepl_tvb, winsrepl_offset);
 	SET_ADDRESS(&name->unknown, AT_IPv4, 4, addr_ptr);
 	proto_tree_add_ipv4(name_tree, hf_winsrepl_name_unknown, winsrepl_tvb, winsrepl_offset, 4, addr);
 	winsrepl_offset += 4;

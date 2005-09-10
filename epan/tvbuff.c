@@ -46,6 +46,7 @@
 #endif
 
 #include "pint.h"
+#include "ipv6-utils.h"
 #include "tvbuff.h"
 #include "strutil.h"
 #include "emem.h"
@@ -1384,6 +1385,30 @@ tvb_get_letohieee_double(tvbuff_t *tvb, int offset)
 #else
 	return ieee_fp_union.d;
 #endif
+}
+
+/* Fetch an IPv4 address, in network byte order.
+ * We do *not* convert them to host byte order; we leave them in
+ * network byte order. */
+guint32
+tvb_get_ipv4(tvbuff_t *tvb, gint offset)
+{
+	const guint8* ptr;
+	guint32 addr;
+
+	ptr = ensure_contiguous(tvb, offset, sizeof(guint32));
+	memcpy(&addr, ptr, sizeof addr);
+	return addr;
+}
+
+/* Fetch an IPv6 address. */
+void
+tvb_get_ipv6(tvbuff_t *tvb, gint offset, struct e_in6_addr *addr)
+{
+	const guint8* ptr;
+
+	ptr = ensure_contiguous(tvb, offset, sizeof(*addr));
+	memcpy(addr, ptr, sizeof *addr);
 }
 
 /* Find first occurence of needle in tvbuff, starting at offset. Searches

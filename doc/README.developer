@@ -878,8 +878,13 @@ double-precision IEEE floating-point numbers:
 gfloat tvb_get_letohieee_float(tvbuff_t*, gint offset);
 gdouble tvb_get_letohieee_double(tvbuff_t*, gint offset);
 
+Accessors for IPv4 and IPv6 addresses:
+
+guint32 tvb_get_ipv4(tvbuff_t*, gint offset);
+void tvb_get_ipv6(tvbuff_t*, gint offset, struct e_in6_addr *addr);
+
 NOTE: IPv4 addresses are not to be converted to host byte order before
-being passed to "proto_tree_add_ipv4()".  You should use "tvb_memcpy()"
+being passed to "proto_tree_add_ipv4()".  You should use "tvb_get_ipv4()"
 to fetch them, not "tvb_get_ntohl()" *OR* "tvb_get_letohl()" - don't,
 for example, try to use "tvb_get_ntohl()", find that it gives you the
 wrong answer on the PC on which you're doing development, and try

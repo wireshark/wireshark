@@ -579,6 +579,8 @@ tvb_find_line_end_unquoted
 tvb_format_text
 tvb_get_ephemeral_string
 tvb_get_guint8
+tvb_get_ipv4
+tvb_get_ipv6
 tvb_get_letoh24
 tvb_get_letoh64
 tvb_get_letohl

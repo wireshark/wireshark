@@ -320,6 +320,15 @@ extern guint64 tvb_get_letoh64(tvbuff_t*, gint offset);
 extern gfloat tvb_get_letohieee_float(tvbuff_t*, gint offset);
 extern gdouble tvb_get_letohieee_double(tvbuff_t*, gint offset);
 
+/**
+ * Fetch an IPv4 address, in network byte order.
+ * We do *not* convert it to host byte order; we leave it in
+ * network byte order, as that's what its callers expect. */
+extern guint32 tvb_get_ipv4(tvbuff_t*, gint offset);
+
+/* Fetch an IPv6 address. */
+extern void tvb_get_ipv6(tvbuff_t*, gint offset, struct e_in6_addr *addr);
+
 /** Returns target for convenience. Does not suffer from possible
  * expense of tvb_get_ptr(), since this routine is smart enough
  * to copy data in chunks if the request range actually exists in
