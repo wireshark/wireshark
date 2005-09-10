@@ -711,6 +711,12 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 		fd_head->flags |= FD_TOOLONGFRAGMENT;
 	}
 
+	if(more_frags) {
+		/* dissector told us, that this isn't the last fragment,
+		 * trust this information and don't try to defragment for now.
+		 */
+		return FALSE;
+	}
 
 	/* we have received an entire packet, defragment it and
          * free all fragments
@@ -797,6 +803,21 @@ fragment_add_common(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 
 	fd_head = g_hash_table_lookup(fragment_table, &key);
 
+#if 0
+	/* debug output of associated fragments. */
+	/* leave it here for future debugging sessions */
+	if(strcmp(pinfo->current_proto, "DCERPC") == 0) {
+		printf("proto:%s num:%u id:%u offset:%u len:%u more:%u visited:%u\n", 
+			pinfo->current_proto, pinfo->fd->num, id, frag_offset, frag_data_len, more_frags, pinfo->fd->flags.visited);
+		if(fd_head != NULL) {
+			for(fd_item=fd_head->next;fd_item;fd_item=fd_item->next){
+				printf("fd_frame:%u fd_offset:%u len:%u datalen:%u\n", 
+					fd_item->frame, fd_item->offset, fd_item->len, fd_item->datalen);
+			}
+		}
+	}
+#endif
+
 	/*
 	 * "already_added" is true if "pinfo->fd->flags.visited" is true;
 	 * if "pinfo->fd->flags.visited", this isn't the first pass, so
@@ -814,10 +835,14 @@ fragment_add_common(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	 * fragment, it's a data structure for the reassembled packet.
 	 * We don't check it because its "frame" member isn't initialized
 	 * to anything, and because it doesn't count in any case.
+	 *
+	 * And as another additional check, make sure the fragment offsets are
+	 * the same, as otherwise we get into trouble if multiple fragments
+	 * are in one PDU.
 	 */
 	if (!already_added && check_already_added && fd_head != NULL) {
 		for(fd_item=fd_head->next;fd_item;fd_item=fd_item->next){
-			if(pinfo->fd->num==fd_item->frame){
+			if(pinfo->fd->num==fd_item->frame && frag_offset==fd_item->offset){
 				already_added=TRUE;
 			}
 		}

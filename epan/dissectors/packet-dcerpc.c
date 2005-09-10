@@ -3020,6 +3020,11 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     /* The packet is fragmented. */
     pinfo->fragmented = TRUE;
 
+	/* debug output of essential fragment data. */
+	/* leave it here for future debugging sessions */
+	/*printf("DCE num:%u offset:%u frag_len:%u tvb_len:%u\n", 
+		   pinfo->fd->num, offset, hdr->frag_len, tvb_length(decrypted_tvb));*/
+
     /* if we are not doing reassembly and this is the first fragment
        then just dissect it and exit
        XXX - if we're not doing reassembly, can we decrypt an
@@ -3129,7 +3134,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     fd_head = fragment_add(decrypted_tvb, 0, pinfo, frame,
 		dcerpc_co_reassemble_table,
 		tot_len-alloc_hint /* fragment offset */, tvb_length(decrypted_tvb),
-		TRUE /* more_frags */);
+		FALSE /* more_frags */);
 	if(alloc_hint == 0) {		
 	    fragment_set_tot_len(pinfo, frame,
 		  dcerpc_co_reassemble_table, tot_len + tvb_length(decrypted_tvb));
@@ -3137,11 +3142,13 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 end_cn_stub:
 
-    /* if reassembly is complete, dissect the full PDU
-    */
+    /* if reassembly is complete and this is the last fragment 
+	 * (multiple fragments in one PDU are possible!)
+	 * dissect the full PDU
+     */
     if(fd_head && (fd_head->flags&FD_DEFRAGMENTED) ){
 
-	if(pinfo->fd->num==fd_head->reassembled_in){
+	if(pinfo->fd->num==fd_head->reassembled_in && (hdr->flags&PFC_LAST_FRAG) ){
 	    tvbuff_t *next_tvb;
         proto_item *frag_tree_item;
 
@@ -3653,7 +3660,13 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	    length = tvb_length_remaining(tvb, offset);
 	    reported_length = tvb_reported_length_remaining(tvb, offset);
-	    stub_length = hdr->frag_len - offset - auth_info.auth_size;
+		/* as we now create a tvb in dissect_dcerpc_cn() containing only the 
+		 * stub_data, the following calculation is no longer valid:
+	     * stub_length = hdr->frag_len - offset - auth_info.auth_size;
+		 * simply use the remaining length of the tvb instead.
+		 * XXX - or better use the reported_length?!?
+		 */
+	    stub_length = length;
 	    if (length > stub_length)
 	      length = stub_length;
 	    if (reported_length > stub_length)
@@ -3823,6 +3836,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *drep_tree = NULL;
     e_dce_cn_common_hdr_t hdr;
     dcerpc_auth_info auth_info;
+	tvbuff_t *fragment_tvb;
 
     /*
      * when done over nbt, dcerpc requests are padded with 4 bytes of null
@@ -3898,7 +3912,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     if (tree) {
         offset = start_offset;
-	tvb_ensure_bytes_exist(tvb, offset, hdr.frag_len);
+        tvb_ensure_bytes_exist(tvb, offset, hdr.frag_len);
         ti = proto_tree_add_item (tree, proto_dcerpc, tvb, offset, hdr.frag_len, FALSE);
         if (ti) {
             dcerpc_tree = proto_item_add_subtree (ti, ett_dcerpc);
@@ -3973,42 +3987,53 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (pkt_len != NULL)
         *pkt_len = hdr.frag_len + padding;
 
+	/* The remaining bytes in the current tvb might contain multiple
+	 * DCE/RPC fragments, so create a new tvb subset for this fragment.
+	 * Only limit the end of the fragment, but not the offset start, 
+	 * as the authentication function dissect_dcerpc_cn_auth() will fail 
+	 * (and other functions might fail as well) computing the right start 
+	 * offset otherwise.
+	 * XXX - I don't understand reported_length completely, is this correct here? */
+	fragment_tvb = tvb_new_subset(tvb, 0, 
+		hdr.frag_len + start_offset /* length */, 
+		hdr.frag_len + start_offset /* reported_length */);
+
     /*
      * Packet type specific stuff is next.
      */
     switch (hdr.ptype) {
     case PDU_BIND:
     case PDU_ALTER:
-        dissect_dcerpc_cn_bind (tvb, offset, pinfo, dcerpc_tree, &hdr);
+        dissect_dcerpc_cn_bind (fragment_tvb, offset, pinfo, dcerpc_tree, &hdr);
         break;
 
     case PDU_BIND_ACK:
     case PDU_ALTER_ACK:
-        dissect_dcerpc_cn_bind_ack (tvb, offset, pinfo, dcerpc_tree, &hdr);
+        dissect_dcerpc_cn_bind_ack (fragment_tvb, offset, pinfo, dcerpc_tree, &hdr);
         break;
 
     case PDU_AUTH3:
         /*
          * Nothing after the common header other than credentials.
          */
-        dissect_dcerpc_cn_auth (tvb, offset, pinfo, dcerpc_tree, &hdr, TRUE, 
+        dissect_dcerpc_cn_auth (fragment_tvb, offset, pinfo, dcerpc_tree, &hdr, TRUE, 
 				&auth_info);
         break;
 
     case PDU_REQ:
-        dissect_dcerpc_cn_rqst (tvb, offset, pinfo, dcerpc_tree, tree, &hdr);
+        dissect_dcerpc_cn_rqst (fragment_tvb, offset, pinfo, dcerpc_tree, tree, &hdr);
         break;
 
     case PDU_RESP:
-        dissect_dcerpc_cn_resp (tvb, offset, pinfo, dcerpc_tree, tree, &hdr);
+        dissect_dcerpc_cn_resp (fragment_tvb, offset, pinfo, dcerpc_tree, tree, &hdr);
         break;
 
     case PDU_FAULT:
-        dissect_dcerpc_cn_fault (tvb, offset, pinfo, dcerpc_tree, &hdr);
+        dissect_dcerpc_cn_fault (fragment_tvb, offset, pinfo, dcerpc_tree, &hdr);
         break;
 
     case PDU_BIND_NAK:
-        dissect_dcerpc_cn_bind_nak (tvb, offset, pinfo, dcerpc_tree, &hdr);
+        dissect_dcerpc_cn_bind_nak (fragment_tvb, offset, pinfo, dcerpc_tree, &hdr);
         break;
 
     case PDU_CO_CANCEL:
@@ -4017,7 +4042,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
          * Nothing after the common header other than an authentication
          * verifier.
          */
-        dissect_dcerpc_cn_auth (tvb, offset, pinfo, dcerpc_tree, &hdr, FALSE, 
+        dissect_dcerpc_cn_auth (fragment_tvb, offset, pinfo, dcerpc_tree, &hdr, FALSE, 
 				&auth_info);
         break;
 
@@ -4030,7 +4055,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     default:
         /* might as well dissect the auth info */
-        dissect_dcerpc_cn_auth (tvb, offset, pinfo, dcerpc_tree, &hdr, FALSE, 
+        dissect_dcerpc_cn_auth (fragment_tvb, offset, pinfo, dcerpc_tree, &hdr, FALSE, 
 				&auth_info);
         break;
     }
