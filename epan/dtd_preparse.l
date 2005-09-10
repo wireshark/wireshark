@@ -139,8 +139,7 @@ static gchar* load_entity_file(gchar* fname) {
 	FILE* fp = fopen(fullname,"r");
 	GString* filetext;
 	gchar* retstr;
-	gchar* line;
-	size_t linelen;
+	gchar c;
 	
 	g_free(fullname);
 	
@@ -154,10 +153,12 @@ static gchar* load_entity_file(gchar* fname) {
 	
 	filetext = g_string_new(location());
 	
-	while(( line = fgetln(fp,&linelen) )) {
-		g_string_append(filetext,location());
-		g_string_append_len(filetext,line,linelen);
-		linenum++;
+	while(( c = fgetc(fp) )) {
+		g_string_append_c(filetext,c);
+		if(c == '\n') {
+			g_string_append(filetext,location());
+			linenum++;
+		}
 	}
 
 	retstr = filetext->str;
