@@ -2891,19 +2891,20 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
-	if(tcph->th_flags & TH_SYN) 
-		if(tcph->th_flags & TH_ACK)
-			expert_add_info_format(pinfo, tf_syn, PI_SEQUENCE, PI_CHAT, "Connection establish acknowledge (SYN+ACK): %s -> %s",
-				get_tcp_port(tcph->th_sport), get_tcp_port(tcph->th_dport));
-		else
-			expert_add_info_format(pinfo, tf_syn, PI_SEQUENCE, PI_CHAT, "Connection establish request (SYN): %s -> %s",
-				get_tcp_port(tcph->th_sport), get_tcp_port(tcph->th_dport));
-	if(tcph->th_flags & TH_FIN) 
-		expert_add_info_format(pinfo, tf_fin, PI_SEQUENCE, PI_CHAT, "Connection finish (FIN): %s -> %s",
-			get_tcp_port(tcph->th_sport), get_tcp_port(tcph->th_dport));
-	if(tcph->th_flags & TH_RST) 
-		expert_add_info_format(pinfo, tf_rst, PI_SEQUENCE, PI_CHAT, "Connection reset (RST): %s -> %s",
-			get_tcp_port(tcph->th_sport), get_tcp_port(tcph->th_dport));
+  if(tcph->th_flags & TH_SYN) {
+    if(tcph->th_flags & TH_ACK)
+      expert_add_info_format(pinfo, tf_syn, PI_SEQUENCE, PI_CHAT, "Connection establish acknowledge (SYN+ACK): %s -> %s",
+                             get_tcp_port(tcph->th_sport), get_tcp_port(tcph->th_dport));
+    else
+      expert_add_info_format(pinfo, tf_syn, PI_SEQUENCE, PI_CHAT, "Connection establish request (SYN): %s -> %s",
+                             get_tcp_port(tcph->th_sport), get_tcp_port(tcph->th_dport));
+  }
+  if(tcph->th_flags & TH_FIN)
+    expert_add_info_format(pinfo, tf_fin, PI_SEQUENCE, PI_CHAT, "Connection finish (FIN): %s -> %s",
+                           get_tcp_port(tcph->th_sport), get_tcp_port(tcph->th_dport));
+  if(tcph->th_flags & TH_RST)
+    expert_add_info_format(pinfo, tf_rst, PI_SEQUENCE, PI_CHAT, "Connection reset (RST): %s -> %s",
+                           get_tcp_port(tcph->th_sport), get_tcp_port(tcph->th_dport));
 
   /* Supply the sequence number of the first byte and of the first byte
      after the segment. */
