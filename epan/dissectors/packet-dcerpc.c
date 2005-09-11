@@ -3617,7 +3617,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 	offset+=4;
 
-	expert_add_info_format(pinfo, pi, PI_APPL_RESPONSE, PI_NOTE, "Fault: %s",
+	expert_add_info_format(pinfo, pi, PI_RESPONSE_CODE, PI_NOTE, "Fault: %s",
 		val_to_str(status, reject_status_vals, "Unknown (0x%08x)"));
 
     /* save context ID for use with dcerpc_add_conv_to_bind_table() */

@@ -219,7 +219,7 @@ except_throw
 except_throwd
 except_throwf
 except_unhandled_catcher
-expert_set_info_format
+expert_add_info_format
 FacilityReason_vals             DATA
 fc_fc4_val                      DATA
 file_open_error_message

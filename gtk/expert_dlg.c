@@ -74,11 +74,11 @@ static const value_string expert_severity_vals[] = {
 static const value_string expert_group_vals[] = {
 	{ PI_CHECKSUM,		"Checksum" },
 	{ PI_SEQUENCE,		"Sequence" },
-	{ PI_APPL_RESPONSE, "Response" },
+	{ PI_RESPONSE_CODE, "Response" },
 	{ PI_UNDECODED,		"Undecoded" },
 	{ PI_MALFORMED,		"Malformed" },
 	{ PI_REASSEMBLE,	"Reassemble" },
-	{ PI_SECURITY,		"Security" },
+/*	{ PI_SECURITY,		"Security" },*/
 	{ 0, NULL }
 };
 

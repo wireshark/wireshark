@@ -831,7 +831,7 @@ dissect_dcom_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 	/* expert info only if severity is set */
 	/* XXX - move this to the callers of this function, to provide a more detailed error output */
 	if(u32HResult & 0x80000000) {
-		expert_add_info_format(pinfo, item, PI_APPL_RESPONSE, PI_NOTE, "Hresult: %s",
+		expert_add_info_format(pinfo, item, PI_RESPONSE_CODE, PI_NOTE, "Hresult: %s",
 			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%x)"));
 	}
     if (pu32HResult)
@@ -865,7 +865,7 @@ dissect_dcom_indexed_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 	/* expert info only if severity flag is set */
 	/* XXX - move this to the callers of this function, to provide a more detailed error output */
 	if(u32HResult & 0x80000000) {
-		expert_add_info_format(pinfo, item, PI_APPL_RESPONSE, PI_NOTE, "Hresult: %s",
+		expert_add_info_format(pinfo, item, PI_RESPONSE_CODE, PI_NOTE, "Hresult: %s",
 			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%x)"));
 	}
     if (pu32HResult)
