@@ -1705,7 +1705,7 @@ static gboolean dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
     if (!first_tpdu) {
       if (check_col(pinfo->cinfo, COL_INFO))
         col_append_str(pinfo->cinfo, COL_INFO, ", ");
-	  expert_add_info_format(pinfo, NULL, PI_SEQUENCE, PI_NOTE, "Multiple TDPUs in one packet");
+	  expert_add_info_format(pinfo, NULL, PI_SEQUENCE, PI_NOTE, "Multiple TPDUs in one packet");
     }
     if ((li = tvb_get_guint8(tvb, offset + P_LI)) == 0) {
       if (check_col(pinfo->cinfo, COL_INFO))
