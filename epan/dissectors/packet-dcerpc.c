@@ -45,6 +45,7 @@
 #include <epan/emem.h>
 #include <epan/dissectors/packet-frame.h>
 #include <epan/dissectors/packet-dcerpc-nt.h>
+#include <epan/expert.h>
 
 static int dcerpc_tap = -1;
 
@@ -284,6 +285,29 @@ static const value_string reject_status_vals[] = {
 	{ 0x1c010013, "nca_out_args_too_big" },
 	{ 0x1c010014, "nca_server_too_busy" },
 	{ 0x1c010017, "nca_unsupported_type" },
+	/* MS Windows specific values
+	 * see: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/debug/base/system_error_codes__1700-3999_.asp 
+	 * and: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/seccrypto/security/common_hresult_values.asp 
+	 * and: http://www.megos.ch/support/doserrors.txt
+	 *
+	 * XXX - we might need a way to dynamically add entries here, as higher layer protocols use these values too,
+	 * at least MS protocols (like DCOM) do it that way ... */
+	{ 0x80004001, "E_NOTIMPL" },
+	{ 0x80004003, "E_POINTER" },
+	{ 0x80004004, "E_ABORT" },
+	{ 0x80010105, "RPC_E_SERVERFAULT" },
+	{ 0x80010108, "RPC_E_DISCONNECTED" },
+	{ 0x80010113, "RPC_E_INVALID_IPID" },
+	{ 0x80020006, "DISP_E_UNKNOWNNAME" },
+	{ 0x8004CB00, "CBA_E_MALFORMED" },
+	{ 0x8004CB01, "CBA_E_UNKNOWNOBJECT" },
+	{ 0x8004CB09, "CBA_E_INVALIDCOOKIE" },
+	{ 0x8004CB0B, "CBA_E_QOSTYPEUNSUPPORTED" },
+	{ 0x8004CB0C, "CBA_E_QOSVALUEUNSUPPORTED" },
+	{ 0x8004CB0F, "CBA_E_NOTAPPLICABLE" },
+	{ 0x8004CB12, "CBA_E_LIMITVIOLATION" },
+	{ 0x80070057, "E_INVALIDARG" },
+	{ 0x800706d1, "RPC_S_PROCNUM_OUT_OF_RANGE" },
 	{ 0,          NULL }
 };
 
@@ -3040,6 +3064,8 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
             col_append_fstr(pinfo->cinfo, COL_INFO,
                             " [DCE/RPC %s fragment]", fragment_type(hdr->flags));
         }
+		expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_CHAT, 
+			"%s fragment", fragment_type(hdr->flags));
         pinfo->fragmented = save_fragmented;
         return;
     }
@@ -3166,6 +3192,9 @@ end_cn_stub:
 
 	    pinfo->fragmented = FALSE;
 
+		expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_CHAT, 
+			"%s fragment, reassembled here in #%u", fragment_type(hdr->flags), fd_head->reassembled_in);
+
 	    dcerpc_try_handoff (pinfo, tree, dcerpc_tree, next_tvb,
 		next_tvb, hdr->drep, di, auth_info);
 
@@ -3181,6 +3210,8 @@ end_cn_stub:
 		col_append_fstr(pinfo->cinfo, COL_INFO,
 			" [DCE/RPC %s fragment, reas: #%u]", fragment_type(hdr->flags), fd_head->reassembled_in);
 	    }
+		expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_CHAT, 
+			"%s fragment, reassembled in #%u", fragment_type(hdr->flags), fd_head->reassembled_in);
 	}
     } else {
 	/* Reassembly not complete - some fragments
@@ -3189,6 +3220,8 @@ end_cn_stub:
 	    col_append_fstr(pinfo->cinfo, COL_INFO,
 			" [DCE/RPC %s fragment]", fragment_type(hdr->flags));
 	}
+	expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_CHAT, 
+		"%s fragment", fragment_type(hdr->flags));
 
 	if(decrypted_tvb){
 	        show_stub_data (decrypted_tvb, 0, tree, auth_info, FALSE);
@@ -3560,7 +3593,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint32 status;
     guint32 alloc_hint;
     dcerpc_auth_info auth_info;
-    proto_item *pi;
+    proto_item *pi = NULL;
 
     offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_alloc_hint, &alloc_hint);
@@ -3573,8 +3606,19 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     /* padding */
     offset++;
 
-    offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
-                                    hf_dcerpc_cn_status, &status);
+    /*offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
+                                    hf_dcerpc_cn_status, &status);*/
+    status = ((hdr->drep[0] & 0x10)
+            ? tvb_get_letohl (tvb, offset)
+            : tvb_get_ntohl (tvb, offset));
+
+    if (dcerpc_tree) {
+        pi = proto_tree_add_item (dcerpc_tree, hf_dcerpc_cn_status, tvb, offset, 4, (hdr->drep[0] & 0x10));
+    }
+	offset+=4;
+
+	expert_add_info_format(pinfo, pi, PI_APPL_RESPONSE, PI_NOTE, "Fault: %s",
+		val_to_str(status, reject_status_vals, "Unknown (0x%08x)"));
 
     /* save context ID for use with dcerpc_add_conv_to_bind_table() */
     pinfo->dcectxid = ctx_id;
@@ -3910,6 +3954,11 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	        pckt_vals[hdr.ptype].strptr, hdr.call_id);
     }
 
+    if(pinfo->dcectxid != 0) {
+        /* this is not the first DCE-RPC request/response in this (TCP?-)PDU */
+		expert_add_info_format(pinfo, NULL, PI_SEQUENCE, PI_NOTE, "Multiple DCE/RPC fragments/PDU's in one packet");
+	}
+
     if (tree) {
         offset = start_offset;
         tvb_ensure_bytes_exist(tvb, offset, hdr.frag_len);
@@ -3919,7 +3968,20 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_ver, tvb, offset++, 1, hdr.rpc_ver);
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_ver_minor, tvb, offset++, 1, hdr.rpc_ver_minor);
-        proto_tree_add_uint (dcerpc_tree, hf_dcerpc_packet_type, tvb, offset++, 1, hdr.ptype);
+        tf = proto_tree_add_uint (dcerpc_tree, hf_dcerpc_packet_type, tvb, offset++, 1, hdr.ptype);
+	} else {
+		tf = NULL;
+	}
+	
+	/* XXX - too much "output noise", removed for now
+	if(hdr.ptype == PDU_BIND || hdr.ptype == PDU_ALTER ||
+		hdr.ptype == PDU_BIND_ACK || hdr.ptype == PDU_ALTER_ACK)
+		expert_add_info_format(pinfo, tf, PI_SEQUENCE, PI_CHAT, "Context change: %s",
+			val_to_str(hdr.ptype, pckt_vals, "(0x%x)"));*/
+	if(hdr.ptype == PDU_BIND_NAK)
+		expert_add_info_format(pinfo, tf, PI_SEQUENCE, PI_WARN, "Bind not acknowledged");
+
+    if (tree) {
 		proto_item_append_text(ti, " %s, Fragment:", val_to_str(hdr.ptype, pckt_vals, "Unknown (0x%02x)"));
 
         tf = proto_tree_add_uint (dcerpc_tree, hf_dcerpc_cn_flags, tvb, offset, 1, hdr.flags);

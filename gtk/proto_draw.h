@@ -206,4 +206,14 @@ extern gboolean tree_view_select(GtkWidget *widget, GdkEventButton *event);
  */
 extern void set_ptree_sel_browse_all(gboolean val);
 
+
+/** init the expert colors */
+extern void proto_draw_colors_init(void);
+
+/** the expert colors */
+extern GdkColor	expert_color_chat;
+extern GdkColor	expert_color_note;
+extern GdkColor	expert_color_warn;
+extern GdkColor	expert_color_error;
+
 #endif

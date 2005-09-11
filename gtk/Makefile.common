@@ -122,6 +122,7 @@ ETHEREAL_TAP_SRC = \
 	conversations_wlan.c	\
 	conversations_rsvp.c	\
 	dcerpc_stat.c	\
+	expert_dlg.c	\
 	fc_stat.c	\
 	flow_graph.c	\
 	gsm_a_stat.c	\

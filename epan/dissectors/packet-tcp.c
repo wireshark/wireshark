@@ -46,6 +46,7 @@
 #include <epan/tap.h>
 #include <epan/emem.h>
 #include <epan/slab.h>
+#include <epan/expert.h>
 
 static int tcp_tap = -1;
 
@@ -1306,13 +1307,14 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 		if( ta->flags&TCP_A_RETRANSMISSION ){
 			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_retransmission, tvb, 0, 0, "This frame is a (suspected) retransmission");
 			PROTO_ITEM_SET_GENERATED(flags_item);
+			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Retransmission (suspected)");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Retransmission] ");
 			}
 			if( ta->rto_ts.secs || ta->rto_ts.nsecs ){
 				item = proto_tree_add_time(flags_tree, hf_tcp_analysis_rto,
 					tvb, 0, 0, &ta->rto_ts);
-        			PROTO_ITEM_SET_GENERATED(item);
+				PROTO_ITEM_SET_GENERATED(item);
 				item=proto_tree_add_uint(flags_tree, hf_tcp_analysis_rto_frame, tvb, 0, 0, ta->rto_frame);
 				PROTO_ITEM_SET_GENERATED(item);
 			}
@@ -1320,6 +1322,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 		if( ta->flags&TCP_A_FAST_RETRANSMISSION ){
 			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_fast_retransmission, tvb, 0, 0, "This frame is a (suspected) fast retransmission");
 			PROTO_ITEM_SET_GENERATED(flags_item);
+			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_WARN, "Fast retransmission (suspected)");
 			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_retransmission, tvb, 0, 0, "This frame is a (suspected) retransmission");
 			PROTO_ITEM_SET_GENERATED(flags_item);
 			if(check_col(pinfo->cinfo, COL_INFO)){
@@ -1329,6 +1332,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 		if( ta->flags&TCP_A_OUT_OF_ORDER ){
 			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_out_of_order, tvb, 0, 0, "This frame is a (suspected) out-of-order segment");
 			PROTO_ITEM_SET_GENERATED(flags_item);
+			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_WARN, "Out-Of-Order segment");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Out-Of-Order] ");
 			}
@@ -1336,6 +1340,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 		if( ta->flags&TCP_A_LOST_PACKET ){
 			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_lost_packet, tvb, 0, 0, "A segment before this frame was lost");
 			PROTO_ITEM_SET_GENERATED(flags_item);
+			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_WARN, "Previous segment lost (common at capture start)");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Previous segment lost] ");
 			}
@@ -1343,6 +1348,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 		if( ta->flags&TCP_A_ACK_LOST_PACKET ){
 			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_ack_lost_packet, tvb, 0, 0, "This frame ACKs a segment we have not seen (lost?)");
 			PROTO_ITEM_SET_GENERATED(flags_item);
+			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_WARN, "ACKed lost segment (common at capture start)");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP ACKed lost segment] ");
 			}
@@ -1350,6 +1356,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 		if( ta->flags&TCP_A_WINDOW_UPDATE ){
 			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_window_update, tvb, 0, 0, "This is a tcp window update");
 			PROTO_ITEM_SET_GENERATED(flags_item);
+			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Window update");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Window Update] ");
 			}
@@ -1357,6 +1364,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 		if( ta->flags&TCP_A_WINDOW_FULL ){
 			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_window_full, tvb, 0, 0, "The transmission window is now completely full");
 			PROTO_ITEM_SET_GENERATED(flags_item);
+			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Window is full");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Window Full] ");
 			}
@@ -1364,6 +1372,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 		if( ta->flags&TCP_A_KEEP_ALIVE ){
 			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_keep_alive, tvb, 0, 0, "This is a TCP keep-alive segment");
 			PROTO_ITEM_SET_GENERATED(flags_item);
+			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Keep-Alive");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Keep-Alive] ");
 			}
@@ -1371,6 +1380,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 		if( ta->flags&TCP_A_KEEP_ALIVE_ACK ){
 			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_keep_alive_ack, tvb, 0, 0, "This is an ACK to a TCP keep-alive segment");
 			PROTO_ITEM_SET_GENERATED(flags_item);
+			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Keep-Alive ACK");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Keep-Alive ACK] ");
 			}
@@ -1389,10 +1399,13 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 			flags_item=proto_tree_add_uint(tree, hf_tcp_analysis_duplicate_ack_frame,
 				tvb, 0, 0, ta->dupack_frame);
 			PROTO_ITEM_SET_GENERATED(flags_item);
+			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Duplicate ACK (#%u) to ACK in packet #%u", 
+				ta->dupack_num, ta->dupack_frame);
 		}
 		if( ta->flags&TCP_A_ZERO_WINDOW_PROBE ){
 			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_zero_window_probe, tvb, 0, 0, "This is a TCP zero-window-probe");
 			PROTO_ITEM_SET_GENERATED(flags_item);
+			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Zero window probe");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP ZeroWindowProbe] ");
 			}
@@ -1400,7 +1413,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 		if( ta->flags&TCP_A_ZERO_WINDOW ){
 			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_zero_window, tvb, 0, 0, "This is a ZeroWindow segment");
 			PROTO_ITEM_SET_GENERATED(flags_item);
-			PROTO_ITEM_SET_SEQUENCE_WARNING(flags_item);
+			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Zero window");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP ZeroWindow] ");
 			}
@@ -1408,6 +1421,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 		if( ta->flags&TCP_A_ZERO_WINDOW_VIOLATION ){
 			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_zero_window_violation, tvb, 0, 0, "This is a ZeroWindow violation, attempts to write >1 byte of data to a zero-window");
 			PROTO_ITEM_SET_GENERATED(flags_item);
+			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Zero window violation");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP ZeroWindowViolation] ");
 			}
@@ -2679,6 +2693,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   struct tcpinfo tcpinfo;
   static struct tcpheader tcphstruct[4], *tcph;
   static int tcph_count=0;
+  proto_item *tf_syn = NULL, *tf_fin = NULL, *tf_rst = NULL;
 
   tcph_count++;
   if(tcph_count>=4){
@@ -2866,15 +2881,29 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_boolean(field_tree, hf_tcp_flags_urg, tvb, offset + 13, 1, tcph->th_flags);
     proto_tree_add_boolean(field_tree, hf_tcp_flags_ack, tvb, offset + 13, 1, tcph->th_flags);
     proto_tree_add_boolean(field_tree, hf_tcp_flags_push, tvb, offset + 13, 1, tcph->th_flags);
-    proto_tree_add_boolean(field_tree, hf_tcp_flags_reset, tvb, offset + 13, 1, tcph->th_flags);
-    proto_tree_add_boolean(field_tree, hf_tcp_flags_syn, tvb, offset + 13, 1, tcph->th_flags);
-    proto_tree_add_boolean(field_tree, hf_tcp_flags_fin, tvb, offset + 13, 1, tcph->th_flags);
+    tf_rst = proto_tree_add_boolean(field_tree, hf_tcp_flags_reset, tvb, offset + 13, 1, tcph->th_flags);
+    tf_syn = proto_tree_add_boolean(field_tree, hf_tcp_flags_syn, tvb, offset + 13, 1, tcph->th_flags);
+    tf_fin = proto_tree_add_boolean(field_tree, hf_tcp_flags_fin, tvb, offset + 13, 1, tcph->th_flags);
     if(tcp_relative_seq && (tcph->th_win!=real_window)){
       proto_tree_add_uint_format(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, tcph->th_win, "Window size: %u (scaled)", tcph->th_win);
     } else {
       proto_tree_add_uint(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, tcph->th_win);
     }
   }
+
+	if(tcph->th_flags & TH_SYN) 
+		if(tcph->th_flags & TH_ACK)
+			expert_add_info_format(pinfo, tf_syn, PI_SEQUENCE, PI_CHAT, "Connection establish acknowledge (SYN+ACK): %s -> %s",
+				get_tcp_port(tcph->th_sport), get_tcp_port(tcph->th_dport));
+		else
+			expert_add_info_format(pinfo, tf_syn, PI_SEQUENCE, PI_CHAT, "Connection establish request (SYN): %s -> %s",
+				get_tcp_port(tcph->th_sport), get_tcp_port(tcph->th_dport));
+	if(tcph->th_flags & TH_FIN) 
+		expert_add_info_format(pinfo, tf_fin, PI_SEQUENCE, PI_CHAT, "Connection finish (FIN): %s -> %s",
+			get_tcp_port(tcph->th_sport), get_tcp_port(tcph->th_dport));
+	if(tcph->th_flags & TH_RST) 
+		expert_add_info_format(pinfo, tf_rst, PI_SEQUENCE, PI_CHAT, "Connection reset (RST): %s -> %s",
+			get_tcp_port(tcph->th_sport), get_tcp_port(tcph->th_dport));
 
   /* Supply the sequence number of the first byte and of the first byte
      after the segment. */
@@ -2937,13 +2966,15 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       } else {
         proto_item *item;
 
-        proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
+        item = proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
            offset + 16, 2, th_sum,
 	   "Checksum: 0x%04x [incorrect, should be 0x%04x]", th_sum,
 	   in_cksum_shouldbe(th_sum, computed_cksum));
+		expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
         item = proto_tree_add_boolean(tcp_tree, hf_tcp_checksum_bad, tvb,
 	   offset + 16, 2, TRUE);
         PROTO_ITEM_SET_GENERATED(item);
+		/* XXX - don't use hidden fields for checksums */
         PROTO_ITEM_SET_HIDDEN(item);
 
         if (check_col(pinfo->cinfo, COL_INFO))
@@ -2955,7 +2986,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
     } else {
       proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
-         offset + 16, 2, th_sum, "Checksum: 0x%04x", th_sum);
+         offset + 16, 2, th_sum, "Checksum: 0x%04x [validation disabled]", th_sum);
 
       /* We didn't check the checksum, and don't care if it's valid,
          so we're willing to desegment it. */
@@ -2964,7 +2995,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } else {
     /* We don't have all the packet data, so we can't checksum it... */
     proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
-       offset + 16, 2, th_sum, "Checksum: 0x%04x", th_sum);
+       offset + 16, 2, th_sum, "Checksum: 0x%04x [unchecked, not all data available]", th_sum);
 
     /* ...and aren't willing to desegment it. */
     desegment_ok = FALSE;
@@ -3201,7 +3232,7 @@ proto_register_tcp(void)
 
 		{ &hf_tcp_analysis_window_full,
 		{ "Window full",		"tcp.analysis.window_full", FT_NONE, BASE_NONE, NULL, 0x0,
-			"The this segment has caused the allowed window to become 100% full", HFILL }},
+			"This segment has caused the allowed window to become 100% full", HFILL }},
 
 		{ &hf_tcp_analysis_keep_alive,
 		{ "Keep Alive",		"tcp.analysis.keep_alive", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -3397,8 +3428,8 @@ proto_register_tcp(void)
 	    "Whether the TCP summary line should be shown in the protocol tree",
 	    &tcp_summary_in_tree);
 	prefs_register_bool_preference(tcp_module, "check_checksum",
-	    "Check the validity of the TCP checksum when possible",
-	    "Whether to check the validity of the TCP checksum",
+	    "Validate the TCP checksum if possible",
+	    "Whether to validate the TCP checksum",
 	    &tcp_check_checksum);
 	prefs_register_bool_preference(tcp_module, "desegment_tcp_streams",
 	    "Allow subdissector to reassemble TCP streams",

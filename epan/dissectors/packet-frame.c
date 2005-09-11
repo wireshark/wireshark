@@ -34,6 +34,7 @@
 #include "packet-frame.h"
 #include <epan/prefs.h>
 #include <epan/tap.h>
+#include <epan/expert.h>
 
 int proto_frame = -1;
 int hf_frame_arrival_time = -1;
@@ -264,14 +265,18 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	static const char dissector_error_nomsg[] =
 	    "Dissector writer didn't bother saying what the error was";
+	proto_item *item;
+
 
 	switch (exception) {
 
 	case BoundsError:
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_str(pinfo->cinfo, COL_INFO, "[Short Frame]");
-		proto_tree_add_protocol_format(tree, proto_short, tvb, 0, 0,
+		item = proto_tree_add_protocol_format(tree, proto_short, tvb, 0, 0,
 				"[Short Frame: %s]", pinfo->current_proto);
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, 
+			"Short Frame");
 		break;
 
 	case ReportedBoundsError:
@@ -285,7 +290,7 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    pinfo->current_proto,
 			    exception_message == NULL ?
 			        dissector_error_nomsg : exception_message);
-		proto_tree_add_protocol_format(tree, proto_malformed, tvb, 0, 0,
+		item = proto_tree_add_protocol_format(tree, proto_malformed, tvb, 0, 0,
 		    "[Dissector bug, protocol %s: %s]",
 		    pinfo->current_proto,
 		    exception_message == NULL ?
@@ -293,6 +298,9 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		g_warning("Dissector bug, protocol %s, in packet %u: %s",
 		    pinfo->current_proto, pinfo->fd->num,
 		    exception_message == NULL ?
+		        dissector_error_nomsg : exception_message);
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, 
+			exception_message == NULL ?
 		        dissector_error_nomsg : exception_message);
 		if (exception_message != NULL)
 			g_free(exception_message);
@@ -307,6 +315,8 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 void
 show_reported_bounds_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	proto_item *item;
+
 	if (pinfo->fragmented) {
 		/*
 		 * We were dissecting an unreassembled fragmented
@@ -320,15 +330,17 @@ show_reported_bounds_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 			    "[Unreassembled Packet%s]",
 			    pinfo->noreassembly_reason);
-		proto_tree_add_protocol_format(tree, proto_unreassembled,
+		item = proto_tree_add_protocol_format(tree, proto_unreassembled,
 		    tvb, 0, 0, "[Unreassembled Packet%s: %s]",
 		    pinfo->noreassembly_reason, pinfo->current_proto);
+		expert_add_info_format(pinfo, item, PI_REASSEMBLE, PI_WARN, "Unreassembled Packet (Exception occured)");
 	} else {
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_str(pinfo->cinfo, COL_INFO,
 			    "[Malformed Packet]");
-		proto_tree_add_protocol_format(tree, proto_malformed,
+		item = proto_tree_add_protocol_format(tree, proto_malformed,
 		    tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed Packet (Exception occured)");
 	}
 }
 

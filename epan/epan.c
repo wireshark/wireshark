@@ -22,6 +22,7 @@
 #include "tap.h"
 #include "addr_resolv.h"
 #include "emem.h"
+#include "expert.h"
 
 static void (*report_failure_func)(const char *, va_list);
 static void (*report_open_failure_func)(const char *, int, gboolean);
@@ -66,11 +67,13 @@ epan_init(const char *plugin_dir, void (*register_all_protocols)(void),
 	dfilter_init();
 	final_registration_all_protocols();
 	host_name_lookup_init();
+	expert_init();
 }
 
 void
 epan_cleanup(void)
 {
+	expert_cleanup();
 	dfilter_cleanup();
 	proto_cleanup();
 	packet_cleanup();

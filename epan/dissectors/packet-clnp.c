@@ -41,6 +41,7 @@
 #include "packet-esis.h"
 #include "nlpid.h"
 #include <epan/ipproto.h>
+#include <epan/expert.h>
 
 /* protocols and fields */
 
@@ -782,7 +783,7 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 			 packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cotp_tree;
-  proto_item *ti;
+  proto_item *ti = NULL;
   guint16 dst_ref, src_ref;
   guchar  reason;
   const char *str;
@@ -842,6 +843,9 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   }
 
   offset += li + 1;
+
+  expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_CHAT,
+	  "Disconnect Request(DR): 0x%x -> 0x%x", src_ref, dst_ref);
 
   /* User data */
   call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
@@ -1176,6 +1180,7 @@ static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 {
   proto_tree *cotp_tree;
   proto_item *ti;
+  proto_item *item = NULL;
   guint16  dst_ref;
   guint    tpdu_nr;
   gushort  credit = 0;
@@ -1206,7 +1211,7 @@ static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
-    proto_tree_add_uint(cotp_tree, hf_cotp_type, tvb, offset +  1, 1, tpdu);
+    item = proto_tree_add_uint(cotp_tree, hf_cotp_type, tvb, offset +  1, 1, tpdu);
     if (li == LI_NORMAL_RJ)
       proto_tree_add_text(cotp_tree, tvb, offset +  1, 1,
 			  "Credit: %u", cdt);
@@ -1224,6 +1229,9 @@ static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   offset += li + 1;
 
+  expert_add_info_format(pinfo, item, PI_SEQUENCE, PI_NOTE,
+	  "Reject(RJ): -> 0x%x", dst_ref);
+
   return offset;
 
 } /* ositp_decode_RJ */
@@ -1238,6 +1246,7 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
+  proto_item *item = NULL;
   guint16 dst_ref, src_ref;
   guchar  class_option;
   tvbuff_t *next_tvb;
@@ -1266,7 +1275,7 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   offset += 1;
 
   if (tree) {
-    proto_tree_add_uint(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu);
+    item = proto_tree_add_uint(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu);
   }
   offset += 1;
   li -= 1;
@@ -1280,6 +1289,14 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     proto_tree_add_uint(cotp_tree, hf_cotp_srcref, tvb, offset, 2, src_ref);
   offset += 2;
   li -= 2;
+
+  /* expert info, but only if not encapsulated in TCP/SMB */
+  /* XXX - the best way to detect seems to be if we have a port set */
+  if (pinfo->destport == 0) {
+	  expert_add_info_format(pinfo, item, PI_SEQUENCE, PI_CHAT,
+		  tpdu == CR_TPDU ? "Connection Request(CR): 0x%x -> 0x%x" : "Connection Confirm(CC): 0x%x -> 0x%x",
+		  src_ref, dst_ref);
+  }
 
   if (tree) {
     proto_tree_add_text(cotp_tree, tvb, offset, 1,
@@ -1315,6 +1332,7 @@ static int ositp_decode_DC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 {
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
+  proto_item *item = NULL;
   guint16 dst_ref, src_ref;
 
   if (li > LI_MAX_DC)
@@ -1339,7 +1357,7 @@ static int ositp_decode_DC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   offset += 1;
 
   if (tree) {
-    proto_tree_add_uint(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu);
+    item = proto_tree_add_uint(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu);
   }
   offset += 1;
   li -= 1;
@@ -1357,6 +1375,9 @@ static int ositp_decode_DC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   if (tree)
     ositp_decode_var_part(tvb, offset, li, 4, cotp_tree);
   offset += li;
+
+  expert_add_info_format(pinfo, item, PI_SEQUENCE, PI_CHAT,
+	  "Disconnect Confirm(DC): 0x%x -> 0x%x", src_ref, dst_ref);
 
   return offset;
 
@@ -1684,6 +1705,7 @@ static gboolean dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
     if (!first_tpdu) {
       if (check_col(pinfo->cinfo, COL_INFO))
         col_append_str(pinfo->cinfo, COL_INFO, ", ");
+	  expert_add_info_format(pinfo, NULL, PI_SEQUENCE, PI_NOTE, "Multiple TDPUs in one packet");
     }
     if ((li = tvb_get_guint8(tvb, offset + P_LI)) == 0) {
       if (check_col(pinfo->cinfo, COL_INFO))

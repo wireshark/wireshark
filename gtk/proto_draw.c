@@ -1602,6 +1602,27 @@ set_ptree_font_all(FONT_TYPE *font)
 }
 
 
+gboolean colors_ok = FALSE;
+GdkColor	expert_color_chat	= { 0, 0xcc00, 0xcc00, 0xe000 };	/* a pale bluegrey */
+GdkColor	expert_color_note	= { 0, 0xa000, 0xff00, 0xff00 };	/* a bright turquoise */
+GdkColor	expert_color_warn	= { 0, 0xff00, 0xff00, 0 };			/* yellow */
+GdkColor	expert_color_error	= { 0, 0xff00, 0x5c00, 0x5c00 };	/* pale red */
+
+void proto_draw_colors_init(void) 
+{
+	if(colors_ok) {
+		return;
+	}
+
+	get_color(&expert_color_chat);
+	get_color(&expert_color_note);
+	get_color(&expert_color_warn);
+	get_color(&expert_color_error);
+
+	colors_ok = TRUE;
+}
+
+
 #if GTK_MAJOR_VERSION >= 2
 static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
                                              GtkCellRenderer *cell,
@@ -1613,11 +1634,16 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
 
     gtk_tree_model_get(tree_model, iter, 1, &fi, -1);
 
+	if(!colors_ok) {
+		proto_draw_colors_init();
+	}
+
 	/* for the various possible attributes, see:
 	 * http://developer.gnome.org/doc/API/2.0/gtk/GtkCellRendererText.html
 	 *
 	 * color definitions can be found at:
 	 * http://cvs.gnome.org/viewcvs/gtk+/gdk-pixbuf/io-xpm.c?rev=1.42
+	 * (a good color overview: http://www.computerhope.com/htmcolor.htm)
 	 * 
 	 * some experiences:
 	 * background-gdk: doesn't seem to work (probably the GdkColor must be allocated)
@@ -1639,22 +1665,9 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
     /*g_object_set (cell, "weight", PANGO_WEIGHT_NORMAL, NULL);
     g_object_set (cell, "weight-set", FALSE, NULL);*/
 
-	if(FI_GET_FLAG(fi, FI_CHECKSUM_ERROR)) {
-        g_object_set (cell, "background", "red", NULL);
-        g_object_set (cell, "background-set", TRUE, NULL);
-	}
-
-	if(FI_GET_FLAG(fi, FI_SEQUENCE_WARNING)) {
-        g_object_set (cell, "background", "yellow", NULL);
-        g_object_set (cell, "background-set", TRUE, NULL);
-	}	
-
-	if(FI_GET_FLAG(fi, FI_SEQUENCE_ERROR)) {
-        g_object_set (cell, "background", "red", NULL);
-        g_object_set (cell, "background-set", TRUE, NULL);
-	}	
-
     if(FI_GET_FLAG(fi, FI_GENERATED)) {
+		/* we use "[...]" to mark generated items, no need to change things here */
+
         /* as some fonts don't support italic, don't use this */
         /*g_object_set (cell, "style", PANGO_STYLE_ITALIC, NULL);
         g_object_set (cell, "style-set", TRUE, NULL);
@@ -1677,6 +1690,29 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
         g_object_set (cell, "underline", PANGO_UNDERLINE_SINGLE, NULL);
         g_object_set (cell, "underline-set", TRUE, NULL);
     }
+
+	if(FI_GET_FLAG(fi, PI_SEVERITY_MASK)) {
+		switch(FI_GET_FLAG(fi, PI_SEVERITY_MASK)) {
+		case(PI_CHAT):
+			g_object_set (cell, "background-gdk", &expert_color_chat, NULL);
+			g_object_set (cell, "background-set", TRUE, NULL);
+			break;
+		case(PI_NOTE):
+			g_object_set (cell, "background-gdk", &expert_color_note, NULL);
+			g_object_set (cell, "background-set", TRUE, NULL);
+			break;
+		case(PI_WARN):
+			g_object_set (cell, "background-gdk", &expert_color_warn, NULL);
+			g_object_set (cell, "background-set", TRUE, NULL);
+			break;
+		case(PI_ERROR):
+			g_object_set (cell, "background-gdk", &expert_color_error, NULL);
+			g_object_set (cell, "background-set", TRUE, NULL);
+			break;
+		default:
+			g_assert_not_reached();
+		}
+	}
 }
 #endif
 

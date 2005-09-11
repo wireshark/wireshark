@@ -87,6 +87,7 @@
 #include "packet-dcerpc.h"
 #include "packet-dcom.h"
 #include "prefs.h"
+#include "expert.h"
 
 
 static int proto_dcom = -1;
@@ -339,10 +340,12 @@ const value_string dcom_hresult_vals[] = {
 	{ 0x80070057, "E_INVALIDARG" },
 
 	{ 0x80010108, "RPC_E_DISCONNECTED" },
+	{ 0x80010113, "RPC_E_INVALID_IPID" },
 
 	{ 0x80020004, "DISP_E_PARAMNOTFOUND" },
 
 	{ 0x80040154, "REGDB_E_CLASSNOTREG" },
+	{ 0x80040201, "CO_E_FAILEDTOGETSECCTX" },
 
 /* following are CBA application specific values */
 	{ 0x0004CA00, "CBA_S_PERSISTPENDING" },
@@ -391,6 +394,9 @@ const value_string dcom_hresult_vals[] = {
 	{ 0x8004CB23, "CBA_E_FRAMECOUNTUNSUPPORTED" },
 	{ 0x8004CB24, "CBA_E_LINKFAILURE" },
 	{ 0x8004CB25, "CBA_E_MODECHANGE" },
+
+	{ 0x80080004, "CO_E_BAD_PATH" },
+
 	{ 0,          NULL }
 };
 
@@ -730,11 +736,14 @@ extern int
 dissect_dcom_tobedone_data(tvbuff_t *tvb, int offset,
 	packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, int length)
 {
+	proto_item *item;
 
     proto_tree_add_uint(tree, hf_dcom_tobedone_len, tvb, offset, length, length);
 
-	proto_tree_add_bytes(tree, hf_dcom_tobedone, tvb, offset, length, 
+	item = proto_tree_add_bytes(tree, hf_dcom_tobedone, tvb, offset, length, 
 		tvb_get_ptr(tvb, offset, length));
+	expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "%u bytes still undecoded", length);
+
 	offset += length;
 
 	return offset;
@@ -807,8 +816,26 @@ dissect_dcom_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 					 proto_tree *tree, guint8 *drep, 
 					 guint32 * pu32HResult)
 {
-	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
-                    hf_dcom_hresult, pu32HResult);
+    guint32 u32HResult;
+	proto_item *item = NULL;
+
+	/* dissect the DWORD, but don't add to tree */
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, NULL /*tree*/, drep, 
+                    hf_dcom_hresult, &u32HResult);
+
+    if (tree) {
+		/* special formatted output of indexed value */
+        item = proto_tree_add_item (tree, hf_dcom_hresult, tvb, offset-4, 4, (drep[0] & 0x10));
+    }
+
+	/* expert info only if severity is set */
+	/* XXX - move this to the callers of this function, to provide a more detailed error output */
+	if(u32HResult & 0x80000000) {
+		expert_add_info_format(pinfo, item, PI_APPL_RESPONSE, PI_NOTE, "Hresult: %s",
+			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%x)"));
+	}
+    if (pu32HResult)
+        *pu32HResult = u32HResult;
 
 	return offset;
 }
@@ -821,6 +848,7 @@ dissect_dcom_indexed_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 					 guint32 * pu32HResult, int field_index)
 {
     guint32 u32HResult;
+	proto_item *item = NULL;
 
 
 	/* dissect the DWORD, but don't add to tree */
@@ -829,11 +857,17 @@ dissect_dcom_indexed_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 
     if (tree) {
 		/* special formatted output of indexed value */
-        proto_tree_add_uint_format(tree, hf_dcom_hresult, tvb, offset-4, 4, (drep[0] & 0x10),
+        item = proto_tree_add_uint_format(tree, hf_dcom_hresult, tvb, offset-4, 4, (drep[0] & 0x10),
 			"HResult[%u]: %s (0x%08x)", field_index,
 			val_to_str(u32HResult, dcom_hresult_vals, "Unknown"),
 			u32HResult);
     }
+	/* expert info only if severity flag is set */
+	/* XXX - move this to the callers of this function, to provide a more detailed error output */
+	if(u32HResult & 0x80000000) {
+		expert_add_info_format(pinfo, item, PI_APPL_RESPONSE, PI_NOTE, "Hresult: %s",
+			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%x)"));
+	}
     if (pu32HResult)
         *pu32HResult = u32HResult;
 

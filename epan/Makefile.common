@@ -49,6 +49,7 @@ LIBETHEREAL_SRC = 		\
 	emem.c			\
 	epan.c			\
 	except.c		\
+	expert.c		\
 	filesystem.c		\
 	follow.c		\
 	frame_data.c		\
@@ -115,6 +116,7 @@ LIBETHEREAL_INCLUDES = 		\
 	epan_dissect.h		\
 	except.h		\
 	exceptions.h		\
+	expert.h		\
 	filesystem.h		\
 	follow.h		\
 	frame_data.h		\

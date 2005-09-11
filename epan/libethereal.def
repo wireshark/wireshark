@@ -191,7 +191,9 @@ ep_alloc
 se_alloc
 ep_alloc0
 ep_strdup
+se_strdup
 ep_strdup_printf
+se_strdup_printf
 ep_strndup
 ep_strsplit
 ep_memdup
@@ -217,6 +219,7 @@ except_throw
 except_throwd
 except_throwf
 except_unhandled_catcher
+expert_set_info_format
 FacilityReason_vals             DATA
 fc_fc4_val                      DATA
 file_open_error_message
@@ -404,6 +407,7 @@ proto_item_get_parent
 proto_item_get_parent_nth
 proto_item_get_subtree
 proto_item_set_end
+proto_item_set_expert_flags
 proto_item_set_len
 proto_item_set_text
 proto_register_field_array
