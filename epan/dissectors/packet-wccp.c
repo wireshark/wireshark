@@ -270,7 +270,7 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    "Number of Web Caches: %u", cache_count);
 			offset += 4;
 			for (i = 0; i < cache_count; i++) {
-				tvb_memcpy(tvb, (guint8 *)&ipaddr, offset, 4);
+				ipaddr = tvb_get_ipv4(tvb, offset);
 				proto_tree_add_ipv4_format(wccp_tree,
 				    hf_cache_ip, tvb, offset, 4,
 				    ipaddr,

@@ -48,7 +48,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/ipv6-utils.h>
 
 #define UDP_PORT_OLSR	698
 #define HELLO	1
@@ -111,18 +110,6 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	
 	guint16 packet_len;
 	
-	guint32 origin_addr;
-	guint32 neighbor_addr;
-	guint32 interface_addr;
-	guint32 network_addr;
-	guint32 netmask;
-	struct e_in6_addr origin6_addr, *origin=&origin6_addr;
-	struct e_in6_addr neighbor6_addr, *neighbor=&neighbor6_addr;
-	struct e_in6_addr interface6_addr, *theinterface=&interface6_addr;
-	struct e_in6_addr network6_addr, *network=&network6_addr;
-	struct e_in6_addr netmask6, *netmask_v6=&netmask6;
-	
-
 	/* Does this packet have a valid message type at the beginning? */
 	if (!tvb_bytes_exist(tvb, 0, 2))
 		return 0;	/* not enough bytes for the packet length */
@@ -202,8 +189,7 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			
 			/*-----------------Dissecting: Origin Addr, TTL, Hop Count, and Message Seq Number*/
 			if(message_size > 0)	{
-				tvb_memcpy(tvb, (guint8*)&origin_addr, offset, 4);
-				proto_tree_add_ipv4(olsr_tree, hf_olsr_origin_addr, tvb, offset, 4, origin_addr);
+				proto_tree_add_item(olsr_tree, hf_olsr_origin_addr, tvb, offset, 4, FALSE);
 				message_size--;
 				packet_size--;
 				offset+=4;
@@ -228,8 +214,7 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				packet_size--;
 
 				while(message_size>0)  {
-					tvb_memcpy(tvb, (guint8*)&neighbor_addr, offset, 4);
-					proto_tree_add_ipv4(olsr_tree, hf_olsr_neighbor_addr, tvb, offset, 4, neighbor_addr);
+					proto_tree_add_item(olsr_tree, hf_olsr_neighbor_addr, tvb, offset, 4, FALSE);
 					message_size--;
 					offset+=4;
 					packet_size--;
@@ -308,8 +293,7 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 											
 					/*-------------------Dissect Neighbor Addresses--------------------*/
 					while(link_message_size>0)   {
-						tvb_memcpy(tvb, (guint8*)&neighbor_addr, offset, 4);
-						proto_tree_add_ipv4(olsr_tree, hf_olsr_neighbor_addr, tvb, offset, 4, neighbor_addr);
+						proto_tree_add_item(olsr_tree, hf_olsr_neighbor_addr, tvb, offset, 4, FALSE);
 						offset+=4;
 						message_size--;
 						packet_size--;
@@ -321,8 +305,7 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/*---------------------------------Dissect MID Message----------------------------------*/
 			else if(message_size>0 && message_type==MID)	{
 				while(message_size>0)	{
-					tvb_memcpy(tvb, (guint8*)&interface_addr, offset, 4);
-					proto_tree_add_ipv4(olsr_tree, hf_olsr_interface_addr, tvb, offset, 4, interface_addr);
+					proto_tree_add_item(olsr_tree, hf_olsr_interface_addr, tvb, offset, 4, FALSE);
 					message_size--;
 					offset+=4;
 					packet_size--;
@@ -332,13 +315,11 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/*-----------------------------Dissect HNA Message--------------------------------*/
 			else if(message_size>0 && message_type==HNA)	{
 				while(message_size>0)	{
-					tvb_memcpy(tvb, (guint8*)&network_addr, offset, 4);
-					proto_tree_add_ipv4(olsr_tree, hf_olsr_network_addr, tvb, offset, 4, network_addr);
+					proto_tree_add_item(olsr_tree, hf_olsr_network_addr, tvb, offset, 4, FALSE);
 					message_size--;
 					packet_size--;
 					offset+=4;
-					tvb_memcpy(tvb, (guint8*)&netmask, offset, 4);
-					proto_tree_add_ipv4(olsr_tree, hf_olsr_netmask, tvb, offset, 4, netmask);
+					proto_tree_add_item(olsr_tree, hf_olsr_netmask, tvb, offset, 4, FALSE);
 					message_size--;
 					packet_size--;
 					offset+=4;
@@ -401,8 +382,7 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			/*-----------------Dissecting: Origin Addr, TTL, Hop Count, and Message Seq Number */
 			if(message_size > 0)	{
-				tvb_memcpy(tvb, (guint8*)&origin6_addr, offset, 16);
-				proto_tree_add_ipv6(olsr_tree, hf_olsr_origin6_addr, tvb, offset, 16, (guint8*)origin);
+				proto_tree_add_item(olsr_tree, hf_olsr_origin6_addr, tvb, offset, 16, FALSE);
 				offset+=16;
 				message_size-=4;
 				packet_size-=4;
@@ -427,8 +407,7 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				packet_size--;
 
 				while(message_size>0)  {
-					tvb_memcpy(tvb, (guint8*)&neighbor6_addr, offset, 16);
-					proto_tree_add_ipv6(olsr_tree, hf_olsr_neighbor6_addr, tvb, offset, 16, (guint8*)neighbor);
+					proto_tree_add_item(olsr_tree, hf_olsr_neighbor6_addr, tvb, offset, 16, FALSE);
 					message_size-=4;
 					offset+=16;
 					packet_size-=4;
@@ -507,8 +486,7 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 											
 					/*--------------------------Dissect Neighbor Addresses---------------------------*/
 					while(link_message_size>0)   {
-						tvb_memcpy(tvb, (guint8*)&neighbor6_addr, offset, 16);
-						proto_tree_add_ipv6(olsr_tree, hf_olsr_neighbor6_addr, tvb, offset, 16, (guint8*)neighbor);
+						proto_tree_add_item(olsr_tree, hf_olsr_neighbor6_addr, tvb, offset, 16, FALSE);
 						offset+=16;
 						message_size-=4;
 						packet_size-=4;
@@ -520,8 +498,7 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/*---------------------------------Dissect MID Message----------------------------------*/
 			else if(message_size>0 && message_type==MID)	{
 				while(message_size>0)	{
-					tvb_memcpy(tvb, (guint8*)&interface6_addr, offset, 16);
-					proto_tree_add_ipv6(olsr_tree, hf_olsr_interface6_addr, tvb, offset, 16, (guint8*)theinterface);
+					proto_tree_add_item(olsr_tree, hf_olsr_interface6_addr, tvb, offset, 16, FALSE);
 					message_size-=4;
 					offset+=16;
 					packet_size-=4;
@@ -531,13 +508,11 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/*-----------------------------Dissect HNA Message--------------------------------*/
 			else if(message_size>0 && message_type==HNA)	{
 				while(message_size>0)	{
-					tvb_memcpy(tvb, (guint8*)&network6_addr, offset, 16);
-					proto_tree_add_ipv6(olsr_tree, hf_olsr_network6_addr, tvb, offset, 16, (guint8*)network);
+					proto_tree_add_item(olsr_tree, hf_olsr_network6_addr, tvb, offset, 16, FALSE);
 					offset+=16;
 					message_size-=4;
 					packet_size-=4;
-					tvb_memcpy(tvb, (guint8*)&netmask6, offset, 16);
-					proto_tree_add_ipv6(olsr_tree, hf_olsr_netmask6, tvb, offset, 16, (guint8*)netmask_v6);
+					proto_tree_add_item(olsr_tree, hf_olsr_netmask6, tvb, offset, 16, FALSE);
 					message_size-=4;
 					packet_size-=4;
 					offset+=16;

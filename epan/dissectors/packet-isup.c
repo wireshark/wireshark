@@ -47,7 +47,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/ipv6-utils.h>
 #include <epan/stats_tree.h>
 #include <prefs.h>
 #include "packet-q931.h"
@@ -1970,7 +1969,7 @@ dissect_nsap(tvbuff_t *parameter_tvb,gint offset,gint len, proto_tree *parameter
 			icp = tvb_get_ntohs(parameter_tvb, offset);
 			proto_tree_add_uint(parameter_tree, hf_iana_icp, parameter_tvb, offset, 1, icp );
 			if ( icp == 0 ){ /* IPv6 addr */
-				tvb_memcpy(parameter_tvb, (guint8 *)&ipv6_addr,( offset + 2 ), 16);
+				tvb_get_ipv6(parameter_tvb, ( offset + 2 ), &ipv6_addr);
 				proto_tree_add_text(parameter_tree, parameter_tvb, offset + 2 , 3,
 				    "DSP = %s", tvb_bytes_to_str(parameter_tvb, offset + 2, 17));
 					    proto_tree_add_ipv6(parameter_tree, hf_nsap_ipv6_addr, parameter_tvb, offset,
@@ -1978,7 +1977,7 @@ dissect_nsap(tvbuff_t *parameter_tvb,gint offset,gint len, proto_tree *parameter
 
 			}
 			else { /* IPv4 addr */
-				tvb_memcpy(parameter_tvb,(guint8 *) &addr, ( offset + 2 ), 4);
+				addr = tvb_get_ipv4(parameter_tvb, ( offset + 2 ));
 				proto_tree_add_text(parameter_tree, parameter_tvb, offset + 2 , 3,
 				    "DSP = %s", tvb_bytes_to_str(parameter_tvb, offset + 2, 17));
 				proto_tree_add_ipv4(parameter_tree, hf_nsap_ipv4_addr, parameter_tvb, offset + 2, 4, addr);

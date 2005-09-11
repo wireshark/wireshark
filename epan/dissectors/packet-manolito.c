@@ -80,8 +80,8 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* MANOLITO packet header (network byte order) */
 	header.checksum = tvb_get_ntohl(tvb, 0);
 	header.seqno = tvb_get_ntohl(tvb, 4);
-	tvb_memcpy(tvb, (guint8 *)&header.src, 8, 4);
-	tvb_memcpy(tvb, (guint8 *)&header.dest, 12, 4);
+	header.src = tvb_get_ipv4(tvb, 8);
+	header.dest = tvb_get_ipv4(tvb, 12);
 	if (tvb_reported_length(tvb) == 19)
 	{
 		header.options = (tvb_get_ntohs(tvb, 16) << 8) +

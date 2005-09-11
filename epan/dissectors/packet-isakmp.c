@@ -39,7 +39,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/ipv6-utils.h>
 #include <epan/ipproto.h>
 #include <epan/dissectors/packet-x509if.h>
 #include <epan/dissectors/packet-isakmp.h>
@@ -1671,7 +1670,7 @@ dissect_nat_original_address(tvbuff_t *tvb, int offset, int length, proto_tree *
 
   case 1:	/* ID_IPV4_ADDR */
     if (length == 4) {
-      tvb_memcpy(tvb, (guint8 *)&addr_ipv4, offset, length);
+      addr_ipv4 = tvb_get_ipv4(tvb, offset);
       proto_tree_add_text(tree, tvb, offset, length,
 			  "Original address: %s",
 			  ip_to_str((guint8 *)&addr_ipv4));
@@ -1684,7 +1683,7 @@ dissect_nat_original_address(tvbuff_t *tvb, int offset, int length, proto_tree *
 
   case 5:	/* ID_IPV6_ADDR */
     if (length == 16) {
-      tvb_memcpy(tvb, (guint8 *)&addr_ipv6, offset, length);
+      tvb_get_ipv6(tvb, offset, &addr_ipv6);
       proto_tree_add_text(tree, tvb, offset, length,
 			  "Original address: %s",
 			  ip6_to_str(&addr_ipv6));

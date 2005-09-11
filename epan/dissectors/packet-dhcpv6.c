@@ -47,7 +47,6 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/ipv6-utils.h>
 #include "packet-arp.h"
 
 static int proto_dhcpv6 = -1;
@@ -461,7 +460,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
                                   optlen, "IAADDR: malformed option");
               break;
            }
-           tvb_memcpy(tvb, (guint8 *)&in6, off, sizeof(in6));
+           tvb_get_ipv6(tvb, off, &in6);
            proto_tree_add_text(subtree, tvb, off,
                                sizeof(in6), "IPv6 address: %s",
                                ip6_to_str(&in6));
@@ -563,7 +562,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 				optlen, "UNICAST: malformed option");
 	    break;
 	  }
-	  tvb_memcpy(tvb, (guint8 *)&in6, off, sizeof(in6));
+	  tvb_get_ipv6(tvb, off, &in6);
 	  proto_tree_add_text(subtree, tvb, off,
 			      sizeof(in6), "IPv6 address: %s",
 				ip6_to_str(&in6));
@@ -649,7 +648,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 			break;
 		}
 		for (i = 0; i < optlen; i += 16) {
-			tvb_memcpy(tvb, (guint8 *)&in6, off + i, sizeof(in6));
+			tvb_get_ipv6(tvb, off + i, &in6);
 			proto_tree_add_text(subtree, tvb, off + i,
 				sizeof(in6), "SIP servers address: %s",
 				ip6_to_str(&in6));
@@ -662,7 +661,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 			break;
 		}
 		for (i = 0; i < optlen; i += 16) {
-			tvb_memcpy(tvb, (guint8 *)&in6, off + i, sizeof(in6));
+			tvb_get_ipv6(tvb, off + i, &in6);
 			proto_tree_add_text(subtree, tvb, off + i,
 				sizeof(in6), "DNS servers address: %s",
 				ip6_to_str(&in6));
@@ -681,7 +680,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 			break;
 		}
 		for (i = 0; i < optlen; i += 16) {
-			tvb_memcpy(tvb, (guint8 *)&in6, off + i, sizeof(in6));
+			tvb_get_ipv6(tvb, off + i, &in6);
 			proto_tree_add_text(subtree, tvb, off + i,
 				sizeof(in6), "NIS servers address: %s",
 				ip6_to_str(&in6));
@@ -694,7 +693,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 			break;
 		}
 		for (i = 0; i < optlen; i += 16) {
-			tvb_memcpy(tvb, (guint8 *)&in6, off + i, sizeof(in6));
+			tvb_get_ipv6(tvb, off + i, &in6);
 			proto_tree_add_text(subtree, tvb, off + i,
 				sizeof(in6), "NISP servers address: %s",
 				ip6_to_str(&in6));
@@ -719,7 +718,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 			break;
 		}
 		for (i = 0; i < optlen; i += 16) {
-			tvb_memcpy(tvb, (guint8 *)&in6, off + i, sizeof(in6));
+			tvb_get_ipv6(tvb, off + i, &in6);
 			proto_tree_add_text(subtree, tvb, off + i,
 				sizeof(in6), "SNTP servers address: %s",
 				ip6_to_str(&in6));
@@ -793,7 +792,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 		}
 		proto_tree_add_text(subtree, tvb, off + 8, 1,
 				    "Prefix length: %d", prefix_length);
-		tvb_memcpy(tvb, (guint8 *)&in6, off + 9 , sizeof(in6));
+		tvb_get_ipv6(tvb, off + 9, &in6);
 		proto_tree_add_text(subtree, tvb, off + 9,
 				    16, "Prefix address: %s",
 				    ip6_to_str(&in6));
@@ -816,7 +815,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 			break;
 		}
 
-		tvb_memcpy(tvb, (guint8 *)&in6, off , sizeof(in6));
+		tvb_get_ipv6(tvb, off, &in6);
 		proto_tree_add_text(subtree, tvb, off,
 			16, "Home Agent: %s", ip6_to_str(&in6));
 		break;
@@ -827,7 +826,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 			break;
 		}
 
-		tvb_memcpy(tvb, (guint8 *)&in6, off , sizeof(in6));
+		tvb_get_ipv6(tvb, off, &in6);
 		proto_tree_add_text(subtree, tvb, off,
 			16, "Home Address: %s", ip6_to_str(&in6));
 		break;
@@ -882,11 +881,11 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
            hop_count = tvb_get_guint8(tvb, off+1);
            proto_tree_add_text(bp_tree, tvb, off+1, 1, "Hop count: %d", hop_count);
 
-           tvb_memcpy(tvb, (guint8 *)&in6, off+2, sizeof(in6));
+           tvb_get_ipv6(tvb, off+2, &in6);
            proto_tree_add_text(bp_tree, tvb, off+2, sizeof(in6), 
                                "Link-address: %s",ip6_to_str(&in6));
 
-           tvb_memcpy(tvb, (guint8 *)&in6, off+18, sizeof(in6));
+           tvb_get_ipv6(tvb, off+18, &in6);
            proto_tree_add_text(bp_tree, tvb, off+18, sizeof(in6), 
                                "Peer-address: %s",ip6_to_str(&in6));
 
@@ -909,7 +908,7 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			   msgtype);
 		   proto_tree_add_text(bp_tree, tvb, off+1, 3, "Transaction-ID: 0x%08x", xid);
 #if 0
-		   tvb_memcpy(tvb, (guint8 *)&in6, 4, sizeof(in6));
+		   tvb_get_ipv6(tvb, 4, &in6);
 		   proto_tree_add_text(bp_tree, tvb, 4, sizeof(in6),
 			   "Server address: %s", ip6_to_str(&in6));
 #endif

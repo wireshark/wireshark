@@ -36,7 +36,6 @@
 #include "strutil.h"
 #include "addr_resolv.h"
 #include "plugins.h"
-#include "ipv6-utils.h"
 #include "proto.h"
 #include "epan_dissect.h"
 #include "slab.h"

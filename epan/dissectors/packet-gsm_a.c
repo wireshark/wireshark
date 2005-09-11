@@ -94,7 +94,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/ipv6-utils.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
 
@@ -11098,7 +11097,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) P-CSCF Address" , prot );
 	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
 
-		    tvb_memcpy(tvb, (guint8 *)&ipv6_addr, curr_offset, 16);
+		    tvb_get_ipv6(tvb, curr_offset, &ipv6_addr);
 		    proto_tree_add_text(tree,
 			tvb, curr_offset, 16,
 			"IPv6: %s", ip6_to_str(&ipv6_addr));
@@ -11113,7 +11112,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) DNS Server Address" , prot );
 	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
 
-		    tvb_memcpy(tvb, (guint8 *)&ipv6_addr, curr_offset, 16);
+		    tvb_get_ipv6(tvb, curr_offset, &ipv6_addr);
 		    proto_tree_add_text(tree,
 			tvb, curr_offset, 16,
 			"IPv6: %s", ip6_to_str(&ipv6_addr));
@@ -11285,7 +11284,7 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 	            tvb, curr_offset+2, 0,
     	            "IPv6: length is wrong");
     	    } else {
-    	        tvb_memcpy(tvb, (guint8 *)&ipv6_addr, curr_offset+2, 16);
+    	        tvb_get_ipv6(tvb, curr_offset+2, &ipv6_addr);
                 proto_tree_add_text(tree,
                     tvb, curr_offset+2, len-2,
     	            "IPv6: %s", ip6_to_str(&ipv6_addr));
@@ -12203,7 +12202,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 		{
 			struct e_in6_addr ipv6_addr;
 
-			tvb_memcpy(tvb, (guint8 *)&ipv6_addr, curr_offset, 16);
+			tvb_get_ipv6(tvb, curr_offset, &ipv6_addr);
 			proto_tree_add_text(tree,
 				tvb, curr_offset+2, len-2,
 				"Packet filter content: IPv6 %s", ip6_to_str(&ipv6_addr));

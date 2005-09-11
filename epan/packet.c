@@ -43,7 +43,6 @@
 #include "timestamp.h"
 
 #include "atalk-utils.h"
-#include "ipv6-utils.h"
 #include "sna-utils.h"
 #include "osi-utils.h"
 #include "to_str.h"

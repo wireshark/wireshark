@@ -923,8 +923,6 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 	int i;
 
 	for (i = 0; i < template->count; i++) {
-		guint32	ipv4addr;
-		guint8	ipv6addr[16];
 		guint16 type, length;
 		nstime_t ts;
 
@@ -993,15 +991,11 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 
 		case 8: /* source IP */
 			if (length == 4) {
-				tvb_memcpy(tvb, (guint8 *)&ipv4addr, offset,
-				    sizeof(ipv4addr));
-				proto_tree_add_ipv4(pdutree, hf_cflow_srcaddr,
-				    tvb, offset, length, ipv4addr);
+				proto_tree_add_item(pdutree, hf_cflow_srcaddr,
+				    tvb, offset, length, FALSE);
 			} else if (length == 16) {
-				tvb_memcpy(tvb, ipv6addr, offset,
-				    sizeof(ipv6addr));
-				proto_tree_add_ipv6(pdutree, hf_cflow_srcaddr_v6,
-				    tvb, offset, length, ipv6addr);
+				proto_tree_add_item(pdutree, hf_cflow_srcaddr_v6,
+				    tvb, offset, length, FALSE);
 			} else {
 				proto_tree_add_text(pdutree,
 				    tvb, offset, length,
@@ -1026,15 +1020,11 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 
 		case 12: /* dest IP */
 			if (length == 4) {
-				tvb_memcpy(tvb, (guint8 *)&ipv4addr, offset,
-				    sizeof(ipv4addr));
-				proto_tree_add_ipv4(pdutree, hf_cflow_dstaddr,
-				    tvb, offset, length, ipv4addr);
+				proto_tree_add_item(pdutree, hf_cflow_dstaddr,
+				    tvb, offset, length, FALSE);
 			} else if (length == 16) {
-				tvb_memcpy(tvb, ipv6addr, offset,
-				    sizeof(ipv6addr));
-				proto_tree_add_ipv6(pdutree, hf_cflow_dstaddr_v6,
-				    tvb, offset, length, ipv6addr);
+				proto_tree_add_item(pdutree, hf_cflow_dstaddr_v6,
+				    tvb, offset, length, FALSE);
 			} else {
 				proto_tree_add_text(pdutree,
 				    tvb, offset, length,
@@ -1054,15 +1044,11 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 
 		case 15: /* nexthop IP */
 			if (length == 4) {
-				tvb_memcpy(tvb, (guint8 *)&ipv4addr, offset,
-				    sizeof(ipv4addr));
-				proto_tree_add_ipv4(pdutree, hf_cflow_nexthop,
-				    tvb, offset, length, ipv4addr);
+				proto_tree_add_item(pdutree, hf_cflow_nexthop,
+				    tvb, offset, length, FALSE);
 			} else if (length == 16) {
-				tvb_memcpy(tvb, ipv6addr, offset,
-				    sizeof(ipv6addr));
-				proto_tree_add_ipv6(pdutree, hf_cflow_nexthop_v6,
-				    tvb, offset, length, ipv6addr);
+				proto_tree_add_item(pdutree, hf_cflow_nexthop_v6,
+				    tvb, offset, length, FALSE);
 			} else {
 				proto_tree_add_text(pdutree,
 				    tvb, offset, length,
@@ -1082,15 +1068,11 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 
 		case 18: /* BGP nexthop IP */
 			if (length == 4) {
-				tvb_memcpy(tvb, (guint8 *)&ipv4addr, offset,
-				    sizeof(ipv4addr));
-				proto_tree_add_ipv4(pdutree, hf_cflow_bgpnexthop,
-				    tvb, offset, length, ipv4addr);
+				proto_tree_add_item(pdutree, hf_cflow_bgpnexthop,
+				    tvb, offset, length, FALSE);
 			} else if (length == 16) {
-				tvb_memcpy(tvb, ipv6addr, offset,
-				    sizeof(ipv6addr));
-				proto_tree_add_ipv6(pdutree, hf_cflow_bgpnexthop_v6,
-				    tvb, offset, length, ipv6addr);
+				proto_tree_add_item(pdutree, hf_cflow_bgpnexthop_v6,
+				    tvb, offset, length, FALSE);
 			} else {
 				proto_tree_add_text(pdutree,
 				    tvb, offset, length,
@@ -1407,12 +1389,12 @@ dissect_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset, int ver)
 	/*
 	 * memcpy so we can use the values later to calculate a prefix 
 	 */
-	tvb_memcpy(tvb, (guint8 *) & srcaddr, offset, 4);
+	srcaddr = tvb_get_ipv4(tvb, offset);
 	proto_tree_add_ipv4(pdutree, hf_cflow_srcaddr, tvb, offset, 4,
 			    srcaddr);
 	offset += 4;
 
-	tvb_memcpy(tvb, (guint8 *) & dstaddr, offset, 4);
+	dstaddr = tvb_get_ipv4(tvb, offset);
 	proto_tree_add_ipv4(pdutree, hf_cflow_dstaddr, tvb, offset, 4,
 			    dstaddr);
 	offset += 4;

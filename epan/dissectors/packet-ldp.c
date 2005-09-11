@@ -1126,7 +1126,7 @@ dissect_tlv_path_vector(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 		if(val_tree == NULL) return;
 
 		for(ix=1; rem >= 4; ix++, offset += 4, rem -= 4) {
-			tvb_memcpy(tvb, (guint8 *)&addr, offset, 4);
+			addr = tvb_get_ipv4(tvb, offset);
 			proto_tree_add_ipv4_format(val_tree,
 			    hf_ldp_tlv_pv_lsrid, tvb, offset, 4,
 			    addr, "LSR Id %u: %s", ix,

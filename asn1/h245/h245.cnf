@@ -280,10 +280,10 @@ OpenLogicalChannel
 
 %(DEFAULT_BODY)s
   if ( media_channel )
-    tvb_memcpy(value_tvb, (guint8*)&ipv4_address, 0, 4);
+    ipv4_address = tvb_get_ipv4(value_tvb, 0);
 
   if ( media_control_channel )
-    tvb_memcpy(value_tvb, (guint8*)&rtcp_ipv4_address, 0, 4);
+    rtcp_ipv4_address = tvb_get_ipv4(value_tvb, 0);
 
 #.END
 #----------------------------------------------------------------------------------------

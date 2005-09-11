@@ -489,9 +489,7 @@ dissect_ipopt_route(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
       break;
     }
 
-    /* Avoids alignment problems on many architectures. */
-    tvb_memcpy(tvb, (guint8 *)&addr, offset + optoffset, sizeof(addr));
-
+    addr = tvb_get_ipv4(tvb, offset + optoffset);
     proto_tree_add_text(field_tree, tvb, offset + optoffset, 4,
               "%s%s",
               ((addr == 0) ? "-" : (char *)get_hostname(addr)),
@@ -559,7 +557,7 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
           "(suboption would go past end of option)");
         break;
       }
-      tvb_memcpy(tvb, (guint8 *)&addr, offset + optoffset, sizeof(addr));
+      addr = tvb_get_ipv4(tvb, offset + optoffset);
       ts = tvb_get_ntohl(tvb, offset + optoffset + 4);
       optlen -= 8;
       proto_tree_add_text(field_tree, tvb, offset + optoffset,      8,

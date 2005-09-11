@@ -117,7 +117,7 @@ dissect_msnip_rmr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 		offset += 3;
 
 		/* multicast group */
-		tvb_memcpy(tvb, (guint8 *)&maddr, offset, 4);
+		maddr = tvb_get_ipv4(tvb, offset);
 		proto_tree_add_ipv4(tree, hf_maddr, tvb, offset, 4,
 			maddr);
 		offset += 4;
@@ -188,7 +188,7 @@ dissect_msnip_gm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 		tree = proto_item_add_subtree(item, ett_groups);
 
 		/* multicast group */
-		tvb_memcpy(tvb, (guint8 *)&maddr, offset, 4);
+		maddr = tvb_get_ipv4(tvb, offset);
 		proto_tree_add_ipv4(tree, hf_maddr, tvb, offset, 4,
 			maddr);
 		offset += 4;

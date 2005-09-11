@@ -36,6 +36,7 @@
 #define __TVBUFF_H__
 
 #include <glib.h>
+#include <epan/ipv6-utils.h>
 #include "exceptions.h"
 
 /** @file

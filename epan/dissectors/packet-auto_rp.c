@@ -252,7 +252,7 @@ static int do_auto_rp_map(tvbuff_t *tvb, int offset, proto_tree *auto_rp_tree)
         guint32 rp_addr;      /* In network byte order */
         int i;
 
-        tvb_memcpy(tvb, (guint8 *)&rp_addr, offset, 4);
+        rp_addr = tvb_get_ipv4(tvb, offset);
         group_count = tvb_get_guint8(tvb, offset + 5);
 
                                /* sizeof map header + n * sizeof encoded group addresses */
@@ -276,7 +276,7 @@ static int do_auto_rp_map(tvbuff_t *tvb, int offset, proto_tree *auto_rp_tree)
 
                 sign = tvb_get_guint8(tvb, offset);
                 mask_len = tvb_get_guint8(tvb, offset + 1);
-                tvb_memcpy(tvb, (guint8 *)&group_addr, offset + 2, 4);
+                group_addr = tvb_get_ipv4(tvb, offset + 2);
                 gi = proto_tree_add_text(map_tree, tvb, offset, 6, "Group %s/%u (%s)",
                                          ip_to_str((void *)&group_addr), mask_len,
                                          val_to_str(sign&AUTO_RP_SIGN_MASK, auto_rp_mask_sign_vals, ""));

@@ -31,7 +31,6 @@
 #include <string.h>
 
 #include "tvbuff.h"
-#include "ipv6-utils.h"
 #include "addr_and_mask.h"
 
 /*

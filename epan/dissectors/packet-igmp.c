@@ -446,7 +446,7 @@ dissect_v3_group_record(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	guint16 num;
 	guint32 ip;
 
-	tvb_memcpy(tvb, (guint8 *)&ip, offset+4, 4);
+	ip = tvb_get_ipv4(tvb, offset+4);
 	item = proto_tree_add_text(parent_tree, tvb, offset, -1,
 		"Group Record : %s  %s",
 			ip_to_str((guint8*)&ip),

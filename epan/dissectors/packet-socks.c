@@ -342,8 +342,7 @@ static int get_address_v5(tvbuff_t *tvb, int offset,
 	if ( a_type == 1){ 		/* IPv4 address */
 
 	   	if ( hash_info)
-	   		tvb_memcpy(tvb, (guint8 *)&hash_info->dst_addr,
-	   		    offset, 4);
+	   		hash_info->dst_addr = tvb_get_ipv4(tvb, offset);
 		offset += 4;
 	}
 
@@ -672,7 +671,7 @@ state_machine_v4( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
 			hash_info->port =  tvb_get_ntohs(tvb, offset + 2);
 						/* get remote address	*/
 
-		tvb_memcpy(tvb, (guint8 *)&hash_info->dst_addr, offset + 4, 4);
+		hash_info->dst_addr = tvb_get_ipv4(tvb, offset + 4);
 
 						/* save the packet pointer */
 		hash_info->connect_row = get_packet_ptr;

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h245.c                                                            */
+/* ./packet-h245.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h245 -c h245.cnf -s packet-h245-template h245.asn */
 
 /* Input file: packet-h245-template.c */
@@ -9593,10 +9593,10 @@ dissect_h245_Ipv4_network(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
                                        4, 4, &value_tvb);
 
   if ( media_channel )
-    tvb_memcpy(value_tvb, (guint8*)&ipv4_address, 0, 4);
+    ipv4_address = tvb_get_ipv4(value_tvb, 0);
 
   if ( media_control_channel )
-    tvb_memcpy(value_tvb, (guint8*)&rtcp_ipv4_address, 0, 4);
+    rtcp_ipv4_address = tvb_get_ipv4(value_tvb, 0);
 
 
   return offset;

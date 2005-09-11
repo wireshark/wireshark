@@ -558,7 +558,7 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 		}
 	} else {
 		buff[sizeof(buff) - 1] = '\0';
-		tvb_memcpy(tvb, (guint8 *)&refid_addr, 12, 4);
+		refid_addr = tvb_get_ipv4(tvb, 12);
 		strncpy (buff, get_hostname (refid_addr),
 		    sizeof(buff));
 		if (buff[sizeof(buff) - 1] != '\0')

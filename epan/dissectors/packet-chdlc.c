@@ -298,7 +298,7 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case SLARP_REQUEST:
   case SLARP_REPLY:
     if (check_col(pinfo->cinfo, COL_INFO)) {
-      tvb_memcpy(tvb, (guint8 *)&address, 4, 4);
+      address = tvb_get_ipv4(tvb, 4);
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s, from %s, mask %s",
         match_strval(code, slarp_ptype_vals),
         get_hostname(address),

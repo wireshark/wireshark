@@ -1393,7 +1393,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	    src_addr.type=AT_IPv4;
 	    src_addr.len=4;
 	    src_addr.data=(guint8 *)&ipv4_address;
-	    tvb_memcpy(tvb, (guint8 *)&ipv4_address, offset+16, 4);
+	    ipv4_address = tvb_get_ipv4(tvb, offset+16);
 	    rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+20), 0, "Skinny", pinfo->fd->num, NULL);
       }
       break;
@@ -1774,7 +1774,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	    src_addr.type=AT_IPv4;
 	    src_addr.len=4;
 	    src_addr.data=(char *)&ipv4_address;
-	    tvb_memcpy(tvb, (char *)&ipv4_address, offset+20, 4);
+	    ipv4_address = tvb_get_ipv4(tvb, offset+20);
 	    rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+24), 0, "Skinny", pinfo->fd->num, NULL);
       }
       break;

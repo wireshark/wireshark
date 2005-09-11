@@ -503,7 +503,7 @@ static void dissect_request_connect(tvbuff_t *tvb, int offset,
 		proto_tree_add_item( tree, hf_msproxy_dstaddr, tvb, offset, 4,
 			FALSE);
 
-	tvb_memcpy( tvb, (guint8 *)&conv_info->dst_addr, offset, sizeof( guint32));
+	conv_info->dst_addr = tvb_get_ipv4( tvb, offset);
 
 	offset += 12;
 
@@ -908,7 +908,7 @@ static void dissect_bind_info( tvbuff_t *tvb, int offset, packet_info *pinfo,
  			conv_info->dst_port);
 	offset += 2;
 
-	tvb_memcpy( tvb, (guint8 *)&conv_info->dst_addr, offset, sizeof( guint32));
+	conv_info->dst_addr = tvb_get_ipv4( tvb, offset);
 	if ( tree)
 		proto_tree_add_item( tree, hf_msproxy_dstaddr, tvb, offset, 4,
 			FALSE);

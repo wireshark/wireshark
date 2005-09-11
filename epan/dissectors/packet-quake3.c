@@ -277,7 +277,7 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 			proto_item	*server_item = NULL;
 			proto_tree	*server_tree = NULL;
 
-			tvb_memcpy(tvb, (guint8 *)&ip_addr, base + 1, 4);
+			ip_addr = tvb_get_ipv4(tvb, base + 1);
 			udp_port = tvb_get_ntohs(tvb, base + 5);
 
 			/* It may be a good idea to create a conversation for

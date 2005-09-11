@@ -306,7 +306,7 @@ dissect_pn_ipv4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 {
     guint32 data;
 
-    tvb_memcpy(tvb, (guint8 *)&data, offset, 4);
+    data = tvb_get_ipv4(tvb, offset);
     if(tree)
         proto_tree_add_ipv4(tree, hfindex, tvb, offset, 4, data);
 

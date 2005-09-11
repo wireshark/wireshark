@@ -54,7 +54,6 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/ipv6-utils.h>
 #include <epan/conversation.h>
 
 #include "packet-wap.h"
@@ -4606,7 +4605,7 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 */
 				goto unknown_address_type;
 			}
-			tvb_memcpy(tvb, (guint8 *)&address_ipv4, offset, 4);
+			address_ipv4 = tvb_get_ipv4(tvb, offset);
 			if (tree) {
 				proto_tree_add_ipv4 (addr_tree,
 				    hf_address_ipv4_addr,
@@ -4642,7 +4641,7 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 */
 				goto unknown_address_type;
 			}
-			tvb_memcpy(tvb, (guint8 *)&address_ipv6, offset, 16);
+			tvb_get_ipv6(tvb, offset, &address_ipv6);
 			if (tree) {
 				proto_tree_add_ipv6 (addr_tree,
 				    hf_address_ipv6_addr,
@@ -4796,7 +4795,7 @@ add_addresses(proto_tree *tree, tvbuff_t *tvb, int hf)
 				 */
 				goto unknown_address_type;
 			}
-			tvb_memcpy(tvb, (guint8 *)&address_ipv4, offset, 4);
+			address_ipv4 = tvb_get_ipv4(tvb, offset);
 			proto_tree_add_ipv4 (addr_tree, hf_address_ipv4_addr,
 					tvb, offset, 4, address_ipv4);
 			break;
@@ -4811,7 +4810,7 @@ add_addresses(proto_tree *tree, tvbuff_t *tvb, int hf)
 				 */
 				goto unknown_address_type;
 			}
-			tvb_memcpy(tvb, (guint8 *)&address_ipv6, offset, 16);
+			tvb_get_ipv6(tvb, offset, &address_ipv6);
 			proto_tree_add_ipv6 (addr_tree, hf_address_ipv6_addr,
 					tvb, offset, 16, (guint8 *)&address_ipv6);
 			break;

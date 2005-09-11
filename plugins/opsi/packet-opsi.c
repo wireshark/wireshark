@@ -359,7 +359,7 @@ void decode_ipv4_attribute(tvbuff_t *tvb, proto_tree *tree, int* hfValue, int of
 		proto_tree_add_text(tree, tvb, offset, length, "Too short attribute!");
 		return;
 	}
-	tvb_memcpy(tvb, (guint8 *)&ip_address, offset+4, 4);
+	ip_address = tvb_get_ipv4(tvb, offset+4);
 	proto_tree_add_ipv4(tree, *hfValue, tvb, offset+4, 4, ip_address);
 }
 

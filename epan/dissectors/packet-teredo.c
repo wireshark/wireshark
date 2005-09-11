@@ -153,35 +153,45 @@ static int
 parse_teredo_orig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			int offset, e_teredohdr *teredoh)
 {
+	proto_item *ti = NULL;
+
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_sep_str (pinfo->cinfo, COL_INFO, ", ",
 					"Origin indication");
 
 	if (tree) {
-		proto_item *ti;
-		guint16 port;
-		guint32 addr;
-
 		ti = proto_tree_add_item(tree, hf_teredo_orig, tvb, offset,
 						8, FALSE);
 		tree = proto_item_add_subtree(ti, ett_teredo_orig);
-		offset += 2;
-
-		port = ~tvb_get_ntohs(tvb, offset);
-		proto_tree_add_uint(tree, hf_teredo_orig_port, tvb,
-					offset, 2, port);
-		offset += 2;
-
-		tvb_memcpy(tvb, (guint8 *)&addr, offset, 4);
-		proto_tree_add_ipv4(tree, hf_teredo_orig_addr, tvb,
-					offset, 4, ~addr);
-		offset += 4;
 	}
-	else
-		offset += 8;
+	offset += 2;
 
-	teredoh->th_orgport = tvb_get_ntohs(tvb, offset - 6);
-	tvb_memcpy(tvb, (guint8 *)&teredoh->th_iporgaddr, offset-4, 4);
+	teredoh->th_orgport = tvb_get_ntohs(tvb, offset);
+	if (tree) {
+		/*
+		 * The "usual arithmetic conversions" will convert
+		 * "teredoh->th_orgport" to an "int" (because all
+		 * "unsigned short" values will fit in an "int"),
+		 * which will zero-extend it.  This means that
+		 * complementing it will turn all the zeroes in
+		 * the upper 16 bits into ones; we just want the
+		 * lower 16 bits (containing the port number)
+		 * complemented, with the result zero-extended.
+		 *
+		 * That's what the cast is for.
+		 */
+		proto_tree_add_uint(tree, hf_teredo_orig_port, tvb,
+					offset, 2,
+					(guint16)~teredoh->th_orgport);
+	}
+	offset += 2;
+
+	teredoh->th_iporgaddr = tvb_get_ipv4(tvb, offset);
+	if (tree) {
+		proto_tree_add_ipv4(tree, hf_teredo_orig_addr, tvb,
+					offset, 4, ~teredoh->th_iporgaddr);
+	}
+	offset += 4;
 
 	return offset;
 }

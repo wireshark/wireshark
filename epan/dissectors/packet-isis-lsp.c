@@ -542,7 +542,7 @@ dissect_lsp_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		 * Gotta build a sub-tree for all our pieces
 		 */
 		if ( tree ) {
-			tvb_memcpy(tvb, (guint8 *)&src, offset+4, 4);
+			src = tvb_get_ipv4(tvb, offset+4);
 			mask = tvb_get_ntohl(tvb, offset+8);
 
 			/* find out if the mask matches one of 33 possible prefix lengths */

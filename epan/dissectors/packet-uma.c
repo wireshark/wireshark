@@ -938,7 +938,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		if ( octet == 0x57 ){ /* IPv6 */
 
 		}else{ /* All other values shall be interpreted as Ipv4 address in this version of the protocol.*/
-			tvb_memcpy(tvb, (guint8 *)&sgw_ipv4_address, ie_offset, 4);
+			sgw_ipv4_address = tvb_get_ipv4(tvb, ie_offset);
 			proto_tree_add_ipv4(urr_ie_tree, hf_uma_urr_sgw_ipv4, tvb, ie_offset, 4, sgw_ipv4_address);
 
 		}
@@ -1339,7 +1339,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		if ( octet == 0x57 ){ /* IPv6 */
 
 		}else{ /* All other values shall be interpreted as Ipv4 address in this version of the protocol.*/
-			tvb_memcpy(tvb, (guint8 *)&unc_ipv4_address, ie_offset, 4);
+			unc_ipv4_address = tvb_get_ipv4(tvb, ie_offset);
 			proto_tree_add_ipv4(urr_ie_tree, hf_uma_urr_unc_ipv4, tvb, ie_offset, 4, unc_ipv4_address);
 			rtp_ipv4_address = unc_ipv4_address;
 
@@ -1363,7 +1363,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		if ( octet == 0x57 ){ /* IPv6 */
 
 		}else{ /* All other values shall be interpreted as Ipv4 address in this version of the protocol.*/
-			tvb_memcpy(tvb, (guint8 *)&GPRS_user_data_ipv4_address, ie_offset, 4);
+			GPRS_user_data_ipv4_address = tvb_get_ipv4(tvb, ie_offset);
 			proto_tree_add_ipv4(urr_ie_tree, hf_uma_urr_GPRS_user_data_transport_ipv4, tvb, ie_offset, 4, GPRS_user_data_ipv4_address);
 
 		}

@@ -713,7 +713,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Add sender address if sender MAC address is neither a broadcast/
        multicast address nor an all-zero address and if sender IP address
        isn't all zeroes. */
-    tvb_memcpy(tvb, (guint8 *)&ip, spa_offset, sizeof(ip));
+    ip = tvb_get_ipv4(tvb, spa_offset);
     mac = tvb_get_ptr(tvb, sha_offset, 6);
     if ((mac[0] & 0x01) == 0 && memcmp(mac, mac_allzero, 6) != 0 && ip != 0)
       add_ether_byip(ip, mac);
@@ -725,7 +725,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Do not add target address if the packet is a Request. According to the RFC,
        target addresses in requests have no meaning */
        
-    tvb_memcpy(tvb, (guint8 *)&ip, tpa_offset, sizeof(ip));
+    ip = tvb_get_ipv4(tvb, tpa_offset);
     mac = tvb_get_ptr(tvb, tha_offset, 6);
     if ((mac[0] & 0x01) == 0 && memcmp(mac, mac_allzero, 6) != 0 && ip != 0 
       && ar_op != ARPOP_REQUEST)

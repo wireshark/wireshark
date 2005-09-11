@@ -573,7 +573,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
                         case SAFNUM_MPLS_LABEL:
 			case SAFNUM_TUNNEL:
                             length = 16 ;
-                            tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8,offset, 16);
+                            tvb_get_ipv6(tvb, offset, &ip6addr);
                             strptr += g_snprintf(strptr, buf_len-(strptr-buf), "%s", ip6_to_str(&ip6addr));
                             break;
                         case SAFNUM_LAB_VPNUNICAST:
@@ -583,7 +583,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
                                 switch (rd_type) {
                                         case FORMAT_AS2_LOC:
                                                 length = 8 + 16;
-                                                tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8, offset + 8, 16); /* Next Hop */
+                                                tvb_get_ipv6(tvb, offset + 8, &ip6addr); /* Next Hop */
                                                 strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Empty Label Stack RD=%u:%u IPv6=%s",
                                                                 tvb_get_ntohs(tvb, offset + 2),
                                                                 tvb_get_ntohl(tvb, offset + 4),
@@ -592,7 +592,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
                                         case FORMAT_IP_LOC:
                                                 length = 8 + 16;
                                                 tvb_memcpy(tvb, ip4addr, offset + 2, sizeof(ip4addr));   /* IP part of the RD            */
-                                                tvb_memcpy(tvb, ip6addr.u6_addr.u6_addr8, offset + 8, 16); /* Next Hop */
+                                                tvb_get_ipv6(tvb, offset + 8, &ip6addr); /* Next Hop */
                                                 strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Empty Label Stack RD=%s:%u IPv6=%s",
                                                                 ip_to_str(ip4addr),
                                                                 tvb_get_ntohs(tvb, offset + 6),

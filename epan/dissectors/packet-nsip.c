@@ -36,7 +36,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/ipv6-utils.h>
 #include <prefs.h>
 
 #define NSIP_DEBUG 0
@@ -393,8 +392,7 @@ decode_ip_element(nsip_ip_element_info_t *element, build_info_t *bi, proto_tree 
     /* IP address */
     switch (element->version) {
     case NSIP_IP_VERSION_4:
-      tvb_memcpy(bi->tvb, (guint8 *)&ip4_addr, bi->offset, 
-		 element->address_length);
+      ip4_addr = tvb_get_ipv4(bi->tvb, bi->offset);
       proto_tree_add_item(field_tree, hf_nsip_ip_address_ipv4, 
 			  bi->tvb, bi->offset, element->address_length, 
 			  NSIP_LITTLE_ENDIAN); 
@@ -403,8 +401,7 @@ decode_ip_element(nsip_ip_element_info_t *element, build_info_t *bi, proto_tree 
 
       break;
     case NSIP_IP_VERSION_6:
-      tvb_memcpy(bi->tvb, (guint8 *)&ip6_addr, bi->offset, 
-		 sizeof(struct e_in6_addr));
+      tvb_get_ipv6(bi->tvb, bi->offset, &ip6_addr);
       proto_tree_add_item(field_tree, hf_nsip_ip_address_ipv6, bi->tvb, 
 			  bi->offset, element->address_length, 
 			  NSIP_LITTLE_ENDIAN); 
@@ -530,8 +527,7 @@ decode_iei_ip_address(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   switch (address_type) {
   case NSIP_IP_ADDRESS_TYPE_IPV4:
     ie->total_length = 2 + ipv4_element.address_length;
-    tvb_memcpy(bi->tvb, (guint8 *)&ip4_addr, bi->offset, 
-	       ipv4_element.address_length);
+    ip4_addr = tvb_get_ipv4(bi->tvb, bi->offset);
     if (bi->nsip_tree) {
       proto_tree_add_ipv4(bi->nsip_tree, hf_nsip_ip_address_ipv4, 
 			  bi->tvb, ie_start_offset, ie->total_length, 
@@ -540,8 +536,7 @@ decode_iei_ip_address(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
     break;
   case NSIP_IP_ADDRESS_TYPE_IPV6:
     ie->total_length = 2 + ipv6_element.address_length;
-    tvb_memcpy(bi->tvb, (guint8 *)&ip6_addr, bi->offset, 
-	       sizeof(struct e_in6_addr));
+    tvb_get_ipv6(bi->tvb, bi->offset, &ip6_addr);
     if (bi->nsip_tree) {
       proto_tree_add_ipv6(bi->nsip_tree, hf_nsip_ip_address_ipv4, 
 			  bi->tvb, ie_start_offset, ie->total_length, 

@@ -2843,7 +2843,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tvb_bytes_exist(tvb, voff, 4)) {
 		if (tvb_get_ntohl(tvb, voff) == 0x63825363) {
 			if (tree) {
-				tvb_memcpy(tvb, (void *)&ip_addr, voff, sizeof(ip_addr));
+				ip_addr = tvb_get_ipv4(tvb, voff);
 				proto_tree_add_ipv4_format(bp_tree, hf_bootp_cookie, tvb,
 				    voff, 4, ip_addr,
 				    "Magic cookie: (OK)");

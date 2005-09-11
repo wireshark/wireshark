@@ -1225,7 +1225,7 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	header.flags.node_type = (flags & 12) >> 2;
 
 	header.dgm_id = tvb_get_ntohs(tvb, offset+2);
-	tvb_memcpy(tvb, (guint8 *)&header.src_ip, offset+4, 4);
+	header.src_ip = tvb_get_ipv4(tvb, offset+4);
 	header.src_port = tvb_get_ntohs(tvb, offset+8);
 
 	switch (header.msg_type) {

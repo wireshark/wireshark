@@ -1096,7 +1096,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
   case COPS_OBJ_IN_INT:
   case COPS_OBJ_OUT_INT:
     if (c_type == 1) {          /* IPv4 */
-      tvb_memcpy(tvb, (guint8 *)&ipv4addr, offset, 4);
+      ipv4addr = tvb_get_ipv4(tvb, offset);
       ifindex = tvb_get_ntohl(tvb, offset + 4);
       ti = proto_tree_add_text(tree, tvb, offset, 8, "Contents: IPv4 address %s, ifIndex: %u",
                                ip_to_str((guint8 *)&ipv4addr), ifindex);
@@ -1106,7 +1106,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
                           tvb, offset, 4, ipv4addr);
       offset += 4;
     } else if (c_type == 2) {   /* IPv6 */
-      tvb_memcpy(tvb, (guint8 *)&ipv6addr, offset, sizeof ipv6addr);
+      tvb_get_ipv6(tvb, offset, &ipv6addr);
       ifindex = tvb_get_ntohl(tvb, offset + sizeof ipv6addr);
       ti = proto_tree_add_text(tree, tvb, offset, 20, "Contents: IPv6 address %s, ifIndex: %u",
                                ip6_to_str(&ipv6addr), ifindex);
@@ -1232,7 +1232,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
   case COPS_OBJ_PDPREDIRADDR:
   case COPS_OBJ_LASTPDPADDR:
     if (c_type == 1) {          /* IPv4 */
-      tvb_memcpy(tvb, (guint8 *)&ipv4addr, offset, 4);
+      ipv4addr = tvb_get_ipv4(tvb, offset);
       tcp_port = tvb_get_ntohs(tvb, offset + 4 + 2);
       ti = proto_tree_add_text(tree, tvb, offset, 8, "Contents: IPv4 address %s, TCP Port Number: %u",
                                ip_to_str((guint8 *)&ipv4addr), tcp_port);
@@ -1242,7 +1242,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
                           tvb, offset, 4, ipv4addr);
       offset += 4;
     } else if (c_type == 2) {   /* IPv6 */
-      tvb_memcpy(tvb, (guint8 *)&ipv6addr, offset, sizeof ipv6addr);
+      tvb_get_ipv6(tvb, offset, &ipv6addr);
       tcp_port = tvb_get_ntohs(tvb, offset + sizeof ipv6addr + 2);
       ti = proto_tree_add_text(tree, tvb, offset, 20, "Contents: IPv6 address %s, TCP Port Number: %u",
                                ip6_to_str(&ipv6addr), tcp_port);
@@ -2493,6 +2493,7 @@ info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, const ch
      proto_item *pi = NULL;
      guint8   code8  = 0;
      guint16  code16 = 0;
+     guint32  codeipv4 = 0;
      guint32  code32 = 0;
      float    codefl = 0.0;
 
@@ -2558,7 +2559,7 @@ info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, const ch
              switch (mode) {
                case FMT_FLT:  codefl  = tvb_get_ntohieee_float(tvb,offset);
                               break;
-               case FMT_IPv4: tvb_memcpy(tvb, (guint8 *)&code32, offset, 4);
+               case FMT_IPv4: codeipv4 = tvb_get_ipv4(tvb, offset);
                               break;
                default:       code32  = tvb_get_ntohl(tvb,offset);
 	     }
@@ -2572,7 +2573,7 @@ info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, const ch
                 }
                 /* Ip address format*/
                 if (mode==FMT_IPv4) {
-                   pi = proto_tree_add_ipv4(stt, *hf_proto_parameter,tvb, offset, octets, code32);
+                   pi = proto_tree_add_ipv4(stt, *hf_proto_parameter,tvb, offset, octets, codeipv4);
                    break;
                 }
                 /* Ieee float format */

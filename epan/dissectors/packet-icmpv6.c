@@ -613,7 +613,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	    p = offset + sizeof *ni;
 	    for (i = 0; i < n; i++) {
 		struct e_in6_addr e_in6_addr;
-		tvb_memcpy(tvb, (guint8 *)&e_in6_addr, p, sizeof e_in6_addr);
+		tvb_get_ipv6(tvb, p, &e_in6_addr);
 		proto_tree_add_text(field_tree, tvb,
 		    p, sizeof(struct e_in6_addr),
 		    "%s", ip6_to_str(&e_in6_addr));
@@ -728,7 +728,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 		struct e_in6_addr e_in6_addr;
 		gint32 ttl;
 		ttl = (gint32)tvb_get_ntohl(tvb, p);
-		tvb_memcpy(tvb, (guint8 *)&e_in6_addr, p + sizeof ttl, sizeof e_in6_addr);
+		tvb_get_ipv6(tvb, p + sizeof ttl, &e_in6_addr);
 		proto_tree_add_text(field_tree, tvb,
 		    p, sizeof(struct e_in6_addr) + sizeof(gint32),
 		    "%s (TTL %d)", ip6_to_str(&e_in6_addr), ttl);
@@ -955,7 +955,7 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, guint16 count, proto_tree *tree )
     localOffset += 2;
     recordSize = 4 + 16 + (16 * sourceNb) + (auxDataLen * 4);
 
-    tvb_memcpy(tvb, (guint8 *)&addr, localOffset, sizeof(addr) );
+    tvb_get_ipv6(tvb, localOffset, &addr);
     tf = proto_tree_add_text( tree, tvb, offset, recordSize, 
 #ifdef INET6
 			      "%s: %s (%s)", val_to_str(recordType, mldrv2ModesNames,"Unknown mode"),
@@ -974,7 +974,7 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, guint16 count, proto_tree *tree )
     localOffset += 16;
 
     for( ; sourceNb; sourceNb--, localOffset += 16 ) {
-      tvb_memcpy(tvb, (guint8 *)&addr, localOffset, sizeof(addr) );
+      tvb_get_ipv6(tvb, localOffset, &addr);
       proto_tree_add_text( sub_tree, tvb, localOffset, 16, 
 #ifdef INET6
 			   "Source Address: %s (%s)", get_hostname6(&addr), ip6_to_str(&addr) );
@@ -991,7 +991,7 @@ dissect_mldqv2(tvbuff_t *tvb, guint32 offset, guint16 count, proto_tree *tree)
   struct e_in6_addr addr;
 
   for ( ; count; count--, offset += 16) {
-      tvb_memcpy(tvb, (guint8 *)&addr, offset, sizeof(addr));
+      tvb_get_ipv6(tvb, offset, &addr);
       proto_tree_add_text(tree, tvb, offset, 16, 
 			  "Source Address: %s (%s)", get_hostname6(&addr), ip6_to_str(&addr));
   }

@@ -1219,7 +1219,7 @@ dissect_h225_T_h245ipv4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
                                        4, 4, &value_tvb);
 
   if (value_tvb)
-    tvb_memcpy(value_tvb, (guint8*)&ipv4_address, 0, 4);
+    ipv4_address = tvb_get_ipv4(value_tvb, 0);
 
   return offset;
 }

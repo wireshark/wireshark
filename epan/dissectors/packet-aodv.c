@@ -35,7 +35,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/ipv6-utils.h>
 
 #ifndef offsetof
 #define	offsetof(type, member)	((size_t)(&((type *)0)->member))
@@ -265,7 +264,7 @@ dissect_aodv_rreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
     offset += 4;
 
     if (is_ipv6) {
-	tvb_memcpy(tvb, (guint8 *)&dest_addr_v6, offset, INET6_ADDRLEN);
+	tvb_get_ipv6(tvb, offset, &dest_addr_v6);
 	if (aodv_tree) {
 	    proto_tree_add_ipv6(aodv_tree, hf_aodv_dest_ipv6, tvb, offset,
 				INET6_ADDRLEN, (guint8 *)&dest_addr_v6);
@@ -277,7 +276,7 @@ dissect_aodv_rreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
 			    ip6_to_str(&dest_addr_v6));
 	offset += INET6_ADDRLEN;
     } else {
-	tvb_memcpy(tvb, (guint8 *)&dest_addr_v4, offset, 4);
+	dest_addr_v4 = tvb_get_ipv4(tvb, offset);
 	if (aodv_tree) {
 	    proto_tree_add_ipv4(aodv_tree, hf_aodv_dest_ip, tvb, offset, 4,
 				dest_addr_v4);
@@ -297,7 +296,7 @@ dissect_aodv_rreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
     offset += 4;
 
     if (is_ipv6) {
-	tvb_memcpy(tvb, (guint8 *)&orig_addr_v6, offset, INET6_ADDRLEN);
+	tvb_get_ipv6(tvb, offset, &orig_addr_v6);
 	if (aodv_tree) {
 	    proto_tree_add_ipv6(aodv_tree, hf_aodv_orig_ipv6, tvb, offset,
 				INET6_ADDRLEN, (guint8 *)&orig_addr_v6);
@@ -309,7 +308,7 @@ dissect_aodv_rreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
 			    ip6_to_str(&orig_addr_v6));
 	offset += INET6_ADDRLEN;
     } else {
-	tvb_memcpy(tvb, (guint8 *)&orig_addr_v4, offset, 4);
+	orig_addr_v4 = tvb_get_ipv4(tvb, offset);
 	if (aodv_tree) {
 	    proto_tree_add_ipv4(aodv_tree, hf_aodv_orig_ip, tvb, offset, 4,
 				orig_addr_v4);
@@ -387,7 +386,7 @@ dissect_aodv_rrep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
     offset += 1;
 
     if (is_ipv6) {
-	tvb_memcpy(tvb, (guint8 *)&dest_addr_v6, offset, INET6_ADDRLEN);
+	tvb_get_ipv6(tvb, offset, &dest_addr_v6);
 	if (aodv_tree) {
 	    proto_tree_add_ipv6(aodv_tree, hf_aodv_dest_ipv6, tvb, offset,
 				INET6_ADDRLEN, (guint8 *)&dest_addr_v6);
@@ -399,7 +398,7 @@ dissect_aodv_rrep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
 			    ip6_to_str(&dest_addr_v6));
 	offset += INET6_ADDRLEN;
     } else {
-	tvb_memcpy(tvb, (guint8 *)&dest_addr_v4, offset, 4);
+	dest_addr_v4 = tvb_get_ipv4(tvb, offset);
 	if (aodv_tree) {
 	    proto_tree_add_ipv4(aodv_tree, hf_aodv_dest_ip, tvb, offset, 4,
 				dest_addr_v4);
@@ -419,7 +418,7 @@ dissect_aodv_rrep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
     offset += 4;
 
     if (is_ipv6) {
-	tvb_memcpy(tvb, (guint8 *)&orig_addr_v6, offset, INET6_ADDRLEN);
+	tvb_get_ipv6(tvb, offset, &orig_addr_v6);
 	if (aodv_tree) {
 	    proto_tree_add_ipv6(aodv_tree, hf_aodv_orig_ipv6, tvb, offset,
 				INET6_ADDRLEN, (guint8 *)&orig_addr_v6);
@@ -431,7 +430,7 @@ dissect_aodv_rrep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
 			    ip6_to_str(&orig_addr_v6));
 	offset += INET6_ADDRLEN;
     } else {
-	tvb_memcpy(tvb, (guint8 *)&orig_addr_v4, offset, 4);
+	orig_addr_v4 = tvb_get_ipv4(tvb, offset);
 	if (aodv_tree) {
 	    proto_tree_add_ipv4(aodv_tree, hf_aodv_orig_ip, tvb, offset, 4,
 				orig_addr_v4);
@@ -592,7 +591,7 @@ dissect_aodv_draft_01_v6_rreq(tvbuff_t *tvb, packet_info *pinfo,
 			    orig_seqno);
     offset += 4;
 
-    tvb_memcpy(tvb, (guint8 *)&dest_addr_v6, offset, INET6_ADDRLEN);
+    tvb_get_ipv6(tvb, offset, &dest_addr_v6);
     if (aodv_tree) {
 	proto_tree_add_ipv6(aodv_tree, hf_aodv_dest_ipv6, tvb, offset,
 			    INET6_ADDRLEN, (guint8 *)&dest_addr_v6);
@@ -604,7 +603,7 @@ dissect_aodv_draft_01_v6_rreq(tvbuff_t *tvb, packet_info *pinfo,
 			ip6_to_str(&dest_addr_v6));
     offset += INET6_ADDRLEN;
 
-    tvb_memcpy(tvb, (guint8 *)&orig_addr_v6, offset, INET6_ADDRLEN);
+    tvb_get_ipv6(tvb, offset, &orig_addr_v6);
     if (aodv_tree) {
 	proto_tree_add_ipv6(aodv_tree, hf_aodv_orig_ipv6, tvb, offset,
 			    INET6_ADDRLEN, (guint8 *)&orig_addr_v6);
@@ -677,7 +676,7 @@ dissect_aodv_draft_01_v6_rrep(tvbuff_t *tvb, packet_info *pinfo,
 			    dest_seqno);
     offset += 4;
 
-    tvb_memcpy(tvb, (guint8 *)&dest_addr_v6, offset, INET6_ADDRLEN);
+    tvb_get_ipv6(tvb, offset, &dest_addr_v6);
     if (aodv_tree) {
 	proto_tree_add_ipv6(aodv_tree, hf_aodv_dest_ipv6, tvb, offset,
 			    INET6_ADDRLEN, (guint8 *)&dest_addr_v6);
@@ -689,7 +688,7 @@ dissect_aodv_draft_01_v6_rrep(tvbuff_t *tvb, packet_info *pinfo,
 			ip6_to_str(&dest_addr_v6));
     offset += INET6_ADDRLEN;
 
-    tvb_memcpy(tvb, (guint8 *)&orig_addr_v6, offset, INET6_ADDRLEN);
+    tvb_get_ipv6(tvb, offset, &orig_addr_v6);
     if (aodv_tree) {
 	proto_tree_add_ipv6(aodv_tree, hf_aodv_orig_ipv6, tvb, offset,
 			    INET6_ADDRLEN, (guint8 *)&orig_addr_v6);

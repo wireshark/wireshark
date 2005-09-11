@@ -231,7 +231,7 @@ CallIdentifier/guid guid
   ipv4_address = 0;
 %(DEFAULT_BODY)s
   if (value_tvb)
-    tvb_memcpy(value_tvb, (guint8*)&ipv4_address, 0, 4);
+    ipv4_address = tvb_get_ipv4(value_tvb, 0);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_PARS H245TransportAddress/h245ipAddress/h245ipv4port

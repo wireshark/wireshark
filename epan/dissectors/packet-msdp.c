@@ -246,7 +246,6 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, int *offset, int length)
 {
         guint8 entries;
-        guint32 rp_addr;
 
         if (length < 1)
                 return;
@@ -260,7 +259,6 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
                 length = 0;
                 return;
         }
-        tvb_memcpy(tvb, (guint8 *)&rp_addr, *offset, 4);
         proto_tree_add_item(tree, hf_msdp_sa_rp_addr, tvb, *offset, 4, FALSE);
         *offset += 4;
         length -= 4;
@@ -343,7 +341,7 @@ static void add_notification_data_ipv4addr(tvbuff_t *tvb, proto_tree *tree, int 
 
         proto_tree_add_item(tree, hf_msdp_not_res, tvb, *offset, 3, FALSE);
         *offset += 3;
-        tvb_memcpy(tvb, (guint8 *)&ipaddr, *offset, 4);
+        ipaddr = tvb_get_ipv4(tvb, *offset);
         proto_tree_add_ipv4_format(tree, hf_msdp_not_ipv4, tvb, *offset, 4, ipaddr,
                                    "%s: %s", addrtype, ip_to_str((guint8 *)&ipaddr));
         *offset += 4;

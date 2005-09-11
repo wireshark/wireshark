@@ -46,7 +46,6 @@
 #endif
 
 #include "pint.h"
-#include "ipv6-utils.h"
 #include "tvbuff.h"
 #include "strutil.h"
 #include "emem.h"

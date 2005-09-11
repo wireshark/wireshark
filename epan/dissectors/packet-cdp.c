@@ -360,10 +360,10 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*		proto_tree_add_text(tlv_tree, tvb, offset+9,
 				    length - 9, "Cluster Management");
 		*/
-		tvb_memcpy(tvb, (guint8 *)&ip_addr, offset+9, 4);
+		ip_addr = tvb_get_ipv4(tvb, offset+9);
 		proto_tree_add_text(tlv_tree, tvb, offset+9, 4,
 				    "Cluster Master IP: %s",ip_to_str((guint8 *)&ip_addr));
-		tvb_memcpy(tvb, (guint8 *)&ip_addr, offset+13, 4);
+		ip_addr = tvb_get_ipv4(tvb, offset+13);
 		proto_tree_add_text(tlv_tree, tvb, offset+13, 4,
 				    "UNKNOWN (IP?): 0x%08X (%s)",
 				    ip_addr, ip_to_str((guint8 *)&ip_addr));
