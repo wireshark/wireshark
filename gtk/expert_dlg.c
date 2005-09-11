@@ -162,8 +162,9 @@ int expert_dlg_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, co
 }
 
 void
-expert_dlg_draw(expert_tapdata_t *etd)
+expert_dlg_draw(void *data)
 {
+	expert_tapdata_t *etd = data;
 	int row;
 	char *strp;
 	expert_info_t *ei;
@@ -192,8 +193,12 @@ expert_dlg_draw(expert_tapdata_t *etd)
 		gtk_clist_set_row_data(etd->table, row, ei);
 
 		/* packet number */
-		strp=se_strdup_printf("%d", ei->packet_num);
-		gtk_clist_set_text(etd->table, row, 0, strp);
+		if(ei->packet_num) {
+			strp=se_strdup_printf("%u", ei->packet_num);
+			gtk_clist_set_text(etd->table, row, 0, strp);
+		} else {
+			gtk_clist_set_text(etd->table, row, 0, "-");
+		}
 
 		/* severity */
 		strp=se_strdup(val_to_str(ei->severity, expert_severity_vals, "Unknown severity (%u)"));

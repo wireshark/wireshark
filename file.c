@@ -875,7 +875,7 @@ read_packet(capture_file *cf, long offset)
   /* Allocate the next list entry, and add it to the list. */
   fdata = g_mem_chunk_alloc(cf->plist_chunk);
 
-  fdata->num = -1;
+  fdata->num = 0;
   fdata->next = NULL;
   fdata->prev = NULL;
   fdata->pfd  = NULL;

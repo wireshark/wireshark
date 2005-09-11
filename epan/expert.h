@@ -30,7 +30,7 @@
 
 /** only for internal and display use */
 typedef struct expert_info_s {
-	int packet_num;
+	guint32 packet_num;
 	int group;
 	int severity;
 	gchar * protocol;

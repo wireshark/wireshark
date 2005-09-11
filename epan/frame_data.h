@@ -44,6 +44,9 @@ typedef struct _color_t /* {
 /* XXX - some of this stuff is used only while a packet is being dissected;
    should we keep that stuff in the "packet_info" structure, instead, to
    save memory? */
+/* The frame number is the ordinal number of the frame in the capture, so
+   it's 1-origin.  In various contexts, 0 as a frame number means "frame
+   number unknown". */
 typedef struct _frame_data {
   struct _frame_data *next; /* Next element in list */
   struct _frame_data *prev; /* Previous element in list */

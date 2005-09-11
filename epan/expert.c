@@ -77,7 +77,7 @@ packet_info *pinfo, proto_item *pi, int group, int severity, const char *format,
 
 
 	/* if this packet isn't loaded because of a read filter, don't output anything */
-	if(pinfo->fd->num == -1) {
+	if(pinfo->fd->num == 0) {
 		return;
 	}
 
@@ -87,7 +87,7 @@ packet_info *pinfo, proto_item *pi, int group, int severity, const char *format,
 		formatted[sizeof(formatted) - 1] = '\0';
 
 	ei = se_alloc(sizeof(expert_info_t));
-	ei->packet_num	= pinfo ? pinfo->fd->num : -1;
+	ei->packet_num	= pinfo ? pinfo->fd->num : 0;
 	ei->group		= group;
 	ei->severity	= severity;
 	ei->protocol	= se_strdup(pinfo->current_proto);
