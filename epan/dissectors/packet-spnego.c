@@ -42,7 +42,6 @@
 #include <epan/packet.h>
 
 #include <epan/asn1.h>
-#include "format-oid.h"
 #include "packet-ber.h"
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
@@ -69,6 +68,8 @@ static int proto_spnego_krb5 = -1;
 
 static int hf_spnego = -1;
 static int hf_spnego_mech = -1;
+static int hf_spnego_supportedMech = -1;
+static int hf_spnego_krb5_oid = -1;
 static int hf_spnego_this_mech = -1;
 static int hf_spnego_negtokeninit = -1;
 static int hf_spnego_negtokentarg = -1;
@@ -150,36 +151,6 @@ static const true_false_string tfs_reqflags_integ = {
   "Per-message Integrity Requested",
   "Per-message Integrity NOT Requested"
 };
-
-/*
- * This takes an OID in binary form, not an OID as a text string, as
- * an argument.
- */
-static gssapi_oid_value *
-gssapi_lookup_oid(subid_t *oid, guint oid_len)
-{
-	gchar *oid_key;
-	gchar *p;
-	unsigned int i;
-	int len;
-	gssapi_oid_value *value;
-
-	/*
-	 * Convert the OID to a string, as text strings are used as
-	 * keys in the OID hash table.
-	 */
-	oid_key = ep_alloc(oid_len * 22 + 1);
-	p = oid_key;
-	len = g_snprintf(p, oid_len * 22 + 1, "%lu", (unsigned long)oid[0]);
-	p += len;
-	for (i = 1; i < oid_len;i++) {
-		len = g_snprintf(p, oid_len * 22 + 1 -(p-oid_key),".%lu", (unsigned long)oid[i]);
-		p += len;
-	}
-
-	value = gssapi_lookup_oid_str(oid_key);
-	return value;
-}
 
 
 /* Display an ASN1 parse error.  Taken from packet-snmp.c */
@@ -277,10 +248,9 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int ret, offset = 0;
 	ASN1_SCK hnd;
 	gboolean def;
-	guint len1, cls, con, tag, oid_len, nbytes;
+	guint len1, cls, con, tag;
 	guint16 token_id;
-	subid_t *oid;
-	gchar *oid_string;
+	gchar oid[MAX_OID_STR_LEN];
 	gssapi_oid_value *value;
 	tvbuff_t *krb5_tvb;
 
@@ -344,31 +314,11 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset = hnd.offset;
 
 		/* Next, the OID */
+		offset=dissect_ber_object_identifier(FALSE, pinfo, subtree, tvb, offset, hf_spnego_krb5_oid, oid);
+		hnd.offset = offset;
 
-		ret = asn1_oid_decode(&hnd, &oid, &oid_len, &nbytes);
 
-		if (ret != ASN1_ERR_NOERROR) {
-		    dissect_parse_error(tvb, offset, pinfo, subtree,
-			 	        "SPNEGO supportedMech token", ret);
-		    goto done;
-		}
-
-		oid_string = format_oid(oid, oid_len);
-
-		value = gssapi_lookup_oid(oid, oid_len);
-
-		if (value) 
-		    proto_tree_add_text(subtree, tvb, offset, nbytes, 
-					"OID: %s (%s)",
-					oid_string, value->comment);
-		else
-		    proto_tree_add_text(subtree, tvb, offset, nbytes,
-					"OID: %s",
-					oid_string);
-	  
-		offset += nbytes;
-
-		/* Next, the token ID ... */
+		value = gssapi_lookup_oid_str(oid);
 
 		token_id = tvb_get_letohs(tvb, offset);
 		proto_tree_add_uint(subtree, hf_spnego_krb5_tok_id, tvb, offset, 2,
@@ -1441,10 +1391,7 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			     proto_tree *tree, ASN1_SCK *hnd,
 			     gssapi_oid_value **next_level_value_p)
 {
-	int ret;
-	guint oid_len, nbytes;
-	subid_t *oid;
-	gchar *oid_string;
+	gchar oid[MAX_OID_STR_LEN];
 	gssapi_oid_value *value;
 	conversation_t *conversation;
 
@@ -1454,26 +1401,10 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	offset = hnd->offset;
 
-	ret = asn1_oid_decode(hnd, &oid, &oid_len, &nbytes);
-
-	if (ret != ASN1_ERR_NOERROR) {
-		dissect_parse_error(tvb, offset, pinfo, tree,
-				    "SPNEGO supportedMech token", ret);
-		goto done;
-	}
-
-	oid_string = format_oid(oid, oid_len);
-	value = gssapi_lookup_oid(oid, oid_len);
-
-	if (value)
-	  proto_tree_add_text(tree, tvb, offset, nbytes, 
-			      "supportedMech: %s (%s)",
-			      oid_string, value->comment);
-	else
-	  proto_tree_add_text(tree, tvb, offset, nbytes, "supportedMech: %s",
-			      oid_string);
-
-	offset += nbytes;
+	offset=dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset, hf_spnego_supportedMech, oid);
+	value = gssapi_lookup_oid_str(oid);
+	/* put the right offset into asn1:s struct for now */
+	hnd->offset = offset;
 
 	/* Should check for an unrecognized OID ... */
 
@@ -1502,7 +1433,6 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	}
 
- done:
 	return offset;
 }
 
@@ -1927,6 +1857,12 @@ proto_register_spnego(void)
 		{ &hf_spnego_mech, {
 		    "Mech", "spnego.mech", FT_STRING, BASE_NONE,
 		    NULL, 0, "This is a SPNEGO Object Identifier", HFILL }},
+		{ &hf_spnego_supportedMech, {
+		    "supportedMech", "spnego.supportedMech", FT_STRING, BASE_NONE,
+		    NULL, 0, "This is a SPNEGO Object Identifier", HFILL }},
+			{&hf_spnego_krb5_oid, {
+		    "KRB5 OID", "spnego.krb5_oid", FT_STRING, BASE_NONE,
+		    NULL, 0, "KRB5 OID", HFILL }},
 		{ &hf_spnego_this_mech, {
 		    "thisMech", "spnego.this_mech", FT_STRING, BASE_NONE,
 		    NULL, 0, "This is a SPNEGO Object Identifier", HFILL }},
