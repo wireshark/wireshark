@@ -1347,7 +1347,7 @@ fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 }
 
 fragment_data *
-fragment_add_dcerpc(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
+fragment_add_dcerpc_dg(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
                     void *v_act_id,
                     GHashTable *fragment_table, guint32 frag_number,
                     guint32 frag_data_len, gboolean more_frags)

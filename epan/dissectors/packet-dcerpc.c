@@ -4491,7 +4491,7 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    }
 	}
 
-	fd_head = fragment_add_dcerpc(tvb, offset, pinfo,
+	fd_head = fragment_add_dcerpc_dg(tvb, offset, pinfo,
 			hdr->seqnum, &hdr->act_id, dcerpc_cl_reassemble_table,
 			hdr->frag_num, stub_length,
 			!(hdr->flags1 & PFCL1_LASTFRAG));
