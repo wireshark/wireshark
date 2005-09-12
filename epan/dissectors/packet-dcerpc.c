@@ -3148,8 +3148,9 @@ end_cn_stub:
 
 	    pinfo->fragmented = FALSE;
 
-		expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_CHAT, 
-			"%s fragment, reassembled here in #%u", fragment_type(hdr->flags), fd_head->reassembled_in);
+		expert_add_info_format(pinfo, frag_tree_item, PI_REASSEMBLE, PI_CHAT, 
+			"%s fragment, %u bytes reassembled here in #%u", 
+			fragment_type(hdr->flags), fd_head->len, fd_head->reassembled_in);
 
 	    dcerpc_try_handoff (pinfo, tree, dcerpc_tree, next_tvb,
 		next_tvb, hdr->drep, di, auth_info);
