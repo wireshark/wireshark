@@ -158,11 +158,12 @@ static void before_xmpli(void* tvbparse_data, const void* wanted_data _U_, tvbpa
 	proto_item* pi;
 	proto_tree* pt;
 	tvbparse_elem_t* name_tok = tok->sub->next;
-	gchar* name = g_strdown(tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len));
+	gchar* name = tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len);
 	xml_names_t* ns = g_hash_table_lookup(xmpli_names,name);
 	int hf_tag;
 	gint ett;
 	
+	g_strdown(name);
 	if (!ns) {
 		hf_tag = hf_xmlpi;
 		ett = ett_xmpli;
@@ -207,12 +208,13 @@ static void before_tag(void* tvbparse_data, const void* wanted_data _U_, tvbpars
 	GPtrArray* stack = tvbparse_data;
 	xml_frame_t* current_frame = g_ptr_array_index(stack,stack->len - 1);
 	tvbparse_elem_t* name_tok = tok->sub->next;
-	gchar* name = g_strdown(tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len));
+	gchar* name =tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len);
 	xml_names_t* ns = g_hash_table_lookup(current_frame->ns->elements,name);
 	xml_frame_t* new_frame;
 	proto_item* pi;
 	proto_tree* pt;
 	
+	g_strdown(name);
 	if (!ns) {
 		if (! ( ns = g_hash_table_lookup(root_ns->elements,name) ) ) {
 			ns = &unknown_ns;
@@ -323,12 +325,13 @@ static void get_attrib_value(void* tvbparse_data _U_, const void* wanted_data _U
 static void after_attrib(void* tvbparse_data, const void* wanted_data _U_, tvbparse_elem_t* tok) {
 	GPtrArray* stack = tvbparse_data;
 	xml_frame_t* current_frame = g_ptr_array_index(stack,stack->len - 1);
-	gchar* name = g_strdown(tvb_get_ephemeral_string(tok->sub->tvb,tok->sub->offset,tok->sub->len));
+	gchar* name = tvb_get_ephemeral_string(tok->sub->tvb,tok->sub->offset,tok->sub->len);
 	tvbparse_elem_t* value = tok->sub->next->next->data;
 	int* hfidp;
 	int hfid;
 
-	if(current_frame->ns && (hfidp = g_hash_table_lookup(current_frame->ns->attributes,g_strdown(name)) )) {
+	g_strdown(name);
+	if(current_frame->ns && (hfidp = g_hash_table_lookup(current_frame->ns->attributes,name) )) {
 		hfid = *hfidp;
 	} else {
 		hfid = hf_unknowwn_attrib;
