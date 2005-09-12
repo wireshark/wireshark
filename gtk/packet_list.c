@@ -765,14 +765,51 @@ packet_list_get_row_data(gint row)
     return eth_clist_get_row_data(ETH_CLIST(packet_list), row);
 }
 
+
+/* get the first fully visible row number, given row MUST be visible */
+static gint
+packet_list_first_full_visible_row(gint row) {
+
+	g_assert(eth_clist_row_is_visible(ETH_CLIST(packet_list), row) ==
+        GTK_VISIBILITY_FULL);
+
+	while(eth_clist_row_is_visible(ETH_CLIST(packet_list), row) ==
+        GTK_VISIBILITY_FULL) {
+		row--;
+	}
+
+	return ++row;
+}
+
+/* get the last fully visible row number, given row MUST be visible */
+static gint
+packet_list_last_full_visible_row(gint row) {
+
+	g_assert(eth_clist_row_is_visible(ETH_CLIST(packet_list), row) ==
+        GTK_VISIBILITY_FULL);
+
+	while(eth_clist_row_is_visible(ETH_CLIST(packet_list), row) ==
+        GTK_VISIBILITY_FULL) {
+		row++;
+	}
+
+	return --row;
+}
+
 /* Set the selected row and the focus row of the packet list to the specified
  * row, and make it visible if it's not currently visible. */
 void
 packet_list_set_selected_row(gint row)
 {
-    if (eth_clist_row_is_visible(ETH_CLIST(packet_list), row) !=
-        GTK_VISIBILITY_FULL)
-        eth_clist_moveto(ETH_CLIST(packet_list), row, -1, 0.0, 0.0);
+	gint visible_rows;
+	gint first_row;
+	gboolean full_visible;
+
+
+	eth_clist_freeze(ETH_CLIST(packet_list));
+
+	full_visible = eth_clist_row_is_visible(ETH_CLIST(packet_list), row) ==
+        GTK_VISIBILITY_FULL;
 
     /* XXX - why is there no "eth_clist_set_focus_row()", so that we
      * can make the row for the frame we found the focus row?
@@ -782,6 +819,27 @@ packet_list_set_selected_row(gint row)
     ETH_CLIST(packet_list)->focus_row = row;
 
     eth_clist_select_row(ETH_CLIST(packet_list), row, -1);
+
+    if (!full_visible) {
+
+        eth_clist_moveto(ETH_CLIST(packet_list), row, -1, 0.0, 0.0);
+
+		/* The now selected row will be the first visible row in the list.
+		 * This is inconvenient, as the user is usually interested in some 
+		 * packets *before* the currently selected one too.
+		 *
+		 * Try to adjust the visible rows, so the currently selected row will 
+		 * be shown around the first third of the list screen.
+		 * 
+		 * (This won't even do any harm if the current row is the first or the 
+		 * last in the list) */
+		visible_rows = packet_list_last_full_visible_row(row) - packet_list_first_full_visible_row(row);
+		first_row = row - visible_rows / 3;
+
+		eth_clist_moveto(ETH_CLIST(packet_list), first_row >= 0 ? first_row : 0, -1, 0.0, 0.0);
+	}
+
+	eth_clist_thaw(ETH_CLIST(packet_list));
 }
 
 /* Return the column number that the clist is currently sorted by */
