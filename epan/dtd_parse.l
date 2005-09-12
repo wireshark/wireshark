@@ -6,7 +6,7 @@
 
 %{
 
-	/* dtd_lexer.l
+	/* dtd_parse.l
 	* an XML dissector for ethereal 
 	* lexical analyzer for DTDs
 	*
@@ -38,16 +38,13 @@
 	
 #include "dtd.h"
 #include "dtd_grammar.h"
+#include "dtd_parse.h"
 	
 	struct _proto_xmlpi_attr {
 		gchar* name;
 		void (*act)(gchar*);
 	};
 
-	void DtdParse(void*,int,dtd_token_data_t*,dtd_build_data_t*);
-	void *DtdParseAlloc(void *(*)(gulong));
-	void DtdParseFree( void*, void(*)(void*) );
-	void DtdParseTrace(FILE *TraceFILE, char *zTracePrompt);	
 	void* pParser;
 	GString* input_string;	
 	guint offset;

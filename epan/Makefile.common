@@ -110,7 +110,8 @@ LIBETHEREAL_INCLUDES = 		\
 	crypt-md5.h		\
 	crypt-rc4.h		\
 	dtd.h			\
-	dtd_grammar.h   \
+	dtd_grammar.h		\
+	dtd_parse.h		\
 	emem.h			\
 	epan.h			\
 	epan_dissect.h		\
