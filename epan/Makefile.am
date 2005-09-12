@@ -69,10 +69,11 @@ CLEANFILES = \
 	*~
 
 DISTCLEANFILES = \
-	dtd_grammar.c \
-	dtd_grammar.h \
+	dtd_grammar.out		\
+	dtd_grammar.c		\
+	dtd_grammar.h		\
 	dtd_parse.c		\
-	dtd_preparse.c  \
+	dtd_preparse.c		\
 	radius_dict.c
 	
 

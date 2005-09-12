@@ -85,14 +85,18 @@ clean:
 	cd ..
 
 #
-# We remove "radius_dict.c" with "distclean" because it needs different
-# #includes for UN*X and Windows (UN*X versions of Flex make it include
-# <unistd.h>, but that's a UN*X-only header), so if you're going to build
-# from source, you need to build "radius_dict.c" from "radius_dict.l"
-# with Flex.
+# We remove the Flex-generated files with "distclean" because they need
+# different #includes for UN*X and Windows (UN*X versions of Flex make it
+# include <unistd.h>, but that's a UN*X-only header), so if you're going
+# to build from source, you need to build those scanners from the
+# corresponding ".l" files with Flex.
+# This might not be necessary for "dtd_grammar.{c,h}", but we handle them
+# the same for now.
 #
 distclean: clean
-	rm -f config.h register.c mkstemp.c strptime.c radius_dict.c
+	rm -f config.h register.c mkstemp.c strptime.c radius_dict.c \
+		dtd_grammar.out	dtd_grammar.c dtd_grammar.h dtd_parse.c \
+		dtd_preparse.c
 	cd ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../dfilter
