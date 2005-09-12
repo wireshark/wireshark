@@ -519,19 +519,24 @@ get_next_di(void)
 static gboolean dcerpc_cn_desegment = TRUE;
 
 /* reassemble DCE/RPC fragments */
-/* reassembly of dcerpc fragments will not work for the case where ONE frame
+/* reassembly of cl dcerpc fragments will not work for the case where ONE frame
    might contain multiple dcerpc fragments for different PDUs.
    this case would be so unusual/weird so if you got captures like that:
 	too bad
+
+   reassembly of co dcerpc fragments will not work for the case where TCP/SMB frames
+   are coming in out of sequence, but that will hurt in a lot of other places as well.
 */
 static gboolean dcerpc_reassemble = FALSE;
+static GHashTable *dcerpc_co_fragment_table = NULL;
 static GHashTable *dcerpc_co_reassemble_table = NULL;
 static GHashTable *dcerpc_cl_reassemble_table = NULL;
 
 static void
 dcerpc_reassemble_init(void)
 {
-  fragment_table_init(&dcerpc_co_reassemble_table);
+  fragment_table_init(&dcerpc_co_fragment_table);
+  reassembled_table_init(&dcerpc_co_reassemble_table);
   dcerpc_fragment_table_init(&dcerpc_cl_reassemble_table);
 }
 
@@ -2956,7 +2961,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     gint length, reported_length;
     gboolean save_fragmented;
     fragment_data *fd_head=NULL;
-    guint32 tot_len;
+
     tvbuff_t *auth_tvb, *payload_tvb, *decrypted_tvb;
     proto_item *pi;
     proto_item *parent_pi;
@@ -3075,7 +3080,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
        then exit 
     */
     if(pinfo->fd->flags.visited){
-	fd_head=fragment_get(pinfo, frame, dcerpc_co_reassemble_table);
+	fd_head=fragment_get_reassembled(pinfo, frame, dcerpc_co_reassemble_table);
 	goto end_cn_stub;
     }
 
@@ -3106,65 +3111,16 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
       goto end_cn_stub;
     }
 
-    /* defragmentation is a bit tricky here, as there's no offset of the fragment 
+    /* defragmentation is a bit tricky, as there's no offset of the fragment 
      * in the protocol data.
      *
-	 * The allocation hint will contain the remaining bytes of all fragments following.
-	 *
-     * Currently two possible ways:
-     * - the transmitter sends an alloc_hint != 0, use it
-     * - the transmitter sends an alloc_hint == 0, simply append fragments
-     */
-
-    /* if this is the first fragment we need to start reassembly
+	 * just use fragment_add_seq_next() and hope that TCP/SMB segments coming 
+	 * in with the correct sequence.
     */
-    if(hdr->flags&PFC_FIRST_FRAG){
-	fragment_add(decrypted_tvb, 0, pinfo, frame, 
-		dcerpc_co_reassemble_table,
-		0 /* fragment offset */, tvb_length(decrypted_tvb), TRUE /* more_frags */);
-	fragment_set_tot_len(pinfo, frame,
-        dcerpc_co_reassemble_table, alloc_hint ? alloc_hint : tvb_length(decrypted_tvb));
-
-	goto end_cn_stub;
-    }
-
-    /* if this is a middle fragment, just add it and exit */
-    if(!(hdr->flags&PFC_LAST_FRAG)){
-	tot_len = fragment_get_tot_len(pinfo, frame,
-		 dcerpc_co_reassemble_table);
-	if(alloc_hint == 0) {
-		fragment_set_tot_len(pinfo, frame,
-		  dcerpc_co_reassemble_table, tot_len + tvb_length(decrypted_tvb));
-	} else {
-		/* the alloc_hint shouldn't be larger than the expected remaining length */
-		if(alloc_hint > (tot_len - tvb_length(decrypted_tvb))) {
-			THROW(ReportedBoundsError);
-		}
-	}
-	fragment_add(decrypted_tvb, 0, pinfo, frame,
-		dcerpc_co_reassemble_table,
-		tot_len-alloc_hint /* fragment offset */, tvb_length(decrypted_tvb),
-		TRUE /* more_frags */);
-
-	goto end_cn_stub;
-    }
-
-    /* this was the last fragment add it to reassembly
-    */
-    tot_len = fragment_get_tot_len(pinfo, frame,
-		dcerpc_co_reassemble_table);
-	/* the alloc_hint shouldn't be larger than the expected remaining length */
-	if(alloc_hint != 0 && alloc_hint > (tot_len - tvb_length(decrypted_tvb))) {
-		THROW(ReportedBoundsError);
-	}
-    fd_head = fragment_add(decrypted_tvb, 0, pinfo, frame,
-		dcerpc_co_reassemble_table,
-		tot_len-alloc_hint /* fragment offset */, tvb_length(decrypted_tvb),
-		FALSE /* more_frags */);
-	if(alloc_hint == 0) {		
-	    fragment_set_tot_len(pinfo, frame,
-		  dcerpc_co_reassemble_table, tot_len + tvb_length(decrypted_tvb));
-	}
+    fd_head = fragment_add_seq_next(decrypted_tvb, 0, pinfo, frame,
+		dcerpc_co_fragment_table, dcerpc_co_reassemble_table,
+		tvb_length(decrypted_tvb),
+		hdr->flags&PFC_LAST_FRAG ? FALSE : TRUE /* more_frags */);
 
 end_cn_stub:
 
@@ -3178,7 +3134,7 @@ end_cn_stub:
 	    tvbuff_t *next_tvb;
         proto_item *frag_tree_item;
 
-	    next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen, fd_head->datalen);
+		next_tvb = tvb_new_real_data(fd_head->data, fd_head->len, fd_head->len);
 	    tvb_set_child_real_data_tvbuff(decrypted_tvb, next_tvb);
 	    add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
 	    show_fragment_tree(fd_head, &dcerpc_frag_items,

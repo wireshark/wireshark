@@ -200,6 +200,10 @@ fragment_set_partial_reassembly(packet_info *pinfo, guint32 id, GHashTable *frag
 extern fragment_data *
 fragment_get(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
 
+/* The same for the reassemble table */
+extern fragment_data *
+fragment_get_reassembled(packet_info *pinfo, guint32 id, GHashTable *reassembled_table);
+
 /* This will free up all resources and delete reassembly state for this PDU.
  * Except if the PDU is completely reassembled, then it would NOT deallocate the
  * buffer holding the reassembled data but instead return the pointer to that

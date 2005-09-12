@@ -386,6 +386,20 @@ fragment_get(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
 	return fd_head;
 }
 
+fragment_data *
+fragment_get_reassembled(packet_info *pinfo, guint32 id, GHashTable *reassembled_table)
+{
+	fragment_data *fd_head;
+	reassembled_key key;
+
+	/* create key to search hash with */
+	key.frame = id;
+	key.id = id;
+	fd_head = g_hash_table_lookup(reassembled_table, &key);
+
+	return fd_head;
+}
+
 /* This function can be used to explicitely set the total length (if known)
  * for reassembly of a PDU.
  * This is useful for reassembly of PDUs where one may have the total length specified
@@ -709,13 +723,6 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 		/* oops, too long fragment detected */
 		fd->flags      |= FD_TOOLONGFRAGMENT;
 		fd_head->flags |= FD_TOOLONGFRAGMENT;
-	}
-
-	if(more_frags) {
-		/* dissector told us, that this isn't the last fragment,
-		 * trust this information and don't try to defragment for now.
-		 */
-		return FALSE;
 	}
 
 	/* we have received an entire packet, defragment it and
