@@ -84,7 +84,8 @@ dtd ::= doctype.
 dtd ::= dtd_parts.
 
 doctype ::= TAG_START DOCTYPE_KW NAME(Name) OPEN_BRACKET dtd_parts CLOSE_BRACKET TAG_STOP. {
-	bd->proto_name = g_strdown(g_strdup(Name->text));
+	bd->proto_name = g_strdup(Name->text);
+	g_strdown(bd->proto_name);
 }
 
 dtd_parts ::= dtd_parts element(Element). { g_ptr_array_add(bd->elements,Element); }
@@ -103,7 +104,10 @@ attrib_list(A) ::= attrib_list(B) attrib(C). { g_ptr_array_add(B,C); A = B; }
 attrib_list(A) ::= attrib(B).  { A = g_ptr_array_new(); g_ptr_array_add(A,B);  }
 
 %type   attrib				{ gchar* }
-attrib(A) ::= NAME(B) att_type att_default. { A = g_strdown(g_strdup(B->text)); }
+attrib(A) ::= NAME(B) att_type att_default. {
+	A = g_strdup(B->text);
+	g_strdown(A);
+}
 
 att_type ::= ATT_TYPE.
 att_type ::= enumeration.
@@ -144,8 +148,20 @@ element_list(A) ::= element_list(B) COMMA sub_elements(C).   { A = g_ptr_array_j
 element_list(A) ::= element_list(B) PIPE sub_elements(C).   { A = g_ptr_array_join(B,C); }
 
 %type   element_child		{ gchar* }
-element_child(A) ::= NAME(B).			{ A = g_strdown(g_strdup(B->text)); }
-element_child(A) ::= NAME(B) STAR.		{ A = g_strdown(g_strdup(B->text)); }
-element_child(A) ::= NAME(B) QUESTION.	{ A = g_strdown(g_strdup(B->text)); }
-element_child(A) ::= NAME(B) PLUS.		{ A = g_strdown(g_strdup(B->text)); }
+element_child(A) ::= NAME(B).			{
+	A = g_strdup(B->text);
+	g_strdown(A);
+}
+element_child(A) ::= NAME(B) STAR.		{
+	A = g_strdup(B->text);
+	g_strdown(A);
+}
+element_child(A) ::= NAME(B) QUESTION.	{
+	A = g_strdup(B->text);
+	g_strdown(A);
+}
+element_child(A) ::= NAME(B) PLUS.		{
+	A = g_strdup(B->text);
+	g_strdown(A);
+}
 
