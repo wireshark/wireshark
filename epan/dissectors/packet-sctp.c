@@ -1,13 +1,15 @@
 /* packet-sctp.c
  * Routines for Stream Control Transmission Protocol dissection
+ *
  * It should be compilant to
  * - RFC 2960
  * - RFC 3309
  * - RFC 3758
- * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctpimpguide-14.txt
- * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-addip-sctp-12.txt
+ * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctpimpguide-15.txt
+ * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-addip-sctp-13.txt
  * - http://www.ietf.org/internet-drafts/draft-stewart-sctp-pktdrprep-02.txt
- * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctp-auth-00.txt
+ * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctp-auth-01.txt
+ * - http://www.ietf.org/internet-drafts/draft-ladha-sctp-nonce-02.txt
  *
  * Copyright 2000-2005 Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Still to do (so stay tuned)
@@ -97,6 +99,7 @@ static int hf_data_chunk_e_bit = -1;
 static int hf_data_chunk_b_bit = -1;
 static int hf_data_chunk_u_bit = -1;
 
+static int hf_sack_chunk_ns = -1;
 static int hf_sack_chunk_cumulative_tsn_ack = -1;
 static int hf_sack_chunk_adv_rec_window_credit = -1;
 static int hf_sack_chunk_number_of_gap_blocks = -1;
@@ -130,6 +133,8 @@ static int hf_random_number = -1;
 static int hf_chunks_to_auth = -1;
 static int hf_hmac_id = -1;
 static int hf_hmac = -1;
+static int hf_shared_key_id = -1;
+static int hf_supported_chunk_type = -1;
 
 static int hf_cause_code = -1;
 static int hf_cause_length = -1;
@@ -178,6 +183,7 @@ static gint ett_sctp_chunk_parameter = -1;
 static gint ett_sctp_chunk_cause = -1;
 static gint ett_sctp_chunk_type = -1;
 static gint ett_sctp_data_chunk_flags = -1;
+static gint ett_sctp_sack_chunk_flags = -1;
 static gint ett_sctp_abort_chunk_flags = -1;
 static gint ett_sctp_shutdown_complete_chunk_flags = -1;
 static gint ett_sctp_pktdrop_chunk_flags = -1;
@@ -204,6 +210,7 @@ static dissector_handle_t data_handle;
 #define SCTP_SHUTDOWN_COMPLETE_CHUNK_ID 14
 #define SCTP_ASCONF_ACK_CHUNK_ID      0x80
 #define SCTP_PKTDROP_CHUNK_ID         0x81
+#define SCTP_STREAM_RESET_CHUNK_ID    0x82
 #define SCTP_AUTH_CHUNK_ID            0x83
 #define SCTP_FORWARD_TSN_CHUNK_ID     0xC0
 #define SCTP_ASCONF_CHUNK_ID          0xC1
@@ -225,8 +232,9 @@ static const value_string chunk_type_values[] = {
   { SCTP_ECNE_CHUNK_ID,              "ECNE" },
   { SCTP_CWR_CHUNK_ID,               "CWR" },
   { SCTP_SHUTDOWN_COMPLETE_CHUNK_ID, "SHUTDOWN_COMPLETE" },
+  { SCTP_STREAM_RESET_CHUNK_ID,      "STREAM_RESET" },
   { SCTP_AUTH_CHUNK_ID,              "AUTH" },
-  { SCTP_FORWARD_TSN_CHUNK_ID,       "FORWARD TSN" },
+  { SCTP_FORWARD_TSN_CHUNK_ID,       "FORWARD_TSN" },
   { SCTP_ASCONF_ACK_CHUNK_ID,        "ASCONF_ACK" },
   { SCTP_PKTDROP_CHUNK_ID,           "PKTDROP" },
   { SCTP_ASCONF_CHUNK_ID,            "ASCONF" },
@@ -362,8 +370,8 @@ sctp_adler32(const unsigned char* buf, unsigned int len)
  *
  * Polynomial is
  *
- *	x^32 + x^28 + x^27 + x^26 + x^25 + x^23 + x^22 + x^20 + x^19 +
- *	    x^18 + x^14 + x^13 + x^11 + x^10 + x^9 + x^8 + x^6 + 1
+ *    x^32 + x^28 + x^27 + x^26 + x^25 + x^23 + x^22 + x^20 + x^19 +
+ *    x^18 + x^14 + x^13 + x^11 + x^10 + x^9 + x^8 + x^6 + 1
  *
  * Note that this is not the AUTODIN/HDLC/802.x CRC - it uses a different
  * polynomial.
@@ -538,7 +546,7 @@ dissect_ipv6_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
       proto_item_append_text(additional_item, "%s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(parameter_tvb, IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH)));
   }
   if (dissecting_init_init_ack_chunk) {
-  	if (sctp_info.number_of_tvbs < MAXIMUM_NUMBER_OF_TVBS)
+    if (sctp_info.number_of_tvbs < MAXIMUM_NUMBER_OF_TVBS)
       sctp_info.tvb[sctp_info.number_of_tvbs++] = parameter_tvb;
     else
       sctp_info.incomplete = TRUE;
@@ -631,12 +639,17 @@ dissect_supported_address_types_parameter(tvbuff_t *parameter_tvb, proto_tree *p
     if (address_type_number < number_of_address_types)
       proto_item_append_text(parameter_item, ", ");
     offset += SUPPORTED_ADDRESS_TYPE_PARAMETER_ADDRESS_TYPE_LENGTH;
-  };
+  }
   proto_item_append_text(parameter_item, ")");
 }
 
 static void
 dissect_ecn_parameter(tvbuff_t *parameter_tvb _U_)
+{
+}
+
+static void
+dissect_nonce_supported_parameter(tvbuff_t *parameter_tvb _U_)
 {
 }
 
@@ -669,7 +682,7 @@ static const value_string hmac_id_values[] = {
   { 2,              "MD-5"     },
   { 0,              NULL       } };
 
-#define HMAC_ID_LENGTH 4
+#define HMAC_ID_LENGTH 2
 
 static void
 dissect_hmac_algo_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
@@ -680,6 +693,24 @@ dissect_hmac_algo_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
   number_of_ids = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / HMAC_ID_LENGTH;
   for(id_number = 1, offset = PARAMETER_VALUE_OFFSET; id_number <= number_of_ids; id_number++, offset +=  HMAC_ID_LENGTH)
     proto_tree_add_item(parameter_tree, hf_hmac_id, parameter_tvb, offset, HMAC_ID_LENGTH, NETWORK_BYTE_ORDER);
+}
+
+static void
+dissect_supported_extensions_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+  gint32 number_of_types;
+  guint16 type_number, offset;
+  
+  proto_item_append_text(parameter_item, " (Supported types: ");
+  number_of_types = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / CHUNK_TYPE_LENGTH;
+  for(type_number = 1, offset = PARAMETER_VALUE_OFFSET; type_number <= number_of_types; type_number++, offset +=  CHUNK_TYPE_LENGTH) {
+    proto_tree_add_item(parameter_tree, hf_supported_chunk_type, parameter_tvb, offset, CHUNK_TYPE_LENGTH, NETWORK_BYTE_ORDER);
+    proto_item_append_text(parameter_item, val_to_str(tvb_get_guint8(parameter_tvb, offset), chunk_type_values, "Unknown"));
+    if (type_number < number_of_types)
+      proto_item_append_text(parameter_item, ", ");
+  
+  }
+  proto_item_append_text(parameter_item, ")");
 }
 
 static void
@@ -789,10 +820,14 @@ dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, p
 #define COOKIE_PRESERVATIVE_PARAMETER_ID     0x0009
 #define HOSTNAME_ADDRESS_PARAMETER_ID        0x000b
 #define SUPPORTED_ADDRESS_TYPES_PARAMETER_ID 0x000c
+#define STREAM_RESET_REQUEST_PARAMETER_ID    0x000d
+#define STREAM_RESET_RESPONSE_PARAMETER_ID   0x000e
 #define ECN_PARAMETER_ID                     0x8000
+#define NONCE_SUPPORTED_PARAMETER_ID         0x8001
 #define RANDOM_PARAMETER_ID                  0x8002
 #define CHUNKS_PARAMETER_ID                  0x8003
 #define HMAC_ALGO_PARAMETER_ID               0x8004
+#define SUPPORTED_EXTENSIONS_PARAMETER_ID    0x8008
 #define FORWARD_TSN_SUPPORTED_PARAMETER_ID   0xC000
 #define ADD_IP_ADDRESS_PARAMETER_ID          0xC001
 #define DEL_IP_ADDRESS_PARAMETER_ID          0xC002
@@ -809,11 +844,15 @@ static const value_string parameter_identifier_values[] = {
   { UNREC_PARA_PARAMETER_ID,              "Unrecognized parameter"      },
   { COOKIE_PRESERVATIVE_PARAMETER_ID,     "Cookie preservative"         },
   { HOSTNAME_ADDRESS_PARAMETER_ID,        "Hostname address"            },
+  { STREAM_RESET_REQUEST_PARAMETER_ID,    "Stream reset request"        },
+  { STREAM_RESET_RESPONSE_PARAMETER_ID,   "Stream reset response"       },
   { SUPPORTED_ADDRESS_TYPES_PARAMETER_ID, "Supported address types"     },
   { ECN_PARAMETER_ID,                     "ECN"                         },
+  { NONCE_SUPPORTED_PARAMETER_ID,         "Nonce supported"             },
   { RANDOM_PARAMETER_ID,                  "Random"                      },
   { CHUNKS_PARAMETER_ID,                  "Chunk list"                  },
   { HMAC_ALGO_PARAMETER_ID,               "Requested HMAC Algorithm"    },
+  { SUPPORTED_EXTENSIONS_PARAMETER_ID,    "Supported Extensions"        },
   { FORWARD_TSN_SUPPORTED_PARAMETER_ID,   "Forward TSN supported"       },
   { ADD_IP_ADDRESS_PARAMETER_ID,          "Add IP address"              },
   { DEL_IP_ADDRESS_PARAMETER_ID,          "Delete IP address"           },
@@ -894,6 +933,9 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *chunk
   case ECN_PARAMETER_ID:
     dissect_ecn_parameter(parameter_tvb);
     break;
+  case NONCE_SUPPORTED_PARAMETER_ID:
+    dissect_nonce_supported_parameter(parameter_tvb);
+    break;
   case RANDOM_PARAMETER_ID:
     dissect_random_parameter(parameter_tvb, parameter_tree);
     break;
@@ -902,6 +944,9 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *chunk
     break;
   case HMAC_ALGO_PARAMETER_ID:
     dissect_hmac_algo_parameter(parameter_tvb, parameter_tree);
+    break;
+  case SUPPORTED_EXTENSIONS_PARAMETER_ID:
+    dissect_supported_extensions_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case FORWARD_TSN_SUPPORTED_PARAMETER_ID:
     dissect_forward_tsn_supported_parameter(parameter_tvb);
@@ -1288,11 +1333,11 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
     dissect_delete_source_address_cause(cause_tvb, pinfo, cause_tree, cause_item);
     break;
   case REQUEST_REFUSED:
-  	dissect_request_refused_cause(cause_tvb, pinfo, cause_tree);
-  	break;
+    dissect_request_refused_cause(cause_tvb, pinfo, cause_tree);
+    break;
   case UNSUPPORTED_HMAC_ID:
-  	dissect_unsupported_hmac_id_cause(cause_tvb, pinfo, cause_tree);
-  	break;
+    dissect_unsupported_hmac_id_cause(cause_tvb, pinfo, cause_tree);
+    break;
   default:
     dissect_unknown_cause(cause_tvb, cause_tree, cause_item);
     break;
@@ -1431,7 +1476,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo
   tvbuff_t *payload_tvb;
   proto_tree *flags_tree;
   guint8 e_bit, b_bit, u_bit;
-	
+
   if (chunk_length <= DATA_CHUNK_HEADER_LENGTH) {
     proto_item_append_text(chunk_item, ", bogus chunk length %u < %u)",
                            chunk_length, DATA_CHUNK_HEADER_LENGTH);
@@ -1475,7 +1520,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo
       else
         proto_item_append_text(chunk_item, "middle");
     }
-				
+
     proto_item_append_text(chunk_item, " segment, TSN: %u, SID: %u, SSN: %u, PPID: %u, payload length: %u byte%s)",
                            tvb_get_ntohl(chunk_tvb, DATA_CHUNK_TSN_OFFSET), 
                            tvb_get_ntohs(chunk_tvb, DATA_CHUNK_STREAM_ID_OFFSET),
@@ -1572,6 +1617,7 @@ dissect_init_ack_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *p
   dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, TRUE);
 }
 
+#define SCTP_SACK_CHUNK_NS_BIT                  0x01
 #define SACK_CHUNK_CUMULATIVE_TSN_ACK_LENGTH    4
 #define SACK_CHUNK_ADV_REC_WINDOW_CREDIT_LENGTH 4
 #define SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_LENGTH  2
@@ -1593,16 +1639,18 @@ dissect_init_ack_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *p
 
 
 static void
-dissect_sack_chunk(tvbuff_t *chunk_tvb, proto_tree *chunk_tree, proto_item *chunk_item)
+dissect_sack_chunk(tvbuff_t *chunk_tvb, proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 {
   guint16 number_of_gap_blocks, number_of_dup_tsns;
   guint16 gap_block_number, dup_tsn_number, start, end;
   gint gap_block_offset, dup_tsn_offset;
   guint32 cum_tsn_ack;
   proto_item *block_item;
-  proto_tree *block_tree;
-	
+  proto_tree *block_tree, *flags_tree;
+
   if (chunk_tree) {
+    flags_tree  = proto_item_add_subtree(flags_item, ett_sctp_sack_chunk_flags);
+    proto_tree_add_item(flags_tree, hf_sack_chunk_ns,                    chunk_tvb, CHUNK_FLAGS_OFFSET,                      CHUNK_FLAGS_LENGTH,                      NETWORK_BYTE_ORDER);
     proto_tree_add_item(chunk_tree, hf_sack_chunk_cumulative_tsn_ack,    chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET,    SACK_CHUNK_CUMULATIVE_TSN_ACK_LENGTH,    NETWORK_BYTE_ORDER);
     proto_tree_add_item(chunk_tree, hf_sack_chunk_adv_rec_window_credit, chunk_tvb, SACK_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET, SACK_CHUNK_ADV_REC_WINDOW_CREDIT_LENGTH, NETWORK_BYTE_ORDER);
     proto_tree_add_item(chunk_tree, hf_sack_chunk_number_of_gap_blocks,  chunk_tvb, SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_OFFSET,  SACK_CHUNK_NUMBER_OF_GAP_BLOCKS_LENGTH,  NETWORK_BYTE_ORDER);
@@ -1811,16 +1859,20 @@ dissect_forward_tsn_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, proto_tree 
   }
 }
 
-#define HMAC_ID_OFFSET PARAMETER_VALUE_OFFSET
-#define HMAC_OFFSET    (HMAC_ID_OFFSET + HMAC_ID_LENGTH)
+#define SHARED_KEY_ID_LENGTH 2
+
+#define SHARED_KEY_ID_OFFSET PARAMETER_VALUE_OFFSET
+#define HMAC_ID_OFFSET       (SHARED_KEY_ID_OFFSET + SHARED_KEY_ID_LENGTH)
+#define HMAC_OFFSET          (HMAC_ID_OFFSET + HMAC_ID_LENGTH)
 
 static void
 dissect_auth_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, proto_tree *chunk_tree, proto_item *chunk_item _U_)
 {
   guint hmac_length;
   
-  hmac_length = chunk_length - CHUNK_HEADER_LENGTH - HMAC_ID_LENGTH;
-  proto_tree_add_item(chunk_tree, hf_hmac_id, chunk_tvb, HMAC_ID_OFFSET, HMAC_ID_LENGTH, NETWORK_BYTE_ORDER);
+  hmac_length = chunk_length - CHUNK_HEADER_LENGTH - HMAC_ID_LENGTH - SHARED_KEY_ID_LENGTH;
+  proto_tree_add_item(chunk_tree, hf_shared_key_id, chunk_tvb, SHARED_KEY_ID_OFFSET, SHARED_KEY_ID_LENGTH, NETWORK_BYTE_ORDER);
+  proto_tree_add_item(chunk_tree, hf_hmac_id,       chunk_tvb, HMAC_ID_OFFSET,       HMAC_ID_LENGTH,       NETWORK_BYTE_ORDER);
   if (hmac_length > 0)
     proto_tree_add_item(chunk_tree, hf_hmac,    chunk_tvb, HMAC_OFFSET,    hmac_length,    NETWORK_BYTE_ORDER);
 }
@@ -2036,7 +2088,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
     dissect_init_ack_chunk(chunk_tvb, length, pinfo, chunk_tree, chunk_item);
     break;
   case SCTP_SACK_CHUNK_ID:
-    dissect_sack_chunk(chunk_tvb, chunk_tree, chunk_item);
+    dissect_sack_chunk(chunk_tvb, chunk_tree, chunk_item, flags_item);
     break;
   case SCTP_HEARTBEAT_CHUNK_ID:
     dissect_heartbeat_chunk(chunk_tvb, length, pinfo, chunk_tree, chunk_item);
@@ -2203,9 +2255,9 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     /* create the sctp protocol tree */
     if (show_port_numbers)
       sctp_item = proto_tree_add_protocol_format(tree, proto_sctp, tvb, 0, -1,
-		                                         "Stream Control Transmission Protocol, Src Port: %s (%u), Dst Port: %s (%u)",
-		                                         get_sctp_port(source_port), source_port,
-		                                         get_sctp_port(destination_port), destination_port);
+                                                 "Stream Control Transmission Protocol, Src Port: %s (%u), Dst Port: %s (%u)",
+                                                 get_sctp_port(source_port), source_port,
+                                                 get_sctp_port(destination_port), destination_port);
     else
       sctp_item = proto_tree_add_item(tree, proto_sctp, tvb, 0, -1, FALSE);
     sctp_tree = proto_item_add_subtree(sctp_item, ett_sctp);
@@ -2347,6 +2399,7 @@ proto_register_sctp(void)
     { &hf_data_chunk_e_bit,                         { "E-Bit",                                       "sctp.data_e_bit",                            FT_BOOLEAN, 8,         TFS(&sctp_data_chunk_e_bit_value),              SCTP_DATA_CHUNK_E_BIT,              "", HFILL } },
     { &hf_data_chunk_b_bit,                         { "B-Bit",                                       "sctp.data_b_bit",                            FT_BOOLEAN, 8,         TFS(&sctp_data_chunk_b_bit_value),              SCTP_DATA_CHUNK_B_BIT,              "", HFILL } },
     { &hf_data_chunk_u_bit,                         { "U-Bit",                                       "sctp.data_u_bit",                            FT_BOOLEAN, 8,         TFS(&sctp_data_chunk_u_bit_value),              SCTP_DATA_CHUNK_U_BIT,              "", HFILL } },
+    { &hf_sack_chunk_ns,                            { "Nounce sum",                                  "sctp.sack_nounce_sum",                       FT_UINT8,   BASE_DEC,  NULL,                                           SCTP_SACK_CHUNK_NS_BIT,             "", HFILL } },
     { &hf_sack_chunk_cumulative_tsn_ack,            { "Cumulative TSN ACK",                          "sctp.sack_cumulative_tsn_ack",               FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_sack_chunk_adv_rec_window_credit,         { "Advertised receiver window credit (a_rwnd)",  "sctp.sack_a_rwnd",                           FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_sack_chunk_number_of_gap_blocks,          { "Number of gap acknowledgement blocks ",       "sctp.sack_number_of_gap_blocks",             FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
@@ -2381,8 +2434,10 @@ proto_register_sctp(void)
     { &hf_adap_indication,                          { "Indication",                                  "sctp.adapation_layer_indication",            FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_random_number,                            { "Random number",                               "sctp.random_number",                         FT_BYTES,   BASE_NONE, NULL,                                           0x0,                                "", HFILL } },
     { &hf_chunks_to_auth,                           { "Chunk type",                                  "sctp.chunk_type_to_auth",                    FT_UINT8,   BASE_DEC,  VALS(chunk_type_values),                        0x0,                                "", HFILL } },
-    { &hf_hmac_id,                                  { "HMAC identifier",                             "sctp.hmac_id",                               FT_UINT32,  BASE_DEC,  VALS(hmac_id_values),                           0x0,                                "", HFILL } },
+    { &hf_hmac_id,                                  { "HMAC identifier",                             "sctp.hmac_id",                               FT_UINT16,  BASE_DEC,  VALS(hmac_id_values),                           0x0,                                "", HFILL } },
     { &hf_hmac,                                     { "HMAC",                                        "sctp.hmac",                                  FT_BYTES,   BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
+    { &hf_shared_key_id,                            { "Shared key identifier",                       "sctp.shared_key_id",                         FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
+    { &hf_supported_chunk_type,                     { "Supported chunk type",                        "sctp.supported_chunk_type",                  FT_UINT8,   BASE_DEC,  VALS(chunk_type_values),                        0x0,                                "", HFILL } },
     { &hf_cause_code,                               { "Cause code",                                  "sctp.cause_code",                            FT_UINT16,  BASE_HEX,  VALS(cause_code_values),                        0x0,                                "", HFILL } },
     { &hf_cause_length,                             { "Cause length",                                "sctp.cause_length",                          FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_cause_info,                               { "Cause information",                           "sctp.cause_information",                     FT_BYTES,   BASE_NONE, NULL,                                           0x0,                                "", HFILL } },
@@ -2411,6 +2466,7 @@ proto_register_sctp(void)
     &ett_sctp_chunk_cause,
     &ett_sctp_chunk_type,
     &ett_sctp_data_chunk_flags,
+    &ett_sctp_sack_chunk_flags,
     &ett_sctp_abort_chunk_flags,
     &ett_sctp_shutdown_complete_chunk_flags,
     &ett_sctp_pktdrop_chunk_flags,
