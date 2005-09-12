@@ -3731,13 +3731,10 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		}
 	        if(hdr->flags&PFC_FIRST_FRAG){  /* FIRST fragment */
 		    if( (!pinfo->fd->flags.visited) && value->rep_frame ){
-			fragment_add(tvb, offset, pinfo, value->rep_frame,
-			     dcerpc_co_reassemble_table,
-			     0,
+			fragment_add_seq_next(tvb, offset, pinfo, value->rep_frame,
+			     dcerpc_co_fragment_table, dcerpc_co_reassemble_table,
 			     stub_length,
 			     TRUE);
-			fragment_set_tot_len(pinfo, value->rep_frame,
-			     dcerpc_co_reassemble_table, alloc_hint);
 		    }
 		    if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_fstr(pinfo->cinfo, COL_INFO,
@@ -3746,14 +3743,10 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		} else if(hdr->flags&PFC_LAST_FRAG){  /* LAST fragment */
 		    if( value->rep_frame ){
 			fragment_data *fd_head;
-			guint32 tot_len;
 
-			tot_len = fragment_get_tot_len(pinfo, value->rep_frame,
-			               dcerpc_co_reassemble_table);
-			fd_head = fragment_add(tvb, offset, pinfo,
+			fd_head = fragment_add_seq_next(tvb, offset, pinfo,
 			     value->rep_frame,
-			     dcerpc_co_reassemble_table,
-			     tot_len-alloc_hint,
+			     dcerpc_co_fragment_table, dcerpc_co_reassemble_table,
 			     stub_length,
 			     TRUE);
 
@@ -3762,7 +3755,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			    tvbuff_t *next_tvb;
                 proto_item *frag_tree_item;
 
-			    next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen, fd_head->datalen);
+			    next_tvb = tvb_new_real_data(fd_head->data, fd_head->len, fd_head->len);
 			    tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 			    add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
 			    show_fragment_tree(fd_head, &dcerpc_frag_items,
@@ -3798,12 +3791,8 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		    }
 		} else {  /* MIDDLE fragment(s) */
 		    if( (!pinfo->fd->flags.visited) && value->rep_frame ){
-			guint32 tot_len;
-			tot_len = fragment_get_tot_len(pinfo, value->rep_frame,
-			               dcerpc_co_reassemble_table);
-			fragment_add(tvb, offset, pinfo, value->rep_frame,
-			     dcerpc_co_reassemble_table,
-			     tot_len-alloc_hint,
+			fragment_add_seq_next(tvb, offset, pinfo, value->rep_frame,
+			     dcerpc_co_fragment_table, dcerpc_co_reassemble_table,
 			     stub_length,
 			     TRUE);
 		    }
