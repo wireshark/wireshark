@@ -36,6 +36,11 @@
 #include "osi-utils.h"
 #include "emem.h"
 
+/*
+ * XXX - shouldn't there be a centralized routine for dissecting NSAPs?
+ * See also "dissect_atm_nsap()" in epan/dissectors/packet-arp.c and
+ * "dissect_nsap()" in epan/dissectors/packet-isup.c.
+ */
 gchar *
 print_nsap_net( const guint8 *ad, int length )
 {
