@@ -146,7 +146,7 @@ typedef struct hashipv4 {
 /* hash table used for IPv6 lookup */
 
 #define HASH_IPV6_ADDRESS(addr)	\
-	((((addr).s6_addr8[14] << 8)|((addr).s6_addr8[15])) & (HASHHOSTSIZE - 1))
+	((((addr).bytes[14] << 8)|((addr).bytes[15])) & (HASHHOSTSIZE - 1))
 
 typedef struct hashipv6 {
   struct e_in6_addr	addr;
@@ -540,7 +540,7 @@ static const gchar *solve_address_to_name(address *addr)
     return get_hostname(ipv4_addr);
 
   case AT_IPv6:
-    memcpy(&ipv6_addr.s6_addr, addr->data, sizeof ipv6_addr.s6_addr);
+    memcpy(&ipv6_addr.bytes, addr->data, sizeof ipv6_addr.bytes);
     return get_hostname6(&ipv6_addr);
 
   case AT_STRINGZ:
@@ -1775,17 +1775,10 @@ extern const gchar *get_hostname6(struct e_in6_addr *addr)
 {
   gboolean found;
 
-#ifdef INET6
   if (!(g_resolv_flags & RESOLV_NETWORK))
     return ip6_to_str(addr);
-#ifdef SOLARIS8_INET6
-  if (IN6_IS_ADDR_LINKLOCAL((struct in6_addr*)addr) || IN6_IS_ADDR_MULTICAST((struct in6_addr*)addr))
-#else
-  if (IN6_IS_ADDR_LINKLOCAL(addr) || IN6_IS_ADDR_MULTICAST(addr))
-#endif
+  if (E_IN6_IS_ADDR_LINKLOCAL(addr) || E_IN6_IS_ADDR_MULTICAST(addr))
     return ip6_to_str(addr);
-#endif
-
   return host_name_lookup6(addr, &found);
 }
 

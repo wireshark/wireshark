@@ -1953,9 +1953,6 @@ dissect_nsap(tvbuff_t *parameter_tvb,gint offset,gint len, proto_tree *parameter
 	guint8 afi, cc_length = 0;
 	guint8 length = 0, address_digit_pair = 0;
 	guint icp,  cc, id_code, cc_offset;
-	guint32    addr;
-	struct e_in6_addr ipv6_addr;
-
 
 	afi = tvb_get_guint8(parameter_tvb, offset);
 
@@ -1969,18 +1966,16 @@ dissect_nsap(tvbuff_t *parameter_tvb,gint offset,gint len, proto_tree *parameter
 			icp = tvb_get_ntohs(parameter_tvb, offset);
 			proto_tree_add_uint(parameter_tree, hf_iana_icp, parameter_tvb, offset, 1, icp );
 			if ( icp == 0 ){ /* IPv6 addr */
-				tvb_get_ipv6(parameter_tvb, ( offset + 2 ), &ipv6_addr);
-				proto_tree_add_text(parameter_tree, parameter_tvb, offset + 2 , 3,
+				proto_tree_add_text(parameter_tree, parameter_tvb, offset + 2 , 17,
 				    "DSP = %s", tvb_bytes_to_str(parameter_tvb, offset + 2, 17));
-					    proto_tree_add_ipv6(parameter_tree, hf_nsap_ipv6_addr, parameter_tvb, offset,
-							16, (guint8 *)&ipv6_addr);
+				proto_tree_add_item(parameter_tree, hf_nsap_ipv6_addr, parameter_tvb, offset,
+				    16, FALSE);
 
 			}
 			else { /* IPv4 addr */
-				addr = tvb_get_ipv4(parameter_tvb, ( offset + 2 ));
 				proto_tree_add_text(parameter_tree, parameter_tvb, offset + 2 , 3,
 				    "DSP = %s", tvb_bytes_to_str(parameter_tvb, offset + 2, 17));
-				proto_tree_add_ipv4(parameter_tree, hf_nsap_ipv4_addr, parameter_tvb, offset + 2, 4, addr);
+				proto_tree_add_item(parameter_tree, hf_nsap_ipv4_addr, parameter_tvb, offset + 2, 4, FALSE);
 			}
 			
 			break;

@@ -637,10 +637,10 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_ipv6_hidden(ipv6_tree, hf_ipv6_addr, tvb,
 			       offset + offsetof(struct ip6_hdr, ip6_src), 16,
-			       ipv6.ip6_src.s6_addr8);
+			       ipv6.ip6_src.bytes);
     proto_tree_add_ipv6_hidden(ipv6_tree, hf_ipv6_addr, tvb,
 			       offset + offsetof(struct ip6_hdr, ip6_dst), 16,
-			       ipv6.ip6_dst.s6_addr8);
+			       ipv6.ip6_dst.bytes);
 
     proto_tree_add_ipv6_format(ipv6_tree, hf_ipv6_src, tvb,
 		offset + offsetof(struct ip6_hdr, ip6_src), 16,

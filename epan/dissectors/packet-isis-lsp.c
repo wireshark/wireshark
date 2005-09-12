@@ -802,7 +802,7 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	if (!tree) return;
 
 	while (length > 0) {
-  	memset (prefix.s6_addr, 0, 16);
+		memset (prefix.bytes, 0, 16);
 		ctrl_info = tvb_get_guint8(tvb, offset+4);
 		bit_length = tvb_get_guint8(tvb, offset+5);
 		byte_length = (bit_length + 7) / 8;
@@ -811,7 +811,7 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 				"IPv6 prefix has an invalid length: %d bytes", byte_length );
       			return;
     		}
- 		tvb_memcpy (tvb, prefix.s6_addr, offset+6, byte_length);
+ 		tvb_memcpy (tvb, prefix.bytes, offset+6, byte_length);
 		metric = tvb_get_ntohl(tvb, offset);
 		subclvs_len = 0;
 		if ((ctrl_info & 0x20) != 0)

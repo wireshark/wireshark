@@ -29,32 +29,21 @@
 #define __IPV6_UTILS_H__
 
 struct e_in6_addr {
-	union {
-		guint32  u6_addr32[4];
-		guint16  u6_addr16[8];
-		guint8   u6_addr8[16];
-	} u6_addr;			/* 128 bit IP6 address */
+	guint8   bytes[16];		/* 128 bit IP6 address */
 };
 
-#ifdef s6_addr32
-#undef s6_addr32
-#endif
+/*
+ * Unicast Scope
+ * Note that we must check topmost 10 bits only, not 16 bits (see RFC2373).
+ */
+#define E_IN6_IS_ADDR_LINKLOCAL(a)	\
+	(((a)->bytes[0] == 0xfe) && (((a)->bytes[1] & 0xc0) == 0x80))
+#define E_IN6_IS_ADDR_SITELOCAL(a)	\
+	(((a)->bytes[0] == 0xfe) && (((a)->bytes[1] & 0xc0) == 0xc0))
 
-#ifdef s6_addr16
-#undef s6_addr16
-#endif
-
-#ifdef s6_addr8
-#undef s6_addr8
-#endif
-
-#ifdef s6_addr
-#undef s6_addr
-#endif
-
-#define s6_addr32 u6_addr.u6_addr32
-#define s6_addr16 u6_addr.u6_addr16
-#define s6_addr8  u6_addr.u6_addr8
-#define s6_addr   u6_addr.u6_addr8
+/*
+ * Multicast
+ */
+#define E_IN6_IS_ADDR_MULTICAST(a)	((a)->bytes[0] == 0xff)
 
 #endif /* __IPV6_UTILS_H__ */

@@ -64,10 +64,10 @@ ipv6_addr_and_mask(tvbuff_t *tvb, int offset, struct e_in6_addr *addr,
 		return -1;
 
 	addr_len = (prefix_len + 7) / 8;
-	memset(addr->u6_addr.u6_addr8, 0, 16);
-	tvb_memcpy(tvb, addr->u6_addr.u6_addr8, offset, addr_len);
+	memset(addr->bytes, 0, 16);
+	tvb_memcpy(tvb, addr->bytes, offset, addr_len);
 	if (prefix_len % 8) {
-		addr->u6_addr.u6_addr8[addr_len - 1] &=
+		addr->bytes[addr_len - 1] &=
 		    ((0xff00 >> (prefix_len % 8)) & 0xff);
 	}
 

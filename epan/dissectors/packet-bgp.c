@@ -449,7 +449,7 @@ decode_prefix6(proto_tree *tree, int hf_addr, tvbuff_t *tvb, gint offset,
 	tag, plen);
     if (hf_addr != -1) {
 	proto_tree_add_ipv6(prefix_tree, hf_addr, tvb, offset + 1, length,
-	    addr.s6_addr);
+	    addr.bytes);
     } else {
 	proto_tree_add_text(prefix_tree, tvb, offset + 1, length,
 	    "%s prefix: %s", tag, ip6_to_str(&addr));

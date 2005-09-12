@@ -1540,10 +1540,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       suf_octet_count = suf_len ? (suf_len - 1) / 8 + 1 : 0;
       /* Pad prefix */
       for (suf_offset = 0; suf_offset < 16 - suf_octet_count; suf_offset++) {
-        suffix.s6_addr8[suf_offset] = 0;
+        suffix.bytes[suf_offset] = 0;
       }
       for (; suf_offset < 16; suf_offset++) {
-        suffix.s6_addr8[suf_offset] = tvb_get_guint8(tvb, cur_offset);
+        suffix.bytes[suf_offset] = tvb_get_guint8(tvb, cur_offset);
         cur_offset++;
       }
 
