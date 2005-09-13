@@ -402,7 +402,7 @@ static void flow_graph_dlg_create (void)
 
 	GtkTooltips *tooltips = gtk_tooltips_new();
 
-	flow_graph_dlg_w=window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: Packet flow graph");
+	flow_graph_dlg_w=window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: Flow Graph");
 
 	gtk_window_set_default_size(GTK_WINDOW(flow_graph_dlg_w), 350, 150);
 
@@ -559,7 +559,7 @@ void
 register_tap_listener_flow_graph(void)
 {
 	register_stat_cmd_arg("flow_graph",flow_graph_init_tap);
-	register_stat_menu_item("Flow graph...", REGISTER_STAT_GROUP_NONE,
+	register_stat_menu_item("Flo_w Graph...", REGISTER_STAT_GROUP_NONE,
 	    flow_graph_launch, NULL, NULL, NULL);
 	    
 }
