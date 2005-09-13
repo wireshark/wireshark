@@ -289,7 +289,7 @@ static const char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 #define TAG_SUPPORTED_CHANNELS	 0x24
 #define TAG_CHANNEL_SWITCH_ANN	 0x25
 #define TAG_MEASURE_REQ		 0x26
-#define TAG_MEASURE_RSP		 0x27
+#define TAG_MEASURE_REP		 0x27
 #define TAG_QUIET		 0x28
 #define TAG_IBSS_DFS		 0x29
 #define TAG_ERP_INFO             0x2A
@@ -1290,7 +1290,7 @@ static const value_string tag_num_vals[] = {
 	{ TAG_SUPPORTED_CHANNELS,   "Supported Channels"},
 	{ TAG_CHANNEL_SWITCH_ANN,   "Channel Switch Announcement"},
 	{ TAG_MEASURE_REQ,	    "Measurement Request"},
-	{ TAG_MEASURE_RSP,	    "Measurement Response"},
+	{ TAG_MEASURE_REP,	    "Measurement Report"},
 	{ TAG_QUIET,		    "Quiet"},
 	{ TAG_IBSS_DFS,		    "IBSS DFS"},
 	{ 0,                        NULL }
@@ -2553,7 +2553,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
     	  if(flags & FLAG_FROM_DS)	{
 	    proto_tree_add_boolean (qos_tree, hf_qos_eosp, tvb, 
-	      1, 1, qos_eosp);
+	      hdr_len - 2, 1, qos_eosp);
 
 	    if(IS_DATA_CF_POLL(frame_type_subtype)) {
 	      /* txop limit */
@@ -2599,7 +2599,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 		  hdr_len - 1, 1, qos_field_content, "TXOP Limit Requested: %d ", qos_field_content);
 	  }
 	  
-	  proto_tree_add_uint (qos_tree, hf_qos_ack_policy, tvb, 1, 1,
+	  proto_tree_add_uint (qos_tree, hf_qos_ack_policy, tvb, hdr_len - 2, 1,
 	      qos_ack_policy); 
 
       	} /* end of qos control field */
@@ -3273,7 +3273,7 @@ proto_register_ieee80211 (void)
   static const value_string category_codes[] = {
     {CAT_SPECTRUM_MGMT, "Spectrum Management"},
     {CAT_QOS, "QoS"},
-    {CAT_QOS, "DLS"},
+    {CAT_DLS, "DLS"},
     {CAT_BLOCK_ACK, "Block Ack"},
     {CAT_MGMT_NOTIFICATION, "Management notification frame"},
     {0, NULL}
