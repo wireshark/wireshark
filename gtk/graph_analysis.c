@@ -164,6 +164,7 @@ static void graph_analysis_init_dlg(graph_analysis_data_t* user_data)
 	user_data->dlg.left_x_border=0;
 	user_data->dlg.selected_item=0xFFFFFFFF;    /*not item selected */
 	user_data->dlg.window=NULL;
+	user_data->dlg.inverse = FALSE;
 }
 
 /****************************************************************************/
@@ -183,21 +184,6 @@ static void on_destroy(GtkWidget *win _U_, graph_analysis_data_t *user_data _U_)
 	}
 	user_data->dlg.window = NULL;
 }
-
-/****************************************************************************/
-#if 0
-static void dialog_graph_set_title(graph_analysis_data_t* user_data)
-{
-	char            *title;
-	if (!user_data->dlg.window){
-		return;
-	}
-	title = g_strdup_printf("Ale");
-
-	gtk_window_set_title(GTK_WINDOW(user_data->dlg.window), title);
-	g_free(title);	
-}
-#endif
 
 #define RIGHT_ARROW 1
 #define LEFT_ARROW 0
@@ -671,7 +657,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
         top_y_border=TOP_Y_BORDER;	/* to display the node address */
         bottom_y_border=2;
 
-        draw_height=user_data->dlg.pixmap_height-top_y_border-bottom_y_border;
+	    draw_height=user_data->dlg.draw_area->allocation.height-top_y_border-bottom_y_border;
 
 		first_item = user_data->dlg.first_item;
 		display_items = draw_height/ITEM_HEIGHT;
@@ -757,12 +743,6 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 #endif
 
 		/* resize the "time" draw area */
-/* XXX is this version late enough? Fails on 2.2.1; is OK on 2.6.4 */
-#if GTK_CHECK_VERSION(2,4,0)
-               /* in GTK 1 and early GTK 2 it causes a loop of configure events */
-        WIDGET_SET_SIZE(user_data->dlg.draw_area_time, label_width + 6, user_data->dlg.pixmap_height);
-		gtk_widget_show(user_data->dlg.draw_area_time);
-#endif
 
         left_x_border=3;
 		user_data->dlg.left_x_border = left_x_border;
@@ -898,7 +878,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 							  left_x_border+NODE_WIDTH/2+NODE_WIDTH*i,
 							  top_y_border,
 							  left_x_border+NODE_WIDTH/2+NODE_WIDTH*i,
-							  user_data->dlg.pixmap_height-bottom_y_border);
+							  user_data->dlg.draw_area->allocation.height-bottom_y_border);
 			}
 
 		}
@@ -1353,7 +1333,6 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
                         widget->allocation.width,
                         widget->allocation.height,
                         -1);
-        user_data->dlg.pixmap_height=widget->allocation.height;
 
 		if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap) )
 				gdk_draw_rectangle(user_data->dlg.pixmap,
@@ -1391,8 +1370,9 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 	        gdk_gc_set_rgb_fg_color(user_data->dlg.bg_gc[i], &col[i]);
 #endif
 		}
-
+		
 		dialog_graph_redraw(user_data);
+
         return TRUE;
 }
 
@@ -1459,6 +1439,7 @@ static gint configure_event_time(GtkWidget *widget, GdkEventConfigure *event _U_
 							   widget->allocation.height);
 
 		dialog_graph_redraw(user_data);
+
         return TRUE;
 }
 #if GTK_MAJOR_VERSION >= 2
@@ -1592,8 +1573,8 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
         gtk_box_pack_start(GTK_BOX(hbox), user_data->dlg.draw_area_time, FALSE, FALSE, 0);
 
 		user_data->dlg.hpane = gtk_hpaned_new();
-		gtk_paned_pack1(GTK_PANED (user_data->dlg.hpane), user_data->dlg.scroll_window, TRUE, TRUE);
-		gtk_paned_pack2(GTK_PANED (user_data->dlg.hpane), scroll_window_comments, FALSE, TRUE);
+		gtk_paned_pack1(GTK_PANED (user_data->dlg.hpane), user_data->dlg.scroll_window, FALSE, TRUE);
+		gtk_paned_pack2(GTK_PANED (user_data->dlg.hpane), scroll_window_comments, TRUE, TRUE);
 #if GTK_MAJOR_VERSION >= 2
 		SIGNAL_CONNECT(user_data->dlg.hpane, "notify::position",  pane_callback, user_data);
 #endif
@@ -1692,34 +1673,67 @@ static void get_nodes(graph_analysis_data_t* user_data)
 		gai = list->data;
 		if (gai->display){
 			user_data->num_items++;
-			/* check source node address */
-			index = is_node_array(user_data, &(gai->src_addr));
-			switch(index){
-				case -2: /* array full */
-					gai->src_node = NODE_OVERFLOW;
-					break;
-				case -1: /* not in array */
-					COPY_ADDRESS(&(user_data->nodes[user_data->num_nodes]),&(gai->src_addr));
-					gai->src_node = user_data->num_nodes;
-					user_data->num_nodes++;
-					break;
-				default: /* it is in the array, just update the src_node */
-					gai->src_node = (guint16)index;
-			}
+			if (!user_data->dlg.inverse) {
+				/* check source node address */
+				index = is_node_array(user_data, &(gai->src_addr));
+				switch(index){
+					case -2: /* array full */
+						gai->src_node = NODE_OVERFLOW;
+						break;
+					case -1: /* not in array */
+						COPY_ADDRESS(&(user_data->nodes[user_data->num_nodes]),&(gai->src_addr));
+						gai->src_node = user_data->num_nodes;
+						user_data->num_nodes++;
+						break;
+					default: /* it is in the array, just update the src_node */
+						gai->src_node = (guint16)index;
+				}
 
-			/* check destination node address*/
-			index = is_node_array(user_data, &(gai->dst_addr));
-			switch(index){
-				case -2: /* array full */
-					gai->dst_node = NODE_OVERFLOW;
-					break;
-				case -1: /* not in array */
-					COPY_ADDRESS(&(user_data->nodes[user_data->num_nodes]),&(gai->dst_addr));
-					gai->dst_node = user_data->num_nodes;
-					user_data->num_nodes++;
-					break;
-				default: /* it is in the array, just update the dst_node */
-					gai->dst_node = (guint16)index;
+				/* check destination node address*/
+				index = is_node_array(user_data, &(gai->dst_addr));
+				switch(index){
+					case -2: /* array full */
+						gai->dst_node = NODE_OVERFLOW;
+						break;
+					case -1: /* not in array */
+						COPY_ADDRESS(&(user_data->nodes[user_data->num_nodes]),&(gai->dst_addr));
+						gai->dst_node = user_data->num_nodes;
+						user_data->num_nodes++;
+						break;
+					default: /* it is in the array, just update the dst_node */
+						gai->dst_node = (guint16)index;
+				}
+			} else {
+				/* check destination node address*/
+				index = is_node_array(user_data, &(gai->dst_addr));
+				switch(index){
+					case -2: /* array full */
+						gai->dst_node = NODE_OVERFLOW;
+						break;
+					case -1: /* not in array */
+						COPY_ADDRESS(&(user_data->nodes[user_data->num_nodes]),&(gai->dst_addr));
+						gai->dst_node = user_data->num_nodes;
+						user_data->num_nodes++;
+						break;
+					default: /* it is in the array, just update the dst_node */
+						gai->dst_node = (guint16)index;
+				}
+
+				/* check source node address */
+				index = is_node_array(user_data, &(gai->src_addr));
+				switch(index){
+					case -2: /* array full */
+						gai->src_node = NODE_OVERFLOW;
+						break;
+					case -1: /* not in array */
+						COPY_ADDRESS(&(user_data->nodes[user_data->num_nodes]),&(gai->src_addr));
+						gai->src_node = user_data->num_nodes;
+						user_data->num_nodes++;
+						break;
+					default: /* it is in the array, just update the src_node */
+						gai->src_node = (guint16)index;
+				}
+
 			}
 		}
 
