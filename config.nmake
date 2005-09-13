@@ -156,11 +156,11 @@ LOCAL_LDFLAGS=/DEBUG
 # Set PDB_FILE according to your VC++ version 
 PDB_FILE=vc*.pdb
 
-# add cygwin binaries to the path
-PATH=$(PATH);c:\cygwin\bin
+# Set up the path to the cygwin binaries
+CYGWIN_PATH=c:\cygwin\bin
 
-# add some required DLLs to the path 
-PATH=$(GLIB_DIR)\bin;$(GETTEXT_DIR)\bin;$(ICONV_DIR)\bin;$(PATH)
+# Set up the path to some required DLLs
+DLL_PATH=$(GLIB_DIR)\bin;$(GETTEXT_DIR)\bin;$(ICONV_DIR)\bin
 
 
 # Set the following commands to find the tools.
@@ -299,7 +299,7 @@ WPCAP_CONSTIFIED=
 !ENDIF
 
 !IFDEF ZLIB_DIR
-PATH=$(ZLIB_DIR);$(PATH)
+ZLIB_PATH=$(ZLIB_DIR)
 ZLIB_CFLAGS=/I$(ZLIB_DIR)\include
 ZLIB_LIBS=$(ZLIB_DIR)\lib\zdll.lib
 # Nmake uses carets to escape special characters
@@ -311,7 +311,7 @@ ZLIB_CONFIG=
 !ENDIF
 
 !IFDEF ADNS_DIR
-PATH=$(ADNS_DIR)\adns_win32\lib;$(PATH)
+ADNS_PATH=$(ADNS_DIR)\adns_win32\lib
 ADNS_CFLAGS=/I$(ADNS_DIR)\src /I$(ADNS_DIR)\adns_win32
 ADNS_LIBS=$(ADNS_DIR)\adns_win32\lib\adns_dll.lib
 # Nmake uses carets to escape special characters
@@ -323,7 +323,7 @@ ADNS_CONFIG=
 !ENDIF
 
 !IFDEF PCRE_DIR
-PATH=$(PCRE_DIR)\bin;$(PATH)
+PCRE_PATH=$(PCRE_DIR)\bin
 PCRE_CFLAGS=/I$(PCRE_DIR)\include
 PCRE_LIBS=$(PCRE_DIR)\lib\pcre.lib
 # Nmake uses carets to escape special characters
@@ -350,3 +350,6 @@ LIBETHEREAL_CONFIG=^#define HAVE_LIBETHEREALDLL 1
 !ELSE
 LIBETHEREAL_CONFIG=
 !ENDIF
+
+# Construct the path
+PATH=$(CYGWIN_PATH);$(DLL_PATH);$(ZLIB_PATH);$(ADNS_PATH);$(PATH)
