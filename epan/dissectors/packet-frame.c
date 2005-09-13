@@ -275,8 +275,6 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			col_append_str(pinfo->cinfo, COL_INFO, "[Short Frame]");
 		item = proto_tree_add_protocol_format(tree, proto_short, tvb, 0, 0,
 				"[Short Frame: %s]", pinfo->current_proto);
-		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, 
-			"Short Frame");
 		break;
 
 	case ReportedBoundsError:
@@ -299,8 +297,9 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    pinfo->current_proto, pinfo->fd->num,
 		    exception_message == NULL ?
 		        dissector_error_nomsg : exception_message);
-		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, 
-			exception_message == NULL ?
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+		    "%s",
+		    exception_message == NULL ?
 		        dissector_error_nomsg : exception_message);
 		if (exception_message != NULL)
 			g_free(exception_message);

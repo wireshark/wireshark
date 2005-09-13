@@ -27,6 +27,8 @@
 #ifndef __EXPERT_H__
 #define __EXPERT_H__
 
+#include "gnuc_format_check.h"
+
 
 /** only for internal and display use */
 typedef struct expert_info_s {
@@ -45,7 +47,6 @@ extern void
 expert_cleanup(void);
 
 /** Add an expert info.
- * XXX - add gcc format string check.
 
  @param pinfo packet info of the currently processed packet
  @param pi current protocol item (or NULL)
@@ -54,7 +55,8 @@ expert_cleanup(void);
  @param format printf like format string with further infos
  */
 extern void
-expert_add_info_format(
-packet_info *pinfo, proto_item *pi, int group, int severity, const char *format, ...);
+expert_add_info_format(packet_info *pinfo, proto_item *pi, int group,
+	int severity, const char *format, ...)
+	GNUC_FORMAT_CHECK(printf, 5, 6);
 
 #endif /* __EXPERT_H__ */

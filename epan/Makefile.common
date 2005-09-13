@@ -121,6 +121,7 @@ LIBETHEREAL_INCLUDES = 		\
 	filesystem.h		\
 	follow.h		\
 	frame_data.h		\
+	gnuc_format_check.h	\
 	h225-persistentdata.h	\
 	in_cksum.h		\
 	ipproto.h		\

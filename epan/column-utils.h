@@ -30,6 +30,7 @@
 #define COL_MAX_LEN 256
 #define COL_MAX_INFO_LEN 4096
 
+#include "gnuc_format_check.h"
 #include "column_info.h"
 #include "packet_info.h"
 
@@ -48,23 +49,15 @@ extern gint	check_col(column_info *, gint);
 extern void	col_set_fence(column_info *, gint);
 extern void	col_clear(column_info *, gint);
 extern void	col_set_str(column_info *, gint, const gchar *);
-#if __GNUC__ >= 2
 extern void	col_add_fstr(column_info *, gint, const gchar *, ...)
-    __attribute__((format (printf, 3, 4)));
+    GNUC_FORMAT_CHECK(printf, 3, 4);
 extern void	col_append_fstr(column_info *, gint, const gchar *, ...)
-    __attribute__((format (printf, 3, 4)));
+    GNUC_FORMAT_CHECK(printf, 3, 4);
 extern void	col_append_sep_fstr(column_info *, gint, const gchar *sep,
 		const gchar *fmt, ...)
-    __attribute__((format (printf, 4, 5)));
+    GNUC_FORMAT_CHECK(printf, 4, 5);
 extern void	col_prepend_fstr(column_info *, gint, const gchar *, ...)
-    __attribute__((format (printf, 3, 4)));
-#else
-extern void	col_add_fstr(column_info *, gint, const gchar *, ...);
-extern void	col_append_fstr(column_info *, gint, const gchar *, ...);
-extern void	col_append_sep_fstr(column_info *, gint, const gchar *sep,
-		const gchar *fmt, ...);
-extern void	col_prepend_fstr(column_info *, gint, const gchar *, ...);
-#endif
+    GNUC_FORMAT_CHECK(printf, 3, 4);
 extern void	col_add_str(column_info *, gint, const gchar *);
 extern void	col_append_str(column_info *, gint, const gchar *);
 extern void	col_append_sep_str(column_info *, gint, const gchar *sep,
