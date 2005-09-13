@@ -275,13 +275,13 @@ decode_change_one_dcerpc_binding(const gchar *table_name, decode_dcerpc_bind_val
     }
 #endif
 
-    if (abbrev != NULL && strcmp(abbrev, "(default)") == 0) {
+    if (key == NULL || (abbrev != NULL && strcmp(abbrev, "(default)") == 0) ) {
         decode_dcerpc_binding_reset(table_name, binding);
     } else {
-        binding->ifname = g_string_new(abbrev);
-        binding->uuid = key->uuid;
-        binding->ver = key->ver;
-        decode_dcerpc_binding_change(table_name, binding);
+			binding->ifname = g_string_new(abbrev);
+			binding->uuid = key->uuid;
+			binding->ver = key->ver;
+			decode_dcerpc_binding_change(table_name, binding);
     }
 #if GTK_MAJOR_VERSION >= 2
     if (abbrev != NULL)
