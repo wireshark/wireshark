@@ -156,6 +156,14 @@ Gnu info
 	  Versions affected: 0.10.12.
 	</para></listitem>
 
+	<listitem><para>
+	  If SMB transaction payload reassembly is enabled the SMB
+	  dissector could crash.  This preference is disabled by default.
+	  <!-- Fixed in r15789 -->
+	  <!-- Bug IDs: 421 -->
+	  Versions affected: 0.9.7 to 0.10.12.
+	</para></listitem>
+
       </itemizedlist>
     </para>
 

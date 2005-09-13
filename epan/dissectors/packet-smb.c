@@ -826,6 +826,11 @@ smb_trans_reassembly_init(void)
 	fragment_table_init(&smb_trans_fragment_table);
 }
 
+/*
+ * XXX - This keeps us from allocating huge amounts of memory as shown in
+ * bug 421.  It may need to be increased.
+ */
+#define MAX_FRAGMENT_SIZE 65536
 static fragment_data *
 smb_trans_defragment(proto_tree *tree _U_, packet_info *pinfo, tvbuff_t *tvb,
 		     int offset, int count, int pos, int totlen)
@@ -833,6 +838,10 @@ smb_trans_defragment(proto_tree *tree _U_, packet_info *pinfo, tvbuff_t *tvb,
 	fragment_data *fd_head=NULL;
 	smb_info_t *si;
 	int more_frags;
+
+	if (count > MAX_FRAGMENT_SIZE || count < 0) {
+		THROW(ReportedBoundsError);
+	}
 
 	more_frags=totlen>(pos+count);
 
