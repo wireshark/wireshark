@@ -1358,33 +1358,33 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         switch(gbl_version) {
           case DIAMETER_V16:
-	/* Vendor Id */
-	proto_tree_add_uint_format(diameter_tree,hf_diameter_vendor_id,
+
+			/* Vendor Id */
+			proto_tree_add_uint_format(diameter_tree,hf_diameter_vendor_id,
 							   tvb, offset, 4,	dh.vendorId, "Vendor-Id: %s", vendorName);
-	offset += 4;
-	/* Hop-by-hop Identifier */
-	proto_tree_add_uint(diameter_tree, hf_diameter_hopbyhopid,
+			offset += 4;
+			/* Hop-by-hop Identifier */
+			proto_tree_add_uint(diameter_tree, hf_diameter_hopbyhopid,
 						tvb, offset, 4, dh.hopByHopId);
-	offset += 4;
-	/* End-to-end Identifier */
-	proto_tree_add_uint(diameter_tree, hf_diameter_endtoendid,
+			offset += 4;
+			/* End-to-end Identifier */
+			proto_tree_add_uint(diameter_tree, hf_diameter_endtoendid,
 						tvb, offset, 4, dh.endToEndId);
-	offset += 4;
-          break;
+			offset += 4;
+			break;
           case DIAMETER_RFC:
-	    /* Application Id */
-	    proto_tree_add_uint_format(diameter_tree,hf_diameter_application_id,
-                                       tvb, offset, 4,	dh2.applicationId, "Application-Id: %s", applicationName);
-	    offset += 4;
-	    /* Hop-by-hop Identifier */
-	    proto_tree_add_uint(diameter_tree, hf_diameter_hopbyhopid,
+		    /* Application Id */
+			proto_tree_add_item(diameter_tree, hf_diameter_application_id, tvb, offset, 4, FALSE);
+		    offset += 4;
+		    /* Hop-by-hop Identifier */
+		    proto_tree_add_uint(diameter_tree, hf_diameter_hopbyhopid,
 						tvb, offset, 4, dh2.hopByHopId);
-	    offset += 4;
-	    /* End-to-end Identifier */
-	    proto_tree_add_uint(diameter_tree, hf_diameter_endtoendid,
+		    offset += 4;
+		    /* End-to-end Identifier */
+		    proto_tree_add_uint(diameter_tree, hf_diameter_endtoendid,
 						tvb, offset, 4, dh2.endToEndId);
-	    offset += 4;
-          break;
+		    offset += 4;
+	          break;
         }
 
 
@@ -2055,7 +2055,7 @@ proto_register_diameter(void)
 		  { "VendorId",	"diameter.vendorId", FT_UINT32, BASE_DEC, NULL,
 			0x0,"", HFILL }},
 		{ &hf_diameter_application_id,
-		  { "ApplicationId",	"diameter.applicationId", FT_UINT32, BASE_DEC, NULL,
+		  { "ApplicationId",	"diameter.applicationId", FT_UINT32, BASE_DEC, VALS(diameter_application_id_vals),
 			0x0,"", HFILL }},
 		{ &hf_diameter_hopbyhopid,
 		  { "Hop-by-Hop Identifier", "diameter.hopbyhopid", FT_UINT32,
