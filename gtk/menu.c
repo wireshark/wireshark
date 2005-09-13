@@ -701,6 +701,7 @@ register_stat_menu_item(
     case(REGISTER_STAT_GROUP_RESPONSE_TIME): toolspath = "/Statistics/Service _Response Time/"; break;
     case(REGISTER_STAT_GROUP_TELEPHONY): toolspath = "/Statistics/"; break;
     case(REGISTER_STAT_GROUP_NONE): toolspath = "/Statistics/"; break;
+    case(REGISTER_ANALYZE_GROUP_NONE): toolspath = "/Analyze/"; break;
     default:
         g_assert(0);
         toolspath = NULL;
@@ -824,6 +825,8 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
                 entry->item_type = "<StockItem>";
                 entry->extra_data = ETHEREAL_STOCK_TELEPHONY;
                 break;
+            case(REGISTER_ANALYZE_GROUP_NONE):
+                break;
             default:
                 g_assert_not_reached();
             }
@@ -890,6 +893,10 @@ void merge_all_tap_menus(GList *node) {
         gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
     }
     if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_NONE)) {
+        /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
+    }
+    if (merge_tap_menus_layered(node, REGISTER_ANALYZE_GROUP_NONE)) {
+		entry->path = "/Analyze/";
         /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
     }
 }
