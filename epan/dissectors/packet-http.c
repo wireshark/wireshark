@@ -757,6 +757,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				      next_offset - offset));
 			}
 			expert_add_info_format(pinfo, hdr_item, PI_SEQUENCE, PI_CHAT, 
+				"%s",
 				tvb_format_text(tvb, offset, next_offset - offset));
 			if (reqresp_dissector) {
 				if (tree) req_tree = proto_item_add_subtree(hdr_item, ett_http_request);
