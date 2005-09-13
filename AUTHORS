@@ -2371,6 +2371,14 @@ Ankur Aggarwal		<ankur [AT] in.athenasemi.com> {
 	Improved IEEE 802.11h decoding
 }
 
+Viorel Suman		<vsuman [AT] avmob.ro> {
+	Computer Interface to Message Distribution (CIMD) version 2 dissection
+}
+
+Lucian Piros		<lpiros [AT] avmob.ro> {
+	Computer Interface to Message Distribution (CIMD) version 2 dissection
+}
+
 And assorted fixes and enhancements by the people listed above
 and by:
 
