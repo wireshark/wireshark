@@ -64,10 +64,18 @@
 
 
 static const value_string expert_severity_vals[] = {
-	{ PI_CHAT,		"Chat" },
-	{ PI_NOTE,		"Note" },
-	{ PI_WARN,		"Warn" },
 	{ PI_ERROR,		"Error" },
+	{ PI_WARN,		"Warn" },
+	{ PI_NOTE,		"Note" },
+	{ PI_CHAT,		"Chat" },
+	{ 0, NULL }
+};
+
+static const value_string expert_severity_om_vals[] = {
+	{ PI_ERROR,		"Errors only" },
+	{ PI_WARN,		"Error+Warn" },
+	{ PI_NOTE,		"Error+Warn+Note" },
+	{ PI_CHAT,		"Error+Warn+Note+Chat" },
 	{ 0, NULL }
 };
 
@@ -87,46 +95,44 @@ typedef struct expert_tapdata_s {
 	GtkWidget	*scrolled_window;
 	GtkCList	*table;
 	GtkWidget	*label;
-	GList		*displayed_events;
+	GList		*all_events;
 	GList		*new_events;
+	guint32		disp_events;
 	guint32		chat_events;
 	guint32		note_events;
 	guint32		warn_events;
 	guint32		error_events;
+	int			severity_report_level;
 } expert_tapdata_t;
 
 
-/* the current warning severity */
-/* XXX - make this a preference setting / a setting in the dialog */
-int severity_report_level = PI_CHAT;
-//int severity_report_level = PI_NOTE;
+/* reset of display only, e.g. for filtering */
+static void expert_dlg_display_reset(expert_tapdata_t * etd)
+{
+	etd->disp_events = 0;
+	gtk_clist_clear(etd->table);
+	gtk_clist_columns_autosize(etd->table);
+
+	gtk_window_set_title(GTK_WINDOW(etd->win), "Ethereal: ? Expert Infos");
+	gtk_label_set_text(GTK_LABEL(etd->label), "Please wait ...");
+}
 
 
+/* complete reset, e.g. capture file closed */
 void expert_dlg_reset(void *tapdata)
 {
 	expert_tapdata_t * etd = tapdata;
-	gchar *title;
 
-	g_list_free(etd->displayed_events);
-	etd->displayed_events = NULL;
+	g_list_free(etd->all_events);
+	etd->all_events = NULL;
 	g_list_free(etd->new_events);
 	etd->new_events = NULL;
 	etd->chat_events = 0;
 	etd->note_events = 0;
 	etd->warn_events = 0;
 	etd->error_events = 0;
-	gtk_clist_clear(etd->table);
-	gtk_clist_columns_autosize(etd->table);
 
-	title = g_strdup_printf("Errors: %u Warnings: %u Notes: %u Chats: %u", 
-		etd->error_events, etd->warn_events, etd->note_events, etd->chat_events);
-	gtk_label_set_text(GTK_LABEL(etd->label), "Please wait ...");
-	g_free(title);
-
-	title = g_strdup_printf("Ethereal: %u Expert Infos", 
-		g_list_length(etd->displayed_events));
-	gtk_window_set_title(GTK_WINDOW(etd->win), title);
-	g_free(title);
+	expert_dlg_display_reset(etd);
 }
 
 int expert_dlg_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *pointer)
@@ -152,13 +158,14 @@ int expert_dlg_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, co
 		g_assert_not_reached();
 	}
 
-	if(ei->severity < severity_report_level) {
+	/* insert(0) is a *lot* faster than append! */
+	etd->new_events = g_list_insert(etd->new_events, ei, 0);
+
+	if(ei->severity < etd->severity_report_level) {
 		return 0; /* draw not required */
+	} else {
+		return 1; /* draw required */
 	}
-
-	etd->new_events = g_list_append(etd->new_events, ei);
-
-	return 1; /* draw required */
 }
 
 void
@@ -166,19 +173,21 @@ expert_dlg_draw(void *data)
 {
 	expert_tapdata_t *etd = data;
 	int row;
+	int displayed;
 	char *strp;
 	expert_info_t *ei;
 	gchar *title;
-	char *entries[5] = { "", "", "", "", "" };   /**< column entries */
+	const char *entries[5];   /**< column entries */
 
 
-	/*g_warning("draw start: displayed:%u new:%u", 
-		g_list_length(etd->displayed_events), g_list_length(etd->new_events));*/
+	displayed = etd->disp_events;
 
-	title = g_strdup_printf("Errors: %u Warnings: %u Notes: %u Chats: %u", 
-		etd->error_events, etd->warn_events, etd->note_events, etd->chat_events);
-	gtk_label_set_text(GTK_LABEL(etd->label), title);
-	g_free(title);
+	if(etd->new_events != NULL) {
+		title = g_strdup_printf("Adding: %u new messages", 
+			g_list_length(etd->new_events));
+		gtk_label_set_text(GTK_LABEL(etd->label), title);
+		g_free(title);
+	}
 
 	gtk_clist_freeze(etd->table);
 
@@ -187,38 +196,47 @@ expert_dlg_draw(void *data)
 		ei = etd->new_events->data;
 
 		etd->new_events = g_list_remove(etd->new_events, ei);
-		etd->displayed_events = g_list_append(etd->displayed_events, ei);
+		/* insert(0) is a *lot* faster than append! */
+		etd->all_events = g_list_insert(etd->all_events, ei, 0);
 
-		row=gtk_clist_append(etd->table, entries);
-		gtk_clist_set_row_data(etd->table, row, ei);
+		if(ei->severity < etd->severity_report_level) {
+			continue;
+		}
+		etd->disp_events++;
+
+		if(etd->disp_events == 1000)
+			gtk_clist_columns_autosize(etd->table);
 
 		/* packet number */
 		if(ei->packet_num) {
-			strp=se_strdup_printf("%u", ei->packet_num);
-			gtk_clist_set_text(etd->table, row, 0, strp);
+			/* XXX */
+			strp= se_strdup_printf("%u", ei->packet_num);
+			entries[0] = strp;
+			/*entries[0] = itoa(ei->packet_num, str, 10);*/
 		} else {
-			gtk_clist_set_text(etd->table, row, 0, "-");
+			entries[0] = "-";
 		}
 
 		/* severity */
-		strp=se_strdup(val_to_str(ei->severity, expert_severity_vals, "Unknown severity (%u)"));
-		gtk_clist_set_text(etd->table, row, 1, strp);
-
+		entries[1] = val_to_str(ei->severity, expert_severity_vals, "Unknown severity (%u)");
+			
 		/* group */
-		strp=se_strdup(val_to_str(ei->group, expert_group_vals, "Unknown group (%u)"));
-		gtk_clist_set_text(etd->table, row, 2, strp);
+		entries[2] = val_to_str(ei->group, expert_group_vals, "Unknown group (%u)");
 
 		/* protocol */
 		if(ei->protocol) {
-			gtk_clist_set_text(etd->table, row, 3, ei->protocol);
+			entries[3] = ei->protocol;
 		} else {
-			gtk_clist_set_text(etd->table, row, 3, "-");
+			entries[3] = "-";
 		}
 
 		/* summary */
-		gtk_clist_set_text(etd->table, row, 4, ei->summary);
+		entries[4] = ei->summary;
 
 		/*gtk_clist_set_pixmap(etd->table, row, 5, ascend_pm, ascend_bm);*/
+
+		row=gtk_clist_append(etd->table, (gchar **) entries);
+		gtk_clist_set_row_data(etd->table, row, ei);
 
 		/* set rows background color depending on severity */
 		switch(ei->severity) {
@@ -237,19 +255,26 @@ expert_dlg_draw(void *data)
 		default:
 			g_assert_not_reached();
 		}
-
 	}
 
 	gtk_clist_sort(etd->table);
-	gtk_clist_columns_autosize(etd->table);
+	/* column autosizing is very slow for large number of entries,
+	 * so do it only for the first 1000 of it 
+	 * (there might be no large changes behind this amount) */
+	if(etd->disp_events < 1000)
+		gtk_clist_columns_autosize(etd->table);
 	gtk_clist_thaw(etd->table);
 
-	title = g_strdup_printf("Ethereal: %u Expert Infos", 
-		g_list_length(etd->displayed_events));
-	gtk_window_set_title(GTK_WINDOW(etd->win), title);
+	title = g_strdup_printf("Errors: %u Warnings: %u Notes: %u Chats: %u", 
+		etd->error_events, etd->warn_events, etd->note_events, etd->chat_events);
+	gtk_label_set_text(GTK_LABEL(etd->label), title);
 	g_free(title);
 
-	/*g_warning("draw end: displayed:%u", g_list_length(etd->displayed_events));*/
+	title = g_strdup_printf("Ethereal: %u Expert Info%s", 
+		etd->disp_events,
+		plurality(etd->disp_events, "", "s"));
+	gtk_window_set_title(GTK_WINDOW(etd->win), title);
+	g_free(title);
 }
 
 
@@ -392,9 +417,9 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
 	gtk_clist_set_shadow_type(etd->table, GTK_SHADOW_IN);
 	gtk_clist_column_titles_show(etd->table);
 	gtk_clist_columns_autosize(etd->table);
-//	gtk_clist_set_selection_mode(etd->table, GTK_SELECTION_SINGLE);
-//    gtk_list_set_selection_mode(GTK_LIST(etd->table), GTK_SELECTION_BROWSE);
-//    gtk_list_select_item(GTK_LIST(value_list), 0);
+/*	gtk_clist_set_selection_mode(etd->table, GTK_SELECTION_SINGLE);*/
+/*    gtk_list_set_selection_mode(GTK_LIST(etd->table), GTK_SELECTION_BROWSE);*/
+/*    gtk_list_select_item(GTK_LIST(value_list), 0);*/
 	gtk_container_add(GTK_CONTAINER(etd->scrolled_window), (GtkWidget *)etd->table);
 
 	SIGNAL_CONNECT(etd->table, "click-column", srt_click_column_cb, col_arrows);
@@ -419,10 +444,32 @@ expert_dlg_destroy_cb(GtkWindow *win _U_, gpointer data)
 	remove_tap_listener(etd);
 	unprotect_thread_critical_region();
 
-	//free_srt_table_data(&etd->afp_srt_table);
+	/*free_srt_table_data(&etd->afp_srt_table);*/
 	g_free(etd);
 }
 
+
+static void
+expert_dlg_severity_cb(GtkWidget *w, gpointer data)
+{
+	int i = GPOINTER_TO_INT(data);
+	expert_tapdata_t * etd;
+
+
+	etd = OBJECT_GET_DATA(w, "tapdata");
+
+	etd->severity_report_level = expert_severity_om_vals[i].value;
+
+	/* "move" all events from "all" back to "new" lists */
+	protect_thread_critical_region();
+	etd->new_events = g_list_concat(etd->new_events, etd->all_events);
+	etd->all_events = NULL;
+	unprotect_thread_critical_region();
+
+	/* redraw table */
+	expert_dlg_display_reset(etd);
+	expert_dlg_draw(etd);
+}
 
 
 static void
@@ -432,8 +479,16 @@ expert_dlg_init(const char *optarg)
 	const char *filter=NULL;
 	GString *error_string;
 	GtkWidget *vbox;
+	GtkWidget *table;
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
+
+	GtkWidget *severity_box;
+	GtkWidget *severity_om;
+	GtkWidget *menu;
+	GtkWidget *menu_item;
+	GtkWidget *label;
+	int i;
 
 	if(!strncmp(optarg,"afp,srt,",8)){
 		filter=optarg+8;
@@ -444,12 +499,14 @@ expert_dlg_init(const char *optarg)
 	proto_draw_colors_init();
 
 	etd=g_malloc(sizeof(expert_tapdata_t));
-	etd->displayed_events = NULL;
+	etd->all_events = NULL;
 	etd->new_events = NULL;
+	etd->disp_events = 0;
 	etd->chat_events = 0;
 	etd->note_events = 0;
 	etd->warn_events = 0;
 	etd->error_events = 0;
+	etd->severity_report_level = PI_CHAT;
 
 	etd->win=window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: Expert Info");
 	gtk_window_set_default_size(GTK_WINDOW(etd->win), 650, 600);
@@ -458,8 +515,32 @@ expert_dlg_init(const char *optarg)
 	gtk_container_add(GTK_CONTAINER(etd->win), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
+	table = gtk_table_new(1, 2, TRUE /* homogeneous */);
+	gtk_box_pack_start(GTK_BOX(vbox), table, FALSE, FALSE, 0);
+
 	etd->label=gtk_label_new("Please wait ...");
-	gtk_box_pack_start(GTK_BOX(vbox), etd->label, FALSE, FALSE, 0);
+	gtk_misc_set_alignment(GTK_MISC(etd->label), 0.0, 0.5);
+	gtk_table_attach_defaults(GTK_TABLE(table), etd->label, 0, 1, 0, 1);
+
+	severity_box = gtk_hbox_new(FALSE, 0);
+	gtk_table_attach_defaults(GTK_TABLE(table), severity_box, 1, 2, 0, 1);
+
+	label=gtk_label_new("Severity filter: ");
+	gtk_box_pack_start(GTK_BOX(severity_box), label, FALSE, FALSE, 0);
+
+	menu=gtk_menu_new();
+	for(i=0; expert_severity_om_vals[i].strptr != NULL;i++){
+		menu_item=gtk_menu_item_new_with_label(expert_severity_om_vals[i].strptr);
+		OBJECT_SET_DATA(menu_item, "tapdata", etd);
+		SIGNAL_CONNECT(menu_item, "activate", expert_dlg_severity_cb, i);
+		gtk_menu_append(GTK_MENU(menu), menu_item);
+		if(expert_severity_om_vals[i].value == (guint) etd->severity_report_level) {
+			gtk_menu_set_active(GTK_MENU(menu), i);
+		}
+	}
+	severity_om=gtk_option_menu_new();
+	gtk_option_menu_set_menu(GTK_OPTION_MENU(severity_om), menu);
+	gtk_box_pack_start(GTK_BOX(severity_box), severity_om, FALSE, FALSE, 0);
 
 	/* We must display TOP LEVEL Widget before calling init_srt_table() */
 	gtk_widget_show_all(etd->win);
@@ -511,6 +592,6 @@ register_tap_listener_expert(void)
 {
 	register_stat_cmd_arg("expert", expert_dlg_init);
 
-	register_stat_menu_item("_Expert Info", REGISTER_STAT_GROUP_GENERIC,
+	register_stat_menu_item("E_xpert Info", REGISTER_ANALYZE_GROUP_NONE,
         expert_dlg_cb, NULL, NULL, NULL);
 }
