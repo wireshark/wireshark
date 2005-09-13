@@ -2488,7 +2488,8 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
     int optend, int revision)
 {
 	int suboptoff = optoff;
-	guint8 subopt, subopt_len, ipv4_addr[4];
+	guint8 subopt, subopt_len;
+	guint32 ipv4_addr;
 	guint8 prov_type, fetch_tgt, timer_val;
 	guint16 sec_tcm;
 	proto_tree *pkt_s_tree;
@@ -2520,9 +2521,9 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 				    "no room left in option for suboption value");
 			 	return (optend);
 			}
-			tvb_memcpy(tvb, ipv4_addr, suboptoff, 4);
-			proto_item_append_text(vti, "%u.%u.%u.%u (%u byte%s%s)",
-					ipv4_addr[0], ipv4_addr[1], ipv4_addr[2], ipv4_addr[3],
+			ipv4_addr = tvb_get_ipv4(tvb, suboptoff);
+			proto_item_append_text(vti, "%s (%u byte%s%s)",
+					ip_to_str((guint8 *)&ipv4_addr),
 					subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 4 ? " [Invalid]" : "");
@@ -2551,9 +2552,9 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 						    "no room left in option for suboption value");
 					 	return (optend);
 					}
-					tvb_memcpy(tvb, ipv4_addr, suboptoff, 4);
-					proto_item_append_text(vti, "%u.%u.%u.%u (%u byte%s%s)",
-							ipv4_addr[0], ipv4_addr[1], ipv4_addr[2], ipv4_addr[3],
+					ipv4_addr = tvb_get_ipv4(tvb, suboptoff);
+					proto_item_append_text(vti, "%s (%u byte%s%s)",
+							ip_to_str((guint8 *)&ipv4_addr),
 							subopt_len,
 							plurality(subopt_len, "", "s"),
 							subopt_len != 5 ? " [Invalid]" : "");

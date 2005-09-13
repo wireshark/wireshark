@@ -286,7 +286,7 @@ void radius_octets(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _
 }
 
 void radius_ipaddr(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
-	guint8 ip[4];
+	guint32 ip;
 	gchar buf[16];
 	
 	if (len != 4) {
@@ -294,19 +294,18 @@ void radius_ipaddr(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _
 		return;
 	}
 	
-	tvb_memcpy(tvb,ip,offset,4);
+	ip=tvb_get_ipv4(tvb,offset);
 	
 	proto_tree_add_item(tree, a->hf, tvb, offset, len, FALSE);
 
-	ip_to_str_buf(ip, buf);
+	ip_to_str_buf((guint8 *)&ip, buf);
 	proto_item_append_text(avp_item, "%s", buf);
 }
 
 void radius_ipv6addr(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
-	guint8 ipv6_buff[64];
+	struct e_in6_addr ipv6_buff;
 	gchar txtbuf[256];
 
-	/* XXX ??? */
 	if (len != 16) {
 		proto_item_append_text(avp_item, "[wrong length for IPv6 address]");
 		return;
@@ -314,8 +313,8 @@ void radius_ipv6addr(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo
 	
 	proto_tree_add_item(tree, a->hf, tvb, offset, len, FALSE);
 	
-	tvb_memcpy(tvb, ipv6_buff, offset, len);
-	ip6_to_str_buf((struct e_in6_addr *)ipv6_buff, txtbuf);
+	tvb_get_ipv6(tvb, offset, &ipv6_buff);
+	ip6_to_str_buf(&ipv6_buff, txtbuf);
 	proto_item_append_text(avp_item, "%s", txtbuf);
 }
 

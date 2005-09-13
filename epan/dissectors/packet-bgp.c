@@ -510,7 +510,7 @@ static int
 mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf, int buf_len)
 {
     int                 length;                         /* length of the address in byte */
-    guint8              ip4addr[4],ip4addr2[4];         /* IPv4 address                 */
+    guint32             ip4addr,ip4addr2;               /* IPv4 address                 */
     guint16             rd_type;                        /* Route Distinguisher type     */
     struct e_in6_addr   ip6addr;                        /* IPv6 address                 */
     char *strptr;
@@ -528,8 +528,8 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
                         case SAFNUM_MPLS_LABEL:
 			case SAFNUM_TUNNEL:
                                 length = 4 ;
-                                tvb_memcpy(tvb, ip4addr, offset, sizeof(ip4addr));
-			        strptr += g_snprintf(strptr, buf_len-(strptr-buf), "%s", ip_to_str(ip4addr));
+                                ip4addr = tvb_get_ipv4(tvb, offset);
+			        strptr += g_snprintf(strptr, buf_len-(strptr-buf), "%s", ip_to_str((guint8 *)&ip4addr));
                                 break;
                         case SAFNUM_LAB_VPNUNICAST:
                         case SAFNUM_LAB_VPNMULCAST:
@@ -538,20 +538,20 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
                                 switch (rd_type) {
                                         case FORMAT_AS2_LOC:
                                                 length = 8 + sizeof(ip4addr);
-                                                tvb_memcpy(tvb, ip4addr, offset + 8, sizeof(ip4addr));   /* Next Hop */
+                                                ip4addr = tvb_get_ipv4(tvb, offset + 8);   /* Next Hop */
                                                 strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Empty Label Stack RD=%u:%u IPv4=%s",
                                                                 tvb_get_ntohs(tvb, offset + 2),
                                                                 tvb_get_ntohl(tvb, offset + 4),
-                                                                ip_to_str(ip4addr));
+                                                                ip_to_str((guint8 *)&ip4addr));
                                                 break;
                                         case FORMAT_IP_LOC:
                                                 length = 8 + sizeof(ip4addr);
-                                                tvb_memcpy(tvb, ip4addr, offset + 2, sizeof(ip4addr));   /* IP part of the RD            */
-                                                tvb_memcpy(tvb, ip4addr2, offset + 8, sizeof(ip4addr));  /* Next Hop   */
+                                                ip4addr = tvb_get_ipv4(tvb, offset + 2);   /* IP part of the RD            */
+                                                ip4addr2 = tvb_get_ipv4(tvb, offset + 8);  /* Next Hop   */
                                                 strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Empty Label Stack RD=%s:%u IPv4=%s",
-                                                                ip_to_str(ip4addr),
+                                                                ip_to_str((guint8 *)&ip4addr),
                                                                 tvb_get_ntohs(tvb, offset + 6),
-                                                                ip_to_str(ip4addr2));
+                                                                ip_to_str((guint8 *)&ip4addr2));
                                                 break ;
                                         default:
                                                 length = 0 ;
@@ -591,10 +591,10 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
                                                 break;
                                         case FORMAT_IP_LOC:
                                                 length = 8 + 16;
-                                                tvb_memcpy(tvb, ip4addr, offset + 2, sizeof(ip4addr));   /* IP part of the RD            */
+                                                ip4addr = tvb_get_ipv4(tvb, offset + 2);   /* IP part of the RD            */
                                                 tvb_get_ipv6(tvb, offset + 8, &ip6addr); /* Next Hop */
                                                 strptr += g_snprintf(strptr, buf_len-(strptr-buf), "Empty Label Stack RD=%s:%u IPv6=%s",
-                                                                ip_to_str(ip4addr),
+                                                                ip_to_str((guint8 *)&ip4addr),
                                                                 tvb_get_ntohs(tvb, offset + 6),
                                                                 ip6_to_str(&ip6addr));
                                                 break ;
@@ -616,9 +616,9 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
                         case SAFNUM_LAB_VPNMULCAST:
                         case SAFNUM_LAB_VPNUNIMULC:
                             length = 4; /* the next-hop is simply an ipv4 addr */
-                            tvb_memcpy(tvb, ip4addr, offset + 0, 4);
+                            ip4addr = tvb_get_ipv4(tvb, offset + 0);
                             strptr += g_snprintf(strptr, buf_len-(strptr-buf), "IPv4=%s",
-                                     ip_to_str(ip4addr));
+                                     ip_to_str((guint8 *)&ip4addr));
                             break;
                         default:
                             length = 0 ;
@@ -1448,11 +1448,12 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
     static GString  *communities_gstr = NULL;   /* COMMUNITIES GString      */
     static GString  *cluster_list_gstr = NULL;  /* CLUSTER_LIST GString     */
     char            *junk_gbuf, *junk_gbuf_ptr;	/* tmp                      */
-    guint8          ipaddr[4];                  /* IPv4 address             */
+    guint32         ipaddr;                     /* IPv4 address             */
     guint32         aggregator_as;
     guint16	    ssa_type;			/* SSA T + Type */
     guint16	    ssa_len;			/* SSA TLV Length */
     guint8	    ssa_v3_len;			/* SSA L2TPv3 Cookie Length */
+    gfloat	    linkband;			/* Link bandwidth           */
 
     hlen = tvb_get_ntohs(tvb, BGP_MARKER_SIZE);
     o = BGP_HEADER_SIZE;
@@ -1617,12 +1618,12 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 	    case BGPTYPE_NEXT_HOP:
 		if (tlen != 4)
 		    goto default_attribute_top;
-		tvb_memcpy(tvb, ipaddr, o + i + aoff, 4);
+		ipaddr = tvb_get_ipv4(tvb, o + i + aoff);
 		ti = proto_tree_add_text(subtree, tvb, o + i, tlen + aoff,
 			"%s: %s (%u %s)",
 			val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
-			ip_to_str(ipaddr), tlen + aoff, (tlen + aoff == 1)
-                        ? "byte" : "bytes");
+			ip_to_str((guint8 *)&ipaddr),
+			tlen + aoff, (tlen + aoff == 1) ? "byte" : "bytes");
 		break;
 	    case BGPTYPE_MULTI_EXIT_DISC:
 		if (tlen != 4)
@@ -1657,14 +1658,14 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                 if (bgpa.bgpa_type == BGPTYPE_NEW_AGGREGATOR && tlen != 8)
 		    goto default_attribute_top;
 		asn_len = tlen - 4;
-		tvb_memcpy(tvb, ipaddr, o + i + aoff + asn_len, 4);
+		ipaddr = tvb_get_ipv4(tvb, o + i + aoff + asn_len);
 		ti = proto_tree_add_text(subtree, tvb, o + i, tlen + aoff,
 			"%s: AS: %u origin: %s (%u %s)",
 			val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
 			(asn_len == 2) ? tvb_get_ntohs(tvb, o + i + aoff) :
 			tvb_get_ntohl(tvb, o + i + aoff),
-			ip_to_str(ipaddr), tlen + aoff,
-                        (tlen + aoff == 1) ? "byte" : "bytes");
+			ip_to_str((guint8 *)&ipaddr),
+			tlen + aoff, (tlen + aoff == 1) ? "byte" : "bytes");
 		break;
             case BGPTYPE_COMMUNITIES:
 		if (tlen % 4 != 0)
@@ -1711,12 +1712,12 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 	    case BGPTYPE_ORIGINATOR_ID:
 		if (tlen != 4)
 		    goto default_attribute_top;
-		tvb_memcpy(tvb, ipaddr, o + i + aoff, 4);
+		ipaddr = tvb_get_ipv4(tvb, o + i + aoff);
 		ti = proto_tree_add_text(subtree, tvb, o + i, tlen + aoff,
 			"%s: %s (%u %s)",
 			val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
-			ip_to_str(ipaddr), tlen + aoff, (tlen + aoff == 1)
-                        ? "byte" : "bytes");
+			ip_to_str((guint8 *)&ipaddr),
+			tlen + aoff, (tlen + aoff == 1) ? "byte" : "bytes");
 		break;
 	    case BGPTYPE_CLUSTER_LIST:
 		if (tlen % 4 != 0)
@@ -1736,9 +1737,9 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                 g_string_truncate(cluster_list_gstr, 0);
 
                 /* snarf each cluster list */
-		tvb_memcpy(tvb, ipaddr, q, 4);
                 while (q < end) {
-                    g_string_sprintfa(cluster_list_gstr, "%s ", ip_to_str(ipaddr));
+		    ipaddr = tvb_get_ipv4(tvb, q);
+                    g_string_sprintfa(cluster_list_gstr, "%s ", ip_to_str((guint8 *)&ipaddr));
                     q += 4;
                 }
                 /* cleanup end of string */
@@ -2232,20 +2233,20 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                 break ;
                             case BGP_EXT_COM_RT_1:
                             case BGP_EXT_COM_RO_1:
-                                tvb_memcpy(tvb,ipaddr,q+2,4);
+                                ipaddr = tvb_get_ipv4(tvb,q+2);
                                 junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ": %s%s%u",
-                                                       ip_to_str(ipaddr),":",tvb_get_ntohs(tvb,q+6));
+                                                       ip_to_str((guint8 *)&ipaddr),":",tvb_get_ntohs(tvb,q+6));
                                 proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
                                 break;
                             case BGP_EXT_COM_VPN_ORIGIN:
                             case BGP_EXT_COM_OSPF_RID:
-                                tvb_memcpy(tvb,ipaddr,q+2,4);
-                                junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ": %s", ip_to_str(ipaddr));
+                                ipaddr = tvb_get_ipv4(tvb,q+2);
+                                junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ": %s", ip_to_str((guint8 *)&ipaddr));
                                 proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
                                 break;
                             case BGP_EXT_COM_OSPF_RTYPE:
-                                tvb_memcpy(tvb,ipaddr,q+2,4);
-                                junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ": Area: %s, Type: %s", ip_to_str(ipaddr),
+                                ipaddr = tvb_get_ipv4(tvb,q+2);
+                                junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ": Area: %s, Type: %s", ip_to_str((guint8 *)&ipaddr),
                                          val_to_str(tvb_get_guint8(tvb,q+6),bgpext_ospf_rtype,"Unknown"));
 				/* print OSPF Metric type if selected */
 				/* always print E2 even if not external route -- receiving router should ignore */
@@ -2259,9 +2260,9 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                 proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
                                 break;
                             case BGP_EXT_COM_LINKBAND:
-                                tvb_memcpy(tvb,ipaddr,q+2,4); /* need to check on IEEE format on all platforms */
+                                linkband = tvb_get_ntohieee_float(tvb,q+2);
                                 junk_gbuf_ptr += g_snprintf(junk_gbuf_ptr, MAX_STR_LEN-(junk_gbuf_ptr-junk_gbuf), ": %.3f Mbps",
-                                                       ((double)*ipaddr)*8/1000000);
+                                                       linkband*8/1000000);
                                 proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_gbuf);
                                 break;
                             case BGP_EXT_COM_L2INFO:

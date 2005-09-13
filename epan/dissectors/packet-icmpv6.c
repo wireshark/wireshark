@@ -513,7 +513,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
     int i, n, l, p;
     guint16 flags;
     char dname[MAXDNAME];
-    guint8 ipaddr[4];
+    guint32 ipaddr;
 
     ni = &icmp6_nodeinfo;
     tvb_memcpy(tvb, (guint8 *)ni, offset, sizeof *ni);
@@ -643,9 +643,9 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_subject4);
 	    p = offset + sizeof *ni;
 	    for (i = 0; i < n; i++) {
-		tvb_memcpy(tvb, ipaddr, p, 4);
+		ipaddr = tvb_get_ipv4(tvb, p);
 		proto_tree_add_text(field_tree, tvb,
-		    p, sizeof(guint32), "%s", ip_to_str(ipaddr));
+		    p, sizeof(guint32), "%s", ip_to_str((guint8 *)&ipaddr));
 		p += sizeof(guint32);
 	    }
 	    off = tvb_length_remaining(tvb, offset);
@@ -744,9 +744,10 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	    field_tree = proto_item_add_subtree(tf, ett_nodeinfo_node4);
 	    p = offset + sizeof *ni;
 	    for (i = 0; i < n; i++) {
-		tvb_memcpy(tvb, ipaddr, sizeof(gint32) + p, 4);
+		ipaddr = tvb_get_ipv4(tvb, sizeof(gint32) + p);
 		proto_tree_add_text(field_tree, tvb,
-		    p, sizeof(guint32), "%s (TTL %d)", ip_to_str(ipaddr), tvb_get_ntohl(tvb, p));
+		    p, sizeof(guint32), "%s (TTL %d)",
+		    ip_to_str((guint8 *)&ipaddr), tvb_get_ntohl(tvb, p));
 		p += sizeof(gint32) + sizeof(guint32);
 	    }
 	    off = tvb_length_remaining(tvb, offset);
