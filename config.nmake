@@ -34,6 +34,15 @@ RC_WTAP_VERSION=0,3
 WINPCAP_VERSION=3.0
 
 # 
+# Directory, where your User's Guide reside, relative to the source dir.
+# (currently unused)
+#
+# If you don't have the User's Guide, comment this line out, so that 
+# ETHEREAL_EUG_DIR isn't defined.
+#
+#ETHEREAL_EUG_DIR=docbook/eug_html_chunked
+
+# 
 # Base directory, where your libraries reside, which needs to be 
 # compiling the sources. This is only inside this file.
 #
@@ -352,4 +361,4 @@ LIBETHEREAL_CONFIG=
 !ENDIF
 
 # Construct the path
-PATH=$(CYGWIN_PATH);$(DLL_PATH);$(ZLIB_PATH);$(ADNS_PATH);$(PATH)
+PATH=$(PATH);$(CYGWIN_PATH);$(DLL_PATH);$(ZLIB_PATH);$(ADNS_PATH)
