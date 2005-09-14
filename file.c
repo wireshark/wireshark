@@ -983,7 +983,8 @@ cf_merge_files(char **out_filenamep, int in_file_count,
 
   pdh = wtap_dump_fdopen(out_fd, file_type,
       merge_select_frame_type(in_file_count, in_files),
-      merge_max_snapshot_length(in_file_count, in_files), &open_err);
+      merge_max_snapshot_length(in_file_count, in_files), 
+	  FALSE /* compressed */, &open_err);
   if (pdh == NULL) {
     close(out_fd);
     merge_close_in_files(in_file_count, in_files);
@@ -3081,7 +3082,7 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
 }
 
 cf_status_t
-cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_format)
+cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_format, gboolean compressed)
 {
   gchar        *from_filename;
   int           err;
@@ -3160,7 +3161,8 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
     /* Either we're filtering packets, or we're saving in a different
        format; we can't do that by copying or moving the capture file,
        we have to do it by writing the packets out in Wiretap. */
-    pdh = wtap_dump_open(fname, save_format, cf->lnk_t, cf->snap, &err);
+    pdh = wtap_dump_open(fname, save_format, cf->lnk_t, cf->snap, 
+		compressed, &err);
     if (pdh == NULL) {
       cf_open_failure_alert_box(fname, err, NULL, TRUE, save_format);
       goto fail;
@@ -3357,6 +3359,11 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "A full header couldn't be written to the file \"%s\".",
 		    filename);
+      break;
+
+    case WTAP_ERR_COMPRESSION_NOT_SUPPORTED:
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		    "Gzip compression not supported by this file type.");
       break;
 
     default:

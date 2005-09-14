@@ -373,7 +373,7 @@ int main(int argc, char *argv[])
       out_frame_type = wtap_file_encap(wth);
 
     pdh = wtap_dump_open(argv[optind + 1], out_file_type,
-			 out_frame_type, wtap_snapshot_length(wth), &err);
+			 out_frame_type, wtap_snapshot_length(wth), FALSE /* compressed */, &err);
     if (pdh == NULL) {
 
       fprintf(stderr, "editcap: Can't open or create %s: %s\n", argv[optind+1],

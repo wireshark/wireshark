@@ -1217,6 +1217,7 @@ static void
 select_file_type_cb(GtkWidget *w _U_, gpointer data)
 {
   int new_filetype = GPOINTER_TO_INT(data);
+  GtkWidget *compressed_cb;
 
   if (filetype != new_filetype) {
     /* We can select only the filtered or marked packets to be saved if we can
@@ -1225,6 +1226,8 @@ select_file_type_cb(GtkWidget *w _U_, gpointer data)
        range_set_displayed_sensitive(range_tb, can_save_with_wiretap(new_filetype));
     filetype = new_filetype;
     file_set_save_marked_sensitive();
+	compressed_cb = OBJECT_GET_DATA(file_save_as_w, "compressed");
+	gtk_widget_set_sensitive(compressed_cb, wtap_dump_can_compress(new_filetype));
   }
 }
 
@@ -1267,7 +1270,7 @@ gpointer            action_after_save_data_g;
 void
 file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_save_data)
 {
-  GtkWidget     *main_vb, *ft_hb, *ft_lb, *range_fr;
+  GtkWidget     *main_vb, *ft_hb, *ft_lb, *range_fr, *compressed_cb;
   GtkTooltips   *tooltips;
 
 #if GTK_MAJOR_VERSION < 2
@@ -1352,6 +1355,13 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   /* dynamic values in the range frame */
   range_update_dynamics(range_tb);
 
+  /* compressed */
+  compressed_cb = gtk_check_button_new_with_label("Compress with gzip");
+  gtk_container_add(GTK_CONTAINER(ft_hb), compressed_cb);
+  gtk_widget_show(compressed_cb);
+  OBJECT_SET_DATA(file_save_as_w, "compressed", compressed_cb);
+  gtk_widget_set_sensitive(compressed_cb, wtap_dump_can_compress(cfile.cd_t));
+
   SIGNAL_CONNECT(file_save_as_w, "destroy", file_save_as_destroy_cb, NULL);
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
@@ -1389,6 +1399,7 @@ static void
 file_save_as_cb(GtkWidget *w _U_, gpointer fs) {
   gchar	*cf_name;
   gchar	*dirname;
+  GtkWidget *compressed_cb;
 
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
@@ -1397,9 +1408,12 @@ file_save_as_cb(GtkWidget *w _U_, gpointer fs) {
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
 #endif
 
+  compressed_cb = OBJECT_GET_DATA(file_save_as_w, "compressed");
+
   /* Write out the packets (all, or only the ones from the current
      range) to the file with the specified name. */
-  if (cf_save(&cfile, cf_name, &range, filetype) != CF_OK) {
+  if (cf_save(&cfile, cf_name, &range, filetype, 
+	  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(compressed_cb))) != CF_OK) {
     /* The write failed; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the error, try again. */

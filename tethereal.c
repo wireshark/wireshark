@@ -1681,7 +1681,7 @@ capture(char *save_file, int out_file_type)
       }
     } else {
       ld.pdh = wtap_dump_open(save_file, out_file_type,
-		 ld.linktype, file_snaplen, &err);
+		 ld.linktype, file_snaplen, FALSE /* compress */, &err);
     }
 
     if (ld.pdh == NULL) {
@@ -1846,7 +1846,7 @@ capture(char *save_file, int out_file_type)
       }
       if (ld.output_to_pipe) {
         if (ld.packet_count > packet_count_prev) {
-          if (fflush(wtap_dump_file(ld.pdh))) {
+          if (wtap_dump_file_flush(ld.pdh)) {
             volatile_err = errno;
             ld.go = FALSE;
           }
@@ -2121,7 +2121,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type)
       snapshot_length = WTAP_MAX_PACKET_SIZE;
     }
     pdh = wtap_dump_open(save_file, out_file_type,
-		linktype, snapshot_length, &err);
+		linktype, snapshot_length, FALSE /* compressed */, &err);
 
     if (pdh == NULL) {
       /* We couldn't set up to write to the capture file. */

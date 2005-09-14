@@ -1991,10 +1991,10 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 		return FALSE;
 	}
 
-	nwritten = fwrite(&magic, 1, sizeof magic, wdh->fh);
+	nwritten = wtap_dump_file_write(wdh, &magic, sizeof magic);
 	if (nwritten != sizeof magic) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
+		if (nwritten == 0 && wtap_dump_file_ferror(wdh))
+			*err = wtap_dump_file_ferror(wdh);
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
 		return FALSE;
@@ -2020,10 +2020,10 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 	file_hdr.snaplen = (wdh->snaplen != 0) ? wdh->snaplen :
 						 WTAP_MAX_PACKET_SIZE;
 	file_hdr.network = wtap_wtap_encap_to_pcap_encap(wdh->encap);
-	nwritten = fwrite(&file_hdr, 1, sizeof file_hdr, wdh->fh);
+	nwritten = wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr);
 	if (nwritten != sizeof file_hdr) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
+		if (nwritten == 0 && wtap_dump_file_ferror(wdh))
+			*err = wtap_dump_file_ferror(wdh);
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
 		return FALSE;
@@ -2123,10 +2123,10 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		return FALSE;
 	}
 
-	nwritten = fwrite(&rec_hdr, 1, hdr_size, wdh->fh);
+	nwritten = wtap_dump_file_write(wdh, &rec_hdr, hdr_size);
 	if (nwritten != hdr_size) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
+		if (nwritten == 0 && wtap_dump_file_ferror(wdh))
+			*err = wtap_dump_file_ferror(wdh);
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
 		return FALSE;
@@ -2168,10 +2168,10 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		}
 		atm_hdr.vpi = (guint8) pseudo_header->atm.vpi;
 		atm_hdr.vci = phtons(&pseudo_header->atm.vci);
-		nwritten = fwrite(&atm_hdr, 1, sizeof atm_hdr, wdh->fh);
+		nwritten = wtap_dump_file_write(wdh, &atm_hdr, sizeof atm_hdr);
 		if (nwritten != sizeof atm_hdr) {
-			if (nwritten == 0 && ferror(wdh->fh))
-				*err = errno;
+			if (nwritten == 0 && wtap_dump_file_ferror(wdh))
+				*err = wtap_dump_file_ferror(wdh);
 			else
 				*err = WTAP_ERR_SHORT_WRITE;
 			return FALSE;
@@ -2185,10 +2185,10 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		memset(&irda_hdr, 0, sizeof(irda_hdr));
 		irda_hdr.sll_pkttype  = phtons(&pseudo_header->irda.pkttype);
 		irda_hdr.sll_protocol = g_htons(0x0017);
-		nwritten = fwrite(&irda_hdr, 1, sizeof(irda_hdr), wdh->fh);
+		nwritten = wtap_dump_file_write(wdh, &irda_hdr, sizeof(irda_hdr));
 		if (nwritten != sizeof(irda_hdr)) {
-			if (nwritten == 0 && ferror(wdh->fh))
-				*err = errno;
+			if (nwritten == 0 && wtap_dump_file_ferror(wdh))
+				*err = wtap_dump_file_ferror(wdh);
 			else
 				*err = WTAP_ERR_SHORT_WRITE;
 			return FALSE;
@@ -2203,10 +2203,10 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		mtp2_hdr.sent         = pseudo_header->mtp2.sent;
 		mtp2_hdr.annex_a_used = pseudo_header->mtp2.annex_a_used;
 		mtp2_hdr.link_number  = phtons(&pseudo_header->mtp2.link_number);
-		nwritten = fwrite(&mtp2_hdr, 1, sizeof(mtp2_hdr), wdh->fh);
+		nwritten = wtap_dump_file_write(wdh, &mtp2_hdr, sizeof(mtp2_hdr));
 		if (nwritten != sizeof(mtp2_hdr)) {
-			if (nwritten == 0 && ferror(wdh->fh))
-				*err = errno;
+			if (nwritten == 0 && wtap_dump_file_ferror(wdh))
+				*err = wtap_dump_file_ferror(wdh);
 			else
 				*err = WTAP_ERR_SHORT_WRITE;
 			return FALSE;
@@ -2214,10 +2214,10 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		wdh->bytes_dumped += sizeof(mtp2_hdr);
 	}
 
-	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
+	nwritten = wtap_dump_file_write(wdh, pd, phdr->caplen);
 	if (nwritten != phdr->caplen) {
-		if (nwritten == 0 && ferror(wdh->fh))
-			*err = errno;
+		if (nwritten == 0 && wtap_dump_file_ferror(wdh))
+			*err = wtap_dump_file_ferror(wdh);
 		else
 			*err = WTAP_ERR_SHORT_WRITE;
 		return FALSE;

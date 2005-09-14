@@ -230,6 +230,7 @@ struct wtap_dumper {
 	int			file_type;
 	int			snaplen;
 	int			encap;
+	gboolean	compressed;
 	long			bytes_dumped;
 
 	union {
@@ -249,6 +250,8 @@ struct wtap_dumper {
 							 * e.g. WTAP_FILE_TSPREC_USEC */
 };
 
+extern size_t wtap_dump_file_write(wtap_dumper *wdh, const void *buf, unsigned bufsize);
+extern int wtap_dump_file_ferror(wtap_dumper *wdh);
 
 /* Macros to byte-swap 32-bit and 16-bit quantities. */
 #define	BSWAP32(x) \

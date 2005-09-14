@@ -301,7 +301,7 @@ main(int argc, char *argv[])
   }  
     
   /* prepare the outfile */
-  pdh = wtap_dump_fdopen(out_fd, file_type, frame_type, snaplen, &open_err);
+  pdh = wtap_dump_fdopen(out_fd, file_type, frame_type, snaplen, FALSE /* compressed */, &open_err);
   if (pdh == NULL) {
     merge_close_in_files(in_file_count, in_files);
     free(in_files);

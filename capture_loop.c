@@ -832,7 +832,7 @@ static int capture_loop_init_wiretap_output(capture_options *capture_opts, int s
       file_snaplen, &err);
   } else {
     ld->wtap_pdh = wtap_dump_fdopen(save_file_fd, WTAP_FILE_PCAP,
-      ld->wtap_linktype, file_snaplen, &err);
+      ld->wtap_linktype, file_snaplen, FALSE /* compressed */, &err);
   }
 
   if (ld->wtap_pdh == NULL) {
@@ -1242,7 +1242,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
      message to our parent so that they'll open the capture file and
      update its windows to indicate that we have a live capture in
      progress. */
-  fflush(wtap_dump_file(ld.wtap_pdh));
+  wtap_dump_flush(ld.wtap_pdh);
   sync_pipe_filename_to_parent(capture_opts->save_file);
 
   /* initialize capture stop (and alike) conditions */
@@ -1328,7 +1328,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             if (cnd_file_duration) {
               cnd_reset(cnd_file_duration);
             }
-            fflush(wtap_dump_file(ld.wtap_pdh));
+            wtap_dump_flush(ld.wtap_pdh);
             sync_pipe_filename_to_parent(capture_opts->save_file);
           } else {
             /* File switch failed: stop here */
@@ -1371,7 +1371,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
       /* Let the parent process know. */
       if (ld.packets_sync_pipe) {
         /* do sync here */
-        fflush(wtap_dump_file(ld.wtap_pdh));
+        wtap_dump_flush(ld.wtap_pdh);
 
 	  /* Send our parent a message saying we've written out "ld.sync_packets"
 	     packets to the capture file. */
@@ -1403,7 +1403,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             cnd_reset(cnd_file_duration);
             if(cnd_autostop_size)
               cnd_reset(cnd_autostop_size);
-            fflush(wtap_dump_file(ld.wtap_pdh));
+            wtap_dump_flush(ld.wtap_pdh);
             sync_pipe_filename_to_parent(capture_opts->save_file);
           } else {
             /* File switch failed: stop here */

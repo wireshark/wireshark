@@ -338,175 +338,176 @@ success:
 static const struct file_type_info {
 	const char *name;
 	const char *short_name;
+	gboolean	can_compress;
 	int	(*can_write_encap)(int);
 	int	(*dump_open)(wtap_dumper *, gboolean, int *);
 } dump_open_table[WTAP_NUM_FILE_TYPES] = {
 	/* WTAP_FILE_UNKNOWN */
-	{ NULL, NULL,
+	{ NULL, NULL, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_WTAP */
-	{ "Wiretap (Ethereal)", NULL,
+	{ "Wiretap (Ethereal)", NULL, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_PCAP */
-	{ "libpcap (tcpdump, Ethereal, etc.)", "libpcap",
+	{ "libpcap (tcpdump, Ethereal, etc.)", "libpcap", TRUE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_SS990417 */
-	{ "RedHat Linux 6.1 libpcap (tcpdump)", "rh6_1libpcap",
+	{ "RedHat Linux 6.1 libpcap (tcpdump)", "rh6_1libpcap", TRUE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_SS990915 */
-	{ "SuSE Linux 6.3 libpcap (tcpdump)", "suse6_3libpcap",
+	{ "SuSE Linux 6.3 libpcap (tcpdump)", "suse6_3libpcap", TRUE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_SS991029 */
-	{ "modified libpcap (tcpdump)", "modlibpcap",
+	{ "modified libpcap (tcpdump)", "modlibpcap", TRUE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_NOKIA */
-	{ "Nokia libpcap (tcpdump)", "nokialibpcap",
+	{ "Nokia libpcap (tcpdump)", "nokialibpcap", TRUE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_AIX */
-	{ "AIX libpcap (tcpdump)", NULL,
+	{ "AIX libpcap (tcpdump)", NULL, TRUE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_PCAP_NSEC */
-	{ "Nanosecond libpcap (Ethereal)", "nseclibpcap",
+	{ "Nanosecond libpcap (Ethereal)", "nseclibpcap", TRUE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_LANALYZER */
-	{ "Novell LANalyzer","lanalyzer",
+	{ "Novell LANalyzer","lanalyzer", FALSE,
 	  lanalyzer_dump_can_write_encap, lanalyzer_dump_open },
 
 	/* WTAP_FILE_NGSNIFFER_UNCOMPRESSED */
-	{ "Network Associates Sniffer (DOS-based)", "ngsniffer",
+	{ "Network Associates Sniffer (DOS-based)", "ngsniffer", FALSE,
 	  ngsniffer_dump_can_write_encap, ngsniffer_dump_open },
 
 	/* WTAP_FILE_NGSNIFFER_COMPRESSED */
-	{ "Network Associates Sniffer (DOS-based), compressed", "ngsniffer_comp",
+	{ "Network Associates Sniffer (DOS-based), compressed", "ngsniffer_comp", FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_SNOOP */
-	{ "Sun snoop", "snoop",
+	{ "Sun snoop", "snoop", FALSE,
 	  snoop_dump_can_write_encap, snoop_dump_open },
 
 	/* WTAP_FILE_SHOMITI */
-	{ "Shomiti/Finisar Surveyor", "shomiti",
+	{ "Shomiti/Finisar Surveyor", "shomiti", FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_IPTRACE_1_0 */
-	{ "AIX iptrace 1.0", NULL,
+	{ "AIX iptrace 1.0", NULL, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_IPTRACE_2_0 */
-	{ "AIX iptrace 2.0", NULL,
+	{ "AIX iptrace 2.0", NULL, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETMON_1_x */
-	{ "Microsoft Network Monitor 1.x", "netmon1",
+	{ "Microsoft Network Monitor 1.x", "netmon1", FALSE,
 	  netmon_dump_can_write_encap, netmon_dump_open },
 
 	/* WTAP_FILE_NETMON_2_x */
-	{ "Microsoft Network Monitor 2.x", "netmon2",
+	{ "Microsoft Network Monitor 2.x", "netmon2", FALSE,
 	  netmon_dump_can_write_encap, netmon_dump_open },
 
 	/* WTAP_FILE_NETXRAY_OLD */
-	{ "Cinco Networks NetXRay 1.x", NULL,
+	{ "Cinco Networks NetXRay 1.x", NULL, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETXRAY_1_0 */
-	{ "Cinco Networks NetXRay 2.0 or later", NULL,
+	{ "Cinco Networks NetXRay 2.0 or later", NULL, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETXRAY_1_1 */
-	{ "Network Associates Sniffer (Windows-based) 1.1", "ngwsniffer_1_1",
+	{ "Network Associates Sniffer (Windows-based) 1.1", "ngwsniffer_1_1", FALSE,
 	  netxray_dump_can_write_encap_1_1, netxray_dump_open_1_1 },
 
 	/* WTAP_FILE_NETXRAY_2_00x */
-	{ "Network Associates Sniffer (Windows-based) 2.00x", "ngwsniffer_2_0",
+	{ "Network Associates Sniffer (Windows-based) 2.00x", "ngwsniffer_2_0", FALSE,
 	  netxray_dump_can_write_encap_2_0, netxray_dump_open_2_0 },
 
 	/* WTAP_FILE_RADCOM */
-	{ "RADCOM WAN/LAN analyzer", NULL,
+	{ "RADCOM WAN/LAN analyzer", NULL, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_ASCEND */
-	{ "Lucent/Ascend access server trace", NULL,
+	{ "Lucent/Ascend access server trace", NULL, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETTL */
-	{ "HP-UX nettl trace", "nettl",
+	{ "HP-UX nettl trace", "nettl", FALSE,
 	  nettl_dump_can_write_encap, nettl_dump_open },
 
 	/* WTAP_FILE_TOSHIBA */
-	{ "Toshiba Compact ISDN Router snoop trace", NULL,
+	{ "Toshiba Compact ISDN Router snoop trace", NULL, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_I4BTRACE */
-	{ "I4B ISDN trace", NULL,
+	{ "I4B ISDN trace", NULL, FALSE,
 	  NULL, NULL },
 
         /* WTAP_FILE_CSIDS */
-        { "CSIDS IPLog", NULL,
+        { "CSIDS IPLog", NULL, FALSE,
           NULL, NULL },
 
         /* WTAP_FILE_PPPDUMP */
-        { "pppd log (pppdump format)", NULL,
+        { "pppd log (pppdump format)", NULL, FALSE,
           NULL, NULL },
 
 	/* WTAP_FILE_ETHERPEEK_V56 */
-	{ "EtherPeek/TokenPeek trace (V5 & V6 file format)", NULL,
+	{ "EtherPeek/TokenPeek trace (V5 & V6 file format)", NULL, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_ETHERPEEK_V7 */
-	{ "EtherPeek/TokenPeek/AiroPeek trace (V7 file format)", NULL,
+	{ "EtherPeek/TokenPeek/AiroPeek trace (V7 file format)", NULL, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_VMS */
-	{ "TCPIPtrace (VMS)", NULL,
+	{ "TCPIPtrace (VMS)", NULL, FALSE,
 	  NULL, NULL},
 
 	/* WTAP_FILE_DBS_ETHERWATCH */
-	{ "DBS Etherwatch (VMS)", NULL,
+	{ "DBS Etherwatch (VMS)", NULL, FALSE,
 	  NULL, NULL},
 
 	/* WTAP_FILE_VISUAL_NETWORKS */
-	{ "Visual Networks traffic capture", "visual",
+	{ "Visual Networks traffic capture", "visual", FALSE,
 	  visual_dump_can_write_encap, visual_dump_open },
 
 	/* WTAP_FILE_COSINE */
-	{ "CoSine IPSX L2 capture", "cosine",
+	{ "CoSine IPSX L2 capture", "cosine", FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_5VIEWS */
-	{ "Accellent 5Views capture", "5views",
+	{ "Accellent 5Views capture", "5views", FALSE,
 	  _5views_dump_can_write_encap, _5views_dump_open },
 
 	/* WTAP_FILE_ERF */
-	{ "Endace DAG capture", "erf",
+	{ "Endace DAG capture", "erf", FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_HCIDUMP */
-	{ "Bluetooth HCI dump", "hcidump",
+	{ "Bluetooth HCI dump", "hcidump", FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETWORK_INSTRUMENTS_V9 */
-	{ "Network Instruments Observer version 9", "niobserverv9",
+	{ "Network Instruments Observer version 9", "niobserverv9", FALSE,
 	  network_instruments_dump_can_write_encap, network_instruments_dump_open },
 
 	/* WTAP_FILE_AIROPEEK_V9 */
-	{ "EtherPeek/AiroPeek trace (V9 file format)", NULL,
+	{ "EtherPeek/AiroPeek trace (V9 file format)", NULL, FALSE,
 	  NULL, NULL },
     
 	/* WTAP_FILE_EYESDN */
-	{ "EyeSDN USB S0/E1 ISDN trace format", NULL,
+	{ "EyeSDN USB S0/E1 ISDN trace format", NULL, FALSE,
 		NULL, NULL },
     
 	/* WTAP_FILE_K12 */
-	{ "Tektronix K12xx 32-bit .rf5 format", "rf5",
+	{ "Tektronix K12xx 32-bit .rf5 format", "rf5", FALSE,
 		k12_dump_can_write_encap, k12_dump_open },
 };
 
@@ -563,29 +564,51 @@ gboolean wtap_dump_can_write_encap(int filetype, int encap)
 	return TRUE;
 }
 
-static gboolean wtap_dump_open_check(int filetype, int encap, int *err);
+gboolean wtap_dump_can_compress(int filetype)
+{
+#ifdef HAVE_LIBZ
+	if (filetype < 0 || filetype >= WTAP_NUM_FILE_TYPES
+	    || dump_open_table[filetype].can_compress == FALSE)
+		return FALSE;
+
+	return TRUE;
+#else
+	return FALSE;
+#endif
+}
+
+
+static gboolean wtap_dump_open_check(int filetype, int encap, gboolean comressed, int *err);
 static wtap_dumper* wtap_dump_alloc_wdh(int filetype, int encap, int snaplen,
-    int *err);
-static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int filetype, int *err);
+    gboolean compressed, int *err);
+static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int filetype, gboolean compressed, int *err);
+
+static FILE *wtap_dump_file_open(wtap_dumper *wdh, const char *filename);
+static FILE *wtap_dump_file_fdopen(wtap_dumper *wdh, int fd);
+static int wtap_dump_file_close(wtap_dumper *wdh);
 
 wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
-				int snaplen, int *err)
+				int snaplen, gboolean compressed, int *err)
 {
 	wtap_dumper *wdh;
 	FILE *fh;
 
 	/* Check whether we can open a capture file with that file type
 	   and that encapsulation. */
-	if (!wtap_dump_open_check(filetype, encap, err))
+	if (!wtap_dump_open_check(filetype, encap, compressed, err))
 		return NULL;
 
 	/* Allocate a data structure for the output stream. */
-	wdh = wtap_dump_alloc_wdh(filetype, encap, snaplen, err);
+	wdh = wtap_dump_alloc_wdh(filetype, encap, snaplen, compressed, err);
 	if (wdh == NULL)
 		return NULL;	/* couldn't allocate it */
 
 	/* Empty filename means stdout */
 	if (*filename == '\0') {
+		if(compressed) {
+			g_free(wdh);
+			return NULL;	/* compress won't work on stdout */
+		}
 #ifdef _WIN32
 		setmode(fileno(stdout), O_BINARY);
 #endif
@@ -594,56 +617,64 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 		/* In case "fopen()" fails but doesn't set "errno", set "errno"
 		   to a generic "the open failed" error. */
 		errno = WTAP_ERR_CANT_OPEN;
-		fh = fopen(filename, "wb");
+		fh = wtap_dump_file_open(wdh, filename);
 		if (fh == NULL) {
 			*err = errno;
+			g_free(wdh);
 			return NULL;	/* can't create file */
 		}
 		wdh->fh = fh;
 	}
 
-	if (!wtap_dump_open_finish(wdh, filetype, err)) {
+	if (!wtap_dump_open_finish(wdh, filetype, compressed, err)) {
 		/* Get rid of the file we created; we couldn't finish
 		   opening it. */
-		if (wdh->fh != stdout)
+		if (wdh->fh != stdout) {
+			wtap_dump_file_close(wdh);
 			unlink(filename);
+		}
+		g_free(wdh);
 		return NULL;
 	}
 	return wdh;
 }
 
 wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
-				int *err)
+				gboolean compressed, int *err)
 {
 	wtap_dumper *wdh;
 	FILE *fh;
 
 	/* Check whether we can open a capture file with that file type
 	   and that encapsulation. */
-	if (!wtap_dump_open_check(filetype, encap, err))
+	if (!wtap_dump_open_check(filetype, encap, compressed, err))
 		return NULL;
 
 	/* Allocate a data structure for the output stream. */
-	wdh = wtap_dump_alloc_wdh(filetype, encap, snaplen, err);
+	wdh = wtap_dump_alloc_wdh(filetype, encap, snaplen, compressed, err);
 	if (wdh == NULL)
 		return NULL;	/* couldn't allocate it */
 
 	/* In case "fopen()" fails but doesn't set "errno", set "errno"
 	   to a generic "the open failed" error. */
 	errno = WTAP_ERR_CANT_OPEN;
-	fh = fdopen(fd, "wb");
+	fh = wtap_dump_file_fdopen(wdh, fd);
 	if (fh == NULL) {
 		*err = errno;
+		g_free(wdh);
 		return NULL;	/* can't create standard I/O stream */
 	}
 	wdh->fh = fh;
 
-	if (!wtap_dump_open_finish(wdh, filetype, err))
+	if (!wtap_dump_open_finish(wdh, filetype, compressed, err)) {
+		wtap_dump_file_close(wdh);
+		g_free(wdh);
 		return NULL;
+	}
 	return wdh;
 }
 
-static gboolean wtap_dump_open_check(int filetype, int encap, int *err)
+static gboolean wtap_dump_open_check(int filetype, int encap, gboolean compressed, int *err)
 {
 	if (!wtap_dump_can_open(filetype)) {
 		/* Invalid type, or type we don't know how to write. */
@@ -657,12 +688,23 @@ static gboolean wtap_dump_open_check(int filetype, int encap, int *err)
 	if (*err != 0)
 		return FALSE;
 
+	/* if compression is wanted, do we support this for this filetype? */
+	if(compressed && !wtap_dump_can_compress(filetype)) {
+		*err = WTAP_ERR_COMPRESSION_NOT_SUPPORTED;
+		return FALSE;
+	}
+
+	*err = (*dump_open_table[filetype].can_write_encap)(encap);
+	if (*err != 0)
+		return FALSE;
+
+
 	/* All systems go! */
 	return TRUE;
 }
 
 static wtap_dumper* wtap_dump_alloc_wdh(int filetype, int encap, int snaplen,
-					int *err)
+					gboolean compressed, int *err)
 {
 	wtap_dumper *wdh;
 
@@ -675,6 +717,7 @@ static wtap_dumper* wtap_dump_alloc_wdh(int filetype, int encap, int snaplen,
 	wdh->file_type = filetype;
 	wdh->snaplen = snaplen;
 	wdh->encap = encap;
+	wdh->compressed = compressed;
 	wdh->bytes_dumped = 0;
 	wdh->dump.opaque = NULL;
 	wdh->subtype_write = NULL;
@@ -682,47 +725,50 @@ static wtap_dumper* wtap_dump_alloc_wdh(int filetype, int encap, int snaplen,
 	return wdh;
 }
 
-static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int filetype, int *err)
+static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int filetype, gboolean compressed, int *err)
 {
 	int fd;
 	gboolean cant_seek;
 
 	/* Can we do a seek on the file descriptor?
 	   If not, note that fact. */
-	fd = fileno(wdh->fh);
-	if (lseek(fd, 1, SEEK_CUR) == -1)
-	  cant_seek = TRUE;
-	else {
-	  /* Undo the seek. */
-	  lseek(fd, 0, SEEK_SET);
-	  cant_seek = FALSE;
+	if(compressed) {
+		cant_seek = TRUE;
+	} else {
+		fd = fileno(wdh->fh);
+		if (lseek(fd, 1, SEEK_CUR) == -1)
+		  cant_seek = TRUE;
+		else {
+		  /* Undo the seek. */
+		  lseek(fd, 0, SEEK_SET);
+		  cant_seek = FALSE;
+		}
 	}
 
 	/* Now try to open the file for writing. */
 	if (!(*dump_open_table[filetype].dump_open)(wdh, cant_seek, err)) {
-		/* The attempt failed.  Close the stream for the file.
-		   NOTE: this means the FD handed to "wtap_dump_fdopen()"
-		   will be closed if the open fails. */
-		if (wdh->fh != stdout)
-			fclose(wdh->fh);
-
-		/* Now free up the dumper handle. */
-		g_free(wdh);
 		return FALSE;
 	}
 
 	return TRUE;	/* success! */
 }
 
-FILE* wtap_dump_file(wtap_dumper *wdh)
-{
-	return wdh->fh;
-}
-
 gboolean wtap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err)
 {
 	return (wdh->subtype_write)(wdh, phdr, pseudo_header, pd, err);
+}
+
+void wtap_dump_flush(wtap_dumper *wdh)
+{
+#ifdef HAVE_LIBZ
+	if(wdh->compressed) {
+		gzflush(wdh->fh, Z_SYNC_FLUSH);	/* XXX - is Z_SYNC_FLUSH the right one? */
+	} else 
+#endif
+	{
+		fflush(wdh->fh);
+	}
 }
 
 gboolean wtap_dump_close(wtap_dumper *wdh, int *err)
@@ -737,7 +783,7 @@ gboolean wtap_dump_close(wtap_dumper *wdh, int *err)
 	errno = WTAP_ERR_CANT_CLOSE;
 	/* Don't close stdout */
 	if (wdh->fh != stdout) {
-		if (fclose(wdh->fh) == EOF) {
+		if (wtap_dump_file_close(wdh) == EOF) {
 			if (ret) {
 				/* The per-format close function succeeded,
 				   but the fclose didn't.  Save the reason
@@ -762,5 +808,79 @@ long wtap_get_bytes_dumped(wtap_dumper *wdh)
 void wtap_set_bytes_dumped(wtap_dumper *wdh, long bytes_dumped)
 {
 	wdh->bytes_dumped = bytes_dumped;
+}
+
+
+/* internally open a file for writing (compressed or not) */
+static FILE *wtap_dump_file_open(wtap_dumper *wdh, const char *filename)
+{
+#ifdef HAVE_LIBZ
+	if(wdh->compressed) {
+		return gzopen(filename, "wb");
+	} else 
+#endif
+	{
+		return fopen(filename, "wb");
+	}
+}
+
+/* internally open a file for writing (compressed or not) */
+static FILE *wtap_dump_file_fdopen(wtap_dumper *wdh, int fd)
+{
+#ifdef HAVE_LIBZ
+	if(wdh->compressed) {
+		return gzdopen(fd, "wb");
+	} else 
+#endif
+	{
+		return fdopen(fd, "wb");
+	}
+}
+
+/* internally writing raw bytes (compressed or not) */
+size_t wtap_dump_file_write(wtap_dumper *wdh, const void *buf, unsigned bufsize)
+{
+#ifdef HAVE_LIBZ
+	if(wdh->compressed) {
+		return gzwrite(wdh->fh, buf, bufsize);
+	} else 
+#endif
+	{
+		return fwrite(buf, 1, bufsize, wdh->fh);
+	}
+}
+
+/* internally close a file for writing (compressed or not) */
+static int wtap_dump_file_close(wtap_dumper *wdh)
+{
+#ifdef HAVE_LIBZ
+	if(wdh->compressed) {
+		return gzclose(wdh->fh);
+	} else 
+#endif
+	{
+		return fclose(wdh->fh);
+	}
+}
+
+int wtap_dump_file_ferror(wtap_dumper *wdh)
+{
+#ifdef HAVE_LIBZ
+	int errnum;
+
+	if(wdh->compressed) {
+		gzerror(wdh->fh, &errnum);
+
+		if(errnum == Z_ERRNO) {
+			return errno;
+		} else {
+			/* XXX - what to do with this zlib specific number? */
+			return errnum;
+		}
+	} else 
+#endif
+	{
+		return ferror(wdh->fh);
+	}
 }
 

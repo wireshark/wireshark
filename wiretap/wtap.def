@@ -4,9 +4,10 @@ wtap_close
 wtap_dump
 wtap_dump_can_open
 wtap_dump_can_write_encap
+wtap_dump_can_compress
 wtap_dump_close
 wtap_dump_fdopen
-wtap_dump_file
+wtap_dump_flush
 wtap_dump_open
 wtap_encap_short_string
 wtap_encap_string

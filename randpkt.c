@@ -482,7 +482,7 @@ main(int argc, char **argv)
 	pkthdr.pkt_encap = example->sample_wtap_encap;
 
 	dump = wtap_dump_open(produce_filename, WTAP_FILE_PCAP,
-		example->sample_wtap_encap, produce_max_bytes, &err);
+		example->sample_wtap_encap, produce_max_bytes, FALSE /* compressed */, &err);
 
 	seed();
 

@@ -157,9 +157,10 @@ cf_read_status_t cf_finish_tail(capture_file *cf, int *err);
  * @param fname the filename to save to
  * @param range the range of packets to save
  * @param save_format the format of the file to save (libpcap, ...)
+ * @param compressed wether to gzip compress the file
  * @return one of cf_status_t
  */
-cf_status_t cf_save(capture_file * cf, const char *fname, packet_range_t *range, guint save_format);
+cf_status_t cf_save(capture_file * cf, const char *fname, packet_range_t *range, guint save_format, gboolean compressed);
 
 /**
  * Get a displayable name of the capture file.

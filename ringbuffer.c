@@ -241,7 +241,7 @@ ringbuf_init_wtap_dump_fdopen(int filetype, int linktype, int snaplen, int *err)
   rb_data.linktype = linktype;
   rb_data.snaplen  = snaplen;
 
-  rb_data.pdh = wtap_dump_fdopen(rb_data.fd, filetype, linktype, snaplen, err);
+  rb_data.pdh = wtap_dump_fdopen(rb_data.fd, filetype, linktype, snaplen, FALSE /* compressed */, err);
 
   return rb_data.pdh;
 }

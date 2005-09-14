@@ -572,13 +572,14 @@ gboolean wtap_seek_read (wtap *wth, long seek_off,
 
 gboolean wtap_dump_can_open(int filetype);
 gboolean wtap_dump_can_write_encap(int filetype, int encap);
+gboolean wtap_dump_can_compress(int filetype);
 wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
-	int snaplen, int *err);
+	int snaplen, gboolean compressed, int *err);
 wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
-	int *err);
+	gboolean compressed, int *err);
 gboolean wtap_dump(wtap_dumper *, const struct wtap_pkthdr *,
 	const union wtap_pseudo_header *pseudo_header, const guchar *, int *err);
-FILE* wtap_dump_file(wtap_dumper *);
+void wtap_dump_flush(wtap_dumper *);
 gboolean wtap_dump_close(wtap_dumper *, int *);
 long wtap_get_bytes_dumped(wtap_dumper *);
 void wtap_set_bytes_dumped(wtap_dumper *wdh, long bytes_dumped);
@@ -624,6 +625,8 @@ void wtap_set_bytes_dumped(wtap_dumper *wdh, long bytes_dumped);
 	/* LZ77 compressed data has bad offset to string */
 #define	WTAP_ERR_RANDOM_OPEN_STDIN		-18
 	/* We're trying to open the standard input for random access */
+#define WTAP_ERR_COMPRESSION_NOT_SUPPORTED -19
+	/* The filetype doesn't support output compression */
 
 /* Errors from zlib; zlib error Z_xxx turns into Wiretap error
    WTAP_ERR_ZLIB + Z_xxx.
