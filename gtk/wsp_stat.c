@@ -411,7 +411,7 @@ gtk_wspstat_init(const char *optarg)
     gtk_widget_show_all(sp->win);
     window_present(sp->win);
 	
-    cf_retap_packets(&cfile);
+    cf_retap_packets(&cfile, FALSE);
 }
 
 static tap_dfilter_dlg wsp_stat_dlg = {

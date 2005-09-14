@@ -565,7 +565,7 @@ gtk_sctpstat_dlg(void)
 	SIGNAL_CONNECT(bt_close, "clicked", sctp_stat_on_close, NULL);
 
 	sctp_stat_dlg = sctp_stat_dlg_w;
-	cf_retap_packets(&cfile);
+	cf_retap_packets(&cfile, FALSE);
 
 }
 

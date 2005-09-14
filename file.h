@@ -266,9 +266,10 @@ void cf_redissect_packets(capture_file *cf);
  * Rescan all packets and just run taps - don't reconstruct the display.
  * 
  * @param cf the capture file
+ * @param do_columns TRUE if columns are to be generated, FALSE otherwise
  * @return one of cf_read_status_t
  */
-cf_read_status_t cf_retap_packets(capture_file *cf);
+cf_read_status_t cf_retap_packets(capture_file *cf, gboolean do_columns);
 
 /**
  * The time format has changed, rescan all packets.

@@ -335,7 +335,7 @@ flow_graph_on_ok                    (GtkButton       *button _U_,
 		remove_tap_listener_flow_graph();
 	}
 	
-	/* Scan for displayed packets (redissect all packets) */
+	/* Scan for displayed packets (retap all packets) */
 
 	if (type_of_flow == GENERAL){
 		/* Register the tap listener */
@@ -351,7 +351,7 @@ flow_graph_on_ok                    (GtkButton       *button _U_,
 			have_frame_tap_listener=TRUE;
 		}
 
-		cf_redissect_packets(&cfile);
+		cf_retap_packets(&cfile, TRUE);
 	}
 	else if (type_of_flow == TCP){
 	/* Register the tap listener */
@@ -367,7 +367,7 @@ flow_graph_on_ok                    (GtkButton       *button _U_,
 			have_tcp_tap_listener=TRUE;
 		}
 
-		cf_retap_packets(&cfile);
+		cf_retap_packets(&cfile, FALSE);
 	}
 
 	if (graph_analysis_data->dlg.window != NULL){ /* if we still have a window */

@@ -1838,7 +1838,7 @@ static void graph_segment_list_get (struct graph *g)
 		g_string_free(error_string, TRUE);
 		exit(1);
 	}
-	cf_retap_packets(&cfile);
+	cf_retap_packets(&cfile, FALSE);
 	remove_tap_listener(&ts);
 }
 

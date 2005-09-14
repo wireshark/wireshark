@@ -324,7 +324,7 @@ gtk_sctpstat_dlg(struct sctp_udata *u_data, unsigned int direction)
 
 	SIGNAL_CONNECT(bt_close, "clicked", sctp_chunk_stat_on_close, u_data);
 
-	cf_retap_packets(&cfile);
+	cf_retap_packets(&cfile, FALSE);
 
 }
 

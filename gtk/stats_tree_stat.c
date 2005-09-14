@@ -360,7 +360,7 @@ static void init_gtk_tree(const char* optarg) {
 	
 	st->cfg->init(st);
 
-	cf_retap_packets(&cfile);
+	cf_retap_packets(&cfile, FALSE);
 }
 
 

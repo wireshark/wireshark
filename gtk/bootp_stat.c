@@ -267,7 +267,7 @@ dhcpstat_init(const char *optarg)
 
 	window_present(sp->win);
 
-	cf_retap_packets(&cfile);
+	cf_retap_packets(&cfile, FALSE);
 }
 
 static tap_dfilter_dlg dhcp_stat_dlg = {

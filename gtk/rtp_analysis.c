@@ -1776,7 +1776,7 @@ static gint filter_callback(GtkWidget *widget _U_, dialog_graph_graph_t *dgg)
         }
 
 	enable_graph(dgg);
-        cf_retap_packets(&cfile);
+        cf_retap_packets(&cfile, FALSE);
         dialog_graph_redraw(dgg->ud);
 
         return 0;
@@ -1895,7 +1895,7 @@ static void tick_interval_select(GtkWidget *item, gpointer key)
         val=(int)OBJECT_GET_DATA(item, "tick_interval");
 
         user_data->dlg.dialog_graph.interval=val;
-        cf_retap_packets(&cfile);
+        cf_retap_packets(&cfile, FALSE);
         dialog_graph_redraw(user_data);
 }
 
@@ -2128,7 +2128,7 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	}
 
 	/* retap all packets */
-	cf_retap_packets(&cfile);
+	cf_retap_packets(&cfile, FALSE);
 
 	/* draw statistics info */
 	draw_stat(user_data);

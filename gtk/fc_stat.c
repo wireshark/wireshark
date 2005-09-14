@@ -197,7 +197,7 @@ gtk_fcstat_init(const char *optarg)
 	gtk_widget_show_all(fc->win);
 	window_present(fc->win);
 
-	cf_retap_packets(&cfile);
+	cf_retap_packets(&cfile, FALSE);
 }
 
 static tap_dfilter_dlg fc_stat_dlg = {

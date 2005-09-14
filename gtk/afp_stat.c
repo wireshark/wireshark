@@ -194,7 +194,7 @@ gtk_afpstat_init(const char *optarg)
 	gtk_widget_show_all(ss->win);
 	window_present(ss->win);
 	
-	cf_retap_packets(&cfile);
+	cf_retap_packets(&cfile, FALSE);
 }
 
 static tap_dfilter_dlg afp_stat_dlg = {

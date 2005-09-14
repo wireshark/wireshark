@@ -1603,8 +1603,9 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
 static gboolean
 retap_packet(capture_file *cf _U_, frame_data *fdata,
              union wtap_pseudo_header *pseudo_header, const guint8 *pd,
-             void *argsp _U_)
+             void *argsp)
 {
+  column_info *cinfo = argsp;
   epan_dissect_t *edt;
 
   /* If we have tap listeners, allocate a protocol tree root node, so that
@@ -1612,7 +1613,7 @@ retap_packet(capture_file *cf _U_, frame_data *fdata,
      be evaluated. */
   edt = epan_dissect_new(num_tap_filters != 0, FALSE);
   tap_queue_init(edt);
-  epan_dissect_run(edt, pseudo_header, pd, fdata, NULL);
+  epan_dissect_run(edt, pseudo_header, pd, fdata, cinfo);
   tap_push_tapped_queue(edt);
   epan_dissect_free(edt);
 
@@ -1620,7 +1621,7 @@ retap_packet(capture_file *cf _U_, frame_data *fdata,
 }
 
 cf_read_status_t
-cf_retap_packets(capture_file *cf)
+cf_retap_packets(capture_file *cf, gboolean do_columns)
 {
   packet_range_t range;
 
@@ -1633,7 +1634,7 @@ cf_retap_packets(capture_file *cf)
   packet_range_process_init(&range);
   switch (process_specified_packets(cf, &range, "Refiltering statistics on",
                                     "all packets", retap_packet,
-                                    NULL)) {
+                                    do_columns ? &cf->cinfo : NULL)) {
   case PSP_FINISHED:
     /* Completed successfully. */
     return CF_OK;

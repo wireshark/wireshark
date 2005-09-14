@@ -232,7 +232,7 @@ gtk_ldapstat_init(const char *optarg)
 	gtk_widget_show_all(ldap->win);
 	window_present(ldap->win);
 	
-	cf_retap_packets(&cfile);
+	cf_retap_packets(&cfile, FALSE);
 }
 
 static tap_dfilter_dlg ldap_stat_dlg = {

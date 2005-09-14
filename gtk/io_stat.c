@@ -1115,7 +1115,7 @@ gtk_iostat_init(const char *optarg _U_)
 	/* build the GUI */
 	init_io_stat_window(io);
 
-	cf_retap_packets(&cfile);
+	cf_retap_packets(&cfile, FALSE);
 	io_stat_redraw(io);
 }
 
@@ -1275,7 +1275,7 @@ tick_interval_select(GtkWidget *item, gpointer key)
 	val=(int)OBJECT_GET_DATA(item, "tick_interval");
 
 	io->interval=val;
-	cf_retap_packets(&cfile);
+	cf_retap_packets(&cfile, FALSE);
 	io_stat_redraw(io);
 }
 
@@ -1640,7 +1640,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 	
 	io_stat_reset(gio->io);
 	enable_graph(gio, filter, field);
-	cf_retap_packets(&cfile);
+	cf_retap_packets(&cfile, FALSE);
 	io_stat_redraw(gio->io);
 
 	return 0;

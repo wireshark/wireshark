@@ -574,7 +574,7 @@ expert_dlg_init(const char *optarg)
 	gtk_widget_show_all(etd->win);
 	window_present(etd->win);
 	
-	cf_retap_packets(&cfile);
+	cf_retap_packets(&cfile, FALSE);
 }
 
 

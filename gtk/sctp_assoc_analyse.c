@@ -868,7 +868,7 @@ void sctp_analyse_start(GtkWidget *w _U_, gpointer data _U_)
 	u_data->window       = NULL;
 	u_data->num_children = 0;
 
-	cf_retap_packets(&cfile);
+	cf_retap_packets(&cfile, FALSE);
 	sctp_analyse_cb(u_data);
 }
 
