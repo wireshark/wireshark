@@ -493,24 +493,24 @@ struct _SNMP_CNV
 
 static SNMP_CNV SnmpCnv [] =
 {
-  {ASN1_UNI, ASN1_NUL, SNMP_NULL,      "NULL"},
-  {ASN1_UNI, ASN1_INT, SNMP_INTEGER,   "INTEGER"},
-  {ASN1_UNI, ASN1_OTS, SNMP_OCTETSTR,  "OCTET STRING"},
-  {ASN1_UNI, ASN1_OJI, SNMP_OBJECTID,  "OBJECTID"},
-  {ASN1_APL, SNMP_IPA, SNMP_IPADDR,    "IPADDR"},
-  {ASN1_APL, SNMP_CNT, SNMP_COUNTER,   "COUNTER"},  /* Counter32 */
-  {ASN1_APL, SNMP_GGE, SNMP_GAUGE,     "GAUGE"},    /* Gauge32 == Unsigned32  */
-  {ASN1_APL, SNMP_TIT, SNMP_TIMETICKS, "TIMETICKS"},
-  {ASN1_APL, SNMP_OPQ, SNMP_OPAQUE,    "OPAQUE"},
+  {BER_CLASS_UNI, BER_UNI_TAG_NULL,			SNMP_NULL,      "NULL"},
+  {BER_CLASS_UNI, BER_UNI_TAG_INTEGER,		SNMP_INTEGER,   "INTEGER"},
+  {BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING,	SNMP_OCTETSTR,  "OCTET STRING"},
+  {BER_CLASS_UNI, BER_UNI_TAG_OID,			SNMP_OBJECTID,  "OBJECTID"},
+  {BER_CLASS_APP, SNMP_IPA,					SNMP_IPADDR,    "IPADDR"},
+  {BER_CLASS_APP, SNMP_CNT,					SNMP_COUNTER,   "COUNTER"},  /* Counter32 */
+  {BER_CLASS_APP, SNMP_GGE,					SNMP_GAUGE,     "GAUGE"},    /* Gauge32 == Unsigned32  */
+  {BER_CLASS_APP, SNMP_TIT,					SNMP_TIMETICKS, "TIMETICKS"},
+  {BER_CLASS_APP, SNMP_OPQ,					SNMP_OPAQUE,    "OPAQUE"},
 
 /* SNMPv2 data types and errors */
 
-  {ASN1_UNI, ASN1_BTS, SNMP_BITSTR,         "BITSTR"},
-  {ASN1_APL, SNMP_C64, SNMP_COUNTER64,      "COUNTER64"},
-  {ASN1_CTX, SERR_NSO, SNMP_NOSUCHOBJECT,   "NOSUCHOBJECT"},
-  {ASN1_CTX, SERR_NSI, SNMP_NOSUCHINSTANCE, "NOSUCHINSTANCE"},
-  {ASN1_CTX, SERR_EOM, SNMP_ENDOFMIBVIEW,   "ENDOFMIBVIEW"},
-  {0,       0,         -1,                  NULL}
+  {BER_CLASS_UNI, BER_UNI_TAG_BITSTRING,	SNMP_BITSTR,         "BITSTR"},
+  {BER_CLASS_APP, SNMP_C64,					SNMP_COUNTER64,      "COUNTER64"},
+  {BER_CLASS_CON, SERR_NSO,					SNMP_NOSUCHOBJECT,   "NOSUCHOBJECT"},
+  {BER_CLASS_CON, SERR_NSI,					SNMP_NOSUCHINSTANCE, "NOSUCHINSTANCE"},
+  {BER_CLASS_CON, SERR_EOM,					SNMP_ENDOFMIBVIEW,   "ENDOFMIBVIEW"},
+  {0,		0,         -1,                  NULL}
 };
 
 /*
@@ -722,6 +722,31 @@ dissect_snmp_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
 	}
 }
+int oid_to_subid_buf(const guint8 *oid, gint oid_len, subid_t *buf, int buf_len) {
+   int i, out_len;
+   guint8 byte;
+   guint32 value;
+
+   value=0; out_len = 0;
+   for (i=0; i<oid_len; i++){
+     if (out_len >= buf_len) break;
+     byte = oid[i];
+     if (i == 0) {
+       buf[out_len++] = byte/40;
+       buf[out_len++] = byte%40;
+       continue;
+     }
+     value = (value << 7) | (byte & 0x7F);
+     if (byte & 0x80) {
+       continue;
+     }
+     buf[out_len++] = value;
+     value = 0;
+   }
+
+   return out_len;
+}
+
 
 gchar *
 format_oid(subid_t *oid, guint oid_length)
@@ -938,8 +963,9 @@ format_var(struct variable_list *variable, subid_t *variable_oid,
 }
 #endif
 
+
 static int
-snmp_variable_decode(proto_tree *snmp_tree,
+snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
     subid_t *variable_oid
 #ifndef HAVE_SOME_SNMP
 	_U_
@@ -954,21 +980,15 @@ snmp_variable_decode(proto_tree *snmp_tree,
 {
 	int start, vb_value_start;
 	guint length;
-	gboolean def;
 	guint vb_length;
 	gushort vb_type;
 	const gchar *vb_type_name;
-	int ret;
-	guint cls, con, tag;
-
 	gint32 vb_integer_value;
 	guint32 vb_uinteger_value;
-
 	guint8 *vb_octet_string;
-
+	guint8 *oid_buf;
 	subid_t *vb_oid;
 	guint vb_oid_length;
-
 	gchar *vb_display_string;
 
 #ifdef HAVE_SOME_SNMP
@@ -978,18 +998,22 @@ snmp_variable_decode(proto_tree *snmp_tree,
 	unsigned int i;
 	gchar *buf;
 	int len;
+	gint8 class;
+	gboolean pc, ind = 0;
+	gint32 ber_tag;
 
-	/* parse the type of the object */
 	start = asn1->offset;
-	ret = asn1_header_decode (asn1, &cls, &con, &tag, &def, &vb_length);
-	if (ret != ASN1_ERR_NOERROR)
-		return ret;
-	vb_value_start = asn1->offset;
-	if (!def)
-		return ASN1_ERR_LENGTH_NOT_DEFINITE;
+	/* parse the type of the object */
+	offset = dissect_ber_identifier(pinfo , snmp_tree, asn1->tvb, start, &class, &pc, &ber_tag);
+	offset = dissect_ber_length(pinfo, snmp_tree, asn1->tvb, offset, &vb_length, &ind);
+
+
+	asn1->offset = offset;
+	vb_value_start = offset;
 
 	/* Convert the class, constructed flag, and tag to a type. */
-	vb_type_name = snmp_tag_cls2syntax(tag, cls, &vb_type);
+	vb_type_name = snmp_tag_cls2syntax(ber_tag, class, &vb_type);
+
 	if (vb_type_name == NULL) {
 		/*
 		 * Unsupported type.
@@ -1003,11 +1027,9 @@ snmp_variable_decode(proto_tree *snmp_tree,
 	switch (vb_type) {
 
 	case SNMP_INTEGER:
-		ret = asn1_int32_value_decode(asn1, vb_length,
-		    &vb_integer_value);
-		if (ret != ASN1_ERR_NOERROR)
-			return ret;
-		length = asn1->offset - start;
+		offset = dissect_ber_integer(FALSE, pinfo, snmp_tree, asn1->tvb, start, -1, &vb_integer_value);
+		asn1->offset = offset;
+		length = offset - vb_value_start;
 		if (snmp_tree) {
 #ifdef HAVE_SOME_SNMP
 			value = vb_integer_value;
@@ -1020,12 +1042,12 @@ snmp_variable_decode(proto_tree *snmp_tree,
 #endif
 			if (vb_display_string != NULL) {
 				proto_tree_add_text(snmp_tree, asn1->tvb,
-				    offset, length,
+				    vb_value_start, length,
 				    "Value: %s", vb_display_string);
 				free(vb_display_string);
 			} else {
 				proto_tree_add_text(snmp_tree, asn1->tvb,
-				    offset, length,
+				    vb_value_start, length,
 				    "Value: %s: %d (%#x)", vb_type_name,
 				    vb_integer_value, vb_integer_value);
 			}
@@ -1035,11 +1057,9 @@ snmp_variable_decode(proto_tree *snmp_tree,
 	case SNMP_COUNTER:
 	case SNMP_GAUGE:
 	case SNMP_TIMETICKS:
-		ret = asn1_uint32_value_decode(asn1, vb_length,
-		    &vb_uinteger_value);
-		if (ret != ASN1_ERR_NOERROR)
-			return ret;
-		length = asn1->offset - start;
+		offset = dissect_ber_integer(FALSE, pinfo, snmp_tree, asn1->tvb, start, -1, &vb_uinteger_value);
+		asn1->offset = offset;
+		length = offset - vb_value_start;
 		if (snmp_tree) {
 #ifdef HAVE_SOME_SNMP
 			value = vb_uinteger_value;
@@ -1069,14 +1089,12 @@ snmp_variable_decode(proto_tree *snmp_tree,
 	case SNMP_NSAP:
 	case SNMP_BITSTR:
 	case SNMP_COUNTER64:
-		ret = asn1_string_value_decode (asn1, vb_length,
-		    &vb_octet_string);
-		if (ret != ASN1_ERR_NOERROR)
-			return ret;
-		length = asn1->offset - start;
-		if (out_tvb) {
-			*out_tvb = tvb_new_subset(asn1->tvb, vb_value_start, asn1->offset - vb_value_start, vb_length);
-		}
+		offset = dissect_ber_octet_string(FALSE, pinfo, 0, asn1->tvb, start, -1, out_tvb);
+		vb_octet_string = ep_tvb_memdup(asn1->tvb, vb_value_start, vb_length);
+
+		asn1->offset = offset;
+
+		length = asn1->offset - vb_value_start;
 		if (snmp_tree) {
 #ifdef HAVE_SOME_SNMP
 			variable.val.string = vb_octet_string;
@@ -1088,7 +1106,7 @@ snmp_variable_decode(proto_tree *snmp_tree,
 #endif
 			if (vb_display_string != NULL) {
 				proto_tree_add_text(snmp_tree, asn1->tvb,
-				    offset, length,
+				    vb_value_start, length,
 				    "Value: %s", vb_display_string);
 				free(vb_display_string);
 			} else {
@@ -1116,25 +1134,22 @@ snmp_variable_decode(proto_tree *snmp_tree,
 						    vb_octet_string[i]);
 						buf += len;
 					}
-					proto_tree_add_text(snmp_tree, asn1->tvb, offset,
+					proto_tree_add_text(snmp_tree, asn1->tvb, vb_value_start,
 					    length,
 					    "Value: %s: %s", vb_type_name,
 					    vb_display_string);
 				} else {
-					proto_tree_add_text(snmp_tree, asn1->tvb, offset,
+					proto_tree_add_text(snmp_tree, asn1->tvb, vb_value_start,
 					    length,
 					    "Value: %s: %s", vb_type_name,
 					    SAFE_STRING(vb_octet_string, vb_length));
 				}
 			}
 		}
-		g_free(vb_octet_string);
 		break;
 
 	case SNMP_NULL:
-		ret = asn1_null_decode (asn1, vb_length);
-		if (ret != ASN1_ERR_NOERROR)
-			return ret;
+		dissect_ber_null(FALSE, pinfo, snmp_tree, asn1->tvb, start, -1);
 		length = asn1->offset - start;
 		if (snmp_tree) {
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset, length,
@@ -1143,10 +1158,11 @@ snmp_variable_decode(proto_tree *snmp_tree,
 		break;
 
 	case SNMP_OBJECTID:
-		ret = asn1_oid_value_decode (asn1, vb_length, &vb_oid,
-		    &vb_oid_length);
-		if (ret != ASN1_ERR_NOERROR)
-			return ret;
+		oid_buf = tvb_get_ptr(asn1->tvb, vb_value_start, vb_length);
+		vb_oid = g_malloc((vb_length+1) * sizeof(gulong));
+		vb_oid_length = oid_to_subid_buf(oid_buf, vb_length, vb_oid, ((vb_length+1) * sizeof(gulong)));
+
+		asn1->offset = offset + vb_length;
 		length = asn1->offset - start;
 		if (snmp_tree) {
 #ifdef HAVE_SOME_SNMP
@@ -1209,6 +1225,7 @@ snmp_variable_decode(proto_tree *snmp_tree,
 		DISSECTOR_ASSERT_NOT_REACHED();
 		return ASN1_ERR_WRONG_TYPE;
 	}
+	length = asn1->offset - start;
 	*lengthp = length;
 	return ASN1_ERR_NOERROR;
 }
@@ -1547,7 +1564,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		/* Parse the variable's value */
 		next_tvb = NULL;
-		ret = snmp_variable_decode(tree, variable_oid,
+		ret = snmp_variable_decode(tree, pinfo, variable_oid,
 		    variable_oid_length, asn1p, offset, &length, &next_tvb);
 		if (next_tvb) {
 			new_format_oid(variable_oid, variable_oid_length,
