@@ -163,6 +163,14 @@ Page custom DisplayWinPcapPage
 !include "servicelib.nsh"
 
 ; ============================================================================
+; Command Line
+; ============================================================================
+!include "FileFunc.nsh"
+
+!insertmacro GetParameters
+!insertmacro GetOptions
+
+; ============================================================================
 ; License page configuration
 ; ============================================================================
 LicenseText "Ethereal is distributed under the GNU General Public License."
@@ -462,16 +470,29 @@ CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Program Directory.lnk" \
 ;CreateShortCut "$SMPROGRAMS\Ethereal\Uninstall Ethereal.lnk" "$INSTDIR\uninstall.exe"
 SecRequired_skip_StartMenu:
 
+; is command line option "/desktopicon" set?
+${GetParameters} $R0
+${GetOptions} $R0 "/desktopicon=" $R1
+StrCmp $R1 "no" SecRequired_skip_DesktopIcon
+StrCmp $R1 "yes" SecRequired_install_DesktopIcon
 
-; Create desktop icon (depending on additional tasks page)
+; Create desktop icon (depending on additional tasks page and command line option)
 ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 3" "State"
 StrCmp $0 "0" SecRequired_skip_DesktopIcon
+SecRequired_install_DesktopIcon:
 CreateShortCut "$DESKTOP\Ethereal.lnk" "$INSTDIR\ethereal.exe" "" "$INSTDIR\ethereal.exe" 0 "" "" "The Ethereal Network Protocol Analyzer"
 SecRequired_skip_DesktopIcon:
 
-; Create quick launch icon (depending on additional tasks page)
+; is command line option "/quicklaunchicon" set?
+${GetParameters} $R0
+${GetOptions} $R0 "/quicklaunchicon=" $R1
+StrCmp $R1 "no" SecRequired_skip_QuickLaunchIcon
+StrCmp $R1 "yes" SecRequired_install_QuickLaunchIcon
+
+; Create quick launch icon (depending on additional tasks page and command line option)
 ReadINIStr $0 "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 4" "State"
 StrCmp $0 "0" SecRequired_skip_QuickLaunchIcon
+SecRequired_install_QuickLaunchIcon:
 CreateShortCut "$QUICKLAUNCH\Ethereal.lnk" "$INSTDIR\ethereal.exe" "" "$INSTDIR\ethereal.exe" 0 "" "" "The Ethereal Network Protocol Analyzer"
 SecRequired_skip_QuickLaunchIcon:
 

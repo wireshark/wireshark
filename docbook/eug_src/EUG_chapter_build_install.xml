@@ -483,24 +483,48 @@ apt-get install ethereal
 	<itemizedlist>
 	<listitem>
 		<para>
-		/NCRC disables the CRC check
+		<command>/NCRC</command> disables the CRC check
 		</para>
 	</listitem>
 	<listitem>
 		<para>
-		/S runs the installer or uninstaller silently with default values. 
-		Please note: The silent installer won't install WinPCap!
+		<command>/S</command> runs the installer or uninstaller silently with 
+		default values. Please note: The silent installer won't install WinPCap!
 		</para>
 	</listitem>
 	<listitem>
 		<para>
-		/D sets the default installation directory ($INSTDIR), overriding 
+		<command>/desktopicon</command> installation of the desktop icon, 
+		<command>=yes</command> - force installation, <command>=no</command> - 
+		don't install, otherwise use defaults / user settings.
+		This option is available since 0.10.13 an can be useful for a silent 
+		installer. 
+		</para>
+	</listitem>
+	<listitem>
+		<para>
+		<command>/quicklaunchicon</command> installation of the quick launch icon, 
+		<command>=yes</command> - force installation, <command>=no</command> - 
+		don't install, otherwise use defaults / user settings.
+		This option is available since 0.10.13 an can be useful for a silent 
+		installer. 
+		</para>
+	</listitem>
+	<listitem>
+		<para>
+		<command>/D</command> sets the default installation directory 
+		($INSTDIR), overriding 
 		InstallDir and InstallDirRegKey. It must be the last parameter used in 
 		the command line and must not contain any quotes, even if the path 
 		contains spaces.
 		</para>
 	</listitem>
 	</itemizedlist>
+	<para> Example:
+    <programlisting>
+ethereal-setup-0.10.13.exe /NCRC /S /desktopicon=yes /quicklaunchicon=no /D=C:\Program Files\Foo
+	</programlisting>
+	</para>
   </section>
   <section id="ChBuildInstallComponents">
     <title>Components</title>
