@@ -705,8 +705,8 @@ if (!implicit_tag)
     offset += len;
   }
 }
-
-proto_tree_add_item(tree, hf_id, tvb, offset, 0, FALSE);
+  if (hf_id >= 0)
+	  proto_tree_add_item(tree, hf_id, tvb, offset, 0, FALSE);
   return offset;
 }
 
