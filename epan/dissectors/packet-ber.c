@@ -73,6 +73,9 @@
 #include <epan/emem.h>
 #include "packet-ber.h"
 
+#ifndef MIN
+#define MIN(x,y) ((x)<(y))?(x):(y)
+#endif
 
 static gint proto_ber = -1;
 static gint hf_ber_id_class = -1;
@@ -612,7 +615,7 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 		offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
 		offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind);
 		end_offset=offset+len;
-	
+
 		/* sanity check: we only handle Constructed Universal Sequences */
 		if ((class!=BER_CLASS_APP)&&(class!=BER_CLASS_PRI))
 
@@ -639,8 +642,7 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 	} else {
 		/* primitive */
 		if(hf_id >= 0) {
-			tvb_ensure_bytes_exist(tvb, offset, len);
-			it = proto_tree_add_item(tree, hf_id, tvb, offset, len, FALSE);
+			it = proto_tree_add_item(tree, hf_id, tvb, offset, MIN(len, tvb_length_remaining(tvb, offset)), FALSE);
 			ber_last_created_item = it;
 		} else {
       proto_item *pi;
@@ -653,9 +655,10 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
         }
       }
     }
+
 		if(out_tvb) {
 			if(len<=(guint32)tvb_length_remaining(tvb, offset)){
-				*out_tvb = tvb_new_subset(tvb, offset, len, len);
+				*out_tvb = tvb_new_subset(tvb, offset, MIN(len, tvb_length_remaining(tvb, offset)), len);
 			} else {
 				*out_tvb = tvb_new_subset(tvb, offset, -1, -1);
 			}
