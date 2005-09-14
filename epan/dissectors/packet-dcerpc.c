@@ -47,6 +47,10 @@
 #include <epan/dissectors/packet-dcerpc-nt.h>
 #include <epan/expert.h>
 
+#ifndef MIN
+#define MIN(x,y) ((x)<(y))?(x):(y)
+#endif
+
 static int dcerpc_tap = -1;
 
 
@@ -2525,8 +2529,9 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, int stub_offset, packet_info *pinfo,
                     tvbuff_t *auth_tvb;
                     dcerpc_auth_subdissector_fns *auth_fns;
 
-                    auth_tvb = tvb_new_subset(tvb, offset, hdr->auth_len,
-                                              hdr->auth_len);
+                    auth_tvb = tvb_new_subset(tvb, offset, 
+                                   MIN(hdr->auth_len,tvb_length_remaining(tvb, offset)), 
+                                   hdr->auth_len);
 
                     if ((auth_fns = get_auth_subdissector_fns(auth_info->auth_level,
                                                               auth_info->auth_type)))
@@ -3845,7 +3850,6 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset += 4;
         padding += 4;
     }
-
     /*
      * Check if this looks like a C/O DCERPC call
      */
@@ -3905,77 +3909,79 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
 		expert_add_info_format(pinfo, NULL, PI_SEQUENCE, PI_NOTE, "Multiple DCE/RPC fragments/PDU's in one packet");
 	}
 
+    offset = start_offset;
+    tvb_ensure_bytes_exist(tvb, offset, 16);
     if (tree) {
-        offset = start_offset;
-        tvb_ensure_bytes_exist(tvb, offset, hdr.frag_len);
         ti = proto_tree_add_item (tree, proto_dcerpc, tvb, offset, hdr.frag_len, FALSE);
-        if (ti) {
-            dcerpc_tree = proto_item_add_subtree (ti, ett_dcerpc);
-        }
-        proto_tree_add_uint (dcerpc_tree, hf_dcerpc_ver, tvb, offset++, 1, hdr.rpc_ver);
-        proto_tree_add_uint (dcerpc_tree, hf_dcerpc_ver_minor, tvb, offset++, 1, hdr.rpc_ver_minor);
-        tf = proto_tree_add_uint (dcerpc_tree, hf_dcerpc_packet_type, tvb, offset++, 1, hdr.ptype);
-	} else {
-		tf = NULL;
-	}
+        dcerpc_tree = proto_item_add_subtree (ti, ett_dcerpc);
+    }
+
+    proto_tree_add_uint (dcerpc_tree, hf_dcerpc_ver, tvb, offset, 1, hdr.rpc_ver);
+    offset++;
+
+    proto_tree_add_uint (dcerpc_tree, hf_dcerpc_ver_minor, tvb, offset, 1, hdr.rpc_ver_minor);
+    offset++;
+
+    tf = proto_tree_add_uint (dcerpc_tree, hf_dcerpc_packet_type, tvb, offset, 1, hdr.ptype);
+    offset++;
 	
-	/* XXX - too much "output noise", removed for now
-	if(hdr.ptype == PDU_BIND || hdr.ptype == PDU_ALTER ||
-		hdr.ptype == PDU_BIND_ACK || hdr.ptype == PDU_ALTER_ACK)
-		expert_add_info_format(pinfo, tf, PI_SEQUENCE, PI_CHAT, "Context change: %s",
-			val_to_str(hdr.ptype, pckt_vals, "(0x%x)"));*/
-	if(hdr.ptype == PDU_BIND_NAK)
-		expert_add_info_format(pinfo, tf, PI_SEQUENCE, PI_WARN, "Bind not acknowledged");
+    /* XXX - too much "output noise", removed for now
+    if(hdr.ptype == PDU_BIND || hdr.ptype == PDU_ALTER ||
+        hdr.ptype == PDU_BIND_ACK || hdr.ptype == PDU_ALTER_ACK)
+        expert_add_info_format(pinfo, tf, PI_SEQUENCE, PI_CHAT, "Context change: %s",
+            val_to_str(hdr.ptype, pckt_vals, "(0x%x)"));*/
+    if(hdr.ptype == PDU_BIND_NAK)
+        expert_add_info_format(pinfo, tf, PI_SEQUENCE, PI_WARN, "Bind not acknowledged");
 
     if (tree) {
-		proto_item_append_text(ti, " %s, Fragment:", val_to_str(hdr.ptype, pckt_vals, "Unknown (0x%02x)"));
+	proto_item_append_text(ti, " %s, Fragment:", val_to_str(hdr.ptype, pckt_vals, "Unknown (0x%02x)"));
 
         tf = proto_tree_add_uint (dcerpc_tree, hf_dcerpc_cn_flags, tvb, offset, 1, hdr.flags);
         cn_flags_tree = proto_item_add_subtree (tf, ett_dcerpc_cn_flags);
-        if (cn_flags_tree) {
-            proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_object, tvb, offset, 1, hdr.flags);
-            proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_maybe, tvb, offset, 1, hdr.flags);
-            proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_dne, tvb, offset, 1, hdr.flags);
-            proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_mpx, tvb, offset, 1, hdr.flags);
-            proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_reserved, tvb, offset, 1, hdr.flags);
-            proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_cancel_pending, tvb, offset, 1, hdr.flags);
-            proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_last_frag, tvb, offset, 1, hdr.flags);
-            proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_first_frag, tvb, offset, 1, hdr.flags);
-            if( (hdr.flags & PFC_FIRST_FRAG) && (hdr.flags & PFC_LAST_FRAG) ) {
-		            proto_item_append_text(ti, " Single");
-            } else {
-                if(hdr.flags & PFC_FIRST_FRAG) {
-		            proto_item_append_text(ti, " 1st");
-                }
-                if(hdr.flags & PFC_LAST_FRAG) {
-		            proto_item_append_text(ti, " Last");
-                }
-                if( !(hdr.flags & PFC_FIRST_FRAG) && !(hdr.flags & PFC_LAST_FRAG) ) {
-		            proto_item_append_text(ti, " Mid");
-                }
-            }
+    }
+    proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_object, tvb, offset, 1, hdr.flags);
+    proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_maybe, tvb, offset, 1, hdr.flags);
+    proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_dne, tvb, offset, 1, hdr.flags);
+    proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_mpx, tvb, offset, 1, hdr.flags);
+    proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_reserved, tvb, offset, 1, hdr.flags);
+    proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_cancel_pending, tvb, offset, 1, hdr.flags);
+    proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_last_frag, tvb, offset, 1, hdr.flags);
+    proto_tree_add_boolean (cn_flags_tree, hf_dcerpc_cn_flags_first_frag, tvb, offset, 1, hdr.flags);
+    if( (hdr.flags & PFC_FIRST_FRAG) && (hdr.flags & PFC_LAST_FRAG) ) {
+        proto_item_append_text(ti, " Single");
+    } else {
+        if(hdr.flags & PFC_FIRST_FRAG) {
+	     proto_item_append_text(ti, " 1st");
         }
-        offset++;
+        if(hdr.flags & PFC_LAST_FRAG) {
+            proto_item_append_text(ti, " Last");
+        }
+        if( !(hdr.flags & PFC_FIRST_FRAG) && !(hdr.flags & PFC_LAST_FRAG) ) {
+            proto_item_append_text(ti, " Mid");
+        }
+    }
+    offset++;
 
+    if(dcerpc_tree){
         tf = proto_tree_add_bytes (dcerpc_tree, hf_dcerpc_drep, tvb, offset, 4, hdr.drep);
         drep_tree = proto_item_add_subtree (tf, ett_dcerpc_drep);
-        if (drep_tree) {
-            proto_tree_add_uint(drep_tree, hf_dcerpc_drep_byteorder, tvb, offset, 1, hdr.drep[0] >> 4);
-            proto_tree_add_uint(drep_tree, hf_dcerpc_drep_character, tvb, offset, 1, hdr.drep[0] & 0x0f);
-            proto_tree_add_uint(drep_tree, hf_dcerpc_drep_fp, tvb, offset+1, 1, hdr.drep[1]);
-        }
-        offset += sizeof (hdr.drep);
+    }
+    proto_tree_add_uint(drep_tree, hf_dcerpc_drep_byteorder, tvb, offset, 1, hdr.drep[0] >> 4);
+    proto_tree_add_uint(drep_tree, hf_dcerpc_drep_character, tvb, offset, 1, hdr.drep[0] & 0x0f);
+    proto_tree_add_uint(drep_tree, hf_dcerpc_drep_fp, tvb, offset+1, 1, hdr.drep[1]);
+    offset += sizeof (hdr.drep);
 
-        proto_tree_add_uint (dcerpc_tree, hf_dcerpc_cn_frag_len, tvb, offset, 2, hdr.frag_len);
-        offset += 2;
+    proto_tree_add_uint (dcerpc_tree, hf_dcerpc_cn_frag_len, tvb, offset, 2, hdr.frag_len);
+    offset += 2;
 
-        proto_tree_add_uint (dcerpc_tree, hf_dcerpc_cn_auth_len, tvb, offset, 2, hdr.auth_len);
-        offset += 2;
+    proto_tree_add_uint (dcerpc_tree, hf_dcerpc_cn_auth_len, tvb, offset, 2, hdr.auth_len);
+    offset += 2;
 
-        proto_tree_add_uint (dcerpc_tree, hf_dcerpc_cn_call_id, tvb, offset, 4, hdr.call_id);
-        offset += 4;
+    proto_tree_add_uint (dcerpc_tree, hf_dcerpc_cn_call_id, tvb, offset, 4, hdr.call_id);
+    offset += 4;
 
-		proto_item_append_text(ti, ", FragLen: %u, Call: %u", hdr.frag_len, hdr.call_id);
+    if(ti){
+        proto_item_append_text(ti, ", FragLen: %u, Call: %u", hdr.frag_len, hdr.call_id);
     }
 
     /*
@@ -3995,16 +4001,16 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (pkt_len != NULL)
         *pkt_len = hdr.frag_len + padding;
 
-	/* The remaining bytes in the current tvb might contain multiple
-	 * DCE/RPC fragments, so create a new tvb subset for this fragment.
-	 * Only limit the end of the fragment, but not the offset start, 
-	 * as the authentication function dissect_dcerpc_cn_auth() will fail 
-	 * (and other functions might fail as well) computing the right start 
-	 * offset otherwise.
-	 * XXX - I don't understand reported_length completely, is this correct here? */
-	fragment_tvb = tvb_new_subset(tvb, 0, 
-		hdr.frag_len + start_offset /* length */, 
-		hdr.frag_len + start_offset /* reported_length */);
+    /* The remaining bytes in the current tvb might contain multiple
+     * DCE/RPC fragments, so create a new tvb subset for this fragment.
+     * Only limit the end of the fragment, but not the offset start, 
+     * as the authentication function dissect_dcerpc_cn_auth() will fail 
+     * (and other functions might fail as well) computing the right start 
+     * offset otherwise.
+     */
+    fragment_tvb = tvb_new_subset(tvb, 0, 
+        MIN((hdr.frag_len + start_offset),tvb_length(tvb)) /* length */, 
+        hdr.frag_len + start_offset /* reported_length */);
 
     /*
      * Packet type specific stuff is next.
