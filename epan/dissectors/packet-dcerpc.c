@@ -310,6 +310,7 @@ static const value_string reject_status_vals[] = {
 	{ 0x8004CB0C, "CBA_E_QOSVALUEUNSUPPORTED" },
 	{ 0x8004CB0F, "CBA_E_NOTAPPLICABLE" },
 	{ 0x8004CB12, "CBA_E_LIMITVIOLATION" },
+	{ 0x8007000E, "E_OUTOFMEMORY" },
 	{ 0x80070057, "E_INVALIDARG" },
 	{ 0x800706d1, "RPC_S_PROCNUM_OUT_OF_RANGE" },
 	{ 0,          NULL }
