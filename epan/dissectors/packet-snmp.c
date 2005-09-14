@@ -986,7 +986,7 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 	gint32 vb_integer_value;
 	guint32 vb_uinteger_value;
 	guint8 *vb_octet_string;
-	guint8 *oid_buf;
+	const guint8 *oid_buf;
 	subid_t *vb_oid;
 	guint vb_oid_length;
 	gchar *vb_display_string;
