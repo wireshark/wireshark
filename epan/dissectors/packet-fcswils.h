@@ -48,7 +48,11 @@
 #define FC_SWILS_SFC            0x25
 #define FC_SWILS_UFC            0x26
 #define FC_SWILS_ESC            0x30
+#define FC_SWILS_ESS            0x31
+#define FC_SWILS_MRRA           0x34
 #define FC_SWILS_AUTH_ILS       0x40
+#define FC_SWILS_MAXCODE        0x35 /* the dissector jump table is sized to
+                                        this table */
 
 /* Reject reason codes */
 

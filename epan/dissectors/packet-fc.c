@@ -291,6 +291,7 @@ static const value_string fc_ftype_vals [] = {
     {FC_FTYPE_VDO,       "Video Data"},
     {FC_FTYPE_LINKCTL,   "Link Ctl"},
     {FC_FTYPE_SBCCS,     "SBCCS"},
+    {FC_FTYPE_OHMS,      "OHMS(Cisco MDS)"},
     {0, NULL},
 };
 
@@ -566,14 +567,18 @@ fc_get_ftype (guint8 r_ctl, guint8 type)
         case FC_TYPE_SB_FROM_CU:
         case FC_TYPE_SB_TO_CU:
             return FC_FTYPE_SBCCS;
+        case FC_TYPE_VENDOR:
+             return FC_FTYPE_OHMS;
         default:
             return FC_FTYPE_UNDEF;
         }
     case FC_RCTL_ELS:
         if (((r_ctl & 0x0F) == 0x2) || ((r_ctl & 0x0F) == 0x3))
             return FC_FTYPE_ELS;
+        else if (type == FC_TYPE_ELS) 
+            return FC_FTYPE_OHMS;
         else
-            return FC_FTYPE_UNDEF;
+             return FC_FTYPE_UNDEF;
     case FC_RCTL_LINK_DATA:
         return FC_FTYPE_LINKDATA;
     case FC_RCTL_VIDEO:
@@ -809,9 +814,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     
     is_lastframe_inseq = ((pinfo->sof_eof & PINFO_EOF_LAST_FRAME) == PINFO_EOF_LAST_FRAME);
 
-    if ((pinfo->sof_eof & PINFO_SOF_SOFF) == PINFO_SOF_SOFF) {
-        is_lastframe_inseq = fchdr.fctl & FC_FCTL_SEQ_LAST;
-    }
+    is_lastframe_inseq |= fchdr.fctl & FC_FCTL_SEQ_LAST;
     is_valid_frame = ((pinfo->sof_eof & 0x40) == 0x40);
 
     ftype = fc_get_ftype (fchdr.r_ctl, fchdr.type);
@@ -1113,14 +1116,22 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
     frag_size = tvb_reported_length (tvb)-FC_HEADER_SIZE;
 
-    /* If there is an MDS header, we need to subtract the MDS trailer size */
+    /* If there is an MDS header, we need to subtract the MDS trailer size
+     * Link Ctl, BLS & OHMS are all (encap header + FC Header + encap trailer)
+     * and are never fragmented and so we ignore the frag_size assertion for
+     *  these frames.
+     */
     if ((pinfo->ethertype == ETHERTYPE_UNK) || (pinfo->ethertype == ETHERTYPE_FCFT)) {
-        if (frag_size <= MDSHDR_TRAILER_SIZE)
+         if ((frag_size <= MDSHDR_TRAILER_SIZE) &&
+             ((frag_size == MDSHDR_TRAILER_SIZE) && (ftype != FC_FTYPE_LINKCTL) &&
+              (ftype != FC_FTYPE_BLS) && (ftype != FC_FTYPE_OHMS)))
 	    THROW(ReportedBoundsError);
         frag_size -= MDSHDR_TRAILER_SIZE;
     } else if (pinfo->ethertype == ETHERTYPE_BRDWALK) {
-        if (frag_size <= 8)
-	    THROW(ReportedBoundsError);
+         if ((frag_size <= 8) &&
+             ((frag_size == MDSHDR_TRAILER_SIZE) && (ftype != FC_FTYPE_LINKCTL) &&
+              (ftype != FC_FTYPE_BLS) && (ftype != FC_FTYPE_OHMS)))
+              THROW(ReportedBoundsError);
         frag_size -= 8;         /* 4 byte of FC CRC +
                                    4 bytes of error+EOF = 8 bytes  */
     }
@@ -1136,6 +1147,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
      * present, if we're configured to reassemble.
      */
     if ((ftype != FC_FTYPE_LINKCTL) && (ftype != FC_FTYPE_BLS) &&
+        (ftype != FC_FTYPE_OHMS) &&
         (!is_lastframe_inseq || !is_1frame_inseq) && fc_reassemble &&
         tvb_bytes_exist(tvb, FC_HEADER_SIZE, frag_size) && tree) {
         /* Add this to the list of fragments */

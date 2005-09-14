@@ -296,6 +296,20 @@ static int hf_scsi_disc_info_disc_identification = -1;
 static int hf_scsi_disc_info_last_session_lead_in_start_address = -1;
 static int hf_scsi_disc_info_last_possible_lead_out_start_address = -1;
 static int hf_scsi_disc_info_disc_bar_code = -1;
+static int hf_sbc2_verify_lba = -1;
+static int hf_sbc2_verify_vlen = -1;
+static int hf_sbc2_verify_dpo = -1;
+static int hf_sbc2_verify_blkvfy = -1;
+static int hf_sbc2_verify_reladdr = -1;
+static int hf_sbc2_verify_vlen32 = -1;
+static int hf_sbc2_verify_lba64 = -1;
+static int hf_sbc2_wrverify_ebp = -1;
+static int hf_sbc2_wrverify_lba = -1;
+static int hf_sbc2_wrverify_xferlen = -1;
+static int hf_sbc2_wrverify_lba64 = -1;
+static int hf_sbc2_wrverify_xferlen32 = -1;
+static int hf_sbc2_verify_bytchk = -1;
+
 
 static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
@@ -3465,6 +3479,13 @@ dissect_sbc2_readwrite16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 {
     guint8 flags;
 
+    if (isreq && iscdb) {
+        if (check_col (pinfo->cinfo, COL_INFO))
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" PRIu64 ", Len: %u)",
+                             tvb_get_ntoh64 (tvb, offset+1),
+                             tvb_get_ntohl (tvb, offset+9));
+    }
+
     if (tree && isreq && iscdb) {
         flags = tvb_get_guint8 (tvb, offset);
 
@@ -3479,6 +3500,196 @@ dissect_sbc2_readwrite16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
                                     flags,
                                     "Vendor Unique = %u, NACA = %u, Link = %u",
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_sbc2_verify10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                       guint offset, gboolean isreq, gboolean iscdb,
+                       guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags;
+
+    if (isreq && iscdb) {
+        if (check_col (pinfo->cinfo, COL_INFO))
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%08x, Len: %u)",
+                             tvb_get_ntohl (tvb, offset+2),
+                             tvb_get_ntohs (tvb, offset+7));
+    }
+
+    if (tree && isreq && iscdb) {
+         proto_tree_add_item (tree, hf_sbc2_verify_dpo, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_sbc2_verify_blkvfy, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_sbc2_verify_bytchk, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_sbc2_verify_reladdr, tvb, offset+1, 1,
+                              0);
+         proto_tree_add_item (tree, hf_sbc2_verify_lba, tvb, offset+2, 4, 0);
+         proto_tree_add_item (tree, hf_sbc2_verify_vlen, tvb, offset+7, 2, 0);
+         flags = tvb_get_guint8 (tvb, offset+9);
+         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+9, 1,
+                                     flags,
+                                     "Vendor Unique = %u, NACA = %u, Link = %u",
+                                     flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_sbc2_verify12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                       guint offset, gboolean isreq, gboolean iscdb,
+                       guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags;
+     
+    if (isreq && iscdb) {
+        if (check_col (pinfo->cinfo, COL_INFO))
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%08x, Len: %u)",
+                             tvb_get_ntohl (tvb, offset+2),
+                             tvb_get_ntohl (tvb, offset+6));
+    }
+
+    if (tree && isreq && iscdb) {
+         proto_tree_add_item (tree, hf_sbc2_verify_dpo, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_sbc2_verify_blkvfy, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_sbc2_verify_bytchk, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_sbc2_verify_reladdr, tvb, offset+1, 1,
+                              0);
+         proto_tree_add_item (tree, hf_sbc2_verify_lba, tvb, offset+2, 4, 0);
+         proto_tree_add_item (tree, hf_sbc2_verify_vlen32, tvb, offset+6, 4, 0);
+         flags = tvb_get_guint8 (tvb, offset+11);
+         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+11, 1,
+                                     flags,
+                                     "Vendor Unique = %u, NACA = %u, Link = %u",
+                                     flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_sbc2_verify16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                       guint offset, gboolean isreq, gboolean iscdb,
+                       guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags;
+
+    if (isreq && iscdb) {
+        if (check_col (pinfo->cinfo, COL_INFO))
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" PRIu64 ", Len: %u)",
+                             tvb_get_ntoh64 (tvb, offset+2),
+                             tvb_get_ntohl (tvb, offset+10));
+    }
+
+    if (tree && isreq && iscdb) {
+         proto_tree_add_item (tree, hf_sbc2_verify_dpo, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_sbc2_verify_blkvfy, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_sbc2_verify_bytchk, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_sbc2_verify_reladdr, tvb, offset+1, 1,
+                              0);
+         proto_tree_add_item (tree, hf_sbc2_verify_lba, tvb, offset+2, 8, 0);
+         proto_tree_add_item (tree, hf_sbc2_verify_vlen, tvb, offset+10, 4, 0);
+         flags = tvb_get_guint8 (tvb, offset+15);
+         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+15, 1,
+                                     flags,
+                                     "Vendor Unique = %u, NACA = %u, Link = %u",
+                                     flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_sbc2_wrverify10 (tvbuff_t *tvb, packet_info *pinfo _U_,
+                         proto_tree *tree, guint offset, gboolean isreq,
+                         gboolean iscdb, guint payload_len _U_,
+                         scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags;
+     
+    if (isreq && iscdb) {
+        if (check_col (pinfo->cinfo, COL_INFO))
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%08x, Len: %u)",
+                             tvb_get_ntohl (tvb, offset+2),
+                             tvb_get_ntohs (tvb, offset+7));
+    }
+
+    if (tree && isreq && iscdb) {
+         proto_tree_add_item (tree, hf_sbc2_verify_dpo, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_sbc2_wrverify_ebp, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_sbc2_verify_bytchk, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_sbc2_verify_reladdr, tvb, offset+1, 1,
+                              0);
+         proto_tree_add_item (tree, hf_sbc2_wrverify_lba, tvb, offset+2, 4, 0);
+         proto_tree_add_item (tree, hf_sbc2_wrverify_xferlen, tvb, offset+7,
+                              2, 0);
+         flags = tvb_get_guint8 (tvb, offset+9);
+         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+9, 1,
+                                     flags,
+                                     "Vendor Unique = %u, NACA = %u, Link = %u",
+                                     flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_sbc2_wrverify12 (tvbuff_t *tvb, packet_info *pinfo _U_,
+                         proto_tree *tree, guint offset, gboolean isreq,
+                         gboolean iscdb, guint payload_len _U_,
+                         scsi_task_data_t *cdata _U_)
+{
+    guint8 flags;
+     
+    if (isreq && iscdb) {
+        if (check_col (pinfo->cinfo, COL_INFO))
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%08x, Len: %u)",
+                             tvb_get_ntohl (tvb, offset+2),
+                             tvb_get_ntohl (tvb, offset+6));
+    }
+
+    if (tree && isreq && iscdb) {
+         proto_tree_add_item (tree, hf_sbc2_verify_dpo, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_sbc2_wrverify_ebp, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_sbc2_verify_bytchk, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_sbc2_verify_reladdr, tvb, offset+1, 1,
+                              0);
+         proto_tree_add_item (tree, hf_sbc2_wrverify_lba, tvb, offset+2, 4, 0);
+         proto_tree_add_item (tree, hf_sbc2_wrverify_xferlen32, tvb, offset+6,
+                              4, 0);
+         flags = tvb_get_guint8 (tvb, offset+11);
+         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+11, 1,
+                                     flags,
+                                     "Vendor Unique = %u, NACA = %u, Link = %u",
+                                     flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_sbc2_wrverify16 (tvbuff_t *tvb, packet_info *pinfo _U_,
+                         proto_tree *tree, guint offset, gboolean isreq,
+                         gboolean iscdb, guint payload_len _U_,
+                         scsi_task_data_t *cdata _U_)
+{
+    guint8 flags;
+     
+    if (isreq && iscdb) {
+        if (check_col (pinfo->cinfo, COL_INFO))
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" PRIu64 ", Len: %u)",
+                             tvb_get_ntoh64 (tvb, offset+2),
+                             tvb_get_ntohl (tvb, offset+10));
+    }
+
+    if (tree && isreq && iscdb) {
+         proto_tree_add_item (tree, hf_sbc2_verify_dpo, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_sbc2_wrverify_ebp, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_sbc2_verify_bytchk, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_sbc2_verify_reladdr, tvb, offset+1, 1,
+                              0);
+         proto_tree_add_item (tree, hf_sbc2_wrverify_lba64, tvb, offset+2, 8, 0);
+         proto_tree_add_item (tree, hf_sbc2_wrverify_xferlen32, tvb, offset+10,
+                              4, 0);
+         flags = tvb_get_guint8 (tvb, offset+15);
+         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+15, 1,
+                                     flags,
+                                     "Vendor Unique = %u, NACA = %u, Link = %u",
+                                     flags & 0xC0, flags & 0x4, flags & 0x1);
     }
 }
 
@@ -5623,8 +5834,8 @@ static scsi_cdb_table_t sbc[256] = {
 /*SBC 0x2b*/{NULL},
 /*SBC 0x2c*/{NULL},
 /*SBC 0x2d*/{NULL},
-/*SBC 0x2e*/{NULL},
-/*SBC 0x2f*/{NULL},
+/*SBC 0x2e*/{dissect_sbc2_wrverify10},
+/*SBC 0x2f*/{dissect_sbc2_verify10},
 /*SBC 0x30*/{NULL},
 /*SBC 0x31*/{NULL},
 /*SBC 0x32*/{NULL},
@@ -5719,8 +5930,8 @@ static scsi_cdb_table_t sbc[256] = {
 /*SBC 0x8b*/{NULL},
 /*SBC 0x8c*/{NULL},
 /*SBC 0x8d*/{NULL},
-/*SBC 0x8e*/{NULL},
-/*SBC 0x8f*/{NULL},
+/*SBC 0x8e*/{dissect_sbc2_wrverify16},
+/*SBC 0x8f*/{dissect_sbc2_verify16},
 /*SBC 0x90*/{NULL},
 /*SBC 0x91*/{NULL},
 /*SBC 0x92*/{NULL},
@@ -5751,8 +5962,8 @@ static scsi_cdb_table_t sbc[256] = {
 /*SBC 0xab*/{NULL},
 /*SBC 0xac*/{NULL},
 /*SBC 0xad*/{NULL},
-/*SBC 0xae*/{NULL},
-/*SBC 0xaf*/{NULL},
+/*SBC 0xae*/{dissect_sbc2_wrverify12},
+/*SBC 0xaf*/{dissect_sbc2_verify12},
 /*SBC 0xb0*/{NULL},
 /*SBC 0xb1*/{NULL},
 /*SBC 0xb2*/{NULL},
@@ -7478,7 +7689,45 @@ proto_register_scsi (void)
         { &hf_scsi_disc_info_disc_bar_code,
           {"Disc Bar Code", "scsi.disc_info.disc_bar_code", FT_UINT64, BASE_HEX,
            NULL, 0, "", HFILL}},
-
+        { &hf_sbc2_verify_lba,
+          {"LBA", "scsi.sbc2.verify.lba", FT_UINT32, BASE_DEC, NULL, 0x0, "",
+           HFILL}},
+        { &hf_sbc2_verify_vlen,
+          {"Verification Length", "scsi.sbc2.verify.vlen", FT_UINT16,
+           BASE_DEC, NULL, 0x0, "", HFILL}},
+        { &hf_sbc2_verify_dpo,
+          {"DPO", "scsi.sbc2.verify.dpo", FT_BOOLEAN, BASE_HEX, NULL, 0x10, "",
+           HFILL}},
+        { &hf_sbc2_verify_blkvfy,
+          {"BLKVFY", "scsi.sbc2.verify.blkvfy", FT_BOOLEAN, BASE_HEX, NULL, 0x4,
+           "", HFILL}},
+        { &hf_sbc2_verify_bytchk,
+          {"BYTCHK", "scsi.sbc2.verify.bytchk", FT_BOOLEAN, BASE_HEX, NULL, 0x2,
+           "", HFILL}},
+        { &hf_sbc2_verify_reladdr,
+          {"RELADDR", "scsi.sbc2.verify.reladdr", FT_BOOLEAN, BASE_HEX, NULL,
+           0x1, "", HFILL}},
+        { &hf_sbc2_verify_vlen32,
+          {"Verification Length", "scsi.sbc2.verify.vlen32", FT_UINT32,
+           BASE_DEC, NULL, 0x0, "", HFILL}},
+        { &hf_sbc2_verify_lba64,
+          {"LBA", "scsi.sbc2.verify.lba64", FT_UINT64, BASE_DEC, NULL, 0x0, "",
+           HFILL}},
+        { &hf_sbc2_wrverify_ebp,
+          {"EBP", "scsi.sbc2.wrverify.ebp", FT_BOOLEAN, BASE_HEX, NULL, 0x4, "",
+           HFILL}},
+        { &hf_sbc2_wrverify_lba,
+          {"LBA", "scsi.sbc2.wrverify.lba", FT_UINT32, BASE_DEC, NULL, 0x0, "",
+           HFILL}},
+        { &hf_sbc2_wrverify_xferlen,
+          {"Transfer Length", "scsi.sbc2.wrverify.xferlen", FT_UINT16, BASE_DEC,
+           NULL, 0x0, "", HFILL}},
+        { &hf_sbc2_wrverify_lba64,
+          {"LBA", "scsi.sbc2.wrverify.lba64", FT_UINT64, BASE_DEC, NULL, 0x0,
+           "", HFILL}},
+        { &hf_sbc2_wrverify_xferlen32,
+          {"Transfer Length", "scsi.sbc2.wrverify.xferlen32", FT_UINT32,
+           BASE_DEC, NULL, 0x0, "", HFILL}},
     };
 
     /* Setup protocol subtree array */

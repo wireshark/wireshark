@@ -30,9 +30,12 @@
 #define FCCT_GSTYPE_MGMTSVC  0xFA
 #define FCCT_GSTYPE_TIMESVC  0xFB
 #define FCCT_GSTYPE_DIRSVC   0xFC
+#define FCCT_GSTYPE_FCTLR    0xFD
+#define FCCT_GSTYPE_VENDOR   0xE0
 
 /* Well-known GSSUBTYPES */
-/* Actual servers serving the directory service type identified by subtype */ 
+/* Actual servers serving the directory service type identified by subtype */
+#define FCCT_GSSUBTYPE_FCTLR 0x0
 #define FCCT_GSSUBTYPE_DNS  0x02
 #define FCCT_GSSUBTYPE_IP   0x03
 #define FCCT_GSSUBTYPE_FCS  0x01
@@ -50,6 +53,7 @@
 #define FCCT_GSRVR_AS        0x6
 #define FCCT_GSRVR_TS        0x7
 #define FCCT_GSRVR_KS        0x8
+#define FCCT_GSRVR_FCTLR     0x9
 #define FCCT_GSRVR_UNKNOWN   0xFF
 
 /* Reject code definitions */
@@ -69,7 +73,10 @@
 #define FCCT_PRMBL_SIZE        16
 #define FCCT_EXTPRMBL_SIZE     88
 
+extern const value_string fc_ct_gstype_vals [];
+extern const value_string fc_ct_gsserver_vals [];
 extern const value_string fc_ct_rjt_code_vals [];
+extern guint8 get_gs_server (guint8 type, guint8 subtype);
 
 typedef struct _fc_ct_preamble {
     guint32 in_id:24,

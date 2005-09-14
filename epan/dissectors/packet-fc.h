@@ -51,6 +51,7 @@
 #define FC_TYPE_SWILS          0x22
 #define FC_TYPE_AL             0x23
 #define FC_TYPE_SNMP           0x24
+#define FC_TYPE_VENDOR         0xFF
 
 
 /*
@@ -83,6 +84,7 @@ ETH_VAR_IMPORT const value_string fc_fc4_val[];
 #define FC_FTYPE_LINKCTL       0xA
 #define FC_FTYPE_SWILS_RSP     0xB
 #define FC_FTYPE_SBCCS         0xC
+#define FC_FTYPE_OHMS          0xD
 
 /* Well-known Address Definitions (in Network order) */
 #define FC_WKA_MULTICAST       0xFFFFF5

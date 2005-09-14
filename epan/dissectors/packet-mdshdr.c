@@ -191,7 +191,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     pinfo->src_idx = (tvb_get_ntohs (tvb, MDSHDR_SIDX_OFFSET) & 0x3FF);
-    pinfo->dst_idx = (tvb_get_ntohs (tvb, MDSHDR_DIDX_OFFSET) & 0xFFC) >> 6;
+    pinfo->dst_idx = (tvb_get_ntohs (tvb, MDSHDR_DIDX_OFFSET) & 0xFFC) >> 2;
     pinfo->vsan = vsan;
     pinfo->sof_eof = 0;
 

@@ -78,16 +78,18 @@ const value_string fc_ct_rjt_code_vals [] = {
     {0, NULL},
 };
 
-static const value_string fc_ct_gstype_vals[] = {
+const value_string fc_ct_gstype_vals[] = {
     {FCCT_GSTYPE_KEYSVC, "Key Service"},
     {FCCT_GSTYPE_ALIASSVC, "Alias Service"},
     {FCCT_GSTYPE_MGMTSVC, "Management Service"},
     {FCCT_GSTYPE_TIMESVC, "Time Service"},
     {FCCT_GSTYPE_DIRSVC, "Directory Service"},
+    {FCCT_GSTYPE_FCTLR, "Fabric Controller"},
+    {FCCT_GSTYPE_VENDOR, "Vendor-Specific"},
     {0, NULL},
 };
 
-static const value_string fc_ct_gsserver_vals[] = {
+const value_string fc_ct_gsserver_vals[] = {
     {FCCT_GSRVR_DNS, "dNS"},
     {FCCT_GSRVR_IP,  "IP"},
     {FCCT_GSRVR_FCS, "Fabric Config Server"},
@@ -96,13 +98,14 @@ static const value_string fc_ct_gsserver_vals[] = {
     {FCCT_GSRVR_TS,  "Time Server"},
     {FCCT_GSRVR_KS,  "Key Server"},
     {FCCT_GSRVR_AS,  "Alias Server"},
+    {FCCT_GSRVR_FCTLR, "Fabric Controller"},
     {0, NULL},
 };
 
 static dissector_table_t fcct_gserver_table;
 static dissector_handle_t data_handle;
 
-static guint8
+guint8
 get_gs_server (guint8 gstype, guint8 gssubtype)
 {
     switch (gstype) {
@@ -130,6 +133,10 @@ get_gs_server (guint8 gstype, guint8 gssubtype)
         else if (gssubtype == FCCT_GSSUBTYPE_IP)
             return FCCT_GSRVR_IP;
         return FCCT_GSRVR_UNKNOWN;
+    case FCCT_GSRVR_FCTLR:
+         if (gssubtype == FCCT_GSSUBTYPE_FCTLR)
+              return (FCCT_GSRVR_FCTLR);
+         else return (FCCT_GSRVR_UNKNOWN);
     default:
         return FCCT_GSRVR_UNKNOWN;
     }
