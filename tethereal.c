@@ -1846,10 +1846,7 @@ capture(char *save_file, int out_file_type)
       }
       if (ld.output_to_pipe) {
         if (ld.packet_count > packet_count_prev) {
-          if (wtap_dump_file_flush(ld.pdh)) {
-            volatile_err = errno;
-            ld.go = FALSE;
-          }
+          wtap_dump_flush(ld.pdh);
           packet_count_prev = ld.packet_count;
         }
       }
