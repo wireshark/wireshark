@@ -376,6 +376,7 @@ DISSECTOR_SRC =	\
 	packet-ldp.c	\
 	packet-logotypecertextn.c	\
 	packet-llc.c	\
+	packet-lldp.c	\
 	packet-lmi.c	\
 	packet-lmp.c	\
 	packet-loop.c	\

@@ -2379,6 +2379,14 @@ Lucian Piros		<lpiros [AT] avmob.ro> {
 	Computer Interface to Message Distribution (CIMD) version 2 dissection
 }
 
+Juan Gonzalez		<juan.gonzalez [AT] pikatech.com> {
+	LLDP dissection
+}
+
+Brian Bogora		<brian_bogora [AT] mitel.com> {
+	LLDP dissection
+}
+
 And assorted fixes and enhancements by the people listed above
 and by:
 
