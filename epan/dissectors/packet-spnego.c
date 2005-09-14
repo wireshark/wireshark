@@ -336,8 +336,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * No token ID - just dissect as a Kerberos message and
 		 * return.
 		 */
-		krb5_tvb = tvb_new_subset(tvb, offset, -1, -1); 
-		offset = dissect_kerberos_main(krb5_tvb, pinfo, subtree, FALSE, NULL);
+		offset = dissect_kerberos_main(tvb, pinfo, subtree, FALSE, NULL);
 		return;
 
 	    default:
