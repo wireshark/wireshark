@@ -46,9 +46,7 @@ val_to_str(guint32 val, const value_string *vs, const char *fmt) {
   if (ret != NULL)
     return ret;
 
-  cur=ep_alloc(64);
-  g_snprintf(cur, 64, fmt, val);
-  return cur;
+  return ep_strdup_printf(fmt, val);
 }
 
 /* Tries to match val against each element in the value_string array vs.
