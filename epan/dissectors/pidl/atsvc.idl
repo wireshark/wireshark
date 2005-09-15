@@ -1,0 +1,122 @@
+/*
+  atsvc interface definition
+*/
+
+#include "idl_types.h"
+
+[ uuid("1ff70682-0a51-30e8-076d-740be8cee98b"),
+  version(1.0),
+  pointer_default(unique),
+  pointer_default_top(unique),
+  helpstring("Microsoft AT-Scheduler Service"),
+  endpoint("ncacn_np:[\\pipe\\atsvc]", "ncalrpc:")
+] interface atsvc
+{
+	typedef [bitmap32bit] bitmap {
+                First           =       0x00000001,
+                Second          =       0x00000002,
+                Third           =       0x00000004,
+                Fourth          =       0x00000008,
+                Fifth           =       0x00000010,
+                Sixth           =       0x00000020,
+                Seventh         =       0x00000040,
+                Eight           =       0x00000080,
+                Ninth           =       0x00000100,
+                Tenth           =       0x00000200,
+                Eleventh        =       0x00000400,
+                Twelfth         =       0x00000800,
+                Thitteenth      =       0x00001000,
+                Fourteenth      =       0x00002000,
+                Fifteenth       =       0x00004000,
+                Sixteenth       =       0x00008000,
+                Seventeenth     =       0x00010000,
+                Eighteenth      =       0x00020000,
+                Ninteenth       =       0x00040000,
+                Twentyth        =       0x00080000,
+                Twentyfirst     =       0x00100000,
+                Twentysecond    =       0x00200000,
+                Twentythird     =       0x00400000,
+                Twentyfourth    =       0x00800000,
+                Twentyfifth     =       0x01000000,
+                Twentysixth     =       0x02000000,
+                Twentyseventh   =       0x04000000,
+                Twentyeighth    =       0x08000000,
+                Twentyninth     =       0x10000000,
+                Thirtieth       =       0x20000000,
+                Thirtyfirst     =       0x40000000
+        } atsvc_DaysOfMonth;
+
+        typedef [bitmap8bit] bitmap {
+                JOB_RUN_PERIODICALLY    = 0x01,
+                JOB_EXEC_ERROR          = 0x02,
+                JOB_RUNS_TODAY          = 0x04,
+                JOB_ADD_CURRENT_DATE    = 0x08,
+                JOB_NONINTERACTIVE      = 0x10
+        } atsvc_Flags;
+
+	typedef [bitmap8bit] bitmap {
+		DAYSOFWEEK_MONDAY    = 0x01,
+		DAYSOFWEEK_TUESDAY   = 0x02,
+		DAYSOFWEEK_WEDNESDAY = 0x04,
+		DAYSOFWEEK_THURSDAY  = 0x08,
+		DAYSOFWEEK_FRIDAY    = 0x10,
+		DAYSOFWEEK_SATURDAY  = 0x20,
+		DAYSOFWEEK_SUNDAY    = 0x40
+	} atsvc_DaysOfWeek;
+	
+	typedef struct {
+		uint32 job_time;
+		atsvc_DaysOfMonth days_of_month;
+		atsvc_DaysOfWeek days_of_week;
+		atsvc_Flags flags;
+		unistr *command;
+	} atsvc_JobInfo;
+
+	/******************/
+	/* Function: 0x00 */
+	NTSTATUS atsvc_JobAdd(
+		[in]	 unistr *servername,
+		[in,ref] atsvc_JobInfo *job_info,
+		[out]	 uint32 job_id
+	);
+
+	/******************/
+	/* Function: 0x01 */
+	NTSTATUS atsvc_JobDel(
+		[in]	unistr *servername,
+		[in]	uint32 min_job_id,
+		[in]	uint32 max_job_id
+	);
+
+	typedef struct {
+		uint32 job_id;
+		uint32 job_time;
+		atsvc_DaysOfMonth days_of_month;
+		atsvc_DaysOfWeek days_of_week;
+		atsvc_Flags flags;
+		unistr *command;
+	} atsvc_JobEnumInfo;
+
+	typedef struct {
+		uint32 entries_read;
+		[size_is(entries_read)] atsvc_JobEnumInfo *first_entry;
+	} atsvc_enum_ctr;
+
+	/******************/
+	/* Function: 0x02 */
+	NTSTATUS atsvc_JobEnum(
+		[in]         unistr *servername,
+		[in,out,ref] atsvc_enum_ctr *ctr,
+		[in]	     uint32 preferred_max_len,
+		[out]	     uint32 total_entries,
+		[in,out]     uint32 *resume_handle
+	);
+
+	/******************/
+	/* Function: 0x03 */
+	[public] NTSTATUS atsvc_JobGetInfo(
+		[in]	unistr *servername,
+		[in]	uint32 job_id,
+		[out]	atsvc_JobInfo *job_info
+	);
+}
