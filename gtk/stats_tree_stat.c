@@ -237,12 +237,16 @@ static void init_gtk_tree(const char* optarg) {
 				st = stats_tree_new(cfg,pr,NULL);
 			}
 		} else {
-			report_failure("no such stats_tree (%s) found in stats_tree registry",abbr);
+			report_failure("no such stats_tree (%s) in stats_tree registry",abbr);
+			g_free(abbr);
+			return;
 		}
 		g_free(abbr);
 		
 	} else {
-		report_failure("could not obtain stats_tree abbr from optarg");		
+		report_failure("could not obtain stats_tree abbr from optarg");
+		g_free(pr);
+		return;
 	}
 
 	window_name = g_strdup_printf("%s Stats Tree", cfg->name);
