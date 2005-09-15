@@ -625,7 +625,7 @@ dissect_swils_ess_capability (tvbuff_t *tvb, proto_tree *tree, int offset,
 static int
 dissect_swils_ess_capability_obj (tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-     int i, num_entries, len = 0, total_len = 0;
+     int i = 0, num_entries = 0, len = 0, total_len = 0;
      guint8 type, subtype, srvr_type;
      proto_item *ti = NULL;
      proto_tree *capinfo_tree = NULL;
@@ -641,7 +641,7 @@ dissect_swils_ess_capability_obj (tvbuff_t *tvb, proto_tree *tree, int offset)
                num_entries = tvb_get_guint8 (tvb, offset+3);
                total_len = 4 + (num_entries*8);
                ti = proto_tree_add_text (tree, tvb, offset,
-                                         total_len, "Capabilty Object (%s)",
+                                         total_len, "Capability Object (%s)",
                                          val_to_str (type, fc_ct_gstype_vals,
                                                      "Unknown (0x%x)"));
                capinfo_tree = proto_item_add_subtree (ti, ett_fcswils_capinfo);
@@ -651,7 +651,7 @@ dissect_swils_ess_capability_obj (tvbuff_t *tvb, proto_tree *tree, int offset)
                i += 12;
 
                ti = proto_tree_add_text (tree, tvb, offset,
-                                         i, "Capabilty Object (Vendor-specific 0x%x)",
+                                         i, "Capability Object (Vendor-specific 0x%x)",
                                          type);
                capinfo_tree = proto_item_add_subtree (ti, ett_fcswils_capinfo);
           }
