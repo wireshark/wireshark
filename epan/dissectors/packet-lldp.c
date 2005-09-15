@@ -9,7 +9,6 @@
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -411,7 +410,7 @@ get_latitude_or_longitude(int option, guint64 value, guint8 *strPtr)
 	   meridian and negative (2s complement) numbers are west of the prime meridian.
 	*/
 	
-	if (value & 0x0000000200000000)
+	if (value & G_GINT64_CONSTANT(0x0000000200000000))
 	{
 		/* Have a negative number (2s complement) */
 		negativeNum = 1;
@@ -421,12 +420,12 @@ get_latitude_or_longitude(int option, guint64 value, guint8 *strPtr)
 	}
 	
 	/* Get the integer portion */
-	integerPortion = (guint32)((tempValue & 0x00000003FE000000) >> 25);
+	integerPortion = (guint32)((tempValue & G_GINT64_CONSTANT(0x00000003FE000000)) >> 25);
 	
 	/* Calculate decimal portion (using 25 bits for fraction) */
-	tempValue = (tempValue & 0x0000000001FFFFFF)/33554432;
+	tempValue = (tempValue & G_GINT64_CONSTANT(0x0000000001FFFFFF))/33554432;
 	
-	sprintf(tempStr,"%u.%04u degrees ", integerPortion, tempValue);
+	sprintf(tempStr,"%u.%04" PRIu64 " degrees ", integerPortion, tempValue);
 	
 	if (option == 0)
 	{
@@ -1199,9 +1198,9 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 		
 		if (tempByte > 0)
 		{
-			strcpy(tempStr,tvb_bytes_to_str(tvb, tempOffset, tempByte));
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, tempByte, "Protocol Identity: %s", tempStr);
+				proto_tree_add_text(tree, tvb, tempOffset, tempByte, "Protocol Identity: %s",
+				    tvb_bytes_to_str(tvb, tempOffset, tempByte));
 		}
 		
 		break;
@@ -1378,6 +1377,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 	guint8 tempByte;
 	guint32 tempLong;
 	guint8 tempStr[255];
+	const char *strPtr;
 	guint32 LCI_Length;
 	guint64 temp64bit = 0;
 	
@@ -1521,28 +1521,28 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 	    										((tempByte & 0xFC) >> 2));
 	    										
 	    	/* Get latitude */
-	    	tvb_memcpy(tvb, (guint8*)temp64bit, tempOffset, 8);
-	    	temp64bit = (temp64bit & 0x03FFFFFFFF000000) >> 24;
+	    	temp64bit = tvb_get_ntoh64(tvb, tempOffset);
+	    	temp64bit = (temp64bit & G_GINT64_CONSTANT(0x03FFFFFFFF000000)) >> 24;
 	    	get_latitude_or_longitude(0,temp64bit,tempStr);
 	    	if (tree)
-    			proto_tree_add_text(tree, tvb, tempOffset, 5, "Latitude: %s (0x%16X)", 
+    			proto_tree_add_text(tree, tvb, tempOffset, 5, "Latitude: %s (0x%16" PRIX64 ")", 
     								tempStr, temp64bit);
     			
     		tempOffset += 5;
     		
     		/* Get longitude resolution */
-			tempByte = tvb_get_guint8(tvb, tempOffset);
-			if (tree)
-    			proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %u",
-	    				decode_boolean_bitfield(tempByte, 0xFC, 8, "Longitude Resolution:", "Longitude Resolution:"), 
-	    										((tempByte & 0xFC) >> 2));
-	    										
+		tempByte = tvb_get_guint8(tvb, tempOffset);
+		if (tree)
+    		proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %u",
+	    			decode_boolean_bitfield(tempByte, 0xFC, 8, "Longitude Resolution:", "Longitude Resolution:"), 
+	    									((tempByte & 0xFC) >> 2));
+
 	    	/* Get longitude */
-	    	tvb_memcpy(tvb, (guint8*)temp64bit, tempOffset, 8);
-	    	temp64bit = (temp64bit & 0x03FFFFFFFF000000) >> 24;
+	    	temp64bit = tvb_get_ntoh64(tvb, tempOffset);
+	    	temp64bit = (temp64bit & G_GINT64_CONSTANT(0x03FFFFFFFF000000)) >> 24;
 	    	get_latitude_or_longitude(1,temp64bit,tempStr);
 	    	if (tree)
-    			proto_tree_add_text(tree, tvb, tempOffset, 5, "Longitude: (0x%16X)", 
+    			proto_tree_add_text(tree, tvb, tempOffset, 5, "Longitude: %s (0x%16" PRIX64 ")", 
     								tempStr,temp64bit);
     			
     		tempOffset += 5;
@@ -1709,27 +1709,27 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 		case 0:
 		{
 			subType = ((tempByte & 0x30) >> 4);
-			strcpy(tempStr, val_to_str(subType, media_power_pse_device, "Reserved"));
+			strPtr = val_to_str(subType, media_power_pse_device, "Reserved");
 			
 			break;
 		}
 		case 1:
 		{
 			subType = ((tempByte & 0x30) >> 4);
-			strcpy(tempStr, val_to_str(subType, media_power_pd_device, "Reserved"));
+			strPtr = val_to_str(subType, media_power_pd_device, "Reserved");
 			
 			break;
 		}
 		default:
 		{
-			strcpy(tempStr, "Unknown");
+			strPtr = "Unknown";
 			break;
 		}
 	    }
 	    if (tree)
     		proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %s",
 	    				decode_boolean_bitfield(tempByte, 0x30, 8, "Power Source:", "Power Source:"), 
-	    										tempStr);
+	    										strPtr);
 	    				
 	    /* Determine power priority */
 	    subType = (tempByte & 0x0F);
