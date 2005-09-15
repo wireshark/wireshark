@@ -38,7 +38,6 @@
 const gchar*
 val_to_str(guint32 val, const value_string *vs, const char *fmt) {
   const gchar *ret;
-  gchar *cur;
 
   g_assert(fmt != NULL);
 
