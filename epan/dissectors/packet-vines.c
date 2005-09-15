@@ -106,7 +106,7 @@ dissect_vines_frp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8   vines_frp_ctrl;
 	proto_tree *vines_frp_tree;
 	proto_item *ti;
-	gchar	frp_flags_str[32];
+	gchar	*frp_flags_str="";
 	tvbuff_t *next_tvb;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -129,23 +129,23 @@ dissect_vines_frp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		switch (vines_frp_ctrl) {
 
 		case 0:
-			strcpy(frp_flags_str, "middle");
+			frp_flags_str= "middle";
 			break;
 
 		case 1:
-			strcpy(frp_flags_str, "first");
+			frp_flags_str= "first";
 			break;
 
 		case 2:
-			strcpy(frp_flags_str, "last");
+			frp_flags_str= "last";
 			break;
 
 		case 3:
-			strcpy(frp_flags_str, "only");
+			frp_flags_str= "only";
 			break;
 
 		default:
-			strcpy(frp_flags_str, "please report: unknown");
+			frp_flags_str= "please report: unknown";
 			break;
 		}
 
