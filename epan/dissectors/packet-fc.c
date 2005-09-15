@@ -1122,13 +1122,13 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
      *  these frames.
      */
     if ((pinfo->ethertype == ETHERTYPE_UNK) || (pinfo->ethertype == ETHERTYPE_FCFT)) {
-         if ((frag_size <= MDSHDR_TRAILER_SIZE) &&
+         if ((frag_size <= MDSHDR_TRAILER_SIZE) ||
              ((frag_size == MDSHDR_TRAILER_SIZE) && (ftype != FC_FTYPE_LINKCTL) &&
               (ftype != FC_FTYPE_BLS) && (ftype != FC_FTYPE_OHMS)))
 	    THROW(ReportedBoundsError);
         frag_size -= MDSHDR_TRAILER_SIZE;
     } else if (pinfo->ethertype == ETHERTYPE_BRDWALK) {
-         if ((frag_size <= 8) &&
+         if ((frag_size <= 8) ||
              ((frag_size == MDSHDR_TRAILER_SIZE) && (ftype != FC_FTYPE_LINKCTL) &&
               (ftype != FC_FTYPE_BLS) && (ftype != FC_FTYPE_OHMS)))
               THROW(ReportedBoundsError);
