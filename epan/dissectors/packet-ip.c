@@ -1661,13 +1661,15 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8     icmp_code;
   guint      length, reported_length;
   guint16    cksum, computed_cksum;
-  gchar      type_str[64], *code_str;
+  gchar      *type_str, *code_str;
   guint8     num_addrs = 0;
   guint8     addr_entry_size = 0;
   int        i;
   gboolean   save_in_error_pkt;
   tvbuff_t   *next_tvb;
   proto_item *item;
+
+  type_str="";
 
   code_str=ep_alloc(64);
   code_str[0]=0;
@@ -1684,10 +1686,10 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   switch (icmp_type) {
     case ICMP_ECHOREPLY:
-      strcpy(type_str, "Echo (ping) reply");
+      type_str="Echo (ping) reply";
       break;
     case ICMP_UNREACH:
-      strcpy(type_str, "Destination unreachable");
+      type_str="Destination unreachable";
       if (icmp_code < N_UNREACH) {
         g_snprintf(code_str, 64, "(%s)", unreach_str[icmp_code]);
       } else {
@@ -1695,10 +1697,10 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
       break;
     case ICMP_SOURCEQUENCH:
-      strcpy(type_str, "Source quench (flow control)");
+      type_str="Source quench (flow control)";
       break;
     case ICMP_REDIRECT:
-      strcpy(type_str, "Redirect");
+      type_str="Redirect";
       if (icmp_code < N_REDIRECT) {
         g_snprintf(code_str, 64, "(%s)", redir_str[icmp_code]);
       } else {
@@ -1706,23 +1708,23 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
       break;
     case ICMP_ECHO:
-      strcpy(type_str, "Echo (ping) request");
+      type_str="Echo (ping) request";
       break;
     case ICMP_RTRADVERT:
       switch (icmp_code) {
       case 16: /* Mobile-Ip */
-        strcpy(type_str, "Mobile IP Advertisement");
+        type_str="Mobile IP Advertisement";
         break;
       default:
-        strcpy(type_str, "Router advertisement");
+        type_str="Router advertisement";
         break;
       } /* switch icmp_code */
       break;
     case ICMP_RTRSOLICIT:
-      strcpy(type_str, "Router solicitation");
+      type_str="Router solicitation";
       break;
     case ICMP_TIMXCEED:
-      strcpy(type_str, "Time-to-live exceeded");
+      type_str="Time-to-live exceeded";
       if (icmp_code < N_TIMXCEED) {
         g_snprintf(code_str, 64, "(%s)", ttl_str[icmp_code]);
       } else {
@@ -1730,7 +1732,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
       break;
     case ICMP_PARAMPROB:
-      strcpy(type_str, "Parameter problem");
+      type_str="Parameter problem";
       if (icmp_code < N_PARAMPROB) {
         g_snprintf(code_str, 64, "(%s)", par_str[icmp_code]);
       } else {
@@ -1738,31 +1740,31 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
       break;
     case ICMP_TSTAMP:
-      strcpy(type_str, "Timestamp request");
+      type_str="Timestamp request";
       break;
     case ICMP_TSTAMPREPLY:
-      strcpy(type_str, "Timestamp reply");
+      type_str="Timestamp reply";
       break;
     case ICMP_IREQ:
-      strcpy(type_str, "Information request");
+      type_str="Information request";
       break;
     case ICMP_IREQREPLY:
-      strcpy(type_str, "Information reply");
+      type_str="Information reply";
       break;
     case ICMP_MASKREQ:
-      strcpy(type_str, "Address mask request");
+      type_str="Address mask request";
       break;
     case ICMP_MASKREPLY:
-      strcpy(type_str, "Address mask reply");
+      type_str="Address mask reply";
       break;
     default:
-      strcpy(type_str, "Unknown ICMP (obsolete or malformed?)");
+      type_str="Unknown ICMP (obsolete or malformed?)";
       break;
   }
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_str(pinfo->cinfo, COL_INFO, type_str);
-    if (type_str[0] != '\0')
+    if (code_str[0] != '\0')
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", code_str);
   }
 
