@@ -38,7 +38,9 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/emem.h>
 #include "etypes.h"
+#include "oui.h"
 
 /* TLV Types */
 #define END_OF_LLDPDU_TLV_TYPE		0x00	/* Mandatory */
@@ -174,10 +176,6 @@ const value_string interface_subtype_values[] = {
 	{ 3, 	"System port number"},
 	{ 0, NULL} 
 };
-
-#define OUI_IEEE_802_1			0x0080C2	/* IEEE 802.1 */
-#define OUI_IEEE_802_3			0x00120F	/* IEEE 802.3 */
-#define OUI_MEDIA_ENDPOINT		0x0012BB	/* Media */
 
 const value_string tlv_oui_subtype_vals[] = {
 	{ OUI_IEEE_802_1,     	"IEEE 802.1" },
@@ -345,16 +343,13 @@ const value_string civic_address_type_values[] = {
 		option = 0 -> Latitude
 		option = 1 -> Longitude
 */
-static void
-get_latitude_or_longitude(int option, guint64 value, guint8 *strPtr)
+static gchar *
+get_latitude_or_longitude(int option, guint64 value)
 {
 	guint64 tempValue = value;
-	guint8 negativeNum = 0;	/* False */
+	gboolean negativeNum = FALSE;
 	guint32 integerPortion = 0;
-	
-	gchar tempStr[100];
-	
-	strcpy(strPtr," ");
+	const char *direction;
 	
 	/* The latitude and longitude are 34 bit fixed point value consisting
 	   of 9 bits of integer and 25 bits of fraction.  
@@ -367,7 +362,7 @@ get_latitude_or_longitude(int option, guint64 value, guint8 *strPtr)
 	if (value & G_GINT64_CONSTANT(0x0000000200000000))
 	{
 		/* Have a negative number (2s complement) */
-		negativeNum = 1;
+		negativeNum = TRUE;
 		
 		tempValue = ~value;
 		tempValue += 1;
@@ -379,28 +374,25 @@ get_latitude_or_longitude(int option, guint64 value, guint8 *strPtr)
 	/* Calculate decimal portion (using 25 bits for fraction) */
 	tempValue = (tempValue & G_GINT64_CONSTANT(0x0000000001FFFFFF))/33554432;
 	
-	sprintf(tempStr,"%u.%04" PRIu64 " degrees ", integerPortion, tempValue);
-	
 	if (option == 0)
 	{
 		/* Latitude - north/south directions */
-		if (negativeNum == 1)
-			strcat(tempStr,"South");
+		if (negativeNum)
+			direction = "South";
 		else
-			strcat(tempStr,"North");
+			direction = "North";
 	}
 	else
 	{
 		/* Longitude - east/west directions */
-		if (negativeNum == 1)
-			strcat(tempStr,"West");
+		if (negativeNum)
+			direction = "West";
 		else
-			strcat(tempStr,"East");
+			direction = "East";
 	}
 	
-	strcpy(strPtr,tempStr);
-	
-	return;
+	return ep_strdup_printf("%u.%04" PRIu64 " degrees %s",
+	    integerPortion, tempValue, direction);
 }
 
 /* Dissect Chassis Id TLV (Mandatory) */
@@ -1318,7 +1310,6 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 	guint16 tempVLAN;
 	guint8 tempByte;
 	guint32 tempLong;
-	guint8 tempStr[255];
 	const char *strPtr;
 	guint32 LCI_Length;
 	guint64 temp64bit = 0;
@@ -1481,6 +1472,11 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 		{
 		case 1:	/* Coordinate-based LCI */
 		{
+			/*
+			 * See RFC 3825.
+			 * XXX - should this be handled by the BOOTP
+			 * dissector, and exported to us?
+			 */
 			if (tlvLen < 16)
 			{
 				proto_tree_add_text(tree, tvb, tempOffset, 0, "TLV too short");
@@ -1497,10 +1493,10 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 			/* Get latitude */
 			temp64bit = tvb_get_ntoh64(tvb, tempOffset);
 			temp64bit = (temp64bit & G_GINT64_CONSTANT(0x03FFFFFFFF000000)) >> 24;
-			get_latitude_or_longitude(0,temp64bit,tempStr);
 			if (tree)
 				proto_tree_add_text(tree, tvb, tempOffset, 5, "Latitude: %s (0x%16" PRIX64 ")", 
-									tempStr, temp64bit);
+				    get_latitude_or_longitude(0, temp64bit),
+				    temp64bit);
 				
 			tempOffset += 5;
 			
@@ -1514,10 +1510,11 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 			/* Get longitude */
 			temp64bit = tvb_get_ntoh64(tvb, tempOffset);
 			temp64bit = (temp64bit & G_GINT64_CONSTANT(0x03FFFFFFFF000000)) >> 24;
-			get_latitude_or_longitude(1,temp64bit,tempStr);
+			;
 			if (tree)
 				proto_tree_add_text(tree, tvb, tempOffset, 5, "Longitude: %s (0x%16" PRIX64 ")", 
-									tempStr,temp64bit);
+				    get_latitude_or_longitude(1,temp64bit),
+				    temp64bit);
 				
 			tempOffset += 5;
 			
@@ -1567,6 +1564,11 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 		}
 		case 2: /* Civic Address LCI */
 		{
+			/*
+			 * See draft-ietf-geopriv-dhcp-civil-07.
+			 * XXX - should this be handled by the BOOTP
+			 * dissector, and exported to us?
+			 */
 			if (tlvLen < 1)
 			{
 				proto_tree_add_text(tree, tvb, tempOffset, 0, "TLV too short");
@@ -1835,7 +1837,8 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	guint16 tempShort;
 	guint32 oui;
 	guint8 subType;
-	char tempStr[255];
+	const char *ouiStr;
+	const char *subTypeStr;
 	
 	proto_tree	*org_tlv_tree = NULL;
 	proto_item 	*tf = NULL;
@@ -1850,26 +1853,27 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	oui = tvb_get_ntoh24(tvb, (offset+2));
 	subType = tvb_get_guint8(tvb, (offset+5));
 	
-	sprintf(tempStr,"%s - ",val_to_str(oui, tlv_oui_subtype_vals, "Unknown"));
+	ouiStr = val_to_str(oui, tlv_oui_subtype_vals, "Unknown");
 	switch(oui)
 	{
 	case OUI_IEEE_802_1:
-		strcat(tempStr,val_to_str(subType, ieee_802_1_subtypes, "Unknown"));
+		subTypeStr = val_to_str(subType, ieee_802_1_subtypes, "Unknown");
 		break;
 	case OUI_IEEE_802_3:
-		strcat(tempStr,val_to_str(subType, ieee_802_3_subtypes, "Unknown"));
+		subTypeStr = val_to_str(subType, ieee_802_3_subtypes, "Unknown");
 		break;
 	case OUI_MEDIA_ENDPOINT:
-		strcat(tempStr,val_to_str(subType, media_subtypes, "Unknown"));
+		subTypeStr = val_to_str(subType, media_subtypes, "Unknown");
 		break;
 	default:
-		strcat(tempStr,"Unknown");
+		subTypeStr = "Unknown";
 		break;
 	}
 	
 	if (tree)
 	{
-		tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "%s", tempStr);
+		tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "%s - %s",
+		    ouiStr, subTypeStr);
 		org_tlv_tree = proto_item_add_subtree(tf, ett_org_spc_tlv);
 		
 		proto_tree_add_item(org_tlv_tree, hf_lldp_tlv_type, tvb, offset, 2, FALSE);
