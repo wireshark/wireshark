@@ -824,6 +824,12 @@ packet_list_set_selected_row(gint row)
 
         eth_clist_moveto(ETH_CLIST(packet_list), row, -1, 0.0, 0.0);
 
+		/* even after move still invisible (happens with empty list) -> give up */
+		if(eth_clist_row_is_visible(ETH_CLIST(packet_list), row) ==
+			GTK_VISIBILITY_FULL) {
+			return;
+		}
+
 		/* The now selected row will be the first visible row in the list.
 		 * This is inconvenient, as the user is usually interested in some 
 		 * packets *before* the currently selected one too.
