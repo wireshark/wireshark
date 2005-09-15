@@ -45,9 +45,10 @@
 
 #include <string.h>
 
-#include "epan/packet.h"
+#include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/strutil.h>
+#include <epan/prefs.h>
 #include "packet-alcap.h"
 
 #define	ALCAP_MSG_HEADER_LEN	6
@@ -117,6 +118,7 @@ static int hf_alcap_channel_id = -1;
 static int hf_alcap_organizational_unique_id = -1;
 static int hf_alcap_served_user_gen_ref = -1;
 static int hf_alcap_nsap_address = -1;
+static int hf_alcap_cause_value = -1;
 
 static int hf_alcap_leg_dsaid = -1;
 static int hf_alcap_leg_osaid = -1;
@@ -124,14 +126,16 @@ static int hf_alcap_leg_pathid = -1;
 static int hf_alcap_leg_cid = -1;
 static int hf_alcap_leg_sugr = -1;
 static int hf_alcap_leg_nsap = -1;
-static int hf_alcap_leg_erq = -1;
-static int hf_alcap_leg_rlc = -1;
+static int hf_alcap_leg_frame = -1;
+static int hf_alcap_leg_release_cause = -1;
 
 static char* bigbuf;
 static char* bigbuf2;
 static dissector_handle_t data_handle;
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
+
+static gboolean keep_persistent_info = TRUE;
 
 #define	FIELD_COMPATIBILITY		0
 #define	FIELD_SIGNALLING_ASSOC_ID	1
@@ -190,6 +194,27 @@ static const value_string msg_type_strings[] = {
     { 9,	"Reset request (RES)" },
     { 10,	"Unblock confirm (UBC)" },
     { 11,	"Unblock request (UBL)" },
+    { 0, NULL }
+};
+
+static const value_string cause_values[] = {
+    { 1, "Unallocated (unassigned) number"},
+    { 3, "No route to destination"},
+    { 31, "Normal, unspecified"},
+    { 34, "No circuit/channel available"},
+    { 38, "Network out of order"},
+    { 41, "Temporary failure"},
+    { 42, "Switching equipment congestion"},
+    { 44, "Requested circuit/channel not available"},
+    { 47, "Resource unavailable, unspecified"},
+    { 93, "AAL parameters cannot be supported"},
+    { 95, "Invalid message, unspecified"},
+    { 96, "Mandatory information element is missing"},
+    { 97, "Message type non-existent or not implemented"},
+    { 99, "Information element/parameter non-existent or not implemented"},
+    { 100, "Invalid information element contents"},
+    { 102, "Recovery on timer expiry"},
+    { 110, "Message with unrecognized parameter, discarded"},
     { 0, NULL },
 };
 
@@ -1147,36 +1172,18 @@ dis_field_cause_value(tvbuff_t *tvb, proto_tree *tree, guint *len, guint32 *offs
 	"%s :  Reserved",
 	bigbuf);
 
+    proto_tree_add_item(subtree,hf_alcap_cause_value,tvb,curr_offset, 1, FALSE);
+    
     switch (oct & 0x7f)
     {
-    case 1: str = "Unallocated (unassigned) number"; break;
-    case 3: str = "No route to destination"; break;
-    case 31: str = "Normal, unspecified"; break;
-    case 34: str = "No circuit/channel available"; break;
-    case 38: str = "Network out of order"; break;
-    case 41: str = "Temporary failure"; break;
-    case 42: str = "Switching equipment congestion"; break;
-    case 44: str = "Requested circuit/channel not available"; break;
-    case 47: str = "Resource unavailable, unspecified"; break;
-    case 93: str = "AAL parameters cannot be supported"; break;
-    case 95: str = "Invalid message, unspecified"; break;
-    case 96: str = "Mandatory information element is missing"; break;
-    case 97: str = "Message type non-existent or not implemented"; *compat = TRUE; break;
-    case 99: str = "Information element/parameter non-existent or not implemented"; *compat = TRUE; break;
-    case 100: str = "Invalid information element contents"; break;
-    case 102: str = "Recovery on timer expiry"; break;
-    case 110: str = "Message with unrecognized parameter, discarded"; *compat = TRUE; break;
-    default: str = "Unknown"; break;
-    }
+        case 97: *compat = TRUE; break;
+        case 99: *compat = TRUE; break;
+        case 110:*compat = TRUE; break;
+        default: break;
+    }            
 
-    other_decode_bitfield_value(bigbuf, oct, 0x7f, 8);
-    proto_tree_add_text(subtree, tvb,
-	curr_offset, 1,
-	"%s :  Cause (%d), %s",
-	bigbuf,
-	oct & 0x7f,
-	str);
-
+    msg_info->release_cause = oct & 0x7f;
+    
     curr_offset++;
 
     *len -= (curr_offset - *offset);
@@ -1661,7 +1668,8 @@ static alcap_message_info_t* new_msg_info(void) {
 	mi->cid = 0;
 	mi->sugr = 0;
 	mi->nsap = NULL;
-	
+	mi->release_cause = 0;
+    
 	return mi;
 }
 
@@ -1707,92 +1715,129 @@ dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	
 	dissect_alcap_message(tvb, pinfo, alcap_tree);
 	
-	switch (msg_info->msg_type) {
-		case 5: /* ERQ */
-			if( ! ( leg = g_hash_table_lookup(legs_by_osaid,GUINT_TO_POINTER(msg_info->osaid)) )) { 
-				leg = se_alloc(sizeof(alcap_leg_info_t));
-				
-				leg->dsaid = 0;
-				leg->osaid = msg_info->osaid;
-				leg->pathid = msg_info->pathid;
-				leg->cid = msg_info->cid;
-				leg->sugr = msg_info->sugr;
-				leg->nsap = msg_info->nsap ? se_strdup(bytes_to_str(msg_info->nsap,FIELD_NSAP_ADDRESS_LEN)) : NULL;
-				leg->erq = g_pinfo->fd->num;
-				leg->rlc = 0;
-				
-				g_hash_table_insert(legs_by_osaid,GUINT_TO_POINTER(leg->osaid),leg);
-			}
-			break;
-		case 4: /* ECF */
-			if(( leg = g_hash_table_lookup(legs_by_osaid,GUINT_TO_POINTER(msg_info->dsaid)) )) { 
-				leg->dsaid = msg_info->osaid;
-				g_hash_table_insert(legs_by_dsaid,GUINT_TO_POINTER(leg->dsaid),leg);	
-			}
-			break;
-		case 6: /* RLC */
-			if(( leg = g_hash_table_lookup(legs_by_osaid,GUINT_TO_POINTER(msg_info->dsaid)) )) { 
-				leg->rlc = g_pinfo->fd->num;
-			}
-			break;
-		case 7: /* REL */
-			leg = g_hash_table_lookup(legs_by_osaid,GUINT_TO_POINTER(msg_info->dsaid));
-			break;
-		case 1: /* BLC */
-		case 2: /* BLO */
-		case 3: /* CFN */
-		case 8: /* RSC */
-		case 9: /* RES */
-		case 10: /* UBC */
-			break;			
-	}
-	
-	if (tree && leg) {
-		proto_item* pi = proto_tree_add_text(alcap_tree,tvb,0,0,"[Call Leg Info]");
-		proto_tree* tree = proto_item_add_subtree(pi,ett_leg);
-		
-		if (leg->dsaid) {
-			pi = proto_tree_add_uint(tree,hf_alcap_leg_dsaid,tvb,0,0,leg->dsaid);
-			PROTO_ITEM_SET_GENERATED(pi);
-		}
-		
-		if (leg->osaid) {
-			pi = proto_tree_add_uint(tree,hf_alcap_leg_osaid,tvb,0,0,leg->osaid);
-			PROTO_ITEM_SET_GENERATED(pi);
-		}
-		
-		if (leg->pathid) {
-			pi = proto_tree_add_uint(tree,hf_alcap_leg_pathid,tvb,0,0,leg->pathid);
-			PROTO_ITEM_SET_GENERATED(pi);
-		}
-		
-		if (leg->cid) {
-			pi = proto_tree_add_uint(tree,hf_alcap_leg_cid,tvb,0,0,leg->cid);
-			PROTO_ITEM_SET_GENERATED(pi);
-		}
-		
-		if (leg->sugr) {
-			pi = proto_tree_add_uint(tree,hf_alcap_leg_sugr,tvb,0,0,leg->sugr);
-			PROTO_ITEM_SET_GENERATED(pi);
-		}
-		
-		if (leg->nsap) {
-			pi = proto_tree_add_string(tree,hf_alcap_leg_nsap,tvb,0,0,leg->nsap);
-			PROTO_ITEM_SET_GENERATED(pi);
-		}
-		
-		if (leg->erq) {
-			pi = proto_tree_add_uint(tree,hf_alcap_leg_erq,tvb,0,0,leg->erq);
-			PROTO_ITEM_SET_GENERATED(pi);
-		}
-		
-		if (leg->rlc) {
-			pi = proto_tree_add_uint(tree,hf_alcap_leg_rlc,tvb,0,0,leg->rlc);
-			PROTO_ITEM_SET_GENERATED(pi);
-		}
-		
-	}
-	
+    if (keep_persistent_info) {
+        switch (msg_info->msg_type) {
+            case 5: /* ERQ */
+                if( ! ( leg = g_hash_table_lookup(legs_by_osaid,GUINT_TO_POINTER(msg_info->osaid)) )) { 
+                    leg = se_alloc(sizeof(alcap_leg_info_t));
+                    
+                    leg->dsaid = 0;
+                    leg->osaid = msg_info->osaid;
+                    leg->pathid = msg_info->pathid;
+                    leg->cid = msg_info->cid;
+                    leg->sugr = msg_info->sugr;
+                    leg->nsap = msg_info->nsap ? se_strdup(bytes_to_str(msg_info->nsap,FIELD_NSAP_ADDRESS_LEN)) : NULL;
+                    leg->msgs = NULL;
+                    leg->release_cause = 0;
+                    
+                    g_hash_table_insert(legs_by_osaid,GUINT_TO_POINTER(leg->osaid),leg);
+                }
+                break;
+            case 4: /* ECF */
+                if(( leg = g_hash_table_lookup(legs_by_osaid,GUINT_TO_POINTER(msg_info->dsaid)) )) { 
+                    leg->dsaid = msg_info->osaid;
+                    g_hash_table_insert(legs_by_dsaid,GUINT_TO_POINTER(leg->dsaid),leg);	
+                }
+                break;
+            case 6: /* RLC */
+                if( ( leg = g_hash_table_lookup(legs_by_osaid,GUINT_TO_POINTER(msg_info->dsaid)) )
+                    || ( leg = g_hash_table_lookup(legs_by_dsaid,GUINT_TO_POINTER(msg_info->dsaid)) ) ) { 
+                    
+                    if(msg_info->release_cause)
+                        leg->release_cause =  msg_info->release_cause;
+                    
+                }
+                break;
+            case 7: /* REL */
+                leg = g_hash_table_lookup(legs_by_osaid,GUINT_TO_POINTER(msg_info->dsaid));
+                
+                if(leg) {
+                    leg->release_cause =  msg_info->release_cause;
+                } else if (( leg = g_hash_table_lookup(legs_by_dsaid,GUINT_TO_POINTER(msg_info->dsaid)) )) {
+                    leg->release_cause =  msg_info->release_cause;
+                }
+                    break;
+            case 1: /* BLC */
+            case 2: /* BLO */
+            case 3: /* CFN */
+            case 8: /* RSC */
+            case 9: /* RES */
+            case 10: /* UBC */
+                break;			
+        }
+        
+        if (leg && ( (! leg->msgs) || leg->msgs->last->framenum < pinfo->fd->num ) ) {
+            alcap_msg_data_t* msg = se_alloc(sizeof(alcap_msg_data_t));
+            msg->msg_type = msg_info->msg_type;
+            msg->framenum = g_pinfo->fd->num;
+            msg->next = NULL;
+            msg->last = NULL;
+            
+            if (leg->msgs) {
+                leg->msgs->last->next = msg;
+            } else {
+                leg->msgs = msg;
+            }
+            
+            leg->msgs->last = msg;
+            
+        }
+        
+        if (tree && leg) {
+            proto_item* pi = proto_tree_add_text(alcap_tree,tvb,0,0,"[Call Leg Info]");
+            proto_tree* tree = proto_item_add_subtree(pi,ett_leg);
+            
+            if (leg->dsaid) {
+                pi = proto_tree_add_uint(tree,hf_alcap_leg_dsaid,tvb,0,0,leg->dsaid);
+                PROTO_ITEM_SET_GENERATED(pi);
+            }
+            
+            if (leg->osaid) {
+                pi = proto_tree_add_uint(tree,hf_alcap_leg_osaid,tvb,0,0,leg->osaid);
+                PROTO_ITEM_SET_GENERATED(pi);
+            }
+            
+            if (leg->pathid) {
+                pi = proto_tree_add_uint(tree,hf_alcap_leg_pathid,tvb,0,0,leg->pathid);
+                PROTO_ITEM_SET_GENERATED(pi);
+            }
+            
+            if (leg->cid) {
+                pi = proto_tree_add_uint(tree,hf_alcap_leg_cid,tvb,0,0,leg->cid);
+                PROTO_ITEM_SET_GENERATED(pi);
+            }
+            
+            if (leg->sugr) {
+                pi = proto_tree_add_uint(tree,hf_alcap_leg_sugr,tvb,0,0,leg->sugr);
+                PROTO_ITEM_SET_GENERATED(pi);
+            }
+            
+            if (leg->nsap) {
+                pi = proto_tree_add_string(tree,hf_alcap_leg_nsap,tvb,0,0,leg->nsap);
+                PROTO_ITEM_SET_GENERATED(pi);
+            }
+            
+            if(leg->release_cause) {
+                pi = proto_tree_add_uint(tree,hf_alcap_leg_release_cause,tvb,0,0,leg->release_cause);
+                PROTO_ITEM_SET_GENERATED(pi);
+            }
+            
+            if(leg->msgs) {
+                alcap_msg_data_t* msg = leg->msgs;
+                proto_item* pi = proto_tree_add_text(alcap_tree,tvb,0,0,"[Messages in this leg]");
+                proto_tree* tree = proto_item_add_subtree(pi,ett_leg);
+
+                
+                do {
+                    pi = proto_tree_add_uint(tree,hf_alcap_leg_frame,tvb,0,0,msg->framenum);
+                    proto_item_set_text(pi,"%s in frame %u", val_to_str(msg->msg_type,msg_type_strings,"Unknown message"),msg->framenum);
+                    PROTO_ITEM_SET_GENERATED(pi);
+                } while (( msg = msg->next));
+                
+            }
+            
+        }
+    }
 }
 
 static gboolean just_do_it(gpointer k _U_, gpointer v _U_, gpointer p _U_) { return TRUE; }
@@ -1812,7 +1857,8 @@ void
 proto_register_alcap(void)
 {
     guint		i;
-
+    module_t *alcap_module;
+    
     /* Setup list of header fields */
     static hf_register_info hf[] =
     {
@@ -1875,7 +1921,12 @@ proto_register_alcap(void)
 	},
 	{ &hf_alcap_none,
 	{ "Subtree",	"alcap.none",
-	    FT_NONE, 0, 0, 0,
+	    FT_NONE, 0, NULL, 0,
+	    "", HFILL }
+	},
+	{ &hf_alcap_cause_value,
+	{ "Cause",	"alcap.cause",
+	    FT_UINT8, BASE_DEC, VALS(cause_values), 0x7f,
 	    "", HFILL }
 	},
 	{ &hf_alcap_leg_osaid,
@@ -1908,16 +1959,16 @@ proto_register_alcap(void)
 	    FT_STRING, BASE_NONE, NULL, 0,
 	    "", HFILL }
 	},
-	{ &hf_alcap_leg_erq,
-	{ "Leg's ERQ in Frame",	"alcap.leg.erq",
+	{ &hf_alcap_leg_frame,
+	{ "a message of this leg",	"alcap.leg.msg",
 	    FT_FRAMENUM, BASE_DEC, NULL, 0,
 	    "", HFILL }
 	},
-	{ &hf_alcap_leg_rlc,
-	{ "Leg's REL in Frame",	"alcap.leg.rel",
-	    FT_FRAMENUM, BASE_DEC, NULL, 0,
-	    "", HFILL }
-	}
+    { &hf_alcap_leg_release_cause,
+    { "Leg's cause value in REL",	"alcap.leg.cause",
+        FT_UINT8, BASE_DEC, VALS(cause_values), 0,
+        "", HFILL }
+    }
     };
 
     /* Setup protocol subtree array */
@@ -1943,8 +1994,7 @@ proto_register_alcap(void)
     }
 
     /* Register the protocol name and description */
-    proto_alcap =
-	proto_register_protocol(alcap_proto_name, alcap_proto_name_short, "alcap");
+    proto_alcap = proto_register_protocol(alcap_proto_name, alcap_proto_name_short, "alcap");
 
 	register_dissector("alcap", dissect_alcap, proto_alcap);
 	
@@ -1952,7 +2002,14 @@ proto_register_alcap(void)
     proto_register_field_array(proto_alcap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 	
-	register_init_routine( &alcap_init);
+    alcap_module = prefs_register_protocol(proto_alcap, alcap_init);
+    
+    prefs_register_bool_preference(alcap_module, "leg_info",
+									 "Keep Leg Information",
+									 "Whether persistent call leg information is to be kept",
+									 &keep_persistent_info);
+    
+	register_init_routine( &alcap_init );
 }
 
 

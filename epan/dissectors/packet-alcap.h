@@ -21,6 +21,15 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+
+
+typedef struct _alcap_msg_data_t {
+    guint msg_type;
+    guint framenum;
+    struct _alcap_msg_data_t* next;
+    struct _alcap_msg_data_t* last;
+} alcap_msg_data_t;
+
 typedef struct _alcap_leg_info_t  {
 	guint32 dsaid;
 	guint32 osaid;
@@ -28,8 +37,8 @@ typedef struct _alcap_leg_info_t  {
 	guint32 cid;
 	guint32 sugr;
 	gchar* nsap;
-	guint erq;
-	guint rlc;
+    alcap_msg_data_t* msgs;
+    guint release_cause;
 } alcap_leg_info_t;
 
 
@@ -41,5 +50,6 @@ typedef struct _alcap_message_info_t {
 	guint32 cid;
 	guint32 sugr;
 	gchar* nsap;
+    guint release_cause;
 } alcap_message_info_t;
 
