@@ -423,7 +423,7 @@ static void
 dissect_lsp_mt_id(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	int  mt_block, mt_id;
-	char mt_desc[60];
+	char *mt_desc="";
 
 	/* fetch two bytes */
 	mt_block = tvb_get_ntohs(tvb, offset);
@@ -435,22 +435,22 @@ dissect_lsp_mt_id(tvbuff_t *tvb, proto_tree *tree, int offset)
 	/*mask out the lower 12 bits */
 	switch(mt_id) {
 	case 0:
-		strcpy(mt_desc,"'standard' topology");
+		mt_desc="'standard' topology";
 		break;
 	case 1:
-		strcpy(mt_desc,"IPv4 In-Band Management purposes");
+		mt_desc="IPv4 In-Band Management purposes";
 		break;
 	case 2:
-		strcpy(mt_desc,"IPv6 routing topology");
+		mt_desc="IPv6 routing topology";
 		break;
 	case 3:
-		strcpy(mt_desc,"IPv4 multicast routing topology");
+		mt_desc="IPv4 multicast routing topology";
 		break;
 	case 4:
-		strcpy(mt_desc,"IPv6 multicast routing topology");
+		mt_desc="IPv6 multicast routing topology";
 		break;
 	default:
-		strcpy(mt_desc,((mt_block & 0x0fff) < 3996) ? "Reserved for IETF Consensus" : "Development, Experimental and Proprietary features");
+		mt_desc=((mt_block & 0x0fff) < 3996) ? "Reserved for IETF Consensus" : "Development, Experimental and Proprietary features";
 	}
 
 	proto_tree_add_text ( tree, tvb, offset, 2 ,
