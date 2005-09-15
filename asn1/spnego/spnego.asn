@@ -1,0 +1,85 @@
+Spnego {iso(1) identified-organization(3) dod(6) internet(1) security(5) mechanisms(5) snego(2)}
+-- (1.3.6.1.5.5.2)
+DEFINITIONS ::=
+
+BEGIN
+
+MechType::= OBJECT IDENTIFIER
+
+NegotiationToken ::= CHOICE {
+                              negTokenInit  [0]  NegTokenInit,
+                              negTokenTarg  [1]  NegTokenTarg }
+
+MechTypeList ::= SEQUENCE OF MechType
+
+NegTokenInit ::= SEQUENCE {
+                            mechTypes       [0] MechTypeList  OPTIONAL,
+                            reqFlags        [1] ContextFlags  OPTIONAL,
+                            mechToken       [2] OCTET STRING  OPTIONAL,
+                            mechListMIC     [3] OCTET STRING  OPTIONAL
+                         }
+
+ContextFlags ::= BIT STRING {
+        delegFlag       (0),
+        mutualFlag      (1),
+        replayFlag      (2),
+        sequenceFlag    (3),
+        anonFlag        (4),
+        confFlag        (5),
+        integFlag       (6)
+}
+
+NegTokenTarg ::= SEQUENCE {
+    negResult      [0] ENUMERATED {
+                            accept-completed    (0),
+                            accept-incomplete   (1),
+                            reject              (2) }          OPTIONAL,
+    supportedMech  [1] MechType                                OPTIONAL,
+    responseToken  [2] OCTET STRING                            OPTIONAL,
+    mechListMIC    [3] OCTET STRING                            OPTIONAL
+}
+
+--GSS-API DEFINITIONS ::= 
+--BEGIN 
+--MechType ::= OBJECT IDENTIFIER 
+-- data structure definitions 
+-- callers must be able to distinguish among 
+-- InitialContextToken, SubsequentContextToken, 
+-- PerMsgToken, and SealedMessage data elements 
+-- based on the usage in which they occur 
+InitialContextToken ::= 
+	-- option indication (delegation, etc.) indicated within 
+	-- mechanism-specific token 
+[APPLICATION 0] IMPLICIT SEQUENCE { 
+	thisMech MechType, 
+	innerContextToken InnerContextToken 
+	--	DEFINED BY thisMech 
+	-- contents mechanism-specific 
+	-- ASN.1 structure not required
+	 } 
+
+-- SubsequentContextToken ::= InnerContextToken
+
+InnerContextToken ::= ANY
+-- interpretation based on predecessor InitialContextToken 
+-- ASN.1 structure not required 
+
+-- PerMsgToken ::= 
+-- as emitted by GSS_GetMIC and processed by GSS_VerifyMIC 
+-- ASN.1 structure not required 
+--	InnerMsgToken
+
+-- InnerMsgToken ::= ANY
+
+-- SealedMessage ::= 
+-- as emitted by GSS_Wrap and processed by GSS_Unwrap 
+-- includes internal, mechanism-defined indicator 
+-- of whether or not encrypted 
+-- ASN.1 structure not required 
+--	SealedUserData 
+	
+-- SealedUserData ::= ANY 
+
+-- END GSS-API DEFINITIONS
+
+END

@@ -1,0 +1,128 @@
+# spnego.cnf
+# spnego conformation file
+
+# $Id$
+
+#.EXPORTS
+
+#.PDU
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.FN_PARS MechType
+
+	VAL_PTR = MechType_oid
+
+#.FN_BODY MechType
+
+	gssapi_oid_value *value;
+
+%(DEFAULT_BODY)s
+
+	  value = gssapi_lookup_oid_str(MechType_oid);
+
+	  /*
+	   * Tell our caller the first mechanism we see, so that if
+	   * this is a negTokenInit with a mechToken, it can interpret
+	   * the mechToken according to the first mechType.  (There
+	   * might not have been any indication of the mechType
+	   * in prior frames, so we can't necessarily use the
+	   * mechanism from the conversation; i.e., a negTokenInit
+	   * can contain the initial security token for the desired
+	   * mechanism of the initiator - that's the first mechanism
+	   * in the list.)
+	   */
+	  if (!saw_mechanism) {
+	    if (value)
+	      next_level_value = value;
+	    saw_mechanism = TRUE;
+	  }
+
+#.FN_BODY InnerContextToken
+
+	conversation_t *conversation;
+	gssapi_oid_value *next_level_value;
+	proto_item *item;
+	proto_tree *subtree;
+	tvbuff_t *token_tvb;
+	int len;
+
+	next_level_value = p_get_proto_data(pinfo->fd, proto_spnego);
+	if (!next_level_value && !pinfo->fd->flags.visited) {
+	    /*
+	     * No handle attached to this frame, but it's the first
+	     * pass, so it'd be attached to the conversation.
+	     * If we have a conversation, try to get the handle,
+	     * and if we get one, attach it to the frame.
+	     */
+	    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+					     pinfo->ptype, pinfo->srcport,
+					     pinfo->destport, 0);
+
+	    if (conversation) {
+		next_level_value = conversation_get_proto_data(conversation, 
+							       proto_spnego);
+		if (next_level_value)
+		    p_add_proto_data(pinfo->fd, proto_spnego, next_level_value);
+	    }
+	}
+
+	next_level_value = gssapi_lookup_oid_str(MechType_oid);
+	/*
+	 * Now dissect the GSS_Wrap token; it's assumed to be in the
+	 * rest of the tvbuff.
+	 */
+	item = proto_tree_add_item(tree, hf_spnego_wraptoken, tvb, offset, 
+				   -1, FALSE); 
+
+	subtree = proto_item_add_subtree(item, ett_spnego_wraptoken);
+
+	/*
+	 * Now, we should be able to dispatch after creating a new TVB.
+	 * The subdissector must return the length of the part of the
+	 * token it dissected, so we can return the length of the part
+	 * we (and it) dissected.
+	 */
+
+	token_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	if (next_level_value->wrap_handle) {
+	  len = call_dissector(next_level_value->wrap_handle, token_tvb, pinfo, subtree);
+	  if (len == 0)
+	    offset = tvb_length(tvb);
+	  else
+	    offset = offset + len;
+	} else
+	  
+	  offset = tvb_length(tvb);
+
+
+#.FN_HDR MechTypeList
+
+
+	saw_mechanism = FALSE;
+
+#.FN_PARS NegTokenInit/mechToken
+
+	VAL_PTR = &mechToken_tvb
+
+#.FN_BODY NegTokenInit/mechToken
+
+	tvbuff_t *mechToken_tvb;
+
+
+%(DEFAULT_BODY)s	
+
+
+	/*
+	 * Now, we should be able to dispatch after creating a new TVB.
+	 */
+
+	if (next_level_value)
+	   call_dissector(gssapi_dissector_handle(next_level_value), mechToken_tvb, pinfo, tree);
+
+
+#.END
