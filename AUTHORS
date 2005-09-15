@@ -1602,6 +1602,7 @@ Lutz Jaenicke           <Lutz.Jaenicke [AT] aet.TU-Cottbus.DE> {
 
 Senthil Kumar Nagappan  <sknagappan [AT] yahoo.com> {
 	Small SCSI dissector fix
+	Small OSPF dissector enhancement
 }
 
 Jason House             <jhouse [AT] mitre.org> {

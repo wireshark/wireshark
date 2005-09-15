@@ -1988,6 +1988,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 	break;
 
 
+    case OSPF_V3_LSTYPE_TYPE_7:
     case OSPF_V3_LSTYPE_AS_EXTERNAL:
 
         /* flags */
