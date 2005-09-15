@@ -125,7 +125,8 @@ AC_DEFUN([AC_ETHEREAL_CHECK_64BIT_FORMAT],
     [
       AC_DEFINE(PRId64, "$1d", [Format for printing 64-bit signed decimal numbers])
       AC_DEFINE(PRIo64, "$1o", [Format for printing 64-bit unsigned octal numbers])
-      AC_DEFINE(PRIx64, "$1x", [Format for printing 64-bit unsigned hexadecimal numbers])
+      AC_DEFINE(PRIx64, "$1x", [Format for printing 64-bit unsigned hexadecimal numbers (lower-case)])
+      AC_DEFINE(PRIX64, "$1X", [Format for printing 64-bit unsigned hexadecimal numbers (upper-case)])
       AC_DEFINE(PRIu64, "$1u", [Format for printing 64-bit unsigned decimal numbers])
       AC_MSG_RESULT(yes)
     ],

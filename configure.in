@@ -463,6 +463,7 @@ AC_CHECK_HEADERS(inttypes.h,
 	      printf("%" PRId64 "\n", (gint64)1);
 	      printf("%" PRIo64 "\n", (guint64)1);
 	      printf("%" PRIx64 "\n", (guint64)1);
+	      printf("%" PRIX64 "\n", (guint64)1);
 	      printf("%" PRIu64 "\n", (guint64)1);
 	    }
 	  ]])

@@ -163,14 +163,22 @@
 #endif /* _MSC_EXTENSIONS */
 #endif /* PRIu64 */
 
-/* Format for printing 64-bit unsigned hexadecimal numbers */
-#ifndef PRIx64  
+/* Formats for printing 64-bit unsigned hexadecimal numbers */
+#ifndef PRIx64
 #ifdef _MSC_EXTENSIONS
 #define PRIx64  "I64x"
 #else /* _MSC_EXTENSIONS */
 #define PRIx64  "llx"
 #endif /* _MSC_EXTENSIONS */
-#endif /* PRIx64 */   
+#endif /* PRIx64 */
+
+#ifndef PRIX64
+#ifdef _MSC_EXTENSIONS
+#define PRIX64  "I64X"
+#else /* _MSC_EXTENSIONS */
+#define PRIX64  "llX"
+#endif /* _MSC_EXTENSIONS */
+#endif /* PRIX64 */
 
 /* Define if you have the z library (-lz).  */
 @HAVE_LIBZ@
