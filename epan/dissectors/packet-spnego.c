@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-spnego.c                                                          */
+/* ./packet-spnego.c                                                          */
 /* ../../tools/asn2eth.py -X -b -e -p spnego -c spnego.cnf -s packet-spnego-template spnego.asn */
 
 /* Input file: packet-spnego-template.c */
@@ -706,7 +706,7 @@ usage2arcfour(int usage)
 static int
 arcfour_mic_cksum(guint8 *key_data, int key_length,
 		  unsigned usage,
-		  u_char sgn_cksum[8],
+		  guint8 sgn_cksum[8],
 		  const void *v1, size_t l1,
 		  const void *v2, size_t l2,
 		  const void *v3, size_t l3)
@@ -831,7 +831,7 @@ decrypt_arcfour(packet_info *pinfo,
 	int i;
 
 	for (i = 0; i < 16; i++)
-	    Klocaldata[i] = ((u_char *)key_value)[i] ^ 0xF0;
+	    Klocaldata[i] = ((guint8 *)key_value)[i] ^ 0xF0;
     }
     ret = arcfour_mic_key(Klocaldata,sizeof(Klocaldata),key_type,
 			  SND_SEQ, 4,
