@@ -26,6 +26,8 @@
 #ifndef __EMEM_H__
 #define __EMEM_H__
 
+#include "gnuc_format_check.h"
+
 /* Functions for handling memory allocation and garbage collection with 
  * a packet lifetime scope.
  * These functions are used to allocate memory that will only remain persistent
@@ -58,7 +60,8 @@ gchar* ep_strndup(const gchar* src, size_t len);
 guint8* ep_memdup(const guint8* src, size_t len);
 
 /* Create a formated string with a packet lifetime scope */
-gchar* ep_strdup_printf(const gchar* fmt, ...);
+gchar* ep_strdup_printf(const gchar* fmt, ...)
+    GNUC_FORMAT_CHECK(printf, 1, 2);
 
 /* allocates with a packet lifetime scope an array of type made of num elements */
 #define ep_alloc_array(type,num) (type*)ep_alloc(sizeof(type)*(num))
@@ -110,7 +113,8 @@ gchar* se_strndup(const gchar* src, size_t len);
 guint8* se_memdup(const guint8* src, size_t len);
 
 /* Create a formated string with a capture lifetime scope */
-gchar* se_strdup_printf(const gchar* fmt, ...);
+gchar* se_strdup_printf(const gchar* fmt, ...)
+    GNUC_FORMAT_CHECK(printf, 1, 2);
 
 /* allocates with a capture lifetime scope an array of type made of num elements */
 #define se_alloc_array(type,num) (type*)se_alloc(sizeof(type)*(num))
