@@ -45,8 +45,19 @@ GENERATED_C_FILES = \
 # All the generated files.
 GENERATED_FILES = $(GENERATED_HEADER_FILES) $(GENERATED_C_FILES)
 
+# pidl dissectors
+
+PIDL_DISSECTOR_SRC = \
+	pidl/packet-dcerpc-initshutdown.c	\
+	pidl/packet-dcerpc-winreg.c
+
+PIDL_DISSECTOR_INCLUDES = \
+	pidl/packet-dcerpc-initshutdown.h	\
+	pidl/packet-dcerpc-winreg.h
+
 # the dissector sources (without any helpers)
 DISSECTOR_SRC =	\
+	$(PIDL_DISSECTOR_SRC)	\
 	packet-3com-xns.c	\
 	packet-3g-a11.c	\
 	packet-9p.c	\
@@ -168,7 +179,6 @@ DISSECTOR_SRC =	\
 	packet-dcerpc-frsrpc.c	\
 	packet-dcerpc-ftserver.c	\
 	packet-dcerpc-icl_rpc.c	\
-	packet-dcerpc-initshutdown.c	\
 	packet-dcerpc-krb5rpc.c	\
 	packet-dcerpc-llb.c	\
 	packet-dcerpc-lsa.c	\
@@ -180,7 +190,6 @@ DISSECTOR_SRC =	\
 	packet-dcerpc-nspi.c	\
 	packet-dcerpc-pnp.c	\
 	packet-dcerpc-rdaclif.c	\
-	packet-dcerpc-reg.c	\
 	packet-dcerpc-rep_proc.c	\
 	packet-dcerpc-roverride.c	\
 	packet-dcerpc-rpriv.c	\
@@ -627,6 +636,7 @@ DISSECTOR_SRC =	\
 
 # corresponding headers
 DISSECTOR_INCLUDES =	\
+	$(PIDL_DISSECTOR_INCLUDES) 	\
 	packet-acse.h	\
 	packet-actrace.h	\
 	packet-afp.h	\
@@ -671,13 +681,11 @@ DISSECTOR_INCLUDES =	\
 	packet-dcerpc-eventlog.h	\
 	packet-dcerpc-frsapi.h	\
 	packet-dcerpc-frsrpc.h	\
-	packet-dcerpc-initshutdown.h	\
 	packet-dcerpc-lsa.h	\
 	packet-dcerpc-mapi.h	\
 	packet-dcerpc-netlogon.h	\
 	packet-dcerpc-nt.h	\
 	packet-dcerpc-pnp.h	\
-	packet-dcerpc-reg.h	\
 	packet-dcerpc-rras.h	\
 	packet-dcerpc-samr.h	\
 	packet-dcerpc-spoolss.h	\

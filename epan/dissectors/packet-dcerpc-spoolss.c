@@ -40,7 +40,6 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-spoolss.h"
-#include "packet-dcerpc-reg.h"
 #include "packet-windows-common.h"
 
 /* GetPrinterDriver2 */
@@ -299,6 +298,37 @@ static int hf_rrpcn_unk1 = -1;
 
 static int hf_replyopenprinter_unk0 = -1;
 static int hf_replyopenprinter_unk1 = -1;
+
+/* Registry data types */
+
+#define DCERPC_REG_NONE                       0
+#define DCERPC_REG_SZ                          1
+#define DCERPC_REG_EXPAND_SZ                  2
+#define DCERPC_REG_BINARY                      3
+#define DCERPC_REG_DWORD                       4
+#define DCERPC_REG_DWORD_LE                    4        /* DWORD, little endian
+*/
+#define DCERPC_REG_DWORD_BE                    5        /* DWORD, big endian */
+#define DCERPC_REG_LINK                       6
+#define DCERPC_REG_MULTI_SZ                    7
+#define DCERPC_REG_RESOURCE_LIST              8
+#define DCERPC_REG_FULL_RESOURCE_DESCRIPTOR   9
+#define DCERPC_REG_RESOURCE_REQUIREMENTS_LIST 10
+
+const value_string reg_datatypes[] = {
+        { DCERPC_REG_NONE, "REG_NONE" },
+        { DCERPC_REG_SZ, "REG_SZ" },
+        { DCERPC_REG_EXPAND_SZ, "REG_EXPAND_SZ" },
+        { DCERPC_REG_BINARY, "REG_BINARY" },
+        { DCERPC_REG_DWORD, "REG_DWORD" },
+        { DCERPC_REG_DWORD_LE, "REG_DWORD_LE" },
+        { DCERPC_REG_DWORD_BE, "REG_DWORD_BE" },
+        { DCERPC_REG_LINK, "REG_LINK" },
+        { DCERPC_REG_MULTI_SZ, "REG_MULTI_SZ" },
+        { DCERPC_REG_RESOURCE_LIST, "REG_RESOURCE_LIST" },
+        { DCERPC_REG_FULL_RESOURCE_DESCRIPTOR, "REG_FULL_RESOURCE_DESCRIPTOR" },        { DCERPC_REG_RESOURCE_REQUIREMENTS_LIST, "REG_RESOURCE_REQUIREMENTS_LIST" },
+        {0, NULL }
+};
 
 /****************************************************************************/
 

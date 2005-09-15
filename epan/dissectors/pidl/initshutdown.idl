@@ -1,0 +1,47 @@
+#include "idl_types.h"
+
+/*
+  initshutdown interface definition
+*/
+
+[ 
+  uuid("894de0c0-0d55-11d3-a322-00c04fa321a1"),
+  version(1.0),
+  endpoint("ncacn_np:[\\pipe\\InitShutdown]"),
+  pointer_default(unique),
+  pointer_default_top(unique),
+  helpstring("Init shutdown service")
+] interface initshutdown
+{
+	typedef struct {
+		[value(strlen_m_term(name))] uint32 name_size;
+		[flag(STR_LEN4|STR_NOTERM)] string name;
+	} initshutdown_String_sub;
+
+	typedef [public] struct {
+		[value(strlen_m(r->name->name)*2)] uint16 name_len;
+		[value(strlen_m_term(r->name->name)*2)] uint16 name_size;
+		initshutdown_String_sub *name;
+	} initshutdown_String;
+
+	WERROR initshutdown_Init(
+		[in] uint16 *hostname,
+		[in] initshutdown_String *message,
+		[in] uint32 timeout,
+		[in] uint8 force_apps,
+		[in] uint8 reboot
+	);
+
+	WERROR initshutdown_Abort(
+		[in] uint16 *server
+	);
+
+	WERROR initshutdown_InitEx(
+  		[in] uint16 *hostname,
+		[in] initshutdown_String *message,
+		[in] uint32 timeout,
+		[in] uint8 force_apps,
+		[in] uint8 reboot,
+		[in] uint32 reason
+	);
+}

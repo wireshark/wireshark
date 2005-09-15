@@ -1,0 +1,363 @@
+#include "idl_types.h"
+
+/*
+  winreg interface definition
+*/
+
+[ 
+  uuid("338cd001-2244-31f1-aaaa-900038001003"),
+  version(1.0),
+  endpoint("ncacn_np:[\\pipe\\winreg]","ncacn_ip_tcp:","ncalrpc:"),
+  pointer_default(unique),
+  pointer_default_top(unique),
+  helpstring("Remote Registry Service"),
+  depends(lsa,initshutdown)
+] interface winreg
+{
+	declare bitmap security_secinfo;
+
+	typedef [v1_enum] enum {
+		REG_NONE                       = 0,
+		REG_SZ                         = 1,
+		REG_EXPAND_SZ                  = 2,
+		REG_BINARY                     = 3,
+		REG_DWORD                      = 4,
+		REG_DWORD_BIG_ENDIAN           = 5,
+		REG_LINK                       = 6,
+		REG_MULTI_SZ                   = 7,
+		REG_RESOURCE_LIST              = 8,
+		REG_FULL_RESOURCE_DESCRIPTOR   = 9,
+		REG_RESOURCE_REQUIREMENTS_LIST = 10,
+		REG_QWORD                      = 11
+	} winreg_Type;
+
+	typedef [public,noejs] struct {
+		[value(strlen_m_term(name)*2)] uint16 name_len;
+		[value(strlen_m_term(name)*2)] uint16 name_size;
+		unistr *name;
+	} winreg_String;
+
+	/******************/
+	/* Function: 0x00 */
+	WERROR winreg_OpenHKCR(
+		[in]      uint16 *system_name,
+		[in]      uint32 access_required,
+		[out,ref] policy_handle *handle
+	);
+
+	/******************/
+	/* Function: 0x01 */
+	WERROR winreg_OpenHKCU(
+	        [in]      uint16 *system_name,
+		[in]      uint32 access_required,
+		[out,ref] policy_handle *handle
+	);
+
+	/******************/
+	/* Function: 0x02 */
+	WERROR winreg_OpenHKLM(
+		[in]      uint16 *system_name,
+		[in]      uint32 access_required,
+		[out,ref] policy_handle *handle
+	);
+
+	/******************/
+	/* Function: 0x03 */
+	WERROR winreg_OpenHKPD(
+		[in]      uint16 *system_name,
+		[in]      uint32 access_required,
+		[out,ref] policy_handle *handle
+	);
+
+	/******************/
+	/* Function: 0x04 */
+	WERROR winreg_OpenHKU(
+		[in]      uint16 *system_name,
+		[in]      uint32 access_required,
+		[out,ref] policy_handle *handle
+	);
+
+	/******************/
+	/* Function: 0x05 */
+	WERROR winreg_CloseKey(
+		[in,out,ref] policy_handle *handle
+	);
+
+	/******************/
+	/* Function: 0x06 */
+
+	typedef struct {
+		[size_is(size),length_is(len)] uint8 *data;
+		uint32 size;
+		uint32 len;
+	} KeySecurityData;
+
+	typedef struct {
+		uint32 length;
+		KeySecurityData sd;
+		bool8  inherit;
+	} winreg_SecBuf;
+
+	typedef [v1_enum] enum {
+		REG_ACTION_NONE         = 0, /* used by caller */
+		REG_CREATED_NEW_KEY     = 1,
+		REG_OPENED_EXISTING_KEY = 2
+	} winreg_CreateAction;
+
+	WERROR winreg_CreateKey(
+		[in,ref] policy_handle *handle,
+		[in] winreg_String name,
+		[in] winreg_String class,
+		[in] uint32 options,
+		[in] uint32 access_required,
+		[in,unique] winreg_SecBuf *secdesc,
+		[out,ref] policy_handle *new_handle,
+		[in,out,unique] winreg_CreateAction *action_taken
+	);
+
+	/******************/
+	/* Function: 0x07 */
+	WERROR winreg_DeleteKey(
+		[in,ref] policy_handle *handle,
+		[in]	 winreg_String key
+	);
+
+	/******************/
+	/* Function: 0x08 */
+	WERROR winreg_DeleteValue(
+		[in,ref] policy_handle *handle,
+		[in]	 winreg_String value
+	);
+
+	typedef struct {
+		/* we can't use value(strlen_m(name)*2) here as it
+		   doesn't propogate to the length_is() property
+		   below. Jelmer, can this be fixed? */
+		uint16 length; 
+		uint16 size;
+		[size_is(size/2),length_is(length/2),charset(UTF16)] uint16 *name;
+	} winreg_StringBuf;
+
+	WERROR winreg_EnumKey(
+		[in,ref]        policy_handle    *handle,
+		[in]            uint32           enum_index,
+		[in,out,ref]    winreg_StringBuf *name,
+		[in,out,unique] winreg_StringBuf *class,
+		[in,out,unique] NTTIME           *last_changed_time
+	);
+
+	/******************/
+	/* Function: 0x0a */
+
+	WERROR winreg_EnumValue(
+		[in,ref]        policy_handle *handle,
+		[in]            uint32 enum_index,
+		[in,out,ref]    winreg_StringBuf *name,
+		[in,out,unique] winreg_Type *type,
+		[in,out,unique,size_is(*size),length_is(*length)] uint8 *value,
+		[in,out,unique] uint32 *size,
+		[in,out,unique] uint32 *length
+	);
+
+	/******************/
+	/* Function: 0x0b */
+	WERROR winreg_FlushKey(
+		[in,ref] policy_handle *handle
+	);
+
+	/******************/
+	/* Function: 0x0c */
+	WERROR winreg_GetKeySecurity(
+		[in,ref] policy_handle *handle,
+		[in] security_secinfo sec_info,
+		[in,out,ref] KeySecurityData *sd
+	);
+
+	/******************/
+	/* Function: 0x0d */
+	WERROR winreg_LoadKey(
+		[in,ref] policy_handle *handle,
+		[in] winreg_String *keyname,
+		[in] winreg_String *filename
+	);
+
+	/******************/
+	/* Function: 0x0e */
+	WERROR winreg_NotifyChangeKeyValue(
+		[in,ref] policy_handle *handle,
+		[in] uint8 watch_subtree,
+		[in] uint32 notify_filter,
+		[in] uint32 unknown,
+		[in] winreg_String string1,
+		[in] winreg_String string2, 
+		[in] uint32 unknown2
+	);
+
+	/******************/
+	/* Function: 0x0f */
+	WERROR winreg_OpenKey(
+		[in,ref] policy_handle *handle,
+		[in] winreg_String keyname,
+		[in] uint32 unknown,
+		[in] uint32 access_mask,
+		[out,ref] policy_handle *handle
+	);
+
+	/******************/
+	/* Function: 0x10 */
+	WERROR winreg_QueryInfoKey(
+		[in,ref] policy_handle *handle,
+		[in] winreg_String class,
+		[out] winreg_String class,
+		[out] uint32 num_subkeys,
+		[out] uint32 max_subkeylen,
+		[out] uint32 max_subkeysize,
+		[out] uint32 num_values,
+		[out] uint32 max_valnamelen,
+		[out] uint32 max_valbufsize,
+		[out] uint32 secdescsize,
+		[out] NTTIME last_changed_time
+	);
+
+	/******************/
+	/* Function: 0x11 */
+	WERROR winreg_QueryValue(
+		[in,ref] policy_handle *handle,
+		[in] winreg_String value_name,
+		[in,out] winreg_Type *type,
+		[in,out,size_is(*size),length_is(*length)] uint8 *data,
+		[in,out] uint32 *size,
+		[in,out] uint32 *length
+	);
+
+	/******************/
+	/* Function: 0x12 */
+	WERROR winreg_ReplaceKey(
+	);
+
+	/******************/
+	/* Function: 0x13 */
+	WERROR winreg_RestoreKey(
+	);
+
+	/******************/
+	/* Function: 0x14 */
+	WERROR winreg_SaveKey(
+	);
+
+	/******************/
+	/* Function: 0x15 */
+	WERROR winreg_SetKeySecurity(
+		[in,ref] policy_handle *handle,
+		[in] uint32 access_mask,
+		[in,out,ref] KeySecurityData *data
+	);
+
+	/******************/
+	/* Function: 0x16 */
+	WERROR winreg_SetValue(
+		[in,ref]           policy_handle *handle,
+		[in]               winreg_String name,
+		[in]               winreg_Type type,
+		[in,size_is(size),ref] uint8  *data,
+		[in]               uint32 size
+	);
+
+	/******************/
+	/* Function: 0x17 */
+	WERROR winreg_UnLoadKey(
+	);
+
+	/******************/
+	/* Function: 0x18 */
+	WERROR winreg_InitiateSystemShutdown(
+		[in]	uint16 *hostname,
+		[in]	initshutdown_String *message,
+		[in]	uint32 timeout,
+		[in]	uint8 force_apps,
+		[in]	uint8 reboot
+	);
+
+	/******************/
+	/* Function: 0x19 */
+	WERROR winreg_AbortSystemShutdown(
+		[in]	uint16 *server
+	);
+
+	/******************/
+	/* Function: 0x1a */
+	WERROR winreg_GetVersion(
+		[in,ref] policy_handle *handle,
+		[out]    uint32 version
+	);
+
+	/******************/
+	/* Function: 0x1b */
+	WERROR winreg_OpenHKCC(
+		[in]      uint16 *system_name,
+		[in]      uint32 access_required,
+		[out,ref] policy_handle *handle
+	);
+
+	/******************/
+	/* Function: 0x1c */
+	WERROR winreg_OpenHKDD(
+		[in]      uint16 *system_name,
+		[in]      uint32 access_required,
+		[out,ref] policy_handle *handle
+	);
+
+	typedef struct {
+		winreg_String *name;
+		winreg_Type type;
+		uint32 offset;
+		uint32 length;
+	} QueryMultipleValue;
+	
+	/******************/
+	/* Function: 0x1d */
+	WERROR winreg_QueryMultipleValues(
+		[in,ref] policy_handle *key_handle, 
+		[in,out,ref,size_is(num_values),length_is(num_values)] QueryMultipleValue *values,
+		[in] uint32 num_values,
+		[in,out,size_is(*buffer_size),length_is(*buffer_size)] uint8 *buffer,
+		[in,out,ref] uint32 *buffer_size
+	);
+
+	/******************/
+	/* Function: 0x1e */
+	WERROR winreg_InitiateSystemShutdownEx(
+		[in] uint16 *hostname,
+		[in] initshutdown_String *message,
+		[in] uint32 timeout,
+		[in] uint8 force_apps,
+		[in] uint8 reboot,
+		[in] uint32 reason
+	);
+
+	/******************/
+	/* Function: 0x1f */
+	WERROR winreg_SaveKeyEx(
+	);
+
+	/******************/
+	/* Function: 0x20 */
+	WERROR winreg_OpenHKPT(
+		[in]      uint16 *system_name,
+		[in]      uint32 access_required,
+		[out,ref] policy_handle *handle
+	);
+
+	/******************/
+	/* Function: 0x21 */
+	WERROR winreg_OpenHKPN(
+		[in]      uint16 *system_name,
+		[in]      uint32 access_required,
+		[out,ref] policy_handle *handle
+	);
+
+	/******************/
+	/* Function: 0x22 */
+	WERROR winreg_QueryMultipleValues2(
+	);
+}
