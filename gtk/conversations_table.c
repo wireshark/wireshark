@@ -39,6 +39,7 @@
 
 #include <epan/packet_info.h>
 #include <epan/to_str.h>
+#include <epan/address.h>
 #include <epan/addr_resolv.h>
 #include <epan/tap.h>
 
@@ -62,7 +63,15 @@
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
 
 #define NUM_COLS 10
+#define CONV_PTR_KEY "conversations-pointer"
 
+#define CMP_INT(i1, i2)	\
+	if ((i1) > (i2))	\
+		return 1;	\
+	else if ((i1) < (i2))	\
+		return -1;	\
+	else			\
+		return 0;
 
 /* convert a port number into a string */
 static char *
@@ -257,7 +266,7 @@ reset_ct_table_data(conversations_table *ct)
 {
     guint32 i;
     char title[256];
-	
+
 	/* Allow clist to update */
 	gtk_clist_thaw(ct->table);
 
@@ -311,44 +320,50 @@ ct_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 static gint
 ct_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 {
-	char *text1 = NULL;
-	char *text2 = NULL;
-	guint64 i1, i2;
+	guint32 idx1, idx2;
+	conversations_table *ct = OBJECT_GET_DATA(clist, CONV_PTR_KEY);
+	conversation_t *conv1 = NULL;
+	conversation_t *conv2 = NULL;
 
 	const GtkCListRow *row1 = ptr1;
 	const GtkCListRow *row2 = ptr2;
 
-	text1 = GTK_CELL_TEXT (row1->cell[clist->sort_column])->text;
-	text2 = GTK_CELL_TEXT (row2->cell[clist->sort_column])->text;
+	idx1 = GPOINTER_TO_INT(row1->data);
+	idx2 = GPOINTER_TO_INT(row2->data);
+
+	if (!ct || idx1 >= ct->num_conversations || idx2 >= ct->num_conversations)
+		return 0;
+
+	conv1 = &ct->conversations[idx1];
+	conv2 = &ct->conversations[idx2];
 
 	switch(clist->sort_column){
-	case 0:
-	case 2:
-		/* Addresses */
-                /* XXX - We should sort addresses numerically. */
-		return strcmp (text1, text2);
-	case 1:
-	case 3:
-		/* Ports */
-		/* If we have two numbers, do a numeric compare.  Otherwise,
-		 * use strcmp. */
-                if (text1 && text2 && isdigit(text1[0]) && isdigit(text2[0])) {
-			sscanf(text1, "%" PRIu64, &i1);
-			sscanf(text2, "%" PRIu64, &i2);
-			/* XXX - See overflow comment below */
-			return (gint) (i1-i2);
-		} else {
-			return strcmp (text1, text2);
-		}
+	case 0: /* Source address */
+		return(CMP_ADDRESS(&conv1->src_address, &conv2->src_address));
+	case 2: /* Destination address */
+		return(CMP_ADDRESS(&conv1->dst_address, &conv2->dst_address));
+	case 1: /* Source port */
+		CMP_INT(conv1->src_port, conv2->src_port);
+	case 3: /* Destination port */
+		CMP_INT(conv1->dst_port, conv2->dst_port);
+	case 4: /* Packets */
+		CMP_INT(conv1->tx_frames+conv1->rx_frames,
+			conv2->tx_frames+conv2->rx_frames);
+        case 5: /* Bytes */
+		CMP_INT(conv1->tx_bytes+conv1->rx_bytes,
+			conv2->tx_bytes+conv2->rx_bytes);
+        case 6: /* Packets A->B */
+		CMP_INT(conv1->tx_frames, conv2->tx_frames);
+        case 7: /* Bytes A->B */
+		CMP_INT(conv1->tx_bytes, conv2->tx_bytes);
+        case 8: /* Packets A<-B */
+		CMP_INT(conv1->rx_frames, conv2->rx_frames);
+        case 9: /* Bytes A<-B */
+		CMP_INT(conv1->rx_bytes, conv2->rx_bytes);
 	default:
-		sscanf(text1, "%" PRIu64, &i1);
-		sscanf(text2, "%" PRIu64, &i2);
-        /* XXX - this might cause trouble because of overflow problems */
-        /* XXX - is this correct anyway? Subtracting two unsigned values will still be an unsigned value, which will never become negative */
-		return (gint) (i1-i2);
+		g_assert_not_reached();
 	}
-        g_assert_not_reached();
-	
+
 	return 0;
 }
 
@@ -373,8 +388,8 @@ ct_click_column_cb(GtkCList *clist, gint column, gpointer data)
 			gtk_widget_show(col_arrows[column].ascend_pm);
 		}
 	} else {
-		clist->sort_type = GTK_SORT_DESCENDING;
-		gtk_widget_show(col_arrows[column].descend_pm);
+		clist->sort_type = GTK_SORT_ASCENDING;
+		gtk_widget_show(col_arrows[column].ascend_pm);
 		gtk_clist_set_sort_column(clist, column);
 	}
 
@@ -1101,9 +1116,9 @@ draw_ct_table_data(conversations_table *ct)
         gtk_clist_set_text(ct->table, j, 9, str);
 
     }
-	
+
     draw_ct_table_addresses(ct);
-	
+
     gtk_clist_sort(ct->table);
 
     /* Allow table to redraw */
@@ -1121,13 +1136,13 @@ draw_ct_table_data_cb(void *arg)
 static void
 copy_as_csv_cb(GtkWindow *win _U_, gpointer data)
 {
-   guint32         i,j;                 
-   gchar           *table_entry;                      
-   gchar           *CSV_str;         
-   GtkClipboard    *cb;  
-   
+   guint32         i,j;
+   gchar           *table_entry;
+   gchar           *CSV_str;
+   GtkClipboard    *cb;
+
    conversations_table *talkers=(conversations_table *)data;
-   
+
    CSV_str=g_new(gchar,(80*(talkers->num_conversations+1))); /* 80 chars * num rows */
    strcpy(CSV_str,"");                                   /* initialize string   */
    /* Add the column headers to the CSV data */
@@ -1137,7 +1152,7 @@ copy_as_csv_cb(GtkWindow *win _U_, gpointer data)
      strcat(CSV_str,",");
    }
    strcat(CSV_str,"\n");                                 /* new row */
- 
+
    /* Add the column values to the CSV data */
    for(i=0;i<talkers->num_conversations;i++){                /* all rows            */
     for(j=0;j<talkers->num_columns;j++){                 /* all columns         */
@@ -1145,15 +1160,15 @@ copy_as_csv_cb(GtkWindow *win _U_, gpointer data)
      gtk_clist_get_text(talkers->table,i,j,&table_entry);/* copy table item into string */
      strcat(CSV_str,table_entry);                        /* add the table entry to the CSV string */
      strcat(CSV_str,",");
-    } 
-    strcat(CSV_str,"\n");                                /* new row */  
+    }
+    strcat(CSV_str,"\n");                                /* new row */
    }
 
    /* Now that we have the CSV data, copy it into the default clipboard */
    cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);     /* Get the default clipboard */
    gtk_clipboard_set_text(cb, CSV_str, -1);             /* Copy the CSV data into the clipboard */
    g_free(CSV_str);                                     /* Free the memory */
-} 
+}
 #endif
 
 
@@ -1170,13 +1185,13 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
 #if (GTK_MAJOR_VERSION >= 2)
     GtkWidget *copy_bt;
     GtkTooltips *tooltips = gtk_tooltips_new();
-#endif           
+#endif
 
 
     conversations->page_lb=NULL;
     conversations->resolve_names=TRUE;
-    conversations->has_ports=!hide_ports;   
-    conversations->num_columns=NUM_COLS;   
+    conversations->has_ports=!hide_ports;
+    conversations->num_columns=NUM_COLS;
     conversations->default_titles[0]="Address A",
     conversations->default_titles[1]="Port A";
     conversations->default_titles[2]="Address B";
@@ -1197,6 +1212,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     gtk_box_pack_start(GTK_BOX(vbox), conversations->scrolled_window, TRUE, TRUE, 0);
 
     conversations->table=(GtkCList *)gtk_clist_new(NUM_COLS);
+    OBJECT_SET_DATA(conversations->table, CONV_PTR_KEY, conversations);
 
     col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * NUM_COLS);
     win_style = gtk_widget_get_style(conversations->scrolled_window);
@@ -1213,7 +1229,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
         gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
         /* make total frames be the default sort order */
         if (i == 4) {
-            gtk_widget_show(col_arrows[i].descend_pm);
+            gtk_widget_show(col_arrows[i].ascend_pm);
         }
         gtk_clist_set_column_widget(GTK_CLIST(conversations->table), i, col_arrows[i].table);
         gtk_widget_show(col_arrows[i].table);
@@ -1222,7 +1238,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
 
     gtk_clist_set_compare_func(conversations->table, ct_sort_column);
     gtk_clist_set_sort_column(conversations->table, 4);
-    gtk_clist_set_sort_type(conversations->table, GTK_SORT_DESCENDING);
+    gtk_clist_set_sort_type(conversations->table, GTK_SORT_ASCENDING);
 
 
     gtk_clist_set_column_auto_resize(conversations->table, 0, TRUE);
@@ -1258,11 +1274,11 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
     /*copy_bt = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
     copy_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_COPY);
-    gtk_tooltips_set_tip(tooltips, copy_bt, 
+    gtk_tooltips_set_tip(tooltips, copy_bt,
         "Copy all statistical values of this page to the clipboard in CSV (Comma Seperated Values) format.", NULL);
-    SIGNAL_CONNECT(copy_bt, "clicked", copy_as_csv_cb,(gpointer *) conversations);    
-    gtk_box_pack_start(GTK_BOX(vbox), copy_bt, FALSE, FALSE, 0); 
-#endif                 
+    SIGNAL_CONNECT(copy_bt, "clicked", copy_as_csv_cb,(gpointer *) conversations);
+    gtk_box_pack_start(GTK_BOX(vbox), copy_bt, FALSE, FALSE, 0);
+#endif
 
     /* register the tap and rerun the taps on the packet list */
     error_string=register_tap_listener(tap_name, conversations, filter, reset_ct_table_data_cb, packet_func, draw_ct_table_data_cb);
@@ -1329,7 +1345,7 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
 
     cf_retap_packets(&cfile, FALSE);
 
-	
+
     /* Keep clist frozen to cause modifications to the clist (inserts, appends, others that are extremely slow
 	   in GTK2) to not be drawn, allow refreshes to occur at strategic points for performance */
   	gtk_clist_freeze(conversations->table);

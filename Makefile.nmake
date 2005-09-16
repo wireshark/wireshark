@@ -360,6 +360,7 @@ gtk:: help config.h svnversion.h AUTHORS-SHORT doxygen
 gtk2:: help config.h svnversion.h AUTHORS-SHORT
 	if not exist gtk2.tmp mkdir gtk2.tmp
 	cd gtk
+	set copycmd=/y
 	xcopy Makefile.* ..\gtk2.tmp /d
 	xcopy *.c        ..\gtk2.tmp /d
 	xcopy *.h        ..\gtk2.tmp /d
@@ -532,6 +533,7 @@ install-deps: clean-deps install-gtk1-deps install-gtk2-deps
 
 install-gtk2-deps: install-required-deps
 !IFDEF GTK2_DIR
+	set copycmd=/y
 	xcopy $(GTK2_DIR)\bin\libgdk-win32-2.0-0.dll . /d
 	xcopy $(GTK2_DIR)\bin\libgdk_pixbuf-2.0-0.dll . /d
 	xcopy $(GTK2_DIR)\bin\libgtk-win32-2.0-0.dll . /d
@@ -558,11 +560,13 @@ install-gtk2-deps: install-required-deps
 
 install-gtk1-deps: install-required-deps
 !IFDEF GTK1_DIR
+	set copycmd=/y
 	xcopy $(GTK1_DIR)\lib\libgtk-0.dll . /d
 	xcopy $(GTK1_DIR)\lib\libgdk-0.dll . /d
 !ENDIF
 
 install-required-deps:
+	set copycmd=/y
 	xcopy wiretap\wiretap-$(WTAP_VERSION).dll . /d
 !IFDEF ENABLE_LIBETHEREAL
 	xcopy epan\libethereal.dll . /d
