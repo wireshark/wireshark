@@ -1004,9 +1004,8 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 
 	start = asn1->offset;
 	/* parse the type of the object */
-	offset = dissect_ber_identifier(pinfo , snmp_tree, asn1->tvb, start, &class, &pc, &ber_tag);
+	offset = dissect_ber_identifier(pinfo, snmp_tree, asn1->tvb, start, &class, &pc, &ber_tag);
 	offset = dissect_ber_length(pinfo, snmp_tree, asn1->tvb, offset, &vb_length, &ind);
-
 
 	asn1->offset = offset;
 	vb_value_start = offset;
@@ -1027,7 +1026,7 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 	switch (vb_type) {
 
 	case SNMP_INTEGER:
-		offset = dissect_ber_integer(FALSE, pinfo, snmp_tree, asn1->tvb, start, -1, &vb_integer_value);
+		offset = dissect_ber_integer(FALSE, pinfo, NULL, asn1->tvb, start, -1, &vb_integer_value);
 		asn1->offset = offset;
 		length = offset - vb_value_start;
 		if (snmp_tree) {
@@ -1057,7 +1056,7 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 	case SNMP_COUNTER:
 	case SNMP_GAUGE:
 	case SNMP_TIMETICKS:
-		offset = dissect_ber_integer(FALSE, pinfo, snmp_tree, asn1->tvb, start, -1, &vb_uinteger_value);
+		offset = dissect_ber_integer(FALSE, pinfo, NULL, asn1->tvb, start, -1, &vb_uinteger_value);
 		asn1->offset = offset;
 		length = offset - vb_value_start;
 		if (snmp_tree) {
@@ -1072,11 +1071,11 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 #endif
 			if (vb_display_string != NULL) {
 				proto_tree_add_text(snmp_tree, asn1->tvb,
-				    offset, length,
+				    vb_value_start, length,
 				    "Value: %s", vb_display_string);
 			} else {
 				proto_tree_add_text(snmp_tree, asn1->tvb,
-				    offset, length,
+				    vb_value_start, length,
 				    "Value: %s: %u (%#x)", vb_type_name,
 				    vb_uinteger_value, vb_uinteger_value);
 			}
@@ -1089,7 +1088,7 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 	case SNMP_NSAP:
 	case SNMP_BITSTR:
 	case SNMP_COUNTER64:
-		offset = dissect_ber_octet_string(FALSE, pinfo, 0, asn1->tvb, start, -1, out_tvb);
+		offset = dissect_ber_octet_string(FALSE, pinfo, NULL, asn1->tvb, start, -1, out_tvb);
 		vb_octet_string = ep_tvb_memdup(asn1->tvb, vb_value_start, vb_length);
 
 		asn1->offset = offset;
@@ -1149,10 +1148,10 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 		break;
 
 	case SNMP_NULL:
-		dissect_ber_null(FALSE, pinfo, snmp_tree, asn1->tvb, start, -1);
-		length = asn1->offset - start;
+		dissect_ber_null(FALSE, pinfo, NULL, asn1->tvb, start, -1);
+		length = asn1->offset - vb_value_start;
 		if (snmp_tree) {
-			proto_tree_add_text(snmp_tree, asn1->tvb, offset, length,
+			proto_tree_add_text(snmp_tree, asn1->tvb, vb_value_start, length,
 			    "Value: %s", vb_type_name);
 		}
 		break;
@@ -1163,7 +1162,7 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 		vb_oid_length = oid_to_subid_buf(oid_buf, vb_length, vb_oid, ((vb_length+1) * sizeof(gulong)));
 
 		asn1->offset = offset + vb_length;
-		length = asn1->offset - start;
+		length = asn1->offset - vb_value_start;
 		if (snmp_tree) {
 #ifdef HAVE_SOME_SNMP
 			variable.val.objid = vb_oid;
@@ -1172,24 +1171,24 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 			    vb_oid_length * sizeof (subid_t));
 			if (vb_display_string != NULL) {
 				proto_tree_add_text(snmp_tree, asn1->tvb,
-				    offset, length,
+				    vb_value_start, length,
 				    "Value: %s", vb_display_string);
 				free(vb_display_string);
 			} else {
 				proto_tree_add_text(snmp_tree, asn1->tvb,
-				    offset, length,
-				    "Value: [Out of memory]");
+				    vb_value_start, length,
+				    "Value: %s: [Out of memory]", vb_type_name);
 			}
 #else /* HAVE_SOME_SNMP */
 			vb_display_string = format_oid(vb_oid, vb_oid_length);
 			if (vb_display_string != NULL) {
 				proto_tree_add_text(snmp_tree, asn1->tvb,
-				    offset, length,
+				    vb_value_start, length,
 				    "Value: %s: %s", vb_type_name,
 				    vb_display_string);
 			} else {
 				proto_tree_add_text(snmp_tree, asn1->tvb,
-				    offset, length,
+				    vb_value_start, length,
 				    "Value: %s: [Out of memory]", vb_type_name);
 			}
 #endif /* HAVE_SOME_SNMP */
