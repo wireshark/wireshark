@@ -48,14 +48,14 @@ GENERATED_FILES = $(GENERATED_HEADER_FILES) $(GENERATED_C_FILES)
 # pidl dissectors
 
 PIDL_DISSECTOR_SRC = \
-	pidl/packet-dcerpc-atsvc.c	\
-	pidl/packet-dcerpc-initshutdown.c	\
-	pidl/packet-dcerpc-winreg.c
+	packet-dcerpc-atsvc.c	\
+	packet-dcerpc-initshutdown.c	\
+	packet-dcerpc-winreg.c
 
 PIDL_DISSECTOR_INCLUDES = \
-	pidl/packet-dcerpc-atsvc.h	\
-	pidl/packet-dcerpc-initshutdown.h	\
-	pidl/packet-dcerpc-winreg.h
+	packet-dcerpc-atsvc.h	\
+	packet-dcerpc-initshutdown.h	\
+	packet-dcerpc-winreg.h
 
 # the dissector sources (without any helpers)
 DISSECTOR_SRC =	\
