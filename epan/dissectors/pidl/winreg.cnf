@@ -1,0 +1,1 @@
+IMPORT security_secinfo 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_GetKeySecurity_sec_info, NULL);
