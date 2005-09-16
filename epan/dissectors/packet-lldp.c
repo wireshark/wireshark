@@ -197,7 +197,7 @@ const value_string ieee_802_1_subtypes[] = {
 const value_string ieee_802_3_subtypes[] = {
 	{ 0x01,	"MAC/PHY Configuration/Status" },
 	{ 0x02,	"Power Via MDI" },
-	{ 0x03,	"Link Aggregatiion" },
+	{ 0x03,	"Link Aggregation" },
 	{ 0x04, "Maximum Frame Size" },
 	{ 0, NULL }
 };
