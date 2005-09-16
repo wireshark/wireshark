@@ -33,6 +33,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "packet-dcerpc.h"
 #include "packet-dcom.h"
 #include "packet-dcom-cba-acco.h"
@@ -1210,6 +1211,7 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 	proto_tree *sub_tree;
 	proto_item *conn_data_item = NULL;
 	proto_tree *conn_data_tree = NULL;
+	proto_item *item = NULL;
 	guint16	u16Len;
 	guint32	u32ID;
 	guint8  u8QC;
@@ -1217,6 +1219,10 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 	guint16	u16HdrLen;
 	int offset = 0;
 	int offset_hole;
+	gboolean qc_reported = FALSE;
+	int qc_good = 0;
+	int qc_uncertain = 0;
+	int qc_bad = 0;
 /*	guint32 bTimeStamped = 0;*/
 
 	/*** ALL data in this buffer is NOT aligned and always little endian ordered ***/
@@ -1247,8 +1253,10 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 	u16CountFix = u16Count;
 
 	/* update column info now */
+#if 0
     if (check_col(pinfo->cinfo, COL_INFO))
       col_append_fstr(pinfo->cinfo, COL_INFO, " Cnt=%u", u16Count);
+#endif
 
 	/* is this an OnDataChanged buffer format (version), we know? */
 	if (u8Version != CBA_MRSH_VERSION_DCOM && 
@@ -1321,10 +1329,30 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 
 		u8QC = tvb_get_guint8 (tvb, offset);
 		if (sub_tree) {
-			proto_tree_add_item(sub_tree, hf_cba_acco_qc, tvb, offset, 1, TRUE);
+			item = proto_tree_add_item(sub_tree, hf_cba_acco_qc, tvb, offset, 1, TRUE);
 		}
 		offset += 1;
 		u16HdrLen += 1;
+
+		if(	u8QC != 0x80 && /* GoodNonCascOk */
+			u8QC != 0x1C &&	/* BadOutOfService (usually permanent, so don't report for every frame) */
+			qc_reported == 0) {
+			expert_add_info_format(pinfo, item, PI_RESPONSE_CODE, PI_CHAT, "%s QC: %s",
+				u8Version == CBA_MRSH_VERSION_DCOM ? "DCOM" : "SRT",
+				val_to_str(u8QC, cba_acco_qc_vals, "Unknown (0x%02x)"));
+			qc_reported = 0;
+		}
+
+		switch(u8QC >> 6) {
+		case(00):
+			qc_bad++;
+			break;
+		case(01):
+			qc_uncertain++;
+			break;
+		default:
+			qc_good++;
+		}
 
 		/* user data length is item length without headers */
 		u16DataLen = u16Len - u16HdrLen;
@@ -1363,6 +1391,10 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 			u8Version, u8Flags, u16CountFix, u32ItemIdx-1, u32HoleIdx-1);
 	}
 	proto_item_set_len(conn_data_item, offset);
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_append_fstr(pinfo->cinfo, COL_INFO, ", QC (G:%u,U:%u,B:%u)", 
+		qc_good, qc_uncertain, qc_bad);
 
 	return offset;
 }
