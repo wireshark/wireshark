@@ -59,6 +59,7 @@ PIDL_DISSECTOR_INCLUDES = \
 
 # the dissector sources (without any helpers)
 DISSECTOR_SRC =	\
+	$(PIDL_DISSECTOR_SRC)	\
 	packet-3com-xns.c	\
 	packet-3g-a11.c	\
 	packet-9p.c	\
@@ -636,6 +637,7 @@ DISSECTOR_SRC =	\
 
 # corresponding headers
 DISSECTOR_INCLUDES =	\
+	$(PIDL_DISSECTOR_INCLUDES) 	\
 	packet-acse.h	\
 	packet-actrace.h	\
 	packet-afp.h	\
