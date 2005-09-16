@@ -262,7 +262,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    u8TransferStatus = tvb_get_guint8(tvb, tvb_len - 1);
 
 		g_snprintf (szFieldSummary, sizeof(szFieldSummary),
-				  "%sFrameID: 0x%04x, DataLen: %4u, Cycle: %5u (%s,%s,%s,%s)",
+				  "%sID:0x%04x, Len:%4u, Cycle:%5u (%s,%s,%s,%s)",
 				pszProtAddInfo, u16FrameID, tvb_len - 2 - 4, u16CycleCounter,
 			    (u8DataStatus & 0x04) ? "Valid" : "Invalid",
 			    (u8DataStatus & 0x01) ? "Primary" : "Backup",
@@ -279,7 +279,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* acyclic transfer has no fields at the end */
 		g_snprintf (szFieldSummary, sizeof(szFieldSummary),
-				  "%sFrameID: 0x%04x, DataLen: %4u",
+				  "%sID:0x%04x, Len:%4u",
 				pszProtAddInfo, u16FrameID, tvb_len - 2);
 
         /* user data length is packet len - frame id field */
