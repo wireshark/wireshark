@@ -306,7 +306,7 @@
 00:00:FD	HighLevelH             # HIGH LEVEL HARDWARE
 00:00:FE	AnnapolisM             # ANNAPOLIS MICRO SYSTEMS
 00:00:FF	CamtecElec             # CAMTEC ELECTRONICS LTD.
-00:01:00	Equip'Tran             # EQUIP'TRANS
+00:01:00	EquipTrans             # EQUIP'TRANS
 00:01:01	Private
 00:01:02	3com                   # 3COM CORPORATION
 00:01:03	3com                   # 3COM CORPORATION
@@ -857,7 +857,7 @@
 00:03:24	SanyoMulti             # SANYO Multimedia Tottori Co., Ltd.
 00:03:25	ArimaCompu             # Arima Computer Corp.
 00:03:26	IwasakiInf             # Iwasaki Information Systems Co., Ltd.
-00:03:27	Act'L
+00:03:27	ActL                   # ACT'L
 00:03:28	MaceGroup              # Mace Group, Inc.
 00:03:29	F3                     # F3, Inc.
 00:03:2A	UnidataCom             # UniData Communication Systems, Inc.
@@ -1086,7 +1086,7 @@
 00:04:09	CratosNetw             # Cratos Networks
 00:04:0A	Sage                   # Sage Systems
 00:04:0B	3comEurope             # 3com Europe Ltd.
-00:04:0C	KannoWork'             # KANNO Work's Ltd.
+00:04:0C	KannoWorkS             # KANNO Work's Ltd.
 00:04:0D	Avaya                  # Avaya, Inc.
 00:04:0E	Avm                    # AVM GmbH
 00:04:0F	AsusNetwor             # Asus Network Technologies, Inc.
@@ -1096,7 +1096,7 @@
 00:04:13	SnomTechno             # SNOM Technology AG
 00:04:14	UmezawaMus             # Umezawa Musen Denki Co., Ltd.
 00:04:15	Rasteme                # Rasteme Systems Co., Ltd.
-00:04:16	ParksS/ACo             # Parks S/A Comunicacoes Digitais
+00:04:16	ParksComun             # Parks S/A Comunicacoes Digitais
 00:04:17	Elau                   # ELAU AG
 00:04:18	TeltronicS             # Teltronic S.A.U.
 00:04:19	Fibercycle             # Fibercycle Networks, Inc.
@@ -1185,7 +1185,7 @@
 00:04:6C	CyberTechn             # Cyber Technology Co., Ltd.
 00:04:6D	Cisco                  # Cisco Systems, Inc.
 00:04:6E	Cisco                  # Cisco Systems, Inc.
-00:04:6F	DigitelS/A             # Digitel S/A Industria Eletronica
+00:04:6F	DigitelInd             # Digitel S/A Industria Eletronica
 00:04:70	Ipunplugge             # ipUnplugged AB
 00:04:71	Iprad
 00:04:72	Telelynx               # Telelynx, Inc.
@@ -2704,7 +2704,7 @@
 00:0A:82	TatsutaSys             # TATSUTA SYSTEM ELECTRONICS CO.,LTD.
 00:0A:83	SaltoSL                # SALTO SYSTEMS S.L.
 00:0A:84	RainsunEnt             # Rainsun Enterprise Co., Ltd.
-00:0A:85	Plat'C2                # PLAT'C2,Inc
+00:0A:85	PlatC2                 # PLAT'C2,Inc
 00:0A:86	Lenze
 00:0A:87	Integrated             # Integrated Micromachines Inc.
 00:0A:88	IncypherSA             # InCypher S.A.
@@ -3350,7 +3350,7 @@
 00:0D:08	Abovecable             # AboveCable, Inc.
 00:0D:09	YuehuaZhuh             # Yuehua(Zhuhai) Electronic CO. LTD
 00:0D:0A	Projection             # Projectiondesign as
-00:0D:0B	Melco                  # Melco Inc.
+00:0D:0B	Buffalo                # Buffalo Inc.
 00:0D:0C	MdiSecurit             # MDI Security Systems
 00:0D:0D	Itsupporte             # ITSupported, LLC
 00:0D:0E	Inqnet                 # Inqnet Systems, Inc.
@@ -3471,7 +3471,7 @@
 00:0D:81	Pepperl+Fu             # Pepperl+Fuchs GmbH
 00:0D:82	PhsSrl                 # PHS srl
 00:0D:83	Sanmina-Sc             # Sanmina-SCI Hungary  Ltd.
-00:0D:84	SeoduInchi             # Seodu Inchip, Inc.
+00:0D:84	Makus                  # Makus Inc.
 00:0D:85	Tapwave                # Tapwave, Inc.
 00:0D:86	Huber+Suhn             # Huber + Suhner AG
 00:0D:87	Elitegroup             # Elitegroup Computer System Co. (ECS)
@@ -3552,7 +3552,7 @@
 00:0D:D2	SimradOptr             # Simrad Optronics ASA
 00:0D:D3	SamwooTele             # SAMWOO Telecommunication Co.,Ltd.
 00:0D:D4	Revivio                # Revivio Inc.
-00:0D:D5	O'RiteTech             # O'RITE TECHNOLOGY CO.,LTD
+00:0D:D5	ORiteTechn             # O'RITE TECHNOLOGY CO.,LTD
 00:0D:D6	Iti                    # ITI    LTD
 00:0D:D7	Bright
 00:0D:D8	Bbn
@@ -3765,7 +3765,7 @@
 00:0E:A7	Endace                 # Endace Inc Ltd.
 00:0E:A8	UnitedTech             # United Technologists Europe Limited
 00:0E:A9	ShanghaiXu             # Shanghai Xun Shi Communications Equipment Ltd. Co.
-00:0E:AA	Private
+00:0E:AA	Scalent                # Scalent Systems, Inc.
 00:0E:AB	Private
 00:0E:AC	MintronEnt             # MINTRON ENTERPRISE CO., LTD.
 00:0E:AD	MetanoiaTe             # Metanoia Technologies, Inc.
@@ -4162,7 +4162,7 @@
 00:10:34	GnpCompute             # GNP Computers
 00:10:35	Elitegroup             # ELITEGROUP COMPUTER SYSTEMS CO., LTD
 00:10:36	Inter-TelI             # INTER-TEL INTEGRATED SYSTEMS
-00:10:37	Cyq'VeTech             # CYQ've Technology Co., Ltd.
+00:10:37	CyqVeTechn             # CYQ've Technology Co., Ltd.
 00:10:38	MicroResea             # MICRO RESEARCH INSTITUTE, INC.
 00:10:39	Vectron                # Vectron Systems AG
 00:10:3A	DiamondNet             # DIAMOND NETWORK TECH
@@ -4432,7 +4432,7 @@
 00:11:43	Dell                   # DELL INC.
 00:11:44	AssuranceT             # Assurance Technology Corp
 00:11:45	Valuepoint             # ValuePoint Networks
-00:11:46	Private
+00:11:46	Telecard-P             # Telecard-Pribor Ltd
 00:11:47	Secom-Indu             # Secom-Industry co.LTD.
 00:11:48	ProlonCont             # Prolon Control Systems
 00:11:49	ProliphixL             # Proliphix LLC
@@ -5354,7 +5354,7 @@
 00:14:DD	Covergence             # Covergence Inc.
 00:14:DE	SageInstru             # Sage Instruments Inc.
 00:14:DF	Hi-PTech               # HI-P Tech Corporation
-00:14:E0	Let'S                  # LET'S Corporation
+00:14:E0	LetS                   # LET'S Corporation
 00:14:E1	DataDispla             # Data Display AG
 00:14:E2	Datacom                # datacom systems inc.
 00:14:E3	Mm-Lab                 # mm-lab GmbH
@@ -5561,6 +5561,56 @@
 00:15:AC	Capelon                # Capelon AB
 00:15:AD	AccedianNe             # Accedian Networks
 00:15:AE	KyungIl                # kyung il
+00:15:AF	Private
+00:15:B0	Autotelene             # AUTOTELENET CO.,LTD
+00:15:B1	Ambient                # Ambient Corporation
+00:15:B2	AdvancedIn             # Advanced Industrial Computer, Inc.
+00:15:B3	Caretech               # Caretech AB
+00:15:B4	PolymapWir             # Polymap  Wireless LLC
+00:15:B5	CiNetwork              # CI Network Corp.
+00:15:B6	ShinmaywaI             # ShinMaywa Industries, Ltd.
+00:15:B7	Toshiba
+00:15:B8	Tahoe
+00:15:B9	SamsungEle             # Samsung Electronics Co., Ltd.
+00:15:BA	Iba                    # iba AG
+00:15:BB	SmaTechnol             # SMA Technologie AG
+00:15:BC	Develco
+00:15:BD	Group4Tech             # Group 4 Technology Ltd
+00:15:BE	Iqua                   # Iqua Ltd.
+00:15:BF	Technicob
+00:15:C0	DigitalTel             # DIGITAL TELEMEDIA CO.,LTD.
+00:15:C1	SonyComput             # SONY Computer Entertainment inc,
+00:15:C2	3mGermany              # 3M Germany
+00:15:C3	RufTelemat             # Ruf Telematik AG
+00:15:C4	Flovel                 # FLOVEL CO., LTD.
+00:15:C5	Dell                   # Dell Inc
+00:15:C6	Cisco                  # Cisco Systems
+00:15:C7	Cisco                  # Cisco Systems
+00:15:C8	Flexipanel             # FlexiPanel Ltd
+00:15:C9	Gumstix                # Gumstix, Inc
+00:15:CA	Terarecon              # TeraRecon, Inc.
+00:15:CB	SurfCommun             # Surf Communication Solutions Ltd.
+00:15:CC	TepcoUques             # TEPCO UQUEST, LTD.
+00:15:CD	ExartechIn             # Exartech International Corp.
+00:15:CE	ArrisInter             # ARRIS International
+00:15:CF	ArrisInter             # ARRIS International
+00:15:D0	ArrisInter             # ARRIS International
+00:15:D1	ArrisInter             # ARRIS International
+00:15:D2	Xantech                # Xantech Corporation
+00:15:D3	Pantech&Cu             # Pantech&Curitel Communications, Inc.
+00:15:D4	Emitor                 # Emitor AB
+00:15:D5	Nicevt
+00:15:D6	OslinkSpZO             # OSLiNK Sp. z o.o.
+00:15:D7	Reti                   # Reti Corporation
+00:15:D8	InterlinkE             # Interlink Electronics
+00:15:D9	PkcElectro             # PKC Electronics Oy
+00:15:DA	IritelAD               # IRITEL A.D.
+00:15:DB	Canesta                # Canesta Inc.
+00:15:DC	Kt&C                   # KT&C Co., Ltd.
+00:15:DD	IpControl              # IP Control Systems Ltd.
+00:15:DE	NokiaDanma             # Nokia Danmark A/S
+00:15:DF	ClivetSPA              # Clivet S.p.A.
+00:15:E0	EricssonMo             # Ericsson Mobile Platforms
 00:17:00	Kabel
 00:1C:7C	Perq                   # PERQ SYSTEMS CORPORATION
 00:20:00	LexmarkInt             # LEXMARK INTERNATIONAL, INC.
@@ -5721,7 +5771,7 @@
 00:20:9B	ErsatElect             # ERSAT ELECTRONIC GMBH
 00:20:9C	PrimaryAcc             # PRIMARY ACCESS CORP.
 00:20:9D	LippertAut             # LIPPERT AUTOMATIONSTECHNIK
-00:20:9E	Brown'SOpe             # BROWN'S OPERATING SYSTEM SERVICES, LTD.
+00:20:9E	BrownSOper             # BROWN'S OPERATING SYSTEM SERVICES, LTD.
 00:20:9F	MercuryCom             # MERCURY COMPUTER SYSTEMS, INC.
 00:20:A0	OaLaborato             # OA LABORATORY CO., LTD.
 00:20:A1	Dovatron
@@ -5988,7 +6038,7 @@
 00:30:A5	ActivePowe             # ACTIVE POWER
 00:30:A6	VianetTech             # VIANET TECHNOLOGIES, LTD.
 00:30:A7	Schweitzer             # SCHWEITZER ENGINEERING
-00:30:A8	Ol'ECommun             # OL'E COMMUNICATIONS, INC.
+00:30:A8	OlECommuni             # OL'E COMMUNICATIONS, INC.
 00:30:A9	Netiverse              # Netiverse, Inc.
 00:30:AA	AxusMicros             # AXUS MICROSYSTEMS, INC.
 00:30:AB	DeltaNetwo             # DELTA NETWORKS, INC.
@@ -6198,7 +6248,7 @@
 00:40:77	MaxtonTech             # MAXTON TECHNOLOGY CORPORATION
 00:40:78	WearnesAut             # WEARNES AUTOMATION PTE LTD
 00:40:79	JukoManufa             # JUKO MANUFACTURE COMPANY, LTD.
-00:40:7A	SocieteD'E             # SOCIETE D'EXPLOITATION DU CNIT
+00:40:7A	SocieteDEx             # SOCIETE D'EXPLOITATION DU CNIT
 00:40:7B	Scientific             # SCIENTIFIC ATLANTA
 00:40:7C	Qume                   # QUME CORPORATION
 00:40:7D	ExtensionT             # EXTENSION TECHNOLOGY CORP.
@@ -7830,7 +7880,7 @@
 00:C0:B5	CorporateN             # CORPORATE NETWORK SYSTEMS,INC.
 00:C0:B6	SnapApplia             # Snap Appliance, Inc.
 00:C0:B7	AmericanPo             # AMERICAN POWER CONVERSION CORP
-00:C0:B8	Fraser'SHi             # FRASER'S HILL LTD.
+00:C0:B8	FraserSHil             # FRASER'S HILL LTD.
 00:C0:B9	FunkSoftwa             # FUNK SOFTWARE, INC.
 00:C0:BA	Netvantage
 00:C0:BB	ForvalCrea             # FORVAL CREATIVE, INC.
@@ -8701,9 +8751,42 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 01-80-C2-00-01-10	FDDI-status-report-frame
 01-DD-00-FF-FF-FF	Ungermann-Bass-boot-me-requests
 01-DD-01-00-00-00	Ungermann-Bass-Spanning-Tree
+# Microsoft Network Load Balancing (NLB)
 # Actually, 02-01-virtualip to 02-20-virtualip will be used from server to rest-of-world
 # 02-bf-virtualip will be used from rest-of-world to server
-02-BF-00-00-00-00/16	MS-Loadbalancing
+02-BF-00-00-00-00/16	MS-NLB-VirtServer
+02-01-00-00-00-00/16	MS-NLB-PhysServer-01
+02-02-00-00-00-00/16	MS-NLB-PhysServer-02
+02-03-00-00-00-00/16	MS-NLB-PhysServer-03
+02-04-00-00-00-00/16	MS-NLB-PhysServer-04
+02-05-00-00-00-00/16	MS-NLB-PhysServer-05
+02-06-00-00-00-00/16	MS-NLB-PhysServer-06
+02-07-00-00-00-00/16	MS-NLB-PhysServer-07
+02-08-00-00-00-00/16	MS-NLB-PhysServer-08
+02-09-00-00-00-00/16	MS-NLB-PhysServer-09
+02-0a-00-00-00-00/16	MS-NLB-PhysServer-10
+02-0b-00-00-00-00/16	MS-NLB-PhysServer-11
+02-0c-00-00-00-00/16	MS-NLB-PhysServer-12
+02-0d-00-00-00-00/16	MS-NLB-PhysServer-13
+02-0e-00-00-00-00/16	MS-NLB-PhysServer-14
+02-0f-00-00-00-00/16	MS-NLB-PhysServer-15
+02-10-00-00-00-00/16	MS-NLB-PhysServer-16
+02-11-00-00-00-00/16	MS-NLB-PhysServer-17
+02-12-00-00-00-00/16	MS-NLB-PhysServer-18
+02-13-00-00-00-00/16	MS-NLB-PhysServer-19
+02-14-00-00-00-00/16	MS-NLB-PhysServer-20
+02-15-00-00-00-00/16	MS-NLB-PhysServer-21
+02-16-00-00-00-00/16	MS-NLB-PhysServer-22
+02-17-00-00-00-00/16	MS-NLB-PhysServer-23
+02-18-00-00-00-00/16	MS-NLB-PhysServer-24
+02-19-00-00-00-00/16	MS-NLB-PhysServer-25
+02-1a-00-00-00-00/16	MS-NLB-PhysServer-26
+02-1b-00-00-00-00/16	MS-NLB-PhysServer-27
+02-1c-00-00-00-00/16	MS-NLB-PhysServer-28
+02-1d-00-00-00-00/16	MS-NLB-PhysServer-29
+02-1e-00-00-00-00/16	MS-NLB-PhysServer-30
+02-1f-00-00-00-00/16	MS-NLB-PhysServer-31
+02-20-00-00-00-00/16	MS-NLB-PhysServer-32
 
 #       [ The following block of addresses (03-...) are used by various ]
 #       [ standards.  Some (marked [TR?]) are suspected of only being   ]
@@ -8734,7 +8817,7 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 03-00-00-80-00-00	Discovery-Client
 03-00-C7-00-00-EE	HP (Compaq) ProLiant NIC teaming
 03-00-FF-FF-FF-FF	All-Stations-Address
-03-BF-00-00-00-00/16	MS-Loadbalancing-Multicast
+03-BF-00-00-00-00/16	MS-NLB-VirtServer-Multicast
 09-00-07-00-00-00/40	AppleTalk-Zone-multicast-addresses
 			# only goes through 09-00-07-00-00-FC?
 09-00-07-FF-FF-FF	AppleTalk-broadcast-address

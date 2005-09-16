@@ -65,9 +65,42 @@
 01-80-C2-00-01-10	FDDI-status-report-frame
 01-DD-00-FF-FF-FF	Ungermann-Bass-boot-me-requests
 01-DD-01-00-00-00	Ungermann-Bass-Spanning-Tree
+# Microsoft Network Load Balancing (NLB)
 # Actually, 02-01-virtualip to 02-20-virtualip will be used from server to rest-of-world
 # 02-bf-virtualip will be used from rest-of-world to server
-02-BF-00-00-00-00/16	MS-Loadbalancing
+02-BF-00-00-00-00/16	MS-NLB-VirtServer
+02-01-00-00-00-00/16	MS-NLB-PhysServer-01
+02-02-00-00-00-00/16	MS-NLB-PhysServer-02
+02-03-00-00-00-00/16	MS-NLB-PhysServer-03
+02-04-00-00-00-00/16	MS-NLB-PhysServer-04
+02-05-00-00-00-00/16	MS-NLB-PhysServer-05
+02-06-00-00-00-00/16	MS-NLB-PhysServer-06
+02-07-00-00-00-00/16	MS-NLB-PhysServer-07
+02-08-00-00-00-00/16	MS-NLB-PhysServer-08
+02-09-00-00-00-00/16	MS-NLB-PhysServer-09
+02-0a-00-00-00-00/16	MS-NLB-PhysServer-10
+02-0b-00-00-00-00/16	MS-NLB-PhysServer-11
+02-0c-00-00-00-00/16	MS-NLB-PhysServer-12
+02-0d-00-00-00-00/16	MS-NLB-PhysServer-13
+02-0e-00-00-00-00/16	MS-NLB-PhysServer-14
+02-0f-00-00-00-00/16	MS-NLB-PhysServer-15
+02-10-00-00-00-00/16	MS-NLB-PhysServer-16
+02-11-00-00-00-00/16	MS-NLB-PhysServer-17
+02-12-00-00-00-00/16	MS-NLB-PhysServer-18
+02-13-00-00-00-00/16	MS-NLB-PhysServer-19
+02-14-00-00-00-00/16	MS-NLB-PhysServer-20
+02-15-00-00-00-00/16	MS-NLB-PhysServer-21
+02-16-00-00-00-00/16	MS-NLB-PhysServer-22
+02-17-00-00-00-00/16	MS-NLB-PhysServer-23
+02-18-00-00-00-00/16	MS-NLB-PhysServer-24
+02-19-00-00-00-00/16	MS-NLB-PhysServer-25
+02-1a-00-00-00-00/16	MS-NLB-PhysServer-26
+02-1b-00-00-00-00/16	MS-NLB-PhysServer-27
+02-1c-00-00-00-00/16	MS-NLB-PhysServer-28
+02-1d-00-00-00-00/16	MS-NLB-PhysServer-29
+02-1e-00-00-00-00/16	MS-NLB-PhysServer-30
+02-1f-00-00-00-00/16	MS-NLB-PhysServer-31
+02-20-00-00-00-00/16	MS-NLB-PhysServer-32
 
 #       [ The following block of addresses (03-...) are used by various ]
 #       [ standards.  Some (marked [TR?]) are suspected of only being   ]
@@ -98,7 +131,7 @@
 03-00-00-80-00-00	Discovery-Client
 03-00-C7-00-00-EE	HP (Compaq) ProLiant NIC teaming
 03-00-FF-FF-FF-FF	All-Stations-Address
-03-BF-00-00-00-00/16	MS-Loadbalancing-Multicast
+03-BF-00-00-00-00/16	MS-NLB-VirtServer-Multicast
 09-00-07-00-00-00/40	AppleTalk-Zone-multicast-addresses
 			# only goes through 09-00-07-00-00-FC?
 09-00-07-FF-FF-FF	AppleTalk-broadcast-address
