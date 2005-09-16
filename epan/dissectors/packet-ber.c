@@ -748,6 +748,17 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n",name,impl
 	}
 
 	/* ok,  we cant handle >4 byte integers so lets fake them */
+	/*
+	 * XXX - should we handle large integers with a bignum type,
+	 * and an FT_BIGNUM field type?  This code currently has trouble
+	 * with, for example, INTEGER (0..4294967295), as a value in the
+	 * range 2147483648 to 0..4294967295 is represented as 5 bytes.
+	 *
+	 * There should at least be a way to indicate that the value we
+	 * returned didn't fit in a 32-bit signed integer, so our caller
+	 * can, if they didn't supply an hf_id, indicate that the value
+	 * didn't fit.
+	 */
 	if(len>8){
 		header_field_info *hfinfo;
 		proto_item *pi = NULL;
