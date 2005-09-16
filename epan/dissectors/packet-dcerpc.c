@@ -3880,7 +3880,13 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
     offset += 4;
 
     if (check_col (pinfo->cinfo, COL_DCE_CALL)) {
-        col_append_fstr (pinfo->cinfo, COL_DCE_CALL, "%u", hdr.call_id);
+		if(pinfo->dcectxid == 0) {
+			col_append_fstr (pinfo->cinfo, COL_DCE_CALL, "%u", hdr.call_id);
+		} else {
+			/* this is not the first DCE-RPC request/response in this (TCP?-)PDU, 
+			 * prepend a delimiter */
+			col_append_fstr (pinfo->cinfo, COL_DCE_CALL, "#%u", hdr.call_id);
+		}
     }
 
     if (can_desegment && pinfo->can_desegment
