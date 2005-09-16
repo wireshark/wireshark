@@ -1,0 +1,12 @@
+- True multiple dimension array / strings in arrays support
+
+- compatibility mode for generating MIDL-readable data:
+ - strip out pidl-specific properties
+ - convert subcontext() to an array of uint8.
+ - perhaps replace subcontext() with something more generic? The argument
+ to subcontext() isn't really intuitive at the moment
+
+- don't be so strict on array boundaries.. arrays can and will be empty when 
+  a (regular) remote error occurs
+ 
+- support nested elements

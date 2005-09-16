@@ -1,0 +1,360 @@
+#!/usr/bin/perl -w
+
+###################################################
+# package to parse IDL files and generate code for
+# rpc functions in Samba
+# Copyright tridge@samba.org 2000-2003
+# Copyright jelmer@samba.org 2005
+# released under the GNU GPL
+
+use strict;
+use FindBin qw($RealBin);
+use lib "$RealBin";
+use lib "$RealBin/lib";
+use Getopt::Long;
+use File::Basename;
+use Parse::Pidl;
+use Parse::Pidl::Util;
+use Parse::Pidl::ODL;
+
+#####################################################################
+# save a data structure into a file
+sub SaveStructure($$)
+{
+	my($filename,$v) = @_;
+	FileSave($filename, Parse::Pidl::Util::MyDumper($v));
+}
+
+#####################################################################
+# load a data structure from a file (as saved with SaveStructure)
+sub LoadStructure($)
+{
+	my $f = shift;
+	my $contents = FileLoad($f);
+	defined $contents || return undef;
+	return eval "$contents";
+}
+
+#####################################################################
+# read a file into a string
+sub FileLoad($)
+{
+    my($filename) = shift;
+    local(*INPUTFILE);
+    open(INPUTFILE, $filename) || return undef;
+    my($saved_delim) = $/;
+    undef $/;
+    my($data) = <INPUTFILE>;
+    close(INPUTFILE);
+    $/ = $saved_delim;
+    return $data;
+}
+
+#####################################################################
+# write a string into a file
+sub FileSave($$)
+{
+    my($filename) = shift;
+    my($v) = shift;
+    local(*FILE);
+    open(FILE, ">$filename") || die "can't open $filename";    
+    print FILE $v;
+    close(FILE);
+}
+
+my($opt_help) = 0;
+my($opt_parse_idl_tree) = 0;
+my($opt_dump_idl_tree);
+my($opt_dump_ndr_tree);
+my($opt_dump_idl) = 0;
+my($opt_uint_enums) = 0;
+my($opt_diff) = 0;
+my($opt_header);
+my($opt_ndr_header);
+my($opt_template) = 0;
+my($opt_client);
+my($opt_server);
+my($opt_ndr_parser);
+my($opt_tdr_header);
+my($opt_tdr_parser);
+my($opt_eth_parser);
+my($opt_swig);
+my($opt_dcom_proxy);
+my($opt_com_header);
+my($opt_ejs);
+my($opt_quiet) = 0;
+my($opt_outputdir) = '.';
+my($opt_verbose) = 0;
+my($opt_warn_compat) = 0;
+
+#########################################
+# display help text
+sub ShowHelp()
+{
+print "perl IDL parser and code generator
+Copyright (C) tridge\@samba.org
+
+Usage: pidl [options] [--] <idlfile> [<idlfile>...]
+
+Generic Options:
+ --help                  this help page
+ --outputdir=OUTDIR      put output in OUTDIR/ [.]
+ --warn-compat           warn about incompatibility with other compilers
+ --quiet                 be quiet
+ --verbose               be verbose
+
+Debugging:
+ --dump-idl-tree[=FILE]  dump internal representation to file [BASENAME.pidl]
+ --parse-idl-tree        read internal representation instead of IDL
+ --dump-ndr-tree[=FILE]  dump internal NDR data tree to file [BASENAME.ndr]
+ --dump-idl              regenerate IDL file
+ --diff                  run diff on original IDL and dumped output
+
+Samba 4 output:
+ --header[=OUTFILE]      create generic header file [BASENAME.h]
+ --uint-enums            don't use C enums, instead use uint* types
+ --ndr-header[=OUTFILE]  create a C NDR-specific header file [ndr_BASENAME.h]
+ --ndr-parser[=OUTFILE]  create a C NDR parser [ndr_BASENAME.c]
+ --client[=OUTFILE]      create a C NDR client [ndr_BASENAME_c.c]
+ --tdr-header[=OUTFILE]  create a C TDR header file [tdr_BASENAME.h]
+ --tdr-parser[=OUTFILE]  create a C TDR parser [tdr_BASENAME.c]
+ --ejs[=OUTFILE]         create ejs wrapper file [BASENAME_ejs.c]
+ --swig[=OUTFILE]        create swig wrapper file [BASENAME.i]
+ --server[=OUTFILE]      create server boilerplate [ndr_BASENAME_s.c]
+ --template              print a template for a pipe
+ --dcom-proxy[=OUTFILE]  create DCOM proxy [ndr_BASENAME_p.c]
+ --com-header[=OUTFILE]  create header for COM [com_BASENAME.h]
+
+Ethereal parsers:
+ --eth-parser[=OUTFILE]  create ethereal parser and header
+\n";
+    exit(0);
+}
+
+# main program
+GetOptions (
+	    'help|h|?' => \$opt_help, 
+	    'outputdir=s' => \$opt_outputdir,
+	    'dump-idl' => \$opt_dump_idl,
+		'dump-idl-tree:s' => \$opt_dump_idl_tree,
+		'parse-idl-tree' => \$opt_parse_idl_tree,
+		'dump-ndr-tree:s' => \$opt_dump_ndr_tree,
+	    'uint-enums' => \$opt_uint_enums,
+	    'ndr-header:s' => \$opt_ndr_header,
+		'header:s' => \$opt_header,
+	    'server:s' => \$opt_server,
+	    'tdr-header:s' => \$opt_tdr_header,
+	    'tdr-parser:s' => \$opt_tdr_parser,
+	    'template' => \$opt_template,
+	    'ndr-parser:s' => \$opt_ndr_parser,
+	    'client:s' => \$opt_client,
+	    'eth-parser:s' => \$opt_eth_parser,
+	    'ejs' => \$opt_ejs,
+	    'diff' => \$opt_diff,
+	    'swig:s' => \$opt_swig,
+	    'dcom-proxy:s' => \$opt_dcom_proxy,
+	    'com-header:s' => \$opt_com_header,
+	    'quiet' => \$opt_quiet,
+		'verbose' => \$opt_verbose,
+	    'warn-compat' => \$opt_warn_compat
+	    );
+
+if ($opt_help) {
+    ShowHelp();
+    exit(0);
+}
+
+sub process_file($)
+{
+	my $idl_file = shift;
+	my $outputdir = $opt_outputdir;
+	my $pidl;
+	my $ndr;
+
+	my $basename = basename($idl_file, ".idl");
+
+	unless ($opt_quiet) { print "Compiling $idl_file\n"; }
+
+	if ($opt_parse_idl_tree) {
+		$pidl = LoadStructure($idl_file);
+		defined $pidl || die "Failed to load $idl_file";
+	} else {
+		require Parse::Pidl::IDL;
+		my $idl_parser = new Parse::Pidl::IDL;
+
+		$pidl = $idl_parser->parse_idl($idl_file);
+		defined @$pidl || die "Failed to parse $idl_file";
+		require Parse::Pidl::Typelist;
+		Parse::Pidl::Typelist::LoadIdl($pidl);
+	}
+	
+	if (defined($opt_dump_idl_tree)) {
+		my($pidl_file) = ($opt_dump_idl_tree or "$outputdir/$basename.pidl");
+		SaveStructure($pidl_file, $pidl) or die "Failed to save $pidl_file\n";
+	}
+
+	if ($opt_uint_enums) {
+		Parse::Pidl::Util::setUseUintEnums(1);
+	}
+
+	if ($opt_dump_idl) {
+		require Parse::Pidl::Dump;
+		print Parse::Pidl::Dump($pidl);
+	}
+
+	if ($opt_diff) {
+		my($tempfile) = "$outputdir/$basename.tmp";
+		FileSave($tempfile, IdlDump::Dump($pidl));
+		system("diff -wu $idl_file $tempfile");
+		unlink($tempfile);
+	}
+
+	if (defined($opt_com_header)) {
+		require Parse::Pidl::Samba::COM::Header;
+		my $res = Parse::Pidl::Samba::COM::Header::Parse($pidl);
+		if ($res) {
+			my $comh_filename = ($opt_com_header or "$outputdir/com_$basename.h");
+			FileSave($comh_filename, 
+			"#include \"librpc/gen_ndr/ndr_orpc.h\"\n" . 
+			"#include \"$outputdir/ndr_$basename.h\"\n" . 
+			$res);
+		}
+	}
+
+	if (defined($opt_dcom_proxy)) {
+		require Parse::Pidl::Samba::COM::Proxy;
+		my $res = Parse::Pidl::Samba::COM::Proxy::Parse($pidl);
+		if ($res) {
+			my ($client) = ($opt_dcom_proxy or "$outputdir/$basename\_p.c");
+			FileSave($client, 
+			"#include \"includes.h\"\n" .
+			"#include \"$outputdir/com_$basename.h\"\n" . 
+			"#include \"lib/com/dcom/dcom.h\"\n" .$res);
+		}
+	}
+
+	if ($opt_warn_compat) {
+		require Parse::Pidl::Compat;
+		Parse::Pidl::Compat::Check($pidl);
+	}
+
+	$pidl = Parse::Pidl::ODL::ODL2IDL($pidl);
+
+	if (defined($opt_ndr_header) or defined($opt_eth_parser) or 
+	    defined($opt_client) or defined($opt_server) or 
+	    defined($opt_ndr_parser) or defined($opt_ejs) or 
+		defined($opt_dump_ndr_tree)) {
+		require Parse::Pidl::NDR;
+		Parse::Pidl::NDR::Validate($pidl);
+		$ndr = Parse::Pidl::NDR::Parse($pidl);
+	}
+
+	if (defined($opt_dump_ndr_tree)) {
+		my($ndr_file) = ($opt_dump_ndr_tree or "$outputdir/$basename.ndr");
+		SaveStructure($ndr_file, $ndr) or die "Failed to save $ndr_file\n";
+	}
+
+	if (defined($opt_header)) {
+		my $header = ($opt_header or "$outputdir/$basename.h");
+		require Parse::Pidl::Samba::Header;
+		FileSave($header, Parse::Pidl::Samba::Header::Parse($pidl));
+	}
+
+	if (defined($opt_ndr_header)) {
+		my $header = ($opt_ndr_header or "$outputdir/ndr_$basename.h");
+		require Parse::Pidl::Samba::NDR::Header;
+		FileSave($header, Parse::Pidl::Samba::NDR::Header::Parse($pidl, $basename));
+		if (defined($opt_swig)) {
+		  require Parse::Pidl::Samba::SWIG;
+		  my($filename) = ($opt_swig or "$outputdir/$basename.i");
+		  Parse::Pidl::Samba::SWIG::RewriteHeader($pidl, $header, $filename);
+		}
+	}
+
+	my $h_filename = "$outputdir/ndr_$basename.h";
+	if (defined($opt_client)) {
+		require Parse::Pidl::Samba::NDR::Client;
+		my ($client) = ($opt_client or "$outputdir/ndr_$basename\_c.c");
+
+		FileSave($client, Parse::Pidl::Samba::NDR::Client::Parse($ndr,$h_filename));
+	}
+
+	if (defined($opt_ejs)) {
+		require Parse::Pidl::Samba::EJS;
+		require Parse::Pidl::Samba::EJSHeader;
+		FileSave("$outputdir/ndr_$basename\_ejs.c", Parse::Pidl::Samba::EJS::Parse($ndr, $h_filename));
+
+		FileSave("$outputdir/ndr_$basename\_ejs.h", Parse::Pidl::Samba::EJSHeader::Parse($ndr));
+	}
+
+	if (defined($opt_server)) {
+		require Parse::Pidl::Samba::NDR::Server;
+		my $dcom = "";
+
+		foreach my $x (@{$pidl}) {
+			next if ($x->{TYPE} ne "INTERFACE");
+
+			if (Parse::Pidl::Util::has_property($x, "object")) {
+				require Parse::Pidl::Samba::COM::Stub;
+				$dcom .= Parse::Pidl::Samba::COM::Stub::ParseInterface($x);
+			}
+		}
+
+		FileSave(($opt_server or "$outputdir/ndr_$basename\_s.c"), Parse::Pidl::Samba::NDR::Server::Parse($ndr,$h_filename));
+
+		if ($dcom ne "") {
+			$dcom = "
+#include \"includes.h\"
+#include \"$h_filename\"
+#include \"rpc_server/dcerpc_server.h\"
+#include \"rpc_server/common/common.h\"
+
+$dcom
+";
+	FileSave("$outputdir/$basename\_d.c", $dcom);
+		}
+	}
+
+	if (defined($opt_ndr_parser)) {
+		my $parser = ($opt_ndr_parser or "$outputdir/ndr_$basename.c");
+		require Parse::Pidl::Samba::NDR::Parser;
+		FileSave($parser, Parse::Pidl::Samba::NDR::Parser::Parse($ndr, $parser));
+	}
+
+	if (defined($opt_eth_parser)) {
+	  require Parse::Pidl::Ethereal::NDR;
+	  my($eparser) = ($opt_eth_parser or "$outputdir/packet-dcerpc-$basename.c");
+	  my $eheader = $eparser;
+	  $eheader =~ s/\.c$/\.h/;
+	  my $cnffile = $idl_file;
+	  $cnffile =~ s/\.idl$/\.cnf/;
+
+	  my ($dp, $dh) = Parse::Pidl::Ethereal::NDR::Parse($ndr, $idl_file, $eheader, $cnffile);
+	  FileSave($eparser, $dp) if defined($dp);
+	  FileSave($eheader, $dh) if defined($dh);
+	}
+
+	my $tdr_parser = ($opt_tdr_parser or "$outputdir/tdr_$basename.c");
+	my $tdr_header = ($opt_tdr_header or "$outputdir/tdr_$basename.h");
+	if (defined($opt_tdr_parser)) {
+		require Parse::Pidl::Samba::TDR;
+		FileSave($tdr_parser, Parse::Pidl::Samba::TDR::Parser($pidl, $tdr_header));
+	}
+
+	if (defined($opt_tdr_header)) {
+		require Parse::Pidl::Samba::TDR;
+		FileSave($tdr_header, Parse::Pidl::Samba::TDR::Header($pidl, $outputdir,$basename));
+	}
+
+	if ($opt_template) {
+		require Parse::Pidl::Samba::Template;
+		print Parse::Pidl::Samba::Template::Parse($pidl);
+	}
+}
+
+if (scalar(@ARGV) == 0) {
+	print "pidl: no input files\n";
+	exit(0);
+}
+
+process_file($_) foreach (@ARGV);

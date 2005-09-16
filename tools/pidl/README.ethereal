@@ -1,0 +1,14 @@
+This tree is a convenience copy of
+svn://svnanon.samba.org/samba/branches/SAMBA_4_0/source/pidl
+to allow building Ethereal pidl dissectors without having to
+access a remove svn repository.
+
+Don't do changes here, do them at the samba tree!
+
+In order to build, install yapp (on Suse, the rpm is named perl-Parse-Yapp),
+then do
+make Makefile.PL && make
+
+run 
+
+blib/pidl --eth-parser -- <idl-file>
