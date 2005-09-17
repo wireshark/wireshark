@@ -86,6 +86,16 @@ diameterdir = $(pkgdatadir)/diameter
 diameter_DATA = dictionary.dtd dictionary.xml imscxdx.xml mobileipv4.xml \
 	nasreq.xml sunping.xml
 
+#
+# Install the DTDs directory files in the "dtds" subdirectory
+# of that directory
+#
+dtdsdir = $(pkgdatadir)/dtds
+dtds_DATA = \
+    dtds/dc.dtd \
+    dtds/itunes.dtd \
+    dtds/rss.dtd \
+    dtds/smil.dtd
 
 #
 # Install the RADIUS directory files in the "radius" subdirectory

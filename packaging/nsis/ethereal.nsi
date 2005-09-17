@@ -428,6 +428,16 @@ File "..\..\radius\dictionary.wispr"
 File "..\..\radius\dictionary.xedia"
 SetOutPath $INSTDIR
 
+;
+; install the dtds in the dtds subdirectory
+;
+SetOutPath $INSTDIR\dtds
+File "..\..\dtds\dc.dtd"
+File "..\..\dtds\itunes.dtd"
+File "..\..\dtds\rss.dtd"
+File "..\..\dtds\smil.dtd"
+SetOutPath $INSTDIR
+
 SetOutPath $INSTDIR\help
 File "..\..\help\toc"
 File "..\..\help\overview.txt"
@@ -850,6 +860,7 @@ Delete "$INSTDIR\NEWS.txt"
 Delete "$INSTDIR\manuf"
 Delete "$INSTDIR\pcrepattern.3.txt"
 Delete "$INSTDIR\radius\*.*"
+Delete "$INSTDIR\dtds\*.*"
 Delete "$SMPROGRAMS\Ethereal\*.*"
 Delete "$DESKTOP\Ethereal.lnk"
 Delete "$QUICKLAUNCH\Ethereal.lnk"
@@ -882,6 +893,7 @@ RMDir "$INSTDIR\diameter"
 RMDir "$INSTDIR\snmp\mibs"
 RMDir "$INSTDIR\snmp"
 RMDir "$INSTDIR\radius"
+RMDir "$INSTDIR\dtds"
 RMDir "$INSTDIR"
 
 SectionEnd ; "Uinstall"
