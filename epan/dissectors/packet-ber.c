@@ -1288,36 +1288,34 @@ printf("SET dissect_ber_set(%s) calling subdissector\n",name);
 }
 }
 #endif
-		count=cset->func(pinfo, tree, next_tvb, 0);
 
-		if(count) {
-		    /* we found it! */
-		    if(set_idx < MAX_SET_ELEMENTS)
-		      mandatory_fields &= ~(1 << set_idx);
+			count=cset->func(pinfo, tree, next_tvb, 0);
 
-		    offset = eoffset;
+			if(count) {
+			    /* we found it! */
+			    if(set_idx < MAX_SET_ELEMENTS)
+				  mandatory_fields &= ~(1 << set_idx);
 
-		    if(!(cset->flags & BER_FLAGS_NOOWNTAG) ) {
-		      /* if we stripped the tag and length we should also strip the EOC is ind_len */
-		      if(ind_field == 1)
-			{
-			  /* skip over EOC */
-			  if(show_internal_ber_fields){
-			    proto_tree_add_text(tree, tvb, offset, count, "SET FIELD EOC");
-			  }
+				offset = eoffset;
+
+				if(!(cset->flags & BER_FLAGS_NOOWNTAG) ) {
+				  /* if we stripped the tag and length we should also strip the EOC is ind_len */
+				  if(ind_field == 1){
+					  /* skip over EOC */
+					  if(show_internal_ber_fields){
+						  proto_tree_add_text(tree, tvb, offset, count, "SET FIELD EOC");
+					  }
+				  }
+				}
+				break;
 			}
-		    }
-
-		    break;
-
-		}
 		  }
 		}
 
 		if(!cset->func) {
 		  /* we didn't find a match */
-		  proto_tree_add_text(tree, tvb, offset, len, "BER Error: Unknown field in SET class:%d(%s) tag:%d",class,val_to_str(class,ber_class_codes,"Unknown"),tag);
-
+		  proto_tree_add_text(tree, tvb, hoffset, len, "BER Error: Unknown field in SET class:%d(%s) tag:%d",class,val_to_str(class,ber_class_codes,"Unknown"),tag);
+		  offset = eoffset;			
 		} 
 	}
 
