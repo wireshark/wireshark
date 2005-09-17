@@ -152,7 +152,7 @@ These are the structures you will see most often in EDP frames.
 #include <epan/strutil.h>
 #include <epan/in_cksum.h>
 #include "packet-llc.h"
-#include "oui.h"
+#include <epan/oui.h>
 
 static int hf_llc_extreme_pid = -1;
 

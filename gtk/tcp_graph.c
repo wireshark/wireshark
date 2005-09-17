@@ -41,8 +41,8 @@
 #include "gui_utils.h"
 #include "color.h"
 #include "compat_macros.h"
-#include "etypes.h"
-#include "ppptypes.h"
+#include <epan/etypes.h>
+#include <epan/ppptypes.h>
 #include "dlg_utils.h"
 #include <epan/epan_dissect.h>
 #include "../stat_menu.h"

@@ -28,10 +28,10 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "etypes.h"
+#include <epan/etypes.h>
 #include <epan/prefs.h>
-#include "chdlctypes.h"
-#include "nlpid.h"
+#include <epan/chdlctypes.h>
+#include <epan/nlpid.h>
 #include <epan/addr_resolv.h>
 #include "packet-chdlc.h"
 #include "packet-ppp.h"

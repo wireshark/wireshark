@@ -56,7 +56,7 @@
 #include "register.h"
 #include <epan/dissectors/packet-rtp.h>
 #include "g711.h"
-#include "rtp_pt.h"
+#include <epan/rtp_pt.h>
 #include <epan/addr_resolv.h>
 
 /* in /gtk ... */

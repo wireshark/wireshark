@@ -34,7 +34,7 @@
 #include "packet-ipx.h"
 #include "packet-llc.h"
 #include <epan/addr_resolv.h>
-#include "etypes.h"
+#include <epan/etypes.h>
 
 static int proto_sll = -1;
 static int hf_sll_pkttype = -1;

@@ -30,7 +30,7 @@
 
 #include <epan/packet.h>
 
-#include "etypes.h"
+#include <epan/etypes.h>
 
 static dissector_table_t ethertype_dissector_table;
 

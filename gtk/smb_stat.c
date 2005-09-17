@@ -39,7 +39,7 @@
 #include <epan/value_string.h>
 
 #include <epan/tap.h>
-#include "../smb.h"
+#include <epan/smb.h>
 #include "../register.h"
 #include "../timestats.h"
 #include "compat_macros.h"

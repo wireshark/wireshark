@@ -28,8 +28,8 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "oui.h"
-#include "etypes.h"
+#include <epan/oui.h>
+#include <epan/etypes.h>
 
 #include "packet-ieee802a.h"
 

@@ -33,8 +33,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include "etypes.h"
-#include "ppptypes.h"
+#include <epan/etypes.h>
+#include <epan/ppptypes.h>
 
 /* Offsets of fields within a BPDU */
 

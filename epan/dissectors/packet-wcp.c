@@ -107,8 +107,8 @@
 #include "packet-frame.h"
 #include <epan/circuit.h>
 #include <epan/emem.h>
-#include "etypes.h"
-#include "nlpid.h"
+#include <epan/etypes.h>
+#include <epan/nlpid.h>
 
 #define MAX_WIN_BUF_LEN 0x7fff		/* storage size for decompressed data */
 #define MAX_WCP_BUF_LEN 2048		/* storage size for decompressed data */

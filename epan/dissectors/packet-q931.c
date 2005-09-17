@@ -35,14 +35,14 @@
 #include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/strutil.h>
-#include "nlpid.h"
+#include <epan/nlpid.h>
 #include "packet-q931.h"
 #include "packet-e164.h"
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/emem.h>
 
-#include "lapd_sapi.h"
+#include <epan/lapd_sapi.h>
 #include "packet-tpkt.h"
 
 /* Q.931 references:

@@ -32,7 +32,7 @@
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
-#include "nlpid.h"
+#include <epan/nlpid.h>
 
 static int proto_q933 					= -1;
 static int hf_q933_discriminator			= -1;

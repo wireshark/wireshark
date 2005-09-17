@@ -39,8 +39,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
-#include "etypes.h"
-#include "oui.h"
+#include <epan/etypes.h>
+#include <epan/oui.h>
 
 /* TLV Types */
 #define END_OF_LLDPDU_TLV_TYPE		0x00	/* Mandatory */

@@ -31,10 +31,10 @@
 #include <epan/packet.h>
 #include "packet-wccp.h"
 #include <epan/in_cksum.h>
-#include "etypes.h"
-#include "greproto.h"
+#include <epan/etypes.h>
+#include <epan/greproto.h>
 #include <epan/ipproto.h>
-#include "llcsaps.h"
+#include <epan/llcsaps.h>
 
 /*
  * See RFC 1701 "Generic Routing Encapsulation (GRE)", RFC 1702

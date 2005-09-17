@@ -73,8 +73,8 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include "packet-llc.h"
-#include "oui.h"
-#include "etypes.h"
+#include <epan/oui.h>
+#include <epan/etypes.h>
 
 static int hf_llc_ciscowl_pid = -1;
 

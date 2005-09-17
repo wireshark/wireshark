@@ -32,9 +32,9 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include "llcsaps.h"
-#include "ppptypes.h"
-#include "chdlctypes.h"
+#include <epan/llcsaps.h>
+#include <epan/ppptypes.h>
+#include <epan/chdlctypes.h>
 #include <epan/addr_resolv.h>
 
 /* Offsets of fields within a BPDU */

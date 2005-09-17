@@ -46,7 +46,7 @@
 #include "packet-frame.h"
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
-#include "rpc_defrag.h"
+#include <epan/rpc_defrag.h>
 
 #define TCP_PORT_NDMP 10000
 #define NDMP_RM_LASTFRAG 0x80000000

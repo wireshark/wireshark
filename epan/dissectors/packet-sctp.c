@@ -52,7 +52,7 @@
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
 #include "packet-sctp.h"
-#include "sctpppids.h"
+#include <epan/sctpppids.h>
 
 #define NETWORK_BYTE_ORDER     FALSE
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)

@@ -26,7 +26,7 @@
 
 #include <epan/packet.h>
 #include "packet-llc.h"
-#include "oui.h"
+#include <epan/oui.h>
 
 static int hf_llc_cisco_pid = -1;
 

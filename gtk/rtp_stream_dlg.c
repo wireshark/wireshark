@@ -46,7 +46,7 @@
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 
-#include "rtp_pt.h"
+#include <epan/rtp_pt.h>
 
 #include <epan/address.h>
 

@@ -40,8 +40,8 @@
 #include "packet-ipx.h"
 #include "packet-osi.h"
 #include "packet-ppp.h"
-#include "etypes.h"
-#include "aftypes.h"
+#include <epan/etypes.h>
+#include <epan/aftypes.h>
 
 static dissector_table_t null_dissector_table;
 

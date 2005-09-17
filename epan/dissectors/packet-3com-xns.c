@@ -29,7 +29,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "etypes.h"
+#include <epan/etypes.h>
 
 static int proto_3com_xns = -1;
 

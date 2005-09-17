@@ -23,29 +23,17 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-# Header files for dissector helpers
-# XXX - these should be moved to epan/dissectors
+#
+# XXX - this is used by dissectors and by other parts of Ethereal.
+# Ultimately, we need to handle strings "right", so that we can handle
+# strings in protocols that are in various encodings, and figure out
+# properly whether a given character can be {displayed in the GUI,
+# printed to a printout, written to a file} internally to the routines
+# handling that, with a scheme more sophisticated than "if it ain't
+# ASCII it ain't ....".
+#
 DISSECTOR_SUPPORT_INCLUDES =	\
-	aftypes.h	\
-	arcnet_pids.h	\
-	bridged_pids.h	\
-	chdlctypes.h	\
-	etypes.h	\
-	format-oid.h	\
-	greproto.h	\
-	iax2_codec_type.h	\
-	ip_opts.h	\
-	isprint.h	\
-	lapd_sapi.h	\
-	llcsaps.h	\
-	nlpid.h	\
-	oui.h	\
-	ppptypes.h	\
-	rpc_defrag.h	\
-	rtp_pt.h	\
-	sctpppids.h	\
-	smb.h	\
-	x264_prt_id.h
+	isprint.h
 
 # "BUILT_SOURCES" are built before any "make all" or "make check" targets.
 BUILT_HEADER_FILES =	\

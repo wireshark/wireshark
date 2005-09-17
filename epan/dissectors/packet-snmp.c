@@ -53,7 +53,7 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/conversation.h>
-#include "etypes.h"
+#include <epan/etypes.h>
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
 #include <epan/emem.h>
@@ -112,7 +112,7 @@
 #include <epan/asn1.h>
 
 #include "packet-snmp.h"
-#include "format-oid.h"
+#include <epan/format-oid.h>
 
 /* Take a pointer that may be null and return a pointer that's not null
    by turning null pointers into pointers to the above null string,

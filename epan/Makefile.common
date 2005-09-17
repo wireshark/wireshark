@@ -92,12 +92,16 @@ LIBETHEREAL_INCLUDES = 		\
 	address.h		\
 	adler32.h		\
 	afn.h			\
+	aftypes.h		\
+	arcnet_pids.h		\
 	arptypes.h		\
 	asn1.h			\
 	atalk-utils.h		\
 	base64.h		\
 	bitswap.h		\
+	bridged_pids.h		\
 	charsets.h		\
+	chdlctypes.h		\
 	circuit.h		\
 	column.h		\
 	column_info.h		\
@@ -115,24 +119,34 @@ LIBETHEREAL_INCLUDES = 		\
 	emem.h			\
 	epan.h			\
 	epan_dissect.h		\
+	etypes.h		\
 	except.h		\
 	exceptions.h		\
 	expert.h		\
 	filesystem.h		\
 	follow.h		\
+	format-oid.h		\
 	frame_data.h		\
 	gnuc_format_check.h	\
+	greproto.h		\
 	h225-persistentdata.h	\
+	iax2_codec_type.h	\
 	in_cksum.h		\
+	ip_opts.h		\
 	ipproto.h		\
 	ipv4.h			\
 	ipv6-utils.h		\
+	lapd_sapi.h		\
+	llcsaps.h		\
+	nlpid.h			\
 	nstime.h		\
 	osi-utils.h		\
+	oui.h			\
 	packet.h		\
 	packet_info.h		\
 	pint.h			\
 	plugins.h		\
+	ppptypes.h		\
 	prefs.h			\
 	prefs-int.h		\
 	proto.h			\
@@ -141,10 +155,14 @@ LIBETHEREAL_INCLUDES = 		\
 	reassemble.h		\
 	report_err.h		\
 	req_resp_hdrs.h		\
+	rpc_defrag.h		\
+	rtp_pt.h		\
+	sctpppids.h		\
 	sha1.h			\
 	sigcomp_state_hdlr.h	\
 	sigcomp-udvm.h		\
 	slab.h			\
+	smb.h			\
 	sminmpec.h		\
 	sna-utils.h		\
 	stat_cmd_args.h		\
@@ -158,6 +176,7 @@ LIBETHEREAL_INCLUDES = 		\
 	tvbparse.h		\
 	tvbuff.h		\
 	value_string.h		\
+	x264_prt_id.h		\
 	xdlc.h			\
 	xmlstub.h
 

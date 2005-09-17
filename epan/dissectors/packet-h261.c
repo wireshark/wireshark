@@ -42,7 +42,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "rtp_pt.h"
+#include <epan/rtp_pt.h>
 
 /* H.261 header fields             */
 static int proto_h261          = -1;

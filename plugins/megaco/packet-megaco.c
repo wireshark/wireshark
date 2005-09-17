@@ -54,7 +54,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
-#include "sctpppids.h"
+#include <epan/sctpppids.h>
 #include <epan/dissectors/packet-tpkt.h>
 
 #ifndef ENABLE_STATIC

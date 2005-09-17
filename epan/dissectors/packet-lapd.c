@@ -33,7 +33,7 @@
 #include <epan/packet.h>
 #include <epan/xdlc.h>
 
-#include "lapd_sapi.h"
+#include <epan/lapd_sapi.h>
 
 /* ISDN/LAPD references:
  *

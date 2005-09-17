@@ -42,7 +42,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
 #include <glib.h>
 #include <ctype.h>
 #include <epan/packet.h>
-#include "smb.h"
+#include <epan/smb.h>
 #include "packet-smb-pipe.h"
 #include "packet-smb-browse.h"
 #include "packet-smb-common.h"

@@ -36,7 +36,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include "sctpppids.h"
+#include <epan/sctpppids.h>
 
 #define SCTP_PORT_M2TP        9908  /* unassigned port number (not assigned by IANA) */
 

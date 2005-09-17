@@ -32,7 +32,7 @@
 #include <glib.h>
 #include <string.h>
 #include <epan/packet.h>
-#include "etypes.h"
+#include <epan/etypes.h>
 
 static int proto_lapbether = -1;
 

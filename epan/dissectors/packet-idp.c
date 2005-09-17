@@ -30,7 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-idp.h"
-#include "etypes.h"
+#include <epan/etypes.h>
 
 static int proto_idp = -1;
 static int hf_idp_checksum = -1;

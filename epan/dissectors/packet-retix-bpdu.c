@@ -35,9 +35,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 #if 0
-#include "llcsaps.h"
-#include "ppptypes.h"
-#include "chdlctypes.h"
+#include <epan/llcsaps.h>
+#include <epan/ppptypes.h>
+#include <epan/chdlctypes.h>
 #endif
 #include <epan/addr_resolv.h>
 

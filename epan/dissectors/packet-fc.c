@@ -48,7 +48,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
-#include "etypes.h"
+#include <epan/etypes.h>
 #include "packet-fc.h"
 #include "packet-fclctl.h"
 #include "packet-fcbls.h"

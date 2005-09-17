@@ -4,7 +4,7 @@
  * $Id$
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  *
  * This file created and by Mike Hall <mlh@io.com>
  * Copyright 1998

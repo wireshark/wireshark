@@ -42,7 +42,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include "etypes.h"
+#include <epan/etypes.h>
 
 #define BRDWLK_MAX_PACKET_CNT  0xFFFF
 #define BRDWLK_TRUNCATED_BIT   0x8

@@ -41,7 +41,7 @@
 #endif
 
 #include <epan/packet.h>
-#include "sctpppids.h"
+#include <epan/sctpppids.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_asap = -1;

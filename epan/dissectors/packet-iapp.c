@@ -35,7 +35,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include "oui.h"
+#include <epan/oui.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_iapp = -1;

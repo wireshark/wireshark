@@ -32,7 +32,7 @@
 #include "packet-ipx.h"
 #include "packet-llc.h"
 #include "packet-vlan.h"
-#include "etypes.h"
+#include <epan/etypes.h>
 
 static int proto_vlan = -1;
 static int hf_vlan_priority = -1;

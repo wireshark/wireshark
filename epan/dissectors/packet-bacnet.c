@@ -38,7 +38,7 @@
 
 #include <epan/packet.h>
 
-#include "llcsaps.h"
+#include <epan/llcsaps.h>
 
 static dissector_handle_t bacapp_handle;
 static dissector_handle_t data_handle;

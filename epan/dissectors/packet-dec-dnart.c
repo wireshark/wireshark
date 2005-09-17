@@ -54,8 +54,8 @@
 #include <epan/packet.h>
 #include <epan/proto.h>
 #include <epan/dissectors/packet-tcp.h>
-#include "etypes.h"
-#include "ppptypes.h"
+#include <epan/etypes.h>
+#include <epan/ppptypes.h>
 
 typedef enum {
     RT_CTL_INITIALIZATION,

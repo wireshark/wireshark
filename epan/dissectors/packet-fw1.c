@@ -92,7 +92,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
-#include "etypes.h"
+#include <epan/etypes.h>
 
 /* Place FW1 summary in proto tree */
 static gboolean fw1_summary_in_tree = TRUE;

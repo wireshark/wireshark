@@ -33,11 +33,11 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-vines.h"
-#include "etypes.h"
-#include "ppptypes.h"
+#include <epan/etypes.h>
+#include <epan/ppptypes.h>
 #include <epan/ipproto.h>
-#include "arcnet_pids.h"
-#include "llcsaps.h"
+#include <epan/arcnet_pids.h>
+#include <epan/llcsaps.h>
 
 #define UDP_PORT_VINES	573
 

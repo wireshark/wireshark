@@ -32,7 +32,7 @@
 #include <glib.h>
 #include <string.h>
 #include <epan/packet.h>
-#include "lapd_sapi.h"
+#include <epan/lapd_sapi.h>
 
 /* ISDN/LAPD references:
  *

@@ -30,8 +30,8 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "llcsaps.h"
-#include "ppptypes.h"
+#include <epan/llcsaps.h>
+#include <epan/ppptypes.h>
 #include <epan/sna-utils.h>
 #include <epan/charsets.h>
 #include <epan/prefs.h>

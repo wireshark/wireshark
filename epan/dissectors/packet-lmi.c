@@ -42,7 +42,7 @@
 #include <glib.h>
 #include <string.h>
 #include <epan/packet.h>
-#include "nlpid.h"
+#include <epan/nlpid.h>
 
 static int proto_lmi = -1;
 static int hf_lmi_call_ref = -1;

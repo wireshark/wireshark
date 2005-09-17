@@ -58,7 +58,7 @@
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/dissectors/packet-rtp-events.h>
 #include <epan/conversation.h>
-#include "rtp_pt.h"
+#include <epan/rtp_pt.h>
 
 #include "alert_box.h"
 #include "simple_dialog.h"

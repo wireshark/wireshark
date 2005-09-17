@@ -30,8 +30,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/xdlc.h>
-#include "etypes.h"
-#include "llcsaps.h"
+#include <epan/etypes.h>
+#include <epan/llcsaps.h>
 #include "packet-hpext.h"
 
 static dissector_table_t subdissector_table;

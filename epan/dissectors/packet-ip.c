@@ -39,19 +39,19 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
-#include "ip_opts.h"
+#include <epan/ip_opts.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
-#include "etypes.h"
-#include "greproto.h"
-#include "ppptypes.h"
-#include "llcsaps.h"
-#include "aftypes.h"
-#include "arcnet_pids.h"
+#include <epan/etypes.h>
+#include <epan/greproto.h>
+#include <epan/ppptypes.h>
+#include <epan/llcsaps.h>
+#include <epan/aftypes.h>
+#include <epan/arcnet_pids.h>
 #include "packet-ip.h"
 #include "packet-ipsec.h"
 #include <epan/in_cksum.h>
-#include "nlpid.h"
+#include <epan/nlpid.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
 

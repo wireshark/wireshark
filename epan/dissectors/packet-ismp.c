@@ -36,7 +36,7 @@
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
-#include "etypes.h"
+#include <epan/etypes.h>
 
 
 /* Initialize the protocol and registered fields */

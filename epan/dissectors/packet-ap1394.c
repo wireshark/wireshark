@@ -32,7 +32,7 @@
 #include <epan/strutil.h>
 
 #include "packet-ap1394.h"
-#include "etypes.h"
+#include <epan/etypes.h>
 
 static int proto_ap1394 = -1;
 static int hf_ap1394_dst = -1;

@@ -41,7 +41,7 @@
 #include <epan/emem.h>
 
 #include "packet-iax2.h"
-#include "iax2_codec_type.h"
+#include <epan/iax2_codec_type.h>
 
 #define IAX2_PORT		4569
 #define PROTO_TAG_IAX2		"IAX2"

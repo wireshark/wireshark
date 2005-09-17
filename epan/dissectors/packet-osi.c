@@ -34,11 +34,11 @@
 #include <ctype.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include "llcsaps.h"
-#include "aftypes.h"
-#include "nlpid.h"
-#include "ppptypes.h"
-#include "chdlctypes.h"
+#include <epan/llcsaps.h>
+#include <epan/aftypes.h>
+#include <epan/nlpid.h>
+#include <epan/ppptypes.h>
+#include <epan/chdlctypes.h>
 #include "packet-osi.h"
 #include "packet-isis.h"
 #include "packet-esis.h"

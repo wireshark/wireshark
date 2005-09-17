@@ -33,9 +33,9 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include "etypes.h"
-#include "llcsaps.h"
-#include "ppptypes.h"
+#include <epan/etypes.h>
+#include <epan/llcsaps.h>
+#include <epan/ppptypes.h>
 #include <epan/addr_resolv.h>
 
 /* General declarations */

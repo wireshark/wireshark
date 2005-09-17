@@ -44,8 +44,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "rtp_pt.h"
-#include "iax2_codec_type.h"
+#include <epan/rtp_pt.h>
+#include <epan/iax2_codec_type.h>
 
 /* H.263 header fields             */
 static int proto_h263          = -1;

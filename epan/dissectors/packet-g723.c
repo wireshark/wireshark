@@ -36,7 +36,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include "rtp_pt.h"
+#include <epan/rtp_pt.h>
 
 
 /* Initialize the protocol and registered fields */

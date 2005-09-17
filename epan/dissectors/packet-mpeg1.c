@@ -41,7 +41,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "rtp_pt.h"
+#include <epan/rtp_pt.h>
 
 #define RTP_MPG_MBZ(word) ( word >> 11)
 #define RTP_MPG_T(word)   ( (word >> 10) & 1 )

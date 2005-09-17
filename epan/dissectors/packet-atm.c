@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include "oui.h"
+#include <epan/oui.h>
 #include <epan/addr_resolv.h>
 
 #include "packet-atm.h"

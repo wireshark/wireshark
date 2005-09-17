@@ -33,7 +33,7 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/emem.h>
-#include "etypes.h"
+#include <epan/etypes.h>
 
 static int proto_aarp = -1;
 static int hf_aarp_hard_type = -1;

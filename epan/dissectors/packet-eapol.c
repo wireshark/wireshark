@@ -31,7 +31,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-ieee80211.h"
-#include "etypes.h"
+#include <epan/etypes.h>
 
 static int proto_eapol = -1;
 static int hf_eapol_version = -1;

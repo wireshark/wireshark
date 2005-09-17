@@ -40,7 +40,7 @@
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include "etypes.h"
+#include <epan/etypes.h>
 #include <epan/strutil.h>
 
 /* Define version if we are not building ethereal statically */

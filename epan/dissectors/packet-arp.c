@@ -34,8 +34,8 @@
 #include <epan/addr_resolv.h>
 #include <epan/emem.h>
 #include "packet-arp.h"
-#include "etypes.h"
-#include "arcnet_pids.h"
+#include <epan/etypes.h>
+#include <epan/arcnet_pids.h>
 
 static int proto_arp = -1;
 static int hf_arp_hard_type = -1;

@@ -29,13 +29,13 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "etypes.h"
+#include <epan/etypes.h>
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
-#include "ppptypes.h"
+#include <epan/ppptypes.h>
 #include "packet-ppp.h"
 #include "packet-ip.h"
-#include "nlpid.h"
+#include <epan/nlpid.h>
 
 #define JUNIPER_FLAG_PKT_OUT        0x00     /* Outgoing packet */
 #define JUNIPER_FLAG_PKT_IN         0x01     /* Incoming packet */

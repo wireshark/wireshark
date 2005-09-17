@@ -1,6 +1,6 @@
 # $Id$
 #
-AC_INIT(etypes.h)
+AC_INIT(cfile.h)
 
 AC_PREREQ(2.52)
 

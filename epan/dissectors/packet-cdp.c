@@ -32,8 +32,8 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 
-#include "oui.h"
-#include "nlpid.h"
+#include <epan/oui.h>
+#include <epan/nlpid.h>
 
 
 /*

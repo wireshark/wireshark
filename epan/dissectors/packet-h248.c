@@ -47,7 +47,7 @@
 #include "packet-isup.h"
 #include "packet-q931.h"
 
-#include "sctpppids.h"
+#include <epan/sctpppids.h>
 #define PNAME  "H.248 MEGACO"
 #define PSNAME "H248"
 #define PFNAME "h248"

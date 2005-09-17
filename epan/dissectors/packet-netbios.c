@@ -35,7 +35,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include "llcsaps.h"
+#include <epan/llcsaps.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
 #include "packet-netbios.h"

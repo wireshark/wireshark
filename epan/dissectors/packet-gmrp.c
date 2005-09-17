@@ -37,7 +37,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include "llcsaps.h"
+#include <epan/llcsaps.h>
 
 /* Initialize the protocol and registered fields */
 static int proto_gmrp = -1;

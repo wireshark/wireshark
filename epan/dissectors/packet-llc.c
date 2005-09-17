@@ -29,13 +29,13 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "oui.h"
+#include <epan/oui.h>
 #include <epan/xdlc.h>
-#include "etypes.h"
-#include "llcsaps.h"
-#include "bridged_pids.h"
-#include "ppptypes.h"
-#include "arcnet_pids.h"
+#include <epan/etypes.h>
+#include <epan/llcsaps.h>
+#include <epan/bridged_pids.h>
+#include <epan/ppptypes.h>
+#include <epan/arcnet_pids.h>
 #include "packet-fc.h"
 #include "packet-ip.h"
 #include "packet-ipx.h"

@@ -32,7 +32,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
-#include "nlpid.h"
+#include <epan/nlpid.h>
 
 static int proto_x29 = -1;
 static int hf_msg_code = -1;

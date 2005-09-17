@@ -52,7 +52,7 @@
 #include "packet-q931.h"
 #include "packet-isup.h"
 #include "packet-e164.h"
-#include "sctpppids.h"
+#include <epan/sctpppids.h>
 #include <epan/emem.h>
 
 #define MTP3_ISUP_SERVICE_INDICATOR     5

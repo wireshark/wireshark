@@ -35,7 +35,7 @@
 
 #include <epan/packet.h>
 #include "packet-arcnet.h"
-#include "arcnet_pids.h"
+#include <epan/arcnet_pids.h>
 #include "packet-ip.h"
 
 /* Initialize the protocol and registered fields */

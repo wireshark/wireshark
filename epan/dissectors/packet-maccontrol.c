@@ -30,7 +30,7 @@
 #include <epan/packet.h>
 #include "packet-ieee8023.h"
 #include "packet-llc.h"
-#include "etypes.h"
+#include <epan/etypes.h>
 
 static int proto_macctrl = -1;
 

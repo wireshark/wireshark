@@ -62,7 +62,7 @@
 #include "packet-sdp.h"
 
 #include "packet-rtp.h"
-#include "rtp_pt.h"
+#include <epan/rtp_pt.h>
 #include "packet-rtcp.h"
 
 #include "packet-t38.h"

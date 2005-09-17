@@ -31,9 +31,9 @@
 #include <glib.h>
 #include <string.h>
 #include <epan/packet.h>
-#include "oui.h"
-#include "nlpid.h"
-#include "etypes.h"
+#include <epan/oui.h>
+#include <epan/nlpid.h>
+#include <epan/etypes.h>
 #include "packet-q931.h"
 #include "packet-arp.h"
 

@@ -45,7 +45,7 @@
 #include <epan/emem.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include "etypes.h"
+#include <epan/etypes.h>
 #include "packet-fc.h"
 #include "packet-fcp.h"
 #include "packet-scsi.h"

@@ -66,7 +66,7 @@
 #include "packet-ipx.h"
 #include "packet-llc.h"
 #include "packet-ieee80211.h"
-#include "etypes.h"
+#include <epan/etypes.h>
 #include <epan/crc32.h>
 #include <epan/tap.h>
 #include <epan/emem.h>

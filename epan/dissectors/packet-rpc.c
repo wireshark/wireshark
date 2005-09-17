@@ -40,7 +40,7 @@
 #include "packet-tcp.h"
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
-#include "rpc_defrag.h"
+#include <epan/rpc_defrag.h>
 #include "packet-nfs.h"
 #include <epan/tap.h>
 #include <epan/emem.h>

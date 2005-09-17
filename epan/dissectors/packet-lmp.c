@@ -53,7 +53,7 @@
 #include <epan/packet.h>
 #include <prefs.h>
 #include <epan/in_cksum.h>
-#include "etypes.h"
+#include <epan/etypes.h>
 #include <epan/ipproto.h>
 
 #include "packet-ip.h"

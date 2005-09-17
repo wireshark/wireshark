@@ -37,11 +37,11 @@
 #include <epan/packet.h>
 #include "packet-ipx.h"
 #include <epan/addr_resolv.h>
-#include "etypes.h"
-#include "ppptypes.h"
-#include "llcsaps.h"
-#include "aftypes.h"
-#include "arcnet_pids.h"
+#include <epan/etypes.h>
+#include <epan/ppptypes.h>
+#include <epan/llcsaps.h>
+#include <epan/aftypes.h>
+#include <epan/arcnet_pids.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/emem.h>

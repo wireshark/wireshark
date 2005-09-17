@@ -30,7 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#include "llcsaps.h"
+#include <epan/llcsaps.h>
 #include "packet-llc.h"
 
 static int proto_rpl          = -1;

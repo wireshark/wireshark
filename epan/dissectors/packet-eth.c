@@ -29,7 +29,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include "etypes.h"
+#include <epan/etypes.h>
 #include <epan/addr_resolv.h>
 #include "packet-eth.h"
 #include "packet-ieee8023.h"

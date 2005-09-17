@@ -44,7 +44,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include "sctpppids.h"
+#include <epan/sctpppids.h>
 #include "packet-mtp3.h"
 
 #define SCTP_PORT_M3UA         2905

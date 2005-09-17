@@ -54,10 +54,10 @@
 #include "packet-ppp.h"
 #include "packet-fr.h"
 #include <epan/xdlc.h>
-#include "etypes.h"
-#include "oui.h"
-#include "nlpid.h"
-#include "greproto.h"
+#include <epan/etypes.h>
+#include <epan/oui.h>
+#include <epan/nlpid.h>
+#include <epan/greproto.h>
 
 /*
  * Bits in the address field.

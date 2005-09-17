@@ -36,7 +36,7 @@
 #include "packet-osi.h"
 #include "packet-isis.h"
 #include "packet-isis-clv.h"
-#include "nlpid.h"
+#include <epan/nlpid.h>
 
 /*
  * Name: isis_dissect_area_address_clv()

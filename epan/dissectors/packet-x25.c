@@ -31,14 +31,14 @@
 #include <glib.h>
 #include <stdlib.h>
 #include <string.h>
-#include "llcsaps.h"
+#include <epan/llcsaps.h>
 #include <epan/packet.h>
 #include <epan/circuit.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
-#include "nlpid.h"
-#include "x264_prt_id.h"
+#include <epan/nlpid.h>
+#include <epan/x264_prt_id.h>
 
 /*
  * Direction of packet.

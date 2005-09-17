@@ -32,7 +32,7 @@
 #include "packet-eth.h"
 #include "packet-tr.h"
 #include "packet-frame.h"
-#include "etypes.h"
+#include <epan/etypes.h>
 
 /*
  * See

@@ -40,8 +40,8 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "ppptypes.h"
-#include "etypes.h"
+#include <epan/ppptypes.h>
+#include <epan/etypes.h>
 #include <epan/prefs.h>
 #include "packet-ppp.h"
 #include "packet-mpls.h"

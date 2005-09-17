@@ -31,7 +31,7 @@
 #include <epan/packet.h>
 
 #include <epan/ipproto.h>
-#include "ip_opts.h"
+#include <epan/ip_opts.h>
 #include "packet-mip6.h"
 
 /* Initialize the protocol and registered header fields */

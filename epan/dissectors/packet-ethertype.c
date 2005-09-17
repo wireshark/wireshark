@@ -37,8 +37,8 @@
 #include "packet-ipx.h"
 #include "packet-vlan.h"
 #include "packet-vines.h"
-#include "etypes.h"
-#include "ppptypes.h"
+#include <epan/etypes.h>
+#include <epan/ppptypes.h>
 
 static dissector_table_t ethertype_dissector_table;
 

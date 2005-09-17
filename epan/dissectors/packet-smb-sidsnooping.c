@@ -37,7 +37,7 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "register.h"
-#include "smb.h"
+#include <epan/smb.h>
 #include "packet-smb-sidsnooping.h"
 
 static int hf_lsa = -1;

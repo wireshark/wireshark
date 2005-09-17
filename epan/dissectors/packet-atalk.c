@@ -33,10 +33,10 @@
 #include <epan/packet.h>
 #include <string.h>
 
-#include "etypes.h"
-#include "ppptypes.h"
-#include "aftypes.h"
-#include "arcnet_pids.h"
+#include <epan/etypes.h>
+#include <epan/ppptypes.h>
+#include <epan/aftypes.h>
+#include <epan/arcnet_pids.h>
 #include <epan/atalk-utils.h>
 #include <epan/conversation.h>
 

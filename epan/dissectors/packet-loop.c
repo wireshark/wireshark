@@ -32,7 +32,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "etypes.h"
+#include <epan/etypes.h>
 
 static int proto_loop = -1;
 static int hf_loop_skipcount = -1;
