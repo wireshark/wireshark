@@ -638,6 +638,7 @@ DISSECTOR_SRC =	\
 # corresponding headers
 DISSECTOR_INCLUDES =	\
 	$(PIDL_DISSECTOR_INCLUDES) 	\
+	format-oid.h	\
 	packet-acse.h	\
 	packet-actrace.h	\
 	packet-afp.h	\
@@ -837,6 +838,7 @@ DISSECTOR_INCLUDES =	\
 	packet-ses.h	\
 	packet-sip.h	\
 	packet-sll.h	\
+	packet-smb.h	\
 	packet-smb-browse.h	\
 	packet-smb-common.h	\
 	packet-smb-mailslot.h	\
@@ -879,6 +881,7 @@ DISSECTOR_INCLUDES =	\
 	packet-yppasswd.h	\
 	packet-ypserv.h	\
 	packet-ypxfr.h	\
+	rpc_defrag.h	\
 	$(GENERATED_HEADER_FILES)
 
 # Dissector helpers.  They're included in the source files in this

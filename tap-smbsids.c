@@ -39,7 +39,7 @@
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
 #include "epan/value_string.h"
-#include <epan/smb.h>
+#include <epan/dissectors/packet-smb.h>
 
 
 static int

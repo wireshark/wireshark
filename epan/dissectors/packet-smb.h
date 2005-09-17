@@ -1,5 +1,5 @@
-/* smb.h
- * Defines for smb packet dissection
+/* packet-smb.h
+ * Defines for SMB packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
  * $Id$
@@ -23,8 +23,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef _SMB_H
-#define _SMB_H
+#ifndef __PACKET_SMB_H__
+#define __PACKET_SMB_H__
 
 ETH_VAR_IMPORT gboolean sid_name_snooping;
 

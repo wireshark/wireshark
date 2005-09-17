@@ -33,7 +33,7 @@
 #include "packet-dcerpc.h"
 #include "packet-smb-sidsnooping.h"
 #include "packet-windows-common.h"
-#include <epan/smb.h>	/* for "sid_name_snooping" */
+#include <epan/dissectors/packet-smb.h>	/* for "sid_name_snooping" */
 
 static int hf_nt_sec_desc_revision = -1;
 static int hf_nt_sec_desc_type_owner_defaulted = -1;

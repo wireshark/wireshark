@@ -112,7 +112,7 @@
 #include <epan/asn1.h>
 
 #include "packet-snmp.h"
-#include <epan/format-oid.h>
+#include <epan/dissectors/format-oid.h>
 
 /* Take a pointer that may be null and return a pointer that's not null
    by turning null pointers into pointers to the above null string,

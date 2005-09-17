@@ -28,8 +28,8 @@
 /*
  * RPC-over-TCP fragmentation.
  */
-#define RPC_RM_LASTFRAG	0x80000000L
-#define RPC_RM_FRAGLEN	0x7fffffffL
+#define RPC_RM_LASTFRAG	0x80000000U
+#define RPC_RM_FRAGLEN	0x7fffffffU
 
 typedef gboolean (*rec_dissector_t)(tvbuff_t *, packet_info *, proto_tree *,
 	tvbuff_t *, fragment_data *, gboolean, guint32, gboolean);

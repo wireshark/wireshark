@@ -125,7 +125,6 @@ LIBETHEREAL_INCLUDES = 		\
 	expert.h		\
 	filesystem.h		\
 	follow.h		\
-	format-oid.h		\
 	frame_data.h		\
 	gnuc_format_check.h	\
 	greproto.h		\
@@ -155,14 +154,12 @@ LIBETHEREAL_INCLUDES = 		\
 	reassemble.h		\
 	report_err.h		\
 	req_resp_hdrs.h		\
-	rpc_defrag.h		\
 	rtp_pt.h		\
 	sctpppids.h		\
 	sha1.h			\
 	sigcomp_state_hdlr.h	\
 	sigcomp-udvm.h		\
 	slab.h			\
-	smb.h			\
 	sminmpec.h		\
 	sna-utils.h		\
 	stat_cmd_args.h		\

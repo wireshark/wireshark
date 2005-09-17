@@ -46,11 +46,9 @@
 #include "packet-frame.h"
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
-#include <epan/rpc_defrag.h>
+#include <epan/dissectors/rpc_defrag.h>
 
 #define TCP_PORT_NDMP 10000
-#define NDMP_RM_LASTFRAG 0x80000000
-#define NDMP_RM_LENGTH   0x7fffffff
 
 static int proto_ndmp = -1;
 static int hf_ndmp_lastfrag = -1;
@@ -2801,7 +2799,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * Check if this is the last fragment.
 	 */
-	if (!(ndmp_rm & NDMP_RM_LASTFRAG)) {
+	if (!(ndmp_rm & RPC_RM_LASTFRAG)) {
 		/*
 		 * This isn't the last fragment.
 		 * If we're doing reassembly, just return
@@ -2827,8 +2825,8 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	hdr_item = proto_tree_add_text(ndmp_tree, tvb, 0, 4, 
 		"Fragment header: %s%u %s", 
-		(ndmp_rm & NDMP_RM_LASTFRAG) ? "Last fragment, " : "", 
-		ndmp_rm & NDMP_RM_LENGTH, plurality(ndmp_rm & NDMP_RM_LENGTH, "byte", "bytes"));
+		(ndmp_rm & RPC_RM_LASTFRAG) ? "Last fragment, " : "", 
+		ndmp_rm & RPC_RM_FRAGLEN, plurality(ndmp_rm & RPC_RM_FRAGLEN, "byte", "bytes"));
 	hdr_tree = proto_item_add_subtree(hdr_item, ett_ndmp_fraghdr);
 	proto_tree_add_boolean(hdr_tree, hf_ndmp_lastfrag, tvb, 0, 4, ndmp_rm);
 	proto_tree_add_uint(hdr_tree, hf_ndmp_fraglen, tvb, 0, 4, ndmp_rm);
@@ -2867,7 +2865,7 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * It has to be >=24 bytes or (arbitrary limit) <1Mbyte
 	 */
 	if(len>=4){
-		tmp=(tvb_get_ntohl(tvb, 0)&NDMP_RM_LENGTH);
+		tmp=(tvb_get_ntohl(tvb, 0)&RPC_RM_FRAGLEN);
 		if( (tmp<24)||(tmp>1000000) ){
 			return 0;
 		}
@@ -3575,10 +3573,10 @@ proto_register_ndmp(void)
 		NULL, 0, "Estimated time remaining", HFILL }},
 	{ &hf_ndmp_lastfrag, {
 		"Last Fragment", "ndmp.lastfrag", FT_BOOLEAN, 32,
-		&yesno, NDMP_RM_LASTFRAG, "Last Fragment", HFILL }},
+		&yesno, RPC_RM_LASTFRAG, "Last Fragment", HFILL }},
 	{ &hf_ndmp_fraglen, {
 		"Fragment Length", "ndmp.fraglen", FT_UINT32, BASE_DEC,
-		NULL, NDMP_RM_LENGTH, "Fragment Length", HFILL }},
+		NULL, RPC_RM_FRAGLEN, "Fragment Length", HFILL }},
   };
 
   static gint *ett[] = {

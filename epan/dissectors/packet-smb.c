@@ -38,7 +38,7 @@
 #include <ctype.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/smb.h>
+#include <epan/dissectors/packet-smb.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
