@@ -135,7 +135,7 @@ void expert_dlg_reset(void *tapdata)
 	expert_dlg_display_reset(etd);
 }
 
-int expert_dlg_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *pointer)
+int expert_dlg_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pointer)
 {
 	expert_info_t	*ei = (expert_info_t *) pointer;
 	expert_tapdata_t * etd = tapdata;
@@ -347,7 +347,7 @@ srt_click_column_cb(GtkCList *clist, gint column, gpointer data)
 
 
 static void
-select_row_cb(GtkCList *clist, gint row, gint column, GdkEventButton *event, gpointer user_data)
+select_row_cb(GtkCList *clist, gint row, gint column _U_, GdkEventButton *event _U_, gpointer user_data _U_)
 {
 	expert_info_t	*ei;
 
