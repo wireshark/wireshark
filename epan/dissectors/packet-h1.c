@@ -317,6 +317,7 @@ proto_register_h1 (void)
 void
 proto_reg_handoff_h1(void)
 {
+  heur_dissector_add("cotp", dissect_h1, proto_h1);
   heur_dissector_add("cotp_is", dissect_h1, proto_h1);
   data_handle = find_dissector("data");
 }
