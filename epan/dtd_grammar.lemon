@@ -85,8 +85,31 @@ dtd ::= doctype.
 dtd ::= dtd_parts.
 
 doctype ::= TAG_START DOCTYPE_KW NAME(Name) OPEN_BRACKET dtd_parts CLOSE_BRACKET TAG_STOP. {
-	bd->proto_name = g_strdup(Name->text);
+    dtd_named_list_t* root;
+    GPtrArray* root_elems = g_ptr_array_new();
+    guint i;
+
+    if(! bd->proto_name) {
+        bd->proto_name = g_strdup(Name->text);
+    }
+
+    if(bd->proto_root)
+        g_free(bd->proto_root);
+
+	bd->proto_root = g_strdup(Name->text);
+    
 	g_strdown(bd->proto_name);
+    
+    for( i = 0; i< bd->elements->len; i++) {
+        dtd_named_list_t* el = g_ptr_array_index(bd->elements,i);
+        
+        g_ptr_array_add(root_elems,g_strdup(el->name));
+    }
+    
+    root = dtd_named_list_new(g_strdup(Name->text),root_elems);
+    
+    g_ptr_array_add(bd->elements,root);
+    
 }
 
 dtd_parts ::= dtd_parts element(Element). { g_ptr_array_add(bd->elements,Element); }
@@ -95,10 +118,10 @@ dtd_parts ::= element(Element). { g_ptr_array_add(bd->elements,Element); }
 dtd_parts ::= attlist(Attlist). { g_ptr_array_add(bd->attributes,Attlist); }
 
 %type   attlist				{ dtd_named_list_t* }
-attlist(A) ::= TAG_START ATTLIST_KW NAME(B) attrib_list(TheList) TAG_STOP. { A = dtd_named_list_new(B->text,TheList); }
+attlist(A) ::= TAG_START ATTLIST_KW NAME(B) attrib_list(TheList) TAG_STOP. { g_strdown(B->text); A = dtd_named_list_new(B->text,TheList); }
 
 %type element { dtd_named_list_t* }
-element(A) ::= TAG_START ELEMENT_KW NAME(B) sub_elements(C) TAG_STOP. { A = dtd_named_list_new(B->text,C); }
+element(A) ::= TAG_START ELEMENT_KW NAME(B) sub_elements(C) TAG_STOP. { g_strdown(B->text); A = dtd_named_list_new(B->text,C); }
 
 %type   attrib_list			{ GPtrArray* }
 attrib_list(A) ::= attrib_list(B) attrib(C). { g_ptr_array_add(B,C); A = B; }

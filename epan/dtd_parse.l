@@ -62,13 +62,15 @@
 	static void set_media_type (gchar* val) { if(build_data->media_type) g_free(build_data->media_type); build_data->media_type = g_strdup(val); }
 	static void set_proto_root (gchar* val) { if(build_data->proto_root) g_free(build_data->proto_root); build_data->proto_root = g_strdup(val); }
 	static void set_description (gchar* val) { if(build_data->description) g_free(build_data->description); build_data->description = g_strdup(val); }
+	static void set_recursive (gchar* val) { build_data->recursion = ( g_strcasecmp(val,"yes") == 0 ) ? TRUE : FALSE; }
 
 	struct _proto_xmlpi_attr proto_attrs[] =
 	{
-		{ "name", set_proto_name },
+		{ "proto_name", set_proto_name },
 		{ "media", set_media_type },
 		{ "root", set_proto_root },
 		{ "description", set_description },
+        { "hierarchy", set_recursive },
 		{NULL,NULL}
 	};
 	
@@ -81,6 +83,9 @@
 #define YY_INPUT(buff,result,max_size) ( (result) = my_yyinput((buff),(max_size)) )
 
 %}
+
+comment_start "<!--"
+comment_stop "-->"
 
 start_xmlpi "<?"
 
@@ -133,14 +138,20 @@ comma          ","
 pipe           "|"
 dquote         ["]
 
-name           [a-z][-a-z0-9_]*
+name           [a-z][-a-zA-Z0-9_]*
 dquoted        ["][^\"]*["]
 squoted        ['][^\']*[']
 
-%START DTD XMLPI LOCATION DONE PROTOCOL GET_ATTR_QUOTE GET_ATTR_VAL GET_ATTR_CLOSE_QUOTE
+%START DTD XMLPI LOCATION DONE PROTOCOL GET_ATTR_QUOTE GET_ATTR_VAL GET_ATTR_CLOSE_QUOTE IN_COMMENT
 %%
 
 {whitespace}            ;
+
+
+<DTD>{comment_start}		{ BEGIN IN_COMMENT; }
+<IN_COMMENT>[^-]?				|
+<IN_COMMENT>[-]					;
+<IN_COMMENT>{comment_stop}		{ BEGIN DTD; }
 
 <DTD>{start_xmlpi}		{
 	BEGIN XMLPI;
@@ -167,6 +178,7 @@ squoted        ['][^\']*[']
 
 <PROTOCOL>{name} {
 	attr_name = g_strdup(yytext);
+    g_strdown(attr_name);
 	BEGIN GET_ATTR_QUOTE;
 }
 
@@ -292,13 +304,16 @@ extern dtd_build_data_t* dtd_parse(GString* s) {
 	build_data->media_type = NULL;
 	build_data->description = NULL;
 	build_data->proto_root = NULL;
-	
+	build_data->recursion = FALSE;
+    
 	build_data->elements = g_ptr_array_new();
 	build_data->attributes = g_ptr_array_new();
 
 	build_data->location = NULL;
 	build_data->error = g_string_new("");
 	
+    location = NULL;
+    
 	BEGIN DTD;
 	
 	yylex();

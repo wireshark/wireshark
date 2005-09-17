@@ -37,6 +37,7 @@ typedef struct _dtd_build_data_t {
 	gchar* media_type;
 	gchar* description;
 	gchar* proto_root;
+    gboolean recursion;
 
 	GPtrArray* elements;
 	GPtrArray* attributes;
@@ -55,7 +56,7 @@ typedef struct _dtd_named_list_t {
 	GPtrArray* list;
 } dtd_named_list_t;
 
-extern GString* dtd_preparse(gchar* dname, gchar* fname, GString* err);
+extern GString* dtd_preparse(const gchar* dname, const gchar* fname, GString* err);
 extern dtd_build_data_t* dtd_parse(GString* s);
 
 #endif

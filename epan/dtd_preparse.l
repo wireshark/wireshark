@@ -56,16 +56,14 @@ GHashTable* entities;
 gchar* entity_name;
 GString* error;
 
-gchar* dirname;
-gchar* filename;
+const gchar* dirname;
+const gchar* filename;
 guint linenum;
 
-gchar* textstr;
+GString* textstr;
 
 static gchar* replace_entity(gchar* s);
 static const gchar* location(void);
-static gchar* load_entity_file(gchar* filename);
-		/* [:blank:]+file[:blank:]*=[:blank:]*["] */
 
 %}
 xmlpi_start "<?"
@@ -95,7 +93,7 @@ entity        [%&][A-Za-z][-A-Za-z0-9_]*;
 
 whitespace [[blank:]]+
 newline    \n
-%START OUTSIDE IN_COMMENT IN_ENTITY NAMED_ENTITY IN_QUOTE ENTITY_DONE GET_FNAME_OPEN_QUOTE GET_FNAME GET_FNAME_CLOSE_QUOTE XMLPI
+%START OUTSIDE IN_COMMENT IN_ENTITY NAMED_ENTITY IN_QUOTE ENTITY_DONE XMLPI
 %%
 
 
@@ -126,76 +124,13 @@ newline    \n
 <IN_QUOTE>{percent}				|
 <IN_QUOTE>{non_quote}			|
 <IN_QUOTE>{escaped_quote}		g_string_append(current,yytext);
-<NAMED_ENTITY>{system}			{ BEGIN GET_FNAME_OPEN_QUOTE; }
-<GET_FNAME_OPEN_QUOTE>{quote}	{ BEGIN GET_FNAME; }
-<GET_FNAME>{filename}		    {
-	if ((textstr = load_entity_file(yytext))) {
-		g_hash_table_insert(entities,entity_name,textstr); 
-	} else {
-		yyterminate();
-	}
-	
-	BEGIN GET_FNAME_CLOSE_QUOTE;
+<NAMED_ENTITY>{system}			{
+    g_string_sprintfa(error,"at %s:%u: file inclusion is not supported!", filename, linenum);
+    yyterminate();
 }
-<GET_FNAME_CLOSE_QUOTE>{quote}  { BEGIN ENTITY_DONE; }
 <ENTITY_DONE>{special_stop}		{ current = output; g_string_append(current,"\n"); BEGIN OUTSIDE; }
 
 %%
-
-static gchar* load_entity_file(gchar* fname) {
-	gchar* fullname = g_strdup_printf("%s%s",dirname,fname);
-	gchar* save_filename = filename;
-	guint save_linenum = linenum; 
-	FILE* fp = fopen(fullname,"r");
-	GString* filetext;
-	gchar* retstr;
-	gchar c;
-	
-	g_free(fullname);
-	
-	if (!fp) {
-		g_string_sprintfa(error,"at %s:%u: could not load file %s: %s", filename, linenum, fname, strerror(errno));
-		return NULL;
-	}
-	
-	filename = fname;
-	linenum = 1;
-	
-	filetext = g_string_new(location());
-	
-	while( ! feof(fp)) {
-		
-		c = fgetc(fp);
-
-		if ( ferror(fp) ) {
-			g_string_sprintfa(error,"at %s:%u: problem reading file %s: %s", filename, linenum, fname, strerror(errno));
-
-			g_string_free(filetext,TRUE);
-			
-			filename = save_filename;
-			save_linenum = linenum;
-			
-			return NULL;
-		}
-		
-		
-		g_string_append_c(filetext,c);
-		
-		if(c == '\n') {
-			g_string_append(filetext,location());
-			linenum++;
-		}
-		
-	}
-
-	retstr = filetext->str;
-	g_string_free(filetext,FALSE);
-
-	filename = save_filename;
-	save_linenum = linenum;
-	
-	return retstr;
-}
 
 static gchar* replace_entity(gchar* entity) {
 	GString* replacement;
@@ -207,7 +142,7 @@ static gchar* replace_entity(gchar* entity) {
 	if (replacement) {
 		return replacement->str;
 	} else {
-		g_string_sprintfa(error,"dtd_preparse: in file '%s': %s does not exists\n", filename, entity);
+		g_string_sprintfa(error,"dtd_preparse: in file '%s': entity %s does not exists\n", filename, entity);
 		return "";
 	}
 	
@@ -244,8 +179,8 @@ static gboolean free_gstring_hash_items(gpointer k,gpointer v,gpointer p _U_) {
 	return TRUE;
 }
 
-extern GString* dtd_preparse(gchar* dname, gchar* fname, GString* err) {
-	gchar* fullname = g_strdup_printf("%s%s",dname,fname);
+extern GString* dtd_preparse(const gchar* dname,const  gchar* fname, GString* err) {
+	gchar* fullname = g_strdup_printf("%s%c%s",dname,G_DIR_SEPARATOR,fname);
 
 	dirname = dname;
 	filename = fname;
