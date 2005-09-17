@@ -713,9 +713,8 @@ dissect_swils_elp (tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
 {
     
     /* Set up structures needed to add the protocol subtree and manage it */
-    int offset = 0,
-        stroff = 0;
-    gchar flags[40];
+    int offset = 0;
+    gchar *flags;
     fcswils_elp elp;
 
     /* Response i.e. SW_ACC for an ELP has the same format as the request */
@@ -745,19 +744,15 @@ dissect_swils_elp (tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
                                fcwwn_to_str (elp.req_sname));
         offset += 8;
 
-        flags[0] = '\0';
+	flags="";
         if (elp.clsf_svcparm[0] & 0x80) {
-            strcpy (flags, "Class F Valid");
-
             if (elp.clsf_svcparm[4] & 0x20) {
-                strcpy (&flags[13], " | X_ID Interlock");
+                flags="Class F Valid | X_ID Interlock";
+            } else {
+                flags="Class F Valid | No X_ID Interlk";
             }
-            else {
-                strcpy (&flags[13], " | No X_ID Interlk");
-            }
-        }
-        else {
-            strcpy (flags, "Class F Invld");
+        } else {
+            flags="Class F Invld";
         }
         proto_tree_add_bytes_format (elp_tree, hf_swils_elp_clsf_svcp, tvb, offset, 6, 
                                      &elp.clsf_svcparm[0], "Class F Svc Parameters: (%s)", flags);
@@ -772,25 +767,28 @@ dissect_swils_elp (tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
         proto_tree_add_item (elp_tree, hf_swils_elp_clsf_openseq, tvb, offset, 2, 0);
         offset += 4;
 
-        flags[0] = '\0';
-        stroff = 0;
+	flags="";
         if (elp.cls1_svcparm[0] & 0x80) {
-            strcpy (&flags[stroff], "Class 1 Valid");
-            stroff += 13;
+#define MAX_FLAGS_LEN 40
+            int stroff;
+
+            flags=ep_alloc(MAX_FLAGS_LEN);
+            stroff = 0;
+	    flags[stroff]=0;
+
+            stroff+=g_snprintf (flags+stroff, MAX_FLAGS_LEN-stroff, "Class 1 Valid");
             if (elp.cls1_svcparm[0] & 0x40) {
-                strcpy (&flags[stroff], " | IMX");
-                stroff += 6;
+                stroff+=g_snprintf (flags+stroff, MAX_FLAGS_LEN-stroff, " | IMX");
             }
             if (elp.cls1_svcparm[0] & 0x20) {
-                strcpy (&flags[stroff], " | XPS");
-                stroff += 6;
+                stroff+=g_snprintf (flags+stroff, MAX_FLAGS_LEN-stroff, " | IPS");
             }
             if (elp.cls1_svcparm[0] & 0x10) {
-                strcpy (&flags[stroff], " | LKS");
+                stroff+=g_snprintf (flags+stroff, MAX_FLAGS_LEN-stroff, " | LKS");
             }
         }
         else {
-            strcpy (&flags[0], "Class 1 Invalid");
+            flags="Class 1 Invalid";
         }
         
         proto_tree_add_bytes_format (elp_tree, hf_swils_elp_cls1_svcp, tvb, offset, 2,
@@ -802,19 +800,17 @@ dissect_swils_elp (tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
         }
         offset += 2;
 
-        flags[0] = '\0';
+        flags="";
         if (elp.cls2_svcparm[0] & 0x80) {
-            strcpy (flags, "Class 2 Valid");
-
             if (elp.cls2_svcparm[0] & 0x08) {
-                strcpy (&flags[13], " | Seq Delivery");
+                flags="Class 2 Valid | Seq Delivery";
             }
             else {
-                strcpy (&flags[13], " | No Seq Delivery");
+                flags="Class 2 Valid | No Seq Delivery";
             }
         }
         else {
-            strcpy (flags, "Class 2 Invld");
+            flags="Class 2 Invld";
         }
         
         proto_tree_add_bytes_format (elp_tree, hf_swils_elp_cls2_svcp, tvb, offset, 2,
@@ -827,19 +823,17 @@ dissect_swils_elp (tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
         }
         offset += 2;
         
-        flags[0] = '\0';
+        flags="";
         if (elp.cls3_svcparm[0] & 0x80) {
-            strcpy (flags, "Class 3 Valid");
-
             if (elp.cls3_svcparm[0] & 0x08) {
-                strcpy (&flags[13], " | Seq Delivery");
+                flags="Class 3 Valid | Seq Delivery";
             }
             else {
-                strcpy (&flags[13], " | No Seq Delivery");
+                flags="Class 3 Valid | No Seq Delivery";
             }
         }
         else {
-            strcpy (flags, "Class 3 Invld");
+            flags="Class 3 Invld";
         }
         proto_tree_add_bytes_format (elp_tree, hf_swils_elp_cls3_svcp, tvb, offset, 2,
                                      &elp.cls3_svcparm[0],
