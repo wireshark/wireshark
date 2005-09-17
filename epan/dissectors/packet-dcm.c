@@ -1057,17 +1057,14 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
     case 4:					/* DATA */
 	offset = 6; 
-	buf = ep_alloc(128);
-	strcpy(buf, "DCM Data");
+	buf="DCM Data";
 	break;
     case 5:					/* RELEASE Request */
-	buf = ep_alloc(128);
-	strcpy(buf, "DCM RELEASE Request");
+	buf="DCM RELEASE Request";
 	offset = 6; 
 	break;
     case 6:					/* RELEASE Response */
-	buf = ep_alloc(128);
-	strcpy(buf, "DCM RELEASE Response");
+	buf="DCM RELEASE Response";
 	offset = 6; 
 	break;
     case 7:					/* ABORT */
@@ -1081,8 +1078,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    dcm_data->source == 1 ? dcm_abort2str(dcm_data->reason) : "");
 	break;
     default:
-	buf = ep_alloc(128);
-	strcpy(buf, "DCM Continuation");
+	buf="DCM Continuation";
 	offset = -1;				/* cannot continue parsing */
 	break;
     }
