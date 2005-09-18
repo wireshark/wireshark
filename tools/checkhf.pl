@@ -1,4 +1,10 @@
 #!/usr/bin/perl -w
+
+my $debug = 0;
+# 0: off
+# 1: specific debug
+# 2: full debug
+
 #
 # find unbalanced hf_ variables: Compare hf_ variable usage with the hf_ variables
 #  declared in the hf_register_info array.
@@ -48,11 +54,6 @@
 
 use strict;
 
-my $debug = 0;
-# 0: off
-# 1: specific debug
-# 2: full debug
-
 my $D;
 
 my %elements;
@@ -77,6 +78,7 @@ my $restofline;
 my $currfile = "";
 
 my $comment = 0;
+my $brace = 0;
 
 sub printprevfile {
 	my $state;
@@ -84,15 +86,15 @@ sub printprevfile {
 	foreach $element (keys %elements) {
 		$state = $elements{$element};
 		$debug>=2 && print "$currfile, $element: PRINT $state\n";
-		if ($state =~ "s_usedarray") {
+		if ($state eq "s_usedarray") {
 			# Everything is fine
-		} elsif ($state =~ "s_used") {
+		} elsif ($state eq "s_used") {
 			print "NO ARRAY: $currfile, $element\n"
-		} elsif ($state =~ "s_array") {
+		} elsif ($state eq "s_array") {
 			print "Unused entry: $currfile, $element\n"
-		} elsif ($state =~ "s_declared") {
+		} elsif ($state eq "s_declared") {
 			print "Declared only entry: $currfile, $element\n"
-		} elsif ($state =~ "s_unknown") {
+		} elsif ($state eq "s_unknown") {
 			print "UNKNOWN: $currfile, $element\n"
 		} else {
 			die "Impossible: State $state for $currfile, $element\n";
@@ -131,7 +133,11 @@ while (<>) {
 	# unhandled: more than one complete comment per line
 
 	chomp;
-	$D = $_;
+	if ($debug) {
+		$D = " ($_)";
+	} else {
+		$D = "";
+	}
 
 	# Read input
 	if (/static\s+.*int\s+(hf_\w*)\s*=\s*-1\s*;/) {
@@ -140,21 +146,24 @@ while (<>) {
 		# ignore: declarations without any use are detected by the compiler
 		next;
 	# Skip function parameter declarations with hf_ names
-	} elsif (/(int\s+?|int\s*?\*\s*?|hf_register_info\s+?|hf_register_info\s*?\*\s*?|->\s*?)(hf_\w*)\W(.*)/) {
+	} elsif (/(int\s+?|int\s*?\*\s*?|header_field_info\s+?|header_field_info\s*?\*\s*?|hf_register_info\s+?|hf_register_info\s*?\*\s*?|->\s*?)(hf_\w*)\W(.*)/) {
 		$element = $2;
 		$restofline = $3;
-		$debug && print "Setting skip for $element\n";
+		$debug && print "Setting skip for $element$D\n";
 		$skip{$element} = 1;
 		# Handle functions with multiple hf_ parameters
-		while ($restofline =~ /(int\s+?|int\s*?\*\s*?|->\s*?)(hf_\w*)\W(.*)/) {
+		while ($restofline =~ /(int\s+?|int\s*?\*\s*?|header_field_info\s+?|header_field_info\s*?\*\s*?|hf_register_info\s+?|hf_register_info\s*?\*\s*?|->\s*?)(hf_\w*)\W(.*)/) {
 			$element = $2;
 			$restofline = $3;
-			$debug && print "Setting skip for $element\n";
+			$debug && print "Setting skip for $element$D\n";
 			$skip{$element} = 1;
 		}
 		next;
-	} elsif (/(\{|^)\s*?&\s*?(hf_\w*)\W+/) {
-		$element = $2;
+	} elsif ($brace == 1 && /^\s*?&\s*?(hf_\w*)\W+/) {
+		$element = $1;
+		$type = "t_array";
+	} elsif (/^\s*\{\s*?&\s*?(hf_\w*)\W+/) {
+		$element = $1;
 		$type = "t_array";
 	# Order matters: catch all remaining hf_ lines
 	} elsif (/\W(hf_\w*)\W/) {
@@ -165,29 +174,38 @@ while (<>) {
 		# current line is not relevant
 		next;
 	}
+	# Line with only a {
+	if (/^\s+\{\s*$/) {
+		$brace = 1;
+		next;
+	} else {
+		$brace = 0;
+	}
 
 	# Get current state
 	if (!defined($elements{$element})) {
-		$state= "s_unknown";
+		$state = "s_unknown";
 	} else {
 		$state = $elements{$element};
 	}
 
 	# current state + input ==> new state
 	# we currently ignore t_declaration
-	if ($state =~ "s_unknown" && $type =~ "t_usage") {
+	if ($state eq "s_error") {
+		$newstate = $state;
+	} elsif ($state eq "s_unknown" && $type eq "t_usage") {
 			$newstate = "s_used";
-	} elsif ($state =~ "s_unknown" && $type =~ "t_array") {
+	} elsif ($state eq "s_unknown" && $type eq "t_array") {
 			$newstate = "s_array";
-	} elsif ($state =~ "s_used" && $type =~ "t_array") {
+	} elsif ($state eq "s_used" && $type eq "t_array") {
 			$newstate = "s_usedarray";
-	} elsif ($state =~ "s_array" && $type =~ "t_usage") {
+	} elsif ($state eq "s_array" && $type eq "t_usage") {
 			$newstate = "s_usedarray";
 	} else {
 		$newstate = $state;
 	}
 	$elements{$element} = $newstate;
-	$debug>=2 && print "$currfile, $element: SET $state + $type => $newstate\n";
+	$debug>=2 && print "$currfile, $element: SET $state + $type => $newstate$D\n";
 }
 &printprevfile();
 
