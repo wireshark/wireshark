@@ -81,7 +81,9 @@ static gint proto_ber = -1;
 static gint hf_ber_id_class = -1;
 static gint hf_ber_id_pc = -1;
 static gint hf_ber_id_uni_tag = -1;
+static gint hf_ber_id_uni_tag_ext = -1;
 static gint hf_ber_id_tag = -1;
+static gint hf_ber_id_tag_ext = -1;
 static gint hf_ber_length = -1;
 static gint hf_ber_bitstring_padding = -1;
 static gint hf_ber_unknown_OID = -1;
@@ -151,6 +153,7 @@ static const value_string ber_uni_tag_codes[] = {
 	{ BER_UNI_TAG_UniversalString	, "UniversalString" },
 	{ BER_UNI_TAG_CHARACTERSTRING	, "CHARACTER STRING" },
 	{ BER_UNI_TAG_BMPString		, "BMPString" },
+	{ 31				, "Continued" },
 	{ 0, NULL }
 };
 
@@ -380,10 +383,19 @@ int dissect_ber_identifier(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *t
 	if(show_internal_ber_fields){
 		proto_tree_add_uint(tree, hf_ber_id_class, tvb, old_offset, 1, tmp_class<<6);
 		proto_tree_add_boolean(tree, hf_ber_id_pc, tvb, old_offset, 1, (tmp_pc)?0x20:0x00);
-		if(tmp_class==BER_CLASS_UNI){
-			proto_tree_add_uint(tree, hf_ber_id_uni_tag, tvb, old_offset, offset - old_offset, tmp_tag);
+		if(tmp_tag==0x1F){
+			proto_tree_add_uint(tree, hf_ber_id_uni_tag, tvb, old_offset, 1, tmp_tag);
+			if(tmp_class==BER_CLASS_UNI){
+				proto_tree_add_uint(tree, hf_ber_id_uni_tag_ext, tvb, old_offset + 1, offset - (old_offset + 1), tmp_tag);
+			} else {
+				proto_tree_add_uint(tree, hf_ber_id_tag_ext, tvb, old_offset + 1, offset - (old_offset + 1), tmp_tag);
+			}
 		} else {
-			proto_tree_add_uint(tree, hf_ber_id_tag, tvb, old_offset, offset - old_offset, tmp_tag);
+			if(tmp_class==BER_CLASS_UNI){
+				proto_tree_add_uint(tree, hf_ber_id_uni_tag, tvb, old_offset, 1, tmp_tag);
+			} else {
+				proto_tree_add_uint(tree, hf_ber_id_tag, tvb, old_offset, 1, tmp_tag);
+			}
 		}
 	}
 
@@ -1704,7 +1716,7 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 
 	if(!implicit_tag) {
 		/* sanity check */
-		offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+		offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
 		offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
 		eoffset = offset + len;
 		if( (class!=BER_CLASS_UNI)
@@ -2143,7 +2155,13 @@ proto_register_ber(void)
 	{ &hf_ber_id_uni_tag, {
 	    "Tag", "ber.id.uni_tag", FT_UINT8, BASE_DEC,
 	    VALS(ber_uni_tag_codes), 0x1f, "Universal tag type", HFILL }},
+	{ &hf_ber_id_uni_tag_ext, {
+	    "Tag", "ber.id.uni_tag", FT_UINT32, BASE_DEC,
+	    NULL, 0, "Universal tag type", HFILL }},
 	{ &hf_ber_id_tag, {
+	    "Tag", "ber.id.tag", FT_UINT8, BASE_DEC,
+	    NULL, 0x1f, "Tag value for non-Universal classes", HFILL }},
+	{ &hf_ber_id_tag_ext, {
 	    "Tag", "ber.id.tag", FT_UINT32, BASE_DEC,
 	    NULL, 0, "Tag value for non-Universal classes", HFILL }},
 	{ &hf_ber_length, {
