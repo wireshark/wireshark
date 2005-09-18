@@ -273,13 +273,13 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	case BoundsError:
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_str(pinfo->cinfo, COL_INFO, "[Short Frame]");
-		item = proto_tree_add_protocol_format(tree, proto_short, tvb, 0, 0,
-				"[Short Frame: %s (capture size was limited)]", pinfo->current_proto);
+		/*item =*/ proto_tree_add_protocol_format(tree, proto_short, tvb, 0, 0,
+				"[Packet size limited during capture: %s truncated]", pinfo->current_proto);
 		/* Don't record BoundsError exceptions as expert events - they merely
 		 * reflect a capture done with a snapshot length too short to capture 
 		 * all of the packet 
 		 * (any case where it's caused by something else is a bug). */
-		/* expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Short Frame");*/
+		/* expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Packet size limited");*/
 		break;
 
 	case ReportedBoundsError:
