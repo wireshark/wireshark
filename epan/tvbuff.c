@@ -381,6 +381,7 @@ check_offset_length_no_exception(tvbuff_t *tvb, gint offset, gint length,
 {
 	guint	end_offset;
 
+	g_assert(tvb);
 	g_assert(tvb->initialized);
 
 	if (!compute_offset_length(tvb, offset, length, offset_ptr, length_ptr, exception)) {
