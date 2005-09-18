@@ -88,6 +88,7 @@
 #include <epan/dissectors/format-oid.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
+#include "packet-ber.h"
 
 /* XXX - The "plain" COPS port (3288) can be overridden in the prefs.
    The PacketCable port cannot - should this be the case? */
@@ -162,16 +163,16 @@ struct _COPS_CNV
 
 static COPS_CNV CopsCnv [] =
 {
-  {ASN1_UNI, ASN1_NUL, COPS_NULL,      "NULL"},
-  {ASN1_UNI, ASN1_INT, COPS_INTEGER,   "INTEGER"},
-  {ASN1_UNI, ASN1_OTS, COPS_OCTETSTR,  "OCTET STRING"},
-  {ASN1_UNI, ASN1_OJI, COPS_OBJECTID,  "OBJECTID"},
-  {ASN1_APL, COPS_IPA, COPS_IPADDR,    "IPADDR"},
-  {ASN1_APL, COPS_U32, COPS_UNSIGNED32,"UNSIGNED32"},
-  {ASN1_APL, COPS_TIT, COPS_TIMETICKS, "TIMETICKS"},
-  {ASN1_APL, COPS_OPQ, COPS_OPAQUE,    "OPAQUE"},
-  {ASN1_APL, COPS_I64, COPS_INTEGER64, "INTEGER64"},
-  {ASN1_APL, COPS_U64, COPS_UNSIGNED64, "UNSIGNED64"},
+  {BER_CLASS_UNI, BER_UNI_TAG_NULL,			COPS_NULL,      "NULL"},
+  {BER_CLASS_UNI, BER_UNI_TAG_INTEGER,		COPS_INTEGER,   "INTEGER"},
+  {BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING,	COPS_OCTETSTR,  "OCTET STRING"},
+  {BER_CLASS_UNI, BER_UNI_TAG_OID,			COPS_OBJECTID,  "OBJECTID"},
+  {BER_CLASS_APP, COPS_IPA,					COPS_IPADDR,    "IPADDR"},
+  {BER_CLASS_APP, COPS_U32,					COPS_UNSIGNED32,"UNSIGNED32"},
+  {BER_CLASS_APP, COPS_TIT,					COPS_TIMETICKS, "TIMETICKS"},
+  {BER_CLASS_APP, COPS_OPQ,					COPS_OPAQUE,    "OPAQUE"},
+  {BER_CLASS_APP, COPS_I64,					COPS_INTEGER64, "INTEGER64"},
+  {BER_CLASS_APP, COPS_U64,					COPS_UNSIGNED64, "UNSIGNED64"},
   {0,       0,         -1,                  NULL}
 };
 
@@ -792,8 +793,8 @@ static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code
 static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree,
                                      guint8 op_code, guint16 client_type, guint8 c_num, guint8 c_type, int len);
 
-static void dissect_cops_pr_objects(tvbuff_t *tvb, guint32 offset, proto_tree *tree, int pr_len);
-static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *tree,
+static void dissect_cops_pr_objects(tvbuff_t *tvb,packet_info *pinfo, guint32 offset, proto_tree *tree, int pr_len);
+static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree,
                                        guint8 s_num, guint8 s_type, int len);
 
 /* Added for PacketCable */
@@ -1012,7 +1013,7 @@ static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code
   return object_len;
 }
 
-static void dissect_cops_pr_objects(tvbuff_t *tvb, guint32 offset, proto_tree *tree, int pr_len)
+static void dissect_cops_pr_objects(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree, int pr_len)
 {
   int object_len, contents_len;
   guint8 s_num, s_type;
@@ -1057,7 +1058,7 @@ static void dissect_cops_pr_objects(tvbuff_t *tvb, guint32 offset, proto_tree *t
     pr_len--;
 
     contents_len = object_len - COPS_OBJECT_HDR_SIZE;
-    ret = dissect_cops_pr_object_data(tvb, offset, obj_tree, s_num, s_type, contents_len);
+    ret = dissect_cops_pr_object_data(tvb, pinfo, offset, obj_tree, s_num, s_type, contents_len);
     if (ret < 0)
       break;
 
@@ -1152,7 +1153,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
     } else if (c_type == 5) { /*COPS-PR Data*/
       ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: %d bytes", len);
       dec_tree = proto_item_add_subtree(ti, ett_cops_decision);
-      dissect_cops_pr_objects(tvb, offset, dec_tree, len);
+      dissect_cops_pr_objects(tvb, pinfo, offset, dec_tree, len);
     }
 
     /* PacketCable : Analyze the remaining data if available */
@@ -1199,7 +1200,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
     ti = proto_tree_add_text(tree, tvb, offset, 4, "Contents: %d bytes", len);
     clientsi_tree = proto_item_add_subtree(ti, ett_cops_clientsi);
 
-    dissect_cops_pr_objects(tvb, offset, clientsi_tree, len);
+    dissect_cops_pr_objects(tvb, pinfo, offset, clientsi_tree, len);
 
     break;
   case COPS_OBJ_KATIMER:
@@ -1316,7 +1317,7 @@ static guchar*format_asn_value (struct variable_list *variable, subid_t *variabl
 }
 #endif	/* HAVE_NET_SNMP */
 
-static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
+static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 offset,
     proto_tree *tree, guint asnlen, guint8 cops_pr_obj
 #ifndef HAVE_NET_SNMP
 						  _U_
@@ -1324,8 +1325,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
     )
 {
   ASN1_SCK asn1;
-  int start;
-  gboolean def;
+  int start, vb_value_start;
   guint length;
 
   guint vb_length;
@@ -1333,7 +1333,6 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
   const gchar *vb_type_name;
 
   int ret;
-  guint cls, con, tag;
   subid_t epd_attribute_index=0;
 
   gint32 vb_integer_value;
@@ -1354,6 +1353,9 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
 
   unsigned int i;
   gchar *buf;
+  gint8 class;
+  gboolean pc, ind = 0;
+  gint32 ber_tag;
 
   while (asnlen > 0) { /*while there is ASN stuff to be decoded*/
 
@@ -1367,14 +1369,14 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
 
     start = asn1.offset;
 
-    ret = asn1_header_decode (&asn1, &cls, &con, &tag, &def, &vb_length);
-    if (ret != ASN1_ERR_NOERROR)
-      return 0;
-    if (!def)
-      return ASN1_ERR_LENGTH_NOT_DEFINITE;
+	offset = dissect_ber_identifier(pinfo , NULL, asn1.tvb, start, &class, &pc, &ber_tag);
+	offset = dissect_ber_length(pinfo, NULL, asn1.tvb, offset, &vb_length, &ind);
+
+	asn1.offset = offset;
+	vb_value_start = offset;
 
     /* Convert the class, constructed flag, and tag to a type. */
-    vb_type_name = cops_tag_cls2syntax(tag, cls, &vb_type);
+    vb_type_name = cops_tag_cls2syntax(ber_tag, class, &vb_type);
     if (vb_type_name == NULL) {
       /*
        * Unsupported type.
@@ -1389,10 +1391,9 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
     switch (vb_type) {
 
     case COPS_INTEGER:
-      ret = asn1_int32_value_decode(&asn1, vb_length, &vb_integer_value);
-      if (ret != ASN1_ERR_NOERROR)
-        return ret;
-      length = asn1.offset - start;
+		offset = dissect_ber_integer(FALSE, pinfo, NULL, asn1.tvb, start, -1, &vb_integer_value);
+		asn1.offset = offset;
+		length = offset - vb_value_start;
       if (tree) {
 #ifdef HAVE_NET_SNMP
         if (cops_typefrommib == TRUE)
@@ -1409,7 +1410,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
         }
         else
 #endif /* HAVE_NET_SNMP */
-          proto_tree_add_text(tree, asn1.tvb, offset, length,
+          proto_tree_add_text(tree, asn1.tvb, vb_value_start, length,
                               "Value: %s: %d (%#x)", vb_type_name,
                               vb_integer_value, vb_integer_value);
       }
@@ -1417,10 +1418,9 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
 
     case COPS_UNSIGNED32:
     case COPS_TIMETICKS:
-      ret = asn1_uint32_value_decode(&asn1, vb_length, &vb_uinteger_value);
-      if (ret != ASN1_ERR_NOERROR)
-        return ret;
-      length = asn1.offset - start;
+		offset = dissect_ber_integer(FALSE, pinfo, NULL, asn1.tvb, start, -1, &vb_uinteger_value);
+		asn1.offset = offset;
+		length = offset - vb_value_start;
       if (tree) {
 #ifdef HAVE_NET_SNMP
         if (cops_typefrommib == TRUE)
@@ -1433,12 +1433,12 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
           vb_display_string=format_asn_value(&variable,
                                              last_decoded_prid_oid,last_decoded_prid_oid_length,ASN_UINTEGER);
 
-          proto_tree_add_text(tree, asn1.tvb, offset, length, "Value %s: %s",vb_type_name, vb_display_string);
+          proto_tree_add_text(tree, asn1.tvb, vb_value_start, length, "Value %s: %s",vb_type_name, vb_display_string);
 
         }
         else
 #endif /* HAVE_NET_SNMP */
-          proto_tree_add_text(tree, asn1.tvb, offset, length,
+          proto_tree_add_text(tree, asn1.tvb, vb_value_start, length,
                               "Value: %s: %u (%#x)", vb_type_name,
                               vb_uinteger_value, vb_uinteger_value);
       }
@@ -1449,10 +1449,10 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
     case COPS_OPAQUE:
     case COPS_UNSIGNED64:
     case COPS_INTEGER64:
-      ret = asn1_string_value_decode (&asn1, vb_length, &vb_octet_string);
-      if (ret != ASN1_ERR_NOERROR)
-        return ret;
-      length = asn1.offset - start;
+		offset = dissect_ber_octet_string(FALSE, pinfo, NULL, asn1.tvb, start, -1, NULL);
+		vb_octet_string = ep_tvb_memdup(asn1.tvb, vb_value_start, vb_length);
+		asn1.offset = offset;
+		length = asn1.offset - vb_value_start;
       if (tree) {
 #ifdef HAVE_NET_SNMP
         if (cops_typefrommib == TRUE)
@@ -1462,7 +1462,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
           variable.val_len = vb_length;
           vb_display_string = format_asn_value(&variable,
                                                last_decoded_prid_oid,last_decoded_prid_oid_length,ASN_OCTET_STR);
-          proto_tree_add_text(tree, asn1.tvb, offset, length,
+          proto_tree_add_text(tree, asn1.tvb, vb_value_start, length,
                               "Value: %s (ASN.1 type from packet: %s)", vb_display_string, vb_type_name);
 
         }
@@ -1488,10 +1488,10 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
             for (i = 1; i < vb_length; i++) {
               buf += g_snprintf(buf, 4*vb_length-(buf-vb_display_string), ".%03u", vb_octet_string[i]);
             }
-            proto_tree_add_text(tree, asn1.tvb, offset, length,
+            proto_tree_add_text(tree, asn1.tvb, vb_value_start, length,
                                 "Value: %s: %s", vb_type_name, vb_display_string);
           } else {
-            proto_tree_add_text(tree, asn1.tvb, offset, length,
+            proto_tree_add_text(tree, asn1.tvb, vb_value_start, length,
                                 "Value: %s: %.*s", vb_type_name, (int)vb_length,
                                 SAFE_STRING(vb_octet_string));
           }
@@ -1499,19 +1499,17 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
         }
 #endif /* HAVE_NET_SNMP */
       }
-      g_free(vb_octet_string);
       break;
 
     case COPS_NULL:
-      ret = asn1_null_decode (&asn1, vb_length);
-      if (ret != ASN1_ERR_NOERROR)
-        return ret;
-      length = asn1.offset - start;
+		dissect_ber_null(FALSE, pinfo, NULL, asn1.tvb, start, -1);
+		length = asn1.offset - vb_value_start;
       if (tree)
-        proto_tree_add_text(tree, asn1.tvb, offset, length, "Value: %s", vb_type_name);
+        proto_tree_add_text(tree, asn1.tvb, vb_value_start, length, "Value: %s", vb_type_name);
       break;
 
     case COPS_OBJECTID:
+		/* XXX Redo this using dissect_ber_object and not using struct_t in COPS */ 
       ret = asn1_oid_value_decode (&asn1, vb_length, &vb_oid, &vb_oid_length);
       if (ret != ASN1_ERR_NOERROR)
         return ret;
@@ -1569,13 +1567,13 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb, guint32 offset,
 
     asn1_close(&asn1,&offset);
 
-    asnlen -= length;
+    asnlen -= asn1.offset - start;
   }
   epd_attribute_index=0;
   return 0;
 }
 
-static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *tree,
+static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, proto_tree *tree,
                                        guint8 s_num, guint8 s_type, int len)
 {
   proto_item *ti;
@@ -1590,7 +1588,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree
     ti=proto_tree_add_text(tree, tvb, offset, len, "Contents:");
     asn1_object_tree = proto_item_add_subtree(ti, ett_cops_asn1);
 
-    decode_cops_pr_asn1_data(tvb, offset, asn1_object_tree, len, COPS_OBJ_PRID);
+    decode_cops_pr_asn1_data(tvb, pinfo, offset, asn1_object_tree, len, COPS_OBJ_PRID);
 
     break;
   case COPS_OBJ_PPRID:
@@ -1600,7 +1598,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree
     ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
     asn1_object_tree = proto_item_add_subtree(ti, ett_cops_asn1);
 
-    decode_cops_pr_asn1_data(tvb, offset, asn1_object_tree, len, COPS_OBJ_PPRID);
+    decode_cops_pr_asn1_data(tvb, pinfo, offset, asn1_object_tree, len, COPS_OBJ_PPRID);
 
     break;
   case COPS_OBJ_EPD:
@@ -1610,7 +1608,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree
     ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
     asn1_object_tree = proto_item_add_subtree(ti, ett_cops_asn1);
 
-    decode_cops_pr_asn1_data(tvb, offset, asn1_object_tree, len, COPS_OBJ_EPD);
+    decode_cops_pr_asn1_data(tvb, pinfo, offset, asn1_object_tree, len, COPS_OBJ_EPD);
 
     break;
   case COPS_OBJ_GPERR:
@@ -1660,7 +1658,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, guint32 offset, proto_tree
     ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
     asn1_object_tree = proto_item_add_subtree(ti, ett_cops_asn1);
 
-    decode_cops_pr_asn1_data(tvb, offset, asn1_object_tree, len, COPS_OBJ_ERRPRID);
+    decode_cops_pr_asn1_data(tvb, pinfo, offset, asn1_object_tree, len, COPS_OBJ_ERRPRID);
 
     break;
   default:
