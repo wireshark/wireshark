@@ -627,6 +627,10 @@ EXTRA_DIST = \
 	nasreq.xml		\
 	perlnoutf.pl		\
 	print.ps		\
+    dtds/dc.dtd \
+    dtds/itunes.dtd \
+    dtds/rss.dtd \
+    dtds/smil.dtd \
 	radius/dictionary  \
 	radius/dictionary.3com  \
 	radius/dictionary.3gpp  \
