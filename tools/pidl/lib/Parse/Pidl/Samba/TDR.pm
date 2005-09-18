@@ -5,7 +5,6 @@
 
 package Parse::Pidl::Samba::TDR;
 use Parse::Pidl::Util qw(has_property ParseExpr is_constant);
-use Data::Dumper;
 
 use strict;
 
@@ -201,7 +200,7 @@ sub ParserTypedef($$)
 
 	{ STRUCT => \&ParserStruct, UNION => \&ParserUnion, 
 		ENUM => \&ParserEnum, BITMAP => \&ParserBitmap
-	}->{$e->{DATA}->{TYPE}}($e->{DATA}, $e->{NAME}, $t, has_property($e, "public"));
+	}->{$e->{DATA}->{TYPE}}->($e->{DATA}, $e->{NAME}, $t, has_property($e, "public"));
 
 	pidl "";
 }
