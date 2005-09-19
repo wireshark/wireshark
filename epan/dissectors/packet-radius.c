@@ -503,7 +503,7 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
                 }
                 
                 avp_item = proto_tree_add_text(vendor_tree,tvb,offset-2,avp_vsa_len+2,
-                                               "Value: l=%u t=%s(%u)",
+                                               "VSA: l=%u t=%s(%u)",
                                                avp_vsa_len+2, dictionary_entry->name, avp_vsa_type);
                 
                 avp_tree = proto_item_add_subtree(avp_item,dictionary_entry->ett);
