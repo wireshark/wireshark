@@ -344,7 +344,7 @@ dissect_winsrepl_wins_address_list(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 	guint32 i;
 
 	if (winsrepl_tree) {
-		addr_list_item = proto_tree_add_text(winsrepl_tree, winsrepl_tvb, winsrepl_offset, -1 , "WINS Address LIst");
+		addr_list_item = proto_tree_add_text(winsrepl_tree, winsrepl_tvb, winsrepl_offset, -1 , "WINS Address List");
 		addr_list_tree = proto_item_add_subtree(addr_list_item, ett_winsrepl_addr_list);
 	}
 
