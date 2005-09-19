@@ -2388,6 +2388,13 @@ Brian Bogora		<brian_bogora [AT] mitel.com> {
 	LLDP dissection
 }
 
+Jim Young		<sysjhy [AT] langate.gsu.edu> {
+	Improvements LLDP dissection (803.3 "PMD Auto-Negotiation Advertised
+		Capability" and "Operational MAU Type")
+
+}
+
+
 And assorted fixes and enhancements by the people listed above
 and by:
 

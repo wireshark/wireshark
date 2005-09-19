@@ -99,6 +99,7 @@ static gint ett_unknown_tlv = -1;
 static gint ett_org_spc_tlv = -1;
 static gint ett_port_vlan_flags = -1;
 static gint ett_802_3_flags = -1;
+static gint ett_802_3_autoneg_advertised = -1;
 static gint ett_802_3_power = -1;
 static gint ett_802_3_aggregation = -1;
 static gint ett_media_capabilities = -1;
@@ -317,6 +318,58 @@ const value_string civic_address_type_values[] = {
 	{ 0, NULL }
 };
 
+/* 
+ * Define the text strings for the LLDP 802.3 MAC/PHY Configuration/Status 
+ * Operational MAU Type field.
+ * 
+ * These values are taken from the DESCRIPTION field of the dot3MauType 
+ * objects defined in RFC 3636 (or subsequent revisions).
+ */
+ 
+const value_string operational_mau_type_values[] = {
+	{ 1,	"AUI - no internal MAU, view from AUI" },
+	{ 2,	"10Base5 - thick coax MAU" },
+	{ 3,	"Foirl - FOIRL MAU" },
+	{ 4,	"10Base2 - thin coax MAU" },
+	{ 5,	"10BaseT - UTP MAU" },
+	{ 6,	"10BaseFP - passive fiber MAU" },
+	{ 7,	"10BaseFB - sync fiber MAU" },
+	{ 8,	"10BaseFL - async fiber MAU" },
+	{ 9,	"10Broad36 - broadband DTE MAU" },
+	{ 10,	"10BaseTHD - UTP MAU, half duplex mode" },
+	{ 11,	"10BaseTFD - UTP MAU, full duplex mode" },
+	{ 12,	"10BaseFLHD - async fiber MAU, half duplex mode" },
+	{ 13,	"10BaseFLDF - async fiber MAU, full duplex mode" },
+	{ 14,	"10BaseT4 - 4 pair category 3 UTP" },
+	{ 15,	"100BaseTXHD - 2 pair category 5 UTP, half duplex mode" },
+	{ 16,	"100BaseTXFD - 2 pair category 5 UTP, full duplex mode" },
+	{ 17,	"100BaseFXHD - X fiber over PMT, half duplex mode" },
+	{ 18,	"100BaseFXFD - X fiber over PMT, full duplex mode" },
+	{ 19,	"100BaseT2HD - 2 pair category 3 UTP, half duplex mode" },
+	{ 20,	"100BaseT2DF - 2 pair category 3 UTP, full duplex mode" },
+	{ 21,	"1000BaseXHD - PCS/PMA, unknown PMD, half duplex mode" },
+	{ 22,	"1000BaseXFD - PCS/PMA, unknown PMD, full duplex mode" },
+	{ 23,	"1000BaseLXHD - Fiber over long-wavelength laser, half duplex mode" },
+	{ 24,	"1000BaseLXFD - Fiber over long-wavelength laser, full duplex mode" },
+	{ 25,	"1000BaseSXHD - Fiber over short-wavelength laser, half duplex mode" },
+	{ 26,	"1000BaseSXFD - Fiber over short-wavelength laser, full duplex mode" },
+	{ 27,	"1000BaseCXHD - Copper over 150-Ohm balanced cable, half duplex mode" },
+	{ 28,	"1000BaseCXFD - Copper over 150-Ohm balanced cable, full duplex mode" },
+	{ 29,	"1000BaseTHD - Four-pair Category 5 UTP, half duplex mode" },
+	{ 30,	"1000BaseTFD - Four-pair Category 5 UTP, full duplex mode" },
+	{ 31,	"10GigBaseX - X PCS/PMA, unknown PMD." },
+	{ 32,	"10GigBaseLX4 - X fiber over WWDM optics" },
+	{ 33,	"10GigBaseR - R PCS/PMA, unknown PMD." },
+	{ 34,	"10GigBaseER - R fiber over 1550 nm optics" },
+	{ 35,	"10GigBaseLR - R fiber over 1310 nm optics" },
+	{ 36,	"10GigBaseSR - R fiber over 850 nm optics" },
+	{ 37,	"10GigBaseW - W PCS/PMA, unknown PMD." },
+	{ 38,	"10GigBaseEW - W fiber over 1550 nm optics" },
+	{ 39,	"10GigBaseLW - W fiber over 1310 nm optics" },
+	{ 40,	"10GigBaseSW - W fiber over 850 nm optics" },
+	{ 0, NULL }
+};
+
 /* System Capabilities */
 #define SYSTEM_CAPABILITY_OTHER 	0x0001
 #define SYSTEM_CAPABILITY_REPEATER 	0x0002
@@ -334,6 +387,30 @@ const value_string civic_address_type_values[] = {
 #define MEDIA_CAPABILITY_MDI_PSE			0x0008
 #define MEDIA_CAPABILITY_MDI_PD				0x0010
 #define MEDIA_CAPABILITY_INVENTORY			0x0020
+
+/*
+ * Define constants for the LLDP 802.3 MAC/PHY Configuration/Status 
+ * PMD Auto-Negotiation Advertised Capability field. 
+ * These values are taken from the ifMauAutoNegCapAdvertisedBits 
+ * object defined in RFC 3636.
+ */
+
+#define AUTONEG_OTHER		0x8000 /* bOther(0),        -- other or unknown */
+#define AUTONEG_10BASE_T	0x4000 /* b10baseT(1),      -- 10BASE-T  half duplex mode */
+#define AUTONEG_10BASET_FD	0x2000 /* b10baseTFD(2),    -- 10BASE-T  full duplex mode */
+#define AUTONEG_100BASE_T4	0x1000 /* b100baseT4(3),    -- 100BASE-T4 */
+#define AUTONEG_100BASE_TX	0x0800 /* b100baseTX(4),    -- 100BASE-TX half duplex mode */
+#define AUTONEG_100BASE_TXFD	0x0400 /* b100baseTXFD(5),  -- 100BASE-TX full duplex mode */
+#define AUTONEG_100BASE_T2	0x0200 /* b100baseT2(6),    -- 100BASE-T2 half duplex mode */
+#define AUTONEG_100BASE_T2FD	0x0100 /* b100baseT2FD(7),  -- 100BASE-T2 full duplex mode */
+#define AUTONEG_FDX_PAUSE	0x0080 /* bFdxPause(8),     -- PAUSE for full-duplex links */
+#define AUTONEG_FDX_APAUSE	0x0040 /* bFdxAPause(9),    -- Asymmetric PAUSE for full-duplex links */
+#define AUTONEG_FDX_SPAUSE	0x0020 /* bFdxSPause(10),   -- Symmetric PAUSE for full-duplex links */
+#define AUTONEG_FDX_BPAUSE	0x0010 /* bFdxBPause(11),   -- Asymmetric and Symmetric PAUSE for full-duplex links */
+#define AUTONEG_1000BASE_X	0x0008 /* b1000baseX(12),   -- 1000BASE-X, -LX, -SX, -CX half duplex mode */
+#define AUTONEG_1000BASE_XFD	0x0004 /* b1000baseXFD(13), -- 1000BASE-X, -LX, -SX, -CX full duplex mode */
+#define AUTONEG_1000BASE_T	0x0002 /* b1000baseT(14),   -- 1000BASE-T half duplex mode */
+#define AUTONEG_1000BASE_TFD	0x0001 /* b1000baseTFD(15)  -- 1000BASE-T full duplex mode */
 
 #define MAX_MAC_LEN	6
 
@@ -1063,7 +1140,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 		/* Get port vland id */
 		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 2, "Port VLAN Identifier: 0x%04X", tempShort);
+			proto_tree_add_text(tree, tvb, tempOffset, 2, "Port VLAN Identifier: %u (0x%04X)", tempShort, tempShort);
 			
 		break;
 	}
@@ -1092,7 +1169,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 		/* Get port and protocol vlan id */
 		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 2, "Port and Protocol VLAN Identifier: 0x%04X", tempShort);
+			proto_tree_add_text(tree, tvb, tempOffset, 2, "Port and Protocol VLAN Identifier: %u (0x%04X)", tempShort, tempShort);
 		
 		break;
 	}
@@ -1101,7 +1178,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 		/* Get vlan id */
 		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 2, "VLAN Identifier: 0x%04X", tempShort);
+			proto_tree_add_text(tree, tvb, tempOffset, 2, "VLAN Identifier: %u (0x%04X)", tempShort, tempShort);
 			
 		tempOffset += 2;
 		
@@ -1155,6 +1232,8 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 	guint32 tempOffset = offset;
 	
 	proto_tree	*mac_phy_flags = NULL;
+	proto_tree	*autoneg_advertised_subtree = NULL;
+
 	proto_item 	*tf = NULL;
 	
 	/* Get subtype */
@@ -1188,18 +1267,104 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 		}
 		
 		tempOffset++;
-		
+
 		/* Get pmd auto-negotiation advertised capability */
 		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 2, "PMD Auto-Negotiation Advertised Capability: 0x%04X", tempShort);
+		{
+			tf = proto_tree_add_text(tree, tvb, tempOffset, 2, "PMD Auto-Negotiation Advertised Capability: 0x%04X", tempShort);
+			autoneg_advertised_subtree = proto_item_add_subtree(tf, ett_802_3_autoneg_advertised);
+
+			if (tempShort & AUTONEG_1000BASE_TFD)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, AUTONEG_1000BASE_TFD,
+							16, "1000BASE-T (full duplex mode)", ""));
+
+			if (tempShort & AUTONEG_1000BASE_T)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, AUTONEG_1000BASE_T,
+							16, "1000BASE-T (half duplex mode)", ""));
+
+			if (tempShort & AUTONEG_1000BASE_XFD)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, AUTONEG_1000BASE_XFD,
+							16, "1000BASE-X (-LX, -SX, -CX full duplex mode)", ""));
+
+			if (tempShort & AUTONEG_1000BASE_X)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, AUTONEG_1000BASE_X,
+							16, "1000BASE-X (-LX, -SX, -CX half duplex mode)", ""));
+
+			if (tempShort & AUTONEG_FDX_BPAUSE)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, AUTONEG_FDX_BPAUSE,
+							16, "Asymmetric and Symmetric PAUSE (for full-duplex links)", ""));
+
+			if (tempShort & AUTONEG_FDX_SPAUSE)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, AUTONEG_FDX_SPAUSE,
+							16, "Symmetric PAUSE (for full-duplex links)", ""));
+
+			if (tempShort & AUTONEG_FDX_APAUSE)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, AUTONEG_FDX_APAUSE,
+							16, "Asymmetric PAUSE (for full-duplex links)", ""));
+
+			if (tempShort & AUTONEG_FDX_PAUSE)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, AUTONEG_FDX_PAUSE,
+							16, "PAUSE (for full-duplex links)", ""));
+
+			if (tempShort & AUTONEG_100BASE_T2FD)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, AUTONEG_100BASE_T2FD,
+							16, "100BASE-T2 (full duplex mode)", ""));
+
+			if (tempShort & AUTONEG_100BASE_T2)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, AUTONEG_100BASE_T2,
+							16, "100BASE-T2 (half duplex mode)", ""));
+
+			if (tempShort & AUTONEG_100BASE_TXFD)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, AUTONEG_100BASE_TXFD,
+							16, "100BASE-TX (full duplex mode)", ""));
+
+			if (tempShort & AUTONEG_100BASE_TX)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, AUTONEG_100BASE_TX,
+							16, "100BASE-TX (half duplex mode)", ""));
+
+			if (tempShort & AUTONEG_100BASE_T4)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, AUTONEG_100BASE_T4,
+							16, "100BASE-T4", ""));
+
+			if (tempShort & AUTONEG_10BASET_FD)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, AUTONEG_10BASET_FD,
+							16, "10BASE-T (full duplex mode)", ""));
+
+			if (tempShort & AUTONEG_10BASE_T)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, AUTONEG_10BASE_T,
+							16, "10BASE-T (half duplex mode)", ""));
+
+			if (tempShort & AUTONEG_OTHER)
+				proto_tree_add_text(autoneg_advertised_subtree, tvb, (offset+2), 2, "%s",
+							decode_boolean_bitfield(tempShort, AUTONEG_OTHER,
+							16, "other or unknown", ""));
+
+		}
 			
 		tempOffset += 2;
 		
 		/* Get operational MAU type */
 		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 2, "Operational MAU Type: 0x%04X", tempShort);
+			proto_tree_add_text(tree, tvb, tempOffset, 2, "Operational MAU Type: %s (0x%04X)",
+							val_to_str(tempShort,operational_mau_type_values,"Unknown"),
+							tempShort);
 			
 		tempOffset += 2;
 		
@@ -2165,6 +2330,7 @@ proto_register_lldp(void)
 		&ett_org_spc_tlv,
 		&ett_port_vlan_flags,
 		&ett_802_3_flags,
+		&ett_802_3_autoneg_advertised,
 		&ett_802_3_power,
 		&ett_802_3_aggregation,
 		&ett_media_capabilities,

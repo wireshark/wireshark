@@ -5611,6 +5611,12 @@
 00:15:DE	NokiaDanma             # Nokia Danmark A/S
 00:15:DF	ClivetSPA              # Clivet S.p.A.
 00:15:E0	EricssonMo             # Ericsson Mobile Platforms
+00:15:E1	PicochipDe             # picoChip Designs Ltd
+00:15:E2	Wissenscha             # Wissenschaftliche Geraetebau Dr. Ing. H. Knauer GmbH
+00:15:E3	DreamTechn             # Dream Technologies Corporation
+00:15:E4	ZimmerElek             # Zimmer Elektromedizin
+00:15:E5	Cheertek               # Cheertek Inc.
+00:15:E6	MobileTech             # MOBILE TECHNIKA Inc.
 00:17:00	Kabel
 00:1C:7C	Perq                   # PERQ SYSTEMS CORPORATION
 00:20:00	LexmarkInt             # LEXMARK INTERNATIONAL, INC.
@@ -8742,6 +8748,7 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 01-80-24-00-00-00	Kalpana-Etherswitch-every-60-seconds
 01-80-C2-00-00-00/44	Spanning-tree-(for-bridges)
 01-80-C2-00-00-02	Slow-Protocols
+01-80-C2-00-00-0E	LLDP_Multicast
 01-80-C2-00-00-10	Bridge-Management
 01-80-C2-00-00-11	Load-Server
 01-80-C2-00-00-12	Loadable-Device
