@@ -37,7 +37,7 @@ typedef struct _dtd_build_data_t {
 	gchar* media_type;
 	gchar* description;
 	gchar* proto_root;
-    gboolean recursion;
+	gboolean recursion;
 
 	GPtrArray* elements;
 	GPtrArray* attributes;
