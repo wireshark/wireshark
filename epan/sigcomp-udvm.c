@@ -45,6 +45,7 @@
 #include "sigcomp_state_hdlr.h"
 #include "sha1.h"
 #include "crc16.h"
+#include "except.h"
 
 #define	SIGCOMP_INSTR_DECOMPRESSION_FAILURE     0
 #define SIGCOMP_INSTR_AND                       1
@@ -877,6 +878,8 @@ execute_next_instruction:
 				handle_now = byte_copy_right - position;
 			}
 
+			if (k + handle_now >= UDVM_MEMORY_SIZE)
+				THROW(ReportedBoundsError);
 			sha1_update( &ctx, &buff[k], handle_now );
 
 			k = ( k + handle_now ) & 0xffff;
@@ -1789,6 +1792,8 @@ execute_next_instruction:
 				handle_now = byte_copy_right - k;
 			}
 
+			if (k + handle_now >= UDVM_MEMORY_SIZE)
+				THROW(ReportedBoundsError);
 			result = crc16_ccitt_seed(&buff[k], handle_now, result ^ 0xffff);
 
 			k = ( k + handle_now ) & 0xffff;
