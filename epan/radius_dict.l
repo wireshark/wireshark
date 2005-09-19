@@ -172,7 +172,8 @@ void add_vendor(gchar* name, guint32 vendor_id) {
 	v->name = name;
 	v->code = vendor_id;
 	v->attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
-	
+	v->ett = -1;
+    
 	g_hash_table_insert(dict->vendors_by_id,GUINT_TO_POINTER(v->code),v);
 	g_hash_table_insert(dict->vendors_by_name,v->name,v);
 }

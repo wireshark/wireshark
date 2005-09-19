@@ -27,6 +27,7 @@ typedef struct _radius_vendor_info_t {
 	gchar *name;
 	guint code;
 	GHashTable* attrs_by_id;
+    gint ett;
 } radius_vendor_info_t;
 
 typedef struct _radius_attr_info_t radius_attr_info_t;
