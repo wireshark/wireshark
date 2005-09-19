@@ -1077,6 +1077,10 @@ printf("SEQUENCE dissect_ber_sequence(%s) calling subdissector\n",name);
 }
 }
 #endif
+		if (next_tvb == NULL) {
+			/* Assume that we have a malformed packet. */
+			THROW(ReportedBoundsError);
+		}
 		count=seq->func(pinfo, tree, next_tvb, 0);
 		
 #ifdef DEBUG_BER
@@ -1300,7 +1304,10 @@ printf("SET dissect_ber_set(%s) calling subdissector\n",name);
 }
 }
 #endif
-
+			if (next_tvb == NULL) {
+				/* Assume that we have a malformed packet. */
+				THROW(ReportedBoundsError);
+			}
 			count=cset->func(pinfo, tree, next_tvb, 0);
 
 			if(count) {
@@ -1513,6 +1520,10 @@ printf("CHOICE dissect_ber_choice(%s) calling subdissector len:%d\n",name,tvb_le
 }
 }
 #endif
+			if (next_tvb == NULL) {
+				/* Assume that we have a malformed packet. */
+				THROW(ReportedBoundsError);
+			}
 			count=ch->func(pinfo, tree, next_tvb, 0);
 #ifdef DEBUG_BER
 {
