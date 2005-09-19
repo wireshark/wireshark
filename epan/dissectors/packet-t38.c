@@ -324,7 +324,7 @@ dissect_t38_t30_indicator(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 {
     offset=dissect_per_choice(tvb, offset, pinfo,
         tree, hf_t38_t30_indicator, ett_t38_t30_indicator,
-        t30_indicator_choice, "T30 Indicator", &T30ind_value);
+        t30_indicator_choice, &T30ind_value);
 
 	if (check_col(pinfo->cinfo, COL_INFO) && primary_part){
         col_append_fstr(pinfo->cinfo, COL_INFO, " t30ind: %s",
@@ -391,7 +391,7 @@ dissect_t38_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 {
     offset=dissect_per_choice(tvb, offset, pinfo,
         tree, hf_t38_data, ett_t38_data,
-        data_choice, "data", &Data_value);
+        data_choice, &Data_value);
 
     if (check_col(pinfo->cinfo, COL_INFO) && primary_part){
         col_append_fstr(pinfo->cinfo, COL_INFO, " data:%s:",
@@ -416,7 +416,7 @@ static const value_string Type_of_msg_vals[] = {
 static int
 dissect_t38_Type_of_msg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                              ett_t38_Type_of_msg, Type_of_msg_choice, "Type_of_msg",
+                              ett_t38_Type_of_msg, Type_of_msg_choice,
                               &Type_of_msg_value);
 
   return offset;
@@ -498,12 +498,12 @@ dissect_t38_Data_Field_field_type(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if(use_pre_corrigendum_asn1_specification){
 		offset=dissect_per_choice(tvb, offset, pinfo,
 			tree, hf_t38_Data_Field_field_type, ett_t38_Data_Field_field_type,
-			Data_Field_field_type_PreCorrigendum_choice, "Field Type", &Data_Field_field_type_value);
+			Data_Field_field_type_PreCorrigendum_choice, &Data_Field_field_type_value);
 	}
 	else{
 		offset=dissect_per_choice(tvb, offset, pinfo,
 			tree, hf_t38_Data_Field_field_type, ett_t38_Data_Field_field_type,
-			Data_Field_field_type_choice, "Field Type", &Data_Field_field_type_value);
+			Data_Field_field_type_choice, &Data_Field_field_type_value);
 	}
 
     if (check_col(pinfo->cinfo, COL_INFO) && primary_part){
@@ -708,7 +708,7 @@ dissect_t38_error_recovery(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
     offset=dissect_per_choice(tvb, offset, pinfo,
         tree, hf_t38_error_recovery, ett_t38_error_recovery,
-        error_recovery_choice, "Error recovery", NULL);
+        error_recovery_choice, NULL);
 
 	primary_part = TRUE;
 

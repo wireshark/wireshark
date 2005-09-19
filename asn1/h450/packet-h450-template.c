@@ -444,7 +444,7 @@ static const per_choice_t opcode_choice[] = {
 static int
 dissect_h4501_opcode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-   offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h4501_opcode, ett_h4501_opcode, opcode_choice, "Opcode", NULL);
+   offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h4501_opcode, ett_h4501_opcode, opcode_choice, NULL);
    return offset;
 }
 
@@ -540,7 +540,7 @@ static const per_choice_t errorCode_choice[] = {
 static int
 dissect_h4501_errorCode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-   offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h4501_errorCode, ett_h4501_errorCode, errorCode_choice, "errorCode", NULL);
+   offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h4501_errorCode, ett_h4501_errorCode, errorCode_choice, NULL);
    return offset;
 }
 
@@ -565,7 +565,7 @@ static const per_choice_t problem_choice[] = {
 static int
 dissect_h4501_problem(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-   offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h4501_problem, ett_h4501_problem, problem_choice, "problem", NULL);
+   offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h4501_problem, ett_h4501_problem, problem_choice, NULL);
    return offset;
 }
 static int
@@ -666,7 +666,7 @@ static const per_choice_t ROS_choice[] = {
 static int
 dissect_h4501_ROS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-   offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h4501_ROS, ett_h4501_ROS, ROS_choice, "ROS", NULL);
+   offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h4501_ROS, ett_h4501_ROS, ROS_choice, NULL);
    return offset;
 }
 

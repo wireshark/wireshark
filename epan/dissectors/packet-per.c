@@ -930,7 +930,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 
 /* 22 Encoding the choice type */
 guint32
-dissect_per_choice(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, gint ett_index, const per_choice_t *choice, const char *name, guint32 *value)
+dissect_per_choice(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, gint ett_index, const per_choice_t *choice, guint32 *value)
 {
 	gboolean extension_present, extension_flag;
 	int extension_root_entries;

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-h245.c                                                            */
+/* .\packet-h245.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h245 -c h245.cnf -s packet-h245-template h245.asn */
 
 /* Input file: packet-h245-template.c */
@@ -2252,7 +2252,7 @@ dissect_h245_NonStandardIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo
 	h221NonStandard = 0;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_NonStandardIdentifier, NonStandardIdentifier_choice, "NonStandardIdentifier",
+                                 ett_h245_NonStandardIdentifier, NonStandardIdentifier_choice,
                                  &value);
 
 	switch (value) {
@@ -3380,7 +3380,7 @@ static const per_choice_t Avb_type_choice[] = {
 static int
 dissect_h245_Avb_type(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Avb_type, Avb_type_choice, "Avb_type",
+                                 ett_h245_Avb_type, Avb_type_choice,
                                  NULL);
 
   return offset;
@@ -3454,7 +3454,7 @@ static const per_choice_t T_address_choice[] = {
 static int
 dissect_h245_T_address(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_address, T_address_choice, "T_address",
+                                 ett_h245_T_address, T_address_choice,
                                  NULL);
 
   return offset;
@@ -4485,7 +4485,7 @@ static const per_choice_t T_h223MultiplexTableCapability_choice[] = {
 static int
 dissect_h245_T_h223MultiplexTableCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_h223MultiplexTableCapability, T_h223MultiplexTableCapability_choice, "T_h223MultiplexTableCapability",
+                                 ett_h245_T_h223MultiplexTableCapability, T_h223MultiplexTableCapability_choice,
                                  NULL);
 
   return offset;
@@ -4815,7 +4815,7 @@ static const per_choice_t CompressionType_choice[] = {
 static int
 dissect_h245_CompressionType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_CompressionType, CompressionType_choice, "CompressionType",
+                                 ett_h245_CompressionType, CompressionType_choice,
                                  NULL);
 
   return offset;
@@ -4848,7 +4848,7 @@ static const per_choice_t T_v76wCompression_choice[] = {
 static int
 dissect_h245_T_v76wCompression(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_v76wCompression, T_v76wCompression_choice, "T_v76wCompression",
+                                 ett_h245_T_v76wCompression, T_v76wCompression_choice,
                                  NULL);
 
   return offset;
@@ -4897,7 +4897,7 @@ static const per_choice_t DataProtocolCapability_choice[] = {
 int
 dissect_h245_DataProtocolCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_DataProtocolCapability, DataProtocolCapability_choice, "DataProtocolCapability",
+                                 ett_h245_DataProtocolCapability, DataProtocolCapability_choice,
                                  NULL);
 
   return offset;
@@ -4993,7 +4993,7 @@ static const per_choice_t T84Profile_choice[] = {
 static int
 dissect_h245_T84Profile(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T84Profile, T84Profile_choice, "T84Profile",
+                                 ett_h245_T84Profile, T84Profile_choice,
                                  NULL);
 
   return offset;
@@ -5091,7 +5091,7 @@ static const per_choice_t T38FaxRateManagement_choice[] = {
 static int
 dissect_h245_T38FaxRateManagement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T38FaxRateManagement, T38FaxRateManagement_choice, "T38FaxRateManagement",
+                                 ett_h245_T38FaxRateManagement, T38FaxRateManagement_choice,
                                  NULL);
 
   return offset;
@@ -5132,7 +5132,7 @@ static const per_choice_t T_t38FaxUdpEC_choice[] = {
 static int
 dissect_h245_T_t38FaxUdpEC(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_t38FaxUdpEC, T_t38FaxUdpEC_choice, "T_t38FaxUdpEC",
+                                 ett_h245_T_t38FaxUdpEC, T_t38FaxUdpEC_choice,
                                  NULL);
 
   return offset;
@@ -5289,7 +5289,7 @@ static const per_choice_t CapabilityIdentifier_choice[] = {
 static int
 dissect_h245_CapabilityIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_CapabilityIdentifier, CapabilityIdentifier_choice, "CapabilityIdentifier",
+                                 ett_h245_CapabilityIdentifier, CapabilityIdentifier_choice,
                                  NULL);
 
   return offset;
@@ -5383,7 +5383,7 @@ static const per_choice_t ParameterIdentifier_choice[] = {
 static int
 dissect_h245_ParameterIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_ParameterIdentifier, ParameterIdentifier_choice, "ParameterIdentifier",
+                                 ett_h245_ParameterIdentifier, ParameterIdentifier_choice,
                                  NULL);
 
   return offset;
@@ -5448,7 +5448,7 @@ static const per_choice_t ParameterValue_choice[] = {
 static int
 dissect_h245_ParameterValue(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_ParameterValue, ParameterValue_choice, "ParameterValue",
+                                 ett_h245_ParameterValue, ParameterValue_choice,
                                  NULL);
 
   return offset;
@@ -5580,7 +5580,7 @@ dissect_h245_Application(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Application, Application_choice, "Application",
+                                 ett_h245_Application, Application_choice,
                                  &value);
 
         codec_type = val_to_str(value, h245_Application_vals, "<unknown>");
@@ -5758,7 +5758,7 @@ static const per_choice_t T_payloadDescriptor_choice[] = {
 static int
 dissect_h245_T_payloadDescriptor(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_payloadDescriptor, T_payloadDescriptor_choice, "T_payloadDescriptor",
+                                 ett_h245_T_payloadDescriptor, T_payloadDescriptor_choice,
                                  NULL);
 
   return offset;
@@ -5839,7 +5839,7 @@ static const per_choice_t QOSMode_choice[] = {
 static int
 dissect_h245_QOSMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_QOSMode, QOSMode_choice, "QOSMode",
+                                 ett_h245_QOSMode, QOSMode_choice,
                                  NULL);
 
   return offset;
@@ -5998,7 +5998,7 @@ static const per_choice_t MediaTransportType_choice[] = {
 static int
 dissect_h245_MediaTransportType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_MediaTransportType, MediaTransportType_choice, "MediaTransportType",
+                                 ett_h245_MediaTransportType, MediaTransportType_choice,
                                  NULL);
 
   return offset;
@@ -6166,7 +6166,7 @@ static const per_choice_t T_frameToThreadMapping_choice[] = {
 static int
 dissect_h245_T_frameToThreadMapping(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_frameToThreadMapping, T_frameToThreadMapping_choice, "T_frameToThreadMapping",
+                                 ett_h245_T_frameToThreadMapping, T_frameToThreadMapping_choice,
                                  NULL);
 
   return offset;
@@ -6230,7 +6230,7 @@ static const per_choice_t RedundancyEncodingMethod_choice[] = {
 static int
 dissect_h245_RedundancyEncodingMethod(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_RedundancyEncodingMethod, RedundancyEncodingMethod_choice, "RedundancyEncodingMethod",
+                                 ett_h245_RedundancyEncodingMethod, RedundancyEncodingMethod_choice,
                                  NULL);
 
   return offset;
@@ -6374,7 +6374,7 @@ static const per_choice_t MultiplexCapability_choice[] = {
 static int
 dissect_h245_MultiplexCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_MultiplexCapability, MultiplexCapability_choice, "MultiplexCapability",
+                                 ett_h245_MultiplexCapability, MultiplexCapability_choice,
                                  NULL);
 
   return offset;
@@ -6657,7 +6657,7 @@ static const per_choice_t T_videoBackChannelSend_choice[] = {
 static int
 dissect_h245_T_videoBackChannelSend(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_videoBackChannelSend, T_videoBackChannelSend_choice, "T_videoBackChannelSend",
+                                 ett_h245_T_videoBackChannelSend, T_videoBackChannelSend_choice,
                                  NULL);
 
   return offset;
@@ -6991,7 +6991,7 @@ static const per_choice_t T_pixelAspectInformation_choice[] = {
 static int
 dissect_h245_T_pixelAspectInformation(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_pixelAspectInformation, T_pixelAspectInformation_choice, "T_pixelAspectInformation",
+                                 ett_h245_T_pixelAspectInformation, T_pixelAspectInformation_choice,
                                  NULL);
 
   return offset;
@@ -7469,7 +7469,7 @@ dissect_h245_VideoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_VideoCapability, VideoCapability_choice, "VideoCapability",
+                                 ett_h245_VideoCapability, VideoCapability_choice,
                                  &value);
 
         codec_type = val_to_str(value, h245_VideoCapability_vals, "<unknown>");
@@ -7852,7 +7852,7 @@ dissect_h245_AudioCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_AudioCapability, AudioCapability_choice, "AudioCapability",
+                                 ett_h245_AudioCapability, AudioCapability_choice,
                                  &value);
 
         codec_type = val_to_str(value, h245_AudioCapability_short_vals, "<unknown>");
@@ -7931,7 +7931,7 @@ static const per_choice_t MediaEncryptionAlgorithm_choice[] = {
 static int
 dissect_h245_MediaEncryptionAlgorithm(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_MediaEncryptionAlgorithm, MediaEncryptionAlgorithm_choice, "MediaEncryptionAlgorithm",
+                                 ett_h245_MediaEncryptionAlgorithm, MediaEncryptionAlgorithm_choice,
                                  NULL);
 
   return offset;
@@ -8080,7 +8080,7 @@ static const per_choice_t UserInputCapability_choice[] = {
 static int
 dissect_h245_UserInputCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_UserInputCapability, UserInputCapability_choice, "UserInputCapability",
+                                 ett_h245_UserInputCapability, UserInputCapability_choice,
                                  NULL);
 
   return offset;
@@ -8113,7 +8113,7 @@ static const per_choice_t MultiplexFormat_choice[] = {
 static int
 dissect_h245_MultiplexFormat(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_MultiplexFormat, MultiplexFormat_choice, "MultiplexFormat",
+                                 ett_h245_MultiplexFormat, MultiplexFormat_choice,
                                  NULL);
 
   return offset;
@@ -8291,7 +8291,7 @@ static const per_choice_t FECCapability_choice[] = {
 static int
 dissect_h245_FECCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_FECCapability, FECCapability_choice, "FECCapability",
+                                 ett_h245_FECCapability, FECCapability_choice,
                                  NULL);
 
   return offset;
@@ -8381,7 +8381,7 @@ static const per_choice_t Capability_choice[] = {
 static int
 dissect_h245_Capability(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Capability, Capability_choice, "Capability",
+                                 ett_h245_Capability, Capability_choice,
                                  NULL);
 
   return offset;
@@ -8561,7 +8561,7 @@ static const per_choice_t EncryptionMode_choice[] = {
 static int
 dissect_h245_EncryptionMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_EncryptionMode, EncryptionMode_choice, "EncryptionMode",
+                                 ett_h245_EncryptionMode, EncryptionMode_choice,
                                  NULL);
 
   return offset;
@@ -8749,7 +8749,7 @@ static const per_choice_t SeparateStream_choice[] = {
 static int
 dissect_h245_SeparateStream(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_SeparateStream, SeparateStream_choice, "SeparateStream",
+                                 ett_h245_SeparateStream, SeparateStream_choice,
                                  NULL);
 
   return offset;
@@ -8774,7 +8774,7 @@ static const per_choice_t FECdata_mode_choice[] = {
 static int
 dissect_h245_FECdata_mode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_FECdata_mode, FECdata_mode_choice, "FECdata_mode",
+                                 ett_h245_FECdata_mode, FECdata_mode_choice,
                                  NULL);
 
   return offset;
@@ -8814,7 +8814,7 @@ static const per_choice_t FECData_choice[] = {
 static int
 dissect_h245_FECData(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_FECData, FECData_choice, "FECData",
+                                 ett_h245_FECData, FECData_choice,
                                  NULL);
 
   return offset;
@@ -8849,7 +8849,7 @@ static const per_choice_t T_mediaType_choice[] = {
 static int
 dissect_h245_T_mediaType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_mediaType, T_mediaType_choice, "T_mediaType",
+                                 ett_h245_T_mediaType, T_mediaType_choice,
                                  NULL);
 
   return offset;
@@ -8933,7 +8933,7 @@ static const per_choice_t DataType_choice[] = {
 static int
 dissect_h245_DataType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_DataType, DataType_choice, "DataType",
+                                 ett_h245_DataType, DataType_choice,
                                  NULL);
 
   return offset;
@@ -9023,7 +9023,7 @@ static const per_choice_t T_transferMode_choice[] = {
 static int
 dissect_h245_T_transferMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_transferMode, T_transferMode_choice, "T_transferMode",
+                                 ett_h245_T_transferMode, T_transferMode_choice,
                                  NULL);
 
   return offset;
@@ -9048,7 +9048,7 @@ static const per_choice_t AL1HeaderFEC_choice[] = {
 static int
 dissect_h245_AL1HeaderFEC(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_AL1HeaderFEC, AL1HeaderFEC_choice, "AL1HeaderFEC",
+                                 ett_h245_AL1HeaderFEC, AL1HeaderFEC_choice,
                                  NULL);
 
   return offset;
@@ -9085,7 +9085,7 @@ static const per_choice_t AL1CrcLength_choice[] = {
 static int
 dissect_h245_AL1CrcLength(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_AL1CrcLength, AL1CrcLength_choice, "AL1CrcLength",
+                                 ett_h245_AL1CrcLength, AL1CrcLength_choice,
                                  NULL);
 
   return offset;
@@ -9136,7 +9136,7 @@ static const per_choice_t T_numberOfRetransmissions_choice[] = {
 static int
 dissect_h245_T_numberOfRetransmissions(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_numberOfRetransmissions, T_numberOfRetransmissions_choice, "T_numberOfRetransmissions",
+                                 ett_h245_T_numberOfRetransmissions, T_numberOfRetransmissions_choice,
                                  NULL);
 
   return offset;
@@ -9184,7 +9184,7 @@ static const per_choice_t ArqType_choice[] = {
 static int
 dissect_h245_ArqType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_ArqType, ArqType_choice, "ArqType",
+                                 ett_h245_ArqType, ArqType_choice,
                                  NULL);
 
   return offset;
@@ -9233,7 +9233,7 @@ static const per_choice_t AL2HeaderFEC_choice[] = {
 static int
 dissect_h245_AL2HeaderFEC(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_AL2HeaderFEC, AL2HeaderFEC_choice, "AL2HeaderFEC",
+                                 ett_h245_AL2HeaderFEC, AL2HeaderFEC_choice,
                                  NULL);
 
   return offset;
@@ -9276,7 +9276,7 @@ static const per_choice_t T_headerFormat_choice[] = {
 static int
 dissect_h245_T_headerFormat(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_headerFormat, T_headerFormat_choice, "T_headerFormat",
+                                 ett_h245_T_headerFormat, T_headerFormat_choice,
                                  NULL);
 
   return offset;
@@ -9313,7 +9313,7 @@ static const per_choice_t AL3CrcLength_choice[] = {
 static int
 dissect_h245_AL3CrcLength(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_AL3CrcLength, AL3CrcLength_choice, "AL3CrcLength",
+                                 ett_h245_AL3CrcLength, AL3CrcLength_choice,
                                  NULL);
 
   return offset;
@@ -9374,7 +9374,7 @@ static const per_choice_t T_adaptationLayerType_choice[] = {
 static int
 dissect_h245_T_adaptationLayerType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_adaptationLayerType, T_adaptationLayerType_choice, "T_adaptationLayerType",
+                                 ett_h245_T_adaptationLayerType, T_adaptationLayerType_choice,
                                  NULL);
 
   return offset;
@@ -9419,7 +9419,7 @@ static const per_choice_t CRCLength_choice[] = {
 static int
 dissect_h245_CRCLength(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_CRCLength, CRCLength_choice, "CRCLength",
+                                 ett_h245_CRCLength, CRCLength_choice,
                                  NULL);
 
   return offset;
@@ -9465,7 +9465,7 @@ static const per_choice_t T_suspendResume_choice[] = {
 static int
 dissect_h245_T_suspendResume(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_suspendResume, T_suspendResume_choice, "T_suspendResume",
+                                 ett_h245_T_suspendResume, T_suspendResume_choice,
                                  NULL);
 
   return offset;
@@ -9492,7 +9492,7 @@ static const per_choice_t T_recovery_choice[] = {
 static int
 dissect_h245_T_recovery(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_recovery, T_recovery_choice, "T_recovery",
+                                 ett_h245_T_recovery, T_recovery_choice,
                                  NULL);
 
   return offset;
@@ -9535,7 +9535,7 @@ static const per_choice_t V76LCP_mode_choice[] = {
 static int
 dissect_h245_V76LCP_mode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_V76LCP_mode, V76LCP_mode_choice, "V76LCP_mode",
+                                 ett_h245_V76LCP_mode, V76LCP_mode_choice,
                                  NULL);
 
   return offset;
@@ -9746,7 +9746,7 @@ static const per_choice_t T_routing_choice[] = {
 static int
 dissect_h245_T_routing(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_routing, T_routing_choice, "T_routing",
+                                 ett_h245_T_routing, T_routing_choice,
                                  NULL);
 
   return offset;
@@ -9817,7 +9817,7 @@ static const per_choice_t UnicastAddress_choice[] = {
 static int
 dissect_h245_UnicastAddress(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_UnicastAddress, UnicastAddress_choice, "UnicastAddress",
+                                 ett_h245_UnicastAddress, UnicastAddress_choice,
                                  NULL);
 
   return offset;
@@ -9882,7 +9882,7 @@ static const per_choice_t MulticastAddress_choice[] = {
 static int
 dissect_h245_MulticastAddress(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_MulticastAddress, MulticastAddress_choice, "MulticastAddress",
+                                 ett_h245_MulticastAddress, MulticastAddress_choice,
                                  NULL);
 
   return offset;
@@ -9907,7 +9907,7 @@ static const per_choice_t TransportAddress_choice[] = {
 static int
 dissect_h245_TransportAddress(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_TransportAddress, TransportAddress_choice, "TransportAddress",
+                                 ett_h245_TransportAddress, TransportAddress_choice,
                                  NULL);
 
   return offset;
@@ -10054,7 +10054,7 @@ static const per_choice_t T_mediaPacketization_choice[] = {
 static int
 dissect_h245_T_mediaPacketization(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_mediaPacketization, T_mediaPacketization_choice, "T_mediaPacketization",
+                                 ett_h245_T_mediaPacketization, T_mediaPacketization_choice,
                                  NULL);
 
   return offset;
@@ -10115,7 +10115,7 @@ static const per_choice_t OLC_forw_multiplexParameters_choice[] = {
 static int
 dissect_h245_OLC_forw_multiplexParameters(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_OLC_forw_multiplexParameters, OLC_forw_multiplexParameters_choice, "OLC_forw_multiplexParameters",
+                                 ett_h245_OLC_forw_multiplexParameters, OLC_forw_multiplexParameters_choice,
                                  NULL);
 
   return offset;
@@ -10168,7 +10168,7 @@ dissect_h245_OLC_rev_multiplexParameters(tvbuff_t *tvb, int offset, packet_info 
 	media_control_channel = FALSE;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_OLC_rev_multiplexParameters, OLC_rev_multiplexParameters_choice, "OLC_rev_multiplexParameters",
+                                 ett_h245_OLC_rev_multiplexParameters, OLC_rev_multiplexParameters_choice,
                                  NULL);
 
 	if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && rtp_handle){
@@ -10232,7 +10232,7 @@ static const per_choice_t T_distribution_choice[] = {
 static int
 dissect_h245_T_distribution(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_distribution, T_distribution_choice, "T_distribution",
+                                 ett_h245_T_distribution, T_distribution_choice,
                                  NULL);
 
   return offset;
@@ -10273,7 +10273,7 @@ static const per_choice_t T_networkAddress_choice[] = {
 static int
 dissect_h245_T_networkAddress(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_networkAddress, T_networkAddress_choice, "T_networkAddress",
+                                 ett_h245_T_networkAddress, T_networkAddress_choice,
                                  NULL);
 
   return offset;
@@ -10313,7 +10313,7 @@ static const per_choice_t T_t120SetupProcedure_choice[] = {
 static int
 dissect_h245_T_t120SetupProcedure(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_t120SetupProcedure, T_t120SetupProcedure_choice, "T_t120SetupProcedure",
+                                 ett_h245_T_t120SetupProcedure, T_t120SetupProcedure_choice,
                                  NULL);
 
   return offset;
@@ -10472,7 +10472,7 @@ static const per_choice_t T_source_choice[] = {
 static int
 dissect_h245_T_source(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_source, T_source_choice, "T_source",
+                                 ett_h245_T_source, T_source_choice,
                                  NULL);
 
   return offset;
@@ -10499,7 +10499,7 @@ static const per_choice_t Clc_reason_choice[] = {
 static int
 dissect_h245_Clc_reason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Clc_reason, Clc_reason_choice, "Clc_reason",
+                                 ett_h245_Clc_reason, Clc_reason_choice,
                                  NULL);
 
   return offset;
@@ -10549,7 +10549,7 @@ static const per_choice_t T_reason_choice[] = {
 static int
 dissect_h245_T_reason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_reason, T_reason_choice, "T_reason",
+                                 ett_h245_T_reason, T_reason_choice,
                                  NULL);
 
   return offset;
@@ -10629,7 +10629,7 @@ static const per_choice_t Me_type_choice[] = {
 static int
 dissect_h245_Me_type(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Me_type, Me_type_choice, "Me_type",
+                                 ett_h245_Me_type, Me_type_choice,
                                  NULL);
 
   return offset;
@@ -10654,7 +10654,7 @@ static const per_choice_t ME_repeatCount_choice[] = {
 static int
 dissect_h245_ME_repeatCount(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_ME_repeatCount, ME_repeatCount_choice, "ME_repeatCount",
+                                 ett_h245_ME_repeatCount, ME_repeatCount_choice,
                                  NULL);
 
   return offset;
@@ -10801,7 +10801,7 @@ static const per_choice_t H261Resolution_choice[] = {
 static int
 dissect_h245_H261Resolution(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_H261Resolution, H261Resolution_choice, "H261Resolution",
+                                 ett_h245_H261Resolution, H261Resolution_choice,
                                  NULL);
 
   return offset;
@@ -10863,7 +10863,7 @@ static const per_choice_t T_profileAndLevel_choice[] = {
 static int
 dissect_h245_T_profileAndLevel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_profileAndLevel, T_profileAndLevel_choice, "T_profileAndLevel",
+                                 ett_h245_T_profileAndLevel, T_profileAndLevel_choice,
                                  NULL);
 
   return offset;
@@ -10919,7 +10919,7 @@ static const per_choice_t H263Resolution_choice[] = {
 static int
 dissect_h245_H263Resolution(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_H263Resolution, H263Resolution_choice, "H263Resolution",
+                                 ett_h245_H263Resolution, H263Resolution_choice,
                                  NULL);
 
   return offset;
@@ -11002,7 +11002,7 @@ dissect_h245_VideoMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_VideoMode, VideoMode_choice, "VideoMode",
+                                 ett_h245_VideoMode, VideoMode_choice,
                                  &value);
 
   codec_type = val_to_str(value, h245_VideoMode_vals, "<unknown>");
@@ -11034,7 +11034,7 @@ static const per_choice_t Mode_g7231_choice[] = {
 static int
 dissect_h245_Mode_g7231(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Mode_g7231, Mode_g7231_choice, "Mode_g7231",
+                                 ett_h245_Mode_g7231, Mode_g7231_choice,
                                  NULL);
 
   return offset;
@@ -11061,7 +11061,7 @@ static const per_choice_t T_audioLayer_choice[] = {
 static int
 dissect_h245_T_audioLayer(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_audioLayer, T_audioLayer_choice, "T_audioLayer",
+                                 ett_h245_T_audioLayer, T_audioLayer_choice,
                                  NULL);
 
   return offset;
@@ -11088,7 +11088,7 @@ static const per_choice_t T_audioSampling_choice[] = {
 static int
 dissect_h245_T_audioSampling(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_audioSampling, T_audioSampling_choice, "T_audioSampling",
+                                 ett_h245_T_audioSampling, T_audioSampling_choice,
                                  NULL);
 
   return offset;
@@ -11115,7 +11115,7 @@ static const per_choice_t IS11172_multichannelType_choice[] = {
 static int
 dissect_h245_IS11172_multichannelType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_IS11172_multichannelType, IS11172_multichannelType_choice, "IS11172_multichannelType",
+                                 ett_h245_IS11172_multichannelType, IS11172_multichannelType_choice,
                                  NULL);
 
   return offset;
@@ -11162,7 +11162,7 @@ static const per_choice_t IS13818AudioLayer_choice[] = {
 static int
 dissect_h245_IS13818AudioLayer(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_IS13818AudioLayer, IS13818AudioLayer_choice, "IS13818AudioLayer",
+                                 ett_h245_IS13818AudioLayer, IS13818AudioLayer_choice,
                                  NULL);
 
   return offset;
@@ -11195,7 +11195,7 @@ static const per_choice_t IS13818AudioSampling_choice[] = {
 static int
 dissect_h245_IS13818AudioSampling(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_IS13818AudioSampling, IS13818AudioSampling_choice, "IS13818AudioSampling",
+                                 ett_h245_IS13818AudioSampling, IS13818AudioSampling_choice,
                                  NULL);
 
   return offset;
@@ -11236,7 +11236,7 @@ static const per_choice_t IS13818MultichannelType_choice[] = {
 static int
 dissect_h245_IS13818MultichannelType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_IS13818MultichannelType, IS13818MultichannelType_choice, "IS13818MultichannelType",
+                                 ett_h245_IS13818MultichannelType, IS13818MultichannelType_choice,
                                  NULL);
 
   return offset;
@@ -11363,7 +11363,7 @@ dissect_h245_AudioMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_AudioMode, AudioMode_choice, "AudioMode",
+                                 ett_h245_AudioMode, AudioMode_choice,
                                  &value);
 
   codec_type = val_to_str(value, h245_AudioMode_vals, "<unknown>");
@@ -11432,7 +11432,7 @@ dissect_h245_DataModeApplication(tvbuff_t *tvb, int offset, packet_info *pinfo _
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_DataModeApplication, DataModeApplication_choice, "DataModeApplication",
+                                 ett_h245_DataModeApplication, DataModeApplication_choice,
                                  &value);
 
   codec_type = val_to_str(value, h245_DataModeApplication_vals, "<unknown>");
@@ -11482,7 +11482,7 @@ static const per_choice_t T_mediaMode_choice[] = {
 static int
 dissect_h245_T_mediaMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_mediaMode, T_mediaMode_choice, "T_mediaMode",
+                                 ett_h245_T_mediaMode, T_mediaMode_choice,
                                  NULL);
 
   return offset;
@@ -11533,7 +11533,7 @@ static const per_choice_t Re_type_choice[] = {
 static int
 dissect_h245_Re_type(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Re_type, Re_type_choice, "Re_type",
+                                 ett_h245_Re_type, Re_type_choice,
                                  NULL);
 
   return offset;
@@ -11663,7 +11663,7 @@ static const per_choice_t FEC_mode_choice[] = {
 static int
 dissect_h245_FEC_mode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_FEC_mode, FEC_mode_choice, "FEC_mode",
+                                 ett_h245_FEC_mode, FEC_mode_choice,
                                  NULL);
 
   return offset;
@@ -11703,7 +11703,7 @@ static const per_choice_t FECMode_choice[] = {
 static int
 dissect_h245_FECMode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_FECMode, FECMode_choice, "FECMode",
+                                 ett_h245_FECMode, FECMode_choice,
                                  NULL);
 
   return offset;
@@ -11744,7 +11744,7 @@ static const per_choice_t ModeElementType_choice[] = {
 static int
 dissect_h245_ModeElementType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_ModeElementType, ModeElementType_choice, "ModeElementType",
+                                 ett_h245_ModeElementType, ModeElementType_choice,
                                  NULL);
 
   return offset;
@@ -11780,7 +11780,7 @@ static const per_choice_t AdaptationLayerType_choice[] = {
 static int
 dissect_h245_AdaptationLayerType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_AdaptationLayerType, AdaptationLayerType_choice, "AdaptationLayerType",
+                                 ett_h245_AdaptationLayerType, AdaptationLayerType_choice,
                                  NULL);
 
   return offset;
@@ -11823,7 +11823,7 @@ static const per_choice_t V76ModeParameters_choice[] = {
 static int
 dissect_h245_V76ModeParameters(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_V76ModeParameters, V76ModeParameters_choice, "V76ModeParameters",
+                                 ett_h245_V76ModeParameters, V76ModeParameters_choice,
                                  NULL);
 
   return offset;
@@ -11848,7 +11848,7 @@ static const per_choice_t T_secondaryEncoding_choice[] = {
 static int
 dissect_h245_T_secondaryEncoding(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_secondaryEncoding, T_secondaryEncoding_choice, "T_secondaryEncoding",
+                                 ett_h245_T_secondaryEncoding, T_secondaryEncoding_choice,
                                  NULL);
 
   return offset;
@@ -12019,7 +12019,7 @@ static const per_choice_t Mlr_type_choice[] = {
 static int
 dissect_h245_Mlr_type(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Mlr_type, Mlr_type_choice, "Mlr_type",
+                                 ett_h245_Mlr_type, Mlr_type_choice,
                                  NULL);
 
   return offset;
@@ -12133,7 +12133,7 @@ static const per_choice_t RemoteMCRequest_choice[] = {
 static int
 dissect_h245_RemoteMCRequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_RemoteMCRequest, RemoteMCRequest_choice, "RemoteMCRequest",
+                                 ett_h245_RemoteMCRequest, RemoteMCRequest_choice,
                                  NULL);
 
   return offset;
@@ -12186,7 +12186,7 @@ static const per_choice_t ConferenceRequest_choice[] = {
 static int
 dissect_h245_ConferenceRequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_ConferenceRequest, ConferenceRequest_choice, "ConferenceRequest",
+                                 ett_h245_ConferenceRequest, ConferenceRequest_choice,
                                  NULL);
 
   return offset;
@@ -12258,7 +12258,7 @@ static const per_choice_t DialingInformationNetworkType_choice[] = {
 static int
 dissect_h245_DialingInformationNetworkType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_DialingInformationNetworkType, DialingInformationNetworkType_choice, "DialingInformationNetworkType",
+                                 ett_h245_DialingInformationNetworkType, DialingInformationNetworkType_choice,
                                  NULL);
 
   return offset;
@@ -12338,7 +12338,7 @@ static const per_choice_t DialingInformation_choice[] = {
 static int
 dissect_h245_DialingInformation(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_DialingInformation, DialingInformation_choice, "DialingInformation",
+                                 ett_h245_DialingInformation, DialingInformation_choice,
                                  NULL);
 
   return offset;
@@ -12425,7 +12425,7 @@ static const per_choice_t T_requestType_choice[] = {
 static int
 dissect_h245_T_requestType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_requestType, T_requestType_choice, "T_requestType",
+                                 ett_h245_T_requestType, T_requestType_choice,
                                  NULL);
 
   return offset;
@@ -12473,7 +12473,7 @@ static const per_choice_t MultilinkRequest_choice[] = {
 static int
 dissect_h245_MultilinkRequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_MultilinkRequest, MultilinkRequest_choice, "MultilinkRequest",
+                                 ett_h245_MultilinkRequest, MultilinkRequest_choice,
                                  NULL);
 
   return offset;
@@ -12606,7 +12606,7 @@ dissect_h245_RequestMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_RequestMessage, RequestMessage_choice, "RequestMessage",
+                                 ett_h245_RequestMessage, RequestMessage_choice,
                                  &value);
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
@@ -12664,7 +12664,7 @@ static const per_choice_t T_decision_choice[] = {
 static int
 dissect_h245_T_decision(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_decision, T_decision_choice, "T_decision",
+                                 ett_h245_T_decision, T_decision_choice,
                                  NULL);
 
   return offset;
@@ -12706,7 +12706,7 @@ static const per_choice_t MasterSlaveDeterminationRejectCause_choice[] = {
 static int
 dissect_h245_MasterSlaveDeterminationRejectCause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_MasterSlaveDeterminationRejectCause, MasterSlaveDeterminationRejectCause_choice, "MasterSlaveDeterminationRejectCause",
+                                 ett_h245_MasterSlaveDeterminationRejectCause, MasterSlaveDeterminationRejectCause_choice,
                                  NULL);
 
   return offset;
@@ -12769,7 +12769,7 @@ static const per_choice_t T_tableEntryCapacityExceeded_choice[] = {
 static int
 dissect_h245_T_tableEntryCapacityExceeded(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_tableEntryCapacityExceeded, T_tableEntryCapacityExceeded_choice, "T_tableEntryCapacityExceeded",
+                                 ett_h245_T_tableEntryCapacityExceeded, T_tableEntryCapacityExceeded_choice,
                                  NULL);
 
   return offset;
@@ -12798,7 +12798,7 @@ static const per_choice_t TerminalCapabilitySetRejectCause_choice[] = {
 static int
 dissect_h245_TerminalCapabilitySetRejectCause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_TerminalCapabilitySetRejectCause, TerminalCapabilitySetRejectCause_choice, "TerminalCapabilitySetRejectCause",
+                                 ett_h245_TerminalCapabilitySetRejectCause, TerminalCapabilitySetRejectCause_choice,
                                  NULL);
 
   return offset;
@@ -12843,7 +12843,7 @@ static const per_choice_t T_multiplexParameters_choice[] = {
 static int
 dissect_h245_T_multiplexParameters(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_multiplexParameters, T_multiplexParameters_choice, "T_multiplexParameters",
+                                 ett_h245_T_multiplexParameters, T_multiplexParameters_choice,
                                  NULL);
 
   return offset;
@@ -12950,7 +12950,7 @@ dissect_h245_T_forwardMultiplexAckParameters(tvbuff_t *tvb, int offset, packet_i
 	media_control_channel = FALSE;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_forwardMultiplexAckParameters, T_forwardMultiplexAckParameters_choice, "T_forwardMultiplexAckParameters",
+                                 ett_h245_T_forwardMultiplexAckParameters, T_forwardMultiplexAckParameters_choice,
                                  NULL);
 
 	
@@ -13042,7 +13042,7 @@ static const per_choice_t OpenLogicalChannelRejectCause_choice[] = {
 static int
 dissect_h245_OpenLogicalChannelRejectCause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_OpenLogicalChannelRejectCause, OpenLogicalChannelRejectCause_choice, "OpenLogicalChannelRejectCause",
+                                 ett_h245_OpenLogicalChannelRejectCause, OpenLogicalChannelRejectCause_choice,
                                  NULL);
 
   return offset;
@@ -13121,7 +13121,7 @@ static const per_choice_t RequestChannelCloseRejectCause_choice[] = {
 static int
 dissect_h245_RequestChannelCloseRejectCause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_RequestChannelCloseRejectCause, RequestChannelCloseRejectCause_choice, "RequestChannelCloseRejectCause",
+                                 ett_h245_RequestChannelCloseRejectCause, RequestChannelCloseRejectCause_choice,
                                  NULL);
 
   return offset;
@@ -13182,7 +13182,7 @@ static const per_choice_t MultiplexEntryRejectionDescriptionsCause_choice[] = {
 static int
 dissect_h245_MultiplexEntryRejectionDescriptionsCause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_MultiplexEntryRejectionDescriptionsCause, MultiplexEntryRejectionDescriptionsCause_choice, "MultiplexEntryRejectionDescriptionsCause",
+                                 ett_h245_MultiplexEntryRejectionDescriptionsCause, MultiplexEntryRejectionDescriptionsCause_choice,
                                  NULL);
 
   return offset;
@@ -13275,7 +13275,7 @@ static const per_choice_t RequestMultiplexEntryRejectionDescriptionsCause_choice
 static int
 dissect_h245_RequestMultiplexEntryRejectionDescriptionsCause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_RequestMultiplexEntryRejectionDescriptionsCause, RequestMultiplexEntryRejectionDescriptionsCause_choice, "RequestMultiplexEntryRejectionDescriptionsCause",
+                                 ett_h245_RequestMultiplexEntryRejectionDescriptionsCause, RequestMultiplexEntryRejectionDescriptionsCause_choice,
                                  NULL);
 
   return offset;
@@ -13353,7 +13353,7 @@ static const per_choice_t Req_mode_ack_response_choice[] = {
 static int
 dissect_h245_Req_mode_ack_response(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Req_mode_ack_response, Req_mode_ack_response_choice, "Req_mode_ack_response",
+                                 ett_h245_Req_mode_ack_response, Req_mode_ack_response_choice,
                                  NULL);
 
   return offset;
@@ -13398,7 +13398,7 @@ static const per_choice_t RequestModeRejectCause_choice[] = {
 static int
 dissect_h245_RequestModeRejectCause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_RequestModeRejectCause, RequestModeRejectCause_choice, "RequestModeRejectCause",
+                                 ett_h245_RequestModeRejectCause, RequestModeRejectCause_choice,
                                  NULL);
 
   return offset;
@@ -13460,7 +13460,7 @@ static const per_choice_t Mla_type_choice[] = {
 static int
 dissect_h245_Mla_type(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Mla_type, Mla_type_choice, "Mla_type",
+                                 ett_h245_Mla_type, Mla_type_choice,
                                  NULL);
 
   return offset;
@@ -13504,7 +13504,7 @@ static const per_choice_t Mlrej_type_choice[] = {
 static int
 dissect_h245_Mlrej_type(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Mlrej_type, Mlrej_type_choice, "Mlrej_type",
+                                 ett_h245_Mlrej_type, Mlrej_type_choice,
                                  NULL);
 
   return offset;
@@ -13527,7 +13527,7 @@ static const per_choice_t MaintenanceLoopRejectCause_choice[] = {
 static int
 dissect_h245_MaintenanceLoopRejectCause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_MaintenanceLoopRejectCause, MaintenanceLoopRejectCause_choice, "MaintenanceLoopRejectCause",
+                                 ett_h245_MaintenanceLoopRejectCause, MaintenanceLoopRejectCause_choice,
                                  NULL);
 
   return offset;
@@ -13585,7 +13585,7 @@ static const per_choice_t T_dataType_choice[] = {
 static int
 dissect_h245_T_dataType(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_dataType, T_dataType_choice, "T_dataType",
+                                 ett_h245_T_dataType, T_dataType_choice,
                                  NULL);
 
   return offset;
@@ -13666,7 +13666,7 @@ static const per_choice_t CommunicationModeResponse_choice[] = {
 static int
 dissect_h245_CommunicationModeResponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_CommunicationModeResponse, CommunicationModeResponse_choice, "CommunicationModeResponse",
+                                 ett_h245_CommunicationModeResponse, CommunicationModeResponse_choice,
                                  NULL);
 
   return offset;
@@ -13822,7 +13822,7 @@ static const per_choice_t T_makeMeChairResponse_choice[] = {
 static int
 dissect_h245_T_makeMeChairResponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_makeMeChairResponse, T_makeMeChairResponse_choice, "T_makeMeChairResponse",
+                                 ett_h245_T_makeMeChairResponse, T_makeMeChairResponse_choice,
                                  NULL);
 
   return offset;
@@ -13900,7 +13900,7 @@ static const per_choice_t T_broadcastMyLogicalChannelResponse_choice[] = {
 static int
 dissect_h245_T_broadcastMyLogicalChannelResponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_broadcastMyLogicalChannelResponse, T_broadcastMyLogicalChannelResponse_choice, "T_broadcastMyLogicalChannelResponse",
+                                 ett_h245_T_broadcastMyLogicalChannelResponse, T_broadcastMyLogicalChannelResponse_choice,
                                  NULL);
 
   return offset;
@@ -13925,7 +13925,7 @@ static const per_choice_t T_makeTerminalBroadcasterResponse_choice[] = {
 static int
 dissect_h245_T_makeTerminalBroadcasterResponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_makeTerminalBroadcasterResponse, T_makeTerminalBroadcasterResponse_choice, "T_makeTerminalBroadcasterResponse",
+                                 ett_h245_T_makeTerminalBroadcasterResponse, T_makeTerminalBroadcasterResponse_choice,
                                  NULL);
 
   return offset;
@@ -13950,7 +13950,7 @@ static const per_choice_t T_sendThisSourceResponse_choice[] = {
 static int
 dissect_h245_T_sendThisSourceResponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_sendThisSourceResponse, T_sendThisSourceResponse_choice, "T_sendThisSourceResponse",
+                                 ett_h245_T_sendThisSourceResponse, T_sendThisSourceResponse_choice,
                                  NULL);
 
   return offset;
@@ -14026,7 +14026,7 @@ static const per_choice_t T_reject_choice[] = {
 static int
 dissect_h245_T_reject(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_reject, T_reject_choice, "T_reject",
+                                 ett_h245_T_reject, T_reject_choice,
                                  NULL);
 
   return offset;
@@ -14051,7 +14051,7 @@ static const per_choice_t RemoteMCResponse_choice[] = {
 static int
 dissect_h245_RemoteMCResponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_RemoteMCResponse, RemoteMCResponse_choice, "RemoteMCResponse",
+                                 ett_h245_RemoteMCResponse, RemoteMCResponse_choice,
                                  NULL);
 
   return offset;
@@ -14104,7 +14104,7 @@ static const per_choice_t ConferenceResponse_choice[] = {
 static int
 dissect_h245_ConferenceResponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_ConferenceResponse, ConferenceResponse_choice, "ConferenceResponse",
+                                 ett_h245_ConferenceResponse, ConferenceResponse_choice,
                                  NULL);
 
   return offset;
@@ -14147,7 +14147,7 @@ static const per_choice_t T_rejected_choice[] = {
 static int
 dissect_h245_T_rejected(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_rejected, T_rejected_choice, "T_rejected",
+                                 ett_h245_T_rejected, T_rejected_choice,
                                  NULL);
 
   return offset;
@@ -14172,7 +14172,7 @@ static const per_choice_t T_responseCode_choice[] = {
 static int
 dissect_h245_T_responseCode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_responseCode, T_responseCode_choice, "T_responseCode",
+                                 ett_h245_T_responseCode, T_responseCode_choice,
                                  NULL);
 
   return offset;
@@ -14250,7 +14250,7 @@ static const per_choice_t MultilinkResponse_choice[] = {
 static int
 dissect_h245_MultilinkResponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_MultilinkResponse, MultilinkResponse_choice, "MultilinkResponse",
+                                 ett_h245_MultilinkResponse, MultilinkResponse_choice,
                                  NULL);
 
   return offset;
@@ -14294,7 +14294,7 @@ static const per_choice_t LogicalChannelRateRejectReason_choice[] = {
 static int
 dissect_h245_LogicalChannelRateRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_LogicalChannelRateRejectReason, LogicalChannelRateRejectReason_choice, "LogicalChannelRateRejectReason",
+                                 ett_h245_LogicalChannelRateRejectReason, LogicalChannelRateRejectReason_choice,
                                  NULL);
 
   return offset;
@@ -14387,7 +14387,7 @@ dissect_h245_ResponseMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_ResponseMessage, ResponseMessage_choice, "ResponseMessage",
+                                 ett_h245_ResponseMessage, ResponseMessage_choice,
                                  &value);
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
@@ -14500,7 +14500,7 @@ static const per_choice_t SendTerminalCapabilitySet_choice[] = {
 static int
 dissect_h245_SendTerminalCapabilitySet(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_SendTerminalCapabilitySet, SendTerminalCapabilitySet_choice, "SendTerminalCapabilitySet",
+                                 ett_h245_SendTerminalCapabilitySet, SendTerminalCapabilitySet_choice,
                                  NULL);
 
   return offset;
@@ -14545,7 +14545,7 @@ static const per_choice_t EncryptionCommand_choice[] = {
 static int
 dissect_h245_EncryptionCommand(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_EncryptionCommand, EncryptionCommand_choice, "EncryptionCommand",
+                                 ett_h245_EncryptionCommand, EncryptionCommand_choice,
                                  NULL);
 
   return offset;
@@ -14572,7 +14572,7 @@ static const per_choice_t Scope_choice[] = {
 static int
 dissect_h245_Scope(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Scope, Scope_choice, "Scope",
+                                 ett_h245_Scope, Scope_choice,
                                  NULL);
 
   return offset;
@@ -14597,7 +14597,7 @@ static const per_choice_t Restriction_choice[] = {
 static int
 dissect_h245_Restriction(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Restriction, Restriction_choice, "Restriction",
+                                 ett_h245_Restriction, Restriction_choice,
                                  NULL);
 
   return offset;
@@ -14646,7 +14646,7 @@ static const per_choice_t T_gstnOptions_choice[] = {
 static int
 dissect_h245_T_gstnOptions(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_gstnOptions, T_gstnOptions_choice, "T_gstnOptions",
+                                 ett_h245_T_gstnOptions, T_gstnOptions_choice,
                                  NULL);
 
   return offset;
@@ -14673,7 +14673,7 @@ static const per_choice_t T_isdnOptions_choice[] = {
 static int
 dissect_h245_T_isdnOptions(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_isdnOptions, T_isdnOptions_choice, "T_isdnOptions",
+                                 ett_h245_T_isdnOptions, T_isdnOptions_choice,
                                  NULL);
 
   return offset;
@@ -14702,7 +14702,7 @@ static const per_choice_t EndSessionCommand_choice[] = {
 static int
 dissect_h245_EndSessionCommand(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_EndSessionCommand, EndSessionCommand_choice, "EndSessionCommand",
+                                 ett_h245_EndSessionCommand, EndSessionCommand_choice,
                                  NULL);
 
   return offset;
@@ -14860,7 +14860,7 @@ static const per_choice_t RepeatCount_choice[] = {
 static int
 dissect_h245_RepeatCount(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_RepeatCount, RepeatCount_choice, "RepeatCount",
+                                 ett_h245_RepeatCount, RepeatCount_choice,
                                  NULL);
 
   return offset;
@@ -14937,7 +14937,7 @@ static const per_choice_t PictureReference_choice[] = {
 static int
 dissect_h245_PictureReference(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_PictureReference, PictureReference_choice, "PictureReference",
+                                 ett_h245_PictureReference, PictureReference_choice,
                                  NULL);
 
   return offset;
@@ -15087,7 +15087,7 @@ static const per_choice_t Mc_type_choice[] = {
 static int
 dissect_h245_Mc_type(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Mc_type, Mc_type_choice, "Mc_type",
+                                 ett_h245_Mc_type, Mc_type_choice,
                                  NULL);
 
   return offset;
@@ -15112,7 +15112,7 @@ static const per_choice_t EncryptionUpdateDirection_choice[] = {
 static int
 dissect_h245_EncryptionUpdateDirection(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_EncryptionUpdateDirection, EncryptionUpdateDirection_choice, "EncryptionUpdateDirection",
+                                 ett_h245_EncryptionUpdateDirection, EncryptionUpdateDirection_choice,
                                  NULL);
 
   return offset;
@@ -15202,7 +15202,7 @@ static const per_choice_t ConferenceCommand_choice[] = {
 static int
 dissect_h245_ConferenceCommand(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_ConferenceCommand, ConferenceCommand_choice, "ConferenceCommand",
+                                 ett_h245_ConferenceCommand, ConferenceCommand_choice,
                                  NULL);
 
   return offset;
@@ -15231,7 +15231,7 @@ static const per_choice_t T_h223ModeChange_choice[] = {
 static int
 dissect_h245_T_h223ModeChange(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_h223ModeChange, T_h223ModeChange_choice, "T_h223ModeChange",
+                                 ett_h245_T_h223ModeChange, T_h223ModeChange_choice,
                                  NULL);
 
   return offset;
@@ -15256,7 +15256,7 @@ static const per_choice_t T_h223AnnexADoubleFlag_choice[] = {
 static int
 dissect_h245_T_h223AnnexADoubleFlag(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_h223AnnexADoubleFlag, T_h223AnnexADoubleFlag_choice, "T_h223AnnexADoubleFlag",
+                                 ett_h245_T_h223AnnexADoubleFlag, T_h223AnnexADoubleFlag_choice,
                                  NULL);
 
   return offset;
@@ -15281,7 +15281,7 @@ static const per_choice_t H223MultiplexReconfiguration_choice[] = {
 static int
 dissect_h245_H223MultiplexReconfiguration(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_H223MultiplexReconfiguration, H223MultiplexReconfiguration_choice, "H223MultiplexReconfiguration",
+                                 ett_h245_H223MultiplexReconfiguration, H223MultiplexReconfiguration_choice,
                                  NULL);
 
   return offset;
@@ -15308,7 +15308,7 @@ static const per_choice_t Cmd_clockRecovery_choice[] = {
 static int
 dissect_h245_Cmd_clockRecovery(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Cmd_clockRecovery, Cmd_clockRecovery_choice, "Cmd_clockRecovery",
+                                 ett_h245_Cmd_clockRecovery, Cmd_clockRecovery_choice,
                                  NULL);
 
   return offset;
@@ -15337,7 +15337,7 @@ static const per_choice_t Cmd_errorCorrection_choice[] = {
 static int
 dissect_h245_Cmd_errorCorrection(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Cmd_errorCorrection, Cmd_errorCorrection_choice, "Cmd_errorCorrection",
+                                 ett_h245_Cmd_errorCorrection, Cmd_errorCorrection_choice,
                                  NULL);
 
   return offset;
@@ -15400,7 +15400,7 @@ static const per_choice_t Cmd_aal_choice[] = {
 static int
 dissect_h245_Cmd_aal(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Cmd_aal, Cmd_aal_choice, "Cmd_aal",
+                                 ett_h245_Cmd_aal, Cmd_aal_choice,
                                  NULL);
 
   return offset;
@@ -15427,7 +15427,7 @@ static const per_choice_t Cmd_multiplex_choice[] = {
 static int
 dissect_h245_Cmd_multiplex(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Cmd_multiplex, Cmd_multiplex_choice, "Cmd_multiplex",
+                                 ett_h245_Cmd_multiplex, Cmd_multiplex_choice,
                                  NULL);
 
   return offset;
@@ -15454,7 +15454,7 @@ static const per_choice_t CmdR_multiplex_choice[] = {
 static int
 dissect_h245_CmdR_multiplex(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_CmdR_multiplex, CmdR_multiplex_choice, "CmdR_multiplex",
+                                 ett_h245_CmdR_multiplex, CmdR_multiplex_choice,
                                  NULL);
 
   return offset;
@@ -15522,7 +15522,7 @@ static const per_choice_t T_status_choice[] = {
 static int
 dissect_h245_T_status(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_status, T_status_choice, "T_status",
+                                 ett_h245_T_status, T_status_choice,
                                  NULL);
 
   return offset;
@@ -15590,7 +15590,7 @@ dissect_h245_CommandMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_CommandMessage, CommandMessage_choice, "CommandMessage",
+                                 ett_h245_CommandMessage, CommandMessage_choice,
                                  &value);
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
@@ -15636,7 +15636,7 @@ static const per_choice_t FunctionNotUnderstood_choice[] = {
 static int
 dissect_h245_FunctionNotUnderstood(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_FunctionNotUnderstood, FunctionNotUnderstood_choice, "FunctionNotUnderstood",
+                                 ett_h245_FunctionNotUnderstood, FunctionNotUnderstood_choice,
                                  NULL);
 
   return offset;
@@ -15822,7 +15822,7 @@ static const per_choice_t Mi_type_choice[] = {
 static int
 dissect_h245_Mi_type(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Mi_type, Mi_type_choice, "Mi_type",
+                                 ett_h245_Mi_type, Mi_type_choice,
                                  NULL);
 
   return offset;
@@ -15949,7 +15949,7 @@ static const per_choice_t Ind_clockRecovery_choice[] = {
 static int
 dissect_h245_Ind_clockRecovery(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Ind_clockRecovery, Ind_clockRecovery_choice, "Ind_clockRecovery",
+                                 ett_h245_Ind_clockRecovery, Ind_clockRecovery_choice,
                                  NULL);
 
   return offset;
@@ -15978,7 +15978,7 @@ static const per_choice_t Ind_errorCorrection_choice[] = {
 static int
 dissect_h245_Ind_errorCorrection(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Ind_errorCorrection, Ind_errorCorrection_choice, "Ind_errorCorrection",
+                                 ett_h245_Ind_errorCorrection, Ind_errorCorrection_choice,
                                  NULL);
 
   return offset;
@@ -16041,7 +16041,7 @@ static const per_choice_t Ind_aal_choice[] = {
 static int
 dissect_h245_Ind_aal(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Ind_aal, Ind_aal_choice, "Ind_aal",
+                                 ett_h245_Ind_aal, Ind_aal_choice,
                                  NULL);
 
   return offset;
@@ -16068,7 +16068,7 @@ static const per_choice_t Ind_multiplex_choice[] = {
 static int
 dissect_h245_Ind_multiplex(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Ind_multiplex, Ind_multiplex_choice, "Ind_multiplex",
+                                 ett_h245_Ind_multiplex, Ind_multiplex_choice,
                                  NULL);
 
   return offset;
@@ -16095,7 +16095,7 @@ static const per_choice_t IndR_multiplex_choice[] = {
 static int
 dissect_h245_IndR_multiplex(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_IndR_multiplex, IndR_multiplex_choice, "IndR_multiplex",
+                                 ett_h245_IndR_multiplex, IndR_multiplex_choice,
                                  NULL);
 
   return offset;
@@ -16173,7 +16173,7 @@ static const per_choice_t T_userInputSupportIndication_choice[] = {
 static int
 dissect_h245_T_userInputSupportIndication(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_T_userInputSupportIndication, T_userInputSupportIndication_choice, "T_userInputSupportIndication",
+                                 ett_h245_T_userInputSupportIndication, T_userInputSupportIndication_choice,
                                  NULL);
 
   return offset;
@@ -16394,7 +16394,7 @@ static const per_choice_t UserInputIndication_choice[] = {
 static int
 dissect_h245_UserInputIndication(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_UserInputIndication, UserInputIndication_choice, "UserInputIndication",
+                                 ett_h245_UserInputIndication, UserInputIndication_choice,
                                  NULL);
 
   return offset;
@@ -16527,7 +16527,7 @@ static const per_choice_t ConferenceIndication_choice[] = {
 static int
 dissect_h245_ConferenceIndication(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_ConferenceIndication, ConferenceIndication_choice, "ConferenceIndication",
+                                 ett_h245_ConferenceIndication, ConferenceIndication_choice,
                                  NULL);
 
   return offset;
@@ -16589,7 +16589,7 @@ static const per_choice_t FunctionNotSupportedCause_choice[] = {
 static int
 dissect_h245_FunctionNotSupportedCause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_FunctionNotSupportedCause, FunctionNotSupportedCause_choice, "FunctionNotSupportedCause",
+                                 ett_h245_FunctionNotSupportedCause, FunctionNotSupportedCause_choice,
                                  NULL);
 
   return offset;
@@ -16667,7 +16667,7 @@ static const per_choice_t MultilinkIndication_choice[] = {
 static int
 dissect_h245_MultilinkIndication(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_MultilinkIndication, MultilinkIndication_choice, "MultilinkIndication",
+                                 ett_h245_MultilinkIndication, MultilinkIndication_choice,
                                  NULL);
 
   return offset;
@@ -16790,7 +16790,7 @@ dissect_h245_IndicationMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_IndicationMessage, IndicationMessage_choice, "IndicationMessage",
+                                 ett_h245_IndicationMessage, IndicationMessage_choice,
                                  &value);
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
@@ -16837,7 +16837,7 @@ static const per_choice_t MultimediaSystemControlMessage_choice[] = {
 static int
 dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_MultimediaSystemControlMessage, MultimediaSystemControlMessage_choice, "MultimediaSystemControlMessage",
+                                 ett_h245_MultimediaSystemControlMessage, MultimediaSystemControlMessage_choice,
                                  NULL);
 
   return offset;
@@ -16859,7 +16859,7 @@ static const per_choice_t Moderfc2733_choice[] = {
 static int
 dissect_h245_Moderfc2733(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h245_Moderfc2733, Moderfc2733_choice, "Moderfc2733",
+                                 ett_h245_Moderfc2733, Moderfc2733_choice,
                                  NULL);
 
   return offset;

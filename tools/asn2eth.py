@@ -2527,7 +2527,6 @@ class ChoiceType (Type):
   def eth_type_default_pars(self, ectx, tname):
     pars = Type.eth_type_default_pars(self, ectx, tname)
     pars['TABLE'] = '%(TNAME)s_choice'
-    pars['CHOICE_NAME'] = '"%(TNAME)s"'
     return pars
 
   def eth_type_default_table(self, ectx, tname):
@@ -2606,12 +2605,12 @@ class ChoiceType (Type):
     elif (ectx.NPer()):
       body = ectx.eth_fn_call('dissect_%(ER)s_choice', ret='offset',
                               par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s', 'item', 'private_data'),
-                                   ('%(ETT_INDEX)s', '%(TABLE)s', '%(CHOICE_NAME)s',),
+                                   ('%(ETT_INDEX)s', '%(TABLE)s',),
                                    ('%(VAL_PTR)s',),))
     elif (ectx.OPer()):
       body = ectx.eth_fn_call('dissect_%(ER)s_choice', ret='offset',
                               par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s'),
-                                   ('%(ETT_INDEX)s', '%(TABLE)s', '%(CHOICE_NAME)s',),
+                                   ('%(ETT_INDEX)s', '%(TABLE)s',),
                                    ('%(VAL_PTR)s',),))
     else:
       body = '#error Can not decode %s' % (tname)
@@ -4533,7 +4532,7 @@ asn2eth [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file
   -O dir     : output directory
   -c conform_file : conformation file
   -e         : create conformation file for exported types
-  -s template : single file output (templete is input file without .c/.h extension)
+  -s template : single file output (template is input file without .c/.h extension)
   -k         : keep intermediate files though single file output is used
   input_file : input ASN.1 file
 

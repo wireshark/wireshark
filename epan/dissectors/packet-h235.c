@@ -469,7 +469,7 @@ static const per_choice_t ECKASDH_choice[] = {
 static int
 dissect_h235_ECKASDH(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h235_ECKASDH, ECKASDH_choice, "ECKASDH",
+                                 ett_h235_ECKASDH, ECKASDH_choice,
                                  NULL);
 
   return offset;
@@ -545,7 +545,7 @@ static const per_choice_t AuthenticationBES_choice[] = {
 static int
 dissect_h235_AuthenticationBES(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h235_AuthenticationBES, AuthenticationBES_choice, "AuthenticationBES",
+                                 ett_h235_AuthenticationBES, AuthenticationBES_choice,
                                  NULL);
 
   return offset;
@@ -582,7 +582,7 @@ static const per_choice_t AuthenticationMechanism_choice[] = {
 int
 dissect_h235_AuthenticationMechanism(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h235_AuthenticationMechanism, AuthenticationMechanism_choice, "AuthenticationMechanism",
+                                 ett_h235_AuthenticationMechanism, AuthenticationMechanism_choice,
                                  NULL);
 
   return offset;
@@ -761,7 +761,7 @@ static const per_choice_t H235Key_choice[] = {
 static int
 dissect_h235_H235Key(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h235_H235Key, H235Key_choice, "H235Key",
+                                 ett_h235_H235Key, H235Key_choice,
                                  NULL);
 
   return offset;
@@ -895,7 +895,7 @@ int
 dissect_h235_CryptoToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
-                                 ett_h235_CryptoToken, CryptoToken_choice, "CryptoToken",
+                                 ett_h235_CryptoToken, CryptoToken_choice,
                                  NULL);
 
   return offset;
