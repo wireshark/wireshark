@@ -49,6 +49,40 @@
 #include <epan/value_string.h>
 #include <epan/addr_resolv.h>
 
+#ifndef HAVE_SOCKADDR_STORAGE
+/* packet32.h requires sockaddr_storage (usually defined in Platform SDK)
+ * copied from RFC2553 (and slightly modified because of datatypes) ... */
+/*
+ * Desired design of maximum size and alignment
+ */
+#define ETH_SS_MAXSIZE    128  /* Implementation specific max size */
+#define ETH_SS_ALIGNSIZE  (sizeof (gint64 /*int64_t*/))
+                         /* Implementation specific desired alignment */
+/*
+ * Definitions used for sockaddr_storage structure paddings design.
+ */
+#define ETH_SS_PAD1SIZE   (ETH_SS_ALIGNSIZE - sizeof (sa_family_t))
+#define ETH_SS_PAD2SIZE   (ETH_SS_MAXSIZE - (sizeof (sa_family_t) + \
+                              ETH_SS_PAD1SIZE + ETH_SS_ALIGNSIZE))
+
+struct sockaddr_storage {
+    sa_family_t  __ss_family;     /* address family */
+    /* Following fields are implementation specific */
+    char      __ss_pad1[ETH_SS_PAD1SIZE];
+              /* 6 byte pad, this is to make implementation
+              /* specific pad up to alignment field that */
+              /* follows explicit in the data structure */
+    gint64 /*int64_t*/   __ss_align;     /* field to force desired structure */
+               /* storage alignment */
+    char      __ss_pad2[ETH_SS_PAD2SIZE];
+              /* 112 byte pad to achieve desired size, */
+              /* _SS_MAXSIZE value minus size of ss_family */
+              /* __ss_pad1, __ss_align fields is 112 */
+};
+/* ... copied from RFC2553 */
+#endif
+
+
 #include <Packet32.h>
 #include <windows.h>
 #include <windowsx.h>
