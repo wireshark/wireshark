@@ -3131,7 +3131,7 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, const gchar* qos_st
 
 static const gchar* dissect_radius_qos_umts(proto_tree *tree, tvbuff_t *tvb) {
 	decode_qos_umts(tvb, 0, tree, "UMTS GTP QoS Profile", 3);
-	return "UMTS GTP QoS Profile";
+	return tvb_get_ephemeral_string(tvb,0,tvb_length(tvb));
 }
 
 static void
