@@ -412,7 +412,7 @@ dissect_spnego_InnerContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 	 */
 
 	token_tvb = tvb_new_subset(tvb, offset, -1, -1);
-	if (next_level_value->wrap_handle) {
+	if (next_level_value && next_level_value->wrap_handle) {
 	  len = call_dissector(next_level_value->wrap_handle, token_tvb, pinfo, subtree);
 	  if (len == 0)
 	    offset = tvb_length(tvb);
