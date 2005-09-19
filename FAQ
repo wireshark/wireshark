@@ -1338,13 +1338,12 @@ cies
        such as T1/E1 lines are all PPP interfaces, so those interfaces might
        not show up on the list of interfaces in the "Capture Options" dialog on
        those OSes.
-       On Windows 2000 and later, installing the beta version of WinPcap 3.1
-       might help, although, as it's a beta version, that might cause some
-       other problems that don't occur with older versions of WinPcap; you
-       should report those problems to the WinPcap developers, so that they can
-       try to fix those problems before the final version of WinPcap 3.1 is
-       released. WinPcap 3.1 will not support PPP captures on Windows NT 4.0.
-       See the Ethereal Wiki item on PPP capturing for details.
+       On Windows 2000, Windows XP, and Windows Server 2003, but not Windows NT
+       4.0 or Windows Vista Beta 1, you should be able to capture on the
+       "GenericDialupAdapter" with WinPcap 3.1. (3.1 beta releases called it
+       the "NdisWanAdapter"; if you're using a 3.1 beta release, you should
+       un-install it and install the final 3.1 release.) See the Ethereal Wiki
+       item on PPP capturing for details.
     4. WinPcap prior to 3.0 does not support multiprocessor machines (note that
        machines with a single multi-threaded processor, such as Intel's new
        multi-threaded x86 processors, are multiprocessor machines as far as the
@@ -1429,13 +1428,12 @@ cies
    avoid those problems, support for PPP WAN interfaces on those versions of
    Windows has been disabled in WinPcap 3.0.
 
-   On Windows 2000 and later, installing the beta version of WinPcap 3.1 might
-   help, although, as it's a beta version, that might cause some other problems
-   that don't occur with older versions of WinPcap; you should report those
-   problems to the WinPcap developers, so that they can try to fix those
-   problems before the final version of WinPcap 3.1 is released. WinPcap 3.1
-   will not support PPP captures on Windows NT 4.0. See the Ethereal Wiki item
-   on PPP capturing for details.
+   On Windows 2000, Windows XP, and Windows Server 2003, but not Windows NT 4.0
+   or Windows Vista Beta 1, you should be able to capture on the
+   "GenericDialupAdapter" with WinPcap 3.1. (3.1 beta releases called it the
+   "NdisWanAdapter"; if you're using a 3.1 beta release, you should un-install
+   it and install the final 3.1 release.) See the Ethereal Wiki item on PPP
+   capturing for details.
 
    Q 5.7: I'm running Ethereal on a UNIX-flavored OS; why does some network
    interface on my machine not show up in the list of interfaces in the
@@ -1762,13 +1760,12 @@ cies
    "Capture Preferences" dialog box, but this may mean that outgoing packets,
    or incoming packets, won't be seen in the capture.
 
-   On Windows 2000 and later, installing the beta version of WinPcap 3.1 might
-   help, although, as it's a beta version, that might cause some other problems
-   that don't occur with older versions of WinPcap; you should report those
-   problems to the WinPcap developers, so that they can try to fix those
-   problems before the final version of WinPcap 3.1 is released. WinPcap 3.1
-   will not support PPP captures on Windows NT 4.0. See the Ethereal Wiki item
-   on PPP capturing for details.
+   On Windows 2000, Windows XP, and Windows Server 2003, but not Windows NT 4.0
+   or Windows Vista Beta 1, you should be able to capture on the
+   "GenericDialupAdapter" with WinPcap 3.1. (3.1 beta releases called it the
+   "NdisWanAdapter"; if you're using a 3.1 beta release, you should un-install
+   it and install the final 3.1 release.) See the Ethereal Wiki item on PPP
+   capturing for details.
 
    Q 5.25: I'm running Ethereal on Windows 95/98/Me, on a machine with more
    than one network adapter of the same type; Ethereal shows all of those
@@ -2172,4 +2169,4 @@ cies
    ethereal-users[AT]ethereal.com mailing list.
    For corrections/additions/suggestions for this web page (and not Ethereal
    support questions), please send email to ethereal-web[AT]ethereal.com .
-   Last modified: Thu, August 25 2005.
+   Last modified: Thu, September 15 2005.
