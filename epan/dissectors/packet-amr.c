@@ -38,8 +38,12 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/proto.h>
+
 #include "prefs.h"
 
+#define AMR_SID 8
+#define AMR_NO_TRANS 15
 
 /* Initialize the protocol and registered fields */
 static int proto_amr		= -1;
@@ -48,6 +52,23 @@ static int hf_amr_reserved	= -1;
 static int hf_amr_toc_f		= -1;
 static int hf_amr_toc_ft	= -1;
 static int hf_amr_toc_q		= -1;
+static int hf_amr_toc_f_unaligned1 = -1;
+static int hf_amr_toc_ft_unaligned1 = -1;
+static int hf_amr_toc_q_unaligned1 = -1;
+static int hf_amr_toc_f_unaligned2 = -1;
+static int hf_amr_toc_ft_unaligned2 = -1;
+static int hf_amr_toc_q_unaligned2 = -1;
+
+static int hf_amr_if1_ft = -1;
+static int hf_amr_if1_fqi = -1;
+static int hf_amr_if1_mode_req = -1;
+static int hf_amr_if1_sti = -1;
+static int hf_amr_if1_mode_ind = -1;
+static int hf_amr_if1_sti_mode_ind = -1;
+static int hf_amr_sti = -1;
+
+static int hf_amr_if2_ft = -1;
+
 
 /* Initialize the subtree pointers */
 static int ett_amr = -1;
@@ -57,27 +78,48 @@ static int ett_amr_toc = -1;
 
 static guint dynamic_payload_type = 0;
 static guint temp_dynamic_payload_type = 0;
+gint amr_encoding_type = 0;
 
 /* Currently only octet aligned works */
 static gboolean octet_aligned = TRUE;
 
+static const value_string amr_encoding_type_value[] = {
+	{0,			"RFC 3267"}, 
+	{1,			"RFC 3267 bandwidth-efficient mode"}, /* Not coded */
+	{2,			"AMR IF 1"},
+	{3,			"AMR IF 2"},
+	{ 0,	NULL }
+};
+
+static const value_string amr_codec_mode_vals[] = {
+	{0,			"AMR 4,75 kbit/s"}, 
+	{1,			"AMR 5,15 kbit/s"},
+	{2,			"AMR 5,90 kbit/s"},
+	{3,			"AMR 6,70 kbit/s (PDC-EFR)"},
+	{4,			"AMR 7,40 kbit/s (TDMA-EFR)"},
+	{5,			"AMR 7,95 kbit/s"},
+	{6,			"AMR 10,2 kbit/s"},
+	{7,			"AMR 12,2 kbit/s (GSM-EFR)"},
+	{ 0,	NULL }
+};
+
 static const value_string amr_codec_mode_request_vals[] = {
-	{0,		"AMR 4,75 kbit/s"}, 
-	{1,		"AMR 5,15 kbit/s"},
-	{2,		"AMR 5,90 kbit/s"},
-	{3,		"AMR 6,70 kbit/s (PDC-EFR)"},
-	{4,		"AMR 7,40 kbit/s (TDMA-EFR)"},
-	{5,		"AMR 7,95 kbit/s"},
-	{6,		"AMR 10,2 kbit/s"},
-	{7,		"AMR 12,2 kbit/s (GSM-EFR)"},
-	{8,		"AMR SID"},
-	{9,		"GSM-EFR SID"},
-	{10,	"TDMA-EFR SID"},
-	{11,	"PDC-EFR SID"},
+	{0,			"AMR 4,75 kbit/s"}, 
+	{1,			"AMR 5,15 kbit/s"},
+	{2,			"AMR 5,90 kbit/s"},
+	{3,			"AMR 6,70 kbit/s (PDC-EFR)"},
+	{4,			"AMR 7,40 kbit/s (TDMA-EFR)"},
+	{5,			"AMR 7,95 kbit/s"},
+	{6,			"AMR 10,2 kbit/s"},
+	{7,			"AMR 12,2 kbit/s (GSM-EFR)"},
+	{AMR_SID,	"AMR SID"},
+	{9,			"GSM-EFR SID"},
+	{10,		"TDMA-EFR SID"},
+	{11,		"PDC-EFR SID"},
 	/*
 	{12-14	-	-	For future use
 	*/
-	{15,	"No Data (No transmission/No reception)"}, 
+	{AMR_NO_TRANS,	"No Data (No transmission/No reception)"}, 
 	{ 0,	NULL }
 };
 
@@ -91,13 +133,61 @@ static const true_false_string toc_q_bit_vals = {
   "Severely damaged frame"
 };
 
+static const true_false_string amr_sti_vals = {
+  "SID_UPDATE",
+  "SID_FIRST"
+};
+static void
+dissect_amr_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+	int offset =0;
+	guint8 octet;
+
+	proto_tree_add_item(tree, hf_amr_if1_ft, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_amr_if1_fqi, tvb, offset, 1, FALSE);
+	octet = tvb_get_guint8(tvb,offset) & 0x0f;
+	if (octet == AMR_SID){
+		proto_tree_add_item(tree, hf_amr_if1_mode_req, tvb, offset+1, 1, FALSE);
+		proto_tree_add_text(tree, tvb, offset+2, 4, "Speech data");
+		proto_tree_add_item(tree, hf_amr_if1_sti, tvb, offset+7, 1, FALSE);
+		proto_tree_add_item(tree, hf_amr_if1_sti_mode_ind, tvb, offset+7, 1, FALSE);
+		return;
+	}
+
+	proto_tree_add_item(tree, hf_amr_if1_mode_ind, tvb, offset, 1, FALSE);
+	offset++;
+	proto_tree_add_item(tree, hf_amr_if1_mode_req, tvb, offset, 1, FALSE);
+	offset++;
+	proto_tree_add_text(tree, tvb, offset, -1, "Speech data");
+
+}
+
+static void
+dissect_amr_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+	int offset =0;
+	guint8 octet;
+
+	proto_tree_add_item(tree, hf_amr_if2_ft, tvb, offset, 1, FALSE);
+	octet = tvb_get_guint8(tvb,offset) & 0x0f;
+	if (octet == AMR_SID){
+		proto_tree_add_text(tree, tvb, offset+1, 3, "Speech data");
+		proto_tree_add_item(tree, hf_amr_sti, tvb, offset+4, 1, FALSE);
+		proto_tree_add_item(tree, hf_amr_if2_ft, tvb, offset+5, 1, FALSE);
+		return;
+	}
+	if (octet == AMR_NO_TRANS)
+		return;
+	proto_tree_add_text(tree, tvb, offset+1, -1, "Speech data");
+
+}
+
 /* Code to actually dissect the packets */
 static void
 dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
 	int toc_offset = 0;
-	guint octet;
+	guint8 octet;
+	proto_item *item;
 
 /* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti,*toc_item;
@@ -107,14 +197,57 @@ dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMR");
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_amr, tvb, 0, -1, FALSE);
 
+		ti = proto_tree_add_item(tree, proto_amr, tvb, 0, -1, FALSE);
 		amr_tree = proto_item_add_subtree(ti, ett_amr);
 
-/* add an item to the subtree, see section 1.6 for more information */
+		proto_tree_add_text(amr_tree, tvb, offset, -1, "Payload decoded as %s",val_to_str(amr_encoding_type, amr_encoding_type_value, "Unknown value - Error"));
+
+		switch (amr_encoding_type){
+		case 0:
+		case 1:
+			break;
+		case 2: /* AMR IF1 */
+			dissect_amr_if1(tvb, pinfo, amr_tree);
+			return;
+		case 3: /* AMR IF2 */
+			dissect_amr_if2(tvb, pinfo, amr_tree);
+			return;
+		default:
+			break;
+		}
+
+
+
 		proto_tree_add_item(amr_tree, hf_amr_cmr, tvb, offset, 1, FALSE);
-		if ( !octet_aligned )
-			return; /* only handle octet aligned for now */
+		octet = tvb_get_guint8(tvb,offset) & 0x0f;
+		if ( octet != 0  ){
+			item = proto_tree_add_text(amr_tree, tvb, offset, -1, "Reserved != 0, wrongly encoded or not octet aligned. Decoding as bandwidth-efficient mode");
+			PROTO_ITEM_SET_GENERATED(item);
+			if (!tvb_length_remaining(tvb,offset))
+				return;
+			/*     0 1 2 3 4 5
+			 *   +-+-+-+-+-+-+
+			 *   |F|  FT   |Q|
+			 *   +-+-+-+-+-+-+
+			 */
+
+			toc_item = proto_tree_add_text(amr_tree, tvb, offset, -1, "Payload Table of Contents");
+			toc_tree = proto_item_add_subtree(toc_item, ett_amr_toc);
+
+			proto_tree_add_item(amr_tree, hf_amr_toc_f_unaligned1, tvb, offset, 2, FALSE);
+			proto_tree_add_item(amr_tree, hf_amr_toc_ft_unaligned1, tvb, offset, 2, FALSE);
+			proto_tree_add_item(amr_tree, hf_amr_toc_q_unaligned1, tvb, offset, 2, FALSE);
+			if (octet & 0x04)
+				return;
+			octet = tvb_get_guint8(tvb,offset+1);
+			proto_tree_add_item(amr_tree, hf_amr_toc_f_unaligned2, tvb, offset, 2, FALSE);
+			proto_tree_add_item(amr_tree, hf_amr_toc_ft_unaligned2, tvb, offset, 2, FALSE);
+			proto_tree_add_item(amr_tree, hf_amr_toc_q_unaligned2, tvb, offset, 2, FALSE);
+			if (octet & 0x20)
+				return;
+			return;
+		}
 
 		proto_tree_add_item(amr_tree, hf_amr_reserved, tvb, offset, 1, FALSE);
 		offset++;
@@ -141,13 +274,8 @@ dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset++;
 		}
 
-
-/* Continue adding tree items to process the packet here */
-
-
 	}/* if tree */
 
-/* If this protocol has a sub-dissector call it here, see section 1.8 */
 }
 
 
@@ -217,6 +345,76 @@ proto_register_amr(void)
 			FT_BOOLEAN, 8, TFS(&toc_q_bit_vals), 0x04,          
 			"Frame quality indicator bit", HFILL }
 		},
+		{ &hf_amr_toc_f_unaligned1,
+			{ "F bit",           "amr.toc.f.ual1",
+			FT_BOOLEAN, 16, TFS(&toc_f_bit_vals), 0x0800,          
+			"F bit", HFILL }
+		},
+		{ &hf_amr_toc_ft_unaligned1,
+			{ "FT bits",           "amr.toc.ft.ual1",
+			FT_UINT16, BASE_DEC, VALS(amr_codec_mode_request_vals), 0x0780,          
+			"FT bits", HFILL }
+		},
+		{ &hf_amr_toc_q_unaligned1,
+			{ "Q bit",           "amr.toc.ua1.q.ual1",
+			FT_BOOLEAN, 16, TFS(&toc_q_bit_vals), 0x0040,          
+			"Frame quality indicator bit", HFILL }
+		},
+		{ &hf_amr_toc_f_unaligned2,
+			{ "F bit",           "amr.toc.f.ual2",
+			FT_BOOLEAN, 16, TFS(&toc_f_bit_vals), 0x0020,          
+			"F bit", HFILL }
+		},
+		{ &hf_amr_toc_ft_unaligned2,
+			{ "FT bits",           "amr.toc.ft.ual2",
+			FT_UINT16, BASE_DEC, VALS(amr_codec_mode_request_vals), 0x001e,          
+			"FT bits", HFILL }
+		},
+		{ &hf_amr_toc_q_unaligned2,
+			{ "Q bit",           "amr.toc.ua1.q.ual2",
+			FT_BOOLEAN, 16, TFS(&toc_q_bit_vals), 0x00001,          
+			"Frame quality indicator bit", HFILL }
+		},
+		{ &hf_amr_if1_ft,
+			{ "Frame Type",           "amr.if1.ft",
+			FT_UINT8, BASE_DEC, VALS(amr_codec_mode_request_vals), 0xf0,          
+			"Frame Type", HFILL }
+		},
+		{ &hf_amr_if1_mode_req,
+			{ "Mode Type request",           "amr.if1.modereq",
+			FT_UINT8, BASE_DEC, VALS(amr_codec_mode_vals), 0xe0,          
+			"Mode Type request", HFILL }
+		},
+		{ &hf_amr_if1_sti,
+			{ "SID Type Indicator",           "amr.if1.sti",
+			FT_BOOLEAN, 8, TFS(&amr_sti_vals), 0x10,          
+			"SID Type Indicator", HFILL }
+		},
+		{ &hf_amr_if1_sti_mode_ind,
+			{ "Mode Type indication",           "amr.if1.modereq",
+			FT_UINT8, BASE_DEC, VALS(amr_codec_mode_vals), 0x0e,          
+			"Mode Type indication", HFILL }
+		},
+		{ &hf_amr_if1_mode_ind,
+			{ "Mode Type indication",           "amr.if1.modereq",
+			FT_UINT8, BASE_DEC, VALS(amr_codec_mode_vals), 0x07,          
+			"Mode Type indication", HFILL }
+		},
+		{ &hf_amr_if2_ft,
+			{ "Frame Type",           "amr.if2.ft",
+			FT_UINT8, BASE_DEC, VALS(amr_codec_mode_request_vals), 0x0f,          
+			"Frame Type", HFILL }
+		},
+		{ &hf_amr_sti,
+			{ "SID Type Indicator",           "amr.sti",
+			FT_BOOLEAN, 8, TFS(&amr_sti_vals), 0x80,          
+			"SID Type Indicator", HFILL }
+		},
+		{ &hf_amr_if1_fqi,
+			{ "FQI",           "amr.fqi",
+			FT_BOOLEAN, 8, TFS(&toc_q_bit_vals), 0x08,          
+			"Frame quality indicator bit", HFILL }
+		},
 	};
 
 /* Setup protocol subtree array */
@@ -224,6 +422,12 @@ proto_register_amr(void)
 		&ett_amr,
 		&ett_amr_toc,
 	};
+    static enum_val_t encoding_types[] = {
+	{"RFC 3267 Byte aligned", "RFC 3267", 0},
+	{"AMR IF1", "AMR IF1", 2},
+	{"AMR IF2", "AMR IF2", 3},
+	{NULL, NULL, -1}
+    };
 
 /* Register the protocol name and description */
 	proto_amr = proto_register_protocol("Adaptive Multi-Rate","AMR", "amr");
@@ -241,6 +445,11 @@ proto_register_amr(void)
 								   "The dynamic payload type which will be interpretyed as AMR",
 								   10,
 								   &temp_dynamic_payload_type);
+
+    prefs_register_enum_preference(amr_module, "encoding.version",
+      "Type of AMR encoding of the payload",
+      "Type of AMR encoding of the payload",
+      &amr_encoding_type, encoding_types, FALSE);
 
 }
 
