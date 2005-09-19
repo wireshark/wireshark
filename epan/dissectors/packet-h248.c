@@ -4621,6 +4621,22 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *h248_item;
   proto_tree *h248_tree = NULL;
 
+  /* Check if it is actually a text based h248 encoding, which we call
+     megaco in ehtereal.
+  */
+  if(tvb_length(tvb)>=6){
+    if(!tvb_strneql(tvb, 0, "MEGACO", 6)){
+      static dissector_handle_t megaco_handle=NULL;
+      if(!megaco_handle){
+        megaco_handle = find_dissector("megaco");
+      }
+      if(megaco_handle){
+        call_dissector(megaco_handle, tvb, pinfo, tree);
+        return;
+      }
+    }
+  }
+
   /* Make entry in the Protocol column on summary display */
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.248");
