@@ -885,7 +885,10 @@ dissect_afsAcl (tvbuff_t * tvb, int offset,
 
   offset += (acl_len - 38);
 
- proto_item_set_len(item, offset-old_offset); 
+  if (offset <= old_offset)
+    THROW(ReportedBoundsError);
+
+  proto_item_set_len(item, offset-old_offset); 
   return offset;
 }
 
