@@ -67,7 +67,7 @@ struct sockaddr_storage {
     eth_sa_family_t  __ss_family;     /* address family */
     /* Following fields are implementation specific */
     char      __ss_pad1[ETH_SS_PAD1SIZE];
-              /* 6 byte pad, this is to make implementation
+              /* 6 byte pad, this is to make implementation */
               /* specific pad up to alignment field that */
               /* follows explicit in the data structure */
     gint64 /*int64_t*/   __ss_align;     /* field to force desired structure */
