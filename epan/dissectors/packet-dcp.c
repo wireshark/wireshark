@@ -49,6 +49,7 @@
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
 #include <epan/prefs.h>
+#include <epan/emem.h>
 
 #include "packet-dcp.h"
 
@@ -159,6 +160,7 @@ static int hf_dcp_data1 = -1;
 static int hf_dcp_data2 = -1;
 static int hf_dcp_data3 = -1;
 
+static int hf_dcp_options = -1;
 static int hf_dcp_option_type = -1;
 static int hf_dcp_feature_number = -1;
 static int hf_dcp_ndp_count = -1;
@@ -533,8 +535,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint      reported_len = 0;
 	guint      advertised_dccp_header_len = 0;
 	guint      options_len = 0;
-	static     e_dcphdr dcphstruct[4], *dcph;
-	static     int dcph_count=0;
+	e_dcphdr   *dcph;
 	
 	/* get at least a full message header */
 	if(!tvb_bytes_exist(tvb, 0, DCCP_HDR_LEN_MIN)) {
@@ -546,12 +547,9 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 return;
         }
 
-	dcph_count++;
-	if(dcph_count>=4) {
-		dcph_count=0;
-	}
-	dcph=&dcphstruct[dcph_count];
-	memset(dcph, 0, sizeof(struct _e_dcphdr));
+	dcph=ep_alloc(sizeof(e_dcphdr));
+
+	memset(dcph, 0, sizeof(e_dcphdr));
 
 	SET_ADDRESS(&dcph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
 	SET_ADDRESS(&dcph->ip_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
@@ -928,11 +926,11 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		return;
 	} else {
-		if(tree) {
-			dcp_item = proto_tree_add_text(dcp_tree, tvb, offset, options_len, "Options: (%u bytes)", options_len);
+		if(dcp_tree) {
+			dcp_item = proto_tree_add_none_format(dcp_tree, hf_dcp_options, tvb, offset, options_len, "Options: (%u bytes)", options_len);
 			dcp_options_tree = proto_item_add_subtree(dcp_item, ett_dcp_options);
-			dissect_options(tvb, pinfo, dcp_options_tree, tree, dcph, offset, offset + options_len);
 		}
+		dissect_options(tvb, pinfo, dcp_options_tree, tree, dcph, offset, offset + options_len);
 	}
 		
 	offset+=options_len; /* Skip over Options */			
@@ -1063,6 +1061,10 @@ void proto_register_dcp(void)
 		{ &hf_dcp_malformed,
 		{ "", "dcp.malformed", FT_BOOLEAN, BASE_DEC, NULL, 0x0,
 		  "", HFILL }},
+
+		{ &hf_dcp_options,
+		{ "Options", "dcp.options", FT_NONE, BASE_DEC, NULL, 0x0,
+		  "DCP Options fields", HFILL }},
 
 	};
 
