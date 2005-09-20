@@ -420,7 +420,11 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 			return;
 			break;
-		/* transactionResponseAck 	*/
+			/* transactionResponseAck 	
+			 * transactionResponseAck = ResponseAckToken LBRKT transactionAck
+             *                           *(COMMA transactionAck) RBRKT
+			 * transactionAck = transactionID / (transactionID "-" transactionID)
+			 */
 		case 'K':
 			tvb_offset  = tvb_find_guint8(tvb, tvb_offset, tvb_len, '{');
 			tokenlen = tvb_offset - tvb_previous_offset;
@@ -429,7 +433,8 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				"TransactionResponseAck" );
 
 			tvb_previous_offset = tvb_skip_wsp(tvb, tvb_offset+1);
-			tvb_current_offset = tvb_skip_wsp_return(tvb, tvb_len-1)-1; /* cut last RBRKT */
+			tvb_current_offset = tvb_find_guint8(tvb, tvb_offset+1, tvb_len, '}');
+			tvb_current_offset = tvb_skip_wsp_return(tvb, tvb_current_offset)-1; /* cut last RBRKT */
 			len = tvb_current_offset - tvb_previous_offset;
 
 			if (check_col(pinfo->cinfo, COL_INFO) )
@@ -560,6 +565,10 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						len = tvb_len - tvb_previous_offset;
 						proto_tree_add_text(megaco_tree, tvb, tvb_previous_offset, -1,
 							"%s",tvb_format_text(tvb, tvb_previous_offset, len));
+
+						my_proto_tree_add_string(megaco_tree, hf_megaco_transid, tvb,
+										tvb_offset, (tvb_next_offset - tvb_offset),
+										tvb_format_text(tvb,tvb_offset,(tvb_next_offset - tvb_offset)));
 					if(global_megaco_raw_text){
 						tvb_raw_text_add(tvb, megaco_tree);
 						}
