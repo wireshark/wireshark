@@ -36,7 +36,46 @@ EXTRA_DIST = \
 	pkt-from-core.py	\
 	unix2dos.pl		\
 	win32-setup.sh		\
-	yacc.py
+	yacc.py			\
+	pidl/lib/Parse/Pidl/Ethereal/NDR.pm	\
+	pidl/lib/Parse/Pidl/Ethereal/Conformance.pm	\
+	pidl/lib/Parse/Pidl/IDL.pm	\
+	pidl/lib/Parse/Pidl/Util.pm	\
+	pidl/lib/Parse/Pidl/Samba/COM/Proxy.pm	\
+	pidl/lib/Parse/Pidl/Samba/COM/Stub.pm	\
+	pidl/lib/Parse/Pidl/Samba/COM/Header.pm	\
+	pidl/lib/Parse/Pidl/Samba/NDR/Client.pm	\
+	pidl/lib/Parse/Pidl/Samba/NDR/Parser.pm	\
+	pidl/lib/Parse/Pidl/Samba/NDR/Header.pm	\
+	pidl/lib/Parse/Pidl/Samba/NDR/Server.pm	\
+	pidl/lib/Parse/Pidl/Samba/EJS.pm	\
+	pidl/lib/Parse/Pidl/Samba/Template.pm	\
+	pidl/lib/Parse/Pidl/Samba/TDR.pm	\
+	pidl/lib/Parse/Pidl/Samba/SWIG.pm	\
+	pidl/lib/Parse/Pidl/Samba/EJSHeader.pm	\
+	pidl/lib/Parse/Pidl/Samba/Header.pm	\
+	pidl/lib/Parse/Pidl/NDR.pm	\
+	pidl/lib/Parse/Pidl/ODL.pm	\
+	pidl/lib/Parse/Pidl/Typelist.pm	\
+	pidl/lib/Parse/Pidl/Dump.pm	\
+	pidl/lib/Parse/Pidl/Test.pm	\
+	pidl/lib/Parse/Pidl/Compat.pm	\
+	pidl/lib/Parse/Pidl.pm	\
+	pidl/TODO	\
+	pidl/pidl	\
+	pidl/tests/ndr_string.pl	\
+	pidl/tests/ndr_array.pl	\
+	pidl/tests/ndr_align.pl	\
+	pidl/tests/ndr_alloc.pl	\
+	pidl/tests/ndr_simple.pl	\
+	pidl/tests/ndr_refptr.pl	\
+	pidl/README	\
+	pidl/pidl.1.xml	\
+	pidl/Makefile.PL	\
+	pidl/idl.yp	\
+	pidl/ref_notes.txt	\
+	pidl/smb_interfaces.pm	\
+	pidl/smb_interfaces.yp
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
