@@ -1467,6 +1467,8 @@ fragment_add_dcerpc_dg(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id
  * of that (empty) list.
  *
  * Otherwise, it returns NULL.
+ *
+ * XXX - Should we simply return NULL for zero-length fragments?
  */
 static fragment_data *
 fragment_add_seq_check_work(tvbuff_t *tvb, int offset, packet_info *pinfo,

@@ -511,7 +511,7 @@ reassemble_octet_string(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
   static GHashTable *octet_segment_table = NULL;
   static GHashTable *octet_reassembled_table = NULL;
   fragment_data *fd_head = NULL;
-  tvbuff_t *next_tvb;
+  tvbuff_t *next_tvb = NULL;
   tvbuff_t *reassembled_tvb = NULL;
   guint16 dst_ref = 0;
   int start_offset = offset;
@@ -560,6 +560,11 @@ reassemble_octet_string(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
       break;
     }
 
+
+    if (tvb_length(next_tvb) < 1) {
+      /* Don't cause an assertion in the reassembly code. */
+      THROW(ReportedBoundsError);
+    }
     fd_head = fragment_add_seq_next(next_tvb, 0, pinfo, dst_ref,
 				    octet_segment_table,
 				    octet_reassembled_table,
