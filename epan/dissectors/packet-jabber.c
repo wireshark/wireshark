@@ -46,6 +46,7 @@ static gint ett_jabber = -1;
 static gint ett_jabber_reqresp = -1;
 
 #define TCP_PORT_JABBER			5222
+static dissector_handle_t xml_handle=NULL;
 
 static void
 dissect_jabber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -57,6 +58,7 @@ dissect_jabber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const guchar	*line;
 	gint		next_offset;
 	int		linelen;
+	tvbuff_t *xmltvb;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Jabber");
@@ -99,12 +101,8 @@ dissect_jabber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    hf_jabber_response, tvb, 0, 0, TRUE);
 		}
 
-		/*
-		 * Put the line into the protocol tree.
-		 */
-		ti = proto_tree_add_text(jabber_tree, tvb, offset,
-		    next_offset - offset, "%s",
-		    tvb_format_text(tvb, offset, next_offset - offset));
+		xmltvb = tvb_new_subset(tvb, offset, -1, -1);
+		call_dissector(xml_handle, xmltvb, pinfo, jabber_tree);
 	}
 }
 
@@ -137,6 +135,8 @@ void
 proto_reg_handoff_jabber(void)
 {
   dissector_handle_t jabber_handle;
+
+  xml_handle = find_dissector("xml");
 
   jabber_handle = create_dissector_handle(dissect_jabber, proto_jabber);
   dissector_add("tcp.port", TCP_PORT_JABBER, jabber_handle);
