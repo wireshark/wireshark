@@ -1,5 +1,8 @@
-/* packet-nonstd.c
+/* packet-h221_nonstd.c
  * Routines for H.221 nonstandard parameters disassembly
+ *
+ * $Id$
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
