@@ -2068,7 +2068,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		dissect_ieee_802_3_tlv(tvb, pinfo, org_tlv_tree, (offset+5));
 		break;
 	case OUI_MEDIA_ENDPOINT:
-		dissect_media_tlv(tvb, pinfo, org_tlv_tree, (offset+5), (tempLen-3));
+		dissect_media_tlv(tvb, pinfo, org_tlv_tree, (offset+5), (guint16) (tempLen-3));
 		break;
 	}
 	
