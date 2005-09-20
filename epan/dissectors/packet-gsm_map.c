@@ -1321,7 +1321,7 @@ unpack_digits(tvbuff_t *tvb, int offset){
 	length = length - offset;
 	digit_str = g_malloc(length*2+1);
 
-	while ( offset < length ){
+	while ( offset <= length ){
 
 		octet = tvb_get_guint8(tvb,offset);
 		digit_str[i] = ((octet & 0x0f) + 0x30);
@@ -1332,8 +1332,10 @@ unpack_digits(tvbuff_t *tvb, int offset){
 		 */
 		octet = octet >> 4;
 
-		if (octet == 0x0f)	/* odd number bytes - hit filler */
+		if (octet == 0x0f){	/* odd number bytes - hit filler */
+			i++; 
 			break;
+		}
 
 		digit_str[i] = ((octet & 0x0f) + 0x30);
 		i++;
@@ -1427,8 +1429,7 @@ static int dissect_signalInfo(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 static int
 dissect_gsm_map_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
