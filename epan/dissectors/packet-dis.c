@@ -4,6 +4,8 @@
  * Copyright 2005, Scientific Research Corporation
  * Initial implementation by Jeremy Ouellette <jouellet@scires.com>
  *
+ * $Id$
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
