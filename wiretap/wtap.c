@@ -341,6 +341,17 @@ static const struct encap_type_info {
 	/* WTAP_ENCAP_JUNIPER_MLFR */
 	{ "Juniper MLFR", "juniper-mlfr" },
 
+	/* WTAP_ENCAP_JUNIPER_ETHER */
+	{ "Juniper Ethernet", "juniper-ether" },
+
+	/* WTAP_ENCAP_JUNIPER_PPP */
+	{ "Juniper PPP", "juniper-ppp" },
+
+	/* WTAP_ENCAP_JUNIPER_FRELAY */
+	{ "Juniper Frame-Relay", "juniper-frelay" },
+
+	/* WTAP_ENCAP_JUNIPER_CHDLC */
+	{ "Juniper C-HDLC", "juniper-chdlc" },
 };
 
 /* Name that should be somewhat descriptive. */

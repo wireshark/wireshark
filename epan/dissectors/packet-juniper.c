@@ -41,6 +41,7 @@
 #define JUNIPER_FLAG_PKT_IN         0x01     /* Incoming packet */
 #define JUNIPER_FLAG_NO_L2          0x02     /* L2 header stripped */
 #define JUNIPER_FLAG_EXT            0x80     /* extensions present */
+#define EXT_TLV_HEADER_SIZE 2
 #define JUNIPER_ATM2_PKT_TYPE_MASK  0x70
 #define JUNIPER_ATM2_GAP_COUNT_MASK 0x3F
 #define JUNIPER_PCAP_MAGIC          0x4d4743
@@ -71,6 +72,27 @@
 #define LSQ_L3_PROTO_MPLS     (2 << LSQ_L3_PROTO_SHIFT)
 #define LSQ_L3_PROTO_ISO      (3 << LSQ_L3_PROTO_SHIFT)
 
+#define EXT_TLV_IFD_IDX           1
+#define EXT_TLV_IFD_NAME          2
+#define EXT_TLV_IFD_MEDIATYPE     3
+#define EXT_TLV_IFL_IDX           4
+#define EXT_TLV_IFL_UNIT          5
+#define EXT_TLV_IFL_ENCAPS        6
+#define EXT_TLV_TTP_IFD_MEDIATYPE 7
+#define EXT_TLV_TTP_IFL_ENCAPS    8
+
+static const value_string ext_tlv_vals[] = {
+    { EXT_TLV_IFD_IDX, "Device Interface Index" },
+    { EXT_TLV_IFD_NAME,	"Device Interface Name" },
+    { EXT_TLV_IFD_MEDIATYPE, "Device Media Type" },
+    { EXT_TLV_IFL_IDX, "Logical Interface Index" },
+    { EXT_TLV_IFL_UNIT,	"Logical Unit Number" },
+    { EXT_TLV_IFL_ENCAPS, "Logical Interface Encapsulation" },
+    { EXT_TLV_TTP_IFD_MEDIATYPE, "TTP derived Device Media Type" },
+    { EXT_TLV_TTP_IFL_ENCAPS, "TTP derived Logical Interface Encapsulation" },
+    { 0,		   NULL }
+};
+
 static const value_string juniper_direction_vals[] = {
     {JUNIPER_FLAG_PKT_OUT, "Out"},
     {JUNIPER_FLAG_PKT_IN,  "In"},
@@ -88,7 +110,7 @@ static int proto_juniper = -1;
 static int hf_juniper_magic = -1;
 static int hf_juniper_direction = -1;
 static int hf_juniper_l2hdr_presence = -1;
-static int hf_juniper_ext_len = -1;
+static int hf_juniper_ext_total_len = -1;
 static int hf_juniper_atm1_cookie = -1;
 static int hf_juniper_atm2_cookie = -1;
 static int hf_juniper_mlpic_cookie = -1;
@@ -105,6 +127,7 @@ static dissector_handle_t eth_handle;
 static dissector_handle_t ppp_handle;
 static dissector_handle_t q933_handle;
 static dissector_handle_t frelay_handle;
+static dissector_handle_t chdlc_handle;
 static dissector_handle_t data_handle;
 
 static dissector_table_t osinl_subdissector_table;
@@ -139,7 +162,8 @@ enum {
     PROTO_ETHER = 204,
     PROTO_OAM = 205,
     PROTO_Q933 = 206,
-    PROTO_FRELAY = 207
+    PROTO_FRELAY = 207,
+    PROTO_CHDLC = 208
 };
 
 static const value_string juniper_proto_vals[] = {
@@ -161,6 +185,7 @@ static const value_string juniper_proto_vals[] = {
     {PROTO_OAM, "ATM OAM Cell"},
     {PROTO_Q933, "Q.933"},
     {PROTO_FRELAY, "Frame-Relay"},
+    {PROTO_CHDLC, "C-HDLC"},
     {0,                    NULL}
 };
 
@@ -172,8 +197,8 @@ int
 dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti, guint8 *flags)
 {
   proto_item *tisub;
-  guint8     direction,l2hdr_presence,proto;
-  guint16    ext_len,hdr_len;
+  guint8     direction,l2hdr_presence,proto,ext_type,ext_len;
+  guint16    ext_total_len,ext_offset=6,hdr_len;
   guint32    magic_number;
 
   tvbuff_t   *next_tvb;
@@ -205,14 +230,53 @@ dissect_juniper_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
 
   /* meta-info extensions (JUNOS >= 7.5) ? */
   if ((*flags & JUNIPER_FLAG_EXT) == JUNIPER_FLAG_EXT) {
-      ext_len = tvb_get_ntohs(tvb,4);
-      hdr_len = 6 + ext_len; /* MGC,flags,ext_len */
+      ext_total_len = tvb_get_ntohs(tvb,4);
+      hdr_len = 6 + ext_total_len; /* MGC,flags,ext_total_len */
 
-      tisub = proto_tree_add_uint (juniper_subtree, hf_juniper_ext_len, tvb, 4, 2, ext_len);
+      tisub = proto_tree_add_uint (juniper_subtree, hf_juniper_ext_total_len, tvb, 4, 2, ext_total_len);
       juniper_ext_subtree = proto_item_add_subtree(tisub, ett_juniper);          
 
-      /* FIXME add TLV parser for extensions */
-      tisub = proto_tree_add_text (juniper_ext_subtree, tvb, 6, ext_len, "unparsed Extensions");
+      while (ext_total_len > EXT_TLV_HEADER_SIZE) {
+          ext_type = tvb_get_guint8(tvb, ext_offset);
+          ext_len = tvb_get_guint8(tvb, ext_offset+1);
+
+          if (ext_len == 0 || ext_len > (ext_total_len - EXT_TLV_HEADER_SIZE)) /* a few sanity checks */
+              break;
+
+          tisub = proto_tree_add_text (juniper_ext_subtree, tvb, ext_offset, EXT_TLV_HEADER_SIZE + ext_len,
+                                       "%s Extension TLV #%u, length: %u, value: ",
+                                       val_to_str(ext_type, ext_tlv_vals, "Unknown"),
+                                       ext_type,
+                                       ext_len);
+          switch (ext_type) {
+          case EXT_TLV_IFD_IDX:
+              if (ext_len == 2)
+                  proto_item_append_text(tisub, "%u",tvb_get_letohs(tvb,ext_offset+ EXT_TLV_HEADER_SIZE));
+              break;
+
+          case EXT_TLV_IFD_MEDIATYPE: /* fall through */
+          case EXT_TLV_IFL_ENCAPS:
+          case EXT_TLV_TTP_IFD_MEDIATYPE:
+          case EXT_TLV_TTP_IFL_ENCAPS:
+              if (ext_len == 1) /* FIXME: ifle,ifmt value_string tables */
+                  proto_item_append_text(tisub, "%u",tvb_get_guint8(tvb,ext_offset+ EXT_TLV_HEADER_SIZE));
+              break;
+
+          case EXT_TLV_IFL_IDX: /* fall through */
+          case EXT_TLV_IFL_UNIT:
+              if (ext_len == 4)
+                  proto_item_append_text(tisub, "%u",tvb_get_letohl(tvb,ext_offset+ EXT_TLV_HEADER_SIZE));
+              break;
+
+          case EXT_TLV_IFD_NAME: /* FIXME print ifname string - lets fall-through for now */
+          default:
+              proto_item_append_text(tisub, "Unknown");              
+              break;
+          }
+
+          ext_offset += EXT_TLV_HEADER_SIZE + ext_len;
+          ext_total_len -= EXT_TLV_HEADER_SIZE + ext_len;
+      }
 
   } else
       hdr_len = 4; /* MGC,flags */
@@ -500,6 +564,127 @@ dissect_juniper_pppoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   dissect_juniper_payload_proto(tvb, pinfo, tree, ti, PROTO_ETHER, offset);
 
 }
+
+/* Ethernet dissector */
+static void
+dissect_juniper_ether(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_item *ti;
+  guint      offset;
+  int        bytes_processed;
+  guint8     flags;
+
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper Ethernet");
+  if (check_col(pinfo->cinfo, COL_INFO))
+      col_clear(pinfo->cinfo, COL_INFO);
+
+  offset = 0;
+
+  ti = proto_tree_add_text (tree, tvb, offset, 4, "Juniper Ethernet");
+
+  /* parse header, match mgc, extract flags and build first tree */
+  bytes_processed = dissect_juniper_header(tvb, pinfo, tree, ti, &flags);
+
+  if(bytes_processed == -1)
+      return;
+  else
+      offset+=bytes_processed;
+
+  dissect_juniper_payload_proto(tvb, pinfo, tree, ti, PROTO_ETHER, offset);
+
+}
+
+/* PPP dissector */
+static void
+dissect_juniper_ppp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_item *ti;
+  guint      offset;
+  int        bytes_processed;
+  guint8     flags;
+
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper PPP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+      col_clear(pinfo->cinfo, COL_INFO);
+
+  offset = 0;
+
+  ti = proto_tree_add_text (tree, tvb, offset, 4, "Juniper PPP");
+
+  /* parse header, match mgc, extract flags and build first tree */
+  bytes_processed = dissect_juniper_header(tvb, pinfo, tree, ti, &flags);
+
+  if(bytes_processed == -1)
+      return;
+  else
+      offset+=bytes_processed;
+
+  dissect_juniper_payload_proto(tvb, pinfo, tree, ti, PROTO_PPP, offset);
+
+}
+
+/* Frame-Relay dissector */
+static void
+dissect_juniper_frelay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_item *ti;
+  guint      offset;
+  int        bytes_processed;
+  guint8     flags;
+
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper Frame-Relay");
+  if (check_col(pinfo->cinfo, COL_INFO))
+      col_clear(pinfo->cinfo, COL_INFO);
+
+  offset = 0;
+
+  ti = proto_tree_add_text (tree, tvb, offset, 4, "Juniper Frame-Relay");
+
+  /* parse header, match mgc, extract flags and build first tree */
+  bytes_processed = dissect_juniper_header(tvb, pinfo, tree, ti, &flags);
+
+  if(bytes_processed == -1)
+      return;
+  else
+      offset+=bytes_processed;
+
+  dissect_juniper_payload_proto(tvb, pinfo, tree, ti, PROTO_FRELAY, offset);
+
+}
+
+/* C-HDLC dissector */
+static void
+dissect_juniper_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_item *ti;
+  guint      offset;
+  int        bytes_processed;
+  guint8     flags;
+
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "Juniper C-HDLC");
+  if (check_col(pinfo->cinfo, COL_INFO))
+      col_clear(pinfo->cinfo, COL_INFO);
+
+  offset = 0;
+
+  ti = proto_tree_add_text (tree, tvb, offset, 4, "Juniper C-HDLC");
+
+  /* parse header, match mgc, extract flags and build first tree */
+  bytes_processed = dissect_juniper_header(tvb, pinfo, tree, ti, &flags);
+
+  if(bytes_processed == -1)
+      return;
+  else
+      offset+=bytes_processed;
+
+  dissect_juniper_payload_proto(tvb, pinfo, tree, ti, PROTO_CHDLC, offset);
+
+}
+
 
 
 /* wrapper for passing the PIC type to the generic ATM dissector */
@@ -833,8 +1018,8 @@ proto_register_juniper(void)
     { &hf_juniper_l2hdr_presence,
       { "L2 header presence", "juniper.l2hdr", FT_UINT8, BASE_HEX,
         VALS(juniper_l2hdr_presence_vals), 0x0, "", HFILL }},
-    { &hf_juniper_ext_len,
-      { "Extension length", "juniper.ext_len", FT_UINT16, BASE_DEC,
+    { &hf_juniper_ext_total_len,
+      { "Extension(s) Total length", "juniper.ext_total_len", FT_UINT16, BASE_DEC,
         NULL, 0x0, "", HFILL }},
     { &hf_juniper_atm2_cookie,
       { "Cookie", "juniper.atm2.cookie", FT_UINT64, BASE_HEX,
@@ -871,6 +1056,10 @@ proto_reg_handoff_juniper(void)
   dissector_handle_t juniper_pppoe_handle;
   dissector_handle_t juniper_mlppp_handle;
   dissector_handle_t juniper_mlfr_handle;
+  dissector_handle_t juniper_ether_handle;
+  dissector_handle_t juniper_ppp_handle;
+  dissector_handle_t juniper_frelay_handle;
+  dissector_handle_t juniper_chdlc_handle;
 
   osinl_subdissector_table = find_dissector_table("osinl");
   osinl_excl_subdissector_table = find_dissector_table("osinl.excl");
@@ -882,6 +1071,7 @@ proto_reg_handoff_juniper(void)
   mpls_handle = find_dissector("mpls");
   q933_handle = find_dissector("q933");
   frelay_handle = find_dissector("fr");
+  chdlc_handle = find_dissector("chdlc");
   data_handle = find_dissector("data");
 
   juniper_atm2_handle = create_dissector_handle(dissect_juniper_atm2, proto_juniper);
@@ -889,10 +1079,20 @@ proto_reg_handoff_juniper(void)
   juniper_pppoe_handle = create_dissector_handle(dissect_juniper_pppoe, proto_juniper);
   juniper_mlppp_handle = create_dissector_handle(dissect_juniper_mlppp, proto_juniper);
   juniper_mlfr_handle = create_dissector_handle(dissect_juniper_mlfr, proto_juniper);
+  juniper_ether_handle = create_dissector_handle(dissect_juniper_ether, proto_juniper);
+  juniper_ppp_handle = create_dissector_handle(dissect_juniper_ppp, proto_juniper);
+  juniper_frelay_handle = create_dissector_handle(dissect_juniper_frelay, proto_juniper);
+  juniper_chdlc_handle = create_dissector_handle(dissect_juniper_chdlc, proto_juniper);
+
   dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_ATM2, juniper_atm2_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_ATM1, juniper_atm1_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_PPPOE, juniper_pppoe_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_MLPPP, juniper_mlppp_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_MLFR, juniper_mlfr_handle);
+  dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_ETHER, juniper_ether_handle);
+  dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_PPP, juniper_ppp_handle);
+  dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_FRELAY, juniper_frelay_handle);
+  dissector_add("wtap_encap", WTAP_ENCAP_JUNIPER_CHDLC, juniper_chdlc_handle);
+
 }
 

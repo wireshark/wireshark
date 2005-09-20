@@ -378,6 +378,16 @@ static const struct {
 	{ 172,		WTAP_GCOM_TIE1 },
 	{ 173,		WTAP_GCOM_SERIAL },
 
+        /* Ethernet frames prepended with meta-information */
+        { 178,          WTAP_ENCAP_JUNIPER_ETHER },
+        /* PPP frames prepended with meta-information */
+        { 179,          WTAP_ENCAP_JUNIPER_PPP },
+        /* Frame-Relay frames prepended with meta-information */
+        { 180,          WTAP_ENCAP_JUNIPER_FRELAY },
+        /* C-HDLC frames prepended with meta-information */
+        { 181,          WTAP_ENCAP_JUNIPER_CHDLC },
+
+
 	/*
 	 * To repeat:
 	 *
