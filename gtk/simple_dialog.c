@@ -41,6 +41,7 @@
 #include "image/stock_dialog_error_48.xpm"
 #include "image/stock_dialog_info_48.xpm"
 #include "image/stock_dialog_warning_48.xpm"
+#include "image/stock_dialog_stop_48.xpm"
 
 static void simple_dialog_cancel_cb(GtkWidget *, gpointer);
 
@@ -82,6 +83,9 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   case ESD_TYPE_ERROR:
     icon = stock_dialog_error_48_xpm;
     break;
+  case ESD_TYPE_STOP :
+    icon = stock_dialog_stop_48_xpm;
+    break;
   case ESD_TYPE_INFO :
   default :
     icon = stock_dialog_info_48_xpm;
@@ -122,11 +126,15 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
    * For now, we give it a Win32 title of just "Ethereal"; we should
    * arguably take an argument for the title.
    */
+  if(btn_mask == ESD_BTN_NONE) {
+	win = splash_window_new();
+  } else {
 #ifdef _WIN32
-  win = dlg_window_new("Ethereal");
+	win = dlg_window_new("Ethereal");
 #else
-  win = dlg_window_new("");
+    win = dlg_window_new("");
 #endif
+  }
 
   gtk_window_set_modal(GTK_WINDOW(win), TRUE);
   gtk_container_border_width(GTK_CONTAINER(win), 6);
@@ -170,6 +178,11 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   gtk_misc_set_alignment (GTK_MISC (type_pm), 0.5, 0.0);
   gtk_container_add(GTK_CONTAINER(msg_vb), msg_label);
   gtk_widget_show(msg_label);
+
+  if(btn_mask == ESD_BTN_NONE) {
+	gtk_widget_show(win);
+	return win;
+  }
 
   /* optional check button */
   ask_cb = gtk_check_button_new_with_label("replace with text...");
@@ -356,7 +369,7 @@ simple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
 
 static void
 simple_dialog_cancel_cb(GtkWidget *w, gpointer win) {
-  gint button       = GPOINTER_TO_INT(    OBJECT_GET_DATA(w,   CALLBACK_BTN_KEY));
+  gint button = GPOINTER_TO_INT(    OBJECT_GET_DATA(w, CALLBACK_BTN_KEY));
   simple_dialog_cb_t    callback_fct    = OBJECT_GET_DATA(win, CALLBACK_FCT_KEY);
   gpointer              data            = OBJECT_GET_DATA(win, CALLBACK_DATA_KEY);
 
@@ -364,6 +377,12 @@ simple_dialog_cancel_cb(GtkWidget *w, gpointer win) {
 
   if (callback_fct)
     (callback_fct) (win, button, data);
+}
+
+void
+simple_dialog_close(gpointer dialog)
+{
+	window_destroy(GTK_WIDGET(dialog));
 }
 
 void simple_dialog_set_cb(gpointer dialog, simple_dialog_cb_t callback_fct, gpointer data)

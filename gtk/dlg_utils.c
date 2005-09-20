@@ -162,10 +162,6 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     }
     va_end(stock_id_list);
 
-    /* we should have at least one button */
-    g_assert(buttons);
-
-
     hbox = gtk_hbox_new(FALSE, 0);
     gtk_widget_show(hbox);
 
@@ -176,6 +172,11 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     help_hbox = gtk_hbutton_box_new();
     gtk_box_pack_end(GTK_BOX(hbox), help_hbox, FALSE, FALSE, 0);
     gtk_widget_show(help_hbox);
+
+    if (buttons == 0) {
+        /* if no buttons wanted, simply do nothing */
+        return hbox;
+    }
 
     if (buttons == 1) {
         /* if only one button, simply put it in the middle (default) */

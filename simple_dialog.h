@@ -43,9 +43,12 @@ typedef enum {
     ESD_TYPE_WARN,          /**< tells the user about a problem; the only button should be "OK" */
     ESD_TYPE_CONFIRMATION,  /**< asks the user for confirmation; there should be more than
                                     one button */
-    ESD_TYPE_ERROR          /**< tells the user about a serious problem; the only button should be "OK" */
+    ESD_TYPE_ERROR,         /**< tells the user about a serious problem; the only button should be "OK" */
+    ESD_TYPE_STOP,          /**< tells the user a stop action is in progress, there should be no button */
 } ESD_TYPE_E;
 
+/** display no buttons at all */
+#define ESD_BTN_NONE   0x00
 /** display an "Ok" button */
 #define ESD_BTN_OK     0x01 
 /** display a "Cancel" button */
@@ -125,6 +128,12 @@ typedef void (* simple_dialog_cb_t) (gpointer dialog, gint btn, gpointer data);
  * @param data data to be passed to the callback function
  */
 extern void simple_dialog_set_cb(gpointer dialog, simple_dialog_cb_t callback_fct, gpointer data);
+
+/** Close the dialog, useful for "no button" dialogs.
+ *
+ * @param dialog the dialog to close from simple_dialog()
+ */
+extern void simple_dialog_close(gpointer dialog);
 
 /** Add a check button to the dialog (e.g. "Don't show this message again")
  * 
