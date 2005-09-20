@@ -88,7 +88,8 @@ extern guint32 dissect_per_constrained_set_of(tvbuff_t *tvb, guint32 offset, pac
 
 extern guint32 dissect_per_set_of(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *seq);
 
-extern guint32 dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, char *value_string);
+extern guint32 dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, tvbuff_t **value_tvb);
+extern guint32 dissect_per_object_identifier_str(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, const char **value_string);
 
 extern guint32 dissect_per_boolean(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, gboolean *bool, proto_item **item);
 

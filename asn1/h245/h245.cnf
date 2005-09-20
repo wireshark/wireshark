@@ -12,9 +12,7 @@ OpenLogicalChannel
 OpenLogicalChannel
 
 #----------------------------------------------------------------------------------------
-#.FN_PARS RequestMessage
-  VAL_PTR = &value
-#.FN_BODY RequestMessage
+#.FN_BODY RequestMessage  VAL_PTR = &value
   guint32 value;
 
 %(DEFAULT_BODY)s
@@ -52,9 +50,7 @@ OpenLogicalChannel
                 g_snprintf(h245_pi->frame_label, 50, "%%s (%%s) ", h245_pi->frame_label, codec_type);
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS ResponseMessage
-  VAL_PTR = &value
-#.FN_BODY ResponseMessage
+#.FN_BODY ResponseMessage  VAL_PTR = &value
   guint32 value;
 
 %(DEFAULT_BODY)s
@@ -78,9 +74,7 @@ OpenLogicalChannel
     g_snprintf(h245_pi->comment, 50, "%%s %%s ", h245_pi->comment, val_to_str(value, h245_ResponseMessage_vals, "<unknown>"));
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS IndicationMessage
-  VAL_PTR = &value
-#.FN_BODY IndicationMessage
+#.FN_BODY IndicationMessage  VAL_PTR = &value
   guint32 value;
 
 %(DEFAULT_BODY)s
@@ -103,9 +97,7 @@ OpenLogicalChannel
     g_snprintf(h245_pi->comment, 50, "%%s %%s ", h245_pi->comment, val_to_str(value, h245_IndicationMessage_vals, "<unknown>"));
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS CommandMessage
-  VAL_PTR = &value
-#.FN_BODY CommandMessage
+#.FN_BODY CommandMessage  VAL_PTR = &value
   guint32 value;
 
 %(DEFAULT_BODY)s
@@ -129,9 +121,7 @@ OpenLogicalChannel
 
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS AudioCapability
-  VAL_PTR = &value
-#.FN_BODY AudioCapability
+#.FN_BODY AudioCapability  VAL_PTR = &value
   guint32 value;
 
 %(DEFAULT_BODY)s
@@ -140,9 +130,7 @@ OpenLogicalChannel
 
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS VideoCapability
-  VAL_PTR = &value
-#.FN_BODY VideoCapability
+#.FN_BODY VideoCapability  VAL_PTR = &value
   guint32 value;
 
 %(DEFAULT_BODY)s
@@ -151,9 +139,7 @@ OpenLogicalChannel
 
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS Application
-  VAL_PTR = &value
-#.FN_BODY Application
+#.FN_BODY Application  VAL_PTR = &value
   guint32 value;
 
 %(DEFAULT_BODY)s
@@ -161,9 +147,7 @@ OpenLogicalChannel
 		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%%s %%s", h245_pi->frame_label, codec_type);
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS AudioMode
-  VAL_PTR = &value
-#.FN_BODY AudioMode
+#.FN_BODY AudioMode  VAL_PTR = &value
   guint32 value;
 
 %(DEFAULT_BODY)s
@@ -171,9 +155,7 @@ OpenLogicalChannel
 		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%%s %%s", h245_pi->frame_label, val_to_str(value, h245_AudioMode_vals, "ukn"));
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS VideoMode
-  VAL_PTR = &value
-#.FN_BODY VideoMode
+#.FN_BODY VideoMode  VAL_PTR = &value
   guint32 value;
 
 %(DEFAULT_BODY)s
@@ -181,9 +163,7 @@ OpenLogicalChannel
 		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%%s %%s", h245_pi->frame_label, val_to_str(value, h245_VideoMode_vals, "ukn"));
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS DataModeApplication
-  VAL_PTR = &value
-#.FN_BODY DataModeApplication
+#.FN_BODY DataModeApplication  VAL_PTR = &value
   guint32 value;
 
 %(DEFAULT_BODY)s
@@ -262,7 +242,7 @@ OpenLogicalChannel
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_PARS CapabilityIdentifier/standard
-  VAL_PTR = standard_oid_str
+  FN_VARIANT = _str  VAL_PTR = &standard_oid_str
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR GenericMessage/subMessageIdentifer
@@ -272,9 +252,7 @@ OpenLogicalChannel
   VAL_PTR = &subMessageIdentifer
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS UnicastAddress/iPAddress/network
-  VAL_PTR = &value_tvb
-#.FN_BODY UnicastAddress/iPAddress/network
+#.FN_BODY UnicastAddress/iPAddress/network  VAL_PTR = &value_tvb
 
   tvbuff_t *value_tvb;
 
@@ -287,9 +265,7 @@ OpenLogicalChannel
 
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS UnicastAddress/iPAddress/tsapIdentifier
-  VAL_PTR = &tsapIdentifier
-#.FN_BODY UnicastAddress/iPAddress/tsapIdentifier
+#.FN_BODY UnicastAddress/iPAddress/tsapIdentifier  VAL_PTR = &tsapIdentifier
   guint32 tsapIdentifier;
 
 %(DEFAULT_BODY)s
@@ -413,13 +389,12 @@ OpenLogicalChannel
 #--- NonStandardParameter ---------------------------------------------------------------
 
 #.FN_PARS
-NonStandardIdentifier         VAL_PTR = &value
-NonStandardIdentifier/object  VAL_PTR = nsiOID
+NonStandardIdentifier/object  FN_VARIANT = _str  VAL_PTR = &nsiOID
 #.END
-#.FN_BODY NonStandardIdentifier
+#.FN_BODY NonStandardIdentifier  VAL_PTR = &value
 	guint32 value;
 
-	nsiOID[0] = '\0';
+	nsiOID = "";
 	h221NonStandard = 0;
 
 %(DEFAULT_BODY)s
@@ -450,9 +425,7 @@ NonStandardIdentifier/h221NonStandard/manufacturerCode  VAL_PTR = &manufacturerC
 
 #.FN_HDR NonStandardParameter
   nsp_handle = NULL;
-#.FN_PARS NonStandardParameter/data
-  VAL_PTR = &next_tvb
-#.FN_BODY NonStandardParameter/data
+#.FN_BODY NonStandardParameter/data  VAL_PTR = &next_tvb
   tvbuff_t *next_tvb = NULL;
 
 %(DEFAULT_BODY)s

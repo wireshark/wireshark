@@ -200,7 +200,7 @@ static const value_string h245_AudioCapability_short_vals[] = {
    an OLC is read */
 
 const char* codec_type = NULL;
-static char standard_oid_str[MAX_OID_STR_LEN];
+static char *standard_oid_str;
 static guint32 ipv4_address;
 static guint32 ipv4_port;
 static guint32 rtcp_ipv4_address;
@@ -209,7 +209,7 @@ static gboolean media_channel;
 static gboolean media_control_channel;
 
 /* NonStandardParameter */
-static char nsiOID[MAX_OID_STR_LEN];
+static char *nsiOID;
 static guint32 h221NonStandard;
 static guint32 t35CountryCode;
 static guint32 t35Extension;

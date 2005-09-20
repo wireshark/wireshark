@@ -207,7 +207,7 @@ static const value_string h245_AudioCapability_short_vals[] = {
    an OLC is read */
 
 const char* codec_type = NULL;
-static char standard_oid_str[MAX_OID_STR_LEN];
+static char *standard_oid_str;
 static guint32 ipv4_address;
 static guint32 ipv4_port;
 static guint32 rtcp_ipv4_address;
@@ -216,7 +216,7 @@ static gboolean media_channel;
 static gboolean media_control_channel;
 
 /* NonStandardParameter */
-static char nsiOID[MAX_OID_STR_LEN];
+static char *nsiOID;
 static guint32 h221NonStandard;
 static guint32 t35CountryCode;
 static guint32 t35Extension;
@@ -2159,8 +2159,7 @@ static int dissect_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
 static int
 dissect_h245_T_object(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index,
-                                            nsiOID);
+  offset = dissect_per_object_identifier_str(tvb, offset, pinfo, tree, hf_index, &nsiOID);
 
   return offset;
 }
@@ -2248,7 +2247,7 @@ static int
 dissect_h245_NonStandardIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
 	guint32 value;
 
-	nsiOID[0] = '\0';
+	nsiOID = "";
 	h221NonStandard = 0;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
@@ -2459,8 +2458,7 @@ static int dissect_h233AlgorithmIdentifier(tvbuff_t *tvb, int offset, packet_inf
 
 static int
 dissect_h245_OBJECT_IDENTIFIER(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index,
-                                            NULL);
+  offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index, NULL);
 
   return offset;
 }
@@ -5222,8 +5220,7 @@ static int dissect_t38fax(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 static int
 dissect_h245_T_standard(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index,
-                                            standard_oid_str);
+  offset = dissect_per_object_identifier_str(tvb, offset, pinfo, tree, hf_index, &standard_oid_str);
 
   return offset;
 }

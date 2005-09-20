@@ -203,7 +203,6 @@ dissect_per_GeneralString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, pro
 
 	offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_per_GeneralString_length, &length);
 
-
 	proto_tree_add_item(tree, hf_index, tvb, offset>>3, length, FALSE);
 
 	offset+=length*8;
@@ -603,19 +602,32 @@ DEBUG_ENTRY("dissect_per_set_of");
 
 /* 23 Encoding the object identifier type */
 guint32
-dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, char *value_string)
+dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index, tvbuff_t **value_tvb)
 {
-	guint length;
-	char *str, *name;
-	proto_item *item;
+  guint length;
+  char *str, *name;
+  proto_item *item;
+  header_field_info *hfi;
 
 DEBUG_ENTRY("dissect_per_object_identifier");
 
-	offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_per_object_identifier_length, &length);
+  offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_per_object_identifier_length, &length);
 
-	str = oid_to_str(tvb_get_ptr(tvb, offset>>3, length), length);
-	item = proto_tree_add_string(tree, hf_index, tvb, offset>>3, length, str);
-	offset += 8 * length;
+  str = oid_to_str(tvb_get_ptr(tvb, offset>>3, length), length);
+
+  hfi = proto_registrar_get_nth(hf_index);
+  /*if (hfi->type == FT_OID) {
+    item = proto_tree_add_item(tree, hf_index, tvb, offset>>3, length, FALSE);
+  } else*/ if (IS_FT_STRING(hfi->type)) {
+    item = proto_tree_add_string(tree, hf_index, tvb, offset>>3, length, str);
+  } else {
+    DISSECTOR_ASSERT_NOT_REACHED();
+  }
+
+  if (value_tvb)
+    *value_tvb = tvb_new_subset(tvb, offset>>3, length, length);
+
+  offset += 8 * length;
 
 	/* see if we know the name of this oid */
 	if(item){
@@ -625,13 +637,27 @@ DEBUG_ENTRY("dissect_per_object_identifier");
 		}
 	}
 
-	if (value_string) {
-		strcpy(value_string, str);
-	}
-
-	return offset;
+  return offset;
 }
 
+guint32
+dissect_per_object_identifier_str(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, const char **value_string)
+{
+  tvbuff_t *value_tvb = NULL;
+  guint length;
+
+  offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index, (value_string) ? &value_tvb : NULL);
+
+  if (value_string) {
+    if (value_tvb && (length = tvb_length(value_tvb))) {
+      *value_string = oid_to_str(tvb_get_ptr(tvb, 0, length), length);
+    } else {
+      *value_string = "";
+    }
+  }
+
+  return offset;
+}
 
 
 

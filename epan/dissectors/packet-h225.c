@@ -1109,14 +1109,14 @@ guint32 value;
 static gboolean contains_faststart = FALSE;
 
 /* NonStandardParameter */
-static char nsiOID[MAX_OID_STR_LEN];
+static char *nsiOID;
 static guint32 h221NonStandard;
 static guint32 t35CountryCode;
 static guint32 t35Extension;
 static guint32 manufacturerCode;
 
 /* TunnelledProtocol */
-static char tpOID[MAX_OID_STR_LEN];
+static char *tpOID;
 
 
 /*--- Included file: packet-h225-fn.c ---*/
@@ -1199,8 +1199,7 @@ static int dissect_authenticationMode(tvbuff_t *tvb, int offset, packet_info *pi
 
 static int
 dissect_h225_ProtocolIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index,
-                                            NULL);
+  offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index, NULL);
 
   return offset;
 }
@@ -2002,8 +2001,7 @@ static int dissect_h245nsap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 static int
 dissect_h225_T_object(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index,
-                                            nsiOID);
+  offset = dissect_per_object_identifier_str(tvb, offset, pinfo, tree, hf_index, &nsiOID);
 
   return offset;
 }
@@ -2094,7 +2092,7 @@ static int
 dissect_h225_NonStandardIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
 	guint32 value;
 
-	nsiOID[0] = '\0';
+	nsiOID = "";
 	h221NonStandard = 0;
 
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
@@ -3043,8 +3041,7 @@ static int dissect_versionId(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 static int
 dissect_h225_OBJECT_IDENTIFIER(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index,
-                                            NULL);
+  offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index, NULL);
 
   return offset;
 }
@@ -3755,8 +3752,7 @@ static int dissect_set(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 static int
 dissect_h225_T_tunnelledProtocolObjectID(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index,
-                                            tpOID);
+  offset = dissect_per_object_identifier_str(tvb, offset, pinfo, tree, hf_index, &tpOID);
 
   return offset;
 }
@@ -3835,7 +3831,7 @@ static const per_sequence_t TunnelledProtocol_sequence[] = {
 
 static int
 dissect_h225_TunnelledProtocol(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  tpOID[0] = '\0';
+  tpOID = "";
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h225_TunnelledProtocol, TunnelledProtocol_sequence);
 
@@ -6193,7 +6189,7 @@ dissect_h225_T_h4501SupplementaryService_item(tvbuff_t *tvb, int offset, packet_
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
                                        -1, -1, &h4501_tvb);
 
-	if(tvb_length(h4501_tvb)){
+	if (h4501_tvb && tvb_length(h4501_tvb)) {
 		call_dissector(h4501_handle, h4501_tvb, pinfo, tree);
 	}
 

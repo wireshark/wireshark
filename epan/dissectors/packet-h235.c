@@ -251,8 +251,7 @@ static int dissect_secureChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 static int
 dissect_h235_OBJECT_IDENTIFIER(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index,
-                                            NULL);
+  offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index, NULL);
 
   return offset;
 }

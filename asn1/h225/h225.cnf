@@ -137,9 +137,7 @@ RegistrationRejectReason/securityError reg_securityError
 CallIdentifier/guid guid
 
 #----------------------------------------------------------------------------------------
-#.FN_PARS H323-UU-PDU/h323-message-body
-  VAL_PTR = &message_body_val
-#.FN_BODY H323-UU-PDU/h323-message-body
+#.FN_BODY H323-UU-PDU/h323-message-body  VAL_PTR = &message_body_val
 	guint32 message_body_val;
 
 	contains_faststart = FALSE;
@@ -166,9 +164,7 @@ CallIdentifier/guid guid
 
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS FastStart/_item
-  VAL_PTR = &value_tvb
-#.FN_BODY FastStart/_item
+#.FN_BODY FastStart/_item  VAL_PTR = &value_tvb
 	tvbuff_t *value_tvb = NULL;
 	char codec_str[50];
 
@@ -184,9 +180,7 @@ CallIdentifier/guid guid
 	h225_pi->is_faststart = TRUE;
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS RasMessage
-  VAL_PTR = &rasmessage_value
-#.FN_BODY RasMessage
+#.FN_BODY RasMessage  VAL_PTR = &rasmessage_value
   	guint32 rasmessage_value;
 
 %(DEFAULT_BODY)s
@@ -203,9 +197,7 @@ CallIdentifier/guid guid
   h225_pi->is_destinationInfo = TRUE;
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS DialedDigits
-  VAL_PTR = &value_tvb
-#.FN_BODY DialedDigits
+#.FN_BODY DialedDigits  VAL_PTR = &value_tvb
   tvbuff_t *value_tvb = NULL;
   guint len = 0;
 
@@ -223,9 +215,7 @@ CallIdentifier/guid guid
   }
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS H245TransportAddress/h245ipAddress/h245ipv4
-  VAL_PTR = &value_tvb
-#.FN_BODY H245TransportAddress/h245ipAddress/h245ipv4
+#.FN_BODY H245TransportAddress/h245ipAddress/h245ipv4  VAL_PTR = &value_tvb
   tvbuff_t *value_tvb;
 
   ipv4_address = 0;
@@ -234,13 +224,9 @@ CallIdentifier/guid guid
     ipv4_address = tvb_get_ipv4(value_tvb, 0);
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS H245TransportAddress/h245ipAddress/h245ipv4port
-  VAL_PTR = &ipv4_port
-#.END
+#.FN_PARS H245TransportAddress/h245ipAddress/h245ipv4port  VAL_PTR = &ipv4_port
 #----------------------------------------------------------------------------------------
-#.FN_PARS ParallelH245Control/_item
-	VAL_PTR = &h245_tvb
-#.FN_BODY ParallelH245Control/_item
+#.FN_BODY ParallelH245Control/_item  VAL_PTR = &h245_tvb
 	tvbuff_t *h245_tvb = NULL;
 
 %(DEFAULT_BODY)s
@@ -249,9 +235,7 @@ CallIdentifier/guid guid
 	}
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS H245Control/_item
-	VAL_PTR = &h245_tvb
-#.FN_BODY H245Control/_item
+#.FN_BODY H245Control/_item  VAL_PTR = &h245_tvb
 	tvbuff_t *h245_tvb = NULL;
 
 %(DEFAULT_BODY)s
@@ -291,9 +275,7 @@ CallIdentifier/guid guid
   g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS H323-UU-PDU/h245Tunneling
-  VAL_PTR = &(h225_pi->is_h245Tunneling)
-#.END
+#.FN_PARS H323-UU-PDU/h245Tunneling  VAL_PTR = &(h225_pi->is_h245Tunneling)
 #----------------------------------------------------------------------------------------
 #.FN_HDR Setup-UUIE
   contains_faststart = FALSE;
@@ -475,17 +457,13 @@ ReleaseCompleteReason     VAL_PTR = &value
   tvb_memcpy(guid_tvb,h225_pi->guid,0,tvb_length(guid_tvb));
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_PARS RequestSeqNum
-  VAL_PTR = &(h225_pi->requestSeqNum)
-#.END
+#.FN_PARS RequestSeqNum  VAL_PTR = &(h225_pi->requestSeqNum)
 #----------------------------------------------------------------------------------------
-#.FN_PARS H323-UU-PDU/h4501SupplementaryService/_item
-  VAL_PTR = &h4501_tvb
-#.FN_BODY H323-UU-PDU/h4501SupplementaryService/_item
+#.FN_BODY H323-UU-PDU/h4501SupplementaryService/_item  VAL_PTR = &h4501_tvb
 	tvbuff_t *h4501_tvb = NULL;
 
 %(DEFAULT_BODY)s
-	if(tvb_length(h4501_tvb)){
+	if (h4501_tvb && tvb_length(h4501_tvb)) {
 		call_dissector(h4501_handle, h4501_tvb, pinfo, tree);
 	}
 #.END
@@ -494,18 +472,16 @@ ReleaseCompleteReason     VAL_PTR = &value
 #--- TunnelledProtocol ------------------------------------------------------------------
 
 #.FN_HDR TunnelledProtocol
-  tpOID[0] = '\0';
+  tpOID = "";
 #.FN_FTR TunnelledProtocol
   tp_handle = dissector_get_string_handle(tp_dissector_table, tpOID);
 #.FN_PARS TunnelledProtocol/id/tunnelledProtocolObjectID
-  VAL_PTR = tpOID
+  FN_VARIANT = _str  VAL_PTR = &tpOID
 #.END
 
 #.FN_HDR H323-UU-PDU/tunnelledSignallingMessage
   tp_handle = NULL;
-#.FN_PARS H323-UU-PDU/tunnelledSignallingMessage/messageContent/_item
-  VAL_PTR = &next_tvb
-#.FN_BODY H323-UU-PDU/tunnelledSignallingMessage/messageContent/_item
+#.FN_BODY H323-UU-PDU/tunnelledSignallingMessage/messageContent/_item  VAL_PTR = &next_tvb
   tvbuff_t *next_tvb = NULL;
 
 %(DEFAULT_BODY)s
@@ -517,14 +493,13 @@ ReleaseCompleteReason     VAL_PTR = &value
 #--- NonStandardParameter ---------------------------------------------------------------
 
 #.FN_PARS
-NonStandardIdentifier         VAL_PTR = &value
-NonStandardIdentifier/object  VAL_PTR = nsiOID
+NonStandardIdentifier/object  FN_VARIANT = _str  VAL_PTR = &nsiOID
 #.END
 
-#.FN_BODY NonStandardIdentifier
+#.FN_BODY NonStandardIdentifier  VAL_PTR = &value
 	guint32 value;
 
-	nsiOID[0] = '\0';
+	nsiOID = "";
 	h221NonStandard = 0;
 
 %(DEFAULT_BODY)s
@@ -555,9 +530,7 @@ H221NonStandard/manufacturerCode  VAL_PTR = &manufacturerCode
 
 #.FN_HDR NonStandardParameter
   nsp_handle = NULL;
-#.FN_PARS NonStandardParameter/data
-  VAL_PTR = &next_tvb
-#.FN_BODY NonStandardParameter/data
+#.FN_BODY NonStandardParameter/data  VAL_PTR = &next_tvb
   tvbuff_t *next_tvb = NULL;
 
 %(DEFAULT_BODY)s
@@ -581,3 +554,4 @@ FastStart/_item  TYPE = FT_UINT32 DISPLAY = BASE_DEC
 ParallelH245Control/_item  TYPE = FT_UINT32 DISPLAY = BASE_DEC
 H245Control/_item  TYPE = FT_UINT32 DISPLAY = BASE_DEC
 GloballyUniqueID  TYPE = FT_GUID  DISPLAY = BASE_NONE
+#.END

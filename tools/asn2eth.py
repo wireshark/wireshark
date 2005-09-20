@@ -1340,20 +1340,20 @@ class EthCnf:
         return par[0:pmax]
       return par
 
-    def get_par_nm(line, pnum, fn, lineno):
-      if pnum:
-        par = line.split(None, pnum)
+    def get_par_nm(line, pmin, pmax, fn, lineno):
+      if pmax:
+        par = line.split(None, pmax)
       else:
         par = [line,]
       for i in range(len(par)):
         if par[i][0] == '#':
           par[i:] = []
           break
-      if len(par) < pnum:
-        warnings.warn_explicit("Too few parameters.", UserWarning, fn, lineno)
+      if len(par) < pmin:
+        warnings.warn_explicit("Too few parameters. At least %d parameters are required" % (pmin), UserWarning, fn, lineno)
         return None
-      if len(par) > pnum:
-        nmpar = par[pnum]
+      if len(par) > pmax:
+        nmpar = par[pmax]
       else:
         nmpar = ''
       nmpars = {}
@@ -1373,8 +1373,8 @@ class EthCnf:
           p2 = nmpar_end.search(nmpar, pos).start()
         v = nmpar[p1:p2]
         nmpars[k] = v
-      if len(par) > pnum:
-        par[pnum] = nmpars
+      if len(par) > pmax:
+        par[pmax] = nmpars
       return par
 
     f = open(fn, "r")
@@ -1404,18 +1404,29 @@ class EthCnf:
                                     'TYPE_RENAME', 'FIELD_RENAME', 'IMPORT_TAG',
                                     'TYPE_ATTR', 'ETYPE_ATTR', 'FIELD_ATTR', 'EFIELD_ATTR'):
           ctx = result.group('name')
-        elif result.group('name') in ('FN_HDR', 'FN_FTR', 'FN_BODY'):
+        elif result.group('name') in ('FN_HDR', 'FN_FTR'):
           par = get_par(line[result.end():], 1, 1, fn=fn, lineno=lineno)
           if not par: continue
           ctx = result.group('name')
           name = par[0]
+        elif result.group('name') == 'FN_BODY':
+          par = get_par_nm(line[result.end():], 1, 1, fn=fn, lineno=lineno)
+          if not par: continue
+          ctx = result.group('name')
+          name = par[0]
+          if len(par) > 1:
+            self.add_item('FN_PARS', name, pars=par[1], fn=fn, lineno=lineno)
         elif result.group('name') == 'FN_PARS':
-          par = get_par(line[result.end():], 0, 1, fn=fn, lineno=lineno)
+          par = get_par_nm(line[result.end():], 0, 1, fn=fn, lineno=lineno)
           ctx = result.group('name')
           if not par:
             name = None
           else:
             name = par[0]
+          if len(par) > 1:
+            self.add_item(ctx, name, pars=par[1], fn=fn, lineno=lineno)
+            ctx = None
+            name = None
         elif result.group('name') == 'INCLUDE':
           par = get_par(line[result.end():], 1, 1, fn=fn, lineno=lineno)
           if not par: 
@@ -1506,15 +1517,15 @@ class EthCnf:
                                   UserWarning, fn, lineno)
       elif ctx in ('TYPE_ATTR', 'ETYPE_ATTR', 'FIELD_ATTR', 'EFIELD_ATTR'):
         if empty.match(line): continue
-        par = get_par_nm(line, 1, fn=fn, lineno=lineno)
+        par = get_par_nm(line, 1, 1, fn=fn, lineno=lineno)
         if not par: continue
         self.add_item(ctx, par[0], attr=par[1], fn=fn, lineno=lineno)
       elif ctx == 'FN_PARS':
         if empty.match(line): continue
         if name:
-          par = get_par_nm(line, 0, fn=fn, lineno=lineno)
+          par = get_par_nm(line, 0, 0, fn=fn, lineno=lineno)
         else:
-          par = get_par_nm(line, 1, fn=fn, lineno=lineno)
+          par = get_par_nm(line, 1, 1, fn=fn, lineno=lineno)
         if not par: continue
         if name:
           self.add_item(ctx, name, pars=par[0], fn=fn, lineno=lineno)
@@ -1836,6 +1847,7 @@ class Type (Node):
     pars = {
       'TNAME' : tname,
       'ER' : ectx.encp(),
+      'FN_VARIANT' : '',
       'PINFO' : 'pinfo', 
       'TREE' : 'tree', 
       'TVB' : 'tvb', 
@@ -3009,16 +3021,14 @@ class ObjectIdentifierType (Type):
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.OBer()):
-      body = ectx.eth_fn_call('dissect_%(ER)s_object_identifier', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
-                                   ('%(VAL_PTR)s',),))
+      body = ectx.eth_fn_call('dissect_%(ER)s_object_identifier%(FN_VARIANT)s', ret='offset',
+                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
     elif (ectx.NPer()):
-      body = ectx.eth_fn_call('dissect_%(ER)s_object_identifier', ret='offset',
-                              par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s', 'item', '%(VAL_PTR)s'),))
+      body = ectx.eth_fn_call('dissect_%(ER)s_object_identifier%(FN_VARIANT)s', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s', 'item', '%(VAL_PTR)s',),))
     elif (ectx.OPer()):
-      body = ectx.eth_fn_call('dissect_%(ER)s_object_identifier', ret='offset',
-                              par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s'),
-                                   ('%(VAL_PTR)s',),))
+      body = ectx.eth_fn_call('dissect_%(ER)s_object_identifier%(FN_VARIANT)s', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
     else:
       body = '#error Can not decode %s' % (tname)
     return body

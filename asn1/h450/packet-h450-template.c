@@ -218,7 +218,7 @@ static gint ett_h4501_ROS = -1;
 /* Global variables */
 static guint32 localOpcode;
 static guint32 localErrorCode;
-static char globalcode_oid_str[256];
+static char *globalcode_oid_str;
 static gboolean is_globalcode;
 
 static const value_string localOpcode_vals[] = {
@@ -423,7 +423,7 @@ dissect_h4501_localOpcode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 static int
 dissect_h4501_globalCode(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_h4501_globalCode, globalcode_oid_str);
+	offset=dissect_per_object_identifier_str(tvb, offset, pinfo, tree, hf_h4501_globalCode, &globalcode_oid_str);
 	is_globalcode = TRUE;
    return offset;
 }
