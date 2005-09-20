@@ -74,11 +74,19 @@
 		{NULL,NULL}
 	};
 	
+#ifdef DEBUG_DTD_PARSER
+#define DEBUG_DTD_TOKEN fprintf(stderr,"->%s (%i)%s\n",location,token_type,yytext)
+#else
+#define DEBUG_DTD_TOKEN
+#endif
+    
 #define DTD_PARSE(token_type) \
-	{ build_data->location = location; \
+	{   DEBUG_DTD_TOKEN; \
+        build_data->location = location; \
 		DtdParse(pParser, (token_type), new_token(yytext), build_data); \
 		if(build_data->error->len > 0) yyterminate(); \
 	}
+
 
 #define YY_INPUT(buff,result,max_size) ( (result) = my_yyinput((buff),(max_size)) )
 
@@ -297,7 +305,11 @@ extern dtd_build_data_t* dtd_parse(GString* s) {
 	len = input_string->len;
 	
 	pParser = DtdParseAlloc(g_malloc);
-	
+
+#ifdef DEBUG_DTD_PARSER
+    DtdParseTrace(stderr, ">>");
+#endif
+    
 	build_data = g_malloc(sizeof(dtd_build_data_t));
 
 	build_data->proto_name = NULL;
@@ -322,6 +334,8 @@ extern dtd_build_data_t* dtd_parse(GString* s) {
 
 	yyrestart(NULL);
 	
+    location = NULL;
+    
 	DtdParseFree(pParser, g_free );
 	
 	return build_data;
