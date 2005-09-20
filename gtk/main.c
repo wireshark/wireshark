@@ -2604,8 +2604,11 @@ create_console(void)
        the message(s) we put in there). */
     atexit(destroy_console);
 
-	SetConsoleTitle("Ethereal Debug Console");
-
+	if(capture_child) {
+		SetConsoleTitle("Ethereal Capture Child Debug Console");
+	} else {
+		SetConsoleTitle("Ethereal Debug Console");
+	}
   }
 }
 
