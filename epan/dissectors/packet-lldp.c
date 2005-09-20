@@ -6,6 +6,8 @@
  * July 2005
  * Modified by: Brian Bogora <brian_bogora@mitel.com>
  *
+ * $Id$
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
