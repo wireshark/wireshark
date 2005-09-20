@@ -77,7 +77,10 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_BULK,    "Bulk Data" },
     { IP_PROTO_MFE_NSP, "MFE NSP" },
     { IP_PROTO_MERIT,   "Merit Internodal" },
+#if 0
     { IP_PROTO_SEP,     "Sequential Exchange" },
+#endif
+    { IP_PROTO_DCCP,    "Datagram Congestion Control Protocol" },
     { IP_PROTO_3PC,     "3rd Party Connect" },
     { IP_PROTO_IDPR,    "Interdomain routing" },
     { IP_PROTO_XTP,     "XTP" },

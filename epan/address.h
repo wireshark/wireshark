@@ -110,6 +110,7 @@ typedef enum {
   PT_SCTP,		/* SCTP */
   PT_TCP,		/* TCP */
   PT_UDP,		/* UDP */
+  PT_DCCP,		/* DCCP */
   PT_IPX,		/* IPX sockets */
   PT_NCP,		/* NCP connection */
   PT_EXCHG,		/* Fibre Channel exchange */

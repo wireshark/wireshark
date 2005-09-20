@@ -2256,8 +2256,9 @@ Alejandro Vaquero	<alejandro.vaquero [AT] verso.com> {
 	VoIP call analysis
 }
 
-Francesco Fondelli	<fondelli.francesco [AT] tiscali.it> {
+Francesco Fondelli	<francesco.fondelli [AT] gmail.com> {
 	ICE protocol support
+	DCCP protocol support
 }
 
 Bill Meier		<wmeier [AT] newsguy.com> {

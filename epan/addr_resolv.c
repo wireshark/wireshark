@@ -219,6 +219,7 @@ static hashipv6_t	*ipv6_table[HASHHOSTSIZE];
 static hashport_t	*udp_port_table[HASHPORTSIZE];
 static hashport_t	*tcp_port_table[HASHPORTSIZE];
 static hashport_t	*sctp_port_table[HASHPORTSIZE];
+static hashport_t	*dccp_port_table[HASHPORTSIZE];
 static hashether_t	*eth_table[HASHETHSIZE];
 static hashmanuf_t	*manuf_table[HASHMANUFSIZE];
 static hashether_t	*(*wka_table[48])[HASHETHSIZE];
@@ -293,6 +294,10 @@ static gchar *serv_name_lookup(guint port, port_type proto)
   case PT_SCTP:
     table = sctp_port_table;
     serv_proto = "sctp";
+    break;
+  case PT_DCCP:
+    table = dccp_port_table;
+    serv_proto = "dcp";
     break;
   default:
     /* not yet implemented */
@@ -1873,6 +1878,21 @@ extern gchar *get_udp_port(guint port)
   return serv_name_lookup(port, PT_UDP);
 
 } /* get_udp_port */
+
+extern gchar *get_dccp_port(guint port)
+{
+  gchar *cur;
+
+  if (!(g_resolv_flags & RESOLV_TRANSPORT)) {
+    cur=ep_alloc(MAXNAMELEN);
+    g_snprintf(cur, MAXNAMELEN, "%u", port);
+    return cur;
+  }
+
+  return serv_name_lookup(port, PT_DCCP);
+
+} /* get_dccp_port */
+
 
 extern gchar *get_tcp_port(guint port)
 {

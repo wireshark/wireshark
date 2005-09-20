@@ -65,7 +65,8 @@
 #define IP_PROTO_BULK           30              /* Bulk Data Transfer Protocol - RFC969 */
 #define IP_PROTO_MFE_NSP        31              /* MFE Network Services Protocol */
 #define IP_PROTO_MERIT          32              /* MERIT Internodal Protocol */
-#define IP_PROTO_SEP            33              /* Sequential Exchange Protocol */
+/* #define IP_PROTO_SEP         33                 Sequential Exchange Protocol */
+#define IP_PROTO_DCCP           33              /* Datagram Congestion Control Protocol */
 #define IP_PROTO_3PC            34              /* Third party connect protocol */
 #define IP_PROTO_IDPR           35              /* Interdomain policy routing protocol */
 #define IP_PROTO_XTP            36              /* XTP */

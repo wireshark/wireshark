@@ -82,6 +82,12 @@ extern gchar *get_udp_port(guint port);
 extern gchar *get_tcp_port(guint port);
 
 /*
+ * get_dccp_port() returns the port name corresponding to that DCCP port,
+ * or the port number as a string if not found.
+ */
+extern gchar *get_dccp_port(guint port);
+
+/*
  * get_sctp_port() returns the port name corresponding to that SCTP port,
  * or the port number as a string if not found.
  */
