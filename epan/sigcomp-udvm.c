@@ -132,7 +132,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 {
 	tvbuff_t	*decomp_tvb;
 	guint8		buff[UDVM_MEMORY_SIZE];
-	char		string[2],*strp;
+	char		string[2];
 	guint8		*out_buff;		/* Largest allowed size for a message is 65535  */
 	guint32		i = 0;
 	guint16		n = 0;
@@ -312,7 +312,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 	i = udvm_mem_dest;
 	if ( print_level_3 )
 		proto_tree_add_text(udvm_tree, bytecode_tvb, offset, 1,"Load bytecode into UDVM starting at %u",i);
-	while ( code_length > offset ) {
+	while ( code_length > offset && i < UDVM_MEMORY_SIZE ) {
 		buff[i] = tvb_get_guint8(bytecode_tvb, offset);
 		if ( print_level_3 )
 			proto_tree_add_text(udvm_tree, bytecode_tvb, offset, 1,
@@ -879,7 +879,7 @@ execute_next_instruction:
 			}
 
 			if (k + handle_now >= UDVM_MEMORY_SIZE)
-				THROW(ReportedBoundsError);
+				goto decompression_failure;
 			sha1_update( &ctx, &buff[k], handle_now );
 
 			k = ( k + handle_now ) & 0xffff;
@@ -996,6 +996,9 @@ execute_next_instruction:
 			lsb = value & 0xff;
 			msb = value >> 8;
 
+			if (address >= UDVM_MEMORY_SIZE - 1)
+				goto decompression_failure;
+
 			buff[address] = msb;
 			buff[address + 1] = lsb;
 			/* debug
@@ -1041,8 +1044,14 @@ execute_next_instruction:
 			   | buff[(stack_location+1) & 0xFFFF];
 		address = (stack_location + stack_fill * 2 + 2) & 0xFFFF;
 
+		if (address >= UDVM_MEMORY_SIZE - 1)
+			goto decompression_failure;
+
 		buff[address] = (value >> 8) & 0x00FF;
 		buff[(address+1) & 0xFFFF] = value & 0x00FF;
+
+		if (stack_location >= UDVM_MEMORY_SIZE - 1)
+			goto decompression_failure;
 		
 		stack_fill = (stack_fill + 1) & 0xFFFF;
 		buff[stack_location] = (stack_fill >> 8) & 0x00FF;
@@ -1084,15 +1093,23 @@ execute_next_instruction:
 		    goto decompression_failure;
 		}
 
+		if (stack_location >= UDVM_MEMORY_SIZE - 1)
+			goto decompression_failure;
+
 		stack_fill = (stack_fill - 1) & 0xFFFF;
 		buff[stack_location] = (stack_fill >> 8) & 0x00FF;
 		buff[(stack_location+1) & 0xFFFF] = stack_fill & 0x00FF;
+
+		if (address >= UDVM_MEMORY_SIZE - 1)
+			goto decompression_failure;
 
 		address = (stack_location + stack_fill * 2 + 2) & 0xFFFF;
 		value = (buff[address] << 8) 
 			   | buff[(address+1) & 0xFFFF];
 
 		/* ... and store the popped value. */
+		if (destination >= UDVM_MEMORY_SIZE - 1)
+			goto decompression_failure;
 		buff[destination] = (value >> 8) & 0x00FF;
 		buff[(destination+1) & 0xFFFF] = value & 0x00FF;
 
@@ -1618,10 +1635,14 @@ execute_next_instruction:
 		stack_fill = (buff[stack_location] << 8) 
 			   | buff[(stack_location+1) & 0xFFFF];
 		address = (stack_location + stack_fill * 2 + 2) & 0xFFFF;
+		if (address >= UDVM_MEMORY_SIZE - 1)
+			goto decompression_failure;
 		buff[address] = (current_address >> 8) & 0x00FF;
 		buff[(address+1) & 0xFFFF] = current_address & 0x00FF;
 		
 		stack_fill = (stack_fill + 1) & 0xFFFF;
+		if (stack_location >= UDVM_MEMORY_SIZE - 1)
+			goto decompression_failure;
 		buff[stack_location] = (stack_fill >> 8) & 0x00FF;
 		buff[(stack_location+1) & 0xFFFF] = stack_fill & 0x00FF;
 
@@ -1651,6 +1672,8 @@ execute_next_instruction:
 		}
 
 		stack_fill = (stack_fill - 1) & 0xFFFF;
+		if (stack_location >= UDVM_MEMORY_SIZE - 1)
+			goto decompression_failure;
 		buff[stack_location] = (stack_fill >> 8) & 0x00FF;
 		buff[(stack_location+1) & 0xFFFF] = stack_fill & 0x00FF;
 
@@ -1793,7 +1816,7 @@ execute_next_instruction:
 			}
 
 			if (k + handle_now >= UDVM_MEMORY_SIZE)
-				THROW(ReportedBoundsError);
+				goto decompression_failure;
 			result = crc16_ccitt_seed(&buff[k], handle_now, result ^ 0xffff);
 
 			k = ( k + handle_now ) & 0xffff;
@@ -2022,6 +2045,8 @@ execute_next_instruction:
 		}
 		msb = value >> 8;
 		lsb = value & 0x00ff;
+		if (destination >= UDVM_MEMORY_SIZE - 1)
+			goto decompression_failure;
 		buff[destination] = msb;
 		buff[destination + 1]=lsb;
 		if (print_level_1 ){
@@ -2206,6 +2231,8 @@ execute_next_instruction:
 					H = H + uncompressed_n - lower_bound_n;
 					msb = H >> 8;
 					lsb = H & 0x00ff;
+					if (destination >= UDVM_MEMORY_SIZE - 1)
+						goto decompression_failure;
 					buff[destination] = msb;
 					buff[destination + 1]=lsb;
 					if (print_level_1 ){
@@ -2435,7 +2462,7 @@ execute_next_instruction:
 			if (print_level_3 ){
 				proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
 					"               Addr: %5u State value: %u (0x%x) ASCII(%s)",
-					k,buff[k],buff[k],string);
+					k,buff[k],buff[k],format_text(string, 1));
 			}
 			k = ( k + 1 ) & 0xffff;
 			n++;
@@ -2553,11 +2580,10 @@ execute_next_instruction:
 			out_buff[output_address] = buff[k];
 			string[0]= buff[k];
 			string[1]= '\0';
-			strp = string;
 			if (print_level_3 ){
 				proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
 					"               Output value: %u (0x%x) ASCII(%s) from Addr: %u ,output to dispatcher position %u",
-					buff[k],buff[k],format_text(strp,1), k,output_address);
+					buff[k],buff[k],format_text(string,1), k,output_address);
 			}
 			k = ( k + 1 ) & 0xffff;
 			output_address ++;
@@ -2744,6 +2770,7 @@ decompression_failure:
 		
 		proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"DECOMPRESSION FAILURE: %s",
 				    val_to_str(result_code, result_code_vals,"Unknown (%u)"));
+		THROW(ReportedBoundsError);
 		g_free(out_buff);
 		return NULL;
 
@@ -2879,6 +2906,9 @@ dissect_udvm_reference_operand(guint8 *buff,guint operand_address, guint16 *valu
 		*value = temp_data16;
 		offset ++;
 	}
+
+	if (offset >= UDVM_MEMORY_SIZE || result_dest >= UDVM_MEMORY_SIZE - 1 )
+		THROW(ReportedBoundsError);
 
 	return offset;
 }

@@ -151,7 +151,7 @@ Gnu info
 
 	<listitem><para>
 	  The SigComp UDVM could go into an infinite loop or crash.
-	  <!-- Fixed in r15715 -->
+	  <!-- Fixed in r15715, 15901 -->
 	  <!-- Bug IDs: none -->
 	  Versions affected: 0.10.12.
 	</para></listitem>
