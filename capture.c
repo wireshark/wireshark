@@ -119,6 +119,8 @@ capture_stop(capture_options *capture_opts)
 {
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Stop ...");
 
+  cf_callback_invoke(cf_cb_live_capture_stopping, capture_opts);
+
   /* stop the capture child gracefully */
   sync_pipe_stop(capture_opts);
 }
@@ -310,6 +312,7 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
 
          XXX - abort on a read error? */
          cf_callback_invoke(cf_cb_live_capture_update_continue, capture_opts->cf);
+		 /* update the main window, so we get events (e.g. from the stop toolbar button) */
          main_window_update();
       break;
 

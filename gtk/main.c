@@ -1229,10 +1229,26 @@ set_display_filename(capture_file *cf)
   g_free(win_name);
 }
 
+GtkWidget           *close_dlg = NULL;
 
 static void
-main_cf_cb_file_closed(capture_file *cf)
+main_cf_cb_file_closing(capture_file *cf)
 {
+
+	/* if we have more than 10000 packets, show a splash screen while closing */
+	/* XXX - don't know a better way to decide wether to show or not,
+	 * as most of the time is spend in a single eth_clist_clear function, 
+	 * so we can't use a progress bar here! */
+	if(cf->count > 10000) {
+		close_dlg = simple_dialog(ESD_TYPE_STOP, ESD_BTN_NONE, "%sClosing file!%s\n\nPlease wait ...", 
+			simple_dialog_primary_start(), simple_dialog_primary_end());
+#if GTK_MAJOR_VERSION >= 2
+		gtk_window_set_position(GTK_WINDOW(close_dlg), GTK_WIN_POS_CENTER_ON_PARENT);
+#else
+		gtk_window_set_position(GTK_WINDOW(close_dlg), GTK_WIN_POS_CENTER);
+#endif
+	}
+
     /* Destroy all windows, which refer to the
        capture file we're closing. */
     destroy_cfile_wins();
@@ -1258,6 +1274,17 @@ main_cf_cb_file_closed(capture_file *cf)
 
     /* Set up main window for no capture file. */
     main_set_for_capture_file(FALSE);
+
+	main_window_update();
+}
+
+static void
+main_cf_cb_file_closed(capture_file *cf)
+{
+  if(close_dlg != NULL) {
+	  splash_destroy(close_dlg);
+	  close_dlg = NULL;
+  }
 }
 
 static void
@@ -1370,9 +1397,16 @@ main_cf_cb_live_capture_update_continue(capture_file *cf)
     statusbar_push_file_msg(capture_msg);
 }
 
+GtkWidget * stop_dlg = NULL;
+
 static void
 main_cf_cb_live_capture_update_finished(capture_file *cf)
 {
+	if(stop_dlg != NULL) {
+		simple_dialog_close(stop_dlg);
+		stop_dlg = NULL;
+	}
+
     /* Pop the "<live capture in progress>" message off the status bar. */
     statusbar_pop_file_msg();
 
@@ -1419,6 +1453,11 @@ main_cf_cb_live_capture_fixed_started(capture_options *capture_opts)
 static void
 main_cf_cb_live_capture_fixed_finished(capture_file *cf _U_)
 {
+	if(stop_dlg != NULL) {
+		simple_dialog_close(stop_dlg);
+		stop_dlg = NULL;
+	}
+
     /* Pop the "<live capture in progress>" message off the status bar. */
     statusbar_pop_file_msg();
 
@@ -1434,6 +1473,19 @@ main_cf_cb_live_capture_fixed_finished(capture_file *cf _U_)
     /* We don't have loaded the capture file, this will be done later.
      * For now we still have simply a blank screen. */
 }
+
+static void
+main_cf_cb_live_capture_stopping(capture_file *cf _U_)
+{
+    stop_dlg = simple_dialog(ESD_TYPE_STOP, ESD_BTN_NONE, "%sCapture stop!%s\n\nPlease wait ...", 
+		simple_dialog_primary_start(), simple_dialog_primary_end());
+#if GTK_MAJOR_VERSION >= 2
+	gtk_window_set_position(GTK_WINDOW(stop_dlg), GTK_WIN_POS_CENTER_ON_PARENT);
+#else
+	gtk_window_set_position(GTK_WINDOW(stop_dlg), GTK_WIN_POS_CENTER);
+#endif
+}
+
 #endif
 
 static void
@@ -1505,6 +1557,9 @@ main_cf_cb_file_safe_reload_finished(gpointer data _U_)
 static void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
 {
     switch(event) {
+    case(cf_cb_file_closing):
+        main_cf_cb_file_closing(data);
+        break;
     case(cf_cb_file_closed):
         main_cf_cb_file_closed(data);
         break;
@@ -1532,6 +1587,9 @@ static void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         break;
     case(cf_cb_live_capture_fixed_finished):
         main_cf_cb_live_capture_fixed_finished(data);
+        break;
+    case(cf_cb_live_capture_stopping):
+        main_cf_cb_live_capture_stopping(data);
         break;
 #endif
     case(cf_cb_packet_selected):

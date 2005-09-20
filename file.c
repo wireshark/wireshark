@@ -347,11 +347,17 @@ cf_reset_state(capture_file *cf)
 void
 cf_close(capture_file *cf)
 {
-  cf_reset_state(cf);
+  /* close things, if not already closed before */
+  if(cf->state != FILE_CLOSED) {
 
-  cleanup_dissection();
+	  cf_callback_invoke(cf_cb_file_closing, cf);
 
-  cf_callback_invoke(cf_cb_file_closed, cf);
+	  cf_reset_state(cf);
+
+	  cleanup_dissection();
+
+	  cf_callback_invoke(cf_cb_file_closed, cf);
+  }
 }
 
 cf_read_status_t
@@ -557,12 +563,12 @@ cf_continue_tail(capture_file *cf, int to_read, int *err)
     to_read--;
   }
 
-  packet_list_thaw();
-
   /* XXX - this cheats and looks inside the packet list to find the final
      row number. */
   if (auto_scroll_live && cf->plist_end != NULL)
     packet_list_moveto_end();
+
+  packet_list_thaw();
 
   if (cf->state == FILE_READ_ABORTED) {
     /* Well, the user decided to exit Ethereal.  Return CF_READ_ABORTED
@@ -3104,10 +3110,6 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
 
   packet_range_process_init(range);
 
-  /* Used to be :
-   * if (!save_filtered && !save_marked && !save_manual_range && 
-   *     !save_marked_range && !save_curr && save_format == cf->cd_t) {
-   */ 
 	
   if (packet_range_process_all(range) && save_format == cf->cd_t) {
     /* We're not filtering packets, and we're saving it in the format

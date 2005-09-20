@@ -56,6 +56,7 @@ typedef enum {
 } cf_print_status_t;
 
 typedef enum {
+    cf_cb_file_closing,
     cf_cb_file_closed,
     cf_cb_file_read_start,
     cf_cb_file_read_finished,
@@ -66,6 +67,7 @@ typedef enum {
     cf_cb_live_capture_update_finished,
     cf_cb_live_capture_fixed_started,
     cf_cb_live_capture_fixed_finished,
+	cf_cb_live_capture_stopping,
 #endif
     cf_cb_packet_selected,
     cf_cb_packet_unselected,
