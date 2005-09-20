@@ -3,14 +3,14 @@
  * Routines for application/pkix-cert media dissection
  * Copyright 2004, Yaniv Kaul.
  *
- *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@xxxxxxxxxxxx>
- * Copyright 1998 Gerald Combs
+ * $Id$
  *
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@ethereal.com>
+ * Copyright 1998 Gerald Combs
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
