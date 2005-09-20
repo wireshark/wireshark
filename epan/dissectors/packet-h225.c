@@ -1109,14 +1109,14 @@ guint32 value;
 static gboolean contains_faststart = FALSE;
 
 /* NonStandardParameter */
-static char *nsiOID;
+static const char *nsiOID;
 static guint32 h221NonStandard;
 static guint32 t35CountryCode;
 static guint32 t35Extension;
 static guint32 manufacturerCode;
 
 /* TunnelledProtocol */
-static char *tpOID;
+static const char *tpOID;
 
 
 /*--- Included file: packet-h225-fn.c ---*/

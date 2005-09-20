@@ -606,7 +606,7 @@ dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, packet_info *pinfo 
 {
   guint length;
   char *str, *name;
-  proto_item *item;
+  proto_item *item = NULL;
   header_field_info *hfi;
 
 DEBUG_ENTRY("dissect_per_object_identifier");
