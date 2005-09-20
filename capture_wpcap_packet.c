@@ -46,7 +46,10 @@
 
 #ifndef HAVE_SOCKADDR_STORAGE
 /* packet32.h requires sockaddr_storage (usually defined in Platform SDK)
- * copied from RFC2553 (and slightly modified because of datatypes) ... */
+ * copied from RFC2553 (and slightly modified because of datatypes) ...
+ * XXX - defined more than once, move this to a header file */
+typedef unsigned short eth_sa_family_t;
+
 /*
  * Desired design of maximum size and alignment
  */
@@ -56,12 +59,12 @@
 /*
  * Definitions used for sockaddr_storage structure paddings design.
  */
-#define ETH_SS_PAD1SIZE   (ETH_SS_ALIGNSIZE - sizeof (sa_family_t))
-#define ETH_SS_PAD2SIZE   (ETH_SS_MAXSIZE - (sizeof (sa_family_t) + \
+#define ETH_SS_PAD1SIZE   (ETH_SS_ALIGNSIZE - sizeof (eth_sa_family_t))
+#define ETH_SS_PAD2SIZE   (ETH_SS_MAXSIZE - (sizeof (eth_sa_family_t) + \
                               ETH_SS_PAD1SIZE + ETH_SS_ALIGNSIZE))
 
 struct sockaddr_storage {
-    sa_family_t  __ss_family;     /* address family */
+    eth_sa_family_t  __ss_family;     /* address family */
     /* Following fields are implementation specific */
     char      __ss_pad1[ETH_SS_PAD1SIZE];
               /* 6 byte pad, this is to make implementation
