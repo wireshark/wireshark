@@ -259,9 +259,9 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 	int offset=offset_start;
 	guint8 option_type = 0;
 	guint8 option_len = 0;
-	char buff[1024];
 	guint8 feature_number = 0; 
 	int i;
+	proto_item *dcp_item = NULL;
 	
 	while( offset < offset_end ) {
 		
@@ -312,100 +312,114 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 			break;
 
 		case 32:
-			memset(buff, 0, sizeof(buff));
-			sprintf(buff, "Change L(");
 			feature_number = tvb_get_guint8(tvb, offset + 2);
 			proto_tree_add_uint_hidden(dcp_options_tree, hf_dcp_feature_number, tvb, offset + 2, 1, feature_number);
 			
-			if( (feature_number < 10) && (feature_number!=0) ){
-				sprintf(buff, "%s%s ", buff, val_to_str(feature_number, dcp_feature_numbers_vals, "Unknown Type"));
-				for (i = 0; i < option_len - 3; i++) 
-					sprintf(buff, "%s %d", buff, tvb_get_guint8(tvb, offset + 3 + i));
-				sprintf(buff, "%s)", buff);
-				proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, buff);
+			if( (feature_number < 10) && (feature_number!=0) ) {
+				dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
+							       "Change L(%s", 
+							       val_to_str(feature_number, dcp_feature_numbers_vals, "Unknown Type"));
+				for (i = 0; i < option_len - 3; i++) {
+					if(i==0)
+						proto_item_append_text(dcp_item, "%d", tvb_get_guint8(tvb, offset + 3 + i));
+					else
+						proto_item_append_text(dcp_item, ", %d", tvb_get_guint8(tvb, offset + 3 + i));
+				}
+				proto_item_append_text(dcp_item, ")");
 			} else {
 				if(((feature_number>=10)&&(feature_number<=127))||(feature_number==0))
 					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
-							    "Change L (Reserved feature number)");
+							    "Change L(Reserved feature number)");
 				else
 					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
-							    "Change L (CCID-specific features)");
+							    "Change L(CCID-specific features)");
 			}
 			break;
 
 		case 33:
-			memset(buff, 0, sizeof(buff));
-			sprintf(buff, "Confirm L(");
 			feature_number = tvb_get_guint8(tvb, offset + 2);
 			proto_tree_add_uint_hidden(dcp_options_tree, hf_dcp_feature_number, tvb, offset + 2, 1, feature_number);
 			
-			if( (feature_number < 10) && (feature_number!=0) ){
-				sprintf(buff, "%s%s ", buff, val_to_str(feature_number, dcp_feature_numbers_vals, "Unknown Type"));
-				for (i = 0; i < option_len - 3; i++) 
-					sprintf(buff, "%s %d", buff, tvb_get_guint8(tvb, offset + 3 + i));
-				sprintf(buff, "%s)", buff);
-				proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, buff);
+			if( (feature_number < 10) && (feature_number!=0) ) {
+				dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
+							       "Confirm L(%s", 
+							       val_to_str(feature_number, dcp_feature_numbers_vals, "Unknown Type"));
+				for (i = 0; i < option_len - 3; i++) {
+					if(i==0)
+						proto_item_append_text(dcp_item, "%d", tvb_get_guint8(tvb, offset + 3 + i));
+					else
+						proto_item_append_text(dcp_item, ", %d", tvb_get_guint8(tvb, offset + 3 + i));
+				}
+				proto_item_append_text(dcp_item, ")");
 			} else {
 				if(((feature_number>=10)&&(feature_number<=127))||(feature_number==0))
 					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
-							    "Confirm L (Reserved feature number)");
+							    "Confirm L(Reserved feature number)");
 				else
 					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
-							    "Confirm L (CCID-specific features)");
+							    "Confirm L(CCID-specific features)");
 			}
 			break;
 
 		case 34:
-			memset(buff, 0, sizeof(buff));
-			sprintf(buff, "Change R(");
 			feature_number = tvb_get_guint8(tvb, offset + 2);
 			proto_tree_add_uint_hidden(dcp_options_tree, hf_dcp_feature_number, tvb, offset + 2, 1, feature_number);
 			
-			if( (feature_number < 10) && (feature_number!=0) ){
-				sprintf(buff, "%s%s ", buff, val_to_str(feature_number, dcp_feature_numbers_vals, "Unknown Type"));
-				for (i = 0; i < option_len - 3; i++) 
-					sprintf(buff, "%s %d", buff, tvb_get_guint8(tvb, offset + 3 + i));
-				sprintf(buff, "%s)", buff);
-				proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, buff);
+			if( (feature_number < 10) && (feature_number!=0) ) {
+				dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
+							       "Change R(%s", 
+							       val_to_str(feature_number, dcp_feature_numbers_vals, "Unknown Type"));
+				for (i = 0; i < option_len - 3; i++) {
+					if(i==0)
+						proto_item_append_text(dcp_item, "%d", tvb_get_guint8(tvb, offset + 3 + i));
+					else
+						proto_item_append_text(dcp_item, ", %d", tvb_get_guint8(tvb, offset + 3 + i));
+				}
+				proto_item_append_text(dcp_item, ")");
 			} else {
 				if(((feature_number>=10)&&(feature_number<=127))||(feature_number==0))
 					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
-							    "Change R (Reserved feature number)");
+							    "Change R(Reserved feature number)");
 				else
 					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
-							    "Change R (CCID-specific features)");
+							    "Change R(CCID-specific features)");
 			}
 			break;
 
 		case 35:
-			memset(buff, 0, sizeof(buff));
-			sprintf(buff, "Confirm R(");
 			feature_number = tvb_get_guint8(tvb, offset + 2);
 			proto_tree_add_uint_hidden(dcp_options_tree, hf_dcp_feature_number, tvb, offset + 2, 1, feature_number);
 			
-			if( (feature_number < 10) && (feature_number!=0) ){
-				sprintf(buff, "%s%s ", buff, val_to_str(feature_number, dcp_feature_numbers_vals, "Unknown Type"));
-				for (i = 0; i < option_len - 3; i++) 
-					sprintf(buff, "%s %d", buff, tvb_get_guint8(tvb, offset + 3 + i));
-				sprintf(buff, "%s)", buff);
-				proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, buff);
+			if( (feature_number < 10) && (feature_number!=0) ) {
+				dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
+							       "Confirm R(%s", 
+							       val_to_str(feature_number, dcp_feature_numbers_vals, "Unknown Type"));
+				for (i = 0; i < option_len - 3; i++) {
+					if(i==0)
+						proto_item_append_text(dcp_item, "%d", tvb_get_guint8(tvb, offset + 3 + i));
+					else
+						proto_item_append_text(dcp_item, ", %d", tvb_get_guint8(tvb, offset + 3 + i));
+				}
+				proto_item_append_text(dcp_item, ")");
 			} else {
 				if(((feature_number>=10)&&(feature_number<=127))||(feature_number==0))
 					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
-							    "Confirm R (Reserved feature number)");
+							    "Confirm R(Reserved feature number)");
 				else
 					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
-							    "Confirm R (CCID-specific features)");
+							    "Confirm R(CCID-specific features)");
 			}
 			break;
 
 		case 36:
-			memset(buff, 0, sizeof(buff));
-			sprintf(buff, "Init Cookie(");
-			for (i = 0; i < option_len - 2; i++) 
-				sprintf(buff, "%s%02x ", buff, tvb_get_guint8(tvb, offset + 2 + i));
-			sprintf(buff, "%s)", buff);
-			proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, buff);
+			dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Init Cookie(");
+			for (i = 0; i < option_len - 2; i++) { 
+				if(i==0)
+					proto_item_append_text(dcp_item, "%02x", tvb_get_guint8(tvb, offset + 2 + i));
+				else
+					proto_item_append_text(dcp_item, " %02x", tvb_get_guint8(tvb, offset + 2 + i));
+			}
+			proto_item_append_text(dcp_item, ")");
 			break;
 
 		case 37:
@@ -424,30 +438,36 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 			break;
 
 		case 38:
-			memset(buff, 0, sizeof(buff));
-			sprintf(buff, "Ack Vector0(");
-			for (i = 0; i < option_len - 2; i++) 
-				sprintf(buff, "%s%02x ", buff, tvb_get_guint8(tvb, offset + 2 + i));
-			sprintf(buff, "%s)", buff);
-			proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, buff);
+			dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Ack Vector0(");
+			for (i = 0; i < option_len - 2; i++) { 
+				if(i==0)
+					proto_item_append_text(dcp_item, "%02x", tvb_get_guint8(tvb, offset + 2 + i));
+				else
+					proto_item_append_text(dcp_item, " %02x", tvb_get_guint8(tvb, offset + 2 + i));
+			}
+			proto_item_append_text(dcp_item, ")");
 			break;
 
 		case 39:
-			memset(buff, 0, sizeof(buff));
-			sprintf(buff, "Ack Vector1(");
-			for (i = 0; i < option_len - 2; i++) 
-				sprintf(buff, "%s%02x ", buff, tvb_get_guint8(tvb, offset + 2 + i));
-			sprintf(buff, "%s)", buff);
-			proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, buff);
+			dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Ack Vector1(");
+			for (i = 0; i < option_len - 2; i++) { 
+				if(i==0)
+					proto_item_append_text(dcp_item, "%02x", tvb_get_guint8(tvb, offset + 2 + i));
+				else
+					proto_item_append_text(dcp_item, " %02x", tvb_get_guint8(tvb, offset + 2 + i));
+			}
+			proto_item_append_text(dcp_item, ")");
 			break;
 
 		case 40:
-			memset(buff, 0, sizeof(buff));
-			sprintf(buff, "Data Dropped(");
-			for (i = 0; i < option_len - 2; i++) 
-				sprintf(buff, "%s%02x ", buff, tvb_get_guint8(tvb, offset + 2 + i));
-			sprintf(buff, "%s)", buff);
-			proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, buff);
+			dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Data Dropped(");
+			for (i = 0; i < option_len - 2; i++) { 
+				if(i==0)
+					proto_item_append_text(dcp_item, "%02x", tvb_get_guint8(tvb, offset + 2 + i));
+				else
+					proto_item_append_text(dcp_item, " %02x", tvb_get_guint8(tvb, offset + 2 + i));
+			}
+			proto_item_append_text(dcp_item, ")");
 			break;
 
 		case 41:
