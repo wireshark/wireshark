@@ -896,8 +896,11 @@ asn1_oid_value_decode ( ASN1_SCK *asn1, int enc_len, subid_t **oid, guint *len)
      * but that's another matter; in any case, that would happen only
      * if we had an immensely large tvbuff....)
      */
-    if (enc_len != 0)
-	tvb_ensure_bytes_exist(asn1->tvb, asn1->offset, enc_len);
+    if (enc_len < 1) {
+	*oid = NULL;
+	return ASN1_ERR_LENGTH_MISMATCH;
+    }
+    tvb_ensure_bytes_exist(asn1->tvb, asn1->offset, enc_len);
 
     eoc = asn1->offset + enc_len;
 

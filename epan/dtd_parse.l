@@ -82,7 +82,8 @@
     
 #define DTD_PARSE(token_type) \
 	{   DEBUG_DTD_TOKEN; \
-        build_data->location = location; \
+		build_data->location = location; \
+		location = NULL; \
 		DtdParse(pParser, (token_type), new_token(yytext), build_data); \
 		if(build_data->error->len > 0) yyterminate(); \
 	}
