@@ -4016,7 +4016,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
      * offset otherwise.
      */
     fragment_tvb = tvb_new_subset(tvb, 0, 
-        MIN((hdr.frag_len + start_offset),tvb_length(tvb)) /* length */, 
+        MIN((hdr.frag_len + (guint) start_offset), tvb_length(tvb)) /* length */, 
         hdr.frag_len + start_offset /* reported_length */);
 
     /*
