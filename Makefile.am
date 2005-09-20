@@ -558,6 +558,7 @@ EXTRA_DIST = \
 	image/stock_dialog_warning_48.xpm	\
 	image/stock_dialog_question_48.xpm	\
 	image/stock_dialog_info_48.xpm	\
+	image/stock_dialog_stop_48.xpm	\
 	image/tethereal.rc.in	\
 	image/text2pcap.rc.in	\
 	image/toolbar/autoscroll_24.xpm	\
