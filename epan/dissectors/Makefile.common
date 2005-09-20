@@ -156,6 +156,7 @@ DISSECTOR_SRC =	\
 	packet-daap.c	\
 	packet-data.c	\
 	packet-dccp.c	\
+	packet-dcp.c	\
 	packet-dcerpc-afs4int.c	\
 	packet-dcerpc-bossvr.c	\
 	packet-dcerpc-browser.c	\
@@ -669,6 +670,7 @@ DISSECTOR_INCLUDES =	\
 	packet-crmf.h	\
 	packet-data.h	\
 	packet-dccp.h	\
+	packet-dcp.h	\
 	packet-dcerpc-browser.h	\
 	packet-dcerpc-budb.h	\
 	packet-dcerpc-butc.h	\
