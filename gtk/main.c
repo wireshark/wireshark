@@ -2279,7 +2279,7 @@ main(int argc, char *argv[])
       /* No - is a default specified in the preferences file? */
       if (prefs->capture_device != NULL) {
           /* Yes - use it. */
-          capture_opts->iface = g_strdup(prefs->capture_device);
+          capture_opts->iface = g_strdup(get_if_name(prefs->capture_device));
       } else {
         /* No - pick the first one from the list of interfaces. */
         if_list = get_interface_list(&err, err_str);
