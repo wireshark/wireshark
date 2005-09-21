@@ -2084,7 +2084,7 @@ main(int argc, char *argv[])
           g_resolv_flags = RESOLV_NONE;
         badopt = string_to_name_resolve(optarg, &g_resolv_flags);
         if (badopt != '\0') {
-          fprintf(stderr, "ethereal: -N specifies unknown resolving option '%c'; valid options are 'm', 'n', and 't'\n",
+          g_warning("ethereal: -N specifies unknown resolving option '%c'; valid options are 'm', 'n', and 't'",
 			badopt);
           exit(1);
         }
@@ -2094,7 +2094,7 @@ main(int argc, char *argv[])
         case PREFS_SET_OK:
           break;
         case PREFS_SET_SYNTAX_ERR:
-          fprintf(stderr, "ethereal: Invalid -o flag \"%s\"\n", optarg);
+          g_warning("ethereal: Invalid -o flag \"%s\"", optarg);
           exit(1);
           break;
         case PREFS_SET_NO_SUCH_PREF:
@@ -2104,12 +2104,12 @@ main(int argc, char *argv[])
               break;
             case PREFS_SET_SYNTAX_ERR:
               /* shouldn't happen, checked already above */
-              fprintf(stderr, "ethereal: Invalid -o flag \"%s\"\n", optarg);
+              g_warning("ethereal: Invalid -o flag \"%s\"", optarg);
               exit(1);
               break;
             case PREFS_SET_NO_SUCH_PREF:
             case PREFS_SET_OBSOLETE:
-              fprintf(stderr, "ethereal: -o flag \"%s\" specifies unknown preference/recent value\n",
+              g_warning("ethereal: -o flag \"%s\" specifies unknown preference/recent value",
 	            optarg);
               exit(1);
               break;
@@ -2118,7 +2118,7 @@ main(int argc, char *argv[])
             }
           break;
         case PREFS_SET_OBSOLETE:
-          fprintf(stderr, "ethereal: -o flag \"%s\" specifies obsolete preference\n",
+          g_warning("ethereal: -o flag \"%s\" specifies obsolete preference",
 			optarg);
           exit(1);
           break;
@@ -2145,10 +2145,10 @@ main(int argc, char *argv[])
         else if (strcmp(optarg, "d") == 0)
           timestamp_set_type(TS_DELTA);
         else {
-          fprintf(stderr, "ethereal: Invalid time stamp type \"%s\"\n",
+          g_warning("ethereal: Invalid time stamp type \"%s\"",
             optarg);
-          fprintf(stderr, "It must be \"r\" for relative, \"a\" for absolute,\n");
-          fprintf(stderr, "\"ad\" for absolute with date, or \"d\" for delta.\n");
+          g_warning("It must be \"r\" for relative, \"a\" for absolute,");
+          g_warning("\"ad\" for absolute with date, or \"d\" for delta.");
           exit(1);
         }
         break;
@@ -2159,14 +2159,15 @@ main(int argc, char *argv[])
            part of a tap filter.  Instead, we just add the argument
            to a list of stat arguments. */
         if (!process_stat_cmd_arg(optarg)) {
-	  fprintf(stderr,"ethereal: invalid -z argument.\n");
-	  fprintf(stderr,"  -z argument must be one of :\n");
+	  g_warning("ethereal: invalid -z argument.");
+	  g_warning("  -z argument must be one of :");
 	  list_stat_cmd_args();
 	  exit(1);
 	}
         break;
       default:
       case '?':        /* Bad flag - print usage message */
+	    g_warning("Bad flag");
         arg_error = TRUE;
         break;
     }
@@ -2179,6 +2180,7 @@ main(int argc, char *argv[])
        * Input file name specified with "-r" *and* specified as a regular
        * command-line argument.
        */
+	  g_warning("File name specified both with -r and regular argument");
       arg_error = TRUE;
     } else {
       /*
@@ -2203,14 +2205,14 @@ main(int argc, char *argv[])
     /*
      * Extra command line arguments were specified; complain.
      */
-    fprintf(stderr, "Invalid argument: %s\n", argv[0]);
+    g_warning("Invalid argument: %s", argv[0]);
     arg_error = TRUE;
   }
 
   if (arg_error) {
 #ifndef HAVE_LIBPCAP
     if (capture_option_specified) {
-      fprintf(stderr, "This version of Ethereal was not built with support for capturing packets.\n");
+      g_warning("This version of Ethereal was not built with support for capturing packets.");
     }
 #endif
     print_usage(FALSE);
@@ -2220,7 +2222,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
   if (start_capture && list_link_layer_types) {
     /* Specifying *both* is bogus. */
-    fprintf(stderr, "ethereal: You can't specify both -L and a live capture.\n");
+    g_warning("ethereal: You can't specify both -L and a live capture.");
     exit(1);
   }
 
@@ -2229,12 +2231,12 @@ main(int argc, char *argv[])
        did the user also specify a capture file to be read? */
     if (cf_name) {
       /* Yes - that's bogus. */
-      fprintf(stderr, "ethereal: You can't specify -L and a capture file to be read.\n");
+      g_warning("ethereal: You can't specify -L and a capture file to be read.");
       exit(1);
     }
     /* No - did they specify a ring buffer option? */
     if (capture_opts->multi_files_on) {
-      fprintf(stderr, "ethereal: Ring buffer requested, but a capture isn't being done.\n");
+      g_warning("ethereal: Ring buffer requested, but a capture isn't being done.");
       exit(1);
     }
   } else {
@@ -2242,7 +2244,7 @@ main(int argc, char *argv[])
        a capture file to be read? */
     if (start_capture && cf_name) {
       /* Yes - that's bogus. */
-      fprintf(stderr, "ethereal: You can't specify both a live capture and a capture file to be read.\n");
+      g_warning("ethereal: You can't specify both a live capture and a capture file to be read.");
       exit(1);
     }
 
@@ -2256,15 +2258,15 @@ main(int argc, char *argv[])
 	 c) it makes no sense to enable the ring buffer if the maximum
 	    file size is set to "infinite". */
       if (capture_opts->save_file == NULL) {
-	fprintf(stderr, "ethereal: Ring buffer requested, but capture isn't being saved to a permanent file.\n");
+	g_warning("ethereal: Ring buffer requested, but capture isn't being saved to a permanent file.");
 	capture_opts->multi_files_on = FALSE;
       }
 /*      if (capture_opts->real_time_mode) {
-	fprintf(stderr, "ethereal: Ring buffer requested, but an \"Update list of packets in real time\" capture is being done.\n");
+	g_warning("ethereal: Ring buffer requested, but an \"Update list of packets in real time\" capture is being done.");
 	capture_opts->multi_files_on = FALSE;
       }*/
       if (!capture_opts->has_autostop_filesize && !capture_opts->has_file_duration) {
-	fprintf(stderr, "ethereal: Ring buffer requested, but no maximum capture file size or duration were specified.\n");
+	g_warning("ethereal: Ring buffer requested, but no maximum capture file size or duration were specified.");
 /* XXX - this must be redesigned as the conditions changed */
 /*	capture_opts->multi_files_on = FALSE;*/
       }
@@ -2286,12 +2288,12 @@ main(int argc, char *argv[])
 
           case CANT_GET_INTERFACE_LIST:
               cant_get_if_list_errstr = cant_get_if_list_error_message(err_str);
-              fprintf(stderr, "%s\n", cant_get_if_list_errstr);
+              g_warning("%s", cant_get_if_list_errstr);
               g_free(cant_get_if_list_errstr);
               break;
 
           case NO_INTERFACES_FOUND:
-              fprintf(stderr, "ethereal: There are no interfaces on which a capture can be done\n");
+              g_warning("ethereal: There are no interfaces on which a capture can be done");
               break;
           }
           exit(2);
@@ -2308,22 +2310,22 @@ main(int argc, char *argv[])
     lt_list = get_pcap_linktype_list(capture_opts->iface, err_str);
     if (lt_list == NULL) {
       if (err_str[0] != '\0') {
-	fprintf(stderr, "ethereal: The list of data link types for the capture device could not be obtained (%s).\n"
+	g_warning("ethereal: The list of data link types for the capture device could not be obtained (%s)."
 	  "Please check to make sure you have sufficient permissions, and that\n"
 	  "you have the proper interface or pipe specified.\n", err_str);
       } else
-	fprintf(stderr, "ethereal: The capture device has no data link types.\n");
+	g_warning("ethereal: The capture device has no data link types.");
       exit(2);
     }
-    fprintf(stderr, "Data link types (use option -y to set):\n");
+    g_warning("Data link types (use option -y to set):");
     for (lt_entry = lt_list; lt_entry != NULL;
          lt_entry = g_list_next(lt_entry)) {
       data_link_info = lt_entry->data;
-      fprintf(stderr, "  %s", data_link_info->name);
+      g_warning("  %s", data_link_info->name);
       if (data_link_info->description != NULL)
-	fprintf(stderr, " (%s)", data_link_info->description);
+	g_warning(" (%s)", data_link_info->description);
       else
-	fprintf(stderr, " (not supported)");
+	g_warning(" (not supported)");
       putchar('\n');
     }
     free_pcap_linktype_list(lt_list);
