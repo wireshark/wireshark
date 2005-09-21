@@ -340,7 +340,7 @@ fileset_cb(GtkWidget *w _U_, gpointer d _U_)
 }
 
 
-/* open the next file in the file set, or do nothing if already the first file */
+/* open the next file in the file set, or do nothing if already the last file */
 void
 fileset_next_cb(GtkWidget *w _U_, gpointer d _U_)
 {
