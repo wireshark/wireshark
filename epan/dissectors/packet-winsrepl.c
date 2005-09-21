@@ -402,6 +402,14 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 	winsrepl_offset += 4;
 
 	/* NAME: TODO! */
+	/*
+	 * XXX - apparently, according to the Samba code for handling
+	 * WINS replication, there's a bug in a lot of versions of Windows,
+	 * including W2K SP2, wherein the first and last bytes of the
+	 * name (the last byte being the name type) are swapped if
+	 * the type is 0x1b.  I think I've seen this in at least
+	 * one capture.
+	 */
 	name_tvb = tvb_new_subset(winsrepl_tvb, winsrepl_offset, name->name_len, name->name_len);
 	netbios_add_name("Name", name_tvb, 0, name_tree);
 	name_type = get_netbios_name(name_tvb, 0, name_str);
@@ -412,6 +420,39 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 	winsrepl_offset += ((winsrepl_offset & (4-1)) == 0 ? 0 : (4 - (winsrepl_offset & (4-1))));
 
 	/* FLAGS */
+	/*
+	 * XXX - dissect these as WINS flags, as per Samba:
+	 *
+	 *	bottommost 2 bits: record type:
+	 *
+	 *				0 = unique record
+	 *				1 = normal group (e.g., type 0x1b)
+	 *				2 = special group (eg., type 0x1c)
+	 *				3 = multihomed host
+	 *
+	 *	(special group and multihomed host have multiple IP
+	 *	addresses)
+	 *
+	 *	next 2 bits: record state:
+	 *				0 = active
+	 *				1 = released
+	 *				2 = tombstoned
+	 *				3 = deleted
+	 *
+	 *	next bit: local vs. remote:
+	 *				0 = local
+	 *				1 = remote
+	 *
+	 *	next 2 bits: host type:
+	 *				0 = B-node
+	 *				1 = P-node
+	 *				2 = M-node
+	 *				3 = H-node
+	 *
+	 *	topmost bit: dynamic vs. static record:
+	 *				0 = dynamic record
+	 *				1 = static record
+	 */
 	name->flags = tvb_get_ntohl(winsrepl_tvb, winsrepl_offset);
 	proto_tree_add_uint(name_tree, hf_winsrepl_name_flags, winsrepl_tvb, winsrepl_offset, 4, name->flags);
 	winsrepl_offset += 4;
