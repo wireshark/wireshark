@@ -549,7 +549,7 @@ reassemble_octet_string(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
       }
     } else {
       
-      if(offset - start_offset >= con_len)
+    if((guint32)(offset - start_offset) >= con_len)
 	fragment = FALSE;
     }
 
@@ -654,31 +654,31 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 	ber_last_created_item = NULL;
 	if (pc) {
 		/* constructed */
-	  end_offset = reassemble_octet_string(pinfo, tree, tvb, offset, len, ind, out_tvb);
-
+		end_offset = reassemble_octet_string(pinfo, tree, tvb, offset, len, ind, out_tvb);
 	} else {
 		/* primitive */
+		gint length_remaining = tvb_length_remaining(tvb, offset);
+
+		if(len<=(guint32)length_remaining){
+			length_remaining=len;
+		}
 		if(hf_id >= 0) {
-			it = proto_tree_add_item(tree, hf_id, tvb, offset, MIN(len, tvb_length_remaining(tvb, offset)), FALSE);
+			it = proto_tree_add_item(tree, hf_id, tvb, offset, length_remaining, FALSE);
 			ber_last_created_item = it;
 		} else {
-      proto_item *pi;
+			proto_item *pi;
       
-      pi=proto_tree_add_text(tree, tvb, offset, len, "Unknown OctetString: Length: 0x%02x, Value: 0x", len);
-      if(pi){
-        for(i=0;i<len;i++){
-          proto_item_append_text(pi,"%02x",tvb_get_guint8(tvb, offset));
-          offset++;
-        }
-      }
-    }
+			pi=proto_tree_add_text(tree, tvb, offset, len, "Unknown OctetString: Length: 0x%02x, Value: 0x", len);
+			if(pi){
+				for(i=0;i<len;i++){
+					proto_item_append_text(pi,"%02x",tvb_get_guint8(tvb, offset));
+					offset++;
+				}
+			}
+		}
 
 		if(out_tvb) {
-			if(len<=(guint32)tvb_length_remaining(tvb, offset)){
-				*out_tvb = tvb_new_subset(tvb, offset, MIN(len, tvb_length_remaining(tvb, offset)), len);
-			} else {
-				*out_tvb = tvb_new_subset(tvb, offset, -1, -1);
-			}
+			*out_tvb = tvb_new_subset(tvb, offset, length_remaining, len);
 		}
 	}
 	return end_offset;
