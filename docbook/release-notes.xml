@@ -67,7 +67,8 @@ Gnu info
   <section id="WhatsNew"><title>What's New</title>
     <section><title>Bugfixes</title>
     <para>
-      The following bugs have been fixed since the previous release:
+      The following security vulnerabilities have been fixed since the
+      previous release:
       <itemizedlist>
 
 	<listitem><para>
@@ -168,6 +169,10 @@ Gnu info
     </para>
 
     <para>
+      When trying to save a flow graph, Ethereal could crash.
+    </para>
+
+    <para>
       The PCRE library that ships with the Windows installer has been upgraded
       from version 4.4 to 6.3 in response to a
       <ulink url="http://www.securityfocus.com/bid/14620">security
@@ -215,6 +220,10 @@ Gnu info
 	  by Ethereal.
 	</para></listitem>
 
+        <listitem><para>
+          Ethereal's memory managment has been greatly improved.
+        </para></listitem>
+
       </itemizedlist>
     </para>
     </section>
@@ -258,11 +267,12 @@ Gnu info
 
   </section>
 
+  <!-- XXX needs to be written 
   <section id="RemovingEthereal"><title>Removing Ethereal</title>
     <para>
-  <!-- XXX needs to be written -->
     </para>
   </section>
+  -->
 
   <section id="FileLocations"><title>File Locations</title>
     <para>
@@ -285,13 +295,21 @@ Gnu info
 
   <section id="GettingHelp"><title>Getting Help</title>
     <para>
-  <!-- XXX needs to be written -->
+    Community support is available on the ethereal-users mailing list.
+    Subscription information and archives for all of Ethereal's mailing
+    lists can be found on <ulink url="http://www.ethereal.com/lists">the
+    web site</ulink>. There is also an <ulink url="irc://irc.freenode.net/ethereal">IRC channel dedicated to Ethereal</ulink>.
+    </para>
+    <para>
+    Commercial support, training, and development services are available
+    from <ulink url="http://www.etherealsoft.com/">Ethereal Software</ulink>.
     </para>
   </section>
 
   <section id="FAQ"><title>Frequently Asked Questions</title>
     <para>
-  <!-- XXX needs to be written -->
+    A complete FAQ is available on the
+    <ulink url="http://www.ethereal.com/faq.html">Ethereal web site</ulink>.
     </para>
   </section>
 

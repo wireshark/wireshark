@@ -261,6 +261,11 @@ static void overwrite (GString *gstr, char *text_to_insert, guint32 p1, guint32 
 }
 
 
+/*
+ * XXX - We might want to refactor this to write the graph data directly to
+ * the file instead of loading everything into strings first.
+ */
+
 /****************************************************************************/
 static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 {
@@ -446,6 +451,12 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 
 		fprintf(of,"%s\n",tmp_str->str);
 	}
+
+	g_string_free(label_string, TRUE);
+	g_string_free(empty_line, TRUE);
+	g_string_free(separator_line, TRUE);
+	g_string_free(tmp_str, TRUE);
+	g_string_free(tmp_str2, TRUE);
 
 	fclose (of);
 	return TRUE;
