@@ -171,8 +171,11 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	tt = tvbparse_init(tvb,0,-1,stack,want_ignore);
 	current_frame->start_offset = 0;
+
+	root_ns = NULL;
 	
-	root_ns = g_hash_table_lookup(media_types,pinfo->match_string);
+	if (pinfo->match_string)
+		root_ns = g_hash_table_lookup(media_types,pinfo->match_string);
 	
 	if (! root_ns ) {
 		root_ns = &xml_ns;
