@@ -214,8 +214,10 @@ static const value_string rcode_vals[] = {
 #define	NB_FLAGS_G		(1<<(15-0))	/* group name */
 
 /* Values for the "NAME_FLAGS" field of a NODE_NAME entry in T_NBSTAT
- * RR data.  From RFC 1001 and 1002, except for NAME_FLAGS_ONT_H_NODE,
- * which was discovered by looking at packet traces. */
+ * RR data.  From RFC 1001 and 1002; as I remember, the "NAME_FLAGS"
+ * field doesn't include any special values for H-mode nodes, even
+ * though one can register them (if so, perhaps that was done to
+ * avoid surprising clients that don't know about H-mode nodes). */
 #define	NAME_FLAGS_PRM		(1<<(15-6))	/* name is permanent node name */
 
 #define	NAME_FLAGS_ACT		(1<<(15-5))	/* name is active */
