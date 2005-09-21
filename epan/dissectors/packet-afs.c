@@ -2632,9 +2632,10 @@ dissect_vldb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 					}
 					for (i=0; i<8; i++)
 					{
-						char part[8];
+						char *part;
+						part=ep_alloc(8);
 						j = tvb_get_ntohl(tvb, offset);
-						strcpy(part, "/vicepa");
+						g_snprintf(part, 8, "/vicepa");
 						if ( i<nservers && j<=25 )
 						{
 							part[6] = 'a' + (char) j;
@@ -2679,9 +2680,10 @@ dissect_vldb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 					}
 					for (i=0; i<13; i++)
 					{
-						char part[8];
+						char *part;
+						part=ep_alloc(8);
 						j = tvb_get_ntohl(tvb, offset);
-						strcpy(part, "/vicepa");
+						g_snprintf(part, 8, "/vicepa");
 						if ( i<nservers && j<=25 )
 						{
 							part[6] = 'a' + (char) j;
@@ -2727,9 +2729,10 @@ dissect_vldb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 					}
 					for (i=0; i<13; i++)
 					{
-						char part[8];
+						char *part;
+						part=ep_alloc(8);
 						j = tvb_get_ntohl(tvb, offset);
-						strcpy(part, "/vicepa");
+						g_snprintf(part, 8, "/vicepa");
 						if ( i<nservers && j<=25 )
 						{
 							part[6] = 'a' + (char) j;
