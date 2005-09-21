@@ -195,7 +195,7 @@ void proto_reg_handoff_user_encap(void) {
 
 void proto_register_user_encap(void)
 {
-	int i;
+	size_t i;
 	
 	for (i = 0; i < array_length(encaps); i++) {
 		encaps[i].hfid = proto_register_protocol(encaps[i].name, encaps[i].long_name, encaps[i].abbr);
