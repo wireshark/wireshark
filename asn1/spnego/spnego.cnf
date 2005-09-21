@@ -10,122 +10,213 @@
 #.NO_EMIT
 
 #.TYPE_RENAME
+NegTokenInit/mechListMIC T_NegTokenInit_mechListMIC
 
 #.FIELD_RENAME
+NegTokenInit/mechListMIC negTokenInit_mechListMIC
 
 #.FN_PARS MechType
 
-	VAL_PTR = MechType_oid
+  VAL_PTR = MechType_oid
 
 #.FN_BODY MechType
 
-	gssapi_oid_value *value;
+  gssapi_oid_value *value;
 
 %(DEFAULT_BODY)s
 
-	  value = gssapi_lookup_oid_str(MechType_oid);
+  value = gssapi_lookup_oid_str(MechType_oid);
 
-	  /*
-	   * Tell our caller the first mechanism we see, so that if
-	   * this is a negTokenInit with a mechToken, it can interpret
-	   * the mechToken according to the first mechType.  (There
-	   * might not have been any indication of the mechType
-	   * in prior frames, so we can't necessarily use the
-	   * mechanism from the conversation; i.e., a negTokenInit
-	   * can contain the initial security token for the desired
-	   * mechanism of the initiator - that's the first mechanism
-	   * in the list.)
-	   */
-	  if (!saw_mechanism) {
-	    if (value)
-	      next_level_value = value;
-	    saw_mechanism = TRUE;
-	  }
+  /*
+   * Tell our caller the first mechanism we see, so that if
+   * this is a negTokenInit with a mechToken, it can interpret
+   * the mechToken according to the first mechType.  (There
+   * might not have been any indication of the mechType
+   * in prior frames, so we can't necessarily use the
+   * mechanism from the conversation; i.e., a negTokenInit
+   * can contain the initial security token for the desired
+   * mechanism of the initiator - that's the first mechanism
+   * in the list.)
+   */
+  if (!saw_mechanism) {
+    if (value)
+      next_level_value = value;
+    saw_mechanism = TRUE;
+  }
 
 #.FN_BODY InnerContextToken
 
-	conversation_t *conversation;
-	gssapi_oid_value *next_level_value;
-	proto_item *item;
-	proto_tree *subtree;
-	tvbuff_t *token_tvb;
-	int len;
+  gssapi_oid_value *next_level_value;
+  proto_item *item;
+  proto_tree *subtree;
+  tvbuff_t *token_tvb;
+  int len;
 
-	next_level_value = p_get_proto_data(pinfo->fd, proto_spnego);
-	if (!next_level_value && !pinfo->fd->flags.visited) {
-	    /*
-	     * No handle attached to this frame, but it's the first
-	     * pass, so it'd be attached to the conversation.
-	     * If we have a conversation, try to get the handle,
-	     * and if we get one, attach it to the frame.
-	     */
-	    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-					     pinfo->ptype, pinfo->srcport,
-					     pinfo->destport, 0);
+  /*
+   * XXX - what should we do if this OID doesn't match the value
+   * attached to the frame or conversation?  (That would be
+   * bogus, but that's not impossible - some broken implementation
+   * might negotiate some security mechanism but put the OID
+   * for some other security mechanism in GSS_Wrap tokens.)
+   * Does it matter?
+   */
+  next_level_value = gssapi_lookup_oid_str(MechType_oid);
 
-	    if (conversation) {
-		next_level_value = conversation_get_proto_data(conversation, 
-							       proto_spnego);
-		if (next_level_value)
-		    p_add_proto_data(pinfo->fd, proto_spnego, next_level_value);
-	    }
-	}
+  /*
+   * Now dissect the GSS_Wrap token; it's assumed to be in the
+   * rest of the tvbuff.
+   */
+  item = proto_tree_add_item(tree, hf_spnego_wraptoken, tvb, offset, -1, FALSE); 
 
-	next_level_value = gssapi_lookup_oid_str(MechType_oid);
-	/*
-	 * Now dissect the GSS_Wrap token; it's assumed to be in the
-	 * rest of the tvbuff.
-	 */
-	item = proto_tree_add_item(tree, hf_spnego_wraptoken, tvb, offset, 
-				   -1, FALSE); 
+  subtree = proto_item_add_subtree(item, ett_spnego_wraptoken);
 
-	subtree = proto_item_add_subtree(item, ett_spnego_wraptoken);
-
-	/*
-	 * Now, we should be able to dispatch after creating a new TVB.
-	 * The subdissector must return the length of the part of the
-	 * token it dissected, so we can return the length of the part
-	 * we (and it) dissected.
-	 */
-
-	token_tvb = tvb_new_subset(tvb, offset, -1, -1);
-	if (next_level_value && next_level_value->wrap_handle) {
-	  len = call_dissector(next_level_value->wrap_handle, token_tvb, pinfo, subtree);
-	  if (len == 0)
-	    offset = tvb_length(tvb);
-	  else
-	    offset = offset + len;
-	} else
-	  
-	  offset = tvb_length(tvb);
-
+  /*
+   * Now, we should be able to dispatch after creating a new TVB.
+   * The subdissector must return the length of the part of the
+   * token it dissected, so we can return the length of the part
+   * we (and it) dissected.
+   */
+  token_tvb = tvb_new_subset(tvb, offset, -1, -1);
+  if (next_level_value && next_level_value->wrap_handle) {
+    len = call_dissector(next_level_value->wrap_handle, token_tvb, pinfo,
+                         subtree);
+    if (len == 0)
+      offset = tvb_length(tvb);
+    else
+      offset = offset + len;
+  } else
+    offset = tvb_length(tvb);
 
 #.FN_HDR MechTypeList
 
-
-	saw_mechanism = FALSE;
+  saw_mechanism = FALSE;
 
 #.FN_PARS NegTokenInit/mechToken
 
-	VAL_PTR = &mechToken_tvb
+  VAL_PTR = &mechToken_tvb
 
 #.FN_BODY NegTokenInit/mechToken
 
-	tvbuff_t *mechToken_tvb = NULL;
+  tvbuff_t *mechToken_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (! mechToken_tvb) {
+    THROW(ReportedBoundsError);
+  }
+
+  /*
+   * Now, we should be able to dispatch after creating a new TVB.
+   */
+  if (next_level_value)
+     call_dissector(next_level_value->handle, mechToken_tvb, pinfo, tree);
 
 
-%(DEFAULT_BODY)s	
+#.FN_BODY NegTokenInit/mechListMIC
 
-	if (! mechToken_tvb) {
-	   THROW(ReportedBoundsError);
-	}
+  gint8 class;
+  gboolean pc;
+  gint32 tag;
+  tvbuff_t *mechListMIC_tvb;
+  static int dissect_spnego_PrincipalSeq(gboolean implicit_tag, tvbuff_t *tvb,
+                                         int offset, packet_info *pinfo,
+                                         proto_tree *tree, int hf_index);
 
-	/*
-	 * Now, we should be able to dispatch after creating a new TVB.
-	 */
+  /*
+   * There seems to be two different forms this can take,
+   * one as an octet string, and one as a general string in a 
+   * sequence.
+   *
+   * Peek at the header, and then decide which it is we're seeing.
+   */
+  get_ber_identifier(tvb, offset, &class, &pc, &tag);
+  if (class == BER_CLASS_UNI && pc && tag == BER_UNI_TAG_SEQUENCE) {
+    /*
+     * It's a sequence.
+     */
+    return dissect_spnego_PrincipalSeq(FALSE, tvb, offset, pinfo, tree,
+                                       hf_spnego_mechListMIC);
+  } else {
+    /*
+     * It's not a sequence, so dissect it as an octet string,
+     * which is what it's supposed to be; that'll cause the
+     * right error report if it's not an octet string, either.
+     */
+    offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset,
+                                      hf_spnego_mechListMIC, &mechListMIC_tvb);
 
-	if (next_level_value)
-	   call_dissector(gssapi_dissector_handle(next_level_value), mechToken_tvb, pinfo, tree);
+    /*
+     * Now, we should be able to dispatch with that tvbuff.
+     */
+    if (next_level_value)
+      call_dissector(next_level_value->handle, mechListMIC_tvb, pinfo, tree);
+    return offset;
+  }
+
+#.FN_BODY NegTokenTarg/supportedMech
+
+  conversation_t *conversation;
+
+  saw_mechanism = FALSE;
+
+%(DEFAULT_BODY)s
+
+  /*
+   * Now, we need to save this in per-proto info in the
+   * conversation if it exists. We also should create a 
+   * conversation if one does not exist. FIXME!
+   * Hmmm, might need to be smarter, because there can be
+   * multiple mechTypes in a negTokenInit with one being the
+   * default used in the Token if present. Then the negTokenTarg
+   * could override that. :-(
+   */
+  if ((conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+					pinfo->ptype, pinfo->srcport,
+					pinfo->destport, 0))) {
+    conversation_add_proto_data(conversation, proto_spnego, next_level_value);
+  }
+
+
+#.FN_PARS NegTokenTarg/responseToken
+
+  VAL_PTR = &responseToken_tvb
+
+#.FN_BODY NegTokenTarg/responseToken
+
+  tvbuff_t *responseToken_tvb;
+
+
+%(DEFAULT_BODY)s
+
+
+  /*
+   * Now, we should be able to dispatch with that tvbuff.
+   * However, we should make sure that there is something in the 
+   * response token ...
+   */
+  if (tvb_reported_length(responseToken_tvb) > 0) {
+    if (next_level_value)
+      call_dissector(next_level_value->handle, responseToken_tvb, pinfo, tree);
+  }
+
+
+#.FN_PARS NegTokenTarg/mechListMIC
+
+  VAL_PTR = &mechListMIC_tvb
+
+#.FN_BODY NegTokenTarg/mechListMIC
+
+  tvbuff_t *mechListMIC_tvb;
+
+
+%(DEFAULT_BODY)s
+
+
+  /*
+   * Now, we should be able to dispatch with that tvbuff.
+   */
+  if (next_level_value)
+    call_dissector(next_level_value->handle, mechListMIC_tvb, pinfo, tree);
 
 
 #.END

@@ -83,13 +83,15 @@ static int hf_spnego_krb5_confounder = -1;
 static int hf_spnego_negTokenInit = -1;           /* NegTokenInit */
 static int hf_spnego_negTokenTarg = -1;           /* NegTokenTarg */
 static int hf_spnego_MechTypeList_item = -1;      /* MechType */
+static int hf_spnego_principal = -1;              /* GeneralString */
 static int hf_spnego_mechTypes = -1;              /* MechTypeList */
 static int hf_spnego_reqFlags = -1;               /* ContextFlags */
 static int hf_spnego_mechToken = -1;              /* T_mechToken */
-static int hf_spnego_mechListMIC = -1;            /* OCTET_STRING */
+static int hf_spnego_negTokenInit_mechListMIC = -1;  /* T_NegTokenInit_mechListMIC */
 static int hf_spnego_negResult = -1;              /* T_negResult */
-static int hf_spnego_supportedMech = -1;          /* MechType */
-static int hf_spnego_responseToken = -1;          /* OCTET_STRING */
+static int hf_spnego_supportedMech = -1;          /* T_supportedMech */
+static int hf_spnego_responseToken = -1;          /* T_responseToken */
+static int hf_spnego_mechListMIC = -1;            /* T_mechListMIC */
 static int hf_spnego_thisMech = -1;               /* MechType */
 static int hf_spnego_innerContextToken = -1;      /* InnerContextToken */
 /* named bits */
@@ -120,6 +122,7 @@ static gint ett_spnego_krb5 = -1;
 
 static gint ett_spnego_NegotiationToken = -1;
 static gint ett_spnego_MechTypeList = -1;
+static gint ett_spnego_PrincipalSeq = -1;
 static gint ett_spnego_NegTokenInit = -1;
 static gint ett_spnego_ContextFlags = -1;
 static gint ett_spnego_NegTokenTarg = -1;
@@ -129,16 +132,6 @@ static gint ett_spnego_InitialContextToken = -1;
 
 
 static dissector_handle_t data_handle;
-
-static dissector_handle_t
-
-gssapi_dissector_handle(gssapi_oid_value *next_level_value) {
-	if (next_level_value == NULL) {
-		return NULL;
-	}
-	return next_level_value->handle;
-}
-
 
 
 /*--- Included file: packet-spnego-fn.c ---*/
@@ -151,39 +144,36 @@ gssapi_dissector_handle(gssapi_oid_value *next_level_value) {
 static int
 dissect_spnego_MechType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 
-	gssapi_oid_value *value;
+  gssapi_oid_value *value;
 
   offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                             MechType_oid);
 
 
-	  value = gssapi_lookup_oid_str(MechType_oid);
+  value = gssapi_lookup_oid_str(MechType_oid);
 
-	  /*
-	   * Tell our caller the first mechanism we see, so that if
-	   * this is a negTokenInit with a mechToken, it can interpret
-	   * the mechToken according to the first mechType.  (There
-	   * might not have been any indication of the mechType
-	   * in prior frames, so we can't necessarily use the
-	   * mechanism from the conversation; i.e., a negTokenInit
-	   * can contain the initial security token for the desired
-	   * mechanism of the initiator - that's the first mechanism
-	   * in the list.)
-	   */
-	  if (!saw_mechanism) {
-	    if (value)
-	      next_level_value = value;
-	    saw_mechanism = TRUE;
-	  }
+  /*
+   * Tell our caller the first mechanism we see, so that if
+   * this is a negTokenInit with a mechToken, it can interpret
+   * the mechToken according to the first mechType.  (There
+   * might not have been any indication of the mechType
+   * in prior frames, so we can't necessarily use the
+   * mechanism from the conversation; i.e., a negTokenInit
+   * can contain the initial security token for the desired
+   * mechanism of the initiator - that's the first mechanism
+   * in the list.)
+   */
+  if (!saw_mechanism) {
+    if (value)
+      next_level_value = value;
+    saw_mechanism = TRUE;
+  }
 
 
   return offset;
 }
 static int dissect_MechTypeList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_spnego_MechType(FALSE, tvb, offset, pinfo, tree, hf_spnego_MechTypeList_item);
-}
-static int dissect_supportedMech(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_spnego_MechType(FALSE, tvb, offset, pinfo, tree, hf_spnego_supportedMech);
 }
 static int dissect_thisMech(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_spnego_MechType(FALSE, tvb, offset, pinfo, tree, hf_spnego_thisMech);
@@ -197,8 +187,7 @@ static const ber_sequence_t MechTypeList_sequence_of[1] = {
 static int
 dissect_spnego_MechTypeList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 
-
-	saw_mechanism = FALSE;
+  saw_mechanism = FALSE;
 
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                       MechTypeList_sequence_of, hf_index, ett_spnego_MechTypeList);
@@ -238,23 +227,21 @@ static int dissect_reqFlags(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 static int
 dissect_spnego_T_mechToken(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 
-	tvbuff_t *mechToken_tvb = NULL;
-
+  tvbuff_t *mechToken_tvb = NULL;
 
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &mechToken_tvb);
-	
 
-	if (! mechToken_tvb) {
-	   THROW(ReportedBoundsError);
-	}
 
-	/*
-	 * Now, we should be able to dispatch after creating a new TVB.
-	 */
+  if (! mechToken_tvb) {
+    THROW(ReportedBoundsError);
+  }
 
-	if (next_level_value)
-	   call_dissector(gssapi_dissector_handle(next_level_value), mechToken_tvb, pinfo, tree);
+  /*
+   * Now, we should be able to dispatch after creating a new TVB.
+   */
+  if (next_level_value)
+     call_dissector(next_level_value->handle, mechToken_tvb, pinfo, tree);
 
 
 
@@ -267,17 +254,52 @@ static int dissect_mechToken(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 
 static int
-dissect_spnego_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
+dissect_spnego_T_NegTokenInit_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+
+  gint8 class;
+  gboolean pc;
+  gint32 tag;
+  tvbuff_t *mechListMIC_tvb;
+  static int dissect_spnego_PrincipalSeq(gboolean implicit_tag, tvbuff_t *tvb,
+                                         int offset, packet_info *pinfo,
+                                         proto_tree *tree, int hf_index);
+
+  /*
+   * There seems to be two different forms this can take,
+   * one as an octet string, and one as a general string in a 
+   * sequence.
+   *
+   * Peek at the header, and then decide which it is we're seeing.
+   */
+  get_ber_identifier(tvb, offset, &class, &pc, &tag);
+  if (class == BER_CLASS_UNI && pc && tag == BER_UNI_TAG_SEQUENCE) {
+    /*
+     * It's a sequence.
+     */
+    return dissect_spnego_PrincipalSeq(FALSE, tvb, offset, pinfo, tree,
+                                       hf_spnego_mechListMIC);
+  } else {
+    /*
+     * It's not a sequence, so dissect it as an octet string,
+     * which is what it's supposed to be; that'll cause the
+     * right error report if it's not an octet string, either.
+     */
+    offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset,
+                                      hf_spnego_mechListMIC, &mechListMIC_tvb);
+
+    /*
+     * Now, we should be able to dispatch with that tvbuff.
+     */
+    if (next_level_value)
+      call_dissector(next_level_value->handle, mechListMIC_tvb, pinfo, tree);
+    return offset;
+  }
+
 
   return offset;
 }
-static int dissect_mechListMIC(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_spnego_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_spnego_mechListMIC);
-}
-static int dissect_responseToken(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_spnego_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_spnego_responseToken);
+static int dissect_negTokenInit_mechListMIC(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_spnego_T_NegTokenInit_mechListMIC(FALSE, tvb, offset, pinfo, tree, hf_spnego_negTokenInit_mechListMIC);
 }
 
 
@@ -285,7 +307,7 @@ static const ber_sequence_t NegTokenInit_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_mechTypes },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_reqFlags },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_mechToken },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_mechListMIC },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_negTokenInit_mechListMIC },
   { 0, 0, 0, NULL }
 };
 
@@ -318,6 +340,99 @@ dissect_spnego_T_negResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 }
 static int dissect_negResult(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_spnego_T_negResult(FALSE, tvb, offset, pinfo, tree, hf_spnego_negResult);
+}
+
+
+
+static int
+dissect_spnego_T_supportedMech(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+
+  conversation_t *conversation;
+
+  saw_mechanism = FALSE;
+
+  offset = dissect_spnego_MechType(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+
+  /*
+   * Now, we need to save this in per-proto info in the
+   * conversation if it exists. We also should create a 
+   * conversation if one does not exist. FIXME!
+   * Hmmm, might need to be smarter, because there can be
+   * multiple mechTypes in a negTokenInit with one being the
+   * default used in the Token if present. Then the negTokenTarg
+   * could override that. :-(
+   */
+  if ((conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+					pinfo->ptype, pinfo->srcport,
+					pinfo->destport, 0))) {
+    conversation_add_proto_data(conversation, proto_spnego, next_level_value);
+  }
+
+
+
+  return offset;
+}
+static int dissect_supportedMech(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_spnego_T_supportedMech(FALSE, tvb, offset, pinfo, tree, hf_spnego_supportedMech);
+}
+
+
+
+static int
+dissect_spnego_T_responseToken(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+
+  tvbuff_t *responseToken_tvb;
+
+
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &responseToken_tvb);
+
+
+
+  /*
+   * Now, we should be able to dispatch with that tvbuff.
+   * However, we should make sure that there is something in the 
+   * response token ...
+   */
+  if (tvb_reported_length(responseToken_tvb) > 0) {
+    if (next_level_value)
+      call_dissector(next_level_value->handle, responseToken_tvb, pinfo, tree);
+  }
+
+
+
+  return offset;
+}
+static int dissect_responseToken(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_spnego_T_responseToken(FALSE, tvb, offset, pinfo, tree, hf_spnego_responseToken);
+}
+
+
+
+static int
+dissect_spnego_T_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+
+  tvbuff_t *mechListMIC_tvb;
+
+
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &mechListMIC_tvb);
+
+
+
+  /*
+   * Now, we should be able to dispatch with that tvbuff.
+   */
+  if (next_level_value)
+    call_dissector(next_level_value->handle, mechListMIC_tvb, pinfo, tree);
+
+
+
+  return offset;
+}
+static int dissect_mechListMIC(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_spnego_T_mechListMIC(FALSE, tvb, offset, pinfo, tree, hf_spnego_mechListMIC);
 }
 
 
@@ -365,63 +480,76 @@ dissect_spnego_NegotiationToken(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 
 
 static int
+dissect_spnego_GeneralString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_GeneralString,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+static int dissect_principal(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_spnego_GeneralString(FALSE, tvb, offset, pinfo, tree, hf_spnego_principal);
+}
+
+
+static const ber_sequence_t PrincipalSeq_sequence[] = {
+  { BER_CLASS_CON, 0, 0, dissect_principal },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_spnego_PrincipalSeq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   PrincipalSeq_sequence, hf_index, ett_spnego_PrincipalSeq);
+
+  return offset;
+}
+
+
+
+static int
 dissect_spnego_InnerContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 
-	conversation_t *conversation;
-	gssapi_oid_value *next_level_value;
-	proto_item *item;
-	proto_tree *subtree;
-	tvbuff_t *token_tvb;
-	int len;
+  gssapi_oid_value *next_level_value;
+  proto_item *item;
+  proto_tree *subtree;
+  tvbuff_t *token_tvb;
+  int len;
 
-	next_level_value = p_get_proto_data(pinfo->fd, proto_spnego);
-	if (!next_level_value && !pinfo->fd->flags.visited) {
-	    /*
-	     * No handle attached to this frame, but it's the first
-	     * pass, so it'd be attached to the conversation.
-	     * If we have a conversation, try to get the handle,
-	     * and if we get one, attach it to the frame.
-	     */
-	    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-					     pinfo->ptype, pinfo->srcport,
-					     pinfo->destport, 0);
+  /*
+   * XXX - what should we do if this OID doesn't match the value
+   * attached to the frame or conversation?  (That would be
+   * bogus, but that's not impossible - some broken implementation
+   * might negotiate some security mechanism but put the OID
+   * for some other security mechanism in GSS_Wrap tokens.)
+   * Does it matter?
+   */
+  next_level_value = gssapi_lookup_oid_str(MechType_oid);
 
-	    if (conversation) {
-		next_level_value = conversation_get_proto_data(conversation, 
-							       proto_spnego);
-		if (next_level_value)
-		    p_add_proto_data(pinfo->fd, proto_spnego, next_level_value);
-	    }
-	}
+  /*
+   * Now dissect the GSS_Wrap token; it's assumed to be in the
+   * rest of the tvbuff.
+   */
+  item = proto_tree_add_item(tree, hf_spnego_wraptoken, tvb, offset, -1, FALSE); 
 
-	next_level_value = gssapi_lookup_oid_str(MechType_oid);
-	/*
-	 * Now dissect the GSS_Wrap token; it's assumed to be in the
-	 * rest of the tvbuff.
-	 */
-	item = proto_tree_add_item(tree, hf_spnego_wraptoken, tvb, offset, 
-				   -1, FALSE); 
+  subtree = proto_item_add_subtree(item, ett_spnego_wraptoken);
 
-	subtree = proto_item_add_subtree(item, ett_spnego_wraptoken);
-
-	/*
-	 * Now, we should be able to dispatch after creating a new TVB.
-	 * The subdissector must return the length of the part of the
-	 * token it dissected, so we can return the length of the part
-	 * we (and it) dissected.
-	 */
-
-	token_tvb = tvb_new_subset(tvb, offset, -1, -1);
-	if (next_level_value && next_level_value->wrap_handle) {
-	  len = call_dissector(next_level_value->wrap_handle, token_tvb, pinfo, subtree);
-	  if (len == 0)
-	    offset = tvb_length(tvb);
-	  else
-	    offset = offset + len;
-	} else
-	  
-	  offset = tvb_length(tvb);
-
+  /*
+   * Now, we should be able to dispatch after creating a new TVB.
+   * The subdissector must return the length of the part of the
+   * token it dissected, so we can return the length of the part
+   * we (and it) dissected.
+   */
+  token_tvb = tvb_new_subset(tvb, offset, -1, -1);
+  if (next_level_value && next_level_value->wrap_handle) {
+    len = call_dissector(next_level_value->wrap_handle, token_tvb, pinfo,
+                         subtree);
+    if (len == 0)
+      offset = tvb_length(tvb);
+    else
+      offset = offset + len;
+  } else
+    offset = tvb_length(tvb);
 
 
   return offset;
@@ -522,7 +650,6 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint32 tag;
 	guint32 len;
 
-
 	item = proto_tree_add_item(tree, hf_spnego_krb5, tvb, offset, 
 				   -1, FALSE);
 
@@ -558,13 +685,14 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * Get the first header ...
 	 */
-	offset = dissect_ber_identifier(pinfo, subtree, tvb, offset, &class, &pc, &tag);
-	offset = dissect_ber_length(pinfo, subtree, tvb, offset, &len, &ind);
-
-	if (class == BER_CLASS_APP && pc == 1) {
+	get_ber_identifier(tvb, offset, &class, &pc, &tag);
+	if (class == BER_CLASS_APP && pc) {
 	    /*
 	     * [APPLICATION <tag>]
 	     */
+	    offset = dissect_ber_identifier(pinfo, subtree, tvb, offset, &class, &pc, &tag);
+	    offset = dissect_ber_length(pinfo, subtree, tvb, offset, &len, &ind);
+
 	    switch (tag) {
 
 	    case 0:
@@ -1259,7 +1387,6 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 * It has to be per-frame as there can be more than one GSS-API
 	 * negotiation in a conversation.
 	 */
-
 	next_level_value = p_get_proto_data(pinfo->fd, proto_spnego);
 	if (!next_level_value && !pinfo->fd->flags.visited) {
 	    /*
@@ -1289,7 +1416,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 * The TVB contains a [0] header and a sequence that consists of an
 	 * object ID and a blob containing the data ...
 	 * Actually, it contains, according to RFC2478:
-     * NegotiationToken ::= CHOICE {
+	 * NegotiationToken ::= CHOICE {
 	 *          negTokenInit [0] NegTokenInit,
 	 *          negTokenTarg [1] NegTokenTarg }
 	 * NegTokenInit ::= SEQUENCE {
@@ -1297,20 +1424,20 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 *          reqFlags [1] ContextFlags OPTIONAL,
 	 *          mechToken [2] OCTET STRING OPTIONAL,
 	 *          mechListMIC [3] OCTET STRING OPTIONAL }
-     * NegTokenTarg ::= SEQUENCE {
+	 * NegTokenTarg ::= SEQUENCE {
 	 *          negResult [0] ENUMERATED {
 	 *              accept_completed (0),
 	 *              accept_incomplete (1),
 	 *              reject (2) } OPTIONAL,
-     *          supportedMech [1] MechType OPTIONAL,
-     *          responseToken [2] OCTET STRING OPTIONAL,
-     *          mechListMIC [3] OCTET STRING OPTIONAL }
-     *
+	 *          supportedMech [1] MechType OPTIONAL,
+	 *          responseToken [2] OCTET STRING OPTIONAL,
+	 *          mechListMIC [3] OCTET STRING OPTIONAL }
+	 *
 	 * Windows typically includes mechTypes and mechListMic ('NONE'
 	 * in the case of NTLMSSP only).
-     * It seems to duplicate the responseToken into the mechListMic field
-     * as well. Naughty, naughty.
-     *
+	 * It seems to duplicate the responseToken into the mechListMic field
+	 * as well. Naughty, naughty.
+	 *
 	 */
 	offset = dissect_spnego_NegotiationToken(FALSE, tvb, offset, pinfo, subtree, -1);
 
@@ -1319,21 +1446,21 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 /*--- proto_register_spnego -------------------------------------------*/
 void proto_register_spnego(void) {
 
-  /* List of fields */
-  static hf_register_info hf[] = {
+	/* List of fields */
+	static hf_register_info hf[] = {
 		{ &hf_spnego,
 		  { "SPNEGO", "spnego", FT_NONE, BASE_NONE, NULL, 0x0,
 		    "SPNEGO", HFILL }},
-	  { &hf_spnego_wraptoken,
+		{ &hf_spnego_wraptoken,
 		  { "wrapToken", "spnego.wraptoken",
 		    FT_NONE, BASE_NONE, NULL, 0x0, "SPNEGO wrapToken",
 		    HFILL}},
 		{ &hf_spnego_krb5,
 		  { "krb5_blob", "spnego.krb5.blob", FT_BYTES,
 		    BASE_NONE, NULL, 0, "krb5_blob", HFILL }},
-		{&hf_spnego_krb5_oid,
-		{"KRB5 OID", "spnego.krb5_oid", FT_STRING, 
-			BASE_NONE, NULL, 0, "KRB5 OID", HFILL }},
+		{ &hf_spnego_krb5_oid,
+		  { "KRB5 OID", "spnego.krb5_oid", FT_STRING, 
+		    BASE_NONE, NULL, 0, "KRB5 OID", HFILL }},
 		{ &hf_spnego_krb5_tok_id,
 		  { "krb5_tok_id", "spnego.krb5.tok_id", FT_UINT16, BASE_HEX,
 		    VALS(spnego_krb5_tok_id_vals), 0, "KRB5 Token Id", HFILL}},
@@ -1368,6 +1495,10 @@ void proto_register_spnego(void) {
       { "Item", "spnego.MechTypeList_item",
         FT_STRING, BASE_NONE, NULL, 0,
         "MechTypeList/_item", HFILL }},
+    { &hf_spnego_principal,
+      { "principal", "spnego.principal",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "PrincipalSeq/principal", HFILL }},
     { &hf_spnego_mechTypes,
       { "mechTypes", "spnego.mechTypes",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -1380,10 +1511,10 @@ void proto_register_spnego(void) {
       { "mechToken", "spnego.mechToken",
         FT_BYTES, BASE_HEX, NULL, 0,
         "NegTokenInit/mechToken", HFILL }},
-    { &hf_spnego_mechListMIC,
+    { &hf_spnego_negTokenInit_mechListMIC,
       { "mechListMIC", "spnego.mechListMIC",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "", HFILL }},
+        "NegTokenInit/mechListMIC", HFILL }},
     { &hf_spnego_negResult,
       { "negResult", "spnego.negResult",
         FT_UINT32, BASE_DEC, VALS(spnego_T_negResult_vals), 0,
@@ -1396,6 +1527,10 @@ void proto_register_spnego(void) {
       { "responseToken", "spnego.responseToken",
         FT_BYTES, BASE_HEX, NULL, 0,
         "NegTokenTarg/responseToken", HFILL }},
+    { &hf_spnego_mechListMIC,
+      { "mechListMIC", "spnego.mechListMIC",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "NegTokenTarg/mechListMIC", HFILL }},
     { &hf_spnego_thisMech,
       { "thisMech", "spnego.thisMech",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -1435,10 +1570,10 @@ void proto_register_spnego(void) {
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
 
-  };
+	};
 
-  /* List of subtrees */
-  static gint *ett[] = {
+	/* List of subtrees */
+	static gint *ett[] = {
 		&ett_spnego,
 		&ett_spnego_wraptoken,
 		&ett_spnego_krb5,
@@ -1448,6 +1583,7 @@ void proto_register_spnego(void) {
 
     &ett_spnego_NegotiationToken,
     &ett_spnego_MechTypeList,
+    &ett_spnego_PrincipalSeq,
     &ett_spnego_NegTokenInit,
     &ett_spnego_ContextFlags,
     &ett_spnego_NegTokenTarg,
@@ -1455,18 +1591,17 @@ void proto_register_spnego(void) {
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
 
-  };
+	};
 
-  /* Register protocol */
-  proto_spnego = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	/* Register protocol */
+	proto_spnego = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
 	proto_spnego_krb5 = proto_register_protocol("SPNEGO-KRB5",
 						    "SPNEGO-KRB5",
 						    "spnego-krb5");
-  /* Register fields and subtrees */
-  proto_register_field_array(proto_spnego, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
-
+	/* Register fields and subtrees */
+	proto_register_field_array(proto_spnego, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 
@@ -1512,5 +1647,4 @@ void proto_reg_handoff_spnego(void) {
 	 * Find the data handle for some calls
 	 */
 	data_handle = find_dissector("data");
-
 }

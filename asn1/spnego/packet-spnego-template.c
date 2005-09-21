@@ -87,16 +87,6 @@ static gint ett_spnego_krb5 = -1;
 
 static dissector_handle_t data_handle;
 
-static dissector_handle_t
-
-gssapi_dissector_handle(gssapi_oid_value *next_level_value) {
-	if (next_level_value == NULL) {
-		return NULL;
-	}
-	return next_level_value->handle;
-}
-
-
 #include "packet-spnego-fn.c"
 /*
  * This is the SPNEGO KRB5 dissector. It is not true KRB5, but some ASN.1
@@ -172,7 +162,6 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint32 tag;
 	guint32 len;
 
-
 	item = proto_tree_add_item(tree, hf_spnego_krb5, tvb, offset, 
 				   -1, FALSE);
 
@@ -208,13 +197,14 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * Get the first header ...
 	 */
-	offset = dissect_ber_identifier(pinfo, subtree, tvb, offset, &class, &pc, &tag);
-	offset = dissect_ber_length(pinfo, subtree, tvb, offset, &len, &ind);
-
-	if (class == BER_CLASS_APP && pc == 1) {
+	get_ber_identifier(tvb, offset, &class, &pc, &tag);
+	if (class == BER_CLASS_APP && pc) {
 	    /*
 	     * [APPLICATION <tag>]
 	     */
+	    offset = dissect_ber_identifier(pinfo, subtree, tvb, offset, &class, &pc, &tag);
+	    offset = dissect_ber_length(pinfo, subtree, tvb, offset, &len, &ind);
+
 	    switch (tag) {
 
 	    case 0:
@@ -909,7 +899,6 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 * It has to be per-frame as there can be more than one GSS-API
 	 * negotiation in a conversation.
 	 */
-
 	next_level_value = p_get_proto_data(pinfo->fd, proto_spnego);
 	if (!next_level_value && !pinfo->fd->flags.visited) {
 	    /*
@@ -939,7 +928,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 * The TVB contains a [0] header and a sequence that consists of an
 	 * object ID and a blob containing the data ...
 	 * Actually, it contains, according to RFC2478:
-     * NegotiationToken ::= CHOICE {
+	 * NegotiationToken ::= CHOICE {
 	 *          negTokenInit [0] NegTokenInit,
 	 *          negTokenTarg [1] NegTokenTarg }
 	 * NegTokenInit ::= SEQUENCE {
@@ -947,20 +936,20 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 *          reqFlags [1] ContextFlags OPTIONAL,
 	 *          mechToken [2] OCTET STRING OPTIONAL,
 	 *          mechListMIC [3] OCTET STRING OPTIONAL }
-     * NegTokenTarg ::= SEQUENCE {
+	 * NegTokenTarg ::= SEQUENCE {
 	 *          negResult [0] ENUMERATED {
 	 *              accept_completed (0),
 	 *              accept_incomplete (1),
 	 *              reject (2) } OPTIONAL,
-     *          supportedMech [1] MechType OPTIONAL,
-     *          responseToken [2] OCTET STRING OPTIONAL,
-     *          mechListMIC [3] OCTET STRING OPTIONAL }
-     *
+	 *          supportedMech [1] MechType OPTIONAL,
+	 *          responseToken [2] OCTET STRING OPTIONAL,
+	 *          mechListMIC [3] OCTET STRING OPTIONAL }
+	 *
 	 * Windows typically includes mechTypes and mechListMic ('NONE'
 	 * in the case of NTLMSSP only).
-     * It seems to duplicate the responseToken into the mechListMic field
-     * as well. Naughty, naughty.
-     *
+	 * It seems to duplicate the responseToken into the mechListMic field
+	 * as well. Naughty, naughty.
+	 *
 	 */
 	offset = dissect_spnego_NegotiationToken(FALSE, tvb, offset, pinfo, subtree, -1);
 
@@ -969,21 +958,21 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 /*--- proto_register_spnego -------------------------------------------*/
 void proto_register_spnego(void) {
 
-  /* List of fields */
-  static hf_register_info hf[] = {
+	/* List of fields */
+	static hf_register_info hf[] = {
 		{ &hf_spnego,
 		  { "SPNEGO", "spnego", FT_NONE, BASE_NONE, NULL, 0x0,
 		    "SPNEGO", HFILL }},
-	  { &hf_spnego_wraptoken,
+		{ &hf_spnego_wraptoken,
 		  { "wrapToken", "spnego.wraptoken",
 		    FT_NONE, BASE_NONE, NULL, 0x0, "SPNEGO wrapToken",
 		    HFILL}},
 		{ &hf_spnego_krb5,
 		  { "krb5_blob", "spnego.krb5.blob", FT_BYTES,
 		    BASE_NONE, NULL, 0, "krb5_blob", HFILL }},
-		{&hf_spnego_krb5_oid,
-		{"KRB5 OID", "spnego.krb5_oid", FT_STRING, 
-			BASE_NONE, NULL, 0, "KRB5 OID", HFILL }},
+		{ &hf_spnego_krb5_oid,
+		  { "KRB5 OID", "spnego.krb5_oid", FT_STRING, 
+		    BASE_NONE, NULL, 0, "KRB5 OID", HFILL }},
 		{ &hf_spnego_krb5_tok_id,
 		  { "krb5_tok_id", "spnego.krb5.tok_id", FT_UINT16, BASE_HEX,
 		    VALS(spnego_krb5_tok_id_vals), 0, "KRB5 Token Id", HFILL}},
@@ -1004,27 +993,26 @@ void proto_register_spnego(void) {
 		    NULL, 0, "KRB5 Confounder", HFILL}},
 
 #include "packet-spnego-hfarr.c"
-  };
+	};
 
-  /* List of subtrees */
-  static gint *ett[] = {
+	/* List of subtrees */
+	static gint *ett[] = {
 		&ett_spnego,
 		&ett_spnego_wraptoken,
 		&ett_spnego_krb5,
 
 #include "packet-spnego-ettarr.c"
-  };
+	};
 
-  /* Register protocol */
-  proto_spnego = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	/* Register protocol */
+	proto_spnego = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
 	proto_spnego_krb5 = proto_register_protocol("SPNEGO-KRB5",
 						    "SPNEGO-KRB5",
 						    "spnego-krb5");
-  /* Register fields and subtrees */
-  proto_register_field_array(proto_spnego, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
-
+	/* Register fields and subtrees */
+	proto_register_field_array(proto_spnego, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 
@@ -1070,5 +1058,4 @@ void proto_reg_handoff_spnego(void) {
 	 * Find the data handle for some calls
 	 */
 	data_handle = find_dissector("data");
-
 }

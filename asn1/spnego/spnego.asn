@@ -12,6 +12,22 @@ NegotiationToken ::= CHOICE {
 
 MechTypeList ::= SEQUENCE OF MechType
 
+--
+-- In some cases, the mechListMIC is a sequence of GeneralString,
+-- rather than an OCTET STRING.  We define that sequence here so
+-- that we can call its dissector.
+-- The IRC discussion at
+--
+--	http://irc.vernstok.nl/samba-technical.dy
+--
+-- seems to suggest that it's a Kerberos principal of some sort, thanks
+-- to some flavor of "embrace, extend, expectorate" sequence from
+-- Microsoft.
+--
+PrincipalSeq ::= SEQUENCE {
+	principal [0] GeneralString
+}
+
 NegTokenInit ::= SEQUENCE {
                             mechTypes       [0] MechTypeList  OPTIONAL,
                             reqFlags        [1] ContextFlags  OPTIONAL,
