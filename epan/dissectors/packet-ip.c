@@ -969,7 +969,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
   iph->ip_id  = tvb_get_ntohs(tvb, offset + 4);
   if (tree)
-    proto_tree_add_uint_format(ip_tree, hf_ip_id, tvb, offset + 4, 2, iph->ip_id, "Identification: 0x%04x (%d)", iph->ip_id, iph->ip_id);
+    proto_tree_add_uint(ip_tree, hf_ip_id, tvb, offset + 4, 2, iph->ip_id);
 
   iph->ip_off = tvb_get_ntohs(tvb, offset + 6);
   if (tree) {
@@ -2001,7 +2001,7 @@ proto_register_ip(void)
 			"", HFILL }},
 
 		{ &hf_ip_id,
-		{ "Identification",	"ip.id", FT_UINT16, BASE_HEX, NULL, 0x0,
+		{ "Identification",	"ip.id", FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
 			"", HFILL }},
 
 		{ &hf_ip_dst,
