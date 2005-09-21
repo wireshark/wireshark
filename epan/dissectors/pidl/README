@@ -12,14 +12,9 @@ which is basically every time you do an svn up in the Ethereal toplevel dir.
 
 In order to build, install yapp (on Suse, the rpm is named perl-Parse-Yapp),
 then do
-make Makefile.PL && make && make doc && make install
+make Makefile.PL && make && && make install
 
-Note: This will not install the manpage (pidl.1).
-
-Note2: In order for "make doc" to succeed, you will need
-  a) xsltproc and
-  b) Internet access or a proper redirect to local copies of the
-     manpages/docbook.xsl and html/docbook.xsl files.
+This will build and install the binaries and the manpage (pidl.1).
 
 run  pidl with:
 
