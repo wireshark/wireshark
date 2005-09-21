@@ -865,7 +865,6 @@ DISSECTOR_INCLUDES =	\
 	packet-wap.h	\
 	packet-wccp.h	\
 	packet-windows-common.h	\
-	packet-winsrepl.h	\
 	packet-wlancap.h	\
 	packet-wlancertextn.h	\
 	packet-wsp.h	\
