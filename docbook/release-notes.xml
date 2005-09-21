@@ -152,7 +152,7 @@ Gnu info
 
 	<listitem><para>
 	  The SigComp UDVM could go into an infinite loop or crash.
-	  <!-- Fixed in r15715, 15901 -->
+	  <!-- Fixed in r15715, r15901 -->
 	  <!-- Bug IDs: none -->
 	  Versions affected: 0.10.12.
 	</para></listitem>
@@ -163,6 +163,13 @@ Gnu info
 	  <!-- Fixed in r15789 -->
 	  <!-- Bug IDs: 421 -->
 	  Versions affected: 0.9.7 to 0.10.12.
+	</para></listitem>
+
+	<listitem><para>
+	  The X11 dissector could attempt to divide by zero.
+	  <!-- Fixed in r15927 -->
+	  <!-- Bug IDs: none -->
+	  Versions affected: 0.10.1 to 0.10.12.
 	</para></listitem>
 
       </itemizedlist>
