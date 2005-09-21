@@ -4807,7 +4807,9 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			UNUSED(24);
 			LISTofKEYSYM(keysyms, state->keycodemap,
 				     state->request.GetKeyboardMapping.first_keycode, 
-				     length / state->keysyms_per_keycode,
+					 /* XXX - length / state->keysyms_per_keycode can raise a division by zero,
+					  * don't know if this is the *right* way to fix it ... */
+					 state->keysyms_per_keycode ? length / state->keysyms_per_keycode : 0,
 				     state->keysyms_per_keycode);
 			break; 
 
