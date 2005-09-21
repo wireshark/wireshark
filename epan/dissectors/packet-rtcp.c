@@ -1370,12 +1370,12 @@ dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
     unsigned int count )
 {
 #if 0
-	gchar buff[ NTP_TS_SIZE ];
+	gchar *buff;
 	char* ptime = tvb_get_ptr( tvb, offset, 8 );
 
 	/* Retreive the NTP timestamp. Using the NTP dissector for this */
-	ntp_fmt_ts( ptime, buff );
-	proto_tree_add_string_format( tree, hf_rtcp_ntp, tvb, offset, 8, ( const char* ) &buff, "NTP timestamp: %s", &buff );
+	buff=ntp_fmt_ts(ptime);
+	proto_tree_add_string_format( tree, hf_rtcp_ntp, tvb, offset, 8, ( const char* ) buff, "NTP timestamp: %s", buff );
 	free( ptime ); ??????????????????????????????????????????????????????????????????
 	offset += 8;
 #else

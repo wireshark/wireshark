@@ -943,7 +943,6 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree *mpls_echo_tree = NULL, *mpls_echo_gflags = NULL;
         guint8 msgtype;
         const guint8 *ts_sent, *ts_rec;
-        gchar buff[NTP_TS_SIZE];
 
         /* If version != 1 we assume it's not an mpls ping packet */
         if (!tvb_bytes_exist(tvb, 0, 5)) {
@@ -1020,10 +1019,10 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 	/* Using NTP routine to calculate the timestamp */
                 	ts_sent = tvb_get_ptr(tvb, 16, 8);
                 	proto_tree_add_bytes_format(mpls_echo_tree, hf_mpls_echo_ts_sent, tvb,
-                	    offset + 16, 8, ts_sent, "Timestamp Sent: %s", ntp_fmt_ts(ts_sent, buff));
+                	    offset + 16, 8, ts_sent, "Timestamp Sent: %s", ntp_fmt_ts(ts_sent));
                 	ts_rec = tvb_get_ptr(tvb, 24, 8);
                 	proto_tree_add_bytes_format(mpls_echo_tree, hf_mpls_echo_ts_rec, tvb,
-                	    offset + 24, 8, ts_rec, "Timestamp Received: %s", ntp_fmt_ts(ts_rec, buff));
+                	    offset + 24, 8, ts_rec, "Timestamp Received: %s", ntp_fmt_ts(ts_rec));
 		}
 
         }

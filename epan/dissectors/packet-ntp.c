@@ -38,6 +38,7 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
+#include <epan/emem.h>
 #include "packet-ntp.h"
 
 /*
@@ -367,38 +368,40 @@ static const char *mon_names[12] = {
 
 /* ntp_fmt_ts - converts NTP timestamp to human readable string.
  * reftime - 64bit timestamp (IN)
- * buff - string buffer for result (OUT)
- * returns pointer to filled buffer.
+ * returns pointer to filled buffer.  This buffer will be freed automatically once
+ * dissection of the next packet occurs.
  */
 char *
-ntp_fmt_ts(const guint8 *reftime, char* buff)
+ntp_fmt_ts(const guint8 *reftime)
 {
 	guint32 tempstmp, tempfrac;
 	time_t temptime;
 	struct tm *bd;
 	double fractime;
+	char *buff;
 
 	tempstmp = pntohl(&reftime[0]);
 	tempfrac = pntohl(&reftime[4]);
 	if ((tempstmp == 0) && (tempfrac == 0)) {
-		strcpy (buff, "NULL");
-		return buff;
-	} else {
-		temptime = tempstmp - (guint32) NTP_BASETIME;
-		bd = gmtime(&temptime);
-		if (bd != NULL) {
-			fractime = bd->tm_sec + tempfrac / 4294967296.0;
-			g_snprintf(buff, NTP_TS_SIZE,
-                                 "%s %2d, %d %02d:%02d:%07.4f UTC",
-				 mon_names[bd->tm_mon],
-				 bd->tm_mday,
-				 bd->tm_year + 1900,
-				 bd->tm_hour,
-				 bd->tm_min,
-				 fractime);
-		} else
-			strncpy(buff, "Not representable", NTP_TS_SIZE);
+		return "NULL";
 	}
+
+	temptime = tempstmp - (guint32) NTP_BASETIME;
+	bd = gmtime(&temptime);
+	if(!bd){
+		return "Not representable";
+	}
+
+	fractime = bd->tm_sec + tempfrac / 4294967296.0;
+	buff=ep_alloc(NTP_TS_SIZE);
+	g_snprintf(buff, NTP_TS_SIZE,
+                 "%s %2d, %d %02d:%02d:%07.4f UTC",
+		 mon_names[bd->tm_mon],
+		 bd->tm_mday,
+		 bd->tm_year + 1900,
+		 bd->tm_hour,
+		 bd->tm_min,
+		 fractime);
 	return buff;
 }
 
@@ -466,7 +469,7 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	const guint8	*org;
 	const guint8	*rec;
 	const guint8	*xmt;
-	gchar		buff[NTP_TS_SIZE];
+	gchar		*buff;
 	int		i;
 	int		macofs;
 	gint            maclen;
@@ -483,13 +486,13 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	 */
 	stratum = tvb_get_guint8(tvb, 1);
 	if (stratum == 0) {
-		strcpy (buff, "Peer Clock Stratum: unspecified or unavailable (%u)");
+		buff="Peer Clock Stratum: unspecified or unavailable (%u)";
 	} else if (stratum == 1) {
-		strcpy (buff, "Peer Clock Stratum: primary reference (%u)");
+		buff="Peer Clock Stratum: primary reference (%u)";
 	} else if ((stratum >= 2) && (stratum <= 15)) {
-		strcpy (buff, "Peer Clock Stratum: secondary reference (%u)");
+		buff="Peer Clock Stratum: secondary reference (%u)";
 	} else {
-		strcpy (buff, "Peer Clock Stratum: reserved: %u");
+		buff="Peer Clock Stratum: reserved: %u";
 	}
 	proto_tree_add_uint_format(ntp_tree, hf_ntp_stratum, tvb, 1, 1,
 				   stratum, buff, stratum);
@@ -546,23 +549,29 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	 */
 	refid = tvb_get_ptr(tvb, 12, 4);
 	if (stratum <= 1) {
-		g_snprintf (buff, sizeof buff,
-		    "Unindentified reference source '%.4s'",
-		    refid);
+		int buffpos=0;
+		buff=ep_alloc(NTP_TS_SIZE);
+		buffpos += g_snprintf (buff, NTP_TS_SIZE,
+				    "Unindentified reference source '%.4s'",
+				    refid);
 		for (i = 0; primary_sources[i].id; i++) {
 			if (memcmp (refid, primary_sources[i].id,
 			    4) == 0) {
-				strcpy (buff, primary_sources[i].data);
+				buffpos += g_snprintf(buff, NTP_TS_SIZE-buffpos, "%s", primary_sources[i].data);
 				break;
 			}
 		}
 	} else {
-		buff[sizeof(buff) - 1] = '\0';
+		int buffpos=0;
+		buff=ep_alloc(NTP_TS_SIZE);
 		refid_addr = tvb_get_ipv4(tvb, 12);
-		strncpy (buff, get_hostname (refid_addr),
-		    sizeof(buff));
-		if (buff[sizeof(buff) - 1] != '\0')
-			strcpy(&buff[sizeof(buff) - 4], "...");
+		buffpos += g_snprintf(buff, NTP_TS_SIZE, get_hostname (refid_addr));
+		if (buffpos>=(NTP_TS_SIZE-1)){
+			buff[NTP_TS_SIZE-4]='.';
+			buff[NTP_TS_SIZE-3]='.';
+			buff[NTP_TS_SIZE-2]='.';
+			buff[NTP_TS_SIZE-1]=0;
+		}
 	}
 	proto_tree_add_bytes_format(ntp_tree, hf_ntp_refid, tvb, 12, 4,
 				   refid,
@@ -575,7 +584,7 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	proto_tree_add_bytes_format(ntp_tree, hf_ntp_reftime, tvb, 16, 8,
 				   reftime,
 			           "Reference Clock Update Time: %s",
-				   ntp_fmt_ts(reftime, buff));
+				   ntp_fmt_ts(reftime));
 
 	/* Originate Timestamp: This is the time at which the request departed
 	 * the client for the server.
@@ -584,7 +593,7 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	proto_tree_add_bytes_format(ntp_tree, hf_ntp_org, tvb, 24, 8,
 				   org,
 			           "Originate Time Stamp: %s",
-				   ntp_fmt_ts(org, buff));
+				   ntp_fmt_ts(org));
 
 	/* Receive Timestamp: This is the time at which the request arrived at
 	 * the server.
@@ -593,7 +602,7 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	proto_tree_add_bytes_format(ntp_tree, hf_ntp_rec, tvb, 32, 8,
 				   rec,
 			           "Receive Time Stamp: %s",
-				   ntp_fmt_ts(rec, buff));
+				   ntp_fmt_ts(rec));
 
 	/* Transmit Timestamp: This is the time at which the reply departed the
 	 * server for the client.
@@ -602,7 +611,7 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 	proto_tree_add_bytes_format(ntp_tree, hf_ntp_xmt, tvb, 40, 8,
 				   xmt,
 			           "Transmit Time Stamp: %s",
-				   ntp_fmt_ts(xmt, buff));
+				   ntp_fmt_ts(xmt));
 
 	/* MAX_MAC_LEN is the largest message authentication code
 	 * (MAC) length.  If we have more data left in the packet

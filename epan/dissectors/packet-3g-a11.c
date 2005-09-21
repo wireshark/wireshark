@@ -766,7 +766,6 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8         flags;
   size_t         offset=0;
   const guint8  *reftime;
-  gchar          buff[NTP_TS_SIZE];
   
   if (!tvb_bytes_exist(tvb, offset, 1))
 	return 0;	/* not enough data to check message type */
@@ -832,7 +831,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_tree_add_bytes_format(a11_tree, hf_a11_ident, tvb, offset, 8,
 				      reftime,
 				      "Identification: %s",
-				      ntp_fmt_ts(reftime, buff));
+				      ntp_fmt_ts(reftime));
 	  offset += 8;
 		
 	} /* if tree */
@@ -872,7 +871,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_tree_add_bytes_format(a11_tree, hf_a11_ident, tvb, offset, 8,
 				      reftime,
 				      "Identification: %s",
-				      ntp_fmt_ts(reftime, buff));
+				      ntp_fmt_ts(reftime));
 	  offset += 8;
 	} /* if tree */
 	
@@ -906,7 +905,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_tree_add_bytes_format(a11_tree, hf_a11_ident, tvb, offset, 8,
 				      reftime,
 				      "Identification: %s",
-				      ntp_fmt_ts(reftime, buff));
+				      ntp_fmt_ts(reftime));
 	  offset += 8;
 
 	} /* if tree */
@@ -945,7 +944,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_tree_add_bytes_format(a11_tree, hf_a11_ident, tvb, offset, 8,
 				      reftime,
 				      "Identification: %s",
-				      ntp_fmt_ts(reftime, buff));
+				      ntp_fmt_ts(reftime));
 	  offset += 8;
 
 	} /* if tree */
@@ -979,7 +978,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_tree_add_bytes_format(a11_tree, hf_a11_ident, tvb, offset, 8,
 				      reftime,
 				      "Identification: %s",
-				      ntp_fmt_ts(reftime, buff));
+				      ntp_fmt_ts(reftime));
 	  offset += 8;
 
 	} /* if tree */
@@ -1018,7 +1017,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_tree_add_bytes_format(a11_tree, hf_a11_ident, tvb, offset, 8,
 				      reftime,
 				      "Identification: %s",
-				      ntp_fmt_ts(reftime, buff));
+				      ntp_fmt_ts(reftime));
 	  offset += 8;
 
 	} /* if tree */

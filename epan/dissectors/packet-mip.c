@@ -262,7 +262,6 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8         flags;
   size_t         offset=0;
   const guint8  *reftime;
-  gchar          buff[NTP_TS_SIZE];
 
   /* Make entries in Protocol column and Info column on summary display */
 
@@ -322,7 +321,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_tree_add_bytes_format(mip_tree, hf_mip_ident, tvb, offset, 8,
 				      reftime,
 				      "Identification: %s",
-				      ntp_fmt_ts(reftime, buff));
+				      ntp_fmt_ts(reftime));
 	  offset += 8;
 
 	} /* if tree */
@@ -362,7 +361,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_tree_add_bytes_format(mip_tree, hf_mip_ident, tvb, offset, 8,
 				      reftime,
 				      "Identification: %s",
-				      ntp_fmt_ts(reftime, buff));
+				      ntp_fmt_ts(reftime));
 	  offset += 8;
 	} /* if tree */
 
