@@ -22,6 +22,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/** @file
+ *  Capture filter combo box routines
+ */
+
 extern void cfilter_combo_recent_write_all(FILE *rf);
 extern gboolean cfilter_combo_add_recent(gchar *s);
 

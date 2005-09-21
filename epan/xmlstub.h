@@ -546,19 +546,19 @@ typedef enum {
 
 /**
  * xmlCharEncodingInputFunc:
- * @out:  a pointer ot an array of bytes to store the UTF-8 result
- * @outlen:  the length of @out
- * @in:  a pointer ot an array of chars in the original encoding
- * @inlen:  the length of @in
+ * @param out  a pointer ot an array of bytes to store the UTF-8 result
+ * @param outlen  the length of out
+ * @param in  a pointer ot an array of chars in the original encoding
+ * @param inlen  the length of in
  *
  * Take a block of chars in the original encoding and try to convert
  * it to an UTF-8 block of chars out.
  *
  * Returns the number of byte written, or -1 by lack of space, or -2
  *     if the transcoding failed.
- * The value of @inlen after return is the number of octets consumed
+ * The value of inlen after return is the number of octets consumed
  *     as the return value is positive, else unpredictiable.
- * The value of @outlen after return is the number of ocetes consumed.
+ * The value of outlen after return is the number of ocetes consumed.
  */
 typedef int (* xmlCharEncodingInputFunc)(unsigned char* out, int *outlen,
                                          const unsigned char* in, int *inlen);
@@ -566,10 +566,10 @@ typedef int (* xmlCharEncodingInputFunc)(unsigned char* out, int *outlen,
 
 /**
  * xmlCharEncodingOutputFunc:
- * @out:  a pointer ot an array of bytes to store the result
- * @outlen:  the length of @out
- * @in:  a pointer ot an array of UTF-8 chars
- * @inlen:  the length of @in
+ * @param out  a pointer ot an array of bytes to store the result
+ * @param outlen  the length of out
+ * @param in  a pointer ot an array of UTF-8 chars
+ * @param inlen  the length of in
  *
  * Take a block of UTF-8 chars in and try to convert it to an other
  * encoding.
@@ -578,9 +578,9 @@ typedef int (* xmlCharEncodingInputFunc)(unsigned char* out, int *outlen,
  *
  * Returns the number of byte written, or -1 by lack of space, or -2
  *     if the transcoding failed.
- * The value of @inlen after return is the number of octets consumed
+ * The value of inlen after return is the number of octets consumed
  *     as the return value is positive, else unpredictiable.
- * The value of @outlen after return is the number of ocetes consumed.
+ * The value of outlen after return is the number of ocetes consumed.
  */
 typedef int (* xmlCharEncodingOutputFunc)(unsigned char* out, int *outlen,
                                           const unsigned char* in, int *inlen);

@@ -51,16 +51,20 @@
   @enddot
  */
 
-extern GString *comp_info_str, *runtime_info_str;
-
 /** @file
  *  The main window, filter toolbar, program start/stop and a lot of other things
  *  @ingroup main_window_group
  *  @ingroup windows_group
  */
 
-/** Global capture options. */
+/** Global compile time version string */
+extern GString *comp_info_str;
+/** Global runtime version string */
+extern GString *runtime_info_str;
+
+/** Global capture options type. */
 typedef struct capture_options_tag * p_capture_options_t;
+/** Pointer to global capture options. */
 extern p_capture_options_t capture_opts;
 
 extern void protect_thread_critical_region(void);
@@ -281,7 +285,7 @@ extern gboolean main_filter_packets(capture_file *cf, const gchar *dftext,
 extern void dnd_init(GtkWidget *w);
 
 /** Open a new file coming from drag and drop.
- * @param selection_data the selection data reported from GTK
+ * @param cf_names_freeme the selection data reported from GTK
  */
 extern void dnd_open_file_cmd(gchar *cf_names_freeme);
 

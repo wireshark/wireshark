@@ -25,12 +25,30 @@
 #ifndef __FILESET_DLG_H__
 #define __FILESET_DLG_H__
 
+/** @file
+ *  "File Set" dialog box.
+ *  @ingroup dialog_group
+ */
 
-/* start getting stats from all files */
+/** Open the fileset dialog.
+ *
+ * @param w calling widget (unused)
+ * @param d data from calling widget (unused)
+ */
 extern void fileset_cb(GtkWidget *w, gpointer d);
 
+/** Open the next file in the file set, or do nothing if already the last file.
+ *
+ * @param w calling widget (unused)
+ * @param d data from calling widget (unused)
+ */
 extern void fileset_next_cb(GtkWidget *w, gpointer d);
 
+/** Open the previous file in the file set, or do nothing if already the first file.
+ *
+ * @param w calling widget (unused)
+ * @param d data from calling widget (unused)
+ */
 extern void fileset_previous_cb(GtkWidget *w, gpointer d);
 
 #endif /* fileset_dlg.h */

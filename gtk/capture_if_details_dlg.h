@@ -22,6 +22,14 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/** @file
+ *  Capture "Interface Details" dialog box
+ *  @ingroup dialog_group
+ */
 
+/** Open the dialog box.
+ *
+ * @param iface the interface name to show
+ */
 extern void capture_if_details_open(char *iface);
 

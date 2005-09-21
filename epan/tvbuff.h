@@ -393,7 +393,7 @@ extern gint tvb_pbrk_guint8(tvbuff_t *, gint offset, gint maxlength,
  */
 extern guint tvb_strsize(tvbuff_t *tvb, gint offset);
 
-/** Find length of string by looking for end of string ('\0'), up to
+/** Find length of string by looking for end of zero terminated string, up to
  * 'maxlength' characters'; if 'maxlength' is -1, searches to end
  * of tvbuff.
  * Returns -1 if 'maxlength' reached before finding EOS. */
@@ -430,7 +430,7 @@ extern gchar *tvb_format_stringzpad(tvbuff_t *tvb, gint offset, gint size);
 /**
  * Given a tvbuff, an offset, and a length, allocate a buffer big enough
  * to hold a non-null-terminated string of that length at that offset,
- * plus a trailing '\0', copy the string into it, and return a pointer
+ * plus a trailing zero, copy the string into it, and return a pointer
  * to the string.
  *
  * Throws an exception if the tvbuff ends before the string does.
