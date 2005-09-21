@@ -2907,7 +2907,7 @@ dissect_udvm_reference_operand(guint8 *buff,guint operand_address, guint16 *valu
 		offset ++;
 	}
 
-	if (offset >= UDVM_MEMORY_SIZE || result_dest >= UDVM_MEMORY_SIZE - 1 )
+	if (offset >= UDVM_MEMORY_SIZE || *result_dest >= UDVM_MEMORY_SIZE - 1 )
 		THROW(ReportedBoundsError);
 
 	return offset;
