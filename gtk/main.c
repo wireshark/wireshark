@@ -1275,15 +1275,15 @@ main_cf_cb_file_closing(capture_file *cf)
     /* Set up main window for no capture file. */
     main_set_for_capture_file(FALSE);
 
-	main_window_update();
+    main_window_update();
 }
 
 static void
-main_cf_cb_file_closed(capture_file *cf)
+main_cf_cb_file_closed(capture_file *cf _U_)
 {
   if(close_dlg != NULL) {
-	  splash_destroy(close_dlg);
-	  close_dlg = NULL;
+    splash_destroy(close_dlg);
+    close_dlg = NULL;
   }
 }
 
