@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-gsm_map.c                                                         */
+/* ./packet-gsm_map.c                                                         */
 /* ../../tools/asn2eth.py -X -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
 
 /* Input file: packet-gsm_map-template.c */
@@ -14748,7 +14748,7 @@ void proto_register_gsm_map(void) {
         "localerrorCode", HFILL }},
 	{&hf_gsm_map_global_errorCode_oid,
       { "Global Error Code OID", "gsm_map.hlobalerrorCodeoid",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "globalerrorCodeoid", HFILL }},
 	{&hf_gsm_map_global_errorCode,
       { "Global Error Code", "gsm_map.globalerrorCode",

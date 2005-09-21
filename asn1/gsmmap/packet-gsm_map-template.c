@@ -1505,7 +1505,7 @@ void proto_register_gsm_map(void) {
         "localerrorCode", HFILL }},
 	{&hf_gsm_map_global_errorCode_oid,
       { "Global Error Code OID", "gsm_map.hlobalerrorCodeoid",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "globalerrorCodeoid", HFILL }},
 	{&hf_gsm_map_global_errorCode,
       { "Global Error Code", "gsm_map.globalerrorCode",
