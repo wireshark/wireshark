@@ -275,22 +275,22 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 
 			if(!tvb_bytes_exist(tvb, offset, 1)) {
 				/* DBG("malformed\n"); */
-				proto_tree_add_boolean_hidden(dcp_options_tree, hf_dcp_malformed, tvb, offset, -1, TRUE);
-				return;
+				proto_tree_add_boolean_hidden(dcp_options_tree, hf_dcp_malformed, tvb, offset, 0, TRUE);
+				THROW(ReportedBoundsError);
 			}
 
 			option_len = tvb_get_guint8(tvb, offset + 1);
 			
 			if (option_len < 2) {
 				/* DBG("malformed\n"); */
-				proto_tree_add_boolean_hidden(dcp_options_tree, hf_dcp_malformed, tvb, offset, -1, TRUE);
-				return;
+				proto_tree_add_boolean_hidden(dcp_options_tree, hf_dcp_malformed, tvb, offset, 0, TRUE);
+				THROW(ReportedBoundsError);
 			}
 			
 			if(!tvb_bytes_exist(tvb, offset, option_len)) {
 				/* DBG("malformed\n"); */
-				proto_tree_add_boolean_hidden(dcp_options_tree, hf_dcp_malformed, tvb, offset, -1, TRUE);
-				return;
+				proto_tree_add_boolean_hidden(dcp_options_tree, hf_dcp_malformed, tvb, offset, 0, TRUE);
+				THROW(ReportedBoundsError);
 			}
 
 		} else {                                               /* 1byte options */
@@ -561,10 +561,10 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(!tvb_bytes_exist(tvb, 0, DCCP_HDR_LEN_MIN)) {
 		/* DBG("malformed\n"); */
 		if (tree)
-			proto_tree_add_boolean_hidden(dcp_tree, hf_dcp_malformed, tvb, offset, -1, TRUE);
+			proto_tree_add_boolean_hidden(dcp_tree, hf_dcp_malformed, tvb, offset, 0, TRUE);
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Packet too short");
-                return;
+		THROW(ReportedBoundsError);
         }
 
 	dcph=ep_alloc(sizeof(e_dcphdr));
@@ -609,8 +609,8 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(dcph->x) {
 		if(!tvb_bytes_exist(tvb, 0, DCCP_HDR_LEN)) { /* at least 16 bytes */
 			/* DBG("malformed\n"); */
-			proto_tree_add_boolean_hidden(dcp_tree, hf_dcp_malformed, tvb, offset, -1, TRUE);
-			return;
+			proto_tree_add_boolean_hidden(dcp_tree, hf_dcp_malformed, tvb, offset, 0, TRUE);
+			THROW(ReportedBoundsError);
 		}
 		dcph->reserved2=tvb_get_guint8(tvb, offset+9);
 		/* DBG("dcph->reserved2: %u\n", dcph->reserved2); */
@@ -929,8 +929,8 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(options_len > DCCP_OPT_LEN_MAX) {
 		/* DBG("malformed\n"); */
 		if(tree)
-			proto_tree_add_boolean_hidden(dcp_tree, hf_dcp_malformed, tvb, offset, -1, TRUE);
-		return;
+			proto_tree_add_boolean_hidden(dcp_tree, hf_dcp_malformed, tvb, offset, 0, TRUE);
+		THROW(ReportedBoundsError);
 	}
 	
 	
@@ -942,9 +942,9 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_text(dcp_tree, tvb, 4, 2, 
 					    "bogus data offset, advertised header length (%d) is shorter than expected",
 					    advertised_dccp_header_len);
-			proto_tree_add_boolean_hidden(dcp_tree, hf_dcp_malformed, tvb, offset, -1, TRUE);
+			proto_tree_add_boolean_hidden(dcp_tree, hf_dcp_malformed, tvb, offset, 0, TRUE);
 		}
-		return;
+		THROW(ReportedBoundsError);
 	} else {
 		if(dcp_tree) {
 			dcp_item = proto_tree_add_none_format(dcp_tree, hf_dcp_options, tvb, offset, options_len, "Options: (%u bytes)", options_len);
