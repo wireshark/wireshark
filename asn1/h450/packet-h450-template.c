@@ -218,7 +218,7 @@ static gint ett_h4501_ROS = -1;
 /* Global variables */
 static guint32 localOpcode;
 static guint32 localErrorCode;
-static char *globalcode_oid_str;
+static const char *globalcode_oid_str;
 static gboolean is_globalcode;
 
 static const value_string localOpcode_vals[] = {

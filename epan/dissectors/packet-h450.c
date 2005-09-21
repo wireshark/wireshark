@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h450.c                                                            */
+/* ./packet-h450.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h450 -c h450.cnf -s packet-h450-template h4501.asn */
 
 /* Input file: packet-h450-template.c */
@@ -583,7 +583,7 @@ static gint ett_h450_Extension = -1;
 /* Global variables */
 static guint32 localOpcode;
 static guint32 localErrorCode;
-static char *globalcode_oid_str;
+static const char *globalcode_oid_str;
 static gboolean is_globalcode;
 
 static const value_string localOpcode_vals[] = {
