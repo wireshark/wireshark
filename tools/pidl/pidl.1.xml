@@ -1,0 +1,607 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE refentry PUBLIC "-//Samba-Team//DTD DocBook V4.2-Based Variant V1.0//EN" "http://www.samba.org/samba/DTD/samba-doc">
+<refentry id="pidl.1">
+
+<refmeta>
+	<refentrytitle>pidl</refentrytitle>
+	<manvolnum>1</manvolnum>
+</refmeta>
+
+<refnamediv>
+	<refname>pidl</refname>
+	<refpurpose>IDL Compiler written in Perl</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+	<cmdsynopsis>
+		<command>pidl</command>
+		<arg choice="opt">--help</arg>
+		<arg choice="opt">--outputdir OUTNAME</arg>
+		<arg choice="opt">--parse-idl-tree</arg>
+		<arg choice="opt">--dump-idl-tree</arg>
+		<arg choice="opt">--dump-ndr-tree</arg>
+		<arg choice="opt">--ndr-header[=OUTPUT]</arg>
+		<arg choice="opt">--header[=OUTPUT]</arg>
+		<arg choice="opt">--ejs[=OUTPUT]</arg>
+		<arg choice="opt">--swig[=OUTPUT]</arg>
+		<arg choice="opt">--uint-enums</arg>
+		<arg choice="opt">--ndr-parser[=OUTPUT]</arg>
+		<arg choice="opt">--client</arg>
+		<arg choice="opt">--server</arg>
+		<arg choice="opt">--dcom-proxy</arg>
+		<arg choice="opt">--com-header</arg>
+		<arg choice="opt">--warn-compat</arg>
+		<arg choice="opt">--quiet</arg>
+		<arg choice="opt">--verbose</arg>
+		<arg choice="opt">--template</arg>
+		<arg choice="opt">--eth-parser[=OUTPUT]</arg>
+		<arg choice="opt">--diff</arg>
+		<arg choice="opt">--dump-idl</arg>
+		<arg choice="req">idlfile</arg>
+		<arg choice="opt">idlfile2</arg>
+		<arg choice="opt">...</arg>
+	</cmdsynopsis>
+</refsynopsisdiv>
+
+<refsect1>
+	<title>DESCRIPTION</title>
+
+	<para>pidl is an IDL compiler written in Perl that aims to be somewhat 
+		compatible with the midl compiler. IDL stands for 
+		"Interface Definition Language".</para>
+
+	<para>pidl can generate stubs for DCE/RPC server code, DCE/RPC 
+		client code and ethereal dissectors for DCE/RPC traffic.</para>
+
+	<para>IDL compilers like <emphasis>pidl</emphasis> take a description 
+		of an interface as their input and use it to generate C 
+		(though support for other languages may be added later) code that 
+		can use these interfaces, pretty print data sent 
+		using these interfaces, or even generate ethereal 
+		dissectors that can parse data sent over the 
+		wire by these interfaces. </para>
+
+	<para>pidl takes IDL files in the same format as is used by midl, 
+		converts it to a .pidl file (which contains pidl's internal representation of the interface) and can then generate whatever output you need.
+		.pidl files should be used for debugging purposes only. Write your 
+		interface definitions in .idl format.
+	</para>
+
+	<para>
+		The goal of pidl is to implement a IDL compiler that can be used 
+		while developing the RPC subsystem in Samba (for 
+		both marshalling/unmarshalling and debugging purposes).
+	</para>
+
+</refsect1>
+
+<refsect1>
+	<title>OPTIONS</title>
+
+	<variablelist>
+		<varlistentry>
+		<term>--help</term>
+		<listitem><para>
+		Show list of available options.</para></listitem>
+		</varlistentry>
+		
+		<varlistentry>
+		<term>--outputdir OUTNAME</term>
+		<listitem><para>Write output files to the specified directory. 
+				Defaults to the current directory.
+		</para></listitem>
+		</varlistentry>
+		
+		<varlistentry>
+		<term>--parse-idl-tree</term>
+		<listitem><para>
+				Read internal tree structure from input files rather 
+		then assuming they contain IDL.</para></listitem>
+		</varlistentry>
+
+
+		<varlistentry>
+		<term>--dump-idl</term>
+		<listitem><para>
+				Generate a new IDL file. File will be named OUTNAME.idl.</para></listitem>
+		</varlistentry>
+
+
+		<varlistentry>
+		<term>--header</term>
+		<listitem><para>
+				Generate a C header file for the specified interface. Filename defaults to OUTNAME.h.</para></listitem>
+		</varlistentry>
+
+		<varlistentry>
+		<term>--ndr-header</term>
+		<listitem><para>
+				Generate a C header file with the prototypes for the NDR parsers. Filename defaults to ndr_OUTNAME.h.</para></listitem>
+		</varlistentry>
+
+		<varlistentry>
+		<term>--ndr-parser</term>
+		<listitem><para>
+				Generate a C file containing NDR parsers. 
+				Filename defaults to ndr_OUTNAME.c.
+		</para></listitem>
+		</varlistentry>
+
+
+		<varlistentry>
+		<term>--server</term>
+		<listitem><para>
+		Generate boilerplate for the RPC server that implements 
+		the interface. Filename defaults to ndr_OUTNAME_s.c</para></listitem>
+		</varlistentry>
+
+
+		<varlistentry>
+		<term>--template</term>
+		<listitem><para>
+		Generate stubs for a RPC server that implements 
+		the interface. Output will be written to stdout.
+		</para></listitem>
+		</varlistentry>
+
+
+		<varlistentry>
+		<term>--eth-parser</term>
+		<listitem><para>
+		Generate an Ethereal dissector (in C) for the interface. Filename
+		defaults to packet-dcerpc-OUTNAME.c. 
+		</para>
+	
+		<para>Pidl will read additional data 
+			from an ethereal conformance file if present. Such a file should 
+			have the same location as the IDL file but with the extension 
+			<quote>cnf</quote> rather then <quote>idl</quote>. See 
+			below for details on the format of this file.
+		</para></listitem>
+		</varlistentry>
+
+		<varlistentry>
+		<term>--diff</term>
+		<listitem><para>
+				Parse an IDL file,  generate a new IDL file based 
+				on the internal data structures and see if there are 
+				any differences with the 
+		original IDL file. Useful for debugging pidl.</para></listitem>
+		</varlistentry>
+
+
+		<varlistentry>
+		<term>--dump-idl-tree</term>
+		<listitem><para>
+		Tell pidl to dump the internal tree representation of an IDL 
+		file the to disk. Useful 
+		for debugging pidl.</para></listitem>
+		</varlistentry>
+
+		<varlistentry>
+		<term>--dump-ndr-tree</term>
+		<listitem><para>
+				Tell pidl to dump the internal NDR information tree it generated 
+				from the IDL file to disk.  Useful for debugging pidl.</para></listitem>
+		</varlistentry>
+
+	</variablelist>
+</refsect1>
+
+<refsect1>
+	<title>IDL SYNTAX</title>
+
+	<para>IDL files are always preprocessed using the C preprocessor.</para>
+
+	<para>Pretty much everything in an interface (the interface itself,
+		functions, parameters) can have attributes (or properties 
+		whatever name you give them). Attributes 
+		always prepend the element they apply to and are surrounded 
+		by square brackets ([]). Multiple attributes 
+		are separated by comma's; arguments to attributes are 
+		specified between parentheses. </para>
+
+	<para>See the section COMPATIBILITY for the list of attributes that 
+		pidl supports.</para>
+
+	<para>C-style comments can be used.</para>
+	
+<refsect2>
+	<title>CONFORMANT ARRAYS</title>
+
+	<para>
+A conformant array is one with that ends in [*] or []. The strange
+things about conformant arrays are:
+</para>
+
+<simplelist>
+	<member>they can only appear as the last element of a structure</member>
+	<member>the array size appears before the structure itself on the wire. </member>
+</simplelist>
+
+<para>
+	So, in this example:
+</para>
+
+<programlisting>
+	typedef struct {
+		long abc;
+		long count;     
+		long foo;
+		[size_is(count)] long s[*];
+	} Struct1;
+</programlisting>
+
+<para>
+it appears like this:
+</para>
+
+<programlisting>
+[size_is] [abc] [count] [foo] [s...]
+</programlisting>
+
+<para>
+the first [size_is] field is the allocation size of the array, and
+occurs before the array elements and even before the structure
+alignment.
+</para>
+
+<para>
+Note that size_is() can refer to a constant, but that doesn't change
+the wire representation. It does not make the array a fixed array.
+</para>
+
+<para>
+midl.exe would write the above array as the following C header:
+</para>
+
+<programlisting>
+   typedef struct {
+		long abc;
+		long count;     
+		long foo;
+		long s[1];
+	} Struct1;
+</programlisting>
+
+<para>
+pidl takes a different approach, and writes it like this:
+</para>
+
+<programlisting>
+    typedef struct {
+		long abc;
+		long count;     
+		long foo;
+		long *s;
+	} Struct1;
+</programlisting>
+
+</refsect2>
+
+<refsect2>
+	<title>VARYING ARRAYS</title>
+
+<para>
+A varying array looks like this:
+</para>
+
+<programlisting>
+	typedef struct {
+		long abc;
+		long count;     
+		long foo;
+		[size_is(count)] long *s;
+	} Struct1;
+</programlisting>
+
+<para>
+This will look like this on the wire:
+</para>
+
+<programlisting>
+[abc] [count] [foo] [PTR_s]    [count] [s...]
+</programlisting>
+
+</refsect2>
+
+<refsect2>
+	<title>FIXED ARRAYS</title>
+
+<para>
+A fixed array looks like this:
+</para>
+
+<programlisting>
+    typedef struct {
+	    long s[10];
+    } Struct1;
+</programlisting>
+
+<para>
+The NDR representation looks just like 10 separate long
+declarations. The array size is not encoded on the wire.
+</para>
+
+<para>
+pidl also supports "inline" arrays, which are not part of the IDL/NDR
+standard. These are declared like this:
+</para>
+
+<programlisting>
+    typedef struct {
+	    uint32 foo;
+	    uint32 count;
+	    uint32 bar;
+	    long s[count];
+    } Struct1;
+</programlisting>
+
+<para>
+This appears like this:
+</para>
+
+<programlisting>
+[foo] [count] [bar] [s...]
+</programlisting>
+
+<para>
+Fixed arrays are an extension added to support some of the strange
+embedded structures in security descriptors and spoolss. 
+</para>
+
+</refsect2>
+
+<para>This section is by no means complete. See the OpenGroup and MSDN 
+	documentation for additional information.</para>
+</refsect1>
+
+<refsect1>
+	<title>COMPATIBILITY WITH MIDL</title>
+
+	<refsect2>
+		<title>Missing features in pidl</title>
+		<para>
+			The following MIDL features are not (yet) implemented in pidl 
+			or are implemented with an incompatible interface:
+		</para>
+
+		<simplelist>
+			<member>Asynchronous communication</member>
+			<member>Typelibs (.tlb files)</member>
+			<member>Datagram support (ncadg_*)</member>
+		</simplelist>
+	</refsect2>
+
+	<refsect2>
+		<title>Supported properties (attributes is the MIDL term)</title>
+
+		<para>
+			in, out, ref, length_is, switch_is, size_is, uuid, case, default, string, unique, ptr, pointer_default, v1_enum, object, helpstring, range, local, call_as, endpoint, switch_type, progid, coclass, iid_is.
+		</para>
+
+</refsect2>
+
+<refsect2>
+	<title>PIDL Specific properties</title>
+
+<variablelist>
+	<varlistentry><term>public</term>
+		<listitem><para>
+The [public] property on a structure or union is a pidl extension that
+forces the generated pull/push functions to be non-static. This allows
+you to declare types that can be used between modules. If you don't
+specify [public] then pull/push functions for other than top-level
+functions are declared static.
+		</para></listitem>
+	</varlistentry>
+				
+	<varlistentry><term>noprint</term>
+		<listitem><para>
+The [noprint] property is a pidl extension that allows you to specify
+that pidl should not generate a ndr_print_*() function for that
+structure or union. This is used when you wish to define your own
+print function that prints a structure in a nicer manner. A good
+example is the use of [noprint] on dom_sid, which allows the
+pretty-printing of SIDs.
+		</para></listitem>
+	</varlistentry>
+
+	<varlistentry><term>value</term>
+		<listitem><para>
+The [value(expression)] property is a pidl extension that allows you
+to specify the value of a field when it is put on the wire. This
+allows fields that always have a well-known value to be automatically
+filled in, thus making the API more programmer friendly. The
+expression can be any C expression.
+		</para></listitem>
+	</varlistentry>
+		
+	<varlistentry><term>relative</term>
+		<listitem><para>
+The [relative] property can be supplied on a pointer. When it is used
+it declares the pointer as a spoolss style "relative" pointer, which
+means it appears on the wire as an offset within the current
+encapsulating structure. This is not part of normal IDL/NDR, but it is
+a very useful extension as it avoids the manual encoding of many
+complex structures.
+		</para></listitem>
+	</varlistentry>
+
+	<varlistentry><term>subcontext(length)</term>
+		<listitem><para>
+				Specifies that a size of <replaceable>length</replaceable>
+				bytes should be read, followed by a blob of that size, 
+				which will be parsed as NDR.
+		</para></listitem>
+	</varlistentry>
+
+	<varlistentry><term>flag</term>
+		<listitem><para>
+				Specify boolean options, mostly used for 
+				low-level NDR options. Several options 
+				can be specified using the | character.
+				Note that flags are inherited by substructures!
+		</para></listitem>
+	</varlistentry>
+
+	<varlistentry><term>nodiscriminant</term>
+		<listitem><para>
+The [nodiscriminant] property on a union means that the usual uint16
+discriminent field at the start of the union on the wire is
+omitted. This is not normally allowed in IDL/NDR, but is used for some
+spoolss structures.
+		</para></listitem>
+	</varlistentry>
+
+	<varlistentry><term>charset(name)</term>
+		<listitem><para>
+				Specify that the array or string uses the specified 
+				charset. If this attribute is specified, pidl will 
+				take care of converting the character data from this format 
+				to the host format. Commonly used values are UCS2, DOS and UTF8.
+		</para></listitem>
+	</varlistentry>
+</variablelist>
+</refsect2>
+
+<refsect2>
+	<title>Unsupported MIDL properties</title>
+
+<para>aggregatable, appobject, async_uuid, bindable, control, cpp_quote, defaultbind, defaultcollelem, defaultvalue, defaultvtable, dispinterface, displaybind, dual, entry, first_is, helpcontext, helpfile, helpstringcontext, helpstringdll, hidden, idl_module, idl_quote, id, immediatebind, importlib, import, include, includelib, last_is, lcid, licensed, max_is, module, ms_union, no_injected_text, nonbrowsable, noncreatable, nonextensible, odl, oleautomation, optional, pragma, propget, propputref, propput, readonly, requestedit, restricted, retval, source, transmit_as, uidefault, usesgetlasterror, vararg, vi_progid, wire_marshal. </para>
+
+</refsect2>
+
+</refsect1>
+
+<refsect1>
+	<title>ETHEREAL CONFORMANCE FILES</title>
+
+<para>
+Pidl needs additional data for ethereal output. This data is read from 
+so-called conformance files. This section describes the format of these 
+files.</para>
+
+<para>
+Conformance files are simple text files with a single command on each line.
+Empty lines and lines starting with a '#' character are ignored.
+Arguments to commands are seperated by spaces.
+</para>
+
+<para>
+The following commands are currently supported:
+</para>
+
+<variablelist>
+
+<varlistentry>
+	<term>TYPE name dissector ft_type base_type mask valsstring alignment</term>
+	<listitem><para>Register new data type with specified name, what dissector function to call and what properties to give header fields for elements of this type.</para></listitem>
+</varlistentry>
+
+<varlistentry>
+	<term>NOEMIT type</term>
+	<listitem><para>
+	Suppress emitting a dissect_type function for the specified type
+	</para></listitem>
+</varlistentry>
+
+<varlistentry>
+	<term>PARAM_VALUE type param</term>
+	<listitem><para>
+	Set parameter to specify to dissector function for given type.
+	</para></listitem>
+</varlistentry>
+
+<varlistentry>
+	<term>HF_FIELD hf title filter ft_type base_type valsstring mask description</term>
+	<listitem><para>
+	Generate a custom header field with specified properties.
+	</para></listitem>
+</varlistentry>
+
+<varlistentry>
+	<term>HF_RENAME old_hf_name new_hf_name</term>
+	<listitem><para>
+	Force the use of new_hf_name when the parser generator was going to 
+	use old_hf_name.
+	</para>
+
+	<para>
+	This can be used in conjunction with HF_FIELD in order to make more then 
+	one element use the same filter name.
+	</para>
+	</listitem>
+</varlistentry>
+
+<varlistentry>
+	<term>STRIP_PREFIX prefix</term>
+	<listitem><para>
+	Remove the specified prefix from all function names (if present).
+	</para></listitem>
+</varlistentry>
+	
+<varlistentry>
+	<term>PROTOCOL longname shortname filtername</term>
+	<listitem><para>
+	Change the short-, long- and filter-name for the current interface in
+	Ethereal.
+	</para></listitem>
+</varlistentry>
+
+<varlistentry>
+	<term>FIELD_DESCRIPTION field desc</term>
+	<listitem><para>Change description for the specified header field. `field' is the hf name of the field.
+	</para></listitem>
+</varlistentry>
+
+<varlistentry>
+	<term>IMPORT dissector code...</term>
+	<listitem><para>
+	Code to insert when generating the specified dissector. @HF@ and 
+	@PARAM@ will be substituted.
+	</para></listitem>
+</varlistentry>
+
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+	<title>EXAMPLES</title>
+
+	<programlisting>
+	# Generating an ethereal parser
+	$ ./pidl --eth-parser -- atsvc.idl
+	
+	# Generating a TDR parser
+	$ ./pidl --tdr-parser --tdr-header --header -- regf.idl
+	</programlisting>
+
+</refsect1>
+
+<refsect1>
+	<title>VERSION</title>
+
+	<para>This man page is correct for version 4.0 of the Samba suite.</para>
+</refsect1>
+
+<refsect1>
+	<title>SEE ALSO</title>
+
+	<para><ulink url="http://msdn.microsoft.com/library/en-us/rpc/rpc/field_attributes.asp">Field Attributes [Remote Procedure Call]</ulink>, <ulink url="http://wiki.ethereal.com/DCE/RPC">Ethereal Wiki on DCE/RPC</ulink>.</para>
+
+</refsect1>
+
+<refsect1>
+	<title>AUTHOR</title>
+
+	<para>pidl was written by Andrew Tridgell, Stefan Metzmacher, Tim 
+		Potter and Jelmer Vernooij. </para>
+
+	<para>This manpage was written by Jelmer Vernooij, partially based on the original pidl README by Andrew Tridgell. </para>
+	
+</refsect1>
+
+</refentry>
+
