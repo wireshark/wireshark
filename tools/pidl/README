@@ -22,11 +22,6 @@ Run Makefile.PL to generate the Makefile.
 
 Then run "make install" (as root) to install.
 
-Documentation:
-==============
-Run 'make doc' to generate the manpage and a HTML version of the manpage.
-This requires the xsltproc utility to be installed.
-
 Internals overview:
 ===================
 
