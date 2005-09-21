@@ -241,14 +241,11 @@ dissect_spnego_T_mechToken(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
                                        &mechToken_tvb);
 
 
-  if (! mechToken_tvb) {
-    THROW(ReportedBoundsError);
-  }
-
   /*
-   * Now, we should be able to dispatch after creating a new TVB.
+   * Now, we should be able to dispatch, if we've gotten a tvbuff for
+   * the token and we have information on how to dissect its contents.
    */
-  if (next_level_value)
+  if (mechToken_tvb && next_level_value)
      call_dissector(next_level_value->handle, mechToken_tvb, pinfo, tree);
 
 
@@ -295,7 +292,7 @@ dissect_spnego_T_NegTokenInit_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *t
     /*
      * Now, we should be able to dispatch with that tvbuff.
      */
-    if (next_level_value)
+    if (mechListMIC_tvb && next_level_value)
       call_dissector(next_level_value->handle, mechListMIC_tvb, pinfo, tree);
     return offset;
   }
@@ -396,12 +393,13 @@ dissect_spnego_T_responseToken(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
 
   /*
-   * Now, we should be able to dispatch with that tvbuff.
+   * Now, we should be able to dispatch, if we've gotten a tvbuff for
+   * the token and we have information on how to dissect its contents.
    * However, we should make sure that there is something in the 
    * response token ...
    */
-  if (tvb_reported_length(responseToken_tvb) > 0) {
-    if (next_level_value)
+  if (responseToken_tvb && next_level_value) {
+    if (tvb_reported_length(responseToken_tvb) > 0)
       call_dissector(next_level_value->handle, responseToken_tvb, pinfo, tree);
   }
 
@@ -427,9 +425,10 @@ dissect_spnego_T_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
 
   /*
-   * Now, we should be able to dispatch with that tvbuff.
+   * Now, we should be able to dispatch, if we've gotten a tvbuff for
+   * the MIC and we have information on how to dissect its contents.
    */
-  if (next_level_value)
+  if (mechListMIC_tvb && next_level_value)
     call_dissector(next_level_value->handle, mechListMIC_tvb, pinfo, tree);
 
 
