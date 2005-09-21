@@ -118,9 +118,6 @@ NegTokenInit/mechListMIC negTokenInit_mechListMIC
   gboolean pc;
   gint32 tag;
   tvbuff_t *mechListMIC_tvb;
-  static int dissect_spnego_PrincipalSeq(gboolean implicit_tag, tvbuff_t *tvb,
-                                         int offset, packet_info *pinfo,
-                                         proto_tree *tree, int hf_index);
 
   /*
    * There seems to be two different forms this can take,
