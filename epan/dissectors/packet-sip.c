@@ -978,7 +978,7 @@ dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 		len = dissect_sip_common(tvb, offset, pinfo, tree, TRUE, TRUE);
-		if (len == -1)
+		if (len <= 0)
 			break;
 		offset += len;
 	}
