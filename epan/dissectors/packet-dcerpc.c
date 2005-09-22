@@ -226,6 +226,8 @@ static const value_string p_provider_reason_vals[] = {
 #define DEFAULT_CONTEXT_NOT_SUPPORTED	5 /* not used */
 #define USER_DATA_NOT_READABLE		6 /* not used */
 #define NO_PSAP_AVAILABLE		7 /* not used */
+#define AUTH_TYPE_NOT_RECOGNIZED	8
+#define INVALID_CHECKSUM			9
 
 static const value_string reject_reason_vals[] = {
 	{ REASON_NOT_SPECIFIED,           "Reason not specified" },
@@ -236,6 +238,8 @@ static const value_string reject_reason_vals[] = {
 	{ DEFAULT_CONTEXT_NOT_SUPPORTED,  "Default context not supported" },
 	{ USER_DATA_NOT_READABLE,         "User data not readable" },
 	{ NO_PSAP_AVAILABLE,              "No PSAP available" },
+	{ AUTH_TYPE_NOT_RECOGNIZED,       "Authentication type not recognized" },
+	{ INVALID_CHECKSUM,               "Invalid checksum" },
 	{ 0,                              NULL }
 };
 
