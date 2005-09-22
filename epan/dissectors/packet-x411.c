@@ -1199,7 +1199,7 @@ dissect_x411_CountryName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -1236,7 +1236,7 @@ dissect_x411_AdministrationDomainName(gboolean implicit_tag _U_, tvbuff_t *tvb, 
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -1978,7 +1978,7 @@ dissect_x411_ContentIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this

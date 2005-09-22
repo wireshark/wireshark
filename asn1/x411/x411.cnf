@@ -204,7 +204,7 @@ UniversalOrganizationalUnitNames B "x411.extension-attribute.27" "universal-orga
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -220,7 +220,7 @@ UniversalOrganizationalUnitNames B "x411.extension-attribute.27" "universal-orga
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
@@ -237,7 +237,7 @@ UniversalOrganizationalUnitNames B "x411.extension-attribute.27" "universal-orga
  gint8 class;
  gboolean pc, ind_field;
  gint32 tag;
- gint32 len1;
+ guint32 len1;
 
  if(!implicit_tag){
    /* XXX  asn2eth can not yet handle tagged assignment yes so this
