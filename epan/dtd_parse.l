@@ -45,12 +45,12 @@
 		void (*act)(gchar*);
 	};
 
-	void* pParser;
-	GString* input_string;	
-	guint offset;
-	guint len;
-	gchar* location;
-	gchar* attr_name;
+	static void* pParser;
+	static GString* input_string;	
+	static guint offset;
+	static guint len;
+	static gchar* location;
+	static gchar* attr_name;
 	
 	static int my_yyinput(char* buff,guint size);
 	
@@ -64,13 +64,13 @@
 	static void set_description (gchar* val) { if(build_data->description) g_free(build_data->description); build_data->description = g_strdup(val); }
 	static void set_recursive (gchar* val) { build_data->recursion = ( g_strcasecmp(val,"yes") == 0 ) ? TRUE : FALSE; }
 
-	struct _proto_xmlpi_attr proto_attrs[] =
+	static struct _proto_xmlpi_attr proto_attrs[] =
 	{
 		{ "proto_name", set_proto_name },
 		{ "media", set_media_type },
 		{ "root", set_proto_root },
 		{ "description", set_description },
-        { "hierarchy", set_recursive },
+		{ "hierarchy", set_recursive },
 		{NULL,NULL}
 	};
 	
@@ -187,7 +187,7 @@ squoted        ['][^\']*[']
 
 <PROTOCOL>{name} {
 	attr_name = g_strdup(yytext);
-    g_strdown(attr_name);
+	g_strdown(attr_name);
 	BEGIN GET_ATTR_QUOTE;
 }
 
@@ -308,7 +308,7 @@ extern dtd_build_data_t* dtd_parse(GString* s) {
 	pParser = DtdParseAlloc(g_malloc);
 
 #ifdef DEBUG_DTD_PARSER
-    DtdParseTrace(stderr, ">>");
+	DtdParseTrace(stderr, ">>");
 #endif
     
 	build_data = g_malloc(sizeof(dtd_build_data_t));
@@ -325,7 +325,7 @@ extern dtd_build_data_t* dtd_parse(GString* s) {
 	build_data->location = NULL;
 	build_data->error = g_string_new("");
 	
-    location = NULL;
+	location = NULL;
     
 	BEGIN DTD;
 	
@@ -335,7 +335,7 @@ extern dtd_build_data_t* dtd_parse(GString* s) {
 
 	yyrestart(NULL);
 	
-    location = NULL;
+	location = NULL;
     
 	DtdParseFree(pParser, g_free );
 	

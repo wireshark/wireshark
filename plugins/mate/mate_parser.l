@@ -40,13 +40,13 @@
 	void MateParseTrace(FILE*,char*);
 	
 #define MAX_INCLUDE_DEPTH 10
-	YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
-	int include_stack_ptr = 0;
+	static YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
+	static int include_stack_ptr = 0;
 	
-	void* pParser;
-	mate_config_frame* current_frame;
+	static void* pParser;
+	static mate_config_frame* current_frame;
 	
-	mate_config* mc;
+	static mate_config* mc;
 	
 #define MATE_PARSE(token_type) MateParser(pParser, (token_type), g_strdup(yytext), mc );
 

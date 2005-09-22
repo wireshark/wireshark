@@ -45,8 +45,8 @@
 #include "dtd.h"
 
 #define MAX_INCLUDE_DEPTH 10
-YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
-int include_stack_ptr = 0;
+static YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
+static int include_stack_ptr = 0;
 
 #define ECHO g_string_append(current,yytext);
 
