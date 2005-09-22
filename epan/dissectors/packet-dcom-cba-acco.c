@@ -700,11 +700,11 @@ dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
 	item = proto_tree_add_uint_format(tree, hf_cba_acco_serversrt_cr_flags, 
 		tvb, offset, 4, u32Flags,
 		"Flags: 0x%02x (%s, %s)", u32Flags,
-		(u32Flags & 0x1) ? "Timestamped" : "not Timestamped",
-		(u32Flags & 0x2) ? "Reconfigure" : "not Reconfigure");
+		(u32Flags & 0x2) ? "Reconfigure" : "not Reconfigure",
+		(u32Flags & 0x1) ? "Timestamped" : "not Timestamped");
 	flags_tree = proto_item_add_subtree(item, ett_cba_acco_serversrt_cr_flags);
-    proto_tree_add_boolean(flags_tree, hf_cba_acco_serversrt_cr_flags_timestamped, tvb, offset, 4, u32Flags);
     proto_tree_add_boolean(flags_tree, hf_cba_acco_serversrt_cr_flags_reconfigure, tvb, offset, 4, u32Flags);
+    proto_tree_add_boolean(flags_tree, hf_cba_acco_serversrt_cr_flags_timestamped, tvb, offset, 4, u32Flags);
 	offset += 4;
 
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep, 
