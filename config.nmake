@@ -31,7 +31,7 @@ RC_WTAP_VERSION=0,3
 # If you're not building with WinPcap at all, don't set it (comment
 # out or remove the line that sets it).
 #
-WINPCAP_VERSION=3.0
+WINPCAP_VERSION=3.1
 
 # 
 # Directory, where your User's Guide reside, relative to the source dir.

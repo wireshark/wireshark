@@ -452,7 +452,7 @@ setup: verify_tools
 !ENDIF
 !IFDEF PCAP_DIR
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
-		. wpdpack_3_0.zip
+		. WpdPack_3_1.zip
 !ENDIF
 !IFDEF ADNS_DIR
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
