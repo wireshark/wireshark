@@ -1759,6 +1759,17 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		return FALSE;  /* no, it isn't a session PDU */
 	}
 
+	/* some Siemens SIMATIC protocols also use COTP, and shouldn't be 
+	 * misinterpreted as SES.
+	 * the starter in this case is fixed to 0x32 (SES_MINOR_SYNC_ACK for SES), 
+	 * so if the parameter type is unknown, it's probably SIMATIC */
+	if(type == 0x32 && tvb_bytes_exist(tvb, 0, 3)) {
+		type = tvb_get_guint8(tvb, offset+2);
+		if (match_strval(type, param_vals) == NULL) {
+			return FALSE; /* it's probably a SIMATIC protocol */
+		}
+	}
+
 	/*  OK,let's check SPDU length  */
 	/*  get length of SPDU */
 	len = get_item_len(tvb, offset+1, &len_len);
