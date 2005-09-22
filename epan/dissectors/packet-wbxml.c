@@ -5392,7 +5392,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 							"| END (Literal Tag)               "
 							"| %s</%s>",
 							*level, *codepage_stag, Indent (*level),
-							tag_save_literal);
+							tag_save_literal ? tag_save_literal : "");
 				}
 				(*level)--;
 				off++;
@@ -5804,7 +5804,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 							"| END (Literal Tag)               "
 							"| %s</%s>",
 							*level, *codepage_stag, Indent (*level),
-							tag_save_literal);
+							tag_save_literal ? tag_save_literal : "");
 				}
 				(*level)--;
 				off++;
