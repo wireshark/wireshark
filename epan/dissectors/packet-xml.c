@@ -773,6 +773,25 @@ static xml_ns_t* make_xml_hier(gchar* elem_name,
 	return new;
 }
 
+static gboolean free_both(gpointer k, gpointer v, gpointer p _U_) {
+    g_free(k);
+    g_free(v);
+    return TRUE;
+}
+
+static gboolean free_elements(gpointer k _U_, gpointer v, gpointer p _U_) {
+    xml_ns_t* e = v;
+    
+    g_free(e->name);
+    g_hash_table_foreach_remove(e->attributes,free_both,NULL);
+    g_hash_table_destroy(e->attributes);
+    g_hash_table_destroy(e->elements);
+    g_ptr_array_free(e->element_names,TRUE);
+    g_free(e);
+    
+    return TRUE;
+}
+
 static void register_dtd(dtd_build_data_t* dtd_data, GString* errors) {
 	GHashTable* elements = g_hash_table_new(g_str_hash,g_str_equal);
 	gchar* root_name = NULL;
@@ -951,6 +970,8 @@ next_attribute:
 	}
     
     g_hash_table_insert(xml_ns.elements,root_element->name,root_element);
+    
+    g_hash_table_foreach_remove(elements,free_elements,NULL);
     
 	destroy_dtd_data(dtd_data);
 }
