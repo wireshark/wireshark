@@ -55,6 +55,69 @@
 #include "packet-h245.h"
 #include "packet-q931.h"
 
+/*---------------------------------------------------------------------------*/
+/* next tvb list - can be moved to some more common file if other dissector needs it */
+
+#include <epan/emem.h>
+
+typedef struct next_tvb_item {
+  struct next_tvb_item *next;
+  struct next_tvb_item *previous;
+  dissector_handle_t handle;
+  tvbuff_t *tvb;
+  proto_tree *tree;
+} next_tvb_item_t;
+
+typedef struct {
+  next_tvb_item_t *first;
+  next_tvb_item_t *last;
+  int count;
+} next_tvb_list_t;
+
+void next_tvb_init(next_tvb_list_t *list);
+void next_tvb_add(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_handle_t handle);
+void next_tvb_call(next_tvb_list_t *list, packet_info *pinfo, proto_tree *tree, dissector_handle_t handle, dissector_handle_t data_handle);
+
+void next_tvb_init(next_tvb_list_t *list) {
+  list->first = NULL;
+  list->last = NULL;
+  list->count = 0;
+}
+
+void next_tvb_add(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_handle_t handle) {
+  next_tvb_item_t *item;
+
+  item = ep_alloc(sizeof(next_tvb_item_t));
+
+  item->handle = handle;
+  item->tvb = tvb;
+  item->tree = tree;
+
+  if (list->last) {
+    list->last->next = item;
+  } else {
+    list->first = item;
+  }
+  item->next = NULL;
+  item->previous = list->last;
+  list->last = item;
+  list->count++;
+}
+
+void next_tvb_call(next_tvb_list_t *list, packet_info *pinfo, proto_tree *tree, dissector_handle_t handle, dissector_handle_t data_handle) {
+  next_tvb_item_t *item;
+
+  item = list->first;
+  while (item) {
+    if (item->tvb && tvb_length(item->tvb)) {
+      call_dissector((item->handle) ? item->handle : ((handle) ? handle : data_handle), item->tvb, pinfo, (item->tree) ? item->tree : tree);
+    }
+    item = item->next;
+  }
+}
+
+/*---------------------------------------------------------------------------*/
+
 #define PNAME  "H323-MESSAGES"
 #define PSNAME "H.225.0"
 #define PFNAME "h225"
@@ -86,6 +149,9 @@ static dissector_handle_t h4501_handle=NULL;
 
 static dissector_handle_t nsp_handle;
 static dissector_handle_t tp_handle;
+
+static next_tvb_list_t h245_list;
+static next_tvb_list_t tp_list;
 
 /* Initialize the protocol and registered fields */
 static int h225_tap = -1;
@@ -144,6 +210,9 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     reset_h225_packet_info(h225_pi);
     h225_pi->msg_type = H225_CS;
 
+	next_tvb_init(&h245_list);
+	next_tvb_init(&tp_list);
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 	}
@@ -155,6 +224,14 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	tr=proto_item_add_subtree(it, ett_h225);
 
 	offset = dissect_h225_H323_UserInformation(tvb, offset,pinfo, tr, hf_h225_H323_UserInformation);
+
+	if (h245_list.count && check_col(pinfo->cinfo, COL_PROTOCOL)){
+		col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
+		col_set_fence(pinfo->cinfo, COL_PROTOCOL);
+	}
+
+	next_tvb_call(&h245_list, pinfo, tree, h245dg_handle, data_handle);
+	next_tvb_call(&tp_list, pinfo, tree, NULL, data_handle);
 
 	tap_queue_packet(h225_tap, pinfo, h225_pi);
 
