@@ -194,6 +194,14 @@ static void free_gtk_tree(GtkWindow *win _U_, stats_tree *st)
 	
 }
 
+static void reset_tap(void* p) {
+    stats_tree* st = p;
+    
+    if (st->start > -1.0) {
+        remove_tap_listener(st);
+    }
+    
+}
 
 /* initializes the stats_tree window */
 static void init_gtk_tree(const char* optarg) {
@@ -333,7 +341,7 @@ static void init_gtk_tree(const char* optarg) {
 	error_string = register_tap_listener( cfg->tapname,
 										  st,
 										  st->filter,
-										  NULL,
+										  reset_tap,
 										  stats_tree_packet,
 										  draw_gtk_tree);
 	
@@ -362,7 +370,7 @@ static void init_gtk_tree(const char* optarg) {
 	gtk_tree_view_set_model(GTK_TREE_VIEW(st->pr->tree),GTK_TREE_MODEL(st->pr->store));
 #endif
 	
-	st->cfg->init(st);
+    st->cfg->init(st);
 
 	cf_retap_packets(&cfile, FALSE);
 }
@@ -393,7 +401,13 @@ register_tap_listener_stats_tree_stat(void)
 {
 	
 	stats_tree_presentation(register_gtk_stats_tree_tap,
-							setup_gtk_node_pr, NULL,
+							setup_gtk_node_pr,
+                            NULL,
 							NULL,
-							NULL, NULL, free_tree_presentation, NULL, NULL, NULL);
+							NULL,
+                            NULL,
+                            free_tree_presentation,
+                            NULL,
+                            NULL,
+                            NULL);
 }

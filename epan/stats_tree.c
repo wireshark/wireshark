@@ -212,6 +212,10 @@ static void reset_stat_node(stat_node* node) {
 /* reset the whole stats_tree */
 extern void stats_tree_reset(void* p) {
 	stats_tree* st = p;
+    
+	st->start = -1.0;
+	st->elapsed = 0.0;
+    
 	reset_stat_node(&st->root);
 	
 	if (st->cfg->reset_tree) {
@@ -287,8 +291,7 @@ extern stats_tree* stats_tree_new(stats_tree_cfg* cfg, tree_pres* pr,char* filte
 	
 	st->start = -1.0;
 	st->elapsed = 0.0;
-	st->highest_seen = 0;
-	
+
 	st->root.counter = 0;
 	st->root.name = g_strdup(cfg->name);
 	st->root.st = st;
@@ -306,13 +309,7 @@ extern stats_tree* stats_tree_new(stats_tree_cfg* cfg, tree_pres* pr,char* filte
 /* will be the tap packet cb */
 extern int stats_tree_packet(void* p, packet_info* pinfo, epan_dissect_t *edt, const void *pri) {
 	stats_tree* st = p;
-	double now;
-	
-	if (st->highest_seen >= pinfo->fd->num) return 0;
-	
-	st->highest_seen = pinfo->fd->num;
-
-	now = nstime_to_msec(&pinfo->fd->rel_ts);
+	double now = nstime_to_msec(&pinfo->fd->rel_ts);
 	
 	if (st->start < 0.0) st->start = now;
 	
