@@ -29,7 +29,8 @@
 
 /* TODO: Looks like there is some new opcode 3, which has a different
  *       packet layout. For some discussion on the new type, see
- *       http://www.atm.tut.fi/list-archive/cisco-nsp/msg08882.html
+ *       http://www.atm.tut.fi/list-archive/cisco-nsp/msg08882.html and
+ *       http://www.cisco.com/en/US/products/sw/iosswrel/ps1834/products_feature_guide09186a00800e9763.html#xtocid5
  */
 
 
