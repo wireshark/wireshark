@@ -628,13 +628,10 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 "Please check that you have the proper interface specified.\n"
 "\n"
 "Note that version 3.0 of WinPcap, and earlier versions of WinPcap, don't\n"
-"support capturing on PPP/WAN interfaces in Windows NT 4.0 / 2000 / XP / Server 2003.\n"
-"\n"
-"WinPcap 3.1 has experimental support for it on Windows 2000 / XP / Server 2003,\n"
-"but has no support for it on Windows NT 4.0.  WinPcap 3.1 is currently in beta,\n"
-"so using it might introduce bugs not present in WinPcap 3.0; you should report\n"
-"all problems you see to the WinPcap developers, so they can try to fix\n"
-"them before the final WinPcap 3.1 release.",
+"support capturing on PPP/WAN interfaces on Windows NT 4.0 / 2000 / XP /\n"
+"Server 2003.\n"
+"WinPcap 3.1 has support for it on Windows 2000 / XP / Server 2003, but has no\n"
+"support for it on Windows NT 4.0 or Windows Vista (Beta 1).",
 	simple_dialog_primary_start(), simple_dialog_primary_end(),
     open_err_str);
     return FALSE;
