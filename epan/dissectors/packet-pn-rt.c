@@ -114,7 +114,8 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
   /* Initialize variables */
-  tvb_len = tvb_length(tvb);
+  tvb_len = tvb_length(tvb) - pinfo->pseudo_header->eth.fcs_len;
+  tvb_set_reported_length(tvb, tvb_len);
   pn_rt_tree = NULL;
   ds_tree = NULL;
   ti = NULL;
@@ -290,10 +291,10 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
 		/* build pn_rt protocol tree with summary line */
 	    if (pn_rt_summary_in_tree) {
-	      ti = proto_tree_add_protocol_format(tree, proto_pn_rt, tvb, 0, -1,
+	      ti = proto_tree_add_protocol_format(tree, proto_pn_rt, tvb, 0, tvb_len,
 				"PROFINET %s, %s", pszProtSummary, szFieldSummary);
 	    } else {
-			ti = proto_tree_add_item(tree, proto_pn_rt, tvb, 0, -1, FALSE);
+			ti = proto_tree_add_item(tree, proto_pn_rt, tvb, 0, tvb_len, FALSE);
 	    }
 		pn_rt_tree = proto_item_add_subtree(ti, ett_pn_rt);
 
