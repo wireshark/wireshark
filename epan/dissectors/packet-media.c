@@ -63,7 +63,7 @@ dissect_media(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree)
 		/* The media type has no parameters */
 		proto_tree_add_protocol_format(tree, proto_media, tvb, 0, bytes,
 		    "Media Type: %s (%d byte%s)",
-		    pinfo->match_string,
+			pinfo->match_string ? pinfo->match_string : "",
 		    bytes, plurality(bytes, "", "s"));
 	    }
 	}
