@@ -185,8 +185,8 @@ typedef struct _loop_data {
  */
 #define	CAP_READ_TIMEOUT	250
 
-static void capture_loop_packet_cb(guchar *user, const struct pcap_pkthdr *phdr,
-  const guchar *pd);
+static void capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
+  const u_char *pd);
 static void capture_loop_popup_errmsg(capture_options *capture_opts, const char *errmsg);
 static void capture_loop_get_errmsg(char *errmsg, int errmsglen, const char *fname,
 			  int err, gboolean is_close);
@@ -489,7 +489,7 @@ cap_pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
     phdr.caplen = rechdr->hdr.incl_len;
     phdr.len = rechdr->hdr.orig_len;
 
-    capture_loop_packet_cb((guchar *)ld, &phdr, data);
+    capture_loop_packet_cb((u_char *)ld, &phdr, data);
 
     ld->cap_pipe_state = STATE_EXPECT_REC_HDR;
     return 1;
@@ -976,7 +976,7 @@ capture_loop_dispatch(capture_options *capture_opts, loop_data *ld,
            * "select()" says we can read from it without blocking; go for
            * it.
            */
-          inpkts = pcap_dispatch(ld->pcap_h, 1, capture_loop_packet_cb, (gchar *)ld);
+          inpkts = pcap_dispatch(ld->pcap_h, 1, capture_loop_packet_cb, (u_char *)ld);
           if (inpkts < 0) {
             ld->pcap_err = TRUE;
             ld->go = FALSE;
@@ -999,7 +999,7 @@ capture_loop_dispatch(capture_options *capture_opts, loop_data *ld,
 #ifdef LOG_CAPTURE_VERBOSE
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from pcap_dispatch");
 #endif
-        inpkts = pcap_dispatch(ld->pcap_h, 1, capture_loop_packet_cb, (gchar *) ld);
+        inpkts = pcap_dispatch(ld->pcap_h, 1, capture_loop_packet_cb, (u_char *) ld);
         if (inpkts < 0) {
           ld->pcap_err = TRUE;
           ld->go = FALSE;
@@ -1021,7 +1021,7 @@ capture_loop_dispatch(capture_options *capture_opts, loop_data *ld,
 
             inpkts = 0;
             while( (in = pcap_next_ex(ld->pcap_h, &pkt_header, &pkt_data)) == 1) {
-                capture_loop_packet_cb( (gchar *) ld, pkt_header, pkt_data);
+                capture_loop_packet_cb( (u_char *) ld, pkt_header, pkt_data);
                 inpkts++;
             }
 
@@ -1601,8 +1601,8 @@ capture_loop_popup_errmsg(capture_options *capture_opts _U_, const char *errmsg)
 
 /* one packet was captured, process it */
 static void
-capture_loop_packet_cb(guchar *user, const struct pcap_pkthdr *phdr,
-  const guchar *pd)
+capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
+  const u_char *pd)
 {
   struct wtap_pkthdr whdr;
   union wtap_pseudo_header pseudo_header;

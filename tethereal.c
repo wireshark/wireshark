@@ -170,8 +170,8 @@ static gboolean infoprint;	/* if TRUE, print capture info after clearing infodel
 
 
 static int capture(char *, int);
-static void capture_pcap_cb(guchar *, const struct pcap_pkthdr *,
-  const guchar *);
+static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
+  const u_char *);
 static void report_counts(void);
 #ifdef _WIN32
 static BOOL WINAPI capture_cleanup(DWORD);
@@ -1807,7 +1807,7 @@ capture(char *save_file, int out_file_type)
         errmsg, sizeof errmsg);
     } else
 #endif
-      inpkts = pcap_dispatch(ld.pch, pcap_cnt, capture_pcap_cb, (guchar *) &ld);
+      inpkts = pcap_dispatch(ld.pch, pcap_cnt, capture_pcap_cb, (u_char *) &ld);
     if (inpkts < 0) {
       /* Error from "pcap_dispatch()", or error or "no more packets" from
          "pipe_dispatch(). */
@@ -1951,8 +1951,8 @@ error:
 }
 
 static void
-capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
-  const guchar *pd)
+capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
+  const u_char *pd)
 {
   struct wtap_pkthdr whdr;
   union wtap_pseudo_header pseudo_header;
@@ -3293,7 +3293,7 @@ pipe_dispatch(int fd, loop_data *ldat, struct pcap_hdr *hdr,
     phdr.caplen = rechdr->hdr.incl_len;
     phdr.len = rechdr->hdr.orig_len;
 
-    capture_pcap_cb((guchar *)ldat, &phdr, data);
+    capture_pcap_cb((u_char *)ldat, &phdr, data);
 
     ldat->pipe_state = STATE_EXPECT_REC_HDR;
     return 1;
