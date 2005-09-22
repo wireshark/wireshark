@@ -287,6 +287,7 @@ UniversalOrganizationalUnitNames B "x411.extension-attribute.27" "universal-orga
   /* we can do this now constructed octet strings are supported */
   offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_index, &next_tvb);
 
-  (void) call_ber_oid_callback(object_identifier_id, next_tvb, 0, pinfo, tree);
+  if (next_tvb)
+    (void) call_ber_oid_callback(object_identifier_id, next_tvb, 0, pinfo, tree);
 
 #.END

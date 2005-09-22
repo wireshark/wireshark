@@ -1385,8 +1385,7 @@ static int dissect_maxElapsedTime_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_camel_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -4355,8 +4354,7 @@ static int dissect_selectedLSA_Id_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_camel_ExtensionSetextensionId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -5520,7 +5518,8 @@ dissect_camel_Q850Cause(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
        guint8 Cause_value;
        offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &camel_tvb);
 
-       dissect_q931_cause_ie(camel_tvb, 0, tvb_length_remaining(camel_tvb,0), tree, hf_camel_cause_indicator, &Cause_value);
+       if (camel_tvb)
+           dissect_q931_cause_ie(camel_tvb, 0, tvb_length_remaining(camel_tvb,0), tree, hf_camel_cause_indicator, &Cause_value);
 
 
        return offset;

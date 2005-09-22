@@ -185,7 +185,7 @@ ServiceChangeReply/terminationID			terminationIDList
 	  if (command_string != NULL  && ! it_is_wildcard && check_col(pinfo->cinfo, COL_INFO))
 		col_append_str(pinfo->cinfo, COL_INFO, bytes_to_str(tvb_get_ptr(tvb,0,tvb->length),tvb->length));
 
-	if (h248_term_handle) {
+	if (new_tvb && h248_term_handle) {
 		call_dissector(h248_term_handle, new_tvb, pinfo, tree);
 	}
 	

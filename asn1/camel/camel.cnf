@@ -108,7 +108,8 @@ tvbuff_t	*parameter_tvb;
        guint8 Cause_value;
        offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &camel_tvb);
 
-       dissect_q931_cause_ie(camel_tvb, 0, tvb_length_remaining(camel_tvb,0), tree, hf_camel_cause_indicator, &Cause_value);
+       if (camel_tvb)
+           dissect_q931_cause_ie(camel_tvb, 0, tvb_length_remaining(camel_tvb,0), tree, hf_camel_cause_indicator, &Cause_value);
 
 
        return offset;

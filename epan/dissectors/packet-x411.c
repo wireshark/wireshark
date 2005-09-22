@@ -840,8 +840,7 @@ static int dissect_initiator_credentials_impl(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_x411_SecurityPolicyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -890,8 +889,7 @@ static int dissect_privacy_mark(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_x411_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -1818,8 +1816,7 @@ static int dissect_teletex_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_x411_ExtendedEncodedInformationType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -2548,7 +2545,8 @@ dissect_x411_Content(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
   /* we can do this now constructed octet strings are supported */
   offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_index, &next_tvb);
 
-  (void) call_ber_oid_callback(object_identifier_id, next_tvb, 0, pinfo, tree);
+  if (next_tvb)
+    (void) call_ber_oid_callback(object_identifier_id, next_tvb, 0, pinfo, tree);
 
 
   return offset;
@@ -5117,8 +5115,7 @@ dissect_x411_RecipientNumberForAdvice(gboolean implicit_tag _U_, tvbuff_t *tvb, 
 
 static int
 dissect_x411_PhysicalRenditionAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }

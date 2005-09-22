@@ -2854,7 +2854,8 @@ dissect_krb5_PRIV_BODY_user_data(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 	tvbuff_t *new_tvb;
 	offset=dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_krb_PRIV_BODY_user_data, &new_tvb);
 
-	call_kerberos_callbacks(pinfo, tree, new_tvb, KRB_CBTAG_PRIV_USER_DATA);
+	if (new_tvb)
+		call_kerberos_callbacks(pinfo, tree, new_tvb, KRB_CBTAG_PRIV_USER_DATA);
 
 	return offset;
 }
@@ -2982,7 +2983,8 @@ dissect_krb5_SAFE_BODY_user_data(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 {
 	tvbuff_t *new_tvb;
 	offset=dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_krb_SAFE_BODY_user_data, &new_tvb);
-	call_kerberos_callbacks(pinfo, tree, new_tvb, KRB_CBTAG_SAFE_USER_DATA);
+	if (new_tvb)
+		call_kerberos_callbacks(pinfo, tree, new_tvb, KRB_CBTAG_SAFE_USER_DATA);
 	return offset;
 }
 static int

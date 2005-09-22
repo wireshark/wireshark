@@ -824,14 +824,16 @@ dissect_h248_annex_C_PDU(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinf
 		break;
 	case 0x3003: /* NSAP */
 		offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_h248_package_annex_C_NSAP, &new_tvb);
-		dissect_nsap(new_tvb, 0,tvb_length_remaining(new_tvb, 0), tree);
+		if (new_tvb)
+			dissect_nsap(new_tvb, 0,tvb_length_remaining(new_tvb, 0), tree);
 		break;
 	case 0x9001: /* TMR */
 		offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_h248_package_annex_C_TMR, NULL);
 		break;
 	case 0x9023: /* User Service Information */
 		offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_h248_package_annex_C_USI, &new_tvb);
-		dissect_q931_bearer_capability_ie(new_tvb, 0, 3, tree);
+		if (new_tvb)
+			dissect_q931_bearer_capability_ie(new_tvb, 0, 3, tree);
 		break;
 	default:
 		proto_tree_add_text(tree, tvb, offset, -1,"PropertyID not decoded(yet) 0x%x",name_minor);
@@ -970,19 +972,20 @@ dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_i
 
   old_offset=offset;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
+  
+  if (new_tvb) {
+    /* this field is always 4 bytes  so just read it into two integers */
+    name_major=tvb_get_ntohs(new_tvb, 0);
+    name_minor=tvb_get_ntohs(new_tvb, 2);
+    packageandid=(name_major<<16)|name_minor;
 
-
-  /* this field is always 4 bytes  so just read it into two integers */
-  name_major=tvb_get_ntohs(new_tvb, 0);
-  name_minor=tvb_get_ntohs(new_tvb, 2);
-  packageandid=(name_major<<16)|name_minor;
-
-  /* do the prettification */
-  proto_item_append_text(ber_last_created_item, "  %s (%04x)", val_to_str(name_major, package_name_vals, "Unknown Package"), name_major);
-  if(tree){
-    package_tree = proto_item_add_subtree(ber_last_created_item, ett_packagename);
+    /* do the prettification */
+    proto_item_append_text(ber_last_created_item, "  %s (%04x)", val_to_str(name_major, package_name_vals, "Unknown Package"), name_major);
+    if(tree){
+      package_tree = proto_item_add_subtree(ber_last_created_item, ett_packagename);
+    }
+    proto_tree_add_uint(package_tree, hf_h248_package_name, tvb, offset-4, 2, name_major);
   }
-  proto_tree_add_uint(package_tree, hf_h248_package_name, tvb, offset-4, 2, name_major);
   return offset;
 }
 
@@ -997,18 +1000,19 @@ dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_
   old_offset=offset;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
 
+  if (new_tvb) {
+    /* this field is always 4 bytes  so just read it into two integers */
+    name_major=tvb_get_ntohs(new_tvb, 0);
+    name_minor=tvb_get_ntohs(new_tvb, 2);
+    packageandid=(name_major<<16)|name_minor;
 
-  /* this field is always 4 bytes  so just read it into two integers */
-  name_major=tvb_get_ntohs(new_tvb, 0);
-  name_minor=tvb_get_ntohs(new_tvb, 2);
-  packageandid=(name_major<<16)|name_minor;
-
-  /* do the prettification */
-  proto_item_append_text(ber_last_created_item, "  %s (%04x)", val_to_str(name_major, package_name_vals, "Unknown Package"), name_major);
-  if(tree){
-    package_tree = proto_item_add_subtree(ber_last_created_item, ett_packagename);
+    /* do the prettification */
+    proto_item_append_text(ber_last_created_item, "  %s (%04x)", val_to_str(name_major, package_name_vals, "Unknown Package"), name_major);
+    if(tree){
+      package_tree = proto_item_add_subtree(ber_last_created_item, ett_packagename);
+    }
+    proto_tree_add_uint(package_tree, hf_h248_event_name, tvb, offset-4, 4, packageandid);
   }
-  proto_tree_add_uint(package_tree, hf_h248_event_name, tvb, offset-4, 4, packageandid);
   return offset;
 }
 
@@ -1024,18 +1028,19 @@ dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int offset, packe
   old_offset=offset;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
 
+  if (new_tvb) {
+    /* this field is always 4 bytes  so just read it into two integers */
+    name_major=tvb_get_ntohs(new_tvb, 0);
+    name_minor=tvb_get_ntohs(new_tvb, 2);
+    packageandid=(name_major<<16)|name_minor;
 
-  /* this field is always 4 bytes  so just read it into two integers */
-  name_major=tvb_get_ntohs(new_tvb, 0);
-  name_minor=tvb_get_ntohs(new_tvb, 2);
-  packageandid=(name_major<<16)|name_minor;
-
-  /* do the prettification */
-  proto_item_append_text(ber_last_created_item, "  %s (%04x)", val_to_str(name_major, package_name_vals, "Unknown Package"), name_major);
-  if(tree){
-    package_tree = proto_item_add_subtree(ber_last_created_item, ett_packagename);
+    /* do the prettification */
+    proto_item_append_text(ber_last_created_item, "  %s (%04x)", val_to_str(name_major, package_name_vals, "Unknown Package"), name_major);
+    if(tree){
+      package_tree = proto_item_add_subtree(ber_last_created_item, ett_packagename);
+    }
+    proto_tree_add_uint(package_tree, hf_h248_signal_name, tvb, offset-4, 4, packageandid);
   }
-  proto_tree_add_uint(package_tree, hf_h248_signal_name, tvb, offset-4, 4, packageandid);
   return offset;
 }
 static int
@@ -1089,21 +1094,22 @@ dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet
   old_offset=offset;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
 
+  if (new_tvb) {
+    /* this field is either 2 or 4 bytes  so just read it into an integer */
+    val=0;
+    len=tvb_length(new_tvb);
+    for(i=0;i<len;i++){
+      val= (val<<8)|tvb_get_guint8(new_tvb, i);
+    }
 
-  /* this field is either 2 or 4 bytes  so just read it into an integer */
-  val=0;
-  len=tvb_length(new_tvb);
-  for(i=0;i<len;i++){
-    val= (val<<8)|tvb_get_guint8(new_tvb, i);
+    /* do the prettification */
+    proto_item_append_text(ber_last_created_item, "  NI = %d, PC = %d ( %d-%d )", val&0x03,val>>2,val&0x03,val>>2);
+    if(tree){
+      mtp_tree = proto_item_add_subtree(ber_last_created_item, ett_mtpaddress);
+    }
+    proto_tree_add_uint(mtp_tree, hf_h248_mtpaddress_ni, tvb, old_offset, offset-old_offset, val&0x03);
+    proto_tree_add_uint(mtp_tree, hf_h248_mtpaddress_pc, tvb, old_offset, offset-old_offset, val>>2);
   }
-
-  /* do the prettification */
-  proto_item_append_text(ber_last_created_item, "  NI = %d, PC = %d ( %d-%d )", val&0x03,val>>2,val&0x03,val>>2);
-  if(tree){
-    mtp_tree = proto_item_add_subtree(ber_last_created_item, ett_mtpaddress);
-  }
-  proto_tree_add_uint(mtp_tree, hf_h248_mtpaddress_ni, tvb, old_offset, offset-old_offset, val&0x03);
-  proto_tree_add_uint(mtp_tree, hf_h248_mtpaddress_pc, tvb, old_offset, offset-old_offset, val>>2);
 
 
   return offset;
@@ -1554,7 +1560,7 @@ dissect_h248_T_id(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_i
 	  if (command_string != NULL  && ! it_is_wildcard && check_col(pinfo->cinfo, COL_INFO))
 		col_append_str(pinfo->cinfo, COL_INFO, bytes_to_str(tvb_get_ptr(tvb,0,tvb->length),tvb->length));
 
-	if (h248_term_handle) {
+	if (new_tvb && h248_term_handle) {
 		call_dissector(h248_term_handle, new_tvb, pinfo, tree);
 	}
 	
@@ -2194,8 +2200,7 @@ static int dissect_mtl_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 static int
 dissect_h248_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }

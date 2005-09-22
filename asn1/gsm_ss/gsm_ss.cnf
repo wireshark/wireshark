@@ -27,10 +27,12 @@ MAP-Protocol gsm_map
 
  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     &parameter_tvb);
- digit_str = unpack_digits(parameter_tvb, 1);
+ if (parameter_tvb) {
+   digit_str = unpack_digits(parameter_tvb, 1);
 
- proto_tree_add_string(tree, hf_MAP_DialoguePDU_destref_digits, parameter_tvb, 1, -1, digit_str);
- g_free(digit_str);
+   proto_tree_add_string(tree, hf_MAP_DialoguePDU_destref_digits, parameter_tvb, 1, -1, digit_str);
+   g_free(digit_str);
+ }
 
 #.END
 #----------------------------------------------------------------------------------------
@@ -40,10 +42,12 @@ MAP-Protocol gsm_map
 
  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                     &parameter_tvb);
- digit_str = unpack_digits(parameter_tvb, 1);
+ if (parameter_tvb) {
+   digit_str = unpack_digits(parameter_tvb, 1);
 
- proto_tree_add_string(tree, hf_MAP_DialoguePDU_origref_digits, parameter_tvb, 1, -1, digit_str);
- g_free(digit_str);
+   proto_tree_add_string(tree, hf_MAP_DialoguePDU_origref_digits, parameter_tvb, 1, -1, digit_str);
+   g_free(digit_str);
+ }
 
 #.END
 #----------------------------------------------------------------------------------------
