@@ -198,7 +198,7 @@ static void after_token(void* tvbparse_data, const void* wanted_data _U_, tvbpar
 	proto_item* pi;
 
 	if (tok->id == XML_CDATA) {
-		hfid = current_frame->ns->hf_cdata;
+		hfid = current_frame->ns ? current_frame->ns->hf_cdata : xml_ns.hf_cdata;
 	} else if ( tok->id > 0) {
 		hfid = tok->id;
 	} else {
@@ -297,14 +297,18 @@ static void before_tag(void* tvbparse_data, const void* wanted_data _U_, tvbpars
     } else {
         name = tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len);
         g_strdown(name);
+
+        if(current_frame->ns) {
+			ns = g_hash_table_lookup(current_frame->ns->elements,name);
         
-        ns = g_hash_table_lookup(current_frame->ns->elements,name);
-        
-        if (!ns) {
-            if (! ( ns = g_hash_table_lookup(root_ns->elements,name) ) ) {
-                ns = &unknown_ns;
-            }
-        }
+			if (!ns) {
+				if (! ( ns = g_hash_table_lookup(root_ns->elements,name) ) ) {
+					ns = &unknown_ns;
+				}
+			}
+		} else {
+			ns = &unknown_ns;
+		}
     }
 
     pi = proto_tree_add_item(current_frame->tree,ns->hf_tag,tok->tvb,tok->offset,tok->len,FALSE);
