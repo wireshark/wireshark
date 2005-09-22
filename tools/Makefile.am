@@ -70,7 +70,6 @@ EXTRA_DIST = \
 	pidl/tests/ndr_simple.pl	\
 	pidl/tests/ndr_refptr.pl	\
 	pidl/README	\
-	pidl/pidl.1.xml	\
 	pidl/Makefile.PL	\
 	pidl/idl.yp	\
 	pidl/ref_notes.txt	\
