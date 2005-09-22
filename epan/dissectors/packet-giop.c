@@ -3469,7 +3469,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
     {
       proto_tree_add_text (request_tree, tvb, offset-1, 1,
 			   "Response flags: %s (%u)",
-			        match_strval(response_flags, sync_scope),
+			        val_to_str(response_flags, sync_scope, "(0x%x)"),
 			        response_flags);
     }
 
@@ -3676,7 +3676,7 @@ dissect_giop_locate_reply( tvbuff_t * tvb, packet_info * pinfo,
     {
       proto_tree_add_text (locate_reply_tree, tvb, offset-4, 4,
 			   "Locate status: %s",
-			   match_strval(locate_status, giop_locate_status_types)
+			   val_to_str(locate_status, giop_locate_status_types, "(0x%x)")
 			   );
     }
 
@@ -3868,7 +3868,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
 				  hf_giop_message_type,
 				  giop_header_tvb, 7, 1,
 				  header.message_type,
-				  "Message type: %s", match_strval(header.message_type, giop_message_types));
+				  "Message type: %s", val_to_str(header.message_type, giop_message_types, "(0x%x)"));
 
       proto_tree_add_uint (clnp_tree,
 			   hf_giop_message_size,
@@ -3881,7 +3881,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
   {
       col_add_fstr (pinfo->cinfo, COL_INFO, "GIOP %u.%u %s",
                     header.GIOP_version.major, header.GIOP_version.minor,
-                    match_strval(header.message_type, giop_message_types));
+                    val_to_str(header.message_type, giop_message_types, "(0x%x)"));
   }
 #endif
 
@@ -4879,14 +4879,10 @@ void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
      }
 
     if( vscid == 0) { /* OMG specified */
-       service_context_name = match_strval(scid, service_context_ids);
+       service_context_name = val_to_str(scid, service_context_ids, "(0x%x)");
     } else { /* Proprietary vscid */
-       service_context_name = NULL;
-    } 
-
-    if ( service_context_name == NULL ) {
        service_context_name = "Unknown";
-    }
+    } 
 
     if(tree) {
       proto_tree_add_text (tree, tvb, *offset -sizeof(context_id), 4,
