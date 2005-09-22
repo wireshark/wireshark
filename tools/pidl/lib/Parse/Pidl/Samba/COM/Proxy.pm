@@ -9,6 +9,9 @@ package Parse::Pidl::Samba::COM::Proxy;
 use Parse::Pidl::Samba::COM::Header;
 use Parse::Pidl::Util qw(has_property);
 
+use vars qw($VERSION);
+$VERSION = '0.01';
+
 use strict;
 
 my($res);

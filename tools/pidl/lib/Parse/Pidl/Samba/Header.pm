@@ -11,6 +11,9 @@ use Parse::Pidl::Typelist qw(mapType);
 use Parse::Pidl::Util qw(has_property is_constant);
 use Parse::Pidl::NDR qw(GetNextLevel GetPrevLevel);
 
+use vars qw($VERSION);
+$VERSION = '0.01';
+
 my($res);
 my($tab_depth);
 

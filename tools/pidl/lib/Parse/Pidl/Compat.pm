@@ -8,6 +8,9 @@ package Parse::Pidl::Compat;
 use Parse::Pidl::Util qw(has_property);
 use strict;
 
+use vars qw($VERSION);
+$VERSION = '0.01';
+
 my %supported_properties = (
 	# interface
 	"helpstring"		=> ["INTERFACE", "FUNCTION"],

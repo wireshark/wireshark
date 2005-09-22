@@ -8,6 +8,8 @@ use strict;
 use Parse::Pidl::Util;
 use Getopt::Long;
 
+use vars qw($VERSION);
+$VERSION = '0.01';
 my $cc = $ENV{CC};
 my @cflags = split / /, $ENV{CFLAGS};
 my @ldflags = split / /, $ENV{LDFLAGS};

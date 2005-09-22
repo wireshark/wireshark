@@ -8,6 +8,9 @@ package Parse::Pidl::Samba::NDR::Server;
 
 use strict;
 
+use vars qw($VERSION);
+$VERSION = '0.01';
+
 my($res);
 
 sub pidl($)

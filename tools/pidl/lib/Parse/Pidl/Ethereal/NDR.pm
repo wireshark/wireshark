@@ -15,6 +15,9 @@ use Parse::Pidl::NDR;
 use Parse::Pidl::Dump qw(DumpTypedef DumpFunction);
 use Parse::Pidl::Ethereal::Conformance qw(ReadConformance);
 
+use vars qw($VERSION);
+$VERSION = '0.01';
+
 my @ett;
 
 my %hf_used = ();

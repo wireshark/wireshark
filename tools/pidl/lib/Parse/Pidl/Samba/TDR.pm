@@ -6,6 +6,9 @@
 package Parse::Pidl::Samba::TDR;
 use Parse::Pidl::Util qw(has_property ParseExpr is_constant);
 
+use vars qw($VERSION);
+$VERSION = '0.01';
+
 use strict;
 
 my $ret = "";

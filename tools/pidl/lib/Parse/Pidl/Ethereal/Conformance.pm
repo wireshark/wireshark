@@ -6,6 +6,8 @@
 package Parse::Pidl::Ethereal::Conformance;
 
 require Exporter;
+use vars qw($VERSION);
+$VERSION = '0.01';
 
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(ReadConformance);

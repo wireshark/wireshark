@@ -7,6 +7,8 @@ package Parse::Pidl::Dump;
 
 use Exporter;
 
+use vars qw($VERSION);
+$VERSION = '0.01';
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(DumpTypedef DumpStruct DumpEnum DumpBitmap DumpUnion DumpFunction);
 

@@ -8,6 +8,9 @@ use Parse::Pidl::Util qw(has_property);
 use Parse::Pidl::Typelist qw(hasType getType);
 use strict;
 
+use vars qw($VERSION);
+$VERSION = '0.01';
+
 #####################################################################
 # find an interface in an array of interfaces
 sub get_interface($$)

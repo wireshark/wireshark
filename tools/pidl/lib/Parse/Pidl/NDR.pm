@@ -8,6 +8,8 @@
 package Parse::Pidl::NDR;
 
 require Exporter;
+use vars qw($VERSION);
+$VERSION = '0.01';
 @ISA = qw(Exporter);
 @EXPORT = qw(GetPrevLevel GetNextLevel ContainsDeferred);
 

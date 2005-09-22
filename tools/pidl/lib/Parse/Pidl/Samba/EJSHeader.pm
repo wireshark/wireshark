@@ -9,6 +9,9 @@ use strict;
 use Parse::Pidl::Typelist;
 use Parse::Pidl::Util qw(has_property);
 
+use vars qw($VERSION);
+$VERSION = '0.01';
+
 my($res);
 
 sub pidl ($)

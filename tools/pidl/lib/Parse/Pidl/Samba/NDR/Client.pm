@@ -5,6 +5,9 @@
 
 package Parse::Pidl::Samba::NDR::Client;
 
+use vars qw($VERSION);
+$VERSION = '0.01';
+
 use strict;
 
 my($res);

@@ -8,6 +8,8 @@ package Parse::Pidl::Typelist;
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(hasType getType mapType);
+use vars qw($VERSION);
+$VERSION = '0.01';
 
 use Parse::Pidl::Util qw(has_property);
 use strict;

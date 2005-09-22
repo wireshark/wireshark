@@ -5,6 +5,9 @@
 
 package Parse::Pidl::Samba::SWIG;
 
+use vars qw($VERSION);
+$VERSION = '0.01';
+
 use strict;
 
 sub pidl($)

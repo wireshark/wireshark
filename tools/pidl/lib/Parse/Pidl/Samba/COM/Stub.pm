@@ -10,6 +10,9 @@ package Parse::Pidl::Samba::COM::Stub;
 use Parse::Pidl::Util qw(has_property);
 use strict;
 
+use vars qw($VERSION);
+$VERSION = '0.01';
+
 my($res);
 
 sub pidl($)
