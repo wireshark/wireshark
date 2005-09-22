@@ -17698,7 +17698,7 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * add RP message name
      */
     proto_tree_add_uint_format(rp_tree, hf_gsm_a_rp_msg_type,
-	tvb, saved_offset, 1, oct, "Message Type %s",str);
+		tvb, saved_offset, 1, oct, "Message Type %s", str ? str : "(Unknown)");
 
     if (str == NULL) return;
 
@@ -18079,7 +18079,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     proto_tree_add_uint_format(dtap_tree, hf_idx,
 	tvb, offset, 1, oct,
-	"Message Type %s",msg_str);
+	"Message Type %s",msg_str ? msg_str : "(Unknown)");
 
     offset++;
 
