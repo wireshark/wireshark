@@ -27,6 +27,12 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/* TODO: Looks like there is some new opcode 3, which has a different
+ *       packet layout. For some discussion on the new type, see
+ *       http://www.atm.tut.fi/list-archive/cisco-nsp/msg08882.html
+ */
+
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
