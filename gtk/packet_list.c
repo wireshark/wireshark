@@ -806,8 +806,6 @@ packet_list_set_selected_row(gint row)
 	gboolean full_visible;
 
 
-	eth_clist_freeze(ETH_CLIST(packet_list));
-
 	full_visible = eth_clist_row_is_visible(ETH_CLIST(packet_list), row) ==
         GTK_VISIBILITY_FULL;
 
@@ -821,6 +819,8 @@ packet_list_set_selected_row(gint row)
     eth_clist_select_row(ETH_CLIST(packet_list), row, -1);
 
     if (!full_visible) {
+
+        eth_clist_freeze(ETH_CLIST(packet_list));
 
         eth_clist_moveto(ETH_CLIST(packet_list), row, -1, 0.0, 0.0);
 
@@ -843,9 +843,9 @@ packet_list_set_selected_row(gint row)
 		first_row = row - visible_rows / 3;
 
 		eth_clist_moveto(ETH_CLIST(packet_list), first_row >= 0 ? first_row : 0, -1, 0.0, 0.0);
-	}
 
-	eth_clist_thaw(ETH_CLIST(packet_list));
+		eth_clist_thaw(ETH_CLIST(packet_list));
+	}
 }
 
 /* Return the column number that the clist is currently sorted by */
