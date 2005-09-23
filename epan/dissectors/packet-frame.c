@@ -272,7 +272,7 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	case BoundsError:
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO, "[Short Frame]");
+			col_append_str(pinfo->cinfo, COL_INFO, "[Packet size limited during capture]");
 		/*item =*/ proto_tree_add_protocol_format(tree, proto_short, tvb, 0, 0,
 				"[Packet size limited during capture: %s truncated]", pinfo->current_proto);
 		/* Don't record BoundsError exceptions as expert events - they merely
