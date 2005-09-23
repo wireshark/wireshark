@@ -45,7 +45,7 @@ DOCUMENT SECTION
 <!--
 Ethereal Info
 -->
-  <!ENTITY EtherealCurrentVersion "0.10.11">
+  <!ENTITY EtherealCurrentVersion "0.10.12">
   <!ENTITY EtherealWebSite "http://www.ethereal.com">
   <!ENTITY EtherealDownloadPage "&EtherealWebSite;/download.html">
   <!ENTITY EtherealAuthorsPage "&EtherealWebSite;/introduction.html#authors">
