@@ -494,6 +494,7 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
                 guint32 avp_vsa_type = tvb_get_guint8(tvb,offset++);
                 guint32 avp_vsa_len = tvb_get_guint8(tvb,offset++);
                 
+                DISSECTOR_ASSERT(avp_vsa_len>2);
                 avp_vsa_len -= 2;
                 
                 dictionary_entry = g_hash_table_lookup(vendor->attrs_by_id,GUINT_TO_POINTER(avp_vsa_type));
