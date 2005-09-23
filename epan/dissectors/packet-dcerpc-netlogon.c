@@ -6581,7 +6581,7 @@ static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
 
 static int hf_netlogon_secchan_verf = -1;
 static int hf_netlogon_secchan_verf_sig = -1;
-static int hf_netlogon_secchan_verf_unk = -1;
+static int hf_netlogon_secchan_verf_digest = -1;
 static int hf_netlogon_secchan_verf_seq = -1;
 static int hf_netlogon_secchan_verf_nonce = -1;
 
@@ -6603,7 +6603,7 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
               offset, 8, FALSE);
 	  offset += 8;
 
-          proto_tree_add_item(subtree, hf_netlogon_secchan_verf_unk, tvb,
+          proto_tree_add_item(subtree, hf_netlogon_secchan_verf_digest, tvb,
               offset, 8, FALSE);
 	  offset += 8;
 
@@ -7460,9 +7460,9 @@ static hf_register_info hf[] = {
           { "Signature", "netlogon.secchan.sig", FT_BYTES, BASE_HEX, NULL, 
 	    0x0, "Signature", HFILL }}, 
 
-        { &hf_netlogon_secchan_verf_unk,
-          { "Unknown", "netlogon.secchan.unk", FT_BYTES, BASE_HEX, NULL, 
-          0x0, "Unknown", HFILL }}, 
+        { &hf_netlogon_secchan_verf_digest,
+          { "Packet Digest", "netlogon.secchan.digest", FT_BYTES, BASE_HEX, NULL, 
+          0x0, "Packet Digest", HFILL }}, 
 
         { &hf_netlogon_secchan_verf_seq,
           { "Sequence No", "netlogon.secchan.seq", FT_BYTES, BASE_HEX, NULL, 
