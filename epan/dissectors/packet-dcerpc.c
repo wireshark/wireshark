@@ -2213,7 +2213,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 #ifdef _WIN32
     char UUID_NAME[MAX_PATH];
 #endif
-    proto_item *sub_item;
+    proto_item *sub_item=NULL;
 
     key.uuid = info->call_data->uuid;
     key.ver = info->call_data->ver;
@@ -2965,7 +2965,7 @@ static void
 dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
                         proto_tree *dcerpc_tree, proto_tree *tree,
                         e_dce_cn_common_hdr_t *hdr, dcerpc_info *di,
-                        dcerpc_auth_info *auth_info, guint32 alloc_hint,
+                        dcerpc_auth_info *auth_info, guint32 alloc_hint _U_,
                         guint32 frame)
 {
     gint length, reported_length;
@@ -4636,7 +4636,7 @@ dissect_dcerpc_dg_resp (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static void
 dissect_dcerpc_dg_ping_ack (tvbuff_t *tvb, int offset, packet_info *pinfo,
-                        proto_tree *dcerpc_tree, proto_tree *tree,
+                        proto_tree *dcerpc_tree,
                         e_dce_dg_common_hdr_t *hdr, conversation_t *conv)
 {
     proto_item *parent_pi;
@@ -5051,7 +5051,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* these requests have no body */
     case PDU_ACK:
     case PDU_PING:
-        dissect_dcerpc_dg_ping_ack (tvb, offset, pinfo, dcerpc_tree, tree, &hdr, conv);
+        dissect_dcerpc_dg_ping_ack (tvb, offset, pinfo, dcerpc_tree, &hdr, conv);
         break;
     case PDU_WORKING:
     default:
