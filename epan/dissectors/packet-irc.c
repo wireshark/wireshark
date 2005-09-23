@@ -37,7 +37,6 @@
 static int proto_irc = -1;
 static int hf_irc_request = -1;
 static int hf_irc_response = -1;
-static int hf_irc_command = -1;
 
 static gint ett_irc = -1;
 
@@ -45,23 +44,15 @@ static gint ett_irc = -1;
 	/* good candidate for dynamic port specification */
 
 static void
-dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, int offset, int len,
-    const char *line, int linelen)
+dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, int offset, int linelen)
 {
-	proto_tree_add_boolean_hidden(tree, hf_irc_request, tvb, offset, len,
-	    TRUE);
-	proto_tree_add_text(tree, tvb, offset, len, "Request Line: %.*s",
-	    linelen, line);
+	proto_tree_add_item(tree, hf_irc_request, tvb, offset, linelen, TRUE);
 }
 
 static void
-dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, int offset, int len,
-    const char *line, int linelen)
+dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, int offset, int linelen)
 {
-	proto_tree_add_boolean_hidden(tree, hf_irc_response, tvb, offset, len,
-	    TRUE);
-	proto_tree_add_text(tree, tvb, offset, len, "Response Line: %.*s",
-	    linelen, line);
+	proto_tree_add_item(tree, hf_irc_response, tvb, offset, linelen, TRUE);
 }
 
 static void
@@ -69,7 +60,6 @@ dissect_irc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree      *irc_tree, *ti;
 	gint		offset = 0;
-	const guchar	*line;
 	gint		next_offset;
 	int		linelen;
 
@@ -90,33 +80,22 @@ dissect_irc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * Process the packet data, a line at a time.
 		 */
-		while (tvb_offset_exists(tvb, offset))
+		while (tvb_reported_length_remaining(tvb, offset) > 0)
 		{
 			/*
 			 * Find the end of the line.
 			 */
-			linelen = tvb_find_line_end(tvb, offset, -1,
-			    &next_offset, FALSE);
-
-			/*
-			 * Get a buffer that refers to the line (without
-			 * the line terminator).
-			 */
-			line = tvb_get_ptr(tvb, offset, linelen);
+			linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
 			if (linelen != 0)
 			{
 				if (pinfo->match_port == pinfo->destport)
 				{
-					dissect_irc_request(irc_tree, tvb,
-					    offset, next_offset - offset,
-					    line, linelen);
+					dissect_irc_request(irc_tree, tvb, offset, linelen);
 				}
 				else
 				{
-					dissect_irc_response(irc_tree, tvb,
-					    offset, next_offset - offset,
-					    line, linelen);
+					dissect_irc_response(irc_tree, tvb, offset, linelen);
 				}
 			}
 			offset = next_offset;
@@ -130,18 +109,13 @@ proto_register_irc(void)
 	static hf_register_info hf[] = {
 	  { &hf_irc_response,
 	    { "Response",           "irc.response",
-	      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	      "TRUE if IRC response", HFILL }},
+	      FT_STRING, BASE_NONE, NULL, 0x0,
+	      "Line of response message", HFILL }},
 
 	  { &hf_irc_request,
 	    { "Request",            "irc.request",
-	      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-	      "TRUE if IRC request", HFILL }},
-
-	  { &hf_irc_command,
-	    { "Command",            "irc.command",
 	      FT_STRING, BASE_NONE, NULL, 0x0,
-	      "Command associated with request", HFILL }}
+	      "Line of request message", HFILL }},
 	};
 
 	static gint *ett[] = {
