@@ -1358,7 +1358,11 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   /* compressed */
   compressed_cb = gtk_check_button_new_with_label("Compress with gzip");
   gtk_container_add(GTK_CONTAINER(ft_hb), compressed_cb);
-  gtk_widget_show(compressed_cb);
+  /* XXX - disable output compression for now, as this doesn't work with the 
+   * current optimization to simply copy a capture file if it's using the same
+   * encapsulation ... */
+  /* the rest of the implementation is just working fine :-( */
+  /*gtk_widget_show(compressed_cb);*/
   OBJECT_SET_DATA(file_save_as_w, "compressed", compressed_cb);
   gtk_widget_set_sensitive(compressed_cb, wtap_dump_can_compress(cfile.cd_t));
 
