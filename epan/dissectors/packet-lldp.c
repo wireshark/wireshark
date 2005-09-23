@@ -481,7 +481,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	guint8 tempType;
 	guint16 tempShort;
 	guint32 tempLen = 0;
-	const char *strPtr;
+	const char *strPtr=NULL;
 	guint8 incorrectLen = 0;	/* incorrect length if 1 */
 	
 	const guint8 *mac_addr = NULL;
@@ -807,7 +807,7 @@ dissect_lldp_time_to_live(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
 /* Dissect End of LLDPDU TLV (Mandatory) */
 static gint32
-dissect_lldp_end_of_lldpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
+dissect_lldp_end_of_lldpdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint16 tempLen;
 	guint16 tempShort;
@@ -836,7 +836,7 @@ dissect_lldp_end_of_lldpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 /* Dissect Port Description TLV */
 static gint32
-dissect_lldp_port_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
+dissect_lldp_port_desc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint16 tempShort;
 	guint32 tempLen = 0;
@@ -872,7 +872,7 @@ dissect_lldp_port_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 
 /* Dissect System Name and description TLV */
 static gint32
-dissect_lldp_system_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
+dissect_lldp_system_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint16 tempShort;
 	guint32 tempLen = 0;
@@ -914,7 +914,7 @@ dissect_lldp_system_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
 /* Dissect System Capabilities TLV */
 static gint32
-dissect_lldp_system_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
+dissect_lldp_system_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint16 tempShort;
 	guint32 tempLen = 0;
@@ -1026,7 +1026,7 @@ dissect_lldp_system_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 /* Dissect Management Address TLV */
 static gint32
-dissect_lldp_management_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
+dissect_lldp_management_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint16 tempShort;
 	guint32 tempLen = 0;
@@ -1117,7 +1117,7 @@ dissect_lldp_management_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 /* Dissect IEEE 802.1 TLVs */
 static void
-dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
+dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint8 subType;
 	guint8 tempByte;
@@ -1225,7 +1225,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 
 /* Dissect IEEE 802.3 TLVs */
 static void
-dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
+dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint8 subType;
 	guint8 tempByte;
@@ -1469,7 +1469,7 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 
 /* Dissect Media TLVs */
 static void
-dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint16 tlvLen)
+dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint16 tlvLen)
 {
 	guint32 tempOffset = offset;
 	guint8 subType;
@@ -2079,7 +2079,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 /* Dissect Unknown TLV */
 static gint32
-dissect_lldp_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
+dissect_lldp_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint16 tempLen;
 	guint16 tempShort;
