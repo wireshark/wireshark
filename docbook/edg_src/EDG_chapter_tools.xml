@@ -228,12 +228,12 @@
 	</row>
 	<row>
 	  <entry><xref linkend="ChToolsYacc"/></entry>
-	  <entry><command>yacc</command></entry>
+	  <entry><command>bison</command></entry>
 	  <entry><ulink url="http://gnuwin32.sourceforge.net/"/></entry>
 	</row>
 	<row>
 	  <entry><xref linkend="ChToolsLexx"/></entry>
-	  <entry><command>lexx</command></entry>
+	  <entry><command>flex</command></entry>
 	  <entry><ulink url="http://gnuwin32.sourceforge.net/"/></entry>
 	</row>
 	</tbody>
@@ -271,7 +271,12 @@
 	<row>
 	  <entry><xref linkend="ChToolsWget"/></entry>
 	  <entry><command>wget</command></entry>
-	  <entry><ulink url="http://gnuwin32.sourceforge.net/"/></entry>
+	  <entry><ulink url="http://gnuwin32.sourceforge.net"/></entry>
+	</row>
+	<row>
+	  <entry><xref linkend="ChToolsUnzip"/></entry>
+	  <entry><command>unzip</command></entry>
+	  <entry><ulink url="http://gnuwin32.sourceforge.net"/></entry>
 	</row>
 	<row>
 	  <entry><xref linkend="ChToolsNSIS"/></entry>
@@ -1183,6 +1188,29 @@ written by Larry Wall and Paul Eggert]]>
 	<para>
 	If you are unsure about the settings, you might ask your system 
 	administrator.
+	</para>
+	</section>
+
+	<section id="ChToolsUnzip">
+	<title>Win32: GNU unzip (optional)</title>
+	<para>
+	GNU unzip is used to, well, unzip the zip files downloaded using the wget 
+	tool.
+	</para>
+	<para>
+	GNU wget is available for most of the UNIX-like platforms and as the 
+	<application>unzip</application> package from the <link 
+	linkend="ChToolsInstallCygwin">Cygwin setup</link>.
+	</para>
+	<para>
+	You will only need unzip, if you want to use the Win32 automated library 
+	download, see <xref linkend="ChLibsSetup"/> for details.
+	</para>
+	<para>
+	If GNU unzip isn't already installed and also not available as a package 
+	for your platform (well, for Win32 it is available as a Cygwin package), 
+	you can get it at: 
+	<ulink url="http://www.gnu.org/software/unzip/unzip.html"/>.
 	</para>
 	</section>
 
