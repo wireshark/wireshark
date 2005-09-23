@@ -114,7 +114,9 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
   /* Initialize variables */
-  tvb_len = tvb_length(tvb) - pinfo->pseudo_header->eth.fcs_len;
+  tvb_len = tvb_length(tvb) - 
+	  /* subtract (optional) Ethernet FCS or trailer len */
+	  ((pinfo->pseudo_header->eth.fcs_len != -1) ? pinfo->pseudo_header->eth.fcs_len : 0);
   tvb_set_reported_length(tvb, tvb_len);
   pn_rt_tree = NULL;
   ds_tree = NULL;
