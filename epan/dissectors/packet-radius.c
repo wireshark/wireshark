@@ -777,6 +777,7 @@ static void register_attrs(gpointer k _U_, gpointer v, gpointer p) {
 	
 	for(i=0; abbrev[i]; i++) {
 		if(abbrev[i] == '-') abbrev[i] = '_';
+        if(abbrev[i] == '/') abbrev[i] = '_';
 	}
 	
 	hfri[0].p_id = &(a->hf);
@@ -999,6 +1000,8 @@ proto_register_radius(void)
 		dict_err_str = g_strdup("Could not find the radius directory");
 	}
 	
+    g_free(dir);
+    
 	if (dict_err_str) {
 		g_warning("radius: %s",dict_err_str);
 		g_free(dict_err_str);

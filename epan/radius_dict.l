@@ -49,9 +49,9 @@
 #define ECHO
 #define MAX_INCLUDE_DEPTH 10
 
-	void add_vendor(gchar* name, guint32 vendor_id);
-	void add_value(gchar* attrib_name, gchar* value_repr, long value);
-	void add_attribute(gchar*, gchar*, radius_attr_dissector_t, gchar*, gboolean, gboolean);
+	void add_vendor(const gchar* name, guint32 vendor_id);
+	void add_value(const gchar* attrib_name,const  gchar* value_repr, long value);
+	void add_attribute(const gchar*,const  gchar*, radius_attr_dissector_t,const  gchar*, gboolean, gboolean);
 	
 	static YY_BUFFER_STATE include_stack[10];
 	static int include_stack_ptr = 0;
@@ -90,14 +90,34 @@
 <OUT>BEGIN-VENDOR { BEGIN BEGIN_VENDOR; }
 <OUT>END-VENDOR { BEGIN END_VENDOR; }
 
-<BEGIN_VENDOR>[0-9a-z_-]+ {current_vendor = g_strdup(yytext); BEGIN OUT; }
-<END_VENDOR>[^\n]* {if (current_vendor) { g_free(current_vendor); current_vendor = NULL; } BEGIN OUT; }
+<BEGIN_VENDOR>[0-9a-z_-]+ {
+    if (current_vendor) {
+        g_free(current_vendor);
+    }
+    current_vendor = g_strdup(yytext);
+    BEGIN OUT;
+}
+<END_VENDOR>[^\n]* {
+    if (current_vendor) {
+        g_free(current_vendor);
+        current_vendor = NULL;
+    }
+    BEGIN OUT;
+}
 
 <VENDOR>[0-9a-z_-]+   { vendor_name = g_strdup(yytext); BEGIN VENDOR_W_NAME; }
-<VENDOR_W_NAME>[0-9]+   { add_vendor(vendor_name,strtol(yytext,NULL,10)); BEGIN OUT; }
-<VENDOR_W_NAME>0x[0-9a-f]+   { add_vendor(vendor_name,strtol(yytext,NULL,16)); BEGIN OUT; }
+<VENDOR_W_NAME>[0-9]+   {
+    add_vendor(vendor_name,strtol(yytext,NULL,10));
+    g_free(vendor_name);
+    BEGIN OUT;
+}
+<VENDOR_W_NAME>0x[0-9a-f]+   {
+    add_vendor(vendor_name,strtol(yytext,NULL,16));
+    g_free(vendor_name);
+    BEGIN OUT;
+}
 
-<ATTR>[0-9a-z_-]+					{ attr_name = g_strdup(yytext); encrypted = FALSE; has_tag = FALSE; BEGIN ATTR_W_NAME; }
+<ATTR>[0-9a-z_/-]+					{ attr_name = g_strdup(yytext); encrypted = FALSE; has_tag = FALSE; BEGIN ATTR_W_NAME; }
 <ATTR_W_NAME>[0-9]+					{ attr_id = g_strdup(yytext);  BEGIN ATTR_W_ID;}
 <ATTR_W_NAME>0x[0-9a-f]+			{ attr_id = g_strdup_printf("%u",(int)strtoul(yytext,NULL,16)); BEGIN ATTR_W_ID;}
 <ATTR_W_ID>integer					{ attr_type = radius_integer;  BEGIN ATTR_W_TYPE; }
@@ -111,14 +131,37 @@
 <ATTR_W_TYPE>has_tag[,]?			{ has_tag = TRUE; attr_vendor = NULL;  BEGIN ATTR_W_VENDOR; }
 <ATTR_W_TYPE>encrypt=1[,]?			{ encrypted=TRUE;  attr_vendor = NULL;  BEGIN ATTR_W_VENDOR; }
 <ATTR_W_TYPE>[,0-9a-z_-]+=([^\n]+)	{ /* ignore other parameters */  attr_vendor = NULL;  BEGIN ATTR_W_VENDOR; }
-<ATTR_W_TYPE>[0-9a-z_-]+			{ attr_vendor = g_strdup(yytext);  add_attribute(attr_name,attr_id,attr_type,attr_vendor,encrypted,has_tag); attr_vendor = NULL;  BEGIN OUT; }
-<ATTR_W_TYPE>\n						{ add_attribute(attr_name,attr_id,attr_type,current_vendor ? g_strdup(current_vendor) : NULL ,encrypted,has_tag); linenums[include_stack_ptr]++;  BEGIN OUT; }
-<ATTR_W_VENDOR>\n					{ add_attribute(attr_name,attr_id,attr_type,attr_vendor,encrypted,has_tag); linenums[include_stack_ptr]++; BEGIN OUT; };
+<ATTR_W_TYPE>[0-9a-z_-]+			{
+    attr_vendor = g_strdup(yytext);
+    add_attribute(attr_name,attr_id,attr_type,attr_vendor,encrypted,has_tag);
+    g_free(attr_id);
+    g_free(attr_vendor);
+    g_free(attr_name);
+    attr_id = NULL;
+    attr_vendor = NULL;
+    attr_name = NULL;
+    BEGIN OUT;
+}
+<ATTR_W_TYPE>\n						{
+    add_attribute(attr_name,attr_id,attr_type,current_vendor,encrypted,has_tag);
+    g_free(attr_id);
+    g_free(attr_name);
+    linenums[include_stack_ptr]++;
+    BEGIN OUT;
+}
+<ATTR_W_VENDOR>\n					{
+    add_attribute(attr_name,attr_id,attr_type,attr_vendor,encrypted,has_tag);
+    g_free(attr_id);
+    g_free(attr_vendor);
+    g_free(attr_name);
+    linenums[include_stack_ptr]++; 
+    BEGIN OUT;
+};
 
-<VALUE>[0-9a-z-]+					{ attr_name = g_strdup(yytext); BEGIN VALUE_W_ATTR; }
+<VALUE>[0-9a-z_/-]+					{ attr_name = g_strdup(yytext); BEGIN VALUE_W_ATTR; }
 <VALUE_W_ATTR>[^[:blank:]]+			{ value_repr = g_strdup(yytext); BEGIN VALUE_W_NAME; }
-<VALUE_W_NAME>[0-9]+				{ add_value(attr_name,value_repr,strtol(yytext,NULL,10));  BEGIN OUT;}
-<VALUE_W_NAME>0x[0-9a-f]+			{ add_value(attr_name,value_repr,strtol(yytext,NULL,16));  BEGIN OUT;}
+<VALUE_W_NAME>[0-9]+				{ add_value(attr_name,value_repr,strtol(yytext,NULL,10));  g_free(attr_name); g_free(value_repr); BEGIN OUT;}
+<VALUE_W_NAME>0x[0-9a-f]+			{ add_value(attr_name,value_repr,strtol(yytext,NULL,16));  g_free(attr_name); g_free(value_repr); BEGIN OUT;}
 
 <INCLUDE>[^[:blank:]\n]+   {
 	if ( include_stack_ptr >= MAX_INCLUDE_DEPTH ) {
@@ -166,10 +209,10 @@
 
 %%
 
-void add_vendor(gchar* name, guint32 vendor_id) {
+void add_vendor(const gchar* name, guint32 vendor_id) {
 	radius_vendor_info_t* v = g_malloc(sizeof(radius_vendor_info_t));
 	
-	v->name = name;
+	v->name = g_strdup(name);
 	v->code = vendor_id;
 	v->attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
 	v->ett = -1;
@@ -178,7 +221,7 @@ void add_vendor(gchar* name, guint32 vendor_id) {
 	g_hash_table_insert(dict->vendors_by_name,v->name,v);
 }
 
-void add_attribute(gchar* name, gchar* code, radius_attr_dissector_t type, gchar* vendor_name, gboolean crypt, gboolean tagged) {
+void add_attribute(const gchar* name, const  gchar* code, radius_attr_dissector_t type, const  gchar* vendor_name, gboolean crypt, gboolean tagged) {
 	radius_attr_info_t* a = g_malloc(sizeof(radius_attr_info_t));
 	GHashTable* by_id;
 	
@@ -188,9 +231,6 @@ void add_attribute(gchar* name, gchar* code, radius_attr_dissector_t type, gchar
 		
 		if (! v) {
 			g_string_sprintfa(error, "Vendor: '%s', does not exist in %s:%i \n", vendor_name, fullpaths[include_stack_ptr], linenums[include_stack_ptr] );
-			g_free(name);
-			g_free(code);
-			g_free(vendor_name);
 			BEGIN JUNK;
 			return;
 		} else {
@@ -200,8 +240,8 @@ void add_attribute(gchar* name, gchar* code, radius_attr_dissector_t type, gchar
 		by_id = dict->attrs_by_id;
 	}
 	
-	a->name = name;
-	a->code = strtol(code,NULL,10); g_free(code);
+	a->name = g_strdup(name);
+	a->code = strtol(code,NULL,10);
 	a->encrypt = crypt;
 	a->tagged =  tagged;
 	a->type = type;
@@ -217,17 +257,17 @@ void add_attribute(gchar* name, gchar* code, radius_attr_dissector_t type, gchar
 	g_hash_table_insert(dict->attrs_by_name,(gpointer) (a->name),a);
 }
 
-void add_value(gchar* attrib_name, gchar* value_repr, long value) {
+void add_value(const gchar* attrib_name, const gchar* value_repr, long value) {
 	value_string v;
 	GArray* a = g_hash_table_lookup(value_strings,attrib_name);
 	
 	if (! a) {
 		a = g_array_new(TRUE,TRUE,sizeof(value_string));
-		g_hash_table_insert(value_strings,attrib_name,a);
+		g_hash_table_insert(value_strings,g_strdup(attrib_name),a);
 	}
 	
 	v.value = value;
-	v.strptr = value_repr;
+	v.strptr = g_strdup(value_repr);
 	
 	g_array_append_val(a,v);
 }
@@ -256,9 +296,16 @@ static void setup_vendors(gpointer k _U_, gpointer v, gpointer p) {
 	g_hash_table_foreach(vnd->attrs_by_id,setup_attrs,p);	
 }
 
-static gboolean destroy_values(gpointer k, gpointer v, gpointer p _U_) {
+static gboolean destroy_value_strings(gpointer k, gpointer v, gpointer p _U_) {
+    value_string* vs = (value_string*)(((GArray*)v)->data);
+    
 	g_free(k);
-	g_array_free(v,FALSE);
+    
+    for (;vs->strptr;vs++) {
+        g_free((void*)vs->strptr);
+    }
+    
+	g_array_free(v,TRUE);
 	return TRUE;
 }
 
@@ -333,7 +380,7 @@ radius_dictionary_t* radius_load_dictionary (gchar* dir, const gchar* filename, 
 		
 	g_hash_table_foreach(dict->attrs_by_id,setup_attrs,NULL);
 	g_hash_table_foreach(dict->vendors_by_id,setup_vendors,NULL);	
-	g_hash_table_foreach_remove(value_strings,destroy_values,NULL);
+	g_hash_table_foreach_remove(value_strings,destroy_value_strings,NULL);
 	
 	if (error->len > 0) {
 		 *err_str = error->str;
