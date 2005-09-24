@@ -671,7 +671,7 @@ dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   length -= 1;
 
   if (spi_size) {
-    proto_tree_add_text(tree, tvb, offset, spi_size, "SPI: %s",
+    proto_tree_add_text(tree, tvb, offset, spi_size, "SPI: 0x%s",
 			tvb_bytes_to_str(tvb, offset, spi_size));
     offset += spi_size;
     length -= spi_size;
@@ -1115,22 +1115,35 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   length -= 2;
 
   switch (id_type) {
-    case 1:
+    case 1:	/* ID_IPV4_ADDR */
       proto_tree_add_text(tree, tvb, offset, length,
 			  "Identification data: %s",
 			  ip_to_str(tvb_get_ptr(tvb, offset, 4)));
       break;
-    case 2:
-    case 3:
+    case 2:	/* ID_FQDN */
+    case 3:	/* ID_USER_FQDN */
       proto_tree_add_text(tree, tvb, offset, length,
 			  "Identification data: %.*s", length,
 			  tvb_get_ptr(tvb, offset, length));
       break;
-    case 4:
+    case 4:	/* ID_IPV4_ADDR_SUBNET */
+    case 7:	/* ID_IPV4_ADDR_RANGE */
       proto_tree_add_text(tree, tvb, offset, length,
 			  "Identification data: %s/%s",
 			  ip_to_str(tvb_get_ptr(tvb, offset, 4)),
 			  ip_to_str(tvb_get_ptr(tvb, offset+4, 4)));
+      break;
+    case 5:	/* ID_IPV6_ADDR */
+      proto_tree_add_text(tree, tvb, offset, length,
+			  "Identification data: %s",
+			  ip6_to_str(tvb_get_ptr(tvb, offset, 16)));
+      break;
+    case 6:	/* ID_IPV6_ADDR_SUBNET */
+    case 8:	/* ID_IPV6_ADDR_RANGE */
+      proto_tree_add_text(tree, tvb, offset, length,
+			  "Identification data: %s/%s",
+			  ip6_to_str(tvb_get_ptr(tvb, offset, 16)),
+			  ip6_to_str(tvb_get_ptr(tvb, offset+16, 16)));
       break;
     case 9:
       dissect_x509if_Name(FALSE, tvb, offset, pinfo, tree,
@@ -1297,7 +1310,8 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   length -= 2;
 
   if (spi_size) {
-    proto_tree_add_text(tree, tvb, offset, spi_size, "Security Parameter Index");
+    proto_tree_add_text(tree, tvb, offset, spi_size, "SPI: 0x%s",
+			tvb_bytes_to_str(tvb, offset, spi_size));
     offset += spi_size;
     length -= spi_size;
   }
@@ -1330,12 +1344,14 @@ dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   guint16		num_spis;
   guint16		i;
 
-  doi = tvb_get_ntohl(tvb, offset);
-  proto_tree_add_text(tree, tvb, offset, 4,
-		      "Domain of Interpretation: %s (%u)",
-		      doitype2str(doi), doi);
-  offset += 4;
-  length -= 4;
+  if (isakmp_version == 1) {
+    doi = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_text(tree, tvb, offset, 4,
+		        "Domain of Interpretation: %s (%u)",
+		        doitype2str(doi), doi);
+    offset += 4;
+    length -= 4;
+  }
 
   protocol_id = tvb_get_guint8(tvb, offset);
   proto_tree_add_text(tree, tvb, offset, 1,
@@ -1362,8 +1378,8 @@ dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
           "Not enough room in payload for all SPI's");
       break;
     }
-    proto_tree_add_text(tree, tvb, offset, spi_size,
-			"SPI (%d)", i);
+    proto_tree_add_text(tree, tvb, offset, spi_size, "SPI: 0x%s",
+			tvb_bytes_to_str(tvb, offset, spi_size));
     offset += spi_size;
     length -= spi_size;
   }
@@ -1730,8 +1746,11 @@ dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
       addrlen = 16;
       break;
     default:
-      addrlen = 255;
+      proto_item_append_text(tree, "unknown TS data (aborted decoding): 0x%s",
+			tvb_bytes_to_str(tvb, offset, length));
+      return;
     }
+
     /*
      * XXX should the remaining of the length check be done here ?
      * it seems other routines don't check the length.
@@ -1768,17 +1787,33 @@ dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     offset += 2;
     length -= 2;
 
-    proto_tree_add_text(tree, tvb, offset, length,
-  			  "Starting Address: %s",
+    switch (tstype) {
+    case 7:
+	proto_tree_add_text(tree, tvb, offset, length,
+			  "Starting Address: %s",
+			  ip_to_str(tvb_get_ptr(tvb, offset, addrlen)));
+	offset += addrlen;
+	length -= addrlen;
+	proto_tree_add_text(tree, tvb, offset, length,
+  			  "Ending Address: %s",
   			  ip_to_str(tvb_get_ptr(tvb, offset, addrlen)));
-    offset += addrlen;
-    length -= addrlen;
-
-    proto_tree_add_text(tree, tvb, offset, length,
-  			  "Starting Address: %s",
-  			  ip_to_str(tvb_get_ptr(tvb, offset, addrlen)));
-    offset += addrlen;
-    length -= addrlen;
+	offset += addrlen;
+	length -= addrlen;
+	break;
+    case 8:
+	proto_tree_add_text(tree, tvb, offset, length,
+			  "Starting Address: %s",
+			  ip6_to_str(tvb_get_ptr(tvb, offset, addrlen)));
+	offset += addrlen;
+	length -= addrlen;
+	proto_tree_add_text(tree, tvb, offset, length,
+  			  "Ending Address: %s",
+  			  ip6_to_str(tvb_get_ptr(tvb, offset, addrlen)));
+	offset += addrlen;
+	length -= addrlen;
+	break;
+    defaul:
+    }
   }
 }
 
