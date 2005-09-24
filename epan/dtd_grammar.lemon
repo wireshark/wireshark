@@ -47,7 +47,7 @@ static GPtrArray* g_ptr_array_join(GPtrArray* a, GPtrArray* b){
 		g_ptr_array_add(a,g_ptr_array_remove_index_fast(b,0));
 	}
 	
-	g_ptr_array_free(b,FALSE);
+	g_ptr_array_free(b,TRUE);
 
 	return a;
 }
@@ -70,7 +70,7 @@ static GPtrArray* g_ptr_array_join(GPtrArray* a, GPtrArray* b){
 	if (!TOKEN)
 		g_string_sprintfa(bd->error,"syntax error at end of file");
 	else 
-		g_string_sprintfa(bd->error,"syntax error in %s at or before '%s': \n", bd->location,TOKEN->text);
+		g_string_sprintfa(bd->error,"syntax error in %s at or before '%s': \n", TOKEN->location,TOKEN->text);
 }
 
 %parse_failure {
@@ -90,7 +90,7 @@ doctype ::= TAG_START DOCTYPE_KW NAME(Name) OPEN_BRACKET dtd_parts CLOSE_BRACKET
     guint i;
 
     if(! bd->proto_name) {
-        bd->proto_name = g_strdup(Name->text);
+        bd->proto_name = Name->text;
     }
 
     if(bd->proto_root)
@@ -110,6 +110,9 @@ doctype ::= TAG_START DOCTYPE_KW NAME(Name) OPEN_BRACKET dtd_parts CLOSE_BRACKET
     
     g_ptr_array_add(bd->elements,root);
     
+    g_free(Name->location);
+    g_free(Name);
+
 }
 
 dtd_parts ::= dtd_parts element(Element). { g_ptr_array_add(bd->elements,Element); }
@@ -118,10 +121,20 @@ dtd_parts ::= element(Element). { g_ptr_array_add(bd->elements,Element); }
 dtd_parts ::= attlist(Attlist). { g_ptr_array_add(bd->attributes,Attlist); }
 
 %type   attlist				{ dtd_named_list_t* }
-attlist(A) ::= TAG_START ATTLIST_KW NAME(B) attrib_list(TheList) TAG_STOP. { g_strdown(B->text); A = dtd_named_list_new(B->text,TheList); }
+attlist(A) ::= TAG_START ATTLIST_KW NAME(B) attrib_list(TheList) TAG_STOP. {
+    g_strdown(B->text);
+    A = dtd_named_list_new(B->text,TheList);
+    g_free(B->location);
+    g_free(B);
+}
 
 %type element { dtd_named_list_t* }
-element(A) ::= TAG_START ELEMENT_KW NAME(B) sub_elements(C) TAG_STOP. { g_strdown(B->text); A = dtd_named_list_new(B->text,C); }
+element(A) ::= TAG_START ELEMENT_KW NAME(B) sub_elements(C) TAG_STOP. {
+    g_strdown(B->text);
+    A = dtd_named_list_new(B->text,C);
+    g_free(B->location);
+    g_free(B);
+}
 
 %type   attrib_list			{ GPtrArray* }
 attrib_list(A) ::= attrib_list(B) attrib(C). { g_ptr_array_add(B,C); A = B; }
@@ -129,8 +142,10 @@ attrib_list(A) ::= attrib(B).  { A = g_ptr_array_new(); g_ptr_array_add(A,B);  }
 
 %type   attrib				{ gchar* }
 attrib(A) ::= NAME(B) att_type att_default. {
-	A = g_strdup(B->text);
+	A = B->text;
 	g_strdown(A);
+    g_free(B->location);
+    g_free(B);
 }
 
 att_type ::= ATT_TYPE.
@@ -173,19 +188,30 @@ element_list(A) ::= element_list(B) PIPE sub_elements(C).   { A = g_ptr_array_jo
 
 %type   element_child		{ gchar* }
 element_child(A) ::= NAME(B).			{
-	A = g_strdup(B->text);
+	A = B->text;
 	g_strdown(A);
+    g_free(B->location);
+    g_free(B);
 }
+
 element_child(A) ::= NAME(B) STAR.		{
-	A = g_strdup(B->text);
+	A = B->text;
 	g_strdown(A);
+    g_free(B->location);
+    g_free(B);
 }
+
 element_child(A) ::= NAME(B) QUESTION.	{
-	A = g_strdup(B->text);
+	A = B->text;
 	g_strdown(A);
+    g_free(B->location);
+    g_free(B);
 }
+
 element_child(A) ::= NAME(B) PLUS.		{
-	A = g_strdup(B->text);
+	A = B->text;
 	g_strdown(A);
+    g_free(B->location);
+    g_free(B);
 }
 

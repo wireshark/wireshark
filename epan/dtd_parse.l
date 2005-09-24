@@ -83,7 +83,6 @@
 #define DTD_PARSE(token_type) \
 	{   DEBUG_DTD_TOKEN; \
 		build_data->location = location; \
-		location = NULL; \
 		DtdParse(pParser, (token_type), new_token(yytext), build_data); \
 		if(build_data->error->len > 0) yyterminate(); \
 	}
@@ -107,6 +106,8 @@ avoid_editor_bug ["]
 get_location_xmlpi  [^[:blank:]]+
 
 stop_xmlpi "?>"
+
+notation_tag       "<!"[:blank:]*NOTATION
 
 special_start  "<!"
 special_stop   ">"
@@ -151,7 +152,7 @@ name           [a-z][-a-zA-Z0-9_]*
 dquoted        ["][^\"]*["]
 squoted        ['][^\']*[']
 
-%START DTD XMLPI LOCATION DONE PROTOCOL GET_ATTR_QUOTE GET_ATTR_VAL GET_ATTR_CLOSE_QUOTE IN_COMMENT
+%START DTD XMLPI LOCATION DONE PROTOCOL GET_ATTR_QUOTE GET_ATTR_VAL GET_ATTR_CLOSE_QUOTE IN_COMMENT IN_NOTATION 
 %%
 
 {whitespace}            ;
@@ -161,6 +162,10 @@ squoted        ['][^\']*[']
 <IN_COMMENT>[^-]?				|
 <IN_COMMENT>[-]					;
 <IN_COMMENT>{comment_stop}		{ BEGIN DTD; }
+
+<DTD>{notation_tag} { BEGIN IN_NOTATION; }
+<IN_NOTATION>.  ;
+<IN_NOTATION>{special_stop} { BEGIN DTD; }
 
 <DTD>{start_xmlpi}		{
 	BEGIN XMLPI;
@@ -280,7 +285,6 @@ static dtd_token_data_t* new_token(gchar* text) {
 	
 	return t;
 }
-
 
 
 static int my_yyinput(char* buff, guint size) {

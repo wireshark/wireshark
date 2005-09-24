@@ -163,7 +163,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(!tree) return;
 	
 	if (stack != NULL)
-		g_ptr_array_free(stack,FALSE);
+		g_ptr_array_free(stack,TRUE);
 	
 	stack = g_ptr_array_new();
 	current_frame = ep_alloc(sizeof(xml_frame_t));
@@ -641,7 +641,7 @@ static void destroy_dtd_data(dtd_build_data_t* dtd_data) {
 		g_free(nl);
 	}
 
-	g_ptr_array_free(dtd_data->elements,FALSE);
+	g_ptr_array_free(dtd_data->elements,TRUE);
 	
 	while(dtd_data->attributes->len) {
 		dtd_named_list_t* nl = g_ptr_array_remove_index_fast(dtd_data->elements,0);
@@ -649,7 +649,7 @@ static void destroy_dtd_data(dtd_build_data_t* dtd_data) {
 		g_free(nl);
 	}
 
-	g_ptr_array_free(dtd_data->attributes,FALSE);
+	g_ptr_array_free(dtd_data->attributes,TRUE);
 
 	g_free(dtd_data);
 
@@ -719,21 +719,32 @@ static xml_ns_t* make_xml_hier(gchar* elem_name,
 								  GArray* hfs,
 								  GArray* etts) {
 	xml_ns_t* new;
-	xml_ns_t* orig = g_hash_table_lookup(elements,elem_name);
+	xml_ns_t* orig;
 	gchar* fqn;
 	gint* ett_p;
 	struct _attr_reg_data d;
     gboolean recurred = FALSE;
-    
+    guint i;
+
     if ( g_str_equal(elem_name,root->name) ) {
         return NULL;
     }
 
-	if (! orig) {
+	if (! ( orig = g_hash_table_lookup(elements,elem_name) )) {
 		g_string_sprintfa(error,"element '%s' is not defined\n", elem_name);
 		return NULL;
 	}
-        
+    
+    for (i = 0; i < hier->len; i++) {
+        if( strcmp(elem_name,(gchar*) g_ptr_array_index(hier,i) ) == 0 ) {
+            recurred = TRUE;
+        }
+    }
+    
+    if (recurred) {
+        return NULL;
+    }
+    
 	fqn = fully_qualified_name(hier,elem_name);
     
 	new = duplicate_element(orig);
@@ -753,26 +764,17 @@ static xml_ns_t* make_xml_hier(gchar* elem_name,
 	while(new->element_names->len) {
 		gchar* child_name = g_ptr_array_remove_index(new->element_names,0);
 		xml_ns_t* child_element = NULL;
-		guint i;
-        
-        for (i = 0; i < hier->len; i++) {
-            if( strcmp(child_name,(gchar*) g_ptr_array_index(hier,i) ) == 0 ) {
-                recurred = TRUE;
-            }
-        }
                 
-		if( ! recurred ) {
-			g_ptr_array_add(hier,elem_name);
-			child_element = make_xml_hier(child_name, root, elements, hier,error,hfs,etts);
-			g_ptr_array_remove_index_fast(hier,hier->len - 1);
-		}
+        g_ptr_array_add(hier,elem_name);
+        child_element = make_xml_hier(child_name, root, elements, hier,error,hfs,etts);
+        g_ptr_array_remove_index_fast(hier,hier->len - 1);
 		
 		if (child_element) {
 			g_hash_table_insert(new->elements,child_element->name,child_element);
 		}
     }
 	
-	g_ptr_array_free(new->element_names,FALSE);
+	g_ptr_array_free(new->element_names,TRUE);
 	new->element_names = NULL;
 	return new;
 }
@@ -785,11 +787,15 @@ static gboolean free_both(gpointer k, gpointer v, gpointer p _U_) {
 
 static gboolean free_elements(gpointer k _U_, gpointer v, gpointer p _U_) {
     xml_ns_t* e = v;
-    
     g_free(e->name);
     g_hash_table_foreach_remove(e->attributes,free_both,NULL);
     g_hash_table_destroy(e->attributes);
     g_hash_table_destroy(e->elements);
+    
+    while (e->element_names->len) {
+        g_free(g_ptr_array_remove_index(e->element_names,0));
+    }
+    
     g_ptr_array_free(e->element_names,TRUE);
     g_free(e);
     
@@ -812,7 +818,8 @@ static void register_dtd(dtd_build_data_t* dtd_data, GString* errors) {
 		xml_ns_t* element = g_malloc(sizeof(xml_ns_t));
 		
 		/* we will use the first element found as root in case no other one was given. */
-		if (root_name == NULL) root_name = g_strdup(nl->name);
+		if (root_name == NULL)
+            root_name = g_strdup(nl->name);
 		
 		element->name = nl->name;
 		element->element_names = nl->list;
@@ -822,9 +829,14 @@ static void register_dtd(dtd_build_data_t* dtd_data, GString* errors) {
 		element->attributes = g_hash_table_new(g_str_hash,g_str_equal);
 		element->elements = g_hash_table_new(g_str_hash,g_str_equal);
 		
-		g_hash_table_insert(elements,element->name,element);
-		g_ptr_array_add(element_names,element->name);
-		
+        if( g_hash_table_lookup(elements,element->name) ) {
+            g_string_sprintfa(errors,"element %s defined more than once\n", element->name);
+            free_elements(NULL,element,NULL);
+        } else {
+            g_hash_table_insert(elements,element->name,element);
+            g_ptr_array_add(element_names,g_strdup(element->name));
+		}
+        
 		g_free(nl);
 	}
 
@@ -834,7 +846,7 @@ static void register_dtd(dtd_build_data_t* dtd_data, GString* errors) {
 		xml_ns_t* element = g_hash_table_lookup(elements,nl->name);
 		
 		if (!element) {
-			g_string_sprintfa(errors,"no element %s is been defined\n", nl->name);
+			g_string_sprintfa(errors,"element %s is not defined\n", nl->name);
 
             goto next_attribute;
 		}
@@ -849,29 +861,39 @@ static void register_dtd(dtd_build_data_t* dtd_data, GString* errors) {
         
 next_attribute:
 		g_free(nl->name);
-		g_ptr_array_free(nl->list,FALSE);
+		g_ptr_array_free(nl->list,TRUE);
 		g_free(nl);
 	}
 
-    
-    
+    /* if a proto_root is defined in the dtd we'll use that as root */
 	if( dtd_data->proto_root ) {
-        if(root_name) g_free(root_name);
+        if(root_name)
+            g_free(root_name);
         root_name = g_strdup(dtd_data->proto_root);
 	}
 
+    /* we use a stack with the names to avoid recurring infinitelly */
 	hier = g_ptr_array_new();
-
+    
+    /*
+     * if a proto name was given in the dtd the dtd will be used as a protocol
+     * or else the dtd will be loaded as a branch of the xml namespace
+     */
 	if( ! dtd_data->proto_name ) {
 		hfs = hf_arr;
 		etts = ett_arr;
 		g_ptr_array_add(hier,g_strdup("xml")); 
 		root_element = &xml_ns;
 	} else {
+        /*
+         * if we were given a proto_name the namespace will be registered
+         * as an indipendent protocol with its own hf and ett arrays.
+         */        
 	    hfs = g_array_new(FALSE,FALSE,sizeof(hf_register_info));
 	    etts = g_array_new(FALSE,FALSE,sizeof(gint*));
 	}
     
+    /* the root element of the dtd's namespace */
 	root_element = g_malloc(sizeof(xml_ns_t));
     root_element->name = g_strdup(root_name);
     root_element->fqn = root_element->name;
@@ -881,6 +903,11 @@ next_attribute:
     root_element->elements = g_hash_table_new(g_str_hash,g_str_equal);
     root_element->element_names = element_names;
     
+    /*
+     * we can either create a namespace as a flat namespace
+     * in which all the elements are at the root level
+     * or we can create a recursive namespace
+     */
     if (dtd_data->recursion) {
         xml_ns_t* orig_root;
         
@@ -890,6 +917,7 @@ next_attribute:
         
         orig_root = g_hash_table_lookup(elements,root_name);
         
+        /* if the root element was defined copy its attrlist to the child */
         if(orig_root) { 
             struct _attr_reg_data d;
             
@@ -902,6 +930,7 @@ next_attribute:
             root_element->attributes = g_hash_table_new(g_str_hash,g_str_equal);
         }
 
+        /* we then create all the sub hierachies to catch the recurred cases */
         g_ptr_array_add(hier,root_name);
         
         while(root_element->element_names->len) {
@@ -911,8 +940,12 @@ next_attribute:
                 xml_ns_t* new = make_xml_hier(curr_name, root_element, elements,hier,errors,hfs,etts);
                 g_hash_table_insert(root_element->elements,new->name,new);
             }
+            
+            g_free(curr_name);
         }
+        
     } else {
+        /* a flat namespace */
         g_ptr_array_add(hier,root_name);
         
         root_element->attributes = g_hash_table_new(g_str_hash,g_str_equal);
@@ -937,15 +970,22 @@ next_attribute:
             ett_p = &new->ett;
             g_array_append_val(etts,ett_p);
             
+            g_ptr_array_free(new->element_names,TRUE);
+            
             g_hash_table_insert(root_element->elements,new->name,new);
             
+            g_free(curr_name);
         }
     }
 
-    g_ptr_array_free(element_names,FALSE);
+    g_ptr_array_free(element_names,TRUE);
     
-	g_ptr_array_free(hier,FALSE);
+	g_ptr_array_free(hier,TRUE);
 	
+    /*
+     * if we were given a proto_name the namespace will be registered
+     * as an indipendent protocol.
+     */
 	if( dtd_data->proto_name ) {
         gint* ett_p;
 
@@ -970,14 +1010,18 @@ next_attribute:
 		dtd_data->description = NULL;
 		dtd_data->proto_name = NULL;
 		g_array_free(hfs,FALSE);
-		g_array_free(etts,FALSE);
+		g_array_free(etts,TRUE);
 	}
     
     g_hash_table_insert(xml_ns.elements,root_element->name,root_element);
     
     g_hash_table_foreach_remove(elements,free_elements,NULL);
+    g_hash_table_destroy(elements);
     
 	destroy_dtd_data(dtd_data);
+    
+    if (root_name)
+        g_free(root_name);
 }
 
 #if GLIB_MAJOR_VERSION < 2
@@ -1116,6 +1160,9 @@ proto_register_xml(void) {
 	proto_register_field_array(xml_ns.hf_tag, (hf_register_info*)hf_arr->data, hf_arr->len);
 	proto_register_subtree_array((gint**)ett_arr->data, ett_arr->len);
 	
+    g_array_free(hf_arr,FALSE);
+    g_array_free(ett_arr,TRUE);
+    
 	register_dissector("xml", dissect_xml, xml_ns.hf_tag);
 	
 	init_xml_parser();
