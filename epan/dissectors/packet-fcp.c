@@ -77,10 +77,16 @@ static int hf_fcp_mgmt_flags_lu_reset = -1;
 static int hf_fcp_mgmt_flags_rsvd = -1;
 static int hf_fcp_mgmt_flags_clear_task_set = -1;
 static int hf_fcp_mgmt_flags_abort_task_set = -1;
+static int hf_fcp_rsp_flags_conf_req = -1;
+static int hf_fcp_rsp_flags_resid_under = -1;
+static int hf_fcp_rsp_flags_resid_over = -1;
+static int hf_fcp_rsp_flags_sns_vld = -1;
+static int hf_fcp_rsp_flags_res_vld = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_fcp = -1;
 static gint ett_fcp_taskmgmt = -1;
+static gint ett_fcp_rsp_flags = -1;
 
 static dissector_table_t fcp_dissector;
 static dissector_handle_t data_handle;
@@ -177,100 +183,151 @@ dissect_task_mgmt_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 	flags = tvb_get_guint8 (tvb, offset);
 
 	if (!flags)
-		proto_item_append_text(item, "(No values set)");
+		proto_item_append_text(item, " (No values set)");
 				
 	proto_tree_add_boolean(tree, hf_fcp_mgmt_flags_obsolete, tvb, offset, 1, flags);
 	if (flags&0x80){
-		proto_item_append_text(item, "OBSOLETE");
+		proto_item_append_text(item, " OBSOLETE");
 		if (flags & (~( 0x80 )))
-			proto_item_append_text(item, ", ");
+			proto_item_append_text(item, ",");
 	}
 	flags&=(~( 0x80 ));
 
 	proto_tree_add_boolean(tree, hf_fcp_mgmt_flags_clear_aca, tvb, offset, 1, flags);
 	if (flags&0x40){
-		proto_item_append_text(item, "CLEAR ACA");
+		proto_item_append_text(item, " CLEAR ACA");
 		if (flags & (~( 0x40 )))
-			proto_item_append_text(item, ", ");
+			proto_item_append_text(item, ",");
 	}
 	flags&=(~( 0x40 ));
 
 	proto_tree_add_boolean(tree, hf_fcp_mgmt_flags_target_reset, tvb, offset, 1, flags);
 	if (flags&0x20){
-		proto_item_append_text(item, "TARGET RESET");
+		proto_item_append_text(item, " TARGET RESET");
 		if (flags & (~( 0x20 )))
-			proto_item_append_text(item, ", ");
+			proto_item_append_text(item, ",");
 	}
 	flags&=(~( 0x20 ));
 
 	proto_tree_add_boolean(tree, hf_fcp_mgmt_flags_lu_reset, tvb, offset, 1, flags);
 	if (flags&0x10){
-		proto_item_append_text(item, "LU RESET");
+		proto_item_append_text(item, " LU RESET");
 		if (flags & (~( 0x10 )))
-			proto_item_append_text(item, ", ");
+			proto_item_append_text(item, ",");
 	}
 	flags&=(~( 0x10 ));
 
 	proto_tree_add_boolean(tree, hf_fcp_mgmt_flags_rsvd, tvb, offset, 1, flags);
 	if (flags&0x08){
-		proto_item_append_text(item, "RSVD");
+		proto_item_append_text(item, " RSVD");
 		if (flags & (~( 0x08 )))
-			proto_item_append_text(item, ", ");
+			proto_item_append_text(item, ",");
 	}
 	flags&=(~( 0x08 ));
 
 	proto_tree_add_boolean(tree, hf_fcp_mgmt_flags_clear_task_set, tvb, offset, 1, flags);
 	if (flags&0x04){
-		proto_item_append_text(item, "CLEAR TASK SET");
+		proto_item_append_text(item, " CLEAR TASK SET");
 		if (flags & (~( 0x04 )))
-			proto_item_append_text(item, ", ");
+			proto_item_append_text(item, ",");
 	}
 	flags&=(~( 0x04 ));
 
 	proto_tree_add_boolean(tree, hf_fcp_mgmt_flags_abort_task_set, tvb, offset, 1, flags);
 	if (flags&0x02){
-		proto_item_append_text(item, "ABORT TASK SET");
+		proto_item_append_text(item, " ABORT TASK SET");
 		if (flags & (~( 0x02 )))
-			proto_item_append_text(item, ", ");
+			proto_item_append_text(item, ",");
 	}
 	flags&=(~( 0x02 ));
 
 	if(flags){
-		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
+		proto_item_append_text(item, " Unknown bitmap value 0x%x", flags);
 	}
 }
 
-static gchar *
-rspflags_to_str (guint8 flags, gchar *str)
+static const true_false_string fcp_rsp_flags_conf_req_tfs = {
+   "CONF REQ is SET",
+   "Conf req set is NOT set",
+};
+static const true_false_string fcp_rsp_flags_resid_under_tfs = {
+   "RESID UNDER is SET",
+   "Resid under is NOT set",
+};
+static const true_false_string fcp_rsp_flags_resid_over_tfs = {
+   "RESID OVER is SET",
+   "Resid over is NOT set",
+};
+static const true_false_string fcp_rsp_flags_sns_vld_tfs = {
+   "SNS VLD is SET",
+   "Sns vld is NOT set",
+};
+static const true_false_string fcp_rsp_flags_res_vld_tfs = {
+   "RES VLD is SET",
+   "Res vld is NOT set",
+};
+
+static void
+dissect_rsp_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-    int stroff = 0;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
 
-    if (str == NULL)
-        return (str);
+	guint8 flags;
 
-    *str = '\0';
+	if(parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_fcp_rspflags, tvb, offset, 1, TRUE);
+		tree = proto_item_add_subtree(item, ett_fcp_rsp_flags);
+	}
 
-    if (flags & 0x10) {
-        strcpy (str, "FCP_CONF_REQ | ");
-        stroff += 15;
-    }
-    if (flags & 0x08) {
-        strcpy (&str[stroff], "FCP_RESID_UNDER | ");
-        stroff += 18;
-    }
-    if (flags & 0x04) {
-        strcpy (&str[stroff], "FCP_RESID_OVER | ");
-        stroff += 17;
-    }
-    if (flags & 0x02) {
-        strcpy (&str[stroff], "FCP_SNS_LEN_VLD | ");
-        stroff += 18;
-    }
-    if (flags & 0x01) {
-        strcpy (&str[stroff], "FCP_RSP_LEN_VLD | ");
-    }
+	flags = tvb_get_guint8 (tvb, offset);
 
-    return (str);
+	if (!flags)
+		proto_item_append_text(item, " (No values set)");
+
+	proto_tree_add_boolean(tree, hf_fcp_rsp_flags_conf_req, tvb, offset, 1, flags);
+	if (flags&0x10){
+		proto_item_append_text(item, " CONF REQ");
+		if (flags & (~( 0x10 )))
+			proto_item_append_text(item, ",");
+	}
+	flags&=(~( 0x10 ));
+
+	proto_tree_add_boolean(tree, hf_fcp_rsp_flags_resid_under, tvb, offset, 1, flags);
+	if (flags&0x08){
+		proto_item_append_text(item, " RESID UNDER");
+		if (flags & (~( 0x08 )))
+			proto_item_append_text(item, ",");
+	}
+	flags&=(~( 0x08 ));
+
+	proto_tree_add_boolean(tree, hf_fcp_rsp_flags_resid_over, tvb, offset, 1, flags);
+	if (flags&0x04){
+		proto_item_append_text(item, " RESID OVER");
+		if (flags & (~( 0x04 )))
+			proto_item_append_text(item, ",");
+	}
+	flags&=(~( 0x04 ));
+
+	proto_tree_add_boolean(tree, hf_fcp_rsp_flags_sns_vld, tvb, offset, 1, flags);
+	if (flags&0x02){
+		proto_item_append_text(item, " SNS VLD");
+		if (flags & (~( 0x02 )))
+			proto_item_append_text(item, ",");
+	}
+	flags&=(~( 0x02 ));
+
+	proto_tree_add_boolean(tree, hf_fcp_rsp_flags_res_vld, tvb, offset, 1, flags);
+	if (flags&0x01){
+		proto_item_append_text(item, " RES VLD");
+		if (flags & (~( 0x01 )))
+			proto_item_append_text(item, ",");
+	}
+	flags&=(~( 0x01 ));
+
+	if(flags){
+		proto_item_append_text(item, " Unknown bitmap value 0x%x", flags);
+	}
 }
 
 /* Code to actually dissect the packets */
@@ -457,7 +514,6 @@ dissect_fcp_rsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         del_usecs = 0;
     guint32 snslen = 0,
            rsplen = 0;
-    gchar str[128];
     guint8 flags;
     proto_item *ti;
     proto_tree *fcp_tree;
@@ -510,9 +566,7 @@ dissect_fcp_rsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                             offset, 0, cdata->fcp_lun);
         }
         flags = tvb_get_guint8 (tvb, offset+10);
-        proto_tree_add_uint_format (fcp_tree, hf_fcp_rspflags, tvb, offset+10,
-                                    1, flags, "Flags: 0x%02x (%s)", flags,
-                                    rspflags_to_str (flags, str));
+	dissect_rsp_flags(fcp_tree, tvb, offset+10);
         proto_tree_add_item (fcp_tree, hf_fcp_scsistatus, tvb, offset+11, 1, 0);
         if (flags & 0xC)
             proto_tree_add_item (fcp_tree, hf_fcp_resid, tvb, offset+12, 4, 0);
@@ -734,15 +788,26 @@ proto_register_fcp (void)
 	{ &hf_fcp_mgmt_flags_rsvd, 
 	  { "Rsvd", "fcp.mgmt.flags.rsvd", FT_BOOLEAN, 8, TFS(&fcp_mgmt_flags_rsvd_tfs), 0x08, "", HFILL }},
 	{ &hf_fcp_mgmt_flags_clear_task_set, 
-	  { "Clear Taks Set", "fcp.mgmt.flags.clear_task_set", FT_BOOLEAN, 8, TFS(&fcp_mgmt_flags_clear_task_set_tfs), 0x04, "", HFILL }},
+	  { "Clear Task Set", "fcp.mgmt.flags.clear_task_set", FT_BOOLEAN, 8, TFS(&fcp_mgmt_flags_clear_task_set_tfs), 0x04, "", HFILL }},
 	{ &hf_fcp_mgmt_flags_abort_task_set, 
-	  { "Abort Taks Set", "fcp.mgmt.flags.abort_task_set", FT_BOOLEAN, 8, TFS(&fcp_mgmt_flags_abort_task_set_tfs), 0x02, "", HFILL }},
+	  { "Abort Task Set", "fcp.mgmt.flags.abort_task_set", FT_BOOLEAN, 8, TFS(&fcp_mgmt_flags_abort_task_set_tfs), 0x02, "", HFILL }},
+	{ &hf_fcp_rsp_flags_conf_req, 
+	  { "Conf Req", "fcp.rsp.flags.conf_req", FT_BOOLEAN, 8, TFS(&fcp_rsp_flags_conf_req_tfs), 0x10, "", HFILL }},
+	{ &hf_fcp_rsp_flags_resid_under, 
+	  { "Resid Under", "fcp.rsp.flags.resid_under", FT_BOOLEAN, 8, TFS(&fcp_rsp_flags_resid_under_tfs), 0x08, "", HFILL }},
+	{ &hf_fcp_rsp_flags_resid_over, 
+	  { "Resid Over", "fcp.rsp.flags.resid_over", FT_BOOLEAN, 8, TFS(&fcp_rsp_flags_resid_over_tfs), 0x04, "", HFILL }},
+	{ &hf_fcp_rsp_flags_sns_vld, 
+	  { "SNS Vld", "fcp.rsp.flags.sns_vld", FT_BOOLEAN, 8, TFS(&fcp_rsp_flags_sns_vld_tfs), 0x02, "", HFILL }},
+	{ &hf_fcp_rsp_flags_res_vld, 
+	  { "RES Vld", "fcp.rsp.flags.res_vld", FT_BOOLEAN, 8, TFS(&fcp_rsp_flags_res_vld_tfs), 0x01, "", HFILL }},
     };
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_fcp,
 	&ett_fcp_taskmgmt,
+	&ett_fcp_rsp_flags,
     };
 
     /* Register the protocol name and description */
