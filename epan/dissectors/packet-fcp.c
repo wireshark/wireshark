@@ -70,10 +70,18 @@ static int hf_fcp_rsplen     = -1;
 static int hf_fcp_rspcode    = -1;
 static int hf_fcp_scsistatus = -1;
 static int hf_fcp_type = -1;
-
+static int hf_fcp_mgmt_flags_obsolete = -1;
+static int hf_fcp_mgmt_flags_clear_aca = -1;
+static int hf_fcp_mgmt_flags_target_reset = -1;
+static int hf_fcp_mgmt_flags_lu_reset = -1;
+static int hf_fcp_mgmt_flags_rsvd = -1;
+static int hf_fcp_mgmt_flags_clear_task_set = -1;
+static int hf_fcp_mgmt_flags_abort_task_set = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_fcp = -1;
+static gint ett_fcp_taskmgmt = -1;
+
 static dissector_table_t fcp_dissector;
 static dissector_handle_t data_handle;
 
@@ -124,52 +132,112 @@ fcp_init_protocol(void)
     fcp_req_hash = g_hash_table_new(fcp_hash, fcp_equal);
 }
 
-static gchar *
-task_mgmt_flags_to_str (guint8 flags, gchar *str)
+static const true_false_string fcp_mgmt_flags_obsolete_tfs = {
+   "OBSOLETE BIT is SET",
+   "OBSOLETE BIT is NOT set",
+};
+static const true_false_string fcp_mgmt_flags_clear_aca_tfs = {
+   "CLEAR ACA is SET",
+   "Clear aca is NOT set",
+};
+static const true_false_string fcp_mgmt_flags_target_reset_tfs = {
+   "TARGET RESET is SET",
+   "Target reset is NOT set",
+};
+static const true_false_string fcp_mgmt_flags_lu_reset_tfs = {
+   "LU RESET is SET",
+   "Lu reset is NOT set",
+};
+static const true_false_string fcp_mgmt_flags_rsvd_tfs = {
+   "RSVD is SET",
+   "Rsvd is NOT set",
+};
+static const true_false_string fcp_mgmt_flags_clear_task_set_tfs = {
+   "CLEAR TASK SET is SET",
+   "Clear task set is NOT set",
+};
+static const true_false_string fcp_mgmt_flags_abort_task_set_tfs = {
+   "ABORT TASK SET is SET",
+   "Abort task set is NOT set",
+};
+
+static void
+dissect_task_mgmt_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-    int stroff = 0;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
 
-    if (str == NULL)
-        return str;
+	guint8 flags;
 
-    *str = '\0';
+	if(parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_fcp_taskmgmt, tvb, offset, 1, TRUE);
+		tree = proto_item_add_subtree(item, ett_fcp_taskmgmt);
+	}
 
-    if (flags & 0x80) {
-        strcpy (str, "Obsolete, ");
-        stroff += 10;
-    }
+	flags = tvb_get_guint8 (tvb, offset);
 
-    if (flags & 0x40) {
-        strcpy (&str[stroff], "Clear ACA, ");
-        stroff += 11;
-    }
+	if (!flags)
+		proto_item_append_text(item, "(No values set)");
+				
+	proto_tree_add_boolean(tree, hf_fcp_mgmt_flags_obsolete, tvb, offset, 1, flags);
+	if (flags&0x80){
+		proto_item_append_text(item, "OBSOLETE");
+		if (flags & (~( 0x80 )))
+			proto_item_append_text(item, ", ");
+	}
+	flags&=(~( 0x80 ));
 
-    if (flags & 0x20) {
-        strcpy (&str[stroff], "Target Reset, ");
-        stroff += 14;
-    }
+	proto_tree_add_boolean(tree, hf_fcp_mgmt_flags_clear_aca, tvb, offset, 1, flags);
+	if (flags&0x40){
+		proto_item_append_text(item, "CLEAR ACA");
+		if (flags & (~( 0x40 )))
+			proto_item_append_text(item, ", ");
+	}
+	flags&=(~( 0x40 ));
 
-    if (flags & 0x10) {
-        strcpy (&str[stroff], "LU Reset, ");
-        stroff += 10;
-    }
+	proto_tree_add_boolean(tree, hf_fcp_mgmt_flags_target_reset, tvb, offset, 1, flags);
+	if (flags&0x20){
+		proto_item_append_text(item, "TARGET RESET");
+		if (flags & (~( 0x20 )))
+			proto_item_append_text(item, ", ");
+	}
+	flags&=(~( 0x20 ));
 
-    if (flags & 0x08) {
-        strcpy (&str[stroff], "Rsvd, ");
-        stroff += 6;
-    }
+	proto_tree_add_boolean(tree, hf_fcp_mgmt_flags_lu_reset, tvb, offset, 1, flags);
+	if (flags&0x10){
+		proto_item_append_text(item, "LU RESET");
+		if (flags & (~( 0x10 )))
+			proto_item_append_text(item, ", ");
+	}
+	flags&=(~( 0x10 ));
 
-    if (flags & 0x04) {
-        strcpy (&str[stroff], "Clear Task Set, ");
-        stroff += 16;
-    }
+	proto_tree_add_boolean(tree, hf_fcp_mgmt_flags_rsvd, tvb, offset, 1, flags);
+	if (flags&0x08){
+		proto_item_append_text(item, "RSVD");
+		if (flags & (~( 0x08 )))
+			proto_item_append_text(item, ", ");
+	}
+	flags&=(~( 0x08 ));
 
-    if (flags & 0x02) {
-        strcpy (&str[stroff], "Abort Task Set");
-        stroff += 14;
-    }
+	proto_tree_add_boolean(tree, hf_fcp_mgmt_flags_clear_task_set, tvb, offset, 1, flags);
+	if (flags&0x04){
+		proto_item_append_text(item, "CLEAR TASK SET");
+		if (flags & (~( 0x04 )))
+			proto_item_append_text(item, ", ");
+	}
+	flags&=(~( 0x04 ));
 
-    return (str);
+	proto_tree_add_boolean(tree, hf_fcp_mgmt_flags_abort_task_set, tvb, offset, 1, flags);
+	if (flags&0x02){
+		proto_item_append_text(item, "ABORT TASK SET");
+		if (flags & (~( 0x02 )))
+			proto_item_append_text(item, ", ");
+	}
+	flags&=(~( 0x02 ));
+
+	if(flags){
+		proto_item_append_text(item, "Unknown bitmap value 0x%x", flags);
+	}
 }
 
 static gchar *
@@ -212,7 +280,6 @@ dissect_fcp_cmnd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int offset = 0;
     int len,
         add_len = 0;
-    gchar str[128];
     guint8 flags, lun0;
     proto_item *ti;
     proto_tree *fcp_tree = NULL;
@@ -323,11 +390,7 @@ dissect_fcp_cmnd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_item (fcp_tree, hf_fcp_crn, tvb, offset+8, 1, 0);
     proto_tree_add_item (fcp_tree, hf_fcp_taskattr, tvb, offset+9, 1, 0);
-    proto_tree_add_uint_format (fcp_tree, hf_fcp_taskmgmt, tvb, offset+10,
-				1, flags,
-				"Task Management Flags: 0x%x (%s)",
-				flags,
-				task_mgmt_flags_to_str (flags, str));
+    dissect_task_mgmt_flags(fcp_tree, tvb, offset+10);
     proto_tree_add_item (fcp_tree, hf_fcp_addlcdblen, tvb, offset+11, 1, 0);
     proto_tree_add_item (fcp_tree, hf_fcp_rddata, tvb, offset+11, 1, 0);
     proto_tree_add_item (fcp_tree, hf_fcp_wrdata, tvb, offset+11, 1, 0);
@@ -660,11 +723,26 @@ proto_register_fcp (void)
         { &hf_fcp_scsistatus,
           {"SCSI Status", "fcp.status", FT_UINT8, BASE_HEX,
            VALS (scsi_status_val), 0x0, "", HFILL}},
+	{ &hf_fcp_mgmt_flags_obsolete, 
+	  { "Obsolete", "fcp.mgmt.flags.obsolete", FT_BOOLEAN, 8, TFS(&fcp_mgmt_flags_obsolete_tfs), 0x80, "", HFILL }},
+	{ &hf_fcp_mgmt_flags_clear_aca, 
+	  { "Clear ACA", "fcp.mgmt.flags.clear_aca", FT_BOOLEAN, 8, TFS(&fcp_mgmt_flags_clear_aca_tfs), 0x40, "", HFILL }},
+	{ &hf_fcp_mgmt_flags_target_reset, 
+	  { "Target Reset", "fcp.mgmt.flags.target_reset", FT_BOOLEAN, 8, TFS(&fcp_mgmt_flags_target_reset_tfs), 0x20, "", HFILL }},
+	{ &hf_fcp_mgmt_flags_lu_reset, 
+	  { "LU Reset", "fcp.mgmt.flags.lu_reset", FT_BOOLEAN, 8, TFS(&fcp_mgmt_flags_lu_reset_tfs), 0x10, "", HFILL }},
+	{ &hf_fcp_mgmt_flags_rsvd, 
+	  { "Rsvd", "fcp.mgmt.flags.rsvd", FT_BOOLEAN, 8, TFS(&fcp_mgmt_flags_rsvd_tfs), 0x08, "", HFILL }},
+	{ &hf_fcp_mgmt_flags_clear_task_set, 
+	  { "Clear Taks Set", "fcp.mgmt.flags.clear_task_set", FT_BOOLEAN, 8, TFS(&fcp_mgmt_flags_clear_task_set_tfs), 0x04, "", HFILL }},
+	{ &hf_fcp_mgmt_flags_abort_task_set, 
+	  { "Abort Taks Set", "fcp.mgmt.flags.abort_task_set", FT_BOOLEAN, 8, TFS(&fcp_mgmt_flags_abort_task_set_tfs), 0x02, "", HFILL }},
     };
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_fcp,
+	&ett_fcp_taskmgmt,
     };
 
     /* Register the protocol name and description */
