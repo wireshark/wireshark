@@ -1136,14 +1136,14 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     case 5:	/* ID_IPV6_ADDR */
       proto_tree_add_text(tree, tvb, offset, length,
 			  "Identification data: %s",
-			  ip6_to_str(tvb_get_ptr(tvb, offset, 16)));
+			  ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, 16)));
       break;
     case 6:	/* ID_IPV6_ADDR_SUBNET */
     case 8:	/* ID_IPV6_ADDR_RANGE */
       proto_tree_add_text(tree, tvb, offset, length,
 			  "Identification data: %s/%s",
-			  ip6_to_str(tvb_get_ptr(tvb, offset, 16)),
-			  ip6_to_str(tvb_get_ptr(tvb, offset+16, 16)));
+			  ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, 16)),
+			  ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset+16, 16)));
       break;
     case 9:
       dissect_x509if_Name(FALSE, tvb, offset, pinfo, tree,
@@ -1803,12 +1803,12 @@ dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     case 8:
 	proto_tree_add_text(tree, tvb, offset, length,
 			  "Starting Address: %s",
-			  ip6_to_str(tvb_get_ptr(tvb, offset, addrlen)));
+			  ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, addrlen)));
 	offset += addrlen;
 	length -= addrlen;
 	proto_tree_add_text(tree, tvb, offset, length,
   			  "Ending Address: %s",
-  			  ip6_to_str(tvb_get_ptr(tvb, offset, addrlen)));
+  			  ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, addrlen)));
 	offset += addrlen;
 	length -= addrlen;
 	break;
