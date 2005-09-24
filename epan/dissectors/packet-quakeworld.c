@@ -364,8 +364,9 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 	int		offset;
 	guint32 marker;
 	int command_len;
-	char command[MAX_TEXT_SIZE+1];
+	char *command="";
 	int command_finished = FALSE;
+
 
 	marker = tvb_get_ntohl(tvb, 0);
 	if (tree) {
@@ -405,13 +406,13 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 
 		/* client to sever commands */
 		if (strcmp(c,"ping") == 0) {
-			strcpy(command, "Ping");
+			command="Ping";
 			command_len = 4;
 		} else if (strcmp(c,"status") == 0) {
-			strcpy(command, "Status");
+			command="Status";
 			command_len = 6;
 		} else if (strcmp(c,"log") == 0) {
-			strcpy(command, "Status");
+			command="Log";
 			command_len = 3;
 		} else if (strcmp(c,"connect") == 0) {
 			int version;
@@ -422,7 +423,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 			proto_tree *argument_tree = NULL;
 			proto_item *info_item = NULL;
 			proto_tree *info_tree = NULL;
-			strcpy(command, "Connect");
+			command="Connect";
 			command_len = Cmd_Argv_length(0);
 			if (text_tree) {
 				proto_tree_add_string(text_tree, hf_quakeworld_connectionless_command,
@@ -474,7 +475,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 					hf_quakeworld_connectionless_connect_infostring_value);
 			}
 		} else if (strcmp(c,"getchallenge") == 0) {
-			strcpy(command, "Get Challenge");
+			command="Get Challenge";
 			command_len = Cmd_Argv_length(0);
 		} else if (strcmp(c,"rcon") == 0) {
 			const char* password;
@@ -482,7 +483,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 			char remaining[MAX_TEXT_SIZE+1];
 			proto_item *argument_item = NULL;
 			proto_tree *argument_tree = NULL;
-			strcpy(command, "Remote Command");
+			command="Remote Command";
 			command_len = Cmd_Argv_length(0);
 			if (text_tree) {
 				proto_tree_add_string(text_tree, hf_quakeworld_connectionless_command,
@@ -520,38 +521,38 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 					remaining);
 			}
 		} else if (c[0]==A2A_PING && ( c[1]==0 || c[1]=='\n')) {
-			strcpy(command, "Ping");
+			command="Ping";
 			command_len = 1;
 		} else if (c[0]==A2A_ACK && ( c[1]==0 || c[1]=='\n')) {
-			strcpy(command, "Ack");
+			command="Ack";
 			command_len = 1;
 		} else {
-			strcpy(command, "Unknown");
+			command="Unknown";
 			command_len = len;
 		}
 	}
 	else {
 		/* server to client commands */
 		if (text[0] == S2C_CONNECTION) {
-			strcpy(command, "Connected");
+			command="Connected";
 			command_len = 1;
 		} else if (text[0] == A2C_CLIENT_COMMAND) {
-			strcpy(command, "Client Command");
+			command="Client Command";
 			command_len = 1;
 			/* stringz (command), stringz (localid) */
 		} else if (text[0] == A2C_PRINT) {
-			strcpy(command, "Print");
+			command="Print";
 			command_len = 1;
 			/* string */
 		} else if (text[0] == A2A_PING) {
-			strcpy(command, "Ping");
+			command="Ping";
 			command_len = 1;
 		} else if (text[0] == S2C_CHALLENGE) {
-			strcpy(command, "Challenge");
+			command="Challenge";
 			command_len = 1;
 			/* string, atoi */
 		} else {
-			strcpy(command, "Unknown");
+			command="Unknown";
 			command_len = len;
 		}
 	}
