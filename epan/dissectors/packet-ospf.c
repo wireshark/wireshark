@@ -2272,47 +2272,46 @@ static void dissect_ospf_v3_prefix_options(tvbuff_t *tvb, int offset, proto_tree
 {
 
     guint8 prefix_options;
-    char prefix_options_string[11];
+    char *prefix_options_string;
     guint8 position;
 
     position=0;
 
     prefix_options=tvb_get_guint8(tvb, offset);
 
-    strcpy(prefix_options_string,"");
+#define OPT_STR_LEN 11
+    prefix_options_string=ep_alloc(OPT_STR_LEN);
+    prefix_options_string[0]=0;
 
     if (prefix_options & OSPF_V3_PREFIX_OPTION_P) {
-        strcat(prefix_options_string, "P");
-        position++;
+        prefix_options_string[position++]='P';
     }
 
     if (prefix_options & OSPF_V3_PREFIX_OPTION_MC) {
         if ( (position > 0) && (prefix_options_string[position-1] != '/') ) {
-            strcat(prefix_options_string, "/");
-            position++;
+            prefix_options_string[position++]='/';
         }
-        strcat(prefix_options_string, "MC");
-        position+=2;
+        prefix_options_string[position++]='M';
+        prefix_options_string[position++]='C';
     }
 
     if (prefix_options & OSPF_V3_PREFIX_OPTION_LA) {
         if ( (position > 0) && (prefix_options_string[position-1] != '/') ) {
-            strcat(prefix_options_string, "/");
-            position++;
+            prefix_options_string[position++]='/';
         }
-        strcat(prefix_options_string, "LA");
-        position+=2;
+        prefix_options_string[position++]='L';
+        prefix_options_string[position++]='A';
     }
 
     if (prefix_options & OSPF_V3_PREFIX_OPTION_NU) {
         if ( (position > 0) && (prefix_options_string[position-1] != '/') ) {
-            strcat(prefix_options_string, "/");
-            position++;
+            prefix_options_string[position++]='/';
         }
-        strcat(prefix_options_string, "NU");
+        prefix_options_string[position++]='N';
+        prefix_options_string[position++]='U';
     }
 
-    prefix_options_string[10]=0;
+    prefix_options_string[position]=0;
 
     proto_tree_add_text(tree, tvb, offset, 1, "PrefixOptions: 0x%02x (%s)",prefix_options, prefix_options_string);
 
