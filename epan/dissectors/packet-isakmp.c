@@ -1812,7 +1812,6 @@ dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 	offset += addrlen;
 	length -= addrlen;
 	break;
-    defaul:
     }
   }
 }
