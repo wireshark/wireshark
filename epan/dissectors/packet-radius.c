@@ -495,7 +495,7 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
                 guint32 avp_vsa_len = tvb_get_guint8(tvb,offset++);
                 
                 
-                if (avp_length < 2) {
+                if (avp_vsa_len < 2) {
                     proto_tree_add_text(tree, tvb, offset+1, 1,
                                             "[VSA too short]");
                     return;
