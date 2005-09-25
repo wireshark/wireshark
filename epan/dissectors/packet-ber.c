@@ -231,7 +231,7 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 		   since these are not vital outputs just return instead of 
 		   throwing en exception.
 		 */
-		proto_tree_add_text(tree, tvb, offset, len, "BER: Error length:%d longer than tvb_length_ramaining:%d",len, tvb_length_remaining(tvb, offset));
+		proto_tree_add_text(tree, tvb, offset, len, "BER: Error length:%u longer than tvb_length_ramaining:%d",len, tvb_length_remaining(tvb, offset));
 		return tvb_length(tvb);
 	}
 /* we dont care about the class only on the constructor flag */
@@ -466,7 +466,7 @@ get_ber_length(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 *length, gbo
 
 	/* check that the length is sane */
 	if(tmp_length>(guint32)tvb_reported_length_remaining(tvb,offset)){
-		proto_tree_add_text(tree, tvb, old_offset, offset-old_offset, "BER: Error length:%d longer than tvb_reported_length_remaining:%d",tmp_length, tvb_reported_length_remaining(tvb, offset));
+		proto_tree_add_text(tree, tvb, old_offset, offset-old_offset, "BER: Error length:%u longer than tvb_reported_length_remaining:%d",tmp_length, tvb_reported_length_remaining(tvb, offset));
 		/* force the appropriate exception */
 		tvb_ensure_bytes_exist(tvb, offset, tmp_length);
 		/*tmp_length = (guint32)tvb_reported_length_remaining(tvb,offset);*/
