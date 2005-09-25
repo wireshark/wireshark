@@ -71,6 +71,12 @@ static void	prefs_tree_select_cb(GtkCTree *, GtkCTreeNode *, gint,
 static void	prefs_tree_select_cb(GtkTreeSelection *, gpointer);
 #endif
 
+#define E_PREFSW_SCROLLW_KEY    "prefsw_scrollw"
+#define E_PREFSW_TREE_KEY       "prefsw_tree"
+#define E_PREFSW_NOTEBOOK_KEY   "prefsw_notebook"
+#define E_PAGE_ITER_KEY         "page_iter"
+#define E_PAGE_MODULE_KEY       "page_module"
+
 #define E_GUI_PAGE_KEY	        "gui_options_page"
 #define E_GUI_LAYOUT_PAGE_KEY	"gui_layout_page"
 #define E_GUI_COLUMN_PAGE_KEY   "gui_column_options_page"
@@ -79,13 +85,6 @@ static void	prefs_tree_select_cb(GtkTreeSelection *, gpointer);
 #define E_CAPTURE_PAGE_KEY      "capture_options_page"
 #define E_PRINT_PAGE_KEY        "printer_options_page"
 #define E_NAMERES_PAGE_KEY      "nameres_options_page"
-#define E_PAGE_MODULE_KEY       "page_module"
-
-/*
- * Keep a static pointer to the notebook to be able to choose the
- * displayed page.
- */
-static GtkWidget *notebook;
 
 /*
  * Keep a static pointer to the current "Preferences" window, if any, so that
@@ -339,8 +338,10 @@ module_prefs_show(module_t *module, gpointer user_data)
 #if GTK_MAJOR_VERSION < 2
     gtk_ctree_node_set_row_data(GTK_CTREE(cts->tree), ct_node,
   		GINT_TO_POINTER(cts->page));
+    OBJECT_SET_DATA(frame, E_PAGE_ITER_KEY, ct_node);
 #else
     gtk_tree_store_set(model, &iter, 0, label_str, 1, cts->page, -1);
+    OBJECT_SET_DATA(frame, E_PAGE_ITER_KEY, gtk_tree_iter_copy(&iter));
 #endif
 
     cts->page++;
@@ -465,6 +466,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   	GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
   gtk_container_add(GTK_CONTAINER(top_hb), ct_sb);
   gtk_widget_show(ct_sb);
+  OBJECT_SET_DATA(prefs_w, E_PREFSW_SCROLLW_KEY, ct_sb);
 
   /* categories tree */
 #if GTK_MAJOR_VERSION < 2
@@ -473,9 +475,11 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   cts.node = NULL;
   gtk_clist_set_column_auto_resize(GTK_CLIST(cts.tree), 0, TRUE);
   SIGNAL_CONNECT(cts.tree, "tree-select-row", prefs_tree_select_cb, NULL);
+  OBJECT_SET_DATA(prefs_w, E_PREFSW_TREE_KEY, cts.tree);
 #else
   store = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_INT);
   cts.tree = tree_view_new(GTK_TREE_MODEL(store));
+  OBJECT_SET_DATA(prefs_w, E_PREFSW_TREE_KEY, cts.tree);
   gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(cts.tree), FALSE);
   selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(cts.tree));
   gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
@@ -493,7 +497,8 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_widget_show(cts.tree);
 
   /* A notebook widget without tabs is used to flip between prefs */
-  notebook = prefs_nb = gtk_notebook_new();
+  prefs_nb = gtk_notebook_new();
+  OBJECT_SET_DATA(prefs_w, E_PREFSW_NOTEBOOK_KEY, prefs_nb);
   gtk_notebook_set_show_tabs(GTK_NOTEBOOK(prefs_nb), FALSE);
   gtk_notebook_set_show_border(GTK_NOTEBOOK(prefs_nb), FALSE);
   gtk_container_add(GTK_CONTAINER(top_hb), prefs_nb);
@@ -1175,6 +1180,17 @@ prefs_main_apply_all(GtkWidget *dlg)
 static void
 prefs_main_destroy_all(GtkWidget *dlg)
 {
+#if GTK_MAJOR_VERSION >= 2
+  int page_num;
+  GtkWidget *frame;
+
+  for (page_num = 0;
+       (frame = gtk_notebook_get_nth_page(OBJECT_GET_DATA(prefs_w, E_PREFSW_NOTEBOOK_KEY), page_num)) != NULL;
+       page_num++) {
+		   gtk_tree_iter_free(OBJECT_GET_DATA(frame, E_PAGE_ITER_KEY));
+	   }
+#endif
+  
   gui_prefs_destroy(OBJECT_GET_DATA(dlg, E_GUI_PAGE_KEY));
   layout_prefs_destroy(OBJECT_GET_DATA(dlg, E_GUI_LAYOUT_PAGE_KEY));
   column_prefs_destroy(OBJECT_GET_DATA(dlg, E_GUI_COLUMN_PAGE_KEY));
@@ -1420,6 +1436,75 @@ module_search_properties(module_t *module, gpointer user_data)
   return 0;
 }
 
+
+/* select a node in the tree view */
+/* XXX - this is almost 100% copied from byte_view_select() in proto_draw.c,
+ *       find a way to combine both to have a generic function for this */
+void
+tree_select_node(GtkWidget *tree, prefs_tree_iter *iter)
+{
+#if GTK_MAJOR_VERSION < 2
+    GtkCTree     *ctree = GTK_CTREE(tree);
+    GtkCTreeNode *node = (GtkCTreeNode *) iter;
+	GtkCTreeNode *parent;
+#else
+	GtkTreeIter  local_iter = *iter;
+    GtkTreeView  *tree_view = GTK_TREE_VIEW(tree);
+    GtkTreeModel *model;
+    GtkTreePath  *first_path, *path;
+    GtkTreeIter   parent;
+#endif
+
+#if GTK_MAJOR_VERSION < 2
+    /* Expand and select our field's row */
+    gtk_ctree_expand(ctree, node);
+    gtk_ctree_select(ctree, node);
+    /*expand_tree(ctree, node, NULL);*/
+
+    /* ... and its parents */
+    parent = GTK_CTREE_ROW(node)->parent;
+    while (parent) {
+        gtk_ctree_expand(ctree, parent);
+        /*expand_tree(ctree, parent, NULL);*/
+        parent = GTK_CTREE_ROW(parent)->parent;
+    }
+
+    /* And position the window so the selection is visible.
+     * Position the selection in the middle of the viewable
+     * pane. */
+    gtk_ctree_node_moveto(ctree, node, 0, .5, 0);
+#else
+    model = gtk_tree_view_get_model(tree_view);
+
+    /* Expand our field's row */
+    first_path = gtk_tree_model_get_path(model, &local_iter);
+    gtk_tree_view_expand_row(tree_view, first_path, FALSE);
+    /*expand_tree(tree_view, &iter, NULL, NULL);*/
+
+    /* ... and its parents */
+    while (gtk_tree_model_iter_parent(model, &parent, &local_iter)) {
+        path = gtk_tree_model_get_path(model, &parent);
+        gtk_tree_view_expand_row(tree_view, path, FALSE);
+        /*expand_tree(tree_view, &parent, NULL, NULL);*/
+        local_iter = parent;
+        gtk_tree_path_free(path);
+    }
+
+    /* select our field's row */
+    gtk_tree_selection_select_path(gtk_tree_view_get_selection(tree_view),
+                                   first_path);
+
+    /* And position the window so the selection is visible.
+     * Position the selection in the middle of the viewable
+     * pane. */
+    gtk_tree_view_scroll_to_cell(tree_view, first_path, NULL, TRUE, 0.5, 0.0);
+
+    gtk_tree_path_free(first_path);
+#endif
+}
+
+
+
 void
 properties_cb(GtkWidget *w, gpointer dummy)
 {
@@ -1465,17 +1550,18 @@ properties_cb(GtkWidget *w, gpointer dummy)
   /* Search all the pages in that window for the one with the specified
      module. */
   for (page_num = 0;
-       (frame = gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook), page_num)) != NULL;
+       (frame = gtk_notebook_get_nth_page(OBJECT_GET_DATA(prefs_w, E_PREFSW_NOTEBOOK_KEY), page_num)) != NULL;
        page_num++) {
     /* Get the module for this page. */
     page_module = OBJECT_GET_DATA(frame, E_PAGE_MODULE_KEY);
     if (page_module == NULL)
       continue;	/* It doesn't have one. */
     if (page_module == p.module) {
-      /* We found it.  Select that page. */
-      gtk_notebook_set_page(GTK_NOTEBOOK(notebook), page_num);
-      break;
-    }
+	  tree_select_node(
+		  OBJECT_GET_DATA(prefs_w, E_PREFSW_TREE_KEY), 
+		  OBJECT_GET_DATA(frame, E_PAGE_ITER_KEY));
+	  return;
+	}
   }
 }
 
@@ -1500,13 +1586,13 @@ prefs_tree_select_cb(GtkTreeSelection *sel, gpointer dummy _U_)
   page = GPOINTER_TO_INT(gtk_ctree_node_get_row_data(ct, node));
 
   if (page >= 0)
-    gtk_notebook_set_page(GTK_NOTEBOOK(notebook), page);
+    gtk_notebook_set_page(OBJECT_GET_DATA(prefs_w, E_PREFSW_NOTEBOOK_KEY), page);
 #else
   if (gtk_tree_selection_get_selected(sel, &model, &iter))
   {
     gtk_tree_model_get(model, &iter, 1, &page, -1);
     if (page >= 0)
-      gtk_notebook_set_page(GTK_NOTEBOOK(notebook), page);
+      gtk_notebook_set_page(OBJECT_GET_DATA(prefs_w, E_PREFSW_NOTEBOOK_KEY), page);
   }
 #endif
 }
