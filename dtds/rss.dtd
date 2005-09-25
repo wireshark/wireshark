@@ -28,7 +28,6 @@
                   
                   | cloud
                   | ttl
-                  | rating
                   )*>
 
 <!ELEMENT title (#PCDATA)>
@@ -85,8 +84,6 @@
                 path CDATA #IMPLIED >
                     
 <!ELEMENT ttl (#PCDATA)>
-
-<!ELEMENT rating (#PCDATA)>
 
 <!ELEMENT source (#PCDATA)>
 <!ATTLIST source url CDATA #IMPLIED >
