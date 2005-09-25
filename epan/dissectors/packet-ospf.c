@@ -2288,7 +2288,7 @@ static void dissect_ospf_v3_prefix_options(tvbuff_t *tvb, int offset, proto_tree
     }
 
     if (prefix_options & OSPF_V3_PREFIX_OPTION_MC) {
-        if ( (position > 0) && (prefix_options_string[position-1] != '/') ) {
+        if (position > 0) {
             prefix_options_string[position++]='/';
         }
         prefix_options_string[position++]='M';
@@ -2296,7 +2296,7 @@ static void dissect_ospf_v3_prefix_options(tvbuff_t *tvb, int offset, proto_tree
     }
 
     if (prefix_options & OSPF_V3_PREFIX_OPTION_LA) {
-        if ( (position > 0) && (prefix_options_string[position-1] != '/') ) {
+        if (position > 0) {
             prefix_options_string[position++]='/';
         }
         prefix_options_string[position++]='L';
@@ -2304,7 +2304,7 @@ static void dissect_ospf_v3_prefix_options(tvbuff_t *tvb, int offset, proto_tree
     }
 
     if (prefix_options & OSPF_V3_PREFIX_OPTION_NU) {
-        if ( (position > 0) && (prefix_options_string[position-1] != '/') ) {
+        if (position > 0){
             prefix_options_string[position++]='/';
         }
         prefix_options_string[position++]='N';
