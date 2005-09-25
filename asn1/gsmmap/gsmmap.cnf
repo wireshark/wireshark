@@ -133,8 +133,6 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
  digit_str = unpack_digits(parameter_tvb, 0);
 
  proto_tree_add_string(tree, hf_gsm_map_imsi_digits, parameter_tvb, 0, -1, digit_str);
- if (digit_str)
-	g_free(digit_str);
  
 
 
@@ -161,8 +159,6 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_servicecentreaddress_digits, parameter_tvb, 1, -1, digit_str);
- if (digit_str)
-	g_free(digit_str);
  pinfo->p2p_dir = P2P_DIR_SENT;
 
 #.END
@@ -188,8 +184,6 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_isdn_address_digits, parameter_tvb, 1, -1, digit_str);
- if (digit_str)
-	g_free(digit_str);
 
  pinfo->p2p_dir = P2P_DIR_RECV;
 
@@ -217,8 +211,6 @@ ModificationRequestFor-CF-Info/noReplyConditionTime ext-noReplyConditionTime
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_address_digits, parameter_tvb, 1, -1, digit_str);
- if (digit_str)
-	g_free(digit_str);
 
 #----------------------------------------------------------------------------------------
 #.FN_PARS SS-Status

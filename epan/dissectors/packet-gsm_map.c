@@ -44,6 +44,7 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
+#include <epan/emem.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -1317,14 +1318,13 @@ unpack_digits(tvbuff_t *tvb, int offset){
 
 	length = tvb_length(tvb);
 	if (length < offset)
-		return NULL;
-	length = length - offset;
-	digit_str = g_malloc(length*2+1);
+		return "";
+	digit_str = ep_alloc((length - offset)*2+1);
 
-	while ( offset <= length ){
+	while ( offset < length ){
 
 		octet = tvb_get_guint8(tvb,offset);
-		digit_str[i] = ((octet & 0x0f) + 0x30);
+		digit_str[i] = ((octet & 0x0f) + '0');
 		i++;
 
 		/*
@@ -1332,12 +1332,10 @@ unpack_digits(tvbuff_t *tvb, int offset){
 		 */
 		octet = octet >> 4;
 
-		if (octet == 0x0f){	/* odd number bytes - hit filler */
-			i++; 
+		if (octet == 0x0f)	/* odd number bytes - hit filler */
 			break;
-		}
 
-		digit_str[i] = ((octet & 0x0f) + 0x30);
+		digit_str[i] = ((octet & 0x0f) + '0');
 		i++;
 		offset++;
 
@@ -1613,8 +1611,6 @@ dissect_gsm_map_IMSI(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
  digit_str = unpack_digits(parameter_tvb, 0);
 
  proto_tree_add_string(tree, hf_gsm_map_imsi_digits, parameter_tvb, 0, -1, digit_str);
- if (digit_str)
-	g_free(digit_str);
  
 
 
@@ -1650,8 +1646,6 @@ dissect_gsm_map_ISDN_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb, int
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_isdn_address_digits, parameter_tvb, 1, -1, digit_str);
- if (digit_str)
-	g_free(digit_str);
 
  pinfo->p2p_dir = P2P_DIR_RECV;
 
@@ -4780,8 +4774,6 @@ dissect_gsm_map_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_address_digits, parameter_tvb, 1, -1, digit_str);
- if (digit_str)
-	g_free(digit_str);
 
 
   return offset;
@@ -10002,8 +9994,6 @@ dissect_gsm_map_ServiceCentreAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, i
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_servicecentreaddress_digits, parameter_tvb, 1, -1, digit_str);
- if (digit_str)
-	g_free(digit_str);
  pinfo->p2p_dir = P2P_DIR_SENT;
 
 

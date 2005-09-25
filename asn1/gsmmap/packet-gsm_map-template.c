@@ -37,6 +37,7 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
+#include <epan/emem.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -131,14 +132,13 @@ unpack_digits(tvbuff_t *tvb, int offset){
 
 	length = tvb_length(tvb);
 	if (length < offset)
-		return NULL;
-	length = length - offset;
-	digit_str = g_malloc(length*2+1);
+		return "";
+	digit_str = ep_alloc((length - offset)*2+1);
 
-	while ( offset <= length ){
+	while ( offset < length ){
 
 		octet = tvb_get_guint8(tvb,offset);
-		digit_str[i] = ((octet & 0x0f) + 0x30);
+		digit_str[i] = ((octet & 0x0f) + '0');
 		i++;
 
 		/*
@@ -146,12 +146,10 @@ unpack_digits(tvbuff_t *tvb, int offset){
 		 */
 		octet = octet >> 4;
 
-		if (octet == 0x0f){	/* odd number bytes - hit filler */
-			i++; 
+		if (octet == 0x0f)	/* odd number bytes - hit filler */
 			break;
-		}
 
-		digit_str[i] = ((octet & 0x0f) + 0x30);
+		digit_str[i] = ((octet & 0x0f) + '0');
 		i++;
 		offset++;
 
