@@ -4150,6 +4150,11 @@ dissect_dcerpc_cn_bs_body (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             RETHROW;
         } CATCH(ReportedBoundsError) {
             show_reported_bounds_error(tvb, pinfo, tree);
+            /*
+             * Presumably it looked enough like a DCE RPC PDU that we
+             * dissected enough of it to throw an exception.
+             */
+            dcerpc_pdus++;
         } ENDTRY;
 
         if (!dcerpc_pdus) {
