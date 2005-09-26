@@ -25,6 +25,8 @@
 #ifndef __FORMAT_OID_H__
 #define __FORMAT_OID_H__
 
+
+extern int oid_to_subid_buf(const guint8 *oid, gint oid_len, subid_t *buf, int buf_len);
 extern gchar *format_oid(subid_t *oid, guint oid_length);
 extern void new_format_oid(subid_t *oid, guint oid_length, 
 			   gchar **non_decoded, gchar **decoded);
