@@ -87,10 +87,15 @@ typedef struct _protocol protocol_t;
  * That string should be allocated with g_malloc(); using
  * "g_strdup_printf()" would work.
  *
+ * If the ETHEREAL_ABORT_ON_DISSECTOR_BUG environment variable is set,
+ * it will call abort(), instead, to make it easier to get a stack trace.
+ *
  * @param message string to use as the message
  */
 #define REPORT_DISSECTOR_BUG(message)  \
-  (THROW_MESSAGE(DissectorError, message))
+  ((getenv("ETHEREAL_ABORT_ON_DISSECTOR_BUG") != NULL) ? \
+    abort() : \
+    THROW_MESSAGE(DissectorError, message))
 
 /** Macro used for assertions in dissectors; it doesn't abort, it just
  * throws a DissectorError exception, with the assertion failure
