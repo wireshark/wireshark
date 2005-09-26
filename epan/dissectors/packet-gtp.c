@@ -37,6 +37,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/sminmpec.h>
 #include "packet-ipv6.h"
 #include "packet-ppp.h"
 #include "packet-radius.h"
@@ -4496,7 +4497,7 @@ proto_reg_handoff_gtp(void)
 		gtp_handle = find_dissector("gtp");
 		ppp_subdissector_table = find_dissector_table("ppp.protocol");
 		
-		radius_register_avp_dissector(10415,5,dissect_radius_qos_umts);
+		radius_register_avp_dissector(VENDOR_THE3GPP,5,dissect_radius_qos_umts);
 
 		Initialized = TRUE;
 	} else {
