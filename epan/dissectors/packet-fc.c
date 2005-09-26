@@ -338,149 +338,6 @@ static void fc_defragment_init(void)
   fragment_table_init (&fc_fragment_table);
 }
 
-
-static gchar *
-fctl_to_str (const guint8 *fctl, gchar *str, gboolean is_ack)
-{
-    int stroff = 0;
-    guint8 tmp = 0;
-
-    if (str == NULL)
-        return (str);
-    
-    if (fctl[2] & 0x80) {
-        strcpy (str, "Exchange Responder, ");
-        stroff += 20;
-    }
-    else {
-        strcpy (str, "Exchange Originator, ");
-        stroff += 21;
-    }
-
-    if (fctl[2] & 0x40) {
-        strcpy (&str[stroff], "Seq Recipient, ");
-        stroff += 15;
-    }
-    else {
-        strcpy (&str[stroff], "Seq Initiator, ");
-        stroff += 15;
-    }
-
-    if (fctl[2] & 0x20) {
-        strcpy (&str[stroff], "Exchg First, ");
-        stroff += 13;
-    }
-
-    if (fctl[2] & 0x10) {
-        strcpy (&str[stroff], "Exchg Last, ");
-        stroff += 12;
-    }
-
-    if (fctl[2] & 0x8) {
-        strcpy (&str[stroff], "Seq Last, ");
-        stroff += 10;
-    }
-
-    if (fctl[2] & 0x2) {
-        strcpy (&str[stroff], "Priority, ");
-        stroff += 10;
-    }
-    else {
-        strcpy (&str[stroff], "CS_CTL, ");
-        stroff += 8;
-    }
-
-    if (fctl[2] & 0x1) {
-        strcpy (&str[stroff], "Transfer Seq Initiative, ");
-        stroff += 25;
-    }
-
-    if (fctl[1] & 0x30) {
-        strcpy (&str[stroff], "ACK_0 Reqd, ");
-        stroff += 12;
-    }
-    else if (fctl[1] & 0x10) {
-        strcpy (&str[stroff], "ACK_1 Reqd, ");
-        stroff += 12;
-    }
-
-    if (fctl[1] & 0x2) {
-        strcpy (&str[stroff], "Rexmitted Seq, ");
-        stroff += 15;
-    }
-
-    tmp = fctl[0] & 0xC0;
-    switch (tmp) {
-    case 0:
-        strcpy (&str[stroff], "Last Data Frame - No Info, ");
-        stroff += 27;
-        break;
-    case 1:
-        strcpy (&str[stroff], "Last Data Frame - Seq Imm, ");
-        stroff += 27;
-        break;
-    case 2:
-        strcpy (&str[stroff], "Last Data Frame - Seq Soon, ");
-        stroff += 28;
-        break;
-    case 3:
-        strcpy (&str[stroff], "Last Data Frame - Seq Delyd, ");
-        stroff += 29;
-        break;
-    }
-
-    tmp = fctl[0] & 0x30;
-    switch (tmp) {
-    case 0:
-        if (is_ack) {
-            strcpy (&str[stroff], "ABTS - Cont, ");
-            stroff += 13;
-        }
-        else {
-            strcpy (&str[stroff], "ABTS - Abort/MS, ");
-            stroff += 17;
-        }
-        break;
-    case 0x10:
-        if (is_ack) {
-            strcpy (&str[stroff], "ABTS - AbortABTS - Abort, ");
-            stroff += 14;
-        }
-        else {
-            strcpy (&str[stroff], "ABTS - Abort/SS, ");
-            stroff += 17;
-        }
-        break;
-    case 0x20:
-        if (is_ack) {
-            strcpy (&str[stroff], "ABTS - Stop, ");
-            stroff += 13;
-        }
-        else {
-            strcpy (&str[stroff], "ABTS - Process/IB, ");
-            stroff += 19;
-        }
-        break;
-    case 0x30:
-        if (is_ack) {
-            strcpy (&str[stroff], "ABTS - Imm Seq Retx, ");
-            stroff += 21;
-        }
-        else {
-            strcpy (&str[stroff], "ABTS - Discard/MS/Imm Retx, ");
-            stroff += 28;
-        }
-        break;
-    }
-
-    if (fctl[0] & 0x8) {
-        strcpy (&str[stroff], "Rel Offset = 1");
-        stroff += 14;
-    }
-
-    return (str);
-}
-
 /* BA_ACC & BA_RJT are decoded in this file itself instead of a traditional
  * dedicated file and dissector format because the dissector would require some
  * fields of the FC_HDR such as param in some cases, type in some others, the
@@ -665,47 +522,109 @@ static const true_false_string tfs_fc_fctl_rel_offset = {
 
 /* code to dissect the  F_CTL bitmask */
 static void
-dissect_fc_fctl(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, gboolean is_ack, guint32 fctl)
+dissect_fc_fctl(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 fctl)
 {
 	proto_item *item;
 	proto_tree *tree;
-	gchar str[256];
+	guint32 flags;
 
         item=proto_tree_add_uint(parent_tree, hf_fc_fctl, tvb, offset, 3, fctl);
 	tree=proto_item_add_subtree(item, ett_fctl);
 
+	flags = tvb_get_guint8 (tvb, offset);
+	flags = (flags<<8) | tvb_get_guint8 (tvb, offset+1);
+	flags = (flags<<8) | tvb_get_guint8 (tvb, offset+2);
 
 	proto_tree_add_boolean(tree, hf_fc_fctl_exchange_responder, tvb, offset, 3, fctl);
+	if (flags&FC_FCTL_EXCHANGE_RESPONDER){
+		proto_item_append_text(item, " Exchange Responder");
+		if (flags & (~( FC_FCTL_EXCHANGE_RESPONDER )))
+			proto_item_append_text(item, ",");
+	} else {
+		proto_item_append_text(item, " Exchange Originator");
+		if (flags & (~( FC_FCTL_EXCHANGE_RESPONDER )))
+			proto_item_append_text(item, ",");
+	}
+	flags&=(~( FC_FCTL_EXCHANGE_RESPONDER ));
 
 	proto_tree_add_boolean(tree, hf_fc_fctl_seq_recipient, tvb, offset, 3, fctl);
+	if (flags&FC_FCTL_SEQ_RECIPIENT){
+		proto_item_append_text(item, " Seq Recipient");
+		if (flags & (~( FC_FCTL_SEQ_RECIPIENT )))
+			proto_item_append_text(item, ",");
+	} else {
+		proto_item_append_text(item, " Seq Initiator");
+		if (flags & (~( FC_FCTL_SEQ_RECIPIENT )))
+			proto_item_append_text(item, ",");
+	}
+	flags&=(~( FC_FCTL_SEQ_RECIPIENT ));
 
 	proto_tree_add_boolean(tree, hf_fc_fctl_exchange_first, tvb, offset, 3, fctl);
+	if (flags&FC_FCTL_EXCHANGE_FIRST){
+		proto_item_append_text(item, " Exchg First");
+		if (flags & (~( FC_FCTL_EXCHANGE_FIRST )))
+			proto_item_append_text(item, ",");
+	}
+	flags&=(~( FC_FCTL_EXCHANGE_FIRST ));
 
 	proto_tree_add_boolean(tree, hf_fc_fctl_exchange_last, tvb, offset, 3, fctl);
+	if (flags&FC_FCTL_EXCHANGE_LAST){
+		proto_item_append_text(item, " Exchg Last");
+		if (flags & (~( FC_FCTL_EXCHANGE_LAST )))
+			proto_item_append_text(item, ",");
+	}
+	flags&=(~( FC_FCTL_EXCHANGE_LAST ));
 
 	proto_tree_add_boolean(tree, hf_fc_fctl_seq_last, tvb, offset, 3, fctl);
+	if (flags&FC_FCTL_SEQ_LAST){
+		proto_item_append_text(item, " Seq Last");
+		if (flags & (~( FC_FCTL_SEQ_LAST )))
+			proto_item_append_text(item, ",");
+	}
+	flags&=(~( FC_FCTL_SEQ_LAST ));
 
 	proto_tree_add_boolean(tree, hf_fc_fctl_priority, tvb, offset, 3, fctl);
+	if (flags&FC_FCTL_PRIORITY){
+		proto_item_append_text(item, " Priority");
+		if (flags & (~( FC_FCTL_PRIORITY )))
+			proto_item_append_text(item, ",");
+	} else {
+		proto_item_append_text(item, " CS_CTL");
+		if (flags & (~( FC_FCTL_PRIORITY )))
+			proto_item_append_text(item, ",");
+	}
+	flags&=(~( FC_FCTL_PRIORITY ));
 
 	proto_tree_add_boolean(tree, hf_fc_fctl_transfer_seq_initiative, tvb, offset, 3, fctl);
+	if (flags&FC_FCTL_TRANSFER_SEQ_INITIATIVE){
+		proto_item_append_text(item, " Transfer Seq Initiative");
+		if (flags & (~( FC_FCTL_TRANSFER_SEQ_INITIATIVE )))
+			proto_item_append_text(item, ",");
+	}
+	flags&=(~( FC_FCTL_TRANSFER_SEQ_INITIATIVE ));
 
 	proto_tree_add_uint(tree, hf_fc_fctl_last_data_frame, tvb, offset, 3, fctl);
 
 	proto_tree_add_uint(tree, hf_fc_fctl_ack_0_1, tvb, offset, 3, fctl);
 
-
 	proto_tree_add_boolean(tree, hf_fc_fctl_rexmitted_seq, tvb, offset, 3, fctl);
-
-	if(is_ack){
-		proto_tree_add_uint(tree, hf_fc_fctl_abts_ack, tvb, offset, 3, fctl);
-	} else {
-		proto_tree_add_uint(tree, hf_fc_fctl_abts_ack, tvb, offset, 3, fctl);
+	if (flags&FC_FCTL_REXMITTED_SEQ){
+		proto_item_append_text(item, " Rexmitted Seq");
+		if (flags & (~( FC_FCTL_REXMITTED_SEQ )))
+			proto_item_append_text(item, ",");
 	}
+	flags&=(~( FC_FCTL_REXMITTED_SEQ ));
+
+	proto_tree_add_uint(tree, hf_fc_fctl_abts_ack, tvb, offset, 3, fctl);
 
 	proto_tree_add_boolean(tree, hf_fc_fctl_rel_offset, tvb, offset, 3, fctl);
+	if (flags&FC_FCTL_REL_OFFSET){
+		proto_item_append_text(item, " Rel Offset");
+		if (flags & (~( FC_FCTL_REL_OFFSET )))
+			proto_item_append_text(item, ",");
+	}
+	flags&=(~( FC_FCTL_REL_OFFSET ));
 
-	fctl_to_str( ((guint8 *)&fctl), str, is_ack);
-	proto_item_append_text(item, "  %s", str);
 }
 
 static const value_string fc_bls_proto_val[] = {
@@ -1040,7 +959,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     }
 
 
-    dissect_fc_fctl(pinfo, fc_tree, tvb, offset+9, is_ack, fchdr.fctl);
+    dissect_fc_fctl(pinfo, fc_tree, tvb, offset+9, fchdr.fctl);
 
 
     proto_tree_add_item (fc_tree, hf_fc_seqid, tvb, offset+12, 1, FALSE);
