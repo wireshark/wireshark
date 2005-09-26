@@ -1187,7 +1187,8 @@ prefs_main_destroy_all(GtkWidget *dlg)
   for (page_num = 0;
        (frame = gtk_notebook_get_nth_page(OBJECT_GET_DATA(prefs_w, E_PREFSW_NOTEBOOK_KEY), page_num)) != NULL;
        page_num++) {
-		   gtk_tree_iter_free(OBJECT_GET_DATA(frame, E_PAGE_ITER_KEY));
+		   if(OBJECT_GET_DATA(frame, E_PAGE_ITER_KEY))
+               gtk_tree_iter_free(OBJECT_GET_DATA(frame, E_PAGE_ITER_KEY));
 	   }
 #endif
   
