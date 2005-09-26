@@ -169,6 +169,9 @@ packet_list_compare(EthCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
 
     case TS_DELTA:
       return COMPARE_TS(del_ts);
+
+    case TS_NOT_SET:
+      return 0;
     }
     return 0;
 
