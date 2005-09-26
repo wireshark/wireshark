@@ -23,6 +23,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
  * Please refer to RFC 3489 for protocol detail.
+ * (supports extra message attributes described in draft-ietf-behave-rfc3489bis-00)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -57,6 +58,9 @@ static int stun_att_unknown = -1;
 static int stun_att_error_class = -1;
 static int stun_att_error_number = -1;
 static int stun_att_error_reason = -1;
+static int stun_att_server_string = -1;
+static int stun_att_xor_ip = -1;
+static int stun_att_xor_port = -1;
 
 
 
@@ -80,6 +84,9 @@ static int stun_att_error_reason = -1;
 #define ERROR_CODE		0x0009
 #define UNKNOWN_ATTRIBUTES	0x000a
 #define REFLECTED_FROM		0x000b
+#define XOR_MAPPED_ADDRESS	0x0020
+#define XOR_ONLY		0x0021
+#define SERVER			0x0022
 
 
 
@@ -123,6 +130,9 @@ static const value_string attributes[] = {
 	{MESSAGE_INTEGRITY, "MESSAGE-INTEGRITY"},
 	{ERROR_CODE, "ERROR-CODE"},
 	{REFLECTED_FROM, "REFLECTED-FROM"},
+	{XOR_MAPPED_ADDRESS, "XOR-MAPPED-ADDRESS"},	
+	{XOR_ONLY, "XOR_ONLY"},
+	{SERVER, "SERVER"},
 	{0x00, NULL}
 };
 
@@ -273,6 +283,22 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					}
 					break;
 					
+				case SERVER:
+					proto_tree_add_item(att_tree, stun_att_server_string, tvb, offset, att_length, FALSE);
+					break;
+
+				case XOR_MAPPED_ADDRESS:
+					if (att_length < 2)
+						break;
+					proto_tree_add_item(att_tree, stun_att_family, tvb, offset+1, 1, FALSE);
+					if (att_length < 4)
+						break;
+					proto_tree_add_item(att_tree, stun_att_xor_port, tvb, offset+2, 2, FALSE);
+					if (att_length < 8)
+						break;
+					proto_tree_add_item(att_tree, stun_att_xor_ip, tvb, offset+4, 4, FALSE);
+					break;
+
 				default:
 					break;
 			}
@@ -364,6 +390,18 @@ proto_register_stun(void)
 		},
 		{ &stun_att_error_reason,
 			{ "Error Reason Phase","stun.att.error.reason",	FT_STRING,
+			BASE_NONE, 	NULL,	0x0,	"",	HFILL}
+		},
+		{ &stun_att_xor_ip,
+			{ "IP (XOR-d)",		"stun.att.ip-xord",	FT_IPv4,
+			BASE_NONE,	NULL,	0x0, 	"",	HFILL }
+		},
+		{ &stun_att_xor_port,
+			{ "Port (XOR-d)",	"stun.att.port-xord",	FT_UINT16,
+			BASE_DEC,	NULL,	0x0, 	"",	HFILL }
+		},
+		{ &stun_att_server_string,
+			{ "Server version","stun.att.server",	FT_STRING,
 			BASE_NONE, 	NULL,	0x0,	"",	HFILL}
 		},
 	};

@@ -43,10 +43,15 @@ static int hf_ymsg_len = -1;
 static int hf_ymsg_service = -1;
 static int hf_ymsg_status = -1;
 static int hf_ymsg_session_id = -1;
+
 static int hf_ymsg_content = -1;
+static int hf_ymsg_content_line = -1;
+static int hf_ymsg_content_line_key = -1;
+static int hf_ymsg_content_line_value = -1;
 
 static gint ett_ymsg = -1;
 static gint ett_ymsg_content = -1;
+static gint ett_ymsg_content_line = -1;
 
 #define TCP_PORT_YMSG	23	/* XXX - this is Telnet! */
 #define TCP_PORT_YMSG_2	25	/* And this is SMTP! */
@@ -166,7 +171,7 @@ enum yahoo_status {
         YAHOO_STATUS_INVISIBLE = 12,
         YAHOO_STATUS_CUSTOM = 99,
         YAHOO_STATUS_IDLE = 999,
-	YAHOO_STATUS_WEBLOGIN = 0x5a55aa55,
+        YAHOO_STATUS_WEBLOGIN = 0x5a55aa55,
         YAHOO_STATUS_OFFLINE = 0x5a55aa56, /* don't ask */
         YAHOO_STATUS_TYPING = 0x16
 };
@@ -277,13 +282,14 @@ static const value_string ymsg_status_vals[] = {
 static guint get_ymsg_pdu_len(tvbuff_t *tvb, int offset);
 static void dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-static int
-get_content_item_length(tvbuff_t *tvb, int offset) {
+/* Find the end of the current content line and return its length */
+static int get_content_item_length(tvbuff_t *tvb, int offset)
+{
 	int origoffset = offset;
-	guint16 curdata;
-	for (;;) {
-		curdata = tvb_get_ntohs(tvb, offset);
-		if (curdata == 0xc080) {
+
+	/* Keep reading until the magic delimiter (or end of tvb) is found */
+	while (tvb_length_remaining(tvb, offset) >= 2) {
+		if (tvb_get_ntohs(tvb, offset) == 0xc080) {
 			break;
 		}
 		offset++;
@@ -302,7 +308,7 @@ dissect_ymsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   
   tcp_dissect_pdus(tvb, pinfo, tree, ymsg_desegment, 8, get_ymsg_pdu_len,
-		   dissect_ymsg_pdu);
+                   dissect_ymsg_pdu);
   return TRUE;
 }
 
@@ -351,50 +357,83 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ymsg, tvb, offset, -1,
-				FALSE);
+		ti = proto_tree_add_item(tree, proto_ymsg, tvb, offset, -1, FALSE);
 		ymsg_tree = proto_item_add_subtree(ti, ett_ymsg);
 
 		offset += 4; /* skip the YMSG string */
 
-		proto_tree_add_item(ymsg_tree, hf_ymsg_version, tvb,
-			offset, 2, FALSE);
+		/* Version */
+		proto_tree_add_item(ymsg_tree, hf_ymsg_version, tvb, offset, 2, FALSE);
 		offset += 2;
 
 		offset += 2;	/* XXX - padding? */
 
+		/* Length */
 		content_len = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(ymsg_tree, hf_ymsg_len, tvb,
-			offset, 2, FALSE);
+		proto_tree_add_item(ymsg_tree, hf_ymsg_len, tvb, offset, 2, FALSE);
 		offset += 2;
 
-		proto_tree_add_item(ymsg_tree, hf_ymsg_service, tvb,
-			offset, 2, FALSE);
+		/* Service */
+		proto_tree_add_item(ymsg_tree, hf_ymsg_service, tvb, offset, 2, FALSE);
 		offset += 2;
 
-		proto_tree_add_item(ymsg_tree, hf_ymsg_status, tvb,
-			offset, 4, FALSE);
+		/* Status */
+		proto_tree_add_item(ymsg_tree, hf_ymsg_status, tvb, offset, 4, FALSE);
 		offset += 4;
 
-		proto_tree_add_item(ymsg_tree, hf_ymsg_session_id, tvb,
-			offset, 4, TRUE);
+		/* Session id */
+		proto_tree_add_item(ymsg_tree, hf_ymsg_session_id, tvb, offset, 4, TRUE);
 		offset += 4;
 
-		content_item = proto_tree_add_item(ymsg_tree, hf_ymsg_content, tvb,
-				offset, -1, TRUE);
-		content_tree = proto_item_add_subtree(content_item, ett_ymsg_content);
+		/* Contents */
+		if (content_len) {
+			/* Create content subtree */
+			content_item = proto_tree_add_item(ymsg_tree, hf_ymsg_content, tvb,
+			                                   offset, -1, TRUE);
+			content_tree = proto_item_add_subtree(content_item, ett_ymsg_content);
 
-		for (;;) {
-			if (offset >= headersize+content_len) {
-				break;
+			/* Each entry consists of:
+			   <key string> <delimiter> <value string> <delimiter>
+			*/
+			
+			/* Parse and show each line of the contents */
+			for (;;)
+			{
+				proto_item  *ti = NULL;
+				proto_tree  *content_line_tree = NULL;
+				
+				/* Don't continue unless there is room for another whole item.
+				   (including 2 2-byte delimiters */
+				if (offset >= (headersize+content_len-4))
+				{
+					break;
+				}
+				
+				/* Get the length of the key */
+				keylen = get_content_item_length(tvb, offset);
+				/* Extract the key */
+				keybuf = tvb_format_text(tvb, offset, keylen);
+
+				/* Get the length of the value */
+				vallen = get_content_item_length(tvb, offset+keylen+2);
+				/* Extract the value */
+				valbuf = tvb_format_text(tvb, offset+keylen+2, vallen);
+
+				/* Add a text item with the key... */
+				ti =  proto_tree_add_string_format(content_tree, hf_ymsg_content_line, tvb,
+				                                   offset, keylen+2+vallen+2,
+				                                   "", "%s:%s", keybuf, valbuf);
+				content_line_tree = proto_item_add_subtree(ti, ett_ymsg_content_line);
+
+				/* And add the key and value separately inside */
+				proto_tree_add_item(content_line_tree, hf_ymsg_content_line_key, tvb,
+				                    offset, keylen, FALSE);
+				proto_tree_add_item(content_line_tree, hf_ymsg_content_line_value, tvb,
+				                    offset+keylen+2, vallen, FALSE);
+
+				/* Move beyone key and value lines */
+				offset += keylen+2+vallen+2;
 			}
-			keylen = get_content_item_length (tvb, offset);
-			keybuf = tvb_format_text(tvb, offset, keylen);
-			vallen = get_content_item_length (tvb, offset+keylen+2);
-			content_item = proto_tree_add_text(content_tree, tvb, offset, keylen+vallen+4, "%s: ", keybuf);
-			valbuf = tvb_format_text(tvb, offset+keylen+2, vallen);
-			proto_item_append_text(content_item, "%s", valbuf);
-			offset += keylen+vallen+4;
 		}
 	}
 
@@ -420,13 +459,24 @@ proto_register_ymsg(void)
 			{ &hf_ymsg_session_id, {
 				"Session ID", "ymsg.session_id", FT_UINT32, BASE_HEX,
 				NULL, 0, "Connection ID", HFILL }},
+
 			{ &hf_ymsg_content, {
-				"Content", "ymsg.content", FT_STRING, 0,
+				"Content", "ymsg.content", FT_STRING, BASE_NONE,
 				NULL, 0, "Data portion of the packet", HFILL }},
+			{ &hf_ymsg_content_line, {
+				"Content-line", "ymsg.content-line", FT_STRING, BASE_NONE,
+				NULL, 0, "Data portion of the packet", HFILL }},
+			{ &hf_ymsg_content_line_key, {
+				"Key", "ymsg.content-line.key", FT_STRING, BASE_NONE,
+				NULL, 0, "Content line key", HFILL }},
+			{ &hf_ymsg_content_line_value, {
+				"Value", "ymsg.content-line.value", FT_STRING, BASE_NONE,
+				NULL, 0, "Content line value", HFILL }},
         };
 	static gint *ett[] = {
 		&ett_ymsg,
 		&ett_ymsg_content,
+		&ett_ymsg_content_line
 	};
 	module_t *ymsg_module;
 
