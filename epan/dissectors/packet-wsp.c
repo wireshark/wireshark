@@ -4918,6 +4918,8 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	add_addresses(subtree, tmp_tvb, hf_sir_contact_points);
 	g_free(tmp_tvb);
 
+	offset += val_len;
+
 	/* Number of entries in the Protocol Options list */
 	val_len = tvb_get_guintvar(tvb, offset, &len);
 	proto_tree_add_uint(subtree, hf_sir_protocol_options_len,
