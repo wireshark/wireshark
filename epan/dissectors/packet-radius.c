@@ -60,6 +60,7 @@
 #include <epan/crypt-md5.h>
 #include <epan/sminmpec.h>
 #include <epan/filesystem.h>
+#include <epan/addr_resolv.h>
 #include <epan/emem.h>
 
 #include "packet-radius.h"
@@ -122,6 +123,10 @@ static int hf_radius_code = -1;
 static int hf_radius_length = -1;
 static int hf_radius_authenticator = -1;
 
+static int hf_radius_framed_ip_address = -1;
+static int hf_radius_login_ip_host = -1;
+static int hf_radius_framed_ipx_network = -1;
+
 static int hf_radius_cosine_vpi = -1;
 static int hf_radius_cosine_vci = -1;
 
@@ -175,6 +180,89 @@ static const value_string radius_vals[] =
 	{RADIUS_RESERVED,			"Reserved"},
 	{0, NULL}
 };
+
+static const gchar *dissect_framed_ip_address(proto_tree* tree, tvbuff_t* tvb) {
+	int len;
+	guint32 ip;
+	guint32 ip_h;
+	const gchar *str;
+
+	len = tvb_length(tvb);
+	if (len != 4)
+		return "[wrong length for IP address]";
+	
+	ip=tvb_get_ipv4(tvb,0);
+	ip_h=g_ntohl(ip);
+
+	if (ip_h == 0xFFFFFFFF) {
+		str = "Negotiated";
+		proto_tree_add_ipv4_format(tree, hf_radius_framed_ip_address,
+		    tvb, 0, len, ip, "Framed-IP-Address: %s", str);
+	} else if (ip_h == 0xFFFFFFFE) {
+		str = "Assigned";
+		proto_tree_add_ipv4_format(tree, hf_radius_framed_ip_address,
+		    tvb, 0, len, ip, "Framed-IP-Address: %s", str);
+	} else {
+		str = ip_to_str((guint8 *)&ip);
+		proto_tree_add_ipv4_format(tree, hf_radius_framed_ip_address,
+		    tvb, 0, len, ip, "Framed-IP-Address: %s (%s)",
+		    get_hostname(ip), str);
+	}
+
+	return str;
+}
+
+static const gchar *dissect_login_ip_host(proto_tree* tree, tvbuff_t* tvb) {
+	int len;
+	guint32 ip;
+	guint32 ip_h;
+	const gchar *str;
+
+	len = tvb_length(tvb);
+	if (len != 4)
+		return "[wrong length for IP address]";
+	
+	ip=tvb_get_ipv4(tvb,0);
+	ip_h=g_ntohl(ip);
+
+	if (ip_h == 0xFFFFFFFF) {
+		str = "User-selected";
+		proto_tree_add_ipv4_format(tree, hf_radius_login_ip_host,
+		    tvb, 0, len, ip, "Login-IP-Host: %s", str);
+	} else if (ip_h == 0) {
+		str = "NAS-selected";
+		proto_tree_add_ipv4_format(tree, hf_radius_login_ip_host,
+		    tvb, 0, len, ip, "Login-IP-Host: %s", str);
+	} else {
+		str = ip_to_str((guint8 *)&ip);
+		proto_tree_add_ipv4_format(tree, hf_radius_framed_ip_address,
+		    tvb, 0, len, ip, "Login-IP-Host: %s (%s)",
+		    get_hostname(ip), str);
+	}
+
+	return str;
+}
+
+static const gchar *dissect_framed_ipx_network(proto_tree* tree, tvbuff_t* tvb) {
+	int len;
+	guint32 net;
+	const gchar *str;
+
+	len = tvb_length(tvb);
+	if (len != 4)
+		return "[wrong length for IPX network]";
+	
+	net=tvb_get_ntohl(tvb,0);
+
+	if (net == 0xFFFFFFFE)
+		str = "NAS-selected";
+	else
+		str = ep_strdup_printf("0x%08X", net);
+	proto_tree_add_ipxnet_format(tree, hf_radius_framed_ipx_network, tvb, 0,
+	    len, net, "Framed-IPX-Network: %s", str);
+
+	return str;
+}
 
 static const gchar* dissect_cosine_vpvc(proto_tree* tree, tvbuff_t* tvb) {
 	guint vpi, vci;
@@ -323,6 +411,21 @@ void radius_ipv6addr(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo
 	proto_item_append_text(avp_item, "%s", txtbuf);
 }
 
+void radius_ipxnet(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
+	guint32 net;
+	
+	if (len != 4) {
+		proto_item_append_text(avp_item, "[wrong length for IPX network]");
+		return;
+	}
+	
+	net=tvb_get_ntohl(tvb,offset);
+	
+	proto_tree_add_item(tree, a->hf, tvb, offset, len, FALSE);
+
+	proto_item_append_text(avp_item, "0x%08X", net);
+}
+
 void radius_date(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
 	nstime_t time_ptr; 
 
@@ -392,92 +495,92 @@ static void add_avp_to_tree(proto_tree* avp_tree, proto_item* avp_item, packet_i
 }
 
 static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, guint length) {
-	proto_item* item;
-	gboolean last_eap = FALSE;
-	guint8* eap_buffer = NULL;
-	guint eap_seg_num = 0;
-	guint eap_tot_len_captured = 0;
-	guint eap_tot_len = 0;
-	proto_tree* eap_tree = NULL;
-	tvbuff_t* eap_tvb = NULL;
+    proto_item* item;
+    gboolean last_eap = FALSE;
+    guint8* eap_buffer = NULL;
+    guint eap_seg_num = 0;
+    guint eap_tot_len_captured = 0;
+    guint eap_tot_len = 0;
+    proto_tree* eap_tree = NULL;
+    tvbuff_t* eap_tvb = NULL;
 
-	/*
-	 * In case we throw an exception, clean up whatever stuff we've
-	 * allocated (if any).
-	 */
-	CLEANUP_PUSH(g_free, eap_buffer);
+    /*
+     * In case we throw an exception, clean up whatever stuff we've
+     * allocated (if any).
+     */
+    CLEANUP_PUSH(g_free, eap_buffer);
 
-	while (length > 0) {
-		radius_attr_info_t* dictionary_entry = NULL;
-		gint tvb_len;
-		guint32 avp_type;
-		guint32 avp_length;
-		guint32 vendor_id = 0;
+    while (length > 0) {
+        radius_attr_info_t* dictionary_entry = NULL;
+        gint tvb_len;
+        guint32 avp_type;
+        guint32 avp_length;
+        guint32 vendor_id = 0;
 
-		proto_item* avp_item;
-		proto_item* avp_len_item;
-		proto_tree* avp_tree;
-		
-		if (length < 2) {
-			item = proto_tree_add_text(tree, tvb, offset, 0,
-					    "Not enough room in packet for AVP header");
-			PROTO_ITEM_SET_GENERATED(item);
-			return;
-		}
-		avp_type = tvb_get_guint8(tvb,offset);
-		avp_length = tvb_get_guint8(tvb,offset+1);
+        proto_item* avp_item;
+        proto_item* avp_len_item;
+        proto_tree* avp_tree;
+        
+        if (length < 2) {
+            item = proto_tree_add_text(tree, tvb, offset, 0,
+                        "Not enough room in packet for AVP header");
+            PROTO_ITEM_SET_GENERATED(item);
+            return;
+        }
+        avp_type = tvb_get_guint8(tvb,offset);
+        avp_length = tvb_get_guint8(tvb,offset+1);
 
-		if (avp_length < 1) {
-			proto_tree_add_text(tree, tvb, offset+1, 1,
-					    "[AVP too short]");
-			return;
-		}
+        if (avp_length < 1) {
+            proto_tree_add_text(tree, tvb, offset+1, 1,
+                        "[AVP too short]");
+            return;
+        }
 
-		if (length < avp_length) {
-			item = proto_tree_add_text(tree, tvb, offset, 0,
-					    "Not enough room in packet for AVP");
-			PROTO_ITEM_SET_GENERATED(item);
-			return;
-		}
-		
-		length -= avp_length;
+        if (length < avp_length) {
+            item = proto_tree_add_text(tree, tvb, offset, 0,
+                        "Not enough room in packet for AVP");
+            PROTO_ITEM_SET_GENERATED(item);
+            return;
+        }
+        
+        length -= avp_length;
 
-		avp_item = proto_tree_add_text(tree,tvb,offset,avp_length,"AVP: l=%u ",avp_length);
-		
-		if (avp_type == RADIUS_VENDOR_SPECIFIC_CODE) {
-			/* XXX TODO: handle 2 byte codes for USR */
-			
-			if (avp_length < 8) {
-				proto_item_append_text(avp_item, "[AVP too short]");
-				offset += avp_length;
-				continue;
-			}
-			vendor_id = tvb_get_ntohl(tvb,offset+2);
+        avp_item = proto_tree_add_text(tree,tvb,offset,avp_length,"AVP: l=%u ",avp_length);
+        
+        if (avp_type == RADIUS_VENDOR_SPECIFIC_CODE) {
+            /* XXX TODO: handle 2 byte codes for USR */
             
-			avp_length -= 6;
-			offset += 6;
-		} else {
-			dictionary_entry = g_hash_table_lookup(dict->attrs_by_id,GUINT_TO_POINTER(avp_type));
-			
-			if (! dictionary_entry ) {
-				dictionary_entry = &no_dictionary_entry;
-			}
-			
-			proto_item_append_text(avp_item, " t=%s(%u)", dictionary_entry->name, avp_type);
-			
-			if (avp_length < 2) {
-				proto_item_append_text(avp_item, "[AVP too short]");
-				offset += avp_length;
-				continue;
-			}
-			avp_length -= 2;
-			offset += 2;
-		}
-		
+            if (avp_length < 8) {
+                proto_item_append_text(avp_item, "[AVP too short]");
+                offset += avp_length;
+                continue;
+            }
+            vendor_id = tvb_get_ntohl(tvb,offset+2);
+            
+            avp_length -= 6;
+            offset += 6;
+        } else {
+            dictionary_entry = g_hash_table_lookup(dict->attrs_by_id,GUINT_TO_POINTER(avp_type));
+            
+            if (! dictionary_entry ) {
+                dictionary_entry = &no_dictionary_entry;
+            }
+            
+            proto_item_append_text(avp_item, " t=%s(%u)", dictionary_entry->name, avp_type);
+            
+            if (avp_length < 2) {
+                proto_item_append_text(avp_item, "[AVP too short]");
+                offset += avp_length;
+                continue;
+            }
+            avp_length -= 2;
+            offset += 2;
+        }
+        
         if(vendor_id) {
             radius_vendor_info_t* vendor = g_hash_table_lookup(dict->vendors_by_id,GUINT_TO_POINTER(vendor_id));
             proto_tree* vendor_tree;
-			gint max_offset = offset + avp_length;
+            gint max_offset = offset + avp_length;
             gchar* vendor_str;
             
             if (vendor) {
@@ -538,144 +641,139 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
             PROTO_ITEM_SET_GENERATED(avp_len_item);
         }
         
-		tvb_len = tvb_length_remaining(tvb, offset);
+        tvb_len = tvb_length_remaining(tvb, offset);
         
-		if ((gint)avp_length < tvb_len)
-			tvb_len = avp_length;
+        if ((gint)avp_length < tvb_len)
+            tvb_len = avp_length;
         
-		if (avp_type == RADIUS_EAP_MESSAGE_CODE) {
-			eap_seg_num++;
+        if (avp_type == RADIUS_EAP_MESSAGE_CODE) {
+            eap_seg_num++;
 
-			/* Show this as an EAP fragment. */
-			if (tree)
-				proto_tree_add_text(avp_tree, tvb,
-				    offset, tvb_len, "EAP fragment");
+            /* Show this as an EAP fragment. */
+            if (tree)
+                proto_tree_add_text(avp_tree, tvb, offset, tvb_len,
+                                    "EAP fragment");
 
-			if (eap_tvb != NULL) {
-				/*
-				 * Oops, a non-consecutive EAP-Message
-				 * attribute.
-				 */
-				proto_item_append_text(avp_item,
-				    " (non-consecutive)");
-			} else {
-				/*
-				 * RFC 2869 says, in section 5.13, describing
-				 * the EAP-Message attribute:
-				 *
-				 *    The NAS places EAP messages received
-				 *    from the authenticating peer into one
-				 *    or more EAP-Message attributes and
-				 *    forwards them to the RADIUS Server
-				 *    within an Access-Request message.
-				 *    If multiple EAP-Messages are
-				 *    contained within an Access-Request or
-				 *    Access-Challenge packet, they MUST be
-				 *    in order and they MUST be consecutive
-				 *    attributes in the Access-Request or
-				 *    Access-Challenge packet.
-				 *
-				 *		...
-				 *
-				 *    The String field contains EAP packets,
-				 *    as defined in [3].  If multiple
-				 *    EAP-Message attributes are present
-				 *    in a packet their values should be
-				 *    concatenated; this allows EAP packets
-				 *    longer than 253 octets to be passed
-				 *    by RADIUS.
-				 *
-				 * Do reassembly of EAP-Message attributes.
-				 * We just concatenate all the attributes,
-				 * and when we see either the end of the
-				 * attribute list or a non-EAP-Message
-				 * attribute, we know we're done.
-				 */
+            if (eap_tvb != NULL) {
+                /*
+                 * Oops, a non-consecutive EAP-Message
+                 * attribute.
+                 */
+                proto_item_append_text(avp_item, " (non-consecutive)");
+            } else {
+                /*
+                 * RFC 2869 says, in section 5.13, describing
+                 * the EAP-Message attribute:
+                 *
+                 *    The NAS places EAP messages received
+                 *    from the authenticating peer into one
+                 *    or more EAP-Message attributes and
+                 *    forwards them to the RADIUS Server
+                 *    within an Access-Request message.
+                 *    If multiple EAP-Messages are
+                 *    contained within an Access-Request or
+                 *    Access-Challenge packet, they MUST be
+                 *    in order and they MUST be consecutive
+                 *    attributes in the Access-Request or
+                 *    Access-Challenge packet.
+                 *
+                 *        ...
+                 *
+                 *    The String field contains EAP packets,
+                 *    as defined in [3].  If multiple
+                 *    EAP-Message attributes are present
+                 *    in a packet their values should be
+                 *    concatenated; this allows EAP packets
+                 *    longer than 253 octets to be passed
+                 *    by RADIUS.
+                 *
+                 * Do reassembly of EAP-Message attributes.
+                 * We just concatenate all the attributes,
+                 * and when we see either the end of the
+                 * attribute list or a non-EAP-Message
+                 * attribute, we know we're done.
+                 */
 
-				if (eap_buffer == NULL)
-					eap_buffer =
-					    g_malloc(eap_tot_len_captured + tvb_len);
-				else
-					eap_buffer = g_realloc(eap_buffer,
-					    eap_tot_len_captured + tvb_len);
-				tvb_memcpy(tvb, eap_buffer + eap_tot_len_captured,
-				    offset, tvb_len);
-				eap_tot_len_captured += tvb_len;
-				eap_tot_len += avp_length;
+                if (eap_buffer == NULL)
+                    eap_buffer = g_malloc(eap_tot_len_captured + tvb_len);
+                else
+                    eap_buffer = g_realloc(eap_buffer,
+                                           eap_tot_len_captured + tvb_len);
+                tvb_memcpy(tvb, eap_buffer + eap_tot_len_captured, offset,
+                           tvb_len);
+                eap_tot_len_captured += tvb_len;
+                eap_tot_len += avp_length;
 
-				if ( tvb_bytes_exist(tvb, offset + avp_length + 1, 1) ) {
-					guint8 next_type = tvb_get_guint8(tvb, offset + avp_length);
-				
-					if ( next_type != RADIUS_EAP_MESSAGE_CODE ) {
-						/* Non-EAP-Message attribute */
-						last_eap = TRUE;
-					}
-				} else {
-					/*
-					 * No more attributes, either because
-					 * we're at the end of the packet or
-					 * because we're at the end of the
-					 * captured packet data.
-					 */
-					last_eap = TRUE;
-				}
+                if ( tvb_bytes_exist(tvb, offset + avp_length + 1, 1) ) {
+                    guint8 next_type = tvb_get_guint8(tvb, offset + avp_length);
+                
+                    if ( next_type != RADIUS_EAP_MESSAGE_CODE ) {
+                        /* Non-EAP-Message attribute */
+                        last_eap = TRUE;
+                    }
+                } else {
+                    /*
+                     * No more attributes, either because
+                     * we're at the end of the packet or
+                     * because we're at the end of the
+                     * captured packet data.
+                     */
+                    last_eap = TRUE;
+                }
 
-				if (last_eap && eap_buffer) {
-					gboolean save_writable;
+                if (last_eap && eap_buffer) {
+                    gboolean save_writable;
 
-					proto_item_append_text(avp_item,
-					    " Last Segment[%u]", eap_seg_num);
+                    proto_item_append_text(avp_item, " Last Segment[%u]",
+                                           eap_seg_num);
 
-					eap_tree = proto_item_add_subtree(avp_item,ett_eap);
-				
-					eap_tvb = tvb_new_real_data(eap_buffer,
-					    eap_tot_len_captured, eap_tot_len);
-					tvb_set_free_cb(eap_tvb, g_free);
-					tvb_set_child_real_data_tvbuff(tvb,
-					    eap_tvb);
-					add_new_data_source(pinfo, eap_tvb,
-					    "Reassembled EAP");
+                    eap_tree = proto_item_add_subtree(avp_item,ett_eap);
+                
+                    eap_tvb = tvb_new_real_data(eap_buffer,
+                                                eap_tot_len_captured,
+                                                eap_tot_len);
+                    tvb_set_free_cb(eap_tvb, g_free);
+                    tvb_set_child_real_data_tvbuff(tvb, eap_tvb);
+                    add_new_data_source(pinfo, eap_tvb, "Reassembled EAP");
 
-					/*
-					 * Don't free this when we're done -
-					 * it's associated with a tvbuff.
-					 */
-					eap_buffer = NULL;
-	
-					/*
-					 * Set the columns non-writable,
-					 * so that the packet list shows
-					 * this as an RADIUS packet, not
-					 * as an EAP packet.
-					 */
-					save_writable =
-					    col_get_writable(pinfo->cinfo);
-					col_set_writable(pinfo->cinfo, FALSE);
+                    /*
+                     * Don't free this when we're done -
+                     * it's associated with a tvbuff.
+                     */
+                    eap_buffer = NULL;
+    
+                    /*
+                     * Set the columns non-writable,
+                     * so that the packet list shows
+                     * this as an RADIUS packet, not
+                     * as an EAP packet.
+                     */
+                    save_writable = col_get_writable(pinfo->cinfo);
+                    col_set_writable(pinfo->cinfo, FALSE);
 
-					call_dissector(eap_handle, eap_tvb,
-					    pinfo, eap_tree);
+                    call_dissector(eap_handle, eap_tvb, pinfo, eap_tree);
 
-					col_set_writable(pinfo->cinfo,
-					    save_writable);
-				} else {
-					proto_item_append_text(avp_item,
-					    " Segment[%u]", eap_seg_num);
-				}
-			}
+                    col_set_writable(pinfo->cinfo, save_writable);
+                } else {
+                    proto_item_append_text(avp_item, " Segment[%u]",
+                                           eap_seg_num);
+                }
+            }
             
             offset += avp_length;
-		} else {
-            add_avp_to_tree(avp_tree, avp_item, pinfo, tvb, dictionary_entry, avp_length, offset);
+        } else {
+            add_avp_to_tree(avp_tree, avp_item, pinfo, tvb, dictionary_entry,
+                            avp_length, offset);
             offset += avp_length;
-		}
-		
-	}
+        }
+        
+    }
 
-	/*
-	 * Call the cleanup handler to free any reassembled data we haven't
-	 * attached to a tvbuff, and pop the handler.
-	 */
-	CLEANUP_CALL_AND_POP;
+    /*
+     * Call the cleanup handler to free any reassembled data we haven't
+     * attached to a tvbuff, and pop the handler.
+     */
+    CLEANUP_CALL_AND_POP;
 }
 
 static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -820,10 +918,13 @@ static void register_attrs(gpointer k _U_, gpointer v, gpointer p) {
 		hfri[0].hfinfo.display = BASE_NONE;
 	} else if (a->type == radius_ipaddr) {
 		hfri[0].hfinfo.type = FT_IPv4;
-		hfri[0].hfinfo.display = BASE_DEC;
+		hfri[0].hfinfo.display = BASE_NONE;
 	} else if (a->type == radius_ipv6addr) {
 		hfri[0].hfinfo.type = FT_IPv6;
-		hfri[0].hfinfo.display = BASE_HEX;
+		hfri[0].hfinfo.display = BASE_NONE;
+	} else if (a->type == radius_ipxnet) {
+		hfri[0].hfinfo.type = FT_IPXNET;
+		hfri[0].hfinfo.display = BASE_NONE;
 	} else if (a->type == radius_date) {
 		hfri[0].hfinfo.type = FT_ABSOLUTE_TIME;
 		hfri[0].hfinfo.display = BASE_NONE;
@@ -957,6 +1058,18 @@ proto_register_radius(void)
 	{ "Unknown-Attribute Length","radius.Unknown_Attribute.length", FT_UINT8, BASE_DEC, NULL, 0x0,
 		"", HFILL }},
 		
+	{ &hf_radius_framed_ip_address,
+	{ "Framed-IP-Address","radius.Framed-IP-Address", FT_IPv4, BASE_NONE, NULL, 0x0,
+		"", HFILL }},
+
+	{ &hf_radius_login_ip_host,
+	{ "Login-IP-Host","radius.Login-IP-Host", FT_IPv4, BASE_NONE, NULL, 0x0,
+		"", HFILL }},
+
+	{ &hf_radius_framed_ipx_network,
+	{ "Framed-IPX-Network","radius.Framed-IPX-Network", FT_IPXNET, BASE_NONE, NULL, 0x0,
+		"", HFILL }},
+
 	{ &hf_radius_cosine_vpi,
 	{ "Cosine-VPI","radius.Cosine-Vpi", FT_UINT16, BASE_DEC, NULL, 0x0,
 		"", HFILL }},
@@ -1006,7 +1119,7 @@ proto_register_radius(void)
 		dict_err_str = g_strdup("Could not find the radius directory");
 	}
 	
-    g_free(dir);
+	g_free(dir);
     
 	if (dict_err_str) {
 		g_warning("radius: %s",dict_err_str);
@@ -1064,6 +1177,9 @@ proto_reg_handoff_radius(void)
 	dissector_add("udp.port", UDP_PORT_RADACCT, radius_handle);
 	dissector_add("udp.port", UDP_PORT_RADACCT_NEW, radius_handle);
 	
+	radius_register_avp_dissector(0,8,dissect_framed_ip_address);
+	radius_register_avp_dissector(0,14,dissect_login_ip_host);
+	radius_register_avp_dissector(0,23,dissect_framed_ipx_network);
 	radius_register_avp_dissector(VENDOR_COSINE,5,dissect_cosine_vpvc);
 	
 }

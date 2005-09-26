@@ -117,21 +117,22 @@
     BEGIN OUT;
 }
 
-<ATTR>[0-9a-z_/-]+					{ attr_name = g_strdup(yytext); encrypted = FALSE; has_tag = FALSE; BEGIN ATTR_W_NAME; }
-<ATTR_W_NAME>[0-9]+					{ attr_id = g_strdup(yytext);  BEGIN ATTR_W_ID;}
-<ATTR_W_NAME>0x[0-9a-f]+			{ attr_id = g_strdup_printf("%u",(int)strtoul(yytext,NULL,16)); BEGIN ATTR_W_ID;}
-<ATTR_W_ID>integer					{ attr_type = radius_integer;  BEGIN ATTR_W_TYPE; }
-<ATTR_W_ID>string					{ attr_type = radius_string;  BEGIN ATTR_W_TYPE; }
-<ATTR_W_ID>octets					{ attr_type = radius_octets;  BEGIN ATTR_W_TYPE; }
-<ATTR_W_ID>ipaddr					{ attr_type = radius_ipaddr;  BEGIN ATTR_W_TYPE; }
-<ATTR_W_ID>date						{ attr_type = radius_date;  BEGIN ATTR_W_TYPE; }
-<ATTR_W_ID>ipv6addr					{ attr_type = radius_ipv6addr;  BEGIN ATTR_W_TYPE; }
-<ATTR_W_ID>ifid						{ attr_type = radius_ifid;  BEGIN ATTR_W_TYPE; }
-<ATTR_W_ID>[0-9a-z_-]+				{ attr_type = radius_octets;  BEGIN ATTR_W_TYPE; }
-<ATTR_W_TYPE>has_tag[,]?			{ has_tag = TRUE; attr_vendor = NULL;  BEGIN ATTR_W_VENDOR; }
-<ATTR_W_TYPE>encrypt=1[,]?			{ encrypted=TRUE;  attr_vendor = NULL;  BEGIN ATTR_W_VENDOR; }
+<ATTR>[0-9a-z_/-]+			{ attr_name = g_strdup(yytext); encrypted = FALSE; has_tag = FALSE; BEGIN ATTR_W_NAME; }
+<ATTR_W_NAME>[0-9]+			{ attr_id = g_strdup(yytext);  BEGIN ATTR_W_ID;}
+<ATTR_W_NAME>0x[0-9a-f]+		{ attr_id = g_strdup_printf("%u",(int)strtoul(yytext,NULL,16)); BEGIN ATTR_W_ID;}
+<ATTR_W_ID>integer			{ attr_type = radius_integer;  BEGIN ATTR_W_TYPE; }
+<ATTR_W_ID>string			{ attr_type = radius_string;  BEGIN ATTR_W_TYPE; }
+<ATTR_W_ID>octets			{ attr_type = radius_octets;  BEGIN ATTR_W_TYPE; }
+<ATTR_W_ID>ipaddr			{ attr_type = radius_ipaddr;  BEGIN ATTR_W_TYPE; }
+<ATTR_W_ID>ipv6addr			{ attr_type = radius_ipv6addr;  BEGIN ATTR_W_TYPE; }
+<ATTR_W_ID>ipxnet			{ attr_type = radius_ipxnet;  BEGIN ATTR_W_TYPE; }
+<ATTR_W_ID>date				{ attr_type = radius_date;  BEGIN ATTR_W_TYPE; }
+<ATTR_W_ID>ifid				{ attr_type = radius_ifid;  BEGIN ATTR_W_TYPE; }
+<ATTR_W_ID>[0-9a-z_-]+			{ attr_type = radius_octets;  BEGIN ATTR_W_TYPE; }
+<ATTR_W_TYPE>has_tag[,]?		{ has_tag = TRUE; attr_vendor = NULL;  BEGIN ATTR_W_VENDOR; }
+<ATTR_W_TYPE>encrypt=1[,]?		{ encrypted=TRUE;  attr_vendor = NULL;  BEGIN ATTR_W_VENDOR; }
 <ATTR_W_TYPE>[,0-9a-z_-]+=([^\n]+)	{ /* ignore other parameters */  attr_vendor = NULL;  BEGIN ATTR_W_VENDOR; }
-<ATTR_W_TYPE>[0-9a-z_-]+			{
+<ATTR_W_TYPE>[0-9a-z_-]+		{
     attr_vendor = g_strdup(yytext);
     add_attribute(attr_name,attr_id,attr_type,attr_vendor,encrypted,has_tag);
     g_free(attr_id);
