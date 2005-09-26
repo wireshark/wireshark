@@ -4492,6 +4492,7 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	address redir_address;
 	conversation_t *conv;
 	guint32 index = 0; /* Address index */
+	guint32 address_record_len; /* Length of the entire address record */
 
 	/*
 	 * Redirect flags.
@@ -4524,10 +4525,14 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		address_flags_len = tvb_get_guint8 (tvb, offset);
 		address_len = address_flags_len & ADDRESS_LEN;
-		if (tree) {
+		address_record_len = address_len
+			+ (address_flags_len & BEARER_TYPE_INCLUDED ? 1 : 0)
+			+ (address_flags_len & PORT_NUMBER_INCLUDED ? 2 : 0)
+		;
 
+		if (tree) {
 			ti = proto_tree_add_uint(addresses_tree, hf_address_entry,
-					tvb, offset, 1 + address_len, index);
+					tvb, offset, 1 + address_record_len, index);
 			addr_tree = proto_item_add_subtree(ti, ett_address);
 
 			ti = proto_tree_add_uint (addr_tree, hf_address_flags_length,
@@ -4700,6 +4705,7 @@ add_addresses(proto_tree *tree, tvbuff_t *tvb, int hf)
 	guint32 tvb_len = tvb_length(tvb);
 	guint32 offset = 0;
 	guint32 index = 0; /* Address index */
+	guint32 address_record_len; /* Length of the entire address record */
 
 	/* Skip needless processing */
 	if (! tree)
@@ -4720,9 +4726,13 @@ add_addresses(proto_tree *tree, tvbuff_t *tvb, int hf)
 		 */
 		address_flags_len = tvb_get_guint8 (tvb, offset);
 		address_len = address_flags_len & ADDRESS_LEN;
+		address_record_len = address_len
+			+ (address_flags_len & BEARER_TYPE_INCLUDED ? 1 : 0)
+			+ (address_flags_len & PORT_NUMBER_INCLUDED ? 2 : 0)
+		;
 
 		ti = proto_tree_add_uint(addresses_tree, hf_address_entry,
-				tvb, offset, 1 + address_len, index);
+				tvb, offset, 1 + address_record_len, index);
 		addr_tree = proto_item_add_subtree(ti, ett_address);
 
 		ti = proto_tree_add_uint (addr_tree, hf_address_flags_length,
@@ -4895,6 +4905,8 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* End of version 0 SIR content */
 	if (version == 0)
 		return;
+
+	offset += val_len;
 
 	/* Length of non-WSP contact points list */
 	val_len = tvb_get_guintvar(tvb, offset, &len);
