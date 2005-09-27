@@ -161,10 +161,10 @@ __H_HEAD
 
 
 $h_file .= "\n/* hfids export container */\n$hfstruct\n";
-$h_file .= "\n/* hfids container */\nextern struct _$proto_name\_hfis_t $proto_name\_hfis;\n\n";
+$h_file .= "\n/* hfids container */\nextern struct _$proto_name\_hfis_t  $proto_name\_hfis;\n\n";
 $h_file .= $hfarr . "\n\n" . $ett_arr ."\n\n";
 
-$c_file .= "\n/* hfids container */\nextern struct _$proto_name\_hfis_t  $proto_name\_hfis;\n\n";
+$c_file .= "\n/* hfids container */\nstruct _$proto_name\_hfis_t  $proto_name\_hfis;\n\n";
 $h_file .= "/* parser declarations */\n";
 $c_file .= "/* parser declarations */\n";
 
