@@ -725,18 +725,6 @@ diff -ur ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/pa
 	  <filename>packet-foo-datatypes.diff</filename>.
 	  </para></listitem>
 	  <listitem><para>
-	  <command>Follow the Ethereal source code style guide.</command> 
-	  Ethereal runs on many platforms, and can be compiled with a number of 
-	  different compilers. See <xref linkend="ChCodeStyle"/> for details.
-	  </para>
-	<note><title>Note!</title>
-	<para>
-	Just because something compiles on your platform, that doesn't mean it'll 
-	compile on all of the other platforms for which Ethereal is built. 
-	</para>
-	</note>
-	  </listitem>
-	  <listitem><para>
 	  <command>Don't put unrelated things into one large patch.
 	  </command> A few smaller patches are usually easier to apply (but also 
 	  don't put every changed line into a seperate patch :-).
@@ -757,7 +745,47 @@ diff -ur ../ethereal-0.10.6/epan/dissectors/packet-dcerpc.c ./epan/dissectors/pa
 	other side of the mail" for his/her effort applying your patch!
 	</para>
 	</section>
-	
+
+	<section id="ChSrcCodeRequirements">
+	<title>Code Requirements</title>
+	<para>
+	The core maintainers have a lot of work fixing bugs and making code 
+	compile on the various platforms Ethereal supports.
+	</para>
+	<para>
+	To ensure Ethereal's source code quality, and to reduce the workload of 
+	the core maintainers, there are some things you should 
+	think about <command>before</command> submitting a patch.
+	<warning><title>Warn!</title>
+	<para>
+	<command>Ignoring the code requirements will make it very likely 
+	that your patch will be rejected!</command>
+	</para>
+	</warning>
+	<itemizedlist>
+	  <listitem><para>
+	  <command>Follow the Ethereal source code style guide.</command> 
+	  Just because something compiles on your platform, that doesn't 
+	  mean it'll compile on all of the other platforms for which Ethereal is 
+	  built. 
+	  Ethereal runs on many platforms, and can be compiled with a number of 
+	  different compilers. See <xref linkend="ChCodeStyle"/> for details.
+	  </para>
+	  </listitem>
+	  <listitem><para>
+	  <command>Fuzz test your changes!</command> Fuzz testing is a very 
+	  effective way to automatically find a lot of dissector related bugs. 
+	  You'll take a capture file containing packets affecting your dissector 
+	  and the fuzz test randomly change bytes in this file, so unconditional 
+	  code paths in your dissector are passed. There are tools available to 
+	  automatically do this on any number of input files, see: 
+	  <ulink url="http://wiki.ethereal.com/FuzzTesting"/> for details.
+	  </para>
+	  </listitem>
+	</itemizedlist>
+	</para>
+	</section>
+
 	<section id="ChSrcSend">
 	<title>Sending your patch to the developer mailing list</title>
 	<para>
