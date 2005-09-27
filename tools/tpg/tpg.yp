@@ -1,0 +1,320 @@
+%{
+#!/usr/bin/perl
+#
+# TPG TVB Parser Generator Grammar
+#
+# Given a bnf like grammar generate a parser for text based tvbs
+#
+# $Id $
+#
+# Ethereal - Network traffic analyzer
+# By Gerald Combs <gerald@ethereal.com>
+# Copyright 2004 Gerald Combs
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+    
+    use V2P;
+    
+    my $parser_info;
+
+sub hj {
+    ${$_[0]}{$_} = ${$_[1]}{$_} for (keys %{$_[1]});
+    return $_[0];
+}
+
+sub abort {
+    my $line = ${$_[0]->YYData->{DATA}};
+    
+    die "$_[1] at $line";
+}
+
+sub from_to {
+    my $f = unpack "C", shift;
+    my $t = unpack "C", shift;
+    my $b = '';
+    for ($f..$t) {
+        $b .= pack("C",$_);
+    }
+    $b;
+}
+
+sub chars_control {
+    $_ = $_[0];
+    s/([a-zA-Z0-9])-([a-zA-Z0-9])/from_to($1,$2)/ge;
+    "\"$_\"";
+}
+
+%}
+
+%%
+
+start: statements {$parser_info} ;
+
+statements:
+    #empty { $parser_info = {}; }
+    |   statements statement
+    ;
+
+statement:
+    rule_statement {
+        my $rulename = ${$_[1]}{name};
+
+        if (exists ${${$parser_info}{rules}}{$rulename}) {
+
+            my $rule = ${${$parser_info}{rules}}{$rulename};
+            if (exists ${${$parser_info}{rules}}{root}) {
+                # a root rule exists already add this to its subrules
+                push @{${${$parser_info}{rules}}{subrules}}, $_[1];
+            } else {
+                # this rule becomes the first subrule of a choice
+                ${${$parser_info}{rules}}{$rulename} =  {
+                    root=>'',
+                    type=>'choice',
+                    subrules=>[$rule,\$_[1]],
+                    name=>${$_[1]}{name},
+                }
+            }
+        } else {
+            ${${$parser_info}{rules}}{$rulename} = $_[1];
+        }
+    }
+    |  parser_name_statement {
+        abort($_[0],"%parser_name already defined") if exists ${$parser_info}{name};
+        ${$parser_info}{proto_name} = $_[1];
+    }
+    | proto_desc_statement {
+        abort($_[0],"%proto_desc already defined") if exists ${$parser_info}{proto_desc};
+        ${$parser_info}{proto_desc} = $_[1];
+    }
+    | header_head_statement {
+        ${$parser_info}{header_head} .= $_[1];
+    }
+    | code_head_statement {
+        ${$parser_info}{head} .= $_[1];
+    }
+    | header_tail_statement {
+        ${$parser_info}{header_tail} .= $_[1];
+    }
+    | code_tail_statement {
+        ${$parser_info}{tail} .= $_[1];
+    }
+    | static_field_statement {
+        abort($_[0],"%field '${$_[1]}{name}' already defined") if (exists ${${$parser_info}{fields}}{${$_[1]}{name}});
+        ${${$parser_info}{fields}}{${$_[1]}{name}} = $_[1];
+    }
+    | parser_data_statement {
+        abort($_[0],"%tt_type already defined") if exists ${$parser_info}{pdata};
+        ${$parser_info}{pdata} = $_[1];
+    }
+    | export_statement {
+        abort($_[0],"%export already defined") if exists ${$parser_info}{export};
+        ${$parser_info}{export} = $_[1];
+    }
+    | value_string_statement {
+        my $name = ${$_[1]}{name};
+        abort($_[0],"%value_string $name already defined") if exists ${${$parser_info}{vs}}{$name};
+        ${${$parser_info}{vs}}{$name} = $_[1];
+    }
+    ;
+
+rule_statement:
+'%rule' LOWERCASE '=' rule '.' rule_body {
+        my $r = hj($_[4],$_[6]);
+        ${$r}{name} = $_[2];
+        $r;
+    }
+    ;
+
+rule_body:
+    #empty {{}}
+    | '{' rule_const rule_item_type tree code '}' {
+        my $r = {};
+        ${$r}{'const'} = $_[2] if $_[2];
+        ${$r}{'item'} = $_[3] if $_[3];
+        ${$r}{'tree'} = $_[4] if $_[4];
+        ${$r}{'code'} = $_[5] if $_[5];
+        $r;
+    }
+    ;
+
+rule_const:
+    #empty { "NULL" }
+    | '%const' CODE {$_[2]}
+    ;
+
+rule_item_type:
+    #empty { undef }
+    | '%item_type' CODE {$_[2]}
+    ;
+
+code:
+    #empty { undef }
+    | '%code' CODE {$_[2]}
+    ;
+
+tree:
+    #empty {undef}
+    | '%root' LOWERCASE {$_[2]}
+    ;
+
+rule:
+    complete_rule
+    | sequence {{subrules=>$_[1],type=>'seq'}};
+
+
+complete_rule:
+    base_rule cardinality qualification {hj($_[1],hj($_[2],$_[3]))}
+    ;
+
+base_rule:
+    '(' sequence ')' { {subrules=>$_[2],type=>'seq'}}
+    | '(' choice ')' {{subrules=>$_[2],type=>'choice'}}
+    | until_rule
+    | CHARS {{control=>chars_control($_[1]),type=>'chars'}}
+    | NOTCHARS {{control=>chars_control($_[1]),type=>'not_chars'}}
+    | DQUOTED {{control=>"$_[1]",type=>'string'}}
+    | SQUOTED {{control=>"\"$_[1]\"",type=>'caseless'}}
+    | LOWERCASE {{control=>$_[1],type=>'named'}} 
+    ;
+
+until_rule:
+    '...' qualification '{' rule '}'  { @{$_[2]}{'type','subrule'} = ('until',$_[4]); $_[2] }
+    ;
+
+choice:
+    complete_rule '|' complete_rule { [$_[1],$_[3]] }
+    | choice '|' complete_rule { push @{$_[1]}, $_[3]; $_[1] }
+    ;
+
+sequence:
+    complete_rule complete_rule { [$_[1],$_[2]] }
+    | sequence complete_rule { push @{$_[1]}, $_[2]; $_[1] }
+    ;
+
+cardinality:
+    #empty { my %c; @c{'min','max'} = (1,1); \%c  }
+    | '+' { my %c; @c{'min','max'} = (1,"0xffffffff"); \%c  }
+    | '?' { my %c; @c{'min','max'} = (0,1); \%c  }
+    | '*' { my %c; @c{'min','max'} = (0,"0xffffffff"); \%c  }
+    | '{' NUMBER ',' NUMBER '}' { my %c; @c{'min','max'} = ($_[2],$_[4]); \%c  }
+    | '{' NUMBER '}' { my %c; @c{'min','max'} = ($_[2],$_[2]); \%c  }
+    | '{' ',' NUMBER '}' { my %c; @c{'min','max'} = (0,$_[3]); \%c  }
+    | '{' NUMBER ',' '}' { my %c; @c{'min','max'} = ($_[2],"0xffffffff"); \%c  }
+    ;
+
+qualification:
+    #empty {{}}
+    | '<' qualifiers '>' {$_[2]}
+    ;
+
+qualifiers:
+    qualifier { my $p = {}; ${$p} { ${$_[1]}[0] } = ${$_[1]}[1]; $p }
+    | qualifiers ':' qualifier { ${$_[1]} { ${$_[3]}[0] } = ${$_[3]}[1]; $_[1] } 
+    ;
+
+qualifier:
+    | LOWERCASE { ['field',$_[1]] }
+    | UPPERCASE { ['var',$_[1]] }
+    | '%plain_text' { ['plain_text',1] }
+    ;
+
+proto_desc_statement:
+    '%proto_desc' quoted '.' { "\"$_[2]\"" } 
+    ;
+
+header_head_statement: 
+    '%header_head' CODE { $_[2] }
+    ;
+
+header_tail_statement: 
+    '%header_tail' CODE {  $_[2] }
+    ;
+
+code_head_statement: 
+    '%head' CODE { $_[2] }
+    ;
+
+code_tail_statement: 
+    '%tail' CODE {  $_[2] }
+    ;
+
+parser_name_statement:
+    '%parser_name' LOWERCASE '.' {$_[2]}
+    ;
+
+parser_data_statement:
+    '%tt_type' CODE { $_[2] }
+    ;
+
+export_statement:
+    '%export' exports '.' { $_[2] }
+    ;
+
+exports:
+    exports LOWERCASE { ${$_[1]}{$_[2]} = undef; $_[1] }
+    | LOWERCASE { my $e = {}; ${$e}{$_[1]} = undef; $e }
+    ;
+
+value_string_statement:
+    '%value_string' LOWERCASE value_string_items { my $v = {}; ${$v}{name} = $_[2]; ${$v}{items} = $_[3]; $v }
+    ;
+
+value_string_items:
+    value_string_items value_string_item { push @{$_[1]}, $_[2] }
+    | value_string_item { [$_[1]]}
+    ;
+
+value_string_item:
+    NUMBER QUOTED { [ $_[1], "\"$_[2]\"" ] }
+    ;
+
+static_field_statement:
+    '%field' LOWERCASE DOTEDNAME field_name field_type field_base field_value_string field_description '.' {
+        my $field = {};
+        @{$field}{'name','abbr','pname','type','base','vs','desc'} = ($_[2],"\"$_[3]\"",$_[4],$_[5],$_[6],$_[7],$_[8]);
+        return $field;
+    }
+    ;
+
+field_name:
+    #empty {undef}
+    | DQUOTED
+    ;
+
+field_type:
+    #empty { 'FT_STRING' }
+    | FT
+    ;
+
+field_base:
+    #empty { 'BASE_NONE' }
+    | BASE
+    ;
+
+field_value_string:
+    #empty { 'NULL' }
+    | CODE { $_[1] =~ s/#line.*?\n//ms; $_[1] =~ s/\n//msg; $_[1] =~ s@/\*eocode\*/@@; $_[1] }
+    ;
+
+field_description:
+    #empty {'""'}
+    | SQUOTED
+    ;
+
+quoted: DQUOTED | SQUOTED ;
+
+%%
+
+

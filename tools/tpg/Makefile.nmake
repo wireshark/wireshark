@@ -1,0 +1,17 @@
+## Makefile for building ethereal.exe with Microsoft C and nmake
+## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+#
+# $Id$
+
+include ..\..\config.nmake
+
+CFLAGS=-D_U_="" $(LOCAL_CFLAGS)
+
+all : TPG.pm
+
+clean:
+	rm -f TPG.pm tpg.output
+
+distclean: clean
+
+maintainer-clean: distclean
