@@ -1,6 +1,5 @@
 /* packet-hsrp.c
  * Routines for the Cisco Hot Standby Router Protocol (HSRP)
- * RFC 2281
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
@@ -27,12 +26,41 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* TODO: Looks like there is some new opcode 3, which has a different
- *       packet layout. For some discussion on the new type, see
- *       http://www.atm.tut.fi/list-archive/cisco-nsp/msg08882.html and
- *       http://www.cisco.com/en/US/products/sw/iosswrel/ps1834/products_feature_guide09186a00800e9763.html#xtocid5
+/* 
+ * RFC 2281 describes opcodes 0 - 2
+ *
+ * Op Code 3: **** HSRP Interface State Advertisements ****
+ * http://www.cisco.com/en/US/products/sw/iosswrel/ps1834/products_feature_guide09186a00800e9763.html
+ *
+ * An HSRP interface-state advertisement is sent:
+ *
+ *   * when HSRP on the interface enters or leaves the passive state
+ *   * when a group on the interface learns a new Active router
+ *   * periodically while the interface is in the passive state
+ *
+ *                        1                   2                   3
+ *    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *   |   Version     |  Op Code = 3  |           TLV Type            |
+ *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *   |            TLV Length         |      State    |   Reserved    |
+ *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *   |     Active Group Count        |     Passive Group Count       |
+ *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *   |                           Reserved                            |
+ *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *
+ *  Passive Group Count:  2 octet
+ *
+ *     A count of the number of passive groups on the interface.  The range
+ *     of values are 0-256.
+ *
+ *  Active Group Count:  2 octet
+ *
+ *     A count of the number of active groups on the interface.  The range
+ *     of values are 0-256.
+ *
  */
-
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -43,9 +71,11 @@
 #include <epan/packet.h>
 
 static gint proto_hsrp = -1;
+static dissector_handle_t data_handle;
 
 static gint hf_hsrp_version = -1;
 static gint hf_hsrp_opcode = -1;
+/* Opcode 0-2 */
 static gint hf_hsrp_state = -1;
 static gint hf_hsrp_hellotime = -1;
 static gint hf_hsrp_holdtime = -1;
@@ -54,6 +84,14 @@ static gint hf_hsrp_group = -1;
 static gint hf_hsrp_reserved = -1;
 static gint hf_hsrp_auth_data = -1;
 static gint hf_hsrp_virt_ip_addr = -1;
+/* Advertise (3) */
+static gint hf_hsrp_adv_type = -1;
+static gint hf_hsrp_adv_length = -1;
+static gint hf_hsrp_adv_state = -1;
+static gint hf_hsrp_adv_reserved1 = -1;
+static gint hf_hsrp_adv_activegrp = -1;
+static gint hf_hsrp_adv_passivegrp = -1;
+static gint hf_hsrp_adv_reserved2 = -1;
 
 static gint ett_hsrp = -1;
 
@@ -75,13 +113,15 @@ struct hsrp_packet {          /* Multicast to 224.0.0.2, TTL 1, UDP, port 1985 *
 };
 
 
-#define HSRP_OPCODE_HELLO  0
-#define HSRP_OPCODE_COUP   1
-#define HSRP_OPCODE_RESIGN 2
+#define HSRP_OPCODE_HELLO     0
+#define HSRP_OPCODE_COUP      1
+#define HSRP_OPCODE_RESIGN    2
+#define HSRP_OPCODE_ADVERTISE 3
 static const value_string hsrp_opcode_vals[] = {
-        {HSRP_OPCODE_HELLO,  "Hello"},
-        {HSRP_OPCODE_COUP,   "Coup"},
-        {HSRP_OPCODE_RESIGN, "Resign"},
+        {HSRP_OPCODE_HELLO,     "Hello"},
+        {HSRP_OPCODE_COUP,      "Coup"},
+        {HSRP_OPCODE_RESIGN,    "Resign"},
+        {HSRP_OPCODE_ADVERTISE, "Advertise"},
 	{0, NULL},
 };
 
@@ -101,23 +141,53 @@ static const value_string hsrp_state_vals[] = {
 	{0, NULL},
 };
 
+#define HSRP_ADV_TYPE_INTSTATE 1
+#define HSRP_ADV_TYPE_IPREDUN  2
+static const value_string hsrp_adv_type_vals[] = {
+        {HSRP_ADV_TYPE_INTSTATE, "HSRP interface state"},
+        {HSRP_ADV_TYPE_IPREDUN,  "IP redundancy"},
+	{0, NULL},
+};
+
+#define HSRP_ADV_STATE_DORMANT 1
+#define HSRP_ADV_STATE_PASSIVE 2
+#define HSRP_ADV_STATE_ACTIVE  3
+static const value_string hsrp_adv_state_vals[] = {
+        {HSRP_ADV_STATE_DORMANT, "Dormant"},
+        {HSRP_ADV_STATE_PASSIVE, "Passive"},
+        {HSRP_ADV_STATE_ACTIVE,  "Active"},
+	{0, NULL},
+};
+
 static void
 dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-        guint8 opcode, state;
+        guint8 opcode, state = 0;
+	tvbuff_t   *next_tvb;
 
         if (check_col(pinfo->cinfo, COL_PROTOCOL))
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "HSRP");
-        if (check_col(pinfo->cinfo, COL_INFO))
-                col_clear(pinfo->cinfo, COL_INFO);
 
         opcode = tvb_get_guint8(tvb, 1);
-        state = tvb_get_guint8(tvb, 2);
         if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_add_fstr(pinfo->cinfo, COL_INFO, "%s (state %s)",
-                             val_to_str(opcode, hsrp_opcode_vals, "Unknown"),
-                             val_to_str(state, hsrp_state_vals, "Unknown"));
-        }
+                col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+                             val_to_str(opcode, hsrp_opcode_vals, "Unknown"));
+	}
+	if (opcode < 3) {
+        	state = tvb_get_guint8(tvb, 2);
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+                	col_append_fstr(pinfo->cinfo, COL_INFO, " (state %s)",
+                       		     val_to_str(state, hsrp_state_vals, "Unknown"));
+		}
+        } else if (opcode == 3) {
+        	state = tvb_get_guint8(tvb, 6);
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+                	col_append_fstr(pinfo->cinfo, COL_INFO, " (state %s)",
+                       		     val_to_str(state, hsrp_adv_state_vals, "Unknown"));
+		}
+	} else {
+                col_set_str(pinfo->cinfo, COL_INFO, "Unknown");
+	}
 
         if (tree) {
                 proto_item *ti;
@@ -134,36 +204,55 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset++;
                 proto_tree_add_uint(hsrp_tree, hf_hsrp_opcode, tvb, offset, 1, opcode);
                 offset++;
-                proto_tree_add_uint(hsrp_tree, hf_hsrp_state, tvb, offset, 1, state);
-                offset++;
-                hellotime = tvb_get_guint8(tvb, offset);
-                proto_tree_add_uint_format(hsrp_tree, hf_hsrp_hellotime, tvb, offset, 1, hellotime,
+		if (opcode < 3) {
+			proto_tree_add_uint(hsrp_tree, hf_hsrp_state, tvb, offset, 1, state);
+			offset++;
+			hellotime = tvb_get_guint8(tvb, offset);
+			proto_tree_add_uint_format(hsrp_tree, hf_hsrp_hellotime, tvb, offset, 1, hellotime,
                                            "Hellotime: %sDefault (%u)",
                                            (hellotime == HSRP_DEFAULT_HELLOTIME) ? "" : "Non-",
                                            hellotime);
-                offset++;
-                holdtime = tvb_get_guint8(tvb, offset);
-                proto_tree_add_uint_format(hsrp_tree, hf_hsrp_holdtime, tvb, offset, 1, holdtime,
+			offset++;
+			holdtime = tvb_get_guint8(tvb, offset);
+			proto_tree_add_uint_format(hsrp_tree, hf_hsrp_holdtime, tvb, offset, 1, holdtime,
                                            "Holdtime: %sDefault (%u)",
                                            (holdtime == HSRP_DEFAULT_HOLDTIME) ? "" : "Non-",
                                            holdtime);
-                offset++;
-                proto_tree_add_item(hsrp_tree, hf_hsrp_priority, tvb, offset, 1, FALSE);
-                offset++;
-                proto_tree_add_item(hsrp_tree, hf_hsrp_group, tvb, offset, 1, FALSE);
-                offset++;
-                proto_tree_add_item(hsrp_tree, hf_hsrp_reserved, tvb, offset, 1, FALSE);
-                offset++;
-                tvb_memcpy(tvb, auth_buf, offset, 8);
-                auth_buf[sizeof auth_buf - 1] = '\0';
-                proto_tree_add_string_format(hsrp_tree, hf_hsrp_auth_data, tvb, offset, 8, auth_buf,
+			offset++;
+			proto_tree_add_item(hsrp_tree, hf_hsrp_priority, tvb, offset, 1, FALSE);
+			offset++;
+			proto_tree_add_item(hsrp_tree, hf_hsrp_group, tvb, offset, 1, FALSE);
+			offset++;
+			proto_tree_add_item(hsrp_tree, hf_hsrp_reserved, tvb, offset, 1, FALSE);
+			offset++;
+			tvb_memcpy(tvb, auth_buf, offset, 8);
+			auth_buf[sizeof auth_buf - 1] = '\0';
+			proto_tree_add_string_format(hsrp_tree, hf_hsrp_auth_data, tvb, offset, 8, auth_buf,
                                              "Authentication Data: %sDefault (%s)",
                                              (tvb_strneql(tvb, offset, "cisco", strlen("cisco"))) == 0 ? "" : "Non-",
                                              auth_buf);
-                offset += 8;
-                proto_tree_add_item(hsrp_tree, hf_hsrp_virt_ip_addr, tvb, offset, 4, FALSE);
-                offset += 4;
-
+			offset += 8;
+			proto_tree_add_item(hsrp_tree, hf_hsrp_virt_ip_addr, tvb, offset, 4, FALSE);
+			offset += 4;
+		} else if (opcode == 3) {
+			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_type, tvb, offset, 2, FALSE);
+			offset += 2;
+			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_length, tvb, offset, 2, FALSE);
+			offset += 2;
+			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_state, tvb, offset, 1, FALSE);
+			offset += 1;
+			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_reserved1, tvb, offset, 1, FALSE);
+			offset += 1;
+			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_activegrp, tvb, offset, 2, FALSE);
+			offset += 2;
+			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_passivegrp, tvb, offset, 2, FALSE);
+			offset += 2;
+			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_reserved2, tvb, offset, 4, FALSE);
+			offset += 4;
+		} else {
+			next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+			call_dissector(data_handle, next_tvb, pinfo, hsrp_tree);
+		}
         }
 
         return;
@@ -222,6 +311,41 @@ void proto_register_hsrp(void)
                     FT_IPv4, 0, NULL, 0x0,
                     "The virtual IP address used by this group", HFILL }},
 
+		{ &hf_hsrp_adv_type,
+		  { "Adv type", "hsrp.adv.tlvtype",
+		    FT_UINT16, BASE_DEC, VALS(hsrp_adv_type_vals), 0x0,
+		    "Advertisement tlv type", HFILL }},
+
+		{ &hf_hsrp_adv_length,
+		  { "Adv length", "hsrp.adv.tlvlength",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    "Advertisement tlv length", HFILL }},
+
+		{ &hf_hsrp_adv_state,
+		  { "Adv state", "hsrp.adv.state",
+		    FT_UINT8, BASE_DEC, VALS(hsrp_adv_state_vals), 0x0,
+		    "Advertisement tlv length", HFILL }},
+
+		{ &hf_hsrp_adv_reserved1,
+		  { "Adv reserved1", "hsrp.adv.reserved1",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Advertisement tlv length", HFILL }},
+
+		{ &hf_hsrp_adv_activegrp,
+		  { "Adv active groups", "hsrp.adv.activegrp",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Advertisement active group count", HFILL }},
+
+		{ &hf_hsrp_adv_passivegrp,
+		  { "Adv passive groups", "hsrp.adv.passivegrp",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Advertisement passive group count", HFILL }},
+
+		{ &hf_hsrp_adv_reserved2,
+		  { "Adv reserved2", "hsrp.adv.reserved2",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Advertisement tlv length", HFILL }},
+
         };
 
         static gint *ett[] = {
@@ -241,6 +365,7 @@ proto_reg_handoff_hsrp(void)
 {
 	dissector_handle_t hsrp_handle;
 
+	data_handle = find_dissector("data");
 	hsrp_handle = create_dissector_handle(dissect_hsrp, proto_hsrp);
 	dissector_add("udp.port", UDP_PORT_HSRP, hsrp_handle);
 }
