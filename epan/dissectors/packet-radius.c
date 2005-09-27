@@ -515,7 +515,7 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
         gint tvb_len;
         guint32 avp_type;
         guint32 avp_length;
-        guint32 vendor_id = 0;
+        guint32 vendor_id;
 
         proto_item* avp_item;
         proto_item* avp_len_item;
@@ -530,9 +530,10 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
         avp_type = tvb_get_guint8(tvb,offset);
         avp_length = tvb_get_guint8(tvb,offset+1);
 
-        if (avp_length < 1) {
-            proto_tree_add_text(tree, tvb, offset+1, 1,
-                        "[AVP too short]");
+        if (avp_length < 2) {
+            item = proto_tree_add_text(tree, tvb, offset, 0,
+                        "AVP too short: length %u < 2", avp_length);
+            PROTO_ITEM_SET_GENERATED(item);
             return;
         }
 
@@ -545,55 +546,50 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
         
         length -= avp_length;
 
-        avp_item = proto_tree_add_text(tree,tvb,offset,avp_length,"AVP: l=%u ",avp_length);
-        
-        if (avp_type == RADIUS_VENDOR_SPECIFIC_CODE) {
-            /* XXX TODO: handle 2 byte codes for USR */
+        dictionary_entry = g_hash_table_lookup(dict->attrs_by_id,GUINT_TO_POINTER(avp_type));
             
-            if (avp_length < 8) {
-                proto_item_append_text(avp_item, "[AVP too short]");
-                offset += avp_length;
-                continue;
-            }
-            vendor_id = tvb_get_ntohl(tvb,offset+2);
-            
-            avp_length -= 6;
-            offset += 6;
-        } else {
-            dictionary_entry = g_hash_table_lookup(dict->attrs_by_id,GUINT_TO_POINTER(avp_type));
-            
-            if (! dictionary_entry ) {
-                dictionary_entry = &no_dictionary_entry;
-            }
-            
-            proto_item_append_text(avp_item, " t=%s(%u)", dictionary_entry->name, avp_type);
-            
-            if (avp_length < 2) {
-                proto_item_append_text(avp_item, "[AVP too short]");
-                offset += avp_length;
-                continue;
-            }
-            avp_length -= 2;
-            offset += 2;
+        if (! dictionary_entry ) {
+            dictionary_entry = &no_dictionary_entry;
         }
+            
+        avp_item = proto_tree_add_text(tree, tvb, offset, avp_length,
+                                       "AVP: l=%u  t=%s(%u)", avp_length,
+                                       dictionary_entry->name, avp_type);
         
-        if(vendor_id) {
-            radius_vendor_info_t* vendor = g_hash_table_lookup(dict->vendors_by_id,GUINT_TO_POINTER(vendor_id));
+        avp_length -= 2;
+        offset += 2;
+
+        if (avp_type == RADIUS_VENDOR_SPECIFIC_CODE) {
+            radius_vendor_info_t* vendor;
             proto_tree* vendor_tree;
             gint max_offset = offset + avp_length;
-            gchar* vendor_str;
+            const gchar* vendor_str;
+
+            /* XXX TODO: handle 2 byte codes for USR */
             
+            if (avp_length < 4) {
+                proto_item_append_text(avp_item, " [AVP too short; no room for vendor ID]");
+                offset += avp_length;
+                continue;
+            }
+            vendor_id = tvb_get_ntohl(tvb,offset);
+            
+            avp_length -= 4;
+            offset += 4;
+            
+            vendor = g_hash_table_lookup(dict->vendors_by_id,GUINT_TO_POINTER(vendor_id));
             if (vendor) {
-                vendor_str = ep_strdup_printf("v=%s(%u)", vendor->name, vendor_id);
-                proto_item_append_text(avp_item, " t=Vendor-Specific(26) %s", vendor_str);
+            	vendor_str = vendor->name;
             } else {
-                proto_item_append_text(avp_item, " t=Vendor-Specific(26) v=%s(%u)", val_to_str(vendor_id, sminmpec_values, "Unknown"), vendor_id);
+                vendor_str = val_to_str(vendor_id, sminmpec_values, "Unknown");
                 vendor = &no_vendor;
             }
+            proto_item_append_text(avp_item, " v=%s(%u)", vendor_str,
+                                   vendor_id);
             
             vendor_tree = proto_item_add_subtree(avp_item,vendor->ett);
             
-            do {
+            while (offset < max_offset) {
                 guint32 avp_vsa_type = tvb_get_guint8(tvb,offset++);
                 guint32 avp_vsa_len = tvb_get_guint8(tvb,offset++);
                 
@@ -628,11 +624,11 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
                 add_avp_to_tree(avp_tree, avp_item, pinfo, tvb, dictionary_entry, avp_vsa_len, offset);
                 
                 offset += avp_vsa_len;
-            } while (offset < max_offset);
+            };
             continue;
-        } else {
-            avp_tree = proto_item_add_subtree(avp_item,dictionary_entry->ett);
         }
+
+        avp_tree = proto_item_add_subtree(avp_item,dictionary_entry->ett);
         
         if (show_length) {
             avp_len_item = proto_tree_add_uint(avp_tree,
