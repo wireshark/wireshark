@@ -1,0 +1,11 @@
+#
+# dictionary.ericsson
+#
+
+VENDOR	Ericsson	193
+
+#
+# Ericsson specific
+
+ATTRIBUTE	Major-Protocol-Version				35	integer	Ericsson
+ATTRIBUTE	Minor-Protocol-Version				36	integer	Ericsson

@@ -41,6 +41,7 @@ $INCLUDE dictionary.cisco.bbsm
 $INCLUDE dictionary.cosine
 $INCLUDE dictionary.colubris
 $INCLUDE dictionary.columbia_university
+$INCLUDE dictionary.ericsson
 $INCLUDE dictionary.erx
 $INCLUDE dictionary.extreme
 $INCLUDE dictionary.freeradius
