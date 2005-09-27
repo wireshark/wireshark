@@ -294,9 +294,6 @@ void tvbparse_shrink_token_cb(void* tvbparse_data,
 
 
 
-
-
-
 /* initialize the parser (at every packet)
 * tvb: what are we parsing? 
 * offset: from where
@@ -312,6 +309,9 @@ tvbparse_t* tvbparse_init(tvbuff_t* tvb,
 
 /* reset the parser */
 gboolean tvbparse_reset(tvbparse_t* tt, int offset, int len);
+
+guint tvbparse_curr_offset(tvbparse_t* tt);
+guint tvbparse_len_left(tvbparse_t* tt);
 
 /*
  * This ill look for the wanted token at the current offset or after any given

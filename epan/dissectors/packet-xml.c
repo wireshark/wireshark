@@ -444,27 +444,32 @@ static void unrecognized_token(void* tvbparse_data, const void* wanted_data _U_,
 
 
 void init_xml_parser(void) {	
-	tvbparse_wanted_t* want_name = tvbparse_chars(-1,0,0,"abcdefghijklmnopqrstuvwxyz-_ABCDEFGHIJKLMNOPQRSTUVWXYZ",NULL,NULL,NULL);
+	tvbparse_wanted_t* want_name = tvbparse_chars(-1,1,0,"abcdefghijklmnopqrstuvwxyz-_ABCDEFGHIJKLMNOPQRSTUVWXYZ",NULL,NULL,NULL);
+	tvbparse_wanted_t* want_attr_name = tvbparse_chars(-1,1,0,"abcdefghijklmnopqrstuvwxyz-_ABCDEFGHIJKLMNOPQRSTUVWXYZ:",NULL,NULL,NULL);
+    
+    tvbparse_wanted_t* want_scoped_name = tvbparse_set_seq(XML_SCOPED_NAME, NULL, NULL, NULL,
+                                                           want_name,
+                                                           tvbparse_char(-1,":",NULL,NULL,NULL),
+                                                           want_name,
+                                                           NULL);
     
     tvbparse_wanted_t* want_tag_name = tvbparse_set_oneof(0, NULL, NULL, NULL,
-                                                          tvbparse_set_seq(XML_SCOPED_NAME, NULL, NULL, NULL,
-                                                                           want_name,
-                                                                           tvbparse_char(-1,":",NULL,NULL,NULL),
-                                                                           want_name,
-                                                                           NULL),
+                                                          want_scoped_name,
                                                           want_name,
                                                           NULL);
-        
+    
+    tvbparse_wanted_t* want_attrib_value = tvbparse_set_oneof(0, NULL, NULL, get_attrib_value,
+                                                              tvbparse_quoted(-1, NULL, NULL, tvbparse_shrink_token_cb,'\"','\\'),
+                                                              tvbparse_quoted(-1, NULL, NULL, tvbparse_shrink_token_cb,'\'','\\'),
+                                                              tvbparse_chars(-1,1,0,"0123456789",NULL,NULL,NULL),
+                                                              want_name,
+                                                              NULL);
+    
 	tvbparse_wanted_t* want_attributes = tvbparse_one_or_more(-1, NULL, NULL, NULL,
 															  tvbparse_set_seq(-1, NULL, NULL, after_attrib,
-                                                                               tvbparse_chars(-1,0,0,"abcdefghijklmnopqrstuvwxyz-_ABCDEFGHIJKLMNOPQRSTUVWXYZ:",NULL,NULL,NULL),
+                                                                               want_attr_name,
 																			   tvbparse_char(-1,"=",NULL,NULL,NULL),
-																			   tvbparse_set_oneof(0, NULL, NULL, get_attrib_value,
-																								  tvbparse_quoted(-1, NULL, NULL, tvbparse_shrink_token_cb,'\"','\\'),
-																								  tvbparse_quoted(-1, NULL, NULL, tvbparse_shrink_token_cb,'\'','\\'),
-																								  tvbparse_chars(-1,0,0,"0123456789",NULL,NULL,NULL),
-																								  want_name,
-																								  NULL),
+																			   want_attrib_value,
 																			   NULL));
 	
 	tvbparse_wanted_t* want_stoptag = tvbparse_set_oneof(-1,NULL,NULL,NULL,
@@ -474,77 +479,93 @@ void init_xml_parser(void) {
 	
 	tvbparse_wanted_t* want_stopxmlpi = tvbparse_string(-1,"?>",NULL,NULL,after_xmlpi);
 	
-	want_ignore = tvbparse_chars(-1,0,0," \t\r\n",NULL,NULL,NULL);
+    tvbparse_wanted_t* want_comment = tvbparse_set_seq(hf_comment,NULL,NULL,after_token,
+                                                       tvbparse_string(-1,"<!--",NULL,NULL,NULL),
+                                                       tvbparse_until(-1,NULL,NULL,NULL,
+                                                                      tvbparse_string(-1,"-->",NULL,NULL,NULL),
+                                                                      TRUE),
+                                                       NULL);
+    
+    tvbparse_wanted_t* want_xmlpi = tvbparse_set_seq(hf_xmlpi,NULL,before_xmpli,NULL,
+                                                     tvbparse_string(-1,"<?",NULL,NULL,NULL),
+                                                     want_name,
+                                                     tvbparse_set_oneof(-1,NULL,NULL,NULL,
+                                                                        want_stopxmlpi,
+                                                                        tvbparse_set_seq(-1,NULL,NULL,NULL,
+                                                                                         want_attributes,
+                                                                                         want_stopxmlpi,
+                                                                                         NULL),
+                                                                        NULL),
+                                                     NULL);
+    
+    tvbparse_wanted_t* want_closing_tag = tvbparse_set_seq(0,NULL,NULL,after_untag,
+                                                           tvbparse_char(-1, "<", NULL, NULL, NULL),
+                                                           tvbparse_char(-1, "/", NULL, NULL, NULL),
+                                                           want_tag_name,
+                                                           tvbparse_char(-1, ">", NULL, NULL, NULL),
+                                                           NULL);
+    
+    tvbparse_wanted_t* want_doctype_start = tvbparse_set_seq(-1,NULL,before_dtd_doctype,NULL,
+                                                             tvbparse_char(-1,"<",NULL,NULL,NULL),
+                                                             tvbparse_char(-1,"!",NULL,NULL,NULL),
+                                                             tvbparse_casestring(-1,"DOCTYPE",NULL,NULL,NULL),
+                                                             tvbparse_set_oneof(-1,NULL,NULL,NULL,
+                                                                                tvbparse_set_seq(-1,NULL,NULL,NULL,
+                                                                                                 want_name,
+                                                                                                 tvbparse_char(-1,"[",NULL,NULL,NULL),
+                                                                                                 NULL),
+                                                                                tvbparse_set_seq(-1,NULL,NULL,pop_stack,
+                                                                                                 want_name,
+                                                                                                 tvbparse_set_oneof(-1,NULL,NULL,NULL,
+                                                                                                                    tvbparse_casestring(-1,"PUBLIC",NULL,NULL,NULL),
+                                                                                                                    tvbparse_casestring(-1,"SYSTEM",NULL,NULL,NULL),
+                                                                                                                    NULL),
+                                                                                                 tvbparse_until(-1,NULL,NULL,NULL,
+                                                                                                                tvbparse_char(-1,">",NULL,NULL,NULL),
+                                                                                                                FALSE),
+                                                                                                 tvbparse_char(-1,">",NULL,NULL,NULL),
+                                                                                                 NULL),
+                                                                                NULL),
+                                                             NULL);
+    
+    tvbparse_wanted_t* want_dtd_tag = tvbparse_set_seq(hf_dtd_tag,NULL,NULL,after_token,
+                                                       tvbparse_char(-1,"<",NULL,NULL,NULL),
+                                                       tvbparse_char(-1,"!",NULL,NULL,NULL),
+                                                       tvbparse_until(-1,NULL,NULL,NULL,
+                                                                      tvbparse_char(-1, ">", NULL, NULL, NULL),
+                                                                      TRUE),
+                                                       NULL);
+    
+    tvbparse_wanted_t* want_tag = tvbparse_set_seq(-1, NULL, before_tag, NULL,
+                                                   tvbparse_char(-1,"<",NULL,NULL,NULL),
+                                                   want_tag_name,
+                                                   tvbparse_set_oneof(-1,NULL,NULL,NULL,
+                                                                      tvbparse_set_seq(-1,NULL,NULL,NULL,
+                                                                                       want_attributes,
+                                                                                       want_stoptag,
+                                                                                       NULL),
+                                                                      want_stoptag,
+                                                                      NULL),
+                                                   NULL);
+    
+    tvbparse_wanted_t* want_dtd_close = tvbparse_set_seq(-1,NULL,NULL,after_dtd_close,
+                                                         tvbparse_char(-1,"]",NULL,NULL,NULL),
+                                                         tvbparse_char(-1,">",NULL,NULL,NULL),
+                                                         NULL);
+    
+    want_ignore = tvbparse_chars(-1,1,0," \t\r\n",NULL,NULL,NULL);
 	
+    
 	want = tvbparse_set_oneof(-1, NULL, NULL, NULL,
-							  tvbparse_set_seq(hf_comment,NULL,NULL,after_token,
-											   tvbparse_string(-1,"<!--",NULL,NULL,NULL),
-											   tvbparse_until(-1,NULL,NULL,NULL,
-															  tvbparse_string(-1,"-->",NULL,NULL,NULL),
-															  TRUE),
-											   NULL),
-							  tvbparse_set_seq(hf_xmlpi,NULL,before_xmpli,NULL,
-											   tvbparse_string(-1,"<?",NULL,NULL,NULL),
-											   want_name,
-											   tvbparse_set_oneof(-1,NULL,NULL,NULL,
-																  want_stopxmlpi,
-																  tvbparse_set_seq(-1,NULL,NULL,NULL,
-																				   want_attributes,
-																				   want_stopxmlpi,
-																				   NULL),
-																  NULL),
-											   NULL),
-							  tvbparse_set_seq(0,NULL,NULL,after_untag,
-											   tvbparse_char(-1, "<", NULL, NULL, NULL),
-											   tvbparse_char(-1, "/", NULL, NULL, NULL),
-											   want_tag_name,
-											   tvbparse_char(-1, ">", NULL, NULL, NULL),
-											   NULL),
-							  tvbparse_set_seq(-1,NULL,before_dtd_doctype,NULL,
-											   tvbparse_char(-1,"<",NULL,NULL,NULL),
-											   tvbparse_char(-1,"!",NULL,NULL,NULL),
-											   tvbparse_casestring(-1,"DOCTYPE",NULL,NULL,NULL),
-											   tvbparse_set_oneof(-1,NULL,NULL,NULL,
-																  tvbparse_set_seq(-1,NULL,NULL,NULL,
-																				   want_name,
-																				   tvbparse_char(-1,"[",NULL,NULL,NULL),
-																				   NULL),
-																  tvbparse_set_seq(-1,NULL,NULL,pop_stack,
-																				   want_name,
-																				   tvbparse_set_oneof(-1,NULL,NULL,NULL,
-																									  tvbparse_casestring(-1,"PUBLIC",NULL,NULL,NULL),
-																									  tvbparse_casestring(-1,"SYSTEM",NULL,NULL,NULL),
-																									  NULL),
-																				   tvbparse_until(-1,NULL,NULL,NULL,
-																								  tvbparse_char(-1,">",NULL,NULL,NULL),
-																								  TRUE),
-																				   NULL),
-																  NULL),
-											   NULL),
-							  tvbparse_set_seq(-1,NULL,NULL,after_dtd_close,
-											   tvbparse_char(-1,"]",NULL,NULL,NULL),
-											   tvbparse_char(-1,">",NULL,NULL,NULL),
-											   NULL),
-							  tvbparse_set_seq(hf_dtd_tag,NULL,NULL,after_token,
-											   tvbparse_char(-1,"<",NULL,NULL,NULL),
-											   tvbparse_char(-1,"!",NULL,NULL,NULL),
-											   tvbparse_until(-1,NULL,NULL,NULL,
-															  tvbparse_char(-1, ">", NULL, NULL, NULL),
-															  TRUE),
-											   NULL),
-							  tvbparse_set_seq(-1, NULL, before_tag, NULL,
-											   tvbparse_char(-1,"<",NULL,NULL,NULL),
-											   want_tag_name,
-											   tvbparse_set_oneof(-1,NULL,NULL,NULL,
-																  tvbparse_set_seq(-1,NULL,NULL,NULL,
-																				   want_attributes,
-																				   want_stoptag,
-																				   NULL),
-																  want_stoptag,
-																  NULL),
-											   NULL),
-							  tvbparse_not_chars(XML_CDATA,0,0,"<",NULL,NULL,after_token),
-							  tvbparse_not_chars(-1,0,0," \t\r\n",NULL,NULL,unrecognized_token),
+							  want_comment,
+							  want_xmlpi,
+							  want_closing_tag,
+							  want_doctype_start,
+							  want_dtd_close,
+							  want_dtd_tag,
+							  want_tag,
+							  tvbparse_not_chars(XML_CDATA,1,0,"<",NULL,NULL,after_token),
+							  tvbparse_not_chars(-1,1,0," \t\r\n",NULL,NULL,unrecognized_token),
 							  NULL);
 	
 	
@@ -750,8 +771,8 @@ static xml_ns_t* make_xml_hier(gchar* elem_name,
 	new = duplicate_element(orig);
 	new->fqn = fqn;
     
-    add_xml_field(hfs, &(new->hf_tag), elem_name, fqn);
-	add_xml_field(hfs, &(new->hf_cdata), elem_name, fqn);
+    add_xml_field(hfs, &(new->hf_tag), g_strdup(elem_name), fqn);
+	add_xml_field(hfs, &(new->hf_cdata), g_strdup(elem_name), fqn);
 
 	ett_p = &new->ett;
 	g_array_append_val(etts,ett_p);

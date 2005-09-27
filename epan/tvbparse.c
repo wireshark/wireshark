@@ -50,7 +50,8 @@ typedef enum _tvbparse_wanted_type_t {
 	/* composed tokens */
 	TVBPARSE_WANTED_SET_ONEOF, /* one of the given types */
 	TVBPARSE_WANTED_SET_SEQ, /* an exact sequence of tokens of the given types */
-	TVBPARSE_WANTED_CARDINALITY, /* one or more tokens of the given type */ 
+	TVBPARSE_WANTED_CARDINALITY /* one or more tokens of the given type */ 
+    
 } tvbparse_type_t;
 
 struct _tvbparse_t {
@@ -284,7 +285,7 @@ tvbparse_wanted_t* tvbparse_some(int id,
 	
 	tvbparse_wanted_t* w = g_malloc(sizeof(tvbparse_wanted_t));
 	
-	g_assert(from > 0 && from < to);
+	g_assert(from <= to);
 	
 	w->id = id;
 	w->type = TVBPARSE_WANTED_CARDINALITY;
@@ -418,6 +419,13 @@ static tvbparse_elem_t* new_tok(tvbparse_t* tt,
 	tok->last = tok;
 	
 	return tok;
+}
+
+guint tvbparse_curr_offset(tvbparse_t* tt) {
+    return tt->offset;
+}
+guint tvbparse_len_left(tvbparse_t* tt) {
+    return tt->max_len;
 }
 
 tvbparse_elem_t* tvbparse_get(tvbparse_t* tt,
@@ -629,6 +637,10 @@ tvbparse_elem_t* tvbparse_get(tvbparse_t* tt,
 			guint got_so_far = 0;
 			tvbparse_wanted_t* w = g_ptr_array_index(wanted->elems,0);
 			
+            if ( wanted->min == 0 ) {
+                new_tok(tt,wanted->id,tt->offset,0,wanted);
+            }
+            
 			while (got_so_far < wanted->max) {
 				tvbparse_elem_t* new = tvbparse_get(tt, w);
 				
