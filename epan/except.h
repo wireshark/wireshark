@@ -51,7 +51,7 @@ typedef struct {
 
 typedef struct {
     except_id_t volatile except_id;
-    char *volatile except_message;
+    const char *volatile except_message;
     void *volatile except_dyndata;
 } except_t;
 
@@ -91,13 +91,13 @@ extern struct except_stacknode *except_pop(void);
 extern int except_init(void);
 extern void except_deinit(void);
 extern void except_rethrow(except_t *);
-extern void except_throw(long, long, char *);
-extern void except_throwd(long, long, char *, void *);
+extern void except_throw(long, long, const char *);
+extern void except_throwd(long, long, const char *, void *);
 extern void except_throwf(long, long, const char *, ...);
 extern void (*except_unhandled_catcher(void (*)(except_t *)))(except_t *);
 extern unsigned long except_code(except_t *);
 extern unsigned long except_group(except_t *);
-extern char *except_message(except_t *);
+extern const char *except_message(except_t *);
 extern void *except_data(except_t *);
 extern void *except_take_data(except_t *);
 extern void except_set_allocator(void *(*)(size_t), void (*)(void *));

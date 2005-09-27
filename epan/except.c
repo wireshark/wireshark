@@ -259,7 +259,7 @@ void except_rethrow(except_t *except)
     do_throw(except);
 }
 
-void except_throw(long group, long code, char *msg)
+void except_throw(long group, long code, const char *msg)
 {
     except_t except;
 
@@ -271,7 +271,7 @@ void except_throw(long group, long code, char *msg)
     do_throw(&except);
 }
 
-void except_throwd(long group, long code, char *msg, void *data)
+void except_throwd(long group, long code, const char *msg, void *data)
 {
     except_t except;
 
@@ -321,7 +321,7 @@ unsigned long except_group(except_t *ex)
     return ex->except_id.except_group;
 }
 
-char *except_message(except_t *ex)
+const char *except_message(except_t *ex)
 {
     return ex->except_message;
 }
