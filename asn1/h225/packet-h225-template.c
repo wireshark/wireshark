@@ -172,11 +172,15 @@ static int hf_h225_fastStart_item_length = -1;
 static gint ett_h225 = -1;
 #include "packet-h225-ett.c"
 
+/* Preferences */
+static gboolean h225_reassembly = TRUE;
+static gboolean h225_h245_in_tree = TRUE;
+static gboolean h225_tp_in_tree = TRUE;
+
 /* Global variables */
 static guint32  ipv4_address;
 static guint32  ipv4_port;
 guint32 T38_manufacturer_code;
-static gboolean h225_reassembly = TRUE;
 guint32 value;
 static gboolean contains_faststart = FALSE;
 
@@ -321,6 +325,14 @@ void proto_register_h225(void) {
 		"Whether the H.225 dissector should reassemble messages spanning multiple TCP segments."
 		" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 		&h225_reassembly);
+  prefs_register_bool_preference(h225_module, "h245_in_tree",
+		"Display tunnelled H.245 inside H.225.0 tree",
+		"ON - display tunnelled H.245 inside H.225.0 tree, OFF - display tunnelled H.245 in root tree after H.225.0",
+		&h225_h245_in_tree);
+  prefs_register_bool_preference(h225_module, "tp_in_tree",
+		"Display tunnelled protocols inside H.225.0 tree",
+		"ON - display tunnelled protocols inside H.225.0 tree, OFF - display tunnelled protocols in root tree after H.225.0",
+		&h225_tp_in_tree);
 
   new_register_dissector("h225", dissect_h225_H323UserInformation, proto_h225);
   new_register_dissector("h323ui",dissect_h225_H323UserInformation, proto_h225);

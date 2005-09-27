@@ -230,14 +230,14 @@ CallIdentifier/guid guid
 	tvbuff_t *h245_tvb = NULL;
 
 %(DEFAULT_BODY)s
-  next_tvb_add(&h245_list, h245_tvb, tree, h245dg_handle);
+  next_tvb_add(&h245_list, h245_tvb, (h225_h245_in_tree)?tree:NULL, h245dg_handle);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY H245Control/_item  VAL_PTR = &h245_tvb
 	tvbuff_t *h245_tvb = NULL;
 
 %(DEFAULT_BODY)s
-  next_tvb_add(&h245_list, h245_tvb, tree, h245dg_handle);
+  next_tvb_add(&h245_list, h245_tvb, (h225_h245_in_tree)?tree:NULL, h245dg_handle);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR H323-UU-PDU/h323-message-body/empty
@@ -481,7 +481,7 @@ ReleaseCompleteReason     VAL_PTR = &value
   tvbuff_t *next_tvb = NULL;
 
 %(DEFAULT_BODY)s
-  next_tvb_add(&tp_list, next_tvb, tree, tp_handle);
+  next_tvb_add(&tp_list, next_tvb, (h225_tp_in_tree)?tree:NULL, tp_handle);
 #.END
 
 #--- NonStandardParameter ---------------------------------------------------------------

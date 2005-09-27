@@ -1166,11 +1166,15 @@ static gint ett_h225_T_result = -1;
 /*--- End of included file: packet-h225-ett.c ---*/
 
 
+/* Preferences */
+static gboolean h225_reassembly = TRUE;
+static gboolean h225_h245_in_tree = TRUE;
+static gboolean h225_tp_in_tree = TRUE;
+
 /* Global variables */
 static guint32  ipv4_address;
 static guint32  ipv4_port;
 guint32 T38_manufacturer_code;
-static gboolean h225_reassembly = TRUE;
 guint32 value;
 static gboolean contains_faststart = FALSE;
 
@@ -5463,7 +5467,7 @@ dissect_h225_ParallelH245Control_item(tvbuff_t *tvb, int offset, packet_info *pi
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
                                        -1, -1, &h245_tvb);
 
-  next_tvb_add(&h245_list, h245_tvb, tree, h245dg_handle);
+  next_tvb_add(&h245_list, h245_tvb, (h225_h245_in_tree)?tree:NULL, h245dg_handle);
 
   return offset;
 }
@@ -6301,7 +6305,7 @@ dissect_h225_H245Control_item(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
                                        -1, -1, &h245_tvb);
 
-  next_tvb_add(&h245_list, h245_tvb, tree, h245dg_handle);
+  next_tvb_add(&h245_list, h245_tvb, (h225_h245_in_tree)?tree:NULL, h245dg_handle);
 
   return offset;
 }
@@ -6374,7 +6378,7 @@ dissect_h225_T_messageContent_item(tvbuff_t *tvb, int offset, packet_info *pinfo
   offset = dissect_per_octet_string(tvb, offset, pinfo, tree, hf_index,
                                        -1, -1, &next_tvb);
 
-  next_tvb_add(&tp_list, next_tvb, tree, tp_handle);
+  next_tvb_add(&tp_list, next_tvb, (h225_tp_in_tree)?tree:NULL, tp_handle);
 
   return offset;
 }
@@ -12669,6 +12673,14 @@ void proto_register_h225(void) {
 		"Whether the H.225 dissector should reassemble messages spanning multiple TCP segments."
 		" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 		&h225_reassembly);
+  prefs_register_bool_preference(h225_module, "h245_in_tree",
+		"Display tunnelled H.245 inside H.225.0 tree",
+		"ON - display tunnelled H.245 inside H.225.0 tree, OFF - display tunnelled H.245 in root tree after H.225.0",
+		&h225_h245_in_tree);
+  prefs_register_bool_preference(h225_module, "tp_in_tree",
+		"Display tunnelled protocols inside H.225.0 tree",
+		"ON - display tunnelled protocols inside H.225.0 tree, OFF - display tunnelled protocols in root tree after H.225.0",
+		&h225_tp_in_tree);
 
   new_register_dissector("h225", dissect_h225_H323UserInformation, proto_h225);
   new_register_dissector("h323ui",dissect_h225_H323UserInformation, proto_h225);
