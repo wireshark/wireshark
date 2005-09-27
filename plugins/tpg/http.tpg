@@ -1,0 +1,142 @@
+#
+# HTTP header TPG description
+#
+# (c) 2005 Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+#
+# $Id $
+#
+# Ethereal - Network traffic analyzer
+# By Gerald Combs <gerald@ethereal.com>
+# Copyright 2004 Gerald Combs
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+%header_head %{
+typedef struct _http_info_value_t
+{
+	guint32  framenum;
+	gchar	*request_method;	
+	guint	 response_code;
+	gchar   *http_host;
+	gchar   *request_uri;
+    guint content_length;
+    gchar* media;
+    gboolean is_response;
+    gchar* transfer_encoding;
+} http_info_value_t;
+%}
+
+%parser_name http .
+%export req_resp header crlf .
+
+
+%tt_type %{ http_info_value_t %}
+
+%rule crlf = "\r\n" .
+
+%rule sp = [ ]+ .
+
+%field version hyttp.version "HTTP Version" FT_STRING.
+%rule http_version = "HTTP/" ( "1.0" | "1.1" )<version> .
+
+%field response hyttp.response "Response" FT_BOOLEAN .
+%field response_code hyttp.response.code "Response Code" FT_UINT32 BASE_DEC %{ http_response_codes %} .
+%rule response = (http_version sp [0-9]+<response_code:RESPONSE> ... { crlf } )<response:%plain_text> . {
+    %root response
+    %code %{
+        TT_DATA->is_response = TRUE;
+        TT_DATA->response_code = TPG_UINT(RESPONSE);
+    %}
+}
+
+%field request hyttp.request "Request" FT_BOOLEAN .
+%field method hyttp.request.method "Request Method" FT_STRING  .
+%field uri hyttp.request.uri "Request URI" FT_STRING  .
+%rule request  = ([A-Z]+<method:METHOD> sp [^ ]+<uri:URI> sp http_version crlf )<request:%plain_text> . {
+    %root request
+    %code %{
+        TT_DATA->is_response = FALSE;
+        TT_DATA->request_method = TPG_STRING(METHOD);
+        TT_DATA->request_uri = TPG_STRING(URI);
+    %}
+}
+
+%rule req_resp = ( request | response ).
+
+%rule media  = [a-z]+ "/" [a-z]+ .
+
+%field content_type hyttp.content_type "Content-Type" FT_STRING  .
+%rule content_type = "Content-Type: " media<content_type:MEDIA> sp? crlf . {
+    %code %{
+        TT_DATA->media = TPG_STRING(MEDIA);
+    %}
+}
+
+%field content_length hyttp.headers.content_length "Content-Length" FT_UINT32 BASE_DEC .
+%rule content_length = "Content-Length: " media<content_length:LENGTH> sp? crlf . {
+    %code %{
+        TT_DATA->content_length = TPG_UINT(LENGTH);
+    %}
+}
+
+%field transfer_encoding hyttp.transfer_encoding "Transfer-Encoding" FT_STRING  .
+%rule transfer_encoding = "Transfer-Encoding: " ...<transfer_encoding:ENCODING> { crlf }. {
+    %code %{
+        TT_DATA->transfer_encoding = TPG_STRING(ENCODING);
+    %}
+}
+
+%field authorization hyttp.authorization "Authorization" FT_STRING  .
+%rule authorization = "Authorization: " ...<authorization> { crlf }  .
+
+%field proxy_authorization hyttp.proxy_authorization "Proxy-Authorization" FT_STRING  .
+%rule proxy_author = "Proxy-Authorization: " ...<proxy_authorization> { crlf }  .
+
+%field proxy_authen hyttp.proxy_authenti "Proxy-Authenticate" FT_STRING  .
+%rule proxy_authen = "Proxy-Authenticate: " ...<proxy_authen> { crlf }  .
+
+%field www_auth hyttp.www_authenticate "WWW-Authenticate" FT_STRING  .
+%rule www_auth = "WWW-Authenticate: " ...<www_auth> { crlf }  .
+
+%field content_encoding hyttp.content_encoding "Content-Encoding" FT_STRING  .
+%rule content_encoding = "Content-Encoding: " ...<content_encoding> { crlf }  .
+
+%field user_agent hyttp.content_encoding "User-Agent" FT_STRING  .
+%rule user_agent = "User-Agent: " ...<user_agent> { crlf }  .
+
+%field host hyttp.host "Host" FT_STRING  .
+%rule host  = "Host: " ...<host> { crlf } .
+
+%rule other_header = ([A-Z] [a-zA-Z-]+)<NAME> ": " ...<VALUE> { crlf } .
+
+%field header hyttp.headers.line "HTTP Header Line" FT_BOOLEAN  .
+%rule header = (
+    content_type
+    | transfer_encoding
+    | content_length
+    | authorization
+    | proxy_author
+    | proxy_authen
+    | www_auth
+    | content_encoding
+    | user_agent
+    | host
+    | other_header)<header:%plain_text> . {
+    %root header
+}
+
+%tail %{
+/* tail */
+%}

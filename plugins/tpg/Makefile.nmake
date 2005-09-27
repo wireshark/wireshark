@@ -1,0 +1,65 @@
+#
+# $Id$
+#
+
+include ..\..\config.nmake
+include <win32.mak>
+
+############### no need to modify below this line #########
+
+LEMON=..\..\tools\lemon
+
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) /I$(LEMON)\
+	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+	
+.c.obj::
+	$(CC) $(CFLAGS) -Fdmate.pdb -c $<
+	
+LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
+
+!IFDEF ENABLE_LIBETHEREAL
+LINK_PLUGIN_WITH=..\..\epan\libethereal.lib
+CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
+
+OBJECTS=packet-mate.obj\
+		mate_setup.obj\
+		mate_runtime.obj\
+		mate_util.obj\
+		mate_plugin.obj\
+		mate_grammar.obj\
+		mate_parser.obj
+
+mate.dll mate.exp mate.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
+	link -dll /out:mate.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
+	$(GLIB_LIBS)
+
+!ENDIF
+
+clean:
+	rm -f $(OBJECTS) mate.dll mate.exp mate.lib *.pdb
+
+#
+# We remove the generated files with "distclean" because one of them,
+# "mate_parser.c", needs different #includes for UN*X and Windows
+# (UN*X versions of Flex make it include <unistd.h>, but that's a
+# UN*X-only header), so if you're going to build from source, you need
+# to build "mate_parser.c" from "mate_parser.l" with Flex.
+# This might not be necessary for "mate_grammar.{c,h}", but we handle them
+# the same for now.
+#
+distclean: clean
+	rm -f mate_parser.c mate_grammar.c mate_grammar.h mate_grammar.out
+
+maintainer-clean: distclean
+
+mate_parser.c : mate_parser.l
+	$(LEX) -Pdf_ -omate_parser.c mate_parser.l
+
+mate_grammar.h : mate_grammar.c
+mate_grammar.c : mate_grammar.lemon $(LEMON)\lemon.exe
+	$(LEMON)\lemon.exe t=$(LEMON)\lempar.c mate_grammar.lemon 
+
+$(LEMON)\lemon.exe:
+	cd ../../tools/lemon
+	$(MAKE) -f makefile.nmake
+	cd ../../plugins/mate
