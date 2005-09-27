@@ -133,7 +133,7 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * which case we'd have to zero the buffer out explicitly
 	 * anyway.
 	 */
-	if (tpkt_desegment && check_col(pinfo->cinfo, COL_INFO))
+	if (desegment && check_col(pinfo->cinfo, COL_INFO))
 		col_add_str(pinfo->cinfo, COL_INFO, "");
 
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
@@ -232,7 +232,7 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * information without getting TPKT stuff in the middle;
 		 * why the second?
 		 */
-		if (!tpkt_desegment && !pinfo->fragmented
+		if (!desegment && !pinfo->fragmented
 		    && check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO,
 			    "TPKT Data length = %u", data_len);

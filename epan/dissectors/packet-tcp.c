@@ -1564,7 +1564,7 @@ tcp_fragment_init(void)
 
 /* functions to trace tcp segments */
 /* Enable desegmenting of TCP streams */
-static gboolean tcp_desegment = FALSE;
+static gboolean tcp_desegment = TRUE;
 
 static GHashTable *tcp_segment_table = NULL;
 static GMemChunk *tcp_segment_key_chunk = NULL;
