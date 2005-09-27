@@ -347,17 +347,19 @@ cf_reset_state(capture_file *cf)
 void
 cf_close(capture_file *cf)
 {
+  /* do GUI things even if file is already closed, 
+   * e.g. to cleanup things if a capture couldn't be started */
+  cf_callback_invoke(cf_cb_file_closing, cf);
+
   /* close things, if not already closed before */
   if(cf->state != FILE_CLOSED) {
-
-	  cf_callback_invoke(cf_cb_file_closing, cf);
 
 	  cf_reset_state(cf);
 
 	  cleanup_dissection();
-
-	  cf_callback_invoke(cf_cb_file_closed, cf);
   }
+
+  cf_callback_invoke(cf_cb_file_closed, cf);
 }
 
 cf_read_status_t
