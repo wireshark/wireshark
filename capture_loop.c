@@ -627,6 +627,8 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 "\n"
 "Please check that you have the proper interface specified.\n"
 "\n"
+"Help can be found at: http://wiki.ethereal.com/CaptureSetup\n"
+"\n"
 "Note that version 3.0 of WinPcap, and earlier versions of WinPcap, don't\n"
 "support capturing on PPP/WAN interfaces on Windows NT 4.0 / 2000 / XP /\n"
 "Server 2003.\n"
