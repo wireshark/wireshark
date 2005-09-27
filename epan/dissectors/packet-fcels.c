@@ -134,37 +134,51 @@ static int hf_fcels_cbind_dnpname = -1;
 static int hf_fcels_cbind_status = -1;
 static int hf_fcels_chandle = -1;
 static int hf_fcels_unbind_status = -1;
+static int hf_fcels_cmn_cios = -1;
+static int hf_fcels_cmn_rro = -1;
+static int hf_fcels_cmn_vvv = -1;
+static int hf_fcels_cmn_b2b = -1;
+static int hf_fcels_cmn_e_d_tov = -1;
+static int hf_fcels_cmn_simplex = -1;
+static int hf_fcels_cmn_multicast = -1;
+static int hf_fcels_cmn_broadcast = -1;
+static int hf_fcels_cmn_security = -1;
+static int hf_fcels_cmn_clk = -1;
+static int hf_fcels_cmn_dhd = -1;
+static int hf_fcels_cmn_seqcnt = -1;
+static int hf_fcels_cmn_payload = -1;
 
-static gint ett_fcels;           
-static gint ett_fcels_lsrjt;
-static gint ett_fcels_acc;
-static gint ett_fcels_logi;
-static gint ett_fcels_logi_cmnsvc;
-static gint ett_fcels_logi_clssvc;
-static gint ett_fcels_logo;
-static gint ett_fcels_abtx;
-static gint ett_fcels_rsi;
-static gint ett_fcels_rrq;
-static gint ett_fcels_prli;
-static gint ett_fcels_prli_svcpg;
-static gint ett_fcels_adisc;
-static gint ett_fcels_farp;
-static gint ett_fcels_rps;
-static gint ett_fcels_rpl;
-static gint ett_fcels_rplpb;
-static gint ett_fcels_fan;
-static gint ett_fcels_rscn;
-static gint ett_fcels_rscn_rec;
-static gint ett_fcels_scr;
-static gint ett_fcels_rnft;
-static gint ett_fcels_rnft_fc4;
-static gint ett_fcels_lsts;
-static gint ett_fcels_rnid;
-static gint ett_fcels_rlir;
-static gint ett_fcels_lirr;
-static gint ett_fcels_srl;
-static gint ett_fcels_rpsc;         
-static gint ett_fcels_cbind;         
+static gint ett_fcels = -1;
+static gint ett_fcels_lsrjt = -1;
+static gint ett_fcels_acc = -1;
+static gint ett_fcels_logi = -1;
+static gint ett_fcels_logi_cmnsvc = -1;
+static gint ett_fcels_logi_clssvc = -1;
+static gint ett_fcels_logo = -1;
+static gint ett_fcels_abtx = -1;
+static gint ett_fcels_rsi = -1;
+static gint ett_fcels_rrq = -1;
+static gint ett_fcels_prli = -1;
+static gint ett_fcels_prli_svcpg = -1;
+static gint ett_fcels_adisc = -1;
+static gint ett_fcels_farp = -1;
+static gint ett_fcels_rps = -1;
+static gint ett_fcels_rpl = -1;
+static gint ett_fcels_rplpb = -1;
+static gint ett_fcels_fan = -1;
+static gint ett_fcels_rscn = -1;
+static gint ett_fcels_rscn_rec = -1;
+static gint ett_fcels_scr = -1;
+static gint ett_fcels_rnft = -1;
+static gint ett_fcels_rnft_fc4 = -1;
+static gint ett_fcels_lsts = -1;
+static gint ett_fcels_rnid = -1;
+static gint ett_fcels_rlir = -1;
+static gint ett_fcels_lirr = -1;
+static gint ett_fcels_srl = -1;
+static gint ett_fcels_rpsc = -1;
+static gint ett_fcels_cbind = -1;
+static gint ett_fcels_cmnfeatures = -1;
 
 static const value_string fc_prli_fc4_val[] = {
     {FC_TYPE_SCSI    , "FCP"},
@@ -251,92 +265,161 @@ fcels_init_protocol(void)
 	fcels_req_hash = g_hash_table_new(fcels_hash, fcels_equal);
 }
 
+
+static const true_false_string tfs_fc_fcels_cmn_cios = {
+	"Cont. Incr. Offset Supported",
+	"Cont. incr. offset NOT supported"
+};
+static const true_false_string tfs_fc_fcels_cmn_rro = {
+	"RRO Supported",
+	"Rro NOT supported"
+};
+static const true_false_string tfs_fc_fcels_cmn_vvv = {
+	"Valid Vendor Version",
+	"Vendor version NOT valid"
+};
+static const true_false_string tfs_fc_fcels_cmn_b2b = {
+	"Alt B2B Credit Mgmt",
+	"Normal B2B Credit Mgmt"
+};
+static const true_false_string tfs_fc_fcels_cmn_e_d_tov = {
+	"E_D_TOV Resolution in ns",
+	"E_D_TOV Resolution in ms"
+};
+static const true_false_string tfs_fc_fcels_cmn_simplex = {
+	"Simplex Dedicated Conn Supported",
+	"Simplex dedicated conn NOT supported"
+};
+static const true_false_string tfs_fc_fcels_cmn_multicast = {
+	"Multicast supported",
+	"Multicast NOT supported"
+};
+static const true_false_string tfs_fc_fcels_cmn_broadcast = {
+	"Broadcast Supported",
+	"Broadcast NOT supported"
+};
+static const true_false_string tfs_fc_fcels_cmn_security = {
+	"SECURITY Bit is SET",
+	"Security bit is NOT set"
+};
+static const true_false_string tfs_fc_fcels_cmn_clk = {
+	"Clk Sync Prim Capable",
+	"NOT clk sync prim capable"
+};
+static const true_false_string tfs_fc_fcels_cmn_dhd = {
+	"DHD Capable",
+	"NOT dhd capable"
+};
+static const true_false_string tfs_fc_fcels_cmn_seqcnt = {
+	"Cont. Incr SEQCNT rules",
+	"Normal SEQCNT rules"
+};
+static const true_false_string tfs_fc_fcels_cmn_payload = {
+	"Payload Len=256 bytes",
+	"Payload Len=116 bytes"
+};
+
 static void
-construct_cmnsvc_string (guint16 flag, gchar *flagstr, int len, guint8 opcode)
+dissect_cmnsvc (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
 {
-    int stroff = 0;
-    int punc=0;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
     
-    if (flag & 0x8000) {
-        strcpy (flagstr, "Cont. Incr. Offset Supported");
-        stroff += 28;
-	punc=1;
-    }
-    if (flag & 0x4000) {
-        stroff += g_snprintf (flagstr+stroff, len-stroff, "%sRRO Supported", punc?", ":"");
-	punc=1;
-    }
-    
-    if (flag & 0x2000) {
-        stroff += g_snprintf (flagstr+stroff, len-stroff, "%sValid Vendor Version Level", punc?", ":"");
-	punc=1;
-    }
-    
-    if (flag & 0x0800) {
-        stroff += g_snprintf (flagstr+stroff, len-stroff, "%sAlt B2B Credit Mgmt", punc?", ":"");
-	punc=1;
-    }
-    else {
-        stroff += g_snprintf (flagstr+stroff, len-stroff, "%sNormal B2B Credit Mgmt", punc?", ":"");
-	punc=1;
-    }
+	if(parent_tree){
+		item=proto_tree_add_uint(parent_tree, hf_fcels_cmnfeatures, 
+				tvb, offset, 2, flags);
+		tree=proto_item_add_subtree(item, ett_fcels_cmnfeatures);
+	}
+
+	proto_tree_add_boolean(tree, hf_fcels_cmn_cios, tvb, offset, 2, flags);
+	if (flags&0x8000){
+		proto_item_append_text(item, "  Cont. Incr. Offset Supported");
+	}
+	flags&=(~( 0x8000 ));
+
+	proto_tree_add_boolean(tree, hf_fcels_cmn_rro, tvb, offset, 2, flags);
+	if (flags&0x4000){
+		proto_item_append_text(item, "  RRO Supported");
+	}
+	flags&=(~( 0x4000 ));
+
+	proto_tree_add_boolean(tree, hf_fcels_cmn_vvv, tvb, offset, 2, flags);
+	if (flags&0x2000){
+		proto_item_append_text(item, "  Valid Vendor Version");
+	}
+	flags&=(~( 0x2000 ));
+
+	proto_tree_add_boolean(tree, hf_fcels_cmn_b2b, tvb, offset, 2, flags);
+	if (flags&0x0800){
+		proto_item_append_text(item, "  Alt B2B Credit Mgmt");
+	} else {
+		proto_item_append_text(item, "  Normal B2B Credit Mgmt");
+	}
+	flags&=(~( 0x0800 ));
 
     if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
-        if (flag & 0x0400) {
-            strcpy (&flagstr[stroff], ", E_D_TOV Resolution in ns");
-        }
-        else {
-            strcpy (&flagstr[stroff], ", E_D_TOV Resolution in ms");
-        }
-        stroff += 26;
+	proto_tree_add_boolean(tree, hf_fcels_cmn_e_d_tov, tvb, offset, 2, flags);
+	if (flags&0x0400){
+		proto_item_append_text(item, "  E_D_TOV Resolution in ns");
+	} else {
+		proto_item_append_text(item, "  E_D_TOV Resolution in ms");
+	}
+	flags&=(~( 0x0400 ));
 
-        if (flag & 0x0040) {
-            strcpy (&flagstr[stroff], ", Simplex Dedicated Conn Supported");
-            stroff += 34;
-        }
+	proto_tree_add_boolean(tree, hf_fcels_cmn_simplex, tvb, offset, 2, flags);
+	if (flags&0x0040){
+		proto_item_append_text(item, "  Simplex Dedicated Conn Supported");
+	}
+	flags&=(~( 0x0040 ));
     }
 
-    if (flag & 0x0200) {
-        strcpy (&flagstr[stroff], ", Multicast Supported");
-        stroff += 21;
-    }
+	proto_tree_add_boolean(tree, hf_fcels_cmn_multicast, tvb, offset, 2, flags);
+	if (flags&0x0200){
+		proto_item_append_text(item, "  Multicast Supported");
+	}
+	flags&=(~( 0x0200 ));
+
+	proto_tree_add_boolean(tree, hf_fcels_cmn_broadcast, tvb, offset, 2, flags);
+	if (flags&0x0100){
+		proto_item_append_text(item, "  Broadcast Supported");
+	}
+	flags&=(~( 0x0100 ));
     
-    if (flag & 0x0100) {
-        strcpy (&flagstr[stroff], ", Broadcast Supported");
-        stroff += 21;
-    }
+	proto_tree_add_boolean(tree, hf_fcels_cmn_security, tvb, offset, 2, flags);
+	if (flags&0x0020){
+		proto_item_append_text(item, "  Security Bit");
+	}
+	flags&=(~( 0x0020 ));
 
-    if (flag & 0x0020) {
-        strcpy (&flagstr[stroff], ", Security Bit");
-        stroff += 14;
-    }
+	proto_tree_add_boolean(tree, hf_fcels_cmn_clk, tvb, offset, 2, flags);
+	if (flags&0x0010){
+		proto_item_append_text(item, "  Clk Sync Prim Capable");
+	}
+	flags&=(~( 0x0010 ));
     
-    if (flag & 0x0010) {
-        strcpy (&flagstr[stroff], ", Clk Sync Prim Capable");
-        stroff += 23;
-    }
-    if (flag & 0x0004) {
-        strcpy (&flagstr[stroff], ", DHD Capable");
-        stroff += 13;
-    }
-
+	proto_tree_add_boolean(tree, hf_fcels_cmn_dhd, tvb, offset, 2, flags);
+	if (flags&0x0004){
+		proto_item_append_text(item, "  DHD Capable");
+	}
+	flags&=(~( 0x0004 ));
+    
     if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
-        if (flag & 0x0002) {
-            strcpy (&flagstr[stroff], ", Cont. Incr SEQCNT rules");
-            stroff += 25;
-        }
-        else {
-            strcpy (&flagstr[stroff], ", Normal SEQCNT rules");
-            stroff += 21;
-        }
+	proto_tree_add_boolean(tree, hf_fcels_cmn_seqcnt, tvb, offset, 2, flags);
+	if (flags&0x0002){
+		proto_item_append_text(item, "  Cont. Incr SEQCNT rules");
+	} else {
+		proto_item_append_text(item, "  Normal SEQCNT rules");
+	}
+	flags&=(~( 0x0002 ));
     }
 
-    if (flag & 0x0001) {
-        g_snprintf (flagstr+stroff, len-stroff, ", Payload Len=256 bytes");
-    }
-    else {
-        g_snprintf (flagstr+stroff, len-stroff, ", Payload Len=116 bytes");
-    }
+	proto_tree_add_boolean(tree, hf_fcels_cmn_payload, tvb, offset, 2, flags);
+	if (flags&0x0001){
+		proto_item_append_text(item, "  Payload Len=256 bytes");
+	} else {
+		proto_item_append_text(item, "  Payload Len=116 bytes");
+	}
+	flags&=(~( 0x0001 ));
 }
 
 /* The next 3 routines decode only Class 2 & Class 3 relevant bits */
@@ -514,11 +597,7 @@ dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             svcvld = 1;
         }
 
-        construct_cmnsvc_string (flag, flagstr, FCELS_LOGI_MAXSTRINGLEN, opcode);
-        proto_tree_add_uint_format (cmnsvc_tree, hf_fcels_cmnfeatures, tvb,
-                                    offset+8, 2, flag,
-                                    "Common Svc Parameters: 0x%x (%s)",
-                                    flag, flagstr);
+        dissect_cmnsvc (cmnsvc_tree, tvb, offset+8, flag, opcode);
         
         proto_tree_add_item (cmnsvc_tree, hf_fcels_bbscnum, tvb, offset+10, 1, FALSE);
         proto_tree_add_item (cmnsvc_tree, hf_fcels_rcvsize, tvb, offset+10, 2, FALSE);
@@ -1865,7 +1944,7 @@ proto_register_fcels (void)
           {"B2B Credit", "fcels.logi.b2b", FT_UINT8, BASE_DEC, NULL, 0x0, "",
            HFILL}},
         { &hf_fcels_cmnfeatures,
-          {"Common Features", "fcels.logi.cmnfeatures", FT_UINT16, BASE_HEX, NULL,
+          {"Common Svc Parameters", "fcels.logi.cmnfeatures", FT_UINT16, BASE_HEX, NULL,
            0x0, "", HFILL}},
         { &hf_fcels_bbscnum,
           {"BB_SC Number", "fcels.logi.bbscnum", FT_UINT8, BASE_DEC, NULL, 0xF0, "",
@@ -2073,6 +2152,45 @@ proto_register_fcels (void)
         { &hf_fcels_unbind_status,
           {"Status", "fcels.unbind.status", FT_UINT16, BASE_DEC,
            VALS(unbind_status_vals), 0x0, "Unbind status", HFILL}},
+        { &hf_fcels_cmn_cios,
+          {"Cont. Incr. Offset Supported", "fc.fcels.cmn.cios", FT_BOOLEAN, 16, 
+           TFS(&tfs_fc_fcels_cmn_cios), 0x8000, "", HFILL}},
+        { &hf_fcels_cmn_rro,
+          {"RRO Supported", "fc.fcels.cmn.rro", FT_BOOLEAN, 16, 
+           TFS(&tfs_fc_fcels_cmn_rro), 0x4000, "", HFILL}},
+        { &hf_fcels_cmn_vvv,
+          {"Valid Vendor Version", "fc.fcels.cmn.vvv", FT_BOOLEAN, 16, 
+           TFS(&tfs_fc_fcels_cmn_vvv), 0x2000, "", HFILL}},
+        { &hf_fcels_cmn_b2b,
+          {"B2B Credit Mgmt", "fc.fcels.cmn.bbb", FT_BOOLEAN, 16, 
+           TFS(&tfs_fc_fcels_cmn_b2b), 0x0800, "", HFILL}},
+        { &hf_fcels_cmn_e_d_tov,
+          {"E_D_TOV", "fc.fcels.cmn.e_d_tov", FT_BOOLEAN, 16, 
+           TFS(&tfs_fc_fcels_cmn_e_d_tov), 0x0400, "", HFILL}},
+        { &hf_fcels_cmn_simplex,
+          {"Simplex", "fc.fcels.cmn.simplex", FT_BOOLEAN, 16, 
+           TFS(&tfs_fc_fcels_cmn_simplex), 0x0040, "", HFILL}},
+        { &hf_fcels_cmn_multicast,
+          {"Multicast", "fc.fcels.cmn.multicast", FT_BOOLEAN, 16, 
+           TFS(&tfs_fc_fcels_cmn_multicast), 0x0200, "", HFILL}},
+        { &hf_fcels_cmn_broadcast,
+          {"Broadcast", "fc.fcels.cmn.broadcast", FT_BOOLEAN, 16, 
+           TFS(&tfs_fc_fcels_cmn_broadcast), 0x0100, "", HFILL}},
+        { &hf_fcels_cmn_security,
+          {"Security", "fc.fcels.cmn.security", FT_BOOLEAN, 16, 
+           TFS(&tfs_fc_fcels_cmn_security), 0x0020, "", HFILL}},
+        { &hf_fcels_cmn_clk,
+          {"Clk Sync", "fc.fcels.cmn.clk", FT_BOOLEAN, 16, 
+           TFS(&tfs_fc_fcels_cmn_clk), 0x0010, "", HFILL}},
+        { &hf_fcels_cmn_dhd,
+          {"DHD Capable", "fc.fcels.cmn.dhd", FT_BOOLEAN, 16, 
+           TFS(&tfs_fc_fcels_cmn_dhd), 0x0004, "", HFILL}},
+        { &hf_fcels_cmn_seqcnt,
+          {"SEQCNT", "fc.fcels.cmn.seqcnt", FT_BOOLEAN, 16, 
+           TFS(&tfs_fc_fcels_cmn_seqcnt), 0x0002, "", HFILL}},
+        { &hf_fcels_cmn_payload,
+          {"Payload Len", "fc.fcels.cmn.payload", FT_BOOLEAN, 16, 
+           TFS(&tfs_fc_fcels_cmn_payload), 0x0001, "", HFILL}},
     };
 
     static gint *ett[] = {
@@ -2107,6 +2225,7 @@ proto_register_fcels (void)
         &ett_fcels_srl,
         &ett_fcels_rpsc,
         &ett_fcels_cbind,
+	&ett_fcels_cmnfeatures,
     };
 
     /* Register the protocol name and description */
