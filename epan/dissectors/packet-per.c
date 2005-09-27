@@ -650,7 +650,7 @@ dissect_per_object_identifier_str(tvbuff_t *tvb, guint32 offset, packet_info *pi
 
   if (value_string) {
     if (value_tvb && (length = tvb_length(value_tvb))) {
-      *value_string = oid_to_str(tvb_get_ptr(tvb, 0, length), length);
+      *value_string = oid_to_str(tvb_get_ptr(value_tvb, 0, length), length);
     } else {
       *value_string = "";
     }
