@@ -266,7 +266,7 @@ stream_prefs_apply(GtkWidget *w _U_)
 {
 	follow_redraw_all();
 
-	update_marked_frames();
+	packet_list_update_marked_frames();
 }
 
 void

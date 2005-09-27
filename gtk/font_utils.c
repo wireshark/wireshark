@@ -535,7 +535,7 @@ user_font_apply(void) {
     }
 
     /* the font(s) seem to be ok */
-    set_plist_font(new_r_font);
+    packet_list_set_font(new_r_font);
     set_ptree_font_all(new_r_font);
     old_r_font = m_r_font;
     old_b_font = m_b_font;

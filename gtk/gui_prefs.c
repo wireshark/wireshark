@@ -540,7 +540,7 @@ gui_prefs_apply(GtkWidget *w _U_)
 	toolbar_redraw_all();
 	
 	set_scrollbar_placement_all();
-	set_plist_sel_browse(prefs.gui_plist_sel_browse);
+	packet_list_set_sel_browse(prefs.gui_plist_sel_browse);
 	set_ptree_sel_browse_all(prefs.gui_ptree_sel_browse);
 	set_tree_styles_all();
     main_widgets_rearrange();

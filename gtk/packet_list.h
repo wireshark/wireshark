@@ -56,24 +56,24 @@ extern void packet_list_resize_columns_cb(GtkWidget *widget, gpointer data);
  * @param widget parent widget (unused)
  * @param data unused
  */
-extern void mark_frame_cb(GtkWidget *widget, gpointer data);
+extern void packet_list_mark_frame_cb(GtkWidget *widget, gpointer data);
 
 /** Mark all packets in the list.
  * 
  * @param widget parent widget (unused)
  * @param data unused
  */
-extern void mark_all_frames_cb(GtkWidget *widget, gpointer data);
+extern void packet_list_mark_all_frames_cb(GtkWidget *widget, gpointer data);
 
 /** Unmark all packets in the list.
  * 
  * @param widget parent widget (unused)
  * @param data unused
  */
-extern void unmark_all_frames_cb(GtkWidget *widget, gpointer data);
+extern void packet_list_unmark_all_frames_cb(GtkWidget *widget, gpointer data);
 
 /** Update packet marks. */
-extern void update_marked_frames(void);
+extern void packet_list_update_marked_frames(void);
 
 /** Gdk button click appeared, get row and column number in packet list from that position.
  * 
@@ -90,12 +90,12 @@ extern gboolean packet_list_get_event_row_column(GtkWidget *widget,
  *
  * @param font the new font
  */
-extern void set_plist_font(FONT_TYPE *font);
+extern void packet_list_set_font(FONT_TYPE *font);
 
 /** Set the selection mode of the packet list window.
  *
  * @param val TRUE for GTK_SELECTION_SINGLE, FALSE for GTK_SELECTION_BROWSE
  */
-extern void set_plist_sel_browse(gboolean val);
+extern void packet_list_set_sel_browse(gboolean val);
 
 #endif /* __PACKET_LIST_H__ */

@@ -318,7 +318,7 @@ static void mark_frames_ready(void) {
   packets_bar_update();
 }
 
-void mark_frame_cb(GtkWidget *w _U_, gpointer data _U_) {
+void packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_) {
   if (cfile.current_frame) {
     /* XXX hum, should better have a "cfile->current_row" here ... */
     set_frame_mark(!cfile.current_frame->flags.marked,
@@ -341,7 +341,7 @@ static void mark_all_frames(gboolean set) {
   mark_frames_ready();
 }
 
-void update_marked_frames(void) {
+void packet_list_update_marked_frames(void) {
   frame_data *fdata;
 
   if (cfile.plist == NULL) return;
@@ -357,11 +357,11 @@ void update_marked_frames(void) {
   mark_frames_ready();
 }
 
-void mark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_) {
+void packet_list_mark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_) {
   mark_all_frames(TRUE);
 }
 
-void unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_) {
+void packet_list_unmark_all_frames_cb(GtkWidget *w _U_, gpointer data _U_) {
   mark_all_frames(FALSE);
 }
 
@@ -419,7 +419,7 @@ packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_)
 
 /* Set the selection mode of the packet list window. */
 void
-set_plist_sel_browse(gboolean val)
+packet_list_set_sel_browse(gboolean val)
 {
         GtkSelectionMode new_mode;
         /* initialize with a mode we don't use, so that the mode == new_mode
@@ -457,7 +457,7 @@ set_plist_sel_browse(gboolean val)
 
 /* Set the font of the packet list window. */
 void
-set_plist_font(FONT_TYPE *font)
+packet_list_set_font(FONT_TYPE *font)
 {
 	int i;
 	gint col_width;
@@ -519,8 +519,8 @@ packet_list_new(e_prefs *prefs)
     /* Column titles are filled in below */
     gtk_container_add(GTK_CONTAINER(pkt_scrollw), packet_list);
 
-    set_plist_sel_browse(prefs->gui_plist_sel_browse);
-    set_plist_font(user_font_get_regular());
+    packet_list_set_sel_browse(prefs->gui_plist_sel_browse);
+    packet_list_set_font(user_font_get_regular());
     gtk_widget_set_name(packet_list, "packet list");
     SIGNAL_CONNECT(packet_list, "select-row", packet_list_select_cb, NULL);
     SIGNAL_CONNECT(packet_list, "unselect-row", packet_list_unselect_cb, NULL);
