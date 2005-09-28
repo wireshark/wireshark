@@ -43,6 +43,7 @@
 #include <epan/packet.h>
 #include "prefs.h"
 #include "strutil.h"
+#include <epan/emem.h>
 #include <epan/sigcomp-udvm.h>
 #include <epan/sigcomp_state_hdlr.h>
 
@@ -116,9 +117,13 @@ static gint ett_sigcomp_udvm_exe	= -1;
 static gint ett_raw_text			= -1;
 
 static dissector_handle_t sip_handle;
-/* set the tcp port */
+/* set the udp ports */
 static guint SigCompUDPPort1 = 5555;
 static guint SigCompUDPPort2 = 6666;
+
+/* set the tcp ports */
+static guint SigCompTCPPort1 = 5555;
+static guint SigCompTCPPort2 = 6666;
 
 /* Default preference wether to display the bytecode in UDVM operands or not */
 static gboolean display_udvm_bytecode = FALSE;
@@ -311,6 +316,11 @@ static int dissect_udvm_literal_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_
 static int dissect_udvm_reference_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree, 
 							   gint offset, gint *start_offset, guint16 *value);
 static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
+
+static int dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+proto_tree *top_tree;
+
 /* Initialize the state handler
  *
  */
@@ -319,17 +329,197 @@ sigcomp_init_protocol(void)
 {
 	sigcomp_init_udvm();
 } 
+/* Sigcomp over TCP record marking used 
+ * RFC 3320
+ * 4.2.2.  Record Marking
+ *
+ * For a stream-based transport, the dispatcher delimits messages by
+ * parsing the compressed data stream for instances of 0xFF and taking
+ * the following actions:
+ * Occurs in data stream:     Action:
+ *
+ *   0xFF 00                    one 0xFF byte in the data stream
+ *   0xFF 01                    same, but the next byte is quoted (could
+ *                              be another 0xFF)
+ *      :                                           :
+ *   0xFF 7F                    same, but the next 127 bytes are quoted
+ *   0xFF 80 to 0xFF FE         (reserved for future standardization)
+ *   0xFF FF                    end of SigComp message			 
+ *   :
+ *   In UDVM version 0x01, any occurrence of the combinations 0xFF80 to
+ *   0xFFFE that are not protected by quoting causes decompression
+ *   failure; the decompressor SHOULD close the stream-based transport in
+ *   this case.
+ */
 
+/*
+ * TODO: Reassembly, handle more than one message in a tcp segment.
+ */
+
+static int
+dissect_sigcomp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item	*ti;
+	proto_tree	*sigcomp_tree;
+	tvbuff_t	*unescaped_tvb;
+
+	guint8		*buff;
+	int			offset = 0;
+	int			length;
+	guint8		octet;
+	guint16		data;
+	int			i;
+	int			n;
+	gboolean	end_off_message = FALSE;
+
+	/* Is this SIGCOMP ? */
+	length = tvb_length_remaining(tvb,offset);
+
+	data = tvb_get_ntohs(tvb, offset);
+	if(data == 0xffff){
+		/* delimiter */
+		offset = offset + 2;
+		octet = tvb_get_guint8(tvb,offset);
+	}else{
+		octet = tvb_get_guint8(tvb,offset);
+	}
+	if ((octet  & 0xf8) != 0xf8)
+	 return 0;
+
+	/* Make entries in Protocol column and Info column on summary display */
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIGCOMP");
+
+	if (check_col(pinfo->cinfo, COL_INFO)) 
+		col_clear(pinfo->cinfo, COL_INFO);
+
+	top_tree = tree;
+
+	/* create display subtree for the protocol */
+	ti = proto_tree_add_item(tree, proto_sigcomp, tvb, 0, -1, FALSE);
+	sigcomp_tree = proto_item_add_subtree(ti, ett_sigcomp);
+	
+	buff = g_malloc(length);
+	i=0;
+	if (udvm_print_detail_level>2)
+		proto_tree_add_text(sigcomp_tree, tvb, offset, -1,"Starting to remove escape digits");
+	while ( offset < length ){
+
+		if ( octet == 0xff ){
+			if (udvm_print_detail_level>2)
+				proto_tree_add_text(sigcomp_tree, tvb, offset, 2,
+					"              Escape digit found (0xFF)");
+			octet = tvb_get_guint8(tvb, offset+1);
+			if ( octet == 0){
+				buff[i] = 0xff;
+				offset = offset +2;
+				i++;
+				continue;
+			}
+			if ((octet > 0x7f) && (octet < 0xff )){
+				if (udvm_print_detail_level>2)
+					proto_tree_add_text(sigcomp_tree, tvb, offset, 2,
+						"              Illegal escape code");
+				offset = offset + tvb_length_remaining(tvb,offset);
+				return offset;
+			}
+			if ( octet == 0xff){
+				if (udvm_print_detail_level>2)
+					proto_tree_add_text(sigcomp_tree, tvb, offset, 2,
+						"              End of SigComp message indication found (0xFFFF)");
+				end_off_message = TRUE;
+				offset = offset+2;
+				continue;
+			}
+			buff[i] = 0xff;
+			if (udvm_print_detail_level>2)
+				proto_tree_add_text(sigcomp_tree, tvb, offset, 1,
+							"              Addr: %u tvb value(0x%0x) ", i, buff[i]);
+			i++;
+			offset = offset+2;
+			if (udvm_print_detail_level>2)
+			proto_tree_add_text(sigcomp_tree, tvb, offset, octet,
+						"              Copying %u bytes literally",octet);
+			for ( n=0; n < octet; n++ ){
+				buff[i] = tvb_get_guint8(tvb, offset);
+				if (udvm_print_detail_level>2)
+					proto_tree_add_text(sigcomp_tree, tvb, offset, 1,
+								"                  Addr: %u tvb value(0x%0x) ", i, buff[i]);
+				i++;
+				offset++;
+			}
+			octet = tvb_get_guint8(tvb,offset);
+			continue;
+		}
+		buff[i] = octet;
+		if (udvm_print_detail_level>2)
+			proto_tree_add_text(sigcomp_tree, tvb, offset, 1,
+						"              Addr: %u tvb value(0x%0x) ", i, buff[i]);
+
+		i++;
+		offset++;
+		octet = tvb_get_guint8(tvb,offset);
+
+	}
+	unescaped_tvb = tvb_new_real_data(buff,i,i);
+	/* Arrange that the allocated packet data copy be freed when the
+	 * tvbuff is freed. 
+	 */
+	tvb_set_free_cb( unescaped_tvb, g_free );
+	/* Add the tvbuff to the list of tvbuffs to which the tvbuff we
+	 * were handed refers, so it'll get cleaned up when that tvbuff
+	 * is cleaned up. 
+	 */
+	tvb_set_child_real_data_tvbuff( tvb, unescaped_tvb );
+	add_new_data_source(pinfo, unescaped_tvb, "Unescaped Data handed to the SigComp dessector");
+
+	proto_tree_add_text(sigcomp_tree, unescaped_tvb, 0, -1,"Data handed to the Sigcomp dessector");
+
+	return dissect_sigcomp_common(unescaped_tvb, pinfo, sigcomp_tree);
+}
 /* Code to actually dissect the packets */
 static int
 dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	proto_item	*ti;
+	proto_tree	*sigcomp_tree;
+	gint		offset = 0;
+	gint8		octet;
+
+	/* If we got called from SIP this might be over TCP */
+	if ( pinfo->ptype == PT_TCP )
+		return dissect_sigcomp_tcp(tvb, pinfo, tree);
+
+	/* Is this a SigComp message or not ? */
+	octet = tvb_get_guint8(tvb, offset);
+	if ((octet  & 0xf8) != 0xf8)
+	 return 0;
+
+	/* Make entries in Protocol column and Info column on summary display */
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIGCOMP");
+
+	if (check_col(pinfo->cinfo, COL_INFO)) 
+		col_clear(pinfo->cinfo, COL_INFO);
+
+	top_tree = tree;
+
+	/* create display subtree for the protocol */
+	ti = proto_tree_add_item(tree, proto_sigcomp, tvb, 0, -1, FALSE);
+	sigcomp_tree = proto_item_add_subtree(ti, ett_sigcomp);
+
+	return dissect_sigcomp_common(tvb, pinfo, sigcomp_tree);
+}
+/* Code to actually dissect the packets */
+static int
+dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tree)
+{
 
 /* Set up structures needed to add the protocol subtree and manage it */
-	tvbuff_t	 *udvm_tvb, *msg_tvb, *udvm2_tvb;
+	tvbuff_t	*udvm_tvb, *msg_tvb, *udvm2_tvb;
 	tvbuff_t	*decomp_tvb = NULL;
-	proto_item *ti, *udvm_bytecode_item, *udvm_exe_item;
-	proto_tree *sigcomp_tree, *sigcomp_udvm_tree, *sigcomp_udvm_exe_tree;
+	proto_item	*udvm_bytecode_item, *udvm_exe_item;
+	proto_tree	*sigcomp_udvm_tree, *sigcomp_udvm_exe_tree;
 	gint		offset = 0;
 	gint		bytecode_offset;
 	guint16		partial_state_len;
@@ -351,21 +541,7 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16		result_code;
 	gchar		*partial_state_str;
 
-/* Is this a SigComp message or not ? */
-	octet = tvb_get_guint8(tvb, offset);
-	if ((octet  & 0xf8) != 0xf8)
-	 return 0;
 
-/* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIGCOMP");
-
-	if (check_col(pinfo->cinfo, COL_INFO)) 
-		col_clear(pinfo->cinfo, COL_INFO);
-
-/* create display subtree for the protocol */
-	ti = proto_tree_add_item(tree, proto_sigcomp, tvb, 0, -1, FALSE);
-	sigcomp_tree = proto_item_add_subtree(ti, ett_sigcomp);
 
 /* add an item to the subtree, see section 1.6 for more information */
 	octet = tvb_get_guint8(tvb, offset);
@@ -565,12 +741,12 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if ( decomp_tvb ){
 				proto_tree_add_text(sigcomp_tree, decomp_tvb, 0, -1,"SigComp message Decompressed WOHO!!");
 				if ( display_raw_txt )
-					tvb_raw_text_add(decomp_tvb, tree);
+					tvb_raw_text_add(decomp_tvb, top_tree);
 				if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 					col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
 					col_set_fence(pinfo->cinfo,COL_PROTOCOL);
 				}
-				call_dissector(sip_handle, decomp_tvb, pinfo, tree);
+				call_dissector(sip_handle, decomp_tvb, pinfo, top_tree);
 			}
 		}/* if decompress */
 
@@ -669,12 +845,12 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				if ( decomp_tvb ){
 					proto_tree_add_text(sigcomp_tree, decomp_tvb, 0, -1,"SigComp message Decompressed WOHO!!");
 					if ( display_raw_txt )
-						tvb_raw_text_add(decomp_tvb, tree);
+						tvb_raw_text_add(decomp_tvb, top_tree);
 					if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 						col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
 						col_set_fence(pinfo->cinfo,COL_PROTOCOL);
 					}
-					call_dissector(sip_handle, decomp_tvb, pinfo, tree);
+					call_dissector(sip_handle, decomp_tvb, pinfo, top_tree);
 				}
 			} /* if decompress */
 		}/*if len==0 */
@@ -2009,25 +2185,34 @@ void
 proto_reg_handoff_sigcomp(void)
 {
 	static dissector_handle_t sigcomp_handle;
+	static dissector_handle_t sigcomp_tcp_handle;
 	static int Initialized=FALSE;
 	static int udp_port1 = 5555;
 	static int udp_port2 = 6666;
+	static int tcp_port1 = 5555;
+	static int tcp_port2 = 6666;
 
 	if (!Initialized) {
-		sigcomp_handle = new_create_dissector_handle(dissect_sigcomp,
-			proto_sigcomp);
+		sigcomp_handle = new_create_dissector_handle(dissect_sigcomp,proto_sigcomp);
+		sigcomp_tcp_handle = new_create_dissector_handle(dissect_sigcomp_tcp,proto_sigcomp);
 		Initialized=TRUE;
 	}else{
 		dissector_delete("udp.port", udp_port1, sigcomp_handle);
 		dissector_delete("udp.port", udp_port2, sigcomp_handle);
+		dissector_delete("tcp.port", tcp_port1, sigcomp_tcp_handle);
+		dissector_delete("tcp.port", tcp_port2, sigcomp_tcp_handle);
 	}
 
 	udp_port1 = SigCompUDPPort1;
 	udp_port2 = SigCompUDPPort2;
+	tcp_port1 = SigCompTCPPort1;
+	tcp_port2 = SigCompTCPPort2;
 
 
 	dissector_add("udp.port", SigCompUDPPort1, sigcomp_handle);
 	dissector_add("udp.port", SigCompUDPPort2, sigcomp_handle);
+	dissector_add("tcp.port", SigCompTCPPort1, sigcomp_tcp_handle);
+	dissector_add("tcp.port", SigCompTCPPort2, sigcomp_tcp_handle);
 
 	sip_handle = find_dissector("sip");
 
@@ -2390,6 +2575,17 @@ proto_register_sigcomp(void)
 								   "Set UDP port 2 for SigComp messages",
 								   10,
 								   &SigCompUDPPort2);
+	prefs_register_uint_preference(sigcomp_module, "tcp.port",
+								   "Sigcomp TCP Port 1",
+								   "Set TCP port 1 for SigComp messages",
+								   10,
+								   &SigCompTCPPort1);
+
+	prefs_register_uint_preference(sigcomp_module, "tcp.port2",
+								   "Sigcomp TCP Port 2",
+								   "Set TCP port 2 for SigComp messages",
+								   10,
+								   &SigCompTCPPort2);
 	prefs_register_bool_preference(sigcomp_module, "display.udvm.code",
 								   "Dissect the UDVM code",
 								   "Preference wether to Dissect the UDVM code or not",
