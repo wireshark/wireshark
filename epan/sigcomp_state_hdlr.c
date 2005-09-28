@@ -546,10 +546,10 @@ int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint16 p_id_
 	/* debug 
 	 *g_warning(" state_begin %u state_address %u",state_begin , *state_address);
 	 */
-	while ( n < (state_begin + *state_length + 8) && n < STATE_BUFFER_SIZE ){
+	while ( n < (state_begin + *state_length + 8) && n < UDVM_MEMORY_SIZE ){
 		buff[k] = state_buff[n];
 		/*  debug 
-		 *	g_warning(" Loading 0x%x at address %u",buff[k] , k);
+		 g_warning(" Loading 0x%x at address %u",buff[k] , k);
 		 */
 		k = ( k + 1 ) & 0xffff;
 		if ( k == byte_copy_right ){
