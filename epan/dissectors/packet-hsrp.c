@@ -185,8 +185,6 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 	col_append_fstr(pinfo->cinfo, COL_INFO, " (state %s)",
                        		     val_to_str(state, hsrp_adv_state_vals, "Unknown"));
 		}
-	} else {
-                col_set_str(pinfo->cinfo, COL_INFO, "Unknown");
 	}
 
         if (tree) {
