@@ -261,7 +261,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 void
 show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    unsigned long exception, char *exception_message)
+    unsigned long exception, const char *exception_message)
 {
 	static const char dissector_error_nomsg[] =
 	    "Dissector writer didn't bother saying what the error was";
@@ -306,8 +306,6 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    "%s",
 		    exception_message == NULL ?
 		        dissector_error_nomsg : exception_message);
-		if (exception_message != NULL)
-			g_free(exception_message);
 		break;
 
 	default:

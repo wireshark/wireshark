@@ -26,6 +26,7 @@
 
 #include <ftypes-int.h>
 #include <string.h>
+#include <epan/emem.h>
 
 #ifdef HAVE_LIBPCRE
 #include <pcre.h>

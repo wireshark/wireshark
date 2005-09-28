@@ -32,6 +32,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <epan/nlpid.h>
 #include "packet-osi.h"
 #include "packet-osi-options.h"

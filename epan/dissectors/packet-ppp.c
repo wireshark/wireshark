@@ -33,6 +33,7 @@
 #include <glib.h>
 #include <epan/prefs.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include "packet-ppp.h"
 #include <epan/ppptypes.h>
 #include <epan/etypes.h>

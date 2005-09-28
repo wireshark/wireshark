@@ -84,8 +84,8 @@ typedef struct _protocol protocol_t;
  * as the message for the exception, so that it can show up in
  * the Info column and the protocol tree.
  *
- * That string should be allocated with g_malloc(); using
- * "g_strdup_printf()" would work.
+ * If that string is dynamically allocated, it should be allocated with
+ * ep_alloc(); using ep_strdup_printf() would work.
  *
  * If the ETHEREAL_ABORT_ON_DISSECTOR_BUG environment variable is set,
  * it will call abort(), instead, to make it easier to get a stack trace.
@@ -119,14 +119,14 @@ typedef struct _protocol protocol_t;
  */
 #define DISSECTOR_ASSERT_NOT_REACHED()  \
   (REPORT_DISSECTOR_BUG( \
-    g_strdup_printf("%s:%u: failed assertion \"DISSECTOR_ASSERT_NOT_REACHED\"", \
+    ep_strdup_printf("%s:%u: failed assertion \"DISSECTOR_ASSERT_NOT_REACHED\"", \
      __FILE__, __LINE__)))
 
 #define __DISSECTOR_ASSERT_STRINGIFY(s)	# s
 
 #define __DISSECTOR_ASSERT(expression, file, lineno)  \
   (REPORT_DISSECTOR_BUG( \
-    g_strdup_printf("%s:%u: failed assertion \"%s\"", \
+    ep_strdup_printf("%s:%u: failed assertion \"%s\"", \
      file, lineno, __DISSECTOR_ASSERT_STRINGIFY(expression))))
 
 /** radix for decimal values, used in header_field_info.display */

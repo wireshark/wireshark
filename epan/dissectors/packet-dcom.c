@@ -84,6 +84,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include "packet-dcerpc.h"
 #include "packet-dcom.h"
 #include "prefs.h"
