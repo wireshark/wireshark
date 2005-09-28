@@ -42,6 +42,17 @@ ulimit -S -t $MAX_CPU_TIME -v $MAX_VMEM
 # r Read packet data from the following infile
 TETHEREAL_ARGS="-nVxr"
 
+NOTFOUND=0
+for i in "$TETHEREAL" "$EDITCAP" "$CAPINFOS" "$DATE" "$TMP_DIR" ; do
+	if [ ! -x $i ]; then
+		echo "Couldn't find $i"
+		NOTFOUND=1
+	fi
+done 
+if [ $NOTFOUND -eq 1 ]; then
+	exit 1
+fi
+
 # Make sure we have a valid test set
 FOUND=0
 for CF in "$@" ; do
