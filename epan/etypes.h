@@ -216,6 +216,10 @@
 #define ETHERTYPE_PPPOED	0x8863	/* PPPoE Discovery Protocol */
 #endif
 
+#ifndef ETHERTYPE_FOUNDRY
+#define ETHERTYPE_FOUNDRY	0x885a	/* Some Foundry proprietary protocol */
+#endif
+
 #ifndef ETHERTYPE_PPPOES
 #define ETHERTYPE_PPPOES	0x8864	/* PPPoE Session Protocol */
 #endif

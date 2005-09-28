@@ -3688,7 +3688,7 @@
 00:0E:5A	Telefield              # TELEFIELD inc.
 00:0E:5B	Parkervisi             # ParkerVision - Direct2Data
 00:0E:5C	MotorolaBc             # Motorola BCS
-00:0E:5D	Com-XNetwo             # Com-X Networks
+00:0E:5D	TriplePlay             # Triple Play Technologies A/S
 00:0E:5E	BeijingRai             # Beijing Raisecom Science & Technology Development Co.,Ltd
 00:0E:5F	Activ-Net              # activ-net GmbH & Co. KG
 00:0E:60	360sunDigi             # 360SUN Digital Broadband Corporation
@@ -3719,7 +3719,7 @@
 00:0E:79	AmpleCommu             # Ample Communications Inc.
 00:0E:7A	Private
 00:0E:7B	Toshiba
-00:0E:7C	Private
+00:0E:7C	TelevesSA              # Televes S.A.
 00:0E:7D	Electronic             # Electronics Line 3000 Ltd.
 00:0E:7E	ComprogOy              # Comprog Oy
 00:0E:7F	HewlettPac             # Hewlett Packard
@@ -5617,6 +5617,24 @@
 00:15:E4	ZimmerElek             # Zimmer Elektromedizin
 00:15:E5	Cheertek               # Cheertek Inc.
 00:15:E6	MobileTech             # MOBILE TECHNIKA Inc.
+00:15:E7	QuantecTon             # Quantec Tonstudiotechnik
+00:15:E8	Nortel
+00:15:E9	D-Link                 # D-Link Corporation
+00:15:EA	TellumatPt             # Tellumat (Pty) Ltd
+00:15:EB	Zte                    # ZTE CORPORATION
+00:15:EC	BocaDevice             # Boca Devices LLC
+00:15:ED	FulcrumMic             # Fulcrum Microsystems, Inc.
+00:15:EE	OmnexContr             # Omnex Control Systems
+00:15:EF	NecTokin               # NEC TOKIN Corporation
+00:15:F0	EgoBv                  # EGO BV
+00:15:F1	KylinkComm             # KYLINK Communications Corp.
+00:15:F2	AsustekCom             # ASUSTek COMPUTER INC.
+00:15:F3	Peltor                 # PELTOR AB
+00:15:F4	Eventide
+00:15:F5	Sustainabl             # Sustainable Energy Systems
+00:15:F6	ScienceAnd             # SCIENCE AND ENGINEERING SERVICES, INC.
+00:15:F7	Wintecroni             # Wintecronics Ltd.
+00:15:F8	Kingtronic             # Kingtronics Industrial Co. Ltd.
 00:17:00	Kabel
 00:1C:7C	Perq                   # PERQ SYSTEMS CORPORATION
 00:20:00	LexmarkInt             # LEXMARK INTERNATIONAL, INC.
@@ -8758,6 +8776,7 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 01-80-C2-00-01-10	FDDI-status-report-frame
 01-DD-00-FF-FF-FF	Ungermann-Bass-boot-me-requests
 01-DD-01-00-00-00	Ungermann-Bass-Spanning-Tree
+01-E0-52-CC-CC-CC	Foundry-DP
 # Microsoft Network Load Balancing (NLB)
 # Actually, 02-01-virtualip to 02-20-virtualip will be used from server to rest-of-world
 # 02-bf-virtualip will be used from rest-of-world to server

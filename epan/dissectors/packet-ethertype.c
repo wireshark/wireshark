@@ -62,6 +62,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_VINES_ECHO,	"Vines Echo"			},
     {ETHERTYPE_TRAIN,		"Netmon Train"			},
     {ETHERTYPE_LOOP,		"Loopback"			}, /* Ethernet Loopback */
+    {ETHERTYPE_FOUNDRY,		"Foundry proprietary"		},
     {ETHERTYPE_WCP,		"Wellfleet Compression Protocol" },
     {ETHERTYPE_ISMP,		"Cabletron Interswitch Message Protocol" },
     {ETHERTYPE_ISMP_TBFLOOD,	"Cabletron SFVLAN 1.8 Tag-Based Flood" },
