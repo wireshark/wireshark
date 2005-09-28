@@ -1572,6 +1572,10 @@ proto_item_append_string(proto_item *pi, const char *str)
 
 	fi = PITEM_FINFO(pi);
 	hfinfo = fi->hfinfo;
+	if (hfinfo->type == FT_PROTOCOL) {
+		/* TRY_TO_FAKE_THIS_ITEM() speed optimization: silently skip */
+		return;
+	}
 	DISSECTOR_ASSERT(hfinfo->type == FT_STRING || hfinfo->type == FT_STRINGZ);
 	old_str = fvalue_get(&fi->value);
 	new_str = g_strdup_printf("%s%s", old_str, str);
