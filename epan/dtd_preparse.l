@@ -80,7 +80,7 @@ system     SYSTEM
 filename   [^"]+
 
 
-name [A-Za-z][-:A-Za-z0-9_]*
+name [A-Za-z][-:A-Za-z0-9_\.]*
 
 quote "\""
 percent [%]
