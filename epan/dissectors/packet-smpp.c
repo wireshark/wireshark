@@ -212,7 +212,7 @@ static gint ett_opt_param	= -1;
 static gint ett_dcs		= -1;
 
 /* Reassemble SMPP TCP segments */
-static gboolean reassemble_over_tcp = FALSE;
+static gboolean reassemble_over_tcp = TRUE;
 
 /*
  * Value-arrays for field-contents

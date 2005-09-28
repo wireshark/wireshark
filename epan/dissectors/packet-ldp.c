@@ -238,7 +238,7 @@ static int tcp_port = 0;
 static int udp_port = 0;
 
 /* desegmentation of LDP over TCP */
-static gboolean ldp_desegment = FALSE;
+static gboolean ldp_desegment = TRUE;
 
 /* Add your functions here */
 

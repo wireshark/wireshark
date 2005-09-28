@@ -77,14 +77,14 @@ void proto_reg_handoff_rtsp(void);
  * desegmentation of RTSP headers
  * (when we are over TCP or another protocol providing the desegmentation API)
  */
-static gboolean rtsp_desegment_headers = FALSE;
+static gboolean rtsp_desegment_headers = TRUE;
 
 /*
  * desegmentation of RTSP bodies
  * (when we are over TCP or another protocol providing the desegmentation API)
  * TODO let the user filter on content-type the bodies he wants desegmented
  */
-static gboolean rtsp_desegment_body = FALSE;
+static gboolean rtsp_desegment_body = TRUE;
 
 /* http://www.iana.org/assignments/port-numberslists two rtsp ports */
 #define TCP_PORT_RTSP			554

@@ -67,7 +67,7 @@
 static gboolean rpc_desegment = TRUE;
 
 /* defragmentation of fragmented RPC over TCP records */
-static gboolean rpc_defragment = FALSE;
+static gboolean rpc_defragment = TRUE;
 
 /* try to dissect RPC packets for programs that are not known
  * (proprietary ones) by ethereal.

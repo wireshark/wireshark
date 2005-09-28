@@ -364,7 +364,7 @@ static dissector_handle_t data_handle;
 static heur_dissector_list_t mq_heur_subdissector_list;
 
 static gboolean mq_desegment = TRUE;
-static gboolean mq_reassembly = FALSE;
+static gboolean mq_reassembly = TRUE;
 
 static GHashTable *mq_fragment_table = NULL;
 static GHashTable *mq_reassembled_table = NULL;

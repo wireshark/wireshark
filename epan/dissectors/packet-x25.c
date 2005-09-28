@@ -216,7 +216,7 @@ static dissector_handle_t data_handle;
 
 /* Preferences */
 static gboolean payload_is_qllc_sna = FALSE;
-static gboolean reassemble_x25 = FALSE;
+static gboolean reassemble_x25 = TRUE;
 
 /* Reassembly of X.25 */
 

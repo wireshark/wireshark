@@ -100,7 +100,7 @@ static dissector_handle_t data_handle;
 static dissector_table_t ip_dissector_table;
 
 /* Reassemble fragmented datagrams */
-static gboolean ipv6_reassemble = FALSE;
+static gboolean ipv6_reassemble = TRUE;
 
 #ifndef offsetof
 #define	offsetof(type, member)	((size_t)(&((type *)0)->member))

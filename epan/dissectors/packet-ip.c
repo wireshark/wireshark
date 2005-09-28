@@ -63,7 +63,7 @@ static void dissect_icmp(tvbuff_t *, packet_info *, proto_tree *);
 static gboolean g_ip_dscp_actif = TRUE;
 
 /* Defragment fragmented IP datagrams */
-static gboolean ip_defragment = FALSE;
+static gboolean ip_defragment = TRUE;
 
 /* Place IP summary in proto tree */
 static gboolean ip_summary_in_tree = TRUE;

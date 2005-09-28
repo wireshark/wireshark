@@ -107,14 +107,14 @@ static dissector_handle_t http_handle;
  * desegmentation of HTTP headers
  * (when we are over TCP or another protocol providing the desegmentation API)
  */
-static gboolean http_desegment_headers = FALSE;
+static gboolean http_desegment_headers = TRUE;
 
 /*
  * desegmentation of HTTP bodies
  * (when we are over TCP or another protocol providing the desegmentation API)
  * TODO let the user filter on content-type the bodies he wants desegmented
  */
-static gboolean http_desegment_body = FALSE;
+static gboolean http_desegment_body = TRUE;
 
 /*
  * De-chunking of content-encoding: chunk entity bodies.

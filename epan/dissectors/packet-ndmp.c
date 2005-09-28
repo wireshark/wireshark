@@ -270,7 +270,7 @@ struct ndmp_header {
 static gboolean ndmp_desegment = TRUE;
 
 /* defragmentation of fragmented NDMP records */
-static gboolean ndmp_defragment = FALSE;
+static gboolean ndmp_defragment = TRUE;
 
 #define NDMP_MESSAGE_REQUEST	0x00
 #define NDMP_MESSAGE_REPLY	0x01

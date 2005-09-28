@@ -411,13 +411,13 @@ static gboolean strict_sip_version = TRUE;
  * desegmentation of SIP headers
  * (when we are over TCP or another protocol providing the desegmentation API)
  */
-static gboolean sip_desegment_headers = FALSE;
+static gboolean sip_desegment_headers = TRUE;
 
 /*
  * desegmentation of SIP bodies
  * (when we are over TCP or another protocol providing the desegmentation API)
  */
-static gboolean sip_desegment_body = FALSE;
+static gboolean sip_desegment_body = TRUE;
 
 static gboolean dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, gboolean is_heur, gboolean use_reassembly);

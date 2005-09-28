@@ -300,7 +300,7 @@ static gint ett_sna_control_0e = -1;
 static dissector_handle_t data_handle;
 
 /* Defragment fragmented SNA BIUs*/
-static gboolean sna_defragment = FALSE;
+static gboolean sna_defragment = TRUE;
 static GHashTable *sna_fragment_table = NULL;
 static GHashTable *sna_reassembled_table = NULL;
 

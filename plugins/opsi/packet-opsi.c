@@ -786,7 +786,7 @@ proto_register_opsi(void)
 /* We activate the desegmentation / reassembly feature */	
 	opsi_module = prefs_register_protocol(proto_opsi, NULL);
   	prefs_register_bool_preference(opsi_module, "desegment_opsi_messages",
-    		"Desegment all OPSI messages spanning multiple TCP segments",
+    		"Reassemble OPSI messages spanning multiple TCP segments",
     		"Whether the OPSI dissector should desegment all messages spanning multiple TCP segments",
     		&opsi_desegment);
 }

@@ -376,8 +376,8 @@ static GHashTable *cotp_reassembled_table = NULL;
 /* options */
 static guint tp_nsap_selector = NSEL_TP;
 static gboolean always_decode_transport = FALSE;
-static gboolean clnp_reassemble = FALSE;
-static gboolean cotp_reassemble = FALSE;
+static gboolean clnp_reassemble = TRUE;
+static gboolean cotp_reassemble = TRUE;
 static gint32   tsap_display = TSAP_DISPLAY_AUTO;
 
 const enum_val_t tsap_display_options[] = {

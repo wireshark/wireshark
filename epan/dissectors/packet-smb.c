@@ -815,8 +815,8 @@ gboolean sid_name_snooping = FALSE;
 /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
    These are needed by the reassembly of SMB Transaction payload and DCERPC over SMB
    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
-static gboolean smb_trans_reassembly = FALSE;
-gboolean smb_dcerpc_reassembly = FALSE;
+static gboolean smb_trans_reassembly = TRUE;
+gboolean smb_dcerpc_reassembly = TRUE;
 
 static GHashTable *smb_trans_fragment_table = NULL;
 

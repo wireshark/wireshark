@@ -536,7 +536,7 @@ static gboolean dcerpc_cn_desegment = TRUE;
    reassembly of co dcerpc fragments will not work for the case where TCP/SMB frames
    are coming in out of sequence, but that will hurt in a lot of other places as well.
 */
-static gboolean dcerpc_reassemble = FALSE;
+static gboolean dcerpc_reassemble = TRUE;
 static GHashTable *dcerpc_co_fragment_table = NULL;
 static GHashTable *dcerpc_co_reassemble_table = NULL;
 static GHashTable *dcerpc_cl_reassemble_table = NULL;
