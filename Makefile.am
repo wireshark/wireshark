@@ -126,6 +126,7 @@ radius_DATA = \
 	radius/dictionary.columbia_university  \
 	radius/dictionary.compat  \
 	radius/dictionary.cosine  \
+	radius/dictionary.ericsson  \
 	radius/dictionary.erx  \
 	radius/dictionary.extreme  \
 	radius/dictionary.foundry  \
