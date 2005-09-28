@@ -174,7 +174,7 @@ extern void stats_tree_free(stats_tree* st) {
 	
 	g_free(st->filter);
 	g_hash_table_destroy(st->names);
-	g_ptr_array_free(st->parents,FALSE);
+	g_ptr_array_free(st->parents,TRUE);
 	
     for (child = st->root.children; child; child = next ) {
         /* child->next will be gone after free_stat_node, so cache it here */
