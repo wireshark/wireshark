@@ -522,8 +522,7 @@ void init_xml_parser(void) {
                                                                                                                     NULL),
                                                                                                  tvbparse_until(-1,NULL,NULL,NULL,
                                                                                                                 tvbparse_char(-1,">",NULL,NULL,NULL),
-                                                                                                                FALSE),
-                                                                                                 tvbparse_char(-1,">",NULL,NULL,NULL),
+                                                                                                                TRUE),
                                                                                                  NULL),
                                                                                 NULL),
                                                              NULL);
