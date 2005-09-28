@@ -483,7 +483,7 @@ void init_xml_parser(void) {
                                                        tvbparse_string(-1,"<!--",NULL,NULL,NULL),
                                                        tvbparse_until(-1,NULL,NULL,NULL,
                                                                       tvbparse_string(-1,"-->",NULL,NULL,NULL),
-                                                                      TRUE),
+                                                                      TP_UNTIL_INCLUDE),
                                                        NULL);
     
     tvbparse_wanted_t* want_xmlpi = tvbparse_set_seq(hf_xmlpi,NULL,before_xmpli,NULL,
@@ -522,7 +522,7 @@ void init_xml_parser(void) {
                                                                                                                     NULL),
                                                                                                  tvbparse_until(-1,NULL,NULL,NULL,
                                                                                                                 tvbparse_char(-1,">",NULL,NULL,NULL),
-                                                                                                                TRUE),
+                                                                                                                TP_UNTIL_INCLUDE),
                                                                                                  NULL),
                                                                                 NULL),
                                                              NULL);
@@ -532,7 +532,7 @@ void init_xml_parser(void) {
                                                        tvbparse_char(-1,"!",NULL,NULL,NULL),
                                                        tvbparse_until(-1,NULL,NULL,NULL,
                                                                       tvbparse_char(-1, ">", NULL, NULL, NULL),
-                                                                      TRUE),
+                                                                      TP_UNTIL_INCLUDE),
                                                        NULL);
     
     tvbparse_wanted_t* want_tag = tvbparse_set_seq(-1, NULL, before_tag, NULL,

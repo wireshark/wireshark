@@ -50,7 +50,8 @@ typedef enum _tvbparse_wanted_type_t {
 	/* composed tokens */
 	TVBPARSE_WANTED_SET_ONEOF, /* one of the given types */
 	TVBPARSE_WANTED_SET_SEQ, /* an exact sequence of tokens of the given types */
-	TVBPARSE_WANTED_CARDINALITY /* one or more tokens of the given type */ 
+	TVBPARSE_WANTED_CARDINALITY, /* one or more tokens of the given type */ 
+    TVBPARSE_WANTED_HANDLE,  /* a handle to another one */
     
 } tvbparse_type_t;
 
@@ -67,7 +68,12 @@ struct _tvbparse_wanted_t {
 	int id;
 	tvbparse_type_t type;
 	
-	const gchar* ctl;
+	union {
+        const gchar* str;
+        guint val;
+        struct _tvbparse_wanted_t** handle;
+    } control;
+    
 	int len;
 	
 	guint min;
@@ -90,7 +96,7 @@ tvbparse_wanted_t* tvbparse_char(int id,
 	
 	w->id = id;
 	w->type = TVBPARSE_WANTED_SIMPLE_CHAR;
-	w->ctl = chr;
+	w->control.str = chr;
 	w->len = 1;
 	w->min = 0;
 	w->max = 0;
@@ -113,7 +119,7 @@ tvbparse_wanted_t* tvbparse_chars(int id,
 	
 	w->id = id;
 	w->type = TVBPARSE_WANTED_SIMPLE_CHARS;
-	w->ctl = chr;
+	w->control.str = chr;
 	w->len = 0;
 	w->min = min_len ? min_len : 1;
 	w->max = max_len ? max_len : G_MAXINT;
@@ -134,7 +140,7 @@ tvbparse_wanted_t* tvbparse_not_char(int id,
 	
 	w->id = id;
 	w->type = TVBPARSE_WANTED_SIMPLE_NOT_CHAR;
-	w->ctl = chr;
+	w->control.str = chr;
 	w->len = 0;
 	w->min = 0;
 	w->max = 0;
@@ -157,7 +163,7 @@ tvbparse_wanted_t* tvbparse_not_chars(int id,
 	
 	w->id = id;
 	w->type = TVBPARSE_WANTED_SIMPLE_NOT_CHARS;
-	w->ctl = chr;
+	w->control.str = chr;
 	w->len = 0;
 	w->min = min_len ? min_len : 1;
 	w->max = max_len ? max_len : G_MAXINT;
@@ -179,7 +185,7 @@ tvbparse_wanted_t* tvbparse_string(int id,
 	
 	w->id = id;
 	w->type = TVBPARSE_WANTED_SIMPLE_STRING;
-	w->ctl = str;
+	w->control.str = str;
 	w->len = strlen(str);
 	w->min = 0;
 	w->max = 0;
@@ -200,7 +206,7 @@ tvbparse_wanted_t* tvbparse_casestring(int id,
 	
 	w->id = id;
 	w->type = TVBPARSE_WANTED_SIMPLE_CASESTRING;
-	w->ctl = str;
+	w->control.str = str;
 	w->len = strlen(str);
 	w->min = 0;
 	w->max = 0;
@@ -224,7 +230,7 @@ tvbparse_wanted_t* tvbparse_set_oneof(int id,
 	
 	w->id = id;
 	w->type = TVBPARSE_WANTED_SET_ONEOF;
-	w->ctl = NULL;
+	w->control.val = 0;
 	w->len = 0;
 	w->min = 0;
 	w->max = 0;
@@ -255,7 +261,7 @@ tvbparse_wanted_t* tvbparse_set_seq(int id,
 	
 	w->id = id;
 	w->type = TVBPARSE_WANTED_SET_SEQ;
-	w->ctl = NULL;
+	w->control.val = 0;
 	w->len = 0;
 	w->min = 0;
 	w->max = 0;
@@ -289,7 +295,7 @@ tvbparse_wanted_t* tvbparse_some(int id,
 	
 	w->id = id;
 	w->type = TVBPARSE_WANTED_CARDINALITY;
-	w->ctl = NULL;
+	w->control.val = 0;
 	w->len = 0;
 	w->min = from;
 	w->max = to;
@@ -308,14 +314,13 @@ tvbparse_wanted_t* tvbparse_until(int id,
 						   tvbparse_action_t before_cb,
 						   tvbparse_action_t after_cb,
 						   const tvbparse_wanted_t* el,
-						   gboolean include_term) {
+						   int op_mode) {
 	tvbparse_wanted_t* w = g_malloc(sizeof(tvbparse_wanted_t));
 	
 	w->id = id;
 	w->type = TVBPARSE_WANTED_UNTIL;
 	
-	/* XXX this is ugly */
-	w->ctl = include_term ? "include" : "do not include";
+	w->control.val = op_mode;
 	
 	w->len = 0;
 	w->min = 0;
@@ -326,6 +331,25 @@ tvbparse_wanted_t* tvbparse_until(int id,
 	w->elems = g_ptr_array_new();
 	
 	g_ptr_array_add(w->elems,(gpointer)el);
+	
+	return w;
+}
+
+tvbparse_wanted_t* tvbparse_handle(tvbparse_wanted_t** handle) {
+	tvbparse_wanted_t* w = g_malloc(sizeof(tvbparse_wanted_t));
+	
+	w->id = 0;
+	w->type = TVBPARSE_WANTED_HANDLE;
+	
+	w->control.handle = handle;
+	
+	w->len = 0;
+	w->min = 0;
+	w->max = 0;
+	w->data = NULL;
+	w->before = NULL;
+	w->after = NULL;
+	w->elems = NULL;
 	
 	return w;
 }
@@ -459,7 +483,7 @@ tvbparse_elem_t* tvbparse_get(tvbparse_t* tt,
 			
 			t = (gchar) tvb_get_guint8(tt->tvb,tt->offset);
 			
-			for(i = 0; (c = wanted->ctl[i]) && tt->max_len; i++) {
+			for(i = 0; (c = wanted->control.str[i]) && tt->max_len; i++) {
 				if ( c == t ) {
 					not_matched = TRUE;
 				}
@@ -484,7 +508,7 @@ tvbparse_elem_t* tvbparse_get(tvbparse_t* tt,
 			
 			t = (gchar) tvb_get_guint8(tt->tvb,tt->offset);
 			
-			for(i = 0; (c = wanted->ctl[i]) && tt->max_len; i++) {
+			for(i = 0; (c = wanted->control.str[i]) && tt->max_len; i++) {
 				if ( c == t ) {
 					tt->offset++;
 					tt->max_len--;
@@ -506,7 +530,7 @@ tvbparse_elem_t* tvbparse_get(tvbparse_t* tt,
 				t = (gchar) tvb_get_guint8(tt->tvb,tt->offset);
 				i = 0;
 				
-				while ( (c = wanted->ctl[i]) && tt->max_len ) {
+				while ( (c = wanted->control.str[i]) && tt->max_len ) {
 					
 					if (c == t) {
 						not_matched = TRUE;
@@ -542,7 +566,7 @@ tvbparse_elem_t* tvbparse_get(tvbparse_t* tt,
 				t = (gchar) tvb_get_guint8(tt->tvb,tt->offset);
 				i = 0;
 				
-				while ( (c = wanted->ctl[i]) && tt->max_len ) {
+				while ( (c = wanted->control.str[i]) && tt->max_len ) {
 					
 					if (c == t) {
 						matched = TRUE;
@@ -569,7 +593,7 @@ tvbparse_elem_t* tvbparse_get(tvbparse_t* tt,
 		}
 		case TVBPARSE_WANTED_SIMPLE_STRING:
 		{
-			if ( tvb_strneql(tt->tvb, tt->offset, wanted->ctl, wanted->len) == 0 ) {
+			if ( tvb_strneql(tt->tvb, tt->offset, wanted->control.str, wanted->len) == 0 ) {
 				int offset = tt->offset;
 				tt->offset += wanted->len;
 				tt->max_len -= wanted->len;
@@ -581,7 +605,7 @@ tvbparse_elem_t* tvbparse_get(tvbparse_t* tt,
 		}
 		case TVBPARSE_WANTED_SIMPLE_CASESTRING:
 		{
-			if ( tvb_strncaseeql(tt->tvb, tt->offset, wanted->ctl, wanted->len) == 0 ) {
+			if ( tvb_strncaseeql(tt->tvb, tt->offset, wanted->control.str, wanted->len) == 0 ) {
 				int offset = tt->offset;
 				tt->offset += wanted->len;
 				tt->max_len -= wanted->len;
@@ -675,11 +699,19 @@ tvbparse_elem_t* tvbparse_get(tvbparse_t* tt,
 			if (new) {
 				tok = new;
 				
-				/* XXX this is ugly */
-				if (*(wanted->ctl) == 'i' ) {
-					tok->len = (tok->offset - offset) + tok->len;
-				} else {
-					tok->len = (tok->offset - offset);
+				switch (wanted->control.val) {
+                    case TP_UNTIL_INCLUDE:
+                        tok->len = (tok->offset - offset) + tok->len;
+                        break;
+                    case TP_UNTIL_LEAVE:
+                        tt->offset -= tok->len;
+                        tt->max_len += tok->len;
+                        /* fall through */
+                    case TP_UNTIL_SPEND:
+                        tok->len = (tok->offset - offset);
+                        break;
+                    default:
+                        DISSECTOR_ASSERT_NOT_REACHED();
 				}
 				
 				tok->offset = offset;
@@ -693,6 +725,15 @@ tvbparse_elem_t* tvbparse_get(tvbparse_t* tt,
 				goto reject;
 			}
 		}
+        case TVBPARSE_WANTED_HANDLE:
+        {
+            tok = tvbparse_get(tt, *(wanted->control.handle));
+            if (tok) {
+                goto accept;
+            } else {
+                goto reject;
+            }
+        }
 	}
 	
 	DISSECTOR_ASSERT_NOT_REACHED();
@@ -728,7 +769,7 @@ accept:
 					
 				}
 				
-				g_ptr_array_free(stack,FALSE);
+				g_ptr_array_free(stack,TRUE);
 			}
 			
 			tt->depth--;

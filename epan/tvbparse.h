@@ -218,8 +218,16 @@ tvbparse_wanted_t* tvbparse_until(int id,
 								  tvbparse_action_t before_cb,
 								  tvbparse_action_t after_cb,
 								  const tvbparse_wanted_t* ending,
-								  gboolean include_ending);
+								  int op_mode);
 
+/*
+ * op_mode values determine how the terminating element and the current offset
+ * of the parser are handled 
+ */
+        
+#define TP_UNTIL_INCLUDE 0 /* elem is included, its span is spent by the parser */
+#define TP_UNTIL_SPEND 1 /* elem is not included, but its span is spent by the parser */
+#define TP_UNTIL_LEAVE 2 /* elem is not included, neither its span is spent by the parser */
 
 /*
  * one_of
@@ -269,6 +277,15 @@ tvbparse_wanted_t* tvbparse_some(int id,
 
 #define tvbparse_one_or_more(id, private_data, before_cb, after_cb, wanted)\
 	tvbparse_some(id, 1, G_MAXINT, private_data, before_cb, after_cb, wanted)
+
+
+/* 
+ * handle
+ *
+ * this is a pointer to a pointer to a wanted element (that might have not
+ * been initialized yet) so that recursive structures
+ */
+tvbparse_wanted_t* tvbparse_handle(tvbparse_wanted_t** handle);
 
 /*  quoted
  *  this is a composed candidate, that will try to match a quoted string
