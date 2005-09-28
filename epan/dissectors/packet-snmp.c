@@ -1157,6 +1157,8 @@ snmp_variable_decode(proto_tree *snmp_tree, packet_info *pinfo,
 		break;
 
 	case SNMP_OBJECTID:
+		/* XXX Redo this using dissect_ber_object_identifier when
+		   it returns tvb or some other binary form of an OID */ 
 		oid_buf = tvb_get_ptr(asn1->tvb, vb_value_start, vb_length);
 		vb_oid = g_malloc((vb_length+1) * sizeof(gulong));
 		vb_oid_length = oid_to_subid_buf(oid_buf, vb_length, vb_oid, ((vb_length+1) * sizeof(gulong)));
