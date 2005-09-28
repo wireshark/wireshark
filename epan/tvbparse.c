@@ -680,9 +680,6 @@ tvbparse_elem_t* tvbparse_get(tvbparse_t* tt,
 					tok->len = (tok->offset - offset) + tok->len;
 				} else {
 					tok->len = (tok->offset - offset);
-					
-					tt->offset = save_offset + tok->len;
-					tt->max_len = save_len - tok->len;
 				}
 				
 				tok->offset = offset;

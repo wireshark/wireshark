@@ -302,7 +302,7 @@ sub make_rule {
         
         if (length $tree_code_body ) {
             my $cb_name = ${$r}{before_cb_name} = "${$r}{name}\_before_cb";
-            ${$r}{before_cb_code} = "static void $cb_name(void* tpg _U_, const void* wd _U_, struct _tvbparse_elem_t* elem _U_) {\n$tree_code_head\n$tree_code_body\n}";
+            ${$r}{before_cb_code} = "static void $cb_name(void* tpg _U_, const void* wd _U_, struct _tvbparse_elem_t* elem _U_) {\n\tproto_item* pi;\n$tree_code_head\n$tree_code_body\n}";
             ${$r}{code} .= $tree_code_after;
         }
         
@@ -394,7 +394,7 @@ sub make_rule {
         } elsif (${$r}{type} eq 'until') {
             ${$code} .= $indent ."tvbparse_until(0,$wd_data,$before_fn,$after_fn,\n";
             $dd++;
-            ${$code} .= $indent_more . make_rule(${$r}{subrule},$dd) . ", TRUE)";
+            ${$code} .= $indent_more . make_rule(${$r}{subrule},$dd) . ", FALSE)";
             $dd--;
         }
         
@@ -416,7 +416,7 @@ sub make_vars {
     my $v = shift;
     my $r = shift;
     my $base = shift;
-    
+
     if (exists ${$r}{var}) {
         ${$v}{${$r}{var}} = $base;
     }
@@ -454,7 +454,7 @@ sub make_tree_code {
         
         if (exists ${$r}{tree}) {
             $root_var = "root_$fieldname";
-            ${$head} .= "\tproto_item* $root_var;\n";
+            ${$head} .= "\tproto_item* $root_var;\n\n";
             ${$body} .= "\t$root_var = ";
             $ett_arr .= "\t&$proto_name\_hfis.ett_$fieldname,\\\n";
             $ett_decl .= "\tguint ett_$fieldname; \n";
@@ -463,27 +463,32 @@ sub make_tree_code {
         } else {
             ${$body} .= "\t";
         }
+
         
         if (${$f}{type} eq 'FT_STRING') {
-            ${$body} .= "TPG_ADD_STRING(tpg,${$f}{vname},$elem);\n";
+            ${$body} .= "\tpi = TPG_ADD_STRING(tpg,${$f}{vname},$elem);\n";
         } elsif (${$f}{type} =~ /^FT_UINT/) {
             my $fieldvar = "tpg_uint_$fieldname";
             ${$head} .= "\tguint $fieldvar = TPG_UINT($elem);\n";
-            ${$body} .= "TPG_ADD_UINT(tpg,${$f}{vname},$elem,$fieldvar);\n";
+            ${$body} .= "\tpi = TPG_ADD_UINT(tpg,${$f}{vname},$elem,$fieldvar);\n";
         } elsif (${$f}{type} =~ /^FT_INT/) {
             my $fieldvar = "tpg_int_$fieldname";
             ${$head} .= "\tgint $fieldvar = TPG_INT($elem);\n";
-            ${$body} .= "TPG_ADD_INT(tpg,${$f}{vname},$elem,$fieldvar);\n";
+            ${$body} .= "\tpi = TPG_ADD_INT(tpg,${$f}{vname},$elem,$fieldvar);\n";
         } elsif (${$f}{type} eq 'FT_IPV4') {
             my $fieldvar = "tpg_ipv4_$fieldname";
             ${$head} .= "\tguint32 $fieldvar = TPG_IPV4($elem);\n";
-            ${$body} .= "TPG_ADD_IPV4(tpg,${$f}{vname},$elem,$fieldvar);\n";
+            ${$body} .= "\tpi = TPG_ADD_IPV4(tpg,${$f}{vname},$elem,$fieldvar);\n";
         } elsif (${$f}{type} eq 'FT_IPV6') {
             my $fieldvar = "tpg_ipv6_$fieldname";
             ${$head} .= "\tguint8* $fieldvar = TPG_IPV6($elem);\n";
-            ${$body} .= "TPG_ADD_IPV6(tpg,${$f}{vname},$elem,$fieldvar);\n";
+            ${$body} .= "\tpi = TPG_ADD_IPV6(tpg,${$f}{vname},$elem,$fieldvar);\n";
         } else {
-            ${$body} .= "TPG_ADD_TEXT(tpg,$elem);\n";
+            ${$body} .= "\tpi = TPG_ADD_TEXT(tpg,$elem);\n";
+        }
+        
+        if (exists ${$r}{plain_text}) {
+            ${$body} .= "\tTPG_SET_TEXT(pi,$elem);\n"
         }
         
         if (exists ${$r}{tree}) {
@@ -525,10 +530,10 @@ sub tokenizer {
         [ '([A-Z][A-Z0-9_]*)', sub { [ 'UPPERCASE', $_[0] ] }],
         [ '([0-9]+|0x[0-9a-fA-F]+)', sub { [ 'NUMBER', $_[0] ] }],
         [ '(\%\%[0-9]+\%\%)', \&c_code ],
-        [ "('(\\\\'|[^'])*')", sub { [ 'SQUOTED', $_[0] ] }], 
+        [ "'((\\\\'|[^'])*)'", sub { [ 'SQUOTED', $_[0] ] }], 
         [ '\[\^((\\\\\\]|[^\\]])*)\]', sub { [ 'NOTCHARS', $_[0] ] }], 
         [ '\[((\\\\\\]|[^\\]])*)\]', sub { [ 'CHARS', $_[0] ] }], 
-        [ '("(\\\\"|[^"])*")', sub { [ 'DQUOTED', $_[0] ] }], 
+        [ '"((\\\\"|[^"])*)"', sub { [ 'DQUOTED', $_[0] ] }], 
         [ '(\%[a-z_]+|\%[A-Z][A-Z-]*|\=|\.\.\.|\.|\:|\;|\(|\)|\{|\}|\+|\*|\?|\<|\>|\|)', sub { [  $_[0], $_[0] ] }], 
     ]
 }

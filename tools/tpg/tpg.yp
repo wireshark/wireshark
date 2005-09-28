@@ -53,6 +53,7 @@ sub from_to {
 sub chars_control {
     $_ = $_[0];
     s/([a-zA-Z0-9])-([a-zA-Z0-9])/from_to($1,$2)/ge;
+    s/"/\\"/g;
     "\"$_\"";
 }
 
@@ -71,24 +72,9 @@ statement:
     rule_statement {
         my $rulename = ${$_[1]}{name};
 
-        if (exists ${${$parser_info}{rules}}{$rulename}) {
-
-            my $rule = ${${$parser_info}{rules}}{$rulename};
-            if (exists ${${$parser_info}{rules}}{root}) {
-                # a root rule exists already add this to its subrules
-                push @{${${$parser_info}{rules}}{subrules}}, $_[1];
-            } else {
-                # this rule becomes the first subrule of a choice
-                ${${$parser_info}{rules}}{$rulename} =  {
-                    root=>'',
-                    type=>'choice',
-                    subrules=>[$rule,\$_[1]],
-                    name=>${$_[1]}{name},
-                }
-            }
-        } else {
-            ${${$parser_info}{rules}}{$rulename} = $_[1];
-        }
+        abort($_[0],"%rule $rulename already defined") if exists ${${$parser_info}{rules}}{$rulename};
+        
+        ${${$parser_info}{rules}}{$rulename} = $_[1];
     }
     |  parser_name_statement {
         abort($_[0],"%parser_name already defined") if exists ${$parser_info}{name};
@@ -184,7 +170,7 @@ base_rule:
     | until_rule
     | CHARS {{control=>chars_control($_[1]),type=>'chars'}}
     | NOTCHARS {{control=>chars_control($_[1]),type=>'not_chars'}}
-    | DQUOTED {{control=>"$_[1]",type=>'string'}}
+    | DQUOTED {{control=>"\"$_[1]\"",type=>'string'}}
     | SQUOTED {{control=>"\"$_[1]\"",type=>'caseless'}}
     | LOWERCASE {{control=>$_[1],type=>'named'}} 
     ;
@@ -277,7 +263,7 @@ value_string_items:
     ;
 
 value_string_item:
-    NUMBER QUOTED { [ $_[1], "\"$_[2]\"" ] }
+    NUMBER DQUOTED { [ $_[1], "\"$_[2]\"" ] }
     ;
 
 static_field_statement:
@@ -290,7 +276,7 @@ static_field_statement:
 
 field_name:
     #empty {undef}
-    | DQUOTED
+    | DQUOTED { "\"$_[1]\""}
     ;
 
 field_type:
@@ -310,7 +296,7 @@ field_value_string:
 
 field_description:
     #empty {'""'}
-    | SQUOTED
+    | SQUOTED { "\"$_[1]\""}
     ;
 
 quoted: DQUOTED | SQUOTED ;

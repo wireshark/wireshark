@@ -3,7 +3,7 @@
  *
  *  (c) 2005, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  * 
- * $Id:$
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,11 +78,14 @@ extern tpg_stack_frame_t* tpg_pop(tpg_parser_data_t* tpg);
 #define TPG_POP(tpg) tpg_pop(((tpg_parser_data_t*)tpg))
 
 #define TPG_ADD_STRING(tpg,  hfid, elem) proto_tree_add_item(((tpg_parser_data_t*)tpg)->stack->tree, hfid, (elem)->tvb, (elem)->offset, (elem)->len, FALSE)
+#define TPG_ADD_BOOLEAN(tpg,  hfid, elem) proto_tree_add_boolean(((tpg_parser_data_t*)tpg)->stack->tree, hfid, (elem)->tvb, (elem)->offset, (elem)->len, TRUE)
 #define TPG_ADD_INT(tpg,  hfid, elem, value) proto_tree_add_int(((tpg_parser_data_t*)tpg)->stack->tree, hfid, (elem)->tvb, (elem)->offset, (elem)->len, value)
 #define TPG_ADD_UINT(tpg,  hfid, elem, value) proto_tree_add_uint(((tpg_parser_data_t*)tpg)->stack->tree, hfid, (elem)->tvb, (elem)->offset, (elem)->len, value)
 #define TPG_ADD_IPV4(tpg,  hfid, elem, value) proto_tree_add_ipv4(((tpg_parser_data_t*)tpg)->stack->tree, hfid, (elem)->tvb, (elem)->offset, (elem)->len, value)
 #define TPG_ADD_IPV6(tpg,  hfid, elem, value) proto_tree_add_ipv6(((tpg_parser_data_t*)tpg)->stack->tree, hfid, (elem)->tvb, (elem)->offset, (elem)->len, value)
 #define TPG_ADD_TEXT(tpg, elem) proto_tree_add_text(((tpg_parser_data_t*)tpg)->stack->tree, (elem)->tvb, (elem)->offset, (elem)->len, \
                                                              "%s",tvb_format_text((elem)->tvb, (elem)->offset, (elem)->len))
+
+#define TPG_SET_TEXT(pi, elem) proto_item_set_text((pi), "%s",tvb_format_text((elem)->tvb, (elem)->offset, (elem)->len))
 
 #endif /* _TPG_H_ */

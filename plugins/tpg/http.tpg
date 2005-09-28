@@ -51,7 +51,7 @@ typedef struct _http_info_value_t
 %field version hyttp.version "HTTP Version" FT_STRING.
 %rule http_version = "HTTP/" ( "1.0" | "1.1" )<version> .
 
-%field response hyttp.response "Response" FT_BOOLEAN .
+%field response hyttp.response "Response" FT_STRING .
 %field response_code hyttp.response.code "Response Code" FT_UINT32 BASE_DEC %{ http_response_codes %} .
 %rule response = (http_version sp [0-9]+<response_code:RESPONSE> ... { crlf } )<response:%plain_text> . {
     %root response
@@ -61,7 +61,7 @@ typedef struct _http_info_value_t
     %}
 }
 
-%field request hyttp.request "Request" FT_BOOLEAN .
+%field request hyttp.request "Request" FT_STRING .
 %field method hyttp.request.method "Request Method" FT_STRING  .
 %field uri hyttp.request.uri "Request URI" FT_STRING  .
 %rule request  = ([A-Z]+<method:METHOD> sp [^ ]+<uri:URI> sp http_version crlf )<request:%plain_text> . {
@@ -78,48 +78,83 @@ typedef struct _http_info_value_t
 %rule media  = [a-z]+ "/" [a-z]+ .
 
 %field content_type hyttp.content_type "Content-Type" FT_STRING  .
-%rule content_type = "Content-Type: " media<content_type:MEDIA> sp? crlf . {
-    %code %{
+
+#crash %rule content_type = 'Content-type: ' (media<content_type:MEDIA> crlf | ( media<content_type:MEDIA> ... { crlf } )) . { 
+%rule content_type = 'Content-type: ' media<content_type:MEDIA> ... { crlf } . { 
+%code %{
         TT_DATA->media = TPG_STRING(MEDIA);
     %}
 }
 
 %field content_length hyttp.headers.content_length "Content-Length" FT_UINT32 BASE_DEC .
-%rule content_length = "Content-Length: " media<content_length:LENGTH> sp? crlf . {
+%rule content_length = 'Content-length: ' [0-9]+<content_length:LENGTH> crlf . {
     %code %{
         TT_DATA->content_length = TPG_UINT(LENGTH);
     %}
 }
 
 %field transfer_encoding hyttp.transfer_encoding "Transfer-Encoding" FT_STRING  .
-%rule transfer_encoding = "Transfer-Encoding: " ...<transfer_encoding:ENCODING> { crlf }. {
+%rule transfer_encoding = 'Transfer-encoding: ' ...<transfer_encoding:ENCODING> { crlf }. {
     %code %{
         TT_DATA->transfer_encoding = TPG_STRING(ENCODING);
     %}
 }
 
 %field authorization hyttp.authorization "Authorization" FT_STRING  .
-%rule authorization = "Authorization: " ...<authorization> { crlf }  .
+%rule authorization = 'Authorization: ' ...<authorization> { crlf }  .
 
 %field proxy_authorization hyttp.proxy_authorization "Proxy-Authorization" FT_STRING  .
-%rule proxy_author = "Proxy-Authorization: " ...<proxy_authorization> { crlf }  .
+%rule proxy_author = 'Proxy-authorization: ' ...<proxy_authorization> { crlf }  .
 
 %field proxy_authen hyttp.proxy_authenti "Proxy-Authenticate" FT_STRING  .
-%rule proxy_authen = "Proxy-Authenticate: " ...<proxy_authen> { crlf }  .
+%rule proxy_authen = 'Proxy-authenticate: ' ...<proxy_authen> { crlf }  .
 
 %field www_auth hyttp.www_authenticate "WWW-Authenticate" FT_STRING  .
-%rule www_auth = "WWW-Authenticate: " ...<www_auth> { crlf }  .
+%rule www_auth = 'WWW-authenticate: ' ...<www_auth> { crlf }  .
 
 %field content_encoding hyttp.content_encoding "Content-Encoding" FT_STRING  .
-%rule content_encoding = "Content-Encoding: " ...<content_encoding> { crlf }  .
+%rule content_encoding = 'Content-Encoding: ' ...<content_encoding> { crlf }  .
 
 %field user_agent hyttp.content_encoding "User-Agent" FT_STRING  .
-%rule user_agent = "User-Agent: " ...<user_agent> { crlf }  .
+%rule user_agent = 'User-Agent: ' ...<user_agent> { crlf }  .
 
 %field host hyttp.host "Host" FT_STRING  .
-%rule host  = "Host: " ...<host> { crlf } .
+%rule host  = 'Host: ' ...<host> { crlf } .
 
-%rule other_header = ([A-Z] [a-zA-Z-]+)<NAME> ": " ...<VALUE> { crlf } .
+%field accept hyttp.accept "Accept" FT_STRING  .
+%rule accept  = 'Accept: ' ...<accept> { crlf } .
+
+%field accept_language hyttp.accept_language "Accept-Language" FT_STRING  .
+%rule accept_language  = 'Accept-language: ' ...<accept_language> { crlf } .
+
+%field accept_encoding hyttp.accept_encoding "Accept-Language" FT_STRING  .
+%rule accept_encoding  = 'Accept-encoding: ' ...<accept_encoding> { crlf } .
+
+%field accept_ranges hyttp.accept_encoding "Accept-Ranges" FT_STRING  .
+%rule accept_ranges  = 'Accept-Ranges: ' ...<accept_ranges> { crlf } .
+
+%field keep_alive hyttp.keep_alive "Keep-Alive" FT_UINT32 BASE_DEC .
+%rule keep_alive  = 'Keep-Alive: ' ...<keep_alive> { crlf } .
+
+%field connection hyttp.connection "Connection" FT_STRING .
+%rule connection  = 'Connection: ' ...<connection> { crlf } .
+
+%field referer hyttp.referer "Referer" FT_STRING .
+%rule referer  = 'Referer: ' ...<referer> { crlf } .
+
+%field cookie hyttp.cookie "Cookie" FT_STRING .
+%rule cookie  = 'Cookie: ' ...<cookie> { crlf } .
+
+%field etag hyttp.etag "Etag" FT_STRING .
+%rule etag  = 'Etag: ' ["] [^"]+<etag> ["] crlf .
+
+%field last_modified hyttp.last_modified "Last-Modified" FT_STRING .
+%rule last_modified  = 'Last-Modified: ' ...<last_modified> { crlf } .
+
+%field server hyttp.server "Server" FT_STRING .
+%rule server  = 'Server: ' ...<server> { crlf } .
+
+%rule other_header = ([A-Z] [a-zA-Z-]+) ": " ... { crlf } .
 
 %field header hyttp.headers.line "HTTP Header Line" FT_BOOLEAN  .
 %rule header = (
@@ -133,6 +168,17 @@ typedef struct _http_info_value_t
     | content_encoding
     | user_agent
     | host
+    | accept
+    | accept_language
+    | accept_encoding
+    | accept_ranges
+    | keep_alive
+    | connection
+    | referer
+    | cookie
+    | etag
+    | last_modified
+    | server
     | other_header)<header:%plain_text> . {
     %root header
 }
