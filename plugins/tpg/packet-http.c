@@ -25,12 +25,6 @@ static int hf_http_request_uri = -1;
 
 static dissector_handle_t http_handle;
 
-
-struct _elem_tree_stack_frame {
-    proto_tree* tree;
-    tvbparse_elem_t* elem;
-};
-
 static void dissect_http(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree) {
     http_info_value_t* msgdata = ep_alloc0(sizeof(http_info_value_t));
     tvbparse_elem_t* reqresp;
