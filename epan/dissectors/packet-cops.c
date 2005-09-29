@@ -1367,10 +1367,10 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
 
     start = offset;
 
-	offset = dissect_ber_identifier(pinfo , NULL, tvb, start, &class, &pc, &ber_tag);
-	offset = dissect_ber_length(pinfo, NULL, tvb, offset, &vb_length, &ind);
+    offset = dissect_ber_identifier(pinfo , NULL, tvb, start, &class, &pc, &ber_tag);
+    offset = dissect_ber_length(pinfo, NULL, tvb, offset, &vb_length, &ind);
 
-	vb_value_start = offset;
+    vb_value_start = offset;
 
     /* Convert the class, constructed flag, and tag to a type. */
     vb_type_name = cops_tag_cls2syntax(ber_tag, class, &vb_type);

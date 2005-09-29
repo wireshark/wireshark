@@ -83,8 +83,13 @@ pkgdata_DATA = AUTHORS-SHORT manuf ethereal.html tethereal.html \
 # of that directory.
 #
 diameterdir = $(pkgdatadir)/diameter
-diameter_DATA = dictionary.dtd dictionary.xml imscxdx.xml mobileipv4.xml \
-	nasreq.xml sunping.xml
+diameter_DATA = \
+	diameter/dictionary.dtd \
+	diameter/dictionary.xml \
+	diameter/imscxdx.xml \
+	diameter/mobileipv4.xml \
+	diameter/nasreq.xml \
+	diameter/sunping.xml
 
 #
 # Install the DTDs directory files in the "dtds" subdirectory
@@ -92,10 +97,10 @@ diameter_DATA = dictionary.dtd dictionary.xml imscxdx.xml mobileipv4.xml \
 #
 dtdsdir = $(pkgdatadir)/dtds
 dtds_DATA = \
-    dtds/dc.dtd \
-    dtds/itunes.dtd \
-    dtds/rss.dtd \
-    dtds/smil.dtd
+	dtds/dc.dtd \
+	dtds/itunes.dtd \
+	dtds/rss.dtd \
+	dtds/smil.dtd
 
 #
 # Install the RADIUS directory files in the "radius" subdirectory
@@ -492,8 +497,6 @@ EXTRA_DIST = \
 	debian/prerm		\
 	debian/rules		\
 	dfilters 		\
-	dictionary.dtd		\
-	dictionary.xml		\
 	doc/Makefile.am		\
 	doc/Makefile.nmake	\
 	doc/README.capture	\
@@ -616,7 +619,6 @@ EXTRA_DIST = \
 	image/icon_layout_5.xpm \
 	image/icon_layout_6.xpm \
 	image/wiretap.rc.in	\
-	imscxdx.xml		\
 	make-authors-format.pl	\
 	make-authors-short.pl	\
 	make-manuf		\
@@ -625,79 +627,13 @@ EXTRA_DIST = \
 	manuf			\
 	manuf.tmpl		\
 	mergecap.c		\
-	mobileipv4.xml		\
-	nasreq.xml		\
 	perlnoutf.pl		\
 	print.ps		\
-    dtds/dc.dtd \
-    dtds/itunes.dtd \
-    dtds/rss.dtd \
-    dtds/smil.dtd \
-	radius/dictionary  \
-	radius/dictionary.3com  \
-	radius/dictionary.3gpp  \
-	radius/dictionary.3gpp2  \
-	radius/dictionary.acc  \
-	radius/dictionary.alcatel  \
-	radius/dictionary.alteon  \
-	radius/dictionary.altiga  \
-	radius/dictionary.aptis  \
-	radius/dictionary.ascend  \
-	radius/dictionary.bay  \
-	radius/dictionary.bintec  \
-	radius/dictionary.bristol  \
-	radius/dictionary.cablelabs  \
-	radius/dictionary.cabletron  \
-	radius/dictionary.cisco  \
-	radius/dictionary.cisco.bbsm  \
-	radius/dictionary.cisco.vpn3000  \
-	radius/dictionary.cisco.vpn5000  \
-	radius/dictionary.colubris  \
-	radius/dictionary.columbia_university  \
-	radius/dictionary.compat  \
-	radius/dictionary.cosine  \
-	radius/dictionary.ericsson  \
-	radius/dictionary.erx  \
-	radius/dictionary.extreme  \
-	radius/dictionary.foundry  \
-	radius/dictionary.freeradius  \
-	radius/dictionary.gandalf  \
-	radius/dictionary.garderos  \
-	radius/dictionary.gemtek  \
-	radius/dictionary.itk  \
-	radius/dictionary.juniper  \
-	radius/dictionary.karlnet  \
-	radius/dictionary.livingston  \
-	radius/dictionary.localweb  \
-	radius/dictionary.merit  \
-	radius/dictionary.microsoft  \
-	radius/dictionary.mikrotik  \
-	radius/dictionary.navini  \
-	radius/dictionary.netscreen  \
-	radius/dictionary.nokia  \
-	radius/dictionary.nomadix  \
-	radius/dictionary.propel  \
-	radius/dictionary.quintum  \
-	radius/dictionary.redback  \
-	radius/dictionary.redcreek  \
-	radius/dictionary.shasta  \
-	radius/dictionary.shiva  \
-	radius/dictionary.sonicwall  \
-	radius/dictionary.springtide  \
-	radius/dictionary.t_systems_nova  \
-	radius/dictionary.telebit  \
-	radius/dictionary.trapeze  \
-	radius/dictionary.tunnel  \
-	radius/dictionary.unisphere  \
-	radius/dictionary.unix  \
-	radius/dictionary.usr  \
-	radius/dictionary.valemount  \
-	radius/dictionary.versanet  \
-	radius/dictionary.wispr  \
-	radius/dictionary.xedia \
+	$(diameter_DATA)	\
+	$(dtds_DATA)		\
+	$(radius_DATA)		\
 	randpkt.c		\
 	rdps.c			\
-	sunping.xml		\
 	text2pcap-scanner.l	\
 	text2pcap.c		\
 	text2pcap.h		\
