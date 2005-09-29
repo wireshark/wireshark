@@ -116,8 +116,18 @@ statement:
     ;
 
 rule_statement:
-'%rule' LOWERCASE '=' rule '.' rule_body {
-        my $r = hj($_[4],$_[6]);
+    '%sequence' LOWERCASE '=' sequence_rule '.' qualification rule_body {
+        my $r = hj($_[4],hj($_[6],$_[7]));
+        ${$r}{name} = $_[2];
+        $r;
+    }
+    | '%choice' LOWERCASE '=' choice_rule '.' qualification rule_body {
+        my $r = hj($_[4],hj($_[6],$_[7]));
+        ${$r}{name} = $_[2];
+        $r;
+    }
+    | '%rule' LOWERCASE '=' complete_rule '.' rule_body {
+        my $r = hj($_[4],hj($_[6],$_[6]));
         ${$r}{name} = $_[2];
         $r;
     }
@@ -155,18 +165,12 @@ tree:
     | '%root' LOWERCASE {$_[2]}
     ;
 
-rule:
-    complete_rule
-    | sequence {{subrules=>$_[1],type=>'seq'}};
-
 
 complete_rule:
     base_rule cardinality qualification {hj($_[1],hj($_[2],$_[3]))}
     ;
 
 base_rule:
-    '(' sequence ')' { {subrules=>$_[2],type=>'seq'}}
-    | '(' choice ')' {{subrules=>$_[2],type=>'choice'}}
     | until_rule
     | CHARS {{control=>chars_control($_[1]),type=>'chars'}}
     | NOTCHARS {{control=>chars_control($_[1]),type=>'not_chars'}}
@@ -176,17 +180,28 @@ base_rule:
     ;
 
 until_rule:
-    '...' qualification '{' rule '}'  { @{$_[2]}{'type','subrule'} = ('until',$_[4]); $_[2] }
+    '...' qualification '(' base_rule include_mode ')'  { @{$_[2]}{'type','subrule','inc_mode'} = ('until',$_[4],$_[5]); $_[2] }
     ;
+
+include_mode:
+    #empty { 'TP_UNTIL_SPEND' }
+    | '%spend' { 'TP_UNTIL_SPEND' }
+    | '%include' { 'TP_UNTIL_INCLUDE' }
+    | '%leave' { 'TP_UNTIL_LEAVE' }
+    ;
+
+choice_rule: choice {{subrules=>$_[1],type=>'choice'}} ;
 
 choice:
     complete_rule '|' complete_rule { [$_[1],$_[3]] }
     | choice '|' complete_rule { push @{$_[1]}, $_[3]; $_[1] }
     ;
 
+sequence_rule: sequence { {subrules=>$_[1],type=>'seq'}} ;
+
 sequence:
-    complete_rule complete_rule { [$_[1],$_[2]] }
-    | sequence complete_rule { push @{$_[1]}, $_[2]; $_[1] }
+    complete_rule { [$_[1]] }
+    | sequence '&' complete_rule { push @{$_[1]}, $_[3]; $_[1] }
     ;
 
 cardinality:
@@ -249,8 +264,8 @@ export_statement:
     ;
 
 exports:
-    exports LOWERCASE { ${$_[1]}{$_[2]} = undef; $_[1] }
-    | LOWERCASE { my $e = {}; ${$e}{$_[1]} = undef; $e }
+    exports LOWERCASE { ${$_[1]}{$_[2]} = 1; $_[1] }
+    | LOWERCASE { my $e = {}; ${$e}{$_[1]} = 1; $e }
     ;
 
 value_string_statement:
