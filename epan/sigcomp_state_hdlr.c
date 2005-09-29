@@ -435,7 +435,7 @@ int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint16 p_id_
 					   gint hf_id)
 {
 	int			result_code = 0;
-	guint16		n;
+	guint32		n;
 	guint16		k;
 	guint16		byte_copy_right;
 	guint16		byte_copy_left;
