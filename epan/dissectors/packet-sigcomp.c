@@ -319,7 +319,7 @@ static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
 
 static int dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-proto_tree *top_tree;
+static proto_tree *top_tree;
 
 /* Initialize the state handler
  *
