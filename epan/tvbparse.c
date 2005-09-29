@@ -33,6 +33,7 @@
 
 #include <epan/emem.h>
 #include <epan/proto.h>
+#include <epan/packet_info.h>
 #include <epan/tvbparse.h>
 
 typedef enum _tvbparse_wanted_type_t {
@@ -804,8 +805,12 @@ tvbparse_elem_t* tvbparse_find(tvbparse_t* tt, const tvbparse_wanted_t* wanted) 
 	return NULL;
 }
 
+struct _elem_tree_stack_frame {
+    proto_tree* tree;
+    tvbparse_elem_t* elem;
+};
 
-static void tvbparse_tree_add_elem(proto_tree* tree, tvbparse_elem_t* curr) {
+void tvbparse_tree_add_elem(proto_tree* tree, tvbparse_elem_t* curr) {
     GPtrArray* stack = g_ptr_array_new();
     struct _elem_tree_stack_frame* frame = ep_alloc(sizeof(struct _elem_tree_stack_frame));
     proto_item* pi;
