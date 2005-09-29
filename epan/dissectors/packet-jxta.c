@@ -34,6 +34,7 @@
 # include "config.h"
 #endif
 
+#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -62,6 +63,7 @@ static int proto_message_jxta = -1;
 static int jxta_tap = -1;
 
 static dissector_table_t media_type_dissector_table = NULL;
+static dissector_handle_t data_handle = NULL;
 static dissector_handle_t tcp_jxta_handle = NULL;
 
 static int hf_jxta_udpsig = -1;
@@ -96,7 +98,6 @@ static int hf_jxta_element_type = -1;
 static int hf_jxta_element_encoding = -1;
 static int hf_jxta_element_content_len = -1;
 static int hf_jxta_element_content = -1;
-static int hf_jxta_element_content_text = -1;
 
 /** our header fields */
 static hf_register_info hf[] = {
@@ -219,10 +220,6 @@ static hf_register_info hf[] = {
     {&hf_jxta_element_encoding,
      {"Element Type", "jxta.message.element.encoding", FT_UINT_STRING, BASE_NONE, NULL, 0x0,
       "JXTA Message Element Encoding", HFILL}
-     },
-    {&hf_jxta_element_content_text,
-     {"Element Content", "jxta.message.element.text_content", FT_UINT_STRING, BASE_HEX, NULL, 0x0,
-      "JXTA Message Element Text Content", HFILL}
      },
     {&hf_jxta_element_content_len,
      {"Element Content Length", "jxta.message.element.content.length", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -385,6 +382,7 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
         tvbuff_t *jxta_message_framing_tvb;
         gint processed = 0;
         guint64 content_length = -1;
+        gchar *content_type = NULL;
 
         available = tvb_reported_length_remaining(tvb, offset);
         if (available < sizeof(JXTA_UDP_SIG)) {
@@ -400,10 +398,10 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
         offset += sizeof(JXTA_UDP_SIG);
 
         jxta_message_framing_tvb = tvb_new_subset(tvb, offset, -1, -1);
-        processed = dissect_jxta_message_framing(jxta_message_framing_tvb, pinfo, NULL, &content_length, NULL);
+        processed = dissect_jxta_message_framing(jxta_message_framing_tvb, pinfo, NULL, &content_length, &content_type);
 
-        if (0 == processed) {
-            /* rejected! */
+        if ((0 == processed) || (NULL == content_type) || (content_length <= 0) || (content_length > UINT_MAX)) {
+            /** Buffer did not begin with valid framing headers */
             return 0;
         }
 
@@ -446,21 +444,25 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
         tvbuff_t *jxta_message_tvb;
         gboolean dissected = FALSE;
         gint processed = 0;
-        dissector_handle_t mime_dissector_handle;
 
         proto_tree_add_item(jxta_udp_tree, hf_jxta_udpsig, tvb, tree_offset, sizeof(JXTA_UDP_SIG), FALSE);
         tree_offset += sizeof(JXTA_UDP_SIG);
 
         jxta_message_framing_tvb = tvb_new_subset(tvb, tree_offset, -1, -1);
         processed = dissect_jxta_message_framing(jxta_message_framing_tvb, pinfo, tree, &content_length, &content_type);
+
+        if ((0 == processed) || (NULL == content_type) || (content_length <= 0) || (content_length > UINT_MAX)) {
+            /** Buffer did not begin with valid framing headers */
+            return 0;
+        }
+
         tree_offset += processed;
 
         jxta_message_tvb = tvb_new_subset(tvb, tree_offset, (gint) content_length, (gint) content_length);
-        mime_dissector_handle = dissector_get_string_handle(media_type_dissector_table, content_type);
-        dissected = 0 < call_dissector(mime_dissector_handle, jxta_message_tvb, pinfo, tree);
+        
+        dissected =  dissector_try_string(media_type_dissector_table, content_type, jxta_message_tvb, pinfo, tree);
 
         if (!dissected) {
-            dissector_handle_t data_handle = find_dissector("data");
             call_dissector(data_handle, jxta_message_tvb, pinfo, tree);
         }
 
@@ -542,12 +544,12 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
         processed = dissect_jxta_welcome(tvb, pinfo, tree, welcome_addr, initiator);
     } else {
         /* Somewhere in the middle of a JXTA stream connection */
-        guint64 content_length = 0;
+        guint64 content_length = -1;
         gchar *content_type = NULL;
 
         processed = dissect_jxta_message_framing(tvb, pinfo, tree, &content_length, &content_type);
 
-        if ((0 == processed) || (NULL == content_type) || (0 == content_length)) {
+        if ((0 == processed) || (NULL == content_type) || (content_length <= 0) || (content_length > UINT_MAX)) {
             /** Buffer did not begin with valid framing headers */
             return 0;
         }
@@ -617,7 +619,6 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                     dissector_try_string(media_type_dissector_table, content_type, jxta_message_tvb, pinfo, tree);
 
                 if (!dissected) {
-                    dissector_handle_t data_handle = find_dissector("data");
                     call_dissector(data_handle, jxta_message_tvb, pinfo, tree);
                 }
 
@@ -1505,11 +1506,12 @@ static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, pro
         }
 
         if (!media_type_recognized) {
-            dissector_handle_t data_handle = find_dissector("data");
+            /* display it as raw data */
             call_dissector(data_handle, element_content_tvb, pinfo, jxta_elem_tree);
         }
         tree_offset += content_len;
 
+        /* process the signature element */
         if ((flags & 0x04) != 0) {
             tvbuff_t *jxta_message_element_tvb = tvb_new_subset(tvb, tree_offset, -1, -1);
 
@@ -1556,7 +1558,7 @@ void proto_register_jxta(void)
 
     prefs_register_bool_preference(jxta_module, "desegment",
                                    "Reassemble JXTA messages spanning multiple UDP/TCP/HTTP segments",
-                                   "Whether the JXTA dissector should reassemble messages spanning multiple UDP/TCP segments."
+                                   "Whether the JXTA dissector should reassemble messages spanning multiple UDP/HTTP/TCP segments."
                                    " To use this option you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings "
                                    " and enable \"Reassemble fragmented IP datagrams\" in the IP protocol settings.",
                                    &gDESEGMENT);
@@ -1589,7 +1591,9 @@ void proto_reg_handoff_message_jxta(void)
     static gboolean init_done = FALSE;
     static dissector_handle_t message_jxta_handle;
 
-    if (!init_done) {
+    if (!init_done) {        
+        data_handle = find_dissector("data");
+
         message_jxta_handle = new_create_dissector_handle(dissect_jxta_message, proto_message_jxta);
 
         media_type_dissector_table = find_dissector_table("media_type");
