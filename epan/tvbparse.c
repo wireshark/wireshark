@@ -804,3 +804,35 @@ tvbparse_elem_t* tvbparse_find(tvbparse_t* tt, const tvbparse_wanted_t* wanted) 
 	return NULL;
 }
 
+
+static void tvbparse_tree_add_elem(proto_tree* tree, tvbparse_elem_t* curr) {
+    GPtrArray* stack = g_ptr_array_new();
+    struct _elem_tree_stack_frame* frame = ep_alloc(sizeof(struct _elem_tree_stack_frame));
+    proto_item* pi;
+    frame->tree = tree;
+    frame->elem = curr;
+    
+    while (curr) {
+        pi = proto_tree_add_text(frame->tree,curr->tvb,curr->offset,curr->len,"%s",tvb_format_text(curr->tvb,curr->offset,curr->len));
+        
+        if(curr->sub) {
+            frame->elem = curr;
+            g_ptr_array_add(stack,frame);
+            frame = ep_alloc(sizeof(struct _elem_tree_stack_frame));
+            frame->tree = proto_item_add_subtree(pi,0);
+            curr = curr->sub;
+            continue;
+        }
+        
+        curr = curr->next;
+        
+        while( !curr && stack->len ) {
+            frame = g_ptr_array_remove_index_fast(stack,stack->len - 1);
+            curr = frame->elem->next;
+        }
+        
+    }
+    
+    g_ptr_array_free(stack,TRUE);
+}
+

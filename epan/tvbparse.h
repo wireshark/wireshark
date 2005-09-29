@@ -348,4 +348,7 @@ tvbparse_elem_t* tvbparse_get(tvbparse_t* tt,
 tvbparse_elem_t* tvbparse_find(tvbparse_t* tt,
 							   const tvbparse_wanted_t* wanted);
 
+
+void tvbparse_tree_add_elem(proto_tree* tree, tvbparse_elem_t* curr);
+
 #endif
