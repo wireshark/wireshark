@@ -24,7 +24,7 @@
  *
  * References:
  * http://www.umatechnology.org/ 
- * UMA Protocols (Stage 3) R1.0.3 (2005-02-26)
+ * UMA Protocols (Stage 3) R1.0.4 (5/16/2005)
  * 
  * http://www.3gpp.org/specs/numbering.htm 
  * 3GPP TS 24.008 V6.2.0 (2003-09)
@@ -104,6 +104,8 @@ static int hf_uma_urr_mnc				= -1;
 static int hf_uma_urr_lac				= -1;
 static int hf_uma_urr_gci				= -1;
 static int hf_uma_urr_tura				= -1;
+static int hf_uma_urr_gc				= -1;
+static int hf_uma_urr_uc				= -1;
 static int hf_uma_urr_tlra				= -1;
 static int hf_uma_urr_rrs				= -1;
 static int hf_uma_urr_location_estimate = -1;
@@ -118,7 +120,6 @@ static int hf_uma_urr_DTM				= -1;
 static int hf_uma_urr_GPRS				= -1;
 static int hf_uma_urr_NMO				= -1;
 static int hf_uma_urr_ECMC				= -1;
-static int hf_uma_urr_EC				= -1;
 static int hf_uma_urr_T3212_timer		= -1;
 static int hf_uma_urr_RAC				= -1;
 static int hf_uma_urr_ap_location		= -1;
@@ -145,11 +146,9 @@ static int hf_uma_urr_algorithm_id		= -1;
 static int hf_uma_urr_GPRS_resumption	= -1;
 static int hf_uma_urr_ULQI				= -1;
 static int hf_uma_urr_TU3920_timer		= -1;
-static int hf_uma_urr_rate				= -1;
-static int hf_uma_urr_precedence		= -1;
-static int hf_uma_urr_a_bit				= -1;
-static int hf_uma_urr_t_bit				= -1;
-static int hf_uma_urr_c_r_bit			= -1;
+static int hf_uma_urr_peak_tpt_cls		= -1;
+static int hf_uma_urr_radio_pri			= -1;
+static int hf_uma_urr_rlc_mode			= -1;
 static int hf_uma_urr_URLCcause			= -1;
 static int hf_uma_urr_udr				= -1;
 static int hf_uma_urr_TU4001_timer		= -1;
@@ -184,6 +183,8 @@ static int hf_uma_urr_uma_service_zone_str = -1;
 static int hf_uma_urr_suti				= -1;
 static int hf_uma_urr_uma_mps			= -1;
 static int hf_uma_urr_num_of_plms		= -1;
+static int hf_uma_urr_cbs				= -1;
+static int hf_uma_urr_num_of_cbs_frms	= -1;
 static int hf_uma_urr_unc_ipv4			= -1;
 static int hf_uma_unc_FQDN				= -1;
 static int hf_uma_urr_GPRS_user_data_transport_ipv4 = -1;
@@ -212,6 +213,7 @@ static guint gbl_umaTcpPort1 = 14001;
  * Protocol Discriminator (PD)
  */
 static const value_string uma_pd_vals[] = {
+	{ 0,		"URR_C"},
 	{ 1,		"URR"},
 	{ 2,		"URLC"}, 
 	{ 0,	NULL }
@@ -230,6 +232,7 @@ static const value_string uma_urr_msg_type_vals[] = {
 	{ 20,		"URR DEREGISTER"},
 	{ 21,		"URR REGISTER UPDATE UPLINK"},
 	{ 22,		"URR REGISTER UPDATE DOWNLINK"},
+	{ 23,		"URR CELL BROADCAST INFO"},
 	{ 32,		"URR CIPHERING MODE COMMAND"},
 	{ 33,		"URR CIPHERING MODE COMPLETE"},
 	{ 48,		"URR ACTIVATE CHANNEL"},
@@ -286,9 +289,9 @@ static const value_string uma_urr_IE_type_vals[] = {
 	{ 1,		"Mobile Identity"},
 	{ 2,		"UMA Release Indicator"},
 	{ 3,		"Radio Identity"},
-	{ 4,		"Cell Identity"},
+	{ 4,		"GERAN Cell Identity"},
 	{ 5,		"Location Area Identification"},
-	{ 6,		"GSM Coverage Indicator"},
+	{ 6,		"GERAN/UTRAN Coverage Indicator"},
 	{ 7,		"UMA Classmark"},
 	{ 8,		"Geographical Location"},
 	{ 9,		"UNC SGW IP Address"},
@@ -299,7 +302,7 @@ static const value_string uma_urr_IE_type_vals[] = {
 	{ 14,		"UMA Control Channel Description"},
 	{ 15,		"Cell Identifier List"},
 	{ 16,		"TU3907 Timer"},
-	{ 17,		"GSM RR State"},
+	{ 17,		"GSM RR/UTRAN RRC State"},
 	{ 18,		"Routing Area Identification"},
 	{ 19,		"UMA Band"},
 	{ 20,		"URR State"},
@@ -353,6 +356,9 @@ static const value_string uma_urr_IE_type_vals[] = {
 	{ 68,		"Registration indicators"},
 	{ 69,		"UMA PLMN List"},
 	{ 70,		"Received Signal Level List"},
+	{ 71,		"Required UMA Services"},
+	{ 72,		"Broadcast Container"},
+	{ 73,		"3G Cell Identity"},
 	{ 96,		"MS Radio Identity"},
 	{ 97,		"UNC IP Address"},
 	{ 98,		"UNC Fully Qualified Domain/Host Name"},
@@ -399,14 +405,19 @@ static const value_string tura_vals[] = {
 	{ 0,		"No radio"},
 	{ 1,		"Bluetooth"},
 	{ 2,		"WLAN 802.11"},
-	{ 3,		"Unspecified"},
+	{ 15,		"Unspecified"},
 	{ 0,	NULL }
 };
-
-/*TLRA, Type of Licensed Radio (octet 3)*/
-static const value_string tlra_vals[] = {
-	{ 0,		"None"},
-	{ 1,		"GERAN"},
+/* GC, GERAN Capable (octet 3) */
+static const value_string gc_vals[] = {
+	{ 0,		"The MS is not GERAN capable."},
+	{ 1,		"The MS is GERAN capable."},
+	{ 0,	NULL }
+};
+/* UC, UTRAN Capable (octet 3) */
+static const value_string uc_vals[] = {
+	{ 0,		"The MS is not UTRAN  capable."},
+	{ 1,		"The MS is UTRAN  capable."},
 	{ 0,	NULL }
 };
 /*RRS, RTP Redundancy Support (octet 4)*/
@@ -524,6 +535,10 @@ static const value_string Three_GECS_vals[] = {
 static const value_string GRS_GSM_RR_State_vals[] = {
 	{ 0,		"GSM RR is in IDLE state"},
 	{ 1,		"GSM RR is in DEDICATED state"},
+	{ 2,		"UTRAN RRC is in IDLE STATE"},
+	{ 3,		"UTRAN RRC is in CELL_DCH STATE"},
+	{ 4,		"UTRAN RRC is in CELL_FACH STATE"},
+	{ 7,		"Unknown"},
 	{ 0,	NULL }
 };
 /* UMA Band (4 bit field) */
@@ -622,7 +637,7 @@ static const value_string ULQI_vals[] = {
 	{ 0,	NULL }
 };
 
-static const value_string precedence_vals[] = {
+static const value_string radio_pri_vals[] = {
 	{ 0,		"Radio priority 1"},
 	{ 1,		"Radio priority 2"},
 	{ 2,		"Radio priority 3"},
@@ -630,21 +645,13 @@ static const value_string precedence_vals[] = {
 	{ 3,		"Radio Priority Unknown"},
 	{ 0,	NULL }
 };
-static const value_string a_bit_vals[] = {
-	{ 0,		"Radio interface uses RLC/MAC ARQ functionality"},
-	{ 1,		"Radio interface uses RLC/MAC-UNITDATA functionality"},
+
+static const value_string rlc_mode_vals[] = {
+	{ 0,		"RLC acknowledged mode"},
+	{ 1,		"RLC unacknowledged mode"},
 	{ 0,	NULL }
 };
-static const value_string t_bit_vals[] = {
-	{ 0,		"The SDU contains signalling (e.g. related to GMM)"},
-	{ 1,		"The SDU contains data"},
-	{ 0,	NULL }
-};
-static const value_string c_r_bit_vals[] = {
-	{ 0,		"The SDU contains a LLC ACK or SACK command/response frame type "},
-	{ 1,		"The SDU does not contain a LLC ACK or SACK command/response frame type"},
-	{ 0,	NULL }
-};
+
 /*URLC Cause (octet 3) */
 static const value_string URLC_cause_vals[] = {
 	{ 0,		"success"},
@@ -709,6 +716,7 @@ static const value_string ICMI_vals[] = {
 	{ 1,		"The initial codec mode is defined by the Start Mode field"},
 	{ 0,	NULL }
 };
+
 /* MPS, Manual PLMN Selection indicator (octet 3) */
 static const value_string mps_vals[] = {
 	{ 0,		"The MS is in Automatic PLMN selection mode."},
@@ -716,6 +724,14 @@ static const value_string mps_vals[] = {
 	{ 2,		"The MS is in Manual PLMN selection mode and tries to register; no PLMN list is needed."},
 	{ 0,	NULL }
 };
+
+/* CBS Cell Broadcast Service (octet 3) */
+static const value_string cbs_vals[] = {
+	{ 0,		"CBS is not required by the Mobile station"},
+	{ 1,		"CBS is required by the mobile station"},
+	{ 0,	NULL }
+};
+
 /* LBLI, Location Black List indicator (octet 3) */
 static const value_string LBLI_vals[] = {
 	{ 0,		"MCC"},
@@ -771,8 +787,9 @@ static const value_string RI_vals[] = {
 /* Window Size (octet 3 to octet n) */
 
 static const value_string window_size_vals[] = {
-	{ 0,		"Window size 1 (single redundancy)"},
-	{ 1,		"Window size 2 (double redundancy)"},
+	{ 0,		"Window size 1, No redundancy"},
+	{ 1,		"Window size 2 (single redundancy)"},
+	{ 2,		"Window size 3 (double redundancy)"},
 	{ 0,	NULL }
 };
 
@@ -873,6 +890,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	}
 
 	switch(ie_value){
+	/* 11.2.1 Mobile Identity */
 	case 1:			
 	/* Mobile Identity 
 	 * The rest of the IE is coded as in [TS 24.008] not including IEI and
@@ -916,7 +934,8 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	case 7:			
 		/* UMA Classmark */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_tura, tvb, ie_offset, 1, FALSE);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_tlra, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_gc, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uc, tvb, ie_offset, 1, FALSE);
 		/* UMA Protocols (Stage 3) R1.0.3 */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_rrs, tvb, ie_offset, 1, FALSE);
 		break;
@@ -966,7 +985,6 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	case 14:		
 		/* UMA Control Channel Description 
 		 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_EC, tvb, ie_offset, 1, FALSE);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ECMC, tvb, ie_offset, 1, FALSE);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_NMO, tvb, ie_offset, 1, FALSE);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_GPRS, tvb, ie_offset, 1, FALSE);
@@ -988,6 +1006,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_3GECS, tvb, ie_offset, 1, FALSE);
 		ie_offset++;
 		proto_tree_add_text(urr_ie_tree,tvb,ie_offset,2,"Access Control Class N");
+		/* These fields are specified and described in 3GPP TS 44.018 and 3GPP TS 22.011. */
 		break;
 	case 15:		
 		/* Cell Identifier List 
@@ -1104,24 +1123,19 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	case 37:		/* TU3920 Timer */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU3920_timer, tvb, ie_offset, 2, FALSE);
 		break;
+		/* 11.2.38 QoS */
 	case 38:		
 		/* QoS 
-		 * The rest of the IE is coded as QoS Profile IE in [TS 48.018], not including IEI and length, if present.
-		 * octet 3-4	Peak bit rate provided by the network, coded as the Bucket Leak Rate "R value" part, 
-		 * see sub-clause 11.3.4 (note)
-		 * NOTE:	The bit rate 0 (zero) shall mean "best effort" in this IE.
-		 * The R field is the binary encoding of the rate information expressed in 100 bits/s increments, 
-		 * starting from 0 x 100 bits/s until 65 535 x 100 bits/s (6 Mbps).
+		 * PEAK_THROUGHPUT_CLASS (octet 3, bits 1-4)
+		 * This field is coded as PEAK_THROUGHPUT_CLASS field in
+		 * the Channel Request Description information
+		 * element specified in [TS 44.060]
 		 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_rate, tvb, ie_offset, 1, FALSE);
-		ie_offset = ie_offset + 2;
-		/*
-		 * octet 5	SPARE	C/R	T	A	Precedence 
-		 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_precedence, tvb, ie_offset, 1, FALSE);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_a_bit, tvb, ie_offset, 1, FALSE);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_t_bit, tvb, ie_offset, 1, FALSE);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_c_r_bit, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_peak_tpt_cls, tvb, ie_offset, 1, FALSE);
+		/* RADIO_PRIORITY (octet 3, bits 5-6) */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_radio_pri, tvb, ie_offset, 1, FALSE);
+		/* RLC_MODE (octet 3, bit 7) */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_rlc_mode, tvb, ie_offset, 1, FALSE);
 		break;
 	case 39:		/* URLC Cause */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_URLCcause, tvb, ie_offset, 1, FALSE);
@@ -1184,6 +1198,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_payload_type, tvb, ie_offset, 1, FALSE);
 		break;
+	/* 11.2.55 Multirate Configuration */
 	case 55:		
 		/* Multi-rate Configuration 
 		 * The rest of the IE is coded as in [TS 44.018], not including IEI and length, if present
@@ -1261,6 +1276,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* UMA Service Zone string, 1st character */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uma_service_zone_str, tvb, ie_offset, str_len, FALSE);
 		break;
+	/* 11.2.63 RTP Redundancy Configuration */
 	case 63:
 		/* RTP Redundancy Configuration */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_window_size, tvb, ie_offset, 1, FALSE);
@@ -1313,8 +1329,24 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* TODO insert while loop here */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, ie_offset, 2, FALSE);
 		break;
+	/* 11.2.70 Received Signal Level List */
 	case 70:
 		/* Received Signal Level List */
+		break;
+	/* 11.2.71 Required UMA Services */
+	case 71:
+		/* CBS Cell Broadcast Service (octet 3) */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_cbs, tvb, ie_offset, 1, FALSE);
+		break;
+	/* 11.2.72 Broadcast Container */
+	case 72:
+		octet = tvb_get_guint8(tvb,ie_offset);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_num_of_cbs_frms , tvb, ie_offset, 1, FALSE);
+		proto_tree_add_text(urr_ie_tree, tvb, ie_offset + 1, ie_len-1,"CBS Frames - Not decoded");
+		break;
+	/* 11.2.73 3G Cell Identity */
+	case 73:
+		/* The rest of the IE is coded as in [TS 25.331] not including IEI and length, if present. */
 		break;
 	case 96:		/* MS Radio Identity */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_radio_type_of_id, tvb, ie_offset, 1, FALSE);
@@ -1771,13 +1803,18 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urr_tura,
 			{ "TURA, Type of Unlicensed Radio","uma.urr.tura",
-			FT_UINT8,BASE_DEC,  VALS(tura_vals), 0x3,          
+			FT_UINT8,BASE_DEC,  VALS(tura_vals), 0xf,          
 			"TURA, Type of Unlicensed Radio", HFILL }
 		},
-		{ &hf_uma_urr_tlra,
-			{ "TLRA, Type of Licensed Radio","uma.urr.tlra",
-			FT_UINT8,BASE_DEC, VALS(tlra_vals), 0xc,          
-			"TLRA, Type of Licensed Radio", HFILL }
+		{ &hf_uma_urr_gc,
+			{ "GC, GERAN Capable","uma.urr.gc",
+			FT_UINT8,BASE_DEC,  VALS(gc_vals), 0x10,          
+			"GC, GERAN Capable", HFILL }
+		},
+		{ &hf_uma_urr_uc,
+			{ "UC, UTRAN Capable","uma.urr.uc",
+			FT_UINT8,BASE_DEC,  VALS(uc_vals), 0x20,          
+			"GC, GERAN Capable", HFILL }
 		},
 		{ &hf_uma_urr_rrs,
 			{ "RTP Redundancy Support(RRS)","uma.urr.rrs",
@@ -1813,11 +1850,6 @@ proto_register_uma(void)
 			{ "Discovery Reject Cause","uma.urr.is_rej_cau",
 			FT_UINT8,BASE_DEC,  VALS(discovery_reject_cause_vals), 0x0,          
 			"Discovery Reject Cause", HFILL }
-		},
-		{ &hf_uma_urr_EC,
-			{ "EC Emergency Call allowed","uma.urr.EC",
-			FT_UINT8,BASE_DEC,  VALS(EC_vals), 0x1,          
-			"EC Emergency Call allowed", HFILL }
 		},
 		{ &hf_uma_urr_ECMC,
 			{ "ECMC, Early Classmark Sending Control","uma.urr.is_rej_cau",
@@ -1906,7 +1938,7 @@ proto_register_uma(void)
 		},
 		{ &hf_uma_urr_GSM_RR_state,
 			{ "GSM RR State value","uma.urr.gsmrrstate",
-			FT_UINT8,BASE_DEC,  VALS(GRS_GSM_RR_State_vals), 0x1,          
+			FT_UINT8,BASE_DEC,  VALS(GRS_GSM_RR_State_vals), 0x7,          
 			"GSM RR State value", HFILL }
 		},
 		{ &hf_uma_urr_UMA_band,
@@ -1979,30 +2011,20 @@ proto_register_uma(void)
 			FT_UINT16,BASE_DEC,  NULL, 0x0,          
 			"TU3920 Timer value(seconds)", HFILL }
 		},
-		{ &hf_uma_urr_rate,
-			{ "Peak bit rate provided by the network(100 bits/s)","uma.urr.tu3920",
-			FT_UINT16,BASE_DEC,  NULL, 0x0,          
-			"Peak bit rate provided by the network(100 bits/s)", HFILL }
+		{ &hf_uma_urr_peak_tpt_cls,
+			{ "PEAK_THROUGHPUT_CLASS","uma.urr.peak_tpt_cls",
+			FT_UINT8,BASE_DEC,  NULL, 0x0f,          
+			"PEAK_THROUGHPUT_CLASS", HFILL }
 		},
-		{ &hf_uma_urr_precedence,
-			{ "Precedence","uma.urr.precedence",
-			FT_UINT8,BASE_DEC,  VALS(precedence_vals), 0x7,          
-			"Precedence", HFILL }
+		{ &hf_uma_urr_radio_pri,
+			{ "Radio Priority","uma.urr.radio_pri",
+			FT_UINT8,BASE_DEC,  VALS(radio_pri_vals), 0x30,          
+			"RADIO_PRIORITY", HFILL }
 		},
-		{ &hf_uma_urr_a_bit,
-			{ "A bit","uma.urr.a_bit",
-			FT_UINT8,BASE_DEC,  VALS(a_bit_vals), 0x8,          
-			"A bit", HFILL }
-		},
-		{ &hf_uma_urr_t_bit,
-			{ "T bit","uma.urr.t_bit",
-			FT_UINT8,BASE_DEC,  VALS(t_bit_vals), 0x10,          
-			"T bit", HFILL }
-		},
-		{ &hf_uma_urr_c_r_bit,
-			{ "C/R bit","uma.urr.c_r_bit",
-			FT_UINT8,BASE_DEC,  VALS(c_r_bit_vals), 0x20,          
-			"C/R bit", HFILL }
+		{ &hf_uma_urr_rlc_mode,
+			{ "RLC mode","uma.urr.rrlc_mode",
+			FT_UINT8,BASE_DEC,  VALS(rlc_mode_vals), 0x80,          
+			"RLC mode", HFILL }
 		},
 		{ &hf_uma_urr_URLCcause,
 			{ "URLC Cause","uma.urr.URLCcause",
@@ -2163,6 +2185,16 @@ proto_register_uma(void)
 			{ "Number of PLMN:s","uma.urr.num_of_plms",
 			FT_UINT8,BASE_DEC,  NULL, 0x0,          
 			"Number of PLMN:s", HFILL }
+		},
+		{ &hf_uma_urr_cbs,
+			{ "CBS Cell Broadcast Service","uma.urr.cbs",
+			FT_UINT8,BASE_DEC,  VALS(cbs_vals), 0x01,          
+			"CBS Cell Broadcast Service", HFILL }
+		},
+		{ &hf_uma_urr_num_of_cbs_frms,
+			{ "Number of CBS Frames","uma.urr.num_of_cbs_frms",
+			FT_UINT8,BASE_DEC,  NULL, 0x0,          
+			"Number of CBS Frames", HFILL }
 		},
 		{ &hf_uma_urr_ms_radio_id,
 			{ "MS Radio Identity","uma.urr.ms_radio_id",
