@@ -2113,7 +2113,10 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
 	   speed optimization.
 	   So we have to disable that one and become "slow" by pretending that
 	   the tree is "visible".
-	*/
+
+	 * This code must be present for the MMSE dissector which calls this function.
+	 * Otherwise this causes a dissector_assert [bug 492] (proto_item_append_string() issue).
+	 */
 	if (tree)
 		PTREE_DATA(tree)->visible=1;
 
