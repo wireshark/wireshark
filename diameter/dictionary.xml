@@ -45,7 +45,6 @@
 		<command name="Re-Auth" code="258" vendor-id="None"/>
 		<command name="Session-Termination" code="275" vendor-id="None"/>
 		<!-- ********************** End Commands ************************** -->
-
 		<!-- ************************* Vendors **************************** -->
 		<vendor vendor-id="None" code="0" name="None"/>
 		<vendor vendor-id="HP"    code="11"    name="Hewlett Packard"/>
@@ -53,8 +52,8 @@
 		<vendor vendor-id="Sun" code="42" name="Sun Microsystems, Inc."/>
 		<vendor vendor-id="USR" code="429" name="US Robotics Corp."/>
 		<vendor vendor-id="TGPP"  code="10415" name="3GPP"/>
+		<vendor vendor-id="TGPPCX" code="16777216" name="3GPP CX/DX"/>
 		<!-- *********************** End Vendors ************************** -->
-
 		<!-- ************************ typedefn's ************************** -->
 		<typedefn type-name="OctetString"/>
 		<!--
@@ -436,7 +435,6 @@
 
         -->
 		<typedefn type-name="MIPRegistrationRequest" type-parent="OctetString"/>
-
 		<typedefn type-name="Integer32"/>
 		<!--
          32 bit signed value, in network byte order. The AVP Length
@@ -499,6 +497,18 @@
 		</avp>
 		<avp name="Acct-Application-Id" code="259" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="AppId"/>
+			<enum name="Diameter Common Messages" code="0"/>
+			<enum name="Diameter NASREQ Application" code="1"/>
+			<enum name="Diameter Mobile IPv4 Application" code="2"/>
+			<enum name="Diameter Base Accounting" code="3"/>
+			<enum name="3GPP CX/DX" code="16777216"/>
+			<enum name="3GPP Sh" code="16777217"/>
+			<enum name="3GPP Re/Rf" code="16777218"/>
+			<enum name="3GPP Wx" code="16777219"/>
+			<enum name="GPP Zn" code="16777220"/>
+			<enum name="3GPP Zh" code="16777221"/>
+			<enum name="3GPP Gq" code="16777222"/>
+			<enum name="3GPP Gmb" code="16777223"/>
 		</avp>
 		<avp name="Alternate-Peer" code="275" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="DiameterIdentity"/>
@@ -609,6 +619,13 @@
 			<enum name="DIAMETER_AUTHENTICATION_REJECTED" code="4001"/>
 			<enum name="DIAMETER_OUT_OF_SPACE" code="4002"/>
 			<enum name="DIAMETER_ELECTION_LOST" code="4003"/>
+			<enum name="DIAMETER_ERROR_MIP_REPLY_FAILURE" code="4005"/>
+			<enum name="DIAMETER_ERROR_HA_NOT_AVAILABLE" code="4006"/>
+			<enum name="DIAMETER_ERROR_BAD_KEY" code="4007"/>
+			<enum name="DIAMETER_ERROR_MIP_FILTER_NOT_SUPPORTED" code="4008"/>
+			<enum name="DIAMETER_END_USER_SERVICE_DENIED" code="4010"/>
+			<enum name="DIAMETER_CREDIT_CONTROL_NOT_APPLICABLE" code="4011"/>
+			<enum name="DIAMETER_CREDIT_LIMIT_REACHED" code="4012"/>
 			<enum name="DIAMETER_AVP_UNSUPPORTED" code="5001"/>
 			<enum name="DIAMETER_UNKNOWN_SESSION_ID" code="5002"/>
 			<enum name="DIAMETER_AUTHORIZATION_REJECTED" code="5003"/>
@@ -626,6 +643,10 @@
 			<enum name="DIAMETER_INVALID_MESSAGE_LENGTH" code="5015"/>
 			<enum name="DIAMETER_INVALID_AVP_BIT_COMBO" code="5016"/>
 			<enum name="DIAMETER_NO_COMMON_SECURITY" code="5017"/>
+			<enum name="DIAMETER_ERROR_NO_FOREIGN_HA_SERVICE" code="5024"/>
+			<enum name="DIAMETER_ERROR_END_TO_END_MIP_KEY_ENCRYPTION" code="5025"/>
+			<enum name="DIAMETER_USER_UNKNOWN" code="5030"/>
+			<enum name="DIAMETER_RATING_FAILED" code="5031"/>
 		</avp>
 		<avp name="Experimental-Result" code="297" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<grouped>
@@ -649,6 +670,8 @@
 			<enum name="Error In Assignment Type" code="5007"/>
 			<enum name="Error Too Much Data" code="5008"/>
 			<enum name="Error Not Supported User Data" code="5009"/>
+			<enum name="DIAMETER_MISSING_USER_ID" code="5010"/>
+			<enum name="DIAMETER_ERROR_FEATURE_UNSUPPORTED" code="5011"/>
 		</avp>
 		<avp name="Route-Record" code="282" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="DiameterIdentity"/>
@@ -696,12 +719,123 @@
 				<gavp name="Host-IP-Address"/>
 			</grouped>
 		</avp>
+		<avp name="Event-Timestamp" code="55" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="Acct-Interim-Interval" code="85" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="Integer32"/>
+		</avp>
 		<!-- ************************ END DIAMETER BASE PROTOCOL AVPS ******************* -->
+		<!-- 3GPP Diameter accounting AVPs  -->
+		<avp name="Event-Type" code="823" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="SIP-Method"/>
+				<gavp name="Event"/>
+				<gavp name="Content-Type"/>
+				<gavp name="Content-Length"/>
+				<gavp name="Content-Disposition"/>
+			</grouped>
+		</avp>
+		<avp name="SIP-Method" code="824" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Event" code="825" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Content-Type" code="826" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Content-Length" code="827" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Content-Disposition" code="828" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Role-Of-Node" code="829" mandatory="must" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="ORIGINATING_ROLE" code="0"/>
+			<enum name="TERMINATING_ROLE" code="1"/>
+		</avp>
+		<avp name="User-Session-Id" code="830" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Calling-Party-Address" code="831" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Called-Party-Address" code="832" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Time-Stamps" code="833" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="SIP-Request-Timestamp"/>
+				<gavp name="SIP-Response-Timestamp"/>
+			</grouped>
+		</avp>
+		<avp name="SIP-Request-Timestamp" code="834" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="SIP-Response-Timestamp" code="835" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Inter-Operator-Identifier" code="838" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="Originating-IOI"/>
+				<gavp name="Terminating-IOI"/>
+			</grouped>
+		</avp>
+		<avp name="Originating-IOI" code="839" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Terminating-IOI" code="840" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="IMS-Charging-Identifier " code="841" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="SDP-Session-Description" code="842" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="SDP-Media-components" code="843" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="SDP-Media-Name"/>
+				<gavp name="SDP-Media-Description"/>
+			</grouped>
+		</avp>
+		<avp name="SDP-Media-Name" code="844" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="SDP-Media-Description" code="845" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Cause" code="860" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="Cause-Code"/>
+				<gavp name="Node-Functionality"/>
+			</grouped>
+		</avp>
+		<avp name="Cause-Code" code="861" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="Integer32"/>
+			<enum name="End of SUBSCRIBE dialog" code="-2"/>
+			<enum name="Successful transaction" code="-1"/>
+			<enum name="Normal end of session" code="0"/>
+			<enum name="Unspecified error" code="1"/>
+			<enum name="Unsuccessful session setup" code="2"/>
+			<enum name="Internal error" code="3"/>
+		</avp>
+		<avp name="Node-Functionality" code="862" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="S-CSCF" code="0"/>
+			<enum name="P-CSCF" code="1"/>
+			<enum name="I-CSCF" code="2"/>
+			<enum name="MRFC" code="3"/>
+			<enum name="MGCF" code="4"/>
+			<enum name="BGCF" code="5"/>
+			<enum name="AS" code="6"/>
+			<enum name="UE" code="7"/>
+		</avp>
 	</base>
-
 	&nasreq;
 	&mobileipv4;
 	&sunping;
 	&imscxdx;
-	
 </dictionary>
