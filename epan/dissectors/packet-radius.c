@@ -979,10 +979,11 @@ extern void radius_register_avp_dissector(guint32 vendor_id, guint32 attribute_i
 		if ( ! vendor ) {
 			vendor = g_malloc(sizeof(radius_vendor_info_t));
 			
-			vendor->name = g_strdup_printf("Unknown-Vendor-%u",vendor_id);
+			vendor->name = g_strdup_printf("%s-%u",val_to_str(vendor_id, sminmpec_values, "Unknown"),vendor_id);
 			vendor->code = vendor_id;
 			vendor->attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
-			
+			vendor->ett = no_vendor.ett;
+            
 			g_hash_table_insert(dict->vendors_by_id,GUINT_TO_POINTER(vendor->code),vendor);
 			g_hash_table_insert(dict->vendors_by_name,vendor->name,vendor);
 		}
