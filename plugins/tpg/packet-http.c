@@ -21,6 +21,7 @@ static int hf_http_response_code = -1;
 static int hf_http_transfer_encoding = -1;
 static int hf_http_content_length = -1;
 static int hf_http_media = -1;
+static int hf_http_host = -1;
 static int hf_http_request_uri = -1;
 
 static dissector_handle_t http_handle;
@@ -43,6 +44,7 @@ static void dissect_http(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree
             pi = proto_tree_add_boolean(pt,hf_http_is_response,tvb,0,0,msgdata->is_response);
             pt = proto_item_add_subtree(pi,ett_http);
             
+
             if (msgdata->is_response) {
                 proto_tree_add_uint(pt,hf_http_response_code,tvb,0,0,msgdata->response_code);
                 proto_tree_add_uint(pt,hf_http_content_length,tvb,0,0,msgdata->content_length);
@@ -50,6 +52,7 @@ static void dissect_http(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree
                 if (msgdata->media) proto_tree_add_string(pt,hf_http_media,tvb,0,0,msgdata->media);
             } else {
                 if (msgdata->request_method) proto_tree_add_string(pt,hf_http_request_method,tvb,0,0,msgdata->request_method);
+                if (msgdata->http_host) proto_tree_add_string(pt,hf_http_host,tvb,0,0,msgdata->http_host);
                 if (msgdata->request_uri) proto_tree_add_string(pt,hf_http_request_uri,tvb,0,0,msgdata->request_uri);
             }
             
@@ -71,7 +74,8 @@ static void proto_register_http(void) {
         { &hf_http_transfer_encoding, { "=Transfer-Encoding", "hyttp.info.transfer_encoding", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
         { &hf_http_content_length, { "=Content-Length", "hyttp.info.content_length", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_http_request_uri, { "=Request URI", "hyttp.info.uri", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
-        { &hf_http_media, { "=Media", "hyttp.info.media", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }}
+        { &hf_http_media, { "=Media", "hyttp.info.media", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+        { &hf_http_host, { "=Host", "hyttp.info.host", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }}
     };
     
     gint *ett[] = {

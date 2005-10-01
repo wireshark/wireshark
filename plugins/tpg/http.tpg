@@ -48,61 +48,52 @@ typedef struct _http_info_value_t
 
 %rule sp = [ ]+ .
 
-%choice versions = "1.0" | "1.1".
+%choice versions = "1.0" | "1.1". <version>
 
 %field version hyttp.version "HTTP Version" FT_STRING .
 
-%sequence http_version = "HTTP/" & versions<version> .
+%sequence http_version = "HTTP/" & versions .
 
 %field response hyttp.response "Response" FT_STRING .
 %field response_code hyttp.response.code "Response Code" FT_UINT32 BASE_DEC %{ http_response_codes %} .
-%sequence response = http_version & sp & [0-9]+<response_code:RESPONSE> & ... ( crlf ) . <response:%plain_text> {
-    %root response
-    %code %{
-        TT_DATA->is_response = TRUE;
-        TT_DATA->response_code = TPG_UINT(RESPONSE);
-    %}
-}
+
+%sequence %tree response = http_version & sp & [0-9]+<response_code:RESPONSE> & ... ( crlf ) . <response:%plain_text>  %{
+    TT_DATA->is_response = TRUE;
+    TT_DATA->response_code = TPG_UINT(RESPONSE);
+%}
 
 
 %field request hyttp.request "Request" FT_STRING .
 %field method hyttp.request.method "Request Method" FT_STRING  .
 %field uri hyttp.request.uri "Request URI" FT_STRING  .
-%sequence request  = [A-Z]+<method:METHOD> & sp & [^ ]+<uri:URI> & sp & http_version & crlf . <request:%plain_text> {
-    %root request
-    %code %{
-        TT_DATA->is_response = FALSE;
-        TT_DATA->request_method = TPG_STRING(METHOD);
-        TT_DATA->request_uri = TPG_STRING(URI);
-    %}
-}
+%sequence %tree request  = [A-Z]+<method:METHOD> & sp & [^ ]+<uri:URI> & sp & http_version & crlf . <request:%plain_text>  %{
+    TT_DATA->is_response = FALSE;
+    TT_DATA->request_method = TPG_STRING(METHOD);
+    TT_DATA->request_uri = TPG_STRING(URI);
+%}
 
 %choice req_resp = request | response.
 
 %field media hyttp.content_type.media "Content-Type Media" FT_STRING  .
 
-%sequence media  = [a-z]+ & "/"  & [a-z]+ . <MEDIA> {
-    %code %{
+%sequence media  = [a-z]+ & "/"  & [a-z]+ . <media:MEDIA> %{
         TT_DATA->media = TPG_STRING(MEDIA);
-    %}
-}
+%}
+
+%sequence content_type_value = media & ... ( crlf   %leave ) . <content_type>
 
 %field content_type hyttp.content_type "Content-Type" FT_STRING  .
-%sequence content_type_hdr = 'Content-type: ' & media<media> & ... ( crlf   %leave ) & crlf .
+%sequence content_type_hdr = 'Content-type: ' & content_type_value & crlf .
 
 %field content_length hyttp.headers.content_length "Content-Length" FT_UINT32 BASE_DEC .
-%sequence content_length = 'Content-length: '  & [0-9]+<content_length:LENGTH>  & crlf. {
-    %code %{
-        TT_DATA->content_length = TPG_UINT(LENGTH);
-    %}
-}
+%sequence content_length = 'Content-length: '  & [0-9]+<content_length:LENGTH>  & crlf. %{
+    TT_DATA->content_length = TPG_UINT(LENGTH);
+%}
 
 %field transfer_encoding hyttp.transfer_encoding "Transfer-Encoding" FT_STRING  .
-%sequence transfer_encoding = 'Transfer-encoding: ' & ...<transfer_encoding:ENCODING> ( crlf     %leave )  & crlf. {
-    %code %{
-        TT_DATA->transfer_encoding = TPG_STRING(ENCODING);
-    %}
-}
+%sequence transfer_encoding = 'Transfer-encoding: ' & ...<transfer_encoding:ENCODING> ( crlf     %leave )  & crlf.  %{
+    TT_DATA->transfer_encoding = TPG_STRING(ENCODING);
+%}
 
 %field authorization hyttp.authorization "Authorization" FT_STRING  .
 %sequence authorization = 'Authorization: ' & ...<authorization> ( crlf     %leave ) & crlf.
@@ -123,7 +114,9 @@ typedef struct _http_info_value_t
 %sequence user_agent = 'User-Agent: ' & ...<user_agent> ( crlf     %leave ) & crlf.
 
 %field host hyttp.host "Host" FT_STRING  .
-%sequence host  = 'Host: ' & ...<host> ( crlf     %leave ) & crlf.
+%sequence host  = 'Host: ' & ...<host:HOST> ( crlf     %leave ) & crlf. %{
+    TT_DATA->http_host = TPG_STRING(HOST);
+%}
 
 %field accept hyttp.accept "Accept" FT_STRING  .
 %sequence accept  = 'Accept: ' & ...<accept> ( crlf     %leave ) & crlf.
@@ -161,7 +154,7 @@ typedef struct _http_info_value_t
 %sequence other_header = [A-Z] & [a-zA-Z-]+ & ": " & ... ( crlf     %leave ) &  crlf.
 
 %field header hyttp.headers.line "HTTP Header Line" FT_BOOLEAN  .
-%choice header =
+%choice %tree header =
     content_type_hdr
     | transfer_encoding
     | content_length
@@ -183,9 +176,7 @@ typedef struct _http_info_value_t
     | etag
     | last_modified
     | server
-    | other_header . <header:%plain_text> {
-    %root header
-}
+    | other_header . <header:%plain_text> 
 
 
 %tail %{
