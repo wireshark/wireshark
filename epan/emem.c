@@ -466,6 +466,45 @@ se_free_all(void)
 		se_init_chunk();
 #endif
 }
-		
 
+
+ep_stack_t ep_stack_new(void) {
+    ep_stack_t s = ep_new(struct _ep_stack_frame_t*);
+    *s = ep_new0(struct _ep_stack_frame_t);
+    return s;
+}
+
+/*  for ep_stack_t we'll keep the popped frames so we reuse them instead
+of allocating new ones.
+*/
+
+
+void* ep_stack_push(ep_stack_t stack, void* data) {
+    struct _ep_stack_frame_t* frame;
+    struct _ep_stack_frame_t* head = (*stack);
+
+    if (head->above) {
+        frame = head->above;
+    } else {
+       frame = ep_new(struct _ep_stack_frame_t);
+       head->above = frame;
+       frame->below = head;
+       frame->above = NULL;
+    }
+
+    frame->payload = data;
+    (*stack) = frame;
+
+    return data;
+}
+
+void* ep_stack_pop(ep_stack_t stack) {
+    
+    if ((*stack)->below) {
+        (*stack) = (*stack)->below;
+        return (*stack)->above->payload;
+    } else {
+        return NULL;
+    }
+}
 

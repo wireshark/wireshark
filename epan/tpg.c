@@ -52,32 +52,9 @@ extern tpg_parser_data_t* tpg_start(proto_tree* root_tree,
     tpg->private_data = private_data;
     tpg->tt = tvbparse_init(tvb,offset,len,tpg,NULL);
 
-    tpg->stack = ep_alloc(sizeof(tpg_stack_frame_t));
-    tpg->stack->tree = root_tree;
-    tpg->stack->down = NULL;
+    tpg->stack = ep_stack_new();
+    ep_stack_push(tpg->stack,root_tree);
     
     return tpg;
 }
 
-
-extern void tpg_push(tpg_parser_data_t* tpg, proto_item* item, gint ett) {
-    tpg_stack_frame_t* frame = ep_alloc(sizeof(tpg_stack_frame_t));
-    
-    frame->tree = proto_item_add_subtree(item,ett);
-    frame->down = tpg->stack;
-    tpg->stack = frame;
-    
-}
-
-
-tpg_stack_frame_t* tpg_pop(tpg_parser_data_t* tpg) {
-    tpg_stack_frame_t* frame = tpg->stack;
-    
-    if (tpg->stack->down) {
-        tpg->stack = tpg->stack->down;
-    } else {
-        DISSECTOR_ASSERT( FALSE && "Error in the TPG infrastructure: trying to pop the end of the stack");
-    }
-    
-    return frame;
-}

@@ -35,13 +35,8 @@
 #include <epan/emem.h>
 
 
-typedef struct _tpg_stack_frame_t {
-    proto_tree* tree;
-    struct _tpg_stack_frame_t* down;
-} tpg_stack_frame_t;
-
 typedef struct _tpg_parser_data_t {
-    tpg_stack_frame_t* stack;
+    ep_stack_t stack;
     tvbparse_t* tt;
     void* private_data;
 } tpg_parser_data_t;
@@ -71,19 +66,16 @@ extern guint32 tpg_ipv4(tvbparse_elem_t*);
 extern guint8* tpg_ipv6(tvbparse_elem_t*);
 #define TPG_IPV6(i) tpg_ipv6((i))
 
-extern void tpg_push(tpg_parser_data_t*, proto_item*, gint ett);
-#define TPG_PUSH(tpg,pi,ett) tpg_push(((tpg_parser_data_t*)tpg),(pi),(ett))
+#define TPG_PUSH(tpg,pi,ett) ep_stack_push(((tpg_parser_data_t*)(tpg))->stack,proto_item_add_subtree((pi),(ett)))
+#define TPG_POP(tpg) ep_stack_pop(((tpg_parser_data_t*)(tpg))->stack) ;
 
-extern tpg_stack_frame_t* tpg_pop(tpg_parser_data_t* tpg);
-#define TPG_POP(tpg) tpg_pop(((tpg_parser_data_t*)tpg))
-
-#define TPG_ADD_STRING(tpg,  hfid, elem) proto_tree_add_item(((tpg_parser_data_t*)tpg)->stack->tree, hfid, (elem)->tvb, (elem)->offset, (elem)->len, FALSE)
-#define TPG_ADD_BOOLEAN(tpg,  hfid, elem) proto_tree_add_boolean(((tpg_parser_data_t*)tpg)->stack->tree, hfid, (elem)->tvb, (elem)->offset, (elem)->len, TRUE)
-#define TPG_ADD_INT(tpg,  hfid, elem, value) proto_tree_add_int(((tpg_parser_data_t*)tpg)->stack->tree, hfid, (elem)->tvb, (elem)->offset, (elem)->len, value)
-#define TPG_ADD_UINT(tpg,  hfid, elem, value) proto_tree_add_uint(((tpg_parser_data_t*)tpg)->stack->tree, hfid, (elem)->tvb, (elem)->offset, (elem)->len, value)
-#define TPG_ADD_IPV4(tpg,  hfid, elem, value) proto_tree_add_ipv4(((tpg_parser_data_t*)tpg)->stack->tree, hfid, (elem)->tvb, (elem)->offset, (elem)->len, value)
-#define TPG_ADD_IPV6(tpg,  hfid, elem, value) proto_tree_add_ipv6(((tpg_parser_data_t*)tpg)->stack->tree, hfid, (elem)->tvb, (elem)->offset, (elem)->len, value)
-#define TPG_ADD_TEXT(tpg, elem) proto_tree_add_text(((tpg_parser_data_t*)tpg)->stack->tree, (elem)->tvb, (elem)->offset, (elem)->len, \
+#define TPG_ADD_STRING(tpg,  hfid, elem) proto_tree_add_item(ep_stack_peek(((tpg_parser_data_t*)tpg)->stack), hfid, (elem)->tvb, (elem)->offset, (elem)->len, FALSE)
+#define TPG_ADD_BOOLEAN(tpg,  hfid, elem) proto_tree_add_boolean(ep_stack_peek(((tpg_parser_data_t*)tpg)->stack), hfid, (elem)->tvb, (elem)->offset, (elem)->len, TRUE)
+#define TPG_ADD_INT(tpg,  hfid, elem, value) proto_tree_add_int(ep_stack_peek(((tpg_parser_data_t*)tpg)->stack), hfid, (elem)->tvb, (elem)->offset, (elem)->len, value)
+#define TPG_ADD_UINT(tpg,  hfid, elem, value) proto_tree_add_uint(ep_stack_peek(((tpg_parser_data_t*)tpg)->stack), hfid, (elem)->tvb, (elem)->offset, (elem)->len, value)
+#define TPG_ADD_IPV4(tpg,  hfid, elem, value) proto_tree_add_ipv4(ep_stack_peek(((tpg_parser_data_t*)tpg)->stack), hfid, (elem)->tvb, (elem)->offset, (elem)->len, value)
+#define TPG_ADD_IPV6(tpg,  hfid, elem, value) proto_tree_add_ipv6(ep_stack_peek(((tpg_parser_data_t*)tpg)->stack), hfid, (elem)->tvb, (elem)->offset, (elem)->len, value)
+#define TPG_ADD_TEXT(tpg, elem) proto_tree_add_text(ep_stack_peek(((tpg_parser_data_t*)tpg)->stack), (elem)->tvb, (elem)->offset, (elem)->len, \
                                                              "%s",tvb_format_text((elem)->tvb, (elem)->offset, (elem)->len))
 
 #define TPG_SET_TEXT(pi, elem) proto_item_set_text((pi), "%s",tvb_format_text((elem)->tvb, (elem)->offset, (elem)->len))

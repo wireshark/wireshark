@@ -46,9 +46,11 @@ void ep_init_chunk(void);
 
 /* Allocate memory with a packet lifetime scope */
 void *ep_alloc(size_t size);
+#define ep_new(type) ((type*)ep_alloc(sizeof(type)))
 
 /* Allocate memory with a packet lifetime scope and fill it with zeros*/
 void* ep_alloc0(size_t size);
+#define ep_new0(type) ((type*)ep_alloc0(sizeof(type)))
 
 /* Duplicate a string with a packet lifetime scope */
 gchar* ep_strdup(const gchar* src);
@@ -79,7 +81,35 @@ gchar** ep_strsplit(const gchar* string, const gchar* delimiter, int max_tokens)
 void ep_free_all(void);
 
 
+/* a stack implemented using ephemeral allocators */
 
+typedef struct _ep_stack_frame_t** ep_stack_t;
+
+struct _ep_stack_frame_t {
+    void* payload;
+    struct _ep_stack_frame_t* below;
+    struct _ep_stack_frame_t* above;
+};
+
+/*
+ * creates an empty stack with a packet lifetime scope
+ */
+ep_stack_t ep_stack_new(void);
+
+/*
+ * pushes item into stack, returns item
+ */
+void* ep_stack_push(ep_stack_t stack, void* item);
+
+/*
+ * pops an item from the stack
+ */
+void* ep_stack_pop(ep_stack_t stack);
+
+/*
+ * returns the item on top of the stack without popping it
+ */
+#define ep_stack_peek(stack) ((*(stack))->payload)
 
 
 /* Functions for handling memory allocation and garbage collection with 
