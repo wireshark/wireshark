@@ -116,72 +116,59 @@ statement:
     ;
 
 rule_statement:
-    '%sequence' LOWERCASE '=' sequence_rule '.' qualification rule_body {
-        my $r = hj($_[4],hj($_[6],$_[7]));
+    '%sequence' tree LOWERCASE '=' sequence_rule '.' qualification code {
+        my $r = hj($_[5],$_[7]);
+        ${$r}{name} = $_[3];
+        ${$r}{code} = $_[8] if defined $_[8];
+        ${$r}{tree} = 1 if defined $_[2];
+        $r;
+    }
+    | '%choice' tree LOWERCASE '=' choice_rule '.' qualification code {
+        my $r = hj($_[5],$_[7]);
+        ${$r}{name} = $_[3];
+        ${$r}{code} = $_[8] if defined $_[8];
+        ${$r}{tree} = 1 if defined $_[2];
+        $r;
+    }
+    | '%rule' LOWERCASE '=' complete_rule '.' code {
+        my $r = $_[4];
         ${$r}{name} = $_[2];
+        ${$r}{code} = $_[6] if defined $_[6];
         $r;
     }
-    | '%choice' LOWERCASE '=' choice_rule '.' qualification rule_body {
-        my $r = hj($_[4],hj($_[6],$_[7]));
-        ${$r}{name} = $_[2];
-        $r;
-    }
-    | '%rule' LOWERCASE '=' complete_rule '.' rule_body {
-        my $r = hj($_[4],hj($_[6],$_[6]));
-        ${$r}{name} = $_[2];
-        $r;
-    }
-    ;
-
-rule_body:
-    #empty {{}}
-    | '{' rule_const rule_item_type tree code '}' {
-        my $r = {};
-        ${$r}{'const'} = $_[2] if $_[2];
-        ${$r}{'item'} = $_[3] if $_[3];
-        ${$r}{'tree'} = $_[4] if $_[4];
-        ${$r}{'code'} = $_[5] if $_[5];
-        $r;
-    }
-    ;
-
-rule_const:
-    #empty { "NULL" }
-    | '%const' CODE {$_[2]}
-    ;
-
-rule_item_type:
-    #empty { undef }
-    | '%item_type' CODE {$_[2]}
     ;
 
 code:
     #empty { undef }
-    | '%code' CODE {$_[2]}
+    | CODE
     ;
 
 tree:
     #empty {undef}
-    | '%root' LOWERCASE {$_[2]}
+    | '%tree'
     ;
 
 
 complete_rule:
     base_rule cardinality qualification {hj($_[1],hj($_[2],$_[3]))}
+    | named_rule
+    | until_rule
     ;
 
+named_rule: LOWERCASE {{control=>$_[1],type=>'named'}} ;
+
 base_rule:
-    | until_rule
     | CHARS {{control=>chars_control($_[1]),type=>'chars'}}
     | NOTCHARS {{control=>chars_control($_[1]),type=>'not_chars'}}
     | DQUOTED {{control=>"\"$_[1]\"",type=>'string'}}
     | SQUOTED {{control=>"\"$_[1]\"",type=>'caseless'}}
-    | LOWERCASE {{control=>$_[1],type=>'named'}} 
     ;
 
 until_rule:
-    '...' qualification '(' base_rule include_mode ')'  { @{$_[2]}{'type','subrule','inc_mode'} = ('until',$_[4],$_[5]); $_[2] }
+    '...' qualification '(' last_rule include_mode ')'  { @{$_[2]}{'type','subrule','inc_mode'} = ('until',$_[4],$_[5]); $_[2] }
     ;
+
+last_rule: base_rule | named_rule;
 
 include_mode:
     #empty { 'TP_UNTIL_SPEND' }
