@@ -45,7 +45,9 @@ extern tpg_parser_data_t* tpg_start(proto_tree* root_tree,
                                     tvbuff_t* tvb,
                                     int offset,
                                     int len,
+                                    tvbparse_wanted_t* ignore,
                                     void* private_data);
+
 #define TPG_START(tree,tvb,offset,len,data) tpg_start((tree),(tvb),(offset),(len),(data))
 
 #define TPG_GET(tpg, wanted)  tvbparse_get((tpg)->tt,(wanted))

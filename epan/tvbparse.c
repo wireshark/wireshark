@@ -663,7 +663,7 @@ tvbparse_elem_t* tvbparse_get(tvbparse_t* tt,
 			tvbparse_wanted_t* w = g_ptr_array_index(wanted->elems,0);
 			
             if ( wanted->min == 0 ) {
-                new_tok(tt,wanted->id,tt->offset,0,wanted);
+                tok = new_tok(tt,wanted->id,tt->offset,0,wanted);
             }
             
 			while (got_so_far < wanted->max) {
@@ -672,8 +672,12 @@ tvbparse_elem_t* tvbparse_get(tvbparse_t* tt,
 				if(new) {
 					if (tok) {
 						tok->len = (new->offset - tok->offset) + new->len;
-						tok->sub->last->next = new;
-						tok->sub->last = new;
+                        if (tok->sub) {
+                            tok->sub->last->next = new;
+                            tok->sub->last = new;
+                        } else {
+                            tok->sub = new;                            
+                        }
 					} else {
 						tok = new_tok(tt, wanted->id, new->offset, new->len, wanted);
 						tok->sub = new;

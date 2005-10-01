@@ -50,10 +50,16 @@ sub from_to {
     $b;
 }
 
+
+sub to_hexesc {
+    sprintf "\\x%.2x", unpack("C",$_[0]);
+}
+
 sub chars_control {
     $_ = $_[0];
     s/([a-zA-Z0-9])-([a-zA-Z0-9])/from_to($1,$2)/ge;
     s/"/\\"/g;
+    s/\\(.)/to_hexesc($1)/ge;
     "\"$_\"";
 }
 
@@ -113,6 +119,13 @@ statement:
         abort($_[0],"%value_string $name already defined") if exists ${${$parser_info}{vs}}{$name};
         ${${$parser_info}{vs}}{$name} = $_[1];
     }
+    | ignore_statement {
+        ${$parser_info}{ignore} = $_[1]; 
+    }   
+    ;
+
+ignore_statement:
+    '%ignore' LOWERCASE {$_[2]}
     ;
 
 rule_statement:
@@ -151,7 +164,7 @@ tree:
 
 complete_rule:
     base_rule cardinality qualification {hj($_[1],hj($_[2],$_[3]))}
-    | named_rule
+    | named_rule cardinality { hj($_[1],$_[2]) } 
     | until_rule
     ;
 
