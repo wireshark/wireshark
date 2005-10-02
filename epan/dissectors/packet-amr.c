@@ -163,7 +163,7 @@ dissect_amr_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 static void
 dissect_amr_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
-	int offset =0;
+	int offset =0, i;
 	guint8 octet;
 
 	proto_tree_add_item(tree, hf_amr_if2_ft, tvb, offset, 1, FALSE);
@@ -178,6 +178,12 @@ dissect_amr_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 		return;
 	proto_tree_add_text(tree, tvb, offset+1, -1, "Speech data");
 
+	for(i=0;amr_codec_mode_request_vals[i].value != 0 || amr_codec_mode_request_vals[i].strptr != NULL;++i) {
+		if(amr_codec_mode_request_vals[i].value == octet)
+			break;
+	}
+	if(amr_codec_mode_request_vals[i].strptr && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", amr_codec_mode_request_vals[i].strptr );
 }
 
 /* Code to actually dissect the packets */
@@ -451,6 +457,8 @@ proto_register_amr(void)
       "Type of AMR encoding of the payload",
       &amr_encoding_type, encoding_types, FALSE);
 
+	register_dissector("amr_if1", dissect_amr_if1, proto_amr);
+	register_dissector("amr_if2", dissect_amr_if2, proto_amr);
 }
 
 

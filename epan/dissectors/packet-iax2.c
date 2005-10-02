@@ -39,6 +39,7 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/emem.h>
+#include <epan/reassemble.h>
 
 #include "packet-iax2.h"
 #include <epan/iax2_codec_type.h>
@@ -102,6 +103,16 @@ static int hf_iax2_cap_png = -1;
 static int hf_iax2_cap_h261 = -1;
 static int hf_iax2_cap_h263 = -1;
 
+static int hf_iax2_fragments = -1;
+static int hf_iax2_fragment = -1;
+static int hf_iax2_fragment_overlap = -1;
+static int hf_iax2_fragment_overlap_conflict = -1;
+static int hf_iax2_fragment_multiple_tails = -1;
+static int hf_iax2_fragment_too_long_fragment = -1;
+static int hf_iax2_fragment_error = -1;
+static int hf_iax2_reassembled_in = -1;
+
+
 /* hf_iax2_ies is an array of header fields, one per potential Information
  * Element. It's done this way (rather than having separate variables for each
  * IE) to make the dissection of information elements clearer and more
@@ -128,6 +139,22 @@ static gint ett_iax2_type = -1;     	/* Frame-type specific subtree */
 static gint ett_iax2_ie = -1;  		/* single IE */
 static gint ett_iax2_codecs = -1;       /* capabilities IE */
 static gint ett_iax2_ies_apparent_addr = -1; /* apparent address IE */
+static gint ett_iax2_fragment = -1;
+static gint ett_iax2_fragments = -1;
+
+static const fragment_items iax2_fragment_items = {
+  &ett_iax2_fragment,
+  &ett_iax2_fragments,
+  &hf_iax2_fragments,
+  &hf_iax2_fragment,
+  &hf_iax2_fragment_overlap,
+  &hf_iax2_fragment_overlap_conflict,
+  &hf_iax2_fragment_multiple_tails,
+  &hf_iax2_fragment_too_long_fragment,
+  &hf_iax2_fragment_error,
+  &hf_iax2_reassembled_in,
+  "iax2 fragments"
+};
 
 static dissector_handle_t data_handle;
 
@@ -507,6 +534,11 @@ static guint iax_circuit_lookup(const address *address,
 
 /* ************************************************************************* */
 
+typedef struct {
+  guint32     current_frag_id;
+  guint32     current_frag_bytes;
+  gboolean    in_frag;
+} iax_call_dirdata;
 
 /* This is our per-call data structure, which is attached to both the
  * forward and reverse circuits.
@@ -538,6 +570,11 @@ typedef struct iax_call_data {
 
   /* the absolute start time of the call */
   nstime_t start_time;
+
+  GHashTable *fid_table;
+  GHashTable *fragment_table;
+  GHashTable *totlen_table;
+  iax_call_dirdata dirdata[2];
 } iax_call_data;
 
 static void iax_init_hash( void )
@@ -820,6 +857,11 @@ static iax_call_data *iax_new_call( packet_info *pinfo,
   call -> subdissector = NULL;
   call -> start_time = pinfo->fd->abs_ts;
   nstime_delta(&call -> start_time, &call -> start_time, &millisecond);
+  call -> fid_table = g_hash_table_new(g_direct_hash, g_direct_equal);
+  call -> totlen_table = g_hash_table_new(g_direct_hash, g_direct_equal);
+  call -> dirdata[0].in_frag=FALSE;
+  call -> dirdata[1].in_frag=FALSE;
+  fragment_table_init(&(call->fragment_table));
 
   iax2_new_circuit_for_call(circuit_id,pinfo->fd->num,call,FALSE);
 
@@ -909,8 +951,8 @@ static guint32 dissect_minivideopacket (tvbuff_t * tvb, guint32 offset,
 					proto_tree * main_tree);
 
 static void dissect_payload(tvbuff_t *tvb, guint32 offset,
-			    packet_info *pinfo, proto_tree *tree,
-			    guint32 ts, gboolean video,
+			    packet_info *pinfo, proto_tree *iax2_tree,
+			    proto_tree *tree, guint32 ts, gboolean video,
 			    iax_packet_data *iax_packet);
 
 
@@ -1468,7 +1510,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
       }
     }
 
-    dissect_payload(tvb, offset, pinfo, main_tree, ts, FALSE,iax_packet);
+    dissect_payload(tvb, offset, pinfo, iax2_tree, main_tree, ts, FALSE,iax_packet);
     break;
 
   case AST_FRAME_VIDEO:
@@ -1496,7 +1538,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
       col_append_fstr (pinfo->cinfo, COL_INFO, ", Mark" );
 
 
-    dissect_payload(tvb, offset, pinfo, main_tree, ts, TRUE, iax_packet);
+    dissect_payload(tvb, offset, pinfo, iax2_tree, main_tree, ts, TRUE, iax_packet);
     break;
 
 
@@ -1586,7 +1628,7 @@ static guint32 dissect_minivideopacket (tvbuff_t * tvb, guint32 offset,
 		    scallno, ts, rtp_marker?", Mark":"");
 
 
-  dissect_payload(tvb, offset, pinfo, main_tree, ts, TRUE, iax_packet);
+  dissect_payload(tvb, offset, pinfo, iax2_tree, main_tree, ts, TRUE, iax_packet);
 
   /* next time we come to parse this packet, don't propogate the codec into the
    * call_data */
@@ -1627,7 +1669,7 @@ dissect_minipacket (tvbuff_t * tvb, guint32 offset, guint16 scallno, packet_info
 
 
   /* XXX fix the timestamp logic */
-  dissect_payload(tvb, offset, pinfo, main_tree, ts, FALSE, iax_packet);
+  dissect_payload(tvb, offset, pinfo, iax2_tree, main_tree, ts, FALSE, iax_packet);
 
 
   /* next time we come to parse this packet, don't propogate the codec into the
@@ -1637,14 +1679,179 @@ dissect_minipacket (tvbuff_t * tvb, guint32 offset, guint16 scallno, packet_info
   return offset;
 }
 
+static void process_iax_pdu( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+			      gboolean video, iax_packet_data *iax_packet )
+{
+  guint32 codec = iax_packet -> codec;
+  iax_call_data *iax_call = iax_packet -> call_data;
+
+  if( !video && iax_call && iax_call->subdissector ) {
+    call_dissector(iax_call->subdissector, tvb, pinfo, tree);
+    return;
+  }
+
+  if( codec != 0 && dissector_try_port(iax2_codec_dissector_table, codec, tvb, pinfo, tree ))
+    return;
+  
+  /* we don't know how to dissect our data: dissect it as data */
+  call_dissector(data_handle,tvb, pinfo, tree);
+}
+
+static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tree,
+			  proto_tree *tree, gboolean video, iax_packet_data *iax_packet )
+{
+
+  iax_call_data *iax_call = iax_packet -> call_data;
+  iax_call_dirdata *dirdata = &(iax_call->dirdata[!!(iax_packet->reversed)]);
+  gpointer unused,value;
+  guint32 fid,frag_len,offset,tot_len,frag_offset,nbytes,deseg_offset;
+  gint32 old_len;
+  fragment_data *fd_head;
+  tvbuff_t *next_tvb;
+  gboolean complete = FALSE, called_dissector = FALSE, must_desegment = FALSE;
+  proto_item *frag_tree_item, *iax_tree_item;
+
+  pinfo->desegment_offset = 0;
+  pinfo->desegment_len = 0;
+  deseg_offset = 0;
+
+  if((!pinfo->fd->flags.visited && dirdata->in_frag) ||
+      g_hash_table_lookup_extended(iax_call->fid_table,
+	GUINT_TO_POINTER(pinfo->fd->num), &unused, &value) ) {
+    /* then we are continuing an already-started pdu */
+    frag_len                     = tvb_reported_length( tvb );
+    offset                       = 0;
+    tot_len                      = GPOINTER_TO_UINT(g_hash_table_lookup(iax_call->totlen_table, GUINT_TO_POINTER(fid)));
+    if(!pinfo->fd->flags.visited) {
+      fid = dirdata->current_frag_id;
+      g_hash_table_insert( iax_call->fid_table, GUINT_TO_POINTER(pinfo->fd->num), GUINT_TO_POINTER(fid) );
+      frag_offset                  = dirdata->current_frag_bytes;
+      complete                     = dirdata->current_frag_bytes > tot_len;
+      dirdata->current_frag_bytes += frag_len;
+    } else {
+      fid = GPOINTER_TO_UINT(value);
+      /* these values are unused by fragmen_add if pinfo->fd->flags.visited */
+      dirdata->current_frag_bytes = 0;
+      complete = FALSE;
+    }
+
+    /* fragment_add checks for already-added */
+    fd_head = fragment_add( tvb, offset, pinfo, fid,
+			    iax_call->fragment_table,
+			    frag_offset,
+			    frag_len, !complete );
+
+    if(pinfo->fd->flags.visited)
+      complete = (fd_head && (pinfo->fd->num == fd_head->reassembled_in));
+
+  } else {
+    fid=offset=0; /* initialise them here aswell to get rid of compiler warnings */
+    process_iax_pdu(tvb,pinfo,tree,video,iax_packet);
+    called_dissector = TRUE;
+    if(pinfo->desegment_len) {
+      must_desegment = TRUE;
+      deseg_offset = pinfo->desegment_offset;
+    }
+    fd_head = NULL;
+  }
+
+  /* do we have a completely desegmented datagram? */
+  if (fd_head) {
+    /* we've got sometheing dissectable.. but is this the last segment of it? */
+    if(complete) { /* this will always be true, since frags are added in seq. */
+      next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen, fd_head->datalen);
+      tvb_set_child_real_data_tvbuff(tvb, next_tvb); 
+      add_new_data_source(pinfo, next_tvb, "Reassembled IAX2");
+      process_iax_pdu(next_tvb,pinfo,tree,video,iax_packet);
+      called_dissector = TRUE;
+      old_len = (gint32)(tvb_reported_length(next_tvb) - tvb_reported_length_remaining(tvb,offset));
+      if( pinfo->desegment_len &&
+	  pinfo->desegment_offset < old_len ) {
+	/*
+	 * oops, it wasn't actually complete
+	 */
+	fragment_set_partial_reassembly(pinfo, fid, iax_call->fragment_table);
+	g_hash_table_insert(iax_call->totlen_table, GUINT_TO_POINTER(fid),
+	    GUINT_TO_POINTER(tvb_reported_length(next_tvb) + pinfo->desegment_len) );
+      } else {
+	nbytes = tvb_reported_length( tvb );
+	show_fragment_tree(fd_head, &iax2_fragment_items, tree, pinfo, next_tvb, &frag_tree_item);
+	iax_tree_item = proto_tree_get_parent( iax2_tree );
+	if(iax_tree_item)
+	  iax_tree_item = proto_item_get_parent( iax_tree_item );
+	if( frag_tree_item && iax_tree_item )
+	  proto_tree_move_item( tree, iax_tree_item, frag_tree_item );
+	dirdata->in_frag = FALSE;
+	if( pinfo->desegment_len ) {
+	  /*
+	   * .. but not everything
+	   */
+	  must_desegment = TRUE;
+
+	  /* make desegment_offset relative to the tvb */
+	  deseg_offset = pinfo->desegment_offset - (tvb_reported_length( next_tvb ) - tvb_reported_length( tvb ));
+	}
+      }
+    }
+  }
+
+  if(must_desegment) {
+    fid = pinfo->fd->num;
+    if(pinfo->fd->flags.visited) {
+      fd_head = fragment_get( pinfo, fid, iax_call->fragment_table );
+    } else {
+      frag_len = tvb_reported_length_remaining(tvb,deseg_offset);
+      dirdata->current_frag_id = fid;
+      dirdata->current_frag_bytes = frag_len;
+      dirdata->in_frag = TRUE;
+      offset = deseg_offset;
+      complete = FALSE;
+      fd_head = fragment_add(tvb, offset, pinfo, fid,
+			     iax_call->fragment_table,
+			     0, frag_len, !complete );
+      g_hash_table_insert(iax_call->totlen_table, GUINT_TO_POINTER(fid),
+	  GUINT_TO_POINTER( frag_len + pinfo->desegment_len) );
+    }
+  }
+
+  if( !called_dissector || pinfo->desegment_len != 0 ) {
+    if( fd_head != NULL && fd_head->reassembled_in != 0 &&
+	!(fd_head->flags & FD_PARTIAL_REASSEMBLY) ) {
+      iax_tree_item = proto_tree_add_uint( tree, hf_iax2_reassembled_in,
+	  tvb, deseg_offset, tvb_reported_length_remaining(tvb,deseg_offset),
+	  fd_head->reassembled_in);
+      PROTO_ITEM_SET_GENERATED(iax_tree_item);
+    } else if(fd_head && (fd_head->reassembled_in != 0 || (fd_head->flags & FD_PARTIAL_REASSEMBLY)) ) {
+      /* this fragment is never reassembled */
+      proto_tree_add_text( tree, tvb, deseg_offset, -1,
+	  "IAX2 fragment, unfinished");
+    }
+
+    if( pinfo->desegment_offset == 0 ) {
+      if (check_col(pinfo->cinfo, COL_PROTOCOL)){
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IAX2");
+      }
+      if (check_col(pinfo->cinfo, COL_INFO)){
+	col_set_str(pinfo->cinfo, COL_INFO, "[IAX2 segment of a reassembled PDU]");
+      }
+    }
+    nbytes = tvb_reported_length_remaining( tvb, deseg_offset );
+  }
+
+  pinfo->can_desegment = 0;
+  pinfo->desegment_offset = 0;
+  pinfo->desegment_len = 0;
+}
+
 static void dissect_payload(tvbuff_t *tvb, guint32 offset,
-			    packet_info *pinfo, proto_tree *tree,
-			    guint32 ts, gboolean video,
+			    packet_info *pinfo, proto_tree *iax2_tree,
+			    proto_tree *tree, guint32 ts, gboolean video,
 			    iax_packet_data *iax_packet)
 {
   gboolean out_of_order = FALSE;
   tvbuff_t *sub_tvb;
   guint32 codec = iax_packet -> codec;
+  guint32 nbytes;
   iax_call_data *iax_call = iax_packet -> call_data;
 
   /* keep compiler quiet */
@@ -1674,17 +1881,12 @@ static void dissect_payload(tvbuff_t *tvb, guint32 offset,
     }
   }
 
+  nbytes = tvb_reported_length(sub_tvb);
+  proto_tree_add_text( iax2_tree, sub_tvb, 0, -1,
+      "IAX2 payload (%u byte%s)", nbytes,
+      plurality( nbytes, "", "s" ));
   /* pass the rest of the block to a subdissector */
-  if( !video && iax_call && iax_call->subdissector ) {
-    call_dissector(iax_call->subdissector,sub_tvb, pinfo, tree);
-    return;
-  }
-
-  if( codec != 0 && dissector_try_port(iax2_codec_dissector_table, codec, sub_tvb, pinfo, tree ))
-    return;
-  
-  /* we don't know how to dissect our data: dissect it as data */
-  call_dissector(data_handle,sub_tvb, pinfo, tree);
+  desegment_iax( sub_tvb, pinfo, iax2_tree, tree, video, iax_packet );
 }
 
 /*
@@ -2158,7 +2360,45 @@ proto_register_iax2 (void)
     {&hf_iax2_cap_h263,
      {"H.263 video", "iax2.cap.h263", FT_BOOLEAN, 32,
       TFS(&supported_strings), AST_FORMAT_H263,
-      "H.263 video", HFILL }}
+      "H.263 video", HFILL }},
+
+    /* reassembly stuff */
+    {&hf_iax2_fragments,
+     {"IAX2 Fragments", "iax2.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
+      "IAX2 Fragments", HFILL }},
+
+    {&hf_iax2_fragment,
+     {"IAX2 Fragment data", "iax2.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+      "IAX2 Fragment data", HFILL }},
+
+    {&hf_iax2_fragment_overlap,
+     {"Fragment overlap", "iax2.fragment.overlap", FT_BOOLEAN, BASE_NONE,
+      NULL, 0x0, "Fragment overlaps with other fragments", HFILL }},
+
+    {&hf_iax2_fragment_overlap_conflict,
+     {"Conflicting data in fragment overlap", "iax2.fragment.overlap.conflict",
+      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+      "Overlapping fragments contained conflicting data", HFILL }},
+
+    {&hf_iax2_fragment_multiple_tails,
+     {"Multiple tail fragments found", "iax2.fragment.multipletails",
+      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+      "Several tails were found when defragmenting the packet", HFILL }},
+
+    {&hf_iax2_fragment_too_long_fragment,
+     {"Fragment too long", "iax2.fragment.toolongfragment",
+      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+      "Fragment contained data past end of packet", HFILL }},
+
+    {&hf_iax2_fragment_error,
+     {"Defragmentation error", "iax2.fragment.error",
+      FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+      "Defragmentation error due to illegal fragments", HFILL }},
+
+    {&hf_iax2_reassembled_in,
+     {"IAX2 fragment, reassembled in frame", "iax2.reassembled_in",
+      FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+      "This IAX2 packet is reassembled in this frame", HFILL }}
   };
 
   static gint *ett[] = {
@@ -2167,7 +2407,9 @@ proto_register_iax2 (void)
     &ett_iax2_type,
     &ett_iax2_ie,
     &ett_iax2_codecs,
-    &ett_iax2_ies_apparent_addr
+    &ett_iax2_ies_apparent_addr,
+    &ett_iax2_fragment,
+    &ett_iax2_fragments
   };
 
   /* initialise the hf_iax2_ies[] array to -1 */
@@ -2205,4 +2447,7 @@ proto_reg_handoff_iax2 (void)
  * Local Variables:
  * c-basic-offset: 2
  * End:
+ *
+ * .. And for vim:
+ * vim:set ts=8 sts=2 sw=2 noet:
  */

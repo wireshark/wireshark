@@ -43,6 +43,7 @@
 #include <string.h>
 
 #include <epan/rtp_pt.h>
+#include "iax2_codec_type.h"
 
 /* H.261 header fields             */
 static int proto_h261          = -1;
@@ -260,4 +261,5 @@ proto_reg_handoff_h261(void)
 
 	h261_handle = create_dissector_handle(dissect_h261, proto_h261);
 	dissector_add("rtp.pt", PT_H261, h261_handle);
+	dissector_add("iax2.codec", AST_FORMAT_H261, h261_handle);
 }

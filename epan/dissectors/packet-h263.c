@@ -47,8 +47,11 @@
 #include <epan/rtp_pt.h>
 #include <epan/iax2_codec_type.h>
 
+static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree );
+
 /* H.263 header fields             */
 static int proto_h263          = -1;
+static int proto_h263_data     = -1;
 
 /* Mode A header */
 static int hf_h263_ftype = -1;
@@ -87,6 +90,7 @@ static int hf_h263_syntax_based_arithmetic_coding_mode = -1;
 static int hf_h263_optional_advanced_prediction_mode = -1;
 static int hf_h263_PB_frames_mode = -1;
 static int hf_h263_data        = -1;
+static int hf_h263_payload     = -1;
 
 /* Source format types */
 #define SRCFORMAT_FORB   0  /* forbidden */
@@ -128,33 +132,30 @@ static void
 dissect_h263( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
 	proto_item *ti					= NULL;
-	proto_item *h263_payload_item	= NULL;
 	proto_tree *h263_tree			= NULL;
-	proto_tree *h263_payload_tree	= NULL;
 	unsigned int offset				= 0;
 	unsigned int h263_version		= 0;
-	guint32 data;
-	guint8 octet;
+	tvbuff_t *next_tvb;
 
 	h263_version = (tvb_get_guint8( tvb, offset ) & 0xc0 ) >> 6;
 
 	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
-		col_set_str( pinfo->cinfo, COL_PROTOCOL, "H.263" );
+		col_set_str( pinfo->cinfo, COL_PROTOCOL, "H.263 " );
 	}
 
 	if( h263_version == 0x00) {
 	  if ( check_col( pinfo->cinfo, COL_INFO) ) {
-	    col_append_str( pinfo->cinfo, COL_INFO, " MODE A");
+	    col_append_str( pinfo->cinfo, COL_INFO, "MODE A ");
 	  }
 	}
 	else if( h263_version == 0x02) {
 	  if ( check_col( pinfo->cinfo, COL_INFO) ) {
-	    col_append_str( pinfo->cinfo, COL_INFO, " MODE B");
+	    col_append_str( pinfo->cinfo, COL_INFO, "MODE B ");
 	  }
 	}
 	else if( h263_version == 0x03) {
 	  if ( check_col( pinfo->cinfo, COL_INFO) ) {
-	    col_append_str( pinfo->cinfo, COL_INFO, " MODE C");
+	    col_append_str( pinfo->cinfo, COL_INFO, "MODE C ");
 	  }
 	}
 
@@ -272,14 +273,38 @@ dissect_h263( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	  } /* end not mode a */
 
 	  /* The rest of the packet is the H.263 stream */
-	  h263_payload_item = proto_tree_add_text(h263_tree,tvb,offset,-1,"H263 Payload");
-	  h263_payload_tree = proto_item_add_subtree( h263_payload_item, ett_h263_payload );
+	  next_tvb = tvb_new_subset( tvb, offset, tvb_length(tvb) - offset, tvb_reported_length(tvb) - offset);
+	  dissect_h263_data( next_tvb, pinfo, h263_tree );
 
-	  /* Check for PSC, PSC is a word of 22 bits. Its value is 0000 0000 0000 0000' 1000 00xx xxxx xxxx. */
-	  data = tvb_get_ntohl(tvb, offset);
-	  
-	  if (( data & 0xffff8000) == 0x00008000 ) { /* PSC or Group of Block Start Code (GBSC) found */
-		  if (( data & 0xfffffc00) == 0x00008000 ) { /* PSC found */
+	}
+}
+
+
+static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+{
+	guint offset = 0;
+	proto_item *h263_payload_item	= NULL;
+	proto_tree *h263_payload_tree	= NULL;
+	guint32 data;
+	guint8 octet;
+
+	if ( check_col( pinfo->cinfo, COL_INFO) ) {
+	  col_append_str( pinfo->cinfo, COL_INFO, "H263 payload ");
+	}
+
+	if( tree ) {
+	  h263_payload_item = proto_tree_add_item( tree, hf_h263_payload, tvb, offset, -1, FALSE );
+	  h263_payload_tree = proto_item_add_subtree( h263_payload_item, ett_h263_payload );
+	}
+
+	/* Check for PSC, PSC is a word of 22 bits. Its value is 0000 0000 0000 0000' 1000 00xx xxxx xxxx. */
+	data = tvb_get_ntohl(tvb, offset);
+	
+	if (( data & 0xffff8000) == 0x00008000 ) { /* PSC or Group of Block Start Code (GBSC) found */
+		if (( data & 0xfffffc00) == 0x00008000 ) { /* PSC found */
+			if ( check_col( pinfo->cinfo, COL_INFO) )
+			  col_append_str( pinfo->cinfo, COL_INFO, "(PSC) ");
+			if( tree ) {
 			  proto_tree_add_uint(h263_payload_tree, hf_h263_psc,tvb, offset,3,data);
 			  offset = offset + 2;
 			  proto_tree_add_uint(h263_payload_tree, hf_h263_TR,tvb, offset,2,data);
@@ -313,9 +338,11 @@ dissect_h263( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 				  /* Bit 13: Optional PB-frames mode (see Annex G), "0" normal I- or P-picture, "1" PB-frame.*/
 				  proto_tree_add_item( h263_payload_tree, hf_h263_PB_frames_mode, tvb, offset, 1, FALSE );
 			  }
-		  }else{ 
-			  if ((data & 0x00007c00)!= 0) { /* GBSC found */
-
+			}
+		}else if ((data & 0x00007c00)!= 0) { /* GBSC found */
+			if ( check_col( pinfo->cinfo, COL_INFO) )
+			  col_append_str( pinfo->cinfo, COL_INFO, "(GBSC) ");
+			if( tree ) {
 				/* Group of Block Start Code (GBSC) (17 bits)
 				 * A word of 17 bits. Its value is 0000 0000 0000 0000 1. GOB start codes may be byte aligned. This
 				 * can be achieved by inserting GSTUF before the start code such that the first bit of the start code is
@@ -324,11 +351,11 @@ dissect_h263( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 				 */
 				proto_tree_add_uint(h263_payload_tree, hf_h263_gbsc,tvb, offset,3,data);
 				offset = offset + 2;
-			  }
-		  }
-	  }
-	  proto_tree_add_item( h263_payload_tree, hf_h263_data, tvb, offset, -1, FALSE );
+			}
+		}
 	}
+	if( tree )
+		proto_tree_add_item( h263_payload_tree, hf_h263_data, tvb, offset, -1, FALSE );
 }
 
 void
@@ -589,6 +616,18 @@ proto_register_h263(void)
 			}
 		},
 		{
+			&hf_h263_payload,
+			{
+				"H.263 payload",
+				"h263.payload",
+				FT_NONE,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"The actual H.263 data", HFILL
+			}
+		},
+		{
 			&hf_h263_data,
 			{
 				"H.263 stream",
@@ -755,9 +794,12 @@ proto_register_h263(void)
 
 	proto_h263 = proto_register_protocol("ITU-T Recommendation H.263 RTP Payload header (RFC2190)",
 	    "H.263", "h263");
+	proto_h263_data = proto_register_protocol("ITU-T Recommendation H.263",
+	    "H.263 data", "h263data");
 	proto_register_field_array(proto_h263, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("h263", dissect_h263, proto_h263);
+	register_dissector("h263data", dissect_h263_data, proto_h263_data);
 }
 
 void
