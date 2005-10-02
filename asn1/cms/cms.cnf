@@ -27,6 +27,7 @@ SignatureValue
 UnsignedAttributes
 
 #.REGISTER
+ContentInfo       B "1.2.840.113549.1.9.16.1.6" "id-ct-contentInfo"
 SignedData        B "1.2.840.113549.1.7.2"      "id-signedData"
 EnvelopedData     B "1.2.840.113549.1.7.3"      "id-envelopedData"
 DigestedData      B "1.2.840.113549.1.7.5"      "id-digestedData"

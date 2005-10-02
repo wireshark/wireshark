@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-cms.c                                                             */
+/* .\packet-cms.c                                                             */
 /* ../../tools/asn2eth.py -X -b -e -p cms -c cms.cnf -s packet-cms-template CryptographicMessageSyntax.asn */
 
 /* Input file: packet-cms-template.c */
@@ -56,6 +56,7 @@ static int hf_cms_ci_contentType = -1;
 
 /*--- Included file: packet-cms-hf.c ---*/
 
+static int hf_cms_ContentInfo_PDU = -1;           /* ContentInfo */
 static int hf_cms_SignedData_PDU = -1;            /* SignedData */
 static int hf_cms_EnvelopedData_PDU = -1;         /* EnvelopedData */
 static int hf_cms_DigestedData_PDU = -1;          /* DigestedData */
@@ -216,8 +217,7 @@ static int dissect_serialNumber(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 int
 dissect_cms_ContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -383,8 +383,7 @@ static int dissect_encapContentInfo(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static int
 dissect_cms_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -1337,6 +1336,9 @@ dissect_cms_Countersignature(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
 /*--- PDUs ---*/
 
+static void dissect_ContentInfo_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_cms_ContentInfo(FALSE, tvb, 0, pinfo, tree, hf_cms_ContentInfo_PDU);
+}
 static void dissect_SignedData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_cms_SignedData(FALSE, tvb, 0, pinfo, tree, hf_cms_SignedData_PDU);
 }
@@ -1370,6 +1372,10 @@ void proto_register_cms(void) {
 
 /*--- Included file: packet-cms-hfarr.c ---*/
 
+    { &hf_cms_ContentInfo_PDU,
+      { "ContentInfo", "cms.ContentInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ContentInfo", HFILL }},
     { &hf_cms_SignedData_PDU,
       { "SignedData", "cms.SignedData",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1743,6 +1749,7 @@ void proto_reg_handoff_cms(void) {
 
 /*--- Included file: packet-cms-dis-tab.c ---*/
 
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.1.6", dissect_ContentInfo_PDU, proto_cms, "id-ct-contentInfo");
   register_ber_oid_dissector("1.2.840.113549.1.7.2", dissect_SignedData_PDU, proto_cms, "id-signedData");
   register_ber_oid_dissector("1.2.840.113549.1.7.3", dissect_EnvelopedData_PDU, proto_cms, "id-envelopedData");
   register_ber_oid_dissector("1.2.840.113549.1.7.5", dissect_DigestedData_PDU, proto_cms, "id-digestedData");
