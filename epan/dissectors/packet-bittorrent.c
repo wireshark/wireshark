@@ -82,6 +82,7 @@ static gint hf_bittorrent_prot_name     = -1;
 static gint hf_bittorrent_reserved      = -1;
 static gint hf_bittorrent_sha1_hash     = -1;
 static gint hf_bittorrent_peer_id       = -1;
+static gint hf_bittorrent_msg           = -1;
 static gint hf_bittorrent_msg_len       = -1;
 static gint hf_bittorrent_msg_type      = -1;
 static gint hf_bittorrent_bitfield_data = -1;
@@ -177,6 +178,7 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
    guint32 length;
    const char *msgtype = NULL;
    proto_item *ti;
+   guint32 piece_index, piece_begin, piece_length;
 
    if (tvb_bytes_exist(tvb, offset + BITTORRENT_HEADER_LENGTH, 1)) {
       /* Check for data from the middle of a message. */
@@ -185,21 +187,21 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
       if (msgtype == NULL) {
          proto_tree_add_text(tree, tvb, offset, -1, "Continuation data"); 
          if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_add_str(pinfo->cinfo, COL_INFO, "Continuation");
+            col_set_str(pinfo->cinfo, COL_INFO, "Continuation data");
          }
          return;
       }
    }
 
    length = tvb_get_ntohl(tvb, offset);
-   ti = proto_tree_add_text(tree, tvb, offset, length + BITTORRENT_HEADER_LENGTH, "BitTorrent Message");
+   ti = proto_tree_add_item(tree, hf_bittorrent_msg, tvb, offset, length + BITTORRENT_HEADER_LENGTH, FALSE);
    mtree = proto_item_add_subtree(ti, ett_bittorrent_msg);
 
    /* Keepalive message */
    if (length == 0) {
       proto_tree_add_item(mtree, hf_bittorrent_msg_len, tvb, offset, BITTORRENT_HEADER_LENGTH, FALSE);
       if (check_col(pinfo->cinfo, COL_INFO)) {
-         col_set_str(pinfo->cinfo, COL_INFO, "BitTorrent KeepAlive message");
+         col_set_str(pinfo->cinfo, COL_INFO, "KeepAlive");
       }
       return;
    }
@@ -210,8 +212,9 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
    /* If the tvb_bytes_exist() call above returned FALSE, this will
       throw an exception, so we won't use msgtype or type. */
    proto_tree_add_item(mtree, hf_bittorrent_msg_type, tvb, offset, 1, FALSE);
+   proto_item_append_text(ti, ": Len:%u, %s", length, msgtype);
    if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_add_str(pinfo->cinfo, COL_INFO, msgtype);
+      col_set_str(pinfo->cinfo, COL_INFO, msgtype);
    }
    offset += 1;
    length -= 1;
@@ -226,27 +229,49 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
 
    case BITTORRENT_MESSAGE_REQUEST:
    case BITTORRENT_MESSAGE_CANCEL:
-      proto_tree_add_item(mtree, hf_bittorrent_piece_index, tvb, offset, 4, FALSE); offset += 4;
-      proto_tree_add_item(mtree, hf_bittorrent_piece_begin, tvb, offset, 4, FALSE); offset += 4;
-      proto_tree_add_item(mtree, hf_bittorrent_piece_length, tvb, offset, 4, FALSE);
+	  piece_index = tvb_get_ntohl(tvb, offset);
+      proto_tree_add_uint(mtree, hf_bittorrent_piece_index, tvb, offset, 4, piece_index); offset += 4;
+	  piece_begin = tvb_get_ntohl(tvb, offset);
+      proto_tree_add_uint(mtree, hf_bittorrent_piece_begin, tvb, offset, 4, piece_begin); offset += 4;
+	  piece_length = tvb_get_ntohl(tvb, offset);
+      proto_tree_add_uint(mtree, hf_bittorrent_piece_length, tvb, offset, 4, piece_length);
+      proto_item_append_text(ti, ", Piece (Idx:0x%x,Begin:0x%x,Len:0x%x)", piece_index, piece_begin, piece_length);
+      if (check_col(pinfo->cinfo, COL_INFO)) {
+         col_append_fstr(pinfo->cinfo, COL_INFO, ", Piece (Idx:0x%x,Begin:0x%x,Len:0x%x)", piece_index, piece_begin, piece_length);
+	  }
       break;
 
    case BITTORRENT_MESSAGE_HAVE:
+	  piece_index = tvb_get_ntohl(tvb, offset);
       proto_tree_add_item(mtree, hf_bittorrent_piece_index, tvb, offset, 4, FALSE);
+      proto_item_append_text(ti, ", Piece (Idx:0x%x)", piece_index);
+      if (check_col(pinfo->cinfo, COL_INFO)) {
+         col_append_fstr(pinfo->cinfo, COL_INFO, ", Piece (Idx:0x%x)", piece_index);
+	  }
       break;
 
    case BITTORRENT_MESSAGE_BITFIELD:
       proto_tree_add_item(mtree, hf_bittorrent_bitfield_data, tvb, offset, length, FALSE); 
+      proto_item_append_text(ti, ", Len:0x%x", length);
+      if (check_col(pinfo->cinfo, COL_INFO)) {
+         col_append_fstr(pinfo->cinfo, COL_INFO, ", Len:0x%x", length);
+	  }
       break;
 
    case BITTORRENT_MESSAGE_PIECE:
-      proto_tree_add_item(mtree, hf_bittorrent_piece_index, tvb, offset, 4, FALSE);
+	  piece_index = tvb_get_ntohl(tvb, offset);
+      proto_tree_add_uint(mtree, hf_bittorrent_piece_index, tvb, offset, 4, piece_index);
       offset += 4;
       length -= 4;
-      proto_tree_add_item(mtree, hf_bittorrent_piece_begin, tvb, offset, 4, FALSE);
+	  piece_begin = tvb_get_ntohl(tvb, offset);
+      proto_tree_add_item(mtree, hf_bittorrent_piece_begin, tvb, offset, 4, piece_begin);
       offset += 4;
       length -= 4;
       proto_tree_add_item(mtree, hf_bittorrent_piece_data, tvb, offset, length, FALSE);
+      proto_item_append_text(ti, ", Idx:0x%x,Begin:0x%x,Len:0x%x", piece_index, piece_begin, length);
+      if (check_col(pinfo->cinfo, COL_INFO)) {
+         col_append_fstr(pinfo->cinfo, COL_INFO, ", Idx:0x%x,Begin:0x%x,Len:0x%x", piece_index, piece_begin, length);
+	  }
       break;
 
    default:
@@ -261,7 +286,7 @@ static void dissect_bittorrent_welcome (tvbuff_t *tvb, packet_info *pinfo _U_, p
    char *version;
    
    if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_set_str(pinfo->cinfo, COL_INFO, "BitTorrent Handshake");
+      col_set_str(pinfo->cinfo, COL_INFO, "Handshake");
    }
    
    proto_tree_add_item(tree, hf_bittorrent_prot_name_len, tvb, offset, 1, FALSE); offset+=1;
@@ -301,11 +326,10 @@ static void dissect_bittorrent_tcp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto
    }
    
    if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_set_str(pinfo->cinfo, COL_INFO, "BitTorrent Peer-To-Peer connection");
+      col_set_str(pinfo->cinfo, COL_INFO, "BitTorrent ");
    }
    
-   ti = proto_tree_add_text(tree, tvb, 0, -1, "BitTorrent");
-   
+   ti = proto_tree_add_item (tree, proto_bittorrent, tvb, 0, -1, FALSE);   
    tree = proto_item_add_subtree(ti, ett_bittorrent);
    
    if (tvb_get_guint8(tvb, 0) == 19 &&
@@ -313,6 +337,11 @@ static void dissect_bittorrent_tcp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto
       dissect_bittorrent_welcome(tvb, pinfo, tree);
    } else {
       dissect_bittorrent_message(tvb, pinfo, tree);
+   }
+
+   if (check_col(pinfo->cinfo, COL_INFO)) {
+      col_append_str(pinfo->cinfo, COL_INFO, "  ");
+      col_set_fence(pinfo->cinfo, COL_INFO);
    }
 }
 
@@ -363,6 +392,9 @@ proto_register_bittorrent(void)
       },
       { &hf_bittorrent_peer_id,
       { "Peer ID", "bittorrent.peer_id", FT_BYTES, BASE_DEC, NULL, 0x0, "", HFILL }
+      },
+      { &hf_bittorrent_msg, 
+      { "Message", "bittorrent.msg", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }
       },
       { &hf_bittorrent_msg_len,
       { "Message Length", "bittorrent.msg.length", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
