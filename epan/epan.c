@@ -186,5 +186,5 @@ epan_dissect_prime_dfilter(epan_dissect_t *edt, const dfilter_t* dfcode)
 void
 epan_dissect_fill_in_columns(epan_dissect_t *edt)
 {
-    fill_in_columns(&edt->pi);
+    col_fill_in(&edt->pi);
 }

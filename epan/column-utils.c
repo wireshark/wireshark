@@ -44,25 +44,25 @@
 /* Allocate all the data structures for constructing column data, given
    the number of columns. */
 void
-col_setup(column_info *col_info, gint num_cols)
+col_setup(column_info *cinfo, gint num_cols)
 {
   int i;
 
-  col_info->num_cols	= num_cols;
-  col_info->col_fmt	= (gint *) g_malloc(sizeof(gint) * num_cols);
-  col_info->fmt_matx	= (gboolean **) g_malloc(sizeof(gboolean *) * num_cols);
-  col_info->col_first	= (int *) g_malloc(sizeof(int) * (NUM_COL_FMTS));
-  col_info->col_last 	= (int *) g_malloc(sizeof(int) * (NUM_COL_FMTS));
-  col_info->col_title	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
-  col_info->col_data	= (const gchar **) g_malloc(sizeof(gchar *) * num_cols);
-  col_info->col_buf	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
-  col_info->col_fence	= (int *) g_malloc(sizeof(int) * num_cols);
-  col_info->col_expr	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
-  col_info->col_expr_val = (gchar **) g_malloc(sizeof(gchar *) * num_cols);
+  cinfo->num_cols	= num_cols;
+  cinfo->col_fmt	= (gint *) g_malloc(sizeof(gint) * num_cols);
+  cinfo->fmt_matx	= (gboolean **) g_malloc(sizeof(gboolean *) * num_cols);
+  cinfo->col_first	= (int *) g_malloc(sizeof(int) * (NUM_COL_FMTS));
+  cinfo->col_last 	= (int *) g_malloc(sizeof(int) * (NUM_COL_FMTS));
+  cinfo->col_title	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
+  cinfo->col_data	= (const gchar **) g_malloc(sizeof(gchar *) * num_cols);
+  cinfo->col_buf	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
+  cinfo->col_fence	= (int *) g_malloc(sizeof(int) * num_cols);
+  cinfo->col_expr	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
+  cinfo->col_expr_val = (gchar **) g_malloc(sizeof(gchar *) * num_cols);
 
   for (i = 0; i < NUM_COL_FMTS; i++) {
-    col_info->col_first[i] = -1;
-    col_info->col_last[i] = -1;
+    cinfo->col_first[i] = -1;
+    cinfo->col_last[i] = -1;
   }
 }
 
@@ -734,7 +734,7 @@ col_set_abs_time(frame_data *fd, column_info *cinfo, int col)
   strcpy(cinfo->col_expr_val[col],cinfo->col_buf[col]);
 }
 
-/* Add "command-line-specified" time.
+/* Set the format of the variable time format.
    XXX - this is called from "file.c" when the user changes the time
    format they want for "command-line-specified" time; it's a bit ugly
    that we have to export it, but if we go to a CList-like widget that
@@ -742,7 +742,7 @@ col_set_abs_time(frame_data *fd, column_info *cinfo, int col)
    requiring us to stuff the text into the widget from outside, we
    might be able to clean this up. */
 void
-col_set_cls_time(frame_data *fd, column_info *cinfo, int col)
+col_set_cls_time(frame_data *fd, column_info *cinfo, gint col)
 {
   switch (timestamp_get_type()) {
     case TS_ABSOLUTE:
@@ -1010,7 +1010,7 @@ col_set_circuit_id(packet_info *pinfo, int col)
 }
 
 void
-fill_in_columns(packet_info *pinfo)
+col_fill_in(packet_info *pinfo)
 {
   int i;
 
