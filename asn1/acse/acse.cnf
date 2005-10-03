@@ -40,12 +40,14 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
   gint32 tag;
   guint32 len1;
 
-  /* XXX  asn2eth can not yet handle tagged assignment so for the
-   * time being  just remove this tag manually inside the EXTERNAL
-   * dissector.
-   */
-   offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-   offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+  if(!implicit_tag) {
+    /* XXX  asn2eth can not yet handle tagged assignment so for the
+     * time being  just remove this tag manually inside the EXTERNAL
+     * dissector.
+     */
+     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+   }
    offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                 EXTERNAL_sequence, hf_index, ett_acse_EXTERNAL);
 
@@ -89,7 +91,12 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
   if(session)
 	session->pres_ctx_id = indir_ref;
 
+#.FN_BODY EXTERNAL/direct-reference
+
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, object_identifier_id);
+
+
 #.FN_BODY EXTERNAL/encoding/single-ASN1-type
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, top_tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 #.END
