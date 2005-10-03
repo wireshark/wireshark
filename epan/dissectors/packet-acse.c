@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-acse.c                                                            */
+/* .\packet-acse.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p acse -c acse.cnf -s packet-acse-template acse.asn */
 
 /* Input file: packet-acse-template.c */
@@ -68,7 +68,7 @@ int proto_acse = -1;
 
 /*--- Included file: packet-acse-hf.c ---*/
 
-static int hf_acse_direct_reference = -1;         /* OBJECT_IDENTIFIER */
+static int hf_acse_direct_reference = -1;         /* T_direct_reference */
 static int hf_acse_indirect_reference = -1;       /* T_indirect_reference */
 static int hf_acse_data_value_descriptor = -1;    /* ObjectDescriptor */
 static int hf_acse_encoding = -1;                 /* T_encoding */
@@ -305,14 +305,16 @@ find_oid_by_ctx_id(packet_info *pinfo _U_, guint32 idx)
 
 
 static int
-dissect_acse_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+dissect_acse_T_direct_reference(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, object_identifier_id);
+
+
 
   return offset;
 }
 static int dissect_direct_reference(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_acse_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_acse_direct_reference);
+  return dissect_acse_T_direct_reference(FALSE, tvb, offset, pinfo, tree, hf_acse_direct_reference);
 }
 
 
@@ -357,7 +359,7 @@ static int dissect_data_value_descriptor(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_acse_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, top_tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
   return offset;
@@ -439,12 +441,14 @@ dissect_acse_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
   gint32 tag;
   guint32 len1;
 
-  /* XXX  asn2eth can not yet handle tagged assignment so for the
-   * time being  just remove this tag manually inside the EXTERNAL
-   * dissector.
-   */
-   offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-   offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+  if(!implicit_tag) {
+    /* XXX  asn2eth can not yet handle tagged assignment so for the
+     * time being  just remove this tag manually inside the EXTERNAL
+     * dissector.
+     */
+     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+   }
    offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                 EXTERNAL_sequence, hf_index, ett_acse_EXTERNAL);
 
@@ -480,8 +484,7 @@ static int dissect_aARQ_protocol_version_impl(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_acse_ASO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -519,8 +522,7 @@ static int dissect_ap_title_form1(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_acse_AP_title_form2(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -734,8 +736,7 @@ static int dissect_responder_acse_requirements_impl(packet_info *pinfo, proto_tr
 
 static int
 dissect_acse_Mechanism_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -884,8 +885,7 @@ static int dissect_presentation_context_identifier(packet_info *pinfo, proto_tre
 
 static int
 dissect_acse_Abstract_syntax_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -900,8 +900,7 @@ static int dissect_abstract_syntax_name_impl(packet_info *pinfo, proto_tree *tre
 
 static int
 dissect_acse_TransferSyntaxName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -1806,8 +1805,7 @@ static int dissect_ae_title_form1(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_acse_AE_title_form2(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }

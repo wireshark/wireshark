@@ -116,8 +116,8 @@ static int hf_x420_mixed_mode = -1;               /* MixedModeBodyPart */
 static int hf_x420_bilaterally_defined = -1;      /* BilaterallyDefinedBodyPart */
 static int hf_x420_nationally_defined = -1;       /* NationallyDefinedBodyPart */
 static int hf_x420_extended = -1;                 /* ExtendedBodyPart */
-static int hf_x420_extended_parameters = -1;      /* OBJECT_IDENTIFIER */
-static int hf_x420_extended_data = -1;            /* T_data */
+static int hf_x420_extended_parameters = -1;      /* EXTERNAL */
+static int hf_x420_extended_data = -1;            /* EXTERNAL */
 static int hf_x420_ia5text_parameters = -1;       /* IA5TextParameters */
 static int hf_x420_ia5text_data = -1;             /* IA5TextData */
 static int hf_x420_repertoire = -1;               /* Repertoire */
@@ -268,6 +268,12 @@ static int dissect_user(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 }
 static int dissect_formal_name(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x411_ORName(FALSE, tvb, offset, pinfo, tree, hf_x420_formal_name);
+}
+static int dissect_extended_parameters_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_acse_EXTERNAL(TRUE, tvb, offset, pinfo, tree, hf_x420_extended_parameters);
+}
+static int dissect_extended_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_acse_EXTERNAL(FALSE, tvb, offset, pinfo, tree, hf_x420_extended_data);
 }
 static int dissect_g3facsimile_non_basic_parameters_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x411_G3FacsimileNonBasicParameters(TRUE, tvb, offset, pinfo, tree, hf_x420_g3facsimile_non_basic_parameters);
@@ -1344,35 +1350,9 @@ static int dissect_nationally_defined_impl(packet_info *pinfo, proto_tree *tree,
 }
 
 
-
-static int
-dissect_x420_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
-
-  return offset;
-}
-static int dissect_extended_parameters_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x420_OBJECT_IDENTIFIER(TRUE, tvb, offset, pinfo, tree, hf_x420_extended_parameters);
-}
-
-
-
-static int
-dissect_x420_T_data(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-/* XXX Not implemented yet */
-
-
-  return offset;
-}
-static int dissect_extended_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x420_T_data(FALSE, tvb, offset, pinfo, tree, hf_x420_extended_data);
-}
-
-
 static const ber_sequence_t ExtendedBodyPart_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_extended_parameters_impl },
-  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_extended_data },
+  { BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_extended_data },
   { 0, 0, 0, NULL }
 };
 
@@ -2238,7 +2218,7 @@ void proto_register_x420(void) {
         "BodyPart/extended", HFILL }},
     { &hf_x420_extended_parameters,
       { "parameters", "x420.parameters",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "ExtendedBodyPart/parameters", HFILL }},
     { &hf_x420_extended_data,
       { "data", "x420.data",

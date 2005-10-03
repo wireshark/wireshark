@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-rtse.c                                                            */
+/* .\packet-rtse.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p rtse -c rtse.cnf -s packet-rtse-template rtse.asn */
 
 /* Input file: packet-rtse-template.c */
@@ -642,8 +642,7 @@ dissect_rtse_RTSE_apdus(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 
 static int
 dissect_rtse_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -738,19 +737,22 @@ static const ber_sequence_t EXTERNAL_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_rtse_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   gint8 class;
   gboolean pc, ind_field;
   gint32 tag;
   guint32 len1;
 
-  /* XXX  asn2eth can not yet handle tagged assignment so for the
-   * time being  just remove this tag manually inside the EXTERNAL
-   * dissector.
-   */
-   offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-   offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+  if(!implicit_tag) {
+    /* XXX  asn2eth can not yet handle tagged assignment so for the
+     * time being  just remove this tag manually inside the EXTERNAL
+     * dissector.
+     */
+     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+   }
+
    offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                 EXTERNAL_sequence, hf_index, ett_rtse_EXTERNAL);
 

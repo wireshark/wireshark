@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-ess.c                                                             */
+/* .\packet-ess.c                                                             */
 /* ../../tools/asn2eth.py -X -b -k -e -p ess -c ess.cnf -s packet-ess-template ExtendedSecurityServices.asn */
 
 /* Input file: packet-ess-template.c */
@@ -62,6 +62,8 @@ static int hf_ess_Receipt_PDU = -1;               /* Receipt */
 static int hf_ess_ContentHints_PDU = -1;          /* ContentHints */
 static int hf_ess_MsgSigDigest_PDU = -1;          /* MsgSigDigest */
 static int hf_ess_ContentReference_PDU = -1;      /* ContentReference */
+static int hf_ess_ESSSecurityLabel_PDU = -1;      /* ESSSecurityLabel */
+static int hf_ess_EquivalentLabels_PDU = -1;      /* EquivalentLabels */
 static int hf_ess_MLExpansionHistory_PDU = -1;    /* MLExpansionHistory */
 static int hf_ess_SigningCertificate_PDU = -1;    /* SigningCertificate */
 static int hf_ess_signedContentIdentifier = -1;   /* ContentIdentifier */
@@ -75,11 +77,16 @@ static int hf_ess_version = -1;                   /* ESSVersion */
 static int hf_ess_contentType = -1;               /* ContentType */
 static int hf_ess_originatorSignatureValue = -1;  /* OCTET_STRING */
 static int hf_ess_contentDescription = -1;        /* UTF8String */
+static int hf_ess_security_policy_identifier = -1;  /* SecurityPolicyIdentifier */
+static int hf_ess_security_classification = -1;   /* SecurityClassification */
+static int hf_ess_privacy_mark = -1;              /* ESSPrivacyMark */
+static int hf_ess_security_categories = -1;       /* SecurityCategories */
 static int hf_ess_pString = -1;                   /* PrintableString */
 static int hf_ess_utf8String = -1;                /* UTF8String */
 static int hf_ess_SecurityCategories_item = -1;   /* SecurityCategory */
 static int hf_ess_type = -1;                      /* T_type */
 static int hf_ess_value = -1;                     /* T_value */
+static int hf_ess_EquivalentLabels_item = -1;     /* ESSSecurityLabel */
 static int hf_ess_MLExpansionHistory_item = -1;   /* MLData */
 static int hf_ess_mailListIdentifier = -1;        /* EntityIdentifier */
 static int hf_ess_expansionTime = -1;             /* GeneralizedTime */
@@ -113,9 +120,11 @@ static gint ett_ess_ReceiptsFrom = -1;
 static gint ett_ess_Receipt = -1;
 static gint ett_ess_ContentHints = -1;
 static gint ett_ess_ContentReference = -1;
+static gint ett_ess_ESSSecurityLabel = -1;
 static gint ett_ess_ESSPrivacyMark = -1;
 static gint ett_ess_SecurityCategories = -1;
 static gint ett_ess_SecurityCategory = -1;
+static gint ett_ess_EquivalentLabels = -1;
 static gint ett_ess_MLExpansionHistory = -1;
 static gint ett_ess_MLData = -1;
 static gint ett_ess_EntityIdentifier = -1;
@@ -375,10 +384,12 @@ dissect_ess_ContentReference(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
 static int
 dissect_ess_SecurityPolicyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
+}
+static int dissect_security_policy_identifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ess_SecurityPolicyIdentifier(FALSE, tvb, offset, pinfo, tree, hf_ess_security_policy_identifier);
 }
 
 
@@ -399,6 +410,9 @@ dissect_ess_SecurityClassification(gboolean implicit_tag _U_, tvbuff_t *tvb, int
                                   NULL);
 
   return offset;
+}
+static int dissect_security_classification(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ess_SecurityClassification(FALSE, tvb, offset, pinfo, tree, hf_ess_security_classification);
 }
 
 
@@ -436,12 +450,15 @@ dissect_ess_ESSPrivacyMark(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
   return offset;
 }
+static int dissect_privacy_mark(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ess_ESSPrivacyMark(FALSE, tvb, offset, pinfo, tree, hf_ess_privacy_mark);
+}
 
 
 
 static int
 dissect_ess_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
                                          hf_ess_SecurityCategory_type_OID, object_identifier_id);
 
 
@@ -460,14 +477,14 @@ dissect_ess_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet
 
   return offset;
 }
-static int dissect_value_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_ess_T_value(TRUE, tvb, offset, pinfo, tree, hf_ess_value);
+static int dissect_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ess_T_value(FALSE, tvb, offset, pinfo, tree, hf_ess_value);
 }
 
 
 static const ber_sequence_t SecurityCategory_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_type_impl },
-  { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_value_impl },
+  { BER_CLASS_CON, 1, 0, dissect_value },
   { 0, 0, 0, NULL }
 };
 
@@ -491,6 +508,42 @@ static int
 dissect_ess_SecurityCategories(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
                                  SecurityCategories_set_of, hf_index, ett_ess_SecurityCategories);
+
+  return offset;
+}
+static int dissect_security_categories(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ess_SecurityCategories(FALSE, tvb, offset, pinfo, tree, hf_ess_security_categories);
+}
+
+
+static const ber_sequence_t ESSSecurityLabel_set[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_security_policy_identifier },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_security_classification },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_privacy_mark },
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_security_categories },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_ess_ESSSecurityLabel(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
+                              ESSSecurityLabel_set, hf_index, ett_ess_ESSSecurityLabel);
+
+  return offset;
+}
+static int dissect_EquivalentLabels_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ess_ESSSecurityLabel(FALSE, tvb, offset, pinfo, tree, hf_ess_EquivalentLabels_item);
+}
+
+
+static const ber_sequence_t EquivalentLabels_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_EquivalentLabels_item },
+};
+
+static int
+dissect_ess_EquivalentLabels(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      EquivalentLabels_sequence_of, hf_index, ett_ess_EquivalentLabels);
 
   return offset;
 }
@@ -719,6 +772,12 @@ static void dissect_MsgSigDigest_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 static void dissect_ContentReference_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_ess_ContentReference(FALSE, tvb, 0, pinfo, tree, hf_ess_ContentReference_PDU);
 }
+static void dissect_ESSSecurityLabel_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_ess_ESSSecurityLabel(FALSE, tvb, 0, pinfo, tree, hf_ess_ESSSecurityLabel_PDU);
+}
+static void dissect_EquivalentLabels_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_ess_EquivalentLabels(FALSE, tvb, 0, pinfo, tree, hf_ess_EquivalentLabels_PDU);
+}
 static void dissect_MLExpansionHistory_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_ess_MLExpansionHistory(FALSE, tvb, 0, pinfo, tree, hf_ess_MLExpansionHistory_PDU);
 }
@@ -766,6 +825,14 @@ void proto_register_ess(void) {
       { "ContentReference", "ess.ContentReference",
         FT_NONE, BASE_NONE, NULL, 0,
         "ContentReference", HFILL }},
+    { &hf_ess_ESSSecurityLabel_PDU,
+      { "ESSSecurityLabel", "ess.ESSSecurityLabel",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ESSSecurityLabel", HFILL }},
+    { &hf_ess_EquivalentLabels_PDU,
+      { "EquivalentLabels", "ess.EquivalentLabels",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "EquivalentLabels", HFILL }},
     { &hf_ess_MLExpansionHistory_PDU,
       { "MLExpansionHistory", "ess.MLExpansionHistory",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -818,6 +885,22 @@ void proto_register_ess(void) {
       { "contentDescription", "ess.contentDescription",
         FT_STRING, BASE_NONE, NULL, 0,
         "ContentHints/contentDescription", HFILL }},
+    { &hf_ess_security_policy_identifier,
+      { "security-policy-identifier", "ess.security_policy_identifier",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "ESSSecurityLabel/security-policy-identifier", HFILL }},
+    { &hf_ess_security_classification,
+      { "security-classification", "ess.security_classification",
+        FT_INT32, BASE_DEC, VALS(ess_SecurityClassification_vals), 0,
+        "ESSSecurityLabel/security-classification", HFILL }},
+    { &hf_ess_privacy_mark,
+      { "privacy-mark", "ess.privacy_mark",
+        FT_UINT32, BASE_DEC, VALS(ess_ESSPrivacyMark_vals), 0,
+        "ESSSecurityLabel/privacy-mark", HFILL }},
+    { &hf_ess_security_categories,
+      { "security-categories", "ess.security_categories",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ESSSecurityLabel/security-categories", HFILL }},
     { &hf_ess_pString,
       { "pString", "ess.pString",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -838,6 +921,10 @@ void proto_register_ess(void) {
       { "value", "ess.value",
         FT_NONE, BASE_NONE, NULL, 0,
         "SecurityCategory/value", HFILL }},
+    { &hf_ess_EquivalentLabels_item,
+      { "Item", "ess.EquivalentLabels_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EquivalentLabels/_item", HFILL }},
     { &hf_ess_MLExpansionHistory_item,
       { "Item", "ess.MLExpansionHistory_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -930,9 +1017,11 @@ void proto_register_ess(void) {
     &ett_ess_Receipt,
     &ett_ess_ContentHints,
     &ett_ess_ContentReference,
+    &ett_ess_ESSSecurityLabel,
     &ett_ess_ESSPrivacyMark,
     &ett_ess_SecurityCategories,
     &ett_ess_SecurityCategory,
+    &ett_ess_EquivalentLabels,
     &ett_ess_MLExpansionHistory,
     &ett_ess_MLData,
     &ett_ess_EntityIdentifier,
@@ -968,6 +1057,8 @@ void proto_reg_handoff_ess(void) {
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.4", dissect_ContentHints_PDU, proto_ess, "id-aa-contentHint");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.5", dissect_MsgSigDigest_PDU, proto_ess, "id-aa-msgSigDigest");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.10", dissect_ContentReference_PDU, proto_ess, "id-aa-contentReference");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.2.2", dissect_ESSSecurityLabel_PDU, proto_ess, "id-aa-securityLabel");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.2.9", dissect_EquivalentLabels_PDU, proto_ess, "id-aa-equivalentLabels");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.3", dissect_MLExpansionHistory_PDU, proto_ess, "id-aa-mlExpandHistory");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.12", dissect_SigningCertificate_PDU, proto_ess, "id-aa-signingCertificate");
 

@@ -57,11 +57,15 @@ static int hf_cms_ci_contentType = -1;
 /*--- Included file: packet-cms-hf.c ---*/
 
 static int hf_cms_ContentInfo_PDU = -1;           /* ContentInfo */
+static int hf_cms_ContentType_PDU = -1;           /* ContentType */
 static int hf_cms_SignedData_PDU = -1;            /* SignedData */
 static int hf_cms_EnvelopedData_PDU = -1;         /* EnvelopedData */
 static int hf_cms_DigestedData_PDU = -1;          /* DigestedData */
 static int hf_cms_EncryptedData_PDU = -1;         /* EncryptedData */
 static int hf_cms_AuthenticatedData_PDU = -1;     /* AuthenticatedData */
+static int hf_cms_MessageDigest_PDU = -1;         /* MessageDigest */
+static int hf_cms_SigningTime_PDU = -1;           /* SigningTime */
+static int hf_cms_Countersignature_PDU = -1;      /* Countersignature */
 static int hf_cms_contentType = -1;               /* T_contentType */
 static int hf_cms_content = -1;                   /* T_content */
 static int hf_cms_version = -1;                   /* CMSVersion */
@@ -84,7 +88,9 @@ static int hf_cms_issuerAndSerialNumber = -1;     /* IssuerAndSerialNumber */
 static int hf_cms_subjectKeyIdentifier = -1;      /* SubjectKeyIdentifier */
 static int hf_cms_SignedAttributes_item = -1;     /* Attribute */
 static int hf_cms_UnsignedAttributes_item = -1;   /* Attribute */
-static int hf_cms_attrType = -1;                  /* OBJECT_IDENTIFIER */
+static int hf_cms_attrType = -1;                  /* T_attrType */
+static int hf_cms_attrValues = -1;                /* SET_OF_AttributeValue */
+static int hf_cms_attrValues_item = -1;           /* AttributeValue */
 static int hf_cms_originatorInfo = -1;            /* OriginatorInfo */
 static int hf_cms_recipientInfos = -1;            /* RecipientInfos */
 static int hf_cms_encryptedContentInfo = -1;      /* EncryptedContentInfo */
@@ -130,6 +136,8 @@ static int hf_cms_issuer = -1;                    /* Name */
 static int hf_cms_serialNumber = -1;              /* CertificateSerialNumber */
 static int hf_cms_keyAttrId = -1;                 /* T_keyAttrId */
 static int hf_cms_keyAttr = -1;                   /* T_keyAttr */
+static int hf_cms_utcTime = -1;                   /* UTCTime */
+static int hf_cms_generalTime = -1;               /* GeneralizedTime */
 static int hf_cms_extendedCertificateInfo = -1;   /* ExtendedCertificateInfo */
 static int hf_cms_signature = -1;                 /* Signature */
 static int hf_cms_attributes = -1;                /* UnauthAttributes */
@@ -151,6 +159,7 @@ static gint ett_cms_SignerIdentifier = -1;
 static gint ett_cms_SignedAttributes = -1;
 static gint ett_cms_UnsignedAttributes = -1;
 static gint ett_cms_Attribute = -1;
+static gint ett_cms_SET_OF_AttributeValue = -1;
 static gint ett_cms_EnvelopedData = -1;
 static gint ett_cms_OriginatorInfo = -1;
 static gint ett_cms_RecipientInfos = -1;
@@ -178,6 +187,7 @@ static gint ett_cms_CertificateChoices = -1;
 static gint ett_cms_CertificateSet = -1;
 static gint ett_cms_IssuerAndSerialNumber = -1;
 static gint ett_cms_OtherKeyAttribute = -1;
+static gint ett_cms_Time = -1;
 static gint ett_cms_ExtendedCertificate = -1;
 static gint ett_cms_ExtendedCertificateInfo = -1;
 
@@ -382,18 +392,52 @@ static int dissect_encapContentInfo(packet_info *pinfo, proto_tree *tree, tvbuff
 
 
 static int
-dissect_cms_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+dissect_cms_T_attrType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cms_attrType, object_identifier_id);
+
 
   return offset;
 }
 static int dissect_attrType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_cms_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_cms_attrType);
+  return dissect_cms_T_attrType(FALSE, tvb, offset, pinfo, tree, hf_cms_attrType);
+}
+
+
+
+static int
+dissect_cms_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+
+  return offset;
+}
+static int dissect_attrValues_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_AttributeValue(FALSE, tvb, offset, pinfo, tree, hf_cms_attrValues_item);
+}
+
+
+static const ber_sequence_t SET_OF_AttributeValue_set_of[1] = {
+  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_attrValues_item },
+};
+
+static int
+dissect_cms_SET_OF_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+                                 SET_OF_AttributeValue_set_of, hf_index, ett_cms_SET_OF_AttributeValue);
+
+  return offset;
+}
+static int dissect_attrValues(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_SET_OF_AttributeValue(FALSE, tvb, offset, pinfo, tree, hf_cms_attrValues);
 }
 
 
 static const ber_sequence_t Attribute_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_attrType },
+  { BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_attrValues },
   { 0, 0, 0, NULL }
 };
 
@@ -898,6 +942,9 @@ dissect_cms_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 static int dissect_date(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_cms_GeneralizedTime(FALSE, tvb, offset, pinfo, tree, hf_cms_date);
 }
+static int dissect_generalTime(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_GeneralizedTime(FALSE, tvb, offset, pinfo, tree, hf_cms_generalTime);
+}
 
 
 
@@ -1327,6 +1374,61 @@ dissect_cms_AuthenticatedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
 
 
+static int
+dissect_cms_MessageDigest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_cms_UTCTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
+                                            pinfo, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+static int dissect_utcTime(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_cms_UTCTime(FALSE, tvb, offset, pinfo, tree, hf_cms_utcTime);
+}
+
+
+static const value_string cms_Time_vals[] = {
+  {   0, "utcTime" },
+  {   1, "generalTime" },
+  { 0, NULL }
+};
+
+static const ber_choice_t Time_choice[] = {
+  {   0, BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_utcTime },
+  {   1, BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_generalTime },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int
+dissect_cms_Time(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 Time_choice, hf_index, ett_cms_Time,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_cms_SigningTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_cms_Time(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+
+
+
 int
 dissect_cms_Countersignature(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_cms_SignerInfo(implicit_tag, tvb, offset, pinfo, tree, hf_index);
@@ -1338,6 +1440,9 @@ dissect_cms_Countersignature(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
 static void dissect_ContentInfo_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_cms_ContentInfo(FALSE, tvb, 0, pinfo, tree, hf_cms_ContentInfo_PDU);
+}
+static void dissect_ContentType_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_cms_ContentType(FALSE, tvb, 0, pinfo, tree, hf_cms_ContentType_PDU);
 }
 static void dissect_SignedData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_cms_SignedData(FALSE, tvb, 0, pinfo, tree, hf_cms_SignedData_PDU);
@@ -1353,6 +1458,15 @@ static void dissect_EncryptedData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
 }
 static void dissect_AuthenticatedData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_cms_AuthenticatedData(FALSE, tvb, 0, pinfo, tree, hf_cms_AuthenticatedData_PDU);
+}
+static void dissect_MessageDigest_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_cms_MessageDigest(FALSE, tvb, 0, pinfo, tree, hf_cms_MessageDigest_PDU);
+}
+static void dissect_SigningTime_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_cms_SigningTime(FALSE, tvb, 0, pinfo, tree, hf_cms_SigningTime_PDU);
+}
+static void dissect_Countersignature_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_cms_Countersignature(FALSE, tvb, 0, pinfo, tree, hf_cms_Countersignature_PDU);
 }
 
 
@@ -1376,6 +1490,10 @@ void proto_register_cms(void) {
       { "ContentInfo", "cms.ContentInfo",
         FT_NONE, BASE_NONE, NULL, 0,
         "ContentInfo", HFILL }},
+    { &hf_cms_ContentType_PDU,
+      { "ContentType", "cms.ContentType",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "ContentType", HFILL }},
     { &hf_cms_SignedData_PDU,
       { "SignedData", "cms.SignedData",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1396,6 +1514,18 @@ void proto_register_cms(void) {
       { "AuthenticatedData", "cms.AuthenticatedData",
         FT_NONE, BASE_NONE, NULL, 0,
         "AuthenticatedData", HFILL }},
+    { &hf_cms_MessageDigest_PDU,
+      { "MessageDigest", "cms.MessageDigest",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "MessageDigest", HFILL }},
+    { &hf_cms_SigningTime_PDU,
+      { "SigningTime", "cms.SigningTime",
+        FT_UINT32, BASE_DEC, VALS(x509af_Time_vals), 0,
+        "SigningTime", HFILL }},
+    { &hf_cms_Countersignature_PDU,
+      { "Countersignature", "cms.Countersignature",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Countersignature", HFILL }},
     { &hf_cms_contentType,
       { "contentType", "cms.contentType",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -1488,6 +1618,14 @@ void proto_register_cms(void) {
       { "attrType", "cms.attrType",
         FT_STRING, BASE_NONE, NULL, 0,
         "Attribute/attrType", HFILL }},
+    { &hf_cms_attrValues,
+      { "attrValues", "cms.attrValues",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Attribute/attrValues", HFILL }},
+    { &hf_cms_attrValues_item,
+      { "Item", "cms.attrValues_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Attribute/attrValues/_item", HFILL }},
     { &hf_cms_originatorInfo,
       { "originatorInfo", "cms.originatorInfo",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1668,6 +1806,14 @@ void proto_register_cms(void) {
       { "keyAttr", "cms.keyAttr",
         FT_NONE, BASE_NONE, NULL, 0,
         "OtherKeyAttribute/keyAttr", HFILL }},
+    { &hf_cms_utcTime,
+      { "utcTime", "cms.utcTime",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Time/utcTime", HFILL }},
+    { &hf_cms_generalTime,
+      { "generalTime", "cms.generalTime",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Time/generalTime", HFILL }},
     { &hf_cms_extendedCertificateInfo,
       { "extendedCertificateInfo", "cms.extendedCertificateInfo",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1700,6 +1846,7 @@ void proto_register_cms(void) {
     &ett_cms_SignedAttributes,
     &ett_cms_UnsignedAttributes,
     &ett_cms_Attribute,
+    &ett_cms_SET_OF_AttributeValue,
     &ett_cms_EnvelopedData,
     &ett_cms_OriginatorInfo,
     &ett_cms_RecipientInfos,
@@ -1727,6 +1874,7 @@ void proto_register_cms(void) {
     &ett_cms_CertificateSet,
     &ett_cms_IssuerAndSerialNumber,
     &ett_cms_OtherKeyAttribute,
+    &ett_cms_Time,
     &ett_cms_ExtendedCertificate,
     &ett_cms_ExtendedCertificateInfo,
 
@@ -1755,6 +1903,10 @@ void proto_reg_handoff_cms(void) {
   register_ber_oid_dissector("1.2.840.113549.1.7.5", dissect_DigestedData_PDU, proto_cms, "id-digestedData");
   register_ber_oid_dissector("1.2.840.113549.1.7.6", dissect_EncryptedData_PDU, proto_cms, "id-encryptedData");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.1.2", dissect_AuthenticatedData_PDU, proto_cms, "id-ct-authenticatedData");
+  register_ber_oid_dissector("1.2.840.113549.1.9.3", dissect_ContentType_PDU, proto_cms, "id-contentType");
+  register_ber_oid_dissector("1.2.840.113549.1.9.4", dissect_MessageDigest_PDU, proto_cms, "id-messageDigest");
+  register_ber_oid_dissector("1.2.840.113549.1.9.5", dissect_SigningTime_PDU, proto_cms, "id-signingTime");
+  register_ber_oid_dissector("1.2.840.113549.1.9.6", dissect_Countersignature_PDU, proto_cms, "id-counterSignature");
 
 
 /*--- End of included file: packet-cms-dis-tab.c ---*/
