@@ -30,7 +30,7 @@
 
 #include <epan/tvbuff.h>
 
-extern struct _fragment_items;
+struct _fragment_items;
 
 /* A stream represents the concept of an arbitrary stream of data,
    divided up into frames for transmission, where the frames have
