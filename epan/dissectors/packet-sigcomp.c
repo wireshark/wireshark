@@ -471,9 +471,9 @@ dissect_sigcomp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * is cleaned up. 
 	 */
 	tvb_set_child_real_data_tvbuff( tvb, unescaped_tvb );
-	add_new_data_source(pinfo, unescaped_tvb, "Unescaped Data handed to the SigComp dessector");
+	add_new_data_source(pinfo, unescaped_tvb, "Unescaped Data handed to the SigComp dissector");
 
-	proto_tree_add_text(sigcomp_tree, unescaped_tvb, 0, -1,"Data handed to the Sigcomp dessector");
+	proto_tree_add_text(sigcomp_tree, unescaped_tvb, 0, -1,"Data handed to the Sigcomp dissector");
 
 	return dissect_sigcomp_common(unescaped_tvb, pinfo, sigcomp_tree);
 }
