@@ -4,7 +4,7 @@
  * which are handled as streams, and don't have lengths
  * and IDs such as are required for reassemble.h
  *
- * $Id: stream.c,v 1.9 2005/07/27 22:47:55 richardv Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,17 +124,6 @@ gboolean stream_compare_func(gconstpointer a,
 	return (key1 -> circ.conv == key2 -> circ.conv );
 }
 
-/* value destroy func */
-void stream_value_destroy_func(gpointer v)
-{
-    stream_t *val = (stream_t *)v;
-
-    /* this is only called when the entire hash (and hence the entire
-     * "streams" GMemChunk is being freed, so there is no need to free
-     * v.
-     */
-}
-	    
 /* memory pools */
 static GMemChunk *stream_keys = NULL;
 static GMemChunk *streams = NULL;
@@ -169,10 +158,8 @@ static void init_stream_hash( void ) {
 				     MEMCHUNK_STREAM_COUNT,
 				     G_ALLOC_ONLY);
 
-    stream_hash = g_hash_table_new_full(stream_hash_func,
-					stream_compare_func,
-					NULL,
-					stream_value_destroy_func);
+    stream_hash = g_hash_table_new(stream_hash_func,
+				   stream_compare_func);
 }
 
 
