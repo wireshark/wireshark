@@ -632,37 +632,54 @@ pipe_timer_cb(gpointer data)
   gboolean result, result1;
   DWORD childstatus;
   pipe_input_t *pipe_input = data;
+  gint iterations = 0;
 
 
-  /* Oddly enough although Named pipes don't work on win9x,
-     PeekNamedPipe does !!! */
-  handle = (HANDLE) _get_osfhandle (pipe_input->source);
-  result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
+  /* try to read data from the pipe only 5 times, to avoid blocking */
+  while(iterations < 5) {
+	  /* Oddly enough although Named pipes don't work on win9x,
+		 PeekNamedPipe does !!! */
+	  handle = (HANDLE) _get_osfhandle (pipe_input->source);
+	  result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
 
-  /* Get the child process exit status */
-  result1 = GetExitCodeProcess((HANDLE)*(pipe_input->child_process),
-                               &childstatus);
+	  /* Get the child process exit status */
+	  result1 = GetExitCodeProcess((HANDLE)*(pipe_input->child_process),
+								   &childstatus);
 
-  /* If the Peek returned an error, or there are bytes to be read
-     or the childwatcher thread has terminated then call the normal
-     callback */
-  if (!result || avail > 0 || childstatus != STILL_ACTIVE) {
+	  /* If the Peek returned an error, or there are bytes to be read
+		 or the childwatcher thread has terminated then call the normal
+		 callback */
+	  if (!result || avail > 0 || childstatus != STILL_ACTIVE) {
 
-    /* avoid reentrancy problems and stack overflow */
-    gtk_timeout_remove(pipe_input->pipe_input_id);
+		if(pipe_input->pipe_input_id != 0) {
+		  /* avoid reentrancy problems and stack overflow */
+		  gtk_timeout_remove(pipe_input->pipe_input_id);
+		  pipe_input->pipe_input_id = 0;
+		}
 
-    /* And call the real handler */
-    if (pipe_input->input_cb(pipe_input->source, pipe_input->user_data)) {
-        /* restore pipe handler */
-        pipe_input->pipe_input_id = gtk_timeout_add(200, pipe_timer_cb, data);
-    }
+		/* And call the real handler */
+		if (!pipe_input->input_cb(pipe_input->source, pipe_input->user_data)) {
+			/* pipe closed, return false so that the old timer is not run again */
+			return FALSE;
+		}
+	  }
+	  else {
+		/* No data, stop now */
+		break;
+	  }
 
-    /* Return false so that this timer is not run again */
-    return FALSE;
+	  iterations++;
   }
-  else {
-    /* No data so let timer run again */
-    return TRUE;
+
+  if(pipe_input->pipe_input_id == 0) {
+	/* restore pipe handler */
+	pipe_input->pipe_input_id = gtk_timeout_add(200, pipe_timer_cb, data);
+
+	/* Return false so that the old timer is not run again */
+	return FALSE;
+  } else {
+	/* we didn't stopped the old timer, so let it run */
+	return TRUE;
   }
 }
 
