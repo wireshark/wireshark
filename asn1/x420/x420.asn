@@ -91,7 +91,9 @@ IMPORTS
 --    id-on-absence-advice, id-on-change-of-address-advice
     --==
 --    FROM IPMSObjectIdentifiers {joint-iso-itu-t mhs(6) ipms(1) modules(0)
---      object-identifiers(0) version-1999(1)} --;
+--      object-identifiers(0) version-1999(1)} ; --
+    EXTERNAL 
+    FROM ACSE-1;
 
 Time ::= UTCTime
 
@@ -285,8 +287,8 @@ BodyPart ::= CHOICE {
 
 -- Extended body part
 ExtendedBodyPart --{EXTENDED-BODY-PART-TYPE:IPMBodyPartTable}-- ::= SEQUENCE {
-  parameters  [0]  OBJECT IDENTIFIER, --INSTANCE OF TYPE-IDENTIFIER OPTIONAL,
-  data        ANY -- INSTANCE OF TYPE-IDENTIFIER
+  parameters  [0]  EXTERNAL, --INSTANCE OF TYPE-IDENTIFIER OPTIONAL,
+  data        EXTERNAL -- INSTANCE OF TYPE-IDENTIFIER
 }
 --(CONSTRAINED BY { - - must correspond to the &parameters field and &data field of a member of --
 --   IPMBodyPartTable})

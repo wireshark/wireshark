@@ -23,8 +23,11 @@ Receipt            B "1.2.840.113549.1.9.16.1.1"  "id-ct-receipt"
 ContentHints       B "1.2.840.113549.1.9.16.2.4"  "id-aa-contentHint"
 MsgSigDigest       B "1.2.840.113549.1.9.16.2.5"  "id-aa-msgSigDigest"
 ContentReference   B "1.2.840.113549.1.9.16.2.10" "id-aa-contentReference"
+ESSSecurityLabel   B "1.2.840.113549.1.9.16.2.2"  "id-aa-securityLabel"
+EquivalentLabels   B "1.2.840.113549.1.9.16.2.9"  "id-aa-equivalentLabels"
 MLExpansionHistory B "1.2.840.113549.1.9.16.2.3"  "id-aa-mlExpandHistory"
 SigningCertificate B "1.2.840.113549.1.9.16.2.12" "id-aa-signingCertificate"
+
 
 #.NO_EMIT
 
@@ -33,7 +36,7 @@ SigningCertificate B "1.2.840.113549.1.9.16.2.12" "id-aa-signingCertificate"
 #.FIELD_RENAME
 
 #.FN_BODY SecurityCategory/type
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
                                          hf_ess_SecurityCategory_type_OID, object_identifier_id);
 
 #.FN_BODY SecurityCategory/value

@@ -34,6 +34,11 @@ DigestedData      B "1.2.840.113549.1.7.5"      "id-digestedData"
 EncryptedData     B "1.2.840.113549.1.7.6"      "id-encryptedData"
 AuthenticatedData B "1.2.840.113549.1.9.16.1.2" "id-ct-authenticatedData"
 
+ContentType		  B "1.2.840.113549.1.9.3"	"id-contentType"
+MessageDigest	  B "1.2.840.113549.1.9.4"	"id-messageDigest"
+SigningTime		  B "1.2.840.113549.1.9.5"	"id-signingTime"
+Countersignature  B "1.2.840.113549.1.9.6"	"id-counterSignature"
+
 #.NO_EMIT
 
 #.TYPE_RENAME
@@ -72,6 +77,15 @@ RecipientEncryptedKey/rid	rekRid
                                          hf_cms_ci_contentType, object_identifier_id);
 
 #.FN_BODY OtherKeyAttribute/keyAttr
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+
+#.FN_BODY Attribute/attrType
+
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_cms_attrType, object_identifier_id);
+
+#.FN_BODY AttributeValue
+
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 #.END

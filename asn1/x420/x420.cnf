@@ -1,9 +1,11 @@
 #.MODULE_IMPORT
 MTSAbstractService	x411
 AuthenticationFramework	x509af
+ACSE-1			acse
 
 #.INCLUDE ../x411/x411-exp.cnf
 #.INCLUDE ../x509af/x509af-exp.cnf
+#.INCLUDE ../acse/acse-exp.cnf
 
 #.EXPORTS
 ORDescriptor
@@ -40,9 +42,6 @@ OriginatingUA B "1.2.826.0.1004.10.1.1" "nexor-originating-ua"
 #.FN_BODY T_value
 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
-
-#.FN_BODY T_data
-/* XXX Not implemented yet */
 
 #.FN_BODY Interchange_Data_Element
 /* XXX Not implemented yet */

@@ -139,13 +139,13 @@ ContentReference ::= SEQUENCE {
 
 
 -- Section 3.2
--- ASN2ETH cant handle sets yet
---ESSSecurityLabel ::= SET {
---  security-policy-identifier SecurityPolicyIdentifier,
---  security-classification SecurityClassification OPTIONAL,
---  privacy-mark ESSPrivacyMark OPTIONAL,
---  security-categories SecurityCategories OPTIONAL }
---
+
+ESSSecurityLabel ::= SET {
+  security-policy-identifier SecurityPolicyIdentifier,
+  security-classification SecurityClassification OPTIONAL,
+  privacy-mark ESSPrivacyMark OPTIONAL,
+  security-categories SecurityCategories OPTIONAL }
+
 -- id-aa-securityLabel OBJECT IDENTIFIER ::= { iso(1) member-body(2)
 --     us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) id-aa(2) 2}
 
@@ -174,7 +174,7 @@ SecurityCategories ::= SET OF SecurityCategory
 
 SecurityCategory ::= SEQUENCE {
   type  [0] OBJECT IDENTIFIER,
-  value [1] ANY 
+  value [1] EXPLICIT ANY 
 }
 
 --Note: The aforementioned SecurityCategory syntax produces identical
@@ -193,8 +193,8 @@ SecurityCategory ::= SEQUENCE {
 
 -- Section 3.4
 
--- ASN2ETH cant generate code for ESSSecurityLabel yet
---EquivalentLabels ::= SEQUENCE OF ESSSecurityLabel
+
+EquivalentLabels ::= SEQUENCE OF ESSSecurityLabel
 
 -- id-aa-equivalentLabels OBJECT IDENTIFIER ::= { iso(1) member-body(2)
 --     us(840) rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) id-aa(2) 9}

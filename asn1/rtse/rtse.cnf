@@ -3,6 +3,7 @@ RTORQapdu
 RTOACapdu
 RTORJapdu
 RTABapdu
+EXTERNAL
 
 #.FN_BODY RTORJapdu/userDataRJ
 /*XXX not implemented yet */
@@ -78,12 +79,15 @@ RTABapdu
   gint32 tag;
   guint32 len1;
 
-  /* XXX  asn2eth can not yet handle tagged assignment so for the
-   * time being  just remove this tag manually inside the EXTERNAL
-   * dissector.
-   */
-   offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-   offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+  if(!implicit_tag) {
+    /* XXX  asn2eth can not yet handle tagged assignment so for the
+     * time being  just remove this tag manually inside the EXTERNAL
+     * dissector.
+     */
+     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+   }
+
    offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                 EXTERNAL_sequence, hf_index, ett_rtse_EXTERNAL);
 

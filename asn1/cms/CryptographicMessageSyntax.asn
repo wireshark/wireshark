@@ -70,11 +70,11 @@ SignedAttributes ::= SET SIZE (1..MAX) OF Attribute
 UnsignedAttributes ::= SET SIZE (1..MAX) OF Attribute
 
 Attribute ::= SEQUENCE {
-  attrType OBJECT IDENTIFIER
---   attrValues SET OF AttributeValue 
+  attrType OBJECT IDENTIFIER,
+  attrValues SET OF AttributeValue 
 }
 
--- AttributeValue ::= ANY
+AttributeValue ::= ANY
 
 SignatureValue ::= OCTET STRING
 
@@ -228,13 +228,13 @@ OtherKeyAttribute ::= SEQUENCE {
 
 -- CMS Attributes
 -- 
--- MessageDigest ::= OCTET STRING
--- 
--- SigningTime  ::= Time
--- 
--- Time ::= CHOICE {
---   utcTime UTCTime,
---   generalTime GeneralizedTime }
+MessageDigest ::= OCTET STRING
+ 
+SigningTime  ::= Time
+ 
+Time ::= CHOICE {
+   utcTime UTCTime,
+   generalTime GeneralizedTime }
 
 Countersignature ::= SignerInfo
 
