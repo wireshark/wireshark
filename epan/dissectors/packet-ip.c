@@ -72,6 +72,9 @@ static gboolean ip_summary_in_tree = TRUE;
 if the packet in the payload has more than 128 bytes */
 static gboolean favor_icmp_mpls_ext = FALSE;
 
+/* Perform IP checksum */
+static gboolean ip_check_checksum = TRUE;
+
 static int proto_ip = -1;
 static int hf_ip_version = -1;
 static int hf_ip_hdr_len = -1;
@@ -375,9 +378,6 @@ capture_ip(const guchar *pd, int offset, int len, packet_counts *ld) {
     return;
   }
   switch (pd[offset + 9]) {
-    case IP_PROTO_SCTP:
-      ld->sctp++;
-      break;
     case IP_PROTO_TCP:
       ld->tcp++;
       break;
@@ -387,6 +387,9 @@ capture_ip(const guchar *pd, int offset, int len, packet_counts *ld) {
     case IP_PROTO_ICMP:
     case IP_PROTO_ICMPV6:	/* XXX - separate counters? */
       ld->icmp++;
+      break;
+    case IP_PROTO_SCTP:
+      ld->sctp++;
       break;
     case IP_PROTO_OSPF:
       ld->ospf++;
@@ -912,7 +915,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   }
 
   if (tree) {
-    proto_tree_add_uint_format(ip_tree, hf_ip_hdr_len, tvb, offset, 1, hlen,
+	proto_tree_add_uint_format(ip_tree, hf_ip_hdr_len, tvb, offset, 1, hlen,
 	"Header length: %u bytes", hlen);
   }
 
@@ -965,11 +968,11 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     goto end_of_ip;
   }
   if (tree)
-    proto_tree_add_uint(ip_tree, hf_ip_len, tvb, offset + 2, 2, iph->ip_len);
+	proto_tree_add_uint(ip_tree, hf_ip_len, tvb, offset + 2, 2, iph->ip_len);
 
   iph->ip_id  = tvb_get_ntohs(tvb, offset + 4);
   if (tree)
-    proto_tree_add_uint(ip_tree, hf_ip_id, tvb, offset + 4, 2, iph->ip_id);
+	proto_tree_add_uint(ip_tree, hf_ip_id, tvb, offset + 4, 2, iph->ip_id);
 
   iph->ip_off = tvb_get_ntohs(tvb, offset + 6);
   if (tree) {
@@ -1000,38 +1003,40 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   /*
    * If we have the entire IP header available, check the checksum.
    */
-  if (tvb_bytes_exist(tvb, offset, hlen)) {
+  if (ip_check_checksum && tvb_bytes_exist(tvb, offset, hlen)) {
     ipsum = ip_checksum(tvb_get_ptr(tvb, offset, hlen), hlen);
-    if (tree) {
-      if (ipsum == 0) {
-	item = proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum,
-              "Header checksum: 0x%04x [correct]", iph->ip_sum);
-	checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
-	item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb, offset + 10, 2, TRUE);
-	PROTO_ITEM_SET_GENERATED(item);
-	item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, FALSE);
-	PROTO_ITEM_SET_GENERATED(item);
-      } else {
-	item = proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum,
-          "Header checksum: 0x%04x [incorrect, should be 0x%04x]", iph->ip_sum,
-	  in_cksum_shouldbe(iph->ip_sum, ipsum));
-	checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
-	item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb, offset + 10, 2, FALSE);
-	PROTO_ITEM_SET_GENERATED(item);
-	item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, TRUE);
-	PROTO_ITEM_SET_GENERATED(item);
-      }
+  if (tree) {
+		if (ipsum == 0) {
+			item = proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum,
+					  "Header checksum: 0x%04x [correct]", iph->ip_sum);
+			checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
+			item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb, offset + 10, 2, TRUE);
+			PROTO_ITEM_SET_GENERATED(item);
+			item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, FALSE);
+			PROTO_ITEM_SET_GENERATED(item);
+		} else {
+			item = proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum,
+				  "Header checksum: 0x%04x [incorrect, should be 0x%04x]", iph->ip_sum,
+			in_cksum_shouldbe(iph->ip_sum, ipsum));
+			checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
+			item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb, offset + 10, 2, FALSE);
+			PROTO_ITEM_SET_GENERATED(item);
+			item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, TRUE);
+			PROTO_ITEM_SET_GENERATED(item);
+		}
     }
-  } else {
+	} else {
     ipsum = 0;
     if (tree) {
-      item = proto_tree_add_uint(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum);
-      checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
-      item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb, offset + 10, 2, FALSE);
-      PROTO_ITEM_SET_GENERATED(item);
-      item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, FALSE);
-      PROTO_ITEM_SET_GENERATED(item);
-    }
+		item = proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum,
+			"Header checksum: 0x%04x [%s]", iph->ip_sum,
+			ip_check_checksum ? "not all data available" : "validation disabled");
+		checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
+		item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb, offset + 10, 2, FALSE);
+		PROTO_ITEM_SET_GENERATED(item);
+		item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_bad, tvb, offset + 10, 2, FALSE);
+		PROTO_ITEM_SET_GENERATED(item);
+	}
   }
   src_addr = tvb_get_ptr(tvb, offset + IPH_SRC, 4);
   src32 = tvb_get_ntohl(tvb, offset + IPH_SRC);
@@ -1109,7 +1114,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   if (ip_defragment && (iph->ip_off & (IP_MF|IP_OFFSET)) &&
       tvb_bytes_exist(tvb, offset, pinfo->iplen - pinfo->iphdrlen) &&
       ipsum == 0) {
-    ipfd_head = fragment_add_check(tvb, offset, pinfo, 
+		ipfd_head = fragment_add_check(tvb, offset, pinfo, 
 			     iph->ip_id ^ src32 ^ dst32,
 			     ip_fragment_table,
 			     ip_reassembled_table,
@@ -2137,6 +2142,10 @@ proto_register_ip(void)
 	    "Show IP summary in protocol tree",
 	    "Whether the IP summary line should be shown in the protocol tree",
 	    &ip_summary_in_tree);
+	prefs_register_bool_preference(ip_module, "check_checksum" ,
+		  "Validate the IP checksum if possible",
+		  "Whether to validate the IP checksum",
+		  &ip_check_checksum);
 
 	register_dissector("ip", dissect_ip, proto_ip);
 	register_init_routine(ip_defragment_init);
