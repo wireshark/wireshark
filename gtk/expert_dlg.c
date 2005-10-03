@@ -263,6 +263,8 @@ expert_dlg_draw(void *data)
 	 * (there might be no large changes behind this amount) */
 	if(etd->disp_events < 1000)
 		gtk_clist_columns_autosize(etd->table);
+    gtk_clist_moveto(etd->table,
+                     etd->disp_events - 1, -1, 1.0, 1.0);
 	gtk_clist_thaw(etd->table);
 
 	title = g_strdup_printf("Errors: %u Warnings: %u Notes: %u Chats: %u", 
