@@ -9,7 +9,7 @@
  * Routines for GENERIC NETWORK INFORMATION MODEL Data dissection
  *
  * Copyright 2005 , Anders Broman <anders.broman [AT] ericsson.com>
- * $Id: packet-gnm-template.c 13967 2005-03-29 14:56:09Z gerald $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,6 +59,50 @@ static int hf_gnm_AdministrativeState = -1;
 
 /*--- Included file: packet-gnm-hf.c ---*/
 
+static int hf_gnm_AdministrativeState_PDU = -1;   /* AdministrativeState */
+static int hf_gnm_ControlStatus_PDU = -1;         /* ControlStatus */
+static int hf_gnm_Packages_PDU = -1;              /* Packages */
+static int hf_gnm_SupportedTOClasses_PDU = -1;    /* SupportedTOClasses */
+static int hf_gnm_AcceptableCircuitPackTypeList_PDU = -1;  /* AcceptableCircuitPackTypeList */
+static int hf_gnm_AlarmSeverityAssignmentList_PDU = -1;  /* AlarmSeverityAssignmentList */
+static int hf_gnm_AlarmStatus_PDU = -1;           /* AlarmStatus */
+static int hf_gnm_Boolean_PDU = -1;               /* Boolean */
+static int hf_gnm_ChannelNumber_PDU = -1;         /* ChannelNumber */
+static int hf_gnm_CharacteristicInformation_PDU = -1;  /* CharacteristicInformation */
+static int hf_gnm_CircuitDirectionality_PDU = -1;  /* CircuitDirectionality */
+static int hf_gnm_CircuitPackType_PDU = -1;       /* CircuitPackType */
+static int hf_gnm_ConnectivityPointer_PDU = -1;   /* ConnectivityPointer */
+static int hf_gnm_Count_PDU = -1;                 /* Count */
+static int hf_gnm_CrossConnectionName_PDU = -1;   /* CrossConnectionName */
+static int hf_gnm_CrossConnectionObjectPointer_PDU = -1;  /* CrossConnectionObjectPointer */
+static int hf_gnm_CurrentProblemList_PDU = -1;    /* CurrentProblemList */
+static int hf_gnm_Directionality_PDU = -1;        /* Directionality */
+static int hf_gnm_DownstreamConnectivityPointer_PDU = -1;  /* DownstreamConnectivityPointer */
+static int hf_gnm_ExternalTime_PDU = -1;          /* ExternalTime */
+static int hf_gnm_EquipmentHolderAddress_PDU = -1;  /* EquipmentHolderAddress */
+static int hf_gnm_EquipmentHolderType_PDU = -1;   /* EquipmentHolderType */
+static int hf_gnm_HolderStatus_PDU = -1;          /* HolderStatus */
+static int hf_gnm_InformationTransferCapabilities_PDU = -1;  /* InformationTransferCapabilities */
+static int hf_gnm_ListOfCharacteristicInformation_PDU = -1;  /* ListOfCharacteristicInformation */
+static int hf_gnm_NameType_PDU = -1;              /* NameType */
+static int hf_gnm_NumberOfCircuits_PDU = -1;      /* NumberOfCircuits */
+static int hf_gnm_ObjectList_PDU = -1;            /* ObjectList */
+static int hf_gnm_Pointer_PDU = -1;               /* Pointer */
+static int hf_gnm_PointerOrNull_PDU = -1;         /* PointerOrNull */
+static int hf_gnm_RelatedObjectInstance_PDU = -1;  /* RelatedObjectInstance */
+static int hf_gnm_Replaceable_PDU = -1;           /* Replaceable */
+static int hf_gnm_SequenceOfObjectInstance_PDU = -1;  /* SequenceOfObjectInstance */
+static int hf_gnm_SerialNumber_PDU = -1;          /* SerialNumber */
+static int hf_gnm_SignallingCapabilities_PDU = -1;  /* SignallingCapabilities */
+static int hf_gnm_SignalType_PDU = -1;            /* SignalType */
+static int hf_gnm_SubordinateCircuitPackSoftwareLoad_PDU = -1;  /* SubordinateCircuitPackSoftwareLoad */
+static int hf_gnm_SupportableClientList_PDU = -1;  /* SupportableClientList */
+static int hf_gnm_SystemTimingSource_PDU = -1;    /* SystemTimingSource */
+static int hf_gnm_TpsInGtpList_PDU = -1;          /* TpsInGtpList */
+static int hf_gnm_TransmissionCharacteristics_PDU = -1;  /* TransmissionCharacteristics */
+static int hf_gnm_UserLabel_PDU = -1;             /* UserLabel */
+static int hf_gnm_VendorName_PDU = -1;            /* VendorName */
+static int hf_gnm_Version_PDU = -1;               /* Version */
 static int hf_gnm_globalValue = -1;               /* OBJECT_IDENTIFIER */
 static int hf_gnm_localValue = -1;                /* INTEGER */
 static int hf_gnm_AvailabilityStatus_item = -1;   /* AvailabilityStatus_item */
@@ -512,8 +556,7 @@ static int dissect_TpsInGtpList_item(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_gnm_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -682,6 +725,7 @@ static int
 dissect_gnm_T_information(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 /* FIX ME */
 
+
   return offset;
 }
 static int dissect_information_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -761,8 +805,7 @@ dissect_gnm_ControlStatus(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
 static int
 dissect_gnm_CharacteristicInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -3186,144 +3229,146 @@ dissect_gnm_Version(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet
   return offset;
 }
 
+/*--- PDUs ---*/
+
+static void dissect_AdministrativeState_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_AdministrativeState(FALSE, tvb, 0, pinfo, tree, hf_gnm_AdministrativeState_PDU);
+}
+static void dissect_ControlStatus_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_ControlStatus(FALSE, tvb, 0, pinfo, tree, hf_gnm_ControlStatus_PDU);
+}
+static void dissect_Packages_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_Packages(FALSE, tvb, 0, pinfo, tree, hf_gnm_Packages_PDU);
+}
+static void dissect_SupportedTOClasses_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_SupportedTOClasses(FALSE, tvb, 0, pinfo, tree, hf_gnm_SupportedTOClasses_PDU);
+}
+static void dissect_AcceptableCircuitPackTypeList_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_AcceptableCircuitPackTypeList(FALSE, tvb, 0, pinfo, tree, hf_gnm_AcceptableCircuitPackTypeList_PDU);
+}
+static void dissect_AlarmSeverityAssignmentList_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_AlarmSeverityAssignmentList(FALSE, tvb, 0, pinfo, tree, hf_gnm_AlarmSeverityAssignmentList_PDU);
+}
+static void dissect_AlarmStatus_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_AlarmStatus(FALSE, tvb, 0, pinfo, tree, hf_gnm_AlarmStatus_PDU);
+}
+static void dissect_Boolean_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_Boolean(FALSE, tvb, 0, pinfo, tree, hf_gnm_Boolean_PDU);
+}
+static void dissect_ChannelNumber_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_ChannelNumber(FALSE, tvb, 0, pinfo, tree, hf_gnm_ChannelNumber_PDU);
+}
+static void dissect_CharacteristicInformation_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_CharacteristicInformation(FALSE, tvb, 0, pinfo, tree, hf_gnm_CharacteristicInformation_PDU);
+}
+static void dissect_CircuitDirectionality_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_CircuitDirectionality(FALSE, tvb, 0, pinfo, tree, hf_gnm_CircuitDirectionality_PDU);
+}
+static void dissect_CircuitPackType_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_CircuitPackType(FALSE, tvb, 0, pinfo, tree, hf_gnm_CircuitPackType_PDU);
+}
+static void dissect_ConnectivityPointer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_ConnectivityPointer(FALSE, tvb, 0, pinfo, tree, hf_gnm_ConnectivityPointer_PDU);
+}
+static void dissect_Count_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_Count(FALSE, tvb, 0, pinfo, tree, hf_gnm_Count_PDU);
+}
+static void dissect_CrossConnectionName_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_CrossConnectionName(FALSE, tvb, 0, pinfo, tree, hf_gnm_CrossConnectionName_PDU);
+}
+static void dissect_CrossConnectionObjectPointer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_CrossConnectionObjectPointer(FALSE, tvb, 0, pinfo, tree, hf_gnm_CrossConnectionObjectPointer_PDU);
+}
+static void dissect_CurrentProblemList_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_CurrentProblemList(FALSE, tvb, 0, pinfo, tree, hf_gnm_CurrentProblemList_PDU);
+}
+static void dissect_Directionality_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_Directionality(FALSE, tvb, 0, pinfo, tree, hf_gnm_Directionality_PDU);
+}
+static void dissect_DownstreamConnectivityPointer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_DownstreamConnectivityPointer(FALSE, tvb, 0, pinfo, tree, hf_gnm_DownstreamConnectivityPointer_PDU);
+}
+static void dissect_ExternalTime_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_ExternalTime(FALSE, tvb, 0, pinfo, tree, hf_gnm_ExternalTime_PDU);
+}
+static void dissect_EquipmentHolderAddress_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_EquipmentHolderAddress(FALSE, tvb, 0, pinfo, tree, hf_gnm_EquipmentHolderAddress_PDU);
+}
+static void dissect_EquipmentHolderType_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_EquipmentHolderType(FALSE, tvb, 0, pinfo, tree, hf_gnm_EquipmentHolderType_PDU);
+}
+static void dissect_HolderStatus_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_HolderStatus(FALSE, tvb, 0, pinfo, tree, hf_gnm_HolderStatus_PDU);
+}
+static void dissect_InformationTransferCapabilities_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_InformationTransferCapabilities(FALSE, tvb, 0, pinfo, tree, hf_gnm_InformationTransferCapabilities_PDU);
+}
+static void dissect_ListOfCharacteristicInformation_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_ListOfCharacteristicInformation(FALSE, tvb, 0, pinfo, tree, hf_gnm_ListOfCharacteristicInformation_PDU);
+}
+static void dissect_NameType_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_NameType(FALSE, tvb, 0, pinfo, tree, hf_gnm_NameType_PDU);
+}
+static void dissect_NumberOfCircuits_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_NumberOfCircuits(FALSE, tvb, 0, pinfo, tree, hf_gnm_NumberOfCircuits_PDU);
+}
+static void dissect_ObjectList_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_ObjectList(FALSE, tvb, 0, pinfo, tree, hf_gnm_ObjectList_PDU);
+}
+static void dissect_Pointer_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_Pointer(FALSE, tvb, 0, pinfo, tree, hf_gnm_Pointer_PDU);
+}
+static void dissect_PointerOrNull_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_PointerOrNull(FALSE, tvb, 0, pinfo, tree, hf_gnm_PointerOrNull_PDU);
+}
+static void dissect_RelatedObjectInstance_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_RelatedObjectInstance(FALSE, tvb, 0, pinfo, tree, hf_gnm_RelatedObjectInstance_PDU);
+}
+static void dissect_Replaceable_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_Replaceable(FALSE, tvb, 0, pinfo, tree, hf_gnm_Replaceable_PDU);
+}
+static void dissect_SequenceOfObjectInstance_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_SequenceOfObjectInstance(FALSE, tvb, 0, pinfo, tree, hf_gnm_SequenceOfObjectInstance_PDU);
+}
+static void dissect_SerialNumber_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_SerialNumber(FALSE, tvb, 0, pinfo, tree, hf_gnm_SerialNumber_PDU);
+}
+static void dissect_SignallingCapabilities_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_SignallingCapabilities(FALSE, tvb, 0, pinfo, tree, hf_gnm_SignallingCapabilities_PDU);
+}
+static void dissect_SignalType_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_SignalType(FALSE, tvb, 0, pinfo, tree, hf_gnm_SignalType_PDU);
+}
+static void dissect_SubordinateCircuitPackSoftwareLoad_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_SubordinateCircuitPackSoftwareLoad(FALSE, tvb, 0, pinfo, tree, hf_gnm_SubordinateCircuitPackSoftwareLoad_PDU);
+}
+static void dissect_SupportableClientList_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_SupportableClientList(FALSE, tvb, 0, pinfo, tree, hf_gnm_SupportableClientList_PDU);
+}
+static void dissect_SystemTimingSource_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_SystemTimingSource(FALSE, tvb, 0, pinfo, tree, hf_gnm_SystemTimingSource_PDU);
+}
+static void dissect_TpsInGtpList_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_TpsInGtpList(FALSE, tvb, 0, pinfo, tree, hf_gnm_TpsInGtpList_PDU);
+}
+static void dissect_TransmissionCharacteristics_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_TransmissionCharacteristics(FALSE, tvb, 0, pinfo, tree, hf_gnm_TransmissionCharacteristics_PDU);
+}
+static void dissect_UserLabel_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_UserLabel(FALSE, tvb, 0, pinfo, tree, hf_gnm_UserLabel_PDU);
+}
+static void dissect_VendorName_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_VendorName(FALSE, tvb, 0, pinfo, tree, hf_gnm_VendorName_PDU);
+}
+static void dissect_Version_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_gnm_Version(FALSE, tvb, 0, pinfo, tree, hf_gnm_Version_PDU);
+}
+
 
 /*--- End of included file: packet-gnm-fn.c ---*/
 
 
 
-
-static void
-dissect_gnm_attribute_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_RelatedObjectInstance(FALSE, tvb, 0, pinfo, parent_tree, -1);
-
-}
-
-static void
-dissect_gnm_attribute_ObjectList(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_ObjectList(FALSE, tvb, 0, pinfo, parent_tree, -1);
-
-}
-
-static void
-dissect_gnm_attribute_3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_AlarmSeverityAssignmentList(FALSE, tvb, 0, pinfo, parent_tree, -1);
-
-}
-
-static void
-dissect_gnm_attribute_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_AlarmStatus(FALSE, tvb, 0, pinfo, parent_tree, hf_gnm_alarmStatus);
-
-}
-
-static void
-dissect_gnm_attribute_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_ChannelNumber(FALSE, tvb, 0, pinfo, parent_tree, hf_gnm_alarmStatus);
-
-}
-static void
-dissect_gnm_attribute_8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_CharacteristicInformation(FALSE, tvb, 0, pinfo, parent_tree, hf_gnm_alarmStatus);
-
-}
-static void
-dissect_gnm_attribute_15(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_CrossConnectionName(FALSE, tvb, 0, pinfo, parent_tree, -1);
-
-}
-static void
-dissect_gnm_attribute_16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_CrossConnectionObjectPointer(FALSE, tvb, 0, pinfo, parent_tree, -1);
-
-}
-static void
-dissect_gnm_attribute_17(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_CurrentProblemList(FALSE, tvb, 0, pinfo, parent_tree, -1);
-
-}
-static void
-dissect_gnm_attribute_18(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_Directionality(FALSE, tvb, 0, pinfo, parent_tree, -1);
-
-}
-static void
-dissect_gnm_attribute_19(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_DownstreamConnectivityPointer(FALSE, tvb, 0, pinfo, parent_tree, -1);
-
-}
-static void
-dissect_gnm_attribute_21(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_ExternalTime(FALSE, tvb, 0, pinfo, parent_tree, -1);
-
-}
-
-static void
-dissect_gnm_attribute_26(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_ListOfCharacteristicInformation(FALSE, tvb, 0, pinfo, parent_tree, -1);
-
-}
-static void
-dissect_gnm_attribute_27(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_LocationName(FALSE, tvb, 0, pinfo, parent_tree, -1);
-
-}
-static void
-dissect_gnm_attribute_34(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_Replaceable(FALSE, tvb, 0, pinfo, parent_tree, -1);
-
-}
-static void
-dissect_gnm_attribute_SequenceOfObjectInstance(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_SequenceOfObjectInstance(FALSE, tvb, 0, pinfo, parent_tree, -1);
-
-}
-static void
-dissect_gnm_attribute_PointerOrNull(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_PointerOrNull(FALSE, tvb, 0, pinfo, parent_tree, -1);
-
-}
-
-static void
-dissect_gnm_attribute_NameType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_NameType(FALSE, tvb, 0, pinfo, parent_tree, -1);
-
-}
 
 static void
 dissect_gnm_attribute_ObjectInstance(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -3332,52 +3377,6 @@ dissect_gnm_attribute_ObjectInstance(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	dissect_cmip_ObjectInstance(FALSE, tvb, 0, pinfo, parent_tree, -1);
 
 }
-static void
-dissect_gnm_attribute_Count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_Count(FALSE, tvb, 0, pinfo, parent_tree, -1);
-
-}
-static void
-dissect_gnm_attribute_Boolean(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_Boolean(FALSE, tvb, 0, pinfo, parent_tree, -1);
-
-}
-static void
-dissect_smi_attribute_31(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_AdministrativeState(FALSE, tvb, 0, pinfo, parent_tree, hf_gnm_AdministrativeState);
-
-}
-
-static void
-dissect_smi_attribute_34(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_ControlStatus(FALSE, tvb, 0, pinfo, parent_tree, -1);
-
-}
-
-static void
-dissect_smi_attribute_66(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_Packages(FALSE, tvb, 0, pinfo, parent_tree, -1);
-
-}
-
-static void
-dissect_part12AttributeId_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_gnm_SupportedTOClasses(FALSE, tvb, 0, pinfo, parent_tree, -1);
-
-}
-
 
 void
 dissect_gnm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -3398,6 +3397,182 @@ void proto_register_gnm(void) {
 
 /*--- Included file: packet-gnm-hfarr.c ---*/
 
+    { &hf_gnm_AdministrativeState_PDU,
+      { "AdministrativeState", "gnm.AdministrativeState",
+        FT_UINT32, BASE_DEC, VALS(gnm_AdministrativeState_vals), 0,
+        "AdministrativeState", HFILL }},
+    { &hf_gnm_ControlStatus_PDU,
+      { "ControlStatus", "gnm.ControlStatus",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ControlStatus", HFILL }},
+    { &hf_gnm_Packages_PDU,
+      { "Packages", "gnm.Packages",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Packages", HFILL }},
+    { &hf_gnm_SupportedTOClasses_PDU,
+      { "SupportedTOClasses", "gnm.SupportedTOClasses",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SupportedTOClasses", HFILL }},
+    { &hf_gnm_AcceptableCircuitPackTypeList_PDU,
+      { "AcceptableCircuitPackTypeList", "gnm.AcceptableCircuitPackTypeList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "AcceptableCircuitPackTypeList", HFILL }},
+    { &hf_gnm_AlarmSeverityAssignmentList_PDU,
+      { "AlarmSeverityAssignmentList", "gnm.AlarmSeverityAssignmentList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "AlarmSeverityAssignmentList", HFILL }},
+    { &hf_gnm_AlarmStatus_PDU,
+      { "AlarmStatus", "gnm.AlarmStatus",
+        FT_UINT32, BASE_DEC, VALS(gnm_AlarmStatus_vals), 0,
+        "AlarmStatus", HFILL }},
+    { &hf_gnm_Boolean_PDU,
+      { "Boolean", "gnm.Boolean",
+        FT_BOOLEAN, 8, NULL, 0,
+        "Boolean", HFILL }},
+    { &hf_gnm_ChannelNumber_PDU,
+      { "ChannelNumber", "gnm.ChannelNumber",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "ChannelNumber", HFILL }},
+    { &hf_gnm_CharacteristicInformation_PDU,
+      { "CharacteristicInformation", "gnm.CharacteristicInformation",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "CharacteristicInformation", HFILL }},
+    { &hf_gnm_CircuitDirectionality_PDU,
+      { "CircuitDirectionality", "gnm.CircuitDirectionality",
+        FT_UINT32, BASE_DEC, VALS(gnm_CircuitDirectionality_vals), 0,
+        "CircuitDirectionality", HFILL }},
+    { &hf_gnm_CircuitPackType_PDU,
+      { "CircuitPackType", "gnm.CircuitPackType",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "CircuitPackType", HFILL }},
+    { &hf_gnm_ConnectivityPointer_PDU,
+      { "ConnectivityPointer", "gnm.ConnectivityPointer",
+        FT_UINT32, BASE_DEC, VALS(gnm_ConnectivityPointer_vals), 0,
+        "ConnectivityPointer", HFILL }},
+    { &hf_gnm_Count_PDU,
+      { "Count", "gnm.Count",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "Count", HFILL }},
+    { &hf_gnm_CrossConnectionName_PDU,
+      { "CrossConnectionName", "gnm.CrossConnectionName",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "CrossConnectionName", HFILL }},
+    { &hf_gnm_CrossConnectionObjectPointer_PDU,
+      { "CrossConnectionObjectPointer", "gnm.CrossConnectionObjectPointer",
+        FT_UINT32, BASE_DEC, VALS(gnm_CrossConnectionObjectPointer_vals), 0,
+        "CrossConnectionObjectPointer", HFILL }},
+    { &hf_gnm_CurrentProblemList_PDU,
+      { "CurrentProblemList", "gnm.CurrentProblemList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "CurrentProblemList", HFILL }},
+    { &hf_gnm_Directionality_PDU,
+      { "Directionality", "gnm.Directionality",
+        FT_UINT32, BASE_DEC, VALS(gnm_Directionality_vals), 0,
+        "Directionality", HFILL }},
+    { &hf_gnm_DownstreamConnectivityPointer_PDU,
+      { "DownstreamConnectivityPointer", "gnm.DownstreamConnectivityPointer",
+        FT_UINT32, BASE_DEC, VALS(gnm_DownstreamConnectivityPointer_vals), 0,
+        "DownstreamConnectivityPointer", HFILL }},
+    { &hf_gnm_ExternalTime_PDU,
+      { "ExternalTime", "gnm.ExternalTime",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "ExternalTime", HFILL }},
+    { &hf_gnm_EquipmentHolderAddress_PDU,
+      { "EquipmentHolderAddress", "gnm.EquipmentHolderAddress",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "EquipmentHolderAddress", HFILL }},
+    { &hf_gnm_EquipmentHolderType_PDU,
+      { "EquipmentHolderType", "gnm.EquipmentHolderType",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "EquipmentHolderType", HFILL }},
+    { &hf_gnm_HolderStatus_PDU,
+      { "HolderStatus", "gnm.HolderStatus",
+        FT_UINT32, BASE_DEC, VALS(gnm_HolderStatus_vals), 0,
+        "HolderStatus", HFILL }},
+    { &hf_gnm_InformationTransferCapabilities_PDU,
+      { "InformationTransferCapabilities", "gnm.InformationTransferCapabilities",
+        FT_UINT32, BASE_DEC, VALS(gnm_InformationTransferCapabilities_vals), 0,
+        "InformationTransferCapabilities", HFILL }},
+    { &hf_gnm_ListOfCharacteristicInformation_PDU,
+      { "ListOfCharacteristicInformation", "gnm.ListOfCharacteristicInformation",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ListOfCharacteristicInformation", HFILL }},
+    { &hf_gnm_NameType_PDU,
+      { "NameType", "gnm.NameType",
+        FT_UINT32, BASE_DEC, VALS(gnm_NameType_vals), 0,
+        "NameType", HFILL }},
+    { &hf_gnm_NumberOfCircuits_PDU,
+      { "NumberOfCircuits", "gnm.NumberOfCircuits",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "NumberOfCircuits", HFILL }},
+    { &hf_gnm_ObjectList_PDU,
+      { "ObjectList", "gnm.ObjectList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ObjectList", HFILL }},
+    { &hf_gnm_Pointer_PDU,
+      { "Pointer", "gnm.Pointer",
+        FT_UINT32, BASE_DEC, VALS(cmip_ObjectInstance_vals), 0,
+        "Pointer", HFILL }},
+    { &hf_gnm_PointerOrNull_PDU,
+      { "PointerOrNull", "gnm.PointerOrNull",
+        FT_UINT32, BASE_DEC, VALS(gnm_PointerOrNull_vals), 0,
+        "PointerOrNull", HFILL }},
+    { &hf_gnm_RelatedObjectInstance_PDU,
+      { "RelatedObjectInstance", "gnm.RelatedObjectInstance",
+        FT_UINT32, BASE_DEC, VALS(gnm_RelatedObjectInstance_vals), 0,
+        "RelatedObjectInstance", HFILL }},
+    { &hf_gnm_Replaceable_PDU,
+      { "Replaceable", "gnm.Replaceable",
+        FT_UINT32, BASE_DEC, VALS(gnm_Replaceable_vals), 0,
+        "Replaceable", HFILL }},
+    { &hf_gnm_SequenceOfObjectInstance_PDU,
+      { "SequenceOfObjectInstance", "gnm.SequenceOfObjectInstance",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SequenceOfObjectInstance", HFILL }},
+    { &hf_gnm_SerialNumber_PDU,
+      { "SerialNumber", "gnm.SerialNumber",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "SerialNumber", HFILL }},
+    { &hf_gnm_SignallingCapabilities_PDU,
+      { "SignallingCapabilities", "gnm.SignallingCapabilities",
+        FT_UINT32, BASE_DEC, VALS(gnm_SignallingCapabilities_vals), 0,
+        "SignallingCapabilities", HFILL }},
+    { &hf_gnm_SignalType_PDU,
+      { "SignalType", "gnm.SignalType",
+        FT_UINT32, BASE_DEC, VALS(gnm_SignalType_vals), 0,
+        "SignalType", HFILL }},
+    { &hf_gnm_SubordinateCircuitPackSoftwareLoad_PDU,
+      { "SubordinateCircuitPackSoftwareLoad", "gnm.SubordinateCircuitPackSoftwareLoad",
+        FT_UINT32, BASE_DEC, VALS(gnm_SubordinateCircuitPackSoftwareLoad_vals), 0,
+        "SubordinateCircuitPackSoftwareLoad", HFILL }},
+    { &hf_gnm_SupportableClientList_PDU,
+      { "SupportableClientList", "gnm.SupportableClientList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SupportableClientList", HFILL }},
+    { &hf_gnm_SystemTimingSource_PDU,
+      { "SystemTimingSource", "gnm.SystemTimingSource",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SystemTimingSource", HFILL }},
+    { &hf_gnm_TpsInGtpList_PDU,
+      { "TpsInGtpList", "gnm.TpsInGtpList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "TpsInGtpList", HFILL }},
+    { &hf_gnm_TransmissionCharacteristics_PDU,
+      { "TransmissionCharacteristics", "gnm.TransmissionCharacteristics",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "TransmissionCharacteristics", HFILL }},
+    { &hf_gnm_UserLabel_PDU,
+      { "UserLabel", "gnm.UserLabel",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "UserLabel", HFILL }},
+    { &hf_gnm_VendorName_PDU,
+      { "VendorName", "gnm.VendorName",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "VendorName", HFILL }},
+    { &hf_gnm_Version_PDU,
+      { "Version", "gnm.Version",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Version", HFILL }},
     { &hf_gnm_globalValue,
       { "globalValue", "gnm.globalValue",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -4239,51 +4414,85 @@ void proto_register_gnm(void) {
 
 /*--- proto_reg_handoff_gnm ---------------------------------------*/
 void proto_reg_handoff_gnm(void) {
-	register_ber_oid_dissector("0.0.13.3100.0.7.1", dissect_gnm_attribute_1, proto_gnm, "a-TPInstance(1)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.2", dissect_gnm_attribute_ObjectList, proto_gnm, "affectedObjectList(2)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.3", dissect_gnm_attribute_3, proto_gnm, "alarmSeverityAssignmentList(3)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.4", dissect_gnm_attribute_NameType, proto_gnm, "alarmSeverityAssignmentProfileId(4)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.5", dissect_gnm_attribute_PointerOrNull, proto_gnm, "alarmSeverityAssignmentProfilePointer(5)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.6", dissect_gnm_attribute_6, proto_gnm, "alarmStatus(6)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.7", dissect_gnm_attribute_7, proto_gnm, "channelNumber(7)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.8", dissect_gnm_attribute_8, proto_gnm, "characteristicInformation(8)");
+
+/*--- Included file: packet-gnm-dis-tab.c ---*/
+
+  register_ber_oid_dissector("0.0.13.3100.0.7.1", dissect_RelatedObjectInstance_PDU, proto_gnm, "a-TPInstance(1)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.2", dissect_ObjectList_PDU, proto_gnm, "affectedObjectList(2)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.3", dissect_AlarmSeverityAssignmentList_PDU, proto_gnm, "alarmSeverityAssignmentList(3)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.4", dissect_NameType_PDU, proto_gnm, "alarmSeverityAssignmentProfileId(4)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.5", dissect_PointerOrNull_PDU, proto_gnm, "alarmSeverityAssignmentProfilePointer(5)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.6", dissect_AlarmStatus_PDU, proto_gnm, "alarmStatus(6)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.7", dissect_ChannelNumber_PDU, proto_gnm, "channelNumber(7)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.8", dissect_CharacteristicInformation_PDU, proto_gnm, "characteristicInformation(8)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.11", dissect_Count_PDU, proto_gnm, "connectedTpCount(11)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.12", dissect_NameType_PDU, proto_gnm, "connectionId(12)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.13", dissect_NameType_PDU, proto_gnm, "cTPId(13)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.14", dissect_NameType_PDU, proto_gnm, "crossConnectionId(14)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.15", dissect_CrossConnectionName_PDU, proto_gnm, "crossConnectionName(15)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.16", dissect_CrossConnectionObjectPointer_PDU, proto_gnm, "crossConnectionObjectPointer(16)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.17", dissect_CurrentProblemList_PDU, proto_gnm, "currentProblemList(17)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.18", dissect_Directionality_PDU, proto_gnm, "directionality(18)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.19", dissect_DownstreamConnectivityPointer_PDU, proto_gnm, "downstreamConnectivityPointer(19)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.20", dissect_NameType_PDU, proto_gnm, "equipmentId(20)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.21", dissect_ExternalTime_PDU, proto_gnm, "externalTime(21)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.22", dissect_NameType_PDU, proto_gnm, "fabricId(22)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.23", dissect_PointerOrNull_PDU, proto_gnm, "fromTermination(23)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.24", dissect_NameType_PDU, proto_gnm, "gtpId(24)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.25", dissect_Count_PDU, proto_gnm, "idleTpCount(25)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.26", dissect_ListOfCharacteristicInformation_PDU, proto_gnm, "listOfCharacteristicInfo(26)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.27", dissect_Replaceable_PDU, proto_gnm, "locationName(27)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.28", dissect_NameType_PDU, proto_gnm, "managedElementId(28)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.29", dissect_NameType_PDU, proto_gnm, "mpCrossConnectionId(29)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.30", dissect_NameType_PDU, proto_gnm, "networkId(30)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.32", dissect_Boolean_PDU, proto_gnm, "protected(32)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.33", dissect_Boolean_PDU, proto_gnm, "redline(33)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.34", dissect_Replaceable_PDU, proto_gnm, "replaceable(34)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.35", dissect_SequenceOfObjectInstance_PDU, proto_gnm, "serverConnectionList(35)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.36", dissect_ObjectList_PDU, proto_gnm, "serverTrailList(36)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.37", dissect_SignalType_PDU, proto_gnm, "signalType(37)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.38", dissect_NameType_PDU, proto_gnm, "softwareId(38)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.39", dissect_SupportableClientList_PDU, proto_gnm, "supportableClientList(39)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.40", dissect_ObjectList_PDU, proto_gnm, "supportedByObjectList(40)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.41", dissect_SystemTimingSource_PDU, proto_gnm, "systemTimingSource(41)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.42", dissect_Count_PDU, proto_gnm, "totalTpCount(42)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.43", dissect_Pointer_PDU, proto_gnm, "toTermination(43)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.44", dissect_NameType_PDU, proto_gnm, "tpPoolId(44)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.45", dissect_TpsInGtpList_PDU, proto_gnm, "tpsInGtpList(45)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.47", dissect_NameType_PDU, proto_gnm, "trailId(47)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.48", dissect_NameType_PDU, proto_gnm, "tTPId(48)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.49", dissect_ConnectivityPointer_PDU, proto_gnm, "upstreamConnectivityPointer(49)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.50", dissect_UserLabel_PDU, proto_gnm, "userLabel(50)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.51", dissect_VendorName_PDU, proto_gnm, "vendorName(51)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.52", dissect_Version_PDU, proto_gnm, "version(52)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.53", dissect_ObjectList_PDU, proto_gnm, "clientConnectionList(53)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.54", dissect_CircuitPackType_PDU, proto_gnm, "circuitPackType(54)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.55", dissect_RelatedObjectInstance_PDU, proto_gnm, "z-TPInstance(55)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.56", dissect_EquipmentHolderAddress_PDU, proto_gnm, "equipmentHolderAddress(56)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.57", dissect_EquipmentHolderType_PDU, proto_gnm, "equipmentHolderType(57)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.58", dissect_AcceptableCircuitPackTypeList_PDU, proto_gnm, "acceptableCircuitPackTypeList(58)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.59", dissect_HolderStatus_PDU, proto_gnm, "holderStatus(59)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.60", dissect_SubordinateCircuitPackSoftwareLoad_PDU, proto_gnm, "subordinateCircuitPackSoftwareLoad(60)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.61", dissect_NameType_PDU, proto_gnm, "circuitEndPointSubgroupId(61)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.62", dissect_NumberOfCircuits_PDU, proto_gnm, "numberOfCircuits(62)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.63", dissect_UserLabel_PDU, proto_gnm, "labelOfFarEndExchange(63)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.64", dissect_SignallingCapabilities_PDU, proto_gnm, "signallingCapabilities(64)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.65", dissect_InformationTransferCapabilities_PDU, proto_gnm, "informationTransferCapabilities(65)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.66", dissect_CircuitDirectionality_PDU, proto_gnm, "circuitDirectionality(66)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.67", dissect_TransmissionCharacteristics_PDU, proto_gnm, "transmissionCharacteristics(67)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.68", dissect_NameType_PDU, proto_gnm, "managedElementComplexId(68)");
+  register_ber_oid_dissector("0.0.13.3100.0.7.69", dissect_SerialNumber_PDU, proto_gnm, "serialNumber(69)");
+  register_ber_oid_dissector("2.9.3.2.7.31", dissect_AdministrativeState_PDU, proto_gnm, "administrativeState(31)");
+  register_ber_oid_dissector("2.9.3.2.7.34", dissect_ControlStatus_PDU, proto_gnm, "controlStatus(34)");
+  register_ber_oid_dissector("2.9.3.2.7.66", dissect_Packages_PDU, proto_gnm, "packages(66)");
+  register_ber_oid_dissector("2.9.2.12.7.7", dissect_SupportedTOClasses_PDU, proto_gnm, "supportedTOClasses(7)");
+
+
+/*--- End of included file: packet-gnm-dis-tab.c ---*/
+
 	register_ber_oid_dissector("0.0.13.3100.0.7.9", dissect_gnm_attribute_ObjectInstance, proto_gnm, "clientConnection(9)");
 	register_ber_oid_dissector("0.0.13.3100.0.7.10", dissect_gnm_attribute_ObjectInstance, proto_gnm, "clientTrail(10)");
-
-	register_ber_oid_dissector("0.0.13.3100.0.7.11", dissect_gnm_attribute_Count, proto_gnm, "connectedTpCount(11)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.12", dissect_gnm_attribute_NameType, proto_gnm, "connectionId(12)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.13", dissect_gnm_attribute_NameType, proto_gnm, "cTPId(13)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.14", dissect_gnm_attribute_NameType, proto_gnm, "crossConnectionId(14)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.15", dissect_gnm_attribute_15, proto_gnm, "crossConnectionName(15)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.16", dissect_gnm_attribute_16, proto_gnm, "crossConnectionObjectPointer(16)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.17", dissect_gnm_attribute_17, proto_gnm, "currentProblemList(17)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.18", dissect_gnm_attribute_18, proto_gnm, "directionality(18)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.19", dissect_gnm_attribute_19, proto_gnm, "downstreamConnectivityPointer(19)");
-	
-	register_ber_oid_dissector("0.0.13.3100.0.7.20", dissect_gnm_attribute_NameType, proto_gnm, "equipmentId(20)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.21", dissect_gnm_attribute_19, proto_gnm, "externalTime(21)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.22", dissect_gnm_attribute_NameType, proto_gnm, "fabricId(22)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.23", dissect_gnm_attribute_PointerOrNull, proto_gnm, "fromTermination(23)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.24", dissect_gnm_attribute_NameType, proto_gnm, "gtpId(24)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.25", dissect_gnm_attribute_Count, proto_gnm, "idleTpCount(25)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.26", dissect_gnm_attribute_26, proto_gnm, "listOfCharacteristicInfo(26)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.27", dissect_gnm_attribute_27, proto_gnm, "locationName(27)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.28", dissect_gnm_attribute_NameType, proto_gnm, "managedElementId(28)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.29", dissect_gnm_attribute_NameType, proto_gnm, "mpCrossConnectionId(29)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.30", dissect_gnm_attribute_NameType, proto_gnm, "networkId(30)");
-
 	register_ber_oid_dissector("0.0.13.3100.0.7.31", dissect_gnm_attribute_ObjectInstance, proto_gnm, "networkLevelPointer(31)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.32", dissect_gnm_attribute_Boolean, proto_gnm, "protected(32)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.33", dissect_gnm_attribute_Boolean, proto_gnm, "redline(33)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.34", dissect_gnm_attribute_34, proto_gnm, "replaceable(34)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.35", dissect_gnm_attribute_SequenceOfObjectInstance, proto_gnm, "serverConnectionList(35)");
-	register_ber_oid_dissector("0.0.13.3100.0.7.36", dissect_gnm_attribute_ObjectList, proto_gnm, "serverTrailList(36)");
-
-	register_ber_oid_dissector("2.9.3.2.7.31", dissect_smi_attribute_31, proto_gnm, "smi2AttributeID (7) administrativeState(31)");
-	register_ber_oid_dissector("2.9.3.2.7.34", dissect_smi_attribute_34, proto_gnm, "smi2AttributeID (7) controlStatus(34)");
-	register_ber_oid_dissector("2.9.3.2.7.66", dissect_smi_attribute_66, proto_gnm, "smi2AttributeID (7) packages(66)");
-
-	register_ber_oid_dissector("2.9.2.12.7.7", dissect_part12AttributeId_7, proto_gnm, "part12AttributeId (7) supportedTOClasses(7)");
-
+	register_ber_oid_dissector("0.0.13.3100.0.7.46", dissect_gnm_attribute_ObjectInstance, proto_gnm, "networkLevelPointer(31)");
 
 }

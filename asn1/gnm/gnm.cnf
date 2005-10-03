@@ -12,7 +12,6 @@ CMIP-1 cmip
 #.INCLUDE ../cmip/cmip-exp.cnf
 #.EXPORTS
 
-
 #.PDU
 
 
@@ -26,4 +25,88 @@ CMIP-1 cmip
 
 #.FN_BODY ManagementExtension/information
 /* FIX ME */
+
+#.REGISTER
+RelatedObjectInstance			B "0.0.13.3100.0.7.1" "a-TPInstance(1)"
+ObjectList						B "0.0.13.3100.0.7.2" "affectedObjectList(2)"
+AlarmSeverityAssignmentList		B "0.0.13.3100.0.7.3" "alarmSeverityAssignmentList(3)"
+NameType						B "0.0.13.3100.0.7.4" "alarmSeverityAssignmentProfileId(4)"
+PointerOrNull					B "0.0.13.3100.0.7.5" "alarmSeverityAssignmentProfilePointer(5)"
+AlarmStatus						B "0.0.13.3100.0.7.6" "alarmStatus(6)"
+ChannelNumber					B "0.0.13.3100.0.7.7" "channelNumber(7)"
+CharacteristicInformation		B "0.0.13.3100.0.7.8" "characteristicInformation(8)"
+# ObjectInstance				B "0.0.13.3100.0.7.9" "clientConnection(9)" CMIP
+
+# ClientConnection		B "0.0.13.3100.0.7.10" "clientTrail(10)"
+Count							B "0.0.13.3100.0.7.11" "connectedTpCount(11)"
+NameType						B "0.0.13.3100.0.7.12" "connectionId(12)"
+NameType						B "0.0.13.3100.0.7.13" "cTPId(13)"
+NameType						B "0.0.13.3100.0.7.14" "crossConnectionId(14)"
+CrossConnectionName				B "0.0.13.3100.0.7.15" "crossConnectionName(15)"
+CrossConnectionObjectPointer	B "0.0.13.3100.0.7.16" "crossConnectionObjectPointer(16)"
+CurrentProblemList				B "0.0.13.3100.0.7.17" "currentProblemList(17)"
+Directionality					B "0.0.13.3100.0.7.18" "directionality(18)"
+DownstreamConnectivityPointer	B "0.0.13.3100.0.7.19" "downstreamConnectivityPointer(19)"
+
+NameType						B "0.0.13.3100.0.7.20" "equipmentId(20)"
+ExternalTime					B "0.0.13.3100.0.7.21" "externalTime(21)"
+NameType						B "0.0.13.3100.0.7.22" "fabricId(22)"
+PointerOrNull					B "0.0.13.3100.0.7.23" "fromTermination(23)"
+NameType						B "0.0.13.3100.0.7.24" "gtpId(24)"
+Count							B "0.0.13.3100.0.7.25" "idleTpCount(25)"
+ListOfCharacteristicInformation	B "0.0.13.3100.0.7.26" "listOfCharacteristicInfo(26)"
+Replaceable						B "0.0.13.3100.0.7.27" "locationName(27)"
+NameType						B "0.0.13.3100.0.7.28" "managedElementId(28)"
+NameType						B "0.0.13.3100.0.7.29" "mpCrossConnectionId(29)"
+	
+NameType						B "0.0.13.3100.0.7.30" "networkId(30)"
+#ObjectInstance					B "0.0.13.3100.0.7.31" "networkLevelPointer(31)"
+Boolean							B "0.0.13.3100.0.7.32" "protected(32)"
+Boolean							B "0.0.13.3100.0.7.33" "redline(33)"
+Replaceable						B "0.0.13.3100.0.7.34" "replaceable(34)"
+SequenceOfObjectInstance		B "0.0.13.3100.0.7.35" "serverConnectionList(35)"
+ObjectList						B "0.0.13.3100.0.7.36" "serverTrailList(36)"
+SignalType						B "0.0.13.3100.0.7.37" "signalType(37)"
+NameType						B "0.0.13.3100.0.7.38" "softwareId(38)"
+SupportableClientList			B "0.0.13.3100.0.7.39" "supportableClientList(39)"
+
+ObjectList						B "0.0.13.3100.0.7.40" "supportedByObjectList(40)"
+SystemTimingSource				B "0.0.13.3100.0.7.41" "systemTimingSource(41)"
+Count							B "0.0.13.3100.0.7.42" "totalTpCount(42)"
+Pointer							B "0.0.13.3100.0.7.43" "toTermination(43)"
+NameType						B "0.0.13.3100.0.7.44" "tpPoolId(44)"
+TpsInGtpList					B "0.0.13.3100.0.7.45" "tpsInGtpList(45)"
+#ObjectInstance					B "0.0.13.3100.0.7.46" "tpsInTpPoolList(46)"
+NameType						B "0.0.13.3100.0.7.47" "trailId(47)"
+NameType						B "0.0.13.3100.0.7.48" "tTPId(48)"
+ConnectivityPointer				B "0.0.13.3100.0.7.49" "upstreamConnectivityPointer(49)"
+
+UserLabel						B "0.0.13.3100.0.7.50" "userLabel(50)"
+VendorName						B "0.0.13.3100.0.7.51" "vendorName(51)"
+Version							B "0.0.13.3100.0.7.52" "version(52)"
+ObjectList						B "0.0.13.3100.0.7.53" "clientConnectionList(53)"
+CircuitPackType					B "0.0.13.3100.0.7.54" "circuitPackType(54)"
+RelatedObjectInstance			B "0.0.13.3100.0.7.55" "z-TPInstance(55)"
+EquipmentHolderAddress			B "0.0.13.3100.0.7.56" "equipmentHolderAddress(56)"
+EquipmentHolderType				B "0.0.13.3100.0.7.57" "equipmentHolderType(57)"
+AcceptableCircuitPackTypeList	B "0.0.13.3100.0.7.58" "acceptableCircuitPackTypeList(58)"
+HolderStatus					B "0.0.13.3100.0.7.59" "holderStatus(59)"
+
+SubordinateCircuitPackSoftwareLoad	B "0.0.13.3100.0.7.60" "subordinateCircuitPackSoftwareLoad(60)"
+NameType						B "0.0.13.3100.0.7.61" "circuitEndPointSubgroupId(61)"
+NumberOfCircuits				B "0.0.13.3100.0.7.62" "numberOfCircuits(62)"
+UserLabel						B "0.0.13.3100.0.7.63" "labelOfFarEndExchange(63)"
+SignallingCapabilities			B "0.0.13.3100.0.7.64" "signallingCapabilities(64)"
+InformationTransferCapabilities	B "0.0.13.3100.0.7.65" "informationTransferCapabilities(65)"
+CircuitDirectionality			B "0.0.13.3100.0.7.66" "circuitDirectionality(66)"
+TransmissionCharacteristics		B "0.0.13.3100.0.7.67" "transmissionCharacteristics(67)"
+NameType						B "0.0.13.3100.0.7.68" "managedElementComplexId(68)"
+SerialNumber					B "0.0.13.3100.0.7.69" "serialNumber(69)"
+
+AdministrativeState				B "2.9.3.2.7.31"		"administrativeState(31)"
+ControlStatus					B "2.9.3.2.7.34"		"controlStatus(34)"
+Packages						B "2.9.3.2.7.66"		"packages(66)"
+
+SupportedTOClasses				B "2.9.2.12.7.7"		"supportedTOClasses(7)"
+
 #.END
