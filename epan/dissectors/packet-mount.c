@@ -104,6 +104,23 @@ static gint ett_mount_statvfs_flag = -1;
 static char group_name_list[MAX_GROUP_NAME_LIST];
 static int  group_names_len;
 
+/* RFC 1813, Page 107 */
+static const value_string mount3_mountstat3[] =
+{
+	{	0,	"OK" },
+	{	1,	"ERR_PERM" },
+	{	2,	"ERR_NOENT" },
+	{	5,	"ERR_IO" },
+	{	13,	"ERR_ACCESS" },
+	{	20,	"ERR_NOTDIR" },
+	{	22,	"ERR_INVAL" },
+	{	63,	"ERR_NAMETOOLONG" },
+	{	10004,	"ERR_NOTSUPP" },
+	{	10006,	"ERR_SERVERFAULT" },
+	{	0,	NULL }
+};
+
+
 /* RFC 1094, Page 24 */
 /* This function dissects fhstatus for v1 and v2 of the mount protocol.
  * Formally, hf_mount3_status only define the status codes returned by version
@@ -126,6 +143,12 @@ dissect_fhstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 		break;
 		default:
 			/* void */
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_append_fstr(
+					pinfo->cinfo, COL_INFO, " Error:%s",
+					val_to_str(status, mount3_mountstat3,
+					    "Unknown (0x%08X)"));
+			}
 		break;
 	}
 
@@ -502,30 +525,22 @@ dissect_mount_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 	return offset;
 }
 
-/* RFC 1813, Page 107 */
-static const value_string mount3_mountstat3[] =
-{
-	{	0,	"OK" },
-	{	1,	"ERR_PERM" },
-	{	2,	"ERR_NOENT" },
-	{	5,	"ERR_IO" },
-	{	13,	"ERR_ACCESS" },
-	{	20,	"ERR_NOTDIR" },
-	{	22,	"ERR_INVAL" },
-	{	63,	"ERR_NAMETOOLONG" },
-	{	10004,	"ERR_NOTSUPP" },
-	{	10006,	"ERR_SERVERFAULT" },
-	{	0,	NULL }
-};
-
 
 /* RFC 1813, Page 107 */
 static int
-dissect_mountstat3(tvbuff_t *tvb, proto_tree *tree, int offset, int hfindex, guint32 *status)
+dissect_mountstat3(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int offset, int hfindex, guint32 *status)
 {
 	guint32 mountstat3;
 
 	mountstat3 = tvb_get_ntohl(tvb, offset);
+	if(mountstat3){
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_fstr(
+				pinfo->cinfo, COL_INFO, " Error:%s",
+				val_to_str(mountstat3, mount3_mountstat3,
+				    "Unknown (0x%08X)"));
+		}
+	}
 
 	offset = dissect_rpc_uint32(tvb,tree,hfindex,offset);
 	*status = mountstat3;
@@ -541,7 +556,7 @@ dissect_mount3_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	guint32 auth_flavor;
 	guint32 auth_flavor_i;
 
-	offset = dissect_mountstat3(tvb,tree,offset,hf_mount3_status,&status);
+	offset = dissect_mountstat3(pinfo,tvb,tree,offset,hf_mount3_status,&status);
 
 	switch (status) {
 		case 0:
