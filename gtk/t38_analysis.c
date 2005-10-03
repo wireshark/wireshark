@@ -231,7 +231,8 @@ static const value_string t30_facsimile_control_field_vals_short[] = {
 	{ 0x58, "CRP" },
 	{ 0x53, "FNV" },
 	{ 0x57, "TNR" },
-	{ 0x56, "TR" }
+	{ 0x56, "TR" },
+	{ 0, NULL }
 };
 
 static const value_string t30_facsimile_control_field_vals[] = {
@@ -273,8 +274,8 @@ static const value_string t30_facsimile_control_field_vals[] = {
 	{ 0x58, "Command Repeat" },
 	{ 0x53, "Field Not Valid" },
 	{ 0x57, "Transmit not ready" },
-	{ 0x56, "Transmit ready" }
-
+	{ 0x56, "Transmit ready" },
+	{ 0, NULL }
 };
 
 static const value_string data_vals[] = {
@@ -293,7 +294,7 @@ static const value_string data_vals[] = {
 	{ 12, "v34-pri-ch" },
 	{ 13, "v33-12000" },
 	{ 14, "v33-14400" },
-	{ 0, NULL },
+	{ 0, NULL }
 };
 
 void dissect_t30(tap_t38_stat_t *statinfo,
