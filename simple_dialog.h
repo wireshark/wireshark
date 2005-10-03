@@ -44,7 +44,7 @@ typedef enum {
     ESD_TYPE_CONFIRMATION,  /**< asks the user for confirmation; there should be more than
                                     one button */
     ESD_TYPE_ERROR,         /**< tells the user about a serious problem; the only button should be "OK" */
-    ESD_TYPE_STOP,          /**< tells the user a stop action is in progress, there should be no button */
+    ESD_TYPE_STOP           /**< tells the user a stop action is in progress, there should be no button */
 } ESD_TYPE_E;
 
 /** display no buttons at all */
