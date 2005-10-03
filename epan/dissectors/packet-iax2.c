@@ -1721,9 +1721,9 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
     /* then we are continuing an already-started pdu */
     frag_len                     = tvb_reported_length( tvb );
     offset                       = 0;
-    tot_len                      = GPOINTER_TO_UINT(g_hash_table_lookup(iax_call->totlen_table, GUINT_TO_POINTER(fid)));
     if(!pinfo->fd->flags.visited) {
       fid = dirdata->current_frag_id;
+      tot_len                      = GPOINTER_TO_UINT(g_hash_table_lookup(iax_call->totlen_table, GUINT_TO_POINTER(fid)));
       g_hash_table_insert( iax_call->fid_table, GUINT_TO_POINTER(pinfo->fd->num), GUINT_TO_POINTER(fid) );
       frag_offset                  = dirdata->current_frag_bytes;
       complete                     = dirdata->current_frag_bytes > tot_len;
