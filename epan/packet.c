@@ -54,6 +54,7 @@
 #include "emem.h"
 
 #include <epan/reassemble.h>
+#include <epan/stream.h>
 
 static gint proto_malformed = -1;
 static dissector_handle_t frame_handle = NULL;
@@ -146,6 +147,9 @@ init_dissection(void)
 	   may free up space for fragments, which they find by using the
 	   data structures that "reassemble_init()" frees. */
 	reassemble_init();
+
+	/* Initialise the stream-handling tables */
+	stream_init();
 }
 
 void

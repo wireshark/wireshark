@@ -76,6 +76,7 @@ LIBETHEREAL_SRC = 		\
 	stat_cmd_args.c		\
 	stats_tree.c		\
 	strutil.c		\
+	stream.c		\
 	t35.c			\
 	tap.c			\
 	timestamp.c		\
@@ -165,6 +166,7 @@ LIBETHEREAL_INCLUDES = 		\
 	stat_cmd_args.h		\
 	stats_tree.h		\
 	stats_tree_priv.h	\
+	stream.h		\
 	strutil.h		\
 	t35.h			\
 	tap.h			\
