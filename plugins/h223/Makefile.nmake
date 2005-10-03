@@ -1,0 +1,29 @@
+#
+# $Id$
+#
+
+include ..\..\config.nmake
+
+############### no need to modify below this line #########
+
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
+	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+
+!IFDEF ENABLE_LIBETHEREAL
+LINK_PLUGIN_WITH=..\..\epan\libethereal.lib
+CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
+
+OBJECTS=packet-h223.obj packet-srp.obj plugin.obj golay.obj
+
+h223.dll h223.exp h223.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
+	link -dll /out:h223.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
+	$(GLIB_LIBS)
+
+!ENDIF
+
+clean:
+	rm -f $(OBJECTS) h223.dll h223.exp h223.lib $(PDB_FILE)
+
+distclean: clean
+
+maintainer-clean: distclean
