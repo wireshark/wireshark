@@ -48,6 +48,7 @@
 #include "alert_box.h"
 #include "simple_dialog.h"
 #include "graph_analysis.h"
+#include "gui_stat_menu.h"
 
 #define MAX_HDLC_FRAME 1024
 
@@ -723,7 +724,7 @@ void t38_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 
 /****************************************************************************/
 static void
-t38_analysis_init(char *dummy _U_)
+t38_analysis_init(const char *dummy _U_)
 {
 	t38_analysis_cb(NULL, NULL);
 }
