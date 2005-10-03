@@ -51,6 +51,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/tap.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -66,6 +67,8 @@
 #define PORT_T38 6004  
 static guint global_t38_tcp_port = PORT_T38;
 static guint global_t38_udp_port = PORT_T38;
+
+static int t38_tap = -1;
 
 /*
 * Variables to allow for proper deletion of dissector registration when
@@ -170,6 +173,13 @@ void proto_reg_handoff_t38(void);
 static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 /* Preferences bool to control whether or not setup info should be shown */
 static gboolean global_t38_show_setup_info = TRUE;
+
+/* Can tap up to 4 T38 packets within same packet */
+/* We only tap the primary part, not the redundancy */
+#define MAX_T38_MESSAGES_IN_PACKET 4
+static t38_packet_info t38_info_arr[MAX_T38_MESSAGES_IN_PACKET];
+static int t38_info_current=0;
+static t38_packet_info *t38_info=NULL;
 
 /* Set up an T38 conversation */
 void t38_add_address(packet_info *pinfo,
@@ -292,7 +302,7 @@ static const per_choice_t t30_indicator_choice[] = {
 	{ 0, NULL, 0, NULL }
 };
 
-static const value_string t30_indicator_vals[] = {
+const value_string t30_indicator_vals[] = {
 	{ 0, "no-signal" },
 	{ 1, "cng" },
 	{ 2, "ced" },
@@ -330,6 +340,11 @@ dissect_t38_t30_indicator(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
         col_append_fstr(pinfo->cinfo, COL_INFO, " t30ind: %s",
          val_to_str(T30ind_value,t30_indicator_vals,"<unknown>"));
 	}
+
+	/* info for tap */
+	if (primary_part)
+		t38_info->t30ind_value = T30ind_value;
+
 	return offset;
 }
 
@@ -397,6 +412,12 @@ dissect_t38_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
         col_append_fstr(pinfo->cinfo, COL_INFO, " data:%s:",
          val_to_str(Data_value,data_vals,"<unknown>"));
 	}
+
+	
+	/* info for tap */
+	if (primary_part)
+		t38_info->data_value = Data_value;
+
 	return offset;
 }
 
@@ -418,6 +439,10 @@ dissect_t38_Type_of_msg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
   offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
                               ett_t38_Type_of_msg, Type_of_msg_choice,
                               &Type_of_msg_value);
+
+  /* info for tap */
+  if (primary_part)
+    t38_info->type_msg = Type_of_msg_value;
 
   return offset;
 }
@@ -511,6 +536,16 @@ dissect_t38_Data_Field_field_type(tvbuff_t *tvb, int offset, packet_info *pinfo,
          val_to_str(Data_Field_field_type_value,Data_Field_field_type_vals,"<unknown>"));
 	}
 
+	/* info for tap */
+	if (primary_part) {
+		if ( (t38_info->t38_info_data_item_index < MAX_T38_DATA_ITEMS) && (t38_info->t38_info_data_item_index >= 0) ){ /*sanity check */
+			t38_info->data_type[t38_info->t38_info_data_item_index] = Data_Field_field_type_value;
+
+			if (t38_info->t38_info_data_item_index++ == MAX_T38_DATA_ITEMS-1) t38_info->t38_info_data_item_index = 1;
+		}
+	}
+
+
     return offset;
 }
 
@@ -535,6 +570,16 @@ dissect_t38_Data_Field_field_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
                tvb_bytes_to_str(value_tvb,0,7));
         }
 	}
+
+
+	/* info for tap */
+	if (primary_part) {
+		if ( (t38_info->t38_info_data_item_index <= MAX_T38_DATA_ITEMS) && (t38_info->t38_info_data_item_index > 0) ){ /*sanity check */
+			t38_info->data_len[t38_info->t38_info_data_item_index-1] = value_len;
+			t38_info->data[t38_info->t38_info_data_item_index-1] = tvb_memdup(value_tvb,0,value_len);
+		}
+	}
+
 	return offset;
 }
 
@@ -591,6 +636,10 @@ dissect_t38_seq_number(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo,
 		tree, hf_t38_seq_number, 0, 65535,
 		&seq_number, NULL, FALSE);
+	
+	/* info for tap */
+	if (primary_part)
+		t38_info->seq_num = seq_number;
 
       if (check_col(pinfo->cinfo, COL_INFO)){
         col_append_fstr(pinfo->cinfo, COL_INFO, "Seq=%05u ",seq_number);
@@ -630,7 +679,8 @@ dissect_t38_secondary_ifp_packets(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
     /* When the field-data is not present, we MUST offset 1 byte*/
     if((Data_Field_field_type_value != 0) &&
-       (Data_Field_field_type_value != 6))
+       (Data_Field_field_type_value != 6) &&
+	   (Data_Field_field_type_value != 7))
     {
         offset=offset+8;
     }
@@ -745,6 +795,7 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *it;
 	proto_tree *tr;
 	guint32 offset=0;
+	int i;
 
 	/*
 	 * XXX - heuristic to check for misidentified packets.
@@ -755,6 +806,25 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			call_dissector(rtp_handle,tvb,pinfo,tree);
 			return;
 		}
+	}
+
+	/* tap info */
+	t38_info_current++;
+	if (t38_info_current==MAX_T38_MESSAGES_IN_PACKET) {
+		t38_info_current=0;
+	}
+	t38_info = &t38_info_arr[t38_info_current];
+
+	t38_info->seq_num = 0;
+	t38_info->type_msg = 0;
+	t38_info->data_value = 0;
+	t38_info->t30ind_value =0;
+
+	t38_info->t38_info_data_item_index = 0;
+	for (i=0; i<MAX_T38_DATA_ITEMS; i++) {
+		t38_info->data_type[i] = 0;
+		t38_info->data[i] = NULL;
+		t38_info->data_len[i] = 0;
 	}
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
@@ -792,6 +862,18 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		if (check_col(pinfo->cinfo, COL_INFO)){
 			col_append_fstr(pinfo->cinfo, COL_INFO, " [Malformed?]");
+		}
+	}
+	
+	/* if is a valid t38 packet, add to tap */
+	if (!pinfo->in_error_pkt)
+		tap_queue_packet(t38_tap, pinfo, t38_info);
+	else { /* if not, free the data */
+		for (i=0; i<MAX_T38_DATA_ITEMS; i++) {
+			t38_info->data_type[i] = 0;
+			g_free(t38_info->data[i]);
+			t38_info->data[i] = NULL;
+			t38_info->data_len[i] = 0;
 		}
 	}
 }
@@ -1036,6 +1118,8 @@ proto_register_t38(void)
 	proto_register_field_array(proto_t38, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("t38", dissect_t38, proto_t38);
+
+	t38_tap = register_tap("t38");
 
 	t38_module = prefs_register_protocol(proto_t38, proto_reg_handoff_t38);
 	prefs_register_bool_preference(t38_module, "use_pre_corrigendum_asn1_specification",

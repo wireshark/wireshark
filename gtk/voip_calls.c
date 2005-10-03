@@ -168,6 +168,8 @@ void voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
 		graph_item = list->data;
 		g_free(graph_item->frame_label);
 		g_free(graph_item->comment);
+		g_free((void *)graph_item->src_addr.data);
+		g_free((void *)graph_item->dst_addr.data);
 		g_free(list->data);
 		list = g_list_next(list);
 	}

@@ -557,6 +557,7 @@ stats_tree_reset
 stats_tree_tick_pivot
 stats_tree_tick_range
 string_to_name_resolve
+t30_indicator_vals		DATA
 T_h323_message_body_vals	DATA
 tap_push_tapped_queue
 tap_queue_init

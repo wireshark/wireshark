@@ -136,6 +136,8 @@ static void graph_analysis_init_dlg(graph_analysis_data_t* user_data)
 
 	user_data->num_nodes = 0;
 	user_data->num_items = 0;
+	user_data->on_destroy_user_data = NULL;
+	user_data->data = NULL;
 	for (i=0; i<MAX_NUM_NODES; i++){
 		user_data->nodes[i].type = AT_NONE;
 		user_data->nodes[i].len = 0;
@@ -165,13 +167,14 @@ static void graph_analysis_init_dlg(graph_analysis_data_t* user_data)
 	user_data->dlg.selected_item=0xFFFFFFFF;    /*not item selected */
 	user_data->dlg.window=NULL;
 	user_data->dlg.inverse = FALSE;
+	user_data->dlg.title=NULL;
 }
 
 /****************************************************************************/
 /* CALLBACKS */
 
 /****************************************************************************/
-/* close the dialog window and remove the tap listener */
+/* close the dialog window */
 static void on_destroy(GtkWidget *win _U_, graph_analysis_data_t *user_data _U_)
 {
 	int i;
@@ -183,6 +186,12 @@ static void on_destroy(GtkWidget *win _U_, graph_analysis_data_t *user_data _U_)
 		user_data->nodes[i].data = NULL;
 	}
 	user_data->dlg.window = NULL;
+	g_free(user_data->dlg.title);
+	user_data->dlg.title = NULL;
+
+	if(user_data->on_destroy_user_data){
+        user_data->on_destroy_user_data(user_data->data);
+	}
 }
 
 #define RIGHT_ARROW 1
@@ -649,7 +658,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
         top_y_border=TOP_Y_BORDER;	/* to display the node address */
         bottom_y_border=2;
 
-	draw_height=user_data->dlg.draw_area->allocation.height-top_y_border-bottom_y_border;
+	    draw_height=user_data->dlg.draw_area->allocation.height-top_y_border-bottom_y_border;
 
 	first_item = user_data->dlg.first_item;
 	display_items = draw_height/ITEM_HEIGHT;
@@ -734,7 +743,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
         pango_layout_get_pixel_size(layout, &label_width, &label_height);
 #endif
 
-	/* resize the "time" draw area */
+		/* resize the "time" draw area */
 
         left_x_border=3;
 	user_data->dlg.left_x_border = left_x_border;
@@ -1359,8 +1368,8 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 	gdk_gc_set_rgb_fg_color(user_data->dlg.bg_gc[i], &col[i]);
 #endif
 	}
-
-	dialog_graph_redraw(user_data);
+		
+		dialog_graph_redraw(user_data);
 
         return TRUE;
 }
@@ -1428,6 +1437,7 @@ static gint configure_event_time(GtkWidget *widget, GdkEventConfigure *event _U_
 						   widget->allocation.height);
 
 	dialog_graph_redraw(user_data);
+
 
         return TRUE;
 }
@@ -1561,9 +1571,9 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 
         gtk_box_pack_start(GTK_BOX(hbox), user_data->dlg.draw_area_time, FALSE, FALSE, 0);
 
-	user_data->dlg.hpane = gtk_hpaned_new();
-	gtk_paned_pack1(GTK_PANED (user_data->dlg.hpane), user_data->dlg.scroll_window, FALSE, TRUE);
-	gtk_paned_pack2(GTK_PANED (user_data->dlg.hpane), scroll_window_comments, TRUE, TRUE);
+		user_data->dlg.hpane = gtk_hpaned_new();
+		gtk_paned_pack1(GTK_PANED (user_data->dlg.hpane), user_data->dlg.scroll_window, FALSE, TRUE);
+		gtk_paned_pack2(GTK_PANED (user_data->dlg.hpane), scroll_window_comments, TRUE, TRUE);
 #if GTK_MAJOR_VERSION >= 2
 	SIGNAL_CONNECT(user_data->dlg.hpane, "notify::position",  pane_callback, user_data);
 #endif
@@ -1596,7 +1606,10 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
 	GtkTooltips *tooltips = gtk_tooltips_new();
 
         /* create the main window */
-        user_data->dlg.window=window_new(GTK_WINDOW_TOPLEVEL, "Graph Analysis");
+		if (user_data->dlg.title)
+	        user_data->dlg.window=window_new(GTK_WINDOW_TOPLEVEL, user_data->dlg.title);
+		else
+	        user_data->dlg.window=window_new(GTK_WINDOW_TOPLEVEL, "Graph Analysis");
 
 
         vbox=gtk_vbox_new(FALSE, 0);
@@ -1787,3 +1800,24 @@ void graph_analysis_update(graph_analysis_data_t* user_data)
 	return;
 }
 
+
+/****************************************************************************/
+void graph_analysis_redraw(graph_analysis_data_t* user_data)
+{
+	/* get nodes (each node is an address) */
+	get_nodes(user_data);
+
+	user_data->dlg.pixmap_width = user_data->num_nodes * NODE_WIDTH;
+    WIDGET_SET_SIZE(user_data->dlg.draw_area, user_data->dlg.pixmap_width, user_data->dlg.pixmap_height);
+	if ( user_data->num_nodes < 6)  
+			WIDGET_SET_SIZE(user_data->dlg.scroll_window, NODE_WIDTH*user_data->num_nodes, user_data->dlg.pixmap_height);
+		else
+			WIDGET_SET_SIZE(user_data->dlg.scroll_window, NODE_WIDTH*5, user_data->dlg.pixmap_height);
+
+
+	/* redraw the graph */
+	dialog_graph_redraw(user_data); 
+
+    window_present(user_data->dlg.window);
+	return;
+}

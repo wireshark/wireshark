@@ -25,6 +25,20 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#define MAX_T38_DATA_ITEMS 4
+typedef struct _t38_packet_info {
+	guint16 seq_num;	/* UDPTLPacket sequence number */
+	guint32 type_msg;	/* 0=t30-indicator    1=data */
+	guint32 t30ind_value;
+	guint32 data_value;	/* standard and speed */
+
+	int t38_info_data_item_index; /* this will have the number of Data Items in the packet and is used as the index when decoding the packet */
+	guint32 data_type[MAX_T38_DATA_ITEMS];
+	guint8 *data[MAX_T38_DATA_ITEMS];
+	gint data_len[MAX_T38_DATA_ITEMS];
+} t38_packet_info;
+
+
 /* Info to save in T38 conversation / packet-info */
 #define MAX_T38_SETUP_METHOD_SIZE 7
 struct _t38_conversation_info
@@ -38,3 +52,5 @@ void t38_add_address(packet_info *pinfo,
                      address *addr, int port,
                      int other_port,
                      const gchar *setup_method, guint32 setup_frame_number);
+
+ETH_VAR_IMPORT const value_string t30_indicator_vals[];

@@ -104,9 +104,10 @@ typedef struct _dialog_data_t {
 	display_items_t items[NUM_DISPLAY_ITEMS];
     guint32 left_x_border;
     char *save_file;
+	char *title; 				/* Graph analysis window's title */
 } dialog_data_t;
 
-
+typedef void (*destroy_user_data_cb)(void *data);
 
 /* structure that holds general information and the dialog */
 typedef struct _graph_analysis_data_t {
@@ -118,11 +119,14 @@ typedef struct _graph_analysis_data_t {
 	address nodes[MAX_NUM_NODES];
 	guint32 num_nodes;
 	guint32 num_items;
+	destroy_user_data_cb on_destroy_user_data;  /* callback info for destroy */
+	void *data; /* data to be passes when on destroy */
 } graph_analysis_data_t;
 
 graph_analysis_data_t* graph_analysis_init(void);
 void graph_analysis_create(graph_analysis_data_t* user_data);
 void graph_analysis_update(graph_analysis_data_t* user_data);
+void graph_analysis_redraw(graph_analysis_data_t* user_data);
 
 
 #endif /*GRAPH_ANALYSIS_H_INCLUDED*/
