@@ -88,14 +88,13 @@ atm_guess_traffic_type(const guint8 *pd, guint32 len,
 			pseudo_header->atm.type = TRAF_LANE;
 			atm_guess_lane_type(pd, len, pseudo_header);
 		}
-		return;
+	} else {
+	       /*
+		* Not only VCI 5 is used for signaling. It might be
+		* one of these VCIs.
+		*/
+	       pseudo_header->atm.aal = AAL_SIGNALLING;
 	}
-       else
-               /*
-                * Not only VCI 5 is used for signaling. It might be
-                * one of these VCIs
-                */
-               pseudo_header->atm.aal = AAL_SIGNALLING;
 }
 
 void
@@ -109,10 +108,6 @@ atm_guess_lane_type(const guint8 *pd, guint32 len,
 			 */
 			pseudo_header->atm.subtype = TRAF_ST_LANE_LE_CTRL;
 		} else {
-                       guint32 len_802_3;
-                       len_802_3 = pd[10];
-                       len_802_3 <<= 8;
-                       len_802_3 |= pd[11];
 			/*
 			 * XXX - Ethernet, or Token Ring?
 			 * Assume Ethernet for now; if we see earlier
@@ -121,16 +116,7 @@ atm_guess_lane_type(const guint8 *pd, guint32 len,
 			 * still be situations where the user has to
 			 * tell us.
 			 */
-                       if (( len_802_3 + 5 + 5 + 2 ) == len )
-                               pseudo_header->atm.subtype = TRAF_ST_LANE_802_3;
-                       else
-                       /*
-                        * When it is not a 802.3 frame it might be a signalling one.
-                        */
-                       {
-                               pseudo_header->atm.aal = AAL_SIGNALLING;
-                               pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
-                       }
+			pseudo_header->atm.subtype = TRAF_ST_LANE_802_3;
 		}
 	}
 }
