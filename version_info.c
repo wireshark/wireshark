@@ -230,6 +230,12 @@ get_runtime_version_info(GString *str)
 	 * of that is left as an exercise to the reader - who should
 	 * check any copyright information about code samples on MSDN
 	 * before cutting and pasting into Ethereal.
+	 *
+	 * They should also note that you need an OSVERSIONINFOEX structure
+	 * to get some of that information, and that not only is that
+	 * structure not supported on older versions of Windows, you might
+	 * not even be able to compile code that *uses* that structure with
+	 * older versions of the SDK.
 	 */
 	info.dwOSVersionInfoSize = sizeof info;
 	if (!GetVersionEx(&info)) {
@@ -303,14 +309,7 @@ get_runtime_version_info(GString *str)
 				break;
 
 			case 2:
-				/*
-				 * The 64-bit version of XP is, I guess,
-				 * built on the NT 5.2 code base.
-				 */
-				if (info.wProductType == VER_NT_WORKSTATION)
-					g_string_sprintfa(str, "Windows XP");
-				else
-					g_string_sprintfa(str, "Windows Server 2003");
+				g_string_sprintfa(str, "Windows Server 2003");
 				break;
 
 			default:
@@ -321,10 +320,7 @@ get_runtime_version_info(GString *str)
 			break;
 
 		case 6:
-			if (info.wProductType == VER_NT_WORKSTATION)
-				g_string_sprintfa(str, "Windows Vista");
-			else
-				g_string_sprintfa(str, "Windows Server \"Longhorn\"");
+			g_string_sprintfa(str, "Windows Vista");
 			break;
 
 		default:
