@@ -1367,8 +1367,8 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
 
     start = offset;
 
-    offset = dissect_ber_identifier(pinfo , NULL, tvb, start, &class, &pc, &ber_tag);
-    offset = dissect_ber_length(pinfo, NULL, tvb, offset, &vb_length, &ind);
+    offset = get_ber_identifier(tvb, offset, &class, &pc, &ber_tag);
+    offset = get_ber_length(tree, tvb, offset, &vb_length, &ind);
 
     vb_value_start = offset;
 
@@ -1388,8 +1388,8 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
     switch (vb_type) {
 
     case COPS_INTEGER:
-		offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, start, -1, &vb_integer_value);
-		length = offset - vb_value_start;
+      offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, start, -1, &vb_integer_value);
+      length = offset - vb_value_start;
       if (tree) {
 #ifdef HAVE_NET_SNMP
         if (cops_typefrommib == TRUE)
@@ -1414,8 +1414,8 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
 
     case COPS_UNSIGNED32:
     case COPS_TIMETICKS:
-		offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, start, -1, &vb_uinteger_value);
-		length = offset - vb_value_start;
+      offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, start, -1, &vb_uinteger_value);
+      length = offset - vb_value_start;
       if (tree) {
 #ifdef HAVE_NET_SNMP
         if (cops_typefrommib == TRUE)
@@ -1444,9 +1444,9 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
     case COPS_OPAQUE:
     case COPS_UNSIGNED64:
     case COPS_INTEGER64:
-		offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start, -1, NULL);
-		vb_octet_string = ep_tvb_memdup(tvb, vb_value_start, vb_length);
-		length = offset - vb_value_start;
+      offset = dissect_ber_octet_string(FALSE, pinfo, NULL, tvb, start, -1, NULL);
+      vb_octet_string = ep_tvb_memdup(tvb, vb_value_start, vb_length);
+      length = offset - vb_value_start;
       if (tree) {
 #ifdef HAVE_NET_SNMP
         if (cops_typefrommib == TRUE)
@@ -1496,20 +1496,24 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
       break;
 
     case COPS_NULL:
-		dissect_ber_null(FALSE, pinfo, tree,tvb, start, -1);
-		length = offset - vb_value_start;
+      dissect_ber_null(FALSE, pinfo, tree,tvb, start, -1);
+      length = offset - vb_value_start;
       if (tree)
         proto_tree_add_text(tree, tvb, vb_value_start, length, "Value: %s", vb_type_name);
       break;
 
     case COPS_OBJECTID:
-		/* XXX Redo this using dissect_ber_object... when it returns tvb */ 
-		oid_buf = tvb_get_ptr(tvb, vb_value_start, vb_length);
-		vb_oid = g_malloc((vb_length+1) * sizeof(gulong));
-		vb_oid_length = oid_to_subid_buf(oid_buf, vb_length, vb_oid, ((vb_length+1) * sizeof(gulong)));
+      /* XXX Redo this using dissect_ber_object_identifier when it returns tvb
+         or some other binary form of an OID */ 
+      offset = start;
+      offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &ber_tag);
+      offset = dissect_ber_length(pinfo, tree, tvb, offset, &vb_length, &ind);
+      oid_buf = tvb_get_ptr(tvb, vb_value_start, vb_length);
+      vb_oid = g_malloc((vb_length+1) * sizeof(gulong));
+      vb_oid_length = oid_to_subid_buf(oid_buf, vb_length, vb_oid, ((vb_length+1) * sizeof(gulong)));
 
-		offset = offset + vb_length;
-		length = offset - vb_value_start;
+      offset = offset + vb_length;
+      length = offset - vb_value_start;
 
 /*      ret = asn1_oid_value_decode (&asn1, vb_length, &vb_oid, &vb_oid_length); 
       if (ret != ASN1_ERR_NOERROR)
