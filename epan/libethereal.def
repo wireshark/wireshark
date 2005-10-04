@@ -73,6 +73,7 @@ col_format_desc
 col_format_to_string
 col_get_writable
 col_prepend_fstr
+col_prepend_fence_fstr
 col_setup
 col_set_cls_time
 col_set_fence

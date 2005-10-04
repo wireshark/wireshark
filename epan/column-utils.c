@@ -380,6 +380,51 @@ col_prepend_fstr(column_info *cinfo, gint el, const gchar *format, ...)
   }
   va_end(ap);
 }
+void
+col_prepend_fence_fstr(column_info *cinfo, gint el, const gchar *format, ...)
+{
+  va_list     ap;
+  int         i;
+  char        orig_buf[COL_BUF_MAX_LEN];
+  const char *orig;
+  size_t      max_len;
+
+  g_assert(cinfo->col_first[el] >= 0);
+  if (el == COL_INFO)
+	max_len = COL_MAX_INFO_LEN;
+  else
+	max_len = COL_MAX_LEN;
+
+  va_start(ap, format);
+  for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
+    if (cinfo->fmt_matx[i][el]) {
+      if (cinfo->col_data[i] != cinfo->col_buf[i]) {
+        /* This was set with "col_set_str()"; which is effectively const */
+        orig = cinfo->col_data[i];
+      } else {
+        strncpy(orig_buf, cinfo->col_buf[i], max_len);
+        orig_buf[max_len - 1] = '\0';
+        orig = orig_buf;
+      }
+      g_vsnprintf(cinfo->col_buf[i], max_len, format, ap);
+      cinfo->col_buf[i][max_len - 1] = '\0';
+
+      /*
+       * Move the fence if it exists, else create a new fence at the
+       * end of the prepended data.
+       */
+      if (cinfo->col_fence[i] > 0) {
+        cinfo->col_fence[i] += strlen(cinfo->col_buf[i]);
+      } else {
+        cinfo->col_fence[i]  = strlen(cinfo->col_buf[i]);
+      }
+      strncat(cinfo->col_buf[i], orig, max_len);
+      cinfo->col_buf[i][max_len - 1] = '\0';
+      cinfo->col_data[i] = cinfo->col_buf[i];
+    }
+  }
+  va_end(ap);
+}
 
 /* Use this if "str" points to something that won't stay around (and
    must thus be copied). */

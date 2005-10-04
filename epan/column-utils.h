@@ -168,6 +168,17 @@ extern void	col_append_fstr(column_info *cinfo, gint col, const gchar *format, .
 extern void	col_prepend_fstr(column_info *cinfo, gint col, const gchar *format, ...)
     GNUC_FORMAT_CHECK(printf, 3, 4);
 
+/**Prepend the given text to a column element, the text will be formatted and copied.
+ * This function is similar to col_prepend_fstr() but this function will
+ * unconditionally set a fence to the end of the prepended data even if there
+ * were no fence before.
+ * The col_prepend_fstr() will only prepend the data before the fence IFF
+ * there is already a fence created. This function will create a fence in case
+ * it does not yet exist.
+ */
+extern void	col_prepend_fence_fstr(column_info *cinfo, gint col, const gchar *format, ...)
+    GNUC_FORMAT_CHECK(printf, 3, 4);
+
 /** Append the given text (prepended by a separator) to a column element.
  *
  * Much like col_append_str() but will prepend the given separator if the column isn't empty.
