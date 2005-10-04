@@ -220,6 +220,17 @@ get_runtime_version_info(GString *str)
 
 	g_string_append(str, "on ");
 #if defined(_WIN32)
+	/*
+	 * See
+	 *
+	 *	http://msdn.microsoft.com/library/default.asp?url=/library/en-us/sysinfo/base/getting_the_system_version.asp
+	 *
+	 * for more than you ever wanted to know about determining the
+	 * flavor of Windows on which you're running.  Implementing more
+	 * of that is left as an exercise to the reader - who should
+	 * check any copyright information about code samples on MSDN
+	 * before cutting and pasting into Ethereal.
+	 */
 	info.dwOSVersionInfoSize = sizeof info;
 	if (!GetVersionEx(&info)) {
 		/*
@@ -292,7 +303,14 @@ get_runtime_version_info(GString *str)
 				break;
 
 			case 2:
-				g_string_sprintfa(str, "Windows Server 2003");
+				/*
+				 * The 64-bit version of XP is, I guess,
+				 * built on the NT 5.2 code base.
+				 */
+				if (info.wProductType == VER_NT_WORKSTATION)
+					g_string_sprintfa(str, "Windows XP");
+				else
+					g_string_sprintfa(str, "Windows Server 2003");
 				break;
 
 			default:
@@ -300,6 +318,13 @@ get_runtime_version_info(GString *str)
 				    info.dwMajorVersion, info.dwMinorVersion);
 				break;
 			}
+			break;
+
+		case 6:
+			if (info.wProductType == VER_NT_WORKSTATION)
+				g_string_sprintfa(str, "Windows Vista");
+			else
+				g_string_sprintfa(str, "Windows Server \"Longhorn\"");
 			break;
 
 		default:
