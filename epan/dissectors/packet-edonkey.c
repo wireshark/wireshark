@@ -459,8 +459,12 @@ static int dissect_edonkey_metatag(tvbuff_t *tvb, packet_info *pinfo _U_,
         case EDONKEY_MTAG_BOOL_ARRAY:
             /* <Tag> ::= <Length (guint16)> <BoolArray> */
             array_length = tvb_get_letohs(tvb, tag_offset);
-            // This is allegedly what the protocol uses, rather than the correct value of (array_length+7)/8
-            // Therefore an extra unused byte is transmitted is the array is a multiple of 8 long
+            /*
+             * This is allegedly what the protocol uses, rather than the
+             * correct value of (array_length+7)/8
+             * Therefore an extra unused byte is transmitted if the array
+             * is a multiple of 8 longs.
+             */
             tag_length += 2+(array_length/8)+1;
             ti = proto_tree_add_item(tree, hf_edonkey_metatag, tvb, offset, tag_length, FALSE);
             metatag_tree = proto_item_add_subtree(ti, ett_edonkey_metatag);
