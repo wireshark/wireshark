@@ -1496,7 +1496,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
       break;
 
     case COPS_NULL:
-      dissect_ber_null(FALSE, pinfo, tree,tvb, start, -1);
+      offset = dissect_ber_null(FALSE, pinfo, tree,tvb, start, -1);
       length = offset - vb_value_start;
       if (tree)
         proto_tree_add_text(tree, tvb, vb_value_start, length, "Value: %s", vb_type_name);
