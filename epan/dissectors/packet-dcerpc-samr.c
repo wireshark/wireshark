@@ -247,7 +247,6 @@ sam_dissect_SAM_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset,
 {
        guint32 len;
        dcerpc_info *di;
-       int old_offset = offset;
 
        di=pinfo->private_data;
        if(di->conformant_run){
