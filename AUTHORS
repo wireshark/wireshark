@@ -2395,6 +2395,16 @@ Jim Young		<sysjhy [AT] langate.gsu.edu> {
 
 }
 
+Jeff Snyder		<jeff [AT] mxtelecom.com> {
+	H.223 Support
+
+}
+
+Richard van der Hoff		<richardv [AT] mxtelecom.com> {
+	H.223 Support
+
+}
+
 
 And assorted fixes and enhancements by the people listed above
 and by:
@@ -2515,6 +2525,7 @@ Timo Metsala		<timo.metsala [AT] gmail.com>
 Tomer Shani		<thetour [AT} japan.com>
 Manu Pathak		<mapathak [AT] cisco.com>
 Kaul			<mykaul [AT] gmail.com>
+John Sullivan		<john [AT] kanargh.force9.co.uk>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
