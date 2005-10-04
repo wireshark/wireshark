@@ -1217,6 +1217,16 @@ static guint
 fBACnetError(tvbuff_t *tvb, proto_tree *tree, guint offset, guint service);
 
 /**
+ * Dissect a BACnetError in a context tag
+ *
+ * @param tvb
+ * @param tree 
+ * @param offset
+ * @return modified offset
+ */
+static guint fContextTaggedError(tvbuff_t *tvb, proto_tree *tree, guint offset);
+
+/**
  * ChangeList-Error ::= SEQUENCE {
  *    errorType     [0] Error,
  *    firstFailedElementNumber  [1] Unsigned
