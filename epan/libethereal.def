@@ -65,6 +65,8 @@ cleanup_dissection
 col_add_fstr
 col_add_str
 col_append_fstr
+col_append_sep_fstr
+col_append_sep_str
 col_append_str
 col_clear
 col_format_desc
@@ -237,6 +239,7 @@ find_protocol_by_id
 find_stream_circ
 find_tap_id
 find_val_for_string
+flags_set_truth                 DATA
 follow_tcp_stats
 format_text
 fragment_add
@@ -626,6 +629,7 @@ tvb_reported_length
 tvb_reported_length_remaining
 tvb_set_child_real_data_tvbuff
 tvb_set_free_cb
+tvb_set_reported_length
 tvb_strncaseeql
 tvb_strneql
 tvb_strnlen
