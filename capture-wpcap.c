@@ -638,7 +638,7 @@ get_runtime_pcap_version(GString *str)
 		else {
 			/*
 			 * An alternative method of obtaining the version
-			 * number, by using the PacketLibraryVersion"
+			 * number, by using the PacketLibraryVersion
 			 * string from packet.dll.
 			 *
 			 * Unfortunately, in WinPcap 3.0, it returns
@@ -660,9 +660,9 @@ get_runtime_pcap_version(GString *str)
 						blankp = strchr(packetVer, ' ');
 						if (blankp != NULL)
 							*blankp = '\0';
-                    } else {
-				        packetVer = "version unknown";
-                    }
+					} else {
+						packetVer = "version unknown";
+					}
 					g_module_close(handle);
 				}
 			}
