@@ -1702,7 +1702,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
 {
 
   iax_call_data *iax_call = iax_packet -> call_data;
-  iax_call_dirdata *dirdata = &(iax_call->dirdata[!!(iax_packet->reversed)]);
+  iax_call_dirdata *dirdata;
   gpointer unused,value;
   guint32 fid,frag_len,offset,tot_len,frag_offset,nbytes,deseg_offset;
   gint32 old_len;
@@ -1715,9 +1715,17 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
   pinfo->desegment_len = 0;
   deseg_offset = 0;
 
-  if((!pinfo->fd->flags.visited && dirdata->in_frag) ||
-      g_hash_table_lookup_extended(iax_call->fid_table,
-	GUINT_TO_POINTER(pinfo->fd->num), &unused, &value) ) {
+  if( iax_call )
+    dirdata = &(iax_call->dirdata[!!(iax_packet->reversed)]);
+  else {
+    /* no call info for this frame; perhaps we missed the NEW packet */
+    dirdata = NULL;
+  }
+
+  if(iax_call &&
+     ((!pinfo->fd->flags.visited && dirdata->in_frag) ||
+       g_hash_table_lookup_extended(iax_call->fid_table,
+	GUINT_TO_POINTER(pinfo->fd->num), &unused, &value) ) ) {
     /* then we are continuing an already-started pdu */
     frag_len                     = tvb_reported_length( tvb );
     offset                       = 0;
@@ -1746,6 +1754,10 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
 
   } else {
     fid=offset=0; /* initialise them here aswell to get rid of compiler warnings */
+    if(iax_call)
+      pinfo->can_desegment = 2;
+    else
+      pinfo->can_desegment = 0;
     process_iax_pdu(tvb,pinfo,tree,video,iax_packet);
     called_dissector = TRUE;
     if(pinfo->desegment_len) {
@@ -1762,6 +1774,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
       next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen, fd_head->datalen);
       tvb_set_child_real_data_tvbuff(tvb, next_tvb); 
       add_new_data_source(pinfo, next_tvb, "Reassembled IAX2");
+      pinfo->can_desegment = 2;
       process_iax_pdu(next_tvb,pinfo,tree,video,iax_packet);
       called_dissector = TRUE;
       old_len = (gint32)(tvb_reported_length(next_tvb) - tvb_reported_length_remaining(tvb,offset));
