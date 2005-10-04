@@ -1685,16 +1685,23 @@ static void process_iax_pdu( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   guint32 codec = iax_packet -> codec;
   iax_call_data *iax_call = iax_packet -> call_data;
 
+#ifdef DEBUG_DESEGMENT
+  g_message("calling process_iax_pdu; len = %u\n", tvb_reported_length(tvb));
+#endif
+
   if( !video && iax_call && iax_call->subdissector ) {
     call_dissector(iax_call->subdissector, tvb, pinfo, tree);
-    return;
+  }else if( codec != 0 && dissector_try_port(iax2_codec_dissector_table, codec, tvb, pinfo, tree )) {
+    /* codec dissector handled our data */
+  }else {
+    /* we don't know how to dissect our data: dissect it as data */
+    call_dissector(data_handle,tvb, pinfo, tree);
   }
 
-  if( codec != 0 && dissector_try_port(iax2_codec_dissector_table, codec, tvb, pinfo, tree ))
-    return;
-  
-  /* we don't know how to dissect our data: dissect it as data */
-  call_dissector(data_handle,tvb, pinfo, tree);
+#ifdef DEBUG_DESEGMENT
+  g_message("called process_iax_pdu; pinfo->desegment_len=%u; pinfo->desegment_offset=%u\n",
+            pinfo->desegment_len, pinfo->desegment_offset);
+#endif
 }
 
 static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tree,
@@ -1704,17 +1711,18 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
   iax_call_data *iax_call = iax_packet -> call_data;
   iax_call_dirdata *dirdata;
   gpointer unused,value;
-  guint32 fid,frag_len,offset,tot_len,frag_offset,nbytes,deseg_offset;
-  gint32 old_len;
+  guint32 frag_len,tot_len,frag_offset,nbytes,deseg_offset;
   fragment_data *fd_head;
-  tvbuff_t *next_tvb;
   gboolean complete = FALSE, called_dissector = FALSE, must_desegment = FALSE;
-  proto_item *frag_tree_item, *iax_tree_item;
 
   pinfo->desegment_offset = 0;
   pinfo->desegment_len = 0;
   deseg_offset = 0;
 
+#ifdef DEBUG_DESEGMENT
+  g_message("dissecting packet %u\n", pinfo->fd->num);
+#endif
+  
   if( iax_call )
     dirdata = &(iax_call->dirdata[!!(iax_packet->reversed)]);
   else {
@@ -1726,25 +1734,30 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
      ((!pinfo->fd->flags.visited && dirdata->in_frag) ||
        g_hash_table_lookup_extended(iax_call->fid_table,
 	GUINT_TO_POINTER(pinfo->fd->num), &unused, &value) ) ) {
+    guint32 fid = 0;
+    
     /* then we are continuing an already-started pdu */
     frag_len                     = tvb_reported_length( tvb );
-    offset                       = 0;
     if(!pinfo->fd->flags.visited) {
       fid = dirdata->current_frag_id;
       tot_len                      = GPOINTER_TO_UINT(g_hash_table_lookup(iax_call->totlen_table, GUINT_TO_POINTER(fid)));
       g_hash_table_insert( iax_call->fid_table, GUINT_TO_POINTER(pinfo->fd->num), GUINT_TO_POINTER(fid) );
       frag_offset                  = dirdata->current_frag_bytes;
-      complete                     = dirdata->current_frag_bytes > tot_len;
       dirdata->current_frag_bytes += frag_len;
+      complete                     = dirdata->current_frag_bytes > tot_len;
+#ifdef DEBUG_DESEGMENT
+      g_message("in_frag: %i; hash: %u->%u; frag_offset: %u; c_f_b: %u\n", dirdata->in_frag,
+              pinfo->fd->num, fid, frag_offset, dirdata->current_frag_bytes );
+#endif
     } else {
       fid = GPOINTER_TO_UINT(value);
-      /* these values are unused by fragmen_add if pinfo->fd->flags.visited */
+      /* these values are unused by fragment_add if pinfo->fd->flags.visited */
       dirdata->current_frag_bytes = 0;
       complete = FALSE;
     }
 
     /* fragment_add checks for already-added */
-    fd_head = fragment_add( tvb, offset, pinfo, fid,
+    fd_head = fragment_add( tvb, 0, pinfo, fid,
 			    iax_call->fragment_table,
 			    frag_offset,
 			    frag_len, !complete );
@@ -1752,32 +1765,22 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
     if(pinfo->fd->flags.visited)
       complete = (fd_head && (pinfo->fd->num == fd_head->reassembled_in));
 
-  } else {
-    fid=offset=0; /* initialise them here aswell to get rid of compiler warnings */
-    if(iax_call)
-      pinfo->can_desegment = 2;
-    else
-      pinfo->can_desegment = 0;
-    process_iax_pdu(tvb,pinfo,tree,video,iax_packet);
-    called_dissector = TRUE;
-    if(pinfo->desegment_len) {
-      must_desegment = TRUE;
-      deseg_offset = pinfo->desegment_offset;
-    }
-    fd_head = NULL;
-  }
-
-  /* do we have a completely desegmented datagram? */
-  if (fd_head) {
-    /* we've got sometheing dissectable.. but is this the last segment of it? */
-    if(complete) { /* this will always be true, since frags are added in seq. */
-      next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen, fd_head->datalen);
+    if(complete) {
+      gint32 old_len;
+      tvbuff_t *next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen, fd_head->datalen);
       tvb_set_child_real_data_tvbuff(tvb, next_tvb); 
       add_new_data_source(pinfo, next_tvb, "Reassembled IAX2");
       pinfo->can_desegment = 2;
+
       process_iax_pdu(next_tvb,pinfo,tree,video,iax_packet);
       called_dissector = TRUE;
-      old_len = (gint32)(tvb_reported_length(next_tvb) - tvb_reported_length_remaining(tvb,offset));
+
+      /* calculate the amount of data which was available to the higher-level
+         dissector before we added this segment; if the returned offset is
+         within that section, the higher-level dissector was unable to find any
+         pdus; if it's after that, it found one or more complete PDUs.
+      */
+      old_len = (gint32)(tvb_reported_length(next_tvb) - tvb_reported_length(tvb));
       if( pinfo->desegment_len &&
 	  pinfo->desegment_offset < old_len ) {
 	/*
@@ -1785,8 +1788,9 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
 	 */
 	fragment_set_partial_reassembly(pinfo, fid, iax_call->fragment_table);
 	g_hash_table_insert(iax_call->totlen_table, GUINT_TO_POINTER(fid),
-	    GUINT_TO_POINTER(tvb_reported_length(next_tvb) + pinfo->desegment_len) );
+                            GUINT_TO_POINTER(tvb_reported_length(next_tvb) + pinfo->desegment_len) );
       } else {
+        proto_item *iax_tree_item, *frag_tree_item;
 	nbytes = tvb_reported_length( tvb );
 	show_fragment_tree(fd_head, &iax2_fragment_items, tree, pinfo, next_tvb, &frag_tree_item);
 	iax_tree_item = proto_tree_get_parent( iax2_tree );
@@ -1796,20 +1800,43 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
 	  proto_tree_move_item( tree, iax_tree_item, frag_tree_item );
 	dirdata->in_frag = FALSE;
 	if( pinfo->desegment_len ) {
-	  /*
-	   * .. but not everything
-	   */
+	  /* there's a bit of data left to desegment */
 	  must_desegment = TRUE;
 
-	  /* make desegment_offset relative to the tvb */
+	  /* make desegment_offset relative to our tvb */
 	  deseg_offset = pinfo->desegment_offset - (tvb_reported_length( next_tvb ) - tvb_reported_length( tvb ));
 	}
       }
     }
+  } else {
+    /* This segment was not found in our table, so it doesn't
+       contain a continuation of a higher-level PDU.
+       Call the normal subdissector.
+    */
+    if(iax_call)
+      pinfo->can_desegment = 2;
+    else
+      pinfo->can_desegment = 0;
+
+    process_iax_pdu(tvb,pinfo,tree,video,iax_packet);
+    
+    called_dissector = TRUE;
+
+    if(pinfo->desegment_len) {
+      /* the higher-level dissector has asked for some more data - ie,
+         the end of this segment does not coincide with the end of a
+         higher-level PDU. */
+      must_desegment = TRUE;
+      deseg_offset = pinfo->desegment_offset;
+    }
+    fd_head = NULL;
   }
 
-  if(must_desegment) {
-    fid = pinfo->fd->num;
+  /* must_desegment is set if the end of this segment (or the whole of it)
+   * contained the start of a higher-level PDU; we must add whatever is left of
+   * this segment (after deseg_offset) to a fragment table for disassembly. */
+  if(iax_call && must_desegment) {
+    guint32 fid = pinfo->fd->num;
     if(pinfo->fd->flags.visited) {
       fd_head = fragment_get( pinfo, fid, iax_call->fragment_table );
     } else {
@@ -1817,27 +1844,34 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
       dirdata->current_frag_id = fid;
       dirdata->current_frag_bytes = frag_len;
       dirdata->in_frag = TRUE;
-      offset = deseg_offset;
       complete = FALSE;
-      fd_head = fragment_add(tvb, offset, pinfo, fid,
+      fd_head = fragment_add(tvb, deseg_offset, pinfo, fid,
 			     iax_call->fragment_table,
 			     0, frag_len, !complete );
       g_hash_table_insert(iax_call->totlen_table, GUINT_TO_POINTER(fid),
 	  GUINT_TO_POINTER( frag_len + pinfo->desegment_len) );
+#ifdef DEBUG_DESEGMENT
+      g_message("Start offset of undissected bytes: %u; "
+              "Bytes remaining in this segment: %u; min required bytes: %u\n",
+              deseg_offset, frag_len, frag_len + pinfo->desegment_len);
+#endif
     }
   }
 
   if( !called_dissector || pinfo->desegment_len != 0 ) {
-    if( fd_head != NULL && fd_head->reassembled_in != 0 &&
-	!(fd_head->flags & FD_PARTIAL_REASSEMBLY) ) {
-      iax_tree_item = proto_tree_add_uint( tree, hf_iax2_reassembled_in,
-	  tvb, deseg_offset, tvb_reported_length_remaining(tvb,deseg_offset),
-	  fd_head->reassembled_in);
-      PROTO_ITEM_SET_GENERATED(iax_tree_item);
-    } else if(fd_head && (fd_head->reassembled_in != 0 || (fd_head->flags & FD_PARTIAL_REASSEMBLY)) ) {
-      /* this fragment is never reassembled */
-      proto_tree_add_text( tree, tvb, deseg_offset, -1,
-	  "IAX2 fragment, unfinished");
+    if( fd_head != NULL ) {
+      if( fd_head->reassembled_in != 0 &&
+          !(fd_head->flags & FD_PARTIAL_REASSEMBLY) ) {
+        proto_item *iax_tree_item;
+        iax_tree_item = proto_tree_add_uint( tree, hf_iax2_reassembled_in,
+                                             tvb, deseg_offset, tvb_reported_length_remaining(tvb,deseg_offset),
+                                             fd_head->reassembled_in);
+        PROTO_ITEM_SET_GENERATED(iax_tree_item);
+      } else {
+        /* this fragment is never reassembled */
+        proto_tree_add_text( tree, tvb, deseg_offset, -1,
+                             "IAX2 fragment, unfinished");
+      }
     }
 
     if( pinfo->desegment_offset == 0 ) {
