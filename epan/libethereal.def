@@ -58,6 +58,9 @@ capture_raw
 capture_sll
 capture_tr
 check_col
+circuit_add_proto_data
+circuit_get_proto_data
+circuit_new
 cleanup_dissection
 col_add_fstr
 col_add_str
@@ -226,10 +229,12 @@ file_open_error_message
 file_write_error_message
 file_exists
 files_identical
+find_circuit
 find_conversation
 find_dissector
 find_dissector_table
 find_protocol_by_id
+find_stream_circ
 find_tap_id
 find_val_for_string
 follow_tcp_stats
@@ -410,6 +415,7 @@ proto_item_set_end
 proto_item_set_expert_flags
 proto_item_set_len
 proto_item_set_text
+proto_malformed
 proto_register_field_array
 proto_register_protocol
 proto_register_subtree_array
@@ -556,7 +562,12 @@ stats_tree_reinit
 stats_tree_reset
 stats_tree_tick_pivot
 stats_tree_tick_range
+stream_add_frag
+stream_find_frag
+stream_new_circ
+stream_process_reassembled
 string_to_name_resolve
+swaptab
 t30_indicator_vals		DATA
 T_h323_message_body_vals	DATA
 tap_push_tapped_queue

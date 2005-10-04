@@ -126,7 +126,8 @@ typedef enum {
   CT_ISDN,		/* ISDN channel number */
   CT_X25,		/* X.25 logical channel number */
   CT_ISUP,		/* ISDN User Part CIC */
-  CT_IAX2		/* IAX2 call id */
+  CT_IAX2,		/* IAX2 call id */
+  CT_H223		/* H.223 logical channel number */
   /* Could also have ATM VPI/VCI pairs */
 } circuit_type;
 
