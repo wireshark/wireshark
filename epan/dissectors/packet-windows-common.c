@@ -2004,30 +2004,29 @@ dissect_nt_sec_desc_type(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 
 int
 dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		    proto_tree *parent_tree, guint8 *drep, int len, 
+		    proto_tree *parent_tree, guint8 *drep,
+		    gboolean len_supplied, int len, 
 		    struct access_mask_info *ami)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	guint16 revision;
-	int old_offset = offset;
+	int start_offset = offset;
+	int item_offset, end_offset;
 	guint32 owner_sid_offset;
 	guint32 group_sid_offset;
 	guint32 sacl_offset;
 	guint32 dacl_offset;
 
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, len,
-					   "NT Security Descriptor");
-		tree = proto_item_add_subtree(item, ett_nt_sec_desc);
-	}
+	item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+				   "NT Security Descriptor");
+	tree = proto_item_add_subtree(item, ett_nt_sec_desc);
 
 	/* revision */
 	revision = tvb_get_letohs(tvb, offset);
 	proto_tree_add_uint(tree, hf_nt_sec_desc_revision,
 		tvb, offset, 2, revision);
 	offset += 2;
-
 
 	switch(revision){
 	case 1:  /* only version we will ever see of this structure?*/
@@ -2036,52 +2035,120 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	  /* offset to owner sid */
 	  owner_sid_offset = tvb_get_letohl(tvb, offset);
-	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to owner SID: %u", owner_sid_offset);
+	  if(owner_sid_offset != 0 && owner_sid_offset < 20){
+	    /* Bogus value - points into fixed portion of descriptor */
+	    proto_tree_add_text(tree, tvb, offset, 4, "Offset to owner SID: %u (bogus, must be >= 20)", owner_sid_offset);
+	    owner_sid_offset = 0;
+	  } else
+	    proto_tree_add_text(tree, tvb, offset, 4, "Offset to owner SID: %u", owner_sid_offset);
 	  offset += 4;
 
 	  /* offset to group sid */
 	  group_sid_offset = tvb_get_letohl(tvb, offset);
-	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to group SID: %u", group_sid_offset);
+	  if(group_sid_offset != 0 && group_sid_offset < 20){
+	    /* Bogus value - points into fixed portion of descriptor */
+	    proto_tree_add_text(tree, tvb, offset, 4, "Offset to group SID: %u (bogus, must be >= 20)", group_sid_offset);
+	    group_sid_offset = 0;
+	  } else
+	    proto_tree_add_text(tree, tvb, offset, 4, "Offset to group SID: %u", group_sid_offset);
 	  offset += 4;
 
 	  /* offset to sacl */
 	  sacl_offset = tvb_get_letohl(tvb, offset);
-	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to SACL: %u", sacl_offset);
+	  if(sacl_offset != 0 && sacl_offset < 20){
+	    /* Bogus value - points into fixed portion of descriptor */
+	    proto_tree_add_text(tree, tvb, offset, 4, "Offset to SACL: %u (bogus, must be >= 20)", sacl_offset);
+	    sacl_offset = 0;
+	  } else
+	    proto_tree_add_text(tree, tvb, offset, 4, "Offset to SACL: %u", sacl_offset);
 	  offset += 4;
 
 	  /* offset to dacl */
 	  dacl_offset = tvb_get_letohl(tvb, offset);
-	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to DACL: %u", dacl_offset);
+	  if(dacl_offset != 0 && dacl_offset < 20){
+	    /* Bogus value - points into fixed portion of descriptor */
+	    proto_tree_add_text(tree, tvb, offset, 4, "Offset to DACL: %u (bogus, must be >= 20)", dacl_offset);
+	    dacl_offset = 0;
+	  } else
+	    proto_tree_add_text(tree, tvb, offset, 4, "Offset to DACL: %u", dacl_offset);
 	  offset += 4;
+
+	  end_offset = offset;
 
 	  /*owner SID*/
 	  if(owner_sid_offset){
-	    if (len == -1)
-	      offset = dissect_nt_sid(tvb, offset, tree, "Owner", NULL, -1);
-	    else
-	      dissect_nt_sid(
-		      tvb, old_offset+owner_sid_offset, tree, "Owner", NULL, -1);
+	    item_offset = start_offset+owner_sid_offset;
+	    if (item_offset < start_offset) {
+	      /*
+	       * Overflow - throw an exception.
+	       */
+	      THROW(ReportedBoundsError);
+	    }
+	    offset = dissect_nt_sid(tvb, item_offset, tree, "Owner", NULL, -1);
+	    if (offset > end_offset)
+	      end_offset = offset;
 	  }
 
 	  /*group SID*/
 	  if(group_sid_offset){
-	    dissect_nt_sid(
-		    tvb, old_offset+group_sid_offset, tree, "Group", NULL, -1);
+	    item_offset = start_offset+group_sid_offset;
+	    if (item_offset < start_offset) {
+	      /*
+	       * Overflow - throw an exception.
+	       */
+	      THROW(ReportedBoundsError);
+	    }
+	    offset = dissect_nt_sid(tvb, item_offset, tree, "Group", NULL, -1);
+	    if (offset > end_offset)
+	      end_offset = offset;
 	  }
 
 	  /* sacl */
 	  if(sacl_offset){
-	    dissect_nt_acl(tvb, old_offset+sacl_offset, pinfo, tree, 
-			   drep, "System (SACL)", ami);
+	    item_offset = start_offset+sacl_offset;
+	    if (item_offset < start_offset) {
+	      /*
+	       * Overflow - throw an exception.
+	       */
+	      THROW(ReportedBoundsError);
+	    }
+	    offset = dissect_nt_acl(tvb, item_offset, pinfo, tree, 
+				    drep, "System (SACL)", ami);
+	    if (offset > end_offset)
+	      end_offset = offset;
 	  }
 
 	  /* dacl */
 	  if(dacl_offset){
-	    dissect_nt_acl(tvb, old_offset+dacl_offset, pinfo, tree, 
-			   drep, "User (DACL)", ami);
+	    item_offset = start_offset+dacl_offset;
+	    if (item_offset < start_offset) {
+	      /*
+	       * Overflow - throw an exception.
+	       */
+	      THROW(ReportedBoundsError);
+	    }
+	    offset = dissect_nt_acl(tvb, item_offset, pinfo, tree, 
+				    drep, "User (DACL)", ami);
+	    if (offset > end_offset)
+	      end_offset = offset;
 	  }
+	  break;
 
+	default:
+	  end_offset = offset;
+	  break;
 	}
+	if (len_supplied) {
+	  /* Make sure the length isn't too large (so that we get an
+	     overflow) */
+	  tvb_ensure_bytes_exist(tvb, start_offset, len);
+	} else {
+	  /* The length of the security descriptor is the difference
+	     between the starting offset and the offset past the last
+	     item in the descriptor. */
+	  len = end_offset - start_offset;
+	}
+	proto_item_set_len(item, len);
 
 	return offset+len;
 }

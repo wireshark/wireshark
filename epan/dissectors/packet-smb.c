@@ -7283,8 +7283,8 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		/* security descriptor */
 		if(ntd->sd_len){
 		        offset = dissect_nt_sec_desc(
-				tvb, offset, pinfo, tree, NULL, ntd->sd_len, 
-				NULL);
+				tvb, offset, pinfo, tree, NULL, TRUE,
+				ntd->sd_len, NULL);
 		}
 
 		/* extended attributes */
@@ -7302,7 +7302,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		break;
 	case NT_TRANS_SSD:
 		offset = dissect_nt_sec_desc(
-			tvb, offset, pinfo, tree, NULL, bc, NULL);
+			tvb, offset, pinfo, tree, NULL, TRUE, bc, NULL);
 		break;
 	case NT_TRANS_NOTIFY:
 		break;
@@ -7814,7 +7814,7 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo,
 		 * somewhere.
 		 */
 		offset = dissect_nt_sec_desc(
-			tvb, offset, pinfo, tree, NULL, len, NULL);
+			tvb, offset, pinfo, tree, NULL, TRUE, len, NULL);
 		break;
 	}
 	case NT_TRANS_GET_USER_QUOTA:

@@ -173,7 +173,8 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 int
 dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		    proto_tree *parent_tree, guint8 *drep, int len, 
+		    proto_tree *parent_tree, guint8 *drep,
+		    gboolean len_supplied, int len,
 		    struct access_mask_info *ami);
 
 void

@@ -259,11 +259,10 @@ sam_dissect_SAM_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset,
                                     hf_samr_sd_size, &len);
 
        dissect_nt_sec_desc(
-               tvb, offset, pinfo, tree, drep, len, &samr_connect_access_mask_info);
+               tvb, offset, pinfo, tree, drep, TRUE, len,
+               &samr_connect_access_mask_info);
 
        offset += len;
-       if (offset < old_offset)
-               THROW(ReportedBoundsError);
 
        return offset;
 }

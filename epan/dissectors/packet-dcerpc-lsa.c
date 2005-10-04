@@ -385,9 +385,9 @@ lsa_dissect_sec_desc_buf_data(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 				     hf_lsa_sd_size, &len);
 
-	tvb_ensure_bytes_exist(tvb, offset, len);
 	dissect_nt_sec_desc(
-		tvb, offset, pinfo, tree, drep, len, &lsa_access_mask_info);
+		tvb, offset, pinfo, tree, drep, TRUE, len,
+		&lsa_access_mask_info);
 
 	offset += len;
 

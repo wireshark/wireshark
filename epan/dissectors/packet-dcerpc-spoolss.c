@@ -2275,17 +2275,13 @@ static int dissect_PRINTER_INFO_2(tvbuff_t *tvb, int offset,
 	 * lacking the "len" argument, so that won't work.
 	 */
 
-	/* TODO: I think the length is only used to fix up the hex display
-	   pane.  We should be able to use proto_item_set_len() to avoid
-	   having to calculate the length. -tpot */
-
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, NULL, drep, hf_offset,
 		&secdesc_offset);
 
 	dissect_nt_sec_desc(
 		tvb, secdesc_offset, pinfo, tree, drep, 
-		tvb_length_remaining(tvb, secdesc_offset),
+		FALSE, -1,
 		&spoolss_printer_access_mask_info);
 
 	offset = dissect_printer_attributes(tvb, offset, pinfo, tree, drep);
@@ -2335,7 +2331,7 @@ static int dissect_PRINTER_INFO_3(tvbuff_t *tvb, int offset,
 	
 	offset = dissect_nt_sec_desc(
 		tvb, offset, pinfo, tree, drep, 
-		tvb_length_remaining(tvb, offset), 
+		FALSE, -1,
 		&spoolss_printer_access_mask_info);
 
 	return offset;
@@ -3413,7 +3409,7 @@ dissect_SEC_DESC_BUF(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 hf_secdescbuf_len, &len);
 	
 	dissect_nt_sec_desc(
-		tvb, offset, pinfo, subtree, drep, len, 
+		tvb, offset, pinfo, subtree, drep, TRUE, len, 
 		&spoolss_printer_access_mask_info);
 
 	offset += len;	
@@ -4538,7 +4534,7 @@ dissect_spoolss_JOB_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	dissect_nt_sec_desc(
 		tvb, secdesc_offset, pinfo, subtree, drep,
-		tvb_length_remaining(tvb, secdesc_offset),
+		FALSE, -1,
 		&spoolss_job_access_mask_info);
 
 	offset = dissect_job_status(tvb, offset, pinfo, subtree, drep);
