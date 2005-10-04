@@ -157,6 +157,12 @@ void proto_register_edonkey(void);
 #define EDONKEY_MTAG_BOOL                0x05
 #define EDONKEY_MTAG_BOOL_ARRAY          0x06
 #define EDONKEY_MTAG_BLOB                0x07
+#define EDONKEY_MTAG_WORD                0x08
+#define EDONKEY_MTAG_BYTE                0x09
+#define EDONKEY_MTAG_BSOB                0x0a
+#define EDONKEY_MTAG_STR1                0x11
+#define EDONKEY_MTAG_STR16               0x20
+#define EDONKEY_MTAG_SHORTNAME           0x80
 
 /* EDONKEY SPECIAL TAGS */
 #define EDONKEY_STAG_UNKNOWN             0x00
@@ -183,6 +189,7 @@ void proto_register_edonkey(void);
 #define EDONKEY_STAG_AVAILABILITY        0x15
 #define EDONKEY_STAG_QTIME               0x16
 #define EDONKEY_STAG_PARTS               0x17
+#define EDONKEY_STAG_MOD_VERSION         0x55
 
 /* EMULE SPECIAL TAGS */
 #define EMULE_STAG_COMPRESSION         0x20
@@ -192,6 +199,13 @@ void proto_register_edonkey(void);
 #define EMULE_STAG_COMMENTS            0x24
 #define EMULE_STAG_EXTENDED_REQUEST    0x25
 #define EMULE_STAG_COMPATIBLE_CLIENT   0x26
+#define EMULE_STAG_COMPAT_OPTIONS1     0xef
+#define EMULE_STAG_UDPPORTS            0xf9
+#define EMULE_STAG_MISCOPTIONS1        0xfa
+#define EMULE_STAG_VERSION             0xfb
+#define EMULE_STAG_BUDDYIP             0xfc
+#define EMULE_STAG_BUDDYUDP            0xfd
+#define EMULE_STAG_MISCOPTIONS2        0xfe
 
 /* EDONKEY SEARCH TYPES */
 #define EDONKEY_SEARCH_BOOL              0x00

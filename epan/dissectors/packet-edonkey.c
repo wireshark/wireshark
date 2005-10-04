@@ -213,6 +213,7 @@ static const value_string edonkey_special_tags[] = {
     { EDONKEY_STAG_AVAILABILITY,        "Availability"              },
     { EDONKEY_STAG_QTIME,               "Queue Time"                },
     { EDONKEY_STAG_PARTS,               "Parts"                     },
+    { EDONKEY_STAG_MOD_VERSION,         "Mod Version"               },
     { EMULE_STAG_COMPRESSION,           "Compression"               },
     { EMULE_STAG_UDP_CLIENT_PORT,       "UDP Client Port"           },
     { EMULE_STAG_UDP_VERSION,           "UDP Version"               },
@@ -220,6 +221,13 @@ static const value_string edonkey_special_tags[] = {
     { EMULE_STAG_COMMENTS,              "Comments"                  },
     { EMULE_STAG_EXTENDED_REQUEST,      "Extended Request"          },
     { EMULE_STAG_COMPATIBLE_CLIENT,     "Compatible Client"         },
+    { EMULE_STAG_COMPAT_OPTIONS1,       "Compatible Options"        },
+    { EMULE_STAG_UDPPORTS,              "UDP Ports"                 },
+    { EMULE_STAG_MISCOPTIONS1,          "Misc Options 1"            },
+    { EMULE_STAG_VERSION,               "eMule Version"             },
+    { EMULE_STAG_BUDDYIP,               "Buddy IP"                  },
+    { EMULE_STAG_BUDDYUDP,              "Buddy UDP"                 },
+    { EMULE_STAG_MISCOPTIONS2,          "Misc Options 2"            },
     { 0,                                NULL                        }
 };
 
@@ -324,21 +332,29 @@ static int dissect_edonkey_metatag(tvbuff_t *tvb, packet_info *pinfo _U_,
 {
     /* <Meta Tag> ::= <Tag Type (guint8)> <Tag Name> <Tag> */
     /* <Tag Name> ::= <Tag Name Size (guint16)> <Special Tag> || <String> */
+    /* <Tag Name> ::= <Special Tag> iff Tag Type had the top bit set */
     proto_item *ti;
     proto_tree *metatag_tree;
-    guint8 tag_type, special_tagtype;
-    guint16 tag_name_size, string_length;
-    guint32 tag_length, tag_value_guint32;
+    guint8 real_tag_type, tag_type, special_tagtype, tag_value_guint8;
+    guint16 tag_name_size, string_length, array_length, tag_value_guint16;
+    guint32 tag_length, blob_length, tag_value_guint32;
     int tag_offset;
 
-    tag_type = tvb_get_guint8(tvb, offset);
-    tag_name_size = tvb_get_letohs(tvb, offset+1);
-    special_tagtype = tvb_get_guint8(tvb, offset+3);
-    
-    tag_length = 3 + tag_name_size;
+    real_tag_type = tag_type = tvb_get_guint8(tvb, offset);
+    if (tag_type & EDONKEY_MTAG_SHORTNAME) {
+        real_tag_type &= ~EDONKEY_MTAG_SHORTNAME;
+        tag_name_size = 1;
+        special_tagtype = tvb_get_guint8(tvb, offset+1);
+        tag_length = 2;
+    } else {
+        tag_name_size = tvb_get_letohs(tvb, offset+1);
+        special_tagtype = tvb_get_guint8(tvb, offset+3);
+        tag_length = 3 + tag_name_size;
+    }
+
     tag_offset = offset + tag_length;
     
-    switch (tag_type)
+    switch (real_tag_type)
     {        
         case EDONKEY_MTAG_HASH:
             /* <Tag> ::= HASH */
@@ -346,20 +362,22 @@ static int dissect_edonkey_metatag(tvbuff_t *tvb, packet_info *pinfo _U_,
             ti = proto_tree_add_item(tree, hf_edonkey_metatag, tvb, offset, tag_length, FALSE);
             metatag_tree = proto_item_add_subtree(ti, ett_edonkey_metatag);
             proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_type, tvb, offset, 1, tag_type);
-            proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_namesize, tvb, offset+1, 2, tag_name_size);
-            edonkey_tree_add_metatag_name(metatag_tree, tvb, offset+3, tag_name_size, special_tagtype);
+            if (tag_type==real_tag_type)
+                proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_namesize, tvb, offset+1, 2, tag_name_size);
+            edonkey_tree_add_metatag_name(metatag_tree, tvb, tag_offset-tag_name_size, tag_name_size, special_tagtype);
             proto_tree_add_item(metatag_tree, hf_edonkey_hash, tvb, tag_offset, 16, FALSE);
             break;
             
         case EDONKEY_MTAG_STRING:
-            /* <Tag> ::= <String> */
+            /* <Tag> ::= <Length (guint16)> <String> */
             string_length = tvb_get_letohs(tvb, tag_offset);
             tag_length += 2+string_length;
             ti = proto_tree_add_item(tree, hf_edonkey_metatag, tvb, offset, tag_length, FALSE);
             metatag_tree = proto_item_add_subtree(ti, ett_edonkey_metatag);
             proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_type, tvb, offset, 1, tag_type);
-            proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_namesize, tvb, offset+1, 2, tag_name_size);
-            edonkey_tree_add_metatag_name(metatag_tree, tvb, offset+3, tag_name_size, special_tagtype);
+            if (tag_type==real_tag_type)
+                proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_namesize, tvb, offset+1, 2, tag_name_size);
+            edonkey_tree_add_metatag_name(metatag_tree, tvb, tag_offset-tag_name_size, tag_name_size, special_tagtype);
             proto_tree_add_uint(metatag_tree, hf_edonkey_string_length, tvb, tag_offset, 2, string_length);
             proto_tree_add_item(metatag_tree, hf_edonkey_string, tvb, tag_offset+2, string_length, FALSE);
             break;
@@ -370,8 +388,9 @@ static int dissect_edonkey_metatag(tvbuff_t *tvb, packet_info *pinfo _U_,
             ti = proto_tree_add_item(tree, hf_edonkey_metatag, tvb, offset, tag_length, FALSE);
             metatag_tree = proto_item_add_subtree(ti, ett_edonkey_metatag);
             proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_type, tvb, offset, 1, tag_type);
-            proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_namesize, tvb, offset+1, 2, tag_name_size);
-            edonkey_tree_add_metatag_name(metatag_tree, tvb, offset+3, tag_name_size, special_tagtype);
+            if (tag_type==real_tag_type)
+                proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_namesize, tvb, offset+1, 2, tag_name_size);
+            edonkey_tree_add_metatag_name(metatag_tree, tvb, tag_offset-tag_name_size, tag_name_size, special_tagtype);
             if (edonkey_metatag_name_get_type(tvb, offset+3, tag_name_size, special_tagtype) == EDONKEY_STAG_IP) {
                 proto_tree_add_item(metatag_tree, hf_edonkey_ip, tvb, tag_offset, 4, FALSE);
             }
@@ -387,21 +406,110 @@ static int dissect_edonkey_metatag(tvbuff_t *tvb, packet_info *pinfo _U_,
             ti = proto_tree_add_item(tree, hf_edonkey_metatag, tvb, offset, tag_length, FALSE);
             metatag_tree = proto_item_add_subtree(ti, ett_edonkey_metatag);
             proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_type, tvb, offset, 1, tag_type);
-            proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_namesize, tvb, offset+1, 2, tag_name_size);
-            edonkey_tree_add_metatag_name(metatag_tree, tvb, offset+3, tag_name_size, special_tagtype);
+            if (tag_type==real_tag_type)
+                proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_namesize, tvb, offset+1, 2, tag_name_size);
+            edonkey_tree_add_metatag_name(metatag_tree, tvb, tag_offset-tag_name_size, tag_name_size, special_tagtype);
             break;
 
-        case EDONKEY_MTAG_BOOL:       /* <Tag> ::= Boolean ?? bytes*/
-        case EDONKEY_MTAG_BOOL_ARRAY: /* <Tag> ::= ?? */
-        case EDONKEY_MTAG_BLOB:       /* <Tag> ::= ?? */
-        case EDONKEY_MTAG_UNKNOWN:
-        default:
-            /* Unknown tag type - actual tag length is also unknown */
+        case EDONKEY_MTAG_WORD:
+            /* <Tag> ::= guint16 */
+            tag_length += 2;
             ti = proto_tree_add_item(tree, hf_edonkey_metatag, tvb, offset, tag_length, FALSE);
             metatag_tree = proto_item_add_subtree(ti, ett_edonkey_metatag);
-            proto_tree_add_text(metatag_tree, tvb, offset, 1, "Unknown Meta Tag Type (0x%02x)", tag_type);
-            proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_namesize, tvb, offset+1, 2, tag_name_size);
-            edonkey_tree_add_metatag_name(metatag_tree, tvb, offset+3, tag_name_size, special_tagtype);
+            proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_type, tvb, offset, 1, tag_type);
+            if (tag_type==real_tag_type)
+                proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_namesize, tvb, offset+1, 2, tag_name_size);
+            edonkey_tree_add_metatag_name(metatag_tree, tvb, tag_offset-tag_name_size, tag_name_size, special_tagtype);
+            {
+                tag_value_guint16 = tvb_get_letohs(tvb, tag_offset);
+                proto_tree_add_text(metatag_tree, tvb, tag_offset, 2, "Meta Tag Value: %u", tag_value_guint16);
+            }
+            break;
+            
+        case EDONKEY_MTAG_BYTE:
+            /* <Tag> ::= guint8 */
+            tag_length += 1;
+            ti = proto_tree_add_item(tree, hf_edonkey_metatag, tvb, offset, tag_length, FALSE);
+            metatag_tree = proto_item_add_subtree(ti, ett_edonkey_metatag);
+            proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_type, tvb, offset, 1, tag_type);
+            if (tag_type==real_tag_type)
+                proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_namesize, tvb, offset+1, 2, tag_name_size);
+            edonkey_tree_add_metatag_name(metatag_tree, tvb, tag_offset-tag_name_size, tag_name_size, special_tagtype);
+            {
+                tag_value_guint8 = tvb_get_guint8(tvb, tag_offset);
+                proto_tree_add_text(metatag_tree, tvb, tag_offset, 1, "Meta Tag Value: %u", tag_value_guint8);
+            }
+            break;
+
+        case EDONKEY_MTAG_BOOL:
+            /* <Tag> ::= <Bool (guint8)> */
+            tag_length += 1;
+            ti = proto_tree_add_item(tree, hf_edonkey_metatag, tvb, offset, tag_length, FALSE);
+            metatag_tree = proto_item_add_subtree(ti, ett_edonkey_metatag);
+            proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_type, tvb, offset, 1, tag_type);
+            if (tag_type==real_tag_type)
+                proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_namesize, tvb, offset+1, 2, tag_name_size);
+            edonkey_tree_add_metatag_name(metatag_tree, tvb, tag_offset-tag_name_size, tag_name_size, special_tagtype);
+            {
+                tag_value_guint8 = tvb_get_guint8(tvb, tag_offset);
+                proto_tree_add_text(metatag_tree, tvb, tag_offset, 1, "Meta Tag Value: %u", tag_value_guint8);
+            }
+            break;
+
+        case EDONKEY_MTAG_BOOL_ARRAY:
+            /* <Tag> ::= <Length (guint16)> <BoolArray> */
+            array_length = tvb_get_letohs(tvb, tag_offset);
+            // This is allegedly what the protocol uses, rather than the correct value of (array_length+7)/8
+            // Therefore an extra unused byte is transmitted is the array is a multiple of 8 long
+            tag_length += 2+(array_length/8)+1;
+            ti = proto_tree_add_item(tree, hf_edonkey_metatag, tvb, offset, tag_length, FALSE);
+            metatag_tree = proto_item_add_subtree(ti, ett_edonkey_metatag);
+            proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_type, tvb, offset, 1, tag_type);
+            if (tag_type==real_tag_type)
+                proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_namesize, tvb, offset+1, 2, tag_name_size);
+            edonkey_tree_add_metatag_name(metatag_tree, tvb, tag_offset-tag_name_size, tag_name_size, special_tagtype);
+            proto_tree_add_text(metatag_tree, tvb, tag_offset, 2, "Booleann Array Length: %u", array_length);
+            break;
+            
+        case EDONKEY_MTAG_BLOB:
+            /* <Tag> ::= <Length (guint32)> <BLOB> */
+            blob_length = tvb_get_letohl(tvb, tag_offset);
+            tag_length += 4+blob_length;
+            ti = proto_tree_add_item(tree, hf_edonkey_metatag, tvb, offset, tag_length, FALSE);
+            metatag_tree = proto_item_add_subtree(ti, ett_edonkey_metatag);
+            proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_type, tvb, offset, 1, tag_type);
+            if (tag_type==real_tag_type)
+                proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_namesize, tvb, offset+1, 2, tag_name_size);
+            edonkey_tree_add_metatag_name(metatag_tree, tvb, tag_offset-tag_name_size, tag_name_size, special_tagtype);
+            proto_tree_add_text(metatag_tree, tvb, tag_offset, 2, "BLOB Length: %u", blob_length);
+            break;
+
+        case EDONKEY_MTAG_BSOB:
+            /* This is possibly a Binary Small OBject, like a BLOB but with an 8 or 16-bit length field */
+            /* That's a complete guess though, so don't handle it yet. */
+        case EDONKEY_MTAG_UNKNOWN:
+        default:
+            if (real_tag_type>=EDONKEY_MTAG_STR1 && real_tag_type<=EDONKEY_MTAG_STR16) {
+                /* <Tag> ::= <String> */
+                string_length = real_tag_type-EDONKEY_MTAG_STR1+1;
+                tag_length += string_length;
+                ti = proto_tree_add_item(tree, hf_edonkey_metatag, tvb, offset, tag_length, FALSE);
+                metatag_tree = proto_item_add_subtree(ti, ett_edonkey_metatag);
+                proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_type, tvb, offset, 1, tag_type);
+                if (real_tag_type==tag_type)
+                    proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_namesize, tvb, offset+1, 2, tag_name_size);
+                edonkey_tree_add_metatag_name(metatag_tree, tvb, tag_offset-tag_name_size, tag_name_size, special_tagtype);
+                proto_tree_add_item(metatag_tree, hf_edonkey_string, tvb, tag_offset, string_length, FALSE);
+
+            } else {
+                /* Unknown tag type - actual tag length is also unknown */
+                ti = proto_tree_add_item(tree, hf_edonkey_metatag, tvb, offset, tag_length, FALSE);
+                metatag_tree = proto_item_add_subtree(ti, ett_edonkey_metatag);
+                proto_tree_add_text(metatag_tree, tvb, offset, 1, "Unknown Meta Tag Type (0x%02x)", tag_type);
+                if (real_tag_type==tag_type)
+                    proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_namesize, tvb, offset+1, 2, tag_name_size);
+                edonkey_tree_add_metatag_name(metatag_tree, tvb, tag_offset-tag_name_size, tag_name_size, special_tagtype);
+            }
             break;
         
     }
