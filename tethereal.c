@@ -1367,7 +1367,12 @@ main(int argc, char *argv[])
 
 #ifdef _WIN32
     if (!has_wpcap) {
-      fprintf(stderr, "tethereal: Could not load wpcap.dll.\n");
+      char *detailed_err;
+
+      fprintf(stderr, "tethereal: WinPcap couldn't be found.\n");
+      detailed_err = cant_load_winpcap_err("Tethereal");
+      fprintf(stderr, "%s\n", detailed_err);
+      g_free(detailed_err);
       exit(2);
     }
 #endif

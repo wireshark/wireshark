@@ -23,18 +23,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-#
-# XXX - this is used by dissectors and by other parts of Ethereal.
-# Ultimately, we need to handle strings "right", so that we can handle
-# strings in protocols that are in various encodings, and figure out
-# properly whether a given character can be {displayed in the GUI,
-# printed to a printout, written to a file} internally to the routines
-# handling that, with a scheme more sophisticated than "if it ain't
-# ASCII it ain't ....".
-#
-DISSECTOR_SUPPORT_INCLUDES =	\
-	isprint.h
-
 # "BUILT_SOURCES" are built before any "make all" or "make check" targets.
 BUILT_HEADER_FILES =	\
 	svnversion.h
@@ -59,6 +47,7 @@ GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)
 # sources common for ethereal and tethereal
 ETHEREAL_COMMON_SRC =	\
 	$(PLATFORM_SRC) \
+	capture_errs.c	\
 	capture_stop_conditions.c	\
 	capture_ui_utils.c	\
 	cfile.c	\
@@ -76,8 +65,8 @@ ETHEREAL_COMMON_SRC =	\
 
 # corresponding headers
 ETHEREAL_COMMON_INCLUDES =	\
-	$(DISSECTOR_SUPPORT_INCLUDES)	\
 	svnversion.h		\
+	capture_errs.h	\
 	capture_stop_conditions.h	\
 	capture_ui_utils.h	\
 	cfile.h	\
@@ -87,6 +76,7 @@ ETHEREAL_COMMON_INCLUDES =	\
 	disabled_protos.h	\
 	file.h	\
 	fileset.h	\
+	isprint.h	\
 	packet-range.h	\
 	pcap-util.h	\
 	pcap-util-int.h	\
@@ -212,7 +202,6 @@ randpkt_SOURCES = \
 
 # this target needed for distribution only
 noinst_HEADERS =	\
-	$(DISSECTOR_SUPPORT_INCLUDES) \
 	$(ETHEREAL_COMMON_INCLUDES) \
 	$(ethereal_INCLUDES) \
 	$(EXTRA_ethereal_INCLUDES)

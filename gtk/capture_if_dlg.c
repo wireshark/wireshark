@@ -53,6 +53,7 @@
 #include "capture.h"
 #include "capture_dlg.h"
 #include "capture_if_details_dlg.h"
+#include "capture_errs.h"
 
 #include "gui_utils.h"
 #include "dlg_utils.h"
@@ -352,24 +353,12 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 #ifdef _WIN32
   /* Is WPcap loaded? */
   if (!has_wpcap) {
-	  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		  "Unable to load WinPcap (wpcap.dll); Ethereal will not be able\n"
-		  "to capture packets.\n\n"
-		  "In order to capture packets, WinPcap must be installed; see\n"
-		  "\n"
-		  "        http://www.winpcap.org/\n"
-		  "\n"
-		  "or the mirror at\n"
-		  "\n"
-		  "        http://winpcap.mirror.ethereal.com/\n"
-		  "\n"
-		  "or the mirror at\n"
-		  "\n"
-		  "        http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/\n"
-		  "\n"
-		  "for a downloadable version of WinPcap and for instructions\n"
-		  "on how to install WinPcap.");
-	  return;
+    char *detailed_err;
+
+    detailed_err = cant_load_winpcap_err();
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", detailed_err);
+    g_free(detailed_err);
+    return;
   }
 #endif
 
