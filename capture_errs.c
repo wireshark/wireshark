@@ -28,6 +28,8 @@
 
 #ifdef HAVE_LIBPCAP
 
+#include <glib.h>
+
 #include "capture_errs.h"
 
 #ifdef _WIN32
