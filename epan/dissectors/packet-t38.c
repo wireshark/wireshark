@@ -91,6 +91,8 @@ static gboolean dissect_possible_rtpv2_packets_as_rtp = FALSE;
 static gboolean t38_tpkt_reassembly = TRUE;
 
 
+static t38_packet_info *t38_info=NULL;
+
 /* Preference setting whether TPKT header is used when sending T.38 over TCP.
  * The default setting is Maybe where the dissector will look on the first
  * bytes to try to determine whether TPKT header is used or not. This may not
@@ -173,13 +175,6 @@ void proto_reg_handoff_t38(void);
 static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 /* Preferences bool to control whether or not setup info should be shown */
 static gboolean global_t38_show_setup_info = TRUE;
-
-/* Can tap up to 4 T38 packets within same packet */
-/* We only tap the primary part, not the redundancy */
-#define MAX_T38_MESSAGES_IN_PACKET 4
-static t38_packet_info t38_info_arr[MAX_T38_MESSAGES_IN_PACKET];
-static int t38_info_current=0;
-static t38_packet_info *t38_info=NULL;
 
 /* Set up an T38 conversation */
 void t38_add_address(packet_info *pinfo,
@@ -797,23 +792,8 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 offset=0;
 	int i;
 
-	/*
-	 * XXX - heuristic to check for misidentified packets.
-	 */
-	if(dissect_possible_rtpv2_packets_as_rtp){
-		octet1 = tvb_get_guint8( tvb, offset );
-		if(RTP_VERSION(octet1) == 2){
-			call_dissector(rtp_handle,tvb,pinfo,tree);
-			return;
-		}
-	}
-
 	/* tap info */
-	t38_info_current++;
-	if (t38_info_current==MAX_T38_MESSAGES_IN_PACKET) {
-		t38_info_current=0;
-	}
-	t38_info = &t38_info_arr[t38_info_current];
+	t38_info = ep_alloc(sizeof(t38_packet_info));
 
 	t38_info->seq_num = 0;
 	t38_info->type_msg = 0;
@@ -825,6 +805,18 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		t38_info->data_type[i] = 0;
 		t38_info->data[i] = NULL;
 		t38_info->data_len[i] = 0;
+	}
+
+
+	/*
+	 * XXX - heuristic to check for misidentified packets.
+	 */
+	if(dissect_possible_rtpv2_packets_as_rtp){
+		octet1 = tvb_get_guint8( tvb, offset );
+		if(RTP_VERSION(octet1) == 2){
+			call_dissector(rtp_handle,tvb,pinfo,tree);
+			return;
+		}
 	}
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
@@ -885,6 +877,23 @@ dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *tr;
 	guint32 offset=0;
 	guint16 ifp_packet_number=1;
+	int i;
+
+	/* tap info */
+	t38_info = ep_alloc(sizeof(t38_packet_info));
+
+	t38_info->seq_num = 0;
+	t38_info->type_msg = 0;
+	t38_info->data_value = 0;
+	t38_info->t30ind_value =0;
+
+	t38_info->t38_info_data_item_index = 0;
+	for (i=0; i<MAX_T38_DATA_ITEMS; i++) {
+		t38_info->data_type[i] = 0;
+		t38_info->data[i] = NULL;
+		t38_info->data_len[i] = 0;
+	}
+
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.38");
