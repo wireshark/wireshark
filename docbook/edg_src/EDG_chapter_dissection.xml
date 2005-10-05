@@ -743,17 +743,31 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		</para>
 		<para>
 		To deal with such streams, we need several things to trigger
-		from. We need to know that this is packet is part of a multi-packet 
+		from. We need to know that this packet is part of a multi-packet 
 		sequence. We need to know how many packets are in the sequence.
-		We need to also know when we have all the packets.
+		We also need to know when we have all the packets.
 		</para>
 		<para>
 		For this example we'll assume there is a simple in-protocol
 		signaling mechanism to give details. A flag byte that signals
-		the presence of a multi-packet and also the last packet, 
-		followed by an ID of the sequence,
-		a packet sequence number.
+		the presence of a multi-packet sequence and also the last packet, 
+		followed by an ID of the sequence and a packet sequence number.
 		</para>
+                <programlisting>
+<![CDATA[
+msg_pkt ::= SEQUENCE {
+	.....
+	flags ::= SEQUENCE {
+		fragment	BOOLEAN,
+		last_fragment	BOOLEAN,
+	.....
+	}
+	msg_id	INTEGER(0..65535),
+	frag_id	INTEGER(0..65565),
+	.....
+}
+]]>
+                </programlisting>
 	   <example><title>Reassembling fragments - Part 1</title>
    <programlisting>
    <![CDATA[
@@ -761,7 +775,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    ...
 save_fragmented = pinfo->fragmented;
 flags = tvb_get_guint8(tvb, offset); offset++;
-if (flags & FL_FRAGMENT) { // fragmented
+if (flags & FL_FRAGMENT) { /* fragmented */
 	tvbuff_t* new_tvb = NULL;
 	fragment_data *frag_msg = NULL;
 	guint16 msg_seqid = tvb_get_ntohs(tvb, offset); offset += 2;
@@ -769,11 +783,11 @@ if (flags & FL_FRAGMENT) { // fragmented
 
 	pinfo->fragmented = TRUE;
 	frag_msg = fragment_add_seq_check (tvb, offset, pinfo,
-		msg_seqid, /* guint32 ID for fragments belonging together */
+		msg_seqid, /* ID for fragments belonging together */
 		msg_fragment_table, /* list of message fragments */
 		msg_reassembled_table, /* list of reassembled messages */
-		msg_num, /* guint32 fragment sequence number */
-		-1, /* guint32 fragment length - to the end */
+		msg_num, /* fragment sequence number */
+		-1, /* fragment length - to the end */
 		flags & FL_FRAG_LAST); /* More fragments? */
 ]]>
    </programlisting></example>
@@ -833,14 +847,15 @@ if (flags & FL_FRAGMENT) { // fragmented
 			col_append_fstr (pinfo->cinfo, COL_INFO,
 			" (Message fragment %u)", msg_num);
 	}
-	if (new_tvb) { // take it all
+
+	if (new_tvb) { /* take it all */
 		next_tvb = new_tvb;
+	} else { /* make a new subset */
+	 	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 	}
-	else  // make a new subset
-		next_tvb = tvb_new_subset(next_tvb, offset, -1, -1);
 }
-else {
-	next_tvb = tvb_new_subset(next_tvb, offset, -1, -1);
+else { /* Not fragmented */
+	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 }
 
 offset = 0;
@@ -893,6 +908,19 @@ msg_init_protocol(void)
 	   <example><title>Reassembling fragments - Data</title>
 	   <programlisting>
 	   <![CDATA[
+...
+static int hf_msg_fragments = -1;
+static int hf_msg_fragment = -1;
+static int hf_msg_fragment_overlap = -1;
+static int hf_msg_fragment_overlap_conflicts = -1;
+static int hf_msg_fragment_multiple_tails = -1;
+static int hf_msg_fragment_too_long_fragment = -1;
+static int hf_msg_fragment_error = -1;
+static int hf_msg_reassembled_in = -1;
+...
+static gint ett_msg_fragment = -1;
+static gint ett_msg_fragments = -1;
+...
 static const fragment_items msg_frag_items = {
 	/* Fragment subtrees */
 	&ett_msg_fragment,
@@ -910,6 +938,9 @@ static const fragment_items msg_frag_items = {
 	/* Tag */
 	"Message fragments"
 };
+...
+static hf_register_info hf[] = 
+{
 ...
 {&hf_msg_fragments,
 	{"Message fragments", "msg.fragments",
@@ -937,6 +968,13 @@ static const fragment_items msg_frag_items = {
 {&hf_msg_reassembled_in,
 	{"Reassembled in", "msg.reassembled.in",
 	FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+...
+static gint *ett[] = 
+{
+...
+&ett_msg_fragment,
+&ett_msg_fragments
+...
 ]]>
    </programlisting></example>
    <para>
