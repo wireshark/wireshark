@@ -78,7 +78,6 @@ static int hf_fcels_cls4param        = -1;
 static int hf_fcels_vendorvers       = -1;
 static int hf_fcels_svcavail         = -1;
 static int hf_fcels_clsflags         = -1;
-static int hf_fcels_rcptctl          = -1;
 static int hf_fcels_clsrcvsize       = -1;
 static int hf_fcels_conseq           = -1;
 static int hf_fcels_e2e              = -1;
@@ -155,6 +154,12 @@ static int hf_fcels_initctl_initial_pa = -1;
 static int hf_fcels_initctl_ack0 = -1;
 static int hf_fcels_initctl_ackgaa = -1;
 static int hf_fcels_initctl_sync = -1;
+static int hf_fcels_rcptctl = -1;
+static int hf_fcels_rcptctl_ack0 = -1;
+static int hf_fcels_rcptctl_interlock = -1;
+static int hf_fcels_rcptctl_policy = -1;
+static int hf_fcels_rcptctl_category = -1;
+static int hf_fcels_rcptctl_sync = -1;
 
 static gint ett_fcels = -1;
 static gint ett_fcels_lsrjt = -1;
@@ -189,6 +194,7 @@ static gint ett_fcels_cbind = -1;
 static gint ett_fcels_cmnfeatures = -1;
 static gint ett_fcels_clsflags = -1;
 static gint ett_fcels_initctl = -1;
+static gint ett_fcels_rcptctl = -1;
 
 static const value_string fc_prli_fc4_val[] = {
     {FC_TYPE_SCSI    , "FCP"},
@@ -559,69 +565,82 @@ dissect_initctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint
 	flags&=(~( 0x0010 ));
 }
 
+
+static const true_false_string tfs_fc_fcels_rcptctl_ack0 = {
+	"ACK0 Supported",
+	"Ack0 NOT supported"
+};
+static const true_false_string tfs_fc_fcels_rcptctl_interlock = {
+	"X_ID Interlock Reqd",
+	"X_id interlock NOT reqd"
+};
+static const value_string rcptctl_policy_vals[] = {
+	{ 0, "Error Policy: Discard Policy only" },
+	{ 1, "Error Policy: Reserved" },
+	{ 2, "Error Policy: Both discard and process policies supported" },
+	{ 3, "Error Policy: Reserved" },
+	{ 0, NULL }
+};
+static const value_string rcptctl_category_vals[] = {
+	{ 0, "1 Category/Seq" },
+	{ 1, "2 Categories/Seq" },
+	{ 3, "More than 2 Categories/Seq" },
+	{ 0, NULL }
+};
+static const true_false_string tfs_fc_fcels_rcptctl_sync = {
+	"Clock Sync ELS Supported",
+	"NO clock sync els support"
+};
+
 static void
-construct_rcptctl_string (guint16 flag, gchar *flagstr, guint8 opcode)
+dissect_rcptctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
 {
-    int stroff = 0;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+    
+	if(parent_tree){
+		item=proto_tree_add_uint(parent_tree, hf_fcels_rcptctl, 
+				tvb, offset, 2, flags);
+		tree=proto_item_add_subtree(item, ett_fcels_rcptctl);
+	}
 
-    if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
-        if (flag & 0x8000) {
-            strcpy (flagstr, "ACK_0 Supported");
-            stroff += 15;
-        }
-        else {
-            strcpy (flagstr, "ACK_0 Not Supported");
-            stroff += 19;
-        }
+	if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
+		proto_tree_add_boolean(tree, hf_fcels_rcptctl_ack0, tvb, offset, 2, flags);
+		if (flags&0x8000){
+			proto_item_append_text(item, "  ACK0 Supported");
+		} else {
+			proto_item_append_text(item, "  ACK0 NOT Supported");
+		}
+		flags&=(~( 0x8000 ));
 
-        if (flag & 0x2000) {
-            strcpy (&flagstr[stroff], ", X_ID Interlock Reqd");
-            stroff += 21;
-        }
+		proto_tree_add_boolean(tree, hf_fcels_rcptctl_interlock, tvb, offset, 2, flags);
+		if (flags&0x2000){
+			proto_item_append_text(item, "  X_ID Interlock Reqd");
+		}
+		flags&=(~( 0x2000 ));
 
-        switch (flag & 0x1800) {
-        case 0x0:
-            strcpy (&flagstr[stroff], ", Error Policy: Discard Policy only");
-            stroff += 43;
-            break;
-        case 0x1000:
-            strcpy (&flagstr[stroff], ", Error Policy: Both discard and process policies supported");
-            stroff += 52;
-            break;
-        case 0x0800:
-            strcpy (&flagstr[stroff], ", Error Policy: Reserved");
-            stroff += 41;
-            break;
-        case 0x1800:
-            strcpy (&flagstr[stroff], ", Error Policy: Reserved");
-            stroff += 52;
-            break;
-        }
+		proto_tree_add_uint(tree, hf_fcels_rcptctl_policy, 
+				tvb, offset, 2, flags);
+		proto_item_append_text(item, "  %s", 
+			val_to_str((flags&0x1800)>>11, rcptctl_policy_vals,
+				"0x%02x") 
+			);
+		flags&=(~( 0x1800 ));
 
-        switch (flag & 0x0030) {
-        case 0:
-            strcpy (&flagstr[stroff], ", 1 Category/Seq");
-            stroff += 16;
-            break;
-        case 0x0010:
-            strcpy (&flagstr[stroff], ", 2 Categories/Seq");
-            stroff += 18;
-            break;
-        case 0x0030:
-            strcpy (&flagstr[stroff], ", More than 2 Categories/Seq");
-            stroff += 28;
-            break;
-        }
+		proto_tree_add_uint(tree, hf_fcels_rcptctl_category, 
+				tvb, offset, 2, flags);
+		proto_item_append_text(item, "  %s", 
+			val_to_str((flags&0x0030)>>4, rcptctl_category_vals,
+				"0x%02x") 
+			);
+		flags&=(~( 0x0030 ));
+	}
 
-        if (flag & 0x0008) {
-            strcpy (&flagstr[stroff], ", Clk Sync ELS Supported");
-        }
-    }
-    else {
-        if (flag & 0x0008) {
-            strcpy (&flagstr[stroff], "Clk Sync ELS Supported");
-        }
-    }
+	proto_tree_add_boolean(tree, hf_fcels_rcptctl_sync, tvb, offset, 2, flags);
+	if (flags&0x0008){
+		proto_item_append_text(item, "  Clock Sync ELS Supported");
+	}
+	flags&=(~( 0x0008 ));
 }
 
 /* Maximum length of possible string from, construct_*_string
@@ -676,18 +695,11 @@ dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             flag = tvb_get_ntohs (tvb, offset);
             dissect_clssvc_flags (cmnsvc_tree, tvb, offset, flag, opcode);
             if (flag & 0x8000) {
-                char *flagstr;
-
                 flag = tvb_get_ntohs (tvb, offset+2);
                 dissect_initctl_flags (cmnsvc_tree, tvb, offset+2, flag, opcode);
 
                 flag = tvb_get_ntohs (tvb, offset+4);
-                flagstr=ep_alloc(FCELS_LOGI_MAXSTRINGLEN);    
-                construct_rcptctl_string (flag, flagstr, opcode);
-                proto_tree_add_uint_format (cmnsvc_tree, hf_fcels_initctl, tvb,
-                                            offset+4, 2, flag,
-                                            "Recipient Control: 0x%x(%s)", flag,
-                                            flagstr);
+                dissect_rcptctl_flags (cmnsvc_tree, tvb, offset+4, flag, opcode);
 
                 proto_tree_add_item (cmnsvc_tree, hf_fcels_clsrcvsize, tvb,
                                      offset+6, 2, FALSE);
@@ -2039,9 +2051,6 @@ proto_register_fcels (void)
         { &hf_fcels_clsflags,
           {"Service Options", "fcels.logi.clsflags", FT_UINT16, BASE_HEX, NULL, 0x0, "",
            HFILL}},
-        { &hf_fcels_rcptctl,
-          {"Recipient Ctl", "fcels.logi.rcptctl", FT_UINT16, BASE_HEX, NULL, 0x0, "",
-           HFILL}},
         { &hf_fcels_clsrcvsize,
           {"Class Recv Size", "fcels.logi.clsrcvsize", FT_UINT16, BASE_DEC, NULL,
            0x0, "", HFILL}},
@@ -2267,6 +2276,24 @@ proto_register_fcels (void)
         { &hf_fcels_initctl_sync,
           {"Clock Sync", "fcels.logi.initctl.sync", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_initctl_sync), 0x0010, "", HFILL}},
+        { &hf_fcels_rcptctl,
+          {"Recipient Ctl", "fcels.logi.rcptctl", FT_UINT16, BASE_HEX, 
+           NULL, 0x0, "", HFILL}},
+        { &hf_fcels_rcptctl_ack0,
+          {"ACK0", "fcels.logi.rcptctl.ack", FT_BOOLEAN, 16, 
+           TFS(&tfs_fc_fcels_rcptctl_ack0), 0x8000, "", HFILL}},
+        { &hf_fcels_rcptctl_interlock,
+          {"X_ID Interlock", "fcels.logi.rcptctl.interlock", FT_BOOLEAN, 16, 
+           TFS(&tfs_fc_fcels_rcptctl_interlock), 0x2000, "", HFILL}},
+        { &hf_fcels_rcptctl_policy,
+          {"Policy", "fcels.logi.rcptctl.policy", FT_UINT16, BASE_HEX,
+           VALS(rcptctl_policy_vals), 0x1800, "", HFILL}},
+        { &hf_fcels_rcptctl_category,
+          {"Category", "fcels.logi.rcptctl.category", FT_UINT16, BASE_HEX,
+           VALS(rcptctl_category_vals), 0x0030, "", HFILL}},
+        { &hf_fcels_rcptctl_sync,
+          {"Clock Sync", "fcels.logi.rcptctl.sync", FT_BOOLEAN, 16,
+           TFS(&tfs_fc_fcels_rcptctl_sync), 0x0008, "", HFILL}},
     };
 
     static gint *ett[] = {
@@ -2304,6 +2331,7 @@ proto_register_fcels (void)
 	&ett_fcels_cmnfeatures,
 	&ett_fcels_clsflags,
 	&ett_fcels_initctl,
+	&ett_fcels_rcptctl,
     };
 
     /* Register the protocol name and description */
