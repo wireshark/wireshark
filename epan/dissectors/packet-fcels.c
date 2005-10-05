@@ -78,7 +78,6 @@ static int hf_fcels_cls4param        = -1;
 static int hf_fcels_vendorvers       = -1;
 static int hf_fcels_svcavail         = -1;
 static int hf_fcels_clsflags         = -1;
-static int hf_fcels_initctl          = -1;
 static int hf_fcels_rcptctl          = -1;
 static int hf_fcels_clsrcvsize       = -1;
 static int hf_fcels_conseq           = -1;
@@ -151,6 +150,11 @@ static int hf_fcels_cls_cns = -1;
 static int hf_fcels_cls_sdr = -1;
 static int hf_fcels_cls_prio = -1;
 static int hf_fcels_cls_nzctl = -1;
+static int hf_fcels_initctl = -1;
+static int hf_fcels_initctl_initial_pa = -1;
+static int hf_fcels_initctl_ack0 = -1;
+static int hf_fcels_initctl_ackgaa = -1;
+static int hf_fcels_initctl_sync = -1;
 
 static gint ett_fcels = -1;
 static gint ett_fcels_lsrjt = -1;
@@ -184,6 +188,7 @@ static gint ett_fcels_rpsc = -1;
 static gint ett_fcels_cbind = -1;
 static gint ett_fcels_cmnfeatures = -1;
 static gint ett_fcels_clsflags = -1;
+static gint ett_fcels_initctl = -1;
 
 static const value_string fc_prli_fc4_val[] = {
     {FC_TYPE_SCSI    , "FCP"},
@@ -492,45 +497,66 @@ dissect_clssvc_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint1
 	}
 }
 
+static const value_string initial_pa_vals[] = {
+	{ 0, "Initial P_A Not Supported" },
+	{ 1, "Initial P_A Supported" },
+	{ 3, "Initial P_A Required & Supported" },
+	{ 0, NULL }
+};
+static const true_false_string tfs_fc_fcels_initctl_ack0 = {
+	"ACK0 Capable",
+	"NOT Ack0 capable"
+};
+static const true_false_string tfs_fc_fcels_initctl_ackgaa = {
+	"ACK Generation Assistance Avail",
+	"NO ack generation assistance"
+};
+static const true_false_string tfs_fc_fcels_initctl_sync = {
+	"Clock Sync ELS Supported",
+	"NO clock sync els support"
+};
+
 static void
-construct_initctl_string (guint16 flag, gchar *flagstr, guint8 opcode)
+dissect_initctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
 {
-    int stroff = 0;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
     
-    if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
-        switch ((flag & 0x3000)) {
-        case 0x0:
-            strcpy (flagstr, "Initial P_A Not Supported");
-            stroff += 25;
-            break;
-        case 0x1000:
-            strcpy (flagstr, "Initial P_A Supported");
-            stroff += 21;
-            break;
-        case 0x3000:
-            strcpy (flagstr, "Initial P_A Required & Supported");
-            stroff += 32;
-            break;
-        }
+	if(parent_tree){
+		item=proto_tree_add_uint(parent_tree, hf_fcels_initctl, 
+				tvb, offset, 2, flags);
+		tree=proto_item_add_subtree(item, ett_fcels_initctl);
+	}
 
-        if (flag & 0x0800) {
-            strcpy (&flagstr[stroff], ", ACK0 Capable");
-            stroff += 14;
-        }
+	if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
+		proto_tree_add_uint(tree, hf_fcels_initctl_initial_pa, 
+				tvb, offset, 2, flags);
+		proto_item_append_text(item, "  %s", 
+			val_to_str((flags&0x3000)>>12, initial_pa_vals,
+				"0x%02x") 
+			);
+		flags&=(~( 0x3000 ));
 
-        if (flag & 0x0200) {
-            strcpy (&flagstr[stroff], ", ACK Generation Assistance Avail");
-            stroff += 33;
-        }
-        if (flag & 0x0010) {
-            strcpy (&flagstr[stroff], ", Clock Sync ELS Supported");
-        }
-    }
-    else {
-        if (flag & 0x0010) {
-            strcpy (&flagstr[stroff], "Clock Sync ELS Supported");
-        }
-    }
+		proto_tree_add_boolean(tree, hf_fcels_initctl_ack0, tvb, offset, 2, flags);
+		if (flags&0x0800){
+			proto_item_append_text(item, "  ACK0 Capable");
+		}
+		flags&=(~( 0x0800 ));
+
+		proto_tree_add_boolean(tree, hf_fcels_initctl_ackgaa, tvb, offset, 2, flags);
+		if (flags&0x0200){
+			proto_item_append_text(item, "  ACK Generation Assistance Avail");
+		}
+		flags&=(~( 0x0200 ));
+
+	}
+
+
+	proto_tree_add_boolean(tree, hf_fcels_initctl_sync, tvb, offset, 2, flags);
+	if (flags&0x0010){
+		proto_item_append_text(item, "  Clock Sync ELS Supported");
+	}
+	flags&=(~( 0x0010 ));
 }
 
 static void
@@ -652,15 +678,11 @@ dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             if (flag & 0x8000) {
                 char *flagstr;
 
-                flagstr=ep_alloc(FCELS_LOGI_MAXSTRINGLEN);    
                 flag = tvb_get_ntohs (tvb, offset+2);
-                construct_initctl_string (flag, flagstr, opcode);
-                proto_tree_add_uint_format (cmnsvc_tree, hf_fcels_initctl, tvb,
-                                            offset+2, 2, flag,
-                                            "Initiator Control: 0x%x(%s)", flag,
-                                            flagstr);
+                dissect_initctl_flags (cmnsvc_tree, tvb, offset+2, flag, opcode);
 
                 flag = tvb_get_ntohs (tvb, offset+4);
+                flagstr=ep_alloc(FCELS_LOGI_MAXSTRINGLEN);    
                 construct_rcptctl_string (flag, flagstr, opcode);
                 proto_tree_add_uint_format (cmnsvc_tree, hf_fcels_initctl, tvb,
                                             offset+4, 2, flag,
@@ -2017,9 +2039,6 @@ proto_register_fcels (void)
         { &hf_fcels_clsflags,
           {"Service Options", "fcels.logi.clsflags", FT_UINT16, BASE_HEX, NULL, 0x0, "",
            HFILL}},
-        { &hf_fcels_initctl,
-          {"Initiator Ctl", "fcels.logi.initctl", FT_UINT16, BASE_HEX, NULL, 0x0, "",
-           HFILL}},
         { &hf_fcels_rcptctl,
           {"Recipient Ctl", "fcels.logi.rcptctl", FT_UINT16, BASE_HEX, NULL, 0x0, "",
            HFILL}},
@@ -2233,6 +2252,21 @@ proto_register_fcels (void)
         { &hf_fcels_cls_nzctl,
           {"Non-zero CS_CTL", "fc.fcels.cls.nzctl", FT_BOOLEAN, 16, 
            TFS(&tfs_fc_fcels_cls_nzctl), 0x0040, "", HFILL}},
+        { &hf_fcels_initctl,
+          {"Initiator Ctl", "fcels.logi.initctl", FT_UINT16, BASE_HEX,
+           NULL, 0x0, "", HFILL}},
+        { &hf_fcels_initctl_initial_pa,
+          {"Initial P_A", "fcels.logi.initctl.initial_pa", FT_UINT16, BASE_HEX,
+           VALS(initial_pa_vals), 0x3000, "", HFILL}},
+        { &hf_fcels_initctl_ack0,
+          {"ACK0 Capable", "fcels.logi.initctl.ack0", FT_BOOLEAN, 16,
+           TFS(&tfs_fc_fcels_initctl_ack0), 0x0800, "", HFILL}},
+        { &hf_fcels_initctl_ackgaa,
+          {"ACK GAA", "fcels.logi.initctl.ackgaa", FT_BOOLEAN, 16,
+           TFS(&tfs_fc_fcels_initctl_ackgaa), 0x0200, "", HFILL}},
+        { &hf_fcels_initctl_sync,
+          {"Clock Sync", "fcels.logi.initctl.sync", FT_BOOLEAN, 16,
+           TFS(&tfs_fc_fcels_initctl_sync), 0x0010, "", HFILL}},
     };
 
     static gint *ett[] = {
@@ -2269,6 +2303,7 @@ proto_register_fcels (void)
         &ett_fcels_cbind,
 	&ett_fcels_cmnfeatures,
 	&ett_fcels_clsflags,
+	&ett_fcels_initctl,
     };
 
     /* Register the protocol name and description */
