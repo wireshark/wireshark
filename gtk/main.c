@@ -1349,7 +1349,21 @@ static void
 main_cf_cb_live_capture_update_started(capture_options *capture_opts)
 {
     gchar *capture_msg;
+    gchar *title;
 
+
+    /* We've done this in "prepared" above, but it will be cleared while
+       switching to the next multiple file. */
+    if(capture_opts->iface) {
+        title = g_strdup_printf("%s: Capturing - Ethereal",
+                            get_interface_descriptive_name(capture_opts->iface));
+    } else {
+        title = g_strdup_printf("Capturing - Ethereal");
+    }
+    set_main_window_name(title);
+    g_free(title);
+
+    set_menus_for_capture_in_progress(TRUE);
 
     /* Enable menu items that make sense if you have some captured
        packets (yes, I know, we don't have any *yet*). */
