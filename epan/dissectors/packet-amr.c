@@ -81,7 +81,7 @@ static guint temp_dynamic_payload_type = 0;
 gint amr_encoding_type = 0;
 
 /* Currently only octet aligned works */
-static gboolean octet_aligned = TRUE;
+/* static gboolean octet_aligned = TRUE; */
 
 static const value_string amr_encoding_type_value[] = {
 	{0,			"RFC 3267"}, 
@@ -138,7 +138,7 @@ static const true_false_string amr_sti_vals = {
   "SID_FIRST"
 };
 static void
-dissect_amr_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_amr_if1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree){
 	int offset =0;
 	guint8 octet;
 
@@ -163,7 +163,7 @@ dissect_amr_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 static void
 dissect_amr_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
-	int offset =0, i;
+	int offset =0;
 	guint8 octet;
 
 	proto_tree_add_item(tree, hf_amr_if2_ft, tvb, offset, 1, FALSE);
@@ -178,12 +178,9 @@ dissect_amr_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 		return;
 	proto_tree_add_text(tree, tvb, offset+1, -1, "Speech data");
 
-	for(i=0;amr_codec_mode_request_vals[i].value != 0 || amr_codec_mode_request_vals[i].strptr != NULL;++i) {
-		if(amr_codec_mode_request_vals[i].value == octet)
-			break;
-	}
-	if(amr_codec_mode_request_vals[i].strptr && check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", amr_codec_mode_request_vals[i].strptr );
+	if(check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+			val_to_str(octet, amr_codec_mode_request_vals, "Unknown (%d)" ));
 }
 
 /* Code to actually dissect the packets */

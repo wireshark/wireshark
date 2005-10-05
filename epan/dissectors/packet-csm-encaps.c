@@ -193,32 +193,14 @@ gchar *csm_fc(guint16 fc, guint16 ct)
 /* check to see if the message is an exclusive message send to host */
 gboolean csm_to_host(guint16 fc, guint16 ct)
 {
-	guint16 i=0;
-
 	if (fc == 0x0000)
 	{
-		while (1)
-		{
-			if (exclusive_to_host_ct_vals[i].strptr == NULL)
-				return FALSE;
-			else if (exclusive_to_host_ct_vals[i].value == ct)
-				return TRUE;
-			i++;
-		}
+		return (match_strval(ct, exclusive_to_host_ct_vals) != NULL);
 	}
-
 	else
 	{
-		while (1)
-		{
-			if (exclusive_to_host_vals[i].strptr == NULL)
-				return FALSE;
-			else if (exclusive_to_host_vals[i].value == fc)
-				return TRUE;
-			i++;
-		}
+		return (match_strval(fc, exclusive_to_host_vals) != NULL);
 	}
-	return FALSE;
 }
 
 
