@@ -5617,7 +5617,7 @@
 00:15:E4	ZimmerElek             # Zimmer Elektromedizin
 00:15:E5	Cheertek               # Cheertek Inc.
 00:15:E6	MobileTech             # MOBILE TECHNIKA Inc.
-00:15:E7	QuantecTon             # Quantec Tonstudiotechnik
+00:15:E7	QuantecPro             # Quantec ProAudio
 00:15:E8	Nortel
 00:15:E9	D-Link                 # D-Link Corporation
 00:15:EA	TellumatPt             # Tellumat (Pty) Ltd
@@ -5635,6 +5635,32 @@
 00:15:F6	ScienceAnd             # SCIENCE AND ENGINEERING SERVICES, INC.
 00:15:F7	Wintecroni             # Wintecronics Ltd.
 00:15:F8	Kingtronic             # Kingtronics Industrial Co. Ltd.
+00:15:F9	Cisco                  # Cisco Systems
+00:15:FA	Cisco                  # Cisco Systems
+00:15:FB	SetexScher             # setex schermuly textile computer gmbh
+00:15:FC	StartcoEng             # Startco Engineering Ltd.
+00:15:FD	CompleteMe             # Complete Media Systems
+00:15:FE	SchillingR             # SCHILLING ROBOTICS LLC
+00:15:FF	NovatelWir             # Novatel Wireless, Inc.
+00:16:00	Cellebrite             # CelleBrite Mobile Synchronization
+00:16:01	Buffalo                # Buffalo Inc.
+00:16:02	CeyonTechn             # CEYON TECHNOLOGY CO.,LTD.
+00:16:03	Private
+00:16:04	Sigpro
+00:16:05	YorkvilleS             # YORKVILLE SOUND INC.
+00:16:06	IdealIndus             # Ideal Industries
+00:16:07	CurvesInte             # Curves International Inc.
+00:16:08	SequansCom             # Sequans Communications
+00:16:09	UnitechEle             # Unitech electronics co., ltd.
+00:16:0A	SweexEurop             # SWEEX Europe BV
+00:16:0B	TvworksLlc             # TVWorks LLC
+00:16:0C	LplDevelop             # LPL  DEVELOPMENT S.A. DE C.V
+00:16:0D	BeHere                 # Be Here Corporation
+00:16:0E	OpticaTech             # Optica Technologies Inc.
+00:16:0F	BadgerMete             # BADGER METER INC
+00:16:10	CarinaTech             # Carina Technology
+00:16:11	AlteconSrl             # Altecon Srl
+00:16:12	OtsukaElec             # Otsuka Electronics Co., Ltd.
 00:17:00	Kabel
 00:1C:7C	Perq                   # PERQ SYSTEMS CORPORATION
 00:20:00	LexmarkInt             # LEXMARK INTERNATIONAL, INC.
@@ -7304,7 +7330,7 @@
 00:90:88	BaxallSecu             # BAXALL SECURITY LTD.
 00:90:89	SoftcomMic             # SOFTCOM MICROSYSTEMS, INC.
 00:90:8A	BaylyCommu             # BAYLY COMMUNICATIONS, INC.
-00:90:8B	CellComput             # CELL COMPUTING, INC.
+00:90:8B	Pfu                    # PFU Systems, Inc.
 00:90:8C	EtrendElec             # ETREND ELECTRONICS, INC.
 00:90:8D	VickersEle             # VICKERS ELECTRONICS SYSTEMS
 00:90:8E	NortelNetw             # Nortel Networks Broadband Access
@@ -8754,6 +8780,8 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 01-00-10-00-00-20	Hughes-Lan-Systems-Terminal-Server-S/W-download
 01-00-10-FF-FF-20	Hughes-Lan-Systems-Terminal-Server-S/W-request
 01-00-1D-00-00-00	Cabletron-PC-OV-PC-discover-(on-demand)
+01-00-1D-00-00-05	Cabletron-PVST-BPDU
+01-00-1D-00-00-06	Cabletron-QCSTP-BPDU
 01-00-1D-42-00-00	Cabletron-PC-OV-Bridge-discover-(on-demand)
 01-00-1D-52-00-00	Cabletron-PC-OV-MMAC-discover-(on-demand)
 01-00-3C		Auspex-Systems-(Serverguard)
