@@ -355,7 +355,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   if (!has_wpcap) {
     char *detailed_err;
 
-    detailed_err = cant_load_winpcap_err();
+    detailed_err = cant_load_winpcap_err("Ethereal");
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", detailed_err);
     g_free(detailed_err);
     return;

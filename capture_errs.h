@@ -26,7 +26,7 @@
 #ifdef HAVE_LIBPCAP
 
 #ifdef _WIN32
-extern char *cant_load_winpcap_err(void);
+extern char *cant_load_winpcap_err(const char *app_name);
 #endif /* _WIN32 */
 
 #endif /* HAVE_LIBPCAP */
