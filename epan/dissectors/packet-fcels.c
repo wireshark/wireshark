@@ -147,6 +147,10 @@ static int hf_fcels_cmn_clk = -1;
 static int hf_fcels_cmn_dhd = -1;
 static int hf_fcels_cmn_seqcnt = -1;
 static int hf_fcels_cmn_payload = -1;
+static int hf_fcels_cls_cns = -1;
+static int hf_fcels_cls_sdr = -1;
+static int hf_fcels_cls_prio = -1;
+static int hf_fcels_cls_nzctl = -1;
 
 static gint ett_fcels = -1;
 static gint ett_fcels_lsrjt = -1;
@@ -179,6 +183,7 @@ static gint ett_fcels_srl = -1;
 static gint ett_fcels_rpsc = -1;
 static gint ett_fcels_cbind = -1;
 static gint ett_fcels_cmnfeatures = -1;
+static gint ett_fcels_clsflags = -1;
 
 static const value_string fc_prli_fc4_val[] = {
     {FC_TYPE_SCSI    , "FCP"},
@@ -422,41 +427,69 @@ dissect_cmnsvc (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flag
 	flags&=(~( 0x0001 ));
 }
 
+
+static const true_false_string tfs_fc_fcels_cls_cns = {
+	"Class IS Supported",
+	"Class NOT supported"
+};
+static const true_false_string tfs_fc_fcels_cls_sdr = {
+	"Seq Delivery Requested",
+	"Out of Order Delivery Requested"
+};
+static const true_false_string tfs_fc_fcels_cls_prio = {
+	"Priority/preemption Supported",
+	"Priority/preemption NOT supported"
+};
+static const true_false_string tfs_fc_fcels_cls_nzctl = {
+	"Non-zero CS_CTL Tolerated",
+	"Non-zero CS_CTL Maybe Tolerated"
+};
+
 /* The next 3 routines decode only Class 2 & Class 3 relevant bits */
 static void
-construct_clssvc_string (guint16 flag, gchar *flagstr, guint8 opcode)
+dissect_clssvc_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
 {
-    int stroff = 0;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+    
+	if(parent_tree){
+		item=proto_tree_add_uint(parent_tree, hf_fcels_clsflags, 
+				tvb, offset, 2, flags);
+		tree=proto_item_add_subtree(item, ett_fcels_clsflags);
+	}
 
-    if (!(flag & 0x8000)) {
-        strcpy (flagstr, "Class Not Supported");
-        return;
-    }
+	proto_tree_add_boolean(tree, hf_fcels_cls_cns, tvb, offset, 2, flags);
+	if (!(flags&0x8000)){
+		proto_item_append_text(item, "  Class Not Supported");
+		return;
+	}
+	flags&=(~( 0x8000 ));
 
-    if ((opcode == FC_ELS_FLOGI) || (opcode == FC_ELS_FDISC)) {
-        if (flag & 0x0800) {
-            strcpy (flagstr, "Seq Delivery Requested");
-            stroff += 22;
-        }
-        else {
-            strcpy (flagstr, "Out of Order Delivery Requested");
-            stroff += 31;
-        }
-    }
+	if ((opcode == FC_ELS_FLOGI) || (opcode == FC_ELS_FDISC)) {
+		proto_tree_add_boolean(tree, hf_fcels_cls_sdr, tvb, offset, 2, flags);
+		if (flags&0x0800){
+			proto_item_append_text(item, "  Seq Delivery Requested");
+		} else {
+			proto_item_append_text(item, "  Out of Order Delivery Requested");
+		}
+		flags&=(~( 0x0800 ));
+	}
 
-    if (flag & 0x0080) {
-        strcpy (&flagstr[stroff], ", Priority/preemption supported");
-        stroff += 31;
-    }
+	proto_tree_add_boolean(tree, hf_fcels_cls_prio, tvb, offset, 2, flags);
+	if (flags&0x0080){
+		proto_item_append_text(item, "  Priority/preemption Supported");
+	}
+	flags&=(~( 0x0080 ));
 
-    if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
-        if (flag & 0x0040) {
-            strcpy (&flagstr[stroff], "Non-zero CS_CTL Tolerated");
-        }
-        else {
-            strcpy (&flagstr[stroff], "Non-zero CS_CTL Maybe Tolerated");
-        }
-    }
+	if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
+		proto_tree_add_boolean(tree, hf_fcels_cls_nzctl, tvb, offset, 2, flags);
+		if (flags & 0x0040) {
+			proto_item_append_text(item, "  Non-zero CS_CTL Tolerated");
+		} else {
+			proto_item_append_text(item, "  Non-zero CS_CTL Maybe Tolerated");
+		}
+		flags&=(~( 0x0040 ));
+	}
 }
 
 static void
@@ -579,10 +612,8 @@ dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         class;
     proto_tree *logi_tree, *cmnsvc_tree;
     proto_item *subti;
-    gchar *flagstr;
     guint16 flag;
 
-    flagstr=ep_alloc(FCELS_LOGI_MAXSTRINGLEN);    
     if (tree) {
         logi_tree = proto_item_add_subtree (ti, ett_fcels_logi);
         proto_tree_add_item (logi_tree, hf_fcels_opcode, tvb, offset, 1, FALSE);
@@ -617,12 +648,11 @@ dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             cmnsvc_tree = proto_item_add_subtree (subti, ett_fcels_logi_cmnsvc);
 
             flag = tvb_get_ntohs (tvb, offset);
-            construct_clssvc_string (flag, flagstr, opcode);
-            proto_tree_add_uint_format (cmnsvc_tree, hf_fcels_clsflags, tvb,
-                                        offset, 2, flag,
-                                        "Service Options: 0x%x(%s)", flag,
-                                        flagstr);
+            dissect_clssvc_flags (cmnsvc_tree, tvb, offset, flag, opcode);
             if (flag & 0x8000) {
+                char *flagstr;
+
+                flagstr=ep_alloc(FCELS_LOGI_MAXSTRINGLEN);    
                 flag = tvb_get_ntohs (tvb, offset+2);
                 construct_initctl_string (flag, flagstr, opcode);
                 proto_tree_add_uint_format (cmnsvc_tree, hf_fcels_initctl, tvb,
@@ -1985,7 +2015,7 @@ proto_register_fcels (void)
           {"Services Availability", "fcels.logi.svcavail", FT_BYTES, BASE_HEX, NULL,
            0x0, "", HFILL}},
         { &hf_fcels_clsflags,
-          {"Class Flags", "fcels.logi.clsflags", FT_UINT16, BASE_HEX, NULL, 0x0, "",
+          {"Service Options", "fcels.logi.clsflags", FT_UINT16, BASE_HEX, NULL, 0x0, "",
            HFILL}},
         { &hf_fcels_initctl,
           {"Initiator Ctl", "fcels.logi.initctl", FT_UINT16, BASE_HEX, NULL, 0x0, "",
@@ -2191,6 +2221,18 @@ proto_register_fcels (void)
         { &hf_fcels_cmn_payload,
           {"Payload Len", "fc.fcels.cmn.payload", FT_BOOLEAN, 16, 
            TFS(&tfs_fc_fcels_cmn_payload), 0x0001, "", HFILL}},
+        { &hf_fcels_cls_cns,
+          {"Class Supported", "fc.fcels.cls.cns", FT_BOOLEAN, 16, 
+           TFS(&tfs_fc_fcels_cls_cns), 0x8000, "", HFILL}},
+        { &hf_fcels_cls_sdr,
+          {"Delivery Mode", "fc.fcels.cls.sdr", FT_BOOLEAN, 16, 
+           TFS(&tfs_fc_fcels_cls_sdr), 0x0800, "", HFILL}},
+        { &hf_fcels_cls_prio,
+          {"Priority", "fc.fcels.cls.prio", FT_BOOLEAN, 16, 
+           TFS(&tfs_fc_fcels_cls_prio), 0x0080, "", HFILL}},
+        { &hf_fcels_cls_nzctl,
+          {"Non-zero CS_CTL", "fc.fcels.cls.nzctl", FT_BOOLEAN, 16, 
+           TFS(&tfs_fc_fcels_cls_nzctl), 0x0040, "", HFILL}},
     };
 
     static gint *ett[] = {
@@ -2226,6 +2268,7 @@ proto_register_fcels (void)
         &ett_fcels_rpsc,
         &ett_fcels_cbind,
 	&ett_fcels_cmnfeatures,
+	&ett_fcels_clsflags,
     };
 
     /* Register the protocol name and description */
