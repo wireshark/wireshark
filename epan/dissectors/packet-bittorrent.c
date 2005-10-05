@@ -191,6 +191,9 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
          }
          return;
       }
+   } else {
+	  /* not enough bytes of the header, stop here */
+	  return;
    }
 
    length = tvb_get_ntohl(tvb, offset);
