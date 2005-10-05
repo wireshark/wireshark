@@ -1,0 +1,9 @@
+The IDL files in this directory are made available by the Samba Team
+under the following license:
+
+  Permission to use, copy, modify, and distribute these interface
+  definitions for any purpose is hereby granted without fee.
+
+  This work is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
