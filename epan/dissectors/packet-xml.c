@@ -650,9 +650,8 @@ static void destroy_dtd_data(dtd_build_data_t* dtd_data) {
 	if(dtd_data->media_type) g_free(dtd_data->media_type);
 	if(dtd_data->description) g_free(dtd_data->description);
 	if(dtd_data->proto_root) g_free(dtd_data->proto_root);
-	
-	if(dtd_data->location) g_free(dtd_data->location);
-	g_string_free(dtd_data->error,TRUE);
+    
+    g_string_free(dtd_data->error,TRUE);
 	
 
 	while(dtd_data->elements->len) {

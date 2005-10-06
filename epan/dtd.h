@@ -42,7 +42,6 @@ typedef struct _dtd_build_data_t {
 	GPtrArray* elements;
 	GPtrArray* attributes;
 
-	gchar* location;
 	GString* error;
 } dtd_build_data_t;
 

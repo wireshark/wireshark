@@ -82,7 +82,6 @@
     
 #define DTD_PARSE(token_type) \
 	{   DEBUG_DTD_TOKEN; \
-		build_data->location = location; \
 		DtdParse(pParser, (token_type), new_token(yytext), build_data); \
 		if(build_data->error->len > 0) yyterminate(); \
 	}
@@ -326,7 +325,6 @@ extern dtd_build_data_t* dtd_parse(GString* s) {
 	build_data->elements = g_ptr_array_new();
 	build_data->attributes = g_ptr_array_new();
 
-	build_data->location = NULL;
 	build_data->error = g_string_new("");
 	
 	location = NULL;
