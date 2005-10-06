@@ -1337,6 +1337,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             }
             wtap_dump_flush(ld.wtap_pdh);
             sync_pipe_filename_to_parent(capture_opts->save_file);
+			ld.packets_sync_pipe = 0;
           } else {
             /* File switch failed: stop here */
             ld.go = FALSE;
@@ -1412,6 +1413,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
               cnd_reset(cnd_autostop_size);
             wtap_dump_flush(ld.wtap_pdh);
             sync_pipe_filename_to_parent(capture_opts->save_file);
+			ld.packets_sync_pipe = 0;
           } else {
             /* File switch failed: stop here */
 	        ld.go = FALSE;
