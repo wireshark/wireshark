@@ -370,11 +370,11 @@ dissect_sigcomp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16		data;
 	int			i;
 	int			n;
-	gboolean	end_off_message = FALSE;
+	gboolean	end_off_message;
+
+	top_tree = tree;
 
 	/* Is this SIGCOMP ? */
-	length = tvb_length_remaining(tvb,offset);
-
 	data = tvb_get_ntohs(tvb, offset);
 	if(data == 0xffff){
 		/* delimiter */
@@ -384,7 +384,7 @@ dissect_sigcomp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		octet = tvb_get_guint8(tvb,offset);
 	}
 	if ((octet  & 0xf8) != 0xf8)
-	 return 0;
+	 return offset;
 
 	/* Make entries in Protocol column and Info column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -393,19 +393,25 @@ dissect_sigcomp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO)) 
 		col_clear(pinfo->cinfo, COL_INFO);
 
-	top_tree = tree;
+	length = tvb_length_remaining(tvb,offset);
 
+try_again:
 	/* create display subtree for the protocol */
 	ti = proto_tree_add_item(tree, proto_sigcomp, tvb, 0, -1, FALSE);
 	sigcomp_tree = proto_item_add_subtree(ti, ett_sigcomp);
-	
-	buff = g_malloc(length);
 	i=0;
+	end_off_message = FALSE;
+	buff = g_malloc(length-offset);
 	if (udvm_print_detail_level>2)
 		proto_tree_add_text(sigcomp_tree, tvb, offset, -1,"Starting to remove escape digits");
-	while ( offset < length ){
-
+	while ((offset < length) && (end_off_message == FALSE)){
+		octet = tvb_get_guint8(tvb,offset);
 		if ( octet == 0xff ){
+			if ( offset +1 >= length ){
+				/* if the tvb is short dont check for the second escape digit */
+				offset++;
+				continue;
+			}
 			if (udvm_print_detail_level>2)
 				proto_tree_add_text(sigcomp_tree, tvb, offset, 2,
 					"              Escape digit found (0xFF)");
@@ -440,6 +446,9 @@ dissect_sigcomp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (udvm_print_detail_level>2)
 			proto_tree_add_text(sigcomp_tree, tvb, offset, octet,
 						"              Copying %u bytes literally",octet);
+			if( offset+octet >= length)
+				/* if the tvb is short dont copy further than the end */
+				octet = length - offset;
 			for ( n=0; n < octet; n++ ){
 				buff[i] = tvb_get_guint8(tvb, offset);
 				if (udvm_print_detail_level>2)
@@ -448,7 +457,6 @@ dissect_sigcomp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				i++;
 				offset++;
 			}
-			octet = tvb_get_guint8(tvb,offset);
 			continue;
 		}
 		buff[i] = octet;
@@ -458,8 +466,6 @@ dissect_sigcomp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		i++;
 		offset++;
-		octet = tvb_get_guint8(tvb,offset);
-
 	}
 	unescaped_tvb = tvb_new_real_data(buff,i,i);
 	/* Arrange that the allocated packet data copy be freed when the
@@ -474,8 +480,16 @@ dissect_sigcomp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	add_new_data_source(pinfo, unescaped_tvb, "Unescaped Data handed to the SigComp dissector");
 
 	proto_tree_add_text(sigcomp_tree, unescaped_tvb, 0, -1,"Data handed to the Sigcomp dissector");
+	if (end_off_message == TRUE){
+		dissect_sigcomp_common(unescaped_tvb, pinfo, sigcomp_tree);
+	}else{
+		proto_tree_add_text(sigcomp_tree, unescaped_tvb, 0, -1,"TCP Fragment, no end mark found");
+	}
+	if ( offset < length){
+		goto try_again;
+	}
 
-	return dissect_sigcomp_common(unescaped_tvb, pinfo, sigcomp_tree);
+	return offset;
 }
 /* Code to actually dissect the packets */
 static int
