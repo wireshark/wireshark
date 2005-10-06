@@ -239,11 +239,7 @@ gchar* ep_strdup(const gchar* src) {
 }
 
 gchar* ep_strndup(const gchar* src, size_t len) {
-	guint actual_len = strlen(src);
 	gchar* dst;
-	
-	if (len > actual_len)
-		len = actual_len;
 	
 	dst = strncpy(ep_alloc(len+1), src, len);
 	
@@ -364,11 +360,7 @@ gchar* se_strdup(const gchar* src) {
 }
 
 gchar* se_strndup(const gchar* src, size_t len) {
-	guint actual_len = strlen(src);
 	gchar* dst;
-	
-	if (len > actual_len)
-		len = actual_len;
 	
 	dst = strncpy(se_alloc(len+1), src, len);
 	
