@@ -1316,7 +1316,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 			}
 		}
 		if (hfi) {
-			proto_tree_add_bytes(tree, hf_index, tvb, old_offset>>3, (min_len+7)/8+(offset&0x07)?1:0, bytes);
+			proto_tree_add_bytes(tree, hf_index, tvb, old_offset>>3, (min_len+7)/8+((offset&0x07)?1:0), bytes);
 		}
 		return offset;
 	}
@@ -1389,7 +1389,6 @@ DEBUG_ENTRY("dissect_per_octet_string");
 	if(min_len==-1){
 		min_len=0;
 	}
-	
 	if (max_len==0) {  /* 16.5 if the length is 0 bytes there will be no encoding */
 		val_start = offset>>3; 
 		val_length = 0;
@@ -1411,7 +1410,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 		bytes[min_len]=0;
 		pbytes = bytes;
 		val_start = old_offset>>3; 
-		val_length = min_len+(offset&0x07)?1:0;
+		val_length = min_len+((offset&0x07)?1:0);
 
 	} else if ((min_len==max_len)&&(min_len<65536)) {  /* 16.7 if length is fixed and less than to 64k*/
 		/* align to byte */
