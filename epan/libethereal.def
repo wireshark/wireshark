@@ -332,6 +332,8 @@ gsm_a_dtap_msg_ss_strings       DATA
 gsm_a_pd_str                    DATA
 gsm_map_opr_code_strings        DATA
 g_resolv_flags                  DATA
+h245_set_h223_add_lc_handle
+h245_set_h223_set_mc_handle
 have_tap_listeners
 heur_dissector_add
 hex_str_to_bytes

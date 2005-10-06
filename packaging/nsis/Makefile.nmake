@@ -74,6 +74,7 @@ PLUGINS=../../plugins/acn/acn.dll \
 	../../plugins/giop/parlay.dll \
 	../../plugins/giop/tango.dll \
 	../../plugins/gryphon/gryphon.dll \
+	../../plugins/h223/h223.dll \
 	../../plugins/irda/irda.dll \
 	../../plugins/lwres/lwres.dll \
 	../../plugins/mate/mate.dll \

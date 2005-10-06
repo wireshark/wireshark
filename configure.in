@@ -1238,6 +1238,7 @@ AC_OUTPUT(
   plugins/enttec/Makefile
   plugins/giop/Makefile
   plugins/gryphon/Makefile
+  plugins/h223/Makefile
   plugins/irda/Makefile
   plugins/lwres/Makefile
   plugins/mate/Makefile
