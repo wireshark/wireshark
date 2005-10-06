@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-h245.h                                                            */
+/* .\packet-h245.h                                                            */
 /* ../../tools/asn2eth.py -X -e -p h245 -c h245.cnf -s packet-h245-template h245.asn */
 
 /* Input file: packet-h245-template.h */
@@ -56,6 +56,75 @@ typedef struct _h245_packet_info {
         gchar comment[50];                      /* the Frame Comment used by graph_analysis, what is a message desc */
 } h245_packet_info;
 
+/*
+ * h223 LC info
+ */
+
+typedef enum {
+	al_nonStandard,
+	al1Framed,
+	al1NotFramed,
+	al2WithoutSequenceNumbers,
+	al2WithSequenceNumbers,
+	al3,
+	/*...*/
+	// al?M: unimplemented annex C adaptation layers
+	al1M,
+	al2M,
+	al3M
+} h223_al_type;
+
+typedef struct {
+	guint8 control_field_octets;
+	guint32 send_buffer_size;
+} h223_al3_params;
+
+typedef struct {
+	h223_al_type al_type;
+	gpointer al_params;
+	gboolean segmentable;
+	dissector_handle_t subdissector;
+} h223_lc_params;
+
+typedef enum {
+	nonStandardDataType,
+	nullData,
+	videoData,
+	audioData,
+	data,
+	encryptionData,
+	/*...,*/
+	h235Control,
+	h235Media,
+	multiplexedStream,
+	redundancyEncoding,
+	multiplePayloadStream,
+	fec
+} h245_lc_data_type_enum;
+
+typedef struct {
+	h245_lc_data_type_enum data_type;
+	gpointer               params;
+} h245_lc_data_type;
+
+/*
+ * h223 MUX info
+ */
+
+typedef struct _h223_mux_element h223_mux_element;
+struct _h223_mux_element {
+    h223_mux_element* sublist; /* if NULL, use vc instead */
+    guint16 vc;
+    guint16 repeat_count; /* 0 == untilClosingFlag */
+    h223_mux_element* next;
+};
+
+#include <epan/packet_info.h>
+typedef void (*h223_set_mc_handle_t) ( packet_info* pinfo, guint8 mc, h223_mux_element* me );
+extern void h245_set_h223_set_mc_handle( h223_set_mc_handle_t handle );
+
+typedef void (*h223_add_lc_handle_t) ( packet_info* pinfo, guint16 lc, h223_lc_params* params );
+extern void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle );
 
 
 /*--- Included file: packet-h245-exp.h ---*/

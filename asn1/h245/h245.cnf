@@ -12,6 +12,242 @@ OpenLogicalChannel
 OpenLogicalChannel
 
 #----------------------------------------------------------------------------------------
+#.FN_BODY MultiplexEntryDescriptor
+  /*MultiplexEntryDescriptor*/
+  h223_me = NULL;
+  h223_mc = 0;
+%(DEFAULT_BODY)s
+  if(h223_set_mc_handle)
+    (*h223_set_mc_handle)(pinfo, h223_mc, h223_me);
+ /* stuff */
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_PARS MultiplexTableEntryNumber
+  VAL_PTR = &value
+#.FN_BODY MultiplexTableEntryNumber
+  guint32 value;
+%(DEFAULT_BODY)s
+  h223_mc = value & 0xf;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY MultiplexEntryDescriptor/elementList
+  /* create a h223_mux_element to hold onto the head of the list, since
+   * h223_me will track the tail */
+  h223_mux_element dummy_me;
+  h223_me = &dummy_me;
+%(DEFAULT_BODY)s
+  /* set h223_me to the head of the list for MEDescriptor to pick up */
+  h223_me = dummy_me.next;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_HDR MultiplexElement
+  /*MultiplexElement*/
+  h223_mux_element* me = se_alloc(sizeof(h223_mux_element));
+  h223_me->next = me;
+  h223_me = me;
+  h223_me->next = NULL;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_PARS MultiplexElement/type/logicalChannelNumber
+  VAL_PTR = &value
+#.FN_BODY MultiplexElement/type/logicalChannelNumber
+  /*MultiplexElement/type/logicalChannelNumber*/
+  guint32 value;
+%(DEFAULT_BODY)s
+  h223_me->sublist = NULL;
+  h223_me->vc = value & 0xffff;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY MultiplexElement/type/subElementList
+  h223_mux_element dummy_me, *parent_me = h223_me;
+  h223_me = &dummy_me;
+%(DEFAULT_BODY)s
+  parent_me->sublist = dummy_me.next;
+  h223_me = parent_me;
+  h223_me->vc = 0;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR MultiplexElement/repeatCount/untilClosingFlag
+  h223_me->repeat_count = 0;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_PARS MultiplexElement/repeatCount/finite
+  VAL_PTR = &value
+#.FN_BODY MultiplexElement/repeatCount/finite
+  guint32 value;
+%(DEFAULT_BODY)s
+  h223_me->repeat_count = value & 0xffff;
+#.END
+#----------------------------------------------------------------------------------------
+# OpenLogicalChannel .FN_FTR is also declared, line 460ish
+#.FN_BODY OpenLogicalChannel
+  gint32 temp;
+
+  h223_fw_lc_num = 0;
+  h223_lc_params_temp = NULL;
+
+%(DEFAULT_BODY)s
+  if(h223_fw_lc_num != 0 && h223_fw_lc_params) {
+	h223_pending_olc *pending = se_alloc(sizeof(h223_pending_olc));
+	pending->fw_channel_params = h223_fw_lc_params;
+	pending->rev_channel_params = h223_rev_lc_params;
+	temp = h223_fw_lc_num;
+	if (pinfo->p2p_dir)
+		g_hash_table_insert(h223_pending_olc_reqs[pinfo->p2p_dir], GINT_TO_POINTER(temp), pending);
+  }
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_PARS LogicalChannelNumber
+  VAL_PTR = &value
+#.FN_BODY LogicalChannelNumber
+  guint32 value;
+%(DEFAULT_BODY)s
+  h245_lc_temp = value & 0xfff;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR OpenLogicalChannel/forwardLogicalChannelNumber
+  h223_fw_lc_num = h245_lc_temp;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY OpenLogicalChannel/forwardLogicalChannelParameters
+  h245_lc_dissector = NULL;
+%(DEFAULT_BODY)s
+  if(h223_lc_params_temp && h245_lc_dissector)
+	h223_lc_params_temp->subdissector = h245_lc_dissector;
+  else if(h223_lc_params_temp)
+	h223_lc_params_temp->subdissector = data_handle;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_HDR OpenLogicalChannel/forwardLogicalChannelParameters/multiplexParameters/h223LogicalChannelParameters
+  h223_fw_lc_params = se_alloc(sizeof(h223_lc_params));
+  h223_fw_lc_params->al_type = al_nonStandard;
+  h223_fw_lc_params->al_params = NULL;
+  h223_fw_lc_params->segmentable = 0;
+  h223_fw_lc_params->subdissector = NULL;
+  h223_lc_params_temp = h223_fw_lc_params;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_HDR OpenLogicalChannel/reverseLogicalChannelParameters/multiplexParameters/h223LogicalChannelParameters
+  h223_rev_lc_params = se_alloc(sizeof(h223_lc_params));
+  h223_rev_lc_params->al_type = al_nonStandard;
+  h223_rev_lc_params->al_params = NULL;
+  h223_rev_lc_params->segmentable = 0;
+  h223_rev_lc_params->subdissector = NULL;
+  h223_lc_params_temp = h223_rev_lc_params;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_HDR H223LogicalChannelParameters/adaptationLayerType/al1Framed
+  if(h223_lc_params_temp)
+	h223_lc_params_temp->al_type = al1Framed;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_HDR H223LogicalChannelParameters/adaptationLayerType/al1NotFramed
+  if(h223_lc_params_temp)
+	h223_lc_params_temp->al_type = al1NotFramed;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_HDR H223LogicalChannelParameters/adaptationLayerType/al2WithoutSequenceNumbers
+  if(h223_lc_params_temp)
+	h223_lc_params_temp->al_type = al2WithoutSequenceNumbers;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_HDR H223LogicalChannelParameters/adaptationLayerType/al2WithSequenceNumbers
+  if(h223_lc_params_temp)
+	h223_lc_params_temp->al_type = al2WithSequenceNumbers;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_HDR H223LogicalChannelParameters/adaptationLayerType/al3
+ if(h223_lc_params_temp) {
+	h223_lc_params_temp->al_type = al3;
+	h223_lc_params_temp->al_params = se_alloc(sizeof(h223_al3_params));
+  }
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_PARS Al3/controlFieldOctets
+  VAL_PTR = &value
+#.FN_BODY Al3/controlFieldOctets
+  guint32 value;
+%(DEFAULT_BODY)s
+  if(h223_lc_params_temp && h223_lc_params_temp->al_params)
+	((h223_al3_params*)h223_lc_params_temp->al_params)->control_field_octets = value & 3 ;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_PARS Al3/sendBufferSize
+  VAL_PTR = &value
+#.FN_BODY Al3/sendBufferSize
+  guint32 value;
+%(DEFAULT_BODY)s
+  if(h223_lc_params_temp && h223_lc_params_temp->al_params)
+	((h223_al3_params*)h223_lc_params_temp->al_params)->send_buffer_size = value & 0xfffff;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_HDR H223LogicalChannelParameters/adaptationLayerType/al1M
+  if(h223_lc_params_temp)
+	h223_lc_params_temp->al_type = al1M;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_HDR H223LogicalChannelParameters/adaptationLayerType/al2M
+  if(h223_lc_params_temp)
+	h223_lc_params_temp->al_type = al2M;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_HDR H223LogicalChannelParameters/adaptationLayerType/al3M
+  if(h223_lc_params_temp)
+	h223_lc_params_temp->al_type = al3M;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_PARS H223LogicalChannelParameters/segmentableFlag
+  VAL_PTR = &value
+#.FN_BODY H223LogicalChannelParameters/segmentableFlag
+  guint32 value;
+%(DEFAULT_BODY)s
+  if(h223_lc_params_temp)
+	h223_lc_params_temp->segmentable = value & 1;
+#.END
+#----------------------------------------------------------------------------------------
+# OpenLogicalChannelAck .FN_FTR is also declared, line 460ish
+#.FN_BODY OpenLogicalChannelAck
+  guint32 temp;
+  int p2p_dir;
+  h223_pending_olc *pend;
+  h223_fw_lc_num = 0;
+  h223_rev_lc_num = 0;
+	
+%(DEFAULT_BODY)s
+  temp = h223_fw_lc_num;
+  p2p_dir = pinfo->p2p_dir;
+  
+  if(pinfo->p2p_dir == P2P_DIR_SENT)
+	pinfo->p2p_dir = P2P_DIR_RECV;
+  else
+	pinfo->p2p_dir = P2P_DIR_SENT;
+  pend = g_hash_table_lookup( h223_pending_olc_reqs[pinfo->p2p_dir], GINT_TO_POINTER(temp) );
+  if (pend) {
+	DISSECTOR_ASSERT( ( h223_rev_lc_num &&  pend->rev_channel_params)
+				   || (!h223_rev_lc_num && !pend->rev_channel_params) );
+	if(h223_add_lc_handle) {
+	  (*h223_add_lc_handle)( pinfo, h223_fw_lc_num, pend->fw_channel_params );
+	  if(h223_rev_lc_num)
+		(*h223_add_lc_handle)( pinfo, h223_rev_lc_num, pend->rev_channel_params );
+	}
+  } else {
+	/* we missed the OpenLogicalChannel packet */
+  }
+  pinfo->p2p_dir = p2p_dir;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR OpenLogicalChannelAck/forwardLogicalChannelNumber
+  h223_fw_lc_num = h245_lc_temp;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR OpenLogicalChannelAck/reverseLogicalChannelParamaters/reverseLogicalChannelNumber
+  h223_rev_lc_num = h245_lc_temp;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR H263VideoCapability
+  h245_lc_dissector = h263_handle;
+#.END
+#----------------------------------------------------------------------------------------
 #.FN_BODY RequestMessage  VAL_PTR = &value
   guint32 value;
 
@@ -231,11 +467,13 @@ OpenLogicalChannel
   h245_pi->msg_type = H245_TermCapSetRls;
 #.END
 #----------------------------------------------------------------------------------------
+# OpenLogicalChannel .FN_BODY is also declared, line 70ish
 #.FN_FTR OpenLogicalChannel
 
   if (h245_pi != NULL) h245_pi->msg_type = H245_OpenLogChn;
 #.END
 #----------------------------------------------------------------------------------------
+# OpenLogicalChannelAck .FN_BODY is also declared, line 200ish
 #.FN_FTR OpenLogicalChannelAck
 
   h245_pi->msg_type = H245_OpenLogChnAck;
@@ -243,6 +481,9 @@ OpenLogicalChannel
 #----------------------------------------------------------------------------------------
 #.FN_PARS CapabilityIdentifier/standard
   FN_VARIANT = _str  VAL_PTR = &standard_oid_str
+#.FN_FTR CapabilityIdentifier/standard
+  if(!h245_lc_dissector && strcmp(standard_oid_str,"0.0.8.245.1.1.1") == 0)
+	h245_lc_dissector = amr_handle;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR GenericMessage/subMessageIdentifer
@@ -501,9 +742,13 @@ MulticastAddress/iPAddress MIPAddress
 MulticastAddress/iP6Address MIP6Address
 
 NonStandardIdentifier/h221NonStandard H221NonStandardID
+OpenLogicalChannel/forwardLogicalChannelNumber OLC_fw_lcn
+OpenLogicalChannelAck/forwardLogicalChannelNumber OLC_ack_fw_lcn
 OpenLogicalChannel/forwardLogicalChannelParameters/multiplexParameters OLC_forw_multiplexParameters
 OpenLogicalChannel/reverseLogicalChannelParameters/multiplexParameters OLC_rev_multiplexParameters
 OpenLogicalChannel/reverseLogicalChannelParameters OLC_reverseLogicalChannelParameters
+OpenLogicalChannel/forwardLogicalChannelParameters/multiplexParameters/h223LogicalChannelParameters OLC_fw_h223_params
+OpenLogicalChannel/reverseLogicalChannelParameters/multiplexParameters/h223LogicalChannelParameters OLC_rev_h223_params
 OpenLogicalChannelAck/reverseLogicalChannelParameters OLC_ack_reverseLogicalChannelParameters
 CloseLogicalChannel/reason Clc_reason
 VCCapability/availableBitRates/type Avb_type
@@ -518,6 +763,7 @@ V76LogicalChannelParameters/mode V76LCP_mode
 FECData/rfc2733/mode FECdata_mode
 FECMode/rfc2733Mode/mode FEC_mode
 IS11172AudioMode/multichannelType IS11172_multichannelType
+MultiplexElement/repeatCount/finite ME_finiteRepeatCount
 MultiplexElement/repeatCount ME_repeatCount
 FECCapability/rfc2733 FECC_rfc2733
 RequestModeAck/response Req_mode_ack_response
@@ -685,7 +931,7 @@ H263ModeComboFlags/enhancedReferencePicSelect enhancedReferencePicSelectBool
 NewATMVCCommand/aal/aal1/errorCorrection/errorCorrectionOnly errorCorrectionOnlyFlag 
 NewATMVCIndication/aal/aal1/errorCorrection/errorCorrectionOnly errorCorrectionOnlyFlag
 UserInputCapability/extendedAlphanumeric extendedAlphanumericFlag
-MultiplexElement/repeatCount/finite  finite_1_65535
+MultiplexElement/repeatCount/finite  me_repeatCount_finite
 MiscellaneousCommand/type/videoFastUpdateMB/firstMB firstMB_1_8192
 MiscellaneousIndication/type/videoNotDecodedMBs/firstMB firstMB_1_8192
 H261VideoCapability/cifMPI cifMPI_1_4
@@ -745,8 +991,10 @@ FECMode/rfc2733Mode/mode fec_mode
 FECData/rfc2733/mode fec_data_mode
 V76LogicalChannelParameters/mode v76_mode
 OpenLogicalChannelAck/reverseLogicalChannelParameters/multiplexParameters olc_ack_multiplexParameters
-OpenLogicalChannel/reverseLogicalChannelParameters/multiplexParameters olc_rev_multiplexParameter
+OpenLogicalChannel/forwardLogicalChannelNumber olc_fw_lcn
+OpenLogicalChannelAck/forwardLogicalChannelNumber olc_ack_fw_lcn
 OpenLogicalChannel/forwardLogicalChannelParameters/multiplexParameters olc_forw_multiplexParameters
+OpenLogicalChannel/reverseLogicalChannelParameters/multiplexParameters olc_rev_multiplexParameter
 IS11172AudioMode/multichannelType is11172multichannelType
 IS13818AudioMode/multichannelType is13818MultichannelType
 CloseLogicalChannel/reason clc_reason
@@ -774,6 +1022,20 @@ MulticastAddress/iP6Address/tsapIdentifier multicast_IPv6_tsapIdentifier
 CommunicationModeTableEntry/mediaChannel cm_mediaChannel
 CommunicationModeTableEntry/mediaControlChannel cm_mediaControlChannel
 
+OpenLogicalChannel/reverseLogicalChannelParameters/multiplexParameters/h223LogicalChannelParameters olc_rev_h223_params
+OpenLogicalChannel/forwardLogicalChannelParameters/multiplexParameters/h223LogicalChannelParameters olc_fw_h223_params
+
+H223LogicalChannelParameters/adaptationLayerType/al1Framed                 h223_al_type_al1Framed
+H223LogicalChannelParameters/adaptationLayerType/al1NotFramed              h223_al_type_al1NotFramed
+H223LogicalChannelParameters/adaptationLayerType/al2WithoutSequenceNumbers h223_al_type_al2WithoutSequenceNumbers
+H223LogicalChannelParameters/adaptationLayerType/al2WithSequenceNumbers    h223_al_type_al2WithSequenceNumbers
+H223LogicalChannelParameters/adaptationLayerType/al3                       h223_al_type_al3
+Al3/sendBufferSize                                                         al3_sendBufferSize
+H223LogicalChannelParameters/adaptationLayerType/al1M                      h223_al_type_al1M
+H223LogicalChannelParameters/adaptationLayerType/al2M                      h223_al_type_al2M
+H223LogicalChannelParameters/adaptationLayerType/al3M                      h223_al_type_al3M
+H223LogicalChannelParameters/segmentableFlag                               h223_lc_segmentableFlag
+
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR
 UnicastAddress/iPAddress/network  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
@@ -788,4 +1050,6 @@ VendorIdentification/versionNumber TYPE = FT_STRING DISPLAY = BASE_HEX STRINGS =
 #----------------------------------------------------------------------------------------
 #.FIELD_ATTR
 AlternativeCapabilitySet/_item NAME = "alternativeCapability"
+
 #----------------------------------------------------------------------------------------
+# vim:set ts=4 sts=2 sw=2:

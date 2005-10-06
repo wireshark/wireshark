@@ -60,6 +60,7 @@
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
 #include "packet-ber.h"
+#include <epan/emem.h>
 
 #define PNAME  "MULTIMEDIA-SYSTEM-CONTROL"
 #define PSNAME "H.245"
@@ -73,6 +74,8 @@ static dissector_handle_t nsp_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t h245_handle;
 static dissector_handle_t MultimediaSystemControlMessage_handle;
+static dissector_handle_t h263_handle = NULL;
+static dissector_handle_t amr_handle = NULL;
 
 static void reset_h245_packet_info(h245_packet_info *pi);
 static int hf_h245_pdu_type = -1;
@@ -228,6 +231,53 @@ static const value_string h245_RFC_number_vals[] = {
 	{  3267,	"RFC 3267 - Adaptive Multi-Rate (AMR) and Adaptive Multi-Rate Wideband (AMR-WB)" },
 	{  0, NULL }
 };
+
+/* h223 multiplex codes */
+static h223_set_mc_handle_t h223_set_mc_handle = NULL;
+h223_mux_element *h223_me=NULL;
+guint8 h223_mc=0;
+void h245_set_h223_set_mc_handle( h223_set_mc_handle_t handle )
+{
+	h223_set_mc_handle = handle;
+}
+
+/* h223 logical channels */
+typedef struct {
+	h223_lc_params *fw_channel_params;
+	h223_lc_params *rev_channel_params;
+} h223_pending_olc;
+
+static GHashTable*          h223_pending_olc_reqs[] = { NULL, NULL };
+static dissector_handle_t   h245_lc_dissector;
+static guint16              h245_lc_temp;
+static guint16              h223_fw_lc_num;
+static guint16              h223_rev_lc_num;
+static h223_lc_params      *h223_lc_params_temp;
+static h223_lc_params      *h223_fw_lc_params;
+static h223_lc_params      *h223_rev_lc_params;
+static h223_add_lc_handle_t h223_add_lc_handle = NULL;
+
+static void h223_lc_init_dir( int dir )
+{
+	if ( h223_pending_olc_reqs[dir] )
+		g_hash_table_destroy( h223_pending_olc_reqs[dir] );
+	h223_pending_olc_reqs[dir] = g_hash_table_new( g_direct_hash, g_direct_equal );
+}
+
+static void h223_lc_init()
+{
+	h223_lc_init_dir( P2P_DIR_SENT );
+	h223_lc_init_dir( P2P_DIR_RECV );
+	h223_lc_params_temp = NULL;
+	h245_lc_dissector = NULL;
+	h223_fw_lc_num = 0;
+}
+
+void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle )
+{
+	h223_add_lc_handle = handle;
+}
+
 /* Initialize the protocol and registered fields */
 int proto_h245 = -1;
 
@@ -913,19 +963,20 @@ static int hf_h245_redundancyEncodingBool = -1;   /* BOOLEAN */
 static int hf_h245_separateStreamBool = -1;       /* T_separateStream */
 static int hf_h245_separatePort = -1;             /* BOOLEAN */
 static int hf_h245_samePortBool = -1;             /* BOOLEAN */
-static int hf_h245_forwardLogicalChannelNumber = -1;  /* LogicalChannelNumber */
+static int hf_h245_olc_fw_lcn = -1;               /* OLC_fw_lcn */
 static int hf_h245_forwardLogicalChannelParameters = -1;  /* T_forwardLogicalChannelParameters */
 static int hf_h245_portNumber = -1;               /* INTEGER_0_65535 */
 static int hf_h245_dataType = -1;                 /* DataType */
 static int hf_h245_olc_forw_multiplexParameters = -1;  /* OLC_forw_multiplexParameters */
 static int hf_h245_h222LogicalChannelParameters = -1;  /* H222LogicalChannelParameters */
-static int hf_h245_h223LogicalChannelParameters = -1;  /* H223LogicalChannelParameters */
+static int hf_h245_olc_fw_h223_params = -1;       /* OLC_fw_h223_params */
 static int hf_h245_v76LogicalChannelParameters = -1;  /* V76LogicalChannelParameters */
 static int hf_h245_h2250LogicalChannelParameters = -1;  /* H2250LogicalChannelParameters */
 static int hf_h245_forwardLogicalChannelDependency = -1;  /* LogicalChannelNumber */
 static int hf_h245_replacementFor = -1;           /* LogicalChannelNumber */
 static int hf_h245_reverseLogicalChannelParameters = -1;  /* OLC_reverseLogicalChannelParameters */
 static int hf_h245_olc_rev_multiplexParameter = -1;  /* OLC_rev_multiplexParameters */
+static int hf_h245_olc_rev_h223_params = -1;      /* OLC_rev_h223_params */
 static int hf_h245_reverseLogicalChannelDependency = -1;  /* LogicalChannelNumber */
 static int hf_h245_separateStack = -1;            /* NetworkAccessParameters */
 static int hf_h245_encryptionSync = -1;           /* EncryptionSync */
@@ -965,17 +1016,17 @@ static int hf_h245_pcr_pid = -1;                  /* INTEGER_0_8191 */
 static int hf_h245_programDescriptors = -1;       /* OCTET_STRING */
 static int hf_h245_streamDescriptors = -1;        /* OCTET_STRING */
 static int hf_h245_adaptationLayerType = -1;      /* T_adaptationLayerType */
-static int hf_h245_al1Framed = -1;                /* NULL */
-static int hf_h245_al1NotFramed = -1;             /* NULL */
-static int hf_h245_al2WithoutSequenceNumbers = -1;  /* NULL */
-static int hf_h245_al2WithSequenceNumbers = -1;   /* NULL */
-static int hf_h245_al3 = -1;                      /* Al3 */
-static int hf_h245_al1M = -1;                     /* H223AL1MParameters */
-static int hf_h245_al2M = -1;                     /* H223AL2MParameters */
-static int hf_h245_al3M = -1;                     /* H223AL3MParameters */
-static int hf_h245_segmentableFlag = -1;          /* BOOLEAN */
-static int hf_h245_controlFieldOctets = -1;       /* INTEGER_0_2 */
-static int hf_h245_sendBufferSize = -1;           /* INTEGER_0_16777215 */
+static int hf_h245_h223_al_type_al1Framed = -1;   /* T_al1Framed */
+static int hf_h245_h223_al_type_al1NotFramed = -1;  /* T_al1NotFramed */
+static int hf_h245_h223_al_type_al2WithoutSequenceNumbers = -1;  /* T_al2WithoutSequenceNumbers */
+static int hf_h245_h223_al_type_al2WithSequenceNumbers = -1;  /* T_al2WithSequenceNumbers */
+static int hf_h245_h223_al_type_al3 = -1;         /* T_al3 */
+static int hf_h245_h223_al_type_al1M = -1;        /* T_al1M */
+static int hf_h245_h223_al_type_al2M = -1;        /* T_al2M */
+static int hf_h245_h223_al_type_al3M = -1;        /* T_al3M */
+static int hf_h245_h223_lc_segmentableFlag = -1;  /* T_segmentableFlag */
+static int hf_h245_controlFieldOctets = -1;       /* T_controlFieldOctets */
+static int hf_h245_al3_sendBufferSize = -1;       /* T_sendBufferSize */
 static int hf_h245_transferMode = -1;             /* T_transferMode */
 static int hf_h245_framed = -1;                   /* NULL */
 static int hf_h245_unframed = -1;                 /* NULL */
@@ -1005,6 +1056,7 @@ static int hf_h245_crlength2 = -1;                /* AL3CrcLength */
 static int hf_h245_numberOfRetransmissions = -1;  /* T_numberOfRetransmissions */
 static int hf_h245_finite = -1;                   /* INTEGER_0_16 */
 static int hf_h245_infinite = -1;                 /* NULL */
+static int hf_h245_sendBufferSize = -1;           /* INTEGER_0_16777215 */
 static int hf_h245_hdlcParameters = -1;           /* V76HDLCParameters */
 static int hf_h245_suspendResume = -1;            /* T_suspendResume */
 static int hf_h245_noSuspendResume = -1;          /* NULL */
@@ -1088,11 +1140,13 @@ static int hf_h245_escrowentry = -1;              /* SEQUENCE_SIZE_1_256_OF_Escr
 static int hf_h245_escrowentry_item = -1;         /* EscrowData */
 static int hf_h245_escrowID = -1;                 /* OBJECT_IDENTIFIER */
 static int hf_h245_escrowValue = -1;              /* BIT_STRING_SIZE_1_65535 */
+static int hf_h245_olc_ack_fw_lcn = -1;           /* OLC_ack_fw_lcn */
 static int hf_h245_olc_ack_reverseLogicalChannelParameters = -1;  /* OLC_ack_reverseLogicalChannelParameters */
 static int hf_h245_reverseLogicalChannelNumber = -1;  /* LogicalChannelNumber */
 static int hf_h245_olc_ack_multiplexParameters = -1;  /* T_multiplexParameters */
 static int hf_h245_forwardMultiplexAckParameters = -1;  /* T_forwardMultiplexAckParameters */
 static int hf_h245_h2250LogicalChannelAckParameters = -1;  /* H2250LogicalChannelAckParameters */
+static int hf_h245_forwardLogicalChannelNumber = -1;  /* LogicalChannelNumber */
 static int hf_h245_olc_rej_cause = -1;            /* OpenLogicalChannelRejectCause */
 static int hf_h245_unsuitableReverseParameters = -1;  /* NULL */
 static int hf_h245_dataTypeNotSupported = -1;     /* NULL */
@@ -1125,15 +1179,15 @@ static int hf_h245_req_chan_clos_rej_cause = -1;  /* RequestChannelCloseRejectCa
 static int hf_h245_multiplexEntryDescriptors = -1;  /* SET_SIZE_1_15_OF_MultiplexEntryDescriptor */
 static int hf_h245_multiplexEntryDescriptors_item = -1;  /* MultiplexEntryDescriptor */
 static int hf_h245_multiplexTableEntryNumber = -1;  /* MultiplexTableEntryNumber */
-static int hf_h245_elementList = -1;              /* SEQUENCE_SIZE_1_256_OF_MultiplexElement */
+static int hf_h245_elementList = -1;              /* T_elementList */
 static int hf_h245_elementList_item = -1;         /* MultiplexElement */
 static int hf_h245_me_type = -1;                  /* Me_type */
-static int hf_h245_logicalChannelNum = -1;        /* INTEGER_0_65535 */
-static int hf_h245_subElementList = -1;           /* SEQUENCE_SIZE_2_255_OF_MultiplexElement */
+static int hf_h245_logicalChannelNum = -1;        /* T_logicalChannelNumber */
+static int hf_h245_subElementList = -1;           /* T_subElementList */
 static int hf_h245_subElementList_item = -1;      /* MultiplexElement */
 static int hf_h245_me_repeatCount = -1;           /* ME_repeatCount */
-static int hf_h245_finite_1_65535 = -1;           /* INTEGER_1_65535 */
-static int hf_h245_untilClosingFlag = -1;         /* NULL */
+static int hf_h245_me_repeatCount_finite = -1;    /* ME_finiteRepeatCount */
+static int hf_h245_untilClosingFlag = -1;         /* T_untilClosingFlag */
 static int hf_h245_multiplexTableEntryNumbers = -1;  /* SET_SIZE_1_15_OF_MultiplexTableEntryNumber */
 static int hf_h245_multiplexTableEntryNumber_item = -1;  /* MultiplexTableEntryNumber */
 static int hf_h245_rejectionDescriptions1 = -1;   /* SET_SIZE_1_15_OF_MultiplexEntryRejectionDescriptions */
@@ -1182,6 +1236,15 @@ static int hf_h245_mpsmElements_item = -1;        /* MultiplePayloadStreamElemen
 static int hf_h245_rfc2733Mode = -1;              /* T_rfc2733Mode */
 static int hf_h245_fec_mode = -1;                 /* FEC_mode */
 static int hf_h245_adaptationLayer = -1;          /* AdaptationLayerType */
+static int hf_h245_al1Framed = -1;                /* NULL */
+static int hf_h245_al1NotFramed = -1;             /* NULL */
+static int hf_h245_al2WithoutSequenceNumbers = -1;  /* NULL */
+static int hf_h245_al2WithSequenceNumbers = -1;   /* NULL */
+static int hf_h245_al3 = -1;                      /* Al3 */
+static int hf_h245_al1M = -1;                     /* H223AL1MParameters */
+static int hf_h245_al2M = -1;                     /* H223AL2MParameters */
+static int hf_h245_al3M = -1;                     /* H223AL3MParameters */
+static int hf_h245_segmentableFlag = -1;          /* BOOLEAN */
 static int hf_h245_redundancyEncodingMode = -1;   /* RedundancyEncodingMode */
 static int hf_h245_secondaryEncoding = -1;        /* T_secondaryEncoding */
 static int hf_h245_h261VideoMode = -1;            /* H261VideoMode */
@@ -1834,10 +1897,10 @@ static gint ett_h245_RequestChannelCloseRelease = -1;
 static gint ett_h245_MultiplexEntrySend = -1;
 static gint ett_h245_SET_SIZE_1_15_OF_MultiplexEntryDescriptor = -1;
 static gint ett_h245_MultiplexEntryDescriptor = -1;
-static gint ett_h245_SEQUENCE_SIZE_1_256_OF_MultiplexElement = -1;
+static gint ett_h245_T_elementList = -1;
 static gint ett_h245_MultiplexElement = -1;
 static gint ett_h245_Me_type = -1;
-static gint ett_h245_SEQUENCE_SIZE_2_255_OF_MultiplexElement = -1;
+static gint ett_h245_T_subElementList = -1;
 static gint ett_h245_ME_repeatCount = -1;
 static gint ett_h245_MultiplexEntrySendAck = -1;
 static gint ett_h245_SET_SIZE_1_15_OF_MultiplexTableEntryNumber = -1;
@@ -3154,9 +3217,6 @@ static int dissect_associateConference(tvbuff_t *tvb, int offset, packet_info *p
 static int dissect_audioHeaderPresent(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_BOOLEAN(tvb, offset, pinfo, tree, hf_h245_audioHeaderPresent);
 }
-static int dissect_segmentableFlag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_BOOLEAN(tvb, offset, pinfo, tree, hf_h245_segmentableFlag);
-}
 static int dissect_alsduSplitting(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_BOOLEAN(tvb, offset, pinfo, tree, hf_h245_alsduSplitting);
 }
@@ -3174,6 +3234,9 @@ static int dissect_mediaControlGuaranteedDelivery(tvbuff_t *tvb, int offset, pac
 }
 static int dissect_flowControlToZero(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_BOOLEAN(tvb, offset, pinfo, tree, hf_h245_flowControlToZero);
+}
+static int dissect_segmentableFlag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_BOOLEAN(tvb, offset, pinfo, tree, hf_h245_segmentableFlag);
 }
 static int dissect_multiplexCapabilityBool(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_BOOLEAN(tvb, offset, pinfo, tree, hf_h245_multiplexCapabilityBool);
@@ -3279,9 +3342,6 @@ static int dissect_multicast_tsapIdentifier(tvbuff_t *tvb, int offset, packet_in
 static int dissect_multicast_IPv6_tsapIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_multicast_IPv6_tsapIdentifier);
 }
-static int dissect_logicalChannelNum(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_logicalChannelNum);
-}
 static int dissect_requestedInterval(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_INTEGER_0_65535(tvb, offset, pinfo, tree, hf_h245_requestedInterval);
 }
@@ -3324,9 +3384,6 @@ static int dissect_lowerBitRate(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 }
 static int dissect_higherBitRate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_INTEGER_1_65535(tvb, offset, pinfo, tree, hf_h245_higherBitRate);
-}
-static int dissect_finite_1_65535(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_1_65535(tvb, offset, pinfo, tree, hf_h245_finite_1_65535);
 }
 static int dissect_maxNumberOfAdditionalConnections(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_INTEGER_1_65535(tvb, offset, pinfo, tree, hf_h245_maxNumberOfAdditionalConnections);
@@ -3779,18 +3836,6 @@ static int dissect_issueQuery(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 static int dissect_nullData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_NULL(tvb, offset, pinfo, tree, hf_h245_nullData);
 }
-static int dissect_al1Framed(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_NULL(tvb, offset, pinfo, tree, hf_h245_al1Framed);
-}
-static int dissect_al1NotFramed(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_NULL(tvb, offset, pinfo, tree, hf_h245_al1NotFramed);
-}
-static int dissect_al2WithoutSequenceNumbers(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_NULL(tvb, offset, pinfo, tree, hf_h245_al2WithoutSequenceNumbers);
-}
-static int dissect_al2WithSequenceNumbers(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_NULL(tvb, offset, pinfo, tree, hf_h245_al2WithSequenceNumbers);
-}
 static int dissect_framed(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_NULL(tvb, offset, pinfo, tree, hf_h245_framed);
 }
@@ -3926,9 +3971,6 @@ static int dissect_reservationFailure(tvbuff_t *tvb, int offset, packet_info *pi
 static int dissect_normal(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_NULL(tvb, offset, pinfo, tree, hf_h245_normal);
 }
-static int dissect_untilClosingFlag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_NULL(tvb, offset, pinfo, tree, hf_h245_untilClosingFlag);
-}
 static int dissect_unspecifiedCause(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_NULL(tvb, offset, pinfo, tree, hf_h245_unspecifiedCause);
 }
@@ -3949,6 +3991,18 @@ static int dissect_multipointConstraint(tvbuff_t *tvb, int offset, packet_info *
 }
 static int dissect_requestDenied(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_NULL(tvb, offset, pinfo, tree, hf_h245_requestDenied);
+}
+static int dissect_al1Framed(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_NULL(tvb, offset, pinfo, tree, hf_h245_al1Framed);
+}
+static int dissect_al1NotFramed(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_NULL(tvb, offset, pinfo, tree, hf_h245_al1NotFramed);
+}
+static int dissect_al2WithoutSequenceNumbers(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_NULL(tvb, offset, pinfo, tree, hf_h245_al2WithoutSequenceNumbers);
+}
+static int dissect_al2WithSequenceNumbers(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_NULL(tvb, offset, pinfo, tree, hf_h245_al2WithSequenceNumbers);
 }
 static int dissect_qcif(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_NULL(tvb, offset, pinfo, tree, hf_h245_qcif);
@@ -5222,6 +5276,8 @@ static int
 dissect_h245_T_standard(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_object_identifier_str(tvb, offset, pinfo, tree, hf_index, &standard_oid_str);
 
+  if(!h245_lc_dissector && strcmp(standard_oid_str,"0.0.8.245.1.1.1") == 0)
+	h245_lc_dissector = amr_handle;
   return offset;
 }
 static int dissect_standardOid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -7358,6 +7414,7 @@ dissect_h245_H263VideoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo _
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_H263VideoCapability, H263VideoCapability_sequence);
 
+  h245_lc_dissector = h263_handle;
   return offset;
 }
 static int dissect_h263VideoCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
@@ -8500,13 +8557,13 @@ static int dissect_terminalCapabilitySet(tvbuff_t *tvb, int offset, packet_info 
 
 static int
 dissect_h245_LogicalChannelNumber(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              1U, 65535U, NULL, NULL, FALSE);
+                                              1U, 65535U, &value, NULL, FALSE);
+
+  h245_lc_temp = value & 0xfff;
 
   return offset;
-}
-static int dissect_forwardLogicalChannelNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_LogicalChannelNumber(tvb, offset, pinfo, tree, hf_h245_forwardLogicalChannelNumber);
 }
 static int dissect_forwardLogicalChannelDependency(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_LogicalChannelNumber(tvb, offset, pinfo, tree, hf_h245_forwardLogicalChannelDependency);
@@ -8519,6 +8576,9 @@ static int dissect_reverseLogicalChannelDependency(tvbuff_t *tvb, int offset, pa
 }
 static int dissect_reverseLogicalChannelNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_LogicalChannelNumber(tvb, offset, pinfo, tree, hf_h245_reverseLogicalChannelNumber);
+}
+static int dissect_forwardLogicalChannelNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_LogicalChannelNumber(tvb, offset, pinfo, tree, hf_h245_forwardLogicalChannelNumber);
 }
 static int dissect_logicalChannelNumber(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_LogicalChannelNumber(tvb, offset, pinfo, tree, hf_h245_logicalChannelNumber);
@@ -8540,6 +8600,19 @@ static int dissect_logicalChannelNumber1(tvbuff_t *tvb, int offset, packet_info 
 }
 static int dissect_logicalChannelNumber2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_LogicalChannelNumber(tvb, offset, pinfo, tree, hf_h245_logicalChannelNumber2);
+}
+
+
+
+static int
+dissect_h245_OLC_fw_lcn(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_h245_LogicalChannelNumber(tvb, offset, pinfo, tree, hf_index);
+
+  h223_fw_lc_num = h245_lc_temp;
+  return offset;
+}
+static int dissect_olc_fw_lcn(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_OLC_fw_lcn(tvb, offset, pinfo, tree, hf_h245_olc_fw_lcn);
 }
 
 
@@ -8976,20 +9049,97 @@ static int dissect_h222LogicalChannelParameters(tvbuff_t *tvb, int offset, packe
 
 
 static int
-dissect_h245_INTEGER_0_2(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_T_al1Framed(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  if(h223_lc_params_temp)
+	h223_lc_params_temp->al_type = al1Framed;
+  offset = dissect_per_null(tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_h223_al_type_al1Framed(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_T_al1Framed(tvb, offset, pinfo, tree, hf_h245_h223_al_type_al1Framed);
+}
+
+
+
+static int
+dissect_h245_T_al1NotFramed(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  if(h223_lc_params_temp)
+	h223_lc_params_temp->al_type = al1NotFramed;
+  offset = dissect_per_null(tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_h223_al_type_al1NotFramed(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_T_al1NotFramed(tvb, offset, pinfo, tree, hf_h245_h223_al_type_al1NotFramed);
+}
+
+
+
+static int
+dissect_h245_T_al2WithoutSequenceNumbers(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  if(h223_lc_params_temp)
+	h223_lc_params_temp->al_type = al2WithoutSequenceNumbers;
+  offset = dissect_per_null(tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_h223_al_type_al2WithoutSequenceNumbers(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_T_al2WithoutSequenceNumbers(tvb, offset, pinfo, tree, hf_h245_h223_al_type_al2WithoutSequenceNumbers);
+}
+
+
+
+static int
+dissect_h245_T_al2WithSequenceNumbers(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  if(h223_lc_params_temp)
+	h223_lc_params_temp->al_type = al2WithSequenceNumbers;
+  offset = dissect_per_null(tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_h223_al_type_al2WithSequenceNumbers(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_T_al2WithSequenceNumbers(tvb, offset, pinfo, tree, hf_h245_h223_al_type_al2WithSequenceNumbers);
+}
+
+
+
+static int
+dissect_h245_T_controlFieldOctets(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              0U, 2U, NULL, NULL, FALSE);
+                                              0U, 2U, &value, NULL, FALSE);
+
+  if(h223_lc_params_temp && h223_lc_params_temp->al_params)
+	((h223_al3_params*)h223_lc_params_temp->al_params)->control_field_octets = value & 3 ;
 
   return offset;
 }
 static int dissect_controlFieldOctets(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_INTEGER_0_2(tvb, offset, pinfo, tree, hf_h245_controlFieldOctets);
+  return dissect_h245_T_controlFieldOctets(tvb, offset, pinfo, tree, hf_h245_controlFieldOctets);
+}
+
+
+
+static int
+dissect_h245_T_sendBufferSize(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
+  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
+                                              0U, 16777215U, &value, NULL, FALSE);
+
+  if(h223_lc_params_temp && h223_lc_params_temp->al_params)
+	((h223_al3_params*)h223_lc_params_temp->al_params)->send_buffer_size = value & 0xfffff;
+
+  return offset;
+}
+static int dissect_al3_sendBufferSize(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_T_sendBufferSize(tvb, offset, pinfo, tree, hf_h245_al3_sendBufferSize);
 }
 
 
 static const per_sequence_t Al3_sequence[] = {
   { "controlFieldOctets"          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_controlFieldOctets },
-  { "sendBufferSize"              , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_sendBufferSize },
+  { "sendBufferSize"              , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_al3_sendBufferSize },
   { NULL, 0, 0, NULL }
 };
 
@@ -9002,6 +9152,22 @@ dissect_h245_Al3(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *
 }
 static int dissect_al3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_Al3(tvb, offset, pinfo, tree, hf_h245_al3);
+}
+
+
+
+static int
+dissect_h245_T_al3(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+ if(h223_lc_params_temp) {
+	h223_lc_params_temp->al_type = al3;
+	h223_lc_params_temp->al_params = se_alloc(sizeof(h223_al3_params));
+  }
+  offset = dissect_h245_Al3(tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_h223_al_type_al3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_T_al3(tvb, offset, pinfo, tree, hf_h245_h223_al_type_al3);
 }
 
 
@@ -9215,6 +9381,20 @@ static int dissect_al1M(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 }
 
 
+
+static int
+dissect_h245_T_al1M(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  if(h223_lc_params_temp)
+	h223_lc_params_temp->al_type = al1M;
+  offset = dissect_h245_H223AL1MParameters(tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_h223_al_type_al1M(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_T_al1M(tvb, offset, pinfo, tree, hf_h245_h223_al_type_al1M);
+}
+
+
 static const value_string h245_AL2HeaderFEC_vals[] = {
   {   0, "sebch16-5" },
   {   1, "golay24-12" },
@@ -9255,6 +9435,20 @@ dissect_h245_H223AL2MParameters(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 }
 static int dissect_al2M(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_H223AL2MParameters(tvb, offset, pinfo, tree, hf_h245_al2M);
+}
+
+
+
+static int
+dissect_h245_T_al2M(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  if(h223_lc_params_temp)
+	h223_lc_params_temp->al_type = al2M;
+  offset = dissect_h245_H223AL2MParameters(tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_h223_al_type_al2M(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_T_al2M(tvb, offset, pinfo, tree, hf_h245_h223_al_type_al2M);
 }
 
 
@@ -9342,6 +9536,20 @@ static int dissect_al3M(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 }
 
 
+
+static int
+dissect_h245_T_al3M(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  if(h223_lc_params_temp)
+	h223_lc_params_temp->al_type = al3M;
+  offset = dissect_h245_H223AL3MParameters(tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_h223_al_type_al3M(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_T_al3M(tvb, offset, pinfo, tree, hf_h245_h223_al_type_al3M);
+}
+
+
 static const value_string h245_T_adaptationLayerType_vals[] = {
   {   0, "nonStandard" },
   {   1, "al1Framed" },
@@ -9357,14 +9565,14 @@ static const value_string h245_T_adaptationLayerType_vals[] = {
 
 static const per_choice_t T_adaptationLayerType_choice[] = {
   {   0, "nonStandard"                 , ASN1_EXTENSION_ROOT    , dissect_nonStandard },
-  {   1, "al1Framed"                   , ASN1_EXTENSION_ROOT    , dissect_al1Framed },
-  {   2, "al1NotFramed"                , ASN1_EXTENSION_ROOT    , dissect_al1NotFramed },
-  {   3, "al2WithoutSequenceNumbers"   , ASN1_EXTENSION_ROOT    , dissect_al2WithoutSequenceNumbers },
-  {   4, "al2WithSequenceNumbers"      , ASN1_EXTENSION_ROOT    , dissect_al2WithSequenceNumbers },
-  {   5, "al3"                         , ASN1_EXTENSION_ROOT    , dissect_al3 },
-  {   6, "al1M"                        , ASN1_NOT_EXTENSION_ROOT, dissect_al1M },
-  {   7, "al2M"                        , ASN1_NOT_EXTENSION_ROOT, dissect_al2M },
-  {   8, "al3M"                        , ASN1_NOT_EXTENSION_ROOT, dissect_al3M },
+  {   1, "al1Framed"                   , ASN1_EXTENSION_ROOT    , dissect_h223_al_type_al1Framed },
+  {   2, "al1NotFramed"                , ASN1_EXTENSION_ROOT    , dissect_h223_al_type_al1NotFramed },
+  {   3, "al2WithoutSequenceNumbers"   , ASN1_EXTENSION_ROOT    , dissect_h223_al_type_al2WithoutSequenceNumbers },
+  {   4, "al2WithSequenceNumbers"      , ASN1_EXTENSION_ROOT    , dissect_h223_al_type_al2WithSequenceNumbers },
+  {   5, "al3"                         , ASN1_EXTENSION_ROOT    , dissect_h223_al_type_al3 },
+  {   6, "al1M"                        , ASN1_NOT_EXTENSION_ROOT, dissect_h223_al_type_al1M },
+  {   7, "al2M"                        , ASN1_NOT_EXTENSION_ROOT, dissect_h223_al_type_al2M },
+  {   8, "al3M"                        , ASN1_NOT_EXTENSION_ROOT, dissect_h223_al_type_al3M },
   { 0, NULL, 0, NULL }
 };
 
@@ -9381,9 +9589,26 @@ static int dissect_adaptationLayerType(tvbuff_t *tvb, int offset, packet_info *p
 }
 
 
+
+static int
+dissect_h245_T_segmentableFlag(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
+  offset = dissect_per_boolean(tvb, offset, pinfo, tree, hf_index,
+                                  &value, NULL);
+
+  if(h223_lc_params_temp)
+	h223_lc_params_temp->segmentable = value & 1;
+
+  return offset;
+}
+static int dissect_h223_lc_segmentableFlag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_T_segmentableFlag(tvb, offset, pinfo, tree, hf_h245_h223_lc_segmentableFlag);
+}
+
+
 static const per_sequence_t H223LogicalChannelParameters_sequence[] = {
   { "adaptationLayerType"         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_adaptationLayerType },
-  { "segmentableFlag"             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_segmentableFlag },
+  { "segmentableFlag"             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h223_lc_segmentableFlag },
   { NULL, 0, 0, NULL }
 };
 
@@ -9394,8 +9619,23 @@ dissect_h245_H223LogicalChannelParameters(tvbuff_t *tvb, int offset, packet_info
 
   return offset;
 }
-static int dissect_h223LogicalChannelParameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_H223LogicalChannelParameters(tvb, offset, pinfo, tree, hf_h245_h223LogicalChannelParameters);
+
+
+
+static int
+dissect_h245_OLC_fw_h223_params(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  h223_fw_lc_params = se_alloc(sizeof(h223_lc_params));
+  h223_fw_lc_params->al_type = al_nonStandard;
+  h223_fw_lc_params->al_params = NULL;
+  h223_fw_lc_params->segmentable = 0;
+  h223_fw_lc_params->subdissector = NULL;
+  h223_lc_params_temp = h223_fw_lc_params;
+  offset = dissect_h245_H223LogicalChannelParameters(tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_olc_fw_h223_params(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_OLC_fw_h223_params(tvb, offset, pinfo, tree, hf_h245_olc_fw_h223_params);
 }
 
 
@@ -10102,7 +10342,7 @@ static const value_string h245_OLC_forw_multiplexParameters_vals[] = {
 
 static const per_choice_t OLC_forw_multiplexParameters_choice[] = {
   {   0, "h222LogicalChannelParameters", ASN1_EXTENSION_ROOT    , dissect_h222LogicalChannelParameters },
-  {   1, "h223LogicalChannelParameters", ASN1_EXTENSION_ROOT    , dissect_h223LogicalChannelParameters },
+  {   1, "h223LogicalChannelParameters", ASN1_EXTENSION_ROOT    , dissect_olc_fw_h223_params },
   {   2, "v76LogicalChannelParameters" , ASN1_EXTENSION_ROOT    , dissect_v76LogicalChannelParameters },
   {   3, "h2250LogicalChannelParameters", ASN1_NOT_EXTENSION_ROOT, dissect_h2250LogicalChannelParameters },
   {   4, "none"                        , ASN1_NOT_EXTENSION_ROOT, dissect_none },
@@ -10133,13 +10373,37 @@ static const per_sequence_t T_forwardLogicalChannelParameters_sequence[] = {
 
 static int
 dissect_h245_T_forwardLogicalChannelParameters(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  h245_lc_dissector = NULL;
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_T_forwardLogicalChannelParameters, T_forwardLogicalChannelParameters_sequence);
+
+  if(h223_lc_params_temp && h245_lc_dissector)
+	h223_lc_params_temp->subdissector = h245_lc_dissector;
+  else if(h223_lc_params_temp)
+	h223_lc_params_temp->subdissector = data_handle;
 
   return offset;
 }
 static int dissect_forwardLogicalChannelParameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h245_T_forwardLogicalChannelParameters(tvb, offset, pinfo, tree, hf_h245_forwardLogicalChannelParameters);
+}
+
+
+
+static int
+dissect_h245_OLC_rev_h223_params(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  h223_rev_lc_params = se_alloc(sizeof(h223_lc_params));
+  h223_rev_lc_params->al_type = al_nonStandard;
+  h223_rev_lc_params->al_params = NULL;
+  h223_rev_lc_params->segmentable = 0;
+  h223_rev_lc_params->subdissector = NULL;
+  h223_lc_params_temp = h223_rev_lc_params;
+  offset = dissect_h245_H223LogicalChannelParameters(tvb, offset, pinfo, tree, hf_index);
+
+  return offset;
+}
+static int dissect_olc_rev_h223_params(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_OLC_rev_h223_params(tvb, offset, pinfo, tree, hf_h245_olc_rev_h223_params);
 }
 
 
@@ -10151,7 +10415,7 @@ static const value_string h245_OLC_rev_multiplexParameters_vals[] = {
 };
 
 static const per_choice_t OLC_rev_multiplexParameters_choice[] = {
-  {   0, "h223LogicalChannelParameters", ASN1_EXTENSION_ROOT    , dissect_h223LogicalChannelParameters },
+  {   0, "h223LogicalChannelParameters", ASN1_EXTENSION_ROOT    , dissect_olc_rev_h223_params },
   {   1, "v76LogicalChannelParameters" , ASN1_EXTENSION_ROOT    , dissect_v76LogicalChannelParameters },
   {   2, "h2250LogicalChannelParameters", ASN1_NOT_EXTENSION_ROOT, dissect_h2250LogicalChannelParameters },
   { 0, NULL, 0, NULL }
@@ -10432,7 +10696,7 @@ static int dissect_encryptionUpdate(tvbuff_t *tvb, int offset, packet_info *pinf
 
 
 static const per_sequence_t OpenLogicalChannel_sequence[] = {
-  { "forwardLogicalChannelNumber" , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_forwardLogicalChannelNumber },
+  { "forwardLogicalChannelNumber" , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_olc_fw_lcn },
   { "forwardLogicalChannelParameters", ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_forwardLogicalChannelParameters },
   { "reverseLogicalChannelParameters", ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_reverseLogicalChannelParameters },
   { "separateStack"               , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_separateStack },
@@ -10442,8 +10706,22 @@ static const per_sequence_t OpenLogicalChannel_sequence[] = {
 
 int
 dissect_h245_OpenLogicalChannel(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  gint32 temp;
+
+  h223_fw_lc_num = 0;
+  h223_lc_params_temp = NULL;
+
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_OpenLogicalChannel, OpenLogicalChannel_sequence);
+
+  if(h223_fw_lc_num != 0 && h223_fw_lc_params) {
+	h223_pending_olc *pending = se_alloc(sizeof(h223_pending_olc));
+	pending->fw_channel_params = h223_fw_lc_params;
+	pending->rev_channel_params = h223_rev_lc_params;
+	temp = h223_fw_lc_num;
+	if (pinfo->p2p_dir > -1)
+		g_hash_table_insert(h223_pending_olc_reqs[pinfo->p2p_dir], GINT_TO_POINTER(temp), pending);
+  }
 
 
   if (h245_pi != NULL) h245_pi->msg_type = H245_OpenLogChn;
@@ -10578,8 +10856,11 @@ static int dissect_requestChannelClose(tvbuff_t *tvb, int offset, packet_info *p
 
 static int
 dissect_h245_MultiplexTableEntryNumber(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
-                                              1U, 15U, NULL, NULL, FALSE);
+                                              1U, 15U, &value, NULL, FALSE);
+
+  h223_mc = value & 0xf;
 
   return offset;
 }
@@ -10594,20 +10875,44 @@ static int dissect_entryNumbers_item(tvbuff_t *tvb, int offset, packet_info *pin
 }
 
 
-static const per_sequence_t SEQUENCE_SIZE_2_255_OF_MultiplexElement_sequence_of[1] = {
+
+static int
+dissect_h245_T_logicalChannelNumber(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  /*MultiplexElement/type/logicalChannelNumber*/
+  guint32 value;
+  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
+                                              0U, 65535U, &value, NULL, FALSE);
+
+  h223_me->sublist = NULL;
+  h223_me->vc = value & 0xffff;
+
+  return offset;
+}
+static int dissect_logicalChannelNum(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_T_logicalChannelNumber(tvb, offset, pinfo, tree, hf_h245_logicalChannelNum);
+}
+
+
+static const per_sequence_t T_subElementList_sequence_of[1] = {
   { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_subElementList_item },
 };
 
 static int
-dissect_h245_SEQUENCE_SIZE_2_255_OF_MultiplexElement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_T_subElementList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  h223_mux_element dummy_me, *parent_me = h223_me;
+  h223_me = &dummy_me;
   offset = dissect_per_constrained_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                                  ett_h245_SEQUENCE_SIZE_2_255_OF_MultiplexElement, SEQUENCE_SIZE_2_255_OF_MultiplexElement_sequence_of,
+                                                  ett_h245_T_subElementList, T_subElementList_sequence_of,
                                                   2, 255);
+
+  parent_me->sublist = dummy_me.next;
+  h223_me = parent_me;
+  h223_me->vc = 0;
 
   return offset;
 }
 static int dissect_subElementList(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUENCE_SIZE_2_255_OF_MultiplexElement(tvb, offset, pinfo, tree, hf_h245_subElementList);
+  return dissect_h245_T_subElementList(tvb, offset, pinfo, tree, hf_h245_subElementList);
 }
 
 
@@ -10636,6 +10941,35 @@ static int dissect_me_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 }
 
 
+
+static int
+dissect_h245_ME_finiteRepeatCount(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 value;
+  offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
+                                              1U, 65535U, &value, NULL, FALSE);
+
+  h223_me->repeat_count = value & 0xffff;
+
+  return offset;
+}
+static int dissect_me_repeatCount_finite(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_ME_finiteRepeatCount(tvb, offset, pinfo, tree, hf_h245_me_repeatCount_finite);
+}
+
+
+
+static int
+dissect_h245_T_untilClosingFlag(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_per_null(tvb, offset, pinfo, tree, hf_index);
+
+  h223_me->repeat_count = 0;
+  return offset;
+}
+static int dissect_untilClosingFlag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_T_untilClosingFlag(tvb, offset, pinfo, tree, hf_h245_untilClosingFlag);
+}
+
+
 static const value_string h245_ME_repeatCount_vals[] = {
   {   0, "finite" },
   {   1, "untilClosingFlag" },
@@ -10643,7 +10977,7 @@ static const value_string h245_ME_repeatCount_vals[] = {
 };
 
 static const per_choice_t ME_repeatCount_choice[] = {
-  {   0, "finite"                      , ASN1_NO_EXTENSIONS     , dissect_finite_1_65535 },
+  {   0, "finite"                      , ASN1_NO_EXTENSIONS     , dissect_me_repeatCount_finite },
   {   1, "untilClosingFlag"            , ASN1_NO_EXTENSIONS     , dissect_untilClosingFlag },
   { 0, NULL, 0, NULL }
 };
@@ -10669,6 +11003,11 @@ static const per_sequence_t MultiplexElement_sequence[] = {
 
 static int
 dissect_h245_MultiplexElement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  /*MultiplexElement*/
+  h223_mux_element* me = se_alloc(sizeof(h223_mux_element));
+  h223_me->next = me;
+  h223_me = me;
+  h223_me->next = NULL;
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_MultiplexElement, MultiplexElement_sequence);
 
@@ -10676,20 +11015,27 @@ dissect_h245_MultiplexElement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 
-static const per_sequence_t SEQUENCE_SIZE_1_256_OF_MultiplexElement_sequence_of[1] = {
+static const per_sequence_t T_elementList_sequence_of[1] = {
   { ""                            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_elementList_item },
 };
 
 static int
-dissect_h245_SEQUENCE_SIZE_1_256_OF_MultiplexElement(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_h245_T_elementList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  /* create a h223_mux_element to hold onto the head of the list, since
+   * h223_me will track the tail */
+  h223_mux_element dummy_me;
+  h223_me = &dummy_me;
   offset = dissect_per_constrained_sequence_of(tvb, offset, pinfo, tree, hf_index,
-                                                  ett_h245_SEQUENCE_SIZE_1_256_OF_MultiplexElement, SEQUENCE_SIZE_1_256_OF_MultiplexElement_sequence_of,
+                                                  ett_h245_T_elementList, T_elementList_sequence_of,
                                                   1, 256);
+
+  /* set h223_me to the head of the list for MEDescriptor to pick up */
+  h223_me = dummy_me.next;
 
   return offset;
 }
 static int dissect_elementList(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h245_SEQUENCE_SIZE_1_256_OF_MultiplexElement(tvb, offset, pinfo, tree, hf_h245_elementList);
+  return dissect_h245_T_elementList(tvb, offset, pinfo, tree, hf_h245_elementList);
 }
 
 
@@ -10701,8 +11047,15 @@ static const per_sequence_t MultiplexEntryDescriptor_sequence[] = {
 
 static int
 dissect_h245_MultiplexEntryDescriptor(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  /*MultiplexEntryDescriptor*/
+  h223_me = NULL;
+  h223_mc = 0;
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_MultiplexEntryDescriptor, MultiplexEntryDescriptor_sequence);
+
+  if(h223_set_mc_handle)
+    (*h223_set_mc_handle)(pinfo, h223_mc, h223_me);
+ /* stuff */
 
   return offset;
 }
@@ -12825,6 +13178,19 @@ static int dissect_terminalCapabilitySetReject(tvbuff_t *tvb, int offset, packet
 }
 
 
+
+static int
+dissect_h245_OLC_ack_fw_lcn(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_h245_LogicalChannelNumber(tvb, offset, pinfo, tree, hf_index);
+
+  h223_fw_lc_num = h245_lc_temp;
+  return offset;
+}
+static int dissect_olc_ack_fw_lcn(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h245_OLC_ack_fw_lcn(tvb, offset, pinfo, tree, hf_h245_olc_ack_fw_lcn);
+}
+
+
 static const value_string h245_T_multiplexParameters_vals[] = {
   {   0, "h222LogicalChannelParameters" },
   {   1, "h2250LogicalChannelParameters" },
@@ -12978,7 +13344,7 @@ static int dissect_forwardMultiplexAckParameters(tvbuff_t *tvb, int offset, pack
 
 
 static const per_sequence_t OpenLogicalChannelAck_sequence[] = {
-  { "forwardLogicalChannelNumber" , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_forwardLogicalChannelNumber },
+  { "forwardLogicalChannelNumber" , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_olc_ack_fw_lcn },
   { "reverseLogicalChannelParameters", ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_olc_ack_reverseLogicalChannelParameters },
   { "separateStack"               , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_separateStack },
   { "forwardMultiplexAckParameters", ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_forwardMultiplexAckParameters },
@@ -12988,8 +13354,35 @@ static const per_sequence_t OpenLogicalChannelAck_sequence[] = {
 
 static int
 dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  guint32 temp;
+  int p2p_dir;
+  h223_pending_olc *pend;
+  h223_fw_lc_num = 0;
+  h223_rev_lc_num = 0;
+	
   offset = dissect_per_sequence(tvb, offset, pinfo, tree, hf_index,
                                    ett_h245_OpenLogicalChannelAck, OpenLogicalChannelAck_sequence);
+
+  temp = h223_fw_lc_num;
+  p2p_dir = pinfo->p2p_dir;
+  
+  if(pinfo->p2p_dir == P2P_DIR_SENT)
+	pinfo->p2p_dir = P2P_DIR_RECV;
+  else
+	pinfo->p2p_dir = P2P_DIR_SENT;
+  pend = g_hash_table_lookup( h223_pending_olc_reqs[pinfo->p2p_dir], GINT_TO_POINTER(temp) );
+  if (pend) {
+	DISSECTOR_ASSERT( ( h223_rev_lc_num &&  pend->rev_channel_params)
+				   || (!h223_rev_lc_num && !pend->rev_channel_params) );
+	if(h223_add_lc_handle) {
+	  (*h223_add_lc_handle)( pinfo, h223_fw_lc_num, pend->fw_channel_params );
+	  if(h223_rev_lc_num)
+		(*h223_add_lc_handle)( pinfo, h223_rev_lc_num, pend->rev_channel_params );
+	}
+  } else {
+	/* we missed the OpenLogicalChannel packet */
+  }
+  pinfo->p2p_dir = p2p_dir;
 
 
   h245_pi->msg_type = H245_OpenLogChnAck;
@@ -19652,10 +20045,10 @@ void proto_register_h245(void) {
       { "samePort", "h245.samePort",
         FT_BOOLEAN, 8, NULL, 0,
         "FECCapability/rfc2733/separateStream/samePort", HFILL }},
-    { &hf_h245_forwardLogicalChannelNumber,
+    { &hf_h245_olc_fw_lcn,
       { "forwardLogicalChannelNumber", "h245.forwardLogicalChannelNumber",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "", HFILL }},
+        "OpenLogicalChannel/forwardLogicalChannelNumber", HFILL }},
     { &hf_h245_forwardLogicalChannelParameters,
       { "forwardLogicalChannelParameters", "h245.forwardLogicalChannelParameters",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -19676,10 +20069,10 @@ void proto_register_h245(void) {
       { "h222LogicalChannelParameters", "h245.h222LogicalChannelParameters",
         FT_NONE, BASE_NONE, NULL, 0,
         "", HFILL }},
-    { &hf_h245_h223LogicalChannelParameters,
+    { &hf_h245_olc_fw_h223_params,
       { "h223LogicalChannelParameters", "h245.h223LogicalChannelParameters",
         FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
+        "OpenLogicalChannel/forwardLogicalChannelParameters/multiplexParameters/h223LogicalChannelParameters", HFILL }},
     { &hf_h245_v76LogicalChannelParameters,
       { "v76LogicalChannelParameters", "h245.v76LogicalChannelParameters",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -19704,6 +20097,10 @@ void proto_register_h245(void) {
       { "multiplexParameters", "h245.multiplexParameters",
         FT_UINT32, BASE_DEC, VALS(h245_OLC_rev_multiplexParameters_vals), 0,
         "OpenLogicalChannel/reverseLogicalChannelParameters/multiplexParameters", HFILL }},
+    { &hf_h245_olc_rev_h223_params,
+      { "h223LogicalChannelParameters", "h245.h223LogicalChannelParameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "OpenLogicalChannel/reverseLogicalChannelParameters/multiplexParameters/h223LogicalChannelParameters", HFILL }},
     { &hf_h245_reverseLogicalChannelDependency,
       { "reverseLogicalChannelDependency", "h245.reverseLogicalChannelDependency",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -19860,50 +20257,50 @@ void proto_register_h245(void) {
       { "adaptationLayerType", "h245.adaptationLayerType",
         FT_UINT32, BASE_DEC, VALS(h245_T_adaptationLayerType_vals), 0,
         "H223LogicalChannelParameters/adaptationLayerType", HFILL }},
-    { &hf_h245_al1Framed,
+    { &hf_h245_h223_al_type_al1Framed,
       { "al1Framed", "h245.al1Framed",
         FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
-    { &hf_h245_al1NotFramed,
+        "H223LogicalChannelParameters/adaptationLayerType/al1Framed", HFILL }},
+    { &hf_h245_h223_al_type_al1NotFramed,
       { "al1NotFramed", "h245.al1NotFramed",
         FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
-    { &hf_h245_al2WithoutSequenceNumbers,
+        "H223LogicalChannelParameters/adaptationLayerType/al1NotFramed", HFILL }},
+    { &hf_h245_h223_al_type_al2WithoutSequenceNumbers,
       { "al2WithoutSequenceNumbers", "h245.al2WithoutSequenceNumbers",
         FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
-    { &hf_h245_al2WithSequenceNumbers,
+        "H223LogicalChannelParameters/adaptationLayerType/al2WithoutSequenceNumbers", HFILL }},
+    { &hf_h245_h223_al_type_al2WithSequenceNumbers,
       { "al2WithSequenceNumbers", "h245.al2WithSequenceNumbers",
         FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
-    { &hf_h245_al3,
+        "H223LogicalChannelParameters/adaptationLayerType/al2WithSequenceNumbers", HFILL }},
+    { &hf_h245_h223_al_type_al3,
       { "al3", "h245.al3",
         FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
-    { &hf_h245_al1M,
+        "H223LogicalChannelParameters/adaptationLayerType/al3", HFILL }},
+    { &hf_h245_h223_al_type_al1M,
       { "al1M", "h245.al1M",
         FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
-    { &hf_h245_al2M,
+        "H223LogicalChannelParameters/adaptationLayerType/al1M", HFILL }},
+    { &hf_h245_h223_al_type_al2M,
       { "al2M", "h245.al2M",
         FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
-    { &hf_h245_al3M,
+        "H223LogicalChannelParameters/adaptationLayerType/al2M", HFILL }},
+    { &hf_h245_h223_al_type_al3M,
       { "al3M", "h245.al3M",
         FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
-    { &hf_h245_segmentableFlag,
+        "H223LogicalChannelParameters/adaptationLayerType/al3M", HFILL }},
+    { &hf_h245_h223_lc_segmentableFlag,
       { "segmentableFlag", "h245.segmentableFlag",
         FT_BOOLEAN, 8, NULL, 0,
-        "", HFILL }},
+        "H223LogicalChannelParameters/segmentableFlag", HFILL }},
     { &hf_h245_controlFieldOctets,
       { "controlFieldOctets", "h245.controlFieldOctets",
         FT_UINT32, BASE_DEC, NULL, 0,
         "Al3/controlFieldOctets", HFILL }},
-    { &hf_h245_sendBufferSize,
+    { &hf_h245_al3_sendBufferSize,
       { "sendBufferSize", "h245.sendBufferSize",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "", HFILL }},
+        "Al3/sendBufferSize", HFILL }},
     { &hf_h245_transferMode,
       { "transferMode", "h245.transferMode",
         FT_UINT32, BASE_DEC, VALS(h245_T_transferMode_vals), 0,
@@ -20020,6 +20417,10 @@ void proto_register_h245(void) {
       { "infinite", "h245.infinite",
         FT_NONE, BASE_NONE, NULL, 0,
         "H223AnnexCArqParameters/numberOfRetransmissions/infinite", HFILL }},
+    { &hf_h245_sendBufferSize,
+      { "sendBufferSize", "h245.sendBufferSize",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "H223AnnexCArqParameters/sendBufferSize", HFILL }},
     { &hf_h245_hdlcParameters,
       { "hdlcParameters", "h245.hdlcParameters",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -20352,6 +20753,10 @@ void proto_register_h245(void) {
       { "escrowValue", "h245.escrowValue",
         FT_BYTES, BASE_HEX, NULL, 0,
         "EscrowData/escrowValue", HFILL }},
+    { &hf_h245_olc_ack_fw_lcn,
+      { "forwardLogicalChannelNumber", "h245.forwardLogicalChannelNumber",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "OpenLogicalChannelAck/forwardLogicalChannelNumber", HFILL }},
     { &hf_h245_olc_ack_reverseLogicalChannelParameters,
       { "reverseLogicalChannelParameters", "h245.reverseLogicalChannelParameters",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -20372,6 +20777,10 @@ void proto_register_h245(void) {
       { "h2250LogicalChannelAckParameters", "h245.h2250LogicalChannelAckParameters",
         FT_NONE, BASE_NONE, NULL, 0,
         "OpenLogicalChannelAck/forwardMultiplexAckParameters/h2250LogicalChannelAckParameters", HFILL }},
+    { &hf_h245_forwardLogicalChannelNumber,
+      { "forwardLogicalChannelNumber", "h245.forwardLogicalChannelNumber",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "", HFILL }},
     { &hf_h245_olc_rej_cause,
       { "cause", "h245.cause",
         FT_UINT32, BASE_DEC, VALS(h245_OpenLogicalChannelRejectCause_vals), 0,
@@ -20528,7 +20937,7 @@ void proto_register_h245(void) {
       { "repeatCount", "h245.repeatCount",
         FT_UINT32, BASE_DEC, VALS(h245_ME_repeatCount_vals), 0,
         "MultiplexElement/repeatCount", HFILL }},
-    { &hf_h245_finite_1_65535,
+    { &hf_h245_me_repeatCount_finite,
       { "finite", "h245.finite",
         FT_UINT32, BASE_DEC, NULL, 0,
         "MultiplexElement/repeatCount/finite", HFILL }},
@@ -20728,6 +21137,42 @@ void proto_register_h245(void) {
       { "adaptationLayerType", "h245.adaptationLayerType",
         FT_UINT32, BASE_DEC, VALS(h245_AdaptationLayerType_vals), 0,
         "H223ModeParameters/adaptationLayerType", HFILL }},
+    { &hf_h245_al1Framed,
+      { "al1Framed", "h245.al1Framed",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "H223ModeParameters/adaptationLayerType/al1Framed", HFILL }},
+    { &hf_h245_al1NotFramed,
+      { "al1NotFramed", "h245.al1NotFramed",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "H223ModeParameters/adaptationLayerType/al1NotFramed", HFILL }},
+    { &hf_h245_al2WithoutSequenceNumbers,
+      { "al2WithoutSequenceNumbers", "h245.al2WithoutSequenceNumbers",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "H223ModeParameters/adaptationLayerType/al2WithoutSequenceNumbers", HFILL }},
+    { &hf_h245_al2WithSequenceNumbers,
+      { "al2WithSequenceNumbers", "h245.al2WithSequenceNumbers",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "H223ModeParameters/adaptationLayerType/al2WithSequenceNumbers", HFILL }},
+    { &hf_h245_al3,
+      { "al3", "h245.al3",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "H223ModeParameters/adaptationLayerType/al3", HFILL }},
+    { &hf_h245_al1M,
+      { "al1M", "h245.al1M",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "H223ModeParameters/adaptationLayerType/al1M", HFILL }},
+    { &hf_h245_al2M,
+      { "al2M", "h245.al2M",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "H223ModeParameters/adaptationLayerType/al2M", HFILL }},
+    { &hf_h245_al3M,
+      { "al3M", "h245.al3M",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "H223ModeParameters/adaptationLayerType/al3M", HFILL }},
+    { &hf_h245_segmentableFlag,
+      { "segmentableFlag", "h245.segmentableFlag",
+        FT_BOOLEAN, 8, NULL, 0,
+        "H223ModeParameters/segmentableFlag", HFILL }},
     { &hf_h245_redundancyEncodingMode,
       { "redundancyEncodingMode", "h245.redundancyEncodingMode",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -22544,10 +22989,10 @@ void proto_register_h245(void) {
     &ett_h245_MultiplexEntrySend,
     &ett_h245_SET_SIZE_1_15_OF_MultiplexEntryDescriptor,
     &ett_h245_MultiplexEntryDescriptor,
-    &ett_h245_SEQUENCE_SIZE_1_256_OF_MultiplexElement,
+    &ett_h245_T_elementList,
     &ett_h245_MultiplexElement,
     &ett_h245_Me_type,
-    &ett_h245_SEQUENCE_SIZE_2_255_OF_MultiplexElement,
+    &ett_h245_T_subElementList,
     &ett_h245_ME_repeatCount,
     &ett_h245_MultiplexEntrySendAck,
     &ett_h245_SET_SIZE_1_15_OF_MultiplexTableEntryNumber,
@@ -22816,12 +23261,16 @@ void proto_reg_handoff_h245(void) {
 	rtp_handle = find_dissector("rtp");
 	rtcp_handle = find_dissector("rtcp");
 	data_handle = find_dissector("data");
+	h263_handle = find_dissector("h263data");
+	amr_handle = find_dissector("amr_if2");
 
 
 	h245_handle=create_dissector_handle(dissect_h245, proto_h245);
 	dissector_add_handle("tcp.port", h245_handle);
 	MultimediaSystemControlMessage_handle=create_dissector_handle(dissect_h245_h245, proto_h245);
 	dissector_add_handle("udp.port", MultimediaSystemControlMessage_handle);
+
+	h223_lc_init();
 }
 
 static void reset_h245_packet_info(h245_packet_info *pi)

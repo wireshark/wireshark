@@ -53,6 +53,7 @@
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
 #include "packet-ber.h"
+#include <epan/emem.h>
 
 #define PNAME  "MULTIMEDIA-SYSTEM-CONTROL"
 #define PSNAME "H.245"
@@ -66,6 +67,8 @@ static dissector_handle_t nsp_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t h245_handle;
 static dissector_handle_t MultimediaSystemControlMessage_handle;
+static dissector_handle_t h263_handle = NULL;
+static dissector_handle_t amr_handle = NULL;
 
 static void reset_h245_packet_info(h245_packet_info *pi);
 static int hf_h245_pdu_type = -1;
@@ -221,6 +224,53 @@ static const value_string h245_RFC_number_vals[] = {
 	{  3267,	"RFC 3267 - Adaptive Multi-Rate (AMR) and Adaptive Multi-Rate Wideband (AMR-WB)" },
 	{  0, NULL }
 };
+
+/* h223 multiplex codes */
+static h223_set_mc_handle_t h223_set_mc_handle = NULL;
+h223_mux_element *h223_me=NULL;
+guint8 h223_mc=0;
+void h245_set_h223_set_mc_handle( h223_set_mc_handle_t handle )
+{
+	h223_set_mc_handle = handle;
+}
+
+/* h223 logical channels */
+typedef struct {
+	h223_lc_params *fw_channel_params;
+	h223_lc_params *rev_channel_params;
+} h223_pending_olc;
+
+static GHashTable*          h223_pending_olc_reqs[] = { NULL, NULL };
+static dissector_handle_t   h245_lc_dissector;
+static guint16              h245_lc_temp;
+static guint16              h223_fw_lc_num;
+static guint16              h223_rev_lc_num;
+static h223_lc_params      *h223_lc_params_temp;
+static h223_lc_params      *h223_fw_lc_params;
+static h223_lc_params      *h223_rev_lc_params;
+static h223_add_lc_handle_t h223_add_lc_handle = NULL;
+
+static void h223_lc_init_dir( int dir )
+{
+	if ( h223_pending_olc_reqs[dir] )
+		g_hash_table_destroy( h223_pending_olc_reqs[dir] );
+	h223_pending_olc_reqs[dir] = g_hash_table_new( g_direct_hash, g_direct_equal );
+}
+
+static void h223_lc_init()
+{
+	h223_lc_init_dir( P2P_DIR_SENT );
+	h223_lc_init_dir( P2P_DIR_RECV );
+	h223_lc_params_temp = NULL;
+	h245_lc_dissector = NULL;
+	h223_fw_lc_num = 0;
+}
+
+void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle )
+{
+	h223_add_lc_handle = handle;
+}
+
 /* Initialize the protocol and registered fields */
 int proto_h245 = -1;
 #include "packet-h245-hf.c"
@@ -348,12 +398,16 @@ void proto_reg_handoff_h245(void) {
 	rtp_handle = find_dissector("rtp");
 	rtcp_handle = find_dissector("rtcp");
 	data_handle = find_dissector("data");
+	h263_handle = find_dissector("h263data");
+	amr_handle = find_dissector("amr_if2");
 
 
 	h245_handle=create_dissector_handle(dissect_h245, proto_h245);
 	dissector_add_handle("tcp.port", h245_handle);
 	MultimediaSystemControlMessage_handle=create_dissector_handle(dissect_h245_h245, proto_h245);
 	dissector_add_handle("udp.port", MultimediaSystemControlMessage_handle);
+
+	h223_lc_init();
 }
 
 static void reset_h245_packet_info(h245_packet_info *pi)
