@@ -175,6 +175,10 @@ be used for fuzz-testing protocol dissectors.
 
 =over 4
 
+=item -E
+
+Sets the probabilty that bytes in the output file are randomly changed.
+
 =item -F
 
 Sets the file format of the output capture file.
