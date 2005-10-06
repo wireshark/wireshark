@@ -95,6 +95,7 @@
 #include <wiretap/libpcap.h>
 #ifdef _WIN32
 #include "capture-wpcap.h"
+#include "capture_errs.h"
 #endif /* _WIN32 */
 #include "capture.h"
 #endif /* HAVE_LIBPCAP */
