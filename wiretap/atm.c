@@ -81,6 +81,21 @@ atm_guess_traffic_type(const guint8 *pd, guint32 len,
 			 * multiplexed RFC 1483 traffic.
 			 */
 			pseudo_header->atm.type = TRAF_LLCMX;
+		} else if (pseudo_header->atm.aal5t_len < 14) {
+			/*
+			 * As this cannot be an ethernet frame
+			 * (less than 14 bytes) we can try it
+			 * as a SSCOP frame
+			 */
+			pseudo_header->atm.aal = AAL_SIGNALLING;
+		} else if (pd[0] == 0x83 || pd[0] == 0x81) {
+			/*
+			 * MTP3b headers often encapsulate
+			 * a SCCP or MTN in the 3G network.
+			 * This should cause 0x83 or 0x81
+			 * in the first byte.
+			 */
+			pseudo_header->atm.aal = AAL_SIGNALLING;
 		} else {
 			/*
 			 * Assume it's LANE.
