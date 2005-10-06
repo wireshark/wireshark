@@ -1572,37 +1572,48 @@ static void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
 {
     switch(event) {
     case(cf_cb_file_closing):
+		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closing");
         main_cf_cb_file_closing(data);
         break;
     case(cf_cb_file_closed):
+		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closed");
         main_cf_cb_file_closed(data);
         break;
     case(cf_cb_file_read_start):
+		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read start");
         main_cf_cb_file_read_start(data);
         break;
     case(cf_cb_file_read_finished):
+		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read finished");
         main_cf_cb_file_read_finished(data);
         break;
 #ifdef HAVE_LIBPCAP
     case(cf_cb_live_capture_prepared):
+		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture prepared");
         main_cf_cb_live_capture_prepared(data);
         break;
     case(cf_cb_live_capture_update_started):
+		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update started");
         main_cf_cb_live_capture_update_started(data);
         break;
     case(cf_cb_live_capture_update_continue):
+		/*g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update continue");*/
         main_cf_cb_live_capture_update_continue(data);
         break;
     case(cf_cb_live_capture_fixed_started):
+		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed started");
         main_cf_cb_live_capture_fixed_started(data);
         break;
     case(cf_cb_live_capture_update_finished):
+		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update finished");
         main_cf_cb_live_capture_update_finished(data);
         break;
     case(cf_cb_live_capture_fixed_finished):
+		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed finished");
         main_cf_cb_live_capture_fixed_finished(data);
         break;
     case(cf_cb_live_capture_stopping):
+		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture stopping");
         main_cf_cb_live_capture_stopping(data);
         break;
 #endif
@@ -1616,15 +1627,19 @@ static void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         main_cf_cb_field_unselected(data);
         break;
     case(cf_cb_file_safe_started):
+		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: safe started");
         main_cf_cb_file_safe_started(data);
         break;
     case(cf_cb_file_safe_finished):
+		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: safe finished");
         main_cf_cb_file_safe_finished(data);
         break;
     case(cf_cb_file_safe_reload_finished):
+		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: reload finished");
         main_cf_cb_file_safe_reload_finished(data);
         break;
     case(cf_cb_file_safe_failed):
+		g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: safe failed");
         main_cf_cb_file_safe_failed(data);
         break;
     default:
@@ -1828,6 +1843,9 @@ main(int argc, char *argv[])
 		    G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION;
 
   g_log_set_handler(NULL,
+		    log_flags,
+		    console_log_handler, NULL /* user_data */);
+  g_log_set_handler(LOG_DOMAIN_MAIN,
 		    log_flags,
 		    console_log_handler, NULL /* user_data */);
 

@@ -31,6 +31,8 @@
 /* capture child domain (the capture child might also contain file domain messages!) */
 #define LOG_DOMAIN_CAPTURE_CHILD 	"CaptureChild"
 
+/* main domain */
+#define LOG_DOMAIN_MAIN				"Main"
 
 /* enable very verbose capture log debug output */
 /*#define LOG_CAPTURE_VERBOSE*/
