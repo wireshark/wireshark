@@ -283,9 +283,15 @@ typedef struct {
 
 static void add_h223_mux_element(h223_call_direction_data *direct, guint8 mc, h223_mux_element *me, guint32 framenum)
 {
-    h223_mux_element_listitem *li = se_alloc(sizeof(h223_mux_element_listitem));
-    h223_mux_element_listitem **old_li_ptr = &(direct->mux_table[mc]);
-    h223_mux_element_listitem *old_li = *old_li_ptr;
+    h223_mux_element_listitem *li;
+    h223_mux_element_listitem **old_li_ptr;
+    h223_mux_element_listitem *old_li;
+    
+    DISSECTOR_ASSERT(mc < 16);
+    
+    li = se_alloc(sizeof(h223_mux_element_listitem));
+    old_li_ptr = &(direct->mux_table[mc]);
+    old_li = *old_li_ptr;
     if( !old_li ) {
         direct->mux_table[mc] = li;
     } else {
@@ -309,7 +315,12 @@ static void add_h223_mux_element(h223_call_direction_data *direct, guint8 mc, h2
 
 static h223_mux_element* find_h223_mux_element(h223_call_direction_data* direct, guint8 mc, guint32 framenum)
 {
-    h223_mux_element_listitem* li = direct->mux_table[mc];
+    h223_mux_element_listitem* li;
+    
+    DISSECTOR_ASSERT(mc < 16);
+    
+    li = direct->mux_table[mc];
+    
     while( li && li->next && li->next->first_frame < framenum )
         li = li->next;
     while( li && li->next && li->next->first_frame == framenum && li->next->pdu_offset < pdu_offset )
@@ -324,10 +335,10 @@ static h223_mux_element* find_h223_mux_element(h223_call_direction_data* direct,
 static void add_h223_lc_params(h223_vc_info* vc_info, int direction, h223_lc_params *lc_params, guint32 framenum )
 {
     h223_lc_params_listitem *li = se_alloc(sizeof(h223_lc_params_listitem));
-    h223_lc_params_listitem **old_li_ptr = &(vc_info->lc_params[direction]);
+    h223_lc_params_listitem **old_li_ptr = &(vc_info->lc_params[direction ? 0 : 1]);
     h223_lc_params_listitem *old_li = *old_li_ptr;
     if( !old_li ) {
-        vc_info->lc_params[direction] = li;
+        vc_info->lc_params[direction ? 0 : 1] = li;
     } else {
         while( old_li->next ) {
             old_li_ptr = &(old_li->next);
@@ -350,7 +361,7 @@ static void add_h223_lc_params(h223_vc_info* vc_info, int direction, h223_lc_par
 
 static h223_lc_params* find_h223_lc_params(h223_vc_info* vc_info, int direction, guint32 framenum)
 {
-    h223_lc_params_listitem* li = vc_info->lc_params[direction];
+    h223_lc_params_listitem* li = vc_info->lc_params[direction? 0 : 1];
     while( li && li->next && li->next->first_frame <= framenum )
         li = li->next;
     if( li )
@@ -485,22 +496,30 @@ static h223_call_info *find_or_create_call_info ( packet_info * pinfo )
     return data;
 }
 
-void h223_set_mc( packet_info* pinfo, guint8 mc, h223_mux_element* me )
+static void h223_set_mc( packet_info* pinfo, guint8 mc, h223_mux_element* me )
 {
     circuit_t *circ = find_circuit( pinfo->ctype, pinfo->circuit_id, pinfo->fd->num );
     h223_vc_info* vc_info;
-    DISSECTOR_ASSERT( circ );
-    vc_info = circuit_get_proto_data(circ, proto_h223);
-    add_h223_mux_element( &(vc_info->call_info->direction_data[pinfo->p2p_dir]), mc, me, pinfo->fd->num );
+
+    /* if this h245 pdu packet came from an h223 circuit, add the details on
+     * the new mux entry */
+    if(circ) {
+        vc_info = circuit_get_proto_data(circ, proto_h223);
+        add_h223_mux_element( &(vc_info->call_info->direction_data[pinfo->p2p_dir ? 0 : 1]), mc, me, pinfo->fd->num );
+    }
 }
 
-void h223_add_lc( packet_info* pinfo, guint16 lc, h223_lc_params* params )
+static void h223_add_lc( packet_info* pinfo, guint16 lc, h223_lc_params* params )
 {
     circuit_t *circ = find_circuit( pinfo->ctype, pinfo->circuit_id, pinfo->fd->num );
     h223_vc_info* vc_info;
-    DISSECTOR_ASSERT( circ );
-    vc_info = circuit_get_proto_data(circ, proto_h223);
-    init_logical_channel( pinfo, vc_info->call_info, lc, pinfo->p2p_dir, params );
+
+    /* if this h245 pdu packet came from an h223 circuit, add the details on
+     * the new channel */
+    if(circ) {
+        vc_info = circuit_get_proto_data(circ, proto_h223);
+        init_logical_channel( pinfo, vc_info->call_info, lc, pinfo->p2p_dir, params );
+    }
 }
 
 /************************************************************************************
@@ -773,7 +792,7 @@ static void dissect_mux_payload( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_
 {
     guint32 len = tvb_reported_length(tvb);
 
-    h223_mux_element* me = find_h223_mux_element( &(call_info->direction_data[pinfo->p2p_dir]), mc, pinfo->fd->num );
+    h223_mux_element* me = find_h223_mux_element( &(call_info->direction_data[pinfo->p2p_dir ? 0 : 1]), mc, pinfo->fd->num );
 
     if( me ) {
         dissect_mux_payload_by_me_list( tvb, pinfo, pkt_offset, pdu_tree, call_info, me, 0, endOfMuxSdu );
@@ -1036,7 +1055,7 @@ static guint32 dissect_mux_pdu_fragment( tvbuff_t *tvb, guint32 start_offset, pa
     gboolean more_frags = TRUE;
 	proto_tree *pdu_tree;
 
-    h223_call_direction_data *dirdata = &call_info -> direction_data[pinfo->p2p_dir];
+    h223_call_direction_data *dirdata = &call_info -> direction_data[pinfo->p2p_dir ? 0 : 1];
 
     dirdata -> current_pdu_read = 0;
     dirdata -> current_pdu_minlen = 0;
