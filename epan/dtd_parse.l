@@ -163,7 +163,7 @@ squoted        ['][^\']*[']
 <IN_COMMENT>{comment_stop}		{ BEGIN DTD; }
 
 <DTD>{notation_tag} { BEGIN IN_NOTATION; }
-<IN_NOTATION>.  ;
+<IN_NOTATION>[^>]  ;
 <IN_NOTATION>{special_stop} { BEGIN DTD; }
 
 <DTD>{start_xmlpi}		{
@@ -171,7 +171,6 @@ squoted        ['][^\']*[']
 }
 
 <XMLPI>{location_xmlpi} {
-	if(location) g_free(location);
 	BEGIN LOCATION;
 }
 
@@ -183,6 +182,7 @@ squoted        ['][^\']*[']
 <XMLPI>{stop_xmlpi} BEGIN DTD;
 
 <LOCATION>{get_location_xmlpi} {
+    if(location) g_free(location);
 	location = g_strdup(yytext);
 	BEGIN DONE;
 }
