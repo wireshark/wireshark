@@ -992,8 +992,6 @@ next_attribute:
             g_ptr_array_free(new->element_names,TRUE);
             
             g_hash_table_insert(root_element->elements,new->name,new);
-            
-            g_free(curr_name);
         }
     }
 
