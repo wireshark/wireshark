@@ -10,3 +10,7 @@
   a (regular) remote error occurs
  
 - support nested elements
+
+- Don't output [ref] pointers for Samba 4?
+ 
+- alternative to subcontext()

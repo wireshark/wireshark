@@ -9,7 +9,7 @@
 package Parse::Pidl::Ethereal::NDR;
 
 use strict;
-use Parse::Pidl::Typelist;
+use Parse::Pidl::Typelist qw(getType);
 use Parse::Pidl::Util qw(has_property ParseExpr property_matches make_str);
 use Parse::Pidl::NDR;
 use Parse::Pidl::Dump qw(DumpTypedef DumpFunction);
@@ -30,24 +30,6 @@ my %ptrtype_mappings = (
 	"ref" => "NDR_POINTER_REF",
 	"ptr" => "NDR_POINTER_PTR"
 );
-
-sub type2ft($)
-{
-    my($t) = shift;
- 
-    return "FT_UINT$1" if $t =~ /uint(8|16|32|64)/;
-    return "FT_INT$1" if $t =~ /int(8|16|32|64)/;
-    return "FT_UINT64", if $t eq "HYPER_T" or $t eq "NTTIME_hyper" 
-	or $t eq "hyper";
-
-    # TODO: should NTTIME_hyper be a FT_ABSOLUTE_TIME as well?
-
-    return "FT_ABSOLUTE_TIME" if $t eq "NTTIME" or $t eq "NTTIME_1sec";
-
-    return "FT_STRING" if ($t eq "string");
-   
-    return "FT_NONE";
-}
 
 sub StripPrefixes($)
 {
@@ -156,7 +138,7 @@ sub Enum($$$)
 
 	my $enum_size = $e->{BASE_TYPE};
 	$enum_size =~ s/uint//g;
-	register_type($name, "offset = $dissectorname(tvb, offset, pinfo, tree, drep, \@HF\@, \@PARAM\@);", type2ft($e->{BASE_TYPE}), "BASE_DEC", "0", "VALS($valsstring)", $enum_size / 8);
+	register_type($name, "offset = $dissectorname(tvb, offset, pinfo, tree, drep, \@HF\@, \@PARAM\@);", "FT_UINT$enum_size", "BASE_DEC", "0", "VALS($valsstring)", $enum_size / 8);
 }
 
 sub Bitmap($$$)
@@ -230,7 +212,7 @@ sub Bitmap($$$)
 
 	my $size = $e->{BASE_TYPE};
 	$size =~ s/uint//g;
-	register_type($name, "offset = $dissectorname(tvb, offset, pinfo, tree, drep, \@HF\@, \@PARAM\@);", type2ft($e->{BASE_TYPE}), "BASE_DEC", "0", "NULL", $size/8);
+	register_type($name, "offset = $dissectorname(tvb, offset, pinfo, tree, drep, \@HF\@, \@PARAM\@);", "FT_UINT$size", "BASE_DEC", "0", "NULL", $size/8);
 }
 
 sub ElementLevel($$$$$)
@@ -330,7 +312,19 @@ sub Element($$$)
 
 	my $call_code = "offset = $dissectorname(tvb, offset, pinfo, tree, drep);";
 
-	my $hf = register_hf_field("hf_$ifname\_$pn\_$e->{NAME}", field2name($e->{NAME}), "$ifname.$pn.$e->{NAME}", type2ft($e->{TYPE}), "BASE_HEX", "NULL", 0, "");
+	my $type = find_type($e->{TYPE});
+
+	if (not defined($type)) {
+		# default settings
+		$type = {
+			MASK => 0,
+			VALSSTRING => "NULL",
+			FT_TYPE => "FT_NONE",
+			BASE_TYPE => "BASE_HEX"
+		};
+	}
+
+	my $hf = register_hf_field("hf_$ifname\_$pn\_$e->{NAME}", field2name($e->{NAME}), "$ifname.$pn.$e->{NAME}", $type->{FT_TYPE}, $type->{BASE_TYPE}, $type->{VALSSTRING}, $type->{MASK}, "");
 	$hf_used{$hf} = 1;
 
 	my $eltname = StripPrefixes($pn) . ".$e->{NAME}";
@@ -485,6 +479,17 @@ sub Union($$$)
 		$res.="\t\tbreak;\n";
 	}
 
+	my $switch_type;
+	my $switch_dissect;
+	my $switch_dt = getType($e->{SWITCH_TYPE});
+	if ($switch_dt->{DATA}->{TYPE} eq "ENUM") {
+		$switch_type = "g".Parse::Pidl::Typelist::enum_type_fn($switch_dt);
+		$switch_dissect = "dissect_ndr_" .Parse::Pidl::Typelist::enum_type_fn($switch_dt);
+	} elsif ($switch_dt->{DATA}->{TYPE} eq "SCALAR") {
+		$switch_type = "g$e->{SWITCH_TYPE}";
+		$switch_dissect = "dissect_ndr_$e->{SWITCH_TYPE}";
+	}
+
 	pidl_code "static int";
 	pidl_code "$dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)";
 	pidl_code "{";
@@ -492,7 +497,7 @@ sub Union($$$)
 	pidl_code "proto_item *item = NULL;";
 	pidl_code "proto_tree *tree = NULL;";
 	pidl_code "int old_offset;";
-	pidl_code "g$e->{SWITCH_TYPE} level;";
+	pidl_code "$switch_type level;";
 	pidl_code "";
 
 	if ($e->{ALIGN} > 1) {
@@ -511,7 +516,7 @@ sub Union($$$)
 
 	pidl_code "";
 
-	pidl_code "offset = dissect_ndr_$e->{SWITCH_TYPE}(tvb, offset, pinfo, tree, drep, hf_index, &level);";
+	pidl_code "offset = $switch_dissect(tvb, offset, pinfo, tree, drep, hf_index, &level);";
 
 	pidl_code "switch(level) {$res\t}";
 	pidl_code "proto_item_set_len(item, offset-old_offset);\n";
@@ -674,6 +679,12 @@ sub ProcessInterface($)
 	pidl_hdr "#endif /* $define */";
 }
 
+sub find_type($)
+{
+	my $n = shift;
+
+	return $conformance->{types}->{$n};
+}
 
 sub register_type($$$$$$$)
 {

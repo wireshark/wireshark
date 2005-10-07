@@ -7,7 +7,7 @@ package Parse::Pidl::Typelist;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT = qw(hasType getType mapType);
+@EXPORT_OK = qw(hasType getType mapType);
 use vars qw($VERSION);
 $VERSION = '0.01';
 
@@ -22,109 +22,90 @@ my $scalars = {
 	"void"		=> {
 				C_TYPE		=> "void",
 				IS_REFERENCE	=> 0,
-				NDR_ALIGN	=> 0
 			},
 
 	# 1 byte types
 	"char"		=> {
 				C_TYPE		=> "char",
 				IS_REFERENCE	=> 0,
-				NDR_ALIGN	=> 1
 			},
 	"int8"		=> {
 				C_TYPE		=> "int8_t",
 				IS_REFERENCE	=> 0,
-				NDR_ALIGN	=> 1
 			},
 	"uint8"		=> {
 				C_TYPE		=> "uint8_t",
 				IS_REFERENCE	=> 0,
-				NDR_ALIGN	=> 1
 			},
 
 	# 2 byte types
 	"int16"		=> {
 				C_TYPE		=> "int16_t",
 				IS_REFERENCE	=> 0,
-				NDR_ALIGN	=> 2
 			},
 	"uint16"	=> {	C_TYPE		=> "uint16_t",
 				IS_REFERENCE	=> 0,
-				NDR_ALIGN	=> 2
 			},
 
 	# 4 byte types
 	"int32"		=> {
 				C_TYPE		=> "int32_t",
 				IS_REFERENCE	=> 0,
-				NDR_ALIGN	=> 4
 			},
 	"uint32"	=> {	C_TYPE		=> "uint32_t",
 				IS_REFERENCE	=> 0,
-				NDR_ALIGN	=> 4
 			},
 
 	# 8 byte types
 	"hyper"		=> {
 				C_TYPE		=> "uint64_t",
 				IS_REFERENCE	=> 0,
-				NDR_ALIGN	=> 8
 			},
 	"dlong"		=> {
 				C_TYPE		=> "int64_t",
 				IS_REFERENCE	=> 0,
-				NDR_ALIGN	=> 4
 			},
 	"udlong"	=> {
 				C_TYPE		=> "uint64_t",
 				IS_REFERENCE	=> 0,
-				NDR_ALIGN	=> 4
 			},
 	"udlongr"	=> {
 				C_TYPE		=> "uint64_t",
 				IS_REFERENCE	=> 0,
-				NDR_ALIGN	=> 4
 			},
 
 	# DATA_BLOB types
 	"DATA_BLOB"	=> {
 				C_TYPE		=> "DATA_BLOB",
 				IS_REFERENCE	=> 0,
-				NDR_ALIGN	=> 4
 			},
 
 	# string types
 	"string"	=> {
 				C_TYPE		=> "const char *",
 				IS_REFERENCE	=> 1,
-				NDR_ALIGN	=> 4 #???
 			},
 	"string_array"	=> {
 				C_TYPE		=> "const char **",
 				IS_REFERENCE	=> 1,
-				NDR_ALIGN	=> 4 #???
 			},
 
 	# time types
 	"time_t"	=> {
 				C_TYPE		=> "time_t",
 				IS_REFERENCE	=> 0,
-				NDR_ALIGN	=> 4
 			},
 	"NTTIME"	=> {
 				C_TYPE		=> "NTTIME",
 				IS_REFERENCE	=> 0,
-				NDR_ALIGN	=> 4
 			},
 	"NTTIME_1sec"	=> {
 				C_TYPE		=> "NTTIME",
 				IS_REFERENCE	=> 0,
-				NDR_ALIGN	=> 4
 			},
 	"NTTIME_hyper"	=> {
 				C_TYPE		=> "NTTIME",
 				IS_REFERENCE	=> 0,
-				NDR_ALIGN	=> 8
 			},
 
 
@@ -132,29 +113,28 @@ my $scalars = {
 	"WERROR"	=> {
 				C_TYPE		=> "WERROR",
 				IS_REFERENCE	=> 0,
-				NDR_ALIGN	=> 4
 			},
 	"NTSTATUS"	=> {
 				C_TYPE		=> "NTSTATUS",
 				IS_REFERENCE	=> 0,
-				NDR_ALIGN	=> 4
 			},
 	"COMRESULT" => { 
-				"C_TYPE"	=> "COMRESULT",
-				IS_REFERENCE => 0,
-				NDR_ALIGN => 4
+				C_TYPE		=> "COMRESULT",
+				IS_REFERENCE	=> 0,
 			},
 
 	# special types
 	"nbt_string"	=> {
 				C_TYPE		=> "const char *",
 				IS_REFERENCE	=> 1,
-				NDR_ALIGN	=> 4 #???
+			},
+	"wrepl_nbt_name"=> {
+				C_TYPE		=> "struct nbt_name *",
+				IS_REFERENCE	=> 1,
 			},
 	"ipv4address"	=> {
 				C_TYPE		=> "const char *",
 				IS_REFERENCE	=> 1,
-				NDR_ALIGN	=> 4
 			}
 };
 
@@ -166,17 +146,6 @@ sub mapScalarType($)
 	# it's a bug when a type is not in the list
 	# of known scalars or has no mapping
 	return $typedefs{$name}->{DATA}->{C_TYPE} if defined($typedefs{$name}) and defined($typedefs{$name}->{DATA}->{C_TYPE});
-
-	die("Unknown scalar type $name");
-}
-
-sub getScalarAlignment($)
-{
-	my $name = shift;
-
-	# it's a bug when a type is not in the list
-	# of known scalars or has no mapping
-	return $scalars->{$name}{NDR_ALIGN} if defined($scalars->{$name}) and defined($scalars->{$name}{NDR_ALIGN});
 
 	die("Unknown scalar type $name");
 }

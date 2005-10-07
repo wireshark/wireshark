@@ -17,6 +17,37 @@ use strict;
 use Parse::Pidl::Typelist qw(hasType getType);
 use Parse::Pidl::Util qw(has_property property_matches);
 
+# Alignment of the built-in scalar types
+my $scalar_alignment = {
+	'void' => 0,
+	'char' => 1,
+	'int8' => 1,
+	'uint8' => 1,
+	'int16' => 2,
+	'uint16' => 2,
+	'int32' => 4,
+	'uint32' => 4,
+	'hyper' => 8,
+	'dlong' => 4,
+	'udlong' => 4,
+	'udlongr' => 4,
+	'DATA_BLOB' => 4,
+	'string' => 4,
+	'string_array' => 4, #???
+	'time_t' => 4,
+	'NTTIME' => 4,
+	'NTTIME_1sec' => 4,
+	'NTTIME_hyper' => 8,
+	'WERROR' => 4,
+	'NTSTATUS' => 4,
+	'COMRESULT' => 4,
+	'nbt_string' => 4,
+	'wrepl_nbt_name' => 4,
+	'ipv4address' => 4
+};
+
+
+
 sub nonfatal($$)
 {
 	my ($e,$s) = @_;
@@ -49,6 +80,7 @@ sub GetElementLevelTable($)
 	my @bracket_array = ();
 	my @length_is = ();
 	my @size_is = ();
+	my $pointer_idx = 0;
 
 	if (has_property($e, "size_is")) {
 		@size_is = split /,/, has_property($e, "size_is");
@@ -122,9 +154,12 @@ sub GetElementLevelTable($)
 			TYPE => "POINTER",
 			# for now, there can only be one pointer type per element
 			POINTER_TYPE => pointer_type($e),
+			POINTER_INDEX => $pointer_idx,
 			IS_DEFERRED => "$is_deferred",
 			LEVEL => $level
 		});
+
+		$pointer_idx++;
 		
 		# everything that follows will be deferred
 		$is_deferred = 1 if ($e->{PARENT}->{TYPE} ne "FUNCTION");
@@ -299,7 +334,7 @@ sub align_type
 	} elsif (($dt->{TYPE} eq "STRUCT") or ($dt->{TYPE} eq "UNION")) {
 		return find_largest_alignment($dt);
 	} elsif ($dt->{TYPE} eq "SCALAR") {
-		return Parse::Pidl::Typelist::getScalarAlignment($dt->{NAME});
+		return $scalar_alignment->{$dt->{NAME}};
 	}
 
 	die("Unknown data type type $dt->{TYPE}");

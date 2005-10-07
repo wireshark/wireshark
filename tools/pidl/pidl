@@ -15,12 +15,12 @@ pidl - IDL Compiler written in Perl
 =head1 SYNOPSIS
 
 pidl --help
-pidl [--outputdir[=OUTNAME]] [--parse-idl-tree] [--dump-idl-tree] [--dump-ndr-tree] [--ndr-header[=OUTPUT]] [--header[=OUTPUT]] [--ejs[=OUTPUT]] [--swig[=OUTPUT]] [--uint-enums] [--ndr-parser[=OUTPUT]] [--client] [--server] [--dcom-proxy] [--com-header] [--warn-compat] [--quiet] [--verbose] [--template] [--eth-parser[=OUTPUT]] [--diff] [--dump-idl] [<idlfile>.idl]...
+pidl [--outputdir[=OUTNAME]] [--parse-idl-tree] [--dump-idl-tree] [--dump-ndr-tree] [--ndr-header[=OUTPUT]] [--header[=OUTPUT]] [--ejs[=OUTPUT]] [--swig[=OUTPUT]] [--uint-enums] [--ndr-parser[=OUTPUT]] [--client] [--server] [--dcom-proxy] [--com-header] [--warn-compat] [--quiet] [--verbose] [--template] [--eth-parser[=OUTPUT]] [--diff] [--dump-idl] [--tdr-header=[OUTPUT]] [--tdr-parser[=OUTPUT]] [--samba3-header[=OUTPUT]] [--samba3-parser=[OUTPUT]] [--samba3-server=[OUTPUT]] [--samba3-template[=OUTPUT]] [--samba3-client[=OUTPUT]] [<idlfile>.idl]...
 
 =head1 DESCRIPTION
 
 pidl is an IDL compiler written in Perl that aims to be somewhat 
-compatible with the midl compiler. IDL stands for 
+compatible with the midl compiler. IDL is short for 
 "Interface Definition Language".
 
 pidl can generate stubs for DCE/RPC server code, DCE/RPC 
@@ -89,8 +89,9 @@ be written to stdout.
 
 =item I<--eth-parser>
 
-Generate an Ethereal dissector (in C) for the interface. Filename
-defaults to packet-dcerpc-OUTNAME.c. 
+Generate an Ethereal dissector (in C) and header file. The dissector filename
+defaults to packet-dcerpc-OUTNAME.c while the header filename defaults to 
+packet-dcerpc-OUTNAME.h.
 	
 Pidl will read additional data from an ethereal conformance file if present. 
 Such a file should have the same location as the IDL file but with the 
@@ -112,6 +113,30 @@ file the to disk. Useful for debugging pidl.
 
 Tell pidl to dump the internal NDR information tree it generated 
 from the IDL file to disk.  Useful for debugging pidl.
+
+=item I<--samba3-header>
+
+Generate Samba3-style RPC header file. Filename defaults to rpc_BASENAME.h.
+
+=item I<--samba3-parser>
+
+Generate parser file for Samba3, to be placed in rpc_parse/. Filename defaults 
+to parse_BASENAME.c.
+
+=item I<--samba3-server>
+
+Generate server file for Samba3, to be placed in rpc_server/. Filename defaults 
+to srv_BASENAME.c.
+
+=item I<--samba3-template>
+
+Generate template for server-side implementation in Samba3, to be placed in 
+rpc_server/. Filename defaults to srv_BASENAME_nt.c
+
+=item I<--samba3-client>
+
+Generate client calls for Samba 3, to be placed in rpc_client/. Filename 
+defaults to cli_BASENAME.c.
 
 =back
 
@@ -343,24 +368,24 @@ The following commands are currently supported:
 
 =over 4
 
-=item TYPE name dissector ft_type base_type mask valsstring alignment
+=item I<TYPE> name dissector ft_type base_type mask valsstring alignment
 
 Register new data type with specified name, what dissector function to call 
 and what properties to give header fields for elements of this type.
 
-=item NOEMIT type
+=item I<NOEMIT> type
 
 Suppress emitting a dissect_type function for the specified type
 
-=item PARAM_VALUE type param
+=item I<PARAM_VALUE> type param
 
 Set parameter to specify to dissector function for given type.
 
-=item HF_FIELD hf title filter ft_type base_type valsstring mask description
+=item I<HF_FIELD> hf title filter ft_type base_type valsstring mask description
 
 Generate a custom header field with specified properties.
 
-=item HF_RENAME old_hf_name new_hf_name
+=item I<HF_RENAME> old_hf_name new_hf_name
 
 Force the use of new_hf_name when the parser generator was going to 
 use old_hf_name.
@@ -368,20 +393,20 @@ use old_hf_name.
 This can be used in conjunction with HF_FIELD in order to make more then 
 one element use the same filter name.
 
-=item STRIP_PREFIX prefix
+=item I<STRIP_PREFIX> prefix
 
 Remove the specified prefix from all function names (if present).
 	
-=item PROTOCOL longname shortname filtername
+=item I<PROTOCOL> longname shortname filtername
 
 Change the short-, long- and filter-name for the current interface in
 Ethereal.
 
-=item FIELD_DESCRIPTION field desc
+=item I<FIELD_DESCRIPTION> field desc
 
 Change description for the specified header field. `field' is the hf name of the field.
 
-=item IMPORT dissector code...
+=item I<IMPORT> dissector code...
 
 Code to insert when generating the specified dissector. @HF@ and 
 @PARAM@ will be substituted.
@@ -402,9 +427,13 @@ This man page is correct for version 4.0 of the Samba suite. L<http://www.samba.
 
 =head1 SEE ALSO
 
-L<http://msdn.microsoft.com/library/en-us/rpc/rpc/field_attributes.asp>
-L<http://wiki.ethereal.com/DCE/RPC>
+L<http://msdn.microsoft.com/library/en-us/rpc/rpc/field_attributes.asp>,
+L<http://wiki.ethereal.com/DCE/RPC>, 
 yapp(1)
+
+=head1 LICENSE
+
+pidl is licensed under the GNU General Public License L<http://www.gnu.org/licenses/gpl.html>.
 
 =head1 AUTHOR
 
@@ -481,6 +510,11 @@ my($opt_uint_enums) = 0;
 my($opt_diff) = 0;
 my($opt_header);
 my($opt_ndr_header);
+my($opt_samba3_header);
+my($opt_samba3_parser);
+my($opt_samba3_server);
+my($opt_samba3_template);
+my($opt_samba3_client);
 my($opt_template) = 0;
 my($opt_client);
 my($opt_server);
@@ -535,6 +569,13 @@ Samba 4 output:
  --dcom-proxy[=OUTFILE]  create DCOM proxy [ndr_BASENAME_p.c]
  --com-header[=OUTFILE]  create header for COM [com_BASENAME.h]
 
+Samba 3 output:
+ --samba3-header[=OUTF]  create Samba3-style header [rpc_BASENAME.h]
+ --samba3-parser[=OUTF]  create parser for Samba3 [parse_BASENAME.c]
+ --samba3-template[=OUTF]create template implementation [srv_BASENAME_nt.c]
+ --samba3-server[=OUTF]  create server side wrappers for Samba3 [srv_BASENAME.c]
+ --samba3-client[=OUTF]  create client calls for Samba3 [cli_BASENAME.c]
+
 Ethereal parsers:
  --eth-parser[=OUTFILE]  create ethereal parser and header
 \n";
@@ -542,7 +583,7 @@ Ethereal parsers:
 }
 
 # main program
-GetOptions (
+my $result = GetOptions (
 	    'help|h|?' => \$opt_help, 
 	    'outputdir=s' => \$opt_outputdir,
 	    'dump-idl' => \$opt_dump_idl,
@@ -551,6 +592,11 @@ GetOptions (
 		'dump-ndr-tree:s' => \$opt_dump_ndr_tree,
 	    'uint-enums' => \$opt_uint_enums,
 	    'ndr-header:s' => \$opt_ndr_header,
+		'samba3-header:s' => \$opt_samba3_header,
+		'samba3-parser:s' => \$opt_samba3_parser,
+		'samba3-server:s' => \$opt_samba3_server,
+		'samba3-template:s' => \$opt_samba3_template,
+		'samba3-client:s' => \$opt_samba3_client,
 		'header:s' => \$opt_header,
 	    'server:s' => \$opt_server,
 	    'tdr-header:s' => \$opt_tdr_header,
@@ -568,6 +614,10 @@ GetOptions (
 		'verbose' => \$opt_verbose,
 	    'warn-compat' => \$opt_warn_compat
 	    );
+
+if (not $result) {
+	exit(1);
+}
 
 if ($opt_help) {
     ShowHelp();
@@ -653,7 +703,9 @@ sub process_file($)
 	if (defined($opt_ndr_header) or defined($opt_eth_parser) or 
 	    defined($opt_client) or defined($opt_server) or 
 	    defined($opt_ndr_parser) or defined($opt_ejs) or 
-		defined($opt_dump_ndr_tree)) {
+		defined($opt_dump_ndr_tree) or defined($opt_samba3_header) or 
+	    defined($opt_samba3_header) or defined($opt_samba3_server) or 
+		defined($opt_samba3_template) or defined($opt_samba3_client)) {
 		require Parse::Pidl::NDR;
 		Parse::Pidl::NDR::Validate($pidl);
 		$ndr = Parse::Pidl::NDR::Parse($pidl);
@@ -760,11 +812,49 @@ $dcom
 		require Parse::Pidl::Samba::Template;
 		print Parse::Pidl::Samba::Template::Parse($pidl);
 	}
+
+	if (defined($opt_samba3_header) or defined($opt_samba3_parser) or
+		defined($opt_samba3_server) or defined($opt_samba3_client) or
+		defined($opt_samba3_template)) {
+		require Parse::Pidl::Samba3::Types;
+		Parse::Pidl::Samba3::Types::LoadTypes($ndr);
+	}
+
+	if (defined($opt_samba3_header)) {
+		my $header = ($opt_samba3_header or "$outputdir/rpc_$basename.h");
+		require Parse::Pidl::Samba3::Header;
+		FileSave($header, Parse::Pidl::Samba3::Header::Parse($ndr, $basename));
+	}
+
+	if (defined($opt_samba3_parser)) {
+		my $header = ($opt_samba3_parser or "$outputdir/parse_$basename.c");
+		require Parse::Pidl::Samba3::Parser;
+		FileSave($header, Parse::Pidl::Samba3::Parser::Parse($ndr, $basename));
+	}
+
+	if (defined($opt_samba3_server)) {
+		my $header = ($opt_samba3_server or "$outputdir/srv_$basename.c");
+		require Parse::Pidl::Samba3::Server;
+		FileSave($header, Parse::Pidl::Samba3::Server::Parse($ndr, $basename));
+	}
+
+	if (defined($opt_samba3_template)) {
+		my $header = ($opt_samba3_template or "$outputdir/srv_$basename\_nt.c");
+		require Parse::Pidl::Samba3::Template;
+		FileSave($header, Parse::Pidl::Samba3::Template::Parse($ndr, $basename));
+	}
+
+	if (defined($opt_samba3_client)) {
+		my $header = ($opt_samba3_client or "$outputdir/cli_$basename.c");
+		require Parse::Pidl::Samba3::Client;
+		FileSave($header, Parse::Pidl::Samba3::Client::Parse($ndr, $basename));
+	}
+
 }
 
 if (scalar(@ARGV) == 0) {
 	print "pidl: no input files\n";
-	exit(0);
+	exit(1);
 }
 
 process_file($_) foreach (@ARGV);

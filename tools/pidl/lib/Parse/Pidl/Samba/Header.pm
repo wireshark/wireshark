@@ -60,13 +60,15 @@ sub HeaderElement($)
 	HeaderType($element, $element->{TYPE}, "");
 	pidl " ";
 	my $numstar = $element->{POINTERS};
+	if ($numstar >= 1) {
+		$numstar-- if Parse::Pidl::Typelist::scalar_is_reference($element->{TYPE});
+	}
 	foreach (@{$element->{ARRAY_LEN}})
 	{
 		next if is_constant($_) and 
 			not has_property($element, "charset");
 		$numstar++;
 	}
-	$numstar-- if Parse::Pidl::Typelist::scalar_is_reference($element->{TYPE});
 	pidl "*" foreach (1..$numstar);
 	pidl $element->{NAME};
 	foreach (@{$element->{ARRAY_LEN}}) {
