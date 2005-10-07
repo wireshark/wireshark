@@ -143,6 +143,8 @@ static gint hf_krb_encrypted_KDC_REP_data = -1;
 static gint hf_krb_PA_DATA_type = -1;
 static gint hf_krb_PA_DATA_value = -1;
 static gint hf_krb_etype_info_salt = -1;
+static gint hf_krb_etype_info2_salt = -1;
+static gint hf_krb_etype_info2_s2kparams = -1;
 static gint hf_krb_SAFE_BODY_user_data = -1;
 static gint hf_krb_PRIV_BODY_user_data = -1;
 static gint hf_krb_realm = -1;
@@ -845,6 +847,8 @@ g_warning("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
 #define KRB5_ENCTYPE_RSA_ES_OEAP_ENV     14
 #define KRB5_ENCTYPE_DES_EDE3_CBC_ENV    15
 #define KRB5_ENCTYPE_DES3_CBC_SHA1       16
+#define KRB5_ENCTYPE_AES128_CTS_HMAC_SHA1_96 17
+#define KRB5_ENCTYPE_AES256_CTS_HMAC_SHA1_96 18
 #define KRB5_ENCTYPE_DES_CBC_MD5_NT      20
 #define KERB_ENCTYPE_RC4_HMAC            23
 #define KERB_ENCTYPE_RC4_HMAC_EXP        24
@@ -911,6 +915,7 @@ g_warning("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
 #define KRB5_PA_PK_AS_REQ              14
 #define KRB5_PA_PK_AS_REP              15
 #define KRB5_PA_DASS                   16
+#define KRB5_PA_ENCTYPE_INFO2          19
 #define KRB5_PA_USE_SPECIFIED_KVNO     20
 #define KRB5_PA_SAM_REDIRECT           21
 #define KRB5_PA_GET_FROM_TYPED_DATA    22
@@ -1147,6 +1152,7 @@ static const value_string krb5_preauthentication_types[] = {
     { KRB5_PA_CYBERSAFE_SECUREID   , "PA-CYBERSAFE-SECURID" },
     { KRB5_PA_AFS3_SALT            , "PA-AFS3-SALT" },
     { KRB5_PA_ENCTYPE_INFO         , "PA-ENCTYPE-INFO" },
+    { KRB5_PA_ENCTYPE_INFO2         , "PA-ENCTYPE-INFO2" },
     { KRB5_PA_SAM_CHALLENGE        , "PA-SAM-CHALLENGE" },
     { KRB5_PA_SAM_RESPONSE         , "PA-SAM-RESPONSE" },
     { KRB5_PA_PK_AS_REQ            , "PA-PK-AS-REQ" },
@@ -1189,6 +1195,8 @@ static const value_string krb5_encryption_types[] = {
     { KRB5_ENCTYPE_RSA_ES_OEAP_ENV, "rsa-es-oeap-env" },
     { KRB5_ENCTYPE_DES_EDE3_CBC_ENV, "des-ede3-cbc-env" },
     { KRB5_ENCTYPE_DES3_CBC_SHA1  , "des3-cbc-sha1" },
+    { KRB5_ENCTYPE_AES128_CTS_HMAC_SHA1_96  , "aes128-cts-hmac-sha1-96" },
+    { KRB5_ENCTYPE_AES256_CTS_HMAC_SHA1_96  , "aes256-cts-hmac-sha1-96" },
     { KRB5_ENCTYPE_DES_CBC_MD5_NT  , "des-cbc-md5-nt" },
     { KERB_ENCTYPE_RC4_HMAC       , "rc4-hmac" },
     { KERB_ENCTYPE_RC4_HMAC_EXP   , "rc4-hmac-exp" },
@@ -1952,6 +1960,20 @@ dissect_krb5_etype_info_salt(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 	return offset;
 }
 
+int
+dissect_krb5_etype_info2_salt(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_GeneralString(pinfo, tree, tvb, offset, hf_krb_etype_info2_salt, NULL, 0);
+	return offset;
+}
+
+static int
+dissect_krb5_etype_info2_s2kparams(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_krb_etype_info2_s2kparams, NULL);
+	return offset;
+}
+
 static ber_sequence_t PA_ENCTYPE_INFO_ENTRY_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_krb5_etype },
@@ -1974,6 +1996,34 @@ static int
 dissect_krb5_PA_ENCTYPE_INFO(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 	offset=dissect_ber_sequence_of(FALSE, pinfo, tree, tvb, offset, PA_ENCTYPE_INFO_sequence_of, -1, -1);
+
+	return offset;
+}
+
+static ber_sequence_t PA_ENCTYPE_INFO2_ENTRY_sequence[] = {
+	{ BER_CLASS_CON, 0, 0,
+		dissect_krb5_etype },
+	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
+		dissect_krb5_etype_info2_salt },
+	{ BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL,
+		dissect_krb5_etype_info2_s2kparams },
+	{ 0, 0, 0, NULL }
+};
+static int
+dissect_krb5_PA_ENCTYPE_INFO2_ENTRY(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, PA_ENCTYPE_INFO2_ENTRY_sequence, -1, -1);
+
+	return offset;
+}
+
+static ber_sequence_t PA_ENCTYPE_INFO2_sequence_of[1] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_krb5_PA_ENCTYPE_INFO2_ENTRY },
+};
+static int
+dissect_krb5_PA_ENCTYPE_INFO2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_sequence_of(FALSE, pinfo, tree, tvb, offset, PA_ENCTYPE_INFO2_sequence_of, -1, -1);
 
 	return offset;
 }
@@ -2030,6 +2080,9 @@ dissect_krb5_PA_DATA_value(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t
  		break;
 	case KRB5_PA_ENCTYPE_INFO:
 		offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_ENCTYPE_INFO);
+ 		break;
+	case KRB5_PA_ENCTYPE_INFO2:
+		offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_ENCTYPE_INFO2);
  		break;
 	default:
 		offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, NULL);
@@ -4203,6 +4256,12 @@ proto_register_kerberos(void)
 	{ &hf_krb_etype_info_salt, {
 	    "Salt", "kerberos.etype_info.salt", FT_BYTES, BASE_HEX,
 	    NULL, 0, "Salt", HFILL }},
+	{ &hf_krb_etype_info2_salt, {
+	    "Salt", "kerberos.etype_info2.salt", FT_BYTES, BASE_HEX,
+	    NULL, 0, "Salt", HFILL }},
+	{ &hf_krb_etype_info2_s2kparams, {
+	    "Salt", "kerberos.etype_info.s2kparams", FT_BYTES, BASE_HEX,
+	    NULL, 0, "S2kparams", HFILL }},
 	{ &hf_krb_SAFE_BODY_user_data, {
 	    "User Data", "kerberos.SAFE_BODY.user_data", FT_BYTES, BASE_HEX,
 	    NULL, 0, "SAFE BODY userdata field", HFILL }},

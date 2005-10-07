@@ -2405,6 +2405,9 @@ Richard van der Hoff		<richardv [AT] mxtelecom.com> {
 
 }
 
+William Fiveash		<William.Fiveash [AT] sun.com> {
+	Kerberos PA_ENCTYPE_INFO2 and aes crypto defines
+}
 
 And assorted fixes and enhancements by the people listed above
 and by:
