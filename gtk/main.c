@@ -1258,9 +1258,6 @@ main_cf_cb_file_closing(capture_file *cf)
        will there ever be more than one on the stack? */
     statusbar_pop_file_msg();
 
-    /* go back to "No packets" */
-    packets_bar_update();
-
     /* Restore the standard title bar message. */
     set_main_window_name("The Ethereal Network Analyzer");
 
@@ -1285,6 +1282,9 @@ main_cf_cb_file_closed(capture_file *cf _U_)
     splash_destroy(close_dlg);
     close_dlg = NULL;
   }
+
+  /* go back to "No packets" */
+  packets_bar_update();
 }
 
 static void
