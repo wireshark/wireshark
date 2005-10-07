@@ -335,9 +335,7 @@ sync_pipe_start(capture_options *capture_opts) {
 
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_start");
-#ifdef LOG_CAPTURE_VERBOSE
     capture_opts_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, capture_opts);
-#endif
 
     capture_opts->fork_child = -1;
 

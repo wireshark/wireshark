@@ -1745,7 +1745,7 @@ capture(char *save_file, int out_file_type)
   /* create stop conditions */
   if (capture_opts.has_autostop_filesize)
     cnd_stop_capturesize = cnd_new((const char*)CND_CLASS_CAPTURESIZE,
-                                   (long)capture_opts.autostop_filesize * 1000);
+                                   (long)capture_opts.autostop_filesize * 1024);
   if (capture_opts.has_autostop_duration)
     cnd_stop_timeout = cnd_new((const char*)CND_CLASS_TIMEOUT,
                                (gint32)capture_opts.autostop_duration);

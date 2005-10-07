@@ -174,7 +174,7 @@ where I<test> is one of:
 B<duration>:I<value> Stop writing to a capture file after I<value> seconds have elapsed.
 
 B<filesize>:I<value> Stop writing to a capture file after it reaches a size of I<value>
-kilobytes (where a kilobyte is 1000 bytes, not 1024 bytes). If this option 
+kilobytes (where a kilobyte is 1024 bytes). If this option 
 is used together with the -b option, Ethereal will stop writing to the 
 current capture file and switch to the next one if filesize is reached.
 
@@ -204,7 +204,7 @@ B<duration>:I<value> switch to the next file after I<value> seconds have
 elapsed, even if the current file is not completely filled up.
 
 B<filesize>:I<value> switch to the next file after it reaches a size of 
-I<value> kilobytes (where a kilobyte is 1000 bytes, not 1024 bytes). 
+I<value> kilobytes (where a kilobyte is 1024 bytes). 
 
 B<files>:I<value> begin again with the first file after I<value> number of 
 files were written (form a ring buffer).

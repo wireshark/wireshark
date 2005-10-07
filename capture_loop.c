@@ -1212,9 +1212,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   *stats_known      = FALSE;
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture child starting ...");
-#ifdef LOG_CAPTURE_VERBOSE
   capture_opts_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, capture_opts);
-#endif
 
   /* open the output file (temporary/specified name/ringbuffer) */
   if (!capture_loop_open_output(capture_opts, &save_file_fd, errmsg, sizeof(errmsg))) {
@@ -1257,7 +1255,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   /* create stop conditions */
   if (capture_opts->has_autostop_filesize)
     cnd_autostop_size =
-        cnd_new(CND_CLASS_CAPTURESIZE,(long)capture_opts->autostop_filesize);
+        cnd_new(CND_CLASS_CAPTURESIZE,(long)capture_opts->autostop_filesize * 1024);
   if (capture_opts->has_autostop_duration)
     cnd_autostop_duration =
         cnd_new(CND_CLASS_TIMEOUT,(gint32)capture_opts->autostop_duration);

@@ -381,13 +381,11 @@ guint32 value)
 }
 
 
-#define SIZE_UNIT_BYTES     0
-#define SIZE_UNIT_KILOBYTES 1
-#define SIZE_UNIT_MEGABYTES 2
-#define SIZE_UNIT_GIGABYTES 3
-#define MAX_SIZE_UNITS 4
+#define SIZE_UNIT_KILOBYTES 0
+#define SIZE_UNIT_MEGABYTES 1
+#define SIZE_UNIT_GIGABYTES 2
+#define MAX_SIZE_UNITS 3
 static const char *size_unit_name[MAX_SIZE_UNITS] = {
-	"byte(s)",
 	"kilobyte(s)",
 	"megabyte(s)",
 	"gigabyte(s)",
@@ -410,20 +408,15 @@ static GtkWidget *size_unit_option_menu_new(guint32 value) {
     /* the selected menu item can't be changed, once the option_menu
        is created, so set the matching menu item now */
     /* gigabytes */
-    if(value >= 1024 * 1024 * 1024) {
+    if(value >= 1024 * 1024) {
 	    gtk_menu_set_active(GTK_MENU(menu), SIZE_UNIT_GIGABYTES);
     } else {
         /* megabytes */
-        if(value >= 1024 * 1024) {
+        if(value >= 1024) {
 	        gtk_menu_set_active(GTK_MENU(menu), SIZE_UNIT_MEGABYTES);
         } else {
             /* kilobytes */
-            if(value >= 1024) {
-	            gtk_menu_set_active(GTK_MENU(menu), SIZE_UNIT_KILOBYTES);
-            } else {
-                /* bytes */
-	            gtk_menu_set_active(GTK_MENU(menu), SIZE_UNIT_BYTES);
-            }
+            gtk_menu_set_active(GTK_MENU(menu), SIZE_UNIT_KILOBYTES);
         }
     }
 
@@ -437,21 +430,16 @@ static guint32 size_unit_option_menu_set_value(
 guint32 value)
 {
     /* gigabytes */
-    if(value >= 1024 * 1024 * 1024) {
-        return value / (1024 * 1024 * 1024);
-    }
-
-    /* megabytes */
     if(value >= 1024 * 1024) {
         return value / (1024 * 1024);
     }
 
-    /* kilobytes */
+    /* megabytes */
     if(value >= 1024) {
-        return value / 1024;
+        return value / (1024);
     }
 
-    /* bytes */
+    /* kilobytes */
     return value;
 }
 
@@ -469,28 +457,21 @@ guint32 value)
 
 
     switch(unit) {
-    case(SIZE_UNIT_BYTES):
+    case(SIZE_UNIT_KILOBYTES):
         return value;
         break;
-    case(SIZE_UNIT_KILOBYTES):
+    case(SIZE_UNIT_MEGABYTES):
         if(value > G_MAXINT / 1024) {
             return 0;
         } else {
             return value * 1024;
         }
         break;
-    case(SIZE_UNIT_MEGABYTES):
+    case(SIZE_UNIT_GIGABYTES):
         if(value > G_MAXINT / (1024 * 1024)) {
             return 0;
         } else {
             return value * 1024 * 1024;
-        }
-        break;
-    case(SIZE_UNIT_GIGABYTES):
-        if(value > G_MAXINT / (1024 * 1024 * 1024)) {
-            return 0;
-        } else {
-            return value * 1024 * 1024 * 1024;
         }
         break;
     default:
