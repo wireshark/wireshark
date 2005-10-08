@@ -378,13 +378,14 @@ wccp_bucket_info(guint8 bucket_info, proto_tree *bucket_tree, guint32 start,
 static gchar *
 bucket_name(guint8 bucket)
 {
-	gchar *cur;
+	gchar *cur=NULL;
 
-	cur=ep_alloc(10+1);
-	if (bucket == 0xff)
-		strcpy(cur, "Unassigned");
-	else
+	if (bucket == 0xff) {
+		cur="Unassigned";
+	} else {
+		cur=ep_alloc(10+1);
 		g_snprintf(cur, 10+1, "%u", bucket);
+	}
 	return cur;
 }
 
@@ -961,12 +962,12 @@ dissect_wccp2_router_assignment_element(tvbuff_t *tvb, int offset,
 static gchar *
 assignment_bucket_name(guint8 bucket)
 {
-	gchar *cur;
+	gchar *cur=NULL;
 
-	cur=ep_alloc(10+1);
-	if (bucket == 0xff)
-		strcpy(cur, "Unassigned");
-	else {
+	if (bucket == 0xff) {
+		cur="Unassigned";
+	} else {
+		cur=ep_alloc(10+1);
 		g_snprintf(cur, 10+1, "%u%s", bucket >> 1,
 		    (bucket & 0x01) ? " (Alt)" : "");
 	}
