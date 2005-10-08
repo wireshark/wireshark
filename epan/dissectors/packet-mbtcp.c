@@ -213,8 +213,8 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint		i;
 	gint		packet_len, payload_start, payload_len;
 	const char	*func_string = "";
-	char		pkt_type_str[9] = "";
-	char		err_str[100] = "";
+	char		*pkt_type_str = "";
+	char		*err_str = "";
 	guint32		byte_cnt, group_byte_cnt, group_word_cnt;
 	guint32		packet_num;	/* num to uniquely identify different mbtcp
 					 * packets in one TCP packet */
@@ -249,18 +249,18 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		packet_type = classify_packet(pinfo);
 		switch ( packet_type ) {
-			case query_packet : 		strcpy(pkt_type_str, "query");
+			case query_packet : 		pkt_type_str="query";
 												break;
-			case response_packet : 	strcpy(pkt_type_str, "response");
+			case response_packet : 	pkt_type_str="response";
 												break;
-			case cannot_classify :		strcpy(err_str, "Unable to classify as query or response.");
-										strcpy(pkt_type_str, "unknown");
+			case cannot_classify :		err_str="Unable to classify as query or response.";
+										pkt_type_str="unknown";
 												break;
 			default :
 												break;
 		}
 		if ( exception_returned )
-			strcpy(err_str, "Exception returned ");
+			err_str="Exception returned ";
 		col_add_fstr(pinfo->cinfo, COL_INFO,
 				"%8s [%2u pkt(s)]: trans: %5u; unit: %3u, func: %3u: %s. %s",
 				pkt_type_str, 1, mh.transaction_id, (unsigned char) mh.mdbs_hdr.unit_id,
