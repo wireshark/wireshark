@@ -1619,7 +1619,7 @@ be_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 	    curr_offset++;
 
 	    if (add_string)
-		strcpy(add_string, " - (National Cause)");
+		g_snprintf(add_string, string_len, " - (National Cause)");
 	}
 	else
 	{
@@ -3461,7 +3461,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 	proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
 
 	if (add_string)
-	    strcpy(add_string, " - No Identity Code");
+	    g_snprintf(add_string, string_len, " - No Identity Code");
 
 	curr_offset++;
 
@@ -3593,7 +3593,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 	    "Format Unknown");
 
 	if (add_string)
-	    strcpy(add_string, " - Format Unknown");
+	    g_snprintf(add_string, string_len, " - Format Unknown");
 
 	curr_offset += len;
 	break;
