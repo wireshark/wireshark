@@ -1,0 +1,46 @@
+$Id: README.malloc 11400 2004-07-18 00:24:25Z guy $
+
+In order to make memory management easier and to reduce the probability of memory leaks ethereal provides its own memory management API.
+This API is implemented inside epan/emem.c and provides memory allocation functions where the allocated memory is automatically freed at certain points.
+
+If you use these functions you will no longer need to keep track of when and 
+where to free any dynamically allocated memory, the memory will automatically be freed at the appropriate time.
+
+
+Using these functions will greatly elevate the probability that your code will not leak memory so do use them where appropriate.
+
+
+
+There are two sets of fucntions with different allocation/free scope:
+ephemeral:
+ep_... which allocates memory that will be automatically freed once the 
+       current packet dissection completes. These functions are useful
+       for situations where you just want a temporary buffer that should stay
+       around for a short while.
+       Do not use these functions if you need persistent allocations where 
+       the data is to still be available in some later packet.
+seasonal:
+se_... which allocates memory that will stay around a lot longer but will be
+       automatically freed once the current capture is closed and ethereal
+       opens a new capture (either by reading a new capture file or by starting
+       a new capture on some interface).
+       These functions are useful for allocations with longer scope for example
+       if you need some buffers or data to keep statemanagement between packets.
+
+
+These two allocation scopes provide several useful functions :
+.._alloc() : allocate a chunk of memory with ep/se scope.
+.._alloc0() : allocate a chunk of memory and fill it with 0.
+.._strdup() : equivalent to strdup()
+.._strndup()
+.._memdup()
+.._strdup_printf()
+.._alloc_array()
+.._strsplit()
+
+Stack management:
+.._stack_new() 
+.._stack_push() 
+.._stack_pop()
+.._stack_peek()
+
