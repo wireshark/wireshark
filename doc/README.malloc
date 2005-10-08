@@ -32,15 +32,16 @@ These two allocation scopes provide several useful functions :
 .._alloc() : allocate a chunk of memory with ep/se scope.
 .._alloc0() : allocate a chunk of memory and fill it with 0.
 .._strdup() : equivalent to strdup()
-.._strndup()
-.._memdup()
-.._strdup_printf()
-.._alloc_array()
-.._strsplit()
+.._strndup(s,n) : allocate a chunk of size n+1 and copy s into it
+.._memdup(s,n) : allocate n chunk and copy into it n bytes starting at s
+
+.._strdup_printf() : will calculate the size of the formated string allocate a chunk for it and format the string 
+.._alloc_array(t,n): will allocate an array of n elements of type t 
+ep_strsplit(): will split a string based on a certain separator returning an array of strings 
 
 Stack management:
-.._stack_new() 
-.._stack_push() 
-.._stack_pop()
-.._stack_peek()
+ep_stack_new() : creates a stack
+ep_stack_push() : pushes an element into the stack
+ep_stack_pop() : pops an element from the stack
+ep_stack_peek() : returns the top element of the stack without popping it
 
