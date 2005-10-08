@@ -29,7 +29,7 @@
 
 const char *dns_class_name(int class);
 
-int get_dns_name(tvbuff_t *, int, int, char *, int);
+int get_dns_name(tvbuff_t *, int, int, char **);
 
 #define MAXDNAME        1025            /* maximum domain name length */
 

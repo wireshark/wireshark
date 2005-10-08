@@ -512,7 +512,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
     unsigned int j;
     int i, n, l, p;
     guint16 flags;
-    char dname[MAXDNAME];
+    char *dname;
     guint32 ipaddr;
 
     ni = &icmp6_nodeinfo;
@@ -623,7 +623,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	    break;
 	case ICMP6_NI_SUBJ_FQDN:
 	    l = get_dns_name(tvb, offset + sizeof(*ni),
-	    	offset + sizeof(*ni), dname, sizeof(dname));
+	    	offset + sizeof(*ni), &dname);
 	    if (tvb_bytes_exist(tvb, offset + sizeof(*ni) + l, 1) &&
 	        tvb_get_guint8(tvb, offset + sizeof(*ni) + l) == 0) {
 		l++;
@@ -703,7 +703,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 	    while (j < tvb_reported_length(tvb)) {
 		l = get_dns_name(tvb, j,
 		   offset + sizeof (*ni) + sizeof(guint32),
-		   dname,sizeof(dname));
+		   &dname);
 		if (tvb_bytes_exist(tvb, j + l, 1) &&
 		    tvb_get_guint8(tvb, j + l) == 0) {
 		    l++;

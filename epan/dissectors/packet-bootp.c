@@ -2495,7 +2495,7 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	proto_tree *pkt_s_tree;
 	proto_item *vti;
 	int max_timer_val = 255, i;
-	char dns_name[255], bit_fld[24];
+	char *dns_name, bit_fld[24];
 
 	subopt = tvb_get_guint8(tvb, suboptoff);
 	suboptoff++;
@@ -2541,8 +2541,7 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 			switch (prov_type) {
 				case 0:
 					/* XXX - check suboption length */
-					get_dns_name(tvb, suboptoff, suboptoff, dns_name,
-						sizeof(dns_name));
+					get_dns_name(tvb, suboptoff, suboptoff, &dns_name);
 					proto_item_append_text(vti, "%s (%u byte%s)", dns_name,
 							subopt_len - 1, plurality(subopt_len, "", "s") );
 					break;
@@ -2614,7 +2613,7 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 
 		case PKT_CCC_KRB_REALM: /* String values */
 			/* XXX - check suboption length */
-			get_dns_name(tvb, suboptoff, suboptoff, dns_name, sizeof(dns_name));
+			get_dns_name(tvb, suboptoff, suboptoff, &dns_name);
 			proto_item_append_text(vti, "%s (%u byte%s)", dns_name,
 					subopt_len, plurality(subopt_len, "", "s") );
 			suboptoff += subopt_len;
