@@ -175,6 +175,11 @@ static int hf_fcels_tprloflags_opav = -1;
 static int hf_fcels_tprloflags_rpav = -1;
 static int hf_fcels_tprloflags_npv = -1;
 static int hf_fcels_tprloflags_gprlo = -1;
+static int hf_fcels_speedflags = -1;
+static int hf_fcels_speedflags_1gb = -1;
+static int hf_fcels_speedflags_2gb = -1;
+static int hf_fcels_speedflags_4gb = -1;
+static int hf_fcels_speedflags_10gb = -1;
 
 static gint ett_fcels = -1;
 static gint ett_fcels_lsrjt = -1;
@@ -212,6 +217,7 @@ static gint ett_fcels_initctl = -1;
 static gint ett_fcels_rcptctl = -1;
 static gint ett_fcels_fcpflags = -1;
 static gint ett_fcels_tprloflags = -1;
+static gint ett_fcels_speedflags = -1;
 
 static const value_string fc_prli_fc4_val[] = {
     {FC_TYPE_SCSI    , "FCP"},
@@ -624,6 +630,63 @@ dissect_fcp_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 f
 		proto_item_append_text(item, "  Wr Xfer_Rdy Dis");
 	}
 	flags&=(~( 0x0001 ));
+}
+
+
+static const true_false_string tfs_fc_fcels_speedflags_1gb = {
+	"1Gbit/second supported",
+	"1Gbit/second NOT supported"
+};
+static const true_false_string tfs_fc_fcels_speedflags_2gb = {
+	"2Gbit/second supported",
+	"2Gbit/second NOT supported"
+};
+static const true_false_string tfs_fc_fcels_speedflags_4gb = {
+	"4Gbit/second supported",
+	"4Gbit/second NOT supported"
+};
+static const true_false_string tfs_fc_fcels_speedflags_10gb = {
+	"10Gbit/second supported",
+	"10Gbit/second NOT supported"
+};
+
+static void
+dissect_speed_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 flags, int port)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+    
+	if(parent_tree){
+		item=proto_tree_add_uint_format(parent_tree, hf_fcels_speedflags, 
+				tvb, offset, 2, flags,
+				"Port Speed Capabilities (Port %u): 0x%04x",
+				port, flags);
+		tree=proto_item_add_subtree(item, ett_fcels_speedflags);
+	}
+
+	proto_tree_add_boolean(tree, hf_fcels_speedflags_1gb, tvb, offset, 2, flags);
+	if (flags&0x8000){
+		proto_item_append_text(item, "  1Gb");
+	}
+	flags&=(~( 0x8000 ));
+
+	proto_tree_add_boolean(tree, hf_fcels_speedflags_2gb, tvb, offset, 2, flags);
+	if (flags&0x4000){
+		proto_item_append_text(item, "  2Gb");
+	}
+	flags&=(~( 0x4000 ));
+
+	proto_tree_add_boolean(tree, hf_fcels_speedflags_4gb, tvb, offset, 2, flags);
+	if (flags&0x2000){
+		proto_item_append_text(item, "  4Gb");
+	}
+	flags&=(~( 0x2000 ));
+
+	proto_tree_add_boolean(tree, hf_fcels_speedflags_10gb, tvb, offset, 2, flags);
+	if (flags&0x1000){
+		proto_item_append_text(item, "  10Gb");
+	}
+	flags&=(~( 0x1000 ));
 }
 
 static const true_false_string tfs_fc_fcels_tprloflags_opav = {
@@ -1622,8 +1685,6 @@ dissect_fcels_rpsc (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     /* Set up structures needed to add the protocol subtree and manage it */
     int offset = 2;
     int num_entries, i, cap;
-    gchar speed_str[40];
-    int stroff = 0;
     proto_tree *rpsc_tree;
 
     if (tree) {
@@ -1639,28 +1700,8 @@ dissect_fcels_rpsc (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         offset = 4;
         for (i = 0; i < num_entries; i++) {
             cap = tvb_get_ntohs (tvb, offset);
-            speed_str[0] = '\0';
-            stroff = 0;
-            if (cap & 0x8000) {
-                strcpy (speed_str, "1,");
-                stroff += 2;
-            }
-            if (cap & 0x4000) {
-                strcpy (speed_str, "2,");
-                stroff += 2;
-            }
-            if (cap & 0x2000) {
-                strcpy (speed_str, "4,");
-                stroff += 2;
-            }
-            if (cap & 0x1000) {
-                strcpy (speed_str, "10");
-                stroff += 2;
-            }
-            strcpy (&speed_str[stroff], "Gb");
-            proto_tree_add_text (rpsc_tree, tvb, offset, 2,
-                                 "Port Speed Capabilities (Port %u): %s", i,
-                                 speed_str);
+            dissect_speed_flags (rpsc_tree, tvb, offset, cap, i);
+
             cap = tvb_get_ntohs (tvb, offset+2);
             proto_tree_add_text (rpsc_tree, tvb, offset+2, 2,
                                  "Port Oper Speed: %s",
@@ -2458,6 +2499,21 @@ proto_register_fcels (void)
         { &hf_fcels_tprloflags_gprlo,
           {"Global PRLO", "fcels.tprloflags.gprlo", FT_BOOLEAN, 8,
            TFS(&tfs_fc_fcels_tprloflags_gprlo), 0x10, "", HFILL}},
+        { &hf_fcels_speedflags,
+          {"Port Speed Capabilities", "fcels.speedflags", FT_UINT16, BASE_HEX, NULL, 0x0, "",
+           HFILL}},
+        { &hf_fcels_speedflags_1gb,
+          {"1Gb Support", "fcels.speedflags.1gb", FT_BOOLEAN, 16,
+           TFS(&tfs_fc_fcels_speedflags_1gb), 0x8000, "", HFILL}},
+        { &hf_fcels_speedflags_2gb,
+          {"2Gb Support", "fcels.speedflags.2gb", FT_BOOLEAN, 16,
+           TFS(&tfs_fc_fcels_speedflags_2gb), 0x4000, "", HFILL}},
+        { &hf_fcels_speedflags_4gb,
+          {"4Gb Support", "fcels.speedflags.4gb", FT_BOOLEAN, 16,
+           TFS(&tfs_fc_fcels_speedflags_4gb), 0x2000, "", HFILL}},
+        { &hf_fcels_speedflags_10gb,
+          {"10Gb Support", "fcels.speedflags.10gb", FT_BOOLEAN, 16,
+           TFS(&tfs_fc_fcels_speedflags_10gb), 0x1000, "", HFILL}},
     };
 
     static gint *ett[] = {
@@ -2498,6 +2554,7 @@ proto_register_fcels (void)
 	&ett_fcels_rcptctl,
 	&ett_fcels_fcpflags,
 	&ett_fcels_tprloflags,
+	&ett_fcels_speedflags,
     };
 
     /* Register the protocol name and description */
