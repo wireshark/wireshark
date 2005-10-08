@@ -1,4 +1,4 @@
-$Id: README.malloc 11400 2004-07-18 00:24:25Z guy $
+$Id$
 
 In order to make memory management easier and to reduce the probability of memory leaks ethereal provides its own memory management API.
 This API is implemented inside epan/emem.c and provides memory allocation functions where the allocated memory is automatically freed at certain points.
