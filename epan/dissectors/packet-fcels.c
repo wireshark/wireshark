@@ -160,6 +160,16 @@ static int hf_fcels_rcptctl_interlock = -1;
 static int hf_fcels_rcptctl_policy = -1;
 static int hf_fcels_rcptctl_category = -1;
 static int hf_fcels_rcptctl_sync = -1;
+static int hf_fcels_fcpflags = -1;
+static int hf_fcels_fcpflags_trireq = -1;
+static int hf_fcels_fcpflags_trirep = -1;
+static int hf_fcels_fcpflags_retry = -1;
+static int hf_fcels_fcpflags_ccomp = -1;
+static int hf_fcels_fcpflags_datao = -1;
+static int hf_fcels_fcpflags_initiator = -1;
+static int hf_fcels_fcpflags_target = -1;
+static int hf_fcels_fcpflags_rdxr = -1;
+static int hf_fcels_fcpflags_wrxr = -1;
 
 static gint ett_fcels = -1;
 static gint ett_fcels_lsrjt = -1;
@@ -195,6 +205,7 @@ static gint ett_fcels_cmnfeatures = -1;
 static gint ett_fcels_clsflags = -1;
 static gint ett_fcels_initctl = -1;
 static gint ett_fcels_rcptctl = -1;
+static gint ett_fcels_fcpflags = -1;
 
 static const value_string fc_prli_fc4_val[] = {
     {FC_TYPE_SCSI    , "FCP"},
@@ -501,6 +512,112 @@ dissect_clssvc_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint1
 		}
 		flags&=(~( 0x0040 ));
 	}
+}
+
+
+static const true_false_string tfs_fc_fcels_fcpflags_trireq = {
+	"Task Retry Ident REQUESTED",
+	"Task retry ident NOT requested"
+};
+static const true_false_string tfs_fc_fcels_fcpflags_trirep = {
+	"Task Retry Ident ACCEPTED",
+	"Task retry ident NOT accepted"
+};
+static const true_false_string tfs_fc_fcels_fcpflags_retry = {
+	"Retry Possible",
+	"Retry NOT possible"
+};
+static const true_false_string tfs_fc_fcels_fcpflags_ccomp = {
+	"Confirmed Comp",
+	"Comp NOT confirmed"
+};
+static const true_false_string tfs_fc_fcels_fcpflags_datao = {
+	"Data Overlay",
+	"NO data overlay"
+};
+static const true_false_string tfs_fc_fcels_fcpflags_initiator = {
+	"Initiator",
+	"NOT an initiator"
+};
+static const true_false_string tfs_fc_fcels_fcpflags_target = {
+	"Target",
+	"NOT a target"
+};
+static const true_false_string tfs_fc_fcels_fcpflags_rdxr = {
+	"Rd Xfer_Rdy Dis",
+	"NO rd xfer_rdy dis"
+};
+static const true_false_string tfs_fc_fcels_fcpflags_wrxr = {
+	"Wr Xfer_Rdy Dis",
+	"NO wr xfer_rdy dis"
+};
+
+static void
+dissect_fcp_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 flags, guint8 isreq)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+    
+	if(parent_tree){
+		item=proto_tree_add_uint(parent_tree, hf_fcels_fcpflags, 
+				tvb, offset, 4, flags);
+		tree=proto_item_add_subtree(item, ett_fcels_fcpflags);
+	}
+
+	if (isreq) {
+		proto_tree_add_boolean(tree, hf_fcels_fcpflags_trireq, tvb, offset, 4, flags);
+		if (flags&0x2000){
+			proto_item_append_text(item, "  Task Retry Ident Req");
+		}
+	} else {
+		proto_tree_add_boolean(tree, hf_fcels_fcpflags_trirep, tvb, offset, 4, flags);
+		if (flags&0x2000){
+			proto_item_append_text(item, "  Task Retry Ident Acc");
+		}
+	}
+	flags&=(~( 0x2000 ));
+
+	proto_tree_add_boolean(tree, hf_fcels_fcpflags_retry, tvb, offset, 4, flags);
+	if (flags&0x1000){
+		proto_item_append_text(item, "  Retry Possible");
+	}
+	flags&=(~( 0x1000 ));
+
+	proto_tree_add_boolean(tree, hf_fcels_fcpflags_ccomp, tvb, offset, 4, flags);
+	if (flags&0x0080){
+		proto_item_append_text(item, "  Confirmed Comp");
+	}
+	flags&=(~( 0x0080 ));
+
+	proto_tree_add_boolean(tree, hf_fcels_fcpflags_datao, tvb, offset, 4, flags);
+	if (flags&0x0040){
+		proto_item_append_text(item, "  Data Overlay");
+	}
+	flags&=(~( 0x0040 ));
+
+	proto_tree_add_boolean(tree, hf_fcels_fcpflags_initiator, tvb, offset, 4, flags);
+	if (flags&0x0020){
+		proto_item_append_text(item, "  Initiator");
+	}
+	flags&=(~( 0x0020 ));
+
+	proto_tree_add_boolean(tree, hf_fcels_fcpflags_target, tvb, offset, 4, flags);
+	if (flags&0x0010){
+		proto_item_append_text(item, "  Target");
+	}
+	flags&=(~( 0x0010 ));
+
+	proto_tree_add_boolean(tree, hf_fcels_fcpflags_rdxr, tvb, offset, 4, flags);
+	if (flags&0x0002){
+		proto_item_append_text(item, "  Rd Xfer_Rdy Dis");
+	}
+	flags&=(~( 0x0002 ));
+
+	proto_tree_add_boolean(tree, hf_fcels_fcpflags_wrxr, tvb, offset, 4, flags);
+	if (flags&0x0001){
+		proto_item_append_text(item, "  Wr Xfer_Rdy Dis");
+	}
+	flags&=(~( 0x0001 ));
 }
 
 static const value_string initial_pa_vals[] = {
@@ -1342,50 +1459,7 @@ dissect_fcels_prlilo_payload (tvbuff_t *tvb, packet_info *pinfo _U_,
 
         if (type == FC_TYPE_SCSI) {
             flag = tvb_get_ntohs (tvb, offset+14);
-            flagstr[0] = '\0';
-            stroff = 0;
-            
-            if (flag & 0x2000) {
-                if (isreq) {
-                    strcpy (flagstr, "Task Retry Ident Req, ");
-                    stroff += 22;
-                }
-                else {
-                    strcpy (flagstr, "Task Retry Ident Acc, ");
-                    stroff += 22;
-                }
-            }
-            if (flag & 0x1000) {
-                strcpy (&flagstr[stroff], "Retry Possible, ");
-                stroff += 16;
-            }
-            if (flag & 0x0080) {
-                strcpy (&flagstr[stroff], "Confirmed Comp, ");
-                stroff += 16;
-            }
-            if (flag & 0x0040) {
-                strcpy (&flagstr[stroff], "Data Overlay, ");
-                stroff += 14;
-            }
-            if (flag & 0x0020) {
-                strcpy (&flagstr[stroff], "Initiator, ");
-                stroff += 11;
-            }
-            if (flag & 0x0010) {
-                strcpy (&flagstr[stroff], "Target, ");
-                stroff += 8;
-            }
-            if (flag & 0x0002) {
-                strcpy (&flagstr[stroff], "Rd Xfer_Rdy Dis, ");
-                stroff += 17;
-            }
-            if (flag & 0x0001) {
-                strcpy (&flagstr[stroff], "Wr Xfer_Rdy Dis");
-                stroff += 15;
-            }
-            proto_tree_add_text (svcpg_tree, tvb, offset+12, 4,
-                                 "FCP Flags: 0x%x (%s)", flag,
-                                 flagstr);
+            dissect_fcp_flags (svcpg_tree, tvb, offset+12, flag, isreq);
         }
         else if ((opcode == FC_ELS_PRLI) && !isreq) {
             proto_tree_add_text (svcpg_tree, tvb, offset+12, 4,
@@ -2294,6 +2368,36 @@ proto_register_fcels (void)
         { &hf_fcels_rcptctl_sync,
           {"Clock Sync", "fcels.logi.rcptctl.sync", FT_BOOLEAN, 16,
            TFS(&tfs_fc_fcels_rcptctl_sync), 0x0008, "", HFILL}},
+        { &hf_fcels_fcpflags,
+          {"FCP Flags", "fcels.fcpflags", FT_UINT32, BASE_HEX, NULL, 0x0, "",
+           HFILL}},
+        { &hf_fcels_fcpflags_trireq,
+          {"Task Retry Ident", "fcels.fcpflags.trireq", FT_BOOLEAN, 32,
+           TFS(&tfs_fc_fcels_fcpflags_trireq), 0x2000, "", HFILL}},
+        { &hf_fcels_fcpflags_trirep,
+          {"Task Retry Ident", "fcels.fcpflags.trirep", FT_BOOLEAN, 32,
+           TFS(&tfs_fc_fcels_fcpflags_trirep), 0x2000, "", HFILL}},
+        { &hf_fcels_fcpflags_retry,
+          {"Retry", "fcels.fcpflags.retry", FT_BOOLEAN, 32,
+           TFS(&tfs_fc_fcels_fcpflags_retry), 0x1000, "", HFILL}},
+        { &hf_fcels_fcpflags_ccomp,
+          {"Comp", "fcels.fcpflags.ccomp", FT_BOOLEAN, 32,
+           TFS(&tfs_fc_fcels_fcpflags_ccomp), 0x0080, "", HFILL}},
+        { &hf_fcels_fcpflags_datao,
+          {"Data Overlay", "fcels.fcpflags.datao", FT_BOOLEAN, 32,
+           TFS(&tfs_fc_fcels_fcpflags_datao), 0x0040, "", HFILL}},
+        { &hf_fcels_fcpflags_initiator,
+          {"Initiator", "fcels.fcpflags.initiator", FT_BOOLEAN, 32,
+           TFS(&tfs_fc_fcels_fcpflags_initiator), 0x0020, "", HFILL}},
+        { &hf_fcels_fcpflags_target,
+          {"Target", "fcels.fcpflags.target", FT_BOOLEAN, 32,
+           TFS(&tfs_fc_fcels_fcpflags_target), 0x0010, "", HFILL}},
+        { &hf_fcels_fcpflags_rdxr,
+          {"Rd Xfer_Rdy Dis", "fcels.fcpflags.rdxr", FT_BOOLEAN, 32,
+           TFS(&tfs_fc_fcels_fcpflags_rdxr), 0x0002, "", HFILL}},
+        { &hf_fcels_fcpflags_wrxr,
+          {"Wr Xfer_Rdy Dis", "fcels.fcpflags.wrxr", FT_BOOLEAN, 32,
+           TFS(&tfs_fc_fcels_fcpflags_wrxr), 0x0001, "", HFILL}},
     };
 
     static gint *ett[] = {
@@ -2332,6 +2436,7 @@ proto_register_fcels (void)
 	&ett_fcels_clsflags,
 	&ett_fcels_initctl,
 	&ett_fcels_rcptctl,
+	&ett_fcels_fcpflags,
     };
 
     /* Register the protocol name and description */
