@@ -312,7 +312,7 @@ topic_action(topic_action_e action)
         browser_open_url ("http://www.ethereal.com/download.html");
         break;
     case(ONLINEPAGE_USERGUIDE):
-        browser_open_url ("http://www.ethereal.com/docs/user-guide");
+        browser_open_url ("http://www.ethereal.com/docs/eug_html_chunked");
         break;
     case(ONLINEPAGE_FAQ):
         browser_open_url ("http://www.ethereal.com/faq.html");
