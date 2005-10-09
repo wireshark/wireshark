@@ -38,6 +38,7 @@ h223_la_SOURCES = \
 	plugin.c
 
 h223_la_LDFLAGS = -module -avoid-version
+h223_la_LIBADD = @PLUGIN_LIBS@
 
 # Libs must be cleared, or else libtool won't create a shared module.
 # If your module needs to be linked against any particular libraries,
@@ -47,6 +48,9 @@ LIBS =
 CLEANFILES = \
 	h223 \
 	*~
+
+MAINTAINERCLEANFILES = \
+	Makefile.in
 
 EXTRA_DIST = \
 	Makefile.nmake
