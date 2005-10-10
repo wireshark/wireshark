@@ -65,7 +65,6 @@ static int hf_sbccs_token             = -1;
 static int hf_sbccs_dib_iucnt         = -1;
 static int hf_sbccs_dib_datacnt       = -1;
 static int hf_sbccs_dib_ccw_cmd       = -1;
-static int hf_sbccs_dib_ccw_flags     = -1;
 static int hf_sbccs_dib_ccw_cnt       = -1;
 static int hf_sbccs_dib_statusflags   = -1;
 static int hf_sbccs_dib_status        = -1;
@@ -98,11 +97,17 @@ static int hf_sbccs_dhflags_end = -1;
 static int hf_sbccs_dhflags_chaining = -1;
 static int hf_sbccs_dhflags_earlyend = -1;
 static int hf_sbccs_dhflags_nocrc = -1;
+static int hf_sbccs_dib_ccw_flags = -1;
+static int hf_sbccs_dib_ccw_flags_cd = -1;
+static int hf_sbccs_dib_ccw_flags_cc = -1;
+static int hf_sbccs_dib_ccw_flags_sli = -1;
+static int hf_sbccs_dib_ccw_flags_crr = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_fc_sbccs = -1;
 static gint ett_sbccs_iui = -1;
 static gint ett_sbccs_dhflags = -1;
+static gint ett_sbccs_dib_ccw_flags = -1;
 
 static dissector_handle_t data_handle;
 
@@ -325,33 +330,58 @@ dissect_dh_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 fl
 	flags&=(~( 0x04 ));
 }
 
-static gchar *get_ccw_flags_string (guint8 ccw_flags, gchar *buffer)
+static const true_false_string tfs_sbccs_ccwflags_cd = {
+	"CD is set",
+	"cd is NOT set"
+};
+static const true_false_string tfs_sbccs_ccwflags_cc = {
+	"CC is set",
+	"cc is NOT set"
+};
+static const true_false_string tfs_sbccs_ccwflags_sli = {
+	"SLI is set",
+	"sli is NOT set"
+};
+static const true_false_string tfs_sbccs_ccwflags_crr = {
+	"CRR is set",
+	"crr is NOT set"
+};
+
+static void
+dissect_ccw_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
 {
-    guint pos = 0;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
     
-    buffer[0] = '\0';
+	if(parent_tree){
+		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_ccw_flags, 
+				tvb, offset, 1, flags);
+		tree=proto_item_add_subtree(item, ett_sbccs_dib_ccw_flags);
+	}
 
-    if (ccw_flags & 0x80) {
-        strcpy (&buffer[pos], "CD, ");
-        pos += 4;
-    }
+	proto_tree_add_boolean(tree, hf_sbccs_dib_ccw_flags_cd, tvb, offset, 1, flags);
+	if (flags&0x80){
+		proto_item_append_text(item, "  CD");
+	}
+	flags&=(~( 0x80 ));
 
-    if (ccw_flags & 0x40) {
-        strcpy (&buffer[pos], "CC, ");
-        pos += 4;
-    }
+	proto_tree_add_boolean(tree, hf_sbccs_dib_ccw_flags_cc, tvb, offset, 1, flags);
+	if (flags&0x40){
+		proto_item_append_text(item, "  CC");
+	}
+	flags&=(~( 0x40 ));
 
-    if (ccw_flags & 0x20) {
-        strcpy (&buffer[pos], "SLI, ");
-        pos += 5;
-    }
+	proto_tree_add_boolean(tree, hf_sbccs_dib_ccw_flags_sli, tvb, offset, 1, flags);
+	if (flags&0x20){
+		proto_item_append_text(item, "  SLI");
+	}
+	flags&=(~( 0x20 ));
 
-    if (ccw_flags & 0x8) {
-        strcpy (&buffer[pos], "CRR");
-        pos += 5;
-    }
-
-    return (buffer);
+	proto_tree_add_boolean(tree, hf_sbccs_dib_ccw_flags_crr, tvb, offset, 1, flags);
+	if (flags&0x08){
+		proto_item_append_text(item, "  CRR");
+	}
+	flags&=(~( 0x08 ));
 }
 
 static gchar *get_cmd_flag_string (guint8 cmd_flag, gchar *buffer)
@@ -588,10 +618,8 @@ static void dissect_fc_sbccs_dib_cmd_hdr (tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item (tree, hf_sbccs_dib_ccw_cmd, tvb, offset, 1, 0);
 
         flags = tvb_get_guint8 (tvb, offset+1);
-        proto_tree_add_uint_format (tree, hf_sbccs_dib_ccw_flags, tvb,
-                                    offset+1, 1, flags,
-                                    "CCW Control Flags: 0x%x(%s)", flags,
-                                    get_ccw_flags_string (flags, buffer));
+	dissect_ccw_flags(tree, tvb, offset+1, flags);
+
         proto_tree_add_item (tree, hf_sbccs_dib_ccw_cnt, tvb, offset+2, 2, 0);
         proto_tree_add_item (tree, hf_sbccs_dib_ioprio, tvb, offset+5, 1, 0);
 
@@ -935,9 +963,6 @@ proto_register_fcsbccs (void)
         { &hf_sbccs_dib_ccw_cmd,
           {"CCW Command", "sbccs.ccwcmd", FT_UINT8, BASE_HEX,
            VALS (fc_sbccs_dib_cmd_val), 0x0, "", HFILL}},
-        { &hf_sbccs_dib_ccw_flags,
-          {"CCW Control Flags", "sbccs.ccwflags", FT_UINT8, BASE_HEX, NULL,
-           0x0, "", HFILL}},
         { &hf_sbccs_dib_ccw_cnt,
           {"CCW Count", "sbccs.ccwcnt", FT_UINT16, BASE_DEC, NULL, 0x0, "",
            HFILL}},
@@ -1031,6 +1056,21 @@ proto_register_fcsbccs (void)
         { &hf_sbccs_dhflags_nocrc,
           {"No CRC", "sbccs.dhflags.nocrc", FT_BOOLEAN, 8,
            TFS(&tfs_sbccs_dhflags_nocrc), 0x04, "", HFILL}},
+        { &hf_sbccs_dib_ccw_flags,
+          {"CCW Control Flags", "sbccs.ccwflags", FT_UINT8, BASE_HEX, NULL,
+           0x0, "", HFILL}},
+        { &hf_sbccs_dib_ccw_flags_cd,
+          {"CD", "sbccs.ccwflags.cd", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_ccwflags_cd), 0x80, "", HFILL}},
+        { &hf_sbccs_dib_ccw_flags_cc,
+          {"CC", "sbccs.ccwflags.cc", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_ccwflags_cc), 0x40, "", HFILL}},
+        { &hf_sbccs_dib_ccw_flags_sli,
+          {"SLI", "sbccs.ccwflags.sli", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_ccwflags_sli), 0x20, "", HFILL}},
+        { &hf_sbccs_dib_ccw_flags_crr,
+          {"CRR", "sbccs.ccwflags.crr", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_ccwflags_crr), 0x08, "", HFILL}},
     };
 
 
@@ -1039,6 +1079,7 @@ proto_register_fcsbccs (void)
         &ett_fc_sbccs,
         &ett_sbccs_iui,
         &ett_sbccs_dhflags,
+        &ett_sbccs_dib_ccw_flags,
     };
 
     /* Register the protocol name and description */
