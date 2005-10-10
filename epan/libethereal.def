@@ -199,7 +199,9 @@ ep_alloc0
 ep_strdup
 se_strdup
 ep_strdup_printf
+ep_strdup_vprintf
 se_strdup_printf
+se_strdup_vprintf
 ep_strndup
 ep_strsplit
 ep_memdup
