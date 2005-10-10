@@ -60,7 +60,6 @@ static int proto_fc_sbccs             = -1;
 static int hf_sbccs_chid              = -1;
 static int hf_sbccs_cuid              = -1;
 static int hf_sbccs_devaddr           = -1;
-static int hf_sbccs_iui               = -1;
 static int hf_sbccs_dhflags           = -1;
 static int hf_sbccs_ccw               = -1;
 static int hf_sbccs_token             = -1;
@@ -91,9 +90,14 @@ static int hf_sbccs_dib_ioprio        = -1;
 static int hf_sbccs_dib_cmdflags      = -1;
 static int hf_sbccs_dib_linkctlfn     = -1;
 static int hf_sbccs_dib_linkctlinfo   = -1;
+static int hf_sbccs_iui = -1;
+static int hf_sbccs_iui_as = -1;
+static int hf_sbccs_iui_es = -1;
+static int hf_sbccs_iui_val = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_fc_sbccs = -1;
+static gint ett_sbccs_iui = -1;
 
 static dissector_handle_t data_handle;
 
@@ -224,24 +228,42 @@ static const value_string fc_sbccs_dib_lrj_errcode_val[] = {
     {0x0, NULL},
 };
 
-static gchar *get_iui_string (guint8 iui, gchar *buffer)
+static const true_false_string tfs_sbccs_iui_as = {
+	"AS is set",
+	"as is NOT set"
+};
+static const true_false_string tfs_sbccs_iui_es = {
+	"ES is set",
+	"es is NOT set"
+};
+
+static void
+dissect_iui_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags)
 {
-    guint pos = 0;
-    buffer[0] = '\0';
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+    
+	if(parent_tree){
+		item=proto_tree_add_uint(parent_tree, hf_sbccs_iui, 
+				tvb, offset, 1, flags);
+		tree=proto_item_add_subtree(item, ett_sbccs_iui);
+	}
 
-    if (iui & 0x10) {
-        strcpy (&buffer[pos], "AS, ");
-        pos += 4;
-    }
+	proto_tree_add_boolean(tree, hf_sbccs_iui_as, tvb, offset, 1, flags);
+	if (flags&0x10){
+		proto_item_append_text(item, "  AS");
+	}
+	flags&=(~( 0x10 ));
 
-    if (iui & 0x8) {
-        strcpy (&buffer[pos], "ES, ");
-        pos += 4;
-    }
+	proto_tree_add_boolean(tree, hf_sbccs_iui_es, tvb, offset, 1, flags);
+	if (flags&0x08){
+		proto_item_append_text(item, "  ES");
+	}
+	flags&=(~( 0x08 ));
 
-    strcpy (&buffer[pos], val_to_str (iui & 0x7, fc_sbccs_iu_val, "0x%x"));
-
-    return (buffer);
+        proto_tree_add_item (tree, hf_sbccs_iui_val, tvb, offset, 1, 0);
+	proto_item_append_text(item, val_to_str (flags & 0x7, fc_sbccs_iu_val, "0x%x"));
+	flags&=(~( 0x07 ));
 }
 
 static gchar *get_dhflags_string (guint8 dhflags, gchar *buffer)
@@ -497,9 +519,8 @@ dissect_fc_sbccs_sb3_iu_hdr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         offset += FC_SBCCS_SB3_HDR_SIZE;
 
         iui = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_uint_format (iuhdr_tree, hf_sbccs_iui, tvb, offset, 1,
-                                    iui, "Information Unit Identifier: 0x%x (%s)",
-                                    iui, get_iui_string (iui, buffer));
+	dissect_iui_flags(iuhdr_tree, tvb, offset, iui);
+
         dhflags = tvb_get_guint8 (tvb, offset+1);
         proto_tree_add_uint_format (iuhdr_tree, hf_sbccs_dhflags, tvb, offset, 1,
                                     dhflags, "DH Flags: 0x%x (%s)",
@@ -957,12 +978,25 @@ proto_register_fcsbccs (void)
         { &hf_sbccs_dib_lrjcode,
           {"LRJ Reaspn Code", "sbccs.lrjcode", FT_UINT8, BASE_HEX,
            VALS (fc_sbccs_dib_lrj_errcode_val), 0x7F, "", HFILL}},
+        { &hf_sbccs_iui,
+          {"Information Unit Identifier", "sbccs.iui", FT_UINT8, BASE_HEX,
+           NULL, 0x0, "", HFILL}},
+        { &hf_sbccs_iui_as,
+          {"AS", "sbccs.iui.as", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_iui_as), 0x10, "", HFILL}},
+        { &hf_sbccs_iui_es,
+          {"ES", "sbccs.iui.es", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_iui_es), 0x08, "", HFILL}},
+        { &hf_sbccs_iui_val,
+          {"Val", "sbccs.iui.val", FT_UINT8, BASE_HEX,
+           VALS(fc_sbccs_iu_val), 0x07, "", HFILL}},
     };
 
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_fc_sbccs,
+        &ett_sbccs_iui,
     };
 
     /* Register the protocol name and description */
