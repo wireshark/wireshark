@@ -2920,7 +2920,12 @@ proto_register_field_array(int parent, hf_register_info *hf, int num_records)
 		 * 0 (which is unlikely to be the field ID we get back
 		 * from "proto_register_field_init()").
 		 */
-		DISSECTOR_ASSERT((*ptr->p_id == -1 || *ptr->p_id == 0) && "Duplicate field detected in call to proto_register_field_array");
+		if (*ptr->p_id != -1 && *ptr->p_id != 0) {
+			fprintf(stderr,
+			    "Duplicate field detected in call to proto_register_field_array: %s is already registered\n",
+			    hf->hfinfo.abbrev);
+			return;
+		}
 
 		if (proto != NULL) {
 			if (proto->fields == NULL) {
