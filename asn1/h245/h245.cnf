@@ -92,7 +92,7 @@ OpenLogicalChannel
 	pending->fw_channel_params = h223_fw_lc_params;
 	pending->rev_channel_params = h223_rev_lc_params;
 	temp = h223_fw_lc_num;
-	if (pinfo->p2p_dir)
+	if (pinfo->p2p_dir > -1)
 		g_hash_table_insert(h223_pending_olc_reqs[pinfo->p2p_dir], GINT_TO_POINTER(temp), pending);
   }
 #.END

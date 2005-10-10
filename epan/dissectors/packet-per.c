@@ -59,6 +59,7 @@ static int hf_per_object_identifier_length = -1;
 static int hf_per_open_type_length = -1;
 static int hf_per_octet_string_length = -1;
 static int hf_per_bit_string_length = -1;
+static int hf_per_const_int_len;
 
 static gint ett_per_sequence_of_item = -1;
 
@@ -928,6 +929,8 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		num_bytes=(num_bytes<<1)|bit;
 
 		num_bytes++;  /* lower bound for length determinant is 1 */
+		if (display_internal_per_fields)
+			proto_tree_add_uint(tree, hf_per_const_int_len, tvb, (offset>>3), 1, num_bytes);
 
 		/* byte aligned */
 		BYTE_ALIGN_OFFSET(offset);
@@ -1276,7 +1279,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 
 */
 guint32
-dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len)
+dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension)
 {
 	guint32 length;
 	header_field_info *hfi;
@@ -1301,22 +1304,24 @@ DEBUG_ENTRY("dissect_per_bit_string");
 		gboolean bit;
 
 		bytes[0]=bytes[1]=bytes[2]=0;
-		for(i=0;i<min_len;i++){
-			offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &bit, NULL);
-			bytes[0]=(bytes[0]<<1)|bit;
+		if(min_len<=8){
+			for(i=0;i<min_len;i++){
+				offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &bit, NULL);
+				bytes[0]=(bytes[0]<<1)|bit;
+			}
 		}
 		if(min_len>8){
+			for(i=0;i<8;i++){
+				offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &bit, NULL);
+				bytes[0]=(bytes[0]<<1)|bit;
+			}
 			for(i=8;i<min_len;i++){
 				offset=dissect_per_boolean(tvb, offset, pinfo, tree, -1, &bit, NULL);
 				bytes[1]=(bytes[1]<<1)|bit;
 			}
-			if(min_len<16){
-				bytes[1]|=bytes[0]<<(min_len-8);
-				bytes[0]>>=16-min_len;
-			}
 		}
 		if (hfi) {
-			proto_tree_add_bytes(tree, hf_index, tvb, old_offset>>3, (min_len+7)/8+((offset&0x07)?1:0), bytes);
+			proto_tree_add_bytes(tree, hf_index, tvb, old_offset>>3, (min_len+7)/8, bytes);
 		}
 		return offset;
 	}
@@ -1339,7 +1344,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 
 		offset=dissect_per_constrained_integer(tvb, offset, pinfo,
 			tree, hf_per_bit_string_length, min_len, max_len,
-			&length, &pi, FALSE);
+			&length, &pi, has_extension);
 			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
 	} else {
 		offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_per_bit_string_length, &length);
@@ -1511,8 +1516,10 @@ proto_register_per(void)
 	{ &hf_per_bit_string_length,
 		{ "Bit String Length", "per.bit_string_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of bits in the Bit String", HFILL }},
+	{ &hf_per_const_int_len,
+		{ "Constrained Integer Length", "per._const_int_len", FT_UINT32, BASE_DEC,
+		NULL, 0, "Number of bytes in the Constrained Integer", HFILL }},
 	};
-
 	static gint *ett[] =
 	{
 		&ett_per_sequence_of_item

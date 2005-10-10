@@ -10628,7 +10628,7 @@ static int dissect_certificateResponse(tvbuff_t *tvb, int offset, packet_info *p
 static int
 dissect_h245_BIT_STRING_SIZE_1_65535(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, pinfo, tree, hf_index,
-                                     1, 65535);
+                                     1, 65535, FALSE);
 
   return offset;
 }
