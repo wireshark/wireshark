@@ -46,6 +46,7 @@ const value_string afn_vals[] = {
     { AFNUM_DECNET, "Decnet IV" },
     { AFNUM_BANYAN, "Banyan Vines" },
     { AFNUM_E164NSAP, "E.164 with NSAP subaddress" },
+    { AFNUM_L2VPN_OLD, "Layer-2 VPN (old)" },
     { AFNUM_L2VPN, "Layer-2 VPN" },
     { 65535, "Reserved" },
     { 0, NULL },

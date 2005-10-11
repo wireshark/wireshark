@@ -42,7 +42,8 @@
 #define AFNUM_BANYAN	14
 #define AFNUM_E164NSAP	15
 /* draft-kompella-ppvpn-l2vpn */
-#define AFNUM_L2VPN     196
+#define AFNUM_L2VPN     25
+#define AFNUM_L2VPN_OLD 196
 extern const value_string afn_vals[];
 
 #endif /* __AFN_H__ */
