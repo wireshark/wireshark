@@ -225,7 +225,7 @@ add_byte_array_text_to_proto_tree( proto_tree *tree, tvbuff_t *tvb, gint start, 
       tmp2_length = ( length * 2 ) + 1;
    }
 
-   tmp = tvb_get_ptr( tvb, start, tmp_length );
+   tmp = (char *)tvb_get_ptr( tvb, start, tmp_length );
    tmp2 = (char*)g_malloc( tmp2_length );
 
    tmp2start = tmp2;
@@ -550,7 +550,7 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
    int	   packet_type;
    guint16  encap_cmd, encap_data_length;
-   char     pkt_type_str[9] = "";
+   char     *pkt_type_str = "";
    guint32  ifacehndl;
 
    /* Set up structures needed to add the protocol subtree and manage it */
@@ -572,15 +572,15 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       switch ( packet_type )
       {
          case REQUEST_PACKET:
-            strcpy(pkt_type_str, "Req");
+            pkt_type_str="Req";
             break;
 
          case RESPONSE_PACKET:
-            strcpy(pkt_type_str, "Rsp");
+            pkt_type_str="Rsp";
             break;
 
          default:
-            strcpy(pkt_type_str, "?");
+            pkt_type_str="?";
       }
 
       /* Add service and request/response to info column */
