@@ -44,10 +44,6 @@
 #include <stdio.h>
 #include "dtd.h"
 
-#define MAX_INCLUDE_DEPTH 10
-static YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
-static int include_stack_ptr = 0;
-
 #define ECHO g_string_append(current,yytext);
 
 GString* current;
@@ -149,28 +145,13 @@ static gchar* replace_entity(gchar* entity) {
 }
 
 static const gchar* location(void) {
-	static GString* loc = NULL;
-	guint i = include_stack_ptr + 1;
+	static gchar* loc = NULL;
+    
+	if (loc) g_free(loc);
+    
+	loc = g_strdup_printf("<? ethereal:location %s:%u ?>", filename, linenum);
 	
-	if (loc) {
-		g_string_truncate(loc,0);
-	} else {
-		loc = g_string_new("");
-	}
-
-	g_string_sprintfa(loc,"<? ethereal:location ");
-
-	while (i--) {
-			g_string_sprintfa(loc, "%s:%u from",
-							  filename,
-							  linenum);			
-	}
-
-	g_string_truncate(loc,(loc->len) - 4);
-	
-	g_string_sprintfa(loc,"?>");
-	
-	return loc->str;
+	return loc;
 }
 
 static gboolean free_gstring_hash_items(gpointer k,gpointer v,gpointer p _U_) {
@@ -181,23 +162,19 @@ static gboolean free_gstring_hash_items(gpointer k,gpointer v,gpointer p _U_) {
 
 extern GString* dtd_preparse(const gchar* dname,const  gchar* fname, GString* err) {
 	gchar* fullname = g_strdup_printf("%s%c%s",dname,G_DIR_SEPARATOR,fname);
-
+    
 	dirname = dname;
 	filename = fname;
+	linenum = 1;
 
 	yyin = fopen(fullname,"r");
 	
-	g_free(fullname);
-	
 	if (!yyin) {
 		if (err)
-			g_string_sprintfa(err, "Could not open file: '%s', error: %s",filename,strerror(errno));
+			g_string_sprintfa(err, "Could not open file: '%s', error: %s",fullname,strerror(errno));
 			
 		return NULL;
 	}
-	
-	filename = filename;
-	linenum = 1;
 	
 	error = err;
 	
@@ -212,6 +189,8 @@ extern GString* dtd_preparse(const gchar* dname,const  gchar* fname, GString* er
 
 	g_hash_table_foreach_remove(entities,free_gstring_hash_items,NULL);
 	g_hash_table_destroy(entities);
+
+    g_free(fullname);
 
 	return output;
 }

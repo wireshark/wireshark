@@ -219,6 +219,8 @@ CLEANFILES =	\
 	eug_html		\
 	eug_html_chunked	\
 	htmlhelp.*		\
+	release_notes_chm	\
+	release-notes.html	\
 	svn_version.xml		\
 
 

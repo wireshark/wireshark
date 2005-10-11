@@ -78,7 +78,8 @@ DISTCLEANFILES = \
 	
 
 MAINTAINERCLEANFILES = \
-	Makefile.in
+	Makefile.in		\
+	sminmpec.c
 
 #
 # Add the object files for missing routines, if any.

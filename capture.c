@@ -346,12 +346,18 @@ capture_input_closed(capture_options *capture_opts)
     }
 
     if(capture_opts->real_time_mode) {
-        /* first of all, we are not doing a capture any more */
+		cf_read_status_t status;
+
+        /* Read what remains of the capture file. */
+        status = cf_finish_tail(capture_opts->cf, &err);
+
+        /* Tell the GUI, we are not doing a capture any more.
+		   Must be done after the cf_finish_tail(), so file lengths are displayed 
+		   correct. */
         cf_callback_invoke(cf_cb_live_capture_update_finished, capture_opts->cf);
 
-        /* Read what remains of the capture file, and finish the capture.
-           XXX - do something if this fails? */
-        switch (cf_finish_tail(capture_opts->cf, &err)) {
+        /* Finish the capture. */
+        switch (status) {
 
         case CF_READ_OK:
             if(cf_packet_count(capture_opts->cf) == 0 && !capture_opts->restart) {

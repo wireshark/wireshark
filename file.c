@@ -554,6 +554,8 @@ cf_continue_tail(capture_file *cf, int to_read, int *err)
 
   packet_list_freeze();
 
+  /*g_log(NULL, G_LOG_LEVEL_MESSAGE, "cf_continue_tail: %u new: %u", cf->count, to_read);*/
+
   while (to_read != 0 && (wtap_read(cf->wth, err, &err_info, &data_offset))) {
     if (cf->state == FILE_READ_ABORTED) {
       /* Well, the user decided to exit Ethereal.  Break out of the
@@ -564,6 +566,9 @@ cf_continue_tail(capture_file *cf, int to_read, int *err)
     read_packet(cf, data_offset);
     to_read--;
   }
+
+  /*g_log(NULL, G_LOG_LEVEL_MESSAGE, "cf_continue_tail: count %u state: %u err: %u", 
+	  cf->count, cf->state, *err);*/
 
   /* XXX - this cheats and looks inside the packet list to find the final
      row number. */
@@ -581,7 +586,10 @@ cf_continue_tail(capture_file *cf, int to_read, int *err)
     return CF_READ_ABORTED;
   } else if (*err != 0) {
     /* We got an error reading the capture file.
-       XXX - pop up a dialog box? */
+       XXX - pop up a dialog box instead? */
+	g_warning("Error \"%s\" while reading: \"%s\"\n", 
+		wtap_strerror(*err), cf->filename);
+
     return CF_READ_ERROR;
   } else
     return CF_READ_OK;
@@ -610,6 +618,8 @@ cf_finish_tail(capture_file *cf, int *err)
     read_packet(cf, data_offset);
   }
 
+  packet_list_thaw();
+
   if (cf->state == FILE_READ_ABORTED) {
     /* Well, the user decided to abort the read.  We're only called
        when the child capture process closes the pipe to us (meaning
@@ -620,7 +630,6 @@ cf_finish_tail(capture_file *cf, int *err)
     return CF_READ_ABORTED;
   }
 
-  packet_list_thaw();
   if (auto_scroll_live && cf->plist_end != NULL)
     /* XXX - this cheats and looks inside the packet list to find the final
        row number. */

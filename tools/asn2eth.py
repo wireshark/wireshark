@@ -3246,7 +3246,7 @@ class BitStringType (Type):
     elif (ectx.OPer()):
       body = ectx.eth_fn_call('dissect_%(ER)s_bit_string', ret='offset',
                               par=(('%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s'),
-                                   ('%(MIN_VAL)s', '%(MAX_VAL)s',),))
+                                   ('%(MIN_VAL)s', '%(MAX_VAL)s','%(EXT)s'),))
     else:
       body = '#error Can not decode %s' % (tname)
     return body

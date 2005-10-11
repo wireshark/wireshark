@@ -74,7 +74,7 @@ static GPtrArray* g_ptr_array_join(GPtrArray* a, GPtrArray* b){
 }
 
 %parse_failure {
-	g_string_sprintfa(bd->error,"DTD parsing failure at %s\n",bd->location);
+	g_string_sprintfa(bd->error,"DTD parsing failure\n");
 }
 
 %token_prefix TOKEN_

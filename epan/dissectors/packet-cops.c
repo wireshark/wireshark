@@ -1521,37 +1521,44 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
       length = asn1.offset - start;
 */
       if (tree) {
-	if (cops_pr_obj == COPS_OBJ_PPRID){
-	  /*we're decoding Prefix PRID, that doesn't have a instance Id,
-	   *Use full length of the OID when decoding it.
-	   */
-	  new_format_oid(vb_oid,vb_oid_length,&vb_display_string,&vb_display_string2);
-
-	  if (!vb_display_string2)   /*if OID couldn't be decoded, print only numeric format*/
-	    proto_tree_add_text(tree, tvb, vb_value_start, length,
-				"Value: %s: %s", vb_type_name, vb_display_string);
-	  else
-	    proto_tree_add_text(tree, tvb, vb_value_start, length,
-				"Value: %s: %s (%s)", vb_type_name,
-				vb_display_string,
-				vb_display_string2);
+	if (vb_oid_length == 0){
+	  /* Empty OID */
+	  proto_tree_add_text(tree, tvb, vb_value_start, length,
+			      "Value: %s: <empty>", vb_type_name);
 	}
-	else { /*we're decoding PRID, Error PRID or EPD*/
-	  /*strip the instance Id from the OIDs before decoding and paste it back during printing*/
-	  new_format_oid(vb_oid,vb_oid_length-1,&vb_display_string,&vb_display_string2);
+	else {
+	  if (cops_pr_obj == COPS_OBJ_PPRID){
+	    /*we're decoding Prefix PRID, that doesn't have a instance Id,
+	     *Use full length of the OID when decoding it.
+	     */
+	    new_format_oid(vb_oid,vb_oid_length,&vb_display_string,&vb_display_string2);
 
-	  if (!vb_display_string2)  /*if OID couldn't be decoded, print only numeric format*/
-	    proto_tree_add_text(tree, tvb, vb_value_start, length,
-				"Value: %s: %s.%lu", vb_type_name,
-				vb_display_string,
-				(unsigned long)vb_oid[vb_oid_length-1]);
-	  else
-	    proto_tree_add_text(tree, tvb, vb_value_start, length,
-				"Value: %s: %s.%lu (%s.%lu)", vb_type_name,
-				vb_display_string,
-				(unsigned long)vb_oid[vb_oid_length-1],
-				vb_display_string2,
-				(unsigned long)vb_oid[vb_oid_length-1]);
+	    if (!vb_display_string2)   /*if OID couldn't be decoded, print only numeric format*/
+	      proto_tree_add_text(tree, tvb, vb_value_start, length,
+				  "Value: %s: %s", vb_type_name, vb_display_string);
+	    else
+	      proto_tree_add_text(tree, tvb, vb_value_start, length,
+				  "Value: %s: %s (%s)", vb_type_name,
+				  vb_display_string,
+				  vb_display_string2);
+	  }
+	  else { /*we're decoding PRID, Error PRID or EPD*/
+	    /*strip the instance Id from the OIDs before decoding and paste it back during printing*/
+	    new_format_oid(vb_oid,vb_oid_length-1,&vb_display_string,&vb_display_string2);
+
+	    if (!vb_display_string2)  /*if OID couldn't be decoded, print only numeric format*/
+	      proto_tree_add_text(tree, tvb, vb_value_start, length,
+				  "Value: %s: %s.%lu", vb_type_name,
+				  vb_display_string,
+				  (unsigned long)vb_oid[vb_oid_length-1]);
+	    else
+	      proto_tree_add_text(tree, tvb, vb_value_start, length,
+				  "Value: %s: %s.%lu (%s.%lu)", vb_type_name,
+				  vb_display_string,
+				  (unsigned long)vb_oid[vb_oid_length-1],
+				  vb_display_string2,
+				  (unsigned long)vb_oid[vb_oid_length-1]);
+	  }
 	}
 #ifdef HAVE_NET_SNMP
         if (cops_pr_obj != COPS_OBJ_EPD) {

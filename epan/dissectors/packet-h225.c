@@ -3810,7 +3810,7 @@ static int dissect_almostOutOfResources(tvbuff_t *tvb, int offset, packet_info *
 static int
 dissect_h225_BIT_STRING_SIZE_32(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, pinfo, tree, hf_index,
-                                     32, 32);
+                                     32, 32, FALSE);
 
   return offset;
 }
@@ -6899,7 +6899,7 @@ static int dissect_integrity_item(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_h225_BIT_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, pinfo, tree, hf_index,
-                                     -1, -1);
+                                     -1, -1, FALSE);
 
   return offset;
 }

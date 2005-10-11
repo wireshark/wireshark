@@ -637,6 +637,8 @@ pipe_timer_cb(gpointer data)
 
   /* try to read data from the pipe only 5 times, to avoid blocking */
   while(iterations < 5) {
+	  /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: new iteration");*/
+
 	  /* Oddly enough although Named pipes don't work on win9x,
 		 PeekNamedPipe does !!! */
 	  handle = (HANDLE) _get_osfhandle (pipe_input->source);
@@ -651,7 +653,10 @@ pipe_timer_cb(gpointer data)
 		 callback */
 	  if (!result || avail > 0 || childstatus != STILL_ACTIVE) {
 
+		/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: data avail");*/
+
 		if(pipe_input->pipe_input_id != 0) {
+		  /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: stop timer");*/
 		  /* avoid reentrancy problems and stack overflow */
 		  gtk_timeout_remove(pipe_input->pipe_input_id);
 		  pipe_input->pipe_input_id = 0;
@@ -659,11 +664,13 @@ pipe_timer_cb(gpointer data)
 
 		/* And call the real handler */
 		if (!pipe_input->input_cb(pipe_input->source, pipe_input->user_data)) {
+			g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: input pipe closed, iterations: %u", iterations);
 			/* pipe closed, return false so that the old timer is not run again */
 			return FALSE;
 		}
 	  }
 	  else {
+		/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: no data avail");*/
 		/* No data, stop now */
 		break;
 	  }
@@ -674,10 +681,13 @@ pipe_timer_cb(gpointer data)
   if(pipe_input->pipe_input_id == 0) {
 	/* restore pipe handler */
 	pipe_input->pipe_input_id = gtk_timeout_add(200, pipe_timer_cb, data);
+	/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: finished with iterations: %u, new timer", iterations);*/
 
 	/* Return false so that the old timer is not run again */
 	return FALSE;
   } else {
+	/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: finished with iterations: %u, old timer", iterations);*/
+
 	/* we didn't stopped the old timer, so let it run */
 	return TRUE;
   }
@@ -725,6 +735,7 @@ void pipe_input_set_handler(gint source, gpointer user_data, int *child_process,
        this but doesn't seem to work over processes.  Attempt to do
        something similar here, start a timer and check for data on every
        timeout. */
+	/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_input_set_handler: new");*/
     pipe_input.pipe_input_id = gtk_timeout_add(200, pipe_timer_cb, &pipe_input);
 #else
     pipe_input.pipe_input_id = gtk_input_add_full(source,

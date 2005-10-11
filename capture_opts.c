@@ -76,7 +76,7 @@ capture_opts_init(capture_options *capture_opts, void *cfile)
   capture_opts->has_autostop_packets    = FALSE;            
   capture_opts->autostop_packets        = 0;
   capture_opts->has_autostop_filesize   = FALSE;
-  capture_opts->autostop_filesize       = 1024 * 1024;      /* 1 MB */
+  capture_opts->autostop_filesize       = 1024;             /* 1 MB */
   capture_opts->has_autostop_duration   = FALSE;
   capture_opts->autostop_duration       = 60;               /* 1 min */
 
@@ -113,7 +113,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
 
     g_log(log_domain, log_level, "AutostopFiles   (%u): %u", capture_opts->has_autostop_files, capture_opts->autostop_files);
     g_log(log_domain, log_level, "AutostopPackets (%u): %u", capture_opts->has_autostop_packets, capture_opts->autostop_packets);
-    g_log(log_domain, log_level, "AutostopFilesize(%u): %u", capture_opts->has_autostop_filesize, capture_opts->autostop_filesize);
+    g_log(log_domain, log_level, "AutostopFilesize(%u): %u (KB)", capture_opts->has_autostop_filesize, capture_opts->autostop_filesize);
     g_log(log_domain, log_level, "AutostopDuration(%u): %u", capture_opts->has_autostop_duration, capture_opts->autostop_duration);
 
     g_log(log_domain, log_level, "ForkChild          : %d", capture_opts->fork_child);

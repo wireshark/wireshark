@@ -82,7 +82,6 @@
     
 #define DTD_PARSE(token_type) \
 	{   DEBUG_DTD_TOKEN; \
-		build_data->location = location; \
 		DtdParse(pParser, (token_type), new_token(yytext), build_data); \
 		if(build_data->error->len > 0) yyterminate(); \
 	}
@@ -164,7 +163,7 @@ squoted        ['][^\']*[']
 <IN_COMMENT>{comment_stop}		{ BEGIN DTD; }
 
 <DTD>{notation_tag} { BEGIN IN_NOTATION; }
-<IN_NOTATION>.  ;
+<IN_NOTATION>[^>]  ;
 <IN_NOTATION>{special_stop} { BEGIN DTD; }
 
 <DTD>{start_xmlpi}		{
@@ -172,7 +171,6 @@ squoted        ['][^\']*[']
 }
 
 <XMLPI>{location_xmlpi} {
-	if(location) g_free(location);
 	BEGIN LOCATION;
 }
 
@@ -184,6 +182,7 @@ squoted        ['][^\']*[']
 <XMLPI>{stop_xmlpi} BEGIN DTD;
 
 <LOCATION>{get_location_xmlpi} {
+    if(location) g_free(location);
 	location = g_strdup(yytext);
 	BEGIN DONE;
 }
@@ -326,7 +325,6 @@ extern dtd_build_data_t* dtd_parse(GString* s) {
 	build_data->elements = g_ptr_array_new();
 	build_data->attributes = g_ptr_array_new();
 
-	build_data->location = NULL;
 	build_data->error = g_string_new("");
 	
 	location = NULL;
