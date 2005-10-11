@@ -47,6 +47,10 @@
 #define PSNAME "RANAP"
 #define PFNAME "ranap"
 
+#define BYTE_ALIGN_OFFSET(offset)		\
+	if(offset&0x07){			\
+		offset=(offset&0xfffffff8)+8;	\
+	}
 
 
 
@@ -567,8 +571,7 @@ static int dissect_ranap_FirstValue_ies(tvbuff_t *tvb, int offset, packet_info *
 			break;
 	}
 	/* We might not stop on a byte boundary */
-	if ( offset < (start_offset + length))
-		offset = start_offset + length;
+	BYTE_ALIGN_OFFSET(offset);
 	return offset;
 }
 
@@ -585,6 +588,8 @@ static int dissect_ranap_SecondValue_ies(tvbuff_t *tvb, int offset, packet_info 
 		default:
 			break;
 	}
+	/* We might not stop on a byte boundary */
+	BYTE_ALIGN_OFFSET(offset);
 	return offset;
 }
 
