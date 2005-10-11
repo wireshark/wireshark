@@ -66,8 +66,6 @@ static int hf_sbccs_dib_iucnt         = -1;
 static int hf_sbccs_dib_datacnt       = -1;
 static int hf_sbccs_dib_ccw_cmd       = -1;
 static int hf_sbccs_dib_ccw_cnt       = -1;
-static int hf_sbccs_dib_statusflags   = -1;
-static int hf_sbccs_dib_status        = -1;
 static int hf_sbccs_dib_residualcnt   = -1;
 static int hf_sbccs_dib_qtuf          = -1;
 static int hf_sbccs_dib_qtu           = -1;
@@ -85,7 +83,6 @@ static int hf_sbccs_dib_lprcode       = -1;
 static int hf_sbccs_dib_tin_imgid_cnt = -1;
 static int hf_sbccs_dib_lrjcode       = -1;
 static int hf_sbccs_dib_ioprio        = -1;
-static int hf_sbccs_dib_cmdflags      = -1;
 static int hf_sbccs_dib_linkctlfn     = -1;
 static int hf_sbccs_dib_linkctlinfo   = -1;
 static int hf_sbccs_iui = -1;
@@ -102,12 +99,36 @@ static int hf_sbccs_dib_ccw_flags_cd = -1;
 static int hf_sbccs_dib_ccw_flags_cc = -1;
 static int hf_sbccs_dib_ccw_flags_sli = -1;
 static int hf_sbccs_dib_ccw_flags_crr = -1;
+static int hf_sbccs_dib_cmdflags = -1;
+static int hf_sbccs_dib_cmdflags_du = -1;
+static int hf_sbccs_dib_cmdflags_coc = -1;
+static int hf_sbccs_dib_cmdflags_syr = -1;
+static int hf_sbccs_dib_cmdflags_rex = -1;
+static int hf_sbccs_dib_cmdflags_sss = -1;
+static int hf_sbccs_dib_statusflags = -1;
+static int hf_sbccs_dib_statusflags_ffc = -1;
+static int hf_sbccs_dib_statusflags_ci = -1;
+static int hf_sbccs_dib_statusflags_cr = -1;
+static int hf_sbccs_dib_statusflags_lri = -1;
+static int hf_sbccs_dib_statusflags_rv = -1;
+static int hf_sbccs_dib_status = -1;
+static int hf_sbccs_dib_status_attention = -1;
+static int hf_sbccs_dib_status_modifier = -1;
+static int hf_sbccs_dib_status_cue = -1;
+static int hf_sbccs_dib_status_busy = -1;
+static int hf_sbccs_dib_status_channelend = -1;
+static int hf_sbccs_dib_status_deviceend = -1;
+static int hf_sbccs_dib_status_unit_check = -1;
+static int hf_sbccs_dib_status_unit_exception = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_fc_sbccs = -1;
 static gint ett_sbccs_iui = -1;
 static gint ett_sbccs_dhflags = -1;
 static gint ett_sbccs_dib_ccw_flags = -1;
+static gint ett_sbccs_dib_cmdflags = -1;
+static gint ett_sbccs_dib_statusflags = -1;
+static gint ett_sbccs_dib_status = -1;
 
 static dissector_handle_t data_handle;
 
@@ -384,131 +405,255 @@ dissect_ccw_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 fl
 	flags&=(~( 0x08 ));
 }
 
-static gchar *get_cmd_flag_string (guint8 cmd_flag, gchar *buffer)
+static const true_false_string tfs_sbccs_cmdflags_du = {
+	"DU is set",
+	"du is NOT set"
+};
+static const true_false_string tfs_sbccs_cmdflags_coc = {
+	"COC is set",
+	"coc is NOT set"
+};
+static const true_false_string tfs_sbccs_cmdflags_syr = {
+	"SYR is set",
+	"syr is NOT set"
+};
+static const true_false_string tfs_sbccs_cmdflags_rex = {
+	"REX is set",
+	"rex is NOT set"
+};
+static const true_false_string tfs_sbccs_cmdflags_sss = {
+	"SSS is set",
+	"sss is NOT set"
+};
+
+static void
+dissect_cmd_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
 {
-    guint pos = 0;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+    
+	if(parent_tree){
+		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_cmdflags, 
+				tvb, offset, 1, flags);
+		tree=proto_item_add_subtree(item, ett_sbccs_dib_cmdflags);
+	}
 
-    buffer[0] = '\0';
+	proto_tree_add_boolean(tree, hf_sbccs_dib_cmdflags_du, tvb, offset, 1, flags);
+	if (flags&0x10){
+		proto_item_append_text(item, "  DU");
+	}
+	flags&=(~( 0x10 ));
 
-    if (cmd_flag & 0x10) {
-        strcpy (&buffer[pos], "DU, ");
-        pos += 4;
-    }
+	proto_tree_add_boolean(tree, hf_sbccs_dib_cmdflags_coc, tvb, offset, 1, flags);
+	if (flags&0x08){
+		proto_item_append_text(item, "  COC");
+	}
+	flags&=(~( 0x08 ));
 
-    if (cmd_flag & 0x8) {
-        strcpy (&buffer[pos], "COC, ");
-        pos += 4;
-    }
+	proto_tree_add_boolean(tree, hf_sbccs_dib_cmdflags_syr, tvb, offset, 1, flags);
+	if (flags&0x04){
+		proto_item_append_text(item, "  SYR");
+	}
+	flags&=(~( 0x04 ));
 
-    if (cmd_flag & 0x4) {
-        strcpy (&buffer[pos], "SYR, ");
-        pos += 5;
-    }
+	proto_tree_add_boolean(tree, hf_sbccs_dib_cmdflags_rex, tvb, offset, 1, flags);
+	if (flags&0x02){
+		proto_item_append_text(item, "  REX");
+	}
+	flags&=(~( 0x02 ));
 
-    if (cmd_flag & 0x2) {
-        strcpy (&buffer[pos], "REX, ");
-        pos += 5;
-    }
-
-    if (cmd_flag & 0x1) {
-        strcpy (&buffer[pos], "SSS");
-        pos += 5;
-    }
-
-    return (buffer);
+	proto_tree_add_boolean(tree, hf_sbccs_dib_cmdflags_sss, tvb, offset, 1, flags);
+	if (flags&0x01){
+		proto_item_append_text(item, "  SSS");
+	}
+	flags&=(~( 0x01 ));
 }
 
-static gchar *get_status_flag_string (guint8 status_flag, gchar *buffer)
+static const value_string status_ffc_val[] = {
+	{ 0, "" },
+	{ 1, "FFC:Queuing Information Valid" },
+	{ 2, "FFC:Resetting Event" },
+	{ 0, NULL }
+};
+
+static const true_false_string tfs_sbccs_statusflags_ci = {
+	"CI is set",
+	"ci is NOT set"
+};
+static const true_false_string tfs_sbccs_statusflags_cr = {
+	"CR is set",
+	"cr is NOT set"
+};
+static const true_false_string tfs_sbccs_statusflags_lri = {
+	"LRI is set",
+	"lri is NOT set"
+};
+static const true_false_string tfs_sbccs_statusflags_rv = {
+	"RV is set",
+	"rv is NOT set"
+};
+
+static void
+dissect_status_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
 {
-    guint pos = 0;
-    guint8 ffc = (status_flag & 0xD0) >> 5;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+    
+	if(parent_tree){
+		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_statusflags, 
+				tvb, offset, 1, flags);
+		tree=proto_item_add_subtree(item, ett_sbccs_dib_statusflags);
+	}
 
-    buffer[0] = '\0';
 
-    switch (ffc) {
-    case 0:
-        break;                  /* to avoid the catch clause below */
-    case 1:
-        strcpy (&buffer[pos], "FFC:Queuing Information Valid, ");
-        pos += 31;
-        break;
-    case 2:
-        strcpy (&buffer[pos], "FFC:Resetting Event, ");
-        pos += 21;
-        break;
-    default:
-        strcpy (&buffer[pos], "Reserved");
-        break;
-    }
+        proto_tree_add_item (tree, hf_sbccs_dib_statusflags_ffc, tvb, offset, 1, 0);
+	proto_item_append_text(item, val_to_str ((flags>>5)&0x07, status_ffc_val, "Reserved:0x%x"));
+	flags&=(~( 0xE0 ));
 
-    if (status_flag & 10) {
-        strcpy (&buffer[pos], "CI, ");
-        pos += 4;
-    }
+	proto_tree_add_boolean(tree, hf_sbccs_dib_statusflags_ci, tvb, offset, 1, flags);
+	if (flags&0x10){
+		proto_item_append_text(item, "  CI");
+	}
+	flags&=(~( 0x10 ));
 
-    if (status_flag & 0x4) {
-        strcpy (&buffer[pos], "CR, ");
-        pos += 4;
-    }
+	proto_tree_add_boolean(tree, hf_sbccs_dib_statusflags_cr, tvb, offset, 1, flags);
+	if (flags&0x04){
+		proto_item_append_text(item, "  CR");
+	}
+	flags&=(~( 0x04 ));
 
-    if (status_flag & 0x2) {
-        strcpy (&buffer[pos], "LRI, ");
-        pos += 5;
-    }
+	proto_tree_add_boolean(tree, hf_sbccs_dib_statusflags_lri, tvb, offset, 1, flags);
+	if (flags&0x02){
+		proto_item_append_text(item, "  LRI");
+	}
+	flags&=(~( 0x02 ));
 
-    if (status_flag & 0x1) {
-        strcpy (&buffer[pos], "RV");
-    }
+	proto_tree_add_boolean(tree, hf_sbccs_dib_statusflags_rv, tvb, offset, 1, flags);
+	if (flags&0x01){
+		proto_item_append_text(item, "  RV");
+	}
+	flags&=(~( 0x01 ));
 
-    return (buffer);
 }
 
-static gchar *get_status_string (guint8 status, gchar *buffer)
+static const true_false_string tfs_sbccs_status_attention = {
+	"ATTENTION is set",
+	"attention is NOT set"
+};
+static const true_false_string tfs_sbccs_status_modifier = {
+	"STATUS MODIFIER is set",
+	"status modifier is NOT set"
+};
+static const true_false_string tfs_sbccs_status_cue = {
+	"CONTROL-UNIT END is set",
+	"control-unit end is NOT set"
+};
+static const true_false_string tfs_sbccs_status_busy = {
+	"BUSY is set",
+	"busy is NOT set"
+};
+static const true_false_string tfs_sbccs_status_channelend = {
+	"CHANNEL-END is set",
+	"channel-end is NOT set"
+};
+static const true_false_string tfs_sbccs_status_deviceend = {
+	"DEVICE-END is set",
+	"device-end is NOT set"
+};
+static const true_false_string tfs_sbccs_status_unitcheck = {
+	"UNIT CHECK is set",
+	"unit check is NOT set"
+};
+static const true_false_string tfs_sbccs_status_unitexception = {
+	"UNIT EXCEPTION is set",
+	"unit exception is NOT set"
+};
+
+static void
+dissect_status (packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
 {
-    guint pos = 0;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+    
+	if(parent_tree){
+		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_status, 
+				tvb, offset, 1, flags);
+		tree=proto_item_add_subtree(item, ett_sbccs_dib_status);
+	}
 
-    buffer[0] = '\0';
 
-    if (status & 0x80) {
-        strcpy (&buffer[pos], "Attention, ");
-        pos += 11;
-    }
+	proto_tree_add_boolean(tree, hf_sbccs_dib_status_attention, tvb, offset, 1, flags);
+	if (flags&0x80){
+		proto_item_append_text(item, "  Attention");
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_str(pinfo->cinfo, COL_INFO, "  Attention");
+		}
+	}
+	flags&=(~( 0x80 ));
 
-    if (status & 0x40) {
-        strcpy (&buffer[pos], "Status Modifier, ");
-        pos += 17;
-    }
+	proto_tree_add_boolean(tree, hf_sbccs_dib_status_modifier, tvb, offset, 1, flags);
+	if (flags&0x40){
+		proto_item_append_text(item, "  Status Modifier");
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_str(pinfo->cinfo, COL_INFO, "  Status Modifier");
+		}
+	}
+	flags&=(~( 0x40 ));
 
-    if (status & 0x20) {
-        strcpy (&buffer[pos], "Control-Unit End, ");
-        pos += 18;
-    }
+	proto_tree_add_boolean(tree, hf_sbccs_dib_status_cue, tvb, offset, 1, flags);
+	if (flags&0x20){
+		proto_item_append_text(item, "  Control-Unit End");
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_str(pinfo->cinfo, COL_INFO, "  Control-Unit End");
+		}
+	}
+	flags&=(~( 0x20 ));
 
-    if (status & 0x10) {
-        strcpy (&buffer[pos], "Busy, ");
-        pos += 6;
-    }
+	proto_tree_add_boolean(tree, hf_sbccs_dib_status_busy, tvb, offset, 1, flags);
+	if (flags&0x10){
+		proto_item_append_text(item, "  Busy");
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_str(pinfo->cinfo, COL_INFO, "  Busy");
+		}
+	}
+	flags&=(~( 0x10 ));
 
-    if (status & 0x8) {
-        strcpy (&buffer[pos], "Channel End, ");
-        pos += 12;
-    }
+	proto_tree_add_boolean(tree, hf_sbccs_dib_status_channelend, tvb, offset, 1, flags);
+	if (flags&0x08){
+		proto_item_append_text(item, "  Channel End");
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_str(pinfo->cinfo, COL_INFO, "  Channel End");
+		}
+	}
+	flags&=(~( 0x08 ));
 
-    if (status & 0x4) {
-        strcpy (&buffer[pos], "Device End, ");
-        pos += 12;
-    }
+	proto_tree_add_boolean(tree, hf_sbccs_dib_status_deviceend, tvb, offset, 1, flags);
+	if (flags&0x04){
+		proto_item_append_text(item, "  Device End");
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_str(pinfo->cinfo, COL_INFO, "  Device End");
+		}
+	}
+	flags&=(~( 0x04 ));
 
-    if (status & 0x2) {
-        strcpy (&buffer[pos], "Unit Check, ");
-        pos += 12;
-    }
+	proto_tree_add_boolean(tree, hf_sbccs_dib_status_unit_check, tvb, offset, 1, flags);
+	if (flags&0x02){
+		proto_item_append_text(item, "  Unit Check");
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_str(pinfo->cinfo, COL_INFO, "  Unit Check");
+		}
+	}
+	flags&=(~( 0x02 ));
 
-    if (status & 0x1) {
-        strcpy (&buffer[pos], "Unit Exception");
-    }
+	proto_tree_add_boolean(tree, hf_sbccs_dib_status_unit_exception, tvb, offset, 1, flags);
+	if (flags&0x01){
+		proto_item_append_text(item, "  Unit Exception");
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_str(pinfo->cinfo, COL_INFO, "  Unit Exception");
+		}
+	}
+	flags&=(~( 0x01 ));
 
-    return (buffer);
 }
 
 static gchar *get_sel_rst_param_string (guint8 ctlparam, gchar *buffer)
@@ -605,7 +750,6 @@ static void dissect_fc_sbccs_dib_cmd_hdr (tvbuff_t *tvb, packet_info *pinfo,
                                           proto_tree *tree, guint offset)
 {
     guint8 flags;
-    gchar buffer[64];
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
         col_append_fstr (pinfo->cinfo, COL_INFO,
@@ -624,9 +768,8 @@ static void dissect_fc_sbccs_dib_cmd_hdr (tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item (tree, hf_sbccs_dib_ioprio, tvb, offset+5, 1, 0);
 
         flags = tvb_get_guint8 (tvb, offset+7);
-        proto_tree_add_uint_format (tree, hf_sbccs_dib_cmdflags, tvb, offset+7,
-                                    1, flags, "Command Flags: 0x%x(%s)", flags,
-                                    get_cmd_flag_string (flags, buffer));
+	dissect_cmd_flags(tree, tvb, offset+7, flags);
+
         proto_tree_add_item (tree, hf_sbccs_dib_iucnt, tvb, offset+9, 1, 0);
         proto_tree_add_item (tree, hf_sbccs_dib_datacnt, tvb, offset+10, 2, 0);
         proto_tree_add_item (tree, hf_sbccs_lrc, tvb, offset+12, 4, 0);
@@ -639,30 +782,18 @@ static void dissect_fc_sbccs_dib_status_hdr (tvbuff_t *tvb, packet_info *pinfo,
 {
     guint8 flags;
     gboolean rv_valid, qparam_valid;
-    gchar buffer[128];
     tvbuff_t *next_tvb;
     guint16 supp_status_cnt = 0;
 
-    if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_append_fstr (pinfo->cinfo, COL_INFO,
-                         ": %s",
-                         get_status_string (tvb_get_guint8 (tvb, offset+1),
-                                            buffer));
-    }
-    
     if (tree) {
         flags = tvb_get_guint8 (tvb, offset);
         rv_valid = flags & 0x1; /* if residual count is valid */
-        qparam_valid = (((flags & 0xD0) >> 5) == 0x1); /* From the FFC field */
-        proto_tree_add_uint_format (tree, hf_sbccs_dib_statusflags, tvb, offset,
-                                    1, flags, "Status Flags: 0x%x(%s)",
-                                    flags, get_status_flag_string (flags,
-                                                                   buffer));
+        qparam_valid = (((flags & 0xE0) >> 5) == 0x1); /* From the FFC field */
+	dissect_status_flags(tree, tvb, offset, flags);
         
         flags = tvb_get_guint8 (tvb, offset+1);
-        proto_tree_add_uint_format (tree, hf_sbccs_dib_status, tvb, offset+1,
-                                    1, flags, "Status: 0x%x(%s)", flags,
-                                    get_status_string (flags, buffer));
+	dissect_status(pinfo, tree, tvb, offset+1, flags);
+
         if (rv_valid) {
             proto_tree_add_item (tree, hf_sbccs_dib_residualcnt, tvb, offset+2,
                                  2, 0);
@@ -969,14 +1100,8 @@ proto_register_fcsbccs (void)
         { &hf_sbccs_dib_ioprio,
           {"I/O Priority", "sbccs.ioprio", FT_UINT8, BASE_DEC, NULL, 0x0,
            "", HFILL}},
-        { &hf_sbccs_dib_cmdflags,
-          {"Command Flags", "sbccs.cmdflags", FT_UINT8, BASE_HEX, NULL, 0x0,
-           "", HFILL}},
-        { &hf_sbccs_dib_statusflags,
-          {"Status Flags", "sbccs.statusflags", FT_UINT8, BASE_HEX, NULL,
-           0x0, "", HFILL}},
         { &hf_sbccs_dib_status,
-          {"Status", "sbccs.status", FT_UINT8, BASE_DEC, NULL, 0x0, "",
+          {"Status", "sbccs.status", FT_UINT8, BASE_HEX, NULL, 0x0, "",
            HFILL}},
         { &hf_sbccs_dib_residualcnt,
           {"Residual Count", "sbccs.residualcnt", FT_UINT8, BASE_DEC,
@@ -1068,6 +1193,66 @@ proto_register_fcsbccs (void)
         { &hf_sbccs_dib_ccw_flags_crr,
           {"CRR", "sbccs.ccwflags.crr", FT_BOOLEAN, 8,
            TFS(&tfs_sbccs_ccwflags_crr), 0x08, "", HFILL}},
+        { &hf_sbccs_dib_cmdflags,
+          {"Command Flags", "sbccs.cmdflags", FT_UINT8, BASE_HEX, NULL, 0x0,
+           "", HFILL}},
+        { &hf_sbccs_dib_cmdflags_du,
+          {"DU", "sbccs.cmdflags.du", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_cmdflags_du), 0x10, "", HFILL}},
+        { &hf_sbccs_dib_cmdflags_coc,
+          {"COC", "sbccs.cmdflags.coc", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_cmdflags_coc), 0x08, "", HFILL}},
+        { &hf_sbccs_dib_cmdflags_syr,
+          {"SYR", "sbccs.cmdflags.syr", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_cmdflags_syr), 0x04, "", HFILL}},
+        { &hf_sbccs_dib_cmdflags_rex,
+          {"REX", "sbccs.cmdflags.rex", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_cmdflags_rex), 0x02, "", HFILL}},
+        { &hf_sbccs_dib_cmdflags_sss,
+          {"SSS", "sbccs.cmdflags.sss", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_cmdflags_sss), 0x01, "", HFILL}},
+        { &hf_sbccs_dib_statusflags,
+          {"Status Flags", "sbccs.statusflags", FT_UINT8, BASE_HEX,
+           NULL, 0, "", HFILL}},
+        { &hf_sbccs_dib_statusflags_ffc,
+          {"FFC", "sbccs.statusflags.ffc", FT_UINT8, BASE_HEX,
+           VALS(status_ffc_val), 0xE0, "", HFILL}},
+        { &hf_sbccs_dib_statusflags_ci,
+          {"CI", "sbccs.statusflags.ci", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_statusflags_ci), 0x10, "", HFILL}},
+        { &hf_sbccs_dib_statusflags_cr,
+          {"CR", "sbccs.statusflags.cr", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_statusflags_cr), 0x04, "", HFILL}},
+        { &hf_sbccs_dib_statusflags_lri,
+          {"LRI", "sbccs.statusflags.lri", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_statusflags_lri), 0x02, "", HFILL}},
+        { &hf_sbccs_dib_statusflags_rv,
+          {"RV", "sbccs.statusflags.rv", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_statusflags_rv), 0x01, "", HFILL}},
+        { &hf_sbccs_dib_status_attention,
+          {"Attention", "sbccs.status.attention", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_status_attention), 0x80, "", HFILL}},
+        { &hf_sbccs_dib_status_modifier,
+          {"Status Modifier", "sbccs.status.modifier", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_status_modifier), 0x40, "", HFILL}},
+        { &hf_sbccs_dib_status_cue,
+          {"Control-Unit End", "sbccs.status.cue", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_status_cue), 0x20, "", HFILL}},
+        { &hf_sbccs_dib_status_busy,
+          {"Busy", "sbccs.status.busy", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_status_busy), 0x10, "", HFILL}},
+        { &hf_sbccs_dib_status_channelend,
+          {"Channel End", "sbccs.status.channel_end", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_status_channelend), 0x08, "", HFILL}},
+        { &hf_sbccs_dib_status_deviceend,
+          {"Device End", "sbccs.status.device_end", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_status_deviceend), 0x04, "", HFILL}},
+        { &hf_sbccs_dib_status_unit_check,
+          {"Unit Check", "sbccs.status.unit_check", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_status_unitcheck), 0x02, "", HFILL}},
+        { &hf_sbccs_dib_status_unit_exception,
+          {"Unit Exception", "sbccs.status.unitexception", FT_BOOLEAN, 8,
+           TFS(&tfs_sbccs_status_unitexception), 0x01, "", HFILL}},
     };
 
 
@@ -1077,6 +1262,9 @@ proto_register_fcsbccs (void)
         &ett_sbccs_iui,
         &ett_sbccs_dhflags,
         &ett_sbccs_dib_ccw_flags,
+        &ett_sbccs_dib_cmdflags,
+        &ett_sbccs_dib_statusflags,
+        &ett_sbccs_dib_status,
     };
 
     /* Register the protocol name and description */
