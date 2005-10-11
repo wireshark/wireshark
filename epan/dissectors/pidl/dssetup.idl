@@ -1,0 +1,102 @@
+#include "idl_types.h"
+
+/*
+  dssetup interface definition
+*/
+
+[
+	uuid("3919286a-b10c-11d0-9ba8-00c04fd92ef5"),
+	version(0.0),
+	endpoint("ncacn_np:[\\pipe\\lsarpc]", "ncacn_np:[\\pipe\\lsass]", "ncacn_ip_tcp:", "ncalrpc:"),
+	pointer_default(unique),
+	pointer_default_top(unique),
+	helpstring("Active Directory Setup")
+] interface dssetup
+{
+	/**********************************************/
+	/* Function 0x00                              */
+
+	typedef enum {
+		DS_ROLE_STANDALONE_WORKSTATION = 0,
+		DS_ROLE_MEMBER_WORKSTATION     = 1,
+		DS_ROLE_STANDALONE_SERVER      = 2,
+		DS_ROLE_MEMBER_SERVER          = 3,
+		DS_ROLE_BACKUP_DC              = 4,
+		DS_ROLE_PRIMARY_DC             = 5
+	} dssetup_DsRole;
+
+	typedef [bitmap32bit] bitmap {
+		DS_ROLE_PRIMARY_DS_RUNNING		= 0x00000001,
+		DS_ROLE_PRIMARY_DS_MIXED_MODE		= 0x00000002,
+		DS_ROLE_UPGRADE_IN_PROGRESS		= 0x00000004,
+		DS_ROLE_PRIMARY_DOMAIN_GUID_PRESENT	= 0x01000000
+	} dssetup_DsRoleFlags;
+
+	typedef struct {
+		dssetup_DsRole		role;
+		dssetup_DsRoleFlags	flags;
+		unistr			*domain;
+		unistr			*dns_domain;
+		unistr			*forest;
+		GUID			domain_guid;
+	} dssetup_DsRolePrimaryDomInfoBasic;
+
+	typedef [v1_enum] enum {
+		DS_ROLE_NOT_UPGRADING = 0,
+		DS_ROLE_UPGRADING     = 1
+	} dssetup_DsUpgrade;
+
+	typedef enum {
+		DS_ROLE_PREVIOUS_UNKNOWN = 0,
+		DS_ROLE_PREVIOUS_PRIMARY = 1,
+		DS_ROLE_PREVIOUS_BACKUP  = 2
+	} dssetup_DsPrevious;
+
+	typedef struct {
+		dssetup_DsUpgrade	upgrading;
+		dssetup_DsPrevious	previous_role;
+	} dssetup_DsRoleUpgradeStatus;
+
+	typedef enum {
+		DS_ROLE_OP_IDLE         = 0,
+		DS_ROLE_OP_ACTIVE       = 1,
+		DS_ROLE_OP_NEEDS_REBOOT = 2
+	} dssetup_DsRoleOp;
+
+	typedef struct {
+		dssetup_DsRoleOp status;
+	} dssetup_DsRoleOpStatus;
+
+	typedef enum {
+		DS_ROLE_BASIC_INFORMATION	= 1,
+		DS_ROLE_UPGRADE_STATUS		= 2,
+		DS_ROLE_OP_STATUS		= 3
+	} dssetup_DsRoleInfoLevel;
+
+	typedef [switch_type(dssetup_DsRoleInfoLevel)] union {
+		[case(DS_ROLE_BASIC_INFORMATION)] dssetup_DsRolePrimaryDomInfoBasic	basic;
+		[case(DS_ROLE_UPGRADE_STATUS)]    dssetup_DsRoleUpgradeStatus    	upgrade;
+		[case(DS_ROLE_OP_STATUS)]         dssetup_DsRoleOpStatus		opstatus;
+	} dssetup_DsRoleInfo;
+
+	WERROR dssetup_DsRoleGetPrimaryDomainInformation(
+		[in] dssetup_DsRoleInfoLevel level,
+		[out,switch_is(level)] dssetup_DsRoleInfo *info
+		);
+
+	/*
+	  w2k3 has removed all the calls below from their implementation.
+	  These stubs are left here only as a way of documenting the names
+	  of the calls in case they ever turn up on the wire.
+	*/
+	WERROR dssetup_DsRoleDnsNameToFlatName();
+	WERROR dssetup_DsRoleDcAsDc();
+	WERROR dssetup_DsRoleDcAsReplica();
+	WERROR dssetup_DsRoleDemoteDc();
+	WERROR dssetup_DsRoleGetDcOperationProgress();
+	WERROR dssetup_DsRoleGetDcOperationResults();
+	WERROR dssetup_DsRoleCancel();
+	WERROR dssetup_DsRoleServerSaveStateForUpgrade();
+	WERROR dssetup_DsRoleUpgradeDownlevelServer();
+	WERROR dssetup_DsRoleAbortDownlevelServerUpgrade();
+}
