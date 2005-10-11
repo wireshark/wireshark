@@ -244,6 +244,7 @@ static const value_string bgpattr_nlri_safi[] = {
     { SAFNUM_UNIMULC, "Unicast+Multicast" },
     { SAFNUM_MPLS_LABEL, "Labeled Unicast"},
     { SAFNUM_TUNNEL, "Tunnel"},
+    { SAFNUM_VPLS, "VPLS"},
     { SAFNUM_LAB_VPNUNICAST, "Labeled VPN Unicast" },        /* draft-rosen-rfc2547bis-03 */
     { SAFNUM_LAB_VPNMULCAST, "Labeled VPN Multicast" },
     { SAFNUM_LAB_VPNUNIMULC, "Labeled VPN Unicast+Multicast" },
@@ -611,10 +612,12 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf,
                 }
                 break;
        case AFNUM_L2VPN:
+       case AFNUM_L2VPN_OLD:
                 switch (safi) {
                         case SAFNUM_LAB_VPNUNICAST: /* only labeles prefixes do make sense */
                         case SAFNUM_LAB_VPNMULCAST:
                         case SAFNUM_LAB_VPNUNIMULC:
+                        case SAFNUM_VPLS:
                             length = 4; /* the next-hop is simply an ipv4 addr */
                             ip4addr = tvb_get_ipv4(tvb, offset + 0);
                             strptr += g_snprintf(strptr, buf_len-(strptr-buf), "IPv4=%s",
@@ -1008,11 +1011,13 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
         break;
 
     case AFNUM_L2VPN:
+    case AFNUM_L2VPN_OLD:
         switch (safi) {
 
         case SAFNUM_LAB_VPNUNICAST:
         case SAFNUM_LAB_VPNMULCAST:
         case SAFNUM_LAB_VPNUNIMULC:
+        case SAFNUM_VPLS:
             plen =  tvb_get_ntohs(tvb,offset);
             rd_type=tvb_get_ntohs(tvb,offset+2);
             ce_id=tvb_get_ntohs(tvb,offset+10);
@@ -2078,29 +2083,39 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 			"Next hop network address (%d %s)",
 			nexthop_len, plurality(nexthop_len, "byte", "bytes"));
 		subtree3 = proto_item_add_subtree(ti, ett_bgp_mp_nhna);
-                if (af != AFNUM_INET && af != AFNUM_INET6 && af != AFNUM_L2VPN) {
-                    /*
-                     * The addresses don't contain lengths, so if we
-                     * don't understand the address family type, we
-                     * cannot parse the subsequent addresses as we
-                     * don't know how long they are.
-                     */
+
+                /*
+                 * The addresses don't contain lengths, so if we
+                 * don't understand the address family type, we
+                 * cannot parse the subsequent addresses as we
+                 * don't know how long they are.
+                 */
+                switch (af) {
+                default:
 		    proto_tree_add_text(subtree3, tvb, o + i + aoff + 4,
 		    	nexthop_len, "Unknown Address Family");
-                } else {
+                    break;
+
+                case AFNUM_INET:
+                case AFNUM_INET6:
+                case AFNUM_L2VPN:
+                case AFNUM_L2VPN_OLD:
+
 		    j = 0;
 		    while (j < nexthop_len) {
 			advance = mp_addr_to_str(af, saf, tvb, o + i + aoff + 4 + j,
-				junk_gbuf, MAX_STR_LEN) ;
+                                junk_gbuf, MAX_STR_LEN) ;
 			if (advance == 0) /* catch if this is a unknown AFI type*/
-				break;
+                                break;
 			if (j + advance > nexthop_len)
 				break;
 			proto_tree_add_text(subtree3, tvb,o + i + aoff + 4 + j,
 				advance, "Next hop: %s (%u)", junk_gbuf, advance);
 			j += advance;
 		    }
-		}
+                    break;
+                }
+
                 tlen -= nexthop_len + 4;
                 aoff += nexthop_len + 4 ;
 

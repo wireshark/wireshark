@@ -201,6 +201,7 @@ struct bgp_attr {
 #define SAFNUM_UNIMULC  3
 #define SAFNUM_MPLS_LABEL 4     /* rfc3107 */
 #define SAFNUM_TUNNEL	64	/* draft-nalawade-kapoor-tunnel-safi-02.txt */
+#define SAFNUM_VPLS     65
 #define SAFNUM_LAB_VPNUNICAST  128     /* Draft-rosen-rfc2547bis-03 */
 #define SAFNUM_LAB_VPNMULCAST  129
 #define SAFNUM_LAB_VPNUNIMULC  130
