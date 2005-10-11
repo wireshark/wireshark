@@ -1033,7 +1033,7 @@ static const ip_tcp_opt ipcp_iphc_subopts[] = {
 		NULL
 	},
 	{
-		IPCP_IPHC_CRTP,
+		IPCP_IPHC_ECRTP,
 		"Enhanced RTP compression (RFC3545)",
 		NULL,
 		FIXED_LENGTH,
@@ -1420,7 +1420,7 @@ static const ip_tcp_opt ipv6cp_opts[] = {
 	{
 		CI_COMPRESSTYPE,
 		"IPv6 compression",
-		&ett_ipcp_compress_opt,
+		&ett_ipv6cp_compress_opt,
 		VARIABLE_LENGTH,
 		4,
 		dissect_ipcp_compress_opt
