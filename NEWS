@@ -1,5 +1,34 @@
 $Id$
 
+== October 14, 2005
+
+Ethereal 0.10.13 has been released.
+
+An aggressive testing program has turned up several more security issues:
+
+
+Please see the following advisory for more information:
+  
+    http://www.ethereal.com/appnotes/enpa-sa-00021.html
+    
+Everyone is encouraged to upgrade.
+
+
+New and updated features
+
+
+New protocol support
+
+
+
+Updated protocol support
+
+
+
+New and updated capture file support
+
+
+
 == July 26, 2005
 
 Ethereal 0.10.12 has been released.
