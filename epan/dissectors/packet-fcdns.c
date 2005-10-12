@@ -69,7 +69,6 @@ static int hf_fcdns_vendor          = -1;
 static int hf_fcdns_req_portid      = -1;
 static int hf_fcdns_rply_pname      = -1;
 static int hf_fcdns_rply_nname      = -1;
-static int hf_fcdns_rply_cos        = -1;
 static int hf_fcdns_rply_gft        = -1;
 static int hf_fcdns_rply_snamelen   = -1;
 static int hf_fcdns_rply_sname      = -1;
@@ -112,10 +111,17 @@ static int hf_fcdns_sw2_objfmt      = -1;
 static int hf_fcdns_num_fc4desc     = -1;
 static int hf_fcdns_rply_ownerid    = -1;
 static int hf_fcdns_maxres_size = -1;
-
+static int hf_fcdns_reply_cos = -1;
+static int hf_fcdns_cos_f = -1;
+static int hf_fcdns_cos_1 = -1;
+static int hf_fcdns_cos_2 = -1;
+static int hf_fcdns_cos_3 = -1;
+static int hf_fcdns_cos_4 = -1;
+static int hf_fcdns_cos_6 = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_fcdns = -1;
+static gint ett_cos_flags = -1;
 
 typedef struct _fcdns_conv_key {
     guint32 conv_idx;
@@ -164,50 +170,83 @@ fcdns_init_protocol(void)
 	fcdns_req_hash = g_hash_table_new(fcdns_hash, fcdns_equal);
 }
 
-static gchar *
-fccos_to_str (tvbuff_t *tvb, int offset, gchar *cosstr)
+
+static const true_false_string tfs_fcdns_cos_f = {
+	"F is set",
+	"f is NOT set"
+};
+static const true_false_string tfs_fcdns_cos_1 = {
+	"1 is set",
+	"1 is NOT set"
+};
+static const true_false_string tfs_fcdns_cos_2 = {
+	"2 is set",
+	"2 is NOT set"
+};
+static const true_false_string tfs_fcdns_cos_3 = {
+	"3 is set",
+	"3 is NOT set"
+};
+static const true_false_string tfs_fcdns_cos_4 = {
+	"4 is set",
+	"4 is NOT set"
+};
+static const true_false_string tfs_fcdns_cos_6 = {
+	"6 is set",
+	"6 is NOT set"
+};
+static void
+dissect_cos_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int hfindex)
 {
-    int stroff = 0,
-        cos = 0;
-    
-    if (cosstr == NULL)
-        return NULL;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	guint32 flags;
 
-    cos = tvb_get_ntohl (tvb, offset);
+	flags = tvb_get_ntohl (tvb, offset);
+	if(parent_tree){
+		item=proto_tree_add_uint(parent_tree, hfindex, 
+				tvb, offset, 1, flags);
+		tree=proto_item_add_subtree(item, ett_cos_flags);
+	}
 
-    cosstr[0] = '\0';
 
-    if (cos & 0x1) {
-        strcpy (cosstr, "F, ");
-        stroff += 3;
-    }
-    
-    if (cos & 0x2) {
-        strcpy (&cosstr[stroff], "1, ");
-        stroff += 3;
-    }
+	proto_tree_add_boolean(tree, hf_fcdns_cos_f, tvb, offset, 4, flags);
+	if (flags&0x01){
+		proto_item_append_text(item, "  F");
+	}
+	flags&=(~( 0x01 ));
 
-    if (cos & 0x4) {
-        strcpy (&cosstr[stroff], "2, ");
-        stroff += 3;
-    }
+	proto_tree_add_boolean(tree, hf_fcdns_cos_1, tvb, offset, 4, flags);
+	if (flags&0x02){
+		proto_item_append_text(item, "  1");
+	}
+	flags&=(~( 0x02 ));
 
-    if (cos & 0x8) {
-        strcpy (&cosstr[stroff], "3, ");
-        stroff += 3;
-    }
+	proto_tree_add_boolean(tree, hf_fcdns_cos_2, tvb, offset, 4, flags);
+	if (flags&0x04){
+		proto_item_append_text(item, "  2");
+	}
+	flags&=(~( 0x04 ));
 
-    if (cos & 0x10) {
-        strcpy (&cosstr[stroff], "4, ");
-        stroff += 3;
-    }
+	proto_tree_add_boolean(tree, hf_fcdns_cos_3, tvb, offset, 4, flags);
+	if (flags&0x08){
+		proto_item_append_text(item, "  3");
+	}
+	flags&=(~( 0x08 ));
 
-    if (cos & 0x40) {
-        strcpy (&cosstr[stroff], "6");
-    }
+	proto_tree_add_boolean(tree, hf_fcdns_cos_4, tvb, offset, 4, flags);
+	if (flags&0x10){
+		proto_item_append_text(item, "  4");
+	}
+	flags&=(~( 0x10 ));
 
-    return (cosstr);
+	proto_tree_add_boolean(tree, hf_fcdns_cos_6, tvb, offset, 4, flags);
+	if (flags&0x40){
+		proto_item_append_text(item, "  6");
+	}
+	flags&=(~( 0x40 ));
 }
+
 
 /* The feature routines just decode FCP's FC-4 features field */
 static gchar *
@@ -384,9 +423,7 @@ dissect_fcdns_ganxt (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
                                      offset+540, 16, 0);
             }
             if (tvb_offset_exists (tvb, 576)) {
-                proto_tree_add_string (req_tree, hf_fcdns_rply_cos, tvb, offset+556,
-                                       4,
-                                       fccos_to_str (tvb, offset+556, str));
+		dissect_cos_flags(req_tree, tvb, offset+556, hf_fcdns_reply_cos);
             }
             if (tvb_offset_exists (tvb, 608)) {
                 proto_tree_add_string (req_tree, hf_fcdns_rply_gft, tvb, offset+560,
@@ -452,16 +489,13 @@ static void
 dissect_fcdns_gcsid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    gchar cosstr[64];
 
     if (req_tree) {
         if (isreq) {
             dissect_fcdns_req_portid (tvb, req_tree, offset);
         }
         else {
-            proto_tree_add_string (req_tree, hf_fcdns_rply_cos, tvb,
-                                   offset, 4,
-                                   fccos_to_str (tvb, offset, cosstr));
+            dissect_cos_flags(req_tree, tvb, offset, hf_fcdns_reply_cos);
         }
     }
 }
@@ -947,16 +981,13 @@ static void
 dissect_fcdns_rcsid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    gchar cos[64];
 
     if (req_tree && isreq) {
         proto_tree_add_string (req_tree, hf_fcdns_req_portid, tvb,
                                offset+1, 3,
                                fc_to_str (tvb_get_ptr (tvb, offset+1,
                                                        3)));
-        proto_tree_add_string (req_tree, hf_fcdns_req_cos, tvb,
-                               offset+4, 4,
-                               fccos_to_str (tvb, offset+4, cos));
+	dissect_cos_flags(req_tree, tvb, offset+4, hf_fcdns_req_cos);
     }
 }
 
@@ -1228,8 +1259,7 @@ dissect_fcdns_swils_entries (tvbuff_t *tvb, proto_tree *tree, int offset)
             proto_tree_add_item (tree, hf_fcdns_rply_ipa, tvb, offset, 8, 0);
             proto_tree_add_item (tree, hf_fcdns_rply_ipnode, tvb, offset+8, 16,
                                  0);
-            proto_tree_add_string (tree, hf_fcdns_rply_cos, tvb, offset+24, 4,
-                                   fccos_to_str (tvb, offset+24, str));
+            dissect_cos_flags(tree, tvb, offset+24, hf_fcdns_reply_cos);
             proto_tree_add_string (tree, hf_fcdns_rply_gft, tvb, offset+28,
                                    32,
                                    fc4type_to_str (tvb, offset+28, str));
@@ -1755,9 +1785,6 @@ proto_register_fcdns (void)
         { &hf_fcdns_rply_nname,
           {"Node Name", "fcdns.rply.nname", FT_STRING, BASE_HEX, NULL, 0x0, "",
            HFILL}},
-        { &hf_fcdns_rply_cos,
-          {"Class of Service Supported", "fcdns.rply.cos", FT_STRING, BASE_HEX,
-           NULL, 0x0, "", HFILL}},
         { &hf_fcdns_rply_gft,
           {"FC-4 Types Supported", "fcdns.rply.fc4type", FT_STRING, BASE_HEX,
            NULL, 0x0, "", HFILL}},
@@ -1805,9 +1832,6 @@ proto_register_fcdns (void)
            "", HFILL}},
         { &hf_fcdns_req_fc4feature,
           {"FC-4 Feature Bits", "fcdns.req.fc4feature", FT_STRING,
-           BASE_HEX, NULL, 0x0, "", HFILL}},
-        { &hf_fcdns_req_cos,
-          {"Class of Service Supported", "fcdns.req.class", FT_STRING,
            BASE_HEX, NULL, 0x0, "", HFILL}},
         { &hf_fcdns_req_fc4types,
           {"FC-4 TYPEs Supported", "fcdns.req.fc4types", FT_STRING,
@@ -1890,10 +1914,35 @@ proto_register_fcdns (void)
         { &hf_fcdns_maxres_size,
           {"Maximum/Residual Size", "fcdns.maxres_size", FT_UINT16, BASE_DEC,
            NULL, 0x0, "", HFILL}},
+        { &hf_fcdns_reply_cos,
+          {"Class of Service Supported", "fcdns.reply.cos", FT_UINT32, BASE_HEX,
+           NULL, 0x0, "", HFILL}},
+        { &hf_fcdns_req_cos,
+          {"Requested Class of Service", "fcdns.req.class", FT_UINT32, BASE_HEX, 
+           NULL, 0x0, "", HFILL}},
+        { &hf_fcdns_cos_f,
+          {"F", "fcdns.cos.f", FT_BOOLEAN, 32,
+           TFS(&tfs_fcdns_cos_f), 0x01, "", HFILL}},
+        { &hf_fcdns_cos_1,
+          {"1", "fcdns.cos.1", FT_BOOLEAN, 32,
+           TFS(&tfs_fcdns_cos_1), 0x02, "", HFILL}},
+        { &hf_fcdns_cos_2,
+          {"2", "fcdns.cos.2", FT_BOOLEAN, 32,
+           TFS(&tfs_fcdns_cos_2), 0x04, "", HFILL}},
+        { &hf_fcdns_cos_3,
+          {"3", "fcdns.cos.3", FT_BOOLEAN, 32,
+           TFS(&tfs_fcdns_cos_3), 0x08, "", HFILL}},
+        { &hf_fcdns_cos_4,
+          {"4", "fcdns.cos.4", FT_BOOLEAN, 32,
+           TFS(&tfs_fcdns_cos_4), 0x10, "", HFILL}},
+        { &hf_fcdns_cos_6,
+          {"6", "fcdns.cos.6", FT_BOOLEAN, 32,
+           TFS(&tfs_fcdns_cos_6), 0x40, "", HFILL}},
     };
 
     static gint *ett[] = {
         &ett_fcdns,
+        &ett_cos_flags,
     };
     
     /* Register the protocol name and description */
