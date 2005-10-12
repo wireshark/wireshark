@@ -8,7 +8,7 @@ dnl Check for CPU / vendor / OS
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE(ethereal, 0.10.12)
+AM_INIT_AUTOMAKE(ethereal, 0.10.13)
 
 AM_DISABLE_STATIC
 
@@ -1238,6 +1238,7 @@ AC_OUTPUT(
   plugins/enttec/Makefile
   plugins/giop/Makefile
   plugins/gryphon/Makefile
+  plugins/h223/Makefile
   plugins/irda/Makefile
   plugins/lwres/Makefile
   plugins/mate/Makefile
