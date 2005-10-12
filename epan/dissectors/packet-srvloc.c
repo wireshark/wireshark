@@ -50,6 +50,7 @@
 #include <epan/prefs.h>
 #include "packet-tcp.h"
 #include <epan/reassemble.h>
+#include <epan/emem.h>
 
 static gboolean srvloc_desegment = TRUE;
 static int proto_srvloc = -1;
@@ -425,15 +426,33 @@ add_v1_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
         }
 }
 
+/*
+ * XXX - is this trying to guess the byte order?
+ *
+ *	http://www.iana.org/assignments/character-sets
+ *
+ * says of ISO-10646-UCS-2, which has the code 1000 (this routine is used
+ * with CHARSET_ISO_10646_UCS_2, which is #defined to be 1000):
+ *
+ *	this needs to specify network byte order: the standard
+ *	does not specify (it is a 16-bit integer space)
+ *
+ * Does that mean that in SRVLOC, ISO-10646-UCS-2 is always big-endian?
+ * If so, can we just use "tvb_get_ephemeral_faked_unicode()" and be
+ * done with it?
+ *
+ * XXX - this is also used with CHARSET_UTF_8.  Is that a cut-and-pasteo?
+ */
 static guint8*
 unicode_to_bytes(tvbuff_t *tvb, int offset, int length, gboolean endianness)
 {
   const char	*ascii_text = tvb_get_ptr(tvb, offset, length);
   int	i, j=0;
   guint8	c_char, c_char1;
-  static guint8 byte_array[255];
+  guint8	*byte_array;
 
   if (endianness) {
+      byte_array = ep_alloc(length*2 + 1);
       for (i = length; i > 0; i--) {
         c_char = ascii_text[i];
         if (c_char != 0) {
@@ -452,6 +471,7 @@ unicode_to_bytes(tvbuff_t *tvb, int offset, int length, gboolean endianness)
   }
   else
   {
+      byte_array = ep_alloc(length + 1);
       for (i = 0; i < length; i++) {
         c_char = ascii_text[i];
         if (c_char != 0) {
