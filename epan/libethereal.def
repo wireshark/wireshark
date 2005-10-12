@@ -199,7 +199,9 @@ ep_alloc0
 ep_strdup
 se_strdup
 ep_strdup_printf
+ep_strdup_vprintf
 se_strdup_printf
+se_strdup_vprintf
 ep_strndup
 ep_strsplit
 ep_memdup
@@ -353,6 +355,7 @@ isup_message_type_value_acro    DATA
 is_big_endian
 is_tpkt
 list_stat_cmd_args
+llc_add_oui
 LocationRejectReason_vals       DATA
 match_strval
 match_strval_idx

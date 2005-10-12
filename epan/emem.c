@@ -240,10 +240,10 @@ gchar* ep_strdup(const gchar* src) {
 
 gchar* ep_strndup(const gchar* src, size_t len) {
 	gchar* dst = ep_alloc(len+1);
-    guint i;
+	guint i;
     
 	for (i = 0; src[i] && i < len; i++)
-        dst[i] = src[i];
+		dst[i] = src[i];
     
 	dst[i] = '\0';
 	
@@ -254,17 +254,28 @@ guint8* ep_memdup(const guint8* src, size_t len) {
 	return memcpy(ep_alloc(len), src, len);
 }
 
+gchar* ep_strdup_vprintf(const gchar* fmt, va_list ap) {
+	va_list ap2;
+	guint len;
+	gchar* dst;
+
+	G_VA_COPY(ap2, ap);
+
+	len = g_printf_string_upper_bound(fmt, ap);
+
+	dst = ep_alloc(len+1);
+	g_vsnprintf (dst, len, fmt, ap2);
+	va_end(ap2);
+
+	return dst;
+}
+
 gchar* ep_strdup_printf(const gchar* fmt, ...) {
 	va_list ap;
-	guint len;
 	gchar* dst;
 	
 	va_start(ap,fmt);
-	len = g_printf_string_upper_bound (fmt, ap);
-	
-	dst = ep_alloc(len+1);
-	g_vsnprintf (dst, len, fmt, ap);
-	
+	dst = ep_strdup_vprintf(fmt, ap);
 	va_end(ap);
 	return dst;
 }
@@ -363,10 +374,10 @@ gchar* se_strdup(const gchar* src) {
 
 gchar* se_strndup(const gchar* src, size_t len) {
 	gchar* dst = se_alloc(len+1);
-    guint i;
+	guint i;
     
 	for (i = 0; src[i] && i < len; i++)
-        dst[i] = src[i];
+		dst[i] = src[i];
     
 	dst[i] = '\0';
 	
@@ -377,17 +388,28 @@ guint8* se_memdup(const guint8* src, size_t len) {
 	return memcpy(se_alloc(len), src, len);
 }
 
+gchar* se_strdup_vprintf(const gchar* fmt, va_list ap) {
+	va_list ap2;
+	guint len;
+	gchar* dst;
+
+	G_VA_COPY(ap2, ap);
+
+	len = g_printf_string_upper_bound(fmt, ap);
+
+	dst = se_alloc(len+1);
+	g_vsnprintf (dst, len, fmt, ap2);
+	va_end(ap2);
+
+	return dst;
+}
+
 gchar* se_strdup_printf(const gchar* fmt, ...) {
 	va_list ap;
-	guint len;
 	gchar* dst;
 	
 	va_start(ap,fmt);
-	len = g_printf_string_upper_bound (fmt, ap);
-	
-	dst = se_alloc(len+1);
-	g_vsnprintf (dst, len, fmt, ap);
-	
+	dst = se_strdup_vprintf(fmt, ap);
 	va_end(ap);
 	return dst;
 }

@@ -61,7 +61,8 @@ gchar* ep_strndup(const gchar* src, size_t len);
 /* Duplicate a buffer with a packet lifetime scope */
 guint8* ep_memdup(const guint8* src, size_t len);
 
-/* Create a formated string with a packet lifetime scope */
+/* Create a formatted string with a packet lifetime scope */
+gchar* ep_strdup_vprintf(const gchar* fmt, va_list ap);
 gchar* ep_strdup_printf(const gchar* fmt, ...)
     GNUC_FORMAT_CHECK(printf, 1, 2);
 
@@ -142,7 +143,8 @@ gchar* se_strndup(const gchar* src, size_t len);
 /* Duplicate a buffer with a capture lifetime scope */
 guint8* se_memdup(const guint8* src, size_t len);
 
-/* Create a formated string with a capture lifetime scope */
+/* Create a formatted string with a capture lifetime scope */
+gchar* se_strdup_vprintf(const gchar* fmt, va_list ap);
 gchar* se_strdup_printf(const gchar* fmt, ...)
     GNUC_FORMAT_CHECK(printf, 1, 2);
 
