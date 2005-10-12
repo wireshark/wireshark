@@ -37,6 +37,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include <epan/emem.h>
 #include "packet-kerberos.h"
 
 static int proto_telnet = -1;
@@ -798,7 +799,7 @@ static void
 dissect_authentication_subopt(packet_info *pinfo, const char *optname _U_, tvbuff_t *tvb, int offset, int len, proto_tree *tree)
 {
 	guint8 acmd;
-	char name[256];
+	char *name;
 
 /* XXX here we should really split it up in a conversation struct keeping
        track of what method we actually use and not just assume it is always
@@ -824,10 +825,11 @@ dissect_authentication_subopt(packet_info *pinfo, const char *optname _U_, tvbuf
 		break;
 	case TN_AC_NAME:
 		if(len<255){
+			name=ep_alloc(256);
 			tvb_memcpy(tvb, name, offset, len);
 			name[len]=0;
 		} else {
-			strcpy(name, "<...name too long...>");
+			name="<...name too long...>";
 		}
 		proto_tree_add_string(tree, hf_telnet_auth_name, tvb, offset, len, name);
 		break;
