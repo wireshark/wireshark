@@ -139,6 +139,7 @@ typedef struct _e_prefs {
   layout_pane_content_e gui_layout_content_1;
   layout_pane_content_e gui_layout_content_2;
   layout_pane_content_e gui_layout_content_3;
+  gint     console_log_level;
   guint32  name_resolve;
   gint     name_resolve_concurrency;
   gchar   *capture_device;

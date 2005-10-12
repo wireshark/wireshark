@@ -1034,6 +1034,8 @@ init_prefs(void) {
   prefs.gui_layout_content_1       = layout_pane_content_plist;
   prefs.gui_layout_content_2       = layout_pane_content_pdetails;
   prefs.gui_layout_content_3       = layout_pane_content_pbytes;
+  prefs.console_log_level          =
+      G_LOG_LEVEL_WARNING | G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_ERROR;
 
 /* set the default values for the capture dialog box */
   prefs.capture_device           = NULL;
@@ -1388,6 +1390,7 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_LAYOUT_CONTENT_1         "gui.layout_content_1"
 #define PRS_GUI_LAYOUT_CONTENT_2         "gui.layout_content_2"
 #define PRS_GUI_LAYOUT_CONTENT_3         "gui.layout_content_3"
+#define PRS_CONSOLE_LOG_LEVEL		 "console.log.level"
 
 /*
  * This applies to more than just captures, so it's not "capture.name_resolve";
@@ -1740,7 +1743,9 @@ set_pref(gchar *pref_name, gchar *value)
   } else if (strcmp(pref_name, PRS_GUI_LAYOUT_CONTENT_3) == 0) {
     prefs.gui_layout_content_3 =
 	find_index_from_string_array(value, gui_layout_content_text, 0);
-
+  } else if (strcmp(pref_name, PRS_CONSOLE_LOG_LEVEL) == 0) {
+    prefs.console_log_level = strtoul(value, NULL, 10);
+        
 /* handle the capture options */
   } else if (strcmp(pref_name, PRS_CAP_DEVICE) == 0) {
     if (prefs.capture_device != NULL)
@@ -2422,6 +2427,19 @@ write_prefs(char **pf_path_return)
     (prefs.st_server_bg.green * 255 / 65535),
     (prefs.st_server_bg.blue * 255 / 65535));
 
+  fprintf(pf, "\n######## Console: logging level ########\n");
+  fprintf(pf, "# (debugging only, not in the Preferences dialog)\n");
+  fprintf(pf, "# A bitmask of glib log levels:\n"
+          "# G_LOG_LEVEL_ERROR    = 4\n"
+          "# G_LOG_LEVEL_CRITICAL = 8\n"
+          "# G_LOG_LEVEL_WARNING  = 16\n"
+          "# G_LOG_LEVEL_MESSAGE  = 32\n"
+          "# G_LOG_LEVEL_INFO     = 64\n"
+          "# G_LOG_LEVEL_DEBUG    = 128\n");
+
+  fprintf(pf, PRS_CONSOLE_LOG_LEVEL ": %u\n",
+          prefs.console_log_level);
+
   fprintf(pf, "\n####### Capture ########\n");
   
   if (prefs.capture_device != NULL) {
@@ -2554,6 +2572,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_geometry_save_maximized = src->gui_geometry_save_maximized;
   dest->gui_webbrowser = g_strdup(src->gui_webbrowser);
   dest->gui_window_title = g_strdup(src->gui_window_title);
+  dest->console_log_level = src->console_log_level;
 /*  values for the capture dialog box */
   dest->capture_device = g_strdup(src->capture_device);
   dest->capture_devices_descr = g_strdup(src->capture_devices_descr);
