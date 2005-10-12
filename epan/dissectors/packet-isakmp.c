@@ -56,8 +56,33 @@ static gint ett_isakmp = -1;
 static gint ett_isakmp_flags = -1;
 static gint ett_isakmp_payload = -1;
 
+/* IKE port number assigned by IANA */
 #define UDP_PORT_ISAKMP	500
 #define TCP_PORT_ISAKMP 500
+
+/*
+ * Identifier Type 
+ *   RFC2407 for IKEv1
+ *   draft-ietf-ipsec-ikev2-17.txt for IKEv2
+ */
+#define IKE_ID_IPV4_ADDR		1
+#define IKE_ID_FQDN			2
+#define IKE_ID_USER_FQDN		3
+#define IKE_ID_IPV4_ADDR_SUBNET		4
+#define IKE_ID_IPV6_ADDR		5
+#define IKE_ID_IPV6_ADDR_SUBNET		6
+#define IKE_ID_IPV4_ADDR_RANGE		7
+#define IKE_ID_IPV6_ADDR_RANGE		8
+#define IKE_ID_DER_ASN1_DN		9
+#define IKE_ID_DER_ASN1_GN		10
+#define IKE_ID_KEY_ID			11
+
+/*
+ * Traffic Selector Type
+ *   Not in use for IKEv1
+ */
+#define IKEV2_TS_IPV4_ADDR_RANGE	7
+#define IKEV2_TS_IPV6_ADDR_RANGE	8
 
 static const value_string vs_proto[] = {
   { 0,	"RESERVED" },
@@ -1114,38 +1139,42 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   offset += 2;
   length -= 2;
 
+  /*
+   * It shows strings of all types though some of types are not
+   * supported in IKEv2 specification actually.
+   */
   switch (id_type) {
-    case 1:	/* ID_IPV4_ADDR */
+    case IKE_ID_IPV4_ADDR:
       proto_tree_add_text(tree, tvb, offset, length,
 			  "Identification data: %s",
 			  ip_to_str(tvb_get_ptr(tvb, offset, 4)));
       break;
-    case 2:	/* ID_FQDN */
-    case 3:	/* ID_USER_FQDN */
+    case IKE_ID_FQDN:
+    case IKE_ID_USER_FQDN:
       proto_tree_add_text(tree, tvb, offset, length,
 			  "Identification data: %.*s", length,
 			  tvb_get_ptr(tvb, offset, length));
       break;
-    case 4:	/* ID_IPV4_ADDR_SUBNET */
-    case 7:	/* ID_IPV4_ADDR_RANGE */
+    case IKE_ID_IPV4_ADDR_SUBNET:
+    case IKE_ID_IPV4_ADDR_RANGE:
       proto_tree_add_text(tree, tvb, offset, length,
 			  "Identification data: %s/%s",
 			  ip_to_str(tvb_get_ptr(tvb, offset, 4)),
 			  ip_to_str(tvb_get_ptr(tvb, offset+4, 4)));
       break;
-    case 5:	/* ID_IPV6_ADDR */
+    case IKE_ID_IPV6_ADDR:
       proto_tree_add_text(tree, tvb, offset, length,
 			  "Identification data: %s",
 			  ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, 16)));
       break;
-    case 6:	/* ID_IPV6_ADDR_SUBNET */
-    case 8:	/* ID_IPV6_ADDR_RANGE */
+    case IKE_ID_IPV6_ADDR_SUBNET:
+    case IKE_ID_IPV6_ADDR_RANGE:
       proto_tree_add_text(tree, tvb, offset, length,
 			  "Identification data: %s/%s",
 			  ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, 16)),
 			  ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset+16, 16)));
       break;
-    case 9:
+    case IKE_ID_DER_ASN1_DN:
       dissect_x509if_Name(FALSE, tvb, offset, pinfo, tree,
 			  hf_ike_certificate_authority);
       break;
@@ -1684,7 +1713,7 @@ dissect_nat_original_address(tvbuff_t *tvb, int offset, int length, proto_tree *
 
   switch (id_type) {
 
-  case 1:	/* ID_IPV4_ADDR */
+  case IKE_ID_IPV4_ADDR:
     if (length == 4) {
       addr_ipv4 = tvb_get_ipv4(tvb, offset);
       proto_tree_add_text(tree, tvb, offset, length,
@@ -1697,7 +1726,7 @@ dissect_nat_original_address(tvbuff_t *tvb, int offset, int length, proto_tree *
     }
     break;
 
-  case 5:	/* ID_IPV6_ADDR */
+  case IKE_ID_IPV6_ADDR:
     if (length == 16) {
       tvb_get_ipv6(tvb, offset, &addr_ipv6);
       proto_tree_add_text(tree, tvb, offset, length,
@@ -1739,10 +1768,10 @@ dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   		      "TS Type: %s (%u)",
   		      v2_tstype2str(tstype), tstype);
     switch (tstype) {
-    case 7:
+    case IKEV2_TS_IPV4_ADDR_RANGE:
       addrlen = 4;
       break;
-    case 8:
+    case IKEV2_TS_IPV6_ADDR_RANGE:
       addrlen = 16;
       break;
     default:
@@ -1788,7 +1817,7 @@ dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     length -= 2;
 
     switch (tstype) {
-    case 7:
+    case IKEV2_TS_IPV4_ADDR_RANGE:
 	proto_tree_add_text(tree, tvb, offset, length,
 			  "Starting Address: %s",
 			  ip_to_str(tvb_get_ptr(tvb, offset, addrlen)));
@@ -1800,7 +1829,7 @@ dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 	offset += addrlen;
 	length -= addrlen;
 	break;
-    case 8:
+    case IKEV2_TS_IPV6_ADDR_RANGE:
 	proto_tree_add_text(tree, tvb, offset, length,
 			  "Starting Address: %s",
 			  ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, addrlen)));
@@ -2297,42 +2326,33 @@ cfgtype2str(int isakmp_version, guint8 type)
 static const char *
 id2str(int isakmp_version, guint8 type)
 {
-  static const value_string vs_v1_ident[] = {
-    { 0,	"RESERVED" },
-    { 1,	"IPV4_ADDR" },
-    { 2,	"FQDN" },
-    { 3,	"USER_FQDN" },
-    { 4,	"IPV4_ADDR_SUBNET" },
-    { 5,	"IPV6_ADDR" },
-    { 6,	"IPV6_ADDR_SUBNET" },
-    { 7,	"IPV4_ADDR_RANGE" },
-    { 8,	"IPV6_ADDR_RANGE" },
-    { 9,	"DER_ASN1_DN" },
-    { 10,	"DER_ASN1_GN" },
-    { 11,	"KEY_ID" },
-    { 0,	NULL },
-  };
-  static const value_string vs_v2_ident[] = {
-    { 0,	"RESERVED" },
-    { 1,	"IPV4_ADDR" },
-    { 2,	"FQDN" },
-    { 3,	"USER_FQDN" },
-    { 4,	"IPV4_ADDR_SUBNET" },
-    { 5,	"IPV6_ADDR" },
-    { 9,	"DER_ASN1_DN" },
-    { 10,	"DER_ASN1_GN" },
-    { 11,	"KEY_ID" },
-    { 0,	NULL },
+  static const value_string vs_ident[] = {
+    { IKE_ID_IPV4_ADDR,		"IPV4_ADDR" },
+    { IKE_ID_FQDN,		"FQDN" },
+    { IKE_ID_USER_FQDN,		"USER_FQDN" },
+    { IKE_ID_IPV4_ADDR_SUBNET,	"IPV4_ADDR_SUBNET" },
+    { IKE_ID_IPV6_ADDR,		"IPV6_ADDR" },
+    { IKE_ID_IPV6_ADDR_SUBNET,	"IPV6_ADDR_SUBNET" },
+    { IKE_ID_IPV4_ADDR_RANGE,	"IPV4_ADDR_RANGE" },
+    { IKE_ID_IPV6_ADDR_RANGE,	"IPV6_ADDR_RANGE" },
+    { IKE_ID_DER_ASN1_DN,	"DER_ASN1_DN" },
+    { IKE_ID_DER_ASN1_GN,	"DER_ASN1_GN" },
+    { IKE_ID_KEY_ID,		"KEY_ID" },
+    { 0,			NULL },
   };
 
-  if (isakmp_version == 1)
-    return val_to_str(type, vs_v1_ident, "UNKNOWN-ID-TYPE");
-  else if (isakmp_version == 2) {
-    if ((type >= 6 && type <=8) || (type >= 12 && type <= 200))
+  if (isakmp_version == 1) {
+    if (type == 0)
+      return "RESERVED";
+    return val_to_str(type, vs_ident, "UNKNOWN-ID-TYPE");
+  } else if (isakmp_version == 2) {
+    if (type == 4 || (type >= 6 && type <=8) || (type >= 12 && type <= 200))
       return "Reserved to IANA";
     if (type >= 201)
       return "Reserved for private use";
-    return val_to_str(type, vs_v2_ident, "UNKNOWN-ID-TYPE");
+    if (type == IKE_ID_USER_FQDN)
+      return "RFC822_ADDR";
+    return val_to_str(type, vs_ident, "UNKNOWN-ID-TYPE");
   }
   return "UNKNOWN-ISAKMP-VERSION";
 }
@@ -2341,8 +2361,8 @@ static const char *
 v2_tstype2str(guint8 type)
 {
   static const value_string vs_v2_tstype[] = {
-    { 7,	"TS_IPV4_ADDR_RANGE" },
-    { 8,	"TS_IPV6_ADDR_RANGE" },
+    { IKEV2_TS_IPV4_ADDR_RANGE,	"TS_IPV4_ADDR_RANGE" },
+    { IKEV2_TS_IPV6_ADDR_RANGE,	"TS_IPV6_ADDR_RANGE" },
     { 0,	NULL },
   };
 
