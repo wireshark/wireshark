@@ -572,7 +572,8 @@ tvb_get_bits8(tvbuff_t *tvb, guint64 bo, guint8 num_bits) {
   
   shift_value = get_byte_offset(bo);
   mask = make_mask(num_bits, shift_value);
-  data = tvb_get_ntohs(tvb, get_start_octet(bo));
+  if (( mask & 0xff ) == 0 ) data = tvb_get_guint8(tvb, get_start_octet(bo)) << 8;
+  else data = tvb_get_ntohs(tvb, get_start_octet(bo));
   return (data & mask) >> (16 - shift_value - num_bits);
 }
 
@@ -588,12 +589,15 @@ static proto_item *
 bit_proto_tree_add_bit_field8(proto_tree *tree, tvbuff_t *tvb,
 			      guint64 bo, guint8 bl) {
   /* XXX: Use varargs */
-  guint16 value = tvb_get_ntohs(tvb, get_start_octet(bo));
   guint16 mask = make_mask(bl, get_byte_offset(bo));
-  char *label = get_bit_field_label16(value, mask);
+  guint16 value;
   guint8 end_i;
   int i;
   proto_item *pi;
+  char *label;
+  if (( mask & 0xff ) == 0 ) value = tvb_get_guint8 ( tvb , get_start_octet(bo)) << 8;
+  else value = tvb_get_ntohs(tvb, get_start_octet(bo));
+  label = get_bit_field_label16(value, mask);
 
   DISSECTOR_ASSERT(bl < 9);
   
@@ -2116,11 +2120,7 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
   value = tvb_get_bits8(tvb, bo, bl);
   if (value == 1) {
     bo += bl;
-    bl = 1;
-    if (!struct_bits_exist(start_bo, struct_length, bo, bl)) return;
     ti = bit_proto_tree_add_text(tree, tvb, bo, bl, "Multislot capability"); 
-    /* Temporary length */
-    bo += bl;
     tf = proto_item_add_subtree(ti, ett_bssgp_msrac_multislot_capability);
 
     /* HSCSD Multislot Class */
@@ -2141,6 +2141,11 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
       else {
 	proto_item_append_text(pi, ": Reserved");
       }
+    }
+    else
+    {
+      pi = bit_proto_tree_add_bit_field8(tf, tvb, bo-1, bl);
+      proto_item_append_text(pi, "HSCSD Multislot Class - Bits are not available" );
     }
     
     /* GPRS Multislot Class, GPRS Extended Dynamic Allocation Capability */
@@ -2164,6 +2169,11 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
       bo += bl;
       proto_item_append_text(pi, "GPRS Extended Dynamic Allocation Capability: Extended Dynamic Allocation for GPRS is%s implemented",
 			     value == 0 ? " not" : "");
+    }
+    else
+    {
+      pi = bit_proto_tree_add_bit_field8(tf, tvb, bo-1, bl);
+      proto_item_append_text(pi, "GPRS Multislot Class: Multislot Class - Bits are not available" );
     }
 
     /* SMS Value, SM Value */
@@ -2190,6 +2200,12 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
 			     "SM_VALUE: %u/4 timeslot (~%u microseconds)", 
 			     value + 1, (value + 1) * 144);
     }
+    else
+    {
+      pi = bit_proto_tree_add_bit_field8(tf, tvb, bo-1, bl);
+      proto_item_append_text(pi, "SMS Value, SM Value - Bits are not available" );
+    }
+
     /* Additions in release 99 */
 
     /* ECSD Multislot Class */
@@ -2210,6 +2226,11 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
       else {
 	proto_item_append_text(pi, ": Reserved");
       }
+    }
+    else
+    {
+      pi = bit_proto_tree_add_bit_field8(tf, tvb, bo-1, bl);
+      proto_item_append_text(pi, "ECSD Multislot Class - Bits are not available" );
     }
 
     /* EGPRS Multislot Class, EGPRS Extended Dynamic Allocation Capability */
@@ -2233,6 +2254,11 @@ decode_msrac_access_capabilities(proto_tree *tree, tvbuff_t *tvb,
       bo += bl;
       proto_item_append_text(pi, "EGPRS Extended Dynamic Allocation Capability: Extended Dynamic Allocation for EGPRS is%s implemented",
 			     value == 0 ? " not" : "");
+    }
+    else
+    {
+      pi = bit_proto_tree_add_bit_field8(tf, tvb, bo-1, bl);
+      proto_item_append_text(pi, "EGPRS Multislot Class: Multislot Class - Bits are not available");
     }
 
     /* DTM GPRS Multislot Class */

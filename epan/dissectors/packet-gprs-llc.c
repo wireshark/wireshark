@@ -890,7 +890,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			m_bits = ctrl_fld_fb & 0x0F;
 
 			info_len = crc_start - offset;
-			
+
 			switch (m_bits)
 			{
 			case U_DM:
@@ -1054,9 +1054,23 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 						tmp =  byte1 & 0x7C;
 						tmp = tmp >> 2;
-						uinfo_field = proto_tree_add_text(ui_tree, tvb, location, (ending - 1), 
-							"XID Parameter Type: %s", 
-							val_to_str(tmp, xid_param_type_str,"Reserved Type:%X"));
+
+						if (( xid_param_len > 0 ) && ( xid_param_len <=4 ))
+						{
+							unsigned long value = 0;
+							int i;
+							for (i=1;i<=xid_param_len;i++) {
+								value <<= 8;
+								value |= (unsigned long)tvb_get_guint8(tvb, location+i );
+							}
+							uinfo_field = proto_tree_add_text(ui_tree, tvb, location, (ending - 1), 
+								"XID Parameter Type: %s - Value: %lu", 
+								val_to_str(tmp, xid_param_type_str,"Reserved Type:%X"),value);
+						}
+						else
+							uinfo_field = proto_tree_add_text(ui_tree, tvb, location, (ending - 1), 
+								"XID Parameter Type: %s", 
+								val_to_str(tmp, xid_param_type_str,"Reserved Type:%X"));
 
 						uinfo_tree = proto_item_add_subtree(uinfo_field, ett_ui);
 						proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_xl, tvb, location, 
