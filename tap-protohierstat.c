@@ -136,17 +136,23 @@ protohierstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const v
 static void
 phs_draw(phs_t *rs, int indentation)
 {
-	int i;
-	char str[80];
+	int i, stroff;
+#define MAXPHSLINE 80
+	char str[MAXPHSLINE];
 	for(;rs;rs=rs->sibling){
 		if(rs->protocol==-1){
 			return;
 		}
 		str[0]=0;
+		stroff=0;
 		for(i=0;i<indentation;i++){
-			strcat(str,"  ");
+			if(i>15){
+				stroff+=g_snprintf(str+stroff, MAXPHSLINE-stroff, "...");
+				break;
+			}
+			stroff+=g_snprintf(str+stroff, MAXPHSLINE-stroff, "  ");
 		}
-		strcat(str, rs->proto_name);
+		stroff+=g_snprintf(str+stroff, MAXPHSLINE-stroff, rs->proto_name);
 		printf("%-40s frames:%d bytes:%d\n",str, rs->frames, rs->bytes);
 		phs_draw(rs->child, indentation+1);
 	}
