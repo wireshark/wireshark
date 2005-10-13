@@ -378,8 +378,14 @@ static int dissect_called_presentation_selector_impl(packet_info *pinfo, proto_t
 
 static int
 dissect_pres_Presentation_context_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+
+    offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   &presentation_context_identifier);
+
+
+  if(session)
+	session->pres_ctx_id = presentation_context_identifier;
+
 
   return offset;
 }
@@ -400,8 +406,7 @@ static int dissect_Presentation_context_deletion_list_item(packet_info *pinfo, p
 
 static int
 dissect_pres_Abstract_syntax_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            abstract_syntax_name_oid);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, abstract_syntax_name_oid);
 
   return offset;
 }
@@ -416,8 +421,7 @@ static int dissect_abstract_syntax_name_impl(packet_info *pinfo, proto_tree *tre
 
 static int
 dissect_pres_Transfer_syntax_name(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -1457,6 +1461,9 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 			break;
 		case SES_RESYNCHRONIZE_ACK:
 			offset = dissect_pres_RSA_PPDU(FALSE, tvb, offset, pinfo, pres_tree, -1);
+			break;
+		case SES_REFUSE:
+			offset = dissect_pres_CPR_PPDU(FALSE, tvb, offset, pinfo, pres_tree, hf_pres_CPR_PPDU);
 			break;
 		default:
 			offset = dissect_pres_CPC_type(FALSE, tvb, offset, pinfo, pres_tree, hf_pres_user_data);

@@ -203,6 +203,9 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 		case SES_RESYNCHRONIZE_ACK:
 			offset = dissect_pres_RSA_PPDU(FALSE, tvb, offset, pinfo, pres_tree, -1);
 			break;
+		case SES_REFUSE:
+			offset = dissect_pres_CPR_PPDU(FALSE, tvb, offset, pinfo, pres_tree, hf_pres_CPR_PPDU);
+			break;
 		default:
 			offset = dissect_pres_CPC_type(FALSE, tvb, offset, pinfo, pres_tree, hf_pres_user_data);
 			break;

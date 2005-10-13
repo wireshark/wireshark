@@ -68,6 +68,13 @@ CPR-PPDU/normal-mode-parameters/provider-reason cPR_PPDU__provider-reason
 #.FN_PARS Presentation_context_identifier
  VAL_PTR = &presentation_context_identifier
 
+#.FN_BODY Presentation_context_identifier
+
+  %(DEFAULT_BODY)s
+
+  if(session)
+	session->pres_ctx_id = presentation_context_identifier;
+
 #.FN_FTR Context-list/_item
 	register_ctx_id_and_oid(pinfo, presentation_context_identifier, abstract_syntax_name_oid);
 #.END
