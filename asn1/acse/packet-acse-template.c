@@ -218,9 +218,10 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/*  we can't make any additional checking here   */
 	/*  postpone it before dissector will have more information */
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
+		int old_offset=offset;
 		offset = dissect_acse_ACSE_apdu(FALSE, tvb, offset, pinfo, tree, -1);
-		if(offset == FALSE ){
-			proto_tree_add_text(tree, tvb, offset, -1,"Internal error");
+		if(offset == old_offset ){
+			proto_tree_add_text(tree, tvb, offset, -1,"Malformed packet");
 			offset = tvb_length(tvb);
 			break;
 		}
