@@ -1373,7 +1373,7 @@ elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 	    "%s :  Type of Identity: No Identity Code",
 	    a_bigbuf);
 
-	strcpy(add_string, " - No Identity Code");
+	g_snprintf(add_string, string_len, " - No Identity Code");
 
 	curr_offset++;
 
@@ -1456,7 +1456,7 @@ elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 	    "%s :  Type of Identity: Interface Directory Number",
 	    a_bigbuf);
 
-	strcpy(add_string, " - Interface Directory Number");
+	g_snprintf(add_string, string_len, " - Interface Directory Number");
 
 	curr_offset++;
 
@@ -1489,7 +1489,7 @@ elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 	    "%s :  Type of Identity: TMSI",
 	    a_bigbuf);
 
-	strcpy(add_string, " - TMSI");
+	g_snprintf(add_string, string_len, " - TMSI");
 
 	curr_offset++;
 
@@ -1539,7 +1539,7 @@ elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 	proto_tree_add_text(tree, tvb, curr_offset, len,
 	    "Format Unknown");
 
-	strcpy(add_string, " - Format Unknown");
+	g_snprintf(add_string, string_len, " - Format Unknown");
 
 	curr_offset += len;
 	break;
@@ -1697,7 +1697,7 @@ elem_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 
 	    curr_offset++;
 
-	    strcpy(add_string, " - (National Cause)");
+	    g_snprintf(add_string, string_len, " - (National Cause)");
 	}
 	else
 	{
