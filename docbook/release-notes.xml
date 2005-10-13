@@ -181,11 +181,23 @@ Gnu info
 	  Versions affected: 0.10.10 to 0.10.12.
 	</para></listitem>
 
+	<listitem><para>
+	   iDEFENSE found a buffer overflow in the SRVLOC dissector.
+	  <!-- Fixed in r16206 -->
+	  <!-- Bug IDs: none -->
+	  Versions affected: 0.10.0 to 0.10.12.
+	</para></listitem>
+
       </itemizedlist>
     </para>
 
     <para>
       When trying to save a flow graph, Ethereal could crash.
+    </para>
+
+    <para>
+      When viewing protocol hierarchy statistics, Ethereal and Tethereal
+      could crash.
     </para>
 
     <para>
@@ -270,8 +282,8 @@ Gnu info
     MEGACO, MGCP, MIME multipart, MMS, MOUNT, MQ, MSMMS, NBNS, NDMP,
     NS_CERT_EXTS, OCSP, OPSI, OSPF, PARLAY, PER, PKINIT, PKIX, PN-RT,
     PPP, PRES, PTP, RADIUS, RDT, RPC, RSVP, RTCP, RTnet, RTSP, SCCP,
-    SCSI, SCTP, SES, sFlow, SIGCOMP, SIP, SliMP3, SMB, SMPP, SMRSE,
-    SNA, SNMP, SPNEGO, STUN, T.38, TCAP, TCP, Text, TPKT, UMA, WBXML,
+    SCSI, SCTP, SES, sFlow, SIGCOMP, SIP, SliMP3, SMB, SMPP, SMRSE, SNA,
+    SNMP, SPNEGO, SRVLOC, STUN, T.38, TCAP, TCP, Text, TPKT, UMA, WBXML,
     WLANCERTEXTN, WSP, X11, X.25, X.509, XML, YMSG
 
     </para>
