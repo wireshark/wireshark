@@ -1865,16 +1865,15 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* do we have spdu type from the session dissector?  */
 	if( !pinfo->private_data ){
 		if(parent_tree){
-			proto_tree_add_text(parent_tree, tvb, offset, -1,
-				"Internal error:can't get spdu type from session dissector.");
+			REPORT_DISSECTOR_BUG("Can't get SPDU type from session dissector.");
 		} 
 		return  ;
 	} else {
 		session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
 		if(session->spdu_type == 0 ) {
 			if(parent_tree){
-				proto_tree_add_text(parent_tree, tvb, offset, -1,
-					"Internal error:wrong spdu type %x from session dissector.",session->spdu_type);
+				REPORT_DISSECTOR_BUG(
+					ep_strdup_printf("Wrong spdu type %x from session dissector.",session->spdu_type));
 				return  ;
 			}
 		}
