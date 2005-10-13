@@ -2189,7 +2189,8 @@ Dominic Béchaz          <bdo [AT] zhwin.ch> {
 Richard van der Hoff     <richardv [AT] mxtelecom.com> {
 	IAX2 updates
 	CRC16 routines
-    Exception logic fixes
+	H.223 Support
+	Exception logic fixes
 }
 
 Shaun Jackman		<sjackman [AT] telus.net> {
@@ -2396,13 +2397,8 @@ Jim Young		<sysjhy [AT] langate.gsu.edu> {
 }
 
 Jeff Snyder		<jeff [AT] mxtelecom.com> {
+	Desegmentation support in IAX2
 	H.223 Support
-
-}
-
-Richard van der Hoff		<richardv [AT] mxtelecom.com> {
-	H.223 Support
-
 }
 
 William Fiveash		<William.Fiveash [AT] sun.com> {
