@@ -1698,7 +1698,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (icmp_code < N_UNREACH) {
         g_snprintf(code_str, 64, "(%s)", unreach_str[icmp_code]);
       } else {
-        strcpy(code_str, "(Unknown - error?)");
+        g_snprintf(code_str, 64, "(Unknown - error?)");
       }
       break;
     case ICMP_SOURCEQUENCH:
@@ -1709,7 +1709,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (icmp_code < N_REDIRECT) {
         g_snprintf(code_str, 64, "(%s)", redir_str[icmp_code]);
       } else {
-        strcpy(code_str, "(Unknown - error?)");
+        g_snprintf(code_str, 64, "(Unknown - error?)");
       }
       break;
     case ICMP_ECHO:
@@ -1733,7 +1733,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (icmp_code < N_TIMXCEED) {
         g_snprintf(code_str, 64, "(%s)", ttl_str[icmp_code]);
       } else {
-        strcpy(code_str, "(Unknown - error?)");
+        g_snprintf(code_str, 64, "(Unknown - error?)");
       }
       break;
     case ICMP_PARAMPROB:
@@ -1741,7 +1741,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (icmp_code < N_PARAMPROB) {
         g_snprintf(code_str, 64, "(%s)", par_str[icmp_code]);
       } else {
-        strcpy(code_str, "(Unknown - error?)");
+        g_snprintf(code_str, 64, "(Unknown - error?)");
       }
       break;
     case ICMP_TSTAMP:
