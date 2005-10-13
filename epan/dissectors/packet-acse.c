@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-acse.c                                                            */
+/* ./packet-acse.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p acse -c acse.cnf -s packet-acse-template acse.asn */
 
 /* Input file: packet-acse-template.c */
@@ -1865,16 +1865,15 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* do we have spdu type from the session dissector?  */
 	if( !pinfo->private_data ){
 		if(parent_tree){
-			proto_tree_add_text(parent_tree, tvb, offset, -1,
-				"Internal error:can't get spdu type from session dissector.");
+			REPORT_DISSECTOR_BUG("Can't get SPDU type from session dissector.");
 		} 
 		return  ;
 	} else {
 		session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
 		if(session->spdu_type == 0 ) {
 			if(parent_tree){
-				proto_tree_add_text(parent_tree, tvb, offset, -1,
-					"Internal error:wrong spdu type %x from session dissector.",session->spdu_type);
+				REPORT_DISSECTOR_BUG(
+					ep_strdup_printf("Wrong spdu type %x from session dissector.",session->spdu_type));
 				return  ;
 			}
 		}
@@ -1917,9 +1916,10 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/*  we can't make any additional checking here   */
 	/*  postpone it before dissector will have more information */
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
+		int old_offset=offset;
 		offset = dissect_acse_ACSE_apdu(FALSE, tvb, offset, pinfo, tree, -1);
-		if(offset == FALSE ){
-			proto_tree_add_text(tree, tvb, offset, -1,"Internal error");
+		if(offset == old_offset ){
+			proto_tree_add_text(tree, tvb, offset, -1,"Malformed packet");
 			offset = tvb_length(tvb);
 			break;
 		}
