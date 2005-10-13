@@ -1,6 +1,6 @@
 /* packet-atalk.c
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
- * RTMP.
+ * RTMP, PAP.
  *
  * $Id$
  *
@@ -110,6 +110,7 @@ static dissector_handle_t ddp_handle;
 
 /* ------------------------- */
 static dissector_handle_t asp_handle;
+static dissector_handle_t pap_handle;
 
 static int proto_atp = -1;
 static int hf_atp_ctrlinfo  = -1; /* guint8_t    control information */
@@ -325,6 +326,7 @@ static gint ett_atp_segments = -1;
 static gint ett_atp_segment = -1;
 static gint ett_atp_info = -1;
 static gint ett_asp = -1;
+static gint ett_pap = -1;
 
 static gint ett_nbp = -1;
 static gint ett_nbp_info = -1;
@@ -348,6 +350,48 @@ static const fragment_items atp_frag_items = {
 	&hf_atp_reassembled_in,
 	"segments"
 };
+
+/* -------------------------------- */
+
+#define PAPOpenConn       1
+#define PAPOpenConnReply  2
+#define PAPSendData       3
+#define PAPData           4
+#define PAPTickle         5
+#define PAPCloseConn      6
+#define PAPCloseConnReply 7
+#define PAPSendStatus     8
+#define PAPStatus         9
+
+static int proto_pap = -1;
+
+static int hf_pap_connid   = -1;
+static int hf_pap_function = -1;
+static int hf_pap_socket   = -1;
+static int hf_pap_quantum  = -1;
+static int hf_pap_waittime = -1;
+static int hf_pap_result   = -1;
+static int hf_pap_status   = -1;
+static int hf_pap_seq      = -1;
+static int hf_pap_eof      = -1;
+
+static int hf_pap_pad = -1;
+
+static const value_string pap_function_vals[] = {
+  {PAPOpenConn       , "Open Connection Query"},
+  {PAPOpenConnReply  , "Open Connection Reply"},
+  {PAPSendData       , "Send Data"},
+  {PAPData           , "Data"},
+  {PAPTickle         , "Tickle"},
+  {PAPCloseConn      , "Close Connection Query"},
+  {PAPCloseConnReply , "Close Connection reply"},
+  {PAPSendStatus     , "Send Status"},
+  {PAPStatus         , "Status"},
+  
+  {0, NULL}
+};
+
+/* -------------------------------- */
 
 static dissector_table_t ddp_dissector_table;
 
@@ -729,10 +773,9 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   guint8 bitmap;
   guint8 nbe = 0;
   guint8 t = 0;
-  conversation_t	*conversation;
-  asp_request_key request_key, *new_request_key;
-  asp_request_val *request_val;
-
+  conversation_t  *conversation;
+  asp_request_val *request_val = NULL;
+  
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATP");
 
@@ -756,27 +799,38 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
 		pinfo->srcport, pinfo->destport, 0);
-
+		
   if (conversation == NULL)
   {
 	conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
   }
 
-  request_key.conversation = conversation->index;
-  memcpy(request_key.src, (!aspinfo.reply)?pinfo->src.data:pinfo->dst.data, 4);
-  request_key.seq = aspinfo.seq;
+  if (atp_defragment) {
+  	asp_request_key request_key;
 
-  request_val = (asp_request_val *) g_hash_table_lookup(atp_request_hash, &request_key);
+  	request_key.conversation = conversation->index;
+  	memcpy(request_key.src, (!aspinfo.reply)?pinfo->src.data:pinfo->dst.data, 4);
+  	request_key.seq = aspinfo.seq;
 
-  if (!request_val && query )  {
-	 new_request_key = se_alloc(sizeof(asp_request_key));
-	 *new_request_key = request_key;
+  	request_val = (asp_request_val *) g_hash_table_lookup(atp_request_hash, &request_key);
 
-	 request_val = se_alloc(sizeof(asp_request_val));
-	 request_val->value = nbe;
+  	if (!request_val && query && nbe > 1)  {
+  		asp_request_key *new_request_key;
 
-	 g_hash_table_insert(atp_request_hash, new_request_key,request_val);
+  		/* only save nbe packets if more than 1 requested
+  	   	   save some memory and help the defragmentation if tid wraparound, ie
+  	   	   we have both a request for 1 packet and a request for n packets,
+  	   	   hopefully most of the time ATP_EOM will be set in the last packet.
+  	    */
+	 	new_request_key = se_alloc(sizeof(asp_request_key));
+	 	*new_request_key = request_key;
+
+	    request_val = se_alloc(sizeof(asp_request_val));
+	    request_val->value = nbe;
+
+	 	g_hash_table_insert(atp_request_hash, new_request_key,request_val);
+	}
   }
 
   /*
@@ -787,7 +841,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     */
 
   if (aspinfo.reply) {
-     more_fragment = !((ATP_EOM & ctrlinfo) || (request_val && 1 == request_val->value));
+     more_fragment = !(ATP_EOM & ctrlinfo) && request_val;
      frag_number = bitmap;
   }
 
@@ -866,8 +920,34 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
      /* if port == 6 it's not an ASP packet but a ZIP packet */
      if (pinfo->srcport == 6 || pinfo->destport == 6 )
     	call_dissector(zip_atp_handle, new_tvb, pinfo, tree);
-     else
-     	call_dissector(asp_handle, new_tvb, pinfo, tree);
+     else {
+        /* XXX need a conversation_get_dissector function ? */
+        if (!aspinfo.reply && !conversation->dissector_handle) {
+        	dissector_handle_t sub;
+
+            /* if it's a known ASP function call ASP dissector
+               else assume it's a PAP connection ID.
+               the test is wrong because PAP conn IDs overlapped with ASP fn 
+               but I don't want to keep track of NBP msgs and open connection
+               port allocation.
+            */
+            guint8 fn = tvb_get_guint8(new_tvb, 0);
+
+            if (!fn || fn > ASPFUNC_ATTN) {
+     	        sub = pap_handle;
+            }
+            else {
+     	        sub = asp_handle;
+     	    }
+     	    call_dissector(sub, new_tvb, pinfo, tree);
+     	    conversation_set_dissector(conversation, sub);
+        }
+        else if (!try_conversation_dissector(&pinfo->src, &pinfo->dst, pinfo->ptype, 
+        						pinfo->srcport, pinfo->destport, new_tvb,pinfo, tree)) {
+    		call_dissector(data_handle, new_tvb, pinfo, tree);
+        
+        }
+     }
   }
   else {
     /* Just show this as a fragment. */
@@ -1096,6 +1176,100 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	}
 	/* FIXME: offset is not updated */
 	return offset;
+}
+
+/* -----------------------------
+   PAP protocol cf. inside appletalk chap. 10
+*/
+#define PAD(x)      { proto_tree_add_item(pap_tree, hf_pap_pad, tvb, offset,  x, FALSE); offset += x; }
+
+static void
+dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  int offset = 0;
+  guint8 fn;
+  guint8 connID;
+  proto_tree *pap_tree = NULL;
+  proto_item *ti;
+  int len;
+
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PAP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
+
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_pap, tvb, offset, -1, FALSE);
+    pap_tree = proto_item_add_subtree(ti, ett_pap);
+  }
+
+  connID = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(pap_tree, hf_pap_connid, tvb, offset, 1, FALSE);
+  offset++;
+
+  fn = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(pap_tree, hf_pap_function, tvb, offset, 1, FALSE);
+  offset++;
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+	 col_add_fstr(pinfo->cinfo, COL_INFO, "%s  ID: %d",
+      				val_to_str(fn, pap_function_vals, "Unknown (0x%01x)"), connID);
+  }
+  switch(fn) {
+  case PAPOpenConn:
+  	PAD(2);
+  	proto_tree_add_item(pap_tree, hf_pap_socket, tvb, offset, 1, FALSE);
+  	offset++;
+  	proto_tree_add_item(pap_tree, hf_pap_quantum, tvb, offset, 1, FALSE);
+  	offset++;
+  	proto_tree_add_item(pap_tree, hf_pap_waittime, tvb, offset, 2, FALSE);
+  	offset += 2;
+  	break;
+
+  case PAPOpenConnReply:
+  	PAD(2);
+  	proto_tree_add_item(pap_tree, hf_pap_socket, tvb, offset, 1, FALSE);
+  	offset++;
+  	proto_tree_add_item(pap_tree, hf_pap_quantum, tvb, offset, 1, FALSE);
+  	offset++;
+  	proto_tree_add_item(pap_tree, hf_pap_result, tvb, offset, 2, FALSE);
+  	offset += 2;
+    offset = dissect_pascal_string(tvb, offset, pap_tree, hf_pap_status);
+  	break;
+
+  case PAPSendData:
+  	proto_tree_add_item(pap_tree, hf_pap_seq, tvb, offset, 2, FALSE);
+  	offset += 2;
+  	break;
+
+  case PAPData:
+  	proto_tree_add_item(pap_tree, hf_pap_eof, tvb, offset, 1, FALSE);
+  	offset++;
+  	PAD(1);
+  	/* follow by data */
+	len = tvb_reported_length_remaining(tvb,offset);
+	call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,len), pinfo, tree);
+  	break;
+
+  case PAPTickle:
+  case PAPCloseConn:
+  case PAPCloseConnReply:
+  	PAD(2);
+  	break;
+
+  case PAPSendStatus:
+  	PAD(2);
+  	break;
+  	
+  case PAPStatus:
+  	PAD(2);
+  	PAD(4);
+    offset = dissect_pascal_string(tvb, offset, pap_tree, hf_pap_status);
+  	break;
+
+  default:  /* unknown */
+    break;
+  }
 }
 
 /* -----------------------------
@@ -2159,6 +2333,49 @@ proto_register_atalk(void)
 
   };
 
+  static hf_register_info hf_pap[] = {
+    { &hf_pap_connid,
+      { "ConnID",	"pap.connid",	FT_UINT8,  BASE_DEC, NULL, 0x0,
+      	"PAP connection ID", HFILL }},
+
+    { &hf_pap_function,
+      { "Function",	"pap.function",	FT_UINT8,  BASE_DEC, VALS(pap_function_vals), 0x0,
+      	"PAP function", HFILL }},
+
+    { &hf_pap_socket,
+      { "Socket",	"pap.socket",	FT_UINT8,  BASE_DEC, NULL, 0x0,
+      	"ATP responding socket number", HFILL }},
+
+    { &hf_pap_quantum,
+      { "Quantum",	"pap.quantum",	FT_UINT8,  BASE_DEC, NULL, 0x0,
+      	"Flow quantum", HFILL }},
+
+    { &hf_pap_waittime,
+      { "Wait time",	"pap.quantum",	FT_UINT16,  BASE_DEC, NULL, 0x0,
+      	"Wait time", HFILL }},
+
+    { &hf_pap_result,
+      { "Result",	"pap.quantum",	FT_UINT16,  BASE_DEC, NULL, 0x0,
+      	"Result", HFILL }},
+
+    { &hf_pap_seq,
+      { "Sequence",	"pap.seq",	FT_UINT16,  BASE_DEC, NULL, 0x0,
+      	"Sequence number", HFILL }},
+
+    { &hf_pap_status,
+      { "Status",	"pap.status",	FT_STRING,  BASE_DEC, NULL, 0x0, 
+		"Printer status", HFILL }},
+		
+    { &hf_pap_eof,
+      { "EOF",	"pap.eof", FT_BOOLEAN, BASE_NONE,
+		NULL, 0x0, "EOF", HFILL }},
+		
+    { &hf_pap_pad,
+      { "Pad",    	"pad.pad", 		FT_NONE,   BASE_NONE, NULL, 0,
+		"Pad Byte",	HFILL }},
+
+  };
+
   static gint *ett[] = {
   	&ett_llap,
 	&ett_ddp,
@@ -2167,6 +2384,7 @@ proto_register_atalk(void)
 	&ett_atp_segments,
 	&ett_atp_segment,
 	&ett_asp,
+	&ett_pap,
 
 	/* asp dsi afp */
 	&ett_asp_status,
@@ -2206,6 +2424,9 @@ proto_register_atalk(void)
 
   proto_asp = proto_register_protocol("AppleTalk Session Protocol", "ASP", "asp");
   proto_register_field_array(proto_asp, hf_asp, array_length(hf_asp));
+
+  proto_pap = proto_register_protocol("Printer Access Protocol", "PAP", "apap");
+  proto_register_field_array(proto_pap, hf_pap, array_length(hf_pap));
 
   proto_zip = proto_register_protocol("Zone Information Protocol", "ZIP", "zip");
   proto_register_field_array(proto_zip, hf_zip, array_length(hf_zip));
@@ -2249,6 +2470,7 @@ proto_reg_handoff_atalk(void)
   dissector_add("ddp.type", DDP_ATP, atp_handle);
 
   asp_handle = create_dissector_handle(dissect_asp, proto_asp);
+  pap_handle = create_dissector_handle(dissect_pap, proto_pap);
 
   rtmp_request_handle = create_dissector_handle(dissect_rtmp_request, proto_rtmp);
   rtmp_data_handle = create_dissector_handle(dissect_rtmp_data, proto_rtmp);

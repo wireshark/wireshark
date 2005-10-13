@@ -3487,7 +3487,7 @@ dissect_reply_afp_get_server_message(tvbuff_t *tvb, packet_info *pinfo _U_, prot
         offset += 2;
 
 	/* FIXME: Not in the specs, but for UTF8 message length is 2 bytes */
-        if ((bitmap & 3)) {
+        if ((bitmap & 3) == 3) {
 		len = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(tree, hf_afp_message_len, tvb, offset, 2,FALSE);
 		offset += 2;
