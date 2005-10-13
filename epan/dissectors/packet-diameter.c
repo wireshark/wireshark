@@ -1160,7 +1160,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8           version=0, flags=0;
   gchar            flagstr[64] = "<None>";
   const gchar     *fstr[] = {"RSVD7", "RSVD6", "RSVD5", "RSVD4", "RSVD3", "Error", "Proxyable", "Request" };
-  gchar            commandString[64], vendorName[64], applicationName[64];
+  gchar            *commandString=NULL, *vendorName=NULL, *applicationName=NULL, *commandStringType=NULL;
   gint        i;
   guint      bpos;
   static  int initialized=FALSE;
@@ -1192,10 +1192,9 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   dh.hopByHopId = g_ntohl(dh.hopByHopId);
   dh.endToEndId = g_ntohl(dh.endToEndId);
   if (dh.vendorId) {
-	strcpy(vendorName,
-		   diameter_vendor_to_str(dh.vendorId, TRUE));
+	vendorName=diameter_vendor_to_str(dh.vendorId, TRUE);
   } else {
-	strcpy(vendorName, "None");
+	vendorName="None";
   }
   /* Do the bit twiddling */
   version = DIAM_GET_VERSION(dh);
@@ -1212,10 +1211,9 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dh2.hopByHopId = g_ntohl(dh2.hopByHopId);
       dh2.endToEndId = g_ntohl(dh2.endToEndId);
       if (dh2.applicationId) {
- 	strcpy(applicationName,
-		   diameter_app_to_str(dh2.applicationId));
+ 	applicationName=diameter_app_to_str(dh2.applicationId);
       } else {
-  	strcpy(applicationName, "None");
+  	applicationName="None";
       }
       /* Do the bit twiddling */
       version = DIAM_GET_VERSION(dh2);
@@ -1246,18 +1244,18 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Set up our commandString */
   switch(gbl_version) {
     case DIAMETER_V16:
-  strcpy(commandString, diameter_command_to_str(commandCode, dh.vendorId));
+      commandString=diameter_command_to_str(commandCode, dh.vendorId);
     break;
     case DIAMETER_RFC:
       /* FIXME: in RFC, is applicationID needed to decode the command code?  */
-      strcpy(commandString, diameter_command_to_str(commandCode, dh2.applicationId));
+      commandString=diameter_command_to_str(commandCode, dh2.applicationId);
     break;
   }
 
   if (flags & DIAM_FLAGS_R)
-	strcat(commandString, "-Request");
+	commandStringType="Request";
   else
-	strcat(commandString, "-Answer");
+	commandStringType="Answer";
 
   /* Short packet.  Should have at LEAST one avp */
   if (pktLength < MIN_DIAMETER_SIZE) {
@@ -1280,14 +1278,14 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch(gbl_version) {
       case DIAMETER_V16:
 	col_add_fstr(pinfo->cinfo, COL_INFO,
-				 "%s%s%s%s%s vendor=%s (hop-id=%u) (end-id=%u) RPE=%d%d%d",
+				 "%s%s%s%s%s-%s vendor=%s (hop-id=%u) (end-id=%u) RPE=%d%d%d",
 				 (BadPacket)?"***** Bad Packet!: ":"",
 				 (flags & DIAM_FLAGS_P)?"Proxyable ":"",
 				 (flags & DIAM_FLAGS_E)?" Error":"",
 				 ((BadPacket ||
 				   (flags & (DIAM_FLAGS_P|DIAM_FLAGS_E))) ?
 				   ": " : ""),
-				 commandString, vendorName,
+				 commandString, commandStringType, vendorName,
 				 dh.hopByHopId, dh.endToEndId,
 				 (flags & DIAM_FLAGS_R)?1:0,
 				 (flags & DIAM_FLAGS_P)?1:0,
@@ -1295,14 +1293,14 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
       case DIAMETER_RFC:
 	col_add_fstr(pinfo->cinfo, COL_INFO,
-				 "%s%s%s%s%s app=%s (hop-id=%u) (end-id=%u) RPE=%d%d%d",
+				 "%s%s%s%s%s-%s app=%s (hop-id=%u) (end-id=%u) RPE=%d%d%d",
 				 (BadPacket)?"***** Bad Packet!: ":"",
 				 (flags & DIAM_FLAGS_P)?"Proxyable ":"",
 				 (flags & DIAM_FLAGS_E)?" Error":"",
 				 ((BadPacket ||
 				   (flags & (DIAM_FLAGS_P|DIAM_FLAGS_E))) ?
 				   ": " : ""),
-				 commandString, applicationName,
+				 commandString, commandStringType, applicationName,
 				 dh2.hopByHopId, dh2.endToEndId,
 				 (flags & DIAM_FLAGS_R)?1:0,
 				 (flags & DIAM_FLAGS_P)?1:0,
@@ -1353,7 +1351,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Command Code */
 	proto_tree_add_uint_format(diameter_tree, hf_diameter_code,
-							   tvb, offset, 3, commandCode, "Command Code: %s", commandString);
+							   tvb, offset, 3, commandCode, "Command Code: %s-%s", commandString, commandStringType);
 	offset += 3;
 
         switch(gbl_version) {
@@ -1517,7 +1515,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
   gchar avpNameString[64];
   const gchar *valstr;
   guint32 vendorId=0;
-  gchar    vendorName[64];
+  gchar    *vendorName;
   int hdrLength;
   int fixAmt;
   proto_tree *avpi_tree;
@@ -1603,10 +1601,9 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 	}
 
 	if (vendorId) {
-	  strcpy(vendorName,
-			 diameter_vendor_to_str(vendorId, TRUE));
+	  vendorName=diameter_vendor_to_str(vendorId, TRUE);
 	} else {
-	  vendorName[0]='\0';
+	  vendorName="";
 	}
 
 	/* Check for bad length */
