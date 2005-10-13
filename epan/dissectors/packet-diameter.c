@@ -485,9 +485,9 @@ xmlParseAVP(xmlNodePtr cur)
   cur = cur->xmlChildrenNode;
 
   while (cur != NULL ) {
-	if (strcasecmp(cur->name, "type") == 0) {
+	if (strcasecmp((const char *)cur->name, "type") == 0) {
 	  type = XmlStub.xmlGetProp(cur, "type-name");
-	} else if (strcasecmp(cur->name, "enum") == 0) {
+	} else if (strcasecmp((const char *)cur->name, "enum") == 0) {
 	  char *valueName=NULL, *valueCode=NULL;
 	  ValueName *ve = NULL;
 	  valueName = XmlStub.xmlGetProp(cur, "name");
@@ -504,7 +504,7 @@ xmlParseAVP(xmlNodePtr cur)
 
 	  ve->next = vEntry;
 	  vEntry = ve;
-	} else if (strcasecmp(cur->name, "grouped") == 0) {
+	} else if (strcasecmp((const char *)cur->name, "grouped") == 0) {
 	  /* WORK Recurse here for grouped AVPs */
 	  type = "grouped";
 	}
@@ -725,19 +725,19 @@ xmlDictionaryParseSegment(xmlNodePtr cur, int base)
    */
   cur = cur->xmlChildrenNode;
   while (cur != NULL) {
-	if (strcasecmp(cur->name, "avp") == 0) {
+	if (strcasecmp((const char *)cur->name, "avp") == 0) {
 	  /* we have an avp!!! */
 	  xmlParseAVP(cur);
-	} else if (strcasecmp(cur->name, "vendor") == 0) {
+	} else if (strcasecmp((const char *)cur->name, "vendor") == 0) {
 	  /* we have a vendor */
 	  xmlParseVendor(cur);
 	  /* For now, ignore typedefn and text */
-	} else if (strcasecmp(cur->name, "command") == 0) {
+	} else if (strcasecmp((const char *)cur->name, "command") == 0) {
 	  /* Found a command */
 	  xmlParseCommand(cur);
-	} else if (strcasecmp(cur->name, "text") == 0) {
-	} else if (strcasecmp(cur->name, "comment") == 0) {
-	} else if (strcasecmp(cur->name, "typedefn") == 0) {
+	} else if (strcasecmp((const char *)cur->name, "text") == 0) {
+	} else if (strcasecmp((const char *)cur->name, "comment") == 0) {
+	} else if (strcasecmp((const char *)cur->name, "typedefn") == 0) {
 	  /* WORK -- parse in valid types . . . */
 	} else {
 	  /* IF we got here, we're an error */
@@ -759,15 +759,15 @@ xmlDictionaryParse(xmlNodePtr cur)
 {
   /* We should expect a base protocol, followed by multiple applications */
   while (cur != NULL) {
-	if (strcasecmp(cur->name, "base") == 0) {
+	if (strcasecmp((const char *)cur->name, "base") == 0) {
 	  /* Base protocol.  Descend and parse */
 	  xmlDictionaryParseSegment(cur, 1);
-	} else if (strcasecmp(cur->name, "application") == 0) {
+	} else if (strcasecmp((const char *)cur->name, "application") == 0) {
 	  /* Application.  Descend and parse */
 	  xmlDictionaryParseSegment(cur, 0);
-	} else if (strcasecmp(cur->name, "text") == 0) {
+	} else if (strcasecmp((const char *)cur->name, "text") == 0) {
 	  /* Ignore text */
-	} else if (strcasecmp(cur->name, "comment") == 0) {
+	} else if (strcasecmp((const char *)cur->name, "comment") == 0) {
 	  /* Ignore text */
 	} else {
 	  report_failure( "Diameter: XML Expecting a base or an application  (got \"%s\")",
@@ -1511,8 +1511,8 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 {
   /* adds the attribute value pairs to the tree */
   e_avphdr avph;
-  gchar avpTypeString[64];
-  gchar avpNameString[64];
+  const gchar *avpTypeString;
+  const gchar *avpNameString;
   const gchar *valstr;
   guint32 vendorId=0;
   gchar    *vendorName;
@@ -1647,10 +1647,10 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 	}
 
 	/* Make avp Name & type */
-	strcpy(avpTypeString, val_to_str(diameter_avp_get_type(avph.avp_code,vendorId),
+	avpTypeString=val_to_str(diameter_avp_get_type(avph.avp_code,vendorId),
 									 TypeValues,
-									 "Unknown-Type: 0x%08x"));
-	strcpy(avpNameString, diameter_avp_get_name(avph.avp_code, vendorId));
+									 "Unknown-Type: 0x%08x");
+	avpNameString=diameter_avp_get_name(avph.avp_code, vendorId);
 
 	avptf = proto_tree_add_text(avp_tree, tvb,
 								offset, avpLength + fixAmt,
