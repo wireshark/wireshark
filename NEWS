@@ -1,33 +1,203 @@
 $Id$
 
-== October 14, 2005
+== October 17, 2005
 
 Ethereal 0.10.13 has been released.
 
-An aggressive testing program has turned up several more security issues:
+  Bug Fixes
 
+   Several security vulnerabilities have been fixed since the previous
+   release. See the [1]application advisory for more details.
 
-Please see the following advisory for more information:
-  
-    http://www.ethereal.com/appnotes/enpa-sa-00021.html
-    
-Everyone is encouraged to upgrade.
+     o The ISAKMP dissector could exhaust system memory. Versions affected:
+       0.10.11 to 0.10.12.
 
+     o The FC-FCS dissector could exhaust system memory. Versions affected:
+       0.9.0 to 0.10.12.
 
-New and updated features
+     o The RSVP dissector could exhaust system memory. Versions affected:
+       0.9.4 to 0.10.12.
 
+     o The ISIS LSP dissector could exhaust system memory. Versions affected:
+       0.8.18 to 0.10.12.
 
-New protocol support
+     o The IrDA dissector could crash. Versions affected: 0.10.0 to 0.10.12.
 
+     o The SLIMP3 dissector could overflow a buffer. Versions affected: 0.9.1
+       to 0.10.12.
 
+     o The BER dissector was susceptible to an infinite loop. Versions
+       affected: 0.10.3 to 0.10.12.
 
-Updated protocol support
+     o The SCSI dissector could dereference a null pointer and crash.
+       Versions affected: 0.10.3 to 0.10.12.
 
+     o If the "Dissect unknown RPC program numbers" option was enabled, the
+       ONC RPC dissector might be able to exhaust system memory. This option
+       is disabled by default. Versions affected: 0.7.7 to 0.10.12.
 
+     o The sFlow dissector could dereference a null pointer and crash.
+       Versions affected: 0.9.14 to 0.10.12.
 
-New and updated capture file support
+     o The RTnet dissector could dereference a null pointer and crash.
+       Versions affected: 0.10.8 to 0.10.12.
 
+     o The SigComp UDVM could go into an infinite loop or crash. Versions
+       affected: 0.10.12.
 
+     o If SMB transaction payload reassembly is enabled the SMB dissector
+       could crash. This preference is disabled by default. Versions
+       affected: 0.9.7 to 0.10.12.
+
+     o The X11 dissector could attempt to divide by zero. Versions affected:
+       0.10.1 to 0.10.12.
+
+     o The AgentX dissector could overflow a buffer. Versions affected:
+       0.10.10 to 0.10.12.
+
+     o The WSP dissector could free an invalid pointer. Versions affected:
+       0.10.1 to 0.10.12.
+
+     o iDEFENSE found a buffer overflow in the SRVLOC dissector. Versions
+       affected: 0.10.0 to 0.10.12.
+
+   When trying to save a flow graph, Ethereal could crash.
+
+   When viewing protocol hierarchy statistics, Ethereal and Tethereal could
+   crash.
+
+   The PCRE library that ships with the Windows installer has been upgraded
+   from version 4.4 to 6.3 in response to a [2]security vulnerability.
+
+  New and Updated Features
+
+   The following features are new (or have been significantly updated) since
+   the last release:
+
+     o The timestamp display precision of the Packet List can be adjusted
+       now. The precision will be automatically adjusted depending on the
+       file format loaded, e.g. libpcap typically uses microsecond resolution
+       displayed like "0.000000". In addition you can adjust the precision
+       manually through the View/Time Display Format menu items.
+
+     o The WinPcap version 3.1 installer was released since the last Ethereal
+       release. The version included in the Ethereal Windows installer has
+       been updated from 3.1 beta 4 to 3.1. If you want to upgrade WinPcap
+       separately or install a different version you can download it from:
+       [3]the WinPcap web site.
+
+     o The behavior of the display filter "ip.checksum_bad" has changed.
+       Instead of merely checking for its presence you must now make sure it
+       is set, e.g. instead of using "ip.checksum_bad" you must now use
+       "ip.checksum_bad == 1".
+
+     o A new capture file format "Nanosecond libpcap (Ethereal)" was added.
+       It is very similar to the common libpcap file format but is capable of
+       keeping nanosecond resolution timestamps. This format is currently
+       supported only by Ethereal.
+
+     o Ethereal's memory managment has been greatly improved.
+
+     o Ethereal can now save gzip-compressed capture files.
+
+  New Protocol Support
+
+   CIMD, CISCOWL-L2, DCCP, EDP, GNM, LLDP, ROS, RTSE, STANAG 4406, WINS
+   Replication, X.411, X.420
+
+  Updated Protocol Support
+
+   802.11 Radiotap, A11, AARP, ACSE, ACtrace, AFP, AFS, AgentX, AIM, AJP13,
+   ALCAP, AMR, ANSI A, ANSI IS-637-A, ANSI IS-683-A, ANSI IS-801, ANSI MAP,
+   AOE, AppleTalk, Armagetronad, ARP, ASAP, ASN.1, BACapp, BER, BGP,
+   BitTorrent, BOOTP, CAMEL, CLNP, CMIP, CMP, CMS, COPS, CRMF, CSM_ENCAPS,
+   DAAP, DCERPC (ATSVC, DCE_DFS, FLDB, INITSHUTDOWN, LSA, NETLOGON, NT, SAMR,
+   SPOOLSS, WINREG), DCM, DCOM, DHCP Failover, DIAMETER, ENRP, ESS, FC, FCCT,
+   FCDNS, FCELS, FCFCS, FCFZS, FCP, FCSWILS, FTAM, GIOP, GPRS LLC, GSM, GTP,
+   H1, H.225, H.235, H.245, H.248, H.261, H.263, H.450, HSRP, HTTP, IAX2,
+   IEEE 802.11, IEEE 802.3, IEEE 802.3 Slow protocols, IP, IP/IEEE1394, IRC,
+   IrDA, ISAKMP, iSCSI, ISIS, ISUP, Jabber, JFIF, Juniper, JXTA, K12,
+   Kerberos, LDAP, LDP, LLC, LPD, MAP_DialoguePDU, MDSHDR, Media, MEGACO,
+   MGCP, MIME multipart, MMS, MOUNT, MQ, MSMMS, NBNS, NDMP, NS_CERT_EXTS,
+   OCSP, OPSI, OSPF, PARLAY, PER, PKINIT, PKIX, PN-RT, PPP, PRES, PTP,
+   RADIUS, RDT, RPC, RSVP, RTCP, RTnet, RTSP, SCCP, SCSI, SCTP, SES, sFlow,
+   SIGCOMP, SIP, SliMP3, SMB, SMPP, SMRSE, SNA, SNMP, SPNEGO, SRVLOC, STUN,
+   T.38, TCAP, TCP, Text, TPKT, UMA, WBXML, WLANCERTEXTN, WSP, X11, X.25,
+   X.509, XML, YMSG
+
+  New and Updated Capture File Support
+
+   5Views, AiroPeek, ERF, EtherPeek, i4btrace, LANAlyzer, Libpcap, Windows
+   Sniffer, Tektronix K12
+
+Getting Ethereal
+
+  Microsoft Windows
+
+   Download ethereal-setup-0.10.13.exe from the [4]Windows download area on
+   the main web site. Double-click the installer executable.
+
+  Sun Solaris
+
+   Download the appropriate package from the [5]Solaris download area on the
+   main web site. Uncompress the package using bzip2, and install it using
+   pkgadd.
+
+  Source Code
+
+   Download ethereal-0.10.13.tar.gz from the [6]main download area on the web
+   site. Extract the package using tar and gzip. Run "configure ; make ; make
+   install".
+
+  Vendor-supplied Packages
+
+   Most Linux and Unix vendors supply their own Ethereal packages. You can
+   install or upgrade Ethereal using the package management system specific
+   to that platform. A list of third-party packages can be found on the
+   [7]download page on the Ethereal web site.
+
+File Locations
+
+   Ethereal and Tethereal look in several different locations for preference
+   files, plugins, SNMP MIBS, and RADIUS dictionaries. These locations vary
+   from platform to platform. You can use About->Folders to find the default
+   locations on your system.
+
+Known Problems
+
+   On Windows systems the packet list scroll bar can sometimes disappear or
+   become unusable. Until the problem is fixed you can work around it by
+   resizing the packet list or the main window. ([8]Bug #220)
+
+Getting Help
+
+   Community support is available on the ethereal-users mailing list.
+   Subscription information and archives for all of Ethereal's mailing lists
+   can be found on [9]the web site. There is also an [10]IRC channel
+   dedicated to Ethereal.
+
+   Commercial support, training, and development services are available from
+   [11]Ethereal Software.
+
+Frequently Asked Questions
+
+   A complete FAQ is available on the [12]Ethereal web site.
+
+References
+
+   Visible links
+   1. http://www.ethereal.com/appnotes/enpa-sa-00021.html
+   2. http://www.securityfocus.com/bid/14620
+   3. http://www.winpcap.org/
+   4. http://www.ethereal.com/docs/distribution/win32/
+   5. http://www.ethereal.com/docs/distribution/solaris/
+   6. http://www.ethereal.com/docs/distribution/
+   7. http://www.ethereal.com/download.html#otherplat
+   8. http://bugs.ethereal.com/bugzilla/show_bug.cgi?id=220
+   9. http://www.ethereal.com/lists/
+  10. irc://irc.freenode.net/ethereal
+  11. http://www.etherealsoft.com/
+  12. http://www.ethereal.com/faq.html
 
 == July 26, 2005
 
