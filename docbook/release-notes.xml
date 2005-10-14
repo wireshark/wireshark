@@ -20,7 +20,7 @@ DOCUMENT SECTION
 <!--
 Ethereal Info
 -->
-  <!ENTITY EtherealCurrentVersion "0.10.13 (preliminary)">
+  <!ENTITY EtherealCurrentVersion "0.10.13">
   <!ENTITY EtherealWebSite "http://www.ethereal.com">
   <!ENTITY EtherealUsersGuidePage "&EtherealWebSite;/docs/#usersguide">
   <!ENTITY EtherealDownloadPage "&EtherealWebSite;/download.html">
@@ -182,6 +182,13 @@ Gnu info
 	</para></listitem>
 
 	<listitem><para>
+	  The WSP dissector could free an invalid pointer.
+	  <!-- Fixed in r16220 -->
+	  <!-- Bug IDs: none -->
+	  Versions affected: 0.10.1 to 0.10.12.
+	</para></listitem>
+
+	<listitem><para>
 	   iDEFENSE found a buffer overflow in the SRVLOC dissector.
 	  <!-- Fixed in r16206 -->
 	  <!-- Bug IDs: none -->
@@ -252,6 +259,10 @@ Gnu info
           Ethereal's memory managment has been greatly improved.
         </para></listitem>
 
+        <listitem><para>
+          Ethereal can now save gzip-compressed capture files.
+        </para></listitem>
+
       </itemizedlist>
     </para>
     </section>
@@ -292,7 +303,8 @@ Gnu info
     <section><title>New and Updated Capture File Support</title>
     <para>
 
-    Tektronix K12
+    5Views, AiroPeek, ERF, EtherPeek, i4btrace, LANAlyzer, Libpcap,
+    Windows Sniffer, Tektronix K12
 
     </para>
     </section>
@@ -331,7 +343,8 @@ Gnu info
       <para>
 	Most Linux and Unix vendors supply their own Ethereal packages.
 	You can install or upgrade Ethereal using the package management
-	system specific to that platform.
+	system specific to that platform.  A list of third-party packages
+        can be found on the <ulink url="http://www.ethereal.com/download.html#otherplat">download page</ulink> on the Ethereal web site.
       </para>
     </section>
 
@@ -367,7 +380,7 @@ Gnu info
     <para>
     Community support is available on the ethereal-users mailing list.
     Subscription information and archives for all of Ethereal's mailing
-    lists can be found on <ulink url="http://www.ethereal.com/lists">the
+    lists can be found on <ulink url="http://www.ethereal.com/lists/">the
     web site</ulink>. There is also an <ulink url="irc://irc.freenode.net/ethereal">IRC channel dedicated to Ethereal</ulink>.
     </para>
     <para>
