@@ -72,9 +72,11 @@ Gnu info
       <ulink url="http://www.ethereal.com/appnotes/enpa-sa-00022.html">application
       advisory</ulink> for more details.
       <itemizedlist>
-
+        <listitem><para>
+        </para></listitem>
       </itemizedlist>
     </para>
+    </section>
 
     <section><title>New and Updated Features</title>
     <para>
@@ -82,7 +84,8 @@ Gnu info
       since the last release:
 
       <itemizedlist>
-
+        <listitem><para>
+        </para></listitem>
       </itemizedlist>
     </para>
     </section>
