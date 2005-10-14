@@ -871,7 +871,7 @@ static const value_string vals_content_types[] = {
 	{ 0x4B, "application/vnd.oma.drm.rights+wbxml"},
 	{ 0x4C, "application/vnd.wv.csp+xml"},
 	{ 0x4D, "application/vnd.wv.csp+wbxml"},
-	/* The following media types are registered by 3rd parties */ 
+	/* The following media types are registered by 3rd parties */
 	{ 0x0201, "application/vnd.uplanet.cachop-wbxml" },
 	{ 0x0202, "application/vnd.uplanet.signal" },
 	{ 0x0203, "application/vnd.uplanet.alert-wbxml" },
@@ -1234,7 +1234,7 @@ static void add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *p
 #define is_integer_value(x)		(is_short_integer(x) || is_long_integer(x))
 #define is_delta_seconds_value(x)	is_integer_value(x)
 /* Text string == *TEXT 0x00, thus also an empty string matches the rule! */
-#define is_text_string(x)	( ((x) == 0) || ( ((x) >= 32) && ((x) <= 127)) ) 
+#define is_text_string(x)	( ((x) == 0) || ( ((x) >= 32) && ((x) <= 127)) )
 #define is_quoted_string(x)		( (x) == 0x22 ) /* " */
 #define is_token_text(x)		is_text_string(x)
 #define is_text_value(x)		is_text_string(x)
@@ -1272,7 +1272,7 @@ static void add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *p
 	get_integer_value(val,tvb,start,len,ok)
 
 /* NOTE - Don't forget to g_free() the str value after its usage as the
- * tvb_get_stringz() functions return g_malloc()ed memory! */ 
+ * tvb_get_stringz() functions return g_malloc()ed memory! */
 #define get_text_string(str,tvb,start,len,ok) \
 	if (is_text_string(tvb_get_guint8(tvb,start))) { \
 		str = (gchar *)tvb_get_stringz(tvb,start,(gint *)&len); \
@@ -1297,7 +1297,7 @@ static void add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *p
 		val &= 0x7F; \
 		str = g_strdup_printf("%u.%u", val >> 4, val & 0x0F); \
 	} else { get_text_string(str,tvb,start,len,ok); }
-	
+
 /* Parameter parser */
 static int
 parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len);
@@ -1618,7 +1618,7 @@ static const hdr_parse_func_ptr WellKnownHeader[128] = {
 	/* 0x7A */	wkh_default,			/* 0x7B */	wkh_default,
 	/* 0x7C */	wkh_default,			/* 0x7D */	wkh_default,
 	/* 0x7E */	wkh_default,			/* 0x7F */	wkh_default,
-}; 
+};
 
 /* Lookup table for well-known header parsing functions */
 static const hdr_parse_func_ptr WellKnownOpenwaveHeader[128] = {
@@ -1707,7 +1707,7 @@ static const hdr_parse_func_ptr WellKnownOpenwaveHeader[128] = {
 	/* 0x7A */	wkh_openwave_default,		/* 0x7B */	wkh_openwave_default,
 	/* 0x7C */	wkh_openwave_default,		/* 0x7D */	wkh_openwave_default,
 	/* 0x7E */	wkh_openwave_default,		/* 0x7F */	wkh_openwave_default,
-}; 
+};
 
 
 
@@ -4029,7 +4029,7 @@ wkh_content_type_header(openwave_x_up_proxy_push_accept,
 		offset = start + len; /* Skip to end of buffer */ \
 	} \
 	DebugLog(("parameter with text_string value - END\n"));
-	
+
 
 #define parameter_text_value(hf,lowercase,Uppercase,value) \
 	get_text_string(val_str, tvb, offset, val_len, ok); \
@@ -4370,56 +4370,56 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 		case 0x07:	/* WSP 1.1 encoding - Differences: Field-name */
 			DebugLog(("Skipping remaining parameters from here\n"));
 			tvb_ensure_bytes_exist(tvb, start, offset - start);
-			proto_tree_add_text(tree, tvb, start, offset - start, 
+			proto_tree_add_text(tree, tvb, start, offset - start,
 					"Undecoded parameter Differences - decoding stopped");
 			break;
 
 		case 0x08:	/* WSP 1.1 encoding - Padding: Short-integer */
 			DebugLog(("Skipping remaining parameters from here\n"));
 			tvb_ensure_bytes_exist(tvb, start, offset - start);
-			proto_tree_add_text(tree, tvb, start, offset - start, 
+			proto_tree_add_text(tree, tvb, start, offset - start,
 					"Undecoded parameter Padding - decoding stopped");
 			break;
 
 		case 0x0E:	/* WSP 1.3 encoding - Max-Age: Delta-seconds-value */
 			DebugLog(("Skipping remaining parameters from here\n"));
 			tvb_ensure_bytes_exist(tvb, start, offset - start);
-			proto_tree_add_text(tree, tvb, start, offset - start, 
+			proto_tree_add_text(tree, tvb, start, offset - start,
 					"Undecoded parameter Max-Age - decoding stopped");
 			break;
 
 		case 0x10:	/* WSP 1.3 encoding - Secure: No-value */
 			DebugLog(("Skipping remaining parameters from here\n"));
 			tvb_ensure_bytes_exist(tvb, start, offset - start);
-			proto_tree_add_text(tree, tvb, start, offset - start, 
+			proto_tree_add_text(tree, tvb, start, offset - start,
 					"Undecoded parameter Secure - decoding stopped");
 			break;
 
 		case 0x13:	/* WSP 1.4 encoding - Creation-date: Date-value */
 			DebugLog(("Skipping remaining parameters from here\n"));
 			tvb_ensure_bytes_exist(tvb, start, offset - start);
-			proto_tree_add_text(tree, tvb, start, offset - start, 
+			proto_tree_add_text(tree, tvb, start, offset - start,
 					"Undecoded parameter Creation-Date - decoding stopped");
 			break;
 
 		case 0x14:	/* WSP 1.4 encoding - Modification-date: Date-value */
 			DebugLog(("Skipping remaining parameters from here\n"));
 			tvb_ensure_bytes_exist(tvb, start, offset - start);
-			proto_tree_add_text(tree, tvb, start, offset - start, 
+			proto_tree_add_text(tree, tvb, start, offset - start,
 					"Undecoded parameter Modification-Date - decoding stopped");
 			break;
 
 		case 0x15:	/* WSP 1.4 encoding - Read-date: Date-value */
 			DebugLog(("Skipping remaining parameters from here\n"));
 			tvb_ensure_bytes_exist(tvb, start, offset - start);
-			proto_tree_add_text(tree, tvb, start, offset - start, 
+			proto_tree_add_text(tree, tvb, start, offset - start,
 					"Undecoded parameter Read-Date - decoding stopped");
 			break;
 
 		default:
 			DebugLog(("Skipping remaining parameters from here\n"));
 			tvb_ensure_bytes_exist(tvb, start, offset - start);
-			proto_tree_add_text(tree, tvb, start, offset - start, 
+			proto_tree_add_text(tree, tvb, start, offset - start,
 					"Undecoded parameter type 0x%02x - decoding stopped",
 					type);
 			offset = start + len; /* Skip the parameters */
@@ -4432,7 +4432,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 
 /*
  * Dissects the Q-value parameter value.
- * 
+ *
  * Returns: next offset
  */
 static int
@@ -4879,7 +4879,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti = proto_tree_add_item(tree, hf_sir_section,
 			tvb, 0, -1, bo_little_endian);
 	subtree = proto_item_add_subtree(ti, ett_sir);
-	
+
 	/* Version */
 	version = tvb_get_guint8(tvb, 0);
 	proto_tree_add_uint(subtree, hf_sir_version,
@@ -4903,7 +4903,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* WSP contact point list */
 	tmp_tvb = tvb_new_subset (tvb, offset, val_len, val_len);
 	add_addresses(subtree, tmp_tvb, hf_sir_wsp_contact_points);
-	g_free(tmp_tvb);
+	tvb_free(tmp_tvb);
 
 	/* End of version 0 SIR content */
 	if (version == 0)
@@ -4919,7 +4919,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Non-WSP contact point list */
 	tmp_tvb = tvb_new_subset (tvb, offset, val_len, val_len);
 	add_addresses(subtree, tmp_tvb, hf_sir_contact_points);
-	g_free(tmp_tvb);
+	tvb_free(tmp_tvb);
 
 	offset += val_len;
 
@@ -5223,7 +5223,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					if (! dissector_try_heuristic(heur_subdissector_list,
 								tmp_tvb, pinfo, tree)) {
 						guint8* save_private_data = pinfo->private_data;
-						
+
 						pinfo->match_string = contentTypeStr;
 						pinfo->private_data = NULL; /* TODO: parameters */
 						call_dissector(media_handle, tmp_tvb, pinfo, tree);
@@ -5319,7 +5319,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					if (! dissector_try_heuristic(heur_subdissector_list,
 								tmp_tvb, pinfo, tree)) {
 						guint8* save_private_data = pinfo->private_data;
-						
+
 						pinfo->match_string = contentTypeStr;
 						pinfo->private_data = NULL; /* TODO: parameters */
 						call_dissector(media_handle, tmp_tvb, pinfo, tree);
@@ -5404,7 +5404,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					if (! dissector_try_heuristic(heur_subdissector_list,
 								tmp_tvb, pinfo, tree)) {
 						guint8* save_private_data = pinfo->private_data;
-						
+
 						pinfo->match_string = contentTypeStr;
 						pinfo->private_data = NULL; /* TODO: parameters */
 						call_dissector(media_handle, tmp_tvb, pinfo, tree);
@@ -5850,7 +5850,7 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
 		sub_tree = proto_item_add_subtree(ti, ett_post);
 	}
 
-	if ( (contentTypeStr == NULL && contentType == 0x12) 
+	if ( (contentTypeStr == NULL && contentType == 0x12)
 			|| (contentTypeStr && (strcasecmp(contentTypeStr,
 						"application/x-www-form-urlencoded") == 0)) )
 	{
