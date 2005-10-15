@@ -1158,7 +1158,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int              BadPacket = FALSE;
   guint32          commandCode=0, pktLength=0;
   guint8           version=0, flags=0;
-  gchar            flagstr[64] = "<None>";
+  gchar            *flagstr="<None>";
   const gchar     *fstr[] = {"RSVD7", "RSVD6", "RSVD5", "RSVD4", "RSVD3", "Error", "Proxyable", "Request" };
   gchar            *commandString=NULL, *vendorName=NULL, *applicationName=NULL, *commandStringType=NULL;
   gint        i;
@@ -1226,18 +1226,23 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Set up our flags */
   if (check_col(pinfo->cinfo, COL_INFO) || tree) {
+	int fslen;
+
+#define FLAG_STR_LEN 64
+	flagstr=ep_alloc(FLAG_STR_LEN);
 	flagstr[0]=0;
+	fslen=0;
 	for (i = 0; i < 8; i++) {
 	  bpos = 1 << i;
 	  if (flags & bpos) {
 		if (flagstr[0]) {
-		  strcat(flagstr, ", ");
+		  fslen+=g_snprintf(flagstr+fslen, FLAG_STR_LEN-fslen, ", ");
 		}
-		strcat(flagstr, fstr[i]);
+		fslen+=g_snprintf(flagstr+fslen, FLAG_STR_LEN-fslen, "%s", fstr[i]);
 	  }
 	}
-	if (strlen(flagstr) == 0) {
-	  strcpy(flagstr,"<None>");
+	if (flagstr[0] == 0) {
+	  flagstr="<None>";
 	}
   }
 
@@ -1534,7 +1539,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
   gint32 packetLength;
   size_t avpDataLength;
   int avpType;
-  gchar flagstr[64] = "<None>";
+  gchar *flagstr="<None>";
   const gchar *fstr[] = {"RSVD7", "RSVD6", "RSVD5", "RSVD4", "RSVD3", "Protected", "Mandatory", "Vendor-Specific" };
   gint        i;
   guint      bpos;
@@ -1573,18 +1578,23 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 
 	/* Set up our flags string */
 	if (check_col(pinfo->cinfo, COL_INFO) || avp_tree) {
+	  int fslen;
+
+#define FLAG_STR_LEN 64
+	  flagstr=ep_alloc(FLAG_STR_LEN);
 	  flagstr[0]=0;
+	  fslen=0;
 	  for (i = 0; i < 8; i++) {
 		bpos = 1 << i;
 		if (flags & bpos) {
 		  if (flagstr[0]) {
-			strcat(flagstr, ", ");
+			fslen+=g_snprintf(flagstr+fslen, FLAG_STR_LEN-fslen, ", ");
 		  }
-		  strcat(flagstr, fstr[i]);
+		  fslen+=g_snprintf(flagstr+fslen, FLAG_STR_LEN-fslen, "%s", fstr[i]);
 		}
 	  }
-	  if (strlen(flagstr) == 0) {
-		strcpy(flagstr,"<None>");
+	  if (flagstr[0] == 0) {
+		flagstr="<None>";
 	  }
 	}
 
