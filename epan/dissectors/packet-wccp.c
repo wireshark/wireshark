@@ -1191,10 +1191,9 @@ dissect_32_bit_capability_flags(tvbuff_t *tvb, int curr_offset,
 	proto_item *tm;
 	proto_tree *method_tree;
 	int i;
-	char flags_string[128+1];
+	char *flags_string;
 	char *p;
-	int space_left;
-	char buf[1025];
+	char *buf;
 
 	if (capability_val_len != 4) {
 		proto_tree_add_text(element_tree, tvb,
@@ -1204,31 +1203,34 @@ dissect_32_bit_capability_flags(tvbuff_t *tvb, int curr_offset,
 	}
 
 	capability_val = tvb_get_ntohl(tvb, curr_offset + 4);
-	flags_string[0] = '\0';
-	p = &flags_string[0];
-	space_left = sizeof flags_string;
+#define FLAGS_STRING_LEN (128+1)
+	flags_string=ep_alloc(FLAGS_STRING_LEN);
+	flags_string[0] = 0;
+	p = flags_string;
 	for (i = 0; flags[i].short_name != NULL; i++) {
 		if (capability_val & flags[i].value) {
-			if (p != &flags_string[0]) {
-				g_snprintf(p, space_left, ",");
-				p = &flags_string[strlen(flags_string)];
+			if (p != flags_string) {
+				p+=g_snprintf(p, FLAGS_STRING_LEN-(p-flags_string), ",");
 			}
-			g_snprintf(p, space_left, "%s", flags[i].short_name);
-			p = &flags_string[strlen(flags_string)];
+			p+=g_snprintf(p, FLAGS_STRING_LEN-(p-flags_string), "%s", flags[i].short_name);
 		}
 	}
 	tm = proto_tree_add_text(element_tree, tvb, curr_offset+4, 4,
 	    "Value: 0x%08X (%s)", capability_val, flags_string);
+
 	method_tree = proto_item_add_subtree(tm, ett);
+#define BUF_SIZE 1024
+	buf=ep_alloc(BUF_SIZE);
+	buf[0]=0;
 	for (i = 0; flags[i].long_name != NULL; i++) {
 		p = decode_bitfield_value(buf, capability_val,
 		      flags[i].value, 32);
-		strcpy(p, flags[i].long_name);
-		strcat(p, ": ");
-		if (capability_val & flags[i].value)
-		    strcat(p, "Supported");
-		else
-		    strcat(p, "Not supported");
+		p+=g_snprintf(p, BUF_SIZE-(p-buf), "%s: %s", 
+				flags[i].long_name,
+				(capability_val & flags[i].value)?
+					"Supported":
+					"Not supported"
+				);
 		proto_tree_add_text(method_tree, tvb, curr_offset+4, 4,
 		    "%s", buf);
 	}
