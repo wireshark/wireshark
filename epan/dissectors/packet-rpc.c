@@ -634,18 +634,10 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 
 				formatted = format_text(string_buffer, strlen(string_buffer));
 				/* alloc maximum data area */
-				string_buffer_print = (char*)ep_alloc(strlen(formatted) + 12 + 1);
-				/* copy over the data */
-				strcpy(string_buffer_print,formatted);
-				/* append <TRUNCATED> */
-				/* This way, we get the TRUNCATED even
-				   in the case of totally wrong packets,
-				   where \0 are inside the string.
-				   TRUNCATED will appear at the
-				   first \0 or at the end (where we
-				   put the securing \0).
-				*/
-				strcat(string_buffer_print,"<TRUNCATED>");
+#define STRING_BUFFER_PRINT_MAX_LEN (strlen(formatted)+12+1)
+				string_buffer_print = (char*)ep_alloc(STRING_BUFFER_PRINT_MAX_LEN);
+				/* copy over the data and append <TRUNCATED> */
+				g_snprintf(string_buffer_print, STRING_BUFFER_PRINT_MAX_LEN, "%s<TRUNCATED>", formatted);
 			} else {
 				string_buffer_print="<DATA><TRUNCATED>";
 			}
