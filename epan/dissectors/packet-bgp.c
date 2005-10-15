@@ -462,19 +462,21 @@ decode_prefix6(proto_tree *tree, int hf_addr, tvbuff_t *tvb, gint offset,
 
 /*
  * Decode an MPLS label stack
- * XXX - Should we convert "buf" to a GString?
+ * XXX - We should change *buf to **buf, use ep_alloc() and drop the buflen
+ * argument.
  */
 static guint
 decode_MPLS_stack(tvbuff_t *tvb, gint offset, char *buf, size_t buflen)
 {
     guint32     label_entry;    /* an MPLS label enrty (label + COS field + stack bit   */
-    gint        index;          /* index for the label stack                            */
-    char        junk_buf[256];  /* tmp                                                  */
+    gint        index;          /* index for the label stack */
+    char       *bufptr;
 
     index = offset ;
     label_entry = 0x000000 ;
 
     buf[0] = '\0' ;
+    bufptr=buf;
 
     while ((label_entry & 0x000001) == 0) {
 
@@ -482,20 +484,19 @@ decode_MPLS_stack(tvbuff_t *tvb, gint offset, char *buf, size_t buflen)
 
         /* withdrawn routes may contain 0 or 0x800000 in the first label */
         if((index-offset)==0&&(label_entry==0||label_entry==0x800000)) {
-            g_snprintf(buf, buflen, "0 (withdrawn)");
+            bufptr+=g_snprintf(bufptr, buflen-(bufptr-buf), "0 (withdrawn)");
             return (1);
         }
 
-        g_snprintf(junk_buf, sizeof(junk_buf),"%u%s", (label_entry >> 4), ((label_entry & 0x000001) == 0) ? "," : " (bottom)");
-	if (strlen(buf) + strlen(junk_buf) + 1 <= buflen)
-	    strcat(buf, junk_buf);
+        bufptr+=g_snprintf(bufptr, buflen-(bufptr-buf), "%u%s", 
+		(label_entry >> 4), 
+		((label_entry & 0x000001) == 0) ? "," : " (bottom)");
+	
         index += 3 ;
 
 	if ((label_entry & 0x000001) == 0) {
 	    /* real MPLS multi-label stack in BGP? - maybe later; for now, it must be a bogus packet */
-	    strcpy(junk_buf, " (BOGUS: Bottom of Stack NOT set!)");
-	    if (strlen(buf) + strlen(junk_buf) + 1 <= buflen)
-		strcat(buf, junk_buf);
+	    bufptr+=g_snprintf(bufptr, buflen-(bufptr-buf), " (BOGUS: Bottom of Stack NOT set!)");
 	    break;
 	}
     }
