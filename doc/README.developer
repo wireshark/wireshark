@@ -316,7 +316,69 @@ platform-dependent implementations and platform-independent APIs, such
 as the routines in epan/filesystem.c, allowing the code that calls it to
 be written portably without #ifdefs.
 
-1.1.2 Robustness.
+1.1.2 String handling
+
+Do not use functions such as strcat() or strcpy().
+A lot of work has been done to remove the existing calls to these functions and 
+we do not want any new callers of these functions.
+
+Instead use g_snprintf() since that function will if used correctly prevent
+buffer overflows for large strings.
+
+When using a buffer to create a string, do not use a buffer stored on the stack.
+I.e. do not use a buffer declared as
+   char buffer[1024];
+instead allocate a buffer dynamically using the emem routines (see README.malloc) such as
+   char *buffer=NULL;
+   ...
+   #define MAX_BUFFER 1024
+   buffer=ep_alloc(MAX_BUFFER);
+   buffer[0]=0;
+   ...
+   g_snprintf(buffer, MAX_BUFFER, ...
+
+This avoid the stack to be corrupted in case there is a bug in your code that 
+accidentally writes beyond the end of the buffer.
+
+
+If you write a routine that will create and return a pointer to a filled in 
+string and if that buffer will not be further processed or appended to after 
+the routine returns (except being added to the proto tree), 
+do not preallocate the buffer to fill in and pass as a parameter instead 
+pass a pointer to a pointer to the function and return a pointer to an
+emem allocated buffer that will be automatically freed. (see README.malloc)
+
+I.e. do not write code such as
+  static void
+  foo_to_str(char *string, ... ){
+     <fill in string>
+  }
+  ...
+     char buffer[1024];
+     ...
+     foo_to_str(buffer, ...
+     proto_tree_add_text(... buffer ...
+
+instead write the code as
+  static void
+  foo_to_str(char **buffer, ...
+    #define MAX_BUFFER x
+    *buffer=ep_alloc(x);
+    <fill in *buffer>
+  }
+  ...
+    char *buffer;
+    ...
+    foo_to_str(&buffer, ...
+    proto_tree_add_text(... *buffer ...
+
+Use ep_ allocated buffers. They are very fast and nice. These buffers are all
+automatically free()d when the dissection of the current packet ends so you 
+dont have to worry about free()ing them explicitely in order to not leak memory.
+Please read README.malloc .
+
+
+1.1.3 Robustness.
 
 Ethereal is not guaranteed to read only network traces that contain correctly-
 formed packets. Ethereal is commonly used is to track down networking problems, 
@@ -447,7 +509,7 @@ Testing using editcap can be done using preexisting capture files and the
     editcap -E 0.03 infile.pcap outfile.pcap
     tethereal -nVr outfile.pcap
 
-1.1.3 Name convention.
+1.1.4 Name convention.
 
 Ethereal uses the underscore_convention rather than the InterCapConvention for
 function names, so new code should probably use underscores rather than
@@ -455,7 +517,7 @@ intercaps for functions and variable names. This is especially important if you
 are writing code that will be called from outside your code.  We are just
 trying to keep things consistent for other users.
 
-1.1.4 White space convention.
+1.1.5 White space convention.
 
 Avoid using tab expansions different from 8 spaces, as not all text editors in
 use by the developers support this.
