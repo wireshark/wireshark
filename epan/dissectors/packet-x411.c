@@ -1906,10 +1906,10 @@ dissect_x411_BuiltInContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
   /* convert integer content type to oid for dispatch when the content is found */
   switch(ict) {
 	case 2:
-	strcpy(object_identifier_id, "2.6.1.10.0");
+	g_snprintf(object_identifier_id, BER_MAX_OID_STR_LEN, "2.6.1.10.0");
 	break;
 	case 22:
-	strcpy(object_identifier_id, "2.6.1.10.1");
+	g_snprintf(object_identifier_id, BER_MAX_OID_STR_LEN, "2.6.1.10.1");
 	break;
 	default:
 	break;

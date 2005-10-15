@@ -85,7 +85,7 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
 
   /* look up the indirect reference */
   if((oid = find_oid_by_pres_ctx_id(pinfo, indir_ref)) != NULL) {
-    strcpy(object_identifier_id, oid);
+    g_snprintf(object_identifier_id, MAX_OID_STR_LEN, "%s", oid);
   }
 
   if(session)

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-rtse.c                                                            */
+/* ./packet-rtse.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p rtse -c rtse.cnf -s packet-rtse-template rtse.asn */
 
 /* Input file: packet-rtse-template.c */
@@ -63,6 +63,9 @@ static guint32 indir_ref=0;
 static guint32 app_proto=0;
 
 static proto_tree *top_tree=NULL;
+
+static int dissect_rtse_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_);
+
 
 
 /*--- Included file: packet-rtse-hf.c ---*/
@@ -659,7 +662,7 @@ dissect_rtse_T_indirect_reference(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 
   /* look up the indirect reference */
   if((oid = find_oid_by_pres_ctx_id(pinfo, indir_ref)) != NULL) {
-    strcpy(object_identifier_id, oid);
+    g_snprintf(object_identifier_id, MAX_OID_STR_LEN, "{'FN_VARIANT': '', 'VAL_PTR': 'NULL', 'TREE': 'tree', 'DEFAULT_BODY': '  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,\n                                  NULL);\n', 'HF_INDEX': 'hf_index', 'PINFO': 'pinfo', 'CREATED_ITEM_PTR': 'NULL', 'OFFSET': 'offset', 'TNAME': 'T_indirect_reference', 'TVB': 'tvb', 'IMPLICIT_TAG': 'implicit_tag', 'ER': 'ber'}", oid);
   }
 	
 
