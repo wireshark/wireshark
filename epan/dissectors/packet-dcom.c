@@ -1294,7 +1294,7 @@ dissect_dcom_indexed_LPWSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     if(u32MaxStr != 0) {
 	    offset = dcom_tvb_get_nwstringz0(tvb, offset, u32MaxStr, pszStr);
     } else {
-        strcpy(pszStr, "");
+        *pszStr=0;
     }
 
 #if GLIB_MAJOR_VERSION < 2
@@ -1384,7 +1384,7 @@ dissect_dcom_BSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     if(u32MaxStr != 0) {
 	    offset = dcom_tvb_get_nwstringz0(tvb, offset, u32MaxStr, pszStr);
     } else {
-        strcpy(pszStr, "");
+        *pszStr=0;
     }
 
 #if GLIB_MAJOR_VERSION < 2
