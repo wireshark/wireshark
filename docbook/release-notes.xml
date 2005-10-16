@@ -189,6 +189,13 @@ Gnu info
 	</para></listitem>
 
 	<listitem><para>
+	  The NCP dissector was susceptible to an infinite loop.
+	  <!-- Fixed in r16247 -->
+	  <!-- Bug IDs: 535 -->
+	  Versions affected: 0.9.7 to 0.10.12.
+	</para></listitem>
+
+	<listitem><para>
 	   iDEFENSE found a buffer overflow in the SRVLOC dissector.
 	  <!-- Fixed in r16206 -->
 	  <!-- Bug IDs: none -->
