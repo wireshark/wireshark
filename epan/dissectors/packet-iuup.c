@@ -657,12 +657,12 @@ static void dissect_iuup(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
                     if (ta >= 1 && ta <= 80) {
                         pi = proto_tree_add_uint(time_tree,hf_iuup_delay,tvb,4,1,ta * 500);
                         PROTO_ITEM_SET_GENERATED(pi);
-                        pi = proto_tree_add_float(time_tree,hf_iuup_delta,tvb,4,1,((gdouble)((gint)(ta) * 500))/1000000.0);
+                        pi = proto_tree_add_float(time_tree,hf_iuup_delta,tvb,4,1,((gfloat)((gint)(ta) * 500))/1000000.0);
                         PROTO_ITEM_SET_GENERATED(pi);
                     } else if (ta >= 129 && ta <= 208) {
                         pi = proto_tree_add_uint(time_tree,hf_iuup_advance,tvb,4,1,(ta-128) * 500);
                         PROTO_ITEM_SET_GENERATED(pi);
-                        pi = proto_tree_add_float(time_tree,hf_iuup_delta,tvb,4,1,((gdouble)((gint)(-(ta-128)) * 500))/1000000.0);
+                        pi = proto_tree_add_float(time_tree,hf_iuup_delta,tvb,4,1,((gfloat)((gint)(-((gint)(ta-128))) * 500))/1000000.0);
                         PROTO_ITEM_SET_GENERATED(pi);
                     } else {
                         proto_item_set_expert_flags(pi, PI_MALFORMED, PI_ERROR);
