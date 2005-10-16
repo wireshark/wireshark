@@ -368,6 +368,7 @@ DISSECTOR_SRC =	\
 	packet-isup.c	\
 	packet-isup_thin.c	\
 	packet-iua.c	\
+	packet-iuup.c	\
 	packet-jabber.c	\
 	packet-juniper.c \
 	packet-jxta.c	\
