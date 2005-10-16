@@ -185,7 +185,7 @@ atmarpnum_to_str(const guint8 *ad, int ad_tl)
     if (ad_len > MAX_E164_STR_LEN) {
       /* Can't show it all. */
       memcpy(cur, ad, MAX_E164_STR_LEN);
-      strcpy(&cur[MAX_E164_STR_LEN], "...");
+      g_snprintf(&cur[MAX_E164_STR_LEN], 3+1, "...");
     } else {
       memcpy(cur, ad, ad_len);
       cur[ad_len + 1] = '\0';
