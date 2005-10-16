@@ -1697,7 +1697,10 @@ dissect_ber_GeneralString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 	return offset;
 }
 
-/* 8.19 Encoding of an object identifier value */
+/* 8.19 Encoding of an object identifier value.
+ * if value_string is non-NULL it must point to a buffer of at least
+ * MAX_OID_STR_LEN bytes.
+ */
 int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, char *value_string) {
 	gint8 class;
 	gboolean pc;
@@ -1761,7 +1764,7 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 	}
 
 	if(value_string) {
-		strcpy(value_string, str);
+		g_snprintf(value_string, MAX_OID_STR_LEN, "%s", str);
 	}
 
 	return eoffset;
