@@ -2677,7 +2677,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *tcp_tree = NULL, *field_tree = NULL;
   proto_item *ti = NULL, *tf;
   int        offset = 0;
-  gchar      flags[64] = "<None>";
+  gchar      *flags = "<None>";
   const gchar *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR" };
   gint       fpos = 0, i;
   guint      bpos;
@@ -2801,18 +2801,17 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tcph->th_have_seglen = FALSE;
 
   if (check_col(pinfo->cinfo, COL_INFO) || tree) {
+#define MAX_FLAGS_LEN 64
+    flags=ep_alloc(MAX_FLAGS_LEN);
+    flags[0]=0;
     for (i = 0; i < 8; i++) {
       bpos = 1 << i;
       if (tcph->th_flags & bpos) {
-        if (fpos) {
-          strcpy(&flags[fpos], ", ");
-          fpos += 2;
-        }
-        strcpy(&flags[fpos], fstr[i]);
-        fpos += 3;
+        fpos+=g_snprintf(flags+fpos, MAX_FLAGS_LEN-fpos, "%s%s",
+		fpos?", ":"",
+		fstr[i]);
       }
     }
-    flags[fpos] = '\0';
   }
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
