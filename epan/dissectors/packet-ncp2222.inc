@@ -1096,29 +1096,6 @@ uint_to_nwtime(guint data, nw_time_t *nwtime)
 	nwtime->hour   = ((data & 0xf800) >> 11);
 }
 
-static char *
-unicode_to_string(char * data, guint32 length)
-{
-        guint32 i;
-	guint16 character;
-        int     offset = 0;
-        char *  buffer = "";
-        
-        if (data[1] == 0x00){
-
-        	for (i = 0; i < length; i++) {
-        		character = data[offset];
-        		buffer[i] = character & 0xff;
-        		offset += 2;
-                }
-        }
-        else
-        {        
-                buffer = data;
-        }        
-        return buffer;
-}
-
 static proto_item*
 padd_normal(ptvcursor_t *ptvc, const ptvc_record *rec)
 {
@@ -1126,7 +1103,6 @@ padd_normal(ptvcursor_t *ptvc, const ptvc_record *rec)
         ptvcursor_add(ptvc, *rec->hf_ptr,
 		rec->length, rec->endianness);
 }
-
 
 static proto_item*
 padd_date(ptvcursor_t *ptvc, const ptvc_record *rec)
@@ -1798,7 +1774,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
         {                      
                 if (oldvoffset >= voffset) {
                         proto_tree_add_text(nvtree, tvb, 0, 0, "[ Invalid offset: %u ]", voffset);
-                        return;
+                        THROW(ReportedBoundsError);
                 }
                 oldvoffset = voffset;
                 switch(syntax_type)
@@ -2925,7 +2901,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                         {
                                 if (oldioffset >= ioffset) {
                                         proto_tree_add_text(ntree, tvb, 0, 0, "[ Invalid offset: %u ]", ioffset);
-                                        return;
+                                        THROW(ReportedBoundsError);
                                 }
                                 oldioffset = ioffset;
                                 ioffset += align_4(tvb, ioffset);
@@ -3370,6 +3346,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
         	
                                 for (r = 0 ; r < 32; r++ ) 
                                 {
+                                        oldioffset = ioffset;
                                         if (values->vflags & bvalue) 
                                         {
                                                 switch(bvalue)
@@ -3650,6 +3627,10 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                                         
                                                 }
                                                 ioffset += align_4(tvb, ioffset);
+                                        }
+                                        if (oldioffset >= ioffset) {
+                                                proto_tree_add_text(ntree, tvb, 0, 0, "[ Invalid offset: %u ]", ioffset);
+                                                THROW(ReportedBoundsError);
                                         }
                                         bvalue = bvalue*2;
                                         if(tvb_length_remaining(tvb, ioffset) < 4 )
@@ -6148,6 +6129,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 		string_buffer[i][0] = '\0';
 		pvalues[i].vstring = string_buffer[i];
 		pvalues[i].mvtype = 0;
+		pvalues[i].vflags = 0;
 	}
         
         strcpy(req_buffer.buffer, "");
