@@ -72,11 +72,11 @@ static void dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) {
 	proto_item* k12_item;
 	proto_tree* k12_tree;
 	dissector_handle_t sub_handle;
-	
+
 	k12_item = proto_tree_add_protocol_format(tree, proto_k12, tvb, 0, 0, "Packet from: '%s' (0x%.8x)",
 											  pinfo->pseudo_header->k12.input_name,
 											  pinfo->pseudo_header->k12.input);
-	
+
 	k12_tree = proto_item_add_subtree(k12_item, ett_k12);
 
 	proto_tree_add_uint(k12_tree, hf_k12_port_id, tvb, 0,0,pinfo->pseudo_header->k12.input);
@@ -85,9 +85,9 @@ static void dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) {
 
 	k12_item = proto_tree_add_uint(k12_tree, hf_k12_port_type, tvb, 0, 0,
 								   pinfo->pseudo_header->k12.input_type);
-	
+
 	k12_tree = proto_item_add_subtree(k12_item, ett_port);
-	
+
 	switch ( pinfo->pseudo_header->k12.input_type ) {
 		case K12_PORT_DS0S:
 			proto_tree_add_uint(k12_tree, hf_k12_ts, tvb, 0,0,pinfo->pseudo_header->k12.input_info.ds0mask);
@@ -99,19 +99,19 @@ static void dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) {
 		default:
 			break;
 	}
-	
+
 	if (! k12_cfg ) {
 		sub_handle = data_handle;
 	} else {
 		sub_handle = g_hash_table_lookup(k12_cfg,pinfo->pseudo_header->k12.stack_file);
-		
+
 		if (! sub_handle )
 			sub_handle = data_handle;
 	}
-	
+
 	call_dissector(sub_handle, tvb, pinfo, tree);
-	
-} 
+
+}
 
 static gboolean free_just_key (gpointer k, gpointer v _U_, gpointer p _U_) {
 	g_free(k);
@@ -128,9 +128,9 @@ static GHashTable* k12_load_config(const gchar* filename) {
 	gchar** lines = NULL;
 	guint i;
 	dissector_handle_t handle;
-	
+
 	/* XXX: should look for the file in common locations */
-	
+
 	if (( fp = fopen(filename,"r") )) {
 		len = fread(buffer,1,0xFFFF,fp);
 	} else {
@@ -139,18 +139,18 @@ static GHashTable* k12_load_config(const gchar* filename) {
 	}
 
 	if (len > 0) {
-		
+
 		lines = g_strsplit(buffer,"\n",0);
-		
+
 		for (i = 0 ; lines[i]; i++) {
 			g_strstrip(lines[i]);
 			g_strdown(lines[i]);
 
 			if(*(lines[i]) == '#' || *(lines[i]) == '\0')
 				continue;
-			
+
 			curr = g_strsplit(lines[i]," ",0);
-			
+
 			if (! (curr[0] != NULL && *curr[0] != '\0' && curr[1] != NULL  && *curr[1] != '\0' ) ) {
 				report_failure("K12xx: Format error in line %u",i+1);
 				g_strfreev(curr);
@@ -159,7 +159,7 @@ static GHashTable* k12_load_config(const gchar* filename) {
 				g_hash_table_destroy(hash);
 				return NULL;
 			}
-			
+
 			g_strstrip(curr[0]);
 			g_strstrip(curr[1]);
 			handle = find_dissector(curr[1]);
@@ -168,32 +168,32 @@ static GHashTable* k12_load_config(const gchar* filename) {
 				report_failure("k12: proto %s not found",curr[1]);
 				handle = data_handle;
 			}
-			
+
 			g_hash_table_insert(hash,g_strdup(curr[0]),handle);
 			g_strfreev(curr);
-			
+
 		}
 
 		g_strfreev(lines);
 		return hash;
 
 	}
-	
+
 	g_hash_table_destroy(hash);
-	
+
 	report_read_failure(filename, errno);
-	
+
 	return NULL;
 }
 
 
-static void k12_load_prefs(void) {	
+static void k12_load_prefs(void) {
 	if (k12_cfg) {
 		g_hash_table_foreach_remove(k12_cfg,free_just_key,NULL);
 		g_hash_table_destroy(k12_cfg);
 		k12_cfg = NULL;
 	}
-	
+
 	if (*k12_config_filename != '\0') {
 		k12_cfg = k12_load_config(k12_config_filename);
 		return;
@@ -203,7 +203,7 @@ static void k12_load_prefs(void) {
 void proto_reg_handoff_k12(void) {
 	k12_handle = find_dissector("k12");
 	data_handle = find_dissector("data");
-	dissector_add("wtap_encap", WTAP_ENCAP_K12, k12_handle);	
+	dissector_add("wtap_encap", WTAP_ENCAP_K12, k12_handle);
 }
 
 void
@@ -218,22 +218,22 @@ proto_register_k12(void)
 		{ &hf_k12_atm_vp, { "ATM VPI", "atm.vpi", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_k12_atm_vc, { "ATM VCI", "atm.vci", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }}
 	};
-	
+
   static gint *ett[] = {
 	  &ett_k12,
 	  &ett_port
   };
-	
+
   proto_k12 = proto_register_protocol("K12xx", "K12xx", "k12");
   proto_register_field_array(proto_k12, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   register_dissector("k12", dissect_k12, proto_k12);
 
   k12_module = prefs_register_protocol(proto_k12, k12_load_prefs);
-  
+
   prefs_register_string_preference(k12_module, "config",
 								   "Configuration filename",
 								   "K12 module configuration filename",
 								   &k12_config_filename);
-  
+
 }

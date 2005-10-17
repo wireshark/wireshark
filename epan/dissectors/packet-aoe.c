@@ -54,8 +54,8 @@ static int hf_aoe_response_in=-1;
 static int hf_aoe_response_to=-1;
 static int hf_aoe_time=-1;
 
-static gint ett_aoe = -1; 
-static gint ett_aoe_flags = -1; 
+static gint ett_aoe = -1;
+static gint ett_aoe_flags = -1;
 
 #define AOE_FLAGS_RESPONSE 0x08
 #define AOE_FLAGS_ERROR    0x04
@@ -179,8 +179,8 @@ typedef struct ata_info_t {
   nstime_t req_time;
   guint8 cmd;
 } ata_info_t;
-static GHashTable *ata_cmd_unmatched;
-static GHashTable *ata_cmd_matched;
+static GHashTable *ata_cmd_unmatched = NULL;
+static GHashTable *ata_cmd_matched = NULL;
 
 static guint
 ata_cmd_hash_matched(gconstpointer k)
@@ -354,8 +354,8 @@ dissect_aoe_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item_append_text(flags_item,(flags&AOE_FLAGS_RESPONSE)?" Response":" Request");
     if(flags&AOE_FLAGS_ERROR){
       proto_item_append_text(flags_item, " Error");
-    }  
-  }  
+    }
+  }
 
 
   /* error */
@@ -407,7 +407,7 @@ dissect_aoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   if (parent_tree) {
     item = proto_tree_add_item(parent_tree, proto_aoe, tvb, 0, -1, FALSE);
     tree = proto_item_add_subtree(item, ett_aoe);
-  } 
+  }
 
   version=tvb_get_guint8(tvb, 0)>>4;
   proto_tree_add_uint(tree, hf_aoe_version, tvb, 0, 1, version);
@@ -441,38 +441,38 @@ proto_register_aoe(void)
 
   static hf_register_info hf[] = {
     { &hf_aoe_cmd,
-      { "Command", "aoe.cmd", FT_UINT8, BASE_DEC, VALS(cmd_vals), 0x0, 
+      { "Command", "aoe.cmd", FT_UINT8, BASE_DEC, VALS(cmd_vals), 0x0,
 	"AOE Command", HFILL}},
     { &hf_aoe_version,
-      { "Version", "aoe.version", FT_UINT8, BASE_DEC, NULL, 0x0, 
+      { "Version", "aoe.version", FT_UINT8, BASE_DEC, NULL, 0x0,
 	"Version of the AOE protocol", HFILL}},
     { &hf_aoe_error,
-      { "Error", "aoe.error", FT_UINT8, BASE_DEC, VALS(error_vals), 0x0, 
+      { "Error", "aoe.error", FT_UINT8, BASE_DEC, VALS(error_vals), 0x0,
 	"Error code", HFILL}},
     { &hf_aoe_err_feature,
-      { "Err/Feature", "aoe.err_feature", FT_UINT8, BASE_HEX, NULL, 0x0, 
+      { "Err/Feature", "aoe.err_feature", FT_UINT8, BASE_HEX, NULL, 0x0,
 	"Err/Feature", HFILL}},
     { &hf_aoe_sector_count,
-      { "Sector Count", "aoe.sector_count", FT_UINT8, BASE_DEC, NULL, 0x0, 
+      { "Sector Count", "aoe.sector_count", FT_UINT8, BASE_DEC, NULL, 0x0,
 	"Sector Count", HFILL}},
     { &hf_aoe_flags_response,
       { "Response flag", "aoe.response", FT_BOOLEAN, 8, TFS(&tfs_response), AOE_FLAGS_RESPONSE, "Whether this is a response PDU or not", HFILL}},
     { &hf_aoe_flags_error,
       { "Error flag", "aoe.error", FT_BOOLEAN, 8, TFS(&tfs_error), AOE_FLAGS_ERROR, "Whether this is an error PDU or not", HFILL}},
     { &hf_aoe_major,
-      { "Major", "aoe.major", FT_UINT16, BASE_HEX, NULL, 0x0, 
+      { "Major", "aoe.major", FT_UINT16, BASE_HEX, NULL, 0x0,
 	"Major address", HFILL}},
     { &hf_aoe_minor,
-      { "Minor", "aoe.minor", FT_UINT8, BASE_HEX, NULL, 0x0, 
+      { "Minor", "aoe.minor", FT_UINT8, BASE_HEX, NULL, 0x0,
 	"Minor address", HFILL}},
     { &hf_aoe_acmd,
-      { "ATA Cmd", "aoe.ata.cmd", FT_UINT8, BASE_HEX, VALS(ata_cmd_vals), 0x0, 
+      { "ATA Cmd", "aoe.ata.cmd", FT_UINT8, BASE_HEX, VALS(ata_cmd_vals), 0x0,
 	"ATA command opcode", HFILL}},
     { &hf_aoe_astatus,
-      { "ATA Status", "aoe.ata.status", FT_UINT8, BASE_HEX, NULL, 0x0, 
+      { "ATA Status", "aoe.ata.status", FT_UINT8, BASE_HEX, NULL, 0x0,
 	"ATA status bits", HFILL}},
     { &hf_aoe_tag,
-      { "Tag", "aoe.tag", FT_UINT32, BASE_HEX, NULL, 0x0, 
+      { "Tag", "aoe.tag", FT_UINT32, BASE_HEX, NULL, 0x0,
 	"Command Tag", HFILL}},
     { &hf_aoe_aflags_e,
       { "E", "aoe.aflags.e", FT_BOOLEAN, 8, TFS(&tfs_aflags_e), AOE_AFLAGS_E, "Whether this is a normal or LBA48 command", HFILL}},
@@ -488,7 +488,7 @@ proto_register_aoe(void)
       { "Response In", "aoe.response_in", FT_FRAMENUM, BASE_DEC, NULL, 0x0, "The response to this packet is in this frame", HFILL }},
     { &hf_aoe_response_to,
       { "Response To", "aoe.response_to", FT_FRAMENUM, BASE_DEC, NULL, 0x0, "This is a response to the ATA command in this frame", HFILL }},
-    { &hf_aoe_time, 
+    { &hf_aoe_time,
       { "Time from request", "aoe.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0, "Time between Request and Reply for ATA calls", HFILL }},
   };
 
@@ -496,7 +496,7 @@ proto_register_aoe(void)
     &ett_aoe,
     &ett_aoe_flags,
   };
-  
+
   proto_aoe = proto_register_protocol("ATAoverEthernet", "AOE", "aoe");
   proto_register_field_array(proto_aoe, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

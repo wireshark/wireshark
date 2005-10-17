@@ -74,7 +74,7 @@ static gboolean rpc_defragment = TRUE;
  */
 static gboolean rpc_dissect_unknown_programs = FALSE;
 
-/* try to find RPC fragment start if normal decode fails 
+/* try to find RPC fragment start if normal decode fails
  * (good when starting decode of mid-stream capture)
  */
 static gboolean rpc_find_fragment_start = FALSE;
@@ -263,10 +263,10 @@ static const fragment_items rpc_frag_items = {
 };
 
 /* Hash table with info on RPC program numbers */
-GHashTable *rpc_progs;
+GHashTable *rpc_progs = NULL;
 
 /* Hash table with info on RPC procedure numbers */
-GHashTable *rpc_procs;
+GHashTable *rpc_procs = NULL;
 
 static void dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_rpc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -455,9 +455,9 @@ typedef struct _rpc_call_info_key {
 	conversation_t *conversation;
 } rpc_call_info_key;
 
-static GHashTable *rpc_calls;
+static GHashTable *rpc_calls = NULL;
 
-static GHashTable *rpc_indir_calls;
+static GHashTable *rpc_indir_calls = NULL;
 
 /* compare 2 keys */
 static gint
@@ -524,9 +524,9 @@ int hfindex, int offset)
 }
 
 /*
- * We want to make this function available outside this file and 
+ * We want to make this function available outside this file and
  * allow callers to pass a dissection function for the opaque data
- */ 
+ */
 int
 dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
     proto_tree *tree,
@@ -719,7 +719,7 @@ int
 dissect_rpc_string(tvbuff_t *tvb, proto_tree *tree,
     int hfindex, int offset, char **string_buffer_ret)
 {
-        offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL, 
+        offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL,
 	    hfindex, FALSE, 0, TRUE, string_buffer_ret, NULL);
 	return offset;
 }
@@ -729,7 +729,7 @@ int
 dissect_rpc_data(tvbuff_t *tvb, proto_tree *tree,
     int hfindex, int offset)
 {
-        offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL, 
+        offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL,
 					 hfindex, FALSE, 0, FALSE, NULL, NULL);
 	return offset;
 }
@@ -1624,7 +1624,7 @@ dissect_rpc_continuation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 /**
- *  Produce a dummy RPC program entry for the given RPC program key 
+ *  Produce a dummy RPC program entry for the given RPC program key
  *  and version values.
  */
 
@@ -1774,10 +1774,10 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if(rpc_dissect_unknown_programs){
 			guint32 version;
 
-			/* if the user has specified that he wants to try to 
+			/* if the user has specified that he wants to try to
 			 * dissect even completely unknown RPC program numbers
 			 * then let him do that.
-			 * In this case we only check that the program number 
+			 * In this case we only check that the program number
 			 * is neither 0 nor -1 which is better than nothing.
 			 */
 			if(rpc_prog_key.prog==0 || rpc_prog_key.prog==0xffffffff){
@@ -2576,10 +2576,10 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		case AUTH_GSSAPI_CONTINUE_INIT:
 		case AUTH_GSSAPI_MSG:
 			if (msg_type == RPC_CALL) {
-			    offset = dissect_rpc_authgssapi_initarg(tvb, 
+			    offset = dissect_rpc_authgssapi_initarg(tvb,
 				rpc_tree, offset, pinfo);
 			} else {
-			    offset = dissect_rpc_authgssapi_initres(tvb, 
+			    offset = dissect_rpc_authgssapi_initres(tvb,
 				rpc_tree, offset, pinfo);
 			}
 			break;
@@ -2608,10 +2608,10 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		break;
 	}
 
-        if (tvb_length_remaining(tvb, offset) > 0) {  
-          /* 
-           * dissect any remaining bytes (incomplete dissection) as pure 
-           * data in the ptree 
+        if (tvb_length_remaining(tvb, offset) > 0) {
+          /*
+           * dissect any remaining bytes (incomplete dissection) as pure
+           * data in the ptree
            */
 
           call_dissector(data_handle,
@@ -3043,7 +3043,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				new_rfk->start_seq = rfk->start_seq;
 				g_hash_table_insert(rpc_reassembly_table, new_rfk,
 					new_rfk);
-            
+
 				/*
 				 * This is part of a fragmented record,
 				 * but it's not the first part.
@@ -3051,7 +3051,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * a top-level tree for this protocol.
 				 */
 				make_frag_tree(frag_tvb, tree, proto, ett,rpc_rm);
-            
+
 				/*
 				 * No more processing need be done, as we don't
 				 * have a complete record.
@@ -3063,7 +3063,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 * So rather than creating a fragment reassembly tree,
 				 * we simply throw away the partial fragment structure
 				 * and fall though to our "sole fragment" processing below.
-				 */  
+				 */
 			}
 		}
 
@@ -3194,10 +3194,10 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /**
  * Scans tvb, starting at given offset, to see if we can find
  * what looks like a valid RPC-over-TCP reply header.
- * 
+ *
  * @param tvb Buffer to inspect for RPC reply header.
  * @param offset Offset to begin search of tvb at.
- * 
+ *
  * @return -1 if no reply header found, else offset to start of header
  *         (i.e., to the RPC record mark field).
  */
@@ -3264,7 +3264,7 @@ guint32  ulRecMark;
 
 int      i;
 
-   
+
 	cbInBuf = tvb_reported_length_remaining(tvb, offset);
 
 	/* start search at first possible location */
