@@ -275,7 +275,7 @@ maintainer-clean: distclean
 	cd ../gryphon
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../h223
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintaner-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../irda
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../lwres
