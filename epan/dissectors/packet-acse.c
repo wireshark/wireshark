@@ -9,7 +9,7 @@
   There is a bug in asn2eth that it can not yet handle tagged assignments such
   as EXTERNAL  ::=  [UNIVERSAL 8] IMPLICIT SEQUENCE {
 
-  This bug is workedaround by some .cnf magic but this should be cleaned up 
+  This bug is workedaround by some .cnf magic but this should be cleaned up
   once asn2eth learns how to deal with tagged assignments
 */
 
@@ -18,7 +18,7 @@
  *   Ronnie Sahlberg 2005
  * dissect_acse() based original handwritten dissector by Sid
  *   Yuriy Sidelnikov <YSidelnikov@hotmail.com>
- *  
+ *
  *
  * $Id$
  *
@@ -62,6 +62,8 @@
 #define PNAME  "ACSE"
 #define PSNAME "ACSE"
 #define PFNAME "acse"
+
+#define ACSE_APDU_OID "2.2.1.0.1"
 
 /* Initialize the protocol and registered fields */
 int proto_acse = -1;
@@ -328,7 +330,7 @@ dissect_acse_T_indirect_reference(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 
   /* look up the indirect reference */
   if((oid = find_oid_by_pres_ctx_id(pinfo, indir_ref)) != NULL) {
-    g_snprintf(object_identifier_id, MAX_OID_STR_LEN, "{'FN_VARIANT': '', 'VAL_PTR': 'NULL', 'TREE': 'tree', 'DEFAULT_BODY': '  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,\n                                  NULL);\n', 'HF_INDEX': 'hf_index', 'PINFO': 'pinfo', 'CREATED_ITEM_PTR': 'NULL', 'OFFSET': 'offset', 'TNAME': 'T_indirect_reference', 'TVB': 'tvb', 'IMPLICIT_TAG': 'implicit_tag', 'ER': 'ber'}", oid);
+    g_snprintf(object_identifier_id, MAX_OID_STR_LEN, "{'DEFAULT_BODY': '  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,\n                                  NULL);\n', 'VAL_PTR': 'NULL', 'TREE': 'tree', 'FN_VARIANT': '', 'HF_INDEX': 'hf_index', 'PINFO': 'pinfo', 'CREATED_ITEM_PTR': 'NULL', 'OFFSET': 'offset', 'TNAME': 'T_indirect_reference', 'ER': 'ber', 'IMPLICIT_TAG': 'implicit_tag', 'TVB': 'tvb'}", oid);
   }
 
   if(session)
@@ -1857,7 +1859,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* first, try to check length   */
 	/* do we have at least 2 bytes  */
 	if (!tvb_bytes_exist(tvb, 0, 2)){
-		proto_tree_add_text(parent_tree, tvb, offset, 
+		proto_tree_add_text(parent_tree, tvb, offset,
 			tvb_reported_length_remaining(tvb,offset),
 			"User data");
 		return;  /* no, it isn't a ACSE PDU */
@@ -1866,7 +1868,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if( !pinfo->private_data ){
 		if(parent_tree){
 			REPORT_DISSECTOR_BUG("Can't get SPDU type from session dissector.");
-		} 
+		}
 		return  ;
 	} else {
 		session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
@@ -1891,7 +1893,11 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		break;
 	case SES_DATA_TRANSFER:
 		oid=find_oid_by_pres_ctx_id(pinfo, indir_ref);
-		if(oid){
+		if(strcmp(oid, ACSE_APDU_OID) == 0){
+			proto_tree_add_text(parent_tree, tvb, offset, -1,
+			    "Invalid OID: %s", ACSE_APDU_OID);
+			THROW(ReportedBoundsError);
+		} else if(oid){
 			call_ber_oid_callback(oid, tvb, offset, pinfo, parent_tree);
 		} else {
 			proto_tree_add_text(parent_tree, tvb, offset, -1,
@@ -2422,7 +2428,7 @@ void proto_reg_handoff_acse(void) {
 /*#include "packet-acse-dis-tab.c"*/
 
 	register_ber_oid_name("2.2.3.1.1","aCSE-id");
-	register_ber_oid_dissector("2.2.1.0.1", dissect_acse, proto_acse, "acse-as-id");
+	register_ber_oid_dissector(ACSE_APDU_OID, dissect_acse, proto_acse, "acse-as-id");
 
 
 }
