@@ -196,6 +196,13 @@ Gnu info
 	</para></listitem>
 
 	<listitem><para>
+	  The ACSE dissector was susceptible to infinite recursion.
+	  <!-- Fixed in r16252 -->
+	  <!-- Bug IDs: none -->
+	  Versions affected: 0.10.12.
+	</para></listitem>
+
+	<listitem><para>
 	   iDEFENSE found a buffer overflow in the SRVLOC dissector.
 	  <!-- Fixed in r16206 -->
 	  <!-- Bug IDs: none -->
