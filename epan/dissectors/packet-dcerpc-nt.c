@@ -81,8 +81,8 @@ dissect_ndr_counted_string_cb(tvbuff_t *tvb, int offset,
 
 	if (di->conformant_run)
 		return offset;
-	
-	/* 
+
+	/*
            struct {
                short len;
                short size;
@@ -95,7 +95,7 @@ dissect_ndr_counted_string_cb(tvbuff_t *tvb, int offset,
 			hf_nt_cs_len, &len);
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
-			hf_nt_cs_size, &size);	
+			hf_nt_cs_size, &size);
 
 	offset = dissect_ndr_pointer_cb(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
@@ -118,7 +118,7 @@ dissect_ndr_counted_string_helper(tvbuff_t *tvb, int offset,
 	if (add_subtree) {
 
 		item = proto_tree_add_text(
-			tree, tvb, offset, 0, 
+			tree, tvb, offset, 0,
 			proto_registrar_get_name(hf_index));
 
 		subtree = proto_item_add_subtree(item, ett_nt_counted_string);
@@ -185,12 +185,12 @@ dissect_ndr_counted_byte_array_cb(tvbuff_t *tvb, int offset,
 	if (di->conformant_run)
 		return offset;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, 
+	item = proto_tree_add_text(tree, tvb, offset, 0,
 		proto_registrar_get_name(hf_index));
 
 	subtree = proto_item_add_subtree(item, ett_nt_counted_byte_array);
-	
-	/* 
+
+	/*
            struct {
                short len;
                short size;
@@ -203,7 +203,7 @@ dissect_ndr_counted_byte_array_cb(tvbuff_t *tvb, int offset,
 			hf_nt_cs_len, &len);
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, subtree, drep,
-			hf_nt_cs_size, &size);	
+			hf_nt_cs_size, &size);
 
 	offset = dissect_ndr_pointer_cb(tvb, offset, pinfo, subtree, drep,
 			dissect_ndr_char_cvstring, NDR_POINTER_UNIQUE,
@@ -213,7 +213,7 @@ dissect_ndr_counted_byte_array_cb(tvbuff_t *tvb, int offset,
 }
 
 static void cb_byte_array_postprocess(packet_info *pinfo, proto_tree *tree _U_,
-			proto_item *item, tvbuff_t *tvb, 
+			proto_item *item, tvbuff_t *tvb,
 			int start_offset, int end_offset,
 			void *callback_args)
 {
@@ -291,12 +291,12 @@ dissect_ndr_counted_ascii_string_cb(tvbuff_t *tvb, int offset,
 	if (di->conformant_run)
 		return offset;
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, 
+	item = proto_tree_add_text(tree, tvb, offset, 0,
 		proto_registrar_get_name(hf_index));
 
 	subtree = proto_item_add_subtree(item, ett_nt_counted_ascii_string);
-	
-	/* 
+
+	/*
            struct {
                short len;
                short size;
@@ -309,7 +309,7 @@ dissect_ndr_counted_ascii_string_cb(tvbuff_t *tvb, int offset,
 			hf_nt_cs_len, &len);
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, subtree, drep,
-			hf_nt_cs_size, &size);	
+			hf_nt_cs_size, &size);
 
 	offset = dissect_ndr_pointer_cb(tvb, offset, pinfo, subtree, drep,
 			dissect_ndr_char_cvstring, NDR_POINTER_UNIQUE,
@@ -412,7 +412,7 @@ typedef struct {
 	pol_value *list;                 /* List of policy handle entries */
 } pol_hash_value;
 
-static GHashTable *pol_hash;
+static GHashTable *pol_hash = NULL;
 
 /* Hash function */
 
@@ -536,7 +536,7 @@ static void add_pol_handle(e_ctx_hnd *policy_hnd, guint32 frame,
 			value->list = pol;
 		else
 			polprev->next = pol;
-		
+
 		/*
 		 * "polnext" points to the entry in the list before
 		 * which we should put the new entry; if it's null,
@@ -960,7 +960,7 @@ dissect_ndr_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
  * Helper routines for dissecting NDR strings
  */
 void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
-			proto_item *item, tvbuff_t *tvb, 
+			proto_item *item, tvbuff_t *tvb,
 			int start_offset, int end_offset,
 			void *callback_args)
 {
@@ -1020,14 +1020,14 @@ void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	if (options & CB_STR_SAVE) {
 		dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 		dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-		
+
 /* FIXME EPHEMERAL need to get rid of the g_strdup() and later g_free() */
 		dcv->private_data = g_strdup(s);
 	}
 }
 
 void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
-			proto_item *item, tvbuff_t *tvb, 
+			proto_item *item, tvbuff_t *tvb,
 			int start_offset, int end_offset,
 			void *callback_args)
 {
@@ -1086,7 +1086,7 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	if (options & CB_STR_SAVE) {
 		dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 		dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-		
+
 		dcv->private_data = g_strdup(s);
 	}
 }
@@ -1094,14 +1094,14 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 /* Dissect a pointer to a NDR string and append the string value to the
    proto_item. */
 
-int dissect_ndr_str_pointer_item(tvbuff_t *tvb, gint offset, 
-				 packet_info *pinfo, proto_tree *tree, 
-				 guint8 *drep, int type, const char *text, 
+int dissect_ndr_str_pointer_item(tvbuff_t *tvb, gint offset,
+				 packet_info *pinfo, proto_tree *tree,
+				 guint8 *drep, int type, const char *text,
 				 int hf_index, int levels)
 {
 	return dissect_ndr_pointer_cb(
-		tvb, offset, pinfo, tree, drep, 
-		dissect_ndr_wchar_cvstring, type, text, hf_index, 
+		tvb, offset, pinfo, tree, drep,
+		dissect_ndr_wchar_cvstring, type, text, hf_index,
 		cb_wstr_postprocess, GINT_TO_POINTER(levels + 1));
 }
 
@@ -1111,7 +1111,7 @@ static int hf_nt_count = -1;
 static int hf_nt_domain_sid = -1;
 
 int
-dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		   proto_tree *tree, guint8 *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
@@ -1135,7 +1135,7 @@ dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_nt_count, NULL);
 
-	offset = dissect_nt_sid(tvb, offset, tree, name, &sid_str, 
+	offset = dissect_nt_sid(tvb, offset, tree, name, &sid_str,
 				hf_nt_domain_sid);
 
 	/* dcv can be null, for example when this ndr structure is embedded
@@ -1164,8 +1164,8 @@ dissect_ndr_nt_SID_with_options(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 		proto_item *item=(proto_item *)tree;
 
 		if ((options & CB_STR_COL_INFO)&&(!di->conformant_run)) {
-			/* kludge, ugly,   but this is called twice for all 
-			   dcerpc interfaces due to how we chase pointers 
+			/* kludge, ugly,   but this is called twice for all
+			   dcerpc interfaces due to how we chase pointers
 			   and putting the sid twice on the summary line
 			   looks even worse.
 			   Real solution would be to block updates to col_info
@@ -1199,7 +1199,7 @@ dissect_ndr_nt_SID_with_options(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 }
 
 static int
-dissect_ndr_nt_SID_hf_through_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+dissect_ndr_nt_SID_hf_through_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		   proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_nt_SID(tvb, offset, pinfo, tree, drep);
@@ -1517,17 +1517,17 @@ void dcerpc_smb_init(int proto_dcerpc)
 
 		{ &hf_nt_cs_size,
 		  { "Size", "nt.str.size", FT_UINT16, BASE_DEC,
-		    NULL, 0x0, "Size of string in short integers", 
+		    NULL, 0x0, "Size of string in short integers",
 		    HFILL }},
-		
+
 		{ &hf_nt_cs_len,
 		  { "Length", "nt.str.len", FT_UINT16, BASE_DEC,
-		    NULL, 0x0, "Length of string in short integers", 
+		    NULL, 0x0, "Length of string in short integers",
 		    HFILL }},
-		
+
 		/* GUIDs */
 		{ &hf_nt_guid,
-		  { "GUID", "nt.guid", FT_STRING, BASE_NONE, 
+		  { "GUID", "nt.guid", FT_STRING, BASE_NONE,
 		    NULL, 0x0, "GUID (uuid for groups?)", HFILL }},
 
 		/* Policy handles */
@@ -1548,90 +1548,90 @@ void dcerpc_smb_init(int proto_dcerpc)
 		  { "Acct Ctrl", "nt.acct_ctrl", FT_UINT32, BASE_HEX,
 		    NULL, 0x0, "Acct CTRL", HFILL }},
 
-		{ &hf_nt_acb_disabled, 
-		  { "", "nt.acb.disabled", FT_BOOLEAN, 32, 
-		    TFS(&tfs_nt_acb_disabled), 0x0001, 
+		{ &hf_nt_acb_disabled,
+		  { "", "nt.acb.disabled", FT_BOOLEAN, 32,
+		    TFS(&tfs_nt_acb_disabled), 0x0001,
 		    "If this account is enabled or disabled", HFILL }},
 
-		{ &hf_nt_acb_homedirreq, 
+		{ &hf_nt_acb_homedirreq,
 		  { "", "nt.acb.homedirreq", FT_BOOLEAN, 32,
-		    TFS(&tfs_nt_acb_homedirreq), 0x0002, 
+		    TFS(&tfs_nt_acb_homedirreq), 0x0002,
 		    "Is hom,edirs required for this account?", HFILL }},
 
-		{ &hf_nt_acb_pwnotreq, 
-		  { "", "nt.acb.pwnotreq", FT_BOOLEAN, 32, 
-		    TFS(&tfs_nt_acb_pwnotreq), 0x0004, 
+		{ &hf_nt_acb_pwnotreq,
+		  { "", "nt.acb.pwnotreq", FT_BOOLEAN, 32,
+		    TFS(&tfs_nt_acb_pwnotreq), 0x0004,
 		    "If a password is required for this account?", HFILL }},
 
-		{ &hf_nt_acb_tempdup, 
-		  { "", "nt.acb.tempdup", FT_BOOLEAN, 32, 
-		    TFS(&tfs_nt_acb_tempdup), 0x0008, 
+		{ &hf_nt_acb_tempdup,
+		  { "", "nt.acb.tempdup", FT_BOOLEAN, 32,
+		    TFS(&tfs_nt_acb_tempdup), 0x0008,
 		    "If this is a temporary duplicate account", HFILL }},
 
-		{ &hf_nt_acb_normal, 
-		  { "", "nt.acb.normal", FT_BOOLEAN, 32, 
-		    TFS(&tfs_nt_acb_normal), 0x0010, 
+		{ &hf_nt_acb_normal,
+		  { "", "nt.acb.normal", FT_BOOLEAN, 32,
+		    TFS(&tfs_nt_acb_normal), 0x0010,
 		    "If this is a normal user account", HFILL }},
 
-		{ &hf_nt_acb_mns, 
+		{ &hf_nt_acb_mns,
 		  { "", "nt.acb.mns", FT_BOOLEAN, 32,
-		    TFS(&tfs_nt_acb_mns), 0x0020, 
+		    TFS(&tfs_nt_acb_mns), 0x0020,
 		    "MNS logon user account", HFILL }},
 
-		{ &hf_nt_acb_domtrust, 
+		{ &hf_nt_acb_domtrust,
 		  { "", "nt.acb.domtrust", FT_BOOLEAN, 32,
-		    TFS(&tfs_nt_acb_domtrust), 0x0040, 
+		    TFS(&tfs_nt_acb_domtrust), 0x0040,
 		    "Interdomain trust account", HFILL }},
-		
-		{ &hf_nt_acb_wstrust, 
+
+		{ &hf_nt_acb_wstrust,
 		  { "", "nt.acb.wstrust", FT_BOOLEAN, 32,
-		    TFS(&tfs_nt_acb_wstrust), 0x0080, 
+		    TFS(&tfs_nt_acb_wstrust), 0x0080,
 		    "Workstation trust account", HFILL }},
-		
-		{ &hf_nt_acb_svrtrust, 
+
+		{ &hf_nt_acb_svrtrust,
 		  { "", "nt.acb.svrtrust", FT_BOOLEAN, 32,
-		    TFS(&tfs_nt_acb_svrtrust), 0x0100, 
+		    TFS(&tfs_nt_acb_svrtrust), 0x0100,
 		    "Server trust account", HFILL }},
 
-		{ &hf_nt_acb_pwnoexp, 
+		{ &hf_nt_acb_pwnoexp,
 		  { "", "nt.acb.pwnoexp", FT_BOOLEAN, 32,
-		    TFS(&tfs_nt_acb_pwnoexp), 0x0200, 
+		    TFS(&tfs_nt_acb_pwnoexp), 0x0200,
 		    "If this account expires or not", HFILL }},
 
-		{ &hf_nt_acb_autolock, 
+		{ &hf_nt_acb_autolock,
 		  { "", "nt.acb.autolock", FT_BOOLEAN, 32,
-		    TFS(&tfs_nt_acb_autolock), 0x0400, 
+		    TFS(&tfs_nt_acb_autolock), 0x0400,
 		    "If this account has been autolocked", HFILL }},
 
 		/* SIDs */
 
 		{ &hf_nt_domain_sid,
-		  { "Domain SID", "nt.domain_sid", 
-		    FT_STRING, BASE_NONE, NULL, 0x0, 
+		  { "Domain SID", "nt.domain_sid",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    "The Domain SID", HFILL }},
 
 		{ &hf_nt_count,
-		  { "Count", "nt.count", 
-		    FT_UINT32, BASE_DEC, NULL, 0x0, 
+		  { "Count", "nt.count",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    "Number of elements in following array", HFILL }},
 
 		/* Logon hours */
 
-		{ &hf_logonhours_divisions, 
-		  { "Divisions", "logonhours.divisions", 
-		    FT_UINT16, BASE_DEC, NULL, 0, 
+		{ &hf_logonhours_divisions,
+		  { "Divisions", "logonhours.divisions",
+		    FT_UINT16, BASE_DEC, NULL, 0,
 		    "Number of divisions for LOGON_HOURS", HFILL }},
 
-		{ &hf_logonhours_unknown_char, 
-		  { "Unknown char", "nt.unknown.char", 
-		    FT_UINT8, BASE_HEX, NULL, 0x0, 
+		{ &hf_logonhours_unknown_char,
+		  { "Unknown char", "nt.unknown.char",
+		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    "Unknown char. If you know what this is, contact "
 		    "ethereal developers.", HFILL }},
 
 		/* Misc */
 
-                { &hf_nt_attrib, 
-		  { "Attributes", "nt.attr", 
+                { &hf_nt_attrib,
+		  { "Attributes", "nt.attr",
 		    FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
 	};
 
@@ -1657,5 +1657,5 @@ void dcerpc_smb_init(int proto_dcerpc)
 
 	/* Initialise policy handle hash */
 
-	init_pol_hash();
+	register_init_routine(&init_pol_hash);
 }
