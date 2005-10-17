@@ -64,6 +64,8 @@ Ethereal 0.10.13 has been released.
      o The ACSE dissector was susceptible to infinite recursion. Versions
        affected: 0.10.12.
 
+     o The CLNP dissector could crash. Versions affected: 0.9.11 to 0.10.12.
+
      o iDEFENSE found a buffer overflow in the SRVLOC dissector. Versions
        affected: 0.10.0 to 0.10.12.
 

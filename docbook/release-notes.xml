@@ -203,6 +203,13 @@ Gnu info
 	</para></listitem>
 
 	<listitem><para>
+	  The CLNP dissector could crash.
+	  <!-- Fixed in r16258 -->
+	  <!-- Bug IDs: 537 -->
+	  Versions affected: 0.9.11 to 0.10.12.
+	</para></listitem>
+
+	<listitem><para>
 	   iDEFENSE found a buffer overflow in the SRVLOC dissector.
 	  <!-- Fixed in r16206 -->
 	  <!-- Bug IDs: none -->

@@ -335,9 +335,9 @@ static const value_string tp_vpart_type_vals[] = {
   { 0,				NULL }
 };
 
-static int hf_cotp_vp_src_tsap = -1; 
+static int hf_cotp_vp_src_tsap = -1;
 static int hf_cotp_vp_dst_tsap = -1;
-static int hf_cotp_vp_src_tsap_bytes = -1; 
+static int hf_cotp_vp_src_tsap_bytes = -1;
 static int hf_cotp_vp_dst_tsap_bytes = -1;
 
 
@@ -403,7 +403,7 @@ static gboolean is_all_printable(const guchar *stringtocheck, int length)
       break;
     }
   }
-  return allprintable; 
+  return allprintable;
 } /* is_all_printable */
 
 
@@ -639,16 +639,16 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
       break;
 
     case VP_SRC_TSAP:
-      /* if our preference is set to STRING or the  
+      /* if our preference is set to STRING or the
 	 TSAP is not printable, add as bytes and hidden as string;
          otherwise vice-versa */
       if (tsap_display==TSAP_DISPLAY_STRING ||
 	 (tsap_display==TSAP_DISPLAY_AUTO && is_all_printable(tvb_get_ptr(tvb,offset,length),length))) {
-     	proto_tree_add_string(tree, hf_cotp_vp_src_tsap, tvb, offset, length, 
+     	proto_tree_add_string(tree, hf_cotp_vp_src_tsap, tvb, offset, length,
 		print_tsap(tvb_get_ptr(tvb, offset, length),length));
         proto_tree_add_item_hidden(tree, hf_cotp_vp_src_tsap_bytes, tvb, offset, length, TRUE);
       } else {
-     	proto_tree_add_string_hidden(tree, hf_cotp_vp_src_tsap, tvb, offset, length, 
+     	proto_tree_add_string_hidden(tree, hf_cotp_vp_src_tsap, tvb, offset, length,
 		print_tsap(tvb_get_ptr(tvb, offset, length),length));
         proto_tree_add_item(tree, hf_cotp_vp_src_tsap_bytes, tvb, offset, length, TRUE);
       }
@@ -657,16 +657,16 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
       break;
 
     case VP_DST_TSAP:
-      /* if our preference is set to STRING or the  
+      /* if our preference is set to STRING or the
 	 TSAP is not printable, add as bytes and hidden as string;
-         otherwise vice-versa */      
+         otherwise vice-versa */
       if (tsap_display==TSAP_DISPLAY_STRING ||
 	 (tsap_display==TSAP_DISPLAY_AUTO && is_all_printable(tvb_get_ptr(tvb,offset,length),length))) {
-     	proto_tree_add_string(tree, hf_cotp_vp_dst_tsap, tvb, offset, length, 
+     	proto_tree_add_string(tree, hf_cotp_vp_dst_tsap, tvb, offset, length,
 		print_tsap(tvb_get_ptr(tvb, offset, length),length));
         proto_tree_add_item_hidden(tree, hf_cotp_vp_dst_tsap_bytes, tvb, offset, length, TRUE);
       } else {
-     	proto_tree_add_string_hidden(tree, hf_cotp_vp_dst_tsap, tvb, offset, length, 
+     	proto_tree_add_string_hidden(tree, hf_cotp_vp_dst_tsap, tvb, offset, length,
 		print_tsap(tvb_get_ptr(tvb, offset, length),length));
         proto_tree_add_item(tree, hf_cotp_vp_dst_tsap_bytes, tvb, offset, length, TRUE);
       }
@@ -1017,7 +1017,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 					    fd_head->len);
 	tvb_set_child_real_data_tvbuff(next_tvb, reassembled_tvb);
 	add_new_data_source(pinfo, reassembled_tvb, "Reassembled COTP");
-	
+
 	show_fragment_seq_tree(fd_head,
 			       &cotp_frag_items,
 			       tree,
@@ -1031,9 +1031,9 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 		proto_tree_add_text(cotp_tree, tvb, offset, (fragment_length) ? -1 : 0,
 			  "User data (%u byte%s)", fragment_length,
 			  plurality(fragment_length, "", "s"));
-    } 
+    }
 
-  } 
+  }
 
   if (uses_inactive_subset) {
     if (dissector_try_heuristic(cotp_is_heur_subdissector_list, next_tvb,
@@ -1045,9 +1045,9 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     }
   } else {
     /*
-     * We dissect payload if one of the following is TRUE: 
+     * We dissect payload if one of the following is TRUE:
      *
-     * - Reassembly option for COTP in preferences is unchecked 
+     * - Reassembly option for COTP in preferences is unchecked
      * - Reassembly option is checked and this packet is the last fragment
      */
     if ( (!cotp_reassemble) ||
@@ -1059,7 +1059,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
         call_dissector(data_handle,next_tvb, pinfo, tree);
       }
     }
-  }   
+  }
 
   offset += tvb_length_remaining(tvb, offset);
      /* we dissected all of the containing PDU */
@@ -1252,7 +1252,7 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   tvbuff_t *next_tvb;
 
   src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
-  
+
   class_option = (tvb_get_guint8(tvb, offset + P_CLASS_OPTION) >> 4 ) & 0x0F;
   if (class_option > 4)
     return -1;
@@ -2045,6 +2045,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (clnp_reassemble && (cnf_type & CNF_SEG_OK) &&
 	((cnf_type & CNF_MORE_SEGS) || segment_offset != 0) &&
 	tvb_bytes_exist(tvb, offset, segment_length - cnf_hdr_len) &&
+	segment_length > cnf_hdr_len &&
 	cksum_status != CKSUM_NOT_OK) {
     fd_head = fragment_add_check(tvb, offset, pinfo, du_id, clnp_segment_table,
 			   clnp_reassembled_table, segment_offset,
@@ -2113,7 +2114,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           pinfo->fragmented = save_fragmented;
           return;	/* yes, it appears to be COTP or CLTP */
       }
-	
+
       break;
 
     case ER_NPDU:
@@ -2255,7 +2256,7 @@ void proto_register_clnp(void)
   proto_register_field_array(proto_clnp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   register_dissector("clnp", dissect_clnp, proto_clnp);
-  register_heur_dissector_list("clnp", &clnp_heur_subdissector_list);  
+  register_heur_dissector_list("clnp", &clnp_heur_subdissector_list);
   register_init_routine(clnp_reassemble_init);
   register_init_routine(cotp_reassemble_init);
 
@@ -2293,7 +2294,7 @@ void proto_register_cotp(void)
         "Source address reference", HFILL}},
     { &hf_cotp_destref,
       { "Destination reference", "cotp.destref", FT_UINT16, BASE_HEX, NULL, 0x0,
-        "Destination address reference", HFILL}}, 
+        "Destination address reference", HFILL}},
     { &hf_cotp_li,
       { "Length", "cotp.li", FT_UINT8, BASE_DEC, NULL, 0x0,
         "Length Indicator, length of this header", HFILL}},
