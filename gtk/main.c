@@ -1491,12 +1491,19 @@ main_cf_cb_live_capture_fixed_finished(capture_file *cf _U_)
 static void
 main_cf_cb_live_capture_stopping(capture_file *cf _U_)
 {
+#if 0
+	/* XXX - the time to stop the capture has been reduced (this was only a 
+	 * problem on Win32 because of the capture piping), so showing a splash 
+	 * isn't really necessary any longer. Unfortunately, the GTKClist packet 
+	 * list seems to have problems updating after the dialog is closed, so 
+	 * this was disabled here. */
     stop_dlg = simple_dialog(ESD_TYPE_STOP, ESD_BTN_NONE, "%sCapture stop!%s\n\nPlease wait ...", 
 		simple_dialog_primary_start(), simple_dialog_primary_end());
 #if GTK_MAJOR_VERSION >= 2
 	gtk_window_set_position(GTK_WINDOW(stop_dlg), GTK_WIN_POS_CENTER_ON_PARENT);
 #else
 	gtk_window_set_position(GTK_WINDOW(stop_dlg), GTK_WIN_POS_CENTER);
+#endif
 #endif
 }
 
