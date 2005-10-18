@@ -330,7 +330,7 @@ dissect_acse_T_indirect_reference(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 
   /* look up the indirect reference */
   if((oid = find_oid_by_pres_ctx_id(pinfo, indir_ref)) != NULL) {
-    g_snprintf(object_identifier_id, MAX_OID_STR_LEN, "{'DEFAULT_BODY': '  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,\n                                  NULL);\n', 'VAL_PTR': 'NULL', 'TREE': 'tree', 'FN_VARIANT': '', 'HF_INDEX': 'hf_index', 'PINFO': 'pinfo', 'CREATED_ITEM_PTR': 'NULL', 'OFFSET': 'offset', 'TNAME': 'T_indirect_reference', 'ER': 'ber', 'IMPLICIT_TAG': 'implicit_tag', 'TVB': 'tvb'}", oid);
+    g_snprintf(object_identifier_id, MAX_OID_STR_LEN, "%s", oid);
   }
 
   if(session)
