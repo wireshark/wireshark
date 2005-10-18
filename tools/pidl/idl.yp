@@ -62,22 +62,24 @@ definitions:
 definition: function | const | typedef | declare | typedecl
 ;
 
-const: 'const' identifier identifier '=' anytext ';' 
+const: 'const' identifier pointers identifier '=' anytext ';' 
         {{
                      "TYPE"  => "CONST", 
 		     "DTYPE"  => $_[2],
-		     "NAME"  => $_[3],
-		     "VALUE" => $_[5],
+			 "POINTERS" => $_[3],
+		     "NAME"  => $_[4],
+		     "VALUE" => $_[6],
 		     "FILE" => $_[0]->YYData->{INPUT_FILENAME},
 		     "LINE" => $_[0]->YYData->{LINE},
         }}
-	| 'const' identifier identifier array_len '=' anytext ';' 
+	| 'const' identifier pointers identifier array_len '=' anytext ';' 
         {{
                      "TYPE"  => "CONST", 
 		     "DTYPE"  => $_[2],
-		     "NAME"  => $_[3],
-		     "ARRAY_LEN" => $_[4],
-		     "VALUE" => $_[6],
+			 "POINTERS" => $_[3],
+		     "NAME"  => $_[4],
+		     "ARRAY_LEN" => $_[5],
+		     "VALUE" => $_[7],
 		     "FILE" => $_[0]->YYData->{INPUT_FILENAME},
 		     "LINE" => $_[0]->YYData->{LINE},
         }}

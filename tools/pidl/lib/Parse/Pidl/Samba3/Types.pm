@@ -7,11 +7,11 @@ package Parse::Pidl::Samba3::Types;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(DeclShort DeclLong InitType DissectType AddType);
+@EXPORT_OK = qw(DeclShort DeclLong InitType DissectType AddType StringType);
 
 use strict;
 use Parse::Pidl::Util qw(has_property ParseExpr property_matches);
-use Parse::Pidl::NDR qw(GetPrevLevel GetNextLevel ContainsDeferred);
+use Parse::Pidl::NDR qw(GetPrevLevel GetNextLevel ContainsDeferred ContainsString);
 
 use vars qw($VERSION);
 $VERSION = '0.01';
@@ -102,6 +102,20 @@ sub dissect_string($$$$$)
 
 	$$a = 1;
 	return "smb_io_$t(\"$e->{NAME}\", &$n, 1, ps, depth)";
+}
+
+sub StringType($$)
+{
+	my ($e,$l) = @_;
+	my $nl = GetNextLevel($e,$l);
+
+	if ($l->{IS_VARYING} and $l->{IS_CONFORMANT} and $nl->{DATA_TYPE} eq "uint16") {
+		return ("unistr2", "UNI_FLAGS_NONE");
+	} elsif ($l->{IS_CONFORMANT} and $l->{IS_VARYING} and $nl->{DATA_TYPE} eq "uint8") {
+		return ("string2", 0);
+	} else {
+		fatal($e, "[string] non-varying string not supported for Samba3 yet");
+	}
 }
 
 my $known_types = 
@@ -205,12 +219,6 @@ sub AddType($$)
 	$known_types->{$t} = $d;
 }
 
-sub GetType($)
-{
-	my $e = shift;
-
-}
-
 # Return type without special stuff, as used in 
 # declarations for internal structs
 sub DeclShort($)
@@ -274,7 +282,10 @@ sub DeclLong($)
 	my $suffixes = "";
 
 	foreach my $l (@{$e->{LEVELS}}) {
-		if ($l->{TYPE} eq "ARRAY" and not $l->{IS_FIXED}) {
+		if ($l->{TYPE} eq "ARRAY" and $l->{IS_ZERO_TERMINATED}) {
+			$p = "const char";
+			last;
+		} elsif ($l->{TYPE} eq "ARRAY" and not $l->{IS_FIXED}) {
 			$prefixes = "*$prefixes";
 		} elsif ($l->{TYPE} eq "ARRAY" and $l->{IS_FIXED}) {
 			$suffixes.="[$l->{SIZE_IS}]";
@@ -305,14 +316,9 @@ sub InitType($$$$)
 	}
 }
 
-sub DissectType
+sub DissectType($$$$$)
 {
-	my @args = @_;
-	my $e = shift @_;
-	my $l = shift @_;
-	my $varname = shift @_;
-	my $what = shift @_;
-	my $align = shift @_;
+	my ($e,$l,$varname,$what,$align) = @_;
 
 	my $t = $known_types->{$l->{DATA_TYPE}};
 
@@ -332,7 +338,7 @@ sub DissectType
 
 	# DISSECT can be a function
 	if (ref($dissect) eq "CODE") {
-		return $dissect->(@args);
+		return $dissect->($e,$l,$varname,$what,$align);
 	} else {
 		return $dissect;
 	}
@@ -356,31 +362,18 @@ sub LoadTypes($)
 			my $dissect_p;
 			if ($td->{DATA}->{TYPE} eq "UNION") {
 				$decl.="_CTR";
-				 $dissect_p = sub {
-					my ($e,$l,$n,$w,$a,$s) = @_;
+			} 
 
-					return "$if->{NAME}_io_$td->{NAME}_p(\"$e->{NAME}\", &$n, $s, ps, depth)";
-				};
+			 $dissect_p = sub {
+				my ($e,$l,$n,$w,$a) = @_;
 
-				 $dissect_d = sub {
-					my ($e,$l,$n,$w,$a,$s) = @_;
+				return "$if->{NAME}_io_$td->{NAME}_p(\"$e->{NAME}\", &$n, ps, depth)";
+			};
+		 	$dissect_d = sub {
+				my ($e,$l,$n,$w,$a) = @_;
 
-					return "$if->{NAME}_io_$td->{NAME}_d(\"$e->{NAME}\", &$n, $s, ps, depth)";
-				};
-
-			} else {
-				 $dissect_p = sub {
-					my ($e,$l,$n,$w,$a) = @_;
-
-					return "$if->{NAME}_io_$td->{NAME}_p(\"$e->{NAME}\", &$n, ps, depth)";
-				};
-			 	$dissect_d = sub {
-					my ($e,$l,$n,$w,$a) = @_;
-
-					return "$if->{NAME}_io_$td->{NAME}_d(\"$e->{NAME}\", &$n, ps, depth)";
-				};
-
-			}
+				return "$if->{NAME}_io_$td->{NAME}_d(\"$e->{NAME}\", &$n, ps, depth)";
+			};
 
 			AddType($td->{NAME}, {
 				DECL => $decl,

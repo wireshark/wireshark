@@ -8,13 +8,15 @@
 # released under the GNU GPL
 
 =pod
+
 =head1 NAME
 
-pidl - IDL Compiler written in Perl
+pidl - An IDL compiler written in Perl
 
 =head1 SYNOPSIS
 
 pidl --help
+
 pidl [--outputdir[=OUTNAME]] [--parse-idl-tree] [--dump-idl-tree] [--dump-ndr-tree] [--ndr-header[=OUTPUT]] [--header[=OUTPUT]] [--ejs[=OUTPUT]] [--swig[=OUTPUT]] [--uint-enums] [--ndr-parser[=OUTPUT]] [--client] [--server] [--dcom-proxy] [--com-header] [--warn-compat] [--quiet] [--verbose] [--template] [--eth-parser[=OUTPUT]] [--diff] [--dump-idl] [--tdr-header=[OUTPUT]] [--tdr-parser[=OUTPUT]] [--samba3-header[=OUTPUT]] [--samba3-parser=[OUTPUT]] [--samba3-server=[OUTPUT]] [--samba3-template[=OUTPUT]] [--samba3-client[=OUTPUT]] [<idlfile>.idl]...
 
 =head1 DESCRIPTION
@@ -95,8 +97,8 @@ packet-dcerpc-OUTNAME.h.
 	
 Pidl will read additional data from an ethereal conformance file if present. 
 Such a file should have the same location as the IDL file but with the 
-extension I<cnf> rather then I<idl>. See below for details on the format of 
-this file.
+extension I<cnf> rather then I<idl>. See L<Parse::Pidl::Ethereal::Conformance>
+for details on the format of this file.
 
 =item I<--diff>
 
@@ -273,7 +275,7 @@ Datagram support (ncadg_*)
 
 in, out, ref, length_is, switch_is, size_is, uuid, case, default, string, 
 unique, ptr, pointer_default, v1_enum, object, helpstring, range, local, 
-call_as, endpoint, switch_type, progid, coclass, iid_is.
+call_as, endpoint, switch_type, progid, coclass, iid_is, represent_as.
 
 =head2 PIDL Specific properties
 
@@ -354,82 +356,26 @@ oleautomation, optional, pragma, propget, propputref, propput, readonly,
 requestedit, restricted, retval, source, transmit_as, uidefault, 
 usesgetlasterror, vararg, vi_progid, wire_marshal. 
 
-=head1 ETHEREAL CONFORMANCE FILES
-
-Pidl needs additional data for ethereal output. This data is read from 
-so-called conformance files. This section describes the format of these 
-files.
-
-Conformance files are simple text files with a single command on each line.
-Empty lines and lines starting with a '#' character are ignored.
-Arguments to commands are seperated by spaces.
-
-The following commands are currently supported:
-
-=over 4
-
-=item I<TYPE> name dissector ft_type base_type mask valsstring alignment
-
-Register new data type with specified name, what dissector function to call 
-and what properties to give header fields for elements of this type.
-
-=item I<NOEMIT> type
-
-Suppress emitting a dissect_type function for the specified type
-
-=item I<PARAM_VALUE> type param
-
-Set parameter to specify to dissector function for given type.
-
-=item I<HF_FIELD> hf title filter ft_type base_type valsstring mask description
-
-Generate a custom header field with specified properties.
-
-=item I<HF_RENAME> old_hf_name new_hf_name
-
-Force the use of new_hf_name when the parser generator was going to 
-use old_hf_name.
-
-This can be used in conjunction with HF_FIELD in order to make more then 
-one element use the same filter name.
-
-=item I<STRIP_PREFIX> prefix
-
-Remove the specified prefix from all function names (if present).
-	
-=item I<PROTOCOL> longname shortname filtername
-
-Change the short-, long- and filter-name for the current interface in
-Ethereal.
-
-=item I<FIELD_DESCRIPTION> field desc
-
-Change description for the specified header field. `field' is the hf name of the field.
-
-=item I<IMPORT> dissector code...
-
-Code to insert when generating the specified dissector. @HF@ and 
-@PARAM@ will be substituted.
-
-=back
-
 =head1 EXAMPLES
 
 	# Generating an ethereal parser
 	$ ./pidl --eth-parser -- atsvc.idl
 	
-	# Generating a TDR parser
+	# Generating a TDR parser and header
 	$ ./pidl --tdr-parser --tdr-header --header -- regf.idl
 
-=head1 VERSION
+	# Generating a Samba3 parser, client and server
+	$ ./pidl --samba3-parser --samba3-server --samba3-client -- dfs.idl
 
-This man page is correct for version 4.0 of the Samba suite. L<http://www.samba.org/>.
+	# Generating a Samba4 NDR parser, client and server
+	$ ./pidl --ndr-parser --ndr-client --ndr-server -- samr.idl
 
 =head1 SEE ALSO
 
 L<http://msdn.microsoft.com/library/en-us/rpc/rpc/field_attributes.asp>,
 L<http://wiki.ethereal.com/DCE/RPC>, 
-yapp(1)
+L<http://www.samba.org/>,
+L<yapp(1)>
 
 =head1 LICENSE
 
@@ -438,7 +384,7 @@ pidl is licensed under the GNU General Public License L<http://www.gnu.org/licen
 =head1 AUTHOR
 
 pidl was written by Andrew Tridgell, Stefan Metzmacher, Tim Potter and Jelmer 
-Vernooij. 
+Vernooij. The current maintainer is Jelmer Vernooij.
 
 This manpage was written by Jelmer Vernooij, partially based on the original 
 pidl README by Andrew Tridgell. 
@@ -536,7 +482,8 @@ my($opt_warn_compat) = 0;
 sub ShowHelp()
 {
 print "perl IDL parser and code generator
-Copyright (C) tridge\@samba.org
+Copyright (C) Andrew Tridgell <tridge\@samba.org>
+Copyright (C) Jelmer Vernooij <jelmer\@samba.org>
 
 Usage: pidl [options] [--] <idlfile> [<idlfile>...]
 

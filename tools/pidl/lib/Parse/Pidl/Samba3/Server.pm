@@ -36,6 +36,9 @@ sub ParseFunction($$)
 	pidl "prs_struct *data = &p->in_data.data;";
 	pidl "prs_struct *rdata = &p->out_data.rdata;";
 	pidl "";
+	pidl "ZERO_STRUCT(q_u);";
+	pidl "ZERO_STRUCT(r_u);";
+	pidl "";
 	pidl "if (!$if->{NAME}_io_q_$fn->{NAME}(\"\", &q_u, data, 0))";
 	pidl "\treturn False;";
 	pidl "";

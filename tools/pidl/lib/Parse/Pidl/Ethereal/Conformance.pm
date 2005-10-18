@@ -3,6 +3,81 @@
 # Copyright jelmer@samba.org 2005
 # released under the GNU GPL
 
+=pod
+
+=head1 NAME
+
+Parse::Pidl::Ethereal::Conformance - Conformance file parser for Ethereal
+
+=head1 DESCRIPTION
+
+This module supports parsing Ethereal conformance files (*.cnf).
+
+=head1 FILE FORMAT
+
+Pidl needs additional data for ethereal output. This data is read from 
+so-called conformance files. This section describes the format of these 
+files.
+
+Conformance files are simple text files with a single command on each line.
+Empty lines and lines starting with a '#' character are ignored.
+Arguments to commands are seperated by spaces.
+
+The following commands are currently supported:
+
+=over 4
+
+=item I<TYPE> name dissector ft_type base_type mask valsstring alignment
+
+Register new data type with specified name, what dissector function to call 
+and what properties to give header fields for elements of this type.
+
+=item I<NOEMIT> type
+
+Suppress emitting a dissect_type function for the specified type
+
+=item I<PARAM_VALUE> type param
+
+Set parameter to specify to dissector function for given type.
+
+=item I<HF_FIELD> hf title filter ft_type base_type valsstring mask description
+
+Generate a custom header field with specified properties.
+
+=item I<HF_RENAME> old_hf_name new_hf_name
+
+Force the use of new_hf_name when the parser generator was going to 
+use old_hf_name.
+
+This can be used in conjunction with HF_FIELD in order to make more then 
+one element use the same filter name.
+
+=item I<STRIP_PREFIX> prefix
+
+Remove the specified prefix from all function names (if present).
+	
+=item I<PROTOCOL> longname shortname filtername
+
+Change the short-, long- and filter-name for the current interface in
+Ethereal.
+
+=item I<FIELD_DESCRIPTION> field desc
+
+Change description for the specified header field. `field' is the hf name of the field.
+
+=item I<IMPORT> dissector code...
+
+Code to insert when generating the specified dissector. @HF@ and 
+@PARAM@ will be substituted.
+
+=back
+
+=head1 EXAMPLE
+
+	INFO_KEY OpenKey.Ke
+
+=cut
+
 package Parse::Pidl::Ethereal::Conformance;
 
 require Exporter;

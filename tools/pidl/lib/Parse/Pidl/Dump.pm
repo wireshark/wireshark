@@ -1,7 +1,21 @@
 ###################################################
 # dump function for IDL structures
 # Copyright tridge@samba.org 2000
+# Copyright jelmer@samba.org 2005
 # released under the GNU GPL
+
+=pod
+
+=head1 NAME
+
+Parse::Pidl::Dump - Dump support
+
+=head1 DESCRIPTION
+
+This module provides functions that can generate IDL code from 
+internal pidl data structures.
+
+=cut
 
 package Parse::Pidl::Dump;
 

@@ -9,7 +9,7 @@ use strict;
 use Parse::Pidl::Typelist qw(hasType getType);
 use Parse::Pidl::Util qw(has_property ParseExpr);
 use Parse::Pidl::NDR qw(GetPrevLevel GetNextLevel ContainsDeferred);
-use Parse::Pidl::Samba3::Types qw(DeclShort);
+use Parse::Pidl::Samba3::Types qw(DeclShort StringType);
 
 use vars qw($VERSION);
 $VERSION = '0.01';
@@ -28,12 +28,15 @@ sub ParseElement($)
 
 	foreach my $l (@{$e->{LEVELS}}) {
 		if ($l->{TYPE} eq "POINTER") {
-			return if ($l->{POINTER_TYPE} eq "ref" and $l->{LEVEL} eq "top");
+			next if ($l->{POINTER_TYPE} eq "ref" and $l->{LEVEL} eq "TOP");
 			pidl "\tuint32 ptr$l->{POINTER_INDEX}_$e->{NAME};";
 		} elsif ($l->{TYPE} eq "SWITCH") {
-			pidl "\tuint32 level_$e->{NAME};";
 		} elsif ($l->{TYPE} eq "DATA") {
 			pidl "\t" . DeclShort($e) . ";";
+		} elsif ($l->{TYPE} eq "ARRAY" and $l->{IS_ZERO_TERMINATED}) {
+			my ($t,$f) = StringType($e,$l);
+			pidl "\t" . uc($t) . " $e->{NAME};";
+			return;
 		} elsif ($l->{TYPE} eq "ARRAY") {
 			if ($l->{IS_CONFORMANT}) {
 				pidl "\tuint32 size_$e->{NAME};";
@@ -104,32 +107,34 @@ sub ParseUnion($$$)
 {
 	my ($if,$u,$n) = @_;
 
-	my $extra = {};
-	
-	unless (has_property($u, "nodiscriminant")) {
-		$extra->{switch_value} = 1;
+	my $extra = {
+		switch_value => $u->{SWITCH_TYPE}
+	};
+
+	if (not defined($extra->{switch_value})) {
+		$extra->{switch_value} = "uint32";
 	}
 
 	foreach my $e (@{$u->{ELEMENTS}}) {
 		foreach my $l (@{$e->{LEVELS}}) {
 			if ($l->{TYPE} eq "ARRAY") {
 				if ($l->{IS_CONFORMANT}) {
-					$extra->{"size"} = 1;
+					$extra->{"size"} = "uint32";
 				}
 				if ($l->{IS_VARYING}) {
-					$extra->{"length"} = $extra->{"offset"} = 1;
+					$extra->{"length"} = $extra->{"offset"} = "uint32";
 				}
 			} elsif ($l->{TYPE} eq "POINTER") {
-				$extra->{"ptr$l->{POINTER_INDEX}"} = 1;
+				$extra->{"ptr$l->{POINTER_INDEX}"} = "uint32";
 			} elsif ($l->{TYPE} eq "SWITCH") {
-				$extra->{"level"} = 1;
+				$extra->{"level"} = "uint32";
 			}
 		}
 	}
 
 	pidl "typedef struct $if->{NAME}_$n\_ctr {";
 	indent;
-	pidl "uint32 $_;" foreach (keys %$extra);
+	pidl "$extra->{$_} $_;" foreach (keys %$extra);
 	pidl "union $if->{NAME}_$n {";
 	indent;
 	foreach (@{$u->{ELEMENTS}}) {

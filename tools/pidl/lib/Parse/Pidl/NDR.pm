@@ -5,13 +5,33 @@
 # Copyright jelmer@samba.org 2004-2005
 # released under the GNU GPL
 
+=pod
+
+=head1 NAME
+
+Parse::Pidl::NDR - NDR parsing information generator
+
+=head1 DESCRIPTION
+
+#####################################################################
+# return a table describing the order in which the parts of an element
+# should be parsed
+# Possible level types:
+#  - POINTER
+#  - ARRAY
+#  - SUBCONTEXT
+#  - SWITCH
+#  - DATA
+
+=cut
+
 package Parse::Pidl::NDR;
 
 require Exporter;
 use vars qw($VERSION);
 $VERSION = '0.01';
 @ISA = qw(Exporter);
-@EXPORT = qw(GetPrevLevel GetNextLevel ContainsDeferred);
+@EXPORT = qw(GetPrevLevel GetNextLevel ContainsDeferred ContainsString);
 
 use strict;
 use Parse::Pidl::Typelist qw(hasType getType);
@@ -62,15 +82,6 @@ sub fatal($$)
 	die("$pos->{FILE}:$pos->{LINE}:$s\n");
 }
 
-#####################################################################
-# return a table describing the order in which the parts of an element
-# should be parsed
-# Possible level types:
-#  - POINTER
-#  - ARRAY
-#  - SUBCONTEXT
-#  - SWITCH
-#  - DATA
 sub GetElementLevelTable($)
 {
 	my $e = shift;
@@ -362,7 +373,12 @@ sub ParseStruct($)
 
 	foreach my $x (@{$struct->{ELEMENTS}}) 
 	{
-		push @elements, ParseElement($x);
+		my $e = ParseElement($x);
+		if ($x != $struct->{ELEMENTS}[-1] and 
+			$e->{LEVELS}[0]->{IS_SURROUNDING}) {
+			print "$x->{FILE}:$x->{LINE}: error: conformant member not at end of struct\n";
+		}
+		push @elements, $e;
 	}
 
 	my $e = $elements[-1];
@@ -394,6 +410,7 @@ sub ParseUnion($)
 
 	if (has_property($e, "nodiscriminant")) { $switch_type = undef; }
 	
+	my $hasdefault = 0;
 	foreach my $x (@{$e->{ELEMENTS}}) 
 	{
 		my $t;
@@ -404,6 +421,7 @@ sub ParseUnion($)
 		}
 		if (has_property($x, "default")) {
 			$t->{CASE} = "default";
+			$hasdefault = 1;
 		} elsif (defined($x->{PROPERTIES}->{case})) {
 			$t->{CASE} = "case $x->{PROPERTIES}->{case}";
 		} else {
@@ -417,6 +435,7 @@ sub ParseUnion($)
 		SWITCH_TYPE => $switch_type,
 		ELEMENTS => \@elements,
 		PROPERTIES => $e->{PROPERTIES},
+		HAS_DEFAULT => $hasdefault,
 		ORIGINAL => $e
 	};
 }
@@ -638,6 +657,17 @@ sub GetPrevLevel($$)
 	}
 
 	return undef;
+}
+
+sub ContainsString($)
+{
+	my ($e) = @_;
+
+	foreach my $l (@{$e->{LEVELS}}) {
+		return 1 if ($l->{TYPE} eq "ARRAY" and $l->{IS_ZERO_TERMINATED});
+	}
+
+	return 0;
 }
 
 sub ContainsDeferred($$)

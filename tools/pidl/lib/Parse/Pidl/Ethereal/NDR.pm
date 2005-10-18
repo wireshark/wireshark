@@ -6,17 +6,31 @@
 # Portions based on idl2eth.c by Ronnie Sahlberg
 # released under the GNU GPL
 
+=pod
+
+=head1 NAME
+
+Parse::Pidl::Ethereal::NDR - Parser generator for Ethereal
+
+=cut
+
 package Parse::Pidl::Ethereal::NDR;
 
 use strict;
 use Parse::Pidl::Typelist qw(getType);
 use Parse::Pidl::Util qw(has_property ParseExpr property_matches make_str);
-use Parse::Pidl::NDR;
+use Parse::Pidl::NDR qw(ContainsString GetNextLevel);
 use Parse::Pidl::Dump qw(DumpTypedef DumpFunction);
 use Parse::Pidl::Ethereal::Conformance qw(ReadConformance);
 
 use vars qw($VERSION);
 $VERSION = '0.01';
+
+sub error($$)
+{
+	my ($e,$t) = @_;
+	print "$e->{FILE}:$e->{LINE}: $t\n";
+}
 
 my @ett;
 
@@ -235,21 +249,26 @@ sub ElementLevel($$$$$)
 		}
 		pidl_code "offset = dissect_ndr_$type\_pointer(tvb, offset, pinfo, tree, drep, $myname\_, $ptrtype_mappings{$l->{POINTER_TYPE}}, \"Pointer to ".field2name(StripPrefixes($e->{NAME})) . " ($e->{TYPE})\",$hf);";
 	} elsif ($l->{TYPE} eq "ARRAY") {
-		
 		if ($l->{IS_INLINE}) {
-			warn ("Inline arrays not supported");
-			pidl_code "/* FIXME: Handle inline array */";
+			error($e->{ORIGINAL}, "Inline arrays not supported");
 		} elsif ($l->{IS_FIXED}) {
 			pidl_code "int i;";
 			pidl_code "for (i = 0; i < $l->{SIZE_IS}; i++)";
 			pidl_code "\toffset = $myname\_(tvb, offset, pinfo, tree, drep);";
 		} else {
-			my $af = "";
-			($af = "ucarray") if ($l->{IS_CONFORMANT});
-			($af = "uvarray") if ($l->{IS_VARYING});
-			($af = "ucvarray") if ($l->{IS_CONFORMANT} and $l->{IS_VARYING});
+			my $type = "";
+			$type .= "c" if ($l->{IS_CONFORMANT});
+			$type .= "v" if ($l->{IS_VARYING});
 
-			pidl_code "offset = dissect_ndr_$af(tvb, offset, pinfo, tree, drep, $myname\_);";
+			unless ($l->{IS_ZERO_TERMINATED}) {
+				pidl_code "offset = dissect_ndr_u" . $type . "array(tvb, offset, pinfo, tree, drep, $myname\_);";
+			} else {
+				my $nl = GetNextLevel($e,$l);
+				pidl_code "char *data;";
+				pidl_code "";
+				pidl_code "offset = dissect_ndr_$type" . "string(tvb, offset, pinfo, tree, drep, sizeof(g$nl->{DATA_TYPE}), $hf, FALSE, &data);";
+				pidl_code "proto_item_append_text(tree, \": %s\", data);";
+			}
 		}
 	} elsif ($l->{TYPE} eq "DATA") {
 		if ($l->{DATA_TYPE} eq "string") {
@@ -324,6 +343,15 @@ sub Element($$$)
 		};
 	}
 
+	if (ContainsString($e)) {
+		$type = {
+			MASK => 0,
+			VALSSTRING => "NULL",
+			FT_TYPE => "FT_STRING",
+			BASE_TYPE => "BASE_DEC"
+		};
+	}
+
 	my $hf = register_hf_field("hf_$ifname\_$pn\_$e->{NAME}", field2name($e->{NAME}), "$ifname.$pn.$e->{NAME}", $type->{FT_TYPE}, $type->{BASE_TYPE}, $type->{VALSSTRING}, $type->{MASK}, "");
 	$hf_used{$hf} = 1;
 
@@ -349,6 +377,7 @@ sub Element($$$)
 		deindent;
 		pidl_code "}\n";
 		$add.="_";
+		last if ($_->{TYPE} eq "ARRAY" and $_->{IS_ZERO_TERMINATED});
 	}
 
 	return $call_code;

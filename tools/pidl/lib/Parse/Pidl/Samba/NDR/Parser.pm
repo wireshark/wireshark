@@ -292,7 +292,11 @@ sub ParseArrayPushHeader($$$$$)
 	my $length;
 
 	if ($l->{IS_ZERO_TERMINATED}) {
-		$size = $length = "ndr_string_length($var_name, sizeof(*$var_name))";
+		if (has_property($e, "charset")) {
+			$size = $length = "ndr_charset_length($var_name, CH_$e->{PROPERTIES}->{charset})";
+		} else {
+			$size = $length = "ndr_string_length($var_name, sizeof(*$var_name))";
+		}
 	} else {
 		$size = ParseExpr($l->{SIZE_IS}, $env);
 		$length = ParseExpr($l->{LENGTH_IS}, $env);
@@ -575,8 +579,7 @@ sub ParseElementPushLevel
 
 	my $ndr_flags = CalcNdrFlags($l, $primitives, $deferred);
 
-	if ($l->{TYPE} eq "ARRAY" and ($l->{IS_CONFORMANT} or $l->{IS_VARYING} 
-		or is_charset_array($e, $l))) {
+	if ($l->{TYPE} eq "ARRAY" and ($l->{IS_CONFORMANT} or $l->{IS_VARYING})) {
 		$var_name = get_pointer_to($var_name);
 	}
 
@@ -721,8 +724,7 @@ sub ParseElementPrint($$$)
 		} elsif ($l->{TYPE} eq "ARRAY") {
 			my $length;
 
-			if ($l->{IS_CONFORMANT} or $l->{IS_VARYING} or 
-				is_charset_array($e,$l)) { 
+			if ($l->{IS_CONFORMANT} or $l->{IS_VARYING}) {
 				$var_name = get_pointer_to($var_name); 
 			}
 			
@@ -921,14 +923,22 @@ sub ParseMemCtxPullEnd($$)
 	pidl "NDR_PULL_SET_MEM_CTX(ndr, $mem_r_ctx, $mem_r_flags);";
 }
 
+sub CheckStringTerminator($$$$)
+{
+	my ($ndr,$e,$l,$length) = @_;
+	my $nl = GetNextLevel($e, $l);
+
+	# Make sure last element is zero!
+	pidl "NDR_CHECK(ndr_check_string_terminator($ndr, $length, sizeof($nl->{DATA_TYPE}_t)));";
+}
+
 sub ParseElementPullLevel
 {
 	my($e,$l,$ndr,$var_name,$env,$primitives,$deferred) = @_;
 
 	my $ndr_flags = CalcNdrFlags($l, $primitives, $deferred);
 
-	if ($l->{TYPE} eq "ARRAY" and ($l->{IS_VARYING} or $l->{IS_CONFORMANT} 
-		or is_charset_array($e,$l))) {
+	if ($l->{TYPE} eq "ARRAY" and ($l->{IS_VARYING} or $l->{IS_CONFORMANT})) {
 		$var_name = get_pointer_to($var_name);
 	}
 
@@ -944,14 +954,16 @@ sub ParseElementPullLevel
 			my $nl = GetNextLevel($e, $l);
 
 			if (is_charset_array($e,$l)) {
+				if ($l->{IS_ZERO_TERMINATED}) {
+					CheckStringTerminator($ndr, $e, $l, $length);
+				}
 				pidl "NDR_CHECK(ndr_pull_charset($ndr, $ndr_flags, ".get_pointer_to($var_name).", $length, sizeof(" . mapType($nl->{DATA_TYPE}) . "), CH_$e->{PROPERTIES}->{charset}));";
 				return;
 			} elsif (has_fast_array($e, $l)) {
-				pidl "NDR_CHECK(ndr_pull_array_$nl->{DATA_TYPE}($ndr, $ndr_flags, $var_name, $length));";
 				if ($l->{IS_ZERO_TERMINATED}) {
-					# Make sure last element is zero!
-					pidl "NDR_CHECK(ndr_check_string_terminator($ndr, $var_name, $length, sizeof(*$var_name)));";
+					CheckStringTerminator($ndr,$e,$l,$length);
 				}
+				pidl "NDR_CHECK(ndr_pull_array_$nl->{DATA_TYPE}($ndr, $ndr_flags, $var_name, $length));";
 				return;
 			}
 		} elsif ($l->{TYPE} eq "POINTER") {
@@ -1001,16 +1013,17 @@ sub ParseElementPullLevel
 		ParseMemCtxPullStart($e,$l, $array_name);
 
 		if (($primitives and not $l->{IS_DEFERRED}) or ($deferred and $l->{IS_DEFERRED})) {
-			pidl "for ($counter = 0; $counter < $length; $counter++) {";
-			indent;
-			ParseElementPullLevel($e,GetNextLevel($e,$l), $ndr, $var_name, $env, 1, 0);
-			deindent;
-			pidl "}";
+			my $nl = GetNextLevel($e,$l);
 
 			if ($l->{IS_ZERO_TERMINATED}) {
-				# Make sure last element is zero!
-				pidl "NDR_CHECK(ndr_check_string_terminator($ndr, $var_name, $length, sizeof(*$var_name)));";
+				CheckStringTerminator($ndr,$e,$l,$length);
 			}
+
+			pidl "for ($counter = 0; $counter < $length; $counter++) {";
+			indent;
+			ParseElementPullLevel($e, $nl, $ndr, $var_name, $env, 1, 0);
+			deindent;
+			pidl "}";
 		}
 
 		if ($deferred and ContainsDeferred($e, $l)) {
@@ -1128,13 +1141,22 @@ sub ParseStructPush($$)
 	# we need to push the conformant length early, as it fits on
 	# the wire before the structure (and even before the structure
 	# alignment)
-	my $e = $struct->{ELEMENTS}[-1];
 	if (defined($struct->{SURROUNDING_ELEMENT})) {
 		my $e = $struct->{SURROUNDING_ELEMENT};
 
 		if (defined($e->{LEVELS}[0]) and 
 			$e->{LEVELS}[0]->{TYPE} eq "ARRAY") {
-			my $size = ParseExpr($e->{LEVELS}[0]->{SIZE_IS}, $env);
+			my $size;
+			
+			if ($e->{LEVELS}[0]->{IS_ZERO_TERMINATED}) {
+				if (has_property($e, "charset")) {
+					$size = "ndr_charset_length(r->$e->{NAME}, CH_$e->{PROPERTIES}->{charset})";
+				} else {
+					$size = "ndr_string_length(r->$e->{NAME}, sizeof(*r->$e->{NAME}))";
+				}
+			} else {
+				$size = ParseExpr($e->{LEVELS}[0]->{SIZE_IS}, $env);
+			}
 
 			pidl "NDR_CHECK(ndr_push_uint32(ndr, NDR_SCALARS, $size));";
 		} else {
@@ -1627,14 +1649,16 @@ sub ParseUnionPrint($$)
 	my ($e,$name) = @_;
 	my $have_default = 0;
 
-	pidl "int level = ndr_print_get_switch_value(ndr, r);";
-
+	pidl "int level;";
 	foreach my $el (@{$e->{ELEMENTS}}) {
 		DeclareArrayVariables($el);
 	}
 
-	pidl "ndr_print_union(ndr, name, level, \"$name\");";
 	start_flags($e);
+
+	pidl "level = ndr_print_get_switch_value(ndr, r);";
+
+	pidl "ndr_print_union(ndr, name, level, \"$name\");";
 
 	pidl "switch (level) {";
 	indent;
