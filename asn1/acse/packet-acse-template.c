@@ -194,11 +194,12 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		break;
 	case SES_DATA_TRANSFER:
 		oid=find_oid_by_pres_ctx_id(pinfo, indir_ref);
-		if(strcmp(oid, ACSE_APDU_OID) == 0){
-			proto_tree_add_text(parent_tree, tvb, offset, -1,
-			    "Invalid OID: %s", ACSE_APDU_OID);
-			THROW(ReportedBoundsError);
-		} else if(oid){
+		if(oid){
+			if(strcmp(oid, ACSE_APDU_OID) == 0){
+				proto_tree_add_text(parent_tree, tvb, offset, -1,
+				    "Invalid OID: %s", ACSE_APDU_OID);
+				THROW(ReportedBoundsError);
+			}
 			call_ber_oid_callback(oid, tvb, offset, pinfo, parent_tree);
 		} else {
 			proto_tree_add_text(parent_tree, tvb, offset, -1,
