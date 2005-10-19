@@ -38,6 +38,7 @@
 #include "packet-ndps.h"
 #include <epan/reassemble.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 
 /* Limit the number of items we can add to the tree. */
 #define NDPS_MAX_ITEMS 50
@@ -356,6 +357,10 @@ static dissector_handle_t ndps_data_handle;
 
 /* desegmentation of NDPS over TCP */
 static gboolean ndps_desegment = TRUE;
+
+/* global item and value for passing expert data */
+static proto_item  *expert_item;
+static guint32     expert_status;
 
 static const value_string true_false[] = {
     { 0x00000000, "Accept" },
@@ -6348,7 +6353,8 @@ ndps_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int foffset
     ndps_problem_type = tvb_get_ntohl(tvb, foffset);
     if (check_col(pinfo->cinfo, COL_INFO))
         col_add_fstr(pinfo->cinfo, COL_INFO, "R NDPS - Error");
-    proto_tree_add_uint(ndps_tree, hf_ndps_problem_type, tvb, foffset, 4, ndps_problem_type);
+    expert_item = proto_tree_add_uint(ndps_tree, hf_ndps_problem_type, tvb, foffset, 4, ndps_problem_type);
+    expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Fault: %s", val_to_str(ndps_problem_type, error_type_enum, "Unknown NDPS Error (0x%08x)"));
     foffset += 4;
     switch(ndps_problem_type)
     {
@@ -6540,7 +6546,11 @@ ndps_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int foffset
 static int
 return_code(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int foffset)
 {
-    proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
+    expert_status = tvb_get_ntohl(tvb, foffset);
+    expert_item = proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
+    if (expert_status != 0) {
+        expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Fault: %s", val_to_str(expert_status, ndps_error_types, "Unknown NDPS Error (0x%08x)"));
+    }
     foffset += 4;
     if (check_col(pinfo->cinfo, COL_INFO) && tvb_get_ntohl(tvb, foffset-4) != 0)
         col_add_fstr(pinfo->cinfo, COL_INFO, "R NDPS - Error");
@@ -6612,7 +6622,11 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
     }
     if(ndps_func == 1 || ndps_func == 2)
     {
-        proto_tree_add_item(ndps_tree, hf_ndps_rpc_acc_stat, tvb, foffset, 4, FALSE);
+        expert_item = proto_tree_add_item(ndps_tree, hf_ndps_rpc_acc_stat, tvb, foffset, 4, FALSE);
+        expert_status = tvb_get_ntohl(tvb, foffset);
+        if (expert_status != 0) {
+            expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Fault: %s", val_to_str(expert_status, accept_stat, "Unknown NDPS Error (0x%08x)"));
+        }
         foffset += 4;
         if (tvb_length_remaining(tvb,foffset) < 4 ) {
             if (check_col(pinfo->cinfo, COL_INFO))
@@ -6633,7 +6647,9 @@ dissect_ndps_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, int
     /* Some functions return an error with no data, 0 is ok */
     if (match_strval(tvb_get_ntohl(tvb, foffset), ndps_error_types) && tvb_length_remaining(tvb,foffset) < 8 && (tvb_get_ntohl(tvb, foffset)!=0))  
     {
-        proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
+        expert_status = tvb_get_ntohl(tvb, foffset);
+        expert_item = proto_tree_add_item(ndps_tree, hf_ndps_return_code, tvb, foffset, 4, FALSE);
+        expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Fault: %s", val_to_str(expert_status, ndps_error_types, "Unknown NDPS Error (0x%08x)"));
         if (check_col(pinfo->cinfo, COL_INFO))
             col_append_str(pinfo->cinfo, COL_INFO, "- Error");
         return;
