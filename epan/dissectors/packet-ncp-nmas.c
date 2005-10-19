@@ -68,6 +68,8 @@ static int hf_enc_data = -1;
 static int hf_reply_buffer_size = -1;
 static int hf_encrypt_error = -1;
 
+static proto_item *expert_item = NULL;
+
 static const value_string nmas_func_enum[] = {
     { 0x01, "Ping" },
     { 0x02, "Fragment" },
@@ -316,6 +318,10 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
         break;
     case 2:
         proto_tree_add_item(atree, hf_frag_handle, tvb, foffset, 4, TRUE);
+        /* Check for Fragment packet */
+        if (tvb_get_letohl(tvb, foffset)==0) {
+            break;
+        }
         foffset += 4;
         foffset += 4; /* Dont know what this is */
         proto_tree_add_item(atree, hf_length, tvb, foffset, 4, TRUE);
@@ -447,7 +453,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
                 }
                 break;
             case 5:
-                proto_tree_add_item(atree, hf_opaque, tvb, foffset, msg_length, FALSE);
+                proto_tree_add_item(atree, hf_opaque, tvb, foffset, tvb_reported_length_remaining(tvb, foffset), FALSE);
                 foffset += msg_length;
                 break;
             case 7:
@@ -510,6 +516,10 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
         msg_length = tvb_get_letohl(tvb, foffset);
         foffset +=4;
         proto_tree_add_item(atree, hf_frag_handle, tvb, foffset, 4, TRUE);
+        /* Check for a fragment packet */
+        if (tvb_get_letohl(tvb, foffset)==0) {
+            break;
+        }
         foffset += 4;
         return_code = tvb_get_letohl(tvb, foffset);
         roffset = foffset;
@@ -593,7 +603,8 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                         if (check_col(pinfo->cinfo, COL_INFO)) {
                            col_add_fstr(pinfo->cinfo, COL_INFO, "R Payload Error - %s", match_strval(encrypt_error, nmas_errors_enum));
                         }
-                        proto_tree_add_item(atree, hf_encrypt_error, tvb, foffset, 4, FALSE);
+                        expert_item = proto_tree_add_item(atree, hf_encrypt_error, tvb, foffset, 4, FALSE);
+                        expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "NMAS Payload Error: %s", match_strval(encrypt_error, nmas_errors_enum));
                     }
                     else
                     {
@@ -614,7 +625,8 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
         }
         if (match_strval(return_code, nmas_errors_enum)!=NULL) 
         {
-            proto_tree_add_item(atree, hf_return_code, tvb, roffset, 4, TRUE);
+            expert_item = proto_tree_add_item(atree, hf_return_code, tvb, roffset, 4, TRUE);
+            expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "NMAS Error: 0x%08x %s", return_code, match_strval(return_code, nmas_errors_enum));
             if (check_col(pinfo->cinfo, COL_INFO)) {
                col_add_fstr(pinfo->cinfo, COL_INFO, "R Error - %s", match_strval(return_code, nmas_errors_enum));
             }
@@ -623,7 +635,8 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
         {
             if (return_code!=0)
             {
-                proto_tree_add_item(atree, hf_return_code, tvb, roffset, 4, TRUE);
+                expert_item = proto_tree_add_item(atree, hf_return_code, tvb, roffset, 4, TRUE);
+                expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "NMAS Error: 0x%08x is unknown", return_code);
                 if (check_col(pinfo->cinfo, COL_INFO)) {
                    col_add_fstr(pinfo->cinfo, COL_INFO, "R Unknown NMAS Error - 0x%08x", return_code);
                 }
