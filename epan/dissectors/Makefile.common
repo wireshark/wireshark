@@ -431,6 +431,7 @@ DISSECTOR_SRC =	\
 	packet-ncp.c	\
 	packet-ncp2222.c	\
 	packet-ncp-nmas.c	\
+	packet-ncp-sss.c \
 	packet-ndmp.c	\
 	packet-ndps.c	\
 	packet-netbios.c	\
@@ -784,6 +785,7 @@ DISSECTOR_INCLUDES =	\
 	packet-mtp3.h	\
 	packet-ncp-int.h	\
 	packet-ncp-nmas.h	\
+	packet-ncp-sss.h \
 	packet-ndps.h	\
 	packet-netbios.h	\
 	packet-nfs.h	\

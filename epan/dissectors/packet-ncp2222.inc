@@ -1,8 +1,3 @@
-/* This dissector should not be accessing the fvalue_* functions
-   directly.
-   No other dissector needs to  so why does this one need to ?
-*/
-
 #define FAKE_TREE_IS_VISIBLE	1
 /* fake that the tree is visible so that proto.c will not try to
  "fake" generation of finfo values/nodes.
@@ -49,7 +44,7 @@
 #define PROTO_LENGTH_UNTIL_END -1
 
 gboolean        nds_defragment = TRUE;
-
+dissector_handle_t nds_data_handle;
 typedef struct {
         guint32         nds_frag_verb;
         guint32         nds_frag_version;
@@ -660,7 +655,8 @@ typedef struct {
 } ncp_req_eid_hash_key;
 
 typedef struct {
-        char   		        object_name[256];
+        ncp_req_eid_hash_key    *nds_eid;
+        char   		            object_name[256];
         char                    *object_class;
 } ncp_req_eid_hash_value;
 
@@ -1017,7 +1013,7 @@ typedef struct {
 
 #define MVTYPE_ATTR_REQUEST		1
 #define MVTYPE_ATTR_REPLY		2
-#define MVTYPE_ATTR_REQUEST2		3	/* XXX - how does this differ from 1? */
+#define MVTYPE_ATTR_REQUEST2		3	
 #define MVTYPE_READ_CLASS_REQ		4
 #define MVTYPE_READ_REPLICAS		5
 #define MVTYPE_MODIFY_ATTR_REQUEST	6
@@ -1409,6 +1405,7 @@ clear_repeat_vars(void)
 static const char*
 ncp_error_string(const error_equivalency *errors, guint8 completion_code)
 {
+
 	while (errors->ncp_error_index != -1) {
 		if (errors->error_in_packet == completion_code) {
 			return ncp_errors[errors->ncp_error_index];
@@ -1420,19 +1417,19 @@ ncp_error_string(const error_equivalency *errors, guint8 completion_code)
 }
 
 static const ncp_record ncp1111_request =
-	{ 0x01, 0x00, NO_SUBFUNC, "Create Connection Service", NCP_GROUP_CONNECTION,
+	{ 0xf1, 0x00, NO_SUBFUNC, "Create Connection Service", NCP_GROUP_CONNECTION,
 		NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL };
 
 static const ncp_record ncp5555_request =
-	{ 0x01, 0x00, NO_SUBFUNC, "Destroy Connection Service", NCP_GROUP_CONNECTION,
+	{ 0xf5, 0x00, NO_SUBFUNC, "Destroy Connection Service", NCP_GROUP_CONNECTION,
 		NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL };
 
 static const ncp_record ncpbbbb_request =
-	{ 0x01, 0x00, NO_SUBFUNC, "Server Broadcast Message", NCP_GROUP_CONNECTION,
+	{ 0xfb, 0x00, NO_SUBFUNC, "Server Broadcast Message", NCP_GROUP_CONNECTION,
 		NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL };                
 
 static const ncp_record ncplip_echo =
-	{ 0x01, 0x00, NO_SUBFUNC, "LIP Echo Packet", NCP_GROUP_CONNECTION,
+	{ 0xfa, 0x00, NO_SUBFUNC, "LIP Echo Packet", NCP_GROUP_CONNECTION,
 		NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL };
 
 /* Wrapper around proto_tree_free() */
@@ -1813,7 +1810,6 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                voffset=voffset+8;
                                break;
                        case 0x00000009:        /* Binary String */
-                       case 0x00000015:        /* Stream */
                                value1 = tvb_get_letohl(tvb, voffset); /* length of field */
                                length_remaining = tvb_length_remaining(tvb, voffset);
                                if(length_remaining == -1 || value1 > (guint32) length_remaining)
@@ -1826,6 +1822,18 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                voffset += value1;
                                voffset += (value1%2);
                                break;
+                       case 0x00000015:        /* Stream */
+                           value1 = tvb_get_letohl(tvb, voffset); /* length of field */
+                           length_remaining = tvb_length_remaining(tvb, voffset);
+                           if(length_remaining == -1 || value1 > (guint32) length_remaining)
+                           {
+                                    break;
+                           }
+                           proto_tree_add_text(nvtree, tvb, voffset, 4, "No value, Open stream file for data.");
+                           voffset += 4;
+                           voffset += value1;
+                           voffset += (value1%2);
+                           break;
                        case 0x00000008:        /* Signed Integer */
                        case 0x00000016:        /* Counter */
                        case 0x00000018:        /* Time */
@@ -2381,7 +2389,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
                                 for (i = 1 ; i <= value1; i++ ) 
                                 {
                                         value2 = tvb_get_letohl(tvb, ioffset);
-                                        values->vstring = match_strval(value2, nds_protocol_type);
+                                        values->vstring =(char *)match_strval(value2, nds_protocol_type);
                                         if (values->vstring == NULL)
                                         { 
                                                values->vstring="(Undefined Protocol)";
@@ -2649,7 +2657,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                         for (i = 1 ; i <= values->vvalue; i++ )
                                         {
                                                 value1 = tvb_get_letohl(tvb, ioffset);
-                                                values->vstring = match_strval(value1, nds_syntax);
+                                                values->vstring = (char *)match_strval(value1, nds_syntax);
                                                 if (values->vstring == NULL)
                                                 {
                                                         values->vstring = "No Syntax Found";
@@ -2675,7 +2683,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                         for (i = 1 ; i <= values->vvalue; i++ )
                                         {
                                                 value1 = tvb_get_letohl(tvb, ioffset);
-                                                values->vstring = match_strval(value1, nds_syntax);
+                                                values->vstring = (char *)match_strval(value1, nds_syntax);
                                                 if (values->vstring == NULL)
                                                 {
                                                         values->vstring = "No Syntax Found";
@@ -2713,7 +2721,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                         for (i = 1 ; i <= values->vvalue; i++ )
                                         {
                                                 value1 = tvb_get_letohl(tvb, ioffset);
-                                                values->vstring = match_strval(value1, nds_syntax);
+                                                values->vstring = (char *)match_strval(value1, nds_syntax);
                                                 if (values->vstring == NULL)
                                                 {
                                                         values->vstring = "No Syntax Found";
@@ -2808,7 +2816,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                         for (i = 1 ; i <= values->vvalue; i++ )
                                         {
                                                 value1 = tvb_get_letohl(tvb, ioffset);
-                                                values->vstring = match_strval(value1, nds_syntax);
+                                                values->vstring = (char *)match_strval(value1, nds_syntax);
                                                 if (values->vstring == NULL)
                                                 {
                                                         values->vstring = "No Syntax Found";
@@ -3006,7 +3014,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                                                 break;
                                                         case 0x00000004:                /*p3values.bit3 = "Replica State"*/
                                                                 value1 = tvb_get_letohl(tvb, ioffset);
-                                                                temp_values.vstring = match_strval(value1, nds_replica_state);
+                                                                temp_values.vstring = (char *)match_strval(value1, nds_replica_state);
                                                                 if (temp_values.vstring == NULL)
                                                                 {
                                                                         temp_values.vstring = "No Replica State Found";
@@ -3053,7 +3061,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                                         case 0x00000080:                /*p3values.bit8 = "Replica Type & State"*/
                                                                 value1 = tvb_get_letohl(tvb, ioffset);
                                                                 value2 = value1 & 0x00ff;
-                                                                temp_values.vstring = match_strval(value2, nds_replica_type);
+                                                                temp_values.vstring = (char *)match_strval(value2, nds_replica_type);
                                                                 if (temp_values.vstring == NULL)
                                                                 {
                                                                         temp_values.vstring = "No Replica Type Found";
@@ -3061,7 +3069,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                                                 proto_tree_add_string(ntree, hf_replica_type, tvb, ioffset, 
                                                                 4, temp_values.vstring);
                                                                 value3 = value1 & 0xff00;
-                                                                temp_values.vstring = match_strval(value3, nds_replica_state);
+                                                                temp_values.vstring = (char *)match_strval(value3, nds_replica_state);
                                                                 if (temp_values.vstring == NULL)
                                                                 {
                                                                         temp_values.vstring = "No Replica State Found";
@@ -3270,7 +3278,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
 
                 case MVTYPE_PROC_ENTRY_SPECIFIERS: /* Process Entry Specifiers */
                         value2 = tvb_get_letohl(tvb, ioffset);   /* ES Type */
-                        values->vstring = match_strval(value2, es_type);
+                        values->vstring = (char *)match_strval(value2, es_type);
                         if (values->vstring == NULL)
                         {
                                 values->vstring = "No ES Type Found";
@@ -3281,7 +3289,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                         ioffset = ioffset + 4;
                         ioffset = print_es_type(estree, tvb, values, value2, ioffset);
                         value3 = tvb_get_letohl(tvb, ioffset);   /* ES Type */
-                        values->vstring = match_strval(value3, es_type);
+                        values->vstring = (char *)match_strval(value3, es_type);
                         if (values->vstring == NULL)
                         {
                                 values->vstring = "No ES Type Found";
@@ -3340,6 +3348,14 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
 
                 case MVTYPE_LIST_PARTITIONS:	/* List Partitions */
                         number_of_referrals = values->vvalue;
+                        /* A bad packet could put us in a tight loop so trap for anything
+                         * over 256 referals. 
+                         */
+                        if (number_of_referrals > 256) {
+                            proto_tree_add_text(ntree, tvb, 0, 0, "[ Bad referal at offset: %u ]", ioffset);
+                            THROW(ReportedBoundsError);
+                            break;
+                        }
                         for (i = 0; i < number_of_referrals; i++)
                         {        
                                 bvalue = 0x00000001;
@@ -3545,7 +3561,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                                         case 0x00000400:                /* Replica Type & State */
                                                                 value1 = tvb_get_letohl(tvb, ioffset);
                                                                 value2 = value1 & 0x00ff;
-                                                                temp_values.vstring = match_strval(value2, nds_replica_type);
+                                                                temp_values.vstring = (char *)match_strval(value2, nds_replica_type);
                                                                 if (temp_values.vstring == NULL)
                                                                 {
                                                                         temp_values.vstring = "No Replica Type Found";
@@ -3553,7 +3569,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                                                 proto_tree_add_string(ntree, hf_replica_type, tvb, ioffset, 
                                                                 4, temp_values.vstring);
                                                                 value3 = value1 & 0xff00;
-                                                                temp_values.vstring = match_strval(value3, nds_replica_state);
+                                                                temp_values.vstring = (char *)match_strval(value3, nds_replica_state);
                                                                 if (temp_values.vstring == NULL)
                                                                 {
                                                                         temp_values.vstring = "No Replica State Found";
@@ -3628,11 +3644,13 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                                 }
                                                 ioffset += align_4(tvb, ioffset);
                                         }
-                                        if (oldioffset >= ioffset) {
-                                                proto_tree_add_text(ntree, tvb, 0, 0, "[ Invalid offset: %u ]", ioffset);
-                                                THROW(ReportedBoundsError);
-                                        }
                                         bvalue = bvalue*2;
+                                        /* We could loop forever so check to see if bvalue has wrapped to 0.
+                                         * if so then just abort loop.
+                                         */
+                                        if (bvalue==0) {
+                                               break;
+                                        }
                                         if(tvb_length_remaining(tvb, ioffset) < 4 )
                                         {
                                                 break;
@@ -4126,30 +4144,12 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
  * we will be unable to dissect the reply packet. For this reason we remember
  * these values on the first fragment and then populate the values in the final
  * fragment. We only do this on the first dissection.
- *
- * XXX - this has several problems:
- *
- *	1) it uses global variables ("frags");
- *
- *	2) the sequence numbers don't start at a fixed value, they're
- *	   per-connection sequence numbers;
- *
- *	3) the fragment size and handle aren't put into the protocol
- *	   tree for fragments other than the last fragment.
- *
- * 2) needs to be fixed by having a way of doing defragmentation using
- * connection sequence numbers; that's needed for fragmentation in
- * connection-oriented protocols, e.g. COTP, as well.
- * That might let us fix 1) as well.
- *
- * 3) should be fixed by putting that into the protocol tree ourselves
- * if this isn't the first fragment.
-*/         
+ */         
 void
-nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequence, guint16 type, proto_tree *tree)
+nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequence, guint16 type, proto_tree *tree, struct novell_tap *ncp_tap)
 {
     int                 i, frag_count=0;
-    guint		len=0;
+    guint		        len=0;
     guint32             tid = 1;
     tvbuff_t            *frag_tvb = NULL;
     fragment_data       *fd_head;
@@ -4157,7 +4157,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequ
     conversation_t      *conversation;
     guint32             nds_frag;
     
-    for (i = 0; i < 9; i++) {
+    for (i = 0; i < 99; i++) {
         if (!frags[i].nds_fragmented)
 	{
                 frags[i].nds_frag = 0xfffffff0;
@@ -4165,7 +4165,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequ
     }
     /* Check to see if defragmentation is enabeled in the dissector */
     if (!nds_defragment) {
-        dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree);
+        dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree, ncp_tap);
         return;
     }
     /* Has this already been dissected? */
@@ -4178,7 +4178,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequ
        		   this reply */
        		request_value = ncp_hash_lookup(conversation, sequence);
        		if (!request_value) {
-                        dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree);
+                        dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree, ncp_tap);
                         return;
                 }
        		p_add_proto_data(pinfo->fd, proto_ncp, (void*) request_value);
@@ -4186,14 +4186,14 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequ
        	/* else... we haven't seen an NCP Request for that conversation and sequence. */
         else
         {
-                dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree);
+                dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree, ncp_tap);
                 return;
         }
     }
     else {
        	request_value = p_get_proto_data(pinfo->fd, proto_ncp);
        	if (!request_value) {
-                dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree);
+                dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree, ncp_tap);
                 return;
         }
     }
@@ -4201,7 +4201,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequ
     /* If this isn't an NDS packet then just return */
     if (!request_value->ncp_rec ||
          request_value->ncp_rec->func!=104 || request_value->ncp_rec->subfunc!=2) {
-        dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree);
+        dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree, ncp_tap);
         return;
     }
     /* Get the fragment flag */
@@ -4230,7 +4230,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequ
     /* is this the end of an existing fragment or just another reply */
     if (nds_frag == 0xffffffff && request_value->nds_frag_num == 0xffffffff)
     {
-                dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree);
+                dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree, ncp_tap);
                 return;
     } 
     
@@ -4372,7 +4372,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequ
             /* This is the end fragment so dissect */
             if (!request_value->nds_frag) {
                 frags[frag_count].nds_length = 0;
-                dissect_ncp_reply(frag_tvb, pinfo, nw_connection, sequence, type, tree);
+                dissect_ncp_reply(frag_tvb, pinfo, nw_connection, sequence, type, tree, ncp_tap);
             }
         }
     }
@@ -4381,7 +4381,7 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequ
         /* This is not any fragment packet */
         frags[frag_count].nds_length = 0;
         request_value->nds_frag = FALSE;
-        dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree);
+        dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree, ncp_tap);
     }
 }
 
@@ -4482,7 +4482,6 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
         		}
         	}
         }
-
 	if (!pinfo->fd->flags.visited) {
 		/* This is the first time we've looked at this packet.
 		   Keep track of the address and connection whence the request
@@ -4599,10 +4598,9 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		}
 
 		/* The group is not part of the packet, but it's useful
-		 * information to display anyway. */
+		 * information to display anyway. Put it in the tree for filtering and tap use*/
 		if (ncp_rec) {
-			proto_tree_add_text(ncp_tree, tvb, 0, 0, "Group: %s",
-					ncp_groups[ncp_rec->group]);
+	        proto_tree_add_uint_format(ncp_tree, hf_ncp_group, tvb, 0, 0, ncp_rec->group, "Group: %s", ncp_groups[ncp_rec->group]);
 		}
 
 		if (ncp_rec && ncp_rec->request_ptvc) {
@@ -4610,6 +4608,10 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 			process_ptvc_record(ptvc, ncp_rec->request_ptvc, NULL, TRUE, ncp_rec);
 		}
 		ptvcursor_free(ptvc);
+                /* SecretStore packets are dessected in packet-ncp-sss.c */
+                if (func == 0x5c && ncp_tree) {
+                        dissect_sss_request(tvb, pinfo, ncp_tree, request_value);
+                }
                 /* NMAS packets are dessected in packet-ncp-nmas.c */
                 if (func == 0x5e && ncp_tree) {
                         dissect_nmas_request(tvb, pinfo, ncp_tree, request_value);
@@ -4754,7 +4756,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 void
 dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 	guint16 nw_connection, guint8 sequence, guint16 type,
-	proto_tree *ncp_tree)
+	proto_tree *ncp_tree, struct novell_tap *ncp_tap)
 {
 	conversation_t			*conversation = NULL;
 	ncp_req_hash_value		*request_value = NULL;
@@ -4792,7 +4794,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 
 	strcpy(reply_buffer.buffer, "");
 	strcpy(global_object_name, "");
-	
+
 	if (!pinfo->fd->flags.visited) {
 		/* Find the conversation whence the request would have come. */
 		conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
@@ -4807,6 +4809,25 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 			p_add_proto_data(pinfo->fd, proto_ncp, (void*) request_value);
 		}
 		/* else... we haven't seen an NCP Request for that conversation and sequence. */
+        /* Create Service request packets do not contain nw_connection. The initial */
+        /* value is set to 65535. The reply packet has the valid connection. So, we */
+        /* can't find the request packet in our conversation list. To trap for this */
+        /* we can just perform the search again with 65535 to see if we can locate */
+        /* the proper request packet. */
+        else {
+            conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                    PT_NCP, 65535, 65535, 0);
+            if (conversation != NULL) {
+                /* find the record telling us the request made that caused
+                   this reply */
+                request_value = ncp_hash_lookup(conversation, sequence);
+                if (request_value) {
+                    ncp_rec = request_value->ncp_rec;
+                }
+                p_add_proto_data(pinfo->fd, proto_ncp, (void*) request_value);
+            }
+            /* else... we haven't seen an NCP Request for that conversation and sequence. */
+        }
 	}
 	else {
 		request_value = p_get_proto_data(pinfo->fd, proto_ncp);
@@ -4822,7 +4843,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                 }
 	}
 
-	/* A completion code of 0 always means OK. Non-zero means failure,
+    /* A completion code of 0 always means OK. Non-zero means failure,
 	 * but each non-zero value has a different meaning. And the same value
 	 * can have different meanings, depending on the ncp.func (and ncp.subfunc)
 	 * value. */
@@ -4852,7 +4873,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                 nds_reply_buffer = tvb_get_letohl(tvb, nds_offset);
                 nds_offset += 4;        
                 nds_frag = tvb_get_letohl(tvb, nds_offset);        
-                if (nds_reply_buffer > 7)
+                if (nds_reply_buffer > 3)
                 {
                         nds_offset += 4;
                         nds_error_code = tvb_get_letohl(tvb, nds_offset);
@@ -4863,7 +4884,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                         }
                 }
         }
-
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 		    type == NCP_SERVICE_REPLY ? "R" : "ACK",
@@ -4871,6 +4891,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 	if (ncp_tree) {
+
 		if (request_value) {
 			nstime_t ns;
 
@@ -4895,11 +4916,22 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 			}
 		}
 
-		proto_tree_add_uint_format(ncp_tree, hf_ncp_completion_code, tvb, 6, 1,
-			completion_code, "Completion Code: %d (0x%02x), %s",
+		expert_item = proto_tree_add_uint_format(ncp_tree, hf_ncp_completion_code, tvb, 6, 1,
+			completion_code, "Completion Code: %d (0x89%02x), %s",
 			completion_code, completion_code, error_string);
+        if (completion_code != 0 || type == NCP_POSITIVE_ACK) {
+
+            expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Error: %d (0x89%02x) %s", completion_code, completion_code, error_string);
+        }
 
 		proto_tree_add_item(ncp_tree, hf_ncp_connection_status, tvb, 7, 1, FALSE);
+        
+        /*
+         * Tap the packet before the dissectors are called so we
+         * still get the tap listener called even if there is an
+         * exception.
+         */
+        tap_queue_packet(ncp_tap->stat, pinfo, request_value);
 
 		/*
 		 * Unless this is a successful reply, that's all there
@@ -4910,6 +4942,11 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 
                 /* Decode NDS Reply packets */
                 if (ncp_rec) {
+                        /* Dissect SSS Reply packets */
+                        if (ncp_rec->func == 0x5c && request_value)
+                        {
+                                dissect_sss_reply(tvb, pinfo, ncp_tree, ncp_rec->subfunc, request_value);
+                        } 
                         /* Dissect NMAS Reply packets */
                         if (ncp_rec->func == 0x5e && request_value)
                         {
@@ -5238,17 +5275,15 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                 proto_tree_add_uint(ncp_tree, hf_ncp_fragment_handle, tvb, nds_offset,
                                         4, nds_frag);
                                 nds_offset += 4;        
-                                if (nds_reply_buffer > 7)
+                                if (nds_reply_buffer > 3)
                                 {                        
-					/*
-					 * XXX - is this present in
-					 * replies to continuation
-					 * messages?  It doesn't appear to
-					 * be.
-					 */
-                                        proto_tree_add_uint_format(ncp_tree, hf_nds_reply_error, tvb, nds_offset,
+                                        expert_item = proto_tree_add_uint_format(ncp_tree, hf_nds_reply_error, tvb, nds_offset,
                                                 4, nds_error_code, "NDS Completion Code: 0x%08x, %s",
         				        nds_error_code, nds_error_string);
+
+                                        if (nds_error_code != 0) {
+                                            expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "NDS Error: 0x%08x %s", nds_error_code, nds_error_string);
+                                        }
                                 }
                                 if (request_value && nds_error_code == 0x00000000)
                                 {
@@ -5270,10 +5305,10 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                         switch (request_value->nds_request_verb)
                                         {
                                                 case 0x01:
-                                                        if(request_value->nds_version == 0)
+                                                        if(request_value->nds_version < 2)
                                                         { 
                                                                 pvalues[0].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                                pvalues[0].vstring = match_strval(pvalues[0].vvalue, nds_tags);
+                                                                pvalues[0].vstring = (char *)match_strval(pvalues[0].vvalue, nds_tags);
                                                                 if(pvalues[0].vstring == NULL)
                                                                 {
                                                                         pvalues[0].vstring = "No Tags Set";
@@ -5402,7 +5437,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 pvalues[0].hfname = hf_nds_crc;
                                                                 nds_offset = nds_offset+pvalues[0].vlength;
                                                                 pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                                pvalues[1].vstring = match_strval(pvalues[1].vvalue, nds_tags);
+                                                                pvalues[1].vstring = (char *)match_strval(pvalues[1].vvalue, nds_tags);
                                                                 if(pvalues[1].vstring == NULL)
                                                                 {
                                                                         pvalues[1].vstring = "No Tags Set";
@@ -5565,7 +5600,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 pvalues[0].hfname = hf_nds_iteration;
                                                                 nds_offset = nds_offset+pvalues[0].vlength;
                                                                 pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                                pvalues[1].vstring = match_strval(pvalues[1].vvalue, nds_info_type);
+                                                                pvalues[1].vstring = (char *)match_strval(pvalues[1].vvalue, nds_info_type);
                                                                 if(pvalues[1].vstring == NULL)
                                                                 {
                                                                         pvalues[1].vstring = "No Info Type Set";
@@ -5603,7 +5638,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 pvalues[1].hfname = hf_nds_iteration;
                                                                 nds_offset = nds_offset+pvalues[1].vlength;
                                                                 pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                                pvalues[2].vstring = match_strval(pvalues[2].vvalue, nds_info_type);
+                                                                pvalues[2].vstring = (char *)match_strval(pvalues[2].vvalue, nds_info_type);
                                                                 if(pvalues[2].vstring == NULL)
                                                                 {
                                                                         pvalues[2].vstring = "No Info Type Set";
@@ -5687,7 +5722,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         pvalues[0].hfname = hf_nds_iteration;
                                                         nds_offset = nds_offset+pvalues[0].vlength;
                                                         pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
-                                                        pvalues[1].vstring = match_strval(pvalues[1].vvalue, class_def_type);
+                                                        pvalues[1].vstring = (char *)match_strval(pvalues[1].vvalue, class_def_type);
                                                         if(pvalues[1].vstring == NULL)
                                                         {
                                                                 pvalues[1].vstring = "No Class Definition Type Set";
@@ -5986,11 +6021,11 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                         if (!pinfo->fd->flags.visited) {
                                                 if(add_eid)
                                                 {
-			                                request_eid_value = ncp_eid_hash_lookup(conversation, global_eid);
+			                                        request_eid_value = ncp_eid_hash_lookup(conversation, global_eid);
 			                                        if (!request_eid_value) {
         	                                                        request_eid_value = ncp_eid_hash_insert(global_eid);
                                                                         strcpy(request_eid_value->object_name, global_object_name);
-                                                                }        
+                                                    }
                                                 }
                                         }
                                         /* For NDS requests with just an EID, resolve name from hash table. */
@@ -6055,8 +6090,9 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 
 		length = tvb_length(tvb);
 		if (!ncp_rec && length > 8) {
-			proto_tree_add_text(ncp_tree, tvb, 8, length - 8,
+			expert_item = proto_tree_add_text(ncp_tree, tvb, 8, length - 8,
 					"No request record found. Parsing is impossible.");
+            expert_add_info_format(pinfo, expert_item, PI_SEQUENCE, PI_NOTE, "Original Request Packet not Found, Maybe normal at beginning of trace.");
 		}
 		else if (ncp_rec && ncp_rec->reply_ptvc) {
 			/* If a non-zero completion code was found, it is
@@ -6065,7 +6101,6 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 			if (completion_code != 0 && tvb_length(tvb) == 8) {
 				return;
 			}
-			/*printf("func=0x%x subfunc=0x%x\n", ncp_rec->func, ncp_rec->subfunc);*/
 
 			/* Any request condition results? */
 			if (request_value) {
@@ -6595,7 +6630,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         pvalues[2].hfname= hf_nds_eid;
                                         foffset = foffset+pvalues[2].vlength;
                                         pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-                                        pvalues[3].vstring = match_strval(pvalues[3].vvalue, nds_info_type);
+                                        pvalues[3].vstring = (char *)match_strval(pvalues[3].vvalue, nds_info_type);
                                         global_flags = pvalues[3].vvalue;
                                         if(pvalues[3].vstring == NULL)
                                         {
@@ -6649,7 +6684,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         pvalues[3].hfname= hf_nds_eid;
                                         foffset = foffset+pvalues[3].vlength;
                                         pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
-                                        pvalues[4].vstring = match_strval(pvalues[4].vvalue, nds_info_type);
+                                        pvalues[4].vstring = (char *)match_strval(pvalues[4].vvalue, nds_info_type);
                                         global_flags = pvalues[4].vvalue;
                                         if(pvalues[4].vstring == NULL)
                                         {
@@ -6937,7 +6972,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[3].hfname= hf_nds_eid;
                                 foffset = foffset+pvalues[3].vlength;
                                 pvalues[4].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[4].vstring = match_strval(pvalues[4].vvalue, nds_search_scope);
+                                pvalues[4].vstring = (char *)match_strval(pvalues[4].vvalue, nds_search_scope);
                                 if(pvalues[4].vstring == NULL)
                                 {
                                         pvalues[4].vstring = "No Search Scope Defined";
@@ -7385,7 +7420,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[2].vlength;
                                 foffset += align_4(tvb, foffset);
                                 pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[3].vstring = match_strval(pvalues[3].vvalue, nds_syntax);
+                                pvalues[3].vstring = (char *)match_strval(pvalues[3].vvalue, nds_syntax);
                                 if(pvalues[3].vstring == NULL)
                                 {
                                         pvalues[3].vstring = "No Syntax Found";
@@ -7468,7 +7503,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset+pvalues[1].vlength;
                                 pvalues[2].vvalue = tvb_get_letohl(tvb, foffset);
                                 global_flags = pvalues[2].vvalue;
-                                pvalues[2].vstring = match_strval(pvalues[2].vvalue, class_def_type);
+                                pvalues[2].vstring = (char *)match_strval(pvalues[2].vvalue, class_def_type);
                                 if(pvalues[2].vstring == NULL)
                                 {
                                         pvalues[2].vstring = "No Class Definition Type Set";
@@ -7896,7 +7931,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[2].hfname= hf_nds_master_part_id;
                                 foffset = foffset+pvalues[2].vlength;
                                 pvalues[3].vvalue = tvb_get_letohl(tvb, foffset);
-                                pvalues[3].vstring = match_strval(pvalues[3].vvalue, nds_replica_type);
+                                pvalues[3].vstring = (char *)match_strval(pvalues[3].vvalue, nds_replica_type);
                                 if(pvalues[3].vstring == NULL)
                                 {
                                         pvalues[3].vstring = "No Replica Type Found";
@@ -8251,7 +8286,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                	}
                         
         }
-
         /* Keep track of the address and connection whence the request
            came, and the address and connection to which the request
            is being sent, so that we can match up calls with replies.
@@ -8313,7 +8347,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         	CLEANUP_PUSH(free_proto_tree, temp_tree);
                
 		request_value = ncp_hash_lookup(conversation, sequence);
-                
         	switch (type) {
                         case NCP_BROADCAST_SLOT:
                			; /* nothing */
@@ -8550,7 +8583,7 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
                 
        		request_value = ncp_hash_insert(conversation, sequence, ncp_rec);
        		request_value->req_frame_num = pinfo->fd->num;
-		request_value->req_frame_time=pinfo->fd->abs_ts;
+		    request_value->req_frame_time=pinfo->fd->abs_ts;
         
        		/* If this is the first time we're examining the packet,
        		 * check to see if this NCP type uses a "request condition".
@@ -8579,8 +8612,8 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
 		 * NULL if no cleanup is needed, and non-null if cleanup is needed. 
 		 */
 		CLEANUP_PUSH(free_proto_tree, temp_tree);
-        
-		switch (type) {
+
+        switch (type) {
 
 		case NCP_BROADCAST_SLOT:
 			; /* nothing */
@@ -8594,15 +8627,20 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
 			proto_tree_add_uint_format(ncp_tree, hf_ncp_subfunc, tvb, 7, 1,
 				subfunc, "SubFunction: %u (0x%02x)",
 				subfunc, subfunc);
-                                        
+
 			length_remaining = tvb_reported_length_remaining(tvb, 8);
+
 			if (length_remaining >= 8) {
                                 ping_version = tvb_get_letohl(tvb, 8);
 				proto_tree_add_uint(ncp_tree, hf_nds_ping_version, tvb, 8,
 				    4, ping_version);
 				nds_flags = tvb_get_letohl(tvb, 12);
-				if (request_value)
-					request_value->req_nds_flags = nds_flags;
+				if (request_value){
+                    request_value->nds_request_verb = 0xf0;
+                    request_value->req_nds_flags = nds_flags;
+                }
+                    proto_tree_add_uint_hidden(ncp_tree, hf_ncp_nds_verb, tvb, 0, 0,
+                        240);
 
 				
                                 pvalue.vvalue = tvb_get_letohs(tvb, 12);

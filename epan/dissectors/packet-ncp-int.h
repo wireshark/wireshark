@@ -30,6 +30,8 @@
 #ifndef __PACKET_NCP_INT_H__
 #define __PACKET_NCP_INT_H__
 
+#include <epan/expert.h>
+
 typedef struct _ptvc_record ptvc_record;
 typedef struct _sub_ptvc_record sub_ptvc_record;
 
@@ -42,6 +44,17 @@ struct _ptvc_record {
 	unsigned int	repeat_index	: 2;
 	unsigned int	req_cond_index	: 8;
 	unsigned int	special_fmt	: 2;
+};
+
+/*
+ * Every NCP packet has this common header (except for burst packets).
+ */
+struct ncp_common_header {
+	guint16	type;
+	guint8	sequence;
+	guint8	conn_low;
+	guint8	task;
+	guint8	conn_high; /* type=0x5555 doesn't have this */
 };
 
 #define NCP_FMT_NONE			0
@@ -67,6 +80,14 @@ typedef struct {
 	const char		*first_string;
 	const char		*repeat_string;
 } info_string_t;
+
+
+struct novell_tap {
+    int stat;
+    int hdr;
+};
+
+typedef struct novell_tap _novell_tap;
 
 typedef struct {
 	guint8		error_in_packet;
@@ -105,7 +126,7 @@ void dissect_ncp_request(tvbuff_t*, packet_info*, guint16,
 		guint8, guint16, proto_tree*);
 
 void dissect_ncp_reply(tvbuff_t *, packet_info*, guint16, guint8,
-		guint16, proto_tree*);
+		guint16, proto_tree*, struct novell_tap*);
 
 void dissect_ping_req(tvbuff_t *, packet_info*, guint16, guint8,
 		guint16, proto_tree*);
@@ -114,7 +135,7 @@ void dissect_nds_request(tvbuff_t*, packet_info*, guint16,
 		guint8, guint16, proto_tree*);
 
 void nds_defrag(tvbuff_t*, packet_info*, guint16,
-		guint8, guint16, proto_tree*);
+		guint8, guint16, proto_tree*, struct novell_tap*);
 
 extern int proto_ncp;
 extern gint ett_ncp;
@@ -122,10 +143,10 @@ extern gint ett_nds;
 extern gint ett_nds_segments;
 extern gint ett_nds_segment;
 
-
+/*extern dissector_handle_t nds_data_handle;*/
 extern GHashTable *nds_fragment_table;
 extern GHashTable *nds_reassembled_table;
-extern dissector_handle_t nds_data_handle;
+
 /*
  * NCP packet types.
  */

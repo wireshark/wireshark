@@ -52,6 +52,7 @@
 #include "packet-ncp-int.h"
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
+#include <epan/tap.h>
 
 int proto_ncp = -1;
 static int hf_ncp_ip_ver = -1;
@@ -101,6 +102,9 @@ gint ett_nds_segments = -1;
 gint ett_nds_segment = -1;
 static gint ett_ncp_system_flags = -1;
 
+static struct novell_tap ncp_tap;
+struct ncp_common_header	header;
+struct ncp_common_header    *ncp_hdr;
 
 /* Tables for reassembly of fragments. */ 
 GHashTable *nds_fragment_table = NULL;
@@ -111,6 +115,8 @@ dissector_handle_t nds_data_handle;
 static gboolean ncp_desegment = TRUE;
 
 static dissector_handle_t data_handle;
+
+static proto_item *expert_item = NULL;
 
 #define TCP_PORT_NCP		524
 #define UDP_PORT_NCP		524
@@ -126,7 +132,6 @@ struct ncp_ip_header {
 	guint32	signature;
 	guint32 length;
 };
-
 
 /* This header only appears on NCP over IP request packets */
 struct ncp_ip_rqhdr {
@@ -167,18 +172,6 @@ static const value_string burst_command[] = {
     NCP documentation        
 
 */
-
-/*
- * Every NCP packet has this common header (except for burst packets).
- */
-struct ncp_common_header {
-	guint16	type;
-	guint8	sequence;
-	guint8	conn_low;
-	guint8	task;
-	guint8	conn_high; /* type=0x5555 doesn't have this */
-};
-
 
 static value_string ncp_type_vals[] = {
 	{ NCP_ALLOCATE_SLOT,	"Create a service connection" },
@@ -291,8 +284,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_item			*ti;
 	struct ncp_ip_header		ncpiph;
 	struct ncp_ip_rqhdr		ncpiphrq;
-	struct ncp_common_header	header;
-	guint16				nw_connection, ncp_burst_seqno, ncp_ack_seqno;
+	guint16				ncp_burst_seqno, ncp_ack_seqno;
 	guint16				flags = 0;
 	char				flags_str[2+3+1+3+1+3+1+3+1+3+1+1];
 	const char			*sep;
@@ -304,7 +296,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	tvbuff_t       			*next_tvb;
 	guint32				testvar = 0, ncp_burst_command, burst_len, burst_off, burst_file;
 	guint8				subfunction;
-	guint32				data_offset;
+	guint32				nw_connection, data_offset;
 	guint16				data_len = 0;
 	guint16				missing_fraglist_count = 0;
 	mncp_rhash_value		*request_value = NULL;
@@ -316,7 +308,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		col_clear(pinfo->cinfo, COL_INFO);
 
 	hdr_offset = 0;
-
+    ncp_hdr = &header;
 	if (is_tcp) {
 		if (tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RQST && tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RPLY) 
 			hdr_offset += 1;
@@ -450,13 +442,15 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	header.conn_low		= tvb_get_guint8(tvb, commhdr+3);
 	header.conn_high	= tvb_get_guint8(tvb, commhdr+5);
 
+    tap_queue_packet(ncp_tap.hdr, pinfo, ncp_hdr);
+
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_add_fstr(pinfo->cinfo, COL_INFO,
 		    "%s",
 		    val_to_str(header.type, ncp_type_vals, "Unknown type (0x%04x)"));
 	}
 
-	nw_connection = (header.conn_high << 16) + header.conn_low;
+    nw_connection = (header.conn_high * 256) + header.conn_low;
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_ncp, tvb, 0, -1, FALSE);
@@ -478,8 +472,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_uint(ncp_tree, hf_ncp_type,	tvb, commhdr + 0, 2, header.type);
 	}
 
-
-	/*
+    /*
 	 * Process the packet-type-specific header.
 	 */
 	switch (header.type) {
@@ -712,8 +705,9 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 		}
 
+    case NCP_DEALLOCATE_SLOT:	/* Deallocate Slot Request */
+        break;
 	case NCP_SERVICE_REQUEST:	/* Server NCP Request */
-	case NCP_DEALLOCATE_SLOT:	/* Deallocate Slot Request */
 	case NCP_BROADCAST_SLOT:	/* Server Broadcast Packet */
 		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
 		if (tvb_get_guint8(tvb, commhdr+6) == 0x68) {
@@ -747,7 +741,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	case NCP_SERVICE_REPLY:		/* Server NCP Reply */
 		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
 		nds_defrag(next_tvb, pinfo, nw_connection, header.sequence,
-		    header.type, ncp_tree);
+		    header.type, ncp_tree, &ncp_tap);
 		break;
 
 	case NCP_POSITIVE_ACK:		/* Positive Acknowledgement */
@@ -758,7 +752,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 */
 		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
 		dissect_ncp_reply(next_tvb, pinfo, nw_connection,
-		    header.sequence, header.type, ncp_tree);
+		    header.sequence, header.type, ncp_tree, &ncp_tap);
 		break;
 
 	case NCP_WATCHDOG:		/* Watchdog Packet */
@@ -828,9 +822,11 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	default:
 		if (tree) {
-		    proto_tree_add_text(ncp_tree, tvb, commhdr + 6, -1,
+		    expert_item = proto_tree_add_text(ncp_tree, tvb, commhdr + 6, -1,
 			    "%s packets not supported yet",
 			    val_to_str(header.type, ncp_type_vals,
+				"Unknown type (0x%04x)"));
+            expert_add_info_format(pinfo, expert_item, PI_UNDECODED, PI_NOTE, "%s packets not supported yet", val_to_str(header.type, ncp_type_vals,
 				"Unknown type (0x%04x)"));
 		}
 		break;
@@ -854,10 +850,6 @@ get_ncp_pdu_len(tvbuff_t *tvb, int offset)
    * packet length+"has signature" flag, so we just say the length is
    * "what remains in the packet".
    */
-  /*if (tvb_get_guint8(tvb, offset)==0xff) 
-  {
-      offset += 1;
-  }*/
   signature = tvb_get_ntohl(tvb, offset);
   if (signature != NCPIP_RQST && signature != NCPIP_RPLY)
     return tvb_length_remaining(tvb, offset);
@@ -886,7 +878,6 @@ dissect_ncp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_ncp(void)
 {
-
   static hf_register_info hf[] = {
     { &hf_ncp_ip_sig,
       { "NCP over IP signature",	"ncp.ip.signature",
@@ -1074,6 +1065,8 @@ proto_register_ncp(void)
     "Whether the NCP dissector should defragment NDS messages spanning multiple packets.",
     &nds_defragment);
   register_init_routine(&mncp_init_protocol);
+  ncp_tap.stat=register_tap("ncp_srt");
+  ncp_tap.hdr=register_tap("ncp_hdr");
   register_postseq_cleanup_routine(&mncp_postseq_cleanup);
 }
 

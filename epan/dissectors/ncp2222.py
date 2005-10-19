@@ -58,6 +58,7 @@ packets		= []
 compcode_lists	= None
 ptvc_lists	= None
 msg		= None
+reply_var = None
 
 REC_START	= 0
 REC_LENGTH	= 1
@@ -190,7 +191,7 @@ class PTVC(NamedList):
 		for record in records:
 			offset = record[REC_START]
 			length = record[REC_LENGTH]
-			field = record[REC_FIELD]
+			field = record[REC_FIELD]          
 			endianness = record[REC_ENDIANNESS]
 
 			# Variable
@@ -871,6 +872,12 @@ class uint32(Type, CountingNumber):
 	def __init__(self, abbrev, descr, endianness = LE):
 		Type.__init__(self, abbrev, descr, 4, endianness)
 
+class uint64(Type, CountingNumber):
+	type	= "uint64"
+	ftype	= "FT_UINT64"
+	def __init__(self, abbrev, descr, endianness = LE):
+		Type.__init__(self, abbrev, descr, 8, endianness)
+
 class boolean8(uint8):
 	type	= "boolean8"
 	ftype	= "FT_BOOLEAN"
@@ -1250,10 +1257,11 @@ AddNameSpaceAndVol              = stringz("add_nm_spc_and_vol", "Add Name Space 
 AFPEntryID			= uint32("afp_entry_id", "AFP Entry ID", BE)
 AFPEntryID.Display("BASE_HEX")
 AllocAvailByte			= uint32("alloc_avail_byte", "Bytes Available for Allocation")
-AllocateMode			= val_string16("allocate_mode", "Allocate Mode", [
-	[ 0x0000, "Permanent Directory Handle" ],
-	[ 0x0001, "Temporary Directory Handle" ],
-	[ 0x0002, "Special Temporary Directory Handle" ],
+AllocateMode			= bitfield16("alloc_mode", "Allocate Mode", [
+	bf_boolean16(0x0001, "alloc_dir_hdl", "Temporary (True) or Permanent (False) Dir Handle"),
+	bf_boolean16(0x0002, "alloc_spec_temp_dir_hdl","Special Temporary Directory Handle"),
+    bf_boolean16(0x4000, "alloc_reply_lvl2","Reply Level 2"),
+    bf_boolean16(0x8000, "alloc_dst_name_spc","Destination Name Space Input Parameter"),
 ])
 AllocationBlockSize		= uint32("allocation_block_size", "Allocation Block Size")
 AllocFreeCount			= uint32("alloc_free_count", "Reclaimable Free Bytes")
@@ -1297,11 +1305,12 @@ AttributesDef32   		= bitfield32("attr_def_32", "Attributes", [
 	bf_boolean32(0x00000008, "att_def32_execute", "Execute"),
 	bf_boolean32(0x00000010, "att_def32_sub_only", "Subdirectory"),
 	bf_boolean32(0x00000020, "att_def32_archive", "Archive"),
+    bf_boolean32(0x00000040, "att_def32_execute_confirm", "Execute Confirm"),
 	bf_boolean32(0x00000080, "att_def32_shareable", "Shareable"),
 	bf_boolean32(0x00001000, "att_def32_transaction", "Transactional"),
 	bf_boolean32(0x00004000, "att_def32_read_audit", "Read Audit"),
 	bf_boolean32(0x00008000, "att_def32_write_audit", "Write Audit"),
-	bf_boolean32(0x00010000, "att_def_purge", "Purge"),
+	bf_boolean32(0x00010000, "att_def_purge", "Immediate Purge"),
 	bf_boolean32(0x00020000, "att_def_reninhibit", "Rename Inhibit"),
 	bf_boolean32(0x00040000, "att_def_delinhibit", "Delete Inhibit"),
 	bf_boolean32(0x00080000, "att_def_cpyinhibit", "Copy Inhibit"),
@@ -1354,7 +1363,7 @@ BusType				= val_string8("bus_type", "Bus Type", [
 	[0x04, "PCI"],
 	[0x08, "PCMCIA"],
 	[0x10, "ISA"],
-        [0x14, "ISA"],
+    [0x14, "ISA/PCI"],
 ])
 BytesActuallyTransferred	= uint32("bytes_actually_transferred", "Bytes Actually Transferred")
 BytesRead 			= fw_string("bytes_read", "Bytes Read", 6)
@@ -1391,7 +1400,7 @@ ChangeBits			= bitfield16("change_bits", "Change Bits", [
 	bf_boolean16(0x0020, "change_bits_adate", "Archive Date"),
 	bf_boolean16(0x0040, "change_bits_atime", "Archive Time"),
 	bf_boolean16(0x0080, "change_bits_aid", "Archiver ID"),
-        bf_boolean16(0x0100, "change_bits_udate", "Update Date"),
+    bf_boolean16(0x0100, "change_bits_udate", "Update Date"),
 	bf_boolean16(0x0200, "change_bits_utime", "Update Time"),
 	bf_boolean16(0x0400, "change_bits_uid", "Update ID"),
 	bf_boolean16(0x0800, "change_bits_acc_date", "Access Date"),
@@ -1567,11 +1576,17 @@ DataStream			= val_string8("data_stream", "Data Stream", [
 	[ 0x00, "Resource Fork or DOS" ],
 	[ 0x01, "Data Fork" ],
 ])
+DataStreamFATBlocks     = uint32("data_stream_fat_blks", "Data Stream FAT Blocks")
 DataStreamName			= nstring8("data_stream_name", "Data Stream Name")
 DataStreamNumber		= uint8("data_stream_number", "Data Stream Number")
+DataStreamNumberLong    = uint32("data_stream_num_long", "Data Stream Number")
 DataStreamsCount		= uint32("data_streams_count", "Data Streams Count")
 DataStreamSize			= uint32("data_stream_size", "Size")
 DataStreamSpaceAlloc 		= uint32( "data_stream_space_alloc", "Space Allocated for Data Stream" )
+DataTypeFlag            = val_string8("data_type_flag", "Data Type Flag", [
+    [ 0x00, "ASCII Data" ],
+    [ 0x01, "UTF8 Data" ],
+])
 Day 				= uint8("s_day", "Day")
 DayOfWeek			= val_string8("s_day_of_week", "Day of Week", [
 	[ 0x00, "Sunday" ],
@@ -1601,7 +1616,7 @@ DenyReadCount			= uint16("deny_read_count", "Deny Read Count")
 DenyWriteCount			= uint16("deny_write_count", "Deny Write Count")
 DescriptionStrings		= fw_string("description_string", "Description", 100)
 DesiredAccessRights 		= bitfield16("desired_access_rights", "Desired Access Rights", [
-        bf_boolean16(0x0001, "dsired_acc_rights_read_o", "Read Only"),
+    bf_boolean16(0x0001, "dsired_acc_rights_read_o", "Read Only"),
 	bf_boolean16(0x0002, "dsired_acc_rights_write_o", "Write Only"),
 	bf_boolean16(0x0004, "dsired_acc_rights_deny_r", "Deny Read"),
 	bf_boolean16(0x0008, "dsired_acc_rights_deny_w", "Deny Write"),
@@ -1988,9 +2003,9 @@ ExtAttrKeySize			= uint32("ext_attr_key_size", "Extended Attributes Key Size")
 ExtendedAttributesDefined	= uint32("extended_attributes_defined", "Extended Attributes Defined")
 ExtendedAttributeExtantsUsed	= uint32("extended_attribute_extants_used", "Extended Attribute Extants Used")
 ExtendedInfo	 	        = bitfield16("ext_info", "Extended Return Information", [
-	bf_boolean16(0x0001, "ext_info_update", "Update"),
+	bf_boolean16(0x0001, "ext_info_update", "Last Update"),
 	bf_boolean16(0x0002, "ext_info_dos_name", "DOS Name"),
-	bf_boolean16(0x0004, "ext_info_flush", "Flush"),
+	bf_boolean16(0x0004, "ext_info_flush", "Flush Time"),
 	bf_boolean16(0x0008, "ext_info_parental", "Parental"),
 	bf_boolean16(0x0010, "ext_info_mac_finder", "MAC Finder"),
 	bf_boolean16(0x0020, "ext_info_sibling", "Sibling"),
@@ -2157,14 +2172,16 @@ FileMode			= uint8("file_mode", "File Mode")
 FileName			= nstring8("file_name", "Filename")
 FileName12			= fw_string("file_name_12", "Filename", 12)
 FileName14			= fw_string("file_name_14", "Filename", 14)
+FileName16          = nstring16("file_name_16", "Filename")
 FileNameLen			= uint8("file_name_len", "Filename Length")
 FileOffset			= uint32("file_offset", "File Offset")
 FilePath			= nstring8("file_path", "File Path")
 FileSize			= uint32("file_size", "File Size", BE)
-FileSize64bit       = bytes("f_size_64bit", "64bit File Size", 64)
+FileSize64bit       = uint64("f_size_64bit", "64bit File Size")
 FileSystemID			= uint8("file_system_id", "File System ID")
 FileTime			= uint16("file_time", "File Time")
 FileTime.NWTime()
+FileUseCount        = uint16("file_use_count", "File Use Count")
 FileWriteFlags			= val_string8("file_write_flags", "File Write Flags", [
 	[ 0x01, "Writing" ],
 	[ 0x02, "Write aborted" ],
@@ -2298,7 +2315,7 @@ InfoMask			= bitfield32("info_mask", "Information Mask", [
 	bf_boolean32(0x80000000, "info_mask_name", "Name"),
 ])
 InheritedRightsMask 		= bitfield16("inherited_rights_mask", "Inherited Rights Mask", [
-        bf_boolean16(0x0001, "inh_rights_read", "Read Rights"),
+    bf_boolean16(0x0001, "inh_rights_read", "Read Rights"),
 	bf_boolean16(0x0002, "inh_rights_write", "Write Rights"),
 	bf_boolean16(0x0004, "inh_rights_open", "Open Rights"),
 	bf_boolean16(0x0008, "inh_rights_create", "Create Rights"),
@@ -2548,6 +2565,15 @@ Level				= uint8("level", "Level")
 LFSCounters			= uint32("lfs_counters", "LFS Counters")
 LimboDataStreamsCount		= uint32("limbo_data_streams_count", "Limbo Data Streams Count")
 limbCount			= uint32("limb_count", "Limb Count")
+limbFlags           = bitfield32("limb_flags", "Limb Flags", [
+	bf_boolean32(0x00000002, "scan_entire_folder", "Wild Search"),
+	bf_boolean32(0x00000004, "scan_files_only", "Scan Files Only"),
+	bf_boolean32(0x00000008, "scan_folders_only", "Scan Folders Only"),
+	bf_boolean32(0x00000010, "allow_system", "Allow System Files and Folders"),
+	bf_boolean32(0x00000020, "allow_hidden", "Allow Hidden Files and Folders"),
+])
+
+limbScanNum			= uint32("limb_scan_num", "Limb Scan Number")
 LimboUsed			= uint32("limbo_used", "Limbo Used")
 LoadedNameSpaces		= uint8("loaded_name_spaces", "Loaded Name Spaces")
 LocalConnectionID 		= uint32("local_connection_id", "Local Connection ID")
@@ -2661,6 +2687,7 @@ MediaList                       = uint32("media_list", "Media List")
 MediaListCount                  = uint32("media_list_count", "Media List Count")
 MediaName                       = nstring8("media_name", "Media Name")
 MediaNumber                     = uint32("media_number", "Media Number")
+MaxReplyObjectIDCount           = uint8("max_reply_obj_id_count", "Max Reply Object ID Count")
 MediaObjectType                 = val_string8("media_object_type", "Object Type", [
         [ 0x00, "Adapter" ],
         [ 0x01, "Changer" ],
@@ -2757,16 +2784,6 @@ Name12				= fw_string("name12", "Name", 12)
 NameLen				= uint8("name_len", "Name Space Length")
 NameLength                      = uint8("name_length", "Name Length")
 NameList			= uint32("name_list", "Name List")
-#
-# XXX - should this value be used to interpret the characters in names,
-# search patterns, and the like?
-#
-# We need to handle character sets better, e.g. translating strings
-# from whatever character set they are in the packet (DOS/Windows code
-# pages, ISO character sets, UNIX EUC character sets, UTF-8, UCS-2/Unicode,
-# Mac character sets, etc.) into UCS-4 or UTF-8 and storing them as such
-# in the protocol tree, and displaying them as best we can.
-#
 NameSpace 			= val_string8("name_space", "Name Space", [
 	[ 0x00, "DOS" ],
 	[ 0x01, "MAC" ],
@@ -2974,6 +2991,7 @@ NumberOfAllocs			= uint32("num_of_allocs", "Number of Allocations")
 NumberOfAttributes		= uint32("number_of_attributes", "Number of Attributes")
 NumberOfCPUs			= uint32("number_of_cpus", "Number of CPU's")
 NumberOfDataStreams 		= uint16("number_of_data_streams", "Number of Data Streams")
+NumberOfDataStreamsLong     = uint32("number_of_data_streams_long", "Number of Data Streams")
 NumberOfDynamicMemoryAreas 	= uint16("number_of_dynamic_memory_areas", "Number Of Dynamic Memory Areas")
 NumberOfEntries			= uint8("number_of_entries", "Number of Entries")
 NumberOfLocks			= uint8("number_of_locks", "Number of Locks")
@@ -3134,6 +3152,8 @@ OpenCreateMode 			= bitfield8("open_create_mode", "Open Create Mode", [
 	bf_boolean8(0x01, "open_create_mode_open", "Open existing file (file must exist)"),
 	bf_boolean8(0x02, "open_create_mode_replace", "Replace existing file"),
 	bf_boolean8(0x08, "open_create_mode_create", "Create new file or subdirectory (file or subdirectory cannot exist)"),
+    bf_boolean8(0x20, "open_create_mode_64bit", "Open 64-bit Access"),
+    bf_boolean8(0x40, "open_create_mode_ro", "Open with Read Only Access"),
 	bf_boolean8(0x80, "open_create_mode_oplock", "Open Callback (Op-Lock)"),
 ])
 OpenForReadCount 		= uint16("open_for_read_count", "Open For Read Count")
@@ -3144,7 +3164,7 @@ OpenRights			= bitfield8("open_rights", "Open Rights", [
 	bf_boolean8(0x04, "open_rights_deny_read", "Deny Read"),
 	bf_boolean8(0x08, "open_rights_deny_write", "Deny Write"),
 	bf_boolean8(0x10, "open_rights_compat", "Compatibility"),
-	bf_boolean8(0x40, "open_rights_write_thru", "Write Through"),
+	bf_boolean8(0x40, "open_rights_write_thru", "File Write Through"),
 ])
 OptionNumber			= uint8("option_number", "Option Number")
 originalSize                    = uint32("original_size", "Original Size")
@@ -3181,6 +3201,7 @@ PathCookieFlags			= val_string16("path_cookie_flags", "Path Cookie Flags", [
 ])
 PathCount 			= uint8("path_count", "Path Count")
 Path 				= nstring8("path", "Path")
+Path16              = nstring16("path16", "Path")
 PathAndName                     = stringz("path_and_name", "Path and Name")
 PendingIOCommands 		= uint16("pending_io_commands", "Pending IO Commands")
 PhysicalDiskNumber		= uint8("physical_disk_number", "Physical Disk Number")
@@ -3337,6 +3358,7 @@ Reserved			= uint8( "reserved", "Reserved" )
 Reserved2			= bytes("reserved2", "Reserved", 2)
 Reserved3			= bytes("reserved3", "Reserved", 3)
 Reserved4			= bytes("reserved4", "Reserved", 4)
+Reserved5			= bytes("reserved5", "Reserved", 5)
 Reserved6                       = bytes("reserved6", "Reserved", 6)
 Reserved8			= bytes("reserved8", "Reserved", 8)
 Reserved10                      = bytes("reserved10", "Reserved", 10)
@@ -3364,7 +3386,7 @@ RestrictionsEnforced 		= val_string8("restrictions_enforced", "Disk Restrictions
 ])
 ReturnInfoCount			= uint32("return_info_count", "Return Information Count")
 ReturnInfoMask 		        = bitfield16("ret_info_mask", "Return Information", [
-        bf_boolean16(0x0001, "ret_info_mask_fname", "Return File Name Information"),
+    bf_boolean16(0x0001, "ret_info_mask_fname", "Return File Name Information"),
 	bf_boolean16(0x0002, "ret_info_mask_alloc", "Return Allocation Space Information"),
 	bf_boolean16(0x0004, "ret_info_mask_attr", "Return Attribute Information"),
 	bf_boolean16(0x0008, "ret_info_mask_size", "Return Size Information"),
@@ -3372,7 +3394,7 @@ ReturnInfoMask 		        = bitfield16("ret_info_mask", "Return Information", [
 	bf_boolean16(0x0020, "ret_info_mask_eattr", "Return Extended Attributes Information"),
 	bf_boolean16(0x0040, "ret_info_mask_arch", "Return Archive Information"),
 	bf_boolean16(0x0080, "ret_info_mask_mod", "Return Modify Information"),
-        bf_boolean16(0x0100, "ret_info_mask_create", "Return Creation Information"),
+    bf_boolean16(0x0100, "ret_info_mask_create", "Return Creation Information"),
 	bf_boolean16(0x0200, "ret_info_mask_ns", "Return Name Space Information"),
 	bf_boolean16(0x0400, "ret_info_mask_dir", "Return Directory Information"),
 	bf_boolean16(0x0800, "ret_info_mask_rights", "Return Rights Information"),
@@ -3452,11 +3474,12 @@ SearchBitMap				= bitfield8("search_bit_map", "Search Bit Map", [
 ])
 SearchConnNumber			= uint32("search_conn_number", "Search Connection Number")
 SearchInstance				= uint32("search_instance", "Search Instance")
-SearchNumber                            = uint32("search_number", "Search Number")
+SearchNumber                = uint32("search_number", "Search Number")
 SearchPattern				= nstring8("search_pattern", "Search Pattern")
+SearchPattern16				= nstring16("search_pattern_16", "Search Pattern")
 SearchSequence				= bytes("search_sequence", "Search Sequence", 9)
-SearchSequenceWord                      = uint16("search_sequence_word", "Search Sequence", BE)
-Second					= uint8("s_second", "Seconds")
+SearchSequenceWord          = uint16("search_sequence_word", "Search Sequence", BE)
+Second					    = uint8("s_second", "Seconds")
 SecondsRelativeToTheYear2000            = uint32("sec_rel_to_y2k", "Seconds Relative to the Year 2000")
 SecretStoreVerb                         = val_string8("ss_verb", "Secret Store Verb",[
         [ 0x00, "Query Server" ],
@@ -3659,7 +3682,9 @@ StatusFlagBits		        = bitfield32("status_flag_bits", "Status Flag", [
 	bf_boolean32(0x00000008, "status_flag_bits_audit", "Audit"),
 	bf_boolean32(0x00000010, "status_flag_bits_ro", "Read Only"),
 	bf_boolean32(0x00000020, "status_flag_bits_im_purge", "Immediate Purge"),
-        bf_boolean32(0x80000000, "status_flag_bits_nss", "NSS Volume"),
+    bf_boolean32(0x00000040, "status_flag_bits_64bit", "64Bit File Offsets"),
+    bf_boolean32(0x00000080, "status_flag_bits_utf8", "UTF8 NCP Strings"),
+    bf_boolean32(0x80000000, "status_flag_bits_nss", "NSS Volume"),
 ])
 SubAllocClusters		= uint32("sub_alloc_clusters", "Sub Alloc Clusters")
 SubAllocFreeableClusters 	= uint32("sub_alloc_freeable_clusters", "Sub Alloc Freeable Clusters")
@@ -3759,6 +3784,7 @@ TransportType                   = val_string8("transport_type", "Communications 
 TreeLength			= uint32("tree_length", "Tree Length")
 TreeName			= nstring32("tree_name", "Tree Name")
 TreeName.NWUnicode()
+TrusteeAccessMask           = uint8("trustee_acc_mask", "Trustee Access Mask")
 TrusteeRights		        = bitfield16("trustee_rights_low", "Trustee Rights", [
 	bf_boolean16(0x0001, "trustee_rights_read", "Read"),
 	bf_boolean16(0x0002, "trustee_rights_write", "Write"),
@@ -4104,7 +4130,7 @@ CompDeCompStat                  = struct("comp_d_comp_stat", [
 ], "Compression/Decompression Information")
 ConnFileStruct			= struct("conn_file_struct", [
 	ConnectionNumberWord,
-	TaskNumByte,
+	TaskNumberWord,
 	LockType,
 	AccessControl,
 	LockFlag,
@@ -4308,6 +4334,9 @@ ExtraCacheCntrs			= struct("extra_cache_cntrs", [
 	uint32("id_get_no_read_no_wait_no_alloc_alloc", "ID Get No Read No Wait No Alloc Allocate Count"),
 ], "Extra Cache Counters Information")
 
+FileSize64bitStruct             = struct("file_sz_64bit_struct", [
+        FileSize64bit,
+])
 
 ReferenceIDStruct               = struct("ref_id_struct", [
         CurrentReferenceID,
@@ -4316,18 +4345,21 @@ NSAttributeStruct               = struct("ns_attrib_struct", [
         AttributesDef32,
 ])
 DStreamActual                   = struct("d_stream_actual", [
-        Reserved12,
-        # Need to look into how to format this correctly
+        DataStreamNumberLong,
+        DataStreamFATBlocks,
 ])
 DStreamLogical                  = struct("d_string_logical", [
-        Reserved12,
-        # Need to look into how to format this correctly
+        DataStreamNumberLong,
+        DataStreamSize,
 ])
 LastUpdatedInSecondsStruct      = struct("last_update_in_seconds_struct", [
         SecondsRelativeToTheYear2000,
 ])
 DOSNameStruct                   = struct("dos_name_struct", [
         FileName,
+], "DOS File Name")
+DOSName16Struct                   = struct("dos_name_16_struct", [
+        FileName16,
 ], "DOS File Name")
 FlushTimeStruct                 = struct("flush_time_struct", [
         FlushTime,
@@ -4380,6 +4412,9 @@ FileInstance                    = struct("file_instance", [
 ], "File Instance")
 FileNameStruct                  = struct("file_name_struct", [
         FileName,
+], "File Name")
+FileName16Struct                  = struct("file_name16_struct", [
+        FileName16,
 ], "File Name")
 FileServerCounters		= struct("file_server_counters", [
 	uint16("too_many_hops", "Too Many Hops"),
@@ -4746,7 +4781,7 @@ NWAuditStatus			= struct("nw_audit_status", [
         AuditFileVersionDate,
 	val_string16("audit_enable_flag", "Auditing Enabled Flag", [
 		[ 0x0000, "Auditing Disabled" ],
-		[ 0x0100, "Auditing Enabled" ],
+		[ 0x0001, "Auditing Enabled" ],
 	]),
 	Reserved2,
 	uint32("audit_file_size", "Audit File Size"),
@@ -4892,6 +4927,18 @@ printInfo                       = struct("print_info_struct", [
         TargetPrinter,
         FormType,
 ], "Print Information")
+ReplyLevel1Struct       = struct("reply_lvl_1_struct", [
+    DirHandle,
+    VolumeNumber,
+    Reserved4,
+], "Reply Level 1")
+ReplyLevel2Struct       = struct("reply_lvl_2_struct", [
+    VolumeNumberLong,
+    DirectoryBase,
+    DOSDirectoryBase,
+    NameSpace,
+    DirHandle,
+], "Reply Level 2")
 RightsInfoStruct		= struct("rights_info_struct", [
 	InheritedRightsMask,
 ])
@@ -5041,7 +5088,7 @@ UpdateTimeStruct                = struct("update_time_struct", [
         UpdateTime,
 ])
 UserInformation			= struct("user_info", [
-	ConnectionNumber,
+	endian(ConnectionNumber, LE),
 	UseCount,
 	Reserved2,
 	ConnectionServiceType,
@@ -5125,6 +5172,9 @@ VolumeStruct                    = struct("volume_struct", [
         VolumeNameLen,
 ])
 
+DataStreamsStruct               = struct("number_of_data_streams_struct", [
+    NumberOfDataStreamsLong,
+])
 
 ##############################################################################
 # NCP Groups
@@ -5153,7 +5203,7 @@ def define_groups():
 	groups['stats']		= "Server Statistics"
 	groups['nmas']		= "Novell Modular Authentication Service"
 	groups['sss']		= "SecretStore Services"
-	groups['unknown']	= "Unknown"
+	groups['unknown']	= "Unknown" 
 
 ##############################################################################
 # NCP Errors
@@ -5287,6 +5337,11 @@ def define_errors():
     	errors[0xa800] = "Invalid Support Module ID"
         errors[0xa801] = "No Auditing Access Rights"
         errors[0xa802] = "No Access Rights"
+
+        errors[0xa900] = "Error Link in Path"
+        errors[0xa901] = "Invalid Data Type Flag (outdated return value - replaced in NSS as 0x89aa error)"
+
+        errors[0xaa00] = "Invalid Data Type Flag"
 
     	errors[0xbe00] = "Invalid Data Stream"
     	errors[0xbf00] = "Requests for this name space are not valid on this volume"
@@ -5506,6 +5561,7 @@ def define_errors():
     	errors[0xff1e] = "Calling Station is Not a Manager"
     	errors[0xff1f] = "Bindery Failure"
         errors[0xff20] = "NCP Extension Not Found"
+        errors[0xff21] = "Audit Property Not Found"
 
 ##############################################################################
 # Produce C code
@@ -5534,7 +5590,7 @@ def produce_code():
 	print """
 /*
  * Portions Copyright (c) Gilbert Ramirez 2000-2002
- * Portions Copyright (c) Novell, Inc. 2000-2003
+ * Portions Copyright (c) Novell, Inc. 2000-2005
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -5563,8 +5619,10 @@ def produce_code():
 #include <epan/emem.h>
 #include "packet-ncp-int.h"
 #include "packet-ncp-nmas.h"
+#include "packet-ncp-sss.h"
 #include <epan/strutil.h>
 #include "reassemble.h"
+#include <epan/tap.h>
 
 /* Function declarations for functions used in proto_register_ncp2222() */
 static void ncp_init_protocol(void);
@@ -5605,10 +5663,10 @@ static int ptvc_struct_int_storage;
 #define NREV    0x00000004
 #define NFLAGS  0x00000008
 
-
 static int hf_ncp_func = -1;
 static int hf_ncp_length = -1;
 static int hf_ncp_subfunc = -1;
+static int hf_ncp_group = -1;
 static int hf_ncp_fragment_handle = -1;
 static int hf_ncp_completion_code = -1;
 static int hf_ncp_connection_status = -1;
@@ -6036,6 +6094,7 @@ static int hf_nds_segment_multiple_tails = -1;
 static int hf_nds_segment_too_long_segment = -1;
 static int hf_nds_segment_error = -1;
 
+static proto_item *expert_item = NULL;
 
 	"""
 
@@ -6441,6 +6500,7 @@ static const value_string ncp_nds_verb_vals[] = {
 	{ 75, "Low Level Join" },
 	{ 76, "Abort Low Level Join" },
 	{ 77, "Get All Servers" },
+    { 240, "Ping" },
 	{ 255, "EDirectory Call" },
 	{ 0,  NULL }
 };
@@ -6461,6 +6521,9 @@ proto_register_ncp2222(void)
 
 	{ &hf_ncp_completion_code,
 	{ "Completion Code", "ncp.completion_code", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+	{ &hf_ncp_group,
+	{ "NCP Group Type", "ncp.group", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 
 	{ &hf_ncp_fragment_handle,
 	{ "NDS Fragment Handle", "ncp.ndsfrag", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
@@ -7775,8 +7838,6 @@ proto_register_ncp2222(void)
           { "NDS Fragments",	"nds.fragments", FT_NONE, BASE_NONE,
     		NULL, 0x0, "NDPS Fragments", HFILL }},
 
-
-
  """
 	# Print the registration code for the hf variables
 	for var in sorted_vars:
@@ -8238,10 +8299,9 @@ def define_ncp2222():
 
 	# 2222/1603, 22/3
 	pkt = NCP(0x1603, "Get Effective Directory Rights", 'fileserver')
-	pkt.Request((14,268), [
+	pkt.Request((12,266), [
 		rec( 10, 1, DirHandle ),
-		rec( 11, 2, StartingSearchNumber ),
-		rec( 13, (1, 255), Path ),
+		rec( 11, (1, 255), Path ),
 	], info_str=(Path, "Get Effective Directory Rights: %s", ", %s"))
 	pkt.Reply(9, [
 		rec( 8, 1, AccessRightsMask ),
@@ -9186,8 +9246,8 @@ def define_ncp2222():
 	# FT_IPXNET value.
 	#
 	pkt = NCP(0x171A, "Get Internet Address", 'fileserver')
-	pkt.Request(11, [
-		rec( 10, 1, TargetConnectionNumber ),
+	pkt.Request(12, [
+		rec( 10, 2, TargetConnectionNumber ),
 	])
 	pkt.Reply(21, [
 		rec( 8, 4, NetworkAddress, BE ),
@@ -10613,7 +10673,7 @@ def define_ncp2222():
 	])
  	pkt.Reply(33, [
 		rec( 8, 2, NextRequestRecord ),
-		rec( 10, 2, UseCount ),
+		rec( 10, 2, FileUseCount ),
 		rec( 12, 2, OpenCount ),
 		rec( 14, 2, OpenForReadCount ),
 		rec( 16, 2, OpenForWriteCount ),
@@ -10622,7 +10682,7 @@ def define_ncp2222():
 		rec( 22, 1, Locked ),
 		rec( 23, 1, ForkCount ),
 		rec( 24, 2, NumberOfRecords, var="x" ),
-		rec( 26, 7, ConnStruct, repeat="x" ),
+		rec( 26, 7, ConnFileStruct, repeat="x" ),
 	])
 	pkt.CompletionCodes([0x0000, 0x9600, 0xc601, 0xff00])
 	# 2222/17ED, 23/237
@@ -10907,11 +10967,11 @@ def define_ncp2222():
 	pkt.CompletionCodes([0x0000, 0x9600])
 	# 2222/2207, 34/07
 	pkt = NCP(0x2207, "TTS Get Workstation Thresholds", 'tts', has_length=0)
-	pkt.Request(10, [
+	pkt.Request(8)
+	pkt.Reply(10, [
 		  rec( 8, 1, LogicalLockThreshold ),
 		  rec( 9, 1, PhysicalLockThreshold ),
 	])
-	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000])
 	# 2222/2208, 34/08
 	pkt = NCP(0x2208, "TTS Set Workstation Thresholds", 'tts', has_length=0)
@@ -11382,7 +11442,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 		# The following value is Unicode
 		#[ 8, (1, 255), ReplyBuffer ],
-	pkt.CompletionCodes([0x0000, 0xd504, 0xee00, 0xfe00])
+	pkt.CompletionCodes([0x0000, 0x9c00, 0xd504, 0xee00, 0xfe00])
 	# 2222/3B, 59
 	pkt = NCP(0x3B, "Commit File", 'file', has_length=0 )
 	pkt.Request(14, [
@@ -11415,14 +11475,6 @@ def define_ncp2222():
                 rec( 13, (1,255), Path ),
 	], info_str=(Path, "File Search Continue: %s", ", %s"))
 	pkt.Reply( NO_LENGTH_CHECK, [
-		#
-		# XXX - don't show this if we got back a non-zero
-		# completion code?  For example, 255 means "No
-		# matching files or directories were found", so
-		# presumably it can't show you a matching file or
-		# directory instance - it appears to just leave crap
-		# there.
-		#
 		srec( DirectoryInstance, req_cond="ncp.sattr_sub==TRUE"),
 		srec( FileInstance, req_cond="ncp.sattr_sub!=TRUE"),
 	])
@@ -11755,7 +11807,7 @@ def define_ncp2222():
 		rec( 20, 4, TtlEAsKeySize ),
 		rec( 24, 4, NewEAHandle ),
 	])
-	pkt.CompletionCodes([0x0000, 0x8800, 0xc900, 0xce00, 0xcf00, 0xd101,
+	pkt.CompletionCodes([0x0000, 0x8800, 0x8c01, 0xc900, 0xce00, 0xcf00, 0xd101,
 			     0xd301])
 	# 2222/5605, 86/05
 	pkt = NCP(0x5605, "Duplicate Extended Attributes", 'file', has_length=0 )
@@ -11842,7 +11894,7 @@ def define_ncp2222():
                 srec( FileNameStruct, req_cond="ncp.ret_info_mask_fname == 1" ),
         ])
 	pkt.ReqCondSizeVariable()
-        pkt.CompletionCodes([0x0000, 0x7f00, 0x8001, 0x8101, 0x8401, 0x8501,
+        pkt.CompletionCodes([0x0000, 0x0102, 0x7f00, 0x8001, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8900, 0x8d00, 0x8f00, 0x9001, 0x9400, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xa500, 0xa802, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5702, 87/02
@@ -11948,7 +12000,7 @@ def define_ncp2222():
 		rec( -1, (1,255), Path, repeat="y" ),
 	], info_str=(Path, "Rename or Move: %s", "/%s"))
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9200, 0x9600,
 			     0x9804, 0x9a00, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5705, 87/05
@@ -12022,8 +12074,10 @@ def define_ncp2222():
             srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_ns == 1)" ),
             srec( ReferenceIDStruct, req_cond="ncp.ret_info_mask_id == 1" ),
             srec( NSAttributeStruct, req_cond="ncp.ret_info_mask_ns_attr == 1" ),
-            srec( DStreamActual, req_cond="ncp.ret_info_mask_actual == 1" ),
-            srec( DStreamLogical, req_cond="ncp.ret_info_mask_logical == 1" ),
+            srec( DataStreamsStruct, req_cond="ncp.ret_info_mask_actual == 1" ), 
+            srec( DStreamActual, req_cond="ncp.ret_info_mask_actual == 1 && ncp.number_of_data_streams_long > 0" ),            # , repeat="x" 
+            srec( DataStreamsStruct, req_cond="ncp.ret_info_mask_logical == 1" ), # , var="y" 
+            srec( DStreamLogical, req_cond="ncp.ret_info_mask_logical == 1 && ncp.number_of_data_streams_long > 0" ),          # , repeat="y" 
             srec( LastUpdatedInSecondsStruct, req_cond="ncp.ext_info_update == 1" ),
             srec( DOSNameStruct, req_cond="ncp.ext_info_dos_name == 1" ),
             srec( FlushTimeStruct, req_cond="ncp.ext_info_flush == 1" ),
@@ -12033,6 +12087,7 @@ def define_ncp2222():
             srec( EffectiveRightsStruct, req_cond="ncp.ext_info_effective == 1" ),
             srec( MacTimeStruct, req_cond="ncp.ext_info_mac_date == 1" ),
             srec( LastAccessedTimeStruct, req_cond="ncp.ext_info_access == 1" ),
+			srec( FileSize64bitStruct, req_cond="ncp.ext_info_64_bit_fs == 1" ),
             srec( FileNameStruct, req_cond="ncp.ret_info_mask_fname == 1" ),
         ])
 	pkt.ReqCondSizeVariable()
@@ -12070,14 +12125,14 @@ def define_ncp2222():
 		rec( 61, (1,255), Path, repeat="x" ),
 	], info_str=(Path, "Modify DOS Information for: %s", "/%s"))
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8c01, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5708, 87/08
 	pkt = NCP(0x5708, "Delete a File or Subdirectory", 'file', has_length=0)
 	pkt.Request((20,274), [
 		rec( 8, 1, NameSpace ),
-		rec( 9, 1, Reserved ),
+		rec( 9, 1, Reserved ),                    
 		rec( 10, 2, SearchAttributesLow ),
 		rec( 12, 1, VolumeNumber ),
 		rec( 13, 4, DirectoryBase ),
@@ -12321,12 +12376,12 @@ def define_ncp2222():
             srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_attr == 1)" ),
             srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_size == 1)" ),
             srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_tspace == 1)" ),
-            srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_eattr == 1)" ),
-            srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_arch == 1)" ),
-            srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_mod == 1)" ),
             srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_create == 1)" ),
+            srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_mod == 1)" ),
+            srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_arch == 1)" ),
             srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_rights == 1)" ),
             srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_dir == 1)" ),
+            srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_eattr == 1)" ),
             srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_ns == 1)" ),
             srec( ReferenceIDStruct, req_cond="ncp.ret_info_mask_id == 1" ),
             srec( NSAttributeStruct, req_cond="ncp.ret_info_mask_ns_attr == 1" ),
@@ -12341,6 +12396,7 @@ def define_ncp2222():
             srec( EffectiveRightsStruct, req_cond="ncp.ext_info_effective == 1" ),
             srec( MacTimeStruct, req_cond="ncp.ext_info_mac_date == 1" ),
             srec( LastAccessedTimeStruct, req_cond="ncp.ext_info_access == 1" ),
+            srec( FileSize64bitStruct, req_cond="ncp.ext_info_64_bit_fs == 1" ),
             srec( FileNameStruct, req_cond="ncp.ret_info_mask_fname == 1" ),
         ])
 	pkt.ReqCondSizeVariable()
@@ -12399,10 +12455,10 @@ def define_ncp2222():
 			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5718, 87/24
 	pkt = NCP(0x5718, "Get Name Spaces Loaded List from Volume Number", 'file', has_length=0)
-	pkt.Request(10, [
-		rec( 8, 1, Reserved ),
-		rec( 9, 1, VolumeNumber ),
-	])
+	pkt.Request(11, [
+		rec( 8, 2, Reserved2 ),
+		rec( 10, 1, VolumeNumber ),
+	], info_str=(VolumeNumber, "Get Name Spaces Loaded List from Vol: %d", "/%d"))
 	pkt.Reply(11, [
 		rec( 8, 2, NumberOfNSLoaded, var="x" ),
 		rec( 10, 1, NameSpace, repeat="x" ),
@@ -12603,7 +12659,7 @@ def define_ncp2222():
                 srec( FileNameStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_fname == 1)" ),
         ])
 	pkt.ReqCondSizeVariable()
-	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/571F, 87/31
@@ -12611,7 +12667,6 @@ def define_ncp2222():
 	pkt.Request(15, [
 		rec( 8, 6, FileHandle  ),
 		rec( 14, 1, HandleInfoLevel ),
-		#rec( 15, 1, NameSpace ),
 	], info_str=(FileHandle, "Get File Information - 0x%s", ", %s"))
 	pkt.Reply(NO_LENGTH_CHECK, [
 		rec( 8, 4, VolumeNumberLong ),
@@ -12696,7 +12751,7 @@ def define_ncp2222():
                 srec( FileNameStruct, req_cond="ncp.ret_info_mask_fname == 1" ),
         ])
 	pkt.ReqCondSizeVariable()
-	pkt.CompletionCodes([0x0000, 0x7f00, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0102, 0x7f00, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5721, 87/33
@@ -12748,7 +12803,7 @@ def define_ncp2222():
                 rec( 87, 3, Reserved3 ),
 		rec( 90, (1,255), FileName ),
 	])
-	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5722, 87/34
@@ -12780,7 +12835,7 @@ def define_ncp2222():
 		rec( 16, 4, AttributeValidFlag ),
 		rec( 20, 4, AttributesDef32 ),
 	])
-	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+	pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5724, 87/36
@@ -13004,7 +13059,7 @@ def define_ncp2222():
         rec( 20, 2, NumBytes, BE ),
     ])
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x8300, 0x8800, 0x9400, 0x9500, 0xa201, 0xfd00, 0xff1b])
+	pkt.CompletionCodes([0x0000, 0x0102, 0x8300, 0x8800, 0x9400, 0x9500, 0xa201, 0xfd00, 0xff1b])
 	# 2222/5742, 87/66
 	pkt = NCP(0x5742, "Get Current Size of File", 'file', has_length=0)
 	pkt.Request(12, [
@@ -13098,7 +13153,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff21])
 	# 2222/5807, 8807
 	pkt = NCP(0x5807, "Disable Auditing On A Volume", "auditing", has_length=0)
 	pkt.Request(8)
@@ -13240,13 +13295,1156 @@ def define_ncp2222():
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+	# 2222/5901, 89,01
+	pkt = NCP(0x5901, "Enhanced Open/Create File or Subdirectory", "file", has_length=0)
+	pkt.Request((37,290), [
+		rec( 8, 1, NameSpace  ),
+		rec( 9, 1, OpenCreateMode ),
+		rec( 10, 2, SearchAttributesLow ),
+		rec( 12, 2, ReturnInfoMask ),
+		rec( 14, 2, ExtendedInfo ),
+		rec( 16, 4, AttributesDef32 ),
+		rec( 20, 2, DesiredAccessRights ),
+		rec( 22, 4, DirectoryBase ),
+		rec( 26, 1, VolumeNumber ),
+		rec( 27, 1, HandleFlag ),
+		rec( 28, 1, DataTypeFlag ),
+		rec( 29, 5, Reserved5 ),
+		rec( 34, 1, PathCount, var="x" ),
+		rec( 35, (2,255), Path16, repeat="x" ),
+	], info_str=(Path16, "Enhanced Open or Create File or Subdirectory: %s", "/%s"))
+	pkt.Reply( NO_LENGTH_CHECK, [
+		rec( 8, 4, FileHandle, BE ),
+		rec( 12, 1, OpenCreateAction ),
+		rec( 13, 1, Reserved ),
+			srec( DSSpaceAllocateStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
+			srec( PadDSSpaceAllocate, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 0)" ),
+			srec( AttributesStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 1)" ),
+			srec( PadAttributes, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 0)" ),
+			srec( DataStreamSizeStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 1)" ),
+			srec( PadDataStreamSize, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 0)" ),
+			srec( TotalStreamSizeStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 1)" ),
+			srec( PadTotalStreamSize, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 0)" ),
+			srec( CreationInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 1)" ),
+			srec( PadCreationInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 0)" ),
+			srec( ModifyInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 1)" ),
+			srec( PadModifyInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 0)" ),
+			srec( ArchiveInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 1)" ),
+			srec( PadArchiveInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 0)" ),
+			srec( RightsInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 1)" ),
+			srec( PadRightsInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 0)" ),
+			srec( DirEntryStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 1)" ),
+			srec( PadDirEntry, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 0)" ),
+			srec( EAInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 1)" ),
+			srec( PadEAInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 0)" ),
+			srec( NSInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 1)" ),
+			srec( PadNSInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 0)" ),
+			srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_alloc  == 1)" ),
+			srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_attr == 1)" ),
+			srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_size == 1)" ),
+			srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_tspace == 1)" ),
+			srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_eattr == 1)" ),
+			srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_mod == 1)" ),
+			srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_create == 1)" ),
+			srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_arch == 1)" ),
+			srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_dir == 1)" ),
+			srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_rights == 1)" ),
+			srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_ns == 1)" ),
+			srec( ReferenceIDStruct, req_cond="ncp.ret_info_mask_id == 1" ),
+			srec( NSAttributeStruct, req_cond="ncp.ret_info_mask_ns_attr == 1" ),
+			srec( DStreamActual, req_cond="ncp.ret_info_mask_actual == 1" ),
+			srec( DStreamLogical, req_cond="ncp.ret_info_mask_logical == 1" ),
+			srec( LastUpdatedInSecondsStruct, req_cond="ncp.ext_info_update == 1" ),
+			srec( DOSName16Struct, req_cond="ncp.ext_info_dos_name == 1" ),
+			srec( FlushTimeStruct, req_cond="ncp.ext_info_flush == 1" ),
+			srec( ParentBaseIDStruct, req_cond="ncp.ext_info_parental == 1" ),
+			srec( MacFinderInfoStruct, req_cond="ncp.ext_info_mac_finder == 1" ),
+			srec( SiblingCountStruct, req_cond="ncp.ext_info_sibling == 1" ),
+			srec( EffectiveRightsStruct, req_cond="ncp.ext_info_effective == 1" ),
+			srec( MacTimeStruct, req_cond="ncp.ext_info_mac_date == 1" ),
+			srec( LastAccessedTimeStruct, req_cond="ncp.ext_info_access == 1" ),
+			srec( FileSize64bitStruct, req_cond="ncp.ext_info_64_bit_fs == 1" ),
+			srec( FileName16Struct, req_cond="ncp.ret_info_mask_fname == 1" ),
+	])
+	pkt.ReqCondSizeVariable()
+	pkt.CompletionCodes([0x0000, 0x0102, 0x7f00, 0x8000, 0x8101, 0x8401, 0x8501,
+						0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+						0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+	# 2222/5902, 89/02
+	pkt = NCP(0x5902, "Enhanced Initialize Search", 'file', has_length=0)
+	pkt.Request( (25,278), [
+		rec( 8, 1, NameSpace  ),
+		rec( 9, 1, Reserved ),
+		rec( 10, 4, DirectoryBase ),
+		rec( 14, 1, VolumeNumber ),
+		rec( 15, 1, HandleFlag ),
+        rec( 16, 1, DataTypeFlag ),
+        rec( 17, 5, Reserved5 ),
+		rec( 22, 1, PathCount, var="x" ),
+		rec( 23, (2,255), Path16, repeat="x" ),
+	], info_str=(Path16, "Enhanced Set Search Pointer to: %s", "/%s"))
+	pkt.Reply(17, [
+		rec( 8, 1, VolumeNumber ),
+		rec( 9, 4, DirectoryNumber ),
+		rec( 13, 4, DirectoryEntryNumber ),
+	])
+	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+	# 2222/5903, 89/03
+	pkt = NCP(0x5903, "Enhanced Search for File or Subdirectory", 'file', has_length=0)
+	pkt.Request((28, 281), [
+		rec( 8, 1, NameSpace  ),
+		rec( 9, 1, DataStream ),
+		rec( 10, 2, SearchAttributesLow ),
+		rec( 12, 2, ReturnInfoMask ),
+		rec( 14, 2, ExtendedInfo ),
+		rec( 16, 9, SearchSequence ),
+        rec( 25, 1, DataTypeFlag ),
+		rec( 26, (2,255), SearchPattern16 ),
+	], info_str=(SearchPattern16, "Enhanced Search for: %s", "/%s"))
+	pkt.Reply( NO_LENGTH_CHECK, [
+		rec( 8, 9, SearchSequence ),
+		rec( 17, 1, Reserved ),
+                srec( DSSpaceAllocateStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
+                srec( PadDSSpaceAllocate, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 0)" ),
+                srec( AttributesStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 1)" ),
+                srec( PadAttributes, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 0)" ),
+                srec( DataStreamSizeStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 1)" ),
+                srec( PadDataStreamSize, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 0)" ),
+                srec( TotalStreamSizeStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 1)" ),
+                srec( PadTotalStreamSize, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 0)" ),
+                srec( CreationInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 1)" ),
+                srec( PadCreationInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 0)" ),
+                srec( ModifyInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 1)" ),
+                srec( PadModifyInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 0)" ),
+                srec( ArchiveInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 1)" ),
+                srec( PadArchiveInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 0)" ),
+                srec( RightsInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 1)" ),
+                srec( PadRightsInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 0)" ),
+                srec( DirEntryStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 1)" ),
+                srec( PadDirEntry, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 0)" ),
+                srec( EAInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 1)" ),
+                srec( PadEAInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 0)" ),
+                srec( NSInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 1)" ),
+                srec( PadNSInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 0)" ),
+                srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_alloc  == 1)" ),
+                srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_attr == 1)" ),
+                srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_size == 1)" ),
+                srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_tspace == 1)" ),
+                srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_eattr == 1)" ),
+                srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_mod == 1)" ),
+                srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_create == 1)" ),
+                srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_arch == 1)" ),
+                srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_dir == 1)" ),
+                srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_rights == 1)" ),
+                srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_ns == 1)" ),
+                srec( ReferenceIDStruct, req_cond="ncp.ret_info_mask_id == 1" ),
+                srec( NSAttributeStruct, req_cond="ncp.ret_info_mask_ns_attr == 1" ),
+                srec( DStreamActual, req_cond="ncp.ret_info_mask_actual == 1" ),
+                srec( DStreamLogical, req_cond="ncp.ret_info_mask_logical == 1" ),
+                srec( LastUpdatedInSecondsStruct, req_cond="ncp.ext_info_update == 1" ),
+                srec( DOSName16Struct, req_cond="ncp.ext_info_dos_name == 1" ),
+                srec( FlushTimeStruct, req_cond="ncp.ext_info_flush == 1" ),
+                srec( ParentBaseIDStruct, req_cond="ncp.ext_info_parental == 1" ),
+                srec( MacFinderInfoStruct, req_cond="ncp.ext_info_mac_finder == 1" ),
+                srec( SiblingCountStruct, req_cond="ncp.ext_info_sibling == 1" ),
+                srec( EffectiveRightsStruct, req_cond="ncp.ext_info_effective == 1" ),
+                srec( MacTimeStruct, req_cond="ncp.ext_info_mac_date == 1" ),
+                srec( LastAccessedTimeStruct, req_cond="ncp.ext_info_access == 1" ),
+                srec( FileSize64bitStruct, req_cond="ncp.ext_info_64_bit_fs == 1" ),
+                srec( FileName16Struct, req_cond="ncp.ret_info_mask_fname == 1" ),
+        ])
+	pkt.ReqCondSizeVariable()
+	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+	# 2222/5904, 89/04
+	pkt = NCP(0x5904, "Enhanced Rename Or Move a File or Subdirectory", 'file', has_length=0)
+	pkt.Request((42, 548), [
+		rec( 8, 1, NameSpace  ),
+		rec( 9, 1, RenameFlag ),
+		rec( 10, 2, SearchAttributesLow ),
+		rec( 12, 4, DirectoryBase ),
+		rec( 16, 1, VolumeNumber ),
+		rec( 17, 1, HandleFlag ),
+        rec( 18, 1, DataTypeFlag ),
+        rec( 19, 5, Reserved5 ),
+		rec( 24, 1, PathCount, var="x" ),
+		rec( 25, 4, DirectoryBase ),
+		rec( 29, 1, VolumeNumber ),
+		rec( 30, 1, HandleFlag ),
+        rec( 31, 1, DataTypeFlag ),
+        rec( 32, 5, Reserved5 ),
+		rec( 37, 1, PathCount, var="y" ),
+		rec( 38, (2, 255), Path16, repeat="x" ),
+		rec( -1, (2,255), Path16, repeat="y" ),
+	], info_str=(Path16, "Enhanced Rename or Move: %s", "/%s"))
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9200, 0x9600,
+			     0x9804, 0x9a00, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+	# 2222/5905, 89/05
+	pkt = NCP(0x5905, "Enhanced Scan File or Subdirectory for Trustees", 'file', has_length=0)
+	pkt.Request((31, 284), [
+		rec( 8, 1, NameSpace  ),
+		rec( 9, 1, MaxReplyObjectIDCount ),
+		rec( 10, 2, SearchAttributesLow ),
+		rec( 12, 4, SequenceNumber ),
+		rec( 16, 4, DirectoryBase ),
+		rec( 20, 1, VolumeNumber ),
+		rec( 21, 1, HandleFlag ),
+        rec( 22, 1, DataTypeFlag ),
+        rec( 23, 5, Reserved5 ),
+		rec( 28, 1, PathCount, var="x" ),
+		rec( 29, (2, 255), Path16, repeat="x" ),
+	], info_str=(Path16, "Enhanced Scan Trustees for: %s", "/%s"))
+	pkt.Reply(20, [
+		rec( 8, 4, SequenceNumber ),
+		rec( 12, 2, ObjectIDCount, var="x" ),
+		rec( 14, 6, TrusteeStruct, repeat="x" ),
+	])
+	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+	# 2222/5906, 89/06
+	pkt = NCP(0x5906, "Enhanced Obtain File or SubDirectory Information", 'file', has_length=0)
+	pkt.Request((31,284), [
+		rec( 8, 1, SrcNameSpace ),
+		rec( 9, 1, DestNameSpace ),
+		rec( 10, 2, SearchAttributesLow ),
+		rec( 12, 2, ReturnInfoMask, LE ),
+		rec( 14, 2, ExtendedInfo ),
+		rec( 16, 4, DirectoryBase ),
+		rec( 20, 1, VolumeNumber ),
+		rec( 21, 1, HandleFlag ),
+        rec( 22, 1, DataTypeFlag ),
+        rec( 23, 5, Reserved5 ),
+		rec( 28, 1, PathCount, var="x" ),
+		rec( 29, (2,255), Path16, repeat="x",),
+	], info_str=(Path16, "Enhanced Obtain Info for: %s", "/%s"))
+	pkt.Reply(NO_LENGTH_CHECK, [
+            srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
+            srec( PadDSSpaceAllocate, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 0)" ),
+            srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 1)" ),
+            srec( PadAttributes, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 0)" ),
+            srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 1)" ),
+            srec( PadDataStreamSize, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 0)" ),
+            srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 1)" ),
+            srec( PadTotalStreamSize, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 0)" ),
+            srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 1)" ),
+            srec( PadCreationInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 0)" ),
+            srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 1)" ),
+            srec( PadModifyInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 0)" ),
+            srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 1)" ),
+            srec( PadArchiveInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 0)" ),
+            srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 1)" ),
+            srec( PadRightsInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 0)" ),
+            srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 1)" ),
+            srec( PadDirEntry, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 0)" ),
+            srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 1)" ),
+            srec( PadEAInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 0)" ),
+            srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 1)" ),
+            srec( PadNSInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 0)" ),
+            srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_alloc  == 1)" ),
+            srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_attr == 1)" ),
+            srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_size == 1)" ),
+            srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_tspace == 1)" ),
+            srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_create == 1)" ),
+            srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_mod == 1)" ),
+            srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_arch == 1)" ),
+            srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_rights == 1)" ),
+            srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_dir == 1)" ),
+            srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_eattr == 1)" ),
+            srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_ns == 1)" ),
+            srec( ReferenceIDStruct, req_cond="ncp.ret_info_mask_id == 1" ),
+            srec( NSAttributeStruct, req_cond="ncp.ret_info_mask_ns_attr == 1" ),
+            srec( DStreamActual, req_cond="ncp.ret_info_mask_actual == 1" ),
+            srec( DStreamLogical, req_cond="ncp.ret_info_mask_logical == 1" ),
+            srec( LastUpdatedInSecondsStruct, req_cond="ncp.ext_info_update == 1" ),
+            srec( DOSName16Struct, req_cond="ncp.ext_info_dos_name == 1" ),
+            srec( FlushTimeStruct, req_cond="ncp.ext_info_flush == 1" ),
+            srec( ParentBaseIDStruct, req_cond="ncp.ext_info_parental == 1" ),
+            srec( MacFinderInfoStruct, req_cond="ncp.ext_info_mac_finder == 1" ),
+            srec( SiblingCountStruct, req_cond="ncp.ext_info_sibling == 1" ),
+            srec( EffectiveRightsStruct, req_cond="ncp.ext_info_effective == 1" ),
+            srec( MacTimeStruct, req_cond="ncp.ext_info_mac_date == 1" ),
+            srec( LastAccessedTimeStruct, req_cond="ncp.ext_info_access == 1" ),
+            srec( FileSize64bitStruct, req_cond="ncp.ext_info_64_bit_fs == 1" ),
+            srec( FileName16Struct, req_cond="ncp.ret_info_mask_fname == 1" ),
+        ])
+	pkt.ReqCondSizeVariable()
+	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8700, 0x8900, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa802, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+	# 2222/5907, 89/07
+	pkt = NCP(0x5907, "Enhanced Modify File or Subdirectory DOS Information", 'file', has_length=0)
+	pkt.Request((69,322), [
+		rec( 8, 1, NameSpace ),
+		rec( 9, 1, Reserved ),
+		rec( 10, 2, SearchAttributesLow ),
+		rec( 12, 2, ModifyDOSInfoMask ),
+		rec( 14, 2, Reserved2 ),
+		rec( 16, 2, AttributesDef16 ),
+		rec( 18, 1, FileMode ),
+		rec( 19, 1, FileExtendedAttributes ),
+		rec( 20, 2, CreationDate ),
+		rec( 22, 2, CreationTime ),
+		rec( 24, 4, CreatorID, BE ),
+		rec( 28, 2, ModifiedDate ),
+		rec( 30, 2, ModifiedTime ),
+		rec( 32, 4, ModifierID, BE ),
+		rec( 36, 2, ArchivedDate ),
+		rec( 38, 2, ArchivedTime ),
+		rec( 40, 4, ArchiverID, BE ),
+		rec( 44, 2, LastAccessedDate ),
+		rec( 46, 2, InheritedRightsMask ),
+		rec( 48, 2, InheritanceRevokeMask ),
+		rec( 50, 4, MaxSpace ),
+		rec( 54, 4, DirectoryBase ),
+		rec( 58, 1, VolumeNumber ),
+		rec( 59, 1, HandleFlag ),
+        rec( 60, 1, DataTypeFlag ),
+        rec( 61, 5, Reserved5 ),
+		rec( 66, 1, PathCount, var="x" ),
+		rec( 67, (2,255), Path16, repeat="x" ),
+	], info_str=(Path16, "Enhanced Modify DOS Information for: %s", "/%s"))
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8c01, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+	# 2222/5908, 89/08
+	pkt = NCP(0x5908, "Enhanced Delete a File or Subdirectory", 'file', has_length=0)
+	pkt.Request((27,280), [
+		rec( 8, 1, NameSpace ),
+		rec( 9, 1, Reserved ),
+		rec( 10, 2, SearchAttributesLow ),
+		rec( 12, 4, DirectoryBase ),
+		rec( 16, 1, VolumeNumber ),
+		rec( 17, 1, HandleFlag ),
+        rec( 18, 1, DataTypeFlag ),
+        rec( 19, 5, Reserved5 ),
+		rec( 24, 1, PathCount, var="x" ),
+		rec( 25, (2,255), Path16, repeat="x" ),
+	], info_str=(Path16, "Enhanced Delete a File or Subdirectory: %s", "/%s"))
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8900, 0x8a00, 0x8d00, 0x8e00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+	# 2222/5909, 89/09
+	pkt = NCP(0x5909, "Enhanced Set Short Directory Handle", 'file', has_length=0)
+	pkt.Request((27,280), [
+		rec( 8, 1, NameSpace ),
+		rec( 9, 1, DataStream ),
+		rec( 10, 1, DestDirHandle ),
+		rec( 11, 1, Reserved ),
+		rec( 12, 4, DirectoryBase ),
+		rec( 16, 1, VolumeNumber ),
+		rec( 17, 1, HandleFlag ),
+        rec( 18, 1, DataTypeFlag ),
+        rec( 19, 5, Reserved5 ),
+		rec( 24, 1, PathCount, var="x" ),
+		rec( 25, (2,255), Path16, repeat="x" ),
+	], info_str=(Path16, "Enhanced Set Short Directory Handle to: %s", "/%s"))
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+	# 2222/590A, 89/10
+	pkt = NCP(0x590A, "Enhanced Add Trustee Set to File or Subdirectory", 'file', has_length=0)
+	pkt.Request((38,291), [
+		rec( 8, 1, NameSpace ),
+		rec( 9, 1, Reserved ),
+		rec( 10, 2, SearchAttributesLow ),
+		rec( 12, 2, AccessRightsMaskWord ),
+		rec( 14, 2, ObjectIDCount, var="y" ),
+		rec( 16, 4, DirectoryBase ),
+		rec( 20, 1, VolumeNumber ),
+		rec( 21, 1, HandleFlag ),
+        rec( 22, 1, DataTypeFlag ),
+        rec( 23, 5, Reserved5 ),
+		rec( 28, 1, PathCount, var="x" ),
+		rec( 29, (2,255), Path16, repeat="x" ),
+		rec( -1, 7, TrusteeStruct, repeat="y" ),
+	], info_str=(Path16, "Enhanced Add Trustee Set to: %s", "/%s"))
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfc01, 0xfd00, 0xff16])
+	# 2222/590B, 89/11
+	pkt = NCP(0x590B, "Enhanced Delete Trustee Set from File or SubDirectory", 'file', has_length=0)
+	pkt.Request((34,287), [
+		rec( 8, 1, NameSpace ),
+		rec( 9, 1, Reserved ),
+		rec( 10, 2, ObjectIDCount, var="y" ),
+		rec( 12, 4, DirectoryBase ),
+		rec( 16, 1, VolumeNumber ),
+		rec( 17, 1, HandleFlag ),
+        rec( 18, 1, DataTypeFlag ),
+        rec( 19, 5, Reserved5 ),
+		rec( 24, 1, PathCount, var="x" ),
+		rec( 25, (2,255), Path16, repeat="x" ),
+		rec( -1, 7, TrusteeStruct, repeat="y" ),
+	], info_str=(Path16, "Enhanced Delete Trustee Set from: %s", "/%s"))
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+	# 2222/590C, 89/12
+	pkt = NCP(0x590C, "Enhanced Allocate Short Directory Handle", 'file', has_length=0)
+	pkt.Request((27,280), [
+		rec( 8, 1, NameSpace ),
+		rec( 9, 1, DestNameSpace ),
+		rec( 10, 2, AllocateMode ),
+		rec( 12, 4, DirectoryBase ),
+		rec( 16, 1, VolumeNumber ),
+		rec( 17, 1, HandleFlag ),
+        rec( 18, 1, DataTypeFlag ),
+        rec( 19, 5, Reserved5 ),
+		rec( 24, 1, PathCount, var="x" ),
+		rec( 25, (2,255), Path16, repeat="x" ),
+	], info_str=(Path16, "Enhanced Allocate Short Directory Handle to: %s", "/%s"))
+	pkt.Reply(NO_LENGTH_CHECK, [
+        srec( ReplyLevel2Struct, req_cond="ncp.alloc_reply_lvl2 == TRUE" ),
+		srec( ReplyLevel1Struct, req_cond="ncp.alloc_reply_lvl2 == FALSE" ),
+	])
+	pkt.ReqCondSizeVariable()
+	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+    # 2222/5910, 89/16
+	pkt = NCP(0x5910, "Enhanced Scan Salvageable Files", 'file', has_length=0)
+	pkt.Request((33,286), [
+		rec( 8, 1, NameSpace ),
+		rec( 9, 1, DataStream ),
+		rec( 10, 2, ReturnInfoMask ),
+		rec( 12, 2, ExtendedInfo ),
+		rec( 14, 4, SequenceNumber ),
+		rec( 18, 4, DirectoryBase ),
+		rec( 22, 1, VolumeNumber ),
+		rec( 23, 1, HandleFlag ),
+        rec( 24, 1, DataTypeFlag ),
+        rec( 25, 5, Reserved5 ),
+		rec( 30, 1, PathCount, var="x" ),
+		rec( 31, (2,255), Path16, repeat="x" ),
+	], info_str=(Path16, "Enhanced Scan for Deleted Files in: %s", "/%s"))
+	pkt.Reply(NO_LENGTH_CHECK, [
+		rec( 8, 4, SequenceNumber ),
+		rec( 12, 2, DeletedTime ),
+		rec( 14, 2, DeletedDate ),
+		rec( 16, 4, DeletedID, BE ),
+		rec( 20, 4, VolumeID ),
+		rec( 24, 4, DirectoryBase ),
+                srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
+                srec( PadDSSpaceAllocate, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 0)" ),
+                srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 1)" ),
+                srec( PadAttributes, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 0)" ),
+                srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 1)" ),
+                srec( PadDataStreamSize, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 0)" ),
+                srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 1)" ),
+                srec( PadTotalStreamSize, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 0)" ),
+                srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 1)" ),
+                srec( PadCreationInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 0)" ),
+                srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 1)" ),
+                srec( PadModifyInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 0)" ),
+                srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 1)" ),
+                srec( PadArchiveInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 0)" ),
+                srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 1)" ),
+                srec( PadRightsInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 0)" ),
+                srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 1)" ),
+                srec( PadDirEntry, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 0)" ),
+                srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 1)" ),
+                srec( PadEAInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 0)" ),
+                srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 1)" ),
+                srec( PadNSInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 0)" ),
+                srec( FileName16Struct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_fname == 1)" ),
+                srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_alloc  == 1)" ),
+                srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_attr == 1)" ),
+                srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_size == 1)" ),
+                srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_tspace == 1)" ),
+                srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_create == 1)" ),
+                srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_mod == 1)" ),
+                srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_arch == 1)" ),
+                srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_rights == 1)" ),
+                srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_dir == 1)" ),
+                srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_eattr == 1)" ),
+                srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_ns == 1)" ),
+                srec( FileSize64bitStruct, req_cond="ncp.ext_info_64_bit_fs == 1" ),
+                srec( FileName16Struct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_fname == 1)" ),
+        ])
+	pkt.ReqCondSizeVariable()
+	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+	# 2222/5911, 89/17
+	pkt = NCP(0x5911, "Enhanced Recover Salvageable File", 'file', has_length=0)
+	pkt.Request((24,278), [
+		rec( 8, 1, NameSpace ),
+		rec( 9, 1, Reserved ),
+		rec( 10, 4, SequenceNumber ),
+		rec( 14, 4, VolumeID ),
+		rec( 18, 4, DirectoryBase ),
+        rec( 22, 1, DataTypeFlag ),
+		rec( 23, (1,255), FileName ),
+	], info_str=(FileName, "Enhanced Recover Deleted File: %s", ", %s"))
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+	# 2222/5913, 89/19
+	pkt = NCP(0x5913, "Enhanced Get Name Space Information", 'file', has_length=0)
+	pkt.Request(18, [
+		rec( 8, 1, SrcNameSpace ),
+		rec( 9, 1, DestNameSpace ),
+		rec( 10, 1, DataTypeFlag ),
+		rec( 11, 1, VolumeNumber ),
+		rec( 12, 4, DirectoryBase ),
+		rec( 16, 2, NamesSpaceInfoMask ),
+	])
+	pkt.Reply(NO_LENGTH_CHECK, [
+            srec( FileName16Struct, req_cond="ncp.ns_info_mask_modify == TRUE" ),
+            srec( FileAttributesStruct, req_cond="ncp.ns_info_mask_fatt == TRUE" ),
+            srec( CreationDateStruct, req_cond="ncp.ns_info_mask_cdate == TRUE" ),
+            srec( CreationTimeStruct, req_cond="ncp.ns_info_mask_ctime == TRUE" ),
+            srec( OwnerIDStruct, req_cond="ncp.ns_info_mask_owner == TRUE" ),
+            srec( ArchiveDateStruct, req_cond="ncp.ns_info_mask_adate == TRUE" ),
+            srec( ArchiveTimeStruct, req_cond="ncp.ns_info_mask_atime == TRUE" ),
+            srec( ArchiveIdStruct, req_cond="ncp.ns_info_mask_aid == TRUE" ),
+            srec( UpdateDateStruct, req_cond="ncp.ns_info_mask_udate == TRUE" ),
+            srec( UpdateTimeStruct, req_cond="ncp.ns_info_mask_utime == TRUE" ),
+            srec( UpdateIDStruct, req_cond="ncp.ns_info_mask_uid == TRUE" ),
+            srec( LastAccessStruct, req_cond="ncp.ns_info_mask_acc_date == TRUE" ),
+            srec( RightsInfoStruct, req_cond="ncp.ns_info_mask_max_acc_mask == TRUE" ),
+        ])
+        pkt.ReqCondSizeVariable()
+	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+	# 2222/5914, 89/20
+	pkt = NCP(0x5914, "Enhanced Search for File or Subdirectory Set", 'file', has_length=0)
+	pkt.Request((30, 283), [
+		rec( 8, 1, NameSpace  ),
+		rec( 9, 1, DataStream ),
+		rec( 10, 2, SearchAttributesLow ),
+		rec( 12, 2, ReturnInfoMask ),
+		rec( 14, 2, ExtendedInfo ),
+		rec( 16, 2, ReturnInfoCount ),
+		rec( 18, 9, SearchSequence ),
+        rec( 27, 1, DataTypeFlag ),
+		rec( 28, (2,255), SearchPattern16 ),
+	])
+	pkt.Reply(NO_LENGTH_CHECK, [
+		rec( 8, 9, SearchSequence ),
+		rec( 17, 1, MoreFlag ),
+		rec( 18, 2, InfoCount ),
+            srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
+            srec( PadDSSpaceAllocate, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 0)" ),
+            srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 1)" ),
+            srec( PadAttributes, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 0)" ),
+            srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 1)" ),
+            srec( PadDataStreamSize, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 0)" ),
+            srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 1)" ),
+            srec( PadTotalStreamSize, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 0)" ),
+            srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 1)" ),
+            srec( PadCreationInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 0)" ),
+            srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 1)" ),
+            srec( PadModifyInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 0)" ),
+            srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 1)" ),
+            srec( PadArchiveInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 0)" ),
+            srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 1)" ),
+            srec( PadRightsInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 0)" ),
+            srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 1)" ),
+            srec( PadDirEntry, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 0)" ),
+            srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 1)" ),
+            srec( PadEAInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 0)" ),
+            srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 1)" ),
+            srec( PadNSInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 0)" ),
+            srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_alloc  == 1)" ),
+            srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_attr == 1)" ),
+            srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_size == 1)" ),
+            srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_tspace == 1)" ),
+            srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_eattr == 1)" ),
+            srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_arch == 1)" ),
+            srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_mod == 1)" ),
+            srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_create == 1)" ),
+            srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_rights == 1)" ),
+            srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_dir == 1)" ),
+            srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_ns == 1)" ),
+            srec( ReferenceIDStruct, req_cond="ncp.ret_info_mask_id == 1" ),
+            srec( NSAttributeStruct, req_cond="ncp.ret_info_mask_ns_attr == 1" ),
+            srec( DStreamActual, req_cond="ncp.ret_info_mask_actual == 1" ),
+            srec( DStreamLogical, req_cond="ncp.ret_info_mask_logical == 1" ),
+            srec( LastUpdatedInSecondsStruct, req_cond="ncp.ext_info_update == 1" ),
+            srec( DOSName16Struct, req_cond="ncp.ext_info_dos_name == 1" ),
+            srec( FlushTimeStruct, req_cond="ncp.ext_info_flush == 1" ),
+            srec( ParentBaseIDStruct, req_cond="ncp.ext_info_parental == 1" ),
+            srec( MacFinderInfoStruct, req_cond="ncp.ext_info_mac_finder == 1" ),
+            srec( SiblingCountStruct, req_cond="ncp.ext_info_sibling == 1" ),
+            srec( EffectiveRightsStruct, req_cond="ncp.ext_info_effective == 1" ),
+            srec( MacTimeStruct, req_cond="ncp.ext_info_mac_date == 1" ),
+            srec( LastAccessedTimeStruct, req_cond="ncp.ext_info_access == 1" ),
+            srec( FileSize64bitStruct, req_cond="ncp.ext_info_64_bit_fs == 1" ),
+            srec( FileName16Struct, req_cond="ncp.ret_info_mask_fname == 1" ),
+        ])
+	pkt.ReqCondSizeVariable()
+	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+	# 2222/5916, 89/22
+	pkt = NCP(0x5916, "Enhanced Generate Directory Base and Volume Number", 'file', has_length=0)
+	pkt.Request((27,280), [
+		rec( 8, 1, SrcNameSpace ),
+		rec( 9, 1, DestNameSpace ),
+		rec( 10, 2, dstNSIndicator ),
+		rec( 12, 4, DirectoryBase ),
+		rec( 16, 1, VolumeNumber ),
+		rec( 17, 1, HandleFlag ),
+        rec( 18, 1, DataTypeFlag ),
+        rec( 19, 5, Reserved5 ),
+		rec( 24, 1, PathCount, var="x" ),
+		rec( 25, (2,255), Path16, repeat="x" ),
+	], info_str=(Path16, "Enhanced Get Volume and Directory Base from: %s", "/%s"))
+	pkt.Reply(17, [
+		rec( 8, 4, DirectoryBase ),
+		rec( 12, 4, DOSDirectoryBase ),
+		rec( 16, 1, VolumeNumber ),
+	])
+	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+	# 2222/5919, 89/25
+	pkt = NCP(0x5919, "Enhanced Set Name Space Information", 'file', has_length=0)
+	pkt.Request(530, [
+		rec( 8, 1, SrcNameSpace ),
+		rec( 9, 1, DestNameSpace ),
+		rec( 10, 1, VolumeNumber ),
+		rec( 11, 4, DirectoryBase ),
+		rec( 15, 2, NamesSpaceInfoMask ),
+        rec( 17, 1, DataTypeFlag ),
+		rec( 18, 512, NSSpecificInfo ),
+	])
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8b00, 0x8d00, 0x8f00, 0x9001,
+			     0x9600, 0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00,
+			     0xff16])
+	# 2222/591C, 89/28
+	pkt = NCP(0x591C, "Enhanced Get Full Path String", 'file', has_length=0)
+	pkt.Request((35,288), [
+		rec( 8, 1, SrcNameSpace ),
+		rec( 9, 1, DestNameSpace ),
+		rec( 10, 2, PathCookieFlags ),
+		rec( 12, 4, Cookie1 ),
+		rec( 16, 4, Cookie2 ),
+		rec( 20, 4, DirectoryBase ),
+		rec( 24, 1, VolumeNumber ),
+		rec( 25, 1, HandleFlag ),
+        rec( 26, 1, DataTypeFlag ),
+        rec( 27, 5, Reserved5 ),
+		rec( 32, 1, PathCount, var="x" ),
+		rec( 33, (2,255), Path16, repeat="x" ),
+	], info_str=(Path16, "Enhanced Get Full Path from: %s", "/%s"))
+	pkt.Reply((24,277), [
+		rec( 8, 2, PathCookieFlags ),
+		rec( 10, 4, Cookie1 ),
+		rec( 14, 4, Cookie2 ),
+		rec( 18, 2, PathComponentSize ),
+		rec( 20, 2, PathComponentCount, var='x' ),
+		rec( 22, (2,255), Path16, repeat='x' ),
+	])
+	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8b00, 0x8d00, 0x8f00, 0x9001,
+			     0x9600, 0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00,
+			     0xff16])
+	# 2222/591D, 89/29
+	pkt = NCP(0x591D, "Enhanced Get Effective Directory Rights", 'file', has_length=0)
+	pkt.Request((31, 284), [
+		rec( 8, 1, NameSpace  ),
+		rec( 9, 1, DestNameSpace ),
+		rec( 10, 2, SearchAttributesLow ),
+		rec( 12, 2, ReturnInfoMask ),
+		rec( 14, 2, ExtendedInfo ),
+		rec( 16, 4, DirectoryBase ),
+		rec( 20, 1, VolumeNumber ),
+		rec( 21, 1, HandleFlag ),
+        rec( 22, 1, DataTypeFlag ),
+        rec( 23, 5, Reserved5 ),
+		rec( 28, 1, PathCount, var="x" ),
+		rec( 29, (2,255), Path16, repeat="x" ),
+	], info_str=(Path16, "Enhanced Get Effective Rights for: %s", "/%s"))
+	pkt.Reply(NO_LENGTH_CHECK, [
+		rec( 8, 2, EffectiveRights ),
+                srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
+                srec( PadDSSpaceAllocate, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 0)" ),
+                srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 1)" ),
+                srec( PadAttributes, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 0)" ),
+                srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 1)" ),
+                srec( PadDataStreamSize, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 0)" ),
+                srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 1)" ),
+                srec( PadTotalStreamSize, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 0)" ),
+                srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 1)" ),
+                srec( PadCreationInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 0)" ),
+                srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 1)" ),
+                srec( PadModifyInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 0)" ),
+                srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 1)" ),
+                srec( PadArchiveInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 0)" ),
+                srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 1)" ),
+                srec( PadRightsInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 0)" ),
+                srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 1)" ),
+                srec( PadDirEntry, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 0)" ),
+                srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 1)" ),
+                srec( PadEAInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 0)" ),
+                srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 1)" ),
+                srec( PadNSInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 0)" ),
+                srec( FileName16Struct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_fname == 1)" ),
+                srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_alloc  == 1)" ),
+                srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_attr == 1)" ),
+                srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_size == 1)" ),
+                srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_tspace == 1)" ),
+                srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_create == 1)" ),
+                srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_mod == 1)" ),
+                srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_arch == 1)" ),
+                srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_rights == 1)" ),
+                srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_dir == 1)" ),
+                srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_eattr == 1)" ),
+                srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_ns == 1)" ),
+                srec( FileSize64bitStruct, req_cond="(ncp.ext_info_64_bit_fs == 1) && (ncp.ret_info_mask_fname == 1)" ),
+                srec( FileName16Struct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_fname == 1)" ),
+        ])
+	pkt.ReqCondSizeVariable()
+	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+	# 2222/591E, 89/30
+	pkt = NCP(0x591E, "Enhanced Open/Create File or Subdirectory", 'file', has_length=0)
+	pkt.Request((41, 294), [
+		rec( 8, 1, NameSpace  ),
+		rec( 9, 1, DataStream ),
+		rec( 10, 1, OpenCreateMode ),
+		rec( 11, 1, Reserved ),
+		rec( 12, 2, SearchAttributesLow ),
+		rec( 14, 2, Reserved2 ),
+		rec( 16, 2, ReturnInfoMask ),
+		rec( 18, 2, ExtendedInfo ),
+		rec( 20, 4, AttributesDef32 ),
+		rec( 24, 2, DesiredAccessRights ),
+		rec( 26, 4, DirectoryBase ),
+		rec( 30, 1, VolumeNumber ),
+		rec( 31, 1, HandleFlag ),
+        rec( 32, 1, DataTypeFlag ),
+        rec( 33, 5, Reserved5 ),
+		rec( 38, 1, PathCount, var="x" ),
+		rec( 39, (2,255), Path16, repeat="x" ),
+	], info_str=(Path16, "Enhanced Open or Create File: %s", "/%s"))
+	pkt.Reply(NO_LENGTH_CHECK, [
+		rec( 8, 4, FileHandle, BE ),
+		rec( 12, 1, OpenCreateAction ),
+		rec( 13, 1, Reserved ),
+                srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
+                srec( PadDSSpaceAllocate, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 0)" ),
+                srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 1)" ),
+                srec( PadAttributes, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 0)" ),
+                srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 1)" ),
+                srec( PadDataStreamSize, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 0)" ),
+                srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 1)" ),
+                srec( PadTotalStreamSize, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 0)" ),
+                srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 1)" ),
+                srec( PadCreationInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 0)" ),
+                srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 1)" ),
+                srec( PadModifyInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 0)" ),
+                srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 1)" ),
+                srec( PadArchiveInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 0)" ),
+                srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 1)" ),
+                srec( PadRightsInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 0)" ),
+                srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 1)" ),
+                srec( PadDirEntry, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 0)" ),
+                srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 1)" ),
+                srec( PadEAInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 0)" ),
+                srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 1)" ),
+                srec( PadNSInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 0)" ),
+                srec( FileName16Struct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_fname == 1)" ),
+                srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_alloc  == 1)" ),
+                srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_attr == 1)" ),
+                srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_size == 1)" ),
+                srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_tspace == 1)" ),
+                srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_create == 1)" ),
+                srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_mod == 1)" ),
+                srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_arch == 1)" ),
+                srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_rights == 1)" ),
+                srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_dir == 1)" ),
+                srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_eattr == 1)" ),
+                srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_ns == 1)" ),
+                srec( FileSize64bitStruct, req_cond="(ncp.ext_info_64_bit_fs == 1) && (ncp.ret_info_mask_fname == 1)" ),
+                srec( FileName16Struct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_fname == 1)" ),
+        ])
+	pkt.ReqCondSizeVariable()
+	pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+	# 2222/5920, 89/32
+        pkt = NCP(0x5920, "Enhanced Open/Create File or Subdirectory with Callback", 'file', has_length=0)
+	pkt.Request((37, 290), [
+		rec( 8, 1, NameSpace  ),
+		rec( 9, 1, OpenCreateMode ),
+		rec( 10, 2, SearchAttributesLow ),
+		rec( 12, 2, ReturnInfoMask ),
+		rec( 14, 2, ExtendedInfo ),
+		rec( 16, 4, AttributesDef32 ),
+		rec( 20, 2, DesiredAccessRights ),
+		rec( 22, 4, DirectoryBase ),
+		rec( 26, 1, VolumeNumber ),
+		rec( 27, 1, HandleFlag ),
+        rec( 28, 1, DataTypeFlag ),
+        rec( 29, 5, Reserved5 ),
+		rec( 34, 1, PathCount, var="x" ),
+		rec( 35, (2,255), Path16, repeat="x" ),
+	], info_str=(Path16, "Enhanced Open or Create with Op-Lock: %s", "/%s"))
+	pkt.Reply( NO_LENGTH_CHECK, [
+		rec( 8, 4, FileHandle, BE ),
+		rec( 12, 1, OpenCreateAction ),
+		rec( 13, 1, OCRetFlags ),
+                srec( DSSpaceAllocateStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
+                srec( PadDSSpaceAllocate, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 0)" ),
+                srec( AttributesStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 1)" ),
+                srec( PadAttributes, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 0)" ),
+                srec( DataStreamSizeStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 1)" ),
+                srec( PadDataStreamSize, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 0)" ),
+                srec( TotalStreamSizeStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 1)" ),
+                srec( PadTotalStreamSize, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 0)" ),
+                srec( CreationInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 1)" ),
+                srec( PadCreationInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 0)" ),
+                srec( ModifyInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 1)" ),
+                srec( PadModifyInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 0)" ),
+                srec( ArchiveInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 1)" ),
+                srec( PadArchiveInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 0)" ),
+                srec( RightsInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 1)" ),
+                srec( PadRightsInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 0)" ),
+                srec( DirEntryStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 1)" ),
+                srec( PadDirEntry, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 0)" ),
+                srec( EAInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 1)" ),
+                srec( PadEAInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 0)" ),
+                srec( NSInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 1)" ),
+                srec( PadNSInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 0)" ),
+                srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_alloc  == 1)" ),
+                srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_attr == 1)" ),
+                srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_size == 1)" ),
+                srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_tspace == 1)" ),
+                srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_eattr == 1)" ),
+                srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_mod == 1)" ),
+                srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_create == 1)" ),
+                srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_arch == 1)" ),
+                srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_dir == 1)" ),
+                srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_rights == 1)" ),
+                srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_ns == 1)" ),
+                srec( ReferenceIDStruct, req_cond="ncp.ret_info_mask_id == 1" ),
+                srec( NSAttributeStruct, req_cond="ncp.ret_info_mask_ns_attr == 1" ),
+                srec( DStreamActual, req_cond="ncp.ret_info_mask_actual == 1" ),
+                srec( DStreamLogical, req_cond="ncp.ret_info_mask_logical == 1" ),
+                srec( LastUpdatedInSecondsStruct, req_cond="ncp.ext_info_update == 1" ),
+                srec( DOSName16Struct, req_cond="ncp.ext_info_dos_name == 1" ),
+                srec( FlushTimeStruct, req_cond="ncp.ext_info_flush == 1" ),
+                srec( ParentBaseIDStruct, req_cond="ncp.ext_info_parental == 1" ),
+                srec( MacFinderInfoStruct, req_cond="ncp.ext_info_mac_finder == 1" ),
+                srec( SiblingCountStruct, req_cond="ncp.ext_info_sibling == 1" ),
+                srec( EffectiveRightsStruct, req_cond="ncp.ext_info_effective == 1" ),
+                srec( MacTimeStruct, req_cond="ncp.ext_info_mac_date == 1" ),
+                srec( LastAccessedTimeStruct, req_cond="ncp.ext_info_access == 1" ),
+                srec( FileSize64bitStruct, req_cond="ncp.ext_info_64_bit_fs == 1" ),
+                srec( FileName16Struct, req_cond="ncp.ret_info_mask_fname == 1" ),
+        ])
+	pkt.ReqCondSizeVariable()
+	pkt.CompletionCodes([0x0000, 0x0102, 0x7f00, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+	# 2222/5921, 89/33
+	pkt = NCP(0x5921, "Enhanced Open/Create File or Subdirectory II with Callback", 'file', has_length=0)
+	pkt.Request((41, 294), [
+		rec( 8, 1, NameSpace  ),
+		rec( 9, 1, DataStream ),
+		rec( 10, 1, OpenCreateMode ),
+		rec( 11, 1, Reserved ),
+		rec( 12, 2, SearchAttributesLow ),
+		rec( 14, 2, Reserved2 ),
+		rec( 16, 2, ReturnInfoMask ),
+		rec( 18, 2, ExtendedInfo ),
+		rec( 20, 4, AttributesDef32 ),
+		rec( 24, 2, DesiredAccessRights ),
+		rec( 26, 4, DirectoryBase ),
+		rec( 30, 1, VolumeNumber ),
+		rec( 31, 1, HandleFlag ),
+        rec( 32, 1, DataTypeFlag ),
+        rec( 33, 5, Reserved5 ),
+		rec( 38, 1, PathCount, var="x" ),
+		rec( 39, (2,255), Path16, repeat="x" ),
+	], info_str=(Path16, "Enhanced Open or Create II with Op-Lock: %s", "/%s"))
+	pkt.Reply( NO_LENGTH_CHECK, [
+		rec( 8, 4, FileHandle ),
+		rec( 12, 1, OpenCreateAction ),
+		rec( 13, 1, OCRetFlags ),
+                srec( DSSpaceAllocateStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
+                srec( PadDSSpaceAllocate, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 0)" ),
+                srec( AttributesStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 1)" ),
+                srec( PadAttributes, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 0)" ),
+                srec( DataStreamSizeStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 1)" ),
+                srec( PadDataStreamSize, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 0)" ),
+                srec( TotalStreamSizeStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 1)" ),
+                srec( PadTotalStreamSize, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 0)" ),
+                srec( CreationInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 1)" ),
+                srec( PadCreationInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 0)" ),
+                srec( ModifyInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 1)" ),
+                srec( PadModifyInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 0)" ),
+                srec( ArchiveInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 1)" ),
+                srec( PadArchiveInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 0)" ),
+                srec( RightsInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 1)" ),
+                srec( PadRightsInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 0)" ),
+                srec( DirEntryStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 1)" ),
+                srec( PadDirEntry, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 0)" ),
+                srec( EAInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 1)" ),
+                srec( PadEAInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 0)" ),
+                srec( NSInfoStruct, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 1)" ),
+                srec( PadNSInfo, req_cond="(ncp.ret_info_mask != 0x0000) && (ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 0)" ),
+                srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_alloc  == 1)" ),
+                srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_attr == 1)" ),
+                srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_size == 1)" ),
+                srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_tspace == 1)" ),
+                srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_eattr == 1)" ),
+                srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_mod == 1)" ),
+                srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_create == 1)" ),
+                srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_arch == 1)" ),
+                srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_dir == 1)" ),
+                srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_rights == 1)" ),
+                srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_ns == 1)" ),
+                srec( ReferenceIDStruct, req_cond="ncp.ret_info_mask_id == 1" ),
+                srec( NSAttributeStruct, req_cond="ncp.ret_info_mask_ns_attr == 1" ),
+                srec( DStreamActual, req_cond="ncp.ret_info_mask_actual == 1" ),
+                srec( DStreamLogical, req_cond="ncp.ret_info_mask_logical == 1" ),
+                srec( LastUpdatedInSecondsStruct, req_cond="ncp.ext_info_update == 1" ),
+                srec( DOSName16Struct, req_cond="ncp.ext_info_dos_name == 1" ),
+                srec( FlushTimeStruct, req_cond="ncp.ext_info_flush == 1" ),
+                srec( ParentBaseIDStruct, req_cond="ncp.ext_info_parental == 1" ),
+                srec( MacFinderInfoStruct, req_cond="ncp.ext_info_mac_finder == 1" ),
+                srec( SiblingCountStruct, req_cond="ncp.ext_info_sibling == 1" ),
+                srec( EffectiveRightsStruct, req_cond="ncp.ext_info_effective == 1" ),
+                srec( MacTimeStruct, req_cond="ncp.ext_info_mac_date == 1" ),
+                srec( LastAccessedTimeStruct, req_cond="ncp.ext_info_access == 1" ),
+                srec( FileSize64bitStruct, req_cond="ncp.ext_info_64_bit_fs == 1" ),
+                srec( FileName16Struct, req_cond="ncp.ret_info_mask_fname == 1" ),
+	])
+	pkt.ReqCondSizeVariable()
+	pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+	# 2222/5923, 89/35
+	pkt = NCP(0x5923, "Enhanced Modify DOS Attributes on a File or Subdirectory", 'file', has_length=0)
+	pkt.Request((35, 288), [
+		rec( 8, 1, NameSpace  ),
+		rec( 9, 1, Flags ),
+		rec( 10, 2, SearchAttributesLow ),
+		rec( 12, 2, ReturnInfoMask ),
+		rec( 14, 2, ExtendedInfo ),
+		rec( 16, 4, AttributesDef32 ),
+		rec( 20, 4, DirectoryBase ),
+		rec( 24, 1, VolumeNumber ),
+		rec( 25, 1, HandleFlag ),
+        rec( 26, 1, DataTypeFlag ),
+        rec( 27, 5, Reserved5 ),
+		rec( 32, 1, PathCount, var="x" ),
+		rec( 33, (2,255), Path16, repeat="x" ),
+	], info_str=(Path16, "Enhanced Modify DOS Attributes for: %s", "/%s"))
+	pkt.Reply(24, [
+		rec( 8, 4, ItemsChecked ),
+		rec( 12, 4, ItemsChanged ),
+		rec( 16, 4, AttributeValidFlag ),
+		rec( 20, 4, AttributesDef32 ),
+	])
+	pkt.CompletionCodes([0x0000, 0x0102, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+	# 2222/5927, 89/39
+	pkt = NCP(0x5927, "Enhanced Get Directory Disk Space Restriction", 'file', has_length=0)
+	pkt.Request((26, 279), [
+		rec( 8, 1, NameSpace  ),
+		rec( 9, 2, Reserved2 ),
+		rec( 11, 4, DirectoryBase ),
+		rec( 15, 1, VolumeNumber ),
+		rec( 16, 1, HandleFlag ),
+        rec( 17, 1, DataTypeFlag ),
+        rec( 18, 5, Reserved5 ),
+		rec( 23, 1, PathCount, var="x" ),
+		rec( 24, (2,255), Path16, repeat="x" ),
+	], info_str=(Path16, "Enhanced Get Disk Space Restriction for: %s", "/%s"))
+	pkt.Reply(18, [
+		rec( 8, 1, NumberOfEntries, var="x" ),
+		rec( 9, 9, SpaceStruct, repeat="x" ),
+	])
+	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00,
+			     0xff16])
+	# 2222/5928, 89/40
+	pkt = NCP(0x5928, "Enhanced Search for File or Subdirectory Set (Extended Errors)", 'file', has_length=0)
+	pkt.Request((30, 283), [
+		rec( 8, 1, NameSpace  ),
+		rec( 9, 1, DataStream ),
+		rec( 10, 2, SearchAttributesLow ),
+		rec( 12, 2, ReturnInfoMask ),
+		rec( 14, 2, ExtendedInfo ),
+		rec( 16, 2, ReturnInfoCount ),
+		rec( 18, 9, SearchSequence ),
+        rec( 27, 1, DataTypeFlag ),
+		rec( 28, (2,255), SearchPattern16 ),
+	], info_str=(SearchPattern16, "Enhanced Search for: %s", ", %s"))
+	pkt.Reply(NO_LENGTH_CHECK, [
+		rec( 8, 9, SearchSequence ),
+		rec( 17, 1, MoreFlag ),
+		rec( 18, 2, InfoCount ),
+                srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 1)" ),
+                srec( PadDSSpaceAllocate, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_alloc == 0)" ),
+                srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 1)" ),
+                srec( PadAttributes, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_attr == 0)" ),
+                srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 1)" ),
+                srec( PadDataStreamSize, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_size == 0)" ),
+                srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 1)" ),
+                srec( PadTotalStreamSize, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_tspace == 0)" ),
+                srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 1)" ),
+                srec( PadCreationInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_create == 0)" ),
+                srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 1)" ),
+                srec( PadModifyInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_mod == 0)" ),
+                srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 1)" ),
+                srec( PadArchiveInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_arch == 0)" ),
+                srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 1)" ),
+                srec( PadRightsInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_rights == 0)" ),
+                srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 1)" ),
+                srec( PadDirEntry, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_dir == 0)" ),
+                srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 1)" ),
+                srec( PadEAInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_eattr == 0)" ),
+                srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 1)" ),
+                srec( PadNSInfo, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_ns == 0)" ),
+                srec( FileName16Struct, req_cond="(ncp.ext_info_newstyle == 0) && (ncp.ret_info_mask_fname == 1)" ),
+                srec( DSSpaceAllocateStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_alloc  == 1)" ),
+                srec( AttributesStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_attr == 1)" ),
+                srec( DataStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_size == 1)" ),
+                srec( TotalStreamSizeStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_tspace == 1)" ),
+                srec( CreationInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_create == 1)" ),
+                srec( ModifyInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_mod == 1)" ),
+                srec( ArchiveInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_arch == 1)" ),
+                srec( RightsInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_rights == 1)" ),
+                srec( DirEntryStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_dir == 1)" ),
+                srec( EAInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_eattr == 1)" ),
+                srec( NSInfoStruct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_ns == 1)" ),
+                srec( FileSize64bitStruct, req_cond="(ncp.ext_info_64_bit_fs == 1) && (ncp.ret_info_mask_fname == 1)" ),
+                srec( FileName16Struct, req_cond="(ncp.ext_info_newstyle == 1) && (ncp.ret_info_mask_fname == 1)" ),
+        ])
+	pkt.ReqCondSizeVariable()
+        pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
+	# 2222/5932, 89/50
+	pkt = NCP(0x5932, "Enhanced Get Object Effective Rights", "file", has_length=0)
+	pkt.Request(25, [
+    rec( 8, 1, NameSpace ),
+    rec( 9, 4, ObjectID ),
+		rec( 13, 4, DirectoryBase ),
+		rec( 17, 1, VolumeNumber ),
+		rec( 18, 1, HandleFlag ),
+        rec( 19, 1, DataTypeFlag ),
+        rec( 20, 5, Reserved5 ),
+    ])
+	pkt.Reply( 10, [
+		rec( 8, 2, TrusteeRights ),
+	])
+	pkt.CompletionCodes([0x0000, 0x7e01, 0x9b00, 0x9c03, 0xa901, 0xaa00])
+	# 2222/5934, 89/52
+	pkt = NCP(0x5934, "Enhanced Write Extended Attribute", 'file', has_length=0 )
+	pkt.Request((36,98), [
+		rec( 8, 2, EAFlags ),
+		rec( 10, 4, EAHandleOrNetWareHandleOrVolume ),
+		rec( 14, 4, ReservedOrDirectoryNumber ),
+		rec( 18, 4, TtlWriteDataSize ),
+		rec( 22, 4, FileOffset ),
+		rec( 26, 4, EAAccessFlag ),
+        rec( 30, 1, DataTypeFlag ),
+		rec( 31, 2, EAValueLength, var='x' ),
+		rec( 33, (2,64), EAKey ),
+		rec( -1, 1, EAValueRep, repeat='x' ),
+	], info_str=(EAKey, "Enhanced Write Extended Attribute: %s", ", %s"))
+	pkt.Reply(20, [
+		rec( 8, 4, EAErrorCodes ),
+		rec( 12, 4, EABytesWritten ),
+		rec( 16, 4, NewEAHandle ),
+	])
+	pkt.CompletionCodes([0x0000, 0xc800, 0xc900, 0xcb00, 0xce00, 0xcf00, 0xd101,
+			     0xd203, 0xa901, 0xaa00, 0xd301, 0xd402])
+	# 2222/5935, 89/53
+	pkt = NCP(0x5935, "Enhanced Read Extended Attribute", 'file', has_length=0 )
+	pkt.Request((29,539), [
+		rec( 8, 2, EAFlags ),
+		rec( 10, 4, EAHandleOrNetWareHandleOrVolume ),
+		rec( 14, 4, ReservedOrDirectoryNumber ),
+		rec( 18, 4, FileOffset ),
+		rec( 22, 4, InspectSize ),
+        rec( 26, 1, DataTypeFlag ),
+		rec( 27, (2,512), EAKey ),
+	], info_str=(EAKey, "Enhanced Read Extended Attribute: %s", ", %s"))
+	pkt.Reply((26,536), [
+		rec( 8, 4, EAErrorCodes ),
+		rec( 12, 4, TtlValuesLength ),
+		rec( 16, 4, NewEAHandle ),
+		rec( 20, 4, EAAccessFlag ),
+		rec( 24, (2,512), EAValue ),
+	])
+	pkt.CompletionCodes([0x0000, 0xa901, 0xaa00, 0xc900, 0xce00, 0xcf00, 0xd101,
+			     0xd301])
+	# 2222/5936, 89/54
+	pkt = NCP(0x5936, "Enhanced Enumerate Extended Attribute", 'file', has_length=0 )
+	pkt.Request((27,537), [
+		rec( 8, 2, EAFlags ),
+		rec( 10, 4, EAHandleOrNetWareHandleOrVolume ),
+		rec( 14, 4, ReservedOrDirectoryNumber ),
+		rec( 18, 4, InspectSize ),
+		rec( 22, 2, SequenceNumber ),
+        rec( 24, 1, DataTypeFlag ),
+		rec( 25, (2,512), EAKey ),
+	], info_str=(EAKey, "Enhanced Enumerate Extended Attribute: %s", ", %s"))
+	pkt.Reply(28, [
+		rec( 8, 4, EAErrorCodes ),
+		rec( 12, 4, TtlEAs ),
+		rec( 16, 4, TtlEAsDataSize ),
+		rec( 20, 4, TtlEAsKeySize ),
+		rec( 24, 4, NewEAHandle ),
+	])
+	pkt.CompletionCodes([0x0000, 0x8800, 0xa901, 0xaa00, 0xc900, 0xce00, 0xcf00, 0xd101,
+			     0xd301])
+	# 2222/5947, 89/71
+	pkt = NCP(0x5947, "Enhanced Scan Volume Trustee Object Paths", 'file', has_length=0)
+	pkt.Request(21, [
+		rec( 8, 4, VolumeID  ),
+		rec( 12, 4, ObjectID ),
+		rec( 16, 4, SequenceNumber ),
+		rec( 20, 1, DataTypeFlag ),
+	])
+	pkt.Reply((20,273), [
+		rec( 8, 4, SequenceNumber ),
+		rec( 12, 4, ObjectID ),
+        rec( 16, 1, TrusteeAccessMask ),
+		rec( 17, 1, PathCount, var="x" ),
+		rec( 18, (2,255), Path16, repeat="x" ),
+	])
+	pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa901, 0xaa00, 0xbf00, 0xfd00, 0xff16])
 	# 2222/5A01, 90/00
 	pkt = NCP(0x5A01, "Parse Tree", 'file')
-	pkt.Request(26, [
+	pkt.Request(46, [
 		rec( 10, 4, InfoMask ),
 		rec( 14, 4, Reserved4 ),
 		rec( 18, 4, Reserved4 ),
 		rec( 22, 4, limbCount ),
+        rec( 26, 4, limbFlags ),
+        rec( 30, 4, VolumeNumberLong ),
+        rec( 34, 4, DirectoryBase ),
+        rec( 38, 4, limbScanNum ),       
+        rec( 42, 4, NameSpace ),
 	])
 	pkt.Reply(32, [
 		rec( 8, 4, limbCount ),
@@ -13429,98 +14627,90 @@ def define_ncp2222():
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
-	# 2222/5C00, 9201                                                  
+	# SecretStore data is dissected by packet-ncp-sss.c
+    # 2222/5C00, 9201                                                  
 	pkt = NCP(0x5C01, "SecretStore Services (Ping Server)", 'sss', 0)
-	#Need info on this packet structure and SecretStore Verbs
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
 	# 2222/5C01, 9202
-	pkt = NCP(0x5C02, "SecretStore Services", 'sss', 0)
-	#Need info on this packet structure and SecretStore Verbs
+	pkt = NCP(0x5C02, "SecretStore Services (Fragment)", 'sss', 0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
 	# 2222/5C02, 9203
-	pkt = NCP(0x5C03, "SecretStore Services", 'sss', 0)
-	#Need info on this packet structure and SecretStore Verbs
+	pkt = NCP(0x5C03, "SecretStore Services (Write App Secrets)", 'sss', 0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
 	# 2222/5C03, 9204
-	pkt = NCP(0x5C04, "SecretStore Services", 'sss', 0)
-	#Need info on this packet structure and SecretStore Verbs
+	pkt = NCP(0x5C04, "SecretStore Services (Add Secret ID)", 'sss', 0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
 	# 2222/5C04, 9205
-	pkt = NCP(0x5C05, "SecretStore Services", 'sss', 0)
-	#Need info on this packet structure and SecretStore Verbs
+	pkt = NCP(0x5C05, "SecretStore Services (Remove Secret ID)", 'sss', 0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
 	# 2222/5C05, 9206
-	pkt = NCP(0x5C06, "SecretStore Services", 'sss', 0)
-	#Need info on this packet structure and SecretStore Verbs
+	pkt = NCP(0x5C06, "SecretStore Services (Remove SecretStore)", 'sss', 0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
 	# 2222/5C06, 9207
-	pkt = NCP(0x5C07, "SecretStore Services", 'sss', 0)
-	#Need info on this packet structure and SecretStore Verbs
+	pkt = NCP(0x5C07, "SecretStore Services (Enumerate Secret IDs)", 'sss', 0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
 	# 2222/5C07, 9208
-	pkt = NCP(0x5C08, "SecretStore Services", 'sss', 0)
-	#Need info on this packet structure and SecretStore Verbs
+	pkt = NCP(0x5C08, "SecretStore Services (Unlock Store)", 'sss', 0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
 	# 2222/5C08, 9209
-	pkt = NCP(0x5C09, "SecretStore Services", 'sss', 0)
-	#Need info on this packet structure and SecretStore Verbs
+	pkt = NCP(0x5C09, "SecretStore Services (Set Master Password)", 'sss', 0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
 	# 2222/5C09, 920a
-	pkt = NCP(0x5C0a, "SecretStore Services", 'sss', 0)
-	#Need info on this packet structure and SecretStore Verbs
+	pkt = NCP(0x5C0a, "SecretStore Services (Get Service Information)", 'sss', 0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600, 0xfb0b,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
+    # NMAS packets are dissected in packet-ncp-nmas.c
 	# 2222/5E, 9401
-	pkt = NCP(0x5E01, "NMAS Communications Packet", 'nmas', 0)
+	pkt = NCP(0x5E01, "NMAS Communications Packet (Ping)", 'nmas', 0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0xfb09])
 	# 2222/5E, 9402
-	pkt = NCP(0x5E02, "NMAS Communications Packet", 'nmas', 0)
+	pkt = NCP(0x5E02, "NMAS Communications Packet (Fragment)", 'nmas', 0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0xfb09])
 	# 2222/5E, 9403
-	pkt = NCP(0x5E03, "NMAS Communications Packet", 'nmas', 0)
+	pkt = NCP(0x5E03, "NMAS Communications Packet (Abort)", 'nmas', 0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0xfb09])
@@ -13577,16 +14767,6 @@ def define_ncp2222():
         pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8100, 0xfb04, 0xfe0c])
 	# 2222/6802, 104/02
-	#
-	# XXX - if FraggerHandle is not 0xffffffff, this is not the
-	# first fragment, so we can only dissect this by reassembling;
-	# the fields after "Fragment Handle" are bogus for non-0xffffffff
-	# fragments, so we shouldn't dissect them.
-	#
-	# XXX - are there TotalRequest requests in the packet, and
-	# does each of them have NDSFlags and NDSVerb fields, or
-	# does only the first one have it?
-	#
 	pkt = NCP(0x6802, "Send NDS Fragmented Request/Reply", "nds", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
@@ -13635,9 +14815,6 @@ def define_ncp2222():
 	pkt = NCP(0x68C8, "Query Container Audit Status", "auditing", has_length=0)
 	pkt.Request(12, [
 		rec( 8, 4, ConnectionNumber ),
-#		rec( 12, 4, AuditIDType, LE ),
-#		rec( 16, 4, AuditID ),
-#		rec( 20, 2, BufferSize ),
 	])
 	pkt.Reply(40, [
 		rec(8, 32, NWAuditStatus ),
@@ -13915,10 +15092,7 @@ def define_ncp2222():
 	pkt.CompletionCodes([0x0000, 0x7e00, 0xfb06, 0xff00])
 	# 2222/7B01, 123/01
 	pkt = NCP(0x7B01, "Get Cache Information", 'stats')
-	pkt.Request(12, [
-		rec(10, 1, VersionNumber),
-		rec(11, 1, RevisionNumber),
-	])
+	pkt.Request(10)
 	pkt.Reply(288, [
 		rec(8, 4, CurrentServerTime, LE),
 		rec(12, 1, VConsoleVersion ),
@@ -13963,7 +15137,7 @@ def define_ncp2222():
 	# 2222/7B04, 123/04
 	pkt = NCP(0x7B04, "User Information", 'stats')
 	pkt.Request(14, [
-		rec(10, 4, ConnectionNumber ),
+		rec(10, 4, ConnectionNumber, LE ),
 	])
 	pkt.Reply((85, 132), [
 		rec(8, 4, CurrentServerTime ),
@@ -14670,10 +15844,9 @@ def define_ncp2222():
         rec(32, 1, SetCmdFlags ),
         rec(33, 3, Reserved3 ),
         rec(36, PROTO_LENGTH_UNKNOWN, SetCmdName ),
-                #rec(136, 4, SetCmdValueNum ),
         ])                
         pkt.ReqCondSizeVariable()
-        pkt.CompletionCodes([0x0000, 0x7e01, 0xfb06, 0xff00])
+        pkt.CompletionCodes([0x0000, 0x7e01, 0xc600, 0xfb06, 0xff00])
 	# 2222/7B46, 123/70
 	pkt = NCP(0x7B46, "Get Current Compressing File", 'stats')
 	pkt.Request(14, [
