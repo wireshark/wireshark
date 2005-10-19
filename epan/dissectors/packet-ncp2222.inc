@@ -44,7 +44,7 @@
 #define PROTO_LENGTH_UNTIL_END -1
 
 gboolean        nds_defragment = TRUE;
-dissector_handle_t nds_data_handle;
+extern dissector_handle_t nds_data_handle;
 typedef struct {
         guint32         nds_frag_verb;
         guint32         nds_frag_version;
