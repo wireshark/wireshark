@@ -3340,6 +3340,14 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
 
                 case MVTYPE_LIST_PARTITIONS:	/* List Partitions */
                         number_of_referrals = values->vvalue;
+                        /* A bad packet could put us in a tight loop so trap for anything
+                         * over 256 referals. 
+                         */
+                        if (number_of_referrals > 256) {
+                            proto_tree_add_text(ntree, tvb, 0, 0, "[ Bad referal at offset: %u ]", ioffset);
+                            THROW(ReportedBoundsError);
+                            break;
+                        }
                         for (i = 0; i < number_of_referrals; i++)
                         {        
                                 bvalue = 0x00000001;
@@ -3545,7 +3553,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                                         case 0x00000400:                /* Replica Type & State */
                                                                 value1 = tvb_get_letohl(tvb, ioffset);
                                                                 value2 = value1 & 0x00ff;
-                                                                temp_values.vstring = match_strval(value2, nds_replica_type);
+                                                                temp_values.vstring = (char *)match_strval(value2, nds_replica_type);
                                                                 if (temp_values.vstring == NULL)
                                                                 {
                                                                         temp_values.vstring = "No Replica Type Found";
@@ -3553,7 +3561,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                                                 proto_tree_add_string(ntree, hf_replica_type, tvb, ioffset, 
                                                                 4, temp_values.vstring);
                                                                 value3 = value1 & 0xff00;
-                                                                temp_values.vstring = match_strval(value3, nds_replica_state);
+                                                                temp_values.vstring = (char *)match_strval(value3, nds_replica_state);
                                                                 if (temp_values.vstring == NULL)
                                                                 {
                                                                         temp_values.vstring = "No Replica State Found";
@@ -3628,11 +3636,17 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                                 }
                                                 ioffset += align_4(tvb, ioffset);
                                         }
-                                        if (oldioffset >= ioffset) {
-                                                proto_tree_add_text(ntree, tvb, 0, 0, "[ Invalid offset: %u ]", ioffset);
-                                                THROW(ReportedBoundsError);
-                                        }
                                         bvalue = bvalue*2;
+                                        /* We could loop forever so check to see if bvalue has wrapped to 0.
+                                         * if so then just set ioffset to size of packet to abort loop.
+                                         */
+                                        if (bvalue==0) {
+                                               /*ioffset = tvb_length_remaining(tvb, ioffset);*/
+                                               break;
+                                        /*if (oldioffset > ioffset) {
+                                                proto_tree_add_text(ntree, tvb, 0, 0, "[ Invalid offset: %u ]", ioffset);
+                                                THROW(ReportedBoundsError);*/
+                                        }
                                         if(tvb_length_remaining(tvb, ioffset) < 4 )
                                         {
                                                 break;
