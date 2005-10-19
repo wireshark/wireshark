@@ -39,13 +39,13 @@
 /*
  * See
  *
- *	http://www.cisco.com/univercd/cc/td/doc/product/lan/trsrb/frames.htm
+ *	http://www.cisco.com/univercd/cc/td/doc/product/lan/trsrb/frames.htm#xtocid12
  *
  * for some information on CDP.
  *
  * See
  *
- *	http://www.cisco.com/en/US/products/hw/switches/ps663/products_tech_note09186a0080094713.shtml
+ *	http://www.cisco.com/en/US/products/hw/switches/ps663/products_tech_note09186a0080094713.shtml#cdp
  *
  * for some more information on CDP version 2.
  */
