@@ -120,6 +120,7 @@ ETHEREAL_TAP_SRC = \
 	conversations_tr.c	\
 	conversations_udpip.c	\
 	conversations_wlan.c	\
+        conversations_ncp.c     \
 	conversations_rsvp.c	\
 	dcerpc_stat.c	\
 	expert_dlg.c	\
@@ -146,6 +147,7 @@ ETHEREAL_TAP_SRC = \
 	mgcp_stat.c	\
 	mtp3_stat.c	\
 	mtp3_summary.c	\
+        ncp_stat.c  \
 	rpc_progs.c	\
 	rpc_stat.c	\
 	rtp_analysis.c	\
