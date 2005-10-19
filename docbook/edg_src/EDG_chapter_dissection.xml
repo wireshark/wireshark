@@ -763,7 +763,7 @@ msg_pkt ::= SEQUENCE {
 	.....
 	}
 	msg_id	INTEGER(0..65535),
-	frag_id	INTEGER(0..65565),
+	frag_id	INTEGER(0..65535),
 	.....
 }
 ]]>
@@ -782,12 +782,12 @@ if (flags & FL_FRAGMENT) { /* fragmented */
 	guint16 msg_num = tvb_get_ntohs(tvb, offset); offset += 2;
 
 	pinfo->fragmented = TRUE;
-	frag_msg = fragment_add_seq_check (tvb, offset, pinfo,
+	frag_msg = fragment_add_seq_check(tvb, offset, pinfo,
 		msg_seqid, /* ID for fragments belonging together */
 		msg_fragment_table, /* list of message fragments */
 		msg_reassembled_table, /* list of reassembled messages */
 		msg_num, /* fragment sequence number */
-		-1, /* fragment length - to the end */
+		tvb_length_remaining(tvb, offset), /* fragment length - to the end */
 		flags & FL_FRAG_LAST); /* More fragments? */
 ]]>
    </programlisting></example>
@@ -821,7 +821,7 @@ if (flags & FL_FRAGMENT) { /* fragmented */
 	msg_num is the packet number within the sequence. 
 	</para></listitem>
 	<listitem><para>
-	The length here is specified as -1, as we want the rest of the packet data. 
+	The length here is specified as the rest of the tvb as we want the rest of the packet data. 
 	</para></listitem>
 	<listitem><para>
 	Finally a parameter that signals if this is the last fragment or not.
@@ -832,19 +832,17 @@ if (flags & FL_FRAGMENT) { /* fragmented */
 	   <example><title>Reassembling fragments part 2</title>
 	   <programlisting>
 	   <![CDATA[
-	if (msg_tree)
-		new_tvb = process_reassembled_data(tvb, offset, pinfo,
+	new_tvb = process_reassembled_data(tvb, offset, pinfo,
 		"Reassembled Message", frag_msg, &msg_frag_items,
 		NULL, msg_tree);
 
 	if (frag_msg) { /* Reassembled */
-		if (check_col (pinfo->cinfo, COL_INFO))
-			col_append_str (pinfo->cinfo, COL_INFO, 
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_str(pinfo->cinfo, COL_INFO, 
 			" (Message Reassembled)");
-	} else {
-		/* Not last packet of reassembled Short Message */
-		if (check_col (pinfo->cinfo, COL_INFO))
-			col_append_fstr (pinfo->cinfo, COL_INFO,
+	} else { /* Not last packet of reassembled Short Message */
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO,
 			" (Message fragment %u)", msg_num);
 	}
 
@@ -858,16 +856,14 @@ else { /* Not fragmented */
 	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 }
 
-offset = 0;
+.....
 pinfo->fragmented = save_fragmented;
 	]]>
    </programlisting></example>
 	   <para>
 	   Having passed the fragment data to the reassembly handler, we can
-	   now check if we have the whole message. We can only do this if were
-	   in the display mode, as we need to pass the display tree parameter into this 
-	   routine. If there is enough information, this routine will return the 
-	   newly reassembled data buffer. 
+	   now check if we have the whole message. If there is enough information, 
+	   this routine will return the newly reassembled data buffer. 
 	   </para>
 	   <para>
 	   After that, we add a couple of informative messages to the display
