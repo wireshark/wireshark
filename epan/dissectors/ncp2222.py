@@ -2784,6 +2784,16 @@ Name12				= fw_string("name12", "Name", 12)
 NameLen				= uint8("name_len", "Name Space Length")
 NameLength                      = uint8("name_length", "Name Length")
 NameList			= uint32("name_list", "Name List")
+#
+# XXX - should this value be used to interpret the characters in names,
+# search patterns, and the like?
+#
+# We need to handle character sets better, e.g. translating strings
+# from whatever character set they are in the packet (DOS/Windows code
+# pages, ISO character sets, UNIX EUC character sets, UTF-8, UCS-2/Unicode,
+# Mac character sets, etc.) into UCS-4 or UTF-8 and storing them as such
+# in the protocol tree, and displaying them as best we can.
+#
 NameSpace 			= val_string8("name_space", "Name Space", [
 	[ 0x00, "DOS" ],
 	[ 0x01, "MAC" ],
@@ -11475,6 +11485,14 @@ def define_ncp2222():
                 rec( 13, (1,255), Path ),
 	], info_str=(Path, "File Search Continue: %s", ", %s"))
 	pkt.Reply( NO_LENGTH_CHECK, [
+		#
+		# XXX - don't show this if we got back a non-zero
+		# completion code?  For example, 255 means "No
+		# matching files or directories were found", so
+		# presumably it can't show you a matching file or
+		# directory instance - it appears to just leave crap
+		# there.
+		#
 		srec( DirectoryInstance, req_cond="ncp.sattr_sub==TRUE"),
 		srec( FileInstance, req_cond="ncp.sattr_sub!=TRUE"),
 	])
@@ -14767,6 +14785,16 @@ def define_ncp2222():
         pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8100, 0xfb04, 0xfe0c])
 	# 2222/6802, 104/02
+	#
+	# XXX - if FraggerHandle is not 0xffffffff, this is not the
+	# first fragment, so we can only dissect this by reassembling;
+	# the fields after "Fragment Handle" are bogus for non-0xffffffff
+	# fragments, so we shouldn't dissect them.
+	#
+	# XXX - are there TotalRequest requests in the packet, and
+	# does each of them have NDSFlags and NDSVerb fields, or
+	# does only the first one have it?
+	#
 	pkt = NCP(0x6802, "Send NDS Fragmented Request/Reply", "nds", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
