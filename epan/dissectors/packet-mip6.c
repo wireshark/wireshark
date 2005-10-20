@@ -22,6 +22,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ * Modifications for NEMO packets : Bruno Deniaud (bdeniaud@irisa.fr, nono@chez.com)
+ * 12 Oct 2005
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -36,6 +40,7 @@
 
 /* Initialize the protocol and registered header fields */
 static int proto_mip6 = -1;
+int proto_nemo = -1;
 static int hf_mip6_proto = -1;
 static int hf_mip6_hlen = -1;
 static int hf_mip6_mhtype = -1;
@@ -59,10 +64,13 @@ static int hf_mip6_bu_a_flag = -1;
 static int hf_mip6_bu_h_flag = -1;
 static int hf_mip6_bu_l_flag = -1;
 static int hf_mip6_bu_k_flag = -1;
+static int hf_nemo_bu_r_flag = -1;
+static int hf_mip6_bu_m_flag = -1;
 static int hf_mip6_bu_lifetime = -1;
 
 static int hf_mip6_ba_status = -1;
 static int hf_mip6_ba_k_flag = -1;
+static int hf_nemo_ba_r_flag = -1;
 static int hf_mip6_ba_seqnr = -1;
 static int hf_mip6_ba_lifetime = -1;
 
@@ -72,6 +80,8 @@ static int hf_mip6_be_haddr = -1;
 static int hf_mip6_bra_interval = -1;
 
 static int hf_mip6_acoa_acoa = -1;
+static int hf_nemo_mnp_mnp = -1;
+static int hf_nemo_mnp_pfl = -1;
 
 static int hf_mip6_ni_hni = -1;
 static int hf_mip6_ni_cni = -1;
@@ -85,6 +95,7 @@ static gint ett_mip6_opt_bra = -1;
 static gint ett_mip6_opt_acoa = -1;
 static gint ett_mip6_opt_ni = -1;
 static gint ett_mip6_opt_bad = -1;
+static gint ett_nemo_opt_mnp = -1;
 
 /* Functions to dissect the mobility headers */
 
@@ -224,6 +235,15 @@ dissect_mip6_bu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
                             MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
         proto_tree_add_item(data_tree, hf_mip6_bu_k_flag, tvb, 
                             MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
+        proto_tree_add_item(data_tree, hf_mip6_bu_m_flag, tvb, 
+                            MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
+
+	if ((tvb_get_guint8(tvb, MIP6_BU_FLAGS_OFF) & 0x0004 ) == 0x0004)
+	  {
+	    proto_nemo = 1;
+	    proto_tree_add_item(data_tree, hf_nemo_bu_r_flag, tvb, 
+				MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
+	  }
 
         lifetime = tvb_get_ntohs(tvb, MIP6_BU_LIFETIME_OFF);
         proto_tree_add_uint_format(data_tree, hf_mip6_bu_lifetime, tvb,
@@ -255,6 +275,12 @@ dissect_mip6_ba(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
                             MIP6_BA_STATUS_OFF, MIP6_BA_STATUS_LEN, FALSE);
         proto_tree_add_item(data_tree, hf_mip6_ba_k_flag, tvb, 
                             MIP6_BA_FLAGS_OFF, MIP6_BA_FLAGS_LEN, FALSE);
+	if ((tvb_get_guint8(tvb, MIP6_BA_FLAGS_OFF) & 0x0040 ) == 0x0040)
+ 	  {
+	    proto_nemo = 1;
+	    proto_tree_add_item(data_tree, hf_nemo_ba_r_flag, tvb, 
+				MIP6_BA_FLAGS_OFF, MIP6_BA_FLAGS_LEN, FALSE);
+	  }
         proto_tree_add_item(data_tree, hf_mip6_ba_seqnr, tvb,
                             MIP6_BA_SEQNR_OFF, MIP6_BA_SEQNR_LEN, FALSE);
         lifetime = tvb_get_ntohs(tvb, MIP6_BA_LIFETIME_OFF);
@@ -345,6 +371,22 @@ dissect_mip6_opt_acoa(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 }
 
 static void
+dissect_nemo_opt_mnp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+                      guint optlen, packet_info *pinfo _U_,
+                      proto_tree *opt_tree)
+{
+  proto_tree *field_tree = NULL;
+  proto_item *tf;
+  tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  proto_tree_add_item(field_tree, hf_nemo_mnp_pfl, tvb,
+		      offset + NEMO_MNP_MNP_OFF + 3, 1, FALSE);
+
+  proto_tree_add_item(field_tree, hf_nemo_mnp_mnp, tvb,
+		      offset + NEMO_MNP_MNP_OFF + 4, NEMO_MNP_MNP_LEN, FALSE);
+}
+
+static void
 dissect_mip6_opt_ni(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                     guint optlen, packet_info *pinfo _U_,
                     proto_tree *opt_tree)
@@ -409,6 +451,14 @@ static const ip_tcp_opt mip6_opts[] = {
     FIXED_LENGTH,
     MIP6_ACOA_LEN,
     dissect_mip6_opt_acoa
+  },
+  {
+    MNP,
+    "Mobile Network Prefix",
+    &ett_nemo_opt_mnp,
+    FIXED_LENGTH,
+    NEMO_MNP_LEN,
+    dissect_nemo_opt_mnp
   },
   {
     NI,
@@ -517,9 +567,19 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     case BU:
         offset = dissect_mip6_bu(tvb, mip6_tree, pinfo);
+	if (proto_nemo == 1)
+	  {
+	    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	      col_set_str(pinfo->cinfo, COL_PROTOCOL, "NEMO");
+	  }
         break;
     case BA:
         offset = dissect_mip6_ba(tvb, mip6_tree, pinfo);
+	if (proto_nemo == 1)
+	  {
+	    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	      col_set_str(pinfo->cinfo, COL_PROTOCOL, "NEMO");
+	  }
         break;
     case BE:
         offset = dissect_mip6_be(tvb, mip6_tree, pinfo);
@@ -537,7 +597,6 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             return;
         }
         len -= (offset - start_offset);
-        tvb_ensure_bytes_exist(tvb, offset, len);
         dissect_mip6_options(tvb, mip6_tree, offset, len, pinfo);
     }
 }
@@ -612,6 +671,16 @@ proto_register_mip6(void)
                                    FT_BOOLEAN, 8, TFS(&mip6_bu_k_flag_value),
                                    0x10, "Key Management Compatibility (K) flag", 
                                    HFILL }},
+        { &hf_mip6_bu_m_flag,    { "Multiple Care of Address (M) flag", 
+                                   "mip6.bu.m_flag",
+                                   FT_BOOLEAN, 8, TFS(&mip6_bu_m_flag_value),
+                                   0x08, "Multiple Care of Address (M) flag", 
+                                   HFILL }},
+        { &hf_nemo_bu_r_flag,    { "Mobile Router (R) flag", 
+                                   "nemo.bu.r_flag",
+                                   FT_BOOLEAN, 8, TFS(&nemo_bu_r_flag_value),
+                                   0x04, "Mobile Router (r) flag", 
+                                   HFILL }},
         { &hf_mip6_bu_lifetime,  { "Lifetime", "mip6.bu.lifetime",
                                    FT_UINT16, BASE_DEC, NULL, 0,
                                    "Lifetime", HFILL }},
@@ -625,6 +694,12 @@ proto_register_mip6(void)
                                    FT_BOOLEAN, 8, TFS(&mip6_bu_k_flag_value),
                                    0x80, "Key Management Compatibility (K) flag", 
                                    HFILL }},
+        { &hf_nemo_ba_r_flag,    { "Mobile Router (R) flag", 
+                                   "nemo.ba.r_flag",
+                                   FT_BOOLEAN, 8, TFS(&nemo_bu_r_flag_value),
+                                   0x40, "Mobile Router (R) flag", 
+                                   HFILL }},
+
         { &hf_mip6_ba_seqnr,     { "Sequence number", "mip6.ba.seqnr",
                                    FT_UINT16, BASE_DEC, NULL, 0,
                                    "Sequence number", HFILL }},
@@ -657,7 +732,15 @@ proto_register_mip6(void)
 
         { &hf_mip6_bad_auth,     { "Authenticator", "mip6.bad.auth",
                                    FT_BYTES, BASE_HEX, NULL, 0,
-                                   "Care-of nonce index", HFILL }}
+                                   "Care-of nonce index", HFILL }},
+
+	{ &hf_nemo_mnp_pfl,      { "Mobile Network Prefix Length", "nemo.mnp.pfl",
+				   FT_UINT8, BASE_DEC, NULL, 0,
+				   "Mobile Network Prefix Length", HFILL }},
+
+	{ &hf_nemo_mnp_mnp,      { "Mobile Network Prefix", "nemo.mnp.mnp",
+				   FT_IPv6, BASE_HEX, NULL, 0,
+				   "Mobile Network Prefix", HFILL }}
     };
 
     /* Setup protocol subtree array */
@@ -668,13 +751,14 @@ proto_register_mip6(void)
         &ett_mip6_opt_acoa,
         &ett_mip6_opt_ni,
         &ett_mip6_opt_bad,
+	&ett_nemo_opt_mnp
     };
     
     /* Register the protocol name and description */
-    proto_mip6 = proto_register_protocol("Mobile IPv6", "MIPv6", "mipv6");
+    proto_mip6 = proto_register_protocol("Mobile IPv6 / Network Mobility", "MIPv6", "mipv6");
     
     /* Register the dissector by name */
-    /* register_dissector("mipv6", dissect_mip6, proto_mip6); */
+    /* register_dissector("mipv6", dissect_nemo, proto_nemo); */
     
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_mip6, hf, array_length(hf));

@@ -22,7 +22,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- */
+ *
+ * Modifications for NEMO packets : Bruno Deniaud (bdeniaud@irisa.fr, nono@chez.com)
+ * 12 Oct 2005
+ * */
 
 #ifndef __PACKET_MIP6_H_DEFINED__
 #define __PACKET_MIP6_H_DEFINED__
@@ -58,7 +61,8 @@ typedef enum {
     BRA  = 2,
     ACOA = 3,
     NI   = 4,
-    BAD  = 5
+    BAD  = 5,
+    MNP  = 6
 } optTypes;
 
 /* Binding Update flag description */
@@ -82,6 +86,16 @@ static const true_false_string mip6_bu_k_flag_value = {
     "No Key Management Mobility Compatibility"
 };
 
+static const true_false_string mip6_bu_m_flag_value = {
+    "Multiple Care of Address Comaptibility",
+    "No Multiple Care of Address Comaptibility",
+};
+
+static const true_false_string nemo_bu_r_flag_value = {
+    "Mobile Router Compatibility",
+    "No Mobile Router Compatibility"
+};
+
 /* Binding Acknowledgement status values */
 static const value_string mip6_ba_status_value[] = {
     {   0, "Binding Update accepted" },
@@ -98,6 +112,10 @@ static const value_string mip6_ba_status_value[] = {
     { 137, "Expired care-of nonce index" },
     { 138, "Expired nonces" },
     { 139, "Registration type change disallowed" },
+    { 140, "Mobile Router Operation not permitted" },
+    { 141, "Invalid Prefix" },
+    { 142, "Not Authorized for Prefix" },
+    { 143, "Forwarding Setup failed" },
     {   0, NULL }
 };
 
@@ -199,6 +217,10 @@ static const value_string mip6_be_status_value[] = {
 #define MIP6_ACOA_LEN        16
 #define MIP6_ACOA_ACOA_OFF    2
 #define MIP6_ACOA_ACOA_LEN   16
+
+#define NEMO_MNP_LEN        18
+#define NEMO_MNP_MNP_OFF    0
+#define NEMO_MNP_MNP_LEN   16
 
 #define MIP6_NI_LEN           4
 #define MIP6_NI_HNI_OFF       2
