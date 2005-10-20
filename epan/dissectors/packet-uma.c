@@ -896,7 +896,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	 * The rest of the IE is coded as in [TS 24.008] not including IEI and
 	 * length, if present.(10.5.1.4)
 	 */
-		de_mid(tvb, urr_ie_tree, offset, ie_len, NULL, 0);
+		de_mid(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
 		break;
 
 	case 2:			
@@ -925,7 +925,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * The rest of the IE is coded as in [TS 24.008] not including IEI and
 		 * length, if present.
 		 */
-		de_lai(tvb, urr_ie_tree, offset, ie_len, NULL, 0);
+		de_lai(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
 		break;
 	case 6:			
 		/* GSM Coverage Indicator */
@@ -1022,7 +1022,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		break;
 	case 18:		/* Routing Area Identification */
 		/* The rest of the IE is coded as in [TS 24.008] not including IEI and length, if present.*/
-		de_gmm_rai(tvb, urr_ie_tree, offset, ie_len, NULL, 0);
+		de_gmm_rai(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
 		break;
 	case 19:		/* UMA Band */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_UMA_band, tvb, ie_offset, 1, FALSE);
@@ -1059,7 +1059,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* Channel Mode 
 		 * The rest of the IE is coded as in [TS 44.018], not including IEI and length, if present
 		 */
-		de_rr_ch_mode(tvb, urr_ie_tree, offset, ie_len, NULL, 0);
+		de_rr_ch_mode(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
 		break;
 	case 28:		
 		/* Mobile Station Classmark 2 
@@ -1078,13 +1078,13 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * Note: The coding of fields SC and algorithm identifier is defined in [44.018] 
 		 * as part of the Cipher Mode Setting IE.
 		 */
-		de_rr_cip_mode_set(tvb, urr_ie_tree, offset, ie_len, NULL, 0);
+		de_rr_cip_mode_set(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
 		break;
 	case 31:		
 		/* GPRS Resumption 
 		 * If the target RAT is GERAN, the rest of the IE is coded as HANDOVER COMMAND message in [TS 44.018]
 		 */
-		dtap_rr_ho_cmd(tvb, urr_ie_tree, offset, ie_len);
+		dtap_rr_ho_cmd(tvb, urr_ie_tree, ie_offset, ie_len);
 		break;
 	case 32:		
 		/* Handover From UMAN Command 
@@ -1106,19 +1106,19 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * [TS 44.018]:10.5.2.41a
 		 * The TLLI is encoded as a binary number with a length of 4 octets. TLLI is defined in 3GPP TS 23.003
 		 */
-		de_rr_tlli(tvb, urr_ie_tree, offset, ie_len, NULL, 0);
+		de_rr_tlli(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
 		break;
 	case 35:		
 		/* Packet Flow Identifier 
 		 * The rest of the IE is coded as in [TS 24.008], not including IEI and length, if present.
 		 */
-		de_sm_pflow_id(tvb, urr_ie_tree, offset, ie_len, NULL, 0);
+		de_sm_pflow_id(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
 		break;
 	case 36:		
 		/* Suspension Cause 
 		 * The rest of the IE is coded as in [TS 44.018], not including IEI and length, if present.
 		 */		
-		de_rr_sus_cau(tvb, urr_ie_tree, offset, ie_len, NULL, 0);
+		de_rr_sus_cau(tvb, urr_ie_tree, ie_offset, ie_len, NULL, 0);
 		break;
 	case 37:		/* TU3920 Timer */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU3920_timer, tvb, ie_offset, 2, FALSE);
