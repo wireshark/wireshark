@@ -101,6 +101,7 @@ static const value_string string_norm_nack_form[] =
 /* ============================================= */
 
 static int proto = -1;
+static gboolean global_norm_heur = FALSE;
 
 static struct _norm_hf hf;
 static struct _norm_ett ett;
@@ -211,6 +212,8 @@ static guint dissect_norm_hdrext(struct _norm *norm, struct _fec_ptr *f, proto_t
 
 	if (ext->len > 0)
 	{
+		struct _lct_prefs lctp;
+		memset(&lctp, 0, sizeof(lctp));
 		if (tree)
 		{
 			/* Add the extensions subtree */
@@ -222,13 +225,46 @@ static guint dissect_norm_hdrext(struct _norm *norm, struct _fec_ptr *f, proto_t
 			ext_tree = NULL;
 
 		/* Add the extensions to the subtree */
-		for (i = 0; i < ext->len; i++)
-			fec_decode_ext_fti(&g_array_index(ext, struct _ext, i),
-			tvb, ext_tree, ett.hdrext, *f);
+		for (i = 0; i < ext->len; i++) {
+			struct _ext *e = &g_array_index(ext, struct _ext, i);
+
+			lct_ext_decode(e, &lctp, tvb, ext_tree, ett.hdrext, *f);
+//			fec_decode_ext_fti(e, tvb, ext_tree, ett.hdrext, *f);
+		}
 	}
 	g_array_free(ext, TRUE);
 	return offset;
 }
+
+static guint dissect_nack_data(struct _norm *norm, proto_tree *tree,
+							 tvbuff_t *tvb, guint offset, packet_info *pinfo)
+{
+	proto_item *ti, *tif;
+	proto_tree *nack_tree, *flag_tree;
+	guint orig_offset = offset;
+	guint16 len;
+	ti = proto_tree_add_text(tree, tvb, offset, 8, "NACK Data");
+	nack_tree = proto_item_add_subtree(ti, ett.nackdata);
+	proto_tree_add_item(nack_tree, hf.nack_form, tvb, offset, 1, FALSE); offset += 1;
+
+	tif = proto_tree_add_item(nack_tree, hf.nack_flags, tvb, offset, 1, FALSE);
+	flag_tree = proto_item_add_subtree(tif, ett.flags);
+	proto_tree_add_item(flag_tree, hf.nack_flags_segment, tvb, offset, 1, FALSE);
+	proto_tree_add_item(flag_tree, hf.nack_flags_block, tvb, offset, 1, FALSE);
+	proto_tree_add_item(flag_tree, hf.nack_flags_info, tvb, offset, 1, FALSE);
+	proto_tree_add_item(flag_tree, hf.nack_flags_object, tvb, offset, 1, FALSE);
+	offset += 1;
+	len = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(nack_tree, hf.nack_length, tvb, offset, 2, FALSE); offset += 2;
+	proto_item_set_len(ti, 4+len);
+	if (len > 4) {
+		struct _fec_ptr f;
+		dissect_feccode(norm, &f, nack_tree, tvb, offset, pinfo, 1);
+	}
+	offset += len;
+	return offset;
+}
+
 
 /* code to dissect NORM data packets */
 static void dissect_norm_data(struct _norm *norm, proto_tree *tree,
@@ -294,6 +330,8 @@ static void dissect_norm_info(struct _norm *norm, proto_tree *tree,
 	proto_tree_add_item(flag_tree, hf.flag.msgstart, tvb, offset, 1, FALSE);
 	offset++;
 
+	norm->fec.encoding_id = tvb_get_guint8(tvb, offset);
+	norm->fec.encoding_id_present = 1;
 	proto_tree_add_item(tree, hf.fec.encoding_id, tvb, offset, 1, FALSE); offset++;
 	proto_tree_add_item(tree, hf.object_transport_id, tvb, offset, 2, FALSE); offset+=2;
 
@@ -337,6 +375,9 @@ static guint dissect_norm_cmd_repairadv(struct _norm *norm, proto_tree *tree,
 		f.ett = &ett.fec;
 		f.prefs = &preferences.fec;
 		offset = dissect_norm_hdrext(norm, &f, tree, tvb, offset, pinfo);
+	}
+	while (offset < tvb_length(tvb)) {
+		offset = dissect_nack_data(norm, tree, tvb, offset, pinfo);
 	}
 	return offset;
 }
@@ -469,6 +510,8 @@ static void dissect_norm_ack(struct _norm *norm, proto_tree *tree,
 
 }
 
+
+
 /* code to dissect NORM nack packets */
 static void dissect_norm_nack(struct _norm *norm, proto_tree *tree,
 	tvbuff_t *tvb, guint offset, packet_info *pinfo)
@@ -489,29 +532,7 @@ static void dissect_norm_nack(struct _norm *norm, proto_tree *tree,
 	}
 
 	while (offset < tvb_length(tvb)) {
-		proto_item *ti, *tif;
-		proto_tree *nack_tree, *flag_tree;
-		guint orig_offset = offset;
-		guint16 len;
-		ti = proto_tree_add_text(tree, tvb, offset, 8, "NACK Data");
-		nack_tree = proto_item_add_subtree(ti, ett.nackdata);
-		proto_tree_add_item(nack_tree, hf.nack_form, tvb, offset, 1, FALSE); offset += 1;
-
-		tif = proto_tree_add_item(nack_tree, hf.nack_flags, tvb, offset, 1, FALSE);
-		flag_tree = proto_item_add_subtree(tif, ett.flags);
-		proto_tree_add_item(flag_tree, hf.nack_flags_segment, tvb, offset, 1, FALSE);
-		proto_tree_add_item(flag_tree, hf.nack_flags_block, tvb, offset, 1, FALSE);
-		proto_tree_add_item(flag_tree, hf.nack_flags_info, tvb, offset, 1, FALSE);
-		proto_tree_add_item(flag_tree, hf.nack_flags_object, tvb, offset, 1, FALSE);
-		offset += 1;
-		len = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(nack_tree, hf.nack_length, tvb, offset, 2, FALSE); offset += 2;
-		proto_item_set_len(ti, 4+len);
-		if (len > 4) {
-			struct _fec_ptr f;
-			dissect_feccode(norm, &f, nack_tree, tvb, offset, pinfo, 1);
-		}
-		offset += len;
+		offset = dissect_nack_data(norm, tree, tvb, offset, pinfo);
 	}
 	if (tvb_length(tvb) > offset)
 		proto_tree_add_none_format(tree, hf.payload, tvb, offset, -1, "Payload (%u bytes)", tvb_length(tvb) - offset);
@@ -627,6 +648,23 @@ static void dissect_norm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
+static gboolean
+dissect_norm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	guint8 byte1;
+	if (!global_norm_heur)
+		return FALSE;
+	byte1 = tvb_get_guint8(tvb, 0);
+
+	if (hi_nibble(byte1) != 1) return FALSE;
+	if (lo_nibble(byte1) < 1 || lo_nibble(byte1) > 6) return FALSE;
+	if (tvb_get_guint8(tvb, 1) > 20) return FALSE;
+	if (tvb_length_remaining(tvb, 0) < 12)
+		return FALSE;
+	dissect_norm(tvb, pinfo, tree);
+    return TRUE; /* could be a NORM packet */
+}
+
 void proto_reg_handoff_norm(void)
 {
 	static dissector_handle_t handle;
@@ -636,7 +674,7 @@ void proto_reg_handoff_norm(void)
 		preferences_initialized = TRUE;
 		handle = create_dissector_handle(dissect_norm, proto);
 		dissector_add_handle("udp.port", handle);
-		//dissector_add("udp.port", 6003, handle);
+		heur_dissector_add("udp", dissect_norm_heur, proto);
 	}
 
 	norm_prefs_save(&preferences, &preferences_old);
@@ -791,4 +829,9 @@ void proto_register_norm(void)
 	/* Register preferences */
 	module = prefs_register_protocol(proto, proto_reg_handoff_norm);
 	norm_prefs_register(&preferences, module);
+	prefs_register_bool_preference(module, "heuristic_norm",
+	                "Try to decode UDP packets as NORM packets",
+	                "Check this to decode NORM traffic between clients",
+	                &global_norm_heur);
+
 }

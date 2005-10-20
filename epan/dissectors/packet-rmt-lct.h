@@ -13,12 +13,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -89,7 +89,7 @@ struct _lct_hf
 struct _lct_ett
 {
 	gint main;
-	
+
 	gint fsize;
 	gint flags;
 	gint ext;
@@ -181,5 +181,6 @@ void lct_dissector_free(struct _lct *lct);
 
 void lct_prefs_set_default(struct _lct_prefs *prefs);
 void lct_prefs_register(struct _lct_prefs *prefs, module_t *module);
+void lct_ext_decode(struct _ext *e, struct _lct_prefs *prefs, tvbuff_t *tvb, proto_tree *tree, gint ett, struct _fec_ptr f);
 
 #endif

@@ -31,6 +31,7 @@
 
 #include "packet-rmt-common.h"
 #include "packet-rmt-fec.h"
+#include "packet-rmt-lct.h"
 
 /* Type definitions */
 /* ================ */
@@ -90,7 +91,7 @@ enum {
 	NORM_FLAG_CC_RTT = 0x04,
 	NORM_FLAG_CC_START = 0x08,
 	NORM_FLAG_CC_LEAVE = 0x10,
-	
+
 };
 
 
