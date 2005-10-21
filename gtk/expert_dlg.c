@@ -576,9 +576,7 @@ expert_dlg_init(const char *optarg)
 	gtk_widget_show_all(etd->win);
 	window_present(etd->win);
 	
-	/* Re-dissect instead of just re-tapping, because of how NCP
-     * dissector works. */
-    cf_redissect_packets(&cfile);
+    cf_retap_packets(&cfile, FALSE);
 }
 
 
