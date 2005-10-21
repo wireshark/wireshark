@@ -81,6 +81,9 @@ GTK2_DIR=$(ETHEREAL_LIBS)\gtk2
 #PANGO_INST_VERSION=1.2
 GTK2_INST_VERSION=2.4
 PANGO_INST_VERSION=1.4
+# Support of GTK 2.6 is currently very experimental ...
+#GTK2_INST_VERSION=2.6
+#PANGO_INST_VERSION=1.8
 
 #
 # If you have GTK-Wimp, set this to the pathname of the directory in
@@ -288,6 +291,25 @@ GTK2_LIBS=$(GTK2_DIR)\lib\gtk-win32-2.0.lib \
 	$(GTK2_DIR)\lib\gdk_pixbuf-2.0.lib \
 	$(GTK2_DIR)\lib\pango-1.0.lib \
 	$(GLIB_LIBS)
+
+# the lib dir of GTK2.6 didn't changed since 2.4.0
+!IF "$(GTK2_INST_VERSION)" == "2.6"
+GTK2_LIB_DIR=2.4.0
+!ELSEIF "$(GTK2_INST_VERSION)" == "2.4"
+GTK2_LIB_DIR=2.4.0
+!ELSEIF "$(GTK2_INST_VERSION)" == "2.2"
+GTK2_LIB_DIR=2.2.0
+!ENDIF
+
+# the lib dir of PANGO1.8 didn't changed since 1.4.0
+!IF "$(PANGO_INST_VERSION)" == "1.8"
+PANGO_LIB_DIR=1.4.0
+!ELSEIF "$(PANGO_INST_VERSION)" == "1.4"
+PANGO_LIB_DIR=1.4.0
+!ELSEIF "$(PANGO_INST_VERSION)" == "1.2"
+PANGO_LIB_DIR=1.2.0
+!ENDIF
+
 
 !IFDEF WINPCAP_VERSION
 # Nmake uses carets to escape special characters

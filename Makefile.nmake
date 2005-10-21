@@ -425,7 +425,12 @@ verify_tools:
 # Download and install all the required libraries into ETHEREAL_LIBS.
 # If you used this setup target before, consider doing a clean_setup.
 setup: verify_tools
-!IF "$(GTK2_INST_VERSION)" == "2.4"
+!IF "$(GTK2_INST_VERSION)" == "2.6"
+	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+		glib gtk2.6/glib-2.6.6.zip
+	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+		glib gtk2.6/glib-dev-2.6.6.zip
+!ELSEIF "$(GTK2_INST_VERSION)" == "2.4"
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		glib gtk2.4/glib-2.4.7.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
@@ -469,7 +474,16 @@ setup: verify_tools
 		zlib123-dll zlib123-dll.zip
 !ENDIF
 !IFDEF GTK2_DIR
-!IF "$(GTK2_INST_VERSION)" == "2.4"
+!IF "$(GTK2_INST_VERSION)" == "2.6"
+	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+		gtk2 gtk2.6/gtk+-2.6.9.zip
+	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+		gtk2 gtk2.6/gtk+-dev-2.6.9.zip
+	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+		gtk2 gtk2.6/atk-1.9.0.zip
+	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+		gtk2 gtk2.6/atk-dev-1.9.0.zip
+!ELSEIF "$(GTK2_INST_VERSION)" == "2.4"
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		gtk2 gtk2.4/gtk+-2.4.14.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
@@ -488,7 +502,12 @@ setup: verify_tools
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		gtk2 gtk2/atk-dev-1.4.0.zip
 !ENDIF
-!IF "$(PANGO_INST_VERSION)" == "1.4"
+!IF "$(PANGO_INST_VERSION)" == "1.8"
+	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+		gtk2 gtk2.6/pango-1.8.2.zip
+	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
+		gtk2 gtk2.6/pango-dev-1.8.2.zip
+!ELSEIF "$(PANGO_INST_VERSION)" == "1.4"
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
 		gtk2 gtk2.4/pango-1.4.1.zip
 	@$(SH) tools\win32-setup.sh --download "$(ETHEREAL_LIBS)" \
@@ -545,17 +564,17 @@ install-gtk2-deps: install-required-deps
 	mkdir etc\pango
 	mkdir lib
 	mkdir lib\gtk-2.0
-	mkdir lib\gtk-2.0\$(GTK2_INST_VERSION).0
-	mkdir lib\gtk-2.0\$(GTK2_INST_VERSION).0\loaders
-	mkdir lib\gtk-2.0\$(GTK2_INST_VERSION).0\immodules
+	mkdir lib\gtk-2.0\$(GTK2_LIB_DIR)
+	mkdir lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders
+	mkdir lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules
 	mkdir lib\pango
-	mkdir lib\pango\$(PANGO_INST_VERSION).0
-	mkdir lib\pango\$(PANGO_INST_VERSION).0\modules
+	mkdir lib\pango\$(PANGO_LIB_DIR)
+	mkdir lib\pango\$(PANGO_LIB_DIR)\modules
 	xcopy $(GTK2_DIR)\etc\gtk-2.0\*.* etc\gtk-2.0 /d
 	xcopy $(GTK2_DIR)\etc\pango\pango.* etc\pango /d
-	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_INST_VERSION).0\loaders\libpixbufloader-*.dll lib\gtk-2.0\$(GTK2_INST_VERSION).0\loaders /d
-	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_INST_VERSION).0\immodules\im-*.dll lib\gtk-2.0\$(GTK2_INST_VERSION).0\immodules /d
-	xcopy $(GTK2_DIR)\lib\pango\$(PANGO_INST_VERSION).0\modules\pango-*.dll lib\pango\$(PANGO_INST_VERSION).0\modules /d
+	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders\libpixbufloader-*.dll lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders /d
+	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules\im-*.dll lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules /d
+	xcopy $(GTK2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules\pango-*.dll lib\pango\$(PANGO_LIB_DIR)\modules /d
 !ENDIF
 
 install-gtk1-deps: install-required-deps
