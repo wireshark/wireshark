@@ -184,27 +184,22 @@ static value_string iapp_auth_type_vals[] = {
 static void dissect_caps(proto_item *pitem, tvbuff_t *tvb, int offset)
 {
 	proto_tree *captree;
-	int bit, val, z, thisbit;
+	int bit, val, thisbit;
 	const gchar *strval;
-	gchar bitval[20];
+	gchar bitval[4+1+4+1];	/* "xxxx xxxx\0" */
 
 	captree = proto_item_add_subtree(pitem, ett_iapp_cap);
 	val = tvb_get_guint8(tvb, offset + 3);
 
-	bitval[8] = '\0';
 	for (bit = 7; bit >= 0; bit--)
 	{
-		strval = match_strval(1 << bit, iapp_cap_vals);
+		thisbit = 1 << bit;
+		strval = match_strval(thisbit, iapp_cap_vals);
 		if (strval)
 		{
-			thisbit = (val & (1 << bit)) ? 1 : 0;
-			for (z = 0; z < 7; z++)
-				if (z == 7 - bit)
-					bitval[z] = thisbit + '0';
-				else
-					bitval[z] = '.';
+			other_decode_bitfield_value(bitval, val, thisbit, 8);
 			proto_tree_add_text(captree, tvb, offset + 3, 1, "%s %s: %s",
-				bitval, strval, thisbit ? "Yes" : "No");
+				bitval,	strval, val & thisbit ? "Yes" : "No");
 		}
 	}
 }
