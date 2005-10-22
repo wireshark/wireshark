@@ -33,6 +33,7 @@
 #include <float.h>
 
 #include "packet.h"
+#include "ptvcursor.h"
 #include "strutil.h"
 #include "addr_resolv.h"
 #include "plugins.h"
@@ -41,6 +42,12 @@
 #include "slab.h"
 #include "tvbuff.h"
 #include "emem.h"
+
+struct ptvcursor {
+	proto_tree	*tree;
+	tvbuff_t	*tvb;
+	gint		offset;
+};
 
 #define cVALS(x) (const value_string*)(x)
 
@@ -96,6 +103,14 @@ static const char* hfinfo_int64_format(header_field_info *hfinfo);
 
 static proto_item*
 proto_tree_add_node(proto_tree *tree, field_info *fi);
+
+static header_field_info *
+get_hfi_and_length(int hfindex, tvbuff_t *tvb, gint start, gint *length,
+    gint *item_length);
+
+static field_info *
+new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
+    gint start, gint item_length);
 
 static field_info *
 alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb,
@@ -579,6 +594,53 @@ proto_registrar_get_byname(const char *field_name)
 	return g_tree_lookup(gpa_name_tree, field_name);
 }
 
+/* Allocates an initializes a ptvcursor_t with 3 variables:
+ * 	proto_tree, tvbuff, and offset. */
+ptvcursor_t*
+ptvcursor_new(proto_tree *tree, tvbuff_t *tvb, gint offset)
+{
+	ptvcursor_t	*ptvc;
+
+	ptvc = g_new(ptvcursor_t, 1);
+	ptvc->tree	= tree;
+	ptvc->tvb	= tvb;
+	ptvc->offset	= offset;
+	return ptvc;
+}
+
+/* Frees memory for ptvcursor_t, but nothing deeper than that. */
+void
+ptvcursor_free(ptvcursor_t *ptvc)
+{
+	g_free(ptvc);
+}
+
+/* Returns tvbuff. */
+tvbuff_t*
+ptvcursor_tvbuff(ptvcursor_t* ptvc)
+{
+	return ptvc->tvb;
+}
+
+/* Returns current offset. */
+gint
+ptvcursor_current_offset(ptvcursor_t* ptvc)
+{
+	return ptvc->offset;
+}
+
+proto_tree*
+ptvcursor_tree(ptvcursor_t* ptvc)
+{
+	return ptvc->tree;
+}
+
+void
+ptvcursor_set_tree(ptvcursor_t* ptvc, proto_tree *tree)
+{
+	ptvc->tree = tree;
+}
+
 /* Add a text-only node, leaving it to our caller to fill the text in */
 static proto_item *
 proto_tree_add_text_node(proto_tree *tree, tvbuff_t *tvb, gint start, gint length)
@@ -724,11 +786,10 @@ get_int_value(tvbuff_t *tvb, gint offset, gint length, gboolean little_endian)
 
 /* Add an item to a proto_tree, using the text label registered to that item;
    the item is extracted from the tvbuff handed to it. */
-proto_item *
-proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    gint start, gint length, gboolean little_endian)
+static proto_item *
+proto_tree_new_item(field_info *new_fi, proto_tree *tree, int hfindex,
+    tvbuff_t *tvb, gint start, gint length, gboolean little_endian)
 {
-	field_info	*new_fi;
 	proto_item	*pi;
 	guint32		value, n;
 	float		floatval;
@@ -736,16 +797,6 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	char		*string;
 	GHashTable	*hash;
 	GPtrArray	*ptrs;
-
-	if (!tree)
-		return(NULL);
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex);
-
-	new_fi = alloc_field_info(tree, hfindex, tvb, start, &length);
-
-	if (new_fi == NULL)
-		return(NULL);
 
 	/* there is a possibility here that we might raise an exception
 	 * and thus would lose track of the field_info.
@@ -981,6 +1032,66 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	return pi;
 }
 
+/* Gets data from tvbuff, adds it to proto_tree, increments offset,
+   and returns proto_item* */
+proto_item*
+ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
+    gboolean little_endian)
+{
+	field_info		*new_fi;
+	header_field_info	*hfinfo;
+	gint			item_length;
+	guint32			n;
+	int			offset;
+
+	offset = ptvc->offset;
+	hfinfo = get_hfi_and_length(hfindex, ptvc->tvb, offset, &length,
+	    &item_length);
+	ptvc->offset += length;
+	if (hfinfo->type == FT_UINT_BYTES || hfinfo->type == FT_UINT_STRING) {
+		/*
+		 * The length of the rest of the item is in the first N
+		 * bytes of the item.
+		 */
+		n = get_uint_value(ptvc->tvb, offset, length, little_endian);
+		ptvc->offset += n;
+	}
+	if (ptvc->tree == NULL)
+		return NULL;
+
+	TRY_TO_FAKE_THIS_ITEM(ptvc->tree, hfindex);
+
+	new_fi = new_field_info(ptvc->tree, hfinfo, ptvc->tvb, offset,
+	    item_length);
+	if (new_fi == NULL)
+		return NULL;
+
+	return proto_tree_new_item(new_fi, ptvc->tree, hfindex, ptvc->tvb,
+	    offset, length, little_endian);
+}
+
+/* Add an item to a proto_tree, using the text label registered to that item;
+   the item is extracted from the tvbuff handed to it. */
+proto_item *
+proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+    gint start, gint length, gboolean little_endian)
+{
+	field_info	*new_fi;
+
+	if (!tree)
+		return(NULL);
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex);
+
+	new_fi = alloc_field_info(tree, hfindex, tvb, start, &length);
+
+	if (new_fi == NULL)
+		return(NULL);
+
+	return proto_tree_new_item(new_fi, tree, hfindex, tvb, start,
+	    length, little_endian);
+}
+
 proto_item *
 proto_tree_add_item_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     gint start, gint length, gboolean little_endian)
@@ -1020,6 +1131,28 @@ proto_tree_add_none_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 
 	/* no value to set for FT_NONE */
 	return pi;
+}
+
+/* Gets data from tvbuff, adds it to proto_tree, *DOES NOT* increment
+ * offset, and returns proto_item* */
+proto_item*
+ptvcursor_add_no_advance(ptvcursor_t* ptvc, int hf, gint length,
+		gboolean endianness)
+{
+	proto_item	*item;
+
+	item = proto_tree_add_item(ptvc->tree, hf, ptvc->tvb, ptvc->offset,
+			length, endianness);
+
+	return item;
+}
+
+/* Advance the ptvcursor's offset within its tvbuff without
+ * adding anything to the proto_tree. */
+void
+ptvcursor_advance(ptvcursor_t* ptvc, gint length)
+{
+	ptvc->offset += length;
 }
 
 
@@ -2203,13 +2336,12 @@ proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	return pi;
 }
 
-static field_info *
-alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-    gint *length)
+
+static header_field_info *
+get_hfi_and_length(int hfindex, tvbuff_t *tvb, gint start, gint *length,
+    gint *item_length)
 {
 	header_field_info	*hfinfo;
-	field_info		*fi;
-	gint			item_length;
 	gint			length_remaining;
 
 	/*
@@ -2308,9 +2440,9 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();
 		}
-		item_length = *length;
+		*item_length = *length;
 	} else {
-		item_length = *length;
+		*item_length = *length;
 		if (hfinfo->type == FT_PROTOCOL || hfinfo->type == FT_NONE) {
 			/*
 			 * These types are for interior nodes of the
@@ -2322,17 +2454,28 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 			 * Ethereal, we don't highlight stuff past
 			 * the end of the data.
 			 */
-            /* XXX - what to do, if we don't have a tvb? */
-            if(tvb) {
-			    length_remaining = tvb_length_remaining(tvb, start);
-			    if (item_length < 0 || (item_length > 0 && (length_remaining < item_length)))
-				    item_length = length_remaining;
-            }
+			/* XXX - what to do, if we don't have a tvb? */
+			if (tvb) {
+				length_remaining = tvb_length_remaining(tvb, start);
+				if (*item_length < 0 ||
+				    (*item_length > 0 &&
+				      (length_remaining < *item_length)))
+					*item_length = length_remaining;
+			}
 		}
-		if (item_length < 0) {
+		if (*item_length < 0) {
 			THROW(ReportedBoundsError);
 		}
 	}
+
+	return hfinfo;
+}
+
+static field_info *
+new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
+    gint start, gint item_length)
+{
+	field_info		*fi;
 
 	FIELD_INFO_NEW(fi);
 
@@ -2351,6 +2494,17 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	fi->ds_tvb=tvb?TVB_GET_DS_TVB(tvb):NULL;
 
 	return fi;
+}
+
+static field_info *
+alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+    gint *length)
+{
+	header_field_info	*hfinfo;
+	gint			item_length;
+
+	hfinfo = get_hfi_and_length(hfindex, tvb, start, length, &item_length);
+	return new_field_info(tree, hfinfo, tvb, start, item_length);
 }
 
 /* Set representation of a proto_tree entry, if the protocol tree is to

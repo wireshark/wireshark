@@ -63,7 +63,6 @@ LIBETHEREAL_SRC = 		\
 	plugins.c		\
 	prefs.c			\
 	proto.c			\
-	ptvcursor.c		\
 	radius_dict.c		\
 	range.c			\
 	reassemble.c		\
