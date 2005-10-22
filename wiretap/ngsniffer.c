@@ -132,7 +132,7 @@ struct vers_rec {
  *
  * The manual at
  *
- *	http://download.nai.com/products/media/sniffer/support/sdos/operation.pdf
+ *	http://www.mcafee.com/common/media/sniffer/support/sdos/operation.pdf
  *
  * documents some of the values used in "fs" and "flags".  "flags" don't
  * look as if they'd be of much interest to us, as those are internal
@@ -391,12 +391,13 @@ struct frame6_rec {
  * documentation, as they correspond to types described in the UI;
  * in particular, see
  *
- *	http://download.nai.com/products/media/sniffer/support/sdos/operation.pdf
+ *	http://www.mcafee.com/common/media/sniffer/support/sdos/operation.pdf
  *
  * starting at page 3-10 (56 of 496).
  *
  * XXX - I've seen X.25 captures with NET_ROUTER, and I've seen bridge/
- * router captures with NET_HDLC.  Sigh....
+ * router captures with NET_HDLC.  Sigh....  Are those just captures for
+ * which the user set the wrong network type when capturing?
  */
 #define NET_SDLC	0	/* Probably "SDLC then SNA" */
 #define NET_HDLC	1	/* Used for X.25; is it used for other
