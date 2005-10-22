@@ -113,21 +113,36 @@ static const value_string es_type[] = {
 	{ 0,	NULL }
 };
 
+#define NDS_PTYPE_IPX		0x00000000
+#define NDS_PTYPE_IP		0x00000001
+#define NDS_PTYPE_SDLC		0x00000002
+#define NDS_PTYPE_TR_ON_ETH	0x00000003
+#define NDS_PTYPE_OSI		0x00000004
+#define NDS_PTYPE_APPLETALK	0x00000005
+#define NDS_PTYPE_NETBEUI	0x00000006
+#define NDS_PTYPE_SOCKETADDRESS	0x00000007
+#define NDS_PTYPE_UDP		0x00000008
+#define NDS_PTYPE_TCP		0x00000009
+#define NDS_PTYPE_UDPv6		0x0000000a
+#define NDS_PTYPE_TCPv6		0x0000000b
+#define NDS_PTYPE_INTERNAL	0x0000000c
+#define NDS_PTYPE_URL		0x0000000d
+
 static const value_string nds_protocol_type[] = {
-        { 0x00000000, "(IPX Protocol)" },
-        { 0x00000001, "(IP Protocol)" },
-        { 0x00000002, "(SDLC Protocol)" },
-        { 0x00000003, "(TokenRing on Ethernet Protocol)" },
-        { 0x00000004, "(OSI Protocol)" },
-        { 0x00000005, "(AppleTalk Protocol)" },
-        { 0x00000006, "(NetBEUI Protocol)" },
-        { 0x00000007, "(Socket Address Protocol)" },
-        { 0x00000008, "(UDP Protocol)" },
-        { 0x00000009, "(TCP Protocol)" },
-        { 0x0000000a, "(UDP v6 Protocol)" },
-        { 0x0000000b, "(TCP v6 Protocol)" },
-        { 0x0000000c, "(Internal Protocol)" },
-        { 0x0000000d, "(URL Protocol)" },
+        { NDS_PTYPE_IPX,           "(IPX Protocol)" },
+        { NDS_PTYPE_IP,            "(IP Protocol)" },
+        { NDS_PTYPE_SDLC,          "(SDLC Protocol)" },
+        { NDS_PTYPE_TR_ON_ETH,     "(TokenRing on Ethernet Protocol)" },
+        { NDS_PTYPE_OSI,           "(OSI Protocol)" },
+        { NDS_PTYPE_APPLETALK,     "(AppleTalk Protocol)" },
+        { NDS_PTYPE_NETBEUI,       "(NetBEUI Protocol)" },
+        { NDS_PTYPE_SOCKETADDRESS, "(Socket Address Protocol)" },
+        { NDS_PTYPE_UDP,           "(UDP Protocol)" },
+        { NDS_PTYPE_TCP,           "(TCP Protocol)" },
+        { NDS_PTYPE_UDPv6,         "(UDP v6 Protocol)" },
+        { NDS_PTYPE_TCPv6,         "(TCP v6 Protocol)" },
+        { NDS_PTYPE_INTERNAL,      "(Internal Protocol)" },
+        { NDS_PTYPE_URL,           "(URL Protocol)" },
 	{ 0,	NULL }
 };
 
@@ -1207,6 +1222,8 @@ process_bitfield_sub_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 		ptvcursor_free(sub_ptvc);
 	}
 	else {
+		DISSECTOR_ASSERT(rec->length > 0 &&
+		   proto_registrar_get_nth(*rec->hf_ptr)->type != FT_UINT_STRING);
 		ptvcursor_advance(ptvc, rec->length);
 	}
 }
@@ -1322,6 +1339,11 @@ _process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 				 * *use* that var; for now keep this assert in
 				 * place. */
 				DISSECTOR_ASSERT(rec->var_index == NO_VAR);
+
+				/* This had better not be variable-length,
+				 * either. */
+				DISSECTOR_ASSERT(rec->length > 0 &&
+				   proto_registrar_get_nth(*rec->hf_ptr)->type != FT_UINT_STRING);
 				ptvcursor_advance(ptvc, rec->length);
 			}
 		}
@@ -1352,6 +1374,8 @@ _process_ptvc_record(ptvcursor_t *ptvc, const ptvc_record *rec,
 			}
 			else {
 				for (i = 0; i < repeat_count; i++ ) {
+					DISSECTOR_ASSERT(rec->length > 0 &&
+					   proto_registrar_get_nth(*rec->hf_ptr)->type != FT_UINT_STRING);
 					ptvcursor_advance(ptvc, rec->length);
 				}
 			}
@@ -1734,7 +1758,6 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
         guint32         value3 = 0;
         guint32         value4 = 0;
         guint32         value5 = 0;
-        guint32         value6 = 0;
         guint32         voffset = 0, oldvoffset;
         guint32         icounter;
         guint32         number_of_values = 0;
@@ -1872,27 +1895,24 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                voffset = voffset+4;
                                switch (value2)
                                { 
-                                        case 0x00000000:
+                                        case NDS_PTYPE_IPX:
                                                 proto_tree_add_item(nvtree, hf_nds_net, tvb, voffset, 4, FALSE);
 		                                proto_tree_add_item(nvtree, hf_nds_node, tvb, voffset+4, 6, FALSE);
 		                                proto_tree_add_item(nvtree, hf_nds_socket, tvb, voffset+10, 2, FALSE);
                                                 break;
-                                        case 0x00000008:
+                                        case NDS_PTYPE_IP:
 	        	                        proto_tree_add_item(nvtree, hf_nds_port, tvb, voffset, 2, FALSE);
-                                                value4 = tvb_get_letohl(tvb, voffset+2);
-	                                        proto_tree_add_ipv4(nvtree, hf_add_ref_udp, tvb, voffset+2, 4, value4);
+	                                        proto_tree_add_item(nvtree, hf_add_ref_ip, tvb, voffset+2, 4, FALSE);
                                                 break;
-                                        case 0x00000009:
+                                        case NDS_PTYPE_UDP:
+	        	                        proto_tree_add_item(nvtree, hf_nds_port, tvb, voffset, 2, FALSE);
+	                                        proto_tree_add_item(nvtree, hf_add_ref_udp, tvb, voffset+2, 4, FALSE);
+                                                break;
+                                        case NDS_PTYPE_TCP:
 		                                proto_tree_add_item(nvtree, hf_nds_port, tvb, voffset, 2, FALSE);
-                                                value4 = tvb_get_letohl(tvb, voffset+2);
-                                                proto_tree_add_ipv4(nvtree, hf_add_ref_tcp, tvb, voffset+2, 4, value4);
+                                                proto_tree_add_item(nvtree, hf_add_ref_tcp, tvb, voffset+2, 4, FALSE);
                                                 break;
-                                        case 0x00000001:
-	        	                        proto_tree_add_item(nvtree, hf_nds_port, tvb, voffset, 2, FALSE);
-                                                value4 = tvb_get_letohl(tvb, voffset+2);
-	                                        proto_tree_add_ipv4(nvtree, hf_add_ref_ip, tvb, voffset+2, 4, value4);
-                                                break;
-                                        case 0x0000000d:
+                                        case NDS_PTYPE_URL:
                                                 get_string(tvb, voffset, value3, vvalues->vstring);
                                                 proto_tree_add_string(nvtree, hf_value_string, tvb, voffset, 
                                                         value3, vvalues->vstring);
@@ -1988,27 +2008,24 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                         voffset = voffset+4;
                                         switch (value4)
                                         { 
-                                                case 0x00000000:
+                                                case NDS_PTYPE_IPX:
                                                         proto_tree_add_item(adtree, hf_nds_net, tvb, voffset, 4, FALSE);
 		                                        proto_tree_add_item(adtree, hf_nds_node, tvb, voffset+4, 6, FALSE);
 		                                        proto_tree_add_item(adtree, hf_nds_socket, tvb, voffset+10, 2, FALSE);
                                                         break;
-                                                case 0x00000001:
+                                                case NDS_PTYPE_IP:
 	        	                                proto_tree_add_item(adtree, hf_nds_port, tvb, voffset, 2, FALSE);
-                                                        value6 = tvb_get_letohl(tvb, voffset+2);
-	                                                proto_tree_add_ipv4(adtree, hf_add_ref_ip, tvb, voffset+2, 4, value6);
+	                                                proto_tree_add_item(adtree, hf_add_ref_ip, tvb, voffset+2, 4, FALSE);
                                                         break;
-                                                case 0x00000008:
+                                                case NDS_PTYPE_UDP:
 	        	                                proto_tree_add_item(adtree, hf_nds_port, tvb, voffset, 2, FALSE);
-                                                        value6 = tvb_get_letohl(tvb, voffset+2);
-	                                                proto_tree_add_ipv4(adtree, hf_add_ref_udp, tvb, voffset+2, 4, value6);
+	                                                proto_tree_add_item(adtree, hf_add_ref_udp, tvb, voffset+2, 4, FALSE);
                                                         break;
-                                                case 0x00000009:
+                                                case NDS_PTYPE_TCP:
 		                                        proto_tree_add_item(adtree, hf_nds_port, tvb, voffset, 2, FALSE);
-                                                        value6 = tvb_get_letohl(tvb, voffset+2);
-                                                        proto_tree_add_ipv4(adtree, hf_add_ref_tcp, tvb, voffset+2, 4, value6);
+                                                        proto_tree_add_item(adtree, hf_add_ref_tcp, tvb, voffset+2, 4, FALSE);
                                                         break;
-                                                case 0x0000000d:
+                                                case NDS_PTYPE_URL:
                                                         get_string(tvb, voffset, value5, vvalues->vstring);
                                                         proto_tree_add_string(adtree, hf_value_string, tvb, voffset, 
                                                                 value5, vvalues->vstring);
@@ -2401,27 +2418,24 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
                                         ioffset = ioffset+4;
                                         switch (value2)
                                         { 
-                                                case 0x00000000:
+                                                case NDS_PTYPE_IPX:
                                                         proto_tree_add_item(atree, hf_nds_net, tvb, ioffset, 4, FALSE);
 		                                        proto_tree_add_item(atree, hf_nds_node, tvb, ioffset+4, 6, FALSE);
 		                                        proto_tree_add_item(atree, hf_nds_socket, tvb, ioffset+10, 2, FALSE);
                                                         break;
-                                                case 0x00000001:
+                                                case NDS_PTYPE_IP:
         	        	                        proto_tree_add_item(atree, hf_nds_port, tvb, ioffset, 2, FALSE);
-                                                        value4 = tvb_get_letohl(tvb, ioffset+2);
-	                                                proto_tree_add_ipv4(atree, hf_add_ref_ip, tvb, ioffset+2, 4, value4);
+	                                                proto_tree_add_item(atree, hf_add_ref_ip, tvb, ioffset+2, 4, FALSE);
                                                         break;
-                                                case 0x00000008:
+                                                case NDS_PTYPE_UDP:
 		                                        proto_tree_add_item(atree, hf_nds_port, tvb, ioffset, 2, FALSE);
-                                                        value4 = tvb_get_letohl(tvb, ioffset+2);
-	                                                proto_tree_add_ipv4(atree, hf_add_ref_udp, tvb, ioffset+2, 4, value4);
+	                                                proto_tree_add_item(atree, hf_add_ref_udp, tvb, ioffset+2, 4, FALSE);
                                                         break;
-                                                case 0x00000009:
+                                                case NDS_PTYPE_TCP:
 		                                        proto_tree_add_item(atree, hf_nds_port, tvb, ioffset, 2, FALSE);
-                                                        value4 = tvb_get_letohl(tvb, ioffset+2);
-                                        	        proto_tree_add_ipv4(atree, hf_add_ref_tcp, tvb, ioffset+2, 4, value4);
+                                        	        proto_tree_add_item(atree, hf_add_ref_tcp, tvb, ioffset+2, 4, FALSE);
                                                         break;
-                                                case 0x0000000d:
+                                                case NDS_PTYPE_URL:
                                                         get_string(tvb, ioffset, value3, values->vstring);
                                                         proto_tree_add_string(atree, hf_value_string, tvb, ioffset, 
                                                                 value3, values->vstring);
@@ -3188,18 +3202,15 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                                         break;
                                                 case 0x00000001:
         	        	                        proto_tree_add_item(atree, hf_nds_port, tvb, ioffset, 2, FALSE);
-                                                        value4 = tvb_get_letohl(tvb, ioffset+2);
-	                                                proto_tree_add_ipv4(atree, hf_add_ref_ip, tvb, ioffset+2, 4, value4);
+	                                                proto_tree_add_item(atree, hf_add_ref_ip, tvb, ioffset+2, 4, FALSE);
                                                         break;
                                                 case 0x00000008:
 		                                        proto_tree_add_item(atree, hf_nds_port, tvb, ioffset, 2, FALSE);
-                                                        value4 = tvb_get_letohl(tvb, ioffset+2);
-	                                                proto_tree_add_ipv4(atree, hf_add_ref_udp, tvb, ioffset+2, 4, value4);
+	                                                proto_tree_add_item(atree, hf_add_ref_udp, tvb, ioffset+2, 4, FALSE);
                                                         break;
                                                 case 0x00000009:
 		                                        proto_tree_add_item(atree, hf_nds_port, tvb, ioffset, 2, FALSE);
-                                                        value4 = tvb_get_letohl(tvb, ioffset+2);
-                                        	        proto_tree_add_ipv4(atree, hf_add_ref_tcp, tvb, ioffset+2, 4, value4);
+                                        	        proto_tree_add_item(atree, hf_add_ref_tcp, tvb, ioffset+2, 4, FALSE);
                                                         break;
                                                 case 0x0000000d:
                                                         get_string(tvb, ioffset, value3, values->vstring);
@@ -3240,30 +3251,27 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                 
                                 switch (value2)
                                 { 
-                                        case 0x00000000:
+                                        case NDS_PTYPE_IPX:
                                                 proto_tree_add_item(atree, hf_nds_net, tvb, ioffset, 4, FALSE);
 		                                proto_tree_add_item(atree, hf_nds_node, tvb, ioffset+4, 6, FALSE);
 		                                proto_tree_add_item(atree, hf_nds_socket, tvb, ioffset+10, 2, FALSE);
                                                 break;
-                                        case 0x00000001:
+                                        case NDS_PTYPE_IP:
        	        	                        proto_tree_add_item(atree, hf_nds_port, tvb, ioffset, 2, FALSE);
                                                 ioffset=ioffset+2;
-                                                value4 = tvb_get_letohl(tvb, ioffset);
-                                                proto_tree_add_ipv4(atree, hf_add_ref_ip, tvb, ioffset, 4, value4);
+                                                proto_tree_add_item(atree, hf_add_ref_ip, tvb, ioffset, 4, FALSE);
                                                 break;
-                                        case 0x00000008:
+                                        case NDS_PTYPE_UDP:
 		                                proto_tree_add_item(atree, hf_nds_port, tvb, ioffset, 2, FALSE);
                                                 ioffset=ioffset+2;
-                                                value4 = tvb_get_letohl(tvb, ioffset);
-	                                        proto_tree_add_ipv4(atree, hf_add_ref_udp, tvb, ioffset, 4, value4);
+	                                        proto_tree_add_item(atree, hf_add_ref_udp, tvb, ioffset, 4, FALSE);
                                                 break;
-                                        case 0x00000009:
+                                        case NDS_PTYPE_TCP:
 		                                proto_tree_add_item(atree, hf_nds_port, tvb, ioffset, 2, FALSE);
                                                 ioffset=ioffset+2;
-                                                value4 = tvb_get_letohl(tvb, ioffset);
-                                                proto_tree_add_ipv4(atree, hf_add_ref_tcp, tvb, ioffset, 4, value4);
+                                                proto_tree_add_item(atree, hf_add_ref_tcp, tvb, ioffset, 4, FALSE);
                                                 break;
-                                        case 0x0000000d:
+                                        case NDS_PTYPE_URL:
                                                 get_string(tvb, ioffset, value3, values->vstring);
                                                 proto_tree_add_string(atree, hf_value_string, tvb, ioffset, 
                                                       value3, values->vstring);
@@ -4388,26 +4396,22 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequ
 void
 dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		guint16 nw_connection, guint8 sequence,
-		guint16 type, proto_tree *ncp_tree)
+		guint16 type, proto_tree *volatile ncp_tree)
 {
 	guint8			func, subfunc = 0;
 	gboolean		requires_subfunc = FALSE;
 	gboolean		has_length = FALSE;
-	ncp_req_hash_value	*request_value = NULL;
-	const ncp_record	*ncp_rec = NULL;
+	ncp_req_hash_value	*volatile request_value = NULL;
+	const ncp_record	*volatile ncp_rec = NULL;
 	conversation_t		*conversation;
-	ptvcursor_t		*ptvc = NULL;
+	ptvcursor_t		*volatile ptvc = NULL;
 	proto_tree		*temp_tree = NULL;
-	gboolean		run_req_cond = FALSE;
-	gboolean		run_info_str = FALSE;
+	volatile gboolean	run_req_cond = FALSE;
+	volatile gboolean	run_info_str = FALSE;
         guint32                 length_remaining;
         guint32                 testvar;
-
-#ifdef FAKE_TREE_IS_VISIBLE
-    if (ncp_tree) {
-        PTREE_DATA(ncp_tree)->visible=1;
-    }
-#endif
+        unsigned long           except_code;
+        const char              *message;
 
 	func = tvb_get_guint8(tvb, 6);
 
@@ -4538,6 +4542,10 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		 * NULL if no cleanup is needed, and non-null if cleanup is needed. */
 		CLEANUP_PUSH(free_proto_tree, temp_tree);
 
+#ifdef FAKE_TREE_IS_VISIBLE
+		PTREE_DATA(ncp_tree)->visible=1;
+#endif
+
 		/* Before the dissection, if we're saving data for a request
 		 * condition, we have to prime the proto tree using the
 		 * dfilter information */
@@ -4603,9 +4611,26 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 	        proto_tree_add_uint_format(ncp_tree, hf_ncp_group, tvb, 0, 0, ncp_rec->group, "Group: %s", ncp_groups[ncp_rec->group]);
 		}
 
+                except_code = 0;
+                message = NULL;
 		if (ncp_rec && ncp_rec->request_ptvc) {
 			clear_repeat_vars();
-			process_ptvc_record(ptvc, ncp_rec->request_ptvc, NULL, TRUE, ncp_rec);
+			/*
+			 * We need to remember the results even if we
+			 * throw an exception dissecting this request,
+			 * so that we can properly dissect the reply.
+			 * We catch any exceptions thrown when
+			 * dissecting the request, and re-throw them
+			 * after saving the results of any conditional
+			 * tests.
+			 */
+			TRY {
+				process_ptvc_record(ptvc, ncp_rec->request_ptvc, NULL, TRUE, ncp_rec);
+			} CATCH_ALL {
+				except_code = EXCEPT_CODE;
+				message = GET_MESSAGE;
+			}
+			ENDTRY;
 		}
 		ptvcursor_free(ptvc);
                 /* SecretStore packets are dessected in packet-ncp-sss.c */
@@ -4749,6 +4774,10 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 
 		/* Free the temporary proto_tree */
 		CLEANUP_CALL_AND_POP;
+
+		/* Re-throw any exception. */
+		if (except_code != 0)
+			THROW_MESSAGE(except_code, message);
 	}
 }
 
@@ -6147,12 +6176,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         gboolean                resolve_eid=FALSE;
         guint32                 global_flags=0;
 	int			i;
-
-#ifdef FAKE_TREE_IS_VISIBLE
-    if (ncp_tree) {
-        PTREE_DATA(ncp_tree)->visible=1;
-    }
-#endif
 
 	for (i = 0; i < 9; i++) {
 		pvalues[i].vtype = 0;
@@ -8343,9 +8366,12 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
         	 * call CLEANUP_POP and friends, but the value of temp_tree is
         	 * NULL if no cleanup is needed, and non-null if cleanup is needed. 
                  */
-                         
         	CLEANUP_PUSH(free_proto_tree, temp_tree);
                
+#ifdef FAKE_TREE_IS_VISIBLE
+		PTREE_DATA(ncp_tree)->visible=1;
+#endif
+
 		request_value = ncp_hash_lookup(conversation, sequence);
         	switch (type) {
                         case NCP_BROADCAST_SLOT:
