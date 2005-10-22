@@ -57,7 +57,7 @@ typedef struct {
 	guint	min_vers;
 	double	timeunit;
 	time_t	start;
-	gboolean is_atm;
+	guint	network;		/* network type */
 	ngsniffer_comp_stream_t seq;	/* sequential access */
 	ngsniffer_comp_stream_t rand;	/* random access */
 	GList	*first_blob;		/* list element for first blob */

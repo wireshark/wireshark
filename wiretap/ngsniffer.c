@@ -114,6 +114,20 @@ struct vers_rec {
 };
 
 /*
+ * Network types.
+ */
+#define NETWORK_TRING		0	/* Token ring */
+#define NETWORK_ENET		1	/* Ethernet */
+#define NETWORK_ARCNET		2	/* ARCNET */
+#define NETWORK_STARLAN		3	/* StarLAN */
+#define NETWORK_PCNW		4	/* PC Network broadband (Sytek?) */
+#define NETWORK_LOCALTALK	5	/* LocalTalk */
+#define NETWORK_SYNCHRO		7	/* Internetwork analyzer (synchronous) */
+#define NETWORK_ASYNC		8	/* Internetwork analyzer (asynchronous) */
+#define NETWORK_FDDI		9	/* FDDI */
+#define NETWORK_ATM		10	/* ATM */
+
+/*
  * Sniffer type 2 data record format - followed by frame data.
  *
  * The manual at
@@ -153,6 +167,61 @@ struct frame2_rec {
 	gint16	true_size;	/* size of original frame, in bytes */
 	gint16	rsvd;		/* reserved */
 };
+
+/*
+ * Bits in "fs".
+ *
+ * The bits differ for different link-layer types.
+ */
+
+/*
+ * Ethernet.
+ */
+#define FS_ETH_CRC		0x80	/* CRC error */
+#define FS_ETH_ALIGN		0x40	/* bad alignment */
+#define FS_ETH_RU		0x20	/* "RU out of resources" */
+#define FS_ETH_OVERRUN		0x10	/* DMA overrun */
+#define FS_ETH_RUNT		0x08	/* frame too small */
+#define FS_ETH_COLLISION	0x02	/* collision fragment */
+
+/*
+ * FDDI.
+ */
+#define FS_FDDI_INVALID		0x10	/* frame indicators are invalid */
+#define FS_FDDI_ERROR		0x20	/* "frame error bit 1" */
+#define FS_FDDI_PCI_VDL		0x01	/* VDL error on frame on PCI adapter */
+#define FS_FDDI_PCI_CRC		0x02	/* CRC error on frame on PCI adapter */
+#define FS_FDDI_ISA_CRC		0x20	/* CRC error on frame on ISA adapter */
+
+/*
+ * Internetwork analyzer (synchronous and asynchronous).
+ */
+#define FS_WAN_DTE		0x80	/* DTE->DCE frame */
+
+/*
+ * Internetwork analyzer (synchronous).
+ */
+#define FS_SYNC_LOST		0x01	/* some frames were lost */
+#define FS_SYNC_CRC		0x02	/* CRC error */
+#define FS_SYNC_ABORT		0x04	/* aborted frame */
+#define FS_ISDN_CHAN_MASK	0x18	/* ISDN channel */
+#define FS_ISDN_CHAN_D		0x18	/* ISDN channel D */
+#define FS_ISDN_CHAN_B1		0x08	/* ISDN channel B1 */
+#define FS_ISDN_CHAN_B2		0x10	/* ISDN channel B2 */
+
+/*
+ * Internetwork analyzer (asynchronous).
+ * XXX - are some of these synchronous flags?  They're listed with the
+ * asynchronous flags in the Sniffer 5.50 Network Analyzer Operations
+ * manual.  Is one of the "overrun" errors a synchronous overrun error?
+ */
+#define FS_ASYNC_LOST		0x01	/* some frames were lost */
+#define FS_ASYNC_OVERRUN	0x02	/* UART overrun, lost bytes */
+#define FS_ASYNC_FRAMING	0x04	/* bad character (framing error?) */
+#define FS_ASYNC_PPP		0x08	/* PPP frame */
+#define FS_ASYNC_SLIP		0x10	/* SLIP frame */
+#define FS_ASYNC_ALIGN		0x20	/* alignment or DLPP(?) error */
+#define FS_ASYNC_OVERRUN2	0x40	/* overrun or bad frame length */
 
 /*
  * Sniffer type 4 data record format - followed by frame data.
@@ -354,7 +423,7 @@ struct frame6_rec {
 static double Usec[] = { 15.0, 0.838096, 15.0, 0.5, 2.0, 1.0, 0.1 };
 
 static int process_header_records(wtap *wth, int *err, gchar **err_info,
-    gint16 maj_vers);
+    gint16 maj_vers, guint8 network);
 static int process_rec_header2_v2(wtap *wth, unsigned char *buffer,
     guint16 length, int *err, gchar **err_info);
 static int process_rec_header2_v145(wtap *wth, unsigned char *buffer,
@@ -517,9 +586,12 @@ int ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	 * the DOS Sniffer understands?
 	 */
 	maj_vers = pletohs(&version.maj_vers);
-	if (process_header_records(wth, err, err_info, maj_vers) < 0)
+	if (process_header_records(wth, err, err_info, maj_vers,
+	    version.network) < 0)
 		return -1;
-	if (wth->file_encap == WTAP_ENCAP_PER_PACKET) {
+	if ((version.network == NETWORK_SYNCHRO ||
+	    version.network == NETWORK_ASYNC) &&
+	    wth->file_encap == WTAP_ENCAP_PER_PACKET) {
 		/*
 		 * Well, we haven't determined the internetwork analyzer
 		 * subtype yet...
@@ -594,8 +666,7 @@ int ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_close = ngsniffer_close;
 	wth->snapshot_length = 0;	/* not available in header, only in frame */
 	wth->capture.ngsniffer->timeunit = Usec[version.timeunit];
-	wth->capture.ngsniffer->is_atm =
-	    (wth->file_encap == WTAP_ENCAP_ATM_PDUS);
+	wth->capture.ngsniffer->network = version.network;
 
 	/* Get capture start time */
 	start_time = pletohs(&version.time);
@@ -634,7 +705,8 @@ int ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 }
 
 static int
-process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers)
+process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers,
+    guint8 network)
 {
 	int bytes_read;
 	char record_type[2];
@@ -689,14 +761,16 @@ process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers)
 		length = pletohs(record_length);
 
 		/*
-		 * Do we not yet know the encapsulation type (i.e., is
-		 * this is an "Internetwork analyzer" capture?), and
+		 * Is this is an "Internetwork analyzer" capture, and
 		 * is this a REC_HEADER2 record?
 		 *
 		 * If so, it appears to specify the particular type
 		 * of network we're on.
+		 *
+		 * XXX - handle sync and async differently?  (E.g.,
+		 * does this apply only to sync?)
 		 */
-		if (wth->file_encap == WTAP_ENCAP_PER_PACKET &&
+		if ((network == NETWORK_SYNCHRO || network == NETWORK_ASYNC) &&
 		    type == REC_HEADER2) {
 			/*
 			 * Yes, get the first up-to-256 bytes of the
@@ -919,7 +993,7 @@ static gboolean ngsniffer_read(wtap *wth, int *err, gchar **err_info,
 		switch (type) {
 
 		case REC_FRAME2:
-			if (wth->capture.ngsniffer->is_atm) {
+			if (wth->capture.ngsniffer->network == NETWORK_ATM) {
 				/*
 				 * We shouldn't get a frame2 record in
 				 * an ATM capture.
@@ -951,7 +1025,7 @@ static gboolean ngsniffer_read(wtap *wth, int *err, gchar **err_info,
 			goto found;
 
 		case REC_FRAME4:
-			if (!wth->capture.ngsniffer->is_atm) {
+			if (wth->capture.ngsniffer->network != NETWORK_ATM) {
 				/*
 				 * We shouldn't get a frame2 record in
 				 * a non-ATM capture.
@@ -1269,29 +1343,29 @@ static void set_pseudo_header_frame2(wtap *wth,
 
 	case WTAP_ENCAP_PPP_WITH_PHDR:
 	case WTAP_ENCAP_SDLC:
-		pseudo_header->p2p.sent = (frame2->fs & 0x80) ? TRUE : FALSE;
+		pseudo_header->p2p.sent = (frame2->fs & FS_WAN_DTE) ? TRUE : FALSE;
 		break;
 
 	case WTAP_ENCAP_LAPB:
 	case WTAP_ENCAP_FRELAY_WITH_PHDR:
 	case WTAP_ENCAP_PER_PACKET:
-		pseudo_header->x25.flags = (frame2->fs & 0x80) ? 0x00 : FROM_DCE;
+		pseudo_header->x25.flags = (frame2->fs & FS_WAN_DTE) ? 0x00 : FROM_DCE;
 		break;
 
 	case WTAP_ENCAP_ISDN:
-		pseudo_header->isdn.uton = (frame2->fs & 0x80) ? FALSE : TRUE;
-		switch (frame2->fs & 0x18) {
+		pseudo_header->isdn.uton = (frame2->fs & FS_WAN_DTE) ? FALSE : TRUE;
+		switch (frame2->fs & FS_ISDN_CHAN_MASK) {
 
-		case 0x18:
+		case FS_ISDN_CHAN_D:
 			pseudo_header->isdn.channel = 0;	/* D-channel */
 			break;
 
-		case 0x08:
+		case FS_ISDN_CHAN_B1:
 			pseudo_header->isdn.channel = 1;	/* B1-channel */
 			break;
 
-		case 0x10:
-			pseudo_header->isdn.channel = 2;	/* B1-channel */
+		case FS_ISDN_CHAN_B2:
+			pseudo_header->isdn.channel = 2;	/* B2-channel */
 			break;
 
 		default:
@@ -1979,10 +2053,40 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     rec_hdr.time_med = htoles(t_med);
     rec_hdr.time_high = htoles(t_high);
     rec_hdr.size = htoles(phdr->caplen);
-    if (wdh->encap == WTAP_ENCAP_LAPB || wdh->encap == WTAP_ENCAP_PPP_WITH_PHDR)
-	rec_hdr.fs = (pseudo_header->x25.flags & FROM_DCE) ? 0x00 : 0x80;
-    else
+    switch (wdh->encap) {
+
+    case WTAP_ENCAP_LAPB:
+    case WTAP_ENCAP_FRELAY_WITH_PHDR:
+	rec_hdr.fs = (pseudo_header->x25.flags & FROM_DCE) ? 0x00 : FS_WAN_DTE;
+	break;
+
+    case WTAP_ENCAP_PPP_WITH_PHDR:
+    case WTAP_ENCAP_SDLC:
+	rec_hdr.fs = pseudo_header->p2p.sent ? 0x00 : FS_WAN_DTE;
+	break;
+
+    case WTAP_ENCAP_ISDN:
+	rec_hdr.fs = pseudo_header->isdn.uton ? FS_WAN_DTE : 0x00;
+	switch (pseudo_header->isdn.channel) {
+
+	case 0:		/* D-channel */
+	    rec_hdr.fs |= FS_ISDN_CHAN_D;
+	    break;
+
+	case 1:		/* B1-channel */
+	    rec_hdr.fs |= FS_ISDN_CHAN_B1;
+	    break;
+
+	case 2:		/* B2-channel */
+	    rec_hdr.fs |= FS_ISDN_CHAN_B2;
+	    break;
+	}
+	break;
+
+    default:
 	rec_hdr.fs = 0;
+	break;
+    }
     rec_hdr.flags = 0;
     rec_hdr.true_size = phdr->len != phdr->caplen ? htoles(phdr->len) : 0;
     rec_hdr.rsvd = 0;
