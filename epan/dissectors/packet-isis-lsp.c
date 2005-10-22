@@ -39,6 +39,7 @@
 #include "packet-isis-clv.h"
 #include "packet-isis-lsp.h"
 #include <epan/addr_resolv.h>
+#include <epan/addr_and_mask.h>
 
 /* lsp packets */
 static int hf_isis_lsp_pdu_length = -1;
@@ -689,7 +690,8 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
 	proto_tree *subtree = NULL;
 	proto_tree *subtree2 = NULL;
 	guint8     ctrl_info;
-	guint      bit_length, byte_length;
+	guint      bit_length;
+	int        byte_length;
 	guint8     prefix [4];
 	guint32    metric;
 	guint      len,i;
@@ -699,16 +701,14 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
 	if (!tree) return;
 
 	while (length > 0) {
-		memset (prefix, 0, 4);
 		ctrl_info = tvb_get_guint8(tvb, offset+4);
 		bit_length = ctrl_info & 0x3f;
-		byte_length = (bit_length + 7) / 8;
-		if (byte_length > sizeof(prefix)) {
+		byte_length = ipv4_addr_and_mask(tvb, offset+5, prefix, bit_length);
+		if (byte_length == -1) {
 			 isis_dissect_unknown(tvb, tree, offset,
-			 	"IPv4 prefix has an invalid length: %d bytes", byte_length );
+			 	"IPv4 prefix has an invalid length: %d bits", bit_length );
       			return;
     		}
- 		tvb_memcpy (tvb, prefix, offset+5, byte_length);
 		metric = tvb_get_ntohl(tvb, offset);
 		subclvs_len = 0;
 		if ((ctrl_info & 0x40) != 0)
@@ -792,7 +792,8 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	proto_tree        *subtree = NULL;
 	proto_tree        *subtree2 = NULL;
 	guint8            ctrl_info;
-	guint             bit_length, byte_length;
+	guint             bit_length;
+	int               byte_length;
 	struct e_in6_addr prefix;
 	guint32           metric;
 	guint             len,i;
@@ -802,16 +803,14 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	if (!tree) return;
 
 	while (length > 0) {
-		memset (prefix.bytes, 0, 16);
 		ctrl_info = tvb_get_guint8(tvb, offset+4);
 		bit_length = tvb_get_guint8(tvb, offset+5);
-		byte_length = (bit_length + 7) / 8;
-    		if (byte_length > sizeof(prefix)) {
+		byte_length = ipv6_addr_and_mask(tvb, offset+6, &prefix, bit_length);
+		if (byte_length == -1) {
 			isis_dissect_unknown(tvb, tree, offset,
-				"IPv6 prefix has an invalid length: %d bytes", byte_length );
+				"IPv6 prefix has an invalid length: %d bits", bit_length );
       			return;
     		}
- 		tvb_memcpy (tvb, prefix.bytes, offset+6, byte_length);
 		metric = tvb_get_ntohl(tvb, offset);
 		subclvs_len = 0;
 		if ((ctrl_info & 0x20) != 0)
