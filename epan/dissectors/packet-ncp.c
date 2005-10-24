@@ -146,9 +146,9 @@ static const value_string ncp_ip_signature[] = {
 };
 
 static const value_string burst_command[] = {
-    { 0x01000000, "Burst Read" },
-    { 0x02000000, "Burst Write" },
-    { 0, NULL },
+	{ 0x01000000, "Burst Read" },
+	{ 0x02000000, "Burst Write" },
+	{ 0, NULL },
 };
 
 /* The information in this module comes from:
@@ -308,7 +308,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		col_clear(pinfo->cinfo, COL_INFO);
 
 	hdr_offset = 0;
-    ncp_hdr = &header;
+	ncp_hdr = &header;
 	if (is_tcp) {
 		if (tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RQST && tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RPLY) 
 			hdr_offset += 1;
@@ -442,7 +442,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	header.conn_low		= tvb_get_guint8(tvb, commhdr+3);
 	header.conn_high	= tvb_get_guint8(tvb, commhdr+5);
 
-    tap_queue_packet(ncp_tap.hdr, pinfo, ncp_hdr);
+	tap_queue_packet(ncp_tap.hdr, pinfo, ncp_hdr);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -450,7 +450,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    val_to_str(header.type, ncp_type_vals, "Unknown type (0x%04x)"));
 	}
 
-    nw_connection = (header.conn_high * 256) + header.conn_low;
+	nw_connection = (header.conn_high << 8) + header.conn_low;
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_ncp, tvb, 0, -1, FALSE);
@@ -472,7 +472,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_uint(ncp_tree, hf_ncp_type,	tvb, commhdr + 0, 2, header.type);
 	}
 
-    /*
+	/*
 	 * Process the packet-type-specific header.
 	 */
 	switch (header.type) {
@@ -704,9 +704,17 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				/*break;*/
 			}
 		}
+		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
+		dissect_ncp_request(next_tvb, pinfo, nw_connection,
+		    header.sequence, header.type, ncp_tree);
+		break;
 
-    case NCP_DEALLOCATE_SLOT:	/* Deallocate Slot Request */
-        break;
+	case NCP_DEALLOCATE_SLOT:	/* Deallocate Slot Request */
+		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
+		dissect_ncp_request(next_tvb, pinfo, nw_connection,
+		    header.sequence, header.type, ncp_tree);
+		break;
+
 	case NCP_SERVICE_REQUEST:	/* Server NCP Request */
 	case NCP_BROADCAST_SLOT:	/* Server Broadcast Packet */
 		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
@@ -826,7 +834,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    "%s packets not supported yet",
 			    val_to_str(header.type, ncp_type_vals,
 				"Unknown type (0x%04x)"));
-            expert_add_info_format(pinfo, expert_item, PI_UNDECODED, PI_NOTE, "%s packets not supported yet", val_to_str(header.type, ncp_type_vals,
+		    expert_add_info_format(pinfo, expert_item, PI_UNDECODED, PI_NOTE, "%s packets not supported yet", val_to_str(header.type, ncp_type_vals,
 				"Unknown type (0x%04x)"));
 		}
 		break;
