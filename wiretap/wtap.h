@@ -473,6 +473,7 @@ typedef union {
 	struct {
 		guint16 vp;
 		guint16 vc;
+        guint16 cid;
 	} atm;
 	
 	guint32 ds0mask;
