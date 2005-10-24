@@ -38,6 +38,25 @@
 #ifndef PACKET_FTAM_H
 #define PACKET_FTAM_H
 
-/*#include "packet-ftam-exp.h"*/
+
+/*--- Included file: packet-ftam-exp.h ---*/
+
+extern const value_string ftam_Date_and_Time_Attribute_vals[];
+extern const value_string ftam_Object_Availability_Attribute_vals[];
+extern const value_string ftam_Object_Size_Attribute_vals[];
+extern const value_string ftam_Legal_Qualification_Attribute_vals[];
+extern const value_string ftam_Private_Use_Attribute_vals[];
+int dissect_ftam_Concurrency_Access(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_ftam_Date_and_Time_Attribute(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_ftam_Object_Availability_Attribute(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_ftam_Object_Size_Attribute(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_ftam_Legal_Qualification_Attribute(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_ftam_Permitted_Actions_Attribute(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_ftam_Private_Use_Attribute(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_ftam_Attribute_Extensions(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_ftam_Pathname(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+
+/*--- End of included file: packet-ftam-exp.h ---*/
+
 
 #endif  /* PACKET_FTAM_H */

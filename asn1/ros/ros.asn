@@ -49,13 +49,15 @@ Invoke --{InvokeId:InvokeIdSet, OPERATION:Operations}-- ::= SEQUENCE {
 --   RejectProblem:invoke-unrecognizedLinkedId)
 --  (CONSTRAINED BY { - - which has one or more linked operations- -} !
 --   RejectProblem:invoke-linkedResponseUnexpected)-- OPTIONAL,
-  opcode INTEGER
+  opcode OperationCode
 --    OPERATION.&operationCode
 --      ({Operations} !RejectProblem:invoke-unrecognizedOperation)--,
   argument
 --    OPERATION.&ArgumentType
 --      ({Operations}{@opcode} !RejectProblem:invoke-mistypedArgument) -- ANY OPTIONAL
 }
+OperationCode ::= INTEGER
+
 --(CONSTRAINED BY { - - must conform to the above definition - -} !
 -- RejectProblem:general-mistypedPDU)
 --(WITH COMPONENTS {
@@ -78,7 +80,7 @@ ReturnResult --{OPERATION:Operations}-- ::= SEQUENCE {
 --      (CONSTRAINED BY { - - which returns a result - -} !
 --       RejectProblem:returnResult-resultResponseUnexpected)--,
   result
-    SEQUENCE {opcode INTEGER
+    SEQUENCE {opcode OperationCode
 --                OPERATION.&operationCode({Operations})
 --                  (CONSTRAINED BY { - - identified by invokeId - -} !
 --                   RejectProblem:returnResult-unrecognizedInvocation)--,
@@ -97,7 +99,7 @@ ReturnError --{ERROR:Errors}-- ::= SEQUENCE {
 --       RejectProblem:returnError-unrecognizedInvocation)
 --      (CONSTRAINED BY { - - which returns an error - -} !
 --       RejectProblem:returnError-errorResponseUnexpected) --,
-  errcode INTEGER
+  errcode ErrorCode
 --    ERROR.&errorCode({Errors} !RejectProblem:returnError-unrecognizedError)
 --      (CONSTRAINED BY { - - must be in the &Errors field of the associated operation - -
 --         } !RejectProblem:returnError-unexpectedError)--,
@@ -108,6 +110,8 @@ ReturnError --{ERROR:Errors}-- ::= SEQUENCE {
 }
 --(CONSTRAINED BY { - - must conform to the above definition - -} !
 -- RejectProblem:general-mistypedPDU)
+
+ErrorCode ::= INTEGER
 
 Reject ::= SEQUENCE {
   invokeId  InvokeId,

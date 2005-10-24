@@ -2,7 +2,21 @@
 InvokeId
 Code
 
-#.FN_BODY opcode
+#.TYPE_RENAME
+ReturnResult/result/result	OperationResult
+
+#.FIELD_RENAME
+Reject/problem/invoke		invokeProblem
+ReturnResult/result/result	operationResult
+Reject/problem/returnError	rejectError
+Reject/problem/returnResult	rejectResult
+
+#.FN_BODY OperationCode
+
+  offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_index,
+                                  &opcode);
+
+#.FN_BODY ErrorCode
 
   offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_index,
                                   &opcode);
@@ -26,7 +40,7 @@ Code
 	offset = call_ros_oid_callback(oid, tvb, offset, pinfo, top_tree);
   }
 
-#.FN_BODY T_result1
+#.FN_BODY OperationResult
   char *oid;
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "return result");

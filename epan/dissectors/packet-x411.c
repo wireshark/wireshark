@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-x411.c                                                            */
+/* .\packet-x411.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p x411 -c x411.cnf -s packet-x411-template x411.asn */
 
 /* Input file: packet-x411-template.c */
@@ -53,7 +53,7 @@
 
 #include "packet-x411.h"
 
-#define PNAME  "X.411 OSI Message Transfer Service"
+#define PNAME  "X.411 Message Transfer Service"
 #define PSNAME "X411"
 #define PFNAME "x411"
 
@@ -63,12 +63,19 @@ int proto_x411 = -1;
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 static int extension_id = 0; /* integer extension id */
 static char object_identifier_id[BER_MAX_OID_STR_LEN]; /* content type identifier */
+
+static proto_tree *top_tree=NULL;
+
 static int
 call_x411_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
 
 /*--- Included file: packet-x411-hf.c ---*/
 
+static int hf_x411_MTABindArgument_PDU = -1;      /* MTABindArgument */
+static int hf_x411_MTABindResult_PDU = -1;        /* MTABindResult */
+static int hf_x411_MTABindError_PDU = -1;         /* MTABindError */
+static int hf_x411_MTS_APDU_PDU = -1;             /* MTS_APDU */
 static int hf_x411_InternalTraceInformation_PDU = -1;  /* InternalTraceInformation */
 static int hf_x411_TraceInformation_PDU = -1;     /* TraceInformation */
 static int hf_x411_RecipientReassignmentProhibited_PDU = -1;  /* RecipientReassignmentProhibited */
@@ -712,9 +719,17 @@ static int dissect_empty_result(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_x411_MTAName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+	tvbuff_t	*mtaname;
+
+	  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
                                             pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+                                            &mtaname);
+
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", tvb_get_string(mtaname, 0, tvb_length(mtaname)));
+	}
+
 
   return offset;
 }
@@ -1556,10 +1571,8 @@ static int dissect_built_in_domain_defined_attributes(packet_info *pinfo, proto_
 
 static int
 dissect_x411_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   &extension_id);
-
 
   return offset;
 }
@@ -1900,8 +1913,9 @@ static int
 dissect_x411_BuiltInContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   guint32	ict = -1;	
 
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+    offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   &ict);
+
 
   /* convert integer content type to oid for dispatch when the content is found */
   switch(ict) {
@@ -1929,10 +1943,7 @@ static int dissect_built_in_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 static int
 dissect_x411_ExtendedContentType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
-                                         hf_index, object_identifier_id);
-
-
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, object_identifier_id);
 
   return offset;
 }
@@ -2546,7 +2557,7 @@ dissect_x411_Content(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
   offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_index, &next_tvb);
 
   if (next_tvb)
-    (void) call_ber_oid_callback(object_identifier_id, next_tvb, 0, pinfo, tree);
+    (void) call_ber_oid_callback(object_identifier_id, next_tvb, 0, pinfo, top_tree ? top_tree : tree);
 
 
   return offset;
@@ -6291,6 +6302,18 @@ dissect_x411_NonBasicParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 
 /*--- PDUs ---*/
 
+static void dissect_MTABindArgument_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x411_MTABindArgument(FALSE, tvb, 0, pinfo, tree, hf_x411_MTABindArgument_PDU);
+}
+static void dissect_MTABindResult_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x411_MTABindResult(FALSE, tvb, 0, pinfo, tree, hf_x411_MTABindResult_PDU);
+}
+static void dissect_MTABindError_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x411_MTABindError(FALSE, tvb, 0, pinfo, tree, hf_x411_MTABindError_PDU);
+}
+static void dissect_MTS_APDU_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x411_MTS_APDU(FALSE, tvb, 0, pinfo, tree, hf_x411_MTS_APDU_PDU);
+}
 static void dissect_InternalTraceInformation_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_x411_InternalTraceInformation(FALSE, tvb, 0, pinfo, tree, hf_x411_InternalTraceInformation_PDU);
 }
@@ -6434,10 +6457,13 @@ static void dissect_PhysicalDeliveryOfficeName_PDU(tvbuff_t *tvb, packet_info *p
 static int
 call_x411_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-  
+  char *name = NULL;
   char extension_oid[BER_MAX_OID_STR_LEN];
 
   sprintf(extension_oid, "%s.%d", base_oid, extension_id);	
+
+  name = get_ber_oid_name(extension_oid);
+  proto_item_append_text(tree, " (%s)", name ? name : extension_oid); 
 
   return call_ber_oid_callback(extension_oid, tvb, offset, pinfo, tree);
 
@@ -6456,6 +6482,10 @@ dissect_x411(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree *tree=NULL;
 	int (*x411_dissector)(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) = NULL;
 	char *x411_op_name;
+	int hf_x411_index;
+
+	/* save parent_tree so subdissectors can create new top nodes */
+	top_tree=parent_tree;
 
 	/* do we have operation information from the ROS dissector?  */
 	if( !pinfo->private_data ){
@@ -6473,22 +6503,30 @@ dissect_x411(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		tree = proto_item_add_subtree(item, ett_x411);
 	}
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "X411");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "P1");
   	if (check_col(pinfo->cinfo, COL_INFO))
   		col_clear(pinfo->cinfo, COL_INFO);
 
 	switch(session->ros_op & ROS_OP_MASK) {
 	case (ROS_OP_BIND | ROS_OP_ARGUMENT):	/*  BindInvoke */
 	  x411_dissector = dissect_x411_MTABindArgument;
-	  x411_op_name = "MTA-Bind-Argument";
+	  x411_op_name = "Bind-Argument";
+	  hf_x411_index = hf_x411_MTABindArgument_PDU;
 	  break;
 	case (ROS_OP_BIND | ROS_OP_RESULT):	/*  BindResult */
 	  x411_dissector = dissect_x411_MTABindResult;
-	  x411_op_name = "MTA-Bind-Result";
+	  x411_op_name = "Bind-Result";
+	  hf_x411_index = hf_x411_MTABindResult_PDU;
+	  break;
+	case (ROS_OP_BIND | ROS_OP_ERROR):	/*  BindError */
+	  x411_dissector = dissect_x411_MTABindError;
+	  x411_op_name = "Bind-Error";
+	  hf_x411_index = hf_x411_MTABindError_PDU;
 	  break;
 	case (ROS_OP_INVOKE | ROS_OP_ARGUMENT):	/*  Invoke Argument */
 	  x411_dissector = dissect_x411_MTS_APDU;
-	  x411_op_name = "MTA-Transfer";
+	  x411_op_name = "Transfer";
+	  hf_x411_index = hf_x411_MTS_APDU_PDU;
 	  break;
 	default:
 	  proto_tree_add_text(tree, tvb, offset, -1,"Unsupported X411 PDU");
@@ -6500,7 +6538,7 @@ dissect_x411(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
 		old_offset=offset;
-		offset=(*x411_dissector)(TRUE, tvb, offset, pinfo , tree, -1);
+		offset=(*x411_dissector)(FALSE, tvb, offset, pinfo , tree, hf_x411_index);
 		if(offset == old_offset){
 			proto_tree_add_text(tree, tvb, offset, -1,"Internal error, zero-byte X411 PDU");
 			offset = tvb_length(tvb);
@@ -6519,6 +6557,22 @@ void proto_register_x411(void) {
 
 /*--- Included file: packet-x411-hfarr.c ---*/
 
+    { &hf_x411_MTABindArgument_PDU,
+      { "MTABindArgument", "x411.MTABindArgument",
+        FT_UINT32, BASE_DEC, VALS(x411_MTABindArgument_vals), 0,
+        "MTABindArgument", HFILL }},
+    { &hf_x411_MTABindResult_PDU,
+      { "MTABindResult", "x411.MTABindResult",
+        FT_UINT32, BASE_DEC, VALS(x411_MTABindResult_vals), 0,
+        "MTABindResult", HFILL }},
+    { &hf_x411_MTABindError_PDU,
+      { "MTABindError", "x411.MTABindError",
+        FT_UINT32, BASE_DEC, VALS(x411_MTABindError_vals), 0,
+        "MTABindError", HFILL }},
+    { &hf_x411_MTS_APDU_PDU,
+      { "MTS-APDU", "x411.MTS_APDU",
+        FT_UINT32, BASE_DEC, VALS(x411_MTS_APDU_vals), 0,
+        "MTS-APDU", HFILL }},
     { &hf_x411_InternalTraceInformation_PDU,
       { "InternalTraceInformation", "x411.InternalTraceInformation",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -8412,26 +8466,18 @@ void proto_reg_handoff_x411(void) {
 /*--- End of included file: packet-x411-dis-tab.c ---*/
 
 
+  /* APPLICATION CONTEXT */
+
   register_ber_oid_name("2.6.0.1.6", "id-ac-mts-transfer");
 
-  /* we register RTSE with BER (which is used by ACSE) */
-  if((handle = find_dissector("rtse")) != NULL) {
-    register_ber_oid_dissector_handle("2.6.0.2.12", handle, 0 , "id-as-mta-rtse");
-    register_ber_oid_dissector_handle("2.6.0.2.7", handle, 0 , "id-as-mtse");
-  }
+  /* ABSTRACT SYNTAXES */
 
-  /* then register ROS with RTSE  */
-  if((handle = find_dissector("ros")) != NULL) {
-    register_rtse_oid_dissector_handle("2.6.0.2.12", handle, 0 , "id-as-mta-rtse");
-  }
-
-  /* and then finally X411 with ROS  and RTSE */
   if((handle = find_dissector("x411")) != NULL) {
-    register_ros_oid_dissector_handle("2.6.0.2.12", handle, 0, "id-as-mta-rtse"); 
-    register_rtse_oid_dissector_handle("2.6.0.2.7", handle, 0, "id-as-mtse");
+    register_rtse_oid_dissector_handle("2.6.0.2.12", handle, 0, "id-as-mta-rtse", TRUE); 
+    register_rtse_oid_dissector_handle("2.6.0.2.7", handle, 0, "id-as-mtse", FALSE);
 
-    register_rtse_oid_dissector_handle("applicationProtocol.1", handle, 0, "mts-transfer-protocol-1984");
-    register_rtse_oid_dissector_handle("applicationProtocol.12", handle, 0, "mta-transfer-protocol");
+    register_rtse_oid_dissector_handle("applicationProtocol.1", handle, 0, "mts-transfer-protocol-1984", FALSE);
+    register_rtse_oid_dissector_handle("applicationProtocol.12", handle, 0, "mta-transfer-protocol", FALSE);
   }
 
 

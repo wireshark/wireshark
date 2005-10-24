@@ -1713,7 +1713,7 @@ static const ber_sequence_t Pathname_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_GraphicString, BER_FLAGS_NOOWNTAG, dissect_Pathname_item },
 };
 
-static int
+int
 dissect_ftam_Pathname(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                       Pathname_sequence_of, hf_index, ett_ftam_Pathname);
@@ -2199,7 +2199,7 @@ static const asn_namedbit Permitted_Actions_Attribute_bits[] = {
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
-static int
+int
 dissect_ftam_Permitted_Actions_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
                                     Permitted_Actions_Attribute_bits, hf_index, ett_ftam_Permitted_Actions_Attribute,
@@ -2380,7 +2380,7 @@ static int dissect_actual_values8_impl(packet_info *pinfo, proto_tree *tree, tvb
 }
 
 
-static const value_string ftam_Object_Availability_Attribute_vals[] = {
+const value_string ftam_Object_Availability_Attribute_vals[] = {
   {   0, "no-value-available" },
   {   1, "actual-values" },
   { 0, NULL }
@@ -2392,7 +2392,7 @@ static const ber_choice_t Object_Availability_Attribute_choice[] = {
   { 0, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_ftam_Object_Availability_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  Object_Availability_Attribute_choice, hf_index, ett_ftam_Object_Availability_Attribute,
@@ -2405,7 +2405,7 @@ static int dissect_object_availability(packet_info *pinfo, proto_tree *tree, tvb
 }
 
 
-static const value_string ftam_Object_Size_Attribute_vals[] = {
+const value_string ftam_Object_Size_Attribute_vals[] = {
   {   0, "no-value-available" },
   {   1, "actual-values" },
   { 0, NULL }
@@ -2417,7 +2417,7 @@ static const ber_choice_t Object_Size_Attribute_choice[] = {
   { 0, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_ftam_Object_Size_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  Object_Size_Attribute_choice, hf_index, ett_ftam_Object_Size_Attribute,
@@ -2487,7 +2487,7 @@ static const ber_sequence_t Concurrency_Access_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_ftam_Concurrency_Access(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    Concurrency_Access_sequence, hf_index, ett_ftam_Concurrency_Access);
@@ -2631,7 +2631,7 @@ static int dissect_path_access_control(packet_info *pinfo, proto_tree *tree, tvb
 }
 
 
-static const value_string ftam_Legal_Qualification_Attribute_vals[] = {
+const value_string ftam_Legal_Qualification_Attribute_vals[] = {
   {   0, "no-value-available" },
   {   1, "actual-values" },
   { 0, NULL }
@@ -2643,7 +2643,7 @@ static const ber_choice_t Legal_Qualification_Attribute_choice[] = {
   { 0, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_ftam_Legal_Qualification_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  Legal_Qualification_Attribute_choice, hf_index, ett_ftam_Legal_Qualification_Attribute,
@@ -2656,7 +2656,7 @@ static int dissect_legal_qualification(packet_info *pinfo, proto_tree *tree, tvb
 }
 
 
-static const value_string ftam_Private_Use_Attribute_vals[] = {
+const value_string ftam_Private_Use_Attribute_vals[] = {
   {   0, "no-value-available" },
   {   1, "abstract-Syntax-not-supported" },
   {   2, "actual-values" },
@@ -2670,7 +2670,7 @@ static const ber_choice_t Private_Use_Attribute_choice[] = {
   { 0, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_ftam_Private_Use_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  Private_Use_Attribute_choice, hf_index, ett_ftam_Private_Use_Attribute,
@@ -2686,8 +2686,7 @@ static int dissect_private_use(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 static int
 dissect_ftam_Extension_Set_Identifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -2699,8 +2698,7 @@ static int dissect_extension_set_identifier_impl(packet_info *pinfo, proto_tree 
 
 static int
 dissect_ftam_T_extension_attribute_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            object_identifier_id);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, object_identifier_id);
 
   return offset;
 }
@@ -2778,7 +2776,7 @@ static const ber_sequence_t Attribute_Extensions_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_Attribute_Extensions_item },
 };
 
-static int
+int
 dissect_ftam_Attribute_Extensions(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                       Attribute_Extensions_sequence_of, hf_index, ett_ftam_Attribute_Extensions);
@@ -2957,8 +2955,7 @@ static int dissect_attribute_names_impl(packet_info *pinfo, proto_tree *tree, tv
 
 static int
 dissect_ftam_Extension_Attribute_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -3066,7 +3063,7 @@ static int dissect_time_and_date_value_impl(packet_info *pinfo, proto_tree *tree
 }
 
 
-static const value_string ftam_Date_and_Time_Attribute_vals[] = {
+const value_string ftam_Date_and_Time_Attribute_vals[] = {
   {   0, "no-value-available" },
   {   1, "actual-values" },
   { 0, NULL }
@@ -3078,7 +3075,7 @@ static const ber_choice_t Date_and_Time_Attribute_choice[] = {
   { 0, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_ftam_Date_and_Time_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  Date_and_Time_Attribute_choice, hf_index, ett_ftam_Date_and_Time_Attribute,
@@ -4674,8 +4671,7 @@ static int dissect_permitted_actions_Pattern_impl(packet_info *pinfo, proto_tree
 
 static int
 dissect_ftam_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -4820,8 +4816,7 @@ static int dissect_object_availabiiity_Pattern_impl(packet_info *pinfo, proto_tr
 
 static int
 dissect_ftam_T_extension_attribute_identifier1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            object_identifier_id);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, object_identifier_id);
 
   return offset;
 }
@@ -7370,11 +7365,11 @@ void proto_register_ftam(void) {
         "Path-Access-Passwords/_item", HFILL }},
     { &hf_ftam_ap,
       { "ap", "ftam.ap",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(acse_AP_title_vals), 0,
         "AE-title/ap", HFILL }},
     { &hf_ftam_ae,
       { "ae", "ftam.ae",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(acse_ASO_qualifier_vals), 0,
         "AE-title/ae", HFILL }},
     { &hf_ftam_Attribute_Value_Assertions_item,
       { "Item", "ftam.Attribute_Value_Assertions_item",

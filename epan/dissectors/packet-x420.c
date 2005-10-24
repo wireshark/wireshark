@@ -50,7 +50,7 @@
 
 #include "packet-x420.h"
 
-#define PNAME  "X.420 OSI Information Object"
+#define PNAME  "X.420 Information Object"
 #define PSNAME "X420"
 #define PFNAME "x420"
 
@@ -62,6 +62,9 @@ static char object_identifier_id[BER_MAX_OID_STR_LEN]; /* content type identifie
 
 /*--- Included file: packet-x420-hf.c ---*/
 
+static int hf_x420_AbsenceAdvice_PDU = -1;        /* AbsenceAdvice */
+static int hf_x420_ChangeOfAddressAdvice_PDU = -1;  /* ChangeOfAddressAdvice */
+static int hf_x420_IPMAssemblyInstructions_PDU = -1;  /* IPMAssemblyInstructions */
 static int hf_x420_OriginatingUA_PDU = -1;        /* OriginatingUA */
 static int hf_x420_ipm = -1;                      /* IPM */
 static int hf_x420_ipn = -1;                      /* IPN */
@@ -231,7 +234,6 @@ static gint ett_x420_MessageBodyPart = -1;
 static gint ett_x420_MessageParameters = -1;
 static gint ett_x420_IPN = -1;
 static gint ett_x420_T_choice = -1;
-static gint ett_x420_CommonFields = -1;
 static gint ett_x420_NonReceiptFields = -1;
 static gint ett_x420_ReceiptFields = -1;
 static gint ett_x420_NotificationExtensionsField = -1;
@@ -483,9 +485,13 @@ static int dissect_telex_compatible_impl(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_x420_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  char *name = NULL;
 
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            object_identifier_id);
+    offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, object_identifier_id);
+
+  
+  name = get_ber_oid_name(object_identifier_id);
+  proto_item_append_text(tree, " (%s)", name ? name : object_identifier_id); 
 
 
   return offset;
@@ -849,7 +855,7 @@ static const ber_sequence_t ExtensionsField_set_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_ExtensionsField_item },
 };
 
-static int
+int
 dissect_x420_ExtensionsField(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
                                  ExtensionsField_set_of, hf_index, ett_x420_ExtensionsField);
@@ -1044,6 +1050,7 @@ static int dissect_g3_facsimile_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_x420_Interchange_Data_Element(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+/*ARGSUSED*/
 /* XXX Not implemented yet */
 
 
@@ -1340,6 +1347,7 @@ static int dissect_bilaterally_defined_impl(packet_info *pinfo, proto_tree *tree
 
 static int
 dissect_x420_NationallyDefinedBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+/*ARGSUSED*/
 /* XXX Not implemented yet */
 
 
@@ -1438,8 +1446,14 @@ static const ber_sequence_t IPM_sequence[] = {
 
 static int
 dissect_x420_IPM(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+
+    offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    IPM_sequence, hf_index, ett_x420_IPM);
+
+ if((hf_index == hf_x420_ipm) && check_col(pinfo->cinfo, COL_INFO))
+   col_append_fstr(pinfo->cinfo, COL_INFO, " Message");
+
+
 
   return offset;
 }
@@ -1755,8 +1769,13 @@ static const ber_sequence_t IPN_set[] = {
 
 static int
 dissect_x420_IPN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
+
+    offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
                               IPN_set, hf_index, ett_x420_IPN);
+
+ if((hf_index == hf_x420_ipn) && check_col(pinfo->cinfo, COL_INFO))
+   col_append_fstr(pinfo->cinfo, COL_INFO, " Notification");
+
 
   return offset;
 }
@@ -1765,7 +1784,7 @@ static int dissect_ipn_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 }
 
 
-static const value_string x420_InformationObject_vals[] = {
+const value_string x420_InformationObject_vals[] = {
   {   0, "ipm" },
   {   1, "ipn" },
   { 0, NULL }
@@ -1777,29 +1796,11 @@ static const ber_choice_t InformationObject_choice[] = {
   { 0, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_x420_InformationObject(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  InformationObject_choice, hf_index, ett_x420_InformationObject,
                                  NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t CommonFields_set[] = {
-  { BER_CLASS_APP, 11, BER_FLAGS_NOOWNTAG, dissect_subject_ipm },
-  { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ipn_originator_impl },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ipm_intended_recipient_impl },
-  { BER_CLASS_APP, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_conversion_eits },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_notification_extensions_impl },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_x420_CommonFields(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
-                              CommonFields_set, hf_index, ett_x420_CommonFields);
 
   return offset;
 }
@@ -1959,6 +1960,15 @@ dissect_x420_OriginatingUA(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
 /*--- PDUs ---*/
 
+static void dissect_AbsenceAdvice_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_AbsenceAdvice(FALSE, tvb, 0, pinfo, tree, hf_x420_AbsenceAdvice_PDU);
+}
+static void dissect_ChangeOfAddressAdvice_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_ChangeOfAddressAdvice(FALSE, tvb, 0, pinfo, tree, hf_x420_ChangeOfAddressAdvice_PDU);
+}
+static void dissect_IPMAssemblyInstructions_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x420_IPMAssemblyInstructions(FALSE, tvb, 0, pinfo, tree, hf_x420_IPMAssemblyInstructions_PDU);
+}
 static void dissect_OriginatingUA_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   dissect_x420_OriginatingUA(FALSE, tvb, 0, pinfo, tree, hf_x420_OriginatingUA_PDU);
 }
@@ -1976,16 +1986,16 @@ dissect_x420(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	int offset = 0;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
-	int (*x420_dissector)(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) = NULL;
 
 	if(parent_tree){
 		item = proto_tree_add_item(parent_tree, proto_x420, tvb, 0, -1, FALSE);
 		tree = proto_item_add_subtree(item, ett_x420);
 	}
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "X420");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "P22");
 	if (check_col(pinfo->cinfo, COL_INFO))
-	  col_add_str(pinfo->cinfo, COL_INFO, "Interpersonal Message");
+	  col_add_str(pinfo->cinfo, COL_INFO, "InterPersonal");
 
 	dissect_x420_InformationObject(TRUE, tvb, offset, pinfo , tree, -1);
 }
@@ -2000,6 +2010,18 @@ void proto_register_x420(void) {
 
 /*--- Included file: packet-x420-hfarr.c ---*/
 
+    { &hf_x420_AbsenceAdvice_PDU,
+      { "AbsenceAdvice", "x420.AbsenceAdvice",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AbsenceAdvice", HFILL }},
+    { &hf_x420_ChangeOfAddressAdvice_PDU,
+      { "ChangeOfAddressAdvice", "x420.ChangeOfAddressAdvice",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ChangeOfAddressAdvice", HFILL }},
+    { &hf_x420_IPMAssemblyInstructions_PDU,
+      { "IPMAssemblyInstructions", "x420.IPMAssemblyInstructions",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "IPMAssemblyInstructions", HFILL }},
     { &hf_x420_OriginatingUA_PDU,
       { "OriginatingUA", "x420.OriginatingUA",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -2331,23 +2353,23 @@ void proto_register_x420(void) {
     { &hf_x420_subject_ipm,
       { "subject-ipm", "x420.subject_ipm",
         FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
+        "IPN/subject-ipm", HFILL }},
     { &hf_x420_ipn_originator,
       { "ipn-originator", "x420.ipn_originator",
         FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
+        "IPN/ipn-originator", HFILL }},
     { &hf_x420_ipm_intended_recipient,
       { "ipm-intended-recipient", "x420.ipm_intended_recipient",
         FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
+        "IPN/ipm-intended-recipient", HFILL }},
     { &hf_x420_conversion_eits,
       { "conversion-eits", "x420.conversion_eits",
         FT_NONE, BASE_NONE, NULL, 0,
-        "", HFILL }},
+        "IPN/conversion-eits", HFILL }},
     { &hf_x420_notification_extensions,
       { "notification-extensions", "x420.notification_extensions",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "", HFILL }},
+        "IPN/notification-extensions", HFILL }},
     { &hf_x420_choice,
       { "choice", "x420.choice",
         FT_UINT32, BASE_DEC, VALS(x420_T_choice_vals), 0,
@@ -2533,7 +2555,6 @@ void proto_register_x420(void) {
     &ett_x420_MessageParameters,
     &ett_x420_IPN,
     &ett_x420_T_choice,
-    &ett_x420_CommonFields,
     &ett_x420_NonReceiptFields,
     &ett_x420_ReceiptFields,
     &ett_x420_NotificationExtensionsField,
@@ -2568,6 +2589,9 @@ void proto_reg_handoff_x420(void) {
 /*--- Included file: packet-x420-dis-tab.c ---*/
 
   register_ber_oid_dissector("1.2.826.0.1004.10.1.1", dissect_OriginatingUA_PDU, proto_x420, "nexor-originating-ua");
+  register_ber_oid_dissector("2.6.1.19.0", dissect_AbsenceAdvice_PDU, proto_x420, "id-on-absence-advice");
+  register_ber_oid_dissector("2.6.1.19.1", dissect_ChangeOfAddressAdvice_PDU, proto_x420, "id-on-change-of-address-advice");
+  register_ber_oid_dissector("2.6.1.17.2", dissect_IPMAssemblyInstructions_PDU, proto_x420, "id-mst-assembly-instructions");
 
 
 /*--- End of included file: packet-x420-dis-tab.c ---*/
@@ -2575,6 +2599,6 @@ void proto_reg_handoff_x420(void) {
 
   register_ber_oid_dissector("2.6.1.10.0", dissect_x420, proto_x420, "InterPersonal Message (1984)");
   register_ber_oid_dissector("2.6.1.10.1", dissect_x420, proto_x420, "InterPersonal Message (1988)");
-  register_ber_oid_dissector("1.3.26.0.4406.0.4.1", dissect_x420, proto_x420, "Military Message");
+
 
 }

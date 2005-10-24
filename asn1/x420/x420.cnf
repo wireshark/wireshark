@@ -9,6 +9,8 @@ ACSE-1			acse
 
 #.EXPORTS
 ORDescriptor
+InformationObject
+ExtensionsField
 
 #.FIELD_RENAME
 
@@ -31,21 +33,51 @@ EncryptedBodyPart/parameters	encrypted_parameters
 TeletexParameters/non-basic-parameters		teletex_non_basic_parameters
 G3FacsimileParameters/non-basic-parameters	g3facsimile_non_basic_parameters
 
+#.PDU
+OriginatingUA
+AbsenceAdvice
+ChangeOfAddressAdvice
+IPMAssemblyInstructions
+
 #.REGISTER
-OriginatingUA B "1.2.826.0.1004.10.1.1" "nexor-originating-ua"
+OriginatingUA 		B "1.2.826.0.1004.10.1.1" "nexor-originating-ua"
+AbsenceAdvice		B "2.6.1.19.0"  "id-on-absence-advice"
+ChangeOfAddressAdvice	B "2.6.1.19.1"  "id-on-change-of-address-advice"
+IPMAssemblyInstructions	B "2.6.1.17.2"  "id-mst-assembly-instructions"
+
+#.FN_PARS IPMSExtension/type
+	VAL_PTR = object_identifier_id
 
 #.FN_BODY IPMSExtension/type
+  char *name = NULL;
 
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            object_identifier_id);
+  %(DEFAULT_BODY)s
+  
+  name = get_ber_oid_name(object_identifier_id);
+  proto_item_append_text(tree, " (%%s)", name ? name : object_identifier_id); 
 
 #.FN_BODY T_value
 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
+#.FN_BODY IPM
+
+  %(DEFAULT_BODY)s
+ if((hf_index == hf_x420_ipm) && check_col(pinfo->cinfo, COL_INFO))
+   col_append_fstr(pinfo->cinfo, COL_INFO, " Message");
+
+
+#.FN_BODY IPN
+
+  %(DEFAULT_BODY)s
+ if((hf_index == hf_x420_ipn) && check_col(pinfo->cinfo, COL_INFO))
+   col_append_fstr(pinfo->cinfo, COL_INFO, " Notification");
+
 #.FN_BODY Interchange_Data_Element
+/*ARGSUSED*/
 /* XXX Not implemented yet */
 
 #.FN_BODY NationallyDefinedBodyPart
+/*ARGSUSED*/
 /* XXX Not implemented yet */
 

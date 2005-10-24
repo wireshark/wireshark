@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-s4406.c                                                           */
+/* .\packet-s4406.c                                                           */
 /* ../../tools/asn2eth.py -X -b -e -p s4406 -c s4406.cnf -s packet-s4406-template s4406.asn */
 
 /* Input file: packet-s4406-template.c */
@@ -49,7 +49,7 @@
 #include "packet-x411.h" 
 #include "packet-x420.h" 
 
-#define PNAME  "STANAG 4406 Military Message Extensions"
+#define PNAME  "STANAG 4406 Military Message"
 #define PSNAME "STANAG 4406"
 #define PFNAME "s4406"
 
@@ -208,8 +208,7 @@ static int dissect_sics_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 static int
 dissect_s4406_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                            NULL);
+  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -222,6 +221,7 @@ static int dissect_dist_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 static int
 dissect_s4406_T_dist_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 /* XXX: not implemented */
+
   return offset;
 }
 static int dissect_dist_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -695,6 +695,29 @@ static void dissect_SecurityInformationLabels_PDU(tvbuff_t *tvb, packet_info *pi
 
 
 
+/*
+* Dissect STANAG 4406 PDUs inside a PPDU.
+*/
+static void
+dissect_s4406(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+{
+	int offset = 0;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+
+	if(parent_tree){
+		item = proto_tree_add_item(parent_tree, proto_s4406, tvb, 0, -1, FALSE);
+		tree = proto_item_add_subtree(item, ett_s4406);
+	}
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "S4406");
+	if (check_col(pinfo->cinfo, COL_INFO))
+	  col_add_str(pinfo->cinfo, COL_INFO, "Military");
+
+	dissect_x420_InformationObject(TRUE, tvb, offset, pinfo , tree, -1);
+}
+
 
 
 /*--- proto_register_s4406 -------------------------------------------*/
@@ -945,4 +968,5 @@ void proto_reg_handoff_s4406(void) {
 /*--- End of included file: packet-s4406-dis-tab.c ---*/
 
 
+  register_ber_oid_dissector("1.3.26.0.4406.0.4.1", dissect_s4406, proto_s4406, "Military Message");
 }

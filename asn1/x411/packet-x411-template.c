@@ -46,7 +46,7 @@
 
 #include "packet-x411.h"
 
-#define PNAME  "X.411 OSI Message Transfer Service"
+#define PNAME  "X.411 Message Transfer Service"
 #define PSNAME "X411"
 #define PFNAME "x411"
 
@@ -56,6 +56,9 @@ int proto_x411 = -1;
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 static int extension_id = 0; /* integer extension id */
 static char object_identifier_id[BER_MAX_OID_STR_LEN]; /* content type identifier */
+
+static proto_tree *top_tree=NULL;
+
 static int
 call_x411_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
@@ -70,10 +73,13 @@ static gint ett_x411 = -1;
 static int
 call_x411_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-  
+  char *name = NULL;
   char extension_oid[BER_MAX_OID_STR_LEN];
 
   sprintf(extension_oid, "%s.%d", base_oid, extension_id);	
+
+  name = get_ber_oid_name(extension_oid);
+  proto_item_append_text(tree, " (%s)", name ? name : extension_oid); 
 
   return call_ber_oid_callback(extension_oid, tvb, offset, pinfo, tree);
 
@@ -92,6 +98,10 @@ dissect_x411(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree *tree=NULL;
 	int (*x411_dissector)(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) = NULL;
 	char *x411_op_name;
+	int hf_x411_index;
+
+	/* save parent_tree so subdissectors can create new top nodes */
+	top_tree=parent_tree;
 
 	/* do we have operation information from the ROS dissector?  */
 	if( !pinfo->private_data ){
@@ -109,22 +119,30 @@ dissect_x411(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		tree = proto_item_add_subtree(item, ett_x411);
 	}
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "X411");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "P1");
   	if (check_col(pinfo->cinfo, COL_INFO))
   		col_clear(pinfo->cinfo, COL_INFO);
 
 	switch(session->ros_op & ROS_OP_MASK) {
 	case (ROS_OP_BIND | ROS_OP_ARGUMENT):	/*  BindInvoke */
 	  x411_dissector = dissect_x411_MTABindArgument;
-	  x411_op_name = "MTA-Bind-Argument";
+	  x411_op_name = "Bind-Argument";
+	  hf_x411_index = hf_x411_MTABindArgument_PDU;
 	  break;
 	case (ROS_OP_BIND | ROS_OP_RESULT):	/*  BindResult */
 	  x411_dissector = dissect_x411_MTABindResult;
-	  x411_op_name = "MTA-Bind-Result";
+	  x411_op_name = "Bind-Result";
+	  hf_x411_index = hf_x411_MTABindResult_PDU;
+	  break;
+	case (ROS_OP_BIND | ROS_OP_ERROR):	/*  BindError */
+	  x411_dissector = dissect_x411_MTABindError;
+	  x411_op_name = "Bind-Error";
+	  hf_x411_index = hf_x411_MTABindError_PDU;
 	  break;
 	case (ROS_OP_INVOKE | ROS_OP_ARGUMENT):	/*  Invoke Argument */
 	  x411_dissector = dissect_x411_MTS_APDU;
-	  x411_op_name = "MTA-Transfer";
+	  x411_op_name = "Transfer";
+	  hf_x411_index = hf_x411_MTS_APDU_PDU;
 	  break;
 	default:
 	  proto_tree_add_text(tree, tvb, offset, -1,"Unsupported X411 PDU");
@@ -136,7 +154,7 @@ dissect_x411(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
 		old_offset=offset;
-		offset=(*x411_dissector)(TRUE, tvb, offset, pinfo , tree, -1);
+		offset=(*x411_dissector)(FALSE, tvb, offset, pinfo , tree, hf_x411_index);
 		if(offset == old_offset){
 			proto_tree_add_text(tree, tvb, offset, -1,"Internal error, zero-byte X411 PDU");
 			offset = tvb_length(tvb);
@@ -177,26 +195,18 @@ void proto_reg_handoff_x411(void) {
 
 #include "packet-x411-dis-tab.c"
 
+  /* APPLICATION CONTEXT */
+
   register_ber_oid_name("2.6.0.1.6", "id-ac-mts-transfer");
 
-  /* we register RTSE with BER (which is used by ACSE) */
-  if((handle = find_dissector("rtse")) != NULL) {
-    register_ber_oid_dissector_handle("2.6.0.2.12", handle, 0 , "id-as-mta-rtse");
-    register_ber_oid_dissector_handle("2.6.0.2.7", handle, 0 , "id-as-mtse");
-  }
+  /* ABSTRACT SYNTAXES */
 
-  /* then register ROS with RTSE  */
-  if((handle = find_dissector("ros")) != NULL) {
-    register_rtse_oid_dissector_handle("2.6.0.2.12", handle, 0 , "id-as-mta-rtse");
-  }
-
-  /* and then finally X411 with ROS  and RTSE */
   if((handle = find_dissector("x411")) != NULL) {
-    register_ros_oid_dissector_handle("2.6.0.2.12", handle, 0, "id-as-mta-rtse"); 
-    register_rtse_oid_dissector_handle("2.6.0.2.7", handle, 0, "id-as-mtse");
+    register_rtse_oid_dissector_handle("2.6.0.2.12", handle, 0, "id-as-mta-rtse", TRUE); 
+    register_rtse_oid_dissector_handle("2.6.0.2.7", handle, 0, "id-as-mtse", FALSE);
 
-    register_rtse_oid_dissector_handle("applicationProtocol.1", handle, 0, "mts-transfer-protocol-1984");
-    register_rtse_oid_dissector_handle("applicationProtocol.12", handle, 0, "mta-transfer-protocol");
+    register_rtse_oid_dissector_handle("applicationProtocol.1", handle, 0, "mts-transfer-protocol-1984", FALSE);
+    register_rtse_oid_dissector_handle("applicationProtocol.12", handle, 0, "mta-transfer-protocol", FALSE);
   }
 
 

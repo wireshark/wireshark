@@ -31,6 +31,6 @@
 #ifndef PACKET_FTAM_H
 #define PACKET_FTAM_H
 
-/*#include "packet-ftam-exp.h"*/
+#include "packet-ftam-exp.h"
 
 #endif  /* PACKET_FTAM_H */

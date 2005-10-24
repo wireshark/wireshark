@@ -36,7 +36,10 @@
 
 /*--- Included file: packet-x420-exp.h ---*/
 
+extern const value_string x420_InformationObject_vals[];
+int dissect_x420_InformationObject(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_x420_ORDescriptor(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_x420_ExtensionsField(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 
 /*--- End of included file: packet-x420-exp.h ---*/
 

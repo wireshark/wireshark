@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-acse.c                                                            */
+/* .\packet-acse.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p acse -c acse.cnf -s packet-acse-template acse.asn */
 
 /* Input file: packet-acse-template.c */
@@ -361,7 +361,7 @@ static int dissect_data_value_descriptor(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_acse_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, top_tree ? top_tree : tree);
 
 
   return offset;
@@ -622,7 +622,7 @@ static int dissect_aso_qualifier_form3(packet_info *pinfo, proto_tree *tree, tvb
 }
 
 
-static const value_string acse_ASO_qualifier_vals[] = {
+const value_string acse_ASO_qualifier_vals[] = {
   {   0, "aso-qualifier-form1" },
   {   1, "aso-qualifier-form2" },
   {   2, "aso-qualifier-form3" },
@@ -639,7 +639,7 @@ static const ber_choice_t ASO_qualifier_choice[] = {
   { 0, 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_acse_ASO_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  ASO_qualifier_choice, hf_index, ett_acse_ASO_qualifier,

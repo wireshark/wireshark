@@ -57,7 +57,10 @@ static guint32 app_proto=0;
 
 static proto_tree *top_tree=NULL;
 
-int dissect_rtse_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_);
+static  dissector_handle_t rtse_handle = NULL;
+static  dissector_handle_t ros_handle = NULL;
+
+static int dissect_rtse_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_);
 
 
 #include "packet-rtse-hf.c"
@@ -72,10 +75,26 @@ static GHashTable *oid_table=NULL;
 static gint ett_rtse_unknown = -1;
 
 void
-register_rtse_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name)
+register_rtse_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name, gboolean uses_ros)
 {
-	dissector_add_string("rtse.oid", oid, dissector);
-	g_hash_table_insert(oid_table, (gpointer)oid, (gpointer)name);
+
+  /* save the name - but not used */
+  g_hash_table_insert(oid_table, (gpointer)oid, (gpointer)name);
+
+  /* register RTSE with the BER (ACSE) */
+  register_ber_oid_dissector_handle(oid, rtse_handle, proto, name);
+
+  if(uses_ros) {
+    /* make sure we call ROS ... */
+    dissector_add_string("rtse.oid", oid, ros_handle);
+
+    /* and then tell ROS how to dissect the AS*/
+    register_ros_oid_dissector_handle(oid, dissector, proto, name, TRUE);
+
+  } else {
+    /* otherwise we just remember how to dissect the AS */
+    dissector_add_string("rtse.oid", oid, dissector);
+  }
 }
 
 static int
@@ -186,4 +205,7 @@ void proto_register_rtse(void) {
 
 /*--- proto_reg_handoff_rtse --- */
 void proto_reg_handoff_rtse(void) {
+
+  rtse_handle = find_dissector("rtse");
+  ros_handle = find_dissector("ros");
 }

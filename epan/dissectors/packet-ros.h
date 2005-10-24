@@ -63,6 +63,6 @@ int dissect_ros_Code(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_in
 
 # define ROS_OP_OPCODE_MASK (~ROS_OP_MASK)
 
-void register_ros_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name);
+void register_ros_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name, gboolean uses_rtse);
 
 #endif  /* PACKET_ROS_H */

@@ -8,6 +8,7 @@ EXTERNAL
 AP-title
 AP-invocation-identifier
 AE-qualifier
+ASO-qualifier
 AE-invocation-identifier
 
 #.TYPE_RENAME
@@ -97,6 +98,6 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
 
 
 #.FN_BODY EXTERNAL/encoding/single-ASN1-type
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, top_tree ? top_tree : tree);
 
 #.END

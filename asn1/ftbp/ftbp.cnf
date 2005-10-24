@@ -1,0 +1,29 @@
+#.MODULE_IMPORT
+ISO8571-FTAM		ftam
+ACSE-1			acse
+IPMSInformationObjects	x420
+MTSAbstractService	x411
+
+#.INCLUDE ../ftam/ftam-exp.cnf
+#.INCLUDE ../acse/acse-exp.cnf
+#.INCLUDE ../x411/x411-exp.cnf
+#.INCLUDE ../x420/x420-exp.cnf
+
+#.FIELD_RENAME
+Account-Attribute/actual-values		account-actual-values
+User-Identity-Attribute/actual-values	identity-actual-values
+
+
+#.PDU
+FileTransferData
+FileTransferParameters
+
+#.REGISTER
+FileTransferParameters	B	"2.6.1.11.12"	"id-ep-file-transfer"
+FileTransferData	B	"2.6.1.4.12"	"id-et-file-transfer"
+
+#.FN_BODY T_parameter
+/* XXX: Not implemented yet */
+
+#.FN_BODY T_compression_algorithm_param
+/* XXX: Not implemented yet */

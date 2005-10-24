@@ -14,23 +14,40 @@ AddressListDesignator/type	address_list_type
 MessageType/type		message_type_type
 OtherRecipientDesignator/type	other_recipient_type
 
+#.PDU
+MMHSPrecedence
+MessageType
+AddressListDesignator
+ExemptedAddress
+ExtendedAuthorisationInfo
+DistributionCodes
+HandlingInstructions
+MessageInstructions
+CodressMessage
+OriginatorReference
+OtherRecipientDesignator
+PilotInformation
+Acp127MessageIdentifier
+OriginatorPlad
+SecurityInformationLabels
+
 #.REGISTER
-MMHSPrecedence B "1.3.26.0.4406.0.2.0" "primary-precedence"
-MMHSPrecedence B "1.3.26.0.4406.0.2.1" "copy-precedence"
-MessageType B "1.3.26.0.4406.0.2.2" "message-type"
-AddressListDesignator B "1.3.26.0.4406.0.2.3" "address-list-indicator"
-ExemptedAddress B "1.3.26.0.4406.0.2.4" "exempted-address"
-ExtendedAuthorisationInfo B "1.3.26.0.4406.0.2.5" "extended-authorisation-info"
-DistributionCodes B "1.3.26.0.4406.0.2.6" "distribution-codes"
-HandlingInstructions B "1.3.26.0.4406.0.2.7" "handling-instructions"
-MessageInstructions B "1.3.26.0.4406.0.2.8" "message-instructions"
-CodressMessage B "1.3.26.0.4406.0.2.9" "codress-message"
-OriginatorReference B "1.3.26.0.4406.0.2.10" "originator-reference"
-OtherRecipientDesignator B "1.3.26.0.4406.0.2.11" "other-recipients-indicator"
-PilotInformation B "1.3.26.0.4406.0.2.12" "pilot-forwarding-info"
-Acp127MessageIdentifier B "1.3.26.0.4406.0.2.13" "acp127-message-identifierr"
-OriginatorPlad B "1.3.26.0.4406.0.2.14" "originator-plad"
-SecurityInformationLabels B "1.3.26.0.4406.0.2.17" "information-labels"
+MMHSPrecedence 			B "1.3.26.0.4406.0.2.0" "primary-precedence"
+MMHSPrecedence 			B "1.3.26.0.4406.0.2.1" "copy-precedence"
+MessageType 			B "1.3.26.0.4406.0.2.2" "message-type"
+AddressListDesignator 		B "1.3.26.0.4406.0.2.3" "address-list-indicator"
+ExemptedAddress 		B "1.3.26.0.4406.0.2.4" "exempted-address"
+ExtendedAuthorisationInfo 	B "1.3.26.0.4406.0.2.5" "extended-authorisation-info"
+DistributionCodes 		B "1.3.26.0.4406.0.2.6" "distribution-codes"
+HandlingInstructions 		B "1.3.26.0.4406.0.2.7" "handling-instructions"
+MessageInstructions 		B "1.3.26.0.4406.0.2.8" "message-instructions"
+CodressMessage 			B "1.3.26.0.4406.0.2.9" "codress-message"
+OriginatorReference 		B "1.3.26.0.4406.0.2.10" "originator-reference"
+OtherRecipientDesignator 	B "1.3.26.0.4406.0.2.11" "other-recipients-indicator"
+PilotInformation 		B "1.3.26.0.4406.0.2.12" "pilot-forwarding-info"
+Acp127MessageIdentifier 	B "1.3.26.0.4406.0.2.13" "acp127-message-identifierr"
+OriginatorPlad 			B "1.3.26.0.4406.0.2.14" "originator-plad"
+SecurityInformationLabels 	B "1.3.26.0.4406.0.2.17" "information-labels"
 
 #.FN_BODY T_dist_value
 /* XXX: not implemented */

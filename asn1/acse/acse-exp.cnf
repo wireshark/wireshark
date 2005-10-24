@@ -1,16 +1,18 @@
 #.IMPORT_TAG
 EXTERNAL                 BER_CLASS_UNI 8
-AP_title                 BER_CLASS_ANY/*choice*/ -1/*choice*/
-AE_qualifier             BER_CLASS_ANY/*choice*/ -1/*choice*/
-AE_invocation_identifier BER_CLASS_UNI BER_UNI_TAG_INTEGER
-AP_invocation_identifier BER_CLASS_UNI BER_UNI_TAG_INTEGER
+AP-title                 BER_CLASS_ANY/*choice*/ -1/*choice*/
+AE-qualifier             BER_CLASS_ANY/*choice*/ -1/*choice*/
+ASO-qualifier            BER_CLASS_ANY/*choice*/ -1/*choice*/
+AE-invocation-identifier BER_CLASS_UNI BER_UNI_TAG_INTEGER
+AP-invocation-identifier BER_CLASS_UNI BER_UNI_TAG_INTEGER
 #.END
 
 #.TYPE_ATTR
 EXTERNAL                 TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-AP_title                 TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(acse_AP_title_vals)  BITMASK = 0
-AE_qualifier             TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(acse_ASO_qualifier_vals)  BITMASK = 0
-AE_invocation_identifier TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
-AP_invocation_identifier TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+AP-title                 TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(acse_AP_title_vals)  BITMASK = 0
+AE-qualifier             TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(acse_ASO_qualifier_vals)  BITMASK = 0
+ASO-qualifier            TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(acse_ASO_qualifier_vals)  BITMASK = 0
+AE-invocation-identifier TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+AP-invocation-identifier TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 #.END
 

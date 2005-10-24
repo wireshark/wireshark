@@ -50,6 +50,8 @@ static struct SESSION_DATA_STRUCTURE* session = NULL;
 static proto_tree *top_tree=NULL;
 static guint32 opcode;
 
+static  dissector_handle_t ros_handle = NULL;
+
 #include "packet-ros-hf.c"
 
 /* Initialize the subtree pointers */
@@ -61,10 +63,14 @@ static GHashTable *oid_table=NULL;
 static gint ett_ros_unknown = -1;
 
 void
-register_ros_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name)
+register_ros_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name, gboolean uses_rtse)
 {
 	dissector_add_string("ros.oid", oid, dissector);
 	g_hash_table_insert(oid_table, (gpointer)oid, (gpointer)name);
+
+	if(!uses_rtse)
+	  /* if we are not using RTSE, then we must register ROS with BER (ACSE) */
+	  register_ber_oid_dissector_handle(oid, ros_handle, proto, name);
 }
 
 static int
@@ -77,7 +83,7 @@ call_ros_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 		proto_item *item=NULL;
 		proto_tree *next_tree=NULL;
 
-		item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "RTSE: Dissector for OID:%s not implemented. Contact Ethereal developers if you want this supported", oid);
+		item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "ROS: Dissector for OID:%s not implemented. Contact Ethereal developers if you want this supported", oid);
 		if(item){
 			next_tree=proto_item_add_subtree(item, ett_ros_unknown);
 		}
@@ -173,4 +179,7 @@ void proto_register_ros(void) {
 
 /*--- proto_reg_handoff_ros --- */
 void proto_reg_handoff_ros(void) {
+
+  ros_handle = find_dissector("ros");
+
 }

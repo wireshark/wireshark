@@ -43,7 +43,7 @@
 
 #include "packet-x420.h"
 
-#define PNAME  "X.420 OSI Information Object"
+#define PNAME  "X.420 Information Object"
 #define PSNAME "X420"
 #define PFNAME "x420"
 
@@ -69,16 +69,16 @@ dissect_x420(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	int offset = 0;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
-	int (*x420_dissector)(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) = NULL;
 
 	if(parent_tree){
 		item = proto_tree_add_item(parent_tree, proto_x420, tvb, 0, -1, FALSE);
 		tree = proto_item_add_subtree(item, ett_x420);
 	}
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "X420");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "P22");
 	if (check_col(pinfo->cinfo, COL_INFO))
-	  col_add_str(pinfo->cinfo, COL_INFO, "Interpersonal Message");
+	  col_add_str(pinfo->cinfo, COL_INFO, "InterPersonal");
 
 	dissect_x420_InformationObject(TRUE, tvb, offset, pinfo , tree, -1);
 }
@@ -116,6 +116,6 @@ void proto_reg_handoff_x420(void) {
 
   register_ber_oid_dissector("2.6.1.10.0", dissect_x420, proto_x420, "InterPersonal Message (1984)");
   register_ber_oid_dissector("2.6.1.10.1", dissect_x420, proto_x420, "InterPersonal Message (1988)");
-  register_ber_oid_dissector("1.3.26.0.4406.0.4.1", dissect_x420, proto_x420, "Military Message");
+
 
 }

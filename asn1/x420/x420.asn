@@ -455,13 +455,14 @@ IPN ::= SET {
 --                })
 --     })
 
-CommonFields ::= SET {
-  subject-ipm              SubjectIPMField,
-  ipn-originator           [1]  IPNOriginatorField OPTIONAL,
-  ipm-intended-recipient   [2]  IPMIntendedRecipientField OPTIONAL,
-  conversion-eits          ConversionEITsField OPTIONAL,
-  notification-extensions  [3]  NotificationExtensionsField OPTIONAL
-}
+-- CommonFields are always used with WITH COMPONENTS - which are manually expanded
+--CommonFields ::= SET {
+--  subject-ipm              SubjectIPMField,
+--  ipn-originator           [1]  IPNOriginatorField OPTIONAL,
+--  ipm-intended-recipient   [2]  IPMIntendedRecipientField OPTIONAL,
+--  conversion-eits          ConversionEITsField OPTIONAL,
+--  notification-extensions  [3]  NotificationExtensionsField OPTIONAL
+--}
 
 NonReceiptFields ::= SET {
   non-receipt-reason    [0]  NonReceiptReasonField,

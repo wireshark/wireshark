@@ -138,6 +138,9 @@ oid_names = {
 def asn2c(id):
   return id.replace('-', '_').replace('.', '_')
 
+def c2asn(id):
+  return id.replace('_', '-')
+
 class LexError(Exception): pass
 class ParseError(Exception): pass
 
@@ -986,13 +989,13 @@ class EthCtx:
       fx.write('#.IMPORT_TAG\n')
       for t in self.eth_export_ord:  # tags
         if (self.eth_type[t]['export'] & 0x01):
-          fx.write('%-24s ' % (t))
+          fx.write('%-24s ' % c2asn(t))
           fx.write('%s %s\n' % self.eth_type[t]['val'].GetTag(self))
       fx.write('#.END\n\n')
     fx.write('#.TYPE_ATTR\n')
     for t in self.eth_export_ord:  # attributes
       if (self.eth_type[t]['export'] & 0x01):
-        fx.write('%-24s ' % (t))
+        fx.write('%-24s ' % c2asn(t))
         attr = self.eth_get_type_attr(self.eth_type[t]['ref'][0]).copy()
         fx.write('TYPE = %(TYPE)-9s  DISPLAY = %(DISPLAY)-9s  STRINGS = %(STRINGS)s  BITMASK = %(BITMASK)s\n' % attr)
     fx.write('#.END\n\n')

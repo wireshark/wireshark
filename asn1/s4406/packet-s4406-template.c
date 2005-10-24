@@ -42,7 +42,7 @@
 #include "packet-x411.h" 
 #include "packet-x420.h" 
 
-#define PNAME  "STANAG 4406 Military Message Extensions"
+#define PNAME  "STANAG 4406 Military Message"
 #define PSNAME "STANAG 4406"
 #define PFNAME "s4406"
 
@@ -57,6 +57,29 @@ static gint ett_s4406 = -1;
 
 #include "packet-s4406-fn.c"
 
+
+/*
+* Dissect STANAG 4406 PDUs inside a PPDU.
+*/
+static void
+dissect_s4406(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+{
+	int offset = 0;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+
+	if(parent_tree){
+		item = proto_tree_add_item(parent_tree, proto_s4406, tvb, 0, -1, FALSE);
+		tree = proto_item_add_subtree(item, ett_s4406);
+	}
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "S4406");
+	if (check_col(pinfo->cinfo, COL_INFO))
+	  col_add_str(pinfo->cinfo, COL_INFO, "Military");
+
+	dissect_x420_InformationObject(TRUE, tvb, offset, pinfo , tree, -1);
+}
 
 
 
@@ -89,4 +112,5 @@ void proto_register_s4406(void) {
 void proto_reg_handoff_s4406(void) {
 #include "packet-s4406-dis-tab.c"
 
+  register_ber_oid_dissector("1.3.26.0.4406.0.4.1", dissect_s4406, proto_s4406, "Military Message");
 }

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* ./packet-rtse.c                                                            */
+/* .\packet-rtse.c                                                            */
 /* ../../tools/asn2eth.py -X -b -e -p rtse -c rtse.cnf -s packet-rtse-template rtse.asn */
 
 /* Input file: packet-rtse-template.c */
@@ -64,7 +64,10 @@ static guint32 app_proto=0;
 
 static proto_tree *top_tree=NULL;
 
-int dissect_rtse_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_);
+static  dissector_handle_t rtse_handle = NULL;
+static  dissector_handle_t ros_handle = NULL;
+
+static int dissect_rtse_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_);
 
 
 
@@ -130,10 +133,26 @@ static GHashTable *oid_table=NULL;
 static gint ett_rtse_unknown = -1;
 
 void
-register_rtse_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name)
+register_rtse_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto _U_, const char *name, gboolean uses_ros)
 {
-	dissector_add_string("rtse.oid", oid, dissector);
-	g_hash_table_insert(oid_table, (gpointer)oid, (gpointer)name);
+
+  /* save the name - but not used */
+  g_hash_table_insert(oid_table, (gpointer)oid, (gpointer)name);
+
+  /* register RTSE with the BER (ACSE) */
+  register_ber_oid_dissector_handle(oid, rtse_handle, proto, name);
+
+  if(uses_ros) {
+    /* make sure we call ROS ... */
+    dissector_add_string("rtse.oid", oid, ros_handle);
+
+    /* and then tell ROS how to dissect the AS*/
+    register_ros_oid_dissector_handle(oid, dissector, proto, name, TRUE);
+
+  } else {
+    /* otherwise we just remember how to dissect the AS */
+    dissector_add_string("rtse.oid", oid, dissector);
+  }
 }
 
 static int
@@ -467,7 +486,30 @@ static int dissect_refuseReason_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_rtse_T_userDataRJ(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-/*XXX not implemented yet */
+	char *oid = NULL;
+
+	switch(app_proto)  {
+	case 1:		/* mts-transfer-protocol-1984 */
+		oid = "applicationProtocol.1";
+		break;
+	case 12: 	/* mts-transfer-protocol */
+		oid = "applicationProtocol.12";
+		break;
+	default:
+		if(session && session->pres_ctx_id)
+			oid = find_oid_by_pres_ctx_id(pinfo, session->pres_ctx_id);
+		break;
+	}
+	
+	if(!oid) /* XXX: problem here is we haven't decoded the applicationProtocol yet - so we make assumptions! */
+		oid = "applicationProtocol.12";
+
+	if(oid) {
+	  if((session = (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data)) != NULL)
+		session->ros_op = (ROS_OP_BIND | ROS_OP_ERROR);
+
+		offset = call_rtse_oid_callback(oid, tvb, offset, pinfo, top_tree ? top_tree : tree);
+	}
 
 
   return offset;
@@ -988,4 +1030,7 @@ void proto_register_rtse(void) {
 
 /*--- proto_reg_handoff_rtse --- */
 void proto_reg_handoff_rtse(void) {
+
+  rtse_handle = find_dissector("rtse");
+  ros_handle = find_dissector("ros");
 }

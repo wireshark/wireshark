@@ -6,7 +6,30 @@ RTABapdu
 EXTERNAL
 
 #.FN_BODY RTORJapdu/userDataRJ
-/*XXX not implemented yet */
+	char *oid = NULL;
+
+	switch(app_proto)  {
+	case 1:		/* mts-transfer-protocol-1984 */
+		oid = "applicationProtocol.1";
+		break;
+	case 12: 	/* mts-transfer-protocol */
+		oid = "applicationProtocol.12";
+		break;
+	default:
+		if(session && session->pres_ctx_id)
+			oid = find_oid_by_pres_ctx_id(pinfo, session->pres_ctx_id);
+		break;
+	}
+	
+	if(!oid) /* XXX: problem here is we haven't decoded the applicationProtocol yet - so we make assumptions! */
+		oid = "applicationProtocol.12";
+
+	if(oid) {
+	  if((session = (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data)) != NULL)
+		session->ros_op = (ROS_OP_BIND | ROS_OP_ERROR);
+
+		offset = call_rtse_oid_callback(oid, tvb, offset, pinfo, top_tree ? top_tree : tree);
+	}
 
 #.FN_BODY RTABapdu/userdataAB
 /*XXX not implemented yet */

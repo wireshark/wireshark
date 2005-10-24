@@ -9,6 +9,15 @@ ACSE-1 acse
 #.INCLUDE ../acse/acse-exp.cnf
 
 #.EXPORTS
+Attribute-Extensions
+Concurrency-Access
+Date-and-Time-Attribute
+Legal-Qualification-Attribute
+Object-Availability-Attribute
+Object-Size-Attribute
+Pathname
+Permitted-Actions-Attribute
+Private-Use-Attribute
 
 #.PDU
 
