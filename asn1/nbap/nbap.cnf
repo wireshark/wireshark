@@ -1,0 +1,90 @@
+# nbap.cnf
+# nbap conformation file
+# Copyright 2005 Anders Broman 
+# $Id:$
+
+#.PDU
+NBAP-PDU
+
+#.NO_EMIT
+
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+CellSyncBurstTiming/initialPhase initialPhase_0_1048575
+
+
+#.FN_PARS  ProcedureCode
+
+VAL_PTR = &ProcedureCode
+
+#.FN_FTR ProcedureCode
+	if (check_col(pinfo->cinfo, COL_INFO))
+       col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
+                   val_to_str(ProcedureCode, nbap_ProcedureCode_vals,
+                              "unknown message"));
+#.FN_PARS ProtocolIE-ID
+ 
+VAL_PTR = &ProtocolIE_ID
+
+#.FN_PARS ProcedureID/ddMode
+ 
+VAL_PTR = &ddMode
+
+#.FN_BODY Extension
+	/* FIX ME */
+	guint length;
+
+	offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_nbap_IE_length, &length);
+	offset = offset + length;
+	BYTE_ALIGN_OFFSET(offset)
+
+#.FN_BODY InitiatingMessageValue
+
+	offset = dissect_nbap_InitiatingMessageValueValue(tvb, offset, pinfo, tree);
+
+#.FN_BODY SuccessfulOutcomeValue
+
+	offset = dissect_nbap_SuccessfulOutcomeValueValue(tvb, offset, pinfo, tree);
+
+#.FN_BODY OutcomeValue
+	/* FIX ME */
+	guint length;
+
+	offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_nbap_pdu_length, &length);
+	offset = offset + length;
+	BYTE_ALIGN_OFFSET(offset)
+
+#.FN_BODY UnsuccessfulOutcomeValue
+
+	offset = dissect_nbap_UnsuccessfulOutcomeValueValue(tvb, offset, pinfo, tree);
+
+#.FN_BODY ProtocolIEValue
+
+	offset = dissect_nbap_ProtocolIEValueValue(tvb, offset, pinfo, tree);
+
+#.FN_BODY FirstValue
+	/* FIX ME */
+	guint length;
+
+	offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_nbap_IE_length, &length);
+	offset = offset + length;
+	BYTE_ALIGN_OFFSET(offset)
+
+#.FN_BODY SecondValue
+	/* FIX ME */
+	guint length;
+
+	offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_nbap_IE_length, &length);
+	offset = offset + length;
+	BYTE_ALIGN_OFFSET(offset)
+
+
+#.FN_BODY PrivateIEvalue
+	/* FIX ME */
+	guint length;
+
+	offset = dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_nbap_IE_length, &length);
+	offset = offset + length;
+	BYTE_ALIGN_OFFSET(offset)

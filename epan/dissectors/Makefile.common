@@ -426,6 +426,7 @@ DISSECTOR_SRC =	\
 	packet-mtp3mg.c	\
 	packet-multipart.c	\
 	packet-mysql.c	\
+	packet-nbap.c	\
 	packet-nbipx.c	\
 	packet-nbns.c	\
 	packet-ncp.c	\
@@ -783,6 +784,7 @@ DISSECTOR_INCLUDES =	\
 	packet-mrdisc.h	\
 	packet-msnip.h	\
 	packet-mtp3.h	\
+	packet-nbap.c	\
 	packet-ncp-int.h	\
 	packet-ncp-nmas.h	\
 	packet-ncp-sss.h \
