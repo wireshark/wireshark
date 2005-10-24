@@ -70,13 +70,20 @@ const fragment_items nds_frag_items = {
 	"segments"
 };
 
+#define NDS_TAG_NO_SUCH_ENTRY		0x00000000
+#define NDS_TAG_LOCAL_ENTRY		0x00000001
+#define NDS_TAG_REMOTE_ENTRY		0x00000002
+#define NDS_TAG_ALIAS_ENTRY		0x00000003
+#define NDS_TAG_REFERRAL_INFORMATION	0x00000004
+#define NDS_TAG_ENTRY_AND_REFERRALS	0x00000006
+
 static const value_string nds_tags[] = {
-        { 0x00000000, "No Such Entry" },
-        { 0x00000001, "Local Entry" },
-        { 0x00000002, "Remote Entry" },
-        { 0x00000003, "Alias Entry" },
-        { 0x00000004, "Referral Information" },
-        { 0x00000006, "Entry and Referrals" },
+        { NDS_TAG_NO_SUCH_ENTRY,        "No Such Entry" },
+        { NDS_TAG_LOCAL_ENTRY,          "Local Entry" },
+        { NDS_TAG_REMOTE_ENTRY,         "Remote Entry" },
+        { NDS_TAG_ALIAS_ENTRY,          "Alias Entry" },
+        { NDS_TAG_REFERRAL_INFORMATION, "Referral Information" },
+        { NDS_TAG_ENTRY_AND_REFERRALS,  "Entry and Referrals" },
 	{ 0,	NULL }
 };
 
@@ -2961,7 +2968,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                 values->vstring = mval_buf.buffer;                                
                                 proto_tree_add_string(ntree, hf_nds_base, tvb, ioffset, 
                                         value1, values->vstring);
-                                values->mvtype = 1;        
+                                values->mvtype = MVTYPE_ATTR_REQUEST;        
                                 ioffset = ioffset + value1;        
                         }
                         break;
@@ -3195,24 +3202,24 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                         ioffset = ioffset+4;
                                         switch (value2)
                                         { 
-                                                case 0x00000000:
+                                                case NDS_PTYPE_IPX:
                                                         proto_tree_add_item(atree, hf_nds_net, tvb, ioffset, 4, FALSE);
 		                                        proto_tree_add_item(atree, hf_nds_node, tvb, ioffset+4, 6, FALSE);
 		                                        proto_tree_add_item(atree, hf_nds_socket, tvb, ioffset+10, 2, FALSE);
                                                         break;
-                                                case 0x00000001:
+                                                case NDS_PTYPE_IP:
         	        	                        proto_tree_add_item(atree, hf_nds_port, tvb, ioffset, 2, FALSE);
 	                                                proto_tree_add_item(atree, hf_add_ref_ip, tvb, ioffset+2, 4, FALSE);
                                                         break;
-                                                case 0x00000008:
+                                                case NDS_PTYPE_UDP:
 		                                        proto_tree_add_item(atree, hf_nds_port, tvb, ioffset, 2, FALSE);
 	                                                proto_tree_add_item(atree, hf_add_ref_udp, tvb, ioffset+2, 4, FALSE);
                                                         break;
-                                                case 0x00000009:
+                                                case NDS_PTYPE_TCP:
 		                                        proto_tree_add_item(atree, hf_nds_port, tvb, ioffset, 2, FALSE);
                                         	        proto_tree_add_item(atree, hf_add_ref_tcp, tvb, ioffset+2, 4, FALSE);
                                                         break;
-                                                case 0x0000000d:
+                                                case NDS_PTYPE_URL:
                                                         get_string(tvb, ioffset, value3, values->vstring);
                                                         proto_tree_add_string(atree, hf_value_string, tvb, ioffset, 
                                                                 value3, values->vstring);
@@ -3258,18 +3265,15 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
                                                 break;
                                         case NDS_PTYPE_IP:
        	        	                        proto_tree_add_item(atree, hf_nds_port, tvb, ioffset, 2, FALSE);
-                                                ioffset=ioffset+2;
-                                                proto_tree_add_item(atree, hf_add_ref_ip, tvb, ioffset, 4, FALSE);
+                                                proto_tree_add_item(atree, hf_add_ref_ip, tvb, ioffset+2, 4, FALSE);
                                                 break;
                                         case NDS_PTYPE_UDP:
 		                                proto_tree_add_item(atree, hf_nds_port, tvb, ioffset, 2, FALSE);
-                                                ioffset=ioffset+2;
-	                                        proto_tree_add_item(atree, hf_add_ref_udp, tvb, ioffset, 4, FALSE);
+	                                        proto_tree_add_item(atree, hf_add_ref_udp, tvb, ioffset+2, 4, FALSE);
                                                 break;
                                         case NDS_PTYPE_TCP:
 		                                proto_tree_add_item(atree, hf_nds_port, tvb, ioffset, 2, FALSE);
-                                                ioffset=ioffset+2;
-                                                proto_tree_add_item(atree, hf_add_ref_tcp, tvb, ioffset, 4, FALSE);
+                                                proto_tree_add_item(atree, hf_add_ref_tcp, tvb, ioffset+2, 4, FALSE);
                                                 break;
                                         case NDS_PTYPE_URL:
                                                 get_string(tvb, ioffset, value3, values->vstring);
@@ -4902,9 +4906,15 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                 nds_reply_buffer = tvb_get_letohl(tvb, nds_offset);
                 nds_offset += 4;        
                 nds_frag = tvb_get_letohl(tvb, nds_offset);        
-                if (nds_reply_buffer > 3)
+                nds_offset += 4;
+		/*
+		 * Is the possibly-reassembled reply large enough to have
+		 * a completion code?  (We can't check the fragment size
+		 * as this might just be the last fragment.)
+		 */
+                if (tvb_reported_length_remaining(tvb, nds_offset) >= 4)
                 {
-                        nds_offset += 4;
+			/* Yes - process the completion code. */
                         nds_error_code = tvb_get_letohl(tvb, nds_offset);
                         nds_error_string = match_strval(nds_error_code, nds_reply_errors);
                         if (nds_error_string == NULL)
@@ -5304,8 +5314,15 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                 proto_tree_add_uint(ncp_tree, hf_ncp_fragment_handle, tvb, nds_offset,
                                         4, nds_frag);
                                 nds_offset += 4;        
-                                if (nds_reply_buffer > 3)
+				/*
+				 * Is the possibly-reassembled reply large
+				 * enough to have a completion code?  (We
+				 * can't check the fragment size as this
+				 * might just be the last fragment.)
+				 */
+		                if (tvb_reported_length_remaining(tvb, nds_offset) >= 4)
                                 {                        
+					/* Yes - process the completion code. */
                                         expert_item = proto_tree_add_uint_format(ncp_tree, hf_nds_reply_error, tvb, nds_offset,
                                                 4, nds_error_code, "NDS Completion Code: 0x%08x, %s",
         				        nds_error_code, nds_error_string);
@@ -5350,9 +5367,9 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 nds_offset = nds_offset+pvalues[0].vlength;
                                                                 switch(pvalues[0].vvalue)
                                                                 {
-                                                                        case 0:         /* No Such Entry */
+                                                                        case NDS_TAG_NO_SUCH_ENTRY:
                                                                                 break;
-                                                                        case 1:         /* Local Entry */
+                                                                        case NDS_TAG_LOCAL_ENTRY:
                                                                                 pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 pvalues[1].vtype = VTYPE_UINT32;
                                                                                 pvalues[1].vdesc = "Entry ID: 0x%08x";
@@ -5371,7 +5388,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 pvalues[2].hfname = hf_nds_referrals;
                                                                                 pvalues[2].mvtype = MVTYPE_LOC_ADDR_REFERRAL_REPLY;
                                                                                 break;
-                                                                        case 2:         /* Remote Entry */
+                                                                        case NDS_TAG_REMOTE_ENTRY:
                                                                                 nds_offset += 4;   /* GUINT32 reserved field */
                                                                                 pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 pvalues[1].vtype = VTYPE_UINT32;
@@ -5391,7 +5408,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 pvalues[2].hfname = hf_nds_referrals;
                                                                                 pvalues[2].mvtype = MVTYPE_LOC_ADDR_REFERRAL_REPLY;
                                                                                 break;
-                                                                        case 3:         /* Alias Entry */
+                                                                        case NDS_TAG_ALIAS_ENTRY:
                                                                                 pvalues[1].vtype = VTYPE_STRING;
                                                                                 pvalues[1].vdesc = "Alias Name: %s";
                                                                                 pvalues[1].mvtype = MVTYPE_ATTR_REQUEST;
@@ -5410,7 +5427,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 nds_offset += align_4(tvb, nds_offset);
                                                                                 pvalues[1].hfname= hf_nds_name;
                                                                                 break;
-                                                                        case 4:         /* Referral Information */
+                                                                        case NDS_TAG_REFERRAL_INFORMATION:
                                                                                 pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 pvalues[1].vtype = VTYPE_UINT32;
                                                                                 pvalues[1].vdesc = "Distance Object is From Root: 0x%08x";
@@ -5424,9 +5441,9 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 pvalues[2].vlength = 4;
                                                                                 pvalues[2].voffset = nds_offset;
                                                                                 pvalues[2].hfname = hf_nds_depth;
-                                                                                pvalues[2].mvtype = MVTYPE_LOC_ADDR_REFERRAL_REPLY;
+                                                                                pvalues[2].mvtype = MVTYPE_ADDR_REFERRAL_REPLY;
                                                                                 break;
-                                                                        case 6:          /* Entry and Referrals */
+                                                                        case NDS_TAG_ENTRY_AND_REFERRALS:
                                                                                 pvalues[1].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 pvalues[1].vtype = VTYPE_UINT32;
                                                                                 pvalues[1].vdesc = "Result Flags: 0x%08x";
@@ -5479,9 +5496,9 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                 pvalues[1].hfname = hf_nds_tag_string;
                                                                 switch(pvalues[1].vvalue)
                                                                 {
-                                                                        case 0:         /* No Such Entry */
+                                                                        case NDS_TAG_NO_SUCH_ENTRY:
                                                                                 break;
-                                                                        case 1:         /* Local Entry */
+                                                                        case NDS_TAG_LOCAL_ENTRY:
                                                                                 pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 pvalues[2].vtype = VTYPE_UINT32;
                                                                                 pvalues[2].vdesc = "Entry ID: 0x%08x";
@@ -5500,7 +5517,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 pvalues[3].hfname = hf_nds_referrals;
                                                                                 pvalues[3].mvtype = MVTYPE_LOC_ADDR_REFERRAL_REPLY;
                                                                                 break;
-                                                                        case 2:         /* Remote Entry */
+                                                                        case NDS_TAG_REMOTE_ENTRY:
                                                                                 nds_offset += 4;   /* GUINT32 reserved field */
                                                                                 pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 add_eid = TRUE;
@@ -5520,7 +5537,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 pvalues[3].hfname = hf_nds_referrals;
                                                                                 pvalues[3].mvtype = MVTYPE_LOC_ADDR_REFERRAL_REPLY;
                                                                                 break;
-                                                                        case 3:         /* Alias Entry */
+                                                                        case NDS_TAG_ALIAS_ENTRY:
                                                                                 pvalues[2].vtype = VTYPE_STRING;
                                                                                 pvalues[2].vdesc = "Alias Name: %s";
                                                                                 pvalues[2].mvtype = MVTYPE_ATTR_REQUEST;
@@ -5539,7 +5556,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 nds_offset += align_4(tvb, nds_offset);
                                                                                 pvalues[2].hfname= hf_nds_name;
                                                                                 break;
-                                                                        case 4:         /* Referral Information */
+                                                                        case NDS_TAG_REFERRAL_INFORMATION:
                                                                                 pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 pvalues[2].vtype = VTYPE_UINT32;
                                                                                 pvalues[2].vdesc = "Distance Object is From Root: 0x%08x";
@@ -5555,7 +5572,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                                                 pvalues[3].hfname = hf_nds_depth;
                                                                                 pvalues[3].mvtype = MVTYPE_ADDR_REFERRAL_REPLY;
                                                                                 break;
-                                                                        case 6:          /* Entry and Referrals */
+                                                                        case NDS_TAG_ENTRY_AND_REFERRALS:
                                                                                 pvalues[2].vvalue = tvb_get_letohl(tvb, nds_offset);
                                                                                 pvalues[2].vtype = VTYPE_UINT32;
                                                                                 pvalues[2].vdesc = "Result Flags: 0x%08x";
