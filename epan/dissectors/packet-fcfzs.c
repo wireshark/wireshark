@@ -58,7 +58,6 @@
 /* Initialize the protocol and registered fields */
 static int proto_fcfzs              = -1;
 static int hf_fcfzs_opcode          = -1;
-static int hf_fcfzs_gzc_flags       = -1;
 static int hf_fcfzs_gzc_vendor      = -1;
 static int hf_fcfzs_zone_state      = -1;
 static int hf_fcfzs_gest_vendor     = -1;
@@ -79,10 +78,15 @@ static int hf_fcfzs_rjtdetail       = -1;
 static int hf_fcfzs_rjtvendor       = -1;
 static int hf_fcfzs_maxres_size     = -1;
 static int hf_fcfzs_mbrid_lun       = -1;
+static int hf_fcfzs_gzc_flags = -1;
+static int hf_fcfzs_gzc_flags_hard_zones = -1;
+static int hf_fcfzs_gzc_flags_soft_zones = -1;
+static int hf_fcfzs_gzc_flags_zoneset_db = -1;
 
 
 /* Initialize the subtree pointers */
 static gint ett_fcfzs = -1;
+static gint ett_fcfzs_gzc_flags = -1;
 
 typedef struct _fcfzs_conv_key {
     guint32 conv_idx;
@@ -241,41 +245,53 @@ dissect_fcfzs_zoneset (tvbuff_t *tvb, proto_tree *tree, int offset)
     }
 }
 
+static const true_false_string tfs_fc_fcfzs_gzc_flags_hard_zones = {
+	"Hard Zones Supported",
+	"Hard zones NOT supported"
+};
+static const true_false_string tfs_fc_fcfzs_gzc_flags_soft_zones = {
+	"Soft Zones Supported",
+	"Soft zones NOT supported"
+};
+static const true_false_string tfs_fc_fcfzs_gzc_flags_zoneset_db = {
+	"Zone Set Database is Available",
+	"Zone set database is NOT available"
+};
+
 static void
-dissect_fcfzs_gzc (tvbuff_t *tvb, proto_tree *tree, guint8 isreq)
+dissect_fcfzs_gzc (tvbuff_t *tvb, int offset, proto_tree *parent_tree, guint8 isreq)
 {
-    guint8 flags;
-    gchar str[128];
-    int offset = 16;            /* past the fc_ct header */
-    int stroff = 0;
-    
-    if (tree) {
-        if (!isreq) {
-            flags = tvb_get_guint8 (tvb, offset);
+	if (!isreq) {
+		guint8 flags;
+		proto_item *item=NULL;
+		proto_tree *tree=NULL;
+   
+		flags = tvb_get_guint8 (tvb, offset);
+		if(parent_tree){
+			item=proto_tree_add_uint(parent_tree, hf_fcfzs_gzc_flags, tvb, offset, 1, flags);
+			tree=proto_item_add_subtree(item, ett_fcfzs_gzc_flags);
+		}
 
-            /* Disect the flags field */
-            str[0] = '\0';
-            if (flags & 0x80) {
-                strcpy (str, "Hard Zones, ");
-                stroff += 12;
-            }
+		proto_tree_add_boolean(tree, hf_fcfzs_gzc_flags_hard_zones, tvb, offset, 1, flags);
+		if (flags&0x80){
+			proto_item_append_text(item, "  Hard Zones");
+		}
+		flags&=(~( 0x80 ));
 
-            if (flags & 0x40) {
-                strcpy (&str[stroff], "Soft Zones Supported, ");
-                stroff += 22;
-            }
+		proto_tree_add_boolean(tree, hf_fcfzs_gzc_flags_soft_zones, tvb, offset, 1, flags);
+		if (flags&0x40){
+			proto_item_append_text(item, "  Soft Zones");
+		}
+		flags&=(~( 0x40 ));
 
-            if (flags & 0x01) {
-                strcpy (&str[stroff], "ZoneSet Database Available");
-                stroff += 26;
-            }
+		proto_tree_add_boolean(tree, hf_fcfzs_gzc_flags_zoneset_db, tvb, offset, 1, flags);
+		if (flags&0x01){
+			proto_item_append_text(item, "  ZoneSet Database Available");
+		}
+		flags&=(~( 0x01 ));
 
-            proto_tree_add_uint_format (tree, hf_fcfzs_gzc_flags, tvb, offset,
-                                        1, flags, "Capabilities: 0x%x (%s)",
-                                        flags, str);
-            proto_tree_add_item (tree, hf_fcfzs_gzc_vendor, tvb, offset+4, 4, 0);
-        }
-    }
+		proto_tree_add_item (tree, hf_fcfzs_gzc_vendor, tvb, offset+4, 4, 0);
+	}
 }
 
 static void
@@ -738,7 +754,7 @@ dissect_fcfzs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dissect_fcfzs_rjt (tvb, fcfzs_tree);
         break;
     case FC_FZS_GZC:
-        dissect_fcfzs_gzc (tvb, fcfzs_tree, isreq);
+        dissect_fcfzs_gzc (tvb, 16, fcfzs_tree, isreq);
         break;
     case FC_FZS_GEST:
         dissect_fcfzs_gest (tvb, fcfzs_tree, isreq);
@@ -806,9 +822,6 @@ proto_register_fcfzs(void)
         { &hf_fcfzs_opcode,
           {"Opcode", "fcfzs.opcode", FT_UINT16, BASE_HEX,
            VALS (fc_fzs_opcode_val), 0x0, "", HFILL}},
-        { &hf_fcfzs_gzc_flags,
-          {"Capabilities", "fcfzs.gzc.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
-           "", HFILL}},
         { &hf_fcfzs_gzc_vendor,
           {"Vendor Specific Flags", "fcfzs.gzc.vendor", FT_UINT32, BASE_HEX,
            NULL, 0x0, "", HFILL}},
@@ -869,11 +882,24 @@ proto_register_fcfzs(void)
         { &hf_fcfzs_mbrid_lun,
           {"LUN", "fcfzs.zone.lun", FT_BYTES, BASE_HEX, NULL, 0x0, "",
            HFILL}},
+        { &hf_fcfzs_gzc_flags,
+          {"Capabilities", "fcfzs.gzc.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
+           "", HFILL}},
+        { &hf_fcfzs_gzc_flags_hard_zones,
+          {"Hard Zones", "fcfzs.gzc.flags.hard_zones", FT_BOOLEAN, 8,
+           TFS(&tfs_fc_fcfzs_gzc_flags_hard_zones), 0x80, "", HFILL}},
+        { &hf_fcfzs_gzc_flags_soft_zones,
+          {"Soft Zones", "fcfzs.gzc.flags.soft_zones", FT_BOOLEAN, 8,
+           TFS(&tfs_fc_fcfzs_gzc_flags_soft_zones), 0x40, "", HFILL}},
+        { &hf_fcfzs_gzc_flags_zoneset_db,
+          {"ZoneSet Database", "fcfzs.gzc.flags.zoneset_db", FT_BOOLEAN, 8,
+           TFS(&tfs_fc_fcfzs_gzc_flags_zoneset_db), 0x01, "", HFILL}},
     };
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_fcfzs,
+        &ett_fcfzs_gzc_flags,
     };
 
     /* Register the protocol name and description */
